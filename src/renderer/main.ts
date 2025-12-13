@@ -83,7 +83,6 @@ let currentSeed: number = Date.now();
 let currentMapGeneratorType: MapGeneratorType = MapGeneratorType.Procedural;
 let currentStaticMapData: MapDefinition | undefined = undefined;
 
-
 const initGame = (seed?: number, generatorType?: MapGeneratorType, staticMapData?: MapDefinition) => {
   currentSeed = seed ?? Date.now();
   currentMapGeneratorType = generatorType ?? MapGeneratorType.Procedural;
