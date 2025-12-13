@@ -27,6 +27,7 @@ describe('CoreEngine with Pathfinding', () => {
     engine.addUnit({
       id: 'u1',
       pos: { x: 0.5, y: 0.5 }, // Units start at half-cell for movement to center
+      hp: 100, maxHp: 100,
       state: UnitState.Idle,
     });
   });
@@ -84,6 +85,7 @@ describe('CoreEngine with Pathfinding', () => {
     engine.addUnit({
         id: 'u2',
         pos: { x: 0.5, y: 0.5 },
+        hp: 100, maxHp: 100,
         state: UnitState.Idle
     });
     engine.applyCommand({
@@ -103,6 +105,7 @@ describe('CoreEngine with Pathfinding', () => {
     engine.addUnit({
         id: 'u3',
         pos: { x: 2.5, y: 0.5 }, // Unit already at center of cell (2,0)
+        hp: 100, maxHp: 100,
         state: UnitState.Idle
     });
     engine.applyCommand({
@@ -116,5 +119,19 @@ describe('CoreEngine with Pathfinding', () => {
     expect(unit.state).toBe(UnitState.Idle);
     expect(unit.path).toBeUndefined();
     expect(unit.targetPos).toBeUndefined();
+  });
+
+  it('should allow adding enemies to the state', () => {
+    engine.addEnemy({
+      id: 'e1',
+      pos: { x: 1.5, y: 0.5 },
+      hp: 50, maxHp: 50,
+      type: 'SwarmMelee'
+    });
+
+    const state = engine.getState();
+    expect(state.enemies.length).toBe(1);
+    expect(state.enemies[0].id).toBe('e1');
+    expect(state.enemies[0].type).toBe('SwarmMelee');
   });
 });

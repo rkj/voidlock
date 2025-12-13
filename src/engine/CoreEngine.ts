@@ -1,4 +1,4 @@
-import { GameState, MapDefinition, Unit, Command, CommandType, UnitState, Vector2 } from '../shared/types';
+import { GameState, MapDefinition, Unit, Enemy, Command, CommandType, UnitState, Vector2 } from '../shared/types';
 import { GameGrid } from './GameGrid';
 import { Pathfinder } from './Pathfinder';
 
@@ -16,12 +16,17 @@ export class CoreEngine {
     this.state = {
       t: 0,
       map,
-      units: []
+      units: [],
+      enemies: [] // Initialize enemies array
     };
   }
 
   public addUnit(unit: Unit) {
     this.state.units.push(unit);
+  }
+
+  public addEnemy(enemy: Enemy) { // New method to add enemies
+    this.state.enemies.push(enemy);
   }
 
   public getState(): GameState {
@@ -94,5 +99,7 @@ export class CoreEngine {
         }
       }
     });
+
+    // TODO: Implement enemy AI and movement
   }
 }
