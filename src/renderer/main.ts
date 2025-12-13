@@ -18,9 +18,9 @@ let pendingCommandUnitId: string | null = null;
 const initGame = (seed?: number) => {
   currentSeed = seed ?? Date.now();
   
-  // Use MapGenerator
+  // Use MapGenerator with Fixed Layout (16x16)
   const generator = new MapGenerator(currentSeed);
-  const map = generator.generate(30, 20); 
+  const map = generator.generate(16, 16); 
 
   // Initialize engine in worker
   gameClient.init(currentSeed, map);
@@ -36,7 +36,7 @@ const initGame = (seed?: number) => {
       const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
       if (canvas) {
         renderer = new Renderer(canvas);
-        renderer.setCellSize(32); 
+        renderer.setCellSize(128); // M8 Scale
       } else {
         console.error("Canvas element not found!");
         return;

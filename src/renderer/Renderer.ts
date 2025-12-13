@@ -3,7 +3,7 @@ import { GameState, MapDefinition, CellType, Vector2, UnitState, Enemy } from '.
 export class Renderer {
   private ctx: CanvasRenderingContext2D;
   private canvas: HTMLCanvasElement;
-  private cellSize: number = 96; // Increased tile size
+  private cellSize: number = 128; // Increased tile size for M8
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -33,10 +33,9 @@ export class Renderer {
     this.canvas.width = map.width * this.cellSize;
     this.canvas.height = map.height * this.cellSize;
 
-    // Draw Floors
     map.cells.forEach(cell => {
       if (cell.type === CellType.Floor) {
-        this.ctx.fillStyle = '#222'; // Darker floor
+        this.ctx.fillStyle = '#222'; 
         this.ctx.fillRect(
           cell.x * this.cellSize,
           cell.y * this.cellSize,
@@ -44,7 +43,6 @@ export class Renderer {
           this.cellSize
         );
         
-        // Faint grid
         this.ctx.strokeStyle = '#333';
         this.ctx.lineWidth = 1;
         this.ctx.strokeRect(
@@ -56,12 +54,14 @@ export class Renderer {
       }
     });
 
-    // Draw Walls (Edges)
-    this.ctx.strokeStyle = '#888'; // Wall color
-    this.ctx.lineWidth = 4;
+    // Draw Walls
+    this.ctx.strokeStyle = '#888'; 
+    this.ctx.lineWidth = 6; // Thicker walls
     this.ctx.beginPath();
 
     map.cells.forEach(cell => {
+      if (cell.type !== CellType.Floor) return; // Only draw walls for active floors to avoid clutter
+
       const x = cell.x * this.cellSize;
       const y = cell.y * this.cellSize;
       const s = this.cellSize;
@@ -92,10 +92,10 @@ export class Renderer {
       this.ctx.fillStyle = '#00AAAA'; 
       this.ctx.globalAlpha = 0.3;
       this.ctx.fillRect(
-        ext.x * this.cellSize + 2, // Inner rect
-        ext.y * this.cellSize + 2,
-        this.cellSize - 4,
-        this.cellSize - 4
+        ext.x * this.cellSize + 4,
+        ext.y * this.cellSize + 4,
+        this.cellSize - 8,
+        this.cellSize - 8
       );
       this.ctx.globalAlpha = 1.0;
     }
@@ -105,10 +105,10 @@ export class Renderer {
         this.ctx.fillStyle = '#FFAA00'; 
         this.ctx.globalAlpha = 0.3;
         this.ctx.fillRect(
-          obj.targetCell.x * this.cellSize + 2,
-          obj.targetCell.y * this.cellSize + 2,
-          this.cellSize - 4,
-          this.cellSize - 4
+          obj.targetCell.x * this.cellSize + 4,
+          obj.targetCell.y * this.cellSize + 4,
+          this.cellSize - 8,
+          this.cellSize - 8
         );
         this.ctx.globalAlpha = 1.0;
       }
@@ -123,7 +123,8 @@ export class Renderer {
       const y = unit.pos.y * this.cellSize;
 
       this.ctx.beginPath();
-      // Smaller units: 1/6 cell size radius = 1/3 diameter
+      // Unit size: 1/6 radius = 1/3 diameter relative to cell.
+      // 128 / 6 ~= 21px radius -> 42px diameter.
       this.ctx.arc(x, y, this.cellSize / 6, 0, Math.PI * 2);
       
       if (unit.state === UnitState.Attacking) {
@@ -136,30 +137,28 @@ export class Renderer {
       
       this.ctx.fill();
       this.ctx.strokeStyle = '#000';
-      this.ctx.lineWidth = 2;
+      this.ctx.lineWidth = 3;
       this.ctx.stroke();
 
       this.renderHealthBar(x, y, unit.hp, unit.maxHp);
 
-      // Target line
       if (unit.state === UnitState.Moving && unit.targetPos) {
         this.ctx.beginPath();
         this.ctx.moveTo(x, y);
         this.ctx.lineTo(unit.targetPos.x * this.cellSize, unit.targetPos.y * this.cellSize);
         this.ctx.strokeStyle = '#FF00FF'; 
-        this.ctx.lineWidth = 1;
-        this.ctx.setLineDash([5, 5]);
+        this.ctx.lineWidth = 2;
+        this.ctx.setLineDash([10, 10]);
         this.ctx.stroke();
         this.ctx.setLineDash([]);
       }
 
-      // Combat Tracers
       if (unit.lastAttackTarget && unit.lastAttackTime && (state.t - unit.lastAttackTime < 150)) {
           this.ctx.beginPath();
           this.ctx.moveTo(x, y);
           this.ctx.lineTo(unit.lastAttackTarget.x * this.cellSize, unit.lastAttackTarget.y * this.cellSize);
           this.ctx.strokeStyle = '#FFFF00'; 
-          this.ctx.lineWidth = 2;
+          this.ctx.lineWidth = 3;
           this.ctx.stroke();
       }
     });
@@ -177,7 +176,6 @@ export class Renderer {
       const size = this.cellSize / 6;
 
       this.ctx.beginPath();
-      // Triangle
       this.ctx.moveTo(x, y - size);
       this.ctx.lineTo(x + size, y + size);
       this.ctx.lineTo(x - size, y + size);
@@ -186,7 +184,7 @@ export class Renderer {
       this.ctx.fillStyle = '#FF0000'; 
       this.ctx.fill();
       this.ctx.strokeStyle = '#000';
-      this.ctx.lineWidth = 2;
+      this.ctx.lineWidth = 3;
       this.ctx.stroke();
 
       this.renderHealthBar(x, y, enemy.hp, enemy.maxHp);
@@ -196,16 +194,16 @@ export class Renderer {
           this.ctx.moveTo(x, y);
           this.ctx.lineTo(enemy.lastAttackTarget.x * this.cellSize, enemy.lastAttackTarget.y * this.cellSize);
           this.ctx.strokeStyle = '#FF8800'; 
-          this.ctx.lineWidth = 2;
+          this.ctx.lineWidth = 3;
           this.ctx.stroke();
       }
     });
   }
 
   private renderHealthBar(x: number, y: number, hp: number, maxHp: number) {
-    const barWidth = this.cellSize * 0.4;
-    const barHeight = 4;
-    const yOffset = -this.cellSize / 6 - 8;
+    const barWidth = this.cellSize * 0.5;
+    const barHeight = 6;
+    const yOffset = -this.cellSize / 6 - 12;
 
     this.ctx.fillStyle = '#000';
     this.ctx.fillRect(x - barWidth/2, y + yOffset, barWidth, barHeight);
@@ -217,13 +215,6 @@ export class Renderer {
 
   private renderFog(state: GameState) {
     const map = state.map;
-    // Fog also needs to respect thin walls?
-    // Fog is cell-based.
-    // If we draw black rect over cell, we cover the floor.
-    // Wall lines are drawn after floor but before fog in my code?
-    // Order: Map (Floor + Walls) -> Objectives -> Units -> Enemies -> Fog.
-    // Fog covers everything.
-    
     for (let y = 0; y < map.height; y++) {
       for (let x = 0; x < map.width; x++) {
         const key = `${x},${y}`;
