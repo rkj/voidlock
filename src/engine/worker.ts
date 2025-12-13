@@ -12,7 +12,7 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
   switch (msg.type) {
     case 'INIT': {
       if (loopId) clearInterval(loopId);
-      engine = new CoreEngine(msg.payload.map);
+      engine = new CoreEngine(msg.payload.map, msg.payload.seed);
       
       // Start loop
       loopId = setInterval(() => {
