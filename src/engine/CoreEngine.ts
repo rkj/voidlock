@@ -3,6 +3,7 @@ import { GameGrid } from './GameGrid';
 import { Pathfinder } from './Pathfinder';
 import { Director } from './Director';
 import { LineOfSight } from './LineOfSight';
+import { PRNG } from '../shared/PRNG';
 
 const EPSILON = 0.0001; // Small value for floating-point comparisons
 
@@ -12,9 +13,11 @@ export class CoreEngine {
   private pathfinder: Pathfinder;
   private director: Director;
   private los: LineOfSight;
+  private prng: PRNG;
   private readonly TICK_RATE = 100; // ms
 
-  constructor(map: MapDefinition) {
+  constructor(map: MapDefinition, seed: number) {
+    this.prng = new PRNG(seed);
     this.gameGrid = new GameGrid(map);
     this.pathfinder = new Pathfinder(this.gameGrid);
     this.los = new LineOfSight(this.gameGrid);
@@ -37,7 +40,7 @@ export class CoreEngine {
     
     // Initialize Director
     const spawnPoints = map.spawnPoints || [];
-    this.director = new Director(spawnPoints, (enemy) => this.addEnemy(enemy));
+    this.director = new Director(spawnPoints, this.prng, (enemy) => this.addEnemy(enemy));
   }
 
   public addUnit(unit: Unit) {
@@ -138,11 +141,6 @@ export class CoreEngine {
       if (this.state.map.extraction) {
         const ext = this.state.map.extraction;
         if (Math.floor(unit.pos.x) === ext.x && Math.floor(unit.pos.y) === ext.y) {
-          // Check if objectives are complete? 
-          // For now, allow extraction anytime, but win only if objectives done.
-          // Or require objectives to extract? Spec: "success at extraction with objective complete"
-          // Usually individual units extract.
-          // Let's allow extract.
           unit.state = UnitState.Extracted;
           unit.path = undefined;
           unit.targetPos = undefined;

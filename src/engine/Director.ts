@@ -1,4 +1,5 @@
 import { Enemy, SpawnPoint, Vector2 } from '../shared/types';
+import { PRNG } from '../shared/PRNG';
 
 export class Director {
   private timeSinceLastSpawn: number = 0;
@@ -6,9 +7,11 @@ export class Director {
   private spawnPoints: SpawnPoint[];
   private onSpawn: (enemy: Enemy) => void;
   private enemyIdCounter: number = 0;
+  private prng: PRNG;
 
-  constructor(spawnPoints: SpawnPoint[], onSpawn: (enemy: Enemy) => void) {
+  constructor(spawnPoints: SpawnPoint[], prng: PRNG, onSpawn: (enemy: Enemy) => void) {
     this.spawnPoints = spawnPoints;
+    this.prng = prng;
     this.onSpawn = onSpawn;
   }
 
@@ -24,12 +27,8 @@ export class Director {
   private spawnEnemy() {
     if (this.spawnPoints.length === 0) return;
 
-    // Pick a random spawn point (deterministic if we passed a seeded PRNG, but for now Math.random is acceptable for prototype M2 per plan)
-    // Actually, spec said "never call Math.random()", must use PRNG.
-    // I will implement a very simple LCG PRNG here to satisfy the requirement if one isn't passed.
-    // For M2 prototype, I'll stick to a simple index rotation to be deterministic without complex PRNG yet.
-    
-    const spawnIndex = this.enemyIdCounter % this.spawnPoints.length;
+    // Use PRNG to pick spawn point
+    const spawnIndex = this.prng.nextInt(0, this.spawnPoints.length - 1);
     const spawnPoint = this.spawnPoints[spawnIndex];
 
     const enemy: Enemy = {

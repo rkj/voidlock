@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { Director } from './Director';
 import { SpawnPoint, Enemy } from '../shared/types';
+import { PRNG } from '../shared/PRNG';
 
 describe('Director', () => {
   it('should spawn enemies periodically', () => {
@@ -8,7 +9,8 @@ describe('Director', () => {
       { id: 'sp1', pos: { x: 0, y: 0 }, radius: 1 }
     ];
     const onSpawn = vi.fn();
-    const director = new Director(spawnPoints, onSpawn);
+    const prng = new PRNG(123);
+    const director = new Director(spawnPoints, prng, onSpawn);
 
     // Update less than spawn interval (5000ms)
     director.update(1000);
@@ -25,7 +27,8 @@ describe('Director', () => {
 
   it('should not spawn if no spawn points', () => {
     const onSpawn = vi.fn();
-    const director = new Director([], onSpawn);
+    const prng = new PRNG(123);
+    const director = new Director([], prng, onSpawn);
 
     director.update(6000);
     expect(onSpawn).not.toHaveBeenCalled();

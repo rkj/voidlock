@@ -17,13 +17,13 @@ describe('CoreEngine with Objectives and Game Loop', () => {
       { x: 0, y: 2, type: CellType.Floor }, { x: 1, y: 2, type: CellType.Floor }, { x: 2, y: 2, type: CellType.Floor },
     ],
     spawnPoints: [mockSpawnPoint],
-    extraction: { x: 0, y: 2 }, // Extraction moved to (0, 2) to avoid instant extract
+    extraction: { x: 0, y: 2 }, 
     objectives: [mockObjective]
   };
 
   beforeEach(() => {
     vi.clearAllMocks();
-    engine = new CoreEngine(mockMap);
+    engine = new CoreEngine(mockMap, 12345); // Added seed
     engine.addUnit({
       id: 'u1',
       pos: { x: 0.5, y: 0.5 }, 
