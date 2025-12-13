@@ -194,4 +194,39 @@ describe('CoreEngine with Pathfinding and Combat', () => {
     const state = engine.getState();
     expect(state.enemies.length).toBe(0); // Enemy should be removed
   });
+
+  it('should damage soldiers when attacked by enemies', () => {
+    // Unit u1 at (0.5, 0.5), hp = 100
+    engine.addEnemy({
+      id: 'e1',
+      pos: { x: 1.5, y: 0.5 }, // In range (1 tile)
+      hp: 50, maxHp: 50,
+      type: 'SwarmMelee',
+      damage: 15, attackRange: 1,
+    });
+
+    engine.update(100);
+
+    const state = engine.getState();
+    const unit = state.units[0];
+    
+    // Enemy damages unit
+    expect(unit.hp).toBe(100 - 15);
+  });
+
+  it('should remove dead soldiers', () => {
+    // Unit u1 (hp=100) will be killed by powerful enemy
+    engine.addEnemy({
+      id: 'boss',
+      pos: { x: 1.5, y: 0.5 },
+      hp: 500, maxHp: 500,
+      type: 'Boss',
+      damage: 100, attackRange: 1,
+    });
+
+    engine.update(100);
+
+    const state = engine.getState();
+    expect(state.units.length).toBe(0); // Unit should be dead and removed
+  });
 });
