@@ -1,6 +1,7 @@
 import { GameState, MapDefinition, Unit, Enemy, Command, CommandType, UnitState, Vector2 } from '../shared/types';
 import { GameGrid } from './GameGrid';
 import { Pathfinder } from './Pathfinder';
+import { Director } from './Director';
 
 const EPSILON = 0.0001; // Small value for floating-point comparisons
 
@@ -8,6 +9,7 @@ export class CoreEngine {
   private state: GameState;
   private gameGrid: GameGrid;
   private pathfinder: Pathfinder;
+  private director: Director;
   private readonly TICK_RATE = 100; // ms
 
   constructor(map: MapDefinition) {
@@ -17,15 +19,19 @@ export class CoreEngine {
       t: 0,
       map,
       units: [],
-      enemies: [] // Initialize enemies array
+      enemies: [] 
     };
+    
+    // Initialize Director
+    const spawnPoints = map.spawnPoints || [];
+    this.director = new Director(spawnPoints, (enemy) => this.addEnemy(enemy));
   }
 
   public addUnit(unit: Unit) {
     this.state.units.push(unit);
   }
 
-  public addEnemy(enemy: Enemy) { // New method to add enemies
+  public addEnemy(enemy: Enemy) { 
     this.state.enemies.push(enemy);
   }
 
@@ -72,6 +78,9 @@ export class CoreEngine {
 
   public update(dt: number) {
     this.state.t += dt;
+
+    // Update Director to spawn enemies
+    this.director.update(dt);
 
     const SPEED = 2; // Tiles per second
 

@@ -17,6 +17,7 @@ export type MapDefinition = {
   width: number;
   height: number;
   cells: Cell[];
+  spawnPoints?: SpawnPoint[]; // Added spawn points
 };
 
 export interface Grid {
@@ -28,7 +29,7 @@ export interface Grid {
 export enum UnitState {
   Idle = 'Idle',
   Moving = 'Moving',
-  Attacking = 'Attacking', // New state for units
+  Attacking = 'Attacking',
 }
 
 export type Entity = {
@@ -40,24 +41,29 @@ export type Entity = {
 
 export type Unit = Entity & {
   state: UnitState;
-  path?: Vector2[]; // Added for pathfinding
+  path?: Vector2[]; 
   targetPos?: Vector2;
-  damage: number; // New combat property
-  attackRange: number; // New combat property
+  damage: number;
+  attackRange: number;
 };
 
 export type Enemy = Entity & {
-  type: string; // e.g., 'SwarmMelee', 'Ambusher'
-  damage: number; // New combat property
-  attackRange: number; // New combat property
+  type: string; 
+  damage: number;
+  attackRange: number;
 };
 
+export type SpawnPoint = {
+  id: string;
+  pos: Vector2;
+  radius: number; // For now, just a point, but maybe area later
+};
 
 export type GameState = {
   t: number;
   map: MapDefinition;
   units: Unit[];
-  enemies: Enemy[]; // Added for enemies
+  enemies: Enemy[];
 };
 
 // --- Protocol ---

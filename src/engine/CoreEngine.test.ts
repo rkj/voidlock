@@ -1,22 +1,24 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { CoreEngine } from './CoreEngine';
-import { CellType, UnitState, CommandType, MapDefinition, Vector2 } from '../shared/types';
+import { CellType, UnitState, CommandType, MapDefinition, Vector2, SpawnPoint } from '../shared/types';
 import { GameGrid } from './GameGrid';
 import { Pathfinder } from './Pathfinder';
 
 // Removed mocks for GameGrid and Pathfinder to test CoreEngine with actual dependencies
 
 
-describe('CoreEngine with Pathfinding and Combat', () => {
+describe('CoreEngine with Pathfinding, Combat, and Director', () => {
   let engine: CoreEngine;
+  const mockSpawnPoint: SpawnPoint = { id: 'sp1', pos: { x: 0, y: 0 }, radius: 1 };
   const mockMap: MapDefinition = {
-    width: 3, // Smaller map for simpler pathfinding
+    width: 3, 
     height: 1,
     cells: [
       { x: 0, y: 0, type: CellType.Floor },
       { x: 1, y: 0, type: CellType.Floor },
       { x: 2, y: 0, type: CellType.Floor },
     ],
+    spawnPoints: [mockSpawnPoint]
   };
 
   beforeEach(() => {
@@ -228,5 +230,24 @@ describe('CoreEngine with Pathfinding and Combat', () => {
 
     const state = engine.getState();
     expect(state.units.length).toBe(0); // Unit should be dead and removed
+  });
+
+  it('should spawn enemies via Director over time', () => {
+    // Re-initialize engine without units to avoid combat killing the spawned enemy
+    engine = new CoreEngine(mockMap);
+
+    // CoreEngine uses Director which defaults to 5000ms spawn interval
+    // We update engine for 5000ms
+    const totalTime = 5000;
+    const tick = 100;
+    for (let i = 0; i <= totalTime / tick; i++) {
+      engine.update(tick);
+    }
+
+    const state = engine.getState();
+    // Should have spawned at least one enemy
+    // Note: Director logic might spawn right at 5000ms
+    expect(state.enemies.length).toBeGreaterThan(0);
+    expect(state.enemies[0].pos).toEqual({ x: 0, y: 0 }); // Spawns at mockSpawnPoint
   });
 });

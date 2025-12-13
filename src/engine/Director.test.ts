@@ -1,0 +1,33 @@
+import { describe, it, expect, vi } from 'vitest';
+import { Director } from './Director';
+import { SpawnPoint, Enemy } from '../shared/types';
+
+describe('Director', () => {
+  it('should spawn enemies periodically', () => {
+    const spawnPoints: SpawnPoint[] = [
+      { id: 'sp1', pos: { x: 0, y: 0 }, radius: 1 }
+    ];
+    const onSpawn = vi.fn();
+    const director = new Director(spawnPoints, onSpawn);
+
+    // Update less than spawn interval (5000ms)
+    director.update(1000);
+    expect(onSpawn).not.toHaveBeenCalled();
+
+    // Update to cross threshold
+    director.update(4000); // Total 5000ms
+    expect(onSpawn).toHaveBeenCalledTimes(1);
+    
+    const spawnedEnemy = onSpawn.mock.calls[0][0] as Enemy;
+    expect(spawnedEnemy.type).toBe('SwarmMelee');
+    expect(spawnedEnemy.pos).toEqual({ x: 0, y: 0 });
+  });
+
+  it('should not spawn if no spawn points', () => {
+    const onSpawn = vi.fn();
+    const director = new Director([], onSpawn);
+
+    director.update(6000);
+    expect(onSpawn).not.toHaveBeenCalled();
+  });
+});

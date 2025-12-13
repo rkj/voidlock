@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { CellType, UnitState, CommandType, Vector2, Grid, Entity, Unit, Enemy } from './types';
+import { CellType, UnitState, CommandType, Vector2, Grid, Entity, Unit, Enemy, SpawnPoint } from './types';
 
 describe('Shared Types', () => {
   it('should have correct enum values', () => {
     expect(CellType.Wall).toBe('Wall');
     expect(UnitState.Moving).toBe('Moving');
-    expect(UnitState.Attacking).toBe('Attacking'); // New test
+    expect(UnitState.Attacking).toBe('Attacking');
     expect(CommandType.MOVE_TO).toBe('MOVE_TO');
   });
 
@@ -81,5 +81,15 @@ describe('Shared Types', () => {
     expect(enemy.hp).toBe(30);
     expect(enemy.damage).toBe(5);
     expect(enemy.attackRange).toBe(1);
+  });
+
+  it('should define SpawnPoint type', () => {
+    const sp: SpawnPoint = {
+      id: 'sp1',
+      pos: { x: 20, y: 20 },
+      radius: 5
+    };
+    expect(sp.id).toBe('sp1');
+    expect(sp.pos).toEqual({ x: 20, y: 20 });
   });
 });
