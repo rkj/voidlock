@@ -355,12 +355,15 @@ All should be swappable. Default implementations ship with the prototype; conten
 
     *   Load/save pack config JSON
     *   Random seed control
-    *   **Map Generator Selection**: Dropdown or similar control to choose between different map generation strategies (e.g., 'Procedural Maze', 'Static Map').
-    *   **Load Map Data**: For 'Static Map' selection, provide an input (e.g., text area or file upload) to paste/load map definition JSON.
+    *   **Map Selection**:
+        *   **Map Generator Selection**: Dropdown or similar control to choose between different map generation strategies (e.g., 'Procedural Maze', 'Static Map').
+        *   **Preset Maps**: Dropdown or list of predefined maps (e.g., 'Screenshot Map', 'Small Maze', 'Corridor'). The 'Screenshot Map' (`map-screenshot.json`) must be included as a preset.
+        *   **Load Static Map (Text Input)**: For 'Static Map' selection, provide an input (e.g., text area) to paste map definition JSON.
+        *   **Load Static Map (File Upload)**: Add a dedicated file input (`<input type="file">`) for `.json` files to upload map definition JSON.
     *   Squad builder (pick archetypes)
     *   Toggles: fog-of-war, debug overlay, agent control on/off
 *   **Mission screen**
-    *   Main map (Canvas/WebGL) - Must accurately render the `MapDefinition`, including all Floor/Wall cells and correctly representing thin walls between cells. Doors must be clearly visible and distinguishable by their state (Closed, Open, Locked, Destroyed), with sufficient visual contrast against walls and floors.
+    *   Main map (Canvas/WebGL) - Must accurately render the `MapDefinition`, including all Floor/Wall cells and correctly representing thin walls between cells. Doors must be clearly visible and distinguishable by their state (Closed, Open, Locked, Destroyed), with sufficient visual contrast against walls and floors, and a noticeable thickness (e.g., 1/10th of `cellSize`).
     *   Left panel: squad list + status + quick commands
     *   Bottom: timeline/events log (important for debugging director)
     *   Right: objective/extraction status + threat meter
@@ -464,6 +467,18 @@ Do not ship copyrighted scans/assets. Keep importer expecting **user-provided** 
 *   Balancing can be changed without editing engine code (content pack swap).
 *   UI supports keyboard-driven gameplay and provides clear tactical feedback (soldier list, tracers).
 *   Map resembles a tight spaceship interior with edge-based walls.
+
+---
+
+## 13) Agent Debugging & Visual Feedback
+
+*   **Visual Debugging Limitations**: As an AI agent, direct visual inspection of the UI is not possible.
+*   **Effective Feedback**: When reporting visual issues, users should provide:
+    *   **Detailed Text Descriptions**: Be as precise as possible regarding colors, dimensions, positions, and any unexpected visual behavior.
+    *   **Screenshot Uploads (Future Capability)**: If a mechanism for secure, direct screenshot uploads becomes available, this would greatly enhance visual debugging.
+*   **Console Output**: Debug logs in the browser console remain critical for understanding runtime state.
+
+---
 
 ---
 

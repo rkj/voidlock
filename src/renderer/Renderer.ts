@@ -1,7 +1,7 @@
 import { GameState, MapDefinition, CellType, Vector2, UnitState, Enemy, Door } from '../shared/types';
 
 export class Renderer {
-  private ctx: Canvas2D;
+  private ctx: CanvasRenderingContext2D;
   private canvas: HTMLCanvasElement;
   private cellSize: number = 128; // Increased tile size for M8
 
@@ -122,24 +122,24 @@ export class Renderer {
 
       this.ctx.fillStyle = doorColor;
       this.ctx.strokeStyle = '#CCC'; // Lighter border for doors
-      this.ctx.lineWidth = 4; // Thicker lines for doors
+      const doorThickness = this.cellSize / 10; // Make doors 1/10th of cell size
 
       door.segment.forEach(segCell => {
         const x = segCell.x * this.cellSize;
         const y = segCell.y * this.cellSize;
         const s = this.cellSize;
-        const doorWidth = this.ctx.lineWidth; // Visual thickness of door
-        const doorHeight = this.ctx.lineWidth; // Visual thickness of door
+        let drawX = x, drawY = y, drawWidth = s, drawHeight = s;
 
-        // Draw door on the appropriate wall segment it replaces
-        // Assuming 'segment' refers to the cells on the 'left' or 'top' side of the barrier
         if (door.orientation === 'Vertical') { // Door is vertical (between x and x+1)
-          this.ctx.fillRect(x + s - doorWidth / 2, y, doorWidth, s);
-          this.ctx.strokeRect(x + s - doorWidth / 2, y, doorWidth, s);
+          drawX = x + s - doorThickness / 2;
+          drawWidth = doorThickness;
         } else { // Horizontal (between y and y+1)
-          this.ctx.fillRect(x, y + s - doorHeight / 2, s, doorHeight);
-          this.ctx.strokeRect(x, y + s - doorHeight / 2, s, doorHeight);
+          drawY = y + s - doorThickness / 2;
+          drawHeight = doorThickness;
         }
+
+        this.ctx.fillRect(drawX, drawY, drawWidth, drawHeight);
+        this.ctx.strokeRect(drawX, drawY, drawWidth, drawHeight);
       });
     });
   }
