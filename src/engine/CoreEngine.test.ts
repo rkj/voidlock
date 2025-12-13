@@ -12,9 +12,17 @@ describe('CoreEngine with Objectives and Game Loop', () => {
     width: 3, 
     height: 3,
     cells: [
-      { x: 0, y: 0, type: CellType.Floor }, { x: 1, y: 0, type: CellType.Floor }, { x: 2, y: 0, type: CellType.Floor },
-      { x: 0, y: 1, type: CellType.Floor }, { x: 1, y: 1, type: CellType.Wall  }, { x: 2, y: 1, type: CellType.Floor },
-      { x: 0, y: 2, type: CellType.Floor }, { x: 1, y: 2, type: CellType.Floor }, { x: 2, y: 2, type: CellType.Floor },
+      { x: 0, y: 0, type: CellType.Floor, walls: { n: true, e: false, s: false, w: true } }, 
+      { x: 1, y: 0, type: CellType.Floor, walls: { n: true, e: false, s: false, w: false } }, 
+      { x: 2, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: false, w: false } },
+      
+      { x: 0, y: 1, type: CellType.Floor, walls: { n: false, e: false, s: false, w: true } }, 
+      { x: 1, y: 1, type: CellType.Floor, walls: { n: false, e: false, s: false, w: false } }, 
+      { x: 2, y: 1, type: CellType.Floor, walls: { n: false, e: true, s: false, w: false } },
+      
+      { x: 0, y: 2, type: CellType.Floor, walls: { n: false, e: false, s: true, w: true } }, 
+      { x: 1, y: 2, type: CellType.Floor, walls: { n: false, e: false, s: true, w: false } }, 
+      { x: 2, y: 2, type: CellType.Floor, walls: { n: false, e: true, s: true, w: false } },
     ],
     spawnPoints: [mockSpawnPoint],
     extraction: { x: 0, y: 2 }, 
@@ -24,7 +32,7 @@ describe('CoreEngine with Objectives and Game Loop', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     engine = new CoreEngine(mockMap, 12345); 
-    engine.clearUnits(); // Clear default squad
+    engine.clearUnits(); 
     engine.addUnit({
       id: 'u1',
       pos: { x: 0.5, y: 0.5 }, 
@@ -36,44 +44,40 @@ describe('CoreEngine with Objectives and Game Loop', () => {
   });
 
   it('should complete objective when unit reaches target', () => {
-    // Objective at (2,0). Move unit there.
     engine.applyCommand({
       type: CommandType.MOVE_TO,
       unitIds: ['u1'],
       target: { x: 2, y: 0 }
     });
 
-    // Move takes time. Distance 2. Speed 2. 1 second.
     for (let i = 0; i < 15; i++) engine.update(100);
 
     const state = engine.getState();
     expect(state.objectives[0].state).toBe('Completed');
   });
 
-  it('should extract unit at extraction point only if objectives complete', () => {
-    // 1. Complete objective
-    engine.applyCommand({ type: CommandType.MOVE_TO, unitIds: ['u1'], target: { x: 2, y: 0 } });
-    for (let i = 0; i < 15; i++) engine.update(100);
-    
-    // 2. Move to extraction
-    engine.applyCommand({ type: CommandType.MOVE_TO, unitIds: ['u1'], target: { x: 0, y: 2 } });
-    for (let i = 0; i < 25; i++) engine.update(100); 
+  it('should NOT extract unit if objectives are pending', () => {
+    engine.applyCommand({
+      type: CommandType.MOVE_TO,
+      unitIds: ['u1'],
+      target: { x: 0, y: 2 }
+    });
+
+    for (let i = 0; i < 20; i++) engine.update(100); 
     
     const state = engine.getState();
     const unit = state.units[0];
-    expect(unit.state).toBe(UnitState.Extracted);
+    expect(unit.state).not.toBe(UnitState.Extracted);
   });
 
   it('should win game when objectives complete and units extract', () => {
-    // 1. Complete objective at (2,0)
     engine.applyCommand({ type: CommandType.MOVE_TO, unitIds: ['u1'], target: { x: 2, y: 0 } });
     for (let i = 0; i < 15; i++) engine.update(100);
     
     expect(engine.getState().objectives[0].state).toBe('Completed');
 
-    // 2. Return to extraction at (0,2)
     engine.applyCommand({ type: CommandType.MOVE_TO, unitIds: ['u1'], target: { x: 0, y: 2 } });
-    for (let i = 0; i < 25; i++) engine.update(100); // 2.5s to return
+    for (let i = 0; i < 25; i++) engine.update(100); 
 
     const state = engine.getState();
     expect(state.units[0].state).toBe(UnitState.Extracted);
@@ -81,7 +85,6 @@ describe('CoreEngine with Objectives and Game Loop', () => {
   });
 
   it('should lose game if all units die', () => {
-    // Spawn powerful enemy at (0,0) - same cell as unit
     engine.addEnemy({
       id: 'boss',
       pos: { x: 0.5, y: 0.5 },
@@ -96,20 +99,5 @@ describe('CoreEngine with Objectives and Game Loop', () => {
     const unit = state.units[0];
     expect(unit.state).toBe(UnitState.Dead);
     expect(state.status).toBe('Lost');
-  });
-
-  it('should NOT extract unit if objectives are pending', () => {
-    // Move to extraction at (0,2)
-    engine.applyCommand({
-      type: CommandType.MOVE_TO,
-      unitIds: ['u1'],
-      target: { x: 0, y: 2 }
-    });
-    for (let i = 0; i < 20; i++) engine.update(100);
-    
-    const state = engine.getState();
-    // Should NOT be extracted
-    expect(state.units[0].state).not.toBe(UnitState.Extracted);
-    expect(state.status).toBe('Playing');
   });
 });

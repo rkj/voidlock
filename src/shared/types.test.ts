@@ -20,7 +20,8 @@ describe('Shared Types', () => {
     const mockGrid: Grid = {
       width: 10,
       height: 10,
-      isWalkable: (x, y) => x > 0 && y > 0
+      isWalkable: (x, y) => x > 0 && y > 0,
+      canMove: () => true
     };
     expect(mockGrid.width).toBe(10);
     expect(mockGrid.isWalkable(1, 1)).toBe(true);

@@ -5,7 +5,7 @@ export class Pathfinder {
 
   findPath(start: Vector2, end: Vector2): Vector2[] | null {
     if (!this.grid.isWalkable(end.x, end.y)) {
-      return null; // Cannot pathfind to an unwalkable tile
+      return null; 
     }
 
     const queue: Vector2[] = [];
@@ -34,8 +34,12 @@ export class Pathfinder {
         const neighbor = { x: current.x + dir.dx, y: current.y + dir.dy };
         const neighborKey = `${neighbor.x},${neighbor.y}`;
 
+        // Check bounds (implicit in canMove?) No, canMove might expect in-bounds.
+        // GameGrid.canMove checks isWalkable which checks bounds.
+        // But we need to pass coordinates.
+        
         if (
-          this.grid.isWalkable(neighbor.x, neighbor.y) &&
+          this.grid.canMove(current.x, current.y, neighbor.x, neighbor.y) &&
           !visited.has(neighborKey)
         ) {
           visited.add(neighborKey);

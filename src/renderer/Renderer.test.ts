@@ -33,10 +33,10 @@ describe('Renderer', () => {
   const mockMap: MapDefinition = {
     width: 2, height: 2,
     cells: [
-      { x: 0, y: 0, type: CellType.Floor },
-      { x: 1, y: 0, type: CellType.Wall },
-      { x: 0, y: 1, type: CellType.Floor },
-      { x: 1, y: 1, type: CellType.Floor },
+      { x: 0, y: 0, type: CellType.Floor, walls: { n: false, e: false, s: false, w: false } },
+      { x: 1, y: 0, type: CellType.Wall, walls: { n: false, e: false, s: false, w: false } },
+      { x: 0, y: 1, type: CellType.Floor, walls: { n: false, e: false, s: false, w: false } },
+      { x: 1, y: 1, type: CellType.Floor, walls: { n: false, e: false, s: false, w: false } },
     ],
     extraction: { x: 1, y: 1 },
     objectives: [{ id: 'o1', kind: 'Recover', state: 'Pending', targetCell: { x: 0, y: 1 } } as Objective]
@@ -83,20 +83,16 @@ describe('Renderer', () => {
   });
 
   it('should render combat tracers', () => {
-    // Add attack data
     const combatState = {
         ...mockGameState,
         units: [{
             ...mockGameState.units[0],
-            lastAttackTime: 950, // 50ms ago (within 150ms window)
-            lastAttackTarget: { x: 0.5, y: 0.5 } // Target enemy
+            lastAttackTime: 950, 
+            lastAttackTarget: { x: 0.5, y: 0.5 }
         }]
     };
 
     renderer.render(combatState);
-
-    // Should draw line from unit (16,16) to target (16,16)
-    // tracer lineTo
     expect(mockContext.lineTo).toHaveBeenCalledWith(16, 16);
   });
 });

@@ -1,4 +1,4 @@
-import { MapDefinition, CellType, SpawnPoint, Objective } from '../shared/types';
+import { MapDefinition, CellType, SpawnPoint, Objective, Cell } from '../shared/types';
 import { PRNG } from '../shared/PRNG';
 
 export class MapGenerator {
@@ -9,58 +9,109 @@ export class MapGenerator {
   }
 
   public generate(width: number, height: number): MapDefinition {
-    const cells = [];
+    // 1. Initialize grid with all walls closed
+    const cells: Cell[] = [];
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
-        cells.push({ x, y, type: CellType.Wall });
+        cells.push({
+          x, y,
+          type: CellType.Floor, // Everything is floor inside ship
+          walls: { n: true, e: true, s: true, w: true }
+        });
       }
     }
 
-    // Random walker
-    let cx = Math.floor(width / 2);
-    let cy = Math.floor(height / 2);
-    const maxSteps = width * height * 2; // Enough to carve a good chunk
+    const getCell = (x: number, y: number) => {
+      if (x < 0 || x >= width || y < 0 || y >= height) return null;
+      return cells[y * width + x];
+    };
 
-    for (let i = 0; i < maxSteps; i++) {
-      const idx = cy * width + cx;
-      if (cells[idx].type === CellType.Wall) {
-        cells[idx].type = CellType.Floor;
+    // 2. Recursive Backtracker Maze
+    const startX = Math.floor(width / 2);
+    const startY = Math.floor(height / 2);
+    const stack: Cell[] = [];
+    const visited = new Set<string>();
+
+    const startCell = getCell(startX, startY)!;
+    stack.push(startCell);
+    visited.add(`${startX},${startY}`);
+
+    while (stack.length > 0) {
+      const current = stack[stack.length - 1]; // Peek
+      const neighbors = [];
+
+      const dirs = [
+        { dx: 0, dy: -1, wall: 'n', opp: 's' },
+        { dx: 1, dy: 0, wall: 'e', opp: 'w' },
+        { dx: 0, dy: 1, wall: 's', opp: 'n' },
+        { dx: -1, dy: 0, wall: 'w', opp: 'e' }
+      ];
+
+      for (const dir of dirs) {
+        const nx = current.x + dir.dx;
+        const ny = current.y + dir.dy;
+        const neighbor = getCell(nx, ny);
+        if (neighbor && !visited.has(`${nx},${ny}`)) {
+          neighbors.push({ neighbor, dir });
+        }
       }
 
-      const dir = this.prng.nextInt(0, 3);
-      let dx = 0, dy = 0;
-      if (dir === 0) dy = -1;
-      else if (dir === 1) dy = 1;
-      else if (dir === 2) dx = -1;
-      else dx = 1;
+      if (neighbors.length > 0) {
+        const chosen = neighbors[this.prng.nextInt(0, neighbors.length - 1)];
+        const { neighbor, dir } = chosen;
 
-      cx += dx;
-      cy += dy;
+        // Remove walls
+        (current.walls as any)[dir.wall] = false;
+        (neighbor.walls as any)[dir.opp] = false;
 
-      // Clamp
-      cx = Math.max(1, Math.min(width - 2, cx));
-      cy = Math.max(1, Math.min(height - 2, cy));
+        visited.add(`${neighbor.x},${neighbor.y}`);
+        stack.push(neighbor);
+      } else {
+        stack.pop();
+      }
     }
 
-    // Find valid floors
-    const floors = cells.filter(c => c.type === CellType.Floor);
-    if (floors.length === 0) {
-        // Fallback if super unlucky (seed 0?)
-        cells[0].type = CellType.Floor;
-        floors.push(cells[0]);
+    // 3. Braiding (remove dead ends)
+    // Dead end = cell with 3 walls
+    for (const cell of cells) {
+      const wallCount = (cell.walls.n ? 1 : 0) + (cell.walls.e ? 1 : 0) + (cell.walls.s ? 1 : 0) + (cell.walls.w ? 1 : 0);
+      if (wallCount >= 3) {
+        // Remove a random wall to a valid neighbor (even if visited)
+        // Check bounds
+        const dirs = [
+            { dx: 0, dy: -1, wall: 'n', opp: 's' },
+            { dx: 1, dy: 0, wall: 'e', opp: 'w' },
+            { dx: 0, dy: 1, wall: 's', opp: 'n' },
+            { dx: -1, dy: 0, wall: 'w', opp: 'e' }
+        ];
+        // Filter valid neighbors
+        const validDirs = dirs.filter(d => {
+            const n = getCell(cell.x + d.dx, cell.y + d.dy);
+            return n !== null;
+        });
+        
+        if (validDirs.length > 0) {
+             // Maybe probability check? 50%?
+             if (this.prng.next() > 0.5) {
+                 const d = validDirs[this.prng.nextInt(0, validDirs.length - 1)];
+                 const n = getCell(cell.x + d.dx, cell.y + d.dy)!;
+                 (cell.walls as any)[d.wall] = false;
+                 (n.walls as any)[d.opp] = false;
+             }
+        }
+      }
     }
 
-    // Place Extraction at first floor found (or random floor)
-    const extractionIdx = this.prng.nextInt(0, floors.length - 1);
-    const extractionCell = floors[extractionIdx];
-    const extraction = { x: extractionCell.x, y: extractionCell.y };
+    // 4. Placements
+    // Extraction at center (start)
+    const extraction = { x: startX, y: startY };
 
-    // Place Objective far away? Just random other floor
-    let objectiveIdx = this.prng.nextInt(0, floors.length - 1);
-    while (objectiveIdx === extractionIdx && floors.length > 1) {
-        objectiveIdx = this.prng.nextInt(0, floors.length - 1);
+    // Objective: Furthest point? Or random.
+    // Random for prototype.
+    let objectiveCell = cells[this.prng.nextInt(0, cells.length - 1)];
+    while(objectiveCell.x === startX && objectiveCell.y === startY) {
+        objectiveCell = cells[this.prng.nextInt(0, cells.length - 1)];
     }
-    const objectiveCell = floors[objectiveIdx];
     const objective: Objective = {
         id: 'obj1',
         kind: 'Recover',
@@ -68,13 +119,12 @@ export class MapGenerator {
         targetCell: { x: objectiveCell.x, y: objectiveCell.y }
     };
 
-    // Spawn Points
+    // Spawn Points (corners)
     const spawnPoints: SpawnPoint[] = [];
-    for (let i = 0; i < 3; i++) {
-        const idx = this.prng.nextInt(0, floors.length - 1);
-        const cell = floors[idx];
-        spawnPoints.push({ id: `sp${i}`, pos: { x: cell.x, y: cell.y }, radius: 1 });
-    }
+    spawnPoints.push({ id: 'sp1', pos: { x: 0, y: 0 }, radius: 1 });
+    spawnPoints.push({ id: 'sp2', pos: { x: width - 1, y: 0 }, radius: 1 });
+    spawnPoints.push({ id: 'sp3', pos: { x: 0, y: height - 1 }, radius: 1 });
+    spawnPoints.push({ id: 'sp4', pos: { x: width - 1, y: height - 1 }, radius: 1 });
 
     return {
         width,
