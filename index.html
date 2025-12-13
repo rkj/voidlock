@@ -12,8 +12,10 @@
       canvas { border: 1px solid #444; background-color: #000; }
       #ui-panel { width: 300px; padding: 10px; background-color: #222; border-left: 1px solid #444; overflow-y: auto; }
       h1 { color: #0f0; text-shadow: 0 0 5px #0f0; }
-      button { background-color: #333; color: #0f0; border: 1px solid #0f0; padding: 5px 10px; cursor: pointer; margin-top: 10px; }
+      button { background-color: #333; color: #0f0; border: 1px solid #0f0; padding: 5px 10px; cursor: pointer; margin-top: 10px; width: 100%; }
       button:hover { background-color: #0f0; color: #333; }
+      .control-group { margin-top: 20px; border-top: 1px solid #444; padding-top: 10px; }
+      input[type="file"] { margin-top: 5px; color: #aaa; font-size: 0.8em; }
     </style>
   </head>
   <body>
@@ -25,6 +27,15 @@
         <h1>Xenopurge Prototype</h1>
         <p>Status: Initializing...</p>
         <button id="start-button">Start Mission</button>
+        
+        <div class="control-group">
+          <h3>Replay Controls</h3>
+          <button id="export-replay">Export Replay (JSON)</button>
+          <div style="margin-top: 10px;">
+            <label for="import-replay">Load Replay:</label>
+            <input type="file" id="import-replay" accept=".json" />
+          </div>
+        </div>
       </div>
     </div>
     <script type="module" src="/src/renderer/main.ts"></script>
