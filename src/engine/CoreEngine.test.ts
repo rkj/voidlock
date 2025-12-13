@@ -30,7 +30,8 @@ describe('CoreEngine with Objectives and Game Loop', () => {
       pos: { x: 0.5, y: 0.5 }, 
       hp: 100, maxHp: 100,
       state: UnitState.Idle,
-      damage: 20, attackRange: 2, sightRange: 5
+      damage: 20, attackRange: 2, sightRange: 5,
+      commandQueue: []
     });
   });
 

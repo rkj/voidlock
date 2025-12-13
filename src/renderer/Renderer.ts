@@ -85,7 +85,7 @@ export class Renderer {
     state.units.forEach(unit => {
       if (unit.state === UnitState.Extracted || unit.state === UnitState.Dead) return;
 
-      const x = unit.pos.x * this.cellSize; // pos is float (center-based), so this is pixel center
+      const x = unit.pos.x * this.cellSize; 
       const y = unit.pos.y * this.cellSize;
 
       this.ctx.beginPath();
@@ -107,7 +107,7 @@ export class Renderer {
       // HP Bar
       this.renderHealthBar(x, y, unit.hp, unit.maxHp);
 
-      // Target line
+      // Target line (Movement)
       if (unit.state === UnitState.Moving && unit.targetPos) {
         this.ctx.beginPath();
         this.ctx.arc(unit.targetPos.x * this.cellSize,
@@ -116,6 +116,16 @@ export class Renderer {
         this.ctx.strokeStyle = '#FF00FF'; 
         this.ctx.lineWidth = 1;
         this.ctx.stroke();
+      }
+
+      // Combat Tracers
+      if (unit.lastAttackTarget && unit.lastAttackTime && (state.t - unit.lastAttackTime < 150)) {
+          this.ctx.beginPath();
+          this.ctx.moveTo(x, y);
+          this.ctx.lineTo(unit.lastAttackTarget.x * this.cellSize, unit.lastAttackTarget.y * this.cellSize);
+          this.ctx.strokeStyle = '#FFFF00'; // Yellow tracer
+          this.ctx.lineWidth = 2;
+          this.ctx.stroke();
       }
     });
   }
@@ -144,6 +154,16 @@ export class Renderer {
       this.ctx.stroke();
 
       this.renderHealthBar(x, y, enemy.hp, enemy.maxHp);
+
+      // Combat Tracers
+      if (enemy.lastAttackTarget && enemy.lastAttackTime && (state.t - enemy.lastAttackTime < 150)) {
+          this.ctx.beginPath();
+          this.ctx.moveTo(x, y);
+          this.ctx.lineTo(enemy.lastAttackTarget.x * this.cellSize, enemy.lastAttackTarget.y * this.cellSize);
+          this.ctx.strokeStyle = '#FF8800'; // Orange tracer for enemies
+          this.ctx.lineWidth = 2;
+          this.ctx.stroke();
+      }
     });
   }
 
