@@ -28,6 +28,7 @@ export interface Grid {
 export enum UnitState {
   Idle = 'Idle',
   Moving = 'Moving',
+  Attacking = 'Attacking', // New state for units
 }
 
 export type Entity = {
@@ -41,10 +42,14 @@ export type Unit = Entity & {
   state: UnitState;
   path?: Vector2[]; // Added for pathfinding
   targetPos?: Vector2;
+  damage: number; // New combat property
+  attackRange: number; // New combat property
 };
 
 export type Enemy = Entity & {
   type: string; // e.g., 'SwarmMelee', 'Ambusher'
+  damage: number; // New combat property
+  attackRange: number; // New combat property
 };
 
 
