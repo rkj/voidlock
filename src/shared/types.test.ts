@@ -1,11 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { CellType, UnitState, CommandType, Vector2, Grid, Entity, Unit, Enemy, SpawnPoint } from './types';
+import { CellType, UnitState, CommandType, Vector2, Grid, Entity, Unit, Enemy, SpawnPoint, Objective } from './types';
 
 describe('Shared Types', () => {
   it('should have correct enum values', () => {
     expect(CellType.Wall).toBe('Wall');
     expect(UnitState.Moving).toBe('Moving');
     expect(UnitState.Attacking).toBe('Attacking');
+    expect(UnitState.Extracted).toBe('Extracted');
     expect(CommandType.MOVE_TO).toBe('MOVE_TO');
   });
 
@@ -92,5 +93,16 @@ describe('Shared Types', () => {
     };
     expect(sp.id).toBe('sp1');
     expect(sp.pos).toEqual({ x: 20, y: 20 });
+  });
+
+  it('should define Objective type', () => {
+    const obj: Objective = {
+      id: 'o1',
+      kind: 'Recover',
+      state: 'Pending',
+      targetCell: { x: 5, y: 5 }
+    };
+    expect(obj.id).toBe('o1');
+    expect(obj.state).toBe('Pending');
   });
 });
