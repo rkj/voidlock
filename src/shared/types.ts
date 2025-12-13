@@ -62,13 +62,20 @@ export type Unit = Entity & {
   targetPos?: Vector2;
   damage: number;
   attackRange: number;
-  sightRange: number; 
+  sightRange: number;
+  // M6: Queue and Visuals
+  commandQueue: Command[];
+  lastAttackTarget?: Vector2;
+  lastAttackTime?: number;
 };
 
 export type Enemy = Entity & {
   type: string; 
   damage: number;
   attackRange: number;
+  // M6: Visuals
+  lastAttackTarget?: Vector2;
+  lastAttackTime?: number;
 };
 
 export type SpawnPoint = {
@@ -91,7 +98,7 @@ export type GameState = {
 // --- Replay ---
 
 export type RecordedCommand = {
-  t: number; // Time in ms when command was issued
+  t: number; 
   cmd: Command;
 };
 
@@ -120,4 +127,5 @@ export type Command = {
   type: CommandType;
   unitIds: string[];
   target: Vector2;
+  queue?: boolean; // New flag to append instead of replace
 };
