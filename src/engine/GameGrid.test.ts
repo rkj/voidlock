@@ -26,17 +26,17 @@ describe('GameGrid', () => {
 
   it('should allow movement between open edges', () => {
     // (0,0) -> (1,0). (0,0).walls.e is false. (1,0).walls.w is false.
-    expect(grid.canMove(0, 0, 1, 0)).toBe(true);
-    expect(grid.canMove(1, 0, 0, 0)).toBe(true);
+    expect(grid.canMove(0, 0, 1, 0, new Map())).toBe(true);
+    expect(grid.canMove(1, 0, 0, 0, new Map())).toBe(true);
   });
 
   it('should block movement through walls', () => {
     // (0,0) -> (0,1). (0,0).walls.s is true.
-    expect(grid.canMove(0, 0, 0, 1)).toBe(false);
+    expect(grid.canMove(0, 0, 0, 1, new Map())).toBe(false);
   });
 
   it('should block movement to void/wall cells', () => {
     // (1,0) -> (1,1). (1,1) is Wall type.
-    expect(grid.canMove(1, 0, 1, 1)).toBe(false);
+    expect(grid.canMove(1, 0, 1, 1, new Map())).toBe(false);
   });
 });

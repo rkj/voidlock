@@ -1,4 +1,4 @@
-import { MapDefinition, CellType, Grid, Vector2, Cell } from '../shared/types';
+import { MapDefinition, CellType, Grid, Vector2, Cell, Door } from '../shared/types';
 
 export class GameGrid implements Grid {
   public readonly width: number;
@@ -8,6 +8,7 @@ export class GameGrid implements Grid {
   constructor(map: MapDefinition) {
     this.width = map.width;
     this.height = map.height;
+
     // Initialize with default walls (all closed if not provided)
     this.cells = Array(this.height).fill(null).map((_, y) => 
       Array(this.width).fill(null).map((_, x) => ({
@@ -34,7 +35,7 @@ export class GameGrid implements Grid {
     );
   }
 
-  canMove(fromX: number, fromY: number, toX: number, toY: number): boolean {
+  canMove(fromX: number, fromY: number, toX: number, toY: number, doors?: Map<string, Door>): boolean {
     if (!this.isWalkable(fromX, fromY) || !this.isWalkable(toX, toY)) return false;
 
     // Must be adjacent
@@ -43,19 +44,55 @@ export class GameGrid implements Grid {
     if (Math.abs(dx) + Math.abs(dy) !== 1) return false; // Orthogonal only for walls check
 
     const fromCell = this.cells[fromY][fromX];
-    const toCell = this.cells[toY][toX];
+    
+    // Helper to get a door at a specific wall segment
+    const getDoorAtSegment = (fx: number, fy: number, tx: number, ty: number): Door | undefined => {
+      const sdx = tx - fx; // Segment delta x
+      const sdy = ty - fy; // Segment delta y
 
+      if (!doors) return undefined; // No doors provided
+
+      if (Math.abs(sdx) === 1 && sdy === 0) { // Vertical segment (between columns)
+        const minX = Math.min(fx, tx);
+        const cellInSegment = { x: minX, y: fy }; // Cell to the left of vertical door
+
+        for (const door of doors.values()) {
+          if (door.orientation === 'Vertical' && door.segment.some(sCell => sCell.x === cellInSegment.x && sCell.y === cellInSegment.y)) {
+            return door;
+          }
+        }
+      } else if (Math.abs(sdy) === 1 && sdx === 0) { // Horizontal segment (between rows)
+        const minY = Math.min(fy, ty);
+        const cellInSegment = { x: fx, y: minY }; // Cell above horizontal door
+
+        for (const door of doors.values()) {
+          if (door.orientation === 'Horizontal' && door.segment.some(sCell => sCell.x === cellInSegment.x && sCell.y === cellInSegment.y)) {
+            return door;
+          }
+        }
+      }
+      return undefined;
+    };
+
+    // Check for doors first
+    const door = getDoorAtSegment(fromX, fromY, toX, toY);
+    if (door) {
+      // Allow movement if door is Open or Destroyed
+      return door.state === 'Open' || door.state === 'Destroyed';
+    }
+
+    // If no door, check walls
     if (dx === 1) { // Moving East
-      return !fromCell.walls.e && !toCell.walls.w;
+      return !fromCell.walls.e; 
     }
     if (dx === -1) { // Moving West
-      return !fromCell.walls.w && !toCell.walls.e;
+      return !fromCell.walls.w; 
     }
     if (dy === 1) { // Moving South
-      return !fromCell.walls.s && !toCell.walls.n;
+      return !fromCell.walls.s; 
     }
     if (dy === -1) { // Moving North
-      return !fromCell.walls.n && !toCell.walls.s;
+      return !fromCell.walls.n; 
     }
 
     return false;

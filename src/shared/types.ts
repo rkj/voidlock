@@ -26,7 +26,9 @@ export type Door = {
   state: 'Open' | 'Closed' | 'Locked' | 'Destroyed';
   hp: number;
   maxHp: number;
-  openDuration: number;
+  openDuration: number; // in seconds
+  openTimer?: number; // Countdown for state change (ms)
+  targetState?: 'Open' | 'Closed' | 'Locked'; // State door is transitioning to
 };
 
 export enum MapGeneratorType {
@@ -62,7 +64,7 @@ export interface Grid {
   height: number;
   isWalkable(x: number, y: number): boolean;
   // Check if movement between adjacent cells is allowed (no wall)
-  canMove(fromX: number, fromY: number, toX: number, toY: number): boolean;
+  canMove(fromX: number, fromY: number, toX: number, toY: number, doors?: Map<string, Door>): boolean;
 }
 
 export enum UnitState {
@@ -143,11 +145,12 @@ export type MainMessage =
 
 export enum CommandType {
   MOVE_TO = 'MOVE_TO',
+  OPEN_DOOR = 'OPEN_DOOR',
+  LOCK_DOOR = 'LOCK_DOOR',
 }
 
-export type Command = {
-  type: CommandType;
-  unitIds: string[];
-  target: Vector2;
-  queue?: boolean; 
-};
+export type MoveCommand = { type: CommandType.MOVE_TO; unitIds: string[]; target: Vector2; queue?: boolean; };
+export type OpenDoorCommand = { type: CommandType.OPEN_DOOR; unitIds: string[]; doorId: string; queue?: boolean; };
+export type LockDoorCommand = { type: CommandType.LOCK_DOOR; unitIds: string[]; doorId: string; queue?: boolean; };
+
+export type Command = MoveCommand | OpenDoorCommand | LockDoorCommand;

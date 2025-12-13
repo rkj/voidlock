@@ -1,7 +1,7 @@
-import { Grid, Vector2 } from '../shared/types';
+import { Grid, Vector2, Door } from '../shared/types';
 
 export class Pathfinder {
-  constructor(private grid: Grid) {}
+  constructor(private grid: Grid, private doors: Map<string, Door>) {}
 
   findPath(start: Vector2, end: Vector2): Vector2[] | null {
     if (!this.grid.isWalkable(end.x, end.y)) {
@@ -34,12 +34,8 @@ export class Pathfinder {
         const neighbor = { x: current.x + dir.dx, y: current.y + dir.dy };
         const neighborKey = `${neighbor.x},${neighbor.y}`;
 
-        // Check bounds (implicit in canMove?) No, canMove might expect in-bounds.
-        // GameGrid.canMove checks isWalkable which checks bounds.
-        // But we need to pass coordinates.
-        
         if (
-          this.grid.canMove(current.x, current.y, neighbor.x, neighbor.y) &&
+          this.grid.canMove(current.x, current.y, neighbor.x, neighbor.y, this.doors) &&
           !visited.has(neighborKey)
         ) {
           visited.add(neighborKey);

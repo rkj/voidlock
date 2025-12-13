@@ -1,12 +1,13 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { Pathfinder } from './Pathfinder';
 import { GameGrid } from './GameGrid';
-import { MapDefinition, CellType, Vector2 } from '../shared/types';
+import { MapDefinition, CellType, Vector2, Door } from '../shared/types';
 
 describe('Pathfinder', () => {
   let mockMap: MapDefinition;
   let gameGrid: GameGrid;
   let pathfinder: Pathfinder;
+  const mockDoors: Map<string, Door> = new Map();
 
   beforeEach(() => {
     // 5x5 map.
@@ -28,7 +29,7 @@ describe('Pathfinder', () => {
       cells,
     };
     gameGrid = new GameGrid(mockMap);
-    pathfinder = new Pathfinder(gameGrid);
+    pathfinder = new Pathfinder(gameGrid, mockDoors); // Pass mockDoors
   });
 
   it('should find a path between two accessible points', () => {
