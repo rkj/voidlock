@@ -375,6 +375,13 @@ Do not ship copyrighted scans/assets. Keep importer expecting **user-provided** 
 5. **M5: Content-pack pluggability**
 
    * Swap director/map generator at runtime; config UI editing
+6. **M6: Advanced UI & Combat Feedback**
+
+   * **Soldier List Panel**: Right-side panel showing all soldiers, their status, current command, and command queue.
+   * **Keyboard Command Interface**: Menu-driven command issuing (Select Command -> Select Unit -> Target).
+   * **Combat Visuals**: Bullet tracers/lines when units fire.
+   * **Health Bars**: Verified and refined health indicators for all combatants.
+   * **Command Queuing**: Engine support for queuing multiple commands per unit.
 
 ---
 
@@ -384,3 +391,4 @@ Do not ship copyrighted scans/assets. Keep importer expecting **user-provided** 
 * A bot can play the same mission using only the JSON protocol.
 * Any run can be replayed deterministically from exported JSON.
 * Balancing can be changed without editing engine code (content pack swap).
+* UI supports keyboard-driven gameplay and provides clear tactical feedback (soldier list, tracers).

@@ -50,11 +50,12 @@ export class CoreEngine {
       state: UnitState.Idle,
       damage: 20,
       attackRange: 4,
-      sightRange: 8
+      sightRange: 8,
+      commandQueue: []
     });
   }
 
-  public clearUnits() { // Added helper for testing
+  public clearUnits() { 
     this.state.units = [];
   }
 
@@ -71,35 +72,48 @@ export class CoreEngine {
   }
 
   public applyCommand(cmd: Command) {
-    if (this.state.status !== 'Playing') return; // Ignore commands if game over
+    if (this.state.status !== 'Playing') return; 
 
     if (cmd.type === CommandType.MOVE_TO) {
       cmd.unitIds.forEach(id => {
         const unit = this.state.units.find(u => u.id === id);
-        if (unit && unit.pos && unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
-          const path = this.pathfinder.findPath(
-            { x: Math.floor(unit.pos.x), y: Math.floor(unit.pos.y) },
-            cmd.target
-          );
-          if (path && path.length > 0) {
-            unit.path = path;
-            unit.targetPos = { x: path[0].x + 0.5, y: path[0].y + 0.5 }; // Set target to center of first cell in path
-            unit.state = UnitState.Moving;
-          } else if (path && path.length === 0 && Math.floor(unit.pos.x) === cmd.target.x && Math.floor(unit.pos.y) === cmd.target.y) {
-            // Already at target, snap to center
-            unit.pos = { x: cmd.target.x + 0.5, y: cmd.target.y + 0.5 };
-            unit.path = undefined;
-            unit.targetPos = undefined;
-            unit.state = UnitState.Idle;
-          } else {
-            console.warn(`No path found for unit ${unit.id} to target ${cmd.target.x},${cmd.target.y}`);
-            unit.path = undefined;
-            unit.targetPos = undefined;
-            unit.state = UnitState.Idle;
-          }
+        if (unit) {
+            if (cmd.queue) {
+                unit.commandQueue.push(cmd);
+            } else {
+                unit.commandQueue = []; // Clear queue on new immediate command
+                this.executeCommand(unit, cmd);
+            }
         }
       });
     }
+  }
+
+  private executeCommand(unit: Unit, cmd: Command) {
+      if (cmd.type === CommandType.MOVE_TO) {
+        if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
+            const path = this.pathfinder.findPath(
+              { x: Math.floor(unit.pos.x), y: Math.floor(unit.pos.y) },
+              cmd.target
+            );
+            if (path && path.length > 0) {
+              unit.path = path;
+              unit.targetPos = { x: path[0].x + 0.5, y: path[0].y + 0.5 }; 
+              unit.state = UnitState.Moving;
+            } else if (path && path.length === 0 && Math.floor(unit.pos.x) === cmd.target.x && Math.floor(unit.pos.y) === cmd.target.y) {
+              // Already at target
+              unit.pos = { x: cmd.target.x + 0.5, y: cmd.target.y + 0.5 };
+              unit.path = undefined;
+              unit.targetPos = undefined;
+              unit.state = UnitState.Idle;
+            } else {
+              console.warn(`No path found for unit ${unit.id} to target ${cmd.target.x},${cmd.target.y}`);
+              unit.path = undefined;
+              unit.targetPos = undefined;
+              unit.state = UnitState.Idle;
+            }
+        }
+      }
   }
 
   // Helper to calculate distance between two points (centers of cells)
@@ -139,6 +153,14 @@ export class CoreEngine {
     this.state.units.forEach(unit => {
       if (unit.state === UnitState.Extracted || unit.state === UnitState.Dead) return;
 
+      // Process Queue if Idle
+      if (unit.state === UnitState.Idle && unit.commandQueue.length > 0) {
+          const nextCmd = unit.commandQueue.shift();
+          if (nextCmd) {
+              this.executeCommand(unit, nextCmd);
+          }
+      }
+
       // Objectives: Recover
       if (this.state.objectives) {
         this.state.objectives.forEach(obj => {
@@ -146,7 +168,6 @@ export class CoreEngine {
             // Check if unit is at target cell (integer coords)
             if (Math.floor(unit.pos.x) === obj.targetCell.x && Math.floor(unit.pos.y) === obj.targetCell.y) {
               obj.state = 'Completed';
-              // console.log(`Objective ${obj.id} completed by unit ${unit.id}`);
             }
           }
         });
@@ -174,7 +195,11 @@ export class CoreEngine {
         const targetEnemy = enemiesInRange[0];
         targetEnemy.hp -= unit.damage;
         unit.state = UnitState.Attacking;
-        // console.log(`Unit ${unit.id} attacked Enemy ${targetEnemy.id}, Enemy HP: ${targetEnemy.hp}`);
+        
+        // Record attack for visuals
+        unit.lastAttackTarget = { ...targetEnemy.pos };
+        unit.lastAttackTime = this.state.t;
+
       } else if (unit.state === UnitState.Moving && unit.targetPos && unit.path) {
         // Movement logic
         const dx = unit.targetPos.x - unit.pos.x;
@@ -215,7 +240,11 @@ export class CoreEngine {
       if (unitsInRange.length > 0) {
         const targetUnit = unitsInRange[0];
         targetUnit.hp -= enemy.damage;
-        // console.log(`Enemy ${enemy.id} attacked Unit ${targetUnit.id}, Unit HP: ${targetUnit.hp}`);
+        
+        // Record attack for visuals (optional for enemies?)
+        // Let's add it for consistency
+        enemy.lastAttackTarget = { ...targetUnit.pos };
+        enemy.lastAttackTime = this.state.t;
       }
     });
 
@@ -224,7 +253,6 @@ export class CoreEngine {
     this.state.units.forEach(unit => {
       if (unit.hp <= 0 && unit.state !== UnitState.Dead) {
         unit.state = UnitState.Dead;
-        // console.log(`Unit ${unit.id} died.`);
       }
     });
 
@@ -232,14 +260,7 @@ export class CoreEngine {
     const activeUnits = this.state.units.filter(u => u.state !== UnitState.Dead && u.state !== UnitState.Extracted);
     const extractedUnits = this.state.units.filter(u => u.state === UnitState.Extracted);
     
-    // Loss: All units dead/extracted and objectives not done?
-    // Spec: "End: success at extraction with objective complete, or fail on wipe"
-    // If active units = 0:
-    // If objectives complete && extracted > 0 -> Win.
-    // Else -> Lost.
-    
     if (activeUnits.length === 0) {
-      // Check objectives
       const allObjectivesComplete = this.state.objectives.every(o => o.state === 'Completed');
       if (allObjectivesComplete && extractedUnits.length > 0) {
         this.state.status = 'Won';
