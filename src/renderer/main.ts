@@ -76,7 +76,7 @@ const updateUI = (state: GameState) => {
       if (unit.state === UnitState.Dead) el.classList.add('dead');
       if (unit.state === UnitState.Extracted) el.classList.add('extracted');
       
-      let statusText = unit.state;
+      let statusText: string = unit.state; // Explicit string type
       if (unit.commandQueue && unit.commandQueue.length > 0) {
         statusText += ` (+${unit.commandQueue.length})`;
       }
