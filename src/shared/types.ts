@@ -18,15 +18,15 @@ export type MapDefinition = {
   height: number;
   cells: Cell[];
   spawnPoints?: SpawnPoint[]; 
-  extraction?: Vector2; // Single extraction point for now
+  extraction?: Vector2; 
   objectives?: ObjectiveDefinition[];
 };
 
 export type ObjectiveDefinition = {
   id: string;
-  kind: 'Recover' | 'Kill'; // Simple types
-  targetCell?: Vector2; // For recover
-  targetEnemyId?: string; // For kill
+  kind: 'Recover' | 'Kill'; 
+  targetCell?: Vector2; 
+  targetEnemyId?: string; 
 };
 
 export type ObjectiveState = 'Pending' | 'Completed' | 'Failed';
@@ -45,8 +45,8 @@ export enum UnitState {
   Idle = 'Idle',
   Moving = 'Moving',
   Attacking = 'Attacking',
-  Extracted = 'Extracted', // New state
-  Dead = 'Dead', // Explicit dead state (though usually removed)
+  Extracted = 'Extracted', 
+  Dead = 'Dead', 
 }
 
 export type Entity = {
@@ -84,8 +84,21 @@ export type GameState = {
   enemies: Enemy[];
   visibleCells: string[]; 
   discoveredCells: string[];
-  objectives: Objective[]; // Track objective status
+  objectives: Objective[]; 
   status: 'Playing' | 'Won' | 'Lost';
+};
+
+// --- Replay ---
+
+export type RecordedCommand = {
+  t: number; // Time in ms when command was issued
+  cmd: Command;
+};
+
+export type ReplayData = {
+  seed: number;
+  map: MapDefinition;
+  commands: RecordedCommand[];
 };
 
 // --- Protocol ---
