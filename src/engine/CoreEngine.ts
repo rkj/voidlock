@@ -54,6 +54,10 @@ export class CoreEngine {
     });
   }
 
+  public clearUnits() { // Added helper for testing
+    this.state.units = [];
+  }
+
   public addUnit(unit: Unit) {
     this.state.units.push(unit);
   }
@@ -116,7 +120,7 @@ export class CoreEngine {
     // --- Visibility Logic ---
     const newVisibleCells = new Set<string>();
     this.state.units.forEach(unit => {
-      if (unit.hp > 0 && unit.state !== UnitState.Extracted) {
+      if (unit.hp > 0 && unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
         const visible = this.los.computeVisibleCells(unit.pos, unit.sightRange || 10); 
         visible.forEach(cell => newVisibleCells.add(cell));
       }
@@ -170,6 +174,7 @@ export class CoreEngine {
         const targetEnemy = enemiesInRange[0];
         targetEnemy.hp -= unit.damage;
         unit.state = UnitState.Attacking;
+        // console.log(`Unit ${unit.id} attacked Enemy ${targetEnemy.id}, Enemy HP: ${targetEnemy.hp}`);
       } else if (unit.state === UnitState.Moving && unit.targetPos && unit.path) {
         // Movement logic
         const dx = unit.targetPos.x - unit.pos.x;
@@ -203,44 +208,43 @@ export class CoreEngine {
       if (enemy.hp <= 0) return;
 
       const unitsInRange = this.state.units.filter(unit => 
-        unit.hp > 0 && unit.state !== UnitState.Extracted &&
+        unit.hp > 0 && unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead &&
         this.getDistance(enemy.pos, unit.pos) <= enemy.attackRange + 0.5
       );
 
       if (unitsInRange.length > 0) {
         const targetUnit = unitsInRange[0];
         targetUnit.hp -= enemy.damage;
+        // console.log(`Enemy ${enemy.id} attacked Unit ${targetUnit.id}, Unit HP: ${targetUnit.hp}`);
       }
     });
 
     // --- Cleanup Death ---
     this.state.enemies = this.state.enemies.filter(enemy => enemy.hp > 0);
-    // Mark dead units instead of removing?
-    // Spec: "End: ... fail on wipe".
-    // I'll keep them in array but state=Dead for now, to track them.
     this.state.units.forEach(unit => {
       if (unit.hp <= 0 && unit.state !== UnitState.Dead) {
         unit.state = UnitState.Dead;
+        // console.log(`Unit ${unit.id} died.`);
       }
     });
 
     // --- Win/Loss Condition ---
     const activeUnits = this.state.units.filter(u => u.state !== UnitState.Dead && u.state !== UnitState.Extracted);
     const extractedUnits = this.state.units.filter(u => u.state === UnitState.Extracted);
-    const deadUnits = this.state.units.filter(u => u.state === UnitState.Dead);
-
-    // Loss: All units dead
-    if (activeUnits.length === 0 && extractedUnits.length === 0) {
-      this.state.status = 'Lost';
-    }
-    // End: All units extracted or dead (no active)
-    else if (activeUnits.length === 0) {
+    
+    // Loss: All units dead/extracted and objectives not done?
+    // Spec: "End: success at extraction with objective complete, or fail on wipe"
+    // If active units = 0:
+    // If objectives complete && extracted > 0 -> Win.
+    // Else -> Lost.
+    
+    if (activeUnits.length === 0) {
       // Check objectives
       const allObjectivesComplete = this.state.objectives.every(o => o.state === 'Completed');
       if (allObjectivesComplete && extractedUnits.length > 0) {
         this.state.status = 'Won';
       } else {
-        this.state.status = 'Lost'; // Failed objectives or everyone died (handled above, but this covers partial extraction fail)
+        this.state.status = 'Lost'; 
       }
     }
   }
