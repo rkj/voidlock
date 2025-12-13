@@ -1,7 +1,7 @@
-import { GameState, MapDefinition, CellType, Vector2, UnitState, Enemy } from '../shared/types';
+import { GameState, MapDefinition, CellType, Vector2, UnitState, Enemy, Door } from '../shared/types';
 
 export class Renderer {
-  private ctx: CanvasRenderingContext2D;
+  private ctx: Canvas2D;
   private canvas: HTMLCanvasElement;
   private cellSize: number = 128; // Increased tile size for M8
 
@@ -64,34 +64,34 @@ export class Renderer {
     this.ctx.lineWidth = 6; // Thicker walls
     this.ctx.beginPath();
 
+    // Helper to check if a door exists on a specific wall segment
+    const isDoor = (cellX: number, cellY: number, wallDirection: 'n'|'e'|'s'|'w'): boolean => {
+      return map.doors?.some(door => {
+        if (door.orientation === 'Horizontal') {
+          if (wallDirection === 'n') { // Check if door is North of (cellX, cellY) i.e. between (cellX, cellY) and (cellX, cellY-1)
+            return door.segment.some(segCell => segCell.x === cellX && segCell.y === cellY - 1);
+          }
+          if (wallDirection === 's') { // Check if door is South of (cellX, cellY) i.e. between (cellX, cellY) and (cellX, cellY+1)
+            return door.segment.some(segCell => segCell.x === cellX && segCell.y === cellY);
+          }
+        } else if (door.orientation === 'Vertical') {
+          if (wallDirection === 'w') { // Check if door is West of (cellX, cellY) i.e. between (cellX, cellY) and (cellX-1, cellY)
+            return door.segment.some(segCell => segCell.x === cellX - 1 && segCell.y === cellY);
+          }
+          if (wallDirection === 'e') { // Check if door is East of (cellX, cellY) i.e. between (cellX, cellY) and (cellX+1, cellY)
+            return door.segment.some(segCell => segCell.x === cellX && segCell.y === cellY);
+          }
+        }
+        return false;
+      }) || false;
+    };
+
     map.cells.forEach(cell => {
       if (cell.type !== CellType.Floor) return;
 
       const x = cell.x * this.cellSize;
       const y = cell.y * this.cellSize;
       const s = this.cellSize;
-
-      // Helper to check if a door exists on a specific wall segment
-      const isDoor = (cellX: number, cellY: number, wallDirection: 'n'|'e'|'s'|'w'): boolean => {
-        return map.doors?.some(door => {
-          if (door.orientation === 'Horizontal') {
-            if (wallDirection === 'n') { // Check if door is North of (cellX, cellY) i.e. between (cellX, cellY) and (cellX, cellY-1)
-              return door.segment.some(segCell => segCell.x === cellX && segCell.y === cellY - 1);
-            }
-            if (wallDirection === 's') { // Check if door is South of (cellX, cellY) i.e. between (cellX, cellY) and (cellX, cellY+1)
-              return door.segment.some(segCell => segCell.x === cellX && segCell.y === cellY);
-            }
-          } else if (door.orientation === 'Vertical') {
-            if (wallDirection === 'w') { // Check if door is West of (cellX, cellY) i.e. between (cellX, cellY) and (cellX-1, cellY)
-              return door.segment.some(segCell => segCell.x === cellX - 1 && segCell.y === cellY);
-            }
-            if (wallDirection === 'e') { // Check if door is East of (cellX, cellY) i.e. between (cellX, cellY) and (cellX+1, cellY)
-              return door.segment.some(segCell => segCell.x === cellX && segCell.y === cellY);
-            }
-          }
-          return false;
-        }) || false;
-      };
 
       // Draw walls only if no door is present
       if (cell.walls.n && !isDoor(cell.x, cell.y, 'n')) { 
@@ -128,15 +128,15 @@ export class Renderer {
         const x = segCell.x * this.cellSize;
         const y = segCell.y * this.cellSize;
         const s = this.cellSize;
+        const doorWidth = this.ctx.lineWidth; // Visual thickness of door
+        const doorHeight = this.ctx.lineWidth; // Visual thickness of door
 
         // Draw door on the appropriate wall segment it replaces
         // Assuming 'segment' refers to the cells on the 'left' or 'top' side of the barrier
         if (door.orientation === 'Vertical') { // Door is vertical (between x and x+1)
-          const doorWidth = this.ctx.lineWidth; // Visual thickness of door
           this.ctx.fillRect(x + s - doorWidth / 2, y, doorWidth, s);
           this.ctx.strokeRect(x + s - doorWidth / 2, y, doorWidth, s);
         } else { // Horizontal (between y and y+1)
-          const doorHeight = this.ctx.lineWidth; // Visual thickness of door
           this.ctx.fillRect(x, y + s - doorHeight / 2, s, doorHeight);
           this.ctx.strokeRect(x, y + s - doorHeight / 2, s, doorHeight);
         }

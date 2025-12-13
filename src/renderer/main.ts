@@ -1,12 +1,78 @@
 import { GameClient } from '../engine/GameClient';
 import { Renderer } from './Renderer';
-import { GameState, UnitState, CommandType, Unit, MapDefinition, MapGeneratorType } from '../shared/types';
+import { GameState, UnitState, CommandType, Unit, MapDefinition, MapGeneratorType, Door, Vector2 } from '../shared/types';
 import { MapGenerator } from '../engine/MapGenerator';
 
 // Factory function for MapGenerator
 const mapGeneratorFactory = (seed: number, type: MapGeneratorType, mapData?: MapDefinition): MapGenerator => {
   // Pass default maxTunnelWidth and maxRoomSize to procedural generator
   return new MapGenerator(seed, 1, 2); 
+};
+
+// --- Global Input State ---
+type InputMode = 'SELECT' | 'CMD_MOVE';
+let inputMode: InputMode = 'SELECT';
+let selectedUnitId: string | null = null; 
+let pendingCommandUnitId: string | null = null;
+
+// --- Map Data Transformation ---
+// This utility function takes the old map format (with doorId in cells)
+// and converts it to the new MapDefinition format (with a top-level doors array).
+const transformMapData = (oldMapData: any): MapDefinition => {
+  const newCells = oldMapData.cells.map((cell: any) => {
+    // Remove doorId from cells as doors are now top-level entities
+    const { doorId, ...rest } = cell;
+    return rest;
+  });
+
+  const doors: Door[] = [];
+  const doorIdMap = new Map<string, { segment: Vector2[]; orientation: 'Horizontal' | 'Vertical' }>();
+
+  oldMapData.cells.forEach((cell: any) => {
+    if (cell.doorId) {
+      const { x, y, doorId } = cell;
+      if (!doorIdMap.has(doorId)) {
+        // Assume default properties for new doors
+        doorIdMap.set(doorId, { segment: [], orientation: 'Vertical' }); // Default to Vertical
+      }
+      doorIdMap.get(doorId)?.segment.push({ x, y });
+    }
+  });
+
+  doorIdMap.forEach((doorProps, id) => {
+    // Determine orientation based on segment (simple check for now)
+    // If all X are same, it's vertical. If all Y are same, it's horizontal.
+    const uniqueX = new Set(doorProps.segment.map(v => v.x)).size;
+    const uniqueY = new Set(doorProps.segment.map(v => v.y)).size;
+
+    if (uniqueX === 1 && doorProps.segment.length > 1) { // Same X, multiple Ys = Vertical
+        doorProps.orientation = 'Vertical';
+        // Sort segment for consistent representation (top-to-bottom)
+        doorProps.segment.sort((a,b) => a.y - b.y);
+    } else if (uniqueY === 1 && doorProps.segment.length > 1) { // Same Y, multiple Xs = Horizontal
+        doorProps.orientation = 'Horizontal';
+        // Sort segment for consistent representation (left-to-right)
+        doorProps.segment.sort((a,b) => a.x - b.x);
+    } else {
+        // Single cell segment, assume vertical (or handle error)
+        doorProps.orientation = 'Vertical'; // Arbitrary default
+    }
+
+
+    doors.push({
+      id,
+      segment: doorProps.segment,
+      orientation: doorProps.orientation,
+      state: 'Closed', // Default state
+      hp: 100, maxHp: 100, openDuration: 1
+    });
+  });
+
+  return {
+    ...oldMapData,
+    cells: newCells,
+    doors, // Add top-level doors array
+  };
 };
 
 // --- Game Setup ---
@@ -17,11 +83,6 @@ let currentSeed: number = Date.now();
 let currentMapGeneratorType: MapGeneratorType = MapGeneratorType.Procedural;
 let currentStaticMapData: MapDefinition | undefined = undefined;
 
-// --- Input State ---
-type InputMode = 'SELECT' | 'CMD_MOVE';
-let inputMode: InputMode = 'SELECT';
-let selectedUnitId: string | null = null; 
-let pendingCommandUnitId: string | null = null;
 
 const initGame = (seed?: number, generatorType?: MapGeneratorType, staticMapData?: MapDefinition) => {
   currentSeed = seed ?? Date.now();
@@ -178,11 +239,12 @@ document.addEventListener('DOMContentLoaded', () => {
     currentMapGeneratorType = mapGeneratorTypeSelect.value as MapGeneratorType;
     if (currentMapGeneratorType === MapGeneratorType.Static) {
       staticMapControlsDiv.style.display = 'block';
-      generateMapButton.textContent = 'Generate New Mission (Procedural)';
+      generateMapButton.style.display = 'none'; // Hide procedural generate button
       mapSeedInput.disabled = true; // Seed is not relevant for static map loading
     } else {
       staticMapControlsDiv.style.display = 'none';
-      generateMapButton.textContent = 'Generate New Mission';
+      generateMapButton.style.display = 'block'; // Show procedural generate button
+      generateMapButton.textContent = 'Generate New Mission'; // Reset text
       mapSeedInput.disabled = false;
     }
   });
@@ -199,7 +261,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   loadStaticMapButton?.addEventListener('click', () => {
     try {
-      const mapData: MapDefinition = JSON.parse(staticMapJsonTextarea.value);
+      const oldMapData = JSON.parse(staticMapJsonTextarea.value);
+      const mapData: MapDefinition = transformMapData(oldMapData);
+      
       // Validate basic structure (optional, but good practice)
       if (!mapData.width || !mapData.height || !mapData.cells) {
         throw new Error("Invalid MapDefinition JSON: Missing width, height, or cells.");
@@ -271,8 +335,13 @@ document.addEventListener('DOMContentLoaded', () => {
   mapGeneratorTypeSelect.value = currentMapGeneratorType;
   if (currentMapGeneratorType === MapGeneratorType.Static) {
     staticMapControlsDiv.style.display = 'block';
-    generateMapButton.textContent = 'Generate New Mission (Procedural)';
+    generateMapButton.style.display = 'none'; // Hide procedural generate button
     mapSeedInput.disabled = true;
+  } else {
+    staticMapControlsDiv.style.display = 'none'; // Hide static map controls
+    generateMapButton.style.display = 'block'; // Show procedural generate button
+    generateMapButton.textContent = 'Generate New Mission'; // Reset text
+    mapSeedInput.disabled = false;
   }
   
   initGame(currentSeed, currentMapGeneratorType, currentStaticMapData);
