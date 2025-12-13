@@ -43,9 +43,13 @@ export class CoreEngine {
     this.director = new Director(spawnPoints, this.prng, (enemy) => this.addEnemy(enemy));
 
     // M2/M3 Prototype: Spawn default squad
+    // Use extraction point as start if available, else 0,0
+    const startX = map.extraction ? map.extraction.x + 0.5 : 0.5;
+    const startY = map.extraction ? map.extraction.y + 0.5 : 0.5;
+
     this.addUnit({
       id: 's1',
-      pos: { x: 2.5, y: 2.5 }, // Start near extraction (2,2)
+      pos: { x: startX, y: startY }, 
       hp: 100, maxHp: 100,
       state: UnitState.Idle,
       damage: 20,
@@ -176,7 +180,10 @@ export class CoreEngine {
       // Extraction
       if (this.state.map.extraction) {
         const ext = this.state.map.extraction;
-        if (Math.floor(unit.pos.x) === ext.x && Math.floor(unit.pos.y) === ext.y) {
+        // Only extract if objectives are complete
+        const allObjectivesComplete = this.state.objectives.every(o => o.state === 'Completed');
+        
+        if (allObjectivesComplete && Math.floor(unit.pos.x) === ext.x && Math.floor(unit.pos.y) === ext.y) {
           unit.state = UnitState.Extracted;
           unit.path = undefined;
           unit.targetPos = undefined;

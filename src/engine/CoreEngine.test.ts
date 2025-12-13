@@ -50,15 +50,14 @@ describe('CoreEngine with Objectives and Game Loop', () => {
     expect(state.objectives[0].state).toBe('Completed');
   });
 
-  it('should extract unit at extraction point', () => {
-    // Extraction at (0,2). Move unit there.
-    engine.applyCommand({
-      type: CommandType.MOVE_TO,
-      unitIds: ['u1'],
-      target: { x: 0, y: 2 }
-    });
-
-    for (let i = 0; i < 20; i++) engine.update(100); // Allow time to travel
+  it('should extract unit at extraction point only if objectives complete', () => {
+    // 1. Complete objective
+    engine.applyCommand({ type: CommandType.MOVE_TO, unitIds: ['u1'], target: { x: 2, y: 0 } });
+    for (let i = 0; i < 15; i++) engine.update(100);
+    
+    // 2. Move to extraction
+    engine.applyCommand({ type: CommandType.MOVE_TO, unitIds: ['u1'], target: { x: 0, y: 2 } });
+    for (let i = 0; i < 25; i++) engine.update(100); 
     
     const state = engine.getState();
     const unit = state.units[0];
@@ -99,7 +98,7 @@ describe('CoreEngine with Objectives and Game Loop', () => {
     expect(state.status).toBe('Lost');
   });
 
-  it('should lose game if units extract without completing objectives', () => {
+  it('should NOT extract unit if objectives are pending', () => {
     // Move to extraction at (0,2)
     engine.applyCommand({
       type: CommandType.MOVE_TO,
@@ -109,8 +108,8 @@ describe('CoreEngine with Objectives and Game Loop', () => {
     for (let i = 0; i < 20; i++) engine.update(100);
     
     const state = engine.getState();
-    expect(state.units[0].state).toBe(UnitState.Extracted);
-    // Objective pending. No active units.
-    expect(state.status).toBe('Lost');
+    // Should NOT be extracted
+    expect(state.units[0].state).not.toBe(UnitState.Extracted);
+    expect(state.status).toBe('Playing');
   });
 });
