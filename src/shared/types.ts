@@ -1,7 +1,7 @@
 export type Vector2 = { x: number; y: number };
 
 export enum CellType {
-  Wall = 'Wall',
+  Wall = 'Wall', // Now represents Void/Unreachable
   Floor = 'Floor',
 }
 
@@ -9,6 +9,13 @@ export type Cell = {
   x: number;
   y: number;
   type: CellType;
+  // Thin walls on edges
+  walls: {
+    n: boolean;
+    e: boolean;
+    s: boolean;
+    w: boolean;
+  };
   roomId?: string;
   doorId?: string;
 };
@@ -39,6 +46,8 @@ export interface Grid {
   width: number;
   height: number;
   isWalkable(x: number, y: number): boolean;
+  // Check if movement between adjacent cells is allowed (no wall)
+  canMove(fromX: number, fromY: number, toX: number, toY: number): boolean;
 }
 
 export enum UnitState {
@@ -63,7 +72,6 @@ export type Unit = Entity & {
   damage: number;
   attackRange: number;
   sightRange: number;
-  // M6: Queue and Visuals
   commandQueue: Command[];
   lastAttackTarget?: Vector2;
   lastAttackTime?: number;
@@ -73,7 +81,6 @@ export type Enemy = Entity & {
   type: string; 
   damage: number;
   attackRange: number;
-  // M6: Visuals
   lastAttackTarget?: Vector2;
   lastAttackTime?: number;
 };
@@ -127,5 +134,5 @@ export type Command = {
   type: CommandType;
   unitIds: string[];
   target: Vector2;
-  queue?: boolean; // New flag to append instead of replace
+  queue?: boolean; 
 };

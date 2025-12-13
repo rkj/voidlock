@@ -3,7 +3,7 @@ import { GameState, MapDefinition, CellType, Vector2, UnitState, Enemy } from '.
 export class Renderer {
   private ctx: CanvasRenderingContext2D;
   private canvas: HTMLCanvasElement;
-  private cellSize: number = 32; // Pixels per cell
+  private cellSize: number = 96; // Increased tile size
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -33,48 +33,82 @@ export class Renderer {
     this.canvas.width = map.width * this.cellSize;
     this.canvas.height = map.height * this.cellSize;
 
+    // Draw Floors
     map.cells.forEach(cell => {
-      // Draw everything first, then apply fog
-      this.ctx.fillStyle = cell.type === CellType.Floor ? '#333' : '#666';
-      this.ctx.fillRect(
-        cell.x * this.cellSize,
-        cell.y * this.cellSize,
-        this.cellSize,
-        this.cellSize
-      );
-      this.ctx.strokeStyle = '#222';
-      this.ctx.strokeRect(
-        cell.x * this.cellSize,
-        cell.y * this.cellSize,
-        this.cellSize,
-        this.cellSize
-      );
+      if (cell.type === CellType.Floor) {
+        this.ctx.fillStyle = '#222'; // Darker floor
+        this.ctx.fillRect(
+          cell.x * this.cellSize,
+          cell.y * this.cellSize,
+          this.cellSize,
+          this.cellSize
+        );
+        
+        // Faint grid
+        this.ctx.strokeStyle = '#333';
+        this.ctx.lineWidth = 1;
+        this.ctx.strokeRect(
+          cell.x * this.cellSize,
+          cell.y * this.cellSize,
+          this.cellSize,
+          this.cellSize
+        );
+      }
     });
+
+    // Draw Walls (Edges)
+    this.ctx.strokeStyle = '#888'; // Wall color
+    this.ctx.lineWidth = 4;
+    this.ctx.beginPath();
+
+    map.cells.forEach(cell => {
+      const x = cell.x * this.cellSize;
+      const y = cell.y * this.cellSize;
+      const s = this.cellSize;
+
+      if (cell.walls.n) {
+        this.ctx.moveTo(x, y);
+        this.ctx.lineTo(x + s, y);
+      }
+      if (cell.walls.e) {
+        this.ctx.moveTo(x + s, y);
+        this.ctx.lineTo(x + s, y + s);
+      }
+      if (cell.walls.s) {
+        this.ctx.moveTo(x, y + s);
+        this.ctx.lineTo(x + s, y + s);
+      }
+      if (cell.walls.w) {
+        this.ctx.moveTo(x, y);
+        this.ctx.lineTo(x, y + s);
+      }
+    });
+    this.ctx.stroke();
   }
 
   private renderObjectives(state: GameState) {
     if (state.map.extraction) {
       const ext = state.map.extraction;
-      this.ctx.fillStyle = '#00AAAA'; // Cyan extraction
-      this.ctx.globalAlpha = 0.5;
+      this.ctx.fillStyle = '#00AAAA'; 
+      this.ctx.globalAlpha = 0.3;
       this.ctx.fillRect(
-        ext.x * this.cellSize,
-        ext.y * this.cellSize,
-        this.cellSize,
-        this.cellSize
+        ext.x * this.cellSize + 2, // Inner rect
+        ext.y * this.cellSize + 2,
+        this.cellSize - 4,
+        this.cellSize - 4
       );
       this.ctx.globalAlpha = 1.0;
     }
 
     state.objectives?.forEach(obj => {
       if (obj.state === 'Pending' && obj.targetCell) {
-        this.ctx.fillStyle = '#FFAA00'; // Orange objective
-        this.ctx.globalAlpha = 0.5;
+        this.ctx.fillStyle = '#FFAA00'; 
+        this.ctx.globalAlpha = 0.3;
         this.ctx.fillRect(
-          obj.targetCell.x * this.cellSize,
-          obj.targetCell.y * this.cellSize,
-          this.cellSize,
-          this.cellSize
+          obj.targetCell.x * this.cellSize + 2,
+          obj.targetCell.y * this.cellSize + 2,
+          this.cellSize - 4,
+          this.cellSize - 4
         );
         this.ctx.globalAlpha = 1.0;
       }
@@ -89,14 +123,15 @@ export class Renderer {
       const y = unit.pos.y * this.cellSize;
 
       this.ctx.beginPath();
-      this.ctx.arc(x, y, this.cellSize / 3, 0, Math.PI * 2);
+      // Smaller units: 1/6 cell size radius = 1/3 diameter
+      this.ctx.arc(x, y, this.cellSize / 6, 0, Math.PI * 2);
       
       if (unit.state === UnitState.Attacking) {
-        this.ctx.fillStyle = '#FF4400'; // Red/Orange for attacking
+        this.ctx.fillStyle = '#FF4400'; 
       } else if (unit.state === UnitState.Moving) {
-        this.ctx.fillStyle = '#FFD700'; // Gold
+        this.ctx.fillStyle = '#FFD700'; 
       } else {
-        this.ctx.fillStyle = '#00FF00'; // Green
+        this.ctx.fillStyle = '#00FF00'; 
       }
       
       this.ctx.fill();
@@ -104,18 +139,18 @@ export class Renderer {
       this.ctx.lineWidth = 2;
       this.ctx.stroke();
 
-      // HP Bar
       this.renderHealthBar(x, y, unit.hp, unit.maxHp);
 
-      // Target line (Movement)
+      // Target line
       if (unit.state === UnitState.Moving && unit.targetPos) {
         this.ctx.beginPath();
-        this.ctx.arc(unit.targetPos.x * this.cellSize,
-                     unit.targetPos.y * this.cellSize,
-                     this.cellSize / 4, 0, Math.PI * 2);
+        this.ctx.moveTo(x, y);
+        this.ctx.lineTo(unit.targetPos.x * this.cellSize, unit.targetPos.y * this.cellSize);
         this.ctx.strokeStyle = '#FF00FF'; 
         this.ctx.lineWidth = 1;
+        this.ctx.setLineDash([5, 5]);
         this.ctx.stroke();
+        this.ctx.setLineDash([]);
       }
 
       // Combat Tracers
@@ -123,7 +158,7 @@ export class Renderer {
           this.ctx.beginPath();
           this.ctx.moveTo(x, y);
           this.ctx.lineTo(unit.lastAttackTarget.x * this.cellSize, unit.lastAttackTarget.y * this.cellSize);
-          this.ctx.strokeStyle = '#FFFF00'; // Yellow tracer
+          this.ctx.strokeStyle = '#FFFF00'; 
           this.ctx.lineWidth = 2;
           this.ctx.stroke();
       }
@@ -134,20 +169,21 @@ export class Renderer {
     state.enemies.forEach(enemy => {
       if (enemy.hp <= 0) return;
 
-      // Only render if visible
       const cellKey = `${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`;
       if (!state.visibleCells.includes(cellKey)) return;
 
       const x = enemy.pos.x * this.cellSize;
       const y = enemy.pos.y * this.cellSize;
+      const size = this.cellSize / 6;
 
       this.ctx.beginPath();
-      this.ctx.moveTo(x, y - this.cellSize/3);
-      this.ctx.lineTo(x + this.cellSize/3, y + this.cellSize/3);
-      this.ctx.lineTo(x - this.cellSize/3, y + this.cellSize/3);
+      // Triangle
+      this.ctx.moveTo(x, y - size);
+      this.ctx.lineTo(x + size, y + size);
+      this.ctx.lineTo(x - size, y + size);
       this.ctx.closePath();
       
-      this.ctx.fillStyle = '#FF0000'; // Red enemy
+      this.ctx.fillStyle = '#FF0000'; 
       this.ctx.fill();
       this.ctx.strokeStyle = '#000';
       this.ctx.lineWidth = 2;
@@ -155,12 +191,11 @@ export class Renderer {
 
       this.renderHealthBar(x, y, enemy.hp, enemy.maxHp);
 
-      // Combat Tracers
       if (enemy.lastAttackTarget && enemy.lastAttackTime && (state.t - enemy.lastAttackTime < 150)) {
           this.ctx.beginPath();
           this.ctx.moveTo(x, y);
           this.ctx.lineTo(enemy.lastAttackTarget.x * this.cellSize, enemy.lastAttackTarget.y * this.cellSize);
-          this.ctx.strokeStyle = '#FF8800'; // Orange tracer for enemies
+          this.ctx.strokeStyle = '#FF8800'; 
           this.ctx.lineWidth = 2;
           this.ctx.stroke();
       }
@@ -168,9 +203,9 @@ export class Renderer {
   }
 
   private renderHealthBar(x: number, y: number, hp: number, maxHp: number) {
-    const barWidth = this.cellSize * 0.8;
+    const barWidth = this.cellSize * 0.4;
     const barHeight = 4;
-    const yOffset = -this.cellSize / 2 - 6;
+    const yOffset = -this.cellSize / 6 - 8;
 
     this.ctx.fillStyle = '#000';
     this.ctx.fillRect(x - barWidth/2, y + yOffset, barWidth, barHeight);
@@ -182,20 +217,23 @@ export class Renderer {
 
   private renderFog(state: GameState) {
     const map = state.map;
+    // Fog also needs to respect thin walls?
+    // Fog is cell-based.
+    // If we draw black rect over cell, we cover the floor.
+    // Wall lines are drawn after floor but before fog in my code?
+    // Order: Map (Floor + Walls) -> Objectives -> Units -> Enemies -> Fog.
+    // Fog covers everything.
+    
     for (let y = 0; y < map.height; y++) {
       for (let x = 0; x < map.width; x++) {
         const key = `${x},${y}`;
         const isVisible = state.visibleCells.includes(key);
         const isDiscovered = state.discoveredCells.includes(key);
 
-        if (isVisible) {
-          // No fog
-          continue;
-        }
+        if (isVisible) continue;
 
         if (isDiscovered) {
-          // Dim (Shroud)
-          this.ctx.fillStyle = 'rgba(0, 0, 0, 0.6)'; // 60% black
+          this.ctx.fillStyle = 'rgba(0, 0, 0, 0.6)'; 
           this.ctx.fillRect(
             x * this.cellSize,
             y * this.cellSize,
@@ -203,8 +241,7 @@ export class Renderer {
             this.cellSize
           );
         } else {
-          // Hidden (Fog)
-          this.ctx.fillStyle = '#000'; // 100% black
+          this.ctx.fillStyle = '#000'; 
           this.ctx.fillRect(
             x * this.cellSize,
             y * this.cellSize,

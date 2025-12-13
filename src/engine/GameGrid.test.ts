@@ -1,67 +1,42 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { GameGrid } from './GameGrid';
-import { MapDefinition, CellType } from '../shared/types';
+import { MapDefinition, CellType, Cell } from '../shared/types';
 
 describe('GameGrid', () => {
   let mockMap: MapDefinition;
   let grid: GameGrid;
 
   beforeEach(() => {
+    // 2x2 map. (0,0) and (1,0) connected. (0,1) disconnected from (0,0) by wall.
+    const cells: Cell[] = [
+      { x: 0, y: 0, type: CellType.Floor, walls: { n: true, e: false, s: true, w: true } },
+      { x: 1, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: true, w: false } }, // w: false connects to (0,0) e: false? No e: false connects.
+      
+      { x: 0, y: 1, type: CellType.Floor, walls: { n: true, e: true, s: true, w: true } }, // Isolated
+      { x: 1, y: 1, type: CellType.Wall, walls: { n: true, e: true, s: true, w: true } }
+    ];
+
     mockMap = {
-      width: 5,
-      height: 5,
-      cells: [
-        { x: 0, y: 0, type: CellType.Wall },
-        { x: 1, y: 0, type: CellType.Floor },
-        { x: 2, y: 0, type: CellType.Floor },
-        { x: 3, y: 0, type: CellType.Wall },
-        { x: 4, y: 0, type: CellType.Floor },
-        
-        { x: 0, y: 1, type: CellType.Floor },
-        { x: 1, y: 1, type: CellType.Floor },
-        { x: 2, y: 1, type: CellType.Floor },
-        { x: 3, y: 1, type: CellType.Floor },
-        { x: 4, y: 1, type: CellType.Floor },
-
-        { x: 0, y: 2, type: CellType.Wall },
-        { x: 1, y: 2, type: CellType.Wall },
-        { x: 2, y: 2, type: CellType.Floor },
-        { x: 3, y: 2, type: CellType.Wall },
-        { x: 4, y: 2, type: CellType.Wall },
-
-        { x: 0, y: 3, type: CellType.Floor },
-        { x: 1, y: 3, type: CellType.Floor },
-        { x: 2, y: 3, type: CellType.Floor },
-        { x: 3, y: 3, type: CellType.Floor },
-        { x: 4, y: 3, type: CellType.Floor },
-
-        { x: 0, y: 4, type: CellType.Floor },
-        { x: 1, y: 4, type: CellType.Floor },
-        { x: 2, y: 4, type: CellType.Floor },
-        { x: 3, y: 4, type: CellType.Floor },
-        { x: 4, y: 4, type: CellType.Floor },
-      ],
+      width: 2,
+      height: 2,
+      cells
     };
     grid = new GameGrid(mockMap);
   });
 
-  it('should initialize with correct dimensions', () => {
-    expect(grid.width).toBe(mockMap.width);
-    expect(grid.height).toBe(mockMap.height);
+  it('should allow movement between open edges', () => {
+    // (0,0) -> (1,0). (0,0).walls.e is false. (1,0).walls.w is false.
+    expect(grid.canMove(0, 0, 1, 0)).toBe(true);
+    expect(grid.canMove(1, 0, 0, 0)).toBe(true);
   });
 
-  it('should correctly identify walkable cells', () => {
-    expect(grid.isWalkable(1, 0)).toBe(true); // Floor
-    expect(grid.isWalkable(0, 0)).toBe(false); // Wall
-    expect(grid.isWalkable(3, 0)).toBe(false); // Wall
-    expect(grid.isWalkable(1, 2)).toBe(false); // Wall
-    expect(grid.isWalkable(2, 2)).toBe(true); // Floor
+  it('should block movement through walls', () => {
+    // (0,0) -> (0,1). (0,0).walls.s is true.
+    expect(grid.canMove(0, 0, 0, 1)).toBe(false);
   });
 
-  it('should return false for out-of-bounds cells', () => {
-    expect(grid.isWalkable(-1, 0)).toBe(false);
-    expect(grid.isWalkable(5, 0)).toBe(false);
-    expect(grid.isWalkable(0, -1)).toBe(false);
-    expect(grid.isWalkable(0, 5)).toBe(false);
+  it('should block movement to void/wall cells', () => {
+    // (1,0) -> (1,1). (1,1) is Wall type.
+    expect(grid.canMove(1, 0, 1, 1)).toBe(false);
   });
 });

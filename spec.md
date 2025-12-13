@@ -72,10 +72,12 @@
 ### 3.2 World representation
 
 * Grid of **tiles** (Space Hulk compatibility strongly suggests “square-based” corridors/rooms). Entry points and objectives map cleanly onto squares. Space Hulk’s core maps/tiles are effectively a grid of corridor/room squares with doors and entry areas. ([Order of Gamers][1])
+* **Spaceship Interior:** Tight corridors, "thin walls" between adjacent cells (edge-based), and constrained spaces (no large open areas). Maximum map size 16x16.
 
 **Recommended cell model (tile-based)**
 
-* `Cell { x,y, type: Wall|Floor, roomId?, doorId?, tags[] }`
+* `Cell { x,y, type: Floor, walls: { n: bool, e: bool, s: bool, w: bool }, roomId?, doorId?, tags[] }`
+    * *Note:* `type: Wall` cells are replaced by edge-based walls between Floor cells, though "Void" cells might exist outside the ship hull.
 * Doors are edges or cell features: `Door { id, cell, orientation, state: Open|Closed|Destroyed }`
 * Spawns: `SpawnPoint { id, cell, kind: EnemyEntry }`
 * Extraction: `ExtractionPoint { cell }`
@@ -382,6 +384,10 @@ Do not ship copyrighted scans/assets. Keep importer expecting **user-provided** 
    * **Combat Visuals**: Bullet tracers/lines when units fire.
    * **Health Bars**: Verified and refined health indicators for all combatants.
    * **Command Queuing**: Engine support for queuing multiple commands per unit.
+7. **M7: Spaceship Map & Thin Walls**
+   * **Thin Walls**: Refactor engine to support walls *between* cells instead of solid wall tiles.
+   * **Maze Generation**: Procedural generation for tight spaceship corridors (maze-like, max 16x16).
+   * **Visual Scale**: Increase tile size significantly relative to units.
 
 ---
 
@@ -392,3 +398,4 @@ Do not ship copyrighted scans/assets. Keep importer expecting **user-provided** 
 * Any run can be replayed deterministically from exported JSON.
 * Balancing can be changed without editing engine code (content pack swap).
 * UI supports keyboard-driven gameplay and provides clear tactical feedback (soldier list, tracers).
+* Map resembles a tight spaceship interior with edge-based walls.
