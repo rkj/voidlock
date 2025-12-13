@@ -115,13 +115,11 @@ export class Renderer {
 
     // Render Doors
     map.doors?.forEach(door => {
-      let doorColor = 'darkgrey'; // Default for Closed
-      if (door.state === 'Open') doorColor = 'hotpink';
-      else if (door.state === 'Locked') doorColor = 'orange';
-      else if (door.state === 'Destroyed') doorColor = '#F00';
+      let doorColor: string | null = null;
+      if (door.state === 'Closed') doorColor = 'yellow';
+      else if (door.state === 'Locked') doorColor = 'red';
+      else if (door.state === 'Destroyed') doorColor = '#F00'; // Keep red for destroyed
 
-      this.ctx.fillStyle = doorColor;
-      this.ctx.strokeStyle = '#CCC'; // Lighter border for doors
       const doorThickness = this.cellSize / 10; // Make doors 1/10th of cell size
 
       door.segment.forEach(segCell => {
@@ -130,16 +128,34 @@ export class Renderer {
         const s = this.cellSize;
         let drawX = x, drawY = y, drawWidth = s, drawHeight = s;
 
-        if (door.orientation === 'Vertical') { // Door is vertical (between x and x+1)
-          drawX = x + s - doorThickness / 2;
-          drawWidth = doorThickness;
-        } else { // Horizontal (between y and y+1)
-          drawY = y + s - doorThickness / 2;
-          drawHeight = doorThickness;
-        }
+        if (door.state === 'Open') {
+          // Draw an outline/frame for open doors
+          this.ctx.strokeStyle = 'lightgrey'; // Color for open door frame
+          this.ctx.lineWidth = 2; // Thin frame
+          if (door.orientation === 'Vertical') {
+            drawX = x + s - this.ctx.lineWidth / 2;
+            drawWidth = this.ctx.lineWidth;
+          } else {
+            drawY = y + s - this.ctx.lineWidth / 2;
+            drawHeight = this.ctx.lineWidth;
+          }
+          this.ctx.strokeRect(drawX, drawY, drawWidth, drawHeight);
+        } else {
+          // Draw filled rectangle for Closed, Locked, Destroyed doors
+          this.ctx.fillStyle = doorColor!;
+          this.ctx.strokeStyle = '#CCC'; // Lighter border for doors
+          this.ctx.lineWidth = doorThickness; // Fill thickness
 
-        this.ctx.fillRect(drawX, drawY, drawWidth, drawHeight);
-        this.ctx.strokeRect(drawX, drawY, drawWidth, drawHeight);
+          if (door.orientation === 'Vertical') { // Door is vertical (between x and x+1)
+            drawX = x + s - doorThickness / 2;
+            drawWidth = doorThickness;
+          } else { // Horizontal (between y and y+1)
+            drawY = y + s - doorThickness / 2;
+            drawHeight = doorThickness;
+          }
+          this.ctx.fillRect(drawX, drawY, drawWidth, drawHeight);
+          this.ctx.strokeRect(drawX, drawY, drawWidth, drawHeight);
+        }
       });
     });
   }

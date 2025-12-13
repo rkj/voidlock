@@ -747,6 +747,11 @@ history/
 - ✅ **New Change Request Workflow**: When a new change is requested, first update `spec.md` with the extra clarification, then create Beads tasks for the implementation.
 - ✅ **No Pushes**: The agent must *not* push changes to the remote repository without explicit user instruction.
 - ✅ **Version Control**: The agent must use `jj` commands exclusively for version control operations (commit, diff, status, etc.), and *never* use `git` commands directly, as this is a `jj` managed repository.
+- ✅ **Development Server**: The agent must *never* run `npm run dev` or any development server command. Assume the user is managing the development server externally.
+- ✅ **Commit Frequency**: The agent must commit changes after the completion of *every* Beads task.
+- ✅ **Game Access URL**: The game is accessible at `http://192.168.20.8:5173/`. This URL should be used for all browser interactions.
+- ✅ **Test Execution**: Unit tests should be run using `npx vitest run` to ensure non-interactive execution. Avoid running `npx vitest` without the `run` argument, as it defaults to an interactive watch mode that will never quit.
+- ✅ **Test Execution**: Unit tests should be run using `npx vitest run` to ensure non-interactive execution. Avoid running `npx vitest` without the `run` argument, as it defaults to an interactive watch mode that will never quit.
 - ❌ Do NOT create markdown TODO lists
 - ❌ Do NOT use external issue trackers
 - ❌ Do NOT duplicate tracking systems
