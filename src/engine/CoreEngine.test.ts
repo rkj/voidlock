@@ -7,7 +7,7 @@ import { Pathfinder } from './Pathfinder';
 // Removed mocks for GameGrid and Pathfinder to test CoreEngine with actual dependencies
 
 
-describe('CoreEngine with Pathfinding', () => {
+describe('CoreEngine with Pathfinding and Combat', () => {
   let engine: CoreEngine;
   const mockMap: MapDefinition = {
     width: 3, // Smaller map for simpler pathfinding
@@ -29,6 +29,7 @@ describe('CoreEngine with Pathfinding', () => {
       pos: { x: 0.5, y: 0.5 }, // Units start at half-cell for movement to center
       hp: 100, maxHp: 100,
       state: UnitState.Idle,
+      damage: 20, attackRange: 1,
     });
   });
 
@@ -86,7 +87,8 @@ describe('CoreEngine with Pathfinding', () => {
         id: 'u2',
         pos: { x: 0.5, y: 0.5 },
         hp: 100, maxHp: 100,
-        state: UnitState.Idle
+        state: UnitState.Idle,
+        damage: 10, attackRange: 1,
     });
     engine.applyCommand({
       type: CommandType.MOVE_TO,
@@ -106,7 +108,8 @@ describe('CoreEngine with Pathfinding', () => {
         id: 'u3',
         pos: { x: 2.5, y: 0.5 }, // Unit already at center of cell (2,0)
         hp: 100, maxHp: 100,
-        state: UnitState.Idle
+        state: UnitState.Idle,
+        damage: 10, attackRange: 1,
     });
     engine.applyCommand({
       type: CommandType.MOVE_TO,
@@ -126,12 +129,69 @@ describe('CoreEngine with Pathfinding', () => {
       id: 'e1',
       pos: { x: 1.5, y: 0.5 },
       hp: 50, maxHp: 50,
-      type: 'SwarmMelee'
+      type: 'SwarmMelee',
+      damage: 5, attackRange: 1,
     });
 
     const state = engine.getState();
     expect(state.enemies.length).toBe(1);
     expect(state.enemies[0].id).toBe('e1');
     expect(state.enemies[0].type).toBe('SwarmMelee');
+  });
+
+  it('should attack enemies in range', () => {
+    // Unit u1 at (0.5, 0.5), attackRange = 1
+    engine.addEnemy({
+      id: 'e1',
+      pos: { x: 1.5, y: 0.5 }, // Enemy is 1 unit away, in range
+      hp: 50, maxHp: 50,
+      type: 'SwarmMelee',
+      damage: 5, attackRange: 1,
+    });
+
+    engine.update(100); // Trigger update to resolve combat
+
+    const state = engine.getState();
+    const enemy = state.enemies[0];
+    const unit = state.units[0];
+
+    expect(enemy.hp).toBe(50 - unit.damage); // Enemy should take damage
+    expect(unit.state).toBe(UnitState.Attacking); // Unit should be in attacking state
+  });
+
+  it('should not attack enemies out of range', () => {
+    // Unit u1 at (0.5, 0.5), attackRange = 1
+    engine.addEnemy({
+      id: 'e1',
+      pos: { x: 2.5, y: 0.5 }, // Enemy is 2 units away, out of range
+      hp: 50, maxHp: 50,
+      type: 'SwarmMelee',
+      damage: 5, attackRange: 1,
+    });
+
+    engine.update(100); // Trigger update
+
+    const state = engine.getState();
+    const enemy = state.enemies[0];
+    const unit = state.units[0];
+
+    expect(enemy.hp).toBe(50); // Enemy should not take damage
+    expect(unit.state).toBe(UnitState.Idle); // Unit should remain idle if not moving or attacking
+  });
+
+  it('should remove defeated enemies', () => {
+    // Unit u1 at (0.5, 0.5), damage = 20
+    engine.addEnemy({
+      id: 'e1',
+      pos: { x: 1.5, y: 0.5 }, // In range
+      hp: 10, maxHp: 10, // Low HP
+      type: 'SwarmMelee',
+      damage: 5, attackRange: 1,
+    });
+
+    engine.update(100); // Unit attacks, enemy HP becomes 10 - 20 = -10
+
+    const state = engine.getState();
+    expect(state.enemies.length).toBe(0); // Enemy should be removed
   });
 });

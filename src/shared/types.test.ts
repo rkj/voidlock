@@ -5,6 +5,7 @@ describe('Shared Types', () => {
   it('should have correct enum values', () => {
     expect(CellType.Wall).toBe('Wall');
     expect(UnitState.Moving).toBe('Moving');
+    expect(UnitState.Attacking).toBe('Attacking'); // New test
     expect(CommandType.MOVE_TO).toBe('MOVE_TO');
   });
 
@@ -30,7 +31,8 @@ describe('Shared Types', () => {
       id: 'u1',
       pos: { x: 0, y: 0 },
       hp: 100, maxHp: 100,
-      state: UnitState.Idle
+      state: UnitState.Idle,
+      damage: 10, attackRange: 1
     };
     expect(unitWithOutPath).not.toHaveProperty('path');
 
@@ -39,12 +41,13 @@ describe('Shared Types', () => {
       pos: { x: 0, y: 0 },
       hp: 100, maxHp: 100,
       state: UnitState.Moving,
-      path: [{ x: 1, y: 0 }, { x: 2, y: 0 }]
+      path: [{ x: 1, y: 0 }, { x: 2, y: 0 }],
+      damage: 10, attackRange: 1
     };
     expect(unitWithPath.path).toEqual([{ x: 1, y: 0 }, { x: 2, y: 0 }]);
   });
 
-  it('should define Entity and Enemy types', () => {
+  it('should define Entity, Unit, and Enemy types with combat properties', () => {
     const entity: Entity = {
       id: 'e1',
       pos: { x: 5, y: 5 },
@@ -54,15 +57,29 @@ describe('Shared Types', () => {
     expect(entity.id).toBe('e1');
     expect(entity.hp).toBe(50);
 
+    const unit: Unit = {
+      id: 's1',
+      pos: { x: 1, y: 1 },
+      hp: 80, maxHp: 100,
+      state: UnitState.Idle,
+      damage: 15, attackRange: 2
+    };
+    expect(unit.damage).toBe(15);
+    expect(unit.attackRange).toBe(2);
+    expect(unit.state).toBe(UnitState.Idle);
+
     const enemy: Enemy = {
       id: 'z1',
       pos: { x: 10, y: 10 },
       hp: 30,
       maxHp: 30,
-      type: 'SwarmMelee'
+      type: 'SwarmMelee',
+      damage: 5, attackRange: 1
     };
     expect(enemy.id).toBe('z1');
     expect(enemy.type).toBe('SwarmMelee');
     expect(enemy.hp).toBe(30);
+    expect(enemy.damage).toBe(5);
+    expect(enemy.attackRange).toBe(1);
   });
 });

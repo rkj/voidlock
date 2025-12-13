@@ -63,43 +63,63 @@ export class CoreEngine {
     }
   }
 
+  // Helper to calculate distance between two points (centers of cells)
+  private getDistance(pos1: Vector2, pos2: Vector2): number {
+    const dx = pos1.x - pos2.x;
+    const dy = pos1.y - pos2.y;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
   public update(dt: number) {
     this.state.t += dt;
 
     const SPEED = 2; // Tiles per second
 
+    // Unit Movement & Combat Logic
     this.state.units.forEach(unit => {
-      if (unit.state === UnitState.Moving && unit.targetPos && unit.path) {
-        // Calculate distance to current segment target
+      // Prioritize combat if enemy is in range
+      const enemiesInRange = this.state.enemies.filter(enemy => 
+        enemy.hp > 0 &&
+        this.getDistance(unit.pos, enemy.pos) <= unit.attackRange + 0.5 // +0.5 to account for center-to-center distance
+      );
+
+      if (enemiesInRange.length > 0) {
+        // Simple targeting: attack the first enemy in range
+        const targetEnemy = enemiesInRange[0];
+        targetEnemy.hp -= unit.damage;
+        unit.state = UnitState.Attacking;
+        // console.log(`Unit ${unit.id} attacked Enemy ${targetEnemy.id}, Enemy HP: ${targetEnemy.hp}`);
+      } else if (unit.state === UnitState.Moving && unit.targetPos && unit.path) {
+        // Movement logic
         const dx = unit.targetPos.x - unit.pos.x;
         const dy = unit.targetPos.y - unit.pos.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
         
         const moveDist = (SPEED * dt) / 1000;
 
-        // Use EPSILON for floating point comparison
-        if (dist <= moveDist + EPSILON) { // If we are very close or would overshoot, snap
-          // Snap to current segment target and advance to next path segment
+        if (dist <= moveDist + EPSILON) { 
           unit.pos = { ...unit.targetPos };
           unit.path.shift();
 
           if (unit.path.length === 0) {
-            // Arrived at final destination
-            unit.path = undefined; // Explicitly set to undefined
+            unit.path = undefined;
             unit.targetPos = undefined;
             unit.state = UnitState.Idle;
           } else {
-            // Set new target to center of next cell in path
             unit.targetPos = { x: unit.path[0].x + 0.5, y: unit.path[0].y + 0.5 };
           }
         } else {
-          // Move towards current segment target
           unit.pos.x += (dx / dist) * moveDist;
           unit.pos.y += (dy / dist) * moveDist;
         }
+      } else {
+        unit.state = UnitState.Idle; // Ensure state is idle if not moving or attacking
       }
     });
 
-    // TODO: Implement enemy AI and movement
+    // Clean up defeated enemies
+    this.state.enemies = this.state.enemies.filter(enemy => enemy.hp > 0);
+
+    // TODO: Implement enemy AI and movement (will be done in a later subtask)
   }
 }
