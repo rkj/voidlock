@@ -752,3 +752,43 @@ history/
 For more details, see README.md and QUICKSTART.md.
 
 <!-- /bd onboard section -->
+
+## Project Implementation Status
+
+**Current Status**: Prototype Complete (Milestones M1-M8)
+
+### Architecture
+- **Tech Stack**: Vite + Vanilla TypeScript
+- **Core Components**:
+  - **Engine (Web Worker)**: Deterministic simulation loop, single source of truth (`src/engine/`).
+  - **Renderer (Main Thread)**: HTML5 Canvas rendering (`src/renderer/`).
+  - **Communication**: JSON protocol via `postMessage` (`GameClient` wrapper).
+
+### State Management
+- `GameState` is maintained exclusively in the Worker (`CoreEngine`).
+- Immutable snapshots are sent to the Renderer for every tick (or on demand).
+- Determinism ensured via seeded PRNG and recorded command streams.
+
+### Key Features
+*   **M1: Engine Skeleton**: Deterministic tick loop, `GameGrid`, `Pathfinder` (A*).
+*   **M2: Combat & Fog**: Fog of War (Raycasting), Unit/Enemy entities, Combat logic, Objectives/Extraction.
+*   **M3: Director & Replay**: AI Director for spawning, JSON replay system, Difficulty ramping.
+*   **M4: Agent Harness**: `BotHarness` and `SimpleBot` for automated testing.
+*   **M5: Content-pack**: `MapGenerator` interface and procedural generation.
+*   **M6: Advanced UI**: Soldier List Panel, Keyboard Controls ('M'), Combat Tracers, Command Queuing.
+*   **M7: Thin Walls**: Refactored grid for edge-based walls and maze generation.
+*   **M8: Polished Level**: Fixed 16x16 Space Hulk-style spaceship layout, 128px tile visuals.
+
+### Running the Project
+```bash
+npm install
+npm run dev
+```
+
+## Next Steps / Handover
+
+**INSTRUCTION FOR AGENTS:**
+Upon loading this context, your first action should be to check the issue tracker for open work.
+1. Run `bd ready` to see the prioritized list of open tasks.
+2. Start working on the tasks in order (top to bottom).
+3. Do not implement features not tracked in beads.
