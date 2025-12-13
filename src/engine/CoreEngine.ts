@@ -41,6 +41,17 @@ export class CoreEngine {
     // Initialize Director
     const spawnPoints = map.spawnPoints || [];
     this.director = new Director(spawnPoints, this.prng, (enemy) => this.addEnemy(enemy));
+
+    // M2/M3 Prototype: Spawn default squad
+    this.addUnit({
+      id: 's1',
+      pos: { x: 2.5, y: 2.5 }, // Start near extraction (2,2)
+      hp: 100, maxHp: 100,
+      state: UnitState.Idle,
+      damage: 20,
+      attackRange: 4,
+      sightRange: 8
+    });
   }
 
   public addUnit(unit: Unit) {

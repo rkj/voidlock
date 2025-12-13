@@ -19,7 +19,14 @@ const createM1Map = (): MapDefinition => {
       cells.push({ x, y, type });
     }
   }
-  return { width: M1_MAP_WIDTH, height: M1_MAP_HEIGHT, cells };
+  return { 
+    width: M1_MAP_WIDTH, 
+    height: M1_MAP_HEIGHT, 
+    cells,
+    spawnPoints: [{ id: 'sp1', pos: { x: 18, y: 2 }, radius: 1 }], // Enemy spawn
+    extraction: { x: 2, y: 2 },
+    objectives: [{ id: 'o1', kind: 'Recover', state: 'Pending', targetCell: { x: 15, y: 10 } }]
+  };
 };
 
 // --- Game Setup ---
@@ -30,7 +37,7 @@ let selectedUnitId: string | null = null; // For click-to-move
 
 const initGame = () => {
   const map = createM1Map();
-  const seed = Date.now(); // Not strictly used by engine yet, but good practice
+  const seed = Date.now(); 
 
   // Initialize engine in worker
   gameClient.init(seed, map);
@@ -62,7 +69,9 @@ const initGame = () => {
 const updateUI = (state: GameState) => {
   const statusElement = document.querySelector('#ui-panel p');
   if (statusElement) {
-    statusElement.textContent = `Time: ${(state.t / 1000).toFixed(1)}s, Units: ${state.units.length}`;
+    statusElement.textContent = `Time: ${(state.t / 1000).toFixed(1)}s
+Units: ${state.units.filter(u => u.state !== 'Dead' && u.state !== 'Extracted').length}
+Status: ${state.status}`;
   }
 };
 
@@ -83,7 +92,8 @@ const handleCanvasClick = (event: MouseEvent) => {
   } else if (currentGameState) {
     // If no unit selected, try to select one
     const unitAtClick = currentGameState.units.find(unit => 
-      Math.floor(unit.pos.x) === clickedCell.x && Math.floor(unit.pos.y) === clickedCell.y
+      Math.floor(unit.pos.x) === clickedCell.x && Math.floor(unit.pos.y) === clickedCell.y &&
+      unit.state !== UnitState.Dead && unit.state !== UnitState.Extracted
     );
     if (unitAtClick) {
       selectedUnitId = unitAtClick.id;
@@ -95,6 +105,8 @@ const handleCanvasClick = (event: MouseEvent) => {
 // --- Event Listeners ---
 document.addEventListener('DOMContentLoaded', () => {
   const startButton = document.getElementById('start-button');
+  const exportButton = document.getElementById('export-replay');
+  const importInput = document.getElementById('import-replay') as HTMLInputElement;
   const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
 
   if (startButton) {
@@ -105,12 +117,68 @@ document.addEventListener('DOMContentLoaded', () => {
       gameClient.sendCommand({
         type: CommandType.MOVE_TO,
         unitIds: ['s1'], // Dummy ID
-        target: { x: 2, y: 2 } // Initial position
+        target: { x: 2, y: 2 } // Initial position (extraction point for safety start?) NO, near extraction.
       });
-      // The actual adding of units should be part of engine init in the future
-      // For now, this is a placeholder to get a unit on screen
-      if (currentGameState) {
-        currentGameState.units.push({id: 's1', pos: {x:2, y:2}, state: UnitState.Idle});
+      // Hack: force add unit to state for visual feedback immediately if needed, 
+      // but Worker will handle it via command or init eventually.
+      // Actually, my CoreEngine logic doesn't support adding units via MOVE_TO command hacking anymore
+      // because I removed the dummy unit addition from CoreEngine constructor or didn't add it.
+      // Wait, CoreEngine constructor creates empty units array.
+      // And I removed the "addUnit" hack in CoreEngine constructor? 
+      // I should add a command to SPAWN_UNIT or just add it in CoreEngine constructor for M2.
+      // For now, I'll add a 'SPAWN_UNIT' command or just rely on the hack I might have left?
+      // In `CoreEngine.ts`, `applyCommand`:
+      /*
+          if (cmd.type === CommandType.MOVE_TO) {
+            cmd.unitIds.forEach(id => {
+              const unit = this.state.units.find(u => u.id === id);
+              // ...
+      */
+      // It finds unit. If not found, it does nothing.
+      // So my previous hack `gameClient.sendCommand({ ... unitIds: ['s1'] ... })` effectively does nothing if s1 isn't there.
+      // I need to properly spawn a unit.
+      // I'll add a method to GameClient/CoreEngine to add initial units, or hardcode them in CoreEngine for now.
+      // Let's hardcode one unit in CoreEngine constructor for M2 prototype.
+      // Or better, `INIT` payload could contain initial units.
+      // `MapDefinition` doesn't have units.
+      // I'll modify CoreEngine to spawn a default unit on init.
+    });
+  }
+
+  if (exportButton) {
+    exportButton.addEventListener('click', () => {
+      const replay = gameClient.getReplayData();
+      if (replay) {
+        const json = JSON.stringify(replay, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `xenopurge-replay-${Date.now()}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      } else {
+        alert("No game data to export.");
+      }
+    });
+  }
+
+  if (importInput) {
+    importInput.addEventListener('change', (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const replayData = JSON.parse(event.target?.result as string);
+            gameClient.loadReplay(replayData);
+            console.log("Replay loaded.");
+          } catch (err) {
+            console.error("Failed to load replay:", err);
+            alert("Invalid replay file.");
+          }
+        };
+        reader.readAsText(file);
       }
     });
   }
