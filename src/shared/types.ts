@@ -17,7 +17,22 @@ export type MapDefinition = {
   width: number;
   height: number;
   cells: Cell[];
-  spawnPoints?: SpawnPoint[]; // Added spawn points
+  spawnPoints?: SpawnPoint[]; 
+  extraction?: Vector2; // Single extraction point for now
+  objectives?: ObjectiveDefinition[];
+};
+
+export type ObjectiveDefinition = {
+  id: string;
+  kind: 'Recover' | 'Kill'; // Simple types
+  targetCell?: Vector2; // For recover
+  targetEnemyId?: string; // For kill
+};
+
+export type ObjectiveState = 'Pending' | 'Completed' | 'Failed';
+
+export type Objective = ObjectiveDefinition & {
+  state: ObjectiveState;
 };
 
 export interface Grid {
@@ -30,6 +45,8 @@ export enum UnitState {
   Idle = 'Idle',
   Moving = 'Moving',
   Attacking = 'Attacking',
+  Extracted = 'Extracted', // New state
+  Dead = 'Dead', // Explicit dead state (though usually removed)
 }
 
 export type Entity = {
@@ -45,7 +62,7 @@ export type Unit = Entity & {
   targetPos?: Vector2;
   damage: number;
   attackRange: number;
-  sightRange: number; // Added sight range
+  sightRange: number; 
 };
 
 export type Enemy = Entity & {
@@ -57,7 +74,7 @@ export type Enemy = Entity & {
 export type SpawnPoint = {
   id: string;
   pos: Vector2;
-  radius: number; // For now, just a point, but maybe area later
+  radius: number; 
 };
 
 export type GameState = {
@@ -65,9 +82,10 @@ export type GameState = {
   map: MapDefinition;
   units: Unit[];
   enemies: Enemy[];
-  // Fog of War data - array of "x,y" strings or coordinate objects
   visibleCells: string[]; 
   discoveredCells: string[];
+  objectives: Objective[]; // Track objective status
+  status: 'Playing' | 'Won' | 'Lost';
 };
 
 // --- Protocol ---
