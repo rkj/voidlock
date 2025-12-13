@@ -75,12 +75,12 @@ export class CoreEngine {
 
     const SPEED = 2; // Tiles per second
 
-    // Unit Movement & Combat Logic
+    // --- Unit Logic (Movement & Combat) ---
     this.state.units.forEach(unit => {
       // Prioritize combat if enemy is in range
       const enemiesInRange = this.state.enemies.filter(enemy => 
         enemy.hp > 0 &&
-        this.getDistance(unit.pos, enemy.pos) <= unit.attackRange + 0.5 // +0.5 to account for center-to-center distance
+        this.getDistance(unit.pos, enemy.pos) <= unit.attackRange + 0.5 
       );
 
       if (enemiesInRange.length > 0) {
@@ -88,7 +88,6 @@ export class CoreEngine {
         const targetEnemy = enemiesInRange[0];
         targetEnemy.hp -= unit.damage;
         unit.state = UnitState.Attacking;
-        // console.log(`Unit ${unit.id} attacked Enemy ${targetEnemy.id}, Enemy HP: ${targetEnemy.hp}`);
       } else if (unit.state === UnitState.Moving && unit.targetPos && unit.path) {
         // Movement logic
         const dx = unit.targetPos.x - unit.pos.x;
@@ -113,13 +112,31 @@ export class CoreEngine {
           unit.pos.y += (dy / dist) * moveDist;
         }
       } else {
-        unit.state = UnitState.Idle; // Ensure state is idle if not moving or attacking
+        unit.state = UnitState.Idle;
       }
     });
 
-    // Clean up defeated enemies
-    this.state.enemies = this.state.enemies.filter(enemy => enemy.hp > 0);
+    // --- Enemy Logic (Simple Retaliation) ---
+    this.state.enemies.forEach(enemy => {
+      if (enemy.hp <= 0) return;
 
-    // TODO: Implement enemy AI and movement (will be done in a later subtask)
+      const unitsInRange = this.state.units.filter(unit => 
+        unit.hp > 0 &&
+        this.getDistance(enemy.pos, unit.pos) <= enemy.attackRange + 0.5
+      );
+
+      if (unitsInRange.length > 0) {
+        // Attack the first unit in range
+        const targetUnit = unitsInRange[0];
+        targetUnit.hp -= enemy.damage;
+        // console.log(`Enemy ${enemy.id} attacked Unit ${targetUnit.id}, Unit HP: ${targetUnit.hp}`);
+      }
+      
+      // TODO: Enemy movement (AI)
+    });
+
+    // --- Cleanup Death ---
+    this.state.enemies = this.state.enemies.filter(enemy => enemy.hp > 0);
+    this.state.units = this.state.units.filter(unit => unit.hp > 0);
   }
 }
