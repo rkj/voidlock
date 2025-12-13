@@ -8,15 +8,29 @@
     <style>
       body { margin: 0; overflow: hidden; background-color: #1a1a1a; color: #eee; font-family: 'Courier New', Courier, monospace; }
       #app { display: flex; height: 100vh; }
-      #game-container { flex-grow: 1; display: flex; justify-content: center; align-items: center; }
+      #game-container { flex-grow: 1; display: flex; justify-content: center; align-items: center; position: relative; }
       canvas { border: 1px solid #444; background-color: #000; }
-      #ui-panel { width: 300px; padding: 10px; background-color: #222; border-left: 1px solid #444; overflow-y: auto; }
-      h1 { color: #0f0; text-shadow: 0 0 5px #0f0; }
-      button { background-color: #333; color: #0f0; border: 1px solid #0f0; padding: 5px 10px; cursor: pointer; margin-top: 10px; width: 100%; }
+      #ui-panel { width: 300px; padding: 10px; background-color: #222; border-left: 1px solid #444; overflow-y: auto; display: flex; flex-direction: column; }
+      h1 { color: #0f0; text-shadow: 0 0 5px #0f0; font-size: 1.2em; margin-bottom: 10px; }
+      button { background-color: #333; color: #0f0; border: 1px solid #0f0; padding: 5px 10px; cursor: pointer; margin-top: 5px; width: 100%; }
       button:hover { background-color: #0f0; color: #333; }
-      .control-group { margin-top: 20px; border-top: 1px solid #444; padding-top: 10px; }
+      button.active { background-color: #0f0; color: #333; font-weight: bold; }
+      .control-group { margin-top: 15px; border-top: 1px solid #444; padding-top: 10px; }
       input[type="file"], input[type="text"], input[type="number"] { margin-top: 5px; color: #000; font-size: 0.8em; width: 100%; box-sizing: border-box; }
       label { display: block; margin-top: 5px; color: #aaa; }
+      
+      #soldier-list { margin-top: 15px; flex-grow: 1; overflow-y: auto; border-top: 1px solid #444; padding-top: 10px; }
+      .soldier-item { padding: 5px; border: 1px solid #333; margin-bottom: 5px; cursor: pointer; }
+      .soldier-item:hover { background-color: #333; }
+      .soldier-item.selected { border-color: #0f0; background-color: #222; }
+      .soldier-item.dead { color: #f00; border-color: #f00; }
+      .soldier-item.extracted { color: #0aa; border-color: #0aa; }
+      
+      .status-line { font-size: 0.8em; color: #aaa; }
+      .hp-bar { height: 4px; background: #333; margin-top: 2px; }
+      .hp-fill { height: 100%; background: #0f0; }
+      
+      #command-help { font-size: 0.8em; color: #888; margin-top: 10px; }
     </style>
   </head>
   <body>
@@ -26,7 +40,21 @@
       </div>
       <div id="ui-panel">
         <h1>Xenopurge Prototype</h1>
-        <p>Status: Initializing...</p>
+        <p id="game-status">Status: Initializing...</p>
+        
+        <div id="soldier-list">
+          <!-- Populated by JS -->
+        </div>
+
+        <div class="control-group">
+          <h3>Commands</h3>
+          <button id="cmd-move">Move (M)</button>
+          <!-- Add more commands later -->
+          <div id="command-help">
+            Select Command -> Select Unit -> Target
+            <br>Shift+Click to Queue
+          </div>
+        </div>
         
         <div class="control-group">
           <h3>Mission Control</h3>
