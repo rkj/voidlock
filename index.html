@@ -15,7 +15,8 @@
       button { background-color: #333; color: #0f0; border: 1px solid #0f0; padding: 5px 10px; cursor: pointer; margin-top: 10px; width: 100%; }
       button:hover { background-color: #0f0; color: #333; }
       .control-group { margin-top: 20px; border-top: 1px solid #444; padding-top: 10px; }
-      input[type="file"] { margin-top: 5px; color: #aaa; font-size: 0.8em; }
+      input[type="file"], input[type="text"], input[type="number"] { margin-top: 5px; color: #000; font-size: 0.8em; width: 100%; box-sizing: border-box; }
+      label { display: block; margin-top: 5px; color: #aaa; }
     </style>
   </head>
   <body>
@@ -26,7 +27,18 @@
       <div id="ui-panel">
         <h1>Xenopurge Prototype</h1>
         <p>Status: Initializing...</p>
-        <button id="start-button">Start Mission</button>
+        
+        <div class="control-group">
+          <h3>Mission Control</h3>
+          <button id="start-button">Restart Current Mission</button>
+        </div>
+
+        <div class="control-group">
+          <h3>Map Generator</h3>
+          <label for="map-seed">Seed (optional):</label>
+          <input type="number" id="map-seed" placeholder="Random" />
+          <button id="generate-map">Generate New Mission</button>
+        </div>
         
         <div class="control-group">
           <h3>Replay Controls</h3>
