@@ -23,7 +23,8 @@ describe('CoreEngine with Objectives and Game Loop', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    engine = new CoreEngine(mockMap, 12345); // Added seed
+    engine = new CoreEngine(mockMap, 12345); 
+    engine.clearUnits(); // Clear default squad
     engine.addUnit({
       id: 'u1',
       pos: { x: 0.5, y: 0.5 }, 
