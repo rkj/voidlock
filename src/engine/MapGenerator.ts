@@ -3,9 +3,19 @@ import { PRNG } from '../shared/PRNG';
 
 export class MapGenerator {
   private prng: PRNG;
+  private maxTunnelWidth: number;
+  private maxRoomSize: number;
 
-  constructor(seed: number) {
+  constructor(seed: number, maxTunnelWidth: number = 1, maxRoomSize: number = 2) {
     this.prng = new PRNG(seed);
+    this.maxTunnelWidth = maxTunnelWidth;
+    this.maxRoomSize = maxRoomSize;
+  }
+
+  public load(mapDefinition: MapDefinition): MapDefinition {
+    // For predefined maps, we just return the map definition directly.
+    // The generator's role here is to conform to the interface.
+    return mapDefinition;
   }
 
   public generate(width: number, height: number): MapDefinition {
@@ -50,75 +60,116 @@ export class MapGenerator {
       const n = getCell(nx, ny);
       if (n) n.walls[opp] = false;
     };
+    
 
-    // --- Layout Construction ---
-    // 1. Central Corridor (Vertical)
-    for (let y = 2; y <= 13; y++) {
-      setFloor(7, y);
-      setFloor(8, y);
-      // Connect horizontal pair
-      openWall(7, y, 'e');
-      // Connect vertical sequence
-      if (y > 2) {
-        openWall(7, y, 'n');
-        openWall(8, y, 'n');
-      }
-    }
+    // --- Procedural Layout Construction (Modified Prim's Algorithm) ---
+    const frontier: { x: number, y: number, nx: number, ny: number, dir: 'n'|'e'|'s'|'w' }[] = [];
+    const visited: boolean[][] = Array.from({ length: H }, () => Array(W).fill(false));
 
-    // 2. Cross Corridor (Horizontal)
-    for (let x = 2; x <= 13; x++) {
-      setFloor(x, 7);
-      setFloor(x, 8);
-      // Connect vertical pair
-      openWall(x, 7, 's');
-      // Connect horizontal sequence
-      if (x > 2) {
-        openWall(x, 7, 'w');
-        openWall(x, 8, 'w');
-      }
-    }
+    const addFrontierWalls = (x: number, y: number) => {
+        if (x > 0 && !visited[y][x-1]) frontier.push({ x, y, nx: x-1, ny: y, dir: 'w' });
+        if (x < W-1 && !visited[y][x+1]) frontier.push({ x, y, nx: x+1, ny: y, dir: 'e' });
+        if (y > 0 && !visited[y-1][x]) frontier.push({ x, y, nx: x, ny: y-1, dir: 'n' });
+        if (y < H-1 && !visited[y+1][x]) frontier.push({ x, y, nx: x, ny: y+1, dir: 's' });
+    };
 
-    // 3. Rooms
-    // Top Left Room
-    for (let y = 2; y <= 5; y++) {
-        for (let x = 2; x <= 5; x++) {
-            setFloor(x, y);
-            if (x < 5) openWall(x, y, 'e');
-            if (y < 5) openWall(x, y, 's');
+    // Start from a random cell
+    let startX = this.prng.nextInt(0, W - 1);
+    let startY = this.prng.nextInt(0, H - 1);
+    setFloor(startX, startY);
+    visited[startY][startX] = true;
+    addFrontierWalls(startX, startY);
+
+    while (frontier.length > 0) {
+        const wallIndex = this.prng.nextInt(0, frontier.length - 1);
+        const [wall] = frontier.splice(wallIndex, 1); // Remove random wall
+
+        const { x, y, nx, ny, dir } = wall;
+
+        if (!visited[ny][nx]) {
+            setFloor(nx, ny);
+            openWall(x, y, dir);
+            visited[ny][nx] = true;
+            addFrontierWalls(nx, ny);
         }
     }
-    // Connect Room to Horizontal Corridor
-    openWall(3, 5, 's'); // Path to (3, 6)? No, (3,6) is void.
-    // Connect to (3,7) corridor?
-    setFloor(3, 6); openWall(3, 6, 'n'); openWall(3, 6, 's');
 
-    // Bottom Right Room
-    for (let y = 10; y <= 13; y++) {
-        for (let x = 10; x <= 13; x++) {
-            setFloor(x, y);
-            if (x < 13) openWall(x, y, 'e');
-            if (y < 13) openWall(x, y, 's');
+    // Add some 2x2 rooms randomly (post-processing)
+    for (let i = 0; i < this.prng.nextInt(2, 5); i++) { // Add 2-4 rooms
+        const rx = this.prng.nextInt(0, W - 2);
+        const ry = this.prng.nextInt(0, H - 2);
+
+        // Check if 2x2 area is mostly floor already, and has some walls to open
+        let floorCount = 0;
+        let wallCount = 0;
+        for (let dy = 0; dy < 2; dy++) {
+            for (let dx = 0; dx < 2; dx++) {
+                const cell = getCell(rx + dx, ry + dy);
+                if (cell?.type === CellType.Floor) floorCount++;
+                else if (cell?.type === CellType.Wall) wallCount++;
+            }
+        }
+
+        // If it's not already a 2x2 floor and has some walls to open
+        if (floorCount < 4 && wallCount > 0) {
+            for (let dy = 0; dy < 2; dy++) {
+                for (let dx = 0; dx < 2; dx++) {
+                    setFloor(rx + dx, ry + dy);
+                }
+            }
+            // Open internal walls to create a cohesive room
+            openWall(rx, ry, 'e'); // Cell (rx,ry) right
+            openWall(rx + 1, ry, 'w'); // Cell (rx+1,ry) left
+
+            openWall(rx, ry, 's'); // Cell (rx,ry) down
+            openWall(rx, ry + 1, 'n'); // Cell (rx,ry+1) up
+
+            openWall(rx + 1, ry, 's'); // Cell (rx+1,ry) down
+            openWall(rx + 1, ry + 1, 'n'); // Cell (rx+1,ry+1) up
         }
     }
-    // Connect
-    setFloor(12, 9); openWall(12, 9, 'n'); openWall(12, 9, 's');
 
-    // Start / Extraction
-    const extraction = { x: 7, y: 13 }; // Bottom center
+    // Ensure connectivity to a "start" and "end" area - for now, just place them in floor cells
+    let startCell = getCell(startX, startY);
+    while (startCell?.type !== CellType.Floor) {
+        startX = this.prng.nextInt(0, W - 1);
+        startY = this.prng.nextInt(0, H - 1);
+        startCell = getCell(startX, startY);
+    }
 
+    let extractionX = this.prng.nextInt(0, W - 1);
+    let extractionY = this.prng.nextInt(0, H - 1);
+    let extractionCell = getCell(extractionX, extractionY);
+    while (extractionCell?.type !== CellType.Floor || (extractionX === startX && extractionY === startY)) {
+        extractionX = this.prng.nextInt(0, W - 1);
+        extractionY = this.prng.nextInt(0, H - 1);
+        extractionCell = getCell(extractionX, extractionY);
+    }
+    
     // Objective
+    let objectiveX = this.prng.nextInt(0, W - 1);
+    let objectiveY = this.prng.nextInt(0, H - 1);
+    let objectiveCell = getCell(objectiveX, objectiveY);
+    while (objectiveCell?.type !== CellType.Floor || (objectiveX === startX && objectiveY === startY) || (objectiveX === extractionX && objectiveY === extractionY)) {
+        objectiveX = this.prng.nextInt(0, W - 1);
+        objectiveY = this.prng.nextInt(0, H - 1);
+        objectiveCell = getCell(objectiveX, objectiveY);
+    }
+
+    const extraction = { x: extractionX, y: extractionY }; 
+
     const objective: Objective = {
         id: 'obj1',
         kind: 'Recover',
         state: 'Pending',
-        targetCell: { x: 3, y: 3 } // Top Left Room
+        targetCell: { x: objectiveX, y: objectiveY } 
     };
 
     // Spawns
     const spawnPoints: SpawnPoint[] = [
-        { id: 'sp1', pos: { x: 12, y: 12 }, radius: 1 }, // Bottom Right Room
-        { id: 'sp2', pos: { x: 7, y: 2 }, radius: 1 },   // Top Center
-        { id: 'sp3', pos: { x: 2, y: 7 }, radius: 1 }    // Left Center
+        { id: 'sp1', pos: { x: startX, y: startY }, radius: 1 }, // Place a spawn near start
+        { id: 'sp2', pos: { x: extractionX, y: extractionY }, radius: 1 }, // Place a spawn near extraction
+        { id: 'sp3', pos: { x: objectiveX, y: objectiveY }, radius: 1 } // Place a spawn near objective
     ];
 
     return {

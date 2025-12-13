@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { GameClient } from './GameClient';
-import { CommandType, MapDefinition } from '../shared/types';
+import { CommandType, MapDefinition, MapGeneratorType } from '../shared/types';
+import { MapGenerator } from './MapGenerator';
 
 // Mock Worker
 const postMessageMock = vi.fn();
@@ -14,6 +15,15 @@ class MockWorker {
 
 vi.stubGlobal('Worker', MockWorker);
 
+// Mock MapGeneratorFactory
+const mockMapGeneratorFactory = (seed: number, type: MapGeneratorType, mapData?: MapDefinition) => {
+  const generator = new MapGenerator(seed); // Doesn't matter too much for tests, just needs to be an instance
+  // Mock the generate and load methods
+  generator.generate = vi.fn().mockReturnValue(mapData || { width: 10, height: 10, cells: [] });
+  generator.load = vi.fn().mockReturnValue(mapData || { width: 10, height: 10, cells: [] });
+  return generator;
+};
+
 describe('GameClient', () => {
   let client: GameClient;
   const mockMap: MapDefinition = { width: 10, height: 10, cells: [] };
@@ -21,7 +31,7 @@ describe('GameClient', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers();
-    client = new GameClient();
+    client = new GameClient(mockMapGeneratorFactory); // Pass the mock factory
   });
 
   afterEach(() => {
@@ -30,7 +40,7 @@ describe('GameClient', () => {
 
   it('should initialize and record seed/map', () => {
     const seed = 12345;
-    client.init(seed, mockMap);
+    client.init(seed, MapGeneratorType.Procedural, mockMap); // Updated init call
 
     expect(postMessageMock).toHaveBeenCalledWith({
       type: 'INIT',
@@ -44,7 +54,7 @@ describe('GameClient', () => {
   });
 
   it('should record commands', () => {
-    client.init(12345, mockMap);
+    client.init(12345, MapGeneratorType.Procedural, mockMap); // Updated init call
     
     // Advance time
     vi.advanceTimersByTime(100);

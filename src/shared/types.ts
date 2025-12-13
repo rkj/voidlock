@@ -17,13 +17,28 @@ export type Cell = {
     w: boolean;
   };
   roomId?: string;
-  doorId?: string;
 };
+
+export type Door = {
+  id: string;
+  segment: Vector2[]; // Cells adjacent to the door's barrier segment
+  orientation: 'Horizontal' | 'Vertical';
+  state: 'Open' | 'Closed' | 'Locked' | 'Destroyed';
+  hp: number;
+  maxHp: number;
+  openDuration: number;
+};
+
+export enum MapGeneratorType {
+  Procedural = 'Procedural',
+  Static = 'Static',
+}
 
 export type MapDefinition = {
   width: number;
   height: number;
   cells: Cell[];
+  doors?: Door[]; // New: Array of Door entities
   spawnPoints?: SpawnPoint[]; 
   extraction?: Vector2; 
   objectives?: ObjectiveDefinition[];

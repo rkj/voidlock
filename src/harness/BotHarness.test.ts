@@ -3,11 +3,12 @@ import { BotHarness } from './BotHarness';
 import { GameClient } from '../engine/GameClient';
 import { Bot } from './Bot';
 import { GameState, CommandType } from '../shared/types';
+import { MapGenerator } from '../engine/MapGenerator';
 
 // Mock GameClient
 vi.mock('../engine/GameClient', () => {
   return {
-    GameClient: vi.fn().mockImplementation(() => ({
+    GameClient: vi.fn().mockImplementation((mapGeneratorFactory: any) => ({ // Add mapGeneratorFactory to constructor
       onStateUpdate: vi.fn(),
       sendCommand: vi.fn()
     }))
@@ -16,7 +17,7 @@ vi.mock('../engine/GameClient', () => {
 
 describe('BotHarness', () => {
   it('should register listener and send commands', () => {
-    const client = new GameClient();
+    const client = new GameClient(() => new MapGenerator(123));
     const bot: Bot = {
       act: vi.fn().mockReturnValue({ type: CommandType.MOVE_TO, unitIds: ['u1'], target: { x: 0, y: 0 } })
     };

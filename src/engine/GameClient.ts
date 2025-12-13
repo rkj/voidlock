@@ -1,8 +1,13 @@
-import { MapDefinition, Command, GameState, WorkerMessage, MainMessage, ReplayData, RecordedCommand } from '../shared/types';
+import { MapDefinition, Command, GameState, WorkerMessage, MainMessage, ReplayData, RecordedCommand, MapGeneratorType } from '../shared/types';
+import { MapGenerator } from './MapGenerator';
+
+// Factory type for creating MapGenerator instances based on type
+type MapGeneratorFactory = (seed: number, type: MapGeneratorType, mapData?: MapDefinition) => MapGenerator;
 
 export class GameClient {
   private worker: Worker;
   private onStateUpdateCb: ((state: GameState) => void) | null = null;
+  private mapGeneratorFactory: MapGeneratorFactory;
   
   // Replay State
   private initialSeed: number = 0;
@@ -10,7 +15,8 @@ export class GameClient {
   private commandStream: RecordedCommand[] = [];
   private startTime: number = 0;
 
-  constructor() {
+  constructor(mapGeneratorFactory: MapGeneratorFactory) {
+    this.mapGeneratorFactory = mapGeneratorFactory;
     // Vite handles this import with ?worker suffix
     this.worker = new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' });
     
@@ -24,8 +30,12 @@ export class GameClient {
     };
   }
 
-  public init(seed: number, map: MapDefinition) {
+  public init(seed: number, mapGeneratorType: MapGeneratorType, mapData?: MapDefinition) {
     this.initialSeed = seed;
+    // Use the factory to get the map, based on type and data
+    const generator = this.mapGeneratorFactory(seed, mapGeneratorType, mapData);
+    const map = mapGeneratorType === MapGeneratorType.Static ? generator.load(mapData!) : generator.generate(16, 16); // Assuming 16x16 for now for procedural
+
     this.initialMap = map;
     this.commandStream = [];
     this.startTime = Date.now();
@@ -72,7 +82,7 @@ export class GameClient {
     // The Engine needs to support "scheduled commands" or we must feed them in real-time (or fast-time) from Client.
     
     // Simplest Replay: Client re-inits, then sets timeouts to send commands at recorded `t`.
-    this.init(data.seed, data.map);
+    this.init(data.seed, MapGeneratorType.Static, data.map);
     
     // Schedule commands
     // Note: this relies on `setTimeout` accuracy which is poor.
