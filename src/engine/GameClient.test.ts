@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { GameClient } from './GameClient';
-import { CommandType, MapDefinition, MapGeneratorType } from '../shared/types';
+import { CommandType, MapDefinition, MapGeneratorType, MoveCommand } from '../shared/types';
 import { MapGenerator } from './MapGenerator';
 
 // Mock Worker
@@ -59,7 +59,7 @@ describe('GameClient', () => {
     // Advance time
     vi.advanceTimersByTime(100);
 
-    const cmd = { type: CommandType.MOVE_TO, unitIds: ['u1'], target: { x: 1, y: 1 } };
+    const cmd: MoveCommand = { type: CommandType.MOVE_TO, unitIds: ['u1'], target: { x: 1, y: 1 } };
     client.sendCommand(cmd);
 
     expect(postMessageMock).toHaveBeenLastCalledWith({
@@ -79,8 +79,8 @@ describe('GameClient', () => {
       seed: 555,
       map: mockMap,
       commands: [
-        { t: 100, cmd: { type: CommandType.MOVE_TO, unitIds: ['u1'], target: { x: 1, y: 1 } } },
-        { t: 500, cmd: { type: CommandType.MOVE_TO, unitIds: ['u2'], target: { x: 2, y: 2 } } }
+        { t: 100, cmd: { type: CommandType.MOVE_TO, unitIds: ['u1'], target: { x: 1, y: 1 } } as MoveCommand },
+        { t: 500, cmd: { type: CommandType.MOVE_TO, unitIds: ['u2'], target: { x: 2, y: 2 } } as MoveCommand }
       ]
     };
 

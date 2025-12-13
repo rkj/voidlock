@@ -1,4 +1,4 @@
-import { GameState, MapDefinition, Unit, Enemy, Command, CommandType, UnitState, Vector2, Objective } from '../shared/types';
+import { GameState, MapDefinition, Unit, Enemy, Command, CommandType, UnitState, Vector2, Objective, Door } from '../shared/types';
 import { GameGrid } from './GameGrid';
 import { Pathfinder } from './Pathfinder';
 import { Director } from './Director';
@@ -15,13 +15,15 @@ export class CoreEngine {
   private los: LineOfSight;
   private prng: PRNG;
   private readonly TICK_RATE = 100; // ms
+  private doors: Map<string, Door>;
 
   constructor(map: MapDefinition, seed: number) {
     this.prng = new PRNG(seed);
     this.gameGrid = new GameGrid(map);
-    this.pathfinder = new Pathfinder(this.gameGrid);
+    this.doors = new Map(map.doors?.map(door => [door.id, door]));
+    this.pathfinder = new Pathfinder(this.gameGrid, this.doors);
     this.los = new LineOfSight(this.gameGrid);
-    
+
     const objectives: Objective[] = (map.objectives || []).map(o => ({
       ...o,
       state: 'Pending'
@@ -127,6 +129,62 @@ export class CoreEngine {
     return Math.sqrt(dx * dx + dy * dy);
   }
 
+  // Helper to get all cells adjacent to a door's barrier segment
+  private getAdjacentCellsToDoor(door: Door): Vector2[] {
+    const adjacentCells: Vector2[] = [];
+    door.segment.forEach(segCell => {
+      const { x, y } = segCell;
+      if (door.orientation === 'Vertical') { // Door between (x,y) and (x+1,y)
+        adjacentCells.push({ x: x, y: y });      // Cell to the left
+        adjacentCells.push({ x: x + 1, y: y });  // Cell to the right
+      } else { // Horizontal, between (x,y) and (x,y+1)
+        adjacentCells.push({ x: x, y: y });      // Cell above
+        adjacentCells.push({ x: x, y: y + 1 });  // Cell below
+      }
+    });
+    // Filter duplicates and invalid cells
+    const uniqueCells = new Map<string, Vector2>();
+    adjacentCells.forEach(cell => {
+      if (cell.x >= 0 && cell.x < this.gameGrid.width && cell.y >= 0 && cell.y < this.gameGrid.height) {
+        uniqueCells.set(`${cell.x},${cell.y}`, cell);
+      }
+    });
+    return Array.from(uniqueCells.values());
+  }
+
+  // Helper to check if any unit (soldier or enemy) is adjacent to the door
+  private isUnitAdjacentToDoor(door: Door): boolean {
+    const adjacentCells = this.getAdjacentCellsToDoor(door);
+    for (const adjCell of adjacentCells) {
+      // Check units
+      if (this.state.units.some(unit => 
+        unit.state !== UnitState.Dead && unit.state !== UnitState.Extracted &&
+        Math.floor(unit.pos.x) === adjCell.x && Math.floor(unit.pos.y) === adjCell.y)) {
+        return true;
+      }
+      // Check enemies
+      if (this.state.enemies.some(enemy => 
+        enemy.hp > 0 &&
+        Math.floor(enemy.pos.x) === adjCell.x && Math.floor(enemy.pos.y) === adjCell.y)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  // Helper to check if any soldier is adjacent to the door
+  private isSoldierAdjacentToDoor(door: Door): boolean {
+    const adjacentCells = this.getAdjacentCellsToDoor(door);
+    for (const adjCell of adjacentCells) {
+      if (this.state.units.some(unit => 
+        unit.state !== UnitState.Dead && unit.state !== UnitState.Extracted &&
+        Math.floor(unit.pos.x) === adjCell.x && Math.floor(unit.pos.y) === adjCell.y)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   public update(dt: number) {
     if (this.state.status !== 'Playing') return;
 
@@ -134,6 +192,38 @@ export class CoreEngine {
 
     // Update Director to spawn enemies
     this.director.update(dt);
+
+    // --- Automatic Door Logic ---
+    this.doors.forEach(door => {
+      // If door is destroyed, or already in a desired state, do nothing.
+      if (door.state === 'Destroyed') return;
+
+      // Handle door timers
+      if (door.openTimer !== undefined && door.openTimer > 0) {
+        door.openTimer -= dt;
+        if (door.openTimer <= 0) {
+          door.state = door.targetState!; // Apply target state
+          door.openTimer = undefined;
+          door.targetState = undefined;
+        }
+        return; // If timer is active, wait for it to complete
+      }
+
+      const unitAdjacent = this.isUnitAdjacentToDoor(door);
+      const soldierAdjacent = this.isSoldierAdjacentToDoor(door);
+      
+      if (unitAdjacent) {
+        if (door.state === 'Closed' || (door.state === 'Locked' && soldierAdjacent)) {
+          // Locked doors open for soldiers
+          door.targetState = 'Open';
+          door.openTimer = door.openDuration * 1000;
+        }
+      } else { // No units adjacent
+        if (door.state === 'Open') {
+          door.targetState = 'Closed';
+          door.openTimer = door.openDuration * 1000;
+        }
+      }    });
 
     // --- Visibility Logic ---
     const newVisibleCells = new Set<string>();

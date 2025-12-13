@@ -745,6 +745,8 @@ history/
 - ✅ Check `bd ready` before asking "what should I work on?"
 - ✅ Store AI planning docs in `history/` directory
 - ✅ **New Change Request Workflow**: When a new change is requested, first update `spec.md` with the extra clarification, then create Beads tasks for the implementation.
+- ✅ **No Pushes**: The agent must *not* push changes to the remote repository without explicit user instruction.
+- ✅ **Version Control**: The agent must use `jj` commands exclusively for version control operations (commit, diff, status, etc.), and *never* use `git` commands directly, as this is a `jj` managed repository.
 - ❌ Do NOT create markdown TODO lists
 - ❌ Do NOT use external issue trackers
 - ❌ Do NOT duplicate tracking systems

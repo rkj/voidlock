@@ -366,8 +366,7 @@ All should be swappable. Default implementations ship with the prototype; conten
     *   Squad builder (pick archetypes)
     *   Toggles: fog-of-war, debug overlay, agent control on/off
 *   **Mission screen**
-
-    *   Main map (Canvas/WebGL)
+    *   Main map (Canvas/WebGL) - Must accurately render the `MapDefinition`, including all Floor/Wall cells and correctly representing thin walls between cells. Doors must be clearly visible and distinguishable by their state (Closed, Open, Locked, Destroyed).
     *   Left panel: squad list + status + quick commands
     *   Bottom: timeline/events log (important for debugging director)
     *   Right: objective/extraction status + threat meter
@@ -479,6 +478,9 @@ Do not ship copyrighted scans/assets. Keep importer expecting **user-provided** 
 *   **Prioritization**: When a new change request is received, the agent must first update `spec.md` with the new clarification.
 *   **Task Creation**: After updating `spec.md`, the agent must create a Beads task for the requested change.
 *   **Implementation**: Only after the above steps are completed should the agent proceed with the actual code implementation.
+*   **No Pushes**: The agent must *not* push changes to the remote repository without explicit user instruction.
+*   **Version Control**: The agent must use `jj` commands exclusively for version control operations (commit, diff, status, etc.), and *never* use `git` commands directly, as this is a `jj` managed repository.
+*   **Correction: Re-add missing workflow rule**: The agent must always ensure the rule about "When a new change is requested, first update spec.md with the extra clarification, then create Beads tasks for the implementation" is present in `AGENTS.md`.
 
 
 ### 0) Scope and non-goals

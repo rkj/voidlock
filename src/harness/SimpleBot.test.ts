@@ -23,7 +23,9 @@ describe('SimpleBot', () => {
     
     expect(cmd).not.toBeNull();
     expect(cmd?.type).toBe(CommandType.MOVE_TO);
-    expect(cmd?.target).toEqual({ x: 5, y: 5 });
+    if (cmd?.type === CommandType.MOVE_TO) {
+        expect(cmd.target).toEqual({ x: 5, y: 5 });
+    }
   });
 
   it('should move to extraction if objectives complete', () => {
@@ -37,7 +39,9 @@ describe('SimpleBot', () => {
     
     expect(cmd).not.toBeNull();
     expect(cmd?.type).toBe(CommandType.MOVE_TO);
-    expect(cmd?.target).toEqual({ x: 0, y: 0 }); // Extraction
+    if (cmd?.type === CommandType.MOVE_TO) {
+        expect(cmd.target).toEqual({ x: 0, y: 0 }); // Extraction
+    }
   });
 
   it('should do nothing if moving', () => {
