@@ -22,7 +22,7 @@ export class CoreEngine {
     this.gameGrid = new GameGrid(map);
     this.doors = new Map(map.doors?.map(door => [door.id, door]));
     this.pathfinder = new Pathfinder(this.gameGrid, this.doors);
-    this.los = new LineOfSight(this.gameGrid);
+    this.los = new LineOfSight(this.gameGrid, this.doors);
 
     const objectives: Objective[] = (map.objectives || []).map(o => ({
       ...o,

@@ -80,15 +80,9 @@
 
     *   *Note:* `type: Wall` cells are replaced by edge-based walls between Floor cells, though "Void" cells might exist outside the ship hull.
 
-*   Doors are now distinct entities with state: `Door { id, cell, orientation, state: Open|Closed|Locked|Destroyed, hp: number, maxHp: number, openDuration: number }`
-
-*   Spawns: `SpawnPoint { id, cell, kind: EnemyEntry }`
-
-*   Extraction: `ExtractionPoint { cell }`
-
-*   Objective(s): `Objective { id, cell(s), kind, state }`
-
-### 3.3 Entities
+### 3.4 Line of Sight (LOS)
+*   **Blocking Entities**: LOS must be blocked by `Wall` cells and `Door` entities in `Closed` or `Locked` states. `Open` or `Destroyed` doors do not block LOS.
+*   **Visibility**: Units should only be able to target (attack) and perceive (FOW) entities within their calculated LOS.
 
 
 
@@ -366,7 +360,7 @@ All should be swappable. Default implementations ship with the prototype; conten
     *   Squad builder (pick archetypes)
     *   Toggles: fog-of-war, debug overlay, agent control on/off
 *   **Mission screen**
-    *   Main map (Canvas/WebGL) - Must accurately render the `MapDefinition`, including all Floor/Wall cells and correctly representing thin walls between cells. Doors must be clearly visible and distinguishable by their state (Closed, Open, Locked, Destroyed).
+    *   Main map (Canvas/WebGL) - Must accurately render the `MapDefinition`, including all Floor/Wall cells and correctly representing thin walls between cells. Doors must be clearly visible and distinguishable by their state (Closed, Open, Locked, Destroyed), with sufficient visual contrast against walls and floors.
     *   Left panel: squad list + status + quick commands
     *   Bottom: timeline/events log (important for debugging director)
     *   Right: objective/extraction status + threat meter

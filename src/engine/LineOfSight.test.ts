@@ -1,12 +1,13 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { LineOfSight } from './LineOfSight';
 import { GameGrid } from './GameGrid';
-import { MapDefinition, CellType } from '../shared/types';
+import { MapDefinition, CellType, Door } from '../shared/types';
 
 describe('LineOfSight', () => {
   let mockMap: MapDefinition;
   let gameGrid: GameGrid;
   let los: LineOfSight;
+  const mockDoors: Map<string, Door> = new Map();
 
   beforeEach(() => {
     // 5x5 map with a wall in center (2,2)
@@ -29,7 +30,7 @@ describe('LineOfSight', () => {
       cells,
     };
     gameGrid = new GameGrid(mockMap);
-    los = new LineOfSight(gameGrid);
+    los = new LineOfSight(gameGrid, mockDoors);
   });
 
   it('should see adjacent cells', () => {
