@@ -42,18 +42,17 @@ describe('Renderer', () => {
     objectives: [{ id: 'o1', kind: 'Recover', state: 'Pending', targetCell: { x: 0, y: 1 } } as Objective]
   };
   const mockGameState: GameState = {
-    t: 0,
+    t: 1000,
     map: mockMap,
     units: [
-      { id: 's1', pos: { x: 0.5, y: 0.5 }, state: UnitState.Idle, hp: 100, maxHp: 100, damage: 10, attackRange: 1, sightRange: 5 },
+      { id: 's1', pos: { x: 0.5, y: 0.5 }, state: UnitState.Idle, hp: 100, maxHp: 100, damage: 10, attackRange: 1, sightRange: 5, commandQueue: [] },
     ],
     enemies: [
       { id: 'e1', pos: { x: 0.5, y: 0.5 }, hp: 30, maxHp: 30, type: 'SwarmMelee', damage: 5, attackRange: 1 }, // Visible
       { id: 'e2', pos: { x: 1.5, y: 1.5 }, hp: 30, maxHp: 30, type: 'SwarmMelee', damage: 5, attackRange: 1 }  // Hidden
     ],
-    visibleCells: ['0,0'], // Only (0,0) is visible
-    discoveredCells: ['0,0', '0,1'], // (0,1) discovered but not visible
-    // (1,0) and (1,1) undiscovered
+    visibleCells: ['0,0'], 
+    discoveredCells: ['0,0', '0,1'],
     status: 'Playing',
     objectives: mockMap.objectives as Objective[]
   };
@@ -66,50 +65,38 @@ describe('Renderer', () => {
 
   it('should render map, fog, and entities', () => {
     renderer.render(mockGameState);
-
     expect(mockContext.clearRect).toHaveBeenCalled();
-    
-    // Map rendering
-    // 4 cells
     expect(mockContext.fillRect).toHaveBeenCalled(); 
-
-    // Fog Rendering
-    // (0,0) visible -> no fog
-    // (0,1) discovered -> dim fog
-    // (1,0) undiscovered -> black fog
-    // (1,1) undiscovered -> black fog
-    // We expect fillRect calls with black/rgba colors.
-    // Hard to test exact colors without complex mocks, but we can verify calls.
-    
-    // Enemy Rendering
-    // e1 at (0,0) is visible -> rendered
-    // e2 at (1,1) is hidden -> NOT rendered
-    // How to distinguish? Number of fill/stroke calls?
-    // s1 at (0,0) -> rendered.
-    
-    // e1: fill (red), stroke
-    // s1: fill (green), stroke
-    // Total entity fills: 2 (+ health bars)
-    // Health bar: black bg, colored fg. 2 rects per entity.
-    
-    // Just verify general calls. 
-    // Ideally we'd spy on fillStyle before fill().
   });
 
   it('should only render visible enemies', () => {
-    // We can spy on fillStyle setter?
-    // Not easily with this mock setup unless we use a getter/setter spy.
-    // But we can check arguments to arc/moveTo/lineTo.
-    
     renderer.render(mockGameState);
     
-    // s1 is at 0.5, 0.5 -> pixels (16, 16). Arc called.
+    // s1 at 0.5 -> 16px.
     expect(mockContext.arc).toHaveBeenCalledWith(16, 16, expect.any(Number), 0, Math.PI * 2);
     
-    // e1 is at 0.5, 0.5 -> pixels (16, 16). Triangle (moveTo/lineTo).
+    // e1 at 0.5 -> 16px.
     expect(mockContext.moveTo).toHaveBeenCalledWith(16, expect.any(Number));
     
-    // e2 is at 1.5, 1.5 -> pixels (48, 48). Should NOT be drawn.
+    // e2 at 1.5 -> 48px. Hidden.
     expect(mockContext.moveTo).not.toHaveBeenCalledWith(48, expect.any(Number));
+  });
+
+  it('should render combat tracers', () => {
+    // Add attack data
+    const combatState = {
+        ...mockGameState,
+        units: [{
+            ...mockGameState.units[0],
+            lastAttackTime: 950, // 50ms ago (within 150ms window)
+            lastAttackTarget: { x: 0.5, y: 0.5 } // Target enemy
+        }]
+    };
+
+    renderer.render(combatState);
+
+    // Should draw line from unit (16,16) to target (16,16)
+    // tracer lineTo
+    expect(mockContext.lineTo).toHaveBeenCalledWith(16, 16);
   });
 });
