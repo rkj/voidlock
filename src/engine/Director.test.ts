@@ -33,4 +33,26 @@ describe('Director', () => {
     director.update(6000);
     expect(onSpawn).not.toHaveBeenCalled();
   });
+
+  it('should ramp up difficulty (spawn faster)', () => {
+    const spawnPoints: SpawnPoint[] = [
+      { id: 'sp1', pos: { x: 0, y: 0 }, radius: 1 }
+    ];
+    const onSpawn = vi.fn();
+    const prng = new PRNG(123);
+    const director = new Director(spawnPoints, prng, onSpawn);
+
+    // 1st Spawn at 5000ms
+    director.update(5000);
+    expect(onSpawn).toHaveBeenCalledTimes(1);
+
+    // 2nd Spawn should be at +4900ms (9900ms total)
+    // Update by 4800ms (total 9800) -> should NOT spawn yet
+    director.update(4800);
+    expect(onSpawn).toHaveBeenCalledTimes(1);
+
+    // Update by 100ms (total 9900) -> should spawn
+    director.update(100);
+    expect(onSpawn).toHaveBeenCalledTimes(2);
+  });
 });
