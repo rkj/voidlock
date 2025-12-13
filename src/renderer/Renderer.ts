@@ -30,8 +30,13 @@ export class Renderer {
 
   private renderMap(state: GameState) {
     const map = state.map;
-    this.canvas.width = map.width * this.cellSize;
-    this.canvas.height = map.height * this.cellSize;
+    const width = map.width * this.cellSize;
+    const height = map.height * this.cellSize;
+
+    if (this.canvas.width !== width || this.canvas.height !== height) {
+        this.canvas.width = width;
+        this.canvas.height = height;
+    }
 
     map.cells.forEach(cell => {
       if (cell.type === CellType.Floor) {
@@ -246,8 +251,11 @@ export class Renderer {
 
   public getCellCoordinates(pixelX: number, pixelY: number): Vector2 {
     const rect = this.canvas.getBoundingClientRect();
-    const x = Math.floor((pixelX - rect.left) / this.cellSize);
-    const y = Math.floor((pixelY - rect.top) / this.cellSize);
+    const scaleX = this.canvas.width / rect.width;
+    const scaleY = this.canvas.height / rect.height;
+
+    const x = Math.floor((pixelX - rect.left) * scaleX / this.cellSize);
+    const y = Math.floor((pixelY - rect.top) * scaleY / this.cellSize);
     return { x, y };
   }
 }
