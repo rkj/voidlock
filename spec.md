@@ -14,12 +14,14 @@
   * Win/lose conditions and scoring
 * Play exactly **one run** (one mission instance). No campaign map, no cabin, no persistent progression.
 * Save/load configuration and last-run setup via LocalStorage.
+* **Real-Time with Pause** gameplay loop.
 
 **Not in scope (for this prototype)**
 
 * Account system, server authoritative simulation, anti-cheat.
 * Long-term progression, shops, recruitments, act gating.
 * Cabin exploration / narrative emails.
+* Complex UI Frameworks (React/Vue/Angular) - using Vanilla TS + Vite.
 
 ---
 
@@ -32,6 +34,7 @@
    * Fog-of-war facility map
    * Squad moves semi-autonomously along assigned routes
    * Player issues discrete commands (move, regroup, focus objective, deploy turret/mine, use medkit, throw grenade)
+   * **Real-Time with Pause**: Action flows continuously but can be paused to issue commands.
    * Spawn pressure increases over time (“director”)
 4. **End**: success at extraction with objective complete, or fail on wipe / timer / objective failure rules.
 
@@ -41,10 +44,10 @@
 
 ### 2.1 Core modules
 
-* **Engine (deterministic sim)**
-  Pure logic. No DOM, no Canvas assumptions. Single source of truth for state.
-* **Renderer/UI**
-  Subscribes to Engine state snapshots and renders. Captures user input and translates to Commands.
+* **Engine (Web Worker)**
+  Pure logic. Runs in a dedicated **Web Worker** to ensure performance and strictly enforce state isolation. No DOM access. Single source of truth. Potential for WebAssembly future optimization.
+* **Renderer/UI (Main Thread)**
+  Vanilla TypeScript + HTML5 Canvas. Subscribes to Engine state snapshots and renders. Captures user input and translates to Commands.
 * **Content Pack** (data + optional code)
   Defines balancing + generation strategies through interfaces.
 * **Bot/Agent Harness**
@@ -61,8 +64,10 @@
 
 ### 3.1 Time
 
-* Fixed timestep simulation (recommended): `dt = 100ms` or `50ms`.
+* **Real-Time with Pause**.
+* Fixed timestep simulation: `dt = 100ms` (or similar).
 * Engine loop: `for each tick -> updateAI -> applyCommands -> integrateMovement -> resolveCombat -> resolveSpawns -> resolveObjectives -> emitEvents`.
+* Pause state halts the tick integration but allows command queuing.
 
 ### 3.2 World representation
 
@@ -170,7 +175,7 @@ You can start with only `MOVE_TO`, `REGROUP`, `USE_MEDKIT`, `FOCUS_OBJECTIVE`. A
 
 ### 6.1 Transport
 
-* In-browser: `postMessage` (iframe worker), or direct JS function calls.
+* In-browser: `postMessage` (Web Worker).
 * For bot testing: run bots as WebWorkers or injected scripts.
 
 ### 6.2 Observation payload (what agents receive)
@@ -357,6 +362,7 @@ Do not ship copyrighted scans/assets. Keep importer expecting **user-provided** 
 1. **M1: Deterministic engine skeleton**
 
    * Tick loop, map grid, LOS stub, pathfinding, MOVE_TO
+   * **Hardcoded Map** initially to prove logic.
 2. **M2: Fog-of-war + basic combat**
 
    * Enemies spawn, soldiers shoot, HP/death, extraction + objective completion
