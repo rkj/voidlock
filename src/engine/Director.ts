@@ -3,7 +3,10 @@ import { PRNG } from '../shared/PRNG';
 
 export class Director {
   private timeSinceLastSpawn: number = 0;
-  private spawnInterval: number = 5000; // 5 seconds
+  private spawnInterval: number = 5000; // Initial interval
+  private minSpawnInterval: number = 1000;
+  private rampAmount: number = 100; // ms to reduce interval by per spawn
+  
   private spawnPoints: SpawnPoint[];
   private onSpawn: (enemy: Enemy) => void;
   private enemyIdCounter: number = 0;
@@ -21,7 +24,13 @@ export class Director {
     if (this.timeSinceLastSpawn >= this.spawnInterval) {
       this.timeSinceLastSpawn = 0;
       this.spawnEnemy();
+      this.rampDifficulty();
     }
+  }
+
+  private rampDifficulty() {
+    this.spawnInterval = Math.max(this.minSpawnInterval, this.spawnInterval - this.rampAmount);
+    // console.log('Director ramped difficulty. New interval:', this.spawnInterval);
   }
 
   private spawnEnemy() {
