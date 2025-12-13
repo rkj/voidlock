@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Xenopurge Prototype</title>
+    <style>
+      body { margin: 0; overflow: hidden; background-color: #1a1a1a; color: #eee; font-family: 'Courier New', Courier, monospace; }
+      #app { display: flex; height: 100vh; }
+      #game-container { flex-grow: 1; display: flex; justify-content: center; align-items: center; }
+      canvas { border: 1px solid #444; background-color: #000; }
+      #ui-panel { width: 300px; padding: 10px; background-color: #222; border-left: 1px solid #444; overflow-y: auto; }
+      h1 { color: #0f0; text-shadow: 0 0 5px #0f0; }
+      button { background-color: #333; color: #0f0; border: 1px solid #0f0; padding: 5px 10px; cursor: pointer; margin-top: 10px; }
+      button:hover { background-color: #0f0; color: #333; }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+      </div>
+      <div id="ui-panel">
+        <h1>Xenopurge Prototype</h1>
+        <p>Status: Initializing...</p>
+        <button id="start-button">Start Mission</button>
+      </div>
+    </div>
+    <script type="module" src="/src/renderer/main.ts"></script>
+  </body>
+</html>
