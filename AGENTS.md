@@ -744,6 +744,7 @@ history/
 - ✅ Link discovered work with `discovered-from` dependencies
 - ✅ Check `bd ready` before asking "what should I work on?"
 - ✅ Store AI planning docs in `history/` directory
+- ✅ **New Change Request Workflow**: When a new change is requested, first update `spec.md` with the extra clarification, then create Beads tasks for the implementation.
 - ❌ Do NOT create markdown TODO lists
 - ❌ Do NOT use external issue trackers
 - ❌ Do NOT duplicate tracking systems

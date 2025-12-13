@@ -1,13 +1,21 @@
 import { GameClient } from '../engine/GameClient';
 import { Renderer } from './Renderer';
-import { GameState, UnitState, CommandType, Unit } from '../shared/types';
+import { GameState, UnitState, CommandType, Unit, MapDefinition, MapGeneratorType } from '../shared/types';
 import { MapGenerator } from '../engine/MapGenerator';
 
+// Factory function for MapGenerator
+const mapGeneratorFactory = (seed: number, type: MapGeneratorType, mapData?: MapDefinition): MapGenerator => {
+  // Pass default maxTunnelWidth and maxRoomSize to procedural generator
+  return new MapGenerator(seed, 1, 2); 
+};
+
 // --- Game Setup ---
-const gameClient = new GameClient();
+const gameClient = new GameClient(mapGeneratorFactory);
 let renderer: Renderer;
 let currentGameState: GameState | null = null;
 let currentSeed: number = Date.now();
+let currentMapGeneratorType: MapGeneratorType = MapGeneratorType.Procedural;
+let currentStaticMapData: MapDefinition | undefined = undefined;
 
 // --- Input State ---
 type InputMode = 'SELECT' | 'CMD_MOVE';
@@ -15,15 +23,13 @@ let inputMode: InputMode = 'SELECT';
 let selectedUnitId: string | null = null; 
 let pendingCommandUnitId: string | null = null;
 
-const initGame = (seed?: number) => {
+const initGame = (seed?: number, generatorType?: MapGeneratorType, staticMapData?: MapDefinition) => {
   currentSeed = seed ?? Date.now();
+  currentMapGeneratorType = generatorType ?? MapGeneratorType.Procedural;
+  currentStaticMapData = staticMapData;
   
-  // Use MapGenerator with Fixed Layout (16x16)
-  const generator = new MapGenerator(currentSeed);
-  const map = generator.generate(16, 16); 
-
   // Initialize engine in worker
-  gameClient.init(currentSeed, map);
+  gameClient.init(currentSeed, currentMapGeneratorType, currentStaticMapData);
   
   // Reset selection
   selectedUnitId = null;
@@ -159,13 +165,51 @@ const handleCanvasClick = (event: MouseEvent) => {
 
 // --- Event Listeners ---
 document.addEventListener('DOMContentLoaded', () => {
+  // Get UI elements
+  const mapGeneratorTypeSelect = document.getElementById('map-generator-type') as HTMLSelectElement;
+  const mapSeedInput = document.getElementById('map-seed') as HTMLInputElement;
+  const generateMapButton = document.getElementById('generate-map') as HTMLButtonElement;
+  const staticMapControlsDiv = document.getElementById('static-map-controls') as HTMLDivElement;
+  const staticMapJsonTextarea = document.getElementById('static-map-json') as HTMLTextAreaElement;
+  const loadStaticMapButton = document.getElementById('load-static-map') as HTMLButtonElement;
+
+  // Handle Map Generator Type selection
+  mapGeneratorTypeSelect?.addEventListener('change', () => {
+    currentMapGeneratorType = mapGeneratorTypeSelect.value as MapGeneratorType;
+    if (currentMapGeneratorType === MapGeneratorType.Static) {
+      staticMapControlsDiv.style.display = 'block';
+      generateMapButton.textContent = 'Generate New Mission (Procedural)';
+      mapSeedInput.disabled = true; // Seed is not relevant for static map loading
+    } else {
+      staticMapControlsDiv.style.display = 'none';
+      generateMapButton.textContent = 'Generate New Mission';
+      mapSeedInput.disabled = false;
+    }
+  });
+
   // Buttons
-  document.getElementById('start-button')?.addEventListener('click', () => initGame(currentSeed));
+  document.getElementById('start-button')?.addEventListener('click', () => {
+    initGame(currentSeed, currentMapGeneratorType, currentStaticMapData);
+  });
   
-  document.getElementById('generate-map')?.addEventListener('click', () => {
-    const seedInput = document.getElementById('map-seed') as HTMLInputElement;
-    const seedVal = parseInt(seedInput.value);
-    initGame(!isNaN(seedVal) ? seedVal : undefined);
+  generateMapButton?.addEventListener('click', () => {
+    const seedVal = parseInt(mapSeedInput.value);
+    initGame(!isNaN(seedVal) ? seedVal : undefined, MapGeneratorType.Procedural);
+  });
+
+  loadStaticMapButton?.addEventListener('click', () => {
+    try {
+      const mapData: MapDefinition = JSON.parse(staticMapJsonTextarea.value);
+      // Validate basic structure (optional, but good practice)
+      if (!mapData.width || !mapData.height || !mapData.cells) {
+        throw new Error("Invalid MapDefinition JSON: Missing width, height, or cells.");
+      }
+      currentStaticMapData = mapData;
+      initGame(currentSeed, MapGeneratorType.Static, currentStaticMapData);
+    } catch (err) {
+      console.error("Error loading static map:", err);
+      alert("Invalid static map JSON provided. Please check the format.");
+    }
   });
 
   document.getElementById('cmd-move')?.addEventListener('click', () => setInputMode('CMD_MOVE'));
@@ -196,8 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
           const replayData = JSON.parse(event.target?.result as string);
           gameClient.loadReplay(replayData);
           currentSeed = replayData.seed;
-          const seedInput = document.getElementById('map-seed') as HTMLInputElement;
-          if(seedInput) seedInput.value = currentSeed.toString();
+          mapSeedInput.value = currentSeed.toString();
         } catch (err) {
           console.error(err);
           alert("Invalid replay.");
@@ -224,5 +267,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   
   // Start initial game
-  initGame();
+  // Initialize UI controls to match initial state
+  mapGeneratorTypeSelect.value = currentMapGeneratorType;
+  if (currentMapGeneratorType === MapGeneratorType.Static) {
+    staticMapControlsDiv.style.display = 'block';
+    generateMapButton.textContent = 'Generate New Mission (Procedural)';
+    mapSeedInput.disabled = true;
+  }
+  
+  initGame(currentSeed, currentMapGeneratorType, currentStaticMapData);
 });

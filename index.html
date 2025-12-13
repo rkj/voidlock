@@ -62,10 +62,22 @@
         </div>
 
         <div class="control-group">
-          <h3>Map Generator</h3>
+          <h3>Map Generation</h3>
+          <label for="map-generator-type">Generator Type:</label>
+          <select id="map-generator-type">
+            <option value="Procedural">Procedural Maze</option>
+            <option value="Static">Static Map</option>
+          </select>
+
           <label for="map-seed">Seed (optional):</label>
           <input type="number" id="map-seed" placeholder="Random" />
           <button id="generate-map">Generate New Mission</button>
+
+          <div id="static-map-controls" style="display: none; margin-top: 10px;">
+            <label for="static-map-json">Static Map JSON:</label>
+            <textarea id="static-map-json" rows="8" style="width: 100%; box-sizing: border-box;"></textarea>
+            <button id="load-static-map">Load Static Mission</button>
+          </div>
         </div>
         
         <div class="control-group">
