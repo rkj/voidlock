@@ -115,14 +115,14 @@ export class Renderer {
 
     // Render Doors
     map.doors?.forEach(door => {
-      let doorColor = '#555'; // Default for Closed
-      if (door.state === 'Open') doorColor = '#0F0';
-      else if (door.state === 'Locked') doorColor = '#FF0';
+      let doorColor = 'darkgrey'; // Default for Closed
+      if (door.state === 'Open') doorColor = 'hotpink';
+      else if (door.state === 'Locked') doorColor = 'orange';
       else if (door.state === 'Destroyed') doorColor = '#F00';
 
       this.ctx.fillStyle = doorColor;
-      this.ctx.strokeStyle = '#000'; // Border for doors
-      this.ctx.lineWidth = 2;
+      this.ctx.strokeStyle = '#CCC'; // Lighter border for doors
+      this.ctx.lineWidth = 4; // Thicker lines for doors
 
       door.segment.forEach(segCell => {
         const x = segCell.x * this.cellSize;
@@ -131,7 +131,6 @@ export class Renderer {
 
         // Draw door on the appropriate wall segment it replaces
         // Assuming 'segment' refers to the cells on the 'left' or 'top' side of the barrier
-        // This is an interpretation, might need adjustment based on visual feedback
         if (door.orientation === 'Vertical') { // Door is vertical (between x and x+1)
           const doorWidth = this.ctx.lineWidth; // Visual thickness of door
           this.ctx.fillRect(x + s - doorWidth / 2, y, doorWidth, s);

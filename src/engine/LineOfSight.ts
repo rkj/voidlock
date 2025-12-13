@@ -1,7 +1,7 @@
-import { Grid, Vector2 } from '../shared/types';
+import { Grid, Vector2, Door } from '../shared/types';
 
 export class LineOfSight {
-  constructor(private grid: Grid) {}
+  constructor(private grid: Grid, private doors: Map<string, Door>) {}
 
   public computeVisibleCells(origin: Vector2, range: number): string[] {
     const visible: Set<string> = new Set();
@@ -85,23 +85,10 @@ export class LineOfSight {
             nextY += stepY;
         }
 
-        // Check wall passage
-        if (!this.grid.canMove(x, y, nextX, nextY)) {
-            // Blocked by wall between current and next
-            // However, if the 'next' cell is the target, we can see INTO it?
-            // "Thin walls": if wall is on edge, can we see the wall? Yes.
-            // Can we see past it? No.
-            // If we are at (x,y) and moving to (nextX, nextY), and there is a wall between them.
-            // If (nextX, nextY) is the target (x1, y1), we CAN see it (the wall face).
-            // But usually LOS checks center-to-center.
-            // If center of target is blocked by edge wall, then NO we cannot see center.
-            // So return false.
+        // Check wall passage, passing the doors map
+        if (!this.grid.canMove(x, y, nextX, nextY, this.doors)) {
             return false;
         }
-        
-        // Also check if next cell itself is walkable? 
-        // canMove checks isWalkable for both.
-        // So if next cell is Void (Wall Type), it returns false.
         
         x = nextX;
         y = nextY;
