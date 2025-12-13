@@ -36,12 +36,16 @@ export class GameGrid implements Grid {
   }
 
   canMove(fromX: number, fromY: number, toX: number, toY: number, doors?: Map<string, Door>): boolean {
-    if (!this.isWalkable(fromX, fromY) || !this.isWalkable(toX, toY)) return false;
+    if (!this.isWalkable(fromX, fromY) || !this.isWalkable(toX, toY)) {
+      return false;
+    }
 
     // Must be adjacent
     const dx = toX - fromX;
     const dy = toY - fromY;
-    if (Math.abs(dx) + Math.abs(dy) !== 1) return false; // Orthogonal only for walls check
+    if (Math.abs(dx) + Math.abs(dy) !== 1) {
+      return false;
+    }
 
     const fromCell = this.cells[fromY][fromX];
     

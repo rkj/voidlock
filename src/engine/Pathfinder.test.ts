@@ -9,9 +9,35 @@ describe('Pathfinder', () => {
   let pathfinder: Pathfinder;
   const mockDoors: Map<string, Door> = new Map();
 
+  const createTestMapWithDoor = (doorState: 'Open' | 'Closed' | 'Locked' | 'Destroyed'): { map: MapDefinition, doors: Map<string, Door> } => {
+    const doorId = 'testDoor';
+    const mapCells: Cell[] = [
+      { x: 0, y: 0, type: CellType.Floor, walls: { n: true, e: false, s: true, w: true } },
+      { x: 1, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: true, w: false } },
+      { x: 2, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: true, w: false } },
+    ];
+
+    const door: Door = {
+      id: doorId,
+      segment: [{ x: 1, y: 0 }], // Door to the right of (1,0), so between (1,0) and (2,0)
+      orientation: 'Vertical',
+      state: doorState,
+      hp: 100,
+      maxHp: 100,
+      openDuration: 1
+    };
+    
+    const doorsMap = new Map<string, Door>();
+    doorsMap.set(doorId, door);
+
+    return {
+      map: { width: 3, height: 1, cells: mapCells, doors: [door] },
+      doors: doorsMap
+    };
+  };
+
   beforeEach(() => {
-    // 5x5 map.
-    // Walls at (1,1), (3,1), (1,2), (3,2), (1,3), (3,3)
+    // 5x5 map for standard tests. Path from (0,0) to (2,0) goes through (1,0).
     const cells = [];
     for(let y=0; y<5; y++) {
         for(let x=0; x<5; x++) {
@@ -39,7 +65,7 @@ describe('Pathfinder', () => {
     expect(path).toEqual([{ x: 1, y: 0 }, { x: 2, y: 0 }]);
   });
 
-  it('should return null if start and end are the same', () => {
+  it('should return empty array if start and end are the same', () => {
     const start: Vector2 = { x: 0, y: 0 };
     const end: Vector2 = { x: 0, y: 0 };
     const path = pathfinder.findPath(start, end);
@@ -67,5 +93,39 @@ describe('Pathfinder', () => {
     expect(path).not.toBeNull();
     // Check if path ends at target
     expect(path![path!.length - 1]).toEqual(end);
+  });
+
+  describe('door pathfinding', () => {
+    it('should find a path through an open door', () => {
+      const { map, doors } = createTestMapWithDoor('Open');
+      const doorGrid = new GameGrid(map);
+      const doorPathfinder = new Pathfinder(doorGrid, doors);
+      const path = doorPathfinder.findPath({ x: 0, y: 0 }, { x: 2, y: 0 });
+      expect(path).toEqual([{ x: 1, y: 0 }, { x: 2, y: 0 }]);
+    });
+
+    it('should block pathfinding through a closed door', () => {
+      const { map, doors } = createTestMapWithDoor('Closed');
+      const doorGrid = new GameGrid(map);
+      const doorPathfinder = new Pathfinder(doorGrid, doors);
+      const path = doorPathfinder.findPath({ x: 0, y: 0 }, { x: 2, y: 0 });
+      expect(path).toBeNull();
+    });
+
+    it('should block pathfinding through a locked door', () => {
+      const { map, doors } = createTestMapWithDoor('Locked');
+      const doorGrid = new GameGrid(map);
+      const doorPathfinder = new Pathfinder(doorGrid, doors);
+      const path = doorPathfinder.findPath({ x: 0, y: 0 }, { x: 2, y: 0 });
+      expect(path).toBeNull();
+    });
+
+    it('should find a path through a destroyed door', () => {
+      const { map, doors } = createTestMapWithDoor('Destroyed');
+      const doorGrid = new GameGrid(map);
+      const doorPathfinder = new Pathfinder(doorGrid, doors);
+      const path = doorPathfinder.findPath({ x: 0, y: 0 }, { x: 2, y: 0 });
+      expect(path).toEqual([{ x: 1, y: 0 }, { x: 2, y: 0 }]);
+    });
   });
 });
