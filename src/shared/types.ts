@@ -45,6 +45,7 @@ export type Unit = Entity & {
   targetPos?: Vector2;
   damage: number;
   attackRange: number;
+  sightRange: number; // Added sight range
 };
 
 export type Enemy = Entity & {
@@ -64,6 +65,9 @@ export type GameState = {
   map: MapDefinition;
   units: Unit[];
   enemies: Enemy[];
+  // Fog of War data - array of "x,y" strings or coordinate objects
+  visibleCells: string[]; 
+  discoveredCells: string[];
 };
 
 // --- Protocol ---

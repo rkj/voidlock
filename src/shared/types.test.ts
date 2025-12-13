@@ -32,7 +32,7 @@ describe('Shared Types', () => {
       pos: { x: 0, y: 0 },
       hp: 100, maxHp: 100,
       state: UnitState.Idle,
-      damage: 10, attackRange: 1
+      damage: 10, attackRange: 1, sightRange: 5
     };
     expect(unitWithOutPath).not.toHaveProperty('path');
 
@@ -42,7 +42,7 @@ describe('Shared Types', () => {
       hp: 100, maxHp: 100,
       state: UnitState.Moving,
       path: [{ x: 1, y: 0 }, { x: 2, y: 0 }],
-      damage: 10, attackRange: 1
+      damage: 10, attackRange: 1, sightRange: 5
     };
     expect(unitWithPath.path).toEqual([{ x: 1, y: 0 }, { x: 2, y: 0 }]);
   });
@@ -62,10 +62,11 @@ describe('Shared Types', () => {
       pos: { x: 1, y: 1 },
       hp: 80, maxHp: 100,
       state: UnitState.Idle,
-      damage: 15, attackRange: 2
+      damage: 15, attackRange: 2, sightRange: 6
     };
     expect(unit.damage).toBe(15);
     expect(unit.attackRange).toBe(2);
+    expect(unit.sightRange).toBe(6);
     expect(unit.state).toBe(UnitState.Idle);
 
     const enemy: Enemy = {

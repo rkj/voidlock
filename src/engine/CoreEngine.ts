@@ -2,6 +2,7 @@ import { GameState, MapDefinition, Unit, Enemy, Command, CommandType, UnitState,
 import { GameGrid } from './GameGrid';
 import { Pathfinder } from './Pathfinder';
 import { Director } from './Director';
+import { LineOfSight } from './LineOfSight';
 
 const EPSILON = 0.0001; // Small value for floating-point comparisons
 
@@ -10,16 +11,20 @@ export class CoreEngine {
   private gameGrid: GameGrid;
   private pathfinder: Pathfinder;
   private director: Director;
+  private los: LineOfSight;
   private readonly TICK_RATE = 100; // ms
 
   constructor(map: MapDefinition) {
     this.gameGrid = new GameGrid(map);
     this.pathfinder = new Pathfinder(this.gameGrid);
+    this.los = new LineOfSight(this.gameGrid);
     this.state = {
       t: 0,
       map,
       units: [],
-      enemies: [] 
+      enemies: [],
+      visibleCells: [],
+      discoveredCells: []
     };
     
     // Initialize Director
@@ -82,14 +87,37 @@ export class CoreEngine {
     // Update Director to spawn enemies
     this.director.update(dt);
 
+    // --- Visibility Logic ---
+    const newVisibleCells = new Set<string>();
+    this.state.units.forEach(unit => {
+      if (unit.hp > 0) {
+        const visible = this.los.computeVisibleCells(unit.pos, unit.sightRange || 10); // Default sight range 10
+        visible.forEach(cell => newVisibleCells.add(cell));
+      }
+    });
+    this.state.visibleCells = Array.from(newVisibleCells);
+    
+    // Update discovered cells
+    const discoveredSet = new Set(this.state.discoveredCells);
+    newVisibleCells.forEach(cell => discoveredSet.add(cell));
+    this.state.discoveredCells = Array.from(discoveredSet);
+
+
     const SPEED = 2; // Tiles per second
 
     // --- Unit Logic (Movement & Combat) ---
     this.state.units.forEach(unit => {
-      // Prioritize combat if enemy is in range
+      // Prioritize combat if enemy is in range AND visible
+      // Technically, if in range, might be visible, but LOS check handles walls.
+      // We should check if enemy is in visibleCells?
+      // Or just distance?
+      // Spec says "If target in range and line-of-sight: shoot".
+      // We can use visibleCells set for fast lookup.
+      
       const enemiesInRange = this.state.enemies.filter(enemy => 
         enemy.hp > 0 &&
-        this.getDistance(unit.pos, enemy.pos) <= unit.attackRange + 0.5 
+        this.getDistance(unit.pos, enemy.pos) <= unit.attackRange + 0.5 &&
+        newVisibleCells.has(`${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`) // Check visibility
       );
 
       if (enemiesInRange.length > 0) {
@@ -132,13 +160,18 @@ export class CoreEngine {
       const unitsInRange = this.state.units.filter(unit => 
         unit.hp > 0 &&
         this.getDistance(enemy.pos, unit.pos) <= enemy.attackRange + 0.5
+        // Enemies also need LOS? Usually yes.
+        // For prototype, assume if soldier sees enemy, enemy sees soldier? Not always true.
+        // Ideally compute enemy LOS or just distance for now.
+        // Let's enforce LOS for enemies too using same LOS util if possible, or just distance for M2 simple logic.
+        // Adding LOS check for enemies might be expensive if many enemies.
+        // For M2, let's keep it simple: distance only for enemies (they smell you).
       );
 
       if (unitsInRange.length > 0) {
         // Attack the first unit in range
         const targetUnit = unitsInRange[0];
         targetUnit.hp -= enemy.damage;
-        // console.log(`Enemy ${enemy.id} attacked Unit ${targetUnit.id}, Unit HP: ${targetUnit.hp}`);
       }
       
       // TODO: Enemy movement (AI)
