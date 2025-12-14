@@ -3,9 +3,26 @@ import { Renderer } from './Renderer';
 import { GameState, UnitState, CommandType, Unit, MapDefinition, MapGeneratorType, Door, Vector2 } from '../shared/types';
 import { MapGenerator } from '../engine/MapGenerator';
 
+import { SpaceshipGenerator } from '../engine/generators/SpaceshipGenerator';
+
 // Factory function for MapGenerator
-const mapGeneratorFactory = (seed: number, type: MapGeneratorType, mapData?: MapDefinition): MapGenerator => {
-  // Pass default maxTunnelWidth and maxRoomSize to procedural generator
+const mapGeneratorFactory = (seed: number, type: MapGeneratorType, mapData?: MapDefinition): MapGenerator | SpaceshipGenerator => {
+  if (type === MapGeneratorType.Static && mapData) {
+      // MapGenerator can handle static loading via `load` or just returning data if we refactor.
+      // Current MapGenerator has `load`.
+      const gen = new MapGenerator(seed);
+      // We need a way to pass the static data. Currently GameClient.init calls factory then .generate or .load.
+      return gen;
+  }
+  
+  if (type === MapGeneratorType.Procedural) {
+      // Use new SpaceshipGenerator
+      // Size: 24x24 to 32x32 based on seed? Or fixed default?
+      // User said "current default is tad large". 16x16 was small. 50x50 was large.
+      // Let's go with 32x32 as a good balance for "Spaceship".
+      return new SpaceshipGenerator(seed, 32, 32);
+  }
+
   return new MapGenerator(seed, 1, 2); 
 };
 
