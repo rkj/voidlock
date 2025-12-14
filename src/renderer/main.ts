@@ -232,6 +232,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const staticMapControlsDiv = document.getElementById('static-map-controls') as HTMLDivElement;
   const staticMapJsonTextarea = document.getElementById('static-map-json') as HTMLTextAreaElement;
   const loadStaticMapButton = document.getElementById('load-static-map') as HTMLButtonElement;
+  const uploadStaticMapInput = document.getElementById('upload-static-map') as HTMLInputElement; // New
+  const asciiMapInput = document.getElementById('ascii-map-input') as HTMLTextAreaElement; // New
+  const convertAsciiToMapButton = document.getElementById('convert-ascii-to-map') as HTMLButtonElement; // New
+  const convertMapToAsciiButton = document.getElementById('convert-map-to-ascii') as HTMLButtonElement; // New
 
   // Handle Map Generator Type selection
   mapGeneratorTypeSelect?.addEventListener('change', () => {
@@ -272,6 +276,56 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (err) {
       console.error("Error loading static map:", err);
       alert("Invalid static map JSON provided. Please check the format.");
+    }
+  });
+
+  uploadStaticMapInput?.addEventListener('change', (e) => {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const oldMapData = JSON.parse(event.target?.result as string);
+          const mapData: MapDefinition = transformMapData(oldMapData);
+          if (!mapData.width || !mapData.height || !mapData.cells) {
+            throw new Error("Invalid MapDefinition JSON: Missing width, height, or cells.");
+          }
+          currentStaticMapData = mapData;
+          initGame(currentSeed, MapGeneratorType.Static, currentStaticMapData);
+        } catch (err) {
+          console.error(err);
+          alert("Invalid static map JSON file.");
+        }
+      };
+      reader.readAsText(file);
+    }
+  });
+
+  convertAsciiToMapButton?.addEventListener('click', () => {
+    try {
+      const ascii = asciiMapInput.value;
+      const mapData: MapDefinition = MapGenerator.fromAscii(ascii);
+      currentStaticMapData = mapData;
+      initGame(currentSeed, MapGeneratorType.Static, currentStaticMapData);
+      alert("ASCII map converted and loaded!");
+    } catch (err) {
+      console.error("Error converting ASCII to MapDefinition:", err);
+      alert("Invalid ASCII map provided. Please check the format.");
+    }
+  });
+
+  convertMapToAsciiButton?.addEventListener('click', () => {
+    if (currentGameState && currentGameState.map) {
+      try {
+        const ascii = MapGenerator.toAscii(currentGameState.map);
+        asciiMapInput.value = ascii;
+        alert("Current map converted to ASCII!");
+      } catch (err) {
+        console.error("Error converting MapDefinition to ASCII:", err);
+        alert("Failed to convert current map to ASCII.");
+      }
+    } else {
+      alert("No map loaded to convert to ASCII.");
     }
   });
 
