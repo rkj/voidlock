@@ -207,6 +207,39 @@ Example:
 
 All should be swappable. Default implementations ship with the prototype; content packs can replace any subset.
 
+### 7.3 ASCII Map Representation
+
+To facilitate easy creation and debugging of maps, especially for hardcoded or test scenarios, the system should support conversion between `MapDefinition` and a simplified ASCII string format that accurately reflects the "walls between cells" model.
+
+*   **Format**: The ASCII representation will use an expanded grid where each character position either represents a cell's content, a wall segment, or a wall corner. For a map of `width` W and `height` H, the ASCII grid will be `(2W+1)` columns wide and `(2H+1)` rows tall.
+
+    *   **Cell Content Characters (at `(2x+1, 2y+1)` positions):**
+        *   `' '` (space): Default Floor cell (no special features)
+        *   `'S'`: Floor cell with a Spawn Point
+        *   `'E'`: Floor cell with an Extraction Point
+        *   `'O'`: Floor cell with an Objective
+        *   *Priority*: If a cell has multiple features, use the highest priority: `S` > `E` > `O` > ` `
+
+    *   **Wall/Passage Characters:**
+        *   **Horizontal Wall/Passage (at `(2x+1, 2y)` positions):**
+            *   `'-'`: Horizontal wall segment
+            *   `' '` (space): Horizontal open passage (no wall)
+        *   **Vertical Wall/Passage (at `(2x, 2y+1)` positions):**
+            *   `'|'`: Vertical wall segment
+            *   `' '` (space): Vertical open passage (no wall)
+        *   **Door (replacing a wall segment):**
+            *   `'='`: Horizontal Door (replaces `'-'`)
+            *   `'I'`: Vertical Door (replaces `'|'`)
+        *   **Corner Characters (at `(2x, 2y)` positions):**
+            *   `'+'`: Default corner (intersection of walls)
+            *   `' '` (space): Corner with no adjacent walls (or just for visual spacing if open passages meet)
+
+*   **Conversion**:
+    *   `toAscii(map: MapDefinition) -> string`: Convert a `MapDefinition` object into its ASCII string representation.
+    *   `fromAscii(asciiMap: string) -> MapDefinition`: Parse an ASCII string representation back into a `MapDefinition` object.
+    *   *Note*: The `fromAscii` conversion will need sensible defaults for attributes not explicitly representable in ASCII (e.g., door HP, objective kind). It will also need to infer wall `true`/`false` based on the presence of `'-'`, `'|'`, `'='`, `'I'` characters.
+
+
 ---
 
 ## 8) UI/UX requirements (web)
@@ -222,6 +255,7 @@ All should be swappable. Default implementations ship with the prototype; conten
         *   **Preset Maps**: Dropdown or list of predefined maps (e.g., 'Screenshot Map', 'Small Maze', 'Corridor'). The 'Screenshot Map' (`map-screenshot.json`) must be included as a preset.
         *   **Load Static Map (Text Input)**: For 'Static Map' selection, provide an input (e.g., text area) to paste map definition JSON.
         *   **Load Static Map (File Upload)**: Add a dedicated file input (`<input type="file">`) for `.json` files to upload map definition JSON.
+        *   **ASCII Map Input/Output**: A text area input for pasting/displaying ASCII map strings, with buttons to "Convert to MapDefinition" and "Convert from MapDefinition".
     *   Squad builder (pick archetypes)
     *   Toggles: fog-of-war, debug overlay, agent control on/off
 *   **Mission screen**
