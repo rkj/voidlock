@@ -1,311 +1,153 @@
-## GDD: Xenopurge-like Web Prototype (Single Run, No Meta, Pluggable Balance, AI-Friendly)
+### Part 1: Game Design Document (GDD)
 
-### 0) Scope and non-goals
-
-**In scope**
-
-* Static single-page web app (no backend).
-* Load configurable “content pack” (JSON + optional JS modules) that defines:
-
-  * Map generation (or fixed map)
-  * Encounter/spawn director
-  * Units (stats, weapons), enemies, objectives
-  * Commands available to the player/AI
-  * Win/lose conditions and scoring
-* Play exactly **one run** (one mission instance). No campaign map, no cabin, no persistent progression.
-* Save/load configuration and last-run setup via LocalStorage.
-* **Real-Time with Pause** gameplay loop.
-
-**Not in scope (for this prototype)**
-
-* Account system, server authoritative simulation, anti-cheat.
-* Long-term progression, shops, recruitments, act gating.
-* Cabin exploration / narrative emails.
-* Complex UI Frameworks (React/Vue/Angular) - using Vanilla TS + Vite.
+# GDD: Xenopurge (Web Prototype)
+**Version:** 1.2
+**Core Concept:** Single-player, Real-Time with Pause (RTwP) tactical squad combat in a claustrophobic spaceship environment.
 
 ---
 
-## 1) High-level player experience
+## 1) Scope & Design Pillars
 
-1. **Configure**: choose content pack, adjust tuning sliders (or edit JSON), set squad composition and AI logic profiles.
-2. **Generate/Load Map**: procedural map generator or imported map.
-3. **Play Mission**:
+### 1.1 In Scope
+* **Engine:** Deterministic, tick-based simulation running in a Web Worker.
+* **Visuals:** 2D Top-down, Grid-based, "Shared Wall" rendering via HTML5 Canvas.
+* **Loop:** Configure Squad -> Load Map -> Real-Time Tactical Combat -> Extract or Die.
+* **Modding:** "Content Packs" (JSON) strictly define stats, maps, and logic parameters.
+* **AI Support:** First-class support for bot players via a JSON observation/command protocol.
 
-   * Fog-of-war facility map
-   * Squad moves semi-autonomously along assigned routes
-   * Player issues discrete commands (move, regroup, focus objective, deploy turret/mine, use medkit, throw grenade)
-   * **Real-Time with Pause**: Action flows continuously but can be paused to issue commands.
-   * Spawn pressure increases over time (“director”)
-4. **End**: success at extraction with objective complete, or fail on wipe / timer / objective failure rules.
-
----
-
-## 2) Architecture overview
-
-### 2.1 Core modules
-
-* **Engine (Web Worker)**
-  Pure logic. Runs in a dedicated **Web Worker** to ensure performance and strictly enforce state isolation. No DOM access. Single source of truth. Potential for WebAssembly future optimization.
-* **Renderer/UI (Main Thread)**
-  Vanilla TypeScript + HTML5 Canvas. Subscribes to Engine state snapshots and renders. Captures user input and translates to Commands.
-* **Content Pack** (data + optional code)
-  Defines balancing + generation strategies through interfaces.
-* **Bot/Agent Harness**
-  Sends commands via JSON protocol, receives observations (snapshots/events) to enable machine players.
-
-### 2.2 Determinism requirement
-
-* Engine must be reproducible given `(seed, contentPackVersion, initialConfig, commandStream)`.
-* Use a seeded PRNG owned by engine; content pack generators must accept PRNG instance (never call `Math.random()`).
+### 1.2 Out of Scope
+* Multiplayer networking (Local only).
+* Meta-progression (XP, Campaign map, Loot inventory).
+* Complex Frameworks (React/Vue) — strictly Vanilla TS + Vite.
 
 ---
 
-## 3) Simulation model
+## 2) Simulation Architecture
 
-### 3.1 Time
+### 2.1 The Game Loop (Web Worker)
+The simulation runs at a fixed timestep (`tickMs`, default 100ms).
+**Update Sequence per Tick:**
+1.  **AI Think:** Update Bot/Enemy intent based on new state.
+2.  **Command Processing:** Validate and apply player/agent commands from the queue (FIFO).
+3.  **Action Resolution:** Tick down action cooldowns (movement, shooting).
+4.  **Movement Integration:** Update positions if move cooldown complete.
+5.  **Combat Resolution:** Resolve shots fired, calculate hits/damage, apply death.
+6.  **Director:** Check spawn timers (default 45s cycle).
+7.  **State Snapshot:** Emit `WorldState` to the Main Thread (Renderer).
 
-* **Real-Time with Pause**.
-* Fixed timestep simulation: `dt = 100ms` (or similar).
-* Engine loop: `for each tick -> updateAI -> applyCommands -> integrateMovement -> resolveCombat -> resolveSpawns -> resolveObjectives -> emitEvents`.
-* Pause state halts the tick integration but allows command queuing.
-
-### 3.2 World representation
-
-* Grid of **tiles** (Space Hulk compatibility strongly suggests “square-based” corridors/rooms). Entry points and objectives map cleanly onto squares. Space Hulk’s core maps/tiles are effectively a grid of corridor/room squares with doors and entry areas. ([Order of Gamers][1])
-*   **Spaceship Interior:** Tight corridors, "thin walls" between adjacent cells (edge-based), and constrained spaces (no large open areas). Maximum map size 16x16. Map generation should prioritize single-tile tunnels (vertical or horizontal) and mostly 2x2 rooms, avoiding larger, irregular tunnel shapes (e.g., 2x width tunnels). This design is inspired by classic Space Hulk layouts.
-
-**Recommended cell model (tile-based)**
-
-*   `Cell { x,y, type: Floor, walls: { n: bool, e: bool, s: bool, w: bool }, roomId?, doorId? }`
-
-    *   *Note:* `type: Wall` cells are replaced by edge-based walls between Floor cells, though "Void" cells might exist outside the ship hull.
-
-### 3.4 Line of Sight (LOS)
-*   **Blocking Entities**: LOS must be blocked by `Wall` cells and `Door` entities in `Closed` or `Locked` states. `Open` or `Destroyed` doors do not block LOS.
-*   **Visibility**: Units should only be able to target (attack) and perceive (FOW) entities within their calculated LOS.
-
-
-
-**Soldier**
-
-
-
-*   `hp, armor, moveSpeed, accuracy, melee, sightRange`
-
-*   `weapon: { damage, range, rof, reload, spread, ammo }`
-
-*   `logicProfile` (behavior policy for autonomous actions)
-
-*   `status`: overwatch-like modes are optional in this prototype; keep minimal: `Idle|Moving|Engaging|Downed|Interacting`
-
-*   `intent`: current route/path, current task
-
-*   **Multiple Soldiers**: The game should support spawning multiple soldier units at potentially random locations on the map.
-
-
-
-**Enemy**
-
-
-
-*   `hp, moveSpeed, damage, behaviorType`
-
-*   Simple archetypes: `SwarmMelee`, `Ambusher`, `Tank` (all defined by content pack)
-
-
-
-**Door**
-
-
-
-
-
-
-
-*   `id`: `string` - Unique identifier for the door.
-
-
-
-*   `segment`: `Vector2[]` - An array of `Vector2` coordinates defining the cells that are adjacent to the door's barrier segment. (e.g., `[{x:3, y:0}, {x:3, y:1}]` for a vertical door segment between column 2 and 3, spanning rows 0 and 1).
-
-
-
-*   `orientation`: `'Horizontal' | 'Vertical'` - Defines if the door segment is horizontal (between rows) or vertical (between columns).
-
-
-
-*   `state`: `'Open'|'Closed'|'Locked'|'Destroyed'` - Current state of the door.
-
-
-
-*   `hp`: `number` - Current hit points of the door.
-
-
-
-*   `maxHp`: `number` - Maximum hit points of the door.
-
-
-
-*   `openDuration`: `number` - Time in seconds it takes for the door to open/close.
-
-
-
-**Interactables**
-
-
-
-*   Loot can be omitted for prototype; focus on objectives + extraction.
-
-*   Interactions have `duration`, `interruptible`, `range`.
+### 2.2 Determinism
+* **PRNG:** The engine owns a seeded Pseudo-Random Number Generator. `Math.random()` is forbidden.
+* **Replayability:** A run is fully defined by `{ Seed, ContentPack, Config, CommandLog }`.
 
 ---
 
-## 4) AI model (unit autonomy)
+## 3) World Model & Data Structures
 
-### 4.1 Soldier “logic profile”
+### 3.1 The Grid (Shared Walls)
+The map is a grid of `Cells`. Walls are edges *between* cells, shared by neighbors (like a house floorplan).
+* **Coordinate System:** `x` (Column), `y` (Row). Top-left is `0,0`.
+* **Adjacency:** Orthogonal only (North, South, East, West). **No diagonal movement.**
 
+**Cell Data Model (Logical):**
+Ideally implemented so cells "own" specific edges (e.g., North and West) to prevent data duplication/desync, or via a separate Edge Map.
+```typescript
+interface Cell {
+  x: number;
+  y: number;
+  type: 'Floor' | 'Void';
+  // Logical accessors (derived from shared edge data)
+  walls: { n: boolean; e: boolean; s: boolean; w: boolean; };
+  doorId?: string;
+  spawnPointId?: string;
+  extraction?: boolean;
+}
+````
 
+### 3.2 Units (Soldiers & Enemies)
 
-Implement as a **data-driven finite state machine** (FSM) or behavior tree with content-pack-provided parameters.
+**Soldier Stats:**
 
+  * `hp`: Current Health.
+  * `speed`: Movement cooldown (seconds per tile).
+  * `sightRange`: Radius of vision in tiles.
+  * `weapon`: Reference to Weapon Definition.
+  * `engagementPolicy`:
+      * `ENGAGE`: (Default) If an enemy is in LOS, stop moving and shoot.
+      * `IGNORE`: Ignore enemies, continue moving/performing actions (used for fleeing/rushing).
+  * **Action Queue:** Units support a queue of commands (e.g., "Move to A", then "Move to B", then "Interact").
 
+**Weapon Definition:**
 
-Minimum behavior:
+  * **No Ammo:** Weapons have infinite ammo.
+  * **Fire Rate:** Defined as a cooldown between shots.
+  * **Stats:** `damage`, `range`, `fireRateMs`.
 
+**Enemy AI Behavior:**
 
+  * **No Noise:** Enemies do not react to sound.
+  * **Exploration:** Enemies wander randomly but use a heuristic to prioritize cells `visitedTimestamp` is oldest or `null`.
+  * **Aggro:** On LOS of a Soldier -> Switch to Attack state and pathfind directly to target.
 
-*   **Threat evaluation**: choose visible target by priority rules.
+-----
 
-*   **Engagement**:
+## 4) Gameplay Mechanics
 
-    *   If target in range and line-of-sight: shoot
+### 4.1 Fog of War (FOW) Configuration
 
-    *   Else: move along route toward assigned destination (or toward last known threat if in “Aggressive” mode)
+The visibility rules depend on the Mission/Map config:
 
-*   **Self-preservation**:
+1.  **Full Visibility:** Map and entities are always visible (Debug/Easy mode).
+2.  **Classic (Shroud):**
+      * Unexplored areas are black (Shroud).
+      * Explored areas reveal static map geometry (Walls/Floor).
+      * Entities (Enemies) are only visible if currently in active LOS.
+3.  **Hardcore:**
+      * Areas outside current LOS return to "Unknown/Fogged" state (map geometry hidden again).
 
-    *   If hp below threshold and has medkit: request/auto-use per profile
+### 4.2 The Director (Spawning)
 
-    *   Optional: retreat to nearest safe node
+Spawns occur on a fixed timer (default 45s).
+**Algorithm:**
 
-*   **Exploration AI**: Soldiers should default to exploring the map. This involves:
+1.  **Base Amount:** Map difficulty defines `X` base enemies.
+2.  **Scaling:** `+1` enemy added to the pool per wave.
+3.  **Distribution:** Enemies are distributed randomly among valid `SpawnPoints`.
+4.  **Upgrade Logic:** Probabilistic replacement of weak enemies with strong ones (e.g., "2 Small enemies replaced by 1 Large enemy").
 
-    *   Prioritizing movement towards the closest unexplored/unseen areas.
+### 4.3 Commands
 
-    *   Once the entire map is explored, soldiers should automatically move towards the extraction point.
+| Command | Payload | Description |
+| :--- | :--- | :--- |
+| `MOVE_TO` | `unitIds`, `target` | Pathfinds and moves. Can be queued. |
+| `ATTACK_TARGET` | `unitId`, `targetId` | Forces fire on specific enemy. |
+| `SET_ENGAGEMENT` | `unitIds`, `mode` | Toggle `ENGAGE` (Stop & Shoot) or `IGNORE` (Run). |
+| `STOP` | `unitIds` | Clears command queue and halts. |
 
+-----
 
+## 5) Protocol: Engine ↔ Client
 
-LogicProfile examples:
+### 5.1 Observation Packet
 
-* `AggressiveRanged`: prefers shooting, advances toward destination, minimal retreat
-* `Cautious`: holds corners, retreats on low HP
-* `MeleeRush`: closes distance, high melee weight (useful later if you add melee enemies/units)
-
-This aligns with the design constraint that player is managing high-level decisions rather than micro-positioning.
-
-### 4.2 Director (spawn pressure)
-
-A content-pack-defined “director” module:
-
-* Inputs: elapsed time, noise/aggro metrics, objective progress, squad health
-* Outputs: spawn events: `{ spawnPointId, enemyType, count, cadence }`
-
-Space Hulk similarity: Genestealers enter from entry points; rules often refer to “entry point squares” and reinforcement timing. ([Order of Gamers][1])
-For prototype: implement spawn points as off-map entry queues feeding into corridor squares.
-
----
-
-## 5) Command system (player + bot)
-
-### 5.1 Command execution contract
-
-* Commands are **the only external control**; everything else is autonomous.
-* Each command:
-
-  * Has schema-validated payload
-  * Can be rejected with a reason (cooldown, invalid target, no LOS, etc.)
-  * Produces deterministic effects
-
-### 5.2 Minimal command set (prototype)
-
-1. `MOVE_TO`
-   Assign soldier(s) to a destination cell; engine computes path (A*).
-2. `REGROUP`
-   Set destination for all soldiers to a rally point or to formation around a leader.
-3. `FOCUS_OBJECTIVE`
-   Override default behavior to prioritize objective interactions and then extraction.
-4. `DEPLOY_TURRET` (optional v1.1)
-   Place turret at target cell if valid.
-5. `PLACE_MINE` (optional v1.1)
-6. `USE_MEDKIT`
-   On self or ally in range.
-7. `THROW_GRENADE` (optional v1.1)
-
-You can start with only `MOVE_TO`, `REGROUP`, `USE_MEDKIT`, `FOCUS_OBJECTIVE`. Add the rest once the loop feels good.
-
----
-
-## 6) Engine ↔ Player/Agent JSON protocol
-
-### 6.1 Transport
-
-* In-browser: `postMessage` (Web Worker).
-* For bot testing: run bots as WebWorkers or injected scripts.
-
-### 6.2 Observation payload (what agents receive)
-
-Two layers:
-
-* **Full-state snapshot** (debug/training mode)
-* **Fogged observation** (real gameplay parity)
-
-Example (fogged):
+Sent from Engine to UI/Bot every tick.
 
 ```json
 {
-  "t": 123.4,
-  "seed": 987654,
+  "tick": 1054,
+  "status": "RUNNING",
   "visible": {
-    "soldiers": [{"id":"s1","cell":[10,4],"hp":72,"state":"Moving","task":{"type":"MOVE_TO","cell":[14,9]}}],
-    "enemies": [{"id":"e9","cell":[12,4],"hp":30,"type":"SwarmMelee"}],
-    "doors": [{"id":"d3","cell":[11,4],"state":"Closed"}],
-    "objectives": [{"id":"o1","kind":"Recover","state":"Pending","cells":[[18,10]]}],
-    "extraction": {"cell":[2,2]}
+    // Only entities currently in LOS of the squad
+    "soldiers": [{ "id": "s1", "pos": {"x": 10, "y": 4}, "hp": 100 }],
+    "enemies": [{ "id": "e1", "pos": {"x": 12, "y": 4}, "hp": 30 }],
+    "doors": [{ "id": "d1", "state": "Closed" }]
   },
-  "knownMap": {
-    "width": 32,
-    "height": 24,
-    "discoveredCells": [[10,4],[11,4],[12,4]]
-  },
-  "events": [
-    {"type":"SHOT_FIRED","by":"s1","at":"e9"},
-    {"type":"SPAWN","at":[30,2],"enemyType":"SwarmMelee","count":2}
-  ]
+  "fow": {
+    // Discovery state based on FOW Config
+    "discoveredCells": [[10,4], [10,5]...]
+  }
 }
 ```
-
-### 6.3 Command payload (what agents send)
-
-```json
-{
-  "t": 123.5,
-  "cmd": "MOVE_TO",
-  "soldierIds": ["s1","s2"],
-  "cell": [14,9]
-}
-```
-
-Engine response:
-
-```json
-{
-  "ok": false,
-  "rejected": [{"soldierId":"s2","reason":"NO_PATH"}]
-}
-```
-
-Key design choice: allow partial acceptance per-soldier to keep bots simple.
+````
 
 ---
 
@@ -529,8 +371,6 @@ Do not ship copyrighted scans/assets. Keep importer expecting **user-provided** 
 ---
 ### Critical Runtime Errors
 *   **"Maximum call stack size exceeded"**: Observed in browser console logs during live gameplay. This is a critical error likely indicating infinite recursion. Despite passing unit tests for core mechanics, this runtime error persists and must be addressed immediately, as it will impact core game logic (pathfinding, LOS, door states, unit actions). A full stack trace from the browser console is required for debugging.
-
----
 
 ---
 
