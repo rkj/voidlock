@@ -70,9 +70,24 @@ bd init --quiet  # Non-interactive, auto-installs git hooks, no prompts
 
 **If you see "database not found":** Run `bd init --quiet` yourself, or ask the human to run `bd init`.
 
-## Issue Tracking
+### Issue Tracking
 
 We use bd (beads) for issue tracking instead of Markdown TODOs or external tools.
+
+## Task Classification & Delegation
+
+To optimize model usage, tasks are classified by complexity. This helps determine which model (e.g., `gemini-2.5-flash` vs `gemini-1.5-pro`) should handle them.
+
+*   **Easy (`complexity:easy`)**: Self-contained tasks, minor UI tweaks, simple logic changes, well-defined inputs/outputs.
+    *   *Delegate to:* `gemini-2.5-flash` (or equivalent efficient model).
+*   **Medium (`complexity:medium`)**: Localized feature implementation, interactions between 2-3 components, standard refactoring.
+    *   *Delegate to:* `gemini-2.5-flash` for execution, potentially `gemini-1.5-pro` for initial planning if ambiguous.
+*   **Hard (`complexity:hard`)**: System-wide architectural changes, complex algorithms (pathfinding, procedural generation), vague requirements, debugging race conditions/determinism.
+    *   *Delegate to:* `gemini-1.5-pro` (or equivalent reasoning-strong model).
+
+**Labeling Workflow:**
+*   Only "Pro" class models should perform the initial classification and labeling of tasks.
+*   Use `bd update <id> --add-label complexity:<level>` to label tasks.
 
 ### CLI + Hooks (Recommended)
 
