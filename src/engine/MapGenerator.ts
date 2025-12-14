@@ -1,4 +1,4 @@
-import { MapDefinition, CellType, SpawnPoint, Objective, Cell, IMapValidationResult, Door, Vector2 } from '../shared/types';
+import { MapDefinition, CellType, SpawnPoint, Objective, Cell, IMapValidationResult, Door, Vector2, TileAssembly, TileDefinition } from '../shared/types';
 import { PRNG } from '../shared/PRNG';
 
 export class MapGenerator {
@@ -559,6 +559,159 @@ export class MapGenerator {
   }
 
 
+  public static assemble(assembly: TileAssembly, library: Record<string, TileDefinition>): MapDefinition {
+    // 1. Calculate Bounds
+    // This is a bit tricky as the map size depends on tile placement.
+    // We can either require width/height in assembly, or compute bounding box.
+    // For now, let's assume a fixed max size or compute it.
+    // Actually, MapDefinition requires fixed width/height.
+    // Let's compute min/max x/y.
+    
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+    // Helper to rotate a point (px, py) within a rect (w, h)
+    // Rotation is clockwise: 0, 90, 180, 270.
+    // 0: (x, y)
+    // 90: (h - 1 - y, x) -> New width is h, new height is w.
+    // 180: (w - 1 - x, h - 1 - y)
+    // 270: (y, w - 1 - x) -> New width is h, new height is w.
+    const rotatePoint = (px: number, py: number, w: number, h: number, rot: 0|90|180|270): { x: number, y: number } => {
+        switch (rot) {
+            case 0: return { x: px, y: py };
+            case 90: return { x: h - 1 - py, y: px };
+            case 180: return { x: w - 1 - px, y: h - 1 - py };
+            case 270: return { x: py, y: w - 1 - px };
+        }
+    };
+
+    const getRotatedDimensions = (w: number, h: number, rot: 0|90|180|270): { w: number, h: number } => {
+        if (rot === 90 || rot === 270) return { w: h, h: w };
+        return { w, h };
+    };
+
+    // First pass: Compute Map Bounds
+    assembly.tiles.forEach(tileRef => {
+        const def = library[tileRef.tileId];
+        if (!def) throw new Error(`Tile definition not found: ${tileRef.tileId}`);
+        
+        const { w, h } = getRotatedDimensions(def.width, def.height, tileRef.rotation);
+        
+        minX = Math.min(minX, tileRef.x);
+        minY = Math.min(minY, tileRef.y);
+        maxX = Math.max(maxX, tileRef.x + w - 1);
+        maxY = Math.max(maxY, tileRef.y + h - 1);
+    });
+
+    // If no tiles, return empty small map
+    if (minX === Infinity) return { width: 1, height: 1, cells: [] };
+
+    // We normalize to (0,0).
+    const width = maxX - minX + 1;
+    const height = maxY - minY + 1;
+
+    // Initialize Grid with Walls/Void
+    const cells: Cell[] = Array(width * height).fill(null).map((_, i) => {
+        const x = i % width;
+        const y = Math.floor(i / width);
+        return {
+            x, y,
+            type: CellType.Wall,
+            walls: { n: true, e: true, s: true, w: true }
+        };
+    });
+
+    const getCellIndex = (x: number, y: number) => y * width + x;
+
+    // Second pass: Place Tiles
+    assembly.tiles.forEach(tileRef => {
+        const def = library[tileRef.tileId];
+        const { w: tileW, h: tileH } = getRotatedDimensions(def.width, def.height, tileRef.rotation);
+
+        def.cells.forEach(cellDef => {
+            // Rotate local cell position
+            const localPos = rotatePoint(cellDef.x, cellDef.y, def.width, def.height, tileRef.rotation);
+            
+            // Global position (normalized by minX/minY)
+            const globalX = tileRef.x + localPos.x - minX;
+            const globalY = tileRef.y + localPos.y - minY;
+
+            if (globalX < 0 || globalX >= width || globalY < 0 || globalY >= height) {
+                // Should not happen if bounds are correct
+                return;
+            }
+
+            const cellIndex = getCellIndex(globalX, globalY);
+            const cell = cells[cellIndex];
+            cell.type = CellType.Floor;
+
+            // Handle Open Edges
+            // Rotate edges: n -> e -> s -> w -> n
+            const rotateEdge = (edge: 'n'|'e'|'s'|'w', rot: 0|90|180|270): 'n'|'e'|'s'|'w' => {
+                const edges: ('n'|'e'|'s'|'w')[] = ['n', 'e', 's', 'w'];
+                const idx = edges.indexOf(edge);
+                const shift = rot / 90;
+                return edges[(idx + shift) % 4];
+            };
+
+            const rotatedOpenEdges = cellDef.openEdges.map(e => rotateEdge(e, tileRef.rotation));
+
+            // Set walls to false if edge is open
+            if (rotatedOpenEdges.includes('n')) cell.walls.n = false;
+            if (rotatedOpenEdges.includes('e')) cell.walls.e = false;
+            if (rotatedOpenEdges.includes('s')) cell.walls.s = false;
+            if (rotatedOpenEdges.includes('w')) cell.walls.w = false;
+        });
+    });
+
+    // Extract global entities
+    const doors: Door[] = assembly.globalDoors?.map((d, i) => ({
+        id: d.id,
+        // Adjust coordinates relative to minX/minY
+        // Note: Door 'cell' is usually the primary cell of the pair.
+        // Wait, 'segment' in our engine is Vector2[].
+        // assembly.globalDoors uses 'cell' and 'orientation'.
+        // We need to convert to 'segment'.
+        orientation: d.orientation,
+        state: 'Closed',
+        hp: 50, maxHp: 50, openDuration: 1,
+        segment: d.orientation === 'Vertical' 
+            ? [{ x: d.cell.x - minX - 1, y: d.cell.y - minY }, { x: d.cell.x - minX, y: d.cell.y - minY }] // West of cell? Or East?
+            // If assembly says "Door at (5,5) Vertical", does it mean West edge or East edge?
+            // Convention: usually specific. Let's assume 'Vertical' at (x,y) means the edge between (x-1,y) and (x,y) -> West Edge.
+            // Or typically coordinates in tile maps refer to the tile ITSELF.
+            // Let's assume the input `globalDoors` defines the cell coordinate and the edge ON that cell.
+            // Actually, `globalDoors` has `cell: Vector2`.
+            // Let's assume Vertical door at (x,y) is on the WEST edge of (x,y).
+            : [{ x: d.cell.x - minX, y: d.cell.y - minY - 1 }, { x: d.cell.x - minX, y: d.cell.y - minY }] // Horizontal: North edge
+    })) || [];
+
+    const spawnPoints = assembly.globalSpawnPoints?.map(sp => ({
+        id: sp.id,
+        pos: { x: sp.cell.x - minX, y: sp.cell.y - minY },
+        radius: 1
+    })) || [];
+
+    const extraction = assembly.globalExtraction ? { x: assembly.globalExtraction.cell.x - minX, y: assembly.globalExtraction.cell.y - minY } : undefined;
+
+    const objectives = assembly.globalObjectives?.map(obj => ({
+        id: obj.id,
+        kind: obj.kind,
+        state: 'Pending' as const,
+        targetCell: { x: obj.cell.x - minX, y: obj.cell.y - minY }
+    })) || [];
+
+    return {
+        width,
+        height,
+        cells,
+        doors,
+        spawnPoints,
+        extraction,
+        objectives
+    };
+  }
+
+  // Placeholder for fromAscii method
   public static fromAscii(asciiMap: string): MapDefinition {
     const lines = asciiMap.split('\n').filter(line => line.length > 0);
     if (lines.length === 0) throw new Error("Empty ASCII map");
