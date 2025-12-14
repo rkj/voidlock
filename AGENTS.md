@@ -793,6 +793,37 @@ npm install
 npm run dev
 ```
 
+# Agent & Developer Guidelines
+
+## G1) Agent Workflow Instructions
+* **Clarification First:** When a new change request is received, you must first update `xenopurge-spec.md` with the new clarification/requirement.
+* **Task Creation:** After updating the spec, create a Beads task for the requested change.
+* **Implementation:** Only after the above steps are completed should you proceed with code implementation.
+* **Version Control:**
+    * Use `jj` (Jujutsu) commands exclusively.
+    * **NEVER** use `git` commands directly.
+    * Commit changes after the completion of *every* Beads task.
+* **No Pushes:** Do not push changes to remote without explicit user instruction.
+* **Dev Server:** Do not run `npm run dev`. Assume the user manages the server.
+
+## G2) Testing Strategy
+* **Unit Test First:** For core mechanics (Grid, Pathfinder, LOS), write tests before implementation.
+* **Non-Interactive:** Run tests using `npx vitest run`. Never use watch mode.
+* **Micro-Maps:** Define small, fixed JSON `MapDefinition`s directly within tests (e.g., 2x2 grids) to cover specific scenarios:
+    * Paths blocked by walls/doors.
+    * Complex shared-wall configurations.
+* **Recursion Guard:** If `Maximum call stack size exceeded` occurs, dump the Pathfinding grid state to JSON immediately for analysis.
+
+## G3) Visual Debugging & Feedback
+* **Agent Limitations:** You (the Agent) cannot see the rendered Canvas. You operate in a headless environment.
+* **User Feedback:** When reporting visual issues, the user must provide text descriptions (e.g., "Door at 3,4 is yellow but soldier walked through it").
+* **Map Viewer App:**
+    * Use the standalone Map Viewer (milestone M15 in spec) to verify map generation logic if available.
+    * If the Map Viewer is not built, rely on console logs of the `MapDefinition` JSON.
+
+## G4) Critical Runtime Errors
+* **Infinite Recursion:** A known risk in pathfinding on complex grids. If observed, prioritize fixing the recursion exit conditions in `Pathfinder.ts` immediately.
+
 ## Next Steps / Handover
 
 **INSTRUCTION FOR AGENTS:**
