@@ -382,7 +382,7 @@ export class MapGenerator {
                           const isDoorHere = 
                               ( (s1.x === current.x && s1.y === current.y && s2.x === neighbor.x && s2.y === neighbor.y) ||
                                 (s2.x === current.x && s2.y === current.y && s1.x === neighbor.x && s1.y === neighbor.y) );
-                          if (isDoorHere && (door.state === 'Open' || door.state === 'Destroyed')) {
+                          if (isDoorHere && (door.state === 'Open' || door.state === 'Closed' || door.state === 'Destroyed')) {
                               foundNonBlockingDoor = true;
                               break;
                           }
