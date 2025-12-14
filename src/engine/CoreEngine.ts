@@ -81,7 +81,7 @@ export class CoreEngine {
   public applyCommand(cmd: Command) {
     if (this.state.status !== 'Playing') return; 
 
-    if (cmd.type === CommandType.MOVE_TO || cmd.type === CommandType.ATTACK_TARGET) {
+    if (cmd.type === CommandType.MOVE_TO || cmd.type === CommandType.ATTACK_TARGET || cmd.type === CommandType.SET_ENGAGEMENT) {
       if (cmd.type === CommandType.ATTACK_TARGET) {
           // ATTACK_TARGET is a single-unit command in our new definition, but the loop supports arrays if we expanded it.
           // The type definition says unitId: string.
@@ -95,7 +95,7 @@ export class CoreEngine {
               }
           }
       } else {
-          // MOVE_TO
+          // MOVE_TO or SET_ENGAGEMENT
           cmd.unitIds.forEach(id => {
             const unit = this.state.units.find(u => u.id === id);
             if (unit) {
@@ -146,6 +146,8 @@ export class CoreEngine {
               unit.targetPos = undefined;
               // State will be updated in update() loop when combat resolves
           }
+      } else if (cmd.type === CommandType.SET_ENGAGEMENT) {
+          unit.engagementPolicy = cmd.mode;
       }
   }
 
@@ -321,35 +323,26 @@ export class CoreEngine {
           if (forced) {
               enemiesInRange = [forced];
           } else {
-              // Forced target is dead or out of range/sight. 
-              // Option A: Fallback to nearest. Option B: Do nothing.
-              // Spec says "Forces fire on specific enemy".
-              // Implicitly, if not possible, it might wait.
-              // For now, let's auto-clear forced target if dead, but keep trying if just out of range?
-              // Actually, simplest is to fallback to auto-fire if forced target isn't available, OR just stick to it.
-              // Let's implement: if forced target is visible, shoot it. If not, normal behavior (shoot nearest).
-              // Wait, if I ordered "Attack X", I probably want to chase X?
-              // The command is just ATTACK_TARGET. It doesn't imply movement in this simplified engine unless we add pathfinding to enemy.
-              // Current implementation: "Stop moving and shoot".
-              // So if X is out of range, we stand still.
-              
-              // However, if X is dead, we should probably clear the forced ID.
               const isTargetAlive = this.state.enemies.some(e => e.id === unit.forcedTargetId && e.hp > 0);
               if (!isTargetAlive) {
                   unit.forcedTargetId = undefined;
               } else {
-                  // Target alive but out of range/sight.
-                  // Behavior: Don't shoot anyone else? Or shoot others?
-                  // "Engagement Policy" usually dictates this.
-                  // Default is ENGAGE.
-                  // If we force fire, we probably ONLY want to shoot that target?
-                  // Let's assume strict adherence: if forcedTargetId is set, ONLY shoot that target.
                   enemiesInRange = [];
               }
           }
       }
 
-      if (enemiesInRange.length > 0) {
+      // Decision: Attack or Move?
+      let isAttacking = false;
+      const canAttack = enemiesInRange.length > 0;
+      const isMoving = unit.path && unit.path.length > 0 || !!unit.targetPos;
+      const policy = unit.engagementPolicy || 'ENGAGE';
+
+      // Default ENGAGE: Attack takes priority over Moving (Stop & Shoot)
+      // IGNORE: Moving takes priority over Attacking (Run)
+      
+      if (canAttack && (!isMoving || policy === 'ENGAGE')) {
+        // Attack
         const targetEnemy = enemiesInRange[0];
         
         // Cooldown Check
@@ -360,8 +353,11 @@ export class CoreEngine {
         }
 
         unit.state = UnitState.Attacking;
-
-      } else if (unit.state === UnitState.Moving && unit.targetPos && unit.path) {
+        isAttacking = true;
+      } 
+      
+      // If we didn't attack (or we are IGNORE-ing), process movement
+      if (!isAttacking && isMoving && unit.targetPos && unit.path) {
         // Movement logic
         const dx = unit.targetPos.x - unit.pos.x;
         const dy = unit.targetPos.y - unit.pos.y;
@@ -384,7 +380,8 @@ export class CoreEngine {
           unit.pos.x += (dx / dist) * moveDist;
           unit.pos.y += (dy / dist) * moveDist;
         }
-      } else {
+        unit.state = UnitState.Moving;
+      } else if (!isAttacking && !isMoving) {
         unit.state = UnitState.Idle;
       }
     });
