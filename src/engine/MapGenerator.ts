@@ -427,10 +427,7 @@ export class MapGenerator {
         issues.push('Map has floor cells or important points but no spawn points to check reachability from.');
     }
     
-    console.log('--- Map Validation Results (DEBUG) ---');
-    console.log('Issues found:', issues);
-    console.log('isValid (before return):', issues.length === 0);
-    console.log('------------------------------------');
+
     
     return { isValid: issues.length === 0, issues };
   }
