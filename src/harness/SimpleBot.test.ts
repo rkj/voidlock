@@ -9,7 +9,7 @@ describe('SimpleBot', () => {
   const baseState: GameState = {
     t: 0,
     map: { ...mockMap, objectives: [mockObjective] },
-    units: [{ id: 'u1', pos: { x: 0, y: 0 }, state: UnitState.Idle, hp: 100, maxHp: 100, damage: 10, attackRange: 1, sightRange: 10, commandQueue: [] }],
+    units: [{ id: 'u1', pos: { x: 0, y: 0 }, state: UnitState.Idle, hp: 100, maxHp: 100, damage: 10, fireRate: 500, attackRange: 1, sightRange: 10, commandQueue: [] }],
     enemies: [],
     visibleCells: [],
     discoveredCells: [],

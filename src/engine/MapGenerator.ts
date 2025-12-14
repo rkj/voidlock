@@ -1,4 +1,4 @@
-import { MapDefinition, CellType, SpawnPoint, Objective, Cell } from '../shared/types';
+import { MapDefinition, CellType, SpawnPoint, Objective, Cell, IMapValidationResult, Door, Vector2 } from '../shared/types';
 import { PRNG } from '../shared/PRNG';
 
 export class MapGenerator {
@@ -422,7 +422,7 @@ export class MapGenerator {
           }
         }
       }
-    } else if (spawnPoints && spawnPoints.length === 0 && (cells.some(c => c.type === CellType.Floor) || extraction || objectives?.length > 0)) {
+    } else if (spawnPoints && spawnPoints.length === 0 && (cells.some(c => c.type === CellType.Floor) || extraction || (objectives?.length ?? 0) > 0)) {
         // If there are no spawn points, but there are floor cells or important points, it's an issue
         issues.push('Map has floor cells or important points but no spawn points to check reachability from.');
     }
@@ -432,23 +432,245 @@ export class MapGenerator {
     return { isValid: issues.length === 0, issues };
   }
 
-  // Placeholder for toAscii method
   public static toAscii(map: MapDefinition): string {
-    console.warn("MapGenerator.toAscii is a placeholder and not yet implemented.");
-    return ''; // Placeholder
+    const { width, height, cells, doors, spawnPoints, extraction, objectives } = map;
+    const expandedWidth = width * 2 + 1;
+    const expandedHeight = height * 2 + 1;
+
+    // Initialize asciiGrid with spaces for content and empty strings for walls/corners initially
+    const asciiGrid: string[][] = Array.from({ length: expandedHeight }, () => Array(expandedWidth).fill(' '));
+
+    // Create lookup for cells for efficient access
+    const cellLookup = new Map<string, Cell>();
+    cells.forEach(cell => cellLookup.set(`${cell.x},${cell.y}`, cell));
+
+    // Helper to get expanded grid coordinates
+    const getExEy = (x: number, y: number) => ({ ex: x * 2 + 1, ey: y * 2 + 1 });
+
+    // --- Populate the grid based on MapDefinition ---
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const cell = cellLookup.get(`${x},${y}`);
+        const { ex, ey } = getExEy(x, y);
+
+        // --- Cell Content (Floor or Void) ---
+        if (!cell || cell.type === CellType.Wall) {
+          asciiGrid[ey][ex] = '#'; // Mark void cell content
+        } else {
+          // Floor Cell Content - prioritize S > E > O
+          let cellChar = ' ';
+          const isSpawnPoint = spawnPoints?.some(sp => sp.pos.x === x && sp.pos.y === y);
+          const isExtraction = extraction && extraction.x === x && extraction.y === y;
+          const isObjective = objectives?.some(obj => obj.targetCell?.x === x && obj.targetCell?.y === y);
+
+          if (isSpawnPoint) cellChar = 'S';
+          else if (isExtraction) cellChar = 'E';
+          else if (isObjective) cellChar = 'O';
+          
+          asciiGrid[ey][ex] = cellChar;
+        }
+
+        // --- Walls and Passages ---
+        // Determine wall characters based on cell.walls property
+        // North wall
+        if (cell?.walls.n) asciiGrid[ey - 1][ex] = '-';
+        // East wall
+        if (cell?.walls.e) asciiGrid[ey][ex + 1] = '|';
+        // South wall (only draw if this is the northern cell of the wall)
+        // Check if there is a cell below. If so, its north wall defines this segment.
+        const southCell = cellLookup.get(`${x},${y+1}`);
+        if (cell?.walls.s && !southCell) { // If it's a south edge wall and no cell below
+          asciiGrid[ey + 1][ex] = '-';
+        } else if (cell?.walls.s && southCell?.walls.n === false){ // If current cell has south wall, but cell below has no north wall.
+          asciiGrid[ey + 1][ex] = '-';
+        } else if (!cell?.walls.s && southCell?.walls.n === true) { // Current cell has no south wall, but cell below has a north wall.
+          // This ensures that the wall between cells is represented correctly, as only one cell defines it
+          asciiGrid[ey + 1][ex] = '-';
+        }
+
+        // West wall (only draw if this is the eastern cell of the wall)
+        // Check if there is a cell to the left. If so, its east wall defines this segment.
+        const westCell = cellLookup.get(`${x-1},${y}`);
+        if (cell?.walls.w && !westCell) { // If it's a west edge wall and no cell to the left
+          asciiGrid[ey][ex - 1] = '|';
+        } else if (cell?.walls.w && westCell?.walls.e === false) { // If current cell has west wall, but cell to left has no east wall
+          asciiGrid[ey][ex - 1] = '|';
+        } else if (!cell?.walls.w && westCell?.walls.e === true) { // Current cell has no west wall, but cell to left has an east wall
+          asciiGrid[ey][ex - 1] = '|';
+        }
+      }
+    }
+
+    // --- Overlay Doors ---
+    doors?.forEach(door => {
+      if (door.segment.length === 2) {
+        const [p1, p2] = door.segment;
+        let ex_door, ey_door;
+
+        // Determine the expanded grid position for the door based on segment
+        if (p1.x === p2.x && Math.abs(p1.y - p2.y) === 1) { // Horizontal wall segment (vertical door)
+          ex_door = p1.x * 2 + 1;
+          ey_door = Math.min(p1.y, p2.y) * 2 + 2; 
+          asciiGrid[ey_door][ex_door] = '=';
+        } else if (p1.y === p2.y && Math.abs(p1.x - p2.x) === 1) { // Vertical wall segment (horizontal door)
+          ex_door = Math.min(p1.x, p2.x) * 2 + 2;
+          ey_door = p1.y * 2 + 1;
+          asciiGrid[ey_door][ex_door] = 'I';
+        }
+      }
+    });
+
+    // --- Overlay outer borders (always walls) ---
+    for (let x = 0; x < expandedWidth; x++) {
+      if (x % 2 === 1) { // Horizontal segments
+        if (asciiGrid[0][x] === ' ') asciiGrid[0][x] = '-';
+        if (asciiGrid[expandedHeight - 1][x] === ' ') asciiGrid[expandedHeight - 1][x] = '-';
+      }
+    }
+    for (let y = 0; y < expandedHeight; y++) {
+      if (y % 2 === 1) { // Vertical segments
+        if (asciiGrid[y][0] === ' ') asciiGrid[y][0] = '|';
+        if (asciiGrid[y][expandedWidth - 1] === ' ') asciiGrid[y][expandedWidth - 1] = '|';
+      }
+    }
+
+    // --- Final Pass: Corners ---
+    for (let y = 0; y < expandedHeight; y += 2) {
+      for (let x = 0; x < expandedWidth; x += 2) {
+        // If it's a corner that is not already marked as a wall part ('#')
+        if (asciiGrid[y][x] === ' ') { // Only consider spaces to become '+'
+          let wallCount = 0;
+          // Check adjacent segments for wall characters
+          // North/South are Vertical segments
+          if (y > 0 && ['|', 'I', '#'].includes(asciiGrid[y - 1][x])) wallCount++; // North
+          if (y < expandedHeight - 1 && ['|', 'I', '#'].includes(asciiGrid[y + 1][x])) wallCount++; // South
+          // East/West are Horizontal segments
+          if (x > 0 && ['-', '=', '#'].includes(asciiGrid[y][x - 1])) wallCount++; // West
+          if (x < expandedWidth - 1 && ['-', '=', '#'].includes(asciiGrid[y][x + 1])) wallCount++; // East
+          
+          if (wallCount >= 2) { // Only draw '+' if it connects at least two walls/doors/voids
+            asciiGrid[y][x] = '+';
+          }
+        }
+      }
+    }
+    
+    return asciiGrid.map(row => row.join('')).join('\n');
   }
 
-  // Placeholder for fromAscii method
+
   public static fromAscii(asciiMap: string): MapDefinition {
-    console.warn("MapGenerator.fromAscii is a placeholder and not yet implemented.");
-    // Return a minimal valid map definition for now
+    const lines = asciiMap.split('\n').filter(line => line.length > 0);
+    if (lines.length === 0) throw new Error("Empty ASCII map");
+
+    const expandedHeight = lines.length;
+    const expandedWidth = lines[0].length;
+    const height = Math.floor((expandedHeight - 1) / 2);
+    const width = Math.floor((expandedWidth - 1) / 2);
+
+    const cells: Cell[] = [];
+    const doors: Door[] = [];
+    const spawnPoints: SpawnPoint[] = [];
+    const objectives: Objective[] = [];
+    let extraction: Vector2 | undefined = undefined;
+
+    // First pass: Create cells and set types
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const ex = x * 2 + 1;
+        const ey = y * 2 + 1;
+        
+        // Safety check for line length
+        if (ex >= lines[ey].length) {
+             cells.push({ x, y, type: CellType.Wall, walls: { n: true, e: true, s: true, w: true } });
+             continue;
+        }
+
+        const char = lines[ey][ex];
+        const type = char === '#' ? CellType.Wall : CellType.Floor;
+        
+        cells.push({
+            x, y, type,
+            walls: { n: false, e: false, s: false, w: false } 
+        });
+
+        if (type === CellType.Floor) {
+            if (char === 'S') spawnPoints.push({ id: `sp-${spawnPoints.length}`, pos: { x, y }, radius: 1 });
+            if (char === 'E') extraction = { x, y };
+            if (char === 'O') objectives.push({ id: `obj-${objectives.length}`, kind: 'Recover', state: 'Pending', targetCell: { x, y } });
+        }
+      }
+    }
+
+    const getCell = (x: number, y: number) => cells.find(c => c.x === x && c.y === y);
+
+    // Second pass: Walls
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const cell = getCell(x, y);
+            if (!cell) continue;
+            
+            const ex = x * 2 + 1;
+            const ey = y * 2 + 1;
+            
+            // Helper to check if char represents a wall
+            const isHWall = (c: string) => ['-', '=', '#'].includes(c);
+            const isVWall = (c: string) => ['|', 'I', '#'].includes(c);
+
+            // North
+            if (ey - 1 >= 0) cell.walls.n = isHWall(lines[ey - 1][ex]);
+            // South
+            if (ey + 1 < expandedHeight) cell.walls.s = isHWall(lines[ey + 1][ex]);
+            // East
+            if (ex + 1 < lines[ey].length) cell.walls.e = isVWall(lines[ey][ex + 1]);
+            // West
+            if (ex - 1 >= 0) cell.walls.w = isVWall(lines[ey][ex - 1]);
+        }
+    }
+
+    // Third pass: Doors
+    let doorIdCounter = 0;
+    // Horizontal segments (checking for Vertical Doors 'I')
+    for (let y = 0; y < height; y++) {
+        for (let x = 1; x < width; x++) { // Edges between columns
+            const ex = x * 2;
+            const ey = y * 2 + 1;
+            if (ey < expandedHeight && ex < lines[ey].length && lines[ey][ex] === 'I') {
+                doors.push({
+                    id: `d-${doorIdCounter++}`,
+                    orientation: 'Vertical',
+                    state: 'Closed',
+                    hp: 50, maxHp: 50, openDuration: 1,
+                    segment: [{x: x-1, y}, {x, y}]
+                });
+            }
+        }
+    }
+    // Vertical segments (checking for Horizontal Doors '=')
+    for (let y = 1; y < height; y++) { // Edges between rows
+        for (let x = 0; x < width; x++) {
+             const ex = x * 2 + 1;
+             const ey = y * 2;
+             if (ey < expandedHeight && ex < lines[ey].length && lines[ey][ex] === '=') {
+                doors.push({
+                    id: `d-${doorIdCounter++}`,
+                    orientation: 'Horizontal',
+                    state: 'Closed',
+                    hp: 50, maxHp: 50, openDuration: 1,
+                    segment: [{x, y: y-1}, {x, y}]
+                });
+            }
+        }
+    }
+
     return {
-      width: 1,
-      height: 1,
-      cells: [{ x: 0, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: true, w: true } }],
-      spawnPoints: [{ id: 'sp1', pos: { x: 0, y: 0 }, radius: 1 }],
-      extraction: { x: 0, y: 0 },
-      objectives: [{ id: 'obj1', kind: 'Recover', targetCell: { x: 0, y: 0 } }],
+      width,
+      height,
+      cells,
+      doors,
+      spawnPoints,
+      extraction,
+      objectives
     };
   }
 }

@@ -87,6 +87,7 @@ export type Unit = Entity & {
   path?: Vector2[]; 
   targetPos?: Vector2;
   damage: number;
+  fireRate: number; // ms between shots
   attackRange: number;
   sightRange: number;
   commandQueue: Command[];
@@ -97,6 +98,7 @@ export type Unit = Entity & {
 export type Enemy = Entity & {
   type: string; 
   damage: number;
+  fireRate: number; // ms between shots
   attackRange: number;
   lastAttackTarget?: Vector2;
   lastAttackTime?: number;

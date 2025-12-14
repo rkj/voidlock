@@ -30,7 +30,7 @@ export class LineOfSight {
     return Array.from(visible);
   }
 
-  private hasLineOfSight(start: Vector2, end: Vector2): boolean {
+  public hasLineOfSight(start: Vector2, end: Vector2): boolean {
     let x0 = Math.floor(start.x);
     let y0 = Math.floor(start.y);
     const x1 = Math.floor(end.x);

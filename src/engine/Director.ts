@@ -47,6 +47,7 @@ export class Director {
       maxHp: 30,
       type: 'SwarmMelee',
       damage: 5,
+      fireRate: 1000,
       attackRange: 1
     };
 
