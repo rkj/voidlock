@@ -94,4 +94,23 @@ describe('MapGenerator.assemble', () => {
     expect(map.cells[0].x).toBe(0);
     expect(map.cells[0].y).toBe(0);
   });
+
+  it('should assemble a valid playable map', () => {
+    // 3x1 corridor: Spawn -> Empty -> Objective/Extraction
+    const assembly: TileAssembly = {
+        tiles: [
+            { tileId: 'corridor_1x3', x: 0, y: 0, rotation: 0 }
+        ],
+        globalSpawnPoints: [{ id: 'sp1', cell: { x: 0, y: 0 } }],
+        globalExtraction: { cell: { x: 0, y: 2 } },
+        globalObjectives: [{ id: 'obj1', kind: 'Recover', cell: { x: 0, y: 2 } }]
+    };
+
+    const map = MapGenerator.assemble(assembly, SpaceHulkTiles);
+    const generator = new MapGenerator(123);
+    const result = generator.validate(map);
+
+    if (!result.isValid) console.log(result.issues);
+    expect(result.isValid).toBe(true);
+  });
 });
