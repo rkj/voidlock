@@ -680,12 +680,14 @@ bd close bd-42 --reason "Completed" --json
 
 ### Workflow for AI Agents
 
-1. **Check ready work**: `bd ready` shows unblocked issues
-2. **Claim your task**: `bd update <id> --status in_progress`
-3. **Work on it**: Implement, test, document
-4. **Discover new work?** Create linked issue:
-   - `bd create "Found bug" --description="Details about what was found" -p 1 --deps discovered-from:<parent-id>`
-5. **Complete**: `bd close <id> --reason "Done"`
+1.  **Prioritize In-Progress Tasks**: Always check for tasks already marked as `in_progress` first.
+    *   To view currently in-progress tasks: `bd list --status in_progress --json`
+2.  **Check ready work**: After addressing in-progress tasks, run `bd ready` to see other unblocked issues.
+3.  **Claim your task**: `bd update <id> --status in_progress`
+4.  **Work on it**: Implement, test, document
+5.  **Discover new work?** Create linked issue:
+    *   `bd create "Found bug" --description="Details about what was found" -p 1 --deps discovered-from:<parent-id>`
+6.  **Complete**: `bd close <id> --reason "Done"`
 
 ### Auto-Sync
 
