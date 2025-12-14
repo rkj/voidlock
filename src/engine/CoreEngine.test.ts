@@ -38,7 +38,7 @@ describe('CoreEngine with Objectives and Game Loop', () => {
       pos: { x: 0.5, y: 0.5 }, 
       hp: 100, maxHp: 100,
       state: UnitState.Idle,
-      damage: 20, attackRange: 2, sightRange: 5,
+      damage: 20, fireRate: 500, attackRange: 2, sightRange: 5,
       commandQueue: []
     });
   });
@@ -90,7 +90,7 @@ describe('CoreEngine with Objectives and Game Loop', () => {
       pos: { x: 0.5, y: 0.5 },
       hp: 500, maxHp: 500,
       type: 'Boss',
-      damage: 1000, attackRange: 1
+      damage: 1000, fireRate: 1000, attackRange: 1
     });
 
     engine.update(100);

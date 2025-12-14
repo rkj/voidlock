@@ -34,7 +34,7 @@ describe('Shared Types', () => {
       pos: { x: 0, y: 0 },
       hp: 100, maxHp: 100,
       state: UnitState.Idle,
-      damage: 10, attackRange: 1, sightRange: 5,
+      damage: 10, fireRate: 500, attackRange: 1, sightRange: 5,
       commandQueue: []
     };
     expect(unitWithOutPath).not.toHaveProperty('path');
@@ -45,7 +45,7 @@ describe('Shared Types', () => {
       hp: 100, maxHp: 100,
       state: UnitState.Moving,
       path: [{ x: 1, y: 0 }, { x: 2, y: 0 }],
-      damage: 10, attackRange: 1, sightRange: 5,
+      damage: 10, fireRate: 500, attackRange: 1, sightRange: 5,
       commandQueue: []
     };
     expect(unitWithPath.path).toEqual([{ x: 1, y: 0 }, { x: 2, y: 0 }]);
@@ -66,7 +66,7 @@ describe('Shared Types', () => {
       pos: { x: 1, y: 1 },
       hp: 80, maxHp: 100,
       state: UnitState.Idle,
-      damage: 15, attackRange: 2, sightRange: 6,
+      damage: 15, fireRate: 500, attackRange: 2, sightRange: 6,
       commandQueue: []
     };
     expect(unit.damage).toBe(15);
@@ -80,7 +80,7 @@ describe('Shared Types', () => {
       hp: 30,
       maxHp: 30,
       type: 'SwarmMelee',
-      damage: 5, attackRange: 1
+      damage: 5, fireRate: 1000, attackRange: 1
     };
     expect(enemy.id).toBe('z1');
     expect(enemy.type).toBe('SwarmMelee');

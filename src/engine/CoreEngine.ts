@@ -55,6 +55,7 @@ export class CoreEngine {
       hp: 100, maxHp: 100,
       state: UnitState.Idle,
       damage: 20,
+      fireRate: 500, // ms
       attackRange: 4,
       sightRange: 8,
       commandQueue: []
@@ -290,12 +291,15 @@ export class CoreEngine {
 
       if (enemiesInRange.length > 0) {
         const targetEnemy = enemiesInRange[0];
-        targetEnemy.hp -= unit.damage;
-        unit.state = UnitState.Attacking;
         
-        // Record attack for visuals
-        unit.lastAttackTarget = { ...targetEnemy.pos };
-        unit.lastAttackTime = this.state.t;
+        // Cooldown Check
+        if (!unit.lastAttackTime || (this.state.t - unit.lastAttackTime >= unit.fireRate)) {
+            targetEnemy.hp -= unit.damage;
+            unit.lastAttackTime = this.state.t;
+            unit.lastAttackTarget = { ...targetEnemy.pos };
+        }
+
+        unit.state = UnitState.Attacking;
 
       } else if (unit.state === UnitState.Moving && unit.targetPos && unit.path) {
         // Movement logic
@@ -336,12 +340,13 @@ export class CoreEngine {
 
       if (unitsInRange.length > 0) {
         const targetUnit = unitsInRange[0];
-        targetUnit.hp -= enemy.damage;
         
-        // Record attack for visuals (optional for enemies?)
-        // Let's add it for consistency
-        enemy.lastAttackTarget = { ...targetUnit.pos };
-        enemy.lastAttackTime = this.state.t;
+        // Cooldown Check for Enemy
+        if (!enemy.lastAttackTime || (this.state.t - enemy.lastAttackTime >= enemy.fireRate)) {
+             targetUnit.hp -= enemy.damage;
+             enemy.lastAttackTime = this.state.t;
+             enemy.lastAttackTarget = { ...targetUnit.pos };
+        }
       }
     });
 
