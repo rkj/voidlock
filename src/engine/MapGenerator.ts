@@ -431,4 +431,25 @@ export class MapGenerator {
     
     return { isValid: issues.length === 0, issues };
   }
+
+  // Placeholder for toAscii method
+  public static toAscii(map: MapDefinition): string {
+    console.warn("MapGenerator.toAscii is a placeholder and not yet implemented.");
+    return ''; // Placeholder
+  }
+
+  // Placeholder for fromAscii method
+  public static fromAscii(asciiMap: string): MapDefinition {
+    console.warn("MapGenerator.fromAscii is a placeholder and not yet implemented.");
+    // Return a minimal valid map definition for now
+    return {
+      width: 1,
+      height: 1,
+      cells: [{ x: 0, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: true, w: true } }],
+      spawnPoints: [{ id: 'sp1', pos: { x: 0, y: 0 }, radius: 1 }],
+      extraction: { x: 0, y: 0 },
+      objectives: [{ id: 'obj1', kind: 'Recover', targetCell: { x: 0, y: 0 } }],
+    };
+  }
 }
+

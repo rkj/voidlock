@@ -85,8 +85,12 @@
           <div id="static-map-controls" style="display: none; margin-top: 10px;">
             <label for="static-map-json">Static Map JSON (Paste below or Upload):</label>
             <textarea id="static-map-json" rows="8" style="width: 100%; box-sizing: border-box;"></textarea>
-            <button id="load-static-map">Load Static Mission (from text)</button>
+            <button id="load-static-map">Load Static Mission (from JSON text)</button>
             <input type="file" id="upload-static-map" accept=".json" style="margin-top: 5px;">
+            <label for="ascii-map-input" style="margin-top: 10px;">ASCII Map (Convert to/from MapDefinition):</label>
+            <textarea id="ascii-map-input" rows="8" style="width: 100%; box-sizing: border-box;"></textarea>
+            <button id="convert-ascii-to-map">Convert ASCII to MapDefinition</button>
+            <button id="convert-map-to-ascii">Convert MapDefinition to ASCII</button>
           </div>
         </div>
         
