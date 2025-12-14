@@ -86,17 +86,18 @@ export class GameGrid implements Grid {
     }
 
     // If no door, check walls
+    const toCell = this.cells[toY][toX];
     if (dx === 1) { // Moving East
-      return !fromCell.walls.e; 
+      return !fromCell.walls.e && !toCell.walls.w; 
     }
     if (dx === -1) { // Moving West
-      return !fromCell.walls.w; 
+      return !fromCell.walls.w && !toCell.walls.e; 
     }
     if (dy === 1) { // Moving South
-      return !fromCell.walls.s; 
+      return !fromCell.walls.s && !toCell.walls.n; 
     }
     if (dy === -1) { // Moving North
-      return !fromCell.walls.n; 
+      return !fromCell.walls.n && !toCell.walls.s; 
     }
 
     return false;

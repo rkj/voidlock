@@ -124,4 +124,66 @@ describe('LineOfSight', () => {
       expect(doorLos.hasLineOfSight({ x: 0.5, y: 0.5 }, { x: 2.5, y: 0.5 })).toBe(true);
     });
   });
+
+  describe('thin wall line of sight', () => {
+    it('should block LOS through a thin wall between cells', () => {
+      const map: MapDefinition = {
+        width: 2, height: 1,
+        cells: [
+          { x: 0, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: true, w: true } }, // East wall closed
+          { x: 1, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: true, w: true } }  // West wall closed
+        ]
+      };
+      const grid = new GameGrid(map);
+      const los = new LineOfSight(grid, mockDoors);
+      
+      // Center to Center
+      expect(los.hasLineOfSight({ x: 0.5, y: 0.5 }, { x: 1.5, y: 0.5 })).toBe(false);
+
+      // Close proximity (0.9 to 1.1)
+      expect(los.hasLineOfSight({ x: 0.9, y: 0.5 }, { x: 1.1, y: 0.5 })).toBe(false);
+    });
+  });
+
+  it('should block LOS from all angles into an enclosed cell', () => {
+    // 3x3 map. Center (1,1) is Floor but surrounded by walls.
+    // (1,1).walls = { n: true, e: true, s: true, w: true }
+    // Neighbors have corresponding walls.
+    const cells: Cell[] = [];
+    for(let y=0; y<3; y++) {
+        for(let x=0; x<3; x++) {
+            const c: Cell = { x, y, type: CellType.Floor, walls: { n: false, e: false, s: false, w: false } };
+            if (x===1 && y===1) {
+                c.walls = { n: true, e: true, s: true, w: true };
+            }
+            // Update neighbors of center
+            if (x===1 && y===0) c.walls.s = true;
+            if (x===1 && y===2) c.walls.n = true;
+            if (x===0 && y===1) c.walls.e = true;
+            if (x===2 && y===1) c.walls.w = true;
+            
+            cells.push(c);
+        }
+    }
+    const map: MapDefinition = { width: 3, height: 3, cells };
+    const grid = new GameGrid(map);
+    const los = new LineOfSight(grid, mockDoors);
+
+    const center = { x: 1.5, y: 1.5 };
+    const radius = 1.2; // Circle around center, in adjacent cells
+
+    for (let angle = 0; angle < 360; angle += 10) {
+        const rad = angle * Math.PI / 180;
+        const start = {
+            x: center.x + Math.cos(rad) * radius,
+            y: center.y + Math.sin(rad) * radius
+        };
+        // Expect NO line of sight from outside to inside
+        const hasLos = los.hasLineOfSight(start, center);
+        if (hasLos) {
+            console.log(`Leaked LOS at angle ${angle}: start(${start.x.toFixed(2)}, ${start.y.toFixed(2)}) -> center(${center.x}, ${center.y})`);
+        }
+        expect(hasLos).toBe(false);
+    }
+  });
 });

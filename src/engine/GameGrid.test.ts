@@ -93,4 +93,21 @@ describe('GameGrid', () => {
       expect(doorGrid.canMove(1, 0, 0, 0, doors)).toBe(true);
     });
   });
+
+  describe('robustness', () => {
+    it('should block movement if EITHER side of the edge has a wall (asymmetric map data)', () => {
+        const cells: Cell[] = [
+            { x: 0, y: 0, type: CellType.Floor, walls: { n: false, e: false, s: false, w: false } }, // East wall OPEN
+            { x: 1, y: 0, type: CellType.Floor, walls: { n: false, e: false, s: false, w: true } }   // West wall CLOSED
+        ];
+        const asymMap: MapDefinition = { width: 2, height: 1, cells };
+        const asymGrid = new GameGrid(asymMap);
+
+        // Moving East: (0,0) -> (1,0). (0,0).e is Open. But (1,0).w is Closed. Should be BLOCKED.
+        expect(asymGrid.canMove(0, 0, 1, 0, new Map())).toBe(false);
+
+        // Moving West: (1,0) -> (0,0). (1,0).w is Closed. Should be BLOCKED.
+        expect(asymGrid.canMove(1, 0, 0, 0, new Map())).toBe(false);
+    });
+  });
 });
