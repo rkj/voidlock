@@ -81,24 +81,42 @@ export class CoreEngine {
   public applyCommand(cmd: Command) {
     if (this.state.status !== 'Playing') return; 
 
-    if (cmd.type === CommandType.MOVE_TO) {
-      cmd.unitIds.forEach(id => {
-        const unit = this.state.units.find(u => u.id === id);
-        if (unit) {
-            if (cmd.queue) {
-                unit.commandQueue.push(cmd);
-            } else {
-                unit.commandQueue = []; // Clear queue on new immediate command
-                this.executeCommand(unit, cmd);
+    if (cmd.type === CommandType.MOVE_TO || cmd.type === CommandType.ATTACK_TARGET) {
+      if (cmd.type === CommandType.ATTACK_TARGET) {
+          // ATTACK_TARGET is a single-unit command in our new definition, but the loop supports arrays if we expanded it.
+          // The type definition says unitId: string.
+          const unit = this.state.units.find(u => u.id === cmd.unitId);
+          if (unit) {
+              if (cmd.queue) {
+                  unit.commandQueue.push(cmd);
+              } else {
+                  unit.commandQueue = [];
+                  this.executeCommand(unit, cmd);
+              }
+          }
+      } else {
+          // MOVE_TO
+          cmd.unitIds.forEach(id => {
+            const unit = this.state.units.find(u => u.id === id);
+            if (unit) {
+                if (cmd.queue) {
+                    unit.commandQueue.push(cmd);
+                } else {
+                    unit.commandQueue = []; // Clear queue on new immediate command
+                    this.executeCommand(unit, cmd);
+                }
             }
-        }
-      });
+          });
+      }
     }
   }
 
   private executeCommand(unit: Unit, cmd: Command) {
       if (cmd.type === CommandType.MOVE_TO) {
         if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
+            // Clear forced target when moving
+            unit.forcedTargetId = undefined;
+            
             const path = this.pathfinder.findPath(
               { x: Math.floor(unit.pos.x), y: Math.floor(unit.pos.y) },
               cmd.target
@@ -120,6 +138,14 @@ export class CoreEngine {
               unit.state = UnitState.Idle;
             }
         }
+      } else if (cmd.type === CommandType.ATTACK_TARGET) {
+          if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
+              unit.forcedTargetId = cmd.targetId;
+              // Stop moving if attacking
+              unit.path = undefined;
+              unit.targetPos = undefined;
+              // State will be updated in update() loop when combat resolves
+          }
       }
   }
 
@@ -283,11 +309,45 @@ export class CoreEngine {
       }
 
       // Combat
-      const enemiesInRange = this.state.enemies.filter(enemy => 
+      let enemiesInRange = this.state.enemies.filter(enemy => 
         enemy.hp > 0 &&
         this.getDistance(unit.pos, enemy.pos) <= unit.attackRange + 0.5 &&
         newVisibleCells.has(`${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`) 
       );
+
+      // Filter by forced target if set and valid
+      if (unit.forcedTargetId) {
+          const forced = enemiesInRange.find(e => e.id === unit.forcedTargetId);
+          if (forced) {
+              enemiesInRange = [forced];
+          } else {
+              // Forced target is dead or out of range/sight. 
+              // Option A: Fallback to nearest. Option B: Do nothing.
+              // Spec says "Forces fire on specific enemy".
+              // Implicitly, if not possible, it might wait.
+              // For now, let's auto-clear forced target if dead, but keep trying if just out of range?
+              // Actually, simplest is to fallback to auto-fire if forced target isn't available, OR just stick to it.
+              // Let's implement: if forced target is visible, shoot it. If not, normal behavior (shoot nearest).
+              // Wait, if I ordered "Attack X", I probably want to chase X?
+              // The command is just ATTACK_TARGET. It doesn't imply movement in this simplified engine unless we add pathfinding to enemy.
+              // Current implementation: "Stop moving and shoot".
+              // So if X is out of range, we stand still.
+              
+              // However, if X is dead, we should probably clear the forced ID.
+              const isTargetAlive = this.state.enemies.some(e => e.id === unit.forcedTargetId && e.hp > 0);
+              if (!isTargetAlive) {
+                  unit.forcedTargetId = undefined;
+              } else {
+                  // Target alive but out of range/sight.
+                  // Behavior: Don't shoot anyone else? Or shoot others?
+                  // "Engagement Policy" usually dictates this.
+                  // Default is ENGAGE.
+                  // If we force fire, we probably ONLY want to shoot that target?
+                  // Let's assume strict adherence: if forcedTargetId is set, ONLY shoot that target.
+                  enemiesInRange = [];
+              }
+          }
+      }
 
       if (enemiesInRange.length > 0) {
         const targetEnemy = enemiesInRange[0];

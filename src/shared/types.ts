@@ -93,6 +93,7 @@ export type Unit = Entity & {
   commandQueue: Command[];
   lastAttackTarget?: Vector2;
   lastAttackTime?: number;
+  forcedTargetId?: string; // ID of enemy to focus fire on
 };
 
 export type Enemy = Entity & {
@@ -149,13 +150,15 @@ export enum CommandType {
   MOVE_TO = 'MOVE_TO',
   OPEN_DOOR = 'OPEN_DOOR',
   LOCK_DOOR = 'LOCK_DOOR',
+  ATTACK_TARGET = 'ATTACK_TARGET',
 }
 
 export type MoveCommand = { type: CommandType.MOVE_TO; unitIds: string[]; target: Vector2; queue?: boolean; };
 export type OpenDoorCommand = { type: CommandType.OPEN_DOOR; unitIds: string[]; doorId: string; queue?: boolean; };
 export type LockDoorCommand = { type: CommandType.LOCK_DOOR; unitIds: string[]; doorId: string; queue?: boolean; };
+export type AttackTargetCommand = { type: CommandType.ATTACK_TARGET; unitId: string; targetId: string; queue?: boolean; };
 
-export type Command = MoveCommand | OpenDoorCommand | LockDoorCommand;
+export type Command = MoveCommand | OpenDoorCommand | LockDoorCommand | AttackTargetCommand;
 
 export interface IMapValidationResult {
   isValid: boolean;
