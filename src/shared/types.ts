@@ -161,3 +161,40 @@ export interface IMapValidationResult {
   isValid: boolean;
   issues: string[];
 }
+
+// --- Tile Assembly ---
+
+export type Edge = 'n' | 'e' | 's' | 'w';
+
+export type TileCellDefinition = {
+  x: number;
+  y: number;
+  openEdges: Edge[]; 
+};
+
+export type TileDefinition = {
+  id: string;
+  width: number;
+  height: number;
+  cells: TileCellDefinition[];
+};
+
+export type TileReference = {
+  tileId: string;
+  x: number;
+  y: number;
+  rotation: 0 | 90 | 180 | 270;
+};
+
+export type TileAssembly = {
+  tiles: TileReference[];
+  doors?: { tileIndex: number, cellIndex: number, edge: Edge, id: string }[]; // Optional door placement relative to tiles?
+  // Actually, simplest is to define doors in global coordinates or relative to a tile.
+  // For now, let's assume we extract doors from the tiles themselves if they have "sockets" or just add them manually later.
+  // The GDD example has a separate "doors" array with global coords.
+  // Let's stick to the GDD example format mostly.
+  globalDoors?: { cell: Vector2, orientation: 'Horizontal' | 'Vertical', id: string }[];
+  globalSpawnPoints?: { cell: Vector2, id: string }[];
+  globalExtraction?: { cell: Vector2 };
+  globalObjectives?: { kind: 'Recover' | 'Kill', cell: Vector2, id: string }[];
+};
