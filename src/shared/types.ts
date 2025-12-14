@@ -154,3 +154,8 @@ export type OpenDoorCommand = { type: CommandType.OPEN_DOOR; unitIds: string[]; 
 export type LockDoorCommand = { type: CommandType.LOCK_DOOR; unitIds: string[]; doorId: string; queue?: boolean; };
 
 export type Command = MoveCommand | OpenDoorCommand | LockDoorCommand;
+
+export interface IMapValidationResult {
+  isValid: boolean;
+  issues: string[];
+}
