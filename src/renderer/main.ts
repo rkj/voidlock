@@ -181,14 +181,36 @@ const updateUI = (state: GameState) => {
       }
       
       el.innerHTML = `
-        <div style="display:flex; justify-content:space-between;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
           <strong>${unit.id}</strong>
-          <span>${statusText}</span>
+          <span>HP: ${unit.hp}/${unit.maxHp} | Pos: (${Math.floor(unit.pos.x)},${Math.floor(unit.pos.y)}) | ${unit.engagementPolicy || 'ENGAGE'} | ${statusText}</span>
         </div>
         <div class="hp-bar"><div class="hp-fill" style="width: ${(unit.hp / unit.maxHp) * 100}%"></div></div>
+        <div class="unit-commands" style="display:flex; gap:5px; margin-top:5px;">
+            <button class="btn-stop-unit" data-unit-id="${unit.id}">Stop</button>
+            <button class="btn-engage-unit" data-unit-id="${unit.id}">Engage</button>
+            <button class="btn-ignore-unit" data-unit-id="${unit.id}">Ignore</button>
+        </div>
       `;
       
-      el.addEventListener('click', () => onUnitClick(unit));
+      el.addEventListener('click', () => onUnitClick(unit)); // Keep original click for selection
+
+      // Add event listeners for new command buttons
+      const stopButton = el.querySelector('.btn-stop-unit');
+      stopButton?.addEventListener('click', (event) => {
+          event.stopPropagation(); // Prevent onUnitClick from firing
+          gameClient.sendCommand({ type: CommandType.STOP, unitIds: [unit.id] });
+      });
+      const engageButton = el.querySelector('.btn-engage-unit');
+      engageButton?.addEventListener('click', (event) => {
+          event.stopPropagation();
+          gameClient.sendCommand({ type: CommandType.SET_ENGAGEMENT, unitIds: [unit.id], mode: 'ENGAGE' });
+      });
+      const ignoreButton = el.querySelector('.btn-ignore-unit');
+      ignoreButton?.addEventListener('click', (event) => {
+          event.stopPropagation();
+          gameClient.sendCommand({ type: CommandType.SET_ENGAGEMENT, unitIds: [unit.id], mode: 'IGNORE' });
+      });
       
       listContainer.appendChild(el);
     });
