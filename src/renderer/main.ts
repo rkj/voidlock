@@ -125,7 +125,7 @@ const initGame = (
   agentControlEnabled = agentControl ?? agentControlEnabled;
   
   // Initialize engine in worker
-  gameClient.init(currentSeed, currentMapGeneratorType, currentStaticMapData, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled, squadConfig ?? currentSquad);
+  gameClient.init(currentSeed, currentMapGeneratorType, currentStaticMapData, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled, squadConfig as SquadConfig);
   
   // Reset selection
   selectedUnitId = null;
