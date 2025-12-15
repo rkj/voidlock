@@ -27,10 +27,10 @@ export class TreeShipGenerator {
     }));
 
     // 2. Main Corridor (Spine)
-    // Horizontal spine in the middle
-    const spineY = Math.floor(this.height / 2);
-    const spineStart = 2;
-    const spineEnd = this.width - 3;
+    // Horizontal spine at a random Y position, with a small thickness
+    const spineY = this.prng.nextInt(1, this.height - 2); // Avoid edges
+    const spineStart = 0; // Start from edge
+    const spineEnd = this.width - 1; // End at edge
 
     const spineCells: {x: number, y: number}[] = [];
 
@@ -41,6 +41,25 @@ export class TreeShipGenerator {
         if (x > spineStart) {
             this.openWall(x-1, spineY, 'e');
         }
+
+        // Also make adjacent cells part of the spine, with a probability
+        const expandNorth = this.prng.next() < 0.5; // Consume PRNG
+        const expandSouth = this.prng.next() < 0.5; // Consume PRNG
+
+        if (expandNorth) {
+            if (spineY > 0) {
+              this.setFloor(x, spineY - 1);
+              spineCells.push({x, y: spineY - 1}); // Add to spineCells
+              this.openWall(x, spineY, 'n'); // Open wall between spineY and spineY-1
+            }
+        }
+        if (expandSouth) {
+            if (spineY < this.height - 1) {
+              this.setFloor(x, spineY + 1);
+              spineCells.push({x, y: spineY + 1}); // Add to spineCells
+              this.openWall(x, spineY, 's'); // Open wall between spineY and spineY+1
+            }
+        }
     }
 
     // 3. Grow Room Trees
@@ -48,13 +67,9 @@ export class TreeShipGenerator {
     const frontier: {parentX: number, parentY: number, dir: 'n'|'s'}[] = [];
     
     spineCells.forEach(cell => {
-        // Chance to spawn a branch
-        if (this.prng.next() < 0.4) {
-            frontier.push({parentX: cell.x, parentY: cell.y, dir: 'n'});
-        }
-        if (this.prng.next() < 0.4) {
-            frontier.push({parentX: cell.x, parentY: cell.y, dir: 's'});
-        }
+        // Guarantee to spawn a branch from each cell of the spine
+        frontier.push({parentX: cell.x, parentY: cell.y, dir: 'n'});
+        frontier.push({parentX: cell.x, parentY: cell.y, dir: 's'});
     });
 
     // We process frontier. Each step creates a room and adds its other walls to frontier.
@@ -152,13 +167,13 @@ export class TreeShipGenerator {
 
         // Try to add up to 1 new branch from the new room, further extending the tree.
         // This ensures maximum 2 doors per room (1 to parent, 1 to child).
-        if (this.prng.next() < 0.7) { // Probability to create a new branch
+        if (this.prng.next() < 1.0) { // Probability to create a new branch - Guaranteed expansion (if valid)
             this.prng.shuffle(newRoomCells); // Pick a random cell from the new room
             this.prng.shuffle(possibleOutwardDirs); // Pick a random outward direction
 
             let branchesAdded = 0; // Initialize branchesAdded
             for (const cell of newRoomCells) {
-                if (branchesAdded > 0) break; // If a branch was added, stop looking for more from other cells
+                if (branchesAdded >= 2) break; // If 2 branches were added, stop looking for more from other cells
                 for (const d of possibleOutwardDirs) {
                     const nx = cell.x + d.dx;
                     const ny = cell.y + d.dy;
@@ -197,11 +212,11 @@ export class TreeShipGenerator {
                         if (!isAdjacentToExistingFloor) {
                             frontier.push({parentX: cell.x, parentY: cell.y, dir: d.k});
                             branchesAdded++; // Increment when a branch is added
-                            break; // Break from the 'd' (possibleOutwardDirs) loop
+                            if (branchesAdded >= 2) break; // Break from 'd' loop if 2 branches added
                         }
                     }
                 }
-                if (branchesAdded > 0) break; // If a branch was added from this cell, stop looking for more from other cells
+                if (branchesAdded >= 2) break; // If 2 branches were added, stop looking for more from other cells
             }
         }
     } // CLOSING BRACE FOR THE WHILE LOOP
@@ -359,5 +374,5 @@ export class TreeShipGenerator {
       }
     }
     return false; // No collision or cycle detected
-  }
+  } // Missing closing brace for the class
 }
