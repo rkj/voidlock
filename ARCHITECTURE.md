@@ -1,0 +1,51 @@
+# Xenopurge Architecture
+
+## Overview
+Xenopurge is a tactical squad-based game engine designed with a strict separation of concerns between the core simulation logic, the rendering layer, and the content generation. The architecture follows a client-server model (where the "server" is a Web Worker) to ensure deterministic execution and responsive UI.
+
+## Core Modules
+
+### 1. Engine (`src/engine/`)
+The heart of the game. It runs deterministically given a seed and a command stream.
+
+*   **`CoreEngine`**: The main simulation controller. It maintains the `GameState`, processes `Commands`, and advances the simulation tick by tick. It allows for "Pause", "Resume", and discrete time steps.
+*   **`GameGrid`**: Represents the physical world. It handles collision detection (`canMove`), wall states, and door interactions. It provides a queryable interface for the Pathfinder and LOS systems.
+*   **`Pathfinder`**: Implements pathfinding algorithms (A*) on the `GameGrid`. It supports pathing through Open doors and planning paths through Closed doors (which units can then open).
+*   **`LineOfSight`**: Handles visibility calculations ("Fog of War"). It determines which cells are visible to the player's squad based on their position and blocking terrain (Walls, Closed Doors).
+*   **`Director`**: The AI logic that manages enemy spawning, pacing, and difficulty ramping. It monitors game state and injects events or enemies.
+*   **`GameClient`**: The bridge between the UI/Main Thread and the Engine Worker. It handles initializing the worker, sending commands, receiving state updates, and managing the Replay recording.
+
+### 2. Generators (`src/engine/generators/`)
+Procedural content generation modules.
+
+*   **`MapGenerator`**: Abstract base class for map generation strategies.
+*   **`TreeShipGenerator`**: Generates acyclic "Tree-like" spaceship layouts. It ensures connectivity and prevents loops, prioritizing a "forward-moving" tactical experience.
+*   **`SpaceshipGenerator`**: Generates dense, interconnected spaceship interiors with rooms and corridors.
+
+### 3. Renderer (`src/renderer/`)
+Purely visual layer.
+
+*   **`Renderer`**: Renders the `GameState` to an HTML5 Canvas. It handles:
+    *   Grid visualization (Floor, Walls).
+    *   Entity rendering (Soldiers, Enemies).
+    *   Fog of War overlays (Visible, Discovered, Hidden).
+    *   Visual effects (Tracers, Highlights).
+    *   **Independence**: The Renderer has no game logic. It simply draws what the State tells it.
+
+### 4. Shared (`src/shared/`)
+Common definitions.
+
+*   **`types.ts`**: Contains all shared interfaces (`GameState`, `Command`, `MapDefinition`, `Unit`, etc.) ensuring type safety across the Worker boundary.
+*   **`PRNG`**: A seedable Pseudo-Random Number Generator to ensure determinism.
+
+## Key Concepts
+
+*   **Determinism**: The engine is fully deterministic based on the initial `seed`. Replaying the same sequence of commands on the same seed produces the exact same game state.
+*   **Command Pattern**: All mutations to the game state happen via `Commands` (e.g., `MOVE_TO`, `OPEN_DOOR`). This facilitates networking, replays, and debugging.
+*   **Separation of Concerns**:
+    *   **Logic vs View**: Engine knows nothing about pixels. Renderer knows nothing about rules.
+    *   **Map vs Content**: The Map is a static grid definition. The Game State overlays dynamic entities (Units, Doors) on top of it.
+
+## Testing Strategy
+*   **Unit Tests**: Core mechanics (`Pathfinder`, `GameGrid`, `CycleDetection`) are tested in isolation.
+*   **Generator Tests**: Generators are tested for properties (e.g., "Acyclicity") rather than specific pixel layouts, ensuring structural correctness.

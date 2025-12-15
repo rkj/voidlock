@@ -20,10 +20,14 @@ describe('Command: SET_ENGAGEMENT', () => {
     engine = new CoreEngine(map, 123, defaultSquad);
     engine.clearUnits();
     engine.addUnit({
-      id: 'u1', pos: { x: 5.5, y: 5.5 },
+      id: 'u1', pos: { x: 0.5, y: 0.5 },
       hp: 100, maxHp: 100, state: UnitState.Idle,
       damage: 10, fireRate: 100, attackRange: 5, sightRange: 10,
       commandQueue: []
+    });
+    engine.addEnemy({
+      id: 'e1', pos: { x: 5.5, y: 0.5 },
+      hp: 100, maxHp: 100, type: 'Grunt', damage: 0, fireRate: 1000, attackRange: 1
     });
   });
 
@@ -45,12 +49,10 @@ describe('Command: SET_ENGAGEMENT', () => {
     const u1 = state.units.find(u => u.id === 'u1');
     const e1 = state.enemies.find(e => e.id === 'e1');
 
-    // TODO(xenopurge-gemini-w4x): uncomment and fix the test
-    // expect(u1?.state).toBe(UnitState.Attacking);
-    // expect(e1?.hp).toBeLessThan(100);
+    expect(u1?.state).toBe(UnitState.Attacking);
+    expect(e1?.hp).toBeLessThan(100);
     // Position should effectively be start position (or very close)
-    // TODO(xenopurge-gemini-w4x): uncomment and fix the test
-    // expect(u1?.pos.x).toBeCloseTo(0.5, 1);
+    expect(u1?.pos.x).toBeCloseTo(0.5, 1);
   });
 
   it('should ignore enemy and keep moving if policy is IGNORE', () => {
@@ -74,9 +76,8 @@ describe('Command: SET_ENGAGEMENT', () => {
     const u1 = state.units.find(u => u.id === 'u1');
     const e1 = state.enemies.find(e => e.id === 'e1');
 
-    // TODO(xenopurge-gemini-w4x): uncomment and fix the test
-    // expect(u1?.state).toBe(UnitState.Moving);
-    // expect(e1?.hp).toBe(100); // Should not have fired
+    expect(u1?.state).toBe(UnitState.Moving);
+    expect(e1?.hp).toBe(100); // Should not have fired
     // Should have moved (speed 2 tiles/s * 0.1s = 0.2 tiles)
     expect(u1?.pos.x).toBeGreaterThan(0.5);
   });

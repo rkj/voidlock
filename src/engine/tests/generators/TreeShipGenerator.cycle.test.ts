@@ -121,8 +121,7 @@ describe('TreeShipGenerator Cycle Detection', () => {
       const generator = new TreeShipGenerator(seed, mapWidth, mapHeight);
       const map = generator.generate();
       const adj = mapToAdjacencyList(map);
-      // TODO(xenopurge-gemini-w4x): uncomment and fix the test
-      // expect(hasCycleDFS(adj)).toBe(false);
+      expect(hasCycleDFS(adj)).toBe(false);
     });
   }
 });

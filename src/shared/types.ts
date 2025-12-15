@@ -136,6 +136,7 @@ export type RecordedCommand = {
 export type ReplayData = {
   seed: number;
   map: MapDefinition;
+  squadConfig: SquadConfig;
   commands: RecordedCommand[];
 };
 
