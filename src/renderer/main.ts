@@ -321,6 +321,57 @@ document.addEventListener('DOMContentLoaded', () => {
       });
   }
 
+  // Inject Content Pack Input/Output UI
+  const staticMapControlsTarget = document.getElementById('static-map-controls'); // Target above static map controls
+  if (staticMapControlsTarget) {
+      const contentPackIoDiv = document.createElement('div');
+      contentPackIoDiv.style.marginTop = '10px';
+      contentPackIoDiv.innerHTML = `
+        <label>Content Pack JSON:</label>
+        <textarea id="content-pack-json" rows="10" cols="30" style="width:100%;"></textarea>
+        <div style="display:flex; gap:5px; margin-top:5px;">
+            <button id="load-content-pack" type="button">Load Content Pack</button>
+            <button id="save-content-pack" type="button">Save Content Pack</button>
+        </div>
+      `;
+      staticMapControlsTarget.parentNode?.insertBefore(contentPackIoDiv, staticMapControlsTarget);
+
+      // Add event listeners for Content Pack IO
+      const contentPackJsonTextarea = document.getElementById('content-pack-json') as HTMLTextAreaElement;
+      document.getElementById('load-content-pack')?.addEventListener('click', () => {
+          try {
+              const contentPack = JSON.parse(contentPackJsonTextarea.value);
+              alert("Content Pack Loaded (console for details): " + JSON.stringify(contentPack, null, 2));
+              console.log("Loaded Content Pack:", contentPack);
+              // Integration with game client/engine would go here (future task)
+          } catch (err) {
+              console.error("Error loading content pack:", err);
+              alert("Invalid Content Pack JSON provided.");
+          }
+      });
+
+      document.getElementById('save-content-pack')?.addEventListener('click', () => {
+          const pack = {
+              id: "custom-pack",
+              version: "1.0",
+              rules: {
+                  tickMs: 100,
+                  fogOfWar: fogOfWarEnabled, // Use current UI state
+                  lineOfSight: {"type":"gridRaycast","maxRange":10}
+              },
+              // Placeholder for soldier/enemy archetypes etc.
+              config: {
+                  seed: currentSeed,
+                  mapGeneratorType: currentMapGeneratorType,
+                  mapWidth: currentMapWidth,
+                  mapHeight: currentMapHeight
+              }
+          };
+          contentPackJsonTextarea.value = JSON.stringify(pack, null, 2);
+          alert("Current config saved to Content Pack JSON textarea.");
+      });
+  }
+
   // Inject ASCII Map Input/Output UI
   const asciiMapControlsTarget = document.getElementById('static-map-controls'); // Target below static map controls
   if (asciiMapControlsTarget) {
