@@ -164,6 +164,44 @@ const updateUI = (state: GameState) => {
     statusElement.textContent = `Time: ${(state.t / 1000).toFixed(1)}s | Status: ${state.status}`;
   }
 
+  // Right Panel
+  const rightPanel = document.getElementById('right-panel'); // Assuming an element with this ID exists
+  if (rightPanel) {
+      rightPanel.innerHTML = ''; // Clear current content
+
+      // Objectives
+      const objectivesDiv = document.createElement('div');
+      objectivesDiv.className = 'objectives-status';
+      objectivesDiv.innerHTML = '<h3>Objectives</h3>';
+      state.objectives.forEach(obj => {
+          const objEl = document.createElement('p');
+          objEl.textContent = `${obj.kind}: Status: ${obj.state}`;
+          if (obj.targetCell) objEl.textContent += ` at (${obj.targetCell.x},${obj.targetCell.y})`;
+          objectivesDiv.appendChild(objEl);
+      });
+      rightPanel.appendChild(objectivesDiv);
+
+      // Extraction
+      if (state.map.extraction) {
+          const extDiv = document.createElement('div');
+          extDiv.className = 'extraction-status';
+          extDiv.innerHTML = `<h3>Extraction</h3><p>Location: (${state.map.extraction.x},${state.map.extraction.y})</p>`;
+          // Check if all units extracted
+          const extractedCount = state.units.filter(u => u.state === UnitState.Extracted).length;
+          const totalUnits = state.units.length;
+          if (totalUnits > 0) {
+              extDiv.innerHTML += `<p>Extracted: ${extractedCount}/${totalUnits}</p>`;
+          }
+          rightPanel.appendChild(extDiv);
+      }
+
+      // Threat Meter (placeholder for now)
+      const threatDiv = document.createElement('div');
+      threatDiv.className = 'threat-meter';
+      threatDiv.innerHTML = `<h3>Threat Meter</h3><p>Current Threat: Low (Placeholder)</p>`;
+      rightPanel.appendChild(threatDiv);
+  }
+
   // Soldier List
   const listContainer = document.getElementById('soldier-list');
   if (listContainer) {
