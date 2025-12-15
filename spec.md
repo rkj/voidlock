@@ -193,6 +193,7 @@ Example:
 
 **TreeShipGenerator Specifics:**
 The `TreeShipGenerator` produces maps with a unique branching structure, akin to a tree, with the following characteristics:
+*   **Room Size:** Rooms must not be larger than 2x2 cells.
 *   **Room Connectivity:** Rooms should be isolated, connecting only to main corridors or other rooms via a maximum of two doors. Direct connections between rooms, other than a pass-through from one room to another, are forbidden.
 *   **No Loops:** The generated map layout must be acyclic, ensuring no circular paths or loops exist within the main corridors or between rooms.
 *   **Corridor-to-Room Transitions:** Main corridors can lead into rooms, but it should not be possible to traverse through a room and emerge into another part of the same main corridor or a different main corridor. Rooms act as terminals or controlled junctions, not open thoroughfares.

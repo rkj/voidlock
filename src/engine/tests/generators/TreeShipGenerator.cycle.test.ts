@@ -87,18 +87,24 @@ describe('TreeShipGenerator Cycle Detection', () => {
     const generator = new TreeShipGenerator(1, 5, 5);
     const map = generator.generate();
     const expectedAscii = `+-+-+-+-+-+
-|#|#|E|#|#|
-+-+-+ +-+-+
-|#|#| |#|#|
-+-+-+=+-+-+
-|#|#| |#|#|
-+-+-+=+-+-+
-|#|S  |#|#|
-+-+-+-+-+-+
-|#|#|#|#|#|
+|S|#| |#|E|
++ +-+ +-+=+
+|         |
++-+-+ +-+ +
+|#| |#| | |
++-+=+-+-+-+
+|#| |#|#|#|
++-+ +-+-+-+
+| I |#|#|#|
 +-+-+-+-+-+`;
-    expect(MapGenerator.toAscii(map)).toEqual(expectedAscii);
-    const adj = mapToAdjacencyList(map);
-    expect(hasCycleDFS(adj)).toBe(false);
-  });
+        expect(MapGenerator.toAscii(map).trim().replace(/\r?\n/g, '\n')).toBe(expectedAscii.trim().replace(/\r?\n/g, '\n'));
+        const adj = mapToAdjacencyList(map);
+        expect(hasCycleDFS(adj)).toBe(false);
+    
+        // Fill rate assertion
+        const floorCells = map.cells.filter(c => c.type === CellType.Floor).length;
+        const totalCells = map.width * map.height;
+        const fillRate = floorCells / totalCells;
+        expect(fillRate).toBeGreaterThanOrEqual(0.9);
+      });
 });
