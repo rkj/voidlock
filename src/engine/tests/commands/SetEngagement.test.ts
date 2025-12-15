@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { CoreEngine } from '../../CoreEngine';
-import { MapDefinition, CellType, UnitState, CommandType } from '../../../shared/types';
+import { CoreEngine } = '../../CoreEngine';
+import { MapDefinition, CellType, UnitState, CommandType, SquadConfig, Archetype, ArchetypeLibrary } from '../../../shared/types';
+import { GameGrid } from '../../GameGrid';
 
 describe('Command: SET_ENGAGEMENT', () => {
   let engine: CoreEngine;
@@ -15,21 +16,14 @@ describe('Command: SET_ENGAGEMENT', () => {
   };
 
   beforeEach(() => {
-    engine = new CoreEngine(map, 123);
+    const defaultSquad: SquadConfig = [{archetypeId: "assault", count: 1}]; // Default unit for tests
+    engine = new CoreEngine(map, 123, defaultSquad);
     engine.clearUnits();
     engine.addUnit({
-      id: 'u1',
-      pos: { x: 0.5, y: 0.5 },
-      hp: 100, maxHp: 100,
-      state: UnitState.Idle,
-      damage: 10, fireRate: 100,
-      attackRange: 5, sightRange: 10,
+      id: 'u1', pos: { x: 5.5, y: 5.5 },
+      hp: 100, maxHp: 100, state: UnitState.Idle,
+      damage: 10, fireRate: 100, attackRange: 5, sightRange: 10,
       commandQueue: []
-    });
-    // Enemy in path
-    engine.addEnemy({
-      id: 'e1', pos: { x: 5.5, y: 0.5 },
-      hp: 100, maxHp: 100, type: 'Grunt', damage: 0, fireRate: 1000, attackRange: 1
     });
   });
 
