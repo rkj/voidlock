@@ -1,4 +1,4 @@
-import { GameState, MapDefinition, Unit, Enemy, Command, CommandType, UnitState, Vector2, Objective, Door } from '../shared/types';
+import { GameState, MapDefinition, Unit, Enemy, Command, CommandType, UnitState, Vector2, Objective, Door, Archetype, ArchetypeLibrary, SquadConfig } from '../shared/types';
 import { GameGrid } from './GameGrid';
 import { Pathfinder } from './Pathfinder';
 import { Director } from './Director';
@@ -17,7 +17,7 @@ export class CoreEngine {
   private readonly TICK_RATE = 100; // ms
   private doors: Map<string, Door>;
 
-  constructor(map: MapDefinition, seed: number) {
+  constructor(map: MapDefinition, seed: number, squadConfig: SquadConfig) {
     this.prng = new PRNG(seed);
     this.gameGrid = new GameGrid(map);
     this.doors = new Map(map.doors?.map(door => [door.id, door]));
@@ -44,21 +44,29 @@ export class CoreEngine {
     const spawnPoints = map.spawnPoints || [];
     this.director = new Director(spawnPoints, this.prng, (enemy) => this.addEnemy(enemy));
 
-    // M2/M3 Prototype: Spawn default squad
-    // Use extraction point as start if available, else 0,0
-    const startX = map.extraction ? map.extraction.x + 0.5 : 0.5;
-    const startY = map.extraction ? map.extraction.y + 0.5 : 0.5;
+    // Spawn units based on squadConfig
+    let unitCount = 1;
+    squadConfig.forEach(squadItem => {
+        const arch = ArchetypeLibrary[squadItem.archetypeId];
+        if (!arch) return;
 
-    this.addUnit({
-      id: 's1',
-      pos: { x: startX, y: startY }, 
-      hp: 100, maxHp: 100,
-      state: UnitState.Idle,
-      damage: 20,
-      fireRate: 500, // ms
-      attackRange: 4,
-      sightRange: 8,
-      commandQueue: []
+        for (let i = 0; i < squadItem.count; i++) {
+            // Use extraction point as start if available, else 0,0
+            const startX = map.extraction ? map.extraction.x + 0.5 : 0.5;
+            const startY = map.extraction ? map.extraction.y + 0.5 : 0.5;
+
+            this.addUnit({
+                id: `${arch.id}-${unitCount++}`,
+                pos: { x: startX + (this.prng.next() - 0.5), y: startY + (this.prng.next() - 0.5) }, // Random offset
+                hp: arch.baseHp, maxHp: arch.baseHp,
+                state: UnitState.Idle,
+                damage: arch.damage,
+                fireRate: arch.fireRate,
+                attackRange: arch.attackRange,
+                sightRange: arch.sightRange,
+                commandQueue: []
+            });
+        }
     });
   }
 

@@ -139,10 +139,30 @@ export type ReplayData = {
   commands: RecordedCommand[];
 };
 
+// --- Archetype Definitions (Shared) ---
+export type Archetype = {
+  id: string;
+  name: string;
+  baseHp: number;
+  damage: number;
+  fireRate: number; // ms
+  attackRange: number;
+  sightRange: number;
+  speed: number; // tiles per second
+};
+
+export const ArchetypeLibrary: { [id: string]: Archetype } = {
+  "assault": { id: "assault", name: "Assault", baseHp: 100, damage: 20, fireRate: 500, attackRange: 4, sightRange: 8, speed: 2 },
+  "medic": { id: "medic", name: "Medic", baseHp: 80, damage: 10, fireRate: 750, attackRange: 3, sightRange: 10, speed: 2.5 },
+  "heavy": { id: "heavy", name: "Heavy", baseHp: 120, damage: 30, fireRate: 700, attackRange: 5, sightRange: 7, speed: 1.5 }
+};
+
 // --- Protocol ---
 
+export type SquadConfig = { archetypeId: string, count: number }[]; // New type for Squad Config
+
 export type WorkerMessage = 
-  | { type: 'INIT'; payload: { seed: number; map: MapDefinition; fogOfWarEnabled: boolean; debugOverlayEnabled: boolean; agentControlEnabled: boolean; } }
+  | { type: 'INIT'; payload: { seed: number; map: MapDefinition; fogOfWarEnabled: boolean; debugOverlayEnabled: boolean; agentControlEnabled: boolean; squadConfig: SquadConfig; } } // Updated
   | { type: 'COMMAND'; payload: Command }
   | { type: 'QUERY_STATE' };
 

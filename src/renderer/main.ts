@@ -1,6 +1,6 @@
 import { GameClient } from '../engine/GameClient';
 import { Renderer } from './Renderer';
-import { GameState, UnitState, CommandType, Unit, MapDefinition, MapGeneratorType, Door, Vector2 } from '../shared/types';
+import { GameState, UnitState, CommandType, Unit, MapDefinition, MapGeneratorType, Door, Vector2, SquadConfig, Archetype, ArchetypeLibrary } from '../shared/types';
 import { MapGenerator } from '../engine/MapGenerator';
 import { SpaceshipGenerator } from '../engine/generators/SpaceshipGenerator';
 import { TreeShipGenerator } from '../engine/generators/TreeShipGenerator';
@@ -100,13 +100,29 @@ let currentSeed: number = Date.now();
 let currentMapGeneratorType: MapGeneratorType = MapGeneratorType.TreeShip; // Default to TreeShip
 let currentStaticMapData: MapDefinition | undefined = undefined;
 
-const initGame = (seed?: number, generatorType?: MapGeneratorType, staticMapData?: MapDefinition) => {
+let currentSquad: SquadConfig = [
+  { archetypeId: "assault", count: 1 },
+  { archetypeId: "medic", count: 1 }
+];
+
+const initGame = (
+  seed?: number, 
+  generatorType?: MapGeneratorType, 
+  staticMapData?: MapDefinition,
+  fogOfWar?: boolean,
+  debugOverlay?: boolean,
+  agentControl?: boolean,
+  squadConfig?: SquadConfig // New squadConfig parameter
+) => {
   currentSeed = seed ?? Date.now();
   currentMapGeneratorType = generatorType ?? MapGeneratorType.TreeShip;
   currentStaticMapData = staticMapData;
+  fogOfWarEnabled = fogOfWar ?? fogOfWarEnabled;
+  debugOverlayEnabled = debugOverlay ?? debugOverlayEnabled;
+  agentControlEnabled = agentControl ?? agentControlEnabled;
   
   // Initialize engine in worker
-  gameClient.init(currentSeed, currentMapGeneratorType, currentStaticMapData);
+  gameClient.init(currentSeed, currentMapGeneratorType, currentStaticMapData, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled, squadConfig ?? currentSquad);
   
   // Reset selection
   selectedUnitId = null;
@@ -412,7 +428,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Buttons
   document.getElementById('start-button')?.addEventListener('click', () => {
-    initGame(currentSeed, currentMapGeneratorType, currentStaticMapData, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled);
+    initGame(currentSeed, currentMapGeneratorType, currentStaticMapData, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled, currentSquad);
   });
   
   generateMapButton?.addEventListener('click', () => {
@@ -426,7 +442,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentMapHeight = parseInt(hInput.value) || 14;
     }
 
-    initGame(!isNaN(seedVal) ? seedVal : undefined, currentMapGeneratorType, undefined, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled);
+    initGame(!isNaN(seedVal) ? seedVal : undefined, currentMapGeneratorType, undefined, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled, currentSquad);
   });
 
   loadStaticMapButton?.addEventListener('click', () => {
