@@ -26,46 +26,173 @@ export class SpaceshipGenerator {
       walls: { n: true, e: true, s: true, w: true }
     }));
 
-    // 2. Main Corridor (Horizontal Spine)
-    const spineY = Math.floor(this.height / 2);
-    // Span most of the width, with some padding
-    const spineStart = 2;
-    const spineEnd = this.width - 3;
-    
-    for (let x = spineStart; x <= spineEnd; x++) {
-        this.setFloor(x, spineY);
-        // Connect cells
-        if (x > spineStart) this.openWall(x-1, spineY, 'e');
+    // 2. Place Dense Rooms (Max 2x2)
+    const targetRoomArea = (this.width * this.height) * 0.4; // 40% room coverage
+    let currentRoomArea = 0;
+    let attempts = 0;
+    const maxAttempts = 2000;
+
+    const rooms: {x: number, y: number, w: number, h: number}[] = [];
+
+    while (currentRoomArea < targetRoomArea && attempts < maxAttempts) {
+        attempts++;
+        const w = this.prng.nextInt(1, 2); // 1 or 2
+        const h = this.prng.nextInt(1, 2); // 1 or 2
+        
+        const x = this.prng.nextInt(1, this.width - w - 1);
+        const y = this.prng.nextInt(1, this.height - h - 1);
+
+        // Check collision (including 1 cell buffer)
+        let collision = false;
+        for (let dy = -1; dy <= h; dy++) {
+            for (let dx = -1; dx <= w; dx++) {
+                const cell = this.getCell(x + dx, y + dy);
+                if (cell && cell.type === CellType.Floor) {
+                    collision = true;
+                    break;
+                }
+            }
+            if (collision) break;
+        }
+
+        if (!collision) {
+            // Place Room
+            for (let dy = 0; dy < h; dy++) {
+                for (let dx = 0; dx < w; dx++) {
+                    this.setFloor(x + dx, y + dy);
+                    // Open internal walls
+                    if (dx < w - 1) this.openWall(x + dx, y + dy, 'e');
+                    if (dy < h - 1) this.openWall(x + dx, y + dy, 's');
+                }
+            }
+            rooms.push({x, y, w, h});
+            currentRoomArea += w * h;
+        }
     }
 
-    // 3. Branch Corridors (Vertical)
-    const numBranches = this.prng.nextInt(2, 4);
-    const branchXPositions: number[] = [];
-    const minBranchDist = 4;
+    // 3. Maze Generation (Corridors)
+    const stack: {x: number, y: number}[] = [];
     
-    for (let i = 0; i < numBranches; i++) {
-        // Try to find a valid X
-        for (let attempt = 0; attempt < 10; attempt++) {
-            const bx = this.prng.nextInt(spineStart + 2, spineEnd - 2);
-            if (!branchXPositions.some(x => Math.abs(x - bx) < minBranchDist)) {
-                branchXPositions.push(bx);
-                this.digBranch(bx, spineY);
-                break;
+    // Find a start point for maze
+    let startX = 1;
+    let startY = 1;
+    // Search for a valid start
+    for (let i=0; i<100; i++) {
+        const tx = this.prng.nextInt(1, this.width - 2);
+        const ty = this.prng.nextInt(1, this.height - 2);
+        if (this.getCell(tx, ty)?.type === CellType.Wall) {
+            startX = tx; startY = ty;
+            break;
+        }
+    }
+    
+    if (this.getCell(startX, startY)?.type === CellType.Wall) {
+        this.setFloor(startX, startY);
+        stack.push({x: startX, y: startY});
+    }
+
+    const dirs = [{dx:0, dy:-1, k:'n', op:'s'}, {dx:0, dy:1, k:'s', op:'n'}, {dx:1, dy:0, k:'e', op:'w'}, {dx:-1, dy:0, k:'w', op:'e'}];
+
+    while (stack.length > 0) {
+        const current = stack[stack.length - 1]; // Peak
+        // Find unvisited neighbors
+        const neighbors: any[] = [];
+        
+        // Shuffle neighbors
+        const shuffledDirs = [...dirs];
+        for (let i = shuffledDirs.length - 1; i > 0; i--) {
+            const j = this.prng.nextInt(0, i);
+            [shuffledDirs[i], shuffledDirs[j]] = [shuffledDirs[j], shuffledDirs[i]];
+        }
+
+        for (const dir of shuffledDirs) {
+            const nx = current.x + dir.dx;
+            const ny = current.y + dir.dy;
+            
+            const neighbor = this.getCell(nx, ny);
+            if (neighbor && neighbor.type === CellType.Wall) {
+                neighbors.push({ x: nx, y: ny, dir: dir.k, op: dir.op });
+            }
+        }
+
+        if (neighbors.length > 0) {
+            // Pick one
+            const next = neighbors[0]; 
+            this.setFloor(next.x, next.y);
+            this.openWall(current.x, current.y, next.dir as any);
+            stack.push({x: next.x, y: next.y});
+        } else {
+            stack.pop();
+        }
+    }
+
+    // 4. Connect Disconnected Regions
+    rooms.forEach(room => {
+        // Find all possible connections to the outside (Maze/Corridor)
+        const connections: {x: number, y: number, dir: string}[] = [];
+        
+        for (let dy = 0; dy < room.h; dy++) {
+            // Check West
+            const wx = room.x - 1;
+            const wy = room.y + dy;
+            if (this.getCell(wx, wy)?.type === CellType.Floor) connections.push({x: room.x, y: wy, dir: 'w'});
+            
+            // Check East
+            const ex = room.x + room.w;
+            const ey = room.y + dy;
+            if (this.getCell(ex, ey)?.type === CellType.Floor) connections.push({x: room.x + room.w - 1, y: ey, dir: 'e'});
+        }
+        for (let dx = 0; dx < room.w; dx++) {
+            // Check North
+            const nx = room.x + dx;
+            const ny = room.y - 1;
+            if (this.getCell(nx, ny)?.type === CellType.Floor) connections.push({x: nx, y: room.y, dir: 'n'});
+            
+            // Check South
+            const sx = room.x + dx;
+            const sy = room.y + room.h;
+            if (this.getCell(sx, sy)?.type === CellType.Floor) connections.push({x: sx, y: room.y + room.h - 1, dir: 's'});
+        }
+
+        // Pick 1 or 2 connections
+        if (connections.length > 0) {
+            // Always connect at least one
+            const conn = connections[this.prng.nextInt(0, connections.length - 1)];
+            this.placeDoor(conn.x, conn.y, conn.dir);
+            
+            // Chance for second door
+            if (connections.length > 1 && this.prng.next() < 0.4) {
+                let conn2 = connections[this.prng.nextInt(0, connections.length - 1)];
+                while (conn2 === conn) {
+                    conn2 = connections[this.prng.nextInt(0, connections.length - 1)];
+                }
+                this.placeDoor(conn2.x, conn2.y, conn2.dir);
+            }
+        }
+    });
+
+    // 5. Ensure Full Connectivity (Flood Fill check and patch)
+    for (let y = 1; y < this.height - 1; y++) {
+        for (let x = 1; x < this.width - 1; x++) {
+            if (this.getCell(x, y)?.type === CellType.Wall) {
+                // Found a void. Check neighbors.
+                const neighbors = [
+                    {x:x, y:y-1, d:'n'}, {x:x, y:y+1, d:'s'},
+                    {x:x+1, y:y, d:'e'}, {x:x-1, y:y, d:'w'}
+                ];
+                const floorNeighbors = neighbors.filter(n => this.getCell(n.x, n.y)?.type === CellType.Floor);
+                
+                if (floorNeighbors.length > 0) {
+                    // Connect to one random neighbor
+                    const n = floorNeighbors[this.prng.nextInt(0, floorNeighbors.length - 1)];
+                    this.setFloor(x, y);
+                    this.openWall(x, y, n.d as any);
+                }
             }
         }
     }
 
-    // 4. Place Rooms
-    // Try to place rooms along corridors
-    const corridorCells = this.cells.filter(c => c.type === CellType.Floor);
-    corridorCells.forEach(cell => {
-        // Chance to spawn room adjacent to corridor
-        if (this.prng.next() < 0.3) {
-            this.tryPlaceRoom(cell.x, cell.y);
-        }
-    });
-
-    // 5. Place Features
+    // 6. Place Features
     this.placeFeatures();
 
     return {
@@ -105,133 +232,23 @@ export class SpaceshipGenerator {
       if (c2) c2.walls[opp] = false;
   }
 
-  private digBranch(startX: number, startY: number) {
-      const lenNorth = this.prng.nextInt(3, Math.floor(this.height/2) - 2);
-      const lenSouth = this.prng.nextInt(3, Math.floor(this.height/2) - 2);
-
-      // Dig North
-      for (let y = startY - 1; y >= startY - lenNorth; y--) {
-          this.setFloor(startX, y);
-          this.openWall(startX, y + 1, 'n');
-      }
-      
-      // Dig South
-      for (let y = startY + 1; y <= startY + lenSouth; y++) {
-          this.setFloor(startX, y);
-          this.openWall(startX, y - 1, 's');
-      }
-  }
-
-  private tryPlaceRoom(cx: number, cy: number) {
-      const w = this.prng.nextInt(3, 5);
-      const h = this.prng.nextInt(3, 5);
-      
-      // Try directions
-      const dirs = [{dx:0, dy:-1}, {dx:0, dy:1}, {dx:1, dy:0}, {dx:-1, dy:0}];
-      const dir = dirs[this.prng.nextInt(0, 3)]; // Pick random direction from corridor
-
-      // Calculate potential room origin (top-left) based on direction from corridor cell
-      // Ideally room is centered on the connection point or flush
-      // Let's simple try to place it so one edge touches (cx, cy)
-      
-      let rx = cx + dir.dx;
-      let ry = cy + dir.dy;
-      
-      // Adjust to be top-left
-      if (dir.dx === 1) { // Room to East
-          // rx is left edge. Shift y to center room relative to corridor y if possible
-          ry -= Math.floor(h/2);
-      } else if (dir.dx === -1) { // Room to West
-          rx -= w; 
-          ry -= Math.floor(h/2);
-      } else if (dir.dy === 1) { // Room to South
-          rx -= Math.floor(w/2);
-          // ry is top edge
-      } else if (dir.dy === -1) { // Room to North
-          rx -= Math.floor(w/2);
-          ry -= h;
-      }
-
-      // Check bounds and collisions
-      if (rx < 1 || ry < 1 || rx + w >= this.width - 1 || ry + h >= this.height - 1) return;
-
-      // Check collision with existing floors
-      for(let y=ry; y<ry+h; y++) {
-          for(let x=rx; x<rx+w; x++) {
-              if (this.getCell(x, y)?.type === CellType.Floor) return; // Collision
-          }
-      }
-
-      // Dig Room
-      for(let y=ry; y<ry+h; y++) {
-          for(let x=rx; x<rx+w; x++) {
-              this.setFloor(x, y);
-              // Open internal walls
-              if (x < rx+w-1) this.openWall(x, y, 'e');
-              if (y < ry+h-1) this.openWall(x, y, 's');
-          }
-      }
-
-      // Create Door to Corridor
-      // The connection is between (cx, cy) and (cx+dir.dx, cy+dir.dy)
+  private placeDoor(x: number, y: number, dir: string) {
       const doorId = `door-${this.doors.length}`;
-      // Determine door segment
-      // CoreEngine assumes segments are Vector2[].
-      // MapGenerator/GameGrid assumes wall logic.
-      // We need to 'open' the wall logic BUT place a Door entity.
-      // GameGrid.canMove checks doors first. So we DON'T need to set walls to false?
-      // Actually, if we set walls to false, it's an open passage.
-      // If we keep walls true, units can't pass UNLESS there is a door.
-      // Correct: Keep walls CLOSED, place Door entity.
-      
-      // Wait, my `openWall` helper sets walls to false.
-      // I should verify GameGrid logic.
-      /*
-        const door = getDoorAtSegment(...);
-        if (door) return door.state === 'Open';
-        // If no door, check walls...
-      */
-      // So if I place a door, I must ensure walls are physically closed in data if I want the door to control access.
-      // But typically a door is placed IN an opening.
-      // If the wall data says "Solid Wall", does the door override it?
-      // `GameGrid.canMove`:
-      // `if (door) return door.state === 'Open' ...`
-      // `// If no door, check walls`
-      // So yes, Door overrides Wall.
-      // So I can leave the wall as `true` (solid) and place a Door.
-      
       let segment: Vector2[];
       let orientation: 'Horizontal' | 'Vertical';
-      
-      if (dir.dy === 0) { // Horizontal connection (East/West) -> Vertical Door
-          orientation = 'Vertical';
-          // Connection between (cx, cy) and (cx+dx, cy)
-          // If dx=1 (East), door is between x and x+1. Segment is vertical line at right of x.
-          // Segment logic in types: `segment: Vector2[]`. Usually pair of cells adjacent to barrier.
-          // In CoreEngine: `getAdjacentCellsToDoor` checks `segment` cells.
-          // In `GameGrid`: `getDoorAtSegment` checks if `door.segment` contains the cell we are moving from/to?
-          // Let's re-read `GameGrid.ts`.
-          /*
-            if (door.orientation === 'Vertical' && door.segment.some(sCell => sCell.x === cellInSegment.x && sCell.y === cellInSegment.y))
-            ...
-            if vertical: cellInSegment is `minX` (left cell).
-          */
-          // So for Vertical door between (x,y) and (x+1,y), the segment should contain (x,y).
-          // Let's verify `fromAscii` logic.
-          /*
-            segment: [{x: x-1, y}, {x, y}] // For vertical door at x.
-          */
-          // It seems it stores BOTH cells adjacent?
-          // GameGrid uses `some`. So if EITHER is in segment, it matches.
-          // Wait, `cellInSegment` is calculated as `minX`.
-          // So if moving (3,5)->(4,5), minX is 3. We check if door has (3,5).
-          
-          const cell1 = { x: Math.min(cx, cx+dir.dx), y: cy };
-          segment = [cell1]; // Just need the left/top cell
-      } else { // Vertical connection (North/South) -> Horizontal Door
+
+      if (dir === 'n') { // Door on North edge of (x,y). Between (x,y-1) and (x,y).
           orientation = 'Horizontal';
-          const cell1 = { x: cx, y: Math.min(cy, cy+dir.dy) };
-          segment = [cell1];
+          segment = [{x, y: y-1}, {x, y}];
+      } else if (dir === 's') { // Door on South edge of (x,y). Between (x,y) and (x,y+1).
+          orientation = 'Horizontal';
+          segment = [{x, y}, {x, y: y+1}];
+      } else if (dir === 'w') { // Door on West edge of (x,y). Between (x-1,y) and (x,y).
+          orientation = 'Vertical';
+          segment = [{x: x-1, y}, {x, y}];
+      } else { // 'e'
+          orientation = 'Vertical';
+          segment = [{x, y}, {x: x+1, y}];
       }
 
       this.doors.push({
