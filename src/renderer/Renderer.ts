@@ -38,9 +38,10 @@ export class Renderer {
         this.canvas.height = height;
     }
 
+    // Floor
     map.cells.forEach(cell => {
       if (cell.type === CellType.Floor) {
-        this.ctx.fillStyle = '#222'; 
+        this.ctx.fillStyle = '#0a0a0a'; // Very dark grey, almost black
         this.ctx.fillRect(
           cell.x * this.cellSize,
           cell.y * this.cellSize,
@@ -48,7 +49,8 @@ export class Renderer {
           this.cellSize
         );
         
-        this.ctx.strokeStyle = '#333';
+        // Grid lines (faint)
+        this.ctx.strokeStyle = '#111';
         this.ctx.lineWidth = 1;
         this.ctx.strokeRect(
           cell.x * this.cellSize,
@@ -60,9 +62,7 @@ export class Renderer {
     });
 
     // Draw Walls and Doors
-    this.ctx.strokeStyle = '#888'; 
-    this.ctx.lineWidth = 6; // Thicker walls
-    this.ctx.beginPath();
+    this.ctx.lineCap = 'round';
 
     // Helper to check if a door exists on a specific wall segment
     const isDoor = (cellX: number, cellY: number, wallDirection: 'n'|'e'|'s'|'w'): boolean => {
@@ -86,6 +86,11 @@ export class Renderer {
       }) || false;
     };
 
+    // Render Walls (Neon Cyan)
+    this.ctx.strokeStyle = '#00FFFF'; 
+    this.ctx.lineWidth = 2; 
+    this.ctx.beginPath();
+
     map.cells.forEach(cell => {
       if (cell.type !== CellType.Floor) return;
 
@@ -94,6 +99,7 @@ export class Renderer {
       const s = this.cellSize;
 
       // Draw walls only if no door is present
+      // We draw wall segments slightly offset to avoid overlap issues if needed, but simple lines are fine for now.
       if (cell.walls.n && !isDoor(cell.x, cell.y, 'n')) { 
         this.ctx.moveTo(x, y);
         this.ctx.lineTo(x + s, y);
@@ -115,46 +121,64 @@ export class Renderer {
 
     // Render Doors
     map.doors?.forEach(door => {
-      let doorColor: string | null = null;
-      if (door.state === 'Closed') doorColor = 'yellow';
-      else if (door.state === 'Locked') doorColor = 'red';
-      else if (door.state === 'Destroyed') doorColor = '#F00'; // Keep red for destroyed
+      let doorColor: string = '#888';
+      let doorStroke: string = '#AAA';
+      
+      if (door.state === 'Closed') { doorColor = '#FFD700'; doorStroke = '#FFAA00'; } // Gold/Yellow
+      else if (door.state === 'Locked') { doorColor = '#FF0000'; doorStroke = '#880000'; } // Red
+      else if (door.state === 'Destroyed') { doorColor = '#330000'; doorStroke = '#550000'; } // Dark Red rubble
 
-      const doorThickness = this.cellSize / 10; // Make doors 1/10th of cell size
+      const doorThickness = this.cellSize / 8; 
+      const doorInset = this.cellSize / 8; // Inset from corners to look like a mechanical door
 
       door.segment.forEach(segCell => {
         const x = segCell.x * this.cellSize;
         const y = segCell.y * this.cellSize;
         const s = this.cellSize;
+        
         let drawX = x, drawY = y, drawWidth = s, drawHeight = s;
 
         if (door.state === 'Open') {
-          // Draw an outline/frame for open doors
-          this.ctx.strokeStyle = 'lightgrey'; // Color for open door frame
-          this.ctx.lineWidth = 2; // Thin frame
+          // Open door: Draw "pockets" in the wall
+          this.ctx.fillStyle = '#444';
           if (door.orientation === 'Vertical') {
-            drawX = x + s - this.ctx.lineWidth / 2;
-            drawWidth = this.ctx.lineWidth;
+             // Small boxes at top and bottom of the wall segment
+             this.ctx.fillRect(x + s - 4, y, 4, doorInset); // Top pocket
+             this.ctx.fillRect(x + s - 4, y + s - doorInset, 4, doorInset); // Bottom pocket
           } else {
-            drawY = y + s - this.ctx.lineWidth / 2;
-            drawHeight = this.ctx.lineWidth;
+             this.ctx.fillRect(x, y + s - 4, doorInset, 4); // Left pocket
+             this.ctx.fillRect(x + s - doorInset, y + s - 4, doorInset, 4); // Right pocket
           }
-          this.ctx.strokeRect(drawX, drawY, drawWidth, drawHeight);
         } else {
-          // Draw filled rectangle for Closed, Locked, Destroyed doors
-          this.ctx.fillStyle = doorColor!;
-          this.ctx.strokeStyle = '#CCC'; // Lighter border for doors
-          this.ctx.lineWidth = doorThickness; // Fill thickness
+          // Closed/Locked
+          this.ctx.fillStyle = doorColor;
+          this.ctx.strokeStyle = doorStroke;
+          this.ctx.lineWidth = 2;
 
           if (door.orientation === 'Vertical') { // Door is vertical (between x and x+1)
             drawX = x + s - doorThickness / 2;
+            drawY = y + doorInset;
             drawWidth = doorThickness;
+            drawHeight = s - (doorInset * 2);
           } else { // Horizontal (between y and y+1)
+            drawX = x + doorInset;
             drawY = y + s - doorThickness / 2;
+            drawWidth = s - (doorInset * 2);
             drawHeight = doorThickness;
           }
+          
           this.ctx.fillRect(drawX, drawY, drawWidth, drawHeight);
           this.ctx.strokeRect(drawX, drawY, drawWidth, drawHeight);
+          
+          // Tactical symbol (X for locked, line for closed)
+          if (door.state === 'Locked') {
+              this.ctx.beginPath();
+              this.ctx.moveTo(drawX, drawY);
+              this.ctx.lineTo(drawX + drawWidth, drawY + drawHeight);
+              this.ctx.moveTo(drawX + drawWidth, drawY);
+              this.ctx.lineTo(drawX, drawY + drawHeight);
+              this.ctx.stroke();
+          }
         }
       });
     });
