@@ -76,7 +76,7 @@ export class TreeShipGenerator {
         const h = this.prng.nextInt(1, 2);
 
         // Determine origin relative to parent/dir
-        let rx = 0, ry = 0;
+        let rx = 0, ry = 0; // rx and ry are initialized here and used throughout this loop iteration.
         
         // We want the room to be adjacent to parent in direction `dir`.
         // Parent is at (parentX, parentY).
@@ -110,84 +110,104 @@ export class TreeShipGenerator {
             ry = this.prng.nextInt(minRy, maxRy);
         }
 
-        // Check bounds and collision
-        // Constraint: Must be fully void.
-        // Constraint: "Use all available squares" -> Try to pack tight.
-        // But we must maintain 1 cell buffer? 
-        // No, if we want "Tree", adjacent rooms that share a wall BUT have no door are fine.
-        // Walls block movement.
-        // So we can pack tightly.
-        // Check if any cell in prospective room is already Floor.
-        
-        let collision = false;
-        if (rx < 0 || ry < 0 || rx + w > this.width || ry + h > this.height) {
-            collision = true;
-        } else {
-            for(let y=ry; y<ry+h; y++) {
-                for(let x=rx; x<rx+w; x++) {
-                    if (this.getCell(x, y)?.type === CellType.Floor) {
-                        collision = true;
-                        break;
-                    }
-                }
-                if (collision) break;
+        // --- NEW COLLISION AND CYCLE CHECK ---
+        if (this.checkProposedRoomForCollisionsAndCycles(rx, ry, w, h, parentX, parentY, dir)) {
+            continue; // Skip this frontier point if it would cause collision or cycle
+        }
+
+        // Place Room
+        for(let y=ry; y<ry+h; y++) {
+            for(let x=rx; x<rx+w; x++) {
+                this.setFloor(x, y);
+                // Internal walls - ensure internal walls are only opened if both sides are within the new room
+                if (x < rx+w-1) this.openWall(x, y, 'e');
+                if (y < ry+h-1) this.openWall(x, y, 's');
             }
         }
 
-        if (!collision) {
-            // Place Room
-            for(let y=ry; y<ry+h; y++) {
-                for(let x=rx; x<rx+w; x++) {
-                    this.setFloor(x, y);
-                    // Internal walls
-                    if (x < rx+w-1) this.openWall(x, y, 'e');
-                    if (y < ry+h-1) this.openWall(x, y, 's');
-                }
+        // Connect to Parent (Door)
+        this.placeDoor(parentX, parentY, dir);
+
+        // --- REVISED FRONTIER EXPANSION (Stricter) ---
+        // New room is placed at (rx, ry) with size (w, h).
+        // It's connected to (parentX, parentY) in 'dir'.
+
+        const newRoomCells: {dx: number, dy: number, k: 'n'|'e'|'s'|'w'}[] = [];
+        for(let y = ry; y < ry + h; y++) {
+            for(let x = rx; x < rx + w; x++) {
+                newRoomCells.push({x, y});
             }
+        }
 
-            // Connect to Parent (Door)
-            // Connection is at (parentX, parentY) -> dir
-            // If dir='n', connection is between (parentX, parentY) and (parentX, parentY-1).
-            // (parentX, parentY-1) is inside the new room (guaranteed by alignment logic).
-            this.placeDoor(parentX, parentY, dir);
+        // Potential directions for new branches, excluding the direction back to the parent
+        const possibleOutwardDirs: {dx: number, dy: number, k: 'n'|'e'|'s'|'w'}[] = [
+            {dx:0, dy:-1, k:'n'}, {dx:0, dy:1, k:'s'}, 
+            {dx:1, dy:0, k:'e'}, {dx:-1, dy:0, k:'w'}
+        ].filter(d => {
+            // Convert 'dir' to its opposite to identify the direction back to parent
+            const oppositeDir = (d.k === 'n' && dir === 's') || (d.k === 's' && dir === 'n') ||
+                              (d.k === 'w' && dir === 'e') || (d.k === 'e' && dir === 'w');
+            return !oppositeDir;
+        });
 
-            // Add new expansion points to frontier
-            // For each cell in the new room, check adjacent directions.
-            // Don't go back to parent (or any existing floor).
-            // Actually, we just add ALL walls of the new room to frontier.
-            // When we pop them, the collision check handles "already floor".
-            
-            for(let y=ry; y<ry+h; y++) {
-                for(let x=rx; x<rx+w; x++) {
-                    // Try all 4 dirs?
-                    // Optimization: Only add dirs that point to Void?
-                    // Yes.
-                    const dirs: {dx: number, dy: number, k: 'n'|'e'|'s'|'w'}[] = [
-                        {dx:0, dy:-1, k:'n'}, {dx:0, dy:1, k:'s'}, 
-                        {dx:1, dy:0, k:'e'}, {dx:-1, dy:0, k:'w'}
-                    ];
-                    
-                    dirs.forEach(d => {
-                        const nx = x + d.dx;
-                        const ny = y + d.dy;
-                        if (nx >= 0 && nx < this.width && ny >= 0 && ny < this.height) {
-                            if (this.getCell(nx, ny)?.type === CellType.Wall) {
-                                // Add to frontier with probability to control density?
-                                // "Use all squares" -> High probability.
-                                if (this.prng.next() < 0.7) {
-                                    frontier.push({parentX: x, parentY: y, dir: d.k});
+        // Try to add up to 1 new branch from the new room, further extending the tree.
+        // This ensures maximum 2 doors per room (1 to parent, 1 to child).
+        if (this.prng.next() < 0.7) { // Probability to create a new branch
+            this.prng.shuffle(newRoomCells); // Pick a random cell from the new room
+            this.prng.shuffle(possibleOutwardDirs); // Pick a random outward direction
+
+            let branchesAdded = 0; // Initialize branchesAdded
+            for (const cell of newRoomCells) {
+                if (branchesAdded > 0) break; // If a branch was added, stop looking for more from other cells
+                for (const d of possibleOutwardDirs) {
+                    const nx = cell.x + d.dx;
+                    const ny = cell.y + d.dy;
+
+                    // Check if the target cell (nx, ny) is within bounds and is currently a Wall
+                    if (nx >= 0 && nx < this.width && ny >= 0 && ny < this.height && this.getCell(nx, ny)?.type === CellType.Wall) {
+                        // Critical check: Ensure this potential branch point (nx,ny) does not immediately
+                        // connect to another existing Floor cell (other than the current new room itself).
+                        let isAdjacentToExistingFloor = false;
+                        const neighborsOfProspectiveFrontier = [
+                            { cx: nx, cy: ny - 1 }, { cx: nx, cy: ny + 1 },
+                            { cx: nx - 1, cy: ny }, { cx: nx + 1, cy: ny }
+                        ];
+
+                        for (const nfp of neighborsOfProspectiveFrontier) {
+                            const adjacentCell = this.getCell(nfp.cx, nfp.cy);
+                            // If neighbor is a Floor cell, and it's not one of the cells from the *newly placed room*,
+                            // then adding this frontier point would form an immediate cycle.
+                            let isPartOfNewRoom = false;
+                            for(let y_r = ry; y_r < ry + h; y_r++) {
+                                for(let x_r = rx; x_r < rx + w; x_r++) {
+                                    if (nfp.cx === x_r && nfp.cy === y_r) {
+                                        isPartOfNewRoom = true;
+                                        break;
+                                    }
                                 }
+                                if (isPartOfNewRoom) break;
+                            }
+
+                            if (adjacentCell?.type === CellType.Floor && !isPartOfNewRoom) {
+                                isAdjacentToExistingFloor = true;
+                                break;
                             }
                         }
-                    });
+
+                        if (!isAdjacentToExistingFloor) {
+                            frontier.push({parentX: cell.x, parentY: cell.y, dir: d.k});
+                            branchesAdded++; // Increment when a branch is added
+                            break; // Break from the 'd' (possibleOutwardDirs) loop
+                        }
+                    }
                 }
+                if (branchesAdded > 0) break; // If a branch was added from this cell, stop looking for more from other cells
             }
         }
-    }
-
+    } // CLOSING BRACE FOR THE WHILE LOOP
+    
     // 4. Features
     this.placeFeatures();
-
     return {
         width: this.width,
         height: this.height,
@@ -273,5 +293,71 @@ export class TreeShipGenerator {
               state: 'Pending'
           });
       }
+  }
+
+  /**
+   * Checks if a proposed room placement would cause collisions (overlap existing floor) or cycles.
+   * @param rx Proposed room's top-left x
+   * @param ry Proposed room's top-left y
+   * @param w Proposed room's width
+   * @param h Proposed room's height
+   * @param parentX X-coordinate of the parent cell
+   * @param parentY Y-coordinate of the parent cell
+   * @param dir Direction from parent to the new room ('n'|'e'|'s'|'w')
+   * @returns true if collision or cycle, false otherwise
+   */
+  private checkProposedRoomForCollisionsAndCycles(
+    rx: number, ry: number, w: number, h: number,
+    parentX: number, parentY: number, dir: 'n'|'e'|'s'|'w'
+  ): boolean {
+    // 1. Check bounds
+    if (rx < 0 || ry < 0 || rx + w > this.width || ry + h > this.height) {
+      return true;
+    }
+
+    // Define the cell that will connect to the parent (the door cell within the new room)
+    let connectionRoomCellX = -1, connectionRoomCellY = -1;
+    if (dir === 'n') { connectionRoomCellX = parentX; connectionRoomCellY = parentY - 1; }
+    else if (dir === 's') { connectionRoomCellX = parentX; connectionRoomCellY = parentY + 1; }
+    else if (dir === 'e') { connectionRoomCellX = parentX + 1; connectionRoomCellY = parentY; }
+    else if (dir === 'w') { connectionRoomCellX = parentX - 1; connectionRoomCellY = parentY; }
+
+    // Helper to identify if a wall segment is the one connecting to the parent
+    const isParentConnection = (
+      currX: number, currY: number, neighborX: number, neighborY: number
+    ): boolean => {
+      // Check if (currX, currY) is the designated connectionRoomCell AND (neighborX, neighborY) is the parent
+      return (currX === connectionRoomCellX && currY === connectionRoomCellY &&
+              neighborX === parentX && neighborY === parentY);
+    };
+
+    // 2. Check for overlap with existing Floor cells and accidental cycle creation
+    for (let y = ry; y < ry + h; y++) {
+      for (let x = rx; x < rx + w; x++) {
+        // Check if any cell in the proposed room is ALREADY a Floor cell (overlap)
+        if (this.getCell(x, y)?.type === CellType.Floor) {
+          return true; // Overlap collision
+        }
+
+        // Check neighbors of the proposed room cells for existing Floor cells
+        // (to prevent forming cycles through unintended connections)
+        const neighbors = [
+          { nx: x, ny: y - 1 }, { nx: x, ny: y + 1 },
+          { nx: x - 1, ny: y }, { nx: x + 1, ny: y }
+        ];
+
+        for (const neighbor of neighbors) {
+          const neighborCell = this.getCell(neighbor.nx, neighbor.ny);
+          if (neighborCell?.type === CellType.Floor) {
+            // Found an existing Floor cell adjacent to a proposed room cell.
+            // This is ONLY allowed if it's the designated parent connection point.
+            if (!isParentConnection(x, y, neighbor.nx, neighbor.ny)) {
+              return true; // Cycle would form
+            }
+          }
+        }
+      }
+    }
+    return false; // No collision or cycle detected
   }
 }

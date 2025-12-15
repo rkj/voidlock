@@ -453,10 +453,10 @@ export class MapGenerator {
         const cell = cellLookup.get(`${x},${y}`);
         const { ex, ey } = getExEy(x, y);
 
-        // --- Cell Content (Floor or Void) ---
-        if (!cell || cell.type === CellType.Wall) {
-          asciiGrid[ey][ex] = '#'; // Mark void cell content
-        } else {
+        // --- Cell Content ---
+        if (cell?.type === CellType.Wall) {
+          asciiGrid[ey][ex] = '#'; // Wall cell (impassable, "void" or "outside" the ship)
+        } else if (cell?.type === CellType.Floor) {
           // Floor Cell Content - prioritize S > E > O
           let cellChar = ' ';
           const isSpawnPoint = spawnPoints?.some(sp => sp.pos.x === x && sp.pos.y === y);
