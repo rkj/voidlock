@@ -127,5 +127,49 @@ describe('Pathfinder', () => {
       const path = doorPathfinder.findPath({ x: 0, y: 0 }, { x: 2, y: 0 });
       expect(path).toEqual([{ x: 1, y: 0 }, { x: 2, y: 0 }]);
     });
+
+    const createCorridorMapWithDoor = (doorState: 'Open' | 'Closed' | 'Locked' | 'Destroyed'): { map: MapDefinition, doors: Map<string, Door> } => {
+      const doorId = 'corridorDoor';
+      const mapCells: Cell[] = [
+        { x: 0, y: 0, type: CellType.Floor, walls: { n: true, e: false, s: true, w: true } }, // Start
+        { x: 1, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: true, w: false } },  // Before door
+        { x: 2, y: 0, type: CellType.Floor, walls: { n: true, e: false, s: true, w: true } }, // After door
+        { x: 3, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: true, w: false } }, // End
+      ];
+
+      const door: Door = {
+        id: doorId,
+        segment: [{ x: 1, y: 0 }, { x: 2, y: 0 }], // Door between (1,0) and (2,0)
+        orientation: 'Horizontal', // Horizontal means it blocks movement between cells in X direction
+        state: doorState,
+        hp: 100,
+        maxHp: 100,
+        openDuration: 1
+      };
+      
+      const doorsMap = new Map<string, Door>();
+      doorsMap.set(doorId, door);
+
+      return {
+        map: { width: 4, height: 1, cells: mapCells, doors: [door] },
+        doors: doorsMap
+      };
+    };
+
+    it('should find path to the empty square before an open door in a corridor', () => {
+      const { map, doors } = createCorridorMapWithDoor('Open');
+      const doorGrid = new GameGrid(map);
+      const doorPathfinder = new Pathfinder(doorGrid, doors);
+      const path = doorPathfinder.findPath({ x: 0, y: 0 }, { x: 1, y: 0 });
+      expect(path).toEqual([{ x: 1, y: 0 }]);
+    });
+
+    it('should find path to the empty square after an open door in a corridor', () => {
+      const { map, doors } = createCorridorMapWithDoor('Open');
+      const doorGrid = new GameGrid(map);
+      const doorPathfinder = new Pathfinder(doorGrid, doors);
+      const path = doorPathfinder.findPath({ x: 0, y: 0 }, { x: 3, y: 0 });
+      expect(path).toEqual([{ x: 1, y: 0 }, { x: 2, y: 0 }, { x: 3, y: 0 }]);
+    });
   });
 });
