@@ -30,7 +30,8 @@ let selectedUnitId: string | null = null;
 let pendingCommandUnitId: string | null = null;
 
 // --- Map Data Transformation ---
-// ... (transformMapData function remains same) ...
+// This utility function takes the old map format (with doorId in cells)
+// and converts it to the new MapDefinition format (with a top-level doors array).
 const transformMapData = (oldMapData: any): MapDefinition => {
   const newCells = oldMapData.cells.map((cell: any) => {
     // Remove doorId from cells as doors are now top-level entities
@@ -84,31 +85,8 @@ const transformMapData = (oldMapData: any): MapDefinition => {
 };
 
 // --- Game Setup ---
-// Hack to pass dimensions to factory: GameClient init probably needs update or we pass it via config
-// Actually GameClient.init signature is: init(seed: number, mapType: MapGeneratorType, mapData?: MapDefinition)
-// We need to pass dimensions.
-// Since GameClient is in engine, we should probably update it.
-// BUT, for now, let's just make the factory closure-dependent or update GameClient.
-// Better: Update GameClient to accept config object?
-// Or just hack it by passing dimensions in the factory call?
-// GameClient calls `this.mapGeneratorFactory(seed, mapType, mapData)`.
-// We can't change the arguments passed by GameClient without changing GameClient.
-// Let's modify GameClient to accept `MapConfig`.
-
-// Wait, I can't modify GameClient right now easily without checking file.
-// Let's assume I can update `mapGeneratorFactory` here but `GameClient` needs to pass it.
-// Actually, `GameClient.init` just calls the factory.
-// If I use a closure for `initGame`, I can pass the width/height to the factory.
-
-// ...
-
-// Re-implementing parts for clarity
-// We need to change how `gameClient` is initialized or used.
-// The `gameClient` is created with `mapGeneratorFactory`.
-// We can make `mapGeneratorFactory` depend on a module-level variable `currentMapWidth`, `currentMapHeight`.
-
-let currentMapWidth = 32;
-let currentMapHeight = 32;
+let currentMapWidth = 14;
+let currentMapHeight = 14;
 
 // Updated factory that uses global config
 const statefulMapGeneratorFactory = (seed: number, type: MapGeneratorType, mapData?: MapDefinition): MapGenerator | SpaceshipGenerator | TreeShipGenerator => {
@@ -119,12 +97,12 @@ const gameClient = new GameClient(statefulMapGeneratorFactory);
 let renderer: Renderer;
 let currentGameState: GameState | null = null;
 let currentSeed: number = Date.now();
-let currentMapGeneratorType: MapGeneratorType = MapGeneratorType.Procedural;
+let currentMapGeneratorType: MapGeneratorType = MapGeneratorType.TreeShip; // Default to TreeShip
 let currentStaticMapData: MapDefinition | undefined = undefined;
 
 const initGame = (seed?: number, generatorType?: MapGeneratorType, staticMapData?: MapDefinition) => {
   currentSeed = seed ?? Date.now();
-  currentMapGeneratorType = generatorType ?? MapGeneratorType.Procedural;
+  currentMapGeneratorType = generatorType ?? MapGeneratorType.TreeShip;
   currentStaticMapData = staticMapData;
   
   // Initialize engine in worker
@@ -285,18 +263,15 @@ document.addEventListener('DOMContentLoaded', () => {
       dimDiv.innerHTML = `
         <label>Map Size:</label>
         <div style="display:flex; gap:5px;">
-            <input type="number" id="map-width" value="32" style="width:50px;">
+            <input type="number" id="map-width" value="14" style="width:50px;">
             <span>x</span>
-            <input type="number" id="map-height" value="32" style="width:50px;">
+            <input type="number" id="map-height" value="14" style="width:50px;">
         </div>
       `;
       presetControls.parentNode?.insertBefore(dimDiv, presetControls.nextSibling);
   }
   
-  // Add TreeShip option if not exists (it's hardcoded in HTML usually, but we can add dynamically if needed, or user updates HTML)
-  // Let's add it dynamically to be safe or assuming HTML update.
-  // Actually, I should update the HTML file too.
-  // But I can inject the option here.
+  // Add TreeShip option
   const treeOption = document.createElement('option');
   treeOption.value = 'TreeShip';
   treeOption.textContent = 'Tree Ship (No Loops)';
@@ -330,8 +305,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const wInput = document.getElementById('map-width') as HTMLInputElement;
     const hInput = document.getElementById('map-height') as HTMLInputElement;
     if (wInput && hInput) {
-        currentMapWidth = parseInt(wInput.value) || 32;
-        currentMapHeight = parseInt(hInput.value) || 32;
+        currentMapWidth = parseInt(wInput.value) || 14;
+        currentMapHeight = parseInt(hInput.value) || 14;
     }
 
     initGame(!isNaN(seedVal) ? seedVal : undefined, currentMapGeneratorType);

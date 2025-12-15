@@ -35,7 +35,7 @@ export class GameGrid implements Grid {
     );
   }
 
-  canMove(fromX: number, fromY: number, toX: number, toY: number, doors?: Map<string, Door>): boolean {
+  canMove(fromX: number, fromY: number, toX: number, toY: number, doors?: Map<string, Door>, allowClosedDoors: boolean = false): boolean {
     if (!this.isWalkable(fromX, fromY) || !this.isWalkable(toX, toY)) {
       return false;
     }
@@ -81,6 +81,7 @@ export class GameGrid implements Grid {
     // Check for doors first
     const door = getDoorAtSegment(fromX, fromY, toX, toY);
     if (door) {
+      if (allowClosedDoors) return true; // Pathfinding treats all doors as passable
       // Allow movement if door is Open or Destroyed
       return door.state === 'Open' || door.state === 'Destroyed';
     }

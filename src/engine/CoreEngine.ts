@@ -365,7 +365,20 @@ export class CoreEngine {
         
         const moveDist = (SPEED * dt) / 1000;
 
-        if (dist <= moveDist + EPSILON) { 
+        // Check if path is blocked physically (e.g. Closed Door)
+        // If next step crosses cell boundary, check canMove WITHOUT allowClosedDoors.
+        const currentCell = { x: Math.floor(unit.pos.x), y: Math.floor(unit.pos.y) };
+        const nextCell = { x: Math.floor(unit.targetPos.x), y: Math.floor(unit.targetPos.y) };
+        
+        // If we are moving to a different cell, check if edge is passable
+        if ((currentCell.x !== nextCell.x || currentCell.y !== nextCell.y) && 
+            !this.gameGrid.canMove(currentCell.x, currentCell.y, nextCell.x, nextCell.y, this.doors, false)) {
+            // Blocked! Wait.
+            // Do not update unit.pos.
+            // Door opening logic (earlier in update loop) should handle opening if we are adjacent.
+            // We are likely adjacent if we are trying to move there.
+            // console.log(`Unit ${unit.id} waiting for door at ${nextCell.x},${nextCell.y}`);
+        } else if (dist <= moveDist + EPSILON) { 
           unit.pos = { ...unit.targetPos };
           unit.path.shift();
 
