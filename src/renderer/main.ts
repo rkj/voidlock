@@ -272,8 +272,10 @@ document.addEventListener('DOMContentLoaded', () => {
   // Inject Dimensions UI
   // Find where to inject
   const presetControls = document.getElementById('preset-map-controls');
+  let dimDiv: HTMLDivElement | null = null; // Declare dimDiv here
+
   if (presetControls) {
-      const dimDiv = document.createElement('div');
+      dimDiv = document.createElement('div');
       dimDiv.style.marginTop = '10px';
       dimDiv.innerHTML = `
         <label>Map Size:</label>
@@ -284,6 +286,39 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
       `;
       presetControls.parentNode?.insertBefore(dimDiv, presetControls.nextSibling);
+  }
+
+  // Inject Toggles UI
+  if (dimDiv) { // Inject after dimDiv
+      const togglesDiv = document.createElement('div');
+      togglesDiv.style.marginTop = '10px';
+      togglesDiv.innerHTML = `
+        <label>Game Options:</label>
+        <div>
+            <input type="checkbox" id="toggle-fog-of-war" checked>
+            <label for="toggle-fog-of-war">Fog of War</label>
+        </div>
+        <div>
+            <input type="checkbox" id="toggle-debug-overlay">
+            <label for="toggle-debug-overlay">Debug Overlay</label>
+        </div>
+        <div>
+            <input type="checkbox" id="toggle-agent-control" checked>
+            <label for="toggle-agent-control">Agent Control</label>
+        </div>
+      `;
+      dimDiv.parentNode?.insertBefore(togglesDiv, dimDiv.nextSibling);
+
+      // Add event listeners to toggles
+      document.getElementById('toggle-fog-of-war')?.addEventListener('change', (e) => {
+          fogOfWarEnabled = (e.target as HTMLInputElement).checked;
+      });
+      document.getElementById('toggle-debug-overlay')?.addEventListener('change', (e) => {
+          debugOverlayEnabled = (e.target as HTMLInputElement).checked;
+      });
+      document.getElementById('toggle-agent-control')?.addEventListener('change', (e) => {
+          agentControlEnabled = (e.target as HTMLInputElement).checked;
+      });
   }
   
   // Add TreeShip option
@@ -310,7 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Buttons
   document.getElementById('start-button')?.addEventListener('click', () => {
-    initGame(currentSeed, currentMapGeneratorType, currentStaticMapData);
+    initGame(currentSeed, currentMapGeneratorType, currentStaticMapData, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled);
   });
   
   generateMapButton?.addEventListener('click', () => {
@@ -324,7 +359,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentMapHeight = parseInt(hInput.value) || 14;
     }
 
-    initGame(!isNaN(seedVal) ? seedVal : undefined, currentMapGeneratorType);
+    initGame(!isNaN(seedVal) ? seedVal : undefined, currentMapGeneratorType, undefined, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled);
   });
 
   loadStaticMapButton?.addEventListener('click', () => {
@@ -337,12 +372,13 @@ document.addEventListener('DOMContentLoaded', () => {
         throw new Error("Invalid MapDefinition JSON: Missing width, height, or cells.");
       }
       currentStaticMapData = mapData;
-      initGame(currentSeed, MapGeneratorType.Static, currentStaticMapData);
+      initGame(currentSeed, MapGeneratorType.Static, currentStaticMapData, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled);
     } catch (err) {
       console.error("Error loading static map:", err);
       alert("Invalid static map JSON provided. Please check the format.");
     }
   });
+
 
   uploadStaticMapInput?.addEventListener('change', (e) => {
     const file = (e.target as HTMLInputElement).files?.[0];
