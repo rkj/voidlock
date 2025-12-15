@@ -191,6 +191,12 @@ Example:
 
 *   **Map Generation Strategy Selection**: The `MapGenerator` (or its client) must support selecting different generation strategies (e.g., `procedural-maze`, `static-predefined`, `custom-scripted`).
 
+**TreeShipGenerator Specifics:**
+The `TreeShipGenerator` produces maps with a unique branching structure, akin to a tree, with the following characteristics:
+*   **Room Connectivity:** Rooms should be isolated, connecting only to main corridors or other rooms via a maximum of two doors. Direct connections between rooms, other than a pass-through from one room to another, are forbidden.
+*   **No Loops:** The generated map layout must be acyclic, ensuring no circular paths or loops exist within the main corridors or between rooms.
+*   **Corridor-to-Room Transitions:** Main corridors can lead into rooms, but it should not be possible to traverse through a room and emerge into another part of the same main corridor or a different main corridor. Rooms act as terminals or controlled junctions, not open thoroughfares.
+
 
 
 **Director**
@@ -260,9 +266,9 @@ To facilitate easy creation and debugging of maps, especially for hardcoded or t
     *   Toggles: fog-of-war, debug overlay, agent control on/off
 *   **Mission screen**
     *   Main map (Canvas/WebGL) - Must accurately render the `MapDefinition`, including all Floor/Wall cells and correctly representing thin walls between cells. Doors must be clearly visible and distinguishable by their state, with sufficient visual contrast against walls and floors, and a noticeable thickness (e.g., 1/10th of `cellSize`).
-        *   **Closed Doors**: Yellow
-        *   **Locked Doors**: Red
-        *   **Open Doors**: Represented by a small frame along the top/bottom (for horizontal) or left/right (for vertical) edges of their segment, indicating passage.
+        *   **Closed Doors**: Yellow. Should be thicker, similar to the visual representation in `map_bad.jpg`, with a thinner line visually connecting them to the adjacent walls.
+        *   **Locked Doors**: Red. Should be thicker, similar to the visual representation in `map_bad.jpg`, with a thinner line visually connecting them to the adjacent walls.
+        *   **Open Doors**: Represented by a small frame along the top/bottom (for horizontal) or left/right (for vertical) edges of their segment, indicating passage. The frame should visually connect to the adjacent walls, and the overall thickness should be consistent with closed/locked doors.
         *   **Destroyed Doors**: (Retain red color)
     *   Left panel: squad list + status + quick commands
     *   Bottom: timeline/events log (important for debugging director)
