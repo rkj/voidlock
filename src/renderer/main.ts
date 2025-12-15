@@ -254,6 +254,21 @@ document.addEventListener('DOMContentLoaded', () => {
   const convertAsciiToMapButton = document.getElementById('convert-ascii-to-map') as HTMLButtonElement; // New
   const convertMapToAsciiButton = document.getElementById('convert-map-to-ascii') as HTMLButtonElement; // New
 
+  // Inject Generate Random Seed Button
+  const mapSeedInputParent = mapSeedInput?.parentNode;
+  if (mapSeedInputParent) {
+      const randomSeedButton = document.createElement('button');
+      randomSeedButton.id = 'generate-random-seed';
+      randomSeedButton.textContent = '🎲'; // Dice emoji for random
+      randomSeedButton.type = 'button'; // Prevent form submission
+      randomSeedButton.title = 'Generate Random Seed';
+      mapSeedInputParent.insertBefore(randomSeedButton, mapSeedInput.nextSibling);
+
+      randomSeedButton.addEventListener('click', () => {
+          mapSeedInput.value = Date.now().toString();
+      });
+  }
+
   // Inject Dimensions UI
   // Find where to inject
   const presetControls = document.getElementById('preset-map-controls');
