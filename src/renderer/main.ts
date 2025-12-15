@@ -87,6 +87,9 @@ const transformMapData = (oldMapData: any): MapDefinition => {
 // --- Game Setup ---
 let currentMapWidth = 14;
 let currentMapHeight = 14;
+let fogOfWarEnabled = true;
+let debugOverlayEnabled = false;
+let agentControlEnabled = true;
 
 // Updated factory that uses global config
 const statefulMapGeneratorFactory = (seed: number, type: MapGeneratorType, mapData?: MapDefinition): MapGenerator | SpaceshipGenerator | TreeShipGenerator => {
@@ -642,5 +645,5 @@ document.addEventListener('DOMContentLoaded', () => {
     mapSeedInput.disabled = false;
   }
   
-  initGame(currentSeed, currentMapGeneratorType, currentStaticMapData);
+  initGame(currentSeed, currentMapGeneratorType, currentStaticMapData, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled, currentSquad);
 });
