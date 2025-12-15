@@ -823,6 +823,7 @@ npm run dev
     * **`jj commit` Behavior Clarification:** The `jj commit` command intentionally places the working copy in a new, empty commit on top of the changes. This is the correct and desired behavior, and agents must not attempt to `abandon`, create new branches, or otherwise interfere with this workflow. Simply continue working, and `jj` will manage the changes. Consult [A Short Guide to Jujutsu (jj) for Git Users](https://www.paped.com/guides/a-short-guide-to-jujutsu-jj-for-git-users/) before performing any `jj` operation other than `commit`.
 * **No Pushes:** Do not push changes to remote without explicit user instruction.
 * **Dev Server:** Do not run `npm run dev`. Assume the user manages the server.
+* **Visual Verification (Screenshots):** After completing major tasks involving UI changes or visual output, take a screenshot for visual verification. Use `navigate_page` to ensure the correct page is loaded, `run_shell_command('sleep 10')` to allow the page to fully render, and then `take_screenshot()` to capture the visual state. Critically, **always review the captured screenshot** to ensure the visual output matches expectations.
 
 ## G2) Testing Strategy
 * **Unit Test First:** For core mechanics (Grid, Pathfinder, LOS), write tests before implementation.
