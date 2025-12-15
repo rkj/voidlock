@@ -220,11 +220,12 @@ To facilitate easy creation and debugging of maps, especially for hardcoded or t
 *   **Format**: The ASCII representation will use an expanded grid where each character position either represents a cell's content, a wall segment, or a wall corner. For a map of `width` W and `height` H, the ASCII grid will be `(2W+1)` columns wide and `(2H+1)` rows tall.
 
     *   **Cell Content Characters (at `(2x+1, 2y+1)` positions):**
-        *   `' '` (space): Default Floor cell (no special features)
+        *   `' '` (space): Floor cell (passable, default interior of the ship).
+        *   `'#'`: Wall cell (impassable, "void" or "outside" the ship).
         *   `'S'`: Floor cell with a Spawn Point
         *   `'E'`: Floor cell with an Extraction Point
         *   `'O'`: Floor cell with an Objective
-        *   *Priority*: If a cell has multiple features, use the highest priority: `S` > `E` > `O` > ` `
+        *   *Priority*: For Floor cells: `S` > `E` > `O` > ` `. If Cell is `Wall`, then `#` overrides all other content.
 
     *   **Wall/Passage Characters:**
         *   **Horizontal Wall/Passage (at `(2x+1, 2y)` positions):**
