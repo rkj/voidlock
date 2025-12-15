@@ -30,7 +30,14 @@ export class GameClient {
     };
   }
 
-  public init(seed: number, mapGeneratorType: MapGeneratorType, mapData?: MapDefinition) {
+  public init(
+    seed: number, 
+    mapGeneratorType: MapGeneratorType, 
+    mapData?: MapDefinition,
+    fogOfWarEnabled: boolean = true,
+    debugOverlayEnabled: boolean = false,
+    agentControlEnabled: boolean = true
+  ) {
     this.initialSeed = seed;
     // Use the factory to get the map, based on type and data
     const generator = this.mapGeneratorFactory(seed, mapGeneratorType, mapData);
@@ -42,7 +49,7 @@ export class GameClient {
 
     const msg: WorkerMessage = {
       type: 'INIT',
-      payload: { seed, map }
+      payload: { seed, map, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled }
     };
     this.worker.postMessage(msg);
   }

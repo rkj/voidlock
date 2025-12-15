@@ -142,7 +142,7 @@ export type ReplayData = {
 // --- Protocol ---
 
 export type WorkerMessage = 
-  | { type: 'INIT'; payload: { seed: number; map: MapDefinition } }
+  | { type: 'INIT'; payload: { seed: number; map: MapDefinition; fogOfWarEnabled: boolean; debugOverlayEnabled: boolean; agentControlEnabled: boolean; } }
   | { type: 'COMMAND'; payload: Command }
   | { type: 'QUERY_STATE' };
 
