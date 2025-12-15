@@ -65,7 +65,7 @@ export interface Grid {
   height: number;
   isWalkable(x: number, y: number): boolean;
   // Check if movement between adjacent cells is allowed (no wall)
-  canMove(fromX: number, fromY: number, toX: number, toY: number, doors?: Map<string, Door>): boolean;
+  canMove(fromX: number, fromY: number, toX: number, toY: number, doors?: Map<string, Door>, allowClosedDoors?: boolean): boolean;
 }
 
 export enum UnitState {

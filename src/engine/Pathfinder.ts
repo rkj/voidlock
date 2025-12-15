@@ -35,7 +35,7 @@ export class Pathfinder {
         const neighborKey = `${neighbor.x},${neighbor.y}`;
 
         if (
-          this.grid.canMove(current.x, current.y, neighbor.x, neighbor.y, this.doors) &&
+          this.grid.canMove(current.x, current.y, neighbor.x, neighbor.y, this.doors, true) &&
           !visited.has(neighborKey)
         ) {
           visited.add(neighborKey);
