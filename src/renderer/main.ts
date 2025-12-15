@@ -2,25 +2,22 @@ import { GameClient } from '../engine/GameClient';
 import { Renderer } from './Renderer';
 import { GameState, UnitState, CommandType, Unit, MapDefinition, MapGeneratorType, Door, Vector2 } from '../shared/types';
 import { MapGenerator } from '../engine/MapGenerator';
-
 import { SpaceshipGenerator } from '../engine/generators/SpaceshipGenerator';
+import { TreeShipGenerator } from '../engine/generators/TreeShipGenerator';
 
 // Factory function for MapGenerator
-const mapGeneratorFactory = (seed: number, type: MapGeneratorType, mapData?: MapDefinition): MapGenerator | SpaceshipGenerator => {
+const mapGeneratorFactory = (seed: number, type: MapGeneratorType, mapData?: MapDefinition, width: number = 32, height: number = 32): MapGenerator | SpaceshipGenerator | TreeShipGenerator => {
   if (type === MapGeneratorType.Static && mapData) {
-      // MapGenerator can handle static loading via `load` or just returning data if we refactor.
-      // Current MapGenerator has `load`.
       const gen = new MapGenerator(seed);
-      // We need a way to pass the static data. Currently GameClient.init calls factory then .generate or .load.
       return gen;
   }
   
+  if (type === MapGeneratorType.TreeShip) {
+      return new TreeShipGenerator(seed, width, height);
+  }
+
   if (type === MapGeneratorType.Procedural) {
-      // Use new SpaceshipGenerator
-      // Size: 24x24 to 32x32 based on seed? Or fixed default?
-      // User said "current default is tad large". 16x16 was small. 50x50 was large.
-      // Let's go with 32x32 as a good balance for "Spaceship".
-      return new SpaceshipGenerator(seed, 32, 32);
+      return new SpaceshipGenerator(seed, width, height);
   }
 
   return new MapGenerator(seed, 1, 2); 
@@ -33,8 +30,7 @@ let selectedUnitId: string | null = null;
 let pendingCommandUnitId: string | null = null;
 
 // --- Map Data Transformation ---
-// This utility function takes the old map format (with doorId in cells)
-// and converts it to the new MapDefinition format (with a top-level doors array).
+// ... (transformMapData function remains same) ...
 const transformMapData = (oldMapData: any): MapDefinition => {
   const newCells = oldMapData.cells.map((cell: any) => {
     // Remove doorId from cells as doors are now top-level entities
@@ -58,29 +54,24 @@ const transformMapData = (oldMapData: any): MapDefinition => {
 
   doorIdMap.forEach((doorProps, id) => {
     // Determine orientation based on segment (simple check for now)
-    // If all X are same, it's vertical. If all Y are same, it's horizontal.
     const uniqueX = new Set(doorProps.segment.map(v => v.x)).size;
     const uniqueY = new Set(doorProps.segment.map(v => v.y)).size;
 
-    if (uniqueX === 1 && doorProps.segment.length > 1) { // Same X, multiple Ys = Vertical
+    if (uniqueX === 1 && doorProps.segment.length > 1) { 
         doorProps.orientation = 'Vertical';
-        // Sort segment for consistent representation (top-to-bottom)
         doorProps.segment.sort((a,b) => a.y - b.y);
-    } else if (uniqueY === 1 && doorProps.segment.length > 1) { // Same Y, multiple Xs = Horizontal
+    } else if (uniqueY === 1 && doorProps.segment.length > 1) { 
         doorProps.orientation = 'Horizontal';
-        // Sort segment for consistent representation (left-to-right)
         doorProps.segment.sort((a,b) => a.x - b.x);
     } else {
-        // Single cell segment, assume vertical (or handle error)
-        doorProps.orientation = 'Vertical'; // Arbitrary default
+        doorProps.orientation = 'Vertical'; 
     }
-
 
     doors.push({
       id,
       segment: doorProps.segment,
       orientation: doorProps.orientation,
-      state: 'Closed', // Default state
+      state: 'Closed', 
       hp: 100, maxHp: 100, openDuration: 1
     });
   });
@@ -88,12 +79,43 @@ const transformMapData = (oldMapData: any): MapDefinition => {
   return {
     ...oldMapData,
     cells: newCells,
-    doors, // Add top-level doors array
+    doors, 
   };
 };
 
 // --- Game Setup ---
-const gameClient = new GameClient(mapGeneratorFactory);
+// Hack to pass dimensions to factory: GameClient init probably needs update or we pass it via config
+// Actually GameClient.init signature is: init(seed: number, mapType: MapGeneratorType, mapData?: MapDefinition)
+// We need to pass dimensions.
+// Since GameClient is in engine, we should probably update it.
+// BUT, for now, let's just make the factory closure-dependent or update GameClient.
+// Better: Update GameClient to accept config object?
+// Or just hack it by passing dimensions in the factory call?
+// GameClient calls `this.mapGeneratorFactory(seed, mapType, mapData)`.
+// We can't change the arguments passed by GameClient without changing GameClient.
+// Let's modify GameClient to accept `MapConfig`.
+
+// Wait, I can't modify GameClient right now easily without checking file.
+// Let's assume I can update `mapGeneratorFactory` here but `GameClient` needs to pass it.
+// Actually, `GameClient.init` just calls the factory.
+// If I use a closure for `initGame`, I can pass the width/height to the factory.
+
+// ...
+
+// Re-implementing parts for clarity
+// We need to change how `gameClient` is initialized or used.
+// The `gameClient` is created with `mapGeneratorFactory`.
+// We can make `mapGeneratorFactory` depend on a module-level variable `currentMapWidth`, `currentMapHeight`.
+
+let currentMapWidth = 32;
+let currentMapHeight = 32;
+
+// Updated factory that uses global config
+const statefulMapGeneratorFactory = (seed: number, type: MapGeneratorType, mapData?: MapDefinition): MapGenerator | SpaceshipGenerator | TreeShipGenerator => {
+    return mapGeneratorFactory(seed, type, mapData, currentMapWidth, currentMapHeight);
+};
+
+const gameClient = new GameClient(statefulMapGeneratorFactory);
 let renderer: Renderer;
 let currentGameState: GameState | null = null;
 let currentSeed: number = Date.now();
@@ -254,6 +276,33 @@ document.addEventListener('DOMContentLoaded', () => {
   const convertAsciiToMapButton = document.getElementById('convert-ascii-to-map') as HTMLButtonElement; // New
   const convertMapToAsciiButton = document.getElementById('convert-map-to-ascii') as HTMLButtonElement; // New
 
+  // Inject Dimensions UI
+  // Find where to inject
+  const presetControls = document.getElementById('preset-map-controls');
+  if (presetControls) {
+      const dimDiv = document.createElement('div');
+      dimDiv.style.marginTop = '10px';
+      dimDiv.innerHTML = `
+        <label>Map Size:</label>
+        <div style="display:flex; gap:5px;">
+            <input type="number" id="map-width" value="32" style="width:50px;">
+            <span>x</span>
+            <input type="number" id="map-height" value="32" style="width:50px;">
+        </div>
+      `;
+      presetControls.parentNode?.insertBefore(dimDiv, presetControls.nextSibling);
+  }
+  
+  // Add TreeShip option if not exists (it's hardcoded in HTML usually, but we can add dynamically if needed, or user updates HTML)
+  // Let's add it dynamically to be safe or assuming HTML update.
+  // Actually, I should update the HTML file too.
+  // But I can inject the option here.
+  const treeOption = document.createElement('option');
+  treeOption.value = 'TreeShip';
+  treeOption.textContent = 'Tree Ship (No Loops)';
+  mapGeneratorTypeSelect.appendChild(treeOption);
+
+
   // Handle Map Generator Type selection
   mapGeneratorTypeSelect?.addEventListener('change', () => {
     currentMapGeneratorType = mapGeneratorTypeSelect.value as MapGeneratorType;
@@ -276,7 +325,16 @@ document.addEventListener('DOMContentLoaded', () => {
   
   generateMapButton?.addEventListener('click', () => {
     const seedVal = parseInt(mapSeedInput.value);
-    initGame(!isNaN(seedVal) ? seedVal : undefined, MapGeneratorType.Procedural);
+    
+    // Update dimensions
+    const wInput = document.getElementById('map-width') as HTMLInputElement;
+    const hInput = document.getElementById('map-height') as HTMLInputElement;
+    if (wInput && hInput) {
+        currentMapWidth = parseInt(wInput.value) || 32;
+        currentMapHeight = parseInt(hInput.value) || 32;
+    }
+
+    initGame(!isNaN(seedVal) ? seedVal : undefined, currentMapGeneratorType);
   });
 
   loadStaticMapButton?.addEventListener('click', () => {
