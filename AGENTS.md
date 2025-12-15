@@ -820,6 +820,7 @@ npm run dev
     * Use `jj` (Jujutsu) commands exclusively.
     * **NEVER** use `git` commands directly.
     * Commit changes after the completion of *every* Beads task.
+    * **`jj commit` Behavior Clarification:** The `jj commit` command intentionally places the working copy in a new, empty commit on top of the changes. This is the correct and desired behavior, and agents must not attempt to `abandon`, create new branches, or otherwise interfere with this workflow. Simply continue working, and `jj` will manage the changes. Consult [A Short Guide to Jujutsu (jj) for Git Users](https://www.paped.com/guides/a-short-guide-to-jujutsu-jj-for-git-users/) before performing any `jj` operation other than `commit`.
 * **No Pushes:** Do not push changes to remote without explicit user instruction.
 * **Dev Server:** Do not run `npm run dev`. Assume the user manages the server.
 
