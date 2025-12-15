@@ -34,6 +34,7 @@ export type Door = {
 export enum MapGeneratorType {
   Procedural = 'Procedural',
   Static = 'Static',
+  TreeShip = 'TreeShip',
 }
 
 export type MapDefinition = {
