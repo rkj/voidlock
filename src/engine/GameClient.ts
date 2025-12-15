@@ -36,7 +36,8 @@ export class GameClient {
     mapData?: MapDefinition,
     fogOfWarEnabled: boolean = true,
     debugOverlayEnabled: boolean = false,
-    agentControlEnabled: boolean = true
+    agentControlEnabled: boolean = true,
+    squadConfig: SquadConfig
   ) {
     this.initialSeed = seed;
     // Use the factory to get the map, based on type and data
