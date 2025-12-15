@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { CoreEngine } from '../engine/CoreEngine';
 import { GameGrid } from '../engine/GameGrid';
-import { MapDefinition, CellType, UnitState, CommandType, Vector2, SquadConfig, Archetype, ArchetypeLibrary } from '../../shared/types';
+import { MapDefinition, CellType, UnitState, CommandType, Vector2, SquadConfig, Archetype, ArchetypeLibrary } from '../shared/types';
 import { Pathfinder } from '../engine/Pathfinder';
 
 describe('CoreEngine with Objectives and Game Loop', () => {

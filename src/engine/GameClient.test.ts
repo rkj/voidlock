@@ -39,16 +39,15 @@ describe('GameClient', () => {
     vi.useRealTimers();
   });
 
-  // TODO(xenopurge-gemini-w4x): uncomment and fix the test
-  // it('should initialize and record seed/map', () => {
-  //   const seed = 12345;
-  //   client.init(seed, MapGeneratorType.Procedural, mockMap, true, false, true, defaultSquad); // Pass default squadConfig and other params
+  it('should initialize and record seed/map', () => {
+    const seed = 12345;
+    client.init(seed, MapGeneratorType.Procedural, mockMap, true, false, true, defaultSquad); // Pass default squadConfig and other params
 
-  //   expect(postMessageMock).toHaveBeenCalledWith({
-  //     type: 'INIT',
-  //     payload: { seed, map: mockMap, fogOfWarEnabled: true, debugOverlayEnabled: false, agentControlEnabled: true, squadConfig: defaultSquad }
-  //   });
-  // });
+    expect(postMessageMock).toHaveBeenCalledWith({
+      type: 'INIT',
+      payload: { seed, map: mockMap, fogOfWarEnabled: true, debugOverlayEnabled: false, agentControlEnabled: true, squadConfig: defaultSquad }
+    });
+  });
 
   // TODO(xenopurge-gemini-w4x): uncomment and fix the test
   // it('should record commands', () => {
