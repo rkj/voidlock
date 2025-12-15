@@ -50,7 +50,7 @@ export class GameClient {
 
     const msg: WorkerMessage = {
       type: 'INIT',
-      payload: { seed, map, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled, squadConfig: currentSquad }
+      payload: { seed, map, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled, squadConfig: squadConfig }
     };
     this.worker.postMessage(msg);
   }
