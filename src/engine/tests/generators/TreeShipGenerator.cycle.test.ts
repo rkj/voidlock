@@ -90,14 +90,15 @@ describe('TreeShipGenerator Cycle Detection', () => {
 |S|#| |#|E|
 + +-+ +-+=+
 |         |
-+-+-+ +-+ +
++-+ +-+   +
 |#| |#| | |
 +-+=+-+-+-+
 |#| |#|#|#|
 +-+ +-+-+-+
 | I |#|#|#|
 +-+-+-+-+-+`;
-        expect(MapGenerator.toAscii(map).trim().replace(/\r?\n/g, '\n')).toBe(expectedAscii.trim().replace(/\r?\n/g, '\n'));
+        const actualAscii = MapGenerator.toAscii(map);
+        expect(actualAscii).toEqual(expectedAscii);
         const adj = mapToAdjacencyList(map);
         expect(hasCycleDFS(adj)).toBe(false);
     
