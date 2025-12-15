@@ -140,7 +140,7 @@ describe('Pathfinder', () => {
       const door: Door = {
         id: doorId,
         segment: [{ x: 1, y: 0 }, { x: 2, y: 0 }], // Door between (1,0) and (2,0)
-        orientation: 'Horizontal', // Horizontal means it blocks movement between cells in X direction
+        orientation: 'Vertical', // Vertical means it blocks movement between cells in X direction
         state: doorState,
         hp: 100,
         maxHp: 100,
@@ -169,8 +169,7 @@ describe('Pathfinder', () => {
       const doorGrid = new GameGrid(map);
       const doorPathfinder = new Pathfinder(doorGrid, doors);
       const path = doorPathfinder.findPath({ x: 0, y: 0 }, { x: 3, y: 0 });
-      // TODO(xenopurge-gemini-w4x): uncomment and fix the test
-      // expect(path).toEqual([{ x: 1, y: 0 }, { x: 2, y: 0 }, { x: 3, y: 0 }]);
+      expect(path).toEqual([{ x: 1, y: 0 }, { x: 2, y: 0 }, { x: 3, y: 0 }]);
     });
   });
 });

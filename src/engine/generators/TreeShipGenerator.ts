@@ -135,8 +135,17 @@ export class TreeShipGenerator {
             for(let x=rx; x<rx+w; x++) {
                 this.setFloor(x, y);
                 // Internal walls - ensure internal walls are only opened if both sides are within the new room
-                if (x < rx+w-1) this.openWall(x, y, 'e');
-                if (y < ry+h-1) this.openWall(x, y, 's');
+                // Use "Comb" strategy to ensure acyclicity:
+                // 1. Connect all cells in the first row horizontally.
+                // 2. Connect all cells in subsequent rows to the cell directly above them (Vertically).
+                // This avoids forming cycles within the room (e.g. 2x2 loop).
+                
+                const isFirstRow = (y === ry);
+                const isLastRow = (y === ry + h - 1);
+                const isLastCol = (x === rx + w - 1);
+
+                if (isFirstRow && !isLastCol) this.openWall(x, y, 'e');
+                if (!isLastRow) this.openWall(x, y, 's');
             }
         }
 

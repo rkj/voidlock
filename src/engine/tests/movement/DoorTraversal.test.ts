@@ -44,9 +44,8 @@ describe('Movement through Doors', () => {
     engine.update(100);
     let state = engine.getState();
     let u1 = state.units[0];
-    // TODO(xenopurge-gemini-w4x): uncomment and fix the test
-    // expect(u1.state).toBe(UnitState.Moving);
-    // expect(u1.path).toBeDefined(); // Path found!
+    expect(u1.state).toBe(UnitState.Moving);
+    expect(u1.path).toBeDefined(); // Path found!
 
     // 3. Move until reaching the door (0.5 -> 1.0 boundary)
     // Distance 0.5. Speed 2. Time = 0.25s = 250ms.
@@ -77,7 +76,6 @@ describe('Movement through Doors', () => {
     // Total time ~600ms. Move 0->2 is dist 2. 1 second.
     // But we waited 200ms for door.
     // So unit should be around x=1.5
-    // TODO(xenopurge-gemini-w4x): uncomment and fix the test
-    // expect(u1.pos.x).toBeGreaterThan(1.0);
+    expect(u1.pos.x).toBeGreaterThan(1.0);
   });
 });

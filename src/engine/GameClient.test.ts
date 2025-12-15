@@ -39,74 +39,78 @@ describe('GameClient', () => {
     vi.useRealTimers();
   });
 
-  // TODO(xenopurge-gemini-w4x): uncomment and fix the test
-  // it('should initialize and record seed/map', () => {
-  //   const seed = 12345;
-  //   client.init(seed, MapGeneratorType.Procedural, mockMap, true, false, true, defaultSquad); // Pass default squadConfig and other params
+  it('should initialize and record seed/map', () => {
+    const seed = 12345;
+    client.init(seed, MapGeneratorType.Procedural, mockMap, true, false, true, defaultSquad); // Pass default squadConfig and other params
 
-  //   expect(postMessageMock).toHaveBeenCalledWith({
-  //     type: 'INIT',
-  //     payload: { seed, map: mockMap, fogOfWarEnabled: true, debugOverlayEnabled: false, agentControlEnabled: true, squadConfig: defaultSquad }
-  //   });
-  // });
-
-  // TODO(xenopurge-gemini-w4x): uncomment and fix the test
-  // it('should record commands', () => {
-  //   client.init(12345, MapGeneratorType.Procedural, mockMap, true, false, true, defaultSquad); // Pass default squadConfig and other params
+    expect(postMessageMock).toHaveBeenCalledWith({
+      type: 'INIT',
+      payload: { seed, map: mockMap, fogOfWarEnabled: true, debugOverlayEnabled: false, agentControlEnabled: true, squadConfig: defaultSquad }
+    });
     
-  //   // Advance time
-  //   vi.advanceTimersByTime(100);
+    const replay = client.getReplayData();
+    expect(replay?.seed).toBe(seed);
+    expect(replay?.map).toBe(mockMap);
+    expect(replay?.squadConfig).toBe(defaultSquad);
+    expect(replay?.commands).toEqual([]);
+  });
 
-  //   const cmd: MoveCommand = { type: CommandType.MOVE_TO, unitIds: ['u1'], target: { x: 1, y: 1 } };
-  //   client.sendCommand(cmd);
+  it('should record commands', () => {
+    client.init(12345, MapGeneratorType.Procedural, mockMap, true, false, true, defaultSquad); // Pass default squadConfig and other params
+    
+    // Advance time
+    vi.advanceTimersByTime(100);
 
-  //   expect(postMessageMock).toHaveBeenLastCalledWith({
-  //     type: 'COMMAND',
-  //     payload: cmd
-  //   });
+    const cmd: MoveCommand = { type: CommandType.MOVE_TO, unitIds: ['u1'], target: { x: 1, y: 1 } };
+    client.sendCommand(cmd);
 
-  //   const replay = client.getReplayData();
-  //   expect(replay?.commands.length).toBe(1);
-  //   expect(replay?.commands[0].cmd).toEqual(cmd);
-  //   expect(replay?.commands[0].t).toBe(100);
-  // });
+    expect(postMessageMock).toHaveBeenLastCalledWith({
+      type: 'COMMAND',
+      payload: cmd
+    });
 
-  // TODO(xenopurge-gemini-w4x): uncomment and fix the test
-  // it('should replay commands', () => {
-  //   // Setup replay data
-  //   const replayData = {
-  //     seed: 555,
-  //     map: mockMap,
-  //     commands: [
-  //       { t: 100, cmd: { type: CommandType.MOVE_TO, unitIds: ['u1'], target: { x: 1, y: 1 } } as MoveCommand },
-  //       { t: 500, cmd: { type: CommandType.MOVE_TO, unitIds: ['u2'], target: { x: 2, y: 2 } } as MoveCommand }
-  //     ]
-  //   };
+    const replay = client.getReplayData();
+    expect(replay?.commands.length).toBe(1);
+    expect(replay?.commands[0].cmd).toEqual(cmd);
+    expect(replay?.commands[0].t).toBe(100);
+  });
 
-  //   client.loadReplay(replayData);
+  it('should replay commands', () => {
+    // Setup replay data
+    const replayData = {
+      seed: 555,
+      map: mockMap,
+      squadConfig: defaultSquad,
+      commands: [
+        { t: 100, cmd: { type: CommandType.MOVE_TO, unitIds: ['u1'], target: { x: 1, y: 1 } } as MoveCommand },
+        { t: 500, cmd: { type: CommandType.MOVE_TO, unitIds: ['u2'], target: { x: 2, y: 2 } } as MoveCommand }
+      ]
+    };
 
-  //   // Should verify init was called immediately
-  //   expect(postMessageMock).toHaveBeenCalledWith({
-  //     type: 'INIT',
-  //     payload: { seed: 555, map: mockMap, fogOfWarEnabled: true, debugOverlayEnabled: false, agentControlEnabled: true, squadConfig: defaultSquad } // Updated expected payload
-  //   });
+    client.loadReplay(replayData);
 
-  //   // Clear mocks to check subsequent calls
-  //   postMessageMock.mockClear();
+    // Should verify init was called immediately
+    expect(postMessageMock).toHaveBeenCalledWith({
+      type: 'INIT',
+      payload: { seed: 555, map: mockMap, fogOfWarEnabled: true, debugOverlayEnabled: false, agentControlEnabled: true, squadConfig: defaultSquad } // Updated expected payload
+    });
 
-  //   // Advance time to 100ms
-  //   vi.advanceTimersByTime(100);
-  //   expect(postMessageMock).toHaveBeenCalledWith({
-  //     type: 'COMMAND',
-  //     payload: replayData.commands[0].cmd
-  //   });
+    // Clear mocks to check subsequent calls
+    postMessageMock.mockClear();
 
-  //   // Advance to 500ms (total)
-  //   vi.advanceTimersByTime(400);
-  //   expect(postMessageMock).toHaveBeenCalledWith({
-  //     type: 'COMMAND',
-  //     payload: replayData.commands[1].cmd
-  //   });
-  // });
+    // Advance time to 100ms
+    vi.advanceTimersByTime(100);
+    expect(postMessageMock).toHaveBeenCalledWith({
+      type: 'COMMAND',
+      payload: replayData.commands[0].cmd
+    });
+
+    // Advance to 500ms (total)
+    vi.advanceTimersByTime(400);
+    expect(postMessageMock).toHaveBeenCalledWith({
+      type: 'COMMAND',
+      payload: replayData.commands[1].cmd
+    });
+  });
 
 });

@@ -57,51 +57,48 @@ describe('CoreEngine with Objectives and Game Loop', () => {
     expect(state.objectives[0].state).toBe('Completed');
   });
 
-  // TODO(xenopurge-gemini-w4x): uncomment and fix the test
-  // it('should NOT extract unit if objectives are pending', () => {
-  //   engine.applyCommand({
-  //     type: CommandType.MOVE_TO,
-  //     unitIds: ['u1'],
-  //     target: { x: 0, y: 2 }
-  //   });
+  it('should NOT extract unit if objectives are pending', () => {
+    engine.applyCommand({
+      type: CommandType.MOVE_TO,
+      unitIds: ['u1'],
+      target: { x: 0, y: 2 }
+    });
 
-  //   for (let i = 0; i < 20; i++) engine.update(100); 
+    for (let i = 0; i < 20; i++) engine.update(100); 
     
-  //   const state = engine.getState();
-  //   const unit = state.units[0];
-  //   expect(unit.state).not.toBe(UnitState.Extracted);
-  // });
+    const state = engine.getState();
+    const unit = state.units[0];
+    expect(unit.state).not.toBe(UnitState.Extracted);
+  });
 
-  // TODO(xenopurge-gemini-w4x): uncomment and fix the test
-  // it('should win game when objectives complete and units extract', () => {
-  //   engine.applyCommand({ type: CommandType.MOVE_TO, unitIds: ['u1'], target: { x: 2, y: 0 } });
-  //   for (let i = 0; i < 15; i++) engine.update(100);
+  it('should win game when objectives complete and units extract', () => {
+    engine.applyCommand({ type: CommandType.MOVE_TO, unitIds: ['u1'], target: { x: 2, y: 0 } });
+    for (let i = 0; i < 15; i++) engine.update(100);
     
-  //   expect(engine.getState().objectives[0].state).toBe('Completed');
+    expect(engine.getState().objectives[0].state).toBe('Completed');
 
-  //   engine.applyCommand({ type: CommandType.MOVE_TO, unitIds: ['u1'], target: { x: 0, y: 2 } });
-  //   for (let i = 0; i < 25; i++) engine.update(100); 
+    engine.applyCommand({ type: CommandType.MOVE_TO, unitIds: ['u1'], target: { x: 0, y: 2 } });
+    for (let i = 0; i < 25; i++) engine.update(100); 
 
-  //   const state = engine.getState();
-  //   expect(state.units[0].state).toBe(UnitState.Extracted);
-  //   expect(state.status).toBe('Won');
-  // });
+    const state = engine.getState();
+    expect(state.units[0].state).toBe(UnitState.Extracted);
+    expect(state.status).toBe('Won');
+  });
 
-  // TODO(xenopurge-gemini-w4x): uncomment and fix the test
-  // it('should lose game if all units die', () => {
-  //   engine.addEnemy({
-  //     id: 'boss',
-  //     pos: { x: 0.5, y: 0.5 },
-  //     hp: 500, maxHp: 500,
-  //     type: 'Boss',
-  //     damage: 1000, fireRate: 1000, attackRange: 1
-  //   });
+  it('should lose game if all units die', () => {
+    engine.addEnemy({
+      id: 'boss',
+      pos: { x: 0.5, y: 0.5 },
+      hp: 500, maxHp: 500,
+      type: 'Boss',
+      damage: 1000, fireRate: 1000, attackRange: 1
+    });
 
-  //   engine.update(100);
+    engine.update(100);
 
-  //   const state = engine.getState();
-  //   const unit = state.units[0];
-  //   expect(unit.state).toBe(UnitState.Dead);
-  //   expect(state.status).toBe('Lost');
-  // });
+    const state = engine.getState();
+    const unit = state.units[0];
+    expect(unit.state).toBe(UnitState.Dead);
+    expect(state.status).toBe('Lost');
+  });
 });

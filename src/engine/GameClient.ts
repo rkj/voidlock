@@ -1,4 +1,4 @@
-import { MapDefinition, Command, GameState, WorkerMessage, MainMessage, ReplayData, RecordedCommand, MapGeneratorType } from '../shared/types';
+import { MapDefinition, Command, GameState, WorkerMessage, MainMessage, ReplayData, RecordedCommand, MapGeneratorType, SquadConfig } from '../shared/types';
 import { MapGenerator } from './MapGenerator';
 
 // Factory type for creating MapGenerator instances based on type
@@ -12,6 +12,7 @@ export class GameClient {
   // Replay State
   private initialSeed: number = 0;
   private initialMap: MapDefinition | null = null;
+  private initialSquadConfig: SquadConfig | null = null;
   private commandStream: RecordedCommand[] = [];
   private startTime: number = 0;
 
@@ -37,9 +38,10 @@ export class GameClient {
     fogOfWarEnabled: boolean = true,
     debugOverlayEnabled: boolean = false,
     agentControlEnabled: boolean = true,
-    squadConfig: SquadConfig
+    squadConfig: SquadConfig = [] // Default to empty array if not provided
   ) {
     this.initialSeed = seed;
+    this.initialSquadConfig = squadConfig;
     // Use the factory to get the map, based on type and data
     const generator = this.mapGeneratorFactory(seed, mapGeneratorType, mapData);
     const map = mapGeneratorType === MapGeneratorType.Static ? generator.load(mapData!) : generator.generate(16, 16); // Assuming 16x16 for now for procedural
@@ -68,10 +70,11 @@ export class GameClient {
   }
 
   public getReplayData(): ReplayData | null {
-    if (!this.initialMap) return null;
+    if (!this.initialMap || !this.initialSquadConfig) return null;
     return {
       seed: this.initialSeed,
       map: this.initialMap,
+      squadConfig: this.initialSquadConfig,
       commands: [...this.commandStream]
     };
   }
@@ -90,7 +93,7 @@ export class GameClient {
     // The Engine needs to support "scheduled commands" or we must feed them in real-time (or fast-time) from Client.
     
     // Simplest Replay: Client re-inits, then sets timeouts to send commands at recorded `t`.
-    this.init(data.seed, MapGeneratorType.Static, data.map);
+    this.init(data.seed, MapGeneratorType.Static, data.map, true, false, true, data.squadConfig);
     
     // Schedule commands
     // Note: this relies on `setTimeout` accuracy which is poor.
