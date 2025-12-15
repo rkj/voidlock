@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { CoreEngine } from '../../CoreEngine';
-import { MapDefinition, CellType, UnitState, CommandType, Door } from '../../../shared/types';
+import { GameGrid } from '../../GameGrid';
+import { MapDefinition, CellType, UnitState, CommandType, Door, SquadConfig, Archetype, ArchetypeLibrary } from '../../../shared/types';
+import { Pathfinder } from '../../Pathfinder';
 
 describe('Movement through Doors', () => {
   let engine: CoreEngine;
@@ -21,7 +23,8 @@ describe('Movement through Doors', () => {
   };
 
   beforeEach(() => {
-    engine = new CoreEngine(map, 123);
+    const defaultSquad: SquadConfig = [{archetypeId: "assault", count: 1}]; // Default unit for tests
+    engine = new CoreEngine(map, 123, defaultSquad);
     engine.clearUnits();
     engine.addUnit({
       id: 'u1', pos: { x: 0.5, y: 0.5 }, hp: 100, maxHp: 100,
