@@ -155,4 +155,39 @@ describe('Cycle Detection Utilities', () => {
     const adj = mapToAdjacencyList(map);
     expect(hasCycleDFS(adj)).toBe(true);
   });
+
+  it('should detect a cycle in a 3x2 grid of floor cells (rectangular cycle)', () => {
+    //   (0,0)-(1,0)-(2,0)
+    //     |      |    |
+    //   (0,1)-(1,1)-(2,1)
+    const map: MapDefinition = {
+      width: 3, height: 2,
+      cells: [
+        { x: 0, y: 0, type: CellType.Floor, walls: { n:true, e:false, s:false, w:true } }, // (0,0)
+        { x: 1, y: 0, type: CellType.Floor, walls: { n:true, e:false, s:false, w:false } }, // (1,0)
+        { x: 2, y: 0, type: CellType.Floor, walls: { n:true, e:true, s:false, w:false } },  // (2,0)
+
+        { x: 0, y: 1, type: CellType.Floor, walls: { n:false, e:false, s:true, w:true } }, // (0,1)
+        { x: 1, y: 1, type: CellType.Floor, walls: { n:false, e:false, s:true, w:false } }, // (1,1)
+        { x: 2, y: 1, type: CellType.Floor, walls: { n:false, e:true, s:true, w:false } },  // (2,1)
+      ],
+      doors: [], spawnPoints: [], objectives: [], extraction: undefined
+    };
+
+    // Open walls to form a rectangular cycle
+    map.cells[0].walls.s = false; map.cells[3].walls.n = false; // (0,0)-(0,1)
+    map.cells[1].walls.s = false; map.cells[4].walls.n = false; // (1,0)-(1,1)
+    map.cells[2].walls.s = false; map.cells[5].walls.n = false; // (2,0)-(2,1)
+
+    // Open horizontal walls between (0,0)-(1,0), (1,0)-(2,0)
+    map.cells[0].walls.e = false; map.cells[1].walls.w = false;
+    map.cells[1].walls.e = false; map.cells[2].walls.w = false;
+
+    // Open horizontal walls between (0,1)-(1,1), (1,1)-(2,1)
+    map.cells[3].walls.e = false; map.cells[4].walls.w = false;
+    map.cells[4].walls.e = false; map.cells[5].walls.w = false;
+
+    const adj = mapToAdjacencyList(map);
+    expect(hasCycleDFS(adj)).toBe(true);
+  });
 });
