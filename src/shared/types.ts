@@ -156,6 +156,7 @@ export enum CommandType {
   LOCK_DOOR = 'LOCK_DOOR',
   ATTACK_TARGET = 'ATTACK_TARGET',
   SET_ENGAGEMENT = 'SET_ENGAGEMENT',
+  STOP = 'STOP', // New
 }
 
 export type MoveCommand = { type: CommandType.MOVE_TO; unitIds: string[]; target: Vector2; queue?: boolean; };
@@ -163,8 +164,9 @@ export type OpenDoorCommand = { type: CommandType.OPEN_DOOR; unitIds: string[]; 
 export type LockDoorCommand = { type: CommandType.LOCK_DOOR; unitIds: string[]; doorId: string; queue?: boolean; };
 export type AttackTargetCommand = { type: CommandType.ATTACK_TARGET; unitId: string; targetId: string; queue?: boolean; };
 export type SetEngagementCommand = { type: CommandType.SET_ENGAGEMENT; unitIds: string[]; mode: EngagementPolicy; queue?: boolean; };
+export type StopCommand = { type: CommandType.STOP; unitIds: string[]; }; // New
 
-export type Command = MoveCommand | OpenDoorCommand | LockDoorCommand | AttackTargetCommand | SetEngagementCommand;
+export type Command = MoveCommand | OpenDoorCommand | LockDoorCommand | AttackTargetCommand | SetEngagementCommand | StopCommand; // Updated
 
 export interface IMapValidationResult {
   isValid: boolean;
