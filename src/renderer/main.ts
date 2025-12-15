@@ -107,6 +107,7 @@ let currentSquad: SquadConfig = [
   { archetypeId: "assault", count: 1 },
   { archetypeId: "medic", count: 1 }
 ];
+console.log('main.ts: currentSquad declared:', currentSquad);
 
 
 
@@ -434,6 +435,8 @@ document.addEventListener('DOMContentLoaded', () => {
   treeOption.textContent = 'Tree Ship (No Loops)';
   mapGeneratorTypeSelect.appendChild(treeOption);
 
+  console.log('main.ts: DOMContentLoaded - before initGame definition, currentSquad:', currentSquad);
+
 
   // Handle Map Generator Type selection
   mapGeneratorTypeSelect?.addEventListener('change', () => {
@@ -465,6 +468,7 @@ const initGame = (
     fogOfWarEnabled = fogOfWar ?? fogOfWarEnabled;
     debugOverlayEnabled = debugOverlay ?? debugOverlayEnabled;
     agentControlEnabled = agentControl ?? agentControlEnabled;
+    console.log('main.ts: initGame - before gameClient.init, squadConfig param:', squadConfig, 'module currentSquad:', currentSquad);
 
     // Initialize engine in worker
     gameClient.init(currentSeed, currentMapGeneratorType, currentStaticMapData, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled, squadConfig as SquadConfig);
@@ -649,3 +653,4 @@ const initGame = (
   
   initGame(currentSeed, currentMapGeneratorType, currentStaticMapData, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled, currentSquad);
 });
+console.log('main.ts: DOMContentLoaded - before final initGame call, currentSquad:', currentSquad);
