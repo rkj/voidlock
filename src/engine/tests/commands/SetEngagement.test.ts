@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { CoreEngine } = '../../CoreEngine';
+import { CoreEngine } from '../../CoreEngine';
 import { MapDefinition, CellType, UnitState, CommandType, SquadConfig, Archetype, ArchetypeLibrary } from '../../../shared/types';
 import { GameGrid } from '../../GameGrid';
 
