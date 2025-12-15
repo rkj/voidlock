@@ -108,46 +108,7 @@ let currentSquad: SquadConfig = [
   { archetypeId: "medic", count: 1 }
 ];
 
-const initGame = (
-  seed?: number, 
-  generatorType?: MapGeneratorType, 
-  staticMapData?: MapDefinition,
-  fogOfWar?: boolean,
-  debugOverlay?: boolean,
-  agentControl?: boolean,
-  squadConfig?: SquadConfig // New squadConfig parameter
-) => {
-  currentSeed = seed ?? Date.now();
-  currentMapGeneratorType = generatorType ?? MapGeneratorType.TreeShip;
-  currentStaticMapData = staticMapData;
-  fogOfWarEnabled = fogOfWar ?? fogOfWarEnabled;
-  debugOverlayEnabled = debugOverlay ?? debugOverlayEnabled;
-  agentControlEnabled = agentControl ?? agentControlEnabled;
-  
-  // Initialize engine in worker
-  gameClient.init(currentSeed, currentMapGeneratorType, currentStaticMapData, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled, squadConfig as SquadConfig);
-  
-  // Reset selection
-  selectedUnitId = null;
-  pendingCommandUnitId = null;
-  setInputMode('SELECT');
 
-  gameClient.onStateUpdate((state) => {
-    currentGameState = state;
-    if (!renderer) {
-      const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
-      if (canvas) {
-        renderer = new Renderer(canvas);
-        renderer.setCellSize(128); // M8 Scale
-      } else {
-        console.error("Canvas element not found!");
-        return;
-      }
-    }
-    renderer.render(state);
-    updateUI(state);
-  });
-};
 
 const setInputMode = (mode: InputMode) => {
   inputMode = mode;
@@ -488,6 +449,47 @@ document.addEventListener('DOMContentLoaded', () => {
       mapSeedInput.disabled = false;
     }
   });
+
+const initGame = (
+    seed?: number,
+    generatorType?: MapGeneratorType,
+    staticMapData?: MapDefinition,
+    fogOfWar?: boolean,
+    debugOverlay?: boolean,
+    agentControl?: boolean,
+    squadConfig?: SquadConfig // New squadConfig parameter
+  ) => {
+    currentSeed = seed ?? Date.now();
+    currentMapGeneratorType = generatorType ?? MapGeneratorType.TreeShip;
+    currentStaticMapData = staticMapData;
+    fogOfWarEnabled = fogOfWar ?? fogOfWarEnabled;
+    debugOverlayEnabled = debugOverlay ?? debugOverlayEnabled;
+    agentControlEnabled = agentControl ?? agentControlEnabled;
+
+    // Initialize engine in worker
+    gameClient.init(currentSeed, currentMapGeneratorType, currentStaticMapData, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled, squadConfig as SquadConfig);
+
+    // Reset selection
+    selectedUnitId = null;
+    pendingCommandUnitId = null;
+    setInputMode('SELECT');
+
+    gameClient.onStateUpdate((state) => {
+      currentGameState = state;
+      if (!renderer) {
+        const canvas = document.getElementById('game-canvas') as HTMLCanvasElement;
+        if (canvas) {
+          renderer = new Renderer(canvas);
+          renderer.setCellSize(128); // M8 Scale
+        } else {
+          console.error("Canvas element not found!");
+          return;
+        }
+      }
+      renderer.render(state);
+      updateUI(state);
+    });
+  };
 
   // Buttons
   document.getElementById('start-button')?.addEventListener('click', () => {
