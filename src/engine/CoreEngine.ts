@@ -108,6 +108,17 @@ export class CoreEngine {
             }
           });
       }
+    } else if (cmd.type === CommandType.STOP) { // New: Handle STOP command
+        cmd.unitIds.forEach(id => {
+            const unit = this.state.units.find(u => u.id === id);
+            if (unit) {
+                unit.commandQueue = []; // Clear command queue
+                unit.path = undefined; // Stop movement
+                unit.targetPos = undefined;
+                unit.forcedTargetId = undefined; // Clear forced target
+                unit.state = UnitState.Idle; // Set unit to Idle state
+            }
+        });
     }
   }
 
