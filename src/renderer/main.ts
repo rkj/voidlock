@@ -320,6 +320,22 @@ document.addEventListener('DOMContentLoaded', () => {
           agentControlEnabled = (e.target as HTMLInputElement).checked;
       });
   }
+
+  // Inject ASCII Map Input/Output UI
+  const asciiMapControlsTarget = document.getElementById('static-map-controls'); // Target below static map controls
+  if (asciiMapControlsTarget) {
+      const asciiMapIoDiv = document.createElement('div');
+      asciiMapIoDiv.style.marginTop = '10px';
+      asciiMapIoDiv.innerHTML = `
+        <label>ASCII Map:</label>
+        <textarea id="ascii-map-input" rows="10" cols="30" style="width:100%;"></textarea>
+        <div style="display:flex; gap:5px; margin-top:5px;">
+            <button id="convert-ascii-to-map" type="button">Convert to Map</button>
+            <button id="convert-map-to-ascii" type="button">Convert from Map</button>
+        </div>
+      `;
+      asciiMapControlsTarget.parentNode?.insertBefore(asciiMapIoDiv, asciiMapControlsTarget.nextSibling);
+  }
   
   // Add TreeShip option
   const treeOption = document.createElement('option');
@@ -378,6 +394,7 @@ document.addEventListener('DOMContentLoaded', () => {
       alert("Invalid static map JSON provided. Please check the format.");
     }
   });
+
 
 
   uploadStaticMapInput?.addEventListener('change', (e) => {
