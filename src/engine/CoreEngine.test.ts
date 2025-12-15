@@ -44,19 +44,18 @@ describe('CoreEngine with Objectives and Game Loop', () => {
     });
   });
 
-  // TODO(xenopurge-gemini-w4x): uncomment and fix the test
-  // it('should complete objective when unit reaches target', () => {
-  //   engine.applyCommand({
-  //     type: CommandType.MOVE_TO,
-  //     unitIds: ['u1'],
-  //     target: { x: 2, y: 0 }
-  //   });
+  it('should complete objective when unit reaches target', () => {
+    engine.applyCommand({
+      type: CommandType.MOVE_TO,
+      unitIds: ['u1'],
+      target: { x: 2, y: 0 }
+    });
 
-  //   for (let i = 0; i < 15; i++) engine.update(100);
+    for (let i = 0; i < 15; i++) engine.update(100);
 
-  //   const state = engine.getState();
-  //   expect(state.objectives[0].state).toBe('Completed');
-  // });
+    const state = engine.getState();
+    expect(state.objectives[0].state).toBe('Completed');
+  });
 
   // TODO(xenopurge-gemini-w4x): uncomment and fix the test
   // it('should NOT extract unit if objectives are pending', () => {
