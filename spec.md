@@ -247,6 +247,42 @@ To facilitate easy creation and debugging of maps, especially for hardcoded or t
     *   `fromAscii(asciiMap: string) -> MapDefinition`: Parse an ASCII string representation back into a `MapDefinition` object.
     *   *Note*: The `fromAscii` conversion will need sensible defaults for attributes not explicitly representable in ASCII (e.g., door HP, objective kind). It will also need to infer wall `true`/`false` based on the presence of `'-'`, `'|'`, `'='`, `'I'` characters.
 
+**Example 2x2 Map:**
+
+Given the following `MapDefinition`:
+```typescript
+{
+  width: 2,
+  height: 2,
+  cells: [
+    { x: 0, y: 0, type: CellType.Floor, walls: { n: true, e: false, s: false, w: true } },
+    { x: 1, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: false, w: false } },
+    { x: 0, y: 1, type: CellType.Floor, walls: { n: false, e: false, s: true, w: true } },
+    { x: 1, y: 1, type: CellType.Floor, walls: { n: false, e: true, s: true, w: false } },
+  ],
+  doors: [
+    {
+      id: 'door1',
+      segment: [{x:0, y:0}, {x:0, y:1}],
+      orientation: 'Horizontal',
+      state: 'Closed',
+      hp: 10, maxHp: 10, openDuration: 1
+    }
+  ],
+  spawnPoints: [{ id: 'sp1', pos: { x: 0, y: 0 }, radius: 1 }],
+  extraction: { x: 1, y: 1 },
+  objectives: [{ id: 'obj1', kind: 'Recover', targetCell: { x: 0, y: 1 } }],
+}
+```
+The `toAscii` representation should be:
+```
++-+-+
+|S  |
++=  +
+|O E|
++-+-+
+```
+
 
 ---
 
