@@ -31,10 +31,11 @@ export class TreeShipGenerator {
 
     // 2. Main Skeleton (Branching Arteries / Fishbone)
     // Strategy:
-    // - Create a primary horizontal spine (Aorta)
-    // - Create secondary vertical spines (Arteries) branching off the Aorta at intervals
-    // - Ensure spines do not touch each other except at the branch point (to keep tree structure)
-    // - Corridors are 1-tile wide.
+    // - Create a primary horizontal spine (Aorta) at the center.
+    // - Create secondary vertical spines (Arteries) branching off the Aorta at regular intervals.
+    // - Crucially, Arteries never intersect each other or loop back to the Aorta.
+    // - This creates a strong "Sector" feel where you traverse the main highway to reach different sub-sections.
+    // - Corridors are strictly 1-tile wide to be distinct from rooms.
 
     const aortaY = Math.floor(this.height / 2); // Center Y
     const aortaStart = 1;
@@ -151,9 +152,10 @@ export class TreeShipGenerator {
         }
     } 
     
-    // 4. Fill Gaps
+    // 4. Fill Gaps (Density Pass)
     // Iterate through the grid and try to fill small voids (e.g. 1x1 holes) if they connect to valid floor.
     // This improves density without breaking the tree structure (since we verify no cycles).
+    // This ensures we reach the target >90% fill rate for "claustrophobic spaceship" feel.
     
     for (let y = 1; y < this.height - 1; y++) {
         for (let x = 1; x < this.width - 1; x++) {
@@ -172,10 +174,6 @@ export class TreeShipGenerator {
                     if (neighborCell?.type === CellType.Floor) {
                         // Found a floor neighbor. Can we attach?
                         // Treat as a 1x1 room attempt from neighbor.
-                        // Parent is (nx, ny). New room is (x, y).
-                        // Direction from Parent to New is opposite of n.dir?
-                        // Wait, n.dir is direction of neighbor relative to current cell.
-                        // So if neighbor is North (y-1), direction from neighbor to current is South.
                         
                         let dirFromParent: 'n'|'s'|'e'|'w' = 's';
                         if (n.dir === 'n') dirFromParent = 's';
