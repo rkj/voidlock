@@ -28,6 +28,15 @@ export class Director {
     }
   }
 
+  public getThreatLevel(): number {
+    const initialInterval = 5000;
+    // Invert so lower interval = higher threat
+    // 5000 -> 0%
+    // 1000 -> 100%
+    const ratio = (initialInterval - this.spawnInterval) / (initialInterval - this.minSpawnInterval);
+    return Math.min(100, Math.max(0, ratio * 100));
+  }
+
   private rampDifficulty() {
     this.spawnInterval = Math.max(this.minSpawnInterval, this.spawnInterval - this.rampAmount);
     // console.log('Director ramped difficulty. New interval:', this.spawnInterval);

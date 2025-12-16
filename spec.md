@@ -288,29 +288,47 @@ The `toAscii` representation should be:
 
 ## 8) UI/UX requirements (web)
 
-### 8.1 Views
+### 8.1 Screen Flow Architecture
 
-*   **Config screen**
+The application is divided into distinct screens to reduce UI clutter and improve flow.
 
-    *   Load/save pack config JSON
-    *   Random seed control
-    *   **Map Selection**:
-        *   **Map Generator Selection**: Dropdown or similar control to choose between different map generation strategies (e.g., 'Procedural Maze', 'Static Map').
-        *   **Preset Maps**: Dropdown or list of predefined maps (e.g., 'Screenshot Map', 'Small Maze', 'Corridor'). The 'Screenshot Map' (`map-screenshot.json`) must be included as a preset.
-        *   **Load Static Map (Text Input)**: For 'Static Map' selection, provide an input (e.g., text area) to paste map definition JSON.
-        *   **Load Static Map (File Upload)**: Add a dedicated file input (`<input type="file">`) for `.json` files to upload map definition JSON.
-        *   **ASCII Map Input/Output**: A text area input for pasting/displaying ASCII map strings, with buttons to "Convert to MapDefinition" and "Convert from MapDefinition".
-    *   Squad builder (pick archetypes)
-    *   Toggles: fog-of-war, debug overlay, agent control on/off
-*   **Mission screen**
-    *   Main map (Canvas/WebGL) - Must accurately render the `MapDefinition`, including all Floor/Wall cells and correctly representing thin walls between cells. Doors must be clearly visible and distinguishable by their state, with sufficient visual contrast against walls and floors, and a noticeable thickness (e.g., 1/10th of `cellSize`).
-        *   **Closed Doors**: Yellow. Should be thicker, similar to the visual representation in `map_bad.jpg`, with a thinner line visually connecting them to the adjacent walls.
-        *   **Locked Doors**: Red. Should be thicker, similar to the visual representation in `map_bad.jpg`, with a thinner line visually connecting them to the adjacent walls.
-        *   **Open Doors**: Represented by a small frame along the top/bottom (for horizontal) or left/right (for vertical) edges of their segment, indicating passage. The frame should visually connect to the adjacent walls, and the overall thickness should be consistent with closed/locked doors.
-        *   **Destroyed Doors**: (Retain red color)
-    *   Left panel: squad list + status + quick commands
-    *   Bottom: timeline/events log (important for debugging director)
-    *   Right: objective/extraction status + threat meter
+1.  **Main Menu (Welcome Screen)**
+    *   **Title**: "Xenopurge"
+    *   **Credits**: Author/Version info.
+    *   **Navigation**:
+        *   "Campaign" -> Go to Campaign Screen.
+        *   "Custom Mission" -> Go to Mission Setup Screen.
+        *   "Load Replay" -> Import replay JSON.
+    *   *Note*: Pressing `ESC` from other screens (except Mission) returns here (or to previous screen).
+
+2.  **Campaign Screen** (Placeholder for M9+)
+    *   List of available missions (currently empty or "Coming Soon").
+    *   "Back" button -> Main Menu.
+
+3.  **Mission Setup Screen** (formerly Config Screen)
+    *   **Map Configuration**:
+        *   Generator Type (Procedural, TreeShip, Static).
+        *   Seed Input / Randomize.
+        *   Map Size (Width/Height).
+        *   Static Map Import (Text/File/ASCII).
+    *   **Game Options**:
+        *   Fog of War, Debug Overlay, Agent Control toggles.
+    *   **Squad Configuration**:
+        *   Select archetypes/count.
+    *   **Actions**:
+        *   "Launch Mission" -> Starts Engine, switches to Mission Screen.
+        *   "Back" -> Main Menu.
+
+4.  **Mission Screen** (Active Gameplay)
+    *   **Main View**: Canvas/WebGL rendering of the game world.
+    *   **Left Panel**: Squad List (Health, Status) + Quick Commands.
+    *   **Right Panel**:
+        *   **Objectives List**: Current status of mission objectives.
+        *   **Extraction Status**: Location/Progress.
+        *   **Threat Meter**: Visual indicator of Director intensity.
+    *   **Bottom Panel**: Timeline/Event Log.
+    *   **Input**:
+        *   `ESC`: Opens **Pause Overlay** (Resume / Abort Mission).
 
 ### 8.2 Debug affordances (non-negotiable for balancing)
 
