@@ -151,7 +151,49 @@ export class TreeShipGenerator {
         }
     } 
     
-    // 4. Features
+    // 4. Fill Gaps
+    // Iterate through the grid and try to fill small voids (e.g. 1x1 holes) if they connect to valid floor.
+    // This improves density without breaking the tree structure (since we verify no cycles).
+    
+    for (let y = 1; y < this.height - 1; y++) {
+        for (let x = 1; x < this.width - 1; x++) {
+            if (this.getCell(x, y)?.type === CellType.Wall) {
+                // Check neighbors
+                const neighbors = [
+                    { nx: x, ny: y - 1, dir: 'n' }, { nx: x, ny: y + 1, dir: 's' },
+                    { nx: x + 1, ny: y, dir: 'e' }, { nx: x - 1, ny: y, dir: 'w' }
+                ];
+                
+                // Shuffle neighbors to avoid bias
+                this.prng.shuffle(neighbors);
+
+                for (const n of neighbors) {
+                    const neighborCell = this.getCell(n.nx, n.ny);
+                    if (neighborCell?.type === CellType.Floor) {
+                        // Found a floor neighbor. Can we attach?
+                        // Treat as a 1x1 room attempt from neighbor.
+                        // Parent is (nx, ny). New room is (x, y).
+                        // Direction from Parent to New is opposite of n.dir?
+                        // Wait, n.dir is direction of neighbor relative to current cell.
+                        // So if neighbor is North (y-1), direction from neighbor to current is South.
+                        
+                        let dirFromParent: 'n'|'s'|'e'|'w' = 's';
+                        if (n.dir === 'n') dirFromParent = 's';
+                        else if (n.dir === 's') dirFromParent = 'n';
+                        else if (n.dir === 'e') dirFromParent = 'w';
+                        else if (n.dir === 'w') dirFromParent = 'e';
+
+                        if (!this.checkProposedRoomForCollisionsAndCycles(x, y, 1, 1, n.nx, n.ny, dirFromParent)) {
+                            this.placeRoom(x, y, 1, 1, n.nx, n.ny, dirFromParent);
+                            break; // Filled this cell, move to next
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // 5. Features
     this.placeFeatures();
     return {
         width: this.width,
