@@ -74,6 +74,58 @@ export function hasCycleDFS(adj: Map<string, string[]>): boolean {
   return false;
 }
 
+// Check if all Floor cells are connected (fully connected component)
+export function checkConnectivity(map: MapDefinition): boolean {
+    const floorCells = map.cells.filter(c => c.type === CellType.Floor);
+    if (floorCells.length === 0) return true; // Empty map is connected? Or trivial.
+
+    const start = floorCells[0];
+    const visited = new Set<string>();
+    const queue: {x: number, y: number}[] = [start];
+    visited.add(`${start.x},${start.y}`);
+
+    const getCell = (x: number, y: number) => map.cells.find(c => c.x === x && c.y === y);
+
+    while (queue.length > 0) {
+        const curr = queue.shift()!;
+        const currCell = getCell(curr.x, curr.y);
+        if (!currCell) continue;
+
+        // Check neighbors
+        // Connectivity is defined by OPEN WALLS.
+        // TreeShipGenerator opens walls when placing rooms/doors.
+        // So we check cell.walls property.
+        
+        const neighbors = [
+            { dx: 0, dy: -1, wall: 'n' as const, opp: 's' as const },
+            { dx: 0, dy: 1, wall: 's' as const, opp: 'n' as const },
+            { dx: 1, dy: 0, wall: 'e' as const, opp: 'w' as const },
+            { dx: -1, dy: 0, wall: 'w' as const, opp: 'e' as const }
+        ];
+
+        for (const n of neighbors) {
+            // Check if wall is OPEN
+            if (!currCell.walls[n.wall]) {
+                const nx = curr.x + n.dx;
+                const ny = curr.y + n.dy;
+                const key = `${nx},${ny}`;
+                
+                if (!visited.has(key)) {
+                    const neighborCell = getCell(nx, ny);
+                    // Must be a Floor cell
+                    if (neighborCell && neighborCell.type === CellType.Floor) {
+                        visited.add(key);
+                        queue.push({x: nx, y: ny});
+                    }
+                }
+            }
+        }
+    }
+
+    // Connectivity is valid if visited count equals floor cell count
+    return visited.size === floorCells.length;
+}
+
 // Calculate fill rate (ratio of Floor cells to total grid size)
 export function calculateFillRate(map: MapDefinition): number {
     const floorCount = map.cells.filter(c => c.type === CellType.Floor).length;

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { TreeShipGenerator } from '../../generators/TreeShipGenerator';
 import { MapDefinition, CellType } from '../../../shared/types';
-import { mapToAdjacencyList, hasCycleDFS, calculateFillRate } from '../utils/GraphUtils';
+import { mapToAdjacencyList, hasCycleDFS, calculateFillRate, checkConnectivity } from '../utils/GraphUtils';
 
 describe('TreeShipGenerator Cycle Detection', () => {
   const numTests = 100;
@@ -11,7 +11,7 @@ describe('TreeShipGenerator Cycle Detection', () => {
 
   for (let i = 0; i < numTests; i++) {
     const seed = startSeed + i;
-    it(`should generate an acyclic ${mapWidth}x${mapHeight} map for seed ${seed} with >90% fill rate`, () => {
+    it(`should generate an acyclic ${mapWidth}x${mapHeight} map for seed ${seed} with >90% fill rate and full connectivity`, () => {
       const generator = new TreeShipGenerator(seed, mapWidth, mapHeight);
       const map = generator.generate();
       const adj = mapToAdjacencyList(map);
@@ -19,6 +19,8 @@ describe('TreeShipGenerator Cycle Detection', () => {
       
       const fillRate = calculateFillRate(map);
       expect(fillRate).toBeGreaterThanOrEqual(0.9);
+
+      expect(checkConnectivity(map)).toBe(true);
     });
   }
 });
