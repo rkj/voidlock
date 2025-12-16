@@ -185,23 +185,22 @@ Example:
 
 *   `generate(prng, config) -> MapDefinition`
 
-*   `load(mapData: MapDefinition) -> MapDefinition` (New: to load predefined maps)
+    *   `load(mapData: MapDefinition) -> MapDefinition` (New: to load predefined maps)
 
-*   `validate(map) -> issues[]`
+    *   `validate(map) -> issues[]`
 
-*   **Map Generation Strategy Selection**: The `MapGenerator` (or its client) must support selecting different generation strategies (e.g., `procedural-maze`, `static-predefined`, `custom-scripted`).
+    *   **Map Generation Strategy Selection**: The `MapGenerator` (or its client) must support selecting different generation strategies (e.g., `procedural-maze`, `static-predefined`, `custom-scripted`).
 
-**TreeShipGenerator Specifics:**
-The `TreeShipGenerator` produces maps with a unique branching structure, akin to a tree, with the following characteristics:
+**TreeShipGenerator (Sector Layout) Specifics:**
+The `TreeShipGenerator` produces maps with a structured layout:
+*   **Skeleton (Acyclic Arteries):** For larger maps (>12x12), the map is divided by a "skeleton" of main corridors. To maintain acyclicity while ensuring coverage, use patterns like "Fishbone" (Central Spine + Perpendicular Ribs) or "Star" (Central Junction + Radiating Arms). **Do not form a closed grid.**
+*   **Corridor Dimensions:** Corridors should generally be 1 tile wide to be distinct from rooms. "Weirdly large" undefined open areas should be avoided.
 *   **Room Size:** Rooms must not be larger than 2x2 cells.
-*   **Room Connectivity:** Rooms should be isolated, connecting only to main corridors or other rooms via a maximum of two doors. Direct connections between rooms, other than a pass-through from one room to another, are forbidden.
-*   **No Loops:** The generated map layout must be acyclic, ensuring no circular paths or loops exist within the main corridors or between rooms.
-*   **Corridor-to-Room Transitions:** Main corridors can lead into rooms, but it should not be possible to traverse through a room and emerge into another part of the same main corridor or a different main corridor. Rooms act as terminals or controlled junctions, not open thoroughfares.
-
-
+*   **Room Connectivity:** Rooms branch off the corridor skeleton. They should be isolated, connecting primarily to the skeleton.
+*   **Comb Strategy:** Internal walls of multi-tile rooms (2x2) are opened using a "Comb" pattern (top row horizontal, others vertical) to prevent internal cycles.
+*   **No Loops:** The generated map layout must be strictly acyclic.
 
 **Director**
-
 * `update(prng, state) -> SpawnPlan[]`
 
 **CombatResolver**
