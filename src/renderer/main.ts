@@ -159,10 +159,24 @@ const updateUI = (state: GameState) => {
           rightPanel.appendChild(extDiv);
       }
 
-      // Threat Meter (placeholder for now)
+      // Threat Meter
       const threatDiv = document.createElement('div');
       threatDiv.className = 'threat-meter';
-      threatDiv.innerHTML = `<h3>Threat Meter</h3><p>Current Threat: Low (Placeholder)</p>`;
+      
+      const threatLevel = state.threatLevel || 0;
+      let threatText = 'Low';
+      let threatColor = '#4caf50'; // Green
+      if (threatLevel > 30) { threatText = 'Medium'; threatColor = '#ff9800'; } // Orange
+      if (threatLevel > 70) { threatText = 'High'; threatColor = '#f44336'; } // Red
+      if (threatLevel > 90) { threatText = 'CRITICAL'; threatColor = '#b71c1c'; } // Dark Red
+
+      threatDiv.innerHTML = `
+        <h3>Threat Meter</h3>
+        <p style="color: ${threatColor}; font-weight: bold; margin: 5px 0;">${threatText} (${threatLevel.toFixed(0)}%)</p>
+        <div style="width: 100%; background: #333; height: 10px; border: 1px solid #555;">
+            <div style="width: ${threatLevel}%; background: ${threatColor}; height: 100%; transition: width 0.5s;"></div>
+        </div>
+      `;
       rightPanel.appendChild(threatDiv);
   }
 

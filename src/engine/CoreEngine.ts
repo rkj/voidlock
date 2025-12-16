@@ -37,6 +37,7 @@ export class CoreEngine {
       visibleCells: [],
       discoveredCells: [],
       objectives,
+      threatLevel: 0,
       status: 'Playing'
     };
     
@@ -240,6 +241,7 @@ export class CoreEngine {
 
     // Update Director to spawn enemies
     this.director.update(dt);
+    this.state.threatLevel = this.director.getThreatLevel();
 
     // --- Automatic Door Logic ---
     this.doors.forEach(door => {

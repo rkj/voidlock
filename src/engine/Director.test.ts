@@ -55,4 +55,32 @@ describe('Director', () => {
     director.update(100);
     expect(onSpawn).toHaveBeenCalledTimes(2);
   });
+
+  it('should increase threat level as difficulty ramps up', () => {
+    const spawnPoints: SpawnPoint[] = [{ id: 'sp1', pos: { x: 0, y: 0 }, radius: 1 }];
+    const onSpawn = vi.fn();
+    const prng = new PRNG(123);
+    const director = new Director(spawnPoints, prng, onSpawn);
+
+    // Initial threat level should be 0
+    expect(director.getThreatLevel()).toBe(0);
+
+    // After 1st spawn, interval drops from 5000 to 4900
+    // Threat = (5000 - 4900) / (5000 - 1000) = 100 / 4000 = 2.5%
+    director.update(5000);
+    expect(director.getThreatLevel()).toBe(2.5);
+
+    // After many spawns (e.g. 20 more), interval drops further
+    for (let i = 0; i < 20; i++) {
+        // We need to advance enough time for next spawn.
+        // Current interval is reducing. To be safe, advance 5000ms each time.
+        director.update(5000); 
+    }
+    
+    // Total spawns: 1 + 20 = 21.
+    // Interval decrease: 21 * 100 = 2100ms.
+    // Current interval: 5000 - 2100 = 2900ms.
+    // Threat: (5000 - 2900) / 4000 = 2100 / 4000 = 52.5%
+    expect(director.getThreatLevel()).toBe(52.5);
+  });
 });
