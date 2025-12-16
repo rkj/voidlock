@@ -1,4 +1,4 @@
-import { GameState, MapDefinition, Unit, Enemy, Command, CommandType, UnitState, Vector2, Objective, Door, Archetype, ArchetypeLibrary, SquadConfig } from '../shared/types';
+import { GameState, MapDefinition, Unit, Enemy, Command, CommandType, UnitState, Vector2, Objective, Door, Archetype, ArchetypeLibrary, SquadConfig, CellType } from '../shared/types';
 import { GameGrid } from './GameGrid';
 import { Pathfinder } from './Pathfinder';
 import { Director } from './Director';
@@ -16,13 +16,15 @@ export class CoreEngine {
   private prng: PRNG;
   private readonly TICK_RATE = 100; // ms
   private doors: Map<string, Door>;
+  private agentControlEnabled: boolean; // New property
 
-  constructor(map: MapDefinition, seed: number, squadConfig: SquadConfig) {
+  constructor(map: MapDefinition, seed: number, squadConfig: SquadConfig, agentControlEnabled: boolean) {
     this.prng = new PRNG(seed);
     this.gameGrid = new GameGrid(map);
     this.doors = new Map(map.doors?.map(door => [door.id, door]));
     this.pathfinder = new Pathfinder(this.gameGrid, this.doors);
     this.los = new LineOfSight(this.gameGrid, this.doors);
+    this.agentControlEnabled = agentControlEnabled; // Store the setting
 
     const objectives: Objective[] = (map.objectives || []).map(o => ({
       ...o,
@@ -234,6 +236,39 @@ export class CoreEngine {
     return false;
   }
 
+  // Helper to find the closest undiscovered Floor cell from a given position
+  private findClosestUndiscoveredCell(fromPos: Vector2): Vector2 | null {
+    let closestCell: Vector2 | null = null;
+    let minDistance = Infinity;
+
+    // Iterate over all possible cells
+    for (let y = 0; y < this.state.map.height; y++) {
+      for (let x = 0; x < this.state.map.width; x++) {
+        const cellKey = `${x},${y}`;
+        // If it's a floor cell and not yet discovered
+        if (this.gameGrid.isWalkable(x, y) && !this.state.discoveredCells.includes(cellKey)) {
+          const dist = this.getDistance(fromPos, { x: x + 0.5, y: y + 0.5 }); // Center of cell
+          if (dist < minDistance) {
+            minDistance = dist;
+            closestCell = { x, y };
+          }
+        }
+      }
+    }
+    return closestCell;
+  }
+
+  // Helper to check if the entire map is discovered
+  private isMapFullyDiscovered(): boolean {
+    const totalFloorCells = this.state.map.cells.filter(c => c.type === CellType.Floor).length;
+    return this.state.discoveredCells.length >= totalFloorCells;
+  }
+  
+  // Debugging function for AI
+  private logAIState(message: string) {
+      console.log(`AI Debug (t=${this.state.t}): ${message}`);
+  }
+
   public update(dt: number) {
     if (this.state.status !== 'Playing') return;
 
@@ -302,6 +337,22 @@ export class CoreEngine {
           const nextCmd = unit.commandQueue.shift();
           if (nextCmd) {
               this.executeCommand(unit, nextCmd);
+          }
+      } else if (unit.state === UnitState.Idle && unit.commandQueue.length === 0 && this.agentControlEnabled) {
+          // AI Logic for idle units (Exploration and Extraction)
+          if (!this.isMapFullyDiscovered()) {
+              const targetCell = this.findClosestUndiscoveredCell(unit.pos);
+              if (targetCell) {
+                  this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: targetCell });
+              }
+          } else {
+              // Map fully discovered, move to extraction
+              if (this.state.map.extraction) {
+                  const unitCurrentCell = { x: Math.floor(unit.pos.x), y: Math.floor(unit.pos.y) };
+                  if (unitCurrentCell.x !== this.state.map.extraction.x || unitCurrentCell.y !== this.state.map.extraction.y) {
+                      this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: this.state.map.extraction });
+                  }
+              }
           }
       }
 
