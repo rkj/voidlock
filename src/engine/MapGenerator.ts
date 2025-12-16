@@ -432,6 +432,28 @@ export class MapGenerator {
     return { isValid: issues.length === 0, issues };
   }
 
+  /**
+   * Converts a MapDefinition to an ASCII string representation using an expanded grid format.
+   * 
+   * Grid Expansion:
+   * The grid is expanded to (2*W + 1) x (2*H + 1) characters.
+   * - Cells (x, y) map to ASCII coordinates (2*x + 1, 2*y + 1).
+   * - Walls/Doors between cells are represented at the interstitial coordinates.
+   * 
+   * Character Legend:
+   * - ' ': Floor cell or Open Passage
+   * - '#': Wall/Void cell
+   * - 'S', 'E', 'O': Spawn, Extraction, Objective (on Floor)
+   * 
+   * Boundaries (Walls):
+   * - '-': Horizontal Wall segment
+   * - '|': Vertical Wall segment
+   * - '+': Corner (intersection of walls)
+   * 
+   * Doors (Replacing Walls):
+   * - '=': Horizontal Door (replaces a '-' segment between vertical neighbors)
+   * - 'I': Vertical Door (replaces a '|' segment between horizontal neighbors)
+   */
   public static toAscii(map: MapDefinition): string {
     const { width, height, cells, doors, spawnPoints, extraction, objectives } = map;
     const expandedWidth = width * 2 + 1;
