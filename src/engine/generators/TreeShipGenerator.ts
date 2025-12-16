@@ -27,44 +27,72 @@ export class TreeShipGenerator {
       walls: { n: true, e: true, s: true, w: true }
     }));
 
-    // 2. Main Corridor (Spine)
-    const spineY = this.prng.nextInt(1, this.height - 2); 
-    const spineStart = 0; 
-    const spineEnd = this.width - 1; 
-
     const spineCells: {x: number, y: number}[] = [];
 
-    for (let x = spineStart; x <= spineEnd; x++) {
-        this.setFloor(x, spineY);
-        spineCells.push({x, y: spineY});
-        if (x > spineStart) {
-            this.openWall(x-1, spineY, 'e');
-        }
+    // 2. Main Skeleton (Branching Arteries / Fishbone)
+    // Strategy:
+    // - Create a primary horizontal spine (Aorta)
+    // - Create secondary vertical spines (Arteries) branching off the Aorta at intervals
+    // - Ensure spines do not touch each other except at the branch point (to keep tree structure)
+    // - Corridors are 1-tile wide.
 
-        const expandNorth = this.prng.next() < 0.5; 
-        const expandSouth = this.prng.next() < 0.5; 
+    const aortaY = Math.floor(this.height / 2); // Center Y
+    const aortaStart = 1;
+    const aortaEnd = this.width - 2;
 
-        if (expandNorth) {
-            if (spineY > 0) {
-              this.setFloor(x, spineY - 1);
-              spineCells.push({x, y: spineY - 1}); 
-              this.openWall(x, spineY, 'n'); 
+    // Draw Aorta
+    for (let x = aortaStart; x <= aortaEnd; x++) {
+        this.setFloor(x, aortaY);
+        spineCells.push({x, y: aortaY});
+        if (x > aortaStart) this.openWall(x-1, aortaY, 'e');
+    }
+
+    // Draw Arteries (Vertical branches off Aorta)
+    // Spaced out to avoid crowding
+    const arteryInterval = 4; // Every 4 tiles?
+    // Randomize slightly?
+    
+    for (let x = aortaStart + 2; x <= aortaEnd - 2; x += arteryInterval) {
+        // Chance to spawn artery
+        if (this.prng.next() < 0.8) {
+            // Upward Artery
+            const lenUp = this.prng.nextInt(2, Math.floor(this.height/2) - 2);
+            for (let y = 1; y <= lenUp; y++) {
+                const cy = aortaY - y;
+                this.setFloor(x, cy);
+                spineCells.push({x, y: cy});
+                if (y === 1) this.openWall(x, aortaY, 'n'); // Connect to Aorta
+                else this.openWall(x, cy + 1, 'n'); // Connect to previous segment
             }
-        }
-        if (expandSouth) {
-            if (spineY < this.height - 1) {
-              this.setFloor(x, spineY + 1);
-              spineCells.push({x, y: spineY + 1}); 
-              this.openWall(x, spineY, 's'); 
+
+            // Downward Artery
+            const lenDown = this.prng.nextInt(2, Math.floor(this.height/2) - 2);
+            for (let y = 1; y <= lenDown; y++) {
+                const cy = aortaY + y;
+                this.setFloor(x, cy);
+                spineCells.push({x, y: cy});
+                if (y === 1) this.openWall(x, aortaY, 's'); // Connect to Aorta
+                else this.openWall(x, cy - 1, 's'); // Connect to previous segment
             }
         }
     }
 
     // 3. Grow Room Trees
+    // Add all spine walls to frontier to allow room growth
     this.frontier = [];
     spineCells.forEach(cell => {
-        this.frontier.push({parentX: cell.x, parentY: cell.y, dir: 'n'});
-        this.frontier.push({parentX: cell.x, parentY: cell.y, dir: 's'});
+        // Only add walls that lead to Void
+        const checkAndAdd = (dx: number, dy: number, dir: 'n'|'s'|'e'|'w') => {
+            const nx = cell.x + dx;
+            const ny = cell.y + dy;
+            if (nx >= 0 && nx < this.width && ny >= 0 && ny < this.height && this.getCell(nx, ny)?.type === CellType.Wall) {
+                this.frontier.push({parentX: cell.x, parentY: cell.y, dir});
+            }
+        };
+        checkAndAdd(0, -1, 'n');
+        checkAndAdd(0, 1, 's');
+        checkAndAdd(1, 0, 'e');
+        checkAndAdd(-1, 0, 'w');
     });
 
     while (this.frontier.length > 0) {
