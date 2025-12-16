@@ -824,6 +824,7 @@ npm run dev
 * **No Pushes:** Do not push changes to remote without explicit user instruction.
 * **Dev Server:** Do not run `npm run dev`. Assume the user manages the server.
 * **Visual Verification (Screenshots):** After completing major tasks involving UI changes or visual output, take a screenshot for visual verification. Use `navigate_page` to ensure the correct page is loaded, `run_shell_command('sleep 10')` to allow the page to fully render, and then `take_screenshot()` to capture the visual state. Critically, **always review the captured screenshot** to ensure the visual output matches expectations.
+* **Avoid Duplication:** Do not duplicate helper functions or test logic across multiple files. Create shared utility files (e.g., `src/engine/tests/utils/`) and import them. If you see duplication, refactor it.
 
 ## G2) Testing Strategy
 * **Unit Test First:** For core mechanics (Grid, Pathfinder, LOS), write tests before implementation.
