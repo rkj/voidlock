@@ -224,6 +224,7 @@ export class TreeShipGenerator {
 
       // Connect to Parent (Door)
       this.placeDoor(parentX, parentY, dir);
+      this.openWall(parentX, parentY, dir);
 
       // --- EXPAND FRONTIER ---
       // Add walls of the new room to frontier
@@ -291,26 +292,19 @@ export class TreeShipGenerator {
       let segment: Vector2[];
       let orientation: 'Horizontal' | 'Vertical';
 
-      // CoreEngine interprets segment {x,y} as:
-      // Horizontal: Between (x,y) and (x, y+1)
-      // Vertical: Between (x,y) and (x+1, y)
-
+      // Door segment should contain the two cells it connects.
       if (dir === 'n') { 
           orientation = 'Horizontal';
-          // Door between (x,y) and (x, y-1). Lower y is y-1.
-          segment = [{x, y: y-1}];
+          segment = [{x, y}, {x, y: y-1}];
       } else if (dir === 's') { 
           orientation = 'Horizontal';
-          // Door between (x,y) and (x, y+1). Lower y is y.
-          segment = [{x, y}];
+          segment = [{x, y}, {x, y: y+1}];
       } else if (dir === 'w') { 
           orientation = 'Vertical';
-          // Door between (x,y) and (x-1, y). Lower x is x-1.
-          segment = [{x: x-1, y}];
+          segment = [{x, y}, {x: x-1, y}];
       } else { // 'e'
           orientation = 'Vertical';
-          // Door between (x,y) and (x+1, y). Lower x is x.
-          segment = [{x, y}];
+          segment = [{x, y}, {x: x+1, y}];
       }
 
       this.doors.push({
