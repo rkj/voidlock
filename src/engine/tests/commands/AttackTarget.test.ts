@@ -16,7 +16,7 @@ describe('Command: ATTACK_TARGET', () => {
 
   beforeEach(() => {
     const defaultSquad: SquadConfig = [{archetypeId: "assault", count: 1}]; // Default unit for tests
-    engine = new CoreEngine(map, 123, defaultSquad);
+    engine = new CoreEngine(map, 123, defaultSquad, false);
     engine.clearUnits();
     // Add one unit
     engine.addUnit({
@@ -54,7 +54,7 @@ describe('Command: ATTACK_TARGET', () => {
 
     // Reset health
     const defaultSquad: SquadConfig = [{archetypeId: "assault", count: 1}]; // Re-declare for scope or make global if multiple use. For now, re-declare.
-    engine = new CoreEngine(map, 123, defaultSquad); // Re-initialize with squad
+    engine = new CoreEngine(map, 123, defaultSquad, false); // Re-initialize with squad
     engine.clearUnits();
     engine.addUnit({ id: 'u1', pos: { x: 5.5, y: 5.5 }, hp: 100, maxHp: 100, state: UnitState.Idle, damage: 10, fireRate: 100, attackRange: 5, sightRange: 10, commandQueue: [] });
     engine.addEnemy({ id: 'e1', pos: { x: 5.5, y: 4.5 }, hp: 100, maxHp: 100, type: 'Grunt', damage: 0, fireRate: 1000, attackRange: 1 });

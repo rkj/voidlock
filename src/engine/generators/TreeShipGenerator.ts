@@ -1,4 +1,4 @@
-import { MapDefinition, CellType, Cell, Door, SpawnPoint, Objective } from '../../shared/types';
+import { MapDefinition, CellType, Cell, Door, SpawnPoint, Objective, Vector2 } from '../../shared/types';
 import { PRNG } from '../../shared/PRNG';
 
 export class TreeShipGenerator {
@@ -239,7 +239,9 @@ export class TreeShipGenerator {
       const possibleOutwardDirs: {dx: number, dy: number, k: 'n'|'e'|'s'|'w'}[] = [
           {dx:0, dy:-1, k:'n'}, {dx:0, dy:1, k:'s'}, 
           {dx:1, dy:0, k:'e'}, {dx:-1, dy:0, k:'w'}
-      ].filter(d => {
+      ];
+
+      const validDirs = possibleOutwardDirs.filter(d => {
           // Exclude direction back to parent
           const oppositeDir = (d.k === 'n' && dir === 's') || (d.k === 's' && dir === 'n') ||
                             (d.k === 'w' && dir === 'e') || (d.k === 'e' && dir === 'w');
@@ -247,7 +249,7 @@ export class TreeShipGenerator {
       });
 
       for (const cell of newRoomCells) {
-          for (const d of possibleOutwardDirs) {
+          for (const d of validDirs) {
               const nx = cell.x + d.dx;
               const ny = cell.y + d.dy;
 

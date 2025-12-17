@@ -1,0 +1,238 @@
+import { MapDefinition, CellType, Vector2 } from '../shared/types';
+
+export class MapRenderer {
+  private ctx: CanvasRenderingContext2D;
+  private canvas: HTMLCanvasElement;
+  private cellSize: number = 64; 
+
+  constructor(canvas: HTMLCanvasElement) {
+    this.canvas = canvas;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      throw new Error("Could not get 2D rendering context for canvas.");
+    }
+    this.ctx = ctx;
+  }
+
+  public setCellSize(size: number) {
+    this.cellSize = size;
+  }
+
+  public render(map: MapDefinition) {
+    const width = map.width * this.cellSize;
+    const height = map.height * this.cellSize;
+
+    if (this.canvas.width !== width || this.canvas.height !== height) {
+        this.canvas.width = width;
+        this.canvas.height = height;
+    }
+
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+
+    this.renderCells(map);
+    this.renderWalls(map);
+    this.renderDoors(map);
+    this.renderObjectives(map);
+    this.renderSpawnPoints(map);
+  }
+
+  private renderCells(map: MapDefinition) {
+    map.cells.forEach(cell => {
+      if (cell.type === CellType.Floor) {
+        this.ctx.fillStyle = '#111'; // Dark grey floor
+        this.ctx.fillRect(
+          cell.x * this.cellSize,
+          cell.y * this.cellSize,
+          this.cellSize,
+          this.cellSize
+        );
+        
+        // Grid lines
+        this.ctx.strokeStyle = '#222';
+        this.ctx.lineWidth = 1;
+        this.ctx.strokeRect(
+          cell.x * this.cellSize,
+          cell.y * this.cellSize,
+          this.cellSize,
+          this.cellSize
+        );
+      }
+    });
+  }
+
+  private renderWalls(map: MapDefinition) {
+    const isDoor = (cellX: number, cellY: number, wallDirection: 'n'|'e'|'s'|'w'): boolean => {
+      return map.doors?.some(door => {
+        if (door.orientation === 'Horizontal') {
+          if (wallDirection === 'n') return door.segment.some(segCell => segCell.x === cellX && segCell.y === cellY - 1);
+          if (wallDirection === 's') return door.segment.some(segCell => segCell.x === cellX && segCell.y === cellY);
+        } else if (door.orientation === 'Vertical') {
+          if (wallDirection === 'w') return door.segment.some(segCell => segCell.x === cellX - 1 && segCell.y === cellY);
+          if (wallDirection === 'e') return door.segment.some(segCell => segCell.x === cellX && segCell.y === cellY);
+        }
+        return false;
+      }) || false;
+    };
+
+    this.ctx.lineCap = 'round';
+    this.ctx.strokeStyle = '#00FFFF'; 
+    this.ctx.lineWidth = 2; 
+    this.ctx.beginPath();
+
+    map.cells.forEach(cell => {
+      if (cell.type !== CellType.Floor) return;
+
+      const x = cell.x * this.cellSize;
+      const y = cell.y * this.cellSize;
+      const s = this.cellSize;
+
+      if (cell.walls.n && !isDoor(cell.x, cell.y, 'n')) { 
+        this.ctx.moveTo(x, y);
+        this.ctx.lineTo(x + s, y);
+      }
+      if (cell.walls.e && !isDoor(cell.x, cell.y, 'e')) { 
+        this.ctx.moveTo(x + s, y);
+        this.ctx.lineTo(x + s, y + s);
+      }
+      if (cell.walls.s && !isDoor(cell.x, cell.y, 's')) { 
+        this.ctx.moveTo(x, y + s);
+        this.ctx.lineTo(x + s, y + s);
+      }
+      if (cell.walls.w && !isDoor(cell.x, cell.y, 'w')) { 
+        this.ctx.moveTo(x, y);
+        this.ctx.lineTo(x, y + s);
+      }
+    });
+    this.ctx.stroke();
+  }
+
+  private renderDoors(map: MapDefinition) {
+    map.doors?.forEach(door => {
+      let doorColor: string = '#888';
+      let doorStroke: string = '#AAA';
+      
+      // Default to Closed if state is somehow missing or simplified
+      const state = door.state || 'Closed';
+      
+      if (state === 'Closed') { doorColor = '#FFD700'; doorStroke = '#FFAA00'; } 
+      else if (state === 'Locked') { doorColor = '#FF0000'; doorStroke = '#880000'; }
+      else if (state === 'Destroyed') { doorColor = '#330000'; doorStroke = '#550000'; }
+
+      const doorThickness = this.cellSize / 8; 
+      const doorInset = this.cellSize / 8;
+
+      door.segment.forEach(segCell => {
+        const x = segCell.x * this.cellSize;
+        const y = segCell.y * this.cellSize;
+        const s = this.cellSize;
+        
+        let drawX = x, drawY = y, drawWidth = s, drawHeight = s;
+
+        if (state === 'Open') {
+          this.ctx.fillStyle = '#444';
+          if (door.orientation === 'Vertical') {
+             this.ctx.fillRect(x + s - 4, y, 4, doorInset); 
+             this.ctx.fillRect(x + s - 4, y + s - doorInset, 4, doorInset); 
+          } else {
+             this.ctx.fillRect(x, y + s - 4, doorInset, 4); 
+             this.ctx.fillRect(x + s - doorInset, y + s - 4, doorInset, 4); 
+          }
+        } else {
+          this.ctx.fillStyle = doorColor;
+          this.ctx.strokeStyle = doorStroke;
+          this.ctx.lineWidth = 2;
+
+          if (door.orientation === 'Vertical') { 
+            drawX = x + s - doorThickness / 2;
+            drawY = y + doorInset;
+            drawWidth = doorThickness;
+            drawHeight = s - (doorInset * 2);
+          } else { 
+            drawX = x + doorInset;
+            drawY = y + s - doorThickness / 2;
+            drawWidth = s - (doorInset * 2);
+            drawHeight = doorThickness;
+          }
+          
+          this.ctx.fillRect(drawX, drawY, drawWidth, drawHeight);
+          this.ctx.strokeRect(drawX, drawY, drawWidth, drawHeight);
+          
+          if (state === 'Locked') {
+              this.ctx.beginPath();
+              this.ctx.moveTo(drawX, drawY);
+              this.ctx.lineTo(drawX + drawWidth, drawY + drawHeight);
+              this.ctx.moveTo(drawX + drawWidth, drawY);
+              this.ctx.lineTo(drawX, drawY + drawHeight);
+              this.ctx.stroke();
+          }
+        }
+      });
+    });
+  }
+
+  private renderObjectives(map: MapDefinition) {
+    if (map.extraction) {
+      const ext = map.extraction;
+      this.ctx.fillStyle = '#00AAAA'; 
+      this.ctx.globalAlpha = 0.3;
+      this.ctx.fillRect(
+        ext.x * this.cellSize + 4,
+        ext.y * this.cellSize + 4,
+        this.cellSize - 8,
+        this.cellSize - 8
+      );
+      this.ctx.globalAlpha = 1.0;
+      
+      // Label 'E'
+      this.ctx.fillStyle = '#00FFFF';
+      this.ctx.font = `bold ${this.cellSize/2}px monospace`;
+      this.ctx.textAlign = 'center';
+      this.ctx.textBaseline = 'middle';
+      this.ctx.fillText("E", ext.x * this.cellSize + this.cellSize/2, ext.y * this.cellSize + this.cellSize/2);
+    }
+
+    map.objectives?.forEach(obj => {
+      if (obj.targetCell) {
+        this.ctx.fillStyle = '#FFAA00'; 
+        this.ctx.globalAlpha = 0.3;
+        this.ctx.fillRect(
+          obj.targetCell.x * this.cellSize + 4,
+          obj.targetCell.y * this.cellSize + 4,
+          this.cellSize - 8,
+          this.cellSize - 8
+        );
+        this.ctx.globalAlpha = 1.0;
+
+        // Label 'O'
+        this.ctx.fillStyle = '#FFDD00';
+        this.ctx.font = `bold ${this.cellSize/2}px monospace`;
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillText("O", obj.targetCell.x * this.cellSize + this.cellSize/2, obj.targetCell.y * this.cellSize + this.cellSize/2);
+      }
+    });
+  }
+
+  private renderSpawnPoints(map: MapDefinition) {
+      map.spawnPoints?.forEach(sp => {
+        this.ctx.fillStyle = '#440044'; 
+        this.ctx.globalAlpha = 0.3;
+        // Spawn point is a radius, usually 1? 
+        // Just render a circle at pos
+        const x = sp.pos.x * this.cellSize;
+        const y = sp.pos.y * this.cellSize;
+        
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, this.cellSize * 0.4, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.globalAlpha = 1.0;
+
+        // Label 'S'
+        this.ctx.fillStyle = '#FF00FF';
+        this.ctx.font = `bold ${this.cellSize/3}px monospace`;
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.fillText("S", x, y);
+      });
+  }
+}

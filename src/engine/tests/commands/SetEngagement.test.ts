@@ -17,7 +17,7 @@ describe('Command: SET_ENGAGEMENT', () => {
 
   beforeEach(() => {
     const defaultSquad: SquadConfig = [{archetypeId: "assault", count: 1}]; // Default unit for tests
-    engine = new CoreEngine(map, 123, defaultSquad);
+    engine = new CoreEngine(map, 123, defaultSquad, false);
     engine.clearUnits();
     engine.addUnit({
       id: 'u1', pos: { x: 0.5, y: 0.5 },

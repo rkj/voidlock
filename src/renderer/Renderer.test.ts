@@ -51,12 +51,12 @@ describe('Renderer', () => {
       { id: 'e1', pos: { x: 0.5, y: 0.5 }, hp: 30, maxHp: 30, type: 'SwarmMelee', damage: 5, fireRate: 1000, attackRange: 1 }, // Visible
       { id: 'e2', pos: { x: 1.5, y: 1.5 }, hp: 30, maxHp: 30, type: 'SwarmMelee', damage: 5, fireRate: 1000, attackRange: 1 }  // Hidden
     ],
-    visibleCells: ['0,0'], 
-    discoveredCells: ['0,0', '0,1'],
-    status: 'Playing',
-    objectives: mockMap.objectives as Objective[]
-  };
-
+        visibleCells: [],
+        discoveredCells: [],
+        objectives: [],
+        threatLevel: 0,
+        status: 'Playing'
+      };
   beforeEach(() => {
     vi.clearAllMocks();
     renderer = new Renderer(mockCanvas);
