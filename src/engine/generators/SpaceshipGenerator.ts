@@ -1,4 +1,4 @@
-import { MapDefinition, CellType, Cell, Door, SpawnPoint, Objective } from '../../shared/types';
+import { MapDefinition, CellType, Cell, Door, SpawnPoint, Objective, Vector2 } from '../../shared/types';
 import { PRNG } from '../../shared/PRNG';
 
 export class SpaceshipGenerator {

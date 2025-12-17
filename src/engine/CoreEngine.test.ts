@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { CoreEngine } from '../engine/CoreEngine';
 import { GameGrid } from '../engine/GameGrid';
-import { MapDefinition, CellType, UnitState, CommandType, Vector2, SquadConfig, Archetype, ArchetypeLibrary } from '../shared/types';
+import { MapDefinition, CellType, UnitState, CommandType, Vector2, SquadConfig, Archetype, ArchetypeLibrary, SpawnPoint, Objective } from '../shared/types';
 import { Pathfinder } from '../engine/Pathfinder';
 
 describe('CoreEngine with Objectives and Game Loop', () => {
@@ -32,7 +32,7 @@ describe('CoreEngine with Objectives and Game Loop', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     const defaultSquad: SquadConfig = [{archetypeId: "assault", count: 1}];
-    engine = new CoreEngine(mockMap, 123, defaultSquad); 
+    engine = new CoreEngine(mockMap, 123, defaultSquad, false); 
     engine.clearUnits(); 
     engine.addUnit({
       id: 'u1',

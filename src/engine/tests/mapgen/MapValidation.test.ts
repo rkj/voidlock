@@ -14,7 +14,7 @@ describe('MapGenerator.validate', () => {
     ],
     spawnPoints: [{ id: 'sp1', pos: { x: 0, y: 0 }, radius: 1 }],
     extraction: { x: 2, y: 0 },
-    objectives: [{ id: 'o1', kind: 'Recover', state: 'Pending', targetCell: { x: 2, y: 0 } }],
+    objectives: [{ id: 'o1', kind: 'Recover', targetCell: { x: 2, y: 0 } }],
     doors: []
   });
 

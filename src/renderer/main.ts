@@ -102,7 +102,7 @@ const statefulMapGeneratorFactory = (seed: number, type: MapGeneratorType, mapDa
     return mapGeneratorFactory(seed, type, mapData, currentMapWidth, currentMapHeight);
 };
 
-const gameClient = new GameClient(statefulMapGeneratorFactory);
+const gameClient = new GameClient(statefulMapGeneratorFactory as any);
 let renderer: Renderer;
 let currentGameState: GameState | null = null;
 
