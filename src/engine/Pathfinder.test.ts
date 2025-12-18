@@ -104,12 +104,12 @@ describe('Pathfinder', () => {
       expect(path).toEqual([{ x: 1, y: 0 }, { x: 2, y: 0 }]);
     });
 
-    it('should block pathfinding through a closed door', () => {
+    it('should find a path through a closed door (units will wait)', () => {
       const { map, doors } = createTestMapWithDoor('Closed');
       const doorGrid = new GameGrid(map);
       const doorPathfinder = new Pathfinder(doorGrid, doors);
       const path = doorPathfinder.findPath({ x: 0, y: 0 }, { x: 2, y: 0 });
-      expect(path).toBeNull();
+      expect(path).toEqual([{ x: 1, y: 0 }, { x: 2, y: 0 }]);
     });
 
     it('should block pathfinding through a locked door', () => {

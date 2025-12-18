@@ -426,13 +426,26 @@ document.addEventListener('DOMContentLoaded', () => {
   // Handle Map Generator Type selection
   mapGeneratorTypeSelect?.addEventListener('change', () => {
     currentMapGeneratorType = mapGeneratorTypeSelect.value as MapGeneratorType;
+    const wInput = document.getElementById('map-width') as HTMLInputElement;
+    const hInput = document.getElementById('map-height') as HTMLInputElement;
     if (currentMapGeneratorType === MapGeneratorType.Static) {
       staticMapControlsDiv.style.display = 'block';
       mapSeedInput.disabled = true;
+      if (wInput) wInput.disabled = true;
+      if (hInput) hInput.disabled = true;
     } else {
       staticMapControlsDiv.style.display = 'none';
       mapSeedInput.disabled = false;
+      if (wInput) wInput.disabled = false;
+      if (hInput) hInput.disabled = false;
     }
+  });
+
+  document.getElementById('map-width')?.addEventListener('change', (e) => {
+    currentMapWidth = parseInt((e.target as HTMLInputElement).value) || 24;
+  });
+  document.getElementById('map-height')?.addEventListener('change', (e) => {
+    currentMapHeight = parseInt((e.target as HTMLInputElement).value) || 24;
   });
 
   // Loading Static Maps

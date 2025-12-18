@@ -6,14 +6,23 @@ describe('SimpleBot', () => {
   const mockMap: MapDefinition = { width: 10, height: 10, cells: [], extraction: { x: 0, y: 0 } };
   const mockObjective: Objective = { id: 'o1', kind: 'Recover', state: 'Pending', targetCell: { x: 5, y: 5 } };
   
+  const mockUnit: Unit = {
+    id: 'u1',
+    pos: { x: 0, y: 0 },
+    hp: 100, maxHp: 100,
+    state: UnitState.Idle,
+    damage: 10, fireRate: 1000, attackRange: 5, sightRange: 10,
+    commandQueue: []
+  };
+
   const baseState: GameState = {
     t: 0,
     map: { ...mockMap, objectives: [mockObjective] },
-    units: [],
+    units: [mockUnit],
     enemies: [],
     visibleCells: [],
     discoveredCells: [],
-    objectives: [],
+    objectives: [mockObjective],
     threatLevel: 0,
     status: 'Playing'
   };
