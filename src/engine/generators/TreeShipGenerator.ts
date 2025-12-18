@@ -147,6 +147,7 @@ export class TreeShipGenerator {
     }
 
     // 5. Features
+    this.postProcessRooms(); // Fix closed 2x2 areas
     this.placeFeatures();
     return {
         width: this.width,
@@ -159,18 +160,43 @@ export class TreeShipGenerator {
     };
   }
 
+  private postProcessRooms() {
+      // Scan for 2x2 floor blocks and open internal walls
+      for (let y = 0; y < this.height - 1; y++) {
+          for (let x = 0; x < this.width - 1; x++) {
+              const c00 = this.getCell(x, y);
+              const c10 = this.getCell(x + 1, y);
+              const c01 = this.getCell(x, y + 1);
+              const c11 = this.getCell(x + 1, y + 1);
+
+              if (c00?.type === CellType.Floor && c10?.type === CellType.Floor &&
+                  c01?.type === CellType.Floor && c11?.type === CellType.Floor) {
+                  
+                  // Found a 2x2 floor block. Open all internal walls.
+                  // (0,0) <-> (1,0)
+                  this.openWall(x, y, 'e');
+                  // (0,1) <-> (1,1)
+                  this.openWall(x, y + 1, 'e');
+                  // (0,0) <-> (0,1)
+                  this.openWall(x, y, 's');
+                  // (1,0) <-> (1,1)
+                  this.openWall(x + 1, y, 's');
+              }
+          }
+      }
+  }
+
   private placeRoom(rx: number, ry: number, w: number, h: number, parentX: number, parentY: number, dir: 'n'|'e'|'s'|'w') {
       // Place Room
       for(let y=ry; y<ry+h; y++) {
           for(let x=rx; x<rx+w; x++) {
               this.setFloor(x, y);
               
-              // Internal walls (Comb strategy for acyclicity)
-              const isFirstRow = (y === ry);
-              const isLastRow = (y === ry + h - 1);
+              // Internal walls: Open connections to neighbors within the room
               const isLastCol = (x === rx + w - 1);
+              const isLastRow = (y === ry + h - 1);
 
-              if (isFirstRow && !isLastCol) this.openWall(x, y, 'e');
+              if (!isLastCol) this.openWall(x, y, 'e');
               if (!isLastRow) this.openWall(x, y, 's');
           }
       }

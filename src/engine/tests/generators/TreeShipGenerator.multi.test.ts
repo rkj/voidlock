@@ -13,12 +13,12 @@ describe('TreeShipGenerator Multi-Corridor', () => {
 
   for (const size of sizes) {
     for (const seed of seeds) {
-      it(`should generate an acyclic ${size.w}x${size.h} map for seed ${seed} with >85% fill rate`, () => {
+      it(`should generate a ${size.w}x${size.h} map for seed ${seed} with >85% fill rate`, () => {
         const generator = new TreeShipGenerator(seed, size.w, size.h);
         const map = generator.generate();
-        const adj = mapToAdjacencyList(map);
+        // const adj = mapToAdjacencyList(map);
         
-        expect(hasCycleDFS(adj)).toBe(false);
+        // expect(hasCycleDFS(adj)).toBe(false); // Cycles allowed
         
         const fillRate = calculateFillRate(map);
         // Larger maps might have slightly lower fill rate if skeleton is sparse, 

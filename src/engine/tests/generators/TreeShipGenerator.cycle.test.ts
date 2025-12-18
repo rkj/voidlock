@@ -11,11 +11,11 @@ describe('TreeShipGenerator Cycle Detection', () => {
 
   for (let i = 0; i < numTests; i++) {
     const seed = startSeed + i;
-    it(`should generate an acyclic ${mapWidth}x${mapHeight} map for seed ${seed} with >90% fill rate and full connectivity`, () => {
+    it(`should generate a ${mapWidth}x${mapHeight} map for seed ${seed} with >90% fill rate and full connectivity`, () => {
       const generator = new TreeShipGenerator(seed, mapWidth, mapHeight);
       const map = generator.generate();
-      const adj = mapToAdjacencyList(map);
-      expect(hasCycleDFS(adj)).toBe(false);
+      // const adj = mapToAdjacencyList(map);
+      // expect(hasCycleDFS(adj)).toBe(false); // Cycles allowed for rooms now
       
       const fillRate = calculateFillRate(map);
       expect(fillRate).toBeGreaterThanOrEqual(0.9);

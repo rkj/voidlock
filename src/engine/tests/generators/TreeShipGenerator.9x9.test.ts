@@ -19,8 +19,8 @@ describe('TreeShipGenerator 9x9', () => {
     expect(map.height).toBe(9);
     
     // Verify acyclicity
-    const adj = mapToAdjacencyList(map);
-    expect(hasCycleDFS(adj)).toBe(false);
+    // const adj = mapToAdjacencyList(map);
+    // expect(hasCycleDFS(adj)).toBe(false); // Cycles allowed for rooms now
 
     // Verify fill rate
     expect(calculateFillRate(map)).toBeGreaterThanOrEqual(0.9);
