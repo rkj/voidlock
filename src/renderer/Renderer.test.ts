@@ -24,6 +24,10 @@ const mockContext = {
   closePath: vi.fn(),
   fill: vi.fn(),
   stroke: vi.fn(),
+  setLineDash: vi.fn(),
+  fillText: vi.fn(),
+  textAlign: '',
+  textBaseline: '',
   // Add other methods used in Renderer as needed
 } as unknown as CanvasRenderingContext2D;
 
@@ -72,11 +76,11 @@ describe('Renderer', () => {
   it('should only render visible enemies', () => {
     renderer.render(mockGameState);
     
-    // s1 at 0.5 -> 16px.
-    expect(mockContext.arc).toHaveBeenCalledWith(16, 16, expect.any(Number), 0, Math.PI * 2);
+    // s1 at 0.5 -> 16px (plus flocking offset)
+    expect(mockContext.arc).toHaveBeenCalledWith(expect.any(Number), expect.any(Number), expect.any(Number), 0, Math.PI * 2);
     
-    // e1 at 0.5 -> 16px.
-    expect(mockContext.moveTo).toHaveBeenCalledWith(16, expect.any(Number));
+    // e1 at 0.5 -> 16px (plus flocking offset)
+    expect(mockContext.moveTo).toHaveBeenCalledWith(expect.any(Number), expect.any(Number));
     
     // e2 at 1.5 -> 48px. Hidden.
     expect(mockContext.moveTo).not.toHaveBeenCalledWith(48, expect.any(Number));

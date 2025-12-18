@@ -184,19 +184,67 @@ export class Renderer {
     });
   }
 
+  private getVisualOffset(unitId: string, pos: Vector2, allEntities: {id: string, pos: Vector2}[], radius: number): Vector2 {
+      let dx = 0, dy = 0;
+      let count = 0;
+      for (const other of allEntities) {
+          if (other.id === unitId) continue;
+          const dist = Math.sqrt((pos.x - other.pos.x)**2 + (pos.y - other.pos.y)**2);
+          if (dist < radius) { // Too close
+              const angle = Math.atan2(pos.y - other.pos.y, pos.x - other.pos.x);
+              const push = (radius - dist) / radius; // Stronger push when closer
+              dx += Math.cos(angle) * push;
+              dy += Math.sin(angle) * push;
+              count++;
+          }
+      }
+      if (count > 0) {
+          // Normalize and scale
+          const strength = 0.3; // Max 0.3 tiles offset
+          return { x: dx * strength, y: dy * strength };
+      }
+      return { x: 0, y: 0 };
+  }
+
   private renderObjectives(state: GameState) {
     if (state.map.extraction) {
       const ext = state.map.extraction;
-      this.ctx.fillStyle = '#00AAAA'; 
-      this.ctx.globalAlpha = 0.3;
-      this.ctx.fillRect(
-        ext.x * this.cellSize + 4,
-        ext.y * this.cellSize + 4,
-        this.cellSize - 8,
-        this.cellSize - 8
-      );
-      this.ctx.globalAlpha = 1.0;
+      const x = ext.x * this.cellSize;
+      const y = ext.y * this.cellSize;
+      
+      // Extraction Zone
+      this.ctx.fillStyle = 'rgba(0, 255, 255, 0.2)'; 
+      this.ctx.fillRect(x, y, this.cellSize, this.cellSize);
+      
+      this.ctx.strokeStyle = '#00FFFF';
+      this.ctx.lineWidth = 3;
+      this.ctx.setLineDash([10, 5]);
+      this.ctx.strokeRect(x + 5, y + 5, this.cellSize - 10, this.cellSize - 10);
+      this.ctx.setLineDash([]);
+
+      // Icon (E)
+      this.ctx.fillStyle = '#00FFFF';
+      this.ctx.font = `bold ${this.cellSize/2}px Courier New`;
+      this.ctx.textAlign = 'center';
+      this.ctx.textBaseline = 'middle';
+      this.ctx.fillText('EXIT', x + this.cellSize/2, y + this.cellSize/2);
     }
+
+    state.map.spawnPoints?.forEach(sp => {
+        const x = sp.pos.x * this.cellSize;
+        const y = sp.pos.y * this.cellSize;
+        
+        this.ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
+        this.ctx.lineWidth = 4;
+        this.ctx.strokeRect(x + 2, y + 2, this.cellSize - 4, this.cellSize - 4);
+        
+        this.ctx.fillStyle = 'rgba(255, 0, 0, 0.1)';
+        this.ctx.fillRect(x, y, this.cellSize, this.cellSize);
+        
+        this.ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+        this.ctx.font = `${this.cellSize/4}px Courier New`;
+        this.ctx.fillText('SPAWN', x + this.cellSize/2, y + this.cellSize - 10);
+    });
 
     state.objectives?.forEach(obj => {
       if (obj.state === 'Pending' && obj.targetCell) {
@@ -209,16 +257,25 @@ export class Renderer {
           this.cellSize - 8
         );
         this.ctx.globalAlpha = 1.0;
+        
+        this.ctx.fillStyle = '#FFAA00';
+        this.ctx.textAlign = 'center';
+        this.ctx.textBaseline = 'middle';
+        this.ctx.font = `bold ${this.cellSize/2}px Arial`;
+        this.ctx.fillText('OBJ', obj.targetCell.x * this.cellSize + this.cellSize/2, obj.targetCell.y * this.cellSize + this.cellSize/2);
       }
     });
   }
 
   private renderUnits(state: GameState) {
+    const allEntities = [...state.units, ...state.enemies.filter(e => e.hp > 0)]; // For collision consideration
+
     state.units.forEach(unit => {
       if (unit.state === UnitState.Extracted || unit.state === UnitState.Dead) return;
 
-      const x = unit.pos.x * this.cellSize; 
-      const y = unit.pos.y * this.cellSize;
+      const offset = this.getVisualOffset(unit.id, unit.pos, allEntities, 0.5); // 0.5 tile radius for checking overlap
+      const x = (unit.pos.x + offset.x) * this.cellSize; 
+      const y = (unit.pos.y + offset.y) * this.cellSize;
 
       this.ctx.beginPath();
       // Unit size: 1/6 radius = 1/3 diameter relative to cell.
@@ -263,14 +320,17 @@ export class Renderer {
   }
 
   private renderEnemies(state: GameState) {
+    const allEntities = [...state.units, ...state.enemies.filter(e => e.hp > 0)];
+
     state.enemies.forEach(enemy => {
       if (enemy.hp <= 0) return;
 
       const cellKey = `${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`;
       if (!state.visibleCells.includes(cellKey)) return;
 
-      const x = enemy.pos.x * this.cellSize;
-      const y = enemy.pos.y * this.cellSize;
+      const offset = this.getVisualOffset(enemy.id, enemy.pos, allEntities, 0.5);
+      const x = (enemy.pos.x + offset.x) * this.cellSize;
+      const y = (enemy.pos.y + offset.y) * this.cellSize;
       const size = this.cellSize / 6;
 
       this.ctx.beginPath();
