@@ -1,4 +1,4 @@
-import { MapDefinition, Command, GameState, WorkerMessage, MainMessage, ReplayData, RecordedCommand, MapGeneratorType, SquadConfig } from '../shared/types';
+import { MapDefinition, Command, GameState, WorkerMessage, MainMessage, ReplayData, RecordedCommand, MapGeneratorType, SquadConfig, MissionType } from '../shared/types';
 import { MapGenerator } from './MapGenerator';
 
 // Factory type for creating MapGenerator instances based on type
@@ -38,7 +38,8 @@ export class GameClient {
     fogOfWarEnabled: boolean = true,
     debugOverlayEnabled: boolean = false,
     agentControlEnabled: boolean = true,
-    squadConfig: SquadConfig = [] // Default to empty array if not provided
+    squadConfig: SquadConfig = [], // Default to empty array if not provided
+    missionType: MissionType = MissionType.Default
   ) {
     this.initialSeed = seed;
     this.initialSquadConfig = squadConfig;
@@ -52,7 +53,7 @@ export class GameClient {
 
     const msg: WorkerMessage = {
       type: 'INIT',
-      payload: { seed, map, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled, squadConfig: squadConfig }
+      payload: { seed, map, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled, squadConfig: squadConfig, missionType }
     };
     this.worker.postMessage(msg);
   }

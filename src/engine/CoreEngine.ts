@@ -1,4 +1,4 @@
-import { GameState, MapDefinition, Unit, Enemy, Command, CommandType, UnitState, Vector2, Objective, Door, Archetype, ArchetypeLibrary, SquadConfig, CellType } from '../shared/types';
+import { GameState, MapDefinition, Unit, Enemy, Command, CommandType, UnitState, Vector2, Objective, Door, Archetype, ArchetypeLibrary, SquadConfig, CellType, MissionType } from '../shared/types';
 import { GameGrid } from './GameGrid';
 import { Pathfinder } from './Pathfinder';
 import { Director } from './Director';
@@ -7,29 +7,56 @@ import { PRNG } from '../shared/PRNG';
 
 const EPSILON = 0.0001; // Small value for floating-point comparisons
 
+// ...
 export class CoreEngine {
-  private state: GameState;
-  private gameGrid: GameGrid;
-  private pathfinder: Pathfinder;
-  private director: Director;
-  private los: LineOfSight;
-  private prng: PRNG;
-  private readonly TICK_RATE = 100; // ms
-  private doors: Map<string, Door>;
+  // ...
   private agentControlEnabled: boolean; // New property
+  private missionType: MissionType;
 
-  constructor(map: MapDefinition, seed: number, squadConfig: SquadConfig, agentControlEnabled: boolean) {
+  constructor(map: MapDefinition, seed: number, squadConfig: SquadConfig, agentControlEnabled: boolean, missionType: MissionType = MissionType.Default) {
     this.prng = new PRNG(seed);
     this.gameGrid = new GameGrid(map);
     this.doors = new Map(map.doors?.map(door => [door.id, door]));
     this.pathfinder = new Pathfinder(this.gameGrid, this.doors);
     this.los = new LineOfSight(this.gameGrid, this.doors);
-    this.agentControlEnabled = agentControlEnabled; // Store the setting
+    this.agentControlEnabled = agentControlEnabled; 
+    this.missionType = missionType;
 
-    const objectives: Objective[] = (map.objectives || []).map(o => ({
+    let objectives: Objective[] = (map.objectives || []).map(o => ({
       ...o,
       state: 'Pending'
     }));
+
+    // Mission Logic Override
+    if (this.missionType === MissionType.ExtractArtifacts) {
+        objectives = []; // Clear default
+        const floors = map.cells.filter(c => c.type === CellType.Floor);
+        // Place 3 artifacts far from spawn/extraction
+        const extraction = map.extraction || { x: 0, y: 0 };
+        const candidates = floors.filter(c => {
+            const dx = c.x - extraction.x;
+            const dy = c.y - extraction.y;
+            return Math.sqrt(dx*dx + dy*dy) > map.width * 0.4; // At least 40% map width away
+        });
+        
+        // Shuffle candidates
+        for (let i = candidates.length - 1; i > 0; i--) {
+            const j = this.prng.nextInt(0, i);
+            [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+        }
+
+        const count = Math.min(3, candidates.length);
+        for (let i = 0; i < count; i++) {
+            objectives.push({
+                id: `artifact-${i}`,
+                kind: 'Recover',
+                state: 'Pending',
+                targetCell: { x: candidates[i].x, y: candidates[i].y }
+            });
+        }
+    } else if (this.missionType === MissionType.DestroyHive) {
+        objectives = []; // Will add after init
+    }
 
     this.state = {
       t: 0,
@@ -43,6 +70,39 @@ export class CoreEngine {
       status: 'Playing'
     };
     
+    // Post-init Mission Setup (Hive)
+    if (this.missionType === MissionType.DestroyHive) {
+        const floors = map.cells.filter(c => c.type === CellType.Floor);
+        const extraction = map.extraction || { x: 0, y: 0 };
+        const candidates = floors.filter(c => {
+            const dx = c.x - extraction.x;
+            const dy = c.y - extraction.y;
+            return Math.sqrt(dx*dx + dy*dy) > map.width * 0.5;
+        });
+        
+        if (candidates.length > 0) {
+            const hiveLoc = candidates[this.prng.nextInt(0, candidates.length - 1)];
+            const hiveId = 'enemy-hive';
+            
+            this.addEnemy({
+                id: hiveId,
+                pos: { x: hiveLoc.x + 0.5, y: hiveLoc.y + 0.5 },
+                hp: 500, maxHp: 500,
+                type: 'Hive', 
+                damage: 0, 
+                fireRate: 1000,
+                attackRange: 0
+            });
+
+            this.state.objectives.push({
+                id: 'obj-hive',
+                kind: 'Kill',
+                state: 'Pending',
+                targetEnemyId: hiveId
+            });
+        }
+    }
+
     // Initialize Director
     const spawnPoints = map.spawnPoints || [];
     this.director = new Director(spawnPoints, this.prng, (enemy) => this.addEnemy(enemy));
@@ -414,14 +474,22 @@ export class CoreEngine {
           }
       }
 
-      // Objectives: Recover
+      // Objectives: Recover & Kill
       if (this.state.objectives) {
         this.state.objectives.forEach(obj => {
-          if (obj.kind === 'Recover' && obj.state === 'Pending' && obj.targetCell) {
-            // Check if unit is at target cell (integer coords)
-            if (Math.floor(unit.pos.x) === obj.targetCell.x && Math.floor(unit.pos.y) === obj.targetCell.y) {
-              obj.state = 'Completed';
-            }
+          if (obj.state === 'Pending') {
+              if (obj.kind === 'Recover' && obj.targetCell) {
+                // Check if unit is at target cell (integer coords)
+                if (Math.floor(unit.pos.x) === obj.targetCell.x && Math.floor(unit.pos.y) === obj.targetCell.y) {
+                  obj.state = 'Completed';
+                }
+              } else if (obj.kind === 'Kill' && obj.targetEnemyId) {
+                  const target = this.state.enemies.find(e => e.id === obj.targetEnemyId);
+                  // If not found in enemies list, it's dead (cleaned up)
+                  if (!target || target.hp <= 0) {
+                      obj.state = 'Completed';
+                  }
+              }
           }
         });
       }
