@@ -5,6 +5,7 @@ import { MapGenerator } from '../engine/MapGenerator';
 import { SpaceshipGenerator } from '../engine/generators/SpaceshipGenerator';
 import { TreeShipGenerator } from '../engine/generators/TreeShipGenerator';
 import { ScreenManager } from './ScreenManager';
+import { ConfigManager, GameConfig } from './ConfigManager';
 
 // --- Screen Management ---
 const screenManager = new ScreenManager();
@@ -84,18 +85,17 @@ const transformMapData = (oldMapData: any): MapDefinition => {
 };
 
 // --- Game Configuration State ---
-let currentMapWidth = 14;
-let currentMapHeight = 14;
-let fogOfWarEnabled = true;
-let debugOverlayEnabled = false;
-let agentControlEnabled = true;
-let currentSeed: number = Date.now();
-let currentMapGeneratorType: MapGeneratorType = MapGeneratorType.TreeShip;
+let defaultConfig = ConfigManager.getDefault();
+
+let currentMapWidth = defaultConfig.mapWidth;
+let currentMapHeight = defaultConfig.mapHeight;
+let fogOfWarEnabled = defaultConfig.fogOfWarEnabled;
+let debugOverlayEnabled = defaultConfig.debugOverlayEnabled;
+let agentControlEnabled = defaultConfig.agentControlEnabled;
+let currentSeed: number = defaultConfig.lastSeed;
+let currentMapGeneratorType: MapGeneratorType = defaultConfig.mapGeneratorType;
 let currentStaticMapData: MapDefinition | undefined = undefined;
-let currentSquad: SquadConfig = [
-  { archetypeId: "assault", count: 1 },
-  { archetypeId: "medic", count: 1 }
-];
+let currentSquad: SquadConfig = defaultConfig.squadConfig;
 
 // --- Engine & Renderer State ---
 const statefulMapGeneratorFactory = (seed: number, type: MapGeneratorType, mapData?: MapDefinition): MapGenerator | SpaceshipGenerator | TreeShipGenerator => {
@@ -288,6 +288,18 @@ const launchMission = () => {
         currentMapWidth = parseInt(wInput.value) || 14;
         currentMapHeight = parseInt(hInput.value) || 14;
     }
+
+    // Save Config
+    ConfigManager.save({
+        mapWidth: currentMapWidth,
+        mapHeight: currentMapHeight,
+        fogOfWarEnabled,
+        debugOverlayEnabled,
+        agentControlEnabled,
+        mapGeneratorType: currentMapGeneratorType,
+        lastSeed: currentSeed,
+        squadConfig: currentSquad
+    });
 
     // Initialize engine
     gameClient.init(currentSeed, currentMapGeneratorType, currentStaticMapData, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled, currentSquad);
@@ -578,6 +590,44 @@ document.addEventListener('DOMContentLoaded', () => {
   // Initial State: Menu
   screenManager.show('main-menu');
   
-  // Set defaults for controls
-  mapGeneratorTypeSelect.value = currentMapGeneratorType;
+  // Load Config
+  const loadAndApplyConfig = () => {
+      const config = ConfigManager.load();
+      if (config) {
+          currentMapWidth = config.mapWidth;
+          currentMapHeight = config.mapHeight;
+          fogOfWarEnabled = config.fogOfWarEnabled;
+          debugOverlayEnabled = config.debugOverlayEnabled;
+          agentControlEnabled = config.agentControlEnabled;
+          currentMapGeneratorType = config.mapGeneratorType;
+          currentSeed = config.lastSeed;
+          currentSquad = config.squadConfig;
+
+          // Apply to UI
+          if (mapSeedInput) mapSeedInput.value = currentSeed.toString();
+          if (mapGeneratorTypeSelect) mapGeneratorTypeSelect.value = currentMapGeneratorType;
+          
+          const wInput = document.getElementById('map-width') as HTMLInputElement;
+          const hInput = document.getElementById('map-height') as HTMLInputElement;
+          if (wInput) wInput.value = currentMapWidth.toString();
+          if (hInput) hInput.value = currentMapHeight.toString();
+
+          const fowCheck = document.getElementById('toggle-fog-of-war') as HTMLInputElement;
+          if (fowCheck) fowCheck.checked = fogOfWarEnabled;
+
+          const debugCheck = document.getElementById('toggle-debug-overlay') as HTMLInputElement;
+          if (debugCheck) debugCheck.checked = debugOverlayEnabled;
+
+          const agentCheck = document.getElementById('toggle-agent-control') as HTMLInputElement;
+          if (agentCheck) agentCheck.checked = agentControlEnabled;
+
+          // Trigger change event for map type to update UI visibility
+          mapGeneratorTypeSelect.dispatchEvent(new Event('change'));
+      } else {
+          // Set defaults for controls if no config
+          mapGeneratorTypeSelect.value = currentMapGeneratorType;
+      }
+  };
+
+  loadAndApplyConfig();
 });
