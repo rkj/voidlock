@@ -332,6 +332,59 @@ export class CoreEngine {
     this.state.units.forEach(unit => {
       if (unit.state === UnitState.Extracted || unit.state === UnitState.Dead) return;
 
+      // --- 1. Threat Evaluation ---
+      const visibleEnemies = this.state.enemies.filter(enemy => 
+        enemy.hp > 0 &&
+        newVisibleCells.has(`${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`)
+      );
+
+      const threats = visibleEnemies.map(enemy => ({
+        enemy,
+        distance: this.getDistance(unit.pos, enemy.pos),
+        priority: 1 / (this.getDistance(unit.pos, enemy.pos) + 1) // Simple proximity priority
+      })).sort((a, b) => b.priority - a.priority);
+
+      // --- 2. Self-Preservation Logic ---
+      const isLowHP = unit.hp < unit.maxHp * 0.25;
+      const nearbyAllies = this.state.units.filter(u => u.id !== unit.id && u.hp > 0 && u.state !== UnitState.Extracted && u.state !== UnitState.Dead && this.getDistance(unit.pos, u.pos) <= 5);
+      const isIsolated = nearbyAllies.length === 0 && threats.length > 0;
+
+      if (isLowHP && threats.length > 0) {
+          // Retreat Logic: Find closest safe discovered cell
+          const safeCells = this.state.discoveredCells.filter(cellKey => {
+              const [cx, cy] = cellKey.split(',').map(Number);
+              return !visibleEnemies.some(e => Math.floor(e.pos.x) === cx && Math.floor(e.pos.y) === cy);
+          });
+          
+          if (safeCells.length > 0) {
+              const closestSafe = safeCells.map(cellKey => {
+                  const [cx, cy] = cellKey.split(',').map(Number);
+                  return { x: cx, y: cy, dist: this.getDistance(unit.pos, { x: cx + 0.5, y: cy + 0.5 }) };
+              }).sort((a, b) => a.dist - b.dist)[0];
+              
+              if (unit.state !== UnitState.Moving || !unit.targetPos || Math.floor(unit.targetPos.x) !== closestSafe.x || Math.floor(unit.targetPos.y) !== closestSafe.y) {
+                  unit.engagementPolicy = 'IGNORE';
+                  this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: { x: closestSafe.x, y: closestSafe.y } });
+              }
+          }
+      } else if (isIsolated) {
+          // Group Up Logic: Move toward closest ally
+          const otherUnits = this.state.units.filter(u => u.id !== unit.id && u.hp > 0 && u.state !== UnitState.Extracted && u.state !== UnitState.Dead);
+          if (otherUnits.length > 0) {
+              const closestAlly = otherUnits.sort((a, b) => this.getDistance(unit.pos, a.pos) - this.getDistance(unit.pos, b.pos))[0];
+              if (unit.state !== UnitState.Moving || !unit.targetPos || Math.floor(unit.targetPos.x) !== Math.floor(closestAlly.pos.x) || Math.floor(unit.targetPos.y) !== Math.floor(closestAlly.pos.y)) {
+                  unit.engagementPolicy = 'IGNORE'; // Temporarily ignore to reach ally
+                  this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: { x: Math.floor(closestAlly.pos.x), y: Math.floor(closestAlly.pos.y) } });
+              }
+          }
+      } else {
+          // If no longer retreating or isolated, but was in IGNORE mode, reset to ENGAGE if idle
+          if (unit.engagementPolicy === 'IGNORE' && unit.state === UnitState.Idle && unit.commandQueue.length === 0) {
+              unit.engagementPolicy = 'ENGAGE';
+          }
+      }
+
+      // --- 3. Engagement & Autonomous Exploration ---
       // Process Queue if Idle
       if (unit.state === UnitState.Idle && unit.commandQueue.length > 0) {
           const nextCmd = unit.commandQueue.shift();
@@ -339,8 +392,13 @@ export class CoreEngine {
               this.executeCommand(unit, nextCmd);
           }
       } else if (unit.state === UnitState.Idle && unit.commandQueue.length === 0 && this.agentControlEnabled) {
-          // AI Logic for idle units (Exploration and Extraction)
-          if (!this.isMapFullyDiscovered()) {
+          // Priority: 1. Threat Engagement, 2. Exploration, 3. Extraction
+          if (threats.length > 0 && unit.engagementPolicy !== 'IGNORE') {
+              const primaryThreat = threats[0].enemy;
+              if (this.getDistance(unit.pos, primaryThreat.pos) > unit.attackRange) {
+                  this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: { x: Math.floor(primaryThreat.pos.x), y: Math.floor(primaryThreat.pos.y) } });
+              }
+          } else if (!this.isMapFullyDiscovered()) {
               const targetCell = this.findClosestUndiscoveredCell(unit.pos);
               if (targetCell) {
                   this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: targetCell });
