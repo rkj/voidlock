@@ -49,9 +49,12 @@ export class Director {
     const spawnIndex = this.prng.nextInt(0, this.spawnPoints.length - 1);
     const spawnPoint = this.spawnPoints[spawnIndex];
 
+    const offsetX = this.prng.next() * 0.4 - 0.2; // -0.2 to 0.2 jitter
+    const offsetY = this.prng.next() * 0.4 - 0.2;
+
     const enemy: Enemy = {
       id: `enemy-${this.enemyIdCounter++}`,
-      pos: { ...spawnPoint.pos },
+      pos: { x: spawnPoint.pos.x + 0.5 + offsetX, y: spawnPoint.pos.y + 0.5 + offsetY },
       hp: 30,
       maxHp: 30,
       type: 'SwarmMelee',
