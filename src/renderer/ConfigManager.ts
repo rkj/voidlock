@@ -1,4 +1,4 @@
-import { MapGeneratorType, SquadConfig, MapDefinition } from '../shared/types';
+import { MapGeneratorType, SquadConfig, MapDefinition, MissionType } from '../shared/types';
 
 export interface GameConfig {
   mapWidth: number;
@@ -7,6 +7,7 @@ export interface GameConfig {
   debugOverlayEnabled: boolean;
   agentControlEnabled: boolean;
   mapGeneratorType: MapGeneratorType;
+  missionType: MissionType;
   lastSeed: number;
   // staticMapData is tricky to serialize if large, but per spec we should probably try or just skip if it's user uploaded file that isn't persistent.
   // For now, let's persist everything except maybe large static maps if they exceed limits, but let's try basic props first.
@@ -45,6 +46,7 @@ export class ConfigManager {
       debugOverlayEnabled: false,
       agentControlEnabled: true,
       mapGeneratorType: MapGeneratorType.TreeShip,
+      missionType: MissionType.Default,
       lastSeed: Date.now(),
       squadConfig: [
         { archetypeId: "assault", count: 1 },

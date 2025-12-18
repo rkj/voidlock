@@ -1,6 +1,6 @@
 import { GameClient } from '../engine/GameClient';
 import { Renderer } from './Renderer';
-import { GameState, UnitState, CommandType, Unit, MapDefinition, MapGeneratorType, Door, Vector2, SquadConfig, Archetype, ArchetypeLibrary } from '../shared/types';
+import { GameState, UnitState, CommandType, Unit, MapDefinition, MapGeneratorType, Door, Vector2, SquadConfig, Archetype, ArchetypeLibrary, MissionType } from '../shared/types';
 import { MapGenerator } from '../engine/MapGenerator';
 import { SpaceshipGenerator } from '../engine/generators/SpaceshipGenerator';
 import { TreeShipGenerator } from '../engine/generators/TreeShipGenerator';
@@ -94,6 +94,7 @@ let debugOverlayEnabled = defaultConfig.debugOverlayEnabled;
 let agentControlEnabled = defaultConfig.agentControlEnabled;
 let currentSeed: number = defaultConfig.lastSeed;
 let currentMapGeneratorType: MapGeneratorType = defaultConfig.mapGeneratorType;
+let currentMissionType: MissionType = defaultConfig.missionType;
 let currentStaticMapData: MapDefinition | undefined = undefined;
 let currentSquad: SquadConfig = defaultConfig.squadConfig;
 
@@ -348,12 +349,13 @@ const launchMission = () => {
         debugOverlayEnabled,
         agentControlEnabled,
         mapGeneratorType: currentMapGeneratorType,
+        missionType: currentMissionType,
         lastSeed: currentSeed,
         squadConfig: currentSquad
     });
 
     // Initialize engine
-    gameClient.init(currentSeed, currentMapGeneratorType, currentStaticMapData, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled, currentSquad);
+    gameClient.init(currentSeed, currentMapGeneratorType, currentStaticMapData, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled, currentSquad, currentMissionType);
 
     // Reset selection
     selectedUnitId = null;
@@ -400,6 +402,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Setup Controls
   const mapGeneratorTypeSelect = document.getElementById('map-generator-type') as HTMLSelectElement;
+  
+  // Inject Mission Type Select
+  const mapGenGroup = mapGeneratorTypeSelect.closest('.control-group');
+  if (mapGenGroup) {
+      const missionDiv = document.createElement('div');
+      missionDiv.style.marginBottom = '10px';
+      missionDiv.innerHTML = `
+        <label for="mission-type">Mission Type:</label>
+        <select id="mission-type">
+            <option value="${MissionType.Default}">Default (Single Objective)</option>
+            <option value="${MissionType.ExtractArtifacts}">Extract Artifacts</option>
+            <option value="${MissionType.DestroyHive}">Destroy Hive</option>
+        </select>
+      `;
+      // Insert at top of control group
+      mapGenGroup.insertBefore(missionDiv, mapGenGroup.firstChild);
+      
+      const missionSelect = document.getElementById('mission-type') as HTMLSelectElement;
+      missionSelect.addEventListener('change', () => {
+          currentMissionType = missionSelect.value as MissionType;
+      });
+  }
+
   const mapSeedInput = document.getElementById('map-seed') as HTMLInputElement;
   const staticMapControlsDiv = document.getElementById('static-map-controls') as HTMLDivElement;
   const staticMapJsonTextarea = document.getElementById('static-map-json') as HTMLTextAreaElement;
@@ -664,10 +689,14 @@ document.addEventListener('DOMContentLoaded', () => {
           debugOverlayEnabled = config.debugOverlayEnabled;
           agentControlEnabled = config.agentControlEnabled;
           currentMapGeneratorType = config.mapGeneratorType;
+          currentMissionType = config.missionType || MissionType.Default;
           currentSeed = config.lastSeed;
           currentSquad = config.squadConfig;
 
           // Apply to UI
+          const missionSelect = document.getElementById('mission-type') as HTMLSelectElement;
+          if (missionSelect) missionSelect.value = currentMissionType;
+
           if (mapSeedInput) mapSeedInput.value = currentSeed.toString();
           if (mapGeneratorTypeSelect) mapGeneratorTypeSelect.value = currentMapGeneratorType;
           

@@ -334,16 +334,28 @@ export class Renderer {
       const size = this.cellSize / 6;
 
       this.ctx.beginPath();
-      this.ctx.moveTo(x, y - size);
-      this.ctx.lineTo(x + size, y + size);
-      this.ctx.lineTo(x - size, y + size);
-      this.ctx.closePath();
-      
-      this.ctx.fillStyle = '#FF0000'; 
-      this.ctx.fill();
-      this.ctx.strokeStyle = '#000';
-      this.ctx.lineWidth = 3;
-      this.ctx.stroke();
+      if (enemy.type === 'Hive') {
+          // Hive: Large Purple Square
+          this.ctx.fillStyle = '#9900FF'; 
+          const hiveSize = this.cellSize * 0.6;
+          this.ctx.rect(x - hiveSize/2, y - hiveSize/2, hiveSize, hiveSize);
+          this.ctx.fill();
+          this.ctx.strokeStyle = '#FFFFFF';
+          this.ctx.lineWidth = 4;
+          this.ctx.stroke();
+      } else {
+          // Regular Enemy: Red Triangle
+          this.ctx.moveTo(x, y - size);
+          this.ctx.lineTo(x + size, y + size);
+          this.ctx.lineTo(x - size, y + size);
+          this.ctx.closePath();
+          
+          this.ctx.fillStyle = '#FF0000'; 
+          this.ctx.fill();
+          this.ctx.strokeStyle = '#000';
+          this.ctx.lineWidth = 3;
+          this.ctx.stroke();
+      }
 
       this.renderHealthBar(x, y, enemy.hp, enemy.maxHp);
 

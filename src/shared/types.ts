@@ -163,8 +163,14 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
 
 export type SquadConfig = { archetypeId: string, count: number }[]; // New type for Squad Config
 
+export enum MissionType {
+  Default = 'Default',
+  ExtractArtifacts = 'ExtractArtifacts',
+  DestroyHive = 'DestroyHive',
+}
+
 export type WorkerMessage = 
-  | { type: 'INIT'; payload: { seed: number; map: MapDefinition; fogOfWarEnabled: boolean; debugOverlayEnabled: boolean; agentControlEnabled: boolean; squadConfig: SquadConfig; } } // Updated
+  | { type: 'INIT'; payload: { seed: number; map: MapDefinition; fogOfWarEnabled: boolean; debugOverlayEnabled: boolean; agentControlEnabled: boolean; squadConfig: SquadConfig; missionType?: MissionType; } } // Updated
   | { type: 'COMMAND'; payload: Command }
   | { type: 'QUERY_STATE' };
 
