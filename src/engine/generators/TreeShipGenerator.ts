@@ -29,56 +29,11 @@ export class TreeShipGenerator {
 
     const spineCells: {x: number, y: number}[] = [];
 
-    // 2. Main Skeleton (Branching Arteries / Fishbone)
-    // Strategy:
-    // - Create a primary horizontal spine (Aorta) at the center.
-    // - Create secondary vertical spines (Arteries) branching off the Aorta at regular intervals.
-    // - Crucially, Arteries never intersect each other or loop back to the Aorta.
-    // - This creates a strong "Sector" feel where you traverse the main highway to reach different sub-sections.
-    // - Corridors are strictly 1-tile wide to be distinct from rooms.
-
-    const aortaY = Math.floor(this.height / 2); // Center Y
-    const aortaStart = 1;
-    const aortaEnd = this.width - 2;
-
-    // Draw Aorta
-    for (let x = aortaStart; x <= aortaEnd; x++) {
-        this.setFloor(x, aortaY);
-        spineCells.push({x, y: aortaY});
-        if (x > aortaStart) this.openWall(x-1, aortaY, 'e');
-    }
-
-    // Draw Arteries (Vertical branches off Aorta)
-    // Spaced out to avoid crowding
-    const arteryInterval = 4; // Every 4 tiles?
-    // Randomize slightly?
-    
-    for (let x = aortaStart + 2; x <= aortaEnd - 2; x += arteryInterval) {
-        // Chance to spawn artery
-        if (this.prng.next() < 0.8) {
-            // Upward Artery
-            const lenUp = this.prng.nextInt(2, Math.floor(this.height/2) - 2);
-            for (let y = 1; y <= lenUp; y++) {
-                const cy = aortaY - y;
-                this.setFloor(x, cy);
-                spineCells.push({x, y: cy});
-                if (y === 1) this.openWall(x, aortaY, 'n'); // Connect to Aorta
-                else this.openWall(x, cy + 1, 'n'); // Connect to previous segment
-            }
-
-            // Downward Artery
-            const lenDown = this.prng.nextInt(2, Math.floor(this.height/2) - 2);
-            for (let y = 1; y <= lenDown; y++) {
-                const cy = aortaY + y;
-                this.setFloor(x, cy);
-                spineCells.push({x, y: cy});
-                if (y === 1) this.openWall(x, aortaY, 's'); // Connect to Aorta
-                else this.openWall(x, cy - 1, 's'); // Connect to previous segment
-            }
-        }
-    }
+    // 2. Main Skeleton (Acyclic Arteries)
+    this.generateSkeleton(spineCells);
 
     // 3. Grow Room Trees
+    // ... rest of generate ...
     // Add all spine walls to frontier to allow room growth
     this.frontier = [];
     spineCells.forEach(cell => {
@@ -378,6 +333,455 @@ export class TreeShipGenerator {
         }
       }
     }
-    return false; // No collision detected
-  }
-}
+        return false; // No collision detected
+      }
+    
+      private generateSkeleton(spineCells: {x: number, y: number}[]) {
+        // Choose skeleton type based on size and seed
+        // For smaller maps, always use Fishbone
+        if (Math.min(this.width, this.height) < 12) {
+          this.generateFishbone(spineCells);
+          return;
+        }
+    
+        // Larger maps: 60% Fishbone, 40% Cross
+        const roll = this.prng.next();
+        if (roll < 0.6) {
+          this.generateFishbone(spineCells);
+        } else {
+          this.generateCross(spineCells);
+        }
+      }
+    
+      private generateFishbone(spineCells: {x: number, y: number}[]) {
+        // Prefer horizontal aorta if wide, vertical if tall
+        if (this.width >= this.height) {
+          this.generateHorizontalFishbone(spineCells);
+        } else {
+          this.generateVerticalFishbone(spineCells);
+        }
+      }
+    
+        private generateHorizontalFishbone(spineCells: {x: number, y: number}[]) {
+    
+          const aortaY = Math.floor(this.height / 2) + this.prng.nextInt(-1, 1);
+    
+          const aortaStart = 1;
+    
+          const aortaEnd = this.width - 2;
+    
+      
+    
+          for (let x = aortaStart; x <= aortaEnd; x++) {
+    
+            this.setFloor(x, aortaY);
+    
+            spineCells.push({ x, y: aortaY });
+    
+            if (x > aortaStart) {
+    
+              // Periodic doors in aorta
+    
+              if (x % 6 === 0) {
+    
+                this.placeDoor(x - 1, aortaY, 'e');
+    
+              }
+    
+              this.openWall(x - 1, aortaY, 'e');
+    
+            }
+    
+          }
+    
+      
+    
+          const arteryInterval = this.width > 20 ? 6 : 4;
+    
+          for (let x = aortaStart + 2; x <= aortaEnd - 2; x += arteryInterval) {
+    
+            if (this.prng.next() < 0.8) {
+    
+              // Upward
+    
+              const lenUp = this.prng.nextInt(2, Math.floor(this.height / 2) - 2);
+    
+              for (let y = 1; y <= lenUp; y++) {
+    
+                const cy = aortaY - y;
+    
+                this.setFloor(x, cy);
+    
+                spineCells.push({ x, y: cy });
+    
+                if (y === 1) {
+    
+                  this.placeDoor(x, aortaY, 'n');
+    
+                  this.openWall(x, aortaY, 'n');
+    
+                } else {
+    
+                  if (y % 5 === 0) this.placeDoor(x, cy + 1, 'n');
+    
+                  this.openWall(x, cy + 1, 'n');
+    
+                }
+    
+              }
+    
+              // Downward
+    
+              const lenDown = this.prng.nextInt(2, Math.floor(this.height / 2) - 2);
+    
+              for (let y = 1; y <= lenDown; y++) {
+    
+                const cy = aortaY + y;
+    
+                this.setFloor(x, cy);
+    
+                spineCells.push({ x, y: cy });
+    
+                if (y === 1) {
+    
+                  this.placeDoor(x, aortaY, 's');
+    
+                  this.openWall(x, aortaY, 's');
+    
+                } else {
+    
+                  if (y % 5 === 0) this.placeDoor(x, cy - 1, 's');
+    
+                  this.openWall(x, cy - 1, 's');
+    
+                }
+    
+              }
+    
+            }
+    
+          }
+    
+        }
+    
+      
+    
+        private generateVerticalFishbone(spineCells: {x: number, y: number}[]) {
+    
+          const aortaX = Math.floor(this.width / 2) + this.prng.nextInt(-1, 1);
+    
+          const aortaStart = 1;
+    
+          const aortaEnd = this.height - 2;
+    
+      
+    
+          for (let y = aortaStart; y <= aortaEnd; y++) {
+    
+            this.setFloor(aortaX, y);
+    
+            spineCells.push({ x: aortaX, y });
+    
+            if (y > aortaStart) {
+    
+              if (y % 6 === 0) {
+    
+                this.placeDoor(aortaX, y - 1, 's');
+    
+              }
+    
+              this.openWall(aortaX, y - 1, 's');
+    
+            }
+    
+          }
+    
+      
+    
+          const arteryInterval = this.height > 20 ? 6 : 4;
+    
+          for (let y = aortaStart + 2; y <= aortaEnd - 2; y += arteryInterval) {
+    
+            if (this.prng.next() < 0.8) {
+    
+              // Leftward
+    
+              const lenLeft = this.prng.nextInt(2, Math.floor(this.width / 2) - 2);
+    
+              for (let x = 1; x <= lenLeft; x++) {
+    
+                const cx = aortaX - x;
+    
+                this.setFloor(cx, y);
+    
+                spineCells.push({ x: cx, y });
+    
+                if (x === 1) {
+    
+                  this.placeDoor(aortaX, y, 'w');
+    
+                  this.openWall(aortaX, y, 'w');
+    
+                } else {
+    
+                  if (x % 5 === 0) this.placeDoor(cx + 1, y, 'w');
+    
+                  this.openWall(cx + 1, y, 'w');
+    
+                }
+    
+              }
+    
+              // Rightward
+    
+              const lenRight = this.prng.nextInt(2, Math.floor(this.width / 2) - 2);
+    
+              for (let x = 1; x <= lenRight; x++) {
+    
+                const cx = aortaX + x;
+    
+                this.setFloor(cx, y);
+    
+                spineCells.push({ x: cx, y });
+    
+                if (x === 1) {
+    
+                  this.placeDoor(aortaX, y, 'e');
+    
+                  this.openWall(aortaX, y, 'e');
+    
+                } else {
+    
+                  if (x % 5 === 0) this.placeDoor(cx - 1, y, 'e');
+    
+                  this.openWall(cx - 1, y, 'e');
+    
+                }
+    
+              }
+    
+            }
+    
+          }
+    
+        }
+    
+      
+    
+        private generateCross(spineCells: {x: number, y: number}[]) {
+    
+          const midX = Math.floor(this.width / 2) + this.prng.nextInt(-1, 1);
+    
+          const midY = Math.floor(this.height / 2) + this.prng.nextInt(-1, 1);
+    
+      
+    
+          // Horizontal Spine (H-Aorta)
+    
+          for (let x = 1; x < this.width - 1; x++) {
+    
+            this.setFloor(x, midY);
+    
+            spineCells.push({ x, y: midY });
+    
+            if (x > 1) {
+    
+              if (x % 8 === 0) this.placeDoor(x - 1, midY, 'e');
+    
+              this.openWall(x - 1, midY, 'e');
+    
+            }
+    
+          }
+    
+      
+    
+          // Vertical Spine (V-Aorta) - ONLY connect at intersection
+    
+          for (let y = 1; y < this.height - 1; y++) {
+    
+            if (y === midY) continue; // Already added
+    
+            this.setFloor(midX, y);
+    
+            spineCells.push({ x: midX, y });
+    
+            if (y === midY - 1) {
+    
+              this.placeDoor(midX, y, 's');
+    
+              this.openWall(midX, y, 's');
+    
+            } else if (y === midY + 1) {
+    
+              this.placeDoor(midX, y, 'n');
+    
+              this.openWall(midX, y, 'n');
+    
+            } else if (y < midY) {
+    
+              if (y % 8 === 0) this.placeDoor(midX, y, 's');
+    
+              this.openWall(midX, y, 's');
+    
+            } else {
+    
+              if (y % 8 === 0) this.placeDoor(midX, y, 'n');
+    
+              this.openWall(midX, y, 'n');
+    
+            }
+    
+          }
+    
+      
+    
+          // Arteries
+    
+          const arteryInterval = 8; // Spaced more in Cross to avoid mess
+    
+      
+    
+          // H-Aorta Arteries (Vertical)
+    
+          for (let x = 2; x < this.width - 2; x += arteryInterval) {
+    
+            if (Math.abs(x - midX) < 3) continue; // Don't crowd center
+    
+            if (this.prng.next() < 0.7) {
+    
+              // Upward
+    
+              const lenUp = this.prng.nextInt(2, Math.floor(this.height / 4) + 2);
+    
+              for (let y = 1; y <= lenUp; y++) {
+    
+                const cy = midY - y;
+    
+                if (this.getCell(x, cy)?.type === CellType.Floor) break;
+    
+                this.setFloor(x, cy);
+    
+                spineCells.push({ x, y: cy });
+    
+                if (y === 1) {
+    
+                  this.placeDoor(x, midY, 'n');
+    
+                  this.openWall(x, midY, 'n');
+    
+                } else {
+    
+                  this.openWall(x, cy + 1, 'n');
+    
+                }
+    
+              }
+    
+              // Downward
+    
+              const lenDown = this.prng.nextInt(2, Math.floor(this.height / 4) + 2);
+    
+              for (let y = 1; y <= lenDown; y++) {
+    
+                const cy = midY + y;
+    
+                if (this.getCell(x, cy)?.type === CellType.Floor) break;
+    
+                this.setFloor(x, cy);
+    
+                spineCells.push({ x, y: cy });
+    
+                if (y === 1) {
+    
+                  this.placeDoor(x, midY, 's');
+    
+                  this.openWall(x, midY, 's');
+    
+                } else {
+    
+                  this.openWall(x, cy - 1, 's');
+    
+                }
+    
+              }
+    
+            }
+    
+          }
+    
+      
+    
+          // V-Aorta Arteries (Horizontal)
+    
+          for (let y = 2; y < this.height - 2; y += arteryInterval) {
+    
+            if (Math.abs(y - midY) < 3) continue;
+    
+            if (this.prng.next() < 0.7) {
+    
+              // Leftward
+    
+              const lenLeft = this.prng.nextInt(2, Math.floor(this.width / 4) + 2);
+    
+              for (let x = 1; x <= lenLeft; x++) {
+    
+                const cx = midX - x;
+    
+                if (this.getCell(cx, y)?.type === CellType.Floor) break;
+    
+                this.setFloor(cx, y);
+    
+                spineCells.push({ x: cx, y });
+    
+                if (x === 1) {
+    
+                  this.placeDoor(midX, y, 'w');
+    
+                  this.openWall(midX, y, 'w');
+    
+                } else {
+    
+                  this.openWall(cx + 1, y, 'w');
+    
+                }
+    
+              }
+    
+              // Rightward
+    
+              const lenRight = this.prng.nextInt(2, Math.floor(this.width / 4) + 2);
+    
+              for (let x = 1; x <= lenRight; x++) {
+    
+                const cx = midX + x;
+    
+                if (this.getCell(cx, y)?.type === CellType.Floor) break;
+    
+                this.setFloor(cx, y);
+    
+                spineCells.push({ x: cx, y });
+    
+                if (x === 1) {
+    
+                  this.placeDoor(midX, y, 'e');
+    
+                  this.openWall(midX, y, 'e');
+    
+                } else {
+    
+                  this.openWall(cx - 1, y, 'e');
+    
+                }
+    
+              }
+    
+            }
+    
+          }
+    
+        }
+    
+      
+    }
+    
