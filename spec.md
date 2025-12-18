@@ -92,7 +92,30 @@ interface Cell {
 
 ## 4) Gameplay Mechanics
 
-### 4.1 Fog of War (FOW) Configuration
+### 4.1 Soldier logic profile
+
+The automated soldier AI follows a multi-tier logic profile when not under direct manual control:
+
+1.  **Threat Evaluation:**
+    *   Units continuously scan for visible enemies within their `sightRange`.
+    *   Threat level is calculated based on distance, enemy type, and unit's current HP.
+    *   Enemies attacking the unit or its squadmates receive highest priority.
+
+2.  **Engagement (Default Policy: `ENGAGE`):**
+    *   If a threat is detected and `engagementPolicy` is `ENGAGE`:
+        *   The unit will prioritize attacking the highest-priority target within `attackRange`.
+        *   If no targets are in `attackRange` but threats are visible, the unit will move toward the closest threat until in range.
+        *   Units will "Stop & Shoot" — pausing movement to resolve combat unless the command was explicitly queued with `IGNORE`.
+
+3.  **Self-preservation:**
+    *   **Retreat:** If HP falls below 25%, the unit's logic switches to `IGNORE` engagement and prioritizes moving away from the closest threat toward a discovered "safe" cell (no visible enemies).
+    *   **Group Up:** If a unit is isolated (no allies within 5 tiles) and threats are present, it prioritizes moving toward the closest ally.
+
+4.  **Autonomous Exploration:**
+    *   If no threats are present and no manual commands are queued, units prioritize exploring the closest undiscovered floor cells.
+    *   Once the map is fully discovered and all objectives are complete, units automatically pathfind to the extraction point.
+
+### 4.2 Fog of War (FOW) Configuration
 
 The visibility rules depend on the Mission/Map config:
 
@@ -104,7 +127,7 @@ The visibility rules depend on the Mission/Map config:
 3.  **Hardcore:**
       * Areas outside current LOS return to "Unknown/Fogged" state (map geometry hidden again).
 
-### 4.2 The Director (Spawning)
+### 4.3 The Director (Spawning)
 
 Spawns occur on a fixed timer (default 45s).
 **Algorithm:**
@@ -114,7 +137,7 @@ Spawns occur on a fixed timer (default 45s).
 3.  **Distribution:** Enemies are distributed randomly among valid `SpawnPoints`.
 4.  **Upgrade Logic:** Probabilistic replacement of weak enemies with strong ones (e.g., "2 Small enemies replaced by 1 Large enemy").
 
-### 4.3 Commands
+### 4.4 Commands
 
 | Command | Payload | Description |
 | :--- | :--- | :--- |
