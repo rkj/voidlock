@@ -5,26 +5,20 @@ import { MapDefinition, CellType, Door } from '../../../shared/types';
 describe('TreeShipGenerator Door Validation', () => {
   const checkDoors = (map: MapDefinition) => {
     map.doors?.forEach(door => {
-      // Check all segments of the door
-      door.segment.forEach(seg => {
-        const { x, y } = seg;
-        let c1, c2;
+      if (door.segment.length !== 2) {
+          throw new Error(`Door ${door.id} should have exactly 2 segments, has ${door.segment.length}`);
+      }
+      
+      const c1Pos = door.segment[0];
+      const c2Pos = door.segment[1];
+      
+      const c1 = map.cells.find(c => c.x === c1Pos.x && c.y === c1Pos.y);
+      const c2 = map.cells.find(c => c.x === c2Pos.x && c.y === c2Pos.y);
 
-        if (door.orientation === 'Vertical') {
-          // Door connects (x,y) and (x+1,y)
-          c1 = map.cells.find(c => c.x === x && c.y === y);
-          c2 = map.cells.find(c => c.x === x + 1 && c.y === y);
-        } else {
-          // Door connects (x,y) and (x,y+1)
-          c1 = map.cells.find(c => c.x === x && c.y === y);
-          c2 = map.cells.find(c => c.x === x && c.y === y + 1);
-        }
-
-        // Both must exist and be Floor
-        if (!c1 || c1.type !== CellType.Floor || !c2 || c2.type !== CellType.Floor) {
-            throw new Error(`Door ${door.id} at (${x},${y}) orientation ${door.orientation} connects to invalid/void cell. C1: ${c1?.type}, C2: ${c2?.type}`);
-        }
-      });
+      // Both must exist and be Floor
+      if (!c1 || c1.type !== CellType.Floor || !c2 || c2.type !== CellType.Floor) {
+          throw new Error(`Door ${door.id} between (${c1Pos.x},${c1Pos.y}) and (${c2Pos.x},${c2Pos.y}) connects to invalid/void cell. C1: ${c1?.type}, C2: ${c2?.type}`);
+      }
     });
   };
 

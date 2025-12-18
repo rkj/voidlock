@@ -81,7 +81,11 @@ export class GameGrid implements Grid {
     // Check for doors first
     const door = getDoorAtSegment(fromX, fromY, toX, toY);
     if (door) {
-      if (allowClosedDoors) return true; // Pathfinding treats all doors as passable
+      if (allowClosedDoors) {
+        // Pathfinding treats Closed, Open, and Destroyed doors as passable.
+        // Locked doors should still block pathfinding.
+        return door.state !== 'Locked';
+      }
       // Allow movement if door is Open or Destroyed
       return door.state === 'Open' || door.state === 'Destroyed';
     }
