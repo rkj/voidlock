@@ -172,18 +172,48 @@ export class TreeShipGenerator {
               if (c00?.type === CellType.Floor && c10?.type === CellType.Floor &&
                   c01?.type === CellType.Floor && c11?.type === CellType.Floor) {
                   
-                  // Found a 2x2 floor block. Open all internal walls.
+                  // Found a 2x2 floor block. Open all internal walls AND remove doors.
                   // (0,0) <-> (1,0)
                   this.openWall(x, y, 'e');
+                  this.removeDoorAt(x, y, 'e');
+                  
                   // (0,1) <-> (1,1)
                   this.openWall(x, y + 1, 'e');
+                  this.removeDoorAt(x, y + 1, 'e');
+
                   // (0,0) <-> (0,1)
                   this.openWall(x, y, 's');
+                  this.removeDoorAt(x, y, 's');
+
                   // (1,0) <-> (1,1)
                   this.openWall(x + 1, y, 's');
+                  this.removeDoorAt(x + 1, y, 's');
               }
           }
       }
+  }
+
+  private removeDoorAt(x: number, y: number, dir: 'n'|'e'|'s'|'w') {
+      let dx = 0, dy = 0;
+      let orientation: 'Horizontal' | 'Vertical' = 'Vertical';
+      
+      // Determine the second cell coordinate and orientation based on direction
+      if (dir === 'n') { dy = -1; orientation = 'Horizontal'; }
+      else if (dir === 's') { dy = 1; orientation = 'Horizontal'; }
+      else if (dir === 'e') { dx = 1; orientation = 'Vertical'; }
+      else if (dir === 'w') { dx = -1; orientation = 'Vertical'; }
+
+      const x2 = x + dx;
+      const y2 = y + dy;
+
+      // Find and remove door connecting (x,y) and (x2,y2)
+      this.doors = this.doors.filter(d => {
+          if (d.orientation !== orientation) return true; // Keep
+          // Check if segment matches
+          const hasC1 = d.segment.some(s => s.x === x && s.y === y);
+          const hasC2 = d.segment.some(s => s.x === x2 && s.y === y2);
+          return !(hasC1 && hasC2); // Remove if both match
+      });
   }
 
   private placeRoom(rx: number, ry: number, w: number, h: number, parentX: number, parentY: number, dir: 'n'|'e'|'s'|'w') {
