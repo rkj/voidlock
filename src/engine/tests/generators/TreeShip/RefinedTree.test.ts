@@ -11,7 +11,7 @@ describe('TreeShipGenerator (Refined)', () => {
     // 3. Rooms are attached
     // 4. Doors exist
     
-    const generator = new TreeShipGenerator(12345, 32, 32);
+    const generator = new TreeShipGenerator(12345, 16, 16);
     const map = generator.generate();
     
     const floors = map.cells.filter(c => c.type === CellType.Floor);

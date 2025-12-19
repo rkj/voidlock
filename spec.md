@@ -216,12 +216,43 @@ Example:
 
 **TreeShipGenerator (Sector Layout) Specifics:**
 The `TreeShipGenerator` produces maps with a structured layout:
-*   **Skeleton (Acyclic Arteries):** For larger maps (>12x12), the map is divided by a "skeleton" of main corridors. To maintain acyclicity while ensuring coverage, use patterns like "Fishbone" (Central Spine + Perpendicular Ribs) or "Star" (Central Junction + Radiating Arms). **Do not form a closed grid.**
-*   **Corridor Dimensions:** Corridors should generally be 1 tile wide to be distinct from rooms. "Weirdly large" undefined open areas should be avoided.
-*   **Room Size:** Rooms must not be larger than 2x2 cells.
-*   **Room Connectivity:** Rooms branch off the corridor skeleton. They should be isolated, connecting primarily to the skeleton.
-*   **Comb Strategy:** Internal walls of multi-tile rooms (2x2) are opened using a "Comb" pattern (top row horizontal, others vertical) to prevent internal cycles.
-*   **No Loops:** The generated map layout must be strictly acyclic.
+*   **Map Size:** Maps must not exceed 16x16 tiles.
+*   **Fill Rate:** Can be sparse (<90% coverage) to create a claustrophobic, wall-heavy feel.
+*   **Structure:**
+    *   **Corridors (Depth 0):** A few long corridors traversing the map.
+        *   **No Internal Doors:** Corridors should be open segments. Do not place doors *inside* the corridor length (only at ends or room entrances).
+        *   **Dimensions:** Strictly 1 tile wide.
+    *   **Rooms (Depth 1+):** Rooms connect to corridors or other rooms.
+        *   **Room Size:** Max 2x2.
+        *   **No Nested Rooms:** A 2x2 room must be fully open internally (no internal walls or doors blocking the 2x2 space). 1x1 rooms cannot be "inside" or part of a 2x2 block that isn't fully open.
+    *   **Depth Hierarchy & Acyclicity:** (Same as DenseShipGenerator)
+        *   Rooms form a strict tree structure from the corridors.
+        *   No cycles (acyclic graph).
+        *   No back-links (Depth N connects only to N-1).
+
+**DenseShipGenerator Specifics:**
+A high-density generator designed for exploration depth.
+*   **Fill Rate:** Must achieve >90% floor coverage (almost all cells accessible).
+*   **Structure:** Same rules as TreeShipGenerator (Corridors, Rooms, Depth Hierarchy, Acyclicity, No Nested Rooms), but maximizing density.
+*   **Difficulty Scaling:**
+    *   Easy/Small Maps: Max depth 1.
+    *   Hard/Large Maps: Max depth 3-4.
+
+**DenseShipGenerator Specifics:**
+A high-density generator designed for exploration depth.
+*   **Fill Rate:** Must achieve >90% floor coverage (almost all cells accessible).
+*   **Structure:**
+    *   **Corridors (Depth 0):** A few long corridors traversing the map.
+    *   **Rooms (Depth 1+):** Rooms connect to corridors or other rooms, forming a strict tree structure.
+    *   **Depth Hierarchy:**
+        *   Depth 1 rooms connect ONLY to Depth 0 Corridors.
+        *   Depth N rooms connect ONLY to Depth N-1 rooms.
+        *   **No Back-Links:** A Depth N room cannot connect to Depth < N-1 or Corridors directly (except via parent).
+        *   **No Cycles:** Strict acyclic navigation graph. You enter deeper rooms and must backtrack to exit.
+*   **Difficulty Scaling:**
+    *   Easy/Small Maps: Max depth 1.
+    *   Hard/Large Maps: Max depth 3-4.
+
 
 **Director**
 * `update(prng, state) -> SpawnPlan[]`

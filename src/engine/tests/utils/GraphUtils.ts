@@ -104,8 +104,22 @@ export function checkConnectivity(map: MapDefinition): boolean {
         ];
 
         for (const n of neighbors) {
-            // Check if wall is OPEN
-            if (!currCell.walls[n.wall]) {
+            // Check if wall is OPEN or if there is a DOOR
+            let connected = !currCell.walls[n.wall];
+
+            if (!connected && map.doors) {
+                const nx = curr.x + n.dx;
+                const ny = curr.y + n.dy;
+                // Check if a door connects these two cells
+                const hasDoor = map.doors.some(d => {
+                    const hasC1 = d.segment.some(s => s.x === curr.x && s.y === curr.y);
+                    const hasC2 = d.segment.some(s => s.x === nx && s.y === ny);
+                    return hasC1 && hasC2;
+                });
+                if (hasDoor) connected = true;
+            }
+
+            if (connected) {
                 const nx = curr.x + n.dx;
                 const ny = curr.y + n.dy;
                 const key = `${nx},${ny}`;

@@ -14,8 +14,8 @@ export class TreeShipGenerator {
 
   constructor(seed: number, width: number, height: number) {
     this.prng = new PRNG(seed);
-    this.width = width;
-    this.height = height;
+    this.width = Math.min(width, 16);
+    this.height = Math.min(height, 16);
   }
 
   public generate(): MapDefinition {
@@ -51,815 +51,1319 @@ export class TreeShipGenerator {
         checkAndAdd(-1, 0, 'w');
     });
 
-    while (this.frontier.length > 0) {
-        // Pick random (Strategy: Random usually good for organic growth. Stack (DFS) for long corridors.)
-        const idx = this.prng.nextInt(0, this.frontier.length - 1);
-        const {parentX, parentY, dir} = this.frontier[idx];
-        this.frontier.splice(idx, 1);
+        while (this.frontier.length > 0) {
 
-        const attempts = [
-            { w: 2, h: 2 },
-            { w: 2, h: 1 },
-            { w: 1, h: 2 },
-            { w: 1, h: 1 }
-        ];
+            // Pick random (Strategy: Random usually good for organic growth. Stack (DFS) for long corridors.)
 
-        let placed = false;
+            const idx = this.prng.nextInt(0, this.frontier.length - 1);
 
-        for (const size of attempts) {
-            const { w, h } = size;
-            const alignments: {rx: number, ry: number}[] = [];
+            const {parentX, parentY, dir} = this.frontier[idx];
 
-            if (dir === 'n') {
-                const ry = parentY - h;
-                const minRx = parentX - w + 1;
-                const maxRx = parentX;
-                for(let r = minRx; r <= maxRx; r++) alignments.push({rx: r, ry});
-            } else if (dir === 's') {
-                const ry = parentY + 1;
-                const minRx = parentX - w + 1;
-                const maxRx = parentX;
-                for(let r = minRx; r <= maxRx; r++) alignments.push({rx: r, ry});
-            } else if (dir === 'e') {
-                const rx = parentX + 1;
-                const minRy = parentY - h + 1;
-                const maxRy = parentY;
-                for(let r = minRy; r <= maxRy; r++) alignments.push({rx, ry: r});
-            } else if (dir === 'w') {
-                const rx = parentX - w;
-                const minRy = parentY - h + 1;
-                const maxRy = parentY;
-                for(let r = minRy; r <= maxRy; r++) alignments.push({rx, ry: r});
-            }
+            this.frontier.splice(idx, 1);
 
-            this.prng.shuffle(alignments);
+    
 
-            for (const alignment of alignments) {
-                const { rx, ry } = alignment;
-                
-                if (!this.checkProposedRoomForCollisionsAndCycles(rx, ry, w, h, parentX, parentY, dir as any)) {
-                    this.placeRoom(rx, ry, w, h, parentX, parentY, dir as any);
-                    placed = true;
-                    break;
+            // Restrict growth to 40% to keep map sparse and wall-heavy
+
+            if (this.prng.next() > 0.4) continue;
+
+    
+
+            const attempts = [
+
+                { w: 2, h: 2 },
+
+                { w: 2, h: 1 },
+
+                { w: 1, h: 2 },
+
+                { w: 1, h: 1 }
+
+            ];
+
+    
+
+            let placed = false;
+
+    
+
+            for (const size of attempts) {
+
+                const { w, h } = size;
+
+                const alignments: {rx: number, ry: number}[] = [];
+
+    
+
+                if (dir === 'n') {
+
+                    const ry = parentY - h;
+
+                    const minRx = parentX - w + 1;
+
+                    const maxRx = parentX;
+
+                    for(let r = minRx; r <= maxRx; r++) alignments.push({rx: r, ry});
+
+                } else if (dir === 's') {
+
+                    const ry = parentY + 1;
+
+                    const minRx = parentX - w + 1;
+
+                    const maxRx = parentX;
+
+                    for(let r = minRx; r <= maxRx; r++) alignments.push({rx: r, ry});
+
+                } else if (dir === 'e') {
+
+                    const rx = parentX + 1;
+
+                    const minRy = parentY - h + 1;
+
+                    const maxRy = parentY;
+
+                    for(let r = minRy; r <= maxRy; r++) alignments.push({rx, ry: r});
+
+                } else if (dir === 'w') {
+
+                    const rx = parentX - w;
+
+                    const minRy = parentY - h + 1;
+
+                    const maxRy = parentY;
+
+                    for(let r = minRy; r <= maxRy; r++) alignments.push({rx, ry: r});
+
                 }
-            }
-            if (placed) break;
-        }
-    } 
+
     
-    // 4. Fill Gaps (Density Pass)
-    // Iterate through the grid and try to fill small voids (e.g. 1x1 holes) if they connect to valid floor.
-    // This improves density without breaking the tree structure (since we verify no cycles).
-    // This ensures we reach the target >90% fill rate for "claustrophobic spaceship" feel.
+
+                this.prng.shuffle(alignments);
+
     
-    for (let y = 1; y < this.height - 1; y++) {
-        for (let x = 1; x < this.width - 1; x++) {
-            if (this.getCell(x, y)?.type === CellType.Wall) {
-                // Density control: Only fill 50% of gaps to preserve some structure (walls/doors)
-                if (this.prng.next() > 0.5) continue;
 
-                // Check neighbors
-                const neighbors = [
-                    { nx: x, ny: y - 1, dir: 'n' }, { nx: x, ny: y + 1, dir: 's' },
-                    { nx: x + 1, ny: y, dir: 'e' }, { nx: x - 1, ny: y, dir: 'w' }
-                ];
-                
-                // Shuffle neighbors to avoid bias
-                this.prng.shuffle(neighbors);
+                for (const alignment of alignments) {
 
-                for (const n of neighbors) {
-                    const neighborCell = this.getCell(n.nx, n.ny);
-                    if (neighborCell?.type === CellType.Floor) {
-                        // Found a floor neighbor. Can we attach?
-                        // Treat as a 1x1 room attempt from neighbor.
-                        
-                        let dirFromParent: 'n'|'s'|'e'|'w' = 's';
-                        if (n.dir === 'n') dirFromParent = 's';
-                        else if (n.dir === 's') dirFromParent = 'n';
-                        else if (n.dir === 'e') dirFromParent = 'w';
-                        else if (n.dir === 'w') dirFromParent = 'e';
+                    const { rx, ry } = alignment;
 
-                        if (!this.checkProposedRoomForCollisionsAndCycles(x, y, 1, 1, n.nx, n.ny, dirFromParent)) {
-                            this.placeRoom(x, y, 1, 1, n.nx, n.ny, dirFromParent);
-                            break; // Filled this cell, move to next
-                        }
+                    
+
+                    if (!this.checkProposedRoomForCollisionsAndCycles(rx, ry, w, h, parentX, parentY, dir as any)) {
+
+                        this.placeRoom(rx, ry, w, h, parentX, parentY, dir as any);
+
+                        placed = true;
+
+                        break;
+
                     }
+
                 }
+
+                if (placed) break;
+
             }
-        }
-    }
 
-    // 5. Features
-    this.postProcessRooms(); // Fix closed 2x2 areas
-    this.placeFeatures();
-    return {
-        width: this.width,
-        height: this.height,
-        cells: this.cells,
-        doors: this.doors,
-        spawnPoints: this.spawnPoints,
-        extraction: this.extraction,
-        objectives: this.objectives
-    };
-  }
+        } 
 
-  private postProcessRooms() {
-      // Scan for 2x2 floor blocks and open internal walls
-      for (let y = 0; y < this.height - 1; y++) {
-          for (let x = 0; x < this.width - 1; x++) {
-              const c00 = this.getCell(x, y);
-              const c10 = this.getCell(x + 1, y);
-              const c01 = this.getCell(x, y + 1);
-              const c11 = this.getCell(x + 1, y + 1);
+        
 
-              if (c00?.type === CellType.Floor && c10?.type === CellType.Floor &&
-                  c01?.type === CellType.Floor && c11?.type === CellType.Floor) {
+        // 4. Fill Gaps (Density Pass) - REMOVED to maximize walls and satisfy claustrophobic requirement
+
+        
+
+        // 5. Features
+
+        // this.postProcessRooms(); // Disabled to preserve walls and doors (fix 0 doors and large open spaces)
+
+        this.placeFeatures();
+
+        return {
+
+            width: this.width,
+
+            height: this.height,
+
+            cells: this.cells,
+
+            doors: this.doors,
+
+            spawnPoints: this.spawnPoints,
+
+            extraction: this.extraction,
+
+            objectives: this.objectives
+
+        };
+
+      }
+
+    
+
+      private placeRoom(rx: number, ry: number, w: number, h: number, parentX: number, parentY: number, dir: 'n'|'e'|'s'|'w') {
+
+          // Place Room
+
+          for(let y=ry; y<ry+h; y++) {
+
+              for(let x=rx; x<rx+w; x++) {
+
+                  this.setFloor(x, y);
+
                   
-                  // Found a 2x2 floor block. Open internal walls ONLY if no door exists.
-                  // We do NOT remove doors here anymore. If a door exists, we keep it (and the wall holding it).
 
-                  // (0,0) <-> (1,0)
-                  if (!this.hasDoorAt(x, y, 'e')) this.openWall(x, y, 'e');
-                  
-                  // (0,1) <-> (1,1)
-                  if (!this.hasDoorAt(x, y + 1, 'e')) this.openWall(x, y + 1, 'e');
+                  // Internal walls: Open connections to neighbors within the room
 
-                  // (0,0) <-> (0,1)
-                  if (!this.hasDoorAt(x, y, 's')) this.openWall(x, y, 's');
+                  const isLastCol = (x === rx + w - 1);
 
-                  // (1,0) <-> (1,1)
-                  if (!this.hasDoorAt(x + 1, y, 's')) this.openWall(x + 1, y, 's');
+                  const isLastRow = (y === ry + h - 1);
+
+    
+
+                  if (!isLastCol) this.openWall(x, y, 'e');
+
+                  if (!isLastRow) this.openWall(x, y, 's');
+
               }
+
           }
-      }
-  }
 
-  private hasDoorAt(x: number, y: number, dir: 'n'|'e'|'s'|'w'): boolean {
-      let dx = 0, dy = 0;
-      let orientation: 'Horizontal' | 'Vertical' = 'Vertical';
-      
-      // Determine the second cell coordinate and orientation based on direction
-      if (dir === 'n') { dy = -1; orientation = 'Horizontal'; }
-      else if (dir === 's') { dy = 1; orientation = 'Horizontal'; }
-      else if (dir === 'e') { dx = 1; orientation = 'Vertical'; }
-      else if (dir === 'w') { dx = -1; orientation = 'Vertical'; }
+    
 
-      const x2 = x + dx;
-      const y2 = y + dy;
+                // Connect to Parent (Door)
 
-      // Check if door exists
-      return this.doors.some(d => {
-          if (d.orientation !== orientation) return false;
-          const hasC1 = d.segment.some(s => s.x === x && s.y === y);
-          const hasC2 = d.segment.some(s => s.x === x2 && s.y === y2);
-          return hasC1 && hasC2;
-      });
-  }
+    
 
-  private removeDoorAt(x: number, y: number, dir: 'n'|'e'|'s'|'w') {
-      let dx = 0, dy = 0;
-      let orientation: 'Horizontal' | 'Vertical' = 'Vertical';
-      
-      // Determine the second cell coordinate and orientation based on direction
-      if (dir === 'n') { dy = -1; orientation = 'Horizontal'; }
-      else if (dir === 's') { dy = 1; orientation = 'Horizontal'; }
-      else if (dir === 'e') { dx = 1; orientation = 'Vertical'; }
-      else if (dir === 'w') { dx = -1; orientation = 'Vertical'; }
+                this.placeDoor(parentX, parentY, dir);
 
-      const x2 = x + dx;
-      const y2 = y + dy;
+    
 
-      // Find and remove door connecting (x,y) and (x2,y2)
-      this.doors = this.doors.filter(d => {
-          if (d.orientation !== orientation) return true; // Keep
-          // Check if segment matches
-          const hasC1 = d.segment.some(s => s.x === x && s.y === y);
-          const hasC2 = d.segment.some(s => s.x === x2 && s.y === y2);
-          return !(hasC1 && hasC2); // Remove if both match
-      });
-  }
+                // Do NOT open wall here. The door sits in a closed wall.
 
-  private placeRoom(rx: number, ry: number, w: number, h: number, parentX: number, parentY: number, dir: 'n'|'e'|'s'|'w') {
-      // Place Room
-      for(let y=ry; y<ry+h; y++) {
-          for(let x=rx; x<rx+w; x++) {
-              this.setFloor(x, y);
-              
-              // Internal walls: Open connections to neighbors within the room
-              const isLastCol = (x === rx + w - 1);
-              const isLastRow = (y === ry + h - 1);
+    
 
-              if (!isLastCol) this.openWall(x, y, 'e');
-              if (!isLastRow) this.openWall(x, y, 's');
-          }
-      }
+                // this.openWall(parentX, parentY, dir);
 
-      // Connect to Parent (Door)
-      this.placeDoor(parentX, parentY, dir);
-      this.openWall(parentX, parentY, dir);
+    
 
-      // --- EXPAND FRONTIER ---
-      // Add walls of the new room to frontier
-      
-      // Determine cells of the new room
-      const newRoomCells: {x: number, y: number}[] = [];
-      for(let y = ry; y < ry + h; y++) {
-          for(let x = rx; x < rx + w; x++) {
-              newRoomCells.push({x, y});
-          }
-      }
+          // --- EXPAND FRONTIER ---
 
-      // Potential directions for new branches
-      const possibleOutwardDirs: {dx: number, dy: number, k: 'n'|'e'|'s'|'w'}[] = [
-          {dx:0, dy:-1, k:'n'}, {dx:0, dy:1, k:'s'}, 
-          {dx:1, dy:0, k:'e'}, {dx:-1, dy:0, k:'w'}
-      ];
+          // Add walls of the new room to frontier
 
-      const validDirs = possibleOutwardDirs.filter(d => {
-          // Exclude direction back to parent
-          const oppositeDir = (d.k === 'n' && dir === 's') || (d.k === 's' && dir === 'n') ||
-                            (d.k === 'w' && dir === 'e') || (d.k === 'e' && dir === 'w');
-          return !oppositeDir;
-      });
+          
 
-      for (const cell of newRoomCells) {
-          for (const d of validDirs) {
-              const nx = cell.x + d.dx;
-              const ny = cell.y + d.dy;
+          // Determine cells of the new room
 
-              // If target is valid wall
-              if (nx >= 0 && nx < this.width && ny >= 0 && ny < this.height && this.getCell(nx, ny)?.type === CellType.Wall) {
-                  this.frontier.push({parentX: cell.x, parentY: cell.y, dir: d.k});
+          const newRoomCells: {x: number, y: number}[] = [];
+
+          for(let y = ry; y < ry + h; y++) {
+
+              for(let x = rx; x < rx + w; x++) {
+
+                  newRoomCells.push({x, y});
+
               }
+
           }
-      }
-  }
 
-  private setFloor(x: number, y: number) {
-      if (x < 0 || x >= this.width || y < 0 || y >= this.height) return;
-      this.cells[y * this.width + x].type = CellType.Floor;
-  }
+    
 
-  private getCell(x: number, y: number): Cell | undefined {
-      if (x < 0 || x >= this.width || y < 0 || y >= this.height) return undefined;
-      return this.cells[y * this.width + x];
-  }
+          // Potential directions for new branches
 
-  private openWall(x: number, y: number, dir: 'n'|'e'|'s'|'w') {
-      const c1 = this.getCell(x, y);
-      if (!c1) return;
-      c1.walls[dir] = false;
+          const possibleOutwardDirs: {dx: number, dy: number, k: 'n'|'e'|'s'|'w'}[] = [
 
-      let x2 = x, y2 = y;
-      let opp: 'n'|'e'|'s'|'w' = 's';
-      if (dir === 'n') { y2--; opp = 's'; }
-      if (dir === 'e') { x2++; opp = 'w'; }
-      if (dir === 's') { y2++; opp = 'n'; }
-      if (dir === 'w') { x2--; opp = 'e'; }
+              {dx:0, dy:-1, k:'n'}, {dx:0, dy:1, k:'s'}, 
 
-      const c2 = this.getCell(x2, y2);
-      if (c2) c2.walls[opp] = false;
-  }
+              {dx:1, dy:0, k:'e'}, {dx:-1, dy:0, k:'w'}
 
-  private placeDoor(x: number, y: number, dir: string) {
-      const doorId = `door-${this.doors.length}`;
-      let segment: Vector2[];
-      let orientation: 'Horizontal' | 'Vertical';
+          ];
 
-      // Door segment should contain the two cells it connects.
-      if (dir === 'n') { 
-          orientation = 'Horizontal';
-          segment = [{x, y}, {x, y: y-1}];
-      } else if (dir === 's') { 
-          orientation = 'Horizontal';
-          segment = [{x, y}, {x, y: y+1}];
-      } else if (dir === 'w') { 
-          orientation = 'Vertical';
-          segment = [{x, y}, {x: x-1, y}];
-      } else { // 'e'
-          orientation = 'Vertical';
-          segment = [{x, y}, {x: x+1, y}];
-      }
+    
 
-      this.doors.push({
-          id: doorId,
-          state: 'Closed',
-          orientation,
-          segment,
-          hp: 50, maxHp: 50, openDuration: 1
-      });
-  }
+          const validDirs = possibleOutwardDirs.filter(d => {
 
-  private placeFeatures() {
-      const floors = this.cells.filter(c => c.type === CellType.Floor);
-      if (floors.length === 0) return;
+              // Exclude direction back to parent
 
-      const leftMost = floors.sort((a,b) => a.x - b.x)[0];
-      this.spawnPoints.push({ id: 'spawn-1', pos: { x: leftMost.x, y: leftMost.y }, radius: 1 });
+              const oppositeDir = (d.k === 'n' && dir === 's') || (d.k === 's' && dir === 'n') ||
 
-      const rightMost = floors.sort((a,b) => b.x - a.x)[0];
-      this.extraction = { x: rightMost.x, y: rightMost.y };
+                                (d.k === 'w' && dir === 'e') || (d.k === 'e' && dir === 'w');
 
-      const validObjective = floors.filter(c => Math.abs(c.x - leftMost.x) > 5);
-      if (validObjective.length > 0) {
-          const objCell = validObjective[this.prng.nextInt(0, validObjective.length - 1)];
-          this.objectives.push({
-              id: 'obj-1',
-              kind: 'Recover',
-              targetCell: { x: objCell.x, y: objCell.y },
-              state: 'Pending'
+              return !oppositeDir;
+
           });
-      }
-  }
 
-  /**
-   * Checks if a proposed room placement would cause collisions (overlap existing floor) or cycles.
-   */
-  private checkProposedRoomForCollisionsAndCycles(
-    rx: number, ry: number, w: number, h: number,
-    parentX: number, parentY: number, dir: 'n'|'e'|'s'|'w'
-  ): boolean {
-    // 1. Check bounds
-    if (rx < 0 || ry < 0 || rx + w > this.width || ry + h > this.height) {
-      return true;
-    }
+    
 
-    // Define the cell that will connect to the parent (the door cell within the new room)
-    let connectionRoomCellX = -1, connectionRoomCellY = -1;
-    if (dir === 'n') { connectionRoomCellX = parentX; connectionRoomCellY = parentY - 1; }
-    else if (dir === 's') { connectionRoomCellX = parentX; connectionRoomCellY = parentY + 1; }
-    else if (dir === 'e') { connectionRoomCellX = parentX + 1; connectionRoomCellY = parentY; }
-    else if (dir === 'w') { connectionRoomCellX = parentX - 1; connectionRoomCellY = parentY; }
+          for (const cell of newRoomCells) {
 
-    // Helper to identify if a wall segment is the one connecting to the parent
-    const isParentConnection = (
-      currX: number, currY: number, neighborX: number, neighborY: number
-    ): boolean => {
-      // Check if (currX, currY) is the designated connectionRoomCell AND (neighborX, neighborY) is the parent
-      return (currX === connectionRoomCellX && currY === connectionRoomCellY &&
-              neighborX === parentX && neighborY === parentY);
-    };
+              for (const d of validDirs) {
 
-    // 2. Check for overlap with existing Floor cells
-    // Note: We used to check for adjacency to prevent cycles, but strict acyclicity 
-    // is enforced by only opening walls to the parent. Adjacency without open walls
-    // does not create a graph cycle. Allowing adjacency allows for much higher density.
-    for (let y = ry; y < ry + h; y++) {
-      for (let x = rx; x < rx + w; x++) {
-        // Check if any cell in the proposed room is ALREADY a Floor cell (overlap)
-        if (this.getCell(x, y)?.type === CellType.Floor) {
-          return true; // Overlap collision
-        }
+                  const nx = cell.x + d.dx;
+
+                  const ny = cell.y + d.dy;
+
+    
+
+                  // If target is valid wall
+
+                  if (nx >= 0 && nx < this.width && ny >= 0 && ny < this.height && this.getCell(nx, ny)?.type === CellType.Wall) {
+
+                      // Only expand with 50% probability to keep it branched/sparse
+
+                      if (this.prng.next() < 0.5) {
+
+                          this.frontier.push({parentX: cell.x, parentY: cell.y, dir: d.k});
+
+                      }
+
+                  }
+
+              }
+
+          }
+
       }
-    }
-        return false; // No collision detected
+
+    
+
+      private setFloor(x: number, y: number) {
+
+          if (x < 0 || x >= this.width || y < 0 || y >= this.height) return;
+
+          this.cells[y * this.width + x].type = CellType.Floor;
+
       }
+
     
-      private generateSkeleton(spineCells: {x: number, y: number}[]) {
-        // Choose skeleton type based on size and seed
-        // For smaller maps, always use Fishbone
-        if (Math.min(this.width, this.height) < 12) {
-          this.generateFishbone(spineCells);
-          return;
-        }
-    
-        // Larger maps: 60% Fishbone, 40% Cross
-        const roll = this.prng.next();
-        if (roll < 0.6) {
-          this.generateFishbone(spineCells);
-        } else {
-          this.generateCross(spineCells);
-        }
+
+      private getCell(x: number, y: number): Cell | undefined {
+
+          if (x < 0 || x >= this.width || y < 0 || y >= this.height) return undefined;
+
+          return this.cells[y * this.width + x];
+
       }
+
     
-      private generateFishbone(spineCells: {x: number, y: number}[]) {
-        // Prefer horizontal aorta if wide, vertical if tall
-        if (this.width >= this.height) {
-          this.generateHorizontalFishbone(spineCells);
-        } else {
-          this.generateVerticalFishbone(spineCells);
-        }
+
+      private openWall(x: number, y: number, dir: 'n'|'e'|'s'|'w') {
+
+          const c1 = this.getCell(x, y);
+
+          if (!c1) return;
+
+          c1.walls[dir] = false;
+
+    
+
+          let x2 = x, y2 = y;
+
+          let opp: 'n'|'e'|'s'|'w' = 's';
+
+          if (dir === 'n') { y2--; opp = 's'; }
+
+          if (dir === 'e') { x2++; opp = 'w'; }
+
+          if (dir === 's') { y2++; opp = 'n'; }
+
+          if (dir === 'w') { x2--; opp = 'e'; }
+
+    
+
+          const c2 = this.getCell(x2, y2);
+
+          if (c2) c2.walls[opp] = false;
+
       }
+
     
-        private generateHorizontalFishbone(spineCells: {x: number, y: number}[]) {
+
+      private placeDoor(x: number, y: number, dir: string) {
+
+          const doorId = `door-${this.doors.length}`;
+
+          let segment: Vector2[];
+
+          let orientation: 'Horizontal' | 'Vertical';
+
     
-          const aortaY = Math.floor(this.height / 2) + this.prng.nextInt(-1, 1);
-    
-          const aortaStart = 1;
-    
-          const aortaEnd = this.width - 2;
-    
-      
-    
-          for (let x = aortaStart; x <= aortaEnd; x++) {
-    
-            this.setFloor(x, aortaY);
-    
-            spineCells.push({ x, y: aortaY });
-    
-            if (x > aortaStart) {
-    
-              // Periodic doors in aorta
-    
-              if (x % 6 === 0) {
-    
-                this.placeDoor(x - 1, aortaY, 'e');
-    
-              }
-    
-              this.openWall(x - 1, aortaY, 'e');
-    
-            }
-    
+
+          // Door segment should contain the two cells it connects.
+
+          if (dir === 'n') { 
+
+              orientation = 'Horizontal';
+
+              segment = [{x, y}, {x, y: y-1}];
+
+          } else if (dir === 's') { 
+
+              orientation = 'Horizontal';
+
+              segment = [{x, y}, {x, y: y+1}];
+
+          } else if (dir === 'w') { 
+
+              orientation = 'Vertical';
+
+              segment = [{x, y}, {x: x-1, y}];
+
+          } else { // 'e'
+
+              orientation = 'Vertical';
+
+              segment = [{x, y}, {x: x+1, y}];
+
           }
+
     
-      
+
+          this.doors.push({
+
+              id: doorId,
+
+              state: 'Closed',
+
+              orientation,
+
+              segment,
+
+              hp: 50, maxHp: 50, openDuration: 1
+
+          });
+
+      }
+
     
-          const arteryInterval = this.width > 20 ? 6 : 4;
+
+      private placeFeatures() {
+
+          const floors = this.cells.filter(c => c.type === CellType.Floor);
+
+          if (floors.length === 0) return;
+
     
-          for (let x = aortaStart + 2; x <= aortaEnd - 2; x += arteryInterval) {
+
+          const leftMost = floors.sort((a,b) => a.x - b.x)[0];
+
+          this.spawnPoints.push({ id: 'spawn-1', pos: { x: leftMost.x, y: leftMost.y }, radius: 1 });
+
     
-            if (this.prng.next() < 0.8) {
+
+          const rightMost = floors.sort((a,b) => b.x - a.x)[0];
+
+          this.extraction = { x: rightMost.x, y: rightMost.y };
+
     
-              // Upward
-    
-              const lenUp = this.prng.nextInt(2, Math.floor(this.height / 2) - 2);
-    
-              for (let y = 1; y <= lenUp; y++) {
-    
-                const cy = aortaY - y;
-    
-                this.setFloor(x, cy);
-    
-                spineCells.push({ x, y: cy });
-    
-                if (y === 1) {
-    
-                  this.placeDoor(x, aortaY, 'n');
-    
-                  this.openWall(x, aortaY, 'n');
-    
-                } else {
-    
-                  if (y % 5 === 0) this.placeDoor(x, cy + 1, 'n');
-    
-                  this.openWall(x, cy + 1, 'n');
-    
-                }
-    
-              }
-    
-              // Downward
-    
-              const lenDown = this.prng.nextInt(2, Math.floor(this.height / 2) - 2);
-    
-              for (let y = 1; y <= lenDown; y++) {
-    
-                const cy = aortaY + y;
-    
-                this.setFloor(x, cy);
-    
-                spineCells.push({ x, y: cy });
-    
-                if (y === 1) {
-    
-                  this.placeDoor(x, aortaY, 's');
-    
-                  this.openWall(x, aortaY, 's');
-    
-                } else {
-    
-                  if (y % 5 === 0) this.placeDoor(x, cy - 1, 's');
-    
-                  this.openWall(x, cy - 1, 's');
-    
-                }
-    
-              }
-    
-            }
-    
+
+          const validObjective = floors.filter(c => Math.abs(c.x - leftMost.x) > 5);
+
+          if (validObjective.length > 0) {
+
+              const objCell = validObjective[this.prng.nextInt(0, validObjective.length - 1)];
+
+              this.objectives.push({
+
+                  id: 'obj-1',
+
+                  kind: 'Recover',
+
+                  targetCell: { x: objCell.x, y: objCell.y },
+
+                  state: 'Pending'
+
+              });
+
           }
+
+      }
+
     
+
+      /**
+
+       * Checks if a proposed room placement would cause collisions (overlap existing floor) or cycles.
+
+       */
+
+      private checkProposedRoomForCollisionsAndCycles(
+
+        rx: number, ry: number, w: number, h: number,
+
+        parentX: number, parentY: number, dir: 'n'|'e'|'s'|'w'
+
+      ): boolean {
+
+        // 1. Check bounds
+
+        if (rx < 0 || ry < 0 || rx + w > this.width || ry + h > this.height) {
+
+          return true;
+
         }
+
     
-      
+
+        // Define the cell that will connect to the parent (the door cell within the new room)
+
+        let connectionRoomCellX = -1, connectionRoomCellY = -1;
+
+        if (dir === 'n') { connectionRoomCellX = parentX; connectionRoomCellY = parentY - 1; }
+
+        else if (dir === 's') { connectionRoomCellX = parentX; connectionRoomCellY = parentY + 1; }
+
+        else if (dir === 'e') { connectionRoomCellX = parentX + 1; connectionRoomCellY = parentY; }
+
+        else if (dir === 'w') { connectionRoomCellX = parentX - 1; connectionRoomCellY = parentY; }
+
     
-        private generateVerticalFishbone(spineCells: {x: number, y: number}[]) {
+
+        // Helper to identify if a wall segment is the one connecting to the parent
+
+        const isParentConnection = (
+
+          currX: number, currY: number, neighborX: number, neighborY: number
+
+        ): boolean => {
+
+          // Check if (currX, currY) is the designated connectionRoomCell AND (neighborX, neighborY) is the parent
+
+          return (currX === connectionRoomCellX && currY === connectionRoomCellY &&
+
+                  neighborX === parentX && neighborY === parentY);
+
+        };
+
     
-          const aortaX = Math.floor(this.width / 2) + this.prng.nextInt(-1, 1);
-    
-          const aortaStart = 1;
-    
-          const aortaEnd = this.height - 2;
-    
-      
-    
-          for (let y = aortaStart; y <= aortaEnd; y++) {
-    
-            this.setFloor(aortaX, y);
-    
-            spineCells.push({ x: aortaX, y });
-    
-            if (y > aortaStart) {
-    
-              if (y % 6 === 0) {
-    
-                this.placeDoor(aortaX, y - 1, 's');
-    
-              }
-    
-              this.openWall(aortaX, y - 1, 's');
-    
+
+        // 2. Check for overlap with existing Floor cells
+
+        // Note: We used to check for adjacency to prevent cycles, but strict acyclicity 
+
+        // is enforced by only opening walls to the parent. Adjacency without open walls
+
+        // does not create a graph cycle. Allowing adjacency allows for much higher density.
+
+        for (let y = ry; y < ry + h; y++) {
+
+          for (let x = rx; x < rx + w; x++) {
+
+            // Check if any cell in the proposed room is ALREADY a Floor cell (overlap)
+
+            if (this.getCell(x, y)?.type === CellType.Floor) {
+
+              return true; // Overlap collision
+
             }
-    
+
           }
-    
-      
-    
-          const arteryInterval = this.height > 20 ? 6 : 4;
-    
-          for (let y = aortaStart + 2; y <= aortaEnd - 2; y += arteryInterval) {
-    
-            if (this.prng.next() < 0.8) {
-    
-              // Leftward
-    
-              const lenLeft = this.prng.nextInt(2, Math.floor(this.width / 2) - 2);
-    
-              for (let x = 1; x <= lenLeft; x++) {
-    
-                const cx = aortaX - x;
-    
-                this.setFloor(cx, y);
-    
-                spineCells.push({ x: cx, y });
-    
-                if (x === 1) {
-    
-                  this.placeDoor(aortaX, y, 'w');
-    
-                  this.openWall(aortaX, y, 'w');
-    
-                } else {
-    
-                  if (x % 5 === 0) this.placeDoor(cx + 1, y, 'w');
-    
-                  this.openWall(cx + 1, y, 'w');
-    
-                }
-    
-              }
-    
-              // Rightward
-    
-              const lenRight = this.prng.nextInt(2, Math.floor(this.width / 2) - 2);
-    
-              for (let x = 1; x <= lenRight; x++) {
-    
-                const cx = aortaX + x;
-    
-                this.setFloor(cx, y);
-    
-                spineCells.push({ x: cx, y });
-    
-                if (x === 1) {
-    
-                  this.placeDoor(aortaX, y, 'e');
-    
-                  this.openWall(aortaX, y, 'e');
-    
-                } else {
-    
-                  if (x % 5 === 0) this.placeDoor(cx - 1, y, 'e');
-    
-                  this.openWall(cx - 1, y, 'e');
-    
-                }
-    
-              }
-    
-            }
-    
-          }
-    
+
         }
-    
-      
-    
-        private generateCross(spineCells: {x: number, y: number}[]) {
-    
-          const midX = Math.floor(this.width / 2) + this.prng.nextInt(-1, 1);
-    
-          const midY = Math.floor(this.height / 2) + this.prng.nextInt(-1, 1);
-    
-      
-    
-          // Horizontal Spine (H-Aorta)
-    
-          for (let x = 1; x < this.width - 1; x++) {
-    
-            this.setFloor(x, midY);
-    
-            spineCells.push({ x, y: midY });
-    
-            if (x > 1) {
-    
-              if (x % 8 === 0) this.placeDoor(x - 1, midY, 'e');
-    
-              this.openWall(x - 1, midY, 'e');
-    
-            }
-    
+
+            return false; // No collision detected
+
           }
-    
-      
-    
-          // Vertical Spine (V-Aorta) - ONLY connect at intersection
-    
-          for (let y = 1; y < this.height - 1; y++) {
-    
-            if (y === midY) continue; // Already added
-    
-            this.setFloor(midX, y);
-    
-            spineCells.push({ x: midX, y });
-    
-            if (y === midY - 1) {
-    
-              this.placeDoor(midX, y, 's');
-    
-              this.openWall(midX, y, 's');
-    
-            } else if (y === midY + 1) {
-    
-              this.placeDoor(midX, y, 'n');
-    
-              this.openWall(midX, y, 'n');
-    
-            } else if (y < midY) {
-    
-              if (y % 8 === 0) this.placeDoor(midX, y, 's');
-    
-              this.openWall(midX, y, 's');
-    
+
+        
+
+          private generateSkeleton(spineCells: {x: number, y: number}[]) {
+
+            // Choose skeleton type based on size and seed
+
+            // For smaller maps, always use Fishbone
+
+            if (Math.min(this.width, this.height) < 12) {
+
+              this.generateFishbone(spineCells);
+
+              return;
+
+            }
+
+        
+
+            // Larger maps: 60% Fishbone, 40% Cross
+
+            const roll = this.prng.next();
+
+            if (roll < 0.6) {
+
+              this.generateFishbone(spineCells);
+
             } else {
-    
-              if (y % 8 === 0) this.placeDoor(midX, y, 'n');
-    
-              this.openWall(midX, y, 'n');
-    
+
+              this.generateCross(spineCells);
+
             }
-    
+
           }
-    
-      
-    
-          // Arteries
-    
-          const arteryInterval = 8; // Spaced more in Cross to avoid mess
-    
-      
-    
-          // H-Aorta Arteries (Vertical)
-    
-          for (let x = 2; x < this.width - 2; x += arteryInterval) {
-    
-            if (Math.abs(x - midX) < 3) continue; // Don't crowd center
-    
-            if (this.prng.next() < 0.7) {
-    
-              // Upward
-    
-              const lenUp = this.prng.nextInt(2, Math.floor(this.height / 4) + 2);
-    
-              for (let y = 1; y <= lenUp; y++) {
-    
-                const cy = midY - y;
-    
-                if (this.getCell(x, cy)?.type === CellType.Floor) break;
-    
-                this.setFloor(x, cy);
-    
-                spineCells.push({ x, y: cy });
-    
-                if (y === 1) {
-    
-                  this.placeDoor(x, midY, 'n');
-    
-                  this.openWall(x, midY, 'n');
-    
-                } else {
-    
-                  this.openWall(x, cy + 1, 'n');
-    
-                }
-    
-              }
-    
-              // Downward
-    
-              const lenDown = this.prng.nextInt(2, Math.floor(this.height / 4) + 2);
-    
-              for (let y = 1; y <= lenDown; y++) {
-    
-                const cy = midY + y;
-    
-                if (this.getCell(x, cy)?.type === CellType.Floor) break;
-    
-                this.setFloor(x, cy);
-    
-                spineCells.push({ x, y: cy });
-    
-                if (y === 1) {
-    
-                  this.placeDoor(x, midY, 's');
-    
-                  this.openWall(x, midY, 's');
-    
-                } else {
-    
-                  this.openWall(x, cy - 1, 's');
-    
-                }
-    
-              }
-    
+
+        
+
+          private generateFishbone(spineCells: {x: number, y: number}[]) {
+
+            // Prefer horizontal aorta if wide, vertical if tall
+
+            if (this.width >= this.height) {
+
+              this.generateHorizontalFishbone(spineCells);
+
+            } else {
+
+              this.generateVerticalFishbone(spineCells);
+
             }
-    
+
           }
-    
-      
-    
-          // V-Aorta Arteries (Horizontal)
-    
-          for (let y = 2; y < this.height - 2; y += arteryInterval) {
-    
-            if (Math.abs(y - midY) < 3) continue;
-    
-            if (this.prng.next() < 0.7) {
-    
-              // Leftward
-    
-              const lenLeft = this.prng.nextInt(2, Math.floor(this.width / 4) + 2);
-    
-              for (let x = 1; x <= lenLeft; x++) {
-    
-                const cx = midX - x;
-    
-                if (this.getCell(cx, y)?.type === CellType.Floor) break;
-    
-                this.setFloor(cx, y);
-    
-                spineCells.push({ x: cx, y });
-    
-                if (x === 1) {
-    
-                  this.placeDoor(midX, y, 'w');
-    
-                  this.openWall(midX, y, 'w');
-    
-                } else {
-    
-                  this.openWall(cx + 1, y, 'w');
-    
-                }
-    
+
+        
+
+            private generateHorizontalFishbone(spineCells: {x: number, y: number}[]) {
+
+        
+
+              const aortaY = Math.floor(this.height / 2) + this.prng.nextInt(-1, 1);
+
+        
+
+              const aortaStart = 1;
+
+        
+
+              const aortaEnd = this.width - 2;
+
+        
+
+          
+
+        
+
+              for (let x = aortaStart; x <= aortaEnd; x++) {
+
+        
+
+                this.setFloor(x, aortaY);
+
+        
+
+                spineCells.push({ x, y: aortaY });
+
+        
+
+                            if (x > aortaStart) {
+
+        
+
+                              // No doors inside corridors (open corridor)
+
+        
+
+                              this.openWall(x - 1, aortaY, 'e');
+
+        
+
+                            }
+
+        
+
               }
-    
-              // Rightward
-    
-              const lenRight = this.prng.nextInt(2, Math.floor(this.width / 4) + 2);
-    
-              for (let x = 1; x <= lenRight; x++) {
-    
-                const cx = midX + x;
-    
-                if (this.getCell(cx, y)?.type === CellType.Floor) break;
-    
-                this.setFloor(cx, y);
-    
-                spineCells.push({ x: cx, y });
-    
-                if (x === 1) {
-    
-                  this.placeDoor(midX, y, 'e');
-    
-                  this.openWall(midX, y, 'e');
-    
-                } else {
-    
-                  this.openWall(cx - 1, y, 'e');
-    
+
+        
+
+          
+
+        
+
+              const arteryInterval = 4;
+
+        
+
+              for (let x = aortaStart + 2; x <= aortaEnd - 2; x += arteryInterval) {
+
+        
+
+                if (this.prng.next() < 0.8) {
+
+        
+
+                  // Upward
+
+        
+
+                  const lenUp = this.prng.nextInt(2, Math.floor(this.height / 2) - 2);
+
+        
+
+                  for (let y = 1; y <= lenUp; y++) {
+
+        
+
+                    const cy = aortaY - y;
+
+        
+
+                    this.setFloor(x, cy);
+
+        
+
+                    spineCells.push({ x, y: cy });
+
+        
+
+                                    if (y === 1) {
+
+        
+
+                                      this.openWall(x, aortaY, 'n');
+
+        
+
+                                    } else {
+
+        
+
+                                      this.openWall(x, cy + 1, 'n');
+
+        
+
+                                    }
+
+        
+
+                  }
+
+        
+
+                  // Downward
+
+        
+
+                  const lenDown = this.prng.nextInt(2, Math.floor(this.height / 2) - 2);
+
+        
+
+                  for (let y = 1; y <= lenDown; y++) {
+
+        
+
+                    const cy = aortaY + y;
+
+        
+
+                    this.setFloor(x, cy);
+
+        
+
+                    spineCells.push({ x, y: cy });
+
+        
+
+                                    if (y === 1) {
+
+        
+
+                                      this.openWall(x, aortaY, 's');
+
+        
+
+                                    } else {
+
+        
+
+                                      this.openWall(x, cy - 1, 's');
+
+        
+
+                                    }
+
+        
+
+                  }
+
+        
+
                 }
-    
+
+        
+
               }
-    
+
+        
+
             }
-    
-          }
-    
-        }
+
+        
+
+          
+
+        
+
+            private generateVerticalFishbone(spineCells: {x: number, y: number}[]) {
+
+        
+
+              const aortaX = Math.floor(this.width / 2) + this.prng.nextInt(-1, 1);
+
+        
+
+              const aortaStart = 1;
+
+        
+
+              const aortaEnd = this.height - 2;
+
+        
+
+          
+
+        
+
+              for (let y = aortaStart; y <= aortaEnd; y++) {
+
+        
+
+                this.setFloor(aortaX, y);
+
+        
+
+                spineCells.push({ x: aortaX, y });
+
+        
+
+                            if (y > aortaStart) {
+
+        
+
+                              this.openWall(aortaX, y - 1, 's');
+
+        
+
+                            }
+
+        
+
+              }
+
+        
+
+          
+
+        
+
+              const arteryInterval = 4;
+
+        
+
+              for (let y = aortaStart + 2; y <= aortaEnd - 2; y += arteryInterval) {
+
+        
+
+                if (this.prng.next() < 0.8) {
+
+        
+
+                  // Leftward
+
+        
+
+                  const lenLeft = this.prng.nextInt(2, Math.floor(this.width / 2) - 2);
+
+        
+
+                  for (let x = 1; x <= lenLeft; x++) {
+
+        
+
+                    const cx = aortaX - x;
+
+        
+
+                    this.setFloor(cx, y);
+
+        
+
+                    spineCells.push({ x: cx, y });
+
+        
+
+                                    if (x === 1) {
+
+        
+
+                                      this.openWall(aortaX, y, 'w');
+
+        
+
+                                    } else {
+
+        
+
+                                      this.openWall(cx + 1, y, 'w');
+
+        
+
+                                    }
+
+        
+
+                  }
+
+        
+
+                  // Rightward
+
+        
+
+                  const lenRight = this.prng.nextInt(2, Math.floor(this.width / 2) - 2);
+
+        
+
+                  for (let x = 1; x <= lenRight; x++) {
+
+        
+
+                    const cx = aortaX + x;
+
+        
+
+                    this.setFloor(cx, y);
+
+        
+
+                    spineCells.push({ x: cx, y });
+
+        
+
+                                    if (x === 1) {
+
+        
+
+                                      this.openWall(aortaX, y, 'e');
+
+        
+
+                                    } else {
+
+        
+
+                                      this.openWall(cx - 1, y, 'e');
+
+        
+
+                                    }
+
+        
+
+                  }
+
+        
+
+                }
+
+        
+
+              }
+
+        
+
+            }
+
+        
+
+          
+
+        
+
+            private generateCross(spineCells: {x: number, y: number}[]) {
+
+        
+
+              const midX = Math.floor(this.width / 2) + this.prng.nextInt(-1, 1);
+
+        
+
+              const midY = Math.floor(this.height / 2) + this.prng.nextInt(-1, 1);
+
+        
+
+          
+
+        
+
+              // Horizontal Spine (H-Aorta)
+
+        
+
+              for (let x = 1; x < this.width - 1; x++) {
+
+        
+
+                this.setFloor(x, midY);
+
+        
+
+                spineCells.push({ x, y: midY });
+
+        
+
+                            if (x > 1) {
+
+        
+
+                              this.openWall(x - 1, midY, 'e');
+
+        
+
+                            }
+
+        
+
+              }
+
+        
+
+          
+
+        
+
+              // Vertical Spine (V-Aorta) - ONLY connect at intersection
+
+        
+
+              for (let y = 1; y < this.height - 1; y++) {
+
+        
+
+                if (y === midY) continue; // Already added
+
+        
+
+                this.setFloor(midX, y);
+
+        
+
+                spineCells.push({ x: midX, y });
+
+        
+
+                            if (y === midY - 1) {
+
+        
+
+                              this.openWall(midX, y, 's');
+
+        
+
+                            } else if (y === midY + 1) {
+
+        
+
+                              this.openWall(midX, y, 'n');
+
+        
+
+                            } else if (y < midY) {
+
+        
+
+                              this.openWall(midX, y, 's');
+
+        
+
+                            } else {
+
+        
+
+                              this.openWall(midX, y, 'n');
+
+        
+
+                            }
+
+        
+
+              }
+
+        
+
+          
+
+        
+
+              // Arteries
+
+        
+
+              const arteryInterval = 4; // Spaced more in Cross to avoid mess
+
+        
+
+          
+
+        
+
+              // H-Aorta Arteries (Vertical)
+
+        
+
+              for (let x = 2; x < this.width - 2; x += arteryInterval) {
+
+        
+
+                if (Math.abs(x - midX) < 3) continue; // Don't crowd center
+
+        
+
+                if (this.prng.next() < 0.7) {
+
+        
+
+                  // Upward
+
+        
+
+                  const lenUp = this.prng.nextInt(2, Math.floor(this.height / 4) + 2);
+
+        
+
+                  for (let y = 1; y <= lenUp; y++) {
+
+        
+
+                    const cy = midY - y;
+
+        
+
+                    if (this.getCell(x, cy)?.type === CellType.Floor) break;
+
+        
+
+                    this.setFloor(x, cy);
+
+        
+
+                    spineCells.push({ x, y: cy });
+
+        
+
+                                    if (y === 1) {
+
+        
+
+                                      this.openWall(x, midY, 'n');
+
+        
+
+                                    } else {
+
+        
+
+                                      this.openWall(x, cy + 1, 'n');
+
+        
+
+                                    }
+
+        
+
+                  }
+
+        
+
+                  // Downward
+
+        
+
+                  const lenDown = this.prng.nextInt(2, Math.floor(this.height / 4) + 2);
+
+        
+
+                  for (let y = 1; y <= lenDown; y++) {
+
+        
+
+                    const cy = midY + y;
+
+        
+
+                    if (this.getCell(x, cy)?.type === CellType.Floor) break;
+
+        
+
+                    this.setFloor(x, cy);
+
+        
+
+                    spineCells.push({ x, y: cy });
+
+        
+
+                                    if (y === 1) {
+
+        
+
+                                      this.openWall(x, midY, 's');
+
+        
+
+                                    } else {
+
+        
+
+                                      this.openWall(x, cy - 1, 's');
+
+        
+
+                                    }
+
+        
+
+                  }
+
+        
+
+                }
+
+        
+
+              }
+
+        
+
+          
+
+        
+
+              // V-Aorta Arteries (Horizontal)
+
+        
+
+              for (let y = 2; y < this.height - 2; y += arteryInterval) {
+
+        
+
+                if (Math.abs(y - midY) < 3) continue;
+
+        
+
+                if (this.prng.next() < 0.7) {
+
+        
+
+                  // Leftward
+
+        
+
+                  const lenLeft = this.prng.nextInt(2, Math.floor(this.width / 4) + 2);
+
+        
+
+                  for (let x = 1; x <= lenLeft; x++) {
+
+        
+
+                    const cx = midX - x;
+
+        
+
+                    if (this.getCell(cx, y)?.type === CellType.Floor) break;
+
+        
+
+                    this.setFloor(cx, y);
+
+        
+
+                    spineCells.push({ x: cx, y });
+
+        
+
+                                    if (x === 1) {
+
+        
+
+                                      this.openWall(midX, y, 'w');
+
+        
+
+                                    } else {
+
+        
+
+                                      this.openWall(cx + 1, y, 'w');
+
+        
+
+                                    }
+
+        
+
+                  }
+
+        
+
+                  // Rightward
+
+        
+
+                  const lenRight = this.prng.nextInt(2, Math.floor(this.width / 4) + 2);
+
+        
+
+                  for (let x = 1; x <= lenRight; x++) {
+
+        
+
+                    const cx = midX + x;
+
+        
+
+                    if (this.getCell(cx, y)?.type === CellType.Floor) break;
+
+        
+
+                    this.setFloor(cx, y);
+
+        
+
+                    spineCells.push({ x: cx, y });
+
+        
+
+                                    if (x === 1) {
+
+        
+
+                                      this.openWall(midX, y, 'e');
+
+        
+
+                                    } else {
+
+        
+
+                                      this.openWall(cx - 1, y, 'e');
+
+        
+
+                                    }
+
+        
+
+                  }
+
+        
+
+                }
+
+        
+
+              }
+
+        
+
+            }
     
       
     }

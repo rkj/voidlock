@@ -24,7 +24,7 @@ describe('TreeShipGenerator Door Validation', () => {
 
   it('should only place doors between two floor cells (100 iterations)', () => {
     for (let i = 0; i < 100; i++) {
-      const generator = new TreeShipGenerator(i, 20, 20);
+      const generator = new TreeShipGenerator(i, 16, 16);
       const map = generator.generate();
       checkDoors(map);
     }
