@@ -45,7 +45,7 @@ describe('GameClient', () => {
 
     expect(postMessageMock).toHaveBeenCalledWith({
       type: 'INIT',
-      payload: { seed, map: mockMap, fogOfWarEnabled: true, debugOverlayEnabled: false, agentControlEnabled: true, squadConfig: defaultSquad }
+      payload: { seed, map: mockMap, missionType: 'Default', fogOfWarEnabled: true, debugOverlayEnabled: false, agentControlEnabled: true, squadConfig: defaultSquad }
     });
     
     const replay = client.getReplayData();
@@ -92,7 +92,7 @@ describe('GameClient', () => {
     // Should verify init was called immediately
     expect(postMessageMock).toHaveBeenCalledWith({
       type: 'INIT',
-      payload: { seed: 555, map: mockMap, fogOfWarEnabled: true, debugOverlayEnabled: false, agentControlEnabled: true, squadConfig: defaultSquad } // Updated expected payload
+      payload: { seed: 555, map: mockMap, missionType: 'Default', fogOfWarEnabled: true, debugOverlayEnabled: false, agentControlEnabled: true, squadConfig: defaultSquad } // Updated expected payload
     });
 
     // Clear mocks to check subsequent calls

@@ -816,6 +816,7 @@ npm run dev
 * **Clarification First:** When a new change request is received, you must first update `xenopurge-spec.md` with the new clarification/requirement.
 * **Task Creation:** After updating the spec, create a Beads task for the requested change.
 * **Implementation:** Only after the above steps are completed should you proceed with code implementation.
+* **Strict Verification:** A task is **NEVER** considered complete unless `npx vitest run` passes successfully. You must run the full test suite before marking a task as done.
 * **Version Control:**
     * Use `jj` (Jujutsu) commands exclusively.
     * **NEVER** use `git` commands directly.
