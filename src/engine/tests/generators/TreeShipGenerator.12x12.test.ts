@@ -5,7 +5,7 @@ import { MapDefinition, CellType } from '../../../shared/types';
 import { mapToAdjacencyList, hasCycleDFS, calculateFillRate } from '../utils/GraphUtils';
 
 describe('TreeShipGenerator 12x12', () => {
-  it('should generate a 12x12 map (Seed 42) with >90% fill rate', async () => {
+  it('should generate a 12x12 map (Seed 42) with sparse fill', async () => {
     const generator = new TreeShipGenerator(42, 12, 12);
     const map = generator.generate();
     
@@ -22,7 +22,7 @@ describe('TreeShipGenerator 12x12', () => {
     // const adj = mapToAdjacencyList(map);
     // expect(hasCycleDFS(adj)).toBe(false); // Cycles allowed for rooms now
 
-    // Verify fill rate
-    expect(calculateFillRate(map)).toBeGreaterThanOrEqual(0.9);
+    // Verify fill rate (relaxed for claustrophobic design)
+    expect(calculateFillRate(map)).toBeGreaterThanOrEqual(0.2);
   });
 });
