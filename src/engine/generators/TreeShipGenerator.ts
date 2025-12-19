@@ -115,6 +115,9 @@ export class TreeShipGenerator {
     for (let y = 1; y < this.height - 1; y++) {
         for (let x = 1; x < this.width - 1; x++) {
             if (this.getCell(x, y)?.type === CellType.Wall) {
+                // Density control: Only fill 50% of gaps to preserve some structure (walls/doors)
+                if (this.prng.next() > 0.5) continue;
+
                 // Check neighbors
                 const neighbors = [
                     { nx: x, ny: y - 1, dir: 'n' }, { nx: x, ny: y + 1, dir: 's' },
@@ -172,25 +175,45 @@ export class TreeShipGenerator {
               if (c00?.type === CellType.Floor && c10?.type === CellType.Floor &&
                   c01?.type === CellType.Floor && c11?.type === CellType.Floor) {
                   
-                  // Found a 2x2 floor block. Open all internal walls AND remove doors.
+                  // Found a 2x2 floor block. Open internal walls ONLY if no door exists.
+                  // We do NOT remove doors here anymore. If a door exists, we keep it (and the wall holding it).
+
                   // (0,0) <-> (1,0)
-                  this.openWall(x, y, 'e');
-                  this.removeDoorAt(x, y, 'e');
+                  if (!this.hasDoorAt(x, y, 'e')) this.openWall(x, y, 'e');
                   
                   // (0,1) <-> (1,1)
-                  this.openWall(x, y + 1, 'e');
-                  this.removeDoorAt(x, y + 1, 'e');
+                  if (!this.hasDoorAt(x, y + 1, 'e')) this.openWall(x, y + 1, 'e');
 
                   // (0,0) <-> (0,1)
-                  this.openWall(x, y, 's');
-                  this.removeDoorAt(x, y, 's');
+                  if (!this.hasDoorAt(x, y, 's')) this.openWall(x, y, 's');
 
                   // (1,0) <-> (1,1)
-                  this.openWall(x + 1, y, 's');
-                  this.removeDoorAt(x + 1, y, 's');
+                  if (!this.hasDoorAt(x + 1, y, 's')) this.openWall(x + 1, y, 's');
               }
           }
       }
+  }
+
+  private hasDoorAt(x: number, y: number, dir: 'n'|'e'|'s'|'w'): boolean {
+      let dx = 0, dy = 0;
+      let orientation: 'Horizontal' | 'Vertical' = 'Vertical';
+      
+      // Determine the second cell coordinate and orientation based on direction
+      if (dir === 'n') { dy = -1; orientation = 'Horizontal'; }
+      else if (dir === 's') { dy = 1; orientation = 'Horizontal'; }
+      else if (dir === 'e') { dx = 1; orientation = 'Vertical'; }
+      else if (dir === 'w') { dx = -1; orientation = 'Vertical'; }
+
+      const x2 = x + dx;
+      const y2 = y + dy;
+
+      // Check if door exists
+      return this.doors.some(d => {
+          if (d.orientation !== orientation) return false;
+          const hasC1 = d.segment.some(s => s.x === x && s.y === y);
+          const hasC2 = d.segment.some(s => s.x === x2 && s.y === y2);
+          return hasC1 && hasC2;
+      });
   }
 
   private removeDoorAt(x: number, y: number, dir: 'n'|'e'|'s'|'w') {

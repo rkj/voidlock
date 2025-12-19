@@ -6,7 +6,7 @@ import { PRNG } from '../shared/PRNG';
 describe('Director', () => {
   it('should spawn enemies periodically', () => {
     const spawnPoints: SpawnPoint[] = [
-      { id: 'sp1', pos: { x: 0, y: 0 }, radius: 1 }
+      { id: 'sp1', pos: { x: 5, y: 5 }, radius: 1 }
     ];
     const onSpawn = vi.fn();
     const prng = new PRNG(123);
@@ -22,7 +22,12 @@ describe('Director', () => {
     
     const spawnedEnemy = onSpawn.mock.calls[0][0] as Enemy;
     expect(spawnedEnemy.type).toBe('SwarmMelee');
-    expect(spawnedEnemy.pos).toEqual({ x: 0, y: 0 });
+    
+    // Enemy can spawn anywhere inside the square on which the spawner is (plus jitter logic)
+    expect(spawnedEnemy.pos.x).toBeGreaterThanOrEqual(5);
+    expect(spawnedEnemy.pos.x).toBeLessThan(6);
+    expect(spawnedEnemy.pos.y).toBeGreaterThanOrEqual(5);
+    expect(spawnedEnemy.pos.y).toBeLessThan(6);
   });
 
   it('should not spawn if no spawn points', () => {
