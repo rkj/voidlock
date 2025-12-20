@@ -19,7 +19,7 @@ describe('Pathfinder', () => {
 
     const door: Door = {
       id: doorId,
-      segment: [{ x: 1, y: 0 }], // Door to the right of (1,0), so between (1,0) and (2,0)
+      segment: [{ x: 1, y: 0 }, { x: 2, y: 0 }], // Door between (1,0) and (2,0)
       orientation: 'Vertical',
       state: doorState,
       hp: 100,

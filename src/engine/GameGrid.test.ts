@@ -16,7 +16,7 @@ describe('GameGrid', () => {
 
     const door: Door = {
       id: doorId,
-      segment: [{ x: 0, y: 0 }], // Door to the right of (0,0), so between (0,0) and (1,0)
+      segment: [{ x: 0, y: 0 }, { x: 1, y: 0 }], // Door between (0,0) and (1,0)
       orientation: 'Vertical',
       state: doorState,
       hp: 100,

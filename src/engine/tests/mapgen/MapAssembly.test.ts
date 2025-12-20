@@ -97,16 +97,29 @@ describe('MapGenerator.assemble', () => {
 
   it('should assemble a valid playable map', () => {
     // 3x1 corridor: Spawn -> Empty -> Objective/Extraction
+    // We need a tile that has no open edges to the outside to pass validation
+    const closedCorridor: TileDefinition = {
+        id: 'closed_corridor_1x3',
+        width: 1,
+        height: 3,
+        cells: [
+            { x: 0, y: 0, openEdges: ['s'] },
+            { x: 0, y: 1, openEdges: ['n', 's'] },
+            { x: 0, y: 2, openEdges: ['n'] }
+        ]
+    };
+    const library = { ...SpaceHulkTiles, [closedCorridor.id]: closedCorridor };
+
     const assembly: TileAssembly = {
         tiles: [
-            { tileId: 'corridor_1x3', x: 0, y: 0, rotation: 0 }
+            { tileId: 'closed_corridor_1x3', x: 0, y: 0, rotation: 0 }
         ],
         globalSpawnPoints: [{ id: 'sp1', cell: { x: 0, y: 0 } }],
         globalExtraction: { cell: { x: 0, y: 2 } },
         globalObjectives: [{ id: 'obj1', kind: 'Recover', cell: { x: 0, y: 2 } }]
     };
 
-    const map = MapGenerator.assemble(assembly, SpaceHulkTiles);
+    const map = MapGenerator.assemble(assembly, library);
     const generator = new MapGenerator(123);
     const result = generator.validate(map);
 
