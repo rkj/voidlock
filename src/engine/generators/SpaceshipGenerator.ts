@@ -1,5 +1,6 @@
 import { MapDefinition, CellType, Cell, Door, SpawnPoint, Objective, Vector2 } from '../../shared/types';
 import { PRNG } from '../../shared/PRNG';
+import { MapGenerator } from '../MapGenerator';
 
 export class SpaceshipGenerator {
   private prng: PRNG;
@@ -195,7 +196,7 @@ export class SpaceshipGenerator {
     // 6. Place Features
     this.placeFeatures();
 
-    return {
+    const map = {
         width: this.width,
         height: this.height,
         cells: this.cells,
@@ -204,6 +205,9 @@ export class SpaceshipGenerator {
         extraction: this.extraction,
         objectives: this.objectives
     };
+
+    MapGenerator.sanitize(map);
+    return map;
   }
 
   private setFloor(x: number, y: number) {

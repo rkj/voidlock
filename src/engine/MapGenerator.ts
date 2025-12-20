@@ -173,7 +173,7 @@ export class MapGenerator {
     ];
 
 
-    return {
+    const map = {
         width: W,
         height: H,
         cells,
@@ -181,6 +181,129 @@ export class MapGenerator {
         objectives: [objective],
         spawnPoints
     };
+
+    MapGenerator.sanitize(map);
+    return map;
+  }
+
+  public static sanitize(map: MapDefinition): void {
+      const { width, height, cells, spawnPoints } = map;
+      
+      // 1. Identify all reachable Floor cells from SpawnPoints
+      const reachable = new Set<string>();
+      const queue: {x: number, y: number}[] = [];
+
+      // Initialize from all spawn points
+      if (spawnPoints) {
+          for (const sp of spawnPoints) {
+              queue.push(sp.pos);
+              reachable.add(`${sp.pos.x},${sp.pos.y}`);
+          }
+      }
+
+      const getCell = (x: number, y: number) => {
+          if (x < 0 || x >= width || y < 0 || y >= height) return null;
+          return cells[y * width + x];
+      };
+
+      // BFS Flood Fill
+      let head = 0;
+      while(head < queue.length) {
+          const {x, y} = queue[head++];
+          const cell = getCell(x, y);
+          if (!cell || cell.type !== CellType.Floor) continue; // Should be Floor if in queue
+
+          // Check neighbors through OPEN walls OR DOORS
+          const dirs = [
+              { dx: 0, dy: -1, wall: 'n' },
+              { dx: 1, dy: 0, wall: 'e' },
+              { dx: 0, dy: 1, wall: 's' },
+              { dx: -1, dy: 0, wall: 'w' }
+          ];
+
+          for (const d of dirs) {
+              let canTraverse = false;
+              
+              // 1. Check physical wall
+              if (!(cell.walls as any)[d.wall]) {
+                  canTraverse = true;
+              } else {
+                  // 2. Check for Door
+                  // A door exists between (x,y) and neighbor?
+                  // Door segment is [{x,y}, {nx,ny}] or vice versa.
+                  const nx = x + d.dx;
+                  const ny = y + d.dy;
+                  
+                  if (map.doors) {
+                      for (const door of map.doors) {
+                          if (door.segment.length === 2) {
+                              const [s1, s2] = door.segment;
+                              if ( (s1.x === x && s1.y === y && s2.x === nx && s2.y === ny) ||
+                                   (s2.x === x && s2.y === y && s1.x === nx && s1.y === ny) ) {
+                                  // Door exists. Even if closed, it implies connectivity for the sake of "not void".
+                                  // The room behind a closed door is still part of the ship.
+                                  canTraverse = true;
+                                  break;
+                              }
+                          }
+                      }
+                  }
+              }
+
+              if (canTraverse) {
+                  const nx = x + d.dx;
+                  const ny = y + d.dy;
+                  const nKey = `${nx},${ny}`;
+                  
+                  if (!reachable.has(nKey)) {
+                      const neighbor = getCell(nx, ny);
+                      if (neighbor) {
+                          reachable.add(nKey);
+                          queue.push({x: nx, y: ny});
+                      }
+                  }
+              }
+          }
+      }
+
+      // 2. Mark unreachable as Void and Reset Walls
+      for (const cell of cells) {
+          const key = `${cell.x},${cell.y}`;
+          if (reachable.has(key)) {
+              cell.type = CellType.Floor;
+          } else {
+              cell.type = CellType.Wall;
+              cell.walls = { n: true, e: true, s: true, w: true };
+          }
+      }
+
+      // 3. Close walls pointing to Void (fix "open wall to nowhere" for reachable cells)
+      // This handles the case where a Reachable Floor connected to a Non-Existing (Out of bounds) or previously-Void-but-not-reachable?
+      // Wait, if A is reachable and has open wall to B.
+      // If B exists, we added B to queue. So B is reachable.
+      // So B will be preserved as Floor.
+      // The only case B is NOT reachable is if B does not exist (out of bounds).
+      
+      for (const cell of cells) {
+          if (cell.type === CellType.Floor) {
+              if (!cell.walls.n) {
+                  const n = getCell(cell.x, cell.y - 1);
+                  if (!n || n.type === CellType.Wall) cell.walls.n = true;
+              }
+              if (!cell.walls.e) {
+                  const n = getCell(cell.x + 1, cell.y);
+                  if (!n || n.type === CellType.Wall) cell.walls.e = true;
+              }
+              if (!cell.walls.s) {
+                  const n = getCell(cell.x, cell.y + 1);
+                  if (!n || n.type === CellType.Wall) cell.walls.s = true;
+              }
+              if (!cell.walls.w) {
+                  const n = getCell(cell.x - 1, cell.y);
+                  if (!n || n.type === CellType.Wall) cell.walls.w = true;
+              }
+          }
+      }
   }
 
   public validate(map: MapDefinition): IMapValidationResult {

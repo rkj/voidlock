@@ -1,5 +1,6 @@
 import { MapDefinition, CellType, Cell, Door, SpawnPoint, Objective, Vector2 } from '../../shared/types';
 import { PRNG } from '../../shared/PRNG';
+import { MapGenerator } from '../MapGenerator';
 
 export class TreeShipGenerator {
   private prng: PRNG;
@@ -109,7 +110,7 @@ export class TreeShipGenerator {
           
           // 5. Features
           this.placeFeatures();
-          return {
+          const map = {
               width: this.width,
               height: this.height,
               cells: this.cells,
@@ -118,6 +119,9 @@ export class TreeShipGenerator {
               extraction: this.extraction,
               objectives: this.objectives
           };
+
+          MapGenerator.sanitize(map);
+          return map;
         }
       
         private placeRoom(rx: number, ry: number, w: number, h: number, parentX: number, parentY: number, dir: 'n'|'e'|'s'|'w') {

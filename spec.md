@@ -214,6 +214,13 @@ Example:
 
     *   **Map Generation Strategy Selection**: The `MapGenerator` (or its client) must support selecting different generation strategies (e.g., `procedural-maze`, `static-predefined`, `custom-scripted`).
 
+    *   **Connectivity Guarantee (No "Open Walls to Nowhere"):**
+        *   **Concept:** "Walls" are edges between cells, never full tiles.
+        *   **Implementation Rule:** The generator must post-process the map using a flood-fill algorithm starting from the spawn point(s).
+            *   Any cell reached by flood-fill (passing only through open walls/doors) becomes a valid `Floor` cell.
+            *   Any cell *not* reached by this flood-fill must be converted to `Void` (Outer Space).
+        *   **Goal:** This prevents the rendering artifact where a Floor cell has an open edge (no wall) leading into a Void cell, effectively creating an "open wall to nowhere".
+
 **TreeShipGenerator (Sector Layout) Specifics:**
 The `TreeShipGenerator` produces maps with a structured layout:
 *   **Map Size:** Maps must not exceed 16x16 tiles.
@@ -374,6 +381,7 @@ The application is divided into distinct screens to reduce UI clutter and improv
 
 4.  **Mission Screen** (Active Gameplay)
     *   **Main View**: Canvas/WebGL rendering of the game world.
+    *   **Top Left Overlay**: Display current Map Seed (e.g., "Seed: 12345").
     *   **Left Panel**: Squad List (Health, Status) + Quick Commands.
     *   **Right Panel**:
         *   **Objectives List**: Current status of mission objectives.
