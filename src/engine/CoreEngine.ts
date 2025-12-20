@@ -197,6 +197,7 @@ export class CoreEngine {
                 unit.path = undefined; // Stop movement
                 unit.targetPos = undefined;
                 unit.forcedTargetId = undefined; // Clear forced target
+                unit.explorationTarget = undefined; // Clear exploration target
                 unit.state = UnitState.Idle; // Set unit to Idle state
             }
         });
@@ -208,6 +209,8 @@ export class CoreEngine {
         if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
             // Clear forced target when moving
             unit.forcedTargetId = undefined;
+            // Clear exploration target if manually moved
+            unit.explorationTarget = undefined; 
             
             const path = this.pathfinder.findPath(
               { x: Math.floor(unit.pos.x), y: Math.floor(unit.pos.y) },
@@ -500,13 +503,75 @@ export class CoreEngine {
               this.executeCommand(unit, nextCmd);
           }
       } else if (unit.state === UnitState.Idle && unit.commandQueue.length === 0 && this.agentControlEnabled) {
-          // Priority: 1. Threat Engagement, 2. Exploration, 3. Extraction
+          // Priority: 1. Threat Engagement, 2. Objective, 3. Exploration, 4. Extraction
+          
+          let actionTaken = false;
+
+          // 1. Threat Engagement
           if (threats.length > 0 && unit.engagementPolicy !== 'IGNORE') {
               const primaryThreat = threats[0].enemy;
               if (this.getDistance(unit.pos, primaryThreat.pos) > unit.attackRange) {
                   this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: { x: Math.floor(primaryThreat.pos.x), y: Math.floor(primaryThreat.pos.y) } });
+                  actionTaken = true;
               }
-          } else if (!this.isMapFullyDiscovered()) {
+          } 
+          
+          // 2. Objective (if not fighting)
+          if (!actionTaken && this.state.objectives) {
+              // Find closest pending objective
+              const pendingObjectives = this.state.objectives.filter(o => o.state === 'Pending');
+              if (pendingObjectives.length > 0) {
+                  // Find closest one
+                  // For 'Recover', target is targetCell. For 'Kill', target is enemy pos (if known/visible).
+                  // For 'Kill', if enemy is not visible, we can't path to it directly (Exploration handles it eventually).
+                  
+                  let bestObj: { obj: Objective, dist: number } | null = null;
+                  
+                  for (const obj of pendingObjectives) {
+                      let targetPos: Vector2 | null = null;
+                      if (obj.kind === 'Recover' && obj.targetCell) {
+                          // Check if reachable (not discovered? Assume yes for now, pathfinder handles blockage)
+                          // Ideally we prioritize discovered objectives.
+                          targetPos = { x: obj.targetCell.x + 0.5, y: obj.targetCell.y + 0.5 };
+                      } else if (obj.kind === 'Kill' && obj.targetEnemyId) {
+                          const enemy = this.state.enemies.find(e => e.id === obj.targetEnemyId);
+                          // Only if visible? Or cheat? Spec says "AI Support", usually implies knowledge or vision.
+                          // Let's rely on vision. If not visible, ignore.
+                          // Wait, "Kill" objective implies we know where it is? Or we hunt?
+                          // Let's assume we hunt if visible.
+                          if (enemy && newVisibleCells.has(`${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`)) {
+                              targetPos = enemy.pos;
+                          }
+                      }
+
+                      if (targetPos) {
+                          const dist = this.getDistance(unit.pos, targetPos);
+                          if (!bestObj || dist < bestObj.dist) {
+                              bestObj = { obj, dist };
+                          }
+                      }
+                  }
+
+                  if (bestObj) {
+                      // Move to objective
+                      let target = { x: 0, y: 0 };
+                      if (bestObj.obj.kind === 'Recover' && bestObj.obj.targetCell) target = bestObj.obj.targetCell;
+                      else if (bestObj.obj.kind === 'Kill' && bestObj.obj.targetEnemyId) {
+                          const e = this.state.enemies.find(en => en.id === bestObj.obj.targetEnemyId);
+                          if (e) target = { x: Math.floor(e.pos.x), y: Math.floor(e.pos.y) };
+                      }
+                      
+                      // Only if we are not already there
+                      if (Math.floor(unit.pos.x) !== target.x || Math.floor(unit.pos.y) !== target.y) {
+                          this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target });
+                          actionTaken = true;
+                      }
+                  }
+              }
+          }
+
+          // 3. Exploration (if no objective action)
+          if (!actionTaken && !this.isMapFullyDiscovered()) {
               // Check if we already have a valid exploration target
               if (unit.explorationTarget) {
                   // Is it still undiscovered?
@@ -526,7 +591,8 @@ export class CoreEngine {
                       this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: targetCell });
                   }
               }
-          } else {
+          } else if (!actionTaken && this.isMapFullyDiscovered()) {
+              // 4. Extraction
               // Map fully discovered, move to extraction
               unit.explorationTarget = undefined;
               if (this.state.map.extraction) {
