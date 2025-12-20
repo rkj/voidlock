@@ -842,8 +842,13 @@ npm run dev
     * Use the standalone Map Viewer (milestone M15 in spec) to verify map generation logic if available.
     * If the Map Viewer is not built, rely on console logs of the `MapDefinition` JSON.
 
-## G4) Critical Runtime Errors
-* **Infinite Recursion:** A known risk in pathfinding on complex grids. If observed, prioritize fixing the recursion exit conditions in `Pathfinder.ts` immediately.
+## G5) Feature/Task Completion Checklist
+When finishing a feature or a Beads task, you MUST perform the following steps in order:
+1.  **Strict Verification**: Execute `npx vitest run`. All tests MUST pass. A task is not complete if tests are failing.
+2.  **Visual Verification**: For any UI or rendering changes, navigate to the game URL, take a screenshot, and **carefully review it** to ensure the visual state matches expectations.
+3.  **Task Closure**: Close the task in Beads using `bd close <id> --reason "Detailed explanation of work done"`.
+4.  **Commit**: Record the changes using `jj commit -m "Your descriptive message"`.
+5.  **No Pushes**: Never push to the remote repository unless explicitly instructed by the user.
 
 ## Next Steps / Handover
 
