@@ -949,13 +949,14 @@ export class MapGenerator {
             const isHWall = (c: string) => ['-', '=', '#'].includes(c);
             const isVWall = (c: string) => ['|', 'I', '#'].includes(c);
 
-            // North
+            // Check walls relative to this cell
+            // North: (ex, ey-1)
             if (ey - 1 >= 0) cell.walls.n = isHWall(lines[ey - 1][ex]);
-            // South
+            // South: (ex, ey+1)
             if (ey + 1 < expandedHeight) cell.walls.s = isHWall(lines[ey + 1][ex]);
-            // East
+            // East: (ex+1, ey)
             if (ex + 1 < lines[ey].length) cell.walls.e = isVWall(lines[ey][ex + 1]);
-            // West
+            // West: (ex-1, ey)
             if (ex - 1 >= 0) cell.walls.w = isVWall(lines[ey][ex - 1]);
         }
     }
