@@ -54,6 +54,20 @@ export class Renderer {
               this.ctx.fillText(`${x},${y}`, x * this.cellSize + 2, y * this.cellSize + 2);
           }
       }
+
+      // Debug Doors
+      map.doors?.forEach(door => {
+          if (door.segment.length !== 2) return;
+          const [p1, p2] = door.segment;
+          const cx = (p1.x + p2.x) / 2 * this.cellSize + this.cellSize / 2;
+          const cy = (p1.y + p2.y) / 2 * this.cellSize + this.cellSize / 2;
+          
+          this.ctx.fillStyle = '#FF00FF';
+          this.ctx.beginPath();
+          this.ctx.arc(cx, cy, 5, 0, Math.PI * 2);
+          this.ctx.fill();
+          this.ctx.fillText(door.id, cx + 8, cy);
+      });
   }
 
   private renderMap(state: GameState) {
