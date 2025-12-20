@@ -51,29 +51,16 @@ export class GameGrid implements Grid {
     
     // Helper to get a door at a specific wall segment
     const getDoorAtSegment = (fx: number, fy: number, tx: number, ty: number): Door | undefined => {
-      const sdx = tx - fx; // Segment delta x
-      const sdy = ty - fy; // Segment delta y
+      if (!doors) return undefined;
 
-      if (!doors) return undefined; // No doors provided
-
-      if (Math.abs(sdx) === 1 && sdy === 0) { // Vertical segment (between columns)
-        const minX = Math.min(fx, tx);
-        const cellInSegment = { x: minX, y: fy }; // Cell to the left of vertical door
-
-        for (const door of doors.values()) {
-          if (door.orientation === 'Vertical' && door.segment.some(sCell => sCell.x === cellInSegment.x && sCell.y === cellInSegment.y)) {
-            return door;
+      // Check if any door segment contains BOTH (fx, fy) and (tx, ty)
+      // Doors segments are [CellA, CellB]
+      for (const door of doors.values()) {
+          const hasFrom = door.segment.some(s => s.x === fx && s.y === fy);
+          const hasTo = door.segment.some(s => s.x === tx && s.y === ty);
+          if (hasFrom && hasTo) {
+              return door;
           }
-        }
-      } else if (Math.abs(sdy) === 1 && sdx === 0) { // Horizontal segment (between rows)
-        const minY = Math.min(fy, ty);
-        const cellInSegment = { x: fx, y: minY }; // Cell above horizontal door
-
-        for (const door of doors.values()) {
-          if (door.orientation === 'Horizontal' && door.segment.some(sCell => sCell.x === cellInSegment.x && sCell.y === cellInSegment.y)) {
-            return door;
-          }
-        }
       }
       return undefined;
     };

@@ -609,8 +609,8 @@ export class CoreEngine {
         } else {
           unit.pos.x += (dx / dist) * moveDist;
           unit.pos.y += (dy / dist) * moveDist;
+          unit.state = UnitState.Moving;
         }
-        unit.state = UnitState.Moving;
       } else if (!isAttacking && !isMoving) {
         unit.state = UnitState.Idle;
       }
