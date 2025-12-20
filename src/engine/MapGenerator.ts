@@ -393,12 +393,47 @@ export class MapGenerator {
             issues.push(`Door ${door.id} segments at (${p1.x},${p1.y}) and (${p2.x},${p2.y}) are not adjacent.`);
           }
         } else if (connectedFloorCells.length === 1) {
-          // A single segment, maybe a door at the map edge or connecting only one floor cell.
-          // This might be valid depending on more specific door rules, but for now, flag it if it's not a border door.
-          // For simplicity, let's assume doors always connect two adjacent floor cells.
           issues.push(`Door ${door.id} segment defines only one connected floor cell. Doors should span between two adjacent floor cells.`);
         }
       }
+    }
+
+    // 3b. Wall Consistency Check
+    // If a wall is open, the neighbor MUST be reachable/Floor (or a door must exist? No, wall open means passage).
+    // And neighbor's opposite wall must be open too.
+    for (const cell of cells) {
+        if (cell.type === CellType.Floor) {
+            const checkDir = (dir: 'n'|'e'|'s'|'w', nx: number, ny: number, opp: 'n'|'e'|'s'|'w') => {
+                if (!cell.walls[dir]) {
+                    // Wall is Open
+                    const n = getCell(nx, ny);
+                    if (!n) {
+                        issues.push(`Cell (${cell.x},${cell.y}) has open wall '${dir}' to map edge.`);
+                    } else if (n.type !== CellType.Floor) {
+                        // It's allowed to have open wall to Void IF a door is there blocking it? 
+                        // No, our logic says Walls are open only for passages. Doors don't require open walls in our model?
+                        // Wait, TreeShip says "Do NOT open wall" for doors.
+                        // Spaceship says "this.openWall" for doors?
+                        // SpaceshipGenerator: "placeDoor" ... NO, it does NOT open wall in placeDoor.
+                        // But it DOES open walls for corridors.
+                        
+                        // If wall is Open, it MUST be a passage. Passages cannot lead to Void.
+                        // So if n.type is Wall, it's an error.
+                        issues.push(`Cell (${cell.x},${cell.y}) has open wall '${dir}' to Void at (${nx},${ny}).`);
+                    } else {
+                        // Neighbor is Floor. Check neighbor's wall.
+                        if (n.walls[opp]) {
+                            issues.push(`Wall inconsistency: Cell (${cell.x},${cell.y}) has open '${dir}' wall, but neighbor (${nx},${ny}) has closed '${opp}' wall.`);
+                        }
+                    }
+                }
+            };
+            
+            checkDir('n', cell.x, cell.y - 1, 's');
+            checkDir('e', cell.x + 1, cell.y, 'w');
+            checkDir('s', cell.x, cell.y + 1, 'n');
+            checkDir('w', cell.x - 1, cell.y, 'e');
+        }
     }
 
     // 4. Spawn Points:
