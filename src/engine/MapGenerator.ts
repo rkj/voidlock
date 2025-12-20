@@ -498,28 +498,16 @@ export class MapGenerator {
         if (cell?.walls.n) asciiGrid[ey - 1][ex] = '-';
         // East wall
         if (cell?.walls.e) asciiGrid[ey][ex + 1] = '|';
-        // South wall (only draw if this is the northern cell of the wall)
-        // Check if there is a cell below. If so, its north wall defines this segment.
-        const southCell = cellLookup.get(`${x},${y+1}`);
-        if (cell?.walls.s && !southCell) { // If it's a south edge wall and no cell below
-          asciiGrid[ey + 1][ex] = '-';
-        } else if (cell?.walls.s && southCell?.walls.n === false){ // If current cell has south wall, but cell below has no north wall.
-          asciiGrid[ey + 1][ex] = '-';
-        } else if (!cell?.walls.s && southCell?.walls.n === true) { // Current cell has no south wall, but cell below has a north wall.
-          // This ensures that the wall between cells is represented correctly, as only one cell defines it
-          asciiGrid[ey + 1][ex] = '-';
-        }
+        // South wall
+        if (cell?.walls.s) asciiGrid[ey + 1][ex] = '-';
+        // West wall
+        if (cell?.walls.w) asciiGrid[ey][ex - 1] = '|';
 
-        // West wall (only draw if this is the eastern cell of the wall)
-        // Check if there is a cell to the left. If so, its east wall defines this segment.
-        const westCell = cellLookup.get(`${x-1},${y}`);
-        if (cell?.walls.w && !westCell) { // If it's a west edge wall and no cell to the left
-          asciiGrid[ey][ex - 1] = '|';
-        } else if (cell?.walls.w && westCell?.walls.e === false) { // If current cell has west wall, but cell to left has no east wall
-          asciiGrid[ey][ex - 1] = '|';
-        } else if (!cell?.walls.w && westCell?.walls.e === true) { // Current cell has no west wall, but cell to left has an east wall
-          asciiGrid[ey][ex - 1] = '|';
-        }
+        // Also check neighbors to ensure shared walls are rendered
+        const southCell = cellLookup.get(`${x},${y+1}`);
+        if (southCell?.walls.n) asciiGrid[ey + 1][ex] = '-';
+        const eastCell = cellLookup.get(`${x+1},${y}`);
+        if (eastCell?.walls.w) asciiGrid[ey][ex + 1] = '|';
       }
     }
 
