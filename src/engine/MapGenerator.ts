@@ -304,6 +304,17 @@ export class MapGenerator {
               }
           }
       }
+
+      // 4. Remove Doors connected to Void
+      if (map.doors) {
+          map.doors = map.doors.filter(door => {
+              if (door.segment.length !== 2) return false;
+              const [s1, s2] = door.segment;
+              const c1 = getCell(s1.x, s1.y);
+              const c2 = getCell(s2.x, s2.y);
+              return (c1 && c1.type === CellType.Floor) && (c2 && c2.type === CellType.Floor);
+          });
+      }
   }
 
   public validate(map: MapDefinition): IMapValidationResult {
