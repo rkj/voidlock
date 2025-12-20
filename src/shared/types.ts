@@ -89,6 +89,7 @@ export type Unit = Entity & {
   state: UnitState;
   path?: Vector2[]; 
   targetPos?: Vector2;
+  visualJitter?: Vector2; // New: slight offset to prevent stacking
   damage: number;
   fireRate: number; // ms between shots
   attackRange: number;

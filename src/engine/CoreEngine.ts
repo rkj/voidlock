@@ -121,6 +121,7 @@ export class CoreEngine {
             this.addUnit({
                 id: `${arch.id}-${unitCount++}`,
                 pos: { x: startX + (this.prng.next() - 0.5), y: startY + (this.prng.next() - 0.5) }, // Random offset
+                visualJitter: { x: (this.prng.next() - 0.5) * 0.4, y: (this.prng.next() - 0.5) * 0.4 },
                 hp: arch.baseHp, maxHp: arch.baseHp,
                 state: UnitState.Idle,
                 damage: arch.damage,
@@ -205,11 +206,17 @@ export class CoreEngine {
             );
             if (path && path.length > 0) {
               unit.path = path;
-              unit.targetPos = { x: path[0].x + 0.5, y: path[0].y + 0.5 }; 
+              unit.targetPos = { 
+                  x: path[0].x + 0.5 + (unit.visualJitter?.x || 0), 
+                  y: path[0].y + 0.5 + (unit.visualJitter?.y || 0) 
+              }; 
               unit.state = UnitState.Moving;
             } else if (path && path.length === 0 && Math.floor(unit.pos.x) === cmd.target.x && Math.floor(unit.pos.y) === cmd.target.y) {
               // Already at target
-              unit.pos = { x: cmd.target.x + 0.5, y: cmd.target.y + 0.5 };
+              unit.pos = { 
+                  x: cmd.target.x + 0.5 + (unit.visualJitter?.x || 0), 
+                  y: cmd.target.y + 0.5 + (unit.visualJitter?.y || 0) 
+              };
               unit.path = undefined;
               unit.targetPos = undefined;
               unit.state = UnitState.Idle;
@@ -585,7 +592,10 @@ export class CoreEngine {
             unit.targetPos = undefined;
             unit.state = UnitState.Idle;
           } else {
-            unit.targetPos = { x: unit.path[0].x + 0.5, y: unit.path[0].y + 0.5 };
+            unit.targetPos = { 
+                x: unit.path[0].x + 0.5 + (unit.visualJitter?.x || 0), 
+                y: unit.path[0].y + 0.5 + (unit.visualJitter?.y || 0) 
+            };
           }
         } else {
           unit.pos.x += (dx / dist) * moveDist;
