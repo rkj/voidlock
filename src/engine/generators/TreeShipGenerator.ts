@@ -537,31 +537,113 @@ export class TreeShipGenerator {
 
     
 
-        // 2. Check for overlap with existing Floor cells
+            // 2. Check for overlap and strict adjacency
 
-        // Note: We used to check for adjacency to prevent cycles, but strict acyclicity 
+    
 
-        // is enforced by only opening walls to the parent. Adjacency without open walls
+            // To satisfy "No Nested Rooms" and "Where are all the walls?", we forbid rooms
 
-        // does not create a graph cycle. Allowing adjacency allows for much higher density.
+    
 
-        for (let y = ry; y < ry + h; y++) {
+            // from touching any existing floor except for their parent connection.
 
-          for (let x = rx; x < rx + w; x++) {
+    
 
-            // Check if any cell in the proposed room is ALREADY a Floor cell (overlap)
+            for (let y = ry; y < ry + h; y++) {
 
-            if (this.getCell(x, y)?.type === CellType.Floor) {
+    
 
-              return true; // Overlap collision
+              for (let x = rx; x < rx + w; x++) {
+
+    
+
+                // Overlap Check
+
+    
+
+                if (this.getCell(x, y)?.type === CellType.Floor) {
+
+    
+
+                  return true; 
+
+    
+
+                }
+
+    
+
+        
+
+    
+
+                // Adjacency Check
+
+    
+
+                const neighbors = [
+
+    
+
+                    {nx: x-1, ny: y}, {nx: x+1, ny: y},
+
+    
+
+                    {nx: x, ny: y-1}, {nx: x, ny: y+1}
+
+    
+
+                ];
+
+    
+
+                for (const n of neighbors) {
+
+    
+
+                    const neighborCell = this.getCell(n.nx, n.ny);
+
+    
+
+                    if (neighborCell?.type === CellType.Floor) {
+
+    
+
+                        // If it's a floor, it MUST be the parent cell
+
+    
+
+                        if (n.nx !== parentX || n.ny !== parentY) {
+
+    
+
+                            return true; // Accidental adjacency detected
+
+    
+
+                        }
+
+    
+
+                    }
+
+    
+
+                }
+
+    
+
+              }
+
+    
 
             }
 
-          }
+    
 
-        }
+            return false; // No collision or illegal adjacency detected
 
-            return false; // No collision detected
+    
 
           }
 
