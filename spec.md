@@ -500,6 +500,7 @@ Do not ship copyrighted scans/assets. Keep importer expecting **user-provided** 
     *   **Highly Detailed Text Descriptions**: Be as precise as possible regarding colors (e.g., "doors are solid yellow, not dark grey as expected for closed state"), dimensions (e.g., "doors are 2 pixels wide instead of 10"), positions (e.g., "door at (3,0)-(3,1)"), and any unexpected visual behavior. Compare against expectations.
     *   **Behavioral Descriptions**: Clearly explain what actions are observed (e.g., "soldier at (1,1) is shooting enemy at (5,5) directly through the wall segment between (2,2) and (3,2)").
     *   **Contextual Information**: Mention the map loaded, unit positions, door states, etc.
+*   **Status Display**: The UI should explicitly show when a unit's movement is blocked by a door (e.g., status "Waiting for Door").
 *   **Console Output**: Debug logs in the browser console remain critical for understanding runtime state and should be provided when requested.
 *   **Agent Browser Environment**: The agent's internal browser operates in a headless environment. If a headful browser is attempted, an X server must be present. When reporting issues, assume the agent is using a headless browser.
 
