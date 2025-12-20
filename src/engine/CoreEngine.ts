@@ -312,10 +312,17 @@ export class CoreEngine {
     return false;
   }
 
-  // Helper to find the closest undiscovered Floor cell from a given position
-  private findClosestUndiscoveredCell(fromPos: Vector2): Vector2 | null {
+  // Helper to find the closest undiscovered Floor cell from a given position, avoiding claimed targets
+  private findClosestUndiscoveredCell(unit: Unit): Vector2 | null {
     let closestCell: Vector2 | null = null;
     let minDistance = Infinity;
+
+    // Gather claimed targets from other units
+    const claimedTargets = this.state.units
+        .filter(u => u.id !== unit.id && u.explorationTarget)
+        .map(u => u.explorationTarget!);
+
+    const avoidRadius = 10; // Avoid cells within 10 tiles of other units' targets
 
     // Iterate over all possible cells
     for (let y = 0; y < this.state.map.height; y++) {
@@ -323,14 +330,39 @@ export class CoreEngine {
         const cellKey = `${x},${y}`;
         // If it's a floor cell and not yet discovered
         if (this.gameGrid.isWalkable(x, y) && !this.state.discoveredCells.includes(cellKey)) {
-          const dist = this.getDistance(fromPos, { x: x + 0.5, y: y + 0.5 }); // Center of cell
-          if (dist < minDistance) {
-            minDistance = dist;
-            closestCell = { x, y };
+          const target = { x: x + 0.5, y: y + 0.5 };
+          
+          // Check if too close to any claimed target
+          const isClaimed = claimedTargets.some(claimed => this.getDistance(target, claimed) < avoidRadius);
+          
+          if (!isClaimed) {
+              const dist = this.getDistance(unit.pos, target);
+              if (dist < minDistance) {
+                minDistance = dist;
+                closestCell = { x, y };
+              }
           }
         }
       }
     }
+    
+    // Fallback: If all good targets are claimed (e.g. only 1 undiscovered area left but multiple units), ignore claims
+    if (!closestCell) {
+         // Repeat search without claim check
+         for (let y = 0; y < this.state.map.height; y++) {
+            for (let x = 0; x < this.state.map.width; x++) {
+                const cellKey = `${x},${y}`;
+                if (this.gameGrid.isWalkable(x, y) && !this.state.discoveredCells.includes(cellKey)) {
+                    const dist = this.getDistance(unit.pos, { x: x + 0.5, y: y + 0.5 });
+                    if (dist < minDistance) {
+                        minDistance = dist;
+                        closestCell = { x, y };
+                    }
+                }
+            }
+         }
+    }
+
     return closestCell;
   }
 
@@ -475,12 +507,28 @@ export class CoreEngine {
                   this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: { x: Math.floor(primaryThreat.pos.x), y: Math.floor(primaryThreat.pos.y) } });
               }
           } else if (!this.isMapFullyDiscovered()) {
-              const targetCell = this.findClosestUndiscoveredCell(unit.pos);
-              if (targetCell) {
-                  this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: targetCell });
+              // Check if we already have a valid exploration target
+              if (unit.explorationTarget) {
+                  // Is it still undiscovered?
+                  const key = `${Math.floor(unit.explorationTarget.x)},${Math.floor(unit.explorationTarget.y)}`;
+                  if (this.state.discoveredCells.includes(key)) {
+                      unit.explorationTarget = undefined; // Arrived or seen, pick new one
+                  } else if (unit.state === UnitState.Idle) {
+                      // We have a target but we are Idle? Repath.
+                      this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: unit.explorationTarget });
+                  }
+              }
+
+              if (!unit.explorationTarget) {
+                  const targetCell = this.findClosestUndiscoveredCell(unit);
+                  if (targetCell) {
+                      unit.explorationTarget = { x: targetCell.x, y: targetCell.y };
+                      this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: targetCell });
+                  }
               }
           } else {
               // Map fully discovered, move to extraction
+              unit.explorationTarget = undefined;
               if (this.state.map.extraction) {
                   const unitCurrentCell = { x: Math.floor(unit.pos.x), y: Math.floor(unit.pos.y) };
                   if (unitCurrentCell.x !== this.state.map.extraction.x || unitCurrentCell.y !== this.state.map.extraction.y) {
