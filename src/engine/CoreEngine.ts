@@ -7,9 +7,15 @@ import { PRNG } from '../shared/PRNG';
 
 const EPSILON = 0.0001; // Small value for floating-point comparisons
 
-// ...
 export class CoreEngine {
-  // ...
+  private prng: PRNG;
+  private gameGrid: GameGrid;
+  private doors: Map<string, Door>;
+  private pathfinder: Pathfinder;
+  private los: LineOfSight;
+  private director: Director;
+  private state: GameState;
+
   private agentControlEnabled: boolean; // New property
   private missionType: MissionType;
   private debugOverlayEnabled: boolean;

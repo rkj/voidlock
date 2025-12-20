@@ -117,6 +117,11 @@ const setInputMode = (mode: InputMode) => {
   if (moveBtn) moveBtn.className = mode === 'CMD_MOVE' ? 'active' : '';
 };
 
+const updateSeedOverlay = (seed: number) => {
+    const el = document.getElementById('seed-overlay');
+    if (el) el.textContent = `Seed: ${seed}`;
+};
+
 const updateUI = (state: GameState) => {
   const statusElement = document.getElementById('game-status');
   if (statusElement) {
@@ -356,6 +361,7 @@ const launchMission = () => {
 
     // Initialize engine
     gameClient.init(currentSeed, currentMapGeneratorType, currentStaticMapData, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled, currentSquad, currentMissionType);
+    updateSeedOverlay(currentSeed);
 
     // Reset selection
     selectedUnitId = null;
@@ -627,6 +633,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
           const replayData = JSON.parse(event.target?.result as string);
           gameClient.loadReplay(replayData);
+          updateSeedOverlay(replayData.seed);
           // Auto-switch to Mission Screen
           screenManager.show('mission');
           
