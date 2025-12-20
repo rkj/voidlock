@@ -1,9 +1,11 @@
 import { GameState, MapDefinition, CellType, Vector2, UnitState, Enemy, Door } from '../shared/types';
+import { Icons } from './Icons';
 
 export class Renderer {
   private ctx: CanvasRenderingContext2D;
   private canvas: HTMLCanvasElement;
   private cellSize: number = 128; // Increased tile size for M8
+  private iconImages: { [key: string]: HTMLImageElement } = {};
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -12,6 +14,15 @@ export class Renderer {
       throw new Error("Could not get 2D rendering context for canvas.");
     }
     this.ctx = ctx;
+    this.loadIcons();
+  }
+
+  private loadIcons() {
+      Object.entries(Icons).forEach(([key, src]) => {
+          const img = new Image();
+          img.src = src;
+          this.iconImages[key] = img;
+      });
   }
 
   public setCellSize(size: number) {
@@ -213,56 +224,50 @@ export class Renderer {
       const y = ext.y * this.cellSize;
       
       // Extraction Zone
-      this.ctx.fillStyle = 'rgba(0, 255, 255, 0.2)'; 
+      this.ctx.fillStyle = 'rgba(0, 255, 255, 0.1)'; 
       this.ctx.fillRect(x, y, this.cellSize, this.cellSize);
       
       this.ctx.strokeStyle = '#00FFFF';
-      this.ctx.lineWidth = 3;
+      this.ctx.lineWidth = 2;
       this.ctx.setLineDash([10, 5]);
       this.ctx.strokeRect(x + 5, y + 5, this.cellSize - 10, this.cellSize - 10);
       this.ctx.setLineDash([]);
 
-      // Icon (E)
-      this.ctx.fillStyle = '#00FFFF';
-      this.ctx.font = `bold ${this.cellSize/2}px Courier New`;
-      this.ctx.textAlign = 'center';
-      this.ctx.textBaseline = 'middle';
-      this.ctx.fillText('EXIT', x + this.cellSize/2, y + this.cellSize/2);
+      // Icon
+      const icon = this.iconImages.Exit;
+      if (icon) {
+          const iconSize = this.cellSize * 0.6;
+          this.ctx.drawImage(icon, x + (this.cellSize - iconSize)/2, y + (this.cellSize - iconSize)/2, iconSize, iconSize);
+      }
     }
 
     state.map.spawnPoints?.forEach(sp => {
         const x = sp.pos.x * this.cellSize;
         const y = sp.pos.y * this.cellSize;
         
-        this.ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
-        this.ctx.lineWidth = 4;
-        this.ctx.strokeRect(x + 2, y + 2, this.cellSize - 4, this.cellSize - 4);
-        
-        this.ctx.fillStyle = 'rgba(255, 0, 0, 0.1)';
+        this.ctx.fillStyle = 'rgba(255, 0, 0, 0.05)';
         this.ctx.fillRect(x, y, this.cellSize, this.cellSize);
-        
-        this.ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
-        this.ctx.font = `${this.cellSize/4}px Courier New`;
-        this.ctx.fillText('SPAWN', x + this.cellSize/2, y + this.cellSize - 10);
+
+        const icon = this.iconImages.Spawn;
+        if (icon) {
+            const iconSize = this.cellSize * 0.5;
+            this.ctx.drawImage(icon, x + (this.cellSize - iconSize)/2, y + (this.cellSize - iconSize)/2, iconSize, iconSize);
+        }
     });
 
     state.objectives?.forEach(obj => {
       if (obj.state === 'Pending' && obj.targetCell) {
-        this.ctx.fillStyle = '#FFAA00'; 
-        this.ctx.globalAlpha = 0.3;
-        this.ctx.fillRect(
-          obj.targetCell.x * this.cellSize + 4,
-          obj.targetCell.y * this.cellSize + 4,
-          this.cellSize - 8,
-          this.cellSize - 8
-        );
-        this.ctx.globalAlpha = 1.0;
+        const x = obj.targetCell.x * this.cellSize;
+        const y = obj.targetCell.y * this.cellSize;
+
+        this.ctx.fillStyle = 'rgba(255, 170, 0, 0.1)'; 
+        this.ctx.fillRect(x + 4, y + 4, this.cellSize - 8, this.cellSize - 8);
         
-        this.ctx.fillStyle = '#FFAA00';
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'middle';
-        this.ctx.font = `bold ${this.cellSize/2}px Arial`;
-        this.ctx.fillText('OBJ', obj.targetCell.x * this.cellSize + this.cellSize/2, obj.targetCell.y * this.cellSize + this.cellSize/2);
+        const icon = this.iconImages.Objective;
+        if (icon) {
+            const iconSize = this.cellSize * 0.6;
+            this.ctx.drawImage(icon, x + (this.cellSize - iconSize)/2, y + (this.cellSize - iconSize)/2, iconSize, iconSize);
+        }
       }
     });
   }

@@ -12,6 +12,14 @@ const mockCanvas = {
   })),
 } as unknown as HTMLCanvasElement;
 
+// Mock Image
+class MockImage {
+  onload: any = null;
+  src: string = '';
+  complete: boolean = true;
+}
+vi.stubGlobal('Image', MockImage);
+
 // Mock CanvasRenderingContext2D
 const mockContext = {
   clearRect: vi.fn(),
@@ -26,6 +34,7 @@ const mockContext = {
   stroke: vi.fn(),
   setLineDash: vi.fn(),
   fillText: vi.fn(),
+  drawImage: vi.fn(),
   textAlign: '',
   textBaseline: '',
   // Add other methods used in Renderer as needed
