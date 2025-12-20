@@ -828,8 +828,12 @@ npm run dev
 * **Avoid Duplication:** Do not duplicate helper functions or test logic across multiple files. Create shared utility files (e.g., `src/engine/tests/utils/`) and import them. If you see duplication, refactor it.
 
 ## G2) Testing Strategy
-* **Unit Test First:** For core mechanics (Grid, Pathfinder, LOS), write tests before implementation.
-* **Non-Interactive:** Run tests using `npx vitest run`. Never use watch mode.
+
+*   **Never Remove Tests:** Do not remove any tests from the codebase unless explicitly asked to do so by the user (e.g., if a feature was removed from the spec). If a test is failing, fix the code or update the test to match the new behavior, but do not delete it.
+
+*   **Unit Test First:** For core mechanics (Grid, Pathfinder, LOS), write tests before implementation.
+
+*   **Non-Interactive:** Run tests using `npx vitest run`. Never use watch mode.
 * **Micro-Maps:** Define small, fixed JSON `MapDefinition`s directly within tests (e.g., 2x2 grids) to cover specific scenarios:
     * Paths blocked by walls/doors.
     * Complex shared-wall configurations.
