@@ -100,6 +100,7 @@ export type Unit = Entity & {
   lastAttackTarget?: Vector2;
   lastAttackTime?: number;
   forcedTargetId?: string; // ID of enemy to focus fire on
+  explorationTarget?: Vector2; // Current automated exploration goal
 };
 
 export type Enemy = Entity & {
