@@ -591,7 +591,7 @@ export class CoreEngine {
             // Do not update unit.pos.
             // Door opening logic (earlier in update loop) should handle opening if we are adjacent.
             // We are likely adjacent if we are trying to move there.
-            // console.log(`Unit ${unit.id} waiting for door at ${nextCell.x},${nextCell.y}`);
+            unit.state = UnitState.WaitingForDoor;
         } else if (dist <= moveDist + EPSILON) { 
           unit.pos = { ...unit.targetPos };
           unit.path.shift();

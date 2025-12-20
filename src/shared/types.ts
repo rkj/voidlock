@@ -72,6 +72,7 @@ export enum UnitState {
   Idle = 'Idle',
   Moving = 'Moving',
   Attacking = 'Attacking',
+  WaitingForDoor = 'Waiting for Door', // New
   Extracted = 'Extracted', 
   Dead = 'Dead', 
 }
