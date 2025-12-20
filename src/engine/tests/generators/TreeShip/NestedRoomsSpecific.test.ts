@@ -77,5 +77,33 @@ describe('TreeShipGenerator Nested Room Specific', () => {
         }
       }
     }
+
+    // Specific verification for NW Room at (1,1)-(2,2)
+    const nwX = 1;
+    const nwY = 1;
+    const nw00 = map.cells.find(c => c.x === nwX && c.y === nwY);
+    const nw10 = map.cells.find(c => c.x === nwX + 1 && c.y === nwY);
+    const nw01 = map.cells.find(c => c.x === nwX && c.y === nwY + 1);
+    const nw11 = map.cells.find(c => c.x === nwX + 1 && c.y === nwY + 1);
+
+    expect(nw00?.type).toBe(CellType.Floor);
+    expect(nw10?.type).toBe(CellType.Floor);
+    expect(nw01?.type).toBe(CellType.Floor);
+    expect(nw11?.type).toBe(CellType.Floor);
+
+    // Verify internal walls are open
+    expect(nw00?.walls.e).toBe(false);
+    expect(nw00?.walls.s).toBe(false);
+    expect(nw10?.walls.s).toBe(false); // 10 is top-right. South is internal.
+    expect(nw01?.walls.e).toBe(false); // 01 is bottom-left. East is internal.
+
+    // Verify NO internal doors
+    const hasInternalDoor = map.doors?.some(d => {
+        const [p1, p2] = d.segment;
+        const isInternal1 = (p1.x >= nwX && p1.x <= nwX+1 && p1.y >= nwY && p1.y <= nwY+1);
+        const isInternal2 = (p2.x >= nwX && p2.x <= nwX+1 && p2.y >= nwY && p2.y <= nwY+1);
+        return isInternal1 && isInternal2;
+    });
+    expect(hasInternalDoor).toBe(false);
   });
 });

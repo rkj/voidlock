@@ -126,6 +126,7 @@ export type GameState = {
   objectives: Objective[]; 
   threatLevel: number; // 0 to 100, representing Director intensity
   status: 'Playing' | 'Won' | 'Lost';
+  debugOverlayEnabled?: boolean; // New
 };
 
 // --- Replay ---

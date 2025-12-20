@@ -10,321 +10,172 @@ export class TreeShipGenerator {
   private spawnPoints: SpawnPoint[] = [];
   private objectives: Objective[] = [];
   private extraction?: { x: number, y: number };
-  private frontier: {parentX: number, parentY: number, dir: 'n'|'s'|'e'|'w'}[] = [];
-
-  constructor(seed: number, width: number, height: number) {
-    this.prng = new PRNG(seed);
-    this.width = Math.min(width, 16);
-    this.height = Math.min(height, 16);
-  }
-
-  public generate(): MapDefinition {
-    // 1. Initialize Grid (Void)
-    this.cells = Array(this.height * this.width).fill(null).map((_, i) => ({
-      x: i % this.width,
-      y: Math.floor(i / this.width),
-      type: CellType.Wall,
-      walls: { n: true, e: true, s: true, w: true }
-    }));
-
-    const spineCells: {x: number, y: number}[] = [];
-
-    // 2. Main Skeleton (Acyclic Arteries)
-    this.generateSkeleton(spineCells);
-
-    // 3. Grow Room Trees
-    // ... rest of generate ...
-    // Add all spine walls to frontier to allow room growth
-    this.frontier = [];
-    spineCells.forEach(cell => {
-        // Only add walls that lead to Void
-        const checkAndAdd = (dx: number, dy: number, dir: 'n'|'s'|'e'|'w') => {
-            const nx = cell.x + dx;
-            const ny = cell.y + dy;
-            if (nx >= 0 && nx < this.width && ny >= 0 && ny < this.height && this.getCell(nx, ny)?.type === CellType.Wall) {
-                this.frontier.push({parentX: cell.x, parentY: cell.y, dir});
-            }
-        };
-        checkAndAdd(0, -1, 'n');
-        checkAndAdd(0, 1, 's');
-        checkAndAdd(1, 0, 'e');
-        checkAndAdd(-1, 0, 'w');
-    });
-
-        while (this.frontier.length > 0) {
-
-            // Pick random (Strategy: Random usually good for organic growth. Stack (DFS) for long corridors.)
-
-            const idx = this.prng.nextInt(0, this.frontier.length - 1);
-
-            const {parentX, parentY, dir} = this.frontier[idx];
-
-            this.frontier.splice(idx, 1);
-
-    
-
-            // Restrict growth to 40% to keep map sparse and wall-heavy
-
-            if (this.prng.next() > 0.4) continue;
-
-    
-
-            const attempts = [
-
-                { w: 2, h: 2 },
-
-                { w: 2, h: 1 },
-
-                { w: 1, h: 2 },
-
-                { w: 1, h: 1 }
-
-            ];
-
-    
-
-            let placed = false;
-
-    
-
-            for (const size of attempts) {
-
-                const { w, h } = size;
-
-                const alignments: {rx: number, ry: number}[] = [];
-
-    
-
-                if (dir === 'n') {
-
-                    const ry = parentY - h;
-
-                    const minRx = parentX - w + 1;
-
-                    const maxRx = parentX;
-
-                    for(let r = minRx; r <= maxRx; r++) alignments.push({rx: r, ry});
-
-                } else if (dir === 's') {
-
-                    const ry = parentY + 1;
-
-                    const minRx = parentX - w + 1;
-
-                    const maxRx = parentX;
-
-                    for(let r = minRx; r <= maxRx; r++) alignments.push({rx: r, ry});
-
-                } else if (dir === 'e') {
-
-                    const rx = parentX + 1;
-
-                    const minRy = parentY - h + 1;
-
-                    const maxRy = parentY;
-
-                    for(let r = minRy; r <= maxRy; r++) alignments.push({rx, ry: r});
-
-                } else if (dir === 'w') {
-
-                    const rx = parentX - w;
-
-                    const minRy = parentY - h + 1;
-
-                    const maxRy = parentY;
-
-                    for(let r = minRy; r <= maxRy; r++) alignments.push({rx, ry: r});
-
-                }
-
-    
-
-                this.prng.shuffle(alignments);
-
-    
-
-                for (const alignment of alignments) {
-
-                    const { rx, ry } = alignment;
-
-                    
-
-                    if (!this.checkProposedRoomForCollisionsAndCycles(rx, ry, w, h, parentX, parentY, dir as any)) {
-
-                        this.placeRoom(rx, ry, w, h, parentX, parentY, dir as any);
-
-                        placed = true;
-
-                        break;
-
-                    }
-
-                }
-
-                if (placed) break;
-
-            }
-
-        } 
-
-        
-
-        // 4. Fill Gaps (Density Pass) - REMOVED to maximize walls and satisfy claustrophobic requirement
-
-        
-
-        // 5. Features
-
-        // this.postProcessRooms(); // Disabled to preserve walls and doors (fix 0 doors and large open spaces)
-
-        this.placeFeatures();
-
-        return {
-
-            width: this.width,
-
-            height: this.height,
-
-            cells: this.cells,
-
-            doors: this.doors,
-
-            spawnPoints: this.spawnPoints,
-
-            extraction: this.extraction,
-
-            objectives: this.objectives
-
-        };
-
-      }
-
-    
-
-      private placeRoom(rx: number, ry: number, w: number, h: number, parentX: number, parentY: number, dir: 'n'|'e'|'s'|'w') {
-
-          // Place Room
-
-          for(let y=ry; y<ry+h; y++) {
-
-              for(let x=rx; x<rx+w; x++) {
-
-                  this.setFloor(x, y);
-
-                  
-
-                  // Internal walls: Open connections to neighbors within the room
-
-                  const isLastCol = (x === rx + w - 1);
-
-                  const isLastRow = (y === ry + h - 1);
-
-    
-
-                  if (!isLastCol) this.openWall(x, y, 'e');
-
-                  if (!isLastRow) this.openWall(x, y, 's');
-
+    private frontier: {parentX: number, parentY: number, dir: 'n'|'s'|'e'|'w', state: 'NewRoom'|'ExpandRoom'}[] = [];
+  
+    constructor(seed: number, width: number, height: number) {
+      this.prng = new PRNG(seed);
+      this.width = Math.min(width, 16);
+      this.height = Math.min(height, 16);
+    }
+  
+    public generate(): MapDefinition {
+      // 1. Initialize Grid (Void)
+      this.cells = Array(this.height * this.width).fill(null).map((_, i) => ({
+        x: i % this.width,
+        y: Math.floor(i / this.width),
+        type: CellType.Wall,
+        walls: { n: true, e: true, s: true, w: true }
+      }));
+  
+      const spineCells: {x: number, y: number}[] = [];
+  
+      // 2. Main Skeleton (Acyclic Arteries)
+      this.generateSkeleton(spineCells);
+  
+      // 3. Grow Room Trees
+      this.frontier = [];
+      spineCells.forEach(cell => {
+          // Only add walls that lead to Void
+          const checkAndAdd = (dx: number, dy: number, dir: 'n'|'s'|'e'|'w') => {
+              const nx = cell.x + dx;
+              const ny = cell.y + dy;
+              if (nx >= 0 && nx < this.width && ny >= 0 && ny < this.height && this.getCell(nx, ny)?.type === CellType.Wall) {
+                  this.frontier.push({parentX: cell.x, parentY: cell.y, dir, state: 'NewRoom'});
               }
-
-          }
-
-    
-
-                // Connect to Parent (Door)
-
-    
-
-                this.placeDoor(parentX, parentY, dir);
-
-    
-
-                // Do NOT open wall here. The door sits in a closed wall.
-
-    
-
-                // this.openWall(parentX, parentY, dir);
-
-    
-
-          // --- EXPAND FRONTIER ---
-
-          // Add walls of the new room to frontier
-
-          
-
-          // Determine cells of the new room
-
-          const newRoomCells: {x: number, y: number}[] = [];
-
-          for(let y = ry; y < ry + h; y++) {
-
-              for(let x = rx; x < rx + w; x++) {
-
-                  newRoomCells.push({x, y});
-
-              }
-
-          }
-
-    
-
-          // Potential directions for new branches
-
-          const possibleOutwardDirs: {dx: number, dy: number, k: 'n'|'e'|'s'|'w'}[] = [
-
-              {dx:0, dy:-1, k:'n'}, {dx:0, dy:1, k:'s'}, 
-
-              {dx:1, dy:0, k:'e'}, {dx:-1, dy:0, k:'w'}
-
-          ];
-
-    
-
-          const validDirs = possibleOutwardDirs.filter(d => {
-
-              // Exclude direction back to parent
-
-              const oppositeDir = (d.k === 'n' && dir === 's') || (d.k === 's' && dir === 'n') ||
-
-                                (d.k === 'w' && dir === 'e') || (d.k === 'e' && dir === 'w');
-
-              return !oppositeDir;
-
-          });
-
-    
-
-          for (const cell of newRoomCells) {
-
-              for (const d of validDirs) {
-
-                  const nx = cell.x + d.dx;
-
-                  const ny = cell.y + d.dy;
-
-    
-
-                  // If target is valid wall
-
-                  if (nx >= 0 && nx < this.width && ny >= 0 && ny < this.height && this.getCell(nx, ny)?.type === CellType.Wall) {
-
-                      // Only expand with 50% probability to keep it branched/sparse
-
-                      if (this.prng.next() < 0.5) {
-
-                          this.frontier.push({parentX: cell.x, parentY: cell.y, dir: d.k});
-
-                      }
-
+          };
+          checkAndAdd(0, -1, 'n');
+          checkAndAdd(0, 1, 's');
+          checkAndAdd(1, 0, 'e');
+          checkAndAdd(-1, 0, 'w');
+      });
+  
+          while (this.frontier.length > 0) {
+              const idx = this.prng.nextInt(0, this.frontier.length - 1);
+              const {parentX, parentY, dir} = this.frontier[idx]; // Removed state
+              this.frontier.splice(idx, 1);
+      
+              // Restrict growth to keep map sparse
+              if (this.prng.next() > 0.4) continue; 
+      
+              const attempts = [
+                  { w: 2, h: 2 },
+                  { w: 2, h: 1 },
+                  { w: 1, h: 2 },
+                  { w: 1, h: 1 }
+              ];
+      
+              let placed = false;
+      
+              for (const size of attempts) {
+                  const { w, h } = size;
+                  const alignments: {rx: number, ry: number}[] = [];
+      
+                  if (dir === 'n') {
+                      const ry = parentY - h;
+                      const minRx = parentX - w + 1;
+                      const maxRx = parentX;
+                      for(let r = minRx; r <= maxRx; r++) alignments.push({rx: r, ry});
+                  } else if (dir === 's') {
+                      const ry = parentY + 1;
+                      const minRx = parentX - w + 1;
+                      const maxRx = parentX;
+                      for(let r = minRx; r <= maxRx; r++) alignments.push({rx: r, ry});
+                  } else if (dir === 'e') {
+                      const rx = parentX + 1;
+                      const minRy = parentY - h + 1;
+                      const maxRy = parentY;
+                      for(let r = minRy; r <= maxRy; r++) alignments.push({rx, ry: r});
+                  } else if (dir === 'w') {
+                      const rx = parentX - w;
+                      const minRy = parentY - h + 1;
+                      const maxRy = parentY;
+                      for(let r = minRy; r <= maxRy; r++) alignments.push({rx, ry: r});
                   }
-
+      
+                  this.prng.shuffle(alignments);
+      
+                  for (const alignment of alignments) {
+                      const { rx, ry } = alignment;
+                      
+                      if (!this.checkProposedRoomForCollisionsAndCycles(rx, ry, w, h, parentX, parentY, dir as any)) {
+                          this.placeRoom(rx, ry, w, h, parentX, parentY, dir as any);
+                          placed = true;
+                          break;
+                      }
+                  }
+                  if (placed) break;
               }
-
-          }
-
-      }
-
+          } 
+          
+          // 5. Features
+          this.placeFeatures();
+          return {
+              width: this.width,
+              height: this.height,
+              cells: this.cells,
+              doors: this.doors,
+              spawnPoints: this.spawnPoints,
+              extraction: this.extraction,
+              objectives: this.objectives
+          };
+        }
+      
+        private placeRoom(rx: number, ry: number, w: number, h: number, parentX: number, parentY: number, dir: 'n'|'e'|'s'|'w') {
+            // Place Room
+            for(let y=ry; y<ry+h; y++) {
+                for(let x=rx; x<rx+w; x++) {
+                    this.setFloor(x, y);
+                    
+                    // Internal walls: Open connections to neighbors within the room
+                    const isLastCol = (x === rx + w - 1);
+                    const isLastRow = (y === ry + h - 1);
+      
+                    if (!isLastCol) this.openWall(x, y, 'e');
+                    if (!isLastRow) this.openWall(x, y, 's');
+                }
+            }
+      
+            // Connect to Parent (Door)
+            this.placeDoor(parentX, parentY, dir);
+            // Always use door for strict separation.
+            // Do NOT open wall.
+      
+            // --- EXPAND FRONTIER ---
+            // Determine cells of the new room
+            const newRoomCells: {x: number, y: number}[] = [];
+            for(let y = ry; y < ry + h; y++) {
+                for(let x = rx; x < rx + w; x++) {
+                    newRoomCells.push({x, y});
+                }
+            }
+      
+            const possibleOutwardDirs: {dx: number, dy: number, k: 'n'|'e'|'s'|'w'}[] = [
+                {dx:0, dy:-1, k:'n'}, {dx:0, dy:1, k:'s'}, 
+                {dx:1, dy:0, k:'e'}, {dx:-1, dy:0, k:'w'}
+            ];
+      
+            const validDirs = possibleOutwardDirs.filter(d => {
+                // Exclude direction back to parent
+                const oppositeDir = (d.k === 'n' && dir === 's') || (d.k === 's' && dir === 'n') ||
+                                  (d.k === 'w' && dir === 'e') || (d.k === 'e' && dir === 'w');
+                return !oppositeDir;
+            });
+      
+            for (const cell of newRoomCells) {
+                for (const d of validDirs) {
+                    const nx = cell.x + d.dx;
+                    const ny = cell.y + d.dy;
+      
+                    // If target is valid wall
+                    if (nx >= 0 && nx < this.width && ny >= 0 && ny < this.height && this.getCell(nx, ny)?.type === CellType.Wall) {
+                        // Only expand with probability
+                        if (this.prng.next() < 0.5) {
+                            this.frontier.push({parentX: cell.x, parentY: cell.y, dir: d.k, state: 'NewRoom'});
+                        }
+                    }
+                }
+            }
+        }
     
 
       private setFloor(x: number, y: number) {
