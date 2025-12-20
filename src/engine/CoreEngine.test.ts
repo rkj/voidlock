@@ -32,7 +32,7 @@ describe('CoreEngine with Objectives and Game Loop', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     const defaultSquad: SquadConfig = [{archetypeId: "assault", count: 1}];
-    engine = new CoreEngine(mockMap, 123, defaultSquad, false); 
+    engine = new CoreEngine(mockMap, 123, defaultSquad, false, false); 
     engine.clearUnits(); 
     engine.addUnit({
       id: 'u1',

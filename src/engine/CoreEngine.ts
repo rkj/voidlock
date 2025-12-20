@@ -12,14 +12,16 @@ export class CoreEngine {
   // ...
   private agentControlEnabled: boolean; // New property
   private missionType: MissionType;
+  private debugOverlayEnabled: boolean;
 
-  constructor(map: MapDefinition, seed: number, squadConfig: SquadConfig, agentControlEnabled: boolean, missionType: MissionType = MissionType.Default) {
+  constructor(map: MapDefinition, seed: number, squadConfig: SquadConfig, agentControlEnabled: boolean, debugOverlayEnabled: boolean, missionType: MissionType = MissionType.Default) {
     this.prng = new PRNG(seed);
     this.gameGrid = new GameGrid(map);
     this.doors = new Map(map.doors?.map(door => [door.id, door]));
     this.pathfinder = new Pathfinder(this.gameGrid, this.doors);
     this.los = new LineOfSight(this.gameGrid, this.doors);
     this.agentControlEnabled = agentControlEnabled; 
+    this.debugOverlayEnabled = debugOverlayEnabled;
     this.missionType = missionType;
 
     let objectives: Objective[] = (map.objectives || []).map(o => ({
@@ -67,7 +69,8 @@ export class CoreEngine {
       discoveredCells: [],
       objectives,
       threatLevel: 0,
-      status: 'Playing'
+      status: 'Playing',
+      debugOverlayEnabled: this.debugOverlayEnabled
     };
     
     // Post-init Mission Setup (Hive)

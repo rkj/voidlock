@@ -36,7 +36,24 @@ export class Renderer {
     this.renderObjectives(state);
     this.renderUnits(state);
     this.renderEnemies(state);
+    if (state.debugOverlayEnabled) {
+        this.renderDebugOverlay(state);
+    }
     this.renderFog(state);
+  }
+
+  private renderDebugOverlay(state: GameState) {
+      const map = state.map;
+      this.ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+      this.ctx.font = '10px Arial';
+      this.ctx.textAlign = 'left';
+      this.ctx.textBaseline = 'top';
+
+      for (let y = 0; y < map.height; y++) {
+          for (let x = 0; x < map.width; x++) {
+              this.ctx.fillText(`${x},${y}`, x * this.cellSize + 2, y * this.cellSize + 2);
+          }
+      }
   }
 
   private renderMap(state: GameState) {
@@ -142,56 +159,68 @@ export class Renderer {
       const doorThickness = this.cellSize / 8; 
       const doorInset = this.cellSize / 8; // Inset from corners to look like a mechanical door
 
-      door.segment.forEach(segCell => {
-        const x = segCell.x * this.cellSize;
-        const y = segCell.y * this.cellSize;
-        const s = this.cellSize;
-        
-        let drawX = x, drawY = y, drawWidth = s, drawHeight = s;
+      if (door.segment.length !== 2) return;
+      const [p1, p2] = door.segment;
+      
+      const s = this.cellSize;
+      let x, y, drawX, drawY, drawWidth, drawHeight;
 
-        if (door.state === 'Open') {
-          // Open door: Draw "pockets" in the wall
-          this.ctx.fillStyle = '#444';
-          if (door.orientation === 'Vertical') {
-             // Small boxes at top and bottom of the wall segment
-             this.ctx.fillRect(x + s - 4, y, 4, doorInset); // Top pocket
-             this.ctx.fillRect(x + s - 4, y + s - doorInset, 4, doorInset); // Bottom pocket
-          } else {
-             this.ctx.fillRect(x, y + s - 4, doorInset, 4); // Left pocket
-             this.ctx.fillRect(x + s - doorInset, y + s - 4, doorInset, 4); // Right pocket
-          }
+      if (door.orientation === 'Vertical') { 
+        // Door is vertical (between x and x+1)
+        // Draw on Right edge of minX
+        const cellX = Math.min(p1.x, p2.x);
+        const cellY = p1.y;
+        x = cellX * s;
+        y = cellY * s;
+
+        drawX = x + s - doorThickness / 2;
+        drawY = y + doorInset;
+        drawWidth = doorThickness;
+        drawHeight = s - (doorInset * 2);
+      } else { 
+        // Horizontal (between y and y+1)
+        // Draw on Bottom edge of minY
+        const cellX = p1.x;
+        const cellY = Math.min(p1.y, p2.y);
+        x = cellX * s;
+        y = cellY * s;
+
+        drawX = x + doorInset;
+        drawY = y + s - doorThickness / 2;
+        drawWidth = s - (doorInset * 2);
+        drawHeight = doorThickness;
+      }
+      
+      if (door.state === 'Open') {
+        // Open door: Draw "pockets" in the wall
+        this.ctx.fillStyle = '#444';
+        if (door.orientation === 'Vertical') {
+            // Small boxes at top and bottom of the wall segment
+            this.ctx.fillRect(x + s - 4, y, 4, doorInset); // Top pocket
+            this.ctx.fillRect(x + s - 4, y + s - doorInset, 4, doorInset); // Bottom pocket
         } else {
-          // Closed/Locked
-          this.ctx.fillStyle = doorColor;
-          this.ctx.strokeStyle = doorStroke;
-          this.ctx.lineWidth = 2;
-
-          if (door.orientation === 'Vertical') { // Door is vertical (between x and x+1)
-            drawX = x + s - doorThickness / 2;
-            drawY = y + doorInset;
-            drawWidth = doorThickness;
-            drawHeight = s - (doorInset * 2);
-          } else { // Horizontal (between y and y+1)
-            drawX = x + doorInset;
-            drawY = y + s - doorThickness / 2;
-            drawWidth = s - (doorInset * 2);
-            drawHeight = doorThickness;
-          }
-          
-          this.ctx.fillRect(drawX, drawY, drawWidth, drawHeight);
-          this.ctx.strokeRect(drawX, drawY, drawWidth, drawHeight);
-          
-          // Tactical symbol (X for locked, line for closed)
-          if (door.state === 'Locked') {
-              this.ctx.beginPath();
-              this.ctx.moveTo(drawX, drawY);
-              this.ctx.lineTo(drawX + drawWidth, drawY + drawHeight);
-              this.ctx.moveTo(drawX + drawWidth, drawY);
-              this.ctx.lineTo(drawX, drawY + drawHeight);
-              this.ctx.stroke();
-          }
+            this.ctx.fillRect(x, y + s - 4, doorInset, 4); // Left pocket
+            this.ctx.fillRect(x + s - doorInset, y + s - 4, doorInset, 4); // Right pocket
         }
-      });
+      } else {
+        // Closed/Locked
+        this.ctx.fillStyle = doorColor;
+        this.ctx.strokeStyle = doorStroke;
+        this.ctx.lineWidth = 2;
+        
+        this.ctx.fillRect(drawX, drawY, drawWidth, drawHeight);
+        this.ctx.strokeRect(drawX, drawY, drawWidth, drawHeight);
+        
+        // Tactical symbol (X for locked, line for closed)
+        if (door.state === 'Locked') {
+            this.ctx.beginPath();
+            this.ctx.moveTo(drawX, drawY);
+            this.ctx.lineTo(drawX + drawWidth, drawY + drawHeight);
+            this.ctx.moveTo(drawX + drawWidth, drawY);
+            this.ctx.lineTo(drawX, drawY + drawHeight);
+            this.ctx.stroke();
+        }
+      }
     });
   }
 
