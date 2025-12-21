@@ -110,18 +110,26 @@ export class Renderer {
     const isDoor = (cellX: number, cellY: number, wallDirection: 'n'|'e'|'s'|'w'): boolean => {
       return map.doors?.some(door => {
         if (door.orientation === 'Horizontal') {
-          if (wallDirection === 'n') { // Check if door is North of (cellX, cellY) i.e. between (cellX, cellY) and (cellX, cellY-1)
-            return door.segment.some(segCell => segCell.x === cellX && segCell.y === cellY - 1);
+          if (wallDirection === 'n') { // North wall of (cellX, cellY) -> door between (cellX, cellY) and (cellX, cellY-1)
+            const hasA = door.segment.some(s => s.x === cellX && s.y === cellY);
+            const hasB = door.segment.some(s => s.x === cellX && s.y === cellY - 1);
+            return hasA && hasB;
           }
-          if (wallDirection === 's') { // Check if door is South of (cellX, cellY) i.e. between (cellX, cellY) and (cellX, cellY+1)
-            return door.segment.some(segCell => segCell.x === cellX && segCell.y === cellY);
+          if (wallDirection === 's') { // South wall of (cellX, cellY) -> door between (cellX, cellY) and (cellX, cellY+1)
+            const hasA = door.segment.some(s => s.x === cellX && s.y === cellY);
+            const hasB = door.segment.some(s => s.x === cellX && s.y === cellY + 1);
+            return hasA && hasB;
           }
         } else if (door.orientation === 'Vertical') {
-          if (wallDirection === 'w') { // Check if door is West of (cellX, cellY) i.e. between (cellX, cellY) and (cellX-1, cellY)
-            return door.segment.some(segCell => segCell.x === cellX - 1 && segCell.y === cellY);
+          if (wallDirection === 'w') { // West wall of (cellX, cellY) -> door between (cellX, cellY) and (cellX-1, cellY)
+            const hasA = door.segment.some(s => s.x === cellX && s.y === cellY);
+            const hasB = door.segment.some(s => s.x === cellX - 1 && s.y === cellY);
+            return hasA && hasB;
           }
-          if (wallDirection === 'e') { // Check if door is East of (cellX, cellY) i.e. between (cellX, cellY) and (cellX+1, cellY)
-            return door.segment.some(segCell => segCell.x === cellX && segCell.y === cellY);
+          if (wallDirection === 'e') { // East wall of (cellX, cellY) -> door between (cellX, cellY) and (cellX+1, cellY)
+            const hasA = door.segment.some(s => s.x === cellX && s.y === cellY);
+            const hasB = door.segment.some(s => s.x === cellX + 1 && s.y === cellY);
+            return hasA && hasB;
           }
         }
         return false;
