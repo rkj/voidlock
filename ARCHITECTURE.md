@@ -46,6 +46,31 @@ Common definitions.
     *   **Logic vs View**: Engine knows nothing about pixels. Renderer knows nothing about rules.
     *   **Map vs Content**: The Map is a static grid definition. The Game State overlays dynamic entities (Units, Doors) on top of it.
 
+## Communication Protocol (Worker Bridge)
+
+The communication between the Main Thread (Renderer/UI) and the Engine Thread (Web Worker) is handled via a JSON-based protocol using `postMessage`.
+
+### 1. Main Thread -> Worker (`WorkerMessage`)
+Sent via `GameClient`.
+
+-   **`INIT`**: Initializes the `CoreEngine`.
+    -   *Payload*: `{ seed, map, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled, squadConfig, missionType }`
+-   **`COMMAND`**: Issues a tactical command to units.
+    -   *Payload*: A `Command` object (e.g., `MOVE_TO`, `ATTACK_TARGET`, `SET_ENGAGEMENT`).
+-   **`QUERY_STATE`**: Explicitly requests a state update.
+
+### 2. Worker -> Main Thread (`MainMessage`)
+Received by `GameClient` and passed to the `Renderer`.
+
+-   **`STATE_UPDATE`**: Provides a full snapshot of the simulation state.
+    -   *Payload*: `GameState` object.
+    -   *Frequency*: Sent every 100ms (as defined by `TICK_RATE` in `worker.ts`).
+-   **`EVENT`**: Asynchronous events (e.g., sound events, combat logs).
+    -   *Payload*: Event data.
+
+### 3. State Synchronization
+The simulation runs at a fixed 100ms tick rate. The `CoreEngine` maintains the authoritative `GameState`. Every tick, a deep-clone or immutable snapshot of this state is sent to the Main Thread. The Renderer is "dumb" and simply renders the latest snapshot received.
+
 ## Testing Strategy
 *   **Unit Tests**: Core mechanics (`Pathfinder`, `GameGrid`, `CycleDetection`) are tested in isolation.
 *   **Generator Tests**: Generators are tested for properties (e.g., "Acyclicity") rather than specific pixel layouts, ensuring structural correctness.
