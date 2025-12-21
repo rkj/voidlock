@@ -265,25 +265,11 @@ export class CoreEngine {
 
   // Helper to get all cells adjacent to a door's barrier segment
   private getAdjacentCellsToDoor(door: Door): Vector2[] {
-    const adjacentCells: Vector2[] = [];
-    door.segment.forEach(segCell => {
-      const { x, y } = segCell;
-      if (door.orientation === 'Vertical') { // Door between (x,y) and (x+1,y)
-        adjacentCells.push({ x: x, y: y });      // Cell to the left
-        adjacentCells.push({ x: x + 1, y: y });  // Cell to the right
-      } else { // Horizontal, between (x,y) and (x,y+1)
-        adjacentCells.push({ x: x, y: y });      // Cell above
-        adjacentCells.push({ x: x, y: y + 1 });  // Cell below
-      }
-    });
-    // Filter duplicates and invalid cells
-    const uniqueCells = new Map<string, Vector2>();
-    adjacentCells.forEach(cell => {
-      if (cell.x >= 0 && cell.x < this.gameGrid.width && cell.y >= 0 && cell.y < this.gameGrid.height) {
-        uniqueCells.set(`${cell.x},${cell.y}`, cell);
-      }
-    });
-    return Array.from(uniqueCells.values());
+    // The segment property contains the two cells that the door separates.
+    return door.segment.filter(cell => 
+        cell.x >= 0 && cell.x < this.gameGrid.width && 
+        cell.y >= 0 && cell.y < this.gameGrid.height
+    );
   }
 
   // Helper to check if any unit (soldier or enemy) is adjacent to the door
@@ -297,11 +283,11 @@ export class CoreEngine {
         return true;
       }
       // Check enemies
-      if (this.state.enemies.some(enemy => 
+      const enemyAdj = this.state.enemies.some(enemy => 
         enemy.hp > 0 &&
-        Math.floor(enemy.pos.x) === adjCell.x && Math.floor(enemy.pos.y) === adjCell.y)) {
-        return true;
-      }
+        Math.floor(enemy.pos.x) === adjCell.x && Math.floor(enemy.pos.y) === adjCell.y);
+      
+      if (enemyAdj) return true;
     }
     return false;
   }
