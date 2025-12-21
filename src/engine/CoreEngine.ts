@@ -4,6 +4,7 @@ import { Pathfinder } from './Pathfinder';
 import { Director } from './Director';
 import { LineOfSight } from './LineOfSight';
 import { PRNG } from '../shared/PRNG';
+import { IEnemyAI, SwarmMeleeAI } from './ai/EnemyAI';
 
 const EPSILON = 0.0001; // Small value for floating-point comparisons
 
@@ -19,6 +20,7 @@ export class CoreEngine {
   private agentControlEnabled: boolean; // New property
   private missionType: MissionType;
   private debugOverlayEnabled: boolean;
+  private enemyAI: IEnemyAI;
 
   constructor(map: MapDefinition, seed: number, squadConfig: SquadConfig, agentControlEnabled: boolean, debugOverlayEnabled: boolean, missionType: MissionType = MissionType.Default) {
     this.prng = new PRNG(seed);
@@ -29,6 +31,7 @@ export class CoreEngine {
     this.agentControlEnabled = agentControlEnabled; 
     this.debugOverlayEnabled = debugOverlayEnabled;
     this.missionType = missionType;
+    this.enemyAI = new SwarmMeleeAI();
 
     let objectives: Objective[] = (map.objectives || []).map(o => ({
       ...o,
@@ -734,24 +737,54 @@ export class CoreEngine {
       }
     });
 
-    // --- Enemy Logic (Simple Retaliation) ---
+    // --- Enemy Logic (AI & Movement & Combat) ---
     this.state.enemies.forEach(enemy => {
       if (enemy.hp <= 0) return;
+
+      // 1. Think (Targeting & Pathfinding)
+      this.enemyAI.think(enemy, this.state, this.gameGrid, this.pathfinder, this.los, this.prng);
 
       const unitsInRange = this.state.units.filter(unit => 
         unit.hp > 0 && unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead &&
         this.getDistance(enemy.pos, unit.pos) <= enemy.attackRange + 0.5
       );
 
+      let isAttacking = false;
       if (unitsInRange.length > 0) {
         const targetUnit = unitsInRange[0];
         
-        // Cooldown Check for Enemy
-        if (!enemy.lastAttackTime || (this.state.t - enemy.lastAttackTime >= enemy.fireRate)) {
-             targetUnit.hp -= enemy.damage;
-             enemy.lastAttackTime = this.state.t;
-             enemy.lastAttackTarget = { ...targetUnit.pos };
+        // RE-VERIFY LOS for projectile/melee path (double-safety)
+        if (this.los.hasLineOfSight(enemy.pos, targetUnit.pos)) {
+            // Cooldown Check for Enemy
+            if (!enemy.lastAttackTime || (this.state.t - enemy.lastAttackTime >= enemy.fireRate)) {
+                targetUnit.hp -= enemy.damage;
+                enemy.lastAttackTime = this.state.t;
+                enemy.lastAttackTarget = { ...targetUnit.pos };
+            }
+            isAttacking = true;
         }
+      }
+
+      // 2. Movement Resolution (if not attacking)
+      if (!isAttacking && enemy.targetPos && enemy.path && enemy.path.length > 0) {
+          const dx = enemy.targetPos.x - enemy.pos.x;
+          const dy = enemy.targetPos.y - enemy.pos.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          
+          const moveDist = (SPEED * dt) / 1000; // Reuse SPEED constant
+
+          if (dist <= moveDist + EPSILON) {
+              enemy.pos = { ...enemy.targetPos };
+              enemy.path.shift();
+              if (enemy.path.length > 0) {
+                  enemy.targetPos = { x: enemy.path[0].x + 0.5, y: enemy.path[0].y + 0.5 };
+              } else {
+                  enemy.targetPos = undefined;
+              }
+          } else {
+              enemy.pos.x += (dx / dist) * moveDist;
+              enemy.pos.y += (dy / dist) * moveDist;
+          }
       }
     });
 
