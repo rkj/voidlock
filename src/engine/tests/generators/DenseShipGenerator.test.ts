@@ -65,4 +65,53 @@ describe('DenseShipGenerator', () => {
     // To truly check acyclicity, we'd need to ensure no OTHER open walls exist.
     expect(edges).toBe(floorCells.length - 1);
   });
+
+  it('should generate strict room shapes (1x1, 1x2, 2x1, 2x2) and valid corridors', () => {
+    const generator = new DenseShipGenerator(999, 16, 16);
+    const map = generator.generate();
+
+    // Group cells by roomId
+    const rooms = new Map<string, { x: number, y: number }[]>();
+    map.cells.forEach(cell => {
+        if (cell.type === CellType.Floor && cell.roomId) {
+            if (!rooms.has(cell.roomId)) rooms.set(cell.roomId, []);
+            rooms.get(cell.roomId)!.push({ x: cell.x, y: cell.y });
+        }
+    });
+
+    rooms.forEach((cells, roomId) => {
+        if (roomId.startsWith('corridor-')) {
+            // Corridors: Should be 1xN or Nx1
+            const xs = cells.map(c => c.x);
+            const ys = cells.map(c => c.y);
+            const minX = Math.min(...xs);
+            const maxX = Math.max(...xs);
+            const minY = Math.min(...ys);
+            const maxY = Math.max(...ys);
+            
+            const w = maxX - minX + 1;
+            const h = maxY - minY + 1;
+            
+            // Either width or height must be 1
+            expect(w === 1 || h === 1, `Corridor ${roomId} is not linear (w=${w}, h=${h})`).toBe(true);
+        } else if (roomId.startsWith('room-')) {
+            // Rooms: 1x1, 1x2, 2x1, 2x2
+            const xs = cells.map(c => c.x);
+            const ys = cells.map(c => c.y);
+            const minX = Math.min(...xs);
+            const maxX = Math.max(...xs);
+            const minY = Math.min(...ys);
+            const maxY = Math.max(...ys);
+            
+            const w = maxX - minX + 1;
+            const h = maxY - minY + 1;
+            const area = w * h;
+            
+            expect(cells.length).toBe(area); // Must be rectangular (no holes)
+            expect(area).toBeLessThanOrEqual(4); // Max 4 cells
+            expect(w).toBeLessThanOrEqual(2);
+            expect(h).toBeLessThanOrEqual(2);
+        }
+    });
+  });
 });
