@@ -5,22 +5,25 @@ export class LineOfSight {
 
   public computeVisibleCells(origin: Vector2, range: number): string[] {
     const visible: Set<string> = new Set();
-    const rangeSq = range * range;
+    const originCellX = Math.floor(origin.x);
+    const originCellY = Math.floor(origin.y);
 
-    const startX = Math.floor(origin.x);
-    const startY = Math.floor(origin.y);
-
-    const minX = Math.max(0, startX - Math.ceil(range));
-    const maxX = Math.min(this.grid.width - 1, startX + Math.ceil(range));
-    const minY = Math.max(0, startY - Math.ceil(range));
-    const maxY = Math.min(this.grid.height - 1, startY + Math.ceil(range));
+    // Iterate through a bounding box around the origin, centered on cells
+    const searchRange = Math.ceil(range);
+    const minX = Math.max(0, originCellX - searchRange);
+    const maxX = Math.min(this.grid.width - 1, originCellX + searchRange);
+    const minY = Math.max(0, originCellY - searchRange);
+    const maxY = Math.min(this.grid.height - 1, originCellY + searchRange);
 
     for (let y = minY; y <= maxY; y++) {
       for (let x = minX; x <= maxX; x++) {
-        const dx = x + 0.5 - origin.x;
-        const dy = y + 0.5 - origin.y;
-        if (dx * dx + dy * dy <= rangeSq) {
-          if (this.hasLineOfSight(origin, { x: x + 0.5, y: y + 0.5 })) {
+        // Check distance to cell center
+        const cellCenterX = x + 0.5;
+        const cellCenterY = y + 0.5;
+        const distSq = (cellCenterX - origin.x)**2 + (cellCenterY - origin.y)**2;
+
+        if (distSq <= range * range) {
+          if (this.hasLineOfSight(origin, { x: cellCenterX, y: cellCenterY })) {
             visible.add(`${x},${y}`);
           }
         }
