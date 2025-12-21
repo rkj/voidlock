@@ -35,6 +35,7 @@ export enum MapGeneratorType {
   Procedural = 'Procedural',
   Static = 'Static',
   TreeShip = 'TreeShip',
+  DenseShip = 'DenseShip',
 }
 
 export type MapDefinition = {
