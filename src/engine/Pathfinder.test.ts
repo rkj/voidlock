@@ -86,17 +86,27 @@ describe('Pathfinder', () => {
     expect(path).toEqual([{ x: 0, y: 1 }, { x: 0, y: 2 }]);
   });
 
-  it('should find a longer path around multiple obstacles', () => {
-    const start: Vector2 = { x: 0, y: 0 };
-    const end: Vector2 = { x: 4, y: 0 };
-    const path = pathfinder.findPath(start, end);
-    expect(path).not.toBeNull();
-    // Check if path ends at target
-    expect(path![path!.length - 1]).toEqual(end);
-  });
-
-  describe('door pathfinding', () => {
-    it('should find a path through an open door', () => {
+      it('should find a longer path around multiple obstacles', () => {
+      const start: Vector2 = { x: 0, y: 0 };
+      const end: Vector2 = { x: 4, y: 0 };
+      const path = pathfinder.findPath(start, end);
+      expect(path).not.toBeNull();
+      // Check if path ends at target
+      expect(path![path!.length - 1]).toEqual(end);
+    });
+  
+    it('should return null if no path exists to an unreachable floor cell', () => {
+      const cells: Cell[] = [
+          { x: 0, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: true, w: true } }, // Isolated
+          { x: 1, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: true, w: true } }  // Target
+      ];
+      const deadMap: MapDefinition = { width: 2, height: 1, cells };
+      const deadGrid = new GameGrid(deadMap);
+      const deadPF = new Pathfinder(deadGrid, new Map());
+      expect(deadPF.findPath({ x: 0, y: 0 }, { x: 1, y: 0 })).toBeNull();
+    });
+  
+    describe('door pathfinding', () => {    it('should find a path through an open door', () => {
       const { map, doors } = createTestMapWithDoor('Open');
       const doorGrid = new GameGrid(map);
       const doorPathfinder = new Pathfinder(doorGrid, doors);
