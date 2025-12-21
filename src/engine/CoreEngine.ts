@@ -674,15 +674,18 @@ export class CoreEngine {
         // Attack
         const targetEnemy = enemiesInRange[0];
         
-        // Cooldown Check
-        if (!unit.lastAttackTime || (this.state.t - unit.lastAttackTime >= unit.fireRate)) {
-            targetEnemy.hp -= unit.damage;
-            unit.lastAttackTime = this.state.t;
-            unit.lastAttackTarget = { ...targetEnemy.pos };
-        }
+        // RE-VERIFY LOS for projectile path (double-safety)
+        if (this.los.hasLineOfSight(unit.pos, targetEnemy.pos)) {
+            // Cooldown Check
+            if (!unit.lastAttackTime || (this.state.t - unit.lastAttackTime >= unit.fireRate)) {
+                targetEnemy.hp -= unit.damage;
+                unit.lastAttackTime = this.state.t;
+                unit.lastAttackTarget = { ...targetEnemy.pos };
+            }
 
-        unit.state = UnitState.Attacking;
-        isAttacking = true;
+            unit.state = UnitState.Attacking;
+            isAttacking = true;
+        }
       } 
       
       // If we didn't attack (or we are IGNORE-ing), process movement

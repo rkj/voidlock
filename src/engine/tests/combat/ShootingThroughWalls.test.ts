@@ -1,0 +1,129 @@
+import { describe, it, expect, beforeEach } from 'vitest';
+import { CoreEngine } from '../../CoreEngine';
+import { MapDefinition, CellType, UnitState, CommandType } from '../../../shared/types';
+
+describe('Shooting Through Walls Repro', () => {
+  let engine: CoreEngine;
+  let map: MapDefinition;
+
+  beforeEach(() => {
+    // 2x1 map with a wall between (0,0) and (1,0)
+    map = {
+      width: 2, height: 1,
+      cells: [
+        { x: 0, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: true, w: true } }, // East wall closed
+        { x: 1, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: true, w: true } }  // West wall closed
+      ],
+      spawnPoints: [], extraction: undefined, objectives: []
+    };
+
+    engine = new CoreEngine(map, 123, [], true, false);
+    engine.clearUnits();
+  });
+
+  it('should NOT allow shooting through a thin wall', () => {
+    // Add Soldier at (0.5, 0.5)
+    engine.addUnit({
+      id: 's1', pos: { x: 0.5, y: 0.5 }, hp: 100, maxHp: 100, state: UnitState.Idle, damage: 10, fireRate: 100, attackRange: 5, sightRange: 10, commandQueue: []
+    });
+
+    // Add Enemy at (1.5, 0.5)
+    engine.addEnemy({
+      id: 'e1', pos: { x: 1.5, y: 0.5 }, hp: 100, maxHp: 100, type: 'SwarmMelee', damage: 10, fireRate: 100, attackRange: 1
+    });
+
+    // Run update to resolve visibility and combat
+    engine.update(100);
+
+    const state = engine.getState();
+    const s1 = state.units[0];
+    const e1 = state.enemies[0];
+
+    // Check visibility
+    expect(state.visibleCells).not.toContain('1,0');
+
+    // S1 should NOT be attacking because LOS is blocked
+    expect(s1.state).not.toBe(UnitState.Attacking);
+    expect(e1.hp).toBe(100); // No damage dealt
+  });
+
+  it('should NOT allow shooting through walls diagonally', () => {
+      // 2x2 map
+      // Floor (0,0) | Floor (1,0)
+      // ------------+------------
+      // Floor (0,1) | Floor (1,1)
+      // All walls closed.
+      const map2x2: MapDefinition = {
+          width: 2, height: 2,
+          cells: [
+              { x: 0, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: true, w: true } },
+              { x: 1, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: true, w: true } },
+              { x: 0, y: 1, type: CellType.Floor, walls: { n: true, e: true, s: true, w: true } },
+              { x: 1, y: 1, type: CellType.Floor, walls: { n: true, e: true, s: true, w: true } }
+          ],
+          spawnPoints: [], extraction: undefined, objectives: []
+      };
+      const engine2 = new CoreEngine(map2x2, 123, [], true, false);
+      engine2.clearUnits();
+
+      engine2.addUnit({
+        id: 's1', pos: { x: 0.5, y: 0.5 }, hp: 100, maxHp: 100, state: UnitState.Idle, damage: 10, fireRate: 100, attackRange: 5, sightRange: 10, commandQueue: []
+      });
+      engine2.addEnemy({
+        id: 'e1', pos: { x: 1.5, y: 1.5 }, hp: 100, maxHp: 100, type: 'SwarmMelee', damage: 10, fireRate: 100, attackRange: 1
+      });
+
+      engine2.update(100);
+
+      const state2 = engine2.getState();
+      const s1 = state2.units[0];
+      const e1 = state2.enemies[0];
+
+      // Check visibility
+      expect(state2.visibleCells).not.toContain('1,1');
+
+      expect(s1.state).not.toBe(UnitState.Attacking);
+      expect(e1.hp).toBe(100);
+  });
+
+  it('should NOT allow shooting when positioned at cell edges separated by a wall', () => {
+      // S1 at right edge of (0,0), E1 at left edge of (1,0)
+      // Wall between them.
+      engine.addUnit({
+        id: 's1', pos: { x: 0.9, y: 0.5 }, hp: 100, maxHp: 100, state: UnitState.Idle, damage: 10, fireRate: 100, attackRange: 5, sightRange: 10, commandQueue: []
+      });
+      engine.addEnemy({
+        id: 'e1', pos: { x: 1.1, y: 0.5 }, hp: 100, maxHp: 100, type: 'SwarmMelee', damage: 10, fireRate: 100, attackRange: 1
+      });
+
+      engine.update(100);
+
+      const s1 = engine.getState().units[0];
+      const e1 = engine.getState().enemies[0];
+
+      expect(engine.getState().visibleCells).not.toContain('1,0');
+      expect(s1.state).not.toBe(UnitState.Attacking);
+      expect(e1.hp).toBe(100);
+  });
+
+  it('should NOT see or shoot an off-center enemy through a wall', () => {
+      // Soldier at (0.5, 0.5), wall between (0,0) and (1,0)
+      // Enemy at (1.1, 0.5)
+      engine.addUnit({
+        id: 's1', pos: { x: 0.5, y: 0.5 }, hp: 100, maxHp: 100, state: UnitState.Idle, damage: 10, fireRate: 100, attackRange: 5, sightRange: 10, commandQueue: []
+      });
+      engine.addEnemy({
+        id: 'e1', pos: { x: 1.1, y: 0.5 }, hp: 100, maxHp: 100, type: 'SwarmMelee', damage: 10, fireRate: 100, attackRange: 1
+      });
+
+      engine.update(100);
+
+      const state = engine.getState();
+      const s1 = state.units[0];
+      const e1 = state.enemies[0];
+
+      // Even if cell (1,0) is visible (which it shouldn't be), e1's position (1.1, 0.5) should be checked for LOS
+      expect(s1.state).not.toBe(UnitState.Attacking);
+      expect(e1.hp).toBe(100);
+  });
+});
