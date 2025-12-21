@@ -1,13 +1,6 @@
-import { MapDefinition, CellType, Cell, Door, SpawnPoint, Objective, Vector2, ObjectiveDefinition } from '../../shared/types';
+import { MapDefinition, CellType, Cell, Door, SpawnPoint, ObjectiveDefinition, Vector2 } from '../../shared/types';
 import { PRNG } from '../../shared/PRNG';
 import { MapGenerator } from '../MapGenerator';
-
-type CellDepth = {
-    x: number;
-    y: number;
-    depth: number;
-    parent?: Vector2;
-};
 
 export class DenseShipGenerator {
   private prng: PRNG;
@@ -18,7 +11,6 @@ export class DenseShipGenerator {
   private spawnPoints: SpawnPoint[] = [];
   private objectives: ObjectiveDefinition[] = [];
   private extraction?: Vector2;
-  private cellDepths: Map<string, CellDepth> = new Map();
 
   constructor(seed: number, width: number, height: number) {
     this.prng = new PRNG(seed);
@@ -27,7 +19,8 @@ export class DenseShipGenerator {
   }
 
   public generate(): MapDefinition {
-    // 1. Initialize grid as Void
+    // 1. Initialize as Void
+    this.cells = [];
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
         this.cells.push({
@@ -38,103 +31,115 @@ export class DenseShipGenerator {
       }
     }
 
-    // 2. Create Corridors (Depth 0)
-    // Random horizontal or vertical main spine
-    const isHorizontal = this.prng.next() > 0.5;
-    const spineIdx = isHorizontal ? this.prng.nextInt(2, this.height - 3) : this.prng.nextInt(2, this.width - 3);
+    // 2. Build Corridor Frame
+    const corridors: Vector2[] = [];
     
-    if (isHorizontal) {
-        for (let x = 0; x < this.width; x++) {
-            this.setDepth(x, spineIdx, 0);
-            if (x > 0) this.openWall(x - 1, spineIdx, 'e');
-        }
+    // Main Spine (Horizontal or Vertical)
+    const isHorizontalSpine = this.prng.next() > 0.5;
+    const spineLength = Math.floor((isHorizontalSpine ? this.width : this.height) * 0.8); // 80% length
+    const spineStart = Math.floor(((isHorizontalSpine ? this.width : this.height) - spineLength) / 2);
+    const spinePos = Math.floor((isHorizontalSpine ? this.height : this.width) / 2);
+
+    if (isHorizontalSpine) {
+        this.createCorridor(spineStart, spinePos, spineLength, 'horizontal', corridors);
     } else {
-        for (let y = 0; y < this.height; y++) {
-            this.setDepth(spineIdx, y, 0);
-            if (y > 0) this.openWall(spineIdx, y - 1, 's');
+        this.createCorridor(spinePos, spineStart, spineLength, 'vertical', corridors);
+    }
+
+    // Secondary Corridors (Branches)
+    // Try to place perpendicular branches
+    const branchCount = 3;
+    for (let i = 0; i < branchCount; i++) {
+        // Pick a point on the spine (or existing corridors)
+        if (corridors.length === 0) break;
+        const startNode = corridors[this.prng.nextInt(0, corridors.length - 1)];
+        
+        // Determine direction perpendicular to current corridor? 
+        // Hard without metadata. Let's just try random directions from random valid floor cells.
+        const dirs = isHorizontalSpine ? ['n', 's'] : ['e', 'w']; // Simplify: branches perp to spine
+        const dir = dirs[this.prng.nextInt(0, dirs.length - 1)];
+        
+        // Determine length
+        const len = Math.floor((isHorizontalSpine ? this.height : this.width) * 0.6);
+        
+        // Find start: Scan from spine outwards?
+        // Actually, let's just place lines and see if they fit.
+        // Valid Frame: No parallel adjacent corridors.
+        
+        let cx = startNode.x;
+        let cy = startNode.y;
+        let dx = 0, dy = 0;
+        if (dir === 'n') dy = -1;
+        if (dir === 's') dy = 1;
+        if (dir === 'e') dx = 1;
+        if (dir === 'w') dx = -1;
+
+        // Try to build a corridor
+        // Must maintain 1 tile buffer from other corridors (except connection point)
+        // Connection point is (cx, cy).
+        // Check if we can extend at least 50%? Or just some length.
+        this.tryCreateCorridor(cx, cy, dx, dy, len, corridors);
+    }
+
+    // 3. Fill with Rooms
+    // Iterate over all Void cells. If adjacent to a Floor, try to grow a room.
+    // Order: Random
+    const indices = Array.from({length: this.width * this.height}, (_, i) => i);
+    this.prng.shuffle(indices);
+
+    for (const idx of indices) {
+        const x = idx % this.width;
+        const y = Math.floor(idx / this.width);
+        const cell = this.getCell(x, y);
+        
+        if (cell && cell.type === CellType.Wall) {
+            // Check for adjacent floor to connect to
+            const neighbors = this.getNeighbors(x, y);
+            const parent = neighbors.find(n => {
+                const c = this.getCell(n.x, n.y);
+                return c && c.type === CellType.Floor;
+            });
+
+            if (parent) {
+                // Try to fit a room here
+                this.tryPlaceRoom(x, y, parent);
+            }
         }
     }
 
-    // 3. Recursive Growth (Depth 1+)
-    // Grow from existing depth N to N+1
-    let currentDepth = 0;
-    const maxDepth = 4;
-    
-    while (currentDepth < maxDepth) {
-        const parents = Array.from(this.cellDepths.values()).filter(cd => cd.depth === currentDepth);
-        if (parents.length === 0) break;
-
-        // Shuffle parents to grow randomly
-        this.prng.shuffle(parents);
-
-        parents.forEach(p => {
-            const neighbors = this.getNeighbors(p.x, p.y).filter(n => !this.cellDepths.has(`${n.x},${n.y}`));
-            neighbors.forEach(n => {
-                // High probability to grow to reach >90% fill
-                if (this.prng.next() < 0.95) {
-                    this.setDepth(n.x, n.y, currentDepth + 1, { x: p.x, y: p.y });
-                    // Open wall between parent and child
-                    const dir = this.getDirection(p, n);
-                    if (dir) {
-                        // For Depth 1+ connecting to parent, use a Door with some probability, else open wall
-                        if (this.prng.next() < 0.3) {
-                            this.placeDoor(p.x, p.y, n.x, n.y);
-                        } else {
-                            this.openWall(p.x, p.y, dir);
-                        }
-                    }
-                }
-            });
-        });
-        currentDepth++;
-    }
-
-    // 4. Fill remaining voids to ensure >90% (if possible while maintaining tree)
-    // Find any remaining walls and connect them to a neighbor
+    // 3b. Final Aggressive Fill (1x1 Rooms)
+    // To guarantee >90%, iterate again and turn ANY remaining reachable void into a 1x1 room.
     for (let y = 0; y < this.height; y++) {
         for (let x = 0; x < this.width; x++) {
-            if (!this.cellDepths.has(`${x},${y}`)) {
-                const neighbors = this.getNeighbors(x, y).filter(n => this.cellDepths.has(`${n.x},${n.y}`));
-                if (neighbors.length > 0) {
-                    const p = neighbors[0]; // Connect to first visited neighbor
-                    const cd = this.cellDepths.get(`${p.x},${p.y}`)!;
-                    this.setDepth(x, y, cd.depth + 1, { x: p.x, y: p.y });
-                    const dir = this.getDirection(p, {x,y});
-                    if (dir) this.openWall(p.x, p.y, dir);
+            const cell = this.getCell(x, y);
+            if (cell && cell.type === CellType.Wall) {
+                const neighbors = this.getNeighbors(x, y);
+                const parent = neighbors.find(n => {
+                    const c = this.getCell(n.x, n.y);
+                    return c && c.type === CellType.Floor;
+                });
+                
+                if (parent) {
+                    const roomId = `room-${x}-${y}`;
+                    this.setFloor(x, y, roomId);
+                    const dir = this.getDirection(parent, {x, y});
+                    if (dir) this.openWall(parent.x, parent.y, dir);
                 }
             }
         }
     }
 
-    // 5. Place Entities
-    // Spawn at one end of spine
-    const spineCells = Array.from(this.cellDepths.values()).filter(cd => cd.depth === 0);
-    const spawnCell = spineCells[0];
-    this.spawnPoints.push({ id: 'sp-1', pos: { x: spawnCell.x, y: spawnCell.y }, radius: 1 });
-    
-    // Extraction at furthest point from spawn
-    let furthestCell = spawnCell;
-    let maxDist = 0;
-    this.cellDepths.forEach(cd => {
-        const dist = Math.abs(cd.x - spawnCell.x) + Math.abs(cd.y - spawnCell.y);
-        if (dist > maxDist) {
-            maxDist = dist;
-            furthestCell = cd;
-        }
-    });
-    this.extraction = { x: furthestCell.x, y: furthestCell.y };
-
-    // Objectives at medium depth
-    const candidates = Array.from(this.cellDepths.values()).filter(cd => cd.depth >= 2);
-    if (candidates.length > 0) {
-        this.prng.shuffle(candidates);
-        for (let i = 0; i < Math.min(2, candidates.length); i++) {
-            this.objectives.push({
-                id: `artifact-${i}`,
-                kind: 'Recover',
-                targetCell: { x: candidates[i].x, y: candidates[i].y }
-            });
-        }
+    // 4. Entities
+    // Place spawn on spine ends
+    if (corridors.length > 0) {
+        this.spawnPoints.push({ id: 'sp-1', pos: corridors[0], radius: 1 });
+        this.extraction = corridors[corridors.length - 1];
+        
+        // Objective in a random room
+        // Scan for rooms (we didn't track them explicitly, but we can scan cells)
+        // Just pick a random floor not on spine ends
+        let objPos = corridors[Math.floor(corridors.length / 2)];
+        this.objectives.push({ id: 'obj-1', kind: 'Recover', targetCell: objPos });
     }
 
     const map: MapDefinition = {
@@ -156,11 +161,139 @@ export class DenseShipGenerator {
     return this.cells[y * this.width + x];
   }
 
-  private setDepth(x: number, y: number, depth: number, parent?: Vector2) {
-      const cell = this.getCell(x, y);
-      if (cell) {
-          cell.type = CellType.Floor;
-          this.cellDepths.set(`${x},${y}`, { x, y, depth, parent });
+  private setFloor(x: number, y: number, roomId?: string) {
+    const c = this.getCell(x, y);
+    if (c) {
+        c.type = CellType.Floor;
+        if (roomId) c.roomId = roomId;
+    }
+  }
+
+  private createCorridor(x: number, y: number, length: number, orientation: 'horizontal'|'vertical', registry: Vector2[]) {
+      const roomId = `corridor-${this.prng.next()}`; // Mark as corridor
+      for (let i = 0; i < length; i++) {
+          const cx = orientation === 'horizontal' ? x + i : x;
+          const cy = orientation === 'horizontal' ? y : y + i;
+          if (cx >= 0 && cx < this.width && cy >= 0 && cy < this.height) {
+              this.setFloor(cx, cy, roomId);
+              registry.push({x: cx, y: cy});
+              // Connect to prev
+              if (i > 0) {
+                  if (orientation === 'horizontal') this.openWall(cx - 1, cy, 'e');
+                  else this.openWall(cx, cy - 1, 's');
+              }
+          }
+      }
+  }
+
+  private tryCreateCorridor(x: number, y: number, dx: number, dy: number, length: number, registry: Vector2[]) {
+      // Check clearance: No adjacent parallel corridors.
+      // We are growing from (x,y) in direction (dx,dy).
+      // We need to check (x+i*dx, y+i*dy) AND its lateral neighbors.
+      
+      const potentialCells: Vector2[] = [];
+      for (let i = 1; i <= length; i++) { // Start from 1 to skip connection point
+          const cx = x + i*dx;
+          const cy = y + i*dy;
+          if (cx < 0 || cx >= this.width || cy < 0 || cy >= this.height) break;
+          
+          const cell = this.getCell(cx, cy);
+          if (cell?.type === CellType.Floor) break; // Hit existing floor
+
+          // Check neighbors for buffer (except back towards source)
+          // If moving East (dx=1), check North (y-1) and South (y+1).
+          // If neighbors are floor, invalid.
+          let invalid = false;
+          const lateralDirs = dx !== 0 ? [{x:0, y:-1}, {x:0, y:1}] : [{x:-1, y:0}, {x:1, y:0}];
+          for (const l of lateralDirs) {
+              const neighbor = this.getCell(cx + l.x, cy + l.y);
+              if (neighbor && neighbor.type === CellType.Floor) {
+                  invalid = true;
+                  break;
+              }
+          }
+          if (invalid) break;
+
+          potentialCells.push({x: cx, y: cy});
+      }
+
+      if (potentialCells.length > 3) { // Min length
+          const roomId = `corridor-${this.prng.next()}`;
+          potentialCells.forEach((p, i) => {
+              this.setFloor(p.x, p.y, roomId);
+              registry.push(p);
+              // Open wall to prev
+              const prev = i === 0 ? {x, y} : potentialCells[i-1];
+              const dir = this.getDirection(prev, p);
+              if (dir) this.openWall(prev.x, prev.y, dir);
+          });
+      }
+  }
+
+  private tryPlaceRoom(x: number, y: number, parent: Vector2) {
+      // Try 2x2, 2x1, 1x2, 1x1
+      const shapes = [
+          { w: 2, h: 2 },
+          { w: 2, h: 1 },
+          { w: 1, h: 2 },
+          { w: 1, h: 1 }
+      ];
+      // Randomize shape order? Or prefer largest?
+      // Prefer largest to maximize density.
+      
+      for (const shape of shapes) {
+          // Can we fit shape at (x,y)?
+          // We need to check if (x,y) to (x+w, y+h) are Void and valid
+          // And we need to connect to parent.
+          // Parent is adjacent to (x,y).
+          
+          // Actually, (x,y) is the anchor. We can expand in +x and +y.
+          // Check bounds
+          if (x + shape.w > this.width || y + shape.h > this.height) continue;
+
+          let valid = true;
+          const roomCells: Vector2[] = [];
+          for (let dy = 0; dy < shape.h; dy++) {
+              for (let dx = 0; dx < shape.w; dx++) {
+                  const cx = x + dx;
+                  const cy = y + dy;
+                  const c = this.getCell(cx, cy);
+                  if (!c || c.type === CellType.Floor) {
+                      valid = false; 
+                      break;
+                  }
+                  roomCells.push({x: cx, y: cy});
+              }
+              if (!valid) break;
+          }
+
+          if (valid) {
+              const roomId = `room-${x}-${y}`;
+              roomCells.forEach(p => this.setFloor(p.x, p.y, roomId));
+              
+              // Open internal walls
+              for (let dy = 0; dy < shape.h; dy++) {
+                  for (let dx = 0; dx < shape.w; dx++) {
+                      const cx = x + dx;
+                      const cy = y + dy;
+                      if (dx < shape.w - 1) this.openWall(cx, cy, 'e'); // Right
+                      if (dy < shape.h - 1) this.openWall(cx, cy, 's'); // Down
+                  }
+              }
+
+              // Connect to parent
+              // We know parent is adjacent to (x,y).
+              const dir = this.getDirection(parent, {x, y});
+              if (dir) {
+                  // Door probability
+                  if (this.prng.next() < 0.3) {
+                      this.placeDoor(parent.x, parent.y, x, y);
+                  } else {
+                      this.openWall(parent.x, parent.y, dir);
+                  }
+              }
+              return; // Placed!
+          }
       }
   }
 

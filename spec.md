@@ -249,14 +249,15 @@ A high-density generator designed for exploration depth.
 **DenseShipGenerator Specifics:**
 A high-density generator designed for exploration depth.
 *   **Fill Rate:** Must achieve >90% floor coverage (almost all cells accessible).
-*   **Structure:**
-    *   **Corridors (Depth 0):** A few long corridors traversing the map.
-    *   **Rooms (Depth 1+):** Rooms connect to corridors or other rooms, forming a strict tree structure.
-    *   **Depth Hierarchy:**
-        *   Depth 1 rooms connect ONLY to Depth 0 Corridors.
-        *   Depth N rooms connect ONLY to Depth N-1 rooms.
-        *   **No Back-Links:** A Depth N room cannot connect to Depth < N-1 or Corridors directly (except via parent).
-        *   **No Cycles:** Strict acyclic navigation graph. You enter deeper rooms and must backtrack to exit.
+*   **Structure - Frame & Rooms:**
+    *   **Corridor Frame:** The map skeleton is built from 1-tile wide corridors (1xN or Nx1).
+        *   **Length:** Each corridor segment must be at least 50% of the map's dimension in that direction.
+        *   **Spacing:** Parallel corridors must never be adjacent (no 2-tile wide corridors). There must be at least 1 tile of space between them (which will be filled by rooms).
+        *   **Connectivity:** Corridors can intersect (forming H, T, or + shapes) but must form a single connected component.
+    *   **Rooms:** Rooms are attached to the corridor frame.
+        *   **Strict Shapes:** Rooms must be rectangular and strictly one of these dimensions: 1x1, 1x2, 2x1, or 2x2.
+        *   **No Irregular Shapes:** No L-shapes, T-shapes, or non-rectangular rooms allowed.
+    *   **Connectivity:** Rooms connect to the corridor frame or to other rooms, maintaining the overall tree-like flow from the frame.
 *   **Difficulty Scaling:**
     *   Easy/Small Maps: Max depth 1.
     *   Hard/Large Maps: Max depth 3-4.
