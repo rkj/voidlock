@@ -71,6 +71,41 @@ Received by `GameClient` and passed to the `Renderer`.
 ### 3. State Synchronization
 The simulation runs at a fixed 100ms tick rate. The `CoreEngine` maintains the authoritative `GameState`. Every tick, a deep-clone or immutable snapshot of this state is sent to the Main Thread. The Renderer is "dumb" and simply renders the latest snapshot received.
 
+## Determinism & Simulation
+
+Xenopurge achieves strict determinism through a fixed-step simulation loop and a seeded Pseudo-Random Number Generator (PRNG).
+
+### 1. Deterministic Tick Loop
+The simulation logic resides in the `CoreEngine.update(dt)` method.
+-   **Fixed Timestep**: The simulation is advanced in discrete intervals (default `dt = 100ms`).
+-   **Execution Order**: Each tick follows a strict execution sequence:
+    1.  **Director Update**: Evaluates spawn timers and spawns new enemies.
+    2.  **Environmental Logic**: Updates door states and timers.
+    3.  **Visibility Logic**: Re-calculates Line of Sight for all active units.
+    4.  **Unit Logic**: 
+        -   Threat evaluation.
+        -   Self-preservation (Retreat/Group Up).
+        -   Autonomous exploration or command execution.
+    5.  **Movement Resolution**: Interpolates unit positions based on speed and path.
+    6.  **Combat Resolution**: Calculates damage based on weapons and line of sight.
+-   **Side-Effect Free**: The engine logic does not rely on any external state or non-deterministic APIs (like `Date.now()` or `Math.random()`).
+
+### 2. Pseudo-Random Number Generator (PRNG)
+-   **Algorithm**: A simple Linear Congruential Generator (LCG) implemented in `src/shared/PRNG.ts`.
+-   **Seeding**: The `CoreEngine` is initialized with a `seed` (integer). This seed is used to instantiate the `PRNG`.
+-   **Usage**: The `PRNG` is used for all probabilistic events:
+    -   Enemy spawn locations and types (via the `Director`).
+    -   Selection of objective locations.
+    -   Initial unit placement jitter.
+    -   Combat hit/miss probability (if implemented).
+-   **Shared Instance**: The `CoreEngine` owns the `PRNG` instance and passes it to sub-modules like the `Director` to ensure they stay in sync with the primary simulation thread.
+
+### 3. Replayability
+Because the simulation is deterministic, a complete game session can be perfectly reconstructed using only:
+1.  The initial **Seed**.
+2.  The **Map Definition**.
+3.  The **Command Stream** (a timestamped log of all user inputs sent to the engine).
+
 ## Testing Strategy
 *   **Unit Tests**: Core mechanics (`Pathfinder`, `GameGrid`, `CycleDetection`) are tested in isolation.
 *   **Generator Tests**: Generators are tested for properties (e.g., "Acyclicity") rather than specific pixel layouts, ensuring structural correctness.
