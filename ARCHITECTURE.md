@@ -21,8 +21,15 @@ Procedural content generation modules.
 *   **`MapGenerator`**: Abstract base class for map generation strategies.
 *   **`TreeShipGenerator`**: Generates acyclic "Tree-like" spaceship layouts. It ensures connectivity and prevents loops, prioritizing a "forward-moving" tactical experience.
 *   **`SpaceshipGenerator`**: Generates dense, interconnected spaceship interiors with rooms and corridors.
+*   **`DenseShipGenerator`**: Maximizes floor coverage (>90%) while maintaining a strict acyclic tree structure from a central spine.
 
-### 3. Renderer (`src/renderer/`)
+### 3. AI System (`src/engine/ai/`)
+Encapsulates decision-making logic for units and enemies.
+
+*   **`EnemyAI`**: Interface-based strategy pattern for different enemy behaviors.
+    *   **`SwarmMeleeAI`**: The default behavior for current hostiles. Roams the ship autonomously and aggressively pursues any detected soldiers for melee combat.
+
+### 4. Renderer (`src/renderer/`)
 Purely visual layer.
 
 *   **`Renderer`**: Renders the `GameState` to an HTML5 Canvas. It handles:
