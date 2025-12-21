@@ -23,16 +23,16 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">96.42% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/28</span>
+                <span class='fraction'>27/28</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">88.88% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>1/1</span>
+                <span class='fraction'>8/9</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">96.42% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/28</span>
+                <span class='fraction'>27/28</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -99,75 +99,75 @@
 <a name='L34'></a><a href='#L34'>34</a>
 <a name='L35'></a><a href='#L35'>35</a>
 <a name='L36'></a><a href='#L36'>36</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { Bot } from './Bot';
-<span class="cstat-no" title="statement not covered" >import { GameState, Command, CommandType, UnitState } from '../shared/types';</span>
+import { GameState, Command, CommandType, UnitState } from '../shared/types';
 &nbsp;
-<span class="cstat-no" title="statement not covered" >export class SimpleBot implements Bot {</span>
-<span class="cstat-no" title="statement not covered" >  act(state: GameState): Command | null {</span>
-<span class="cstat-no" title="statement not covered" >    const idleUnits = state.units.filter(u =&gt; u.state === UnitState.Idle);</span>
-<span class="cstat-no" title="statement not covered" >    if (idleUnits.length === 0) return null;</span>
+export class SimpleBot implements Bot {
+  act(state: GameState): Command | null {
+    const idleUnits = state.units.filter(u =&gt; u.state === UnitState.Idle);
+    if (idleUnits.length === 0) return null;
 &nbsp;
     // 1. Objectives
-<span class="cstat-no" title="statement not covered" >    const objective = state.objectives.find(o =&gt; o.kind === 'Recover' &amp;&amp; o.state === 'Pending');</span>
-<span class="cstat-no" title="statement not covered" >    if (objective &amp;&amp; objective.targetCell) {</span>
-<span class="cstat-no" title="statement not covered" >        const unit = idleUnits[0];</span>
-<span class="cstat-no" title="statement not covered" >        return {</span>
-<span class="cstat-no" title="statement not covered" >            type: CommandType.MOVE_TO,</span>
-<span class="cstat-no" title="statement not covered" >            unitIds: [unit.id],</span>
-<span class="cstat-no" title="statement not covered" >            target: objective.targetCell</span>
-<span class="cstat-no" title="statement not covered" >        };</span>
-<span class="cstat-no" title="statement not covered" >    }</span>
+    const objective = state.objectives.find(o =&gt; o.kind === 'Recover' &amp;&amp; o.state === 'Pending');
+    if (objective &amp;&amp; objective.targetCell) {
+        const unit = idleUnits[0];
+        return {
+            type: CommandType.MOVE_TO,
+            unitIds: [unit.id],
+            target: objective.targetCell
+        };
+    }
 &nbsp;
     // 2. Extraction
-<span class="cstat-no" title="statement not covered" >    if (state.map.extraction) {</span>
-<span class="cstat-no" title="statement not covered" >        const unit = idleUnits[0];</span>
-<span class="cstat-no" title="statement not covered" >        const allObjectivesDone = state.objectives.every(o =&gt; o.state === 'Completed');</span>
-<span class="cstat-no" title="statement not covered" >        if (allObjectivesDone) {</span>
-<span class="cstat-no" title="statement not covered" >             return {</span>
-<span class="cstat-no" title="statement not covered" >                type: CommandType.MOVE_TO,</span>
-<span class="cstat-no" title="statement not covered" >                unitIds: [unit.id],</span>
-<span class="cstat-no" title="statement not covered" >                target: state.map.extraction</span>
-<span class="cstat-no" title="statement not covered" >            };</span>
-<span class="cstat-no" title="statement not covered" >        }</span>
-<span class="cstat-no" title="statement not covered" >    }</span>
+    if (state.map.extraction) {
+        const unit = idleUnits[0];
+        const allObjectivesDone = state.objectives.every(o =&gt; o.state === 'Completed');
+        if (allObjectivesDone) {
+             return {
+                type: CommandType.MOVE_TO,
+                unitIds: [unit.id],
+                target: state.map.extraction
+            };
+        }
+<span class="branch-0 cbranch-no" title="branch not covered" >    }</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    return null;</span>
-<span class="cstat-no" title="statement not covered" >  }</span>
-<span class="cstat-no" title="statement not covered" >}</span>
+  }
+}
 &nbsp;</pre></td></tr></table></pre>
 
                 <div class='push'></div><!-- for sticky footer -->
@@ -175,7 +175,7 @@
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-12-21T18:13:24.024Z
+                at 2025-12-21T18:20:29.040Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>
