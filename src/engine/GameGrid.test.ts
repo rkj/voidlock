@@ -109,5 +109,52 @@ describe('GameGrid', () => {
         // Moving West: (1,0) -> (0,0). (1,0).w is Closed. Should be BLOCKED.
         expect(asymGrid.canMove(1, 0, 0, 0, new Map())).toBe(false);
     });
+
+    it('should block movement for non-adjacent cells', () => {
+        expect(grid.canMove(0, 0, 1, 1, new Map())).toBe(false); // Diagonal
+        expect(grid.canMove(0, 0, 0, 0, new Map())).toBe(false); // Same cell
+    });
+
+    it('should block movement from non-floor cells', () => {
+        // (1,1) is a wall in beforeEach
+        expect(grid.canMove(1, 1, 1, 0, new Map())).toBe(false);
+    });
+
+    it('should block movement if coordinates are out of bounds', () => {
+        expect(grid.canMove(-1, 0, 0, 0, new Map())).toBe(false);
+        expect(grid.canMove(0, 0, -1, 0, new Map())).toBe(false);
+        expect(grid.canMove(2, 0, 1, 0, new Map())).toBe(false);
+        expect(grid.canMove(0, 0, 2, 0, new Map())).toBe(false);
+    });
+
+    it('should allow movement through closed doors if allowClosedDoors is true', () => {
+        const { map, doors } = createTestMapWithDoor('Closed');
+        const doorGrid = new GameGrid(map);
+        expect(doorGrid.canMove(0, 0, 1, 0, doors, true)).toBe(true);
+    });
+
+    it('should still block movement through locked doors even if allowClosedDoors is true', () => {
+        const { map, doors } = createTestMapWithDoor('Locked');
+        const doorGrid = new GameGrid(map);
+        expect(doorGrid.canMove(0, 0, 1, 0, doors, true)).toBe(false);
+    });
+
+    it('should allow vertical movement between open edges', () => {
+        // (0,0) and (0,1) in beforeEach are floor cells
+        // (0,0).s is true (closed) in beforeEach, let's fix that for this test or use a custom map
+        const cells: Cell[] = [
+            { x: 0, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: false, w: true } },
+            { x: 0, y: 1, type: CellType.Floor, walls: { n: false, e: true, s: true, w: true } }
+        ];
+        const vMap: MapDefinition = { width: 1, height: 2, cells };
+        const vGrid = new GameGrid(vMap);
+        expect(vGrid.canMove(0, 0, 0, 1, new Map())).toBe(true);
+        expect(vGrid.canMove(0, 1, 0, 0, new Map())).toBe(true);
+    });
+
+    it('should block vertical movement through walls', () => {
+        // (0,0).s is true in standard beforeEach
+        expect(grid.canMove(0, 0, 0, 1, new Map())).toBe(false);
+    });
   });
 });
