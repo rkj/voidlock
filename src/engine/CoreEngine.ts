@@ -204,14 +204,15 @@ export class CoreEngine {
     }
   }
 
-  private executeCommand(unit: Unit, cmd: Command) {
+  private executeCommand(unit: Unit, cmd: Command, isManual: boolean = true) {
       if (cmd.type === CommandType.MOVE_TO) {
         if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
             // Clear forced target when moving
             unit.forcedTargetId = undefined;
             // Clear exploration target if manually moved
-            unit.explorationTarget = undefined; 
-            
+            if (isManual) {
+                unit.explorationTarget = undefined; 
+            }
             const path = this.pathfinder.findPath(
               { x: Math.floor(unit.pos.x), y: Math.floor(unit.pos.y) },
               cmd.target
@@ -325,7 +326,7 @@ export class CoreEngine {
         .filter(u => u.id !== unit.id && u.explorationTarget)
         .map(u => u.explorationTarget!);
 
-    const avoidRadius = 10; // Avoid cells within 10 tiles of other units' targets
+    const avoidRadius = 2; // Avoid cells within 2 tiles of other units' targets
 
     // Iterate over all possible cells
     for (let y = 0; y < this.state.map.height; y++) {
@@ -475,7 +476,7 @@ export class CoreEngine {
               
               if (unit.state !== UnitState.Moving || !unit.targetPos || Math.floor(unit.targetPos.x) !== closestSafe.x || Math.floor(unit.targetPos.y) !== closestSafe.y) {
                   unit.engagementPolicy = 'IGNORE';
-                  this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: { x: closestSafe.x, y: closestSafe.y } });
+                  this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: { x: closestSafe.x, y: closestSafe.y } }, false);
               }
           }
       } else if (isIsolated) {
@@ -485,7 +486,7 @@ export class CoreEngine {
               const closestAlly = otherUnits.sort((a, b) => this.getDistance(unit.pos, a.pos) - this.getDistance(unit.pos, b.pos))[0];
               if (unit.state !== UnitState.Moving || !unit.targetPos || Math.floor(unit.targetPos.x) !== Math.floor(closestAlly.pos.x) || Math.floor(unit.targetPos.y) !== Math.floor(closestAlly.pos.y)) {
                   unit.engagementPolicy = 'IGNORE'; // Temporarily ignore to reach ally
-                  this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: { x: Math.floor(closestAlly.pos.x), y: Math.floor(closestAlly.pos.y) } });
+                  this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: { x: Math.floor(closestAlly.pos.x), y: Math.floor(closestAlly.pos.y) } }, false);
               }
           }
       } else {
@@ -511,7 +512,7 @@ export class CoreEngine {
           if (threats.length > 0 && unit.engagementPolicy !== 'IGNORE') {
               const primaryThreat = threats[0].enemy;
               if (this.getDistance(unit.pos, primaryThreat.pos) > unit.attackRange) {
-                  this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: { x: Math.floor(primaryThreat.pos.x), y: Math.floor(primaryThreat.pos.y) } });
+                  this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: { x: Math.floor(primaryThreat.pos.x), y: Math.floor(primaryThreat.pos.y) } }, false);
                   actionTaken = true;
               }
           } 
@@ -563,7 +564,7 @@ export class CoreEngine {
                       
                       // Only if we are not already there
                       if (Math.floor(unit.pos.x) !== target.x || Math.floor(unit.pos.y) !== target.y) {
-                          this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target });
+                          this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target }, false);
                           actionTaken = true;
                       }
                   }
@@ -580,7 +581,7 @@ export class CoreEngine {
                       unit.explorationTarget = undefined; // Arrived or seen, pick new one
                   } else if (unit.state === UnitState.Idle) {
                       // We have a target but we are Idle? Repath.
-                      this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: unit.explorationTarget });
+                      this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: unit.explorationTarget }, false);
                   }
               }
 
@@ -588,7 +589,7 @@ export class CoreEngine {
                   const targetCell = this.findClosestUndiscoveredCell(unit);
                   if (targetCell) {
                       unit.explorationTarget = { x: targetCell.x, y: targetCell.y };
-                      this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: targetCell });
+                      this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: targetCell }, false);
                   }
               }
           } else if (!actionTaken && this.isMapFullyDiscovered()) {
@@ -598,7 +599,7 @@ export class CoreEngine {
               if (this.state.map.extraction) {
                   const unitCurrentCell = { x: Math.floor(unit.pos.x), y: Math.floor(unit.pos.y) };
                   if (unitCurrentCell.x !== this.state.map.extraction.x || unitCurrentCell.y !== this.state.map.extraction.y) {
-                      this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: this.state.map.extraction });
+                      this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: this.state.map.extraction }, false);
                   }
               }
           }
