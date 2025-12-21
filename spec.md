@@ -84,9 +84,10 @@ interface Cell {
 
 **Enemy AI Behavior:**
 
-  * **No Noise:** Enemies do not react to sound.
-  * **Exploration:** Enemies wander randomly but use a heuristic to prioritize cells `visitedTimestamp` is oldest or `null`.
-  * **Aggro:** On LOS of a Soldier -> Switch to Attack state and pathfind directly to target.
+  * **Melee Only:** For the current prototype, all enemies use melee-only attacks.
+  * **Autonomous Roaming:** Enemies roam the ship autonomously when no soldiers are detected, prioritizing undiscovered or less-visited floor cells.
+  * **Aggro:** On LOS of a Soldier -> Switch to Attack state and pathfind directly to the closest soldier to engage in melee combat.
+  * **Modular Design:** The AI should be implemented using an extensible interface/strategy pattern to support future enemy types (e.g., ranged units, different roaming strategies).
 
 -----
 

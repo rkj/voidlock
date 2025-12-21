@@ -110,6 +110,8 @@ export type Enemy = Entity & {
   attackRange: number;
   lastAttackTarget?: Vector2;
   lastAttackTime?: number;
+  path?: Vector2[]; 
+  targetPos?: Vector2;
 };
 
 export type SpawnPoint = {
