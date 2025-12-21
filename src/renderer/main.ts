@@ -446,6 +446,12 @@ document.addEventListener('DOMContentLoaded', () => {
   treeOption.textContent = 'Tree Ship (No Loops)';
   mapGeneratorTypeSelect.appendChild(treeOption);
 
+  // Add DenseShip option
+  const denseOption = document.createElement('option');
+  denseOption.value = 'DenseShip';
+  denseOption.textContent = 'Dense Ship (>90% fill)';
+  mapGeneratorTypeSelect.appendChild(denseOption);
+
   // Dynamic Injections logic (re-adapted for new layout)
   // Inject Generate Random Seed Button
   const mapSeedInputParent = mapSeedInput?.parentNode;
