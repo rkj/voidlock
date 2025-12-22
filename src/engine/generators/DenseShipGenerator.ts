@@ -59,6 +59,62 @@ export class DenseShipGenerator {
   }
 
   // --- Debug / Golden Output ---
+  public toDetailedDebugString(): string {
+      const expandedWidth = this.width * 2 + 1;
+      const expandedHeight = this.height * 2 + 1;
+      const grid: string[][] = Array.from({ length: expandedHeight }, () => Array(expandedWidth).fill(' '));
+
+      const getExEy = (x: number, y: number) => ({ ex: x * 2 + 1, ey: y * 2 + 1 });
+
+      // 1. Cells and Walls
+      for (let y = 0; y < this.height; y++) {
+          for (let x = 0; x < this.width; x++) {
+              const { ex, ey } = getExEy(x, y);
+              const type = this.getGenType(x, y);
+              
+              // Cell Content
+              grid[ey][ex] = type === 'Corridor' ? 'C' : type === 'Room' ? 'R' : '#';
+
+              // Walls
+              const cell = this.getCell(x, y);
+              if (cell) {
+                  if (cell.walls.n) grid[ey - 1][ex] = '-';
+                  if (cell.walls.s) grid[ey + 1][ex] = '-';
+                  if (cell.walls.e) grid[ey][ex + 1] = '|';
+                  if (cell.walls.w) grid[ey][ex - 1] = '|';
+              }
+          }
+      }
+
+      // 2. Doors
+      this.doors.forEach(d => {
+          const [p1, p2] = d.segment;
+          if (d.orientation === 'Horizontal') { // Door between (x,y) and (x,y+1) - wait, horizontal means horizontal BAR
+             // Segment [p1, p2]. p1.x==p2.x. p1.y != p2.y.
+             // If orientation is Horizontal, it visually is a horizontal line '='.
+             // It sits on a horizontal edge (North/South).
+             // p1.x == p2.x.
+             const ex = p1.x * 2 + 1;
+             const ey = Math.max(p1.y, p2.y) * 2; // Between y and y+1 is at 2*(y+1)? No.
+             // y=0 -> ey=1. y=1 -> ey=3. Edge is at 2.
+             grid[ey][ex] = '=';
+          } else { // Vertical door 'I'
+             const ey = p1.y * 2 + 1;
+             const ex = Math.max(p1.x, p2.x) * 2;
+             grid[ey][ex] = 'I';
+          }
+      });
+
+      // 3. Corners
+      for (let y = 0; y < expandedHeight; y += 2) {
+          for (let x = 0; x < expandedWidth; x += 2) {
+              if (grid[y][x] === ' ') grid[y][x] = '+';
+          }
+      }
+
+      return grid.map(row => row.join('')).join('\n');
+  }
+
   public toDebugString(): string {
       const symbols: Record<GenCellType, string> = {
           'Void': '.',
