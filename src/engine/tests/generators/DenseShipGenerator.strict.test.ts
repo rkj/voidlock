@@ -12,6 +12,10 @@ describe('DenseShipGenerator Strict', () => {
 Map Dump (Seed 1766029929040):
 ${MapGenerator.toAscii(map)}
 `);
+    console.log(`
+Debug Map:
+${generator.toDebugString()}
+`);
 
     // 1. Check for Room Rectangularity & Dimensions
     // Group by roomId
