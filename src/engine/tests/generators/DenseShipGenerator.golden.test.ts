@@ -5,11 +5,11 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 describe('DenseShipGenerator Golden', () => {
-  it('should generate a golden snapshot for Seed 1766029929040', () => {
-    const generator = new DenseShipGenerator(1766029929040, 12, 12);
+  it('should generate a golden snapshot for Seed 1766364915449', () => {
+    const generator = new DenseShipGenerator(1766364915449, 12, 12);
     const map = generator.generate();
     const ascii = MapGenerator.toAscii(map);
-    const debug = generator.toDebugString();
+    const debug = generator.toDetailedDebugString();
     
     const snapshotPath = path.join(__dirname, 'snapshots', 'DenseShipGenerator.12x12.golden.txt');
     fs.writeFileSync(snapshotPath, ascii);
