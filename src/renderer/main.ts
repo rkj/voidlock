@@ -360,7 +360,18 @@ const launchMission = () => {
     });
 
     // Initialize engine
-    gameClient.init(currentSeed, currentMapGeneratorType, currentStaticMapData, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled, currentSquad, currentMissionType);
+    gameClient.init(
+        currentSeed, 
+        currentMapGeneratorType, 
+        currentStaticMapData, 
+        fogOfWarEnabled, 
+        debugOverlayEnabled, 
+        agentControlEnabled, 
+        currentSquad, 
+        currentMissionType,
+        currentMapWidth,
+        currentMapHeight
+    );
     updateSeedOverlay(currentSeed);
 
     // Reset selection
