@@ -198,7 +198,8 @@ export class DenseShipGenerator {
           if (cx < 0 || cx >= this.width || cy < 0 || cy >= this.height) break;
           
           const cell = this.getCell(cx, cy);
-          if (cell?.type === CellType.Floor) break; // Hit existing floor
+          // If cell is already floor, stop extending this corridor
+          if (cell?.type === CellType.Floor) break;
 
           // Check neighbors for buffer (except back towards source)
           // If moving East (dx=1), check North (y-1) and South (y+1).
@@ -206,18 +207,21 @@ export class DenseShipGenerator {
           let invalid = false;
           const lateralDirs = dx !== 0 ? [{x:0, y:-1}, {x:0, y:1}] : [{x:-1, y:0}, {x:1, y:0}];
           for (const l of lateralDirs) {
-              const neighbor = this.getCell(cx + l.x, cy + l.y);
+              const neighborX = cx + l.x;
+              const neighborY = cy + l.y;
+              const neighbor = this.getCell(neighborX, neighborY);
+              // If a lateral neighbor is ALREADY a floor cell, this corridor would be too close.
               if (neighbor && neighbor.type === CellType.Floor) {
                   invalid = true;
                   break;
               }
           }
-          if (invalid) break;
+          if (invalid) break; // Stop extending if it would violate spacing rule.
 
           potentialCells.push({x: cx, y: cy});
       }
 
-      if (potentialCells.length > 3) { // Min length
+      if (potentialCells.length > 3) { // Min length to be a valid corridor branch
           const roomId = `corridor-${this.prng.next()}`;
           potentialCells.forEach((p, i) => {
               this.setFloor(p.x, p.y, roomId);
@@ -268,31 +272,49 @@ export class DenseShipGenerator {
           }
 
           if (valid) {
-              const roomId = `room-${x}-${y}`;
-              roomCells.forEach(p => this.setFloor(p.x, p.y, roomId));
-              
-              // Open internal walls
-              for (let dy = 0; dy < shape.h; dy++) {
-                  for (let dx = 0; dx < shape.w; dx++) {
-                      const cx = x + dx;
-                      const cy = y + dy;
-                      if (dx < shape.w - 1) this.openWall(cx, cy, 'e'); // Right
-                      if (dy < shape.h - 1) this.openWall(cx, cy, 's'); // Down
+              // Strict Connectivity Check:
+              // Ensure the room touches existing floor ONLY at the parent connection point.
+              // Iterate all cells in the proposed room.
+              let connectivityViolations = 0;
+              for (const rc of roomCells) {
+                  const neighbors = this.getNeighbors(rc.x, rc.y);
+                  for (const n of neighbors) {
+                      const neighborCell = this.getCell(n.x, n.y);
+                      // If neighbor is Floor AND NOT part of this new room
+                      if (neighborCell && neighborCell.type === CellType.Floor && !roomCells.some(inRoom => inRoom.x === n.x && inRoom.y === n.y)) {
+                          // It must be the parent
+                          if (n.x !== parent.x || n.y !== parent.y) {
+                              connectivityViolations++;
+                          }
+                      }
                   }
               }
 
-              // Connect to parent
-              // We know parent is adjacent to (x,y).
-              const dir = this.getDirection(parent, {x, y});
-              if (dir) {
-                  // Door probability
-                  if (this.prng.next() < 0.3) {
-                      this.placeDoor(parent.x, parent.y, x, y);
-                  } else {
-                      this.openWall(parent.x, parent.y, dir);
+              if (connectivityViolations === 0) {
+                  const roomId = `room-${x}-${y}`;
+                  roomCells.forEach(p => this.setFloor(p.x, p.y, roomId));
+                  
+                  // Open internal walls
+                  for (let dy = 0; dy < shape.h; dy++) {
+                      for (let dx = 0; dx < shape.w; dx++) {
+                          const cx = x + dx;
+                          const cy = y + dy;
+                          if (dx < shape.w - 1) this.openWall(cx, cy, 'e'); // Right
+                          if (dy < shape.h - 1) this.openWall(cx, cy, 's'); // Down
+                      }
                   }
+
+                  // Connect to parent
+                  const dir = this.getDirection(parent, {x, y});
+                  if (dir) {
+                      if (this.prng.next() < 0.3) {
+                          this.placeDoor(parent.x, parent.y, x, y);
+                      } else {
+                          this.openWall(parent.x, parent.y, dir);
+                      }
+                  }
+                  return; // Placed!
               }
-              return; // Placed!
           }
       }
   }

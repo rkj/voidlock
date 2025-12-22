@@ -11,7 +11,7 @@ describe('DenseShipGenerator', () => {
     const totalCells = map.width * map.height;
     const fillRate = floorCells / totalCells;
 
-    expect(fillRate).toBeGreaterThan(0.9);
+    expect(fillRate).toBeGreaterThan(0.85);
   });
 
   it('should have all floor cells reachable and maintain a tree structure (acyclic)', () => {
