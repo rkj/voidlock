@@ -155,80 +155,47 @@ export class DenseShipGenerator {
 
   private buildFrame(): Vector2[] {
       const corridors: Vector2[] = [];
+      const minHLen = Math.ceil(this.width * 0.75);
+      const minVLen = Math.ceil(this.height * 0.75);
       
-      // Main Spine
-      const isHorizontal = this.prng.next() > 0.5;
-      const spineLength = Math.floor((isHorizontal ? this.width : this.height) * 0.8);
-      const spineStart = Math.floor(((isHorizontal ? this.width : this.height) - spineLength) / 2);
-      const spinePos = Math.floor((isHorizontal ? this.height : this.width) / 2);
+      // 1. Primary Horizontal Spine
+      const hSpineY = this.prng.nextInt(2, this.height - 3);
+      const hSpineLen = this.prng.nextInt(minHLen, this.width);
+      const hSpineX = this.prng.nextInt(0, this.width - hSpineLen);
+      
+      const hSpineId = 'corridor-h-spine';
+      for (let x = hSpineX; x < hSpineX + hSpineLen; x++) {
+          this.setGenType(x, hSpineY, 'Corridor', hSpineId);
+          corridors.push({x, y: hSpineY});
+          if (x > hSpineX) this.openWall(x - 1, hSpineY, 'e');
+      }
 
-      const spineId = 'corridor-spine';
-      for (let i = 0; i < spineLength; i++) {
-          const cx = isHorizontal ? spineStart + i : spinePos;
-          const cy = isHorizontal ? spinePos : spineStart + i;
-          this.setGenType(cx, cy, 'Corridor', spineId);
-          corridors.push({x: cx, y: cy});
-          
-          // Internal connections
-          if (i > 0) {
-              if (isHorizontal) this.openWall(cx - 1, cy, 'e');
-              else this.openWall(cx, cy - 1, 's');
+      // 2. Primary Vertical Spine (must intersect horizontal)
+      // Pick an X that is on the horizontal spine
+      const vSpineX = this.prng.nextInt(Math.max(2, hSpineX), Math.min(this.width - 3, hSpineX + hSpineLen - 1));
+      const vSpineLen = this.prng.nextInt(minVLen, this.height);
+      const vSpineY = this.prng.nextInt(0, this.height - vSpineLen);
+      
+      // Ensure it actually intersects the H-Spine
+      // If hSpineY is not in [vSpineY, vSpineY + vSpineLen), shift it
+      let finalVSpineY = vSpineY;
+      if (hSpineY < vSpineY) finalVSpineY = Math.max(0, hSpineY - Math.floor(vSpineLen/2));
+      if (hSpineY >= vSpineY + vSpineLen) finalVSpineY = Math.min(this.height - vSpineLen, hSpineY - Math.floor(vSpineLen/2));
+
+      const vSpineId = 'corridor-v-spine';
+      for (let y = finalVSpineY; y < finalVSpineY + vSpineLen; y++) {
+          this.setGenType(vSpineX, y, 'Corridor', vSpineId);
+          corridors.push({x: vSpineX, y});
+          if (y > finalVSpineY) {
+              this.openWall(vSpineX, y - 1, 's');
           }
       }
 
-      // Branches
-      // Try to branch off every N tiles
-      for (const node of corridors) {
-          if (this.prng.next() > 0.4) continue; // Skip some
-
-          const dirs = isHorizontal ? ['n', 's'] : ['e', 'w'];
-          const dir = dirs[this.prng.nextInt(0, dirs.length - 1)];
-          
-          let dx = 0, dy = 0;
-          if (dir === 'n') dy = -1;
-          if (dir === 's') dy = 1;
-          if (dir === 'e') dx = 1;
-          if (dir === 'w') dx = -1;
-
-          // Grow branch
-          const len = this.prng.nextInt(3, 6);
-          const branchCells: Vector2[] = [];
-          
-          for (let k = 1; k <= len; k++) {
-              const tx = node.x + dx * k;
-              const ty = node.y + dy * k;
-              
-              if (!this.isValidFramePos(tx, ty)) break;
-              branchCells.push({x: tx, y: ty});
-          }
-
-          if (branchCells.length > 0) {
-              const branchId = `corridor-branch-${node.x}-${node.y}`;
-              branchCells.forEach((p, idx) => {
-                  this.setGenType(p.x, p.y, 'Corridor', branchId);
-                  corridors.push(p);
-                  // Connect
-                  const prev = idx === 0 ? node : branchCells[idx - 1];
-                  this.connect(prev, p);
-              });
-          }
-      }
+      // 3. Optional extra corridors (must be long and spaced)
+      // For a 12x12 or 16x16, 2 spines are usually enough for a frame.
+      // I will stop here to ensure strictness, or add one more with spacing check.
+      
       return corridors;
-  }
-
-  private isValidFramePos(x: number, y: number): boolean {
-      if (x < 0 || x >= this.width || y < 0 || y >= this.height) return false;
-      if (this.getGenType(x, y) !== 'Void') return false;
-
-      // Check buffer: No 'Corridor' neighbors allowed (except the one we are growing from, handled by caller logic usually, but here we just check for strict buffer)
-      // Actually, we are growing from a valid connection. We just need to ensure we don't touch OTHER corridors parallel-wise.
-      // Simple rule: If any neighbor is Corridor, it must be the "previous" one.
-      // But checking neighbors is easier.
-      // We accept 1 neighbor being Corridor (the parent).
-      
-      const neighbors = this.getNeighbors(x, y);
-      const corridorNeighbors = neighbors.filter(n => this.getGenType(n.x, n.y) === 'Corridor');
-      return corridorNeighbors.length <= 1;
   }
 
   private fillPass(): boolean {
