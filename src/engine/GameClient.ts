@@ -39,13 +39,15 @@ export class GameClient {
     debugOverlayEnabled: boolean = false,
     agentControlEnabled: boolean = true,
     squadConfig: SquadConfig = [], // Default to empty array if not provided
-    missionType: MissionType = MissionType.Default
+    missionType: MissionType = MissionType.Default,
+    width: number = 16,
+    height: number = 16
   ) {
     this.initialSeed = seed;
     this.initialSquadConfig = squadConfig;
     // Use the factory to get the map, based on type and data
     const generator = this.mapGeneratorFactory(seed, mapGeneratorType, mapData);
-    const map = mapGeneratorType === MapGeneratorType.Static ? generator.load(mapData!) : generator.generate(16, 16); // Assuming 16x16 for now for procedural
+    const map = mapGeneratorType === MapGeneratorType.Static ? generator.load(mapData!) : generator.generate(width, height, mapGeneratorType);
 
     this.initialMap = map;
     this.commandStream = [];
