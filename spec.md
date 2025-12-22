@@ -84,10 +84,22 @@ interface Cell {
 
 **Enemy AI Behavior:**
 
-  * **Melee Only:** For the current prototype, all enemies use melee-only attacks.
+  * **Archetypes:**
+      *   **Xeno-Mite (Easy):** Fast, weak, melee swarmer.
+      *   **Warrior-Drone (Medium):** Balanced stats, standard melee unit.
+      *   **Praetorian-Guard (Hard):** Slow, heavily armored, high melee damage.
+      *   **Spitter-Acid (Ranged):** Ranged attack. Logic: Kites players (moves to max range), flees if engaged in melee.
+  * **Melee Only:** For the current prototype, all enemies use melee-only attacks. (Obsolete - Spitter added)
   * **Autonomous Roaming:** Enemies roam the ship autonomously when no soldiers are detected, prioritizing undiscovered or less-visited floor cells.
-  * **Aggro:** On LOS of a Soldier -> Switch to Attack state and pathfind directly to the closest soldier to engage in melee combat.
+  * **Aggro:** On LOS of a Soldier -> Switch to Attack state and pathfind directly to the closest soldier to engage. Spitters maintain distance.
   * **Modular Design:** The AI should be implemented using an extensible interface/strategy pattern to support future enemy types (e.g., ranged units, different roaming strategies).
+
+**Visuals:**
+  * **Doors:** Render as 50% width/height of the cell, connecting visually to adjacent walls to prevent gaps.
+
+**Simulation & Balance:**
+  * **Game Speed:** Default tick rate slowed by 3x. Debug config to adjust tick rate in real-time.
+  * **Balance Goal:** A 4-soldier team with default AI should win ~50% of the time on an 8x8 map. >50% of wins should incur at least one casualty.
 
 -----
 

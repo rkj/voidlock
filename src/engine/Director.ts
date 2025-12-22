@@ -1,4 +1,4 @@
-import { Enemy, SpawnPoint, Vector2 } from '../shared/types';
+import { Enemy, SpawnPoint, Vector2, EnemyType, EnemyArchetypeLibrary } from '../shared/types';
 import { PRNG } from '../shared/PRNG';
 
 export class Director {
@@ -39,28 +39,51 @@ export class Director {
 
   private rampDifficulty() {
     this.spawnInterval = Math.max(this.minSpawnInterval, this.spawnInterval - this.rampAmount);
-    // console.log('Director ramped difficulty. New interval:', this.spawnInterval);
   }
 
   private spawnEnemy() {
     if (this.spawnPoints.length === 0) return;
 
-    // Use PRNG to pick spawn point
     const spawnIndex = this.prng.nextInt(0, this.spawnPoints.length - 1);
     const spawnPoint = this.spawnPoints[spawnIndex];
 
-    const offsetX = this.prng.next() * 0.4 - 0.2; // -0.2 to 0.2 jitter
+    const offsetX = this.prng.next() * 0.4 - 0.2;
     const offsetY = this.prng.next() * 0.4 - 0.2;
+
+    // Select Type based on Threat
+    const threat = this.getThreatLevel();
+    let type = EnemyType.XenoMite;
+    
+    const roll = this.prng.next();
+
+    if (threat < 30) {
+        // Mostly Easy
+        if (roll < 0.8) type = EnemyType.XenoMite;
+        else type = EnemyType.WarriorDrone;
+    } else if (threat < 70) {
+        // Mix
+        if (roll < 0.4) type = EnemyType.XenoMite;
+        else if (roll < 0.7) type = EnemyType.WarriorDrone;
+        else type = EnemyType.SpitterAcid;
+    } else {
+        // Hard
+        if (roll < 0.3) type = EnemyType.WarriorDrone;
+        else if (roll < 0.6) type = EnemyType.SpitterAcid;
+        else if (roll < 0.9) type = EnemyType.PraetorianGuard;
+        else type = EnemyType.XenoMite; // Swarm
+    }
+
+    const arch = EnemyArchetypeLibrary[type];
 
     const enemy: Enemy = {
       id: `enemy-${this.enemyIdCounter++}`,
       pos: { x: spawnPoint.pos.x + 0.5 + offsetX, y: spawnPoint.pos.y + 0.5 + offsetY },
-      hp: 30,
-      maxHp: 30,
-      type: 'SwarmMelee',
-      damage: 5,
-      fireRate: 1000,
-      attackRange: 1
+      hp: arch.hp,
+      maxHp: arch.hp,
+      type: arch.type,
+      damage: arch.damage,
+      fireRate: arch.fireRate,
+      attackRange: arch.attackRange
     };
 
     this.onSpawn(enemy);
