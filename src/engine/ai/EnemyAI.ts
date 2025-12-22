@@ -44,25 +44,27 @@ export class SwarmMeleeAI implements IEnemyAI {
                 enemy.targetPos = { x: path[0].x + 0.5, y: path[0].y + 0.5 };
             }
         } else {
-            // 3. Roam Mode: If idle and no target, pick random neighbor cell
+            // 3. Roam Mode: If idle and no target, pick a random distant cell
             if ((!enemy.path || enemy.path.length === 0) && !enemy.targetPos) {
                 const currentX = Math.floor(enemy.pos.x);
                 const currentY = Math.floor(enemy.pos.y);
+                const roamRadius = 10;
                 
-                const neighbors = [
-                    { x: currentX + 1, y: currentY },
-                    { x: currentX - 1, y: currentY },
-                    { x: currentX, y: currentY + 1 },
-                    { x: currentX, y: currentY - 1 }
-                ].filter(n => 
-                    grid.isWalkable(n.x, n.y) && 
-                    grid.canMove(currentX, currentY, n.x, n.y)
-                );
-
-                if (neighbors.length > 0) {
-                    const target = neighbors[prng.nextInt(0, neighbors.length - 1)];
-                    enemy.targetPos = { x: target.x + 0.5, y: target.y + 0.5 };
-                    enemy.path = [target];
+                // Try to find a valid distant target
+                let attempts = 0;
+                while (attempts < 5) {
+                    const tx = prng.nextInt(Math.max(0, currentX - roamRadius), Math.min(grid.width - 1, currentX + roamRadius));
+                    const ty = prng.nextInt(Math.max(0, currentY - roamRadius), Math.min(grid.height - 1, currentY + roamRadius));
+                    
+                    if (grid.isWalkable(tx, ty) && (tx !== currentX || ty !== currentY)) {
+                        const path = pathfinder.findPath({x: currentX, y: currentY}, {x: tx, y: ty});
+                        if (path && path.length > 0) {
+                            enemy.path = path;
+                            enemy.targetPos = { x: path[0].x + 0.5, y: path[0].y + 0.5 };
+                            break;
+                        }
+                    }
+                    attempts++;
                 }
             }
         }
