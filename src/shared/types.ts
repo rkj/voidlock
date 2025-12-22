@@ -166,6 +166,25 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
   "heavy": { id: "heavy", name: "Heavy", baseHp: 120, damage: 30, fireRate: 700, attackRange: 5, sightRange: 7, speed: 1.5 }
 };
 
+export enum EnemyType {
+  XenoMite = 'Xeno-Mite',
+  WarriorDrone = 'Warrior-Drone',
+  PraetorianGuard = 'Praetorian-Guard',
+  SpitterAcid = 'Spitter-Acid',
+  SwarmMelee = 'SwarmMelee', // Legacy
+  Hive = 'Hive'
+}
+
+export const EnemyArchetypeLibrary: { [id: string]: { type: EnemyType, hp: number, damage: number, fireRate: number, attackRange: number, speed: number, ai: 'Melee' | 'Ranged' } } = {
+  [EnemyType.XenoMite]: { type: EnemyType.XenoMite, hp: 30, damage: 5, fireRate: 500, attackRange: 1, speed: 3, ai: 'Melee' },
+  [EnemyType.WarriorDrone]: { type: EnemyType.WarriorDrone, hp: 80, damage: 15, fireRate: 1000, attackRange: 1, speed: 2, ai: 'Melee' },
+  [EnemyType.PraetorianGuard]: { type: EnemyType.PraetorianGuard, hp: 200, damage: 40, fireRate: 2000, attackRange: 1, speed: 1, ai: 'Melee' },
+  [EnemyType.SpitterAcid]: { type: EnemyType.SpitterAcid, hp: 50, damage: 10, fireRate: 1500, attackRange: 6, speed: 2.5, ai: 'Ranged' },
+  // Legacy support
+  [EnemyType.SwarmMelee]: { type: EnemyType.SwarmMelee, hp: 30, damage: 5, fireRate: 1000, attackRange: 1, speed: 2, ai: 'Melee' },
+  [EnemyType.Hive]: { type: EnemyType.Hive, hp: 500, damage: 0, fireRate: 1000, attackRange: 0, speed: 0, ai: 'Melee' }
+};
+
 // --- Protocol ---
 
 export type SquadConfig = { archetypeId: string, count: number }[]; // New type for Squad Config

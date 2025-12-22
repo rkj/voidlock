@@ -1,26 +1,28 @@
-import { GameState, MapDefinition, Unit, Enemy, Command, CommandType, UnitState, Vector2, Objective, Door, Archetype, ArchetypeLibrary, SquadConfig, CellType, MissionType } from '../shared/types';
+import { MapDefinition, CellType, GameState, Unit, Enemy, UnitState, CommandType, Command, Objective, Vector2, SquadConfig, MissionType, EnemyType, EnemyArchetypeLibrary } from '../shared/types';
+import { PRNG } from '../shared/PRNG';
 import { GameGrid } from './GameGrid';
 import { Pathfinder } from './Pathfinder';
-import { Director } from './Director';
 import { LineOfSight } from './LineOfSight';
-import { PRNG } from '../shared/PRNG';
+import { Director } from './Director';
+import { ArchetypeLibrary } from '../shared/types';
 import { IEnemyAI, SwarmMeleeAI } from './ai/EnemyAI';
+import { RangedKiteAI } from './ai/RangedKiteAI';
 
-const EPSILON = 0.0001; // Small value for floating-point comparisons
+const EPSILON = 0.05;
 
 export class CoreEngine {
   private prng: PRNG;
   private gameGrid: GameGrid;
-  private doors: Map<string, Door>;
   private pathfinder: Pathfinder;
   private los: LineOfSight;
-  private director: Director;
   private state: GameState;
-
-  private agentControlEnabled: boolean; // New property
-  private missionType: MissionType;
+  private doors: Map<string, Door>;
+  private director: Director;
+  private agentControlEnabled: boolean;
   private debugOverlayEnabled: boolean;
-  private enemyAI: IEnemyAI;
+  private missionType: MissionType;
+  private meleeAI: IEnemyAI;
+  private rangedAI: IEnemyAI;
 
   constructor(map: MapDefinition, seed: number, squadConfig: SquadConfig, agentControlEnabled: boolean, debugOverlayEnabled: boolean, missionType: MissionType = MissionType.Default) {
     this.prng = new PRNG(seed);
@@ -31,7 +33,8 @@ export class CoreEngine {
     this.agentControlEnabled = agentControlEnabled; 
     this.debugOverlayEnabled = debugOverlayEnabled;
     this.missionType = missionType;
-    this.enemyAI = new SwarmMeleeAI();
+    this.meleeAI = new SwarmMeleeAI();
+    this.rangedAI = new RangedKiteAI();
 
     let objectives: Objective[] = (map.objectives || []).map(o => ({
       ...o,
@@ -728,7 +731,11 @@ export class CoreEngine {
       if (enemy.hp <= 0) return;
 
       // 1. Think (Targeting & Pathfinding)
-      this.enemyAI.think(enemy, this.state, this.gameGrid, this.pathfinder, this.los, this.prng);
+      // Determine AI type
+      const arch = EnemyArchetypeLibrary[enemy.type] || EnemyArchetypeLibrary[EnemyType.SwarmMelee];
+      const ai = arch.ai === 'Ranged' ? this.rangedAI : this.meleeAI;
+      
+      ai.think(enemy, this.state, this.gameGrid, this.pathfinder, this.los, this.prng);
 
       const unitsInRange = this.state.units.filter(unit => 
         unit.hp > 0 && unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead &&
@@ -736,7 +743,8 @@ export class CoreEngine {
       );
 
       let isAttacking = false;
-      if (unitsInRange.length > 0) {
+      // Only attack if not moving (no path set by AI)
+      if (unitsInRange.length > 0 && (!enemy.path || enemy.path.length === 0)) {
         const targetUnit = unitsInRange[0];
         
         // RE-VERIFY LOS for projectile/melee path (double-safety)
