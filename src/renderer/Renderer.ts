@@ -169,83 +169,87 @@ export class Renderer {
     });
     this.ctx.stroke();
 
-    // Render Doors
-    map.doors?.forEach(door => {
-      let doorColor: string = '#888';
-      let doorStroke: string = '#AAA';
-      
-      if (door.state === 'Closed') { doorColor = '#FFD700'; doorStroke = '#FFAA00'; } // Gold/Yellow
-      else if (door.state === 'Locked') { doorColor = '#FF0000'; doorStroke = '#880000'; } // Red
-      else if (door.state === 'Destroyed') { doorColor = '#330000'; doorStroke = '#550000'; } // Dark Red rubble
-
-      const doorThickness = this.cellSize / 8; 
-      const doorInset = this.cellSize / 8; // Inset from corners to look like a mechanical door
-
-      if (door.segment.length !== 2) return;
-      const [p1, p2] = door.segment;
-      
-      const s = this.cellSize;
-      let x, y, drawX, drawY, drawWidth, drawHeight;
-
-      if (door.orientation === 'Vertical') { 
-        // Door is vertical (between x and x+1)
-        // Draw on Right edge of minX
-        const cellX = Math.min(p1.x, p2.x);
-        const cellY = p1.y;
-        x = cellX * s;
-        y = cellY * s;
-
-        drawX = x + s - doorThickness / 2;
-        drawY = y + doorInset;
-        drawWidth = doorThickness;
-        drawHeight = s - (doorInset * 2);
-      } else { 
-        // Horizontal (between y and y+1)
-        // Draw on Bottom edge of minY
-        const cellX = p1.x;
-        const cellY = Math.min(p1.y, p2.y);
-        x = cellX * s;
-        y = cellY * s;
-
-        drawX = x + doorInset;
-        drawY = y + s - doorThickness / 2;
-        drawWidth = s - (doorInset * 2);
-        drawHeight = doorThickness;
+          // Render Doors
+        map.doors?.forEach(door => {
+          const doorThickness = 4; // Thinner
+          const doorLength = this.cellSize * 0.5;
+    
+          if (door.segment.length !== 2) return;
+          const [p1, p2] = door.segment;
+          
+          const s = this.cellSize;
+          let startX, startY, endX, endY;
+          let strut1_sx, strut1_sy, strut1_ex, strut1_ey;
+          let strut2_sx, strut2_sy, strut2_ex, strut2_ey;
+    
+          if (door.orientation === 'Vertical') { 
+            // Door on right edge of minX cell
+            const cellX = Math.min(p1.x, p2.x);
+            const cellY = p1.y;
+            
+            const wallX = (cellX + 1) * s;
+            const wallY = cellY * s;
+    
+            startX = wallX;
+            startY = wallY + (s - doorLength)/2;
+            endX = wallX;
+            endY = startY + doorLength;
+            
+            strut1_sx = wallX; strut1_sy = wallY; strut1_ex = wallX; strut1_ey = startY;
+            strut2_sx = wallX; strut2_sy = endY; strut2_ex = wallX; strut2_ey = wallY + s;
+          } else { 
+            // Horizontal on bottom edge of minY cell
+            const cellX = p1.x;
+            const cellY = Math.min(p1.y, p2.y);
+            
+            const wallX = cellX * s;
+            const wallY = (cellY + 1) * s;
+            
+            startX = wallX + (s - doorLength)/2;
+            startY = wallY;
+            endX = startX + doorLength;
+            endY = wallY;
+    
+            strut1_sx = wallX; strut1_sy = wallY; strut1_ex = startX; strut1_ey = wallY;
+            strut2_sx = endX; strut2_sy = wallY; strut2_ex = wallX + s; strut2_ey = wallY;
+          }
+          
+          this.ctx.lineWidth = doorThickness;
+          
+          if (door.state === 'Open') {
+            this.ctx.strokeStyle = '#444'; // Open pocket color
+            this.ctx.lineWidth = doorThickness + 2;
+          } else if (door.state === 'Closed') {
+            this.ctx.strokeStyle = '#FFD700'; // Gold
+          } else if (door.state === 'Locked') {
+            this.ctx.strokeStyle = '#FF0000'; // Red
+          } else { // Destroyed
+            this.ctx.strokeStyle = '#550000';
+          }
+    
+          // Draw main door segment
+          this.ctx.beginPath();
+          this.ctx.moveTo(startX, startY);
+          this.ctx.lineTo(endX, endY);
+          this.ctx.stroke();
+    
+          // Draw struts if not open
+          if (door.state !== 'Open') {
+              this.ctx.lineWidth = 1;
+              this.ctx.strokeStyle = '#00FFFF'; // Wall color
+              
+              this.ctx.beginPath();
+              this.ctx.moveTo(strut1_sx, strut1_sy);
+              this.ctx.lineTo(strut1_ex, strut1_ey);
+              this.ctx.stroke();
+    
+              this.ctx.beginPath();
+              this.ctx.moveTo(strut2_sx, strut2_sy);
+              this.ctx.lineTo(strut2_ex, strut2_ey);
+              this.ctx.stroke();
+          }
+        });
       }
-      
-      if (door.state === 'Open') {
-        // Open door: Draw "pockets" in the wall
-        this.ctx.fillStyle = '#444';
-        if (door.orientation === 'Vertical') {
-            // Small boxes at top and bottom of the wall segment
-            this.ctx.fillRect(x + s - 4, y, 4, doorInset); // Top pocket
-            this.ctx.fillRect(x + s - 4, y + s - doorInset, 4, doorInset); // Bottom pocket
-        } else {
-            this.ctx.fillRect(x, y + s - 4, doorInset, 4); // Left pocket
-            this.ctx.fillRect(x + s - doorInset, y + s - 4, doorInset, 4); // Right pocket
-        }
-      } else {
-        // Closed/Locked
-        this.ctx.fillStyle = doorColor;
-        this.ctx.strokeStyle = doorStroke;
-        this.ctx.lineWidth = 2;
-        
-        this.ctx.fillRect(drawX, drawY, drawWidth, drawHeight);
-        this.ctx.strokeRect(drawX, drawY, drawWidth, drawHeight);
-        
-        // Tactical symbol (X for locked, line for closed)
-        if (door.state === 'Locked') {
-            this.ctx.beginPath();
-            this.ctx.moveTo(drawX, drawY);
-            this.ctx.lineTo(drawX + drawWidth, drawY + drawHeight);
-            this.ctx.moveTo(drawX + drawWidth, drawY);
-            this.ctx.lineTo(drawX, drawY + drawHeight);
-            this.ctx.stroke();
-        }
-      }
-    });
-  }
-
   private getVisualOffset(unitId: string, pos: Vector2, allEntities: {id: string, pos: Vector2}[], radius: number): Vector2 {
       let dx = 0, dy = 0;
       let count = 0;

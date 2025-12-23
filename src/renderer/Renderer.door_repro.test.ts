@@ -80,17 +80,11 @@ describe('Renderer Door Drawing', () => {
 
     renderer.render(state);
 
-    // Check how many times fillRect was called for the door.
-    // fillRect is called for floor cells (2 times) + door (1 time for closed).
-    // Floor is very dark grey #0a0a0a.
-    // Door is #FFD700 (Gold).
+    // The new logic uses `stroke` for doors.
+    // 1 for main door bar, 2 for struts.
+    // Plus 1 for all walls.
+    // Total 4.
     
-    // We can inspect the calls arguments or style
-    // But since we can't easily check style in this mock setup unless we track it...
-    // Let's assume fillRect calls count.
-    // 2 calls for floors. 1 call for door body.
-    // total 3.
-    
-    expect(mockContext.fillRect).toHaveBeenCalledTimes(3); 
+    expect(mockContext.stroke).toHaveBeenCalledTimes(4); 
   });
 });
