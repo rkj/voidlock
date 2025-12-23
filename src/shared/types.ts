@@ -151,6 +151,13 @@ export type ReplayData = {
   commands: RecordedCommand[];
 };
 
+export type OverlayOption = {
+    key: string;
+    label: string;
+    pos?: Vector2;
+    unitId?: string;
+};
+
 // --- Archetype Definitions (Shared) ---
 export type Archetype = {
   id: string;
