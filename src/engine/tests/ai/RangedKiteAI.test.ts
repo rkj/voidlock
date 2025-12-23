@@ -74,4 +74,5 @@ describe('RangedKiteAI', () => {
     engine.addUnit({
       id: 's1', pos: { x: 5.5, y: 1.5 }, hp: 100, maxHp: 100, state: UnitState.Idle, damage: 10, fireRate: 100, attackRange: 5, sightRange: 20, speed: 2, commandQueue: []
     });
+  });
 });

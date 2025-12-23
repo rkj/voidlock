@@ -59,6 +59,7 @@ export type ObjectiveState = 'Pending' | 'Completed' | 'Failed';
 
 export type Objective = ObjectiveDefinition & {
   state: ObjectiveState;
+  visible?: boolean;
 };
 
 export interface Grid {

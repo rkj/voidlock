@@ -7,15 +7,15 @@ describe('Enemy Movement', () => {
   let map: MapDefinition;
 
   beforeEach(() => {
-    // 10x10 open map
+    // 20x20 open map
     const cells = [];
-    for (let y = 0; y < 10; y++) {
-      for (let x = 0; x < 10; x++) {
+    for (let y = 0; y < 20; y++) {
+      for (let x = 0; x < 20; x++) {
         cells.push({ x, y, type: CellType.Floor, walls: { n: false, e: false, s: false, w: false } });
       }
     }
     map = {
-      width: 10, height: 10,
+      width: 20, height: 20,
       cells,
       spawnPoints: [], extraction: undefined, objectives: []
     };
@@ -26,12 +26,12 @@ describe('Enemy Movement', () => {
 
   it('should explore a significant portion of the map over time (not jitter)', () => {
     engine.addEnemy({
-      id: 'e1', pos: { x: 5.5, y: 5.5 }, hp: 100, maxHp: 100, type: 'SwarmMelee', damage: 10, fireRate: 100, attackRange: 1
+      id: 'e1', pos: { x: 15.5, y: 15.5 }, hp: 100, maxHp: 100, type: 'SwarmMelee', damage: 10, fireRate: 100, attackRange: 1, speed: 2
     });
 
-    // Dummy soldier
+    // Dummy soldier far away
     engine.addUnit({
-        id: 's1', pos: { x: 0.5, y: 0.5 }, hp: 100, maxHp: 100, state: UnitState.Idle, damage: 0, fireRate: 0, attackRange: 0, sightRange: 0, commandQueue: []
+        id: 's1', pos: { x: 0.5, y: 0.5 }, hp: 100, maxHp: 100, state: UnitState.Idle, damage: 0, fireRate: 0, attackRange: 0, sightRange: 0, speed: 2, commandQueue: []
     });
 
     const visited = new Set<string>();

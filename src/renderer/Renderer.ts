@@ -309,7 +309,7 @@ export class Renderer {
     });
 
     state.objectives?.forEach(obj => {
-      if (obj.state === 'Pending' && obj.targetCell) {
+      if (obj.state === 'Pending' && obj.targetCell && obj.visible) {
         const x = obj.targetCell.x * this.cellSize;
         const y = obj.targetCell.y * this.cellSize;
 
