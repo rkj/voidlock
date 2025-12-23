@@ -1,6 +1,6 @@
 import { GameClient } from '../engine/GameClient';
 import { Renderer } from './Renderer';
-import { GameState, UnitState, CommandType, Unit, MapDefinition, MapGeneratorType, Door, Vector2, SquadConfig, Archetype, ArchetypeLibrary, MissionType } from '../shared/types';
+import { GameState, UnitState, CommandType, Unit, MapDefinition, MapGeneratorType, Door, Vector2, SquadConfig, Archetype, ArchetypeLibrary, MissionType, OverlayOption } from '../shared/types';
 import { MapGenerator } from '../engine/MapGenerator';
 import { SpaceshipGenerator } from '../engine/generators/SpaceshipGenerator';
 import { TreeShipGenerator } from '../engine/generators/TreeShipGenerator';
@@ -39,7 +39,7 @@ type MenuState = 'MAIN' | 'TARGET_SELECT' | 'UNIT_SELECT';
 let menuState: MenuState = 'MAIN';
 let pendingAction: CommandType | null = null;
 let pendingTargetLocation: Vector2 | null = null;
-let overlayOptions: { key: string, label: string, pos?: Vector2, unitId?: string, value?: any }[] = [];
+let overlayOptions: OverlayOption[] = [];
 
 
 // --- Map Data Transformation ---

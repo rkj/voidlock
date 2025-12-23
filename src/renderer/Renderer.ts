@@ -1,24 +1,19 @@
-import { GameState, MapDefinition, CellType, Vector2, UnitState, Enemy, Door } from '../shared/types';
+import { GameState, MapDefinition, CellType, UnitState, Vector2, Door, Objective, OverlayOption } from '../shared/types';
 import { Icons } from './Icons';
 
 export class Renderer {
   private ctx: CanvasRenderingContext2D;
   private canvas: HTMLCanvasElement;
   private cellSize: number = 128; // Increased tile size for M8
-  private iconImages: { [key: string]: HTMLImageElement } = {};
+  private iconImages: Record<string, HTMLImageElement> = {};
+  private overlayOptions: OverlayOption[] = [];
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-      throw new Error("Could not get 2D rendering context for canvas.");
-    }
-    this.ctx = ctx;
-    this.loadIcons();
-  }
-
-  private loadIcons() {
-      Object.entries(Icons).forEach(([key, src]) => {
+    this.ctx = canvas.getContext('2d')!;
+    
+    // Load Icons
+    Object.entries(Icons).forEach(([key, src]) => {
           const img = new Image();
           img.src = src;
           this.iconImages[key] = img;
@@ -27,6 +22,10 @@ export class Renderer {
 
   public setCellSize(size: number) {
     this.cellSize = size;
+  }
+
+  public setOverlay(options: OverlayOption[]) {
+      this.overlayOptions = options;
   }
 
   public render(state: GameState) {
@@ -40,6 +39,38 @@ export class Renderer {
         this.renderDebugOverlay(state);
     }
     this.renderFog(state);
+    this.renderOverlay();
+  }
+
+  private renderOverlay() {
+      if (this.overlayOptions.length === 0) return;
+      
+      this.ctx.textAlign = 'center';
+      this.ctx.textBaseline = 'middle';
+      this.ctx.font = 'bold 20px Arial';
+
+      this.overlayOptions.forEach(opt => {
+          if (opt.pos) {
+              let drawX = opt.pos.x;
+              let drawY = opt.pos.y;
+              
+              if (Number.isInteger(drawX)) drawX += 0.5;
+              if (Number.isInteger(drawY)) drawY += 0.5;
+              
+              const cx = drawX * this.cellSize;
+              const cy = drawY * this.cellSize;
+              
+              // Draw Circle background
+              this.ctx.fillStyle = 'rgba(255, 255, 0, 0.8)'; // Yellow
+              this.ctx.beginPath();
+              this.ctx.arc(cx, cy, 12, 0, Math.PI * 2);
+              this.ctx.fill();
+              
+              // Draw Number
+              this.ctx.fillStyle = '#000';
+              this.ctx.fillText(opt.key, cx, cy);
+          }
+      });
   }
 
   private renderDebugOverlay(state: GameState) {
