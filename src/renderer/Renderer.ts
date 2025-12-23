@@ -213,41 +213,143 @@ export class Renderer {
             strut2_sx = endX; strut2_sy = wallY; strut2_ex = wallX + s; strut2_ey = wallY;
           }
           
-          this.ctx.lineWidth = doorThickness;
+                this.ctx.lineWidth = doorThickness;
           
-          if (door.state === 'Open') {
-            this.ctx.strokeStyle = '#444'; // Open pocket color
-            this.ctx.lineWidth = doorThickness + 2;
-          } else if (door.state === 'Closed') {
-            this.ctx.strokeStyle = '#FFD700'; // Gold
-          } else if (door.state === 'Locked') {
-            this.ctx.strokeStyle = '#FF0000'; // Red
-          } else { // Destroyed
-            this.ctx.strokeStyle = '#550000';
-          }
-    
-          // Draw main door segment
-          this.ctx.beginPath();
-          this.ctx.moveTo(startX, startY);
-          this.ctx.lineTo(endX, endY);
-          this.ctx.stroke();
-    
-                // Draw struts if not open
-                if (door.state !== 'Open') {
-                    this.ctx.lineWidth = 2; // Match regular wall width
-                    this.ctx.strokeStyle = '#00FFFF'; // Wall color
+                
+          
+                let openRatio = 0;
+          
+                if (door.state === 'Open' && !door.targetState) openRatio = 1;
+          
+                else if (door.state === 'Closed' && door.targetState === 'Open' && door.openTimer && door.openDuration) {
+          
+                    openRatio = 1 - (door.openTimer / (door.openDuration * 1000));
+          
+                } else if (door.state === 'Open' && door.targetState === 'Closed' && door.openTimer && door.openDuration) {
+          
+                    openRatio = door.openTimer / (door.openDuration * 1000);
+          
+                }
+          
+          
+          
+                const slideOffset = openRatio * (doorLength / 2);
+          
+          
+          
+                // Colors
+          
+                if (door.state === 'Locked' || door.targetState === 'Locked') {
+          
+                  this.ctx.strokeStyle = '#FF0000'; // Red
+          
+                } else if (door.state === 'Destroyed') {
+          
+                  this.ctx.strokeStyle = '#550000';
+          
+                } else {
+          
+                  this.ctx.strokeStyle = '#FFD700'; // Gold (even when open/opening, maybe dim it?)
+          
+                  if (openRatio > 0.8) this.ctx.strokeStyle = '#AA8800'; // Dim when fully open
+          
+                }
+          
+          
+          
+                if (door.state === 'Destroyed') {
+          
+                    // Draw rubble? Just simple line for now or nothing
+          
+                } else {
+          
+                    // Draw two segments sliding apart
+          
+                    // Center is (startX + endX)/2, (startY + endY)/2
+          
+                    const cx = (startX + endX) / 2;
+          
+                    const cy = (startY + endY) / 2;
+          
                     
-                    this.ctx.beginPath();              this.ctx.moveTo(strut1_sx, strut1_sy);
-              this.ctx.lineTo(strut1_ex, strut1_ey);
-              this.ctx.stroke();
-    
-              this.ctx.beginPath();
-              this.ctx.moveTo(strut2_sx, strut2_sy);
-              this.ctx.lineTo(strut2_ex, strut2_ey);
-              this.ctx.stroke();
-          }
-        });
-      }
+          
+                    // Vector along door
+          
+                    const dx = endX - startX;
+          
+                    const dy = endY - startY;
+          
+                    const len = Math.sqrt(dx*dx + dy*dy);
+          
+                    const ux = dx / len;
+          
+                    const uy = dy / len;
+          
+          
+          
+                    // Left Half (from start towards center)
+          
+                    // Ends at center - slideOffset
+          
+                    this.ctx.beginPath();
+          
+                    this.ctx.moveTo(startX, startY);
+          
+                    this.ctx.lineTo(cx - ux * slideOffset, cy - uy * slideOffset);
+          
+                    this.ctx.stroke();
+          
+          
+          
+                    // Right Half (from end towards center)
+          
+                    // Starts at center + slideOffset
+          
+                    this.ctx.beginPath();
+          
+                    this.ctx.moveTo(endX, endY);
+          
+                    this.ctx.lineTo(cx + ux * slideOffset, cy + uy * slideOffset);
+          
+                    this.ctx.stroke();
+          
+                }
+          
+          
+          
+                // Draw struts if not destroyed (always drawn to bridge gap)
+          
+                if (door.state !== 'Destroyed') {
+          
+                    this.ctx.lineWidth = 2; // Match regular wall width
+          
+                    this.ctx.strokeStyle = '#00FFFF'; // Wall color
+          
+                    
+          
+                    this.ctx.beginPath();
+          
+                    this.ctx.moveTo(strut1_sx, strut1_sy);
+          
+                    this.ctx.lineTo(strut1_ex, strut1_ey);
+          
+                    this.ctx.stroke();
+          
+          
+          
+                    this.ctx.beginPath();
+          
+                    this.ctx.moveTo(strut2_sx, strut2_sy);
+          
+                    this.ctx.lineTo(strut2_ex, strut2_ey);
+          
+                    this.ctx.stroke();
+          
+                }
+          
+              });
+          
+            }
   private getVisualOffset(unitId: string, pos: Vector2, allEntities: {id: string, pos: Vector2}[], radius: number): Vector2 {
       let dx = 0, dy = 0;
       let count = 0;

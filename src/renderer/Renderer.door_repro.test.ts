@@ -81,10 +81,10 @@ describe('Renderer Door Drawing', () => {
     renderer.render(state);
 
     // The new logic uses `stroke` for doors.
-    // 1 for main door bar, 2 for struts.
+    // 2 for door halves (animated), 2 for struts.
     // Plus 1 for all walls.
-    // Total 4.
+    // Total 5.
     
-    expect(mockContext.stroke).toHaveBeenCalledTimes(4); 
+    expect(mockContext.stroke).toHaveBeenCalledTimes(5); 
   });
 });
