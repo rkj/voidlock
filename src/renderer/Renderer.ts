@@ -169,13 +169,12 @@ export class Renderer {
     });
     this.ctx.stroke();
 
-          // Render Doors
-        map.doors?.forEach(door => {
-          const doorThickness = 4; // Thinner
-          const doorLength = this.cellSize * 0.5;
-    
-          if (door.segment.length !== 2) return;
-          const [p1, p2] = door.segment;
+              // Render Doors
+              map.doors?.forEach(door => {
+                const doorThickness = this.cellSize / 8; // Thicker
+                const doorLength = this.cellSize / 3; // 1/3 width
+          
+                if (door.segment.length !== 2) return;          const [p1, p2] = door.segment;
           
           const s = this.cellSize;
           let startX, startY, endX, endY;
@@ -233,13 +232,12 @@ export class Renderer {
           this.ctx.lineTo(endX, endY);
           this.ctx.stroke();
     
-          // Draw struts if not open
-          if (door.state !== 'Open') {
-              this.ctx.lineWidth = 1;
-              this.ctx.strokeStyle = '#00FFFF'; // Wall color
-              
-              this.ctx.beginPath();
-              this.ctx.moveTo(strut1_sx, strut1_sy);
+                // Draw struts if not open
+                if (door.state !== 'Open') {
+                    this.ctx.lineWidth = 2; // Match regular wall width
+                    this.ctx.strokeStyle = '#00FFFF'; // Wall color
+                    
+                    this.ctx.beginPath();              this.ctx.moveTo(strut1_sx, strut1_sy);
               this.ctx.lineTo(strut1_ex, strut1_ey);
               this.ctx.stroke();
     

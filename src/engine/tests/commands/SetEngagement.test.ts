@@ -23,11 +23,12 @@ describe('Command: SET_ENGAGEMENT', () => {
       id: 'u1', pos: { x: 0.5, y: 0.5 },
       hp: 100, maxHp: 100, state: UnitState.Idle,
       damage: 10, fireRate: 100, attackRange: 5, sightRange: 10,
+      speed: 2,
       commandQueue: []
     });
     engine.addEnemy({
       id: 'e1', pos: { x: 5.5, y: 0.5 },
-      hp: 100, maxHp: 100, type: 'Grunt', damage: 0, fireRate: 1000, attackRange: 1
+      hp: 100, maxHp: 100, type: 'Grunt', damage: 0, fireRate: 1000, attackRange: 1, speed: 2
     });
   });
 
@@ -75,6 +76,8 @@ describe('Command: SET_ENGAGEMENT', () => {
     const state = engine.getState();
     const u1 = state.units.find(u => u.id === 'u1');
     const e1 = state.enemies.find(e => e.id === 'e1');
+
+    console.log('u1 pos:', u1?.pos);
 
     expect(u1?.state).toBe(UnitState.Moving);
     expect(e1?.hp).toBe(100); // Should not have fired

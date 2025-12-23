@@ -34,13 +34,14 @@ describe('Enemy Door Interaction', () => {
     // Enemy at (0.5, 0.5), moving to (1.5, 0.5)
     engine.addEnemy({
       id: 'e1', pos: { x: 0.5, y: 0.5 }, hp: 100, maxHp: 100, type: 'SwarmMelee', damage: 10, fireRate: 100, attackRange: 1,
+      speed: 2,
       targetPos: { x: 1.5, y: 0.5 },
       path: [{ x: 1, y: 0 }]
     });
 
     // Add dummy soldier to keep game running
     engine.addUnit({
-        id: 's1', pos: { x: 5, y: 5 }, hp: 100, maxHp: 100, state: UnitState.Idle, damage: 0, fireRate: 0, attackRange: 0, sightRange: 0, commandQueue: []
+        id: 's1', pos: { x: 5, y: 5 }, hp: 100, maxHp: 100, state: UnitState.Idle, damage: 0, fireRate: 0, attackRange: 0, sightRange: 0, speed: 2, commandQueue: []
     });
 
     // Run updates. Door open duration is 0.1s (100ms).

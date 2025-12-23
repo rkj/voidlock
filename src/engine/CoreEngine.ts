@@ -143,6 +143,7 @@ export class CoreEngine {
                 fireRate: arch.fireRate,
                 attackRange: arch.attackRange,
                 sightRange: arch.sightRange,
+                speed: arch.speed,
                 commandQueue: []
             });
         }
@@ -430,8 +431,6 @@ export class CoreEngine {
     this.state.discoveredCells = Array.from(discoveredSet);
 
 
-    const SPEED = 2; // Tiles per second
-
     // --- Unit Logic (Movement & Combat & Objectives) ---
     this.state.units.forEach(unit => {
       if (unit.state === UnitState.Extracted || unit.state === UnitState.Dead) return;
@@ -687,7 +686,7 @@ export class CoreEngine {
         const dy = unit.targetPos.y - unit.pos.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
         
-        const moveDist = (SPEED * dt) / 1000;
+        const moveDist = (unit.speed * dt) / 1000;
 
         // Check if path is blocked physically (e.g. Closed Door)
         // If next step crosses cell boundary, check canMove WITHOUT allowClosedDoors.
@@ -765,7 +764,7 @@ export class CoreEngine {
           const dy = enemy.targetPos.y - enemy.pos.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
           
-          const moveDist = (SPEED * dt) / 1000; // Reuse SPEED constant
+          const moveDist = (enemy.speed * dt) / 1000;
 
           if (dist <= moveDist + EPSILON) {
               enemy.pos = { ...enemy.targetPos };

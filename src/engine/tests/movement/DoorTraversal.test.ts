@@ -28,7 +28,7 @@ describe('Movement through Doors', () => {
     engine.clearUnits();
     engine.addUnit({
       id: 'u1', pos: { x: 0.5, y: 0.5 }, hp: 100, maxHp: 100,
-      state: UnitState.Idle, damage: 10, fireRate: 100, attackRange: 1, sightRange: 5, commandQueue: []
+      state: UnitState.Idle, damage: 10, fireRate: 100, attackRange: 1, sightRange: 5, speed: 2, commandQueue: []
     });
   });
 

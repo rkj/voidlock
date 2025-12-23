@@ -4,26 +4,15 @@ import { WorkerMessage, MainMessage } from '../shared/types';
 let engine: CoreEngine | null = null;
 let loopId: any = null;
 
-let TICK_RATE = 300; // ms
+const TICK_RATE = 16; // Fixed 16ms (~60Hz) for smooth state updates
+let timeScale = 1.0; // Default 1x speed
 
 self.onmessage = (e: MessageEvent<WorkerMessage>) => {
   const msg = e.data;
 
-  const startLoop = (rate: number) => {
-      if (loopId) clearInterval(loopId);
-      loopId = setInterval(() => {
-        if (!engine) return;
-        engine.update(rate);
-        const updateMsg: MainMessage = {
-          type: 'STATE_UPDATE',
-          payload: engine.getState()
-        };
-        self.postMessage(updateMsg);
-      }, rate);
-  };
-
   switch (msg.type) {
     case 'INIT': {
+      if (loopId) clearInterval(loopId);
       engine = new CoreEngine(
           msg.payload.map, 
           msg.payload.seed, 
@@ -34,12 +23,27 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
       );
       
       // Start loop
-      startLoop(TICK_RATE);
+      loopId = setInterval(() => {
+        if (!engine) return;
+        // Update game state by scaled delta time
+        engine.update(TICK_RATE * timeScale);
+        
+        const updateMsg: MainMessage = {
+          type: 'STATE_UPDATE',
+          payload: engine.getState()
+        };
+        self.postMessage(updateMsg);
+      }, TICK_RATE);
       break;
     }
+    case 'SET_TIME_SCALE': {
+        timeScale = msg.payload;
+        break;
+    }
     case 'SET_TICK_RATE': {
-        TICK_RATE = msg.payload;
-        startLoop(TICK_RATE);
+        // Deprecated or used for debugging frame drops? 
+        // For now, ignore or reset interval.
+        // Let's ignore it to enforce smoothness.
         break;
     }
     case 'COMMAND': {

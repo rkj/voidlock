@@ -80,6 +80,14 @@ export class GameClient {
     this.worker.postMessage(msg);
   }
 
+  public setTimeScale(scale: number) {
+    const msg: WorkerMessage = {
+        type: 'SET_TIME_SCALE',
+        payload: scale
+    };
+    this.worker.postMessage(msg);
+  }
+
   public getReplayData(): ReplayData | null {
     if (!this.initialMap || !this.initialSquadConfig) return null;
     return {
