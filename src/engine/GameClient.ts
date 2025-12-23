@@ -72,6 +72,14 @@ export class GameClient {
     this.worker.postMessage(msg);
   }
 
+  public setTickRate(rate: number) {
+    const msg: WorkerMessage = {
+        type: 'SET_TICK_RATE',
+        payload: rate
+    };
+    this.worker.postMessage(msg);
+  }
+
   public getReplayData(): ReplayData | null {
     if (!this.initialMap || !this.initialSquadConfig) return null;
     return {

@@ -198,7 +198,8 @@ export enum MissionType {
 export type WorkerMessage = 
   | { type: 'INIT'; payload: { seed: number; map: MapDefinition; fogOfWarEnabled: boolean; debugOverlayEnabled: boolean; agentControlEnabled: boolean; squadConfig: SquadConfig; missionType?: MissionType; } } // Updated
   | { type: 'COMMAND'; payload: Command }
-  | { type: 'QUERY_STATE' };
+  | { type: 'QUERY_STATE' }
+  | { type: 'SET_TICK_RATE'; payload: number };
 
 export type MainMessage =
   | { type: 'STATE_UPDATE'; payload: GameState }
