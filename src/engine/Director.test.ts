@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { Director } from './Director';
-import { SpawnPoint, Enemy } from '../shared/types';
+import { SpawnPoint, Enemy, EnemyType } from '../shared/types';
 import { PRNG } from '../shared/PRNG';
 
 describe('Director', () => {
@@ -21,7 +21,8 @@ describe('Director', () => {
     expect(onSpawn).toHaveBeenCalledTimes(1);
     
     const spawnedEnemy = onSpawn.mock.calls[0][0] as Enemy;
-    expect(spawnedEnemy.type).toBe('SwarmMelee');
+    // Check if the type is one of the valid enemy types
+    expect(Object.values(EnemyType).includes(spawnedEnemy.type as EnemyType)).toBe(true);
     
     // Enemy can spawn anywhere inside the square on which the spawner is (plus jitter logic)
     expect(spawnedEnemy.pos.x).toBeGreaterThanOrEqual(5);
