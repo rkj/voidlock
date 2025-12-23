@@ -58,11 +58,11 @@ describe('Renderer', () => {
     t: 1000,
     map: mockMap,
     units: [
-      { id: 's1', pos: { x: 0.5, y: 0.5 }, state: UnitState.Idle, hp: 100, maxHp: 100, damage: 10, fireRate: 500, attackRange: 1, sightRange: 5, commandQueue: [] },
+      { id: 's1', pos: { x: 0.5, y: 0.5 }, state: UnitState.Idle, hp: 100, maxHp: 100, damage: 10, fireRate: 500, attackRange: 1, sightRange: 5, speed: 2, commandQueue: [] },
     ],
     enemies: [
-      { id: 'e1', pos: { x: 0.5, y: 0.5 }, hp: 30, maxHp: 30, type: 'SwarmMelee', damage: 5, fireRate: 1000, attackRange: 1 }, // Visible
-      { id: 'e2', pos: { x: 1.5, y: 1.5 }, hp: 30, maxHp: 30, type: 'SwarmMelee', damage: 5, fireRate: 1000, attackRange: 1 }  // Hidden
+      { id: 'e1', pos: { x: 0.5, y: 0.5 }, hp: 30, maxHp: 30, type: 'SwarmMelee', damage: 5, fireRate: 1000, attackRange: 1, speed: 2 }, // Visible
+      { id: 'e2', pos: { x: 1.5, y: 1.5 }, hp: 30, maxHp: 30, type: 'SwarmMelee', damage: 5, fireRate: 1000, attackRange: 1, speed: 2 }  // Hidden
     ],
         visibleCells: ['0,0'],
         discoveredCells: ['0,0', '1,1'],

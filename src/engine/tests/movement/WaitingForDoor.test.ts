@@ -44,6 +44,7 @@ describe('Unit WaitingForDoor State', () => {
       fireRate: 100,
       attackRange: 5,
       sightRange: 10,
+      speed: 2,
       commandQueue: []
     });
 

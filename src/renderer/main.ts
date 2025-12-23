@@ -34,6 +34,14 @@ let inputMode: InputMode = 'SELECT';
 let selectedUnitId: string | null = null; 
 let pendingCommandUnitId: string | null = null;
 
+// --- Command System State ---
+type MenuState = 'MAIN' | 'TARGET_SELECT' | 'UNIT_SELECT';
+let menuState: MenuState = 'MAIN';
+let pendingAction: CommandType | null = null;
+let pendingTargetLocation: Vector2 | null = null;
+let overlayOptions: { key: string, label: string, pos?: Vector2, unitId?: string, value?: any }[] = [];
+
+
 // --- Map Data Transformation ---
 const transformMapData = (oldMapData: any): MapDefinition => {
   const newCells = oldMapData.cells.map((cell: any) => {
@@ -130,13 +138,43 @@ const updateUI = (state: GameState) => {
 
   const rightPanel = document.getElementById('right-panel'); 
   if (rightPanel) {
-      // Simple diffing for right panel components? Or just rebuild since it's less interactive?
-      // Rebuilding right panel is probably fine for now as it's mostly status text, not interactive buttons.
-      // But let's be safe and check if we need to rebuild.
-      // Actually, right panel has no buttons, so rebuild is okayish, but efficient updates are better.
-      // For now, let's keep right panel simple rebuild to minimize changes, focus on soldier list.
-      
       rightPanel.innerHTML = ''; 
+
+      // --- Command Menu ---
+      const menuDiv = document.createElement('div');
+      menuDiv.className = 'command-menu';
+      menuDiv.style.borderBottom = '1px solid #444';
+      menuDiv.style.paddingBottom = '10px';
+      menuDiv.style.marginBottom = '10px';
+      
+      let menuHtml = `<h3>COMMANDS [${menuState}]</h3>`;
+      
+      if (menuState === 'MAIN') {
+          menuHtml += `
+            <div class="menu-item">1. Move</div>
+            <div class="menu-item">2. Collect Items</div>
+            <div class="menu-item">3. Extract</div>
+            <div class="menu-item" style="color:#666;">4. Use Item (N/A)</div>
+          `;
+      } else if (menuState === 'TARGET_SELECT') {
+          menuHtml += `<p>Select Target:</p>`;
+          if (overlayOptions.length === 0) {
+              menuHtml += `<p style="color:#f00;">No valid targets found.</p>`;
+          } else {
+              overlayOptions.forEach(opt => {
+                  menuHtml += `<div class="menu-item">${opt.key}. ${opt.label}</div>`;
+              });
+          }
+          menuHtml += `<p style="color:#aaa;">(Press 1-9 or ESC)</p>`;
+      } else if (menuState === 'UNIT_SELECT') {
+          menuHtml += `<p>Select Unit:</p>`;
+          overlayOptions.forEach(opt => {
+              menuHtml += `<div class="menu-item">${opt.key}. ${opt.label}</div>`;
+          });
+          menuHtml += `<p style="color:#aaa;">(Press 1-9 or ESC)</p>`;
+      }
+      menuDiv.innerHTML = menuHtml;
+      rightPanel.appendChild(menuDiv);
 
       // Objectives
       const objectivesDiv = document.createElement('div');
@@ -277,6 +315,92 @@ const updateUI = (state: GameState) => {
   }
 };
 
+const generateTargetOverlay = (type: 'CELL' | 'ITEM') => {
+    overlayOptions = [];
+    if (!currentGameState) return;
+    let counter = 1;
+    
+    if (type === 'ITEM') {
+        currentGameState.objectives.forEach(obj => {
+            if (obj.state === 'Pending' && obj.visible && obj.targetCell) {
+                overlayOptions.push({ key: counter.toString(), label: `Collect ${obj.kind}`, pos: obj.targetCell });
+                counter++;
+            }
+        });
+    } else if (type === 'CELL') {
+        // Overlay significant points
+        if (currentGameState.map.extraction) {
+             overlayOptions.push({ key: counter.toString(), label: 'Extraction', pos: currentGameState.map.extraction });
+             counter++;
+        }
+        // Also objectives
+        currentGameState.objectives.forEach(obj => {
+            if (obj.state === 'Pending' && obj.visible && obj.targetCell) {
+                overlayOptions.push({ key: counter.toString(), label: `Obj ${obj.id}`, pos: obj.targetCell });
+                counter++;
+            }
+        });
+    }
+};
+
+const generateUnitOverlay = () => {
+    overlayOptions = [];
+    if (!currentGameState) return;
+    let counter = 1;
+    currentGameState.units.forEach(u => {
+        if (u.state !== UnitState.Dead && u.state !== UnitState.Extracted) {
+            overlayOptions.push({ key: counter.toString(), label: u.id, unitId: u.id, pos: u.pos });
+            counter++;
+        }
+    });
+    overlayOptions.push({ key: counter.toString(), label: 'All Units', unitId: 'ALL' });
+};
+
+const handleMenuInput = (num: number) => {
+    if (menuState === 'MAIN') {
+        if (num === 1) { // Move
+            menuState = 'TARGET_SELECT';
+            pendingAction = CommandType.MOVE_TO;
+            generateTargetOverlay('CELL'); 
+        } else if (num === 2) { // Collect
+             menuState = 'TARGET_SELECT';
+             pendingAction = CommandType.MOVE_TO; 
+             generateTargetOverlay('ITEM');
+        } else if (num === 3) { // Extract
+             menuState = 'UNIT_SELECT';
+             pendingAction = CommandType.MOVE_TO;
+             pendingTargetLocation = currentGameState?.map.extraction || null;
+             generateUnitOverlay();
+        }
+    } else if (menuState === 'TARGET_SELECT') {
+        const option = overlayOptions.find(o => o.key === num.toString());
+        if (option && option.pos) {
+            pendingTargetLocation = option.pos;
+            menuState = 'UNIT_SELECT';
+            generateUnitOverlay();
+        }
+    } else if (menuState === 'UNIT_SELECT') {
+        const option = overlayOptions.find(o => o.key === num.toString());
+        if (option) {
+            if (option.unitId === 'ALL') {
+                 const ids = currentGameState?.units.map(u => u.id) || [];
+                 if (pendingAction === CommandType.MOVE_TO && pendingTargetLocation) {
+                     gameClient.sendCommand({ type: CommandType.MOVE_TO, unitIds: ids, target: pendingTargetLocation });
+                 }
+            } else if (option.unitId) {
+                 if (pendingAction === CommandType.MOVE_TO && pendingTargetLocation) {
+                     gameClient.sendCommand({ type: CommandType.MOVE_TO, unitIds: [option.unitId], target: pendingTargetLocation });
+                 }
+            }
+            menuState = 'MAIN';
+            pendingAction = null;
+            pendingTargetLocation = null;
+            overlayOptions = [];
+        }
+    }
+    if (currentGameState) updateUI(currentGameState);
+};
+
 const onUnitClick = (unit: Unit) => {
   if (inputMode === 'CMD_MOVE') {
     if (!pendingCommandUnitId) {
@@ -408,6 +532,27 @@ const abortMission = () => {
 
 // --- Event Listeners & UI Setup ---
 document.addEventListener('DOMContentLoaded', () => {
+  // Keyboard Navigation
+  document.addEventListener('keydown', (e) => {
+      // If typing in input, ignore
+      if ((e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'TEXTAREA') return;
+
+      if (e.key === 'Escape') {
+          menuState = 'MAIN';
+          pendingAction = null;
+          pendingTargetLocation = null;
+          overlayOptions = [];
+          if (currentGameState) updateUI(currentGameState);
+          return;
+      }
+
+      // Handle Number Keys 1-9
+      const num = parseInt(e.key);
+      if (!isNaN(num) && num > 0) {
+          handleMenuInput(num);
+      }
+  });
+
   // Navigation
   document.getElementById('btn-menu-custom')?.addEventListener('click', () => screenManager.show('mission-setup'));
   document.getElementById('btn-menu-campaign')?.addEventListener('click', () => screenManager.show('campaign'));

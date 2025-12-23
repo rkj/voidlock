@@ -32,10 +32,10 @@ describe('Coordinated Exploration', () => {
   it('should assign different exploration targets to units', () => {
     // Add 2 units at center (2,0)
     engine.addUnit({
-      id: 'u1', pos: { x: 2.5, y: 0.5 }, hp: 100, maxHp: 100, state: UnitState.Idle, damage: 10, fireRate: 100, attackRange: 5, sightRange: 1, commandQueue: []
+      id: 'u1', pos: { x: 2.5, y: 0.5 }, hp: 100, maxHp: 100, state: UnitState.Idle, damage: 10, fireRate: 100, attackRange: 5, sightRange: 1, speed: 2, commandQueue: []
     });
     engine.addUnit({
-      id: 'u2', pos: { x: 2.5, y: 0.5 }, hp: 100, maxHp: 100, state: UnitState.Idle, damage: 10, fireRate: 100, attackRange: 5, sightRange: 1, commandQueue: []
+      id: 'u2', pos: { x: 2.5, y: 0.5 }, hp: 100, maxHp: 100, state: UnitState.Idle, damage: 10, fireRate: 100, attackRange: 5, sightRange: 1, speed: 2, commandQueue: []
     });
 
     // Manually set discovered cells to include only center and adjacent
