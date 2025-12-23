@@ -330,29 +330,77 @@ export class DenseShipGenerator {
   }
 
   private placeEntities(corridors: Vector2[]) {
-      if (corridors.length === 0) return;
-      
-      // Spawn at spine start
-      this.spawnPoints.push({ id: 'sp-1', pos: corridors[0], radius: 1 });
-      
-      // Extraction at spine end (or furthest corridor point)
-      this.extraction = corridors[corridors.length - 1];
-
-      // Objectives in Rooms
+      // Collect Room Cells
       const roomCells: Vector2[] = [];
+      const roomMap = new Map<string, Vector2[]>();
+      
       for(let y=0; y<this.height; y++) {
           for(let x=0; x<this.width; x++) {
-              if (this.getGenType(x, y) === 'Room') roomCells.push({x, y});
+              if (this.getGenType(x, y) === 'Room') {
+                  const p = {x, y};
+                  roomCells.push(p);
+                  const rid = this.roomIds[y*this.width+x];
+                  if (!roomMap.has(rid)) roomMap.set(rid, []);
+                  roomMap.get(rid)!.push(p);
+              }
+          }
+      }
+
+      if (roomCells.length === 0) {
+          // Fallback to corridors if 0 rooms (unlikely)
+          this.spawnPoints.push({ id: 'sp-1', pos: corridors[0], radius: 1 });
+          this.extraction = corridors[corridors.length - 1];
+          return;
+      }
+
+      const rooms = Array.from(roomMap.values());
+      this.prng.shuffle(rooms);
+
+      // 1. Spawn
+      const spawnRoom = rooms[0];
+      const spawnPos = spawnRoom[Math.floor(spawnRoom.length/2)];
+      this.spawnPoints.push({ id: 'sp-1', pos: spawnPos, radius: 1 });
+
+      // 2. Extraction (Furthest room)
+      let bestExtRoom = rooms[rooms.length - 1];
+      let maxDist = 0;
+      
+      for (let i = 1; i < rooms.length; i++) {
+          const r = rooms[i];
+          const p = r[0];
+          const dist = Math.abs(p.x - spawnPos.x) + Math.abs(p.y - spawnPos.y);
+          if (dist > maxDist) {
+              maxDist = dist;
+              bestExtRoom = r;
           }
       }
       
-      if (roomCells.length > 0) {
-          const objPos = roomCells[this.prng.nextInt(0, roomCells.length - 1)];
-          this.objectives.push({ id: 'obj-1', kind: 'Recover', targetCell: objPos });
-      } else {
-          // Fallback to corridor
-          const objPos = corridors[Math.floor(corridors.length/2)];
-          this.objectives.push({ id: 'obj-1', kind: 'Recover', targetCell: objPos });
+      if (bestExtRoom === spawnRoom && rooms.length > 1) {
+          bestExtRoom = rooms[1];
+      }
+      
+      const extPos = bestExtRoom[Math.floor(bestExtRoom.length/2)];
+      this.extraction = extPos;
+
+      // 3. Enemy Spawners & Objectives
+      const otherRooms = rooms.filter(r => r !== spawnRoom && r !== bestExtRoom);
+      
+      // Add Enemy Spawners
+      for (let i = 0; i < Math.min(2, otherRooms.length); i++) {
+          const r = otherRooms[i];
+          const p = r[Math.floor(r.length/2)];
+          this.spawnPoints.push({ id: `sp-enemy-${i}`, pos: p, radius: 1 });
+      }
+      
+      // Add Objectives (reuse rooms if needed, or use remaining)
+      // If we used rooms for spawners, we can still use them for objectives or pick others.
+      // Let's use remaining rooms first.
+      const objRooms = otherRooms.length > 2 ? otherRooms.slice(2) : otherRooms;
+      
+      for (let i = 0; i < Math.min(2, objRooms.length); i++) {
+          const r = objRooms[i];
+          const p = r[Math.floor(r.length/2)];
+          this.objectives.push({ id: `obj-${i}`, kind: 'Recover', targetCell: p });
       }
   }
 
