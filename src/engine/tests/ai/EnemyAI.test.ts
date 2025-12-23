@@ -26,7 +26,7 @@ describe('Enemy AI', () => {
 
   it('should roam when no soldiers are present', () => {
     engine.addEnemy({
-      id: 'e1', pos: { x: 2.5, y: 2.5 }, hp: 100, maxHp: 100, type: 'SwarmMelee', damage: 10, fireRate: 100, attackRange: 1
+      id: 'e1', pos: { x: 2.5, y: 2.5 }, hp: 100, maxHp: 100, type: 'SwarmMelee', damage: 10, fireRate: 100, attackRange: 1, speed: 2
     });
 
     const initialPos = { ...engine.getState().enemies[0].pos };
@@ -44,12 +44,12 @@ describe('Enemy AI', () => {
   it('should move towards detected soldiers', () => {
     // Enemy at (0.5, 0.5)
     engine.addEnemy({
-      id: 'e1', pos: { x: 0.5, y: 0.5 }, hp: 100, maxHp: 100, type: 'SwarmMelee', damage: 10, fireRate: 100, attackRange: 1
+      id: 'e1', pos: { x: 0.5, y: 0.5 }, hp: 100, maxHp: 100, type: 'SwarmMelee', damage: 10, fireRate: 100, attackRange: 1, speed: 2
     });
 
     // Soldier at (4.5, 4.5)
     engine.addUnit({
-      id: 's1', pos: { x: 4.5, y: 4.5 }, hp: 100, maxHp: 100, state: UnitState.Idle, damage: 10, fireRate: 100, attackRange: 5, sightRange: 10, commandQueue: []
+      id: 's1', pos: { x: 4.5, y: 4.5 }, hp: 100, maxHp: 100, state: UnitState.Idle, damage: 10, fireRate: 100, attackRange: 5, sightRange: 10, speed: 2, commandQueue: []
     });
 
     const initialDist = Math.sqrt((0.5 - 4.5)**2 + (0.5 - 4.5)**2);

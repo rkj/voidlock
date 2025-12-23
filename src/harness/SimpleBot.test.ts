@@ -12,6 +12,7 @@ describe('SimpleBot', () => {
     hp: 100, maxHp: 100,
     state: UnitState.Idle,
     damage: 10, fireRate: 1000, attackRange: 5, sightRange: 10,
+    speed: 2,
     commandQueue: []
   };
 

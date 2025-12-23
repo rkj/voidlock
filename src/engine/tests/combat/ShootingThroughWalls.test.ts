@@ -24,12 +24,12 @@ describe('Shooting Through Walls Repro', () => {
   it('should NOT allow shooting through a thin wall', () => {
     // Add Soldier at (0.5, 0.5)
     engine.addUnit({
-      id: 's1', pos: { x: 0.5, y: 0.5 }, hp: 100, maxHp: 100, state: UnitState.Idle, damage: 10, fireRate: 100, attackRange: 5, sightRange: 10, commandQueue: []
+      id: 's1', pos: { x: 0.5, y: 0.5 }, hp: 100, maxHp: 100, state: UnitState.Idle, damage: 10, fireRate: 100, attackRange: 5, sightRange: 10, speed: 2, commandQueue: []
     });
 
     // Add Enemy at (1.5, 0.5)
     engine.addEnemy({
-      id: 'e1', pos: { x: 1.5, y: 0.5 }, hp: 100, maxHp: 100, type: 'SwarmMelee', damage: 10, fireRate: 100, attackRange: 1
+      id: 'e1', pos: { x: 1.5, y: 0.5 }, hp: 100, maxHp: 100, type: 'SwarmMelee', damage: 10, fireRate: 100, attackRange: 1, speed: 2
     });
 
     // Run update to resolve visibility and combat
@@ -67,10 +67,10 @@ describe('Shooting Through Walls Repro', () => {
       engine2.clearUnits();
 
       engine2.addUnit({
-        id: 's1', pos: { x: 0.5, y: 0.5 }, hp: 100, maxHp: 100, state: UnitState.Idle, damage: 10, fireRate: 100, attackRange: 5, sightRange: 10, commandQueue: []
+        id: 's1', pos: { x: 0.5, y: 0.5 }, hp: 100, maxHp: 100, state: UnitState.Idle, damage: 10, fireRate: 100, attackRange: 5, sightRange: 10, speed: 2, commandQueue: []
       });
       engine2.addEnemy({
-        id: 'e1', pos: { x: 1.5, y: 1.5 }, hp: 100, maxHp: 100, type: 'SwarmMelee', damage: 10, fireRate: 100, attackRange: 1
+        id: 'e1', pos: { x: 1.5, y: 1.5 }, hp: 100, maxHp: 100, type: 'SwarmMelee', damage: 10, fireRate: 100, attackRange: 1, speed: 2
       });
 
       engine2.update(100);
@@ -90,10 +90,10 @@ describe('Shooting Through Walls Repro', () => {
       // S1 at right edge of (0,0), E1 at left edge of (1,0)
       // Wall between them.
       engine.addUnit({
-        id: 's1', pos: { x: 0.9, y: 0.5 }, hp: 100, maxHp: 100, state: UnitState.Idle, damage: 10, fireRate: 100, attackRange: 5, sightRange: 10, commandQueue: []
+        id: 's1', pos: { x: 0.9, y: 0.5 }, hp: 100, maxHp: 100, state: UnitState.Idle, damage: 10, fireRate: 100, attackRange: 5, sightRange: 10, speed: 2, commandQueue: []
       });
       engine.addEnemy({
-        id: 'e1', pos: { x: 1.1, y: 0.5 }, hp: 100, maxHp: 100, type: 'SwarmMelee', damage: 10, fireRate: 100, attackRange: 1
+        id: 'e1', pos: { x: 1.1, y: 0.5 }, hp: 100, maxHp: 100, type: 'SwarmMelee', damage: 10, fireRate: 100, attackRange: 1, speed: 2
       });
 
       engine.update(100);
@@ -110,10 +110,10 @@ describe('Shooting Through Walls Repro', () => {
       // Soldier at (0.5, 0.5), wall between (0,0) and (1,0)
       // Enemy at (1.1, 0.5)
       engine.addUnit({
-        id: 's1', pos: { x: 0.5, y: 0.5 }, hp: 100, maxHp: 100, state: UnitState.Idle, damage: 10, fireRate: 100, attackRange: 5, sightRange: 10, commandQueue: []
+        id: 's1', pos: { x: 0.5, y: 0.5 }, hp: 100, maxHp: 100, state: UnitState.Idle, damage: 10, fireRate: 100, attackRange: 5, sightRange: 10, speed: 2, commandQueue: []
       });
       engine.addEnemy({
-        id: 'e1', pos: { x: 1.1, y: 0.5 }, hp: 100, maxHp: 100, type: 'SwarmMelee', damage: 10, fireRate: 100, attackRange: 1
+        id: 'e1', pos: { x: 1.1, y: 0.5 }, hp: 100, maxHp: 100, type: 'SwarmMelee', damage: 10, fireRate: 100, attackRange: 1, speed: 2
       });
 
       engine.update(100);

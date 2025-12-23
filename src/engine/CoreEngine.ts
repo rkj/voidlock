@@ -106,7 +106,8 @@ export class CoreEngine {
                 type: 'Hive', 
                 damage: 0, 
                 fireRate: 1000,
-                attackRange: 0
+                attackRange: 0,
+                speed: 0
             });
 
             this.state.objectives.push({

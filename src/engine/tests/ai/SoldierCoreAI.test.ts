@@ -24,11 +24,12 @@ describe('SoldierCoreAI', () => {
     engine.addUnit({
       id: 'u1', pos: { x: 1.5, y: 1.5 }, hp: 100, maxHp: 100,
       state: UnitState.Idle, damage: 10, fireRate: 1000, attackRange: 2, sightRange: 10,
+      speed: 2,
       commandQueue: [], engagementPolicy: 'ENGAGE'
     });
     engine.addEnemy({
       id: 'e1', pos: { x: 5.5, y: 5.5 }, hp: 50, maxHp: 50, type: 'SwarmMelee',
-      damage: 10, fireRate: 1000, attackRange: 1
+      damage: 10, fireRate: 1000, attackRange: 1, speed: 2
     });
 
     engine.update(100); // 1 tick
@@ -47,11 +48,12 @@ describe('SoldierCoreAI', () => {
     engine.addUnit({
       id: 'u1', pos: { x: 5.5, y: 5.5 }, hp: 20, maxHp: 100, // 20% HP
       state: UnitState.Idle, damage: 10, fireRate: 1000, attackRange: 2, sightRange: 10,
+      speed: 2,
       commandQueue: [], engagementPolicy: 'ENGAGE'
     });
     engine.addEnemy({
       id: 'e1', pos: { x: 6.5, y: 5.5 }, hp: 50, maxHp: 50, type: 'SwarmMelee',
-      damage: 10, fireRate: 1000, attackRange: 1
+      damage: 10, fireRate: 1000, attackRange: 1, speed: 2
     });
 
     // We need to discover some cells first so it has somewhere to retreat to
@@ -74,16 +76,18 @@ describe('SoldierCoreAI', () => {
     engine.addUnit({
       id: 'u1', pos: { x: 1.5, y: 1.5 }, hp: 100, maxHp: 100,
       state: UnitState.Idle, damage: 10, fireRate: 1000, attackRange: 2, sightRange: 10,
+      speed: 2,
       commandQueue: []
     });
     engine.addUnit({
       id: 'u2', pos: { x: 8.5, y: 8.5 }, hp: 100, maxHp: 100,
       state: UnitState.Idle, damage: 10, fireRate: 1000, attackRange: 2, sightRange: 10,
+      speed: 2,
       commandQueue: []
     });
     engine.addEnemy({
       id: 'e1', pos: { x: 5.5, y: 5.5 }, hp: 50, maxHp: 50, type: 'SwarmMelee',
-      damage: 10, fireRate: 1000, attackRange: 1
+      damage: 10, fireRate: 1000, attackRange: 1, speed: 2
     });
 
     engine.update(100);

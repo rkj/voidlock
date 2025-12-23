@@ -26,6 +26,7 @@ describe('Command: ATTACK_TARGET', () => {
       state: UnitState.Idle,
       damage: 10, fireRate: 100, // Fast fire for testing
       attackRange: 5, sightRange: 10,
+      speed: 2,
       commandQueue: []
     });
   });
@@ -34,12 +35,12 @@ describe('Command: ATTACK_TARGET', () => {
     // Enemy 1: Close (Distance 1)
     engine.addEnemy({
       id: 'e1', pos: { x: 5.5, y: 4.5 },
-      hp: 100, maxHp: 100, type: 'Grunt', damage: 0, fireRate: 1000, attackRange: 1
+      hp: 100, maxHp: 100, type: 'Grunt', damage: 0, fireRate: 1000, attackRange: 1, speed: 2
     });
     // Enemy 2: Farther (Distance 2)
     engine.addEnemy({
       id: 'e2', pos: { x: 5.5, y: 3.5 },
-      hp: 100, maxHp: 100, type: 'Grunt', damage: 0, fireRate: 1000, attackRange: 1
+      hp: 100, maxHp: 100, type: 'Grunt', damage: 0, fireRate: 1000, attackRange: 1, speed: 2
     });
 
     // Default behavior: attack closest (e1)
@@ -56,9 +57,9 @@ describe('Command: ATTACK_TARGET', () => {
     const defaultSquad: SquadConfig = [{archetypeId: "assault", count: 1}]; // Re-declare for scope or make global if multiple use. For now, re-declare.
     engine = new CoreEngine(map, 123, defaultSquad, false, false); // Re-initialize with squad
     engine.clearUnits();
-    engine.addUnit({ id: 'u1', pos: { x: 5.5, y: 5.5 }, hp: 100, maxHp: 100, state: UnitState.Idle, damage: 10, fireRate: 100, attackRange: 5, sightRange: 10, commandQueue: [] });
-    engine.addEnemy({ id: 'e1', pos: { x: 5.5, y: 4.5 }, hp: 100, maxHp: 100, type: 'Grunt', damage: 0, fireRate: 1000, attackRange: 1 });
-    engine.addEnemy({ id: 'e2', pos: { x: 5.5, y: 3.5 }, hp: 100, maxHp: 100, type: 'Grunt', damage: 0, fireRate: 1000, attackRange: 1 });
+    engine.addUnit({ id: 'u1', pos: { x: 5.5, y: 5.5 }, hp: 100, maxHp: 100, state: UnitState.Idle, damage: 10, fireRate: 100, attackRange: 5, sightRange: 10, speed: 2, commandQueue: [] });
+    engine.addEnemy({ id: 'e1', pos: { x: 5.5, y: 4.5 }, hp: 100, maxHp: 100, type: 'Grunt', damage: 0, fireRate: 1000, attackRange: 1, speed: 2 });
+    engine.addEnemy({ id: 'e2', pos: { x: 5.5, y: 3.5 }, hp: 100, maxHp: 100, type: 'Grunt', damage: 0, fireRate: 1000, attackRange: 1, speed: 2 });
 
     // Issue ATTACK_TARGET e2
     engine.applyCommand({
@@ -80,7 +81,7 @@ describe('Command: ATTACK_TARGET', () => {
   it('should stop attacking forced target if it dies', () => {
     engine.addEnemy({
       id: 'e1', pos: { x: 5.5, y: 4.5 },
-      hp: 10, maxHp: 10, type: 'Grunt', damage: 0, fireRate: 1000, attackRange: 1
+      hp: 10, maxHp: 10, type: 'Grunt', damage: 0, fireRate: 1000, attackRange: 1, speed: 2
     });
 
     engine.applyCommand({
