@@ -1,4 +1,4 @@
-import { MapDefinition, CellType, GameState, Unit, Enemy, UnitState, CommandType, Command, Objective, Vector2, SquadConfig, MissionType, EnemyType, EnemyArchetypeLibrary } from '../shared/types';
+import { MapDefinition, CellType, GameState, Unit, Enemy, UnitState, CommandType, Command, Objective, Vector2, SquadConfig, MissionType, EnemyType, EnemyArchetypeLibrary, Door } from '../shared/types';
 import { PRNG } from '../shared/PRNG';
 import { GameGrid } from './GameGrid';
 import { Pathfinder } from './Pathfinder';

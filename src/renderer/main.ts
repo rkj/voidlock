@@ -25,7 +25,7 @@ const mapGeneratorFactory = (seed: number, type: MapGeneratorType, mapData?: Map
       return new SpaceshipGenerator(seed, width, height);
   }
 
-  return new MapGenerator(seed, 1, 2); 
+  return new MapGenerator(seed); 
 };
 
 // --- Global Input State ---
@@ -502,6 +502,10 @@ document.addEventListener('DOMContentLoaded', () => {
             <input type="checkbox" id="toggle-agent-control" checked>
             <label for="toggle-agent-control" style="display:inline;">Agent Control</label>
         </div>
+        <div style="margin-top: 10px;">
+            <label for="tick-rate-slider">Tick Rate (ms): <span id="tick-rate-value">300</span></label>
+            <input type="range" id="tick-rate-slider" min="50" max="1000" step="50" value="300">
+        </div>
       `;
       // Insert after Map Generation group (which contains presetControls)
       // presetControls is inside .control-group. We want to insert after that group.
@@ -520,6 +524,16 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('toggle-agent-control')?.addEventListener('change', (e) => {
           agentControlEnabled = (e.target as HTMLInputElement).checked;
       });
+      
+      const tickRateSlider = document.getElementById('tick-rate-slider') as HTMLInputElement;
+      const tickRateValue = document.getElementById('tick-rate-value') as HTMLSpanElement;
+      if (tickRateSlider) {
+          tickRateSlider.addEventListener('input', () => {
+              const rate = parseInt(tickRateSlider.value);
+              tickRateValue.textContent = `${rate}`;
+              gameClient.setTickRate(rate);
+          });
+      }
   }
 
   // Handle Map Generator Type selection
