@@ -405,6 +405,28 @@ The application is divided into distinct screens to reduce UI clutter and improv
     *   **Input**:
         *   `ESC`: Opens **Pause Overlay** (Resume / Abort Mission).
 
+### 8.3 Control Scheme & Keyboard Navigation
+The game must be fully playable via keyboard using a hierarchical command menu.
+
+*   **Menu Structure:**
+    *   **Level 1 (Action Category):**
+        *   `1`: Move
+        *   `2`: Collect Items (Objectives)
+        *   `3`: Extract
+        *   `4`: Use Item (Grenade, Medkit - *Future*)
+    *   **Level 2 (Target Selection):**
+        *   Context-dependent submenus (e.g., "Select Target Cell", "Select Item").
+        *   **Map Overlay:** When a command requires a spatial target, the map should overlay numbers (1-N) on valid targets (cells, enemies, items) for quick selection.
+    *   **Level 3 (Unit Selection):**
+        *   `1-N`: Select specific soldier to perform the action.
+        *   `N+1`: "All" (if applicable).
+
+### 8.4 UI Layout Reorganization
+*   **Top Bar:** Time, Game Status (Playing/Won/Lost), and Global alerts (e.g., "Extraction Available").
+*   **Soldier Panel:** Moved to the **Bottom** (RPG style) or **Top** (under status). Displays character avatars, health, and status.
+*   **Right Panel:** Dedicated exclusively to the **Command Menu** and **Objective List**.
+*   **Main View:** Centered map area.
+
 ### 8.2 Debug affordances (non-negotiable for balancing)
 
 *   Toggle “show all” (disable fog) for quick iteration.

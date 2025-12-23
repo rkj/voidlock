@@ -102,6 +102,7 @@ export type Unit = Entity & {
   lastAttackTime?: number;
   forcedTargetId?: string; // ID of enemy to focus fire on
   explorationTarget?: Vector2; // Current automated exploration goal
+  speed: number; // Tiles per second
 };
 
 export type Enemy = Entity & {
@@ -113,6 +114,7 @@ export type Enemy = Entity & {
   lastAttackTime?: number;
   path?: Vector2[]; 
   targetPos?: Vector2;
+  speed: number; // Tiles per second
 };
 
 export type SpawnPoint = {
@@ -199,7 +201,8 @@ export type WorkerMessage =
   | { type: 'INIT'; payload: { seed: number; map: MapDefinition; fogOfWarEnabled: boolean; debugOverlayEnabled: boolean; agentControlEnabled: boolean; squadConfig: SquadConfig; missionType?: MissionType; } } // Updated
   | { type: 'COMMAND'; payload: Command }
   | { type: 'QUERY_STATE' }
-  | { type: 'SET_TICK_RATE'; payload: number };
+  | { type: 'SET_TICK_RATE'; payload: number }
+  | { type: 'SET_TIME_SCALE'; payload: number };
 
 export type MainMessage =
   | { type: 'STATE_UPDATE'; payload: GameState }

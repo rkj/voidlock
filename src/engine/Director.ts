@@ -83,7 +83,8 @@ export class Director {
       type: arch.type,
       damage: arch.damage,
       fireRate: arch.fireRate,
-      attackRange: arch.attackRange
+      attackRange: arch.attackRange,
+      speed: arch.speed
     };
 
     this.onSpawn(enemy);

@@ -503,8 +503,8 @@ document.addEventListener('DOMContentLoaded', () => {
             <label for="toggle-agent-control" style="display:inline;">Agent Control</label>
         </div>
         <div style="margin-top: 10px;">
-            <label for="tick-rate-slider">Tick Rate (ms): <span id="tick-rate-value">300</span></label>
-            <input type="range" id="tick-rate-slider" min="50" max="1000" step="50" value="300">
+            <label for="time-scale-slider">Game Speed (x): <span id="time-scale-value">0.3</span></label>
+            <input type="range" id="time-scale-slider" min="0.1" max="3.0" step="0.1" value="0.3">
         </div>
       `;
       // Insert after Map Generation group (which contains presetControls)
@@ -525,13 +525,13 @@ document.addEventListener('DOMContentLoaded', () => {
           agentControlEnabled = (e.target as HTMLInputElement).checked;
       });
       
-      const tickRateSlider = document.getElementById('tick-rate-slider') as HTMLInputElement;
-      const tickRateValue = document.getElementById('tick-rate-value') as HTMLSpanElement;
-      if (tickRateSlider) {
-          tickRateSlider.addEventListener('input', () => {
-              const rate = parseInt(tickRateSlider.value);
-              tickRateValue.textContent = `${rate}`;
-              gameClient.setTickRate(rate);
+      const timeScaleSlider = document.getElementById('time-scale-slider') as HTMLInputElement;
+      const timeScaleValue = document.getElementById('time-scale-value') as HTMLSpanElement;
+      if (timeScaleSlider) {
+          timeScaleSlider.addEventListener('input', () => {
+              const scale = parseFloat(timeScaleSlider.value);
+              timeScaleValue.textContent = `${scale}`;
+              gameClient.setTimeScale(scale);
           });
       }
   }
