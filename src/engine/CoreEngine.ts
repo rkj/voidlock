@@ -430,8 +430,29 @@ export class CoreEngine {
     newVisibleCells.forEach(cell => discoveredSet.add(cell));
     this.state.discoveredCells = Array.from(discoveredSet);
 
+    // Update Objective Visibility
+    this.state.objectives.forEach(obj => {
+        if (!obj.visible && obj.targetCell) {
+            const key = `${obj.targetCell.x},${obj.targetCell.y}`;
+            if (this.state.discoveredCells.includes(key)) {
+                obj.visible = true;
+            }
+        }
+        // Kill objectives: visible if target enemy is visible? 
+        // Or if we know about them?
+        // Let's say Kill objectives are always "known" if they are main targets? 
+        // Or maybe revealed when enemy is first seen?
+        if (obj.kind === 'Kill' && obj.targetEnemyId) {
+             const enemy = this.state.enemies.find(e => e.id === obj.targetEnemyId);
+             if (enemy && newVisibleCells.has(`${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`)) {
+                 obj.visible = true;
+             }
+        }
+    });
+
 
     // --- Unit Logic (Movement & Combat & Objectives) ---
+    const claimedObjectives = new Set<string>();
     this.state.units.forEach(unit => {
       if (unit.state === UnitState.Extracted || unit.state === UnitState.Dead) return;
 
@@ -510,8 +531,8 @@ export class CoreEngine {
           
           // 2. Objective (if not fighting)
           if (!actionTaken && this.state.objectives) {
-              // Find closest pending objective
-              const pendingObjectives = this.state.objectives.filter(o => o.state === 'Pending');
+              // Find closest pending objective that is NOT claimed and is VISIBLE
+              const pendingObjectives = this.state.objectives.filter(o => o.state === 'Pending' && !claimedObjectives.has(o.id) && o.visible);
               if (pendingObjectives.length > 0) {
                   // Find closest one
                   // For 'Recover', target is targetCell. For 'Kill', target is enemy pos (if known/visible).
@@ -545,6 +566,7 @@ export class CoreEngine {
                   }
 
                   if (bestObj) {
+                      claimedObjectives.add(bestObj.obj.id); // CLAIM IT
                       // Move to objective
                       let target = { x: 0, y: 0 };
                       if (bestObj.obj.kind === 'Recover' && bestObj.obj.targetCell) target = bestObj.obj.targetCell;
