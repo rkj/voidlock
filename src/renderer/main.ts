@@ -11,20 +11,8 @@ import { ConfigManager, GameConfig } from './ConfigManager';
 const screenManager = new ScreenManager();
 
 // Factory function for MapGenerator
-const mapGeneratorFactory = (seed: number, type: MapGeneratorType, mapData?: MapDefinition, width: number = 32, height: number = 32): MapGenerator | SpaceshipGenerator | TreeShipGenerator => {
-  if (type === MapGeneratorType.Static && mapData) {
-      const gen = new MapGenerator(seed);
-      return gen;
-  }
-  
-  if (type === MapGeneratorType.TreeShip) {
-      return new TreeShipGenerator(seed, width, height);
-  }
-
-  if (type === MapGeneratorType.Procedural) {
-      return new SpaceshipGenerator(seed, width, height);
-  }
-
+const mapGeneratorFactory = (seed: number, type: MapGeneratorType, mapData?: MapDefinition, width: number = 32, height: number = 32): MapGenerator => {
+  // Always return the facade MapGenerator. It handles dispatching to specific implementations in its generate() method.
   return new MapGenerator(seed); 
 };
 
@@ -472,7 +460,8 @@ const launchMission = () => {
         currentMapHeight = parseInt(hInput.value) || 14;
     }
     if (spInput) {
-        currentSpawnPointCount = parseInt(spInput.value) || 3;
+        const value = parseInt(spInput.value);
+        currentSpawnPointCount = !isNaN(value) ? value : 1; // Default to 1 if NaN or other issue
     }
 
     // Save Config
