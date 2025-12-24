@@ -90,6 +90,10 @@ export class CoreEngine {
         const floors = map.cells.filter(c => c.type === CellType.Floor);
         const extraction = map.extraction || { x: 0, y: 0 };
         const candidates = floors.filter(c => {
+            // Must be in a ROOM (strictly not a corridor)
+            const isRoom = c.roomId && c.roomId.startsWith('room-');
+            if (!isRoom) return false;
+
             const dx = c.x - extraction.x;
             const dy = c.y - extraction.y;
             return Math.sqrt(dx*dx + dy*dy) > map.width * 0.5;
