@@ -29,6 +29,7 @@ export class CoreEngine {
     this.prng = new PRNG(seed);
     this.gameGrid = new GameGrid(map);
     this.doors = new Map(map.doors?.map(door => [door.id, door]));
+    this.doors.forEach(door => this.updateDoorBoundary(door));
     this.pathfinder = new Pathfinder(this.gameGrid.getGraph(), this.doors);
     this.los = new LineOfSight(this.gameGrid.getGraph(), this.doors);
     this.agentControlEnabled = agentControlEnabled; 
@@ -380,6 +381,22 @@ export class CoreEngine {
   private isMapFullyDiscovered(): boolean {
     return this.state.discoveredCells.length >= this.totalFloorCells;
   }
+
+  // Helper to update Graph Boundary when door state changes
+  private updateDoorBoundary(door: Door) {
+    const graph = this.gameGrid.getGraph();
+    // Door has segment [cell1, cell2]
+    if (door.segment.length === 2) {
+        const c1 = door.segment[0];
+        const c2 = door.segment[1];
+        const boundary = graph.getBoundary(c1.x, c1.y, c2.x, c2.y);
+        if (boundary) {
+             // Update isWall based on state: Open/Destroyed are NOT walls
+             const isPassable = door.state === 'Open' || door.state === 'Destroyed';
+             boundary.isWall = !isPassable;
+        }
+    }
+  }
   
   // Debugging function for AI
   private logAIState(message: string) {
@@ -396,19 +413,20 @@ export class CoreEngine {
     this.state.threatLevel = this.director.getThreatLevel();
 
     // --- Automatic Door Logic ---
-    this.doors.forEach(door => {
+    for (const door of this.doors.values()) {
       // If door is destroyed, or already in a desired state, do nothing.
-      if (door.state === 'Destroyed') return;
+      if (door.state === 'Destroyed') continue;
 
       // Handle door timers
       if (door.openTimer !== undefined && door.openTimer > 0) {
         door.openTimer -= dt;
         if (door.openTimer <= 0) {
           door.state = door.targetState!; // Apply target state
+          this.updateDoorBoundary(door);
           door.openTimer = undefined;
           door.targetState = undefined;
         }
-        return; // If timer is active, wait for it to complete
+        continue; // If timer is active, wait for it to complete
       }
 
       const unitAdjacent = this.isUnitAdjacentToDoor(door);
@@ -425,7 +443,8 @@ export class CoreEngine {
           door.targetState = 'Closed';
           door.openTimer = door.openDuration * 1000;
         }
-      }    });
+      }
+    }
 
     // --- Visibility Logic ---
     const newVisibleCells = new Set<string>();
