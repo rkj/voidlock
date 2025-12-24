@@ -673,6 +673,17 @@ document.addEventListener('DOMContentLoaded', () => {
   
   document.getElementById('btn-launch-mission')?.addEventListener('click', () => launchMission());
 
+  // Top Bar Speed Slider
+  const gameSpeedSlider = document.getElementById('game-speed') as HTMLInputElement;
+  const gameSpeedValue = document.getElementById('speed-value');
+  if (gameSpeedSlider && gameSpeedValue) {
+      gameSpeedSlider.addEventListener('input', () => {
+          const speed = parseFloat(gameSpeedSlider.value);
+          gameSpeedValue.textContent = `${speed.toFixed(1)}x`;
+          gameClient.setTimeScale(speed);
+      });
+  }
+
   // Setup Controls
   const mapGeneratorTypeSelect = document.getElementById('map-generator-type') as HTMLSelectElement;
   
