@@ -38,7 +38,7 @@ describe('LOS Bug Repro - Seed 1766364915449', () => {
             doorsMap.set(d.id, d);
         });
 
-        const los = new LineOfSight(grid, doorsMap);
+        const los = new LineOfSight(grid.getGraph(), doorsMap);
         
         // Test LOS from 3,2 to 0,2
         const visible = los.computeVisibleCells({ x: 3, y: 2 }, 10);

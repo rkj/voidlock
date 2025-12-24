@@ -55,7 +55,7 @@ describe('Pathfinder', () => {
       cells,
     };
     gameGrid = new GameGrid(mockMap);
-    pathfinder = new Pathfinder(gameGrid, mockDoors); // Pass mockDoors
+    pathfinder = new Pathfinder(gameGrid.getGraph(), mockDoors); // Pass mockDoors
   });
 
   it('should find a path between two accessible points', () => {
@@ -102,14 +102,14 @@ describe('Pathfinder', () => {
       ];
       const deadMap: MapDefinition = { width: 2, height: 1, cells };
       const deadGrid = new GameGrid(deadMap);
-      const deadPF = new Pathfinder(deadGrid, new Map());
+      const deadPF = new Pathfinder(deadGrid.getGraph(), new Map());
       expect(deadPF.findPath({ x: 0, y: 0 }, { x: 1, y: 0 })).toBeNull();
     });
   
     describe('door pathfinding', () => {    it('should find a path through an open door', () => {
       const { map, doors } = createTestMapWithDoor('Open');
       const doorGrid = new GameGrid(map);
-      const doorPathfinder = new Pathfinder(doorGrid, doors);
+      const doorPathfinder = new Pathfinder(doorGrid.getGraph(), doors);
       const path = doorPathfinder.findPath({ x: 0, y: 0 }, { x: 2, y: 0 });
       expect(path).toEqual([{ x: 1, y: 0 }, { x: 2, y: 0 }]);
     });
@@ -117,7 +117,7 @@ describe('Pathfinder', () => {
     it('should find a path through a closed door (units will wait)', () => {
       const { map, doors } = createTestMapWithDoor('Closed');
       const doorGrid = new GameGrid(map);
-      const doorPathfinder = new Pathfinder(doorGrid, doors);
+      const doorPathfinder = new Pathfinder(doorGrid.getGraph(), doors);
       const path = doorPathfinder.findPath({ x: 0, y: 0 }, { x: 2, y: 0 });
       expect(path).toEqual([{ x: 1, y: 0 }, { x: 2, y: 0 }]);
     });
@@ -125,7 +125,7 @@ describe('Pathfinder', () => {
     it('should block pathfinding through a locked door', () => {
       const { map, doors } = createTestMapWithDoor('Locked');
       const doorGrid = new GameGrid(map);
-      const doorPathfinder = new Pathfinder(doorGrid, doors);
+      const doorPathfinder = new Pathfinder(doorGrid.getGraph(), doors);
       const path = doorPathfinder.findPath({ x: 0, y: 0 }, { x: 2, y: 0 });
       expect(path).toBeNull();
     });
@@ -133,7 +133,7 @@ describe('Pathfinder', () => {
     it('should find a path through a destroyed door', () => {
       const { map, doors } = createTestMapWithDoor('Destroyed');
       const doorGrid = new GameGrid(map);
-      const doorPathfinder = new Pathfinder(doorGrid, doors);
+      const doorPathfinder = new Pathfinder(doorGrid.getGraph(), doors);
       const path = doorPathfinder.findPath({ x: 0, y: 0 }, { x: 2, y: 0 });
       expect(path).toEqual([{ x: 1, y: 0 }, { x: 2, y: 0 }]);
     });
@@ -169,7 +169,7 @@ describe('Pathfinder', () => {
     it('should find path to the empty square before an open door in a corridor', () => {
       const { map, doors } = createCorridorMapWithDoor('Open');
       const doorGrid = new GameGrid(map);
-      const doorPathfinder = new Pathfinder(doorGrid, doors);
+      const doorPathfinder = new Pathfinder(doorGrid.getGraph(), doors);
       const path = doorPathfinder.findPath({ x: 0, y: 0 }, { x: 1, y: 0 });
       expect(path).toEqual([{ x: 1, y: 0 }]);
     });
@@ -177,7 +177,7 @@ describe('Pathfinder', () => {
     it('should find path to the empty square after an open door in a corridor', () => {
       const { map, doors } = createCorridorMapWithDoor('Open');
       const doorGrid = new GameGrid(map);
-      const doorPathfinder = new Pathfinder(doorGrid, doors);
+      const doorPathfinder = new Pathfinder(doorGrid.getGraph(), doors);
       const path = doorPathfinder.findPath({ x: 0, y: 0 }, { x: 3, y: 0 });
       expect(path).toEqual([{ x: 1, y: 0 }, { x: 2, y: 0 }, { x: 3, y: 0 }]);
     });

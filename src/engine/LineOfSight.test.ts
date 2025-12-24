@@ -58,7 +58,7 @@ describe('LineOfSight', () => {
       cells,
     };
     gameGrid = new GameGrid(mockMap);
-    los = new LineOfSight(gameGrid, mockDoors);
+    los = new LineOfSight(gameGrid.getGraph(), mockDoors);
   });
 
   it('should see adjacent cells', () => {
@@ -93,7 +93,7 @@ describe('LineOfSight', () => {
     it('should have LOS through an open door', () => {
       const { map, doors } = createTestMapWithDoor('Open');
       const doorGrid = new GameGrid(map);
-      const doorLos = new LineOfSight(doorGrid, doors);
+      const doorLos = new LineOfSight(doorGrid.getGraph(), doors);
       expect(doorLos.hasLineOfSight({ x: 0.5, y: 0.5 }, { x: 1.5, y: 0.5 })).toBe(true);
       expect(doorLos.hasLineOfSight({ x: 0.5, y: 0.5 }, { x: 2.5, y: 0.5 })).toBe(true);
     });
@@ -101,7 +101,7 @@ describe('LineOfSight', () => {
     it('should block LOS through a closed door', () => {
       const { map, doors } = createTestMapWithDoor('Closed');
       const doorGrid = new GameGrid(map);
-      const doorLos = new LineOfSight(doorGrid, doors);
+      const doorLos = new LineOfSight(doorGrid.getGraph(), doors);
       // LOS from (0,0) to (1,0) should be blocked by a closed door between them
       expect(doorLos.hasLineOfSight({ x: 0.5, y: 0.5 }, { x: 1.5, y: 0.5 })).toBe(false); 
       expect(doorLos.hasLineOfSight({ x: 0.5, y: 0.5 }, { x: 2.5, y: 0.5 })).toBe(false); 
@@ -110,7 +110,7 @@ describe('LineOfSight', () => {
     it('should block LOS through a locked door', () => {
       const { map, doors } = createTestMapWithDoor('Locked');
       const doorGrid = new GameGrid(map);
-      const doorLos = new LineOfSight(doorGrid, doors);
+      const doorLos = new LineOfSight(doorGrid.getGraph(), doors);
       // LOS from (0,0) to (1,0) should be blocked by a locked door between them
       expect(doorLos.hasLineOfSight({ x: 0.5, y: 0.5 }, { x: 1.5, y: 0.5 })).toBe(false); 
       expect(doorLos.hasLineOfSight({ x: 0.5, y: 0.5 }, { x: 2.5, y: 0.5 })).toBe(false); 
@@ -119,7 +119,7 @@ describe('LineOfSight', () => {
     it('should have LOS through a destroyed door', () => {
       const { map, doors } = createTestMapWithDoor('Destroyed');
       const doorGrid = new GameGrid(map);
-      const doorLos = new LineOfSight(doorGrid, doors);
+      const doorLos = new LineOfSight(doorGrid.getGraph(), doors);
       expect(doorLos.hasLineOfSight({ x: 0.5, y: 0.5 }, { x: 1.5, y: 0.5 })).toBe(true);
       expect(doorLos.hasLineOfSight({ x: 0.5, y: 0.5 }, { x: 2.5, y: 0.5 })).toBe(true);
     });
@@ -135,7 +135,7 @@ describe('LineOfSight', () => {
         ]
       };
       const grid = new GameGrid(map);
-      const los = new LineOfSight(grid, mockDoors);
+      const los = new LineOfSight(grid.getGraph(), mockDoors);
       
       // Center to Center
       expect(los.hasLineOfSight({ x: 0.5, y: 0.5 }, { x: 1.5, y: 0.5 })).toBe(false);
@@ -158,7 +158,7 @@ describe('LineOfSight', () => {
         ];
         const enclosedMap: MapDefinition = { width: 3, height: 3, cells };
         const enclosedGrid = new GameGrid(enclosedMap);
-        const enclosedLOS = new LineOfSight(enclosedGrid, new Map());
+        const enclosedLOS = new LineOfSight(enclosedGrid.getGraph(), new Map());
 
         expect(enclosedLOS.hasLineOfSight({ x: 0.5, y: 0.5 }, { x: 1.5, y: 1.5 })).toBe(false);
         expect(enclosedLOS.hasLineOfSight({ x: 2.5, y: 0.5 }, { x: 1.5, y: 1.5 })).toBe(false);
@@ -174,7 +174,7 @@ describe('LineOfSight', () => {
             }))
         };
         const wideGrid = new GameGrid(wideMap);
-        const wideLOS = new LineOfSight(wideGrid, new Map());
+        const wideLOS = new LineOfSight(wideGrid.getGraph(), new Map());
         expect(wideLOS.hasLineOfSight({ x: 0.5, y: 0.5 }, { x: 9.5, y: 0.5 })).toBe(true);
     });
   });

@@ -1,7 +1,8 @@
-import { Grid, Vector2, Door } from '../shared/types';
+import { Vector2, Door, CellType } from '../shared/types';
+import { Graph } from './Graph';
 
 export class LineOfSight {
-  constructor(private grid: Grid, private doors: Map<string, Door>) {}
+  constructor(private graph: Graph, private doors: Map<string, Door>) {}
 
   public computeVisibleCells(origin: Vector2, range: number): string[] {
     const visible: Set<string> = new Set();
@@ -11,9 +12,9 @@ export class LineOfSight {
     // Iterate through a bounding box around the origin, centered on cells
     const searchRange = Math.ceil(range);
     const minX = Math.max(0, originCellX - searchRange);
-    const maxX = Math.min(this.grid.width - 1, originCellX + searchRange);
+    const maxX = Math.min(this.graph.width - 1, originCellX + searchRange);
     const minY = Math.max(0, originCellY - searchRange);
-    const maxY = Math.min(this.grid.height - 1, originCellY + searchRange);
+    const maxY = Math.min(this.graph.height - 1, originCellY + searchRange);
 
     for (let y = minY; y <= maxY; y++) {
       for (let x = minX; x <= maxX; x++) {
@@ -101,9 +102,22 @@ export class LineOfSight {
             nextY += stepY;
         }
 
-        // Check wall passage, passing the doors map
-        if (!this.grid.canMove(x, y, nextX, nextY, this.doors)) {
+        // Direct Boundary Check
+        const boundary = this.graph.getBoundary(x, y, nextX, nextY);
+        if (!boundary) return false;
+
+        if (boundary.doorId) {
+            const door = this.doors.get(boundary.doorId);
+            if (door && door.state !== 'Open' && door.state !== 'Destroyed') {
+                return false;
+            }
+        } else if (boundary.isWall) {
             return false;
+        }
+        
+        if (this.graph.cells[nextY][nextX].type === CellType.Wall) {
+          // Blocked by void/wall cell, but allow seeing the cell itself if it's the target
+          return nextX === x1 && nextY === y1;
         }
         
         x = nextX;
