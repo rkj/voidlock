@@ -817,7 +817,7 @@ npm run dev
 # Agent & Developer Guidelines
 
 ## G1) Agent Workflow Instructions
-* **One Task at a Time:** Unless explicitly specified otherwise, the agent MUST perform exactly ONE Beads task per turn cycle (implement, verify, commit) and then ask the user for instruction on what to do next.
+* **🚨🚨🚨 ONE TASK AT A TIME 🚨🚨🚨**: Unless explicitly specified otherwise, the agent MUST perform exactly ONE Beads task per turn cycle (implement, verify, commit) and then ask the user for instruction on what to do next. **DO NOT START A NEW TASK WITHOUT USER DIRECT INPUT.**
 * **Clarification First:** When a new change request is received, you must first update `spec.md` with the new clarification/requirement.
 * **Task Creation:** After updating the spec, create a Beads task for the requested change.
 * **Implementation:** Only after the above steps are completed should you proceed with code implementation.
