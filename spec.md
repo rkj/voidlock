@@ -98,8 +98,10 @@ interface Cell {
   * **Doors:** Render as 50% width/height of the cell, connecting visually to adjacent walls to prevent gaps.
 
 **Simulation & Balance:**
-  * **Game Speed:** Default tick rate slowed by 3x. Debug config to adjust tick rate in real-time.
-  * **Balance Goal:** A 4-soldier team with default AI should win ~50% of the time on an 8x8 map. >50% of wins should incur at least one casualty.
+
+  *   **Game Speed:** Configurable from 0.05x (Active Pause) to 3.0x. Default 1.0x.
+
+  *   **Balance Goal:** A 4-soldier team with default AI should win ~50% of the time on an 8x8 map. >50% of wins should incur at least one casualty.
 
 -----
 
@@ -388,7 +390,13 @@ The application is divided into distinct screens to reduce UI clutter and improv
         *   Static Map Import (Text/File/ASCII).
     *   **Game Options**:
         *   Fog of War, Debug Overlay, Agent Control, LOS Visualization toggles.
-        *   Game Speed Slider: Default 0.3x. Must be applied correctly at start. UI should be full-width and 2x height for better accessibility. **New Requirement: The Game Speed slider must also be accessible and functional during an active mission, located at the top of the UI after the seed display.**
+        *   **Game Speed Control**:
+            *   **Slider Range**: 0.05x (Active Pause) to 3.0x (Fast Forward). Default 1.0x.
+            *   **Active Pause**: Speed 0.05x acts as "Active Pause", allowing commands to be issued while time moves very slowly.
+            *   **In-Game Access**: This control must be accessible during a mission.
+            *   **Controls**:
+                *   **Spacebar**: Toggles between "Active Pause" (0.05x) and the last used speed.
+                *   **UI Button**: A dedicated button (Play/Pause icon) in the UI should also toggle this state.
 *   **Command Set Updates:**
     *   `ENGAGE/IGNORE Toggle`: Units can be toggled between 'ENGAGE' (Stop & Shoot) and 'IGNORE' (Run) policies. This toggle should be easily accessible in the command menu.
     *   **Squad Configuration**:
