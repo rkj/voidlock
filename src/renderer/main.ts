@@ -126,8 +126,14 @@ const updateSeedOverlay = (seed: number) => {
 const updateUI = (state: GameState) => {
   const statusElement = document.getElementById('game-status');
   if (statusElement) {
-    statusElement.textContent = `Time: ${(state.t / 1000).toFixed(1)}s | Status: ${state.status} | v${VERSION}`;
+    statusElement.textContent = `Time: ${(state.t / 1000).toFixed(1)}s | Status: ${state.status}`;
   }
+
+  const vEl = document.getElementById('version-display');
+  if (vEl && vEl.textContent !== `v${VERSION}`) vEl.textContent = `v${VERSION}`;
+
+  const mvEl = document.getElementById('menu-version');
+  if (mvEl && mvEl.textContent !== `v${VERSION}`) mvEl.textContent = `v${VERSION}`;
 
   const rightPanel = document.getElementById('right-panel'); 
   if (rightPanel) {
@@ -214,31 +220,30 @@ const updateUI = (state: GameState) => {
       const showActions = selectedUnit && selectedUnit.state !== UnitState.Dead && selectedUnit.state !== UnitState.Extracted;
 
       if (showActions) {
+          const unit = selectedUnit!;
           if (!unitActionsDiv) {
               unitActionsDiv = document.createElement('div');
               unitActionsDiv.className = 'unit-actions';
               unitActionsDiv.style.borderBottom = '1px solid #444';
               unitActionsDiv.style.paddingBottom = '10px';
               unitActionsDiv.style.marginBottom = '10px';
-              // Insert before objectives if it exists
               const objectivesDiv = rightPanel.querySelector('.objectives-status');
               if (objectivesDiv) rightPanel.insertBefore(unitActionsDiv, objectivesDiv);
               else rightPanel.appendChild(unitActionsDiv);
           }
           
-          const unit = selectedUnit!;
-          const currentActionsHtml = `
-            <h3>Unit: ${unit.id}</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
-                <button id="btn-stop">Stop</button>
-                <button id="btn-resume">Resume AI</button>
-                <button id="btn-engage">Engage</button>
-                <button id="btn-ignore">Ignore</button>
-            </div>
-          `;
-          
-          if (unitActionsDiv.innerHTML !== currentActionsHtml) {
-              unitActionsDiv.innerHTML = currentActionsHtml;
+          if (unitActionsDiv.dataset.unitId !== unit.id) {
+              unitActionsDiv.dataset.unitId = unit.id;
+              unitActionsDiv.innerHTML = `
+                <h3>Unit: ${unit.id}</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
+                    <button id="btn-stop">Stop</button>
+                    <button id="btn-resume" ${unit.aiEnabled ? 'style="opacity:0.5; cursor:not-allowed;" disabled' : ''}>Resume AI</button>
+                    <button id="btn-engage" class="${unit.engagementPolicy !== 'IGNORE' ? 'active' : ''}">Engage</button>
+                    <button id="btn-ignore" class="${unit.engagementPolicy === 'IGNORE' ? 'active' : ''}">Ignore</button>
+                </div>
+              `;
+              
               unitActionsDiv.querySelector('#btn-stop')?.addEventListener('click', () => {
                   gameClient.sendCommand({ type: CommandType.STOP, unitIds: [unit.id] });
               });
@@ -254,6 +259,25 @@ const updateUI = (state: GameState) => {
           }
       } else if (unitActionsDiv) {
           unitActionsDiv.remove();
+      }
+
+      if (!selectedUnitId) {
+          let hintDiv = rightPanel.querySelector('.unit-selection-hint') as HTMLElement;
+          if (!hintDiv) {
+              hintDiv = document.createElement('div');
+              hintDiv.className = 'unit-selection-hint';
+              hintDiv.style.color = '#888';
+              hintDiv.style.fontStyle = 'italic';
+              hintDiv.style.marginBottom = '10px';
+              hintDiv.style.padding = '10px';
+              hintDiv.style.border = '1px dashed #444';
+              hintDiv.textContent = 'Select a soldier card to issue unit orders (Stop, Engage, etc.)';
+              const objectivesDiv = rightPanel.querySelector('.objectives-status');
+              if (objectivesDiv) rightPanel.insertBefore(hintDiv, objectivesDiv);
+              else rightPanel.appendChild(hintDiv);
+          }
+      } else {
+          rightPanel.querySelector('.unit-selection-hint')?.remove();
       }
 
       // --- 3. Objectives ---
