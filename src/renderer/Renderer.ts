@@ -1,5 +1,7 @@
 import { GameState, MapDefinition, CellType, UnitState, Vector2, Door, Objective, OverlayOption } from '../shared/types';
 import { Icons } from './Icons';
+import { LineOfSight } from '../engine/LineOfSight';
+import { GameGrid } from '../engine/GameGrid';
 
 export class Renderer {
   private ctx: CanvasRenderingContext2D;
@@ -39,7 +41,40 @@ export class Renderer {
         this.renderDebugOverlay(state);
     }
     this.renderFog(state);
+    if (state.losOverlayEnabled) {
+        this.renderLOSOverlay(state);
+    }
     this.renderOverlay();
+  }
+
+  private renderLOSOverlay(state: GameState) {
+      const grid = new GameGrid(state.map);
+      const doorsMap = new Map(state.map.doors?.map(d => [d.id, d]));
+      const los = new LineOfSight(grid, doorsMap);
+      
+      // Render Soldier LOS (Green)
+      this.ctx.fillStyle = 'rgba(0, 255, 0, 0.15)';
+      state.units.forEach(u => {
+          if (u.hp > 0 && u.state !== UnitState.Extracted && u.state !== UnitState.Dead) {
+              const visible = los.computeVisibleCells(u.pos, u.sightRange || 10);
+              visible.forEach((cellKey: string) => {
+                  const [x, y] = cellKey.split(',').map(Number);
+                  this.ctx.fillRect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize);
+              });
+          }
+      });
+
+      // Render Enemy LOS (Red)
+      this.ctx.fillStyle = 'rgba(255, 0, 0, 0.15)';
+      state.enemies.forEach(e => {
+          if (e.hp > 0) {
+              const visible = los.computeVisibleCells(e.pos, 10); // Standard sight for enemies
+              visible.forEach((cellKey: string) => {
+                  const [x, y] = cellKey.split(',').map(Number);
+                  this.ctx.fillRect(x * this.cellSize, y * this.cellSize, this.cellSize, this.cellSize);
+              });
+          }
+      });
   }
 
   private renderOverlay() {

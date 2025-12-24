@@ -42,7 +42,8 @@ export class GameClient {
     missionType: MissionType = MissionType.Default,
     width: number = 16,
     height: number = 16,
-    spawnPointCount: number = 3
+    spawnPointCount: number = 3,
+    losOverlayEnabled: boolean = false
   ) {
     this.initialSeed = seed;
     this.initialSquadConfig = squadConfig;
@@ -56,7 +57,7 @@ export class GameClient {
 
     const msg: WorkerMessage = {
       type: 'INIT',
-      payload: { seed, map, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled, squadConfig: squadConfig, missionType }
+      payload: { seed, map, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled, squadConfig: squadConfig, missionType, losOverlayEnabled }
     };
     this.worker.postMessage(msg);
   }

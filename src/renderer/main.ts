@@ -91,6 +91,7 @@ let currentMapHeight = defaultConfig.mapHeight;
 let currentSpawnPointCount = defaultConfig.spawnPointCount;
 let fogOfWarEnabled = defaultConfig.fogOfWarEnabled;
 let debugOverlayEnabled = defaultConfig.debugOverlayEnabled;
+let losOverlayEnabled = false;
 let agentControlEnabled = defaultConfig.agentControlEnabled;
 let currentSeed: number = defaultConfig.lastSeed;
 let currentMapGeneratorType: MapGeneratorType = defaultConfig.mapGeneratorType;
@@ -513,7 +514,8 @@ const launchMission = () => {
         currentMissionType,
         currentMapWidth,
         currentMapHeight,
-        currentSpawnPointCount
+        currentSpawnPointCount,
+        losOverlayEnabled
     );
     updateSeedOverlay(currentSeed);
 
@@ -663,6 +665,10 @@ document.addEventListener('DOMContentLoaded', () => {
             <label for="toggle-debug-overlay" style="display:inline;">Debug Overlay</label>
         </div>
         <div>
+            <input type="checkbox" id="toggle-los-overlay">
+            <label for="toggle-los-overlay" style="display:inline;">LOS Visualization</label>
+        </div>
+        <div>
             <input type="checkbox" id="toggle-agent-control" checked>
             <label for="toggle-agent-control" style="display:inline;">Agent Control</label>
         </div>
@@ -684,6 +690,9 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       document.getElementById('toggle-debug-overlay')?.addEventListener('change', (e) => {
           debugOverlayEnabled = (e.target as HTMLInputElement).checked;
+      });
+      document.getElementById('toggle-los-overlay')?.addEventListener('change', (e) => {
+          losOverlayEnabled = (e.target as HTMLInputElement).checked;
       });
       document.getElementById('toggle-agent-control')?.addEventListener('change', (e) => {
           agentControlEnabled = (e.target as HTMLInputElement).checked;

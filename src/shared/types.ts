@@ -137,6 +137,7 @@ export type GameState = {
   casualties: number; // New
   status: 'Playing' | 'Won' | 'Lost';
   debugOverlayEnabled?: boolean; // New
+  losOverlayEnabled?: boolean; // New
 };
 
 // --- Replay ---
@@ -208,7 +209,7 @@ export enum MissionType {
 }
 
 export type WorkerMessage = 
-  | { type: 'INIT'; payload: { seed: number; map: MapDefinition; fogOfWarEnabled: boolean; debugOverlayEnabled: boolean; agentControlEnabled: boolean; squadConfig: SquadConfig; missionType?: MissionType; } } // Updated
+  | { type: 'INIT'; payload: { seed: number; map: MapDefinition; fogOfWarEnabled: boolean; debugOverlayEnabled: boolean; agentControlEnabled: boolean; squadConfig: SquadConfig; missionType?: MissionType; losOverlayEnabled?: boolean; } } // Updated
   | { type: 'COMMAND'; payload: Command }
   | { type: 'QUERY_STATE' }
   | { type: 'SET_TICK_RATE'; payload: number }
