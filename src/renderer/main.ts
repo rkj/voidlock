@@ -6,6 +6,9 @@ import { SpaceshipGenerator } from '../engine/generators/SpaceshipGenerator';
 import { TreeShipGenerator } from '../engine/generators/TreeShipGenerator';
 import { ScreenManager } from './ScreenManager';
 import { ConfigManager, GameConfig } from './ConfigManager';
+import pkg from '../../package.json';
+
+const VERSION = pkg.version;
 
 // --- Screen Management ---
 const screenManager = new ScreenManager();
@@ -122,7 +125,7 @@ const updateSeedOverlay = (seed: number) => {
 const updateUI = (state: GameState) => {
   const statusElement = document.getElementById('game-status');
   if (statusElement) {
-    statusElement.textContent = `Time: ${(state.t / 1000).toFixed(1)}s | Status: ${state.status}`;
+    statusElement.textContent = `Time: ${(state.t / 1000).toFixed(1)}s | Status: ${state.status} | v${VERSION}`;
   }
 
   const rightPanel = document.getElementById('right-panel'); 
@@ -213,7 +216,6 @@ const updateUI = (state: GameState) => {
 
   const listContainer = document.getElementById('soldier-list');
   if (listContainer) {
-    // Diffing Logic for Soldier List
     const existingIds = new Set<string>();
     
     state.units.forEach(unit => {
@@ -221,16 +223,13 @@ const updateUI = (state: GameState) => {
       let el = listContainer.querySelector(`.soldier-item[data-unit-id="${unit.id}"]`) as HTMLDivElement;
       
       if (!el) {
-        // Create new
         el = document.createElement('div');
         el.className = 'soldier-item';
         el.dataset.unitId = unit.id;
-        // Bind events once
         el.addEventListener('click', () => onUnitClick(unit)); 
         listContainer.appendChild(el);
       }
 
-      // Update Class
       const isSelected = unit.id === selectedUnitId || unit.id === pendingCommandUnitId;
       if (isSelected && !el.classList.contains('selected')) el.classList.add('selected');
       if (!isSelected && el.classList.contains('selected')) el.classList.remove('selected');
@@ -238,21 +237,12 @@ const updateUI = (state: GameState) => {
       if (unit.state === UnitState.Dead && !el.classList.contains('dead')) el.classList.add('dead');
       if (unit.state === UnitState.Extracted && !el.classList.contains('extracted')) el.classList.add('extracted');
 
-      // Update Content (Inner HTML) - Only if changed to avoid breaking hover state on buttons?
-      // Actually, updating innerHTML destroys buttons and listeners inside.
-      // We need to construct the inner HTML carefully or update specific parts.
-      // For simplicity, let's check if we can update parts.
-      
       let statusText: string = unit.state; 
       if (unit.commandQueue && unit.commandQueue.length > 0) {
         statusText += ` (+${unit.commandQueue.length})`;
       }
 
       const hpPercent = (unit.hp / unit.maxHp) * 100;
-      
-      // We can use a template literal and update IF content is different, 
-      // BUT updating innerHTML will kill listeners on the buttons.
-      // So we should build the structure once and update fields.
       
       if (!el.hasChildNodes()) {
           el.innerHTML = `
@@ -261,14 +251,13 @@ const updateUI = (state: GameState) => {
               <span class="u-status"></span>
             </div>
             <div class="hp-bar"><div class="hp-fill"></div></div>
-            <div class="unit-commands" style="display:flex; gap:5px; margin-top:5px;">
+            <div class="unit-commands">
                 <button class="btn-stop-unit">Stop</button>
                 <button class="btn-engage-unit">Engage</button>
                 <button class="btn-ignore-unit">Ignore</button>
             </div>
           `;
           
-          // Bind button events
           el.querySelector('.btn-stop-unit')?.addEventListener('click', (event) => {
               event.stopPropagation(); 
               gameClient.sendCommand({ type: CommandType.STOP, unitIds: [unit.id] });
@@ -283,12 +272,11 @@ const updateUI = (state: GameState) => {
           });
       }
 
-      // Update fields
       const idEl = el.querySelector('.u-id');
       if (idEl) idEl.textContent = unit.id;
       
       const statusEl = el.querySelector('.u-status');
-      if (statusEl) statusEl.textContent = `HP: ${unit.hp}/${unit.maxHp} | Pos: (${Math.floor(unit.pos.x)},${Math.floor(unit.pos.y)}) | ${unit.engagementPolicy || 'ENGAGE'} | ${statusText}`;
+      if (statusEl) statusEl.textContent = `${unit.hp}/${unit.maxHp} HP | ${unit.engagementPolicy || 'ENGAGE'} | ${statusText}`;
       
       const hpFill = el.querySelector('.hp-fill') as HTMLElement;
       if (hpFill) hpFill.style.width = `${hpPercent}%`;

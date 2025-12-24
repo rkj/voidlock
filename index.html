@@ -56,31 +56,35 @@
       label { display: block; margin-top: 10px; color: #aaa; }
       
       /* Lists */
-      #soldier-list { /* Container handled inline style */ }
+      #soldier-list { width: 100%; display: flex; gap: 10px; height: 100%; justify-content: space-around; }
       .soldier-item { 
-          min-width: 180px; 
-          width: 180px;
+          min-width: 300px; 
+          flex: 1;
           height: 100%; 
           border: 1px solid #333; 
           cursor: pointer; 
           background: #111; 
           display: flex; 
           flex-direction: column;
-          padding: 5px;
+          padding: 8px;
           box-sizing: border-box;
-          flex-shrink: 0;
+          overflow: hidden;
+          transition: border-color 0.2s;
       }
-      .soldier-item:hover { background-color: #333; }
-      .soldier-item.selected { border-color: #0f0; background-color: #222; }
+      .soldier-item:hover { background-color: #1a1a1a; }
+      .soldier-item.selected { border-color: #0f0; background-color: #1a1a1a; }
       .soldier-item.dead { color: #f00; border-color: #f00; opacity: 0.7; }
       .soldier-item.extracted { color: #0aa; border-color: #0aa; opacity: 0.7; }
       
-      .status-line { font-size: 0.8em; color: #aaa; margin-top: auto; }
-      .hp-bar { height: 6px; background: #333; margin: 5px 0; border: 1px solid #555; }
-      .hp-fill { height: 100%; background: #0f0; transition: width 0.2s; }
+      .info-row { height: 24px; overflow: hidden; white-space: nowrap; }
+      .u-id { color: #0f0; font-size: 1.1em; }
+      .u-status { font-size: 0.85em; color: #aaa; margin-left: 10px; flex-grow: 1; text-align: right; overflow: hidden; text-overflow: ellipsis; }
+
+      .hp-bar { height: 8px; background: #222; margin: 8px 0; border: 1px solid #444; width: 100%; }
+      .hp-fill { height: 100%; background: #0f0; transition: width 0.3s ease-in-out; }
       
-      .unit-commands { margin-top: 5px; }
-      .unit-commands button { padding: 4px 8px; font-size: 0.8em; width: auto; margin: 0; }
+      .unit-commands { margin-top: auto; display: flex; gap: 5px; }
+      .unit-commands button { padding: 5px 10px; font-size: 0.85em; flex: 1; margin: 0; }
       
       /* Setup Screen Layout */
       #setup-content { display: flex; flex-direction: column; align-items: flex-start; width: 100%; max-width: 600px; padding: 20px; background: #1a1a1a; border: 1px solid #444; }
@@ -196,11 +200,8 @@
         </div>
 
         <!-- 2. Soldier Bar (RPG Style) -->
-        <div id="soldier-panel" style="height: 120px; background: #111; border-bottom: 1px solid #444; padding: 5px 10px; overflow-x: auto; flex-shrink: 0; scrollbar-width: none; -ms-overflow-style: none;">
-            <style>
-                #soldier-panel::-webkit-scrollbar { display: none; }
-            </style>
-            <div id="soldier-list" style="display: flex; gap: 10px; height: 100%;">
+        <div id="soldier-panel" style="height: 120px; background: #111; border-bottom: 1px solid #444; padding: 5px 10px; overflow: hidden; flex-shrink: 0;">
+            <div id="soldier-list">
                 <!-- Soldier cards injected here -->
             </div>
         </div>
