@@ -425,7 +425,7 @@ The game must be fully playable via keyboard using a hierarchical command menu.
 The UI must be optimized for visibility and information density, avoiding empty space and utilizing the full width of the screen.
 
 *   **Top Bar (Header):** Fixed height (e.g., 40px). Displays Game Time, Status (Playing/Won/Lost), Seed, and global alerts.
-*   **Soldier Bar (Sub-header):** Full-width strip below the top bar. Displays all soldiers in a horizontal layout. Each "Soldier Card" shows the avatar, HP bar, status text, and quick action buttons.
+*   **Soldier Bar (Sub-header):** Full-width strip below the top bar. Displays all soldiers in a horizontal layout. Each "Soldier Card" shows the avatar, HP bar, status text, and quick action buttons. Scrollbars must be hidden for a cleaner aesthetic, while still allowing horizontal scrolling if the squad size exceeds the viewport.
 *   **Main Simulation Area:** Flex container below the Soldier Bar.
     *   **Game Canvas (Left/Center):** Takes up the majority of the screen. Must be centered within its container.
     *   **Command Panel (Right):** Fixed width (e.g., 300px). Contains the hierarchical keyboard command menu, objective list, and threat meter.
