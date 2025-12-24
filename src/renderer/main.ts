@@ -106,7 +106,7 @@ const gameClient = new GameClient(statefulMapGeneratorFactory as any);
 let renderer: Renderer;
 let currentGameState: GameState | null = null;
 let isPaused = false;
-let lastSpeed = 0.3;
+let lastSpeed = 1.0;
 
 
 // --- UI Logic ---
@@ -815,8 +815,8 @@ document.addEventListener('DOMContentLoaded', () => {
             <label for="toggle-agent-control" style="display:inline;">Agent Control</label>
         </div>
         <div style="margin-top: 20px;">
-            <label for="time-scale-slider" style="display: block; margin-bottom: 10px;">Game Speed (x): <span id="time-scale-value">0.3</span></label>
-            <input type="range" id="time-scale-slider" min="0.1" max="3.0" step="0.1" value="0.3" style="width: 100%; height: 20px; cursor: pointer;">
+            <label for="time-scale-slider" style="display: block; margin-bottom: 10px;">Game Speed (x): <span id="time-scale-value">1.0</span></label>
+            <input type="range" id="time-scale-slider" min="0.1" max="3.0" step="0.1" value="1.0" style="width: 100%; height: 20px; cursor: pointer;">
         </div>
       `;
       // Insert after Map Generation group (which contains presetControls)
