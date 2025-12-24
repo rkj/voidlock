@@ -207,6 +207,14 @@
                 <span id="top-threat-value" style="font-size: 0.8em; color: #4caf50; min-width: 40px;">0%</span>
             </div>
             <div id="seed-display" style="color: #888; font-family: monospace; font-size: 0.85em;"></div>
+            
+            <!-- Speed Control -->
+            <div id="speed-control" style="display: flex; align-items: center; gap: 5px; margin-left: 20px;">
+                <label for="game-speed" style="font-size: 0.8em; color: #aaa; margin: 0;">Speed:</label>
+                <input type="range" id="game-speed" min="0.1" max="2.0" step="0.1" value="0.3" style="width: 80px;" title="Game Speed (0.3x default)" />
+                <span id="speed-value" style="font-size: 0.8em; color: #aaa; min-width: 30px;">0.3x</span>
+            </div>
+
             <div id="version-display" style="font-size: 0.8em; color: #888; margin-left: 20px;"></div>
         </div>
 
