@@ -13,14 +13,14 @@ export class MapGenerator {
     this.seed = seed;
   }
 
-  public generate(width: number, height: number, type: MapGeneratorType = MapGeneratorType.Procedural): MapDefinition {
+  public generate(width: number, height: number, type: MapGeneratorType = MapGeneratorType.Procedural, spawnPointCount: number = 3): MapDefinition {
     switch (type) {
         case MapGeneratorType.TreeShip:
             return new TreeShipGenerator(this.seed, width, height).generate();
         case MapGeneratorType.Procedural:
             return new SpaceshipGenerator(this.seed, width, height).generate();
         case MapGeneratorType.DenseShip:
-            return new DenseShipGenerator(this.seed, width, height).generate();
+            return new DenseShipGenerator(this.seed, width, height).generate(spawnPointCount);
         default:
             return new SpaceshipGenerator(this.seed, width, height).generate();
     }

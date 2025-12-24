@@ -3,7 +3,7 @@ import { PRNG } from '../shared/PRNG';
 
 export class Director {
   private timeSinceLastSpawn: number = 0;
-  private spawnInterval: number = 5000; // Initial interval
+  private spawnInterval: number = 2000; // Initial interval - faster pacing
   private minSpawnInterval: number = 1000;
   private rampAmount: number = 100; // ms to reduce interval by per spawn
   

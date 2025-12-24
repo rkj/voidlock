@@ -126,7 +126,7 @@ const setInputMode = (mode: InputMode) => {
 };
 
 const updateSeedOverlay = (seed: number) => {
-    const el = document.getElementById('seed-overlay');
+    const el = document.getElementById('seed-display');
     if (el) el.textContent = `Seed: ${seed}`;
 };
 

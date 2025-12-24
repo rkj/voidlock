@@ -139,6 +139,11 @@
                 </div>
               </div>
 
+              <div style="margin-top: 10px;">
+                <label for="map-spawn-points">Enemy Spawn Points (Rooms only):</label>
+                <input type="number" id="map-spawn-points" value="3" min="1" max="10" />
+              </div>
+
               <div id="preset-map-controls" style="margin-top: 10px;">
                 <label for="preset-map-select">Preset Maps:</label>
                 <select id="preset-map-select">
@@ -184,29 +189,29 @@
 
       <!-- 4. Mission Screen (Game Loop) -->
       <div id="screen-mission" class="screen">
-        <!-- Top Bar -->
-        <div id="top-bar" style="height: 40px; background: #222; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid #444;">
+        <!-- 1. Top Bar -->
+        <div id="top-bar" style="height: 40px; background: #222; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid #444; flex-shrink: 0;">
             <div id="game-status" style="font-weight: bold; color: #0f0;">Status: Active</div>
+            <div id="seed-display" style="color: #888; font-family: monospace;"></div>
             <div id="global-alerts" style="color: #f00;"></div>
-            <div style="font-size: 0.8em; color: #888;">Prototype v0.1.0</div>
+            <div style="font-size: 0.8em; color: #888;">Xenopurge v0.1.0</div>
         </div>
 
-        <!-- Main Body -->
-        <div id="mission-body" style="display: flex; flex-grow: 1; overflow: hidden;">
-            <div id="game-container">
-              <canvas id="game-canvas"></canvas>
-              <div id="seed-overlay" style="position: absolute; top: 10px; left: 10px; color: #888; background: rgba(0,0,0,0.5); padding: 4px 8px; pointer-events: none; font-family: monospace; z-index: 100;"></div>
-            </div>
-            
-            <div id="right-panel" style="width: 300px; background: #1a1a1a; border-left: 1px solid #444; padding: 10px; display: flex; flex-direction: column; overflow-y: auto;">
-                <!-- Commands and Objectives will be injected here -->
-            </div>
-        </div>
-
-        <!-- Bottom Soldier Panel -->
-        <div id="soldier-panel" style="height: 150px; background: #222; border-top: 1px solid #444; padding: 10px; overflow-x: auto;">
+        <!-- 2. Soldier Bar (RPG Style) -->
+        <div id="soldier-panel" style="height: 120px; background: #111; border-bottom: 1px solid #444; padding: 5px 10px; overflow-x: auto; flex-shrink: 0;">
             <div id="soldier-list" style="display: flex; gap: 10px; height: 100%;">
                 <!-- Soldier cards injected here -->
+            </div>
+        </div>
+
+        <!-- 3. Main Area -->
+        <div id="mission-body" style="display: flex; flex-grow: 1; overflow: hidden; background: #000;">
+            <div id="game-container" style="flex-grow: 1; display: flex; justify-content: center; align-items: center; position: relative; overflow: auto;">
+              <canvas id="game-canvas"></canvas>
+            </div>
+            
+            <div id="right-panel" style="width: 300px; background: #1a1a1a; border-left: 1px solid #444; padding: 10px; display: flex; flex-direction: column; overflow-y: auto; flex-shrink: 0;">
+                <!-- Commands and Objectives will be injected here -->
             </div>
         </div>
       </div>
