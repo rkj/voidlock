@@ -1,10 +1,14 @@
-import { Grid, Vector2, Door } from '../shared/types';
+import { Vector2, Door, CellType } from '../shared/types';
+import { Graph } from './Graph';
 
 export class Pathfinder {
-  constructor(private grid: Grid, private doors: Map<string, Door>) {}
+  constructor(private graph: Graph, private doors: Map<string, Door>) {}
 
   findPath(start: Vector2, end: Vector2): Vector2[] | null {
-    if (!this.grid.isWalkable(end.x, end.y)) {
+    if (end.x < 0 || end.x >= this.graph.width || end.y < 0 || end.y >= this.graph.height) {
+      return null;
+    }
+    if (this.graph.cells[end.y][end.x].type !== CellType.Floor) {
       return null; 
     }
 
@@ -34,10 +38,30 @@ export class Pathfinder {
         const neighbor = { x: current.x + dir.dx, y: current.y + dir.dy };
         const neighborKey = `${neighbor.x},${neighbor.y}`;
 
-        if (
-          this.grid.canMove(current.x, current.y, neighbor.x, neighbor.y, this.doors, true) &&
-          !visited.has(neighborKey)
-        ) {
+        if (neighbor.x < 0 || neighbor.x >= this.graph.width || neighbor.y < 0 || neighbor.y >= this.graph.height) {
+          continue;
+        }
+
+        if (this.graph.cells[neighbor.y][neighbor.x].type !== CellType.Floor) {
+          continue;
+        }
+
+        if (visited.has(neighborKey)) {
+          continue;
+        }
+
+        const boundary = this.graph.getBoundary(current.x, current.y, neighbor.x, neighbor.y);
+        if (!boundary) continue;
+
+        let canTraverse = !boundary.isWall;
+        if (boundary.doorId) {
+          const door = this.doors.get(boundary.doorId);
+          // Pathfinding treats Closed, Open, and Destroyed doors as passable.
+          // Locked doors should still block pathfinding.
+          canTraverse = door ? door.state !== 'Locked' : !boundary.isWall;
+        }
+
+        if (canTraverse) {
           visited.add(neighborKey);
           parent.set(neighborKey, current);
           queue.push(neighbor);

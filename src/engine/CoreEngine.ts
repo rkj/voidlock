@@ -29,8 +29,8 @@ export class CoreEngine {
     this.prng = new PRNG(seed);
     this.gameGrid = new GameGrid(map);
     this.doors = new Map(map.doors?.map(door => [door.id, door]));
-    this.pathfinder = new Pathfinder(this.gameGrid, this.doors);
-    this.los = new LineOfSight(this.gameGrid, this.doors);
+    this.pathfinder = new Pathfinder(this.gameGrid.getGraph(), this.doors);
+    this.los = new LineOfSight(this.gameGrid.getGraph(), this.doors);
     this.agentControlEnabled = agentControlEnabled; 
     this.debugOverlayEnabled = debugOverlayEnabled;
     this.missionType = missionType;
