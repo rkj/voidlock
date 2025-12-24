@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { TreeShipGenerator } from '../../generators/TreeShipGenerator';
 import { MapGenerator } from '../../MapGenerator';
 import { CellType } from '../../../shared/types';
+import * as fs from 'fs';
+import * as path from 'path';
 
 describe('TreeShipGenerator Repro Seed 1766029929040', () => {
     it('should generate fully open 2x2 rooms', () => {
@@ -9,8 +11,19 @@ describe('TreeShipGenerator Repro Seed 1766029929040', () => {
         const generator = new TreeShipGenerator(seed, 16, 16);
         const map = generator.generate();
 
-        // Optional: Dump ASCII for visual inspection if it fails
-        // console.log(MapGenerator.toAscii(map));
+        const ascii = MapGenerator.toAscii(map);
+        const snapshotPath = path.join(__dirname, 'snapshots', 'TreeShipGenerator.repro_x0f.16x16.golden.txt');
+        
+        if (!fs.existsSync(path.dirname(snapshotPath))) {
+            fs.mkdirSync(path.dirname(snapshotPath), { recursive: true });
+        }
+
+        if (!fs.existsSync(snapshotPath)) {
+            fs.writeFileSync(snapshotPath, ascii);
+        } else {
+            const expectedAscii = fs.readFileSync(snapshotPath, 'utf8');
+            expect(ascii).toBe(expectedAscii);
+        }
 
         // Find all 2x2 blocks of floor
         // A 2x2 block is (x,y), (x+1,y), (x,y+1), (x+1,y+1) all Floor
@@ -61,19 +74,9 @@ describe('TreeShipGenerator Repro Seed 1766029929040', () => {
                                             wall_00_e || wall_10_w || wall_01_e || wall_11_w;
 
                     if (hasInternalWall) {
-                        console.log(`Found 2x2 block at ${x},${y} with internal walls!`);
-                        console.log(`Internal Walls:`);
-                        if (wall_00_s) console.log(`  (${x},${y}) South`);
-                        if (wall_01_n) console.log(`  (${x},${y+1}) North`);
-                        if (wall_10_s) console.log(`  (${x+1},${y}) South`);
-                        if (wall_11_n) console.log(`  (${x+1},${y+1}) North`);
-                        if (wall_00_e) console.log(`  (${x},${y}) East`);
-                        if (wall_10_w) console.log(`  (${x+1},${y}) West`);
-                        if (wall_01_e) console.log(`  (${x},${y+1}) East`);
-                        if (wall_11_w) console.log(`  (${x+1},${y+1}) West`);
-                        
-                        console.log(MapGenerator.toAscii(map));
-                        expect(hasInternalWall).toBe(false);
+                        const failedMapPath = path.join(__dirname, 'snapshots', 'TreeShipGenerator.repro_x0f.failed.txt');
+                        fs.writeFileSync(failedMapPath, MapGenerator.toAscii(map));
+                        expect(hasInternalWall, `Found 2x2 block at ${x},${y} with internal walls! See ${failedMapPath}`).toBe(false);
                     }
                 }
             }

@@ -123,7 +123,6 @@ describe('MapGenerator.assemble', () => {
     const generator = new MapGenerator(123);
     const result = generator.validate(map);
 
-    if (!result.isValid) console.log(result.issues);
-    expect(result.isValid).toBe(true);
+    expect(result.isValid, `Validation Issues: ${result.issues.join(', ')}`).toBe(true);
   });
 });
