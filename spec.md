@@ -157,9 +157,10 @@ Spawns occur on a fixed timer (default 45s).
 | `MOVE_TO` | `unitIds`, `target` | Pathfinds and moves. Can be queued. |
 | `ATTACK_TARGET` | `unitId`, `targetId` | Forces fire on specific enemy. |
 | `SET_ENGAGEMENT` | `unitIds`, `mode` | Toggle `ENGAGE` (Stop & Shoot) or `IGNORE` (Run). |
-| `STOP` | `unitIds` | Clears command queue and halts. |
+| `STOP` | `unitIds` | Clears command queue, halts, and disables autonomous AI. |
+| `RESUME_AI` | `unitIds` | Re-enables autonomous AI for the unit. |
 
------
+*Note: Any manual `MOVE_TO`, `ATTACK_TARGET`, or `SET_ENGAGEMENT` command also implicitly re-enables autonomous AI.*
 
 ## 5) Protocol: Engine ↔ Client
 
@@ -428,7 +429,7 @@ The UI must be optimized for visibility and information density, utilizing the f
 *   **Soldier Bar (Sub-header):** Full-width strip below the top bar. Displays all soldiers in a horizontal layout.
     *   **Layout:** Items must fit within the container **without scrolling** (no overflow). Use flexible sizing to fill available width.
     *   **Soldier Card:** Wider fixed or flexible width to prevent text wrapping. Visual stability is key—content updates (e.g., status text changes) must NOT cause layout jitter (box resizing).
-    *   **Controls:** "Stop" button must be functional and immediately halt the unit.
+    *   **Unified Commands:** Individual soldier cards must NOT contain command buttons. All unit commands (Stop, Move, Engage, etc.) are centralized in the Right Panel's Command Menu to ensure a single, consistent way of issuing orders.
 *   **Main Simulation Area:** Flex container below the Soldier Bar.
     *   **Game Canvas (Left/Center):** Takes up the majority of the screen. Must be centered within its container.
     *   **Command Panel (Right):** Fixed width (e.g., 300px). Contains the hierarchical keyboard command menu, objective list, and threat meter.

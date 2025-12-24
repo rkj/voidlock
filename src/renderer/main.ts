@@ -170,17 +170,18 @@ const updateUI = (state: GameState) => {
           return; // Skip normal panel update
       }
 
-      rightPanel.innerHTML = ''; 
-
-      // --- Command Menu ---
-      const menuDiv = document.createElement('div');
-      menuDiv.className = 'command-menu';
-      menuDiv.style.borderBottom = '1px solid #444';
-      menuDiv.style.paddingBottom = '10px';
-      menuDiv.style.marginBottom = '10px';
+      // --- 1. Command Menu ---
+      let menuDiv = rightPanel.querySelector('.command-menu') as HTMLElement;
+      if (!menuDiv) {
+          menuDiv = document.createElement('div');
+          menuDiv.className = 'command-menu';
+          menuDiv.style.borderBottom = '1px solid #444';
+          menuDiv.style.paddingBottom = '10px';
+          menuDiv.style.marginBottom = '10px';
+          rightPanel.appendChild(menuDiv);
+      }
       
       let menuHtml = `<h3>COMMANDS [${menuState}]</h3>`;
-      
       if (menuState === 'MAIN') {
           menuHtml += `
             <div class="menu-item">1. Move</div>
@@ -205,37 +206,95 @@ const updateUI = (state: GameState) => {
           });
           menuHtml += `<p style="color:#aaa;">(Press 1-9 or ESC)</p>`;
       }
-      menuDiv.innerHTML = menuHtml;
-      rightPanel.appendChild(menuDiv);
+      if (menuDiv.innerHTML !== menuHtml) menuDiv.innerHTML = menuHtml;
 
-      // Objectives
-      const objectivesDiv = document.createElement('div');
-      objectivesDiv.className = 'objectives-status';
-      objectivesDiv.innerHTML = '<h3>Objectives</h3>';
-      state.objectives.forEach(obj => {
-          const objEl = document.createElement('p');
-          objEl.textContent = `${obj.kind}: Status: ${obj.state}`;
-          if (obj.targetCell) objEl.textContent += ` at (${obj.targetCell.x},${obj.targetCell.y})`;
-          objectivesDiv.appendChild(objEl);
-      });
-      rightPanel.appendChild(objectivesDiv);
+      // --- 2. Unit Actions ---
+      let unitActionsDiv = rightPanel.querySelector('.unit-actions') as HTMLElement;
+      const selectedUnit = selectedUnitId ? state.units.find(u => u.id === selectedUnitId) : null;
+      const showActions = selectedUnit && selectedUnit.state !== UnitState.Dead && selectedUnit.state !== UnitState.Extracted;
 
-      // Extraction
-      if (state.map.extraction) {
-          const extDiv = document.createElement('div');
-          extDiv.className = 'extraction-status';
-          extDiv.innerHTML = `<h3>Extraction</h3><p>Location: (${state.map.extraction.x},${state.map.extraction.y})</p>`;
-          const extractedCount = state.units.filter(u => u.state === UnitState.Extracted).length;
-          const totalUnits = state.units.length;
-          if (totalUnits > 0) {
-              extDiv.innerHTML += `<p>Extracted: ${extractedCount}/${totalUnits}</p>`;
+      if (showActions) {
+          if (!unitActionsDiv) {
+              unitActionsDiv = document.createElement('div');
+              unitActionsDiv.className = 'unit-actions';
+              unitActionsDiv.style.borderBottom = '1px solid #444';
+              unitActionsDiv.style.paddingBottom = '10px';
+              unitActionsDiv.style.marginBottom = '10px';
+              // Insert before objectives if it exists
+              const objectivesDiv = rightPanel.querySelector('.objectives-status');
+              if (objectivesDiv) rightPanel.insertBefore(unitActionsDiv, objectivesDiv);
+              else rightPanel.appendChild(unitActionsDiv);
           }
-          rightPanel.appendChild(extDiv);
+          
+          const unit = selectedUnit!;
+          const currentActionsHtml = `
+            <h3>Unit: ${unit.id}</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
+                <button id="btn-stop">Stop</button>
+                <button id="btn-resume">Resume AI</button>
+                <button id="btn-engage">Engage</button>
+                <button id="btn-ignore">Ignore</button>
+            </div>
+          `;
+          
+          if (unitActionsDiv.innerHTML !== currentActionsHtml) {
+              unitActionsDiv.innerHTML = currentActionsHtml;
+              unitActionsDiv.querySelector('#btn-stop')?.addEventListener('click', () => {
+                  gameClient.sendCommand({ type: CommandType.STOP, unitIds: [unit.id] });
+              });
+              unitActionsDiv.querySelector('#btn-resume')?.addEventListener('click', () => {
+                  gameClient.sendCommand({ type: CommandType.RESUME_AI, unitIds: [unit.id] });
+              });
+              unitActionsDiv.querySelector('#btn-engage')?.addEventListener('click', () => {
+                  gameClient.sendCommand({ type: CommandType.SET_ENGAGEMENT, unitIds: [unit.id], mode: 'ENGAGE' });
+              });
+              unitActionsDiv.querySelector('#btn-ignore')?.addEventListener('click', () => {
+                  gameClient.sendCommand({ type: CommandType.SET_ENGAGEMENT, unitIds: [unit.id], mode: 'IGNORE' });
+              });
+          }
+      } else if (unitActionsDiv) {
+          unitActionsDiv.remove();
       }
 
-      // Threat Meter
-      const threatDiv = document.createElement('div');
-      threatDiv.className = 'threat-meter';
+      // --- 3. Objectives ---
+      let objectivesDiv = rightPanel.querySelector('.objectives-status') as HTMLElement;
+      if (!objectivesDiv) {
+          objectivesDiv = document.createElement('div');
+          objectivesDiv.className = 'objectives-status';
+          rightPanel.appendChild(objectivesDiv);
+      }
+      let objHtml = '<h3>Objectives</h3>';
+      state.objectives.forEach(obj => {
+          objHtml += `<p>${obj.kind}: Status: ${obj.state}${obj.targetCell ? ` at (${obj.targetCell.x},${obj.targetCell.y})` : ''}</p>`;
+      });
+      if (objectivesDiv.innerHTML !== objHtml) objectivesDiv.innerHTML = objHtml;
+
+      // --- 4. Extraction ---
+      let extDiv = rightPanel.querySelector('.extraction-status') as HTMLElement;
+      if (state.map.extraction) {
+          if (!extDiv) {
+              extDiv = document.createElement('div');
+              extDiv.className = 'extraction-status';
+              rightPanel.appendChild(extDiv);
+          }
+          const extractedCount = state.units.filter(u => u.state === UnitState.Extracted).length;
+          const totalUnits = state.units.length;
+          let extHtml = `<h3>Extraction</h3><p>Location: (${state.map.extraction.x},${state.map.extraction.y})</p>`;
+          if (totalUnits > 0) {
+              extHtml += `<p>Extracted: ${extractedCount}/${totalUnits}</p>`;
+          }
+          if (extDiv.innerHTML !== extHtml) extDiv.innerHTML = extHtml;
+      } else if (extDiv) {
+          extDiv.remove();
+      }
+
+      // --- 5. Threat Meter ---
+      let threatDiv = rightPanel.querySelector('.threat-meter') as HTMLElement;
+      if (!threatDiv) {
+          threatDiv = document.createElement('div');
+          threatDiv.className = 'threat-meter';
+          rightPanel.appendChild(threatDiv);
+      }
       
       const threatLevel = state.threatLevel || 0;
       let threatText = 'Low';
@@ -244,14 +303,14 @@ const updateUI = (state: GameState) => {
       if (threatLevel > 70) { threatText = 'High'; threatColor = '#f44336'; } 
       if (threatLevel > 90) { threatText = 'CRITICAL'; threatColor = '#b71c1c'; } 
 
-      threatDiv.innerHTML = `
+      const threatHtml = `
         <h3>Threat Meter</h3>
         <p style="color: ${threatColor}; font-weight: bold; margin: 5px 0;">${threatText} (${threatLevel.toFixed(0)}%)</p>
         <div style="width: 100%; background: #333; height: 10px; border: 1px solid #555;">
             <div style="width: ${threatLevel}%; background: ${threatColor}; height: 100%; transition: width 0.5s;"></div>
         </div>
       `;
-      rightPanel.appendChild(threatDiv);
+      if (threatDiv.innerHTML !== threatHtml) threatDiv.innerHTML = threatHtml;
   }
 
   const listContainer = document.getElementById('soldier-list');
@@ -291,25 +350,7 @@ const updateUI = (state: GameState) => {
               <span class="u-status"></span>
             </div>
             <div class="hp-bar"><div class="hp-fill"></div></div>
-            <div class="unit-commands">
-                <button class="btn-stop-unit">Stop</button>
-                <button class="btn-engage-unit">Engage</button>
-                <button class="btn-ignore-unit">Ignore</button>
-            </div>
           `;
-          
-          el.querySelector('.btn-stop-unit')?.addEventListener('click', (event) => {
-              event.stopPropagation(); 
-              gameClient.sendCommand({ type: CommandType.STOP, unitIds: [unit.id] });
-          });
-          el.querySelector('.btn-engage-unit')?.addEventListener('click', (event) => {
-              event.stopPropagation();
-              gameClient.sendCommand({ type: CommandType.SET_ENGAGEMENT, unitIds: [unit.id], mode: 'ENGAGE' });
-          });
-          el.querySelector('.btn-ignore-unit')?.addEventListener('click', (event) => {
-              event.stopPropagation();
-              gameClient.sendCommand({ type: CommandType.SET_ENGAGEMENT, unitIds: [unit.id], mode: 'IGNORE' });
-          });
       }
 
       const idEl = el.querySelector('.u-id');

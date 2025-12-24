@@ -87,4 +87,33 @@ describe('Stop Command and AI Logic', () => {
      
      expect(engine.getState().units[0].aiEnabled).toBe(true);
   });
+
+  it('should re-enable AI when SET_ENGAGEMENT is issued', () => {
+     const unit = engine.getState().units[0];
+     
+     engine.applyCommand({ type: CommandType.STOP, unitIds: [unit.id] });
+     expect(engine.getState().units[0].aiEnabled).toBe(false);
+     
+     engine.applyCommand({
+         type: CommandType.SET_ENGAGEMENT,
+         unitIds: [unit.id],
+         mode: 'ENGAGE'
+     });
+     
+     expect(engine.getState().units[0].aiEnabled).toBe(true);
+  });
+
+  it('should re-enable AI when RESUME_AI is issued', () => {
+     const unit = engine.getState().units[0];
+     
+     engine.applyCommand({ type: CommandType.STOP, unitIds: [unit.id] });
+     expect(engine.getState().units[0].aiEnabled).toBe(false);
+     
+     engine.applyCommand({
+         type: CommandType.RESUME_AI,
+         unitIds: [unit.id]
+     });
+     
+     expect(engine.getState().units[0].aiEnabled).toBe(true);
+  });
 });
