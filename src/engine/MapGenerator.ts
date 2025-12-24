@@ -14,15 +14,16 @@ export class MapGenerator {
   }
 
   public generate(width: number, height: number, type: MapGeneratorType = MapGeneratorType.Procedural, spawnPointCount?: number): MapDefinition {
+    const spCount = spawnPointCount ?? 1;
     switch (type) {
         case MapGeneratorType.TreeShip:
-            return new TreeShipGenerator(this.seed, width, height).generate(spawnPointCount ?? 1);
+            return new TreeShipGenerator(this.seed, width, height).generate(spCount);
         case MapGeneratorType.Procedural:
-            return new SpaceshipGenerator(this.seed, width, height).generate(spawnPointCount ?? 1);
+            return new SpaceshipGenerator(this.seed, width, height).generate(spCount);
         case MapGeneratorType.DenseShip:
-            return new DenseShipGenerator(this.seed, width, height).generate(spawnPointCount ?? 2);
+            return new DenseShipGenerator(this.seed, width, height).generate(spCount);
         default:
-            return new SpaceshipGenerator(this.seed, width, height).generate(spawnPointCount ?? 1);
+            return new SpaceshipGenerator(this.seed, width, height).generate(spCount);
     }
   }
 
