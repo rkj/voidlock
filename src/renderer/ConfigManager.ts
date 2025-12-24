@@ -3,6 +3,7 @@ import { MapGeneratorType, SquadConfig, MapDefinition, MissionType } from '../sh
 export interface GameConfig {
   mapWidth: number;
   mapHeight: number;
+  spawnPointCount: number;
   fogOfWarEnabled: boolean;
   debugOverlayEnabled: boolean;
   agentControlEnabled: boolean;
@@ -42,6 +43,7 @@ export class ConfigManager {
     return {
       mapWidth: 14,
       mapHeight: 14,
+      spawnPointCount: 3,
       fogOfWarEnabled: true,
       debugOverlayEnabled: false,
       agentControlEnabled: true,

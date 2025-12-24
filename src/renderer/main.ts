@@ -97,6 +97,7 @@ let defaultConfig = ConfigManager.getDefault();
 
 let currentMapWidth = defaultConfig.mapWidth;
 let currentMapHeight = defaultConfig.mapHeight;
+let currentSpawnPointCount = defaultConfig.spawnPointCount;
 let fogOfWarEnabled = defaultConfig.fogOfWarEnabled;
 let debugOverlayEnabled = defaultConfig.debugOverlayEnabled;
 let agentControlEnabled = defaultConfig.agentControlEnabled;
@@ -465,15 +466,20 @@ const launchMission = () => {
 
     const wInput = document.getElementById('map-width') as HTMLInputElement;
     const hInput = document.getElementById('map-height') as HTMLInputElement;
+    const spInput = document.getElementById('map-spawn-points') as HTMLInputElement;
     if (wInput && hInput) {
         currentMapWidth = parseInt(wInput.value) || 14;
         currentMapHeight = parseInt(hInput.value) || 14;
+    }
+    if (spInput) {
+        currentSpawnPointCount = parseInt(spInput.value) || 3;
     }
 
     // Save Config
     ConfigManager.save({
         mapWidth: currentMapWidth,
         mapHeight: currentMapHeight,
+        spawnPointCount: currentSpawnPointCount,
         fogOfWarEnabled,
         debugOverlayEnabled,
         agentControlEnabled,
@@ -494,7 +500,8 @@ const launchMission = () => {
         currentSquad, 
         currentMissionType,
         currentMapWidth,
-        currentMapHeight
+        currentMapHeight,
+        currentSpawnPointCount
     );
     updateSeedOverlay(currentSeed);
 
@@ -868,6 +875,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (config) {
           currentMapWidth = config.mapWidth;
           currentMapHeight = config.mapHeight;
+          currentSpawnPointCount = config.spawnPointCount || 3;
           fogOfWarEnabled = config.fogOfWarEnabled;
           debugOverlayEnabled = config.debugOverlayEnabled;
           agentControlEnabled = config.agentControlEnabled;
@@ -885,8 +893,10 @@ document.addEventListener('DOMContentLoaded', () => {
           
           const wInput = document.getElementById('map-width') as HTMLInputElement;
           const hInput = document.getElementById('map-height') as HTMLInputElement;
+          const spInput = document.getElementById('map-spawn-points') as HTMLInputElement;
           if (wInput) wInput.value = currentMapWidth.toString();
           if (hInput) hInput.value = currentMapHeight.toString();
+          if (spInput) spInput.value = currentSpawnPointCount.toString();
 
           const fowCheck = document.getElementById('toggle-fog-of-war') as HTMLInputElement;
           if (fowCheck) fowCheck.checked = fogOfWarEnabled;

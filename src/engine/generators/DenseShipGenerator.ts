@@ -26,7 +26,7 @@ export class DenseShipGenerator {
     this.roomIds = new Array(width * height).fill('');
   }
 
-  public generate(): MapDefinition {
+  public generate(spawnPointCount: number = 2): MapDefinition {
     this.reset();
 
     // 1. Build Frame (Corridors)
@@ -42,7 +42,7 @@ export class DenseShipGenerator {
 
     // 3. Finalize Map
     this.finalizeCells();
-    this.placeEntities(corridors);
+    this.placeEntities(corridors, spawnPointCount);
 
     const map: MapDefinition = {
       width: this.width,
@@ -329,7 +329,7 @@ export class DenseShipGenerator {
       }
   }
 
-  private placeEntities(corridors: Vector2[]) {
+  private placeEntities(corridors: Vector2[], spawnPointCount: number) {
       // Collect Room Cells
       const roomCells: Vector2[] = [];
       const roomMap = new Map<string, Vector2[]>();
@@ -356,7 +356,7 @@ export class DenseShipGenerator {
       const rooms = Array.from(roomMap.values());
       this.prng.shuffle(rooms);
 
-      // 1. Spawn
+      // 1. Player Spawn (Room 0)
       const spawnRoom = rooms[0];
       const spawnPos = spawnRoom[Math.floor(spawnRoom.length/2)];
       this.spawnPoints.push({ id: 'sp-1', pos: spawnPos, radius: 1 });
@@ -385,17 +385,24 @@ export class DenseShipGenerator {
       // 3. Enemy Spawners & Objectives
       const otherRooms = rooms.filter(r => r !== spawnRoom && r !== bestExtRoom);
       
-      // Add Enemy Spawners
-      for (let i = 0; i < Math.min(2, otherRooms.length); i++) {
+      // Add Enemy Spawners (spawnPointCount - 1 since sp-1 is player)
+      // Actually, spawnPointCount usually means ENEMY spawn points in some contexts? 
+      // But player needs a spawn point too.
+      // The task says "number of initial spawn points (1-10)".
+      // In Xenopurge, soldiers spawn at Extraction point usually? 
+      // Wait, CoreEngine constructor:
+      // const startX = map.extraction ? map.extraction.x + 0.5 : 0.5;
+      // So spawnPoints in map are for ENEMIES.
+      
+      // I'll assume spawnPointCount is the number of enemy spawn points.
+      for (let i = 0; i < Math.min(spawnPointCount, otherRooms.length); i++) {
           const r = otherRooms[i];
           const p = r[Math.floor(r.length/2)];
           this.spawnPoints.push({ id: `sp-enemy-${i}`, pos: p, radius: 1 });
       }
       
       // Add Objectives (reuse rooms if needed, or use remaining)
-      // If we used rooms for spawners, we can still use them for objectives or pick others.
-      // Let's use remaining rooms first.
-      const objRooms = otherRooms.length > 2 ? otherRooms.slice(2) : otherRooms;
+      const objRooms = otherRooms.length > spawnPointCount ? otherRooms.slice(spawnPointCount) : otherRooms;
       
       for (let i = 0; i < Math.min(2, objRooms.length); i++) {
           const r = objRooms[i];

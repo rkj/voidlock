@@ -18,7 +18,7 @@ export class SpaceshipGenerator {
     this.height = height;
   }
 
-  public generate(): MapDefinition {
+  public generate(spawnPointCount: number = 1): MapDefinition {
     // 1. Initialize Grid (Void)
     this.cells = Array(this.height * this.width).fill(null).map((_, i) => ({
       x: i % this.width,
@@ -37,13 +37,12 @@ export class SpaceshipGenerator {
 
     while (currentRoomArea < targetRoomArea && attempts < maxAttempts) {
         attempts++;
-        const w = this.prng.nextInt(1, 2); // 1 or 2
-        const h = this.prng.nextInt(1, 2); // 1 or 2
+        const w = this.prng.nextInt(1, 2); 
+        const h = this.prng.nextInt(1, 2); 
         
         const x = this.prng.nextInt(1, this.width - w - 1);
         const y = this.prng.nextInt(1, this.height - h - 1);
 
-        // Check collision (including 1 cell buffer)
         let collision = false;
         for (let dy = -1; dy <= h; dy++) {
             for (let dx = -1; dx <= w; dx++) {
@@ -57,11 +56,9 @@ export class SpaceshipGenerator {
         }
 
         if (!collision) {
-            // Place Room
             for (let dy = 0; dy < h; dy++) {
                 for (let dx = 0; dx < w; dx++) {
                     this.setFloor(x + dx, y + dy);
-                    // Open internal walls
                     if (dx < w - 1) this.openWall(x + dx, y + dy, 'e');
                     if (dy < h - 1) this.openWall(x + dx, y + dy, 's');
                 }
@@ -74,10 +71,8 @@ export class SpaceshipGenerator {
     // 3. Maze Generation (Corridors)
     const stack: {x: number, y: number}[] = [];
     
-    // Find a start point for maze
     let startX = 1;
     let startY = 1;
-    // Search for a valid start
     for (let i=0; i<100; i++) {
         const tx = this.prng.nextInt(1, this.width - 2);
         const ty = this.prng.nextInt(1, this.height - 2);
@@ -95,11 +90,9 @@ export class SpaceshipGenerator {
     const dirs = [{dx:0, dy:-1, k:'n', op:'s'}, {dx:0, dy:1, k:'s', op:'n'}, {dx:1, dy:0, k:'e', op:'w'}, {dx:-1, dy:0, k:'w', op:'e'}];
 
     while (stack.length > 0) {
-        const current = stack[stack.length - 1]; // Peak
-        // Find unvisited neighbors
+        const current = stack[stack.length - 1]; 
         const neighbors: any[] = [];
         
-        // Shuffle neighbors
         const shuffledDirs = [...dirs];
         for (let i = shuffledDirs.length - 1; i > 0; i--) {
             const j = this.prng.nextInt(0, i);
@@ -117,7 +110,6 @@ export class SpaceshipGenerator {
         }
 
         if (neighbors.length > 0) {
-            // Pick one
             const next = neighbors[0]; 
             this.setFloor(next.x, next.y);
             this.openWall(current.x, current.y, next.dir as any);
@@ -129,39 +121,31 @@ export class SpaceshipGenerator {
 
     // 4. Connect Disconnected Regions
     rooms.forEach(room => {
-        // Find all possible connections to the outside (Maze/Corridor)
         const connections: {x: number, y: number, dir: string}[] = [];
         
         for (let dy = 0; dy < room.h; dy++) {
-            // Check West
             const wx = room.x - 1;
             const wy = room.y + dy;
             if (this.getCell(wx, wy)?.type === CellType.Floor) connections.push({x: room.x, y: wy, dir: 'w'});
             
-            // Check East
             const ex = room.x + room.w;
             const ey = room.y + dy;
             if (this.getCell(ex, ey)?.type === CellType.Floor) connections.push({x: room.x + room.w - 1, y: ey, dir: 'e'});
         }
         for (let dx = 0; dx < room.w; dx++) {
-            // Check North
             const nx = room.x + dx;
             const ny = room.y - 1;
             if (this.getCell(nx, ny)?.type === CellType.Floor) connections.push({x: nx, y: room.y, dir: 'n'});
             
-            // Check South
             const sx = room.x + dx;
             const sy = room.y + room.h;
             if (this.getCell(sx, sy)?.type === CellType.Floor) connections.push({x: sx, y: room.y + room.h - 1, dir: 's'});
         }
 
-        // Pick 1 or 2 connections
         if (connections.length > 0) {
-            // Always connect at least one
             const conn = connections[this.prng.nextInt(0, connections.length - 1)];
             this.placeDoor(conn.x, conn.y, conn.dir);
             
-            // Chance for second door
             if (connections.length > 1 && this.prng.next() < 0.4) {
                 let conn2 = connections[this.prng.nextInt(0, connections.length - 1)];
                 while (conn2 === conn) {
@@ -172,11 +156,10 @@ export class SpaceshipGenerator {
         }
     });
 
-    // 5. Ensure Full Connectivity (Flood Fill check and patch)
+    // 5. Ensure Full Connectivity
     for (let y = 1; y < this.height - 1; y++) {
         for (let x = 1; x < this.width - 1; x++) {
             if (this.getCell(x, y)?.type === CellType.Wall) {
-                // Found a void. Check neighbors.
                 const neighbors = [
                     {x:x, y:y-1, d:'n'}, {x:x, y:y+1, d:'s'},
                     {x:x+1, y:y, d:'e'}, {x:x-1, y:y, d:'w'}
@@ -184,7 +167,6 @@ export class SpaceshipGenerator {
                 const floorNeighbors = neighbors.filter(n => this.getCell(n.x, n.y)?.type === CellType.Floor);
                 
                 if (floorNeighbors.length > 0) {
-                    // Connect to one random neighbor
                     const n = floorNeighbors[this.prng.nextInt(0, floorNeighbors.length - 1)];
                     this.setFloor(x, y);
                     this.openWall(x, y, n.d as any);
@@ -194,7 +176,7 @@ export class SpaceshipGenerator {
     }
 
     // 6. Place Features
-    this.placeFeatures();
+    this.placeFeatures(spawnPointCount);
 
     const map = {
         width: this.width,
@@ -241,16 +223,16 @@ export class SpaceshipGenerator {
       let segment: Vector2[];
       let orientation: 'Horizontal' | 'Vertical';
 
-      if (dir === 'n') { // Door on North edge of (x,y). Between (x,y-1) and (x,y).
+      if (dir === 'n') { 
           orientation = 'Horizontal';
           segment = [{x, y: y-1}, {x, y}];
-      } else if (dir === 's') { // Door on South edge of (x,y). Between (x,y) and (x,y+1).
+      } else if (dir === 's') { 
           orientation = 'Horizontal';
           segment = [{x, y}, {x, y: y+1}];
-      } else if (dir === 'w') { // Door on West edge of (x,y). Between (x-1,y) and (x,y).
+      } else if (dir === 'w') { 
           orientation = 'Vertical';
           segment = [{x: x-1, y}, {x, y}];
-      } else { // 'e'
+      } else { 
           orientation = 'Vertical';
           segment = [{x, y}, {x: x+1, y}];
       }
@@ -264,21 +246,28 @@ export class SpaceshipGenerator {
       });
   }
 
-  private placeFeatures() {
-      // Find floor cells
+  private placeFeatures(spawnPointCount: number) {
       const floors = this.cells.filter(c => c.type === CellType.Floor);
       if (floors.length === 0) return;
 
-      // Spawn at far left
-      const leftMost = floors.sort((a,b) => a.x - b.x)[0];
-      this.spawnPoints.push({ id: 'spawn-1', pos: { x: leftMost.x, y: leftMost.y }, radius: 1 });
+      let referenceX = 0;
+      if (spawnPointCount === 1) {
+          const sp = floors.sort((a,b) => a.x - b.x)[0];
+          this.spawnPoints.push({ id: 'spawn-1', pos: { x: sp.x, y: sp.y }, radius: 1 });
+          referenceX = sp.x;
+      } else {
+          const leftMost = floors.sort((a,b) => a.x - b.x).slice(0, Math.min(20, floors.length));
+          for (let i = 0; i < spawnPointCount; i++) {
+              const sp = leftMost[this.prng.nextInt(0, leftMost.length - 1)];
+              this.spawnPoints.push({ id: `spawn-${i + 1}`, pos: { x: sp.x, y: sp.y }, radius: 1 });
+          }
+          referenceX = leftMost.length > 0 ? leftMost[0].x : 0;
+      }
 
-      // Extraction at far right
       const rightMost = floors.sort((a,b) => b.x - a.x)[0];
       this.extraction = { x: rightMost.x, y: rightMost.y };
 
-      // Objective random, but not too close to spawn
-      const validObjective = floors.filter(c => Math.abs(c.x - leftMost.x) > 5);
+      const validObjective = floors.filter(c => Math.abs(c.x - referenceX) > 5);
       if (validObjective.length > 0) {
           const objCell = validObjective[this.prng.nextInt(0, validObjective.length - 1)];
           this.objectives.push({
