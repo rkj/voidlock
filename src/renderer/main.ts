@@ -132,6 +132,41 @@ const updateUI = (state: GameState) => {
   if (rightPanel) {
       rightPanel.innerHTML = ''; 
 
+      if (state.status !== 'Playing') {
+          // --- Game Over Summary ---
+          const summaryDiv = document.createElement('div');
+          summaryDiv.className = 'game-over-summary';
+          summaryDiv.style.textAlign = 'center';
+          summaryDiv.style.padding = '20px';
+          summaryDiv.style.background = '#222';
+          summaryDiv.style.border = '2px solid ' + (state.status === 'Won' ? '#0f0' : '#f00');
+          
+          const title = document.createElement('h2');
+          title.textContent = state.status === 'Won' ? 'MISSION ACCOMPLISHED' : 'SQUAD WIPED';
+          title.style.color = state.status === 'Won' ? '#0f0' : '#f00';
+          summaryDiv.appendChild(title);
+
+          const stats = document.createElement('div');
+          stats.style.margin = '20px 0';
+          stats.style.textAlign = 'left';
+          stats.innerHTML = `
+            <p><strong>Time Elapsed:</strong> ${(state.t / 1000).toFixed(1)}s</p>
+            <p><strong>Aliens Purged:</strong> ${state.aliensKilled}</p>
+            <p><strong>Casualties:</strong> ${state.casualties}</p>
+          `;
+          summaryDiv.appendChild(stats);
+
+          const menuBtn = document.createElement('button');
+          menuBtn.textContent = 'BACK TO MENU';
+          menuBtn.style.width = '100%';
+          menuBtn.style.padding = '15px';
+          menuBtn.addEventListener('click', () => abortMission());
+          summaryDiv.appendChild(menuBtn);
+
+          rightPanel.appendChild(summaryDiv);
+          return; // Skip normal panel update
+      }
+
       // --- Command Menu ---
       const menuDiv = document.createElement('div');
       menuDiv.className = 'command-menu';
