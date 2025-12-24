@@ -387,7 +387,10 @@ The application is divided into distinct screens to reduce UI clutter and improv
         *   Map Size (Width/Height).
         *   Static Map Import (Text/File/ASCII).
     *   **Game Options**:
-        *   Fog of War, Debug Overlay, Agent Control toggles.
+        *   Fog of War, Debug Overlay, Agent Control, LOS Visualization toggles.
+        *   Game Speed Slider: Default 0.3x. Must be applied correctly at start. UI should be full-width and 2x height for better accessibility. **New Requirement: The Game Speed slider must also be accessible and functional during an active mission, located at the top of the UI after the seed display.**
+*   **Command Set Updates:**
+    *   `ENGAGE/IGNORE Toggle`: Units can be toggled between 'ENGAGE' (Stop & Shoot) and 'IGNORE' (Run) policies. This toggle should be easily accessible in the command menu.
     *   **Squad Configuration**:
         *   Select archetypes/count.
     *   **Actions**:

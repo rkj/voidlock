@@ -6,6 +6,7 @@ export interface GameConfig {
   spawnPointCount: number;
   fogOfWarEnabled: boolean;
   debugOverlayEnabled: boolean;
+  losOverlayEnabled: boolean; // Added
   agentControlEnabled: boolean;
   mapGeneratorType: MapGeneratorType;
   missionType: MissionType;
@@ -46,6 +47,7 @@ export class ConfigManager {
       spawnPointCount: 3,
       fogOfWarEnabled: true,
       debugOverlayEnabled: false,
+      losOverlayEnabled: false, // Added
       agentControlEnabled: true,
       mapGeneratorType: MapGeneratorType.TreeShip,
       missionType: MissionType.Default,
