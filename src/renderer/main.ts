@@ -20,16 +20,14 @@ const mapGeneratorFactory = (seed: number, type: MapGeneratorType, mapData?: Map
 };
 
 // --- Global Input State ---
-type InputMode = 'SELECT' | 'CMD_MOVE';
-let inputMode: InputMode = 'SELECT';
 let selectedUnitId: string | null = null; 
-let pendingCommandUnitId: string | null = null;
 
 // --- Command System State ---
-type MenuState = 'MAIN' | 'TARGET_SELECT' | 'UNIT_SELECT';
-let menuState: MenuState = 'MAIN';
+type MenuState = 'ACTION_SELECT' | 'TARGET_SELECT' | 'UNIT_SELECT' | 'MODE_SELECT';
+let menuState: MenuState = 'ACTION_SELECT';
 let pendingAction: CommandType | null = null;
 let pendingTargetLocation: Vector2 | null = null;
+let pendingMode: EngagementPolicy | null = null;
 let overlayOptions: OverlayOption[] = [];
 
 
@@ -111,13 +109,6 @@ let currentGameState: GameState | null = null;
 
 // --- UI Logic ---
 
-const setInputMode = (mode: InputMode) => {
-  inputMode = mode;
-  pendingCommandUnitId = null;
-  const moveBtn = document.getElementById('cmd-move');
-  if (moveBtn) moveBtn.className = mode === 'CMD_MOVE' ? 'active' : '';
-};
-
 const updateSeedOverlay = (seed: number) => {
     const el = document.getElementById('seed-display');
     if (el) el.textContent = `Seed: ${seed}`;
@@ -190,9 +181,14 @@ const updateUI = (state: GameState) => {
 
           rightPanel.appendChild(summaryDiv);
           return; // Skip normal panel update
+      } else {
+          // We are playing. Ensure summary is gone.
+          if (rightPanel.querySelector('.game-over-summary')) {
+              rightPanel.innerHTML = '';
+          }
       }
 
-      // --- 1. Contextual Command Menu ---
+      // --- 1. Hierarchical Command Menu ---
       let menuDiv = rightPanel.querySelector('.command-menu') as HTMLElement;
       if (!menuDiv) {
           menuDiv = document.createElement('div');
@@ -203,84 +199,61 @@ const updateUI = (state: GameState) => {
           rightPanel.appendChild(menuDiv);
       }
       
-      const selectedUnit = selectedUnitId ? state.units.find(u => u.id === selectedUnitId) : null;
-      
       let menuHtml = '';
-      if (selectedUnit && selectedUnit.state !== UnitState.Dead && selectedUnit.state !== UnitState.Extracted) {
-          menuHtml = `<h3>UNIT: ${selectedUnit.id}</h3>`;
+      if (menuState === 'ACTION_SELECT') {
+          menuHtml = `<h3>ACTIONS</h3>`;
           menuHtml += `
-            <div class="menu-item clickable" data-cmd="MOVE">1. Move To...</div>
+            <div class="menu-item clickable" data-cmd="MOVE">1. MOVE</div>
             <div class="menu-item clickable" data-cmd="STOP">2. STOP</div>
-            <div class="menu-item clickable ${selectedUnit.aiEnabled ? 'disabled' : ''}" data-cmd="RESUME">3. Resume AI</div>
-            <div class="menu-item clickable ${selectedUnit.engagementPolicy !== 'IGNORE' ? 'active' : ''}" data-cmd="ENGAGE">4. Engagement: ENGAGE</div>
-            <div class="menu-item clickable ${selectedUnit.engagementPolicy === 'IGNORE' ? 'active' : ''}" data-cmd="IGNORE">5. Engagement: IGNORE</div>
-            <p style="color:#888; font-size:0.8em; margin-top:10px;">(Click or press 1-5)</p>
+            <div class="menu-item clickable" data-cmd="ENGAGEMENT">3. ENGAGEMENT</div>
+            <div class="menu-item clickable" data-cmd="COLLECT">4. COLLECT</div>
+            <div class="menu-item clickable" data-cmd="EXTRACT">5. EXTRACT</div>
+            <div class="menu-item clickable" data-cmd="RESUME">6. RESUME AI</div>
+            <p style="color:#888; font-size:0.8em; margin-top:10px;">(Select Action)</p>
           `;
-      } else {
-          menuHtml = `<h3>SQUAD COMMANDS</h3>`;
+      } else if (menuState === 'MODE_SELECT') {
+          menuHtml = `<h3>SELECT MODE</h3>`;
           menuHtml += `
-            <div class="menu-item clickable" data-cmd="MOVE_ALL">1. Move All To...</div>
-            <div class="menu-item clickable" data-cmd="STOP_ALL">2. STOP ALL</div>
-            <div class="menu-item clickable" data-cmd="COLLECT">3. Collect Items</div>
-            <div class="menu-item clickable" data-cmd="EXTRACT">4. Extract Squad</div>
-            <p style="color:#aaa; font-style:italic; margin-top:10px;">Select a soldier card for individual orders.</p>
+            <div class="menu-item clickable" data-mode="ENGAGE">1. ENGAGE (Stop & Shoot)</div>
+            <div class="menu-item clickable" data-mode="IGNORE">2. IGNORE (Run)</div>
+            <p style="color:#888; font-size:0.8em; margin-top:10px;">(ESC to Go Back)</p>
           `;
+      } else if (menuState === 'TARGET_SELECT') {
+          menuHtml = `<h3>SELECT TARGET</h3>`;
+          if (overlayOptions.length === 0 && pendingAction !== CommandType.MOVE_TO) {
+              menuHtml += `<p style="color:#f00;">No POIs available.</p>`;
+          } else {
+              overlayOptions.forEach(opt => {
+                  menuHtml += `<div class="menu-item clickable" data-key="${opt.key}">${opt.key}. ${opt.label}</div>`;
+              });
+          }
+          menuHtml += `<p style="color:#888; font-size:0.8em; margin-top:10px;">(Click map or press 1-9)</p>`;
+      } else if (menuState === 'UNIT_SELECT') {
+          menuHtml = `<h3>SELECT UNIT(S)</h3>`;
+          let counter = 1;
+          const activeUnits = state.units.filter(u => u.state !== UnitState.Dead && u.state !== UnitState.Extracted);
+          activeUnits.forEach(u => {
+              menuHtml += `<div class="menu-item clickable" data-unit-id="${u.id}">${counter}. Unit ${u.id}</div>`;
+              counter++;
+          });
+          menuHtml += `<div class="menu-item clickable" data-unit-id="ALL">${counter}. ALL UNITS</div>`;
+          menuHtml += `<p style="color:#888; font-size:0.8em; margin-top:10px;">(Press 1-9 or ESC)</p>`;
       }
 
       if (menuDiv.innerHTML !== menuHtml) {
           menuDiv.innerHTML = menuHtml;
-          // Add click listeners to menu items
+          // Add click listeners
           menuDiv.querySelectorAll('.menu-item.clickable').forEach(el => {
               el.addEventListener('click', () => {
-                  const cmd = (el as HTMLElement).dataset.cmd;
-                  if (cmd === 'MOVE' && selectedUnit) {
-                      setInputMode('CMD_MOVE');
-                      pendingCommandUnitId = selectedUnit.id;
-                  }
-                  if (cmd === 'STOP' && selectedUnit) gameClient.sendCommand({ type: CommandType.STOP, unitIds: [selectedUnit.id] });
-                  if (cmd === 'RESUME' && selectedUnit) gameClient.sendCommand({ type: CommandType.RESUME_AI, unitIds: [selectedUnit.id] });
-                  if (cmd === 'ENGAGE' && selectedUnit) gameClient.sendCommand({ type: CommandType.SET_ENGAGEMENT, unitIds: [selectedUnit.id], mode: 'ENGAGE' });
-                  if (cmd === 'IGNORE' && selectedUnit) gameClient.sendCommand({ type: CommandType.SET_ENGAGEMENT, unitIds: [selectedUnit.id], mode: 'IGNORE' });
-                  
-                  if (cmd === 'MOVE_ALL') {
-                      setInputMode('CMD_MOVE');
-                      pendingCommandUnitId = 'ALL';
-                  }
-                  if (cmd === 'STOP_ALL') {
-                      const ids = state.units.filter(u => u.state !== UnitState.Dead && u.state !== UnitState.Extracted).map(u => u.id);
-                      gameClient.sendCommand({ type: CommandType.STOP, unitIds: ids });
-                  }
-                  if (cmd === 'COLLECT') {
-                      menuState = 'TARGET_SELECT';
-                      pendingAction = CommandType.MOVE_TO; 
-                      generateTargetOverlay('ITEM');
-                      updateUI(state);
-                  }
-                  if (cmd === 'EXTRACT') {
-                      if (state.map.extraction) {
-                          const ids = state.units.filter(u => u.state !== UnitState.Dead && u.state !== UnitState.Extracted).map(u => u.id);
-                          gameClient.sendCommand({ type: CommandType.MOVE_TO, unitIds: ids, target: state.map.extraction });
-                      }
+                  const numStr = (el as HTMLElement).textContent?.split('.')[0].trim();
+                  if (numStr) {
+                      handleMenuInput(parseInt(numStr));
                   }
               });
           });
       }
 
-      // --- 2. Target/Unit Select Overlays (Legacy Keyboard Flow) ---
-      if (menuState === 'TARGET_SELECT' || menuState === 'UNIT_SELECT') {
-          let overlayHtml = `<h3>SELECT ${menuState === 'TARGET_SELECT' ? 'TARGET' : 'UNIT'}</h3>`;
-          if (overlayOptions.length === 0) {
-              overlayHtml += `<p style=\"color:#f00;\">No valid options.</p>`;
-          } else {
-              overlayOptions.forEach(opt => {
-                  overlayHtml += `<div class=\"menu-item\">${opt.key}. ${opt.label}</div>`;
-              });
-          }
-          overlayHtml += `<p style=\"color:#aaa;\">(Press 1-9 or ESC)</p>`;
-          menuDiv.innerHTML = overlayHtml;
-      }
-
-      // --- 3. Objectives ---
+      // --- 2. Objectives ---
       let objectivesDiv = rightPanel.querySelector('.objectives-status') as HTMLElement;
       if (!objectivesDiv) {
           objectivesDiv = document.createElement('div');
@@ -329,7 +302,7 @@ const updateUI = (state: GameState) => {
         listContainer.appendChild(el);
       }
 
-      const isSelected = unit.id === selectedUnitId || unit.id === pendingCommandUnitId;
+      const isSelected = unit.id === selectedUnitId;
       if (isSelected && !el.classList.contains('selected')) el.classList.add('selected');
       if (!isSelected && el.classList.contains('selected')) el.classList.remove('selected');
       
@@ -414,66 +387,107 @@ const generateUnitOverlay = () => {
     overlayOptions.push({ key: counter.toString(), label: 'All Units', unitId: 'ALL' });
 };
 
+const executePendingCommand = (unitIds: string[]) => {
+    if (!pendingAction) return;
+    
+    if (pendingAction === CommandType.MOVE_TO && pendingTargetLocation) {
+        gameClient.sendCommand({
+            type: CommandType.MOVE_TO,
+            unitIds,
+            target: pendingTargetLocation
+        });
+    } else if (pendingAction === CommandType.STOP) {
+        gameClient.sendCommand({
+            type: CommandType.STOP,
+            unitIds
+        });
+    } else if (pendingAction === CommandType.SET_ENGAGEMENT && pendingMode) {
+        gameClient.sendCommand({
+            type: CommandType.SET_ENGAGEMENT,
+            unitIds,
+            mode: pendingMode
+        });
+    } else if (pendingAction === CommandType.RESUME_AI) {
+        gameClient.sendCommand({
+            type: CommandType.RESUME_AI,
+            unitIds
+        });
+    }
+
+    // Reset
+    menuState = 'ACTION_SELECT';
+    pendingAction = null;
+    pendingTargetLocation = null;
+    pendingMode = null;
+    overlayOptions = [];
+};
+
 const handleMenuInput = (num: number) => {
     if (!currentGameState) return;
-    const selectedUnit = selectedUnitId ? currentGameState.units.find(u => u.id === selectedUnitId) : null;
 
-    if (menuState === 'MAIN') {
-        if (selectedUnit && selectedUnit.state !== UnitState.Dead && selectedUnit.state !== UnitState.Extracted) {
-            // Unit Commands
-            if (num === 1) {
-                setInputMode('CMD_MOVE');
-                pendingCommandUnitId = selectedUnit.id;
+    if (menuState === 'ACTION_SELECT') {
+        if (num === 1) { // MOVE
+            menuState = 'TARGET_SELECT';
+            pendingAction = CommandType.MOVE_TO;
+            generateTargetOverlay('CELL');
+        } else if (num === 2) { // STOP
+            menuState = 'UNIT_SELECT';
+            pendingAction = CommandType.STOP;
+        } else if (num === 3) { // ENGAGEMENT
+            menuState = 'MODE_SELECT';
+            pendingAction = CommandType.SET_ENGAGEMENT;
+        } else if (num === 4) { // COLLECT
+            menuState = 'TARGET_SELECT';
+            pendingAction = CommandType.MOVE_TO;
+            generateTargetOverlay('ITEM');
+        } else if (num === 5) { // EXTRACT
+            if (currentGameState.map.extraction) {
+                pendingTargetLocation = currentGameState.map.extraction;
+                menuState = 'UNIT_SELECT';
+                pendingAction = CommandType.MOVE_TO;
             }
-            if (num === 2) gameClient.sendCommand({ type: CommandType.STOP, unitIds: [selectedUnit.id] });
-            if (num === 3) gameClient.sendCommand({ type: CommandType.RESUME_AI, unitIds: [selectedUnit.id] });
-            if (num === 4) gameClient.sendCommand({ type: CommandType.SET_ENGAGEMENT, unitIds: [selectedUnit.id], mode: 'ENGAGE' });
-            if (num === 5) gameClient.sendCommand({ type: CommandType.SET_ENGAGEMENT, unitIds: [selectedUnit.id], mode: 'IGNORE' });
-        } else {
-            // Squad Commands
-            if (num === 1) { // Move All
-                setInputMode('CMD_MOVE');
-                pendingCommandUnitId = 'ALL';
-            } else if (num === 2) { // Stop All
-                const ids = currentGameState.units.filter(u => u.state !== UnitState.Dead && u.state !== UnitState.Extracted).map(u => u.id);
-                gameClient.sendCommand({ type: CommandType.STOP, unitIds: ids });
-            } else if (num === 3) { // Collect
-                 menuState = 'TARGET_SELECT';
-                 pendingAction = CommandType.MOVE_TO; 
-                 generateTargetOverlay('ITEM');
-            } else if (num === 4) { // Extract
-                 if (currentGameState.map.extraction) {
-                     const ids = currentGameState.units.filter(u => u.state !== UnitState.Dead && u.state !== UnitState.Extracted).map(u => u.id);
-                     gameClient.sendCommand({ type: CommandType.MOVE_TO, unitIds: ids, target: currentGameState.map.extraction });
-                 }
-            }
+        } else if (num === 6) { // RESUME AI
+            menuState = 'UNIT_SELECT';
+            pendingAction = CommandType.RESUME_AI;
+        }
+    } else if (menuState === 'MODE_SELECT') {
+        if (num === 1) {
+            pendingMode = 'ENGAGE';
+            menuState = 'UNIT_SELECT';
+        } else if (num === 2) {
+            pendingMode = 'IGNORE';
+            menuState = 'UNIT_SELECT';
         }
     } else if (menuState === 'TARGET_SELECT') {
         const option = overlayOptions.find(o => o.key === num.toString());
         if (option && option.pos) {
             pendingTargetLocation = option.pos;
-            const activeIds = currentGameState.units.filter(u => u.state !== UnitState.Dead && u.state !== UnitState.Extracted).map(u => u.id);
-            gameClient.sendCommand({ type: CommandType.MOVE_TO, unitIds: activeIds, target: option.pos });
-            menuState = 'MAIN';
-            pendingAction = null;
-            pendingTargetLocation = null;
-            overlayOptions = [];
+            menuState = 'UNIT_SELECT';
+        }
+    } else if (menuState === 'UNIT_SELECT') {
+        const activeUnits = currentGameState.units.filter(u => u.state !== UnitState.Dead && u.state !== UnitState.Extracted);
+        let selectedIds: string[] = [];
+        
+        if (num > 0 && num <= activeUnits.length) {
+            selectedIds = [activeUnits[num - 1].id];
+        } else if (num === activeUnits.length + 1) {
+            selectedIds = activeUnits.map(u => u.id);
+        }
+
+        if (selectedIds.length > 0 && pendingAction) {
+            executePendingCommand(selectedIds);
         }
     }
     if (currentGameState) updateUI(currentGameState);
 };
 
 const onUnitClick = (unit: Unit) => {
-  if (inputMode === 'CMD_MOVE') {
-    if (!pendingCommandUnitId) {
-      pendingCommandUnitId = unit.id;
-      console.log(`Command Target: Unit ${unit.id} selected. Click map to move.`);
-    } else {
-      pendingCommandUnitId = unit.id;
-    }
-  } else {
-    selectedUnitId = unit.id === selectedUnitId ? null : unit.id;
+  if (menuState === 'UNIT_SELECT') {
+      executePendingCommand([unit.id]);
+      return;
   }
+  
+  selectedUnitId = unit.id === selectedUnitId ? null : unit.id;
   if (currentGameState) updateUI(currentGameState);
 };
 
@@ -482,6 +496,13 @@ const handleCanvasClick = (event: MouseEvent) => {
 
   const clickedCell = renderer.getCellCoordinates(event.clientX, event.clientY);
   
+  if (menuState === 'TARGET_SELECT' && (pendingAction === CommandType.MOVE_TO)) {
+      pendingTargetLocation = clickedCell;
+      menuState = 'UNIT_SELECT';
+      updateUI(currentGameState);
+      return;
+  }
+
   const unitAtClick = currentGameState.units.find(unit => 
     Math.floor(unit.pos.x) === clickedCell.x && Math.floor(unit.pos.y) === clickedCell.y &&
     unit.state !== UnitState.Dead && unit.state !== UnitState.Extracted
@@ -490,30 +511,6 @@ const handleCanvasClick = (event: MouseEvent) => {
   if (unitAtClick) {
     onUnitClick(unitAtClick);
     return; 
-  }
-
-  if (inputMode === 'CMD_MOVE' && pendingCommandUnitId) {
-    const ids = pendingCommandUnitId === 'ALL' 
-        ? currentGameState.units.filter(u => u.state !== UnitState.Dead && u.state !== UnitState.Extracted).map(u => u.id)
-        : [pendingCommandUnitId];
-
-    gameClient.sendCommand({
-      type: CommandType.MOVE_TO,
-      unitIds: ids,
-      target: clickedCell,
-      queue: event.shiftKey 
-    });
-    
-    if (!event.shiftKey) {
-        setInputMode('SELECT');
-    }
-  } else if (inputMode === 'SELECT' && selectedUnitId) {
-    gameClient.sendCommand({
-      type: CommandType.MOVE_TO,
-      unitIds: [selectedUnitId],
-      target: clickedCell,
-      queue: event.shiftKey
-    });
   }
 };
 
@@ -574,8 +571,15 @@ const launchMission = () => {
 
     // Reset selection
     selectedUnitId = null;
-    pendingCommandUnitId = null;
-    setInputMode('SELECT');
+
+    // Clear Game Over / Previous Mission UI
+    const rightPanel = document.getElementById('right-panel');
+    if (rightPanel) rightPanel.innerHTML = '';
+    menuState = 'ACTION_SELECT';
+    pendingAction = null;
+    pendingTargetLocation = null;
+    pendingMode = null;
+    overlayOptions = [];
 
     // Setup Client Listener
     gameClient.onStateUpdate((state) => {
@@ -611,19 +615,51 @@ document.addEventListener('DOMContentLoaded', () => {
       // If typing in input, ignore
       if ((e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'TEXTAREA') return;
 
-      if (e.key === 'Escape') {
-          menuState = 'MAIN';
-          pendingAction = null;
-          pendingTargetLocation = null;
-          overlayOptions = [];
-          if (currentGameState) updateUI(currentGameState);
-          return;
-      }
+      if (screenManager.getCurrentScreen() === 'mission') {
+          if (e.key === 'Escape') {
+              if (menuState === 'UNIT_SELECT') {
+                  if (pendingAction === CommandType.SET_ENGAGEMENT) menuState = 'MODE_SELECT';
+                  else if (pendingAction === CommandType.MOVE_TO) menuState = 'TARGET_SELECT';
+                  else menuState = 'ACTION_SELECT';
+              } else if (menuState === 'MODE_SELECT' || menuState === 'TARGET_SELECT') {
+                  menuState = 'ACTION_SELECT';
+              } else {
+                  // Already in ACTION_SELECT
+                  if (selectedUnitId) {
+                      selectedUnitId = null;
+                  } else {
+                      if (confirm("Abort Mission and return to menu?")) {
+                          abortMission();
+                      }
+                  }
+              }
 
-      // Handle Number Keys 1-9
-      const num = parseInt(e.key);
-      if (!isNaN(num) && num > 0) {
-          handleMenuInput(num);
+              if (menuState === 'ACTION_SELECT') {
+                  pendingAction = null;
+                  pendingTargetLocation = null;
+                  pendingMode = null;
+                  overlayOptions = [];
+              }
+              if (currentGameState) updateUI(currentGameState);
+              return;
+          }
+
+          if (e.key === 'm' || e.key === 'M') {
+              if (menuState === 'ACTION_SELECT') {
+                  handleMenuInput(1); // MOVE
+              }
+              return;
+          }
+
+          // Handle Number Keys 1-9
+          const num = parseInt(e.key);
+          if (!isNaN(num) && num > 0) {
+              handleMenuInput(num);
+          }
+      } else {
+          if (e.key === 'Escape') {
+              screenManager.goBack();
+          }
       }
   });
 
@@ -863,8 +899,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  document.getElementById('cmd-move')?.addEventListener('click', () => setInputMode('CMD_MOVE'));
-
   document.getElementById('export-replay')?.addEventListener('click', () => {
     const replay = gameClient.getReplayData();
     if (replay) {
@@ -913,33 +947,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const canvas = document.getElementById('game-canvas');
   canvas?.addEventListener('click', (e) => handleCanvasClick(e as MouseEvent));
 
-  // Keyboard
-  document.addEventListener('keydown', (e) => {
-    if (screenManager.getCurrentScreen() === 'mission') {
-        if (e.key === 'm' || e.key === 'M') {
-          setInputMode('CMD_MOVE');
-        } else if (e.key === 'Escape') {
-          // Pause? Or just deselect?
-          if (inputMode !== 'SELECT' || selectedUnitId) {
-              setInputMode('SELECT');
-              selectedUnitId = null;
-              pendingCommandUnitId = null;
-              if (currentGameState) updateUI(currentGameState);
-          } else {
-              // Pause Menu / Abort
-              if (confirm("Abort Mission and return to menu?")) {
-                  abortMission();
-              }
-          }
-        }
-    } else {
-        // ESC in other screens
-        if (e.key === 'Escape') {
-            screenManager.goBack();
-        }
-    }
-  });
-  
   // Initial State: Menu
   screenManager.show('main-menu');
   

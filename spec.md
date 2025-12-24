@@ -407,39 +407,42 @@ The application is divided into distinct screens to reduce UI clutter and improv
         *   `ESC`: Opens **Pause Overlay** (Resume / Abort Mission).
 
 ### 8.3 Control Scheme & Keyboard Navigation
-The game must be fully playable via keyboard using a hierarchical command menu.
+The game must be fully playable via keyboard using a strict hierarchical command menu.
 
-*   **Menu Structure:**
-    *   **Level 1 (Action Category):**
+*   **Menu Hierarchy:**
+    *   **Level 1 (Action):**
         *   `1`: Move
-        *   `2`: Collect Items (Objectives)
-        *   `3`: Extract
-        *   `4`: Use Item (Grenade, Medkit - *Future*)
-    *   **Level 2 (Target Selection):**
-        *   Context-dependent submenus (e.g., "Select Target Cell", "Select Item").
-        *   **Map Overlay:** When a command requires a spatial target, the map should overlay numbers (1-N) on valid targets (cells, enemies, items) for quick selection.
+        *   `2`: Stop (Halts unit and disables AI)
+        *   `3`: Engagement (Toggle Engage/Ignore)
+        *   `4`: Collect (Objectives)
+        *   `5`: Extract
+        *   `6`: Use Item (Placeholder)
+    *   **Level 2 (Target/Mode Selection - Context Dependent):**
+        *   **For Move/Collect:** The map displays a numbered overlay (1-N) on valid target cells or items. User presses `1-N` to select target.
+        *   **For Engagement:** User presses `1` for ENGAGE or `2` for IGNORE.
+        *   **For Stop/Extract:** Skips directly to Level 3.
     *   **Level 3 (Unit Selection):**
-        *   `1-N`: Select specific soldier to perform the action.
-        *   `N+1`: "All" (if applicable).
+        *   User presses `1-N` to select a specific soldier or `N+1` for "ALL".
+*   **Workflow:** Action -> [Target/Mode] -> Unit(s).
+*   **Input Handling:** 
+    *   `1-9`: Select menu option.
+    *   `ESC`: Cancel/Back to previous menu level.
+    *   Mouse: Clicking a menu item or a target cell/unit is a secondary shortcut that executes the selection for that specific level.
 
 ### 8.4 UI Layout Reorganization
 The UI must be optimized for visibility and information density, utilizing the full width of the screen.
 
-*   **Top Bar (Header):** Fixed height (e.g., 40px). Displays Game Time, Status (Playing/Won/Lost), Seed, **Version** (SemVer), and the **Threat Meter**. All critical mission-level information is consolidated here.
-*   **Soldier Bar (Sub-header):** Full-width strip below the top bar (Height: 64px). Displays all soldiers in a horizontal layout.
+*   **Top Bar (Header):** Fixed height (40px). Displays Game Time, Status, Seed, Version, and the **Threat Meter**.
+*   **Soldier Bar (Sub-header):** Full-width strip below the top bar (Height: 56px). Displays all soldiers in a horizontal layout.
     *   **Layout:** Items must fit within the container **without scrolling** (no overflow). Use flexible sizing to fill available width.
     *   **Soldier Card:** Fixed or flexible width to prevent text wrapping. Visual stability is key—content updates (e.g., status text changes) must NOT cause layout jitter (box resizing).
-    *   **Selection:** Clicking a soldier card selects that unit for issuing direct orders. Individual cards must NOT contain command buttons.
-*   **Main Simulation Area:** Flex container below the Soldier Bar.
-    *   **Game Canvas (Left/Center):** Takes up the majority of the screen. Must be centered within its container.
-    *   **Command Panel (Right):** Fixed width (e.g., 300px). Contains the **Unified Command Menu**.
-        *   **Unified Commands:** All actions (Move, Stop, Engage, etc.) are issued through this panel. It supports both mouse clicks and keyboard shortcuts (1-9).
-        *   **Contextual Actions:** If a unit is selected, the menu displays unit-specific actions (e.g., "Stop", "Resume AI"). If no unit is selected, it displays squad-level or system actions.
-        *   **Objective List:** Current status of mission objectives is displayed below the commands.
-    *   **Game Over Summary:** Upon Win/Loss, a summary panel/popup must appear (or replace the Right Panel) showing:
-        *   Result (Mission Accomplished / Squad Wiped).
-        *   Statistics: Time Elapsed, Aliens Killed, Casualties.
-        *   Action: "Back to Menu" button.
+    *   **Selection:** Individual cards show HP and status but **no buttons**. Clicking a card is a shortcut for selecting that unit in the menu flow (Level 3).
+*   **Command Panel (Right):** Fixed width (300px). Displays the current level of the **Hierarchical Command Menu**. Visual feedback must be crystal clear about which level the user is currently in.
+*   **Main Simulation Area:** Flex container containing the Game Canvas. Centered. Overlay numbers appear on the canvas during target/unit selection.
+*   **Game Over Summary:** Upon Win/Loss, a summary panel/popup must appear (or replace the Right Panel) showing:
+    *   Result (Mission Accomplished / Squad Wiped).
+    *   Statistics: Time Elapsed, Aliens Purged, Casualties.
+    *   Action: "Back to Menu" button. This state must be fully cleared when a new mission starts.
 
 ### 8.5 Mission Configuration
 *   **Spawn Points:** The number of initial spawn points (vents/entry points for enemies) must be configurable in the Mission Setup screen (Range: 1 to 10) and **strictly adhered to** by the generator.
