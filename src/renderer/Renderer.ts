@@ -38,8 +38,6 @@ export class Renderer {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     // Update Graph if map changed
-    // Using simple heuristic for map identity (width/height change)
-    // Ideally MapDefinition should have a unique ID.
     const mapId = `${state.map.width}x${state.map.height}-${state.map.cells.length}`;
     if (this.currentMapId !== mapId) {
         this.graph = new Graph(state.map);
@@ -204,253 +202,136 @@ export class Renderer {
       }
     });
 
+    if (!this.graph) return;
+
     // Draw Walls and Doors
     this.ctx.lineCap = 'round';
-
-    // Helper to check if a door exists on a specific wall segment
-    const isDoor = (cellX: number, cellY: number, wallDirection: 'n'|'e'|'s'|'w'): boolean => {
-      return map.doors?.some(door => {
-        if (door.orientation === 'Horizontal') {
-          if (wallDirection === 'n') { // North wall of (cellX, cellY) -> door between (cellX, cellY) and (cellX, cellY-1)
-            const hasA = door.segment.some(s => s.x === cellX && s.y === cellY);
-            const hasB = door.segment.some(s => s.x === cellX && s.y === cellY - 1);
-            return hasA && hasB;
-          }
-          if (wallDirection === 's') { // South wall of (cellX, cellY) -> door between (cellX, cellY) and (cellX, cellY+1)
-            const hasA = door.segment.some(s => s.x === cellX && s.y === cellY);
-            const hasB = door.segment.some(s => s.x === cellX && s.y === cellY + 1);
-            return hasA && hasB;
-          }
-        } else if (door.orientation === 'Vertical') {
-          if (wallDirection === 'w') { // West wall of (cellX, cellY) -> door between (cellX, cellY) and (cellX-1, cellY)
-            const hasA = door.segment.some(s => s.x === cellX && s.y === cellY);
-            const hasB = door.segment.some(s => s.x === cellX - 1 && s.y === cellY);
-            return hasA && hasB;
-          }
-          if (wallDirection === 'e') { // East wall of (cellX, cellY) -> door between (cellX, cellY) and (cellX+1, cellY)
-            const hasA = door.segment.some(s => s.x === cellX && s.y === cellY);
-            const hasB = door.segment.some(s => s.x === cellX + 1 && s.y === cellY);
-            return hasA && hasB;
-          }
-        }
-        return false;
-      }) || false;
-    };
 
     // Render Walls (Neon Cyan)
     this.ctx.strokeStyle = '#00FFFF'; 
     this.ctx.lineWidth = 2; 
     this.ctx.beginPath();
 
-    map.cells.forEach(cell => {
-      if (cell.type !== CellType.Floor) return;
-
-      const x = cell.x * this.cellSize;
-      const y = cell.y * this.cellSize;
-      const s = this.cellSize;
-
-      // Draw walls only if no door is present
-      // We draw wall segments slightly offset to avoid overlap issues if needed, but simple lines are fine for now.
-      if (cell.walls.n && !isDoor(cell.x, cell.y, 'n')) { 
-        this.ctx.moveTo(x, y);
-        this.ctx.lineTo(x + s, y);
-      }
-      if (cell.walls.e && !isDoor(cell.x, cell.y, 'e')) { 
-        this.ctx.moveTo(x + s, y);
-        this.ctx.lineTo(x + s, y + s);
-      }
-      if (cell.walls.s && !isDoor(cell.x, cell.y, 's')) { 
-        this.ctx.moveTo(x, y + s);
-        this.ctx.lineTo(x + s, y + s);
-      }
-      if (cell.walls.w && !isDoor(cell.x, cell.y, 'w')) { 
-        this.ctx.moveTo(x, y);
-        this.ctx.lineTo(x, y + s);
+    this.graph.getAllBoundaries().forEach(boundary => {
+      // Only draw permanent walls here. Doors are handled separately.
+      if (boundary.isWall && !boundary.doorId) {
+        const seg = boundary.getVisualSegment();
+        this.ctx.moveTo(seg.p1.x * this.cellSize, seg.p1.y * this.cellSize);
+        this.ctx.lineTo(seg.p2.x * this.cellSize, seg.p2.y * this.cellSize);
       }
     });
     this.ctx.stroke();
 
-              // Render Doors
-              map.doors?.forEach(door => {
-                const doorThickness = this.cellSize / 8; // Thicker
-                const doorLength = this.cellSize / 3; // 1/3 width
-          
-                if (door.segment.length !== 2) return;          const [p1, p2] = door.segment;
-          
-          const s = this.cellSize;
-          let startX, startY, endX, endY;
-          let strut1_sx, strut1_sy, strut1_ex, strut1_ey;
-          let strut2_sx, strut2_sy, strut2_ex, strut2_ey;
-    
-          if (door.orientation === 'Vertical') { 
-            // Door on right edge of minX cell
-            const cellX = Math.min(p1.x, p2.x);
-            const cellY = p1.y;
-            
-            const wallX = (cellX + 1) * s;
-            const wallY = cellY * s;
-    
-            startX = wallX;
-            startY = wallY + (s - doorLength)/2;
-            endX = wallX;
-            endY = startY + doorLength;
-            
-            strut1_sx = wallX; strut1_sy = wallY; strut1_ex = wallX; strut1_ey = startY;
-            strut2_sx = wallX; strut2_sy = endY; strut2_ex = wallX; strut2_ey = wallY + s;
-          } else { 
-            // Horizontal on bottom edge of minY cell
-            const cellX = p1.x;
-            const cellY = Math.min(p1.y, p2.y);
-            
-            const wallX = cellX * s;
-            const wallY = (cellY + 1) * s;
-            
-            startX = wallX + (s - doorLength)/2;
-            startY = wallY;
-            endX = startX + doorLength;
-            endY = wallY;
-    
-            strut1_sx = wallX; strut1_sy = wallY; strut1_ex = startX; strut1_ey = wallY;
-            strut2_sx = endX; strut2_sy = wallY; strut2_ex = wallX + s; strut2_ey = wallY;
-          }
-          
-                this.ctx.lineWidth = doorThickness;
-          
-                
-          
-                let openRatio = 0;
-          
-                if (door.state === 'Open' && !door.targetState) openRatio = 1;
-          
-                else if (door.state === 'Closed' && door.targetState === 'Open' && door.openTimer && door.openDuration) {
-          
-                    openRatio = 1 - (door.openTimer / (door.openDuration * 1000));
-          
-                } else if (door.state === 'Open' && door.targetState === 'Closed' && door.openTimer && door.openDuration) {
-          
-                    openRatio = door.openTimer / (door.openDuration * 1000);
-          
-                }
-          
-          
-          
-                const slideOffset = openRatio * (doorLength / 2);
-          
-          
-          
-                // Colors
-          
-                if (door.state === 'Locked' || door.targetState === 'Locked') {
-          
-                  this.ctx.strokeStyle = '#FF0000'; // Red
-          
-                } else if (door.state === 'Destroyed') {
-          
-                  this.ctx.strokeStyle = '#550000';
-          
-                } else {
-          
-                  this.ctx.strokeStyle = '#FFD700'; // Gold (even when open/opening, maybe dim it?)
-          
-                  if (openRatio > 0.8) this.ctx.strokeStyle = '#AA8800'; // Dim when fully open
-          
-                }
-          
-          
-          
-                if (door.state === 'Destroyed') {
-          
-                    // Draw rubble? Just simple line for now or nothing
-          
-                } else {
-          
-                    // Draw two segments sliding apart
-          
-                    // Center is (startX + endX)/2, (startY + endY)/2
-          
-                    const cx = (startX + endX) / 2;
-          
-                    const cy = (startY + endY) / 2;
-          
-                    
-          
-                    // Vector along door
-          
-                    const dx = endX - startX;
-          
-                    const dy = endY - startY;
-          
-                    const len = Math.sqrt(dx*dx + dy*dy);
-          
-                    const ux = dx / len;
-          
-                    const uy = dy / len;
-          
-          
-          
-                    // Left Half (from start towards center)
-          
-                    // Ends at center - slideOffset
-          
-                    this.ctx.beginPath();
-          
-                    this.ctx.moveTo(startX, startY);
-          
-                    this.ctx.lineTo(cx - ux * slideOffset, cy - uy * slideOffset);
-          
-                    this.ctx.stroke();
-          
-          
-          
-                    // Right Half (from end towards center)
-          
-                    // Starts at center + slideOffset
-          
-                    this.ctx.beginPath();
-          
-                    this.ctx.moveTo(endX, endY);
-          
-                    this.ctx.lineTo(cx + ux * slideOffset, cy + uy * slideOffset);
-          
-                    this.ctx.stroke();
-          
-                }
-          
-          
-          
-                // Draw struts if not destroyed (always drawn to bridge gap)
-          
-                if (door.state !== 'Destroyed') {
-          
-                    this.ctx.lineWidth = 2; // Match regular wall width
-          
-                    this.ctx.strokeStyle = '#00FFFF'; // Wall color
-          
-                    
-          
-                    this.ctx.beginPath();
-          
-                    this.ctx.moveTo(strut1_sx, strut1_sy);
-          
-                    this.ctx.lineTo(strut1_ex, strut1_ey);
-          
-                    this.ctx.stroke();
-          
-          
-          
-                    this.ctx.beginPath();
-          
-                    this.ctx.moveTo(strut2_sx, strut2_sy);
-          
-                    this.ctx.lineTo(strut2_ex, strut2_ey);
-          
-                    this.ctx.stroke();
-          
-                }
-          
-              });
-          
-            }
+    // Render Doors
+    state.map.doors?.forEach(door => this.renderDoor(door));
+  }
+
+  private renderDoor(door: Door) {
+    const doorThickness = this.cellSize / 8; // Thicker
+    const doorLength = this.cellSize / 3; // 1/3 width
+
+    if (door.segment.length !== 2) return;
+    const [p1, p2] = door.segment;
+
+    const s = this.cellSize;
+    let startX: number, startY: number, endX: number, endY: number;
+    let strut1_sx: number, strut1_sy: number, strut1_ex: number, strut1_ey: number;
+    let strut2_sx: number, strut2_sy: number, strut2_ex: number, strut2_ey: number;
+
+    if (door.orientation === 'Vertical') {
+      // Door on right edge of minX cell
+      const cellX = Math.min(p1.x, p2.x);
+      const cellY = p1.y;
+
+      const wallX = (cellX + 1) * s;
+      const wallY = cellY * s;
+
+      startX = wallX;
+      startY = wallY + (s - doorLength) / 2;
+      endX = wallX;
+      endY = startY + doorLength;
+
+      strut1_sx = wallX; strut1_sy = wallY; strut1_ex = wallX; strut1_ey = startY;
+      strut2_sx = wallX; strut2_sy = endY; strut2_ex = wallX; strut2_ey = wallY + s;
+    } else {
+      // Horizontal on bottom edge of minY cell
+      const cellX = p1.x;
+      const cellY = Math.min(p1.y, p2.y);
+
+      const wallX = cellX * s;
+      const wallY = (cellY + 1) * s;
+
+      startX = wallX + (s - doorLength) / 2;
+      startY = wallY;
+      endX = startX + doorLength;
+      endY = wallY;
+
+      strut1_sx = wallX; strut1_sy = wallY; strut1_ex = startX; strut1_ey = wallY;
+      strut2_sx = endX; strut2_sy = wallY; strut2_ex = wallX + s; strut2_ey = wallY;
+    }
+
+    this.ctx.lineWidth = doorThickness;
+
+    let openRatio = 0;
+    if (door.state === 'Open' && !door.targetState) openRatio = 1;
+    else if (door.state === 'Closed' && door.targetState === 'Open' && door.openTimer && door.openDuration) {
+      openRatio = 1 - (door.openTimer / (door.openDuration * 1000));
+    } else if (door.state === 'Open' && door.targetState === 'Closed' && door.openTimer && door.openDuration) {
+      openRatio = door.openTimer / (door.openDuration * 1000);
+    }
+
+    const slideOffset = openRatio * (doorLength / 2);
+
+    // Colors
+    if (door.state === 'Locked' || door.targetState === 'Locked') {
+      this.ctx.strokeStyle = '#FF0000'; // Red
+    } else if (door.state === 'Destroyed') {
+      this.ctx.strokeStyle = '#550000';
+    } else {
+      this.ctx.strokeStyle = '#FFD700'; // Gold (even when open/opening, maybe dim it?)
+      if (openRatio > 0.8) this.ctx.strokeStyle = '#AA8800'; // Dim when fully open
+    }
+
+    if (door.state !== 'Destroyed') {
+      // Draw two segments sliding apart
+      const cx = (startX + endX) / 2;
+      const cy = (startY + endY) / 2;
+
+      // Vector along door
+      const dx = endX - startX;
+      const dy = endY - startY;
+      const len = Math.sqrt(dx * dx + dy * dy);
+      const ux = dx / len;
+      const uy = dy / len;
+
+      // Left Half
+      this.ctx.beginPath();
+      this.ctx.moveTo(startX, startY);
+      this.ctx.lineTo(cx - ux * slideOffset, cy - uy * slideOffset);
+      this.ctx.stroke();
+
+      // Right Half
+      this.ctx.beginPath();
+      this.ctx.moveTo(endX, endY);
+      this.ctx.lineTo(cx + ux * slideOffset, cy + uy * slideOffset);
+      this.ctx.stroke();
+
+      // Draw struts
+      this.ctx.lineWidth = 2; // Match regular wall width
+      this.ctx.strokeStyle = '#00FFFF'; // Wall color
+
+      this.ctx.beginPath();
+      this.ctx.moveTo(strut1_sx, strut1_sy);
+      this.ctx.lineTo(strut1_ex, strut1_ey);
+      this.ctx.stroke();
+
+      this.ctx.beginPath();
+      this.ctx.moveTo(strut2_sx, strut2_sy);
+      this.ctx.lineTo(strut2_ex, strut2_ey);
+      this.ctx.stroke();
+    }
+  }
+
   private getVisualOffset(unitId: string, pos: Vector2, allEntities: {id: string, pos: Vector2}[], radius: number): Vector2 {
       let dx = 0, dy = 0;
       let count = 0;
