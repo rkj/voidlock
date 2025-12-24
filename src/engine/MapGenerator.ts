@@ -116,24 +116,36 @@ export class MapGenerator {
           }
       }
 
+      // 3. Reset Walls for Floor cells (and enforce consistency)
       for (const cell of cells) {
           if (cell.type === CellType.Floor) {
-              if (!cell.walls.n) {
-                  const n = getCell(cell.x, cell.y - 1);
-                  if (!n || n.type === CellType.Wall) cell.walls.n = true;
-              }
-              if (!cell.walls.e) {
-                  const n = getCell(cell.x + 1, cell.y);
-                  if (!n || n.type === CellType.Wall) cell.walls.e = true;
-              }
-              if (!cell.walls.s) {
-                  const n = getCell(cell.x, cell.y + 1);
-                  if (!n || n.type === CellType.Wall) cell.walls.s = true;
-              }
-              if (!cell.walls.w) {
-                  const n = getCell(cell.x - 1, cell.y);
-                  if (!n || n.type === CellType.Wall) cell.walls.w = true;
-              }
+              const checkAndFix = (dir: 'n'|'e'|'s'|'w', nx: number, ny: number, opp: 'n'|'e'|'s'|'w') => {
+                  const n = getCell(nx, ny);
+                  // 1. If neighbor is Wall/Void, this wall MUST be closed.
+                  if (!n || n.type === CellType.Wall) {
+                      cell.walls[dir] = true;
+                  } else {
+                      // 2. If neighbor is Floor, ensure consistency.
+                      // If 'cell' says Open, 'n' must say Open.
+                      // If 'cell' says Closed, 'n' must say Closed? 
+                      // actually, if we want to fix "One-Way", we should OR them? 
+                      // If EITHER is Open, make BOTH Open?
+                      // Or if EITHER is Closed, make BOTH Closed?
+                      
+                      // Given the bug (Invisible Wall), we have Open->Closed.
+                      // We want Open->Open.
+                      if (!cell.walls[dir]) {
+                          n.walls[opp] = false;
+                      } else if (!n.walls[opp]) {
+                          cell.walls[dir] = false;
+                      }
+                  }
+              };
+              
+              checkAndFix('n', cell.x, cell.y - 1, 's');
+              checkAndFix('e', cell.x + 1, cell.y, 'w');
+              checkAndFix('s', cell.x, cell.y + 1, 'n');
+              checkAndFix('w', cell.x - 1, cell.y, 'e');
           }
       }
 
