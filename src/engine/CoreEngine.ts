@@ -181,7 +181,7 @@ export class CoreEngine {
   public applyCommand(cmd: Command) {
     if (this.state.status !== 'Playing') return; 
 
-    if (cmd.type === CommandType.MOVE_TO || cmd.type === CommandType.ATTACK_TARGET || cmd.type === CommandType.SET_ENGAGEMENT || cmd.type === CommandType.STOP) {
+    if (cmd.type === CommandType.MOVE_TO || cmd.type === CommandType.ATTACK_TARGET || cmd.type === CommandType.SET_ENGAGEMENT || cmd.type === CommandType.STOP || cmd.type === CommandType.RESUME_AI) {
       if (cmd.type === CommandType.ATTACK_TARGET) {
           // ATTACK_TARGET is a single-unit command in our new definition, but the loop supports arrays if we expanded it.
           // The type definition says unitId: string.
@@ -259,6 +259,7 @@ export class CoreEngine {
           }
       } else if (cmd.type === CommandType.SET_ENGAGEMENT) {
           unit.engagementPolicy = cmd.mode;
+          if (isManual) unit.aiEnabled = true;
       } else if (cmd.type === CommandType.STOP) {
           unit.commandQueue = []; // Clear command queue
           unit.path = undefined; // Stop movement
@@ -267,6 +268,8 @@ export class CoreEngine {
           unit.explorationTarget = undefined; // Clear exploration target
           unit.state = UnitState.Idle; // Set unit to Idle state
           unit.aiEnabled = false; // Disable autonomous AI
+      } else if (cmd.type === CommandType.RESUME_AI) {
+          unit.aiEnabled = true;
       }
   }
 
