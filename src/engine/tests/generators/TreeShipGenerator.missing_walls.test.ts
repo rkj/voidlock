@@ -30,26 +30,6 @@ describe('TreeShipGenerator Missing Walls Repro', () => {
         }
     };
 
-    // Check reported cells
-    const logCell = (x: number, y: number) => {
-        const cell = map.cells.find(c => c.x === x && c.y === y);
-        if (cell) {
-            console.log(`Cell (${x},${y}): type=${cell.type}, walls=${JSON.stringify(cell.walls)}`);
-            const doors = map.doors?.filter(d => d.segment.some(s => s.x === x && s.y === y));
-            if (doors && doors.length > 0) {
-                console.log(`  Doors at (${x},${y}): ${JSON.stringify(doors.map(d => ({id: d.id, seg: d.segment, ori: d.orientation})))}`);
-            }
-        } else {
-            console.log(`Cell (${x},${y}): NOT FOUND`);
-        }
-    };
-
-    console.log('--- Reported Cells Data ---');
-    logCell(5, 3);
-    logCell(5, 11);
-    logCell(8, 3);
-    logCell(10, 5);
-
     // Cell (5,3) missing East wall
     checkWallAgainstVoid(5, 3, 'e');
 

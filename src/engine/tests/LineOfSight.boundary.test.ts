@@ -29,7 +29,6 @@ describe('LOS Boundary Logic', () => {
         const target = { x: 0.5, y: 2.5 };
         
         const hasLos = los.hasLineOfSight(unitPos, target);
-        console.log(`LOS from 1.0, 2.5 to 0.5, 2.5: ${hasLos}`);
         expect(hasLos).toBe(true);
     });
 
@@ -41,7 +40,6 @@ describe('LOS Boundary Logic', () => {
         const target = { x: 0.5, y: 2.5 };
         
         const hasLos = los.hasLineOfSight(unitPos, target);
-        console.log(`LOS from 1.0000001, 2.5 to 0.5, 2.5: ${hasLos}`);
         expect(hasLos).toBe(true);
     });
 });

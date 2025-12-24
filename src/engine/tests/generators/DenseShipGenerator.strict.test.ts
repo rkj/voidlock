@@ -2,20 +2,29 @@ import { describe, it, expect } from 'vitest';
 import { DenseShipGenerator } from '../../generators/DenseShipGenerator';
 import { MapGenerator } from '../../MapGenerator';
 import { CellType } from '../../../shared/types';
+import * as fs from 'fs';
+import * as path from 'path';
 
 describe('DenseShipGenerator Strict', () => {
   it('should generate a valid starship layout for Seed 1766029929040', () => {
     const generator = new DenseShipGenerator(1766029929040, 12, 12);
     const map = generator.generate();
 
-    console.log(`
-Map Dump (Seed 1766029929040):
-${MapGenerator.toAscii(map)}
-`);
-    console.log(`
-Debug Map:
-${generator.toDebugString()}
-`);
+    const ascii = MapGenerator.toAscii(map);
+    const debug = generator.toDebugString();
+
+    const snapshotPath = path.join(__dirname, 'snapshots', 'DenseShipGenerator.strict.12x12.golden.txt');
+    const debugPath = path.join(__dirname, 'snapshots', 'DenseShipGenerator.strict.12x12.debug.txt');
+
+    if (!fs.existsSync(snapshotPath) || !fs.existsSync(debugPath)) {
+        fs.writeFileSync(snapshotPath, ascii);
+        fs.writeFileSync(debugPath, debug);
+    } else {
+        const expectedAscii = fs.readFileSync(snapshotPath, 'utf8');
+        const expectedDebug = fs.readFileSync(debugPath, 'utf8');
+        expect(ascii, 'ASCII Map mismatch').toBe(expectedAscii);
+        expect(debug, 'Debug Map mismatch').toBe(expectedDebug);
+    }
 
     // 1. Check for Room Rectangularity & Dimensions
     // Group by roomId

@@ -21,8 +21,7 @@ describe('MapGenerator.validate', () => {
   it('should validate a simple connected map', () => {
     const map = createBaseMap();
     const result = generator.validate(map);
-    if (!result.isValid) console.log('Validation Issues:', result.issues);
-    expect(result.isValid).toBe(true);
+    expect(result.isValid, `Validation Issues: ${result.issues.join(', ')}`).toBe(true);
     expect(result.issues).toHaveLength(0);
   });
 

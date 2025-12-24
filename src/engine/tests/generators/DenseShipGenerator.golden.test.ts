@@ -22,7 +22,6 @@ describe('DenseShipGenerator Golden', () => {
         // If files don't exist, create them (first run)
         fs.writeFileSync(snapshotPath, ascii);
         fs.writeFileSync(debugPath, debug);
-        console.log('Golden snapshots created.');
         return;
     }
 
