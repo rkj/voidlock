@@ -108,4 +108,16 @@ describe('Renderer', () => {
     renderer.render(combatState);
     expect(mockContext.lineTo).toHaveBeenCalledWith(16, 16);
   });
+
+  it('should render overlay options', () => {
+      renderer.setOverlay([
+          { key: '1', label: 'Test', pos: { x: 0, y: 0 } },
+          { key: '2', label: 'Test2', pos: { x: 1, y: 1 } }
+      ]);
+      renderer.render(mockGameState);
+      
+      // Should fill text for '1' and '2'
+      expect(mockContext.fillText).toHaveBeenCalledWith('1', expect.any(Number), expect.any(Number));
+      expect(mockContext.fillText).toHaveBeenCalledWith('2', expect.any(Number), expect.any(Number));
+  });
 });
