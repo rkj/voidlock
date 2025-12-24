@@ -761,6 +761,8 @@ history/
 - ✅ Link discovered work with `discovered-from` dependencies
 - ✅ Check `bd ready` before asking "what should I work on?"
 - ✅ Store AI planning docs in `history/` directory
+- ✅ **Spec Updates:** You MUST update `spec.md` with any new requirements or changes *before* starting implementation.
+- ✅ **Test Coverage:** Every new feature or bug fix MUST have a corresponding test case. Never assume it works.
 - ✅ **New Change Request Workflow**: When a new change is requested, first update `spec.md` with the extra clarification, then create Beads tasks for the implementation.
 - ✅ **No Pushes**: The agent must *not* push changes to the remote repository without explicit user instruction.
 - ✅ **Version Control**: The agent must use `jj` commands exclusively for version control operations (commit, diff, status, etc.), and *never* use `git` commands directly, as this is a `jj` managed repository.

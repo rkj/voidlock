@@ -41,13 +41,14 @@ export class GameClient {
     squadConfig: SquadConfig = [], // Default to empty array if not provided
     missionType: MissionType = MissionType.Default,
     width: number = 16,
-    height: number = 16
+    height: number = 16,
+    spawnPointCount: number = 3
   ) {
     this.initialSeed = seed;
     this.initialSquadConfig = squadConfig;
     // Use the factory to get the map, based on type and data
     const generator = this.mapGeneratorFactory(seed, mapGeneratorType, mapData);
-    const map = mapGeneratorType === MapGeneratorType.Static ? generator.load(mapData!) : generator.generate(width, height, mapGeneratorType);
+    const map = mapGeneratorType === MapGeneratorType.Static ? generator.load(mapData!) : generator.generate(width, height, mapGeneratorType, spawnPointCount);
 
     this.initialMap = map;
     this.commandStream = [];

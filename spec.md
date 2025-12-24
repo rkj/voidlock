@@ -422,10 +422,20 @@ The game must be fully playable via keyboard using a hierarchical command menu.
         *   `N+1`: "All" (if applicable).
 
 ### 8.4 UI Layout Reorganization
-*   **Top Bar:** Time, Game Status (Playing/Won/Lost), and Global alerts (e.g., "Extraction Available").
-*   **Soldier Panel:** Moved to the **Bottom** (RPG style) or **Top** (under status). Displays character avatars, health, and status.
-*   **Right Panel:** Dedicated exclusively to the **Command Menu** and **Objective List**.
-*   **Main View:** Centered map area.
+The UI must be optimized for visibility and information density, avoiding empty space and utilizing the full width of the screen.
+
+*   **Top Bar (Header):** Fixed height (e.g., 40px). Displays Game Time, Status (Playing/Won/Lost), Seed, and global alerts.
+*   **Soldier Bar (Sub-header):** Full-width strip below the top bar. Displays all soldiers in a horizontal layout. Each "Soldier Card" shows the avatar, HP bar, status text, and quick action buttons.
+*   **Main Simulation Area:** Flex container below the Soldier Bar.
+    *   **Game Canvas (Left/Center):** Takes up the majority of the screen. Must be centered within its container.
+    *   **Command Panel (Right):** Fixed width (e.g., 300px). Contains the hierarchical keyboard command menu, objective list, and threat meter.
+
+### 8.5 Mission Configuration
+*   **Spawn Points:** The number of initial spawn points (vents/entry points for enemies) must be configurable in the Mission Setup screen (Range: 1 to 10).
+*   **Strict Placement Rules:**
+    *   **Spawn Points:** Must ONLY be placed in rooms, never in corridors.
+    *   **Objectives & Hive:** Must ONLY be placed in rooms, never in corridors.
+    *   **Corridors:** Must remain clear of all static mission entities to maintain the "frame" integrity.
 
 ### 8.2 Debug affordances (non-negotiable for balancing)
 
