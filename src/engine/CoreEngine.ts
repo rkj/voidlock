@@ -23,6 +23,7 @@ export class CoreEngine {
   private missionType: MissionType;
   private meleeAI: IEnemyAI;
   private rangedAI: IEnemyAI;
+  private totalFloorCells: number;
 
   constructor(map: MapDefinition, seed: number, squadConfig: SquadConfig, agentControlEnabled: boolean, debugOverlayEnabled: boolean, missionType: MissionType = MissionType.Default) {
     this.prng = new PRNG(seed);
@@ -35,6 +36,7 @@ export class CoreEngine {
     this.missionType = missionType;
     this.meleeAI = new SwarmMeleeAI();
     this.rangedAI = new RangedKiteAI();
+    this.totalFloorCells = map.cells.filter(c => c.type === CellType.Floor).length;
 
     let objectives: Objective[] = (map.objectives || []).map(o => ({
       ...o,
@@ -367,8 +369,7 @@ export class CoreEngine {
 
   // Helper to check if the entire map is discovered
   private isMapFullyDiscovered(): boolean {
-    const totalFloorCells = this.state.map.cells.filter(c => c.type === CellType.Floor).length;
-    return this.state.discoveredCells.length >= totalFloorCells;
+    return this.state.discoveredCells.length >= this.totalFloorCells;
   }
   
   // Debugging function for AI
