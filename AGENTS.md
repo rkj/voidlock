@@ -1,5 +1,7 @@
 # Instructions for AI Agents Working on Beads
 
+> **🚨 CRITICAL MANDATE**: At the start of EVERY session, you MUST first run `bd list --status in_progress --json` to identify and resume work on tasks already in development. You are FORBIDDEN from running `bd ready` or starting new tasks until all `in_progress` items assigned to your role are either completed or clearly blocked.
+
 > **📖 For detailed development instructions**, see [AGENT_INSTRUCTIONS.md](AGENT_INSTRUCTIONS.md)
 >
 > This file provides a quick overview and reference. For in-depth operational details (development, testing, releases, git workflow), consult the detailed instructions.

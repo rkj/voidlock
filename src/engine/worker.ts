@@ -5,7 +5,7 @@ let engine: CoreEngine | null = null;
 let loopId: any = null;
 
 const TICK_RATE = 16; // Fixed 16ms (~60Hz) for smooth state updates
-let timeScale = 1.0; // Default 1x speed
+let timeScale = 0.3; // Default 0.3x speed
 
 self.onmessage = (e: MessageEvent<WorkerMessage>) => {
   const msg = e.data;

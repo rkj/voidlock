@@ -545,6 +545,7 @@ const launchMission = () => {
         spawnPointCount: currentSpawnPointCount,
         fogOfWarEnabled,
         debugOverlayEnabled,
+        losOverlayEnabled, // Added
         agentControlEnabled,
         mapGeneratorType: currentMapGeneratorType,
         missionType: currentMissionType,
@@ -761,9 +762,9 @@ document.addEventListener('DOMContentLoaded', () => {
             <input type="checkbox" id="toggle-agent-control" checked>
             <label for="toggle-agent-control" style="display:inline;">Agent Control</label>
         </div>
-        <div style="margin-top: 10px;">
-            <label for="time-scale-slider">Game Speed (x): <span id="time-scale-value">0.3</span></label>
-            <input type="range" id="time-scale-slider" min="0.1" max="3.0" step="0.1" value="0.3">
+        <div style="margin-top: 20px;">
+            <label for="time-scale-slider" style="display: block; margin-bottom: 10px;">Game Speed (x): <span id="time-scale-value">0.3</span></label>
+            <input type="range" id="time-scale-slider" min="0.1" max="3.0" step="0.1" value="0.3" style="width: 100%; height: 20px; cursor: pointer;">
         </div>
       `;
       // Insert after Map Generation group (which contains presetControls)
@@ -959,6 +960,7 @@ document.addEventListener('DOMContentLoaded', () => {
           currentSpawnPointCount = config.spawnPointCount || 3;
           fogOfWarEnabled = config.fogOfWarEnabled;
           debugOverlayEnabled = config.debugOverlayEnabled;
+          losOverlayEnabled = config.losOverlayEnabled || false; // Added
           agentControlEnabled = config.agentControlEnabled;
           currentMapGeneratorType = config.mapGeneratorType;
           currentMissionType = config.missionType || MissionType.Default;
@@ -984,6 +986,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
           const debugCheck = document.getElementById('toggle-debug-overlay') as HTMLInputElement;
           if (debugCheck) debugCheck.checked = debugOverlayEnabled;
+
+          const losCheck = document.getElementById('toggle-los-overlay') as HTMLInputElement;
+          if (losCheck) losCheck.checked = losOverlayEnabled; // Added
 
           const agentCheck = document.getElementById('toggle-agent-control') as HTMLInputElement;
           if (agentCheck) agentCheck.checked = agentControlEnabled;
