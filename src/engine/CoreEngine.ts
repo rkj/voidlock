@@ -174,7 +174,7 @@ export class CoreEngine {
   public applyCommand(cmd: Command) {
     if (this.state.status !== 'Playing') return; 
 
-    if (cmd.type === CommandType.MOVE_TO || cmd.type === CommandType.ATTACK_TARGET || cmd.type === CommandType.SET_ENGAGEMENT) {
+    if (cmd.type === CommandType.MOVE_TO || cmd.type === CommandType.ATTACK_TARGET || cmd.type === CommandType.SET_ENGAGEMENT || cmd.type === CommandType.STOP) {
       if (cmd.type === CommandType.ATTACK_TARGET) {
           // ATTACK_TARGET is a single-unit command in our new definition, but the loop supports arrays if we expanded it.
           // The type definition says unitId: string.
@@ -188,7 +188,7 @@ export class CoreEngine {
               }
           }
       } else {
-          // MOVE_TO or SET_ENGAGEMENT
+          // MOVE_TO, SET_ENGAGEMENT or STOP
           cmd.unitIds.forEach(id => {
             const unit = this.state.units.find(u => u.id === id);
             if (unit) {
@@ -201,18 +201,6 @@ export class CoreEngine {
             }
           });
       }
-    } else if (cmd.type === CommandType.STOP) { // New: Handle STOP command
-        cmd.unitIds.forEach(id => {
-            const unit = this.state.units.find(u => u.id === id);
-            if (unit) {
-                unit.commandQueue = []; // Clear command queue
-                unit.path = undefined; // Stop movement
-                unit.targetPos = undefined;
-                unit.forcedTargetId = undefined; // Clear forced target
-                unit.explorationTarget = undefined; // Clear exploration target
-                unit.state = UnitState.Idle; // Set unit to Idle state
-            }
-        });
     }
   }
 
@@ -262,6 +250,13 @@ export class CoreEngine {
           }
       } else if (cmd.type === CommandType.SET_ENGAGEMENT) {
           unit.engagementPolicy = cmd.mode;
+      } else if (cmd.type === CommandType.STOP) {
+          unit.commandQueue = []; // Clear command queue
+          unit.path = undefined; // Stop movement
+          unit.targetPos = undefined;
+          unit.forcedTargetId = undefined; // Clear forced target
+          unit.explorationTarget = undefined; // Clear exploration target
+          unit.state = UnitState.Idle; // Set unit to Idle state
       }
   }
 
