@@ -1,9 +1,12 @@
 import { MapDefinition, CellType, Vector2 } from '../shared/types';
+import { Graph } from '../engine/Graph';
 
 export class MapRenderer {
   private ctx: CanvasRenderingContext2D;
   private canvas: HTMLCanvasElement;
   private cellSize: number = 64; 
+  private graph: Graph | null = null;
+  private currentMapId: string | null = null;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -25,6 +28,13 @@ export class MapRenderer {
     if (this.canvas.width !== width || this.canvas.height !== height) {
         this.canvas.width = width;
         this.canvas.height = height;
+    }
+
+    // Update Graph if map changed
+    const mapId = `${map.width}x${map.height}-${map.cells.length}`;
+    if (this.currentMapId !== mapId) {
+        this.graph = new Graph(map);
+        this.currentMapId = mapId;
     }
 
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -61,46 +71,18 @@ export class MapRenderer {
   }
 
   private renderWalls(map: MapDefinition) {
-    const isDoor = (cellX: number, cellY: number, wallDirection: 'n'|'e'|'s'|'w'): boolean => {
-      return map.doors?.some(door => {
-        if (door.orientation === 'Horizontal') {
-          if (wallDirection === 'n') return door.segment.some(segCell => segCell.x === cellX && segCell.y === cellY - 1);
-          if (wallDirection === 's') return door.segment.some(segCell => segCell.x === cellX && segCell.y === cellY);
-        } else if (door.orientation === 'Vertical') {
-          if (wallDirection === 'w') return door.segment.some(segCell => segCell.x === cellX - 1 && segCell.y === cellY);
-          if (wallDirection === 'e') return door.segment.some(segCell => segCell.x === cellX && segCell.y === cellY);
-        }
-        return false;
-      }) || false;
-    };
+    if (!this.graph) return;
 
     this.ctx.lineCap = 'round';
     this.ctx.strokeStyle = '#00FFFF'; 
     this.ctx.lineWidth = 2; 
     this.ctx.beginPath();
 
-    map.cells.forEach(cell => {
-      if (cell.type !== CellType.Floor) return;
-
-      const x = cell.x * this.cellSize;
-      const y = cell.y * this.cellSize;
-      const s = this.cellSize;
-
-      if (cell.walls.n && !isDoor(cell.x, cell.y, 'n')) { 
-        this.ctx.moveTo(x, y);
-        this.ctx.lineTo(x + s, y);
-      }
-      if (cell.walls.e && !isDoor(cell.x, cell.y, 'e')) { 
-        this.ctx.moveTo(x + s, y);
-        this.ctx.lineTo(x + s, y + s);
-      }
-      if (cell.walls.s && !isDoor(cell.x, cell.y, 's')) { 
-        this.ctx.moveTo(x, y + s);
-        this.ctx.lineTo(x + s, y + s);
-      }
-      if (cell.walls.w && !isDoor(cell.x, cell.y, 'w')) { 
-        this.ctx.moveTo(x, y);
-        this.ctx.lineTo(x, y + s);
+    this.graph.getAllBoundaries().forEach(boundary => {
+      if (boundary.isWall && !boundary.doorId) {
+        const seg = boundary.getVisualSegment();
+        this.ctx.moveTo(seg.p1.x * this.cellSize, seg.p1.y * this.cellSize);
+        this.ctx.lineTo(seg.p2.x * this.cellSize, seg.p2.y * this.cellSize);
       }
     });
     this.ctx.stroke();
