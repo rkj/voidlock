@@ -3,6 +3,7 @@ import { Icons } from './Icons';
 import { LineOfSight } from '../engine/LineOfSight';
 import { GameGrid } from '../engine/GameGrid';
 import { VisibilityPolygon } from './VisibilityPolygon';
+import { Graph } from '../engine/Graph';
 
 export class Renderer {
   private ctx: CanvasRenderingContext2D;
@@ -10,6 +11,8 @@ export class Renderer {
   private cellSize: number = 128; // Increased tile size for M8
   private iconImages: Record<string, HTMLImageElement> = {};
   private overlayOptions: OverlayOption[] = [];
+  private graph: Graph | null = null;
+  private currentMapId: string | null = null;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -34,6 +37,15 @@ export class Renderer {
   public render(state: GameState) {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
+    // Update Graph if map changed
+    // Using simple heuristic for map identity (width/height change)
+    // Ideally MapDefinition should have a unique ID.
+    const mapId = `${state.map.width}x${state.map.height}-${state.map.cells.length}`;
+    if (this.currentMapId !== mapId) {
+        this.graph = new Graph(state.map);
+        this.currentMapId = mapId;
+    }
+
     this.renderMap(state);
     this.renderObjectives(state);
     this.renderUnits(state);
@@ -49,11 +61,13 @@ export class Renderer {
   }
 
   private renderLOSOverlay(state: GameState) {
+      if (!this.graph) return;
+
       // Render Soldier LOS (Green)
       this.ctx.fillStyle = 'rgba(0, 255, 0, 0.2)'; // Slightly more opaque
       state.units.forEach(u => {
           if (u.hp > 0 && u.state !== UnitState.Extracted && u.state !== UnitState.Dead) {
-              const polygon = VisibilityPolygon.compute(u.pos, u.sightRange || 10, state.map);
+              const polygon = VisibilityPolygon.compute(u.pos, u.sightRange || 10, this.graph!);
               
               if (polygon.length > 0) {
                   this.ctx.beginPath();
@@ -79,7 +93,7 @@ export class Renderer {
               const cellKey = `${Math.floor(e.pos.x)},${Math.floor(e.pos.y)}`;
               if (!state.visibleCells.includes(cellKey)) return;
 
-              const polygon = VisibilityPolygon.compute(e.pos, 10, state.map);
+              const polygon = VisibilityPolygon.compute(e.pos, 10, this.graph!);
               
               if (polygon.length > 0) {
                   this.ctx.beginPath();
