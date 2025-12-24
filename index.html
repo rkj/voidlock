@@ -58,18 +58,31 @@
       label { display: block; margin-top: 10px; color: #aaa; }
       
       /* Lists */
-      #soldier-list { margin-top: 15px; flex-grow: 1; overflow-y: auto; border-top: 1px solid #444; padding-top: 10px; }
-      .soldier-item { padding: 5px; border: 1px solid #333; margin-bottom: 5px; cursor: pointer; }
+      #soldier-list { /* Container handled inline style */ }
+      .soldier-item { 
+          min-width: 180px; 
+          width: 180px;
+          height: 100%; 
+          border: 1px solid #333; 
+          cursor: pointer; 
+          background: #111; 
+          display: flex; 
+          flex-direction: column;
+          padding: 5px;
+          box-sizing: border-box;
+          flex-shrink: 0;
+      }
       .soldier-item:hover { background-color: #333; }
       .soldier-item.selected { border-color: #0f0; background-color: #222; }
-      .soldier-item.dead { color: #f00; border-color: #f00; }
-      .soldier-item.extracted { color: #0aa; border-color: #0aa; }
+      .soldier-item.dead { color: #f00; border-color: #f00; opacity: 0.7; }
+      .soldier-item.extracted { color: #0aa; border-color: #0aa; opacity: 0.7; }
       
-      .status-line { font-size: 0.8em; color: #aaa; }
-      .hp-bar { height: 4px; background: #333; margin-top: 2px; }
-      .hp-fill { height: 100%; background: #0f0; }
+      .status-line { font-size: 0.8em; color: #aaa; margin-top: auto; }
+      .hp-bar { height: 6px; background: #333; margin: 5px 0; border: 1px solid #555; }
+      .hp-fill { height: 100%; background: #0f0; transition: width 0.2s; }
       
-      #command-help { font-size: 0.8em; color: #888; margin-top: 10px; }
+      .unit-commands { margin-top: 5px; }
+      .unit-commands button { padding: 4px 8px; font-size: 0.8em; width: auto; margin: 0; }
       
       /* Setup Screen Layout */
       #setup-content { display: flex; flex-direction: column; align-items: flex-start; width: 100%; max-width: 600px; padding: 20px; background: #1a1a1a; border: 1px solid #444; }
@@ -171,36 +184,30 @@
 
       <!-- 4. Mission Screen (Game Loop) -->
       <div id="screen-mission" class="screen">
-        <div id="game-container">
-          <canvas id="game-canvas"></canvas>
-          <div id="seed-overlay" style="position: absolute; top: 10px; left: 10px; color: #888; background: rgba(0,0,0,0.5); padding: 4px 8px; pointer-events: none; font-family: monospace; z-index: 100;"></div>
+        <!-- Top Bar -->
+        <div id="top-bar" style="height: 40px; background: #222; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid #444;">
+            <div id="game-status" style="font-weight: bold; color: #0f0;">Status: Active</div>
+            <div id="global-alerts" style="color: #f00;"></div>
+            <div style="font-size: 0.8em; color: #888;">Prototype v0.1.0</div>
         </div>
-        <div id="ui-panel">
-          <h3>MISSION CONTROL</h3>
-          <p id="game-status">Status: Active</p>
-          
-          <div id="right-panel">
-              <!-- Objectives, Threat Meter -->
-          </div>
 
-          <div id="soldier-list">
-            <!-- Soldiers -->
-          </div>
-
-          <div class="mission-sidebar-group">
-            <h3>Commands</h3>
-            <button id="cmd-move">Move (M)</button>
-            <div id="command-help">
-              Select Command -> Select Unit -> Target
-              <br>Shift+Click to Queue
+        <!-- Main Body -->
+        <div id="mission-body" style="display: flex; flex-grow: 1; overflow: hidden;">
+            <div id="game-container">
+              <canvas id="game-canvas"></canvas>
+              <div id="seed-overlay" style="position: absolute; top: 10px; left: 10px; color: #888; background: rgba(0,0,0,0.5); padding: 4px 8px; pointer-events: none; font-family: monospace; z-index: 100;"></div>
             </div>
-          </div>
-          
-          <div class="mission-sidebar-group">
-            <h3>System</h3>
-            <button id="export-replay">Export Replay</button>
-            <button id="btn-mission-abort" class="back-button">Abort Mission</button>
-          </div>
+            
+            <div id="right-panel" style="width: 300px; background: #1a1a1a; border-left: 1px solid #444; padding: 10px; display: flex; flex-direction: column; overflow-y: auto;">
+                <!-- Commands and Objectives will be injected here -->
+            </div>
+        </div>
+
+        <!-- Bottom Soldier Panel -->
+        <div id="soldier-panel" style="height: 150px; background: #222; border-top: 1px solid #444; padding: 10px; overflow-x: auto;">
+            <div id="soldier-list" style="display: flex; gap: 10px; height: 100%;">
+                <!-- Soldier cards injected here -->
+            </div>
         </div>
       </div>
 
