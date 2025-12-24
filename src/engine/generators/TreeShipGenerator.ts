@@ -125,10 +125,13 @@ export class TreeShipGenerator {
   }
 
   private placeRoom(rx: number, ry: number, w: number, h: number, parentX: number, parentY: number, dir: 'n'|'e'|'s'|'w') {
+      const roomId = `room-${rx}-${ry}`;
       // Place Room
       for(let y=ry; y<ry+h; y++) {
           for(let x=rx; x<rx+w; x++) {
               this.setFloor(x, y);
+              const cell = this.getCell(x, y);
+              if (cell) cell.roomId = roomId;
               
               // Internal walls: Open connections to neighbors within the room
               const isLastCol = (x === rx + w - 1);
@@ -234,13 +237,17 @@ export class TreeShipGenerator {
     const floors = this.cells.filter(c => c.type === CellType.Floor);
     if (floors.length === 0) return;
 
+    const roomFloors = floors.filter(c => c.roomId && c.roomId.startsWith('room-'));
+    // Fallback to all floors ONLY if no rooms exist (should not happen in TreeShip)
+    const spawnCandidates = roomFloors.length > 0 ? roomFloors : floors;
+
     let referenceX = 0;
     if (spawnPointCount === 1) {
-        const sp = floors.sort((a,b) => a.x - b.x)[0];
+        const sp = spawnCandidates.sort((a,b) => a.x - b.x)[0];
         this.spawnPoints.push({ id: 'spawn-1', pos: { x: sp.x, y: sp.y }, radius: 1 });
         referenceX = sp.x;
     } else {
-        const leftMost = floors.sort((a,b) => a.x - b.x).slice(0, Math.min(20, floors.length));
+        const leftMost = spawnCandidates.sort((a,b) => a.x - b.x).slice(0, Math.min(20, spawnCandidates.length));
         for (let i = 0; i < spawnPointCount; i++) {
             const sp = leftMost[this.prng.nextInt(0, leftMost.length - 1)];
             this.spawnPoints.push({ id: `spawn-${i + 1}`, pos: { x: sp.x, y: sp.y }, radius: 1 });
@@ -251,9 +258,11 @@ export class TreeShipGenerator {
     const rightMost = floors.sort((a,b) => b.x - a.x)[0];
     this.extraction = { x: rightMost.x, y: rightMost.y };
 
-    const validObjective = floors.filter(c => Math.abs(c.x - referenceX) > 5);
-    if (validObjective.length > 0) {
-        const objCell = validObjective[this.prng.nextInt(0, validObjective.length - 1)];
+    const objectiveCandidates = roomFloors.filter(c => Math.abs(c.x - referenceX) > 5);
+    const finalObjCandidates = objectiveCandidates.length > 0 ? objectiveCandidates : floors.filter(c => Math.abs(c.x - referenceX) > 5);
+
+    if (finalObjCandidates.length > 0) {
+        const objCell = finalObjCandidates[this.prng.nextInt(0, finalObjCandidates.length - 1)];
         this.objectives.push({
             id: 'obj-1',
             kind: 'Recover',
@@ -323,6 +332,8 @@ export class TreeShipGenerator {
 
     for (let x = aortaStart; x <= aortaEnd; x++) {
       this.setFloor(x, aortaY);
+      const cell = this.getCell(x, aortaY);
+      if (cell) cell.roomId = 'corridor-aorta-h';
       spineCells.push({ x, y: aortaY });
       if (x > aortaStart) {
         this.openWall(x - 1, aortaY, 'e');
@@ -333,9 +344,12 @@ export class TreeShipGenerator {
     for (let x = aortaStart + 2; x <= aortaEnd - 2; x += arteryInterval) {
       if (this.prng.next() < 0.8) {
         const lenUp = this.prng.nextInt(2, Math.floor(this.height / 2) - 2);
+        const arteryId = `corridor-artery-up-${x}`;
         for (let y = 1; y <= lenUp; y++) {
           const cy = aortaY - y;
           this.setFloor(x, cy);
+          const cell = this.getCell(x, cy);
+          if (cell) cell.roomId = arteryId;
           spineCells.push({ x, y: cy });
           if (y === 1) {
             this.openWall(x, aortaY, 'n');
@@ -344,9 +358,12 @@ export class TreeShipGenerator {
           }
         }
         const lenDown = this.prng.nextInt(2, Math.floor(this.height / 2) - 2);
+        const arteryIdDown = `corridor-artery-down-${x}`;
         for (let y = 1; y <= lenDown; y++) {
           const cy = aortaY + y;
           this.setFloor(x, cy);
+          const cell = this.getCell(x, cy);
+          if (cell) cell.roomId = arteryIdDown;
           spineCells.push({ x, y: cy });
           if (y === 1) {
             this.openWall(x, aortaY, 's');
@@ -365,6 +382,8 @@ export class TreeShipGenerator {
 
     for (let y = aortaStart; y <= aortaEnd; y++) {
       this.setFloor(aortaX, y);
+      const cell = this.getCell(aortaX, y);
+      if (cell) cell.roomId = 'corridor-aorta-v';
       spineCells.push({ x: aortaX, y });
       if (y > aortaStart) {
         this.openWall(aortaX, y - 1, 's');
@@ -375,9 +394,12 @@ export class TreeShipGenerator {
     for (let y = aortaStart + 2; y <= aortaEnd - 2; y += arteryInterval) {
       if (this.prng.next() < 0.8) {
         const lenLeft = this.prng.nextInt(2, Math.floor(this.width / 2) - 2);
+        const arteryId = `corridor-artery-left-${y}`;
         for (let x = 1; x <= lenLeft; x++) {
           const cx = aortaX - x;
           this.setFloor(cx, y);
+          const cell = this.getCell(cx, y);
+          if (cell) cell.roomId = arteryId;
           spineCells.push({ x: cx, y });
           if (x === 1) {
             this.openWall(aortaX, y, 'w');
@@ -386,9 +408,12 @@ export class TreeShipGenerator {
           }
         }
         const lenRight = this.prng.nextInt(2, Math.floor(this.width / 2) - 2);
+        const arteryIdRight = `corridor-artery-right-${y}`;
         for (let x = 1; x <= lenRight; x++) {
           const cx = aortaX + x;
           this.setFloor(cx, y);
+          const cell = this.getCell(cx, y);
+          if (cell) cell.roomId = arteryIdRight;
           spineCells.push({ x: cx, y });
           if (x === 1) {
             this.openWall(aortaX, y, 'e');
@@ -406,6 +431,8 @@ export class TreeShipGenerator {
 
     for (let x = 1; x < this.width - 1; x++) {
       this.setFloor(x, midY);
+      const cell = this.getCell(x, midY);
+      if (cell) cell.roomId = 'corridor-aorta-h';
       spineCells.push({ x, y: midY });
       if (x > 1) {
         this.openWall(x - 1, midY, 'e');
@@ -415,6 +442,8 @@ export class TreeShipGenerator {
     for (let y = 1; y < this.height - 1; y++) {
       if (y === midY) continue;
       this.setFloor(midX, y);
+      const cell = this.getCell(midX, y);
+      if (cell) cell.roomId = 'corridor-aorta-v';
       spineCells.push({ x: midX, y });
       if (y === midY - 1) {
         this.openWall(midX, y, 's');
@@ -432,10 +461,13 @@ export class TreeShipGenerator {
       if (Math.abs(x - midX) < 3) continue; 
       if (this.prng.next() < 0.7) {
         const lenUp = this.prng.nextInt(2, Math.floor(this.height / 4) + 2);
+        const arteryId = `corridor-artery-up-${x}`;
         for (let y = 1; y <= lenUp; y++) {
           const cy = midY - y;
           if (this.getCell(x, cy)?.type === CellType.Floor) break;
           this.setFloor(x, cy);
+          const cell = this.getCell(x, cy);
+          if (cell) cell.roomId = arteryId;
           spineCells.push({ x, y: cy });
           if (y === 1) {
             this.openWall(x, midY, 'n');
@@ -444,10 +476,13 @@ export class TreeShipGenerator {
           }
         }
         const lenDown = this.prng.nextInt(2, Math.floor(this.height / 4) + 2);
+        const arteryIdDown = `corridor-artery-down-${x}`;
         for (let y = 1; y <= lenDown; y++) {
           const cy = midY + y;
           if (this.getCell(x, cy)?.type === CellType.Floor) break;
           this.setFloor(x, cy);
+          const cell = this.getCell(x, cy);
+          if (cell) cell.roomId = arteryIdDown;
           spineCells.push({ x, y: cy });
           if (y === 1) {
             this.openWall(x, midY, 's');
@@ -462,10 +497,13 @@ export class TreeShipGenerator {
       if (Math.abs(y - midY) < 3) continue;
       if (this.prng.next() < 0.7) {
         const lenLeft = this.prng.nextInt(2, Math.floor(this.width / 4) + 2);
+        const arteryId = `corridor-artery-left-${y}`;
         for (let x = 1; x <= lenLeft; x++) {
           const cx = midX - x;
           if (this.getCell(cx, y)?.type === CellType.Floor) break;
           this.setFloor(cx, y);
+          const cell = this.getCell(cx, y);
+          if (cell) cell.roomId = arteryId;
           spineCells.push({ x: cx, y });
           if (x === 1) {
             this.openWall(midX, y, 'w');
@@ -474,10 +512,13 @@ export class TreeShipGenerator {
           }
         }
         const lenRight = this.prng.nextInt(2, Math.floor(this.width / 4) + 2);
+        const arteryIdRight = `corridor-artery-right-${y}`;
         for (let x = 1; x <= lenRight; x++) {
           const cx = midX + x;
           if (this.getCell(cx, y)?.type === CellType.Floor) break;
           this.setFloor(cx, y);
+          const cell = this.getCell(cx, y);
+          if (cell) cell.roomId = arteryIdRight;
           spineCells.push({ x: cx, y });
           if (x === 1) {
             this.openWall(midX, y, 'e');

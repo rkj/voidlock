@@ -56,9 +56,12 @@ export class SpaceshipGenerator {
         }
 
         if (!collision) {
+            const roomId = `room-${x}-${y}`;
             for (let dy = 0; dy < h; dy++) {
                 for (let dx = 0; dx < w; dx++) {
                     this.setFloor(x + dx, y + dy);
+                    const cell = this.getCell(x + dx, y + dy);
+                    if (cell) cell.roomId = roomId;
                     if (dx < w - 1) this.openWall(x + dx, y + dy, 'e');
                     if (dy < h - 1) this.openWall(x + dx, y + dy, 's');
                 }
@@ -84,6 +87,8 @@ export class SpaceshipGenerator {
     
     if (this.getCell(startX, startY)?.type === CellType.Wall) {
         this.setFloor(startX, startY);
+        const cell = this.getCell(startX, startY);
+        if (cell) cell.roomId = 'corridor-maze';
         stack.push({x: startX, y: startY});
     }
 
@@ -112,6 +117,8 @@ export class SpaceshipGenerator {
         if (neighbors.length > 0) {
             const next = neighbors[0]; 
             this.setFloor(next.x, next.y);
+            const cell = this.getCell(next.x, next.y);
+            if (cell) cell.roomId = 'corridor-maze';
             this.openWall(current.x, current.y, next.dir as any);
             stack.push({x: next.x, y: next.y});
         } else {
@@ -169,6 +176,8 @@ export class SpaceshipGenerator {
                 if (floorNeighbors.length > 0) {
                     const n = floorNeighbors[this.prng.nextInt(0, floorNeighbors.length - 1)];
                     this.setFloor(x, y);
+                    const cell = this.getCell(x, y);
+                    if (cell) cell.roomId = 'corridor-patch';
                     this.openWall(x, y, n.d as any);
                 }
             }
@@ -250,13 +259,16 @@ export class SpaceshipGenerator {
       const floors = this.cells.filter(c => c.type === CellType.Floor);
       if (floors.length === 0) return;
 
+      const roomFloors = floors.filter(c => c.roomId && c.roomId.startsWith('room-'));
+      const spawnCandidates = roomFloors.length > 0 ? roomFloors : floors;
+
       let referenceX = 0;
       if (spawnPointCount === 1) {
-          const sp = floors.sort((a,b) => a.x - b.x)[0];
+          const sp = spawnCandidates.sort((a,b) => a.x - b.x)[0];
           this.spawnPoints.push({ id: 'spawn-1', pos: { x: sp.x, y: sp.y }, radius: 1 });
           referenceX = sp.x;
       } else {
-          const leftMost = floors.sort((a,b) => a.x - b.x).slice(0, Math.min(20, floors.length));
+          const leftMost = spawnCandidates.sort((a,b) => a.x - b.x).slice(0, Math.min(20, spawnCandidates.length));
           for (let i = 0; i < spawnPointCount; i++) {
               const sp = leftMost[this.prng.nextInt(0, leftMost.length - 1)];
               this.spawnPoints.push({ id: `spawn-${i + 1}`, pos: { x: sp.x, y: sp.y }, radius: 1 });
@@ -267,9 +279,11 @@ export class SpaceshipGenerator {
       const rightMost = floors.sort((a,b) => b.x - a.x)[0];
       this.extraction = { x: rightMost.x, y: rightMost.y };
 
-      const validObjective = floors.filter(c => Math.abs(c.x - referenceX) > 5);
-      if (validObjective.length > 0) {
-          const objCell = validObjective[this.prng.nextInt(0, validObjective.length - 1)];
+      const objectiveCandidates = roomFloors.filter(c => Math.abs(c.x - referenceX) > 5);
+      const finalObjCandidates = objectiveCandidates.length > 0 ? objectiveCandidates : floors.filter(c => Math.abs(c.x - referenceX) > 5);
+
+      if (finalObjCandidates.length > 0) {
+          const objCell = finalObjCandidates[this.prng.nextInt(0, finalObjCandidates.length - 1)];
           this.objectives.push({
               id: 'obj-1',
               kind: 'Recover',

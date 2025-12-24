@@ -33,7 +33,8 @@
         "e": false,
         "s": true,
         "w": true
-      }
+      },
+      "roomId": "room-2-0"
     },
     {
       "x": 3,
@@ -44,7 +45,8 @@
         "e": true,
         "s": true,
         "w": false
-      }
+      },
+      "roomId": "room-2-0"
     },
     {
       "x": 4,
@@ -110,7 +112,8 @@
         "e": false,
         "s": false,
         "w": true
-      }
+      },
+      "roomId": "room-1-1"
     },
     {
       "x": 2,
@@ -121,7 +124,8 @@
         "e": true,
         "s": false,
         "w": false
-      }
+      },
+      "roomId": "room-1-1"
     },
     {
       "x": 3,
@@ -198,7 +202,8 @@
         "e": false,
         "s": true,
         "w": true
-      }
+      },
+      "roomId": "room-1-1"
     },
     {
       "x": 2,
@@ -209,7 +214,8 @@
         "e": true,
         "s": true,
         "w": false
-      }
+      },
+      "roomId": "room-1-1"
     },
     {
       "x": 3,
@@ -220,7 +226,8 @@
         "e": true,
         "s": false,
         "w": true
-      }
+      },
+      "roomId": "corridor-artery-up-3"
     },
     {
       "x": 4,
@@ -242,7 +249,8 @@
         "e": true,
         "s": false,
         "w": true
-      }
+      },
+      "roomId": "room-5-2"
     },
     {
       "x": 6,
@@ -275,7 +283,8 @@
         "e": true,
         "s": false,
         "w": true
-      }
+      },
+      "roomId": "room-0-3"
     },
     {
       "x": 1,
@@ -308,7 +317,8 @@
         "e": true,
         "s": false,
         "w": true
-      }
+      },
+      "roomId": "corridor-artery-up-3"
     },
     {
       "x": 4,
@@ -330,7 +340,8 @@
         "e": true,
         "s": true,
         "w": true
-      }
+      },
+      "roomId": "room-5-2"
     },
     {
       "x": 6,
@@ -363,7 +374,8 @@
         "e": true,
         "s": true,
         "w": true
-      }
+      },
+      "roomId": "room-0-3"
     },
     {
       "x": 1,
@@ -374,7 +386,8 @@
         "e": false,
         "s": true,
         "w": true
-      }
+      },
+      "roomId": "corridor-aorta-h"
     },
     {
       "x": 2,
@@ -385,7 +398,8 @@
         "e": false,
         "s": true,
         "w": false
-      }
+      },
+      "roomId": "corridor-aorta-h"
     },
     {
       "x": 3,
@@ -396,7 +410,8 @@
         "e": false,
         "s": false,
         "w": false
-      }
+      },
+      "roomId": "corridor-aorta-h"
     },
     {
       "x": 4,
@@ -407,7 +422,8 @@
         "e": false,
         "s": true,
         "w": false
-      }
+      },
+      "roomId": "corridor-aorta-h"
     },
     {
       "x": 5,
@@ -418,7 +434,8 @@
         "e": false,
         "s": true,
         "w": false
-      }
+      },
+      "roomId": "corridor-aorta-h"
     },
     {
       "x": 6,
@@ -429,7 +446,8 @@
         "e": true,
         "s": true,
         "w": false
-      }
+      },
+      "roomId": "corridor-aorta-h"
     },
     {
       "x": 7,
@@ -440,7 +458,8 @@
         "e": true,
         "s": false,
         "w": true
-      }
+      },
+      "roomId": "room-7-4"
     },
     {
       "x": 0,
@@ -484,7 +503,8 @@
         "e": true,
         "s": false,
         "w": true
-      }
+      },
+      "roomId": "corridor-artery-down-3"
     },
     {
       "x": 4,
@@ -506,7 +526,8 @@
         "e": true,
         "s": false,
         "w": true
-      }
+      },
+      "roomId": "room-5-5"
     },
     {
       "x": 6,
@@ -528,7 +549,8 @@
         "e": true,
         "s": true,
         "w": true
-      }
+      },
+      "roomId": "room-7-4"
     },
     {
       "x": 0,
@@ -572,7 +594,8 @@
         "e": true,
         "s": true,
         "w": true
-      }
+      },
+      "roomId": "corridor-artery-down-3"
     },
     {
       "x": 4,
@@ -594,7 +617,8 @@
         "e": true,
         "s": true,
         "w": true
-      }
+      },
+      "roomId": "room-5-5"
     },
     {
       "x": 6,
@@ -649,7 +673,8 @@
         "e": false,
         "s": true,
         "w": true
-      }
+      },
+      "roomId": "room-2-7"
     },
     {
       "x": 3,
@@ -660,7 +685,8 @@
         "e": true,
         "s": true,
         "w": false
-      }
+      },
+      "roomId": "room-2-7"
     },
     {
       "x": 4,
@@ -671,7 +697,8 @@
         "e": true,
         "s": true,
         "w": true
-      }
+      },
+      "roomId": "room-4-7"
     },
     {
       "x": 5,
