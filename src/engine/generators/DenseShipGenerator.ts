@@ -356,45 +356,40 @@ export class DenseShipGenerator {
       const rooms = Array.from(roomMap.values());
       this.prng.shuffle(rooms);
 
-      // 1. Player Spawn (Room 0)
-      const spawnRoom = rooms[0];
-      const spawnPos = spawnRoom[Math.floor(spawnRoom.length/2)];
-      this.spawnPoints.push({ id: 'sp-1', pos: spawnPos, radius: 1 });
+      // 1. Reference point for distance (Room 0)
+      const refRoom = rooms[0];
+      const refPos = refRoom[Math.floor(refRoom.length/2)];
 
-      // 2. Extraction (Furthest room)
+      // 2. Extraction (Furthest room from reference)
       let bestExtRoom = rooms[rooms.length - 1];
       let maxDist = 0;
       
       for (let i = 1; i < rooms.length; i++) {
           const r = rooms[i];
           const p = r[0];
-          const dist = Math.abs(p.x - spawnPos.x) + Math.abs(p.y - spawnPos.y);
+          const dist = Math.abs(p.x - refPos.x) + Math.abs(p.y - refPos.y);
           if (dist > maxDist) {
               maxDist = dist;
               bestExtRoom = r;
           }
       }
       
-      if (bestExtRoom === spawnRoom && rooms.length > 1) {
-          bestExtRoom = rooms[1];
-      }
-      
       const extPos = bestExtRoom[Math.floor(bestExtRoom.length/2)];
       this.extraction = extPos;
 
       // 3. Enemy Spawners & Objectives
-      const otherRooms = rooms.filter(r => r !== spawnRoom && r !== bestExtRoom);
+      const otherRooms = rooms.filter(r => r !== bestExtRoom);
       
-      // Add Enemy Spawners (spawnPointCount - 1 since sp-1 is player)
-      // Actually, spawnPointCount usually means ENEMY spawn points in some contexts? 
-      // But player needs a spawn point too.
-      // The task says "number of initial spawn points (1-10)".
-      // In Xenopurge, soldiers spawn at Extraction point usually? 
-      // Wait, CoreEngine constructor:
-      // const startX = map.extraction ? map.extraction.x + 0.5 : 0.5;
-      // So spawnPoints in map are for ENEMIES.
-      
-      // I'll assume spawnPointCount is the number of enemy spawn points.
+      // Sort otherRooms by distance to extraction descending to place spawners far away
+      otherRooms.sort((a, b) => {
+          const pa = a[0];
+          const pb = b[0];
+          const distA = Math.abs(pa.x - extPos.x) + Math.abs(pa.y - extPos.y);
+          const distB = Math.abs(pb.x - extPos.x) + Math.abs(pb.y - extPos.y);
+          return distB - distA;
+      });
+
+      // Add Enemy Spawners
       for (let i = 0; i < Math.min(spawnPointCount, otherRooms.length); i++) {
           const r = otherRooms[i];
           const p = r[Math.floor(r.length/2)];
