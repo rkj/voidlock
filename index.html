@@ -58,29 +58,30 @@
       /* Lists */
       #soldier-list { width: 100%; display: flex; gap: 10px; height: 100%; justify-content: space-around; }
       .soldier-item { 
-          min-width: 300px; 
+          min-width: 250px; 
           flex: 1;
-          height: 100%; 
+          height: auto; 
           border: 1px solid #333; 
           cursor: pointer; 
           background: #111; 
           display: flex; 
           flex-direction: column;
-          padding: 8px;
+          padding: 6px 10px;
           box-sizing: border-box;
           overflow: hidden;
           transition: border-color 0.2s;
+          align-self: center;
       }
       .soldier-item:hover { background-color: #1a1a1a; }
       .soldier-item.selected { border-color: #0f0; background-color: #1a1a1a; }
       .soldier-item.dead { color: #f00; border-color: #f00; opacity: 0.7; }
       .soldier-item.extracted { color: #0aa; border-color: #0aa; opacity: 0.7; }
       
-      .info-row { height: 24px; overflow: hidden; white-space: nowrap; }
+      .info-row { height: 24px; overflow: hidden; white-space: nowrap; margin-bottom: 2px; }
       .u-id { color: #0f0; font-size: 1.1em; }
       .u-status { font-size: 0.85em; color: #aaa; margin-left: 10px; flex-grow: 1; text-align: right; overflow: hidden; text-overflow: ellipsis; }
 
-      .hp-bar { height: 8px; background: #222; margin: 8px 0; border: 1px solid #444; width: 100%; }
+      .hp-bar { height: 6px; background: #222; margin: 4px 0; border: 1px solid #444; width: 100%; }
       .hp-fill { height: 100%; background: #0f0; transition: width 0.3s ease-in-out; }
       
       .unit-commands { margin-top: auto; display: flex; gap: 5px; }
@@ -96,7 +97,7 @@
       <!-- 1. Main Menu -->
       <div id="screen-main-menu" class="screen screen-centered">
         <h1>XENOPURGE</h1>
-        <p>v0.1.0 Prototype</p>
+        <p id="menu-version"></p>
         
         <div style="margin-top: 40px;">
           <button id="btn-menu-campaign" class="menu-button">Campaign (Coming Soon)</button><br>
@@ -192,15 +193,15 @@
       <!-- 4. Mission Screen (Game Loop) -->
       <div id="screen-mission" class="screen">
         <!-- 1. Top Bar -->
-        <div id="top-bar" style="height: 40px; background: #222; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid #444; flex-shrink: 0;">
-            <div id="game-status" style="font-weight: bold; color: #0f0;">Status: Active</div>
-            <div id="seed-display" style="color: #888; font-family: monospace;"></div>
-            <div id="global-alerts" style="color: #f00;"></div>
-            <div style="font-size: 0.8em; color: #888;">Xenopurge v0.1.0</div>
+        <div id=\"top-bar\" style=\"height: 40px; background: #222; display: flex; align-items: center; justify-content: space-between; padding: 0 20px; border-bottom: 1px solid #444; flex-shrink: 0;\">
+            <div id=\"game-status\" style=\"font-weight: bold; color: #0f0;\">Status: Active</div>
+            <div id=\"seed-display\" style=\"color: #888; font-family: monospace;\"></div>
+            <div id=\"global-alerts\" style=\"color: #f00;\"></div>
+            <div id=\"version-display\" style=\"font-size: 0.8em; color: #888;\"></div>
         </div>
 
         <!-- 2. Soldier Bar (RPG Style) -->
-        <div id="soldier-panel" style="height: 120px; background: #111; border-bottom: 1px solid #444; padding: 5px 10px; overflow: hidden; flex-shrink: 0;">
+        <div id="soldier-panel" style="height: 64px; background: #111; border-bottom: 1px solid #444; padding: 5px 10px; overflow: hidden; flex-shrink: 0;">
             <div id="soldier-list">
                 <!-- Soldier cards injected here -->
             </div>
