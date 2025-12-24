@@ -852,9 +852,14 @@ npm run dev
 When finishing a feature or a Beads task, you MUST perform the following steps in order:
 1.  **Strict Verification**: Execute `npx vitest run`. All tests MUST pass. A task is not complete if tests are failing.
 2.  **Visual Verification**: For any UI or rendering changes, navigate to the game URL, take a screenshot, and **carefully review it** to ensure the visual state matches expectations.
-3.  **Task Closure**: Close the task in Beads using `bd close <id> --reason "Detailed explanation of work done"`.
-4.  **Commit**: Record the changes using `jj commit -m "Your descriptive message"`.
-5.  **No Pushes**: Never push to the remote repository unless explicitly instructed by the user.
+3.  **Versioning (Strict SemVer)**:
+    *   Check the current version in `package.json`.
+    *   **Features:** If the task added new functionality, increment the **MINOR** version (e.g., 0.1.0 -> 0.2.0).
+    *   **Bug Fixes/Tasks:** If the task was a bug fix or refactor, increment the **PATCH** version (e.g., 0.1.0 -> 0.1.1).
+    *   Update `package.json` with the new version.
+4.  **Task Closure**: Close the task in Beads using `bd close <id> --reason "Detailed explanation of work done"`.
+5.  **Commit**: Record the changes using `jj commit -m "Your descriptive message"`.
+6.  **No Pushes**: Never push to the remote repository unless explicitly instructed by the user.
 
 ## Next Steps / Handover
 
