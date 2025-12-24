@@ -171,9 +171,9 @@ export type Archetype = {
 };
 
 export const ArchetypeLibrary: { [id: string]: Archetype } = {
-  "assault": { id: "assault", name: "Assault", baseHp: 100, damage: 20, fireRate: 500, attackRange: 4, sightRange: 8, speed: 2 },
-  "medic": { id: "medic", name: "Medic", baseHp: 80, damage: 10, fireRate: 750, attackRange: 3, sightRange: 10, speed: 2.5 },
-  "heavy": { id: "heavy", name: "Heavy", baseHp: 120, damage: 30, fireRate: 700, attackRange: 5, sightRange: 7, speed: 1.5 }
+  "assault": { id: "assault", name: "Assault", baseHp: 100, damage: 20, fireRate: 600, attackRange: 4, sightRange: 8, speed: 2 },
+  "medic": { id: "medic", name: "Medic", baseHp: 80, damage: 10, fireRate: 900, attackRange: 3, sightRange: 10, speed: 2.5 },
+  "heavy": { id: "heavy", name: "Heavy", baseHp: 120, damage: 30, fireRate: 1000, attackRange: 5, sightRange: 7, speed: 1.5 }
 };
 
 export enum EnemyType {
@@ -186,13 +186,13 @@ export enum EnemyType {
 }
 
 export const EnemyArchetypeLibrary: { [id: string]: { type: EnemyType, hp: number, damage: number, fireRate: number, attackRange: number, speed: number, ai: 'Melee' | 'Ranged' } } = {
-  [EnemyType.XenoMite]: { type: EnemyType.XenoMite, hp: 35, damage: 8, fireRate: 500, attackRange: 1, speed: 3.2, ai: 'Melee' },
-  [EnemyType.WarriorDrone]: { type: EnemyType.WarriorDrone, hp: 100, damage: 20, fireRate: 1000, attackRange: 1, speed: 2.2, ai: 'Melee' },
-  [EnemyType.PraetorianGuard]: { type: EnemyType.PraetorianGuard, hp: 250, damage: 45, fireRate: 2000, attackRange: 1, speed: 1.5, ai: 'Melee' },
-  [EnemyType.SpitterAcid]: { type: EnemyType.SpitterAcid, hp: 55, damage: 12, fireRate: 1500, attackRange: 6, speed: 2.6, ai: 'Ranged' },
+  [EnemyType.XenoMite]: { type: EnemyType.XenoMite, hp: 50, damage: 15, fireRate: 400, attackRange: 1, speed: 4.0, ai: 'Melee' },
+  [EnemyType.WarriorDrone]: { type: EnemyType.WarriorDrone, hp: 150, damage: 35, fireRate: 800, attackRange: 1, speed: 3.0, ai: 'Melee' },
+  [EnemyType.PraetorianGuard]: { type: EnemyType.PraetorianGuard, hp: 600, damage: 80, fireRate: 1500, attackRange: 1, speed: 2.2, ai: 'Melee' },
+  [EnemyType.SpitterAcid]: { type: EnemyType.SpitterAcid, hp: 120, damage: 30, fireRate: 1200, attackRange: 6, speed: 3.2, ai: 'Ranged' },
   // Legacy support
-  [EnemyType.SwarmMelee]: { type: EnemyType.SwarmMelee, hp: 30, damage: 5, fireRate: 1000, attackRange: 1, speed: 2, ai: 'Melee' },
-  [EnemyType.Hive]: { type: EnemyType.Hive, hp: 500, damage: 0, fireRate: 1000, attackRange: 0, speed: 0, ai: 'Melee' }
+  [EnemyType.SwarmMelee]: { type: EnemyType.SwarmMelee, hp: 50, damage: 15, fireRate: 800, attackRange: 1, speed: 2.8, ai: 'Melee' },
+  [EnemyType.Hive]: { type: EnemyType.Hive, hp: 1200, damage: 0, fireRate: 1000, attackRange: 0, speed: 0, ai: 'Melee' }
 };
 
 // --- Protocol ---

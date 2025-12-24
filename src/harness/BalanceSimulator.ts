@@ -2,7 +2,7 @@ import { CoreEngine } from '../engine/CoreEngine';
 import { DenseShipGenerator } from '../engine/generators/DenseShipGenerator';
 import { SquadConfig, MissionType, UnitState } from '../shared/types';
 
-const ITERATIONS = 50; // Start small
+const ITERATIONS = 100; // Final verification
 const DT = 50; // ms
 
 async function runSimulation() {
