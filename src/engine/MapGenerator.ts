@@ -96,7 +96,7 @@ export class MapGenerator {
                   
                   if (!reachable.has(nKey)) {
                       const neighbor = getCell(nx, ny);
-                      if (neighbor) {
+                      if (neighbor && neighbor.type === CellType.Floor) {
                           reachable.add(nKey);
                           queue.push({x: nx, y: ny});
                       }

@@ -1,38 +1,26 @@
-import { MapDefinition, CellType, Grid, Vector2, Cell, Door } from '../shared/types';
+import { MapDefinition, CellType, Grid, Door } from '../shared/types';
+import { Graph } from './Graph';
 
 export class GameGrid implements Grid {
-  public readonly width: number;
-  public readonly height: number;
-  private cells: Cell[][];
+  private graph: Graph;
 
   constructor(map: MapDefinition) {
-    this.width = map.width;
-    this.height = map.height;
+    this.graph = new Graph(map);
+  }
 
-    // Initialize with default walls (all closed if not provided)
-    this.cells = Array(this.height).fill(null).map((_, y) => 
-      Array(this.width).fill(null).map((_, x) => ({
-        x, y, 
-        type: CellType.Wall, // Default void
-        walls: { n: true, e: true, s: true, w: true } 
-      }))
-    );
+  public get width(): number {
+    return this.graph.width;
+  }
 
-    map.cells.forEach(cell => {
-      if (cell.x >= 0 && cell.x < this.width && cell.y >= 0 && cell.y < this.height) {
-        this.cells[cell.y][cell.x] = cell;
-      }
-    });
+  public get height(): number {
+    return this.graph.height;
   }
 
   isWalkable(x: number, y: number): boolean {
-    return (
-      x >= 0 &&
-      x < this.width &&
-      y >= 0 &&
-      y < this.height &&
-      this.cells[y][x].type === CellType.Floor
-    );
+    if (x < 0 || x >= this.width || y < 0 || y >= this.height) {
+      return false;
+    }
+    return this.graph.cells[y][x].type === CellType.Floor;
   }
 
   canMove(fromX: number, fromY: number, toX: number, toY: number, doors?: Map<string, Door>, allowClosedDoors: boolean = false): boolean {
@@ -47,51 +35,24 @@ export class GameGrid implements Grid {
       return false;
     }
 
-    const fromCell = this.cells[fromY][fromX];
-    
-    // Helper to get a door at a specific wall segment
-    const getDoorAtSegment = (fx: number, fy: number, tx: number, ty: number): Door | undefined => {
-      if (!doors) return undefined;
+    const boundary = this.graph.getBoundary(fromX, fromY, toX, toY);
+    if (!boundary) {
+      return false;
+    }
 
-      // Check if any door segment contains BOTH (fx, fy) and (tx, ty)
-      // Doors segments are [CellA, CellB]
-      for (const door of doors.values()) {
-          const hasFrom = door.segment.some(s => s.x === fx && s.y === fy);
-          const hasTo = door.segment.some(s => s.x === tx && s.y === ty);
-          if (hasFrom && hasTo) {
-              return door;
-          }
+    if (boundary.doorId && doors) {
+      const door = doors.get(boundary.doorId);
+      if (door) {
+        if (allowClosedDoors) {
+          // Pathfinding treats Closed, Open, and Destroyed doors as passable.
+          // Locked doors should still block pathfinding.
+          return door.state !== 'Locked';
+        }
+        // Allow movement if door is Open or Destroyed
+        return door.state === 'Open' || door.state === 'Destroyed';
       }
-      return undefined;
-    };
-
-    // Check for doors first
-    const door = getDoorAtSegment(fromX, fromY, toX, toY);
-    if (door) {
-      if (allowClosedDoors) {
-        // Pathfinding treats Closed, Open, and Destroyed doors as passable.
-        // Locked doors should still block pathfinding.
-        return door.state !== 'Locked';
-      }
-      // Allow movement if door is Open or Destroyed
-      return door.state === 'Open' || door.state === 'Destroyed';
     }
 
-    // If no door, check walls
-    const toCell = this.cells[toY][toX];
-    if (dx === 1) { // Moving East
-      return !fromCell.walls.e && !toCell.walls.w; 
-    }
-    if (dx === -1) { // Moving West
-      return !fromCell.walls.w && !toCell.walls.e; 
-    }
-    if (dy === 1) { // Moving South
-      return !fromCell.walls.s && !toCell.walls.n; 
-    }
-    if (dy === -1) { // Moving North
-      return !fromCell.walls.n && !toCell.walls.s; 
-    }
-
-    return false;
+    return !boundary.isWall;
   }
 }
