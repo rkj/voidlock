@@ -425,14 +425,17 @@ The game must be fully playable via keyboard using a hierarchical command menu.
 ### 8.4 UI Layout Reorganization
 The UI must be optimized for visibility and information density, utilizing the full width of the screen.
 
-*   **Top Bar (Header):** Fixed height (e.g., 40px). Displays Game Time, Status (Playing/Won/Lost), Seed, **Version** (SemVer), and global alerts.
-*   **Soldier Bar (Sub-header):** Full-width strip below the top bar. Displays all soldiers in a horizontal layout.
+*   **Top Bar (Header):** Fixed height (e.g., 40px). Displays Game Time, Status (Playing/Won/Lost), Seed, **Version** (SemVer), and the **Threat Meter**. All critical mission-level information is consolidated here.
+*   **Soldier Bar (Sub-header):** Full-width strip below the top bar (Height: 64px). Displays all soldiers in a horizontal layout.
     *   **Layout:** Items must fit within the container **without scrolling** (no overflow). Use flexible sizing to fill available width.
-    *   **Soldier Card:** Wider fixed or flexible width to prevent text wrapping. Visual stability is key—content updates (e.g., status text changes) must NOT cause layout jitter (box resizing).
-    *   **Unified Commands:** Individual soldier cards must NOT contain command buttons. All unit commands (Stop, Move, Engage, etc.) are centralized in the Right Panel's Command Menu to ensure a single, consistent way of issuing orders.
+    *   **Soldier Card:** Fixed or flexible width to prevent text wrapping. Visual stability is key—content updates (e.g., status text changes) must NOT cause layout jitter (box resizing).
+    *   **Selection:** Clicking a soldier card selects that unit for issuing direct orders. Individual cards must NOT contain command buttons.
 *   **Main Simulation Area:** Flex container below the Soldier Bar.
     *   **Game Canvas (Left/Center):** Takes up the majority of the screen. Must be centered within its container.
-    *   **Command Panel (Right):** Fixed width (e.g., 300px). Contains the hierarchical keyboard command menu, objective list, and threat meter.
+    *   **Command Panel (Right):** Fixed width (e.g., 300px). Contains the **Unified Command Menu**.
+        *   **Unified Commands:** All actions (Move, Stop, Engage, etc.) are issued through this panel. It supports both mouse clicks and keyboard shortcuts (1-9).
+        *   **Contextual Actions:** If a unit is selected, the menu displays unit-specific actions (e.g., "Stop", "Resume AI"). If no unit is selected, it displays squad-level or system actions.
+        *   **Objective List:** Current status of mission objectives is displayed below the commands.
     *   **Game Over Summary:** Upon Win/Loss, a summary panel/popup must appear (or replace the Right Panel) showing:
         *   Result (Mission Accomplished / Squad Wiped).
         *   Statistics: Time Elapsed, Aliens Killed, Casualties.
