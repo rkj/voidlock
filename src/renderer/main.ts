@@ -105,6 +105,8 @@ const statefulMapGeneratorFactory = (seed: number, type: MapGeneratorType, mapDa
 const gameClient = new GameClient(statefulMapGeneratorFactory as any);
 let renderer: Renderer;
 let currentGameState: GameState | null = null;
+let isPaused = false;
+let lastSpeed = 0.3;
 
 
 // --- UI Logic ---
@@ -481,6 +483,25 @@ const handleMenuInput = (num: number) => {
     if (currentGameState) updateUI(currentGameState);
 };
 
+const togglePause = () => {
+    isPaused = !isPaused;
+    const btn = document.getElementById('btn-pause-toggle') as HTMLButtonElement;
+    const gameSpeedSlider = document.getElementById('game-speed') as HTMLInputElement;
+    const gameSpeedValue = document.getElementById('speed-value');
+
+    if (isPaused) {
+        lastSpeed = parseFloat(gameSpeedSlider.value);
+        gameClient.setTimeScale(0.05);
+        if (btn) btn.textContent = '▶ Play'; // Switch to Play icon when paused
+        if (gameSpeedValue) gameSpeedValue.textContent = '0.05x';
+    } else {
+        gameClient.setTimeScale(lastSpeed);
+        if (btn) btn.textContent = '⏸ Pause';
+        if (gameSpeedValue) gameSpeedValue.textContent = `${lastSpeed.toFixed(1)}x`;
+        if (gameSpeedSlider) gameSpeedSlider.value = lastSpeed.toString();
+    }
+};
+
 const onUnitClick = (unit: Unit) => {
   if (menuState === 'UNIT_SELECT') {
       executePendingCommand([unit.id]);
@@ -645,6 +666,12 @@ document.addEventListener('DOMContentLoaded', () => {
               return;
           }
 
+          if (e.code === 'Space') {
+              e.preventDefault();
+              togglePause();
+              return;
+          }
+
           if (e.key === 'm' || e.key === 'M') {
               if (menuState === 'ACTION_SELECT') {
                   handleMenuInput(1); // MOVE
@@ -674,13 +701,27 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-launch-mission')?.addEventListener('click', () => launchMission());
 
   // Top Bar Speed Slider
+  const btnPauseToggle = document.getElementById('btn-pause-toggle');
+  btnPauseToggle?.addEventListener('click', () => togglePause());
+
   const gameSpeedSlider = document.getElementById('game-speed') as HTMLInputElement;
   const gameSpeedValue = document.getElementById('speed-value');
   if (gameSpeedSlider && gameSpeedValue) {
+      // Increase max to 3.0 to match setup
+      gameSpeedSlider.max = "3.0";
+      
       gameSpeedSlider.addEventListener('input', () => {
           const speed = parseFloat(gameSpeedSlider.value);
           gameSpeedValue.textContent = `${speed.toFixed(1)}x`;
-          gameClient.setTimeScale(speed);
+          
+          if (isPaused) {
+              lastSpeed = speed;
+              // Stay in active pause
+              gameClient.setTimeScale(0.05);
+              if (gameSpeedValue) gameSpeedValue.textContent = '0.05x (Pending: ' + speed.toFixed(1) + 'x)';
+          } else {
+              gameClient.setTimeScale(speed);
+          }
       });
   }
 
