@@ -155,6 +155,7 @@ export class CoreEngine {
                 attackRange: arch.attackRange,
                 sightRange: arch.sightRange,
                 speed: arch.speed,
+                aiEnabled: true,
                 commandQueue: []
             });
         }
@@ -218,6 +219,7 @@ export class CoreEngine {
             // Clear exploration target if manually moved
             if (isManual) {
                 unit.explorationTarget = undefined; 
+                unit.aiEnabled = true;
             }
             const path = this.pathfinder.findPath(
               { x: Math.floor(unit.pos.x), y: Math.floor(unit.pos.y) },
@@ -249,6 +251,7 @@ export class CoreEngine {
       } else if (cmd.type === CommandType.ATTACK_TARGET) {
           if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
               unit.forcedTargetId = cmd.targetId;
+              if (isManual) unit.aiEnabled = true;
               // Stop moving if attacking
               unit.path = undefined;
               unit.targetPos = undefined;
@@ -263,6 +266,7 @@ export class CoreEngine {
           unit.forcedTargetId = undefined; // Clear forced target
           unit.explorationTarget = undefined; // Clear exploration target
           unit.state = UnitState.Idle; // Set unit to Idle state
+          unit.aiEnabled = false; // Disable autonomous AI
       }
   }
 
@@ -520,7 +524,7 @@ export class CoreEngine {
           if (nextCmd) {
               this.executeCommand(unit, nextCmd);
           }
-      } else if (unit.state === UnitState.Idle && unit.commandQueue.length === 0 && this.agentControlEnabled) {
+      } else if (unit.state === UnitState.Idle && unit.commandQueue.length === 0 && this.agentControlEnabled && unit.aiEnabled !== false) {
           // Priority: 1. Threat Engagement, 2. Objective, 3. Exploration, 4. Extraction
           
           let actionTaken = false;
