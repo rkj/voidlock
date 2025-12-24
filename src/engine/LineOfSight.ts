@@ -34,8 +34,21 @@ export class LineOfSight {
   }
 
   public hasLineOfSight(start: Vector2, end: Vector2): boolean {
-    let x0 = Math.floor(start.x);
-    let y0 = Math.floor(start.y);
+    // Add small epsilon to start position towards end to avoid boundary singularities
+    const dxRaw = end.x - start.x;
+    const dyRaw = end.y - start.y;
+    const len = Math.sqrt(dxRaw*dxRaw + dyRaw*dyRaw);
+    
+    let curX = start.x;
+    let curY = start.y;
+    
+    if (len > 0.001) {
+        curX += (dxRaw / len) * 0.001;
+        curY += (dyRaw / len) * 0.001;
+    }
+
+    let x0 = Math.floor(curX);
+    let y0 = Math.floor(curY);
     const x1 = Math.floor(end.x);
     const y1 = Math.floor(end.y);
 
