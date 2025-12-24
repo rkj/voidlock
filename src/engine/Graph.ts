@@ -1,4 +1,4 @@
-import { CellType, MapDefinition, Direction as SharedDirection } from '../shared/types';
+import { CellType, MapDefinition, Direction as SharedDirection, Vector2 } from '../shared/types';
 
 export type Direction = 'n' | 'e' | 's' | 'w';
 
@@ -6,9 +6,30 @@ export class Boundary {
   public isWall: boolean = false;
   public doorId?: string;
 
-  constructor(isWall: boolean = false, doorId?: string) {
+  constructor(
+    public readonly x1: number,
+    public readonly y1: number,
+    public readonly x2: number,
+    public readonly y2: number,
+    isWall: boolean = false, 
+    doorId?: string
+  ) {
     this.isWall = isWall;
     this.doorId = doorId;
+  }
+
+  public getVisualSegment(): { p1: Vector2, p2: Vector2 } {
+    if (this.x1 === this.x2) {
+      // Horizontal boundary (separated by y)
+      const y = Math.max(this.y1, this.y2);
+      const x = this.x1;
+      return { p1: { x, y }, p2: { x: x + 1, y } };
+    } else {
+      // Vertical boundary (separated by x)
+      const x = Math.max(this.x1, this.x2);
+      const y = this.y1;
+      return { p1: { x, y }, p2: { x, y: y + 1 } };
+    }
   }
 }
 
@@ -110,7 +131,7 @@ export class Graph {
     const key = this.getBoundaryKey(x1, y1, x2, y2);
     let boundary = this.boundaries.get(key);
     if (!boundary) {
-      boundary = new Boundary();
+      boundary = new Boundary(x1, y1, x2, y2);
       this.boundaries.set(key, boundary);
     }
     return boundary;
@@ -124,5 +145,9 @@ export class Graph {
 
   public getBoundary(x1: number, y1: number, x2: number, y2: number): Boundary | undefined {
     return this.boundaries.get(this.getBoundaryKey(x1, y1, x2, y2));
+  }
+
+  public getAllBoundaries(): Boundary[] {
+    return Array.from(this.boundaries.values());
   }
 }

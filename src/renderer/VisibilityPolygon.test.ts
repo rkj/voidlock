@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { VisibilityPolygon } from './VisibilityPolygon';
 import { MapDefinition, CellType, Vector2 } from '../shared/types';
+import { Graph } from '../engine/Graph';
 
 describe('VisibilityPolygon', () => {
     const createMap = (width: number, height: number): MapDefinition => ({
@@ -18,10 +19,11 @@ describe('VisibilityPolygon', () => {
                 map.cells.push({ x, y, type: CellType.Floor, walls: { n: false, e: false, s: false, w: false } });
             }
         }
+        const graph = new Graph(map);
 
         const origin = { x: 5.5, y: 5.5 };
         const range = 2;
-        const poly = VisibilityPolygon.compute(origin, range, map);
+        const poly = VisibilityPolygon.compute(origin, range, graph);
 
         expect(poly.length).toBeGreaterThan(0);
         
@@ -44,18 +46,13 @@ describe('VisibilityPolygon', () => {
                 map.cells.push({ x, y, type: CellType.Floor, walls });
             }
         }
+        const graph = new Graph(map);
 
         const origin = { x: 5.5, y: 5.5 };
         const range = 3;
-        const poly = VisibilityPolygon.compute(origin, range, map);
+        const poly = VisibilityPolygon.compute(origin, range, graph);
 
         // Expect points to the East to be limited by x=6
-        // Rays hitting the wall at x=6 should have point.x = 6.
-        // Rays missing (impossible if continuous) ?
-        // Epsilon might push it slightly over? 
-        // If hits x=6, x is 6.
-        // So x > 6.001 should be empty.
-        
         const eastPoints = poly.filter(p => p.x > 6.01);
         expect(eastPoints.length).toBe(0);
     });

@@ -1,14 +1,11 @@
-import { Vector2, MapDefinition, CellType, Door } from '../shared/types';
+import { Vector2 } from '../shared/types';
+import { Graph } from '../engine/Graph';
 
 type Segment = { p1: Vector2; p2: Vector2 };
 
 export class VisibilityPolygon {
-  private static getSegments(map: MapDefinition, origin: Vector2, range: number): Segment[] {
+  private static getSegments(graph: Graph, origin: Vector2, range: number): Segment[] {
     const segments: Segment[] = [];
-    const minX = Math.floor(origin.x - range);
-    const maxX = Math.ceil(origin.x + range);
-    const minY = Math.floor(origin.y - range);
-    const maxY = Math.ceil(origin.y + range);
 
     // Add "Horizon" segments (bounding box of range)
     // This ensures there are always segments to cast rays against, preventing empty polygons in open space.
@@ -17,46 +14,11 @@ export class VisibilityPolygon {
     segments.push({ p1: { x: origin.x + range, y: origin.y + range }, p2: { x: origin.x - range, y: origin.y + range } });
     segments.push({ p1: { x: origin.x - range, y: origin.y + range }, p2: { x: origin.x - range, y: origin.y - range } });
 
-    // Grid Walls
-    for (let y = minY; y <= maxY; y++) {
-      for (let x = minX; x <= maxX; x++) {
-        if (x < 0 || y < 0 || x >= map.width || y >= map.height) continue;
-        
-        const cell = map.cells.find(c => c.x === x && c.y === y);
-        if (!cell) continue; // Void is implicitly blocking? Or just empty? 
-                             // In this engine, Void cells usually don't exist in cell list or are ignored.
-                             // But CellType.Wall means "Solid".
-        
-        if (cell.type === CellType.Wall) {
-             // A full block wall. Add all 4 sides?
-             // Actually, if it's a "Wall" cell, it blocks everything.
-             // But the game uses "Thin Walls" mainly now?
-             // Let's check "M7: Thin Walls".
-        }
-        
-        // Add Thin Walls
-        if (cell.walls.n) segments.push({ p1: { x, y }, p2: { x: x + 1, y } });
-        if (cell.walls.e) segments.push({ p1: { x: x + 1, y }, p2: { x: x + 1, y: y + 1 } });
-        if (cell.walls.s) segments.push({ p1: { x, y: y + 1 }, p2: { x: x + 1, y: y + 1 } });
-        if (cell.walls.w) segments.push({ p1: { x, y }, p2: { x, y: y + 1 } });
+    // Grid Walls from Graph Boundaries
+    for (const boundary of graph.getAllBoundaries()) {
+      if (boundary.isWall) {
+        segments.push(boundary.getVisualSegment());
       }
-    }
-    
-    // Doors (Closed/Locked act as walls)
-    if (map.doors) {
-        for (const door of map.doors) {
-            if (door.state === 'Closed' || door.state === 'Locked') {
-                 // Check if door is within range
-                 // Door segments are already defined in grid coords
-                 if (door.segment.length === 2) {
-                     // Check if at least one point is close
-                     const d1 = (door.segment[0].x - origin.x)**2 + (door.segment[0].y - origin.y)**2;
-                     if (d1 < (range + 2)**2) {
-                        segments.push({ p1: door.segment[0], p2: door.segment[1] });
-                     }
-                 }
-            }
-        }
     }
 
     return segments;
@@ -83,14 +45,6 @@ export class VisibilityPolygon {
       const T2 = (r_dx * (s_py - r_py) + r_dy * (r_px - s_px)) / (s_dx * r_dy - s_dy * r_dx);
       const T1 = (s_px + s_dx * T2 - r_px) / r_dx;
 
-      // Check if T2 is within [0, 1] (segment bounds) and T1 > 0 (ray direction)
-      // T1 is distance along ray if ray is normalized? No, T1 scales rayDir.
-      // But we can just use T1.
-      
-      // Robust intersection check
-      // t = (q - p) x s / (r x s)
-      // u = (q - p) x r / (r x s)
-      
       const r = { x: r_dx, y: r_dy };
       const s = { x: s_dx, y: s_dy };
       const p = rayOrigin;
@@ -115,8 +69,8 @@ export class VisibilityPolygon {
       return null;
   }
 
-  public static compute(origin: Vector2, range: number, map: MapDefinition): Vector2[] {
-      const segments = this.getSegments(map, origin, range);
+  public static compute(origin: Vector2, range: number, graph: Graph): Vector2[] {
+      const segments = this.getSegments(graph, origin, range);
       const points: Vector2[] = [];
       const uniquePoints = new Set<string>();
 
@@ -127,9 +81,6 @@ export class VisibilityPolygon {
           if (!uniquePoints.has(k1)) { uniquePoints.add(k1); points.push(seg.p1); }
           if (!uniquePoints.has(k2)) { uniquePoints.add(k2); points.push(seg.p2); }
       }
-      
-      // Also add box corners if they are within range?
-      // Or just let the ray cast hit max range
       
       const angles: number[] = [];
       for (const p of points) {
