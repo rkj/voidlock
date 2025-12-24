@@ -131,9 +131,11 @@ const updateUI = (state: GameState) => {
 
   const rightPanel = document.getElementById('right-panel'); 
   if (rightPanel) {
-      rightPanel.innerHTML = ''; 
-
       if (state.status !== 'Playing') {
+          // If we already have a summary, don't re-render it every tick (prevents button click issues)
+          if (rightPanel.querySelector('.game-over-summary')) return;
+
+          rightPanel.innerHTML = ''; 
           // --- Game Over Summary ---
           const summaryDiv = document.createElement('div');
           summaryDiv.className = 'game-over-summary';
@@ -167,6 +169,8 @@ const updateUI = (state: GameState) => {
           rightPanel.appendChild(summaryDiv);
           return; // Skip normal panel update
       }
+
+      rightPanel.innerHTML = ''; 
 
       // --- Command Menu ---
       const menuDiv = document.createElement('div');

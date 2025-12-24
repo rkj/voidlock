@@ -815,7 +815,8 @@ npm run dev
 # Agent & Developer Guidelines
 
 ## G1) Agent Workflow Instructions
-* **Clarification First:** When a new change request is received, you must first update `xenopurge-spec.md` with the new clarification/requirement.
+* **One Task at a Time:** Unless explicitly specified otherwise, the agent MUST perform exactly ONE Beads task per turn cycle (implement, verify, commit) and then ask the user for instruction on what to do next.
+* **Clarification First:** When a new change request is received, you must first update `spec.md` with the new clarification/requirement.
 * **Task Creation:** After updating the spec, create a Beads task for the requested change.
 * **Implementation:** Only after the above steps are completed should you proceed with code implementation.
 * **Strict Verification:** A task is **NEVER** considered complete unless `npx vitest run` passes successfully. You must run the full test suite before marking a task as done.
