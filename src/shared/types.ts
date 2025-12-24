@@ -133,6 +133,8 @@ export type GameState = {
   discoveredCells: string[];
   objectives: Objective[]; 
   threatLevel: number; // 0 to 100, representing Director intensity
+  aliensKilled: number; // New
+  casualties: number; // New
   status: 'Playing' | 'Won' | 'Lost';
   debugOverlayEnabled?: boolean; // New
 };

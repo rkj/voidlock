@@ -81,6 +81,8 @@ export class CoreEngine {
       discoveredCells: [],
       objectives,
       threatLevel: 0,
+      aliensKilled: 0,
+      casualties: 0,
       status: 'Playing',
       debugOverlayEnabled: this.debugOverlayEnabled
     };
@@ -804,10 +806,14 @@ export class CoreEngine {
     });
 
     // --- Cleanup Death ---
+    const deadEnemies = this.state.enemies.filter(enemy => enemy.hp <= 0);
+    this.state.aliensKilled += deadEnemies.length;
     this.state.enemies = this.state.enemies.filter(enemy => enemy.hp > 0);
+
     this.state.units.forEach(unit => {
       if (unit.hp <= 0 && unit.state !== UnitState.Dead) {
         unit.state = UnitState.Dead;
+        this.state.casualties++;
       }
     });
 
