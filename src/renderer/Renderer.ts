@@ -484,6 +484,12 @@ export class Renderer {
         const x = sp.pos.x * this.cellSize;
         const y = sp.pos.y * this.cellSize;
         
+        // Only render if discovered or visible, or debug
+        const key = `${Math.floor(sp.pos.x)},${Math.floor(sp.pos.y)}`;
+        const isKnown = state.discoveredCells.includes(key) || state.visibleCells.includes(key);
+        
+        if (!isKnown && !state.debugOverlayEnabled) return;
+
         this.ctx.fillStyle = 'rgba(255, 0, 0, 0.05)';
         this.ctx.fillRect(x, y, this.cellSize, this.cellSize);
 
