@@ -102,4 +102,27 @@ describe('CoreEngine with Objectives and Game Loop', () => {
     expect(unit.state).toBe(UnitState.Dead);
     expect(state.status).toBe('Lost');
   });
+
+  it('should stop movement and clear queue when STOP command is issued', () => {
+    // 1. Give move command
+    engine.applyCommand({
+      type: CommandType.MOVE_TO,
+      unitIds: ['u1'],
+      target: { x: 2, y: 2 }
+    });
+    
+    engine.update(100);
+    expect(engine.getState().units[0].state).toBe(UnitState.Moving);
+
+    // 2. Issue STOP
+    engine.applyCommand({
+      type: CommandType.STOP,
+      unitIds: ['u1']
+    });
+
+    const state = engine.getState();
+    expect(state.units[0].state).toBe(UnitState.Idle);
+    expect(state.units[0].path).toBeUndefined();
+    expect(state.units[0].targetPos).toBeUndefined();
+  });
 });
