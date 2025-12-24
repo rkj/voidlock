@@ -466,9 +466,8 @@ The UI must be optimized for visibility and information density, utilizing the f
 
 *   Toggle “show all” (disable fog) for quick iteration.
 *   Heatmaps/overlays:
-
     *   Spawn intensity
-    *   LOS cones
+    *   LOS cones (Visualization must be an overlay from individual characters/enemies to distinguish their specific LOS, rather than a generic grid painting)
     *   Navmesh/path display
 *   Deterministic replay:
 
