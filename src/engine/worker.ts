@@ -19,7 +19,8 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
           msg.payload.squadConfig, 
           msg.payload.agentControlEnabled, 
           msg.payload.debugOverlayEnabled, 
-          msg.payload.missionType
+          msg.payload.missionType,
+          msg.payload.losOverlayEnabled
       );
       
       // Start loop

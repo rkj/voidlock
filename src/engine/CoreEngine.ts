@@ -25,7 +25,7 @@ export class CoreEngine {
   private rangedAI: IEnemyAI;
   private totalFloorCells: number;
 
-  constructor(map: MapDefinition, seed: number, squadConfig: SquadConfig, agentControlEnabled: boolean, debugOverlayEnabled: boolean, missionType: MissionType = MissionType.Default) {
+  constructor(map: MapDefinition, seed: number, squadConfig: SquadConfig, agentControlEnabled: boolean, debugOverlayEnabled: boolean, missionType: MissionType = MissionType.Default, losOverlayEnabled: boolean = false) {
     this.prng = new PRNG(seed);
     this.gameGrid = new GameGrid(map);
     this.doors = new Map(map.doors?.map(door => [door.id, door]));
@@ -86,8 +86,10 @@ export class CoreEngine {
       aliensKilled: 0,
       casualties: 0,
       status: 'Playing',
-      debugOverlayEnabled: this.debugOverlayEnabled
+      debugOverlayEnabled: this.debugOverlayEnabled,
+      losOverlayEnabled: losOverlayEnabled
     };
+
     
     // Post-init Mission Setup (Hive)
     if (this.missionType === MissionType.DestroyHive) {
