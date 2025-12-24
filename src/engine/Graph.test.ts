@@ -1,30 +1,83 @@
 import { describe, it, expect } from 'vitest';
 import { Graph, Boundary, GraphCell } from './Graph';
-import { CellType } from '../shared/types';
+import { CellType, MapDefinition } from '../shared/types';
 
 describe('Graph', () => {
-  it('should initialize with correct dimensions', () => {
-    const graph = new Graph(10, 5);
-    expect(graph.width).toBe(10);
-    expect(graph.height).toBe(5);
-    expect(graph.cells.length).toBe(5);
-    expect(graph.cells[0].length).toBe(10);
+  const mockMap: MapDefinition = {
+    width: 2,
+    height: 1,
+    cells: [
+      {
+        x: 0, y: 0, type: CellType.Floor,
+        walls: { n: false, e: true, s: false, w: false }
+      },
+      {
+        x: 1, y: 0, type: CellType.Floor,
+        walls: { n: false, e: false, s: false, w: true }
+      }
+    ]
+  };
+
+  it('should initialize with correct dimensions from MapDefinition', () => {
+    const graph = new Graph(mockMap);
+    expect(graph.width).toBe(2);
+    expect(graph.height).toBe(1);
   });
 
-  it('should create GraphCell with correct coordinates', () => {
-    const graph = new Graph(2, 2);
-    expect(graph.cells[0][0].x).toBe(0);
-    expect(graph.cells[0][0].y).toBe(0);
-    expect(graph.cells[1][1].x).toBe(1);
-    expect(graph.cells[1][1].y).toBe(1);
-    expect(graph.cells[1][1].type).toBe(CellType.Wall);
+  it('should set cell types and roomIds', () => {
+    const mapWithRoom: MapDefinition = {
+      ...mockMap,
+      cells: [
+        { ...mockMap.cells[0], roomId: 'room1' },
+        { ...mockMap.cells[1] }
+      ]
+    };
+    const graph = new Graph(mapWithRoom);
+    expect(graph.cells[0][0].type).toBe(CellType.Floor);
+    expect(graph.cells[0][0].roomId).toBe('room1');
   });
 
-  it('should generate consistent boundary keys regardless of order', () => {
-    const graph = new Graph(2, 2);
-    const key1 = graph.getBoundaryKey(0, 0, 1, 0);
-    const key2 = graph.getBoundaryKey(1, 0, 0, 0);
-    expect(key1).toBe(key2);
-    expect(key1).toBe('0,0--1,0');
+  it('should share Boundary objects between adjacent cells', () => {
+    const graph = new Graph(mockMap);
+    const cell0 = graph.cells[0][0];
+    const cell1 = graph.cells[0][1];
+
+    expect(cell0.edges.e).toBeDefined();
+    expect(cell1.edges.w).toBeDefined();
+    expect(cell0.edges.e).toBe(cell1.edges.w); // Reference equality
+    expect(cell0.edges.e?.isWall).toBe(true);
+  });
+
+  it('should handle doors correctly', () => {
+    const mapWithDoor: MapDefinition = {
+      ...mockMap,
+      cells: [
+        { x: 0, y: 0, type: CellType.Floor, walls: { n: false, e: false, s: false, w: false } },
+        { x: 1, y: 0, type: CellType.Floor, walls: { n: false, e: false, s: false, w: false } }
+      ],
+      doors: [
+        {
+          id: 'door1',
+          segment: [{ x: 0, y: 0 }, { x: 1, y: 0 }],
+          orientation: 'Vertical',
+          state: 'Closed',
+          hp: 100, maxHp: 100, openDuration: 5
+        }
+      ]
+    };
+    const graph = new Graph(mapWithDoor);
+    const boundary = graph.cells[0][0].edges.e;
+    expect(boundary?.doorId).toBe('door1');
+    expect(boundary?.isWall).toBe(true);
+  });
+
+  it('should create separate boundaries for non-shared edges (map boundaries)', () => {
+    const graph = new Graph(mockMap);
+    const cell0 = graph.cells[0][0];
+    const cell1 = graph.cells[0][1];
+
+    expect(cell0.edges.w).toBeDefined();
+    expect(cell1.edges.e).toBeDefined();
+    expect(cell0.edges.w).not.toBe(cell1.edges.e);
   });
 });
