@@ -3,7 +3,8 @@ import { PRNG } from '../shared/PRNG';
 
 export class Director {
   private timeSinceLastSpawn: number = 0;
-  private spawnInterval: number = 2000; // Initial interval - faster pacing
+  private initialInterval: number = 5000;
+  private spawnInterval: number = 5000; // Initial interval
   private minSpawnInterval: number = 1000;
   private rampAmount: number = 100; // ms to reduce interval by per spawn
   
@@ -29,11 +30,10 @@ export class Director {
   }
 
   public getThreatLevel(): number {
-    const initialInterval = 5000;
     // Invert so lower interval = higher threat
     // 5000 -> 0%
     // 1000 -> 100%
-    const ratio = (initialInterval - this.spawnInterval) / (initialInterval - this.minSpawnInterval);
+    const ratio = (this.initialInterval - this.spawnInterval) / (this.initialInterval - this.minSpawnInterval);
     return Math.min(100, Math.max(0, ratio * 100));
   }
 
