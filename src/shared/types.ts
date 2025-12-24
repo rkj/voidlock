@@ -103,6 +103,7 @@ export type Unit = Entity & {
   lastAttackTime?: number;
   forcedTargetId?: string; // ID of enemy to focus fire on
   explorationTarget?: Vector2; // Current automated exploration goal
+  aiEnabled?: boolean; // New: allow disabling autonomous behavior
   speed: number; // Tiles per second
 };
 
