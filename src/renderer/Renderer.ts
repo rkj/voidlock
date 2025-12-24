@@ -76,6 +76,9 @@ export class Renderer {
       this.ctx.fillStyle = 'rgba(255, 0, 0, 0.2)';
       state.enemies.forEach(e => {
           if (e.hp > 0) {
+              const cellKey = `${Math.floor(e.pos.x)},${Math.floor(e.pos.y)}`;
+              if (!state.visibleCells.includes(cellKey)) return;
+
               const polygon = VisibilityPolygon.compute(e.pos, 10, state.map);
               
               if (polygon.length > 0) {
