@@ -9,7 +9,7 @@ describe('LOS Boundary Logic', () => {
             width: 3, height: 3,
             cells: Array.from({ length: 9 }, (_, i) => ({
                 x: i % 3, y: Math.floor(i / 3), type: CellType.Floor,
-                walls: { n: false, e: false, s: false, w: false }
+                
             }))
         };
         const grid = new GameGrid(map);
@@ -29,7 +29,7 @@ describe('LOS Boundary Logic', () => {
             width: 3, height: 3,
             cells: Array.from({ length: 9 }, (_, i) => ({
                 x: i % 3, y: Math.floor(i / 3), type: CellType.Floor,
-                walls: { n: false, e: false, s: false, w: false }
+                
             }))
         };
         const grid = new GameGrid(map);

@@ -11,7 +11,7 @@ describe('Hidden Objectives', () => {
     const cells = [];
     for (let y = 0; y < 10; y++) {
       for (let x = 0; x < 10; x++) {
-        cells.push({ x, y, type: CellType.Floor, walls: { n: false, e: false, s: false, w: false } });
+        cells.push({ x, y, type: CellType.Floor,  });
       }
     }
     const objectives: Objective[] = [

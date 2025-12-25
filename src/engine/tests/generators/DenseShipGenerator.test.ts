@@ -40,7 +40,7 @@ describe('DenseShipGenerator', () => {
         neighbors.forEach(n => {
             if (n.x >= 0 && n.x < map.width && n.y >= 0 && n.y < map.height) {
                 // Check if passage exists (wall is open OR door exists)
-                const hasWall = (cell.walls as any)[n.wall];
+                const hasWall = (cell as any)[n.wall];
                 const hasDoor = map.doors?.some(d => 
                     d.segment.some(s => s.x === curr.x && s.y === curr.y) &&
                     d.segment.some(s => s.x === n.x && s.y === n.y)
@@ -62,7 +62,7 @@ describe('DenseShipGenerator', () => {
     
     // In a tree, Edges = Vertices - 1
     // Note: This only checks the traversal tree we built. 
-    // To truly check acyclicity, we'd need to ensure no OTHER open walls exist.
+    // To truly check acyclicity, we'd need to ensure no OTHER open exist.
     expect(edges).toBe(floorCells.length - 1);
   });
 

@@ -6,8 +6,8 @@ describe('GameGrid Door Interaction Repro', () => {
     it('should verify if misplaced door blocks movement', () => {
         // 2x1 Map
         const cells = [
-            { x: 0, y: 0, type: CellType.Floor, walls: { n: true, e: false, s: true, w: true } },
-            { x: 1, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: true, w: false } }
+            { x: 0, y: 0, type: CellType.Floor,  },
+            { x: 1, y: 0, type: CellType.Floor,  }
         ];
         // Wall between 0,0 and 1,0 is OPEN.
 

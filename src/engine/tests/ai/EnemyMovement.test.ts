@@ -11,7 +11,7 @@ describe('Enemy Movement', () => {
     const cells = [];
     for (let y = 0; y < 20; y++) {
       for (let x = 0; x < 20; x++) {
-        cells.push({ x, y, type: CellType.Floor, walls: { n: false, e: false, s: false, w: false } });
+        cells.push({ x, y, type: CellType.Floor,  });
       }
     }
     map = {

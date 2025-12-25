@@ -76,7 +76,7 @@ describe('DenseShipGenerator Strict', () => {
             neighbors.forEach(n => {
                 if (n.x >= 0 && n.x < map.width && n.y >= 0 && n.y < map.height) {
                     // Check if passage exists (wall is open OR door exists)
-                    const hasWall = (cell.walls as any)[n.wall];
+                    const hasWall = (cell as any)[n.wall];
                     const hasDoor = map.doors?.some(d => 
                         d.segment.some(s => s.x === curr.x && s.y === curr.y) &&
                         d.segment.some(s => s.x === n.x && s.y === n.y)

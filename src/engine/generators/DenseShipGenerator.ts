@@ -1,6 +1,7 @@
-import { MapDefinition, CellType, Cell, Door, SpawnPoint, ObjectiveDefinition, Vector2 } from '../../shared/types';
+import { MapDefinition, CellType, Cell, Door, SpawnPoint, ObjectiveDefinition, Vector2, WallDefinition } from '../../shared/types';
 import { PRNG } from '../../shared/PRNG';
 import { MapGenerator } from '../MapGenerator';
+import { Graph } from '../Graph';
 
 type GenCellType = 'Void' | 'Corridor' | 'Room';
 
@@ -9,6 +10,7 @@ export class DenseShipGenerator {
   private width: number;
   private height: number;
   private cells: Cell[] = [];
+  private walls: Set<string> = new Set();
   private doors: Door[] = [];
   private spawnPoints: SpawnPoint[] = [];
   private objectives: ObjectiveDefinition[] = [];
@@ -26,6 +28,12 @@ export class DenseShipGenerator {
     this.roomIds = new Array(width * height).fill('');
   }
 
+  private getBoundaryKey(x1: number, y1: number, x2: number, y2: number): string {
+    const p1 = `${x1},${y1}`;
+    const p2 = `${x2},${y2}`;
+    return [p1, p2].sort().join('--');
+  }
+
   public generate(spawnPointCount: number = 2): MapDefinition {
     this.reset();
 
@@ -33,8 +41,6 @@ export class DenseShipGenerator {
     const corridors = this.buildFrame();
 
     // 2. Build Rooms (Depth 1+)
-    // Iteratively scan for valid spots connected to existing Floor (Corridor or Room)
-    // We repeat this pass until no more rooms can be placed to maximize density.
     let placed = true;
     while (placed) {
         placed = this.fillPass();
@@ -44,10 +50,17 @@ export class DenseShipGenerator {
     this.finalizeCells();
     this.placeEntities(corridors, spawnPointCount);
 
+    const mapWalls: WallDefinition[] = [];
+    this.walls.forEach(key => {
+        const parts = key.split('--').map(p => p.split(',').map(Number));
+        mapWalls.push({ p1: {x: parts[0][0], y: parts[0][1]}, p2: {x: parts[1][0], y: parts[1][1]} });
+    });
+
     const map: MapDefinition = {
       width: this.width,
       height: this.height,
       cells: this.cells,
+      walls: mapWalls,
       doors: this.doors,
       spawnPoints: this.spawnPoints,
       extraction: this.extraction,
@@ -60,55 +73,41 @@ export class DenseShipGenerator {
 
   // --- Debug / Golden Output ---
   public toDetailedDebugString(): string {
+      const map = this.generate();
+      const graph = new Graph(map);
       const expandedWidth = this.width * 2 + 1;
       const expandedHeight = this.height * 2 + 1;
       const grid: string[][] = Array.from({ length: expandedHeight }, () => Array(expandedWidth).fill(' '));
 
-      const getExEy = (x: number, y: number) => ({ ex: x * 2 + 1, ey: y * 2 + 1 });
-
-      // 1. Cells and Walls
       for (let y = 0; y < this.height; y++) {
           for (let x = 0; x < this.width; x++) {
-              const { ex, ey } = getExEy(x, y);
               const type = this.getGenType(x, y);
-              
-              // Cell Content
+              const ex = x * 2 + 1;
+              const ey = y * 2 + 1;
               grid[ey][ex] = type === 'Corridor' ? 'C' : type === 'Room' ? 'R' : '#';
 
-              // Walls
-              const cell = this.getCell(x, y);
-              if (cell) {
-                  if (cell.walls.n) grid[ey - 1][ex] = '-';
-                  if (cell.walls.s) grid[ey + 1][ex] = '-';
-                  if (cell.walls.e) grid[ey][ex + 1] = '|';
-                  if (cell.walls.w) grid[ey][ex - 1] = '|';
-              }
+              const cell = graph.cells[y][x];
+              const n = cell.edges.n;
+              if (n?.isWall) grid[ey - 1][ex] = n.doorId ? '=' : '-';
+              const s = cell.edges.s;
+              if (s?.isWall) grid[ey + 1][ex] = s.doorId ? '=' : '-';
+              const e = cell.edges.e;
+              if (e?.isWall) grid[ey][ex + 1] = e.doorId ? 'I' : '|';
+              const w = cell.edges.w;
+              if (w?.isWall) grid[ey][ex - 1] = w.doorId ? 'I' : '|';
           }
       }
 
-      // 2. Doors
-      this.doors.forEach(d => {
-          const [p1, p2] = d.segment;
-          if (d.orientation === 'Horizontal') { // Door between (x,y) and (x,y+1) - wait, horizontal means horizontal BAR
-             // Segment [p1, p2]. p1.x==p2.x. p1.y != p2.y.
-             // If orientation is Horizontal, it visually is a horizontal line '='.
-             // It sits on a horizontal edge (North/South).
-             // p1.x == p2.x.
-             const ex = p1.x * 2 + 1;
-             const ey = Math.max(p1.y, p2.y) * 2; // Between y and y+1 is at 2*(y+1)? No.
-             // y=0 -> ey=1. y=1 -> ey=3. Edge is at 2.
-             grid[ey][ex] = '=';
-          } else { // Vertical door 'I'
-             const ey = p1.y * 2 + 1;
-             const ex = Math.max(p1.x, p2.x) * 2;
-             grid[ey][ex] = 'I';
-          }
-      });
-
-      // 3. Corners
       for (let y = 0; y < expandedHeight; y += 2) {
           for (let x = 0; x < expandedWidth; x += 2) {
-              if (grid[y][x] === ' ') grid[y][x] = '+';
+              if (grid[y][x] === ' ') {
+                  let wallCount = 0;
+                  if (y > 0 && ['|', 'I', '#'].includes(grid[y - 1][x])) wallCount++;
+                  if (y < expandedHeight - 1 && ['|', 'I', '#'].includes(grid[y + 1][x])) wallCount++;
+                  if (x > 0 && ['-', '=', '#'].includes(grid[y][x - 1])) wallCount++;
+                  if (x < expandedWidth - 1 && ['-', '=', '#'].includes(grid[y][x + 1])) wallCount++;
+                  if (wallCount >= 2) grid[y][x] = '+';
+              }
           }
       }
 
@@ -135,6 +134,7 @@ export class DenseShipGenerator {
 
   private reset() {
       this.cells = [];
+      this.walls.clear();
       this.doors = [];
       this.spawnPoints = [];
       this.objectives = [];
@@ -146,9 +146,13 @@ export class DenseShipGenerator {
         for (let x = 0; x < this.width; x++) {
           this.cells.push({
             x, y,
-            type: CellType.Wall,
-            walls: { n: true, e: true, s: true, w: true }
+            type: CellType.Wall
           });
+          // Initialize walls
+          this.walls.add(this.getBoundaryKey(x, y, x + 1, y));
+          this.walls.add(this.getBoundaryKey(x, y, x, y + 1));
+          if (x === 0) this.walls.add(this.getBoundaryKey(-1, y, 0, y));
+          if (y === 0) this.walls.add(this.getBoundaryKey(x, -1, x, 0));
         }
       }
   }
@@ -158,7 +162,6 @@ export class DenseShipGenerator {
       const minHLen = Math.ceil(this.width * 0.75);
       const minVLen = Math.ceil(this.height * 0.75);
       
-      // 1. Primary Horizontal Spine
       const hSpineY = this.prng.nextInt(2, this.height - 3);
       const hSpineLen = this.prng.nextInt(minHLen, this.width);
       const hSpineX = this.prng.nextInt(0, this.width - hSpineLen);
@@ -170,14 +173,10 @@ export class DenseShipGenerator {
           if (x > hSpineX) this.openWall(x - 1, hSpineY, 'e');
       }
 
-      // 2. Primary Vertical Spine (must intersect horizontal)
-      // Pick an X that is on the horizontal spine
       const vSpineX = this.prng.nextInt(Math.max(2, hSpineX), Math.min(this.width - 3, hSpineX + hSpineLen - 1));
       const vSpineLen = this.prng.nextInt(minVLen, this.height);
       const vSpineY = this.prng.nextInt(0, this.height - vSpineLen);
       
-      // Ensure it actually intersects the H-Spine
-      // If hSpineY is not in [vSpineY, vSpineY + vSpineLen), shift it
       let finalVSpineY = vSpineY;
       if (hSpineY < vSpineY) finalVSpineY = Math.max(0, hSpineY - Math.floor(vSpineLen/2));
       if (hSpineY >= vSpineY + vSpineLen) finalVSpineY = Math.min(this.height - vSpineLen, hSpineY - Math.floor(vSpineLen/2));
@@ -186,75 +185,41 @@ export class DenseShipGenerator {
       for (let y = finalVSpineY; y < finalVSpineY + vSpineLen; y++) {
           this.setGenType(vSpineX, y, 'Corridor', vSpineId);
           corridors.push({x: vSpineX, y});
-          if (y > finalVSpineY) {
-              this.openWall(vSpineX, y - 1, 's');
-          }
+          if (y > finalVSpineY) this.openWall(vSpineX, y - 1, 's');
       }
-
-      // 3. Optional extra corridors (must be long and spaced)
-      // For a 12x12 or 16x16, 2 spines are usually enough for a frame.
-      // I will stop here to ensure strictness, or add one more with spacing check.
-      
       return corridors;
   }
 
   private fillPass(): boolean {
       let placedAny = false;
-      // Shuffle indices
       const indices = Array.from({length: this.width * this.height}, (_, i) => i);
       this.prng.shuffle(indices);
 
       for (const idx of indices) {
           const x = idx % this.width;
           const y = Math.floor(idx / this.width);
-          
           if (this.getGenType(x, y) !== 'Void') continue;
-
-          // Check for a parent (Floor)
-          const neighbors = this.getNeighbors(x, y);
-          const potentialParents = neighbors.filter(n => this.getGenType(n.x, n.y) !== 'Void');
-          
+          const potentialParents = this.getNeighbors(x, y).filter(n => this.getGenType(n.x, n.y) !== 'Void');
           if (potentialParents.length > 0) {
-              // Pick one parent
               const parent = potentialParents[this.prng.nextInt(0, potentialParents.length - 1)];
-              
-              // Try to place a room attached here
-              if (this.tryPlaceRoom(x, y, parent)) {
-                  placedAny = true;
-              }
+              if (this.tryPlaceRoom(x, y, parent)) placedAny = true;
           }
       }
       return placedAny;
   }
 
   private tryPlaceRoom(x: number, y: number, parent: Vector2): boolean {
-      // Dimensions: 2x2, 2x1, 1x2, 1x1. Prefer larger.
-      const shapes = [
-          {w: 2, h: 2}, {w: 2, h: 1}, {w: 1, h: 2}, {w: 1, h: 1}
-      ];
-
+      const shapes = [{w: 2, h: 2}, {w: 2, h: 1}, {w: 1, h: 2}, {w: 1, h: 1}];
       for (const s of shapes) {
-          // Check if shape fits in Void
-          // (x,y) is the anchor.
-          // BUT, (x,y) must connect to parent.
-          // We can shift the shape origin such that one of its cells is (x,y).
-          // For 2x2, there are 4 offsets. For 1x1, 1.
-          
           const offsets: Vector2[] = [];
           for(let oy=0; oy<s.h; oy++) {
-              for(let ox=0; ox<s.w; ox++) {
-                  offsets.push({x: -ox, y: -oy});
-              }
+              for(let ox=0; ox<s.w; ox++) offsets.push({x: -ox, y: -oy});
           }
           this.prng.shuffle(offsets);
-
           for (const off of offsets) {
               const originX = x + off.x;
               const originY = y + off.y;
-              
-              // Verify shape validity
               if (this.isValidRoomShape(originX, originY, s.w, s.h)) {
-                  // Valid! Place it.
                   this.placeRoom(originX, originY, s.w, s.h, parent);
                   return true;
               }
@@ -277,37 +242,19 @@ export class DenseShipGenerator {
 
   private placeRoom(ox: number, oy: number, w: number, h: number, parent: Vector2) {
       const roomId = `room-${ox}-${oy}`;
-      
-      // 1. Set Cells
       for (let dy = 0; dy < h; dy++) {
           for (let dx = 0; dx < w; dx++) {
               this.setGenType(ox + dx, oy + dy, 'Room', roomId);
+              if (dx < w - 1) this.openWall(ox + dx, oy + dy, 'e');
+              if (dy < h - 1) this.openWall(ox + dx, oy + dy, 's');
           }
       }
-
-      // 2. Open Internal Walls
-      for (let dy = 0; dy < h; dy++) {
-          for (let dx = 0; dx < w; dx++) {
-              const cx = ox + dx;
-              const cy = oy + dy;
-              if (dx < w - 1) this.openWall(cx, cy, 'e');
-              if (dy < h - 1) this.openWall(cx, cy, 's');
-          }
-      }
-
-      // 3. Connect to Parent (SINGLE CONNECTION)
-      // Find the cell in the room that is adjacent to the parent
-      // Note: tryPlaceRoom was triggered by (x,y) being adjacent to parent.
-      // But we shifted origin. We need to find which cell touches parent.
       let connectionFound = false;
       for (let dy = 0; dy < h; dy++) {
           for (let dx = 0; dx < w; dx++) {
               const cx = ox + dx;
               const cy = oy + dy;
-              const dir = this.getDirection(parent, {x: cx, y: cy}); // Parent -> RoomCell
-              if (dir) {
-                  // Connect
-                  // Use Door for Room connection
+              if (this.isAdjacent(parent, {x: cx, y: cy})) {
                   this.placeDoor(parent.x, parent.y, cx, cy);
                   connectionFound = true;
                   break; 
@@ -317,8 +264,11 @@ export class DenseShipGenerator {
       }
   }
 
+  private isAdjacent(p1: Vector2, p2: Vector2): boolean {
+      return Math.abs(p1.x - p2.x) + Math.abs(p1.y - p2.y) === 1;
+  }
+
   private finalizeCells() {
-      // Map GenCellType to CellType.Floor/Wall
       for(let i=0; i<this.width*this.height; i++) {
           if (this.genMap[i] === 'Void') {
               this.cells[i].type = CellType.Wall;
@@ -330,83 +280,49 @@ export class DenseShipGenerator {
   }
 
   private placeEntities(corridors: Vector2[], spawnPointCount: number) {
-      // Collect Room Cells
-      const roomCells: Vector2[] = [];
       const roomMap = new Map<string, Vector2[]>();
-      
       for(let y=0; y<this.height; y++) {
           for(let x=0; x<this.width; x++) {
               if (this.getGenType(x, y) === 'Room') {
-                  const p = {x, y};
-                  roomCells.push(p);
                   const rid = this.roomIds[y*this.width+x];
                   if (!roomMap.has(rid)) roomMap.set(rid, []);
-                  roomMap.get(rid)!.push(p);
+                  roomMap.get(rid)!.push({x, y});
               }
           }
       }
-
-      if (roomCells.length === 0) {
-          // Fallback to corridors if 0 rooms (unlikely)
+      const rooms = Array.from(roomMap.values());
+      if (rooms.length === 0) {
           this.spawnPoints.push({ id: 'sp-1', pos: corridors[0], radius: 1 });
           this.extraction = corridors[corridors.length - 1];
           return;
       }
-
-      const rooms = Array.from(roomMap.values());
       this.prng.shuffle(rooms);
-
-      // 1. Reference point for distance (Room 0)
       const refRoom = rooms[0];
       const refPos = refRoom[Math.floor(refRoom.length/2)];
-
-      // 2. Extraction (Furthest room from reference)
       let bestExtRoom = rooms[rooms.length - 1];
       let maxDist = 0;
-      
       for (let i = 1; i < rooms.length; i++) {
           const r = rooms[i];
           const p = r[0];
           const dist = Math.abs(p.x - refPos.x) + Math.abs(p.y - refPos.y);
-          if (dist > maxDist) {
-              maxDist = dist;
-              bestExtRoom = r;
-          }
+          if (dist > maxDist) { maxDist = dist; bestExtRoom = r; }
       }
-      
       const extPos = bestExtRoom[Math.floor(bestExtRoom.length/2)];
       this.extraction = extPos;
-
-      // 3. Enemy Spawners & Objectives
       const otherRooms = rooms.filter(r => r !== bestExtRoom);
-      
-      // Sort otherRooms by distance to extraction descending to place spawners far away
       otherRooms.sort((a, b) => {
-          const pa = a[0];
-          const pb = b[0];
-          const distA = Math.abs(pa.x - extPos.x) + Math.abs(pa.y - extPos.y);
-          const distB = Math.abs(pb.x - extPos.x) + Math.abs(pb.y - extPos.y);
+          const distA = Math.abs(a[0].x - extPos.x) + Math.abs(a[0].y - extPos.y);
+          const distB = Math.abs(b[0].x - extPos.x) + Math.abs(b[0].y - extPos.y);
           return distB - distA;
       });
-
-      // Add Enemy Spawners
       for (let i = 0; i < Math.min(spawnPointCount, otherRooms.length); i++) {
-          const r = otherRooms[i];
-          const p = r[Math.floor(r.length/2)];
-          this.spawnPoints.push({ id: `sp-enemy-${i}`, pos: p, radius: 1 });
+          this.spawnPoints.push({ id: `sp-enemy-${i}`, pos: otherRooms[i][Math.floor(otherRooms[i].length/2)], radius: 1 });
       }
-      
-      // Add Objectives (reuse rooms if needed, or use remaining)
-      const objRooms = otherRooms.length > spawnPointCount ? otherRooms.slice(spawnPointCount) : otherRooms;
-      
+      const objRooms = otherRooms.slice(Math.min(spawnPointCount, otherRooms.length));
       for (let i = 0; i < Math.min(2, objRooms.length); i++) {
-          const r = objRooms[i];
-          const p = r[Math.floor(r.length/2)];
-          this.objectives.push({ id: `obj-${i}`, kind: 'Recover', targetCell: p });
+          this.objectives.push({ id: `obj-${i}`, kind: 'Recover', targetCell: objRooms[i][Math.floor(objRooms[i].length/2)] });
       }
   }
-
-  // --- Helpers ---
 
   private getGenType(x: number, y: number): GenCellType {
       if (x < 0 || x >= this.width || y < 0 || y >= this.height) return 'Void';
@@ -420,58 +336,23 @@ export class DenseShipGenerator {
   }
 
   private getNeighbors(x: number, y: number): Vector2[] {
-      return [
-          { x: x + 1, y },
-          { x: x - 1, y },
-          { x, y: y + 1 },
-          { x, y: y - 1 }
-      ].filter(n => n.x >= 0 && n.x < this.width && n.y >= 0 && n.y < this.height);
-  }
-
-  private getDirection(from: Vector2, to: Vector2): 'n'|'e'|'s'|'w' | null {
-      if (to.x === from.x + 1 && to.y === from.y) return 'e';
-      if (to.x === from.x - 1 && to.y === from.y) return 'w';
-      if (to.y === from.y + 1 && to.x === from.x) return 's';
-      if (to.y === from.y - 1 && to.x === from.x) return 'n';
-      return null;
+      return [{x: x+1, y}, {x: x-1, y}, {x, y: y+1}, {x, y: y-1}].filter(n => n.x >= 0 && n.x < this.width && n.y >= 0 && n.y < this.height);
   }
 
   private openWall(x: number, y: number, dir: 'n'|'e'|'s'|'w') {
-    const c = this.getCell(x, y);
-    if (!c) return;
-    c.walls[dir] = false;
-    
     let nx = x, ny = y;
-    let opp: 'n'|'e'|'s'|'w' = 's';
-    if (dir === 'n') { ny--; opp = 's'; }
-    if (dir === 'e') { nx++; opp = 'w'; }
-    if (dir === 's') { ny++; opp = 'n'; }
-    if (dir === 'w') { nx--; opp = 'e'; }
-    
-    const n = this.getCell(nx, ny);
-    if (n) n.walls[opp] = false;
-  }
-
-  private connect(p1: Vector2, p2: Vector2) {
-      const dir = this.getDirection(p1, p2);
-      if (dir) this.openWall(p1.x, p1.y, dir);
+    if (dir === 'n') ny--; else if (dir === 'e') nx++; else if (dir === 's') ny++; else if (dir === 'w') nx--;
+    this.walls.delete(this.getBoundaryKey(x, y, nx, ny));
   }
 
   private placeDoor(x1: number, y1: number, x2: number, y2: number) {
       const doorId = `door-${this.doors.length}`;
+      this.openWall(x1, y1, y2 < y1 ? 'n' : y2 > y1 ? 's' : x2 > x1 ? 'e' : 'w');
       this.doors.push({
           id: doorId,
           segment: [{ x: x1, y: y1 }, { x: x2, y: y2 }],
           orientation: x1 === x2 ? 'Horizontal' : 'Vertical',
-          state: 'Closed',
-          hp: 50,
-          maxHp: 50,
-          openDuration: 1
+          state: 'Closed', hp: 50, maxHp: 50, openDuration: 1
       });
-  }
-
-  private getCell(x: number, y: number): Cell | undefined {
-    if (x < 0 || x >= this.width || y < 0 || y >= this.height) return undefined;
-    return this.cells[y * this.width + x];
   }
 }

@@ -5,17 +5,15 @@ export enum CellType {
   Floor = 'Floor',
 }
 
+export type WallDefinition = {
+  p1: Vector2;
+  p2: Vector2;
+};
+
 export type Cell = {
   x: number;
   y: number;
   type: CellType;
-  // Thin walls on edges
-  walls: {
-    n: boolean;
-    e: boolean;
-    s: boolean;
-    w: boolean;
-  };
   roomId?: string;
 };
 
@@ -42,6 +40,7 @@ export type MapDefinition = {
   width: number;
   height: number;
   cells: Cell[];
+  walls?: WallDefinition[]; // New: Array of Wall boundaries
   doors?: Door[]; // New: Array of Door entities
   spawnPoints?: SpawnPoint[]; 
   extraction?: Vector2; 
@@ -235,8 +234,8 @@ export type OpenDoorCommand = { type: CommandType.OPEN_DOOR; unitIds: string[]; 
 export type LockDoorCommand = { type: CommandType.LOCK_DOOR; unitIds: string[]; doorId: string; queue?: boolean; };
 export type AttackTargetCommand = { type: CommandType.ATTACK_TARGET; unitId: string; targetId: string; queue?: boolean; };
 export type SetEngagementCommand = { type: CommandType.SET_ENGAGEMENT; unitIds: string[]; mode: EngagementPolicy; queue?: boolean; };
-export type StopCommand = { type: CommandType.STOP; unitIds: string[]; }; 
-export type ResumeAiCommand = { type: CommandType.RESUME_AI; unitIds: string[]; };
+export type StopCommand = { type: CommandType.STOP; unitIds: string[]; queue?: boolean; }; 
+export type ResumeAiCommand = { type: CommandType.RESUME_AI; unitIds: string[]; queue?: boolean; };
 
 export type Command = MoveCommand | OpenDoorCommand | LockDoorCommand | AttackTargetCommand | SetEngagementCommand | StopCommand | ResumeAiCommand;
 

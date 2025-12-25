@@ -11,9 +11,9 @@ describe('Movement through Doors', () => {
   const map: MapDefinition = {
     width: 3, height: 1,
     cells: [
-        { x: 0, y: 0, type: CellType.Floor, walls: { n: true, e: false, s: true, w: true } },
-        { x: 1, y: 0, type: CellType.Floor, walls: { n: true, e: false, s: true, w: false } },
-        { x: 2, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: true, w: false } }
+        { x: 0, y: 0, type: CellType.Floor,  },
+        { x: 1, y: 0, type: CellType.Floor,  },
+        { x: 2, y: 0, type: CellType.Floor,  }
     ],
     doors: [{
         id: 'd1', orientation: 'Vertical', state: 'Closed',

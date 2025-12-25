@@ -11,7 +11,7 @@ describe('Enemy AI', () => {
     const cells = [];
     for (let y = 0; y < 5; y++) {
       for (let x = 0; x < 5; x++) {
-        cells.push({ x, y, type: CellType.Floor, walls: { n: false, e: false, s: false, w: false } });
+        cells.push({ x, y, type: CellType.Floor,  });
       }
     }
     map = {

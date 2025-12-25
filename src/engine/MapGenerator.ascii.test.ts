@@ -8,10 +8,10 @@ describe('MapGenerator.toAscii', () => {
       width: 2,
       height: 2,
       cells: [
-        { x: 0, y: 0, type: CellType.Floor, walls: { n: true, e: false, s: false, w: true } },
-        { x: 1, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: false, w: false } },
-        { x: 0, y: 1, type: CellType.Floor, walls: { n: false, e: false, s: true, w: true } },
-        { x: 1, y: 1, type: CellType.Floor, walls: { n: false, e: true, s: true, w: false } },
+        { x: 0, y: 0, type: CellType.Floor,  },
+        { x: 1, y: 0, type: CellType.Floor,  },
+        { x: 0, y: 1, type: CellType.Floor,  },
+        { x: 1, y: 1, type: CellType.Floor,  },
       ],
       doors: [
         {
@@ -38,12 +38,12 @@ describe('MapGenerator.toAscii', () => {
     expect(ascii).toEqual(expectedAscii);
   });
 
-  it('should handle a map with all walls open', () => {
+  it('should handle a map with all open', () => {
     const map: MapDefinition = {
       width: 1,
       height: 1,
       cells: [
-        { x: 0, y: 0, type: CellType.Floor, walls: { n: false, e: false, s: false, w: false } },
+        { x: 0, y: 0, type: CellType.Floor,  },
       ],
       spawnPoints: [],
       extraction: undefined,
@@ -57,12 +57,12 @@ describe('MapGenerator.toAscii', () => {
     expect(ascii).toEqual(expectedAscii);
   });
 
-  it('should handle a map with all walls closed', () => {
+  it('should handle a map with all closed', () => {
     const map: MapDefinition = {
       width: 1,
       height: 1,
       cells: [
-        { x: 0, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: true, w: true } },
+        { x: 0, y: 0, type: CellType.Floor,  },
       ],
       spawnPoints: [],
       extraction: undefined,

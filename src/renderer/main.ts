@@ -1,6 +1,6 @@
 import { GameClient } from '../engine/GameClient';
 import { Renderer } from './Renderer';
-import { GameState, UnitState, CommandType, Unit, MapDefinition, MapGeneratorType, Door, Vector2, SquadConfig, Archetype, ArchetypeLibrary, MissionType, OverlayOption } from '../shared/types';
+import { GameState, UnitState, CommandType, Unit, MapDefinition, MapGeneratorType, Door, Vector2, SquadConfig, Archetype, ArchetypeLibrary, MissionType, OverlayOption, EngagementPolicy } from '../shared/types';
 import { MapGenerator } from '../engine/MapGenerator';
 import { SpaceshipGenerator } from '../engine/generators/SpaceshipGenerator';
 import { TreeShipGenerator } from '../engine/generators/TreeShipGenerator';

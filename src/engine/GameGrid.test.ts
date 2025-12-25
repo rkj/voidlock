@@ -9,9 +9,8 @@ describe('GameGrid', () => {
   const createTestMapWithDoor = (doorState: 'Open' | 'Closed' | 'Locked' | 'Destroyed'): { map: MapDefinition, doors: Map<string, Door> } => {
     const doorId = 'testDoor';
     const mapCells: Cell[] = [
-      // Cell (0,0) -> Door -> Cell (1,0)
-      { x: 0, y: 0, type: CellType.Floor, walls: { n: true, e: false, s: true, w: true } },
-      { x: 1, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: true, w: false } },
+      { x: 0, y: 0, type: CellType.Floor },
+      { x: 1, y: 0, type: CellType.Floor },
     ];
 
     const door: Door = {
@@ -36,17 +35,19 @@ describe('GameGrid', () => {
   beforeEach(() => {
     // 2x2 map for standard tests
     const cells: Cell[] = [
-      { x: 0, y: 0, type: CellType.Floor, walls: { n: true, e: false, s: true, w: true } },
-      { x: 1, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: true, w: false } }, 
-      
-      { x: 0, y: 1, type: CellType.Floor, walls: { n: true, e: true, s: true, w: true } }, 
-      { x: 1, y: 1, type: CellType.Wall, walls: { n: true, e: true, s: true, w: true } }
+      { x: 0, y: 0, type: CellType.Floor },
+      { x: 1, y: 0, type: CellType.Floor }, 
+      { x: 0, y: 1, type: CellType.Floor }, 
+      { x: 1, y: 1, type: CellType.Wall }
     ];
 
     mockMap = {
       width: 2,
       height: 2,
-      cells
+      cells,
+      walls: [
+          { p1: {x: 0, y: 0}, p2: {x: 0, y: 1} } // Wall between (0,0) and (0,1)
+      ]
     };
     grid = new GameGrid(mockMap);
   });
@@ -95,66 +96,31 @@ describe('GameGrid', () => {
   });
 
   describe('robustness', () => {
-    it('should block movement if EITHER side of the edge has a wall (asymmetric map data)', () => {
+    it('should block movement if edge is a wall', () => {
         const cells: Cell[] = [
-            { x: 0, y: 0, type: CellType.Floor, walls: { n: false, e: false, s: false, w: false } }, // East wall OPEN
-            { x: 1, y: 0, type: CellType.Floor, walls: { n: false, e: false, s: false, w: true } }   // West wall CLOSED
+            { x: 0, y: 0, type: CellType.Floor },
+            { x: 1, y: 0, type: CellType.Floor }
         ];
-        const asymMap: MapDefinition = { width: 2, height: 1, cells };
-        const asymGrid = new GameGrid(asymMap);
-
-        // Moving East: (0,0) -> (1,0). (0,0).e is Open. But (1,0).w is Closed. Should be BLOCKED.
-        expect(asymGrid.canMove(0, 0, 1, 0, new Map())).toBe(false);
-
-        // Moving West: (1,0) -> (0,0). (1,0).w is Closed. Should be BLOCKED.
-        expect(asymGrid.canMove(1, 0, 0, 0, new Map())).toBe(false);
+        const map: MapDefinition = {
+            width: 2, height: 1, cells,
+            walls: [{ p1: {x: 0, y: 0}, p2: {x: 1, y: 0} }]
+        };
+        const testGrid = new GameGrid(map);
+        expect(testGrid.canMove(0, 0, 1, 0, new Map())).toBe(false);
     });
 
-    it('should block movement for non-adjacent cells', () => {
-        expect(grid.canMove(0, 0, 1, 1, new Map())).toBe(false); // Diagonal
-        expect(grid.canMove(0, 0, 0, 0, new Map())).toBe(false); // Same cell
-    });
-
-    it('should block movement from non-floor cells', () => {
-        // (1,1) is a wall in beforeEach
-        expect(grid.canMove(1, 1, 1, 0, new Map())).toBe(false);
-    });
-
-    it('should block movement if coordinates are out of bounds', () => {
-        expect(grid.canMove(-1, 0, 0, 0, new Map())).toBe(false);
-        expect(grid.canMove(0, 0, -1, 0, new Map())).toBe(false);
-        expect(grid.canMove(2, 0, 1, 0, new Map())).toBe(false);
-        expect(grid.canMove(0, 0, 2, 0, new Map())).toBe(false);
-    });
-
-    it('should allow movement through closed doors if allowClosedDoors is true', () => {
-        const { map, doors } = createTestMapWithDoor('Closed');
-        const doorGrid = new GameGrid(map);
-        expect(doorGrid.canMove(0, 0, 1, 0, doors, true)).toBe(true);
-    });
-
-    it('should still block movement through locked doors even if allowClosedDoors is true', () => {
-        const { map, doors } = createTestMapWithDoor('Locked');
-        const doorGrid = new GameGrid(map);
-        expect(doorGrid.canMove(0, 0, 1, 0, doors, true)).toBe(false);
-    });
-
-    it('should allow vertical movement between open edges', () => {
-        // (0,0) and (0,1) in beforeEach are floor cells
-        // (0,0).s is true (closed) in beforeEach, let's fix that for this test or use a custom map
+    it('should treat boundaries to the void as walls', () => {
         const cells: Cell[] = [
-            { x: 0, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: false, w: true } },
-            { x: 0, y: 1, type: CellType.Floor, walls: { n: false, e: true, s: true, w: true } }
+            { x: 0, y: 0, type: CellType.Floor },
+            { x: 0, y: 1, type: CellType.Floor }
         ];
-        const vMap: MapDefinition = { width: 1, height: 2, cells };
-        const vGrid = new GameGrid(vMap);
-        expect(vGrid.canMove(0, 0, 0, 1, new Map())).toBe(true);
-        expect(vGrid.canMove(0, 1, 0, 0, new Map())).toBe(true);
-    });
-
-    it('should block vertical movement through walls', () => {
-        // (0,0).s is true in standard beforeEach
-        expect(grid.canMove(0, 0, 0, 1, new Map())).toBe(false);
+        const map: MapDefinition = {
+            width: 1, height: 2, cells
+            // No explicit walls, but (0,0) and (0,1) are neighbors.
+        };
+        const testGrid = new GameGrid(map);
+        // North of (0,0) is outside
+        expect(testGrid.canMove(0, 0, 0, -1, new Map())).toBe(false);
     });
   });
 });

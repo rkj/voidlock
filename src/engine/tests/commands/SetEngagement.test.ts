@@ -8,7 +8,7 @@ describe('Command: SET_ENGAGEMENT', () => {
   const map: MapDefinition = {
     width: 10, height: 10,
     cells: Array(100).fill(null).map((_, i) => ({ 
-        x: i % 10, y: Math.floor(i / 10), type: CellType.Floor, walls: { n: false, e: false, s: false, w: false } 
+        x: i % 10, y: Math.floor(i / 10), type: CellType.Floor,  
     })),
     spawnPoints: [],
     extraction: { x: 9, y: 9 },

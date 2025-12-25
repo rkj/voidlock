@@ -12,8 +12,8 @@ describe('Unit WaitingForDoor State', () => {
       width: 2,
       height: 1,
       cells: [
-        { x: 0, y: 0, type: CellType.Floor, walls: { n: true, e: false, s: true, w: true } },
-        { x: 1, y: 0, type: CellType.Floor, walls: { n: true, e: false, s: true, w: true } } // West wall open conceptually, blocked by door
+        { x: 0, y: 0, type: CellType.Floor,  },
+        { x: 1, y: 0, type: CellType.Floor,  } // West wall open conceptually, blocked by door
       ],
       doors: [
         {

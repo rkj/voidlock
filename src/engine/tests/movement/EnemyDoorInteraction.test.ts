@@ -19,8 +19,8 @@ describe('Enemy Door Interaction', () => {
     map = {
       width: 2, height: 1,
       cells: [
-        { x: 0, y: 0, type: CellType.Floor, walls: { n: true, e: false, s: true, w: true } },
-        { x: 1, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: true, w: false } }
+        { x: 0, y: 0, type: CellType.Floor,  },
+        { x: 1, y: 0, type: CellType.Floor,  }
       ],
       doors: [door],
       spawnPoints: [], extraction: undefined, objectives: []

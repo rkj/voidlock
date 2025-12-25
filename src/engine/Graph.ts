@@ -1,4 +1,4 @@
-import { CellType, MapDefinition, Direction as SharedDirection, Vector2 } from '../shared/types';
+import { CellType, MapDefinition, Vector2 } from '../shared/types';
 
 export type Direction = 'n' | 'e' | 's' | 'w';
 
@@ -73,7 +73,7 @@ export class Graph {
       }
     }
 
-    // 3. Hydrate boundaries from walls
+    // 3. Hydrate boundaries from cells (initialize all edges)
     for (const cellDef of map.cells) {
       if (!this.isValid(cellDef.x, cellDef.y)) continue;
 
@@ -88,20 +88,26 @@ export class Graph {
         const nx = cellDef.x + dx;
         const ny = cellDef.y + dy;
         
-        // Only process boundaries between valid cells or map edges
-        // If neighbor is outside, it's a boundary to the void
+        // Ensure boundary object exists for this edge
         const boundary = this.getOrCreateBoundary(cellDef.x, cellDef.y, nx, ny);
-        
-        // If the cell definition says there is a wall in this direction, mark it
-        if (cellDef.walls[dir]) {
+        this.cells[cellDef.y][cellDef.x].edges[dir] = boundary;
+
+        // If neighbor is outside map bounds, it's a boundary to the void (default to wall)
+        if (!this.isValid(nx, ny)) {
           boundary.isWall = true;
         }
-
-        this.cells[cellDef.y][cellDef.x].edges[dir] = boundary;
       }
     }
 
-    // 4. Hydrate doors
+    // 4. Hydrate walls from MapDefinition
+    if (map.walls) {
+      for (const wall of map.walls) {
+        const boundary = this.getOrCreateBoundary(wall.p1.x, wall.p1.y, wall.p2.x, wall.p2.y);
+        boundary.isWall = true;
+      }
+    }
+
+    // 5. Hydrate doors
     if (map.doors) {
       for (const door of map.doors) {
         if (door.segment.length === 2) {
