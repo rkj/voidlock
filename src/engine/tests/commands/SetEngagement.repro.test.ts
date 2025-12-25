@@ -64,4 +64,31 @@ describe('Command: SET_ENGAGEMENT (Repro)', () => {
       expect(u1?.state).toBe(UnitState.Attacking);
       expect(e1?.hp).toBeLessThan(100);
   });
+
+  it('should NOT reset Manual IGNORE to ENGAGE when idle', () => {
+      // Remove enemy to ensure unit is safe and not isolated (no threats)
+      engine.state.enemies = [];
+
+      // Set Manual IGNORE
+      engine.applyCommand({
+          type: CommandType.SET_ENGAGEMENT,
+          unitIds: ['u1'],
+          mode: 'IGNORE'
+      });
+
+      // Update to process command
+      engine.update(100);
+      
+      let u1 = engine.getState().units.find(u => u.id === 'u1');
+      expect(u1?.engagementPolicy).toBe('IGNORE');
+
+      // Now ensure unit is Idle and check if it resets
+      // It is already Idle since we didn't move it.
+      // The reset logic runs in update().
+      
+      engine.update(100); // Trigger potential reset
+      
+      u1 = engine.getState().units.find(u => u.id === 'u1');
+      expect(u1?.engagementPolicy).toBe('IGNORE'); // Should still be IGNORE
+  });
 });

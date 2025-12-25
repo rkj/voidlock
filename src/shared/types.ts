@@ -97,6 +97,7 @@ export type Unit = Entity & {
   attackRange: number;
   sightRange: number;
   engagementPolicy?: EngagementPolicy; // Default: 'ENGAGE'
+  engagementPolicySource?: 'Manual' | 'Autonomous'; // Track origin of policy
   commandQueue: Command[];
   lastAttackTarget?: Vector2;
   lastAttackTime?: number;

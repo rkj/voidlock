@@ -261,6 +261,7 @@ export class CoreEngine {
           }
       } else if (cmd.type === CommandType.SET_ENGAGEMENT) {
           unit.engagementPolicy = cmd.mode;
+          unit.engagementPolicySource = 'Manual';
           if (isManual) unit.aiEnabled = true;
       } else if (cmd.type === CommandType.STOP) {
           unit.commandQueue = []; // Clear command queue
@@ -520,6 +521,7 @@ export class CoreEngine {
               
               if (unit.state !== UnitState.Moving || !unit.targetPos || Math.floor(unit.targetPos.x) !== closestSafe.x || Math.floor(unit.targetPos.y) !== closestSafe.y) {
                   unit.engagementPolicy = 'IGNORE';
+                  unit.engagementPolicySource = 'Autonomous';
                   this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: { x: closestSafe.x, y: closestSafe.y } }, false);
               }
           }
@@ -530,13 +532,15 @@ export class CoreEngine {
               const closestAlly = otherUnits.sort((a, b) => this.getDistance(unit.pos, a.pos) - this.getDistance(unit.pos, b.pos))[0];
               if (unit.state !== UnitState.Moving || !unit.targetPos || Math.floor(unit.targetPos.x) !== Math.floor(closestAlly.pos.x) || Math.floor(unit.targetPos.y) !== Math.floor(closestAlly.pos.y)) {
                   unit.engagementPolicy = 'IGNORE'; // Temporarily ignore to reach ally
+                  unit.engagementPolicySource = 'Autonomous';
                   this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: { x: Math.floor(closestAlly.pos.x), y: Math.floor(closestAlly.pos.y) } }, false);
               }
           }
       } else {
           // If no longer retreating or isolated, but was in IGNORE mode, reset to ENGAGE if idle
-          if (unit.engagementPolicy === 'IGNORE' && unit.state === UnitState.Idle && unit.commandQueue.length === 0) {
+          if (unit.engagementPolicy === 'IGNORE' && unit.engagementPolicySource === 'Autonomous' && unit.state === UnitState.Idle && unit.commandQueue.length === 0) {
               unit.engagementPolicy = 'ENGAGE';
+              unit.engagementPolicySource = undefined;
           }
       }
 
