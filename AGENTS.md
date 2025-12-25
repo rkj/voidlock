@@ -3,6 +3,7 @@
 You are an AI contributor agent working on the Xenopurge project. Your goal is to implement features or fix bugs as instructed by the Manager Agent.
 
 ## 1. Core Workflow
+
 1.  **Understand**: Read the task description provided by the Manager. Consult @spec.md and @ARCHITECTURE.md for context.
 2.  **Plan**: Formulate a concise plan. Share it with the Manager if it helps clarify your approach.
 3.  **Implement**: Modify code following the project's established conventions.
@@ -12,35 +13,41 @@ You are an AI contributor agent working on the Xenopurge project. Your goal is t
 ## 2. Technical Guidelines
 
 ### G1) Version Control (Jujutsu)
-*   **NEVER Commit**: Do **NOT** run `jj commit`. The Manager Agent is responsible for committing changes after verification.
-*   **NEVER Push**: Do **NOT** run `jj git push`.
-*   **Review Changes**: You may use `jj diff` to review your work in progress.
-*   **File Operations**: You may create, edit, and delete files as needed for the task. `jj` will automatically track these changes in the working copy.
+
+- **NEVER Commit**: Do **NOT** run `jj commit`. The Manager Agent is responsible for committing changes after verification.
+- **NEVER Push**: Do **NOT** run `jj git push`.
+- **Review Changes**: You may use `jj diff` to review your work in progress.
+- **File Operations**: You may create, edit, and delete files as needed for the task. `jj` will automatically track these changes in the working copy.
 
 ### G2) Testing Strategy
-*   **🚨 NEVER REMOVE TESTS 🚨**: Their purpose is to catch regressions. Do not remove any tests unless explicitly asked to do so by the Manager (e.g., if a feature was removed). If a test is failing, fix the code or update the test to match the new behavior.
-*   **Unit Test First**: For core mechanics (Grid, Pathfinder, LOS), write or update tests before implementation.
-*   **Non-Interactive**: Always run tests using `npx vitest run`. Never use watch mode.
-*   **Micro-Maps**: Define small, fixed JSON `MapDefinition`s directly within tests (e.g., 2x2 grids) to cover specific scenarios.
-*   **Recursion Guard**: If `Maximum call stack size exceeded` occurs, dump the Pathfinding grid state to JSON immediately for analysis.
+
+- **🚨 NEVER REMOVE TESTS 🚨**: Their purpose is to catch regressions. Do not remove any tests unless explicitly asked to do so by the Manager (e.g., if a feature was removed). If a test is failing, fix the code or update the test to match the new behavior.
+- **Unit Test First**: For core mechanics (Grid, Pathfinder, LOS), write or update tests before implementation.
+- **Non-Interactive**: Always run tests using `npx vitest run`. Never use watch mode.
+- **Micro-Maps**: Define small, fixed JSON `MapDefinition`s directly within tests (e.g., 2x2 grids) to cover specific scenarios.
+- **Recursion Guard**: If `Maximum call stack size exceeded` occurs, dump the Pathfinding grid state to JSON immediately for analysis.
 
 ### G3) Visual Debugging & Feedback
-*   **Game Access URL**: The game is accessible at `http://192.168.20.8:5173/`. This URL should be used for all browser interactions.
-*   **Visual Verification**: Use `take_screenshot()` to inspect the rendered state of the game, including the Canvas.
-*   **User Feedback**: When reporting visual issues you cannot see directly, rely on the text descriptions provided by the Manager or User.
+
+- **Game Access URL**: The game is accessible at `http://192.168.20.8:5173/`. This URL should be used for all browser interactions.
+- **Visual Verification**: Use `take_screenshot()` to inspect the rendered state of the game, including the Canvas.
+- **User Feedback**: When reporting visual issues you cannot see directly, rely on the text descriptions provided by the Manager or User.
 
 ### G4) Coding Standards
-*   **Style & Structure**: Mimic the style (formatting, naming), structure, framework choices, and typing of existing code.
-*   **Idiomatic Changes**: Ensure your changes integrate naturally and idiomatically with the local context.
-*   **Avoid Duplication**: Do not duplicate helper functions or test logic. Refactor shared logic into utility files (e.g., `src/engine/tests/utils/`) and import them.
+
+- **Style & Structure**: Mimic the style (formatting, naming), structure, framework choices, and typing of existing code.
+- **Idiomatic Changes**: Ensure your changes integrate naturally and idiomatically with the local context.
+- **Avoid Duplication**: Do not duplicate helper functions or test logic. Refactor shared logic into utility files (e.g., `src/engine/tests/utils/`) and import them.
 
 ## 3. Feature/Task Completion Checklist
+
 When finishing a feature or task, you MUST perform the following steps in order:
+
 1.  **Strict Verification**: Execute `npx vitest run`. All tests MUST pass. A task is not complete if tests are failing.
 2.  **Visual Verification**: For any UI or rendering changes, navigate to the game URL, take a screenshot, and **carefully review it** to ensure the visual state matches expectations.
 3.  **Versioning (Strict SemVer)**:
-    *   Check the current version in `package.json`.
-    *   **Features:** If the task added new functionality, increment the **MINOR** version (e.g., 0.1.0 -> 0.2.0).
-    *   **Bug Fixes/Tasks:** If the task was a bug fix or refactor, increment the **PATCH** version (e.g., 0.1.0 -> 0.1.1).
-    *   Update `package.json` with the new version.
+    - Check the current version in `package.json`.
+    - **Features:** If the task added new functionality, increment the **MINOR** version (e.g., 0.1.0 -> 0.2.0).
+    - **Bug Fixes/Tasks:** If the task was a bug fix or refactor, increment the **PATCH** version (e.g., 0.1.0 -> 0.1.1).
+    - Update `package.json` with the new version.
 4.  **Signal Completion**: Inform the Manager that the task is complete and ready for review. Do NOT perform the final commit or close the Beads task yourself.

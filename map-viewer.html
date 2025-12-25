@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -8,7 +8,7 @@
     <style>
       body {
         margin: 0;
-        font-family: 'Courier New', Courier, monospace;
+        font-family: "Courier New", Courier, monospace;
         background-color: #1a1a1a;
         color: #eee;
         display: flex;
@@ -24,7 +24,10 @@
         align-items: center;
         border-bottom: 2px solid #555;
       }
-      h1 { margin: 0; font-size: 1.2rem; }
+      h1 {
+        margin: 0;
+        font-size: 1.2rem;
+      }
       #container {
         display: flex;
         flex: 1;
@@ -51,7 +54,7 @@
       }
       canvas {
         background-color: #0a0a0a;
-        box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
       }
       textarea {
         width: 100%;
@@ -73,18 +76,32 @@
         font-family: inherit;
         transition: background-color 0.2s;
       }
-      button:hover { background-color: #444; }
-      button:active { background-color: #222; }
-      .primary-btn { background-color: #0066cc; border-color: #004488; }
-      .primary-btn:hover { background-color: #0077dd; }
-      
+      button:hover {
+        background-color: #444;
+      }
+      button:active {
+        background-color: #222;
+      }
+      .primary-btn {
+        background-color: #0066cc;
+        border-color: #004488;
+      }
+      .primary-btn:hover {
+        background-color: #0077dd;
+      }
+
       .control-group {
         display: flex;
         flex-direction: column;
         gap: 5px;
       }
-      label { font-size: 0.9rem; color: #aaa; }
-      input[type="range"] { width: 100%; }
+      label {
+        font-size: 0.9rem;
+        color: #aaa;
+      }
+      input[type="range"] {
+        width: 100%;
+      }
       #error-msg {
         color: #ff4444;
         font-size: 0.8rem;
@@ -96,27 +113,43 @@
     <header>
       <h1>Xenopurge Map Viewer</h1>
       <div>
-        <a href="/" style="color: #aaa; text-decoration: none; font-size: 0.9rem;">Back to Game</a>
+        <a
+          href="/"
+          style="color: #aaa; text-decoration: none; font-size: 0.9rem"
+          >Back to Game</a
+        >
       </div>
     </header>
     <div id="container">
       <div id="controls">
         <div class="control-group">
           <label for="map-input">Map Definition JSON:</label>
-          <textarea id="map-input" placeholder="Paste MapDefinition JSON here..."></textarea>
+          <textarea
+            id="map-input"
+            placeholder="Paste MapDefinition JSON here..."
+          ></textarea>
           <div id="error-msg"></div>
           <button id="load-btn" class="primary-btn">Load Map</button>
         </div>
 
         <div class="control-group">
           <label for="zoom-slider">Zoom / Scale (px per cell):</label>
-          <input type="range" id="zoom-slider" min="32" max="256" value="64" step="16">
-          <span id="zoom-value" style="text-align: right; font-size: 0.8rem;">64px</span>
+          <input
+            type="range"
+            id="zoom-slider"
+            min="32"
+            max="256"
+            value="64"
+            step="16"
+          />
+          <span id="zoom-value" style="text-align: right; font-size: 0.8rem"
+            >64px</span
+          >
         </div>
 
         <div class="control-group">
-            <label>Export:</label>
-            <button id="download-btn">Download PNG</button>
+          <label>Export:</label>
+          <button id="download-btn">Download PNG</button>
         </div>
       </div>
       <div id="canvas-wrapper">

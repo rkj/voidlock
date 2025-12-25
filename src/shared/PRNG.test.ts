@@ -1,8 +1,8 @@
-import { describe, it, expect } from 'vitest';
-import { PRNG } from './PRNG';
+import { describe, it, expect } from "vitest";
+import { PRNG } from "./PRNG";
 
-describe('PRNG', () => {
-  it('should be deterministic with the same seed', () => {
+describe("PRNG", () => {
+  it("should be deterministic with the same seed", () => {
     const prng1 = new PRNG(12345);
     const prng2 = new PRNG(12345);
 
@@ -11,7 +11,7 @@ describe('PRNG', () => {
     }
   });
 
-  it('should produce different sequences with different seeds', () => {
+  it("should produce different sequences with different seeds", () => {
     const prng1 = new PRNG(12345);
     const prng2 = new PRNG(54321);
 
@@ -25,7 +25,7 @@ describe('PRNG', () => {
     expect(identicalCount).toBeLessThan(5);
   });
 
-  it('should produce values within [0, 1)', () => {
+  it("should produce values within [0, 1)", () => {
     const prng = new PRNG(123);
     for (let i = 0; i < 1000; i++) {
       const val = prng.next();
@@ -34,7 +34,7 @@ describe('PRNG', () => {
     }
   });
 
-  it('should produce integers in range [min, max]', () => {
+  it("should produce integers in range [min, max]", () => {
     const prng = new PRNG(456);
     const min = 5;
     const max = 10;
@@ -51,10 +51,10 @@ describe('PRNG', () => {
     expect(results.size).toBe(max - min + 1);
   });
 
-  it('should shuffle arrays deterministically', () => {
+  it("should shuffle arrays deterministically", () => {
     const prng1 = new PRNG(789);
     const prng2 = new PRNG(789);
-    
+
     const arr1 = [1, 2, 3, 4, 5];
     const arr2 = [1, 2, 3, 4, 5];
 
@@ -64,7 +64,7 @@ describe('PRNG', () => {
     expect(arr1).toEqual(arr2);
   });
 
-  it('should shuffle arrays in-place', () => {
+  it("should shuffle arrays in-place", () => {
     const prng = new PRNG(101);
     const arr = [1, 2, 3];
     const result = prng.shuffle(arr);

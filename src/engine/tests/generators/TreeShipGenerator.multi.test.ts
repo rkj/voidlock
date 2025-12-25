@@ -1,14 +1,19 @@
-import { describe, it, expect } from 'vitest';
-import { TreeShipGenerator } from '../../generators/TreeShipGenerator';
-import { mapToAdjacencyList, hasCycleDFS, calculateFillRate, checkConnectivity } from '../utils/GraphUtils';
+import { describe, it, expect } from "vitest";
+import { TreeShipGenerator } from "../../generators/TreeShipGenerator";
+import {
+  mapToAdjacencyList,
+  hasCycleDFS,
+  calculateFillRate,
+  checkConnectivity,
+} from "../utils/GraphUtils";
 
-describe('TreeShipGenerator Multi-Corridor', () => {
+describe("TreeShipGenerator Multi-Corridor", () => {
   const seeds = [1, 42, 123, 999];
   const sizes = [
     { w: 16, h: 16 },
     { w: 16, h: 12 },
     { w: 12, h: 16 },
-    { w: 12, h: 12 }
+    { w: 12, h: 12 },
   ];
 
   for (const size of sizes) {
@@ -17,11 +22,11 @@ describe('TreeShipGenerator Multi-Corridor', () => {
         const generator = new TreeShipGenerator(seed, size.w, size.h);
         const map = generator.generate();
         // const adj = mapToAdjacencyList(map);
-        
+
         // expect(hasCycleDFS(adj)).toBe(false); // Cycles allowed
-        
+
         const fillRate = calculateFillRate(map);
-        // Larger maps might have slightly lower fill rate if skeleton is sparse, 
+        // Larger maps might have slightly lower fill rate if skeleton is sparse,
         // but the goal is high density.
         expect(fillRate).toBeGreaterThanOrEqual(0.2);
 

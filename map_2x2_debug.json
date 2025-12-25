@@ -2,15 +2,35 @@
   "width": 2,
   "height": 2,
   "cells": [
-    { "x": 0, "y": 0, "type": "Floor", "walls": { "n": true, "e": false, "s": true, "w": true } },
-    { "x": 1, "y": 0, "type": "Floor", "walls": { "n": true, "e": true, "s": true, "w": false } },
-    { "x": 0, "y": 1, "type": "Floor", "walls": { "n": true, "e": true, "s": true, "w": true } },
-    { "x": 1, "y": 1, "type": "Floor", "walls": { "n": true, "e": true, "s": true, "w": true } }
+    {
+      "x": 0,
+      "y": 0,
+      "type": "Floor",
+      "walls": { "n": true, "e": false, "s": true, "w": true }
+    },
+    {
+      "x": 1,
+      "y": 0,
+      "type": "Floor",
+      "walls": { "n": true, "e": true, "s": true, "w": false }
+    },
+    {
+      "x": 0,
+      "y": 1,
+      "type": "Floor",
+      "walls": { "n": true, "e": true, "s": true, "w": true }
+    },
+    {
+      "x": 1,
+      "y": 1,
+      "type": "Floor",
+      "walls": { "n": true, "e": true, "s": true, "w": true }
+    }
   ],
   "doors": [
     {
       "id": "d1",
-      "segment": [ { "x": 0, "y": 0 } ],
+      "segment": [{ "x": 0, "y": 0 }],
       "orientation": "Vertical",
       "state": "Closed",
       "hp": 100,
@@ -22,7 +42,5 @@
   "objectives": [
     { "id": "obj1", "kind": "Recover", "targetCell": { "x": 0, "y": 0 } }
   ],
-  "spawnPoints": [
-    { "id": "sp1", "pos": { "x": 0, "y": 0 }, "radius": 0 }
-  ]
+  "spawnPoints": [{ "id": "sp1", "pos": { "x": 0, "y": 0 }, "radius": 0 }]
 }

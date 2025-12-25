@@ -1,8 +1,11 @@
-import { GameClient } from '../engine/GameClient';
-import { Bot } from './Bot';
+import { GameClient } from "../engine/GameClient";
+import { Bot } from "./Bot";
 
 export class BotHarness {
-  constructor(private client: GameClient, private bot: Bot) {}
+  constructor(
+    private client: GameClient,
+    private bot: Bot,
+  ) {}
 
   public start() {
     this.client.onStateUpdate((state) => {

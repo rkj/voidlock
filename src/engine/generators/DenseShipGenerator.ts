@@ -1,9 +1,18 @@
-import { MapDefinition, CellType, Cell, Door, SpawnPoint, ObjectiveDefinition, Vector2, WallDefinition } from '../../shared/types';
-import { PRNG } from '../../shared/PRNG';
-import { MapGenerator } from '../MapGenerator';
-import { Graph } from '../Graph';
+import {
+  MapDefinition,
+  CellType,
+  Cell,
+  Door,
+  SpawnPoint,
+  ObjectiveDefinition,
+  Vector2,
+  WallDefinition,
+} from "../../shared/types";
+import { PRNG } from "../../shared/PRNG";
+import { MapGenerator } from "../MapGenerator";
+import { Graph } from "../Graph";
 
-type GenCellType = 'Void' | 'Corridor' | 'Room';
+type GenCellType = "Void" | "Corridor" | "Room";
 
 export class DenseShipGenerator {
   private prng: PRNG;
@@ -15,7 +24,7 @@ export class DenseShipGenerator {
   private spawnPoints: SpawnPoint[] = [];
   private objectives: ObjectiveDefinition[] = [];
   private extraction?: Vector2;
-  
+
   // Internal tracking
   private genMap: GenCellType[];
   private roomIds: string[];
@@ -24,14 +33,19 @@ export class DenseShipGenerator {
     this.prng = new PRNG(seed);
     this.width = width;
     this.height = height;
-    this.genMap = new Array(width * height).fill('Void');
-    this.roomIds = new Array(width * height).fill('');
+    this.genMap = new Array(width * height).fill("Void");
+    this.roomIds = new Array(width * height).fill("");
   }
 
-  private getBoundaryKey(x1: number, y1: number, x2: number, y2: number): string {
+  private getBoundaryKey(
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+  ): string {
     const p1 = `${x1},${y1}`;
     const p2 = `${x2},${y2}`;
-    return [p1, p2].sort().join('--');
+    return [p1, p2].sort().join("--");
   }
 
   public generate(spawnPointCount: number = 2): MapDefinition {
@@ -43,7 +57,7 @@ export class DenseShipGenerator {
     // 2. Build Rooms (Depth 1+)
     let placed = true;
     while (placed) {
-        placed = this.fillPass();
+      placed = this.fillPass();
     }
 
     // 3. Finalize Map
@@ -51,9 +65,12 @@ export class DenseShipGenerator {
     this.placeEntities(corridors, spawnPointCount);
 
     const mapWalls: WallDefinition[] = [];
-    this.walls.forEach(key => {
-        const parts = key.split('--').map(p => p.split(',').map(Number));
-        mapWalls.push({ p1: {x: parts[0][0], y: parts[0][1]}, p2: {x: parts[1][0], y: parts[1][1]} });
+    this.walls.forEach((key) => {
+      const parts = key.split("--").map((p) => p.split(",").map(Number));
+      mapWalls.push({
+        p1: { x: parts[0][0], y: parts[0][1] },
+        p2: { x: parts[1][0], y: parts[1][1] },
+      });
     });
 
     const map: MapDefinition = {
@@ -64,7 +81,7 @@ export class DenseShipGenerator {
       doors: this.doors,
       spawnPoints: this.spawnPoints,
       extraction: this.extraction,
-      objectives: this.objectives
+      objectives: this.objectives,
     };
 
     MapGenerator.sanitize(map);
@@ -73,286 +90,355 @@ export class DenseShipGenerator {
 
   // --- Debug / Golden Output ---
   public toDetailedDebugString(): string {
-      const map = this.generate();
-      const graph = new Graph(map);
-      const expandedWidth = this.width * 2 + 1;
-      const expandedHeight = this.height * 2 + 1;
-      const grid: string[][] = Array.from({ length: expandedHeight }, () => Array(expandedWidth).fill(' '));
+    const map = this.generate();
+    const graph = new Graph(map);
+    const expandedWidth = this.width * 2 + 1;
+    const expandedHeight = this.height * 2 + 1;
+    const grid: string[][] = Array.from({ length: expandedHeight }, () =>
+      Array(expandedWidth).fill(" "),
+    );
 
-      for (let y = 0; y < this.height; y++) {
-          for (let x = 0; x < this.width; x++) {
-              const type = this.getGenType(x, y);
-              const ex = x * 2 + 1;
-              const ey = y * 2 + 1;
-              grid[ey][ex] = type === 'Corridor' ? 'C' : type === 'Room' ? 'R' : '#';
+    for (let y = 0; y < this.height; y++) {
+      for (let x = 0; x < this.width; x++) {
+        const type = this.getGenType(x, y);
+        const ex = x * 2 + 1;
+        const ey = y * 2 + 1;
+        grid[ey][ex] = type === "Corridor" ? "C" : type === "Room" ? "R" : "#";
 
-              const cell = graph.cells[y][x];
-              const n = cell.edges.n;
-              if (n?.isWall) grid[ey - 1][ex] = n.doorId ? '=' : '-';
-              const s = cell.edges.s;
-              if (s?.isWall) grid[ey + 1][ex] = s.doorId ? '=' : '-';
-              const e = cell.edges.e;
-              if (e?.isWall) grid[ey][ex + 1] = e.doorId ? 'I' : '|';
-              const w = cell.edges.w;
-              if (w?.isWall) grid[ey][ex - 1] = w.doorId ? 'I' : '|';
-          }
+        const cell = graph.cells[y][x];
+        const n = cell.edges.n;
+        if (n?.isWall) grid[ey - 1][ex] = n.doorId ? "=" : "-";
+        const s = cell.edges.s;
+        if (s?.isWall) grid[ey + 1][ex] = s.doorId ? "=" : "-";
+        const e = cell.edges.e;
+        if (e?.isWall) grid[ey][ex + 1] = e.doorId ? "I" : "|";
+        const w = cell.edges.w;
+        if (w?.isWall) grid[ey][ex - 1] = w.doorId ? "I" : "|";
       }
+    }
 
-      for (let y = 0; y < expandedHeight; y += 2) {
-          for (let x = 0; x < expandedWidth; x += 2) {
-              if (grid[y][x] === ' ') {
-                  let wallCount = 0;
-                  if (y > 0 && ['|', 'I', '#'].includes(grid[y - 1][x])) wallCount++;
-                  if (y < expandedHeight - 1 && ['|', 'I', '#'].includes(grid[y + 1][x])) wallCount++;
-                  if (x > 0 && ['-', '=', '#'].includes(grid[y][x - 1])) wallCount++;
-                  if (x < expandedWidth - 1 && ['-', '=', '#'].includes(grid[y][x + 1])) wallCount++;
-                  if (wallCount >= 2) grid[y][x] = '+';
-              }
-          }
+    for (let y = 0; y < expandedHeight; y += 2) {
+      for (let x = 0; x < expandedWidth; x += 2) {
+        if (grid[y][x] === " ") {
+          let wallCount = 0;
+          if (y > 0 && ["|", "I", "#"].includes(grid[y - 1][x])) wallCount++;
+          if (
+            y < expandedHeight - 1 &&
+            ["|", "I", "#"].includes(grid[y + 1][x])
+          )
+            wallCount++;
+          if (x > 0 && ["-", "=", "#"].includes(grid[y][x - 1])) wallCount++;
+          if (x < expandedWidth - 1 && ["-", "=", "#"].includes(grid[y][x + 1]))
+            wallCount++;
+          if (wallCount >= 2) grid[y][x] = "+";
+        }
       }
+    }
 
-      return grid.map(row => row.join('')).join('\n');
+    return grid.map((row) => row.join("")).join("\n");
   }
 
   public toDebugString(): string {
-      const symbols: Record<GenCellType, string> = {
-          'Void': '.',
-          'Corridor': 'C',
-          'Room': 'R'
-      };
-      
-      let out = '';
-      for (let y = 0; y < this.height; y++) {
-          let line = '';
-          for (let x = 0; x < this.width; x++) {
-              line += symbols[this.getGenType(x, y)];
-          }
-          out += line + '\n';
+    const symbols: Record<GenCellType, string> = {
+      Void: ".",
+      Corridor: "C",
+      Room: "R",
+    };
+
+    let out = "";
+    for (let y = 0; y < this.height; y++) {
+      let line = "";
+      for (let x = 0; x < this.width; x++) {
+        line += symbols[this.getGenType(x, y)];
       }
-      return out;
+      out += line + "\n";
+    }
+    return out;
   }
 
   private reset() {
-      this.cells = [];
-      this.walls.clear();
-      this.doors = [];
-      this.spawnPoints = [];
-      this.objectives = [];
-      this.extraction = undefined;
-      this.genMap.fill('Void');
-      this.roomIds.fill('');
-      
-      for (let y = 0; y < this.height; y++) {
-        for (let x = 0; x < this.width; x++) {
-          this.cells.push({
-            x, y,
-            type: CellType.Wall
-          });
-          // Initialize walls
-          this.walls.add(this.getBoundaryKey(x, y, x + 1, y));
-          this.walls.add(this.getBoundaryKey(x, y, x, y + 1));
-          if (x === 0) this.walls.add(this.getBoundaryKey(-1, y, 0, y));
-          if (y === 0) this.walls.add(this.getBoundaryKey(x, -1, x, 0));
-        }
+    this.cells = [];
+    this.walls.clear();
+    this.doors = [];
+    this.spawnPoints = [];
+    this.objectives = [];
+    this.extraction = undefined;
+    this.genMap.fill("Void");
+    this.roomIds.fill("");
+
+    for (let y = 0; y < this.height; y++) {
+      for (let x = 0; x < this.width; x++) {
+        this.cells.push({
+          x,
+          y,
+          type: CellType.Wall,
+        });
+        // Initialize walls
+        this.walls.add(this.getBoundaryKey(x, y, x + 1, y));
+        this.walls.add(this.getBoundaryKey(x, y, x, y + 1));
+        if (x === 0) this.walls.add(this.getBoundaryKey(-1, y, 0, y));
+        if (y === 0) this.walls.add(this.getBoundaryKey(x, -1, x, 0));
       }
+    }
   }
 
   private buildFrame(): Vector2[] {
-      const corridors: Vector2[] = [];
-      const minHLen = Math.ceil(this.width * 0.75);
-      const minVLen = Math.ceil(this.height * 0.75);
-      
-      const hSpineY = this.prng.nextInt(2, this.height - 3);
-      const hSpineLen = this.prng.nextInt(minHLen, this.width);
-      const hSpineX = this.prng.nextInt(0, this.width - hSpineLen);
-      
-      const hSpineId = 'corridor-h-spine';
-      for (let x = hSpineX; x < hSpineX + hSpineLen; x++) {
-          this.setGenType(x, hSpineY, 'Corridor', hSpineId);
-          corridors.push({x, y: hSpineY});
-          if (x > hSpineX) this.openWall(x - 1, hSpineY, 'e');
-      }
+    const corridors: Vector2[] = [];
+    const minHLen = Math.ceil(this.width * 0.75);
+    const minVLen = Math.ceil(this.height * 0.75);
 
-      const vSpineX = this.prng.nextInt(Math.max(2, hSpineX), Math.min(this.width - 3, hSpineX + hSpineLen - 1));
-      const vSpineLen = this.prng.nextInt(minVLen, this.height);
-      const vSpineY = this.prng.nextInt(0, this.height - vSpineLen);
-      
-      let finalVSpineY = vSpineY;
-      if (hSpineY < vSpineY) finalVSpineY = Math.max(0, hSpineY - Math.floor(vSpineLen/2));
-      if (hSpineY >= vSpineY + vSpineLen) finalVSpineY = Math.min(this.height - vSpineLen, hSpineY - Math.floor(vSpineLen/2));
+    const hSpineY = this.prng.nextInt(2, this.height - 3);
+    const hSpineLen = this.prng.nextInt(minHLen, this.width);
+    const hSpineX = this.prng.nextInt(0, this.width - hSpineLen);
 
-      const vSpineId = 'corridor-v-spine';
-      for (let y = finalVSpineY; y < finalVSpineY + vSpineLen; y++) {
-          this.setGenType(vSpineX, y, 'Corridor', vSpineId);
-          corridors.push({x: vSpineX, y});
-          if (y > finalVSpineY) this.openWall(vSpineX, y - 1, 's');
-      }
-      return corridors;
+    const hSpineId = "corridor-h-spine";
+    for (let x = hSpineX; x < hSpineX + hSpineLen; x++) {
+      this.setGenType(x, hSpineY, "Corridor", hSpineId);
+      corridors.push({ x, y: hSpineY });
+      if (x > hSpineX) this.openWall(x - 1, hSpineY, "e");
+    }
+
+    const vSpineX = this.prng.nextInt(
+      Math.max(2, hSpineX),
+      Math.min(this.width - 3, hSpineX + hSpineLen - 1),
+    );
+    const vSpineLen = this.prng.nextInt(minVLen, this.height);
+    const vSpineY = this.prng.nextInt(0, this.height - vSpineLen);
+
+    let finalVSpineY = vSpineY;
+    if (hSpineY < vSpineY)
+      finalVSpineY = Math.max(0, hSpineY - Math.floor(vSpineLen / 2));
+    if (hSpineY >= vSpineY + vSpineLen)
+      finalVSpineY = Math.min(
+        this.height - vSpineLen,
+        hSpineY - Math.floor(vSpineLen / 2),
+      );
+
+    const vSpineId = "corridor-v-spine";
+    for (let y = finalVSpineY; y < finalVSpineY + vSpineLen; y++) {
+      this.setGenType(vSpineX, y, "Corridor", vSpineId);
+      corridors.push({ x: vSpineX, y });
+      if (y > finalVSpineY) this.openWall(vSpineX, y - 1, "s");
+    }
+    return corridors;
   }
 
   private fillPass(): boolean {
-      let placedAny = false;
-      const indices = Array.from({length: this.width * this.height}, (_, i) => i);
-      this.prng.shuffle(indices);
+    let placedAny = false;
+    const indices = Array.from(
+      { length: this.width * this.height },
+      (_, i) => i,
+    );
+    this.prng.shuffle(indices);
 
-      for (const idx of indices) {
-          const x = idx % this.width;
-          const y = Math.floor(idx / this.width);
-          if (this.getGenType(x, y) !== 'Void') continue;
-          const potentialParents = this.getNeighbors(x, y).filter(n => this.getGenType(n.x, n.y) !== 'Void');
-          if (potentialParents.length > 0) {
-              const parent = potentialParents[this.prng.nextInt(0, potentialParents.length - 1)];
-              if (this.tryPlaceRoom(x, y, parent)) placedAny = true;
-          }
+    for (const idx of indices) {
+      const x = idx % this.width;
+      const y = Math.floor(idx / this.width);
+      if (this.getGenType(x, y) !== "Void") continue;
+      const potentialParents = this.getNeighbors(x, y).filter(
+        (n) => this.getGenType(n.x, n.y) !== "Void",
+      );
+      if (potentialParents.length > 0) {
+        const parent =
+          potentialParents[this.prng.nextInt(0, potentialParents.length - 1)];
+        if (this.tryPlaceRoom(x, y, parent)) placedAny = true;
       }
-      return placedAny;
+    }
+    return placedAny;
   }
 
   private tryPlaceRoom(x: number, y: number, parent: Vector2): boolean {
-      const shapes = [{w: 2, h: 2}, {w: 2, h: 1}, {w: 1, h: 2}, {w: 1, h: 1}];
-      for (const s of shapes) {
-          const offsets: Vector2[] = [];
-          for(let oy=0; oy<s.h; oy++) {
-              for(let ox=0; ox<s.w; ox++) offsets.push({x: -ox, y: -oy});
-          }
-          this.prng.shuffle(offsets);
-          for (const off of offsets) {
-              const originX = x + off.x;
-              const originY = y + off.y;
-              if (this.isValidRoomShape(originX, originY, s.w, s.h)) {
-                  this.placeRoom(originX, originY, s.w, s.h, parent);
-                  return true;
-              }
-          }
+    const shapes = [
+      { w: 2, h: 2 },
+      { w: 2, h: 1 },
+      { w: 1, h: 2 },
+      { w: 1, h: 1 },
+    ];
+    for (const s of shapes) {
+      const offsets: Vector2[] = [];
+      for (let oy = 0; oy < s.h; oy++) {
+        for (let ox = 0; ox < s.w; ox++) offsets.push({ x: -ox, y: -oy });
       }
-      return false;
+      this.prng.shuffle(offsets);
+      for (const off of offsets) {
+        const originX = x + off.x;
+        const originY = y + off.y;
+        if (this.isValidRoomShape(originX, originY, s.w, s.h)) {
+          this.placeRoom(originX, originY, s.w, s.h, parent);
+          return true;
+        }
+      }
+    }
+    return false;
   }
 
-  private isValidRoomShape(ox: number, oy: number, w: number, h: number): boolean {
-      for (let dy = 0; dy < h; dy++) {
-          for (let dx = 0; dx < w; dx++) {
-              const cx = ox + dx;
-              const cy = oy + dy;
-              if (cx < 0 || cx >= this.width || cy < 0 || cy >= this.height) return false;
-              if (this.getGenType(cx, cy) !== 'Void') return false;
-          }
+  private isValidRoomShape(
+    ox: number,
+    oy: number,
+    w: number,
+    h: number,
+  ): boolean {
+    for (let dy = 0; dy < h; dy++) {
+      for (let dx = 0; dx < w; dx++) {
+        const cx = ox + dx;
+        const cy = oy + dy;
+        if (cx < 0 || cx >= this.width || cy < 0 || cy >= this.height)
+          return false;
+        if (this.getGenType(cx, cy) !== "Void") return false;
       }
-      return true;
+    }
+    return true;
   }
 
-  private placeRoom(ox: number, oy: number, w: number, h: number, parent: Vector2) {
-      const roomId = `room-${ox}-${oy}`;
-      for (let dy = 0; dy < h; dy++) {
-          for (let dx = 0; dx < w; dx++) {
-              this.setGenType(ox + dx, oy + dy, 'Room', roomId);
-              if (dx < w - 1) this.openWall(ox + dx, oy + dy, 'e');
-              if (dy < h - 1) this.openWall(ox + dx, oy + dy, 's');
-          }
+  private placeRoom(
+    ox: number,
+    oy: number,
+    w: number,
+    h: number,
+    parent: Vector2,
+  ) {
+    const roomId = `room-${ox}-${oy}`;
+    for (let dy = 0; dy < h; dy++) {
+      for (let dx = 0; dx < w; dx++) {
+        this.setGenType(ox + dx, oy + dy, "Room", roomId);
+        if (dx < w - 1) this.openWall(ox + dx, oy + dy, "e");
+        if (dy < h - 1) this.openWall(ox + dx, oy + dy, "s");
       }
-      let connectionFound = false;
-      for (let dy = 0; dy < h; dy++) {
-          for (let dx = 0; dx < w; dx++) {
-              const cx = ox + dx;
-              const cy = oy + dy;
-              if (this.isAdjacent(parent, {x: cx, y: cy})) {
-                  this.placeDoor(parent.x, parent.y, cx, cy);
-                  connectionFound = true;
-                  break; 
-              }
-          }
-          if (connectionFound) break;
+    }
+    let connectionFound = false;
+    for (let dy = 0; dy < h; dy++) {
+      for (let dx = 0; dx < w; dx++) {
+        const cx = ox + dx;
+        const cy = oy + dy;
+        if (this.isAdjacent(parent, { x: cx, y: cy })) {
+          this.placeDoor(parent.x, parent.y, cx, cy);
+          connectionFound = true;
+          break;
+        }
       }
+      if (connectionFound) break;
+    }
   }
 
   private isAdjacent(p1: Vector2, p2: Vector2): boolean {
-      return Math.abs(p1.x - p2.x) + Math.abs(p1.y - p2.y) === 1;
+    return Math.abs(p1.x - p2.x) + Math.abs(p1.y - p2.y) === 1;
   }
 
   private finalizeCells() {
-      for(let i=0; i<this.width*this.height; i++) {
-          if (this.genMap[i] === 'Void') {
-              this.cells[i].type = CellType.Wall;
-          } else {
-              this.cells[i].type = CellType.Floor;
-              if (this.roomIds[i]) this.cells[i].roomId = this.roomIds[i];
-          }
+    for (let i = 0; i < this.width * this.height; i++) {
+      if (this.genMap[i] === "Void") {
+        this.cells[i].type = CellType.Wall;
+      } else {
+        this.cells[i].type = CellType.Floor;
+        if (this.roomIds[i]) this.cells[i].roomId = this.roomIds[i];
       }
+    }
   }
 
   private placeEntities(corridors: Vector2[], spawnPointCount: number) {
-      const roomMap = new Map<string, Vector2[]>();
-      for(let y=0; y<this.height; y++) {
-          for(let x=0; x<this.width; x++) {
-              if (this.getGenType(x, y) === 'Room') {
-                  const rid = this.roomIds[y*this.width+x];
-                  if (!roomMap.has(rid)) roomMap.set(rid, []);
-                  roomMap.get(rid)!.push({x, y});
-              }
-          }
+    const roomMap = new Map<string, Vector2[]>();
+    for (let y = 0; y < this.height; y++) {
+      for (let x = 0; x < this.width; x++) {
+        if (this.getGenType(x, y) === "Room") {
+          const rid = this.roomIds[y * this.width + x];
+          if (!roomMap.has(rid)) roomMap.set(rid, []);
+          roomMap.get(rid)!.push({ x, y });
+        }
       }
-      const rooms = Array.from(roomMap.values());
-      if (rooms.length === 0) {
-          this.spawnPoints.push({ id: 'sp-1', pos: corridors[0], radius: 1 });
-          this.extraction = corridors[corridors.length - 1];
-          return;
+    }
+    const rooms = Array.from(roomMap.values());
+    if (rooms.length === 0) {
+      this.spawnPoints.push({ id: "sp-1", pos: corridors[0], radius: 1 });
+      this.extraction = corridors[corridors.length - 1];
+      return;
+    }
+    this.prng.shuffle(rooms);
+    const refRoom = rooms[0];
+    const refPos = refRoom[Math.floor(refRoom.length / 2)];
+    let bestExtRoom = rooms[rooms.length - 1];
+    let maxDist = 0;
+    for (let i = 1; i < rooms.length; i++) {
+      const r = rooms[i];
+      const p = r[0];
+      const dist = Math.abs(p.x - refPos.x) + Math.abs(p.y - refPos.y);
+      if (dist > maxDist) {
+        maxDist = dist;
+        bestExtRoom = r;
       }
-      this.prng.shuffle(rooms);
-      const refRoom = rooms[0];
-      const refPos = refRoom[Math.floor(refRoom.length/2)];
-      let bestExtRoom = rooms[rooms.length - 1];
-      let maxDist = 0;
-      for (let i = 1; i < rooms.length; i++) {
-          const r = rooms[i];
-          const p = r[0];
-          const dist = Math.abs(p.x - refPos.x) + Math.abs(p.y - refPos.y);
-          if (dist > maxDist) { maxDist = dist; bestExtRoom = r; }
-      }
-      const extPos = bestExtRoom[Math.floor(bestExtRoom.length/2)];
-      this.extraction = extPos;
-      const otherRooms = rooms.filter(r => r !== bestExtRoom);
-      otherRooms.sort((a, b) => {
-          const distA = Math.abs(a[0].x - extPos.x) + Math.abs(a[0].y - extPos.y);
-          const distB = Math.abs(b[0].x - extPos.x) + Math.abs(b[0].y - extPos.y);
-          return distB - distA;
+    }
+    const extPos = bestExtRoom[Math.floor(bestExtRoom.length / 2)];
+    this.extraction = extPos;
+    const otherRooms = rooms.filter((r) => r !== bestExtRoom);
+    otherRooms.sort((a, b) => {
+      const distA = Math.abs(a[0].x - extPos.x) + Math.abs(a[0].y - extPos.y);
+      const distB = Math.abs(b[0].x - extPos.x) + Math.abs(b[0].y - extPos.y);
+      return distB - distA;
+    });
+    for (let i = 0; i < Math.min(spawnPointCount, otherRooms.length); i++) {
+      this.spawnPoints.push({
+        id: `sp-enemy-${i}`,
+        pos: otherRooms[i][Math.floor(otherRooms[i].length / 2)],
+        radius: 1,
       });
-      for (let i = 0; i < Math.min(spawnPointCount, otherRooms.length); i++) {
-          this.spawnPoints.push({ id: `sp-enemy-${i}`, pos: otherRooms[i][Math.floor(otherRooms[i].length/2)], radius: 1 });
-      }
-      const objRooms = otherRooms.slice(Math.min(spawnPointCount, otherRooms.length));
-      for (let i = 0; i < Math.min(2, objRooms.length); i++) {
-          this.objectives.push({ id: `obj-${i}`, kind: 'Recover', targetCell: objRooms[i][Math.floor(objRooms[i].length/2)] });
-      }
+    }
+    const objRooms = otherRooms.slice(
+      Math.min(spawnPointCount, otherRooms.length),
+    );
+    for (let i = 0; i < Math.min(2, objRooms.length); i++) {
+      this.objectives.push({
+        id: `obj-${i}`,
+        kind: "Recover",
+        targetCell: objRooms[i][Math.floor(objRooms[i].length / 2)],
+      });
+    }
   }
 
   private getGenType(x: number, y: number): GenCellType {
-      if (x < 0 || x >= this.width || y < 0 || y >= this.height) return 'Void';
-      return this.genMap[y * this.width + x];
+    if (x < 0 || x >= this.width || y < 0 || y >= this.height) return "Void";
+    return this.genMap[y * this.width + x];
   }
 
   private setGenType(x: number, y: number, type: GenCellType, roomId?: string) {
-      if (x < 0 || x >= this.width || y < 0 || y >= this.height) return;
-      this.genMap[y * this.width + x] = type;
-      if (roomId) this.roomIds[y * this.width + x] = roomId;
+    if (x < 0 || x >= this.width || y < 0 || y >= this.height) return;
+    this.genMap[y * this.width + x] = type;
+    if (roomId) this.roomIds[y * this.width + x] = roomId;
   }
 
   private getNeighbors(x: number, y: number): Vector2[] {
-      return [{x: x+1, y}, {x: x-1, y}, {x, y: y+1}, {x, y: y-1}].filter(n => n.x >= 0 && n.x < this.width && n.y >= 0 && n.y < this.height);
+    return [
+      { x: x + 1, y },
+      { x: x - 1, y },
+      { x, y: y + 1 },
+      { x, y: y - 1 },
+    ].filter(
+      (n) => n.x >= 0 && n.x < this.width && n.y >= 0 && n.y < this.height,
+    );
   }
 
-  private openWall(x: number, y: number, dir: 'n'|'e'|'s'|'w') {
-    let nx = x, ny = y;
-    if (dir === 'n') ny--; else if (dir === 'e') nx++; else if (dir === 's') ny++; else if (dir === 'w') nx--;
+  private openWall(x: number, y: number, dir: "n" | "e" | "s" | "w") {
+    let nx = x,
+      ny = y;
+    if (dir === "n") ny--;
+    else if (dir === "e") nx++;
+    else if (dir === "s") ny++;
+    else if (dir === "w") nx--;
     this.walls.delete(this.getBoundaryKey(x, y, nx, ny));
   }
 
   private placeDoor(x1: number, y1: number, x2: number, y2: number) {
-      const doorId = `door-${this.doors.length}`;
-      this.openWall(x1, y1, y2 < y1 ? 'n' : y2 > y1 ? 's' : x2 > x1 ? 'e' : 'w');
-      this.doors.push({
-          id: doorId,
-          segment: [{ x: x1, y: y1 }, { x: x2, y: y2 }],
-          orientation: x1 === x2 ? 'Horizontal' : 'Vertical',
-          state: 'Closed', hp: 50, maxHp: 50, openDuration: 1
-      });
+    const doorId = `door-${this.doors.length}`;
+    this.openWall(x1, y1, y2 < y1 ? "n" : y2 > y1 ? "s" : x2 > x1 ? "e" : "w");
+    this.doors.push({
+      id: doorId,
+      segment: [
+        { x: x1, y: y1 },
+        { x: x2, y: y2 },
+      ],
+      orientation: x1 === x2 ? "Horizontal" : "Vertical",
+      state: "Closed",
+      hp: 50,
+      maxHp: 50,
+      openDuration: 1,
+    });
   }
 }

@@ -1,14 +1,29 @@
-import { MapDefinition, Command, GameState, WorkerMessage, MainMessage, ReplayData, RecordedCommand, MapGeneratorType, SquadConfig, MissionType } from '../shared/types';
-import { MapGenerator } from './MapGenerator';
+import {
+  MapDefinition,
+  Command,
+  GameState,
+  WorkerMessage,
+  MainMessage,
+  ReplayData,
+  RecordedCommand,
+  MapGeneratorType,
+  SquadConfig,
+  MissionType,
+} from "../shared/types";
+import { MapGenerator } from "./MapGenerator";
 
 // Factory type for creating MapGenerator instances based on type
-type MapGeneratorFactory = (seed: number, type: MapGeneratorType, mapData?: MapDefinition) => MapGenerator;
+type MapGeneratorFactory = (
+  seed: number,
+  type: MapGeneratorType,
+  mapData?: MapDefinition,
+) => MapGenerator;
 
 export class GameClient {
   private worker: Worker;
   private onStateUpdateCb: ((state: GameState) => void) | null = null;
   private mapGeneratorFactory: MapGeneratorFactory;
-  
+
   // Replay State
   private initialSeed: number = 0;
   private initialMap: MapDefinition | null = null;
@@ -19,11 +34,13 @@ export class GameClient {
   constructor(mapGeneratorFactory: MapGeneratorFactory) {
     this.mapGeneratorFactory = mapGeneratorFactory;
     // Vite handles this import with ?worker suffix
-    this.worker = new Worker(new URL('./worker.ts', import.meta.url), { type: 'module' });
-    
+    this.worker = new Worker(new URL("./worker.ts", import.meta.url), {
+      type: "module",
+    });
+
     this.worker.onmessage = (e: MessageEvent<MainMessage>) => {
       const msg = e.data;
-      if (msg.type === 'STATE_UPDATE') {
+      if (msg.type === "STATE_UPDATE") {
         if (this.onStateUpdateCb) {
           this.onStateUpdateCb(msg.payload);
         }
@@ -32,8 +49,8 @@ export class GameClient {
   }
 
   public init(
-    seed: number, 
-    mapGeneratorType: MapGeneratorType, 
+    seed: number,
+    mapGeneratorType: MapGeneratorType,
     mapData?: MapDefinition,
     fogOfWarEnabled: boolean = true,
     debugOverlayEnabled: boolean = false,
@@ -43,21 +60,33 @@ export class GameClient {
     width: number = 16,
     height: number = 16,
     spawnPointCount: number = 3,
-    losOverlayEnabled: boolean = false
+    losOverlayEnabled: boolean = false,
   ) {
     this.initialSeed = seed;
     this.initialSquadConfig = squadConfig;
     // Use the factory to get the map, based on type and data
     const generator = this.mapGeneratorFactory(seed, mapGeneratorType, mapData);
-    const map = mapGeneratorType === MapGeneratorType.Static ? generator.load(mapData!) : generator.generate(width, height, mapGeneratorType, spawnPointCount);
+    const map =
+      mapGeneratorType === MapGeneratorType.Static
+        ? generator.load(mapData!)
+        : generator.generate(width, height, mapGeneratorType, spawnPointCount);
 
     this.initialMap = map;
     this.commandStream = [];
     this.startTime = Date.now();
 
     const msg: WorkerMessage = {
-      type: 'INIT',
-      payload: { seed, map, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled, squadConfig: squadConfig, missionType, losOverlayEnabled }
+      type: "INIT",
+      payload: {
+        seed,
+        map,
+        fogOfWarEnabled,
+        debugOverlayEnabled,
+        agentControlEnabled,
+        squadConfig: squadConfig,
+        missionType,
+        losOverlayEnabled,
+      },
     };
     this.worker.postMessage(msg);
   }
@@ -68,24 +97,24 @@ export class GameClient {
     this.commandStream.push({ t, cmd });
 
     const msg: WorkerMessage = {
-      type: 'COMMAND',
-      payload: cmd
+      type: "COMMAND",
+      payload: cmd,
     };
     this.worker.postMessage(msg);
   }
 
   public setTickRate(rate: number) {
     const msg: WorkerMessage = {
-        type: 'SET_TICK_RATE',
-        payload: rate
+      type: "SET_TICK_RATE",
+      payload: rate,
     };
     this.worker.postMessage(msg);
   }
 
   public setTimeScale(scale: number) {
     const msg: WorkerMessage = {
-        type: 'SET_TIME_SCALE',
-        payload: scale
+      type: "SET_TIME_SCALE",
+      payload: scale,
     };
     this.worker.postMessage(msg);
   }
@@ -96,7 +125,7 @@ export class GameClient {
       seed: this.initialSeed,
       map: this.initialMap,
       squadConfig: this.initialSquadConfig,
-      commands: [...this.commandStream]
+      commands: [...this.commandStream],
     };
   }
 
@@ -112,28 +141,36 @@ export class GameClient {
     // Current `CoreEngine.applyCommand` doesn't take a timestamp. It applies "now".
     // If we replay, we need to inject commands at specific engine times.
     // The Engine needs to support "scheduled commands" or we must feed them in real-time (or fast-time) from Client.
-    
+
     // Simplest Replay: Client re-inits, then sets timeouts to send commands at recorded `t`.
-    this.init(data.seed, MapGeneratorType.Static, data.map, true, false, true, data.squadConfig);
-    
+    this.init(
+      data.seed,
+      MapGeneratorType.Static,
+      data.map,
+      true,
+      false,
+      true,
+      data.squadConfig,
+    );
+
     // Schedule commands
     // Note: this relies on `setTimeout` accuracy which is poor.
     // Better: Engine supports "scheduleCommand(t, cmd)".
     // But protocol is `COMMAND`.
     // I'll stick to Client-side scheduling for now.
-    
+
     // Reset start time to now so recorded `t` matches new flow
     // `init` resets `startTime`.
-    
-    data.commands.forEach(rc => {
+
+    data.commands.forEach((rc) => {
       setTimeout(() => {
         // We bypass `sendCommand` to avoid re-recording?
         // Or we assume `loadReplay` is "watching" mode.
         // If we use `sendCommand`, it records again.
         // We should send directly to worker.
         const msg: WorkerMessage = {
-          type: 'COMMAND',
-          payload: rc.cmd
+          type: "COMMAND",
+          payload: rc.cmd,
         };
         this.worker.postMessage(msg);
       }, rc.t);

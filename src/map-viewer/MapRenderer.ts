@@ -1,16 +1,16 @@
-import { MapDefinition, CellType, Vector2 } from '../shared/types';
-import { Graph } from '../engine/Graph';
+import { MapDefinition, CellType, Vector2 } from "../shared/types";
+import { Graph } from "../engine/Graph";
 
 export class MapRenderer {
   private ctx: CanvasRenderingContext2D;
   private canvas: HTMLCanvasElement;
-  private cellSize: number = 64; 
+  private cellSize: number = 64;
   private graph: Graph | null = null;
   private currentMapId: string | null = null;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     if (!ctx) {
       throw new Error("Could not get 2D rendering context for canvas.");
     }
@@ -26,15 +26,15 @@ export class MapRenderer {
     const height = map.height * this.cellSize;
 
     if (this.canvas.width !== width || this.canvas.height !== height) {
-        this.canvas.width = width;
-        this.canvas.height = height;
+      this.canvas.width = width;
+      this.canvas.height = height;
     }
 
     // Update Graph if map changed
     const mapId = `${map.width}x${map.height}-${map.cells.length}`;
     if (this.currentMapId !== mapId) {
-        this.graph = new Graph(map);
-        this.currentMapId = mapId;
+      this.graph = new Graph(map);
+      this.currentMapId = mapId;
     }
 
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
@@ -47,24 +47,24 @@ export class MapRenderer {
   }
 
   private renderCells(map: MapDefinition) {
-    map.cells.forEach(cell => {
+    map.cells.forEach((cell) => {
       if (cell.type === CellType.Floor) {
-        this.ctx.fillStyle = '#111'; // Dark grey floor
+        this.ctx.fillStyle = "#111"; // Dark grey floor
         this.ctx.fillRect(
           cell.x * this.cellSize,
           cell.y * this.cellSize,
           this.cellSize,
-          this.cellSize
+          this.cellSize,
         );
-        
+
         // Grid lines
-        this.ctx.strokeStyle = '#222';
+        this.ctx.strokeStyle = "#222";
         this.ctx.lineWidth = 1;
         this.ctx.strokeRect(
           cell.x * this.cellSize,
           cell.y * this.cellSize,
           this.cellSize,
-          this.cellSize
+          this.cellSize,
         );
       }
     });
@@ -73,12 +73,12 @@ export class MapRenderer {
   private renderWalls(map: MapDefinition) {
     if (!this.graph) return;
 
-    this.ctx.lineCap = 'round';
-    this.ctx.strokeStyle = '#00FFFF'; 
-    this.ctx.lineWidth = 2; 
+    this.ctx.lineCap = "round";
+    this.ctx.strokeStyle = "#00FFFF";
+    this.ctx.lineWidth = 2;
     this.ctx.beginPath();
 
-    this.graph.getAllBoundaries().forEach(boundary => {
+    this.graph.getAllBoundaries().forEach((boundary) => {
       if (boundary.isWall && !boundary.doorId) {
         const seg = boundary.getVisualSegment();
         this.ctx.moveTo(seg.p1.x * this.cellSize, seg.p1.y * this.cellSize);
@@ -89,63 +89,73 @@ export class MapRenderer {
   }
 
   private renderDoors(map: MapDefinition) {
-    map.doors?.forEach(door => {
-      let doorColor: string = '#888';
-      let doorStroke: string = '#AAA';
-      
-      // Default to Closed if state is somehow missing or simplified
-      const state = door.state || 'Closed';
-      
-      if (state === 'Closed') { doorColor = '#FFD700'; doorStroke = '#FFAA00'; } 
-      else if (state === 'Locked') { doorColor = '#FF0000'; doorStroke = '#880000'; }
-      else if (state === 'Destroyed') { doorColor = '#330000'; doorStroke = '#550000'; }
+    map.doors?.forEach((door) => {
+      let doorColor: string = "#888";
+      let doorStroke: string = "#AAA";
 
-      const doorThickness = this.cellSize / 8; 
+      // Default to Closed if state is somehow missing or simplified
+      const state = door.state || "Closed";
+
+      if (state === "Closed") {
+        doorColor = "#FFD700";
+        doorStroke = "#FFAA00";
+      } else if (state === "Locked") {
+        doorColor = "#FF0000";
+        doorStroke = "#880000";
+      } else if (state === "Destroyed") {
+        doorColor = "#330000";
+        doorStroke = "#550000";
+      }
+
+      const doorThickness = this.cellSize / 8;
       const doorInset = this.cellSize / 8;
 
-      door.segment.forEach(segCell => {
+      door.segment.forEach((segCell) => {
         const x = segCell.x * this.cellSize;
         const y = segCell.y * this.cellSize;
         const s = this.cellSize;
-        
-        let drawX = x, drawY = y, drawWidth = s, drawHeight = s;
 
-        if (state === 'Open') {
-          this.ctx.fillStyle = '#444';
-          if (door.orientation === 'Vertical') {
-             this.ctx.fillRect(x + s - 4, y, 4, doorInset); 
-             this.ctx.fillRect(x + s - 4, y + s - doorInset, 4, doorInset); 
+        let drawX = x,
+          drawY = y,
+          drawWidth = s,
+          drawHeight = s;
+
+        if (state === "Open") {
+          this.ctx.fillStyle = "#444";
+          if (door.orientation === "Vertical") {
+            this.ctx.fillRect(x + s - 4, y, 4, doorInset);
+            this.ctx.fillRect(x + s - 4, y + s - doorInset, 4, doorInset);
           } else {
-             this.ctx.fillRect(x, y + s - 4, doorInset, 4); 
-             this.ctx.fillRect(x + s - doorInset, y + s - 4, doorInset, 4); 
+            this.ctx.fillRect(x, y + s - 4, doorInset, 4);
+            this.ctx.fillRect(x + s - doorInset, y + s - 4, doorInset, 4);
           }
         } else {
           this.ctx.fillStyle = doorColor;
           this.ctx.strokeStyle = doorStroke;
           this.ctx.lineWidth = 2;
 
-          if (door.orientation === 'Vertical') { 
+          if (door.orientation === "Vertical") {
             drawX = x + s - doorThickness / 2;
             drawY = y + doorInset;
             drawWidth = doorThickness;
-            drawHeight = s - (doorInset * 2);
-          } else { 
+            drawHeight = s - doorInset * 2;
+          } else {
             drawX = x + doorInset;
             drawY = y + s - doorThickness / 2;
-            drawWidth = s - (doorInset * 2);
+            drawWidth = s - doorInset * 2;
             drawHeight = doorThickness;
           }
-          
+
           this.ctx.fillRect(drawX, drawY, drawWidth, drawHeight);
           this.ctx.strokeRect(drawX, drawY, drawWidth, drawHeight);
-          
-          if (state === 'Locked') {
-              this.ctx.beginPath();
-              this.ctx.moveTo(drawX, drawY);
-              this.ctx.lineTo(drawX + drawWidth, drawY + drawHeight);
-              this.ctx.moveTo(drawX + drawWidth, drawY);
-              this.ctx.lineTo(drawX, drawY + drawHeight);
-              this.ctx.stroke();
+
+          if (state === "Locked") {
+            this.ctx.beginPath();
+            this.ctx.moveTo(drawX, drawY);
+            this.ctx.lineTo(drawX + drawWidth, drawY + drawHeight);
+            this.ctx.moveTo(drawX + drawWidth, drawY);
+            this.ctx.lineTo(drawX, drawY + drawHeight);
+            this.ctx.stroke();
           }
         }
       });
@@ -155,66 +165,74 @@ export class MapRenderer {
   private renderObjectives(map: MapDefinition) {
     if (map.extraction) {
       const ext = map.extraction;
-      this.ctx.fillStyle = '#00AAAA'; 
+      this.ctx.fillStyle = "#00AAAA";
       this.ctx.globalAlpha = 0.3;
       this.ctx.fillRect(
         ext.x * this.cellSize + 4,
         ext.y * this.cellSize + 4,
         this.cellSize - 8,
-        this.cellSize - 8
+        this.cellSize - 8,
       );
       this.ctx.globalAlpha = 1.0;
-      
+
       // Label 'E'
-      this.ctx.fillStyle = '#00FFFF';
-      this.ctx.font = `bold ${this.cellSize/2}px monospace`;
-      this.ctx.textAlign = 'center';
-      this.ctx.textBaseline = 'middle';
-      this.ctx.fillText("E", ext.x * this.cellSize + this.cellSize/2, ext.y * this.cellSize + this.cellSize/2);
+      this.ctx.fillStyle = "#00FFFF";
+      this.ctx.font = `bold ${this.cellSize / 2}px monospace`;
+      this.ctx.textAlign = "center";
+      this.ctx.textBaseline = "middle";
+      this.ctx.fillText(
+        "E",
+        ext.x * this.cellSize + this.cellSize / 2,
+        ext.y * this.cellSize + this.cellSize / 2,
+      );
     }
 
-    map.objectives?.forEach(obj => {
+    map.objectives?.forEach((obj) => {
       if (obj.targetCell) {
-        this.ctx.fillStyle = '#FFAA00'; 
+        this.ctx.fillStyle = "#FFAA00";
         this.ctx.globalAlpha = 0.3;
         this.ctx.fillRect(
           obj.targetCell.x * this.cellSize + 4,
           obj.targetCell.y * this.cellSize + 4,
           this.cellSize - 8,
-          this.cellSize - 8
+          this.cellSize - 8,
         );
         this.ctx.globalAlpha = 1.0;
 
         // Label 'O'
-        this.ctx.fillStyle = '#FFDD00';
-        this.ctx.font = `bold ${this.cellSize/2}px monospace`;
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'middle';
-        this.ctx.fillText("O", obj.targetCell.x * this.cellSize + this.cellSize/2, obj.targetCell.y * this.cellSize + this.cellSize/2);
+        this.ctx.fillStyle = "#FFDD00";
+        this.ctx.font = `bold ${this.cellSize / 2}px monospace`;
+        this.ctx.textAlign = "center";
+        this.ctx.textBaseline = "middle";
+        this.ctx.fillText(
+          "O",
+          obj.targetCell.x * this.cellSize + this.cellSize / 2,
+          obj.targetCell.y * this.cellSize + this.cellSize / 2,
+        );
       }
     });
   }
 
   private renderSpawnPoints(map: MapDefinition) {
-      map.spawnPoints?.forEach(sp => {
-        this.ctx.fillStyle = '#440044'; 
-        this.ctx.globalAlpha = 0.3;
-        // Spawn point is a radius, usually 1? 
-        // Just render a circle at pos
-        const x = sp.pos.x * this.cellSize;
-        const y = sp.pos.y * this.cellSize;
-        
-        this.ctx.beginPath();
-        this.ctx.arc(x, y, this.cellSize * 0.4, 0, Math.PI * 2);
-        this.ctx.fill();
-        this.ctx.globalAlpha = 1.0;
+    map.spawnPoints?.forEach((sp) => {
+      this.ctx.fillStyle = "#440044";
+      this.ctx.globalAlpha = 0.3;
+      // Spawn point is a radius, usually 1?
+      // Just render a circle at pos
+      const x = sp.pos.x * this.cellSize;
+      const y = sp.pos.y * this.cellSize;
 
-        // Label 'S'
-        this.ctx.fillStyle = '#FF00FF';
-        this.ctx.font = `bold ${this.cellSize/3}px monospace`;
-        this.ctx.textAlign = 'center';
-        this.ctx.textBaseline = 'middle';
-        this.ctx.fillText("S", x, y);
-      });
+      this.ctx.beginPath();
+      this.ctx.arc(x, y, this.cellSize * 0.4, 0, Math.PI * 2);
+      this.ctx.fill();
+      this.ctx.globalAlpha = 1.0;
+
+      // Label 'S'
+      this.ctx.fillStyle = "#FF00FF";
+      this.ctx.font = `bold ${this.cellSize / 3}px monospace`;
+      this.ctx.textAlign = "center";
+      this.ctx.textBaseline = "middle";
+      this.ctx.fillText("S", x, y);
+    });
   }
 }

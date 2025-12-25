@@ -1,27 +1,34 @@
-import { describe, it, expect, vi } from 'vitest';
-import { BotHarness } from './BotHarness';
-import { GameClient } from '../engine/GameClient';
-import { Bot } from './Bot';
-import { GameState, CommandType } from '../shared/types';
-import { MapGenerator } from '../engine/MapGenerator';
+import { describe, it, expect, vi } from "vitest";
+import { BotHarness } from "./BotHarness";
+import { GameClient } from "../engine/GameClient";
+import { Bot } from "./Bot";
+import { GameState, CommandType } from "../shared/types";
+import { MapGenerator } from "../engine/MapGenerator";
 
 // Mock GameClient
-vi.mock('../engine/GameClient', () => {
+vi.mock("../engine/GameClient", () => {
   return {
-    GameClient: vi.fn().mockImplementation((mapGeneratorFactory: any) => ({ // Add mapGeneratorFactory to constructor
+    GameClient: vi.fn().mockImplementation((mapGeneratorFactory: any) => ({
+      // Add mapGeneratorFactory to constructor
       onStateUpdate: vi.fn(),
-      sendCommand: vi.fn()
-    }))
+      sendCommand: vi.fn(),
+    })),
   };
 });
 
-describe('BotHarness', () => {
-  it('should register listener and send commands', () => {
+describe("BotHarness", () => {
+  it("should register listener and send commands", () => {
     const client = new GameClient(() => new MapGenerator(123));
     const bot: Bot = {
-      act: vi.fn().mockReturnValue({ type: CommandType.MOVE_TO, unitIds: ['u1'], target: { x: 0, y: 0 } })
+      act: vi
+        .fn()
+        .mockReturnValue({
+          type: CommandType.MOVE_TO,
+          unitIds: ["u1"],
+          target: { x: 0, y: 0 },
+        }),
     };
-    
+
     const harness = new BotHarness(client, bot);
     harness.start();
 

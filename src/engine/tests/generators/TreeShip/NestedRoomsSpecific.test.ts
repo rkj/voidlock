@@ -1,13 +1,13 @@
-import * as fs from 'fs';
-import * as path from 'path';
-import { describe, it, expect } from 'vitest';
-import { TreeShipGenerator } from '../../../generators/TreeShipGenerator';
-import { MapGenerator } from '../../../MapGenerator';
-import { CellType } from '../../../../shared/types';
-import { Graph } from '../../../Graph';
+import * as fs from "fs";
+import * as path from "path";
+import { describe, it, expect } from "vitest";
+import { TreeShipGenerator } from "../../../generators/TreeShipGenerator";
+import { MapGenerator } from "../../../MapGenerator";
+import { CellType } from "../../../../shared/types";
+import { Graph } from "../../../Graph";
 
-describe('TreeShipGenerator Nested Room Specific', () => {
-  it('should match snapshots for seed 1766029929040', async () => {
+describe("TreeShipGenerator Nested Room Specific", () => {
+  it("should match snapshots for seed 1766029929040", async () => {
     const seed = 1766029929040;
     const generator = new TreeShipGenerator(seed, 8, 8);
     const map = generator.generate();
@@ -16,11 +16,15 @@ describe('TreeShipGenerator Nested Room Specific', () => {
     const ascii = MapGenerator.toAscii(map);
     const json = JSON.stringify(map, null, 2);
 
-    const jsonPath = path.join(__dirname, 'NestedRoomsSpecific.map.json');
+    const jsonPath = path.join(__dirname, "NestedRoomsSpecific.map.json");
     fs.writeFileSync(jsonPath, json);
 
-    await expect(ascii).toMatchFileSnapshot('./snapshots/NestedRoomsSpecific.ascii.txt');
-    await expect(json).toMatchFileSnapshot('./snapshots/NestedRoomsSpecific.json');
+    await expect(ascii).toMatchFileSnapshot(
+      "./snapshots/NestedRoomsSpecific.ascii.txt",
+    );
+    await expect(json).toMatchFileSnapshot(
+      "./snapshots/NestedRoomsSpecific.json",
+    );
 
     const nwX = 1;
     const nwY = 1;
@@ -37,7 +41,11 @@ describe('TreeShipGenerator Nested Room Specific', () => {
     // Verify internal are open
     expect(graph.getBoundary(nwX, nwY, nwX + 1, nwY)?.isWall).toBe(false);
     expect(graph.getBoundary(nwX, nwY, nwX, nwY + 1)?.isWall).toBe(false);
-    expect(graph.getBoundary(nwX + 1, nwY, nwX + 1, nwY + 1)?.isWall).toBe(false);
-    expect(graph.getBoundary(nwX, nwY + 1, nwX + 1, nwY + 1)?.isWall).toBe(false);
+    expect(graph.getBoundary(nwX + 1, nwY, nwX + 1, nwY + 1)?.isWall).toBe(
+      false,
+    );
+    expect(graph.getBoundary(nwX, nwY + 1, nwX + 1, nwY + 1)?.isWall).toBe(
+      false,
+    );
   });
 });

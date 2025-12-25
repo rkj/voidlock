@@ -1,5 +1,5 @@
-import { MapDefinition, CellType, Grid, Door } from '../shared/types';
-import { Graph } from './Graph';
+import { MapDefinition, CellType, Grid, Door } from "../shared/types";
+import { Graph } from "./Graph";
 
 export class GameGrid implements Grid {
   private graph: Graph;
@@ -27,7 +27,14 @@ export class GameGrid implements Grid {
     return this.graph.cells[y][x].type === CellType.Floor;
   }
 
-  canMove(fromX: number, fromY: number, toX: number, toY: number, doors?: Map<string, Door>, allowClosedDoors: boolean = false): boolean {
+  canMove(
+    fromX: number,
+    fromY: number,
+    toX: number,
+    toY: number,
+    doors?: Map<string, Door>,
+    allowClosedDoors: boolean = false,
+  ): boolean {
     if (!this.isWalkable(fromX, fromY) || !this.isWalkable(toX, toY)) {
       return false;
     }
@@ -50,10 +57,10 @@ export class GameGrid implements Grid {
         if (allowClosedDoors) {
           // Pathfinding treats Closed, Open, and Destroyed doors as passable.
           // Locked doors should still block pathfinding.
-          return door.state !== 'Locked';
+          return door.state !== "Locked";
         }
         // Allow movement if door is Open or Destroyed
-        return door.state === 'Open' || door.state === 'Destroyed';
+        return door.state === "Open" || door.state === "Destroyed";
       }
     }
 

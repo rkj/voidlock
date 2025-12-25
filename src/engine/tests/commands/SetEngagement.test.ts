@@ -1,43 +1,69 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { CoreEngine } from '../../CoreEngine';
-import { MapDefinition, CellType, UnitState, CommandType, SquadConfig, Archetype, ArchetypeLibrary } from '../../../shared/types';
-import { GameGrid } from '../../GameGrid';
+import { describe, it, expect, beforeEach } from "vitest";
+import { CoreEngine } from "../../CoreEngine";
+import {
+  MapDefinition,
+  CellType,
+  UnitState,
+  CommandType,
+  SquadConfig,
+  Archetype,
+  ArchetypeLibrary,
+} from "../../../shared/types";
+import { GameGrid } from "../../GameGrid";
 
-describe('Command: SET_ENGAGEMENT', () => {
+describe("Command: SET_ENGAGEMENT", () => {
   let engine: CoreEngine;
   const map: MapDefinition = {
-    width: 10, height: 10,
-    cells: Array(100).fill(null).map((_, i) => ({ 
-        x: i % 10, y: Math.floor(i / 10), type: CellType.Floor,  
-    })),
+    width: 10,
+    height: 10,
+    cells: Array(100)
+      .fill(null)
+      .map((_, i) => ({
+        x: i % 10,
+        y: Math.floor(i / 10),
+        type: CellType.Floor,
+      })),
     spawnPoints: [],
     extraction: { x: 9, y: 9 },
-    objectives: []
+    objectives: [],
   };
 
   beforeEach(() => {
-    const defaultSquad: SquadConfig = [{archetypeId: "assault", count: 1}]; // Default unit for tests
+    const defaultSquad: SquadConfig = [{ archetypeId: "assault", count: 1 }]; // Default unit for tests
     engine = new CoreEngine(map, 123, defaultSquad, false, false);
     engine.clearUnits();
     engine.addUnit({
-      id: 'u1', pos: { x: 0.5, y: 0.5 },
-      hp: 100, maxHp: 100, state: UnitState.Idle,
-      damage: 10, fireRate: 100, attackRange: 5, sightRange: 10,
+      id: "u1",
+      pos: { x: 0.5, y: 0.5 },
+      hp: 100,
+      maxHp: 100,
+      state: UnitState.Idle,
+      damage: 10,
+      fireRate: 100,
+      attackRange: 5,
+      sightRange: 10,
       speed: 2,
-      commandQueue: []
+      commandQueue: [],
     });
     engine.addEnemy({
-      id: 'e1', pos: { x: 5.5, y: 0.5 },
-      hp: 100, maxHp: 100, type: 'Grunt', damage: 0, fireRate: 1000, attackRange: 1, speed: 2
+      id: "e1",
+      pos: { x: 5.5, y: 0.5 },
+      hp: 100,
+      maxHp: 100,
+      type: "Grunt",
+      damage: 0,
+      fireRate: 1000,
+      attackRange: 1,
+      speed: 2,
     });
   });
 
-  it('should stop and attack by default (ENGAGE)', () => {
+  it("should stop and attack by default (ENGAGE)", () => {
     // Move past enemy
     engine.applyCommand({
-        type: CommandType.MOVE_TO,
-        unitIds: ['u1'],
-        target: { x: 9, y: 0 }
+      type: CommandType.MOVE_TO,
+      unitIds: ["u1"],
+      target: { x: 9, y: 0 },
     });
 
     // Run updates until in range
@@ -47,8 +73,8 @@ describe('Command: SET_ENGAGEMENT', () => {
     engine.update(100);
 
     const state = engine.getState();
-    const u1 = state.units.find(u => u.id === 'u1');
-    const e1 = state.enemies.find(e => e.id === 'e1');
+    const u1 = state.units.find((u) => u.id === "u1");
+    const e1 = state.enemies.find((e) => e.id === "e1");
 
     expect(u1?.state).toBe(UnitState.Attacking);
     expect(e1?.hp).toBeLessThan(100);
@@ -56,26 +82,26 @@ describe('Command: SET_ENGAGEMENT', () => {
     expect(u1?.pos.x).toBeCloseTo(0.5, 1);
   });
 
-  it('should ignore enemy and keep moving if policy is IGNORE', () => {
+  it("should ignore enemy and keep moving if policy is IGNORE", () => {
     // Set IGNORE
     engine.applyCommand({
-        type: CommandType.SET_ENGAGEMENT,
-        unitIds: ['u1'],
-        mode: 'IGNORE'
+      type: CommandType.SET_ENGAGEMENT,
+      unitIds: ["u1"],
+      mode: "IGNORE",
     });
 
     // Move past enemy
     engine.applyCommand({
-        type: CommandType.MOVE_TO,
-        unitIds: ['u1'],
-        target: { x: 9, y: 0 }
+      type: CommandType.MOVE_TO,
+      unitIds: ["u1"],
+      target: { x: 9, y: 0 },
     });
 
     engine.update(100);
 
     const state = engine.getState();
-    const u1 = state.units.find(u => u.id === 'u1');
-    const e1 = state.enemies.find(e => e.id === 'e1');
+    const u1 = state.units.find((u) => u.id === "u1");
+    const e1 = state.enemies.find((e) => e.id === "e1");
 
     expect(u1?.state).toBe(UnitState.Moving);
     expect(e1?.hp).toBe(100); // Should not have fired
