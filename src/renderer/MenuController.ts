@@ -130,7 +130,7 @@ export class MenuController {
         } else if (this.menuState === 'MODE_SELECT') {
             menuHtml = `<h3>SELECT MODE</h3>`;
             menuHtml += `
-            <div class="menu-item clickable" data-index="1" data-mode="ENGAGE">1. ENGAGE (Stop & Shoot)</div>
+            <div class="menu-item clickable" data-index="1" data-mode="ENGAGE">1. ENGAGE (Stop and Shoot)</div>
             <div class="menu-item clickable" data-index="2" data-mode="IGNORE">2. IGNORE (Run)</div>
             <div class="menu-item clickable" data-index="0" style="color: #ffaa00; margin-top: 10px;">0. BACK</div>
             <p style="color:#888; font-size:0.8em; margin-top:10px;">(ESC to Go Back)</p>

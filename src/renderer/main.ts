@@ -113,106 +113,216 @@ const updateSeedOverlay = (seed: number) => {
     if (el) el.textContent = `Seed: ${seed}`;
 };
 
+let lastMenuHtml = '';
+
+
+
 const updateUI = (state: GameState) => {
+
   const statusElement = document.getElementById('game-status');
+
   if (statusElement) {
+
     statusElement.innerHTML = `<span style=\"color:#888\">T:</span>${(state.t / 1000).toFixed(1)}s | <span style=\"color:#888\">S:</span>${state.status}`;
+
   }
+
+
 
   const vEl = document.getElementById('version-display');
+
   if (vEl && vEl.textContent !== `v${VERSION}`) vEl.textContent = `v${VERSION}`;
 
+
+
   const mvEl = document.getElementById('menu-version');
+
   if (mvEl && mvEl.textContent !== `v${VERSION}`) mvEl.textContent = `v${VERSION}`;
 
+
+
   // --- Top Bar: Threat Meter ---
+
   const threatLevel = state.threatLevel || 0;
+
   const topThreatFill = document.getElementById('top-threat-fill');
+
   const topThreatValue = document.getElementById('top-threat-value');
+
   if (topThreatFill && topThreatValue) {
+
       let threatColor = '#4caf50'; 
+
       if (threatLevel > 30) { threatColor = '#ff9800'; } 
+
       if (threatLevel > 70) { threatColor = '#f44336'; } 
+
       if (threatLevel > 90) { threatColor = '#b71c1c'; } 
 
+
+
       topThreatFill.style.width = `${threatLevel}%`;
+
       topThreatFill.style.backgroundColor = threatColor;
+
       topThreatValue.textContent = `${threatLevel.toFixed(0)}%`;
+
       topThreatValue.style.color = threatColor;
+
   }
 
+
+
   const rightPanel = document.getElementById('right-panel'); 
+
   if (rightPanel) {
+
       if (state.status !== 'Playing') {
+
           // If we already have a summary, don't re-render it every tick (prevents button click issues)
+
           if (rightPanel.querySelector('.game-over-summary')) return;
 
+
+
           rightPanel.innerHTML = ''; 
+
           // --- Game Over Summary ---
+
           const summaryDiv = document.createElement('div');
+
           summaryDiv.className = 'game-over-summary';
+
           summaryDiv.style.textAlign = 'center';
+
           summaryDiv.style.padding = '20px';
+
           summaryDiv.style.background = '#222';
+
           summaryDiv.style.border = '2px solid ' + (state.status === 'Won' ? '#0f0' : '#f00');
+
           
+
           const title = document.createElement('h2');
+
           title.textContent = state.status === 'Won' ? 'MISSION ACCOMPLISHED' : 'SQUAD WIPED';
+
           title.style.color = state.status === 'Won' ? '#0f0' : '#f00';
+
           summaryDiv.appendChild(title);
 
+
+
           const stats = document.createElement('div');
+
           stats.style.margin = '20px 0';
+
           stats.style.textAlign = 'left';
+
           stats.innerHTML = `
+
             <p><strong>Time Elapsed:</strong> ${(state.t / 1000).toFixed(1)}s</p>
+
             <p><strong>Aliens Purged:</strong> ${state.aliensKilled}</p>
+
             <p><strong>Casualties:</strong> ${state.casualties}</p>
+
           `;
+
           summaryDiv.appendChild(stats);
 
+
+
           const menuBtn = document.createElement('button');
+
           menuBtn.textContent = 'BACK TO MENU';
+
           menuBtn.style.width = '100%';
+
           menuBtn.style.padding = '15px';
+
           menuBtn.addEventListener('click', () => abortMission());
+
           summaryDiv.appendChild(menuBtn);
 
+
+
           rightPanel.appendChild(summaryDiv);
+
           // Don't return here, continue to update unit list below
+
       } else {
+
           // We are playing. Ensure summary is gone.
+
           if (rightPanel.querySelector('.game-over-summary')) {
+
               rightPanel.innerHTML = '';
+
+              lastMenuHtml = ''; // Reset cache
+
           }
+
+
 
           // --- 1. Hierarchical Command Menu ---
+
           let menuDiv = rightPanel.querySelector('.command-menu') as HTMLElement;
+
           if (!menuDiv) {
+
               menuDiv = document.createElement('div');
+
               menuDiv.className = 'command-menu';
+
               menuDiv.style.borderBottom = '1px solid #444';
+
               menuDiv.style.paddingBottom = '10px';
+
               menuDiv.style.marginBottom = '10px';
+
+                            // Delegate click events here
+
+                            menuDiv.addEventListener('click', (e) => {
+
+                                const target = e.target as HTMLElement;
+
+                                const clickable = target.closest('.menu-item.clickable') as HTMLElement;
+
+                                if (clickable) {
+
+                                    const idxStr = clickable.dataset.index;
+
+                                    if (idxStr !== undefined) {
+
+                                        handleMenuInput(parseInt(idxStr));
+
+                                    }
+
+                                }
+
+                            });
+
               rightPanel.appendChild(menuDiv);
+
           }
+
           
+
           const menuHtml = menuController.getMenuHtmlWithState(state);
 
-          if (menuDiv.innerHTML !== menuHtml) {
+
+
+          if (menuHtml !== lastMenuHtml) {
+
               menuDiv.innerHTML = menuHtml;
-              // Add click listeners
-              menuDiv.querySelectorAll('.menu-item.clickable').forEach(el => {
-                  el.addEventListener('click', (e) => {
-                      e.stopPropagation();
-                      const idxStr = (el as HTMLElement).dataset.index;
-                      console.log('Menu Click:', idxStr);
-                      if (idxStr !== undefined) {
-                          handleMenuInput(parseInt(idxStr));
-                      }
-                  });
-              });
+
+              lastMenuHtml = menuHtml;
+
           }
+
+
+
           // --- 2. Objectives ---
           let objectivesDiv = rightPanel.querySelector('.objectives-status') as HTMLElement;
           if (!objectivesDiv) {
