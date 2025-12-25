@@ -7,14 +7,11 @@ describe('Graph', () => {
     width: 2,
     height: 1,
     cells: [
-      {
-        x: 0, y: 0, type: CellType.Floor,
-        walls: { n: false, e: true, s: false, w: false }
-      },
-      {
-        x: 1, y: 0, type: CellType.Floor,
-        walls: { n: false, e: false, s: false, w: true }
-      }
+      { x: 0, y: 0, type: CellType.Floor },
+      { x: 1, y: 0, type: CellType.Floor }
+    ],
+    walls: [
+        { p1: {x: 0, y: 0}, p2: {x: 1, y: 0} }
     ]
   };
 
@@ -28,8 +25,8 @@ describe('Graph', () => {
     const mapWithRoom: MapDefinition = {
       ...mockMap,
       cells: [
-        { ...mockMap.cells[0], roomId: 'room1' },
-        { ...mockMap.cells[1] }
+        { x: 0, y: 0, type: CellType.Floor, roomId: 'room1' },
+        { x: 1, y: 0, type: CellType.Floor }
       ]
     };
     const graph = new Graph(mapWithRoom);
@@ -50,10 +47,10 @@ describe('Graph', () => {
 
   it('should handle doors correctly', () => {
     const mapWithDoor: MapDefinition = {
-      ...mockMap,
+      width: 2, height: 1,
       cells: [
-        { x: 0, y: 0, type: CellType.Floor, walls: { n: false, e: false, s: false, w: false } },
-        { x: 1, y: 0, type: CellType.Floor, walls: { n: false, e: false, s: false, w: false } }
+        { x: 0, y: 0, type: CellType.Floor },
+        { x: 1, y: 0, type: CellType.Floor }
       ],
       doors: [
         {

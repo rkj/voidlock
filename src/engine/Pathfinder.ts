@@ -4,7 +4,7 @@ import { Graph } from './Graph';
 export class Pathfinder {
   constructor(private graph: Graph, private doors: Map<string, Door>) {}
 
-  findPath(start: Vector2, end: Vector2): Vector2[] | null {
+  findPath(start: Vector2, end: Vector2, allowClosedDoors: boolean = false): Vector2[] | null {
     if (end.x < 0 || end.x >= this.graph.width || end.y < 0 || end.y >= this.graph.height) {
       return null;
     }
@@ -56,9 +56,13 @@ export class Pathfinder {
         let canTraverse = !boundary.isWall;
         if (boundary.doorId) {
           const door = this.doors.get(boundary.doorId);
-          // Pathfinding treats Closed, Open, and Destroyed doors as passable.
-          // Locked doors should still block pathfinding.
-          canTraverse = door ? door.state !== 'Locked' : !boundary.isWall;
+          if (door) {
+              if (allowClosedDoors) {
+                  canTraverse = door.state !== 'Locked';
+              } else {
+                  canTraverse = door.state === 'Open' || door.state === 'Destroyed';
+              }
+          }
         }
 
         if (canTraverse) {

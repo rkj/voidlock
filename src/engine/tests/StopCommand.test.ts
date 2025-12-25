@@ -10,14 +10,14 @@ describe('Stop Command and AI Logic', () => {
     cells: [],
     spawnPoints: [{ id: 'sp1', pos: { x: 1, y: 1 }, radius: 1 }],
     extraction: { x: 9, y: 9 },
-    objectives: [{ id: 'obj1', kind: 'Recover', state: 'Pending', targetCell: { x: 5, y: 5 } }]
+    objectives: [{ id: 'obj1', kind: 'Recover', targetCell: { x: 5, y: 5 } }]
   };
 
   for (let y = 0; y < 10; y++) {
     for (let x = 0; x < 10; x++) {
       mockMap.cells.push({
         x, y, type: CellType.Floor,
-        walls: { n: false, e: false, s: false, w: false }
+        
       });
     }
   }

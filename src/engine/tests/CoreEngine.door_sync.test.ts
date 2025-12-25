@@ -7,9 +7,9 @@ describe('CoreEngine Door Sync', () => {
     width: 3,
     height: 1,
     cells: [
-      { x: 0, y: 0, type: CellType.Floor, walls: {} },
-      { x: 1, y: 0, type: CellType.Floor, walls: {} },
-      { x: 2, y: 0, type: CellType.Floor, walls: {} }
+      { x: 0, y: 0, type: CellType.Floor },
+      { x: 1, y: 0, type: CellType.Floor },
+      { x: 2, y: 0, type: CellType.Floor }
     ],
     doors: [
       {

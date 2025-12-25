@@ -58,7 +58,7 @@ describe('Enemy LOS Visibility', () => {
       x: i % 10,
       y: Math.floor(i / 10),
       type: CellType.Floor,
-      walls: { n: false, e: false, s: false, w: false }
+      
     })),
   };
 

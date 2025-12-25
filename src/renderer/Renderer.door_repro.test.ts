@@ -60,8 +60,8 @@ describe('Renderer Door Drawing', () => {
     const map: MapDefinition = {
         width: 2, height: 1,
         cells: [
-            { x: 0, y: 0, type: CellType.Floor, walls: { n:true, e:false, s:true, w:true } },
-            { x: 1, y: 0, type: CellType.Floor, walls: { n:true, e:false, s:true, w:true } }
+            { x: 0, y: 0, type: CellType.Floor,  },
+            { x: 1, y: 0, type: CellType.Floor,  }
         ],
         doors: [door]
     };
@@ -75,6 +75,8 @@ describe('Renderer Door Drawing', () => {
         discoveredCells: ['0,0', '1,0'],
         objectives: [],
         threatLevel: 0,
+        aliensKilled: 0,
+        casualties: 0,
         status: 'Playing'
     };
 

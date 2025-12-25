@@ -46,10 +46,10 @@ describe('Renderer', () => {
   const mockMap: MapDefinition = {
     width: 2, height: 2,
     cells: [
-      { x: 0, y: 0, type: CellType.Floor, walls: { n: false, e: false, s: false, w: false } },
-      { x: 1, y: 0, type: CellType.Wall, walls: { n: false, e: false, s: false, w: false } },
-      { x: 0, y: 1, type: CellType.Floor, walls: { n: false, e: false, s: false, w: false } },
-      { x: 1, y: 1, type: CellType.Floor, walls: { n: false, e: false, s: false, w: false } },
+      { x: 0, y: 0, type: CellType.Floor,  },
+      { x: 1, y: 0, type: CellType.Wall,  },
+      { x: 0, y: 1, type: CellType.Floor,  },
+      { x: 1, y: 1, type: CellType.Floor,  },
     ],
     extraction: { x: 1, y: 1 },
     objectives: [{ id: 'o1', kind: 'Recover', state: 'Pending', targetCell: { x: 0, y: 1 } } as Objective]
@@ -68,6 +68,8 @@ describe('Renderer', () => {
         discoveredCells: ['0,0', '1,1'],
         objectives: [],
         threatLevel: 0,
+        aliensKilled: 0,
+        casualties: 0,
         status: 'Playing'
       };
   beforeEach(() => {

@@ -16,7 +16,7 @@ describe('VisibilityPolygon', () => {
         // Add floor cells
         for(let x=0; x<10; x++) {
             for(let y=0; y<10; y++) {
-                map.cells.push({ x, y, type: CellType.Floor, walls: { n: false, e: false, s: false, w: false } });
+                map.cells.push({ x, y, type: CellType.Floor });
             }
         }
         const graph = new Graph(map);
@@ -36,14 +36,15 @@ describe('VisibilityPolygon', () => {
 
     it('should be blocked by walls', () => {
         const map = createMap(10, 10);
+        map.walls = [];
         // Add floor cells
         for(let x=0; x<10; x++) {
             for(let y=0; y<10; y++) {
-                // Continuous Wall at x=6 (East of origin)
-                // For cell (5, y), the East wall is the boundary to x=6.
-                const walls = { n: false, e: (x === 5), s: false, w: false };
-                
-                map.cells.push({ x, y, type: CellType.Floor, walls });
+                map.cells.push({ x, y, type: CellType.Floor });
+                if (x === 5) {
+                    // Continuous Wall at x=6 (East of origin)
+                    map.walls.push({ p1: {x: 5, y}, p2: {x: 6, y} });
+                }
             }
         }
         const graph = new Graph(map);

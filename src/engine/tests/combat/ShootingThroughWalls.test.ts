@@ -11,9 +11,10 @@ describe('Shooting Through Walls Repro', () => {
     map = {
       width: 2, height: 1,
       cells: [
-        { x: 0, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: true, w: true } }, // East wall closed
-        { x: 1, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: true, w: true } }  // West wall closed
+        { x: 0, y: 0, type: CellType.Floor },
+        { x: 1, y: 0, type: CellType.Floor }
       ],
+      walls: [{ p1: {x: 0, y: 0}, p2: {x: 1, y: 0} }],
       spawnPoints: [], extraction: undefined, objectives: []
     };
 
@@ -47,19 +48,21 @@ describe('Shooting Through Walls Repro', () => {
     expect(e1.hp).toBe(100); // No damage dealt
   });
 
-  it('should NOT allow shooting through walls diagonally', () => {
+  it('should NOT allow shooting through diagonally', () => {
       // 2x2 map
-      // Floor (0,0) | Floor (1,0)
-      // ------------+------------
-      // Floor (0,1) | Floor (1,1)
-      // All walls closed.
       const map2x2: MapDefinition = {
           width: 2, height: 2,
           cells: [
-              { x: 0, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: true, w: true } },
-              { x: 1, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: true, w: true } },
-              { x: 0, y: 1, type: CellType.Floor, walls: { n: true, e: true, s: true, w: true } },
-              { x: 1, y: 1, type: CellType.Floor, walls: { n: true, e: true, s: true, w: true } }
+              { x: 0, y: 0, type: CellType.Floor },
+              { x: 1, y: 0, type: CellType.Floor },
+              { x: 0, y: 1, type: CellType.Floor },
+              { x: 1, y: 1, type: CellType.Floor }
+          ],
+          walls: [
+              { p1: {x: 0, y: 0}, p2: {x: 1, y: 0} },
+              { p1: {x: 0, y: 0}, p2: {x: 0, y: 1} },
+              { p1: {x: 1, y: 0}, p2: {x: 1, y: 1} },
+              { p1: {x: 0, y: 1}, p2: {x: 1, y: 1} }
           ],
           spawnPoints: [], extraction: undefined, objectives: []
       };
@@ -79,16 +82,12 @@ describe('Shooting Through Walls Repro', () => {
       const s1 = state2.units[0];
       const e1 = state2.enemies[0];
 
-      // Check visibility
       expect(state2.visibleCells).not.toContain('1,1');
-
       expect(s1.state).not.toBe(UnitState.Attacking);
       expect(e1.hp).toBe(100);
   });
 
   it('should NOT allow shooting when positioned at cell edges separated by a wall', () => {
-      // S1 at right edge of (0,0), E1 at left edge of (1,0)
-      // Wall between them.
       engine.addUnit({
         id: 's1', pos: { x: 0.9, y: 0.5 }, hp: 100, maxHp: 100, state: UnitState.Idle, damage: 10, fireRate: 100, attackRange: 5, sightRange: 10, speed: 2, commandQueue: []
       });
@@ -107,8 +106,6 @@ describe('Shooting Through Walls Repro', () => {
   });
 
   it('should NOT see or shoot an off-center enemy through a wall', () => {
-      // Soldier at (0.5, 0.5), wall between (0,0) and (1,0)
-      // Enemy at (1.1, 0.5)
       engine.addUnit({
         id: 's1', pos: { x: 0.5, y: 0.5 }, hp: 100, maxHp: 100, state: UnitState.Idle, damage: 10, fireRate: 100, attackRange: 5, sightRange: 10, speed: 2, commandQueue: []
       });
@@ -122,7 +119,6 @@ describe('Shooting Through Walls Repro', () => {
       const s1 = state.units[0];
       const e1 = state.enemies[0];
 
-      // Even if cell (1,0) is visible (which it shouldn't be), e1's position (1.1, 0.5) should be checked for LOS
       expect(s1.state).not.toBe(UnitState.Attacking);
       expect(e1.hp).toBe(100);
   });

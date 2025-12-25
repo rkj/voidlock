@@ -25,6 +25,8 @@ describe('SimpleBot', () => {
     discoveredCells: [],
     objectives: [mockObjective],
     threatLevel: 0,
+    aliensKilled: 0,
+    casualties: 0,
     status: 'Playing'
   };
 

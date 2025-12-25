@@ -14,17 +14,17 @@ describe('Soldier Exploration AI', () => {
       width: 3,
       height: 3,
       cells: [
-        { x: 0, y: 0, type: CellType.Floor, walls: { n: true, e: false, s: false, w: true } }, // Start
-        { x: 1, y: 0, type: CellType.Floor, walls: { n: true, e: false, s: false, w: false } },
-        { x: 2, y: 0, type: CellType.Floor, walls: { n: true, e: true, s: false, w: false } },
+        { x: 0, y: 0, type: CellType.Floor,  }, // Start
+        { x: 1, y: 0, type: CellType.Floor,  },
+        { x: 2, y: 0, type: CellType.Floor,  },
 
-        { x: 0, y: 1, type: CellType.Floor, walls: { n: false, e: false, s: false, w: true } },
-        { x: 1, y: 1, type: CellType.Floor, walls: { n: false, e: false, s: false, w: false } },
-        { x: 2, y: 1, type: CellType.Floor, walls: { n: false, e: true, s: false, w: false } },
+        { x: 0, y: 1, type: CellType.Floor,  },
+        { x: 1, y: 1, type: CellType.Floor,  },
+        { x: 2, y: 1, type: CellType.Floor,  },
 
-        { x: 0, y: 2, type: CellType.Floor, walls: { n: false, e: false, s: true, w: true } },
-        { x: 1, y: 2, type: CellType.Floor, walls: { n: false, e: false, s: true, w: false } },
-        { x: 2, y: 2, type: CellType.Floor, walls: { n: false, e: true, s: true, w: false } }, // Extraction
+        { x: 0, y: 2, type: CellType.Floor,  },
+        { x: 1, y: 2, type: CellType.Floor,  },
+        { x: 2, y: 2, type: CellType.Floor,  }, // Extraction
       ],
       spawnPoints: [{ id: 's1', pos: { x: 0, y: 0 }, radius: 1 }],
       extraction: { x: 2, y: 2 },

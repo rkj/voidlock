@@ -15,11 +15,11 @@ describe('Coordinated Exploration', () => {
         width: 5,
         height: 1,
         cells: [
-            { x: 0, y: 0, type: CellType.Floor, walls: { n:true,e:false,s:true,w:true } },
-            { x: 1, y: 0, type: CellType.Floor, walls: { n:true,e:false,s:true,w:false } },
-            { x: 2, y: 0, type: CellType.Floor, walls: { n:true,e:false,s:true,w:false } },
-            { x: 3, y: 0, type: CellType.Floor, walls: { n:true,e:false,s:true,w:false } },
-            { x: 4, y: 0, type: CellType.Floor, walls: { n:true,e:true,s:true,w:false } }
+            { x: 0, y: 0, type: CellType.Floor,  },
+            { x: 1, y: 0, type: CellType.Floor,  },
+            { x: 2, y: 0, type: CellType.Floor,  },
+            { x: 3, y: 0, type: CellType.Floor,  },
+            { x: 4, y: 0, type: CellType.Floor,  }
         ],
         spawnPoints: [], extraction: undefined, objectives: []
     };

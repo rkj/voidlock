@@ -224,7 +224,8 @@ export class CoreEngine {
             }
             const path = this.pathfinder.findPath(
               { x: Math.floor(unit.pos.x), y: Math.floor(unit.pos.y) },
-              cmd.target
+              cmd.target,
+              true // allowClosedDoors: needed so unit can plan path and then Wait for Door
             );
             if (path && path.length > 0) {
               unit.path = path;
