@@ -54,7 +54,8 @@ describe('MenuController', () => {
     expect(mockClient.sendCommand).toHaveBeenCalledWith({
         type: CommandType.SET_ENGAGEMENT,
         unitIds: ['u1', 'u2'],
-        mode: 'ENGAGE'
+        mode: 'ENGAGE',
+        label: 'Policy Change'
     });
     
     // Should reset
@@ -69,7 +70,8 @@ describe('MenuController', () => {
     expect(mockClient.sendCommand).toHaveBeenCalledWith({
         type: CommandType.SET_ENGAGEMENT,
         unitIds: ['u1', 'u2'],
-        mode: 'IGNORE'
+        mode: 'IGNORE',
+        label: 'Policy Change'
     });
   });
 

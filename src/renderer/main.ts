@@ -179,70 +179,70 @@ const updateUI = (state: GameState) => {
           summaryDiv.appendChild(menuBtn);
 
           rightPanel.appendChild(summaryDiv);
-          return; // Skip normal panel update
+          // Don't return here, continue to update unit list below
       } else {
           // We are playing. Ensure summary is gone.
           if (rightPanel.querySelector('.game-over-summary')) {
               rightPanel.innerHTML = '';
           }
-      }
 
-      // --- 1. Hierarchical Command Menu ---
-      let menuDiv = rightPanel.querySelector('.command-menu') as HTMLElement;
-      if (!menuDiv) {
-          menuDiv = document.createElement('div');
-          menuDiv.className = 'command-menu';
-          menuDiv.style.borderBottom = '1px solid #444';
-          menuDiv.style.paddingBottom = '10px';
-          menuDiv.style.marginBottom = '10px';
-          rightPanel.appendChild(menuDiv);
-      }
-      
-      const menuHtml = menuController.getMenuHtmlWithState(state);
+          // --- 1. Hierarchical Command Menu ---
+          let menuDiv = rightPanel.querySelector('.command-menu') as HTMLElement;
+          if (!menuDiv) {
+              menuDiv = document.createElement('div');
+              menuDiv.className = 'command-menu';
+              menuDiv.style.borderBottom = '1px solid #444';
+              menuDiv.style.paddingBottom = '10px';
+              menuDiv.style.marginBottom = '10px';
+              rightPanel.appendChild(menuDiv);
+          }
+          
+          const menuHtml = menuController.getMenuHtmlWithState(state);
 
-      if (menuDiv.innerHTML !== menuHtml) {
-          menuDiv.innerHTML = menuHtml;
-          // Add click listeners
-          menuDiv.querySelectorAll('.menu-item.clickable').forEach(el => {
-              el.addEventListener('click', () => {
-                  const numStr = (el as HTMLElement).textContent?.split('.')[0].trim();
-                  if (numStr) {
-                      handleMenuInput(parseInt(numStr));
-                  }
+          if (menuDiv.innerHTML !== menuHtml) {
+              menuDiv.innerHTML = menuHtml;
+              // Add click listeners
+              menuDiv.querySelectorAll('.menu-item.clickable').forEach(el => {
+                  el.addEventListener('click', () => {
+                      const numStr = (el as HTMLElement).textContent?.split('.')[0].trim();
+                      if (numStr) {
+                          handleMenuInput(parseInt(numStr));
+                      }
+                  });
               });
+          }
+
+          // --- 2. Objectives ---
+          let objectivesDiv = rightPanel.querySelector('.objectives-status') as HTMLElement;
+          if (!objectivesDiv) {
+              objectivesDiv = document.createElement('div');
+              objectivesDiv.className = 'objectives-status';
+              rightPanel.appendChild(objectivesDiv);
+          }
+          let objHtml = '<h3>Objectives</h3>';
+          state.objectives.forEach(obj => {
+              objHtml += `<p>${obj.kind}: Status: ${obj.state}${obj.targetCell ? ` at (${obj.targetCell.x},${obj.targetCell.y})` : ''}</p>`;
           });
-      }
+          if (objectivesDiv.innerHTML !== objHtml) objectivesDiv.innerHTML = objHtml;
 
-      // --- 2. Objectives ---
-      let objectivesDiv = rightPanel.querySelector('.objectives-status') as HTMLElement;
-      if (!objectivesDiv) {
-          objectivesDiv = document.createElement('div');
-          objectivesDiv.className = 'objectives-status';
-          rightPanel.appendChild(objectivesDiv);
-      }
-      let objHtml = '<h3>Objectives</h3>';
-      state.objectives.forEach(obj => {
-          objHtml += `<p>${obj.kind}: Status: ${obj.state}${obj.targetCell ? ` at (${obj.targetCell.x},${obj.targetCell.y})` : ''}</p>`;
-      });
-      if (objectivesDiv.innerHTML !== objHtml) objectivesDiv.innerHTML = objHtml;
-
-      // --- 4. Extraction ---
-      let extDiv = rightPanel.querySelector('.extraction-status') as HTMLElement;
-      if (state.map.extraction) {
-          if (!extDiv) {
-              extDiv = document.createElement('div');
-              extDiv.className = 'extraction-status';
-              rightPanel.appendChild(extDiv);
+          // --- 4. Extraction ---
+          let extDiv = rightPanel.querySelector('.extraction-status') as HTMLElement;
+          if (state.map.extraction) {
+              if (!extDiv) {
+                  extDiv = document.createElement('div');
+                  extDiv.className = 'extraction-status';
+                  rightPanel.appendChild(extDiv);
+              }
+              const extractedCount = state.units.filter(u => u.state === UnitState.Extracted).length;
+              const totalUnits = state.units.length;
+              let extHtml = `<h3>Extraction</h3><p>Location: (${state.map.extraction.x},${state.map.extraction.y})</p>`;
+              if (totalUnits > 0) {
+                  extHtml += `<p>Extracted: ${extractedCount}/${totalUnits}</p>`;
+              }
+              if (extDiv.innerHTML !== extHtml) extDiv.innerHTML = extHtml;
+          } else if (extDiv) {
+              extDiv.remove();
           }
-          const extractedCount = state.units.filter(u => u.state === UnitState.Extracted).length;
-          const totalUnits = state.units.length;
-          let extHtml = `<h3>Extraction</h3><p>Location: (${state.map.extraction.x},${state.map.extraction.y})</p>`;
-          if (totalUnits > 0) {
-              extHtml += `<p>Extracted: ${extractedCount}/${totalUnits}</p>`;
-          }
-          if (extDiv.innerHTML !== extHtml) extDiv.innerHTML = extHtml;
-      } else if (extDiv) {
-          extDiv.remove();
       }
   }
 
@@ -270,6 +270,12 @@ const updateUI = (state: GameState) => {
       if (unit.state === UnitState.Extracted && !el.classList.contains('extracted')) el.classList.add('extracted');
 
       let statusText: string = unit.state; 
+      if (unit.activeCommand) {
+          const cmd = unit.activeCommand;
+          const cmdLabel = cmd.label || cmd.type;
+          statusText = `${cmdLabel} (${unit.state})`;
+      }
+      
       if (unit.commandQueue && unit.commandQueue.length > 0) {
         statusText += ` (+${unit.commandQueue.length})`;
       }

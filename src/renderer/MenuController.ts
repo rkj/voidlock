@@ -6,6 +6,7 @@ export class MenuController {
     public menuState: MenuState = 'ACTION_SELECT';
     public pendingAction: CommandType | null = null;
     public pendingMode: EngagementPolicy | null = null;
+    public pendingLabel: string | null = null;
     public pendingTargetLocation: Vector2 | null = null;
     public overlayOptions: OverlayOption[] = [];
 
@@ -15,6 +16,7 @@ export class MenuController {
         this.menuState = 'ACTION_SELECT';
         this.pendingAction = null;
         this.pendingMode = null;
+        this.pendingLabel = null;
         this.pendingTargetLocation = null;
         this.overlayOptions = [];
     }
@@ -37,26 +39,32 @@ export class MenuController {
             if (num === 1) { // MOVE
                 this.menuState = 'TARGET_SELECT';
                 this.pendingAction = CommandType.MOVE_TO;
+                this.pendingLabel = 'Moving';
                 this.generateTargetOverlay('CELL', gameState);
             } else if (num === 2) { // STOP
                 this.menuState = 'UNIT_SELECT';
                 this.pendingAction = CommandType.STOP;
+                this.pendingLabel = 'Stopping';
             } else if (num === 3) { // ENGAGEMENT
                 this.menuState = 'MODE_SELECT';
                 this.pendingAction = CommandType.SET_ENGAGEMENT;
+                this.pendingLabel = 'Policy Change';
             } else if (num === 4) { // COLLECT
                 this.menuState = 'TARGET_SELECT';
                 this.pendingAction = CommandType.MOVE_TO; // Collect is just Move To item
+                this.pendingLabel = 'Collecting';
                 this.generateTargetOverlay('ITEM', gameState);
             } else if (num === 5) { // EXTRACT
                 if (gameState.map.extraction) {
                     this.pendingTargetLocation = gameState.map.extraction;
                     this.menuState = 'UNIT_SELECT';
                     this.pendingAction = CommandType.MOVE_TO;
+                    this.pendingLabel = 'Extracting';
                 }
             } else if (num === 6) { // RESUME AI
                 this.menuState = 'UNIT_SELECT';
                 this.pendingAction = CommandType.RESUME_AI;
+                this.pendingLabel = 'Resuming AI';
             }
         } else if (this.menuState === 'MODE_SELECT') {
             if (num === 1) {
@@ -178,23 +186,27 @@ export class MenuController {
             this.client.sendCommand({
                 type: CommandType.MOVE_TO,
                 unitIds,
-                target: this.pendingTargetLocation
+                target: this.pendingTargetLocation,
+                label: this.pendingLabel || undefined
             });
         } else if (this.pendingAction === CommandType.STOP) {
             this.client.sendCommand({
                 type: CommandType.STOP,
-                unitIds
+                unitIds,
+                label: this.pendingLabel || undefined
             });
         } else if (this.pendingAction === CommandType.SET_ENGAGEMENT && this.pendingMode) {
             this.client.sendCommand({
                 type: CommandType.SET_ENGAGEMENT,
                 unitIds,
-                mode: this.pendingMode
+                mode: this.pendingMode,
+                label: this.pendingLabel || undefined
             });
         } else if (this.pendingAction === CommandType.RESUME_AI) {
             this.client.sendCommand({
                 type: CommandType.RESUME_AI,
-                unitIds
+                unitIds,
+                label: this.pendingLabel || undefined
             });
         }
 
