@@ -715,7 +715,7 @@ export class CoreEngine {
       // Default ENGAGE: Attack takes priority over Moving (Stop & Shoot)
       // IGNORE: Moving takes priority over Attacking (Run)
       
-      if (canAttack && (!isMoving || policy === 'ENGAGE')) {
+      if (canAttack && (policy === 'ENGAGE' || !!unit.forcedTargetId)) {
         // Attack
         const targetEnemy = enemiesInRange[0];
         

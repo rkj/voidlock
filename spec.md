@@ -73,7 +73,7 @@ interface Cell {
   * `weapon`: Reference to Weapon Definition.
   * `engagementPolicy`:
       * `ENGAGE`: (Default) If an enemy is in LOS, stop moving and shoot.
-      * `IGNORE`: Ignore enemies, continue moving/performing actions (used for fleeing/rushing).
+      * `IGNORE`: Ignore enemies, continue moving/performing actions (used for fleeing/rushing). Units will NEVER auto-engage enemies in this mode, even if idle. They will only attack if explicitly ordered via `ATTACK_TARGET`.
   * **Action Queue:** Units support a queue of commands (e.g., "Move to A", then "Move to B", then "Interact").
 
 **Weapon Definition:**
