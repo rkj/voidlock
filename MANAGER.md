@@ -19,9 +19,10 @@ At the start of every session, run:
 **Action**: Spawn a sub-agent to perform the implementation.
 
 **Command Pattern:**
+Use multiple `--allowed-tools` flags for the allowlist and pass the prompt as the positional argument.
+
 ```bash
-gemini --instruction "@AGENTS.md" \
-       --allowed-tools list_directory read_file search_file_content glob replace write_file "run_shell_command(npx vitest)" "run_shell_command(jj diff)" "run_shell_command(ls)" \
+gemini --allowed-tools list_directory --allowed-tools read_file --allowed-tools search_file_content --allowed-tools glob --allowed-tools replace --allowed-tools write_file --allowed-tools "run_shell_command(npx vitest)" --allowed-tools "run_shell_command(jj diff)" --allowed-tools "run_shell_command(ls)" \
        "You are a Sub-Agent. Your goal is to implement task <TASK_ID>: <TASK_TITLE>. \n\nContext: <Brief Description from Beads>\n\nInstructions:\n1. Read @spec.md and @AGENTS.md.\n2. Implement the changes.\n3. Verify with tests.\n4. Exit when done."
 ```
 
