@@ -542,10 +542,10 @@ Do not ship copyrighted scans/assets. Keep importer expecting **user-provided** 
 
     *   **Soldier List Panel**: Right-side panel showing all soldiers, their status, current command, and command queue.
     *   **Keyboard Command Interface**: Menu-driven command issuing (Select Command -> Select Unit -> Target).
+    *   **Mouse Command Interface**: All menu actions must be clickable. Submenus must include a "Back" button to allow mouse navigation back to the previous menu level.
     *   **Combat Visuals**: Bullet tracers/lines when units fire.
     *   **Health Bars**: Verified and refined health indicators for all combatants.
-    *   **Command Queuing**: Engine support for queuing multiple commands per unit.
-7.  **M7: Spaceship Map & Thin Walls**
+    *   **Command Queuing**: Engine support for queuing multiple commands per unit.7.  **M7: Spaceship Map & Thin Walls**
     *   **Thin Walls**: Refactor engine to support walls *between* cells instead of solid wall tiles.
     *   **Maze Generation**: Procedural generation for tight spaceship corridors (maze-like, max 16x16).
     *   **Visual Scale**: Increase tile size significantly relative to units.

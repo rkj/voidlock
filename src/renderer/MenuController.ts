@@ -35,6 +35,10 @@ export class MenuController {
     }
 
     public handleMenuInput(num: number, gameState: GameState): void {
+        if (num === 0) {
+            this.goBack();
+            return;
+        }
         if (this.menuState === 'ACTION_SELECT') {
             if (num === 1) { // MOVE
                 this.menuState = 'TARGET_SELECT';
@@ -115,19 +119,20 @@ export class MenuController {
         if (this.menuState === 'ACTION_SELECT') {
             menuHtml = `<h3>ACTIONS</h3>`;
             menuHtml += `
-            <div class="menu-item clickable" data-cmd="MOVE">1. MOVE</div>
-            <div class="menu-item clickable" data-cmd="STOP">2. STOP</div>
-            <div class="menu-item clickable" data-cmd="ENGAGEMENT">3. ENGAGEMENT</div>
-            <div class="menu-item clickable" data-cmd="COLLECT">4. COLLECT</div>
-            <div class="menu-item clickable" data-cmd="EXTRACT">5. EXTRACT</div>
-            <div class="menu-item clickable" data-cmd="RESUME">6. RESUME AI</div>
+            <div class="menu-item clickable" data-index="1" data-cmd="MOVE">1. MOVE</div>
+            <div class="menu-item clickable" data-index="2" data-cmd="STOP">2. STOP</div>
+            <div class="menu-item clickable" data-index="3" data-cmd="ENGAGEMENT">3. ENGAGEMENT</div>
+            <div class="menu-item clickable" data-index="4" data-cmd="COLLECT">4. COLLECT</div>
+            <div class="menu-item clickable" data-index="5" data-cmd="EXTRACT">5. EXTRACT</div>
+            <div class="menu-item clickable" data-index="6" data-cmd="RESUME">6. RESUME AI</div>
             <p style="color:#888; font-size:0.8em; margin-top:10px;">(Select Action)</p>
           `;
         } else if (this.menuState === 'MODE_SELECT') {
             menuHtml = `<h3>SELECT MODE</h3>`;
             menuHtml += `
-            <div class="menu-item clickable" data-mode="ENGAGE">1. ENGAGE (Stop & Shoot)</div>
-            <div class="menu-item clickable" data-mode="IGNORE">2. IGNORE (Run)</div>
+            <div class="menu-item clickable" data-index="1" data-mode="ENGAGE">1. ENGAGE (Stop & Shoot)</div>
+            <div class="menu-item clickable" data-index="2" data-mode="IGNORE">2. IGNORE (Run)</div>
+            <div class="menu-item clickable" data-index="0" style="color: #ffaa00; margin-top: 10px;">0. BACK</div>
             <p style="color:#888; font-size:0.8em; margin-top:10px;">(ESC to Go Back)</p>
           `;
         } else if (this.menuState === 'TARGET_SELECT') {
@@ -136,9 +141,10 @@ export class MenuController {
                 menuHtml += `<p style="color:#f00;">No POIs available.</p>`;
             } else {
                 this.overlayOptions.forEach(opt => {
-                    menuHtml += `<div class="menu-item clickable" data-key="${opt.key}">${opt.key}. ${opt.label}</div>`;
+                    menuHtml += `<div class="menu-item clickable" data-index="${opt.key}" data-key="${opt.key}">${opt.key}. ${opt.label}</div>`;
                 });
             }
+            menuHtml += `<div class="menu-item clickable" data-index="0" style="color: #ffaa00; margin-top: 10px;">0. BACK</div>`;
             menuHtml += `<p style="color:#888; font-size:0.8em; margin-top:10px;">(Click map or press 1-9)</p>`;
         } else if (this.menuState === 'UNIT_SELECT') {
             menuHtml = `<h3>SELECT UNIT(S)</h3>`;
@@ -169,10 +175,11 @@ export class MenuController {
             let counter = 1;
             const activeUnits = gameState.units.filter(u => u.state !== UnitState.Dead && u.state !== UnitState.Extracted);
             activeUnits.forEach(u => {
-                menuHtml += `<div class="menu-item clickable" data-unit-id="${u.id}">${counter}. Unit ${u.id}</div>`;
+                menuHtml += `<div class="menu-item clickable" data-index="${counter}" data-unit-id="${u.id}">${counter}. Unit ${u.id}</div>`;
                 counter++;
             });
-            menuHtml += `<div class="menu-item clickable" data-unit-id="ALL">${counter}. ALL UNITS</div>`;
+            menuHtml += `<div class="menu-item clickable" data-index="${counter}" data-unit-id="ALL">${counter}. ALL UNITS</div>`;
+            menuHtml += `<div class="menu-item clickable" data-index="0" style="color: #ffaa00; margin-top: 10px;">0. BACK</div>`;
             menuHtml += `<p style="color:#888; font-size:0.8em; margin-top:10px;">(Press 1-9 or ESC)</p>`;
             return menuHtml;
          }
