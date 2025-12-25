@@ -252,6 +252,7 @@ bd show bd-41 --json  # Verify merged content
 ## G1) Agent Workflow Instructions
 * **🚨🚨🚨 NEVER RUN `bd sync` 🚨🚨🚨**: The `bd sync` command is strictly forbidden in this repository. It interferes with the `jj` (Jujutsu) workflow and causes database synchronization/prefix issues.
 * **🚨🚨🚨 ONE TASK AT A TIME 🚨🚨🚨**: Unless explicitly specified otherwise, the agent MUST perform exactly ONE Beads task per turn cycle (implement, verify, commit) and then ask the user for instruction on what to do next. **DO NOT START A NEW TASK WITHOUT USER DIRECT INPUT.**
+* **🚨🚨🚨 NEVER REMOVE TESTS 🚨🚨🚨**: Their purpose is to catch regressions. Do not remove any tests from the codebase unless explicitly asked to do so by the user.
 * **Clarification First:** When a new change request is received, you must first update `spec.md` with the new clarification/requirement.
 * **Task Creation:** After updating the spec, create a Beads task for the requested change.
 * **Implementation:** Only after the above steps are completed should you proceed with code implementation.
@@ -268,7 +269,7 @@ bd show bd-41 --json  # Verify merged content
 
 ## G2) Testing Strategy
 
-*   **Never Remove Tests:** Do not remove any tests from the codebase unless explicitly asked to do so by the user (e.g., if a feature was removed from the spec). If a test is failing, fix the code or update the test to match the new behavior, but do not delete it.
+* **🚨🚨🚨 NEVER REMOVE TESTS 🚨🚨🚨**: Their purpose is to catch regressions. Do not remove any tests from the codebase unless explicitly asked to do so by the user (e.g., if a feature was removed from the spec). If a test is failing, fix the code or update the test to match the new behavior, but do not delete it.
 
 *   **Unit Test First:** For core mechanics (Grid, Pathfinder, LOS), write tests before implementation.
 

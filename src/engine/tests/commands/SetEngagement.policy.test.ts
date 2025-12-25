@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { CoreEngine } from '../../CoreEngine';
 import { MapDefinition, CellType, UnitState, CommandType, SquadConfig } from '../../../shared/types';
 
-describe('Command: SET_ENGAGEMENT (Repro)', () => {
+describe('Command: SET_ENGAGEMENT (Policy Logic)', () => {
   let engine: CoreEngine;
   const map: MapDefinition = {
     width: 10, height: 10,
