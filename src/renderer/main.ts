@@ -202,16 +202,15 @@ const updateUI = (state: GameState) => {
           if (menuDiv.innerHTML !== menuHtml) {
               menuDiv.innerHTML = menuHtml;
               // Add click listeners
-              menuDiv.querySelectorAll('.menu-item.clickable').forEach(el => {
-                  el.addEventListener('click', () => {
-                      const numStr = (el as HTMLElement).textContent?.split('.')[0].trim();
-                      if (numStr) {
-                          handleMenuInput(parseInt(numStr));
-                      }
-                  });
-              });
-          }
-
+                        menuDiv.querySelectorAll('.menu-item.clickable').forEach(el => {
+                            el.addEventListener('click', () => {
+                                const idxStr = (el as HTMLElement).dataset.index;
+                                if (idxStr !== undefined) {
+                                    handleMenuInput(parseInt(idxStr));
+                                }
+                            });
+                        });
+                    }
           // --- 2. Objectives ---
           let objectivesDiv = rightPanel.querySelector('.objectives-status') as HTMLElement;
           if (!objectivesDiv) {
@@ -504,9 +503,9 @@ document.addEventListener('DOMContentLoaded', () => {
               return;
           }
 
-          // Handle Number Keys 1-9
+          // Handle Number Keys 0-9
           const num = parseInt(e.key);
-          if (!isNaN(num) && num > 0) {
+          if (!isNaN(num) && num >= 0) {
               handleMenuInput(num);
           }
       } else {
