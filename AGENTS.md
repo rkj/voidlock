@@ -252,6 +252,7 @@ bd show bd-41 --json  # Verify merged content
 ## G1) Agent Workflow Instructions
 * **🚨🚨🚨 NEVER RUN `bd sync` 🚨🚨🚨**: The `bd sync` command is strictly forbidden in this repository. It interferes with the `jj` (Jujutsu) workflow and causes database synchronization/prefix issues.
 * **🚨🚨🚨 ONE TASK AT A TIME 🚨🚨🚨**: Unless explicitly specified otherwise, the agent MUST perform exactly ONE Beads task per turn cycle (implement, verify, commit) and then ask the user for instruction on what to do next. **DO NOT START A NEW TASK WITHOUT USER DIRECT INPUT.**
+* **Interrupted Requests**: If the user provides a Feature Request (FR) or reports a Bug while another task is `in_progress`, the agent MUST record the request in Beads (create issue) and then immediately resume the current task. Do not update the spec or implement the new request until the current task is complete and the user explicitly instructs to start the new one.
 * **🚨🚨🚨 NEVER REMOVE TESTS 🚨🚨🚨**: Their purpose is to catch regressions. Do not remove any tests from the codebase unless explicitly asked to do so by the user.
 * **Clarification First:** When a new change request is received, you must first update `spec.md` with the new clarification/requirement.
 * **Task Creation:** After updating the spec, create a Beads task for the requested change.
@@ -280,8 +281,9 @@ bd show bd-41 --json  # Verify merged content
 * **Recursion Guard:** If `Maximum call stack size exceeded` occurs, dump the Pathfinding grid state to JSON immediately for analysis.
 
 ## G3) Visual Debugging & Feedback
-* **Agent Limitations:** You (the Agent) cannot see the rendered Canvas. You operate in a headless environment.
-* **User Feedback:** When reporting visual issues, the user must provide text descriptions (e.g., "Door at 3,4 is yellow but soldier walked through it").
+* **Game Access URL**: The game is accessible at `http://192.168.20.8:5173/`. This URL should be used for all browser interactions.
+* **Visual Verification**: Use `take_screenshot()` to inspect the rendered state of the game, including the Canvas.
+* **User Feedback**: When reporting visual issues, the user must provide text descriptions (e.g., "Door at 3,4 is yellow but soldier walked through it").
 * **Map Viewer App:**
     * Use the standalone Map Viewer (milestone M15 in spec) to verify map generation logic if available.
     * If the Map Viewer is not built, rely on console logs of the `MapDefinition` JSON.

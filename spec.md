@@ -594,7 +594,6 @@ Do not ship copyrighted scans/assets. Keep importer expecting **user-provided** 
     *   Remove debug logs once the issue is resolved and tests pass.
 *   **Test Execution**: Run tests using `npx vitest run` to ensure non-interactive execution, especially in automated environments. Avoid `npx vitest` without `run` as it defaults to interactive watch mode.
 *   **Commit Frequency**: The agent must commit changes after the completion of *every* Beads task.
-*   **Game Access URL**: The game is accessible at `http://192.168.20.8:5173/`. This URL should be used for all browser interactions.
 
 ---
 ### Critical Runtime Errors
