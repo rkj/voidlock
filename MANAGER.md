@@ -41,7 +41,13 @@ Use `bd dep add <dependent-id> <dependency-id>` (X depends on Y means "X needs Y
 ## 3. Task Delegation Flow
 1.  **Selection**: Manager scans `bd ready` for unblocked tasks.
 2.  **Dispatch**: Manager spawns a sub-agent using the `run_shell_command` tool.
-    *   **Command**: `sh gemini --approval-mode auto_edit --instruction "@AGENTS.md" "Implement the following task: <Detailed Task Description>"`
+    *   **Command Pattern**: 
+        ```bash
+        gemini --instruction "@AGENTS.md" \
+               --allowed-tools list_directory read_file search_file_content glob replace write_file "run_shell_command(npx vitest)" "run_shell_command(jj diff)" "run_shell_command(ls)" \
+               "Implement the following task: <Detailed Task Description>"
+        ```
+    *   *Note*: The `allowed-tools` flag enables the sub-agent to perform standard file edits and checks without constant user interruption, while restricting it from unsupervised unrestricted shell access (like `bd`).
 3.  **Observation**: Manager monitors the sub-agent's output stream to track progress.
 
 ## 4. Verification & Quality Control
@@ -64,7 +70,7 @@ After a sub-agent exits, the Manager MUST perform a rigorous audit:
 ## 5. Finalization
 *   **Success**: If all checks pass:
     1.  Perform the commit: `jj commit -m "feat/fix: <description>"`
-    2.  Close the Beads task: `bd close <id> --reason "Implemented and verified."`
+    2.  Close the Beads task: `bd close <id> --reason "Implemented and verified."
 *   **Correction**: If checks fail:
     *   **Minor Issues**: Fix them directly (e.g., linting, small bugs).
     *   **Major Issues**: Dispatch a new sub-agent with specific corrective instructions.
