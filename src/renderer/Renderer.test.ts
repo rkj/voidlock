@@ -35,6 +35,9 @@ const mockContext = {
   setLineDash: vi.fn(),
   fillText: vi.fn(),
   drawImage: vi.fn(),
+  createRadialGradient: vi.fn(() => ({
+      addColorStop: vi.fn(),
+  })),
   textAlign: '',
   textBaseline: '',
   // Add other methods used in Renderer as needed

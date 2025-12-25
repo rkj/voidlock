@@ -29,13 +29,15 @@ gemini --allowed-tools list_directory --allowed-tools read_file --allowed-tools 
 ## 3. Verification & Quality Control (The Audit)
 **Trigger**: ONLY after the sub-agent process exits.
 
+**🚨 SERVER INFO**: The development server is ALREADY RUNNING at `http://192.168.20.8:5173/`. **NEVER** execute `npm run dev`. Use this URL for all browser-based verification.
+
 **Manager Actions:**
 1.  **Inspect**: Run `jj diff`.
     *   *Check*: Did it follow conventions? Did it remove tests? (Forbidden!)
 2.  **Test**: Run `npx vitest run`.
     *   *Check*: Did all tests pass?
 3.  **Verify**: Run `take_screenshot()` (if UI changed).
-    *   *Check*: Does it look right?
+    *   *Check*: Does it look right? Use `navigate_page("http://192.168.20.8:5173/")`.
 
 ## 4. Finalization
 *   **If Verified**:
