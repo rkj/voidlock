@@ -45,12 +45,27 @@ Use `bd dep add <dependent-id> <dependency-id>` (X depends on Y means "X needs Y
 3.  **Observation**: Manager monitors the sub-agent's output stream to track progress.
 
 ## 4. Verification & Quality Control
-After a sub-agent exits, the Manager MUST:
-1.  **Code Review**: Inspect changes using `jj diff` and `read_file`. Ensure adherence to @ARCHITECTURE.md.
-2.  **Automated Testing**: Run the full project test suite: `npx vitest run`.
-3.  **Visual Verification**: Use `take_screenshot()` for UI-impacting changes.
-4.  **Integration Check**: Verify that the sub-agent correctly addressed the problem statement and acceptance criteria.
+After a sub-agent exits, the Manager MUST perform a rigorous audit:
+
+1.  **Code Review & Diff Inspection**:
+    *   Run `jj diff` to inspect all changes.
+    *   **Regression Check**: Verify that **NO TESTS WERE REMOVED** or commented out.
+    *   **Spec Compliance**: Read the modified files and ensure the implementation matches the requirements in `@spec.md` and the Beads task description.
+2.  **Automated Testing**:
+    *   Run `npx vitest run` to ensure all tests pass.
+    *   **Coverage Check**: Ensure new features have corresponding unit tests.
+3.  **Visual Verification**:
+    *   For UI-impacting changes, use `navigate_page` and `take_screenshot()` to inspect the rendered state.
+    *   Confirm the visual output matches the expected behavior (e.g., menu is clickable, unit status updates).
+4.  **Integration Check**:
+    *   Verify that the sub-agent correctly addressed the problem statement.
+    *   Check for any leftover debug logs or temporary files.
 
 ## 5. Finalization
-*   **Success**: `bd close <id> --reason "..."` and `jj commit -m "..."`.
-*   **Correction**: Fix minor issues directly or dispatch corrective instructions to a new sub-agent instance.
+*   **Success**: If all checks pass:
+    1.  Perform the commit: `jj commit -m "feat/fix: <description>"`
+    2.  Close the Beads task: `bd close <id> --reason "Implemented and verified."`
+*   **Correction**: If checks fail:
+    *   **Minor Issues**: Fix them directly (e.g., linting, small bugs).
+    *   **Major Issues**: Dispatch a new sub-agent with specific corrective instructions.
+    *   **Fundamental Flaws**: Use `jj undo` to revert the working copy changes and restart the task with a clearer plan.

@@ -12,9 +12,9 @@ You are an AI contributor agent working on the Xenopurge project. Your goal is t
 ## 2. Technical Guidelines
 
 ### G1) Version Control (Jujutsu)
-*   Use `jj` commands exclusively. NEVER use `git` commands directly.
-*   **`jj commit` Behavior**: The `jj commit` command intentionally places the working copy in a new, empty commit on top of the changes. This is the correct and desired behavior. Simply continue working normally; `jj` will manage the history.
-*   Consult [Jujutsu Guide](https://www.paped.com/guides/a-short-guide-to-jujutsu-jj-for-git-users/) before performing any `jj` operation other than `commit`.
+*   **NEVER Commit**: Do **NOT** run `jj commit`. The Manager Agent is responsible for committing changes after verification.
+*   **Review Changes**: You may use `jj diff` to review your work in progress.
+*   **File Operations**: You may create, edit, and delete files as needed for the task. `jj` will automatically track these changes in the working copy.
 
 ### G2) Testing Strategy
 *   **🚨 NEVER REMOVE TESTS 🚨**: Their purpose is to catch regressions. Do not remove any tests unless explicitly asked to do so by the Manager (e.g., if a feature was removed). If a test is failing, fix the code or update the test to match the new behavior.
