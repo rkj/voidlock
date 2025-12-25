@@ -202,15 +202,17 @@ const updateUI = (state: GameState) => {
           if (menuDiv.innerHTML !== menuHtml) {
               menuDiv.innerHTML = menuHtml;
               // Add click listeners
-                        menuDiv.querySelectorAll('.menu-item.clickable').forEach(el => {
-                            el.addEventListener('click', () => {
-                                const idxStr = (el as HTMLElement).dataset.index;
-                                if (idxStr !== undefined) {
-                                    handleMenuInput(parseInt(idxStr));
-                                }
-                            });
-                        });
-                    }
+              menuDiv.querySelectorAll('.menu-item.clickable').forEach(el => {
+                  el.addEventListener('click', (e) => {
+                      e.stopPropagation();
+                      const idxStr = (el as HTMLElement).dataset.index;
+                      console.log('Menu Click:', idxStr);
+                      if (idxStr !== undefined) {
+                          handleMenuInput(parseInt(idxStr));
+                      }
+                  });
+              });
+          }
           // --- 2. Objectives ---
           let objectivesDiv = rightPanel.querySelector('.objectives-status') as HTMLElement;
           if (!objectivesDiv) {
@@ -312,6 +314,7 @@ const updateUI = (state: GameState) => {
 };
 
 const handleMenuInput = (num: number) => {
+    console.log('handleMenuInput:', num);
     if (!currentGameState) return;
     menuController.handleMenuInput(num, currentGameState);
     updateUI(currentGameState);
