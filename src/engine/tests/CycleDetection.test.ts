@@ -1,27 +1,31 @@
-import { describe, it, expect } from 'vitest';
-import { MapDefinition, CellType } from '../../shared/types'; 
-import { mapToAdjacencyList, hasCycleDFS } from './utils/GraphUtils';
+import { describe, it, expect } from "vitest";
+import { MapDefinition, CellType } from "../../shared/types";
+import { mapToAdjacencyList, hasCycleDFS } from "./utils/GraphUtils";
 
-describe('Cycle Detection Utilities', () => {
-
-  it('should detect no cycles in a simple acyclic graph (line)', () => {
+describe("Cycle Detection Utilities", () => {
+  it("should detect no cycles in a simple acyclic graph (line)", () => {
     const map: MapDefinition = {
-      width: 3, height: 1,
+      width: 3,
+      height: 1,
       cells: [
         { x: 0, y: 0, type: CellType.Floor },
         { x: 1, y: 0, type: CellType.Floor },
         { x: 2, y: 0, type: CellType.Floor },
       ],
       walls: [],
-      doors: [], spawnPoints: [], objectives: [], extraction: undefined
+      doors: [],
+      spawnPoints: [],
+      objectives: [],
+      extraction: undefined,
     };
     const adj = mapToAdjacencyList(map);
     expect(hasCycleDFS(adj)).toBe(false);
   });
 
-  it('should detect a simple cycle in a square graph', () => {
+  it("should detect a simple cycle in a square graph", () => {
     const map: MapDefinition = {
-      width: 2, height: 2,
+      width: 2,
+      height: 2,
       cells: [
         { x: 0, y: 0, type: CellType.Floor },
         { x: 1, y: 0, type: CellType.Floor },
@@ -29,15 +33,19 @@ describe('Cycle Detection Utilities', () => {
         { x: 1, y: 1, type: CellType.Floor },
       ],
       walls: [],
-      doors: [], spawnPoints: [], objectives: [], extraction: undefined
+      doors: [],
+      spawnPoints: [],
+      objectives: [],
+      extraction: undefined,
     };
     const adj = mapToAdjacencyList(map);
     expect(hasCycleDFS(adj)).toBe(true);
   });
 
-  it('should detect no cycles in a map with disconnected components (acyclic)', () => {
+  it("should detect no cycles in a map with disconnected components (acyclic)", () => {
     const map: MapDefinition = {
-      width: 4, height: 1,
+      width: 4,
+      height: 1,
       cells: [
         { x: 0, y: 0, type: CellType.Floor },
         { x: 1, y: 0, type: CellType.Wall },
@@ -45,72 +53,115 @@ describe('Cycle Detection Utilities', () => {
         { x: 3, y: 0, type: CellType.Floor },
       ],
       walls: [],
-      doors: [], spawnPoints: [], objectives: [], extraction: undefined
+      doors: [],
+      spawnPoints: [],
+      objectives: [],
+      extraction: undefined,
     };
     const adj = mapToAdjacencyList(map);
     expect(hasCycleDFS(adj)).toBe(false);
   });
-  
-  it('should detect a cycle in a more complex graph (figure 8)', () => {
-    const map: MapDefinition = {
-        width: 5, height: 3,
-        cells: [
-            { x: 0, y: 0, type: CellType.Floor }, { x: 1, y: 0, type: CellType.Floor }, { x: 2, y: 0, type: CellType.Wall }, { x: 3, y: 0, type: CellType.Wall }, { x: 4, y: 0, type: CellType.Wall },
-            { x: 0, y: 1, type: CellType.Floor }, { x: 1, y: 1, type: CellType.Floor }, { x: 2, y: 1, type: CellType.Floor }, { x: 3, y: 1, type: CellType.Wall }, { x: 4, y: 1, type: CellType.Wall },
-            { x: 0, y: 2, type: CellType.Wall }, { x: 1, y: 2, type: CellType.Floor }, { x: 2, y: 2, type: CellType.Floor }, { x: 3, y: 2, type: CellType.Wall }, { x: 4, y: 2, type: CellType.Wall },
-        ],
-        walls: [],
-        doors: [], spawnPoints: [], objectives: [], extraction: undefined
-    };
-    const adj = mapToAdjacencyList(map);
-    expect(hasCycleDFS(adj)).toBe(true);
-  });
 
-  it('should detect a cycle in a 3x2 grid of floor cells (rectangular cycle)', () => {
+  it("should detect a cycle in a more complex graph (figure 8)", () => {
     const map: MapDefinition = {
-      width: 3, height: 2,
+      width: 5,
+      height: 3,
       cells: [
-        { x: 0, y: 0, type: CellType.Floor }, { x: 1, y: 0, type: CellType.Floor }, { x: 2, y: 0, type: CellType.Floor },
-        { x: 0, y: 1, type: CellType.Floor }, { x: 1, y: 1, type: CellType.Floor }, { x: 2, y: 1, type: CellType.Floor },
+        { x: 0, y: 0, type: CellType.Floor },
+        { x: 1, y: 0, type: CellType.Floor },
+        { x: 2, y: 0, type: CellType.Wall },
+        { x: 3, y: 0, type: CellType.Wall },
+        { x: 4, y: 0, type: CellType.Wall },
+        { x: 0, y: 1, type: CellType.Floor },
+        { x: 1, y: 1, type: CellType.Floor },
+        { x: 2, y: 1, type: CellType.Floor },
+        { x: 3, y: 1, type: CellType.Wall },
+        { x: 4, y: 1, type: CellType.Wall },
+        { x: 0, y: 2, type: CellType.Wall },
+        { x: 1, y: 2, type: CellType.Floor },
+        { x: 2, y: 2, type: CellType.Floor },
+        { x: 3, y: 2, type: CellType.Wall },
+        { x: 4, y: 2, type: CellType.Wall },
       ],
       walls: [],
-      doors: [], spawnPoints: [], objectives: [], extraction: undefined
+      doors: [],
+      spawnPoints: [],
+      objectives: [],
+      extraction: undefined,
     };
     const adj = mapToAdjacencyList(map);
     expect(hasCycleDFS(adj)).toBe(true);
   });
 
-  it('should NOT detect a cycle if walls break it', () => {
+  it("should detect a cycle in a 3x2 grid of floor cells (rectangular cycle)", () => {
     const map: MapDefinition = {
-      width: 3, height: 2,
+      width: 3,
+      height: 2,
       cells: [
-        { x: 0, y: 0, type: CellType.Floor }, { x: 1, y: 0, type: CellType.Floor }, { x: 2, y: 0, type: CellType.Floor },
-        { x: 0, y: 1, type: CellType.Floor }, { x: 1, y: 1, type: CellType.Floor }, { x: 2, y: 1, type: CellType.Floor },
+        { x: 0, y: 0, type: CellType.Floor },
+        { x: 1, y: 0, type: CellType.Floor },
+        { x: 2, y: 0, type: CellType.Floor },
+        { x: 0, y: 1, type: CellType.Floor },
+        { x: 1, y: 1, type: CellType.Floor },
+        { x: 2, y: 1, type: CellType.Floor },
+      ],
+      walls: [],
+      doors: [],
+      spawnPoints: [],
+      objectives: [],
+      extraction: undefined,
+    };
+    const adj = mapToAdjacencyList(map);
+    expect(hasCycleDFS(adj)).toBe(true);
+  });
+
+  it("should NOT detect a cycle if walls break it", () => {
+    const map: MapDefinition = {
+      width: 3,
+      height: 2,
+      cells: [
+        { x: 0, y: 0, type: CellType.Floor },
+        { x: 1, y: 0, type: CellType.Floor },
+        { x: 2, y: 0, type: CellType.Floor },
+        { x: 0, y: 1, type: CellType.Floor },
+        { x: 1, y: 1, type: CellType.Floor },
+        { x: 2, y: 1, type: CellType.Floor },
       ],
       walls: [
-          { p1: {x: 0, y: 0}, p2: {x: 0, y: 1} },
-          { p1: {x: 1, y: 0}, p2: {x: 1, y: 1} },
-          { p1: {x: 2, y: 0}, p2: {x: 2, y: 1} }
+        { p1: { x: 0, y: 0 }, p2: { x: 0, y: 1 } },
+        { p1: { x: 1, y: 0 }, p2: { x: 1, y: 1 } },
+        { p1: { x: 2, y: 0 }, p2: { x: 2, y: 1 } },
       ],
-      doors: [], spawnPoints: [], objectives: [], extraction: undefined
+      doors: [],
+      spawnPoints: [],
+      objectives: [],
+      extraction: undefined,
     };
     const adj = mapToAdjacencyList(map);
     expect(hasCycleDFS(adj)).toBe(false);
   });
 
-  it('should detect a cycle even if some walls are present', () => {
+  it("should detect a cycle even if some walls are present", () => {
     const map: MapDefinition = {
-      width: 3, height: 2,
+      width: 3,
+      height: 2,
       cells: [
-        { x: 0, y: 0, type: CellType.Floor }, { x: 1, y: 0, type: CellType.Floor }, { x: 2, y: 0, type: CellType.Floor },
-        { x: 0, y: 1, type: CellType.Floor }, { x: 1, y: 1, type: CellType.Floor }, { x: 2, y: 1, type: CellType.Floor },
+        { x: 0, y: 0, type: CellType.Floor },
+        { x: 1, y: 0, type: CellType.Floor },
+        { x: 2, y: 0, type: CellType.Floor },
+        { x: 0, y: 1, type: CellType.Floor },
+        { x: 1, y: 1, type: CellType.Floor },
+        { x: 2, y: 1, type: CellType.Floor },
       ],
       walls: [
-          { p1: {x: 0, y: 0}, p2: {x: 0, y: 1} },
-          // (1,0)-(1,1) is open
-          { p1: {x: 2, y: 0}, p2: {x: 2, y: 1} }
+        { p1: { x: 0, y: 0 }, p2: { x: 0, y: 1 } },
+        // (1,0)-(1,1) is open
+        { p1: { x: 2, y: 0 }, p2: { x: 2, y: 1 } },
       ],
-      doors: [], spawnPoints: [], objectives: [], extraction: undefined
+      doors: [],
+      spawnPoints: [],
+      objectives: [],
+      extraction: undefined,
     };
     const adj = mapToAdjacencyList(map);
     // (0,0)-(1,0)-(1,1)-(0,1) would be a cycle if (0,0)-(0,1) was open.

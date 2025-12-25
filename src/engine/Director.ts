@@ -1,5 +1,11 @@
-import { Enemy, SpawnPoint, Vector2, EnemyType, EnemyArchetypeLibrary } from '../shared/types';
-import { PRNG } from '../shared/PRNG';
+import {
+  Enemy,
+  SpawnPoint,
+  Vector2,
+  EnemyType,
+  EnemyArchetypeLibrary,
+} from "../shared/types";
+import { PRNG } from "../shared/PRNG";
 
 export class Director {
   private timeSinceLastSpawn: number = 0;
@@ -7,13 +13,17 @@ export class Director {
   private spawnInterval: number = 5000; // Initial interval
   private minSpawnInterval: number = 1000;
   private rampAmount: number = 100; // ms to reduce interval by per spawn
-  
+
   private spawnPoints: SpawnPoint[];
   private onSpawn: (enemy: Enemy) => void;
   private enemyIdCounter: number = 0;
   private prng: PRNG;
 
-  constructor(spawnPoints: SpawnPoint[], prng: PRNG, onSpawn: (enemy: Enemy) => void) {
+  constructor(
+    spawnPoints: SpawnPoint[],
+    prng: PRNG,
+    onSpawn: (enemy: Enemy) => void,
+  ) {
     this.spawnPoints = spawnPoints;
     this.prng = prng;
     this.onSpawn = onSpawn;
@@ -33,12 +43,17 @@ export class Director {
     // Invert so lower interval = higher threat
     // 5000 -> 0%
     // 1000 -> 100%
-    const ratio = (this.initialInterval - this.spawnInterval) / (this.initialInterval - this.minSpawnInterval);
+    const ratio =
+      (this.initialInterval - this.spawnInterval) /
+      (this.initialInterval - this.minSpawnInterval);
     return Math.min(100, Math.max(0, ratio * 100));
   }
 
   private rampDifficulty() {
-    this.spawnInterval = Math.max(this.minSpawnInterval, this.spawnInterval - this.rampAmount);
+    this.spawnInterval = Math.max(
+      this.minSpawnInterval,
+      this.spawnInterval - this.rampAmount,
+    );
   }
 
   private spawnEnemy() {
@@ -53,38 +68,41 @@ export class Director {
     // Select Type based on Threat
     const threat = this.getThreatLevel();
     let type = EnemyType.XenoMite;
-    
+
     const roll = this.prng.next();
 
     if (threat < 30) {
-        // Mostly Easy
-        if (roll < 0.8) type = EnemyType.XenoMite;
-        else type = EnemyType.WarriorDrone;
+      // Mostly Easy
+      if (roll < 0.8) type = EnemyType.XenoMite;
+      else type = EnemyType.WarriorDrone;
     } else if (threat < 70) {
-        // Mix
-        if (roll < 0.4) type = EnemyType.XenoMite;
-        else if (roll < 0.7) type = EnemyType.WarriorDrone;
-        else type = EnemyType.SpitterAcid;
+      // Mix
+      if (roll < 0.4) type = EnemyType.XenoMite;
+      else if (roll < 0.7) type = EnemyType.WarriorDrone;
+      else type = EnemyType.SpitterAcid;
     } else {
-        // Hard
-        if (roll < 0.3) type = EnemyType.WarriorDrone;
-        else if (roll < 0.6) type = EnemyType.SpitterAcid;
-        else if (roll < 0.9) type = EnemyType.PraetorianGuard;
-        else type = EnemyType.XenoMite; // Swarm
+      // Hard
+      if (roll < 0.3) type = EnemyType.WarriorDrone;
+      else if (roll < 0.6) type = EnemyType.SpitterAcid;
+      else if (roll < 0.9) type = EnemyType.PraetorianGuard;
+      else type = EnemyType.XenoMite; // Swarm
     }
 
     const arch = EnemyArchetypeLibrary[type];
 
     const enemy: Enemy = {
       id: `enemy-${this.enemyIdCounter++}`,
-      pos: { x: spawnPoint.pos.x + 0.5 + offsetX, y: spawnPoint.pos.y + 0.5 + offsetY },
+      pos: {
+        x: spawnPoint.pos.x + 0.5 + offsetX,
+        y: spawnPoint.pos.y + 0.5 + offsetY,
+      },
       hp: arch.hp,
       maxHp: arch.hp,
       type: arch.type,
       damage: arch.damage,
       fireRate: arch.fireRate,
       attackRange: arch.attackRange,
-      speed: arch.speed
+      speed: arch.speed,
     };
 
     this.onSpawn(enemy);

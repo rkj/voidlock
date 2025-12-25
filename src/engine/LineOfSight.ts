@@ -1,8 +1,11 @@
-import { Vector2, Door, CellType } from '../shared/types';
-import { Graph } from './Graph';
+import { Vector2, Door, CellType } from "../shared/types";
+import { Graph } from "./Graph";
 
 export class LineOfSight {
-  constructor(private graph: Graph, private doors: Map<string, Door>) {}
+  constructor(
+    private graph: Graph,
+    private doors: Map<string, Door>,
+  ) {}
 
   public computeVisibleCells(origin: Vector2, range: number): string[] {
     const visible: Set<string> = new Set();
@@ -21,7 +24,8 @@ export class LineOfSight {
         // Check distance to cell center
         const cellCenterX = x + 0.5;
         const cellCenterY = y + 0.5;
-        const distSq = (cellCenterX - origin.x)**2 + (cellCenterY - origin.y)**2;
+        const distSq =
+          (cellCenterX - origin.x) ** 2 + (cellCenterY - origin.y) ** 2;
 
         if (distSq <= range * range) {
           if (this.hasLineOfSight(origin, { x: cellCenterX, y: cellCenterY })) {
@@ -38,14 +42,14 @@ export class LineOfSight {
     // Add small epsilon to start position towards end to avoid boundary singularities
     const dxRaw = end.x - start.x;
     const dyRaw = end.y - start.y;
-    const len = Math.sqrt(dxRaw*dxRaw + dyRaw*dyRaw);
-    
+    const len = Math.sqrt(dxRaw * dxRaw + dyRaw * dyRaw);
+
     let curX = start.x;
     let curY = start.y;
-    
+
     if (len > 0.001) {
-        curX += (dxRaw / len) * 0.001;
-        curY += (dyRaw / len) * 0.001;
+      curX += (dxRaw / len) * 0.001;
+      curY += (dyRaw / len) * 0.001;
     }
 
     let x0 = Math.floor(curX);
@@ -71,7 +75,7 @@ export class LineOfSight {
     } else if (stepX < 0) {
       tMaxX = (start.x - Math.floor(start.x)) * tDeltaX;
     } else {
-        tMaxX = Infinity;
+      tMaxX = Infinity;
     }
 
     if (stepY > 0) {
@@ -79,49 +83,49 @@ export class LineOfSight {
     } else if (stepY < 0) {
       tMaxY = (start.y - Math.floor(start.y)) * tDeltaY;
     } else {
-        tMaxY = Infinity;
+      tMaxY = Infinity;
     }
 
     let x = x0;
     let y = y0;
 
     const maxSteps = Math.abs(x1 - x0) + Math.abs(y1 - y0) + 10;
-    
-    for(let i = 0; i < maxSteps; i++) {
-        if (x === x1 && y === y1) return true; 
 
-        // Determine next step
-        let nextX = x;
-        let nextY = y;
-        
-        if (tMaxX < tMaxY) {
-            tMaxX += tDeltaX;
-            nextX += stepX;
-        } else {
-            tMaxY += tDeltaY;
-            nextY += stepY;
-        }
+    for (let i = 0; i < maxSteps; i++) {
+      if (x === x1 && y === y1) return true;
 
-        // Direct Boundary Check
-        const boundary = this.graph.getBoundary(x, y, nextX, nextY);
-        if (!boundary) return false;
+      // Determine next step
+      let nextX = x;
+      let nextY = y;
 
-        if (boundary.doorId) {
-            const door = this.doors.get(boundary.doorId);
-            if (door && door.state !== 'Open' && door.state !== 'Destroyed') {
-                return false;
-            }
-        } else if (boundary.isWall) {
-            return false;
+      if (tMaxX < tMaxY) {
+        tMaxX += tDeltaX;
+        nextX += stepX;
+      } else {
+        tMaxY += tDeltaY;
+        nextY += stepY;
+      }
+
+      // Direct Boundary Check
+      const boundary = this.graph.getBoundary(x, y, nextX, nextY);
+      if (!boundary) return false;
+
+      if (boundary.doorId) {
+        const door = this.doors.get(boundary.doorId);
+        if (door && door.state !== "Open" && door.state !== "Destroyed") {
+          return false;
         }
-        
-        if (this.graph.cells[nextY][nextX].type === CellType.Wall) {
-          // Blocked by void/wall cell, but allow seeing the cell itself if it's the target
-          return nextX === x1 && nextY === y1;
-        }
-        
-        x = nextX;
-        y = nextY;
+      } else if (boundary.isWall) {
+        return false;
+      }
+
+      if (this.graph.cells[nextY][nextX].type === CellType.Wall) {
+        // Blocked by void/wall cell, but allow seeing the cell itself if it's the target
+        return nextX === x1 && nextY === y1;
+      }
+
+      x = nextX;
+      y = nextY;
     }
 
     return true;

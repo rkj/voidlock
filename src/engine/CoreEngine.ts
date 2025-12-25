@@ -1,12 +1,28 @@
-import { MapDefinition, CellType, GameState, Unit, Enemy, UnitState, CommandType, Command, Objective, Vector2, SquadConfig, MissionType, EnemyType, EnemyArchetypeLibrary, Door } from '../shared/types';
-import { PRNG } from '../shared/PRNG';
-import { GameGrid } from './GameGrid';
-import { Pathfinder } from './Pathfinder';
-import { LineOfSight } from './LineOfSight';
-import { Director } from './Director';
-import { ArchetypeLibrary } from '../shared/types';
-import { IEnemyAI, SwarmMeleeAI } from './ai/EnemyAI';
-import { RangedKiteAI } from './ai/RangedKiteAI';
+import {
+  MapDefinition,
+  CellType,
+  GameState,
+  Unit,
+  Enemy,
+  UnitState,
+  CommandType,
+  Command,
+  Objective,
+  Vector2,
+  SquadConfig,
+  MissionType,
+  EnemyType,
+  EnemyArchetypeLibrary,
+  Door,
+} from "../shared/types";
+import { PRNG } from "../shared/PRNG";
+import { GameGrid } from "./GameGrid";
+import { Pathfinder } from "./Pathfinder";
+import { LineOfSight } from "./LineOfSight";
+import { Director } from "./Director";
+import { ArchetypeLibrary } from "../shared/types";
+import { IEnemyAI, SwarmMeleeAI } from "./ai/EnemyAI";
+import { RangedKiteAI } from "./ai/RangedKiteAI";
 
 const EPSILON = 0.05;
 
@@ -25,54 +41,64 @@ export class CoreEngine {
   private rangedAI: IEnemyAI;
   private totalFloorCells: number;
 
-  constructor(map: MapDefinition, seed: number, squadConfig: SquadConfig, agentControlEnabled: boolean, debugOverlayEnabled: boolean, missionType: MissionType = MissionType.Default, losOverlayEnabled: boolean = false) {
+  constructor(
+    map: MapDefinition,
+    seed: number,
+    squadConfig: SquadConfig,
+    agentControlEnabled: boolean,
+    debugOverlayEnabled: boolean,
+    missionType: MissionType = MissionType.Default,
+    losOverlayEnabled: boolean = false,
+  ) {
     this.prng = new PRNG(seed);
     this.gameGrid = new GameGrid(map);
-    this.doors = new Map(map.doors?.map(door => [door.id, door]));
-    this.doors.forEach(door => this.updateDoorBoundary(door));
+    this.doors = new Map(map.doors?.map((door) => [door.id, door]));
+    this.doors.forEach((door) => this.updateDoorBoundary(door));
     this.pathfinder = new Pathfinder(this.gameGrid.getGraph(), this.doors);
     this.los = new LineOfSight(this.gameGrid.getGraph(), this.doors);
-    this.agentControlEnabled = agentControlEnabled; 
+    this.agentControlEnabled = agentControlEnabled;
     this.debugOverlayEnabled = debugOverlayEnabled;
     this.missionType = missionType;
     this.meleeAI = new SwarmMeleeAI();
     this.rangedAI = new RangedKiteAI();
-    this.totalFloorCells = map.cells.filter(c => c.type === CellType.Floor).length;
+    this.totalFloorCells = map.cells.filter(
+      (c) => c.type === CellType.Floor,
+    ).length;
 
-    let objectives: Objective[] = (map.objectives || []).map(o => ({
+    let objectives: Objective[] = (map.objectives || []).map((o) => ({
       ...o,
-      state: 'Pending'
+      state: "Pending",
     }));
 
     // Mission Logic Override
     if (this.missionType === MissionType.ExtractArtifacts) {
-        objectives = []; // Clear default
-        const floors = map.cells.filter(c => c.type === CellType.Floor);
-        // Place 3 artifacts far from spawn/extraction
-        const extraction = map.extraction || { x: 0, y: 0 };
-        const candidates = floors.filter(c => {
-            const dx = c.x - extraction.x;
-            const dy = c.y - extraction.y;
-            return Math.sqrt(dx*dx + dy*dy) > map.width * 0.4; // At least 40% map width away
-        });
-        
-        // Shuffle candidates
-        for (let i = candidates.length - 1; i > 0; i--) {
-            const j = this.prng.nextInt(0, i);
-            [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
-        }
+      objectives = []; // Clear default
+      const floors = map.cells.filter((c) => c.type === CellType.Floor);
+      // Place 3 artifacts far from spawn/extraction
+      const extraction = map.extraction || { x: 0, y: 0 };
+      const candidates = floors.filter((c) => {
+        const dx = c.x - extraction.x;
+        const dy = c.y - extraction.y;
+        return Math.sqrt(dx * dx + dy * dy) > map.width * 0.4; // At least 40% map width away
+      });
 
-        const count = Math.min(3, candidates.length);
-        for (let i = 0; i < count; i++) {
-            objectives.push({
-                id: `artifact-${i}`,
-                kind: 'Recover',
-                state: 'Pending',
-                targetCell: { x: candidates[i].x, y: candidates[i].y }
-            });
-        }
+      // Shuffle candidates
+      for (let i = candidates.length - 1; i > 0; i--) {
+        const j = this.prng.nextInt(0, i);
+        [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+      }
+
+      const count = Math.min(3, candidates.length);
+      for (let i = 0; i < count; i++) {
+        objectives.push({
+          id: `artifact-${i}`,
+          kind: "Recover",
+          state: "Pending",
+          targetCell: { x: candidates[i].x, y: candidates[i].y },
+        });
+      }
     } else if (this.missionType === MissionType.DestroyHive) {
-        objectives = []; // Will add after init
+      objectives = []; // Will add after init
     }
 
     this.state = {
@@ -86,84 +112,93 @@ export class CoreEngine {
       threatLevel: 0,
       aliensKilled: 0,
       casualties: 0,
-      status: 'Playing',
+      status: "Playing",
       debugOverlayEnabled: this.debugOverlayEnabled,
-      losOverlayEnabled: losOverlayEnabled
+      losOverlayEnabled: losOverlayEnabled,
     };
 
-    
     // Post-init Mission Setup (Hive)
     if (this.missionType === MissionType.DestroyHive) {
-        const floors = map.cells.filter(c => c.type === CellType.Floor);
-        const extraction = map.extraction || { x: 0, y: 0 };
-        const candidates = floors.filter(c => {
-            // Must be in a ROOM (strictly not a corridor)
-            const isRoom = c.roomId && c.roomId.startsWith('room-');
-            if (!isRoom) return false;
+      const floors = map.cells.filter((c) => c.type === CellType.Floor);
+      const extraction = map.extraction || { x: 0, y: 0 };
+      const candidates = floors.filter((c) => {
+        // Must be in a ROOM (strictly not a corridor)
+        const isRoom = c.roomId && c.roomId.startsWith("room-");
+        if (!isRoom) return false;
 
-            const dx = c.x - extraction.x;
-            const dy = c.y - extraction.y;
-            return Math.sqrt(dx*dx + dy*dy) > map.width * 0.5;
+        const dx = c.x - extraction.x;
+        const dy = c.y - extraction.y;
+        return Math.sqrt(dx * dx + dy * dy) > map.width * 0.5;
+      });
+
+      if (candidates.length > 0) {
+        const hiveLoc = candidates[this.prng.nextInt(0, candidates.length - 1)];
+        const hiveId = "enemy-hive";
+
+        this.addEnemy({
+          id: hiveId,
+          pos: { x: hiveLoc.x + 0.5, y: hiveLoc.y + 0.5 },
+          hp: 500,
+          maxHp: 500,
+          type: "Hive",
+          damage: 0,
+          fireRate: 1000,
+          attackRange: 0,
+          speed: 0,
         });
-        
-        if (candidates.length > 0) {
-            const hiveLoc = candidates[this.prng.nextInt(0, candidates.length - 1)];
-            const hiveId = 'enemy-hive';
-            
-            this.addEnemy({
-                id: hiveId,
-                pos: { x: hiveLoc.x + 0.5, y: hiveLoc.y + 0.5 },
-                hp: 500, maxHp: 500,
-                type: 'Hive', 
-                damage: 0, 
-                fireRate: 1000,
-                attackRange: 0,
-                speed: 0
-            });
 
-            this.state.objectives.push({
-                id: 'obj-hive',
-                kind: 'Kill',
-                state: 'Pending',
-                targetEnemyId: hiveId
-            });
-        }
+        this.state.objectives.push({
+          id: "obj-hive",
+          kind: "Kill",
+          state: "Pending",
+          targetEnemyId: hiveId,
+        });
+      }
     }
 
     // Initialize Director
     const spawnPoints = map.spawnPoints || [];
-    this.director = new Director(spawnPoints, this.prng, (enemy) => this.addEnemy(enemy));
+    this.director = new Director(spawnPoints, this.prng, (enemy) =>
+      this.addEnemy(enemy),
+    );
 
     // Spawn units based on squadConfig
     let unitCount = 1;
-    squadConfig.forEach(squadItem => {
-        const arch = ArchetypeLibrary[squadItem.archetypeId];
-        if (!arch) return;
+    squadConfig.forEach((squadItem) => {
+      const arch = ArchetypeLibrary[squadItem.archetypeId];
+      if (!arch) return;
 
-        for (let i = 0; i < squadItem.count; i++) {
-            // Use extraction point as start if available, else 0,0
-            const startX = map.extraction ? map.extraction.x + 0.5 : 0.5;
-            const startY = map.extraction ? map.extraction.y + 0.5 : 0.5;
+      for (let i = 0; i < squadItem.count; i++) {
+        // Use extraction point as start if available, else 0,0
+        const startX = map.extraction ? map.extraction.x + 0.5 : 0.5;
+        const startY = map.extraction ? map.extraction.y + 0.5 : 0.5;
 
-            this.addUnit({
-                id: `${arch.id}-${unitCount++}`,
-                pos: { x: startX + (this.prng.next() - 0.5), y: startY + (this.prng.next() - 0.5) }, // Random offset
-                visualJitter: { x: (this.prng.next() - 0.5) * 0.4, y: (this.prng.next() - 0.5) * 0.4 },
-                hp: arch.baseHp, maxHp: arch.baseHp,
-                state: UnitState.Idle,
-                damage: arch.damage,
-                fireRate: arch.fireRate,
-                attackRange: arch.attackRange,
-                sightRange: arch.sightRange,
-                speed: arch.speed,
-                aiEnabled: true,
-                commandQueue: []
-            });
-        }
+        this.addUnit({
+          id: `${arch.id}-${unitCount++}`,
+          pos: {
+            x: startX + (this.prng.next() - 0.5),
+            y: startY + (this.prng.next() - 0.5),
+          }, // Random offset
+          visualJitter: {
+            x: (this.prng.next() - 0.5) * 0.4,
+            y: (this.prng.next() - 0.5) * 0.4,
+          },
+          hp: arch.baseHp,
+          maxHp: arch.baseHp,
+          state: UnitState.Idle,
+          damage: arch.damage,
+          fireRate: arch.fireRate,
+          attackRange: arch.attackRange,
+          sightRange: arch.sightRange,
+          speed: arch.speed,
+          aiEnabled: true,
+          commandQueue: [],
+        });
+      }
     });
   }
 
-  public clearUnits() { 
+  public clearUnits() {
     this.state.units = [];
   }
 
@@ -171,7 +206,7 @@ export class CoreEngine {
     this.state.units.push(unit);
   }
 
-  public addEnemy(enemy: Enemy) { 
+  public addEnemy(enemy: Enemy) {
     this.state.enemies.push(enemy);
   }
 
@@ -180,106 +215,119 @@ export class CoreEngine {
   }
 
   public applyCommand(cmd: Command) {
-    if (this.state.status !== 'Playing') return; 
+    if (this.state.status !== "Playing") return;
 
-    if (cmd.type === CommandType.MOVE_TO || cmd.type === CommandType.ATTACK_TARGET || cmd.type === CommandType.SET_ENGAGEMENT || cmd.type === CommandType.STOP || cmd.type === CommandType.RESUME_AI) {
+    if (
+      cmd.type === CommandType.MOVE_TO ||
+      cmd.type === CommandType.ATTACK_TARGET ||
+      cmd.type === CommandType.SET_ENGAGEMENT ||
+      cmd.type === CommandType.STOP ||
+      cmd.type === CommandType.RESUME_AI
+    ) {
       if (cmd.type === CommandType.ATTACK_TARGET) {
-          // ATTACK_TARGET is a single-unit command in our new definition, but the loop supports arrays if we expanded it.
-          // The type definition says unitId: string.
-          const unit = this.state.units.find(u => u.id === cmd.unitId);
-          if (unit) {
-              if (cmd.queue) {
-                  unit.commandQueue.push(cmd);
-              } else {
-                  unit.commandQueue = [];
-                  this.executeCommand(unit, cmd);
-              }
+        // ATTACK_TARGET is a single-unit command in our new definition, but the loop supports arrays if we expanded it.
+        // The type definition says unitId: string.
+        const unit = this.state.units.find((u) => u.id === cmd.unitId);
+        if (unit) {
+          if (cmd.queue) {
+            unit.commandQueue.push(cmd);
+          } else {
+            unit.commandQueue = [];
+            this.executeCommand(unit, cmd);
           }
+        }
       } else {
-          // MOVE_TO, SET_ENGAGEMENT or STOP
-          cmd.unitIds.forEach(id => {
-            const unit = this.state.units.find(u => u.id === id);
-            if (unit) {
-                if (cmd.queue) {
-                    unit.commandQueue.push(cmd);
-                } else {
-                    unit.commandQueue = []; // Clear queue on new immediate command
-                    this.executeCommand(unit, cmd);
-                }
+        // MOVE_TO, SET_ENGAGEMENT or STOP
+        cmd.unitIds.forEach((id) => {
+          const unit = this.state.units.find((u) => u.id === id);
+          if (unit) {
+            if (cmd.queue) {
+              unit.commandQueue.push(cmd);
+            } else {
+              unit.commandQueue = []; // Clear queue on new immediate command
+              this.executeCommand(unit, cmd);
             }
-          });
+          }
+        });
       }
     }
   }
 
   private executeCommand(unit: Unit, cmd: Command, isManual: boolean = true) {
-      unit.activeCommand = cmd;
-      if (cmd.type === CommandType.MOVE_TO) {
-        if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
-            // Clear forced target when moving
-            unit.forcedTargetId = undefined;
-            // Clear exploration target if manually moved
-            if (isManual) {
-                unit.explorationTarget = undefined; 
-                unit.aiEnabled = true;
-            }
-            const path = this.pathfinder.findPath(
-              { x: Math.floor(unit.pos.x), y: Math.floor(unit.pos.y) },
-              cmd.target,
-              true // allowClosedDoors: needed so unit can plan path and then Wait for Door
-            );
-            if (path && path.length > 0) {
-              unit.path = path;
-              unit.targetPos = { 
-                  x: path[0].x + 0.5 + (unit.visualJitter?.x || 0), 
-                  y: path[0].y + 0.5 + (unit.visualJitter?.y || 0) 
-              }; 
-              unit.state = UnitState.Moving;
-            } else if (path && path.length === 0 && Math.floor(unit.pos.x) === cmd.target.x && Math.floor(unit.pos.y) === cmd.target.y) {
-              // Already at target
-              unit.pos = { 
-                  x: cmd.target.x + 0.5 + (unit.visualJitter?.x || 0), 
-                  y: cmd.target.y + 0.5 + (unit.visualJitter?.y || 0) 
-              };
-              unit.path = undefined;
-              unit.targetPos = undefined;
-              unit.state = UnitState.Idle;
-              unit.activeCommand = undefined;
-            } else {
-              console.warn(`No path found for unit ${unit.id} to target ${cmd.target.x},${cmd.target.y}`);
-              unit.path = undefined;
-              unit.targetPos = undefined;
-              unit.state = UnitState.Idle;
-              unit.activeCommand = undefined;
-            }
-        }
-      } else if (cmd.type === CommandType.ATTACK_TARGET) {
-          if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
-              unit.forcedTargetId = cmd.targetId;
-              if (isManual) unit.aiEnabled = true;
-              // Stop moving if attacking
-              unit.path = undefined;
-              unit.targetPos = undefined;
-              // State will be updated in update() loop when combat resolves
-          }
-      } else if (cmd.type === CommandType.SET_ENGAGEMENT) {
-          unit.engagementPolicy = cmd.mode;
-          unit.engagementPolicySource = 'Manual';
-          if (isManual) unit.aiEnabled = true;
-          unit.activeCommand = undefined;
-      } else if (cmd.type === CommandType.STOP) {
-          unit.commandQueue = []; // Clear command queue
-          unit.path = undefined; // Stop movement
-          unit.targetPos = undefined;
-          unit.forcedTargetId = undefined; // Clear forced target
-          unit.explorationTarget = undefined; // Clear exploration target
-          unit.state = UnitState.Idle; // Set unit to Idle state
-          unit.aiEnabled = false; // Disable autonomous AI
-          unit.activeCommand = undefined;
-      } else if (cmd.type === CommandType.RESUME_AI) {
+    unit.activeCommand = cmd;
+    if (cmd.type === CommandType.MOVE_TO) {
+      if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
+        // Clear forced target when moving
+        unit.forcedTargetId = undefined;
+        // Clear exploration target if manually moved
+        if (isManual) {
+          unit.explorationTarget = undefined;
           unit.aiEnabled = true;
+        }
+        const path = this.pathfinder.findPath(
+          { x: Math.floor(unit.pos.x), y: Math.floor(unit.pos.y) },
+          cmd.target,
+          true, // allowClosedDoors: needed so unit can plan path and then Wait for Door
+        );
+        if (path && path.length > 0) {
+          unit.path = path;
+          unit.targetPos = {
+            x: path[0].x + 0.5 + (unit.visualJitter?.x || 0),
+            y: path[0].y + 0.5 + (unit.visualJitter?.y || 0),
+          };
+          unit.state = UnitState.Moving;
+        } else if (
+          path &&
+          path.length === 0 &&
+          Math.floor(unit.pos.x) === cmd.target.x &&
+          Math.floor(unit.pos.y) === cmd.target.y
+        ) {
+          // Already at target
+          unit.pos = {
+            x: cmd.target.x + 0.5 + (unit.visualJitter?.x || 0),
+            y: cmd.target.y + 0.5 + (unit.visualJitter?.y || 0),
+          };
+          unit.path = undefined;
+          unit.targetPos = undefined;
+          unit.state = UnitState.Idle;
           unit.activeCommand = undefined;
+        } else {
+          console.warn(
+            `No path found for unit ${unit.id} to target ${cmd.target.x},${cmd.target.y}`,
+          );
+          unit.path = undefined;
+          unit.targetPos = undefined;
+          unit.state = UnitState.Idle;
+          unit.activeCommand = undefined;
+        }
       }
+    } else if (cmd.type === CommandType.ATTACK_TARGET) {
+      if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
+        unit.forcedTargetId = cmd.targetId;
+        if (isManual) unit.aiEnabled = true;
+        // Stop moving if attacking
+        unit.path = undefined;
+        unit.targetPos = undefined;
+        // State will be updated in update() loop when combat resolves
+      }
+    } else if (cmd.type === CommandType.SET_ENGAGEMENT) {
+      unit.engagementPolicy = cmd.mode;
+      unit.engagementPolicySource = "Manual";
+      if (isManual) unit.aiEnabled = true;
+      unit.activeCommand = undefined;
+    } else if (cmd.type === CommandType.STOP) {
+      unit.commandQueue = []; // Clear command queue
+      unit.path = undefined; // Stop movement
+      unit.targetPos = undefined;
+      unit.forcedTargetId = undefined; // Clear forced target
+      unit.explorationTarget = undefined; // Clear exploration target
+      unit.state = UnitState.Idle; // Set unit to Idle state
+      unit.aiEnabled = false; // Disable autonomous AI
+      unit.activeCommand = undefined;
+    } else if (cmd.type === CommandType.RESUME_AI) {
+      unit.aiEnabled = true;
+      unit.activeCommand = undefined;
+    }
   }
 
   // Helper to calculate distance between two points (centers of cells)
@@ -292,9 +340,12 @@ export class CoreEngine {
   // Helper to get all cells adjacent to a door's barrier segment
   private getAdjacentCellsToDoor(door: Door): Vector2[] {
     // The segment property contains the two cells that the door separates.
-    return door.segment.filter(cell => 
-        cell.x >= 0 && cell.x < this.gameGrid.width && 
-        cell.y >= 0 && cell.y < this.gameGrid.height
+    return door.segment.filter(
+      (cell) =>
+        cell.x >= 0 &&
+        cell.x < this.gameGrid.width &&
+        cell.y >= 0 &&
+        cell.y < this.gameGrid.height,
     );
   }
 
@@ -303,16 +354,25 @@ export class CoreEngine {
     const adjacentCells = this.getAdjacentCellsToDoor(door);
     for (const adjCell of adjacentCells) {
       // Check units
-      if (this.state.units.some(unit => 
-        unit.state !== UnitState.Dead && unit.state !== UnitState.Extracted &&
-        Math.floor(unit.pos.x) === adjCell.x && Math.floor(unit.pos.y) === adjCell.y)) {
+      if (
+        this.state.units.some(
+          (unit) =>
+            unit.state !== UnitState.Dead &&
+            unit.state !== UnitState.Extracted &&
+            Math.floor(unit.pos.x) === adjCell.x &&
+            Math.floor(unit.pos.y) === adjCell.y,
+        )
+      ) {
         return true;
       }
       // Check enemies
-      const enemyAdj = this.state.enemies.some(enemy => 
-        enemy.hp > 0 &&
-        Math.floor(enemy.pos.x) === adjCell.x && Math.floor(enemy.pos.y) === adjCell.y);
-      
+      const enemyAdj = this.state.enemies.some(
+        (enemy) =>
+          enemy.hp > 0 &&
+          Math.floor(enemy.pos.x) === adjCell.x &&
+          Math.floor(enemy.pos.y) === adjCell.y,
+      );
+
       if (enemyAdj) return true;
     }
     return false;
@@ -322,9 +382,15 @@ export class CoreEngine {
   private isSoldierAdjacentToDoor(door: Door): boolean {
     const adjacentCells = this.getAdjacentCellsToDoor(door);
     for (const adjCell of adjacentCells) {
-      if (this.state.units.some(unit => 
-        unit.state !== UnitState.Dead && unit.state !== UnitState.Extracted &&
-        Math.floor(unit.pos.x) === adjCell.x && Math.floor(unit.pos.y) === adjCell.y)) {
+      if (
+        this.state.units.some(
+          (unit) =>
+            unit.state !== UnitState.Dead &&
+            unit.state !== UnitState.Extracted &&
+            Math.floor(unit.pos.x) === adjCell.x &&
+            Math.floor(unit.pos.y) === adjCell.y,
+        )
+      ) {
         return true;
       }
     }
@@ -338,8 +404,8 @@ export class CoreEngine {
 
     // Gather claimed targets from other units
     const claimedTargets = this.state.units
-        .filter(u => u.id !== unit.id && u.explorationTarget)
-        .map(u => u.explorationTarget!);
+      .filter((u) => u.id !== unit.id && u.explorationTarget)
+      .map((u) => u.explorationTarget!);
 
     const avoidRadius = 2; // Avoid cells within 2 tiles of other units' targets
 
@@ -348,38 +414,46 @@ export class CoreEngine {
       for (let x = 0; x < this.state.map.width; x++) {
         const cellKey = `${x},${y}`;
         // If it's a floor cell and not yet discovered
-        if (this.gameGrid.isWalkable(x, y) && !this.state.discoveredCells.includes(cellKey)) {
+        if (
+          this.gameGrid.isWalkable(x, y) &&
+          !this.state.discoveredCells.includes(cellKey)
+        ) {
           const target = { x: x + 0.5, y: y + 0.5 };
-          
+
           // Check if too close to any claimed target
-          const isClaimed = claimedTargets.some(claimed => this.getDistance(target, claimed) < avoidRadius);
-          
+          const isClaimed = claimedTargets.some(
+            (claimed) => this.getDistance(target, claimed) < avoidRadius,
+          );
+
           if (!isClaimed) {
-              const dist = this.getDistance(unit.pos, target);
-              if (dist < minDistance) {
-                minDistance = dist;
-                closestCell = { x, y };
-              }
+            const dist = this.getDistance(unit.pos, target);
+            if (dist < minDistance) {
+              minDistance = dist;
+              closestCell = { x, y };
+            }
           }
         }
       }
     }
-    
+
     // Fallback: If all good targets are claimed (e.g. only 1 undiscovered area left but multiple units), ignore claims
     if (!closestCell) {
-         // Repeat search without claim check
-         for (let y = 0; y < this.state.map.height; y++) {
-            for (let x = 0; x < this.state.map.width; x++) {
-                const cellKey = `${x},${y}`;
-                if (this.gameGrid.isWalkable(x, y) && !this.state.discoveredCells.includes(cellKey)) {
-                    const dist = this.getDistance(unit.pos, { x: x + 0.5, y: y + 0.5 });
-                    if (dist < minDistance) {
-                        minDistance = dist;
-                        closestCell = { x, y };
-                    }
-                }
+      // Repeat search without claim check
+      for (let y = 0; y < this.state.map.height; y++) {
+        for (let x = 0; x < this.state.map.width; x++) {
+          const cellKey = `${x},${y}`;
+          if (
+            this.gameGrid.isWalkable(x, y) &&
+            !this.state.discoveredCells.includes(cellKey)
+          ) {
+            const dist = this.getDistance(unit.pos, { x: x + 0.5, y: y + 0.5 });
+            if (dist < minDistance) {
+              minDistance = dist;
+              closestCell = { x, y };
             }
-         }
+          }
+        }
+      }
     }
 
     return closestCell;
@@ -387,7 +461,11 @@ export class CoreEngine {
 
   // Helper to check if the entire map is discovered
   private isMapFullyDiscovered(): boolean {
-    return this.state.discoveredCells.length >= this.totalFloorCells;
+    const discoveredFloors = this.state.discoveredCells.filter((key) => {
+      const [x, y] = key.split(",").map(Number);
+      return this.gameGrid.isWalkable(x, y);
+    }).length;
+    return discoveredFloors >= this.totalFloorCells;
   }
 
   // Helper to update Graph Boundary when door state changes
@@ -395,24 +473,24 @@ export class CoreEngine {
     const graph = this.gameGrid.getGraph();
     // Door has segment [cell1, cell2]
     if (door.segment.length === 2) {
-        const c1 = door.segment[0];
-        const c2 = door.segment[1];
-        const boundary = graph.getBoundary(c1.x, c1.y, c2.x, c2.y);
-        if (boundary) {
-             // Update isWall based on state: Open/Destroyed are NOT walls
-             const isPassable = door.state === 'Open' || door.state === 'Destroyed';
-             boundary.isWall = !isPassable;
-        }
+      const c1 = door.segment[0];
+      const c2 = door.segment[1];
+      const boundary = graph.getBoundary(c1.x, c1.y, c2.x, c2.y);
+      if (boundary) {
+        // Update isWall based on state: Open/Destroyed are NOT walls
+        const isPassable = door.state === "Open" || door.state === "Destroyed";
+        boundary.isWall = !isPassable;
+      }
     }
   }
-  
+
   // Debugging function for AI
   private logAIState(message: string) {
-      console.log(`AI Debug (t=${this.state.t}): ${message}`);
+    console.log(`AI Debug (t=${this.state.t}): ${message}`);
   }
 
   public update(dt: number) {
-    if (this.state.status !== 'Playing') return;
+    if (this.state.status !== "Playing") return;
 
     this.state.t += dt;
 
@@ -423,7 +501,7 @@ export class CoreEngine {
     // --- Automatic Door Logic ---
     for (const door of this.doors.values()) {
       // If door is destroyed, or already in a desired state, do nothing.
-      if (door.state === 'Destroyed') continue;
+      if (door.state === "Destroyed") continue;
 
       // Handle door timers
       if (door.openTimer !== undefined && door.openTimer > 0) {
@@ -439,16 +517,20 @@ export class CoreEngine {
 
       const unitAdjacent = this.isUnitAdjacentToDoor(door);
       const soldierAdjacent = this.isSoldierAdjacentToDoor(door);
-      
+
       if (unitAdjacent) {
-        if (door.state === 'Closed' || (door.state === 'Locked' && soldierAdjacent)) {
+        if (
+          door.state === "Closed" ||
+          (door.state === "Locked" && soldierAdjacent)
+        ) {
           // Locked doors open for soldiers
-          door.targetState = 'Open';
+          door.targetState = "Open";
           door.openTimer = door.openDuration * 1000;
         }
-      } else { // No units adjacent
-        if (door.state === 'Open') {
-          door.targetState = 'Closed';
+      } else {
+        // No units adjacent
+        if (door.state === "Open") {
+          door.targetState = "Closed";
           door.openTimer = door.openDuration * 1000;
         }
       }
@@ -456,227 +538,413 @@ export class CoreEngine {
 
     // --- Visibility Logic ---
     const newVisibleCells = new Set<string>();
-    this.state.units.forEach(unit => {
-      if (unit.hp > 0 && unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
-        const visible = this.los.computeVisibleCells(unit.pos, unit.sightRange || 10); 
-        visible.forEach(cell => newVisibleCells.add(cell));
+    this.state.units.forEach((unit) => {
+      if (
+        unit.hp > 0 &&
+        unit.state !== UnitState.Extracted &&
+        unit.state !== UnitState.Dead
+      ) {
+        const visible = this.los.computeVisibleCells(
+          unit.pos,
+          unit.sightRange || 10,
+        );
+        visible.forEach((cell) => newVisibleCells.add(cell));
       }
     });
     this.state.visibleCells = Array.from(newVisibleCells);
-    
+
     // Update discovered cells
     const discoveredSet = new Set(this.state.discoveredCells);
-    newVisibleCells.forEach(cell => discoveredSet.add(cell));
+    newVisibleCells.forEach((cell) => discoveredSet.add(cell));
     this.state.discoveredCells = Array.from(discoveredSet);
 
     // Update Objective Visibility
-    this.state.objectives.forEach(obj => {
-        if (!obj.visible && obj.targetCell) {
-            const key = `${obj.targetCell.x},${obj.targetCell.y}`;
-            if (this.state.discoveredCells.includes(key)) {
-                obj.visible = true;
-            }
+    this.state.objectives.forEach((obj) => {
+      if (!obj.visible && obj.targetCell) {
+        const key = `${obj.targetCell.x},${obj.targetCell.y}`;
+        if (this.state.discoveredCells.includes(key)) {
+          obj.visible = true;
         }
-        // Kill objectives: visible if target enemy is visible? 
-        // Or if we know about them?
-        // Let's say Kill objectives are always "known" if they are main targets? 
-        // Or maybe revealed when enemy is first seen?
-        if (obj.kind === 'Kill' && obj.targetEnemyId) {
-             const enemy = this.state.enemies.find(e => e.id === obj.targetEnemyId);
-             if (enemy && newVisibleCells.has(`${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`)) {
-                 obj.visible = true;
-             }
+      }
+      // Kill objectives: visible if target enemy is visible?
+      // Or if we know about them?
+      // Let's say Kill objectives are always "known" if they are main targets?
+      // Or maybe revealed when enemy is first seen?
+      if (obj.kind === "Kill" && obj.targetEnemyId) {
+        const enemy = this.state.enemies.find(
+          (e) => e.id === obj.targetEnemyId,
+        );
+        if (
+          enemy &&
+          newVisibleCells.has(
+            `${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`,
+          )
+        ) {
+          obj.visible = true;
         }
+      }
     });
-
 
     // --- Unit Logic (Movement & Combat & Objectives) ---
     const claimedObjectives = new Set<string>();
-    this.state.units.forEach(unit => {
-      if (unit.state === UnitState.Extracted || unit.state === UnitState.Dead) return;
+    this.state.units.forEach((unit) => {
+      if (unit.state === UnitState.Extracted || unit.state === UnitState.Dead)
+        return;
+
+      // --- Interrupt Exploration if Target Discovered ---
+      if (unit.explorationTarget) {
+        const key = `${Math.floor(unit.explorationTarget.x)},${Math.floor(unit.explorationTarget.y)}`;
+        if (this.state.discoveredCells.includes(key)) {
+          unit.explorationTarget = undefined;
+          if (unit.state === UnitState.Moving) {
+            unit.path = undefined;
+            unit.targetPos = undefined;
+            unit.state = UnitState.Idle;
+            unit.activeCommand = undefined;
+          }
+        }
+      }
 
       // --- 1. Threat Evaluation ---
-      const visibleEnemies = this.state.enemies.filter(enemy => 
-        enemy.hp > 0 &&
-        newVisibleCells.has(`${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`)
+      const visibleEnemies = this.state.enemies.filter(
+        (enemy) =>
+          enemy.hp > 0 &&
+          newVisibleCells.has(
+            `${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`,
+          ),
       );
 
-      const threats = visibleEnemies.map(enemy => ({
-        enemy,
-        distance: this.getDistance(unit.pos, enemy.pos),
-        priority: 1 / (this.getDistance(unit.pos, enemy.pos) + 1) // Simple proximity priority
-      })).sort((a, b) => b.priority - a.priority);
+      const threats = visibleEnemies
+        .map((enemy) => ({
+          enemy,
+          distance: this.getDistance(unit.pos, enemy.pos),
+          priority: 1 / (this.getDistance(unit.pos, enemy.pos) + 1), // Simple proximity priority
+        }))
+        .sort((a, b) => b.priority - a.priority);
 
       // --- 2. Self-Preservation Logic ---
       const isLowHP = unit.hp < unit.maxHp * 0.25;
-      const nearbyAllies = this.state.units.filter(u => u.id !== unit.id && u.hp > 0 && u.state !== UnitState.Extracted && u.state !== UnitState.Dead && this.getDistance(unit.pos, u.pos) <= 5);
+      const nearbyAllies = this.state.units.filter(
+        (u) =>
+          u.id !== unit.id &&
+          u.hp > 0 &&
+          u.state !== UnitState.Extracted &&
+          u.state !== UnitState.Dead &&
+          this.getDistance(unit.pos, u.pos) <= 5,
+      );
       const isIsolated = nearbyAllies.length === 0 && threats.length > 0;
 
       if (isLowHP && threats.length > 0) {
-          // Retreat Logic: Find closest safe discovered cell
-          const safeCells = this.state.discoveredCells.filter(cellKey => {
-              const [cx, cy] = cellKey.split(',').map(Number);
-              return !visibleEnemies.some(e => Math.floor(e.pos.x) === cx && Math.floor(e.pos.y) === cy);
-          });
-          
-          if (safeCells.length > 0) {
-              const closestSafe = safeCells.map(cellKey => {
-                  const [cx, cy] = cellKey.split(',').map(Number);
-                  return { x: cx, y: cy, dist: this.getDistance(unit.pos, { x: cx + 0.5, y: cy + 0.5 }) };
-              }).sort((a, b) => a.dist - b.dist)[0];
-              
-              if (unit.state !== UnitState.Moving || !unit.targetPos || Math.floor(unit.targetPos.x) !== closestSafe.x || Math.floor(unit.targetPos.y) !== closestSafe.y) {
-                  unit.engagementPolicy = 'IGNORE';
-                  unit.engagementPolicySource = 'Autonomous';
-                  this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: { x: closestSafe.x, y: closestSafe.y }, label: 'Retreating' }, false);
-              }
+        // Retreat Logic: Find closest safe discovered cell
+        const safeCells = this.state.discoveredCells.filter((cellKey) => {
+          const [cx, cy] = cellKey.split(",").map(Number);
+          return !visibleEnemies.some(
+            (e) => Math.floor(e.pos.x) === cx && Math.floor(e.pos.y) === cy,
+          );
+        });
+
+        if (safeCells.length > 0) {
+          const closestSafe = safeCells
+            .map((cellKey) => {
+              const [cx, cy] = cellKey.split(",").map(Number);
+              return {
+                x: cx,
+                y: cy,
+                dist: this.getDistance(unit.pos, { x: cx + 0.5, y: cy + 0.5 }),
+              };
+            })
+            .sort((a, b) => a.dist - b.dist)[0];
+
+          if (
+            unit.state !== UnitState.Moving ||
+            !unit.targetPos ||
+            Math.floor(unit.targetPos.x) !== closestSafe.x ||
+            Math.floor(unit.targetPos.y) !== closestSafe.y
+          ) {
+            unit.engagementPolicy = "IGNORE";
+            unit.engagementPolicySource = "Autonomous";
+            this.executeCommand(
+              unit,
+              {
+                type: CommandType.MOVE_TO,
+                unitIds: [unit.id],
+                target: { x: closestSafe.x, y: closestSafe.y },
+                label: "Retreating",
+              },
+              false,
+            );
           }
+        }
       } else if (isIsolated) {
-          // Group Up Logic: Move toward closest ally
-          const otherUnits = this.state.units.filter(u => u.id !== unit.id && u.hp > 0 && u.state !== UnitState.Extracted && u.state !== UnitState.Dead);
-          if (otherUnits.length > 0) {
-              const closestAlly = otherUnits.sort((a, b) => this.getDistance(unit.pos, a.pos) - this.getDistance(unit.pos, b.pos))[0];
-              if (unit.state !== UnitState.Moving || !unit.targetPos || Math.floor(unit.targetPos.x) !== Math.floor(closestAlly.pos.x) || Math.floor(unit.targetPos.y) !== Math.floor(closestAlly.pos.y)) {
-                  unit.engagementPolicy = 'IGNORE'; // Temporarily ignore to reach ally
-                  unit.engagementPolicySource = 'Autonomous';
-                  this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: { x: Math.floor(closestAlly.pos.x), y: Math.floor(closestAlly.pos.y) }, label: 'Grouping Up' }, false);
-              }
+        // Group Up Logic: Move toward closest ally
+        const otherUnits = this.state.units.filter(
+          (u) =>
+            u.id !== unit.id &&
+            u.hp > 0 &&
+            u.state !== UnitState.Extracted &&
+            u.state !== UnitState.Dead,
+        );
+        if (otherUnits.length > 0) {
+          const closestAlly = otherUnits.sort(
+            (a, b) =>
+              this.getDistance(unit.pos, a.pos) -
+              this.getDistance(unit.pos, b.pos),
+          )[0];
+          if (
+            unit.state !== UnitState.Moving ||
+            !unit.targetPos ||
+            Math.floor(unit.targetPos.x) !== Math.floor(closestAlly.pos.x) ||
+            Math.floor(unit.targetPos.y) !== Math.floor(closestAlly.pos.y)
+          ) {
+            unit.engagementPolicy = "IGNORE"; // Temporarily ignore to reach ally
+            unit.engagementPolicySource = "Autonomous";
+            this.executeCommand(
+              unit,
+              {
+                type: CommandType.MOVE_TO,
+                unitIds: [unit.id],
+                target: {
+                  x: Math.floor(closestAlly.pos.x),
+                  y: Math.floor(closestAlly.pos.y),
+                },
+                label: "Grouping Up",
+              },
+              false,
+            );
           }
+        }
       } else {
-          // If no longer retreating or isolated, but was in IGNORE mode, reset to ENGAGE if idle
-          if (unit.engagementPolicy === 'IGNORE' && unit.engagementPolicySource === 'Autonomous' && unit.state === UnitState.Idle && unit.commandQueue.length === 0) {
-              unit.engagementPolicy = 'ENGAGE';
-              unit.engagementPolicySource = undefined;
-          }
+        // If no longer retreating or isolated, but was in IGNORE mode, reset to ENGAGE if idle
+        if (
+          unit.engagementPolicy === "IGNORE" &&
+          unit.engagementPolicySource === "Autonomous" &&
+          unit.state === UnitState.Idle &&
+          unit.commandQueue.length === 0
+        ) {
+          unit.engagementPolicy = "ENGAGE";
+          unit.engagementPolicySource = undefined;
+        }
       }
 
       // --- 3. Engagement & Autonomous Exploration ---
       // Process Queue if Idle
       if (unit.state === UnitState.Idle && unit.commandQueue.length > 0) {
-          const nextCmd = unit.commandQueue.shift();
-          if (nextCmd) {
-              this.executeCommand(unit, nextCmd);
+        const nextCmd = unit.commandQueue.shift();
+        if (nextCmd) {
+          this.executeCommand(unit, nextCmd);
+        }
+      } else if (
+        unit.state === UnitState.Idle &&
+        unit.commandQueue.length === 0 &&
+        this.agentControlEnabled &&
+        unit.aiEnabled !== false
+      ) {
+        // Priority: 1. Threat Engagement, 2. Objective, 3. Exploration, 4. Extraction
+
+        let actionTaken = false;
+
+        // 1. Threat Engagement
+        if (threats.length > 0 && unit.engagementPolicy !== "IGNORE") {
+          const primaryThreat = threats[0].enemy;
+          if (
+            this.getDistance(unit.pos, primaryThreat.pos) > unit.attackRange
+          ) {
+            this.executeCommand(
+              unit,
+              {
+                type: CommandType.MOVE_TO,
+                unitIds: [unit.id],
+                target: {
+                  x: Math.floor(primaryThreat.pos.x),
+                  y: Math.floor(primaryThreat.pos.y),
+                },
+                label: "Engaging",
+              },
+              false,
+            );
+            actionTaken = true;
           }
-      } else if (unit.state === UnitState.Idle && unit.commandQueue.length === 0 && this.agentControlEnabled && unit.aiEnabled !== false) {
-          // Priority: 1. Threat Engagement, 2. Objective, 3. Exploration, 4. Extraction
-          
-          let actionTaken = false;
+        }
 
-          // 1. Threat Engagement
-          if (threats.length > 0 && unit.engagementPolicy !== 'IGNORE') {
-              const primaryThreat = threats[0].enemy;
-              if (this.getDistance(unit.pos, primaryThreat.pos) > unit.attackRange) {
-                  this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: { x: Math.floor(primaryThreat.pos.x), y: Math.floor(primaryThreat.pos.y) }, label: 'Engaging' }, false);
-                  actionTaken = true;
+        // 2. Objective (if not fighting)
+        if (!actionTaken && this.state.objectives) {
+          // Find closest pending objective that is NOT claimed and is VISIBLE
+          const pendingObjectives = this.state.objectives.filter(
+            (o) =>
+              o.state === "Pending" &&
+              !claimedObjectives.has(o.id) &&
+              o.visible,
+          );
+          if (pendingObjectives.length > 0) {
+            // Find closest one
+            // For 'Recover', target is targetCell. For 'Kill', target is enemy pos (if known/visible).
+            // For 'Kill', if enemy is not visible, we can't path to it directly (Exploration handles it eventually).
+
+            let bestObj: { obj: Objective; dist: number } | null = null;
+
+            for (const obj of pendingObjectives) {
+              let targetPos: Vector2 | null = null;
+              if (obj.kind === "Recover" && obj.targetCell) {
+                // Check if reachable (not discovered? Assume yes for now, pathfinder handles blockage)
+                // Ideally we prioritize discovered objectives.
+                targetPos = {
+                  x: obj.targetCell.x + 0.5,
+                  y: obj.targetCell.y + 0.5,
+                };
+              } else if (obj.kind === "Kill" && obj.targetEnemyId) {
+                const enemy = this.state.enemies.find(
+                  (e) => e.id === obj.targetEnemyId,
+                );
+                // Only if visible? Or cheat? Spec says "AI Support", usually implies knowledge or vision.
+                // Let's rely on vision. If not visible, ignore.
+                // Wait, "Kill" objective implies we know where it is? Or we hunt?
+                // Let's assume we hunt if visible.
+                if (
+                  enemy &&
+                  newVisibleCells.has(
+                    `${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`,
+                  )
+                ) {
+                  targetPos = enemy.pos;
+                }
               }
-          } 
-          
-          // 2. Objective (if not fighting)
-          if (!actionTaken && this.state.objectives) {
-              // Find closest pending objective that is NOT claimed and is VISIBLE
-              const pendingObjectives = this.state.objectives.filter(o => o.state === 'Pending' && !claimedObjectives.has(o.id) && o.visible);
-              if (pendingObjectives.length > 0) {
-                  // Find closest one
-                  // For 'Recover', target is targetCell. For 'Kill', target is enemy pos (if known/visible).
-                  // For 'Kill', if enemy is not visible, we can't path to it directly (Exploration handles it eventually).
-                  
-                  let bestObj: { obj: Objective, dist: number } | null = null;
-                  
-                  for (const obj of pendingObjectives) {
-                      let targetPos: Vector2 | null = null;
-                      if (obj.kind === 'Recover' && obj.targetCell) {
-                          // Check if reachable (not discovered? Assume yes for now, pathfinder handles blockage)
-                          // Ideally we prioritize discovered objectives.
-                          targetPos = { x: obj.targetCell.x + 0.5, y: obj.targetCell.y + 0.5 };
-                      } else if (obj.kind === 'Kill' && obj.targetEnemyId) {
-                          const enemy = this.state.enemies.find(e => e.id === obj.targetEnemyId);
-                          // Only if visible? Or cheat? Spec says "AI Support", usually implies knowledge or vision.
-                          // Let's rely on vision. If not visible, ignore.
-                          // Wait, "Kill" objective implies we know where it is? Or we hunt?
-                          // Let's assume we hunt if visible.
-                          if (enemy && newVisibleCells.has(`${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`)) {
-                              targetPos = enemy.pos;
-                          }
-                      }
 
-                      if (targetPos) {
-                          const dist = this.getDistance(unit.pos, targetPos);
-                          if (!bestObj || dist < bestObj.dist) {
-                              bestObj = { obj, dist };
-                          }
-                      }
-                  }
-
-                  if (bestObj) {
-                      claimedObjectives.add(bestObj.obj.id); // CLAIM IT
-                      // Move to objective
-                      let target = { x: 0, y: 0 };
-                      if (bestObj.obj.kind === 'Recover' && bestObj.obj.targetCell) target = bestObj.obj.targetCell;
-                      else if (bestObj.obj.kind === 'Kill' && bestObj.obj.targetEnemyId) {
-                          const e = this.state.enemies.find(en => en.id === bestObj.obj.targetEnemyId);
-                          if (e) target = { x: Math.floor(e.pos.x), y: Math.floor(e.pos.y) };
-                      }
-                      
-                      // Only if we are not already there
-                      if (Math.floor(unit.pos.x) !== target.x || Math.floor(unit.pos.y) !== target.y) {
-                          const label = bestObj.obj.kind === 'Recover' ? 'Recovering' : 'Hunting';
-                          this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target, label }, false);
-                          actionTaken = true;
-                      }
-                  }
+              if (targetPos) {
+                const dist = this.getDistance(unit.pos, targetPos);
+                if (!bestObj || dist < bestObj.dist) {
+                  bestObj = { obj, dist };
+                }
               }
+            }
+
+            if (bestObj) {
+              claimedObjectives.add(bestObj.obj.id); // CLAIM IT
+              // Move to objective
+              let target = { x: 0, y: 0 };
+              if (bestObj.obj.kind === "Recover" && bestObj.obj.targetCell)
+                target = bestObj.obj.targetCell;
+              else if (
+                bestObj.obj.kind === "Kill" &&
+                bestObj.obj.targetEnemyId
+              ) {
+                const e = this.state.enemies.find(
+                  (en) => en.id === bestObj.obj.targetEnemyId,
+                );
+                if (e)
+                  target = { x: Math.floor(e.pos.x), y: Math.floor(e.pos.y) };
+              }
+
+              // Only if we are not already there
+              if (
+                Math.floor(unit.pos.x) !== target.x ||
+                Math.floor(unit.pos.y) !== target.y
+              ) {
+                const label =
+                  bestObj.obj.kind === "Recover" ? "Recovering" : "Hunting";
+                this.executeCommand(
+                  unit,
+                  {
+                    type: CommandType.MOVE_TO,
+                    unitIds: [unit.id],
+                    target,
+                    label,
+                  },
+                  false,
+                );
+                actionTaken = true;
+              }
+            }
+          }
+        }
+
+        // 3. Exploration (if no objective action)
+        if (!actionTaken && !this.isMapFullyDiscovered()) {
+          // Check if we already have a valid exploration target
+          if (unit.explorationTarget) {
+            // Is it still undiscovered?
+            const key = `${Math.floor(unit.explorationTarget.x)},${Math.floor(unit.explorationTarget.y)}`;
+            if (this.state.discoveredCells.includes(key)) {
+              unit.explorationTarget = undefined; // Arrived or seen, pick new one
+            } else if (unit.state === UnitState.Idle) {
+              // We have a target but we are Idle? Repath.
+              this.executeCommand(
+                unit,
+                {
+                  type: CommandType.MOVE_TO,
+                  unitIds: [unit.id],
+                  target: unit.explorationTarget,
+                  label: "Exploring",
+                },
+                false,
+              );
+            }
           }
 
-          // 3. Exploration (if no objective action)
-          if (!actionTaken && !this.isMapFullyDiscovered()) {
-              // Check if we already have a valid exploration target
-              if (unit.explorationTarget) {
-                  // Is it still undiscovered?
-                  const key = `${Math.floor(unit.explorationTarget.x)},${Math.floor(unit.explorationTarget.y)}`;
-                  if (this.state.discoveredCells.includes(key)) {
-                      unit.explorationTarget = undefined; // Arrived or seen, pick new one
-                  } else if (unit.state === UnitState.Idle) {
-                      // We have a target but we are Idle? Repath.
-                      this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: unit.explorationTarget, label: 'Exploring' }, false);
-                  }
-              }
-
-              if (!unit.explorationTarget) {
-                  const targetCell = this.findClosestUndiscoveredCell(unit);
-                  if (targetCell) {
-                      unit.explorationTarget = { x: targetCell.x, y: targetCell.y };
-                      this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: targetCell, label: 'Exploring' }, false);
-                  }
-              }
-          } else if (!actionTaken && this.isMapFullyDiscovered()) {
-              // 4. Extraction
-              // Map fully discovered, move to extraction
-              unit.explorationTarget = undefined;
-              if (this.state.map.extraction) {
-                  const unitCurrentCell = { x: Math.floor(unit.pos.x), y: Math.floor(unit.pos.y) };
-                  if (unitCurrentCell.x !== this.state.map.extraction.x || unitCurrentCell.y !== this.state.map.extraction.y) {
-                      this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: this.state.map.extraction, label: 'Extracting' }, false);
-                  }
-              }
+          if (!unit.explorationTarget) {
+            const targetCell = this.findClosestUndiscoveredCell(unit);
+            if (targetCell) {
+              unit.explorationTarget = { x: targetCell.x, y: targetCell.y };
+              this.executeCommand(
+                unit,
+                {
+                  type: CommandType.MOVE_TO,
+                  unitIds: [unit.id],
+                  target: targetCell,
+                  label: "Exploring",
+                },
+                false,
+              );
+            }
           }
+        } else if (!actionTaken && this.isMapFullyDiscovered()) {
+          // 4. Extraction
+          // Map fully discovered, move to extraction
+          unit.explorationTarget = undefined;
+          if (this.state.map.extraction) {
+            const unitCurrentCell = {
+              x: Math.floor(unit.pos.x),
+              y: Math.floor(unit.pos.y),
+            };
+            if (
+              unitCurrentCell.x !== this.state.map.extraction.x ||
+              unitCurrentCell.y !== this.state.map.extraction.y
+            ) {
+              this.executeCommand(
+                unit,
+                {
+                  type: CommandType.MOVE_TO,
+                  unitIds: [unit.id],
+                  target: this.state.map.extraction,
+                  label: "Extracting",
+                },
+                false,
+              );
+            }
+          }
+        }
       }
 
       // Objectives: Recover & Kill
       if (this.state.objectives) {
-        this.state.objectives.forEach(obj => {
-          if (obj.state === 'Pending') {
-              if (obj.kind === 'Recover' && obj.targetCell) {
-                // Check if unit is at target cell (integer coords)
-                if (Math.floor(unit.pos.x) === obj.targetCell.x && Math.floor(unit.pos.y) === obj.targetCell.y) {
-                  obj.state = 'Completed';
-                }
-              } else if (obj.kind === 'Kill' && obj.targetEnemyId) {
-                  const target = this.state.enemies.find(e => e.id === obj.targetEnemyId);
-                  // If not found in enemies list, it's dead (cleaned up)
-                  if (!target || target.hp <= 0) {
-                      obj.state = 'Completed';
-                  }
+        this.state.objectives.forEach((obj) => {
+          if (obj.state === "Pending") {
+            if (obj.kind === "Recover" && obj.targetCell) {
+              // Check if unit is at target cell (integer coords)
+              if (
+                Math.floor(unit.pos.x) === obj.targetCell.x &&
+                Math.floor(unit.pos.y) === obj.targetCell.y
+              ) {
+                obj.state = "Completed";
               }
+            } else if (obj.kind === "Kill" && obj.targetEnemyId) {
+              const target = this.state.enemies.find(
+                (e) => e.id === obj.targetEnemyId,
+              );
+              // If not found in enemies list, it's dead (cleaned up)
+              if (!target || target.hp <= 0) {
+                obj.state = "Completed";
+              }
+            }
           }
         });
       }
@@ -685,9 +953,15 @@ export class CoreEngine {
       if (this.state.map.extraction) {
         const ext = this.state.map.extraction;
         // Only extract if objectives are complete
-        const allObjectivesComplete = this.state.objectives.every(o => o.state === 'Completed');
-        
-        if (allObjectivesComplete && Math.floor(unit.pos.x) === ext.x && Math.floor(unit.pos.y) === ext.y) {
+        const allObjectivesComplete = this.state.objectives.every(
+          (o) => o.state === "Completed",
+        );
+
+        if (
+          allObjectivesComplete &&
+          Math.floor(unit.pos.x) === ext.x &&
+          Math.floor(unit.pos.y) === ext.y
+        ) {
           unit.state = UnitState.Extracted;
           unit.path = undefined;
           unit.targetPos = undefined;
@@ -696,77 +970,100 @@ export class CoreEngine {
       }
 
       // Combat
-      let enemiesInRange = this.state.enemies.filter(enemy => 
-        enemy.hp > 0 &&
-        this.getDistance(unit.pos, enemy.pos) <= unit.attackRange + 0.5 &&
-        newVisibleCells.has(`${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`) 
+      let enemiesInRange = this.state.enemies.filter(
+        (enemy) =>
+          enemy.hp > 0 &&
+          this.getDistance(unit.pos, enemy.pos) <= unit.attackRange + 0.5 &&
+          newVisibleCells.has(
+            `${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`,
+          ),
       );
 
       // Filter by forced target if set and valid
       if (unit.forcedTargetId) {
-          const forced = enemiesInRange.find(e => e.id === unit.forcedTargetId);
-          if (forced) {
-              enemiesInRange = [forced];
+        const forced = enemiesInRange.find((e) => e.id === unit.forcedTargetId);
+        if (forced) {
+          enemiesInRange = [forced];
+        } else {
+          const isTargetAlive = this.state.enemies.some(
+            (e) => e.id === unit.forcedTargetId && e.hp > 0,
+          );
+          if (!isTargetAlive) {
+            unit.forcedTargetId = undefined;
           } else {
-              const isTargetAlive = this.state.enemies.some(e => e.id === unit.forcedTargetId && e.hp > 0);
-              if (!isTargetAlive) {
-                  unit.forcedTargetId = undefined;
-              } else {
-                  enemiesInRange = [];
-              }
+            enemiesInRange = [];
           }
+        }
       }
 
       // Decision: Attack or Move?
       let isAttacking = false;
       const canAttack = enemiesInRange.length > 0;
-      const isMoving = unit.path && unit.path.length > 0 || !!unit.targetPos;
-      const policy = unit.engagementPolicy || 'ENGAGE';
+      const isMoving = (unit.path && unit.path.length > 0) || !!unit.targetPos;
+      const policy = unit.engagementPolicy || "ENGAGE";
 
       // Default ENGAGE: Attack takes priority over Moving (Stop & Shoot)
       // IGNORE: Moving takes priority over Attacking (Run)
-      
-      if (canAttack && (policy === 'ENGAGE' || !!unit.forcedTargetId)) {
+
+      if (canAttack && (policy === "ENGAGE" || !!unit.forcedTargetId)) {
         // Attack
         const targetEnemy = enemiesInRange[0];
-        
+
         // RE-VERIFY LOS for projectile path (double-safety)
         if (this.los.hasLineOfSight(unit.pos, targetEnemy.pos)) {
-            // Cooldown Check
-            if (!unit.lastAttackTime || (this.state.t - unit.lastAttackTime >= unit.fireRate)) {
-                targetEnemy.hp -= unit.damage;
-                unit.lastAttackTime = this.state.t;
-                unit.lastAttackTarget = { ...targetEnemy.pos };
-            }
+          // Cooldown Check
+          if (
+            !unit.lastAttackTime ||
+            this.state.t - unit.lastAttackTime >= unit.fireRate
+          ) {
+            targetEnemy.hp -= unit.damage;
+            unit.lastAttackTime = this.state.t;
+            unit.lastAttackTarget = { ...targetEnemy.pos };
+          }
 
-            unit.state = UnitState.Attacking;
-            isAttacking = true;
+          unit.state = UnitState.Attacking;
+          isAttacking = true;
         }
-      } 
-      
+      }
+
       // If we didn't attack (or we are IGNORE-ing), process movement
       if (!isAttacking && isMoving && unit.targetPos && unit.path) {
         // Movement logic
         const dx = unit.targetPos.x - unit.pos.x;
         const dy = unit.targetPos.y - unit.pos.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        
+
         const moveDist = (unit.speed * dt) / 1000;
 
         // Check if path is blocked physically (e.g. Closed Door)
         // If next step crosses cell boundary, check canMove WITHOUT allowClosedDoors.
-        const currentCell = { x: Math.floor(unit.pos.x), y: Math.floor(unit.pos.y) };
-        const nextCell = { x: Math.floor(unit.targetPos.x), y: Math.floor(unit.targetPos.y) };
-        
+        const currentCell = {
+          x: Math.floor(unit.pos.x),
+          y: Math.floor(unit.pos.y),
+        };
+        const nextCell = {
+          x: Math.floor(unit.targetPos.x),
+          y: Math.floor(unit.targetPos.y),
+        };
+
         // If we are moving to a different cell, check if edge is passable
-        if ((currentCell.x !== nextCell.x || currentCell.y !== nextCell.y) && 
-            !this.gameGrid.canMove(currentCell.x, currentCell.y, nextCell.x, nextCell.y, this.doors, false)) {
-            // Blocked! Wait.
-            // Do not update unit.pos.
-            // Door opening logic (earlier in update loop) should handle opening if we are adjacent.
-            // We are likely adjacent if we are trying to move there.
-            unit.state = UnitState.WaitingForDoor;
-        } else if (dist <= moveDist + EPSILON) { 
+        if (
+          (currentCell.x !== nextCell.x || currentCell.y !== nextCell.y) &&
+          !this.gameGrid.canMove(
+            currentCell.x,
+            currentCell.y,
+            nextCell.x,
+            nextCell.y,
+            this.doors,
+            false,
+          )
+        ) {
+          // Blocked! Wait.
+          // Do not update unit.pos.
+          // Door opening logic (earlier in update loop) should handle opening if we are adjacent.
+          // We are likely adjacent if we are trying to move there.
+          unit.state = UnitState.WaitingForDoor;
+        } else if (dist <= moveDist + EPSILON) {
           unit.pos = { ...unit.targetPos };
           unit.path.shift();
 
@@ -776,9 +1073,9 @@ export class CoreEngine {
             unit.state = UnitState.Idle;
             unit.activeCommand = undefined;
           } else {
-            unit.targetPos = { 
-                x: unit.path[0].x + 0.5 + (unit.visualJitter?.x || 0), 
-                y: unit.path[0].y + 0.5 + (unit.visualJitter?.y || 0) 
+            unit.targetPos = {
+              x: unit.path[0].x + 0.5 + (unit.visualJitter?.x || 0),
+              y: unit.path[0].y + 0.5 + (unit.visualJitter?.y || 0),
             };
           }
         } else {
@@ -793,67 +1090,90 @@ export class CoreEngine {
     });
 
     // --- Enemy Logic (AI & Movement & Combat) ---
-    this.state.enemies.forEach(enemy => {
+    this.state.enemies.forEach((enemy) => {
       if (enemy.hp <= 0) return;
 
       // 1. Think (Targeting & Pathfinding)
       // Determine AI type
-      const arch = EnemyArchetypeLibrary[enemy.type] || EnemyArchetypeLibrary[EnemyType.SwarmMelee];
-      const ai = arch.ai === 'Ranged' ? this.rangedAI : this.meleeAI;
-      
-      ai.think(enemy, this.state, this.gameGrid, this.pathfinder, this.los, this.prng);
+      const arch =
+        EnemyArchetypeLibrary[enemy.type] ||
+        EnemyArchetypeLibrary[EnemyType.SwarmMelee];
+      const ai = arch.ai === "Ranged" ? this.rangedAI : this.meleeAI;
 
-      const unitsInRange = this.state.units.filter(unit => 
-        unit.hp > 0 && unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead &&
-        this.getDistance(enemy.pos, unit.pos) <= enemy.attackRange + 0.5
+      ai.think(
+        enemy,
+        this.state,
+        this.gameGrid,
+        this.pathfinder,
+        this.los,
+        this.prng,
+      );
+
+      const unitsInRange = this.state.units.filter(
+        (unit) =>
+          unit.hp > 0 &&
+          unit.state !== UnitState.Extracted &&
+          unit.state !== UnitState.Dead &&
+          this.getDistance(enemy.pos, unit.pos) <= enemy.attackRange + 0.5,
       );
 
       let isAttacking = false;
       // Only attack if not moving (no path set by AI)
       if (unitsInRange.length > 0 && (!enemy.path || enemy.path.length === 0)) {
         const targetUnit = unitsInRange[0];
-        
+
         // RE-VERIFY LOS for projectile/melee path (double-safety)
         if (this.los.hasLineOfSight(enemy.pos, targetUnit.pos)) {
-            // Cooldown Check for Enemy
-            if (!enemy.lastAttackTime || (this.state.t - enemy.lastAttackTime >= enemy.fireRate)) {
-                targetUnit.hp -= enemy.damage;
-                enemy.lastAttackTime = this.state.t;
-                enemy.lastAttackTarget = { ...targetUnit.pos };
-            }
-            isAttacking = true;
+          // Cooldown Check for Enemy
+          if (
+            !enemy.lastAttackTime ||
+            this.state.t - enemy.lastAttackTime >= enemy.fireRate
+          ) {
+            targetUnit.hp -= enemy.damage;
+            enemy.lastAttackTime = this.state.t;
+            enemy.lastAttackTarget = { ...targetUnit.pos };
+          }
+          isAttacking = true;
         }
       }
 
       // 2. Movement Resolution (if not attacking)
-      if (!isAttacking && enemy.targetPos && enemy.path && enemy.path.length > 0) {
-          const dx = enemy.targetPos.x - enemy.pos.x;
-          const dy = enemy.targetPos.y - enemy.pos.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          
-          const moveDist = (enemy.speed * dt) / 1000;
+      if (
+        !isAttacking &&
+        enemy.targetPos &&
+        enemy.path &&
+        enemy.path.length > 0
+      ) {
+        const dx = enemy.targetPos.x - enemy.pos.x;
+        const dy = enemy.targetPos.y - enemy.pos.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
 
-          if (dist <= moveDist + EPSILON) {
-              enemy.pos = { ...enemy.targetPos };
-              enemy.path.shift();
-              if (enemy.path.length > 0) {
-                  enemy.targetPos = { x: enemy.path[0].x + 0.5, y: enemy.path[0].y + 0.5 };
-              } else {
-                  enemy.targetPos = undefined;
-              }
+        const moveDist = (enemy.speed * dt) / 1000;
+
+        if (dist <= moveDist + EPSILON) {
+          enemy.pos = { ...enemy.targetPos };
+          enemy.path.shift();
+          if (enemy.path.length > 0) {
+            enemy.targetPos = {
+              x: enemy.path[0].x + 0.5,
+              y: enemy.path[0].y + 0.5,
+            };
           } else {
-              enemy.pos.x += (dx / dist) * moveDist;
-              enemy.pos.y += (dy / dist) * moveDist;
+            enemy.targetPos = undefined;
           }
+        } else {
+          enemy.pos.x += (dx / dist) * moveDist;
+          enemy.pos.y += (dy / dist) * moveDist;
+        }
       }
     });
 
     // --- Cleanup Death ---
-    const deadEnemies = this.state.enemies.filter(enemy => enemy.hp <= 0);
+    const deadEnemies = this.state.enemies.filter((enemy) => enemy.hp <= 0);
     this.state.aliensKilled += deadEnemies.length;
-    this.state.enemies = this.state.enemies.filter(enemy => enemy.hp > 0);
+    this.state.enemies = this.state.enemies.filter((enemy) => enemy.hp > 0);
 
-    this.state.units.forEach(unit => {
+    this.state.units.forEach((unit) => {
       if (unit.hp <= 0 && unit.state !== UnitState.Dead) {
         unit.state = UnitState.Dead;
         this.state.casualties++;
@@ -861,15 +1181,21 @@ export class CoreEngine {
     });
 
     // --- Win/Loss Condition ---
-    const activeUnits = this.state.units.filter(u => u.state !== UnitState.Dead && u.state !== UnitState.Extracted);
-    const extractedUnits = this.state.units.filter(u => u.state === UnitState.Extracted);
-    
+    const activeUnits = this.state.units.filter(
+      (u) => u.state !== UnitState.Dead && u.state !== UnitState.Extracted,
+    );
+    const extractedUnits = this.state.units.filter(
+      (u) => u.state === UnitState.Extracted,
+    );
+
     if (activeUnits.length === 0) {
-      const allObjectivesComplete = this.state.objectives.every(o => o.state === 'Completed');
+      const allObjectivesComplete = this.state.objectives.every(
+        (o) => o.state === "Completed",
+      );
       if (allObjectivesComplete && extractedUnits.length > 0) {
-        this.state.status = 'Won';
+        this.state.status = "Won";
       } else {
-        this.state.status = 'Lost'; 
+        this.state.status = "Lost";
       }
     }
   }

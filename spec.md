@@ -1,6 +1,7 @@
 ### Part 1: Game Design Document (GDD)
 
 # GDD: Xenopurge (Web Prototype)
+
 **Version:** 1.2
 **Core Concept:** Single-player, Real-Time with Pause (RTwP) tactical squad combat in a claustrophobic spaceship environment.
 
@@ -9,24 +10,28 @@
 ## 1) Scope & Design Pillars
 
 ### 1.1 In Scope
-* **Engine:** Deterministic, tick-based simulation running in a Web Worker.
-* **Visuals:** 2D Top-down, Grid-based, "Shared Wall" rendering via HTML5 Canvas.
-* **Loop:** Configure Squad -> Load Map -> Real-Time Tactical Combat -> Extract or Die.
-* **Modding:** "Content Packs" (JSON) strictly define stats, maps, and logic parameters.
-* **AI Support:** First-class support for bot players via a JSON observation/command protocol.
+
+- **Engine:** Deterministic, tick-based simulation running in a Web Worker.
+- **Visuals:** 2D Top-down, Grid-based, "Shared Wall" rendering via HTML5 Canvas.
+- **Loop:** Configure Squad -> Load Map -> Real-Time Tactical Combat -> Extract or Die.
+- **Modding:** "Content Packs" (JSON) strictly define stats, maps, and logic parameters.
+- **AI Support:** First-class support for bot players via a JSON observation/command protocol.
 
 ### 1.2 Out of Scope
-* Multiplayer networking (Local only).
-* Meta-progression (XP, Campaign map, Loot inventory).
-* Complex Frameworks (React/Vue) — strictly Vanilla TS + Vite.
+
+- Multiplayer networking (Local only).
+- Meta-progression (XP, Campaign map, Loot inventory).
+- Complex Frameworks (React/Vue) — strictly Vanilla TS + Vite.
 
 ---
 
 ## 2) Simulation Architecture
 
 ### 2.1 The Game Loop (Web Worker)
+
 The simulation runs at a fixed timestep (`tickMs`, default 100ms).
 **Update Sequence per Tick:**
+
 1.  **AI Think:** Update Bot/Enemy intent based on new state.
 2.  **Command Processing:** Validate and apply player/agent commands from the queue (FIFO).
 3.  **Action Resolution:** Tick down action cooldowns (movement, shooting).
@@ -36,74 +41,79 @@ The simulation runs at a fixed timestep (`tickMs`, default 100ms).
 7.  **State Snapshot:** Emit `WorldState` to the Main Thread (Renderer).
 
 ### 2.2 Determinism
-* **PRNG:** The engine owns a seeded Pseudo-Random Number Generator. `Math.random()` is forbidden.
-* **Replayability:** A run is fully defined by `{ Seed, ContentPack, Config, CommandLog }`.
+
+- **PRNG:** The engine owns a seeded Pseudo-Random Number Generator. `Math.random()` is forbidden.
+- **Replayability:** A run is fully defined by `{ Seed, ContentPack, Config, CommandLog }`.
 
 ---
 
 ## 3) World Model & Data Structures
 
 ### 3.1 The Grid (Shared Walls)
-The map is a grid of `Cells`. Walls are edges *between* cells, shared by neighbors (like a house floorplan).
-* **Coordinate System:** `x` (Column), `y` (Row). Top-left is `0,0`.
-* **Adjacency:** Orthogonal only (North, South, East, West). **No diagonal movement.**
+
+The map is a grid of `Cells`. Walls are edges _between_ cells, shared by neighbors (like a house floorplan).
+
+- **Coordinate System:** `x` (Column), `y` (Row). Top-left is `0,0`.
+- **Adjacency:** Orthogonal only (North, South, East, West). **No diagonal movement.**
 
 **Cell Data Model (Logical):**
 Ideally implemented so cells "own" specific edges (e.g., North and West) to prevent data duplication/desync, or via a separate Edge Map.
+
 ```typescript
 interface Cell {
   x: number;
   y: number;
-  type: 'Floor' | 'Void';
+  type: "Floor" | "Void";
   // Logical accessors (derived from shared edge data)
-  walls: { n: boolean; e: boolean; s: boolean; w: boolean; };
+  walls: { n: boolean; e: boolean; s: boolean; w: boolean };
   doorId?: string;
   spawnPointId?: string;
   extraction?: boolean;
 }
-````
+```
 
 ### 3.2 Units (Soldiers & Enemies)
 
 **Soldier Stats:**
 
-  * `hp`: Current Health.
-  * `speed`: Movement cooldown (seconds per tile).
-  * `sightRange`: Radius of vision in tiles.
-  * `weapon`: Reference to Weapon Definition.
-  * `engagementPolicy`:
-      * `ENGAGE`: (Default) If an enemy is in LOS, stop moving and shoot.
-      * `IGNORE`: Ignore enemies, continue moving/performing actions (used for fleeing/rushing). Units will NEVER auto-engage enemies in this mode, even if idle. They will only attack if explicitly ordered via `ATTACK_TARGET`.
-  * **Action Queue:** Units support a queue of commands (e.g., "Move to A", then "Move to B", then "Interact").
+- `hp`: Current Health.
+- `speed`: Movement cooldown (seconds per tile).
+- `sightRange`: Radius of vision in tiles.
+- `weapon`: Reference to Weapon Definition.
+- `engagementPolicy`:
+  - `ENGAGE`: (Default) If an enemy is in LOS, stop moving and shoot.
+  - `IGNORE`: Ignore enemies, continue moving/performing actions (used for fleeing/rushing). Units will NEVER auto-engage enemies in this mode, even if idle. They will only attack if explicitly ordered via `ATTACK_TARGET`.
+- **Action Queue:** Units support a queue of commands (e.g., "Move to A", then "Move to B", then "Interact").
 
 **Weapon Definition:**
 
-  * **No Ammo:** Weapons have infinite ammo.
-  * **Fire Rate:** Defined as a cooldown between shots.
-  * **Stats:** `damage`, `range`, `fireRateMs`.
+- **No Ammo:** Weapons have infinite ammo.
+- **Fire Rate:** Defined as a cooldown between shots.
+- **Stats:** `damage`, `range`, `fireRateMs`.
 
 **Enemy AI Behavior:**
 
-  * **Archetypes:**
-      *   **Xeno-Mite (Easy):** Fast, weak, melee swarmer.
-      *   **Warrior-Drone (Medium):** Balanced stats, standard melee unit.
-      *   **Praetorian-Guard (Hard):** Slow, heavily armored, high melee damage.
-      *   **Spitter-Acid (Ranged):** Ranged attack. Logic: Kites players (moves to max range), flees if engaged in melee.
-  * **Melee Only:** For the current prototype, all enemies use melee-only attacks. (Obsolete - Spitter added)
-  * **Autonomous Roaming:** Enemies roam the ship autonomously when no soldiers are detected, prioritizing undiscovered or less-visited floor cells.
-  * **Aggro:** On LOS of a Soldier -> Switch to Attack state and pathfind directly to the closest soldier to engage. Spitters maintain distance.
-  * **Modular Design:** The AI should be implemented using an extensible interface/strategy pattern to support future enemy types (e.g., ranged units, different roaming strategies).
+- **Archetypes:**
+  - **Xeno-Mite (Easy):** Fast, weak, melee swarmer.
+  - **Warrior-Drone (Medium):** Balanced stats, standard melee unit.
+  - **Praetorian-Guard (Hard):** Slow, heavily armored, high melee damage.
+  - **Spitter-Acid (Ranged):** Ranged attack. Logic: Kites players (moves to max range), flees if engaged in melee.
+- **Melee Only:** For the current prototype, all enemies use melee-only attacks. (Obsolete - Spitter added)
+- **Autonomous Roaming:** Enemies roam the ship autonomously when no soldiers are detected, prioritizing undiscovered or less-visited floor cells.
+- **Aggro:** On LOS of a Soldier -> Switch to Attack state and pathfind directly to the closest soldier to engage. Spitters maintain distance.
+- **Modular Design:** The AI should be implemented using an extensible interface/strategy pattern to support future enemy types (e.g., ranged units, different roaming strategies).
 
 **Visuals:**
-  * **Doors:** Render as 50% width/height of the cell, connecting visually to adjacent walls to prevent gaps.
+
+- **Doors:** Render as 50% width/height of the cell, connecting visually to adjacent walls to prevent gaps.
 
 **Simulation & Balance:**
 
-  *   **Game Speed:** Configurable from 0.05x (Active Pause) to 3.0x. Default 1.0x.
+- **Game Speed:** Configurable from 0.05x (Active Pause) to 3.0x. Default 1.0x.
 
-  *   **Balance Goal:** A 4-soldier team with default AI should win ~50% of the time on an 8x8 map. >50% of wins should incur at least one casualty.
+- **Balance Goal:** A 4-soldier team with default AI should win ~50% of the time on an 8x8 map. >50% of wins should incur at least one casualty.
 
------
+---
 
 ## 4) Gameplay Mechanics
 
@@ -112,23 +122,23 @@ interface Cell {
 The automated soldier AI follows a multi-tier logic profile when not under direct manual control:
 
 1.  **Threat Evaluation:**
-    *   Units continuously scan for visible enemies within their `sightRange`.
-    *   Threat level is calculated based on distance, enemy type, and unit's current HP.
-    *   Enemies attacking the unit or its squadmates receive highest priority.
+    - Units continuously scan for visible enemies within their `sightRange`.
+    - Threat level is calculated based on distance, enemy type, and unit's current HP.
+    - Enemies attacking the unit or its squadmates receive highest priority.
 
 2.  **Engagement (Default Policy: `ENGAGE`):**
-    *   If a threat is detected and `engagementPolicy` is `ENGAGE`:
-        *   The unit will prioritize attacking the highest-priority target within `attackRange`.
-        *   If no targets are in `attackRange` but threats are visible, the unit will move toward the closest threat until in range.
-        *   Units will "Stop & Shoot" — pausing movement to resolve combat unless the command was explicitly queued with `IGNORE`.
+    - If a threat is detected and `engagementPolicy` is `ENGAGE`:
+      - The unit will prioritize attacking the highest-priority target within `attackRange`.
+      - If no targets are in `attackRange` but threats are visible, the unit will move toward the closest threat until in range.
+      - Units will "Stop & Shoot" — pausing movement to resolve combat unless the command was explicitly queued with `IGNORE`.
 
 3.  **Self-preservation:**
-    *   **Retreat:** If HP falls below 25%, the unit's logic switches to `IGNORE` engagement and prioritizes moving away from the closest threat toward a discovered "safe" cell (no visible enemies).
-    *   **Group Up:** If a unit is isolated (no allies within 5 tiles) and threats are present, it prioritizes moving toward the closest ally.
+    - **Retreat:** If HP falls below 25%, the unit's logic switches to `IGNORE` engagement and prioritizes moving away from the closest threat toward a discovered "safe" cell (no visible enemies).
+    - **Group Up:** If a unit is isolated (no allies within 5 tiles) and threats are present, it prioritizes moving toward the closest ally.
 
 4.  **Autonomous Exploration:**
-    *   If no threats are present and no manual commands are queued, units prioritize exploring the closest undiscovered floor cells.
-    *   Once the map is fully discovered and all objectives are complete, units automatically pathfind to the extraction point.
+    - If no threats are present and no manual commands are queued, units prioritize exploring the closest undiscovered floor cells.
+    - Once the map is fully discovered and all objectives are complete, units automatically pathfind to the extraction point.
 
 ### 4.2 Fog of War (FOW) Configuration
 
@@ -136,11 +146,11 @@ The visibility rules depend on the Mission/Map config:
 
 1.  **Full Visibility:** Map and entities are always visible (Debug/Easy mode).
 2.  **Classic (Shroud):**
-      * Unexplored areas are black (Shroud).
-      * Explored areas reveal static map geometry (Walls/Floor).
-      * Entities (Enemies) are only visible if currently in active LOS.
+    - Unexplored areas are black (Shroud).
+    - Explored areas reveal static map geometry (Walls/Floor).
+    - Entities (Enemies) are only visible if currently in active LOS.
 3.  **Hardcore:**
-      * Areas outside current LOS return to "Unknown/Fogged" state (map geometry hidden again).
+    - Areas outside current LOS return to "Unknown/Fogged" state (map geometry hidden again).
 
 ### 4.3 The Director (Spawning)
 
@@ -154,15 +164,15 @@ Spawns occur on a fixed timer (default 45s).
 
 ### 4.4 Commands
 
-| Command | Payload | Description |
-| :--- | :--- | :--- |
-| `MOVE_TO` | `unitIds`, `target` | Pathfinds and moves. Can be queued. |
-| `ATTACK_TARGET` | `unitId`, `targetId` | Forces fire on specific enemy. |
-| `SET_ENGAGEMENT` | `unitIds`, `mode` | Toggle `ENGAGE` (Stop & Shoot) or `IGNORE` (Run). |
-| `STOP` | `unitIds` | Clears command queue, halts, and disables autonomous AI. |
-| `RESUME_AI` | `unitIds` | Re-enables autonomous AI for the unit. |
+| Command          | Payload              | Description                                              |
+| :--------------- | :------------------- | :------------------------------------------------------- |
+| `MOVE_TO`        | `unitIds`, `target`  | Pathfinds and moves. Can be queued.                      |
+| `ATTACK_TARGET`  | `unitId`, `targetId` | Forces fire on specific enemy.                           |
+| `SET_ENGAGEMENT` | `unitIds`, `mode`    | Toggle `ENGAGE` (Stop & Shoot) or `IGNORE` (Run).        |
+| `STOP`           | `unitIds`            | Clears command queue, halts, and disables autonomous AI. |
+| `RESUME_AI`      | `unitIds`            | Re-enables autonomous AI for the unit.                   |
 
-*Note: Any manual `MOVE_TO`, `ATTACK_TARGET`, or `SET_ENGAGEMENT` command also implicitly re-enables autonomous AI.*
+_Note: Any manual `MOVE_TO`, `ATTACK_TARGET`, or `SET_ENGAGEMENT` command also implicitly re-enables autonomous AI._
 
 ## 5) Protocol: Engine ↔ Client
 
@@ -186,6 +196,7 @@ Sent from Engine to UI/Bot every tick.
   }
 }
 ```
+
 ````
 
 ---
@@ -435,7 +446,7 @@ The game must be fully playable via keyboard using a strict hierarchical command
     *   **Level 3 (Unit Selection):**
         *   User presses `1-N` to select a specific soldier or `N+1` for "ALL".
 *   **Workflow:** Action -> [Target/Mode] -> Unit(s).
-*   **Input Handling:** 
+*   **Input Handling:**
     *   `1-9`: Select menu option.
     *   `ESC`: Cancel/Back to previous menu level.
     *   Mouse: Clicking a menu item or a target cell/unit is a secondary shortcut that executes the selection for that specific level.
@@ -609,3 +620,4 @@ Do not ship copyrighted scans/assets. Keep importer expecting **user-provided** 
     *   Ability to download the rendered map as a PNG or SVG file.
     *   (Optional but desired) Interactive elements for zooming, panning, and toggling debug overlays (e.g., cell coordinates).
 *   **Utility**: This app will be crucial for debugging map definitions, creating test scenarios, and generating visual test assets.
+````

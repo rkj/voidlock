@@ -1,15 +1,27 @@
-import { Vector2, Door, CellType } from '../shared/types';
-import { Graph } from './Graph';
+import { Vector2, Door, CellType } from "../shared/types";
+import { Graph } from "./Graph";
 
 export class Pathfinder {
-  constructor(private graph: Graph, private doors: Map<string, Door>) {}
+  constructor(
+    private graph: Graph,
+    private doors: Map<string, Door>,
+  ) {}
 
-  findPath(start: Vector2, end: Vector2, allowClosedDoors: boolean = false): Vector2[] | null {
-    if (end.x < 0 || end.x >= this.graph.width || end.y < 0 || end.y >= this.graph.height) {
+  findPath(
+    start: Vector2,
+    end: Vector2,
+    allowClosedDoors: boolean = false,
+  ): Vector2[] | null {
+    if (
+      end.x < 0 ||
+      end.x >= this.graph.width ||
+      end.y < 0 ||
+      end.y >= this.graph.height
+    ) {
       return null;
     }
     if (this.graph.cells[end.y][end.x].type !== CellType.Floor) {
-      return null; 
+      return null;
     }
 
     const queue: Vector2[] = [];
@@ -38,7 +50,12 @@ export class Pathfinder {
         const neighbor = { x: current.x + dir.dx, y: current.y + dir.dy };
         const neighborKey = `${neighbor.x},${neighbor.y}`;
 
-        if (neighbor.x < 0 || neighbor.x >= this.graph.width || neighbor.y < 0 || neighbor.y >= this.graph.height) {
+        if (
+          neighbor.x < 0 ||
+          neighbor.x >= this.graph.width ||
+          neighbor.y < 0 ||
+          neighbor.y >= this.graph.height
+        ) {
           continue;
         }
 
@@ -50,18 +67,23 @@ export class Pathfinder {
           continue;
         }
 
-        const boundary = this.graph.getBoundary(current.x, current.y, neighbor.x, neighbor.y);
+        const boundary = this.graph.getBoundary(
+          current.x,
+          current.y,
+          neighbor.x,
+          neighbor.y,
+        );
         if (!boundary) continue;
 
         let canTraverse = !boundary.isWall;
         if (boundary.doorId) {
           const door = this.doors.get(boundary.doorId);
           if (door) {
-              if (allowClosedDoors) {
-                  canTraverse = door.state !== 'Locked';
-              } else {
-                  canTraverse = door.state === 'Open' || door.state === 'Destroyed';
-              }
+            if (allowClosedDoors) {
+              canTraverse = door.state !== "Locked";
+            } else {
+              canTraverse = door.state === "Open" || door.state === "Destroyed";
+            }
           }
         }
 
@@ -79,7 +101,7 @@ export class Pathfinder {
   private reconstructPath(
     parent: Map<string, Vector2>,
     start: Vector2,
-    end: Vector2
+    end: Vector2,
   ): Vector2[] {
     const path: Vector2[] = [];
     let current: Vector2 | undefined = end;

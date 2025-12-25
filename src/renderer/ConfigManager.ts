@@ -1,4 +1,9 @@
-import { MapGeneratorType, SquadConfig, MapDefinition, MissionType } from '../shared/types';
+import {
+  MapGeneratorType,
+  SquadConfig,
+  MapDefinition,
+  MissionType,
+} from "../shared/types";
 
 export interface GameConfig {
   mapWidth: number;
@@ -16,16 +21,16 @@ export interface GameConfig {
   squadConfig: SquadConfig;
 }
 
-const STORAGE_KEY = 'xenopurge_config';
+const STORAGE_KEY = "xenopurge_config";
 
 export class ConfigManager {
   public static save(config: GameConfig) {
     try {
       const json = JSON.stringify(config);
       localStorage.setItem(STORAGE_KEY, json);
-      console.log('Configuration saved to LocalStorage.');
+      console.log("Configuration saved to LocalStorage.");
     } catch (e) {
-      console.warn('Failed to save configuration to LocalStorage:', e);
+      console.warn("Failed to save configuration to LocalStorage:", e);
     }
   }
 
@@ -35,7 +40,7 @@ export class ConfigManager {
       if (!json) return null;
       return JSON.parse(json) as GameConfig;
     } catch (e) {
-      console.warn('Failed to load configuration from LocalStorage:', e);
+      console.warn("Failed to load configuration from LocalStorage:", e);
       return null;
     }
   }
@@ -54,8 +59,8 @@ export class ConfigManager {
       lastSeed: Date.now(),
       squadConfig: [
         { archetypeId: "assault", count: 1 },
-        { archetypeId: "medic", count: 1 }
-      ]
+        { archetypeId: "medic", count: 1 },
+      ],
     };
   }
 }

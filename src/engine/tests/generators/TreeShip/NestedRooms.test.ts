@@ -1,10 +1,10 @@
-import { describe, it, expect } from 'vitest';
-import { TreeShipGenerator } from '../../../generators/TreeShipGenerator';
-import { CellType } from '../../../../shared/types';
-import { Graph } from '../../../Graph';
+import { describe, it, expect } from "vitest";
+import { TreeShipGenerator } from "../../../generators/TreeShipGenerator";
+import { CellType } from "../../../../shared/types";
+import { Graph } from "../../../Graph";
 
-describe('TreeShipGenerator Nested Rooms & Integrity', () => {
-  it('should ensure all doors are placed within (no free-standing doors)', () => {
+describe("TreeShipGenerator Nested Rooms & Integrity", () => {
+  it("should ensure all doors are placed within (no free-standing doors)", () => {
     for (let i = 0; i < 20; i++) {
       const generator = new TreeShipGenerator(i, 16, 16);
       const map = generator.generate();

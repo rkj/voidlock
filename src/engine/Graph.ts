@@ -1,6 +1,6 @@
-import { CellType, MapDefinition, Vector2 } from '../shared/types';
+import { CellType, MapDefinition, Vector2 } from "../shared/types";
 
-export type Direction = 'n' | 'e' | 's' | 'w';
+export type Direction = "n" | "e" | "s" | "w";
 
 export class Boundary {
   public isWall: boolean = false;
@@ -11,14 +11,14 @@ export class Boundary {
     public readonly y1: number,
     public readonly x2: number,
     public readonly y2: number,
-    isWall: boolean = false, 
-    doorId?: string
+    isWall: boolean = false,
+    doorId?: string,
   ) {
     this.isWall = isWall;
     this.doorId = doorId;
   }
 
-  public getVisualSegment(): { p1: Vector2, p2: Vector2 } {
+  public getVisualSegment(): { p1: Vector2; p2: Vector2 } {
     if (this.x1 === this.x2) {
       // Horizontal boundary (separated by y)
       const y = Math.max(this.y1, this.y2);
@@ -38,14 +38,14 @@ export class GraphCell {
     n: null,
     e: null,
     s: null,
-    w: null
+    w: null,
   };
 
   constructor(
     public readonly x: number,
     public readonly y: number,
     public type: CellType,
-    public roomId?: string
+    public roomId?: string,
   ) {}
 }
 
@@ -55,7 +55,7 @@ export class Graph {
 
   constructor(map: MapDefinition) {
     const { width, height } = map;
-    
+
     // 1. Initialize cells
     for (let y = 0; y < height; y++) {
       this.cells[y] = [];
@@ -77,17 +77,17 @@ export class Graph {
     for (const cellDef of map.cells) {
       if (!this.isValid(cellDef.x, cellDef.y)) continue;
 
-      const neighbors: { dir: Direction, dx: number, dy: number }[] = [
-        { dir: 'n', dx: 0, dy: -1 },
-        { dir: 'e', dx: 1, dy: 0 },
-        { dir: 's', dx: 0, dy: 1 },
-        { dir: 'w', dx: -1, dy: 0 },
+      const neighbors: { dir: Direction; dx: number; dy: number }[] = [
+        { dir: "n", dx: 0, dy: -1 },
+        { dir: "e", dx: 1, dy: 0 },
+        { dir: "s", dx: 0, dy: 1 },
+        { dir: "w", dx: -1, dy: 0 },
       ];
 
       for (const { dir, dx, dy } of neighbors) {
         const nx = cellDef.x + dx;
         const ny = cellDef.y + dy;
-        
+
         // Ensure boundary object exists for this edge
         const boundary = this.getOrCreateBoundary(cellDef.x, cellDef.y, nx, ny);
         this.cells[cellDef.y][cellDef.x].edges[dir] = boundary;
@@ -102,7 +102,12 @@ export class Graph {
     // 4. Hydrate walls from MapDefinition
     if (map.walls) {
       for (const wall of map.walls) {
-        const boundary = this.getOrCreateBoundary(wall.p1.x, wall.p1.y, wall.p2.x, wall.p2.y);
+        const boundary = this.getOrCreateBoundary(
+          wall.p1.x,
+          wall.p1.y,
+          wall.p2.x,
+          wall.p2.y,
+        );
         boundary.isWall = true;
       }
     }
@@ -130,10 +135,20 @@ export class Graph {
   }
 
   private isValid(x: number, y: number): boolean {
-    return y >= 0 && y < this.cells.length && x >= 0 && x < (this.cells[0]?.length || 0);
+    return (
+      y >= 0 &&
+      y < this.cells.length &&
+      x >= 0 &&
+      x < (this.cells[0]?.length || 0)
+    );
   }
 
-  private getOrCreateBoundary(x1: number, y1: number, x2: number, y2: number): Boundary {
+  private getOrCreateBoundary(
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+  ): Boundary {
     const key = this.getBoundaryKey(x1, y1, x2, y2);
     let boundary = this.boundaries.get(key);
     if (!boundary) {
@@ -143,13 +158,23 @@ export class Graph {
     return boundary;
   }
 
-  private getBoundaryKey(x1: number, y1: number, x2: number, y2: number): string {
+  private getBoundaryKey(
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+  ): string {
     const p1 = `${x1},${y1}`;
     const p2 = `${x2},${y2}`;
-    return [p1, p2].sort().join('--');
+    return [p1, p2].sort().join("--");
   }
 
-  public getBoundary(x1: number, y1: number, x2: number, y2: number): Boundary | undefined {
+  public getBoundary(
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+  ): Boundary | undefined {
     return this.boundaries.get(this.getBoundaryKey(x1, y1, x2, y2));
   }
 

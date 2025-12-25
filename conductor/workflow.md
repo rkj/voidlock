@@ -3,7 +3,7 @@
 ## Guiding Principles
 
 1. **Beads is the Source of Truth:** All work must be tracked via `bd`.
-2. **The Tech Stack is Deliberate:** Changes to the tech stack must be documented in `tech-stack.md` *before* implementation
+2. **The Tech Stack is Deliberate:** Changes to the tech stack must be documented in `tech-stack.md` _before_ implementation
 3. **Test-Driven Development:** Write unit tests before implementing functionality
 4. **High Code Coverage:** Aim for >80% code coverage for all modules
 5. **User Experience First:** Every decision should prioritize user experience
@@ -40,7 +40,6 @@ All tasks follow a strict lifecycle:
    - **Important:** The commit message MUST include the Beads Task ID and a summary of the work.
      Example: `feat(ui): Create basic HTML structure for calculator (bd-123)`
 
-
 ### Epic/Milestone Completion Protocol
 
 **Trigger:** This protocol is executed when all tasks within a Beads Epic or Milestone are completed.
@@ -48,25 +47,24 @@ All tasks follow a strict lifecycle:
 1.  **Announce Protocol Start:** Inform the user that the Epic is complete.
 
 2.  **Ensure Test Coverage:**
-    -   Identify all files modified during the Epic.
-    -   Verify that valid tests exist for all modified code files.
-    -   If tests are missing, create them before proceeding.
+    - Identify all files modified during the Epic.
+    - Verify that valid tests exist for all modified code files.
+    - If tests are missing, create them before proceeding.
 
 3.  **Execute Automated Tests:**
-    -   Run the full test suite: `npx vitest run`
-    -   Ensure all tests pass.
+    - Run the full test suite: `npx vitest run`
+    - Ensure all tests pass.
 
 4.  **Manual Verification:**
-    -   Propose a manual verification plan based on the Epic's goals (`spec.md` or Beads description).
-    -   Ask the user to perform the verification or confirm expectations.
+    - Propose a manual verification plan based on the Epic's goals (`spec.md` or Beads description).
+    - Ask the user to perform the verification or confirm expectations.
 
 5.  **Checkpoint Commit:**
-    -   Create a checkpoint commit using `jj commit`.
-    -   Message format: `chore(release): Complete Epic <EPIC_NAME>`
+    - Create a checkpoint commit using `jj commit`.
+    - Message format: `chore(release): Complete Epic <EPIC_NAME>`
 
 6.  **Close Epic:**
-    -   Run `bd close <epic_id> --reason "All tasks completed and verified."`
-
+    - Run `bd close <epic_id> --reason "All tasks completed and verified."`
 
 ### Quality Gates
 
@@ -87,6 +85,7 @@ Before marking any task complete, verify:
 **AI AGENT INSTRUCTION: This section should be adapted to the project's specific language, framework, and build tools.**
 
 ### Setup
+
 ```bash
 # Example: Commands to set up the development environment (e.g., install dependencies, configure database)
 # e.g., for a Node.js project: npm install
@@ -94,6 +93,7 @@ Before marking any task complete, verify:
 ```
 
 ### Daily Development
+
 ```bash
 # Example: Commands for common daily tasks (e.g., start dev server, run tests, lint, format)
 # e.g., for a Node.js project: npm run dev, npm test, npm run lint
@@ -101,6 +101,7 @@ Before marking any task complete, verify:
 ```
 
 ### Before Committing
+
 ```bash
 # Example: Commands to run all pre-commit checks (e.g., format, lint, type check, run tests)
 # e.g., for a Node.js project: npm run check
@@ -110,18 +111,21 @@ Before marking any task complete, verify:
 ## Testing Requirements
 
 ### Unit Testing
+
 - Every module must have corresponding tests.
 - Use appropriate test setup/teardown mechanisms (e.g., fixtures, beforeEach/afterEach).
 - Mock external dependencies.
 - Test both success and failure cases.
 
 ### Integration Testing
+
 - Test complete user flows
 - Verify database transactions
 - Test authentication and authorization
 - Check form submissions
 
 ### Mobile Testing
+
 - Test on actual iPhone when possible
 - Use Safari developer tools
 - Test touch interactions
@@ -131,6 +135,7 @@ Before marking any task complete, verify:
 ## Code Review Process
 
 ### Self-Review Checklist
+
 Before requesting review:
 
 1. **Functionality**
@@ -169,6 +174,7 @@ Before requesting review:
 ## Commit Guidelines
 
 ### Message Format
+
 ```
 <type>(<scope>): <description>
 
@@ -178,6 +184,7 @@ Before requesting review:
 ```
 
 ### Types
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation only
@@ -187,6 +194,7 @@ Before requesting review:
 - `chore`: Maintenance tasks
 
 ### Examples
+
 ```bash
 git commit -m "feat(auth): Add remember me functionality"
 git commit -m "fix(posts): Correct excerpt generation for short posts"
@@ -210,6 +218,7 @@ A task is complete when:
 ## Emergency Procedures
 
 ### Critical Bug in Production
+
 1. Create hotfix branch from main
 2. Write failing test for bug
 3. Implement minimal fix
@@ -218,6 +227,7 @@ A task is complete when:
 6. Document in plan.md
 
 ### Data Loss
+
 1. Stop all write operations
 2. Restore from latest backup
 3. Verify data integrity
@@ -225,6 +235,7 @@ A task is complete when:
 5. Update backup procedures
 
 ### Security Breach
+
 1. Rotate all secrets immediately
 2. Review access logs
 3. Patch vulnerability
@@ -234,6 +245,7 @@ A task is complete when:
 ## Deployment Workflow
 
 ### Pre-Deployment Checklist
+
 - [ ] All tests passing
 - [ ] Coverage >80%
 - [ ] No linting errors
@@ -243,6 +255,7 @@ A task is complete when:
 - [ ] Backup created
 
 ### Deployment Steps
+
 1. Merge feature branch to main
 2. Tag release with version
 3. Push to deployment service
@@ -252,6 +265,7 @@ A task is complete when:
 7. Monitor for errors
 
 ### Post-Deployment
+
 1. Monitor analytics
 2. Check error logs
 3. Gather user feedback
