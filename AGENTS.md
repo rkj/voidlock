@@ -13,6 +13,7 @@ You are an AI contributor agent working on the Xenopurge project. Your goal is t
 
 ### G1) Version Control (Jujutsu)
 *   **NEVER Commit**: Do **NOT** run `jj commit`. The Manager Agent is responsible for committing changes after verification.
+*   **NEVER Push**: Do **NOT** run `jj git push`.
 *   **Review Changes**: You may use `jj diff` to review your work in progress.
 *   **File Operations**: You may create, edit, and delete files as needed for the task. `jj` will automatically track these changes in the working copy.
 
