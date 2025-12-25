@@ -213,6 +213,7 @@ export class CoreEngine {
   }
 
   private executeCommand(unit: Unit, cmd: Command, isManual: boolean = true) {
+      unit.activeCommand = cmd;
       if (cmd.type === CommandType.MOVE_TO) {
         if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
             // Clear forced target when moving
@@ -243,11 +244,13 @@ export class CoreEngine {
               unit.path = undefined;
               unit.targetPos = undefined;
               unit.state = UnitState.Idle;
+              unit.activeCommand = undefined;
             } else {
               console.warn(`No path found for unit ${unit.id} to target ${cmd.target.x},${cmd.target.y}`);
               unit.path = undefined;
               unit.targetPos = undefined;
               unit.state = UnitState.Idle;
+              unit.activeCommand = undefined;
             }
         }
       } else if (cmd.type === CommandType.ATTACK_TARGET) {
@@ -263,6 +266,7 @@ export class CoreEngine {
           unit.engagementPolicy = cmd.mode;
           unit.engagementPolicySource = 'Manual';
           if (isManual) unit.aiEnabled = true;
+          unit.activeCommand = undefined;
       } else if (cmd.type === CommandType.STOP) {
           unit.commandQueue = []; // Clear command queue
           unit.path = undefined; // Stop movement
@@ -271,8 +275,10 @@ export class CoreEngine {
           unit.explorationTarget = undefined; // Clear exploration target
           unit.state = UnitState.Idle; // Set unit to Idle state
           unit.aiEnabled = false; // Disable autonomous AI
+          unit.activeCommand = undefined;
       } else if (cmd.type === CommandType.RESUME_AI) {
           unit.aiEnabled = true;
+          unit.activeCommand = undefined;
       }
   }
 
@@ -522,7 +528,7 @@ export class CoreEngine {
               if (unit.state !== UnitState.Moving || !unit.targetPos || Math.floor(unit.targetPos.x) !== closestSafe.x || Math.floor(unit.targetPos.y) !== closestSafe.y) {
                   unit.engagementPolicy = 'IGNORE';
                   unit.engagementPolicySource = 'Autonomous';
-                  this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: { x: closestSafe.x, y: closestSafe.y } }, false);
+                  this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: { x: closestSafe.x, y: closestSafe.y }, label: 'Retreating' }, false);
               }
           }
       } else if (isIsolated) {
@@ -533,7 +539,7 @@ export class CoreEngine {
               if (unit.state !== UnitState.Moving || !unit.targetPos || Math.floor(unit.targetPos.x) !== Math.floor(closestAlly.pos.x) || Math.floor(unit.targetPos.y) !== Math.floor(closestAlly.pos.y)) {
                   unit.engagementPolicy = 'IGNORE'; // Temporarily ignore to reach ally
                   unit.engagementPolicySource = 'Autonomous';
-                  this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: { x: Math.floor(closestAlly.pos.x), y: Math.floor(closestAlly.pos.y) } }, false);
+                  this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: { x: Math.floor(closestAlly.pos.x), y: Math.floor(closestAlly.pos.y) }, label: 'Grouping Up' }, false);
               }
           }
       } else {
@@ -560,7 +566,7 @@ export class CoreEngine {
           if (threats.length > 0 && unit.engagementPolicy !== 'IGNORE') {
               const primaryThreat = threats[0].enemy;
               if (this.getDistance(unit.pos, primaryThreat.pos) > unit.attackRange) {
-                  this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: { x: Math.floor(primaryThreat.pos.x), y: Math.floor(primaryThreat.pos.y) } }, false);
+                  this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: { x: Math.floor(primaryThreat.pos.x), y: Math.floor(primaryThreat.pos.y) }, label: 'Engaging' }, false);
                   actionTaken = true;
               }
           } 
@@ -613,7 +619,8 @@ export class CoreEngine {
                       
                       // Only if we are not already there
                       if (Math.floor(unit.pos.x) !== target.x || Math.floor(unit.pos.y) !== target.y) {
-                          this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target }, false);
+                          const label = bestObj.obj.kind === 'Recover' ? 'Recovering' : 'Hunting';
+                          this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target, label }, false);
                           actionTaken = true;
                       }
                   }
@@ -630,7 +637,7 @@ export class CoreEngine {
                       unit.explorationTarget = undefined; // Arrived or seen, pick new one
                   } else if (unit.state === UnitState.Idle) {
                       // We have a target but we are Idle? Repath.
-                      this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: unit.explorationTarget }, false);
+                      this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: unit.explorationTarget, label: 'Exploring' }, false);
                   }
               }
 
@@ -638,7 +645,7 @@ export class CoreEngine {
                   const targetCell = this.findClosestUndiscoveredCell(unit);
                   if (targetCell) {
                       unit.explorationTarget = { x: targetCell.x, y: targetCell.y };
-                      this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: targetCell }, false);
+                      this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: targetCell, label: 'Exploring' }, false);
                   }
               }
           } else if (!actionTaken && this.isMapFullyDiscovered()) {
@@ -648,7 +655,7 @@ export class CoreEngine {
               if (this.state.map.extraction) {
                   const unitCurrentCell = { x: Math.floor(unit.pos.x), y: Math.floor(unit.pos.y) };
                   if (unitCurrentCell.x !== this.state.map.extraction.x || unitCurrentCell.y !== this.state.map.extraction.y) {
-                      this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: this.state.map.extraction }, false);
+                      this.executeCommand(unit, { type: CommandType.MOVE_TO, unitIds: [unit.id], target: this.state.map.extraction, label: 'Extracting' }, false);
                   }
               }
           }
@@ -767,6 +774,7 @@ export class CoreEngine {
             unit.path = undefined;
             unit.targetPos = undefined;
             unit.state = UnitState.Idle;
+            unit.activeCommand = undefined;
           } else {
             unit.targetPos = { 
                 x: unit.path[0].x + 0.5 + (unit.visualJitter?.x || 0), 
@@ -780,6 +788,7 @@ export class CoreEngine {
         }
       } else if (!isAttacking && !isMoving) {
         unit.state = UnitState.Idle;
+        unit.activeCommand = undefined;
       }
     });
 
