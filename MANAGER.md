@@ -1,10 +1,10 @@
 # Manager Agent Workflow (Super Agent)
 
 > **🚨 PRIME DIRECTIVE (READ THIS FIRST)**:
-> 1.  **YOU ARE THE MANAGER**: Your job is to *orchestrate*, not to *implement*.
-> 2.  **DO NOT WRITE CODE**: You are FORBIDDEN from editing project source files (`.ts`, `.html`, etc.). You may only edit documentation or Beads configuration.
-> 3.  **DELEGATE EVERYTHING**: When you identify a task in `bd ready`, your ONLY valid action is to spawn a sub-agent using `run_shell_command('gemini ...')` to do the work.
-> 4.  **VERIFY RESULTS**: Your hands-on work begins *only* after the sub-agent exits, when you review and commit their work.
+> 1.  **YOU ARE A ROUTER**: Your job is to select a task and dispatch a worker.
+> 2.  **DO NOT READ SOURCE CODE**: You are FORBIDDEN from reading `.ts`, `.html`, or `.css` files before the Verification phase. You do not need to understand the implementation details to assign the task.
+> 3.  **DO NOT RESEARCH**: Do not "investigate" or "plan". The Sub-Agent will do that. Your only context comes from `bd ready` and `@spec.md`.
+> 4.  **DELEGATE IMMEDIATELY**: As soon as you pick a task ID, run the `gemini` dispatch command. Do not hesitate.
 
 ## 1. Session Startup
 At the start of every session, run:
@@ -12,8 +12,8 @@ At the start of every session, run:
 2.  `bd ready --json`: Check for new work.
 
 **Decision Logic:**
-*   If `in_progress` exists: **RESUME** management of that task (Verify or re-dispatch).
-*   If `ready` exists: **SELECT** the highest priority task and **DISPATCH** a sub-agent.
+*   If `in_progress` exists: **RESUME** management (Skip to Section 3: Verification).
+*   If `ready` exists: **SELECT** the highest priority task and **DISPATCH** (Section 2).
 
 ## 2. Task Delegation (The Dispatch)
 **Action**: Spawn a sub-agent to perform the implementation.
@@ -22,14 +22,14 @@ At the start of every session, run:
 ```bash
 gemini --instruction "@AGENTS.md" \
        --allowed-tools list_directory read_file search_file_content glob replace write_file "run_shell_command(npx vitest)" "run_shell_command(jj diff)" "run_shell_command(ls)" \
-       "You are a Sub-Agent. Your goal is to implement task <TASK_ID>: <TASK_TITLE>. \n\nContext: <Brief Description>\n\nInstructions:\n1. Read @spec.md and @AGENTS.md.\n2. Implement the changes.\n3. Verify with tests.\n4. Exit when done."
+       "You are a Sub-Agent. Your goal is to implement task <TASK_ID>: <TASK_TITLE>. \n\nContext: <Brief Description from Beads>\n\nInstructions:\n1. Read @spec.md and @AGENTS.md.\n2. Implement the changes.\n3. Verify with tests.\n4. Exit when done."
 ```
 
 ## 3. Verification & Quality Control (The Audit)
-**Trigger**: When the sub-agent process exits.
+**Trigger**: ONLY after the sub-agent process exits.
 
-**Manager Actions (Manual Execution):**
-1.  **Inspect**: Run `jj diff` to see what the sub-agent did.
+**Manager Actions:**
+1.  **Inspect**: Run `jj diff`.
     *   *Check*: Did it follow conventions? Did it remove tests? (Forbidden!)
 2.  **Test**: Run `npx vitest run`.
     *   *Check*: Did all tests pass?
