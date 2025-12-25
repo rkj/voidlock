@@ -40,6 +40,8 @@ gemini --allowed-tools list_directory --allowed-tools read_file --allowed-tools 
     *   *Check*: Does it look right? Use `navigate_page("http://192.168.20.8:5173/")`.
 
 ## 4. Finalization
+**🚨 NEVER PUSH**: Do **NOT** run `jj git push`. The user will handle pushing.
+
 *   **If Verified**:
     1.  `jj commit -m "feat/fix: <description>"`
     2.  `bd close <id> --reason "Implemented via sub-agent and verified."
