@@ -8,11 +8,10 @@ import {
 import { PRNG } from "../shared/PRNG";
 
 export class Director {
-  private timeSinceLastSpawn: number = 0;
-  private initialInterval: number = 5000;
-  private spawnInterval: number = 5000; // Initial interval
-  private minSpawnInterval: number = 1000;
-  private rampAmount: number = 100; // ms to reduce interval by per spawn
+  private turn: number = 0;
+  private timeInCurrentTurn: number = 0;
+  private readonly turnDuration: number = 45000; // 45 seconds
+  private readonly threatPerTurn: number = 10; // 10% per turn
 
   private spawnPoints: SpawnPoint[];
   private onSpawn: (enemy: Enemy) => void;
@@ -30,35 +29,43 @@ export class Director {
   }
 
   public update(dt: number) {
-    this.timeSinceLastSpawn += dt;
+    this.timeInCurrentTurn += dt;
 
-    if (this.timeSinceLastSpawn >= this.spawnInterval) {
-      this.timeSinceLastSpawn = 0;
-      this.spawnEnemy();
-      this.rampDifficulty();
+    if (this.timeInCurrentTurn >= this.turnDuration) {
+      this.timeInCurrentTurn -= this.turnDuration;
+      this.turn++;
+      this.spawnWave();
     }
   }
 
   public getThreatLevel(): number {
-    // Invert so lower interval = higher threat
-    // 5000 -> 0%
-    // 1000 -> 100%
-    const ratio =
-      (this.initialInterval - this.spawnInterval) /
-      (this.initialInterval - this.minSpawnInterval);
-    return Math.min(100, Math.max(0, ratio * 100));
+    // Threat = 10% * (Turn + Progress)
+    // Capped at Turn 10 (100%)
+    // But logically, if we are at Turn 10, threat is 100%.
+    // If we are at Turn 11, threat stays 100%.
+    const cappedTurn = Math.min(this.turn, 10);
+    const progress = this.timeInCurrentTurn / this.turnDuration;
+    
+    // If we are already at max turns (10+), threat is 100%.
+    if (this.turn >= 10) return 100;
+
+    return Math.min(100, (cappedTurn + progress) * this.threatPerTurn);
   }
 
-  private rampDifficulty() {
-    this.spawnInterval = Math.max(
-      this.minSpawnInterval,
-      this.spawnInterval - this.rampAmount,
-    );
-  }
-
-  private spawnEnemy() {
+  private spawnWave() {
     if (this.spawnPoints.length === 0) return;
 
+    // Scaling: 1 base + 1 per turn.
+    // Cap difficulty growth at turn 10.
+    const scalingTurn = Math.min(this.turn, 10);
+    const count = 1 + scalingTurn;
+
+    for (let i = 0; i < count; i++) {
+      this.spawnOneEnemy();
+    }
+  }
+
+  private spawnOneEnemy() {
     const spawnIndex = this.prng.nextInt(0, this.spawnPoints.length - 1);
     const spawnPoint = this.spawnPoints[spawnIndex];
 
