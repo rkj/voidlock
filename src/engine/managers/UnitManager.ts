@@ -255,7 +255,7 @@ export class UnitManager {
           this.executeCommand(unit, nextCmd);
         }
       } else if (
-        unit.state === UnitState.Idle &&
+        (unit.state === UnitState.Idle || unit.explorationTarget) &&
         unit.commandQueue.length === 0 &&
         this.agentControlEnabled &&
         unit.aiEnabled !== false
@@ -595,8 +595,11 @@ export class UnitManager {
     if (cmd.type === CommandType.MOVE_TO) {
       if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
         unit.forcedTargetId = undefined;
-        if (isManual) {
+        // Clear exploration target if this is a manual command OR an autonomous command that isn't exploration
+        if (isManual || cmd.label !== "Exploring") {
           unit.explorationTarget = undefined;
+        }
+        if (isManual) {
           unit.aiEnabled = true;
         }
 
