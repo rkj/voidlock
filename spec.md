@@ -140,6 +140,10 @@ The automated soldier AI follows a multi-tier logic profile when not under direc
     - If no threats are present and no manual commands are queued, units prioritize exploring the closest undiscovered floor cells.
     - Once the map is fully discovered and all objectives are complete, units automatically pathfind to the extraction point.
 
+5.  **Timed Actions**:
+    - Actions like extraction and picking up items take **5 seconds** (at 1x speed) to complete.
+    - During this time, the unit is locked in place and cannot perform other actions until the process finishes.
+
 ### 4.2 Fog of War (FOW) Configuration
 
 The visibility rules depend on the Mission/Map config:

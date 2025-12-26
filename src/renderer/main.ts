@@ -1079,6 +1079,58 @@ document.addEventListener("DOMContentLoaded", () => {
       // Set defaults for controls if no config
       mapGeneratorTypeSelect.value = currentMapGeneratorType;
     }
+    renderSquadBuilder();
+  };
+
+  const renderSquadBuilder = () => {
+    const container = document.getElementById("squad-builder");
+    if (!container) return;
+    container.innerHTML = "";
+
+    // Create a map for easy lookup of current counts
+    const countMap = new Map<string, number>();
+    currentSquad.forEach((s) => countMap.set(s.archetypeId, s.count));
+
+    Object.values(ArchetypeLibrary).forEach((arch) => {
+      const row = document.createElement("div");
+      row.style.display = "flex";
+      row.style.alignItems = "center";
+      row.style.justifyContent = "space-between";
+
+      const label = document.createElement("label");
+      label.textContent = arch.name;
+      label.style.flex = "1";
+      label.style.margin = "0";
+
+      const input = document.createElement("input");
+      input.type = "number";
+      input.min = "0";
+      input.max = "10";
+      input.value = (countMap.get(arch.id) || 0).toString();
+      input.style.width = "60px";
+      input.style.marginLeft = "10px";
+
+      input.addEventListener("change", () => {
+        const val = parseInt(input.value);
+        if (!isNaN(val) && val >= 0) {
+          // Update currentSquad
+          const idx = currentSquad.findIndex((s) => s.archetypeId === arch.id);
+          if (idx >= 0) {
+            if (val === 0) {
+              currentSquad.splice(idx, 1);
+            } else {
+              currentSquad[idx].count = val;
+            }
+          } else if (val > 0) {
+            currentSquad.push({ archetypeId: arch.id, count: val });
+          }
+        }
+      });
+
+      row.appendChild(label);
+      row.appendChild(input);
+      container.appendChild(row);
+    });
   };
 
   loadAndApplyConfig();
