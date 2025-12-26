@@ -21,7 +21,7 @@ import { SpaceshipGenerator } from "../engine/generators/SpaceshipGenerator";
 import { TreeShipGenerator } from "../engine/generators/TreeShipGenerator";
 import { ScreenManager } from "./ScreenManager";
 import { ConfigManager, GameConfig } from "./ConfigManager";
-import { MenuController } from "./MenuController";
+import { MenuController, RenderableMenuState } from "./MenuController";
 import pkg from "../../package.json";
 
 const VERSION = pkg.version;
@@ -147,6 +147,43 @@ const updateSeedOverlay = (seed: number) => {
 };
 
 let lastMenuHtml = "";
+
+const escapeHtml = (unsafe: string) => {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+};
+
+const renderMenu = (state: RenderableMenuState): string => {
+  let html = `<h3>${escapeHtml(state.title)}</h3>`;
+
+  if (state.error) {
+    html += `<p style="color:#f00;">${escapeHtml(state.error)}</p>`;
+  }
+
+  state.options.forEach((opt) => {
+    const style = opt.isBack
+      ? 'style="color: #ffaa00; margin-top: 10px;"'
+      : "";
+    let dataAttrs = "";
+    if (opt.dataAttributes) {
+      Object.entries(opt.dataAttributes).forEach(([k, v]) => {
+        dataAttrs += ` data-${k}="${escapeHtml(v)}"`;
+      });
+    }
+
+    html += `<div class="menu-item clickable" ${dataAttrs} ${style}>${escapeHtml(opt.label)}</div>`;
+  });
+
+  if (state.footer) {
+    html += `<p style="color:#888; font-size:0.8em; margin-top:10px;">${escapeHtml(state.footer)}</p>`;
+  }
+
+  return html;
+};
 
 const updateUI = (state: GameState) => {
   const statusElement = document.getElementById("game-status");
@@ -308,7 +345,8 @@ const updateUI = (state: GameState) => {
         rightPanel.appendChild(menuDiv);
       }
 
-      const menuHtml = menuController.getMenuHtmlWithState(state);
+      const menuRenderState = menuController.getRenderableState(state);
+      const menuHtml = renderMenu(menuRenderState);
 
       if (menuHtml !== lastMenuHtml) {
         menuDiv.innerHTML = menuHtml;
