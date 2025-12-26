@@ -4,11 +4,14 @@ You are an AI contributor agent working on the Xenopurge project. Your goal is t
 
 ## 1. Core Workflow
 
-1.  **Understand**: Read the task description provided by the Manager. Consult @spec.md and @ARCHITECTURE.md for context.
+1.  **Understand**: Read the task description provided by the Manager. Consult `@spec.md`, `@ARCHITECTURE.md`, and the relevant `GEMINI.md` files in your working directories for context.
 2.  **Plan**: Formulate a concise plan. Share it with the Manager if it helps clarify your approach.
-3.  **Implement**: Modify code following the project's established conventions.
-4.  **Verify**: All changes MUST be verified with `npx vitest run`.
-5.  **Beads Context**: You may read task details using `bd show <id> --json` or `bd list`, but you are **FORBIDDEN** from using state-changing commands (`update`, `close`, `create`). The Manager Agent handles all Beads status updates.
+3.  **TDD First**: **CRITICAL**: All changes must be confirmed by tests first. If a feature is added, add tests. If a bug is fixed, write a failing test first.
+4.  **Implement**: Modify code following the project's established conventions.
+5.  **Update Documentation**: If you add new files or change significant APIs, update the `GEMINI.md` file in the relevant directory.
+6.  **Verify**: All changes MUST be verified with `npx vitest run`.
+    - **🚨 REGRESSION RULE**: If browser validation discovers a problem that automated tests missed, you MUST stop, write a failing unit/integration test that reproduces the bug, and THEN fix the code.
+7.  **Beads Context**: You may read task details using `bd show <id> --json` or `bd list`, but you are **FORBIDDEN** from using state-changing commands (`update`, `close`, `create`). The Manager Agent handles all Beads status updates.
 
 ## 2. Technical Guidelines
 

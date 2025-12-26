@@ -136,13 +136,25 @@ The automated soldier AI follows a multi-tier logic profile when not under direc
     - **Retreat:** If HP falls below 25%, the unit's logic switches to `IGNORE` engagement and prioritizes moving away from the closest threat toward a discovered "safe" cell (no visible enemies).
     - **Group Up:** If a unit is isolated (no allies within 5 tiles) and threats are present, it prioritizes moving toward the closest ally.
 
-4.  **Autonomous Exploration:**
+4.  **Autonomous Exploration**:
     - If no threats are present and no manual commands are queued, units prioritize exploring the closest undiscovered floor cells.
     - Once the map is fully discovered and all objectives are complete, units automatically pathfind to the extraction point.
 
-5.  **Timed Actions**:
+5.  **VIP Logic (EscortVIP Mission)**:
+    - **Unarmed**: The VIP unit has no weapon and cannot attack.
+    - **Extraction Objective**: When a VIP is present, a primary objective is added to extract the VIP safely.
+    - **Mission Failure**: If the VIP dies, the mission is automatically a failure immediately, even if there are still soldiers alive.
+    - **AI Behavior**:
+        - **Danger Avoidance**: The VIP prioritizes fleeing from enemies over all other autonomous actions.
+        - **Extraction Priority**: The VIP ignores item collection/objectives and prioritizes moving toward the extraction point once it is discovered, or exploring toward it if not.
+        - **Safety**: The VIP will try to maintain distance from enemies and stay near armed squad members.
+
+6.  **Timed Actions**:
     - Actions like extraction and picking up items take **5 seconds** (at 1x speed) to complete.
     - During this time, the unit is locked in place and cannot perform other actions until the process finishes.
+
+7.  **Task Coordination**:
+    - Units must coordinate their autonomous tasks. Multiple units should NOT attempt the same task (e.g., picking up the same item) simultaneously. If one unit is already performing a task, others must prioritize different objectives.
 
 ### 4.2 Fog of War (FOW) Configuration
 
@@ -159,8 +171,11 @@ The visibility rules depend on the Mission/Map config:
 ### 4.3 The Director (Spawning)
 
 Spawns occur on a fixed timer (default 45s).
-**Algorithm:**
+**Starting Threat:**
+- Missions can start at a configurable threat level (0% to 100%).
+- If the starting threat is > 10%, enemies are pre-spawned and autonomously roaming the ship at mission start.
 
+**Algorithm:**
 1.  **Base Amount:** Map difficulty defines `X` base enemies.
 2.  **Scaling:** `+1` enemy added to the pool per wave.
 3.  **Distribution:** Enemies are distributed randomly among valid `SpawnPoints`.
@@ -267,14 +282,6 @@ The `TreeShipGenerator` produces maps with a structured layout:
         *   Rooms form a strict tree structure from the corridors.
         *   No cycles (acyclic graph).
         *   No back-links (Depth N connects only to N-1).
-
-**DenseShipGenerator Specifics:**
-A high-density generator designed for exploration depth.
-*   **Fill Rate:** Must achieve >90% floor coverage (almost all cells accessible).
-*   **Structure:** Same rules as TreeShipGenerator (Corridors, Rooms, Depth Hierarchy, Acyclicity, No Nested Rooms), but maximizing density.
-*   **Difficulty Scaling:**
-    *   Easy/Small Maps: Max depth 1.
-    *   Hard/Large Maps: Max depth 3-4.
 
 **DenseShipGenerator Specifics:**
 A high-density generator designed for exploration depth.
@@ -474,6 +481,7 @@ The UI must be optimized for visibility and information density, utilizing the f
 *   **Spawn Points:** The number of initial spawn points (vents/entry points for enemies) must be configurable in the Mission Setup screen (Range: 1 to 10) and **strictly adhered to** by the generator.
 *   **Strict Placement Rules:**
     *   **Spawn Points:** Must ONLY be placed in rooms, never in corridors.
+    *   **Squad vs Enemy Spawns:** A room containing a squad spawn point MUST NOT contain an enemy spawn point, and vice-versa. They must be placed in mutually exclusive rooms.
     *   **Objectives & Hive:** Must ONLY be placed in rooms, never in corridors.
     *   **Corridors:** Must remain clear of all static mission entities to maintain the "frame" integrity.
 
