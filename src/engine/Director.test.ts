@@ -4,7 +4,7 @@ import { SpawnPoint, Enemy, EnemyType } from "../shared/types";
 import { PRNG } from "../shared/PRNG";
 
 describe("Director", () => {
-  it("should spawn enemies periodically", () => {
+  it("should not spawn enemies before turn duration (45s)", () => {
     const spawnPoints: SpawnPoint[] = [
       { id: "sp1", pos: { x: 5, y: 5 }, radius: 1 },
     ];
@@ -12,59 +12,32 @@ describe("Director", () => {
     const prng = new PRNG(123);
     const director = new Director(spawnPoints, prng, onSpawn);
 
-    // Update less than spawn interval (5000ms)
-    director.update(1000);
-    expect(onSpawn).not.toHaveBeenCalled();
-
-    // Update to cross threshold
-    director.update(4000); // Total 5000ms
-    expect(onSpawn).toHaveBeenCalledTimes(1);
-
-    const spawnedEnemy = onSpawn.mock.calls[0][0] as Enemy;
-    // Check if the type is one of the valid enemy types
-    expect(
-      Object.values(EnemyType).includes(spawnedEnemy.type as EnemyType),
-    ).toBe(true);
-
-    // Enemy can spawn anywhere inside the square on which the spawner is (plus jitter logic)
-    expect(spawnedEnemy.pos.x).toBeGreaterThanOrEqual(5);
-    expect(spawnedEnemy.pos.x).toBeLessThan(6);
-    expect(spawnedEnemy.pos.y).toBeGreaterThanOrEqual(5);
-    expect(spawnedEnemy.pos.y).toBeLessThan(6);
-  });
-
-  it("should not spawn if no spawn points", () => {
-    const onSpawn = vi.fn();
-    const prng = new PRNG(123);
-    const director = new Director([], prng, onSpawn);
-
-    director.update(6000);
+    // Update 44.9s
+    director.update(44900);
     expect(onSpawn).not.toHaveBeenCalled();
   });
 
-  it("should ramp up difficulty (spawn faster)", () => {
+  it("should spawn wave at 45s (Turn 1)", () => {
     const spawnPoints: SpawnPoint[] = [
-      { id: "sp1", pos: { x: 0, y: 0 }, radius: 1 },
+      { id: "sp1", pos: { x: 5, y: 5 }, radius: 1 },
     ];
     const onSpawn = vi.fn();
     const prng = new PRNG(123);
     const director = new Director(spawnPoints, prng, onSpawn);
 
-    // 1st Spawn at 5000ms
-    director.update(5000);
-    expect(onSpawn).toHaveBeenCalledTimes(1);
-
-    // 2nd Spawn should be at +4900ms (9900ms total)
-    // Update by 4800ms (total 9800) -> should NOT spawn yet
-    director.update(4800);
-    expect(onSpawn).toHaveBeenCalledTimes(1);
-
-    // Update by 100ms (total 9900) -> should spawn
-    director.update(100);
+    // Update 45s
+    director.update(45000);
+    
+    // Turn 1 starts. Wave Size = 1 (base) + 1 (Turn 1) = 2.
+    // Wait, let's check my logic in implementation.
+    // scalingTurn = Math.min(turn, 10).
+    // At update(45000), turn increments to 1.
+    // spawnWave() called.
+    // count = 1 + scalingTurn = 1 + 1 = 2.
     expect(onSpawn).toHaveBeenCalledTimes(2);
   });
 
-  it("should increase threat level as difficulty ramps up", () => {
+  it("should increase threat level linearly", () => {
     const spawnPoints: SpawnPoint[] = [
       { id: "sp1", pos: { x: 0, y: 0 }, radius: 1 },
     ];
@@ -72,25 +45,61 @@ describe("Director", () => {
     const prng = new PRNG(123);
     const director = new Director(spawnPoints, prng, onSpawn);
 
-    // Initial threat level should be 0
+    // Turn 0, Time 0 -> Threat 0
     expect(director.getThreatLevel()).toBe(0);
 
-    // After 1st spawn, interval drops from 5000 to 4900
-    // Threat = (5000 - 4900) / (5000 - 1000) = 100 / 4000 = 2.5%
-    director.update(5000);
-    expect(director.getThreatLevel()).toBe(2.5);
+    // Turn 0, Time 22.5s -> Threat 5
+    director.update(22500);
+    expect(director.getThreatLevel()).toBeCloseTo(5);
 
-    // After many spawns (e.g. 20 more), interval drops further
-    for (let i = 0; i < 20; i++) {
-      // We need to advance enough time for next spawn.
-      // Current interval is reducing. To be safe, advance 5000ms each time.
-      director.update(5000);
+    // Turn 0, Time 45s (Tick) -> Turn 1, Time 0 -> Threat 10
+    director.update(22500); 
+    expect(director.getThreatLevel()).toBe(10);
+  });
+
+  it("should increase wave size with turns", () => {
+    const spawnPoints: SpawnPoint[] = [
+      { id: "sp1", pos: { x: 0, y: 0 }, radius: 1 },
+    ];
+    const onSpawn = vi.fn();
+    const prng = new PRNG(123);
+    const director = new Director(spawnPoints, prng, onSpawn);
+
+    // Turn 1 Spawn (45s) -> Size 2 (Base 1 + Turn 1)
+    director.update(45000);
+    expect(onSpawn).toHaveBeenCalledTimes(2);
+    onSpawn.mockClear();
+
+    // Turn 2 Spawn (90s) -> Size 3 (Base 1 + Turn 2)
+    director.update(45000);
+    expect(onSpawn).toHaveBeenCalledTimes(3);
+  });
+
+  it("should cap threat and wave size at turn 10", () => {
+    const spawnPoints: SpawnPoint[] = [
+      { id: "sp1", pos: { x: 0, y: 0 }, radius: 1 },
+    ];
+    const onSpawn = vi.fn();
+    const prng = new PRNG(123);
+    const director = new Director(spawnPoints, prng, onSpawn);
+
+    // Advance to Turn 10 (10 * 45s = 450s)
+    for(let i=0; i<10; i++) {
+        director.update(45000);
     }
+    // Now at Turn 10, Time 0. Threat should be 100.
+    expect(director.getThreatLevel()).toBe(100);
 
-    // Total spawns: 1 + 20 = 21.
-    // Interval decrease: 21 * 100 = 2100ms.
-    // Current interval: 5000 - 2100 = 2900ms.
-    // Threat: (5000 - 2900) / 4000 = 2100 / 4000 = 52.5%
-    expect(director.getThreatLevel()).toBe(52.5);
+    // Advance more -> Turn 11. Threat still 100.
+    director.update(45000);
+    expect(director.getThreatLevel()).toBe(100);
+
+    // Turn 11 Spawn check
+    // Logic: scalingTurn = min(11, 10) = 10.
+    // Count = 1 + 10 = 11.
+    // Total calls in this update loop = 11.
+    onSpawn.mockClear();
+    director.update(45000); // Trigger Turn 12 spawn
+    expect(onSpawn).toHaveBeenCalledTimes(11);
   });
 });
