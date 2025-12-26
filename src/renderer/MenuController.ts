@@ -346,7 +346,14 @@ export class MenuController {
         }
       });
 
+      let roomCounter = 1;
       roomMap.forEach((cells, roomId) => {
+        // Only list discovered rooms
+        const isDiscovered = cells.some((c) =>
+          gameState.discoveredCells.includes(`${c.x},${c.y}`),
+        );
+        if (!isDiscovered) return;
+
         // Find rough center
         const avgX = cells.reduce((sum, c) => sum + c.x, 0) / cells.length;
         const avgY = cells.reduce((sum, c) => sum + c.y, 0) / cells.length;
@@ -359,10 +366,11 @@ export class MenuController {
 
         this.overlayOptions.push({
           key: counter.toString(36),
-          label: `Room ${roomId}`,
+          label: `Room ${roomCounter}`,
           pos: { x: centerCell.x, y: centerCell.y },
         });
         counter++;
+        roomCounter++;
       });
     }
   }
