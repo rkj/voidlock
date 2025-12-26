@@ -10,7 +10,7 @@ import { PRNG } from "../shared/PRNG";
 export class Director {
   private turn: number = 0;
   private timeInCurrentTurn: number = 0;
-  private readonly turnDuration: number = 45000; // 45 seconds
+  private readonly turnDuration: number = 30000; // 30 seconds
   private readonly threatPerTurn: number = 10; // 10% per turn
 
   private spawnPoints: SpawnPoint[];
@@ -31,7 +31,7 @@ export class Director {
   public update(dt: number) {
     this.timeInCurrentTurn += dt;
 
-    if (this.timeInCurrentTurn >= this.turnDuration) {
+    while (this.timeInCurrentTurn >= this.turnDuration) {
       this.timeInCurrentTurn -= this.turnDuration;
       this.turn++;
       this.spawnWave();
