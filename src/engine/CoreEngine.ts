@@ -102,7 +102,12 @@ export class CoreEngine {
     // Mission-specific Spawns
     if (missionType === MissionType.EscortVIP) {
       const vipArch = ArchetypeLibrary["vip"];
-      const startPos = map.squadSpawn || map.extraction || { x: 0, y: 0 };
+      let startPos = map.squadSpawn || map.extraction || { x: 0, y: 0 };
+      if (map.squadSpawns && map.squadSpawns.length > 0) {
+        startPos =
+          map.squadSpawns[this.prng.nextInt(0, map.squadSpawns.length - 1)];
+      }
+
       this.addUnit({
         id: `vip-1`,
         pos: {
@@ -133,7 +138,12 @@ export class CoreEngine {
       if (!arch) return;
 
       for (let i = 0; i < squadItem.count; i++) {
-        const startPos = map.squadSpawn || map.extraction || { x: 0, y: 0 };
+        let startPos = map.squadSpawn || map.extraction || { x: 0, y: 0 };
+        if (map.squadSpawns && map.squadSpawns.length > 0) {
+          startPos =
+            map.squadSpawns[this.prng.nextInt(0, map.squadSpawns.length - 1)];
+        }
+
         const startX = startPos.x + 0.5;
         const startY = startPos.y + 0.5;
 

@@ -44,6 +44,7 @@ export type MapDefinition = {
   doors?: Door[]; // New: Array of Door entities
   spawnPoints?: SpawnPoint[];
   squadSpawn?: Vector2;
+  squadSpawns?: Vector2[];
   extraction?: Vector2;
   objectives?: ObjectiveDefinition[];
 };
