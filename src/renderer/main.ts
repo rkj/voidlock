@@ -447,24 +447,38 @@ const updateUI = (state: GameState) => {
         statusText += ` (+${unit.commandQueue.length})`;
       }
 
-      const hpPercent = (unit.hp / unit.maxHp) * 100;
+      const hpPercent =
+        unit.state === UnitState.Dead ? 0 : (unit.hp / unit.maxHp) * 100;
+      // Default is ENGAGE if undefined
+      const policyIcon = unit.engagementPolicy === "IGNORE" ? "🏃" : "⚔️";
 
       if (!el.hasChildNodes()) {
         el.innerHTML = `
             <div class="info-row" style="display:flex; justify-content:space-between; align-items:center;">
-              <strong class="u-id"></strong>
-              <span class="u-status"></span>
+              <div style="display:flex; align-items:center; gap:6px;">
+                 <span class="u-icon" style="font-size:1.2em;"></span>
+                 <strong class="u-id"></strong>
+              </div>
+              <span class="u-hp" style="font-weight:bold;"></span>
+            </div>
+            <div class="status-row" style="font-size:0.8em; color:#aaa; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:2px;">
+                 <span class="u-status-text"></span>
             </div>
             <div class="hp-bar"><div class="hp-fill"></div></div>
           `;
       }
 
+      const iconEl = el.querySelector(".u-icon");
+      if (iconEl) iconEl.textContent = policyIcon;
+
       const idEl = el.querySelector(".u-id");
       if (idEl) idEl.textContent = unit.id;
 
-      const statusEl = el.querySelector(".u-status");
-      if (statusEl)
-        statusEl.textContent = `${unit.hp}/${unit.maxHp} HP | ${unit.engagementPolicy || "ENGAGE"} | ${statusText}`;
+      const statusEl = el.querySelector(".u-status-text");
+      if (statusEl) statusEl.textContent = statusText;
+
+      const hpEl = el.querySelector(".u-hp");
+      if (hpEl) hpEl.textContent = `${unit.hp}/${unit.maxHp}`;
 
       const hpFill = el.querySelector(".hp-fill") as HTMLElement;
       if (hpFill) hpFill.style.width = `${hpPercent}%`;
