@@ -42,7 +42,7 @@ describe("Director", () => {
     // Turn 5: 6
     // Total: 2+3+4+5+6 = 20
     for (let i = 0; i < 5; i++) {
-        director.update(30000);
+      director.update(30000);
     }
 
     expect(onSpawn).toHaveBeenCalledTimes(20);
@@ -50,18 +50,18 @@ describe("Director", () => {
   });
 
   it("should handle large dt", () => {
-     const spawnPoints = [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }];
-     const prng = new PRNG(123);
-     const onSpawn = vi.fn();
-     const director = new Director(spawnPoints, prng, onSpawn);
+    const spawnPoints = [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }];
+    const prng = new PRNG(123);
+    const onSpawn = vi.fn();
+    const director = new Director(spawnPoints, prng, onSpawn);
 
-     // 100 seconds
-     director.update(100000);
+    // 100 seconds
+    director.update(100000);
 
-     // Turn 1 (30s): 2 enemies
-     // Turn 2 (60s): 3 enemies
-     // Turn 3 (90s): 4 enemies
-     // Total should be 2 + 3 + 4 = 9
-     expect(onSpawn).toHaveBeenCalledTimes(9);
+    // Turn 1 (30s): 2 enemies
+    // Turn 2 (60s): 3 enemies
+    // Turn 3 (90s): 4 enemies
+    // Total should be 2 + 3 + 4 = 9
+    expect(onSpawn).toHaveBeenCalledTimes(9);
   });
 });

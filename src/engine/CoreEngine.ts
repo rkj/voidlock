@@ -169,9 +169,10 @@ export class CoreEngine {
       if (!arch) return;
 
       for (let i = 0; i < squadItem.count; i++) {
-        // Use extraction point as start if available, else 0,0
-        const startX = map.extraction ? map.extraction.x + 0.5 : 0.5;
-        const startY = map.extraction ? map.extraction.y + 0.5 : 0.5;
+        // Use squadSpawn if available, else fallback to extraction point, else 0,0
+        const startPos = map.squadSpawn || map.extraction || { x: 0, y: 0 };
+        const startX = startPos.x + 0.5;
+        const startY = startPos.y + 0.5;
 
         this.addUnit({
           id: `${arch.id}-${unitCount++}`,

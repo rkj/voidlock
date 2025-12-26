@@ -19,6 +19,7 @@ export class TreeShipGenerator {
   private walls: Set<string> = new Set();
   private doors: Door[] = [];
   private spawnPoints: SpawnPoint[] = [];
+  private squadSpawn?: { x: number; y: number };
   private objectives: Objective[] = [];
   private extraction?: { x: number; y: number };
   private frontier: {
@@ -179,6 +180,7 @@ export class TreeShipGenerator {
       walls: mapWalls,
       doors: this.doors,
       spawnPoints: this.spawnPoints,
+      squadSpawn: this.squadSpawn,
       extraction: this.extraction,
       objectives: this.objectives,
     };
@@ -316,42 +318,83 @@ export class TreeShipGenerator {
   private placeFeatures(spawnPointCount: number) {
     const floors = this.cells.filter((c) => c.type === CellType.Floor);
     if (floors.length === 0) return;
+
+    // 1. Divide floor cells into quadrants
+    const midX = this.width / 2;
+    const midY = this.height / 2;
+
+    const quadrants: Cell[][] = [[], [], [], []];
+    floors.forEach((c) => {
+      if (c.x < midX && c.y < midY) quadrants[0].push(c);
+      else if (c.x >= midX && c.y < midY) quadrants[1].push(c);
+      else if (c.x < midX && c.y >= midY) quadrants[2].push(c);
+      else quadrants[3].push(c);
+    });
+
+    // 2. Pick Squad Spawn quadrant
+    const nonEmptyQuads = quadrants
+      .map((q, i) => ({ q, i }))
+      .filter((obj) => obj.q.length > 0);
+    if (nonEmptyQuads.length === 0) return;
+
+    const squadQuadIdx =
+      nonEmptyQuads[this.prng.nextInt(0, nonEmptyQuads.length - 1)].i;
+    const squadQuad = quadrants[squadQuadIdx];
+    const squadCell = squadQuad[this.prng.nextInt(0, squadQuad.length - 1)];
+    this.squadSpawn = { x: squadCell.x, y: squadCell.y };
+
+    // 3. Pick Extraction quadrant (opposite if possible)
+    const oppositeMap: Record<number, number> = { 0: 3, 3: 0, 1: 2, 2: 1 };
+    let extQuadIdx = oppositeMap[squadQuadIdx];
+
+    if (quadrants[extQuadIdx].length === 0) {
+      let maxDist = -1;
+      nonEmptyQuads.forEach((obj) => {
+        const dist =
+          Math.abs((obj.i % 2) - (squadQuadIdx % 2)) +
+          Math.abs(Math.floor(obj.i / 2) - Math.floor(squadQuadIdx / 2));
+        if (dist > maxDist) {
+          maxDist = dist;
+          extQuadIdx = obj.i;
+        }
+      });
+    }
+
+    const extQuad = quadrants[extQuadIdx];
+    const extCell = extQuad[this.prng.nextInt(0, extQuad.length - 1)];
+    this.extraction = { x: extCell.x, y: extCell.y };
+
+    // 4. Enemy spawns
     const roomFloors = floors.filter(
       (c) => c.roomId && c.roomId.startsWith("room-"),
     );
     const spawnCandidates = roomFloors.length > 0 ? roomFloors : floors;
-    let referenceX = 0;
-    if (spawnPointCount === 1) {
-      const sp = spawnCandidates.sort((a, b) => a.x - b.x)[0];
+
+    for (let i = 0; i < spawnPointCount; i++) {
+      const sp =
+        spawnCandidates[this.prng.nextInt(0, spawnCandidates.length - 1)];
       this.spawnPoints.push({
-        id: "spawn-1",
+        id: `spawn-${i + 1}`,
         pos: { x: sp.x, y: sp.y },
         radius: 1,
       });
-      referenceX = sp.x;
-    } else {
-      const leftMost = spawnCandidates
-        .sort((a, b) => a.x - b.x)
-        .slice(0, Math.min(20, spawnCandidates.length));
-      for (let i = 0; i < spawnPointCount; i++) {
-        const sp = leftMost[this.prng.nextInt(0, leftMost.length - 1)];
-        this.spawnPoints.push({
-          id: `spawn-${i + 1}`,
-          pos: { x: sp.x, y: sp.y },
-          radius: 1,
-        });
-      }
-      referenceX = leftMost.length > 0 ? leftMost[0].x : 0;
     }
-    const rightMost = floors.sort((a, b) => b.x - a.x)[0];
-    this.extraction = { x: rightMost.x, y: rightMost.y };
+
+    // 5. Objectives
+    const referencePos = this.squadSpawn;
     const objectiveCandidates = roomFloors.filter(
-      (c) => Math.abs(c.x - referenceX) > 5,
+      (c) =>
+        Math.abs(c.x - referencePos.x) + Math.abs(c.y - referencePos.y) > 5,
     );
     const finalObjCandidates =
       objectiveCandidates.length > 0
         ? objectiveCandidates
-        : floors.filter((c) => Math.abs(c.x - referenceX) > 5);
+        : floors.filter(
+            (c) =>
+              Math.abs(c.x - referencePos.x) + Math.abs(c.y - referencePos.y) >
+              5,
+          );
+
     if (finalObjCandidates.length > 0) {
       const objCell =
         finalObjCandidates[this.prng.nextInt(0, finalObjCandidates.length - 1)];
