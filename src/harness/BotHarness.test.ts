@@ -20,13 +20,11 @@ describe("BotHarness", () => {
   it("should register listener and send commands", () => {
     const client = new GameClient(() => new MapGenerator(123));
     const bot: Bot = {
-      act: vi
-        .fn()
-        .mockReturnValue({
-          type: CommandType.MOVE_TO,
-          unitIds: ["u1"],
-          target: { x: 0, y: 0 },
-        }),
+      act: vi.fn().mockReturnValue({
+        type: CommandType.MOVE_TO,
+        unitIds: ["u1"],
+        target: { x: 0, y: 0 },
+      }),
     };
 
     const harness = new BotHarness(client, bot);
