@@ -89,6 +89,15 @@ export class MissionManager {
         });
       }
     }
+
+    if (this.missionType === MissionType.EscortVIP) {
+      state.objectives.push({
+        id: "obj-escort",
+        kind: "Escort",
+        state: "Pending",
+        targetCell: map.extraction,
+      });
+    }
   }
 
   public updateObjectives(state: GameState, visibleCells: string[]) {
@@ -110,6 +119,25 @@ export class MissionManager {
           obj.visible = true;
         }
       }
+
+      // Special handling for Escort VIP: completion depends on VIP reaching extraction
+      if (
+        this.missionType === MissionType.EscortVIP &&
+        obj.id === "obj-escort"
+      ) {
+        const vip = state.units.find((u) => u.id.startsWith("vip-"));
+        const atExtraction =
+          state.map.extraction &&
+          vip &&
+          Math.floor(vip.pos.x) === state.map.extraction.x &&
+          Math.floor(vip.pos.y) === state.map.extraction.y;
+
+        if (vip && (vip.state === UnitState.Extracted || atExtraction)) {
+          obj.state = "Completed";
+        } else if (vip && vip.state === UnitState.Dead) {
+          obj.state = "Failed";
+        }
+      }
     });
   }
 
@@ -120,6 +148,25 @@ export class MissionManager {
     const extractedUnits = state.units.filter(
       (u) => u.state === UnitState.Extracted,
     );
+
+    if (this.missionType === MissionType.EscortVIP) {
+      const vip = state.units.find((u) => u.id.startsWith("vip-"));
+      if (!vip || vip.state === UnitState.Dead) {
+        state.status = "Lost";
+        return;
+      }
+      if (vip.state === UnitState.Extracted) {
+        state.status = "Won";
+        return;
+      }
+
+      const combatUnits = activeUnits.filter((u) => !u.id.startsWith("vip-"));
+      if (combatUnits.length === 0) {
+        state.status = "Lost";
+        return;
+      }
+      return;
+    }
 
     if (activeUnits.length === 0) {
       const allObjectivesComplete = state.objectives.every(

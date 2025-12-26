@@ -50,7 +50,7 @@ export type MapDefinition = {
 
 export type ObjectiveDefinition = {
   id: string;
-  kind: "Recover" | "Kill";
+  kind: "Recover" | "Kill" | "Escort";
   targetCell?: Vector2;
   targetEnemyId?: string;
 };
@@ -224,6 +224,16 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     sightRange: 7,
     speed: 1.5,
   },
+  vip: {
+    id: "vip",
+    name: "VIP",
+    baseHp: 100,
+    damage: 0,
+    fireRate: 0,
+    attackRange: 0,
+    sightRange: 6,
+    speed: 2.2,
+  },
 };
 
 export enum EnemyType {
@@ -311,6 +321,7 @@ export enum MissionType {
   Default = "Default",
   ExtractArtifacts = "ExtractArtifacts",
   DestroyHive = "DestroyHive",
+  EscortVIP = "EscortVIP",
 }
 
 export type WorkerMessage =
