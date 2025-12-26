@@ -41,7 +41,7 @@ You are an AI contributor agent working on the Xenopurge project. Your goal is t
 
 ### G5) File Length & Structure
 
-- **Aim for Focus**: Aim for files with fewer than 500 lines. 
+- **Aim for Focus**: Aim for files with fewer than 500 lines.
 - **Mandatory Refactoring**: When a file crosses 1000 lines, it MUST be refactored into smaller, more focused modules according to SOLID principles.
 
 ## 3. Feature/Task Completion Checklist

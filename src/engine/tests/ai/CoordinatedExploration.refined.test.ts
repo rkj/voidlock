@@ -25,7 +25,7 @@ describe("Coordinated Exploration Refined", () => {
           kind: "Recover",
           targetCell: { x: 9, y: 9 },
           state: "Pending",
-        }
+        },
       ],
     };
 
@@ -52,7 +52,7 @@ describe("Coordinated Exploration Refined", () => {
         damage: 10,
         fireRate: 100,
         attackRange: 5,
-        sightRange: 0.1, 
+        sightRange: 0.1,
         speed: 2,
         commandQueue: [],
       });
@@ -63,7 +63,7 @@ describe("Coordinated Exploration Refined", () => {
 
     const state = engine.getState();
     const units = state.units;
-    const targets = units.map(u => u.explorationTarget).filter(t => !!t);
+    const targets = units.map((u) => u.explorationTarget).filter((t) => !!t);
 
     expect(targets.length).toBe(4);
 
@@ -72,59 +72,59 @@ describe("Coordinated Exploration Refined", () => {
       for (let j = i + 1; j < targets.length; j++) {
         const dist = Math.sqrt(
           Math.pow(targets[i]!.x - targets[j]!.x, 2) +
-          Math.pow(targets[i]!.y - targets[j]!.y, 2)
+            Math.pow(targets[i]!.y - targets[j]!.y, 2),
         );
         // With avoidRadius 5, they should be at least 3 tiles apart
-        expect(dist).toBeGreaterThanOrEqual(3.0); 
+        expect(dist).toBeGreaterThanOrEqual(3.0);
       }
     }
   });
 
   it("should re-evaluate target if it becomes discovered by another unit", () => {
-     engine.addUnit({
-        id: "u1",
-        pos: { x: 1.5, y: 1.5 },
-        hp: 100,
-        maxHp: 100,
-        state: UnitState.Idle,
-        damage: 10,
-        fireRate: 100,
-        attackRange: 5,
-        sightRange: 0.1,
-        speed: 2,
-        commandQueue: [],
-      });
-      engine.addUnit({
-        id: "u2",
-        pos: { x: 8.5, y: 8.5 },
-        hp: 100,
-        maxHp: 100,
-        state: UnitState.Idle,
-        damage: 10,
-        fireRate: 100,
-        attackRange: 5,
-        sightRange: 0.1,
-        speed: 2,
-        commandQueue: [],
-      });
+    engine.addUnit({
+      id: "u1",
+      pos: { x: 1.5, y: 1.5 },
+      hp: 100,
+      maxHp: 100,
+      state: UnitState.Idle,
+      damage: 10,
+      fireRate: 100,
+      attackRange: 5,
+      sightRange: 0.1,
+      speed: 2,
+      commandQueue: [],
+    });
+    engine.addUnit({
+      id: "u2",
+      pos: { x: 8.5, y: 8.5 },
+      hp: 100,
+      maxHp: 100,
+      state: UnitState.Idle,
+      damage: 10,
+      fireRate: 100,
+      attackRange: 5,
+      sightRange: 0.1,
+      speed: 2,
+      commandQueue: [],
+    });
 
-      engine.update(100);
-      
-      const units = engine.getState().units;
-      const u1 = units.find(u => u.id === "u1")!;
-      expect(u1.explorationTarget).toBeDefined();
-      const target1 = { ...u1.explorationTarget! };
-      
-      // Manually discover u1's target in the engine's REAL state
-      const key = `${Math.floor(target1.x)},${Math.floor(target1.y)}`;
-      (engine as any).state.discoveredCells.push(key);
-      
-      // Run update again
-      engine.update(100);
-      
-      const u1_after = engine.getState().units.find(u => u.id === "u1")!;
-      if (u1_after.explorationTarget) {
-          expect(u1_after.explorationTarget).not.toEqual(target1);
-      }
+    engine.update(100);
+
+    const units = engine.getState().units;
+    const u1 = units.find((u) => u.id === "u1")!;
+    expect(u1.explorationTarget).toBeDefined();
+    const target1 = { ...u1.explorationTarget! };
+
+    // Manually discover u1's target in the engine's REAL state
+    const key = `${Math.floor(target1.x)},${Math.floor(target1.y)}`;
+    (engine as any).state.discoveredCells.push(key);
+
+    // Run update again
+    engine.update(100);
+
+    const u1_after = engine.getState().units.find((u) => u.id === "u1")!;
+    if (u1_after.explorationTarget) {
+      expect(u1_after.explorationTarget).not.toEqual(target1);
+    }
   });
 });
