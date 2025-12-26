@@ -429,7 +429,21 @@ export class CoreEngine {
       .filter((u) => u.id !== unit.id && u.explorationTarget)
       .map((u) => u.explorationTarget!);
 
-    const avoidRadius = 2; // Avoid cells within 2 tiles of other units' targets
+    // Also avoid areas where other units currently are (they are likely exploring there)
+    const otherUnitPositions = this.state.units
+      .filter(
+        (u) =>
+          u.id !== unit.id &&
+          u.hp > 0 &&
+          u.state !== UnitState.Extracted &&
+          u.state !== UnitState.Dead,
+      )
+      .map((u) => u.pos);
+
+    // Dynamic avoidance radii based on map size
+    const mapDim = Math.max(this.state.map.width, this.state.map.height);
+    const avoidRadius = Math.min(6, Math.max(2, Math.floor(mapDim / 2.5)));
+    const unitAvoidRadius = Math.min(4, Math.max(1, Math.floor(mapDim / 4)));
 
     // Iterate over all possible cells
     for (let y = 0; y < this.state.map.height; y++) {
@@ -447,18 +461,24 @@ export class CoreEngine {
             (claimed) => this.getDistance(target, claimed) < avoidRadius,
           );
 
-          if (!isClaimed) {
-            const dist = this.getDistance(unit.pos, target);
-            if (dist < minDistance) {
-              minDistance = dist;
-              closestCell = { x, y };
-            }
+          if (isClaimed) continue;
+
+          // Check if too close to any other unit's current position
+          const tooCloseToUnit = otherUnitPositions.some(
+            (pos) => this.getDistance(target, pos) < unitAvoidRadius,
+          );
+
+          if (tooCloseToUnit) continue;
+
+          const dist = this.getDistance(unit.pos, target);
+          if (dist < minDistance) {
+            minDistance = dist;
+            closestCell = { x, y };
           }
         }
       }
     }
 
-    // Fallback: If all good targets are claimed (e.g. only 1 undiscovered area left but multiple units), ignore claims
     if (!closestCell) {
       // Repeat search without claim check
       for (let y = 0; y < this.state.map.height; y++) {
@@ -1016,41 +1036,79 @@ export class CoreEngine {
         }
         // 4. Exploration (if no objective action and not extracting)
         else if (!actionTaken && !this.isMapFullyDiscovered()) {
-          // Check if we already have a valid exploration target
+          let shouldReevaluate = !unit.explorationTarget;
+
           if (unit.explorationTarget) {
             // Is it still undiscovered?
             const key = `${Math.floor(unit.explorationTarget.x)},${Math.floor(unit.explorationTarget.y)}`;
             if (this.state.discoveredCells.includes(key)) {
               unit.explorationTarget = undefined; // Arrived or seen, pick new one
-            } else if (unit.state === UnitState.Idle) {
-              // We have a target but we are Idle? Repath.
-              this.executeCommand(
-                unit,
-                {
-                  type: CommandType.MOVE_TO,
-                  unitIds: [unit.id],
-                  target: unit.explorationTarget,
-                  label: "Exploring",
-                },
-                false,
-              );
+              shouldReevaluate = true;
+            } else {
+              // Periodically re-evaluate to see if a significantly better target appeared
+              // We use time-based check to avoid expensive pathfinding/search every tick
+              const checkInterval = 1000; // Check every 1 second
+              const lastCheck = Math.floor((this.state.t - dt) / checkInterval);
+              const currentCheck = Math.floor(this.state.t / checkInterval);
+              if (currentCheck > lastCheck || unit.state === UnitState.Idle) {
+                shouldReevaluate = true;
+              }
             }
           }
 
-          if (!unit.explorationTarget) {
+          if (shouldReevaluate) {
             const targetCell = this.findClosestUndiscoveredCell(unit);
             if (targetCell) {
-              unit.explorationTarget = { x: targetCell.x, y: targetCell.y };
-              this.executeCommand(
-                unit,
-                {
-                  type: CommandType.MOVE_TO,
-                  unitIds: [unit.id],
-                  target: targetCell,
-                  label: "Exploring",
-                },
-                false,
-              );
+              const newTarget = { x: targetCell.x, y: targetCell.y };
+              const isDifferent =
+                !unit.explorationTarget ||
+                unit.explorationTarget.x !== newTarget.x ||
+                unit.explorationTarget.y !== newTarget.y;
+
+              if (isDifferent) {
+                // Only switch if it's significantly better (closer) or we didn't have one
+                let switchTarget = !unit.explorationTarget;
+                if (unit.explorationTarget) {
+                  const oldDist = this.getDistance(unit.pos, {
+                    x: unit.explorationTarget.x + 0.5,
+                    y: unit.explorationTarget.y + 0.5,
+                  });
+                  const newDist = this.getDistance(unit.pos, {
+                    x: newTarget.x + 0.5,
+                    y: newTarget.y + 0.5,
+                  });
+                  // Switch if new target is at least 30% closer
+                  if (newDist < oldDist * 0.7) {
+                    switchTarget = true;
+                  }
+                }
+
+                if (switchTarget) {
+                  unit.explorationTarget = newTarget;
+                  this.executeCommand(
+                    unit,
+                    {
+                      type: CommandType.MOVE_TO,
+                      unitIds: [unit.id],
+                      target: targetCell,
+                      label: "Exploring",
+                    },
+                    false,
+                  );
+                }
+              } else if (unit.state === UnitState.Idle) {
+                // Same target but we are Idle? Repath.
+                this.executeCommand(
+                  unit,
+                  {
+                    type: CommandType.MOVE_TO,
+                    unitIds: [unit.id],
+                    target: unit.explorationTarget!,
+                    label: "Exploring",
+                  },
+                  false,
+                );
+              }
             }
           }
         }

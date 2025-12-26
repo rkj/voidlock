@@ -39,6 +39,11 @@ You are an AI contributor agent working on the Xenopurge project. Your goal is t
 - **Idiomatic Changes**: Ensure your changes integrate naturally and idiomatically with the local context.
 - **Avoid Duplication**: Do not duplicate helper functions or test logic. Refactor shared logic into utility files (e.g., `src/engine/tests/utils/`) and import them.
 
+### G5) File Length & Structure
+
+- **Aim for Focus**: Aim for files with fewer than 500 lines. 
+- **Mandatory Refactoring**: When a file crosses 1000 lines, it MUST be refactored into smaller, more focused modules according to SOLID principles.
+
 ## 3. Feature/Task Completion Checklist
 
 When finishing a feature or task, you MUST perform the following steps in order:
