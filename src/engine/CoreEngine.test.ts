@@ -44,7 +44,7 @@ describe("CoreEngine with Objectives and Game Loop", () => {
       { x: 1, y: 2, type: CellType.Floor },
       { x: 2, y: 2, type: CellType.Floor },
     ],
-    spawnPoints: [mockSpawnPoint],
+    spawnPoints: [], // Clear spawn points to prevent enemies
     extraction: { x: 0, y: 2 },
     objectives: [mockObjective],
   };
@@ -77,6 +77,8 @@ describe("CoreEngine with Objectives and Game Loop", () => {
     });
 
     for (let i = 0; i < 15; i++) engine.update(100);
+    // Add 5.1s wait for channeling
+    engine.update(5100);
 
     const state = engine.getState();
     expect(state.objectives[0].state).toBe("Completed");
@@ -103,6 +105,8 @@ describe("CoreEngine with Objectives and Game Loop", () => {
       target: { x: 2, y: 0 },
     });
     for (let i = 0; i < 15; i++) engine.update(100);
+    // Wait for objective channel
+    engine.update(5100);
 
     expect(engine.getState().objectives[0].state).toBe("Completed");
 
@@ -112,6 +116,8 @@ describe("CoreEngine with Objectives and Game Loop", () => {
       target: { x: 0, y: 2 },
     });
     for (let i = 0; i < 25; i++) engine.update(100);
+    // Wait for extract channel
+    engine.update(5100);
 
     const state = engine.getState();
     expect(state.units[0].state).toBe(UnitState.Extracted);

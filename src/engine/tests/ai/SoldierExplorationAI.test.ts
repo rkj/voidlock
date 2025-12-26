@@ -106,8 +106,8 @@ describe("Soldier Exploration AI", () => {
 
     // Unit is at (0.5,0.5). Extraction is at (2,2).
     // Simulate updates until unit reaches extraction
-    for (let i = 0; i < 50; i++) {
-      // Enough time for unit to move from (0,0) to (2,2)
+    for (let i = 0; i < 100; i++) {
+      // Enough time for unit to move from (0,0) to (2,2) AND Channel (5s)
       engine.update(100);
     }
     const state = engine.getState();
