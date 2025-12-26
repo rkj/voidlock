@@ -1102,6 +1102,23 @@ document.addEventListener("DOMContentLoaded", () => {
       currentSeed = config.lastSeed;
       currentSquad = config.squadConfig;
 
+      // Enforce 4-soldier limit on loaded config
+      let total = currentSquad.reduce((sum, s) => sum + s.count, 0);
+      if (total > 4) {
+        for (let i = 0; i < currentSquad.length; i++) {
+          const s = currentSquad[i];
+          if (total - s.count >= 4) {
+            total -= s.count;
+            currentSquad.splice(i, 1);
+            i--;
+          } else if (total > 4) {
+            s.count -= total - 4;
+            total = 4;
+            break;
+          }
+        }
+      }
+
       // Apply to UI
       const missionSelect = document.getElementById(
         "mission-type",
@@ -1155,6 +1172,36 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!container) return;
     container.innerHTML = "";
 
+    const MAX_SQUAD_SIZE = 4;
+
+    const updateTotalCountDisplay = () => {
+      const total = currentSquad.reduce((sum, s) => sum + s.count, 0);
+      const display = document.getElementById("squad-total-count");
+      if (display) {
+        display.textContent = `Total Soldiers: ${total}/${MAX_SQUAD_SIZE}`;
+        display.style.color =
+          total > MAX_SQUAD_SIZE
+            ? "#f00"
+            : total === MAX_SQUAD_SIZE
+              ? "#0f0"
+              : "#aaa";
+      }
+
+      const launchBtn = document.getElementById(
+        "btn-launch-mission",
+      ) as HTMLButtonElement;
+      if (launchBtn) {
+        launchBtn.disabled = total === 0 || total > MAX_SQUAD_SIZE;
+      }
+    };
+
+    // Create total count display
+    const totalDiv = document.createElement("div");
+    totalDiv.id = "squad-total-count";
+    totalDiv.style.marginBottom = "10px";
+    totalDiv.style.fontWeight = "bold";
+    container.appendChild(totalDiv);
+
     // Create a map for easy lookup of current counts
     const countMap = new Map<string, number>();
     currentSquad.forEach((s) => countMap.set(s.archetypeId, s.count));
@@ -1173,32 +1220,53 @@ document.addEventListener("DOMContentLoaded", () => {
       const input = document.createElement("input");
       input.type = "number";
       input.min = "0";
-      input.max = "10";
+      input.max = MAX_SQUAD_SIZE.toString();
       input.value = (countMap.get(arch.id) || 0).toString();
       input.style.width = "60px";
       input.style.marginLeft = "10px";
 
       input.addEventListener("change", () => {
-        const val = parseInt(input.value);
-        if (!isNaN(val) && val >= 0) {
-          // Update currentSquad
-          const idx = currentSquad.findIndex((s) => s.archetypeId === arch.id);
-          if (idx >= 0) {
-            if (val === 0) {
-              currentSquad.splice(idx, 1);
-            } else {
-              currentSquad[idx].count = val;
-            }
-          } else if (val > 0) {
-            currentSquad.push({ archetypeId: arch.id, count: val });
-          }
+        const newVal = parseInt(input.value);
+        if (isNaN(newVal) || newVal < 0) {
+          input.value = (
+            currentSquad.find((s) => s.archetypeId === arch.id)?.count || 0
+          ).toString();
+          return;
         }
+
+        const otherTotal = currentSquad
+          .filter((s) => s.archetypeId !== arch.id)
+          .reduce((sum, s) => sum + s.count, 0);
+
+        if (otherTotal + newVal > MAX_SQUAD_SIZE) {
+          input.value = (
+            currentSquad.find((s) => s.archetypeId === arch.id)?.count || 0
+          ).toString();
+          alert(`Maximum squad size is ${MAX_SQUAD_SIZE} soldiers.`);
+          return;
+        }
+
+        // Update currentSquad
+        const idx = currentSquad.findIndex((s) => s.archetypeId === arch.id);
+        if (idx >= 0) {
+          if (newVal === 0) {
+            currentSquad.splice(idx, 1);
+          } else {
+            currentSquad[idx].count = newVal;
+          }
+        } else if (newVal > 0) {
+          currentSquad.push({ archetypeId: arch.id, count: newVal });
+        }
+
+        updateTotalCountDisplay();
       });
 
       row.appendChild(label);
       row.appendChild(input);
       container.appendChild(row);
     });
+
+    updateTotalCountDisplay();
   };
 
   loadAndApplyConfig();
