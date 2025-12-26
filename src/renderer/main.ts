@@ -302,16 +302,20 @@ document.addEventListener("DOMContentLoaded", () => {
             <option value="${MissionType.Default}">Default (Single Objective)</option>
             <option value="${MissionType.ExtractArtifacts}">Extract Artifacts</option>
             <option value="${MissionType.DestroyHive}">Destroy Hive</option>
+            <option value="${MissionType.EscortVIP}">Escort VIP</option>
         </select>
       `;
       mapGenGroup.insertBefore(missionDiv, mapGenGroup.firstChild);
       const missionSelect = document.getElementById(
         "mission-type",
       ) as HTMLSelectElement;
-      missionSelect.addEventListener(
-        "change",
-        () => (currentMissionType = missionSelect.value as MissionType),
-      );
+      missionSelect.addEventListener("change", () => {
+        currentMissionType = missionSelect.value as MissionType;
+        if (currentMissionType === MissionType.EscortVIP) {
+          currentSquad = currentSquad.filter((s) => s.archetypeId !== "vip");
+        }
+        renderSquadBuilder();
+      });
     }
 
     mapGenSelect.addEventListener("change", () => {
@@ -504,7 +508,7 @@ document.addEventListener("DOMContentLoaded", () => {
     renderSquadBuilder();
   };
 
-  const renderSquadBuilder = () => {
+    function renderSquadBuilder() {
     const container = document.getElementById("squad-builder");
     if (!container) return;
     container.innerHTML = "";
@@ -518,7 +522,10 @@ document.addEventListener("DOMContentLoaded", () => {
     container.appendChild(totalDiv);
 
     const updateCount = () => {
-      const total = currentSquad.reduce((sum, s) => sum + s.count, 0);
+      let total = currentSquad.reduce((sum, s) => sum + s.count, 0);
+      if (currentMissionType === MissionType.EscortVIP) {
+        total += 1; // Auto-spawned VIP
+      }
       totalDiv.textContent = `Total Soldiers: ${total}/${MAX_SQUAD_SIZE}`;
       totalDiv.style.color =
         total > MAX_SQUAD_SIZE
@@ -533,6 +540,9 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     Object.values(ArchetypeLibrary).forEach((arch) => {
+      if (currentMissionType === MissionType.EscortVIP && arch.id === "vip") {
+        return; // VIP is auto-added in this mission type
+      }
       const row = document.createElement("div");
       row.style.display = "flex";
       row.style.alignItems = "center";
@@ -551,14 +561,17 @@ document.addEventListener("DOMContentLoaded", () => {
       input.style.marginLeft = "10px";
       input.addEventListener("change", () => {
         const val = parseInt(input.value) || 0;
-        const otherTotal = currentSquad
+        let otherTotal = currentSquad
           .filter((s) => s.archetypeId !== arch.id)
           .reduce((sum, s) => sum + s.count, 0);
+        if (currentMissionType === MissionType.EscortVIP) {
+          otherTotal += 1; // Account for the auto-spawned VIP
+        }
         if (otherTotal + val > MAX_SQUAD_SIZE) {
           input.value = (
             currentSquad.find((s) => s.archetypeId === arch.id)?.count || 0
           ).toString();
-          alert("Max squad size is 4.");
+          alert(`Max squad size is ${MAX_SQUAD_SIZE}.`);
           return;
         }
         const idx = currentSquad.findIndex((s) => s.archetypeId === arch.id);
@@ -573,7 +586,7 @@ document.addEventListener("DOMContentLoaded", () => {
       container.appendChild(row);
     });
     updateCount();
-  };
+    }
 
   loadAndApplyConfig();
   screenManager.show("main-menu");

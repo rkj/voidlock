@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { ArchetypeLibrary } from "../shared/types";
+import { ArchetypeLibrary, MissionType } from "../shared/types";
 
 // We need to mock the environment that main.ts expects
 // This is a bit tricky because main.ts is a large file with many side effects.
@@ -7,6 +7,13 @@ import { ArchetypeLibrary } from "../shared/types";
 
 describe("SquadBuilder UI logic", () => {
   let currentSquad: { archetypeId: string; count: number }[] = [];
+  let currentMissionType: MissionType = MissionType.Default;
+
+  beforeEach(() => {
+    currentSquad = [];
+    currentMissionType = MissionType.Default;
+    vi.clearAllMocks();
+  });
 
   // Mock DOM
   const mockContainer = {
@@ -67,7 +74,10 @@ describe("SquadBuilder UI logic", () => {
     const MAX_SQUAD_SIZE = 4;
 
     const updateTotalCountDisplay = () => {
-      const total = currentSquad.reduce((sum, s) => sum + s.count, 0);
+      let total = currentSquad.reduce((sum, s) => sum + s.count, 0);
+      if (currentMissionType === MissionType.EscortVIP) {
+        total += 1;
+      }
       const display = document.getElementById("squad-total-count");
       if (display) {
         display.textContent = `Total Soldiers: ${total}/${MAX_SQUAD_SIZE}`;
@@ -92,6 +102,9 @@ describe("SquadBuilder UI logic", () => {
     container.appendChild(totalDiv);
 
     Object.values(ArchetypeLibrary).forEach((arch) => {
+      if (currentMissionType === MissionType.EscortVIP && arch.id === "vip") {
+        return;
+      }
       const row = document.createElement("div");
       const input = document.createElement("input");
       input.type = "number";
@@ -108,9 +121,13 @@ describe("SquadBuilder UI logic", () => {
           return;
         }
 
-        const otherTotal = currentSquad
+        let otherTotal = currentSquad
           .filter((s) => s.archetypeId !== arch.id)
           .reduce((sum, s) => sum + s.count, 0);
+
+        if (currentMissionType === MissionType.EscortVIP) {
+          otherTotal += 1;
+        }
 
         if (otherTotal + newVal > MAX_SQUAD_SIZE) {
           input.value = (
@@ -201,5 +218,43 @@ describe("SquadBuilder UI logic", () => {
 
     expect(currentSquad[0].count).toBe(3);
     expect(mockTotalCountDisplay.textContent).toBe("Total Soldiers: 3/4");
+  });
+
+  it("should include VIP in total count for EscortVIP missions", () => {
+    currentMissionType = MissionType.EscortVIP;
+    currentSquad = [{ archetypeId: "assault", count: 2 }];
+    renderSquadBuilder();
+    expect(mockTotalCountDisplay.textContent).toBe("Total Soldiers: 3/4");
+    expect(mockLaunchBtn.disabled).toBe(false);
+  });
+
+  it("should prevent adding more than 3 members in EscortVIP missions", () => {
+    currentMissionType = MissionType.EscortVIP;
+    currentSquad = [{ archetypeId: "assault", count: 3 }];
+    renderSquadBuilder();
+
+    // Total is 3 (assault) + 1 (VIP) = 4.
+    expect(mockTotalCountDisplay.textContent).toBe("Total Soldiers: 4/4");
+
+    const calls = (document.createElement as any).mock.results;
+    const inputs = calls
+      .filter((r: any) => r.value.tagName === "INPUT")
+      .map((r: any) => r.value);
+
+    // ArchetypeLibrary order: assault, medic, heavy. VIP is skipped.
+    const medicInput = inputs[1];
+    expect(medicInput.value).toBe("0");
+
+    // Try to change medic count to 1
+    medicInput.value = "1";
+    const changeHandler = medicInput.addEventListener.mock.calls.find(
+      (c: any) => c[0] === "change",
+    )[1];
+    changeHandler();
+
+    expect(alert).toHaveBeenCalledWith("Maximum squad size is 4 soldiers.");
+    expect(medicInput.value).toBe("0");
+    expect(currentSquad.length).toBe(1);
+    expect(currentSquad[0].count).toBe(3);
   });
 });

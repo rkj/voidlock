@@ -110,6 +110,7 @@ export class CoreEngine {
 
       this.addUnit({
         id: `vip-1`,
+        archetypeId: "vip",
         pos: {
           x: startPos.x + 0.5 + (this.prng.next() - 0.5),
           y: startPos.y + 0.5 + (this.prng.next() - 0.5),
@@ -126,9 +127,15 @@ export class CoreEngine {
         attackRange: vipArch.attackRange,
         sightRange: vipArch.sightRange,
         speed: vipArch.speed,
-        aiEnabled: true,
+        aiEnabled: false,
         commandQueue: [],
       });
+
+      // Reveal VIP position
+      const vipCellKey = `${Math.floor(startPos.x)},${Math.floor(startPos.y)}`;
+      if (!this.state.discoveredCells.includes(vipCellKey)) {
+        this.state.discoveredCells.push(vipCellKey);
+      }
     }
 
     // Spawn units based on squadConfig
@@ -149,6 +156,7 @@ export class CoreEngine {
 
         this.addUnit({
           id: `${arch.id}-${unitCount++}`,
+          archetypeId: arch.id,
           pos: {
             x: startX + (this.prng.next() - 0.5),
             y: startY + (this.prng.next() - 0.5),

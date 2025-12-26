@@ -10,16 +10,21 @@ import {
 import { GameGrid } from "../GameGrid";
 import { Pathfinder } from "../Pathfinder";
 import { LineOfSight } from "../LineOfSight";
+import { VipAI } from "../ai/VipAI";
 
 const EPSILON = 0.05;
 
 export class UnitManager {
+  private vipAi: VipAI;
+
   constructor(
     private gameGrid: GameGrid,
     private pathfinder: Pathfinder,
     private los: LineOfSight,
     private agentControlEnabled: boolean,
-  ) {}
+  ) {
+    this.vipAi = new VipAI(gameGrid, pathfinder, los);
+  }
 
   public update(state: GameState, dt: number, doors: Map<string, Door>) {
     const claimedObjectives = new Set<string>();
@@ -28,6 +33,28 @@ export class UnitManager {
     state.units.forEach((unit) => {
       if (unit.state === UnitState.Extracted || unit.state === UnitState.Dead)
         return;
+
+      if (unit.archetypeId === "vip" && !unit.aiEnabled) {
+        const rescueSoldier = state.units.find(u => 
+          u.id !== unit.id && 
+          u.archetypeId !== "vip" && 
+          u.hp > 0 && 
+          (this.getDistance(unit.pos, u.pos) <= 1.5 || this.los.hasLineOfSight(u.pos, unit.pos))
+        );
+        if (rescueSoldier) {
+          unit.aiEnabled = true;
+        } else {
+          // Locked VIPs don't do anything
+          return;
+        }
+      }
+
+      if (unit.archetypeId === "vip" && unit.aiEnabled && unit.state === UnitState.Idle && unit.commandQueue.length === 0) {
+        const vipCommand = this.vipAi.think(unit, state);
+        if (vipCommand) {
+          this.executeCommand(unit, vipCommand, false);
+        }
+      }
 
       if (unit.state === UnitState.Channeling && unit.channeling) {
         unit.channeling.remaining -= dt;
@@ -92,7 +119,7 @@ export class UnitManager {
       );
       const isIsolated = nearbyAllies.length === 0 && threats.length > 0;
 
-      if (isLowHP && threats.length > 0) {
+      if (unit.archetypeId !== "vip" && isLowHP && threats.length > 0) {
         const safeCells = state.discoveredCells.filter((cellKey) => {
           const [cx, cy] = cellKey.split(",").map(Number);
           return !visibleEnemies.some(
@@ -132,7 +159,7 @@ export class UnitManager {
             );
           }
         }
-      } else if (isIsolated) {
+      } else if (unit.archetypeId !== "vip" && isIsolated) {
         const otherUnits = state.units.filter(
           (u) =>
             u.id !== unit.id &&
@@ -181,7 +208,7 @@ export class UnitManager {
         }
       }
 
-      if (state.objectives) {
+      if (unit.archetypeId !== "vip" && state.objectives) {
         state.objectives.forEach((obj) => {
           if (obj.state === "Pending") {
             if (obj.kind === "Recover" && obj.targetCell) {
@@ -219,12 +246,16 @@ export class UnitManager {
 
       if (state.map.extraction) {
         const ext = state.map.extraction;
-        const allObjectivesComplete = state.objectives.every(
-          (o) => o.state === "Completed",
-        );
+        const allOtherObjectivesComplete = state.objectives
+          .filter(o => o.kind !== "Escort")
+          .every(o => o.state === "Completed");
+        
+        const isVipAtExtraction = unit.archetypeId === "vip" && 
+          Math.floor(unit.pos.x) === ext.x && 
+          Math.floor(unit.pos.y) === ext.y;
 
         if (
-          allObjectivesComplete &&
+          (allOtherObjectivesComplete || isVipAtExtraction) &&
           Math.floor(unit.pos.x) === ext.x &&
           Math.floor(unit.pos.y) === ext.y
         ) {
@@ -255,6 +286,7 @@ export class UnitManager {
           this.executeCommand(unit, nextCmd);
         }
       } else if (
+        unit.archetypeId !== "vip" &&
         (unit.state === UnitState.Idle || unit.explorationTarget) &&
         unit.commandQueue.length === 0 &&
         this.agentControlEnabled &&
@@ -500,6 +532,7 @@ export class UnitManager {
       const policy = unit.engagementPolicy || "ENGAGE";
 
       if (
+        unit.archetypeId !== "vip" &&
         canAttack &&
         (policy === "ENGAGE" || !!unit.forcedTargetId || isLockedInMelee)
       ) {

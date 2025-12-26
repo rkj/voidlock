@@ -124,6 +124,7 @@ export type Unit = Entity & {
   activeCommand?: Command; // Track currently executing command
   speed: number; // Tiles per second
   channeling?: ChannelingState; // New
+  archetypeId: string;
 };
 
 export type Enemy = Entity & {
