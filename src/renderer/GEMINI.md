@@ -1,0 +1,33 @@
+# src/renderer
+
+This directory contains the main thread rendering logic and user interface for Xenopurge.
+
+## Files
+
+- `main.ts`: The entry point for the main game application. Initializes the `GameClient`, `Renderer`, and UI components.
+- `Renderer.ts`: The core rendering engine using HTML5 Canvas. Handles drawing the map, units, combat effects, and fog of war.
+- `InputManager.ts`: Manages mouse and keyboard input, translating them into game actions.
+- `ScreenManager.ts`: Manages transitions between different screens (Main Menu, Setup, Mission).
+- `MenuController.ts`: Implements the hierarchical keyboard-driven command menu.
+- `ConfigManager.ts`: Handles loading and saving game configuration and mission parameters.
+- `VisibilityPolygon.ts`: Implements visibility calculations for rendering accurate LOS cones.
+- `Icons.ts`: Contains SVG or canvas-based icon definitions for units and UI elements.
+- `MapUtility.ts`: Utility functions for map coordinate transformations and rendering helpers.
+- `MenuConfig.ts`: Configuration for the hierarchical menu structure.
+
+## Subdirectories
+
+- `ui/`: Specific UI components like the HUD and menu renderers.
+
+## Functionality
+
+- **Real-time Rendering**: Efficiently draws the game state at 60 FPS.
+- **Hierarchical Command Menu**: A keyboard-first interface for controlling squad members.
+- **Fog of War**: Implements visual shroud and discovery states based on the simulation data.
+- **Visual Feedback**: Provides tactical information through tracers, health bars, and status overlays.
+
+## Connections
+
+- Communicates with the engine via `src/engine/GameClient.ts`.
+- Uses types from `src/shared/types.ts`.
+- Rendered in `index.html`.

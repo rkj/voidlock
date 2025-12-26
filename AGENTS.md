@@ -8,7 +8,7 @@ You are an AI contributor agent working on the Xenopurge project. Your goal is t
 2.  **Plan**: Formulate a concise plan. Share it with the Manager if it helps clarify your approach.
 3.  **TDD First**: **CRITICAL**: All changes must be confirmed by tests first. If a feature is added, add tests. If a bug is fixed, write a failing test first.
 4.  **Implement**: Modify code following the project's established conventions.
-5.  **Update Documentation**: If you add new files or change significant APIs, update the `GEMINI.md` file in the relevant directory.
+5.  **Update Documentation (MANDATORY)**: If you add new files or change significant APIs, you MUST update the `GEMINI.md` file in the relevant directory. This is critical for maintaining codebase navigability.
 6.  **Verify**: All changes MUST be verified with `npx vitest run`.
     - **🚨 REGRESSION RULE**: If browser validation discovers a problem that automated tests missed, you MUST stop, write a failing unit/integration test that reproduces the bug, and THEN fix the code.
 7.  **Beads Context**: You may read task details using `bd show <id> --json` or `bd list`, but you are **FORBIDDEN** from using state-changing commands (`update`, `close`, `create`). The Manager Agent handles all Beads status updates.
