@@ -45,7 +45,7 @@ export class Director {
     // If we are at Turn 11, threat stays 100%.
     const cappedTurn = Math.min(this.turn, 10);
     const progress = this.timeInCurrentTurn / this.turnDuration;
-    
+
     // If we are already at max turns (10+), threat is 100%.
     if (this.turn >= 10) return 100;
 
