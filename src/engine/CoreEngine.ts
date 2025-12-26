@@ -907,8 +907,38 @@ export class CoreEngine {
           }
         }
 
-        // 3. Exploration (if no objective action)
-        if (!actionTaken && !this.isMapFullyDiscovered()) {
+        const objectivesComplete =
+          !this.state.objectives ||
+          this.state.objectives.every((o) => o.state !== "Pending");
+
+        // 3. Extraction (if objectives complete)
+        if (!actionTaken && objectivesComplete) {
+          // Map objectives complete, move to extraction
+          unit.explorationTarget = undefined;
+          if (this.state.map.extraction) {
+            const unitCurrentCell = {
+              x: Math.floor(unit.pos.x),
+              y: Math.floor(unit.pos.y),
+            };
+            if (
+              unitCurrentCell.x !== this.state.map.extraction.x ||
+              unitCurrentCell.y !== this.state.map.extraction.y
+            ) {
+              this.executeCommand(
+                unit,
+                {
+                  type: CommandType.MOVE_TO,
+                  unitIds: [unit.id],
+                  target: this.state.map.extraction,
+                  label: "Extracting",
+                },
+                false,
+              );
+            }
+          }
+        }
+        // 4. Exploration (if no objective action and not extracting)
+        else if (!actionTaken && !this.isMapFullyDiscovered()) {
           // Check if we already have a valid exploration target
           if (unit.explorationTarget) {
             // Is it still undiscovered?
@@ -941,31 +971,6 @@ export class CoreEngine {
                   unitIds: [unit.id],
                   target: targetCell,
                   label: "Exploring",
-                },
-                false,
-              );
-            }
-          }
-        } else if (!actionTaken && this.isMapFullyDiscovered()) {
-          // 4. Extraction
-          // Map fully discovered, move to extraction
-          unit.explorationTarget = undefined;
-          if (this.state.map.extraction) {
-            const unitCurrentCell = {
-              x: Math.floor(unit.pos.x),
-              y: Math.floor(unit.pos.y),
-            };
-            if (
-              unitCurrentCell.x !== this.state.map.extraction.x ||
-              unitCurrentCell.y !== this.state.map.extraction.y
-            ) {
-              this.executeCommand(
-                unit,
-                {
-                  type: CommandType.MOVE_TO,
-                  unitIds: [unit.id],
-                  target: this.state.map.extraction,
-                  label: "Extracting",
                 },
                 false,
               );

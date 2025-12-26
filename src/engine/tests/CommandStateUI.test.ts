@@ -73,6 +73,14 @@ describe("Unit Command State UI Tracking", () => {
       height: 50,
       cells: [],
       extraction: { x: 0, y: 0 },
+      objectives: [
+        {
+          id: "obj_explore",
+          kind: "Recover",
+          targetCell: { x: 99, y: 0 },
+          state: "Pending",
+        },
+      ],
     };
     for (let i = 0; i < 30; i++) {
       longMap.cells.push({ x: i, y: 0, type: CellType.Floor });

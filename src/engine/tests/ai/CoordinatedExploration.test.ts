@@ -29,7 +29,14 @@ describe("Coordinated Exploration", () => {
       ],
       spawnPoints: [],
       extraction: undefined,
-      objectives: [],
+      objectives: [
+        {
+          id: "obj_explore",
+          kind: "Recover",
+          targetCell: { x: 99, y: 0 },
+          state: "Pending",
+        },
+      ],
     };
 
     const squad: SquadConfig = [];
