@@ -55,6 +55,7 @@ describe("Escort VIP Mission", () => {
 
     // Move VIP to extraction
     vip.pos = { x: 4.5, y: 4.5 };
+    vip.aiEnabled = true;
 
     // Update multiple times to trigger extraction channeling
     // Extraction takes 5 seconds (5000ms)
