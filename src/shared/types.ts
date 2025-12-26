@@ -80,10 +80,18 @@ export enum UnitState {
   Idle = "Idle",
   Moving = "Moving",
   Attacking = "Attacking",
-  WaitingForDoor = "Waiting for Door", // New
+  WaitingForDoor = "Waiting for Door",
+  Channeling = "Channeling", // New
   Extracted = "Extracted",
   Dead = "Dead",
 }
+
+export type ChannelingState = {
+  action: "Extract" | "Collect";
+  remaining: number; // ms
+  totalDuration: number; // ms
+  targetId?: string; // ID of object/objective being interacted with
+};
 
 export type EngagementPolicy = "ENGAGE" | "IGNORE";
 
@@ -113,6 +121,7 @@ export type Unit = Entity & {
   aiEnabled?: boolean; // New: allow disabling autonomous behavior
   activeCommand?: Command; // Track currently executing command
   speed: number; // Tiles per second
+  channeling?: ChannelingState; // New
 };
 
 export type Enemy = Entity & {

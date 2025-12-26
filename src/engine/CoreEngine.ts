@@ -264,6 +264,13 @@ export class CoreEngine {
           unit.explorationTarget = undefined;
           unit.aiEnabled = true;
         }
+
+        // Interrupt Channeling
+        if (unit.state === UnitState.Channeling) {
+          unit.channeling = undefined;
+          unit.state = UnitState.Idle;
+        }
+
         const path = this.pathfinder.findPath(
           { x: Math.floor(unit.pos.x), y: Math.floor(unit.pos.y) },
           cmd.target,
@@ -308,6 +315,13 @@ export class CoreEngine {
         // Stop moving if attacking
         unit.path = undefined;
         unit.targetPos = undefined;
+
+        // Interrupt Channeling
+        if (unit.state === UnitState.Channeling) {
+          unit.channeling = undefined;
+          unit.state = UnitState.Idle;
+        }
+
         // State will be updated in update() loop when combat resolves
       }
     } else if (cmd.type === CommandType.SET_ENGAGEMENT) {
@@ -315,15 +329,22 @@ export class CoreEngine {
       unit.engagementPolicySource = "Manual";
       if (isManual) unit.aiEnabled = true;
       unit.activeCommand = undefined;
+      // Note: Changing engagement policy does NOT interrupt channeling usually,
+      // but if we want to be strict, we could. Let's assume it doesn't interrupt for now.
     } else if (cmd.type === CommandType.STOP) {
       unit.commandQueue = []; // Clear command queue
       unit.path = undefined; // Stop movement
       unit.targetPos = undefined;
       unit.forcedTargetId = undefined; // Clear forced target
       unit.explorationTarget = undefined; // Clear exploration target
-      unit.state = UnitState.Idle; // Set unit to Idle state
       unit.aiEnabled = false; // Disable autonomous AI
       unit.activeCommand = undefined;
+
+      // Interrupt Channeling
+      if (unit.state === UnitState.Channeling) {
+        unit.channeling = undefined;
+      }
+      unit.state = UnitState.Idle; // Set unit to Idle state
     } else if (cmd.type === CommandType.RESUME_AI) {
       unit.aiEnabled = true;
       unit.activeCommand = undefined;
@@ -590,6 +611,35 @@ export class CoreEngine {
     this.state.units.forEach((unit) => {
       if (unit.state === UnitState.Extracted || unit.state === UnitState.Dead)
         return;
+
+      // --- Channeling Logic ---
+      if (unit.state === UnitState.Channeling && unit.channeling) {
+        // console.log(`Unit ${unit.id} Channeling: ${unit.channeling.remaining}`);
+        unit.channeling.remaining -= dt;
+        if (unit.channeling.remaining <= 0) {
+          // Channeling Complete
+          if (unit.channeling.action === "Extract") {
+            unit.state = UnitState.Extracted;
+            unit.channeling = undefined;
+            return;
+          } else if (unit.channeling.action === "Collect") {
+            if (unit.channeling.targetId) {
+              const obj = this.state.objectives.find(
+                (o) => o.id === unit.channeling!.targetId,
+              );
+              if (obj) obj.state = "Completed";
+            }
+            unit.state = UnitState.Idle;
+            unit.channeling = undefined;
+            // Continue to normal logic this tick (or return? Returning is safer/clearer state change)
+            // But if we return, they stand idle for 1 tick. Acceptable.
+            return;
+          }
+        } else {
+          // Still Channeling - Locked in place
+          return;
+        }
+      }
 
       // --- Interrupt Exploration if Target Discovered ---
       if (unit.explorationTarget) {
@@ -934,7 +984,23 @@ export class CoreEngine {
                 Math.floor(unit.pos.x) === obj.targetCell.x &&
                 Math.floor(unit.pos.y) === obj.targetCell.y
               ) {
-                obj.state = "Completed";
+                // START CHANNELING instead of completing
+                // Only start if Idle (prevents getting stuck if trying to move away)
+                if (
+                  unit.state === UnitState.Idle &&
+                  unit.state !== UnitState.Channeling
+                ) {
+                  unit.state = UnitState.Channeling;
+                  unit.channeling = {
+                    action: "Collect",
+                    remaining: 5000,
+                    totalDuration: 5000,
+                    targetId: obj.id,
+                  };
+                  unit.path = undefined;
+                  unit.targetPos = undefined;
+                  unit.activeCommand = undefined;
+                }
               }
             } else if (obj.kind === "Kill" && obj.targetEnemyId) {
               const target = this.state.enemies.find(
@@ -962,10 +1028,24 @@ export class CoreEngine {
           Math.floor(unit.pos.x) === ext.x &&
           Math.floor(unit.pos.y) === ext.y
         ) {
-          unit.state = UnitState.Extracted;
-          unit.path = undefined;
-          unit.targetPos = undefined;
-          return; // Skip rest of logic
+          // START CHANNELING instead of extracting
+          if (
+            unit.state === UnitState.Idle &&
+            unit.state !== UnitState.Channeling
+          ) {
+            unit.state = UnitState.Channeling;
+            unit.channeling = {
+              action: "Extract",
+              remaining: 5000,
+              totalDuration: 5000,
+            };
+            unit.path = undefined;
+            unit.targetPos = undefined;
+            unit.activeCommand = undefined;
+          }
+          if (unit.state === UnitState.Channeling) {
+            return; // Skip rest of logic if channeling (started or continued)
+          }
         }
       }
 
@@ -1084,8 +1164,13 @@ export class CoreEngine {
           unit.state = UnitState.Moving;
         }
       } else if (!isAttacking && !isMoving) {
-        unit.state = UnitState.Idle;
-        unit.activeCommand = undefined;
+        if (
+          unit.state !== UnitState.Channeling &&
+          unit.state !== UnitState.WaitingForDoor
+        ) {
+          unit.state = UnitState.Idle;
+          unit.activeCommand = undefined;
+        }
       }
     });
 

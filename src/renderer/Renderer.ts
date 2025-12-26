@@ -539,7 +539,9 @@ export class Renderer {
       // 128 / 6 ~= 21px radius -> 42px diameter.
       this.ctx.arc(x, y, this.cellSize / 6, 0, Math.PI * 2);
 
-      if (unit.state === UnitState.Attacking) {
+      if (unit.state === UnitState.Channeling) {
+        this.ctx.fillStyle = "#00FFFF"; // Cyan
+      } else if (unit.state === UnitState.Attacking) {
         this.ctx.fillStyle = "#FF4400";
       } else if (unit.state === UnitState.Moving) {
         this.ctx.fillStyle = "#FFD700";
@@ -553,6 +555,15 @@ export class Renderer {
       this.ctx.stroke();
 
       this.renderHealthBar(x, y, unit.hp, unit.maxHp);
+
+      if (unit.state === UnitState.Channeling && unit.channeling) {
+        this.renderChannelingBar(
+          x,
+          y,
+          unit.channeling.remaining,
+          unit.channeling.totalDuration,
+        );
+      }
 
       if (unit.state === UnitState.Moving && unit.targetPos) {
         this.ctx.beginPath();
@@ -663,6 +674,31 @@ export class Renderer {
     const pct = Math.max(0, hp / maxHp);
     this.ctx.fillStyle = pct > 0.5 ? "#0f0" : pct > 0.25 ? "#ff0" : "#f00";
     this.ctx.fillRect(x - barWidth / 2, y + yOffset, barWidth * pct, barHeight);
+  }
+
+  private renderChannelingBar(
+    x: number,
+    y: number,
+    remaining: number,
+    total: number,
+  ) {
+    const barWidth = this.cellSize * 0.6;
+    const barHeight = 6;
+    const yOffset = -this.cellSize / 6 - 22; // Above health bar
+
+    // Background
+    this.ctx.fillStyle = "#000";
+    this.ctx.fillRect(x - barWidth / 2, y + yOffset, barWidth, barHeight);
+
+    // Progress
+    const pct = Math.max(0, 1 - remaining / total);
+    this.ctx.fillStyle = "#00FFFF";
+    this.ctx.fillRect(x - barWidth / 2, y + yOffset, barWidth * pct, barHeight);
+
+    // Border
+    this.ctx.strokeStyle = "#FFFFFF";
+    this.ctx.lineWidth = 1;
+    this.ctx.strokeRect(x - barWidth / 2, y + yOffset, barWidth, barHeight);
   }
 
   private renderFog(state: GameState) {
