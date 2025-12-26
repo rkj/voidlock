@@ -99,6 +99,33 @@ export class CoreEngine {
       this.enemyManager.addEnemy(this.state, enemy),
     );
 
+    // Mission-specific Spawns
+    if (missionType === MissionType.EscortVIP) {
+      const vipArch = ArchetypeLibrary["vip"];
+      const startPos = map.squadSpawn || map.extraction || { x: 0, y: 0 };
+      this.addUnit({
+        id: `vip-1`,
+        pos: {
+          x: startPos.x + 0.5 + (this.prng.next() - 0.5),
+          y: startPos.y + 0.5 + (this.prng.next() - 0.5),
+        },
+        visualJitter: {
+          x: (this.prng.next() - 0.5) * 0.4,
+          y: (this.prng.next() - 0.5) * 0.4,
+        },
+        hp: Math.floor(vipArch.baseHp * 0.5),
+        maxHp: vipArch.baseHp,
+        state: UnitState.Idle,
+        damage: vipArch.damage,
+        fireRate: vipArch.fireRate,
+        attackRange: vipArch.attackRange,
+        sightRange: vipArch.sightRange,
+        speed: vipArch.speed,
+        aiEnabled: true,
+        commandQueue: [],
+      });
+    }
+
     // Spawn units based on squadConfig
     let unitCount = 1;
     squadConfig.forEach((squadItem) => {
