@@ -625,6 +625,7 @@ const launchMission = () => {
   const rightPanel = document.getElementById("right-panel");
   if (rightPanel) rightPanel.innerHTML = "";
   menuController.reset();
+  lastMenuHtml = "";
 
   // Setup Client Listener
   gameClient.onStateUpdate((state) => {
