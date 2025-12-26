@@ -77,7 +77,7 @@ describe("MenuController Context Awareness", () => {
     const collectOption = renderState.options.find((o) =>
       o.label.includes("COLLECT"),
     );
-    const key = parseInt(collectOption!.key);
+    const key = collectOption!.key;
 
     controller.handleMenuInput(key, mockState);
 

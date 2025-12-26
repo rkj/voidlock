@@ -409,37 +409,6 @@ export class Renderer {
     }
   }
 
-  private getVisualOffset(
-    unitId: string,
-    pos: Vector2,
-    allEntities: { id: string; pos: Vector2 }[],
-    radius: number,
-  ): Vector2 {
-    let dx = 0,
-      dy = 0;
-    let count = 0;
-    for (const other of allEntities) {
-      if (other.id === unitId) continue;
-      const dist = Math.sqrt(
-        (pos.x - other.pos.x) ** 2 + (pos.y - other.pos.y) ** 2,
-      );
-      if (dist < radius) {
-        // Too close
-        const angle = Math.atan2(pos.y - other.pos.y, pos.x - other.pos.x);
-        const push = (radius - dist) / radius; // Stronger push when closer
-        dx += Math.cos(angle) * push;
-        dy += Math.sin(angle) * push;
-        count++;
-      }
-    }
-    if (count > 0) {
-      // Normalize and scale
-      const strength = 0.3; // Max 0.3 tiles offset
-      return { x: dx * strength, y: dy * strength };
-    }
-    return { x: 0, y: 0 };
-  }
-
   private renderObjectives(state: GameState) {
     if (state.map.extraction) {
       const ext = state.map.extraction;
@@ -526,13 +495,12 @@ export class Renderer {
       ...state.enemies.filter((e) => e.hp > 0),
     ]; // For collision consideration
 
-    state.units.forEach((unit) => {
+    state.units.forEach((unit, index) => {
       if (unit.state === UnitState.Extracted || unit.state === UnitState.Dead)
         return;
 
-      const offset = this.getVisualOffset(unit.id, unit.pos, allEntities, 0.5); // 0.5 tile radius for checking overlap
-      const x = (unit.pos.x + offset.x) * this.cellSize;
-      const y = (unit.pos.y + offset.y) * this.cellSize;
+      const x = unit.pos.x * this.cellSize;
+      const y = unit.pos.y * this.cellSize;
 
       this.ctx.beginPath();
       // Unit size: 1/6 radius = 1/3 diameter relative to cell.
@@ -553,6 +521,13 @@ export class Renderer {
       this.ctx.strokeStyle = "#000";
       this.ctx.lineWidth = 3;
       this.ctx.stroke();
+
+      // Render Soldier Number
+      this.ctx.fillStyle = "#000";
+      this.ctx.font = `bold ${Math.floor(this.cellSize / 8)}px monospace`;
+      this.ctx.textAlign = "center";
+      this.ctx.textBaseline = "middle";
+      this.ctx.fillText((index + 1).toString(), x, y);
 
       this.renderHealthBar(x, y, unit.hp, unit.maxHp);
 
@@ -598,42 +573,73 @@ export class Renderer {
   }
 
   private renderEnemies(state: GameState) {
-    const allEntities = [
-      ...state.units,
-      ...state.enemies.filter((e) => e.hp > 0),
-    ];
-
     state.enemies.forEach((enemy) => {
       if (enemy.hp <= 0) return;
 
       const cellKey = `${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`;
       if (!state.visibleCells.includes(cellKey)) return;
 
-      const offset = this.getVisualOffset(
-        enemy.id,
-        enemy.pos,
-        allEntities,
-        0.5,
-      );
-      const x = (enemy.pos.x + offset.x) * this.cellSize;
-      const y = (enemy.pos.y + offset.y) * this.cellSize;
+      const x = enemy.pos.x * this.cellSize;
+      const y = enemy.pos.y * this.cellSize;
       const size = this.cellSize / 6;
 
       this.ctx.beginPath();
       if (enemy.type === "Hive") {
-        // Hive: Large Purple Square
-        this.ctx.fillStyle = "#9900FF";
-        const hiveSize = this.cellSize * 0.6;
-        this.ctx.rect(x - hiveSize / 2, y - hiveSize / 2, hiveSize, hiveSize);
-        this.ctx.fill();
-        this.ctx.strokeStyle = "#FFFFFF";
-        this.ctx.lineWidth = 4;
-        this.ctx.stroke();
+        // Hive: Special Icon
+        const icon = this.iconImages.Hive;
+        if (icon) {
+          const hiveSize = this.cellSize * 0.8;
+          this.ctx.drawImage(
+            icon,
+            x - hiveSize / 2,
+            y - hiveSize / 2,
+            hiveSize,
+            hiveSize,
+          );
+        } else {
+          // Fallback
+          this.ctx.fillStyle = "#9900FF";
+          const hiveSize = this.cellSize * 0.6;
+          this.ctx.rect(x - hiveSize / 2, y - hiveSize / 2, hiveSize, hiveSize);
+          this.ctx.fill();
+        }
       } else {
-        // Regular Enemy: Red Triangle
-        this.ctx.moveTo(x, y - size);
-        this.ctx.lineTo(x + size, y + size);
-        this.ctx.lineTo(x - size, y + size);
+        // Regular Enemy Shapes based on Type
+        if (enemy.type === "Xeno-Mite") {
+          // Triangle
+          this.ctx.moveTo(x, y - size);
+          this.ctx.lineTo(x + size, y + size);
+          this.ctx.lineTo(x - size, y + size);
+        } else if (enemy.type === "Warrior-Drone") {
+          // Diamond
+          this.ctx.moveTo(x, y - size * 1.2);
+          this.ctx.lineTo(x + size * 1.2, y);
+          this.ctx.lineTo(x, y + size * 1.2);
+          this.ctx.lineTo(x - size * 1.2, y);
+        } else if (enemy.type === "Spitter-Acid") {
+          // Octagon
+          for (let i = 0; i < 8; i++) {
+            const angle = (i * Math.PI) / 4;
+            const px = x + Math.cos(angle) * size * 1.1;
+            const py = y + Math.sin(angle) * size * 1.1;
+            if (i === 0) this.ctx.moveTo(px, py);
+            else this.ctx.lineTo(px, py);
+          }
+        } else if (enemy.type === "Praetorian-Guard") {
+          // Hexagon (Large)
+          for (let i = 0; i < 6; i++) {
+            const angle = (i * Math.PI) / 3;
+            const px = x + Math.cos(angle) * size * 1.5;
+            const py = y + Math.sin(angle) * size * 1.5;
+            if (i === 0) this.ctx.moveTo(px, py);
+            else this.ctx.lineTo(px, py);
+          }
+        } else {
+          // Default: Triangle
+          this.ctx.moveTo(x, y - size);
+          this.ctx.lineTo(x + size, y + size);
+          this.ctx.lineTo(x - size, y + size);
+        }
         this.ctx.closePath();
 
         this.ctx.fillStyle = "#FF0000";
@@ -641,6 +647,15 @@ export class Renderer {
         this.ctx.strokeStyle = "#000";
         this.ctx.lineWidth = 3;
         this.ctx.stroke();
+
+        // Render Difficulty Number
+        if (enemy.difficulty) {
+          this.ctx.fillStyle = "#FFF";
+          this.ctx.font = `bold ${Math.floor(this.cellSize / 10)}px monospace`;
+          this.ctx.textAlign = "center";
+          this.ctx.textBaseline = "middle";
+          this.ctx.fillText(enemy.difficulty.toString(), x, y);
+        }
       }
 
       this.renderHealthBar(x, y, enemy.hp, enemy.maxHp);

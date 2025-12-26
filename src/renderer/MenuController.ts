@@ -58,8 +58,8 @@ export class MenuController {
     }
   }
 
-  public handleMenuInput(num: number, gameState: GameState): void {
-    if (num === 0) {
+  public handleMenuInput(key: string, gameState: GameState): void {
+    if (key === "0") {
       this.goBack();
       return;
     }
@@ -67,7 +67,7 @@ export class MenuController {
     const config = MENU_CONFIG[this.menuState];
 
     if (this.menuState === "ACTION_SELECT") {
-      const option = config.options.find((o) => o.key === num);
+      const option = config.options.find((o) => o.key.toString() === key);
       if (option) {
         if (this.isOptionDisabled(option, gameState)) return;
 
@@ -105,13 +105,13 @@ export class MenuController {
         }
       }
     } else if (this.menuState === "MODE_SELECT") {
-      const option = config.options.find((o) => o.key === num);
+      const option = config.options.find((o) => o.key.toString() === key);
       if (option && option.type === "MODE") {
         this.pendingMode = option.modeValue || null;
         this.menuState = option.nextState || "UNIT_SELECT";
       }
     } else if (this.menuState === "TARGET_SELECT") {
-      const option = this.overlayOptions.find((o) => o.key === num.toString());
+      const option = this.overlayOptions.find((o) => o.key === key);
       if (option && option.pos) {
         this.pendingTargetLocation = option.pos;
         this.menuState = "UNIT_SELECT";
@@ -122,9 +122,10 @@ export class MenuController {
       );
       let selectedIds: string[] = [];
 
-      if (num > 0 && num <= activeUnits.length) {
+      const num = parseInt(key);
+      if (!isNaN(num) && num > 0 && num <= activeUnits.length) {
         selectedIds = [activeUnits[num - 1].id];
-      } else if (num === activeUnits.length + 1) {
+      } else if (!isNaN(num) && num === activeUnits.length + 1) {
         selectedIds = activeUnits.map((u) => u.id);
       }
 
@@ -309,7 +310,7 @@ export class MenuController {
       gameState.objectives.forEach((obj) => {
         if (obj.state === "Pending" && obj.visible && obj.targetCell) {
           this.overlayOptions.push({
-            key: counter.toString(),
+            key: counter.toString(36),
             label: `Collect ${obj.kind}`,
             pos: obj.targetCell,
           });
@@ -319,7 +320,7 @@ export class MenuController {
     } else if (type === "CELL") {
       if (gameState.map.extraction) {
         this.overlayOptions.push({
-          key: counter.toString(),
+          key: counter.toString(36),
           label: "Extraction",
           pos: gameState.map.extraction,
         });
@@ -328,12 +329,40 @@ export class MenuController {
       gameState.objectives.forEach((obj) => {
         if (obj.state === "Pending" && obj.visible && obj.targetCell) {
           this.overlayOptions.push({
-            key: counter.toString(),
+            key: counter.toString(36),
             label: `Obj ${obj.id}`,
             pos: obj.targetCell,
           });
           counter++;
         }
+      });
+
+      // Add Rooms
+      const roomMap = new Map<string, Vector2[]>();
+      gameState.map.cells.forEach((cell) => {
+        if (cell.roomId) {
+          if (!roomMap.has(cell.roomId)) roomMap.set(cell.roomId, []);
+          roomMap.get(cell.roomId)?.push({ x: cell.x, y: cell.y });
+        }
+      });
+
+      roomMap.forEach((cells, roomId) => {
+        // Find rough center
+        const avgX = cells.reduce((sum, c) => sum + c.x, 0) / cells.length;
+        const avgY = cells.reduce((sum, c) => sum + c.y, 0) / cells.length;
+        // Find cell closest to center
+        const centerCell = cells.reduce((prev, curr) => {
+          const prevDist = (prev.x - avgX) ** 2 + (prev.y - avgY) ** 2;
+          const currDist = (curr.x - avgX) ** 2 + (curr.y - avgY) ** 2;
+          return currDist < prevDist ? curr : prev;
+        });
+
+        this.overlayOptions.push({
+          key: counter.toString(36),
+          label: `Room ${roomId}`,
+          pos: { x: centerCell.x, y: centerCell.y },
+        });
+        counter++;
       });
     }
   }

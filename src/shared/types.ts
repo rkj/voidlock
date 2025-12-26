@@ -134,6 +134,7 @@ export type Enemy = Entity & {
   path?: Vector2[];
   targetPos?: Vector2;
   speed: number; // Tiles per second
+  difficulty?: number; // 1: Easy, 2: Medium, 3: Hard
 };
 
 export type SpawnPoint = {

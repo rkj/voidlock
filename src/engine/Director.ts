@@ -97,6 +97,14 @@ export class Director {
 
     const arch = EnemyArchetypeLibrary[type];
 
+    // Difficulty mapping: 1 (Easy), 2 (Medium), 3 (Hard)
+    let difficulty = 1;
+    if (type === EnemyType.WarriorDrone || type === EnemyType.SpitterAcid) {
+      difficulty = 2;
+    } else if (type === EnemyType.PraetorianGuard) {
+      difficulty = 3;
+    }
+
     const enemy: Enemy = {
       id: `enemy-${this.enemyIdCounter++}`,
       pos: {
@@ -110,6 +118,7 @@ export class Director {
       fireRate: arch.fireRate,
       attackRange: arch.attackRange,
       speed: arch.speed,
+      difficulty,
     };
 
     this.onSpawn(enemy);
