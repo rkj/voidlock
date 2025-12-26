@@ -35,7 +35,14 @@ describe("Soldier Exploration AI", () => {
       ],
       spawnPoints: [{ id: "s1", pos: { x: 0, y: 0 }, radius: 1 }],
       extraction: { x: 2, y: 2 },
-      objectives: [],
+      objectives: [
+        {
+          id: "obj_explore",
+          kind: "Recover",
+          targetCell: { x: 99, y: 0 },
+          state: "Pending",
+        },
+      ],
     };
 
     engine = new CoreEngine(mockMap, 123, defaultSquad, true, false); // agentControlEnabled = true
@@ -94,6 +101,7 @@ describe("Soldier Exploration AI", () => {
     // Force map to be fully discovered
     // Manually add all floor cells to discoveredCells
     const internalState = (engine as any).state;
+    internalState.objectives = []; // Objectives complete
     mockMap.cells.forEach((c) => {
       if (c.type === CellType.Floor) {
         internalState.discoveredCells.push(`${c.x},${c.y}`);

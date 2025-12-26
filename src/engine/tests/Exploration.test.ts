@@ -18,7 +18,14 @@ describe("Exploration Logic", () => {
       height: 1,
       cells: [],
       spawnPoints: [{ id: "sp1", pos: { x: 0, y: 0 }, radius: 0 }],
-      objectives: [],
+      objectives: [
+        {
+          id: "obj_explore",
+          kind: "Recover",
+          targetCell: { x: 99, y: 0 },
+          state: "Pending",
+        },
+      ],
       // extraction: undefined,
     };
 
@@ -89,8 +96,15 @@ describe("Exploration Logic", () => {
       width: 5,
       height: 5,
       cells: [],
-      spawnPoints: [],
-      objectives: [],
+      spawnPoints: [{ id: "sp1", pos: { x: 0, y: 0 }, radius: 0 }],
+      objectives: [
+        {
+          id: "obj_explore",
+          kind: "Recover",
+          targetCell: { x: 9, y: 0 },
+          state: "Pending",
+        },
+      ],
       // extraction: undefined,
     };
 
