@@ -776,6 +776,82 @@ export class CoreEngine {
         }
       }
 
+      // Objectives: Recover & Kill
+      if (this.state.objectives) {
+        this.state.objectives.forEach((obj) => {
+          if (obj.state === "Pending") {
+            if (obj.kind === "Recover" && obj.targetCell) {
+              // Check if unit is at target cell (integer coords)
+              if (
+                Math.floor(unit.pos.x) === obj.targetCell.x &&
+                Math.floor(unit.pos.y) === obj.targetCell.y
+              ) {
+                // START CHANNELING instead of completing
+                // Only start if Idle (prevents getting stuck if trying to move away)
+                if (
+                  unit.state === UnitState.Idle &&
+                  unit.state !== UnitState.Channeling
+                ) {
+                  unit.state = UnitState.Channeling;
+                  unit.channeling = {
+                    action: "Collect",
+                    remaining: 5000,
+                    totalDuration: 5000,
+                    targetId: obj.id,
+                  };
+                  unit.path = undefined;
+                  unit.targetPos = undefined;
+                  unit.activeCommand = undefined;
+                }
+              }
+            } else if (obj.kind === "Kill" && obj.targetEnemyId) {
+              const target = this.state.enemies.find(
+                (e) => e.id === obj.targetEnemyId,
+              );
+              // If not found in enemies list, it's dead (cleaned up)
+              if (!target || target.hp <= 0) {
+                obj.state = "Completed";
+              }
+            }
+          }
+        });
+      }
+
+      // Extraction
+      if (this.state.map.extraction) {
+        const ext = this.state.map.extraction;
+        // Only extract if objectives are complete
+        const allObjectivesComplete = this.state.objectives.every(
+          (o) => o.state === "Completed",
+        );
+
+        if (
+          allObjectivesComplete &&
+          Math.floor(unit.pos.x) === ext.x &&
+          Math.floor(unit.pos.y) === ext.y
+        ) {
+          // START CHANNELING instead of extracting
+          if (
+            unit.state === UnitState.Idle &&
+            unit.state !== UnitState.Channeling
+          ) {
+            unit.state = UnitState.Channeling;
+            unit.channeling = {
+              action: "Extract",
+              remaining: 5000,
+              totalDuration: 5000,
+            };
+            unit.path = undefined;
+            unit.targetPos = undefined;
+            unit.activeCommand = undefined;
+          }
+        }
+      }
+
+      if (unit.state === UnitState.Channeling) {
+        return;
+      }
+
       // --- 3. Engagement & Autonomous Exploration ---
       // Process Queue if Idle
       if (unit.state === UnitState.Idle && unit.commandQueue.length > 0) {
@@ -975,81 +1051,6 @@ export class CoreEngine {
                 false,
               );
             }
-          }
-        }
-      }
-
-      // Objectives: Recover & Kill
-      if (this.state.objectives) {
-        this.state.objectives.forEach((obj) => {
-          if (obj.state === "Pending") {
-            if (obj.kind === "Recover" && obj.targetCell) {
-              // Check if unit is at target cell (integer coords)
-              if (
-                Math.floor(unit.pos.x) === obj.targetCell.x &&
-                Math.floor(unit.pos.y) === obj.targetCell.y
-              ) {
-                // START CHANNELING instead of completing
-                // Only start if Idle (prevents getting stuck if trying to move away)
-                if (
-                  unit.state === UnitState.Idle &&
-                  unit.state !== UnitState.Channeling
-                ) {
-                  unit.state = UnitState.Channeling;
-                  unit.channeling = {
-                    action: "Collect",
-                    remaining: 5000,
-                    totalDuration: 5000,
-                    targetId: obj.id,
-                  };
-                  unit.path = undefined;
-                  unit.targetPos = undefined;
-                  unit.activeCommand = undefined;
-                }
-              }
-            } else if (obj.kind === "Kill" && obj.targetEnemyId) {
-              const target = this.state.enemies.find(
-                (e) => e.id === obj.targetEnemyId,
-              );
-              // If not found in enemies list, it's dead (cleaned up)
-              if (!target || target.hp <= 0) {
-                obj.state = "Completed";
-              }
-            }
-          }
-        });
-      }
-
-      // Extraction
-      if (this.state.map.extraction) {
-        const ext = this.state.map.extraction;
-        // Only extract if objectives are complete
-        const allObjectivesComplete = this.state.objectives.every(
-          (o) => o.state === "Completed",
-        );
-
-        if (
-          allObjectivesComplete &&
-          Math.floor(unit.pos.x) === ext.x &&
-          Math.floor(unit.pos.y) === ext.y
-        ) {
-          // START CHANNELING instead of extracting
-          if (
-            unit.state === UnitState.Idle &&
-            unit.state !== UnitState.Channeling
-          ) {
-            unit.state = UnitState.Channeling;
-            unit.channeling = {
-              action: "Extract",
-              remaining: 5000,
-              totalDuration: 5000,
-            };
-            unit.path = undefined;
-            unit.targetPos = undefined;
-            unit.activeCommand = undefined;
-          }
-          if (unit.state === UnitState.Channeling) {
-            return; // Skip rest of logic if channeling (started or continued)
           }
         }
       }
