@@ -142,12 +142,20 @@ The automated soldier AI follows a multi-tier logic profile when not under direc
 
 5.  **VIP Logic (EscortVIP Mission)**:
     - **Unarmed**: The VIP unit has no weapon and cannot attack.
-    - **Extraction Objective**: When a VIP is present, a primary objective is added to extract the VIP safely.
-    - **Mission Failure**: If the VIP dies, the mission is automatically a failure immediately, even if there are still soldiers alive.
+    - **Squad Size**: VIP units do NOT count towards the squad size limit (e.g., if squad size is 4, you have 4 soldiers + VIPs).
+    - **Extraction Objective**: When a VIP is present, an additional objective is added to extract all VIPs safely.
+    - If there are other objectives they still have to be completed. But there
+      can be missions where VIP extraction is the only objective.
+    - **Mission Failure**: If any VIP dies, the mission is automatically a failure immediately, even if there are still soldiers alive.
+    - **Rescue Mechanic**:
+        - VIPs start in a separate room, located in a different quadrant from the squad spawn.
+        - The squad knows the exact position of the VIP(s) from the start (position is revealed through Fog of War), but the rest of the ship remains hidden.
+        - VIPs are "locked" in their starting room until a soldier reaches them (enters LOS or adjacent cell).
     - **AI Behavior**:
-        - **Danger Avoidance**: The VIP prioritizes fleeing from enemies over all other autonomous actions.
+        - **Danger Avoidance**: Once rescued, the VIP prioritizes fleeing from enemies over all other autonomous actions.
         - **Extraction Priority**: The VIP ignores item collection/objectives and prioritizes moving toward the extraction point once it is discovered, or exploring toward it if not.
         - **Safety**: The VIP will try to maintain distance from enemies and stay near armed squad members.
+    - **Multiple VIPs**: Missions can support more than one VIP unit. All must be extracted for success.
 
 6.  **Timed Actions**:
     - Actions like extraction and picking up items take **5 seconds** (at 1x speed) to complete.
