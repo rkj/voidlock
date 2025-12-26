@@ -90,19 +90,19 @@ describe("MenuController", () => {
   });
 
   it("should return correct renderable state for ACTION_SELECT", () => {
-      const state = controller.getRenderableState(mockState);
-      expect(state.title).toBe("ACTIONS");
-      expect(state.options.length).toBeGreaterThan(0);
-      expect(state.options[0].label).toContain("MOVE");
+    const state = controller.getRenderableState(mockState);
+    expect(state.title).toBe("ACTIONS");
+    expect(state.options.length).toBeGreaterThan(0);
+    expect(state.options[0].label).toContain("MOVE");
   });
 
   it("should return correct renderable state for UNIT_SELECT", () => {
-      controller.handleMenuInput(2, mockState); // STOP -> UNIT_SELECT
-      const state = controller.getRenderableState(mockState);
-      expect(state.title).toBe("SELECT UNIT(S)");
-      // u1, u2, ALL, BACK = 4 options
-      expect(state.options.length).toBe(4);
-      expect(state.options[2].label).toContain("ALL UNITS");
-      expect(state.options[3].isBack).toBe(true);
+    controller.handleMenuInput(2, mockState); // STOP -> UNIT_SELECT
+    const state = controller.getRenderableState(mockState);
+    expect(state.title).toBe("SELECT UNIT(S)");
+    // u1, u2, ALL, BACK = 4 options
+    expect(state.options.length).toBe(4);
+    expect(state.options[2].label).toContain("ALL UNITS");
+    expect(state.options[3].isBack).toBe(true);
   });
 });

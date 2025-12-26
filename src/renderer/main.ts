@@ -165,9 +165,18 @@ const renderMenu = (state: RenderableMenuState): string => {
   }
 
   state.options.forEach((opt) => {
-    const style = opt.isBack
-      ? 'style="color: #ffaa00; margin-top: 10px;"'
-      : "";
+    let style = "";
+    let cssClass = "menu-item";
+
+    if (opt.disabled) {
+      style = 'style="color: #666; cursor: not-allowed;"';
+    } else {
+      cssClass += " clickable";
+      if (opt.isBack) {
+        style = 'style="color: #ffaa00; margin-top: 10px;"';
+      }
+    }
+
     let dataAttrs = "";
     if (opt.dataAttributes) {
       Object.entries(opt.dataAttributes).forEach(([k, v]) => {
@@ -175,7 +184,7 @@ const renderMenu = (state: RenderableMenuState): string => {
       });
     }
 
-    html += `<div class="menu-item clickable" ${dataAttrs} ${style}>${escapeHtml(opt.label)}</div>`;
+    html += `<div class="${cssClass}" ${dataAttrs} ${style}>${escapeHtml(opt.label)}</div>`;
   });
 
   if (state.footer) {

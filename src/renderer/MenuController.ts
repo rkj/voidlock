@@ -6,12 +6,13 @@ import {
   UnitState,
   Vector2,
 } from "../shared/types";
-import { MENU_CONFIG, MenuState } from "./MenuConfig";
+import { MENU_CONFIG, MenuOptionDefinition, MenuState } from "./MenuConfig";
 
 export interface RenderableMenuOption {
   key: string;
   label: string;
   isBack?: boolean;
+  disabled?: boolean;
   dataAttributes?: Record<string, string>;
 }
 
@@ -68,45 +69,47 @@ export class MenuController {
     if (this.menuState === "ACTION_SELECT") {
       const option = config.options.find((o) => o.key === num);
       if (option) {
+        if (this.isOptionDisabled(option, gameState)) return;
+
         this.pendingAction = option.commandType || null;
-        
+
         // Special Case Handling based on Label or custom logic
         // Ideally we'd have a specific ID in config, but Label/Key works for now
         if (option.label === "MOVE") {
-           this.pendingLabel = "Moving";
-           this.menuState = "TARGET_SELECT"; // Default next state
-           this.generateTargetOverlay("CELL", gameState);
+          this.pendingLabel = "Moving";
+          this.menuState = "TARGET_SELECT"; // Default next state
+          this.generateTargetOverlay("CELL", gameState);
         } else if (option.label === "STOP") {
-            this.pendingLabel = "Stopping";
-            this.menuState = "UNIT_SELECT";
+          this.pendingLabel = "Stopping";
+          this.menuState = "UNIT_SELECT";
         } else if (option.label === "ENGAGEMENT") {
-            this.pendingLabel = "Policy Change";
-            this.menuState = "MODE_SELECT";
+          this.pendingLabel = "Policy Change";
+          this.menuState = "MODE_SELECT";
         } else if (option.label === "COLLECT") {
-            this.pendingLabel = "Collecting";
-            this.menuState = "TARGET_SELECT";
-            this.generateTargetOverlay("ITEM", gameState);
+          this.pendingLabel = "Collecting";
+          this.menuState = "TARGET_SELECT";
+          this.generateTargetOverlay("ITEM", gameState);
         } else if (option.label === "EXTRACT") {
-            this.pendingLabel = "Extracting";
-            if (gameState.map.extraction) {
-                this.pendingTargetLocation = gameState.map.extraction;
-                this.menuState = "UNIT_SELECT";
-            } else {
-                // If no extraction point, maybe stay or show error?
-                // For now, let's just go to UNIT_SELECT but it might fail or we handle it in execute
-                this.menuState = "UNIT_SELECT";
-            }
-        } else if (option.label === "RESUME AI") {
-            this.pendingLabel = "Resuming AI";
+          this.pendingLabel = "Extracting";
+          if (gameState.map.extraction) {
+            this.pendingTargetLocation = gameState.map.extraction;
             this.menuState = "UNIT_SELECT";
+          } else {
+            // If no extraction point, maybe stay or show error?
+            // For now, let's just go to UNIT_SELECT but it might fail or we handle it in execute
+            this.menuState = "UNIT_SELECT";
+          }
+        } else if (option.label === "RESUME AI") {
+          this.pendingLabel = "Resuming AI";
+          this.menuState = "UNIT_SELECT";
         }
       }
     } else if (this.menuState === "MODE_SELECT") {
-        const option = config.options.find((o) => o.key === num);
-        if (option && option.type === "MODE") {
-            this.pendingMode = option.modeValue || null;
-            this.menuState = option.nextState || "UNIT_SELECT";
-        }
+      const option = config.options.find((o) => o.key === num);
+      if (option && option.type === "MODE") {
+        this.pendingMode = option.modeValue || null;
+        this.menuState = option.nextState || "UNIT_SELECT";
+      }
     } else if (this.menuState === "TARGET_SELECT") {
       const option = this.overlayOptions.find((o) => o.key === num.toString());
       if (option && option.pos) {
@@ -151,80 +154,111 @@ export class MenuController {
   }
 
   public getRenderableState(gameState: GameState): RenderableMenuState {
-      const config = MENU_CONFIG[this.menuState];
-      const result: RenderableMenuState = {
-          title: config.title,
-          options: [],
-      };
+    const config = MENU_CONFIG[this.menuState];
+    const result: RenderableMenuState = {
+      title: config.title,
+      options: [],
+    };
 
-      if (this.menuState === "ACTION_SELECT" || this.menuState === "MODE_SELECT") {
-          result.options = config.options.map(opt => ({
-              key: opt.key.toString(),
-              label: opt.key === 0 ? "BACK" : `${opt.key}. ${opt.label}`,
-              isBack: opt.key === 0,
-              dataAttributes: { index: opt.key.toString() }
-          }));
-          
-          if (this.menuState === "ACTION_SELECT") {
-              result.footer = "(Select Action)";
-          } else {
-              result.footer = "(ESC to Go Back)";
-          }
+    if (
+      this.menuState === "ACTION_SELECT" ||
+      this.menuState === "MODE_SELECT"
+    ) {
+      result.options = config.options.map((opt) => ({
+        key: opt.key.toString(),
+        label: opt.key === 0 ? "BACK" : `${opt.key}. ${opt.label}`,
+        isBack: opt.key === 0,
+        disabled: this.isOptionDisabled(opt, gameState),
+        dataAttributes: { index: opt.key.toString() },
+      }));
 
-      } else if (this.menuState === "TARGET_SELECT") {
-          if (this.overlayOptions.length === 0 && this.pendingAction !== CommandType.MOVE_TO) {
-              result.error = "No POIs available.";
-          } else {
-              result.options = this.overlayOptions.map(opt => ({
-                  key: opt.key,
-                  label: `${opt.key}. ${opt.label}`,
-                  dataAttributes: { index: opt.key, key: opt.key }
-              }));
-          }
-          result.options.push({ key: "0", label: "0. BACK", isBack: true, dataAttributes: { index: "0" } });
-          result.footer = "(Click map or press 1-9)";
-
-      } else if (this.menuState === "UNIT_SELECT") {
-          let counter = 1;
-          const activeUnits = gameState.units.filter(
-            (u) => u.state !== UnitState.Dead && u.state !== UnitState.Extracted,
-          );
-          
-          result.options = activeUnits.map(u => ({
-              key: counter.toString(),
-              label: `${counter}. Unit ${u.id}`,
-              dataAttributes: { index: counter.toString(), "unit-id": u.id }
-          }));
-          counter = activeUnits.length + 1; // Correct counter for ALL UNITS
-          
-          // Add options based on counter, but we need to increment correctly
-          // map used previously, so let's just push to options array
-          // Fix: result.options is already populated by map.
-          // Need to update counter after map.
-          
-          // Re-do mapping to be cleaner
-          result.options = [];
-          counter = 1;
-          activeUnits.forEach(u => {
-              result.options.push({
-                  key: counter.toString(),
-                  label: `${counter}. Unit ${u.id}`,
-                  dataAttributes: { index: counter.toString(), "unit-id": u.id }
-              });
-              counter++;
-          });
-
-          result.options.push({
-              key: counter.toString(),
-              label: `${counter}. ALL UNITS`,
-              dataAttributes: { index: counter.toString(), "unit-id": "ALL" }
-          });
-          
-          result.options.push({ key: "0", label: "0. BACK", isBack: true, dataAttributes: { index: "0" } });
-          result.footer = "(Press 1-9 or ESC)";
+      if (this.menuState === "ACTION_SELECT") {
+        result.footer = "(Select Action)";
+      } else {
+        result.footer = "(ESC to Go Back)";
       }
+    } else if (this.menuState === "TARGET_SELECT") {
+      if (
+        this.overlayOptions.length === 0 &&
+        this.pendingAction !== CommandType.MOVE_TO
+      ) {
+        result.error = "No POIs available.";
+      } else {
+        result.options = this.overlayOptions.map((opt) => ({
+          key: opt.key,
+          label: `${opt.key}. ${opt.label}`,
+          dataAttributes: { index: opt.key, key: opt.key },
+        }));
+      }
+      result.options.push({
+        key: "0",
+        label: "0. BACK",
+        isBack: true,
+        dataAttributes: { index: "0" },
+      });
+      result.footer = "(Click map or press 1-9)";
+    } else if (this.menuState === "UNIT_SELECT") {
+      let counter = 1;
+      const activeUnits = gameState.units.filter(
+        (u) => u.state !== UnitState.Dead && u.state !== UnitState.Extracted,
+      );
 
-      return result;
+      result.options = activeUnits.map((u) => ({
+        key: counter.toString(),
+        label: `${counter}. Unit ${u.id}`,
+        dataAttributes: { index: counter.toString(), "unit-id": u.id },
+      }));
+      counter = activeUnits.length + 1; // Correct counter for ALL UNITS
+
+      // Add options based on counter, but we need to increment correctly
+      // map used previously, so let's just push to options array
+      // Fix: result.options is already populated by map.
+      // Need to update counter after map.
+
+      // Re-do mapping to be cleaner
+      result.options = [];
+      counter = 1;
+      activeUnits.forEach((u) => {
+        result.options.push({
+          key: counter.toString(),
+          label: `${counter}. Unit ${u.id}`,
+          dataAttributes: { index: counter.toString(), "unit-id": u.id },
+        });
+        counter++;
+      });
+
+      result.options.push({
+        key: counter.toString(),
+        label: `${counter}. ALL UNITS`,
+        dataAttributes: { index: counter.toString(), "unit-id": "ALL" },
+      });
+
+      result.options.push({
+        key: "0",
+        label: "0. BACK",
+        isBack: true,
+        dataAttributes: { index: "0" },
+      });
+      result.footer = "(Press 1-9 or ESC)";
+    }
+
+    return result;
+  }
+
+  private isOptionDisabled(
+    option: MenuOptionDefinition,
+    gameState: GameState,
+  ): boolean {
+    if (option.label === "COLLECT") {
+      // Check for any visible pending items
+      const hasVisibleItems = gameState.objectives.some(
+        (obj) => obj.state === "Pending" && obj.visible && obj.targetCell,
+      );
+      return !hasVisibleItems;
+    } else if (option.label === "EXTRACT") {
+      return !gameState.map.extraction;
+    }
+    return false;
   }
 
   private executePendingCommand(unitIds: string[]) {
