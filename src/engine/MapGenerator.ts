@@ -278,6 +278,23 @@ export class MapGenerator {
       }
     }
 
+    if (map.squadSpawns) {
+      for (const ss of map.squadSpawns) {
+        if (!isWithinBounds(ss.x, ss.y)) {
+          issues.push(
+            `Squad spawn point at (${ss.x}, ${ss.y}) is out of map bounds.`,
+          );
+        } else {
+          const cell = graph.cells[ss.y][ss.x];
+          if (cell.type !== CellType.Floor) {
+            issues.push(
+              `Squad spawn point at (${ss.x}, ${ss.y}) is not on a Floor cell.`,
+            );
+          }
+        }
+      }
+    }
+
     if (spawnPoints && spawnPoints.length > 0) {
       const visitedCells = new Set<string>();
       const queue: Vector2[] = [];
@@ -365,8 +382,11 @@ export class MapGenerator {
           asciiGrid[ey][ex] = "#";
         } else {
           let cellChar = " ";
-          if (map.squadSpawn?.x === x && map.squadSpawn?.y === y)
-            cellChar = "P";
+          const isSquadSpawn =
+            (map.squadSpawn?.x === x && map.squadSpawn?.y === y) ||
+            map.squadSpawns?.some((ss) => ss.x === x && ss.y === y);
+
+          if (isSquadSpawn) cellChar = "P";
           else if (spawnPoints?.some((sp) => sp.pos.x === x && sp.pos.y === y))
             cellChar = "S";
           else if (extraction && extraction.x === x && extraction.y === y)
@@ -615,6 +635,7 @@ export class MapGenerator {
     const objectives: ObjectiveDefinition[] = [];
     let extraction: Vector2 | undefined = undefined;
     let squadSpawn: Vector2 | undefined = undefined;
+    const squadSpawns: Vector2[] = [];
 
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
@@ -632,7 +653,10 @@ export class MapGenerator {
             pos: { x, y },
             radius: 1,
           });
-        if (char === "P") squadSpawn = { x, y };
+        if (char === "P") {
+          squadSpawns.push({ x, y });
+          if (!squadSpawn) squadSpawn = { x, y };
+        }
         if (char === "E") extraction = { x, y };
         if (char === "O")
           objectives.push({
@@ -688,6 +712,7 @@ export class MapGenerator {
       doors,
       spawnPoints,
       squadSpawn,
+      squadSpawns,
       extraction,
       objectives,
     };

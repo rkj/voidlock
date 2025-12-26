@@ -1672,19 +1672,29 @@
     {
       "id": "spawn-1",
       "pos": {
-        "x": 2,
-        "y": 1
+        "x": 3,
+        "y": 7
       },
       "radius": 1
     }
   ],
   "squadSpawn": {
-    "x": 2,
-    "y": 7
+    "x": 0,
+    "y": 4
   },
+  "squadSpawns": [
+    {
+      "x": 0,
+      "y": 4
+    },
+    {
+      "x": 3,
+      "y": 7
+    }
+  ],
   "extraction": {
     "x": 5,
-    "y": 2
+    "y": 3
   },
   "objectives": [
     {
@@ -1692,7 +1702,7 @@
       "kind": "Recover",
       "targetCell": {
         "x": 7,
-        "y": 4
+        "y": 5
       },
       "state": "Pending"
     }

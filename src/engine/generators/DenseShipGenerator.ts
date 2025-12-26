@@ -23,6 +23,7 @@ export class DenseShipGenerator {
   private doors: Door[] = [];
   private spawnPoints: SpawnPoint[] = [];
   private squadSpawn?: Vector2;
+  private squadSpawns?: Vector2[];
   private objectives: ObjectiveDefinition[] = [];
   private extraction?: Vector2;
 
@@ -82,6 +83,7 @@ export class DenseShipGenerator {
       doors: this.doors,
       spawnPoints: this.spawnPoints,
       squadSpawn: this.squadSpawn,
+      squadSpawns: this.squadSpawns,
       extraction: this.extraction,
       objectives: this.objectives,
     };
@@ -165,6 +167,8 @@ export class DenseShipGenerator {
     this.spawnPoints = [];
     this.objectives = [];
     this.extraction = undefined;
+    this.squadSpawn = undefined;
+    this.squadSpawns = undefined;
     this.genMap.fill("Void");
     this.roomIds.fill("");
 
@@ -362,8 +366,38 @@ export class DenseShipGenerator {
     const squadQuadIdx =
       nonEmptyQuads[this.prng.nextInt(0, nonEmptyQuads.length - 1)].i;
     const squadQuad = quadrants[squadQuadIdx];
-    const squadCell = squadQuad[this.prng.nextInt(0, squadQuad.length - 1)];
-    this.squadSpawn = { x: squadCell.x, y: squadCell.y };
+
+    // Pick TWO distinct entrance points in the same quadrant but different rooms
+    const roomsInQuad = new Map<string, Cell[]>();
+    squadQuad.forEach((c) => {
+      if (c.roomId) {
+        if (!roomsInQuad.has(c.roomId)) roomsInQuad.set(c.roomId, []);
+        roomsInQuad.get(c.roomId)!.push(c);
+      }
+    });
+
+    const roomIds = Array.from(roomsInQuad.keys()).filter((id) =>
+      id.startsWith("room-"),
+    );
+
+    if (roomIds.length >= 2) {
+      this.prng.shuffle(roomIds);
+      const r1 = roomIds[0];
+      const r2 = roomIds[1];
+      const r1Cells = roomsInQuad.get(r1)!;
+      const r2Cells = roomsInQuad.get(r2)!;
+      const c1 = r1Cells[this.prng.nextInt(0, r1Cells.length - 1)];
+      const c2 = r2Cells[this.prng.nextInt(0, r2Cells.length - 1)];
+      this.squadSpawns = [
+        { x: c1.x, y: c1.y },
+        { x: c2.x, y: c2.y },
+      ];
+      this.squadSpawn = this.squadSpawns[0];
+    } else {
+      const squadCell = squadQuad[this.prng.nextInt(0, squadQuad.length - 1)];
+      this.squadSpawn = { x: squadCell.x, y: squadCell.y };
+      this.squadSpawns = [this.squadSpawn];
+    }
 
     // 3. Pick Extraction quadrant (opposite if possible)
     const oppositeMap: Record<number, number> = { 0: 3, 3: 0, 1: 2, 2: 1 };
