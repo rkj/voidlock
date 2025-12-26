@@ -1059,6 +1059,15 @@ export class CoreEngine {
           ),
       );
 
+      // Check for Melee Lock (Enemies in same cell)
+      const enemiesInSameCell = this.state.enemies.filter(
+        (enemy) =>
+          enemy.hp > 0 &&
+          Math.floor(enemy.pos.x) === Math.floor(unit.pos.x) &&
+          Math.floor(enemy.pos.y) === Math.floor(unit.pos.y),
+      );
+      const isLockedInMelee = enemiesInSameCell.length > 0;
+
       // Filter by forced target if set and valid
       if (unit.forcedTargetId) {
         const forced = enemiesInRange.find((e) => e.id === unit.forcedTargetId);
@@ -1084,10 +1093,22 @@ export class CoreEngine {
 
       // Default ENGAGE: Attack takes priority over Moving (Stop & Shoot)
       // IGNORE: Moving takes priority over Attacking (Run)
+      // MELEE LOCK: If locked, MUST fight (treat as ENGAGE)
 
-      if (canAttack && (policy === "ENGAGE" || !!unit.forcedTargetId)) {
+      if (
+        canAttack &&
+        (policy === "ENGAGE" || !!unit.forcedTargetId || isLockedInMelee)
+      ) {
         // Attack
-        const targetEnemy = enemiesInRange[0];
+        // If locked, prioritize the enemy locking us
+        let targetEnemy = enemiesInRange[0];
+        if (isLockedInMelee && enemiesInSameCell.length > 0) {
+          // Find one of the locking enemies in range (should be all of them)
+          const lockingTarget = enemiesInSameCell.find((e) =>
+            enemiesInRange.includes(e),
+          );
+          if (lockingTarget) targetEnemy = lockingTarget;
+        }
 
         // RE-VERIFY LOS for projectile path (double-safety)
         if (this.los.hasLineOfSight(unit.pos, targetEnemy.pos)) {
@@ -1108,60 +1129,66 @@ export class CoreEngine {
 
       // If we didn't attack (or we are IGNORE-ing), process movement
       if (!isAttacking && isMoving && unit.targetPos && unit.path) {
-        // Movement logic
-        const dx = unit.targetPos.x - unit.pos.x;
-        const dy = unit.targetPos.y - unit.pos.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-
-        const moveDist = (unit.speed * dt) / 1000;
-
-        // Check if path is blocked physically (e.g. Closed Door)
-        // If next step crosses cell boundary, check canMove WITHOUT allowClosedDoors.
-        const currentCell = {
-          x: Math.floor(unit.pos.x),
-          y: Math.floor(unit.pos.y),
-        };
-        const nextCell = {
-          x: Math.floor(unit.targetPos.x),
-          y: Math.floor(unit.targetPos.y),
-        };
-
-        // If we are moving to a different cell, check if edge is passable
-        if (
-          (currentCell.x !== nextCell.x || currentCell.y !== nextCell.y) &&
-          !this.gameGrid.canMove(
-            currentCell.x,
-            currentCell.y,
-            nextCell.x,
-            nextCell.y,
-            this.doors,
-            false,
-          )
-        ) {
-          // Blocked! Wait.
-          // Do not update unit.pos.
-          // Door opening logic (earlier in update loop) should handle opening if we are adjacent.
-          // We are likely adjacent if we are trying to move there.
-          unit.state = UnitState.WaitingForDoor;
-        } else if (dist <= moveDist + EPSILON) {
-          unit.pos = { ...unit.targetPos };
-          unit.path.shift();
-
-          if (unit.path.length === 0) {
-            unit.path = undefined;
-            unit.targetPos = undefined;
-            unit.state = UnitState.Idle;
-            unit.activeCommand = undefined;
-          } else {
-            unit.targetPos = {
-              x: unit.path[0].x + 0.5 + (unit.visualJitter?.x || 0),
-              y: unit.path[0].y + 0.5 + (unit.visualJitter?.y || 0),
-            };
-          }
+        if (isLockedInMelee) {
+          // Blocked by Melee Lock!
+          unit.state = UnitState.Attacking; // Visual feedback? Or Idle? Attacking seems appropriate if fighting.
+          // If on cooldown, we just wait.
         } else {
-          unit.pos.x += (dx / dist) * moveDist;
-          unit.pos.y += (dy / dist) * moveDist;
-          unit.state = UnitState.Moving;
+          // Movement logic
+          const dx = unit.targetPos.x - unit.pos.x;
+          const dy = unit.targetPos.y - unit.pos.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          const moveDist = (unit.speed * dt) / 1000;
+
+          // Check if path is blocked physically (e.g. Closed Door)
+          // If next step crosses cell boundary, check canMove WITHOUT allowClosedDoors.
+          const currentCell = {
+            x: Math.floor(unit.pos.x),
+            y: Math.floor(unit.pos.y),
+          };
+          const nextCell = {
+            x: Math.floor(unit.targetPos.x),
+            y: Math.floor(unit.targetPos.y),
+          };
+
+          // If we are moving to a different cell, check if edge is passable
+          if (
+            (currentCell.x !== nextCell.x || currentCell.y !== nextCell.y) &&
+            !this.gameGrid.canMove(
+              currentCell.x,
+              currentCell.y,
+              nextCell.x,
+              nextCell.y,
+              this.doors,
+              false,
+            )
+          ) {
+            // Blocked! Wait.
+            // Do not update unit.pos.
+            // Door opening logic (earlier in update loop) should handle opening if we are adjacent.
+            // We are likely adjacent if we are trying to move there.
+            unit.state = UnitState.WaitingForDoor;
+          } else if (dist <= moveDist + EPSILON) {
+            unit.pos = { ...unit.targetPos };
+            unit.path.shift();
+
+            if (unit.path.length === 0) {
+              unit.path = undefined;
+              unit.targetPos = undefined;
+              unit.state = UnitState.Idle;
+              unit.activeCommand = undefined;
+            } else {
+              unit.targetPos = {
+                x: unit.path[0].x + 0.5 + (unit.visualJitter?.x || 0),
+                y: unit.path[0].y + 0.5 + (unit.visualJitter?.y || 0),
+              };
+            }
+          } else {
+            unit.pos.x += (dx / dist) * moveDist;
+            unit.pos.y += (dy / dist) * moveDist;
+            unit.state = UnitState.Moving;
+          }
         }
       } else if (!isAttacking && !isMoving) {
         if (
@@ -1202,10 +1229,32 @@ export class CoreEngine {
           this.getDistance(enemy.pos, unit.pos) <= enemy.attackRange + 0.5,
       );
 
+      // Check for Melee Lock (Units in same cell)
+      const unitsInSameCell = this.state.units.filter(
+        (unit) =>
+          unit.hp > 0 &&
+          unit.state !== UnitState.Extracted &&
+          unit.state !== UnitState.Dead &&
+          Math.floor(unit.pos.x) === Math.floor(enemy.pos.x) &&
+          Math.floor(unit.pos.y) === Math.floor(enemy.pos.y),
+      );
+      const isLockedInMelee = unitsInSameCell.length > 0;
+
       let isAttacking = false;
-      // Only attack if not moving (no path set by AI)
-      if (unitsInRange.length > 0 && (!enemy.path || enemy.path.length === 0)) {
-        const targetUnit = unitsInRange[0];
+      // Only attack if not moving (no path set by AI) OR if Locked in Melee
+      if (
+        unitsInRange.length > 0 &&
+        (!enemy.path || enemy.path.length === 0 || isLockedInMelee)
+      ) {
+        let targetUnit = unitsInRange[0];
+
+        // Prioritize locking unit
+        if (isLockedInMelee && unitsInSameCell.length > 0) {
+          const lockingTarget = unitsInSameCell.find((u) =>
+            unitsInRange.includes(u),
+          );
+          if (lockingTarget) targetUnit = lockingTarget;
+        }
 
         // RE-VERIFY LOS for projectile/melee path (double-safety)
         if (this.los.hasLineOfSight(enemy.pos, targetUnit.pos)) {
@@ -1229,26 +1278,32 @@ export class CoreEngine {
         enemy.path &&
         enemy.path.length > 0
       ) {
-        const dx = enemy.targetPos.x - enemy.pos.x;
-        const dy = enemy.targetPos.y - enemy.pos.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-
-        const moveDist = (enemy.speed * dt) / 1000;
-
-        if (dist <= moveDist + EPSILON) {
-          enemy.pos = { ...enemy.targetPos };
-          enemy.path.shift();
-          if (enemy.path.length > 0) {
-            enemy.targetPos = {
-              x: enemy.path[0].x + 0.5,
-              y: enemy.path[0].y + 0.5,
-            };
-          } else {
-            enemy.targetPos = undefined;
-          }
+        if (isLockedInMelee) {
+          // Blocked by lock
+          enemy.targetPos = undefined; // Stop moving
+          enemy.path = []; // Clear path
         } else {
-          enemy.pos.x += (dx / dist) * moveDist;
-          enemy.pos.y += (dy / dist) * moveDist;
+          const dx = enemy.targetPos.x - enemy.pos.x;
+          const dy = enemy.targetPos.y - enemy.pos.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          const moveDist = (enemy.speed * dt) / 1000;
+
+          if (dist <= moveDist + EPSILON) {
+            enemy.pos = { ...enemy.targetPos };
+            enemy.path.shift();
+            if (enemy.path.length > 0) {
+              enemy.targetPos = {
+                x: enemy.path[0].x + 0.5,
+                y: enemy.path[0].y + 0.5,
+              };
+            } else {
+              enemy.targetPos = undefined;
+            }
+          } else {
+            enemy.pos.x += (dx / dist) * moveDist;
+            enemy.pos.y += (dy / dist) * moveDist;
+          }
         }
       }
     });
