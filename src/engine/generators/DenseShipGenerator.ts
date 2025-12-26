@@ -22,6 +22,7 @@ export class DenseShipGenerator {
   private walls: Set<string> = new Set();
   private doors: Door[] = [];
   private spawnPoints: SpawnPoint[] = [];
+  private squadSpawn?: Vector2;
   private objectives: ObjectiveDefinition[] = [];
   private extraction?: Vector2;
 
@@ -80,6 +81,7 @@ export class DenseShipGenerator {
       walls: mapWalls,
       doors: this.doors,
       spawnPoints: this.spawnPoints,
+      squadSpawn: this.squadSpawn,
       extraction: this.extraction,
       objectives: this.objectives,
     };
@@ -336,6 +338,55 @@ export class DenseShipGenerator {
   }
 
   private placeEntities(corridors: Vector2[], spawnPointCount: number) {
+    const floors = this.cells.filter((c) => c.type === CellType.Floor);
+    if (floors.length === 0) return;
+
+    // 1. Divide floor cells into quadrants
+    const midX = this.width / 2;
+    const midY = this.height / 2;
+
+    const quadrants: Cell[][] = [[], [], [], []];
+    floors.forEach((c) => {
+      if (c.x < midX && c.y < midY) quadrants[0].push(c);
+      else if (c.x >= midX && c.y < midY) quadrants[1].push(c);
+      else if (c.x < midX && c.y >= midY) quadrants[2].push(c);
+      else quadrants[3].push(c);
+    });
+
+    // 2. Pick Squad Spawn quadrant
+    const nonEmptyQuads = quadrants
+      .map((q, i) => ({ q, i }))
+      .filter((obj) => obj.q.length > 0);
+    if (nonEmptyQuads.length === 0) return;
+
+    const squadQuadIdx =
+      nonEmptyQuads[this.prng.nextInt(0, nonEmptyQuads.length - 1)].i;
+    const squadQuad = quadrants[squadQuadIdx];
+    const squadCell = squadQuad[this.prng.nextInt(0, squadQuad.length - 1)];
+    this.squadSpawn = { x: squadCell.x, y: squadCell.y };
+
+    // 3. Pick Extraction quadrant (opposite if possible)
+    const oppositeMap: Record<number, number> = { 0: 3, 3: 0, 1: 2, 2: 1 };
+    let extQuadIdx = oppositeMap[squadQuadIdx];
+
+    if (quadrants[extQuadIdx].length === 0) {
+      let maxDist = -1;
+      nonEmptyQuads.forEach((obj) => {
+        const dist =
+          Math.abs((obj.i % 2) - (squadQuadIdx % 2)) +
+          Math.abs(Math.floor(obj.i / 2) - Math.floor(squadQuadIdx / 2));
+        if (dist > maxDist) {
+          maxDist = dist;
+          extQuadIdx = obj.i;
+        }
+      });
+    }
+
+    const extQuad = quadrants[extQuadIdx];
+    const extCell = extQuad[this.prng.nextInt(0, extQuad.length - 1)];
+    this.extraction = { x: extCell.x, y: extCell.y };
+
+    // 4. Enemy spawns and objectives (using rooms)
     const roomMap = new Map<string, Vector2[]>();
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
@@ -348,47 +399,46 @@ export class DenseShipGenerator {
     }
     const rooms = Array.from(roomMap.values());
     if (rooms.length === 0) {
-      this.spawnPoints.push({ id: "sp-1", pos: corridors[0], radius: 1 });
-      this.extraction = corridors[corridors.length - 1];
+      // Fallback if no rooms
+      for (let i = 0; i < spawnPointCount; i++) {
+        const p = corridors[this.prng.nextInt(0, corridors.length - 1)];
+        this.spawnPoints.push({ id: `sp-enemy-${i}`, pos: p, radius: 1 });
+      }
       return;
     }
+
     this.prng.shuffle(rooms);
-    const refRoom = rooms[0];
-    const refPos = refRoom[Math.floor(refRoom.length / 2)];
-    let bestExtRoom = rooms[rooms.length - 1];
-    let maxDist = 0;
-    for (let i = 1; i < rooms.length; i++) {
-      const r = rooms[i];
-      const p = r[0];
-      const dist = Math.abs(p.x - refPos.x) + Math.abs(p.y - refPos.y);
-      if (dist > maxDist) {
-        maxDist = dist;
-        bestExtRoom = r;
-      }
-    }
-    const extPos = bestExtRoom[Math.floor(bestExtRoom.length / 2)];
-    this.extraction = extPos;
-    const otherRooms = rooms.filter((r) => r !== bestExtRoom);
-    otherRooms.sort((a, b) => {
-      const distA = Math.abs(a[0].x - extPos.x) + Math.abs(a[0].y - extPos.y);
-      const distB = Math.abs(b[0].x - extPos.x) + Math.abs(b[0].y - extPos.y);
-      return distB - distA;
+    // Exclude rooms containing squadSpawn or extraction if possible
+    const otherRooms = rooms.filter((r) => {
+      const isSquadRoom = r.some(
+        (p) => p.x === this.squadSpawn?.x && p.y === this.squadSpawn?.y,
+      );
+      const isExtRoom = r.some(
+        (p) => p.x === this.extraction?.x && p.y === this.extraction?.y,
+      );
+      return !isSquadRoom && !isExtRoom;
     });
-    for (let i = 0; i < Math.min(spawnPointCount, otherRooms.length); i++) {
+
+    const finalRooms = otherRooms.length > 0 ? otherRooms : rooms;
+
+    for (let i = 0; i < Math.min(spawnPointCount, finalRooms.length); i++) {
+      const r = finalRooms[i];
       this.spawnPoints.push({
         id: `sp-enemy-${i}`,
-        pos: otherRooms[i][Math.floor(otherRooms[i].length / 2)],
+        pos: r[Math.floor(r.length / 2)],
         radius: 1,
       });
     }
-    const objRooms = otherRooms.slice(
-      Math.min(spawnPointCount, otherRooms.length),
+
+    const objRooms = finalRooms.slice(
+      Math.min(spawnPointCount, finalRooms.length),
     );
     for (let i = 0; i < Math.min(2, objRooms.length); i++) {
+      const r = objRooms[i];
       this.objectives.push({
         id: `obj-${i}`,
         kind: "Recover",
-        targetCell: objRooms[i][Math.floor(objRooms[i].length / 2)],
+        targetCell: r[Math.floor(r.length / 2)],
       });
     }
   }

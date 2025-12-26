@@ -43,6 +43,7 @@ export type MapDefinition = {
   walls?: WallDefinition[]; // New: Array of Wall boundaries
   doors?: Door[]; // New: Array of Door entities
   spawnPoints?: SpawnPoint[];
+  squadSpawn?: Vector2;
   extraction?: Vector2;
   objectives?: ObjectiveDefinition[];
 };
@@ -444,6 +445,7 @@ export type TileAssembly = {
     id: string;
   }[];
   globalSpawnPoints?: { cell: Vector2; id: string }[];
+  globalSquadSpawn?: { cell: Vector2 };
   globalExtraction?: { cell: Vector2 };
   globalObjectives?: { kind: "Recover" | "Kill"; cell: Vector2; id: string }[];
 };

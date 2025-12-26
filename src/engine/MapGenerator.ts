@@ -247,6 +247,37 @@ export class MapGenerator {
       }
     }
 
+    if (extraction) {
+      if (!isWithinBounds(extraction.x, extraction.y)) {
+        issues.push(
+          `Extraction point at (${extraction.x}, ${extraction.y}) is out of map bounds.`,
+        );
+      } else {
+        const cell = graph.cells[extraction.y][extraction.x];
+        if (cell.type !== CellType.Floor) {
+          issues.push(
+            `Extraction point at (${extraction.x}, ${extraction.y}) is not on a Floor cell.`,
+          );
+        }
+      }
+    }
+
+    if (map.squadSpawn) {
+      const ss = map.squadSpawn;
+      if (!isWithinBounds(ss.x, ss.y)) {
+        issues.push(
+          `Squad spawn point at (${ss.x}, ${ss.y}) is out of map bounds.`,
+        );
+      } else {
+        const cell = graph.cells[ss.y][ss.x];
+        if (cell.type !== CellType.Floor) {
+          issues.push(
+            `Squad spawn point at (${ss.x}, ${ss.y}) is not on a Floor cell.`,
+          );
+        }
+      }
+    }
+
     if (spawnPoints && spawnPoints.length > 0) {
       const visitedCells = new Set<string>();
       const queue: Vector2[] = [];
@@ -334,7 +365,9 @@ export class MapGenerator {
           asciiGrid[ey][ex] = "#";
         } else {
           let cellChar = " ";
-          if (spawnPoints?.some((sp) => sp.pos.x === x && sp.pos.y === y))
+          if (map.squadSpawn?.x === x && map.squadSpawn?.y === y)
+            cellChar = "P";
+          else if (spawnPoints?.some((sp) => sp.pos.x === x && sp.pos.y === y))
             cellChar = "S";
           else if (extraction && extraction.x === x && extraction.y === y)
             cellChar = "E";
@@ -546,6 +579,12 @@ export class MapGenerator {
           pos: { x: sp.cell.x - minX, y: sp.cell.y - minY },
           radius: 1,
         })) || [],
+      squadSpawn: assembly.globalSquadSpawn
+        ? {
+            x: assembly.globalSquadSpawn.cell.x - minX,
+            y: assembly.globalSquadSpawn.cell.y - minY,
+          }
+        : undefined,
       extraction: assembly.globalExtraction
         ? {
             x: assembly.globalExtraction.cell.x - minX,
@@ -575,6 +614,7 @@ export class MapGenerator {
     const spawnPoints: SpawnPoint[] = [];
     const objectives: ObjectiveDefinition[] = [];
     let extraction: Vector2 | undefined = undefined;
+    let squadSpawn: Vector2 | undefined = undefined;
 
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
@@ -592,6 +632,7 @@ export class MapGenerator {
             pos: { x, y },
             radius: 1,
           });
+        if (char === "P") squadSpawn = { x, y };
         if (char === "E") extraction = { x, y };
         if (char === "O")
           objectives.push({
@@ -646,6 +687,7 @@ export class MapGenerator {
       walls,
       doors,
       spawnPoints,
+      squadSpawn,
       extraction,
       objectives,
     };
