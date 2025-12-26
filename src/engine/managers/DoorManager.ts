@@ -1,0 +1,112 @@
+import { GameState, Door, UnitState, Vector2 } from "../../shared/types";
+import { GameGrid } from "../GameGrid";
+
+export class DoorManager {
+  private doors: Map<string, Door>;
+
+  constructor(
+    mapDoors: Door[] = [],
+    private gameGrid: GameGrid,
+  ) {
+    this.doors = new Map(mapDoors.map((door) => [door.id, door]));
+    this.doors.forEach((door) => this.updateDoorBoundary(door));
+  }
+
+  public getDoors(): Map<string, Door> {
+    return this.doors;
+  }
+
+  public update(state: GameState, dt: number) {
+    for (const door of this.doors.values()) {
+      if (door.state === "Destroyed") continue;
+
+      if (door.openTimer !== undefined && door.openTimer > 0) {
+        door.openTimer -= dt;
+        if (door.openTimer <= 0) {
+          door.state = door.targetState!;
+          this.updateDoorBoundary(door);
+          door.openTimer = undefined;
+          door.targetState = undefined;
+        }
+        continue;
+      }
+
+      const unitAdjacent = this.isUnitAdjacentToDoor(door, state);
+      const soldierAdjacent = this.isSoldierAdjacentToDoor(door, state);
+
+      if (unitAdjacent) {
+        if (
+          door.state === "Closed" ||
+          (door.state === "Locked" && soldierAdjacent)
+        ) {
+          door.targetState = "Open";
+          door.openTimer = door.openDuration * 1000;
+        }
+      } else {
+        if (door.state === "Open") {
+          door.targetState = "Closed";
+          door.openTimer = door.openDuration * 1000;
+        }
+      }
+    }
+  }
+
+  public updateDoorBoundary(door: Door) {
+    const graph = this.gameGrid.getGraph();
+    if (door.segment.length === 2) {
+      const c1 = door.segment[0];
+      const c2 = door.segment[1];
+      const boundary = graph.getBoundary(c1.x, c1.y, c2.x, c2.y);
+      if (boundary) {
+        const isPassable = door.state === "Open" || door.state === "Destroyed";
+        boundary.isWall = !isPassable;
+      }
+    }
+  }
+
+  private isUnitAdjacentToDoor(door: Door, state: GameState): boolean {
+    const adjacentCells = door.segment;
+    for (const adjCell of adjacentCells) {
+      if (
+        state.units.some(
+          (unit) =>
+            unit.state !== UnitState.Dead &&
+            unit.state !== UnitState.Extracted &&
+            Math.floor(unit.pos.x) === adjCell.x &&
+            Math.floor(unit.pos.y) === adjCell.y,
+        )
+      ) {
+        return true;
+      }
+      if (
+        state.enemies.some(
+          (enemy) =>
+            enemy.hp > 0 &&
+            Math.floor(enemy.pos.x) === adjCell.x &&
+            Math.floor(enemy.pos.y) === adjCell.y,
+        )
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private isSoldierAdjacentToDoor(door: Door, state: GameState): boolean {
+    const adjacentCells = door.segment;
+    for (const adjCell of adjacentCells) {
+      if (
+        state.units.some(
+          (unit) =>
+            unit.state !== UnitState.Dead &&
+            unit.state !== UnitState.Extracted &&
+            Math.floor(unit.pos.x) === adjCell.x &&
+            Math.floor(unit.pos.y) === adjCell.y,
+        )
+      ) {
+        return true;
+      }
+    }
+    return false;
+  }
+}
