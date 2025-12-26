@@ -25,4 +25,12 @@ export const Icons = {
             <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
         </svg>
     `)}`,
+
+  // Hive Icon (Purple/Magenta)
+  Hive: `data:image/svg+xml;base64,${btoa(`
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="purple" stroke="magenta" stroke-width="1">
+            <circle cx="12" cy="12" r="8"/>
+            <path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M5 19l3-3M16 8l3-3"/>
+        </svg>
+    `)}`,
 };

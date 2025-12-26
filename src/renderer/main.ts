@@ -352,7 +352,7 @@ const updateUI = (state: GameState) => {
             const idxStr = clickable.dataset.index;
 
             if (idxStr !== undefined) {
-              handleMenuInput(parseInt(idxStr));
+              handleMenuInput(idxStr);
             }
           }
         });
@@ -500,10 +500,10 @@ const updateUI = (state: GameState) => {
   }
 };
 
-const handleMenuInput = (num: number) => {
-  console.log("handleMenuInput:", num);
+const handleMenuInput = (key: string) => {
+  console.log("handleMenuInput:", key);
   if (!currentGameState) return;
-  menuController.handleMenuInput(num, currentGameState);
+  menuController.handleMenuInput(key, currentGameState);
   updateUI(currentGameState);
 };
 
@@ -707,10 +707,10 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      // Handle Number Keys 0-9
-      const num = parseInt(e.key);
-      if (!isNaN(num) && num >= 0) {
-        handleMenuInput(num);
+      // Handle Alpha-numeric Keys (0-9, a-z)
+      const key = e.key.toLowerCase();
+      if (/^[0-9a-z]$/.test(key)) {
+        handleMenuInput(key);
       }
     } else {
       if (e.key === "Escape") {
