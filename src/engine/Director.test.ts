@@ -27,7 +27,7 @@ describe("Director", () => {
 
     // Update 45s
     director.update(45000);
-    
+
     // Turn 1 starts. Wave Size = 1 (base) + 1 (Turn 1) = 2.
     // Wait, let's check my logic in implementation.
     // scalingTurn = Math.min(turn, 10).
@@ -53,7 +53,7 @@ describe("Director", () => {
     expect(director.getThreatLevel()).toBeCloseTo(5);
 
     // Turn 0, Time 45s (Tick) -> Turn 1, Time 0 -> Threat 10
-    director.update(22500); 
+    director.update(22500);
     expect(director.getThreatLevel()).toBe(10);
   });
 
@@ -84,8 +84,8 @@ describe("Director", () => {
     const director = new Director(spawnPoints, prng, onSpawn);
 
     // Advance to Turn 10 (10 * 45s = 450s)
-    for(let i=0; i<10; i++) {
-        director.update(45000);
+    for (let i = 0; i < 10; i++) {
+      director.update(45000);
     }
     // Now at Turn 10, Time 0. Threat should be 100.
     expect(director.getThreatLevel()).toBe(100);

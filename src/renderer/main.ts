@@ -214,6 +214,12 @@ const updateUI = (state: GameState) => {
 
   const threatLevel = state.threatLevel || 0;
 
+  const topTurnValue = document.getElementById("top-turn-value");
+  if (topTurnValue) {
+    const turn = Math.floor(threatLevel / 10);
+    topTurnValue.textContent = turn.toString();
+  }
+
   const topThreatFill = document.getElementById("top-threat-fill");
 
   const topThreatValue = document.getElementById("top-threat-value");
