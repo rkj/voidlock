@@ -17,7 +17,7 @@ At the start of every session, run:
 **Decision Logic:**
 
 - If `in_progress` exists: **RESUME** management (Skip to Section 3: Verification).
-- If `ready` exists: **SELECT** the highest priority task and **DISPATCH** (Section 2).
+- If `ready` exists: **SELECT** the highest priority task, **START** it (`bd update <TASK_ID> --status in_progress`), and **DISPATCH** (Section 2).
 
 ## 2. Task Delegation (The Dispatch)
 
@@ -27,7 +27,7 @@ At the start of every session, run:
 Use multiple `--allowed-tools` flags for the allowlist and pass the prompt as the positional argument. Include essential browser tools for verification.
 
 ```bash
-gemini --allowed-tools list_directory --allowed-tools read_file --allowed-tools search_file_content --allowed-tools glob --allowed-tools replace --allowed-tools write_file --allowed-tools "run_shell_command(npx vitest)" --allowed-tools "run_shell_command(jj diff)" --allowed-tools "run_shell_command(ls)" --allowed-tools "run_shell_command(bd show)" --allowed-tools new_page --allowed-tools navigate_page --allowed-tools take_screenshot --allowed-tools click --allowed-tools wait_for --allowed-tools evaluate_script \
+gemini --model gemini-3-flash-preview --allowed-tools list_directory --allowed-tools read_file --allowed-tools search_file_content --allowed-tools glob --allowed-tools replace --allowed-tools write_file --allowed-tools "run_shell_command(npx vitest)" --allowed-tools "run_shell_command(jj diff)" --allowed-tools "run_shell_command(ls)" --allowed-tools "run_shell_command(bd show)" --allowed-tools new_page --allowed-tools navigate_page --allowed-tools take_screenshot --allowed-tools click --allowed-tools wait_for --allowed-tools evaluate_script \
        "You are a Sub-Agent. Your goal is to implement task <TASK_ID>. \n\nInstructions:\n1. Run 'bd show <TASK_ID> --json' to get the full task details.\n2. Read @spec.md and @AGENTS.md.\n3. Implement the changes.\n4. Verify with tests.\n5. Exit when done."
 ```
 
