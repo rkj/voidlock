@@ -42,11 +42,13 @@ gemini --model gemini-3-flash-preview --allowed-tools list_directory --allowed-t
 1.  **Inspect**: Run `jj diff`.
     - _Check_: Did it follow conventions? Did it remove tests? (Forbidden!)
     - _Architecture Review_: Does the code adhere to `@ARCHITECTURE.md` and SOLID principles? If not, create a **P1 task** to refactor/clean up.
+    - _Documentation_: Ensure `GEMINI.md` files in modified directories were updated if files were added or significant APIs changed.
 2.  **Test**: Run `npx vitest run`.
-    - _Check_: Did all tests pass?
-3.  **Format**: Run automated formatting (e.g., `npm run lint` or `npx prettier --write .`).
-4.  **Verify**: Run `take_screenshot()` (if UI changed).
-    - _Check_: Does it look right? Use `navigate_page("http://192.168.20.8:5173/")`.
+    - _Check_: **CRITICAL**: All changes MUST be confirmed by tests first. Sub-agents are required to write/update tests before or alongside implementation.
+3.  **Verify**: Run `take_screenshot()` (if UI changed).
+    - _Check_: Use `navigate_page("http://192.168.20.8:5173/")` for validation.
+    - _🚨 Regression Rule_: If browser validation discovers a problem that automated tests missed, the sub-agent MUST be re-dispatched with an instruction to FIRST write a failing test for the issue, then fix it.
+4.  **Format**: Run automated formatting (e.g., `npm run lint` or `npx prettier --write .`).
 
 ## 4. Finalization
 
