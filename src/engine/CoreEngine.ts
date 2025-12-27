@@ -9,6 +9,7 @@ import {
   MissionType,
   ArchetypeLibrary,
   Door,
+  Vector2,
 } from "../shared/types";
 import { PRNG } from "../shared/PRNG";
 import { GameGrid } from "./GameGrid";
@@ -91,7 +92,7 @@ export class CoreEngine {
     };
 
     // Mission Setup
-    this.missionManager.setupMission(this.state, map, this.enemyManager);
+    this.missionManager.setupMission(this.state, map, this.enemyManager, squadConfig);
 
     // Initialize Director
     const spawnPoints = map.spawnPoints || [];
@@ -102,40 +103,40 @@ export class CoreEngine {
     // Mission-specific Spawns
     if (missionType === MissionType.EscortVIP) {
       const vipArch = ArchetypeLibrary["vip"];
-      let startPos = map.squadSpawn || map.extraction || { x: 0, y: 0 };
-      if (map.squadSpawns && map.squadSpawns.length > 0) {
-        startPos =
-          map.squadSpawns[this.prng.nextInt(0, map.squadSpawns.length - 1)];
-      }
+      
+      const squadPos = map.squadSpawn || (map.squadSpawns && map.squadSpawns[0]) || { x: 0, y: 0 };
+      const vipSpawnPositions = this.findVipStartPositions(map, squadPos, 1);
 
-      this.addUnit({
-        id: `vip-1`,
-        archetypeId: "vip",
-        pos: {
-          x: startPos.x + 0.5 + (this.prng.next() - 0.5),
-          y: startPos.y + 0.5 + (this.prng.next() - 0.5),
-        },
-        visualJitter: {
-          x: (this.prng.next() - 0.5) * 0.4,
-          y: (this.prng.next() - 0.5) * 0.4,
-        },
-        hp: Math.floor(vipArch.baseHp * 0.5),
-        maxHp: vipArch.baseHp,
-        state: UnitState.Idle,
-        damage: vipArch.damage,
-        fireRate: vipArch.fireRate,
-        attackRange: vipArch.attackRange,
-        sightRange: vipArch.sightRange,
-        speed: vipArch.speed,
-        aiEnabled: false,
-        commandQueue: [],
+      vipSpawnPositions.forEach((startPos, idx) => {
+        this.addUnit({
+          id: `vip-${idx + 1}`,
+          archetypeId: "vip",
+          pos: {
+            x: startPos.x + 0.5 + (this.prng.next() - 0.5) * 0.2,
+            y: startPos.y + 0.5 + (this.prng.next() - 0.5) * 0.2,
+          },
+          visualJitter: {
+            x: (this.prng.next() - 0.5) * 0.4,
+            y: (this.prng.next() - 0.5) * 0.4,
+          },
+          hp: Math.floor(vipArch.baseHp * 0.5),
+          maxHp: vipArch.baseHp,
+          state: UnitState.Idle,
+          damage: vipArch.damage,
+          fireRate: vipArch.fireRate,
+          attackRange: vipArch.attackRange,
+          sightRange: vipArch.sightRange,
+          speed: vipArch.speed,
+          aiEnabled: false,
+          commandQueue: [],
+        });
+
+        // Reveal VIP position
+        const vipCellKey = `${Math.floor(startPos.x)},${Math.floor(startPos.y)}`;
+        if (!this.state.discoveredCells.includes(vipCellKey)) {
+          this.state.discoveredCells.push(vipCellKey);
+        }
       });
-
-      // Reveal VIP position
-      const vipCellKey = `${Math.floor(startPos.x)},${Math.floor(startPos.y)}`;
-      if (!this.state.discoveredCells.includes(vipCellKey)) {
-        this.state.discoveredCells.push(vipCellKey);
-      }
     }
 
     // Spawn units based on squadConfig
@@ -198,6 +199,71 @@ export class CoreEngine {
 
   public applyCommand(cmd: Command) {
     this.commandHandler.applyCommand(this.state, cmd);
+  }
+
+  private findVipStartPositions(
+    map: MapDefinition,
+    squadPos: Vector2,
+    count: number,
+  ): Vector2[] {
+    const rooms = new Map<string, Vector2[]>();
+    map.cells.forEach((cell) => {
+      if (cell.type === "Floor" && cell.roomId && cell.roomId.startsWith("room-")) {
+        if (!rooms.has(cell.roomId)) rooms.set(cell.roomId, []);
+        rooms.get(cell.roomId)!.push({ x: cell.x, y: cell.y });
+      }
+    });
+
+    if (rooms.size === 0) return [map.extraction || { x: 0, y: 0 }];
+
+    const squadQX = squadPos.x < map.width / 2 ? 0 : 1;
+    const squadQY = squadPos.y < map.height / 2 ? 0 : 1;
+
+    const candidateRooms: { roomId: string; dist: number; qx: number; qy: number }[] = [];
+
+    rooms.forEach((cells, roomId) => {
+      const center = {
+        x: cells.reduce((sum, c) => sum + c.x, 0) / cells.length,
+        y: cells.reduce((sum, c) => sum + c.y, 0) / cells.length,
+      };
+
+      const qx = center.x < map.width / 2 ? 0 : 1;
+      const qy = center.y < map.height / 2 ? 0 : 1;
+
+      // Prefer rooms in different quadrants
+      if (qx !== squadQX || qy !== squadQY) {
+        const dx = center.x - squadPos.x;
+        const dy = center.y - squadPos.y;
+        candidateRooms.push({
+          roomId,
+          dist: Math.sqrt(dx * dx + dy * dy),
+          qx,
+          qy,
+        });
+      }
+    });
+
+    // Sort by distance descending (farthest first)
+    candidateRooms.sort((a, b) => b.dist - a.dist);
+
+    if (candidateRooms.length === 0) {
+      // Fallback: any room except the one with squad spawn
+      const squadRoomId = map.cells.find(c => c.x === Math.floor(squadPos.x) && c.y === Math.floor(squadPos.y))?.roomId;
+      const otherRooms = Array.from(rooms.keys()).filter(id => id !== squadRoomId);
+      if (otherRooms.length > 0) {
+        return otherRooms.slice(0, count).map(id => {
+          const cells = rooms.get(id)!;
+          return cells[this.prng.nextInt(0, cells.length - 1)];
+        });
+      }
+      return [map.extraction || { x: 0, y: 0 }];
+    }
+
+    const selectedRooms = candidateRooms.slice(0, count);
+    return selectedRooms.map((r) => {
+      const cells = rooms.get(r.roomId)!;
+      return cells[this.prng.nextInt(0, cells.length - 1)];
+    });
   }
 
   public update(dt: number) {
