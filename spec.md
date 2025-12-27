@@ -129,6 +129,14 @@ The `range` property on a weapon definition represents the **Absolute Maximum Ra
 ##### 3.3.4.2 Effective Range
 While the formula never reaches 0%, the "Effective Range" is a soft limit where the hit chance becomes negligibly low. In the UI, this may be visualized as the distance where hit chance is $> 10\%$.
 
+#### 3.3.5. Future Weapon System Integration (Planned)
+Currently, `accuracy` is a single stat conflating soldier skill and weapon performance. In the future (post-Weapon/Item implementation), this will be split:
+*   **Soldier Aim (Skill):** Base hit percentage (0-100).
+*   **Weapon Modifiers:**
+    *   **Accuracy Mod:** Bonus/Penalty to base aim (e.g., Sniper +10, Shotgun -20).
+    *   **Effective Range:** Replaces the hardcoded "5 tiles" constant in the formula.
+*   **Revised Formula:** `HitChance = ((SoldierAim + WeaponMod) / 100) * (WeaponEffectiveRange / Distance)`
+
 ### 3.4 Enemy
 
 **Enemy AI Behavior:**
