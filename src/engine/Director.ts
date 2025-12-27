@@ -17,15 +17,42 @@ export class Director {
   private onSpawn: (enemy: Enemy) => void;
   private enemyIdCounter: number = 0;
   private prng: PRNG;
+  private startingThreatLevel: number;
 
   constructor(
     spawnPoints: SpawnPoint[],
     prng: PRNG,
     onSpawn: (enemy: Enemy) => void,
+    startingThreatLevel: number = 0,
   ) {
     this.spawnPoints = spawnPoints;
     this.prng = prng;
     this.onSpawn = onSpawn;
+    this.startingThreatLevel = startingThreatLevel;
+
+    // Initialize turn and time based on starting threat level
+    // Threat = (turn + progress) * 10
+    this.turn = Math.floor(startingThreatLevel / this.threatPerTurn);
+    const progress = (startingThreatLevel % this.threatPerTurn) / this.threatPerTurn;
+    this.timeInCurrentTurn = progress * this.turnDuration;
+  }
+
+  public preSpawn() {
+    // If starting threat is > 10%, enemies are pre-spawned and autonomously roaming.
+    // Each turn represents 10% threat.
+    // We spawn waves for each completed 10% threat.
+    const completedTurns = Math.floor(this.startingThreatLevel / this.threatPerTurn);
+    
+    // We only pre-spawn if we have at least one completed turn (> 10% threat)
+    if (this.startingThreatLevel > 10 && completedTurns > 0) {
+      // Temporarily set turn to spawn appropriate wave sizes
+      const actualTurn = this.turn;
+      for (let t = 0; t < completedTurns; t++) {
+        this.turn = t;
+        this.spawnWave();
+      }
+      this.turn = actualTurn;
+    }
   }
 
   public update(dt: number) {

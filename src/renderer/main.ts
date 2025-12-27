@@ -164,11 +164,20 @@ const launchMission = () => {
   const spInput = document.getElementById(
     "map-spawn-points",
   ) as HTMLInputElement;
+  const threatInput = document.getElementById(
+    "map-starting-threat",
+  ) as HTMLInputElement;
+
   if (wInput && hInput) {
     currentMapWidth = parseInt(wInput.value) || 14;
     currentMapHeight = parseInt(hInput.value) || 14;
   }
   if (spInput) currentSpawnPointCount = parseInt(spInput.value) || 1;
+
+  let startingThreatLevel = 0;
+  if (threatInput) {
+    startingThreatLevel = parseInt(threatInput.value) || 0;
+  }
 
   ConfigManager.save({
     mapWidth: currentMapWidth,
@@ -182,6 +191,7 @@ const launchMission = () => {
     missionType: currentMissionType,
     lastSeed: currentSeed,
     squadConfig: currentSquad,
+    startingThreatLevel,
   });
 
   gameClient.init(
@@ -197,6 +207,7 @@ const launchMission = () => {
     currentMapHeight,
     currentSpawnPointCount,
     losOverlayEnabled,
+    startingThreatLevel,
   );
 
   const seedDisplay = document.getElementById("seed-display");
@@ -457,6 +468,7 @@ document.addEventListener("DOMContentLoaded", () => {
       currentMissionType = config.missionType || MissionType.Default;
       currentSeed = config.lastSeed;
       currentSquad = config.squadConfig;
+      const startingThreatLevel = config.startingThreatLevel || 0;
 
       // Apply to UI
       const missionSelect = document.getElementById(
@@ -479,9 +491,14 @@ document.addEventListener("DOMContentLoaded", () => {
       const spInput = document.getElementById(
         "map-spawn-points",
       ) as HTMLInputElement;
+      const threatInput = document.getElementById(
+        "map-starting-threat",
+      ) as HTMLInputElement;
+
       if (wInput) wInput.value = currentMapWidth.toString();
       if (hInput) hInput.value = currentMapHeight.toString();
       if (spInput) spInput.value = currentSpawnPointCount.toString();
+      if (threatInput) threatInput.value = startingThreatLevel.toString();
 
       const fowCheck = document.getElementById(
         "toggle-fog-of-war",

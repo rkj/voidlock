@@ -64,4 +64,34 @@ describe("Director", () => {
     // Total should be 2 + 3 + 4 = 9
     expect(onSpawn).toHaveBeenCalledTimes(9);
   });
+
+  it("should initialize with startingThreatLevel and preSpawn enemies", () => {
+    const spawnPoints = [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }];
+    const prng = new PRNG(123);
+    const onSpawn = vi.fn();
+
+    // 30% threat means we are at Turn 3 start.
+    // Completed turns: 0, 1, 2.
+    // Wave 0: 1 enemy
+    // Wave 1: 2 enemies
+    // Wave 2: 3 enemies
+    // Total pre-spawn = 1 + 2 + 3 = 6
+    const director = new Director(spawnPoints, prng, onSpawn, 30);
+    director.preSpawn();
+
+    expect(director.getThreatLevel()).toBe(30);
+    expect(onSpawn).toHaveBeenCalledTimes(6);
+  });
+
+  it("should not preSpawn if threat <= 10", () => {
+    const spawnPoints = [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }];
+    const prng = new PRNG(123);
+    const onSpawn = vi.fn();
+
+    const director = new Director(spawnPoints, prng, onSpawn, 10);
+    director.preSpawn();
+
+    expect(director.getThreatLevel()).toBe(10);
+    expect(onSpawn).not.toHaveBeenCalled();
+  });
 });

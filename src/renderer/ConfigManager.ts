@@ -16,6 +16,7 @@ export interface GameConfig {
   mapGeneratorType: MapGeneratorType;
   missionType: MissionType;
   lastSeed: number;
+  startingThreatLevel: number;
   // staticMapData is tricky to serialize if large, but per spec we should probably try or just skip if it's user uploaded file that isn't persistent.
   // For now, let's persist everything except maybe large static maps if they exceed limits, but let's try basic props first.
   squadConfig: SquadConfig;
@@ -57,6 +58,7 @@ export class ConfigManager {
       mapGeneratorType: MapGeneratorType.TreeShip,
       missionType: MissionType.Default,
       lastSeed: Date.now(),
+      startingThreatLevel: 0,
       squadConfig: [
         { archetypeId: "assault", count: 1 },
         { archetypeId: "medic", count: 1 },

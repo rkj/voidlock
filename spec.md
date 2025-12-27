@@ -178,16 +178,18 @@ The visibility rules depend on the Mission/Map config:
 
 ### 4.3 The Director (Spawning)
 
-Spawns occur on a fixed timer (default 45s).
+Spawns occur on a fixed timer (default 30s).
 **Starting Threat:**
 - Missions can start at a configurable threat level (0% to 100%).
 - If the starting threat is > 10%, enemies are pre-spawned and autonomously roaming the ship at mission start.
+- Pre-spawning logic: For each completed 10% threat level increment, one full wave of enemies is spawned at mission initialization.
 
 **Algorithm:**
-1.  **Base Amount:** Map difficulty defines `X` base enemies.
-2.  **Scaling:** `+1` enemy added to the pool per wave.
+1.  **Base Amount:** Map difficulty defines `X` base enemies. Currently, waves start at 1 enemy and scale up.
+2.  **Scaling:** `+1` enemy added to the pool per wave (turn). Wave size = `1 + currentTurn`.
 3.  **Distribution:** Enemies are distributed randomly among valid `SpawnPoints`.
-4.  **Upgrade Logic:** Probabilistic replacement of weak enemies with strong ones (e.g., "2 Small enemies replaced by 1 Large enemy").
+4.  **Upgrade Logic:** Probabilistic replacement of weak enemies with strong ones based on current threat level.
+5.  **Threat Growth:** Threat level increases by 10% per turn (30s at 1x speed), capping at 100% after 10 turns.
 
 ### 4.4 Commands
 

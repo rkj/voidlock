@@ -51,6 +51,7 @@ export class CoreEngine {
     debugOverlayEnabled: boolean,
     missionType: MissionType = MissionType.Default,
     losOverlayEnabled: boolean = false,
+    startingThreatLevel: number = 0,
   ) {
     this.prng = new PRNG(seed);
     this.gameGrid = new GameGrid(map);
@@ -83,7 +84,7 @@ export class CoreEngine {
       visibleCells: [],
       discoveredCells: [],
       objectives: [],
-      threatLevel: 0,
+      threatLevel: startingThreatLevel,
       aliensKilled: 0,
       casualties: 0,
       status: "Playing",
@@ -96,9 +97,13 @@ export class CoreEngine {
 
     // Initialize Director
     const spawnPoints = map.spawnPoints || [];
-    this.director = new Director(spawnPoints, this.prng, (enemy) =>
-      this.enemyManager.addEnemy(this.state, enemy),
+    this.director = new Director(
+      spawnPoints,
+      this.prng,
+      (enemy) => this.enemyManager.addEnemy(this.state, enemy),
+      startingThreatLevel,
     );
+    this.director.preSpawn();
 
     // Mission-specific Spawns
     if (missionType === MissionType.EscortVIP) {
