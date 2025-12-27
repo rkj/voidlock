@@ -17,7 +17,9 @@ At the start of every session, run:
 **Decision Logic:**
 
 - If `in_progress` exists: **RESUME** management (Skip to Section 3: Verification).
-- If `ready` exists: **SELECT** the highest priority task, **START** it (`bd update <TASK_ID> --status in_progress`), and **DISPATCH** (Section 2).
+- If `ready` exists: **SELECT** the highest priority task.
+  1. **START**: Run `bd update <TASK_ID> --status in_progress`.
+  2. **DISPATCH**: Run the `gemini` command (Section 2).
 
 ## 2. Task Delegation (The Dispatch)
 
