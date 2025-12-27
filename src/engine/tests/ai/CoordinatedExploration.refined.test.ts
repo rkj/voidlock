@@ -24,7 +24,6 @@ describe("Coordinated Exploration Refined", () => {
           id: "obj1",
           kind: "Recover",
           targetCell: { x: 9, y: 9 },
-          state: "Pending",
         },
       ],
     };
@@ -53,8 +52,9 @@ describe("Coordinated Exploration Refined", () => {
         fireRate: 100,
         attackRange: 5,
         sightRange: 0.1,
-        speed: 2,
+        speed: 20,
         commandQueue: [],
+        archetypeId: "assault",
       });
     }
 
@@ -91,8 +91,9 @@ describe("Coordinated Exploration Refined", () => {
       fireRate: 100,
       attackRange: 5,
       sightRange: 0.1,
-      speed: 2,
+      speed: 20,
       commandQueue: [],
+      archetypeId: "assault",
     });
     engine.addUnit({
       id: "u2",
@@ -104,8 +105,9 @@ describe("Coordinated Exploration Refined", () => {
       fireRate: 100,
       attackRange: 5,
       sightRange: 0.1,
-      speed: 2,
+      speed: 20,
       commandQueue: [],
+      archetypeId: "assault",
     });
 
     engine.update(100);

@@ -42,6 +42,7 @@ describe("Command: SET_ENGAGEMENT (Policy Logic)", () => {
       speed: 2,
       commandQueue: [],
       engagementPolicy: "IGNORE", // Start with IGNORE
+      archetypeId: "assault",
     });
     engine.addEnemy({
       id: "e1",
@@ -91,7 +92,7 @@ describe("Command: SET_ENGAGEMENT (Policy Logic)", () => {
 
   it("should NOT reset Manual IGNORE to ENGAGE when idle", () => {
     // Remove enemy to ensure unit is safe and not isolated (no threats)
-    engine.state.enemies = [];
+    (engine as any).state.enemies = [];
 
     // Set Manual IGNORE
     engine.applyCommand({

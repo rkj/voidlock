@@ -44,6 +44,7 @@ describe("Command: SET_ENGAGEMENT", () => {
       sightRange: 10,
       speed: 2,
       commandQueue: [],
+      archetypeId: "assault",
     });
     engine.addEnemy({
       id: "e1",

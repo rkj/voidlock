@@ -23,7 +23,6 @@ describe("Exploration Logic", () => {
           id: "obj_explore",
           kind: "Recover",
           targetCell: { x: 99, y: 0 },
-          state: "Pending",
         },
       ],
       // extraction: undefined,
@@ -34,7 +33,6 @@ describe("Exploration Logic", () => {
         x,
         y: 0,
         type: CellType.Floor,
-        walls: { n: true, e: x === 9, s: true, w: x === 0 },
       });
     }
 
@@ -102,7 +100,6 @@ describe("Exploration Logic", () => {
           id: "obj_explore",
           kind: "Recover",
           targetCell: { x: 9, y: 0 },
-          state: "Pending",
         },
       ],
       // extraction: undefined,
@@ -114,7 +111,6 @@ describe("Exploration Logic", () => {
         x,
         y: 0,
         type: CellType.Floor,
-        walls: { n: true, s: x < 4, e: x === 4 ? false : false, w: x === 0 },
       });
     }
     // Vertical col 4, y=1..4
@@ -123,7 +119,6 @@ describe("Exploration Logic", () => {
         x: 4,
         y,
         type: CellType.Floor,
-        walls: { n: false, s: y === 4, e: true, w: true },
       });
     }
 

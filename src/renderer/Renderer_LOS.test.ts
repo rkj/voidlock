@@ -84,6 +84,7 @@ describe("Renderer LOS", () => {
           damage: 10,
           fireRate: 100,
           commandQueue: [],
+          archetypeId: "assault",
         },
       ],
       enemies: [

@@ -24,7 +24,6 @@ describe("Coordinated Objectives AI", () => {
           id: "obj1",
           kind: "Recover",
           targetCell: { x: 15, y: 15 },
-          state: "Pending",
           visible: true,
         } as any,
       ],
@@ -51,9 +50,10 @@ describe("Coordinated Objectives AI", () => {
       damage: 10,
       fireRate: 100,
       attackRange: 1,
-      sightRange: 10,
-      speed: 1,
+      sightRange: 0.1,
+      speed: 10,
       commandQueue: [],
+      archetypeId: "assault",
     });
 
     // Unit 2 further from objective
@@ -66,9 +66,10 @@ describe("Coordinated Objectives AI", () => {
       damage: 10,
       fireRate: 100,
       attackRange: 1,
-      sightRange: 10,
-      speed: 1,
+      sightRange: 0.1,
+      speed: 10,
       commandQueue: [],
+      archetypeId: "assault",
     });
   });
 
@@ -127,7 +128,7 @@ describe("Coordinated Objectives AI", () => {
       pos: { x: 15.5, y: 15.5 },
       hp: 100, maxHp: 100,
       state: UnitState.Idle,
-      damage: 10, fireRate: 100, attackRange: 1, sightRange: 10, speed: 1,
+      damage: 10, fireRate: 100, attackRange: 1, sightRange: 0.1, speed: 10,
       commandQueue: [],
       archetypeId: "assault"
     });
@@ -136,7 +137,7 @@ describe("Coordinated Objectives AI", () => {
       pos: { x: 15.5, y: 15.5 },
       hp: 100, maxHp: 100,
       state: UnitState.Idle,
-      damage: 10, fireRate: 100, attackRange: 1, sightRange: 10, speed: 1,
+      damage: 10, fireRate: 100, attackRange: 1, sightRange: 0.1, speed: 10,
       commandQueue: [],
       archetypeId: "assault"
     });

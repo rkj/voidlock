@@ -87,6 +87,7 @@ describe("Enemy AI", () => {
       sightRange: 10,
       speed: 2,
       commandQueue: [],
+      archetypeId: "assault",
     });
 
     const initialDist = Math.sqrt((0.5 - 4.5) ** 2 + (0.5 - 4.5) ** 2);

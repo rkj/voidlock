@@ -52,6 +52,7 @@ describe("Shared Types", () => {
       sightRange: 5,
       speed: 2,
       commandQueue: [],
+      archetypeId: "assault",
     };
     expect(unitWithOutPath).not.toHaveProperty("path");
 
@@ -71,6 +72,7 @@ describe("Shared Types", () => {
       sightRange: 5,
       speed: 2,
       commandQueue: [],
+      archetypeId: "assault",
     };
     expect(unitWithPath.path).toEqual([
       { x: 1, y: 0 },
@@ -100,6 +102,7 @@ describe("Shared Types", () => {
       sightRange: 6,
       speed: 2,
       commandQueue: [],
+      archetypeId: "assault",
     };
     expect(unit.damage).toBe(15);
     expect(unit.attackRange).toBe(2);

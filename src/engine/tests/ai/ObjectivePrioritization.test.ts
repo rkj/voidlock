@@ -25,7 +25,6 @@ describe("Objective Prioritization AI", () => {
           id: "obj1",
           kind: "Recover",
           targetCell: { x: 4, y: 0 },
-          state: "Pending",
         },
       ],
     };
@@ -47,9 +46,10 @@ describe("Objective Prioritization AI", () => {
       damage: 10,
       fireRate: 100,
       attackRange: 1,
-      sightRange: 1.5,
-      speed: 1, // 1 tile per second (1000ms)
+      sightRange: 0.1,
+      speed: 10, // 1 tile per second (1000ms)
       commandQueue: [],
+      archetypeId: "assault",
     });
   });
 

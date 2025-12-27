@@ -49,7 +49,7 @@ describe("VIP AI Behavior", () => {
       fireRate: 0,
       attackRange: 0,
       sightRange: 6,
-      speed: 2,
+      speed: 20,
       aiEnabled: false,
       commandQueue: [],
     });
@@ -66,7 +66,7 @@ describe("VIP AI Behavior", () => {
       fireRate: 600,
       attackRange: 4,
       sightRange: 8,
-      speed: 2,
+      speed: 20,
       aiEnabled: true,
       commandQueue: [],
     });
@@ -108,7 +108,7 @@ describe("VIP AI Behavior", () => {
       fireRate: 0,
       attackRange: 0,
       sightRange: 6,
-      speed: 2,
+      speed: 20,
       aiEnabled: true,
       commandQueue: [],
     });
@@ -123,7 +123,7 @@ describe("VIP AI Behavior", () => {
       damage: 10,
       fireRate: 1000,
       attackRange: 1,
-      speed: 1,
+      speed: 10,
     });
 
     // Make sure VIP can see enemy
@@ -162,7 +162,7 @@ describe("VIP AI Behavior", () => {
       fireRate: 0,
       attackRange: 0,
       sightRange: 6,
-      speed: 2,
+      speed: 20,
       aiEnabled: true,
       commandQueue: [],
     });
@@ -190,7 +190,7 @@ describe("VIP AI Behavior", () => {
       fireRate: 0,
       attackRange: 0,
       sightRange: 6,
-      speed: 2,
+      speed: 20,
       aiEnabled: true,
       commandQueue: [],
     });

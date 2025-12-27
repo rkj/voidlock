@@ -58,6 +58,7 @@ describe("Unit WaitingForDoor State", () => {
       sightRange: 10,
       speed: 2,
       commandQueue: [],
+      archetypeId: "assault",
     });
 
     // Order move to 1,0

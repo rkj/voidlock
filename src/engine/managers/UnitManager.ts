@@ -249,15 +249,13 @@ export class UnitManager {
                 Math.floor(unit.pos.x) === obj.targetCell.x &&
                 Math.floor(unit.pos.y) === obj.targetCell.y
               ) {
-                if (
-                  unit.state === UnitState.Idle &&
-                  unit.state !== UnitState.Channeling
-                ) {
+                if (unit.state === UnitState.Idle) {
+                  const duration = 5000 * (10 / unit.speed);
                   unit.state = UnitState.Channeling;
                   unit.channeling = {
                     action: "Collect",
-                    remaining: 5000,
-                    totalDuration: 5000,
+                    remaining: duration,
+                    totalDuration: duration,
                     targetId: obj.id,
                   };
                   claimedObjectives.add(obj.id);
@@ -293,15 +291,13 @@ export class UnitManager {
           Math.floor(unit.pos.x) === ext.x &&
           Math.floor(unit.pos.y) === ext.y
         ) {
-          if (
-            unit.state === UnitState.Idle &&
-            unit.state !== UnitState.Channeling
-          ) {
+          if (unit.state === UnitState.Idle) {
+            const duration = 5000 * (10 / unit.speed);
             unit.state = UnitState.Channeling;
             unit.channeling = {
               action: "Extract",
-              remaining: 5000,
-              totalDuration: 5000,
+              remaining: duration,
+              totalDuration: duration,
             };
             unit.path = undefined;
             unit.targetPos = undefined;
@@ -601,7 +597,7 @@ export class UnitManager {
           const dy = unit.targetPos.y - unit.pos.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
 
-          const moveDist = (unit.speed * dt) / 1000;
+          const moveDist = (unit.speed / 10 * dt) / 1000;
 
           const currentCell = {
             x: Math.floor(unit.pos.x),
@@ -646,10 +642,7 @@ export class UnitManager {
           }
         }
       } else if (!isAttacking && !isMoving) {
-        if (
-          unit.state !== UnitState.Channeling &&
-          unit.state !== UnitState.WaitingForDoor
-        ) {
+        if (unit.state !== UnitState.WaitingForDoor) {
           unit.state = UnitState.Idle;
           unit.activeCommand = undefined;
         }

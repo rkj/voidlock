@@ -78,7 +78,6 @@ describe("Unit Command State UI Tracking", () => {
           id: "obj_explore",
           kind: "Recover",
           targetCell: { x: 99, y: 0 },
-          state: "Pending",
         },
       ],
     };
@@ -94,7 +93,12 @@ describe("Unit Command State UI Tracking", () => {
       false,
     );
 
+    // Override sightRange to 0.1 to allow exploration
+    (engine as any).state.units[0].sightRange = 0.1;
+    (engine as any).state.discoveredCells = ["0,0"];
+
     // Tick engine to trigger AI
+    engine.update(100);
     engine.update(100);
 
     const unit = engine.getState().units[0];

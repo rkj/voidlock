@@ -45,6 +45,7 @@ describe("Hidden Objectives", () => {
     // Unit at (0,0). Sight 5. Objective at (9,9).
     engine.addUnit({
       id: "u1",
+      archetypeId: "vip",
       pos: { x: 0.5, y: 0.5 },
       hp: 100,
       maxHp: 100,

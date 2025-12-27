@@ -17,25 +17,22 @@ const mockMap: MapDefinition = {
       x: 0,
       y: 0,
       type: CellType.Floor,
-      walls: { n: true, e: false, s: true, w: true },
     },
     {
       x: 1,
       y: 0,
       type: CellType.Floor,
-      walls: { n: true, e: false, s: true, w: false },
     },
     {
       x: 2,
       y: 0,
       type: CellType.Floor,
-      walls: { n: true, e: true, s: true, w: false },
     },
   ],
   spawnPoints: [],
 };
 
-const mockSquad: SquadConfig = [{ archetypeId: "soldier_grunt", count: 1 }];
+const mockSquad: SquadConfig = [{ archetypeId: "assault", count: 1 }];
 
 describe("Melee Lock & Ignore Policy", () => {
   it("should force combat and block movement when in same cell, even if IGNORE", () => {
@@ -63,6 +60,7 @@ describe("Melee Lock & Ignore Policy", () => {
       aiEnabled: true,
       commandQueue: [],
       engagementPolicy: "IGNORE",
+      archetypeId: "assault",
     });
 
     const state = engine.getState();
@@ -80,7 +78,6 @@ describe("Melee Lock & Ignore Policy", () => {
       fireRate: 100,
       attackRange: 1,
       speed: 1,
-      state: "Idle" as any,
     });
 
     // Order Soldier to Move to 2,0
@@ -144,6 +141,7 @@ describe("Melee Lock & Ignore Policy", () => {
       speed: 4,
       aiEnabled: true,
       commandQueue: [],
+      archetypeId: "assault",
     });
 
     const state = engine.getState();
@@ -160,7 +158,6 @@ describe("Melee Lock & Ignore Policy", () => {
       fireRate: 100,
       attackRange: 1,
       speed: 5, // Fast enemy
-      state: "Idle" as any,
     });
 
     // Force Enemy to have a path (manual hack since we can't easily command enemies)

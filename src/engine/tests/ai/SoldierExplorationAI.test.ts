@@ -40,7 +40,6 @@ describe("Soldier Exploration AI", () => {
           id: "obj_explore",
           kind: "Recover",
           targetCell: { x: 99, y: 0 },
-          state: "Pending",
         },
       ],
     };
@@ -49,6 +48,7 @@ describe("Soldier Exploration AI", () => {
     engine.clearUnits(); // Clear default unit to add our own
     engine.addUnit({
       id: "u1",
+      archetypeId: "assault",
       pos: { x: 0.5, y: 0.5 }, // Start at (0,0)
       hp: 100,
       maxHp: 100,
@@ -57,7 +57,7 @@ describe("Soldier Exploration AI", () => {
       fireRate: 100,
       attackRange: 1,
       sightRange: 0.1, // Small sight to ensure neighbors are undiscovered
-      speed: 2,
+      speed: 20,
       commandQueue: [],
     });
   });

@@ -68,9 +68,8 @@ describe("Renderer", () => {
       {
         id: "o1",
         kind: "Recover",
-        state: "Pending",
         targetCell: { x: 0, y: 1 },
-      } as Objective,
+      },
     ],
   };
   const mockGameState: GameState = {
@@ -89,6 +88,7 @@ describe("Renderer", () => {
         sightRange: 5,
         speed: 2,
         commandQueue: [],
+        archetypeId: "assault",
       },
     ],
     enemies: [
