@@ -111,7 +111,7 @@ export type Unit = Entity & {
   visualJitter?: Vector2; // New: slight offset to prevent stacking
   damage: number;
   fireRate: number; // ms between shots
-  accuracy: number; // Angular dispersion in degrees
+  accuracy: number; // Hit chance percentage at 5 tiles
   attackRange: number;
   sightRange: number;
   engagementPolicy?: EngagementPolicy; // Default: 'ENGAGE'
@@ -132,7 +132,7 @@ export type Enemy = Entity & {
   type: string;
   damage: number;
   fireRate: number; // ms between shots
-  accuracy: number; // Angular dispersion in degrees
+  accuracy: number; // Hit chance percentage at 5 tiles
   attackRange: number;
   lastAttackTarget?: Vector2;
   lastAttackTime?: number;
@@ -192,7 +192,7 @@ export type Archetype = {
   baseHp: number;
   damage: number;
   fireRate: number; // ms
-  accuracy: number; // Angular dispersion in degrees
+  accuracy: number; // Hit chance percentage at 5 tiles
   attackRange: number;
   sightRange: number;
   speed: number; // Speed factor (x10 integer, e.g. 15 = 1.5 tiles/s)
@@ -205,7 +205,7 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     baseHp: 100,
     damage: 20,
     fireRate: 600,
-    accuracy: 5,
+    accuracy: 95,
     attackRange: 4,
     sightRange: 8,
     speed: 20,
@@ -216,7 +216,7 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     baseHp: 80,
     damage: 10,
     fireRate: 900,
-    accuracy: 7,
+    accuracy: 90,
     attackRange: 3,
     sightRange: 10,
     speed: 25,
@@ -227,7 +227,7 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     baseHp: 120,
     damage: 30,
     fireRate: 1000,
-    accuracy: 4,
+    accuracy: 98,
     attackRange: 5,
     sightRange: 7,
     speed: 15,
@@ -238,7 +238,7 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     baseHp: 100,
     damage: 0,
     fireRate: 0,
-    accuracy: 15,
+    accuracy: 50,
     attackRange: 0,
     sightRange: 6,
     speed: 22,
@@ -271,7 +271,7 @@ export const EnemyArchetypeLibrary: {
     hp: 50,
     damage: 15,
     fireRate: 400,
-    accuracy: 15,
+    accuracy: 50,
     attackRange: 1,
     speed: 40,
     ai: "Melee",
@@ -281,7 +281,7 @@ export const EnemyArchetypeLibrary: {
     hp: 150,
     damage: 35,
     fireRate: 800,
-    accuracy: 10,
+    accuracy: 75,
     attackRange: 1,
     speed: 30,
     ai: "Melee",
@@ -291,7 +291,7 @@ export const EnemyArchetypeLibrary: {
     hp: 600,
     damage: 80,
     fireRate: 1500,
-    accuracy: 8,
+    accuracy: 85,
     attackRange: 1,
     speed: 22,
     ai: "Melee",
@@ -301,7 +301,7 @@ export const EnemyArchetypeLibrary: {
     hp: 120,
     damage: 30,
     fireRate: 1200,
-    accuracy: 6,
+    accuracy: 90,
     attackRange: 6,
     speed: 32,
     ai: "Ranged",
@@ -312,7 +312,7 @@ export const EnemyArchetypeLibrary: {
     hp: 50,
     damage: 15,
     fireRate: 800,
-    accuracy: 15,
+    accuracy: 50,
     attackRange: 1,
     speed: 28,
     ai: "Melee",
@@ -322,7 +322,7 @@ export const EnemyArchetypeLibrary: {
     hp: 1200,
     damage: 0,
     fireRate: 1000,
-    accuracy: 0,
+    accuracy: 100,
     attackRange: 0,
     speed: 0,
     ai: "Melee",

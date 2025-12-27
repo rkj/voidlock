@@ -100,7 +100,7 @@ interface Cell {
 We use an **Angular Dispersion Model** (Inverse Square Law) to simulate a "Cone of Fire". As the distance to the target increases, the probability of hitting decreases quadratically, reflecting the expansion of the projectile's potential impact area.
 
 #### 3.3.2. The Accuracy Stat
-The `accuracy` stat for a unit represents the **"50% Hit Range"**. This is the distance (in tiles) at which the unit has an exactly 50% chance to hit a standard target.
+The `accuracy` stat for a unit represents the **"Percentage Hit Chance at 5 square distance using a weapon of ideal range of 5 squares (regular rifle)"**. In real life it would represent soldier chance of hitting a target at 100 yards.
 
 #### 3.3.3. Formulas
 

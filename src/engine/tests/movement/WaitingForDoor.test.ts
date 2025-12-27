@@ -54,7 +54,7 @@ describe("Unit WaitingForDoor State", () => {
       state: UnitState.Idle,
       damage: 10,
       fireRate: 500,
-      accuracy: 0,
+      accuracy: 1000,
       attackRange: 2,
       sightRange: 10,
       speed: 2,

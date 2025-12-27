@@ -45,7 +45,7 @@ describe("Objective Prioritization AI", () => {
       state: UnitState.Idle,
       damage: 10,
       fireRate: 500,
-      accuracy: 0,
+      accuracy: 1000,
       attackRange: 2,
       sightRange: 0.1,
       speed: 10, // 1 tile per second (1000ms)
