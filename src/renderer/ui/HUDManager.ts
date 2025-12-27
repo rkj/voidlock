@@ -150,6 +150,48 @@ export class HUDManager {
     title.style.color = state.status === "Won" ? "#0f0" : "#f00";
     summaryDiv.appendChild(title);
 
+    // Objectives List
+    const objectivesDiv = document.createElement("div");
+    objectivesDiv.style.margin = "20px 0";
+    objectivesDiv.style.textAlign = "left";
+    objectivesDiv.style.borderBottom = "1px solid #444";
+    objectivesDiv.style.paddingBottom = "10px";
+
+    const objTitle = document.createElement("h3");
+    objTitle.textContent = "OBJECTIVES";
+    objTitle.style.fontSize = "0.9em";
+    objTitle.style.color = "#888";
+    objTitle.style.marginTop = "0";
+    objectivesDiv.appendChild(objTitle);
+
+    state.objectives.forEach((obj) => {
+      const p = document.createElement("p");
+      p.style.margin = "5px 0";
+      const isCompleted = obj.state === "Completed";
+      const icon = isCompleted ? "✔" : "✘";
+      const color = isCompleted ? "#0f0" : "#f00";
+      p.innerHTML = `<span style="color:${color}; margin-right:8px; font-weight:bold;">${icon}</span> ${obj.kind}${obj.targetCell ? ` at (${obj.targetCell.x},${obj.targetCell.y})` : ""}`;
+      objectivesDiv.appendChild(p);
+    });
+
+    // Extraction Status (as an implicit objective if not already present)
+    if (state.map.extraction && !state.objectives.some(o => o.kind === "Escort")) {
+      const extractedCount = state.units.filter(
+        (u) => u.state === UnitState.Extracted,
+      ).length;
+      const totalUnits = state.units.length;
+      const isCompleted = extractedCount > 0 && extractedCount === totalUnits;
+      
+      const p = document.createElement("p");
+      p.style.margin = "5px 0";
+      const icon = extractedCount > 0 ? "✔" : "✘";
+      const color = extractedCount > 0 ? "#0f0" : "#f00";
+      p.innerHTML = `<span style="color:${color}; margin-right:8px; font-weight:bold;">${icon}</span> Extraction (${extractedCount}/${totalUnits})`;
+      objectivesDiv.appendChild(p);
+    }
+
+    summaryDiv.appendChild(objectivesDiv);
+
     const stats = document.createElement("div");
     stats.style.margin = "20px 0";
     stats.style.textAlign = "left";
