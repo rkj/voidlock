@@ -12,7 +12,7 @@
 At the start of every session, run:
 
 1.  `bd list --status in_progress --json`: Check for unfinished work.
-2.  `bd ready --json -n 1`: Check for new work.
+2.  If there is nothing in progress do `bd ready --json -n 1`: Check for new work.
 
 **Decision Logic:**
 
@@ -68,3 +68,8 @@ gemini --model gemini-3-flash-preview --allowed-tools list_directory --allowed-t
   1.  **Re-Dispatch**: If the failure is directly related to the task, run the dispatch command again with feedback: `gemini ... "Previous attempt failed because <REASON>. Please fix."`
   2.  **New Task**: If the failure is a regression in an unrelated area or requires a separate fix, create a **P0 task** using `bd create` and schedule a sub-agent to fix it immediately.
   3.  **Critical**: If the changes are fundamentally flawed, `jj undo` and re-plan.
+
+## New work
+
+When user prompts with a bug or feature stop working on development follow the
+instruction from PM.md.
