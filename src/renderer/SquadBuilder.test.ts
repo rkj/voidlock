@@ -74,10 +74,11 @@ describe("SquadBuilder UI logic", () => {
     const MAX_SQUAD_SIZE = 4;
 
     const updateTotalCountDisplay = () => {
-      let total = currentSquad.reduce((sum, s) => sum + s.count, 0);
-      if (currentMissionType === MissionType.EscortVIP) {
-        total += 1;
-      }
+      // VIPs do not count towards the squad size limit
+      let total = currentSquad
+        .filter((s) => s.archetypeId !== "vip")
+        .reduce((sum, s) => sum + s.count, 0);
+
       const display = document.getElementById("squad-total-count");
       if (display) {
         display.textContent = `Total Soldiers: ${total}/${MAX_SQUAD_SIZE}`;
@@ -122,14 +123,10 @@ describe("SquadBuilder UI logic", () => {
         }
 
         let otherTotal = currentSquad
-          .filter((s) => s.archetypeId !== arch.id)
+          .filter((s) => s.archetypeId !== arch.id && s.archetypeId !== "vip")
           .reduce((sum, s) => sum + s.count, 0);
 
-        if (currentMissionType === MissionType.EscortVIP) {
-          otherTotal += 1;
-        }
-
-        if (otherTotal + newVal > MAX_SQUAD_SIZE) {
+        if (arch.id !== "vip" && otherTotal + newVal > MAX_SQUAD_SIZE) {
           input.value = (
             currentSquad.find((s) => s.archetypeId === arch.id)?.count || 0
           ).toString();
@@ -220,21 +217,23 @@ describe("SquadBuilder UI logic", () => {
     expect(mockTotalCountDisplay.textContent).toBe("Total Soldiers: 3/4");
   });
 
-  it("should include VIP in total count for EscortVIP missions", () => {
+  it("should NOT include VIP in total count for EscortVIP missions", () => {
     currentMissionType = MissionType.EscortVIP;
     currentSquad = [{ archetypeId: "assault", count: 2 }];
     renderSquadBuilder();
-    expect(mockTotalCountDisplay.textContent).toBe("Total Soldiers: 3/4");
+    // VIP is auto-added but NOT counted in the "Total Soldiers" display according to the requirement
+    expect(mockTotalCountDisplay.textContent).toBe("Total Soldiers: 2/4");
     expect(mockLaunchBtn.disabled).toBe(false);
   });
 
-  it("should prevent adding more than 3 members in EscortVIP missions", () => {
+  it("should allow adding 4 members even in EscortVIP missions", () => {
     currentMissionType = MissionType.EscortVIP;
-    currentSquad = [{ archetypeId: "assault", count: 3 }];
+    currentSquad = [{ archetypeId: "assault", count: 4 }];
     renderSquadBuilder();
 
-    // Total is 3 (assault) + 1 (VIP) = 4.
+    // Total is 4 (assault). VIP is extra.
     expect(mockTotalCountDisplay.textContent).toBe("Total Soldiers: 4/4");
+    expect(mockLaunchBtn.disabled).toBe(false);
 
     const calls = (document.createElement as any).mock.results;
     const inputs = calls
@@ -245,7 +244,7 @@ describe("SquadBuilder UI logic", () => {
     const medicInput = inputs[1];
     expect(medicInput.value).toBe("0");
 
-    // Try to change medic count to 1
+    // Try to change medic count to 1 - this should still be prevented because total non-VIP is 4
     medicInput.value = "1";
     const changeHandler = medicInput.addEventListener.mock.calls.find(
       (c: any) => c[0] === "change",
@@ -255,6 +254,18 @@ describe("SquadBuilder UI logic", () => {
     expect(alert).toHaveBeenCalledWith("Maximum squad size is 4 soldiers.");
     expect(medicInput.value).toBe("0");
     expect(currentSquad.length).toBe(1);
-    expect(currentSquad[0].count).toBe(3);
+    expect(currentSquad[0].count).toBe(4);
+  });
+
+  it("should allow VIP if explicitly added (for non-EscortVIP missions) without counting towards limit", () => {
+    currentMissionType = MissionType.Default;
+    currentSquad = [
+      { archetypeId: "assault", count: 4 },
+      { archetypeId: "vip", count: 1 },
+    ];
+    renderSquadBuilder();
+    // 4 soldiers + 1 VIP should show 4/4
+    expect(mockTotalCountDisplay.textContent).toBe("Total Soldiers: 4/4");
+    expect(mockLaunchBtn.disabled).toBe(false);
   });
 });

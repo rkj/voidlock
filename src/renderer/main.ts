@@ -522,10 +522,11 @@ document.addEventListener("DOMContentLoaded", () => {
     container.appendChild(totalDiv);
 
     const updateCount = () => {
-      let total = currentSquad.reduce((sum, s) => sum + s.count, 0);
-      if (currentMissionType === MissionType.EscortVIP) {
-        total += 1; // Auto-spawned VIP
-      }
+      // VIPs do not count towards the squad size limit
+      let total = currentSquad
+        .filter((s) => s.archetypeId !== "vip")
+        .reduce((sum, s) => sum + s.count, 0);
+
       totalDiv.textContent = `Total Soldiers: ${total}/${MAX_SQUAD_SIZE}`;
       totalDiv.style.color =
         total > MAX_SQUAD_SIZE
@@ -562,12 +563,10 @@ document.addEventListener("DOMContentLoaded", () => {
       input.addEventListener("change", () => {
         const val = parseInt(input.value) || 0;
         let otherTotal = currentSquad
-          .filter((s) => s.archetypeId !== arch.id)
+          .filter((s) => s.archetypeId !== arch.id && s.archetypeId !== "vip")
           .reduce((sum, s) => sum + s.count, 0);
-        if (currentMissionType === MissionType.EscortVIP) {
-          otherTotal += 1; // Account for the auto-spawned VIP
-        }
-        if (otherTotal + val > MAX_SQUAD_SIZE) {
+
+        if (arch.id !== "vip" && otherTotal + val > MAX_SQUAD_SIZE) {
           input.value = (
             currentSquad.find((s) => s.archetypeId === arch.id)?.count || 0
           ).toString();
