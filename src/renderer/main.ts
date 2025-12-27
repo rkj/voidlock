@@ -289,6 +289,17 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // Threat Slider
+  const threatSlider = document.getElementById(
+    "map-starting-threat",
+  ) as HTMLInputElement;
+  const threatValue = document.getElementById("map-starting-threat-value");
+  if (threatSlider && threatValue) {
+    threatSlider.addEventListener("input", () => {
+      threatValue.textContent = threatSlider.value;
+    });
+  }
+
   // Setup Options
   const mapGenSelect = document.getElementById(
     "map-generator-type",
@@ -498,7 +509,13 @@ document.addEventListener("DOMContentLoaded", () => {
       if (wInput) wInput.value = currentMapWidth.toString();
       if (hInput) hInput.value = currentMapHeight.toString();
       if (spInput) spInput.value = currentSpawnPointCount.toString();
-      if (threatInput) threatInput.value = startingThreatLevel.toString();
+      if (threatInput) {
+        threatInput.value = startingThreatLevel.toString();
+        const threatValueDisplay = document.getElementById(
+          "map-starting-threat-value",
+        );
+        if (threatValueDisplay) threatValueDisplay.textContent = threatInput.value;
+      }
 
       const fowCheck = document.getElementById(
         "toggle-fog-of-war",

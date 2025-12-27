@@ -372,15 +372,16 @@
 
             <div style="margin-top: 10px">
               <label for="map-starting-threat"
-                >Starting Threat Level (0-100%):</label
+                >Starting Threat Level: <span id="map-starting-threat-value">0</span>%</label
               >
               <input
-                type="number"
+                type="range"
                 id="map-starting-threat"
                 value="0"
                 min="0"
                 max="100"
                 step="10"
+                style="width: 100%;"
               />
             </div>
 
