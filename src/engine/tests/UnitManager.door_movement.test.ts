@@ -48,7 +48,7 @@ describe("UnitManager Door Movement", () => {
       state: UnitState.Idle,
       damage: 1,
       fireRate: 500,
-      accuracy: 0,
+      accuracy: 1000,
       attackRange: 2,
       sightRange: 5,
       speed: 2, // 2 tiles per second

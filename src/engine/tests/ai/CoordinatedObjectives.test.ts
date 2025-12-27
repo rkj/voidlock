@@ -49,7 +49,7 @@ describe("Coordinated Objectives AI", () => {
       state: UnitState.Idle,
       damage: 10,
       fireRate: 100,
-      accuracy: 0,
+      accuracy: 1000,
       attackRange: 1,
       sightRange: 0.1,
       speed: 10,
@@ -66,7 +66,7 @@ describe("Coordinated Objectives AI", () => {
       state: UnitState.Idle,
       damage: 10,
       fireRate: 100,
-      accuracy: 0,
+      accuracy: 1000,
       attackRange: 1,
       sightRange: 0.1,
       speed: 10,
@@ -130,7 +130,7 @@ describe("Coordinated Objectives AI", () => {
       pos: { x: 15.5, y: 15.5 },
       hp: 100, maxHp: 100,
       state: UnitState.Idle,
-      damage: 10, fireRate: 100, accuracy: 0, attackRange: 1, sightRange: 0.1, speed: 10,
+      damage: 10, fireRate: 100, accuracy: 1000, attackRange: 1, sightRange: 0.1, speed: 10,
       commandQueue: [],
       archetypeId: "assault"
     });
@@ -139,7 +139,7 @@ describe("Coordinated Objectives AI", () => {
       pos: { x: 15.5, y: 15.5 },
       hp: 100, maxHp: 100,
       state: UnitState.Idle,
-      damage: 10, fireRate: 100, accuracy: 0, attackRange: 1, sightRange: 0.1, speed: 10,
+      damage: 10, fireRate: 100, accuracy: 1000, attackRange: 1, sightRange: 0.1, speed: 10,
       commandQueue: [],
       archetypeId: "assault"
     });

@@ -54,7 +54,7 @@ describe("CoreEngine Early Door Sync", () => {
       state: "Idle" as any,
       damage: 1,
       fireRate: 500,
-      accuracy: 0,
+      accuracy: 1000,
       attackRange: 2,
       sightRange: 5,
       speed: 1,

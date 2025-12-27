@@ -42,7 +42,7 @@ describe("Enemy AI", () => {
       type: "SwarmMelee",
       damage: 10,
       fireRate: 800,
-      accuracy: 0,
+      accuracy: 1000,
       attackRange: 1,
       speed: 2,
     });
@@ -71,7 +71,7 @@ describe("Enemy AI", () => {
       type: "SwarmMelee",
       damage: 10,
       fireRate: 800,
-      accuracy: 0,
+      accuracy: 1000,
       attackRange: 1,
       speed: 2,
     });
@@ -85,7 +85,7 @@ describe("Enemy AI", () => {
       state: UnitState.Idle,
       damage: 10,
       fireRate: 100,
-      accuracy: 0,
+      accuracy: 1000,
       attackRange: 5,
       sightRange: 10,
       speed: 2,
