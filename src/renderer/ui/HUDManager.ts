@@ -261,6 +261,7 @@ export class HUDManager {
           </div>
           <div class="stats-row" style="font-size:0.7em; display:flex; gap:6px; color:#888; margin-top:-2px;">
             <span>SPD:<span class="u-speed" style="color:#eee"></span></span>
+            <span>ACC:<span class="u-acc" style="color:#eee"></span></span>
             <span>DMG:<span class="u-dmg" style="color:#eee"></span></span>
             <span>RNG:<span class="u-range" style="color:#eee"></span></span>
             <span>VIS:<span class="u-sight" style="color:#eee"></span></span>
@@ -283,6 +284,8 @@ export class HUDManager {
 
       (el.querySelector(".u-speed") as HTMLElement).textContent =
         (unit.speed / 10).toFixed(1);
+      (el.querySelector(".u-acc") as HTMLElement).textContent =
+        unit.accuracy.toString();
       (el.querySelector(".u-dmg") as HTMLElement).textContent =
         unit.damage.toString();
       (el.querySelector(".u-range") as HTMLElement).textContent =
