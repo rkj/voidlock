@@ -4,97 +4,154 @@ import {
   MapDefinition,
   CellType,
   UnitState,
-  Objective,
+  SquadConfig,
 } from "../../../shared/types";
 
-describe("Coordinated Objectives", () => {
+describe("Coordinated Objectives AI", () => {
   let engine: CoreEngine;
-  let map: MapDefinition;
+  let mockMap: MapDefinition;
+  const defaultSquad: SquadConfig = [{ archetypeId: "assault", count: 2 }];
 
   beforeEach(() => {
-    // 10x10 map
-    const cells = [];
-    for (let y = 0; y < 10; y++) {
-      for (let x = 0; x < 10; x++) {
-        cells.push({ x, y, type: CellType.Floor });
+    mockMap = {
+      width: 20,
+      height: 20,
+      cells: [],
+      spawnPoints: [{ id: "s1", pos: { x: 0, y: 0 }, radius: 1 }],
+      extraction: { x: 19, y: 19 },
+      objectives: [
+        {
+          id: "obj1",
+          kind: "Recover",
+          targetCell: { x: 15, y: 15 },
+          state: "Pending",
+          visible: true,
+        } as any,
+      ],
+    };
+
+    for (let y = 0; y < 20; y++) {
+      for (let x = 0; x < 20; x++) {
+        mockMap.cells.push({ x, y, type: CellType.Floor });
       }
     }
 
-    const objectives: Objective[] = [
-      {
-        id: "obj1",
-        kind: "Recover",
-        state: "Pending",
-        targetCell: { x: 0, y: 0 },
-      },
-      {
-        id: "obj2",
-        kind: "Recover",
-        state: "Pending",
-        targetCell: { x: 9, y: 9 },
-      },
-    ];
-
-    map = {
-      width: 10,
-      height: 10,
-      cells,
-      spawnPoints: [],
-      extraction: undefined,
-      objectives,
-    };
-
-    engine = new CoreEngine(map, 123, [], true, false);
+    // Set fogOfWar to false so objectives are visible
+    // Signature: map, seed, squadConfig, agentControlEnabled, debugOverlayEnabled
+    engine = new CoreEngine(mockMap, 123, defaultSquad, true, false);
     engine.clearUnits();
-  });
-
-  it("should assign different objectives to different units", () => {
-    // Add 2 units at (5,5)
+    
+    // Unit 1 closer to objective
     engine.addUnit({
       id: "u1",
-      pos: { x: 5.5, y: 5.5 },
+      pos: { x: 14.5, y: 14.5 },
       hp: 100,
       maxHp: 100,
       state: UnitState.Idle,
       damage: 10,
       fireRate: 100,
       attackRange: 1,
-      sightRange: 20,
-      speed: 2,
+      sightRange: 10,
+      speed: 1,
       commandQueue: [],
+    });
+
+    // Unit 2 further from objective
+    engine.addUnit({
+      id: "u2",
+      pos: { x: 0.5, y: 0.5 },
+      hp: 100,
+      maxHp: 100,
+      state: UnitState.Idle,
+      damage: 10,
+      fireRate: 100,
+      attackRange: 1,
+      sightRange: 10,
+      speed: 1,
+      commandQueue: [],
+    });
+  });
+
+  it("should NOT have multiple units moving to the same objective", () => {
+    // Both units are Idle, one objective is visible.
+    // u1 is closer (dist ~0.7), u2 is further (dist ~6.3)
+    
+    engine.update(100);
+
+    const state1 = engine.getState();
+    const u1 = state1.units.find(u => u.id === "u1")!;
+    const u2 = state1.units.find(u => u.id === "u2")!;
+
+    expect(u1.activeCommand?.label).toBe("Recovering");
+    
+    // u2 should NOT be recovering since u1 claimed it
+    expect(u2.activeCommand?.label).not.toBe("Recovering");
+    // u2 should be exploring or something else
+    expect(u2.activeCommand?.label).toBe("Exploring");
+  });
+
+  it("should NOT claim the same objective in subsequent ticks if one unit is already moving to it", () => {
+    // 1. Initial update. u1 claims obj1.
+    engine.update(100);
+
+    let state = engine.getState();
+    let u1 = state.units.find(u => u.id === "u1")!;
+    let u2 = state.units.find(u => u.id === "u2")!;
+
+    expect(u1.activeCommand?.label).toBe("Recovering");
+    expect(u2.activeCommand?.label).toBe("Exploring");
+
+    // 2. Second update. 
+    // If the bug exists, u1 doesn't "claim" it in this tick's local claimedObjectives set,
+    // so u2 might see it as available if it finishes its exploration target or re-evaluates.
+    
+    // Force u2 to re-evaluate by clearing its exploration target
+    u2.explorationTarget = undefined;
+    
+    engine.update(100);
+
+    state = engine.getState();
+    u1 = state.units.find(u => u.id === "u1")!;
+    u2 = state.units.find(u => u.id === "u2")!;
+
+    expect(u1.activeCommand?.label).toBe("Recovering");
+    // BUG: u2 might now be "Recovering" too
+    expect(u2.activeCommand?.label).not.toBe("Recovering");
+  });
+
+  it("should NOT have multiple units channeling the same objective", () => {
+    // Force both units to be at the same objective cell
+    engine.clearUnits();
+    engine.addUnit({
+      id: "u1",
+      pos: { x: 15.5, y: 15.5 },
+      hp: 100, maxHp: 100,
+      state: UnitState.Idle,
+      damage: 10, fireRate: 100, attackRange: 1, sightRange: 10, speed: 1,
+      commandQueue: [],
+      archetypeId: "assault"
     });
     engine.addUnit({
       id: "u2",
-      pos: { x: 5.5, y: 5.5 },
-      hp: 100,
-      maxHp: 100,
+      pos: { x: 15.5, y: 15.5 },
+      hp: 100, maxHp: 100,
       state: UnitState.Idle,
-      damage: 10,
-      fireRate: 100,
-      attackRange: 1,
-      sightRange: 20,
-      speed: 2,
+      damage: 10, fireRate: 100, attackRange: 1, sightRange: 10, speed: 1,
       commandQueue: [],
+      archetypeId: "assault"
     });
 
-    // Run update
     engine.update(100);
 
-    const u1 = engine.getState().units[0];
-    const u2 = engine.getState().units[1];
+    const state = engine.getState();
+    const u1 = state.units.find(u => u.id === "u1")!;
+    const u2 = state.units.find(u => u.id === "u2")!;
 
-    expect(u1.state).toBe(UnitState.Moving);
-    expect(u2.state).toBe(UnitState.Moving);
-    expect(u1.targetPos).toBeDefined();
-    expect(u2.targetPos).toBeDefined();
+    // One should be channeling, the other should NOT
+    const u1Channeling = u1.state === UnitState.Channeling;
+    const u2Channeling = u2.state === UnitState.Channeling;
 
-    // Targets should be different
-    // Target pos is center of cell (x+0.5, y+0.5)
-    const t1 = u1.targetPos!;
-    const t2 = u2.targetPos!;
-
-    // Distance between targets should be large (one is 0,0, other is 9,9)
-    const dist = Math.sqrt((t1.x - t2.x) ** 2 + (t1.y - t2.y) ** 2);
-    expect(dist).toBeGreaterThan(1);
+    expect(u1Channeling || u2Channeling).toBe(true);
+    expect(u1Channeling && u2Channeling).toBe(false);
   });
 });

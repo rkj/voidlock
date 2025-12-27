@@ -28,6 +28,39 @@ export class UnitManager {
 
   public update(state: GameState, dt: number, doors: Map<string, Door>) {
     const claimedObjectives = new Set<string>();
+
+    // Pre-populate claimed objectives from units already pursuing them
+    state.units.forEach((u) => {
+      if (u.state === UnitState.Dead || u.state === UnitState.Extracted) return;
+      if (u.channeling?.targetId) {
+        claimedObjectives.add(u.channeling.targetId);
+      }
+      // If unit has a forced target that is an objective
+      if (u.forcedTargetId) {
+        const obj = state.objectives?.find((o) => o.targetEnemyId === u.forcedTargetId);
+        if (obj) claimedObjectives.add(obj.id);
+      }
+      // If unit has an active command targeting an objective
+      if (u.activeCommand?.type === CommandType.MOVE_TO && u.activeCommand.target) {
+        const target = u.activeCommand.target;
+        const obj = state.objectives?.find((o) => {
+          if (o.kind === "Recover" && o.targetCell) {
+            return o.targetCell.x === target.x && o.targetCell.y === target.y;
+          }
+          if (o.kind === "Kill" && o.targetEnemyId) {
+            const enemy = state.enemies.find((e) => e.id === o.targetEnemyId);
+            return (
+              enemy &&
+              Math.floor(enemy.pos.x) === target.x &&
+              Math.floor(enemy.pos.y) === target.y
+            );
+          }
+          return false;
+        });
+        if (obj) claimedObjectives.add(obj.id);
+      }
+    });
+
     const newVisibleCellsSet = new Set(state.visibleCells);
 
     state.units.forEach((unit) => {
@@ -210,7 +243,7 @@ export class UnitManager {
 
       if (unit.archetypeId !== "vip" && state.objectives) {
         state.objectives.forEach((obj) => {
-          if (obj.state === "Pending") {
+          if (obj.state === "Pending" && !claimedObjectives.has(obj.id)) {
             if (obj.kind === "Recover" && obj.targetCell) {
               if (
                 Math.floor(unit.pos.x) === obj.targetCell.x &&
@@ -227,6 +260,7 @@ export class UnitManager {
                     totalDuration: 5000,
                     targetId: obj.id,
                   };
+                  claimedObjectives.add(obj.id);
                   unit.path = undefined;
                   unit.targetPos = undefined;
                   unit.activeCommand = undefined;
