@@ -143,6 +143,7 @@ export class Director {
       type: arch.type,
       damage: arch.damage,
       fireRate: arch.fireRate * (arch.speed > 0 ? (10 / arch.speed) : 1),
+      accuracy: arch.accuracy,
       attackRange: arch.attackRange,
       speed: arch.speed,
       difficulty,

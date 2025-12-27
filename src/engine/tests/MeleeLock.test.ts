@@ -54,6 +54,7 @@ describe("Melee Lock & Ignore Policy", () => {
       state: UnitState.Idle,
       damage: 10,
       fireRate: 100,
+      accuracy: 0,
       attackRange: 5,
       sightRange: 10,
       speed: 4,
@@ -75,8 +76,9 @@ describe("Melee Lock & Ignore Policy", () => {
       hp: 100,
       maxHp: 100,
       damage: 10,
-      fireRate: 100,
-      attackRange: 1,
+      fireRate: 500,
+      accuracy: 0,
+      attackRange: 2,
       speed: 1,
     });
 
@@ -136,6 +138,7 @@ describe("Melee Lock & Ignore Policy", () => {
       state: UnitState.Idle,
       damage: 10,
       fireRate: 100,
+      accuracy: 0,
       attackRange: 5,
       sightRange: 10,
       speed: 4,
@@ -155,8 +158,9 @@ describe("Melee Lock & Ignore Policy", () => {
       hp: 100,
       maxHp: 100,
       damage: 10,
-      fireRate: 100,
-      attackRange: 1,
+      fireRate: 500,
+      accuracy: 0,
+      attackRange: 2,
       speed: 5, // Fast enemy
     });
 

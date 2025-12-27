@@ -35,8 +35,9 @@ describe("Enemy Movement", () => {
       maxHp: 100,
       type: "SwarmMelee",
       damage: 10,
-      fireRate: 100,
-      attackRange: 1,
+      fireRate: 500,
+      accuracy: 0,
+      attackRange: 2,
       speed: 20,
     });
 
@@ -49,6 +50,7 @@ describe("Enemy Movement", () => {
       state: UnitState.Idle,
       damage: 0,
       fireRate: 0,
+      accuracy: 0,
       attackRange: 0,
       sightRange: 0,
       speed: 20,

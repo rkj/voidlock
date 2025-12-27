@@ -11,6 +11,7 @@ import { GameGrid } from "../GameGrid";
 import { Pathfinder } from "../Pathfinder";
 import { LineOfSight } from "../LineOfSight";
 import { VipAI } from "../ai/VipAI";
+import { PRNG } from "../../shared/PRNG";
 
 const EPSILON = 0.05;
 
@@ -26,7 +27,13 @@ export class UnitManager {
     this.vipAi = new VipAI(gameGrid, pathfinder, los);
   }
 
-  public update(state: GameState, dt: number, doors: Map<string, Door>, realDt: number = dt) {
+  public update(
+    state: GameState,
+    dt: number,
+    doors: Map<string, Door>,
+    prng: PRNG,
+    realDt: number = dt,
+  ) {
     const claimedObjectives = new Set<string>();
 
     // Pre-populate claimed objectives from units already pursuing them
@@ -579,7 +586,19 @@ export class UnitManager {
             !unit.lastAttackTime ||
             state.t - unit.lastAttackTime >= unit.fireRate
           ) {
-            targetEnemy.hp -= unit.damage;
+            const distance = this.getDistance(unit.pos, targetEnemy.pos);
+            const dispersionRad = (unit.accuracy * Math.PI) / 180;
+            // hitChance = targetRadius / (distance * tan(dispersion))
+            // targetRadius = 0.5
+            const hitChance =
+              unit.accuracy > 0
+                ? Math.min(1.0, 0.5 / (distance * Math.tan(dispersionRad)))
+                : 1.0;
+
+            if (prng.next() <= hitChance) {
+              targetEnemy.hp -= unit.damage;
+            }
+
             unit.lastAttackTime = state.t;
             unit.lastAttackTarget = { ...targetEnemy.pos };
           }

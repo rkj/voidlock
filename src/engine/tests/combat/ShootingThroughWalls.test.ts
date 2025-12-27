@@ -40,6 +40,7 @@ describe("Shooting Through Walls Repro", () => {
       state: UnitState.Idle,
       damage: 10,
       fireRate: 100,
+      accuracy: 0,
       attackRange: 5,
       sightRange: 10,
       speed: 2,
@@ -56,6 +57,7 @@ describe("Shooting Through Walls Repro", () => {
       type: "SwarmMelee",
       damage: 10,
       fireRate: 100,
+      accuracy: 0,
       attackRange: 1,
       speed: 2,
     });
@@ -107,6 +109,7 @@ describe("Shooting Through Walls Repro", () => {
       state: UnitState.Idle,
       damage: 10,
       fireRate: 100,
+      accuracy: 0,
       attackRange: 5,
       sightRange: 10,
       speed: 2,
@@ -121,6 +124,7 @@ describe("Shooting Through Walls Repro", () => {
       type: "SwarmMelee",
       damage: 10,
       fireRate: 100,
+      accuracy: 0,
       attackRange: 1,
       speed: 2,
     });
@@ -145,6 +149,7 @@ describe("Shooting Through Walls Repro", () => {
       state: UnitState.Idle,
       damage: 10,
       fireRate: 100,
+      accuracy: 0,
       attackRange: 5,
       sightRange: 10,
       speed: 2,
@@ -159,6 +164,7 @@ describe("Shooting Through Walls Repro", () => {
       type: "SwarmMelee",
       damage: 10,
       fireRate: 100,
+      accuracy: 0,
       attackRange: 1,
       speed: 2,
     });
@@ -182,6 +188,7 @@ describe("Shooting Through Walls Repro", () => {
       state: UnitState.Idle,
       damage: 10,
       fireRate: 100,
+      accuracy: 0,
       attackRange: 5,
       sightRange: 10,
       speed: 2,
@@ -196,6 +203,7 @@ describe("Shooting Through Walls Repro", () => {
       type: "SwarmMelee",
       damage: 10,
       fireRate: 100,
+      accuracy: 0,
       attackRange: 1,
       speed: 2,
     });

@@ -90,6 +90,7 @@ export class MissionManager {
           type: "Hive",
           damage: 0,
           fireRate: 1000,
+          accuracy: 0,
           attackRange: 0,
           speed: 0,
         });

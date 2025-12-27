@@ -37,6 +37,7 @@ describe("Command: SET_ENGAGEMENT (Policy Logic)", () => {
       state: UnitState.Idle,
       damage: 10,
       fireRate: 100,
+      accuracy: 0,
       attackRange: 5,
       sightRange: 10,
       speed: 2,
@@ -52,6 +53,7 @@ describe("Command: SET_ENGAGEMENT (Policy Logic)", () => {
       type: "Grunt",
       damage: 0,
       fireRate: 1000,
+      accuracy: 0,
       attackRange: 1,
       speed: 2,
     });
