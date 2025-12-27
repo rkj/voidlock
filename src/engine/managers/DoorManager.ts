@@ -41,11 +41,13 @@ export class DoorManager {
         ) {
           door.targetState = "Open";
           door.openTimer = door.openDuration * 1000;
+          this.updateDoorBoundary(door);
         }
       } else {
         if (door.state === "Open") {
           door.targetState = "Closed";
           door.openTimer = door.openDuration * 1000;
+          this.updateDoorBoundary(door);
         }
       }
     }
@@ -58,7 +60,10 @@ export class DoorManager {
       const c2 = door.segment[1];
       const boundary = graph.getBoundary(c1.x, c1.y, c2.x, c2.y);
       if (boundary) {
-        const isPassable = door.state === "Open" || door.state === "Destroyed";
+        const isPassable =
+          door.state === "Open" ||
+          door.state === "Destroyed" ||
+          door.targetState === "Open";
         boundary.isWall = !isPassable;
       }
     }

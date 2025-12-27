@@ -112,7 +112,12 @@ export class LineOfSight {
 
       if (boundary.doorId) {
         const door = this.doors.get(boundary.doorId);
-        if (door && door.state !== "Open" && door.state !== "Destroyed") {
+        if (
+          door &&
+          door.state !== "Open" &&
+          door.state !== "Destroyed" &&
+          door.targetState !== "Open"
+        ) {
           return false;
         }
       } else if (boundary.isWall) {
