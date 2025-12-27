@@ -44,6 +44,7 @@ describe("Shooting Through Walls Repro", () => {
       sightRange: 10,
       speed: 2,
       commandQueue: [],
+      archetypeId: "assault",
     });
 
     // Add Enemy at (1.5, 0.5)
@@ -110,6 +111,7 @@ describe("Shooting Through Walls Repro", () => {
       sightRange: 10,
       speed: 2,
       commandQueue: [],
+      archetypeId: "assault",
     });
     engine2.addEnemy({
       id: "e1",
@@ -147,6 +149,7 @@ describe("Shooting Through Walls Repro", () => {
       sightRange: 10,
       speed: 2,
       commandQueue: [],
+      archetypeId: "assault",
     });
     engine.addEnemy({
       id: "e1",
@@ -183,6 +186,7 @@ describe("Shooting Through Walls Repro", () => {
       sightRange: 10,
       speed: 2,
       commandQueue: [],
+      archetypeId: "assault",
     });
     engine.addEnemy({
       id: "e1",

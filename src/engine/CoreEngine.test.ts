@@ -64,8 +64,9 @@ describe("CoreEngine with Objectives and Game Loop", () => {
       fireRate: 500,
       attackRange: 2,
       sightRange: 5,
-      speed: 2,
+      speed: 20,
       commandQueue: [],
+      archetypeId: "assault",
     });
   });
 
@@ -134,7 +135,7 @@ describe("CoreEngine with Objectives and Game Loop", () => {
       damage: 1000,
       fireRate: 1000,
       attackRange: 1,
-      speed: 1,
+      speed: 10,
     });
 
     engine.update(100);

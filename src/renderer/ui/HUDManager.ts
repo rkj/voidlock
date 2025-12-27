@@ -240,13 +240,13 @@ export class HUDManager {
         `${hpPercent}%`;
 
       (el.querySelector(".u-speed") as HTMLElement).textContent =
-        unit.speed.toFixed(1);
+        (unit.speed / 10).toFixed(1);
       (el.querySelector(".u-dmg") as HTMLElement).textContent =
         unit.damage.toString();
       (el.querySelector(".u-range") as HTMLElement).textContent =
         unit.attackRange.toString();
       (el.querySelector(".u-sight") as HTMLElement).textContent =
-        unit.sightRange.toString();
+        unit.sightRange >= 100 ? "∞" : unit.sightRange.toString();
     });
 
     Array.from(listContainer.children).forEach((child) => {

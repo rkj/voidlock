@@ -33,9 +33,10 @@ describe("SimpleBot", () => {
     damage: 10,
     fireRate: 1000,
     attackRange: 5,
-    sightRange: 10,
-    speed: 2,
+    sightRange: 100,
+    speed: 20,
     commandQueue: [],
+    archetypeId: "assault",
   };
 
   const baseState: GameState = {

@@ -58,8 +58,9 @@ describe("Movement through Doors", () => {
       fireRate: 100,
       attackRange: 1,
       sightRange: 5,
-      speed: 2,
+      speed: 20,
       commandQueue: [],
+      archetypeId: "assault",
     });
   });
 

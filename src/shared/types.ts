@@ -122,7 +122,7 @@ export type Unit = Entity & {
   explorationTarget?: Vector2; // Current automated exploration goal
   aiEnabled?: boolean; // New: allow disabling autonomous behavior
   activeCommand?: Command; // Track currently executing command
-  speed: number; // Tiles per second
+  speed: number; // Speed factor (x10 integer, e.g. 15 = 1.5 tiles/s)
   channeling?: ChannelingState; // New
   archetypeId: string;
 };
@@ -136,7 +136,7 @@ export type Enemy = Entity & {
   lastAttackTime?: number;
   path?: Vector2[];
   targetPos?: Vector2;
-  speed: number; // Tiles per second
+  speed: number; // Speed factor (x10 integer, e.g. 15 = 1.5 tiles/s)
   difficulty?: number; // 1: Easy, 2: Medium, 3: Hard
 };
 
@@ -192,7 +192,7 @@ export type Archetype = {
   fireRate: number; // ms
   attackRange: number;
   sightRange: number;
-  speed: number; // tiles per second
+  speed: number; // Speed factor (x10 integer, e.g. 15 = 1.5 tiles/s)
 };
 
 export const ArchetypeLibrary: { [id: string]: Archetype } = {
@@ -204,7 +204,7 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     fireRate: 600,
     attackRange: 4,
     sightRange: 8,
-    speed: 2,
+    speed: 20,
   },
   medic: {
     id: "medic",
@@ -214,7 +214,7 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     fireRate: 900,
     attackRange: 3,
     sightRange: 10,
-    speed: 2.5,
+    speed: 25,
   },
   heavy: {
     id: "heavy",
@@ -224,7 +224,7 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     fireRate: 1000,
     attackRange: 5,
     sightRange: 7,
-    speed: 1.5,
+    speed: 15,
   },
   vip: {
     id: "vip",
@@ -234,7 +234,7 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     fireRate: 0,
     attackRange: 0,
     sightRange: 6,
-    speed: 2.2,
+    speed: 22,
   },
 };
 
@@ -264,7 +264,7 @@ export const EnemyArchetypeLibrary: {
     damage: 15,
     fireRate: 400,
     attackRange: 1,
-    speed: 4.0,
+    speed: 40,
     ai: "Melee",
   },
   [EnemyType.WarriorDrone]: {
@@ -273,7 +273,7 @@ export const EnemyArchetypeLibrary: {
     damage: 35,
     fireRate: 800,
     attackRange: 1,
-    speed: 3.0,
+    speed: 30,
     ai: "Melee",
   },
   [EnemyType.PraetorianGuard]: {
@@ -282,7 +282,7 @@ export const EnemyArchetypeLibrary: {
     damage: 80,
     fireRate: 1500,
     attackRange: 1,
-    speed: 2.2,
+    speed: 22,
     ai: "Melee",
   },
   [EnemyType.SpitterAcid]: {
@@ -291,7 +291,7 @@ export const EnemyArchetypeLibrary: {
     damage: 30,
     fireRate: 1200,
     attackRange: 6,
-    speed: 3.2,
+    speed: 32,
     ai: "Ranged",
   },
   // Legacy support
@@ -301,7 +301,7 @@ export const EnemyArchetypeLibrary: {
     damage: 15,
     fireRate: 800,
     attackRange: 1,
-    speed: 2.8,
+    speed: 28,
     ai: "Melee",
   },
   [EnemyType.Hive]: {

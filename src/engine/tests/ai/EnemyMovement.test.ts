@@ -37,7 +37,7 @@ describe("Enemy Movement", () => {
       damage: 10,
       fireRate: 100,
       attackRange: 1,
-      speed: 2,
+      speed: 20,
     });
 
     // Dummy soldier far away
@@ -51,8 +51,9 @@ describe("Enemy Movement", () => {
       fireRate: 0,
       attackRange: 0,
       sightRange: 0,
-      speed: 2,
+      speed: 20,
       commandQueue: [],
+      archetypeId: "assault",
     });
 
     const visited = new Set<string>();

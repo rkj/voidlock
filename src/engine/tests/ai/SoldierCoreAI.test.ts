@@ -43,6 +43,7 @@ describe("SoldierCoreAI", () => {
       speed: 2,
       commandQueue: [],
       engagementPolicy: "ENGAGE",
+      archetypeId: "assault",
     });
     engine.addEnemy({
       id: "e1",
@@ -84,6 +85,7 @@ describe("SoldierCoreAI", () => {
       speed: 2,
       commandQueue: [],
       engagementPolicy: "ENGAGE",
+      archetypeId: "assault",
     });
     engine.addEnemy({
       id: "e1",
@@ -126,6 +128,7 @@ describe("SoldierCoreAI", () => {
       sightRange: 10,
       speed: 2,
       commandQueue: [],
+      archetypeId: "assault",
     });
     engine.addUnit({
       id: "u2",
@@ -139,6 +142,7 @@ describe("SoldierCoreAI", () => {
       sightRange: 10,
       speed: 2,
       commandQueue: [],
+      archetypeId: "assault",
     });
     engine.addEnemy({
       id: "e1",

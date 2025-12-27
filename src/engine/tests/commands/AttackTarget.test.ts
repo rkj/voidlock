@@ -45,6 +45,7 @@ describe("Command: ATTACK_TARGET", () => {
       sightRange: 10,
       speed: 2,
       commandQueue: [],
+      archetypeId: "assault",
     });
   });
 
@@ -100,6 +101,7 @@ describe("Command: ATTACK_TARGET", () => {
       sightRange: 10,
       speed: 2,
       commandQueue: [],
+      archetypeId: "assault",
     });
     engine.addEnemy({
       id: "e1",

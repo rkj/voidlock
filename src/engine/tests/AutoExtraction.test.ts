@@ -22,7 +22,6 @@ describe("Auto Extraction Logic", () => {
         x,
         y: 0,
         type: CellType.Floor,
-        walls: { n: true, e: x === 19, s: true, w: x === 0 },
       });
     }
 

@@ -34,7 +34,6 @@ describe("Coordinated Exploration", () => {
           id: "obj_explore",
           kind: "Recover",
           targetCell: { x: 99, y: 0 },
-          state: "Pending",
         },
       ],
     };
@@ -55,9 +54,10 @@ describe("Coordinated Exploration", () => {
       damage: 10,
       fireRate: 100,
       attackRange: 5,
-      sightRange: 1,
-      speed: 2,
+      sightRange: 0.1,
+      speed: 20,
       commandQueue: [],
+      archetypeId: "assault",
     });
     engine.addUnit({
       id: "u2",
@@ -68,20 +68,16 @@ describe("Coordinated Exploration", () => {
       damage: 10,
       fireRate: 100,
       attackRange: 5,
-      sightRange: 1,
-      speed: 2,
+      sightRange: 0.1,
+      speed: 20,
       commandQueue: [],
+      archetypeId: "assault",
     });
 
     // Manually set discovered cells to include only center and adjacent
     // Undiscovered: (0,0) and (4,0)
     // Both are at distance 2 from center.
-    const state = engine.getState();
-    // We need to hack the state to set discovered cells because engine init usually discovers visible ones.
-    // engine.state.discoveredCells = ['1,0', '2,0', '3,0']; // But protected.
-
-    // We can simulate update. With sightRange 1, they see 2,0 and maybe neighbors 1,0 and 3,0 partially.
-    // Let's assume 0,0 and 4,0 are undiscovered.
+    (engine as any).state.discoveredCells = ['1,0', '2,0', '3,0'];
 
     // Run update.
     engine.update(100);

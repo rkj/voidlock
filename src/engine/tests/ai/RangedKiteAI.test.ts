@@ -59,6 +59,7 @@ describe("RangedKiteAI", () => {
       sightRange: 20,
       speed: 2,
       commandQueue: [],
+      archetypeId: "assault",
     });
 
     engine.update(100);
@@ -99,6 +100,7 @@ describe("RangedKiteAI", () => {
       sightRange: 20,
       speed: 2,
       commandQueue: [],
+      archetypeId: "assault",
     });
 
     engine.update(100);
@@ -137,6 +139,7 @@ describe("RangedKiteAI", () => {
       sightRange: 20,
       speed: 2,
       commandQueue: [],
+      archetypeId: "assault",
     });
   });
 });

@@ -12,7 +12,7 @@
 At the start of every session, run:
 
 1.  `bd list --status in_progress --json`: Check for unfinished work.
-2.  `bd ready --json`: Check for new work.
+2.  `bd ready --json -n 1`: Check for new work.
 
 **Decision Logic:**
 
