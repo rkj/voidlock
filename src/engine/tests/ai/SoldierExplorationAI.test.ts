@@ -55,6 +55,7 @@ describe("Soldier Exploration AI", () => {
       state: UnitState.Idle,
       damage: 10,
       fireRate: 100,
+      accuracy: 0,
       attackRange: 1,
       sightRange: 0.1, // Small sight to ensure neighbors are undiscovered
       speed: 20,

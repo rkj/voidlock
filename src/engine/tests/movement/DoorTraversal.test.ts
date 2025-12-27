@@ -56,6 +56,7 @@ describe("Movement through Doors", () => {
       state: UnitState.Idle,
       damage: 10,
       fireRate: 100,
+      accuracy: 0,
       attackRange: 1,
       sightRange: 5,
       speed: 20,

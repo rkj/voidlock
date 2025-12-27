@@ -62,6 +62,7 @@ describe("CoreEngine with Objectives and Game Loop", () => {
       state: UnitState.Idle,
       damage: 20,
       fireRate: 500,
+      accuracy: 0,
       attackRange: 2,
       sightRange: 5,
       speed: 20,
@@ -134,6 +135,7 @@ describe("CoreEngine with Objectives and Game Loop", () => {
       type: "Boss",
       damage: 1000,
       fireRate: 1000,
+      accuracy: 0,
       attackRange: 1,
       speed: 10,
     });

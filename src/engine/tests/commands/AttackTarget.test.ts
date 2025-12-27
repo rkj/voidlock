@@ -40,7 +40,8 @@ describe("Command: ATTACK_TARGET", () => {
       maxHp: 100,
       state: UnitState.Idle,
       damage: 10,
-      fireRate: 100, // Fast fire for testing
+      fireRate: 100,
+      accuracy: 0, // Fast fire for testing
       attackRange: 5,
       sightRange: 10,
       speed: 2,
@@ -59,6 +60,7 @@ describe("Command: ATTACK_TARGET", () => {
       type: "Grunt",
       damage: 0,
       fireRate: 1000,
+      accuracy: 0,
       attackRange: 1,
       speed: 2,
     });
@@ -71,6 +73,7 @@ describe("Command: ATTACK_TARGET", () => {
       type: "Grunt",
       damage: 0,
       fireRate: 1000,
+      accuracy: 0,
       attackRange: 1,
       speed: 2,
     });
@@ -97,6 +100,7 @@ describe("Command: ATTACK_TARGET", () => {
       state: UnitState.Idle,
       damage: 10,
       fireRate: 100,
+      accuracy: 0,
       attackRange: 5,
       sightRange: 10,
       speed: 2,
@@ -111,6 +115,7 @@ describe("Command: ATTACK_TARGET", () => {
       type: "Grunt",
       damage: 0,
       fireRate: 1000,
+      accuracy: 0,
       attackRange: 1,
       speed: 2,
     });
@@ -122,6 +127,7 @@ describe("Command: ATTACK_TARGET", () => {
       type: "Grunt",
       damage: 0,
       fireRate: 1000,
+      accuracy: 0,
       attackRange: 1,
       speed: 2,
     });
@@ -152,6 +158,7 @@ describe("Command: ATTACK_TARGET", () => {
       type: "Grunt",
       damage: 0,
       fireRate: 1000,
+      accuracy: 0,
       attackRange: 1,
       speed: 2,
     });

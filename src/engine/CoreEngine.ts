@@ -129,6 +129,7 @@ export class CoreEngine {
           state: UnitState.Idle,
           damage: vipArch.damage,
           fireRate: vipArch.fireRate * (vipArch.speed > 0 ? (10 / vipArch.speed) : 1),
+          accuracy: vipArch.accuracy,
           attackRange: vipArch.attackRange,
           sightRange: vipArch.sightRange,
           speed: vipArch.speed,
@@ -176,6 +177,7 @@ export class CoreEngine {
           state: UnitState.Idle,
           damage: arch.damage,
           fireRate: arch.fireRate * (arch.speed > 0 ? (10 / arch.speed) : 1),
+          accuracy: arch.accuracy,
           attackRange: arch.attackRange,
           sightRange: arch.id === "vip" ? arch.sightRange : 100,
           speed: arch.speed,
@@ -290,7 +292,13 @@ export class CoreEngine {
     this.missionManager.updateObjectives(this.state, this.state.visibleCells);
 
     // 5. Units (Passes both for decoupling)
-    this.unitManager.update(this.state, scaledDt, this.doorManager.getDoors(), realDt);
+    this.unitManager.update(
+      this.state,
+      scaledDt,
+      this.doorManager.getDoors(),
+      this.prng,
+      realDt,
+    );
 
     // 6. Enemies
     this.enemyManager.update(
