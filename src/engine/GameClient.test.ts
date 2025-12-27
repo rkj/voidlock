@@ -76,6 +76,7 @@ describe("GameClient", () => {
         agentControlEnabled: true,
         squadConfig: defaultSquad,
         losOverlayEnabled: false,
+        startingThreatLevel: 0,
       },
     });
 
@@ -158,6 +159,7 @@ describe("GameClient", () => {
         agentControlEnabled: true,
         squadConfig: defaultSquad,
         losOverlayEnabled: false,
+        startingThreatLevel: 0,
       },
     });
 

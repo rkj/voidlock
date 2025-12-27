@@ -43,6 +43,28 @@ export class Renderer {
     this.overlayOptions = options;
   }
 
+  private syncDoorsToGraph(state: GameState) {
+    if (!this.graph || !state.map.doors) return;
+
+    state.map.doors.forEach((door) => {
+      if (door.segment.length === 2) {
+        const boundary = this.graph?.getBoundary(
+          door.segment[0].x,
+          door.segment[0].y,
+          door.segment[1].x,
+          door.segment[1].y,
+        );
+        if (boundary) {
+          const isPassable =
+            door.state === "Open" ||
+            door.state === "Destroyed" ||
+            door.targetState === "Open";
+          boundary.isWall = !isPassable;
+        }
+      }
+    });
+  }
+
   public render(state: GameState) {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
@@ -52,6 +74,8 @@ export class Renderer {
       this.graph = new Graph(state.map);
       this.currentMapId = mapId;
     }
+
+    this.syncDoorsToGraph(state);
 
     this.renderMap(state);
     this.renderObjectives(state);
