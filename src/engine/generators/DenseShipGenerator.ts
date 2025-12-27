@@ -394,9 +394,24 @@ export class DenseShipGenerator {
       ];
       this.squadSpawn = this.squadSpawns[0];
     } else {
-      const squadCell = squadQuad[this.prng.nextInt(0, squadQuad.length - 1)];
-      this.squadSpawn = { x: squadCell.x, y: squadCell.y };
-      this.squadSpawns = [this.squadSpawn];
+      const roomCellsInQuad = squadQuad.filter(
+        (c) => c.roomId && c.roomId.startsWith("room-"),
+      );
+      if (roomCellsInQuad.length > 0) {
+        const squadCell =
+          roomCellsInQuad[this.prng.nextInt(0, roomCellsInQuad.length - 1)];
+        this.squadSpawn = { x: squadCell.x, y: squadCell.y };
+        this.squadSpawns = [this.squadSpawn];
+      } else {
+        // Absolute fallback to any room in the map
+        const allRoomCells = floors.filter(
+          (c) => c.roomId && c.roomId.startsWith("room-"),
+        );
+        const squadCell =
+          allRoomCells[this.prng.nextInt(0, allRoomCells.length - 1)];
+        this.squadSpawn = { x: squadCell.x, y: squadCell.y };
+        this.squadSpawns = [this.squadSpawn];
+      }
     }
 
     // 3. Pick Extraction quadrant (opposite if possible)
@@ -424,8 +439,8 @@ export class DenseShipGenerator {
     const roomMap = new Map<string, Vector2[]>();
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {
-        if (this.getGenType(x, y) === "Room") {
-          const rid = this.roomIds[y * this.width + x];
+        const rid = this.roomIds[y * this.width + x];
+        if (rid && rid.startsWith("room-")) {
           if (!roomMap.has(rid)) roomMap.set(rid, []);
           roomMap.get(rid)!.push({ x, y });
         }
@@ -433,27 +448,34 @@ export class DenseShipGenerator {
     }
     const rooms = Array.from(roomMap.values());
     if (rooms.length === 0) {
-      // Fallback if no rooms
-      for (let i = 0; i < spawnPointCount; i++) {
-        const p = corridors[this.prng.nextInt(0, corridors.length - 1)];
-        this.spawnPoints.push({ id: `sp-enemy-${i}`, pos: p, radius: 1 });
-      }
+      // If no rooms exist (should not happen with this generator), fallback safely but strictly
+      // Actually, MapGenerator.validate will catch if it's in a corridor.
       return;
     }
 
     this.prng.shuffle(rooms);
-    // Exclude rooms containing squadSpawn or extraction if possible
+    // Exclude rooms containing ANY squadSpawn
+    const squadRoomIds = new Set<string>();
+    if (this.squadSpawns) {
+      this.squadSpawns.forEach((ss) => {
+        const cellIdx = ss.y * this.width + ss.x;
+        const rid = this.roomIds[cellIdx];
+        if (rid) squadRoomIds.add(rid);
+      });
+    }
+
     const otherRooms = rooms.filter((r) => {
-      const isSquadRoom = r.some(
-        (p) => p.x === this.squadSpawn?.x && p.y === this.squadSpawn?.y,
-      );
+      const rid = this.roomIds[r[0].y * this.width + r[0].x];
+      const isSquadRoom = squadRoomIds.has(rid);
       const isExtRoom = r.some(
         (p) => p.x === this.extraction?.x && p.y === this.extraction?.y,
       );
       return !isSquadRoom && !isExtRoom;
     });
 
-    const finalRooms = otherRooms.length > 0 ? otherRooms : rooms;
+    // We MUST NOT use rooms that contain squad spawns.
+    // If we don't have enough "otherRooms", we just place as many as we can.
+    const finalRooms = otherRooms;
 
     for (let i = 0; i < Math.min(spawnPointCount, finalRooms.length); i++) {
       const r = finalRooms[i];
