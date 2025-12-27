@@ -149,7 +149,7 @@ While the formula never reaches 0%, the "Effective Range" is a soft limit where 
 
 **Simulation & Balance:**
 
-- **Game Speed:** Configurable from 0.05x (Active Pause) to 3.0x. Default 1.0x.
+- **Game Speed:** Configurable from 0.05x (Active Pause) to 5.0x. Default 1.0x.
 
 - **Balance Goal:** A 4-soldier team with default AI should win ~50% of the time on an 8x8 map. >50% of wins should incur at least one casualty.
 
@@ -464,7 +464,7 @@ The application is divided into distinct screens to reduce UI clutter and improv
     *   **Game Options**:
         *   Fog of War, Debug Overlay, Agent Control, LOS Visualization toggles.
         *   **Game Speed Control**:
-            *   **Slider Range**: 0.05x (Active Pause) to 3.0x (Fast Forward). Default 1.0x.
+            *   **Slider Range**: 0.05x (Active Pause) to 5.0x (Fast Forward). Default 1.0x.
             *   **Active Pause**: Speed 0.05x acts as "Active Pause", allowing commands to be issued while time moves very slowly.
             *   **In-Game Access**: This control must be accessible during a mission.
             *   **Controls**:
