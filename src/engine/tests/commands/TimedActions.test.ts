@@ -197,4 +197,35 @@ describe("Timed Actions (Extraction/Collection)", () => {
     // Should be Moving now
     expect(engine.getState().units[0].state).toBe(UnitState.Moving);
   });
+
+  it("should decouple extraction from game speed", () => {
+    const engine = new CoreEngine(
+      mockMap,
+      123,
+      [{ archetypeId: "assault", count: 1 }],
+      false,
+      false,
+    );
+
+    const realUnit = (engine as any).state.units[0];
+    realUnit.pos = { x: 4.5, y: 4.5 }; // Already at extraction
+
+    // Trigger check (both scaled and real are 100)
+    engine.update(100);
+    const unitChanneling = engine.getState().units[0];
+    expect(unitChanneling.state).toBe(UnitState.Channeling);
+    const initialRemaining = unitChanneling.channeling?.remaining || 5000;
+
+    // Advance with high game speed (scaledDt = 1000, realDt = 100)
+    engine.update(1000, 100);
+    
+    const unitAfterHighSpeed = engine.getState().units[0];
+    // Remaining should have decreased by realDt (100), not scaledDt (1000)
+    expect(unitAfterHighSpeed.channeling?.remaining).toBe(initialRemaining - 100);
+    
+    // state.t should have increased by scaledDt (1000)
+    // initial state.t was 100 (from first update)
+    // now it should be 1100.
+    expect(engine.getState().t).toBe(1100);
+  });
 });

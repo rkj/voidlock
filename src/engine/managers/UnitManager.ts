@@ -26,7 +26,7 @@ export class UnitManager {
     this.vipAi = new VipAI(gameGrid, pathfinder, los);
   }
 
-  public update(state: GameState, dt: number, doors: Map<string, Door>) {
+  public update(state: GameState, dt: number, doors: Map<string, Door>, realDt: number = dt) {
     const claimedObjectives = new Set<string>();
 
     // Pre-populate claimed objectives from units already pursuing them
@@ -90,7 +90,7 @@ export class UnitManager {
       }
 
       if (unit.state === UnitState.Channeling && unit.channeling) {
-        unit.channeling.remaining -= dt;
+        unit.channeling.remaining -= realDt;
         if (unit.channeling.remaining <= 0) {
           if (unit.channeling.action === "Extract") {
             unit.state = UnitState.Extracted;

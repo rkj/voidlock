@@ -266,17 +266,17 @@ export class CoreEngine {
     });
   }
 
-  public update(dt: number) {
+  public update(scaledDt: number, realDt: number = scaledDt) {
     if (this.state.status !== "Playing") return;
 
-    this.state.t += dt;
+    this.state.t += scaledDt;
 
-    // 1. Director & Spawn
-    this.director.update(dt);
+    // 1. Director & Spawn (Decoupled: uses realDt)
+    this.director.update(realDt);
     this.state.threatLevel = this.director.getThreatLevel();
 
     // 2. Doors
-    this.doorManager.update(this.state, dt);
+    this.doorManager.update(this.state, scaledDt);
 
     // 3. Visibility
     this.visibilityManager.updateVisibility(this.state);
@@ -284,13 +284,13 @@ export class CoreEngine {
     // 4. Mission (Objectives Visibility)
     this.missionManager.updateObjectives(this.state, this.state.visibleCells);
 
-    // 5. Units
-    this.unitManager.update(this.state, dt, this.doorManager.getDoors());
+    // 5. Units (Passes both for decoupling)
+    this.unitManager.update(this.state, scaledDt, this.doorManager.getDoors(), realDt);
 
     // 6. Enemies
     this.enemyManager.update(
       this.state,
-      dt,
+      scaledDt,
       this.gameGrid,
       this.pathfinder,
       this.los,
