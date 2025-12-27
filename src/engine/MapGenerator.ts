@@ -243,6 +243,11 @@ export class MapGenerator {
               `Spawn point ${sp.id} at (${sp.pos.x}, ${sp.pos.y}) is not on a Floor cell.`,
             );
           }
+          if (!cell.roomId || cell.roomId.startsWith("corridor-")) {
+            issues.push(
+              `Enemy spawn point ${sp.id} at (${sp.pos.x}, ${sp.pos.y}) must be in a room, not a corridor.`,
+            );
+          }
         }
       }
     }
@@ -275,6 +280,11 @@ export class MapGenerator {
             `Squad spawn point at (${ss.x}, ${ss.y}) is not on a Floor cell.`,
           );
         }
+        if (!cell.roomId || cell.roomId.startsWith("corridor-")) {
+          issues.push(
+            `Squad spawn point at (${ss.x}, ${ss.y}) must be in a room, not a corridor.`,
+          );
+        }
       }
     }
 
@@ -291,7 +301,45 @@ export class MapGenerator {
               `Squad spawn point at (${ss.x}, ${ss.y}) is not on a Floor cell.`,
             );
           }
+          if (!cell.roomId || cell.roomId.startsWith("corridor-")) {
+            issues.push(
+              `Squad spawn point at (${ss.x}, ${ss.y}) must be in a room, not a corridor.`,
+            );
+          }
         }
+      }
+    }
+
+    // Mutually exclusive rooms for squad and enemy spawns
+    const enemySpawnRooms = new Set<string>();
+    if (spawnPoints) {
+      for (const sp of spawnPoints) {
+        if (isWithinBounds(sp.pos.x, sp.pos.y)) {
+          const cell = graph.cells[sp.pos.y][sp.pos.x];
+          if (cell.roomId) enemySpawnRooms.add(cell.roomId);
+        }
+      }
+    }
+
+    const squadSpawnRooms = new Set<string>();
+    if (map.squadSpawn && isWithinBounds(map.squadSpawn.x, map.squadSpawn.y)) {
+      const cell = graph.cells[map.squadSpawn.y][map.squadSpawn.x];
+      if (cell.roomId) squadSpawnRooms.add(cell.roomId);
+    }
+    if (map.squadSpawns) {
+      for (const ss of map.squadSpawns) {
+        if (isWithinBounds(ss.x, ss.y)) {
+          const cell = graph.cells[ss.y][ss.x];
+          if (cell.roomId) squadSpawnRooms.add(cell.roomId);
+        }
+      }
+    }
+
+    for (const roomId of squadSpawnRooms) {
+      if (enemySpawnRooms.has(roomId)) {
+        issues.push(
+          `Squad and Enemy spawn points share the same room: ${roomId}`,
+        );
       }
     }
 
@@ -518,8 +566,13 @@ export class MapGenerator {
     const getBoundaryKey = (x1: number, y1: number, x2: number, y2: number) =>
       [`${x1},${y1}`, `${x2},${y2}`].sort().join("--");
 
-    assembly.tiles.forEach((tileRef) => {
+    assembly.tiles.forEach((tileRef, tileIdx) => {
       const def = library[tileRef.tileId];
+      const isRoom = def.id.toLowerCase().includes("room");
+      const roomId = isRoom
+        ? `room-tile-${tileIdx}-${def.id}`
+        : `corridor-tile-${tileIdx}-${def.id}`;
+
       def.cells.forEach((cellDef) => {
         const localPos = rotatePoint(
           cellDef.x,
@@ -531,7 +584,9 @@ export class MapGenerator {
         const gx = tileRef.x + localPos.x - minX;
         const gy = tileRef.y + localPos.y - minY;
         if (gx < 0 || gx >= width || gy < 0 || gy >= height) return;
-        cells[gy * width + gx].type = CellType.Floor;
+        const cell = cells[gy * width + gx];
+        cell.type = CellType.Floor;
+        cell.roomId = roomId;
 
         cellDef.openEdges.forEach((edge) => {
           const rotateEdge = (e: Direction, rot: number): Direction => {
@@ -704,7 +759,7 @@ export class MapGenerator {
         }
       }
     }
-    return {
+    const map: MapDefinition = {
       width,
       height,
       cells,
@@ -716,5 +771,53 @@ export class MapGenerator {
       extraction,
       objectives,
     };
+
+    // Post-process to assign roomIds via flood fill
+    const graph = new Graph(map);
+    const visited = new Set<string>();
+    let roomCount = 0;
+
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const cellIdx = y * width + x;
+        if (cells[cellIdx].type === CellType.Floor && !visited.has(`${x},${y}`)) {
+          roomCount++;
+          const roomId = `room-${roomCount}`;
+          const queue: Vector2[] = [{ x, y }];
+          visited.add(`${x},${y}`);
+
+          let head = 0;
+          while (head < queue.length) {
+            const current = queue[head++];
+            const cell = cells[current.y * width + current.x];
+            cell.roomId = roomId;
+
+            const neighbors: { dx: number; dy: number; d: Direction }[] = [
+              { dx: 0, dy: -1, d: "n" },
+              { dx: 1, dy: 0, d: "e" },
+              { dx: 0, dy: 1, d: "s" },
+              { dx: -1, dy: 0, d: "w" },
+            ];
+
+            for (const { dx, dy, d } of neighbors) {
+              const nx = current.x + dx;
+              const ny = current.y + dy;
+              if (nx < 0 || nx >= width || ny < 0 || ny >= height) continue;
+
+              const boundary = graph.getBoundary(current.x, current.y, nx, ny);
+              // Rooms are separated by walls or doors
+              if (boundary && !boundary.isWall && !boundary.doorId) {
+                if (!visited.has(`${nx},${ny}`)) {
+                  visited.add(`${nx},${ny}`);
+                  queue.push({ x: nx, y: ny });
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return map;
   }
 }

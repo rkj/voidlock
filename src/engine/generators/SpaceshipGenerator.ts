@@ -358,10 +358,23 @@ export class SpaceshipGenerator {
       ];
       this.squadSpawn = this.squadSpawns[0];
     } else {
-      // Fallback: pick a cell in the squad quadrant for squadSpawn
-      const squadCell = squadQuad[this.prng.nextInt(0, squadQuad.length - 1)];
-      this.squadSpawn = { x: squadCell.x, y: squadCell.y };
-      this.squadSpawns = [this.squadSpawn];
+      const roomCellsInQuad = squadQuad.filter(
+        (c) => c.roomId && c.roomId.startsWith("room-"),
+      );
+      if (roomCellsInQuad.length > 0) {
+        const squadCell =
+          roomCellsInQuad[this.prng.nextInt(0, roomCellsInQuad.length - 1)];
+        this.squadSpawn = { x: squadCell.x, y: squadCell.y };
+        this.squadSpawns = [this.squadSpawn];
+      } else {
+        const allRoomCells = floors.filter(
+          (c) => c.roomId && c.roomId.startsWith("room-"),
+        );
+        const squadCell =
+          allRoomCells[this.prng.nextInt(0, allRoomCells.length - 1)];
+        this.squadSpawn = { x: squadCell.x, y: squadCell.y };
+        this.squadSpawns = [this.squadSpawn];
+      }
     }
 
     // 3. Pick Extraction quadrant (opposite if possible, else furthest non-empty)
@@ -386,15 +399,32 @@ export class SpaceshipGenerator {
     const extCell = extQuad[this.prng.nextInt(0, extQuad.length - 1)];
     this.extraction = { x: extCell.x, y: extCell.y };
 
-    // 4. Place Enemy Spawn Points (in any floor cell, but prefer other quadrants or just distribute)
-    const roomFloors = floors.filter(
-      (c) => c.roomId && c.roomId.startsWith("room-"),
-    );
-    const spawnCandidates = roomFloors.length > 0 ? roomFloors : floors;
+    // 4. Place Enemy Spawn Points
+    const squadRoomIds = new Set<string>();
+    if (this.squadSpawns) {
+      this.squadSpawns.forEach((ss) => {
+        const cell = this.getCell(ss.x, ss.y);
+        if (cell?.roomId) squadRoomIds.add(cell.roomId);
+      });
+    }
 
-    for (let i = 0; i < spawnPointCount; i++) {
-      const sp =
-        spawnCandidates[this.prng.nextInt(0, spawnCandidates.length - 1)];
+    const roomMap = new Map<string, Cell[]>();
+    floors.forEach((c) => {
+      if (c.roomId && c.roomId.startsWith("room-")) {
+        if (!roomMap.has(c.roomId)) roomMap.set(c.roomId, []);
+        roomMap.get(c.roomId)!.push(c);
+      }
+    });
+
+    const otherRooms = Array.from(roomMap.entries())
+      .filter(([rid, _cells]) => !squadRoomIds.has(rid))
+      .map(([_rid, cells]) => cells);
+
+    this.prng.shuffle(otherRooms);
+
+    for (let i = 0; i < Math.min(spawnPointCount, otherRooms.length); i++) {
+      const r = otherRooms[i];
+      const sp = r[this.prng.nextInt(0, r.length - 1)];
       this.spawnPoints.push({
         id: `spawn-${i + 1}`,
         pos: { x: sp.x, y: sp.y },
@@ -402,20 +432,26 @@ export class SpaceshipGenerator {
       });
     }
 
-    // 5. Place Objectives (far from squadSpawn)
-    const referencePos = this.squadSpawn;
-    const objectiveCandidates = roomFloors.filter(
-      (c) =>
-        Math.abs(c.x - referencePos.x) + Math.abs(c.y - referencePos.y) > 5,
-    );
+    // 5. Place Objectives (far from squadSpawn, not in squad room)
+    const referencePos = this.squadSpawn!;
+    const objectiveCandidates = floors.filter((c) => {
+      if (!c.roomId || !c.roomId.startsWith("room-")) return false;
+      if (squadRoomIds.has(c.roomId)) return false;
+      return (
+        Math.abs(c.x - referencePos.x) + Math.abs(c.y - referencePos.y) > 5
+      );
+    });
     const finalObjCandidates =
       objectiveCandidates.length > 0
         ? objectiveCandidates
-        : floors.filter(
-            (c) =>
+        : floors.filter((c) => {
+            if (!c.roomId || !c.roomId.startsWith("room-")) return false;
+            if (squadRoomIds.has(c.roomId)) return false;
+            return (
               Math.abs(c.x - referencePos.x) + Math.abs(c.y - referencePos.y) >
-              5,
-          );
+              5
+            );
+          });
 
     if (finalObjCandidates.length > 0) {
       const objCell =

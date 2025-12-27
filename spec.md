@@ -265,6 +265,7 @@ Example:
     *   `load(mapData: MapDefinition) -> MapDefinition` (New: to load predefined maps)
 
     *   `validate(map) -> issues[]`
+        *   **Enforces Strict Placement Rules (Section 8.5):** Ensures all spawn points (squad and enemy) and objectives are located in rooms (not corridors) and that squad and enemy spawns occupy mutually exclusive rooms.
 
     *   **Map Generation Strategy Selection**: The `MapGenerator` (or its client) must support selecting different generation strategies (e.g., `procedural-maze`, `static-predefined`, `custom-scripted`).
 

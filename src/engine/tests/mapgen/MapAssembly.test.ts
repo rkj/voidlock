@@ -74,23 +74,37 @@ describe("MapGenerator.assemble", () => {
   });
 
   it("should assemble a valid playable map", () => {
-    const closedCorridor: TileDefinition = {
-      id: "closed_corridor_1x3",
+    const closedRoom: TileDefinition = {
+      id: "closed_room_1x1",
       width: 1,
-      height: 3,
+      height: 1,
       cells: [
         { x: 0, y: 0, openEdges: ["s"] },
-        { x: 0, y: 1, openEdges: ["n", "s"] },
-        { x: 0, y: 2, openEdges: ["n"] },
       ],
     };
-    const library = { ...SpaceHulkTiles, [closedCorridor.id]: closedCorridor };
+    const closedRoom2: TileDefinition = {
+      id: "closed_room_1x1_2",
+      width: 1,
+      height: 1,
+      cells: [
+        { x: 0, y: 0, openEdges: ["n"] },
+      ],
+    };
+    const library = { 
+      ...SpaceHulkTiles, 
+      [closedRoom.id]: closedRoom,
+      [closedRoom2.id]: closedRoom2
+    };
 
     const assembly: TileAssembly = {
-      tiles: [{ tileId: "closed_corridor_1x3", x: 0, y: 0, rotation: 0 }],
+      tiles: [
+        { tileId: "closed_room_1x1", x: 0, y: 0, rotation: 0 },
+        { tileId: "closed_room_1x1_2", x: 0, y: 1, rotation: 0 }
+      ],
       globalSpawnPoints: [{ id: "sp1", cell: { x: 0, y: 0 } }],
-      globalExtraction: { cell: { x: 0, y: 2 } },
-      globalObjectives: [{ id: "obj1", kind: "Recover", cell: { x: 0, y: 2 } }],
+      globalSquadSpawn: { cell: { x: 0, y: 1 } },
+      globalExtraction: { cell: { x: 0, y: 1 } },
+      globalObjectives: [{ id: "obj1", kind: "Recover", cell: { x: 0, y: 1 } }],
     };
 
     const map = MapGenerator.assemble(assembly, library);
