@@ -217,10 +217,16 @@ export class HUDManager {
             </div>
             <span class="u-hp" style="font-weight:bold;"></span>
           </div>
-          <div class="status-row" style="font-size:0.8em; color:#aaa; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:2px;">
+          <div class="stats-row" style="font-size:0.7em; display:flex; gap:6px; color:#888; margin-top:-2px;">
+            <span>SPD:<span class="u-speed" style="color:#eee"></span></span>
+            <span>DMG:<span class="u-dmg" style="color:#eee"></span></span>
+            <span>RNG:<span class="u-range" style="color:#eee"></span></span>
+            <span>VIS:<span class="u-sight" style="color:#eee"></span></span>
+          </div>
+          <div class="status-row" style="font-size:0.75em; color:#aaa; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:1px;">
                <span class="u-status-text"></span>
           </div>
-          <div class="hp-bar"><div class="hp-fill"></div></div>
+          <div class="hp-bar" style="margin-top:2px;"><div class="hp-fill"></div></div>
         `;
       }
 
@@ -232,6 +238,15 @@ export class HUDManager {
         `${unit.hp}/${unit.maxHp}`;
       (el.querySelector(".hp-fill") as HTMLElement).style.width =
         `${hpPercent}%`;
+
+      (el.querySelector(".u-speed") as HTMLElement).textContent =
+        unit.speed.toFixed(1);
+      (el.querySelector(".u-dmg") as HTMLElement).textContent =
+        unit.damage.toString();
+      (el.querySelector(".u-range") as HTMLElement).textContent =
+        unit.attackRange.toString();
+      (el.querySelector(".u-sight") as HTMLElement).textContent =
+        unit.sightRange.toString();
     });
 
     Array.from(listContainer.children).forEach((child) => {

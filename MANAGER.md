@@ -23,6 +23,10 @@ At the start of every session, run:
 
 **Action**: Spawn a sub-agent to perform the implementation.
 
+**Rules**:
+1.  **Strict Adherence to Beads**: You are ONLY allowed to dispatch tasks that currently exist in the Beads (bd) system.
+2.  **No Ad-Hoc Instructions**: Do not invent new task descriptions or requirements in the prompt. The sub-agent must rely on `bd show <TASK_ID>` for truth. If requirements change, update the Beads task first.
+
 **Command Pattern:**
 Use multiple `--allowed-tools` flags for the allowlist and pass the prompt as the positional argument. Include essential browser tools for verification.
 
