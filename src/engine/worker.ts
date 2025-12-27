@@ -21,6 +21,7 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
         msg.payload.debugOverlayEnabled,
         msg.payload.missionType,
         msg.payload.losOverlayEnabled,
+        msg.payload.startingThreatLevel,
       );
 
       // Start loop

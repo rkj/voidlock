@@ -338,6 +338,7 @@ export type WorkerMessage =
         squadConfig: SquadConfig;
         missionType?: MissionType;
         losOverlayEnabled?: boolean;
+        startingThreatLevel?: number;
       };
     } // Updated
   | { type: "COMMAND"; payload: Command }

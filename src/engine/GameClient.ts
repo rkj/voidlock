@@ -61,6 +61,7 @@ export class GameClient {
     height: number = 16,
     spawnPointCount: number = 3,
     losOverlayEnabled: boolean = false,
+    startingThreatLevel: number = 0,
   ) {
     this.initialSeed = seed;
     this.initialSquadConfig = squadConfig;
@@ -86,6 +87,7 @@ export class GameClient {
         squadConfig: squadConfig,
         missionType,
         losOverlayEnabled,
+        startingThreatLevel,
       },
     };
     this.worker.postMessage(msg);
