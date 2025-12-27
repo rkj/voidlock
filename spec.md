@@ -77,8 +77,11 @@ interface Cell {
 **Soldier Stats:**
 
 - `hp`: Current Health.
-- `speed`: Movement cooldown (seconds per tile).
-- `sightRange`: Radius of vision in tiles.
+- `speed`: Global Action Speed. Higher is faster. Internally stored as an integer (e.g., `15`).
+  - **Movement**: `Speed / 10` tiles per second (e.g., 15 = 1.5 tiles/s).
+  - **Timed Actions**: `Duration = BaseDuration * (10 / Speed)`. Faster units complete tasks like extraction sooner.
+  - **Shooting**: `Cooldown = WeaponFireRate * (10 / Speed)`. Faster units cycle their weapons quicker.
+- `sightRange`: Effective vision radius. For Soldiers, this is considered **Infinite** (blocked only by walls/obstacles).
 - `weapon`: Reference to Weapon Definition.
 - `engagementPolicy`:
   - `ENGAGE`: (Default) If an enemy is in LOS, stop moving and shoot.
@@ -90,6 +93,43 @@ interface Cell {
 - **No Ammo:** Weapons have infinite ammo.
 - **Fire Rate:** Defined as a cooldown between shots.
 - **Stats:** `damage`, `range`, `fireRateMs`.
+
+### 3.3 Shoot / Accuracy model
+
+#### 3.3.1. The Model: Angular Dispersion
+We use an **Angular Dispersion Model** (Inverse Square Law) to simulate a "Cone of Fire". As the distance to the target increases, the probability of hitting decreases quadratically, reflecting the expansion of the projectile's potential impact area.
+
+#### 3.3.2. The Accuracy Stat
+The `accuracy` stat for a unit represents the **"50% Hit Range"**. This is the distance (in tiles) at which the unit has an exactly 50% chance to hit a standard target.
+
+#### 3.3.3. Formulas
+
+##### 3.3.3.1 Hit Probability
+The probability of a hit ($P$) at a given distance ($d$) for a unit with accuracy ($A$) is:
+
+$$ P(d) = \frac{A^2}{A^2 + d^2} $$
+
+##### 3.3.3.2 Reference Points (Example: Accuracy = 5)
+| Distance | Hit Chance | Logic |
+| :--- | :--- | :--- |
+| 0 Tiles | 100% | Point Blank |
+| 1 Tile | 96% | $25 / (25 + 1)$ |
+| 5 Tiles | **50%** | $25 / (25 + 25)$ -- **The Stat Value** |
+| 10 Tiles | 20% | $25 / (25 + 100)$ |
+| 20 Tiles | 5.8% | $25 / (25 + 400)$ |
+| 100 Tiles | 0.25% | $25 / (25 + 10000)$ -- Long shot chance |
+
+#### 3.3.4. Range Interactions
+
+##### 3.3.4.1 Weapon Range (`range`)
+The `range` property on a weapon definition represents the **Absolute Maximum Range** (projectile lifespan). 
+- If $Distance > WeaponRange$, the shot is impossible (0% chance).
+- If $Distance \le WeaponRange$, the Hit Probability formula is applied.
+
+##### 3.3.4.2 Effective Range
+While the formula never reaches 0%, the "Effective Range" is a soft limit where the hit chance becomes negligibly low. In the UI, this may be visualized as the distance where hit chance is $> 10\%$.
+
+### 3.4 Enemy
 
 **Enemy AI Behavior:**
 
@@ -122,7 +162,7 @@ interface Cell {
 The automated soldier AI follows a multi-tier logic profile when not under direct manual control:
 
 1.  **Threat Evaluation:**
-    - Units continuously scan for visible enemies within their `sightRange`.
+    - Units continuously scan for visible enemies.
     - Threat level is calculated based on distance, enemy type, and unit's current HP.
     - Enemies attacking the unit or its squadmates receive highest priority.
 
