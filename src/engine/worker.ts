@@ -26,8 +26,13 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
       // Start loop
       loopId = setInterval(() => {
         if (!engine) return;
-        // Update game state by scaled delta time
-        engine.update(TICK_RATE * timeScale);
+        // Adjust game speed: current 1.0 is 2x slower (new 2.0 is old 1.0)
+        // TICK_RATE is 16ms, so old 1.0 was engine.update(16)
+        // New 1.0 should be engine.update(8)
+        const scaledDt = (TICK_RATE / 2) * timeScale;
+        const realDt = TICK_RATE;
+        
+        engine.update(scaledDt, realDt);
 
         const updateMsg: MainMessage = {
           type: "STATE_UPDATE",
