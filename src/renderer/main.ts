@@ -275,7 +275,7 @@ document.addEventListener("DOMContentLoaded", () => {
   ) as HTMLInputElement;
   const gameSpeedValue = document.getElementById("speed-value");
   if (gameSpeedSlider && gameSpeedValue) {
-    gameSpeedSlider.max = "3.0";
+    gameSpeedSlider.max = "5.0";
     gameSpeedSlider.addEventListener("input", () => {
       const speed = parseFloat(gameSpeedSlider.value);
       gameSpeedValue.textContent = `${speed.toFixed(1)}x`;
@@ -368,7 +368,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <div><input type="checkbox" id="toggle-agent-control" checked><label for="toggle-agent-control" style="display:inline;">Agent Control</label></div>
         <div style="margin-top: 20px;">
             <label for="time-scale-slider" style="display: block; margin-bottom: 10px;">Game Speed (x): <span id="time-scale-value">1.0</span></label>
-            <input type="range" id="time-scale-slider" min="0.1" max="3.0" step="0.1" value="1.0" style="width: 100%; height: 20px; cursor: pointer;">
+            <input type="range" id="time-scale-slider" min="0.1" max="5.0" step="0.1" value="1.0" style="width: 100%; height: 20px; cursor: pointer;">
         </div>
       `;
     presetControls.closest(".control-group")?.after(togglesDiv);
