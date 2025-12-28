@@ -22,7 +22,7 @@ export class HUDManager {
   private updateTopBar(state: GameState) {
     const statusElement = document.getElementById("game-status");
     if (statusElement) {
-      statusElement.innerHTML = `<span style="color:#888">T:</span>${(state.t / 1000).toFixed(1)}s | <span style="color:#888">S:</span>${state.status}`;
+      statusElement.innerHTML = `<span style="color:#888">TIME:</span>${(state.t / 1000).toFixed(1)}s | <span style="color:#888">STATUS:</span>${state.status}`;
     }
 
     const vEl = document.getElementById("version-display");
@@ -34,11 +34,6 @@ export class HUDManager {
       mvEl.textContent = `v${this.version}`;
 
     const threatLevel = state.threatLevel || 0;
-    const topTurnValue = document.getElementById("top-turn-value");
-    if (topTurnValue) {
-      const turn = Math.floor(threatLevel / 10);
-      topTurnValue.textContent = turn.toString();
-    }
 
     const topThreatFill = document.getElementById("top-threat-fill");
     const topThreatValue = document.getElementById("top-threat-value");
@@ -49,7 +44,7 @@ export class HUDManager {
       if (threatLevel > 70) threatColor = "#f44336";
       if (threatLevel > 90) threatColor = "#b71c1c";
 
-      topThreatFill.style.width = `${threatLevel}%`;
+      topThreatFill.style.width = `${Math.min(100, threatLevel)}%`;
       topThreatFill.style.backgroundColor = threatColor;
       topThreatValue.textContent = `${threatLevel.toFixed(0)}%`;
       topThreatValue.style.color = threatColor;

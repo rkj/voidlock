@@ -74,4 +74,4 @@ Spawns occur on a fixed timer (default 30s).
 2.  **Scaling:** `+1` enemy added to the pool per wave (turn). Wave size = `1 + currentTurn`.
 3.  **Distribution:** Enemies are distributed randomly among valid `SpawnPoints`.
 4.  **Upgrade Logic:** Probabilistic replacement of weak enemies with strong ones based on current threat level.
-5.  **Threat Growth:** Threat level increases by 10% per turn (30s at 1x speed), capping at 100% after 10 turns.
+5.  **Threat Growth:** Threat level increases by 10% per turn (10s at 1x speed), capping at 100% after 10 turns.

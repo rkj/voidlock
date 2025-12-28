@@ -14,14 +14,13 @@ describe("Director", () => {
     expect(onSpawn).not.toHaveBeenCalled();
     expect(director.getThreatLevel()).toBe(0);
 
-    // Update with dt < turnDuration
-    director.update(10000);
+    // Update with dt < turnDuration (10s)
+    director.update(5000);
     expect(onSpawn).not.toHaveBeenCalled();
-    expect(director.getThreatLevel()).toBeGreaterThan(0);
-    expect(director.getThreatLevel()).toBeLessThan(10);
+    expect(director.getThreatLevel()).toBe(5);
 
-    // Update to reach turnDuration (30s)
-    director.update(20000);
+    // Update to reach turnDuration (10s)
+    director.update(5000);
     expect(onSpawn).toHaveBeenCalled();
     // At Turn 1, count = 1 + 1 = 2
     expect(onSpawn).toHaveBeenCalledTimes(2);
@@ -42,7 +41,7 @@ describe("Director", () => {
     // Turn 5: 6
     // Total: 2+3+4+5+6 = 20
     for (let i = 0; i < 5; i++) {
-      director.update(30000);
+      director.update(10000);
     }
 
     expect(onSpawn).toHaveBeenCalledTimes(20);
@@ -58,11 +57,27 @@ describe("Director", () => {
     // 100 seconds
     director.update(100000);
 
-    // Turn 1 (30s): 2 enemies
-    // Turn 2 (60s): 3 enemies
-    // Turn 3 (90s): 4 enemies
-    // Total should be 2 + 3 + 4 = 9
-    expect(onSpawn).toHaveBeenCalledTimes(9);
+    // Turn 1 (10s): 2
+    // Turn 2 (20s): 3
+    // ...
+    // Turn 10 (100s): 11
+    // Total: 2+3+4+5+6+7+8+9+10+11 = 65
+    expect(onSpawn).toHaveBeenCalledTimes(65);
+  });
+
+  it("should exceed 100% threat", () => {
+    const spawnPoints = [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }];
+    const prng = new PRNG(123);
+    const onSpawn = vi.fn();
+    const director = new Director(spawnPoints, prng, onSpawn);
+
+    // 110 seconds = Turn 11
+    director.update(110000);
+
+    expect(director.getThreatLevel()).toBe(110);
+    // At turn 11, scalingTurn is capped at 10, so count is 11.
+    // Total for turn 11 should be previous 65 + 11 = 76.
+    expect(onSpawn).toHaveBeenCalledTimes(76);
   });
 
   it("should initialize with startingThreatLevel and preSpawn enemies", () => {
