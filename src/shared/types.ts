@@ -156,7 +156,7 @@ export type GameState = {
   visibleCells: string[];
   discoveredCells: string[];
   objectives: Objective[];
-  threatLevel: number; // 0 to 100, representing Director intensity
+  threatLevel: number; // Director intensity (0 to 100+; displayed value can exceed 100 but scaling caps at 100)
   aliensKilled: number; // New
   casualties: number; // New
   status: "Playing" | "Won" | "Lost";

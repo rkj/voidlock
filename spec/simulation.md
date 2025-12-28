@@ -13,7 +13,7 @@ The engine `update(scaledDt, realDt)` method accepts two deltas:
     -   Combat Cooldowns (Fire Rate)
     -   Animation states
 2.  **`realDt` (Real Time)**: Constant, unaffected by game speed. Used for:
-    -   **Director Pacing**: Spawning enemies every 45s real-time ensures consistent difficulty pressure regardless of how fast the player plays.
+    -   **Director Pacing**: Spawning enemies every 10s real-time ensures consistent difficulty pressure regardless of how fast the player plays.
     -   **Timed Actions**: Interactions like "Extracting" or "Collecting" take a fixed real-world duration (e.g., 5s) to prevent "fast-forwarding" through tactical risks.
 
 **Update Sequence per Tick:**

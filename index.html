@@ -496,10 +496,6 @@
             "
           >
             <span style="font-size: 0.8em; color: #aaa; white-space: nowrap"
-              >TURN:
-              <span id="top-turn-value" style="color: #0f0">0</span></span
-            >
-            <span style="font-size: 0.8em; color: #aaa; white-space: nowrap"
               >THREAT:</span
             >
             <div
@@ -513,12 +509,25 @@
                 overflow: hidden;
               "
             >
+              <!-- Dividers every 10% (10s) -->
+              <div style="position:absolute; left:10%; top:0; bottom:0; width:1px; background:#666; z-index:1;"></div>
+              <div style="position:absolute; left:20%; top:0; bottom:0; width:1px; background:#666; z-index:1;"></div>
+              <div style="position:absolute; left:30%; top:0; bottom:0; width:1px; background:#666; z-index:1;"></div>
+              <div style="position:absolute; left:40%; top:0; bottom:0; width:1px; background:#666; z-index:1;"></div>
+              <div style="position:absolute; left:50%; top:0; bottom:0; width:1px; background:#666; z-index:1;"></div>
+              <div style="position:absolute; left:60%; top:0; bottom:0; width:1px; background:#666; z-index:1;"></div>
+              <div style="position:absolute; left:70%; top:0; bottom:0; width:1px; background:#666; z-index:1;"></div>
+              <div style="position:absolute; left:80%; top:0; bottom:0; width:1px; background:#666; z-index:1;"></div>
+              <div style="position:absolute; left:90%; top:0; bottom:0; width:1px; background:#666; z-index:1;"></div>
+
               <div
                 id="top-threat-fill"
                 style="
                   width: 0%;
                   background: #4caf50;
                   height: 100%;
+                  position: relative;
+                  z-index: 0;
                   transition:
                     width 0.5s,
                     background-color 0.5s;

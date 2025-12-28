@@ -10,7 +10,7 @@ import { PRNG } from "../shared/PRNG";
 export class Director {
   private turn: number = 0;
   private timeInCurrentTurn: number = 0;
-  private readonly turnDuration: number = 30000; // 30 seconds
+  private readonly turnDuration: number = 10000; // 10 seconds
   private readonly threatPerTurn: number = 10; // 10% per turn
 
   private spawnPoints: SpawnPoint[];
@@ -67,16 +67,9 @@ export class Director {
 
   public getThreatLevel(): number {
     // Threat = 10% * (Turn + Progress)
-    // Capped at Turn 10 (100%)
-    // But logically, if we are at Turn 10, threat is 100%.
-    // If we are at Turn 11, threat stays 100%.
-    const cappedTurn = Math.min(this.turn, 10);
+    // No longer capped at 100% in the state, but logic that uses it should cap as needed.
     const progress = this.timeInCurrentTurn / this.turnDuration;
-
-    // If we are already at max turns (10+), threat is 100%.
-    if (this.turn >= 10) return 100;
-
-    return Math.min(100, (cappedTurn + progress) * this.threatPerTurn);
+    return (this.turn + progress) * this.threatPerTurn;
   }
 
   private spawnWave() {
@@ -99,8 +92,8 @@ export class Director {
     const offsetX = this.prng.next() * 0.4 - 0.2;
     const offsetY = this.prng.next() * 0.4 - 0.2;
 
-    // Select Type based on Threat
-    const threat = this.getThreatLevel();
+    // Select Type based on Threat (capped at 100 for selection logic)
+    const threat = Math.min(100, this.getThreatLevel());
     let type = EnemyType.XenoMite;
 
     const roll = this.prng.next();

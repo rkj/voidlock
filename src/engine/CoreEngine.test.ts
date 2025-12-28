@@ -172,16 +172,16 @@ describe("CoreEngine with Objectives and Game Loop", () => {
   });
 
   it("should decouple threat increase from game speed", () => {
-    // turnDuration = 30000, threatPerTurn = 10
+    // turnDuration = 10000, threatPerTurn = 10
     expect(engine.getState().threatLevel).toBe(0);
 
     // Advance with high game speed but low real speed
-    // scaledDt = 30000 (one turn in game time), realDt = 1000 (1 second real time)
+    // scaledDt = 30000 (three turns in game time), realDt = 1000 (1 second real time)
     engine.update(30000, 1000);
 
     // Threat should have increased by 1 second worth, not one turn
-    // (1000/30000) * 10 = 0.333
-    expect(engine.getState().threatLevel).toBeCloseTo(0.333, 3);
+    // (1000/10000) * 10 = 1.0
+    expect(engine.getState().threatLevel).toBeCloseTo(1.0, 3);
     
     // game time state.t should be 30000
     expect(engine.getState().t).toBe(30000);
