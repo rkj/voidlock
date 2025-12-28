@@ -565,16 +565,43 @@ export class Renderer {
       }
 
       if (unit.state === UnitState.Moving && unit.targetPos) {
-        this.ctx.beginPath();
-        this.ctx.moveTo(x, y);
-        this.ctx.lineTo(
-          unit.targetPos.x * this.cellSize,
-          unit.targetPos.y * this.cellSize,
-        );
+        const jitter = unit.visualJitter || { x: 0, y: 0 };
+        const pathPoints: Vector2[] = [unit.targetPos];
+
+        if (unit.path && unit.path.length > 1) {
+          for (let i = 1; i < unit.path.length; i++) {
+            pathPoints.push({
+              x: unit.path[i].x + 0.5 + jitter.x,
+              y: unit.path[i].y + 0.5 + jitter.y,
+            });
+          }
+        }
+
         this.ctx.strokeStyle = "#FF00FF";
         this.ctx.lineWidth = 2;
         this.ctx.setLineDash([10, 10]);
-        this.ctx.stroke();
+
+        let currX = x;
+        let currY = y;
+
+        pathPoints.forEach((p, idx) => {
+          const nextX = p.x * this.cellSize;
+          const nextY = p.y * this.cellSize;
+
+          // Dimmer further from the soldier
+          const alpha = Math.max(0.1, 1.0 - idx / Math.max(pathPoints.length, 5));
+          this.ctx.globalAlpha = alpha;
+
+          this.ctx.beginPath();
+          this.ctx.moveTo(currX, currY);
+          this.ctx.lineTo(nextX, nextY);
+          this.ctx.stroke();
+
+          currX = nextX;
+          currY = nextY;
+        });
+
+        this.ctx.globalAlpha = 1.0;
         this.ctx.setLineDash([]);
       }
 
