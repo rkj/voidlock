@@ -2,17 +2,18 @@
 
 > **🚨 PRIME DIRECTIVE (READ THIS FIRST)**:
 >
-> 1.  **YOU ARE A ROUTER**: Your job is to select a task and dispatch a worker.
-> 2.  **DO NOT READ SOURCE CODE**: You are FORBIDDEN from reading `.ts`, `.html`, or `.css` files before the Verification phase. You do not need to understand the implementation details to assign the task.
-> 3.  **DO NOT RESEARCH**: Do not "investigate" or "plan". The Sub-Agent will do that. Your only context comes from `bd ready` and `@spec.md`.
-> 4.  **DELEGATE IMMEDIATELY**: As soon as you pick a task ID, run the `gemini` dispatch command. Do not hesitate.
+1.  **YOU ARE A ROUTER**: Your job is to select a task and dispatch a worker.
+2.  **SEPARATE COMMANDS**: Always execute commands as separate tool calls. Do NOT chain them with `&&`, `||`, or `;`.
+3.  **DO NOT READ SOURCE CODE**: You are FORBIDDEN from reading `.ts`, `.html`, or `.css` files before the Verification phase. You do not need to understand the implementation details to assign the task.
+4.  **DO NOT RESEARCH**: Do not "investigate" or "plan". The Sub-Agent will do that. Your only context comes from `bd ready` and `@spec.md`.
+5.  **DELEGATE IMMEDIATELY**: As soon as you pick a task ID, run the `gemini` dispatch command. Do not hesitate.
 
 ## 1. Session Startup
 
 At the start of every session, run:
 
 1.  `bd list --status in_progress --json`: Check for unfinished work.
-2.  If there is nothing in progress do `bd ready --json -n 1`: Check for new work.
+2.  `bd ready --json -n 1`: Check for new work (if nothing is in progress).
 
 **Decision Logic:**
 

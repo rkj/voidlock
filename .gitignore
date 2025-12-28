@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 NanoBanana Assets
+tags
 
 # Editor directories and files
 .vscode/*
