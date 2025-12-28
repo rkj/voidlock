@@ -239,6 +239,8 @@ const launchMission = () => {
 };
 
 const abortMission = () => {
+  gameClient.stop();
+  gameClient.onStateUpdate(null);
   screenManager.show("main-menu");
 };
 

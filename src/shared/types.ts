@@ -358,7 +358,8 @@ export type WorkerMessage =
   | { type: "COMMAND"; payload: Command }
   | { type: "QUERY_STATE" }
   | { type: "SET_TICK_RATE"; payload: number }
-  | { type: "SET_TIME_SCALE"; payload: number };
+  | { type: "SET_TIME_SCALE"; payload: number }
+  | { type: "STOP" };
 
 export type MainMessage =
   | { type: "STATE_UPDATE"; payload: GameState }

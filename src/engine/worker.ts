@@ -35,12 +35,29 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
         
         engine.update(scaledDt, realDt);
 
+        const state = engine.getState();
         const updateMsg: MainMessage = {
           type: "STATE_UPDATE",
-          payload: engine.getState(),
+          payload: state,
         };
         self.postMessage(updateMsg);
+
+        // Stop loop if mission ended
+        if (state.status !== "Playing") {
+          clearInterval(loopId);
+          loopId = null;
+          // We keep engine for QUERY_STATE if needed, or null it?
+          // For now, keep it so final state can be inspected if needed.
+        }
       }, TICK_RATE);
+      break;
+    }
+    case "STOP": {
+      if (loopId) {
+        clearInterval(loopId);
+        loopId = null;
+      }
+      engine = null;
       break;
     }
     case "SET_TIME_SCALE": {
