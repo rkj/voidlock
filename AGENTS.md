@@ -24,6 +24,9 @@ You are an AI contributor agent working on the Xenopurge project. Your goal is t
 
 ### G2) Testing Strategy
 
+- **🚨 REGRESSION PROTOCOL 🚨**: If a fix involves logic (non-visual), you **MUST** add a regression test case to `src/engine/tests/` (or appropriate test file).
+    - Prevents the "whack-a-mole" bug cycle.
+    - **Naming Convention:** `regression_<ticket_id>_<short_slug>.test.ts`
 - **🚨 NEVER REMOVE TESTS 🚨**: Their purpose is to catch regressions. Do not remove any tests unless explicitly asked to do so by the Manager (e.g., if a feature was removed). If a test is failing, fix the code or update the test to match the new behavior.
 - **Unit Test First**: For core mechanics (Grid, Pathfinder, LOS), write or update tests before implementation.
 - **Non-Interactive**: Always run tests using `npx vitest run`. Never use watch mode.

@@ -30,11 +30,10 @@ At the start of every session, run:
 2.  **No Ad-Hoc Instructions**: Do not invent new task descriptions or requirements in the prompt. The sub-agent must rely on `bd show <TASK_ID>` for truth. If requirements change, update the Beads task first.
 
 **Command Pattern:**
-Use multiple `--allowed-tools` flags for the allowlist and pass the prompt as the positional argument. Include essential browser tools for verification.
+Use the helper script to dispatch the agent.
 
 ```bash
-gemini --model gemini-3-flash-preview --allowed-tools list_directory --allowed-tools read_file --allowed-tools search_file_content --allowed-tools glob --allowed-tools replace --allowed-tools write_file --allowed-tools "run_shell_command(npx vitest)" --allowed-tools "run_shell_command(jj diff)" --allowed-tools "run_shell_command(ls)" --allowed-tools "run_shell_command(bd show)" --allowed-tools new_page --allowed-tools navigate_page --allowed-tools take_screenshot --allowed-tools click --allowed-tools wait_for --allowed-tools evaluate_script \
-       "You are a Sub-Agent. Your goal is to implement task <TASK_ID>. \n\nInstructions:\n1. Run 'bd show <TASK_ID> --json' to get the full task details.\n2. Read @spec.md and @AGENTS.md.\n3. Implement the changes.\n4. Verify with tests.\n5. DO NOT COMMIT or use 'jj'. The Manager handles version control.\n6. Exit when done."
+run_shell_command("./scripts/dispatch_agent.sh <TASK_ID>")
 ```
 
 ## 3. Verification & Quality Control (The Audit)

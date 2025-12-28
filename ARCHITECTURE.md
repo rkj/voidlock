@@ -11,7 +11,10 @@ Xenopurge is a tactical squad-based game engine designed with a strict separatio
 The heart of the game. It runs deterministically given a seed and a command stream.
 
 - **`CoreEngine`**: The main simulation controller. It maintains the `GameState`, processes `Commands`, and advances the simulation tick by tick. It allows for "Pause", "Resume", and discrete time steps.
-- **`GameGrid`**: Represents the physical world. It handles collision detection (`canMove`), wall states, and door interactions. It provides a queryable interface for the Pathfinder and LOS systems.
+- **`GameGrid`**: Represents the physical world as a **Graph of Cells with Shared Boundaries**.
+  - **Cells**: Represent floor tiles with coordinates `(x, y)`.
+  - **Boundaries**: Shared objects between adjacent cells (Walls, Doors). A single `Boundary` instance is referenced by both neighbors (e.g., `Cell(0,0).edges.E` and `Cell(1,0).edges.W`). This ensures state consistency (e.g., opening a door affects both sides immediately).
+  - It handles collision detection (`canMove`), wall states, and door interactions, providing a queryable interface for the Pathfinder and LOS systems.
 - **`Pathfinder`**: Implements pathfinding algorithms (A\*) on the `GameGrid`. It supports pathing through Open doors and planning paths through Closed doors (which units can then open).
 - **`LineOfSight`**: Handles visibility calculations ("Fog of War"). It determines which cells are visible to the player's squad based on their position and blocking terrain (Walls, Closed Doors).
 - **`Director`**: The AI logic that manages enemy spawning, pacing, and difficulty ramping. It monitors game state and injects events or enemies.
@@ -131,39 +134,3 @@ Because the simulation is deterministic, a complete game session can be perfectl
 
 - **Unit Tests**: Core mechanics (`Pathfinder`, `GameGrid`, `CycleDetection`) are tested in isolation.
 - **Generator Tests**: Generators are tested for properties (e.g., "Acyclicity") rather than specific pixel layouts, ensuring structural correctness.
-
-## Proposed Refactoring: Edge-Based Map Architecture
-
-**Problem:** The current `MapDefinition` relies on `Cell` objects containing `walls` (n, e, s, w) and `Door` objects containing `segment` arrays. This leads to data duplication (sync issues) and ambiguity in coordinate systems.
-
-**Solution:** Transition to a **Graph of Cells with Shared Boundaries**.
-
-### Runtime Architecture (`GameGrid`)
-
-At runtime, the `GameGrid` hydrates the static data into a graph structure:
-
-1.  **`Cell` Object**:
-    - Coordinates: `x, y`.
-    - `edges`: `{ N: Boundary | null, E: ..., S: ..., W: ... }`.
-    - If `edges[dir]` is `null`, the path is open.
-
-2.  **`Boundary` Object**:
-    - **Shared Instance**: The boundary between `Cell(0,0)` and `Cell(1,0)` is a _single object_ referenced by `Cell(0,0).edges.E` and `Cell(1,0).edges.W`.
-    - Properties: `type` ('Wall', 'Door'), `state` (Open/Closed), `hp`.
-    - **Benefit**: Changing state on one side immediately affects the other.
-
-### Data persistence (`MapDefinition`)
-
-The serialized JSON format remains simple but unambiguous:
-
-- **Cells**: List of floor cells.
-- **Edges**: List of active boundaries (Walls/Doors).
-  - Key: `x1,y1|x2,y2` (Canonical sorted key).
-  - Value: Properties (Type, HP, etc).
-- **Legacy Support**: `GameGrid` can initially hydrate from the old format by creating Boundaries where `cell.walls[dir]` is true or `door.segment` matches.
-
-### Implementation Plan
-
-1.  **Hydration**: `GameGrid` constructor iterates cells and creates `Boundary` objects, storing them in a `Map<EdgeKey, Boundary>` to ensure uniqueness/sharing.
-2.  **Pathfinding/LOS**: Updated to traverse the Graph. `canMove` becomes `!cell.edges[dir]?.blocking`.
-3.  **Generators**: Can eventually be updated to produce Edge Lists directly, but can currently produce the old format which `GameGrid` sanitizes during hydration.
