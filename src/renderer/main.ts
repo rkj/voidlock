@@ -262,8 +262,12 @@ document.addEventListener("DOMContentLoaded", () => {
     .getElementById("btn-setup-back")
     ?.addEventListener("click", () => screenManager.goBack());
   document
-    .getElementById("btn-mission-abort")
-    ?.addEventListener("click", () => abortMission());
+    .getElementById("btn-give-up")
+    ?.addEventListener("click", () => {
+      if (confirm("Abort Mission and return to menu?")) {
+        abortMission();
+      }
+    });
   document
     .getElementById("btn-launch-mission")
     ?.addEventListener("click", () => launchMission());
