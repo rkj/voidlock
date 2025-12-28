@@ -30,6 +30,7 @@ export class GameClient {
   private initialSquadConfig: SquadConfig | null = null;
   private commandStream: RecordedCommand[] = [];
   private startTime: number = 0;
+  private replayTimeouts: any[] = [];
 
   constructor(mapGeneratorFactory: MapGeneratorFactory) {
     this.mapGeneratorFactory = mapGeneratorFactory;
@@ -75,6 +76,10 @@ export class GameClient {
     this.initialMap = map;
     this.commandStream = [];
     this.startTime = Date.now();
+
+    // Clear any pending replay timeouts
+    this.replayTimeouts.forEach(id => clearTimeout(id));
+    this.replayTimeouts = [];
 
     const msg: WorkerMessage = {
       type: "INIT",
@@ -165,7 +170,7 @@ export class GameClient {
     // `init` resets `startTime`.
 
     data.commands.forEach((rc) => {
-      setTimeout(() => {
+      const timeoutId = setTimeout(() => {
         // We bypass `sendCommand` to avoid re-recording?
         // Or we assume `loadReplay` is "watching" mode.
         // If we use `sendCommand`, it records again.
@@ -175,12 +180,27 @@ export class GameClient {
           payload: rc.cmd,
         };
         this.worker.postMessage(msg);
+        
+        // Remove from list when fired
+        this.replayTimeouts = this.replayTimeouts.filter(id => id !== timeoutId);
       }, rc.t);
+      this.replayTimeouts.push(timeoutId);
     });
   }
 
-  public onStateUpdate(cb: (state: GameState) => void) {
+  public onStateUpdate(cb: ((state: GameState) => void) | null) {
     this.onStateUpdateCb = cb;
+  }
+
+  public stop() {
+    // Clear any pending replay timeouts
+    this.replayTimeouts.forEach(id => clearTimeout(id));
+    this.replayTimeouts = [];
+
+    const msg: WorkerMessage = {
+      type: "STOP",
+    };
+    this.worker.postMessage(msg);
   }
 
   public terminate() {
