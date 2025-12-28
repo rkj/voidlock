@@ -41,6 +41,7 @@ You are an AI contributor agent working on the Xenopurge project. Your goal is t
 
 ### G4) Coding Standards
 
+- **Symbol References**: You can generate/update a `tags` file using `ctags-universal -R src/`. This can be useful for quickly finding symbol definitions and references via `grep` or other tools.
 - **Style & Structure**: Mimic the style (formatting, naming), structure, framework choices, and typing of existing code.
 - **Idiomatic Changes**: Ensure your changes integrate naturally and idiomatically with the local context.
 - **Avoid Duplication**: Do not duplicate helper functions or test logic. Refactor shared logic into utility files (e.g., `src/engine/tests/utils/`) and import them.
