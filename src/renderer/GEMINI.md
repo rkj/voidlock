@@ -26,6 +26,14 @@ This directory contains the main thread rendering logic and user interface for X
 - **Fog of War**: Implements visual shroud and discovery states based on the simulation data.
 - **Visual Feedback**: Provides tactical information through tracers, health bars, and status overlays.
 
+## Testing
+
+- **JSDOM Environment**: UI components (HUD, SquadBuilder) are tested using Vitest with the `jsdom` environment.
+- **Manual Canvas Mocks**: The core `Renderer.ts` is tested using manual stubs for the Canvas API to avoid heavy native dependencies.
+- **Test Suites**:
+  - `SquadBuilder.test.ts`: Verifies squad selection logic and constraints.
+  - `ui/HUDManager.test.ts`: Verifies soldier list rendering and HUD updates.
+
 ## Connections
 
 - Communicates with the engine via `src/engine/GameClient.ts`.
