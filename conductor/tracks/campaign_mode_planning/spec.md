@@ -27,8 +27,58 @@ The Campaign Mode aims to provide a structured progression for players, linking 
 5. **Interface:**
    - How does the Campaign UI look? (A "Bridge" view, a star map, a simple menu).
 
-## Proposed Components
+## Technical Proposals
 
-- **Campaign State:** A persistent JSON state tracking progress, squad, resources, and unlocked content.
-- **Mission Generator:** Logic to create missions with specific constraints based on campaign progress.
-- **Meta-UI:** New screens for squad management, mission selection, and upgrades.
+### Campaign State Interface
+
+```typescript
+export interface PersistentSoldier {
+  id: string;
+  name: string;
+  archetypeId: string;
+  hp: number;
+  maxHp: number;
+  xp: number;
+  level: number;
+  kills: number;
+  missions: number;
+  status: "Available" | "Wounded" | "Dead";
+  recoveryTime?: number; // Missions remaining until available
+}
+
+export interface CampaignNode {
+  id: string;
+  type: "Combat" | "Elite" | "Event" | "Store" | "Boss" | "Exit";
+  missionType: MissionType;
+  difficulty: number;
+  connections: string[]; // IDs of next nodes
+  rewards: {
+    scrap?: number;
+    intel?: number;
+    items?: string[];
+  };
+  visited: boolean;
+}
+
+export interface CampaignState {
+  version: number;
+  seed: number;
+  currentSector: number;
+  currentNodeId: string;
+  scrap: number;
+  intel: number;
+  roster: PersistentSoldier[];
+  squad: string[]; // IDs of soldiers currently in the active squad
+  map: CampaignNode[];
+  unlockedArchetypes: string[];
+}
+```
+
+### Proposed Components
+
+- **CampaignManager:** A singleton managing the `CampaignState`, handling node transitions, mission result processing, and persistence (Local Storage).
+- **MissionGenerator:** Logic to create `MapDefinition`s with specific constraints (threat level, enemy density, objective type) based on the `CampaignNode` properties.
+- **Campaign UI (Bridge/Map):**
+  - **Node Map:** Visual representation of the `CampaignNode` graph.
+  - **Barracks:** UI for managing the `roster`, viewing soldier stats, and selecting the `squad`.
+  - **Shop:** UI for spending `scrap` on recruits or equipment.
