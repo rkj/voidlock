@@ -588,9 +588,20 @@ document.addEventListener("DOMContentLoaded", () => {
       row.style.display = "flex";
       row.style.alignItems = "center";
       row.style.justifyContent = "space-between";
-      const label = document.createElement("label");
-      label.textContent = arch.name;
-      label.style.flex = "1";
+      row.style.borderBottom = "1px solid #333";
+      row.style.padding = "5px 0";
+
+      const info = document.createElement("div");
+      info.style.flex = "1";
+      const scaledFireRate = arch.fireRate * (arch.speed > 0 ? (10 / arch.speed) : 1);
+      const fireRateVal = scaledFireRate > 0 ? (1000 / scaledFireRate).toFixed(1) : "0";
+      info.innerHTML = `
+        <strong style="color:#0f0;">${arch.name}</strong>
+        <div style="font-size:0.75em; color:#888; margin-top:2px;">
+          SPD:${(arch.speed / 10).toFixed(1)} | ACC:${arch.accuracy} | DMG:${arch.damage} | FR:${fireRateVal} | RNG:${arch.attackRange}
+        </div>
+      `;
+
       const input = document.createElement("input");
       input.type = "number";
       input.min = "0";
@@ -621,7 +632,7 @@ document.addEventListener("DOMContentLoaded", () => {
           currentSquad.push({ archetypeId: arch.id, count: val });
         updateCount();
       });
-      row.append(label, input);
+      row.append(info, input);
       container.appendChild(row);
     });
     updateCount();
