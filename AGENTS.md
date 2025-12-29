@@ -11,7 +11,7 @@ You are an AI contributor agent working on the Xenopurge project. Your goal is t
 5.  **Update Documentation (MANDATORY)**: If you add new files or change significant APIs, you MUST update the `GEMINI.md` file in the relevant directory. This is critical for maintaining codebase navigability.
 6.  **Verify**: All changes MUST be verified with `npx vitest run`.
     - **🚨 REGRESSION RULE**: If browser validation discovers a problem that automated tests missed, you MUST stop, write a failing unit/integration test that reproduces the bug, and THEN fix the code.
-7.  **Beads Context**: You may read task details using `bd show <id> --json` or `bd list`, but you are **FORBIDDEN** from using state-changing commands (`update`, `close`, `create`). The Manager Agent handles all Beads status updates.
+7.  **Beads Context**: You may read task details using `bd show <id> --json` or `bd list --status <filter>`, but you are **FORBIDDEN** from using `bd list` without a status filter or using state-changing commands (`update`, `close`, `create`). The Manager Agent handles all Beads status updates.
 
 ## 2. Technical Guidelines
 
