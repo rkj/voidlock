@@ -17,6 +17,7 @@ const EPSILON = 0.05;
 
 export class UnitManager {
   private vipAi: VipAI;
+  private totalFloorCells: number;
 
   constructor(
     private gameGrid: GameGrid,
@@ -25,6 +26,7 @@ export class UnitManager {
     private agentControlEnabled: boolean,
   ) {
     this.vipAi = new VipAI(gameGrid, pathfinder, los);
+    this.totalFloorCells = gameGrid.getGraph().cells.flat().filter(c => c.type === "Floor").length;
   }
 
   public update(
@@ -69,6 +71,8 @@ export class UnitManager {
     });
 
     const newVisibleCellsSet = new Set(state.visibleCells);
+    const discoveredCellsSet = new Set(state.discoveredCells);
+    const mapFullyDiscovered = this.isMapFullyDiscovered(state);
 
     state.units.forEach((unit) => {
       if (unit.state === UnitState.Extracted || unit.state === UnitState.Dead)
@@ -121,7 +125,7 @@ export class UnitManager {
 
       if (unit.explorationTarget) {
         const key = `${Math.floor(unit.explorationTarget.x)},${Math.floor(unit.explorationTarget.y)}`;
-        if (state.discoveredCells.includes(key)) {
+        if (discoveredCellsSet.has(key)) {
           unit.explorationTarget = undefined;
           if (unit.state === UnitState.Moving) {
             unit.path = undefined;
@@ -457,12 +461,12 @@ export class UnitManager {
               );
             }
           }
-        } else if (!actionTaken && !this.isMapFullyDiscovered(state)) {
+        } else if (!actionTaken && !mapFullyDiscovered) {
           let shouldReevaluate = !unit.explorationTarget;
 
           if (unit.explorationTarget) {
             const key = `${Math.floor(unit.explorationTarget.x)},${Math.floor(unit.explorationTarget.y)}`;
-            if (state.discoveredCells.includes(key)) {
+            if (discoveredCellsSet.has(key)) {
               unit.explorationTarget = undefined;
               shouldReevaluate = true;
             } else {
@@ -476,7 +480,7 @@ export class UnitManager {
           }
 
           if (shouldReevaluate) {
-            const targetCell = this.findClosestUndiscoveredCell(unit, state);
+            const targetCell = this.findClosestUndiscoveredCell(unit, state, discoveredCellsSet, doors);
             if (targetCell) {
               const newTarget = { x: targetCell.x, y: targetCell.y };
               const isDifferent =
@@ -766,22 +770,21 @@ export class UnitManager {
   }
 
   private isMapFullyDiscovered(state: GameState): boolean {
-    const totalFloorCells = state.map.cells.filter(
-      (c) => c.type === "Floor",
-    ).length;
     const discoveredFloors = state.discoveredCells.filter((key) => {
       const [x, y] = key.split(",").map(Number);
       return this.gameGrid.isWalkable(x, y);
     }).length;
-    return discoveredFloors >= totalFloorCells;
+    return discoveredFloors >= this.totalFloorCells;
   }
 
   private findClosestUndiscoveredCell(
     unit: Unit,
     state: GameState,
+    discoveredCellsSet: Set<string>,
+    doors: Map<string, Door>,
   ): Vector2 | null {
-    let closestCell: Vector2 | null = null;
-    let minDistance = Infinity;
+    const startX = Math.floor(unit.pos.x);
+    const startY = Math.floor(unit.pos.y);
 
     const claimedTargets = state.units
       .filter((u) => u.id !== unit.id && u.explorationTarget)
@@ -798,53 +801,58 @@ export class UnitManager {
       .map((u) => u.pos);
 
     const mapDim = Math.max(state.map.width, state.map.height);
-    const avoidRadius = Math.min(6, Math.max(2, Math.floor(mapDim / 2.5)));
-    const unitAvoidRadius = Math.min(4, Math.max(1, Math.floor(mapDim / 4)));
+    const avoidRadius = Math.max(3.0, Math.min(5, mapDim / 4));
+    const unitAvoidRadius = Math.max(1.5, Math.min(3, mapDim / 6));
 
-    for (let y = 0; y < state.map.height; y++) {
-      for (let x = 0; x < state.map.width; x++) {
-        const cellKey = `${x},${y}`;
-        if (
-          this.gameGrid.isWalkable(x, y) &&
-          !state.discoveredCells.includes(cellKey)
-        ) {
-          const target = { x: x + 0.5, y: y + 0.5 };
+    const queue: { x: number; y: number }[] = [{ x: startX, y: startY }];
+    const visited = new Set<string>();
+    visited.add(`${startX},${startY}`);
+
+    let fallbackCell: Vector2 | null = null;
+    let head = 0;
+
+    while (head < queue.length) {
+      const curr = queue[head++];
+      
+      const cellKey = `${curr.x},${curr.y}`;
+      if (!discoveredCellsSet.has(cellKey)) {
+          const target = { x: curr.x + 0.5, y: curr.y + 0.5 };
           const isClaimed = claimedTargets.some(
             (claimed) => this.getDistance(target, claimed) < avoidRadius,
           );
-          if (isClaimed) continue;
           const tooCloseToUnit = otherUnitPositions.some(
             (pos) => this.getDistance(target, pos) < unitAvoidRadius,
           );
-          if (tooCloseToUnit) continue;
 
-          const dist = this.getDistance(unit.pos, target);
-          if (dist < minDistance) {
-            minDistance = dist;
-            closestCell = { x, y };
+          if (!isClaimed && !tooCloseToUnit) {
+            return { x: curr.x, y: curr.y };
+          }
+          
+          if (!fallbackCell) {
+            fallbackCell = { x: curr.x, y: curr.y };
+          }
+      }
+
+      const neighbors = [
+        { x: curr.x + 1, y: curr.y },
+        { x: curr.x - 1, y: curr.y },
+        { x: curr.x, y: curr.y + 1 },
+        { x: curr.x, y: curr.y - 1 },
+      ];
+
+      for (const n of neighbors) {
+        if (n.x >= 0 && n.x < state.map.width && n.y >= 0 && n.y < state.map.height) {
+          const nKey = `${n.x},${n.y}`;
+          if (!visited.has(nKey) && this.gameGrid.isWalkable(n.x, n.y)) {
+              if (this.gameGrid.canMove(curr.x, curr.y, n.x, n.y, doors, true)) {
+                  visited.add(nKey);
+                  queue.push({ x: n.x, y: n.y });
+              }
           }
         }
       }
     }
 
-    if (!closestCell) {
-      for (let y = 0; y < state.map.height; y++) {
-        for (let x = 0; x < state.map.width; x++) {
-          const cellKey = `${x},${y}`;
-          if (
-            this.gameGrid.isWalkable(x, y) &&
-            !state.discoveredCells.includes(cellKey)
-          ) {
-            const dist = this.getDistance(unit.pos, { x: x + 0.5, y: y + 0.5 });
-            if (dist < minDistance) {
-              minDistance = dist;
-              closestCell = { x, y };
-            }
-          }
-        }
-      }
-    }
-
-    return closestCell;
+    return fallbackCell;
   }
 }
