@@ -181,6 +181,9 @@ export class CoreEngine {
           attackRange: arch.attackRange,
           sightRange: arch.sightRange,
           speed: arch.speed,
+          meleeWeaponId: arch.meleeWeaponId,
+          rangedWeaponId: arch.rangedWeaponId,
+          activeWeaponId: arch.rangedWeaponId,
           aiEnabled: true,
           commandQueue: [],
         });

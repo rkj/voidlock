@@ -114,6 +114,9 @@ export type Unit = Entity & {
   accuracy: number; // Hit chance percentage at 5 tiles
   attackRange: number;
   sightRange: number;
+  meleeWeaponId?: string; // New
+  rangedWeaponId?: string; // New
+  activeWeaponId?: string; // New
   engagementPolicy?: EngagementPolicy; // Default: 'ENGAGE'
   engagementPolicySource?: "Manual" | "Autonomous"; // Track origin of policy
   commandQueue: Command[];
@@ -128,63 +131,6 @@ export type Unit = Entity & {
   archetypeId: string;
 };
 
-export type Enemy = Entity & {
-  type: string;
-  damage: number;
-  fireRate: number; // ms between shots
-  accuracy: number; // Hit chance percentage at 5 tiles
-  attackRange: number;
-  lastAttackTarget?: Vector2;
-  lastAttackTime?: number;
-  path?: Vector2[];
-  targetPos?: Vector2;
-  speed: number; // Speed factor (x10 integer, e.g. 15 = 1.5 tiles/s)
-  difficulty?: number; // 1: Easy, 2: Medium, 3: Hard
-};
-
-export type SpawnPoint = {
-  id: string;
-  pos: Vector2;
-  radius: number;
-};
-
-export type GameState = {
-  t: number;
-  map: MapDefinition;
-  units: Unit[];
-  enemies: Enemy[];
-  visibleCells: string[];
-  discoveredCells: string[];
-  objectives: Objective[];
-  threatLevel: number; // Director intensity (0 to 100+; displayed value can exceed 100 but scaling caps at 100)
-  aliensKilled: number; // New
-  casualties: number; // New
-  status: "Playing" | "Won" | "Lost";
-  debugOverlayEnabled?: boolean; // New
-  losOverlayEnabled?: boolean; // New
-};
-
-// --- Replay ---
-
-export type RecordedCommand = {
-  t: number;
-  cmd: Command;
-};
-
-export type ReplayData = {
-  seed: number;
-  map: MapDefinition;
-  squadConfig: SquadConfig;
-  commands: RecordedCommand[];
-};
-
-export type OverlayOption = {
-  key: string;
-  label: string;
-  pos?: Vector2;
-  unitId?: string;
-};
-
 // --- Archetype Definitions (Shared) ---
 export type Archetype = {
   id: string;
@@ -196,6 +142,86 @@ export type Archetype = {
   attackRange: number;
   sightRange: number;
   speed: number; // Speed factor (x10 integer, e.g. 15 = 1.5 tiles/s)
+  meleeWeaponId?: string; // New
+  rangedWeaponId?: string; // New
+};
+
+export type WeaponType = "Melee" | "Ranged";
+
+export type Weapon = {
+  id: string;
+  name: string;
+  type: WeaponType;
+  damage: number;
+  fireRate: number; // ms
+  accuracy: number; // Hit chance at 5 tiles
+  range: number;
+};
+
+export const WeaponLibrary: { [id: string]: Weapon } = {
+  knife: {
+    id: "knife",
+    name: "Knife",
+    type: "Melee",
+    damage: 15,
+    fireRate: 400,
+    accuracy: 100,
+    range: 1,
+  },
+  sword: {
+    id: "sword",
+    name: "Sword",
+    type: "Melee",
+    damage: 35,
+    fireRate: 800,
+    accuracy: 100,
+    range: 1,
+  },
+  hammer: {
+    id: "hammer",
+    name: "Hammer",
+    type: "Melee",
+    damage: 80,
+    fireRate: 1500,
+    accuracy: 100,
+    range: 1,
+  },
+  pistol: {
+    id: "pistol",
+    name: "Pistol",
+    type: "Ranged",
+    damage: 15,
+    fireRate: 500,
+    accuracy: 85,
+    range: 6,
+  },
+  pulse_rifle: {
+    id: "pulse_rifle",
+    name: "Pulse Rifle",
+    type: "Ranged",
+    damage: 20,
+    fireRate: 600,
+    accuracy: 95,
+    range: 10,
+  },
+  shotgun: {
+    id: "shotgun",
+    name: "Shotgun",
+    type: "Ranged",
+    damage: 40,
+    fireRate: 1000,
+    accuracy: 75,
+    range: 4,
+  },
+  flamethrower: {
+    id: "flamethrower",
+    name: "Flamethrower",
+    type: "Ranged",
+    damage: 25,
+    fireRate: 100,
+    accuracy: 80,
+    range: 3,
+  },
 };
 
 export const ArchetypeLibrary: { [id: string]: Archetype } = {
@@ -206,31 +232,37 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     damage: 20,
     fireRate: 600,
     accuracy: 95,
-    attackRange: 4,
+    attackRange: 10,
     sightRange: 100,
     speed: 20,
+    meleeWeaponId: "knife",
+    rangedWeaponId: "pulse_rifle",
   },
   medic: {
     id: "medic",
     name: "Medic",
     baseHp: 80,
-    damage: 10,
-    fireRate: 900,
-    accuracy: 90,
-    attackRange: 3,
+    damage: 15,
+    fireRate: 500,
+    accuracy: 85,
+    attackRange: 6,
     sightRange: 100,
     speed: 25,
+    meleeWeaponId: "knife",
+    rangedWeaponId: "pistol",
   },
   heavy: {
     id: "heavy",
     name: "Heavy",
     baseHp: 120,
-    damage: 30,
+    damage: 40,
     fireRate: 1000,
-    accuracy: 98,
-    attackRange: 5,
+    accuracy: 75,
+    attackRange: 4,
     sightRange: 100,
     speed: 15,
+    meleeWeaponId: "hammer",
+    rangedWeaponId: "shotgun",
   },
   vip: {
     id: "vip",

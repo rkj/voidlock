@@ -6,6 +6,7 @@ import {
   Vector2,
   Command,
   Door,
+  WeaponLibrary,
 } from "../../shared/types";
 import { GameGrid } from "../GameGrid";
 import { Pathfinder } from "../Pathfinder";
@@ -77,6 +78,8 @@ export class UnitManager {
     state.units.forEach((unit) => {
       if (unit.state === UnitState.Extracted || unit.state === UnitState.Dead)
         return;
+
+      this.updateActiveWeapon(unit, state, newVisibleCellsSet);
 
       if (unit.archetypeId === "vip" && !unit.aiEnabled) {
         const rescueSoldier = state.units.find(u => 
@@ -760,6 +763,52 @@ export class UnitManager {
     } else if (cmd.type === CommandType.RESUME_AI) {
       unit.aiEnabled = true;
       unit.activeCommand = undefined;
+    }
+  }
+
+  private updateActiveWeapon(unit: Unit, state: GameState, visibleCells: Set<string>) {
+    if (!unit.meleeWeaponId || !unit.rangedWeaponId) return;
+
+    const visibleEnemies = state.enemies.filter(
+      (enemy) =>
+        enemy.hp > 0 &&
+        visibleCells.has(
+          `${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`,
+        ),
+    );
+
+    const meleeWeapon = WeaponLibrary[unit.meleeWeaponId];
+    const rangedWeapon = WeaponLibrary[unit.rangedWeaponId];
+
+    if (!meleeWeapon || !rangedWeapon) return;
+
+    let targetWeaponId = unit.activeWeaponId || unit.rangedWeaponId;
+
+    const enemiesInMelee = visibleEnemies.filter(
+      (e) => this.getDistance(unit.pos, e.pos) <= 1.05, // Slight buffer for melee
+    );
+
+    if (enemiesInMelee.length > 0) {
+      targetWeaponId = unit.meleeWeaponId;
+    } else {
+      const enemiesInRanged = visibleEnemies.filter(
+        (e) => this.getDistance(unit.pos, e.pos) <= rangedWeapon.range + 0.5,
+      );
+      if (enemiesInRanged.length > 0) {
+        targetWeaponId = unit.rangedWeaponId;
+      }
+    }
+
+    if (unit.activeWeaponId !== targetWeaponId) {
+      unit.activeWeaponId = targetWeaponId;
+      const weapon = WeaponLibrary[targetWeaponId];
+      if (weapon) {
+        unit.damage = weapon.damage;
+        unit.attackRange = weapon.range;
+        unit.accuracy = weapon.accuracy;
+        unit.fireRate =
+          weapon.fireRate * (unit.speed > 0 ? 10 / unit.speed : 1);
+      }
     }
   }
 
