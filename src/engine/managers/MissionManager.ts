@@ -29,17 +29,24 @@ export class MissionManager {
 
     const hasVipInSquad = squadConfig?.some((s) => s.archetypeId === "vip");
 
+    // Add Escort objective if it's an Escort mission OR if a VIP is present in the squad
     if (this.missionType === MissionType.EscortVIP || hasVipInSquad) {
-      objectives.push({
-        id: "obj-escort",
-        kind: "Escort",
-        state: "Pending",
-        targetCell: map.extraction,
-      });
+      if (!objectives.some(o => o.kind === "Escort")) {
+        objectives.push({
+          id: "obj-escort",
+          kind: "Escort",
+          state: "Pending",
+          targetCell: map.extraction,
+        });
+      }
     }
 
     if (this.missionType === MissionType.ExtractArtifacts) {
-      objectives = [];
+      // In ExtractArtifacts, we typically replace map objectives with artifacts,
+      // but we should keep the Escort objective if it exists.
+      const escortObjectives = objectives.filter(o => o.kind === "Escort");
+      objectives = [...escortObjectives];
+
       const floors = map.cells.filter((c) => c.type === CellType.Floor);
       const extraction = map.extraction || { x: 0, y: 0 };
       const candidates = floors.filter((c) => {
@@ -125,11 +132,8 @@ export class MissionManager {
         }
       }
 
-      // Special handling for Escort VIP: completion depends on ALL VIPs reaching extraction
-      if (
-        this.missionType === MissionType.EscortVIP &&
-        obj.id === "obj-escort"
-      ) {
+      // Special handling for Escort objectives: completion depends on ALL VIPs reaching extraction
+      if (obj.kind === "Escort" || obj.id === "obj-escort") {
         const vips = state.units.filter((u) => u.archetypeId === "vip");
         const allVipsExtracted = vips.length > 0 && vips.every((v) => v.state === UnitState.Extracted);
         const anyVipDead = vips.some((v) => v.state === UnitState.Dead);
@@ -144,6 +148,15 @@ export class MissionManager {
   }
 
   public checkWinLoss(state: GameState) {
+    const vips = state.units.filter((u) => u.archetypeId === "vip");
+    const anyVipDead = vips.some((v) => v.state === UnitState.Dead);
+
+    // Any VIP death is an immediate loss in any mission type
+    if (anyVipDead) {
+      state.status = "Lost";
+      return;
+    }
+
     const activeUnits = state.units.filter(
       (u) => u.state !== UnitState.Dead && u.state !== UnitState.Extracted,
     );
@@ -152,14 +165,8 @@ export class MissionManager {
     );
 
     if (this.missionType === MissionType.EscortVIP) {
-      const vips = state.units.filter((u) => u.archetypeId === "vip");
-      const anyVipDead = vips.some((v) => v.state === UnitState.Dead);
       const allVipsExtracted = vips.length > 0 && vips.every((v) => v.state === UnitState.Extracted);
 
-      if (anyVipDead) {
-        state.status = "Lost";
-        return;
-      }
       if (allVipsExtracted) {
         state.status = "Won";
         return;
