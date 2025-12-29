@@ -24,7 +24,7 @@ This directory contains the core simulation logic for Xenopurge. It follows a de
 ## Functionality
 
 - **Deterministic Simulation**: The engine uses a seeded `PRNG` to ensure reproducible game runs.
-- **Tick-based Loop**: The simulation progresses in discrete time steps (ticks). It supports decoupled pacing where specific "timed actions" (e.g., collection, extraction, threat growth) maintain their absolute real-time duration regardless of the game speed multiplier.
+- **Tick-based Loop**: The simulation progresses in discrete time steps (ticks). It supports time scaling (0.05x to 5.0x), with all game logic (movement, threat growth, timed actions) following the scaled game time. When the game is paused (timeScale = 0), the simulation stops updating completely.
 - **Communication**: Communicates with the main thread via a JSON-based protocol (Observation/Command).
 
 ## Connections

@@ -6,24 +6,25 @@
 
 The simulation runs at a fixed timestep (e.g., 60Hz or 100ms base tick) but supports **Time Scaling**.
 
-**Time Decoupling:**
+**Time Handling:**
 The engine `update(scaledDt, realDt)` method accepts two deltas:
 1.  **`scaledDt` (Game Time)**: Affected by the speed slider (0.05x - 5.0x). Used for:
     -   Unit Movement
     -   Combat Cooldowns (Fire Rate)
     -   Animation states
-2.  **`realDt` (Real Time)**: Constant, unaffected by game speed. Used for:
-    -   **Director Pacing**: Spawning enemies every 10s real-time ensures consistent difficulty pressure regardless of how fast the player plays.
-    -   **Timed Actions**: Interactions like "Extracting" or "Collecting" take a fixed real-world duration (e.g., 5s) to prevent "fast-forwarding" through tactical risks.
+    -   **Director Pacing**: Spawning enemies follows game time, ensuring difficulty scales with game speed.
+    -   **Timed Actions**: Interactions like "Extracting" or "Collecting" follow game time.
+2.  **`realDt` (Real Time)**: Constant, unaffected by game speed. (Note: Most systems have been migrated to `scaledDt` to ensure consistent pausing and speed-scaling).
 
 **Update Sequence per Tick:**
 
-1.  **Director Update (RealDt):** Check spawn timers.
-2.  **Door Logic:** Update door animations/states.
-3.  **Visibility:** Re-calc LOS.
-4.  **Mission:** Update objectives.
-5.  **Units (ScaledDt + RealDt):** Move units (Scaled), update Action timers (Real).
-6.  **Combat (ScaledDt):** Resolve shots.
+1.  **Early Exit:** If `scaledDt` is 0 (Paused), return immediately.
+2.  **Director Update (ScaledDt):** Check spawn timers.
+3.  **Door Logic:** Update door animations/states.
+4.  **Visibility:** Re-calc LOS.
+5.  **Mission:** Update objectives.
+6.  **Units (ScaledDt):** Move units and update Action timers.
+7.  **Combat (ScaledDt):** Resolve shots.
 7.  **State Snapshot:** Emit `WorldState`.
 
 ### 2.2 Determinism
