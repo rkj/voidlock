@@ -1,18 +1,15 @@
 # src/renderer/ui
 
-This directory contains specific UI management and rendering components for the Xenopurge interface.
+This directory contains UI components and managers for the Xenopurge renderer.
 
 ## Files
 
-- `HUDManager.ts`: Manages the Heads-Up Display, including the soldier status bar, threat meter, and objective list.
-- `MenuRenderer.ts`: Handles the visual presentation of the hierarchical command menu.
-- `placeholder.ts`: A placeholder file for future UI components.
+- `HUDManager.ts`: Manages the Head-Up Display, including soldier list, stats, and top bar.
+- `MenuRenderer.ts`: Renders the hierarchical command menu into HTML strings.
+- `HUDManager.test.ts`: Unit tests for HUD rendering and interaction, utilizing JSDOM.
 
 ## Functionality
 
-- **UI Layout**: Organizes and updates the various overlays that sit on top of the game canvas.
-- **State Synchronization**: Ensures the UI reflects the current game state received from the engine.
-
-## Connections
-
-- Used by `src/renderer/Renderer.ts` and `src/renderer/main.ts` to build the full game interface.
+- **HUD Updates**: Synchronizes the DOM elements with the current `GameState`.
+- **Command Menu Rendering**: Generates clickable HTML for the tactical menu.
+- **Event Handling**: Manages clicks on soldier items and menu options.
