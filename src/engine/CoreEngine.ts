@@ -278,11 +278,12 @@ export class CoreEngine {
 
   public update(scaledDt: number, realDt: number = scaledDt) {
     if (this.state.status !== "Playing") return;
+    if (scaledDt === 0) return;
 
     this.state.t += scaledDt;
 
-    // 1. Director & Spawn (Decoupled: uses realDt)
-    this.director.update(realDt);
+    // 1. Director & Spawn (Uses scaledDt to follow game speed and pause)
+    this.director.update(scaledDt);
     this.state.threatLevel = this.director.getThreatLevel();
 
     // 2. Doors
@@ -294,13 +295,13 @@ export class CoreEngine {
     // 4. Mission (Objectives Visibility)
     this.missionManager.updateObjectives(this.state, this.state.visibleCells);
 
-    // 5. Units (Passes both for decoupling)
+    // 5. Units (Now uses scaledDt for all timers)
     this.unitManager.update(
       this.state,
       scaledDt,
       this.doorManager.getDoors(),
       this.prng,
-      realDt,
+      scaledDt,
     );
 
     // 6. Enemies

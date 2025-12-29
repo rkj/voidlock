@@ -202,7 +202,7 @@ describe("Timed Actions (Extraction/Collection)", () => {
     expect(engine.getState().units[0].state).toBe(UnitState.Moving);
   });
 
-  it("should decouple extraction from game speed", () => {
+  it("should couple extraction to game time (scaledDt)", () => {
     const engine = new CoreEngine(
       mockMap,
       123,
@@ -225,8 +225,8 @@ describe("Timed Actions (Extraction/Collection)", () => {
     engine.update(1000, 100);
     
     const unitAfterHighSpeed = engine.getState().units[0];
-    // Remaining should have decreased by realDt (100), not scaledDt (1000)
-    expect(unitAfterHighSpeed.channeling?.remaining).toBe(initialRemaining - 100);
+    // Remaining should have decreased by scaledDt (1000), not realDt (100)
+    expect(unitAfterHighSpeed.channeling?.remaining).toBe(initialRemaining - 1000);
     
     // state.t should have increased by scaledDt (1000)
     // initial state.t was 100 (from first update)

@@ -16,7 +16,7 @@ This directory contains specialized managers that handle specific domains of the
 
 - **Unit & Enemy Management**: `UnitManager` and `EnemyManager` handle movement and combat logic, including hit chance calculations based on the Angular Dispersion model. `UnitManager` also handles autonomous weapon switching between melee and ranged weapons based on target distance.
 - **Infinite Sight**: Soldiers have infinite sight range by default, managed via `VisibilityManager`.
-- **Decoupled Pacing**: Managers like `UnitManager` and `Director` (via `CoreEngine`) support absolute-duration timed actions that remain consistent across different game speed settings.
+- **Unified Pacing**: Managers follow the global `scaledDt` to ensure that movement, threat growth, and timed actions (like extraction) scale consistently with the game speed setting. This ensures that pausing the game freezes all simulation logic.
 
 ## Connections
 

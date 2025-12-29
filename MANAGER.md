@@ -67,7 +67,7 @@ run_shell_command("./scripts/dispatch_agent.sh <TASK_ID>")
   **🚨 NEVER FIX CODE**: You are FORBIDDEN from making code changes.
   1.  **Re-Dispatch**: If the failure is directly related to the task, run the dispatch command again with feedback: `gemini ... "Previous attempt failed because <REASON>. Please fix."`
   2.  **New Task**: If the failure is a regression in an unrelated area or requires a separate fix, create a **P0 task** using `bd create` and schedule a sub-agent to fix it immediately.
-  3.  **Critical**: If the changes are fundamentally flawed, `jj undo` and re-plan.
+  3.  **Critical**: If the changes are fundamentally flawed, `jj undo` and re-plan. Keep the issue open, and comment on the problems encountered.
 
 ## New work
 

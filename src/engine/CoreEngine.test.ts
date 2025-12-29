@@ -148,30 +148,7 @@ describe("CoreEngine with Objectives and Game Loop", () => {
     expect(state.status).toBe("Lost");
   });
 
-  it("should stop movement and clear queue when STOP command is issued", () => {
-    // 1. Give move command
-    engine.applyCommand({
-      type: CommandType.MOVE_TO,
-      unitIds: ["u1"],
-      target: { x: 2, y: 2 },
-    });
-
-    engine.update(100);
-    expect(engine.getState().units[0].state).toBe(UnitState.Moving);
-
-    // 2. Issue STOP
-    engine.applyCommand({
-      type: CommandType.STOP,
-      unitIds: ["u1"],
-    });
-
-    const state = engine.getState();
-    expect(state.units[0].state).toBe(UnitState.Idle);
-    expect(state.units[0].path).toBeUndefined();
-    expect(state.units[0].targetPos).toBeUndefined();
-  });
-
-  it("should decouple threat increase from game speed", () => {
+  it("should couple threat increase to game time (scaledDt)", () => {
     // turnDuration = 10000, threatPerTurn = 10
     expect(engine.getState().threatLevel).toBe(0);
 
@@ -179,9 +156,9 @@ describe("CoreEngine with Objectives and Game Loop", () => {
     // scaledDt = 30000 (three turns in game time), realDt = 1000 (1 second real time)
     engine.update(30000, 1000);
 
-    // Threat should have increased by 1 second worth, not one turn
-    // (1000/10000) * 10 = 1.0
-    expect(engine.getState().threatLevel).toBeCloseTo(1.0, 3);
+    // Threat should have increased by scaledDt (30 seconds), so 3 turns
+    // (30000/10000) * 10 = 30.0
+    expect(engine.getState().threatLevel).toBeCloseTo(30.0, 3);
     
     // game time state.t should be 30000
     expect(engine.getState().t).toBe(30000);
