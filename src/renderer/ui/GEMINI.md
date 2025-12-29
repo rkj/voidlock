@@ -10,6 +10,6 @@ This directory contains UI components and managers for the Xenopurge renderer.
 
 ## Functionality
 
-- **HUD Updates**: Synchronizes the DOM elements with the current `GameState`.
+- **HUD Updates**: Synchronizes the DOM elements with the current `GameState`. Now displays Accuracy and Effective Range (EffR) for units.
 - **Command Menu Rendering**: Generates clickable HTML for the tactical menu.
 - **Event Handling**: Manages clicks on soldier items and menu options.

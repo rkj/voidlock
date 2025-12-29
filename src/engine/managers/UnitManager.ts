@@ -587,7 +587,16 @@ export class UnitManager {
             state.t - unit.lastAttackTime >= unit.fireRate
           ) {
             const distance = this.getDistance(unit.pos, targetEnemy.pos);
-            const hitChance = Math.min(1.0, Math.max(0, (unit.accuracy / 100) * (5 / distance)));
+            const S = unit.accuracy;
+            let hitChance = 0;
+            if (S >= 100) {
+              hitChance = 1.0;
+            } else if (S <= 0) {
+              hitChance = 0.0;
+            } else {
+              // P(d) = (25 * S) / (25 * S + d^2 * (100 - S))
+              hitChance = (25 * S) / (25 * S + distance * distance * (100 - S));
+            }
 
             if (prng.next() <= hitChance) {
               targetEnemy.hp -= unit.damage;

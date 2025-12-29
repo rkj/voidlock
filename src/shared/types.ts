@@ -207,7 +207,7 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     fireRate: 600,
     accuracy: 95,
     attackRange: 4,
-    sightRange: 8,
+    sightRange: 100,
     speed: 20,
   },
   medic: {
@@ -218,7 +218,7 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     fireRate: 900,
     accuracy: 90,
     attackRange: 3,
-    sightRange: 10,
+    sightRange: 100,
     speed: 25,
   },
   heavy: {
@@ -229,7 +229,7 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     fireRate: 1000,
     accuracy: 98,
     attackRange: 5,
-    sightRange: 7,
+    sightRange: 100,
     speed: 15,
   },
   vip: {

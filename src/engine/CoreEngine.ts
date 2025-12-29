@@ -179,7 +179,7 @@ export class CoreEngine {
           fireRate: arch.fireRate * (arch.speed > 0 ? (10 / arch.speed) : 1),
           accuracy: arch.accuracy,
           attackRange: arch.attackRange,
-          sightRange: arch.id === "vip" ? arch.sightRange : 100,
+          sightRange: arch.sightRange,
           speed: arch.speed,
           aiEnabled: true,
           commandQueue: [],

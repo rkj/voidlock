@@ -254,11 +254,12 @@ export class HUDManager {
             </div>
             <span class="u-hp" style="font-weight:bold;"></span>
           </div>
-          <div class="stats-row" style="font-size:0.7em; display:flex; gap:6px; color:#888; margin-top:-2px;">
+          <div class="stats-row" style="font-size:0.7em; display:flex; gap:6px; color:#888; margin-top:-2px; flex-wrap:wrap;">
             <span>SPD:<span class="u-speed" style="color:#eee"></span></span>
             <span>ACC:<span class="u-acc" style="color:#eee"></span></span>
             <span>DMG:<span class="u-dmg" style="color:#eee"></span></span>
             <span>RNG:<span class="u-range" style="color:#eee"></span></span>
+            <span>EffR:<span class="u-eff-range" style="color:#eee"></span></span>
             <span>VIS:<span class="u-sight" style="color:#eee"></span></span>
           </div>
           <div class="status-row" style="font-size:0.75em; color:#aaa; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:1px;">
@@ -285,6 +286,18 @@ export class HUDManager {
         unit.damage.toString();
       (el.querySelector(".u-range") as HTMLElement).textContent =
         unit.attackRange.toString();
+
+      const S = unit.accuracy;
+      let effRange = unit.attackRange;
+      if (S < 100 && S > 0) {
+        const A = Math.sqrt((25 * S) / (100 - S));
+        effRange = Math.min(unit.attackRange, 3 * A);
+      } else if (S <= 0) {
+        effRange = 0;
+      }
+      (el.querySelector(".u-eff-range") as HTMLElement).textContent =
+        effRange.toFixed(1);
+
       (el.querySelector(".u-sight") as HTMLElement).textContent =
         unit.sightRange >= 100 ? "∞" : unit.sightRange.toString();
     });
