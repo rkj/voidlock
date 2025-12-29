@@ -127,6 +127,63 @@ export class HUDManager {
     } else if (extDiv) {
       extDiv.remove();
     }
+
+    this.updateEnemyIntel(state, rightPanel);
+  }
+
+  private updateEnemyIntel(state: GameState, rightPanel: HTMLElement) {
+    let intelDiv = rightPanel.querySelector(".enemy-intel") as HTMLElement;
+    if (!intelDiv) {
+      intelDiv = document.createElement("div");
+      intelDiv.className = "enemy-intel";
+      intelDiv.style.marginTop = "10px";
+      intelDiv.style.borderTop = "1px solid #444";
+      intelDiv.style.paddingTop = "10px";
+      rightPanel.appendChild(intelDiv);
+    }
+
+    const visibleEnemies = state.enemies.filter((e) => {
+      const cellKey = `${Math.floor(e.pos.x)},${Math.floor(e.pos.y)}`;
+      return state.visibleCells.includes(cellKey);
+    });
+
+    if (visibleEnemies.length === 0) {
+      intelDiv.innerHTML = "<h3>Enemy Intel</h3><p style='color:#666; font-size:0.8em;'>No hostiles detected.</p>";
+      return;
+    }
+
+    let html = "<h3>Enemy Intel</h3>";
+    // Group by type
+    const groups: { [type: string]: number } = {};
+    visibleEnemies.forEach((e) => {
+      groups[e.type] = (groups[e.type] || 0) + 1;
+    });
+
+    Object.keys(groups).forEach((type) => {
+      const count = groups[type];
+      const e = visibleEnemies.find((en) => en.type === type)!;
+      const fireRateVal = e.fireRate > 0 ? (1000 / e.fireRate).toFixed(1) : "0";
+      const dmgLabel = e.attackRange <= 1.5 ? "MDMG" : "DMG";
+      
+      html += `
+        <div style="margin-bottom:8px; border:1px solid #333; padding:4px 8px; background:#111; border-left: 3px solid #f44336;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong style="color:#f44336; font-size:0.9em;">${type} x${count}</strong>
+          </div>
+          <div style="font-size:0.7em; color:#888; display:grid; grid-template-columns: 1fr 1fr 1fr; gap:2px; margin-top:2px;">
+            <span>SPD:<span style="color:#eee">${(e.speed / 10).toFixed(1)}</span></span>
+            <span>ACC:<span style="color:#eee">${e.accuracy}</span></span>
+            <span>${dmgLabel}:<span style="color:#eee">${e.damage}</span></span>
+            <span>FR:<span style="color:#eee">${fireRateVal}</span></span>
+            <span>RNG:<span style="color:#eee">${e.attackRange}</span></span>
+          </div>
+        </div>
+      `;
+    });
+
+    if (intelDiv.innerHTML !== html) {
+      intelDiv.innerHTML = html;
+    }
   }
 
   private renderGameOver(rightPanel: HTMLElement, state: GameState) {
@@ -258,6 +315,7 @@ export class HUDManager {
             <span>SPD:<span class="u-speed" style="color:#eee"></span></span>
             <span>ACC:<span class="u-acc" style="color:#eee"></span></span>
             <span>DMG:<span class="u-dmg" style="color:#eee"></span></span>
+            <span>FR:<span class="u-firerate" style="color:#eee"></span></span>
             <span>RNG:<span class="u-range" style="color:#eee"></span></span>
             <span>EffR:<span class="u-eff-range" style="color:#eee"></span></span>
             <span>VIS:<span class="u-sight" style="color:#eee"></span></span>
@@ -284,6 +342,8 @@ export class HUDManager {
         unit.accuracy.toString();
       (el.querySelector(".u-dmg") as HTMLElement).textContent =
         unit.damage.toString();
+      (el.querySelector(".u-firerate") as HTMLElement).textContent =
+        unit.fireRate > 0 ? (1000 / unit.fireRate).toFixed(1) : "0";
       (el.querySelector(".u-range") as HTMLElement).textContent =
         unit.attackRange.toString();
 
