@@ -4,11 +4,12 @@ This directory contains types, constants, and utilities that are shared between 
 
 ## Files
 
-- `types.ts`: The central location for all shared interfaces, enums, and type definitions (e.g., `GameState`, `Unit`, `MapDefinition`, `Command`).
+- `types.ts`: The central location for all shared interfaces, enums, and type definitions (e.g., `GameState`, `Unit`, `MapDefinition`, `Command`, `Weapon`).
 - `PRNG.ts`: A deterministic Pseudo-Random Number Generator implementation.
 
 ## Functionality
 
+- **Weapon System**: Defines `Weapon` and `WeaponLibrary`, supporting units carrying both melee and ranged weapons.
 - **Type Safety**: Provides a common language for both threads to ensure data consistency.
 - **Protocol Definition**: The types here define the contract for the JSON observation/command protocol.
 - **Determinism**: The `PRNG` ensures that given the same seed, both the engine and any replays produce the same results.
