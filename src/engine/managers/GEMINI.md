@@ -14,8 +14,8 @@ This directory contains specialized managers that handle specific domains of the
 
 ## Functionality
 
-- **Modularity**: Each manager is responsible for a well-defined slice of game logic, keeping the `CoreEngine` maintainable.
-- **State Updates**: Managers are called during the `CoreEngine` tick loop to update their respective domains.
+- **Unit & Enemy Management**: `UnitManager` and `EnemyManager` handle movement and combat logic, including hit chance calculations based on the Angular Dispersion model (accuracy scales quadratically with distance).
+- **Infinite Sight**: Soldiers have infinite sight range by default, managed via `VisibilityManager`.
 - **Decoupled Pacing**: Managers like `UnitManager` and `Director` (via `CoreEngine`) support absolute-duration timed actions that remain consistent across different game speed settings.
 
 ## Connections
