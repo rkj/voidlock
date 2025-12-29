@@ -273,7 +273,7 @@ export const EnemyArchetypeLibrary: {
     fireRate: 400,
     accuracy: 50,
     attackRange: 1,
-    speed: 40,
+    speed: 30,
     ai: "Melee",
   },
   [EnemyType.WarriorDrone]: {
@@ -283,7 +283,7 @@ export const EnemyArchetypeLibrary: {
     fireRate: 800,
     accuracy: 75,
     attackRange: 1,
-    speed: 30,
+    speed: 24,
     ai: "Melee",
   },
   [EnemyType.PraetorianGuard]: {
@@ -293,7 +293,7 @@ export const EnemyArchetypeLibrary: {
     fireRate: 1500,
     accuracy: 85,
     attackRange: 1,
-    speed: 22,
+    speed: 18,
     ai: "Melee",
   },
   [EnemyType.SpitterAcid]: {
@@ -303,7 +303,7 @@ export const EnemyArchetypeLibrary: {
     fireRate: 1200,
     accuracy: 90,
     attackRange: 6,
-    speed: 32,
+    speed: 28,
     ai: "Ranged",
   },
   // Legacy support
@@ -314,7 +314,7 @@ export const EnemyArchetypeLibrary: {
     fireRate: 800,
     accuracy: 50,
     attackRange: 1,
-    speed: 28,
+    speed: 30,
     ai: "Melee",
   },
   [EnemyType.Hive]: {
