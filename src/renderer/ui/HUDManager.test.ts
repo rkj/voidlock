@@ -154,6 +154,8 @@ describe("HUDManager", () => {
     const objectivesDiv = document.querySelector(".objectives-status");
     expect(objectivesDiv).not.toBeNull();
     expect(objectivesDiv?.innerHTML).toContain("Exterminate: Status: Active");
-    expect(objectivesDiv?.innerHTML).toContain("Secure: Status: Completed at (5,5)");
+    expect(objectivesDiv?.innerHTML).toContain(
+      "Secure: Status: Completed at (5,5)",
+    );
   });
 });

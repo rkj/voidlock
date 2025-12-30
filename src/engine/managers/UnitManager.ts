@@ -830,7 +830,10 @@ export class UnitManager {
       if (weapon) {
         unit.damage = weapon.damage;
         unit.attackRange = weapon.range;
-        unit.accuracy = weapon.accuracy;
+        unit.accuracy =
+          unit.soldierAim +
+          (weapon.accuracy || 0) +
+          (unit.equipmentAccuracyBonus || 0);
         unit.fireRate =
           weapon.fireRate * (unit.speed > 0 ? 10 / unit.speed : 1);
       }

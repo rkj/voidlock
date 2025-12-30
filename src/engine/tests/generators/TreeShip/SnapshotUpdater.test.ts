@@ -11,8 +11,16 @@ describe("Snapshot Updater", () => {
     const ascii = MapGenerator.toAscii(map);
     const json = JSON.stringify(map, null, 2);
 
-    const asciiPath = path.join(__dirname, "snapshots", "NestedRoomsSpecific.ascii.txt");
-    const jsonPath = path.join(__dirname, "snapshots", "NestedRoomsSpecific.json");
+    const asciiPath = path.join(
+      __dirname,
+      "snapshots",
+      "NestedRoomsSpecific.ascii.txt",
+    );
+    const jsonPath = path.join(
+      __dirname,
+      "snapshots",
+      "NestedRoomsSpecific.json",
+    );
 
     fs.writeFileSync(asciiPath, ascii);
     fs.writeFileSync(jsonPath, json);
