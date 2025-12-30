@@ -32,6 +32,11 @@ export class GameClient {
   private startTime: number = 0;
   private replayTimeouts: any[] = [];
 
+  // Speed State
+  private currentScale: number = 1.0;
+  private lastNonPausedScale: number = 1.0;
+  private isPaused: boolean = false;
+
   constructor(mapGeneratorFactory: MapGeneratorFactory) {
     this.mapGeneratorFactory = mapGeneratorFactory;
     // Vite handles this import with ?worker suffix
@@ -96,6 +101,9 @@ export class GameClient {
       },
     };
     this.worker.postMessage(msg);
+
+    // Sync current scale to new worker
+    this.sendTimeScaleToWorker(this.isPaused ? 0.05 : this.currentScale);
   }
 
   public sendCommand(cmd: Command) {
@@ -119,6 +127,50 @@ export class GameClient {
   }
 
   public setTimeScale(scale: number) {
+    if (this.isPaused) {
+      this.lastNonPausedScale = scale;
+      // Do not update worker immediately, keep at 0.05
+    } else {
+      this.currentScale = scale;
+      this.lastNonPausedScale = scale;
+      this.sendTimeScaleToWorker(scale);
+    }
+  }
+
+  public pause() {
+    if (!this.isPaused) {
+      this.isPaused = true;
+      this.lastNonPausedScale = this.currentScale;
+      this.sendTimeScaleToWorker(0.05);
+    }
+  }
+
+  public resume() {
+    if (this.isPaused) {
+      this.isPaused = false;
+      this.currentScale = this.lastNonPausedScale;
+      this.sendTimeScaleToWorker(this.currentScale);
+    }
+  }
+
+  public togglePause() {
+    if (this.isPaused) this.resume();
+    else this.pause();
+  }
+
+  public getTimeScale(): number {
+    return this.isPaused ? 0.05 : this.currentScale;
+  }
+
+  public getTargetScale(): number {
+    return this.lastNonPausedScale;
+  }
+
+  public getIsPaused(): boolean {
+    return this.isPaused;
+  }
+
+  private sendTimeScaleToWorker(scale: number) {
     const msg: WorkerMessage = {
       type: "SET_TIME_SCALE",
       payload: scale,

@@ -17,6 +17,7 @@ gemini --model gemini-3-flash-preview \
   --allowed-tools "run_shell_command(npx tsc)" \
   --allowed-tools "run_shell_command(jj diff)" \
   --allowed-tools "run_shell_command(ls)" \
+  --allowed-tools "run_shell_command(tail)" \
   --allowed-tools "run_shell_command(tree)" \
   --allowed-tools "run_shell_command(grep)" \
   --allowed-tools "run_shell_command(bd show)" \
