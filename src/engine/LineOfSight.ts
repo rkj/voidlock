@@ -39,6 +39,43 @@ export class LineOfSight {
   }
 
   public hasLineOfSight(start: Vector2, end: Vector2): boolean {
+    return this.raycast(start, end, (boundary) => {
+      if (boundary.doorId) {
+        const door = this.doors.get(boundary.doorId);
+        if (
+          door &&
+          door.state !== "Open" &&
+          door.state !== "Destroyed" &&
+          door.targetState !== "Open"
+        ) {
+          return false;
+        }
+      } else if (boundary.isWall) {
+        return false;
+      }
+      return true;
+    });
+  }
+
+  public hasLineOfFire(start: Vector2, end: Vector2): boolean {
+    return this.raycast(start, end, (boundary) => {
+      if (boundary.doorId) {
+        const door = this.doors.get(boundary.doorId);
+        if (door && door.state !== "Open" && door.state !== "Destroyed") {
+          return false;
+        }
+      } else if (boundary.isWall) {
+        return false;
+      }
+      return true;
+    });
+  }
+
+  private raycast(
+    start: Vector2,
+    end: Vector2,
+    isPassable: (boundary: any) => boolean,
+  ): boolean {
     // Add small epsilon to start position towards end to avoid boundary singularities
     const dxRaw = end.x - start.x;
     const dyRaw = end.y - start.y;
@@ -110,17 +147,7 @@ export class LineOfSight {
       const boundary = this.graph.getBoundary(x, y, nextX, nextY);
       if (!boundary) return false;
 
-      if (boundary.doorId) {
-        const door = this.doors.get(boundary.doorId);
-        if (
-          door &&
-          door.state !== "Open" &&
-          door.state !== "Destroyed" &&
-          door.targetState !== "Open"
-        ) {
-          return false;
-        }
-      } else if (boundary.isWall) {
+      if (!isPassable(boundary)) {
         return false;
       }
 

@@ -76,7 +76,7 @@ export class EnemyManager {
           if (lockingTarget) targetUnit = lockingTarget;
         }
 
-        if (los.hasLineOfSight(enemy.pos, targetUnit.pos)) {
+        if (los.hasLineOfFire(enemy.pos, targetUnit.pos)) {
           if (
             !enemy.lastAttackTime ||
             state.t - enemy.lastAttackTime >= enemy.fireRate

@@ -9,7 +9,7 @@ This directory contains the core simulation logic for Xenopurge. It follows a de
 - `GameClient.ts`: Provides an interface for the renderer (main thread) to communicate with the engine (worker).
 - `GameGrid.ts`: Manages the logical grid, including walkability and movement validation between cells (respecting walls and doors).
 - `Graph.ts`: Represents the map as a graph of cells and boundaries (walls/doors).
-- `LineOfSight.ts`: Handles LOS calculations between units and cells.
+- `LineOfSight.ts`: Handles LOS and LOF (Line of Fire) calculations between units and cells. LOS allows seeing through opening doors, while LOF strictly requires doors to be fully open.
 - `MapGenerator.ts`: Orchestrates map generation using various strategies.
 - `Pathfinder.ts`: Implements A\* pathfinding on the `Graph`, respecting door states.
 - `worker.ts`: The Web Worker entry point that runs the `CoreEngine` loop.
