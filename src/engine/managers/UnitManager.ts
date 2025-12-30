@@ -609,7 +609,7 @@ export class UnitManager {
           if (lockingTarget) targetEnemy = lockingTarget;
         }
 
-        if (this.los.hasLineOfSight(unit.pos, targetEnemy.pos)) {
+        if (this.los.hasLineOfFire(unit.pos, targetEnemy.pos)) {
           if (
             !unit.lastAttackTime ||
             state.t - unit.lastAttackTime >= unit.fireRate
