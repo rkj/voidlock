@@ -82,6 +82,11 @@ export class GameClient {
     this.commandStream = [];
     this.startTime = Date.now();
 
+    // Reset speed state for new session
+    this.isPaused = false;
+    this.currentScale = 1.0;
+    this.lastNonPausedScale = 1.0;
+
     // Clear any pending replay timeouts
     this.replayTimeouts.forEach((id) => clearTimeout(id));
     this.replayTimeouts = [];
