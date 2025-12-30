@@ -448,6 +448,36 @@ export const EnemyArchetypeLibrary: {
   },
 };
 
+export type Enemy = Entity & {
+  type: EnemyType;
+  damage: number;
+  fireRate: number;
+  accuracy: number;
+  attackRange: number;
+  speed: number;
+  difficulty: number;
+  path?: Vector2[];
+  targetPos?: Vector2;
+  lastAttackTime?: number;
+  lastAttackTarget?: Vector2;
+};
+
+export type GameState = {
+  t: number;
+  map: MapDefinition;
+  units: Unit[];
+  enemies: Enemy[];
+  visibleCells: string[];
+  discoveredCells: string[];
+  objectives: Objective[];
+  threatLevel: number;
+  aliensKilled: number;
+  casualties: number;
+  status: "Playing" | "Victory" | "Defeat";
+  debugOverlayEnabled: boolean;
+  losOverlayEnabled: boolean;
+};
+
 // --- Protocol ---
 
 export type SquadConfig = {
