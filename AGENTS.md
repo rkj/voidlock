@@ -70,3 +70,4 @@ When finishing a feature or task, you MUST perform the following steps in order:
     - **Bug Fixes/Tasks:** If the task was a bug fix or refactor, increment the **PATCH** version (e.g., 0.1.0 -> 0.1.1).
     - Update `package.json` with the new version.
 4.  **Signal Completion**: Inform the Manager that the task is complete and ready for review. Do NOT perform the final commit or close the Beads task yourself.
+5.  **NEVER Close as Failed**: Beads does not support a "failed" state. If a task cannot be completed or is blocked, leave it OPEN. Add a comment explaining the issue and return control to the Manager. Closing a task means it is fixed/done.
