@@ -111,7 +111,7 @@ describe("Combat Accuracy (Percentage Model)", () => {
     const enemy = state.enemies[0];
     const damageDealt = 10000 - enemy.hp;
     const hits = damageDealt / 10;
-    
+
     // Expect around 50 hits
     expect(hits).toBeGreaterThan(35);
     expect(hits).toBeLessThan(65);
@@ -157,7 +157,7 @@ describe("Combat Accuracy (Percentage Model)", () => {
     const enemy = state.enemies[0];
     const damageDealt = 10000 - enemy.hp;
     const hits = damageDealt / 10;
-    
+
     // Expect around 96 hits
     expect(hits).toBeGreaterThan(90);
   });
@@ -242,7 +242,7 @@ describe("Combat Accuracy (Percentage Model)", () => {
     const unit = state.units[0];
     const damageDealt = 10000 - unit.hp;
     const hits = damageDealt / 10;
-    
+
     // Expect 100 hits because accuracy is 100
     expect(hits).toBe(100);
   });
@@ -326,7 +326,7 @@ describe("Combat Accuracy (Percentage Model)", () => {
     const unit = state.units[0];
     const damageDealt = 10000 - unit.hp;
     const hits = damageDealt / 10;
-    
+
     expect(hits).toBeGreaterThan(35);
     expect(hits).toBeLessThan(65);
   });

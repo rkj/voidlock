@@ -29,14 +29,21 @@ describe("VIP AI Behavior", () => {
     const wallMap: MapDefinition = {
       ...mockMap,
       walls: [
-        { p1: { x: 1, y: 0 }, p2: { x: 2, y: 0 } } // Wall between (1,0) and (2,0)
-      ]
+        { p1: { x: 1, y: 0 }, p2: { x: 2, y: 0 } }, // Wall between (1,0) and (2,0)
+      ],
     };
-    const engine = new CoreEngine(wallMap, 123, squadConfig, true, false, MissionType.EscortVIP);
-    
+    const engine = new CoreEngine(
+      wallMap,
+      123,
+      squadConfig,
+      true,
+      false,
+      MissionType.EscortVIP,
+    );
+
     // Clear and manually place units for predictable test
     engine.clearUnits();
-    
+
     // VIP at (4,0)
     engine.addUnit({
       id: "vip-1",
@@ -75,7 +82,7 @@ describe("VIP AI Behavior", () => {
 
     engine.update(100);
     let state = engine.getState();
-    let vip = state.units.find(u => u.id === "vip-1")!;
+    let vip = state.units.find((u) => u.id === "vip-1")!;
     expect(vip.aiEnabled).toBe(false);
 
     // Move soldier near VIP (past the wall)
@@ -89,15 +96,22 @@ describe("VIP AI Behavior", () => {
     for (let i = 0; i < 40; i++) engine.update(100);
 
     state = engine.getState();
-    vip = state.units.find(u => u.id === "vip-1")!;
+    vip = state.units.find((u) => u.id === "vip-1")!;
     expect(vip.aiEnabled).toBe(true);
   });
 
   it("should flee from nearby enemies", () => {
     const squadConfig: SquadConfig = [];
-    const engine = new CoreEngine(mockMap, 123, squadConfig, true, false, MissionType.EscortVIP);
+    const engine = new CoreEngine(
+      mockMap,
+      123,
+      squadConfig,
+      true,
+      false,
+      MissionType.EscortVIP,
+    );
     engine.clearUnits();
-    
+
     // Rescued VIP at (2,2)
     engine.addUnit({
       id: "vip-1",
@@ -140,20 +154,27 @@ describe("VIP AI Behavior", () => {
     // But in this small map, they should see each other.
 
     engine.update(100);
-    const updatedVip = engine.getState().units.find(u => u.id === "vip-1")!;
+    const updatedVip = engine.getState().units.find((u) => u.id === "vip-1")!;
     expect(updatedVip.state).toBe(UnitState.Moving);
     expect(updatedVip.activeCommand?.label).toBe("Fleeing");
-    
-    // It should move away from (2,1). Current is (2,2). 
+
+    // It should move away from (2,1). Current is (2,2).
     // Possible flee targets are (2,3), (2,4) etc.
     expect(updatedVip.targetPos!.y).toBeGreaterThan(2.5);
   });
 
   it("should prioritize extraction once discovered", () => {
     const squadConfig: SquadConfig = [];
-    const engine = new CoreEngine(mockMap, 123, squadConfig, true, false, MissionType.EscortVIP);
+    const engine = new CoreEngine(
+      mockMap,
+      123,
+      squadConfig,
+      true,
+      false,
+      MissionType.EscortVIP,
+    );
     engine.clearUnits();
-    
+
     // Rescued VIP at (0,0)
     engine.addUnit({
       id: "vip-1",
@@ -173,16 +194,23 @@ describe("VIP AI Behavior", () => {
     });
 
     engine.update(100);
-    const updatedVip = engine.getState().units.find(u => u.id === "vip-1")!;
+    const updatedVip = engine.getState().units.find((u) => u.id === "vip-1")!;
     expect(updatedVip.state).toBe(UnitState.Moving);
     expect(updatedVip.activeCommand?.label).toBe("Extracting");
   });
 
   it("should ignore objectives", () => {
     const squadConfig: SquadConfig = [];
-    const engine = new CoreEngine(mockMap, 123, squadConfig, true, false, MissionType.Default);
+    const engine = new CoreEngine(
+      mockMap,
+      123,
+      squadConfig,
+      true,
+      false,
+      MissionType.Default,
+    );
     engine.clearUnits();
-    
+
     // Rescued VIP at (0,0)
     engine.addUnit({
       id: "vip-1",
@@ -207,11 +235,11 @@ describe("VIP AI Behavior", () => {
       kind: "Recover",
       state: "Pending",
       targetCell: { x: 1, y: 1 },
-      visible: true
+      visible: true,
     });
 
     engine.update(100);
-    const updatedVip = engine.getState().units.find(u => u.id === "vip-1")!;
+    const updatedVip = engine.getState().units.find((u) => u.id === "vip-1")!;
     // VIP should be moving to extraction (4,4), NOT the objective (1,1)
     expect(updatedVip.state).toBe(UnitState.Moving);
     expect(updatedVip.activeCommand?.label).toBe("Extracting");

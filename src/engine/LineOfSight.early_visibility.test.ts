@@ -4,7 +4,10 @@ import { GameGrid } from "./GameGrid";
 import { MapDefinition, CellType, Door, Cell } from "../shared/types";
 
 describe("LineOfSight Early Visibility", () => {
-  const createOpeningDoorMap = (): { map: MapDefinition; doors: Map<string, Door> } => {
+  const createOpeningDoorMap = (): {
+    map: MapDefinition;
+    doors: Map<string, Door>;
+  } => {
     const doorId = "testDoor";
     const mapCells: Cell[] = [
       { x: 0, y: 0, type: CellType.Floor },
@@ -39,10 +42,10 @@ describe("LineOfSight Early Visibility", () => {
     const { map, doors } = createOpeningDoorMap();
     const doorGrid = new GameGrid(map);
     const doorLos = new LineOfSight(doorGrid.getGraph(), doors);
-    
+
     // This is expected to FAIL currently
-    expect(
-      doorLos.hasLineOfSight({ x: 0.5, y: 0.5 }, { x: 1.5, y: 0.5 }),
-    ).toBe(true);
+    expect(doorLos.hasLineOfSight({ x: 0.5, y: 0.5 }, { x: 1.5, y: 0.5 })).toBe(
+      true,
+    );
   });
 });

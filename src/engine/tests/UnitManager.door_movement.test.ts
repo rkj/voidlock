@@ -1,6 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { CoreEngine } from "../CoreEngine";
-import { CellType, MapDefinition, MissionType, UnitState } from "../../shared/types";
+import {
+  CellType,
+  MapDefinition,
+  MissionType,
+  UnitState,
+} from "../../shared/types";
 
 describe("UnitManager Door Movement", () => {
   const mockMap: MapDefinition = {
@@ -53,23 +58,25 @@ describe("UnitManager Door Movement", () => {
       sightRange: 5,
       speed: 2, // 2 tiles per second
       aiEnabled: true,
-      commandQueue: [{
+      commandQueue: [
+        {
           type: "MOVE_TO" as any,
           unitIds: ["u1"],
-          target: { x: 1, y: 0 }
-      }],
+          target: { x: 1, y: 0 },
+        },
+      ],
       archetypeId: "assault",
     });
 
     // Update 1: Door starts opening
     engine.update(100);
     const state1 = engine.getState();
-    const u1_1 = state1.units.find(u => u.id === "u1")!;
+    const u1_1 = state1.units.find((u) => u.id === "u1")!;
     const door1 = state1.map.doors![0];
-    
+
     expect(door1.targetState).toBe("Open");
     expect(door1.state).toBe("Closed");
-    
+
     // Unit should be "Waiting for Door" and NOT have moved significantly
     expect(u1_1.state).toBe(UnitState.WaitingForDoor);
     expect(u1_1.pos.x).toBeCloseTo(0.5);
@@ -77,17 +84,17 @@ describe("UnitManager Door Movement", () => {
     // Update 2: Wait more but door still opening
     engine.update(200);
     const state2 = engine.getState();
-    const u1_2 = state2.units.find(u => u.id === "u1")!;
+    const u1_2 = state2.units.find((u) => u.id === "u1")!;
     expect(u1_2.state).toBe(UnitState.WaitingForDoor);
     expect(u1_2.pos.x).toBeCloseTo(0.5);
 
     // Update 3: Door fully open
     engine.update(300); // 100 + 200 + 300 = 600 total ( > 500ms duration)
     const state3 = engine.getState();
-    const u1_3 = state3.units.find(u => u.id === "u1")!;
+    const u1_3 = state3.units.find((u) => u.id === "u1")!;
     const door3 = state3.map.doors![0];
     expect(door3.state).toBe("Open");
-    
+
     // Unit should now be moving
     expect(u1_3.state).toBe(UnitState.Moving);
   });

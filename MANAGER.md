@@ -1,7 +1,7 @@
 # Manager Agent Workflow (Super Agent)
 
 > **🚨 PRIME DIRECTIVE (READ THIS FIRST)**:
->
+
 1.  **YOU ARE A ROUTER**: Your job is to select a task and dispatch a worker.
 2.  **SEPARATE COMMANDS**: Always execute commands as separate tool calls. Do NOT chain them with `&&`, `||`, or `;`.
 3.  **DO NOT READ SOURCE CODE**: You are FORBIDDEN from reading `.ts`, `.html`, or `.css` files before the Verification phase. You do not need to understand the implementation details to assign the task.
@@ -28,6 +28,7 @@ At the start of every session, run:
 **Action**: Spawn a sub-agent to perform the implementation.
 
 **Rules**:
+
 1.  **Strict Adherence to Beads**: You are ONLY allowed to dispatch tasks that currently exist in the Beads (bd) system.
 2.  **No Ad-Hoc Instructions**: Do not invent new task descriptions or requirements in the prompt. The sub-agent must rely on `bd show <TASK_ID>` for truth. If requirements change, update the Beads task first.
 

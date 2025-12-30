@@ -24,7 +24,7 @@ This directory contains the main thread rendering logic and user interface for X
 - **Real-time Rendering**: Efficiently draws the game state at 60 FPS.
 - **Hierarchical Command Menu**: A keyboard-first interface for controlling squad members.
 - **Fog of War**: Implements visual shroud and discovery states based on the simulation data.
-- **Visual Feedback**: Provides tactical information through tracers, health bars, and status overlays.
+- **Visual Feedback**: Provides tactical information through tracers, health bars, and status overlays. Includes a high-precision threat bar in `index.html` with pixel-perfect divider alignment.
 
 ## Testing
 

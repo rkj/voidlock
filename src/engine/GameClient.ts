@@ -78,7 +78,7 @@ export class GameClient {
     this.startTime = Date.now();
 
     // Clear any pending replay timeouts
-    this.replayTimeouts.forEach(id => clearTimeout(id));
+    this.replayTimeouts.forEach((id) => clearTimeout(id));
     this.replayTimeouts = [];
 
     const msg: WorkerMessage = {
@@ -180,9 +180,11 @@ export class GameClient {
           payload: rc.cmd,
         };
         this.worker.postMessage(msg);
-        
+
         // Remove from list when fired
-        this.replayTimeouts = this.replayTimeouts.filter(id => id !== timeoutId);
+        this.replayTimeouts = this.replayTimeouts.filter(
+          (id) => id !== timeoutId,
+        );
       }, rc.t);
       this.replayTimeouts.push(timeoutId);
     });
@@ -194,7 +196,7 @@ export class GameClient {
 
   public stop() {
     // Clear any pending replay timeouts
-    this.replayTimeouts.forEach(id => clearTimeout(id));
+    this.replayTimeouts.forEach((id) => clearTimeout(id));
     this.replayTimeouts = [];
 
     const msg: WorkerMessage = {

@@ -27,7 +27,10 @@ export class UnitManager {
     private agentControlEnabled: boolean,
   ) {
     this.vipAi = new VipAI(gameGrid, pathfinder, los);
-    this.totalFloorCells = gameGrid.getGraph().cells.flat().filter(c => c.type === "Floor").length;
+    this.totalFloorCells = gameGrid
+      .getGraph()
+      .cells.flat()
+      .filter((c) => c.type === "Floor").length;
   }
 
   public update(
@@ -47,11 +50,16 @@ export class UnitManager {
       }
       // If unit has a forced target that is an objective
       if (u.forcedTargetId) {
-        const obj = state.objectives?.find((o) => o.targetEnemyId === u.forcedTargetId);
+        const obj = state.objectives?.find(
+          (o) => o.targetEnemyId === u.forcedTargetId,
+        );
         if (obj) claimedObjectives.add(obj.id);
       }
       // If unit has an active command targeting an objective
-      if (u.activeCommand?.type === CommandType.MOVE_TO && u.activeCommand.target) {
+      if (
+        u.activeCommand?.type === CommandType.MOVE_TO &&
+        u.activeCommand.target
+      ) {
         const target = u.activeCommand.target;
         const obj = state.objectives?.find((o) => {
           if (o.kind === "Recover" && o.targetCell) {
@@ -82,11 +90,13 @@ export class UnitManager {
       this.updateActiveWeapon(unit, state, newVisibleCellsSet);
 
       if (unit.archetypeId === "vip" && !unit.aiEnabled) {
-        const rescueSoldier = state.units.find(u => 
-          u.id !== unit.id && 
-          u.archetypeId !== "vip" && 
-          u.hp > 0 && 
-          (this.getDistance(unit.pos, u.pos) <= 1.5 || this.los.hasLineOfSight(u.pos, unit.pos))
+        const rescueSoldier = state.units.find(
+          (u) =>
+            u.id !== unit.id &&
+            u.archetypeId !== "vip" &&
+            u.hp > 0 &&
+            (this.getDistance(unit.pos, u.pos) <= 1.5 ||
+              this.los.hasLineOfSight(u.pos, unit.pos)),
         );
         if (rescueSoldier) {
           unit.aiEnabled = true;
@@ -96,7 +106,12 @@ export class UnitManager {
         }
       }
 
-      if (unit.archetypeId === "vip" && unit.aiEnabled && unit.state === UnitState.Idle && unit.commandQueue.length === 0) {
+      if (
+        unit.archetypeId === "vip" &&
+        unit.aiEnabled &&
+        unit.state === UnitState.Idle &&
+        unit.commandQueue.length === 0
+      ) {
         const vipCommand = this.vipAi.think(unit, state);
         if (vipCommand) {
           this.executeCommand(unit, vipCommand, false);
@@ -293,11 +308,12 @@ export class UnitManager {
       if (state.map.extraction) {
         const ext = state.map.extraction;
         const allOtherObjectivesComplete = state.objectives
-          .filter(o => o.kind !== "Escort")
-          .every(o => o.state === "Completed");
-        
-        const isVipAtExtraction = unit.archetypeId === "vip" && 
-          Math.floor(unit.pos.x) === ext.x && 
+          .filter((o) => o.kind !== "Escort")
+          .every((o) => o.state === "Completed");
+
+        const isVipAtExtraction =
+          unit.archetypeId === "vip" &&
+          Math.floor(unit.pos.x) === ext.x &&
           Math.floor(unit.pos.y) === ext.y;
 
         if (
@@ -483,7 +499,12 @@ export class UnitManager {
           }
 
           if (shouldReevaluate) {
-            const targetCell = this.findClosestUndiscoveredCell(unit, state, discoveredCellsSet, doors);
+            const targetCell = this.findClosestUndiscoveredCell(
+              unit,
+              state,
+              discoveredCellsSet,
+              doors,
+            );
             if (targetCell) {
               const newTarget = { x: targetCell.x, y: targetCell.y };
               const isDifferent =
@@ -626,7 +647,7 @@ export class UnitManager {
           const dy = unit.targetPos.y - unit.pos.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
 
-          const moveDist = (unit.speed / 10 * dt) / 1000;
+          const moveDist = ((unit.speed / 10) * dt) / 1000;
 
           const currentCell = {
             x: Math.floor(unit.pos.x),
@@ -766,7 +787,11 @@ export class UnitManager {
     }
   }
 
-  private updateActiveWeapon(unit: Unit, state: GameState, visibleCells: Set<string>) {
+  private updateActiveWeapon(
+    unit: Unit,
+    state: GameState,
+    visibleCells: Set<string>,
+  ) {
     if (!unit.meleeWeaponId || !unit.rangedWeaponId) return;
 
     const visibleEnemies = state.enemies.filter(
@@ -862,24 +887,24 @@ export class UnitManager {
 
     while (head < queue.length) {
       const curr = queue[head++];
-      
+
       const cellKey = `${curr.x},${curr.y}`;
       if (!discoveredCellsSet.has(cellKey)) {
-          const target = { x: curr.x + 0.5, y: curr.y + 0.5 };
-          const isClaimed = claimedTargets.some(
-            (claimed) => this.getDistance(target, claimed) < avoidRadius,
-          );
-          const tooCloseToUnit = otherUnitPositions.some(
-            (pos) => this.getDistance(target, pos) < unitAvoidRadius,
-          );
+        const target = { x: curr.x + 0.5, y: curr.y + 0.5 };
+        const isClaimed = claimedTargets.some(
+          (claimed) => this.getDistance(target, claimed) < avoidRadius,
+        );
+        const tooCloseToUnit = otherUnitPositions.some(
+          (pos) => this.getDistance(target, pos) < unitAvoidRadius,
+        );
 
-          if (!isClaimed && !tooCloseToUnit) {
-            return { x: curr.x, y: curr.y };
-          }
-          
-          if (!fallbackCell) {
-            fallbackCell = { x: curr.x, y: curr.y };
-          }
+        if (!isClaimed && !tooCloseToUnit) {
+          return { x: curr.x, y: curr.y };
+        }
+
+        if (!fallbackCell) {
+          fallbackCell = { x: curr.x, y: curr.y };
+        }
       }
 
       const neighbors = [
@@ -890,13 +915,18 @@ export class UnitManager {
       ];
 
       for (const n of neighbors) {
-        if (n.x >= 0 && n.x < state.map.width && n.y >= 0 && n.y < state.map.height) {
+        if (
+          n.x >= 0 &&
+          n.x < state.map.width &&
+          n.y >= 0 &&
+          n.y < state.map.height
+        ) {
           const nKey = `${n.x},${n.y}`;
           if (!visited.has(nKey) && this.gameGrid.isWalkable(n.x, n.y)) {
-              if (this.gameGrid.canMove(curr.x, curr.y, n.x, n.y, doors, true)) {
-                  visited.add(nKey);
-                  queue.push({ x: n.x, y: n.y });
-              }
+            if (this.gameGrid.canMove(curr.x, curr.y, n.x, n.y, doors, true)) {
+              visited.add(nKey);
+              queue.push({ x: n.x, y: n.y });
+            }
           }
         }
       }

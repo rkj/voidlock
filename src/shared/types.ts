@@ -129,6 +129,86 @@ export type Unit = Entity & {
   speed: number; // Speed factor (x10 integer, e.g. 15 = 1.5 tiles/s)
   channeling?: ChannelingState; // New
   archetypeId: string;
+  equipment?: EquipmentState; // New
+};
+
+export type Mine = {
+  id: string;
+  pos: Vector2;
+  damage: number;
+  radius: number;
+  ownerId: string;
+};
+
+// --- Item & Equipment Definitions ---
+
+export type ItemType = "Passive" | "Active";
+
+export type Item = {
+  id: string;
+  name: string;
+  type: ItemType;
+  // Passive effects
+  hpBonus?: number;
+  speedBonus?: number;
+  accuracyBonus?: number;
+  // Active effects
+  action?: "Heal" | "Grenade" | "Mine";
+  charges?: number;
+};
+
+export type EquipmentState = {
+  armorId?: string;
+  shoesId?: string;
+  inventory: {
+    itemId: string;
+    charges: number;
+  }[];
+};
+
+export const ItemLibrary: { [id: string]: Item } = {
+  frag_grenade: {
+    id: "frag_grenade",
+    name: "Frag Grenade",
+    type: "Active",
+    action: "Grenade",
+    charges: 2,
+  },
+  medkit: {
+    id: "medkit",
+    name: "Medkit",
+    type: "Active",
+    action: "Heal",
+    charges: 1,
+  },
+  mine: {
+    id: "mine",
+    name: "Landmine",
+    type: "Active",
+    action: "Mine",
+    charges: 2,
+  },
+  combat_shoes: {
+    id: "combat_shoes",
+    name: "Combat Shoes",
+    type: "Passive",
+    speedBonus: 5, // +0.5 tiles/s
+  },
+  light_armor: {
+    id: "light_armor",
+    name: "Light Armor",
+    type: "Passive",
+    hpBonus: 50,
+    speedBonus: -2,
+  },
+  heavy_armor: {
+    id: "heavy_armor",
+    name: "Heavy Armor",
+    type: "Passive",
+    hpBonus: 150,
+    speedBonus: -5,
+    accuracyBonus: -10,
+  },
 };
 
 // --- Archetype Definitions (Shared) ---
@@ -363,7 +443,15 @@ export const EnemyArchetypeLibrary: {
 
 // --- Protocol ---
 
-export type SquadConfig = { archetypeId: string; count: number }[]; // New type for Squad Config
+export type SquadConfig = {
+  archetypeId: string;
+  count: number;
+  equipment?: {
+    armorId?: string;
+    shoesId?: string;
+    itemIds?: string[];
+  };
+}[]; // New type for Squad Config
 
 export enum MissionType {
   Default = "Default",
@@ -405,6 +493,7 @@ export enum CommandType {
   SET_ENGAGEMENT = "SET_ENGAGEMENT",
   STOP = "STOP",
   RESUME_AI = "RESUME_AI",
+  USE_ITEM = "USE_ITEM",
 }
 
 export type MoveCommand = {
@@ -455,6 +544,15 @@ export type ResumeAiCommand = {
   label?: string;
 };
 
+export type UseItemCommand = {
+  type: CommandType.USE_ITEM;
+  unitId: string;
+  itemId: string;
+  target?: Vector2;
+  queue?: boolean;
+  label?: string;
+};
+
 export type Command =
   | MoveCommand
   | OpenDoorCommand
@@ -462,7 +560,8 @@ export type Command =
   | AttackTargetCommand
   | SetEngagementCommand
   | StopCommand
-  | ResumeAiCommand;
+  | ResumeAiCommand
+  | UseItemCommand;
 
 export interface IMapValidationResult {
   isValid: boolean;

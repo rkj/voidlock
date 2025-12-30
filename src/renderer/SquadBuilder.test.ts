@@ -43,7 +43,9 @@ describe("SquadBuilder UI logic", () => {
               : "#aaa";
       }
 
-      const launchBtn = document.getElementById("btn-launch-mission") as HTMLButtonElement;
+      const launchBtn = document.getElementById(
+        "btn-launch-mission",
+      ) as HTMLButtonElement;
       if (launchBtn) {
         launchBtn.disabled = total === 0 || total > MAX_SQUAD_SIZE;
       }
@@ -109,17 +111,25 @@ describe("SquadBuilder UI logic", () => {
   it("should disable launch button if squad is empty", () => {
     currentSquad = [];
     renderSquadBuilder();
-    const launchBtn = document.getElementById("btn-launch-mission") as HTMLButtonElement;
+    const launchBtn = document.getElementById(
+      "btn-launch-mission",
+    ) as HTMLButtonElement;
     expect(launchBtn.disabled).toBe(true);
-    expect(document.getElementById("squad-total-count")?.textContent).toBe("Total Soldiers: 0/4");
+    expect(document.getElementById("squad-total-count")?.textContent).toBe(
+      "Total Soldiers: 0/4",
+    );
   });
 
   it("should enable launch button if squad has 1-4 members", () => {
     currentSquad = [{ archetypeId: "assault", count: 1 }];
     renderSquadBuilder();
-    const launchBtn = document.getElementById("btn-launch-mission") as HTMLButtonElement;
+    const launchBtn = document.getElementById(
+      "btn-launch-mission",
+    ) as HTMLButtonElement;
     expect(launchBtn.disabled).toBe(false);
-    expect(document.getElementById("squad-total-count")?.textContent).toBe("Total Soldiers: 1/4");
+    expect(document.getElementById("squad-total-count")?.textContent).toBe(
+      "Total Soldiers: 1/4",
+    );
   });
 
   it("should prevent adding more than 4 members", () => {
@@ -151,15 +161,21 @@ describe("SquadBuilder UI logic", () => {
     assaultInput.dispatchEvent(new Event("change"));
 
     expect(currentSquad[0].count).toBe(3);
-    expect(document.getElementById("squad-total-count")?.textContent).toBe("Total Soldiers: 3/4");
+    expect(document.getElementById("squad-total-count")?.textContent).toBe(
+      "Total Soldiers: 3/4",
+    );
   });
 
   it("should NOT include VIP in total count for EscortVIP missions", () => {
     currentMissionType = MissionType.EscortVIP;
     currentSquad = [{ archetypeId: "assault", count: 2 }];
     renderSquadBuilder();
-    expect(document.getElementById("squad-total-count")?.textContent).toBe("Total Soldiers: 2/4");
-    const launchBtn = document.getElementById("btn-launch-mission") as HTMLButtonElement;
+    expect(document.getElementById("squad-total-count")?.textContent).toBe(
+      "Total Soldiers: 2/4",
+    );
+    const launchBtn = document.getElementById(
+      "btn-launch-mission",
+    ) as HTMLButtonElement;
     expect(launchBtn.disabled).toBe(false);
   });
 
@@ -168,8 +184,12 @@ describe("SquadBuilder UI logic", () => {
     currentSquad = [{ archetypeId: "assault", count: 4 }];
     renderSquadBuilder();
 
-    expect(document.getElementById("squad-total-count")?.textContent).toBe("Total Soldiers: 4/4");
-    const launchBtn = document.getElementById("btn-launch-mission") as HTMLButtonElement;
+    expect(document.getElementById("squad-total-count")?.textContent).toBe(
+      "Total Soldiers: 4/4",
+    );
+    const launchBtn = document.getElementById(
+      "btn-launch-mission",
+    ) as HTMLButtonElement;
     expect(launchBtn.disabled).toBe(false);
 
     const medicRow = document.querySelector('[data-arch-id="medic"]');

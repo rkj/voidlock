@@ -3,9 +3,11 @@
 **Status:** Implemented / In Progress
 
 ## Context
+
 The initial `MapDefinition` relied on `Cell` objects containing `walls` (n, e, s, w) and `Door` objects containing `segment` arrays. This led to data duplication (sync issues) and ambiguity in coordinate systems.
 
 ## Solution
+
 Transition to a **Graph of Cells with Shared Boundaries**.
 
 ### Runtime Architecture (`GameGrid`)

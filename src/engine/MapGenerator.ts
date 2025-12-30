@@ -780,7 +780,10 @@ export class MapGenerator {
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const cellIdx = y * width + x;
-        if (cells[cellIdx].type === CellType.Floor && !visited.has(`${x},${y}`)) {
+        if (
+          cells[cellIdx].type === CellType.Floor &&
+          !visited.has(`${x},${y}`)
+        ) {
           roomCount++;
           const roomId = `room-${roomCount}`;
           const queue: Vector2[] = [{ x, y }];

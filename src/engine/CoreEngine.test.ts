@@ -159,7 +159,7 @@ describe("CoreEngine with Objectives and Game Loop", () => {
     // Threat should have increased by scaledDt (30 seconds), so 3 turns
     // (30000/10000) * 10 = 30.0
     expect(engine.getState().threatLevel).toBeCloseTo(30.0, 3);
-    
+
     // game time state.t should be 30000
     expect(engine.getState().t).toBe(30000);
   });

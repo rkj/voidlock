@@ -8,12 +8,13 @@ The simulation runs at a fixed timestep (e.g., 60Hz or 100ms base tick) but supp
 
 **Time Handling:**
 The engine `update(scaledDt, realDt)` method accepts two deltas:
+
 1.  **`scaledDt` (Game Time)**: Affected by the speed slider (0.05x - 5.0x). Used for:
-    -   Unit Movement
-    -   Combat Cooldowns (Fire Rate)
-    -   Animation states
-    -   **Director Pacing**: Spawning enemies follows game time, ensuring difficulty scales with game speed.
-    -   **Timed Actions**: Interactions like "Extracting" or "Collecting" follow game time.
+    - Unit Movement
+    - Combat Cooldowns (Fire Rate)
+    - Animation states
+    - **Director Pacing**: Spawning enemies follows game time, ensuring difficulty scales with game speed.
+    - **Timed Actions**: Interactions like "Extracting" or "Collecting" follow game time.
 2.  **`realDt` (Real Time)**: Constant, unaffected by game speed. (Note: Most systems have been migrated to `scaledDt` to ensure consistent pausing and speed-scaling).
 
 **Update Sequence per Tick:**
@@ -25,7 +26,7 @@ The engine `update(scaledDt, realDt)` method accepts two deltas:
 5.  **Mission:** Update objectives.
 6.  **Units (ScaledDt):** Move units and update Action timers.
 7.  **Combat (ScaledDt):** Resolve shots.
-7.  **State Snapshot:** Emit `WorldState`.
+8.  **State Snapshot:** Emit `WorldState`.
 
 ### 2.2 Determinism
 
@@ -69,7 +70,7 @@ The visibility rules depend on the Mission/Map config:
 
 ## 9) Persistence (LocalStorage)
 
-*   `lastConfigJson`
-*   `savedPresets[]`
-*   `lastSeed`
-*   Optional: `replays[]` (bounded ring buffer)
+- `lastConfigJson`
+- `savedPresets[]`
+- `lastSeed`
+- Optional: `replays[]` (bounded ring buffer)

@@ -223,11 +223,13 @@ describe("Timed Actions (Extraction/Collection)", () => {
 
     // Advance with high game speed (scaledDt = 1000, realDt = 100)
     engine.update(1000, 100);
-    
+
     const unitAfterHighSpeed = engine.getState().units[0];
     // Remaining should have decreased by scaledDt (1000), not realDt (100)
-    expect(unitAfterHighSpeed.channeling?.remaining).toBe(initialRemaining - 1000);
-    
+    expect(unitAfterHighSpeed.channeling?.remaining).toBe(
+      initialRemaining - 1000,
+    );
+
     // state.t should have increased by scaledDt (1000)
     // initial state.t was 100 (from first update)
     // now it should be 1100.

@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { ArchetypeLibrary, EnemyArchetypeLibrary, EnemyType } from "../../shared/types";
+import {
+  ArchetypeLibrary,
+  EnemyArchetypeLibrary,
+  EnemyType,
+} from "../../shared/types";
 
 describe("Enemy Speed Tuning (uto8)", () => {
   it("should have enemy speeds that are 10-20% faster than corresponding soldier archetypes", () => {
@@ -8,8 +12,10 @@ describe("Enemy Speed Tuning (uto8)", () => {
     const heavySpeed = ArchetypeLibrary.heavy.speed;
 
     const xenoMiteSpeed = EnemyArchetypeLibrary[EnemyType.XenoMite].speed;
-    const warriorDroneSpeed = EnemyArchetypeLibrary[EnemyType.WarriorDrone].speed;
-    const praetorianSpeed = EnemyArchetypeLibrary[EnemyType.PraetorianGuard].speed;
+    const warriorDroneSpeed =
+      EnemyArchetypeLibrary[EnemyType.WarriorDrone].speed;
+    const praetorianSpeed =
+      EnemyArchetypeLibrary[EnemyType.PraetorianGuard].speed;
     const spitterSpeed = EnemyArchetypeLibrary[EnemyType.SpitterAcid].speed;
 
     // Xeno-Mite (Fast) vs Medic (Fastest soldier)
@@ -26,8 +32,8 @@ describe("Enemy Speed Tuning (uto8)", () => {
     // Target: 15 * 1.1 = 16.5 to 15 * 1.2 = 18
     expect(praetorianSpeed).toBeGreaterThanOrEqual(heavySpeed * 1.1);
     expect(praetorianSpeed).toBeLessThanOrEqual(heavySpeed * 1.2);
-    
-    // Spitter-Acid (Ranged) - should also be in a reasonable range, 
+
+    // Spitter-Acid (Ranged) - should also be in a reasonable range,
     // maybe compared to Medic since it needs to kite?
     // Target: 25 * 1.1 = 27.5 to 25 * 1.2 = 30
     expect(spitterSpeed).toBeGreaterThanOrEqual(medicSpeed * 1.1);

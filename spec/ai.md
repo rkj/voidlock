@@ -38,21 +38,21 @@ The automated soldier AI follows a multi-tier logic profile when not under direc
     - Once the map is fully discovered and all objectives are complete, units automatically pathfind to the extraction point.
 
 5.  **VIP Logic (MissionType: EscortVIP)**:
-    *   **Unit Profile**:
-        *   **Unarmed**: Cannot attack (`damage: 0`, `fireRate: 0`).
-        *   **Stats**: ~50% HP of a standard soldier. Good speed.
-        *   **Squad**: Does NOT count towards the 4-soldier limit.
-    *   **Mission Rules**:
-        *   **Start**: VIP spawns in a separate, distant room (different quadrant).
-        *   **Reveal**: VIP's starting location is revealed in FOW at mission start.
-        *   **Goal**: Extract ALL VIPs. Any VIP death = Immediate Loss.
-    *   **AI Behavior**:
-        *   **Passive**: Stays in starting room until a soldier enters LOS ("Rescue").
-        *   **Active (Rescued)**:
-            *   **Priority 1**: Flee from visible enemies (Run away).
-            *   **Priority 2**: Move toward Extraction Zone.
-            *   **Priority 3**: Stay near armed squad members (Follow).
-    *   **Multiple VIPs**: Missions can support more than one VIP unit. All must be extracted for success.
+    - **Unit Profile**:
+      - **Unarmed**: Cannot attack (`damage: 0`, `fireRate: 0`).
+      - **Stats**: ~50% HP of a standard soldier. Good speed.
+      - **Squad**: Does NOT count towards the 4-soldier limit.
+    - **Mission Rules**:
+      - **Start**: VIP spawns in a separate, distant room (different quadrant).
+      - **Reveal**: VIP's starting location is revealed in FOW at mission start.
+      - **Goal**: Extract ALL VIPs. Any VIP death = Immediate Loss.
+    - **AI Behavior**:
+      - **Passive**: Stays in starting room until a soldier enters LOS ("Rescue").
+      - **Active (Rescued)**:
+        - **Priority 1**: Flee from visible enemies (Run away).
+        - **Priority 2**: Move toward Extraction Zone.
+        - **Priority 3**: Stay near armed squad members (Follow).
+    - **Multiple VIPs**: Missions can support more than one VIP unit. All must be extracted for success.
 
 6.  **Timed Actions**:
     - Actions like extraction and picking up items take **5 seconds** (at 1x speed) to complete.
@@ -65,11 +65,13 @@ The automated soldier AI follows a multi-tier logic profile when not under direc
 
 Spawns occur on a fixed timer (default 30s).
 **Starting Threat:**
+
 - Missions can start at a configurable threat level (0% to 100%).
 - If the starting threat is > 10%, enemies are pre-spawned and autonomously roaming the ship at mission start.
 - Pre-spawning logic: For each completed 10% threat level increment, one full wave of enemies is spawned at mission initialization.
 
 **Algorithm:**
+
 1.  **Base Amount:** Map difficulty defines `X` base enemies. Currently, waves start at 1 enemy and scale up.
 2.  **Scaling:** `+1` enemy added to the pool per wave (turn). Wave size = `1 + currentTurn`.
 3.  **Distribution:** Enemies are distributed randomly among valid `SpawnPoints`.
