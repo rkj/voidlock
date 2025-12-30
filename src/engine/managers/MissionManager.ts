@@ -31,7 +31,7 @@ export class MissionManager {
 
     // Add Escort objective if it's an Escort mission OR if a VIP is present in the squad
     if (this.missionType === MissionType.EscortVIP || hasVipInSquad) {
-      if (!objectives.some(o => o.kind === "Escort")) {
+      if (!objectives.some((o) => o.kind === "Escort")) {
         objectives.push({
           id: "obj-escort",
           kind: "Escort",
@@ -44,7 +44,7 @@ export class MissionManager {
     if (this.missionType === MissionType.ExtractArtifacts) {
       // In ExtractArtifacts, we typically replace map objectives with artifacts,
       // but we should keep the Escort objective if it exists.
-      const escortObjectives = objectives.filter(o => o.kind === "Escort");
+      const escortObjectives = objectives.filter((o) => o.kind === "Escort");
       objectives = [...escortObjectives];
 
       const floors = map.cells.filter((c) => c.type === CellType.Floor);
@@ -135,7 +135,8 @@ export class MissionManager {
       // Special handling for Escort objectives: completion depends on ALL VIPs reaching extraction
       if (obj.kind === "Escort" || obj.id === "obj-escort") {
         const vips = state.units.filter((u) => u.archetypeId === "vip");
-        const allVipsExtracted = vips.length > 0 && vips.every((v) => v.state === UnitState.Extracted);
+        const allVipsExtracted =
+          vips.length > 0 && vips.every((v) => v.state === UnitState.Extracted);
         const anyVipDead = vips.some((v) => v.state === UnitState.Dead);
 
         if (allVipsExtracted) {
@@ -165,7 +166,8 @@ export class MissionManager {
     );
 
     if (this.missionType === MissionType.EscortVIP) {
-      const allVipsExtracted = vips.length > 0 && vips.every((v) => v.state === UnitState.Extracted);
+      const allVipsExtracted =
+        vips.length > 0 && vips.every((v) => v.state === UnitState.Extracted);
 
       if (allVipsExtracted) {
         state.status = "Won";

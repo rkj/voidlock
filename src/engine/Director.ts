@@ -33,7 +33,8 @@ export class Director {
     // Initialize turn and time based on starting threat level
     // Threat = (turn + progress) * 10
     this.turn = Math.floor(startingThreatLevel / this.threatPerTurn);
-    const progress = (startingThreatLevel % this.threatPerTurn) / this.threatPerTurn;
+    const progress =
+      (startingThreatLevel % this.threatPerTurn) / this.threatPerTurn;
     this.timeInCurrentTurn = progress * this.turnDuration;
   }
 
@@ -41,8 +42,10 @@ export class Director {
     // If starting threat is > 10%, enemies are pre-spawned and autonomously roaming.
     // Each turn represents 10% threat.
     // We spawn waves for each completed 10% threat.
-    const completedTurns = Math.floor(this.startingThreatLevel / this.threatPerTurn);
-    
+    const completedTurns = Math.floor(
+      this.startingThreatLevel / this.threatPerTurn,
+    );
+
     // We only pre-spawn if we have at least one completed turn (> 10% threat)
     if (this.startingThreatLevel > 10 && completedTurns > 0) {
       // Temporarily set turn to spawn appropriate wave sizes
@@ -135,7 +138,7 @@ export class Director {
       maxHp: arch.hp,
       type: arch.type,
       damage: arch.damage,
-      fireRate: arch.fireRate * (arch.speed > 0 ? (10 / arch.speed) : 1),
+      fireRate: arch.fireRate * (arch.speed > 0 ? 10 / arch.speed : 1),
       accuracy: arch.accuracy,
       attackRange: arch.attackRange,
       speed: arch.speed,

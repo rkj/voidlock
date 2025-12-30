@@ -63,13 +63,13 @@ describe("HUDManager", () => {
       onUnitClick,
       onAbortMission,
       onMenuInput,
-      "1.0.0"
+      "1.0.0",
     );
   });
 
   it("should update top bar stats", () => {
     hud.update(mockState, null);
-    
+
     const statusEl = document.getElementById("game-status");
     expect(statusEl?.innerHTML).toContain("TIME:</span>1.0s");
     expect(statusEl?.innerHTML).toContain("STATUS:</span>Playing");
@@ -80,7 +80,7 @@ describe("HUDManager", () => {
 
   it("should render soldier list", () => {
     hud.update(mockState, null);
-    
+
     const list = document.getElementById("soldier-list");
     const items = list?.querySelectorAll(".soldier-item");
     expect(items?.length).toBe(1);
@@ -91,47 +91,47 @@ describe("HUDManager", () => {
   it("should update HP bar and stats", () => {
     const woundedState = {
       ...mockState,
-      units: [{ ...mockState.units[0], hp: 50 }]
+      units: [{ ...mockState.units[0], hp: 50 }],
     };
-    
+
     hud.update(woundedState, null);
-    
+
     const hpText = document.querySelector(".u-hp");
     expect(hpText?.textContent).toBe("50/100");
-    
+
     const hpFill = document.querySelector(".hp-fill") as HTMLElement;
     expect(hpFill.style.width).toBe("50%");
   });
 
   it("should highlight selected unit", () => {
     hud.update(mockState, "s1");
-    
+
     const item = document.querySelector(".soldier-item");
     expect(item?.classList.contains("selected")).toBe(true);
   });
 
   it("should call onUnitClick when a soldier item is clicked", () => {
     hud.update(mockState, null);
-    
+
     const item = document.querySelector(".soldier-item") as HTMLElement;
     item.click();
-    
+
     expect(onUnitClick).toHaveBeenCalledWith(mockState.units[0]);
   });
 
   it("should call onMenuInput when a menu item is clicked", () => {
     mockMenuController.getRenderableState.mockReturnValue({
       title: "ACTIONS",
-      options: [
-        { key: "1", label: "1. MOVE", dataAttributes: { index: "1" } }
-      ]
+      options: [{ key: "1", label: "1. MOVE", dataAttributes: { index: "1" } }],
     });
 
     hud.update(mockState, null);
 
-    const menuItem = document.querySelector(".menu-item.clickable") as HTMLElement;
+    const menuItem = document.querySelector(
+      ".menu-item.clickable",
+    ) as HTMLElement;
     expect(menuItem).not.toBeNull();
-    
+
     menuItem.click();
     expect(onMenuInput).toHaveBeenCalledWith("1");
   });

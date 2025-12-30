@@ -8,6 +8,8 @@ import {
   SquadConfig,
   MissionType,
   ArchetypeLibrary,
+  ItemLibrary,
+  EquipmentState,
   Door,
   Vector2,
 } from "../shared/types";
@@ -93,7 +95,12 @@ export class CoreEngine {
     };
 
     // Mission Setup
-    this.missionManager.setupMission(this.state, map, this.enemyManager, squadConfig);
+    this.missionManager.setupMission(
+      this.state,
+      map,
+      this.enemyManager,
+      squadConfig,
+    );
 
     // Initialize Director
     const spawnPoints = map.spawnPoints || [];
@@ -108,8 +115,9 @@ export class CoreEngine {
     // Mission-specific Spawns
     if (missionType === MissionType.EscortVIP) {
       const vipArch = ArchetypeLibrary["vip"];
-      
-      const squadPos = map.squadSpawn || (map.squadSpawns && map.squadSpawns[0]) || { x: 0, y: 0 };
+
+      const squadPos = map.squadSpawn ||
+        (map.squadSpawns && map.squadSpawns[0]) || { x: 0, y: 0 };
       const vipSpawnPositions = this.findVipStartPositions(map, squadPos, 1);
 
       vipSpawnPositions.forEach((startPos, idx) => {
@@ -128,7 +136,8 @@ export class CoreEngine {
           maxHp: vipArch.baseHp,
           state: UnitState.Idle,
           damage: vipArch.damage,
-          fireRate: vipArch.fireRate * (vipArch.speed > 0 ? (10 / vipArch.speed) : 1),
+          fireRate:
+            vipArch.fireRate * (vipArch.speed > 0 ? 10 / vipArch.speed : 1),
           accuracy: vipArch.accuracy,
           attackRange: vipArch.attackRange,
           sightRange: vipArch.sightRange,
@@ -161,6 +170,48 @@ export class CoreEngine {
         const startX = startPos.x + 0.5;
         const startY = startPos.y + 0.5;
 
+        let hp = arch.baseHp;
+        let speed = arch.speed;
+        let accuracy = arch.accuracy;
+        const equipment: EquipmentState = {
+          inventory: [],
+        };
+
+        if (squadItem.equipment) {
+          if (squadItem.equipment.armorId) {
+            const armor = ItemLibrary[squadItem.equipment.armorId];
+            if (armor) {
+              hp += armor.hpBonus || 0;
+              speed += armor.speedBonus || 0;
+              accuracy += armor.accuracyBonus || 0;
+              equipment.armorId = armor.id;
+            }
+          }
+          if (squadItem.equipment.shoesId) {
+            const shoes = ItemLibrary[squadItem.equipment.shoesId];
+            if (shoes) {
+              hp += shoes.hpBonus || 0;
+              speed += shoes.speedBonus || 0;
+              accuracy += shoes.accuracyBonus || 0;
+              equipment.shoesId = shoes.id;
+            }
+          }
+          if (squadItem.equipment.itemIds) {
+            squadItem.equipment.itemIds.forEach((itemId) => {
+              const item = ItemLibrary[itemId];
+              if (item) {
+                equipment.inventory.push({
+                  itemId: item.id,
+                  charges: item.charges || 0,
+                });
+                hp += item.hpBonus || 0;
+                speed += item.speedBonus || 0;
+                accuracy += item.accuracyBonus || 0;
+              }
+            });
+          }
+        }
+
         this.addUnit({
           id: `${arch.id}-${unitCount++}`,
           archetypeId: arch.id,
@@ -172,20 +223,21 @@ export class CoreEngine {
             x: (this.prng.next() - 0.5) * 0.4,
             y: (this.prng.next() - 0.5) * 0.4,
           },
-          hp: arch.baseHp,
-          maxHp: arch.baseHp,
+          hp: hp,
+          maxHp: hp,
           state: UnitState.Idle,
           damage: arch.damage,
-          fireRate: arch.fireRate * (arch.speed > 0 ? (10 / arch.speed) : 1),
-          accuracy: arch.accuracy,
+          fireRate: arch.fireRate * (speed > 0 ? 10 / speed : 1),
+          accuracy: accuracy,
           attackRange: arch.attackRange,
           sightRange: arch.sightRange,
-          speed: arch.speed,
+          speed: speed,
           meleeWeaponId: arch.meleeWeaponId,
           rangedWeaponId: arch.rangedWeaponId,
           activeWeaponId: arch.rangedWeaponId,
           aiEnabled: true,
           commandQueue: [],
+          equipment,
         });
       }
     });
@@ -218,7 +270,11 @@ export class CoreEngine {
   ): Vector2[] {
     const rooms = new Map<string, Vector2[]>();
     map.cells.forEach((cell) => {
-      if (cell.type === "Floor" && cell.roomId && cell.roomId.startsWith("room-")) {
+      if (
+        cell.type === "Floor" &&
+        cell.roomId &&
+        cell.roomId.startsWith("room-")
+      ) {
         if (!rooms.has(cell.roomId)) rooms.set(cell.roomId, []);
         rooms.get(cell.roomId)!.push({ x: cell.x, y: cell.y });
       }
@@ -229,7 +285,12 @@ export class CoreEngine {
     const squadQX = squadPos.x < map.width / 2 ? 0 : 1;
     const squadQY = squadPos.y < map.height / 2 ? 0 : 1;
 
-    const candidateRooms: { roomId: string; dist: number; qx: number; qy: number }[] = [];
+    const candidateRooms: {
+      roomId: string;
+      dist: number;
+      qx: number;
+      qy: number;
+    }[] = [];
 
     rooms.forEach((cells, roomId) => {
       const center = {
@@ -258,10 +319,14 @@ export class CoreEngine {
 
     if (candidateRooms.length === 0) {
       // Fallback: any room except the one with squad spawn
-      const squadRoomId = map.cells.find(c => c.x === Math.floor(squadPos.x) && c.y === Math.floor(squadPos.y))?.roomId;
-      const otherRooms = Array.from(rooms.keys()).filter(id => id !== squadRoomId);
+      const squadRoomId = map.cells.find(
+        (c) => c.x === Math.floor(squadPos.x) && c.y === Math.floor(squadPos.y),
+      )?.roomId;
+      const otherRooms = Array.from(rooms.keys()).filter(
+        (id) => id !== squadRoomId,
+      );
       if (otherRooms.length > 0) {
-        return otherRooms.slice(0, count).map(id => {
+        return otherRooms.slice(0, count).map((id) => {
           const cells = rooms.get(id)!;
           return cells[this.prng.nextInt(0, cells.length - 1)];
         });

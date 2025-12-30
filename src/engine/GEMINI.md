@@ -11,7 +11,7 @@ This directory contains the core simulation logic for Xenopurge. It follows a de
 - `Graph.ts`: Represents the map as a graph of cells and boundaries (walls/doors).
 - `LineOfSight.ts`: Handles LOS calculations between units and cells.
 - `MapGenerator.ts`: Orchestrates map generation using various strategies.
-- `Pathfinder.ts`: Implements A* pathfinding on the `Graph`, respecting door states.
+- `Pathfinder.ts`: Implements A\* pathfinding on the `Graph`, respecting door states.
 - `worker.ts`: The Web Worker entry point that runs the `CoreEngine` loop.
 
 ## Subdirectories

@@ -79,7 +79,7 @@ describe("Coordinated Exploration", () => {
     // Manually set discovered cells to include only center and adjacent
     // Undiscovered: (0,0) and (4,0)
     // Both are at distance 2 from center.
-    (engine as any).state.discoveredCells = ['1,0', '2,0', '3,0'];
+    (engine as any).state.discoveredCells = ["1,0", "2,0", "3,0"];
 
     // Run update.
     engine.update(100);

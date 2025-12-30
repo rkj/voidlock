@@ -589,7 +589,10 @@ export class Renderer {
           const nextY = p.y * this.cellSize;
 
           // Dimmer further from the soldier
-          const alpha = Math.max(0.1, 1.0 - idx / Math.max(pathPoints.length, 5));
+          const alpha = Math.max(
+            0.1,
+            1.0 - idx / Math.max(pathPoints.length, 5),
+          );
           this.ctx.globalAlpha = alpha;
 
           this.ctx.beginPath();

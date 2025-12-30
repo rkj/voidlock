@@ -79,13 +79,13 @@ describe("HUDManager Stats & Enemy Intel", () => {
       onUnitClick,
       onAbortMission,
       onMenuInput,
-      "1.0.0"
+      "1.0.0",
     );
   });
 
   it("should display soldier fire rate (FR)", () => {
     hud.update(mockState, null);
-    
+
     const soldierItem = document.querySelector(".soldier-item");
     const frEl = soldierItem?.querySelector(".u-firerate");
     expect(frEl?.textContent).toBe("2.0");
@@ -93,7 +93,7 @@ describe("HUDManager Stats & Enemy Intel", () => {
 
   it("should display all requested soldier stats", () => {
     hud.update(mockState, null);
-    
+
     const item = document.querySelector(".soldier-item")!;
     expect(item.querySelector(".u-speed")?.textContent).toBe("2.0");
     expect(item.querySelector(".u-acc")?.textContent).toBe("90");
@@ -103,23 +103,31 @@ describe("HUDManager Stats & Enemy Intel", () => {
 
   it("should display enemy intel for visible enemies", () => {
     hud.update(mockState, null);
-    
+
     const intelDiv = document.querySelector(".enemy-intel");
     expect(intelDiv).not.toBeNull();
     expect(intelDiv?.innerHTML).toContain("Enemy Intel");
     expect(intelDiv?.innerHTML).toContain("Xeno-Mite x1");
-    
+
     // Check stats
-    expect(intelDiv?.innerHTML).toContain("SPD:<span style=\"color:#eee\">3.0</span>");
-    expect(intelDiv?.innerHTML).toContain("ACC:<span style=\"color:#eee\">50</span>");
-    expect(intelDiv?.innerHTML).toContain("MDMG:<span style=\"color:#eee\">15</span>");
-    expect(intelDiv?.innerHTML).toContain("FR:<span style=\"color:#eee\">1.3</span>"); // 1000/800 = 1.25 -> 1.3
+    expect(intelDiv?.innerHTML).toContain(
+      'SPD:<span style="color:#eee">3.0</span>',
+    );
+    expect(intelDiv?.innerHTML).toContain(
+      'ACC:<span style="color:#eee">50</span>',
+    );
+    expect(intelDiv?.innerHTML).toContain(
+      'MDMG:<span style="color:#eee">15</span>',
+    );
+    expect(intelDiv?.innerHTML).toContain(
+      'FR:<span style="color:#eee">1.3</span>',
+    ); // 1000/800 = 1.25 -> 1.3
   });
 
   it("should show 'No hostiles detected' when no enemies are visible", () => {
     const blindState = { ...mockState, visibleCells: [] };
     hud.update(blindState, null);
-    
+
     const intelDiv = document.querySelector(".enemy-intel");
     expect(intelDiv?.innerHTML).toContain("No hostiles detected.");
   });
@@ -127,14 +135,11 @@ describe("HUDManager Stats & Enemy Intel", () => {
   it("should update enemy count when multiple of same type are visible", () => {
     const multiState = {
       ...mockState,
-      enemies: [
-        ...mockState.enemies,
-        { ...mockState.enemies[0], id: "e2" }
-      ],
-      visibleCells: ["5,5"]
+      enemies: [...mockState.enemies, { ...mockState.enemies[0], id: "e2" }],
+      visibleCells: ["5,5"],
     };
     hud.update(multiState, null);
-    
+
     const intelDiv = document.querySelector(".enemy-intel");
     expect(intelDiv?.innerHTML).toContain("Xeno-Mite x2");
   });

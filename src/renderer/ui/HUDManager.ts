@@ -148,7 +148,8 @@ export class HUDManager {
     });
 
     if (visibleEnemies.length === 0) {
-      intelDiv.innerHTML = "<h3>Enemy Intel</h3><p style='color:#666; font-size:0.8em;'>No hostiles detected.</p>";
+      intelDiv.innerHTML =
+        "<h3>Enemy Intel</h3><p style='color:#666; font-size:0.8em;'>No hostiles detected.</p>";
       return;
     }
 
@@ -164,7 +165,7 @@ export class HUDManager {
       const e = visibleEnemies.find((en) => en.type === type)!;
       const fireRateVal = e.fireRate > 0 ? (1000 / e.fireRate).toFixed(1) : "0";
       const dmgLabel = e.attackRange <= 1.5 ? "MDMG" : "DMG";
-      
+
       html += `
         <div style="margin-bottom:8px; border:1px solid #333; padding:4px 8px; background:#111; border-left: 3px solid #f44336;">
           <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -227,13 +228,16 @@ export class HUDManager {
     });
 
     // Extraction Status (as an implicit objective if not already present)
-    if (state.map.extraction && !state.objectives.some(o => o.kind === "Escort")) {
+    if (
+      state.map.extraction &&
+      !state.objectives.some((o) => o.kind === "Escort")
+    ) {
       const extractedCount = state.units.filter(
         (u) => u.state === UnitState.Extracted,
       ).length;
       const totalUnits = state.units.length;
       const isCompleted = extractedCount > 0 && extractedCount === totalUnits;
-      
+
       const p = document.createElement("p");
       p.style.margin = "5px 0";
       const icon = extractedCount > 0 ? "✔" : "✘";
@@ -336,8 +340,9 @@ export class HUDManager {
       (el.querySelector(".hp-fill") as HTMLElement).style.width =
         `${hpPercent}%`;
 
-      (el.querySelector(".u-speed") as HTMLElement).textContent =
-        (unit.speed / 10).toFixed(1);
+      (el.querySelector(".u-speed") as HTMLElement).textContent = (
+        unit.speed / 10
+      ).toFixed(1);
       (el.querySelector(".u-acc") as HTMLElement).textContent =
         unit.accuracy.toString();
       (el.querySelector(".u-dmg") as HTMLElement).textContent =

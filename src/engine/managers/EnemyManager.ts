@@ -117,7 +117,7 @@ export class EnemyManager {
           const dy = enemy.targetPos.y - enemy.pos.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
 
-          const moveDist = (enemy.speed / 10 * dt) / 1000;
+          const moveDist = ((enemy.speed / 10) * dt) / 1000;
 
           if (dist <= moveDist + EPSILON) {
             enemy.pos = { ...enemy.targetPos };

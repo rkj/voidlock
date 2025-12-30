@@ -25,7 +25,7 @@ describe("Regression fgao: Pause Threat", () => {
       false,
       MissionType.Default,
       false,
-      0 // starting threat
+      0, // starting threat
     );
 
     const initialThreat = engine.getState().threatLevel;
@@ -49,7 +49,7 @@ describe("Regression fgao: Pause Threat", () => {
       false,
       MissionType.Default,
       false,
-      0
+      0,
     );
 
     // 10s game time, 1s real time (e.g. 10x speed)

@@ -78,28 +78,24 @@ describe("MapGenerator.assemble", () => {
       id: "closed_room_1x1",
       width: 1,
       height: 1,
-      cells: [
-        { x: 0, y: 0, openEdges: ["s"] },
-      ],
+      cells: [{ x: 0, y: 0, openEdges: ["s"] }],
     };
     const closedRoom2: TileDefinition = {
       id: "closed_room_1x1_2",
       width: 1,
       height: 1,
-      cells: [
-        { x: 0, y: 0, openEdges: ["n"] },
-      ],
+      cells: [{ x: 0, y: 0, openEdges: ["n"] }],
     };
-    const library = { 
-      ...SpaceHulkTiles, 
+    const library = {
+      ...SpaceHulkTiles,
       [closedRoom.id]: closedRoom,
-      [closedRoom2.id]: closedRoom2
+      [closedRoom2.id]: closedRoom2,
     };
 
     const assembly: TileAssembly = {
       tiles: [
         { tileId: "closed_room_1x1", x: 0, y: 0, rotation: 0 },
-        { tileId: "closed_room_1x1_2", x: 0, y: 1, rotation: 0 }
+        { tileId: "closed_room_1x1_2", x: 0, y: 1, rotation: 0 },
       ],
       globalSpawnPoints: [{ id: "sp1", cell: { x: 0, y: 0 } }],
       globalSquadSpawn: { cell: { x: 0, y: 1 } },

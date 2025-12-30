@@ -19,7 +19,11 @@ export class VipAI {
   ) {}
 
   public think(vip: Unit, state: GameState): Command | null {
-    if (vip.hp <= 0 || vip.state === UnitState.Extracted || vip.state === UnitState.Dead) {
+    if (
+      vip.hp <= 0 ||
+      vip.state === UnitState.Extracted ||
+      vip.state === UnitState.Dead
+    ) {
       return null;
     }
 
@@ -34,7 +38,11 @@ export class VipAI {
       const dist = this.getDistance(vip.pos, closestEnemy.pos);
 
       if (dist < 5) {
-        const fleeTarget = this.findFleeTarget(vip.pos, closestEnemy.pos, state);
+        const fleeTarget = this.findFleeTarget(
+          vip.pos,
+          closestEnemy.pos,
+          state,
+        );
         if (fleeTarget) {
           return {
             type: CommandType.MOVE_TO,
@@ -51,7 +59,10 @@ export class VipAI {
       const ext = state.map.extraction;
       const extKey = `${ext.x},${ext.y}`;
       if (state.discoveredCells.includes(extKey)) {
-        if (Math.floor(vip.pos.x) !== ext.x || Math.floor(vip.pos.y) !== ext.y) {
+        if (
+          Math.floor(vip.pos.x) !== ext.x ||
+          Math.floor(vip.pos.y) !== ext.y
+        ) {
           return {
             type: CommandType.MOVE_TO,
             unitIds: [vip.id],
@@ -72,8 +83,9 @@ export class VipAI {
         u.archetypeId !== "vip",
     );
 
-    const isAtExtraction = state.map.extraction && 
-      Math.floor(vip.pos.x) === state.map.extraction.x && 
+    const isAtExtraction =
+      state.map.extraction &&
+      Math.floor(vip.pos.x) === state.map.extraction.x &&
       Math.floor(vip.pos.y) === state.map.extraction.y;
 
     if (allies.length > 0 && !isAtExtraction) {
@@ -85,7 +97,10 @@ export class VipAI {
         return {
           type: CommandType.MOVE_TO,
           unitIds: [vip.id],
-          target: { x: Math.floor(closestAlly.pos.x), y: Math.floor(closestAlly.pos.y) },
+          target: {
+            x: Math.floor(closestAlly.pos.x),
+            y: Math.floor(closestAlly.pos.y),
+          },
           label: "Following",
         };
       }
@@ -98,7 +113,10 @@ export class VipAI {
     return Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
   }
 
-  private getClosest<T extends { pos: Vector2 }>(pos: Vector2, entities: T[]): T {
+  private getClosest<T extends { pos: Vector2 }>(
+    pos: Vector2,
+    entities: T[],
+  ): T {
     return entities.reduce((prev, curr) => {
       const prevDist = this.getDistance(pos, prev.pos);
       const currDist = this.getDistance(pos, curr.pos);
@@ -106,11 +124,21 @@ export class VipAI {
     });
   }
 
-  private findFleeTarget(start: Vector2, threat: Vector2, state: GameState): Vector2 | null {
+  private findFleeTarget(
+    start: Vector2,
+    threat: Vector2,
+    state: GameState,
+  ): Vector2 | null {
     const candidates: Vector2[] = [];
     const directions = [
-      { x: 1, y: 0 }, { x: -1, y: 0 }, { x: 0, y: 1 }, { x: 0, y: -1 },
-      { x: 1, y: 1 }, { x: 1, y: -1 }, { x: -1, y: 1 }, { x: -1, y: -1 }
+      { x: 1, y: 0 },
+      { x: -1, y: 0 },
+      { x: 0, y: 1 },
+      { x: 0, y: -1 },
+      { x: 1, y: 1 },
+      { x: 1, y: -1 },
+      { x: -1, y: 1 },
+      { x: -1, y: -1 },
     ];
 
     for (const dir of directions) {
@@ -118,8 +146,16 @@ export class VipAI {
         const tx = Math.floor(start.x + dir.x * dist);
         const ty = Math.floor(start.y + dir.y * dist);
 
-        if (tx >= 0 && tx < state.map.width && ty >= 0 && ty < state.map.height) {
-          if (this.grid.isWalkable(tx, ty) && state.discoveredCells.includes(`${tx},${ty}`)) {
+        if (
+          tx >= 0 &&
+          tx < state.map.width &&
+          ty >= 0 &&
+          ty < state.map.height
+        ) {
+          if (
+            this.grid.isWalkable(tx, ty) &&
+            state.discoveredCells.includes(`${tx},${ty}`)
+          ) {
             candidates.push({ x: tx, y: ty });
           }
         }
@@ -129,9 +165,9 @@ export class VipAI {
     if (candidates.length === 0) return null;
 
     return candidates
-      .map(c => ({
+      .map((c) => ({
         pos: c,
-        score: this.getDistance({ x: c.x + 0.5, y: c.y + 0.5 }, threat)
+        score: this.getDistance({ x: c.x + 0.5, y: c.y + 0.5 }, threat),
       }))
       .sort((a, b) => b.score - a.score)[0].pos;
   }

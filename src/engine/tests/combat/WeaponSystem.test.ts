@@ -1,5 +1,12 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { Unit, UnitState, ArchetypeLibrary, WeaponLibrary, MapDefinition, CellType } from "../../../shared/types";
+import {
+  Unit,
+  UnitState,
+  ArchetypeLibrary,
+  WeaponLibrary,
+  MapDefinition,
+  CellType,
+} from "../../../shared/types";
 import { GameGrid } from "../../GameGrid";
 import { Pathfinder } from "../../Pathfinder";
 import { LineOfSight } from "../../LineOfSight";
@@ -15,9 +22,9 @@ describe("Weapon System", () => {
 
   beforeEach(() => {
     const map: MapDefinition = {
-        width: 10,
-        height: 10,
-        cells: []
+      width: 10,
+      height: 10,
+      cells: [],
     };
     for (let y = 0; y < 10; y++) {
       for (let x = 0; x < 10; x++) {
@@ -105,7 +112,7 @@ describe("Weapon System", () => {
       enemies: [enemy],
       visibleCells: ["1,1"],
       discoveredCells: ["1,1"],
-      map: map
+      map: map,
     };
 
     unitManager.update(state, 100, new Map(), prng);
@@ -158,7 +165,7 @@ describe("Weapon System", () => {
       enemies: [enemy],
       visibleCells: ["1,1", "4,1"],
       discoveredCells: ["1,1", "4,1"],
-      map: map
+      map: map,
     };
 
     unitManager.update(state, 100, new Map(), prng);

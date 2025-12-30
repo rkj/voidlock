@@ -34,16 +34,18 @@ describe("VIP Mission Mechanics", () => {
       [{ archetypeId: "assault", count: 1 }],
       false,
       false,
-      MissionType.EscortVIP
+      MissionType.EscortVIP,
     );
 
     const state = engine.getState();
-    const vip = state.units.find(u => u.archetypeId === "vip");
+    const vip = state.units.find((u) => u.archetypeId === "vip");
     expect(vip).toBeDefined();
 
     // Kill the VIP
     const internalState = (engine as any).state;
-    const internalVip = internalState.units.find((u: any) => u.archetypeId === "vip");
+    const internalVip = internalState.units.find(
+      (u: any) => u.archetypeId === "vip",
+    );
     internalVip.hp = 0;
 
     engine.update(100);
@@ -58,15 +60,19 @@ describe("VIP Mission Mechanics", () => {
       [{ archetypeId: "assault", count: 1 }],
       false,
       false,
-      MissionType.EscortVIP
+      MissionType.EscortVIP,
     );
 
     // Manually add a second VIP for testing
-    const vip2 = { ...engine.getState().units.find(u => u.archetypeId === "vip")! };
+    const vip2 = {
+      ...engine.getState().units.find((u) => u.archetypeId === "vip")!,
+    };
     vip2.id = "vip-2";
     engine.addUnit(vip2);
 
-    expect(engine.getState().units.filter(u => u.archetypeId === "vip").length).toBe(2);
+    expect(
+      engine.getState().units.filter((u) => u.archetypeId === "vip").length,
+    ).toBe(2);
 
     // Kill one of the VIPs
     const internalState = (engine as any).state;
@@ -85,11 +91,13 @@ describe("VIP Mission Mechanics", () => {
       [{ archetypeId: "assault", count: 1 }],
       false,
       false,
-      MissionType.EscortVIP
+      MissionType.EscortVIP,
     );
 
     // Manually add a second VIP
-    const vip2 = { ...engine.getState().units.find(u => u.archetypeId === "vip")! };
+    const vip2 = {
+      ...engine.getState().units.find((u) => u.archetypeId === "vip")!,
+    };
     vip2.id = "vip-2";
     vip2.pos = { x: 2.5, y: 2.5 }; // Near extraction
     engine.addUnit(vip2);
@@ -117,7 +125,7 @@ describe("VIP Mission Mechanics", () => {
       cells: [],
       squadSpawn: { x: 0, y: 0 },
       extraction: { x: 9, y: 9 },
-      spawnPoints: [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }]
+      spawnPoints: [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }],
     };
 
     // Fill map with floor cells and assign rooms to quadrants
@@ -126,9 +134,10 @@ describe("VIP Mission Mechanics", () => {
         const qx = x < 5 ? 0 : 1;
         const qy = y < 5 ? 0 : 1;
         mapWithRooms.cells.push({
-          x, y,
+          x,
+          y,
           type: CellType.Floor,
-          roomId: `room-${qx}-${qy}`
+          roomId: `room-${qx}-${qy}`,
         });
       }
     }
@@ -139,16 +148,16 @@ describe("VIP Mission Mechanics", () => {
       [{ archetypeId: "assault", count: 1 }],
       false,
       false,
-      MissionType.EscortVIP
+      MissionType.EscortVIP,
     );
 
-    const vip = engine.getState().units.find(u => u.archetypeId === "vip");
+    const vip = engine.getState().units.find((u) => u.archetypeId === "vip");
     expect(vip).toBeDefined();
-    
+
     // Squad is in (0,0) quadrant. VIP should be in (1,0), (0,1), or (1,1).
     const vipQX = vip!.pos.x < 5 ? 0 : 1;
     const vipQY = vip!.pos.y < 5 ? 0 : 1;
-    
+
     expect(vipQX !== 0 || vipQY !== 0).toBe(true);
   });
 
@@ -163,16 +172,16 @@ describe("VIP Mission Mechanics", () => {
     // P is squad spawn at (0,0)
     // V is VIP at (2,0)
     // Wall between (0,0) and (2,0) is at x=1
-    
+
     const mapWithWall = MapGenerator.fromAscii(asciiMap);
-    
+
     const engine = new CoreEngine(
       mapWithWall,
       123,
       [{ archetypeId: "assault", count: 1 }],
       true, // Agent control enabled
       false,
-      MissionType.EscortVIP
+      MissionType.EscortVIP,
     );
 
     // Manually fix VIP position if fromAscii didn't place it (it uses 'S' for spawn, 'V' is not standard)
@@ -185,20 +194,22 @@ describe("VIP Mission Mechanics", () => {
 +-+-+-+
     `.trim();
     const mapWithWall2 = MapGenerator.fromAscii(asciiMap2);
-    
+
     const engine2 = new CoreEngine(
       mapWithWall2,
       123,
       [{ archetypeId: "assault", count: 1 }],
       true,
       false,
-      MissionType.EscortVIP
+      MissionType.EscortVIP,
     );
 
     const internalState = (engine2 as any).state;
     const vip = internalState.units.find((u: any) => u.archetypeId === "vip");
-    const soldier = internalState.units.find((u: any) => u.archetypeId === "assault");
-    
+    const soldier = internalState.units.find(
+      (u: any) => u.archetypeId === "assault",
+    );
+
     // Ensure VIP is in the room with 'O'
     vip.pos = { x: 2.5, y: 0.5 };
     soldier.pos = { x: 0.5, y: 0.5 };
@@ -209,10 +220,10 @@ describe("VIP Mission Mechanics", () => {
 
     // Move soldier to (1,0) - still blocked by wall at x=1?
     // In our wall model, wall is BETWEEN cells.
-    // The wall is between (0,0) and (1,0) in my ASCII? 
+    // The wall is between (0,0) and (1,0) in my ASCII?
     // +-+-+-+
     // |P| |O|  <- wall is between P and empty cell.
-    
+
     // Let's use coordinates. Wall at x=0.5 (between 0 and 1) and x=1.5 (between 1 and 2).
     // Cell (0,0) is P. Cell (1,0) is empty. Cell (2,0) is O.
     // Walls: (0,0)-(1,0) is '|' at x=1. (1,0)-(2,0) is ' ' (open).
@@ -220,10 +231,10 @@ describe("VIP Mission Mechanics", () => {
     // +-+-+-+
     // |P| |O|
     //   ^--- wall here.
-    
+
     // So (0,0) and (1,0) are separated by a wall.
     // Soldier at (0.5, 0.5), VIP at (2.5, 0.5).
-    // Line of sight must pass through (1,0). 
+    // Line of sight must pass through (1,0).
     // If there's a wall between (0,0) and (1,0), LOS is blocked.
 
     engine2.update(100);

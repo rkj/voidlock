@@ -1,11 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { Renderer } from "./Renderer";
-import {
-  GameState,
-  MapDefinition,
-  CellType,
-  UnitState,
-} from "../shared/types";
+import { GameState, MapDefinition, CellType, UnitState } from "../shared/types";
 
 // Mock Image
 class MockImage {
@@ -108,19 +103,19 @@ describe("Renderer Move Line", () => {
     // Current implementation only draws to targetPos (1.5, 0.5) -> (48, 16)
     // We expect it to also draw to subsequent waypoints in path:
     // (2.5, 0.5) and (2.5, 1.5)
-    
-    // Check lineTo calls. 
+
+    // Check lineTo calls.
     // Initial call: moveTo(unitPos), lineTo(targetPos)
     // Subsequent calls (expected): lineTo(path[1]), lineTo(path[2])...
-    
+
     // In current implementation, we only expect one lineTo for the movement line.
     // (Actually there might be other lineTo calls for health bars etc, but they use different coordinates)
-    
+
     const lineToCalls = (mockContext.lineTo as any).mock.calls;
-    
+
     // (1.5, 0.5) * 32 = (48, 16)
     expect(lineToCalls).toContainEqual([48, 16]);
-    
+
     // These are expected with the NEW implementation
     // path[1] = {x: 2, y: 0} -> targetPos (2.5, 0.5) -> (80, 16)
     // path[2] = {x: 2, y: 1} -> targetPos (2.5, 1.5) -> (80, 48)

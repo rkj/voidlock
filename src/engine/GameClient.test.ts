@@ -210,7 +210,9 @@ describe("GameClient", () => {
 
     // Advance time and ensure no COMMAND message is sent
     vi.advanceTimersByTime(5000);
-    const commandCalls = postMessageMock.mock.calls.filter(call => call[0].type === "COMMAND");
+    const commandCalls = postMessageMock.mock.calls.filter(
+      (call) => call[0].type === "COMMAND",
+    );
     expect(commandCalls.length).toBe(0);
   });
 
@@ -236,11 +238,21 @@ describe("GameClient", () => {
     postMessageMock.mockClear();
 
     // Re-initialize should clear previous replay timeouts
-    client.init(123, MapGeneratorType.Procedural, mockMap, true, false, true, defaultSquad);
+    client.init(
+      123,
+      MapGeneratorType.Procedural,
+      mockMap,
+      true,
+      false,
+      true,
+      defaultSquad,
+    );
 
     // Advance time and ensure no COMMAND message from the replay is sent
     vi.advanceTimersByTime(5000);
-    const commandCalls = postMessageMock.mock.calls.filter(call => call[0].type === "COMMAND");
+    const commandCalls = postMessageMock.mock.calls.filter(
+      (call) => call[0].type === "COMMAND",
+    );
     expect(commandCalls.length).toBe(0);
   });
 });

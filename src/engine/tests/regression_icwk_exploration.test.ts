@@ -25,43 +25,45 @@ describe("Exploration Efficiency Regression (ICWK)", () => {
 +-+-+-+-+
 `.trim();
     const map = MapGenerator.fromAscii(asciiMap);
-    
-    map.objectives = [{
+
+    map.objectives = [
+      {
         id: "obj_explore",
         kind: "Recover",
         targetCell: { x: 99, y: 99 },
-        state: "Pending"
-    }];
+        state: "Pending",
+      },
+    ];
 
     const engine = new CoreEngine(map, seed, squad, true, false);
     engine.clearUnits();
     engine.addUnit({
-        id: "u1",
-        archetypeId: "assault",
-        pos: { x: 0.5, y: 0.5 },
-        hp: 100,
-        maxHp: 100,
-        state: UnitState.Idle,
-        damage: 10,
-        fireRate: 100,
-        accuracy: 1000,
-        attackRange: 1,
-        sightRange: 0.1,
-        speed: 20,
-        commandQueue: [],
+      id: "u1",
+      archetypeId: "assault",
+      pos: { x: 0.5, y: 0.5 },
+      hp: 100,
+      maxHp: 100,
+      state: UnitState.Idle,
+      damage: 10,
+      fireRate: 100,
+      accuracy: 1000,
+      attackRange: 1,
+      sightRange: 0.1,
+      speed: 20,
+      commandQueue: [],
     });
 
-    const totalFloorCount = map.cells.filter(c => c.type === "Floor").length;
+    const totalFloorCount = map.cells.filter((c) => c.type === "Floor").length;
     const maxTicks = 1000;
     const dt = 100;
 
     for (let t = 0; t < maxTicks; t++) {
-        engine.update(dt);
-        const state = engine.getState();
-        const unit = state.units[0];
-        if (state.discoveredCells.length >= totalFloorCount) {
-            break;
-        }
+      engine.update(dt);
+      const state = engine.getState();
+      const unit = state.units[0];
+      if (state.discoveredCells.length >= totalFloorCount) {
+        break;
+      }
     }
 
     const discoveredCount = engine.getState().discoveredCells.length;

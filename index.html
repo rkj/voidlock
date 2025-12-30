@@ -372,7 +372,8 @@
 
             <div style="margin-top: 10px">
               <label for="map-starting-threat"
-                >Starting Threat Level: <span id="map-starting-threat-value">0</span>%</label
+                >Starting Threat Level:
+                <span id="map-starting-threat-value">0</span>%</label
               >
               <input
                 type="range"
@@ -381,7 +382,7 @@
                 min="0"
                 max="100"
                 step="10"
-                style="width: 100%;"
+                style="width: 100%"
               />
             </div>
 
@@ -510,8 +511,93 @@
                 box-sizing: border-box;
               "
             >
-              <!-- Dividers every 10% -->
-              <div style="position:absolute; left:10%; top:0; bottom:0; width:1px; background:#666; z-index:1; transform:translateX(-50%);"></div><div style="position:absolute; left:20%; top:0; bottom:0; width:1px; background:#666; z-index:1; transform:translateX(-50%);"></div><div style="position:absolute; left:30%; top:0; bottom:0; width:1px; background:#666; z-index:1; transform:translateX(-50%);"></div><div style="position:absolute; left:40%; top:0; bottom:0; width:1px; background:#666; z-index:1; transform:translateX(-50%);"></div><div style="position:absolute; left:50%; top:0; bottom:0; width:1px; background:#666; z-index:1; transform:translateX(-50%);"></div><div style="position:absolute; left:60%; top:0; bottom:0; width:1px; background:#666; z-index:1; transform:translateX(-50%);"></div><div style="position:absolute; left:70%; top:0; bottom:0; width:1px; background:#666; z-index:1; transform:translateX(-50%);"></div><div style="position:absolute; left:80%; top:0; bottom:0; width:1px; background:#666; z-index:1; transform:translateX(-50%);"></div><div style="position:absolute; left:90%; top:0; bottom:0; width:1px; background:#666; z-index:1; transform:translateX(-50%);"></div><div
+              <!-- Robust Flex-based Dividers every 10% -->
+              <div
+                style="
+                  position: absolute;
+                  inset: 0;
+                  display: flex;
+                  pointer-events: none;
+                  z-index: 1;
+                "
+              >
+                <div
+                  style="
+                    width: 10%;
+                    height: 100%;
+                    border-right: 1px solid #666;
+                    box-sizing: border-box;
+                  "
+                ></div>
+                <div
+                  style="
+                    width: 10%;
+                    height: 100%;
+                    border-right: 1px solid #666;
+                    box-sizing: border-box;
+                  "
+                ></div>
+                <div
+                  style="
+                    width: 10%;
+                    height: 100%;
+                    border-right: 1px solid #666;
+                    box-sizing: border-box;
+                  "
+                ></div>
+                <div
+                  style="
+                    width: 10%;
+                    height: 100%;
+                    border-right: 1px solid #666;
+                    box-sizing: border-box;
+                  "
+                ></div>
+                <div
+                  style="
+                    width: 10%;
+                    height: 100%;
+                    border-right: 1px solid #666;
+                    box-sizing: border-box;
+                  "
+                ></div>
+                <div
+                  style="
+                    width: 10%;
+                    height: 100%;
+                    border-right: 1px solid #666;
+                    box-sizing: border-box;
+                  "
+                ></div>
+                <div
+                  style="
+                    width: 10%;
+                    height: 100%;
+                    border-right: 1px solid #666;
+                    box-sizing: border-box;
+                  "
+                ></div>
+                <div
+                  style="
+                    width: 10%;
+                    height: 100%;
+                    border-right: 1px solid #666;
+                    box-sizing: border-box;
+                  "
+                ></div>
+                <div
+                  style="
+                    width: 10%;
+                    height: 100%;
+                    border-right: 1px solid #666;
+                    box-sizing: border-box;
+                  "
+                ></div>
+                <div
+                  style="width: 10%; height: 100%; box-sizing: border-box"
+                ></div>
+              </div>
+              <div
                 id="top-threat-fill"
                 style="
                   width: 0%;

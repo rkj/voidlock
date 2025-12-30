@@ -27,11 +27,11 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
       // Start loop
       loopId = setInterval(() => {
         if (!engine) return;
-        
+
         // TICK_RATE is 16ms, so 1.0 timeScale should result in 16ms scaledDt.
         const scaledDt = TICK_RATE * timeScale;
         const realDt = TICK_RATE;
-        
+
         engine.update(scaledDt, realDt);
 
         const state = engine.getState();
