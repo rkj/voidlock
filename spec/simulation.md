@@ -33,6 +33,11 @@ The engine `update(scaledDt, realDt)` method accepts two deltas:
 - **PRNG:** The engine owns a seeded Pseudo-Random Number Generator. `Math.random()` is forbidden.
 - **Replayability:** A run is fully defined by `{ Seed, ContentPack, Config, CommandLog }`.
 
+### 2.3 Door Mechanics
+
+- **Visibility (LOS):** Allowed immediately when a door starts opening (transitioning from `Closed` -> `Open`).
+- **Line of Fire (LOF):** Blocked until the door is **Fully Open** (`state === "Open"`). Shooting through a partially opening door is impossible. This applies symmetrically to both Squad and Enemy units.
+
 ## 5) Protocol: Engine ↔ Client
 
 ### 5.1 Observation Packet

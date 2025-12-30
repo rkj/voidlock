@@ -78,6 +78,15 @@ Example:
       - Any cell _not_ reached by this flood-fill must be converted to `Void` (Outer Space).
     - **Goal:** This prevents the rendering artifact where a Floor cell has an open edge (no wall) leading into a Void cell, effectively creating an "open wall to nowhere".
 
+### 8.5 Entity Placement Constraints (Strict)
+- **Exclusivity:** A single cell can contain at most **one** of the following static entities:
+  - Squad Spawn Point
+  - Enemy Spawn Point
+  - Extraction Point
+  - Objective Target
+- **Implementation:** Generators must use a shared `PlacementValidator` logic to track occupied cells during generation and reject candidates that are already occupied.
+- **Validation:** The `validate()` method must return an issue if any of these entities share the same `(x, y)` coordinates.
+
 **TreeShipGenerator (Sector Layout) Specifics:**
 The `TreeShipGenerator` produces maps with a structured layout:
 
