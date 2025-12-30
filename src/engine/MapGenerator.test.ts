@@ -52,7 +52,7 @@ describe("MapGenerator.validate", () => {
     ],
     spawnPoints: [{ id: "sp1", pos: { x: 0, y: 0 }, radius: 1 }],
     squadSpawn: { x: 1, y: 1 },
-    extraction: { x: 1, y: 1 },
+    extraction: { x: 1, y: 0 },
     objectives: [{ id: "obj1", kind: "Recover", targetCell: { x: 0, y: 1 } }],
     walls: [],
   });
