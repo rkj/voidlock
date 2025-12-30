@@ -27,8 +27,6 @@ let selectedUnitId: string | null = null;
 let currentGameState: GameState | null = null;
 let currentMapWidth = ConfigManager.getDefault().mapWidth;
 let currentMapHeight = ConfigManager.getDefault().mapHeight;
-let isPaused = false;
-let lastSpeed = 1.0;
 
 let fogOfWarEnabled = ConfigManager.getDefault().fogOfWarEnabled;
 let debugOverlayEnabled = ConfigManager.getDefault().debugOverlayEnabled;
@@ -101,7 +99,10 @@ const handleMenuInput = (key: string) => {
 };
 
 const togglePause = () => {
-  isPaused = !isPaused;
+  gameClient.togglePause();
+  const isPaused = gameClient.getIsPaused();
+  const lastSpeed = gameClient.getTargetScale();
+
   const btn = document.getElementById("btn-pause-toggle") as HTMLButtonElement;
   const gameSpeedSlider = document.getElementById(
     "game-speed",
@@ -109,12 +110,10 @@ const togglePause = () => {
   const gameSpeedValue = document.getElementById("speed-value");
 
   if (isPaused) {
-    lastSpeed = parseFloat(gameSpeedSlider.value);
-    gameClient.setTimeScale(0.05);
     if (btn) btn.textContent = "▶ Play";
-    if (gameSpeedValue) gameSpeedValue.textContent = "0.05x";
+    if (gameSpeedValue)
+      gameSpeedValue.textContent = `0.05x (Pending: ${lastSpeed.toFixed(1)}x)`;
   } else {
-    gameClient.setTimeScale(lastSpeed);
     if (btn) btn.textContent = "⏸ Pause";
     if (gameSpeedValue) gameSpeedValue.textContent = `${lastSpeed.toFixed(1)}x`;
     if (gameSpeedSlider) gameSpeedSlider.value = lastSpeed.toString();
@@ -213,6 +212,16 @@ const launchMission = () => {
   const seedDisplay = document.getElementById("seed-display");
   if (seedDisplay) seedDisplay.textContent = `Seed: ${currentSeed}`;
 
+  // Sync Speed Slider
+  const gameSpeedSlider = document.getElementById(
+    "game-speed",
+  ) as HTMLInputElement;
+  const gameSpeedValue = document.getElementById("speed-value");
+  const currentScale = gameClient.getTargetScale();
+  if (gameSpeedSlider) gameSpeedSlider.value = currentScale.toString();
+  if (gameSpeedValue)
+    gameSpeedValue.textContent = `${currentScale.toFixed(1)}x`;
+
   selectedUnitId = null;
   const rightPanel = document.getElementById("right-panel");
   if (rightPanel) rightPanel.innerHTML = "";
@@ -282,13 +291,12 @@ document.addEventListener("DOMContentLoaded", () => {
     gameSpeedSlider.max = "5.0";
     gameSpeedSlider.addEventListener("input", () => {
       const speed = parseFloat(gameSpeedSlider.value);
-      gameSpeedValue.textContent = `${speed.toFixed(1)}x`;
-      if (isPaused) {
-        lastSpeed = speed;
-        gameClient.setTimeScale(0.05);
+      gameClient.setTimeScale(speed);
+
+      if (gameClient.getIsPaused()) {
         gameSpeedValue.textContent = `0.05x (Pending: ${speed.toFixed(1)}x)`;
       } else {
-        gameClient.setTimeScale(speed);
+        gameSpeedValue.textContent = `${speed.toFixed(1)}x`;
       }
     });
   }
