@@ -48,6 +48,7 @@ You manage tasks in `.beads/README.md`. Tasks must be optimized for lightweight
 - **No Ambiguity:** Tasks must include "Input," "Processing Logic," and
   "Expected Output."
 - **Epics:** Group related tasks under a header (Epic).
+- **Persistence:** NEVER close a task as "failed". If a task is blocked or fails, leave it OPEN and annotate it with the failure reason. Closed means Fixed.
 
 # Output Format for New Work
 
