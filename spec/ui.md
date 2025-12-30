@@ -45,7 +45,12 @@ The application is divided into distinct screens to reduce UI clutter and improv
     - **Left Panel**: Squad List (Health, Status) + Quick Commands.
     - **Right Panel**:
       - **Objectives List**: Current status of mission objectives.
-      - **Extraction Status**: Location/Progress.
+        - **Format**: Unified visual component for both active gameplay and Game Over summary.
+        - **Style**: `[Icon] [Objective Kind]`.
+        - **Icons**: '○' (Pending), '✔' (Completed), '✘' (Failed).
+        - **Coordinates**: Hidden by default to prevent meta-gaming. Visible **ONLY** if the Debug Overlay is enabled.
+        - **Map Rendering**: Objectives at the Extraction Zone (e.g., "Extract Squad") must NOT render a separate "Objective" icon on the map, as the Extraction Zone itself is already visualized.
+      - **Extraction Status**: Location/Progress (Coordinates subject to the same visibility rules as objectives).
       - **Threat Meter**: Visual indicator of Director intensity.
     - **Bottom Panel**: Timeline/Event Log.
     - **Input**:
