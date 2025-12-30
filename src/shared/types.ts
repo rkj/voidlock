@@ -111,7 +111,8 @@ export type Unit = Entity & {
   visualJitter?: Vector2; // New: slight offset to prevent stacking
   damage: number;
   fireRate: number; // ms between shots
-  accuracy: number; // Hit chance percentage at 5 tiles
+  accuracy: number; // Hit chance percentage at 5 tiles (DEPRECATED)
+  soldierAim: number; // Base hit percentage (0-100)
   attackRange: number;
   sightRange: number;
   meleeWeaponId?: string; // New
@@ -218,7 +219,8 @@ export type Archetype = {
   baseHp: number;
   damage: number;
   fireRate: number; // ms
-  accuracy: number; // Hit chance percentage at 5 tiles
+  accuracy: number; // Hit chance percentage at 5 tiles (DEPRECATED)
+  soldierAim: number; // Base hit percentage (0-100)
   attackRange: number;
   sightRange: number;
   speed: number; // Speed factor (x10 integer, e.g. 15 = 1.5 tiles/s)
@@ -245,7 +247,7 @@ export const WeaponLibrary: { [id: string]: Weapon } = {
     type: "Melee",
     damage: 15,
     fireRate: 400,
-    accuracy: 100,
+    accuracy: 10,
     range: 1,
   },
   sword: {
@@ -254,7 +256,7 @@ export const WeaponLibrary: { [id: string]: Weapon } = {
     type: "Melee",
     damage: 35,
     fireRate: 800,
-    accuracy: 100,
+    accuracy: 15,
     range: 1,
   },
   hammer: {
@@ -263,7 +265,7 @@ export const WeaponLibrary: { [id: string]: Weapon } = {
     type: "Melee",
     damage: 80,
     fireRate: 1500,
-    accuracy: 100,
+    accuracy: 5,
     range: 1,
   },
   pistol: {
@@ -272,7 +274,7 @@ export const WeaponLibrary: { [id: string]: Weapon } = {
     type: "Ranged",
     damage: 15,
     fireRate: 500,
-    accuracy: 85,
+    accuracy: 0,
     range: 6,
   },
   pulse_rifle: {
@@ -281,7 +283,7 @@ export const WeaponLibrary: { [id: string]: Weapon } = {
     type: "Ranged",
     damage: 20,
     fireRate: 600,
-    accuracy: 95,
+    accuracy: 5,
     range: 10,
   },
   shotgun: {
@@ -290,7 +292,7 @@ export const WeaponLibrary: { [id: string]: Weapon } = {
     type: "Ranged",
     damage: 40,
     fireRate: 1000,
-    accuracy: 75,
+    accuracy: -10,
     range: 4,
   },
   flamethrower: {
@@ -299,7 +301,7 @@ export const WeaponLibrary: { [id: string]: Weapon } = {
     type: "Ranged",
     damage: 25,
     fireRate: 100,
-    accuracy: 80,
+    accuracy: -5,
     range: 3,
   },
 };
@@ -312,6 +314,7 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     damage: 20,
     fireRate: 600,
     accuracy: 95,
+    soldierAim: 90,
     attackRange: 10,
     sightRange: 100,
     speed: 20,
@@ -325,6 +328,7 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     damage: 15,
     fireRate: 500,
     accuracy: 85,
+    soldierAim: 80,
     attackRange: 6,
     sightRange: 100,
     speed: 25,
@@ -338,6 +342,7 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     damage: 40,
     fireRate: 1000,
     accuracy: 75,
+    soldierAim: 70,
     attackRange: 4,
     sightRange: 100,
     speed: 15,
@@ -351,6 +356,7 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     damage: 0,
     fireRate: 0,
     accuracy: 50,
+    soldierAim: 50,
     attackRange: 0,
     sightRange: 6,
     speed: 22,
