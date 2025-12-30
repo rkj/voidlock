@@ -6,6 +6,9 @@
 
 The simulation runs at a fixed timestep (e.g., 60Hz or 100ms base tick) but supports **Time Scaling**.
 
+**Initialization:**
+Upon receiving the `INIT` command, the engine **MUST** reset internal time scaling and pause states. It must apply the speed configured in the mission settings (default 1.0) and ensure the simulation is NOT paused (unless explicitly configured to start paused). It must NOT inherit transient states (like Active Pause or slow-mo) from a previous session.
+
 **Time Handling:**
 The engine `update(scaledDt, realDt)` method accepts two deltas:
 

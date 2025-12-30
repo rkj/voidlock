@@ -135,4 +135,25 @@ describe("HUDManager", () => {
     menuItem.click();
     expect(onMenuInput).toHaveBeenCalledWith("1");
   });
+
+  it("should render objectives in the right panel", () => {
+    const stateWithObjectives: GameState = {
+      ...mockState,
+      objectives: [
+        { kind: "Exterminate", state: "Active" as any },
+        {
+          kind: "Secure",
+          state: "Completed" as any,
+          targetCell: { x: 5, y: 5 },
+        },
+      ],
+    };
+
+    hud.update(stateWithObjectives, null);
+
+    const objectivesDiv = document.querySelector(".objectives-status");
+    expect(objectivesDiv).not.toBeNull();
+    expect(objectivesDiv?.innerHTML).toContain("Exterminate: Status: Active");
+    expect(objectivesDiv?.innerHTML).toContain("Secure: Status: Completed at (5,5)");
+  });
 });
