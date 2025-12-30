@@ -11,6 +11,7 @@ import {
 import { PRNG } from "../../shared/PRNG";
 import { MapGenerator } from "../MapGenerator";
 import { Graph } from "../Graph";
+import { PlacementValidator, OccupantType } from "./PlacementValidator";
 
 type GenCellType = "Void" | "Corridor" | "Room";
 
@@ -26,6 +27,7 @@ export class DenseShipGenerator {
   private squadSpawns?: Vector2[];
   private objectives: ObjectiveDefinition[] = [];
   private extraction?: Vector2;
+  private placementValidator: PlacementValidator = new PlacementValidator();
 
   // Internal tracking
   private genMap: GenCellType[];
@@ -51,6 +53,7 @@ export class DenseShipGenerator {
   }
 
   public generate(spawnPointCount: number = 2): MapDefinition {
+    this.placementValidator.clear();
     this.reset();
 
     // 1. Build Frame (Corridors)
@@ -414,6 +417,12 @@ export class DenseShipGenerator {
       }
     }
 
+    if (this.squadSpawns) {
+      this.squadSpawns.forEach((ss) =>
+        this.placementValidator.occupy(ss, OccupantType.SquadSpawn),
+      );
+    }
+
     // 3. Pick Extraction quadrant (opposite if possible)
     const oppositeMap: Record<number, number> = { 0: 3, 3: 0, 1: 2, 2: 1 };
     let extQuadIdx = oppositeMap[squadQuadIdx];
@@ -432,8 +441,15 @@ export class DenseShipGenerator {
     }
 
     const extQuad = quadrants[extQuadIdx];
-    const extCell = extQuad[this.prng.nextInt(0, extQuad.length - 1)];
-    this.extraction = { x: extCell.x, y: extCell.y };
+    const availableExtCells = extQuad.filter(
+      (c) => !this.placementValidator.isCellOccupied(c),
+    );
+    if (availableExtCells.length > 0) {
+      const extCell =
+        availableExtCells[this.prng.nextInt(0, availableExtCells.length - 1)];
+      this.extraction = { x: extCell.x, y: extCell.y };
+      this.placementValidator.occupy(this.extraction, OccupantType.Extraction);
+    }
 
     // 4. Enemy spawns and objectives (using rooms)
     const roomMap = new Map<string, Vector2[]>();
@@ -448,8 +464,6 @@ export class DenseShipGenerator {
     }
     const rooms = Array.from(roomMap.values());
     if (rooms.length === 0) {
-      // If no rooms exist (should not happen with this generator), fallback safely but strictly
-      // Actually, MapGenerator.validate will catch if it's in a corridor.
       return;
     }
 
@@ -467,35 +481,70 @@ export class DenseShipGenerator {
     const otherRooms = rooms.filter((r) => {
       const rid = this.roomIds[r[0].y * this.width + r[0].x];
       const isSquadRoom = squadRoomIds.has(rid);
-      const isExtRoom = r.some(
-        (p) => p.x === this.extraction?.x && p.y === this.extraction?.y,
-      );
-      return !isSquadRoom && !isExtRoom;
+      return !isSquadRoom;
     });
 
-    // We MUST NOT use rooms that contain squad spawns.
-    // If we don't have enough "otherRooms", we just place as many as we can.
-    const finalRooms = otherRooms;
-
-    for (let i = 0; i < Math.min(spawnPointCount, finalRooms.length); i++) {
-      const r = finalRooms[i];
-      this.spawnPoints.push({
-        id: `sp-enemy-${i}`,
-        pos: r[Math.floor(r.length / 2)],
-        radius: 1,
-      });
+    let enemySpawnsPlaced = 0;
+    for (
+      let i = 0;
+      i < otherRooms.length && enemySpawnsPlaced < spawnPointCount;
+      i++
+    ) {
+      const r = otherRooms[i];
+      const candidate = r[Math.floor(r.length / 2)];
+      if (this.placementValidator.occupy(candidate, OccupantType.EnemySpawn)) {
+        this.spawnPoints.push({
+          id: `sp-enemy-${enemySpawnsPlaced}`,
+          pos: { x: candidate.x, y: candidate.y },
+          radius: 1,
+        });
+        enemySpawnsPlaced++;
+      } else {
+        const available = r.find(
+          (c) => !this.placementValidator.isCellOccupied(c),
+        );
+        if (
+          available &&
+          this.placementValidator.occupy(available, OccupantType.EnemySpawn)
+        ) {
+          this.spawnPoints.push({
+            id: `sp-enemy-${enemySpawnsPlaced}`,
+            pos: { x: available.x, y: available.y },
+            radius: 1,
+          });
+          enemySpawnsPlaced++;
+        }
+      }
     }
 
-    const objRooms = finalRooms.slice(
-      Math.min(spawnPointCount, finalRooms.length),
-    );
-    for (let i = 0; i < Math.min(2, objRooms.length); i++) {
+    const objRooms = otherRooms.slice(enemySpawnsPlaced);
+    let objectivesPlaced = 0;
+    for (let i = 0; i < objRooms.length && objectivesPlaced < 2; i++) {
       const r = objRooms[i];
-      this.objectives.push({
-        id: `obj-${i}`,
-        kind: "Recover",
-        targetCell: r[Math.floor(r.length / 2)],
-      });
+      const candidate = r[Math.floor(r.length / 2)];
+      if (this.placementValidator.occupy(candidate, OccupantType.Objective)) {
+        this.objectives.push({
+          id: `obj-${objectivesPlaced}`,
+          kind: "Recover",
+          targetCell: { x: candidate.x, y: candidate.y },
+        });
+        objectivesPlaced++;
+      } else {
+        const available = r.find(
+          (c) => !this.placementValidator.isCellOccupied(c),
+        );
+        if (
+          available &&
+          this.placementValidator.occupy(available, OccupantType.Objective)
+        ) {
+          this.objectives.push({
+            id: `obj-${objectivesPlaced}`,
+            kind: "Recover",
+            targetCell: { x: available.x, y: available.y },
+          });
+          objectivesPlaced++;
+        }
+      }
     }
   }
 

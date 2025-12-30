@@ -7,6 +7,7 @@ This directory contains specific implementations of map generation strategies.
 - `SpaceshipGenerator.ts`: A generator that builds spaceship-like layouts, often involving corridors and rooms.
 - `TreeShipGenerator.ts`: Generates maps with a strict tree structure (no cycles) starting from corridors, aiming for a claustrophobic feel.
 - `DenseShipGenerator.ts`: A high-density generator designed for maximum floor coverage and exploration depth.
+- `PlacementValidator.ts`: Utility for tracking occupied cells and enforcing entity placement exclusivity (Squad Spawn, Enemy Spawn, Extraction, Objectives).
 
 ## Functionality
 

@@ -10,6 +10,7 @@ import {
 } from "../../shared/types";
 import { PRNG } from "../../shared/PRNG";
 import { MapGenerator } from "../MapGenerator";
+import { PlacementValidator, OccupantType } from "./PlacementValidator";
 
 export class TreeShipGenerator {
   private prng: PRNG;
@@ -23,6 +24,7 @@ export class TreeShipGenerator {
   private squadSpawns?: { x: number; y: number }[];
   private objectives: Objective[] = [];
   private extraction?: { x: number; y: number };
+  private placementValidator: PlacementValidator = new PlacementValidator();
   private frontier: {
     parentX: number;
     parentY: number;
@@ -48,6 +50,7 @@ export class TreeShipGenerator {
   }
 
   public generate(spawnPointCount: number = 1): MapDefinition {
+    this.placementValidator.clear();
     // 1. Initialize Grid (Void) and walls
     this.cells = Array(this.height * this.width)
       .fill(null)
@@ -389,6 +392,12 @@ export class TreeShipGenerator {
       }
     }
 
+    if (this.squadSpawns) {
+      this.squadSpawns.forEach((ss) =>
+        this.placementValidator.occupy(ss, OccupantType.SquadSpawn),
+      );
+    }
+
     // 3. Pick Extraction quadrant (opposite if possible)
     const oppositeMap: Record<number, number> = { 0: 3, 3: 0, 1: 2, 2: 1 };
     let extQuadIdx = oppositeMap[squadQuadIdx];
@@ -407,8 +416,10 @@ export class TreeShipGenerator {
     }
 
     const extQuad = quadrants[extQuadIdx];
-    const extCell = extQuad[this.prng.nextInt(0, extQuad.length - 1)];
+    const extIdx = this.prng.nextInt(0, extQuad.length - 1);
+    const extCell = extQuad[extIdx];
     this.extraction = { x: extCell.x, y: extCell.y };
+    this.placementValidator.occupy(this.extraction, OccupantType.Extraction);
 
     // 4. Enemy spawns
     const squadRoomIds = new Set<string>();
@@ -433,14 +444,38 @@ export class TreeShipGenerator {
 
     this.prng.shuffle(otherRooms);
 
-    for (let i = 0; i < Math.min(spawnPointCount, otherRooms.length); i++) {
+    let enemySpawnsPlaced = 0;
+    for (
+      let i = 0;
+      i < otherRooms.length && enemySpawnsPlaced < spawnPointCount;
+      i++
+    ) {
       const r = otherRooms[i];
-      const sp = r[this.prng.nextInt(0, r.length - 1)];
-      this.spawnPoints.push({
-        id: `spawn-${i + 1}`,
-        pos: { x: sp.x, y: sp.y },
-        radius: 1,
-      });
+      const spIdx = this.prng.nextInt(0, r.length - 1);
+      const sp = r[spIdx];
+      if (this.placementValidator.occupy(sp, OccupantType.EnemySpawn)) {
+        this.spawnPoints.push({
+          id: `spawn-${enemySpawnsPlaced + 1}`,
+          pos: { x: sp.x, y: sp.y },
+          radius: 1,
+        });
+        enemySpawnsPlaced++;
+      } else {
+        const available = r.find(
+          (c) => !this.placementValidator.isCellOccupied(c),
+        );
+        if (
+          available &&
+          this.placementValidator.occupy(available, OccupantType.EnemySpawn)
+        ) {
+          this.spawnPoints.push({
+            id: `spawn-${enemySpawnsPlaced + 1}`,
+            pos: { x: available.x, y: available.y },
+            radius: 1,
+          });
+          enemySpawnsPlaced++;
+        }
+      }
     }
 
     // 5. Objectives
@@ -452,27 +487,33 @@ export class TreeShipGenerator {
         Math.abs(c.x - referencePos.x) + Math.abs(c.y - referencePos.y) > 5
       );
     });
-    const finalObjCandidates =
-      objectiveCandidates.length > 0
-        ? objectiveCandidates
-        : floors.filter((c) => {
-            if (!c.roomId || !c.roomId.startsWith("room-")) return false;
-            if (squadRoomIds.has(c.roomId)) return false;
-            return (
-              Math.abs(c.x - referencePos.x) + Math.abs(c.y - referencePos.y) >
-              5
-            );
-          });
 
-    if (finalObjCandidates.length > 0) {
-      const objCell =
-        finalObjCandidates[this.prng.nextInt(0, finalObjCandidates.length - 1)];
-      this.objectives.push({
-        id: "obj-1",
-        kind: "Recover",
-        targetCell: { x: objCell.x, y: objCell.y },
-        state: "Pending",
-      });
+    if (objectiveCandidates.length > 0) {
+      const objIdx = this.prng.nextInt(0, objectiveCandidates.length - 1);
+      const objCell = objectiveCandidates[objIdx];
+      if (this.placementValidator.occupy(objCell, OccupantType.Objective)) {
+        this.objectives.push({
+          id: "obj-1",
+          kind: "Recover",
+          targetCell: { x: objCell.x, y: objCell.y },
+          state: "Pending",
+        });
+      } else {
+        const available = objectiveCandidates.find(
+          (c) => !this.placementValidator.isCellOccupied(c),
+        );
+        if (
+          available &&
+          this.placementValidator.occupy(available, OccupantType.Objective)
+        ) {
+          this.objectives.push({
+            id: "obj-1",
+            kind: "Recover",
+            targetCell: { x: available.x, y: available.y },
+            state: "Pending",
+          });
+        }
+      }
     }
   }
 

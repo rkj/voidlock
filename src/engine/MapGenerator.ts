@@ -343,6 +343,45 @@ export class MapGenerator {
       }
     }
 
+    // Cell Exclusivity (Section 8.5)
+    const occupiedCells = new Map<string, string>();
+    const checkExclusivity = (pos: Vector2, type: string) => {
+      const key = `${pos.x},${pos.y}`;
+      if (occupiedCells.has(key)) {
+        issues.push(
+          `${type} at (${pos.x}, ${pos.y}) overlaps with ${occupiedCells.get(key)}.`,
+        );
+      } else {
+        occupiedCells.set(key, type);
+      }
+    };
+
+    if (map.squadSpawn) checkExclusivity(map.squadSpawn, "Squad spawn");
+    if (map.squadSpawns) {
+      for (const ss of map.squadSpawns) {
+        // Skip if it's the same as squadSpawn to avoid false positives
+        if (
+          map.squadSpawn &&
+          ss.x === map.squadSpawn.x &&
+          ss.y === map.squadSpawn.y
+        )
+          continue;
+        checkExclusivity(ss, "Squad spawn");
+      }
+    }
+    if (spawnPoints) {
+      for (const sp of spawnPoints) {
+        checkExclusivity(sp.pos, `Enemy spawn ${sp.id}`);
+      }
+    }
+    if (extraction) checkExclusivity(extraction, "Extraction point");
+    if (objectives) {
+      for (const obj of objectives) {
+        if (obj.targetCell)
+          checkExclusivity(obj.targetCell, `Objective ${obj.id}`);
+      }
+    }
+
     if (spawnPoints && spawnPoints.length > 0) {
       const visitedCells = new Set<string>();
       const queue: Vector2[] = [];
