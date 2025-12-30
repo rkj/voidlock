@@ -79,6 +79,7 @@ Example:
     - **Goal:** This prevents the rendering artifact where a Floor cell has an open edge (no wall) leading into a Void cell, effectively creating an "open wall to nowhere".
 
 ### 8.5 Entity Placement Constraints (Strict)
+
 - **Exclusivity:** A single cell can contain at most **one** of the following static entities:
   - Squad Spawn Point
   - Enemy Spawn Point

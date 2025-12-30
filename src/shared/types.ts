@@ -131,6 +131,7 @@ export type Unit = Entity & {
   channeling?: ChannelingState; // New
   archetypeId: string;
   equipment?: EquipmentState; // New
+  equipmentAccuracyBonus: number; // Persisted equipment bonus
 };
 
 export type Mine = {
@@ -236,7 +237,7 @@ export type Weapon = {
   type: WeaponType;
   damage: number;
   fireRate: number; // ms
-  accuracy: number; // Hit chance at 5 tiles
+  accuracy: number; // Percentage modifier relative to soldierAim
   range: number;
 };
 

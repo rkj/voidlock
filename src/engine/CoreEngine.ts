@@ -9,6 +9,7 @@ import {
   MissionType,
   ArchetypeLibrary,
   ItemLibrary,
+  WeaponLibrary,
   EquipmentState,
   Door,
   Vector2,
@@ -138,13 +139,15 @@ export class CoreEngine {
           damage: vipArch.damage,
           fireRate:
             vipArch.fireRate * (vipArch.speed > 0 ? 10 / vipArch.speed : 1),
-          accuracy: vipArch.accuracy,
+          soldierAim: vipArch.soldierAim,
+          equipmentAccuracyBonus: 0,
+          accuracy: vipArch.soldierAim,
           attackRange: vipArch.attackRange,
           sightRange: vipArch.sightRange,
           speed: vipArch.speed,
           aiEnabled: false,
           commandQueue: [],
-        });
+        } as Unit);
 
         // Reveal VIP position
         const vipCellKey = `${Math.floor(startPos.x)},${Math.floor(startPos.y)}`;
@@ -172,7 +175,7 @@ export class CoreEngine {
 
         let hp = arch.baseHp;
         let speed = arch.speed;
-        let accuracy = arch.accuracy;
+        let equipmentAccuracyBonus = 0;
         const equipment: EquipmentState = {
           inventory: [],
         };
@@ -183,7 +186,7 @@ export class CoreEngine {
             if (armor) {
               hp += armor.hpBonus || 0;
               speed += armor.speedBonus || 0;
-              accuracy += armor.accuracyBonus || 0;
+              equipmentAccuracyBonus += armor.accuracyBonus || 0;
               equipment.armorId = armor.id;
             }
           }
@@ -192,7 +195,7 @@ export class CoreEngine {
             if (shoes) {
               hp += shoes.hpBonus || 0;
               speed += shoes.speedBonus || 0;
-              accuracy += shoes.accuracyBonus || 0;
+              equipmentAccuracyBonus += shoes.accuracyBonus || 0;
               equipment.shoesId = shoes.id;
             }
           }
@@ -206,11 +209,14 @@ export class CoreEngine {
                 });
                 hp += item.hpBonus || 0;
                 speed += item.speedBonus || 0;
-                accuracy += item.accuracyBonus || 0;
+                equipmentAccuracyBonus += item.accuracyBonus || 0;
               }
             });
           }
         }
+
+        const activeWeapon = WeaponLibrary[arch.rangedWeaponId || ""];
+        const weaponAccuracy = activeWeapon ? activeWeapon.accuracy : 0;
 
         this.addUnit({
           id: `${arch.id}-${unitCount++}`,
@@ -228,7 +234,9 @@ export class CoreEngine {
           state: UnitState.Idle,
           damage: arch.damage,
           fireRate: arch.fireRate * (speed > 0 ? 10 / speed : 1),
-          accuracy: accuracy,
+          soldierAim: arch.soldierAim,
+          equipmentAccuracyBonus: equipmentAccuracyBonus,
+          accuracy: arch.soldierAim + weaponAccuracy + equipmentAccuracyBonus,
           attackRange: arch.attackRange,
           sightRange: arch.sightRange,
           speed: speed,

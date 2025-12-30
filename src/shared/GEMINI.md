@@ -9,7 +9,7 @@ This directory contains types, constants, and utilities that are shared between 
 
 ## Functionality
 
-- **Weapon System**: Defines `Weapon` and `WeaponLibrary`, supporting units carrying both melee and ranged weapons.
+- **Weapon System**: Defines `Weapon` and `WeaponLibrary`, supporting units carrying both melee and ranged weapons. Accuracy is handled via a percentage-based modifier model (`soldierAim + weapon.accuracy + equipmentAccuracyBonus`).
 - **Type Safety**: Provides a common language for both threads to ensure data consistency.
 - **Protocol Definition**: The types here define the contract for the JSON observation/command protocol.
 - **Determinism**: The `PRNG` ensures that given the same seed, both the engine and any replays produce the same results.

@@ -29,7 +29,7 @@ describe("LineOfFire Regression (15hj)", () => {
       width: 2,
       height: 1,
       cells: mapCells,
-      doors: [door]
+      doors: [door],
     };
     const doorsMap = new Map<string, Door>();
     doorsMap.set(doorId, door);
@@ -42,7 +42,7 @@ describe("LineOfFire Regression (15hj)", () => {
 
     // LOS should be allowed when opening (current behavior)
     expect(los.hasLineOfSight(p1, p2)).toBe(true);
-    
+
     // LOF should be BLOCKED when opening
     // @ts-ignore - method doesn't exist yet
     expect(los.hasLineOfFire(p1, p2)).toBe(false);
@@ -72,7 +72,7 @@ describe("LineOfFire Regression (15hj)", () => {
       width: 2,
       height: 1,
       cells: mapCells,
-      doors: [door]
+      doors: [door],
     };
     const doorsMap = new Map<string, Door>();
     doorsMap.set(doorId, door);
@@ -112,7 +112,7 @@ describe("LineOfFire Regression (15hj)", () => {
       width: 2,
       height: 1,
       cells: mapCells,
-      doors: [door]
+      doors: [door],
     };
     const doorsMap = new Map<string, Door>();
     doorsMap.set(doorId, door);
