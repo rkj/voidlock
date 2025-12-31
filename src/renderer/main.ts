@@ -112,7 +112,7 @@ const togglePause = () => {
   if (isPaused) {
     if (btn) btn.textContent = "▶ Play";
     if (gameSpeedValue)
-      gameSpeedValue.textContent = `0.05x (Pending: ${lastSpeed.toFixed(1)}x)`;
+      gameSpeedValue.textContent = `0.05x`;
   } else {
     if (btn) btn.textContent = "⏸ Pause";
     if (gameSpeedValue) gameSpeedValue.textContent = `${lastSpeed.toFixed(1)}x`;
@@ -312,7 +312,7 @@ document.addEventListener("DOMContentLoaded", () => {
       gameClient.setTimeScale(speed);
 
       if (gameClient.getIsPaused()) {
-        gameSpeedValue.textContent = `0.05x (Pending: ${speed.toFixed(1)}x)`;
+        gameSpeedValue.textContent = `0.05x`;
       } else {
         gameSpeedValue.textContent = `${speed.toFixed(1)}x`;
       }
