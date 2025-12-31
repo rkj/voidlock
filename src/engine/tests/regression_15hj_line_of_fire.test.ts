@@ -44,7 +44,6 @@ describe("LineOfFire Regression (15hj)", () => {
     expect(los.hasLineOfSight(p1, p2)).toBe(true);
 
     // LOF should be BLOCKED when opening
-    // @ts-ignore - method doesn't exist yet
     expect(los.hasLineOfFire(p1, p2)).toBe(false);
   });
 
@@ -84,7 +83,6 @@ describe("LineOfFire Regression (15hj)", () => {
     const p2 = { x: 1.5, y: 0.5 };
 
     expect(los.hasLineOfSight(p1, p2)).toBe(true);
-    // @ts-ignore
     expect(los.hasLineOfFire(p1, p2)).toBe(true);
   });
 
@@ -124,7 +122,47 @@ describe("LineOfFire Regression (15hj)", () => {
     const p2 = { x: 1.5, y: 0.5 };
 
     expect(los.hasLineOfSight(p1, p2)).toBe(false);
-    // @ts-ignore
     expect(los.hasLineOfFire(p1, p2)).toBe(false);
+  });
+
+  it("should have LOS and LOF through a closing door (current behavior)", () => {
+    const doorId = "testDoor";
+    const mapCells: Cell[] = [
+      { x: 0, y: 0, type: CellType.Floor },
+      { x: 1, y: 0, type: CellType.Floor },
+    ];
+
+    const door: Door = {
+      id: doorId,
+      segment: [
+        { x: 0, y: 0 },
+        { x: 1, y: 0 },
+      ],
+      orientation: "Vertical",
+      state: "Open",
+      targetState: "Closed", // Door is closing
+      hp: 100,
+      maxHp: 100,
+      openDuration: 1,
+    };
+
+    const map: MapDefinition = {
+      width: 2,
+      height: 1,
+      cells: mapCells,
+      doors: [door],
+    };
+    const doorsMap = new Map<string, Door>();
+    doorsMap.set(doorId, door);
+
+    const grid = new GameGrid(map);
+    const los = new LineOfSight(grid.getGraph(), doorsMap);
+
+    const p1 = { x: 0.5, y: 0.5 };
+    const p2 = { x: 1.5, y: 0.5 };
+
+    // Currently allowed as state is still "Open"
+    expect(los.hasLineOfSight(p1, p2)).toBe(true);
+    expect(los.hasLineOfFire(p1, p2)).toBe(true);
   });
 });
