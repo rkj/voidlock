@@ -164,9 +164,7 @@ describe("HUDManager", () => {
     const gameOverState: GameState = {
       ...mockState,
       status: "Won" as any,
-      objectives: [
-        { kind: "Recover", state: "Completed" as any },
-      ],
+      objectives: [{ kind: "Recover", state: "Completed" as any }],
     };
 
     hud.update(gameOverState, null);

@@ -492,6 +492,15 @@ export class Renderer {
 
     state.objectives?.forEach((obj) => {
       if (obj.state === "Pending" && obj.targetCell && obj.visible) {
+        // Skip objective if it's at the extraction point (redundant visual)
+        if (
+          state.map.extraction &&
+          obj.targetCell.x === state.map.extraction.x &&
+          obj.targetCell.y === state.map.extraction.y
+        ) {
+          return;
+        }
+
         const x = obj.targetCell.x * this.cellSize;
         const y = obj.targetCell.y * this.cellSize;
 

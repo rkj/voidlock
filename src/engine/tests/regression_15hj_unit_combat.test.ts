@@ -46,7 +46,10 @@ describe("UnitManager Combat (15hj)", () => {
     const doorId = "door1";
     const door: Door = {
       id: doorId,
-      segment: [{ x: 0, y: 0 }, { x: 1, y: 0 }],
+      segment: [
+        { x: 0, y: 0 },
+        { x: 1, y: 0 },
+      ],
       orientation: "Vertical",
       state: "Closed",
       targetState: "Open", // Door is opening
@@ -123,10 +126,10 @@ describe("UnitManager Combat (15hj)", () => {
     // OR should it? If it can't fire, maybe it shouldn't be in Attacking state?
     // The requirement says "maintaining hasLineOfSight for target acquisition".
     // If target is acquired, unit usually stops and tries to shoot.
-    
+
     // Check if enemy took damage
     expect(enemy.hp).toBe(100); // Should NOT have taken damage
-    
+
     // Current behavior: unit.state becomes Attacking only if hasLineOfFire is true.
     // Wait, let's check the code again.
     /*
