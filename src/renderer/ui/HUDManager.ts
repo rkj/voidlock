@@ -102,33 +102,49 @@ export class HUDManager {
       objectivesDiv.className = "objectives-status";
       rightPanel.appendChild(objectivesDiv);
     }
-    let objHtml = "<h3>Objectives</h3>";
-    state.objectives.forEach((obj) => {
-      objHtml += `<p>${obj.kind}: Status: ${obj.state}${obj.targetCell ? ` at (${obj.targetCell.x},${obj.targetCell.y})` : ""}</p>`;
-    });
+    const objHtml = "<h3>Objectives</h3>" + this.renderObjectivesList(state);
     if (objectivesDiv.innerHTML !== objHtml) objectivesDiv.innerHTML = objHtml;
 
-    // Extraction
-    let extDiv = rightPanel.querySelector(".extraction-status") as HTMLElement;
-    if (state.map.extraction) {
-      if (!extDiv) {
-        extDiv = document.createElement("div");
-        extDiv.className = "extraction-status";
-        rightPanel.appendChild(extDiv);
-      }
+    // Remove old extraction div if it exists (now handled by objectives)
+    const extDiv = rightPanel.querySelector(".extraction-status");
+    if (extDiv) extDiv.remove();
+
+    this.updateEnemyIntel(state, rightPanel);
+  }
+
+  private renderObjectivesList(state: GameState): string {
+    let html = "";
+    state.objectives.forEach((obj) => {
+      const isCompleted = obj.state === "Completed";
+      const isFailed = obj.state === "Failed";
+      const icon = isCompleted ? "✔" : isFailed ? "✘" : "○";
+      const color = isCompleted ? "#0f0" : isFailed ? "#f00" : "#888";
+
+      html += `<p style="margin: 5px 0;">
+        <span style="color:${color}; margin-right:8px; font-weight:bold;">${icon}</span>
+        ${obj.kind}${obj.targetCell ? ` at (${obj.targetCell.x},${obj.targetCell.y})` : ""}
+        <span style="color:#666; font-size:0.8em;">(${obj.state})</span>
+      </p>`;
+    });
+
+    // Extraction Status (as an implicit objective if not already present)
+    if (
+      state.map.extraction &&
+      !state.objectives.some((o) => o.kind === "Escort")
+    ) {
       const extractedCount = state.units.filter(
         (u) => u.state === UnitState.Extracted,
       ).length;
       const totalUnits = state.units.length;
-      let extHtml = `<h3>Extraction</h3><p>Location: (${state.map.extraction.x},${state.map.extraction.y})</p>`;
-      if (totalUnits > 0)
-        extHtml += `<p>Extracted: ${extractedCount}/${totalUnits}</p>`;
-      if (extDiv.innerHTML !== extHtml) extDiv.innerHTML = extHtml;
-    } else if (extDiv) {
-      extDiv.remove();
+      const icon = extractedCount > 0 ? "✔" : "✘";
+      const color = extractedCount > 0 ? "#0f0" : "#f00";
+      const locStr = ` at (${state.map.extraction.x},${state.map.extraction.y})`;
+      html += `<p style="margin: 5px 0;">
+        <span style="color:${color}; margin-right:8px; font-weight:bold;">${icon}</span>
+        Extraction (${extractedCount}/${totalUnits})${locStr}
+      </p>`;
     }
-
-    this.updateEnemyIntel(state, rightPanel);
+    return html;
   }
 
   private updateEnemyIntel(state: GameState, rightPanel: HTMLElement) {
@@ -209,42 +225,7 @@ export class HUDManager {
     objectivesDiv.style.textAlign = "left";
     objectivesDiv.style.borderBottom = "1px solid #444";
     objectivesDiv.style.paddingBottom = "10px";
-
-    const objTitle = document.createElement("h3");
-    objTitle.textContent = "OBJECTIVES";
-    objTitle.style.fontSize = "0.9em";
-    objTitle.style.color = "#888";
-    objTitle.style.marginTop = "0";
-    objectivesDiv.appendChild(objTitle);
-
-    state.objectives.forEach((obj) => {
-      const p = document.createElement("p");
-      p.style.margin = "5px 0";
-      const isCompleted = obj.state === "Completed";
-      const icon = isCompleted ? "✔" : "✘";
-      const color = isCompleted ? "#0f0" : "#f00";
-      p.innerHTML = `<span style="color:${color}; margin-right:8px; font-weight:bold;">${icon}</span> ${obj.kind}${obj.targetCell ? ` at (${obj.targetCell.x},${obj.targetCell.y})` : ""}`;
-      objectivesDiv.appendChild(p);
-    });
-
-    // Extraction Status (as an implicit objective if not already present)
-    if (
-      state.map.extraction &&
-      !state.objectives.some((o) => o.kind === "Escort")
-    ) {
-      const extractedCount = state.units.filter(
-        (u) => u.state === UnitState.Extracted,
-      ).length;
-      const totalUnits = state.units.length;
-      const isCompleted = extractedCount > 0 && extractedCount === totalUnits;
-
-      const p = document.createElement("p");
-      p.style.margin = "5px 0";
-      const icon = extractedCount > 0 ? "✔" : "✘";
-      const color = extractedCount > 0 ? "#0f0" : "#f00";
-      p.innerHTML = `<span style="color:${color}; margin-right:8px; font-weight:bold;">${icon}</span> Extraction (${extractedCount}/${totalUnits})`;
-      objectivesDiv.appendChild(p);
-    }
+    objectivesDiv.innerHTML = `<h3 style="font-size:0.9em; color:#888; margin-top:0;">OBJECTIVES</h3>${this.renderObjectivesList(state)}`;
 
     summaryDiv.appendChild(objectivesDiv);
 

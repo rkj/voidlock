@@ -153,9 +153,28 @@ describe("HUDManager", () => {
 
     const objectivesDiv = document.querySelector(".objectives-status");
     expect(objectivesDiv).not.toBeNull();
-    expect(objectivesDiv?.innerHTML).toContain("Exterminate: Status: Active");
-    expect(objectivesDiv?.innerHTML).toContain(
-      "Secure: Status: Completed at (5,5)",
-    );
+    expect(objectivesDiv?.innerHTML).toContain("Exterminate");
+    expect(objectivesDiv?.innerHTML).toContain("(Active)");
+    expect(objectivesDiv?.innerHTML).toContain("Secure");
+    expect(objectivesDiv?.innerHTML).toContain("(Completed)");
+    expect(objectivesDiv?.innerHTML).toContain("at (5,5)");
+  });
+
+  it("should render objectives in game over summary", () => {
+    const gameOverState: GameState = {
+      ...mockState,
+      status: "Won" as any,
+      objectives: [
+        { kind: "Recover", state: "Completed" as any },
+      ],
+    };
+
+    hud.update(gameOverState, null);
+
+    const summary = document.querySelector(".game-over-summary");
+    expect(summary).not.toBeNull();
+    expect(summary?.textContent).toContain("MISSION ACCOMPLISHED");
+    expect(summary?.innerHTML).toContain("Recover");
+    expect(summary?.innerHTML).toContain("✔");
   });
 });
