@@ -667,3 +667,5 @@ export type TileAssembly = {
   globalExtraction?: { cell: Vector2 };
   globalObjectives?: { kind: "Recover" | "Kill"; cell: Vector2; id: string }[];
 };
+
+export * from "./campaign_types";
