@@ -33,6 +33,7 @@ This directory contains the main thread rendering logic and user interface for X
 - **Test Suites**:
   - `SquadBuilder.test.ts`: Verifies squad selection logic and constraints.
   - `ui/HUDManager.test.ts`: Verifies soldier list rendering and HUD updates.
+  - `MenuController.discovery.test.ts`: Verifies room discovery filtering and stable numbering in the command menu.
 
 ## Connections
 

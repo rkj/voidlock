@@ -340,7 +340,7 @@ export class MenuController {
       // Add Rooms
       const roomMap = new Map<string, Vector2[]>();
       gameState.map.cells.forEach((cell) => {
-        if (cell.roomId) {
+        if (cell.roomId && cell.roomId.startsWith("room")) {
           if (!roomMap.has(cell.roomId)) roomMap.set(cell.roomId, []);
           roomMap.get(cell.roomId)?.push({ x: cell.x, y: cell.y });
         }
@@ -352,24 +352,25 @@ export class MenuController {
         const isDiscovered = cells.some((c) =>
           gameState.discoveredCells.includes(`${c.x},${c.y}`),
         );
-        if (!isDiscovered) return;
 
-        // Find rough center
-        const avgX = cells.reduce((sum, c) => sum + c.x, 0) / cells.length;
-        const avgY = cells.reduce((sum, c) => sum + c.y, 0) / cells.length;
-        // Find cell closest to center
-        const centerCell = cells.reduce((prev, curr) => {
-          const prevDist = (prev.x - avgX) ** 2 + (prev.y - avgY) ** 2;
-          const currDist = (curr.x - avgX) ** 2 + (curr.y - avgY) ** 2;
-          return currDist < prevDist ? curr : prev;
-        });
+        if (isDiscovered) {
+          // Find rough center
+          const avgX = cells.reduce((sum, c) => sum + c.x, 0) / cells.length;
+          const avgY = cells.reduce((sum, c) => sum + c.y, 0) / cells.length;
+          // Find cell closest to center
+          const centerCell = cells.reduce((prev, curr) => {
+            const prevDist = (prev.x - avgX) ** 2 + (prev.y - avgY) ** 2;
+            const currDist = (curr.x - avgX) ** 2 + (curr.y - avgY) ** 2;
+            return currDist < prevDist ? curr : prev;
+          });
 
-        this.overlayOptions.push({
-          key: counter.toString(36),
-          label: `Room ${roomCounter}`,
-          pos: { x: centerCell.x, y: centerCell.y },
-        });
-        counter++;
+          this.overlayOptions.push({
+            key: counter.toString(36),
+            label: `Room ${roomCounter}`,
+            pos: { x: centerCell.x, y: centerCell.y },
+          });
+          counter++;
+        }
         roomCounter++;
       });
     }
