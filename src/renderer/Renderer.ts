@@ -206,6 +206,16 @@ export class Renderer {
         // Draw Number
         this.ctx.fillStyle = "#000";
         this.ctx.fillText(opt.key, cx, cy);
+
+        // Draw Label text below
+        if (opt.label) {
+          this.ctx.fillStyle = "#FFF";
+          this.ctx.font = "bold 14px Arial";
+          this.ctx.shadowColor = "black";
+          this.ctx.shadowBlur = 4;
+          this.ctx.fillText(opt.label, cx, cy + 25);
+          this.ctx.shadowBlur = 0; // Reset
+        }
       }
     });
   }
