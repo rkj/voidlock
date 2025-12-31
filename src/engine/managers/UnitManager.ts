@@ -616,15 +616,9 @@ export class UnitManager {
           ) {
             const distance = this.getDistance(unit.pos, targetEnemy.pos);
             const S = unit.accuracy;
-            let hitChance = 0;
-            if (S >= 100) {
-              hitChance = 1.0;
-            } else if (S <= 0) {
-              hitChance = 0.0;
-            } else {
-              // P(d) = (25 * S) / (25 * S + d^2 * (100 - S))
-              hitChance = (25 * S) / (25 * S + distance * distance * (100 - S));
-            }
+            const R = unit.attackRange;
+            let hitChance = (S / 100) * (R / Math.max(0.1, distance));
+            hitChance = Math.max(0, Math.min(1.0, hitChance));
 
             if (prng.next() <= hitChance) {
               targetEnemy.hp -= unit.damage;

@@ -29,8 +29,8 @@ describe("Combat Accuracy (Percentage Model)", () => {
     engine.clearUnits();
   });
 
-  it("should have 100% hit chance if accuracy is 100", () => {
-    // accuracy = 100 -> 100% hit regardless of distance
+  it("should have 100% hit chance if accuracy is 100 and distance <= range", () => {
+    // accuracy = 100 -> 100% hit if distance <= range
     engine.addUnit({
       id: "u1",
       pos: { x: 0.5, y: 0.5 },
@@ -71,8 +71,8 @@ describe("Combat Accuracy (Percentage Model)", () => {
     expect(enemy.hp).toBe(900);
   });
 
-  it("should have 50% hit chance at 5 tiles if accuracy is 50", () => {
-    // accuracy = 50 -> 50% hit at 5 tiles
+  it("should have 50% hit chance at range distance if accuracy is 50", () => {
+    // accuracy = 50, range = 10, distance = 10 -> (50/100) * (10/10) = 0.5
     engine.addUnit({
       id: "u1",
       pos: { x: 0.5, y: 0.5 },
@@ -91,7 +91,7 @@ describe("Combat Accuracy (Percentage Model)", () => {
 
     engine.addEnemy({
       id: "e1",
-      pos: { x: 5.5, y: 0.5 }, // distance = 5.0
+      pos: { x: 10.5, y: 0.5 }, // distance = 10.0
       hp: 10000,
       maxHp: 10000,
       type: "Xeno-Mite",
@@ -117,8 +117,8 @@ describe("Combat Accuracy (Percentage Model)", () => {
     expect(hits).toBeLessThan(65);
   });
 
-  it("should have ~96% hit chance at 1 tile if accuracy is 50", () => {
-    // accuracy = 50 -> A=5 -> P(1) = 25/26 = 0.9615
+  it("should have 100% hit chance at 1 tile if accuracy is 50 and range is 10", () => {
+    // accuracy = 50, range = 10, distance = 1.0 -> (50/100) * (10/1) = 5.0 -> 1.0
     engine.addUnit({
       id: "u1",
       pos: { x: 0.5, y: 0.5 },
@@ -158,8 +158,8 @@ describe("Combat Accuracy (Percentage Model)", () => {
     const damageDealt = 10000 - enemy.hp;
     const hits = damageDealt / 10;
 
-    // Expect around 96 hits
-    expect(hits).toBeGreaterThan(90);
+    // Expect exactly 100 hits
+    expect(hits).toBe(100);
   });
 
   it("should have 100% hit chance if accuracy is very high (e.g. 1000)", () => {
@@ -203,7 +203,7 @@ describe("Combat Accuracy (Percentage Model)", () => {
   });
 
   it("should correctly calculate hit chance for enemies attacking units", () => {
-    // distance = 10.0, accuracy = 100 -> hitChance = 0.5
+    // distance = 10.0, accuracy = 100, range = 15 -> (100/100) * (15/10) = 1.5 -> 1.0
     engine.addUnit({
       id: "u1",
       pos: { x: 0.5, y: 0.5 },
@@ -243,7 +243,7 @@ describe("Combat Accuracy (Percentage Model)", () => {
     const damageDealt = 10000 - unit.hp;
     const hits = damageDealt / 10;
 
-    // Expect 100 hits because accuracy is 100
+    // Expect 100 hits
     expect(hits).toBe(100);
   });
 
@@ -287,7 +287,8 @@ describe("Combat Accuracy (Percentage Model)", () => {
     expect(enemy.hp).toBe(1000);
   });
 
-  it("should have 50% hit chance for enemies at 5 tiles if accuracy is 50", () => {
+  it("should have ~55% hit chance for enemies if accuracy is 50 and distance is 10 and range is 11", () => {
+    // accuracy = 50, range = 11, distance = 10 -> (50/100) * (11/10) = 0.55
     engine.addUnit({
       id: "u1",
       pos: { x: 0.5, y: 0.5 },
@@ -306,14 +307,14 @@ describe("Combat Accuracy (Percentage Model)", () => {
 
     engine.addEnemy({
       id: "e1",
-      pos: { x: 5.5, y: 0.5 },
+      pos: { x: 10.5, y: 0.5 }, // distance = 10.0
       hp: 100,
       maxHp: 100,
       type: "Spitter-Acid",
       damage: 10,
       fireRate: 100,
       accuracy: 50,
-      attackRange: 15,
+      attackRange: 11,
       speed: 0,
     });
 
@@ -327,7 +328,7 @@ describe("Combat Accuracy (Percentage Model)", () => {
     const damageDealt = 10000 - unit.hp;
     const hits = damageDealt / 10;
 
-    expect(hits).toBeGreaterThan(35);
-    expect(hits).toBeLessThan(65);
+    expect(hits).toBeGreaterThan(40);
+    expect(hits).toBeLessThan(70);
   });
 });
