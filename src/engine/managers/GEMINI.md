@@ -4,6 +4,7 @@ This directory contains specialized managers that handle specific domains of the
 
 ## Files
 
+- `CampaignManager.ts` (Planned): Orchestrates the strategic layer, managing persistent state, squad roster, and sector map progression.
 - `CommandHandler.ts`: Processes and validates incoming commands from the player or bots.
 - `DoorManager.ts`: Manages the state (Open, Closed, Locked, Destroyed) and logic of doors.
 - `EnemyManager.ts`: Manages the lifecycle and state updates for all enemy units.
