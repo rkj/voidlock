@@ -7,8 +7,8 @@ describe("Enemy Movement", () => {
   let map: MapDefinition;
 
   beforeEach(() => {
-    // 20x20 open map
-    const cells = [];
+    // 20x20 open floor map
+    const cells: any[] = [];
     for (let y = 0; y < 20; y++) {
       for (let x = 0; x < 20; x++) {
         cells.push({ x, y, type: CellType.Floor });
@@ -23,7 +23,7 @@ describe("Enemy Movement", () => {
       objectives: [],
     };
 
-    engine = new CoreEngine(map, 123, [], true, false);
+    engine = new CoreEngine(map, 123, { soldiers: [], inventory: {} }, true, false);
     engine.clearUnits();
   });
 

@@ -20,8 +20,7 @@ describe("Mission Replay Regression", () => {
     squadSpawn: { x: 2, y: 2 },
   };
 
-  const squadConfig = [{ archetypeId: "assault", count: 1 }];
-
+      const squadConfig = { soldiers: [{ archetypeId: "assault" }], inventory: {} };
   it("should reproduce the same state in Replay mode", () => {
     const seed = 12345;
     const engineSim = new CoreEngine(

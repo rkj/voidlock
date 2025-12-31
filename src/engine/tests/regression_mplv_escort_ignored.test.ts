@@ -11,10 +11,10 @@ import {
 describe("Regression MPLV: Escort Objective Ignored", () => {
   let engine: CoreEngine;
   let mockMap: MapDefinition;
-  const squadWithVip: SquadConfig = [
-    { archetypeId: "assault", count: 1 },
-    { archetypeId: "vip", count: 1 },
-  ];
+  const squadWithVip: SquadConfig = {
+    soldiers: [{ archetypeId: "assault" }, { archetypeId: "vip" }],
+    inventory: {},
+  };
 
   beforeEach(() => {
     mockMap = {

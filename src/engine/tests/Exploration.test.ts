@@ -39,7 +39,7 @@ describe("Exploration Logic", () => {
     const engine = new CoreEngine(
       map,
       1,
-      [{ archetypeId: "assault", count: 1 }],
+      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
       true,
       false,
     );
@@ -129,7 +129,7 @@ describe("Exploration Logic", () => {
     const engine = new CoreEngine(
       map,
       1,
-      [{ archetypeId: "assault", count: 1 }],
+      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
       true,
       false,
     );

@@ -25,7 +25,7 @@ describe("SoldierCoreAI", () => {
   let engine: CoreEngine;
 
   beforeEach(() => {
-    engine = new CoreEngine(mockMap, 123, [], true, false); // agentControlEnabled = true
+    engine = new CoreEngine(mockMap, 123, { soldiers: [], inventory: {} }, true, false); // agentControlEnabled = true
     engine.clearUnits(); // Clear default spawns
   });
 

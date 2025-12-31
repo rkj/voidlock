@@ -32,14 +32,16 @@ const mockMap: MapDefinition = {
   spawnPoints: [],
 };
 
-const mockSquad: SquadConfig = [{ archetypeId: "assault", count: 1 }];
-
+  const mockSquad: SquadConfig = {
+    soldiers: [{ archetypeId: "assault" }],
+    inventory: {},
+  };
 describe("Melee Lock & Ignore Policy", () => {
   it("should force combat and block movement when in same cell, even if IGNORE", () => {
     const engine = new CoreEngine(
       mockMap,
       123,
-      [],
+      { soldiers: [], inventory: {} },
       true,
       false,
       MissionType.Default,
@@ -123,7 +125,7 @@ describe("Melee Lock & Ignore Policy", () => {
     const engine = new CoreEngine(
       mockMap,
       123,
-      [],
+      { soldiers: [], inventory: {} },
       true,
       false,
       MissionType.Default,

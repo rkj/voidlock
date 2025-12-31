@@ -21,10 +21,14 @@ describe("Squad Configuration in CoreEngine", () => {
   };
 
   it("should initialize units based on SquadConfig", () => {
-    const squadConfig: SquadConfig = [
-      { archetypeId: "assault", count: 2 },
-      { archetypeId: "medic", count: 1 },
-    ];
+    const squadConfig: SquadConfig = {
+      soldiers: [
+        { archetypeId: "assault" },
+        { archetypeId: "assault" },
+        { archetypeId: "medic" },
+      ],
+      inventory: {},
+    };
 
     const engine = new CoreEngine(mockMap, 123, squadConfig, false, false);
     const state = engine.getState();
@@ -34,10 +38,10 @@ describe("Squad Configuration in CoreEngine", () => {
 
     // Verify types
     const assaultUnits = state.units.filter(
-      (u) => u.hp === ArchetypeLibrary.assault.baseHp,
-    ); // Heuristic using HP
+      (u) => u.archetypeId === "assault",
+    );
     const medicUnits = state.units.filter(
-      (u) => u.hp === ArchetypeLibrary.medic.baseHp,
+      (u) => u.archetypeId === "medic",
     );
 
     expect(assaultUnits.length).toBe(2);
@@ -49,24 +53,30 @@ describe("Squad Configuration in CoreEngine", () => {
   });
 
   it("should handle empty squad config", () => {
-    const squadConfig: SquadConfig = [];
+    const squadConfig: SquadConfig = { soldiers: [], inventory: {} };
     const engine = new CoreEngine(mockMap, 123, squadConfig, false, false);
     const state = engine.getState();
     expect(state.units.length).toBe(0);
   });
 
   it("should handle large squad config", () => {
-    const squadConfig: SquadConfig = [{ archetypeId: "assault", count: 10 }];
+    const squadConfig: SquadConfig = {
+      soldiers: Array(10).fill({ archetypeId: "assault" }),
+      inventory: {},
+    };
     const engine = new CoreEngine(mockMap, 123, squadConfig, false, false);
     const state = engine.getState();
     expect(state.units.length).toBe(10);
   });
 
   it("should ignore invalid archetype IDs", () => {
-    const squadConfig: SquadConfig = [
-      { archetypeId: "invalid-id", count: 5 },
-      { archetypeId: "assault", count: 1 },
-    ];
+    const squadConfig: SquadConfig = {
+      soldiers: [
+        { archetypeId: "invalid-id" },
+        { archetypeId: "assault" },
+      ],
+      inventory: {},
+    };
     const engine = new CoreEngine(mockMap, 123, squadConfig, false, false);
     const state = engine.getState();
     expect(state.units.length).toBe(1); // Only the assault unit

@@ -11,7 +11,10 @@ import {
 describe("Objective Prioritization AI", () => {
   let engine: CoreEngine;
   let mockMap: MapDefinition;
-  const defaultSquad: SquadConfig = [{ archetypeId: "assault", count: 1 }];
+  const defaultSquad: SquadConfig = {
+    soldiers: [{ archetypeId: "assault" }],
+    inventory: {},
+  };
 
   beforeEach(() => {
     mockMap = {

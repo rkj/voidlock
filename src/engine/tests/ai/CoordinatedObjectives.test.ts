@@ -10,7 +10,10 @@ import {
 describe("Coordinated Objectives AI", () => {
   let engine: CoreEngine;
   let mockMap: MapDefinition;
-  const defaultSquad: SquadConfig = [{ archetypeId: "assault", count: 2 }];
+  const defaultSquad: SquadConfig = {
+    soldiers: [{ archetypeId: "assault" }, { archetypeId: "assault" }],
+    inventory: {},
+  };
 
   beforeEach(() => {
     mockMap = {

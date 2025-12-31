@@ -29,7 +29,7 @@ describe("Collection Interruption Repro", () => {
     const engine = new CoreEngine(
       mockMap,
       123,
-      [{ archetypeId: "assault", count: 1 }],
+      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
       true, // agentControlEnabled: true
       false,
     );

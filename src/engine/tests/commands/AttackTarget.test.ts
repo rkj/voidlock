@@ -29,7 +29,10 @@ describe("Command: ATTACK_TARGET", () => {
   };
 
   beforeEach(() => {
-    const defaultSquad: SquadConfig = [{ archetypeId: "assault", count: 1 }]; // Default unit for tests
+  const defaultSquad: SquadConfig = {
+    soldiers: [{ archetypeId: "assault" }],
+    inventory: {},
+  }; // Default unit for tests // Default unit for tests
     engine = new CoreEngine(map, 123, defaultSquad, false, false);
     engine.clearUnits();
     // Add one unit
@@ -89,7 +92,10 @@ describe("Command: ATTACK_TARGET", () => {
     expect(e2?.hp).toBe(100);
 
     // Reset health
-    const defaultSquad: SquadConfig = [{ archetypeId: "assault", count: 1 }]; // Re-declare for scope or make global if multiple use. For now, re-declare.
+  const defaultSquad: SquadConfig = {
+    soldiers: [{ archetypeId: "assault" }],
+    inventory: {},
+  }; // Default unit for tests // Re-declare for scope or make global if multiple use. For now, re-declare.
     engine = new CoreEngine(map, 123, defaultSquad, false, false); // Re-initialize with squad
     engine.clearUnits();
     engine.addUnit({

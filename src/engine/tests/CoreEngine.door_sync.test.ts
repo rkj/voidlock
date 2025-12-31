@@ -33,7 +33,7 @@ describe("CoreEngine Door Sync", () => {
     const engine = new CoreEngine(
       mockMap,
       123,
-      [],
+      { soldiers: [], inventory: {} },
       false,
       false,
       MissionType.Default,
@@ -85,7 +85,7 @@ describe("CoreEngine Door Sync", () => {
     const engine = new CoreEngine(
       mapWithOpenDoor,
       123,
-      [],
+      { soldiers: [], inventory: {} },
       false,
       false,
       MissionType.Default,

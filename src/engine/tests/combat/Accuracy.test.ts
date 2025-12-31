@@ -23,7 +23,10 @@ describe("Combat Accuracy (Percentage Model)", () => {
   };
 
   beforeEach(() => {
-    const defaultSquad: SquadConfig = [{ archetypeId: "assault", count: 1 }];
+    const defaultSquad: SquadConfig = {
+    soldiers: [{ archetypeId: "assault" }],
+    inventory: {},
+  };
     // Use a fixed seed for deterministic results
     engine = new CoreEngine(mockMap, 12345, defaultSquad, false, false);
     engine.clearUnits();

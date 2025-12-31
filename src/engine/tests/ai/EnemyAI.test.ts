@@ -14,7 +14,7 @@ describe("Enemy AI", () => {
 
   beforeEach(() => {
     // 5x5 open floor map
-    const cells = [];
+    const cells: any[] = [];
     for (let y = 0; y < 5; y++) {
       for (let x = 0; x < 5; x++) {
         cells.push({ x, y, type: CellType.Floor });
@@ -29,7 +29,7 @@ describe("Enemy AI", () => {
       objectives: [],
     };
 
-    engine = new CoreEngine(map, 123, [], true, false);
+    engine = new CoreEngine(map, 123, { soldiers: [], inventory: {} }, true, false);
     engine.clearUnits();
   });
 

@@ -45,7 +45,10 @@ describe("Movement through Doors", () => {
   };
 
   beforeEach(() => {
-    const defaultSquad: SquadConfig = [{ archetypeId: "assault", count: 1 }]; // Default unit for tests
+    const defaultSquad: SquadConfig = {
+    soldiers: [{ archetypeId: "assault" }],
+    inventory: {},
+  }; // Default unit for tests
     engine = new CoreEngine(map, 123, defaultSquad, false, false);
     engine.clearUnits();
     engine.addUnit({

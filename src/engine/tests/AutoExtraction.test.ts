@@ -28,7 +28,7 @@ describe("Auto Extraction Logic", () => {
     const engine = new CoreEngine(
       map,
       1,
-      [{ archetypeId: "assault", count: 1 }],
+      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
       true, // Agent control enabled
       false, // random seed
     );

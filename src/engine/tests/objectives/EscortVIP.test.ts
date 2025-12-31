@@ -25,7 +25,7 @@ describe("Escort VIP Mission", () => {
     const engine = new CoreEngine(
       map,
       123,
-      [],
+      { soldiers: [], inventory: {} },
       true,
       false,
       MissionType.EscortVIP,
@@ -40,7 +40,7 @@ describe("Escort VIP Mission", () => {
   });
 
   it("should win when VIP reaches extraction", () => {
-    const squadConfig = [{ archetypeId: "assault", count: 1 }];
+    const squadConfig = { soldiers: [{ archetypeId: "assault" }], inventory: {} };
     const engine = new CoreEngine(
       map,
       123,
@@ -74,7 +74,7 @@ describe("Escort VIP Mission", () => {
     const engine = new CoreEngine(
       map,
       123,
-      [],
+      { soldiers: [], inventory: {} },
       true,
       false,
       MissionType.EscortVIP,
@@ -92,7 +92,7 @@ describe("Escort VIP Mission", () => {
   });
 
   it("should lose when all other units die even if VIP is alive", () => {
-    const squadConfig = [{ archetypeId: "assault", count: 1 }];
+    const squadConfig = { soldiers: [{ archetypeId: "assault" }], inventory: {} };
     const engine = new CoreEngine(
       map,
       123,

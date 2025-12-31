@@ -28,7 +28,7 @@ describe("Unit Command State UI Tracking", () => {
     engine = new CoreEngine(
       map,
       123,
-      [{ archetypeId: "assault", count: 1 }],
+      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
       false,
       false,
     );
@@ -88,7 +88,7 @@ describe("Unit Command State UI Tracking", () => {
     engine = new CoreEngine(
       longMap,
       123,
-      [{ archetypeId: "assault", count: 1 }],
+      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
       true,
       false,
     );

@@ -25,7 +25,10 @@ describe("CoreEngine Dual Spawn Splitting", () => {
       ],
     };
 
-    const squadConfig: SquadConfig = [{ archetypeId: "assault", count: 10 }];
+    const squadConfig: SquadConfig = {
+      soldiers: Array(10).fill({ archetypeId: "assault" }),
+      inventory: {},
+    };
 
     const engine = new CoreEngine(
       map,
@@ -67,7 +70,10 @@ describe("CoreEngine Dual Spawn Splitting", () => {
       ],
     };
 
-    const squadConfig: SquadConfig = [{ archetypeId: "assault", count: 2 }];
+    const squadConfig: SquadConfig = {
+      soldiers: Array(2).fill({ archetypeId: "assault" }),
+      inventory: {},
+    };
 
     const engine = new CoreEngine(
       map,

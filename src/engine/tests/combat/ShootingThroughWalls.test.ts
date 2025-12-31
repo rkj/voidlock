@@ -26,7 +26,7 @@ describe("Shooting Through Walls Repro", () => {
       objectives: [],
     };
 
-    engine = new CoreEngine(map, 123, [], true, false);
+    engine = new CoreEngine(map, 123, { soldiers: [], inventory: {} }, true, false);
     engine.clearUnits();
   });
 
@@ -98,7 +98,7 @@ describe("Shooting Through Walls Repro", () => {
       extraction: undefined,
       objectives: [],
     };
-    const engine2 = new CoreEngine(map2x2, 123, [], true, false);
+    const engine2 = new CoreEngine(map2x2, 123, { soldiers: [], inventory: {} }, true, false);
     engine2.clearUnits();
 
     engine2.addUnit({

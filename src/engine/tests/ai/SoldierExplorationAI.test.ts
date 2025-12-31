@@ -13,7 +13,10 @@ import { GameGrid } from "../../GameGrid";
 describe("Soldier Exploration AI", () => {
   let engine: CoreEngine;
   let mockMap: MapDefinition;
-  const defaultSquad: SquadConfig = [{ archetypeId: "assault", count: 1 }];
+  const defaultSquad: SquadConfig = {
+    soldiers: [{ archetypeId: "assault" }],
+    inventory: {},
+  };
 
   beforeEach(() => {
     // A 3x3 map, with (0,0) as spawn, (2,2) as extraction, and some undiscovered cells

@@ -31,7 +31,7 @@ describe("VIP Mission Mechanics", () => {
     const engine = new CoreEngine(
       mockMap,
       123,
-      [{ archetypeId: "assault", count: 1 }],
+      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
       false,
       false,
       MissionType.EscortVIP,
@@ -57,7 +57,7 @@ describe("VIP Mission Mechanics", () => {
     const engine = new CoreEngine(
       mockMap,
       123,
-      [{ archetypeId: "assault", count: 1 }],
+      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
       false,
       false,
       MissionType.EscortVIP,
@@ -88,7 +88,7 @@ describe("VIP Mission Mechanics", () => {
     const engine = new CoreEngine(
       mockMap,
       123,
-      [{ archetypeId: "assault", count: 1 }],
+      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
       false,
       false,
       MissionType.EscortVIP,
@@ -145,7 +145,7 @@ describe("VIP Mission Mechanics", () => {
     const engine = new CoreEngine(
       mapWithRooms,
       123,
-      [{ archetypeId: "assault", count: 1 }],
+      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
       false,
       false,
       MissionType.EscortVIP,
@@ -178,7 +178,7 @@ describe("VIP Mission Mechanics", () => {
     const engine = new CoreEngine(
       mapWithWall,
       123,
-      [{ archetypeId: "assault", count: 1 }],
+      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
       true, // Agent control enabled
       false,
       MissionType.EscortVIP,
@@ -198,7 +198,7 @@ describe("VIP Mission Mechanics", () => {
     const engine2 = new CoreEngine(
       mapWithWall2,
       123,
-      [{ archetypeId: "assault", count: 1 }],
+      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
       true,
       false,
       MissionType.EscortVIP,

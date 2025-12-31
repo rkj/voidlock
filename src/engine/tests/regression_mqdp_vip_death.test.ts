@@ -16,8 +16,7 @@ describe("Regression mqdp: VIP Death Mission Success", () => {
     doors: [],
   } as any;
 
-  const squadConfig = [{ archetypeId: "assault", count: 1 }];
-
+      const squadConfig = { soldiers: [{ archetypeId: "assault" }], inventory: {} };
   it("should definitely fail if VIP dies", () => {
     const engine = new CoreEngine(
       mockMap,
@@ -116,12 +115,13 @@ describe("Regression mqdp: VIP Death Mission Success", () => {
 
     // We need to re-run setupMission or manually add the objective because squadConfig in constructor didn't have VIP
     // Wait, CoreEngine constructor calls setupMission with squadConfig.
-    // If we want setupMission to see the VIP, we should include it in squadConfig.
-
-    const squadWithVip = [
-      { archetypeId: "assault", count: 1 },
-      { archetypeId: "vip", count: 1 },
-    ];
+    const squadWithVip: SquadConfig = {
+      soldiers: [
+        { archetypeId: "assault" },
+        { archetypeId: "vip" },
+      ],
+      inventory: {},
+    };
     const engine2 = new CoreEngine(
       mockMap,
       123,
@@ -156,10 +156,10 @@ describe("Regression mqdp: VIP Death Mission Success", () => {
   it("should fail if VIP dies in a Default mission with no other objectives (The Bug)", () => {
     // This mission has NO map objectives.
     const mapNoObj = { ...mockMap, objectives: [] };
-    const squadWithVip = [
-      { archetypeId: "assault", count: 1 },
-      { archetypeId: "vip", count: 1 },
-    ];
+    const squadWithVip = {
+      soldiers: [{ archetypeId: "assault" }, { archetypeId: "vip" }],
+      inventory: {},
+    };
     const engine = new CoreEngine(
       mapNoObj,
       123,
@@ -218,10 +218,10 @@ describe("Regression mqdp: VIP Death Mission Success", () => {
       extraction: { x: 19, y: 19 },
     } as any;
 
-    const squadWithVip = [
-      { archetypeId: "assault", count: 1 },
-      { archetypeId: "vip", count: 1 },
-    ];
+    const squadWithVip = {
+      soldiers: [{ archetypeId: "assault" }, { archetypeId: "vip" }],
+      inventory: {},
+    };
 
     // We need a seed that guarantees artifacts can be placed
     const engine = new CoreEngine(

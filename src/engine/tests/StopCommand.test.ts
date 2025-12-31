@@ -33,7 +33,7 @@ describe("Stop Command and AI Logic", () => {
     engine = new CoreEngine(
       mockMap,
       123,
-      [{ archetypeId: "assault", count: 1 }],
+      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
       true, // agentControlEnabled
       false,
       MissionType.Default,

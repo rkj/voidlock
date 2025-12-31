@@ -56,8 +56,8 @@ describe("Weapon System", () => {
       commandQueue: [],
       speed: 15,
       archetypeId: "assault",
-      meleeWeaponId: "knife",
-      rangedWeaponId: "pulse_rifle",
+      leftHand: "knife",
+      rightHand: "pulse_rifle",
       // Current stats for backward compatibility or as "active" stats
       damage: 0,
       fireRate: 0,
@@ -65,8 +65,8 @@ describe("Weapon System", () => {
       attackRange: 0,
     };
 
-    expect(unit.meleeWeaponId).toBe("knife");
-    expect(unit.rangedWeaponId).toBe("pulse_rifle");
+    expect(unit.leftHand).toBe("knife");
+    expect(unit.rightHand).toBe("pulse_rifle");
   });
 
   it("should switch to melee weapon when enemy is in melee range", () => {
@@ -85,15 +85,17 @@ describe("Weapon System", () => {
       commandQueue: [],
       speed: 20,
       archetypeId: "assault",
-      meleeWeaponId: "knife",
-      rangedWeaponId: "pulse_rifle",
+      leftHand: "knife",
+      rightHand: "pulse_rifle",
       activeWeaponId: "pulse_rifle",
       damage: 20,
       fireRate: 600,
       accuracy: 95,
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
       attackRange: 4,
       sightRange: 100,
-    };
+    } as Unit;
     const enemy = {
       id: "e1",
       type: "Xeno-Mite",
@@ -138,15 +140,17 @@ describe("Weapon System", () => {
       commandQueue: [],
       speed: 20,
       archetypeId: "assault",
-      meleeWeaponId: "knife",
-      rangedWeaponId: "pulse_rifle",
+      leftHand: "knife",
+      rightHand: "pulse_rifle",
       activeWeaponId: "knife",
       damage: 15,
       fireRate: 400,
       accuracy: 100,
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
       attackRange: 1,
       sightRange: 100,
-    };
+    } as Unit;
     const enemy = {
       id: "e1",
       type: "Xeno-Mite",

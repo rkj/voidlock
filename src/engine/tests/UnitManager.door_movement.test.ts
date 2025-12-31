@@ -38,7 +38,7 @@ describe("UnitManager Door Movement", () => {
     const engine = new CoreEngine(
       mockMap,
       123,
-      [],
+      { soldiers: [], inventory: {} },
       false,
       false,
       MissionType.Default,
