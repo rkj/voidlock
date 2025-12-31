@@ -111,8 +111,7 @@ const togglePause = () => {
 
   if (isPaused) {
     if (btn) btn.textContent = "▶ Play";
-    if (gameSpeedValue)
-      gameSpeedValue.textContent = `0.05x`;
+    if (gameSpeedValue) gameSpeedValue.textContent = `0.05x`;
   } else {
     if (btn) btn.textContent = "⏸ Pause";
     if (gameSpeedValue) gameSpeedValue.textContent = `${lastSpeed.toFixed(1)}x`;
