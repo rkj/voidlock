@@ -4,7 +4,7 @@ This directory contains the core simulation logic for Xenopurge. It follows a de
 
 ## Files
 
-- `CoreEngine.ts`: The main orchestrator of the game simulation. It manages state, initializes managers, and runs the game loop.
+- `CoreEngine.ts`: The main orchestrator of the game simulation. It manages state (including `isPaused`, `timeScale`, and `isSlowMotion`), initializes managers, and runs the game loop.
 - `Director.ts`: Manages enemy spawning based on threat levels and timers.
 - `GameClient.ts`: Provides an interface for the renderer (main thread) to communicate with the engine (worker).
 - `GameGrid.ts`: Manages the logical grid, including walkability and movement validation between cells (respecting walls and doors).

@@ -55,6 +55,8 @@ export class CoreEngine {
     missionType: MissionType = MissionType.Default,
     losOverlayEnabled: boolean = false,
     startingThreatLevel: number = 0,
+    initialTimeScale: number = 1.0,
+    startPaused: boolean = false,
   ) {
     this.prng = new PRNG(seed);
     this.gameGrid = new GameGrid(map);
@@ -93,6 +95,9 @@ export class CoreEngine {
       status: "Playing",
       debugOverlayEnabled: debugOverlayEnabled,
       losOverlayEnabled: losOverlayEnabled,
+      timeScale: initialTimeScale,
+      isPaused: startPaused,
+      isSlowMotion: initialTimeScale < 1.0,
     };
 
     // Mission Setup
@@ -269,6 +274,15 @@ export class CoreEngine {
 
   public applyCommand(cmd: Command) {
     this.commandHandler.applyCommand(this.state, cmd);
+  }
+
+  public setTimeScale(scale: number) {
+    this.state.timeScale = scale;
+    this.state.isSlowMotion = scale < 1.0;
+  }
+
+  public setPaused(paused: boolean) {
+    this.state.isPaused = paused;
   }
 
   private findVipStartPositions(

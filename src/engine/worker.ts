@@ -13,7 +13,7 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
   switch (msg.type) {
     case "INIT": {
       if (loopId) clearInterval(loopId);
-      timeScale = 1.0;
+      timeScale = msg.payload.initialTimeScale ?? 1.0;
       engine = new CoreEngine(
         msg.payload.map,
         msg.payload.seed,
@@ -23,6 +23,8 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
         msg.payload.missionType,
         msg.payload.losOverlayEnabled,
         msg.payload.startingThreatLevel,
+        timeScale,
+        msg.payload.startPaused ?? false,
       );
 
       // Start loop
@@ -62,6 +64,9 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
     }
     case "SET_TIME_SCALE": {
       timeScale = msg.payload;
+      if (engine) {
+        engine.setTimeScale(timeScale);
+      }
       break;
     }
     case "SET_TICK_RATE": {

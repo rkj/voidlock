@@ -68,6 +68,8 @@ export class GameClient {
     spawnPointCount: number = 3,
     losOverlayEnabled: boolean = false,
     startingThreatLevel: number = 0,
+    initialTimeScale: number = 1.0,
+    startPaused: boolean = false,
   ) {
     this.initialSeed = seed;
     this.initialSquadConfig = squadConfig;
@@ -83,9 +85,9 @@ export class GameClient {
     this.startTime = Date.now();
 
     // Reset speed state for new session
-    this.isPaused = false;
-    this.currentScale = 1.0;
-    this.lastNonPausedScale = 1.0;
+    this.isPaused = startPaused;
+    this.currentScale = initialTimeScale;
+    this.lastNonPausedScale = initialTimeScale;
 
     // Clear any pending replay timeouts
     this.replayTimeouts.forEach((id) => clearTimeout(id));
@@ -103,6 +105,8 @@ export class GameClient {
         missionType,
         losOverlayEnabled,
         startingThreatLevel,
+        initialTimeScale,
+        startPaused,
       },
     };
     this.worker.postMessage(msg);
