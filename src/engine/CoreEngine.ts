@@ -13,6 +13,8 @@ import {
   EquipmentState,
   Door,
   Vector2,
+  EngineMode,
+  CommandLogEntry,
 } from "../shared/types";
 import { PRNG } from "../shared/PRNG";
 import { GameGrid } from "./GameGrid";
@@ -41,6 +43,9 @@ export class CoreEngine {
   private unitManager: UnitManager;
   private commandHandler: CommandHandler;
 
+  private commandLog: CommandLogEntry[] = [];
+  private replayIndex: number = 0;
+
   // For test compatibility
   public get doors(): Map<string, Door> {
     return this.doorManager.getDoors();
@@ -57,6 +62,8 @@ export class CoreEngine {
     startingThreatLevel: number = 0,
     initialTimeScale: number = 1.0,
     startPaused: boolean = false,
+    mode: EngineMode = EngineMode.Simulation,
+    initialCommandLog: CommandLogEntry[] = [],
   ) {
     this.prng = new PRNG(seed);
     this.gameGrid = new GameGrid(map);
@@ -81,6 +88,9 @@ export class CoreEngine {
     this.visibilityManager = new VisibilityManager(this.los);
     this.commandHandler = new CommandHandler(this.unitManager);
 
+    this.commandLog = initialCommandLog;
+    this.replayIndex = 0;
+
     this.state = {
       t: 0,
       map,
@@ -93,6 +103,7 @@ export class CoreEngine {
       aliensKilled: 0,
       casualties: 0,
       status: "Playing",
+      mode: mode,
       debugOverlayEnabled: debugOverlayEnabled,
       losOverlayEnabled: losOverlayEnabled,
       timeScale: initialTimeScale,
@@ -269,11 +280,16 @@ export class CoreEngine {
   }
 
   public getState(): GameState {
-    return JSON.parse(JSON.stringify(this.state));
+    const copy = JSON.parse(JSON.stringify(this.state));
+    copy.commandLog = [...this.commandLog];
+    return copy;
   }
 
   public applyCommand(cmd: Command) {
-    this.commandHandler.applyCommand(this.state, cmd);
+    if (this.state.mode === EngineMode.Simulation) {
+      this.commandLog.push({ tick: this.state.t, command: cmd });
+      this.commandHandler.applyCommand(this.state, cmd);
+    }
   }
 
   public setTimeScale(scale: number) {
@@ -364,8 +380,26 @@ export class CoreEngine {
   }
 
   public update(scaledDt: number, realDt: number = scaledDt) {
-    if (this.state.status !== "Playing") return;
+    if (
+      this.state.status !== "Playing" &&
+      this.state.mode !== EngineMode.Replay
+    )
+      return;
     if (scaledDt === 0) return;
+
+    // Command Playback in Replay Mode
+    if (this.state.mode === EngineMode.Replay) {
+      while (
+        this.replayIndex < this.commandLog.length &&
+        this.commandLog[this.replayIndex].tick <= this.state.t
+      ) {
+        this.commandHandler.applyCommand(
+          this.state,
+          this.commandLog[this.replayIndex].command,
+        );
+        this.replayIndex++;
+      }
+    }
 
     this.state.t += scaledDt;
 

@@ -14,6 +14,16 @@ This directory contains the core simulation logic for Xenopurge. It follows a de
 - `Pathfinder.ts`: Implements A\* pathfinding on the `Graph`, respecting door states.
 - `worker.ts`: The Web Worker entry point that runs the `CoreEngine` loop.
 
+## Engine Modes
+
+The engine supports two modes defined in `EngineMode`:
+- `Simulation`: Active gameplay where user commands are recorded and processed.
+- `Replay`: Non-interactive playback of a `commandLog`, used for background replays during the mission debrief.
+
+## Mission Replay
+
+A mission run can be perfectly reproduced by re-initializing the engine with the same seed and the recorded `commandLog`. This is used to show a time-accelerated recap of the mission while the player reviews their stats.
+
 ## Subdirectories
 
 - `ai/`: Specialized AI logic for enemies and soldiers.

@@ -462,6 +462,18 @@ export type Enemy = Entity & {
   lastAttackTarget?: Vector2;
 };
 
+export enum EngineMode {
+  Simulation = "Simulation",
+  Replay = "Replay",
+}
+
+export type CommandLogEntry = {
+  tick: number;
+  command: Command;
+};
+
+export type GameStatus = "Playing" | "Won" | "Lost";
+
 export type GameState = {
   t: number;
   map: MapDefinition;
@@ -473,7 +485,9 @@ export type GameState = {
   threatLevel: number;
   aliensKilled: number;
   casualties: number;
-  status: "Playing" | "Victory" | "Defeat";
+  status: GameStatus;
+  mode: EngineMode;
+  commandLog?: CommandLogEntry[];
   debugOverlayEnabled: boolean;
   losOverlayEnabled: boolean;
   timeScale: number;
@@ -515,6 +529,8 @@ export type WorkerMessage =
         startingThreatLevel?: number;
         initialTimeScale?: number;
         startPaused?: boolean;
+        mode?: EngineMode;
+        commandLog?: CommandLogEntry[];
       };
     } // Updated
   | { type: "COMMAND"; payload: Command }
