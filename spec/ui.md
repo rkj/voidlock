@@ -39,6 +39,16 @@ The application is divided into distinct screens to reduce UI clutter and improv
     - "Launch Mission" -> Starts Engine, switches to Mission Screen.
     - "Back" -> Main Menu.
 
+2b. **Squad Equipment Screen**
+    - **Access**: Available from "Mission Setup" (Custom) and "Campaign Hub" (Between missions).
+    - **Layout**:
+      - **Left Panel (Soldier List)**: Select a soldier to configure.
+      - **Center Panel (Paper Doll)**: Slots for Right Hand, Left Hand, Body, Feet. Displays current stats (HP, Speed, Acc).
+      - **Right Panel (Armory)**: Tabbed list of available equipment (Weapons, Armor) and Squad Items (Grenades, Medkits).
+    - **Functionality**:
+      - Assign weapons/armor to specific soldier slots.
+      - Allocate global items (e.g., "Take 3 Grenades") to the mission inventory pool.
+
 3.  **Mission Screen** (Active Gameplay)
     - **Main View**: Canvas/WebGL rendering of the game world.
     - **Top Left Overlay**: Display current Map Seed (e.g., "Seed: 12345").
@@ -46,9 +56,11 @@ The application is divided into distinct screens to reduce UI clutter and improv
     - **Right Panel**:
       - **Objectives List**: Current status of mission objectives.
         - **Format**: Unified visual component for both active gameplay and Game Over summary.
-        - **Style**: `[Icon] [Objective Kind]`.
+        - **Style**: `[Icon] [Objective Kind]`. (e.g. "✔ Recover Artifact").
+        - **Text Content**: Must NOT display status text like "(Pending)" or "(Completed)". The icon serves this purpose.
         - **Icons**: '○' (Pending), '✔' (Completed), '✘' (Failed).
-        - **Coordinates**: Hidden by default to prevent meta-gaming. Visible **ONLY** if the Debug Overlay is enabled.
+        - **Accessibility**: Icons must include a standard HTML `title` attribute (tooltip) describing the state (e.g., "Pending", "Completed") for accessibility.
+        - **Coordinates**: The text `at (x,y)` MUST be hidden by default to prevent meta-gaming. It should be visible **ONLY** if the Debug Overlay is enabled.
         - **Map Rendering**: Objectives at the Extraction Zone (e.g., "Extract Squad") must NOT render a separate "Objective" icon on the map, as the Extraction Zone itself is already visualized.
       - **Extraction Status**: Location/Progress (Coordinates subject to the same visibility rules as objectives).
       - **Threat Meter**: Visual indicator of Director intensity.
@@ -89,10 +101,16 @@ The UI must be optimized for visibility and information density, utilizing the f
 
 - **Top Bar (Header):** Fixed height (40px). Displays Game Time, Status, Seed, Version, and the **Threat Meter**.
 - **Soldier Bar (Sub-header):** Full-width strip below the top bar (Height: 56px). Displays all soldiers in a horizontal layout.
-  - **Layout:** Items must fit within the container **without scrolling** (no overflow). Use flexible sizing to fill available width.
-  - **Soldier Card:** Fixed or flexible width to prevent text wrapping. Visual stability is key—content updates (e.g., status text changes) must NOT cause layout jitter (box resizing).
-  - **Selection:** Individual cards show HP and status but **no buttons**. Clicking a card is a shortcut for selecting that unit in the menu flow (Level 3).
-- **Command Panel (Right):** Fixed width (300px). Displays the current level of the **Hierarchical Command Menu**. Visual feedback must be crystal clear about which level the user is currently in.
+  - **Soldier Card:** Optimized for 56px height.
+    - **Soldier Info**: HP bar, Number, Name, Status.
+    - **Stat Visualization**: All labels (SPD, ACC, DMG, FR, ASP, Range) **MUST** be replaced with graphical icons to save space and improve scannability.
+    - **Tooltips**: Every stat icon must include a standard HTML `title` attribute providing the full name of the stat (e.g., `title="Attack Speed"`).
+    - **Equipped Weapons**:
+      - **Right Hand (Ranged)**: Weapon Icon, [Damage Icon] Value, [FR Icon] Value, [Range Icon] Value.
+      - **Left Hand (Melee)**: Weapon Icon, [Damage Icon] Value, [ASP Icon] Value.
+  - **Layout:** Horizontal layout. Stats must be extremely compact.
+- **Command Panel (Right):** Fixed width (300px). 
+  - **Enemy Intel**: Displays grouped stats for visible enemies using the same **Icon + Tooltip** model as the Soldier Cards. (SPD, ACC, DMG, FR, Range).
 - **Main Simulation Area:** Flex container containing the Game Canvas. Centered. Overlay numbers appear on the canvas during target/unit selection.
 - **Game Over Summary:** Upon Win/Loss, a summary panel/popup must appear (or replace the Right Panel) showing:
   - Result (Mission Accomplished / Squad Wiped).
