@@ -68,7 +68,9 @@ The game must be fully playable via keyboard using a strict hierarchical command
     - `4`: Collect (Objectives) - _Disabled if no items visible_
     - `5`: Extract - _Disabled if not at extraction_
   - **Level 2 (Target/Mode Selection):**
-    - **Move:** Select Room (Labeled A-Z, 0-9) or specific cell. Rooms are filtered by discovery state.
+    - **Move:** Select Room (Labeled A-Z, 0-9) or specific cell.
+      - **Overlay:** When this menu level is active, the Map View **MUST** render the corresponding Room Labels (e.g., "1", "2", "A") over the center of each room on the canvas.
+      - **Filter:** The room list must strictly filter to show ONLY rooms that have been **Discovered** (fog lifted).
     - **Engagement:** `1`: Engage (Stop & Shoot), `2`: Ignore (Run).
     - **Collect/Extract:** Context-aware immediate execution or selection if multiple targets.
   - **Universal Back:** option `0` or `ESC` always goes back one level.

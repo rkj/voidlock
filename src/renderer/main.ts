@@ -178,6 +178,11 @@ const launchMission = () => {
     startingThreatLevel = parseInt(threatInput.value) || 0;
   }
 
+  const tsSlider = document.getElementById(
+    "time-scale-slider",
+  ) as HTMLInputElement;
+  const initialTimeScale = tsSlider ? parseFloat(tsSlider.value) : 1.0;
+
   ConfigManager.save({
     mapWidth: currentMapWidth,
     mapHeight: currentMapHeight,
@@ -207,6 +212,8 @@ const launchMission = () => {
     currentSpawnPointCount,
     losOverlayEnabled,
     startingThreatLevel,
+    initialTimeScale,
+    false, // startPaused
   );
 
   const seedDisplay = document.getElementById("seed-display");
@@ -250,6 +257,17 @@ const launchMission = () => {
 const abortMission = () => {
   gameClient.stop();
   gameClient.onStateUpdate(null);
+
+  // Reset time scale slider for next mission setup
+  const tsSlider = document.getElementById(
+    "time-scale-slider",
+  ) as HTMLInputElement;
+  const tsValue = document.getElementById("time-scale-value");
+  if (tsSlider) {
+    tsSlider.value = "1.0";
+    if (tsValue) tsValue.textContent = "1.0";
+  }
+
   screenManager.show("main-menu");
 };
 

@@ -77,6 +77,8 @@ describe("GameClient", () => {
         squadConfig: defaultSquad,
         losOverlayEnabled: false,
         startingThreatLevel: 0,
+        initialTimeScale: 1.0,
+        startPaused: false,
       },
     });
 
@@ -160,6 +162,8 @@ describe("GameClient", () => {
         squadConfig: defaultSquad,
         losOverlayEnabled: false,
         startingThreatLevel: 0,
+        initialTimeScale: 1.0,
+        startPaused: false,
       },
     });
 

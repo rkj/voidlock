@@ -4,7 +4,7 @@ This directory contains types, constants, and utilities that are shared between 
 
 ## Files
 
-- `types.ts`: The central location for all shared interfaces, enums, and type definitions (e.g., `GameState`, `Unit`, `MapDefinition`, `Command`, `Weapon`).
+- `types.ts`: The central location for all shared interfaces, enums, and type definitions (e.g., `GameState`, `Unit`, `MapDefinition`, `Command`, `Weapon`). `GameState` includes simulation status flags like `isPaused`, `timeScale`, and `isSlowMotion`.
 - `PRNG.ts`: A deterministic Pseudo-Random Number Generator implementation.
 
 ## Functionality

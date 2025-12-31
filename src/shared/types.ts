@@ -476,6 +476,9 @@ export type GameState = {
   status: "Playing" | "Victory" | "Defeat";
   debugOverlayEnabled: boolean;
   losOverlayEnabled: boolean;
+  timeScale: number;
+  isPaused: boolean;
+  isSlowMotion: boolean;
 };
 
 // --- Protocol ---
@@ -510,6 +513,8 @@ export type WorkerMessage =
         missionType?: MissionType;
         losOverlayEnabled?: boolean;
         startingThreatLevel?: number;
+        initialTimeScale?: number;
+        startPaused?: boolean;
       };
     } // Updated
   | { type: "COMMAND"; payload: Command }
