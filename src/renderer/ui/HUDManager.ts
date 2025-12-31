@@ -83,6 +83,7 @@ export class HUDManager {
         }
       });
       rightPanel.appendChild(menuDiv);
+      this.lastMenuHtml = ""; // Force re-render if menuDiv was just created
     }
 
     const menuRenderState = this.menuController.getRenderableState(state);
