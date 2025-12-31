@@ -20,7 +20,7 @@ describe("Regression fgao: Pause Threat", () => {
     const engine = new CoreEngine(
       minimalMap,
       123,
-      [], // empty squad
+      { soldiers: [], inventory: {} }, // empty squad // empty squad
       false,
       false,
       MissionType.Default,
@@ -44,7 +44,7 @@ describe("Regression fgao: Pause Threat", () => {
     const engine = new CoreEngine(
       minimalMap,
       123,
-      [],
+      { soldiers: [], inventory: {} }, // empty squad
       false,
       false,
       MissionType.Default,

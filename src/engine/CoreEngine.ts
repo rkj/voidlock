@@ -109,6 +109,7 @@ export class CoreEngine {
       timeScale: initialTimeScale,
       isPaused: startPaused,
       isSlowMotion: initialTimeScale < 1.0,
+      squadInventory: squadConfig.inventory || {},
     };
 
     // Mission Setup
@@ -175,95 +176,75 @@ export class CoreEngine {
 
     // Spawn units based on squadConfig
     let unitCount = 1;
-    squadConfig.forEach((squadItem) => {
-      const arch = ArchetypeLibrary[squadItem.archetypeId];
+    squadConfig.soldiers.forEach((soldierConfig) => {
+      const arch = ArchetypeLibrary[soldierConfig.archetypeId];
       if (!arch) return;
 
-      for (let i = 0; i < squadItem.count; i++) {
-        let startPos = map.squadSpawn || map.extraction || { x: 0, y: 0 };
-        if (map.squadSpawns && map.squadSpawns.length > 0) {
-          startPos =
-            map.squadSpawns[this.prng.nextInt(0, map.squadSpawns.length - 1)];
-        }
-
-        const startX = startPos.x + 0.5;
-        const startY = startPos.y + 0.5;
-
-        let hp = arch.baseHp;
-        let speed = arch.speed;
-        let equipmentAccuracyBonus = 0;
-        const equipment: EquipmentState = {
-          inventory: [],
-        };
-
-        if (squadItem.equipment) {
-          if (squadItem.equipment.armorId) {
-            const armor = ItemLibrary[squadItem.equipment.armorId];
-            if (armor) {
-              hp += armor.hpBonus || 0;
-              speed += armor.speedBonus || 0;
-              equipmentAccuracyBonus += armor.accuracyBonus || 0;
-              equipment.armorId = armor.id;
-            }
-          }
-          if (squadItem.equipment.shoesId) {
-            const shoes = ItemLibrary[squadItem.equipment.shoesId];
-            if (shoes) {
-              hp += shoes.hpBonus || 0;
-              speed += shoes.speedBonus || 0;
-              equipmentAccuracyBonus += shoes.accuracyBonus || 0;
-              equipment.shoesId = shoes.id;
-            }
-          }
-          if (squadItem.equipment.itemIds) {
-            squadItem.equipment.itemIds.forEach((itemId) => {
-              const item = ItemLibrary[itemId];
-              if (item) {
-                equipment.inventory.push({
-                  itemId: item.id,
-                  charges: item.charges || 0,
-                });
-                hp += item.hpBonus || 0;
-                speed += item.speedBonus || 0;
-                equipmentAccuracyBonus += item.accuracyBonus || 0;
-              }
-            });
-          }
-        }
-
-        const activeWeapon = WeaponLibrary[arch.rangedWeaponId || ""];
-        const weaponAccuracy = activeWeapon ? activeWeapon.accuracy : 0;
-
-        this.addUnit({
-          id: `${arch.id}-${unitCount++}`,
-          archetypeId: arch.id,
-          pos: {
-            x: startX + (this.prng.next() - 0.5),
-            y: startY + (this.prng.next() - 0.5),
-          },
-          visualJitter: {
-            x: (this.prng.next() - 0.5) * 0.4,
-            y: (this.prng.next() - 0.5) * 0.4,
-          },
-          hp: hp,
-          maxHp: hp,
-          state: UnitState.Idle,
-          damage: arch.damage,
-          fireRate: arch.fireRate * (speed > 0 ? 10 / speed : 1),
-          soldierAim: arch.soldierAim,
-          equipmentAccuracyBonus: equipmentAccuracyBonus,
-          accuracy: arch.soldierAim + weaponAccuracy + equipmentAccuracyBonus,
-          attackRange: arch.attackRange,
-          sightRange: arch.sightRange,
-          speed: speed,
-          meleeWeaponId: arch.meleeWeaponId,
-          rangedWeaponId: arch.rangedWeaponId,
-          activeWeaponId: arch.rangedWeaponId,
-          aiEnabled: true,
-          commandQueue: [],
-          equipment,
-        });
+      let startPos = map.squadSpawn || map.extraction || { x: 0, y: 0 };
+      if (map.squadSpawns && map.squadSpawns.length > 0) {
+        startPos =
+          map.squadSpawns[this.prng.nextInt(0, map.squadSpawns.length - 1)];
       }
+
+      const startX = startPos.x + 0.5;
+      const startY = startPos.y + 0.5;
+
+      let hp = arch.baseHp;
+      let speed = arch.speed;
+      let equipmentAccuracyBonus = 0;
+
+      const rightHand = soldierConfig.rightHand || arch.rightHand;
+      const leftHand = soldierConfig.leftHand || arch.leftHand;
+      const body = soldierConfig.body || arch.body;
+      const feet = soldierConfig.feet || arch.feet;
+
+      const slots = [body, feet, rightHand, leftHand];
+      slots.forEach((itemId) => {
+        if (itemId) {
+          const item = ItemLibrary[itemId];
+          if (item) {
+            hp += item.hpBonus || 0;
+            speed += item.speedBonus || 0;
+            equipmentAccuracyBonus += item.accuracyBonus || 0;
+          }
+        }
+      });
+
+      const activeWeaponId = rightHand || "";
+      const activeWeapon = WeaponLibrary[activeWeaponId];
+      const weaponAccuracy = activeWeapon ? activeWeapon.accuracy : 0;
+
+      this.addUnit({
+        id: `${arch.id}-${unitCount++}`,
+        archetypeId: arch.id,
+        pos: {
+          x: startX + (this.prng.next() - 0.5),
+          y: startY + (this.prng.next() - 0.5),
+        },
+        visualJitter: {
+          x: (this.prng.next() - 0.5) * 0.4,
+          y: (this.prng.next() - 0.5) * 0.4,
+        },
+        hp: hp,
+        maxHp: hp,
+        state: UnitState.Idle,
+        damage: activeWeapon ? activeWeapon.damage : arch.damage,
+        fireRate: activeWeapon ? activeWeapon.fireRate : arch.fireRate,
+        soldierAim: arch.soldierAim,
+        equipmentAccuracyBonus,
+        accuracy: arch.soldierAim + equipmentAccuracyBonus + weaponAccuracy,
+        attackRange: activeWeapon ? activeWeapon.range : arch.attackRange,
+        sightRange: arch.sightRange,
+        rightHand,
+        leftHand,
+        body,
+        feet,
+        activeWeaponId,
+        engagementPolicy: "ENGAGE",
+        engagementPolicySource: "Manual",
+        commandQueue: [],
+        speed: speed,
+      } as Unit);
     });
   }
 

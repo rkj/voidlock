@@ -33,7 +33,7 @@ describe("CoreEngine Early Door Sync", () => {
     const engine = new CoreEngine(
       mockMap,
       123,
-      [],
+      { soldiers: [], inventory: {} },
       false,
       false,
       MissionType.Default,

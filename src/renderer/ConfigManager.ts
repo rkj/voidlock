@@ -59,10 +59,10 @@ export class ConfigManager {
       missionType: MissionType.Default,
       lastSeed: Date.now(),
       startingThreatLevel: 0,
-      squadConfig: [
-        { archetypeId: "assault", count: 1 },
-        { archetypeId: "medic", count: 1 },
-      ],
+      squadConfig: {
+        soldiers: [{ archetypeId: "assault" }, { archetypeId: "medic" }],
+        inventory: { medkit: 1, frag_grenade: 2 },
+      },
     };
   }
 }

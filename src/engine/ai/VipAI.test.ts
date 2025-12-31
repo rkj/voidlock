@@ -25,7 +25,7 @@ describe("VIP AI Behavior", () => {
   };
 
   it("should be locked initially and rescued by a nearby soldier", () => {
-    const squadConfig: SquadConfig = [{ archetypeId: "assault", count: 1 }];
+    const squadConfig: SquadConfig = { soldiers: [{ archetypeId: "assault" }], inventory: {} };
     const wallMap: MapDefinition = {
       ...mockMap,
       walls: [
@@ -101,7 +101,7 @@ describe("VIP AI Behavior", () => {
   });
 
   it("should flee from nearby enemies", () => {
-    const squadConfig: SquadConfig = [];
+    const squadConfig: SquadConfig = { soldiers: [], inventory: {} };
     const engine = new CoreEngine(
       mockMap,
       123,
@@ -164,7 +164,7 @@ describe("VIP AI Behavior", () => {
   });
 
   it("should prioritize extraction once discovered", () => {
-    const squadConfig: SquadConfig = [];
+    const squadConfig: SquadConfig = { soldiers: [], inventory: {} };
     const engine = new CoreEngine(
       mockMap,
       123,
@@ -200,7 +200,7 @@ describe("VIP AI Behavior", () => {
   });
 
   it("should ignore objectives", () => {
-    const squadConfig: SquadConfig = [];
+    const squadConfig: SquadConfig = { soldiers: [], inventory: {} };
     const engine = new CoreEngine(
       mockMap,
       123,

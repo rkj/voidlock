@@ -28,7 +28,7 @@ describe("Timed Actions (Extraction/Collection)", () => {
     const engine = new CoreEngine(
       mockMap,
       123,
-      [{ archetypeId: "assault", count: 1 }],
+      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
       false, // Manual control
       false,
     );
@@ -85,7 +85,7 @@ describe("Timed Actions (Extraction/Collection)", () => {
     const engine = new CoreEngine(
       objMap,
       123,
-      [{ archetypeId: "assault", count: 1 }],
+      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
       false,
       false,
     );
@@ -129,7 +129,7 @@ describe("Timed Actions (Extraction/Collection)", () => {
     const engine = new CoreEngine(
       mockMap,
       123,
-      [{ archetypeId: "assault", count: 1 }],
+      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
       false,
       false,
     );
@@ -169,7 +169,7 @@ describe("Timed Actions (Extraction/Collection)", () => {
     const engine = new CoreEngine(
       mockMap,
       123,
-      [{ archetypeId: "assault", count: 1 }],
+      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
       false,
       false,
     );
@@ -206,7 +206,7 @@ describe("Timed Actions (Extraction/Collection)", () => {
     const engine = new CoreEngine(
       mockMap,
       123,
-      [{ archetypeId: "assault", count: 1 }],
+      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
       false,
       false,
     );

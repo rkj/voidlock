@@ -13,7 +13,10 @@ describe("Timer Accuracy Regression", () => {
     height: 10,
     cells: [{ x: 0, y: 0, type: CellType.Floor }],
   };
-  const defaultSquad: SquadConfig = [{ archetypeId: "assault", count: 1 }];
+  const defaultSquad: SquadConfig = {
+    soldiers: [{ archetypeId: "assault" }],
+    inventory: {},
+  };
 
   it("should correctly track elapsed real-time when 1.0x speed is simulated", () => {
     const engine = new CoreEngine(

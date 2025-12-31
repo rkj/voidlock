@@ -26,7 +26,10 @@ describe("Command: SET_ENGAGEMENT (Policy Logic)", () => {
   };
 
   beforeEach(() => {
-    const defaultSquad: SquadConfig = [{ archetypeId: "assault", count: 1 }];
+    const defaultSquad: SquadConfig = {
+    soldiers: [{ archetypeId: "assault" }],
+    inventory: {},
+  };
     engine = new CoreEngine(map, 123, defaultSquad, false, false);
     engine.clearUnits();
     engine.addUnit({

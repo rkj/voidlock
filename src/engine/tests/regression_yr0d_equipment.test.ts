@@ -21,13 +21,15 @@ describe("Equipment System - Passive Buffs", () => {
   };
 
   it("should apply HP bonus from Heavy Armor", () => {
-    const squadConfig: SquadConfig = [
-      {
-        archetypeId: "assault",
-        count: 1,
-        equipment: { armorId: "heavy_armor" },
-      },
-    ];
+    const squadConfig: SquadConfig = {
+      soldiers: [
+        {
+          archetypeId: "assault",
+          body: "heavy_armor",
+        },
+      ],
+      inventory: {},
+    };
 
     const engine = new CoreEngine(mockMap, 1, squadConfig, false, false);
     const unit = engine.getState().units[0];
@@ -38,13 +40,15 @@ describe("Equipment System - Passive Buffs", () => {
   });
 
   it("should apply Speed and Accuracy debuffs from Heavy Armor", () => {
-    const squadConfig: SquadConfig = [
-      {
-        archetypeId: "assault",
-        count: 1,
-        equipment: { armorId: "heavy_armor" },
-      },
-    ];
+    const squadConfig: SquadConfig = {
+      soldiers: [
+        {
+          archetypeId: "assault",
+          body: "heavy_armor",
+        },
+      ],
+      inventory: {},
+    };
 
     const engine = new CoreEngine(mockMap, 1, squadConfig, false, false);
     const unit = engine.getState().units[0];
@@ -56,13 +60,15 @@ describe("Equipment System - Passive Buffs", () => {
   });
 
   it("should apply Speed bonus from Combat Shoes", () => {
-    const squadConfig: SquadConfig = [
-      {
-        archetypeId: "assault",
-        count: 1,
-        equipment: { shoesId: "combat_shoes" },
-      },
-    ];
+    const squadConfig: SquadConfig = {
+      soldiers: [
+        {
+          archetypeId: "assault",
+          feet: "combat_shoes",
+        },
+      ],
+      inventory: {},
+    };
 
     const engine = new CoreEngine(mockMap, 1, squadConfig, false, false);
     const unit = engine.getState().units[0];
@@ -72,16 +78,16 @@ describe("Equipment System - Passive Buffs", () => {
   });
 
   it("should apply multiple equipment bonuses", () => {
-    const squadConfig: SquadConfig = [
-      {
-        archetypeId: "assault",
-        count: 1,
-        equipment: {
-          armorId: "light_armor",
-          shoesId: "combat_shoes",
+    const squadConfig: SquadConfig = {
+      soldiers: [
+        {
+          archetypeId: "assault",
+          body: "light_armor",
+          feet: "combat_shoes",
         },
-      },
-    ];
+      ],
+      inventory: {},
+    };
 
     const engine = new CoreEngine(mockMap, 1, squadConfig, false, false);
     const unit = engine.getState().units[0];
@@ -95,24 +101,16 @@ describe("Equipment System - Passive Buffs", () => {
     expect(unit.accuracy).toBe(95);
   });
 
-  it("should apply active item inventory and their potential passives", () => {
-    const squadConfig: SquadConfig = [
-      {
-        archetypeId: "assault",
-        count: 1,
-        equipment: {
-          itemIds: ["frag_grenade", "medkit"],
-        },
-      },
-    ];
+  it("should apply active items to global squad inventory", () => {
+    const squadConfig: SquadConfig = {
+      soldiers: [{ archetypeId: "assault" }],
+      inventory: { frag_grenade: 2, medkit: 1 },
+    };
 
     const engine = new CoreEngine(mockMap, 1, squadConfig, false, false);
-    const unit = engine.getState().units[0];
+    const state = engine.getState();
 
-    expect(unit.equipment?.inventory.length).toBe(2);
-    expect(unit.equipment?.inventory[0].itemId).toBe("frag_grenade");
-    expect(unit.equipment?.inventory[0].charges).toBe(2);
-    expect(unit.equipment?.inventory[1].itemId).toBe("medkit");
-    expect(unit.equipment?.inventory[1].charges).toBe(1);
+    expect(state.squadInventory["frag_grenade"]).toBe(2);
+    expect(state.squadInventory["medkit"]).toBe(1);
   });
 });

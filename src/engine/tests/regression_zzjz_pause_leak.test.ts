@@ -35,7 +35,10 @@ const mockMapGeneratorFactory = (
 describe("GameClient Regression zzjz (Pause/Speed Leak)", () => {
   let client: GameClient;
   const mockMap: MapDefinition = { width: 10, height: 10, cells: [] };
-  const defaultSquad: SquadConfig = [{ archetypeId: "assault", count: 1 }];
+  const defaultSquad: SquadConfig = {
+    soldiers: [{ archetypeId: "assault" }],
+    inventory: {},
+  };
 
   beforeEach(() => {
     vi.clearAllMocks();

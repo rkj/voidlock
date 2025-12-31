@@ -20,10 +20,15 @@ async function runSimulation() {
     const map = generator.generate();
 
     // 4 Soldiers
-    const squad: SquadConfig = [
-      { archetypeId: "assault", count: 2 },
-      { archetypeId: "medic", count: 2 },
-    ];
+    const squad: SquadConfig = {
+      soldiers: [
+        { archetypeId: "assault" },
+        { archetypeId: "assault" },
+        { archetypeId: "medic" },
+        { archetypeId: "heavy" },
+      ],
+      inventory: { medkit: 2, frag_grenade: 4 },
+    };
 
     // Enable agent control
     const engine = new CoreEngine(

@@ -22,13 +22,15 @@ describe("Regression 7xph - Accuracy Stats Reset on Weapon Swap", () => {
   };
 
   it("should maintain soldierAim and equipment bonuses when swapping weapons", () => {
-    const squadConfig: SquadConfig = [
-      {
-        archetypeId: "assault", // soldierAim: 90
-        count: 1,
-        equipment: { armorId: "heavy_armor" }, // accuracyBonus: -10
-      },
-    ];
+    const squadConfig: SquadConfig = {
+      soldiers: [
+        {
+          archetypeId: "assault",
+          body: "heavy_armor",
+        },
+      ],
+      inventory: {},
+    };
 
     const engine = new CoreEngine(mockMap, 1, squadConfig, false, false);
     const state = engine.getState();

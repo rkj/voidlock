@@ -13,32 +13,27 @@ describe("Hidden Objectives", () => {
   let map: MapDefinition;
 
   beforeEach(() => {
-    // 10x10 open map
-    const cells = [];
+    const cells: any[] = [];
     for (let y = 0; y < 10; y++) {
       for (let x = 0; x < 10; x++) {
         cells.push({ x, y, type: CellType.Floor });
       }
     }
-    const objectives: Objective[] = [
-      {
-        id: "obj1",
-        kind: "Recover",
-        state: "Pending",
-        targetCell: { x: 9, y: 9 },
-      },
-    ];
-    map = {
+    const map: MapDefinition = {
       width: 10,
       height: 10,
       cells,
       spawnPoints: [],
-      extraction: undefined,
-      objectives,
+      objectives: [
+        {
+          id: "obj1",
+          kind: "Recover",
+          targetCell: { x: 8, y: 8 },
+        },
+      ],
     };
 
-    engine = new CoreEngine(map, 123, [], true, false);
-    engine.clearUnits();
+    engine = new CoreEngine(map, 123, { soldiers: [], inventory: {} }, true, false);
   });
 
   it("should be hidden initially and revealed when discovered", () => {

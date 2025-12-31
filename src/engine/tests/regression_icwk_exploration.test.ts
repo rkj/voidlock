@@ -10,7 +10,10 @@ import {
 
 describe("Exploration Efficiency Regression (ICWK)", () => {
   const seed = 123;
-  const squad: SquadConfig = [{ archetypeId: "assault", count: 1 }];
+  const squad: SquadConfig = {
+    soldiers: [{ archetypeId: "assault" }],
+    inventory: {},
+  };
 
   it("should explore the map efficiently (closest first)", () => {
     const asciiMap = `

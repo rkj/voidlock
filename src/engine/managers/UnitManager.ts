@@ -798,7 +798,7 @@ export class UnitManager {
     state: GameState,
     visibleCells: Set<string>,
   ) {
-    if (!unit.meleeWeaponId || !unit.rangedWeaponId) return;
+    if (!unit.rightHand && !unit.leftHand) return;
 
     const visibleEnemies = state.enemies.filter(
       (enemy) =>
@@ -808,29 +808,33 @@ export class UnitManager {
         ),
     );
 
-    const meleeWeapon = WeaponLibrary[unit.meleeWeaponId];
-    const rangedWeapon = WeaponLibrary[unit.rangedWeaponId];
+    const rightWeapon = unit.rightHand
+      ? WeaponLibrary[unit.rightHand]
+      : undefined;
+    const leftWeapon = unit.leftHand ? WeaponLibrary[unit.leftHand] : undefined;
 
-    if (!meleeWeapon || !rangedWeapon) return;
+    if (!rightWeapon && !leftWeapon) return;
 
-    let targetWeaponId = unit.activeWeaponId || unit.rangedWeaponId;
+    let targetWeaponId = unit.activeWeaponId || unit.rightHand || unit.leftHand;
 
-    const enemiesInMelee = visibleEnemies.filter(
-      (e) => this.getDistance(unit.pos, e.pos) <= 1.05, // Slight buffer for melee
-    );
+    const enemiesInMelee = visibleEnemies.filter((e) => {
+      const meleeRange =
+        (leftWeapon?.type === "Melee" ? leftWeapon.range : 1) + 0.05;
+      return this.getDistance(unit.pos, e.pos) <= meleeRange;
+    });
 
-    if (enemiesInMelee.length > 0) {
-      targetWeaponId = unit.meleeWeaponId;
-    } else {
+    if (enemiesInMelee.length > 0 && leftWeapon?.type === "Melee") {
+      targetWeaponId = unit.leftHand;
+    } else if (rightWeapon) {
       const enemiesInRanged = visibleEnemies.filter(
-        (e) => this.getDistance(unit.pos, e.pos) <= rangedWeapon.range + 0.5,
+        (e) => this.getDistance(unit.pos, e.pos) <= rightWeapon.range + 0.5,
       );
       if (enemiesInRanged.length > 0) {
-        targetWeaponId = unit.rangedWeaponId;
+        targetWeaponId = unit.rightHand;
       }
     }
 
-    if (unit.activeWeaponId !== targetWeaponId) {
+    if (targetWeaponId && unit.activeWeaponId !== targetWeaponId) {
       unit.activeWeaponId = targetWeaponId;
       const weapon = WeaponLibrary[targetWeaponId];
       if (weapon) {

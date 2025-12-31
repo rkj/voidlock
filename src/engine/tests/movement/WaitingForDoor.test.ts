@@ -39,7 +39,7 @@ describe("Unit WaitingForDoor State", () => {
       objectives: [],
     };
 
-    const squad: SquadConfig = [];
+    const squad: SquadConfig = { soldiers: [], inventory: {} };
     engine = new CoreEngine(map, 123, squad, false, false);
     engine.clearUnits();
   });

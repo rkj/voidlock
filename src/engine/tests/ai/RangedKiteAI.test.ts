@@ -12,8 +12,8 @@ describe("RangedKiteAI", () => {
   let map: MapDefinition;
 
   beforeEach(() => {
-    // 10x10 open map
-    const cells = [];
+    // 10x10 open floor map
+    const cells: any[] = [];
     for (let y = 0; y < 10; y++) {
       for (let x = 0; x < 10; x++) {
         cells.push({ x, y, type: CellType.Floor });
@@ -28,7 +28,7 @@ describe("RangedKiteAI", () => {
       objectives: [],
     };
 
-    engine = new CoreEngine(map, 123, [], true, false);
+    engine = new CoreEngine(map, 123, { soldiers: [], inventory: {} }, true, false);
     engine.clearUnits();
   });
 

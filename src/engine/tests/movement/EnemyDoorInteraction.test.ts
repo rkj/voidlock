@@ -39,7 +39,7 @@ describe("Enemy Door Interaction", () => {
       objectives: [],
     };
 
-    engine = new CoreEngine(map, 123, [], true, false);
+    engine = new CoreEngine(map, 123, { soldiers: [], inventory: {} }, true, false);
     engine.clearUnits();
   });
 

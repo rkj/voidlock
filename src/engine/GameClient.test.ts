@@ -41,7 +41,10 @@ const mockMapGeneratorFactory = (
 describe("GameClient", () => {
   let client: GameClient;
   const mockMap: MapDefinition = { width: 10, height: 10, cells: [] };
-  const defaultSquad: SquadConfig = [{ archetypeId: "assault", count: 1 }]; // Define defaultSquad once
+  const defaultSquad: SquadConfig = {
+    soldiers: [{ archetypeId: "assault" }],
+    inventory: {},
+  }; // Define defaultSquad once
 
   beforeEach(() => {
     vi.clearAllMocks();

@@ -115,8 +115,10 @@ export type Unit = Entity & {
   soldierAim: number; // Base hit percentage (0-100)
   attackRange: number;
   sightRange: number;
-  meleeWeaponId?: string; // New
-  rangedWeaponId?: string; // New
+  rightHand?: string;
+  leftHand?: string;
+  body?: string;
+  feet?: string;
   activeWeaponId?: string; // New
   engagementPolicy?: EngagementPolicy; // Default: 'ENGAGE'
   engagementPolicySource?: "Manual" | "Autonomous"; // Track origin of policy
@@ -130,7 +132,6 @@ export type Unit = Entity & {
   speed: number; // Speed factor (x10 integer, e.g. 15 = 1.5 tiles/s)
   channeling?: ChannelingState; // New
   archetypeId: string;
-  equipment?: EquipmentState; // New
   equipmentAccuracyBonus: number; // Persisted equipment bonus
 };
 
@@ -160,12 +161,10 @@ export type Item = {
 };
 
 export type EquipmentState = {
-  armorId?: string;
-  shoesId?: string;
-  inventory: {
-    itemId: string;
-    charges: number;
-  }[];
+  body?: string;
+  feet?: string;
+  rightHand?: string;
+  leftHand?: string;
 };
 
 export const ItemLibrary: { [id: string]: Item } = {
@@ -225,8 +224,10 @@ export type Archetype = {
   attackRange: number;
   sightRange: number;
   speed: number; // Speed factor (x10 integer, e.g. 15 = 1.5 tiles/s)
-  meleeWeaponId?: string; // New
-  rangedWeaponId?: string; // New
+  rightHand?: string;
+  leftHand?: string;
+  body?: string;
+  feet?: string;
 };
 
 export type WeaponType = "Melee" | "Ranged";
@@ -319,8 +320,8 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     attackRange: 10,
     sightRange: 100,
     speed: 20,
-    meleeWeaponId: "knife",
-    rangedWeaponId: "pulse_rifle",
+    leftHand: "knife",
+    rightHand: "pulse_rifle",
   },
   medic: {
     id: "medic",
@@ -333,8 +334,8 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     attackRange: 6,
     sightRange: 100,
     speed: 25,
-    meleeWeaponId: "knife",
-    rangedWeaponId: "pistol",
+    leftHand: "knife",
+    rightHand: "pistol",
   },
   heavy: {
     id: "heavy",
@@ -347,8 +348,8 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     attackRange: 4,
     sightRange: 100,
     speed: 15,
-    meleeWeaponId: "hammer",
-    rangedWeaponId: "shotgun",
+    leftHand: "hammer",
+    rightHand: "shotgun",
   },
   vip: {
     id: "vip",
@@ -493,19 +494,23 @@ export type GameState = {
   timeScale: number;
   isPaused: boolean;
   isSlowMotion: boolean;
+  squadInventory: { [itemId: string]: number };
 };
 
 // --- Protocol ---
 
-export type SquadConfig = {
+export type SquadSoldierConfig = {
   archetypeId: string;
-  count: number;
-  equipment?: {
-    armorId?: string;
-    shoesId?: string;
-    itemIds?: string[];
-  };
-}[]; // New type for Squad Config
+  rightHand?: string;
+  leftHand?: string;
+  body?: string;
+  feet?: string;
+};
+
+export type SquadConfig = {
+  soldiers: SquadSoldierConfig[];
+  inventory: { [itemId: string]: number };
+}; // Updated type for Squad Config
 
 export enum MissionType {
   Default = "Default",
@@ -604,7 +609,6 @@ export type ResumeAiCommand = {
 
 export type UseItemCommand = {
   type: CommandType.USE_ITEM;
-  unitId: string;
   itemId: string;
   target?: Vector2;
   queue?: boolean;
