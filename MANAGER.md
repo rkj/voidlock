@@ -14,14 +14,15 @@
 At the start of every session, run:
 
 1.  `bd list --status in_progress --json`: Check for unfinished work.
-2.  `bd ready --json -n 1`: Check for new work (if nothing is in progress).
+2.  [if in progress is empty] `bd ready --json -n 1`: Check for all actionable tasks that are unblocked.
 
 **Decision Logic:**
 
 - If `in_progress` exists: **RESUME** management (Skip to Section 3: Verification).
 - If `ready` exists: **SELECT** the highest priority task.
-  1. **START**: Run `bd update <TASK_ID> --status in_progress`.
+  1. **CLAIM**: Run `bd update <TASK_ID> --status in_progress`.
   2. **DISPATCH**: Run the `gemini` command (Section 2).
+- **Dependency Management**: If a task is selected but you realize it has prerequisites, **DO NOT DISPATCH**. Use `bd dep add <TASK_ID> <PREREQ_ID>` and then run `bd ready` again.
 
 ## 2. Task Delegation (The Dispatch)
 

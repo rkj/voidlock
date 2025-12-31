@@ -82,3 +82,15 @@ The visibility rules depend on the Mission/Map config:
 - `savedPresets[]`
 - `lastSeed`
 - Optional: `replays[]` (bounded ring buffer)
+
+## 10) Session Transitions
+
+To prevent state leakage and UI "ghosting", the following sanitization rules apply:
+
+1. **Mission Start (INIT)**:
+   - Clear all previous `WorldState` snapshots in the Client.
+   - Reset UI components (Command Menu, Soldier Cards, Objective List).
+   - Reset Camera position/zoom to default squad focus.
+2. **Return to Menu**:
+   - Explicitly clear the "Game Over" summary and any active pause overlays.
+   - Stop the Replay background process if running.

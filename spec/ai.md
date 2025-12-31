@@ -33,8 +33,9 @@ The automated soldier AI follows a multi-tier logic profile when not under direc
     - **Retreat:** If HP falls below 25%, the unit's logic switches to `IGNORE` engagement and prioritizes moving away from the closest threat toward a discovered "safe" cell (no visible enemies).
     - **Group Up:** If a unit is isolated (no allies within 5 tiles) and threats are present, it prioritizes moving toward the closest ally.
 
-4.  **Autonomous Exploration**:
+4.  **Autonomous Exploration & Objective Acquisition**:
     - If no threats are present and no manual commands are queued, units prioritize exploring the closest undiscovered floor cells.
+    - **Priority Override**: If an objective item (e.g., Artifact) or a target (e.g., Hive) is visible in LOS, units **MUST** immediately prioritize its acquisition over general exploration.
     - Once the map is fully discovered and all objectives are complete, units automatically pathfind to the extraction point.
 
 5.  **VIP Logic (MissionType: EscortVIP)**:
