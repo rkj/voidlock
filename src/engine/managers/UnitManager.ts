@@ -58,11 +58,12 @@ export class UnitManager {
       // If unit has an active command targeting an objective
       if (
         u.activeCommand?.type === CommandType.MOVE_TO &&
-        u.activeCommand.target
+        u.activeCommand.target &&
+        u.activeCommand.label !== "Exploring"
       ) {
         const target = u.activeCommand.target;
         const obj = state.objectives?.find((o) => {
-          if (o.kind === "Recover" && o.targetCell) {
+          if ((o.kind === "Recover" || o.kind === "Escort") && o.targetCell) {
             return o.targetCell.x === target.x && o.targetCell.y === target.y;
           }
           if (o.kind === "Kill" && o.targetEnemyId) {
@@ -388,7 +389,10 @@ export class UnitManager {
 
             for (const obj of pendingObjectives) {
               let targetPos: Vector2 | null = null;
-              if (obj.kind === "Recover" && obj.targetCell) {
+              if (
+                (obj.kind === "Recover" || obj.kind === "Escort") &&
+                obj.targetCell
+              ) {
                 targetPos = {
                   x: obj.targetCell.x + 0.5,
                   y: obj.targetCell.y + 0.5,
@@ -418,7 +422,11 @@ export class UnitManager {
             if (bestObj) {
               claimedObjectives.add(bestObj.obj.id);
               let target = { x: 0, y: 0 };
-              if (bestObj.obj.kind === "Recover" && bestObj.obj.targetCell)
+              if (
+                (bestObj.obj.kind === "Recover" ||
+                  bestObj.obj.kind === "Escort") &&
+                bestObj.obj.targetCell
+              )
                 target = bestObj.obj.targetCell;
               else if (
                 bestObj.obj.kind === "Kill" &&
@@ -436,7 +444,11 @@ export class UnitManager {
                 Math.floor(unit.pos.y) !== target.y
               ) {
                 const label =
-                  bestObj.obj.kind === "Recover" ? "Recovering" : "Hunting";
+                  bestObj.obj.kind === "Recover"
+                    ? "Recovering"
+                    : bestObj.obj.kind === "Escort"
+                      ? "Escorting"
+                      : "Hunting";
                 this.executeCommand(
                   unit,
                   {
