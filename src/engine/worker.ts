@@ -1,5 +1,5 @@
 import { CoreEngine } from "./CoreEngine";
-import { WorkerMessage, MainMessage } from "../shared/types";
+import { WorkerMessage, MainMessage, EngineMode } from "../shared/types";
 
 let engine: CoreEngine | null = null;
 let loopId: any = null;
@@ -25,6 +25,8 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
         msg.payload.startingThreatLevel,
         timeScale,
         msg.payload.startPaused ?? false,
+        msg.payload.mode ?? EngineMode.Simulation,
+        msg.payload.commandLog ?? [],
       );
 
       // Start loop
@@ -44,8 +46,8 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
         };
         self.postMessage(updateMsg);
 
-        // Stop loop if mission ended
-        if (state.status !== "Playing") {
+        // Stop loop if mission ended and NOT in Replay mode
+        if (state.status !== "Playing" && state.mode !== EngineMode.Replay) {
           clearInterval(loopId);
           loopId = null;
           // We keep engine for QUERY_STATE if needed, or null it?
