@@ -1,4 +1,4 @@
-export type ScreenId = "main-menu" | "campaign" | "mission-setup" | "equipment" | "mission";
+export type ScreenId = "main-menu" | "campaign" | "mission-setup" | "equipment" | "mission" | "debrief";
 
 export class ScreenManager {
   private screens: Map<ScreenId, HTMLElement> = new Map();
@@ -11,6 +11,7 @@ export class ScreenManager {
     this.registerScreen("mission-setup");
     this.registerScreen("equipment");
     this.registerScreen("mission");
+    this.registerScreen("debrief");
 
     this.show("main-menu");
   }

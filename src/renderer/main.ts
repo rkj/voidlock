@@ -18,8 +18,10 @@ import { HUDManager } from "./ui/HUDManager";
 import { MapUtility } from "./MapUtility";
 import { InputManager } from "./InputManager";
 import { EquipmentScreen } from "./screens/EquipmentScreen";
+import { DebriefScreen } from "./screens/DebriefScreen";
 import { CampaignManager } from "./campaign/CampaignManager";
 import { CampaignScreen } from "./screens/CampaignScreen";
+import { CampaignNode, MissionReport } from "../shared/campaign_types";
 import pkg from "../../package.json";
 
 const VERSION = pkg.version;
@@ -27,8 +29,18 @@ const VERSION = pkg.version;
 // --- State ---
 const screenManager = new ScreenManager();
 const campaignManager = new CampaignManager();
+const debriefScreen = new DebriefScreen("screen-debrief", () => {
+  debriefScreen.hide();
+  if (currentCampaignNode) {
+    screenManager.show("campaign");
+  } else {
+    screenManager.show("main-menu");
+  }
+});
+let currentCampaignNode: CampaignNode | null = null;
 let selectedUnitId: string | null = null;
 let currentGameState: GameState | null = null;
+let debriefShown = false;
 let currentMapWidth = ConfigManager.getDefault().mapWidth;
 let currentMapHeight = ConfigManager.getDefault().mapHeight;
 
@@ -94,6 +106,33 @@ const inputManager = new InputManager(
 // --- Functions ---
 const updateUI = (state: GameState) => {
   hudManager.update(state, selectedUnitId);
+};
+
+const generateMissionReport = (
+  state: GameState,
+  node: CampaignNode | null,
+): MissionReport => {
+  return {
+    nodeId: node ? node.id : "custom",
+    seed: currentSeed,
+    result: state.status === "Won" ? "Won" : "Lost",
+    aliensKilled: state.stats.aliensKilled,
+    scrapGained:
+      state.status === "Won"
+        ? 100 + Math.floor(state.stats.aliensKilled * 5)
+        : 10,
+    intelGained: state.status === "Won" ? 5 : 0,
+    timeSpent: state.t,
+    soldierResults: state.units.map((u) => ({
+      soldierId: u.id,
+      xpGained:
+        (state.status === "Won" ? 50 : 10) +
+        (u.state !== UnitState.Dead ? 20 : 0),
+      kills: 0,
+      promoted: false,
+      status: u.state === UnitState.Dead ? "Dead" : "Healthy",
+    })),
+  };
 };
 
 const handleMenuInput = (key: string) => {
@@ -233,6 +272,7 @@ const launchMission = () => {
     gameSpeedValue.textContent = `${currentScale.toFixed(1)}x`;
 
   selectedUnitId = null;
+  debriefShown = false;
   const rightPanel = document.getElementById("right-panel");
   if (rightPanel) rightPanel.innerHTML = "";
   menuController.reset();
@@ -252,6 +292,22 @@ const launchMission = () => {
       renderer.setOverlay(menuController.overlayOptions);
       renderer.render(state);
     }
+
+    if ((state.status === "Won" || state.status === "Lost") && !debriefShown) {
+      debriefShown = true;
+      const report = generateMissionReport(state, currentCampaignNode);
+      campaignManager.processMissionResult(report);
+
+      // Start Replay in background
+      const replayData = gameClient.getReplayData();
+      if (replayData) {
+        gameClient.loadReplay(replayData);
+        gameClient.setTimeScale(5.0);
+      }
+
+      debriefScreen.show(report);
+    }
+
     updateUI(state);
   });
   screenManager.show("mission");

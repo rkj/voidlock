@@ -18,7 +18,7 @@ export class CampaignManager {
     const roster = this.generateInitialRoster(prng);
 
     this.state = {
-      version: "0.30.0", // Current project version
+      version: "0.32.0", // Current project version
       seed,
       rules,
       scrap: 500,
