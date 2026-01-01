@@ -322,130 +322,7 @@
       <!-- 3. Mission Setup Screen -->
       <div id="screen-mission-setup" class="screen screen-centered">
         <h1>MISSION CONFIGURATION</h1>
-
-        <div id="setup-content">
-          <!-- Map Generation Controls moved here -->
-          <div class="control-group">
-            <h3>Map Generation</h3>
-            <label for="map-generator-type">Generator Type:</label>
-            <select id="map-generator-type">
-              <option value="Procedural">Procedural Maze</option>
-              <option value="Static">Static Map</option>
-              <!-- TreeShip added via JS -->
-            </select>
-
-            <div style="display: flex; gap: 10px; width: 100%">
-              <div style="flex: 1">
-                <label for="map-width">Width:</label>
-                <input
-                  type="number"
-                  id="map-width"
-                  value="24"
-                  min="8"
-                  max="64"
-                />
-              </div>
-              <div style="flex: 1">
-                <label for="map-height">Height:</label>
-                <input
-                  type="number"
-                  id="map-height"
-                  value="24"
-                  min="8"
-                  max="64"
-                />
-              </div>
-            </div>
-
-            <div style="margin-top: 10px">
-              <label for="map-spawn-points"
-                >Enemy Spawn Points (Rooms only):</label
-              >
-              <input
-                type="number"
-                id="map-spawn-points"
-                value="3"
-                min="1"
-                max="10"
-              />
-            </div>
-
-            <div style="margin-top: 10px">
-              <label for="map-starting-threat"
-                >Starting Threat Level:
-                <span id="map-starting-threat-value">0</span>%</label
-              >
-              <input
-                type="range"
-                id="map-starting-threat"
-                value="0"
-                min="0"
-                max="100"
-                step="10"
-                style="width: 100%"
-              />
-            </div>
-
-            <div id="preset-map-controls" style="margin-top: 10px">
-              <label for="preset-map-select">Preset Maps:</label>
-              <select id="preset-map-select">
-                <option value="">-- Select a preset map --</option>
-                <option value="map-screenshot.json">Screenshot Map</option>
-              </select>
-              <button id="load-preset-map">Load Preset Map</button>
-            </div>
-
-            <label for="map-seed">Seed (optional):</label>
-            <input type="number" id="map-seed" placeholder="Random" />
-            <!-- Generate button logic will change to "Launch" -->
-
-            <div
-              id="static-map-controls"
-              style="display: none; margin-top: 10px"
-            >
-              <label for="static-map-json"
-                >Static Map JSON (Paste below or Upload):</label
-              >
-              <textarea
-                id="static-map-json"
-                rows="5"
-                style="width: 100%; box-sizing: border-box"
-              ></textarea>
-              <button id="load-static-map">Load Static JSON</button>
-              <input
-                type="file"
-                id="upload-static-map"
-                accept=".json"
-                style="margin-top: 5px"
-              />
-
-              <label for="ascii-map-input" style="margin-top: 10px"
-                >ASCII Map:</label
-              >
-              <textarea
-                id="ascii-map-input"
-                rows="5"
-                style="width: 100%; box-sizing: border-box"
-              ></textarea>
-              <button id="convert-ascii-to-map">Convert ASCII to Map</button>
-              <button id="convert-map-to-ascii">Convert Map to ASCII</button>
-
-              <!-- Content Pack IO moved here? Or keep general -->
-              <div id="content-pack-area"></div>
-            </div>
-          </div>
-
-          <!-- Squad Config -->
-          <div class="control-group">
-            <h3>Squad Configuration</h3>
-            <div
-              id="squad-builder"
-              style="display: flex; flex-direction: column; gap: 10px"
-            >
-              <!-- Dynamically populated by main.ts -->
-            </div>
-          </div>
-
+...
           <div
             style="
               margin-top: 30px;
@@ -456,13 +333,18 @@
           >
             <button id="btn-setup-back" class="back-button">Back</button>
             <button
-              id="btn-launch-mission"
+              id="btn-goto-equipment"
               style="font-size: 1.2em; padding: 15px 30px"
             >
-              LAUNCH MISSION
+              EQUIPMENT & supplies
             </button>
           </div>
         </div>
+      </div>
+
+      <!-- 3b. Equipment Screen -->
+      <div id="screen-equipment" class="screen">
+        <!-- Content will be injected by EquipmentScreen.ts -->
       </div>
 
       <!-- 4. Mission Screen (Game Loop) -->
