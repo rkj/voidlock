@@ -44,32 +44,42 @@ Issues in Beads are:
 Beads is designed to guide you through the project's task graph. Follow this workflow to ensure you are always working on the most relevant and unblocked tasks.
 
 ### 1. Discover Actionable Work
+
 Use the `ready` command to find tasks that have no open blockers. This is your primary source for "what to do next."
+
 ```bash
 bd ready
 ```
 
 ### 2. Inspect and Claim
+
 Once you've identified a task, view its details and mark it as in progress.
+
 ```bash
 bd show <issue-id>
 bd update <issue-id> --status in_progress
 ```
 
 ### 3. Handle Dependencies
+
 If you discover that a task depends on another, link them explicitly. This ensures that `bd ready` remains accurate.
+
 ```bash
 bd dep add <blocked-issue-id> <blocker-issue-id>
 ```
 
 ### 4. Create New Issues
+
 When you find bugs or new requirements, create them immediately. Use the `--deps` flag if they are blocked by or block existing work.
+
 ```bash
 bd create "New bug title" --type bug --priority P1
 ```
 
 ### 5. Completion
+
 Once finished, close the issue.
+
 ```bash
 bd close <issue-id>
 ```
@@ -77,4 +87,3 @@ bd close <issue-id>
 ---
 
 _Beads: Issue tracking that moves at the speed of thought_ ⚡
-

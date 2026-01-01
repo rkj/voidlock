@@ -1,6 +1,11 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { CoreEngine } from "../../CoreEngine";
-import { MapDefinition, CellType, UnitState, EnemyType } from "../../../shared/types";
+import {
+  MapDefinition,
+  CellType,
+  UnitState,
+  EnemyType,
+} from "../../../shared/types";
 
 describe("Enemy Movement", () => {
   let engine: CoreEngine;
@@ -23,7 +28,13 @@ describe("Enemy Movement", () => {
       objectives: [],
     };
 
-    engine = new CoreEngine(map, 123, { soldiers: [], inventory: {} }, true, false);
+    engine = new CoreEngine(
+      map,
+      123,
+      { soldiers: [], inventory: {} },
+      true,
+      false,
+    );
     engine.clearUnits();
   });
 

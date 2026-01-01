@@ -28,7 +28,8 @@ export class MissionManager {
       state: "Pending",
     }));
 
-    const hasVipInSquad = squadConfig?.soldiers?.some((s) => s.archetypeId === "vip") ?? false;
+    const hasVipInSquad =
+      squadConfig?.soldiers?.some((s) => s.archetypeId === "vip") ?? false;
 
     // Add Escort objective if it's an Escort mission OR if a VIP is present in the squad
     if (this.missionType === MissionType.EscortVIP || hasVipInSquad) {

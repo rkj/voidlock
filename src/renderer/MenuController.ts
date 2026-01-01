@@ -257,7 +257,9 @@ export class MenuController {
       );
       return !hasVisibleItems;
     } else if (option.label === "EXTRACT") {
-      return !gameState.map.extraction;
+      if (!gameState.map.extraction) return true;
+      const key = `${gameState.map.extraction.x},${gameState.map.extraction.y}`;
+      return !gameState.discoveredCells.includes(key);
     }
     return false;
   }
@@ -319,12 +321,16 @@ export class MenuController {
       });
     } else if (type === "CELL") {
       if (gameState.map.extraction) {
-        this.overlayOptions.push({
-          key: counter.toString(36),
-          label: "Extraction",
-          pos: gameState.map.extraction,
-        });
-        counter++;
+        const ext = gameState.map.extraction;
+        const key = `${ext.x},${ext.y}`;
+        if (gameState.discoveredCells.includes(key)) {
+          this.overlayOptions.push({
+            key: counter.toString(36),
+            label: "Extraction",
+            pos: ext,
+          });
+          counter++;
+        }
       }
       gameState.objectives.forEach((obj) => {
         if (obj.state === "Pending" && obj.visible && obj.targetCell) {

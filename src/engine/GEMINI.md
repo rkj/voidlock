@@ -17,6 +17,7 @@ This directory contains the core simulation logic for Xenopurge. It follows a de
 ## Engine Modes
 
 The engine supports two modes defined in `EngineMode`:
+
 - `Simulation`: Active gameplay where user commands are recorded and processed.
 - `Replay`: Non-interactive playback of a `commandLog`, used for background replays during the mission debrief.
 

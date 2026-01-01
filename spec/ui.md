@@ -39,15 +39,7 @@ The application is divided into distinct screens to reduce UI clutter and improv
     - "Launch Mission" -> Starts Engine, switches to Mission Screen.
     - "Back" -> Main Menu.
 
-2b. **Squad Equipment Screen**
-    - **Access**: Available from "Mission Setup" (Custom) and "Campaign Hub" (Between missions).
-    - **Layout**:
-      - **Left Panel (Soldier List)**: Select a soldier to configure.
-      - **Center Panel (Paper Doll)**: Slots for Right Hand, Left Hand, Body, Feet. Displays current stats (HP, Speed, Acc).
-      - **Right Panel (Armory)**: Tabbed list of available equipment (Weapons, Armor) and Squad Items (Grenades, Medkits).
-    - **Functionality**:
-      - Assign weapons/armor to specific soldier slots.
-      - Allocate global items (e.g., "Take 3 Grenades") to the mission inventory pool.
+2b. **Squad Equipment Screen** - **Access**: Available from "Mission Setup" (Custom) and "Campaign Hub" (Between missions). - **Layout**: - **Left Panel (Soldier List)**: Select a soldier to configure. - **Center Panel (Paper Doll)**: Slots for Right Hand, Left Hand, Body, Feet. Displays current stats (HP, Speed, Acc). - **Right Panel (Armory)**: Tabbed list of available equipment (Weapons, Armor) and Squad Items (Grenades, Medkits). - **Functionality**: - Assign weapons/armor to specific soldier slots. - Allocate global items (e.g., "Take 3 Grenades") to the mission inventory pool.
 
 3.  **Mission Screen** (Active Gameplay)
     - **Main View**: Canvas/WebGL rendering of the game world.
@@ -109,7 +101,7 @@ The UI must be optimized for visibility and information density, utilizing the f
       - **Right Hand (Ranged)**: Weapon Icon, [Damage Icon] Value, [FR Icon] Value, [Range Icon] Value.
       - **Left Hand (Melee)**: Weapon Icon, [Damage Icon] Value, [ASP Icon] Value.
   - **Layout:** Horizontal layout. Stats must be extremely compact.
-- **Command Panel (Right):** Fixed width (300px). 
+- **Command Panel (Right):** Fixed width (300px).
   - **Enemy Intel**: Displays grouped stats for visible enemies using the same **Icon + Tooltip** model as the Soldier Cards. (SPD, ACC, DMG, FR, Range).
 - **Main Simulation Area:** Flex container containing the Game Canvas. Centered. Overlay numbers appear on the canvas during target/unit selection.
 - **Game Over Summary:** Upon Win/Loss, a summary panel/popup must appear (or replace the Right Panel) showing:
