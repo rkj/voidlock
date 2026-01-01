@@ -17,6 +17,7 @@ import { MenuController } from "./MenuController";
 import { HUDManager } from "./ui/HUDManager";
 import { MapUtility } from "./MapUtility";
 import { InputManager } from "./InputManager";
+import { EquipmentScreen } from "./screens/EquipmentScreen";
 import pkg from "../../package.json";
 
 const VERSION = pkg.version;
@@ -292,9 +293,23 @@ document.addEventListener("DOMContentLoaded", () => {
       abortMission();
     }
   });
+
+  const equipmentScreen = new EquipmentScreen(
+    "screen-equipment",
+    currentSquad,
+    (config) => {
+      currentSquad = config;
+      launchMission();
+    },
+    () => screenManager.goBack(),
+  );
+
   document
-    .getElementById("btn-launch-mission")
-    ?.addEventListener("click", () => launchMission());
+    .getElementById("btn-goto-equipment")
+    ?.addEventListener("click", () => {
+      equipmentScreen.updateConfig(currentSquad);
+      screenManager.show("equipment");
+    });
 
   // Speed Controls
   document
@@ -600,7 +615,7 @@ document.addEventListener("DOMContentLoaded", () => {
             ? "#0f0"
             : "#aaa";
       const launchBtn = document.getElementById(
-        "btn-launch-mission",
+        "btn-goto-equipment",
       ) as HTMLButtonElement;
       if (launchBtn) launchBtn.disabled = total === 0 || total > MAX_SQUAD_SIZE;
     };
