@@ -18,12 +18,15 @@ import { HUDManager } from "./ui/HUDManager";
 import { MapUtility } from "./MapUtility";
 import { InputManager } from "./InputManager";
 import { EquipmentScreen } from "./screens/EquipmentScreen";
+import { CampaignManager } from "./campaign/CampaignManager";
+import { CampaignScreen } from "./screens/CampaignScreen";
 import pkg from "../../package.json";
 
 const VERSION = pkg.version;
 
 // --- State ---
 const screenManager = new ScreenManager();
+const campaignManager = new CampaignManager();
 let selectedUnitId: string | null = null;
 let currentGameState: GameState | null = null;
 let currentMapWidth = ConfigManager.getDefault().mapWidth;
@@ -276,12 +279,47 @@ document.addEventListener("DOMContentLoaded", () => {
   inputManager.init();
 
   // Navigation
+  const campaignScreen = new CampaignScreen(
+    "screen-campaign",
+    campaignManager,
+    (node) => {
+      // Node selected! Prepare mission setup
+      currentSeed = node.mapSeed;
+      currentMapWidth = 14 + Math.floor(node.difficulty * 2);
+      currentMapHeight = 14 + Math.floor(node.difficulty * 2);
+      currentSpawnPointCount = 1 + Math.floor(node.difficulty / 5);
+      
+      // Update Setup UI
+      const mapSeedInput = document.getElementById("map-seed") as HTMLInputElement;
+      if (mapSeedInput) mapSeedInput.value = currentSeed.toString();
+      
+      const wInput = document.getElementById("map-width") as HTMLInputElement;
+      const hInput = document.getElementById("map-height") as HTMLInputElement;
+      if (wInput) wInput.value = currentMapWidth.toString();
+      if (hInput) hInput.value = currentMapHeight.toString();
+
+      const spInput = document.getElementById("map-spawn-points") as HTMLInputElement;
+      if (spInput) spInput.value = currentSpawnPointCount.toString();
+
+      screenManager.show("mission-setup");
+    },
+    () => screenManager.goBack()
+  );
+
   document
     .getElementById("btn-menu-custom")
     ?.addEventListener("click", () => screenManager.show("mission-setup"));
   document
     .getElementById("btn-menu-campaign")
-    ?.addEventListener("click", () => screenManager.show("campaign"));
+    ?.addEventListener("click", () => {
+      if (!campaignManager.getState()) {
+        // For prototype, automatically start a campaign if none exists
+        campaignManager.startNewCampaign(Date.now(), "normal");
+      }
+      campaignScreen.show();
+      screenManager.show("campaign");
+    });
+
   document
     .getElementById("btn-campaign-back")
     ?.addEventListener("click", () => screenManager.goBack());
