@@ -13,7 +13,7 @@ export interface GameRules {
 /**
  * Persistent data for a soldier in the campaign roster.
  */
-export interface PersistentSoldier {
+export interface CampaignSoldier {
   id: string;
   name: string;
   archetypeId: string;
@@ -38,29 +38,44 @@ export type CampaignNodeStatus =
   | "Accessible"
   | "Cleared";
 
+/**
+ * A node in the Sector Map DAG.
+ */
 export interface CampaignNode {
   id: string;
   type: CampaignNodeType;
   status: CampaignNodeStatus;
   difficulty: number;
   mapSeed: number;
-  connections: string[];
+  connections: string[]; // IDs of child nodes in the DAG
   position: Vector2;
   missionType?: MissionType;
 }
 
 /**
- * A record of a completed mission.
+ * Result of a single soldier's performance in a mission.
  */
-export interface MissionRecord {
+export interface SoldierMissionResult {
+  soldierId: string;
+  xpGained: number;
+  kills: number;
+  promoted: boolean;
+  newLevel?: number;
+  status: "Healthy" | "Wounded" | "Dead";
+}
+
+/**
+ * A detailed report of a completed mission.
+ */
+export interface MissionReport {
   nodeId: string;
   seed: number;
   result: "Won" | "Lost";
   aliensKilled: number;
-  casualties: number;
   scrapGained: number;
   intelGained: number;
   timeSpent: number; // Duration in ticks
+  soldierResults: SoldierMissionResult[];
 }
 
 /**
@@ -75,7 +90,7 @@ export interface CampaignState {
   currentSector: number;
   currentNodeId: string | null;
   nodes: CampaignNode[];
-  roster: PersistentSoldier[];
-  history: MissionRecord[];
+  roster: CampaignSoldier[];
+  history: MissionReport[];
   unlockedArchetypes: string[];
 }

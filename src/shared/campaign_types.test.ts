@@ -1,8 +1,14 @@
 import { describe, it, expect } from "vitest";
-import { CampaignState, GameRules, CampaignNode } from "./campaign_types";
+import {
+  CampaignState,
+  GameRules,
+  CampaignNode,
+  CampaignSoldier,
+  MissionReport,
+} from "./campaign_types";
 
 describe("Campaign Types", () => {
-  it("should allow creating a valid CampaignState object", () => {
+  it("should allow creating a valid CampaignState object with all sub-types", () => {
     const rules: GameRules = {
       mode: "Preset",
       deathRule: "Iron",
@@ -16,8 +22,41 @@ describe("Campaign Types", () => {
       status: "Accessible",
       difficulty: 1,
       mapSeed: 12345,
-      connections: [],
+      connections: ["node-2"],
       position: { x: 0, y: 0 },
+    };
+
+    const soldier: CampaignSoldier = {
+      id: "s1",
+      name: "John Doe",
+      archetypeId: "assault",
+      hp: 100,
+      maxHp: 100,
+      xp: 0,
+      level: 1,
+      kills: 0,
+      missions: 0,
+      status: "Healthy",
+      equipment: {},
+    };
+
+    const report: MissionReport = {
+      nodeId: "node-1",
+      seed: 12345,
+      result: "Won",
+      aliensKilled: 10,
+      scrapGained: 50,
+      intelGained: 5,
+      timeSpent: 1000,
+      soldierResults: [
+        {
+          soldierId: "s1",
+          xpGained: 10,
+          kills: 2,
+          promoted: false,
+          status: "Healthy",
+        },
+      ],
     };
 
     const state: CampaignState = {
@@ -29,13 +68,17 @@ describe("Campaign Types", () => {
       currentSector: 1,
       currentNodeId: null,
       nodes: [node],
-      roster: [],
-      history: [],
+      roster: [soldier],
+      history: [report],
       unlockedArchetypes: ["assault", "medic"],
     };
 
     expect(state.version).toBe("0.1.0");
     expect(state.nodes[0].type).toBe("Combat");
+    expect(state.nodes[0].connections).toContain("node-2");
+    expect(state.roster[0].name).toBe("John Doe");
+    expect(state.history[0].result).toBe("Won");
+    expect(state.history[0].soldierResults[0].xpGained).toBe(10);
     expect(state.unlockedArchetypes).toContain("assault");
   });
 });

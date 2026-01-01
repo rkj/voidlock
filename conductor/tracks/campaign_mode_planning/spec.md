@@ -32,7 +32,7 @@ The Campaign Mode aims to provide a structured progression for players, linking 
 ### Campaign State Interface
 
 ```typescript
-export interface PersistentSoldier {
+export interface CampaignSoldier {
   id: string;
   name: string;
   archetypeId: string;
@@ -42,34 +42,33 @@ export interface PersistentSoldier {
   level: number;
   kills: number;
   missions: number;
-  status: "Available" | "Wounded" | "Dead";
+  status: "Healthy" | "Wounded" | "Dead";
+  equipment: EquipmentState;
   recoveryTime?: number; // Missions remaining until available
 }
 
 export interface CampaignNode {
   id: string;
-  type: "Combat" | "Elite" | "Event" | "Store" | "Boss" | "Exit";
-  missionType: MissionType;
+  type: "Combat" | "Elite" | "Shop" | "Event" | "Boss";
+  status: "Hidden" | "Revealed" | "Accessible" | "Cleared";
   difficulty: number;
-  connections: string[]; // IDs of next nodes
-  rewards: {
-    scrap?: number;
-    intel?: number;
-    items?: string[];
-  };
-  visited: boolean;
+  mapSeed: number;
+  connections: string[]; // IDs of child nodes in the DAG
+  position: Vector2;
+  missionType?: MissionType;
 }
 
 export interface CampaignState {
-  version: number;
+  version: string;
   seed: number;
-  currentSector: number;
-  currentNodeId: string;
+  rules: GameRules;
   scrap: number;
   intel: number;
-  roster: PersistentSoldier[];
-  squad: string[]; // IDs of soldiers currently in the active squad
-  map: CampaignNode[];
+  currentSector: number;
+  currentNodeId: string | null;
+  nodes: CampaignNode[];
+  roster: CampaignSoldier[];
+  history: MissionReport[];
   unlockedArchetypes: string[];
 }
 ```
