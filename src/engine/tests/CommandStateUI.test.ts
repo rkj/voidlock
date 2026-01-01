@@ -94,7 +94,7 @@ describe("Unit Command State UI Tracking", () => {
     );
 
     // Override sightRange to 0.1 to allow exploration
-    (engine as any).state.units[0].sightRange = 0.1;
+    (engine as any).state.units[0].stats.sightRange = 0.1;
     (engine as any).state.discoveredCells = ["0,0"];
 
     // Tick engine to trigger AI

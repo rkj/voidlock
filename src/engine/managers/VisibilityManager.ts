@@ -14,7 +14,7 @@ export class VisibilityManager {
       ) {
         const visible = this.los.computeVisibleCells(
           unit.pos,
-          unit.sightRange || 10,
+          unit.stats.sightRange || 10,
         );
         visible.forEach((cell) => newVisibleCells.add(cell));
       }

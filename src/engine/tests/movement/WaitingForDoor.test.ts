@@ -52,16 +52,18 @@ describe("Unit WaitingForDoor State", () => {
       hp: 100,
       maxHp: 100,
       state: UnitState.Idle,
-      damage: 10,
-      fireRate: 500,
-      accuracy: 1000,
-      attackRange: 2,
-      sightRange: 10,
-      speed: 2,
+      stats: {
+        damage: 10,
+        fireRate: 500,
+        accuracy: 1000,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 2,
+        sightRange: 10,
+        speed: 2,
+      },
       commandQueue: [],
       archetypeId: "assault",
-      soldierAim: 90,
-      equipmentAccuracyBonus: 0,
     });
 
     // Order move to 1,0

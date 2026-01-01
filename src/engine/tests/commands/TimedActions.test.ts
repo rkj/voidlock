@@ -34,7 +34,7 @@ describe("Timed Actions (Extraction/Collection)", () => {
     );
 
     const realUnit = (engine as any).state.units[0];
-    realUnit.speed = 10;
+    realUnit.stats.speed = 10;
     // Teleport unit near extraction
     realUnit.pos = { x: 3.5, y: 4.5 };
 
@@ -91,7 +91,7 @@ describe("Timed Actions (Extraction/Collection)", () => {
     );
 
     const realUnit = (engine as any).state.units[0];
-    realUnit.speed = 10;
+    realUnit.stats.speed = 10;
     realUnit.pos = { x: 1.5, y: 2.5 };
 
     // Move to objective
@@ -135,7 +135,7 @@ describe("Timed Actions (Extraction/Collection)", () => {
     );
 
     const realUnit = (engine as any).state.units[0];
-    realUnit.speed = 10;
+    realUnit.stats.speed = 10;
     realUnit.pos = { x: 4.5, y: 4.5 }; // Already at extraction
 
     // Trigger check
@@ -175,7 +175,7 @@ describe("Timed Actions (Extraction/Collection)", () => {
     );
 
     const realUnit = (engine as any).state.units[0];
-    realUnit.speed = 10;
+    realUnit.stats.speed = 10;
     realUnit.pos = { x: 4.5, y: 4.5 };
     engine.update(100);
     expect(engine.getState().units[0].state).toBe(UnitState.Channeling);
@@ -212,7 +212,7 @@ describe("Timed Actions (Extraction/Collection)", () => {
     );
 
     const realUnit = (engine as any).state.units[0];
-    realUnit.speed = 10;
+    realUnit.stats.speed = 10;
     realUnit.pos = { x: 4.5, y: 4.5 }; // Already at extraction
 
     // Trigger check (both scaled and real are 100)

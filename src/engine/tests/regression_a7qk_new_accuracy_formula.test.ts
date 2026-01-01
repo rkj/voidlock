@@ -24,9 +24,9 @@ describe("Regression a7qk - New Accuracy Formula", () => {
 
   beforeEach(() => {
     const defaultSquad: SquadConfig = {
-    soldiers: [{ archetypeId: "assault" }],
-    inventory: {},
-  };
+      soldiers: [{ archetypeId: "assault" }],
+      inventory: {},
+    };
     // Use a fixed seed for deterministic results
     engine = new CoreEngine(mockMap, 12345, defaultSquad, false, false);
     engine.clearUnits();
@@ -44,16 +44,18 @@ describe("Regression a7qk - New Accuracy Formula", () => {
       hp: 100,
       maxHp: 100,
       state: UnitState.Idle,
-      damage: 10,
-      fireRate: 100,
-      accuracy: 80, // (SoldierAim + WeaponMod + EquipBonus)
-      attackRange: 10,
-      sightRange: 20,
-      speed: 20,
+      stats: {
+        damage: 10,
+        fireRate: 100,
+        accuracy: 80, // (SoldierAim + WeaponMod + EquipBonus)
+        soldierAim: 75,
+        equipmentAccuracyBonus: 0,
+        attackRange: 10,
+        sightRange: 20,
+        speed: 20,
+      },
       commandQueue: [],
       archetypeId: "assault",
-      soldierAim: 75,
-      equipmentAccuracyBonus: 0,
     } as any);
 
     engine.addEnemy({
@@ -83,13 +85,13 @@ describe("Regression a7qk - New Accuracy Formula", () => {
     // S = 80, distance = 10
     // P = (25 * 80) / (25 * 80 + 10^2 * (100 - 80))
     // P = 2000 / (2000 + 100 * 20) = 2000 / (2000 + 2000) = 0.5
-    
+
     // With new formula:
     // P = (80 / 100) * (10 / 10) = 0.8
 
     // If new formula is implemented, hits should be around 80.
     // If old formula is still there, hits should be around 50.
-    
+
     expect(hits).toBeGreaterThan(70);
     expect(hits).toBeLessThan(90);
   });
@@ -101,12 +103,16 @@ describe("Regression a7qk - New Accuracy Formula", () => {
       hp: 100,
       maxHp: 100,
       state: UnitState.Idle,
-      damage: 10,
-      fireRate: 100,
-      accuracy: 80,
-      attackRange: 10,
-      sightRange: 20,
-      speed: 20,
+      stats: {
+        damage: 10,
+        fireRate: 100,
+        accuracy: 80,
+        attackRange: 10,
+        sightRange: 20,
+        speed: 20,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+      },
       commandQueue: [],
       archetypeId: "assault",
     } as any);
@@ -136,7 +142,7 @@ describe("Regression a7qk - New Accuracy Formula", () => {
 
     // New formula: (80/100) * (10/5) = 1.6 -> 1.0
     // Old formula: (25*80) / (25*80 + 5^2 * (100-80)) = 2000 / (2000 + 25 * 20) = 2000 / 2500 = 0.8
-    
+
     expect(hits).toBe(100);
   });
 });

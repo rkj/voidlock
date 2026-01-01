@@ -47,7 +47,10 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
         self.postMessage(updateMsg);
 
         // Stop loop if mission ended and NOT in Replay mode
-        if (state.status !== "Playing" && state.mode !== EngineMode.Replay) {
+        if (
+          state.status !== "Playing" &&
+          state.settings.mode !== EngineMode.Replay
+        ) {
           clearInterval(loopId);
           loopId = null;
           // We keep engine for QUERY_STATE if needed, or null it?

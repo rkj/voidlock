@@ -28,7 +28,13 @@ describe("RangedKiteAI", () => {
       objectives: [],
     };
 
-    engine = new CoreEngine(map, 123, { soldiers: [], inventory: {} }, true, false);
+    engine = new CoreEngine(
+      map,
+      123,
+      { soldiers: [], inventory: {} },
+      true,
+      false,
+    );
     engine.clearUnits();
   });
 
@@ -55,16 +61,18 @@ describe("RangedKiteAI", () => {
       hp: 100,
       maxHp: 100,
       state: UnitState.Idle,
-      damage: 10,
-      fireRate: 100,
-      accuracy: 1000,
-      attackRange: 5,
-      sightRange: 20,
-      speed: 2,
+      stats: {
+        damage: 10,
+        fireRate: 100,
+        accuracy: 1000,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 5,
+        sightRange: 20,
+        speed: 2,
+      },
       commandQueue: [],
       archetypeId: "assault",
-      soldierAim: 90,
-      equipmentAccuracyBonus: 0,
     });
 
     engine.update(100);
@@ -101,16 +109,18 @@ describe("RangedKiteAI", () => {
       hp: 100,
       maxHp: 100,
       state: UnitState.Idle,
-      damage: 10,
-      fireRate: 100,
-      accuracy: 1000,
-      attackRange: 5,
-      sightRange: 20,
-      speed: 2,
+      stats: {
+        damage: 10,
+        fireRate: 100,
+        accuracy: 1000,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 5,
+        sightRange: 20,
+        speed: 2,
+      },
       commandQueue: [],
       archetypeId: "assault",
-      soldierAim: 90,
-      equipmentAccuracyBonus: 0,
     });
 
     engine.update(100);
@@ -145,16 +155,18 @@ describe("RangedKiteAI", () => {
       hp: 100,
       maxHp: 100,
       state: UnitState.Idle,
-      damage: 10,
-      fireRate: 100,
-      accuracy: 1000,
-      attackRange: 5,
-      sightRange: 20,
-      speed: 2,
+      stats: {
+        damage: 10,
+        fireRate: 100,
+        accuracy: 1000,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 5,
+        sightRange: 20,
+        speed: 2,
+      },
       commandQueue: [],
       archetypeId: "assault",
-      soldierAim: 90,
-      equipmentAccuracyBonus: 0,
     });
   });
 });

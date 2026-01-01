@@ -46,9 +46,9 @@ describe("Movement through Doors", () => {
 
   beforeEach(() => {
     const defaultSquad: SquadConfig = {
-    soldiers: [{ archetypeId: "assault" }],
-    inventory: {},
-  }; // Default unit for tests
+      soldiers: [{ archetypeId: "assault" }],
+      inventory: {},
+    }; // Default unit for tests
     engine = new CoreEngine(map, 123, defaultSquad, false, false);
     engine.clearUnits();
     engine.addUnit({
@@ -57,16 +57,18 @@ describe("Movement through Doors", () => {
       hp: 100,
       maxHp: 100,
       state: UnitState.Idle,
-      damage: 10,
-      fireRate: 100,
-      accuracy: 1000,
-      attackRange: 1,
-      sightRange: 5,
-      speed: 20,
+      stats: {
+        damage: 10,
+        fireRate: 100,
+        accuracy: 1000,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 1,
+        sightRange: 5,
+        speed: 20,
+      },
       commandQueue: [],
       archetypeId: "assault",
-      soldierAim: 90,
-      equipmentAccuracyBonus: 0,
     });
   });
 

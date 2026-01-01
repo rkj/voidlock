@@ -2,7 +2,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { HUDManager } from "./HUDManager";
 import { GameState, UnitState } from "../../shared/types";
-import { createMockGameState, createMockUnit } from "../../engine/tests/utils/MockFactory";
+import {
+  createMockGameState,
+  createMockUnit,
+} from "../../engine/tests/utils/MockFactory";
 
 describe("HUDManager Regression kvi1", () => {
   let hud: HUDManager;
@@ -14,9 +17,11 @@ describe("HUDManager Regression kvi1", () => {
   const mockState: GameState = createMockGameState({
     t: 1000,
     status: "Playing",
-    threatLevel: 25,
-    aliensKilled: 5,
-    casualties: 0,
+    stats: {
+      threatLevel: 25,
+      aliensKilled: 5,
+      casualties: 0,
+    },
     map: { width: 10, height: 10, cells: [] },
     units: [
       createMockUnit({
@@ -24,11 +29,16 @@ describe("HUDManager Regression kvi1", () => {
         hp: 100,
         maxHp: 100,
         state: UnitState.Idle,
-        accuracy: 80,
-        damage: 10,
-        attackRange: 5,
-        speed: 20,
-        sightRange: 10,
+        stats: {
+          accuracy: 80,
+          damage: 10,
+          attackRange: 5,
+          speed: 20,
+          sightRange: 10,
+          soldierAim: 80,
+          equipmentAccuracyBonus: 0,
+          fireRate: 500,
+        },
         engagementPolicy: "ENGAGE",
       }),
     ],

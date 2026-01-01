@@ -22,17 +22,21 @@ describe("MenuController", () => {
     visibleCells: [],
     discoveredCells: [],
     objectives: [],
-    threatLevel: 0,
-    aliensKilled: 0,
-    casualties: 0,
+    stats: {
+      threatLevel: 0,
+      aliensKilled: 0,
+      casualties: 0,
+    },
     status: "Playing",
-    mode: "Simulation" as any,
+    settings: {
+      mode: "Simulation" as any,
+      debugOverlayEnabled: false,
+      losOverlayEnabled: false,
+      timeScale: 1.0,
+      isPaused: false,
+      isSlowMotion: false,
+    },
     squadInventory: {},
-    debugOverlayEnabled: false,
-    losOverlayEnabled: false,
-    timeScale: 1.0,
-    isPaused: false,
-    isSlowMotion: false,
   };
 
   beforeEach(() => {

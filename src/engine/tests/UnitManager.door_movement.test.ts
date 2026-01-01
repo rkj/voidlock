@@ -51,12 +51,16 @@ describe("UnitManager Door Movement", () => {
       hp: 10,
       maxHp: 10,
       state: UnitState.Idle,
-      damage: 1,
-      fireRate: 500,
-      accuracy: 1000,
-      attackRange: 2,
-      sightRange: 5,
-      speed: 2, // 2 tiles per second
+      stats: {
+        damage: 1,
+        fireRate: 500,
+        accuracy: 1000,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 2,
+        sightRange: 5,
+        speed: 2,
+      },
       aiEnabled: true,
       commandQueue: [
         {
@@ -66,8 +70,6 @@ describe("UnitManager Door Movement", () => {
         },
       ],
       archetypeId: "assault",
-      soldierAim: 90,
-      equipmentAccuracyBonus: 0,
     });
 
     // Update 1: Door starts opening

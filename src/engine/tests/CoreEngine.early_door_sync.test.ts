@@ -52,17 +52,19 @@ describe("CoreEngine Early Door Sync", () => {
       hp: 10,
       maxHp: 10,
       state: "Idle" as any,
-      damage: 1,
-      fireRate: 500,
-      accuracy: 1000,
-      attackRange: 2,
-      sightRange: 5,
-      speed: 1,
+      stats: {
+        damage: 1,
+        fireRate: 500,
+        accuracy: 1000,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 2,
+        sightRange: 5,
+        speed: 1,
+      },
       aiEnabled: true,
       commandQueue: [],
       archetypeId: "assault",
-      soldierAim: 90,
-      equipmentAccuracyBonus: 0,
     });
 
     // Run update to trigger "Opening" logic (timer start)

@@ -8,7 +8,11 @@ import {
   Objective,
   EnemyType,
 } from "../shared/types";
-import { createMockUnit, createMockEnemy, createMockGameState } from "../engine/tests/utils/MockFactory";
+import {
+  createMockUnit,
+  createMockEnemy,
+  createMockGameState,
+} from "../engine/tests/utils/MockFactory";
 
 // Mock HTMLCanvasElement
 const mockCanvas = {
@@ -84,11 +88,16 @@ describe("Renderer", () => {
         state: UnitState.Idle,
         hp: 100,
         maxHp: 100,
-        damage: 10,
-        fireRate: 500,
-        attackRange: 1,
-        sightRange: 5,
-        speed: 2,
+        stats: {
+          damage: 10,
+          fireRate: 500,
+          attackRange: 1,
+          sightRange: 5,
+          speed: 2,
+          accuracy: 95,
+          soldierAim: 90,
+          equipmentAccuracyBonus: 0,
+        },
         commandQueue: [],
         archetypeId: "assault",
       }),
@@ -120,9 +129,11 @@ describe("Renderer", () => {
     visibleCells: ["0,0"],
     discoveredCells: ["0,0", "1,1"],
     objectives: [],
-    threatLevel: 0,
-    aliensKilled: 0,
-    casualties: 0,
+    stats: {
+      threatLevel: 0,
+      aliensKilled: 0,
+      casualties: 0,
+    },
     status: "Playing",
   });
   beforeEach(() => {

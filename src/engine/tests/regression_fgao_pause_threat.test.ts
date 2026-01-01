@@ -28,13 +28,13 @@ describe("Regression fgao: Pause Threat", () => {
       0, // starting threat
     );
 
-    const initialThreat = engine.getState().threatLevel;
+    const initialThreat = engine.getState().stats.threatLevel;
     expect(initialThreat).toBe(0);
 
     // Simulate pause: scaledDt = 0, realDt = 16
     engine.update(0, 16);
 
-    const pausedThreat = engine.getState().threatLevel;
+    const pausedThreat = engine.getState().stats.threatLevel;
     // Current behavior: it INCREASES because it uses realDt
     // Target behavior: it should NOT increase
     expect(pausedThreat).toBe(initialThreat);
@@ -55,7 +55,7 @@ describe("Regression fgao: Pause Threat", () => {
     // 10s game time, 1s real time (e.g. 10x speed)
     engine.update(10000, 1000);
 
-    const threatAfter10s = engine.getState().threatLevel;
+    const threatAfter10s = engine.getState().stats.threatLevel;
     // It should have increased by 10% (one turn)
     expect(threatAfter10s).toBe(10);
   });

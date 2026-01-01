@@ -1,8 +1,18 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { HUDManager } from "./HUDManager";
-import { GameState, UnitState, Unit, Enemy, EnemyType } from "../../shared/types";
-import { createMockGameState, createMockUnit, createMockEnemy } from "../../engine/tests/utils/MockFactory";
+import {
+  GameState,
+  UnitState,
+  Unit,
+  Enemy,
+  EnemyType,
+} from "../../shared/types";
+import {
+  createMockGameState,
+  createMockUnit,
+  createMockEnemy,
+} from "../../engine/tests/utils/MockFactory";
 
 describe("HUDManager Stats & Enemy Intel", () => {
   let hud: HUDManager;
@@ -14,9 +24,11 @@ describe("HUDManager Stats & Enemy Intel", () => {
   const mockState: GameState = createMockGameState({
     t: 1000,
     status: "Playing",
-    threatLevel: 25,
-    aliensKilled: 5,
-    casualties: 0,
+    stats: {
+      threatLevel: 25,
+      aliensKilled: 5,
+      casualties: 0,
+    },
     map: { width: 10, height: 10, cells: [] },
     units: [
       createMockUnit({
@@ -24,12 +36,16 @@ describe("HUDManager Stats & Enemy Intel", () => {
         hp: 100,
         maxHp: 100,
         state: UnitState.Idle,
-        accuracy: 90,
-        damage: 20,
-        fireRate: 500, // 2 shots per second
-        attackRange: 4,
-        speed: 20,
-        sightRange: 10,
+        stats: {
+          accuracy: 90,
+          damage: 20,
+          fireRate: 500, // 2 shots per second
+          attackRange: 4,
+          speed: 20,
+          sightRange: 10,
+          soldierAim: 80,
+          equipmentAccuracyBonus: 0,
+        },
         engagementPolicy: "ENGAGE",
         archetypeId: "assault",
         commandQueue: [],

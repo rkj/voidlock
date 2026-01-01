@@ -110,17 +110,23 @@ export type Entity = {
   maxHp: number;
 };
 
+export type UnitStats = {
+  damage: number;
+  fireRate: number;
+  accuracy: number;
+  soldierAim: number;
+  attackRange: number;
+  sightRange: number;
+  speed: number;
+  equipmentAccuracyBonus: number;
+};
+
 export type Unit = Entity & {
   state: UnitState;
+  stats: UnitStats;
   path?: Vector2[];
   targetPos?: Vector2;
   visualJitter?: Vector2; // New: slight offset to prevent stacking
-  damage: number;
-  fireRate: number; // ms between shots
-  accuracy: number; // Hit chance percentage at 5 tiles (DEPRECATED)
-  soldierAim: number; // Base hit percentage (0-100)
-  attackRange: number;
-  sightRange: number;
   rightHand?: string;
   leftHand?: string;
   body?: string;
@@ -135,10 +141,8 @@ export type Unit = Entity & {
   explorationTarget?: Vector2; // Current automated exploration goal
   aiEnabled?: boolean; // New: allow disabling autonomous behavior
   activeCommand?: Command; // Track currently executing command
-  speed: number; // Speed factor (x10 integer, e.g. 15 = 1.5 tiles/s)
   channeling?: ChannelingState; // New
   archetypeId: string;
-  equipmentAccuracyBonus: number; // Persisted equipment bonus
 };
 
 export type Mine = {
@@ -527,6 +531,21 @@ export type ReplayData = {
 
 export type GameStatus = "Playing" | "Won" | "Lost";
 
+export type SimulationSettings = {
+  mode: EngineMode;
+  debugOverlayEnabled: boolean;
+  losOverlayEnabled: boolean;
+  timeScale: number;
+  isPaused: boolean;
+  isSlowMotion: boolean;
+};
+
+export type MissionStats = {
+  threatLevel: number;
+  aliensKilled: number;
+  casualties: number;
+};
+
 export type GameState = {
   t: number;
   map: MapDefinition;
@@ -535,17 +554,10 @@ export type GameState = {
   visibleCells: string[];
   discoveredCells: string[];
   objectives: Objective[];
-  threatLevel: number;
-  aliensKilled: number;
-  casualties: number;
+  stats: MissionStats;
   status: GameStatus;
-  mode: EngineMode;
+  settings: SimulationSettings;
   commandLog?: CommandLogEntry[];
-  debugOverlayEnabled: boolean;
-  losOverlayEnabled: boolean;
-  timeScale: number;
-  isPaused: boolean;
-  isSlowMotion: boolean;
   squadInventory: { [itemId: string]: number };
 };
 

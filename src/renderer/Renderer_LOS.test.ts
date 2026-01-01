@@ -1,7 +1,17 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { Renderer } from "./Renderer";
-import { GameState, MapDefinition, CellType, UnitState, EnemyType } from "../shared/types";
-import { createMockUnit, createMockEnemy, createMockGameState } from "../engine/tests/utils/MockFactory";
+import {
+  GameState,
+  MapDefinition,
+  CellType,
+  UnitState,
+  EnemyType,
+} from "../shared/types";
+import {
+  createMockUnit,
+  createMockEnemy,
+  createMockGameState,
+} from "../engine/tests/utils/MockFactory";
 import { Graph } from "../engine/Graph";
 import { VisibilityPolygon } from "./VisibilityPolygon";
 
@@ -79,11 +89,16 @@ describe("Renderer LOS", () => {
           hp: 100,
           maxHp: 100,
           state: UnitState.Idle,
-          sightRange: 5,
-          speed: 1,
-          attackRange: 5,
-          damage: 10,
-          fireRate: 100,
+          stats: {
+            sightRange: 5,
+            speed: 1,
+            attackRange: 5,
+            damage: 10,
+            fireRate: 100,
+            accuracy: 95,
+            soldierAim: 90,
+            equipmentAccuracyBonus: 0,
+          },
           commandQueue: [],
           archetypeId: "assault",
         }),
@@ -105,11 +120,20 @@ describe("Renderer LOS", () => {
       visibleCells: ["6,6"],
       discoveredCells: [],
       objectives: [],
-      losOverlayEnabled: true, // ENABLE OVERLAY
+      settings: {
+        losOverlayEnabled: true, // ENABLE OVERLAY
+        mode: "Simulation" as any,
+        debugOverlayEnabled: false,
+        timeScale: 1.0,
+        isPaused: false,
+        isSlowMotion: false,
+      },
       status: "Playing",
-      threatLevel: 0,
-      aliensKilled: 0,
-      casualties: 0,
+      stats: {
+        threatLevel: 0,
+        aliensKilled: 0,
+        casualties: 0,
+      },
     });
   });
 

@@ -53,9 +53,9 @@ describe("CoreEngine with Objectives and Game Loop", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     const defaultSquad: SquadConfig = {
-    soldiers: [{ archetypeId: "assault" }],
-    inventory: {},
-  };
+      soldiers: [{ archetypeId: "assault" }],
+      inventory: {},
+    };
     engine = new CoreEngine(mockMap, 123, defaultSquad, false, false);
     engine.clearUnits();
     engine.addUnit({
@@ -64,16 +64,18 @@ describe("CoreEngine with Objectives and Game Loop", () => {
       hp: 100,
       maxHp: 100,
       state: UnitState.Idle,
-      damage: 20,
-      fireRate: 500,
-      accuracy: 1000,
-      attackRange: 2,
-      sightRange: 5,
-      speed: 20,
+      stats: {
+        damage: 20,
+        fireRate: 500,
+        accuracy: 1000,
+        soldierAim: 90,
+        attackRange: 2,
+        sightRange: 5,
+        speed: 20,
+        equipmentAccuracyBonus: 0,
+      },
       commandQueue: [],
       archetypeId: "assault",
-      soldierAim: 90,
-      equipmentAccuracyBonus: 0,
     });
   });
 
@@ -157,7 +159,7 @@ describe("CoreEngine with Objectives and Game Loop", () => {
 
   it("should couple threat increase to game time (scaledDt)", () => {
     // turnDuration = 10000, threatPerTurn = 10
-    expect(engine.getState().threatLevel).toBe(0);
+    expect(engine.getState().stats.threatLevel).toBe(0);
 
     // Advance with high game speed but low real speed
     // scaledDt = 30000 (three turns in game time), realDt = 1000 (1 second real time)
@@ -165,7 +167,7 @@ describe("CoreEngine with Objectives and Game Loop", () => {
 
     // Threat should have increased by scaledDt (30 seconds), so 3 turns
     // (30000/10000) * 10 = 30.0
-    expect(engine.getState().threatLevel).toBeCloseTo(30.0, 3);
+    expect(engine.getState().stats.threatLevel).toBeCloseTo(30.0, 3);
 
     // game time state.t should be 30000
     expect(engine.getState().t).toBe(30000);

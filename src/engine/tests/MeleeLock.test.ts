@@ -33,10 +33,10 @@ const mockMap: MapDefinition = {
   spawnPoints: [],
 };
 
-  const mockSquad: SquadConfig = {
-    soldiers: [{ archetypeId: "assault" }],
-    inventory: {},
-  };
+const mockSquad: SquadConfig = {
+  soldiers: [{ archetypeId: "assault" }],
+  inventory: {},
+};
 describe("Melee Lock & Ignore Policy", () => {
   it("should force combat and block movement when in same cell, even if IGNORE", () => {
     const engine = new CoreEngine(
@@ -55,18 +55,20 @@ describe("Melee Lock & Ignore Policy", () => {
       hp: 100,
       maxHp: 100,
       state: UnitState.Idle,
-      damage: 10,
-      fireRate: 100,
-      accuracy: 1000,
-      attackRange: 5,
-      sightRange: 10,
-      speed: 4,
+      stats: {
+        damage: 10,
+        fireRate: 100,
+        accuracy: 1000,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 5,
+        sightRange: 10,
+        speed: 4,
+      },
       aiEnabled: true,
       commandQueue: [],
       engagementPolicy: "IGNORE",
       archetypeId: "assault",
-      soldierAim: 90,
-      equipmentAccuracyBonus: 0,
     });
 
     const state = engine.getState();
@@ -142,17 +144,19 @@ describe("Melee Lock & Ignore Policy", () => {
       hp: 100,
       maxHp: 100,
       state: UnitState.Idle,
-      damage: 10,
-      fireRate: 100,
-      accuracy: 1000,
-      attackRange: 5,
-      sightRange: 10,
-      speed: 4,
+      stats: {
+        damage: 10,
+        fireRate: 100,
+        accuracy: 1000,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 5,
+        sightRange: 10,
+        speed: 4,
+      },
       aiEnabled: true,
       commandQueue: [],
       archetypeId: "assault",
-      soldierAim: 90,
-      equipmentAccuracyBonus: 0,
     });
 
     const state = engine.getState();

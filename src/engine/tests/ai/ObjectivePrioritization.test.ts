@@ -46,16 +46,18 @@ describe("Objective Prioritization AI", () => {
       hp: 100,
       maxHp: 100,
       state: UnitState.Idle,
-      damage: 10,
-      fireRate: 500,
-      accuracy: 1000,
-      attackRange: 2,
-      sightRange: 0.1,
-      speed: 10, // 1 tile per second (1000ms)
+      stats: {
+        damage: 10,
+        fireRate: 500,
+        accuracy: 1000,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 2,
+        sightRange: 0.1,
+        speed: 10, // 1 tile per second (1000ms)
+      },
       commandQueue: [],
       archetypeId: "assault",
-      soldierAim: 90,
-      equipmentAccuracyBonus: 0,
     });
   });
 
@@ -72,7 +74,7 @@ describe("Objective Prioritization AI", () => {
 
     // 2. Objective is at (4,0). Let's make it visible.
     // We must modify the actual engine state, not the copy from getState.
-    (engine as any).state.units[0].sightRange = 10;
+    (engine as any).state.units[0].stats.sightRange = 10;
 
     // 3. Update again. The AI should re-evaluate and see the visible objective.
     engine.update(100);

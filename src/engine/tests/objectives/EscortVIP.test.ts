@@ -36,11 +36,14 @@ describe("Escort VIP Mission", () => {
     expect(vip).toBeDefined();
     expect(vip!.hp).toBe(ArchetypeLibrary["vip"].baseHp * 0.5);
     expect(vip!.maxHp).toBe(ArchetypeLibrary["vip"].baseHp);
-    expect(vip!.damage).toBe(0);
+    expect(vip!.stats.damage).toBe(0);
   });
 
   it("should win when VIP reaches extraction", () => {
-    const squadConfig = { soldiers: [{ archetypeId: "assault" }], inventory: {} };
+    const squadConfig = {
+      soldiers: [{ archetypeId: "assault" }],
+      inventory: {},
+    };
     const engine = new CoreEngine(
       map,
       123,
@@ -92,7 +95,10 @@ describe("Escort VIP Mission", () => {
   });
 
   it("should lose when all other units die even if VIP is alive", () => {
-    const squadConfig = { soldiers: [{ archetypeId: "assault" }], inventory: {} };
+    const squadConfig = {
+      soldiers: [{ archetypeId: "assault" }],
+      inventory: {},
+    };
     const engine = new CoreEngine(
       map,
       123,

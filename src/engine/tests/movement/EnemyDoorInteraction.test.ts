@@ -40,7 +40,13 @@ describe("Enemy Door Interaction", () => {
       objectives: [],
     };
 
-    engine = new CoreEngine(map, 123, { soldiers: [], inventory: {} }, true, false);
+    engine = new CoreEngine(
+      map,
+      123,
+      { soldiers: [], inventory: {} },
+      true,
+      false,
+    );
     engine.clearUnits();
   });
 
@@ -69,16 +75,18 @@ describe("Enemy Door Interaction", () => {
       hp: 100,
       maxHp: 100,
       state: UnitState.Idle,
-      damage: 0,
-      fireRate: 0,
-      accuracy: 1000,
-      attackRange: 0,
-      sightRange: 0,
-      speed: 2,
+      stats: {
+        damage: 0,
+        fireRate: 0,
+        accuracy: 1000,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 0,
+        sightRange: 0,
+        speed: 2,
+      },
       commandQueue: [],
       archetypeId: "assault",
-      soldierAim: 90,
-      equipmentAccuracyBonus: 0,
     });
 
     // Run updates. Door open duration is 0.1s (100ms).

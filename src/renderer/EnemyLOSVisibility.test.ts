@@ -1,6 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { Renderer } from "./Renderer";
-import { GameState, MapDefinition, CellType, UnitState, EnemyType } from "../shared/types";
+import {
+  GameState,
+  MapDefinition,
+  CellType,
+  UnitState,
+  EnemyType,
+  EngineMode,
+} from "../shared/types";
 import { createMockGameState } from "../engine/tests/utils/MockFactory";
 
 // Mock CanvasRenderingContext2D
@@ -108,11 +115,20 @@ describe("Enemy LOS Visibility", () => {
     visibleCells: ["1,1"], // Only visible-enemy's cell is visible
     discoveredCells: ["1,1", "5,5"],
     objectives: [],
-    threatLevel: 0,
-    aliensKilled: 0,
-    casualties: 0,
+    stats: {
+      threatLevel: 0,
+      aliensKilled: 0,
+      casualties: 0,
+    },
     status: "Playing",
-    losOverlayEnabled: true,
+    settings: {
+      losOverlayEnabled: true,
+      mode: EngineMode.Simulation,
+      debugOverlayEnabled: false,
+      timeScale: 1.0,
+      isPaused: false,
+      isSlowMotion: false,
+    },
   });
 
   beforeEach(() => {

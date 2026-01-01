@@ -9,7 +9,10 @@ import {
   Unit,
   Enemy,
 } from "../shared/types";
-import { createMockUnit, createMockGameState } from "../engine/tests/utils/MockFactory";
+import {
+  createMockUnit,
+  createMockGameState,
+} from "../engine/tests/utils/MockFactory";
 
 describe("SimpleBot", () => {
   const mockMap: MapDefinition = {
@@ -31,11 +34,16 @@ describe("SimpleBot", () => {
     hp: 100,
     maxHp: 100,
     state: UnitState.Idle,
-    damage: 10,
-    fireRate: 1000,
-    attackRange: 5,
-    sightRange: 100,
-    speed: 20,
+    stats: {
+      damage: 10,
+      fireRate: 1000,
+      attackRange: 5,
+      sightRange: 100,
+      speed: 20,
+      accuracy: 95,
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
+    },
     commandQueue: [],
     archetypeId: "assault",
   });
@@ -48,9 +56,11 @@ describe("SimpleBot", () => {
     visibleCells: [],
     discoveredCells: [],
     objectives: [mockObjective],
-    threatLevel: 0,
-    aliensKilled: 0,
-    casualties: 0,
+    stats: {
+      threatLevel: 0,
+      aliensKilled: 0,
+      casualties: 0,
+    },
     status: "Playing",
   });
 
