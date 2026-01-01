@@ -20,6 +20,9 @@ This directory contains the main thread rendering logic and user interface for X
 - `campaign/`: Campaign management logic and state persistence.
 - `ui/`: Specific UI components like the HUD and menu renderers.
 - `screens/`: Individual screen components for the Strategic and Tactical layers.
+  - `CampaignScreen.ts`: Displays the Sector Map DAG.
+  - `EquipmentScreen.ts`: Handles soldier loadouts and armory.
+  - `DebriefScreen.ts`: Displays mission results and plays accelerated replay in background.
 
 ## Functionality
 
