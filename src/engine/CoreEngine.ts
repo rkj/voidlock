@@ -168,6 +168,7 @@ export class CoreEngine {
             sightRange: vipArch.sightRange,
             speed: vipArch.speed,
           },
+          aiProfile: vipArch.aiProfile,
           aiEnabled: false,
           commandQueue: [],
         } as Unit);
@@ -249,6 +250,7 @@ export class CoreEngine {
         body,
         feet,
         activeWeaponId,
+        aiProfile: arch.aiProfile,
         engagementPolicy: "ENGAGE",
         engagementPolicySource: "Manual",
         commandQueue: [],

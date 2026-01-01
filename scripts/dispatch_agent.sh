@@ -1,9 +1,30 @@
 #!/bin/bash
 TASK_ID=$1
+CONTEXT_FILE=$2
 
 if [ -z "$TASK_ID" ]; then
-  echo "Usage: $0 <TASK_ID>"
+  echo "Usage: $0 <TASK_ID> [CONTEXT_FILE]"
   exit 1
+fi
+
+PROMPT="You are a Sub-Agent. Your goal is to implement task $TASK_ID.
+
+Instructions:
+1. Run 'bd show $TASK_ID --json' to get the full task details.
+2. Read @spec/core_mechanics.md and @AGENTS.md.
+3. Use the links in @spec/core_mechanics.md to find the specific spec file for your task (e.g. spec/ai.md for AI tasks).
+4. Implement the changes.
+5. Verify with tests.
+6. DO NOT COMMIT or use 'jj'. The Manager handles version control.
+7. Exit when done."
+
+if [ -n "$CONTEXT_FILE" ]; then
+  if [ -f "$CONTEXT_FILE" ]; then
+    CONTEXT_CONTENT=$(cat "$CONTEXT_FILE")
+    PROMPT="${PROMPT}\n\nAdditional Context (from Manager):\n${CONTEXT_CONTENT}"
+  else
+    echo "Warning: Context file $CONTEXT_FILE not found."
+  fi
 fi
 
 gemini --model gemini-3-flash-preview \
@@ -21,19 +42,10 @@ gemini --model gemini-3-flash-preview \
   --allowed-tools "run_shell_command(tree)" \
   --allowed-tools "run_shell_command(grep)" \
   --allowed-tools "run_shell_command(bd show)" \
-  --allowed-tools new_page \
+  --allowed-tools ew_page \
   --allowed-tools navigate_page \
   --allowed-tools take_screenshot \
   --allowed-tools click \
   --allowed-tools wait_for \
   --allowed-tools evaluate_script \
-  "You are a Sub-Agent. Your goal is to implement task $TASK_ID.
-
-Instructions:
-1. Run 'bd show $TASK_ID --json' to get the full task details.
-2. Read @spec/core_mechanics.md and @AGENTS.md.
-3. Use the links in @spec/core_mechanics.md to find the specific spec file for your task (e.g. spec/ai.md for AI tasks).
-4. Implement the changes.
-5. Verify with tests.
-6. DO NOT COMMIT or use 'jj'. The Manager handles version control.
-7. Exit when done."
+  "$PROMPT"

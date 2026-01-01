@@ -1,0 +1,25 @@
+Task: Implement Innate AI Profiles (STAND_GROUND, RUSH, RETREAT).
+
+Current Status:
+- Added AIProfile enum and updated Unit/Archetype types in `src/shared/types.ts` and `src/engine/CoreEngine.ts`.
+- Created regression test `src/engine/tests/regression_ocmi_ai_profiles.test.ts`.
+- Implemented initial logic in `src/engine/managers/UnitManager.ts` inside the autonomous decision block.
+
+Problem:
+The regression tests are failing:
+- RUSH unit (Assault) is NOT moving towards the enemy (expected pos > initial pos).
+- RETREAT unit (Medic) is NOT moving away from the enemy (expected pos < initial pos).
+
+This implies the `MOVE_TO` commands are not being issued or executed.
+
+Hypothesis:
+1. The enemies might not be detected as "visible" in the test setup.
+2. The `threats` array might be empty.
+3. The logic inside `if (threats.length > 0 ...)` might have a bug preventing execution.
+
+Instructions:
+1. Read `src/engine/managers/UnitManager.ts` to understand the current implementation.
+2. Debug the issue (add logging if needed, or analyze the code).
+3. Fix the logic in `UnitManager.ts` to ensure RUSH and RETREAT behaviors work as specified.
+4. Verify with `npx vitest run src/engine/tests/regression_ocmi_ai_profiles.test.ts`.
+5. Run all tests to ensure no regressions.
