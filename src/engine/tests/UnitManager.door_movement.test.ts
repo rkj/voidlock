@@ -66,6 +66,8 @@ describe("UnitManager Door Movement", () => {
         },
       ],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
 
     // Update 1: Door starts opening

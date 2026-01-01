@@ -8,6 +8,7 @@ import {
   SquadConfig,
   MissionType,
   ArchetypeLibrary,
+  EnemyType,
 } from "../../shared/types";
 
 describe("VIP AI Behavior", () => {
@@ -55,6 +56,8 @@ describe("VIP AI Behavior", () => {
       damage: 0,
       fireRate: 0,
       accuracy: 1000,
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
       attackRange: 0,
       sightRange: 6,
       speed: 20,
@@ -73,6 +76,8 @@ describe("VIP AI Behavior", () => {
       damage: 20,
       fireRate: 600,
       accuracy: 1000,
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
       attackRange: 4,
       sightRange: 8,
       speed: 20,
@@ -123,6 +128,8 @@ describe("VIP AI Behavior", () => {
       damage: 0,
       fireRate: 0,
       accuracy: 1000,
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
       attackRange: 0,
       sightRange: 6,
       speed: 20,
@@ -136,12 +143,13 @@ describe("VIP AI Behavior", () => {
       pos: { x: 2.5, y: 1.5 },
       hp: 50,
       maxHp: 50,
-      type: "Xeno-Mite",
+      type: EnemyType.XenoMite,
       damage: 10,
       fireRate: 1000,
       accuracy: 1000,
       attackRange: 1,
       speed: 10,
+      difficulty: 1,
     });
 
     // Make sure VIP can see enemy
@@ -186,6 +194,8 @@ describe("VIP AI Behavior", () => {
       damage: 0,
       fireRate: 0,
       accuracy: 1000,
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
       attackRange: 0,
       sightRange: 6,
       speed: 20,
@@ -222,6 +232,8 @@ describe("VIP AI Behavior", () => {
       damage: 0,
       fireRate: 0,
       accuracy: 1000,
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
       attackRange: 0,
       sightRange: 6,
       speed: 20,

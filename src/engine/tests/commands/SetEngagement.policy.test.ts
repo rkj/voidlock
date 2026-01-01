@@ -6,6 +6,7 @@ import {
   UnitState,
   CommandType,
   SquadConfig,
+  EnemyType,
 } from "../../../shared/types";
 
 describe("Command: SET_ENGAGEMENT (Policy Logic)", () => {
@@ -47,18 +48,21 @@ describe("Command: SET_ENGAGEMENT (Policy Logic)", () => {
       commandQueue: [],
       engagementPolicy: "IGNORE", // Start with IGNORE
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
     engine.addEnemy({
       id: "e1",
       pos: { x: 1.5, y: 0.5 }, // Adjacent
       hp: 100,
       maxHp: 100,
-      type: "Grunt",
+      type: EnemyType.Grunt,
       damage: 0,
       fireRate: 1000,
       accuracy: 1000,
       attackRange: 1,
       speed: 2,
+      difficulty: 1,
     });
   });
 

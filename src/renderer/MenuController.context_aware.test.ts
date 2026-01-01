@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { MenuController } from "./MenuController";
 import { CommandType, GameState, UnitState } from "../shared/types";
+import { createMockGameState } from "../engine/tests/utils/MockFactory";
 
 describe("MenuController Context Awareness", () => {
   let controller: MenuController;
@@ -12,7 +13,7 @@ describe("MenuController Context Awareness", () => {
       sendCommand: vi.fn(),
     };
     controller = new MenuController(mockClient);
-    mockState = {
+    mockState = createMockGameState({
       t: 1000,
       map: { width: 10, height: 10, cells: [] },
       units: [{ id: "u1", state: UnitState.Idle } as any],
@@ -24,7 +25,7 @@ describe("MenuController Context Awareness", () => {
       aliensKilled: 0,
       casualties: 0,
       status: "Playing",
-    };
+    });
   });
 
   it("should disable COLLECT when no visible objectives", () => {

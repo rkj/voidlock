@@ -5,6 +5,7 @@ import {
   CellType,
   UnitState,
   CommandType,
+  EnemyType,
 } from "../../../shared/types";
 
 describe("SoldierCoreAI", () => {
@@ -25,7 +26,13 @@ describe("SoldierCoreAI", () => {
   let engine: CoreEngine;
 
   beforeEach(() => {
-    engine = new CoreEngine(mockMap, 123, { soldiers: [], inventory: {} }, true, false); // agentControlEnabled = true
+    engine = new CoreEngine(
+      mockMap,
+      123,
+      { soldiers: [], inventory: {} },
+      true,
+      false,
+    ); // agentControlEnabled = true
     engine.clearUnits(); // Clear default spawns
   });
 
@@ -39,6 +46,8 @@ describe("SoldierCoreAI", () => {
       damage: 10,
       fireRate: 1000,
       accuracy: 1000,
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
       attackRange: 2,
       sightRange: 10,
       speed: 2,
@@ -51,12 +60,13 @@ describe("SoldierCoreAI", () => {
       pos: { x: 5.5, y: 5.5 },
       hp: 50,
       maxHp: 50,
-      type: "SwarmMelee",
+      type: EnemyType.SwarmMelee,
       damage: 10,
       fireRate: 1000,
       accuracy: 1000,
       attackRange: 1,
       speed: 2,
+      difficulty: 1,
     });
 
     engine.update(100); // 1 tick
@@ -83,6 +93,8 @@ describe("SoldierCoreAI", () => {
       damage: 10,
       fireRate: 1000,
       accuracy: 1000,
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
       attackRange: 2,
       sightRange: 10,
       speed: 2,
@@ -95,12 +107,13 @@ describe("SoldierCoreAI", () => {
       pos: { x: 6.5, y: 5.5 },
       hp: 50,
       maxHp: 50,
-      type: "SwarmMelee",
+      type: EnemyType.SwarmMelee,
       damage: 10,
       fireRate: 1000,
       accuracy: 1000,
       attackRange: 1,
       speed: 2,
+      difficulty: 1,
     });
 
     // We need to discover some cells first so it has somewhere to retreat to
@@ -129,6 +142,8 @@ describe("SoldierCoreAI", () => {
       damage: 10,
       fireRate: 1000,
       accuracy: 1000,
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
       attackRange: 2,
       sightRange: 10,
       speed: 2,
@@ -144,6 +159,8 @@ describe("SoldierCoreAI", () => {
       damage: 10,
       fireRate: 1000,
       accuracy: 1000,
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
       attackRange: 2,
       sightRange: 10,
       speed: 2,
@@ -155,12 +172,13 @@ describe("SoldierCoreAI", () => {
       pos: { x: 5.5, y: 5.5 },
       hp: 50,
       maxHp: 50,
-      type: "SwarmMelee",
+      type: EnemyType.SwarmMelee,
       damage: 10,
       fireRate: 1000,
       accuracy: 1000,
       attackRange: 1,
       speed: 2,
+      difficulty: 1,
     });
 
     engine.update(100);

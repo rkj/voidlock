@@ -6,6 +6,7 @@ import {
   CellType,
   UnitState,
   SquadConfig,
+  EnemyType,
 } from "../../shared/types";
 import { PRNG } from "../../shared/PRNG";
 import { EnemyManager } from "./EnemyManager";
@@ -94,12 +95,13 @@ export class MissionManager {
           pos: { x: hiveLoc.x + 0.5, y: hiveLoc.y + 0.5 },
           hp: 500,
           maxHp: 500,
-          type: "Hive",
+          type: EnemyType.Hive,
           damage: 0,
           fireRate: 1000,
           accuracy: 100,
           attackRange: 0,
           speed: 0,
+          difficulty: 10,
         });
 
         state.objectives.push({

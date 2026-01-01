@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { CoreEngine } from "../../CoreEngine";
-import { MapDefinition, CellType, UnitState } from "../../../shared/types";
+import { MapDefinition, CellType, UnitState, EnemyType } from "../../../shared/types";
 
 describe("Enemy Movement", () => {
   let engine: CoreEngine;
@@ -33,12 +33,13 @@ describe("Enemy Movement", () => {
       pos: { x: 15.5, y: 15.5 },
       hp: 100,
       maxHp: 100,
-      type: "SwarmMelee",
+      type: EnemyType.SwarmMelee,
       damage: 10,
       fireRate: 500,
       accuracy: 1000,
       attackRange: 2,
       speed: 20,
+      difficulty: 1,
     });
 
     // Dummy soldier far away
@@ -56,6 +57,8 @@ describe("Enemy Movement", () => {
       speed: 20,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
 
     const visited = new Set<string>();

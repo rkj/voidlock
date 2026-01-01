@@ -54,6 +54,8 @@ describe("Objective Prioritization AI", () => {
       speed: 10, // 1 tile per second (1000ms)
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
   });
 

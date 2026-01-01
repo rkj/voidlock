@@ -18,7 +18,7 @@ describe("Regression 7xph - Accuracy Stats Reset on Weapon Swap", () => {
       type: CellType.Floor,
     })),
     squadSpawn: { x: 2, y: 2 },
-    spawnPoints: [{ id: "sp1", pos: { x: 8, y: 8 } }],
+    spawnPoints: [{ id: "sp1", pos: { x: 8, y: 8 }, radius: 1 }],
   };
 
   it("should maintain soldierAim and equipment bonuses when swapping weapons", () => {

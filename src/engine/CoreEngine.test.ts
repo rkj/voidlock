@@ -12,6 +12,7 @@ import {
   ArchetypeLibrary,
   SpawnPoint,
   Objective,
+  EnemyType,
 } from "../shared/types";
 import { Pathfinder } from "../engine/Pathfinder";
 
@@ -71,6 +72,8 @@ describe("CoreEngine with Objectives and Game Loop", () => {
       speed: 20,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
   });
 
@@ -135,12 +138,13 @@ describe("CoreEngine with Objectives and Game Loop", () => {
       pos: { x: 0.5, y: 0.5 },
       hp: 500,
       maxHp: 500,
-      type: "Boss",
+      type: EnemyType.Boss,
       damage: 1000,
       fireRate: 1000,
       accuracy: 1000,
       attackRange: 1,
       speed: 10,
+      difficulty: 100,
     });
 
     engine.update(100);

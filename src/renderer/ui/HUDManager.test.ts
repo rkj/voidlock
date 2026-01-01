@@ -13,6 +13,13 @@ describe("HUDManager", () => {
   const mockState: GameState = {
     t: 1000,
     status: "Playing",
+    mode: "Simulation" as any,
+    squadInventory: {},
+    debugOverlayEnabled: false,
+    losOverlayEnabled: false,
+    timeScale: 1.0,
+    isPaused: false,
+    isSlowMotion: false,
     threatLevel: 25,
     aliensKilled: 5,
     casualties: 0,
@@ -140,11 +147,13 @@ describe("HUDManager", () => {
     const stateWithObjectives: GameState = {
       ...mockState,
       objectives: [
-        { kind: "Exterminate", state: "Active" as any },
+        { id: "o1", kind: "Kill", state: "Pending", visible: true },
         {
-          kind: "Secure",
-          state: "Completed" as any,
+          id: "o2",
+          kind: "Recover",
+          state: "Completed",
           targetCell: { x: 5, y: 5 },
+          visible: true,
         },
       ],
     };
@@ -153,9 +162,9 @@ describe("HUDManager", () => {
 
     const objectivesDiv = document.querySelector(".objectives-status");
     expect(objectivesDiv).not.toBeNull();
-    expect(objectivesDiv?.innerHTML).toContain("Exterminate");
-    expect(objectivesDiv?.innerHTML).toContain("(Active)");
-    expect(objectivesDiv?.innerHTML).toContain("Secure");
+    expect(objectivesDiv?.innerHTML).toContain("Kill");
+    expect(objectivesDiv?.innerHTML).toContain("(Pending)");
+    expect(objectivesDiv?.innerHTML).toContain("Recover");
     expect(objectivesDiv?.innerHTML).toContain("(Completed)");
     expect(objectivesDiv?.innerHTML).toContain("at (5,5)");
   });
@@ -163,8 +172,8 @@ describe("HUDManager", () => {
   it("should render objectives in game over summary", () => {
     const gameOverState: GameState = {
       ...mockState,
-      status: "Won" as any,
-      objectives: [{ kind: "Recover", state: "Completed" as any }],
+      status: "Won",
+      objectives: [{ id: "o1", kind: "Recover", state: "Completed" }],
     };
 
     hud.update(gameOverState, null);

@@ -6,6 +6,7 @@ import {
   UnitState,
   SquadConfig,
   CommandType,
+  EnemyType,
 } from "../../../shared/types";
 
 describe("Enemy AI", () => {
@@ -39,12 +40,13 @@ describe("Enemy AI", () => {
       pos: { x: 2.5, y: 2.5 },
       hp: 100,
       maxHp: 100,
-      type: "SwarmMelee",
+      type: EnemyType.SwarmMelee,
       damage: 10,
       fireRate: 800,
       accuracy: 1000,
       attackRange: 1,
       speed: 2,
+      difficulty: 1,
     });
 
     const initialPos = { ...engine.getState().enemies[0].pos };
@@ -68,12 +70,13 @@ describe("Enemy AI", () => {
       pos: { x: 0.5, y: 0.5 },
       hp: 100,
       maxHp: 100,
-      type: "SwarmMelee",
+      type: EnemyType.SwarmMelee,
       damage: 10,
       fireRate: 800,
       accuracy: 1000,
       attackRange: 1,
       speed: 2,
+      difficulty: 1,
     });
 
     // Soldier at (4.5, 4.5)
@@ -91,6 +94,8 @@ describe("Enemy AI", () => {
       speed: 2,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
 
     const initialDist = Math.sqrt((0.5 - 4.5) ** 2 + (0.5 - 4.5) ** 2);

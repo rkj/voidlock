@@ -34,7 +34,6 @@ describe("Exploration Efficiency Regression (ICWK)", () => {
         id: "obj_explore",
         kind: "Recover",
         targetCell: { x: 99, y: 99 },
-        state: "Pending",
       },
     ];
 
@@ -50,6 +49,8 @@ describe("Exploration Efficiency Regression (ICWK)", () => {
       damage: 10,
       fireRate: 100,
       accuracy: 1000,
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
       attackRange: 1,
       sightRange: 0.1,
       speed: 20,

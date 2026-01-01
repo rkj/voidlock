@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { Renderer } from "./Renderer";
-import { GameState, MapDefinition, CellType, UnitState } from "../shared/types";
+import { GameState, MapDefinition, CellType, UnitState, EnemyType } from "../shared/types";
+import { createMockGameState } from "../engine/tests/utils/MockFactory";
 
 // Mock CanvasRenderingContext2D
 const mockContext = {
@@ -72,7 +73,7 @@ describe("Enemy LOS Visibility", () => {
     })),
   };
 
-  const mockGameState: GameState = {
+  const mockGameState: GameState = createMockGameState({
     t: 1000,
     map: mockMap,
     units: [],
@@ -82,22 +83,26 @@ describe("Enemy LOS Visibility", () => {
         pos: { x: 1.5, y: 1.5 },
         hp: 100,
         maxHp: 100,
-        type: "Xeno-Mite",
+        type: EnemyType.XenoMite,
         damage: 10,
         fireRate: 1000,
+        accuracy: 50,
         attackRange: 1,
         speed: 2,
+        difficulty: 1,
       },
       {
         id: "hidden-enemy",
         pos: { x: 5.5, y: 5.5 },
         hp: 100,
         maxHp: 100,
-        type: "Xeno-Mite",
+        type: EnemyType.XenoMite,
         damage: 10,
         fireRate: 1000,
+        accuracy: 50,
         attackRange: 1,
         speed: 2,
+        difficulty: 1,
       },
     ],
     visibleCells: ["1,1"], // Only visible-enemy's cell is visible
@@ -108,7 +113,7 @@ describe("Enemy LOS Visibility", () => {
     casualties: 0,
     status: "Playing",
     losOverlayEnabled: true,
-  };
+  });
 
   beforeEach(() => {
     vi.clearAllMocks();

@@ -1,7 +1,8 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { HUDManager } from "./HUDManager";
-import { GameState, UnitState, Unit, Enemy } from "../../shared/types";
+import { GameState, UnitState, Unit, Enemy, EnemyType } from "../../shared/types";
+import { createMockGameState, createMockUnit, createMockEnemy } from "../../engine/tests/utils/MockFactory";
 
 describe("HUDManager Stats & Enemy Intel", () => {
   let hud: HUDManager;
@@ -10,7 +11,7 @@ describe("HUDManager Stats & Enemy Intel", () => {
   let onAbortMission: any;
   let onMenuInput: any;
 
-  const mockState: GameState = {
+  const mockState: GameState = createMockGameState({
     t: 1000,
     status: "Playing",
     threatLevel: 25,
@@ -18,7 +19,7 @@ describe("HUDManager Stats & Enemy Intel", () => {
     casualties: 0,
     map: { width: 10, height: 10, cells: [] },
     units: [
-      {
+      createMockUnit({
         id: "s1",
         hp: 100,
         maxHp: 100,
@@ -32,12 +33,12 @@ describe("HUDManager Stats & Enemy Intel", () => {
         engagementPolicy: "ENGAGE",
         archetypeId: "assault",
         commandQueue: [],
-      } as any,
+      }),
     ],
     enemies: [
-      {
+      createMockEnemy({
         id: "e1",
-        type: "Xeno-Mite",
+        type: EnemyType.XenoMite,
         pos: { x: 5.5, y: 5.5 },
         hp: 50,
         maxHp: 50,
@@ -46,12 +47,13 @@ describe("HUDManager Stats & Enemy Intel", () => {
         accuracy: 50,
         attackRange: 1,
         speed: 30,
-      } as any,
+        difficulty: 1,
+      }),
     ],
     visibleCells: ["5,5"],
     discoveredCells: ["5,5"],
     objectives: [],
-  };
+  });
 
   beforeEach(() => {
     document.body.innerHTML = `

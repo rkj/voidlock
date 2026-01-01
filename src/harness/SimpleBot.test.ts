@@ -9,6 +9,7 @@ import {
   Unit,
   Enemy,
 } from "../shared/types";
+import { createMockUnit, createMockGameState } from "../engine/tests/utils/MockFactory";
 
 describe("SimpleBot", () => {
   const mockMap: MapDefinition = {
@@ -24,7 +25,7 @@ describe("SimpleBot", () => {
     targetCell: { x: 5, y: 5 },
   };
 
-  const mockUnit: Unit = {
+  const mockUnit: Unit = createMockUnit({
     id: "u1",
     pos: { x: 0, y: 0 },
     hp: 100,
@@ -37,9 +38,9 @@ describe("SimpleBot", () => {
     speed: 20,
     commandQueue: [],
     archetypeId: "assault",
-  };
+  });
 
-  const baseState: GameState = {
+  const baseState: GameState = createMockGameState({
     t: 0,
     map: { ...mockMap, objectives: [mockObjective] },
     units: [mockUnit],
@@ -51,7 +52,7 @@ describe("SimpleBot", () => {
     aliensKilled: 0,
     casualties: 0,
     status: "Playing",
-  };
+  });
 
   it("should move to pending objective", () => {
     const bot = new SimpleBot();

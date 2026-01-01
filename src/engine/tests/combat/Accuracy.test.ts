@@ -5,6 +5,7 @@ import {
   CellType,
   UnitState,
   SquadConfig,
+  EnemyType,
 } from "../../../shared/types";
 
 describe("Combat Accuracy (Percentage Model)", () => {
@@ -24,9 +25,9 @@ describe("Combat Accuracy (Percentage Model)", () => {
 
   beforeEach(() => {
     const defaultSquad: SquadConfig = {
-    soldiers: [{ archetypeId: "assault" }],
-    inventory: {},
-  };
+      soldiers: [{ archetypeId: "assault" }],
+      inventory: {},
+    };
     // Use a fixed seed for deterministic results
     engine = new CoreEngine(mockMap, 12345, defaultSquad, false, false);
     engine.clearUnits();
@@ -48,6 +49,8 @@ describe("Combat Accuracy (Percentage Model)", () => {
       speed: 20,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
 
     engine.addEnemy({
@@ -55,12 +58,13 @@ describe("Combat Accuracy (Percentage Model)", () => {
       pos: { x: 10.5, y: 0.5 }, // distance = 10.0
       hp: 1000,
       maxHp: 1000,
-      type: "Xeno-Mite",
+      type: EnemyType.XenoMite,
       damage: 0,
       fireRate: 1000,
       accuracy: 100,
       attackRange: 0,
       speed: 0,
+      difficulty: 1,
     });
 
     // Fire 10 shots
@@ -90,6 +94,8 @@ describe("Combat Accuracy (Percentage Model)", () => {
       speed: 20,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
 
     engine.addEnemy({
@@ -97,12 +103,13 @@ describe("Combat Accuracy (Percentage Model)", () => {
       pos: { x: 10.5, y: 0.5 }, // distance = 10.0
       hp: 10000,
       maxHp: 10000,
-      type: "Xeno-Mite",
+      type: EnemyType.XenoMite,
       damage: 0,
       fireRate: 1000,
       accuracy: 100,
       attackRange: 0,
       speed: 0,
+      difficulty: 1,
     });
 
     // Fire 100 shots
@@ -136,6 +143,8 @@ describe("Combat Accuracy (Percentage Model)", () => {
       speed: 20,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
 
     engine.addEnemy({
@@ -143,12 +152,13 @@ describe("Combat Accuracy (Percentage Model)", () => {
       pos: { x: 1.5, y: 0.5 }, // distance = 1.0
       hp: 10000,
       maxHp: 10000,
-      type: "Xeno-Mite",
+      type: EnemyType.XenoMite,
       damage: 0,
       fireRate: 1000,
       accuracy: 100,
       attackRange: 0,
       speed: 0,
+      difficulty: 1,
     });
 
     // Fire 100 shots
@@ -180,6 +190,8 @@ describe("Combat Accuracy (Percentage Model)", () => {
       speed: 20,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
 
     engine.addEnemy({
@@ -187,12 +199,13 @@ describe("Combat Accuracy (Percentage Model)", () => {
       pos: { x: 10.5, y: 0.5 }, // distance = 10.0
       hp: 1000,
       maxHp: 1000,
-      type: "Xeno-Mite",
+      type: EnemyType.XenoMite,
       damage: 0,
       fireRate: 1000,
       accuracy: 100,
       attackRange: 0,
       speed: 0,
+      difficulty: 1,
     });
 
     // Fire 10 shots
@@ -221,6 +234,8 @@ describe("Combat Accuracy (Percentage Model)", () => {
       speed: 20,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
 
     engine.addEnemy({
@@ -228,12 +243,13 @@ describe("Combat Accuracy (Percentage Model)", () => {
       pos: { x: 10.5, y: 0.5 },
       hp: 100,
       maxHp: 100,
-      type: "Spitter-Acid",
+      type: EnemyType.SpitterAcid,
       damage: 10,
       fireRate: 100,
       accuracy: 100,
       attackRange: 15,
       speed: 0,
+      difficulty: 1,
     });
 
     // Fire 100 shots
@@ -265,6 +281,8 @@ describe("Combat Accuracy (Percentage Model)", () => {
       speed: 20,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
 
     engine.addEnemy({
@@ -272,12 +290,13 @@ describe("Combat Accuracy (Percentage Model)", () => {
       pos: { x: 1.5, y: 0.5 }, // distance = 1.0
       hp: 1000,
       maxHp: 1000,
-      type: "Xeno-Mite",
+      type: EnemyType.XenoMite,
       damage: 0,
       fireRate: 1000,
       accuracy: 100,
       attackRange: 0,
       speed: 0,
+      difficulty: 1,
     });
 
     // Fire 10 shots
@@ -306,6 +325,8 @@ describe("Combat Accuracy (Percentage Model)", () => {
       speed: 20,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
 
     engine.addEnemy({
@@ -313,12 +334,13 @@ describe("Combat Accuracy (Percentage Model)", () => {
       pos: { x: 10.5, y: 0.5 }, // distance = 10.0
       hp: 100,
       maxHp: 100,
-      type: "Spitter-Acid",
+      type: EnemyType.SpitterAcid,
       damage: 10,
       fireRate: 100,
       accuracy: 50,
       attackRange: 11,
       speed: 0,
+      difficulty: 1,
     });
 
     // Fire 100 shots

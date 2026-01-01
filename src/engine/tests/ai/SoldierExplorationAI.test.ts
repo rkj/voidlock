@@ -59,6 +59,8 @@ describe("Soldier Exploration AI", () => {
       damage: 10,
       fireRate: 100,
       accuracy: 1000,
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
       attackRange: 1,
       sightRange: 0.1, // Small sight to ensure neighbors are undiscovered
       speed: 20,

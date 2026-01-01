@@ -5,6 +5,7 @@ import {
   CellType,
   Door,
   UnitState,
+  EnemyType,
 } from "../../../shared/types";
 
 describe("Enemy Door Interaction", () => {
@@ -50,12 +51,13 @@ describe("Enemy Door Interaction", () => {
       pos: { x: 0.5, y: 0.5 },
       hp: 100,
       maxHp: 100,
-      type: "SwarmMelee",
+      type: EnemyType.SwarmMelee,
       damage: 10,
       fireRate: 100,
       accuracy: 1000,
       attackRange: 1,
       speed: 2,
+      difficulty: 1,
       targetPos: { x: 1.5, y: 0.5 },
       path: [{ x: 1, y: 0 }],
     });
@@ -75,6 +77,8 @@ describe("Enemy Door Interaction", () => {
       speed: 2,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
 
     // Run updates. Door open duration is 0.1s (100ms).

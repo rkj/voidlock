@@ -61,7 +61,7 @@ export class GameClient {
     fogOfWarEnabled: boolean = true,
     debugOverlayEnabled: boolean = false,
     agentControlEnabled: boolean = true,
-    squadConfig: SquadConfig = [], // Default to empty array if not provided
+    squadConfig: SquadConfig = { soldiers: [], inventory: {} }, // Default to empty squad if not provided
     missionType: MissionType = MissionType.Default,
     width: number = 16,
     height: number = 16,
@@ -230,7 +230,7 @@ export class GameClient {
     // Reset start time to now so recorded `t` matches new flow
     // `init` resets `startTime`.
 
-    data.commands.forEach((rc) => {
+    data.commands.forEach((rc: RecordedCommand) => {
       const timeoutId = setTimeout(() => {
         // We bypass `sendCommand` to avoid re-recording?
         // Or we assume `loadReplay` is "watching" mode.

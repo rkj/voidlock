@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { Renderer } from "./Renderer";
 import { GameState, MapDefinition, CellType, UnitState } from "../shared/types";
+import { createMockUnit, createMockGameState } from "../engine/tests/utils/MockFactory";
 
 // Mock Image
 class MockImage {
@@ -63,11 +64,11 @@ describe("Renderer Move Line", () => {
   });
 
   it("should render full path for moving units", () => {
-    const gameState: GameState = {
+    const gameState: GameState = createMockGameState({
       t: 0,
       map: mockMap,
       units: [
-        {
+        createMockUnit({
           id: "s1",
           pos: { x: 0.5, y: 0.5 },
           state: UnitState.Moving,
@@ -86,7 +87,7 @@ describe("Renderer Move Line", () => {
           speed: 2,
           commandQueue: [],
           archetypeId: "assault",
-        },
+        }),
       ],
       enemies: [],
       visibleCells: ["0,0", "1,0", "2,0", "2,1"],
@@ -96,7 +97,7 @@ describe("Renderer Move Line", () => {
       aliensKilled: 0,
       casualties: 0,
       status: "Playing",
-    };
+    });
 
     renderer.render(gameState);
 

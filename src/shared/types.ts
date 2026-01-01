@@ -49,6 +49,12 @@ export type MapDefinition = {
   objectives?: ObjectiveDefinition[];
 };
 
+export type SpawnPoint = {
+  id: string;
+  pos: Vector2;
+  radius: number;
+};
+
 export type ObjectiveDefinition = {
   id: string;
   kind: "Recover" | "Kill" | "Escort";
@@ -402,6 +408,10 @@ export enum EnemyType {
   SpitterAcid = "Spitter-Acid",
   SwarmMelee = "SwarmMelee", // Legacy
   Hive = "Hive",
+  Boss = "Boss",
+  AlienScout = "alien_scout",
+  Grunt = "Grunt",
+  Melee = "Melee",
 }
 
 export const EnemyArchetypeLibrary: {
@@ -501,6 +511,18 @@ export enum EngineMode {
 export type CommandLogEntry = {
   tick: number;
   command: Command;
+};
+
+export type RecordedCommand = {
+  t: number;
+  cmd: Command;
+};
+
+export type ReplayData = {
+  seed: number;
+  map: MapDefinition;
+  squadConfig: SquadConfig;
+  commands: RecordedCommand[];
 };
 
 export type GameStatus = "Playing" | "Won" | "Lost";
@@ -700,6 +722,12 @@ export type TileAssembly = {
   globalSquadSpawn?: { cell: Vector2 };
   globalExtraction?: { cell: Vector2 };
   globalObjectives?: { kind: "Recover" | "Kill"; cell: Vector2; id: string }[];
+};
+
+export type OverlayOption = {
+  key: string;
+  label: string;
+  pos: Vector2;
 };
 
 export * from "./campaign_types";

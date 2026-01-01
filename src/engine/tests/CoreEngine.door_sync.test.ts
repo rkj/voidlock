@@ -61,6 +61,8 @@ describe("CoreEngine Door Sync", () => {
       aiEnabled: true,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
 
     // Run update to trigger "Opening" logic (timer start)
@@ -110,6 +112,8 @@ describe("CoreEngine Door Sync", () => {
       aiEnabled: true,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
 
     // Initial state check: Boundary should be OPEN (isWall: false)
