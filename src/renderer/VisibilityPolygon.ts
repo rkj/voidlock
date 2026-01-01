@@ -94,10 +94,11 @@ export class VisibilityPolygon {
 
   public static compute(
     origin: Vector2,
-    range: number,
     graph: Graph,
+    range?: number,
   ): Vector2[] {
-    const segments = this.getSegments(graph, origin, range);
+    const actualRange = range ?? graph.width + graph.height;
+    const segments = this.getSegments(graph, origin, actualRange);
     const points: Vector2[] = [];
     const uniquePoints = new Set<string>();
 
@@ -134,8 +135,11 @@ export class VisibilityPolygon {
       const rayDir = { x: dx, y: dy };
 
       // Find closest intersection
-      let closestDist = range;
-      let closestPoint = { x: origin.x + dx * range, y: origin.y + dy * range };
+      let closestDist = actualRange;
+      let closestPoint = {
+        x: origin.x + dx * actualRange,
+        y: origin.y + dy * actualRange,
+      };
 
       for (const seg of segments) {
         const hit = this.getIntersection(origin, rayDir, seg);

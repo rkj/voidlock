@@ -36,6 +36,32 @@ describe("Coordinated Exploration", () => {
           targetCell: { x: 99, y: 0 },
         },
       ],
+      doors: [
+        {
+          id: "d1",
+          segment: [
+            { x: 0, y: 0 },
+            { x: 1, y: 0 },
+          ],
+          orientation: "Vertical",
+          state: "Closed",
+          hp: 100,
+          maxHp: 100,
+          openDuration: 1,
+        },
+        {
+          id: "d2",
+          segment: [
+            { x: 3, y: 0 },
+            { x: 4, y: 0 },
+          ],
+          orientation: "Vertical",
+          state: "Closed",
+          hp: 100,
+          maxHp: 100,
+          openDuration: 1,
+        },
+      ],
     };
 
     const squad: SquadConfig = { soldiers: [], inventory: {} };
@@ -58,7 +84,6 @@ describe("Coordinated Exploration", () => {
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
         attackRange: 2,
-        sightRange: 0.1,
         speed: 20,
       },
       commandQueue: [],
@@ -77,7 +102,6 @@ describe("Coordinated Exploration", () => {
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
         attackRange: 2,
-        sightRange: 0.1,
         speed: 20,
       },
       commandQueue: [],

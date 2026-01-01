@@ -11,126 +11,273 @@ describe("Coordinated Exploration Refined", () => {
   let engine: CoreEngine;
   let map: MapDefinition;
 
-  beforeEach(() => {
-    // 10x10 Map
-    map = {
-      width: 10,
-      height: 10,
-      cells: [],
-      spawnPoints: [],
-      extraction: { x: 0, y: 0 },
-      objectives: [
-        {
-          id: "obj1",
-          kind: "Recover",
-          targetCell: { x: 9, y: 9 },
-        },
-      ],
-    };
+    beforeEach(() => {
 
-    for (let y = 0; y < 10; y++) {
-      for (let x = 0; x < 10; x++) {
-        map.cells.push({ x, y, type: CellType.Floor });
+      // 5x1 Map
+
+      map = {
+
+        width: 5,
+
+        height: 1,
+
+        cells: [
+
+          { x: 0, y: 0, type: CellType.Floor },
+
+          { x: 1, y: 0, type: CellType.Floor },
+
+          { x: 2, y: 0, type: CellType.Floor },
+
+          { x: 3, y: 0, type: CellType.Floor },
+
+          { x: 4, y: 0, type: CellType.Floor },
+
+        ],
+
+        spawnPoints: [],
+
+        extraction: { x: 0, y: 0 },
+
+        objectives: [
+
+          {
+
+            id: "obj1",
+
+            kind: "Recover",
+
+            targetCell: { x: 9, y: 9 },
+
+          },
+
+        ],
+
+        doors: [
+
+          {
+
+            id: "d1",
+
+            segment: [
+
+              { x: 0, y: 0 },
+
+              { x: 1, y: 0 },
+
+            ],
+
+            orientation: "Vertical",
+
+            state: "Closed",
+
+            hp: 100,
+
+            maxHp: 100,
+
+            openDuration: 1,
+
+          },
+
+          {
+
+            id: "d2",
+
+            segment: [
+
+              { x: 3, y: 0 },
+
+              { x: 4, y: 0 },
+
+            ],
+
+            orientation: "Vertical",
+
+            state: "Closed",
+
+            hp: 100,
+
+            maxHp: 100,
+
+            openDuration: 1,
+
+          },
+
+        ],
+
+      };
+
+  
+
+      const squad: SquadConfig = { soldiers: [], inventory: {} };
+
+      engine = new CoreEngine(map, 123, squad, true, false);
+
+      engine.clearUnits();
+
+    });
+
+  
+
+    it("should spread units to different areas of the map", () => {
+
+      // Place 2 units at center (2,0)
+
+      for (let i = 0; i < 2; i++) {
+
+        engine.addUnit({
+
+          id: `u${i}`,
+
+          pos: { x: 2.5, y: 0.5 },
+
+          hp: 100,
+
+          maxHp: 100,
+
+          state: UnitState.Idle,
+
+          stats: {
+
+            damage: 10,
+
+            fireRate: 100,
+
+            accuracy: 1000,
+
+            soldierAim: 90,
+
+            equipmentAccuracyBonus: 0,
+
+            attackRange: 5,
+
+            speed: 20,
+
+          },
+
+          commandQueue: [],
+
+          archetypeId: "assault",
+
+        });
+
       }
-    }
 
-    const squad: SquadConfig = { soldiers: [], inventory: {} };
-    engine = new CoreEngine(map, 123, squad, true, false);
-    engine.clearUnits();
-  });
+  
 
-  it("should spread units to different areas of the map", () => {
-    // Place 4 units at center
-    for (let i = 0; i < 4; i++) {
+      // Run update to trigger exploration target assignment
+
+      engine.update(100);
+
+  
+
+      const state = engine.getState();
+
+      const units = state.units;
+
+      const targets = units.map((u) => u.explorationTarget).filter((t) => !!t);
+
+  
+
+      expect(targets.length).toBe(2);
+
+  
+
+      // One should target 0,0, other 4,0
+
+      expect(targets[0]!.x !== targets[1]!.x).toBe(true);
+
+    });
+
+  
+
+    it("should re-evaluate target if it becomes discovered by another unit", () => {
+
       engine.addUnit({
-        id: `u${i}`,
-        pos: { x: 5.5, y: 5.5 },
+
+        id: "u1",
+
+        pos: { x: 2.5, y: 0.5 },
+
         hp: 100,
+
         maxHp: 100,
+
         state: UnitState.Idle,
+
         stats: {
+
           damage: 10,
+
           fireRate: 100,
+
           accuracy: 1000,
+
           soldierAim: 90,
+
           equipmentAccuracyBonus: 0,
+
           attackRange: 5,
-          sightRange: 0.1,
+
           speed: 20,
+
         },
+
         commandQueue: [],
+
         archetypeId: "assault",
+
       });
-    }
 
-    // Run update to trigger exploration target assignment
-    engine.update(100);
+      engine.addUnit({
 
-    const state = engine.getState();
-    const units = state.units;
-    const targets = units.map((u) => u.explorationTarget).filter((t) => !!t);
+        id: "u2",
 
-    expect(targets.length).toBe(4);
+        pos: { x: 2.5, y: 0.5 },
 
-    // Check that targets are sufficiently spread out
-    for (let i = 0; i < targets.length; i++) {
-      for (let j = i + 1; j < targets.length; j++) {
-        const dist = Math.sqrt(
-          Math.pow(targets[i]!.x - targets[j]!.x, 2) +
-            Math.pow(targets[i]!.y - targets[j]!.y, 2),
-        );
-        // With avoidRadius 5, they should be at least 3 tiles apart
-        expect(dist).toBeGreaterThanOrEqual(3.0);
-      }
-    }
-  });
+        hp: 100,
 
-  it("should re-evaluate target if it becomes discovered by another unit", () => {
-    engine.addUnit({
-      id: "u1",
-      pos: { x: 1.5, y: 1.5 },
-      hp: 100,
-      maxHp: 100,
-      state: UnitState.Idle,
-      stats: {
-        damage: 10,
-        fireRate: 100,
-        accuracy: 1000,
-        soldierAim: 90,
-        equipmentAccuracyBonus: 0,
-        attackRange: 5,
-        sightRange: 0.1,
-        speed: 20,
-      },
-      commandQueue: [],
-      archetypeId: "assault",
-    });
-    engine.addUnit({
-      id: "u2",
-      pos: { x: 8.5, y: 8.5 },
-      hp: 100,
-      maxHp: 100,
-      state: UnitState.Idle,
-      stats: {
-        damage: 10,
-        fireRate: 100,
-        accuracy: 1000,
-        soldierAim: 90,
-        equipmentAccuracyBonus: 0,
-        attackRange: 5,
-        sightRange: 0.1,
-        speed: 20,
-      },
-      commandQueue: [],
-      archetypeId: "assault",
-    });
+        maxHp: 100,
 
-    engine.update(100);
+        state: UnitState.Idle,
 
-    const units = engine.getState().units;
-    const u1 = units.find((u) => u.id === "u1")!;
-    expect(u1.explorationTarget).toBeDefined();
-    const target1 = { ...u1.explorationTarget! };
+        stats: {
+
+          damage: 10,
+
+          fireRate: 100,
+
+          accuracy: 1000,
+
+          soldierAim: 90,
+
+          equipmentAccuracyBonus: 0,
+
+          attackRange: 5,
+
+          speed: 20,
+
+        },
+
+        commandQueue: [],
+
+        archetypeId: "assault",
+
+      });
+
+  
+
+      engine.update(100);
+
+  
+
+      const units = engine.getState().units;
+
+      const u1 = units.find((u) => u.id === "u1")!;
+
+      expect(u1.explorationTarget).toBeDefined();
+
+      const target1 = { ...u1.explorationTarget! };
 
     // Manually discover u1's target in the engine's REAL state
     const key = `${Math.floor(target1.x)},${Math.floor(target1.y)}`;

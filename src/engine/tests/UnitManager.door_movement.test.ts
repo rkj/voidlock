@@ -57,9 +57,8 @@ describe("UnitManager Door Movement", () => {
         accuracy: 1000,
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
-        attackRange: 2,
-        sightRange: 5,
-        speed: 2,
+        attackRange: 5,
+        speed: 20,
       },
       aiEnabled: true,
       commandQueue: [

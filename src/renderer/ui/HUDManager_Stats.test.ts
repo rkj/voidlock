@@ -40,9 +40,8 @@ describe("HUDManager Stats & Enemy Intel", () => {
           accuracy: 90,
           damage: 20,
           fireRate: 500, // 2 shots per second
-          attackRange: 4,
+          attackRange: 10,
           speed: 20,
-          sightRange: 10,
           soldierAim: 80,
           equipmentAccuracyBonus: 0,
         },

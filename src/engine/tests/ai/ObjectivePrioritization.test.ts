@@ -30,6 +30,20 @@ describe("Objective Prioritization AI", () => {
           targetCell: { x: 4, y: 0 },
         },
       ],
+      doors: [
+        {
+          id: "d1",
+          segment: [
+            { x: 3, y: 0 },
+            { x: 4, y: 0 },
+          ],
+          orientation: "Vertical",
+          state: "Closed",
+          hp: 100,
+          maxHp: 100,
+          openDuration: 1,
+        },
+      ],
     };
 
     for (let y = 0; y < 5; y++) {
@@ -53,7 +67,6 @@ describe("Objective Prioritization AI", () => {
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
         attackRange: 2,
-        sightRange: 0.1,
         speed: 10, // 1 tile per second (1000ms)
       },
       commandQueue: [],
@@ -73,8 +86,8 @@ describe("Objective Prioritization AI", () => {
     const initialTarget = { ...unit1.targetPos };
 
     // 2. Objective is at (4,0). Let's make it visible.
-    // We must modify the actual engine state, not the copy from getState.
-    (engine as any).state.units[0].stats.sightRange = 10;
+    const door = (engine as any).doorManager.getDoors().get("d1");
+    door.state = "Open";
 
     // 3. Update again. The AI should re-evaluate and see the visible objective.
     engine.update(100);

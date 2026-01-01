@@ -90,7 +90,6 @@ describe("Renderer LOS", () => {
           maxHp: 100,
           state: UnitState.Idle,
           stats: {
-            sightRange: 5,
             speed: 1,
             attackRange: 5,
             damage: 10,
@@ -148,7 +147,7 @@ describe("Renderer LOS", () => {
       0,
       160,
       160,
-      160,
+      640,
     );
 
     // Check if fillStyle was set to the gradient
@@ -167,7 +166,7 @@ describe("Renderer LOS", () => {
       0,
       192,
       192,
-      320,
+      640,
     );
   });
 });

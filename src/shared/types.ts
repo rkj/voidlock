@@ -122,7 +122,6 @@ export type UnitStats = {
   accuracy: number;
   soldierAim: number;
   attackRange: number;
-  sightRange: number;
   speed: number;
   equipmentAccuracyBonus: number;
 };
@@ -261,7 +260,6 @@ export type Archetype = {
   accuracy: number; // Hit chance percentage at 5 tiles (DEPRECATED)
   soldierAim: number; // Base hit percentage (0-100)
   attackRange: number;
-  sightRange: number;
   speed: number; // Speed factor (x10 integer, e.g. 15 = 1.5 tiles/s)
   aiProfile: AIProfile;
   rightHand?: string;
@@ -366,7 +364,6 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     accuracy: 95,
     soldierAim: 90,
     attackRange: 10,
-    sightRange: 100,
     speed: 20,
     aiProfile: AIProfile.RUSH,
     leftHand: "combat_knife",
@@ -381,7 +378,6 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     accuracy: 85,
     soldierAim: 80,
     attackRange: 6,
-    sightRange: 100,
     speed: 25,
     aiProfile: AIProfile.RETREAT,
     leftHand: "combat_knife",
@@ -396,7 +392,6 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     accuracy: 75,
     soldierAim: 70,
     attackRange: 4,
-    sightRange: 100,
     speed: 15,
     aiProfile: AIProfile.STAND_GROUND,
     leftHand: "thunder_hammer",
@@ -411,7 +406,6 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     accuracy: 50,
     soldierAim: 50,
     attackRange: 0,
-    sightRange: 6,
     speed: 22,
     aiProfile: AIProfile.RETREAT,
   },

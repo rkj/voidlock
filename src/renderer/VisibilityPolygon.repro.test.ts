@@ -17,7 +17,7 @@ describe("VisibilityPolygon Repro", () => {
     const origin = { x: 3.5, y: 2.5 };
     const range = 10;
 
-    const polygon = VisibilityPolygon.compute(origin, range, graph);
+    const polygon = VisibilityPolygon.compute(origin, graph, range);
 
     // Check if ANY point in the polygon has reached x < 1 (the target cell) inside the corridor
     const reachedTargetCorridor = polygon.some(

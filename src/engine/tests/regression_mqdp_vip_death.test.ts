@@ -112,7 +112,6 @@ describe("Regression mqdp: VIP Death Mission Success", () => {
       fireRate: 1000,
       accuracy: 50,
       attackRange: 0,
-      sightRange: 6,
       speed: 22,
       commandQueue: [],
     };

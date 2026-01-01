@@ -29,6 +29,20 @@ describe("Regression MPLV: Objective Ignored During Exploration", () => {
           targetCell: { x: 5, y: 5 },
         },
       ],
+      doors: [
+        {
+          id: "d1",
+          segment: [
+            { x: 4, y: 4 },
+            { x: 4, y: 5 },
+          ],
+          orientation: "Horizontal",
+          state: "Closed",
+          hp: 100,
+          maxHp: 100,
+          openDuration: 1,
+        },
+      ],
     };
 
     for (let y = 0; y < 10; y++) {
@@ -64,7 +78,6 @@ describe("Regression MPLV: Objective Ignored During Exploration", () => {
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
         attackRange: 10,
-        sightRange: 5, // Objective at (5,5) is just out of sight from (0,0)
         speed: 10,
       },
       commandQueue: [],
@@ -84,9 +97,9 @@ describe("Regression MPLV: Objective Ignored During Exploration", () => {
     expect(unit1.activeCommand?.label).toBe("Exploring");
     expect(unit1.explorationTarget).toBeDefined();
 
-    // 2. Move unit closer to objective so it becomes visible
-    (engine as any).state.units[0].pos = { x: 2.5, y: 2.5 };
-    // Now objective at (5,5) should be within sight 5.
+    // 2. Open the door so objective becomes visible
+    const door = (engine as any).doorManager.getDoors().get("d1");
+    door.state = "Open";
 
     // 3. Update again. The AI should re-evaluate and see the visible objective.
     engine.update(100);
@@ -101,9 +114,8 @@ describe("Regression MPLV: Objective Ignored During Exploration", () => {
     // If the fix is implemented, it should now be moving towards the objective (5,5)
     expect(unit2.activeCommand?.label).toBe("Recovering");
     expect(unit2.explorationTarget).toBeUndefined();
-    // It should have moved one step from (2,2) towards (5,5).
-    // Depending on pathfinder, it could be (3.5, 2.5) or (2.5, 3.5).
-    expect([2.5, 3.5]).toContain(unit2.targetPos?.x);
-    expect([2.5, 3.5]).toContain(unit2.targetPos?.y);
+    // It should have moved one step from (0,0) towards (5,5).
+    expect([0.5, 1.5]).toContain(unit2.targetPos?.x);
+    expect([0.5, 1.5]).toContain(unit2.targetPos?.y);
   });
 });

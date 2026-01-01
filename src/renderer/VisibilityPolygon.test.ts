@@ -23,7 +23,7 @@ describe("VisibilityPolygon", () => {
 
     const origin = { x: 5.5, y: 5.5 };
     const range = 2;
-    const poly = VisibilityPolygon.compute(origin, range, graph);
+    const poly = VisibilityPolygon.compute(origin, graph, range);
 
     expect(poly.length).toBeGreaterThan(0);
 
@@ -51,7 +51,7 @@ describe("VisibilityPolygon", () => {
 
     const origin = { x: 5.5, y: 5.5 };
     const range = 3;
-    const poly = VisibilityPolygon.compute(origin, range, graph);
+    const poly = VisibilityPolygon.compute(origin, graph, range);
 
     // Expect points to the East to be limited by x=6
     const eastPoints = poly.filter((p) => p.x > 6.01);

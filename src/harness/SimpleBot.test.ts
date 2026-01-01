@@ -37,8 +37,7 @@ describe("SimpleBot", () => {
     stats: {
       damage: 10,
       fireRate: 1000,
-      attackRange: 5,
-      sightRange: 100,
+      attackRange: 10,
       speed: 20,
       accuracy: 95,
       soldierAim: 90,

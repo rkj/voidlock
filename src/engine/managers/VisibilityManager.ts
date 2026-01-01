@@ -12,10 +12,7 @@ export class VisibilityManager {
         unit.state !== UnitState.Extracted &&
         unit.state !== UnitState.Dead
       ) {
-        const visible = this.los.computeVisibleCells(
-          unit.pos,
-          unit.stats.sightRange || 10,
-        );
+        const visible = this.los.computeVisibleCells(unit.pos);
         visible.forEach((cell) => newVisibleCells.add(cell));
       }
     });

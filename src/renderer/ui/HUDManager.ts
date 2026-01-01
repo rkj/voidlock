@@ -336,7 +336,6 @@ export class HUDManager {
           </div>
           <div class="base-stats-row" style="font-size:0.7em; display:flex; gap:8px; color:#888; margin-top:2px;">
              <span class="u-speed-box"></span>
-             <span class="u-sight-box"></span>
           </div>
           <div class="weapon-stats-container" style="font-size:0.65em; margin-top:4px; display:flex; flex-direction:column; gap:2px; border-top:1px solid #222; padding-top:2px;">
              <div class="u-lh-row" style="display:flex; gap:6px; align-items:center;">
@@ -366,12 +365,6 @@ export class HUDManager {
 
       (el.querySelector(".u-speed-box") as HTMLElement).innerHTML =
         this.renderStat(Icons.Speed, (unit.stats.speed / 10).toFixed(1), "Speed");
-      (el.querySelector(".u-sight-box") as HTMLElement).innerHTML =
-        this.renderStat(
-          Icons.Visibility,
-          unit.stats.sightRange >= 100 ? "∞" : unit.stats.sightRange.toString(),
-          "Sight Range",
-        );
 
       const lhStats = this.getWeaponStats(unit, unit.leftHand);
       const rhStats = this.getWeaponStats(unit, unit.rightHand);

@@ -32,9 +32,8 @@ describe("HUDManager Regression kvi1", () => {
         stats: {
           accuracy: 80,
           damage: 10,
-          attackRange: 5,
+          attackRange: 10,
           speed: 20,
-          sightRange: 10,
           soldierAim: 80,
           equipmentAccuracyBonus: 0,
           fireRate: 500,

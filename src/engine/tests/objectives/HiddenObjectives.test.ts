@@ -16,7 +16,11 @@ describe("Hidden Objectives", () => {
     const cells: any[] = [];
     for (let y = 0; y < 10; y++) {
       for (let x = 0; x < 10; x++) {
-        cells.push({ x, y, type: CellType.Floor });
+        cells.push({
+          x,
+          y,
+          type: x === 5 ? CellType.Wall : CellType.Floor,
+        });
       }
     }
     const map: MapDefinition = {
@@ -58,7 +62,6 @@ describe("Hidden Objectives", () => {
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
         attackRange: 2,
-        sightRange: 5,
         speed: 2,
       },
       commandQueue: [],

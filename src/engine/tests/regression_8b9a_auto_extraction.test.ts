@@ -13,6 +13,20 @@ describe("Regression 8b9a: Auto Extraction Discovery", () => {
       spawnPoints: [{ id: "sp1", pos: { x: 0.5, y: 0.5 }, radius: 0 }],
       objectives: [], // Objectives complete
       extraction: { x: 199, y: 0 },
+      doors: [
+        {
+          id: "d1",
+          segment: [
+            { x: 100, y: 0 },
+            { x: 101, y: 0 },
+          ],
+          orientation: "Vertical",
+          state: "Closed",
+          hp: 100,
+          maxHp: 100,
+          openDuration: 1,
+        },
+      ],
     };
 
     for (let x = 0; x < 200; x++) {
