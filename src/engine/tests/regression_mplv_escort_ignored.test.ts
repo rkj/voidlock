@@ -58,7 +58,6 @@ describe("Regression MPLV: Escort Objective Ignored", () => {
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
         attackRange: 10,
-        sightRange: 20, // Can see everything
         speed: 10,
       },
       commandQueue: [],
@@ -78,8 +77,7 @@ describe("Regression MPLV: Escort Objective Ignored", () => {
         accuracy: 50,
         soldierAim: 50,
         equipmentAccuracyBonus: 0,
-        attackRange: 0,
-        sightRange: 10,
+        attackRange: 10,
         speed: 10,
       },
       commandQueue: [],

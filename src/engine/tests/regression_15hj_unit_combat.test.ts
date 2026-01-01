@@ -90,7 +90,6 @@ describe("UnitManager Combat (15hj)", () => {
         damage: 10,
         fireRate: 100,
         accuracy: 100,
-        sightRange: 10,
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
       },

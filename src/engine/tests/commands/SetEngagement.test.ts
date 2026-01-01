@@ -48,10 +48,8 @@ describe("Command: SET_ENGAGEMENT", () => {
         accuracy: 1000,
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
-        attackRange: 5,
-        sightRange: 10,
-        speed: 2,
-      },
+                attackRange: 10,
+                speed: 20,      },
       commandQueue: [],
       archetypeId: "assault",
     });

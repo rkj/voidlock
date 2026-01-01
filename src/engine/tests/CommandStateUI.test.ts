@@ -66,11 +66,9 @@ describe("Unit Command State UI Tracking", () => {
   it("should set activeCommand for autonomous exploration", () => {
     // Enable agent control
     // We need to make sure the unit doesn't see all cells.
-    // Assault has sightRange 8. Our map is only 6 cells wide.
-    // Let's make it longer.
     const longMap: MapDefinition = {
       width: 50,
-      height: 50,
+      height: 2,
       cells: [],
       extraction: { x: 0, y: 0 },
       objectives: [
@@ -82,19 +80,39 @@ describe("Unit Command State UI Tracking", () => {
       ],
     };
     for (let i = 0; i < 30; i++) {
-      longMap.cells.push({ x: i, y: 0, type: CellType.Floor });
+      longMap.cells.push({ x: i, y: 0, type: i === 1 ? CellType.Wall : CellType.Floor });
+      longMap.cells.push({ x: i, y: 1, type: CellType.Floor });
     }
 
     engine = new CoreEngine(
       longMap,
       123,
-      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
+      { soldiers: [], inventory: {} },
       true,
       false,
     );
 
-    // Override sightRange to 0.1 to allow exploration
-    (engine as any).state.units[0].stats.sightRange = 0.1;
+    engine.clearUnits();
+    engine.addUnit({
+      id: "u1",
+      archetypeId: "assault",
+      pos: { x: 0.5, y: 0.5 },
+      hp: 100,
+      maxHp: 100,
+      state: UnitState.Idle,
+      stats: {
+        damage: 10,
+        fireRate: 500,
+        accuracy: 1000,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 2,
+        speed: 20,
+      },
+      commandQueue: [],
+      aiEnabled: true,
+    });
+
     (engine as any).state.discoveredCells = ["0,0"];
 
     // Tick engine to trigger AI
@@ -102,6 +120,7 @@ describe("Unit Command State UI Tracking", () => {
     engine.update(100);
 
     const unit = engine.getState().units[0];
+
     expect(unit.activeCommand).toBeDefined();
     expect(unit.activeCommand?.label).toBe("Exploring");
   });

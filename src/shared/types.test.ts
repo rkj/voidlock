@@ -54,7 +54,6 @@ describe("Shared Types", () => {
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
         attackRange: 1,
-        sightRange: 5,
         speed: 2,
       },
       commandQueue: [],
@@ -79,7 +78,6 @@ describe("Shared Types", () => {
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
         attackRange: 1,
-        sightRange: 5,
         speed: 2,
       },
       commandQueue: [],
@@ -114,7 +112,6 @@ describe("Shared Types", () => {
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
         attackRange: 2,
-        sightRange: 6,
         speed: 2,
       },
       commandQueue: [],
@@ -122,7 +119,6 @@ describe("Shared Types", () => {
     };
     expect(unit.stats.damage).toBe(15);
     expect(unit.stats.attackRange).toBe(2);
-    expect(unit.stats.sightRange).toBe(6);
     expect(unit.state).toBe(UnitState.Idle);
 
     const enemy: Enemy = {

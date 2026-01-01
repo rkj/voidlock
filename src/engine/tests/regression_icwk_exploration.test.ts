@@ -53,7 +53,6 @@ describe("Exploration Efficiency Regression (ICWK)", () => {
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
         attackRange: 1,
-        sightRange: 0.1,
         speed: 20,
       },
       commandQueue: [],

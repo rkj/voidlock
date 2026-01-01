@@ -22,7 +22,6 @@ export function createMockUnit(overrides: Partial<Unit> = {}): Unit {
       accuracy: 95,
       soldierAim: 90,
       attackRange: 10,
-      sightRange: 100,
       speed: 20,
       equipmentAccuracyBonus: 0,
     },

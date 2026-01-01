@@ -7,13 +7,18 @@ export class LineOfSight {
     private doors: Map<string, Door>,
   ) {}
 
-  public computeVisibleCells(origin: Vector2, range: number): string[] {
+  public computeVisibleCells(origin: Vector2, range?: number): string[] {
     const visible: Set<string> = new Set();
     const originCellX = Math.floor(origin.x);
     const originCellY = Math.floor(origin.y);
 
+    const actualRange =
+      range !== undefined
+        ? range
+        : this.graph.width + this.graph.height;
+
     // Iterate through a bounding box around the origin, centered on cells
-    const searchRange = Math.ceil(range);
+    const searchRange = Math.ceil(actualRange);
     const minX = Math.max(0, originCellX - searchRange);
     const maxX = Math.min(this.graph.width - 1, originCellX + searchRange);
     const minY = Math.max(0, originCellY - searchRange);
@@ -27,7 +32,7 @@ export class LineOfSight {
         const distSq =
           (cellCenterX - origin.x) ** 2 + (cellCenterY - origin.y) ** 2;
 
-        if (distSq <= range * range) {
+        if (distSq <= actualRange * actualRange) {
           if (this.hasLineOfSight(origin, { x: cellCenterX, y: cellCenterY })) {
             visible.add(`${x},${y}`);
           }

@@ -101,16 +101,12 @@ export class Renderer {
         u.state !== UnitState.Extracted &&
         u.state !== UnitState.Dead
       ) {
-        const polygon = VisibilityPolygon.compute(
-          u.pos,
-          u.stats.sightRange || 10,
-          this.graph!,
-        );
+        const polygon = VisibilityPolygon.compute(u.pos, this.graph!);
 
         if (polygon.length > 0) {
           const x = u.pos.x * this.cellSize;
           const y = u.pos.y * this.cellSize;
-          const radius = (u.stats.sightRange || 10) * this.cellSize;
+          const radius = (state.map.width + state.map.height) * this.cellSize;
 
           const gradient = this.ctx.createRadialGradient(x, y, 0, x, y, radius);
           gradient.addColorStop(0, "rgba(0, 255, 0, 0.4)");
@@ -145,12 +141,12 @@ export class Renderer {
         const cellKey = `${Math.floor(e.pos.x)},${Math.floor(e.pos.y)}`;
         if (!state.visibleCells.includes(cellKey)) return;
 
-        const polygon = VisibilityPolygon.compute(e.pos, 10, this.graph!);
+        const radius = (state.map.width + state.map.height) * this.cellSize;
+        const polygon = VisibilityPolygon.compute(e.pos, this.graph!);
 
         if (polygon.length > 0) {
           const x = e.pos.x * this.cellSize;
           const y = e.pos.y * this.cellSize;
-          const radius = 10 * this.cellSize;
 
           const gradient = this.ctx.createRadialGradient(x, y, 0, x, y, radius);
           gradient.addColorStop(0, "rgba(255, 0, 0, 0.4)");

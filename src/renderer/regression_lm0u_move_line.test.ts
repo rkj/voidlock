@@ -87,7 +87,6 @@ describe("Renderer Move Line", () => {
             damage: 10,
             fireRate: 500,
             attackRange: 1,
-            sightRange: 5,
             speed: 2,
             accuracy: 95,
             soldierAim: 90,
