@@ -17,7 +17,9 @@ This directory contains the main thread rendering logic and user interface for X
 
 ## Subdirectories
 
+- `campaign/`: Campaign management logic and state persistence.
 - `ui/`: Specific UI components like the HUD and menu renderers.
+- `screens/`: Individual screen components for the Strategic and Tactical layers.
 
 ## Functionality
 
