@@ -94,6 +94,12 @@ export enum UnitState {
   Dead = "Dead",
 }
 
+export enum AIProfile {
+  STAND_GROUND = "STAND_GROUND",
+  RUSH = "RUSH",
+  RETREAT = "RETREAT",
+}
+
 export type ChannelingState = {
   action: "Extract" | "Collect";
   remaining: number; // ms
@@ -134,6 +140,7 @@ export type Unit = Entity & {
   activeWeaponId?: string; // New
   engagementPolicy?: EngagementPolicy; // Default: 'ENGAGE'
   engagementPolicySource?: "Manual" | "Autonomous"; // Track origin of policy
+  aiProfile: AIProfile;
   commandQueue: Command[];
   lastAttackTarget?: Vector2;
   lastAttackTime?: number;
@@ -256,6 +263,7 @@ export type Archetype = {
   attackRange: number;
   sightRange: number;
   speed: number; // Speed factor (x10 integer, e.g. 15 = 1.5 tiles/s)
+  aiProfile: AIProfile;
   rightHand?: string;
   leftHand?: string;
   body?: string;
@@ -360,6 +368,7 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     attackRange: 10,
     sightRange: 100,
     speed: 20,
+    aiProfile: AIProfile.RUSH,
     leftHand: "combat_knife",
     rightHand: "pulse_rifle",
   },
@@ -374,6 +383,7 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     attackRange: 6,
     sightRange: 100,
     speed: 25,
+    aiProfile: AIProfile.RETREAT,
     leftHand: "combat_knife",
     rightHand: "pistol",
   },
@@ -388,6 +398,7 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     attackRange: 4,
     sightRange: 100,
     speed: 15,
+    aiProfile: AIProfile.STAND_GROUND,
     leftHand: "thunder_hammer",
     rightHand: "shotgun",
   },
@@ -402,6 +413,7 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     attackRange: 0,
     sightRange: 6,
     speed: 22,
+    aiProfile: AIProfile.RETREAT,
   },
 };
 

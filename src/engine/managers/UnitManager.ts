@@ -358,24 +358,86 @@ export class UnitManager {
 
         if (threats.length > 0 && unit.engagementPolicy !== "IGNORE") {
           const primaryThreat = threats[0].enemy;
-          if (
-            this.getDistance(unit.pos, primaryThreat.pos) >
-            unit.stats.attackRange
-          ) {
-            this.executeCommand(
-              unit,
-              {
-                type: CommandType.MOVE_TO,
-                unitIds: [unit.id],
-                target: {
-                  x: Math.floor(primaryThreat.pos.x),
-                  y: Math.floor(primaryThreat.pos.y),
+          const dist = this.getDistance(unit.pos, primaryThreat.pos);
+
+          if (unit.aiProfile === "STAND_GROUND") {
+            // Do not move to engage. Just hold position.
+            // Attack logic elsewhere handles shooting if in range.
+          } else if (unit.aiProfile === "RUSH") {
+            // Move towards enemy to minimize distance, even if in range
+            // Stop if very close (e.g. melee range)
+            if (dist > 1.5) {
+               this.executeCommand(
+                unit,
+                {
+                  type: CommandType.MOVE_TO,
+                  unitIds: [unit.id],
+                  target: {
+                    x: Math.floor(primaryThreat.pos.x),
+                    y: Math.floor(primaryThreat.pos.y),
+                  },
+                  label: "Rushing",
                 },
-                label: "Engaging",
-              },
-              false,
-            );
-            actionTaken = true;
+                false,
+              );
+              actionTaken = true;
+            }
+          } else if (unit.aiProfile === "RETREAT") {
+             // Maximize distance while maintaining LOF
+             // Simple implementation: Move away from enemy if close
+             // But try to stay within attackRange
+             if (dist < unit.stats.attackRange * 0.8) {
+                // Too close, back off
+                // Find a cell further away but still in range/LOF?
+                // For now, just simplistic "run away" to a safe cell if possible, or just away from enemy vector
+                
+                // Find neighbors that increase distance
+                const currentCell = { x: Math.floor(unit.pos.x), y: Math.floor(unit.pos.y) };
+                const neighbors = [
+                    { x: currentCell.x + 1, y: currentCell.y },
+                    { x: currentCell.x - 1, y: currentCell.y },
+                    { x: currentCell.x, y: currentCell.y + 1 },
+                    { x: currentCell.x, y: currentCell.y - 1 },
+                ].filter(n => this.gameGrid.isWalkable(n.x, n.y) && this.gameGrid.canMove(currentCell.x, currentCell.y, n.x, n.y, doors, false));
+                
+                const bestRetreat = neighbors
+                    .map(n => ({ ...n, dist: this.getDistance({ x: n.x + 0.5, y: n.y + 0.5 }, primaryThreat.pos) }))
+                    .sort((a, b) => b.dist - a.dist)[0]; // Maximize distance
+
+                 if (bestRetreat && bestRetreat.dist > dist) {
+                     this.executeCommand(
+                        unit,
+                        {
+                          type: CommandType.MOVE_TO,
+                          unitIds: [unit.id],
+                          target: { x: bestRetreat.x, y: bestRetreat.y },
+                          label: "Retreating",
+                        },
+                        false,
+                      );
+                      actionTaken = true;
+                 }
+             }
+          } else {
+            // Default behavior (maintain optimal range / move to engage if out of range)
+            if (
+              dist > unit.stats.attackRange
+            ) {
+              this.executeCommand(
+                unit,
+                {
+                  type: CommandType.MOVE_TO,
+                  unitIds: [unit.id],
+                  target: {
+                    x: Math.floor(primaryThreat.pos.x),
+                    y: Math.floor(primaryThreat.pos.y),
+                  },
+                  label: "Engaging",
+                },
+                false,
+              );
+              actionTaken = true;
+            }
           }
         }
 
@@ -664,59 +726,23 @@ export class UnitManager {
 
           unit.state = UnitState.Attacking;
           isAttacking = true;
+          // console.log(`[UnitManager] Unit ${unit.id} is attacking enemy at ${targetEnemy.pos.x}, ${targetEnemy.pos.y}`);
         }
       }
 
-      if (!isAttacking && isMoving && unit.targetPos && unit.path) {
+      if (isMoving && unit.targetPos && unit.path) {
         if (isLockedInMelee) {
           unit.state = UnitState.Attacking;
+        } else if (!isAttacking) {
+          this.handleMovement(unit, dt, doors);
         } else {
-          const dx = unit.targetPos.x - unit.pos.x;
-          const dy = unit.targetPos.y - unit.pos.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-
-          const moveDist = ((unit.stats.speed / 10) * dt) / 1000;
-
-          const currentCell = {
-            x: Math.floor(unit.pos.x),
-            y: Math.floor(unit.pos.y),
-          };
-          const nextCell = {
-            x: Math.floor(unit.targetPos.x),
-            y: Math.floor(unit.targetPos.y),
-          };
-
-          if (
-            (currentCell.x !== nextCell.x || currentCell.y !== nextCell.y) &&
-            !this.gameGrid.canMove(
-              currentCell.x,
-              currentCell.y,
-              nextCell.x,
-              nextCell.y,
-              doors,
-              false,
-            )
-          ) {
-            unit.state = UnitState.WaitingForDoor;
-          } else if (dist <= moveDist + EPSILON) {
-            unit.pos = { ...unit.targetPos };
-            unit.path.shift();
-
-            if (unit.path.length === 0) {
-              unit.path = undefined;
-              unit.targetPos = undefined;
-              unit.state = UnitState.Idle;
-              unit.activeCommand = undefined;
-            } else {
-              unit.targetPos = {
-                x: unit.path[0].x + 0.5 + (unit.visualJitter?.x || 0),
-                y: unit.path[0].y + 0.5 + (unit.visualJitter?.y || 0),
-              };
+          // If we are RUSHing or RETREATing, we SHOULD be allowed to move while attacking
+          if (unit.aiProfile === "RUSH" || unit.aiProfile === "RETREAT") {
+            this.handleMovement(unit, dt, doors);
+            // Ensure state reflects attacking if we moved while attacking
+            if (unit.state === UnitState.Moving) {
+              unit.state = UnitState.Attacking;
             }
-          } else {
-            unit.pos.x += (dx / dist) * moveDist;
-            unit.pos.y += (dy / dist) * moveDist;
-            unit.state = UnitState.Moving;
           }
         }
       } else if (!isAttacking && !isMoving) {
@@ -726,6 +752,58 @@ export class UnitManager {
         }
       }
     });
+  }
+
+  private handleMovement(unit: Unit, dt: number, doors: Map<string, Door>) {
+    if (!unit.targetPos || !unit.path) return;
+
+    const dx = unit.targetPos.x - unit.pos.x;
+    const dy = unit.targetPos.y - unit.pos.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+
+    const moveDist = ((unit.stats.speed / 10) * dt) / 1000;
+
+    const currentCell = {
+      x: Math.floor(unit.pos.x),
+      y: Math.floor(unit.pos.y),
+    };
+    const nextCell = {
+      x: Math.floor(unit.targetPos.x),
+      y: Math.floor(unit.targetPos.y),
+    };
+
+    if (
+      (currentCell.x !== nextCell.x || currentCell.y !== nextCell.y) &&
+      !this.gameGrid.canMove(
+        currentCell.x,
+        currentCell.y,
+        nextCell.x,
+        nextCell.y,
+        doors,
+        false,
+      )
+    ) {
+      unit.state = UnitState.WaitingForDoor;
+    } else if (dist <= moveDist + EPSILON) {
+      unit.pos = { ...unit.targetPos };
+      unit.path.shift();
+
+      if (unit.path.length === 0) {
+        unit.path = undefined;
+        unit.targetPos = undefined;
+        unit.state = UnitState.Idle;
+        unit.activeCommand = undefined;
+      } else {
+        unit.targetPos = {
+          x: unit.path[0].x + 0.5 + (unit.visualJitter?.x || 0),
+          y: unit.path[0].y + 0.5 + (unit.visualJitter?.y || 0),
+        };
+      }
+    } else {
+      unit.pos.x += (dx / dist) * moveDist;
+      unit.pos.y += (dy / dist) * moveDist;
+      unit.state = UnitState.Moving;
+    }
   }
 
   public executeCommand(unit: Unit, cmd: Command, isManual: boolean = true) {

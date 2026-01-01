@@ -34,10 +34,15 @@ At the start of every session, run:
 2.  **No Ad-Hoc Instructions**: Do not invent new task descriptions or requirements in the prompt. The sub-agent must rely on `bd show <TASK_ID>` for truth. If requirements change, update the Beads task first.
 
 **Command Pattern:**
-Use the helper script to dispatch the agent.
+Use the helper script to dispatch the agent. You may optionally provide a context file containing detailed instructions, previous conversation history, or specific feedback. This is preferred over passing long strings directly to avoid escaping issues.
 
 ```bash
+# Basic dispatch
 run_shell_command("./scripts/dispatch_agent.sh <TASK_ID>")
+
+# Dispatch with detailed context (Recommended for re-dispatch or complex tasks)
+write_file("context.txt", "Previous attempt failed. Please focus on...")
+run_shell_command("./scripts/dispatch_agent.sh <TASK_ID> context.txt")
 ```
 
 ## 3. Verification & Quality Control (The Audit)
@@ -69,7 +74,11 @@ run_shell_command("./scripts/dispatch_agent.sh <TASK_ID>")
 - **If Failed**:
   **🚨 NEVER FIX CODE**: You are FORBIDDEN from making code changes.
   **🚨 NEVER CLOSE AS FAILED**: Beads does not support a "failed" state. Leave the task OPEN.
-  1.  **Re-Dispatch**: If the failure is directly related to the task, run the dispatch command again with feedback: `gemini ... "Previous attempt failed because <REASON>. Please fix."`
+  1.  **Re-Dispatch**: If the failure is directly related to the task, create a detailed feedback file and re-dispatch.
+      ```bash
+      write_file("feedback.md", "Tests failed with error: ... \nPlease fix the logic in ...")
+      run_shell_command("./scripts/dispatch_agent.sh <TASK_ID> feedback.md")
+      ```
   2.  **New Task**: If the failure is a regression in an unrelated area or requires a separate fix, create a **P0 task** using `bd create` and schedule a sub-agent to fix it immediately.
   3.  **Critical**: If the changes are fundamentally flawed, `jj undo` and re-plan. Keep the issue open, and comment on the problems encountered.
 
