@@ -99,16 +99,20 @@ export class CoreEngine {
       visibleCells: [],
       discoveredCells: [],
       objectives: [],
-      threatLevel: startingThreatLevel,
-      aliensKilled: 0,
-      casualties: 0,
+      stats: {
+        threatLevel: startingThreatLevel,
+        aliensKilled: 0,
+        casualties: 0,
+      },
       status: "Playing",
-      mode: mode,
-      debugOverlayEnabled: debugOverlayEnabled,
-      losOverlayEnabled: losOverlayEnabled,
-      timeScale: initialTimeScale,
-      isPaused: startPaused,
-      isSlowMotion: initialTimeScale < 1.0,
+      settings: {
+        mode: mode,
+        debugOverlayEnabled: debugOverlayEnabled,
+        losOverlayEnabled: losOverlayEnabled,
+        timeScale: initialTimeScale,
+        isPaused: startPaused,
+        isSlowMotion: initialTimeScale < 1.0,
+      },
       squadInventory: squadConfig.inventory || {},
     };
 
@@ -153,15 +157,17 @@ export class CoreEngine {
           hp: Math.floor(vipArch.baseHp * 0.5),
           maxHp: vipArch.baseHp,
           state: UnitState.Idle,
-          damage: vipArch.damage,
-          fireRate:
-            vipArch.fireRate * (vipArch.speed > 0 ? 10 / vipArch.speed : 1),
-          soldierAim: vipArch.soldierAim,
-          equipmentAccuracyBonus: 0,
-          accuracy: vipArch.soldierAim,
-          attackRange: vipArch.attackRange,
-          sightRange: vipArch.sightRange,
-          speed: vipArch.speed,
+          stats: {
+            damage: vipArch.damage,
+            fireRate:
+              vipArch.fireRate * (vipArch.speed > 0 ? 10 / vipArch.speed : 1),
+            soldierAim: vipArch.soldierAim,
+            equipmentAccuracyBonus: 0,
+            accuracy: vipArch.soldierAim,
+            attackRange: vipArch.attackRange,
+            sightRange: vipArch.sightRange,
+            speed: vipArch.speed,
+          },
           aiEnabled: false,
           commandQueue: [],
         } as Unit);
@@ -228,13 +234,16 @@ export class CoreEngine {
         hp: hp,
         maxHp: hp,
         state: UnitState.Idle,
-        damage: activeWeapon ? activeWeapon.damage : arch.damage,
-        fireRate: activeWeapon ? activeWeapon.fireRate : arch.fireRate,
-        soldierAim: arch.soldierAim,
-        equipmentAccuracyBonus,
-        accuracy: arch.soldierAim + equipmentAccuracyBonus + weaponAccuracy,
-        attackRange: activeWeapon ? activeWeapon.range : arch.attackRange,
-        sightRange: arch.sightRange,
+        stats: {
+          damage: activeWeapon ? activeWeapon.damage : arch.damage,
+          fireRate: activeWeapon ? activeWeapon.fireRate : arch.fireRate,
+          soldierAim: arch.soldierAim,
+          equipmentAccuracyBonus,
+          accuracy: arch.soldierAim + equipmentAccuracyBonus + weaponAccuracy,
+          attackRange: activeWeapon ? activeWeapon.range : arch.attackRange,
+          sightRange: arch.sightRange,
+          speed: speed,
+        },
         rightHand,
         leftHand,
         body,
@@ -243,7 +252,6 @@ export class CoreEngine {
         engagementPolicy: "ENGAGE",
         engagementPolicySource: "Manual",
         commandQueue: [],
-        speed: speed,
       } as Unit);
     });
   }
@@ -267,19 +275,19 @@ export class CoreEngine {
   }
 
   public applyCommand(cmd: Command) {
-    if (this.state.mode === EngineMode.Simulation) {
+    if (this.state.settings.mode === EngineMode.Simulation) {
       this.commandLog.push({ tick: this.state.t, command: cmd });
       this.commandHandler.applyCommand(this.state, cmd);
     }
   }
 
   public setTimeScale(scale: number) {
-    this.state.timeScale = scale;
-    this.state.isSlowMotion = scale < 1.0;
+    this.state.settings.timeScale = scale;
+    this.state.settings.isSlowMotion = scale < 1.0;
   }
 
   public setPaused(paused: boolean) {
-    this.state.isPaused = paused;
+    this.state.settings.isPaused = paused;
   }
 
   private findVipStartPositions(
@@ -363,13 +371,13 @@ export class CoreEngine {
   public update(scaledDt: number, realDt: number = scaledDt) {
     if (
       this.state.status !== "Playing" &&
-      this.state.mode !== EngineMode.Replay
+      this.state.settings.mode !== EngineMode.Replay
     )
       return;
     if (scaledDt === 0) return;
 
     // Command Playback in Replay Mode
-    if (this.state.mode === EngineMode.Replay) {
+    if (this.state.settings.mode === EngineMode.Replay) {
       while (
         this.replayIndex < this.commandLog.length &&
         this.commandLog[this.replayIndex].tick <= this.state.t
@@ -386,7 +394,7 @@ export class CoreEngine {
 
     // 1. Director & Spawn (Uses scaledDt to follow game speed and pause)
     this.director.update(scaledDt);
-    this.state.threatLevel = this.director.getThreatLevel();
+    this.state.stats.threatLevel = this.director.getThreatLevel();
 
     // 2. Doors
     this.doorManager.update(this.state, scaledDt);
@@ -420,7 +428,7 @@ export class CoreEngine {
     this.state.units.forEach((unit) => {
       if (unit.hp <= 0 && unit.state !== UnitState.Dead) {
         unit.state = UnitState.Dead;
-        this.state.casualties++;
+        this.state.stats.casualties++;
       }
     });
 

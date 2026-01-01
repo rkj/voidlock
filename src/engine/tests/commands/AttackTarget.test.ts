@@ -30,10 +30,10 @@ describe("Command: ATTACK_TARGET", () => {
   };
 
   beforeEach(() => {
-  const defaultSquad: SquadConfig = {
-    soldiers: [{ archetypeId: "assault" }],
-    inventory: {},
-  }; // Default unit for tests // Default unit for tests
+    const defaultSquad: SquadConfig = {
+      soldiers: [{ archetypeId: "assault" }],
+      inventory: {},
+    }; // Default unit for tests // Default unit for tests
     engine = new CoreEngine(map, 123, defaultSquad, false, false);
     engine.clearUnits();
     // Add one unit
@@ -43,16 +43,18 @@ describe("Command: ATTACK_TARGET", () => {
       hp: 100,
       maxHp: 100,
       state: UnitState.Idle,
-      damage: 10,
-      fireRate: 100,
-      accuracy: 1000, // Fast fire for testing
-      attackRange: 5,
-      sightRange: 10,
-      speed: 2,
+      stats: {
+        damage: 10,
+        fireRate: 100,
+        accuracy: 1000, // Fast fire for testing
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 5,
+        sightRange: 10,
+        speed: 2,
+      },
       commandQueue: [],
       archetypeId: "assault",
-      soldierAim: 90,
-      equipmentAccuracyBonus: 0,
     });
   });
 
@@ -97,10 +99,10 @@ describe("Command: ATTACK_TARGET", () => {
     expect(e2?.hp).toBe(100);
 
     // Reset health
-  const defaultSquad: SquadConfig = {
-    soldiers: [{ archetypeId: "assault" }],
-    inventory: {},
-  }; // Default unit for tests // Re-declare for scope or make global if multiple use. For now, re-declare.
+    const defaultSquad: SquadConfig = {
+      soldiers: [{ archetypeId: "assault" }],
+      inventory: {},
+    }; // Default unit for tests // Re-declare for scope or make global if multiple use. For now, re-declare.
     engine = new CoreEngine(map, 123, defaultSquad, false, false); // Re-initialize with squad
     engine.clearUnits();
     engine.addUnit({
@@ -109,16 +111,18 @@ describe("Command: ATTACK_TARGET", () => {
       hp: 100,
       maxHp: 100,
       state: UnitState.Idle,
-      damage: 10,
-      fireRate: 100,
-      accuracy: 1000,
-      attackRange: 5,
-      sightRange: 10,
-      speed: 2,
+      stats: {
+        damage: 10,
+        fireRate: 100,
+        accuracy: 1000,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 5,
+        sightRange: 10,
+        speed: 2,
+      },
       commandQueue: [],
       archetypeId: "assault",
-      soldierAim: 90,
-      equipmentAccuracyBonus: 0,
     });
     engine.addEnemy({
       id: "e1",

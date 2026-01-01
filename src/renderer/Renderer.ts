@@ -81,11 +81,11 @@ export class Renderer {
     this.renderObjectives(state);
     this.renderUnits(state);
     this.renderEnemies(state);
-    if (state.debugOverlayEnabled) {
+    if (state.settings.debugOverlayEnabled) {
       this.renderDebugOverlay(state);
     }
     this.renderFog(state);
-    if (state.losOverlayEnabled) {
+    if (state.settings.losOverlayEnabled) {
       this.renderLOSOverlay(state);
     }
     this.renderOverlay();
@@ -103,14 +103,14 @@ export class Renderer {
       ) {
         const polygon = VisibilityPolygon.compute(
           u.pos,
-          u.sightRange || 10,
+          u.stats.sightRange || 10,
           this.graph!,
         );
 
         if (polygon.length > 0) {
           const x = u.pos.x * this.cellSize;
           const y = u.pos.y * this.cellSize;
-          const radius = (u.sightRange || 10) * this.cellSize;
+          const radius = (u.stats.sightRange || 10) * this.cellSize;
 
           const gradient = this.ctx.createRadialGradient(x, y, 0, x, y, radius);
           gradient.addColorStop(0, "rgba(0, 255, 0, 0.4)");
@@ -482,7 +482,7 @@ export class Renderer {
       const isKnown =
         state.discoveredCells.includes(key) || state.visibleCells.includes(key);
 
-      if (!isKnown && !state.debugOverlayEnabled) return;
+      if (!isKnown && !state.settings.debugOverlayEnabled) return;
 
       this.ctx.fillStyle = "rgba(255, 0, 0, 0.05)";
       this.ctx.fillRect(x, y, this.cellSize, this.cellSize);

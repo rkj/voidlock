@@ -49,16 +49,18 @@ describe("Enemy Movement", () => {
       hp: 100,
       maxHp: 100,
       state: UnitState.Idle,
-      damage: 0,
-      fireRate: 0,
-      accuracy: 1000,
-      attackRange: 0,
-      sightRange: 0,
-      speed: 20,
+      stats: {
+        damage: 0,
+        fireRate: 0,
+        accuracy: 1000,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 0,
+        sightRange: 0,
+        speed: 20,
+      },
       commandQueue: [],
       archetypeId: "assault",
-      soldierAim: 90,
-      equipmentAccuracyBonus: 0,
     });
 
     const visited = new Set<string>();

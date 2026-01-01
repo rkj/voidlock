@@ -47,15 +47,16 @@ describe("Shared Types", () => {
       hp: 100,
       maxHp: 100,
       state: UnitState.Idle,
-      damage: 10,
-      fireRate: 500,
-      accuracy: 95,
-      soldierAim: 90,
-      equipmentAccuracyBonus: 0,
-      attackRange: 1,
-
-      sightRange: 5,
-      speed: 2,
+      stats: {
+        damage: 10,
+        fireRate: 500,
+        accuracy: 95,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 1,
+        sightRange: 5,
+        speed: 2,
+      },
       commandQueue: [],
       archetypeId: "assault",
     };
@@ -71,14 +72,16 @@ describe("Shared Types", () => {
         { x: 1, y: 0 },
         { x: 2, y: 0 },
       ],
-      damage: 10,
-      fireRate: 500,
-      accuracy: 95,
-      soldierAim: 90,
-      equipmentAccuracyBonus: 0,
-      attackRange: 1,
-      sightRange: 5,
-      speed: 2,
+      stats: {
+        damage: 10,
+        fireRate: 500,
+        accuracy: 95,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 1,
+        sightRange: 5,
+        speed: 2,
+      },
       commandQueue: [],
       archetypeId: "assault",
     };
@@ -104,20 +107,22 @@ describe("Shared Types", () => {
       hp: 80,
       maxHp: 100,
       state: UnitState.Idle,
-      damage: 15,
-      fireRate: 500,
-      accuracy: 95,
-      soldierAim: 90,
-      equipmentAccuracyBonus: 0,
-      attackRange: 2,
-      sightRange: 6,
-      speed: 2,
+      stats: {
+        damage: 15,
+        fireRate: 500,
+        accuracy: 95,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 2,
+        sightRange: 6,
+        speed: 2,
+      },
       commandQueue: [],
       archetypeId: "assault",
     };
-    expect(unit.damage).toBe(15);
-    expect(unit.attackRange).toBe(2);
-    expect(unit.sightRange).toBe(6);
+    expect(unit.stats.damage).toBe(15);
+    expect(unit.stats.attackRange).toBe(2);
+    expect(unit.stats.sightRange).toBe(6);
     expect(unit.state).toBe(UnitState.Idle);
 
     const enemy: Enemy = {

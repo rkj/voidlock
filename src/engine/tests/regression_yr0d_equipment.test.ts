@@ -55,8 +55,8 @@ describe("Equipment System - Passive Buffs", () => {
 
     // Assault base Speed: 20, Accuracy: 95.
     // Heavy Plate: Speed -5, Accuracy -10.
-    expect(unit.speed).toBe(15);
-    expect(unit.accuracy).toBe(85);
+    expect(unit.stats.speed).toBe(15);
+    expect(unit.stats.accuracy).toBe(85);
   });
 
   it("should apply Speed bonus from Combat Boots", () => {
@@ -74,7 +74,7 @@ describe("Equipment System - Passive Buffs", () => {
     const unit = engine.getState().units[0];
 
     // Assault base Speed: 20. Combat Boots: Speed +5.
-    expect(unit.speed).toBe(25);
+    expect(unit.stats.speed).toBe(25);
   });
 
   it("should apply multiple equipment bonuses", () => {
@@ -97,8 +97,8 @@ describe("Equipment System - Passive Buffs", () => {
     // Combat Boots: Speed +5
     // Final: HP 150, Speed 27, Acc 95
     expect(unit.hp).toBe(150);
-    expect(unit.speed).toBe(27);
-    expect(unit.accuracy).toBe(95);
+    expect(unit.stats.speed).toBe(27);
+    expect(unit.stats.accuracy).toBe(95);
   });
 
   it("should apply active items to global squad inventory", () => {

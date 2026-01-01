@@ -31,9 +31,9 @@ describe("Command: SET_ENGAGEMENT", () => {
 
   beforeEach(() => {
     const defaultSquad: SquadConfig = {
-    soldiers: [{ archetypeId: "assault" }],
-    inventory: {},
-  }; // Default unit for tests
+      soldiers: [{ archetypeId: "assault" }],
+      inventory: {},
+    }; // Default unit for tests
     engine = new CoreEngine(map, 123, defaultSquad, false, false);
     engine.clearUnits();
     engine.addUnit({
@@ -42,16 +42,18 @@ describe("Command: SET_ENGAGEMENT", () => {
       hp: 100,
       maxHp: 100,
       state: UnitState.Idle,
-      damage: 10,
-      fireRate: 100,
-      accuracy: 1000,
-      attackRange: 5,
-      sightRange: 10,
-      speed: 2,
+      stats: {
+        damage: 10,
+        fireRate: 100,
+        accuracy: 1000,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 5,
+        sightRange: 10,
+        speed: 2,
+      },
       commandQueue: [],
       archetypeId: "assault",
-      soldierAim: 90,
-      equipmentAccuracyBonus: 0,
     });
     engine.addEnemy({
       id: "e1",

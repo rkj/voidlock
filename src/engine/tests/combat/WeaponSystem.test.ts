@@ -54,15 +54,16 @@ describe("Weapon System", () => {
       maxHp: 100,
       state: UnitState.Idle,
       commandQueue: [],
-      speed: 15,
+      stats: {
+        speed: 15,
+        damage: 0,
+        fireRate: 0,
+        accuracy: 0,
+        attackRange: 0,
+      },
       archetypeId: "assault",
       leftHand: "combat_knife",
       rightHand: "pulse_rifle",
-      // Current stats for backward compatibility or as "active" stats
-      damage: 0,
-      fireRate: 0,
-      accuracy: 0,
-      attackRange: 0,
     };
 
     expect(unit.leftHand).toBe("combat_knife");
@@ -83,18 +84,20 @@ describe("Weapon System", () => {
       maxHp: 100,
       state: UnitState.Idle,
       commandQueue: [],
-      speed: 20,
+      stats: {
+        speed: 20,
+        damage: 20,
+        fireRate: 600,
+        accuracy: 95,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 4,
+        sightRange: 100,
+      },
       archetypeId: "assault",
       leftHand: "combat_knife",
       rightHand: "pulse_rifle",
       activeWeaponId: "pulse_rifle",
-      damage: 20,
-      fireRate: 600,
-      accuracy: 95,
-      soldierAim: 90,
-      equipmentAccuracyBonus: 0,
-      attackRange: 4,
-      sightRange: 100,
     } as Unit;
     const enemy = {
       id: "e1",
@@ -120,8 +123,8 @@ describe("Weapon System", () => {
     unitManager.update(state, 100, new Map(), prng);
 
     expect(unit.activeWeaponId).toBe("combat_knife");
-    expect(unit.damage).toBe(15); // Knife damage
-    expect(unit.attackRange).toBe(1); // Knife range
+    expect(unit.stats.damage).toBe(15); // Knife damage
+    expect(unit.stats.attackRange).toBe(1); // Knife range
   });
 
   it("should switch to ranged weapon when enemy is at distance", () => {
@@ -138,18 +141,20 @@ describe("Weapon System", () => {
       maxHp: 100,
       state: UnitState.Idle,
       commandQueue: [],
-      speed: 20,
+      stats: {
+        speed: 20,
+        damage: 15,
+        fireRate: 400,
+        accuracy: 100,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 1,
+        sightRange: 100,
+      },
       archetypeId: "assault",
       leftHand: "combat_knife",
       rightHand: "pulse_rifle",
       activeWeaponId: "combat_knife",
-      damage: 15,
-      fireRate: 400,
-      accuracy: 100,
-      soldierAim: 90,
-      equipmentAccuracyBonus: 0,
-      attackRange: 1,
-      sightRange: 100,
     } as Unit;
     const enemy = {
       id: "e1",
@@ -175,7 +180,7 @@ describe("Weapon System", () => {
     unitManager.update(state, 100, new Map(), prng);
 
     expect(unit.activeWeaponId).toBe("pulse_rifle");
-    expect(unit.damage).toBe(20); // Pulse Rifle damage
-    expect(unit.attackRange).toBe(10); // Pulse Rifle range
+    expect(unit.stats.damage).toBe(20); // Pulse Rifle damage
+    expect(unit.stats.attackRange).toBe(10); // Pulse Rifle range
   });
 });

@@ -1,7 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { Renderer } from "./Renderer";
 import { GameState, MapDefinition, CellType, UnitState } from "../shared/types";
-import { createMockUnit, createMockGameState } from "../engine/tests/utils/MockFactory";
+import {
+  createMockUnit,
+  createMockGameState,
+} from "../engine/tests/utils/MockFactory";
 
 // Mock Image
 class MockImage {
@@ -80,11 +83,16 @@ describe("Renderer Move Line", () => {
           ],
           hp: 100,
           maxHp: 100,
-          damage: 10,
-          fireRate: 500,
-          attackRange: 1,
-          sightRange: 5,
-          speed: 2,
+          stats: {
+            damage: 10,
+            fireRate: 500,
+            attackRange: 1,
+            sightRange: 5,
+            speed: 2,
+            accuracy: 95,
+            soldierAim: 90,
+            equipmentAccuracyBonus: 0,
+          },
           commandQueue: [],
           archetypeId: "assault",
         }),
@@ -93,9 +101,11 @@ describe("Renderer Move Line", () => {
       visibleCells: ["0,0", "1,0", "2,0", "2,1"],
       discoveredCells: ["0,0", "1,0", "2,0", "2,1"],
       objectives: [],
-      threatLevel: 0,
-      aliensKilled: 0,
-      casualties: 0,
+      stats: {
+        threatLevel: 0,
+        aliensKilled: 0,
+        casualties: 0,
+      },
       status: "Playing",
     });
 

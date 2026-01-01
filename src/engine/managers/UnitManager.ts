@@ -280,7 +280,7 @@ export class UnitManager {
                 Math.floor(unit.pos.y) === obj.targetCell.y
               ) {
                 if (unit.state === UnitState.Idle) {
-                  const duration = 5000 * (10 / unit.speed);
+                  const duration = 5000 * (10 / unit.stats.speed);
                   unit.state = UnitState.Channeling;
                   unit.channeling = {
                     action: "Collect",
@@ -288,6 +288,7 @@ export class UnitManager {
                     totalDuration: duration,
                     targetId: obj.id,
                   };
+
                   claimedObjectives.add(obj.id);
                   unit.path = undefined;
                   unit.targetPos = undefined;
@@ -323,7 +324,7 @@ export class UnitManager {
           Math.floor(unit.pos.y) === ext.y
         ) {
           if (unit.state === UnitState.Idle) {
-            const duration = 5000 * (10 / unit.speed);
+            const duration = 5000 * (10 / unit.stats.speed);
             unit.state = UnitState.Channeling;
             unit.channeling = {
               action: "Extract",
@@ -358,7 +359,8 @@ export class UnitManager {
         if (threats.length > 0 && unit.engagementPolicy !== "IGNORE") {
           const primaryThreat = threats[0].enemy;
           if (
-            this.getDistance(unit.pos, primaryThreat.pos) > unit.attackRange
+            this.getDistance(unit.pos, primaryThreat.pos) >
+            unit.stats.attackRange
           ) {
             this.executeCommand(
               unit,
@@ -573,7 +575,8 @@ export class UnitManager {
       let enemiesInRange = state.enemies.filter(
         (enemy) =>
           enemy.hp > 0 &&
-          this.getDistance(unit.pos, enemy.pos) <= unit.attackRange + 0.5 &&
+          this.getDistance(unit.pos, enemy.pos) <=
+            unit.stats.attackRange + 0.5 &&
           newVisibleCellsSet.has(
             `${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`,
           ),
@@ -624,16 +627,16 @@ export class UnitManager {
         if (this.los.hasLineOfFire(unit.pos, targetEnemy.pos)) {
           if (
             !unit.lastAttackTime ||
-            state.t - unit.lastAttackTime >= unit.fireRate
+            state.t - unit.lastAttackTime >= unit.stats.fireRate
           ) {
             const distance = this.getDistance(unit.pos, targetEnemy.pos);
-            const S = unit.accuracy;
-            const R = unit.attackRange;
+            const S = unit.stats.accuracy;
+            const R = unit.stats.attackRange;
             let hitChance = (S / 100) * (R / Math.max(0.1, distance));
             hitChance = Math.max(0, Math.min(1.0, hitChance));
 
             if (prng.next() <= hitChance) {
-              targetEnemy.hp -= unit.damage;
+              targetEnemy.hp -= unit.stats.damage;
             }
 
             unit.lastAttackTime = state.t;
@@ -653,7 +656,7 @@ export class UnitManager {
           const dy = unit.targetPos.y - unit.pos.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
 
-          const moveDist = ((unit.speed / 10) * dt) / 1000;
+          const moveDist = ((unit.stats.speed / 10) * dt) / 1000;
 
           const currentCell = {
             x: Math.floor(unit.pos.x),
@@ -838,14 +841,14 @@ export class UnitManager {
       unit.activeWeaponId = targetWeaponId;
       const weapon = WeaponLibrary[targetWeaponId];
       if (weapon) {
-        unit.damage = weapon.damage;
-        unit.attackRange = weapon.range;
-        unit.accuracy =
-          unit.soldierAim +
+        unit.stats.damage = weapon.damage;
+        unit.stats.attackRange = weapon.range;
+        unit.stats.accuracy =
+          unit.stats.soldierAim +
           (weapon.accuracy || 0) +
-          (unit.equipmentAccuracyBonus || 0);
-        unit.fireRate =
-          weapon.fireRate * (unit.speed > 0 ? 10 / unit.speed : 1);
+          (unit.stats.equipmentAccuracyBonus || 0);
+        unit.stats.fireRate =
+          weapon.fireRate * (unit.stats.speed > 0 ? 10 / unit.stats.speed : 1);
       }
     }
   }

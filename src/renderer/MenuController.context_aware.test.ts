@@ -21,9 +21,11 @@ describe("MenuController Context Awareness", () => {
       visibleCells: [],
       discoveredCells: [],
       objectives: [],
-      threatLevel: 0,
-      aliensKilled: 0,
-      casualties: 0,
+      stats: {
+        threatLevel: 0,
+        aliensKilled: 0,
+        casualties: 0,
+      },
       status: "Playing",
     });
   });

@@ -57,13 +57,16 @@ describe("Regression MPLV: Objective Ignored During Exploration", () => {
       hp: 100,
       maxHp: 100,
       state: UnitState.Idle,
-      damage: 10,
-      fireRate: 500,
-      accuracy: 100,
-      soldierAim: 90,
-      attackRange: 10,
-      sightRange: 5, // Objective at (5,5) is just out of sight from (0,0)
-      speed: 10,
+      stats: {
+        damage: 10,
+        fireRate: 500,
+        accuracy: 100,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 10,
+        sightRange: 5, // Objective at (5,5) is just out of sight from (0,0)
+        speed: 10,
+      },
       commandQueue: [],
       archetypeId: "assault",
       aiEnabled: true,

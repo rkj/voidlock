@@ -49,7 +49,7 @@ describe("Regression 7xph - Accuracy Stats Reset on Weapon Swap", () => {
     // this.addUnit({ ..., accuracy: accuracy, ... });
     // This looks okay for initial state.
 
-    expect(unit.accuracy).toBe(85);
+    expect(unit.stats.accuracy).toBe(85);
 
     // 1. Move an enemy into melee range
     const internalState = (engine as any).state;
@@ -71,7 +71,7 @@ describe("Regression 7xph - Accuracy Stats Reset on Weapon Swap", () => {
     // If bug exists, it will be combat_knife.accuracy = 10
     expect(unitMelee.activeWeaponId).toBe("combat_knife");
     // This is the failing assertion
-    expect(unitMelee.accuracy).toBe(90);
+    expect(unitMelee.stats.accuracy).toBe(90);
 
     // 3. Move enemy away
     internalState.enemies[0].pos = { x: 8, y: 8 };
@@ -81,6 +81,6 @@ describe("Regression 7xph - Accuracy Stats Reset on Weapon Swap", () => {
     expect(unitRanged.activeWeaponId).toBe("pulse_rifle");
     // Expecting: soldierAim(90) + pulse_rifle(5) + heavy_armor(-10) = 85
     // If bug exists, it will be pulse_rifle.accuracy = 5
-    expect(unitRanged.accuracy).toBe(85);
+    expect(unitRanged.stats.accuracy).toBe(85);
   });
 });

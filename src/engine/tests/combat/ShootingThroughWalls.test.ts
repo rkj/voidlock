@@ -27,7 +27,13 @@ describe("Shooting Through Walls Repro", () => {
       objectives: [],
     };
 
-    engine = new CoreEngine(map, 123, { soldiers: [], inventory: {} }, true, false);
+    engine = new CoreEngine(
+      map,
+      123,
+      { soldiers: [], inventory: {} },
+      true,
+      false,
+    );
     engine.clearUnits();
   });
 
@@ -39,16 +45,18 @@ describe("Shooting Through Walls Repro", () => {
       hp: 100,
       maxHp: 100,
       state: UnitState.Idle,
-      damage: 10,
-      fireRate: 100,
-      accuracy: 1000,
-      attackRange: 5,
-      sightRange: 10,
-      speed: 2,
+      stats: {
+        damage: 10,
+        fireRate: 100,
+        accuracy: 1000,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 5,
+        sightRange: 10,
+        speed: 2,
+      },
       commandQueue: [],
       archetypeId: "assault",
-      soldierAim: 90,
-      equipmentAccuracyBonus: 0,
     });
 
     // Add Enemy at (1.5, 0.5)
@@ -102,7 +110,13 @@ describe("Shooting Through Walls Repro", () => {
       extraction: undefined,
       objectives: [],
     };
-    const engine2 = new CoreEngine(map2x2, 123, { soldiers: [], inventory: {} }, true, false);
+    const engine2 = new CoreEngine(
+      map2x2,
+      123,
+      { soldiers: [], inventory: {} },
+      true,
+      false,
+    );
     engine2.clearUnits();
 
     engine2.addUnit({
@@ -111,16 +125,18 @@ describe("Shooting Through Walls Repro", () => {
       hp: 100,
       maxHp: 100,
       state: UnitState.Idle,
-      damage: 10,
-      fireRate: 100,
-      accuracy: 1000,
-      attackRange: 5,
-      sightRange: 10,
-      speed: 2,
+      stats: {
+        damage: 10,
+        fireRate: 100,
+        accuracy: 1000,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 5,
+        sightRange: 10,
+        speed: 2,
+      },
       commandQueue: [],
       archetypeId: "assault",
-      soldierAim: 90,
-      equipmentAccuracyBonus: 0,
     });
     engine2.addEnemy({
       id: "e1",
@@ -154,16 +170,18 @@ describe("Shooting Through Walls Repro", () => {
       hp: 100,
       maxHp: 100,
       state: UnitState.Idle,
-      damage: 10,
-      fireRate: 100,
-      accuracy: 1000,
-      attackRange: 5,
-      sightRange: 10,
-      speed: 2,
+      stats: {
+        damage: 10,
+        fireRate: 100,
+        accuracy: 1000,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 5,
+        sightRange: 10,
+        speed: 2,
+      },
       commandQueue: [],
       archetypeId: "assault",
-      soldierAim: 90,
-      equipmentAccuracyBonus: 0,
     });
     engine.addEnemy({
       id: "e1",
@@ -196,16 +214,18 @@ describe("Shooting Through Walls Repro", () => {
       hp: 100,
       maxHp: 100,
       state: UnitState.Idle,
-      damage: 10,
-      fireRate: 100,
-      accuracy: 1000,
-      attackRange: 5,
-      sightRange: 10,
-      speed: 2,
+      stats: {
+        damage: 10,
+        fireRate: 100,
+        accuracy: 1000,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 5,
+        sightRange: 10,
+        speed: 2,
+      },
       commandQueue: [],
       archetypeId: "assault",
-      soldierAim: 90,
-      equipmentAccuracyBonus: 0,
     });
     engine.addEnemy({
       id: "e1",

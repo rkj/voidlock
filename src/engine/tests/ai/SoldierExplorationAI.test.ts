@@ -56,14 +56,16 @@ describe("Soldier Exploration AI", () => {
       hp: 100,
       maxHp: 100,
       state: UnitState.Idle,
-      damage: 10,
-      fireRate: 100,
-      accuracy: 1000,
-      soldierAim: 90,
-      equipmentAccuracyBonus: 0,
-      attackRange: 1,
-      sightRange: 0.1, // Small sight to ensure neighbors are undiscovered
-      speed: 20,
+      stats: {
+        damage: 10,
+        fireRate: 100,
+        accuracy: 1000,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 1,
+        sightRange: 0.1, // Small sight to ensure neighbors are undiscovered
+        speed: 20,
+      },
       commandQueue: [],
     });
   });

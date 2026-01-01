@@ -83,14 +83,18 @@ describe("UnitManager Combat (15hj)", () => {
       pos: { x: 0.5, y: 0.5 },
       hp: 100,
       maxHp: 100,
-      speed: 10,
       state: UnitState.Idle,
+      stats: {
+        speed: 10,
+        attackRange: 5,
+        damage: 10,
+        fireRate: 100,
+        accuracy: 100,
+        sightRange: 10,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+      },
       commandQueue: [],
-      attackRange: 5,
-      damage: 10,
-      fireRate: 100,
-      accuracy: 100,
-      sightRange: 10,
     } as any;
 
     const enemy: Enemy = {

@@ -134,7 +134,7 @@ export class EnemyManager {
     });
 
     const deadEnemies = state.enemies.filter((enemy) => enemy.hp <= 0);
-    state.aliensKilled += deadEnemies.length;
+    state.stats.aliensKilled += deadEnemies.length;
     state.enemies = state.enemies.filter((enemy) => enemy.hp > 0);
   }
 

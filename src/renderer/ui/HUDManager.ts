@@ -33,7 +33,7 @@ export class HUDManager {
     if (mvEl && mvEl.textContent !== `v${this.version}`)
       mvEl.textContent = `v${this.version}`;
 
-    const threatLevel = state.threatLevel || 0;
+    const threatLevel = state.stats.threatLevel || 0;
 
     const topThreatFill = document.getElementById("top-threat-fill");
     const topThreatValue = document.getElementById("top-threat-value");
@@ -235,8 +235,8 @@ export class HUDManager {
     stats.style.textAlign = "left";
     stats.innerHTML = `
       <p><strong>Time Elapsed:</strong> ${(state.t / 1000).toFixed(1)}s</p>
-      <p><strong>Aliens Purged:</strong> ${state.aliensKilled}</p>
-      <p><strong>Casualties:</strong> ${state.casualties}</p>
+      <p><strong>Aliens Purged:</strong> ${state.stats.aliensKilled}</p>
+      <p><strong>Casualties:</strong> ${state.stats.casualties}</p>
     `;
     summaryDiv.appendChild(stats);
 
@@ -323,22 +323,22 @@ export class HUDManager {
         `${hpPercent}%`;
 
       (el.querySelector(".u-speed") as HTMLElement).textContent = (
-        unit.speed / 10
+        unit.stats.speed / 10
       ).toFixed(1);
       (el.querySelector(".u-acc") as HTMLElement).textContent =
-        unit.accuracy.toString();
+        unit.stats.accuracy.toString();
       (el.querySelector(".u-dmg") as HTMLElement).textContent =
-        unit.damage.toString();
+        unit.stats.damage.toString();
       (el.querySelector(".u-firerate") as HTMLElement).textContent =
-        unit.fireRate > 0 ? (1000 / unit.fireRate).toFixed(1) : "0";
+        unit.stats.fireRate > 0 ? (1000 / unit.stats.fireRate).toFixed(1) : "0";
       (el.querySelector(".u-range") as HTMLElement).textContent =
-        unit.attackRange.toString();
+        unit.stats.attackRange.toString();
 
-      const S = unit.accuracy;
-      let effRange = unit.attackRange;
+      const S = unit.stats.accuracy;
+      let effRange = unit.stats.attackRange;
       if (S < 100 && S > 0) {
         const A = Math.sqrt((25 * S) / (100 - S));
-        effRange = Math.min(unit.attackRange, 3 * A);
+        effRange = Math.min(unit.stats.attackRange, 3 * A);
       } else if (S <= 0) {
         effRange = 0;
       }
@@ -346,7 +346,7 @@ export class HUDManager {
         effRange.toFixed(1);
 
       (el.querySelector(".u-sight") as HTMLElement).textContent =
-        unit.sightRange >= 100 ? "∞" : unit.sightRange.toString();
+        unit.stats.sightRange >= 100 ? "∞" : unit.stats.sightRange.toString();
     });
 
     Array.from(listContainer.children).forEach((child) => {

@@ -33,7 +33,13 @@ describe("Hidden Objectives", () => {
       ],
     };
 
-    engine = new CoreEngine(map, 123, { soldiers: [], inventory: {} }, true, false);
+    engine = new CoreEngine(
+      map,
+      123,
+      { soldiers: [], inventory: {} },
+      true,
+      false,
+    );
   });
 
   it("should be hidden initially and revealed when discovered", () => {
@@ -45,14 +51,16 @@ describe("Hidden Objectives", () => {
       hp: 100,
       maxHp: 100,
       state: UnitState.Idle,
-      damage: 10,
-      fireRate: 500,
-      accuracy: 1000,
-      soldierAim: 90,
-      equipmentAccuracyBonus: 0,
-      attackRange: 2,
-      sightRange: 5,
-      speed: 2,
+      stats: {
+        damage: 10,
+        fireRate: 500,
+        accuracy: 1000,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 2,
+        sightRange: 5,
+        speed: 2,
+      },
       commandQueue: [],
     });
 
