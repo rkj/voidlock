@@ -37,12 +37,8 @@ describe("Squad Configuration in CoreEngine", () => {
     expect(state.units.length).toBe(3);
 
     // Verify types
-    const assaultUnits = state.units.filter(
-      (u) => u.archetypeId === "assault",
-    );
-    const medicUnits = state.units.filter(
-      (u) => u.archetypeId === "medic",
-    );
+    const assaultUnits = state.units.filter((u) => u.archetypeId === "assault");
+    const medicUnits = state.units.filter((u) => u.archetypeId === "medic");
 
     expect(assaultUnits.length).toBe(2);
     expect(medicUnits.length).toBe(1);
@@ -71,10 +67,7 @@ describe("Squad Configuration in CoreEngine", () => {
 
   it("should ignore invalid archetype IDs", () => {
     const squadConfig: SquadConfig = {
-      soldiers: [
-        { archetypeId: "invalid-id" },
-        { archetypeId: "assault" },
-      ],
+      soldiers: [{ archetypeId: "invalid-id" }, { archetypeId: "assault" }],
       inventory: {},
     };
     const engine = new CoreEngine(mockMap, 123, squadConfig, false, false);

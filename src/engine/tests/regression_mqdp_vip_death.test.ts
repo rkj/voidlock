@@ -1,6 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { CoreEngine } from "../CoreEngine";
-import { MissionType, UnitState, SquadConfig, Objective } from "../../shared/types";
+import {
+  MissionType,
+  UnitState,
+  SquadConfig,
+  Objective,
+} from "../../shared/types";
 
 describe("Regression mqdp: VIP Death Mission Success", () => {
   const mockMap = {
@@ -16,7 +21,7 @@ describe("Regression mqdp: VIP Death Mission Success", () => {
     doors: [],
   } as any;
 
-      const squadConfig = { soldiers: [{ archetypeId: "assault" }], inventory: {} };
+  const squadConfig = { soldiers: [{ archetypeId: "assault" }], inventory: {} };
   it("should definitely fail if VIP dies", () => {
     const engine = new CoreEngine(
       mockMap,
@@ -116,10 +121,7 @@ describe("Regression mqdp: VIP Death Mission Success", () => {
     // We need to re-run setupMission or manually add the objective because squadConfig in constructor didn't have VIP
     // Wait, CoreEngine constructor calls setupMission with squadConfig.
     const squadWithVip: SquadConfig = {
-      soldiers: [
-        { archetypeId: "assault" },
-        { archetypeId: "vip" },
-      ],
+      soldiers: [{ archetypeId: "assault" }, { archetypeId: "vip" }],
       inventory: {},
     };
     const engine2 = new CoreEngine(
@@ -132,9 +134,9 @@ describe("Regression mqdp: VIP Death Mission Success", () => {
     );
     const internalState2 = (engine2 as any).state;
 
-    expect(internalState2.objectives.some((o: Objective) => o.id === "obj-escort")).toBe(
-      true,
-    );
+    expect(
+      internalState2.objectives.some((o: Objective) => o.id === "obj-escort"),
+    ).toBe(true);
 
     // Kill the VIP
     const internalVip = internalState2.units.find(
@@ -171,9 +173,9 @@ describe("Regression mqdp: VIP Death Mission Success", () => {
     const internalState = (engine as any).state;
 
     // In Default mission, setupMission adds obj-escort if hasVipInSquad is true.
-    expect(internalState.objectives.some((o: Objective) => o.id === "obj-escort")).toBe(
-      true,
-    );
+    expect(
+      internalState.objectives.some((o: Objective) => o.id === "obj-escort"),
+    ).toBe(true);
 
     // HOWEVER, in Default mission, updateObjectives DOES NOT update obj-escort.
     // So it stays "Pending".

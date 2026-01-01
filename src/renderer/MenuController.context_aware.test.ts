@@ -65,13 +65,24 @@ describe("MenuController Context Awareness", () => {
     expect(extractOption?.disabled).toBe(true);
   });
 
-  it("should enable EXTRACT when extraction point exists", () => {
+  it("should enable EXTRACT when extraction point exists and is discovered", () => {
     mockState.map.extraction = { x: 5, y: 5 };
+    mockState.discoveredCells = ["5,5"];
     const renderState = controller.getRenderableState(mockState);
     const extractOption = renderState.options.find((o) =>
       o.label.includes("EXTRACT"),
     );
     expect(extractOption?.disabled).toBeFalsy();
+  });
+
+  it("should disable EXTRACT when extraction point exists but is NOT discovered", () => {
+    mockState.map.extraction = { x: 5, y: 5 };
+    mockState.discoveredCells = ["0,0", "1,1"]; // Far away
+    const renderState = controller.getRenderableState(mockState);
+    const extractOption = renderState.options.find((o) =>
+      o.label.includes("EXTRACT"),
+    );
+    expect(extractOption?.disabled).toBe(true);
   });
 
   it("should not allow selecting disabled COLLECT option", () => {

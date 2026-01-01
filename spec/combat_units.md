@@ -43,13 +43,13 @@ $$ P(d) = \min\left(1.0, \frac{S}{100} \cdot \frac{R}{d}\right) $$
 
 #### 3.3.3.1 Reference Points (Example: $S = 80$, $R = 10$)
 
-| Distance | Hit Chance | Logic                                  |
-| :------- | :--------- | :------------------------------------- |
-| 1 Tile   | 100%       | $\min(1.0, 0.8 \cdot 10 / 1) = 8.0 \rightarrow 1.0$ |
-| 5 Tiles  | 100%       | $\min(1.0, 0.8 \cdot 10 / 5) = 1.6 \rightarrow 1.0$ |
-| 8 Tiles  | 100%       | $\min(1.0, 0.8 \cdot 10 / 8) = 1.0$    |
+| Distance | Hit Chance | Logic                                                    |
+| :------- | :--------- | :------------------------------------------------------- |
+| 1 Tile   | 100%       | $\min(1.0, 0.8 \cdot 10 / 1) = 8.0 \rightarrow 1.0$      |
+| 5 Tiles  | 100%       | $\min(1.0, 0.8 \cdot 10 / 5) = 1.6 \rightarrow 1.0$      |
+| 8 Tiles  | 100%       | $\min(1.0, 0.8 \cdot 10 / 8) = 1.0$                      |
 | 10 Tiles | **80%**    | $0.8 \cdot 10 / 10 = 0.8$ -- **The Stat Value at Range** |
-| 20 Tiles | 40%        | $0.8 \cdot 10 / 20 = 0.4$              |
+| 20 Tiles | 40%        | $0.8 \cdot 10 / 20 = 0.4$                                |
 
 ### 3.3.4. Range Interactions
 
@@ -63,21 +63,25 @@ The `range` property ($R$) on a weapon definition represents the **Effective Ran
 ## 3.4 Equipment & Inventory
 
 ### 3.4.1 Soldier Loadout (Individual)
+
 Each soldier has specific equipment slots that define their combat performance:
-1.  **Right Hand (Ranged):** Primary firearm. 
+
+1.  **Right Hand (Ranged):** Primary firearm.
     - **Stats**: `Damage`, `FR` (Firing Rate), `Range` (Effective).
-2.  **Left Hand (Melee):** CQC weapon. 
-    - **Stats**: `Damage`, `ASP` (Attack Speed). 
+2.  **Left Hand (Melee):** CQC weapon.
+    - **Stats**: `Damage`, `ASP` (Attack Speed).
     - **ASP Formula**: Same as Firing Rate (Actions per 10s at Speed 10).
 3.  **Body (Armor):** Passive protection.
 4.  **Feet (Shoes):** Passive mobility.
 
 **Stat Ownership:**
+
 - **Soldier**: Owns `HP`, `SPD` (Innate), and `ACC` (Base Aim).
 - **Weapon**: Owns `Damage`, `Rate` (FR/ASP), and `Range`.
 - **Final Performance**: The Engine calculates values dynamically: `Total_ACC = Soldier_ACC + Weapon_Mod + Equipment_Mod`.
 
 ### 3.4.2 Squad Inventory (Global / Commander Abilities)
+
 Consumable items are **NOT** carried by individual soldiers. Instead, they exist in a **Global Squad Pool** accessible by the Commander.
 
 - **Mechanic:** The Commander can activate these items anywhere on the map (or on any valid target) instantly or via a "Drone Delivery" mechanic.

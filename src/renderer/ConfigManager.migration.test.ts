@@ -37,33 +37,33 @@ describe("ConfigManager Migration", () => {
     expect(loadedConfig?.squadConfig.soldiers.length).toBeGreaterThan(0);
   });
 
-      it("should handle entirely missing squadConfig", () => {
-        const oldConfig = {
-          mapWidth: 14,
-          mapHeight: 14,
-          // squadConfig missing
-        };
-    
-        localStorage.setItem("xenopurge_config", JSON.stringify(oldConfig));
-    
-        const loadedConfig = ConfigManager.load();
-        expect(loadedConfig).not.toBeNull();
-        expect(loadedConfig?.squadConfig).toBeDefined();
-        expect(loadedConfig?.squadConfig.soldiers).toBeDefined();
-      });
-  
-      it("should handle very old array-based squadConfig format", () => {
-        const oldConfig = {
-          squadConfig: [{ archetypeId: "assault" }] // Old format was just an array
-        };
-  
-        localStorage.setItem("xenopurge_config", JSON.stringify(oldConfig));
-  
-        const loadedConfig = ConfigManager.load();
-        expect(loadedConfig).not.toBeNull();
-        expect(loadedConfig?.squadConfig.soldiers).toBeDefined();
-        expect(Array.isArray(loadedConfig?.squadConfig.soldiers)).toBe(true);
-        // It should probably have defaulted back to the default squad since it was an array
-        expect(loadedConfig?.squadConfig.inventory).toBeDefined();
-      });
+  it("should handle entirely missing squadConfig", () => {
+    const oldConfig = {
+      mapWidth: 14,
+      mapHeight: 14,
+      // squadConfig missing
+    };
+
+    localStorage.setItem("xenopurge_config", JSON.stringify(oldConfig));
+
+    const loadedConfig = ConfigManager.load();
+    expect(loadedConfig).not.toBeNull();
+    expect(loadedConfig?.squadConfig).toBeDefined();
+    expect(loadedConfig?.squadConfig.soldiers).toBeDefined();
   });
+
+  it("should handle very old array-based squadConfig format", () => {
+    const oldConfig = {
+      squadConfig: [{ archetypeId: "assault" }], // Old format was just an array
+    };
+
+    localStorage.setItem("xenopurge_config", JSON.stringify(oldConfig));
+
+    const loadedConfig = ConfigManager.load();
+    expect(loadedConfig).not.toBeNull();
+    expect(loadedConfig?.squadConfig.soldiers).toBeDefined();
+    expect(Array.isArray(loadedConfig?.squadConfig.soldiers)).toBe(true);
+    // It should probably have defaulted back to the default squad since it was an array
+    expect(loadedConfig?.squadConfig.inventory).toBeDefined();
+  });
+});

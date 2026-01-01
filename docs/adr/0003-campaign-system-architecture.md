@@ -5,6 +5,7 @@
 ## Context
 
 Xenopurge is evolving from a single-mission tactical game into a persistent roguelite experience. This requires an architecture that supports:
+
 1.  **Persistent State:** Data that lives across multiple tactical missions (Squad roster, Scrap, Map progress).
 2.  **Strategic Layer:** New gameplay modes like the "Sector Map" (Bridge) and "Barracks" (Squad Management).
 3.  **Simulation Parity:** The ability to run full campaigns in a headless environment for balance testing.
@@ -14,29 +15,37 @@ Xenopurge is evolving from a single-mission tactical game into a persistent rogu
 ### 1. Components & Relationships
 
 #### CampaignManager
+
 The central orchestrator for the strategic layer.
+
 - **Location:** `src/engine/managers/CampaignManager.ts`
 - **Ownership:** Lives within the "Engine" domain to ensure accessibility for both the Renderer and headless harnesses.
 - **Responsibilities:**
-    - Managing `CampaignState` (CRUD operations).
-    - Handling node-to-node progression logic.
-    - Calculating mission rewards and applying casualties.
-    - Orchestrating persistence via a `StorageProvider`.
+  - Managing `CampaignState` (CRUD operations).
+  - Handling node-to-node progression logic.
+  - Calculating mission rewards and applying casualties.
+  - Orchestrating persistence via a `StorageProvider`.
 
 #### GameClient (Campaign Extension)
+
 The `GameClient` continues to be the primary bridge. In Campaign Mode:
+
 - It initializes the `CoreEngine` using parameters provided by `CampaignManager`.
 - It monitors the `GameState` for mission completion and relays `MissionResults` back to the `CampaignManager`.
 
 #### ScreenManager (Renderer)
+
 Handles the UI transitions between the new strategic screens:
+
 - `ScreenBridge`: Displays the branching Sector Map.
 - `ScreenBarracks`: Interface for managing soldiers and equipment.
 - `ScreenDebrief`: Shows mission outcomes and XP gains.
 - `ScreenMission`: The existing tactical combat view.
 
 #### StorageProvider
+
 A simple interface for persistence.
+
 - `save(key: string, data: any): void`
 - `load(key: string): any`
 - **Implementations:** `LocalStorageProvider` (Web), `FileStorageProvider` (Node/Testing).
@@ -44,7 +53,9 @@ A simple interface for persistence.
 ### 2. Data Structures (JSON Schema)
 
 #### `CampaignState`
+
 The root object for a campaign run.
+
 ```typescript
 interface CampaignState {
   version: string;
@@ -61,16 +72,18 @@ interface CampaignState {
 ```
 
 #### `GameRules` (Difficulty Settings)
+
 ```typescript
 interface GameRules {
   mode: "Custom" | "Preset";
   deathRule: "Iron" | "Clone" | "Simulation";
-  difficultyScaling: number;  // Multiplier for enemy density/stats
-  resourceScarcity: number;   // Multiplier for scrap rewards
+  difficultyScaling: number; // Multiplier for enemy density/stats
+  resourceScarcity: number; // Multiplier for scrap rewards
 }
 ```
 
 #### `Soldier` (Persistent Unit)
+
 ```typescript
 interface Soldier {
   id: string;
@@ -86,6 +99,7 @@ interface Soldier {
 ```
 
 #### `CampaignNode`
+
 ```typescript
 interface CampaignNode {
   id: string;
@@ -94,7 +108,7 @@ interface CampaignNode {
   difficulty: number;
   mapSeed: number;
   connections: string[];
-  position: { x: number, y: number };
+  position: { x: number; y: number };
 }
 ```
 
@@ -116,10 +130,12 @@ interface CampaignNode {
 ## Consequences
 
 ### Pros
+
 - **Separation of Concerns:** Tactical simulation remains "pure" and unaware of the larger campaign.
 - **Testability:** The entire campaign flow (progression, economy) can be unit-tested without a browser.
 - **Flexibility:** Different `StorageProvider` implementations allow the game to run on various platforms.
 
 ### Cons
+
 - **State Duplication:** Some data (like `SquadConfig`) is transformed from `Soldier[]` to `Unit[]`. This mapping must be carefully maintained.
 - **Worker Complexity:** If `CampaignManager` resides in a Web Worker, all UI updates must go through asynchronous message passing.

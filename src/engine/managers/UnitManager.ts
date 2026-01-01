@@ -471,30 +471,49 @@ export class UnitManager {
           !state.objectives ||
           state.objectives.every((o) => o.state !== "Pending");
 
-        if (!actionTaken && objectivesComplete) {
-          unit.explorationTarget = undefined;
-          if (state.map.extraction) {
+        let canExtract = false;
+
+        if (!actionTaken && objectivesComplete && state.map.extraction) {
+          const ext = state.map.extraction;
+
+          const extKey = `${ext.x},${ext.y}`;
+
+          const isExtDiscovered = state.discoveredCells.includes(extKey);
+
+          if (isExtDiscovered) {
             const unitCurrentCell = {
               x: Math.floor(unit.pos.x),
+
               y: Math.floor(unit.pos.y),
             };
-            if (
-              unitCurrentCell.x !== state.map.extraction.x ||
-              unitCurrentCell.y !== state.map.extraction.y
-            ) {
+
+            if (unitCurrentCell.x !== ext.x || unitCurrentCell.y !== ext.y) {
+              unit.explorationTarget = undefined;
+
               this.executeCommand(
                 unit,
+
                 {
                   type: CommandType.MOVE_TO,
+
                   unitIds: [unit.id],
-                  target: state.map.extraction,
+
+                  target: ext,
+
                   label: "Extracting",
                 },
+
                 false,
               );
+
+              actionTaken = true;
+
+              canExtract = true;
             }
           }
-        } else if (!actionTaken && !mapFullyDiscovered) {
+        }
+
+        if (!actionTaken && !mapFullyDiscovered) {
           let shouldReevaluate = !unit.explorationTarget;
 
           if (unit.explorationTarget) {
