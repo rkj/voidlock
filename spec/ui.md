@@ -22,7 +22,7 @@ The application is divided into distinct screens to reduce UI clutter and improv
       - Map Size (Width/Height).
       - Static Map Import (Text/File/ASCII).
     - **Game Options**:
-      - Fog of War, Debug Overlay, Agent Control, LOS Visualization toggles.
+      - Fog of War, Debug Overlay, LOS Visualization toggles.
       - **Game Speed Control**:
         - **Slider Range**: 0.05x (Active Pause) to 5.0x (Fast Forward). Default 1.0x.
         - **Active Pause**: Speed 0.05x acts as "Active Pause", allowing commands to be issued while time moves very slowly.
@@ -39,7 +39,23 @@ The application is divided into distinct screens to reduce UI clutter and improv
     - "Launch Mission" -> Starts Engine, switches to Mission Screen.
     - "Back" -> Main Menu.
 
-2b. **Squad Equipment Screen** - **Access**: Available from "Mission Setup" (Custom) and "Campaign Hub" (Between missions). - **Layout**: - **Left Panel (Soldier List)**: Select a soldier to configure. - **Center Panel (Paper Doll)**: Slots for Right Hand, Left Hand, Body, Feet. Displays current stats (HP, Speed, Acc). - **Right Panel (Armory)**: Tabbed list of available equipment (Weapons, Armor) and Squad Items (Grenades, Medkits). - **Functionality**: - Assign weapons/armor to specific soldier slots. - Allocate global items (e.g., "Take 3 Grenades") to the mission inventory pool.
+2b. **Squad Equipment Screen**
+    - **Access**: Available from "Mission Setup" (Custom) and "Campaign Hub" (Between missions).
+    - **Layout**:
+      - **Left Panel (Soldier List)**: Select a soldier to configure.
+      - **Center Panel (Paper Doll)**: Slots for Right Hand, Left Hand, Body, Feet.
+        - **Soldier Stats**: Distinct section displaying ONLY innate stats (HP, SPD, Base ACC).
+        - **Weapon Stats**: Distinct section displaying aggregate weapon performance (Total ACC, DMG, FR/ASP, Range).
+        - **Separation**: These two blocks must be visually distinct to avoid confusion (e.g., "Damage" is NOT a soldier stat).
+      - **Right Panel (Armory)**: Tabbed list of available equipment (Weapons, Armor) and Squad Items (Grenades, Medkits).
+        - **Item Display**: Each item in the list MUST display:
+          - **Name** & **Price**.
+          - **Key Stats**: Using the same icons as the Soldier Card (DMG, RNG, FR).
+        - **Tooltips**: Hovering an item MUST display a detailed description (flavor text + full stats), especially for Global Supplies (e.g., "Scanner: Reveals map in 15 tile radius").
+    - **Functionality**:
+      - **Initialization**: When opening this screen, the slots MUST be pre-populated with the soldier's currently assigned equipment. It must NEVER default to empty hands unless the soldier is actually unarmed.
+      - Assign weapons/armor to specific soldier slots.
+      - Allocate global items (e.g., "Take 3 Grenades") to the mission inventory pool.
 
 3.  **Mission Screen** (Active Gameplay)
     - **Main View**: Canvas/WebGL rendering of the game world.
@@ -69,14 +85,17 @@ The game must be fully playable via keyboard using a strict hierarchical command
     - `1`: Move
     - `2`: Stop (Halts unit and disables AI)
     - `3`: Engagement (Toggle Engage/Ignore)
-    - `4`: Collect (Objectives) - _Disabled if no items visible_
-    - `5`: Extract - _Disabled if not at extraction_
-  - **Level 2 (Target/Mode Selection):**
-    - **Move:** Select Room (Labeled A-Z, 0-9) or specific cell.
-      - **Overlay:** When this menu level is active, the Map View **MUST** render the corresponding Room Labels (e.g., "1", "2", "A") over the center of each room on the canvas.
-      - **Filter:** The room list must strictly filter to show ONLY rooms that have been **Discovered** (fog lifted).
-    - **Engagement:** `1`: Engage (Stop & Shoot), `2`: Ignore (Run).
-    - **Collect/Extract:** Context-aware immediate execution or selection if multiple targets.
+    - `4`: Use Item (Global Inventory) - _Disabled if inventory empty_
+    - `5`: Collect (Objectives) - _Disabled if no items visible_
+    - `6`: Extract - _Disabled if not at extraction_
+  - **Level 2 (Orders):**
+    - `1`: Move To Room... (Select Room ID)
+    - `2`: Overwatch Intersection... (Select Intersection)
+    - `3`: Explore (Autonomous)
+    - `4`: Hold Position
+  - **Level 3 (Target Selection):**
+    - **Move To Room:** Select Room (Mapped 1-9, A-Z).
+    - **Overwatch Intersection:** Select Intersection Point (Mapped 1-9).
   - **Universal Back:** option `0` or `ESC` always goes back one level.
 - **Mouse Support:**
   - Full mouse support implemented via clickable menu items and map overlays.
@@ -92,10 +111,13 @@ The game must be fully playable via keyboard using a strict hierarchical command
 The UI must be optimized for visibility and information density, utilizing the full width of the screen.
 
 - **Top Bar (Header):** Fixed height (40px). Displays Game Time, Status, Seed, Version, and the **Threat Meter**.
-- **Soldier Bar (Sub-header):** Full-width strip below the top bar (Height: 56px). Displays all soldiers in a horizontal layout.
-  - **Soldier Card:** Optimized for 56px height.
-    - **Soldier Info**: HP bar, Number, Name, Status.
+  - **Soldier Bar (Sub-header):** Full-width strip below the top bar (Height: 56px). Displays all soldiers in a horizontal layout.
+    - **Reusable Stat Component**: The icon-based stat display used here MUST be extracted and reused in:
+      - **Squad Selection Screen**: Replacing the text-based stats.
+      - **Equipment Screen**: Replacing the mixed stat panel.
+    - **Soldier Card:** Optimized for 56px height.    - **Soldier Info**: HP bar, Number, Name, Status.
     - **Stat Visualization**: All labels (SPD, ACC, DMG, FR, ASP, Range) **MUST** be replaced with graphical icons to save space and improve scannability.
+      - **Speed (SPD)**: MUST display the raw `speed` stat (e.g., "25"), NOT the derived tiles-per-second value.
     - **Tooltips**: Every stat icon must include a standard HTML `title` attribute providing the full name of the stat (e.g., `title="Attack Speed"`).
     - **Equipped Weapons**:
       - **Right Hand (Ranged)**: Weapon Icon, [Damage Icon] Value, [FR Icon] Value, [Range Icon] Value.

@@ -95,7 +95,9 @@ Consumable items are **NOT** carried by individual soldiers. Instead, they exist
 | Command          | Payload              | Description                                              |
 | :--------------- | :------------------- | :------------------------------------------------------- |
 | `MOVE_TO`        | `unitIds`, `target`  | Pathfinds and moves. Can be queued.                      |
+| `OVERWATCH_POINT`| `unitIds`, `target`  | Moves to a specific intersection/point and holds position. |
+| `EXPLORE`        | `unitIds`            | Unit autonomously explores unknown rooms.                |
 | `ATTACK_TARGET`  | `unitId`, `targetId` | Forces fire on specific enemy.                           |
 | `SET_ENGAGEMENT` | `unitIds`, `mode`    | Toggle `ENGAGE` (Stop & Shoot) or `IGNORE` (Run).        |
-| `STOP`           | `unitIds`            | Clears command queue, halts, and disables autonomous AI. |
-| `RESUME_AI`      | `unitIds`            | Re-enables autonomous AI for the unit.                   |
+| `HOLD`           | `unitIds`            | Clears command queue, halts movement. Does NOT disable reaction fire. |
+| `USE_ITEM`       | `itemId`, `target`   | Uses a global item (Medkit, Grenade) instantly.          |
