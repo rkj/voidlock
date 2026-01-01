@@ -156,8 +156,9 @@ export type Item = {
   speedBonus?: number;
   accuracyBonus?: number;
   // Active effects
-  action?: "Heal" | "Grenade" | "Mine";
+  action?: "Heal" | "Grenade" | "Mine" | "Scanner";
   charges?: number;
+  cost: number;
 };
 
 export type EquipmentState = {
@@ -174,6 +175,7 @@ export const ItemLibrary: { [id: string]: Item } = {
     type: "Active",
     action: "Grenade",
     charges: 2,
+    cost: 15,
   },
   medkit: {
     id: "medkit",
@@ -181,6 +183,7 @@ export const ItemLibrary: { [id: string]: Item } = {
     type: "Active",
     action: "Heal",
     charges: 1,
+    cost: 10,
   },
   mine: {
     id: "mine",
@@ -188,27 +191,46 @@ export const ItemLibrary: { [id: string]: Item } = {
     type: "Active",
     action: "Mine",
     charges: 2,
+    cost: 15,
   },
-  combat_shoes: {
-    id: "combat_shoes",
-    name: "Combat Shoes",
+  scanner: {
+    id: "scanner",
+    name: "Scanner",
+    type: "Active",
+    action: "Scanner",
+    charges: 3,
+    cost: 20,
+  },
+  combat_boots: {
+    id: "combat_boots",
+    name: "Combat Boots",
     type: "Passive",
     speedBonus: 5, // +0.5 tiles/s
+    cost: 0,
   },
-  light_armor: {
-    id: "light_armor",
-    name: "Light Armor",
+  mag_lev_boots: {
+    id: "mag_lev_boots",
+    name: "Mag-Lev Boots",
+    type: "Passive",
+    speedBonus: 10, // +1.0 tiles/s
+    cost: 30,
+  },
+  light_recon: {
+    id: "light_recon",
+    name: "Light Recon Armor",
     type: "Passive",
     hpBonus: 50,
-    speedBonus: -2,
+    speedBonus: 2,
+    cost: 20,
   },
-  heavy_armor: {
-    id: "heavy_armor",
-    name: "Heavy Armor",
+  heavy_plate: {
+    id: "heavy_plate",
+    name: "Heavy Plate Armor",
     type: "Passive",
     hpBonus: 150,
     speedBonus: -5,
     accuracyBonus: -10,
+    cost: 50,
   },
 };
 
@@ -240,35 +262,39 @@ export type Weapon = {
   fireRate: number; // ms
   accuracy: number; // Percentage modifier relative to soldierAim
   range: number;
+  cost: number;
 };
 
 export const WeaponLibrary: { [id: string]: Weapon } = {
-  knife: {
-    id: "knife",
-    name: "Knife",
+  combat_knife: {
+    id: "combat_knife",
+    name: "Combat Knife",
     type: "Melee",
     damage: 15,
     fireRate: 400,
     accuracy: 10,
     range: 1,
+    cost: 0,
   },
-  sword: {
-    id: "sword",
-    name: "Sword",
+  power_sword: {
+    id: "power_sword",
+    name: "Power Sword",
     type: "Melee",
     damage: 35,
     fireRate: 800,
     accuracy: 15,
     range: 1,
+    cost: 25,
   },
-  hammer: {
-    id: "hammer",
-    name: "Hammer",
+  thunder_hammer: {
+    id: "thunder_hammer",
+    name: "Thunder Hammer",
     type: "Melee",
     damage: 80,
     fireRate: 1500,
     accuracy: 5,
     range: 1,
+    cost: 40,
   },
   pistol: {
     id: "pistol",
@@ -278,6 +304,7 @@ export const WeaponLibrary: { [id: string]: Weapon } = {
     fireRate: 500,
     accuracy: 0,
     range: 6,
+    cost: 10,
   },
   pulse_rifle: {
     id: "pulse_rifle",
@@ -287,6 +314,7 @@ export const WeaponLibrary: { [id: string]: Weapon } = {
     fireRate: 600,
     accuracy: 5,
     range: 10,
+    cost: 20,
   },
   shotgun: {
     id: "shotgun",
@@ -296,15 +324,17 @@ export const WeaponLibrary: { [id: string]: Weapon } = {
     fireRate: 1000,
     accuracy: -10,
     range: 4,
+    cost: 25,
   },
-  flamethrower: {
-    id: "flamethrower",
-    name: "Flamethrower",
+  flamer: {
+    id: "flamer",
+    name: "Flamer",
     type: "Ranged",
     damage: 25,
     fireRate: 100,
     accuracy: -5,
     range: 3,
+    cost: 35,
   },
 };
 
@@ -320,7 +350,7 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     attackRange: 10,
     sightRange: 100,
     speed: 20,
-    leftHand: "knife",
+    leftHand: "combat_knife",
     rightHand: "pulse_rifle",
   },
   medic: {
@@ -334,7 +364,7 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     attackRange: 6,
     sightRange: 100,
     speed: 25,
-    leftHand: "knife",
+    leftHand: "combat_knife",
     rightHand: "pistol",
   },
   heavy: {
@@ -348,7 +378,7 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     attackRange: 4,
     sightRange: 100,
     speed: 15,
-    leftHand: "hammer",
+    leftHand: "thunder_hammer",
     rightHand: "shotgun",
   },
   vip: {

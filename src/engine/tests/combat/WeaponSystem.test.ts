@@ -41,7 +41,7 @@ describe("Weapon System", () => {
 
   it("should have melee and ranged weapons defined in WeaponLibrary", () => {
     expect(WeaponLibrary).toBeDefined();
-    expect(WeaponLibrary["knife"]).toBeDefined();
+    expect(WeaponLibrary["combat_knife"]).toBeDefined();
     expect(WeaponLibrary["pistol"]).toBeDefined();
     expect(WeaponLibrary["pulse_rifle"]).toBeDefined();
   });
@@ -56,7 +56,7 @@ describe("Weapon System", () => {
       commandQueue: [],
       speed: 15,
       archetypeId: "assault",
-      leftHand: "knife",
+      leftHand: "combat_knife",
       rightHand: "pulse_rifle",
       // Current stats for backward compatibility or as "active" stats
       damage: 0,
@@ -65,7 +65,7 @@ describe("Weapon System", () => {
       attackRange: 0,
     };
 
-    expect(unit.leftHand).toBe("knife");
+    expect(unit.leftHand).toBe("combat_knife");
     expect(unit.rightHand).toBe("pulse_rifle");
   });
 
@@ -85,7 +85,7 @@ describe("Weapon System", () => {
       commandQueue: [],
       speed: 20,
       archetypeId: "assault",
-      leftHand: "knife",
+      leftHand: "combat_knife",
       rightHand: "pulse_rifle",
       activeWeaponId: "pulse_rifle",
       damage: 20,
@@ -119,7 +119,7 @@ describe("Weapon System", () => {
 
     unitManager.update(state, 100, new Map(), prng);
 
-    expect(unit.activeWeaponId).toBe("knife");
+    expect(unit.activeWeaponId).toBe("combat_knife");
     expect(unit.damage).toBe(15); // Knife damage
     expect(unit.attackRange).toBe(1); // Knife range
   });
@@ -140,9 +140,9 @@ describe("Weapon System", () => {
       commandQueue: [],
       speed: 20,
       archetypeId: "assault",
-      leftHand: "knife",
+      leftHand: "combat_knife",
       rightHand: "pulse_rifle",
-      activeWeaponId: "knife",
+      activeWeaponId: "combat_knife",
       damage: 15,
       fireRate: 400,
       accuracy: 100,

@@ -20,12 +20,12 @@ describe("Equipment System - Passive Buffs", () => {
     squadSpawn: { x: 1, y: 1 },
   };
 
-  it("should apply HP bonus from Heavy Armor", () => {
+  it("should apply HP bonus from Heavy Plate Armor", () => {
     const squadConfig: SquadConfig = {
       soldiers: [
         {
           archetypeId: "assault",
-          body: "heavy_armor",
+          body: "heavy_plate",
         },
       ],
       inventory: {},
@@ -34,17 +34,17 @@ describe("Equipment System - Passive Buffs", () => {
     const engine = new CoreEngine(mockMap, 1, squadConfig, false, false);
     const unit = engine.getState().units[0];
 
-    // Assault base HP is 100. Heavy Armor gives +150.
+    // Assault base HP is 100. Heavy Plate gives +150.
     expect(unit.hp).toBe(250);
     expect(unit.maxHp).toBe(250);
   });
 
-  it("should apply Speed and Accuracy debuffs from Heavy Armor", () => {
+  it("should apply Speed and Accuracy debuffs from Heavy Plate Armor", () => {
     const squadConfig: SquadConfig = {
       soldiers: [
         {
           archetypeId: "assault",
-          body: "heavy_armor",
+          body: "heavy_plate",
         },
       ],
       inventory: {},
@@ -54,17 +54,17 @@ describe("Equipment System - Passive Buffs", () => {
     const unit = engine.getState().units[0];
 
     // Assault base Speed: 20, Accuracy: 95.
-    // Heavy Armor: Speed -5, Accuracy -10.
+    // Heavy Plate: Speed -5, Accuracy -10.
     expect(unit.speed).toBe(15);
     expect(unit.accuracy).toBe(85);
   });
 
-  it("should apply Speed bonus from Combat Shoes", () => {
+  it("should apply Speed bonus from Combat Boots", () => {
     const squadConfig: SquadConfig = {
       soldiers: [
         {
           archetypeId: "assault",
-          feet: "combat_shoes",
+          feet: "combat_boots",
         },
       ],
       inventory: {},
@@ -73,7 +73,7 @@ describe("Equipment System - Passive Buffs", () => {
     const engine = new CoreEngine(mockMap, 1, squadConfig, false, false);
     const unit = engine.getState().units[0];
 
-    // Assault base Speed: 20. Combat Shoes: Speed +5.
+    // Assault base Speed: 20. Combat Boots: Speed +5.
     expect(unit.speed).toBe(25);
   });
 
@@ -82,8 +82,8 @@ describe("Equipment System - Passive Buffs", () => {
       soldiers: [
         {
           archetypeId: "assault",
-          body: "light_armor",
-          feet: "combat_shoes",
+          body: "light_recon",
+          feet: "combat_boots",
         },
       ],
       inventory: {},
@@ -93,11 +93,11 @@ describe("Equipment System - Passive Buffs", () => {
     const unit = engine.getState().units[0];
 
     // Assault: HP 100, Speed 20, Acc 95
-    // Light Armor: HP +50, Speed -2
-    // Combat Shoes: Speed +5
-    // Final: HP 150, Speed 23, Acc 95
+    // Light Recon: HP +50, Speed +2
+    // Combat Boots: Speed +5
+    // Final: HP 150, Speed 27, Acc 95
     expect(unit.hp).toBe(150);
-    expect(unit.speed).toBe(23);
+    expect(unit.speed).toBe(27);
     expect(unit.accuracy).toBe(95);
   });
 

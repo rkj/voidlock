@@ -26,7 +26,7 @@ describe("Regression 7xph - Accuracy Stats Reset on Weapon Swap", () => {
       soldiers: [
         {
           archetypeId: "assault",
-          body: "heavy_armor",
+          body: "heavy_plate",
         },
       ],
       inventory: {},
@@ -67,9 +67,9 @@ describe("Regression 7xph - Accuracy Stats Reset on Weapon Swap", () => {
 
     const unitMelee = engine.getState().units[0];
 
-    // Expecting: soldierAim(90) + knife(10) + heavy_armor(-10) = 90
-    // If bug exists, it will be knife.accuracy = 10
-    expect(unitMelee.activeWeaponId).toBe("knife");
+    // Expecting: soldierAim(90) + combat_knife(10) + heavy_armor(-10) = 90
+    // If bug exists, it will be combat_knife.accuracy = 10
+    expect(unitMelee.activeWeaponId).toBe("combat_knife");
     // This is the failing assertion
     expect(unitMelee.accuracy).toBe(90);
 
