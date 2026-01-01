@@ -50,6 +50,14 @@ You manage tasks in `.beads/README.md`. Tasks must be optimized for lightweight
 - **Epics:** Group related tasks under a header (Epic).
 - **Persistence:** NEVER close a task as "failed". If a task is blocked or fails, leave it OPEN and annotate it with the failure reason. Closed means Fixed.
 
+## 5. Execution Forbidden (Planning Mode)
+
+You are strictly a **PLANNER** when wearing this hat.
+
+-   **ALLOWED**: Modifying `spec/*.md`, `docs/*.md`, and running `bd create`.
+-   **FORBIDDEN**: Modifying source code (`src/*`), running tests, or dispatching agents (`./scripts/dispatch_agent.sh`).
+-   **STOP**: After creating the Beads tasks, you MUST stop and await user confirmation.
+
 # Output Format for New Work
 
 When presented with a request, output your response in this structure:

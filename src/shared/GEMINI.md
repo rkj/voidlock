@@ -5,7 +5,7 @@ This directory contains types, constants, and utilities that are shared between 
 ## Files
 
 - `types.ts`: The central location for all shared interfaces, enums, and type definitions (e.g., `GameState`, `Unit`, `MapDefinition`, `Command`, `Weapon`). `GameState` and `Unit` use sub-objects (e.g., `stats`, `settings`) to group related properties for easier management and test mocking.
-- `campaign_types.ts`: Interfaces and types specifically for the persistent campaign mode (e.g., `CampaignState`, `PersistentSoldier`, `CampaignNode`, `GameRules`).
+- `campaign_types.ts`: Interfaces and types specifically for the persistent campaign mode (e.g., `CampaignState`, `CampaignSoldier`, `CampaignNode`, `GameRules`, `MissionReport`).
 - `PRNG.ts`: A deterministic Pseudo-Random Number Generator implementation.
 
 ## Functionality

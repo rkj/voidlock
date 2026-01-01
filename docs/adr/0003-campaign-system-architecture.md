@@ -66,8 +66,8 @@ interface CampaignState {
   currentSector: number;
   currentNodeId: string | null;
   nodes: CampaignNode[];
-  roster: Soldier[];
-  history: MissionRecord[];
+  roster: CampaignSoldier[];
+  history: MissionReport[];
 }
 ```
 
@@ -82,10 +82,10 @@ interface GameRules {
 }
 ```
 
-#### `Soldier` (Persistent Unit)
+#### `CampaignSoldier` (Persistent Unit)
 
 ```typescript
-interface Soldier {
+interface CampaignSoldier {
   id: string;
   name: string;
   archetypeId: string;
