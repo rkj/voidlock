@@ -100,15 +100,15 @@ The simulation logic resides in the `CoreEngine.update(dt)` method.
 
 - **Fixed Timestep**: The simulation is advanced in discrete intervals (default `dt = 100ms`).
 - **Execution Order**: Each tick follows a strict execution sequence:
-  1.  **Director Update**: Evaluates spawn timers and spawns new enemies.
-  2.  **Environmental Logic**: Updates door states and timers.
-  3.  **Visibility Logic**: Re-calculates Line of Sight for all active units.
-  4.  **Unit Logic**:
-      - Threat evaluation.
-      - Self-preservation (Retreat/Group Up).
-      - Autonomous exploration or command execution.
-  5.  **Movement Resolution**: Interpolates unit positions based on speed and path.
-  6.  **Combat Resolution**: Calculates damage based on weapons and line of sight.
+  1. **Director Update**: Evaluates spawn timers and spawns new enemies.
+  1. **Environmental Logic**: Updates door states and timers.
+  1. **Visibility Logic**: Re-calculates Line of Sight for all active units.
+  1. **Unit Logic**:
+     - Threat evaluation.
+     - Self-preservation (Retreat/Group Up).
+     - Autonomous exploration or command execution.
+  1. **Movement Resolution**: Interpolates unit positions based on speed and path.
+  1. **Combat Resolution**: Calculates damage based on weapons and line of sight.
 - **Side-Effect Free**: The engine logic does not rely on any external state or non-deterministic APIs (like `Date.now()` or `Math.random()`).
 
 ### 2. Pseudo-Random Number Generator (PRNG)
@@ -126,9 +126,9 @@ The simulation logic resides in the `CoreEngine.update(dt)` method.
 
 Because the simulation is deterministic, a complete game session can be perfectly reconstructed using only:
 
-1.  The initial **Seed**.
-2.  The **Map Definition**.
-3.  The **Command Stream** (a timestamped log of all user inputs sent to the engine).
+1. The initial **Seed**.
+1. The **Map Definition**.
+1. The **Command Stream** (a timestamped log of all user inputs sent to the engine).
 
 ## Testing Strategy
 

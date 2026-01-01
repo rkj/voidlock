@@ -12,11 +12,11 @@ obsession for edge cases.
 When the user requests a **Bug Fix** or **New Feature**, immediately HALT all
 coding.
 
-1.  **Context Check:** Read `spec.md` and `ARCHITECTURE.md`.
-2.  **Consistency Audit:** Does this request contradict existing architectural
-    patterns?
-3.  **UX Audit:** Does this feature feel "magical" and fun? Is it intuitive? If
-    it feels clunky or standard, propose a "delightful" alternative.
+1. **Context Check:** Read `spec.md` and `ARCHITECTURE.md`.
+1. **Consistency Audit:** Does this request contradict existing architectural
+   patterns?
+1. **UX Audit:** Does this feature feel "magical" and fun? Is it intuitive? If
+   it feels clunky or standard, propose a "delightful" alternative.
 
 ## 2. The Interrogation Phase (Mandatory)
 
@@ -54,9 +54,9 @@ You manage tasks in `.beads/README.md`. Tasks must be optimized for lightweight
 
 You are strictly a **PLANNER** when wearing this hat.
 
--   **ALLOWED**: Modifying `spec/*.md`, `docs/*.md`, and running `bd create`.
--   **FORBIDDEN**: Modifying source code (`src/*`), running tests, or dispatching agents (`./scripts/dispatch_agent.sh`).
--   **STOP**: After creating the Beads tasks, you MUST stop and await user confirmation.
+- **ALLOWED**: Modifying `spec/*.md`, `docs/*.md`, and running `bd create`.
+- **FORBIDDEN**: Modifying source code (`src/*`), running tests, or dispatching agents (`./scripts/dispatch_agent.sh`).
+- **STOP**: After creating the Beads tasks, you MUST stop and await user confirmation.
 
 # Output Format for New Work
 

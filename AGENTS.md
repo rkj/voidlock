@@ -4,14 +4,14 @@ You are an AI contributor agent working on the Xenopurge project. Your goal is t
 
 ## 1. Core Workflow
 
-1.  **Understand**: Read the task description provided by the Manager. Consult `@spec.md`, `@ARCHITECTURE.md`, and the relevant `GEMINI.md` files in your working directories for context.
-2.  **Plan**: Formulate a concise plan. Share it with the Manager if it helps clarify your approach.
-3.  **TDD First**: **CRITICAL**: All changes must be confirmed by tests first. If a feature is added, add tests. If a bug is fixed, write a failing test first.
-4.  **Implement**: Modify code following the project's established conventions.
-5.  **Update Documentation (MANDATORY)**: If you add new files or change significant APIs, you MUST update the `GEMINI.md` file in the relevant directory. This is critical for maintaining codebase navigability.
-6.  **Verify**: All changes MUST be verified with `npx vitest run`.
-    - **🚨 REGRESSION RULE**: If browser validation discovers a problem that automated tests missed, you MUST stop, write a failing unit/integration test that reproduces the bug, and THEN fix the code.
-7.  **Beads Context**: You may read task details using `bd show <id> --json` or `bd list --status <filter>`, but you are **FORBIDDEN** from using `bd list` without a status filter or using state-changing commands (`update`, `close`, `create`). The Manager Agent handles all Beads status updates.
+1. **Understand**: Read the task description provided by the Manager. Consult `@spec.md`, `@ARCHITECTURE.md`, and the relevant `GEMINI.md` files in your working directories for context.
+1. **Plan**: Formulate a concise plan. Share it with the Manager if it helps clarify your approach.
+1. **TDD First**: **CRITICAL**: All changes must be confirmed by tests first. If a feature is added, add tests. If a bug is fixed, write a failing test first.
+1. **Implement**: Modify code following the project's established conventions.
+1. **Update Documentation (MANDATORY)**: If you add new files or change significant APIs, you MUST update the `GEMINI.md` file in the relevant directory. This is critical for maintaining codebase navigability.
+1. **Verify**: All changes MUST be verified with `npx vitest run`.
+   - **🚨 REGRESSION RULE**: If browser validation discovers a problem that automated tests missed, you MUST stop, write a failing unit/integration test that reproduces the bug, and THEN fix the code.
+1. **Beads Context**: You may read task details using `bd show <id> --json` or `bd list --status <filter>`, but you are **FORBIDDEN** from using `bd list` without a status filter or using state-changing commands (`update`, `close`, `create`). The Manager Agent handles all Beads status updates.
 
 ## 2. Technical Guidelines
 
@@ -62,12 +62,12 @@ You are an AI contributor agent working on the Xenopurge project. Your goal is t
 
 When finishing a feature or task, you MUST perform the following steps in order:
 
-1.  **Strict Verification**: Execute `npx vitest run`. All tests MUST pass. A task is not complete if tests are failing.
-2.  **Visual Verification**: For any UI or rendering changes, navigate to the game URL, take a screenshot, and **carefully review it** to ensure the visual state matches expectations.
-3.  **Versioning (Strict SemVer)**:
-    - Check the current version in `package.json`.
-    - **Features:** If the task added new functionality, increment the **MINOR** version (e.g., 0.1.0 -> 0.2.0).
-    - **Bug Fixes/Tasks:** If the task was a bug fix or refactor, increment the **PATCH** version (e.g., 0.1.0 -> 0.1.1).
-    - Update `package.json` with the new version.
-4.  **Signal Completion**: Inform the Manager that the task is complete and ready for review. Do NOT perform the final commit or close the Beads task yourself.
-5.  **NEVER Close as Failed**: Beads does not support a "failed" state. If a task cannot be completed or is blocked, leave it OPEN. Add a comment explaining the issue and return control to the Manager. Closing a task means it is fixed/done.
+1. **Strict Verification**: Execute `npx vitest run`. All tests MUST pass. A task is not complete if tests are failing.
+1. **Visual Verification**: For any UI or rendering changes, navigate to the game URL, take a screenshot, and **carefully review it** to ensure the visual state matches expectations.
+1. **Versioning (Strict SemVer)**:
+   - Check the current version in `package.json`.
+   - **Features:** If the task added new functionality, increment the **MINOR** version (e.g., 0.1.0 -> 0.2.0).
+   - **Bug Fixes/Tasks:** If the task was a bug fix or refactor, increment the **PATCH** version (e.g., 0.1.0 -> 0.1.1).
+   - Update `package.json` with the new version.
+1. **Signal Completion**: Inform the Manager that the task is complete and ready for review. Do NOT perform the final commit or close the Beads task yourself.
+1. **NEVER Close as Failed**: Beads does not support a "failed" state. If a task cannot be completed or is blocked, leave it OPEN. Add a comment explaining the issue and return control to the Manager. Closing a task means it is fixed/done.

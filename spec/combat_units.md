@@ -39,17 +39,17 @@ The `accuracy` stat ($S$) for a unit represents the hit percentage at the weapon
 ### 3.3.3. Formula
 
 The probability of a hit ($P$) at a given distance ($d$) is:
-$$ P(d) = \min\left(1.0, \frac{S}{100} \cdot \frac{R}{d}\right) $$
+$$ P(d) = \\min\\left(1.0, \\frac{S}{100} \\cdot \\frac{R}{d}\\right) $$
 
 #### 3.3.3.1 Reference Points (Example: $S = 80$, $R = 10$)
 
-| Distance | Hit Chance | Logic                                                    |
+| Distance | Hit Chance | Logic |
 | :------- | :--------- | :------------------------------------------------------- |
-| 1 Tile   | 100%       | $\min(1.0, 0.8 \cdot 10 / 1) = 8.0 \rightarrow 1.0$      |
-| 5 Tiles  | 100%       | $\min(1.0, 0.8 \cdot 10 / 5) = 1.6 \rightarrow 1.0$      |
-| 8 Tiles  | 100%       | $\min(1.0, 0.8 \cdot 10 / 8) = 1.0$                      |
-| 10 Tiles | **80%**    | $0.8 \cdot 10 / 10 = 0.8$ -- **The Stat Value at Range** |
-| 20 Tiles | 40%        | $0.8 \cdot 10 / 20 = 0.4$                                |
+| 1 Tile | 100% | $\\min(1.0, 0.8 \\cdot 10 / 1) = 8.0 \\rightarrow 1.0$ |
+| 5 Tiles | 100% | $\\min(1.0, 0.8 \\cdot 10 / 5) = 1.6 \\rightarrow 1.0$ |
+| 8 Tiles | 100% | $\\min(1.0, 0.8 \\cdot 10 / 8) = 1.0$ |
+| 10 Tiles | **80%** | $0.8 \\cdot 10 / 10 = 0.8$ -- **The Stat Value at Range** |
+| 20 Tiles | 40% | $0.8 \\cdot 10 / 20 = 0.4$ |
 
 ### 3.3.4. Range Interactions
 
@@ -57,8 +57,8 @@ $$ P(d) = \min\left(1.0, \frac{S}{100} \cdot \frac{R}{d}\right) $$
 
 The `range` property ($R$) on a weapon definition represents the **Effective Range**.
 
-- If $Distance > WeaponRange \cdot 2$, the shot is considered impossible (optional, currently the formula just scales down).
-- Units will generally only initiate attacks if $Distance \le WeaponRange$ (plus a small buffer).
+- If $Distance > WeaponRange \\cdot 2$, the shot is considered impossible (optional, currently the formula just scales down).
+- Units will generally only initiate attacks if $Distance \\le WeaponRange$ (plus a small buffer).
 
 ## 3.4 Equipment & Inventory
 
@@ -66,13 +66,13 @@ The `range` property ($R$) on a weapon definition represents the **Effective Ran
 
 Each soldier has specific equipment slots that define their combat performance:
 
-1.  **Right Hand (Ranged):** Primary firearm.
-    - **Stats**: `Damage`, `FR` (Firing Rate), `Range` (Effective).
-2.  **Left Hand (Melee):** CQC weapon.
-    - **Stats**: `Damage`, `ASP` (Attack Speed).
-    - **ASP Formula**: Same as Firing Rate (Actions per 10s at Speed 10).
-3.  **Body (Armor):** Passive protection.
-4.  **Feet (Shoes):** Passive mobility.
+1. **Right Hand (Ranged):** Primary firearm.
+   - **Stats**: `Damage`, `FR` (Firing Rate), `Range` (Effective).
+1. **Left Hand (Melee):** CQC weapon.
+   - **Stats**: `Damage`, `ASP` (Attack Speed).
+   - **ASP Formula**: Same as Firing Rate (Actions per 10s at Speed 10).
+1. **Body (Armor):** Passive protection.
+1. **Feet (Shoes):** Passive mobility.
 
 **Stat Ownership:**
 
@@ -92,12 +92,12 @@ Consumable items are **NOT** carried by individual soldiers. Instead, they exist
 
 ## 4.4 Commands
 
-| Command          | Payload              | Description                                              |
+| Command | Payload | Description |
 | :--------------- | :------------------- | :------------------------------------------------------- |
-| `MOVE_TO`        | `unitIds`, `target`  | Pathfinds and moves. Can be queued.                      |
-| `OVERWATCH_POINT`| `unitIds`, `target`  | Moves to a specific intersection/point and holds position. |
-| `EXPLORE`        | `unitIds`            | Unit autonomously explores unknown rooms.                |
-| `ATTACK_TARGET`  | `unitId`, `targetId` | Forces fire on specific enemy.                           |
-| `SET_ENGAGEMENT` | `unitIds`, `mode`    | Toggle `ENGAGE` (Stop & Shoot) or `IGNORE` (Run).        |
-| `HOLD`           | `unitIds`            | Clears command queue, halts movement. Does NOT disable reaction fire. |
-| `USE_ITEM`       | `itemId`, `target`   | Uses a global item (Medkit, Grenade) instantly.          |
+| `MOVE_TO` | `unitIds`, `target` | Pathfinds and moves. Can be queued. |
+| `OVERWATCH_POINT`| `unitIds`, `target` | Moves to a specific intersection/point and holds position. |
+| `EXPLORE` | `unitIds` | Unit autonomously explores unknown rooms. |
+| `ATTACK_TARGET` | `unitId`, `targetId` | Forces fire on specific enemy. |
+| `SET_ENGAGEMENT` | `unitIds`, `mode` | Toggle `ENGAGE` (Stop & Shoot) or `IGNORE` (Run). |
+| `HOLD` | `unitIds` | Clears command queue, halts movement. Does NOT disable reaction fire. |
+| `USE_ITEM` | `itemId`, `target` | Uses a global item (Medkit, Grenade) instantly. |

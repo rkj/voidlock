@@ -6,12 +6,12 @@ The Campaign Mode transforms Xenopurge into a persistent, roguelite experience. 
 
 ### 1.1 The "Command Bridge" Loop
 
-1.  **Bridge View:** Analyze the Sector Map (a branching path of nodes) and select the next destination.
-2.  **Barracks:** Manage the squad. Recruit new soldiers, heal the wounded, and equip gear.
-3.  **Deployment:** Configure the squad for the chosen node's specific threat (e.g., "Dense Bio-Signature detected").
-4.  **Mission Execution:** The tactical gameplay (existing engine).
-5.  **Debrief:** Full-screen overlay showing mission stats, loot gained, XP earned, and casualties. Replay runs in the background.
-6.  **Progress:** Return to Bridge. Node is cleared. New paths unlock.
+1. **Bridge View:** Analyze the Sector Map (a branching path of nodes) and select the next destination.
+1. **Barracks:** Manage the squad. Recruit new soldiers, heal the wounded, and equip gear.
+1. **Deployment:** Configure the squad for the chosen node's specific threat (e.g., "Dense Bio-Signature detected").
+1. **Mission Execution:** The tactical gameplay (existing engine).
+1. **Debrief:** Full-screen overlay showing mission stats, loot gained, XP earned, and casualties. Replay runs in the background.
+1. **Progress:** Return to Bridge. Node is cleared. New paths unlock.
 
 ## 2. Campaign Modes
 
