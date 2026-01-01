@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { Renderer } from "./Renderer";
 import { GameState, MapDefinition, CellType, UnitState } from "../shared/types";
+import { createMockGameState } from "../engine/tests/utils/MockFactory";
 import { Icons } from "./Icons";
 
 // Mock HTMLCanvasElement
@@ -60,7 +61,7 @@ describe("Renderer Regression: LTH3 Redundant Objective Marker", () => {
     extraction: { x: 1, y: 1 },
   };
 
-  const mockGameState: GameState = {
+  const mockGameState: GameState = createMockGameState({
     t: 1000,
     map: mockMap,
     units: [],
@@ -87,7 +88,7 @@ describe("Renderer Regression: LTH3 Redundant Objective Marker", () => {
     aliensKilled: 0,
     casualties: 0,
     status: "Playing",
-  };
+  });
 
   beforeEach(() => {
     vi.clearAllMocks();

@@ -9,6 +9,7 @@ import {
   SquadConfig,
   Archetype,
   ArchetypeLibrary,
+  EnemyType,
 } from "../../../shared/types";
 
 describe("Command: ATTACK_TARGET", () => {
@@ -50,6 +51,8 @@ describe("Command: ATTACK_TARGET", () => {
       speed: 2,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
   });
 
@@ -60,12 +63,13 @@ describe("Command: ATTACK_TARGET", () => {
       pos: { x: 5.5, y: 4.5 },
       hp: 100,
       maxHp: 100,
-      type: "Grunt",
+      type: EnemyType.Grunt,
       damage: 0,
       fireRate: 1000,
       accuracy: 1000,
       attackRange: 1,
       speed: 2,
+      difficulty: 1,
     });
     // Enemy 2: Farther (Distance 2)
     engine.addEnemy({
@@ -73,12 +77,13 @@ describe("Command: ATTACK_TARGET", () => {
       pos: { x: 5.5, y: 3.5 },
       hp: 100,
       maxHp: 100,
-      type: "Grunt",
+      type: EnemyType.Grunt,
       damage: 0,
       fireRate: 1000,
       accuracy: 1000,
       attackRange: 1,
       speed: 2,
+      difficulty: 1,
     });
 
     // Default behavior: attack closest (e1)
@@ -112,30 +117,34 @@ describe("Command: ATTACK_TARGET", () => {
       speed: 2,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
     engine.addEnemy({
       id: "e1",
       pos: { x: 5.5, y: 4.5 },
       hp: 100,
       maxHp: 100,
-      type: "Grunt",
+      type: EnemyType.Grunt,
       damage: 0,
       fireRate: 1000,
       accuracy: 1000,
       attackRange: 1,
       speed: 2,
+      difficulty: 1,
     });
     engine.addEnemy({
       id: "e2",
       pos: { x: 5.5, y: 3.5 },
       hp: 100,
       maxHp: 100,
-      type: "Grunt",
+      type: EnemyType.Grunt,
       damage: 0,
       fireRate: 1000,
       accuracy: 1000,
       attackRange: 1,
       speed: 2,
+      difficulty: 1,
     });
 
     // Issue ATTACK_TARGET e2
@@ -161,12 +170,13 @@ describe("Command: ATTACK_TARGET", () => {
       pos: { x: 5.5, y: 4.5 },
       hp: 10,
       maxHp: 10,
-      type: "Grunt",
+      type: EnemyType.Grunt,
       damage: 0,
       fireRate: 1000,
       accuracy: 1000,
       attackRange: 1,
       speed: 2,
+      difficulty: 1,
     });
 
     engine.applyCommand({

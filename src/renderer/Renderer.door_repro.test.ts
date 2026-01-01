@@ -7,6 +7,7 @@ import {
   UnitState,
   Door,
 } from "../shared/types";
+import { createMockGameState } from "../engine/tests/utils/MockFactory";
 
 // Mock HTMLCanvasElement
 const mockCanvas = {
@@ -81,7 +82,7 @@ describe("Renderer Door Drawing", () => {
       doors: [door],
     };
 
-    const state: GameState = {
+    const state: GameState = createMockGameState({
       t: 0,
       map,
       units: [],
@@ -93,7 +94,7 @@ describe("Renderer Door Drawing", () => {
       aliensKilled: 0,
       casualties: 0,
       status: "Playing",
-    };
+    });
 
     renderer.render(state);
 

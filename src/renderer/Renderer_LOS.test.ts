@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { Renderer } from "./Renderer";
-import { GameState, MapDefinition, CellType, UnitState } from "../shared/types";
+import { GameState, MapDefinition, CellType, UnitState, EnemyType } from "../shared/types";
+import { createMockUnit, createMockEnemy, createMockGameState } from "../engine/tests/utils/MockFactory";
 import { Graph } from "../engine/Graph";
 import { VisibilityPolygon } from "./VisibilityPolygon";
 
@@ -68,11 +69,11 @@ describe("Renderer LOS", () => {
       }
     }
 
-    state = {
+    state = createMockGameState({
       t: 0,
       map,
       units: [
-        {
+        createMockUnit({
           id: "u1",
           pos: { x: 5, y: 5 },
           hp: 100,
@@ -85,10 +86,10 @@ describe("Renderer LOS", () => {
           fireRate: 100,
           commandQueue: [],
           archetypeId: "assault",
-        },
+        }),
       ],
       enemies: [
-        {
+        createMockEnemy({
           id: "e1",
           pos: { x: 6, y: 6 },
           hp: 50,
@@ -97,8 +98,9 @@ describe("Renderer LOS", () => {
           attackRange: 1,
           damage: 10,
           fireRate: 100,
-          type: "Melee",
-        },
+          type: EnemyType.Melee,
+          difficulty: 1,
+        }),
       ],
       visibleCells: ["6,6"],
       discoveredCells: [],
@@ -108,7 +110,7 @@ describe("Renderer LOS", () => {
       threatLevel: 0,
       aliensKilled: 0,
       casualties: 0,
-    };
+    });
   });
 
   it("should create radial gradient for units when losOverlayEnabled is true", () => {

@@ -56,6 +56,8 @@ describe("Coordinated Exploration Refined", () => {
         speed: 20,
         commandQueue: [],
         archetypeId: "assault",
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
       });
     }
 
@@ -96,6 +98,8 @@ describe("Coordinated Exploration Refined", () => {
       speed: 20,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
     engine.addUnit({
       id: "u2",
@@ -111,6 +115,8 @@ describe("Coordinated Exploration Refined", () => {
       speed: 20,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
 
     engine.update(100);

@@ -12,6 +12,7 @@ import {
   Unit,
   Enemy,
   EnemyType,
+  MapDefinition,
 } from "../../shared/types";
 
 describe("UnitManager Combat (15hj)", () => {
@@ -23,7 +24,7 @@ describe("UnitManager Combat (15hj)", () => {
   let prng: PRNG;
 
   beforeEach(() => {
-    const map = {
+    const map: MapDefinition = {
       width: 10,
       height: 10,
       cells: [],
@@ -36,7 +37,7 @@ describe("UnitManager Combat (15hj)", () => {
     }
     doors = new Map();
     grid = new GameGrid(map);
-    pathfinder = new Pathfinder(grid);
+    pathfinder = new Pathfinder(grid.getGraph(), doors);
     los = new LineOfSight(grid.getGraph(), doors);
     unitManager = new UnitManager(grid, pathfinder, los, true);
     prng = new PRNG(123);
@@ -58,7 +59,7 @@ describe("UnitManager Combat (15hj)", () => {
       openDuration: 1000,
     };
 
-    const map = {
+    const map: MapDefinition = {
       width: 10,
       height: 10,
       cells: [],
@@ -73,7 +74,7 @@ describe("UnitManager Combat (15hj)", () => {
     doors = new Map();
     doors.set(doorId, door);
     grid = new GameGrid(map);
-    pathfinder = new Pathfinder(grid);
+    pathfinder = new Pathfinder(grid.getGraph(), doors);
     los = new LineOfSight(grid.getGraph(), doors);
     unitManager = new UnitManager(grid, pathfinder, los, true);
 

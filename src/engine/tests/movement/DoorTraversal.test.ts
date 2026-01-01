@@ -65,6 +65,8 @@ describe("Movement through Doors", () => {
       speed: 20,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
   });
 

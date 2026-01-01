@@ -58,6 +58,8 @@ describe("Coordinated Objectives AI", () => {
       speed: 10,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
 
     // Unit 2 further from objective
@@ -75,6 +77,8 @@ describe("Coordinated Objectives AI", () => {
       speed: 10,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
   });
 
@@ -142,6 +146,8 @@ describe("Coordinated Objectives AI", () => {
       speed: 10,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
     engine.addUnit({
       id: "u2",
@@ -157,6 +163,8 @@ describe("Coordinated Objectives AI", () => {
       speed: 10,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
 
     engine.update(100);

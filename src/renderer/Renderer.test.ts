@@ -6,7 +6,9 @@ import {
   CellType,
   UnitState,
   Objective,
+  EnemyType,
 } from "../shared/types";
+import { createMockUnit, createMockEnemy, createMockGameState } from "../engine/tests/utils/MockFactory";
 
 // Mock HTMLCanvasElement
 const mockCanvas = {
@@ -72,11 +74,11 @@ describe("Renderer", () => {
       },
     ],
   };
-  const mockGameState: GameState = {
+  const mockGameState: GameState = createMockGameState({
     t: 1000,
     map: mockMap,
     units: [
-      {
+      createMockUnit({
         id: "s1",
         pos: { x: 0.5, y: 0.5 },
         state: UnitState.Idle,
@@ -89,31 +91,31 @@ describe("Renderer", () => {
         speed: 2,
         commandQueue: [],
         archetypeId: "assault",
-      },
+      }),
     ],
     enemies: [
-      {
+      createMockEnemy({
         id: "e1",
         pos: { x: 0.5, y: 0.5 },
         hp: 30,
         maxHp: 30,
-        type: "SwarmMelee",
+        type: EnemyType.SwarmMelee,
         damage: 5,
         fireRate: 1000,
         attackRange: 1,
         speed: 2,
-      }, // Visible
-      {
+      }), // Visible
+      createMockEnemy({
         id: "e2",
         pos: { x: 1.5, y: 1.5 },
         hp: 30,
         maxHp: 30,
-        type: "SwarmMelee",
+        type: EnemyType.SwarmMelee,
         damage: 5,
         fireRate: 1000,
         attackRange: 1,
         speed: 2,
-      }, // Hidden
+      }), // Hidden
     ],
     visibleCells: ["0,0"],
     discoveredCells: ["0,0", "1,1"],
@@ -122,7 +124,7 @@ describe("Renderer", () => {
     aliensKilled: 0,
     casualties: 0,
     status: "Playing",
-  };
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     renderer = new Renderer(mockCanvas);

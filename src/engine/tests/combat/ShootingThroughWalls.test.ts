@@ -5,6 +5,7 @@ import {
   CellType,
   UnitState,
   CommandType,
+  EnemyType,
 } from "../../../shared/types";
 
 describe("Shooting Through Walls Repro", () => {
@@ -46,6 +47,8 @@ describe("Shooting Through Walls Repro", () => {
       speed: 2,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
 
     // Add Enemy at (1.5, 0.5)
@@ -54,12 +57,13 @@ describe("Shooting Through Walls Repro", () => {
       pos: { x: 1.5, y: 0.5 },
       hp: 100,
       maxHp: 100,
-      type: "SwarmMelee",
+      type: EnemyType.SwarmMelee,
       damage: 10,
       fireRate: 100,
       accuracy: 1000,
       attackRange: 1,
       speed: 2,
+      difficulty: 1,
     });
 
     // Run update to resolve visibility and combat
@@ -115,18 +119,21 @@ describe("Shooting Through Walls Repro", () => {
       speed: 2,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
     engine2.addEnemy({
       id: "e1",
       pos: { x: 1.5, y: 1.5 },
       hp: 100,
       maxHp: 100,
-      type: "SwarmMelee",
+      type: EnemyType.SwarmMelee,
       damage: 10,
       fireRate: 100,
       accuracy: 1000,
       attackRange: 1,
       speed: 2,
+      difficulty: 1,
     });
 
     engine2.update(100);
@@ -155,18 +162,21 @@ describe("Shooting Through Walls Repro", () => {
       speed: 2,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
     engine.addEnemy({
       id: "e1",
       pos: { x: 1.1, y: 0.5 },
       hp: 100,
       maxHp: 100,
-      type: "SwarmMelee",
+      type: EnemyType.SwarmMelee,
       damage: 10,
       fireRate: 100,
       accuracy: 1000,
       attackRange: 1,
       speed: 2,
+      difficulty: 1,
     });
 
     engine.update(100);
@@ -194,18 +204,21 @@ describe("Shooting Through Walls Repro", () => {
       speed: 2,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
     engine.addEnemy({
       id: "e1",
       pos: { x: 1.1, y: 0.5 },
       hp: 100,
       maxHp: 100,
-      type: "SwarmMelee",
+      type: EnemyType.SwarmMelee,
       damage: 10,
       fireRate: 100,
       accuracy: 1000,
       attackRange: 1,
       speed: 2,
+      difficulty: 1,
     });
 
     engine.update(100);

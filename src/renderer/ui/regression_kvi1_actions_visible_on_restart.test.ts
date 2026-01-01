@@ -2,6 +2,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { HUDManager } from "./HUDManager";
 import { GameState, UnitState } from "../../shared/types";
+import { createMockGameState, createMockUnit } from "../../engine/tests/utils/MockFactory";
 
 describe("HUDManager Regression kvi1", () => {
   let hud: HUDManager;
@@ -10,7 +11,7 @@ describe("HUDManager Regression kvi1", () => {
   let onAbortMission: any;
   let onMenuInput: any;
 
-  const mockState: GameState = {
+  const mockState: GameState = createMockGameState({
     t: 1000,
     status: "Playing",
     threatLevel: 25,
@@ -18,7 +19,7 @@ describe("HUDManager Regression kvi1", () => {
     casualties: 0,
     map: { width: 10, height: 10, cells: [] },
     units: [
-      {
+      createMockUnit({
         id: "s1",
         hp: 100,
         maxHp: 100,
@@ -29,13 +30,13 @@ describe("HUDManager Regression kvi1", () => {
         speed: 20,
         sightRange: 10,
         engagementPolicy: "ENGAGE",
-      } as any,
+      }),
     ],
     enemies: [],
     visibleCells: [],
     discoveredCells: [],
     objectives: [],
-  };
+  });
 
   beforeEach(() => {
     document.body.innerHTML = `

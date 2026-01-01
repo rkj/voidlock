@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { CoreEngine } from "../CoreEngine";
-import { MissionType, UnitState } from "../../shared/types";
+import { MissionType, UnitState, SquadConfig, Objective } from "../../shared/types";
 
 describe("Regression mqdp: VIP Death Mission Success", () => {
   const mockMap = {
@@ -132,7 +132,7 @@ describe("Regression mqdp: VIP Death Mission Success", () => {
     );
     const internalState2 = (engine2 as any).state;
 
-    expect(internalState2.objectives.some((o) => o.id === "obj-escort")).toBe(
+    expect(internalState2.objectives.some((o: Objective) => o.id === "obj-escort")).toBe(
       true,
     );
 
@@ -171,7 +171,7 @@ describe("Regression mqdp: VIP Death Mission Success", () => {
     const internalState = (engine as any).state;
 
     // In Default mission, setupMission adds obj-escort if hasVipInSquad is true.
-    expect(internalState.objectives.some((o) => o.id === "obj-escort")).toBe(
+    expect(internalState.objectives.some((o: Objective) => o.id === "obj-escort")).toBe(
       true,
     );
 

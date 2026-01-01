@@ -26,6 +26,13 @@ describe("MenuController", () => {
     aliensKilled: 0,
     casualties: 0,
     status: "Playing",
+    mode: "Simulation" as any,
+    squadInventory: {},
+    debugOverlayEnabled: false,
+    losOverlayEnabled: false,
+    timeScale: 1.0,
+    isPaused: false,
+    isSlowMotion: false,
   };
 
   beforeEach(() => {

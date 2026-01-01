@@ -7,6 +7,7 @@ import {
   MissionType,
   CommandType,
   UnitState,
+  EnemyType,
 } from "../../shared/types";
 
 const mockMap: MapDefinition = {
@@ -64,6 +65,8 @@ describe("Melee Lock & Ignore Policy", () => {
       commandQueue: [],
       engagementPolicy: "IGNORE",
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
 
     const state = engine.getState();
@@ -73,7 +76,7 @@ describe("Melee Lock & Ignore Policy", () => {
     // Add Enemy at 0,0
     engine.addEnemy({
       id: "enemy-1",
-      type: "alien_scout", // assume valid type
+      type: EnemyType.AlienScout,
       pos: { x: 0.5, y: 0.5 },
       hp: 100,
       maxHp: 100,
@@ -82,6 +85,7 @@ describe("Melee Lock & Ignore Policy", () => {
       accuracy: 1000,
       attackRange: 2,
       speed: 1,
+      difficulty: 1,
     });
 
     // Order Soldier to Move to 2,0
@@ -147,6 +151,8 @@ describe("Melee Lock & Ignore Policy", () => {
       aiEnabled: true,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
 
     const state = engine.getState();
@@ -155,7 +161,7 @@ describe("Melee Lock & Ignore Policy", () => {
     // Add Enemy at 1,0
     engine.addEnemy({
       id: "enemy-1",
-      type: "alien_scout",
+      type: EnemyType.AlienScout,
       pos: { x: 1.5, y: 0.5 },
       hp: 100,
       maxHp: 100,
@@ -164,6 +170,7 @@ describe("Melee Lock & Ignore Policy", () => {
       accuracy: 1000,
       attackRange: 2,
       speed: 5, // Fast enemy
+      difficulty: 1,
     });
 
     // Force Enemy to have a path (manual hack since we can't easily command enemies)

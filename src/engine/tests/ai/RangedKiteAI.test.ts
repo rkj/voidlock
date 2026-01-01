@@ -45,6 +45,7 @@ describe("RangedKiteAI", () => {
       accuracy: 1000,
       attackRange: 6,
       speed: 2,
+      difficulty: 1,
     });
 
     // Soldier at (6.5, 6.5). Distance ~8.5. Visible. Out of range (6).
@@ -62,6 +63,8 @@ describe("RangedKiteAI", () => {
       speed: 2,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
 
     engine.update(100);
@@ -88,6 +91,7 @@ describe("RangedKiteAI", () => {
       accuracy: 1000,
       attackRange: 6,
       speed: 2,
+      difficulty: 1,
     });
 
     // Soldier at (5.5, 4.5). Distance 1. Too close (< 3).
@@ -105,6 +109,8 @@ describe("RangedKiteAI", () => {
       speed: 2,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
 
     engine.update(100);
@@ -128,6 +134,7 @@ describe("RangedKiteAI", () => {
       accuracy: 1000,
       attackRange: 6,
       speed: 2,
+      difficulty: 1,
     });
 
     // Soldier at (5.5, 1.5). Distance 4. Optimal is 5.
@@ -146,6 +153,8 @@ describe("RangedKiteAI", () => {
       speed: 2,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
   });
 });

@@ -59,6 +59,8 @@ describe("Coordinated Exploration", () => {
       speed: 20,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
     engine.addUnit({
       id: "u2",
@@ -74,6 +76,8 @@ describe("Coordinated Exploration", () => {
       speed: 20,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
 
     // Manually set discovered cells to include only center and adjacent

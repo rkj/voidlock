@@ -363,7 +363,9 @@ document.addEventListener("DOMContentLoaded", () => {
       missionSelect.addEventListener("change", () => {
         currentMissionType = missionSelect.value as MissionType;
         if (currentMissionType === MissionType.EscortVIP) {
-          currentSquad = currentSquad.filter((s) => s.archetypeId !== "vip");
+          currentSquad.soldiers = currentSquad.soldiers.filter(
+            (s) => s.archetypeId !== "vip",
+          );
         }
         renderSquadBuilder();
       });
@@ -576,8 +578,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("squad-builder");
     if (!container) return;
     container.innerHTML = "";
-    // ... squad builder logic (keeping it here for now as it is very UI-heavy) ...
-    // To keep it simple, I'll just restore the original logic but slightly condensed.
+
     const MAX_SQUAD_SIZE = 4;
     const totalDiv = document.createElement("div");
     totalDiv.id = "squad-total-count";
@@ -587,9 +588,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const updateCount = () => {
       // VIPs do not count towards the squad size limit
-      let total = currentSquad
-        .filter((s) => s.archetypeId !== "vip")
-        .reduce((sum, s) => sum + s.count, 0);
+      let total = currentSquad.soldiers.filter(
+        (s) => s.archetypeId !== "vip",
+      ).length;
 
       totalDiv.textContent = `Total Soldiers: ${total}/${MAX_SQUAD_SIZE}`;
       totalDiv.style.color =
@@ -632,30 +633,39 @@ document.addEventListener("DOMContentLoaded", () => {
       input.type = "number";
       input.min = "0";
       input.max = "4";
-      input.value = (
-        currentSquad.find((s) => s.archetypeId === arch.id)?.count || 0
-      ).toString();
+      // Count soldiers of this archetype
+      const currentCount = currentSquad.soldiers.filter(
+        (s) => s.archetypeId === arch.id,
+      ).length;
+      input.value = currentCount.toString();
+
       input.style.width = "60px";
       input.style.marginLeft = "10px";
+
       input.addEventListener("change", () => {
         const val = parseInt(input.value) || 0;
-        let otherTotal = currentSquad
-          .filter((s) => s.archetypeId !== arch.id && s.archetypeId !== "vip")
-          .reduce((sum, s) => sum + s.count, 0);
+
+        // Calculate total excluding this archetype
+        const otherSoldiers = currentSquad.soldiers.filter(
+          (s) => s.archetypeId !== arch.id,
+        );
+        const otherTotal = otherSoldiers.filter(
+          (s) => s.archetypeId !== "vip",
+        ).length;
 
         if (arch.id !== "vip" && otherTotal + val > MAX_SQUAD_SIZE) {
-          input.value = (
-            currentSquad.find((s) => s.archetypeId === arch.id)?.count || 0
-          ).toString();
+          input.value = currentCount.toString();
           alert(`Max squad size is ${MAX_SQUAD_SIZE}.`);
           return;
         }
-        const idx = currentSquad.findIndex((s) => s.archetypeId === arch.id);
-        if (idx >= 0) {
-          if (val === 0) currentSquad.splice(idx, 1);
-          else currentSquad[idx].count = val;
-        } else if (val > 0)
-          currentSquad.push({ archetypeId: arch.id, count: val });
+
+        // Reconstruct soldiers list: keep others, add 'val' of this archetype
+        const newSoldiers = [...otherSoldiers];
+        for (let i = 0; i < val; i++) {
+          newSoldiers.push({ archetypeId: arch.id });
+        }
+        currentSquad.soldiers = newSoldiers;
+
         updateCount();
       });
       row.append(info, input);

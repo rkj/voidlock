@@ -1,16 +1,16 @@
 import { describe, it, expect } from "vitest";
 import { CoreEngine } from "../CoreEngine";
-import { MapDefinition, MissionType } from "../../shared/types";
+import { MapDefinition, MissionType, CellType } from "../../shared/types";
 
 describe("Regression fgao: Pause Threat", () => {
   const minimalMap: MapDefinition = {
     width: 2,
     height: 2,
     cells: [
-      { x: 0, y: 0, type: "Floor" },
-      { x: 1, y: 0, type: "Floor" },
-      { x: 0, y: 1, type: "Floor" },
-      { x: 1, y: 1, type: "Floor" },
+      { x: 0, y: 0, type: CellType.Floor },
+      { x: 1, y: 0, type: CellType.Floor },
+      { x: 0, y: 1, type: CellType.Floor },
+      { x: 1, y: 1, type: CellType.Floor },
     ],
     squadSpawn: { x: 0, y: 0 },
     spawnPoints: [{ id: "sp1", pos: { x: 1, y: 1 }, radius: 1 }],

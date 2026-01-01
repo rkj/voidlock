@@ -61,6 +61,8 @@ describe("CoreEngine Early Door Sync", () => {
       aiEnabled: true,
       commandQueue: [],
       archetypeId: "assault",
+      soldierAim: 90,
+      equipmentAccuracyBonus: 0,
     });
 
     // Run update to trigger "Opening" logic (timer start)
