@@ -48,6 +48,8 @@ describe("HUDManager Stats & Enemy Intel", () => {
         },
         engagementPolicy: "ENGAGE",
         archetypeId: "assault",
+        leftHand: "combat_knife",
+        rightHand: "pulse_rifle",
         commandQueue: [],
       }),
     ],
@@ -105,18 +107,29 @@ describe("HUDManager Stats & Enemy Intel", () => {
     hud.update(mockState, null);
 
     const soldierItem = document.querySelector(".soldier-item");
-    const frEl = soldierItem?.querySelector(".u-firerate");
-    expect(frEl?.textContent).toBe("2.0");
+    // Check for Fire Rate in LH or RH stats
+    const lhStats = soldierItem?.querySelector(".u-lh-stats");
+    expect(lhStats?.innerHTML).toContain('title="Fire Rate"');
+    // combat_knife fireRate: 400. 1000 / (400 * (10/20)) = 1000 / 200 = 5.0
+    expect(lhStats?.innerHTML).toContain("5.0");
   });
 
   it("should display all requested soldier stats", () => {
     hud.update(mockState, null);
 
     const item = document.querySelector(".soldier-item")!;
-    expect(item.querySelector(".u-speed")?.textContent).toBe("2.0");
-    expect(item.querySelector(".u-acc")?.textContent).toBe("90");
-    expect(item.querySelector(".u-dmg")?.textContent).toBe("20");
-    expect(item.querySelector(".u-firerate")?.textContent).toBe("2.0");
+    // Speed is in base-stats-row
+    const speedBox = item.querySelector(".u-speed-box");
+    expect(speedBox?.innerHTML).toContain('title="Speed"');
+    expect(speedBox?.textContent?.trim()).toBe("2.0");
+
+    // Check RH stats for pulse_rifle
+    const rhStats = item.querySelector(".u-rh-stats");
+    expect(rhStats?.innerHTML).toContain('title="Damage"');
+    expect(rhStats?.innerHTML).toContain("20");
+    expect(rhStats?.innerHTML).toContain('title="Accuracy"');
+    // soldierAim 80 + pulse_rifle accuracy 5 = 85
+    expect(rhStats?.innerHTML).toContain("85");
   });
 
   it("should display enemy intel for visible enemies", () => {
@@ -127,19 +140,15 @@ describe("HUDManager Stats & Enemy Intel", () => {
     expect(intelDiv?.innerHTML).toContain("Enemy Intel");
     expect(intelDiv?.innerHTML).toContain("Xeno-Mite x1");
 
-    // Check stats
-    expect(intelDiv?.innerHTML).toContain(
-      'SPD:<span style="color:#eee">3.0</span>',
-    );
-    expect(intelDiv?.innerHTML).toContain(
-      'ACC:<span style="color:#eee">50</span>',
-    );
-    expect(intelDiv?.innerHTML).toContain(
-      'MDMG:<span style="color:#eee">15</span>',
-    );
-    expect(intelDiv?.innerHTML).toContain(
-      'FR:<span style="color:#eee">1.3</span>',
-    ); // 1000/800 = 1.25 -> 1.3
+    // Check stats using titles
+    expect(intelDiv?.innerHTML).toContain('title="Speed"');
+    expect(intelDiv?.innerHTML).toContain("3.0");
+    expect(intelDiv?.innerHTML).toContain('title="Accuracy"');
+    expect(intelDiv?.innerHTML).toContain("50");
+    expect(intelDiv?.innerHTML).toContain('title="Damage"');
+    expect(intelDiv?.innerHTML).toContain("15");
+    expect(intelDiv?.innerHTML).toContain('title="Fire Rate"');
+    expect(intelDiv?.innerHTML).toContain("1.3"); // 1000/800 = 1.25 -> 1.3
   });
 
   it("should show 'No hostiles detected' when no enemies are visible", () => {
