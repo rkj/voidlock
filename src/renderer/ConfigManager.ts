@@ -39,7 +39,22 @@ export class ConfigManager {
     try {
       const json = localStorage.getItem(STORAGE_KEY);
       if (!json) return null;
-      return JSON.parse(json) as GameConfig;
+      const config = JSON.parse(json) as GameConfig;
+      const defaults = this.getDefault();
+
+      // Migration/Defaulting: Ensure squadConfig and soldiers exist and are in the correct format
+      if (!config.squadConfig || Array.isArray(config.squadConfig)) {
+        config.squadConfig = defaults.squadConfig;
+      } else {
+        if (!config.squadConfig.soldiers) {
+          config.squadConfig.soldiers = defaults.squadConfig.soldiers;
+        }
+        if (!config.squadConfig.inventory) {
+          config.squadConfig.inventory = defaults.squadConfig.inventory;
+        }
+      }
+
+      return config;
     } catch (e) {
       console.warn("Failed to load configuration from LocalStorage:", e);
       return null;

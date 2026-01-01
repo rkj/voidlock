@@ -115,6 +115,7 @@ export class HUDManager {
 
   private renderObjectivesList(state: GameState): string {
     let html = "";
+    const showCoords = state.settings.debugOverlayEnabled;
     state.objectives.forEach((obj) => {
       const isCompleted = obj.state === "Completed";
       const isFailed = obj.state === "Failed";
@@ -122,9 +123,8 @@ export class HUDManager {
       const color = isCompleted ? "#0f0" : isFailed ? "#f00" : "#888";
 
       html += `<p style="margin: 5px 0;">
-        <span style="color:${color}; margin-right:8px; font-weight:bold;">${icon}</span>
-        ${obj.kind}${obj.targetCell ? ` at (${obj.targetCell.x},${obj.targetCell.y})` : ""}
-        <span style="color:#666; font-size:0.8em;">(${obj.state})</span>
+        <span style="color:${color}; margin-right:8px; font-weight:bold;" title="${obj.state}">${icon}</span>
+        ${obj.kind}${obj.targetCell && showCoords ? ` at (${obj.targetCell.x},${obj.targetCell.y})` : ""}
       </p>`;
     });
 
@@ -137,11 +137,15 @@ export class HUDManager {
         (u) => u.state === UnitState.Extracted,
       ).length;
       const totalUnits = state.units.length;
-      const icon = extractedCount > 0 ? "✔" : "✘";
-      const color = extractedCount > 0 ? "#0f0" : "#f00";
-      const locStr = ` at (${state.map.extraction.x},${state.map.extraction.y})`;
+      const isCompleted = extractedCount === totalUnits && totalUnits > 0;
+      const icon = extractedCount > 0 ? "✔" : "○";
+      const color = extractedCount > 0 ? "#0f0" : "#888";
+      const status = isCompleted ? "Completed" : "Pending";
+      const locStr = showCoords
+        ? ` at (${state.map.extraction.x},${state.map.extraction.y})`
+        : "";
       html += `<p style="margin: 5px 0;">
-        <span style="color:${color}; margin-right:8px; font-weight:bold;">${icon}</span>
+        <span style="color:${color}; margin-right:8px; font-weight:bold;" title="${status}">${icon}</span>
         Extraction (${extractedCount}/${totalUnits})${locStr}
       </p>`;
     }

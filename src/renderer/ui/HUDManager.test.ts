@@ -172,10 +172,16 @@ describe("HUDManager", () => {
     const objectivesDiv = document.querySelector(".objectives-status");
     expect(objectivesDiv).not.toBeNull();
     expect(objectivesDiv?.innerHTML).toContain("Kill");
-    expect(objectivesDiv?.innerHTML).toContain("(Pending)");
+    expect(objectivesDiv?.innerHTML).not.toContain("(Pending)");
     expect(objectivesDiv?.innerHTML).toContain("Recover");
-    expect(objectivesDiv?.innerHTML).toContain("(Completed)");
-    expect(objectivesDiv?.innerHTML).toContain("at (5,5)");
+    expect(objectivesDiv?.innerHTML).not.toContain("(Completed)");
+    expect(objectivesDiv?.innerHTML).not.toContain("at (5,5)");
+
+    const icons = objectivesDiv?.querySelectorAll(
+      "span[style*='font-weight:bold']",
+    );
+    expect(icons?.[0].getAttribute("title")).toBe("Pending");
+    expect(icons?.[1].getAttribute("title")).toBe("Completed");
   });
 
   it("should render objectives in game over summary", () => {
