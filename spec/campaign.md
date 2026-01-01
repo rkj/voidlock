@@ -84,5 +84,14 @@ These rules apply to both Custom and Preset campaigns.
 
 ### 4.2 Main Menu Integration
 
-- **New Campaign:** Opens a sub-menu to choose "Preset" or "Custom".
-- **Continue:** Resumes the active campaign state (if any).
+- **New Campaign**: Opens a sub-menu to choose "Preset" or "Custom".
+- **Continue**: Resumes the active campaign state (if any).
+
+### 4.3 Mission Launch Constraints
+
+- **Configuration Locking**: When launching a mission from the Campaign Bridge:
+  - The **Map Configuration** (Seed, Size, Generator) MUST be **HIDDEN**. The UI should skip directly to Squad Selection or display a read-only briefing.
+  - The player CANNOT modify these settings.
+  - The **Squad Selection** remains active.
+- **State Isolation**:
+  - Campaign mission settings MUST NOT overwrite the "Custom Mission" defaults. The two modes must maintain separate persistent states for their last-used configurations.
