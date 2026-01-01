@@ -77,4 +77,12 @@ export const Icons = {
             <path d="M17 8v2"/>
         </svg>
     `)}`,
+
+  // Visibility / Sight Range (Eye)
+  Visibility: `data:image/svg+xml;base64,${btoa(`
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+        </svg>
+    `)}`,
 };

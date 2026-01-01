@@ -1,6 +1,7 @@
-import { GameState, UnitState, Unit } from "../../shared/types";
+import { GameState, UnitState, Unit, WeaponLibrary } from "../../shared/types";
 import { MenuController } from "../MenuController";
 import { MenuRenderer } from "./MenuRenderer";
+import { Icons } from "../Icons";
 
 export class HUDManager {
   private lastMenuHtml = "";
@@ -17,6 +18,39 @@ export class HUDManager {
     this.updateTopBar(state);
     this.updateRightPanel(state);
     this.updateSoldierList(state, selectedUnitId);
+  }
+
+  private renderStat(
+    icon: string,
+    value: string | number,
+    title: string,
+  ): string {
+    return `
+      <span style="display:inline-flex; align-items:center; gap:2px;" title="${title}">
+        <img src="${icon}" style="width:12px; height:12px; filter: brightness(0.8);" />
+        <span style="color:#eee">${value}</span>
+      </span>
+    `;
+  }
+
+  private getWeaponStats(unit: Unit, weaponId?: string) {
+    if (!weaponId) return null;
+    const weapon = WeaponLibrary[weaponId];
+    if (!weapon) return null;
+
+    const fireRateVal =
+      weapon.fireRate * (unit.stats.speed > 0 ? 10 / unit.stats.speed : 1);
+
+    return {
+      name: weapon.name,
+      damage: weapon.damage,
+      range: weapon.range,
+      accuracy:
+        unit.stats.soldierAim +
+        (weapon.accuracy || 0) +
+        (unit.stats.equipmentAccuracyBonus || 0),
+      fireRate: fireRateVal > 0 ? (1000 / fireRateVal).toFixed(1) : "0",
+    };
   }
 
   private updateTopBar(state: GameState) {
@@ -185,19 +219,18 @@ export class HUDManager {
       const count = groups[type];
       const e = visibleEnemies.find((en) => en.type === type)!;
       const fireRateVal = e.fireRate > 0 ? (1000 / e.fireRate).toFixed(1) : "0";
-      const dmgLabel = e.attackRange <= 1.5 ? "MDMG" : "DMG";
 
       html += `
         <div style="margin-bottom:8px; border:1px solid #333; padding:4px 8px; background:#111; border-left: 3px solid #f44336;">
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <strong style="color:#f44336; font-size:0.9em;">${type} x${count}</strong>
           </div>
-          <div style="font-size:0.7em; color:#888; display:grid; grid-template-columns: 1fr 1fr 1fr; gap:2px; margin-top:2px;">
-            <span>SPD:<span style="color:#eee">${(e.speed / 10).toFixed(1)}</span></span>
-            <span>ACC:<span style="color:#eee">${e.accuracy}</span></span>
-            <span>${dmgLabel}:<span style="color:#eee">${e.damage}</span></span>
-            <span>FR:<span style="color:#eee">${fireRateVal}</span></span>
-            <span>RNG:<span style="color:#eee">${e.attackRange}</span></span>
+          <div style="font-size:0.7em; color:#888; display:flex; gap:8px; margin-top:4px; flex-wrap:wrap;">
+            ${this.renderStat(Icons.Speed, (e.speed / 10).toFixed(1), "Speed")}
+            ${this.renderStat(Icons.Accuracy, e.accuracy, "Accuracy")}
+            ${this.renderStat(Icons.Damage, e.damage, "Damage")}
+            ${this.renderStat(Icons.Rate, fireRateVal, "Fire Rate")}
+            ${this.renderStat(Icons.Range, e.attackRange, "Range")}
           </div>
         </div>
       `;
@@ -301,16 +334,21 @@ export class HUDManager {
             </div>
             <span class="u-hp" style="font-weight:bold;"></span>
           </div>
-          <div class="stats-row" style="font-size:0.7em; display:flex; gap:6px; color:#888; margin-top:-2px; flex-wrap:wrap;">
-            <span>SPD:<span class="u-speed" style="color:#eee"></span></span>
-            <span>ACC:<span class="u-acc" style="color:#eee"></span></span>
-            <span>DMG:<span class="u-dmg" style="color:#eee"></span></span>
-            <span>FR:<span class="u-firerate" style="color:#eee"></span></span>
-            <span>RNG:<span class="u-range" style="color:#eee"></span></span>
-            <span>EffR:<span class="u-eff-range" style="color:#eee"></span></span>
-            <span>VIS:<span class="u-sight" style="color:#eee"></span></span>
+          <div class="base-stats-row" style="font-size:0.7em; display:flex; gap:8px; color:#888; margin-top:2px;">
+             <span class="u-speed-box"></span>
+             <span class="u-sight-box"></span>
           </div>
-          <div class="status-row" style="font-size:0.75em; color:#aaa; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:1px;">
+          <div class="weapon-stats-container" style="font-size:0.65em; margin-top:4px; display:flex; flex-direction:column; gap:2px; border-top:1px solid #222; padding-top:2px;">
+             <div class="u-lh-row" style="display:flex; gap:6px; align-items:center;">
+                <span style="color:#666; width:15px;">LH:</span>
+                <span class="u-lh-stats" style="display:flex; gap:6px;"></span>
+             </div>
+             <div class="u-rh-row" style="display:flex; gap:6px; align-items:center;">
+                <span style="color:#666; width:15px;">RH:</span>
+                <span class="u-rh-stats" style="display:flex; gap:6px;"></span>
+             </div>
+          </div>
+          <div class="status-row" style="font-size:0.75em; color:#aaa; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;">
                <span class="u-status-text"></span>
           </div>
           <div class="hp-bar" style="margin-top:2px;"><div class="hp-fill"></div></div>
@@ -326,31 +364,46 @@ export class HUDManager {
       (el.querySelector(".hp-fill") as HTMLElement).style.width =
         `${hpPercent}%`;
 
-      (el.querySelector(".u-speed") as HTMLElement).textContent = (
-        unit.stats.speed / 10
-      ).toFixed(1);
-      (el.querySelector(".u-acc") as HTMLElement).textContent =
-        unit.stats.accuracy.toString();
-      (el.querySelector(".u-dmg") as HTMLElement).textContent =
-        unit.stats.damage.toString();
-      (el.querySelector(".u-firerate") as HTMLElement).textContent =
-        unit.stats.fireRate > 0 ? (1000 / unit.stats.fireRate).toFixed(1) : "0";
-      (el.querySelector(".u-range") as HTMLElement).textContent =
-        unit.stats.attackRange.toString();
+      (el.querySelector(".u-speed-box") as HTMLElement).innerHTML =
+        this.renderStat(Icons.Speed, (unit.stats.speed / 10).toFixed(1), "Speed");
+      (el.querySelector(".u-sight-box") as HTMLElement).innerHTML =
+        this.renderStat(
+          Icons.Visibility,
+          unit.stats.sightRange >= 100 ? "∞" : unit.stats.sightRange.toString(),
+          "Sight Range",
+        );
 
-      const S = unit.stats.accuracy;
-      let effRange = unit.stats.attackRange;
-      if (S < 100 && S > 0) {
-        const A = Math.sqrt((25 * S) / (100 - S));
-        effRange = Math.min(unit.stats.attackRange, 3 * A);
-      } else if (S <= 0) {
-        effRange = 0;
+      const lhStats = this.getWeaponStats(unit, unit.leftHand);
+      const rhStats = this.getWeaponStats(unit, unit.rightHand);
+
+      const renderWep = (stats: any) => {
+        if (!stats) return '<span style="color:#444">EMPTY</span>';
+        return `
+          ${this.renderStat(Icons.Damage, stats.damage, "Damage")}
+          ${this.renderStat(Icons.Accuracy, stats.accuracy, "Accuracy")}
+          ${this.renderStat(Icons.Rate, stats.fireRate, "Fire Rate")}
+          ${this.renderStat(Icons.Range, stats.range, "Range")}
+        `;
+      };
+
+      (el.querySelector(".u-lh-stats") as HTMLElement).innerHTML =
+        renderWep(lhStats);
+      (el.querySelector(".u-rh-stats") as HTMLElement).innerHTML =
+        renderWep(rhStats);
+
+      const lhRow = el.querySelector(".u-lh-row") as HTMLElement;
+      const rhRow = el.querySelector(".u-rh-row") as HTMLElement;
+
+      if (unit.activeWeaponId === unit.leftHand && unit.leftHand) {
+        lhRow.style.background = "#222";
+        rhRow.style.background = "transparent";
+      } else if (unit.activeWeaponId === unit.rightHand && unit.rightHand) {
+        rhRow.style.background = "#222";
+        lhRow.style.background = "transparent";
+      } else {
+        lhRow.style.background = "transparent";
+        rhRow.style.background = "transparent";
       }
-      (el.querySelector(".u-eff-range") as HTMLElement).textContent =
-        effRange.toFixed(1);
-
-      (el.querySelector(".u-sight") as HTMLElement).textContent =
-        unit.stats.sightRange >= 100 ? "∞" : unit.stats.sightRange.toString();
     });
 
     Array.from(listContainer.children).forEach((child) => {
