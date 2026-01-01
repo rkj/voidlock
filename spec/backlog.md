@@ -2,7 +2,7 @@
 
 This document contains planned features and specifications that are not yet part of the core implemented game loop.
 
----
+______________________________________________________________________
 
 ## Future Weapon System Integration (Planned)
 
@@ -16,17 +16,17 @@ Currently, `accuracy` is a single stat conflating soldier skill and weapon perfo
   - **Effective Range:** Replaces the hardcoded "5 tiles" constant in the formula.
 - **Revised Formula:** `HitChance = ((SoldierAim + WeaponMod) / 100) * (WeaponEffectiveRange / Distance)`
 
----
+______________________________________________________________________
 
 ## Campaign Screen (Placeholder for M9+)
 
 _Refers to former section 8.2 (UI Screen Flow)_
 
-1.  **Campaign Screen**
-    - List of available missions (currently empty or "Coming Soon").
-    - "Back" button -> Main Menu.
+1. **Campaign Screen**
+   - List of available missions (currently empty or "Coming Soon").
+   - "Back" button -> Main Menu.
 
----
+______________________________________________________________________
 
 ## Space Hulk (1993) map import plan
 
@@ -54,16 +54,16 @@ Define an intermediate “tile assembly” format:
 
 ### Import pipeline
 
-1.  **Tile definitions library** (manually authored once): each tile is a set of occupied floor cells relative to origin, plus door sockets.
-2.  Assemble tiles → rasterize to `CellGrid`.
-3.  Validate connectivity, door placement legality, spawn points and objective reachability.
-4.  Save as native `MapDefinition` for the engine.
+1. **Tile definitions library** (manually authored once): each tile is a set of occupied floor cells relative to origin, plus door sockets.
+1. Assemble tiles → rasterize to `CellGrid`.
+1. Validate connectivity, door placement legality, spawn points and objective reachability.
+1. Save as native `MapDefinition` for the engine.
 
 ### Legal note (practical constraint)
 
 Do not ship copyrighted scans/assets. Keep importer expecting **user-provided** definitions or community-authored _clean-room_ tile geometry.
 
----
+______________________________________________________________________
 
 ## Implementation milestones (Future)
 

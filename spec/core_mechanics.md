@@ -5,7 +5,7 @@
 
 This document serves as the **Game Design Document (GDD) Index**. The detailed specifications have been modularized to improve readability and agent context management.
 
----
+______________________________________________________________________
 
 ## 1. Scope & Design Pillars
 
@@ -23,13 +23,14 @@ This document serves as the **Game Design Document (GDD) Index**. The detailed s
 - Meta-progression (XP, Campaign map, Loot inventory).
 - Complex Frameworks (React/Vue) — strictly Vanilla TS + Vite.
 
----
+______________________________________________________________________
 
 ## 2. Detailed Specifications
 
 Agents and developers should consult the specific files below for implementation details:
 
 - **[Simulation & Protocol](spec/simulation.md)**
+
   - Game Loop Architecture (Tick-based)
   - Determinism & PRNG
   - Engine ↔ Client Protocol (JSON)
@@ -37,27 +38,32 @@ Agents and developers should consult the specific files below for implementation
   - Persistence
 
 - **[World Model & Map](spec/map.md)**
+
   - The Grid (Shared Walls / Edges)
   - Map Generation & Content Packs
   - ASCII Map Representation
   - Map Viewer Utility
 
 - **[Units & Combat](spec/combat_units.md)**
+
   - Unit Stats (Speed, Health)
   - Weapon & Accuracy Model (Angular Dispersion)
   - Command Interface
 
 - **[AI & Game Logic](spec/ai.md)**
+
   - Enemy AI Behaviors
   - Soldier Logic (Engagement, Self-preservation)
   - The Director (Spawning Algorithm)
 
 - **[User Interface](spec/ui.md)**
+
   - Screen Flow & Layout
   - Control Scheme (Keyboard/Mouse)
   - Mission Configuration
 
 - **[Developer Guide](spec/dev_guide.md)**
+
   - Acceptance Criteria
   - Testing Strategy
   - Agent Debugging Protocols

@@ -7,7 +7,7 @@
 - Backgrounds: Deep Black (`#000000`), Dark Grey (`#0a0a0a`), Dark Blue (`#050510`).
 - Accents: Cyan (`#00FFFF`), Magenta (`#FF00FF`), Warning Red (`#FF0000`), Industrial Yellow (`#FFD700`), Electric Green (`#00FF00`).
 
----
+______________________________________________________________________
 
 ## 1. Environment Tiles
 
@@ -33,7 +33,7 @@
 - **Prompt:** "Top-down sci-fi wall segment, thin laser barrier or reinforced titanium bulkhead, glowing cyan energy line along the top, dark metallic base, straight horizontal orientation, 2D game asset."
 - **Corner Post:** "Top-down sci-fi wall corner post, heavy reinforced metal pillar, small glowing red status light on top."
 
----
+______________________________________________________________________
 
 ## 2. Units (Soldiers)
 
@@ -49,7 +49,7 @@
   - **Blue (Scout):** "...blue armor accents, sleek visor, holding dual pistols or SMG."
   - **Yellow (Demolitions):** "...yellow armor accents, hazard stripes, holding a grenade launcher."
 
----
+______________________________________________________________________
 
 ## 3. Enemies (Aliens)
 
@@ -72,7 +72,7 @@
 
 - **Prompt:** "Top-down sprite of a bloated alien spitter, swollen acid sacks on back, glowing bright green toxic liquid dripping, stationary or sluggish pose."
 
----
+______________________________________________________________________
 
 ## 4. Interactive Objects
 
@@ -97,7 +97,7 @@
 - **Tech Crate:** "Top-down sci-fi supply crate, metallic, glowing keypad on top."
 - **Data Terminal:** "Top-down computer terminal console, glowing blue screen, keyboard interface."
 
----
+______________________________________________________________________
 
 ## 5. UI & FX
 
