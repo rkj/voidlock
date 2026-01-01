@@ -11,7 +11,7 @@ This directory contains the main thread rendering logic and user interface for X
 - `MenuController.ts`: Implements the hierarchical keyboard-driven command menu. Includes context-aware logic to hide or disable options based on game state (e.g., hiding undiscovered extraction points).
 - `ConfigManager.ts`: Handles loading and saving game configuration and mission parameters.
 - `VisibilityPolygon.ts`: Implements visibility calculations for rendering accurate LOS cones.
-- `Icons.ts`: Contains SVG or canvas-based icon definitions for units and UI elements.
+- `Icons.ts`: Contains SVG or canvas-based icon definitions for units, UI elements, and core unit statistics (Speed, Accuracy, Damage, Rate, Range).
 - `MapUtility.ts`: Utility functions for map coordinate transformations and rendering helpers.
 - `MenuConfig.ts`: Configuration for the hierarchical menu structure.
 
