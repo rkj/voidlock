@@ -87,7 +87,9 @@ describe("Renderer Regression: LTH3 Redundant Objective Marker", () => {
     stats: {
       threatLevel: 0,
       aliensKilled: 0,
+      elitesKilled: 0,
       casualties: 0,
+      scrapGained: 0,
     },
     status: "Playing",
   });

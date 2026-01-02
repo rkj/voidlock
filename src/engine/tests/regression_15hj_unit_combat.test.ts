@@ -4,6 +4,7 @@ import { GameGrid } from "../GameGrid";
 import { Pathfinder } from "../Pathfinder";
 import { LineOfSight } from "../LineOfSight";
 import { PRNG } from "../../shared/PRNG";
+import { LootManager } from "../managers/LootManager";
 import {
   GameState,
   UnitState,
@@ -22,6 +23,7 @@ describe("UnitManager Combat (15hj)", () => {
   let unitManager: UnitManager;
   let doors: Map<string, Door>;
   let prng: PRNG;
+  let lootManager: LootManager;
 
   beforeEach(() => {
     const map: MapDefinition = {
@@ -41,6 +43,7 @@ describe("UnitManager Combat (15hj)", () => {
     los = new LineOfSight(grid.getGraph(), doors);
     unitManager = new UnitManager(grid, pathfinder, los, true);
     prng = new PRNG(123);
+    lootManager = new LootManager();
   });
 
   it("should detect enemy (LOS) but NOT shoot (LOF) through opening door", () => {
@@ -124,7 +127,7 @@ describe("UnitManager Combat (15hj)", () => {
     expect(los.hasLineOfSight(unit.pos, enemy.pos)).toBe(true);
     expect(los.hasLineOfFire(unit.pos, enemy.pos)).toBe(false);
 
-    unitManager.update(state, 100, doors, prng);
+    unitManager.update(state, 100, doors, prng, lootManager);
 
     // Unit should be in Attacking state (because it has LOS and is in range)
     // OR should it? If it can't fire, maybe it shouldn't be in Attacking state?

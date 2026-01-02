@@ -24,8 +24,10 @@ describe("HUDManager", () => {
     squadInventory: {},
     stats: {
       threatLevel: 25,
-      aliensKilled: 5,
+      aliensKilled: 0,
+      elitesKilled: 0,
       casualties: 0,
+      scrapGained: 0,
     },
     map: { width: 10, height: 10, cells: [] },
     units: [
@@ -49,6 +51,7 @@ describe("HUDManager", () => {
     enemies: [],
     visibleCells: [],
     discoveredCells: [],
+    loot: [],
     objectives: [],
   };
 

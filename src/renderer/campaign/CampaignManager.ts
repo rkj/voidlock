@@ -5,7 +5,7 @@ import { LocalStorageProvider } from "../../engine/persistence/LocalStorageProvi
  * Re-export the Engine's CampaignManager.
  * In the renderer context, it is initialized with LocalStorageProvider.
  */
-export const CampaignManager = EngineCampaignManager;
+export { EngineCampaignManager as CampaignManager };
 
 // Initialize the singleton for the browser context
 if (typeof window !== "undefined") {

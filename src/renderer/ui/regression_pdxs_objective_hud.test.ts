@@ -19,12 +19,13 @@ describe("HUDManager Objective Regression PDXS", () => {
       isSlowMotion: false,
     },
     squadInventory: {},
-    stats: { threatLevel: 0, aliensKilled: 0, casualties: 0 },
+    stats: { threatLevel: 0, aliensKilled: 0, elitesKilled: 0, casualties: 0, scrapGained: 0 },
     map: { width: 10, height: 10, cells: [] },
     units: [],
     enemies: [],
     visibleCells: [],
     discoveredCells: [],
+    loot: [],
     objectives: [
       { id: "o1", kind: "Kill", state: "Pending" },
       {
