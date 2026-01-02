@@ -2,7 +2,7 @@
 
 This document contains planned features and specifications that are not yet part of the core implemented game loop.
 
-______________________________________________________________________
+---
 
 ## Future Weapon System Integration (Planned)
 
@@ -16,7 +16,7 @@ Currently, `accuracy` is a single stat conflating soldier skill and weapon perfo
   - **Effective Range:** Replaces the hardcoded "5 tiles" constant in the formula.
 - **Revised Formula:** `HitChance = ((SoldierAim + WeaponMod) / 100) * (WeaponEffectiveRange / Distance)`
 
-______________________________________________________________________
+---
 
 ## Campaign Screen (Placeholder for M9+)
 
@@ -26,7 +26,7 @@ _Refers to former section 8.2 (UI Screen Flow)_
    - List of available missions (currently empty or "Coming Soon").
    - "Back" button -> Main Menu.
 
-______________________________________________________________________
+---
 
 ## Space Hulk (1993) map import plan
 
@@ -63,7 +63,7 @@ Define an intermediate “tile assembly” format:
 
 Do not ship copyrighted scans/assets. Keep importer expecting **user-provided** definitions or community-authored _clean-room_ tile geometry.
 
-______________________________________________________________________
+---
 
 ## Implementation milestones (Future)
 

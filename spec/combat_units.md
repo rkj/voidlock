@@ -43,13 +43,13 @@ $$ P(d) = \\min\\left(1.0, \\frac{S}{100} \\cdot \\frac{R}{d}\\right) $$
 
 #### 3.3.3.1 Reference Points (Example: $S = 80$, $R = 10$)
 
-| Distance | Hit Chance | Logic |
+| Distance | Hit Chance | Logic                                                     |
 | :------- | :--------- | :-------------------------------------------------------- |
-| 1 Tile | 100% | $\\min(1.0, 0.8 \\cdot 10 / 1) = 8.0 \\rightarrow 1.0$ |
-| 5 Tiles | 100% | $\\min(1.0, 0.8 \\cdot 10 / 5) = 1.6 \\rightarrow 1.0$ |
-| 8 Tiles | 100% | $\\min(1.0, 0.8 \\cdot 10 / 8) = 1.0$ |
-| 10 Tiles | **80%** | $0.8 \\cdot 10 / 10 = 0.8$ -- **The Stat Value at Range** |
-| 20 Tiles | 40% | $0.8 \\cdot 10 / 20 = 0.4$ |
+| 1 Tile   | 100%       | $\\min(1.0, 0.8 \\cdot 10 / 1) = 8.0 \\rightarrow 1.0$    |
+| 5 Tiles  | 100%       | $\\min(1.0, 0.8 \\cdot 10 / 5) = 1.6 \\rightarrow 1.0$    |
+| 8 Tiles  | 100%       | $\\min(1.0, 0.8 \\cdot 10 / 8) = 1.0$                     |
+| 10 Tiles | **80%**    | $0.8 \\cdot 10 / 10 = 0.8$ -- **The Stat Value at Range** |
+| 20 Tiles | 40%        | $0.8 \\cdot 10 / 20 = 0.4$                                |
 
 ### 3.3.4. Range Interactions
 
@@ -92,8 +92,4 @@ Consumable items are **NOT** carried by individual soldiers. Instead, they exist
 
 ## 4.4 Commands
 
-
-
 See **[Command System & AI](commands.md)** for the full list of commands and their behaviors (Move, Overwatch, Explore, Escort, etc.).
-
-

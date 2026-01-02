@@ -7,7 +7,6 @@
 The application is divided into distinct screens to reduce UI clutter and improve flow.
 
 1. **Main Menu (Welcome Screen)**
-
    - **Title**: "Xenopurge"
    - **Credits**: Author/Version info.
    - **Navigation**:
@@ -17,7 +16,6 @@ The application is divided into distinct screens to reduce UI clutter and improv
    - _Note_: Pressing `ESC` from other screens (except Mission) returns here (or to previous screen).
 
 1. **Mission Setup Screen** (formerly Config Screen)
-
    - **Map Configuration**:
      - Generator Type (Procedural, TreeShip, Static).
      - Seed Input / Randomize.

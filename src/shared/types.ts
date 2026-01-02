@@ -272,6 +272,16 @@ export const ItemLibrary: { [id: string]: Item } = {
     accuracyBonus: -10,
     cost: 50,
   },
+  artifact_heavy: {
+    id: "artifact_heavy",
+    name: "Heavy Artifact",
+    type: "Passive",
+    description:
+      "A heavy alien artifact. Its weight and strange energy fields significantly slow the carrier and impair their aim.",
+    speedBonus: -10,
+    accuracyBonus: -15,
+    cost: 0,
+  },
 };
 
 // --- Archetype Definitions (Shared) ---

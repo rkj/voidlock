@@ -4,13 +4,13 @@ This directory contains types, constants, and utilities that are shared between 
 
 ## Files
 
-- `types.ts`: The central location for all shared interfaces, enums, and type definitions (e.g., `GameState`, `Unit`, `MapDefinition`, `Command`, `Weapon`). `MissionStats` tracks mission progress including `aliensKilled`, `elitesKilled`, and `scrapGained`. `GameState` and `Unit` use sub-objects (e.g., `stats`, `settings`) to group related properties for easier management and test mocking. `Weapon` and `Item` types include a `description` field for UI tooltips.
+- `types.ts`: The central location for all shared interfaces, enums, and type definitions (e.g., `GameState`, `Unit`, `MapDefinition`, `Command`, `Weapon`, `Item`). `MissionStats` tracks mission progress including `aliensKilled`, `elitesKilled`, and `scrapGained`. `GameState` and `Unit` use sub-objects (e.g., `stats`, `settings`) to group related properties for easier management and test mocking. `Weapon` and `Item` types include a `description` field for UI tooltips.
 - `campaign_types.ts`: Interfaces and types specifically for the persistent campaign mode (e.g., `CampaignState`, `CampaignSoldier`, `CampaignNode`, `GameRules`, `MissionReport`).
 - `PRNG.ts`: A deterministic Pseudo-Random Number Generator implementation.
 
 ## Functionality
 
-- **Weapon System**: Defines `Weapon` and `WeaponLibrary`, supporting units carrying both melee and ranged weapons. Accuracy is handled via a percentage-based modifier model (`soldierAim + weapon.accuracy + equipmentAccuracyBonus`).
+- **Weapon & Item Systems**: Defines `WeaponLibrary` and `ItemLibrary`, supporting units with various equipment. Accuracy is handled via a percentage-based modifier model (`soldierAim + weapon.accuracy + equipmentAccuracyBonus`). Items can provide passive bonuses (HP, Speed, Accuracy) or active abilities (Heal, Grenade).
 - **Type Safety**: Provides a common language for both threads to ensure data consistency.
 - **Protocol Definition**: The types here define the contract for the JSON observation/command protocol.
 - **Determinism**: The `PRNG` ensures that given the same seed, both the engine and any replays produce the same results.
