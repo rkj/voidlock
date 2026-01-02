@@ -8,6 +8,8 @@ import {
   Weapon,
   Archetype,
 } from "../../shared/types";
+import { Icons } from "../Icons";
+import { StatDisplay } from "../ui/StatDisplay";
 
 export class EquipmentScreen {
   private container: HTMLElement;
@@ -169,8 +171,6 @@ export class EquipmentScreen {
       return;
     }
 
-    const arch = ArchetypeLibrary[soldier.archetypeId];
-
     const content = document.createElement("div");
     content.style.display = "flex";
     content.style.flexDirection = "column";
@@ -178,26 +178,77 @@ export class EquipmentScreen {
     content.style.marginTop = "20px";
     content.style.gap = "20px";
 
-    // Stats Summary
-    const stats = document.createElement("div");
-    stats.style.display = "grid";
-    stats.style.gridTemplateColumns = "1fr 1fr";
-    stats.style.gap = "10px";
-    stats.style.width = "100%";
-    stats.style.maxWidth = "300px";
-    stats.style.fontSize = "0.9em";
-    stats.style.background = "#111";
-    stats.style.padding = "10px";
-    stats.style.border = "1px solid #333";
+    // Soldier Stats Panel
+    const soldierStatsDiv = document.createElement("div");
+    soldierStatsDiv.style.width = "100%";
+    soldierStatsDiv.style.maxWidth = "400px";
+    soldierStatsDiv.style.background = "#111";
+    soldierStatsDiv.style.padding = "12px";
+    soldierStatsDiv.style.border = "1px solid #333";
+    soldierStatsDiv.style.borderRadius = "4px";
 
-    const currentStats = this.calculateStats(soldier);
-    stats.innerHTML = `
-      <span>HP:</span><span style="color:#0f0">${currentStats.hp}</span>
-      <span>Speed:</span><span style="color:#0f0">${currentStats.speed}</span>
-      <span>Accuracy:</span><span style="color:#0f0">${currentStats.accuracy}%</span>
-      <span>Damage:</span><span style="color:#0f0">${currentStats.damage}</span>
+    const h3Soldier = document.createElement("h3");
+    h3Soldier.textContent = "SOLDIER ATTRIBUTES";
+    h3Soldier.style.margin = "0 0 10px 0";
+    h3Soldier.style.fontSize = "0.75em";
+    h3Soldier.style.color = "#888";
+    h3Soldier.style.letterSpacing = "1px";
+    soldierStatsDiv.appendChild(h3Soldier);
+
+    const sStats = this.calculateSoldierStats(soldier);
+    const sGrid = document.createElement("div");
+    sGrid.style.display = "flex";
+    sGrid.style.gap = "20px";
+    sGrid.innerHTML = `
+      ${StatDisplay.render(Icons.Health, sStats.hp, "Max Health", { iconSize: "14px" })}
+      ${StatDisplay.render(Icons.Speed, sStats.speed, "Movement Speed", { iconSize: "14px" })}
+      ${StatDisplay.render(Icons.Accuracy, sStats.accuracy, "Base Accuracy (Aim)", { iconSize: "14px" })}
     `;
-    content.appendChild(stats);
+    soldierStatsDiv.appendChild(sGrid);
+    content.appendChild(soldierStatsDiv);
+
+    // Weapon Stats Panel
+    const weaponStatsDiv = document.createElement("div");
+    weaponStatsDiv.style.width = "100%";
+    weaponStatsDiv.style.maxWidth = "400px";
+    weaponStatsDiv.style.background = "#111";
+    weaponStatsDiv.style.padding = "12px";
+    weaponStatsDiv.style.border = "1px solid #333";
+    weaponStatsDiv.style.borderRadius = "4px";
+    weaponStatsDiv.style.borderLeft = "3px solid #0f0";
+
+    const h3Weapon = document.createElement("h3");
+    h3Weapon.textContent = "EQUIPPED WEAPONRY";
+    h3Weapon.style.margin = "0 0 10px 0";
+    h3Weapon.style.fontSize = "0.75em";
+    h3Weapon.style.color = "#888";
+    h3Weapon.style.letterSpacing = "1px";
+    weaponStatsDiv.appendChild(h3Weapon);
+
+    const rw = this.getWeaponStats(soldier.rightHand, sStats.speed);
+    const lw = this.getWeaponStats(soldier.leftHand, sStats.speed);
+
+    const renderWepBlock = (w: any, label: string) => {
+      if (!w)
+        return `<div style="color:#444; font-size:0.7em; margin-bottom:8px;">${label}: [EMPTY SLOT]</div>`;
+      return `
+            <div style="margin-bottom:12px; border-bottom:1px solid #222; padding-bottom:8px;">
+                <div style="font-size:0.8em; font-weight:bold; color:#0f0; margin-bottom:4px;">${label}: ${w.name}</div>
+                <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                    ${StatDisplay.render(Icons.Damage, w.damage, "Damage per hit")}
+                    ${StatDisplay.render(Icons.Rate, w.fireRate, "Rounds per second")}
+                    ${StatDisplay.render(Icons.Range, w.range, "Effective Range (m)")}
+                    ${StatDisplay.render(Icons.Accuracy, (w.accuracy >= 0 ? "+" : "") + w.accuracy, "Weapon Accuracy Modifier")}
+                </div>
+            </div>
+        `;
+    };
+
+    const wContent = document.createElement("div");
+    wContent.innerHTML =
+      renderWepBlock(rw, "PRIMARY (RH)") + renderWepBlock(lw, "SECONDARY (LH)");
+    weaponStatsDiv.appendChild(wContent);
+    content.appendChild(weaponStatsDiv);
 
     // Slots
     const slotsGrid = document.createElement("div");
@@ -460,26 +511,33 @@ export class EquipmentScreen {
       btn.style.marginBottom = "3px";
       btn.style.fontSize = "0.85em";
 
-      let statsLine = "";
+      let statsHtml = "";
       let fullStats = "";
       if ("damage" in item) {
         // Weapon
-        statsLine = `DMG:${item.damage} RNG:${item.range} FR:${item.fireRate}`;
+        const fireRateVal = item.fireRate;
+        const fireRateStr =
+          fireRateVal > 0 ? (1000 / fireRateVal).toFixed(1) : "0";
+        statsHtml = `
+          ${StatDisplay.render(Icons.Damage, item.damage, "Damage")}
+          ${StatDisplay.render(Icons.Rate, fireRateStr, "Fire Rate")}
+          ${StatDisplay.render(Icons.Range, item.range, "Range")}
+        `;
         fullStats = `Damage: ${item.damage}\nRange: ${item.range}\nFire Rate: ${item.fireRate}ms\nAccuracy: ${item.accuracy > 0 ? "+" : ""}${item.accuracy}%`;
       } else {
         // Item (Armor/Boots)
         const bonuses = [];
         if (item.hpBonus)
-          bonuses.push(`HP:${item.hpBonus > 0 ? "+" : ""}${item.hpBonus}`);
+          bonuses.push(StatDisplay.render(Icons.Health, item.hpBonus, "HP"));
         if (item.speedBonus)
           bonuses.push(
-            `SPD:${item.speedBonus > 0 ? "+" : ""}${item.speedBonus / 10}`,
+            StatDisplay.render(Icons.Speed, item.speedBonus / 10, "Speed"),
           );
         if (item.accuracyBonus)
           bonuses.push(
-            `ACC:${item.accuracyBonus > 0 ? "+" : ""}${item.accuracyBonus}%`,
+            StatDisplay.render(Icons.Accuracy, item.accuracyBonus, "Accuracy"),
           );
-        statsLine = bonuses.join(" ");
+        statsHtml = bonuses.join(" ");
 
         const fullBonuses = [];
         if (item.hpBonus)
@@ -503,8 +561,8 @@ export class EquipmentScreen {
                     <span>${item.name}</span>
                     <span style="color:#888;">${item.cost} CR</span>
                 </div>
-                <div style="font-size:0.8em; color:#aaa; margin-top:2px;">
-                    ${statsLine}
+                <div style="font-size:0.8em; color:#aaa; margin-top:2px; display:flex; gap:8px;">
+                    ${statsHtml}
                 </div>
             </div>
         `;
@@ -513,14 +571,13 @@ export class EquipmentScreen {
     });
   }
 
-  private calculateStats(soldier: SquadSoldierConfig) {
+  private calculateSoldierStats(soldier: SquadSoldierConfig) {
     const arch = ArchetypeLibrary[soldier.archetypeId];
-    if (!arch) return { hp: 0, speed: 0, accuracy: 0, damage: 0 };
+    if (!arch) return { hp: 0, speed: 0, accuracy: 0 };
 
     let hp = arch.baseHp;
     let speed = arch.speed;
     let accuracy = arch.soldierAim;
-    let damage = arch.damage;
 
     // Apply equipment bonuses
     const slots = [
@@ -537,15 +594,40 @@ export class EquipmentScreen {
         if (item.speedBonus) speed += item.speedBonus;
         if (item.accuracyBonus) accuracy += item.accuracyBonus;
       }
-      const weapon = WeaponLibrary[id];
-      if (weapon) {
-        // Weapon accuracy is a modifier to soldierAim?
-        // Types say: accuracy: number; // Percentage modifier relative to soldierAim
-        // But we'll just show the weapon damage/accuracy for now.
-        damage = Math.max(damage, weapon.damage);
-      }
     });
 
-    return { hp, speed, accuracy, damage };
+    return { hp, speed, accuracy };
+  }
+
+  private getWeaponStats(weaponId?: string, soldierSpeed: number = 20) {
+    if (!weaponId) return null;
+    const weapon = WeaponLibrary[weaponId];
+    if (!weapon) return null;
+
+    // Fire rate in the engine is scaled by speed: fireRate * (speed > 0 ? 10 / speed : 1)
+    // We want to show rounds per second: 1000 / scaledFireRate
+    const scaledFireRate =
+      weapon.fireRate * (soldierSpeed > 0 ? 10 / soldierSpeed : 1);
+    const fireRateVal =
+      scaledFireRate > 0 ? (1000 / scaledFireRate).toFixed(1) : "0";
+
+    return {
+      name: weapon.name,
+      damage: weapon.damage,
+      range: weapon.range,
+      fireRate: fireRateVal,
+      accuracy: weapon.accuracy,
+    };
+  }
+
+  private calculateStats(soldier: SquadSoldierConfig) {
+    const s = this.calculateSoldierStats(soldier);
+    const rw = this.getWeaponStats(soldier.rightHand, s.speed);
+    return {
+      hp: s.hp,
+      speed: s.speed,
+      accuracy: s.accuracy,
+      damage: rw ? rw.damage : 0,
+    };
   }
 }

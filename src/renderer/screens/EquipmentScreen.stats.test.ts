@@ -40,7 +40,11 @@ describe("EquipmentScreen Stats and Tooltips", () => {
 
     expect(pulseRifle).toBeDefined();
     // Pulse Rifle stats: damage 20, range 10, fireRate 600
-    expect(pulseRifle?.textContent).toContain("DMG:20 RNG:10 FR:600");
+    // Now using StatDisplay (Icons + Values). TextContent will contain values.
+    // 1000/600 = 1.7 RPS
+    expect(pulseRifle?.textContent).toContain("20");
+    expect(pulseRifle?.textContent).toContain("1.7");
+    expect(pulseRifle?.textContent).toContain("10");
   });
 
   it("should display compact stats for items (armor/boots) in the armory", () => {
@@ -61,7 +65,10 @@ describe("EquipmentScreen Stats and Tooltips", () => {
 
     expect(heavyPlate).toBeDefined();
     // Heavy Plate: hpBonus 150, speedBonus -5, accuracyBonus -10
-    expect(heavyPlate?.textContent).toContain("HP:+150 SPD:-0.5 ACC:-10%");
+    // Speed bonus is shown as speedBonus / 10 = -0.5
+    expect(heavyPlate?.textContent).toContain("150");
+    expect(heavyPlate?.textContent).toContain("-0.5");
+    expect(heavyPlate?.textContent).toContain("-10");
   });
 
   it("should have tooltips with descriptions and full stats for armory items", () => {
