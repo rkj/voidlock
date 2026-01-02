@@ -32,7 +32,9 @@ export class CommandHandler {
       cmd.type === CommandType.ATTACK_TARGET ||
       cmd.type === CommandType.SET_ENGAGEMENT ||
       cmd.type === CommandType.STOP ||
-      cmd.type === CommandType.RESUME_AI
+      cmd.type === CommandType.RESUME_AI ||
+      cmd.type === CommandType.OVERWATCH_POINT ||
+      cmd.type === CommandType.EXPLORE
     ) {
       if (cmd.type === CommandType.ATTACK_TARGET) {
         const unit = state.units.find((u) => u.id === cmd.unitId);

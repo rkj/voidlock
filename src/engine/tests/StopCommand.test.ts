@@ -52,7 +52,7 @@ describe("Stop Command and AI Logic", () => {
 
     engine.update(100);
     expect(engine.getState().units[0].state).toBe(UnitState.Moving);
-    expect(engine.getState().units[0].aiEnabled).toBe(true);
+    expect(engine.getState().units[0].aiEnabled).toBe(false);
 
     // 2. Issue STOP
     engine.applyCommand({
@@ -80,7 +80,7 @@ describe("Stop Command and AI Logic", () => {
     // Actually, CoreEngine generates them in constructor.
   });
 
-  it("should re-enable AI when a manual MOVE_TO is issued", () => {
+  it("should NOT re-enable AI when a manual MOVE_TO is issued", () => {
     const unit = engine.getState().units[0];
 
     engine.applyCommand({ type: CommandType.STOP, unitIds: [unit.id] });
@@ -92,10 +92,10 @@ describe("Stop Command and AI Logic", () => {
       target: { x: 3, y: 3 },
     });
 
-    expect(engine.getState().units[0].aiEnabled).toBe(true);
+    expect(engine.getState().units[0].aiEnabled).toBe(false);
   });
 
-  it("should re-enable AI when SET_ENGAGEMENT is issued", () => {
+  it("should NOT re-enable AI when SET_ENGAGEMENT is issued", () => {
     const unit = engine.getState().units[0];
 
     engine.applyCommand({ type: CommandType.STOP, unitIds: [unit.id] });
@@ -107,17 +107,17 @@ describe("Stop Command and AI Logic", () => {
       mode: "ENGAGE",
     });
 
-    expect(engine.getState().units[0].aiEnabled).toBe(true);
+    expect(engine.getState().units[0].aiEnabled).toBe(false);
   });
 
-  it("should re-enable AI when RESUME_AI is issued", () => {
+  it("should re-enable AI when EXPLORE is issued", () => {
     const unit = engine.getState().units[0];
 
     engine.applyCommand({ type: CommandType.STOP, unitIds: [unit.id] });
     expect(engine.getState().units[0].aiEnabled).toBe(false);
 
     engine.applyCommand({
-      type: CommandType.RESUME_AI,
+      type: CommandType.EXPLORE,
       unitIds: [unit.id],
     });
 

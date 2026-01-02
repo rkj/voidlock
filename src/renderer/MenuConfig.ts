@@ -2,6 +2,7 @@ import { CommandType, EngagementPolicy } from "../shared/types";
 
 export type MenuState =
   | "ACTION_SELECT"
+  | "ORDERS_SELECT"
   | "TARGET_SELECT"
   | "UNIT_SELECT"
   | "MODE_SELECT"
@@ -30,53 +31,58 @@ export const MENU_CONFIG: Record<MenuState, MenuStateDefinition> = {
     options: [
       {
         key: 1,
-        label: "MOVE",
-        type: "ACTION",
-        commandType: CommandType.MOVE_TO,
-        nextState: "TARGET_SELECT",
+        label: "ORDERS",
+        type: "TRANSITION",
+        nextState: "ORDERS_SELECT",
       },
       {
         key: 2,
-        label: "STOP",
-        type: "ACTION",
-        commandType: CommandType.STOP,
-        nextState: "UNIT_SELECT",
-      },
-      {
-        key: 3,
         label: "ENGAGEMENT",
         type: "ACTION",
         commandType: CommandType.SET_ENGAGEMENT,
         nextState: "MODE_SELECT",
       },
       {
-        key: 4,
+        key: 3,
         label: "USE ITEM",
         type: "ACTION",
         commandType: CommandType.USE_ITEM,
         nextState: "ITEM_SELECT",
       },
+    ],
+  },
+  ORDERS_SELECT: {
+    title: "ORDERS",
+    options: [
       {
-        key: 5,
-        label: "COLLECT",
+        key: 1,
+        label: "MOVE TO ROOM",
         type: "ACTION",
         commandType: CommandType.MOVE_TO,
         nextState: "TARGET_SELECT",
-      }, // Collect is Move To Item
+      },
       {
-        key: 6,
-        label: "EXTRACT",
+        key: 2,
+        label: "OVERWATCH INTERSECTION",
         type: "ACTION",
-        commandType: CommandType.MOVE_TO,
-        nextState: "UNIT_SELECT",
-      }, // Special handling in controller for target
+        commandType: CommandType.OVERWATCH_POINT,
+        nextState: "TARGET_SELECT",
+      },
       {
-        key: 7,
-        label: "RESUME AI",
+        key: 3,
+        label: "EXPLORE",
         type: "ACTION",
-        commandType: CommandType.RESUME_AI,
+        commandType: CommandType.EXPLORE,
         nextState: "UNIT_SELECT",
       },
+      {
+        key: 4,
+        label: "HOLD",
+        type: "ACTION",
+        commandType: CommandType.STOP,
+        nextState: "UNIT_SELECT",
+      },
+      { key: 0, label: "BACK", type: "BACK" },
     ],
   },
   MODE_SELECT: {

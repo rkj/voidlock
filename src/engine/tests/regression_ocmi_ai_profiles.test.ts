@@ -106,6 +106,9 @@ describe("Regression OCMI: Innate AI Profiles", () => {
     const unit = state.units[0];
     expect(unit.aiProfile).toBe(AIProfile.RUSH);
 
+    // Explicitly enable AI for this test as we want to test autonomous rush
+    engine.applyCommand({ type: CommandType.EXPLORE, unitIds: [unit.id] });
+
     // Run engine for a few ticks
     for (let i = 0; i < 20; i++) {
       engine.update(100);
@@ -151,6 +154,7 @@ describe("Regression OCMI: Innate AI Profiles", () => {
       aiProfile: AIProfile.RETREAT,
       engagementPolicy: "ENGAGE",
       commandQueue: [],
+      aiEnabled: true,
     } as any);
 
     engine.addEnemy({

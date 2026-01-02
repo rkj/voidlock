@@ -5,6 +5,7 @@ import {
   CellType,
   UnitState,
   MissionType,
+  CommandType,
 } from "../../shared/types";
 
 describe("Exploration Logic", () => {
@@ -43,6 +44,11 @@ describe("Exploration Logic", () => {
       true,
       false,
     );
+
+    engine.applyCommand({
+      type: CommandType.EXPLORE,
+      unitIds: [engine.getState().units[0].id],
+    });
 
     // Initial state
     let state = engine.getState();
@@ -132,7 +138,14 @@ describe("Exploration Logic", () => {
       { soldiers: [{ archetypeId: "assault" }], inventory: {} },
       true,
       false,
+      MissionType.Default,
+      false,
     );
+
+    engine.applyCommand({
+      type: CommandType.EXPLORE,
+      unitIds: [engine.getState().units[0].id],
+    });
 
     // Run enough time to reach corner
     // Distance to corner (4,0) is 4 tiles. Speed ~4 tiles/sec?

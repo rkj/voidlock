@@ -7,6 +7,7 @@ import {
   Command,
   Door,
   WeaponLibrary,
+  AIProfile,
 } from "../../shared/types";
 import { GameGrid } from "../GameGrid";
 import { Pathfinder } from "../Pathfinder";
@@ -833,9 +834,6 @@ export class UnitManager {
         if (isManual || cmd.label !== "Exploring") {
           unit.explorationTarget = undefined;
         }
-        if (isManual) {
-          unit.aiEnabled = true;
-        }
 
         if (unit.state === UnitState.Channeling) {
           unit.channeling = undefined;
@@ -875,10 +873,30 @@ export class UnitManager {
           unit.activeCommand = undefined;
         }
       }
+    } else if (cmd.type === CommandType.OVERWATCH_POINT) {
+      if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
+        unit.aiEnabled = false;
+        unit.aiProfile = AIProfile.STAND_GROUND;
+        this.executeCommand(
+          unit,
+          {
+            type: CommandType.MOVE_TO,
+            unitIds: [unit.id],
+            target: cmd.target,
+            label: "Overwatching",
+          },
+          isManual,
+        );
+        unit.activeCommand = cmd;
+      }
+    } else if (cmd.type === CommandType.EXPLORE) {
+      if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
+        unit.aiEnabled = true;
+        // Default exploration behavior will take over in update()
+      }
     } else if (cmd.type === CommandType.ATTACK_TARGET) {
       if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
         unit.forcedTargetId = cmd.targetId;
-        if (isManual) unit.aiEnabled = true;
         unit.path = undefined;
         unit.targetPos = undefined;
 
@@ -890,7 +908,6 @@ export class UnitManager {
     } else if (cmd.type === CommandType.SET_ENGAGEMENT) {
       unit.engagementPolicy = cmd.mode;
       unit.engagementPolicySource = "Manual";
-      if (isManual) unit.aiEnabled = true;
       unit.activeCommand = undefined;
     } else if (cmd.type === CommandType.STOP) {
       unit.commandQueue = [];

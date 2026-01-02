@@ -103,13 +103,7 @@ To prevent state leakage and UI "ghosting", the following sanitization rules app
 
 ### AI & Commands
 
-- **Escort Command:**
-  - **Target:** Friendly Unit (VIP or Artifact Carrier).
-  - **Behavior:** Participating units form a protective screen.
-    - **Vanguard:** 1 Unit moves to the tile *ahead* of the target (relative to destination/facing).
-    - **Rearguard:** 1 Unit moves to the tile *behind*.
-    - **Bodyguard:** Remaining units stay adjacent to the target.
-  - **Sync:** Escorts match the target's speed.
+See **[Command System & AI Behaviors](commands.md)** for details on `ESCORT_UNIT`, `OVERWATCH_POINT`, and other commands.
 
 ## 12) Mission Types & Win Conditions
 

@@ -10,6 +10,15 @@ export type WallDefinition = {
   p2: Vector2;
 };
 
+export type BoundaryDefinition = {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  isWall: boolean;
+  doorId?: string;
+};
+
 export type Cell = {
   x: number;
   y: number;
@@ -41,6 +50,7 @@ export type MapDefinition = {
   height: number;
   cells: Cell[];
   walls?: WallDefinition[]; // New: Array of Wall boundaries
+  boundaries?: BoundaryDefinition[];
   doors?: Door[]; // New: Array of Door entities
   spawnPoints?: SpawnPoint[];
   squadSpawn?: Vector2;
@@ -648,12 +658,29 @@ export enum CommandType {
   STOP = "STOP",
   RESUME_AI = "RESUME_AI",
   USE_ITEM = "USE_ITEM",
+  OVERWATCH_POINT = "OVERWATCH_POINT",
+  EXPLORE = "EXPLORE",
 }
 
 export type MoveCommand = {
   type: CommandType.MOVE_TO;
   unitIds: string[];
   target: Vector2;
+  queue?: boolean;
+  label?: string;
+};
+
+export type OverwatchPointCommand = {
+  type: CommandType.OVERWATCH_POINT;
+  unitIds: string[];
+  target: Vector2;
+  queue?: boolean;
+  label?: string;
+};
+
+export type ExploreCommand = {
+  type: CommandType.EXPLORE;
+  unitIds: string[];
   queue?: boolean;
   label?: string;
 };
@@ -714,7 +741,9 @@ export type Command =
   | SetEngagementCommand
   | StopCommand
   | ResumeAiCommand
-  | UseItemCommand;
+  | UseItemCommand
+  | OverwatchPointCommand
+  | ExploreCommand;
 
 export interface IMapValidationResult {
   isValid: boolean;

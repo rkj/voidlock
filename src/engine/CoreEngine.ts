@@ -1,5 +1,6 @@
 import {
   MapDefinition,
+  BoundaryDefinition,
   GameState,
   Unit,
   Enemy,
@@ -92,7 +93,22 @@ export class CoreEngine {
 
     this.state = {
       t: 0,
-      map,
+      map: {
+        ...map,
+        boundaries:
+          map.boundaries ||
+          this.gameGrid
+            .getGraph()
+            .getAllBoundaries()
+            .map((b) => ({
+              x1: b.x1,
+              y1: b.y1,
+              x2: b.x2,
+              y2: b.y2,
+              isWall: b.isWall,
+              doorId: b.doorId,
+            })),
+      },
       units: [],
       enemies: [],
       visibleCells: [],
@@ -253,6 +269,7 @@ export class CoreEngine {
         engagementPolicy: "ENGAGE",
         engagementPolicySource: "Manual",
         commandQueue: [],
+        aiEnabled: false,
       } as Unit);
     });
   }
