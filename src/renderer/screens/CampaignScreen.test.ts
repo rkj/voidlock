@@ -14,7 +14,17 @@ describe("CampaignScreen", () => {
     document.body.innerHTML = '<div id="screen-campaign"></div>';
     container = document.getElementById("screen-campaign")!;
 
-    manager = new CampaignManager();
+    CampaignManager.resetInstance();
+    manager = CampaignManager.getInstance(
+      new (class {
+        save() {}
+        load() {
+          return null;
+        }
+        remove() {}
+        clear() {}
+      })(),
+    );
     onNodeSelect = vi.fn();
     onBack = vi.fn();
   });

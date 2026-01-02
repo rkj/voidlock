@@ -56,8 +56,8 @@ You manage tasks in `.beads/README.md`. Tasks must be optimized for lightweight
 
 To maintain a coherent history and architectural map:
 
-1.  **Spec -> ADR:** Specifications should list relevant Architectural Decision Records (ADRs) that define _how_ the feature is implemented.
-2.  **ADR -> Spec:** ADRs must link back to the specific Spec file/section they are addressing.
+1. **Spec -> ADR:** Specifications should list relevant Architectural Decision Records (ADRs) that define _how_ the feature is implemented.
+1. **ADR -> Spec:** ADRs must link back to the specific Spec file/section they are addressing.
 
 - **Beads -> Docs:** Beads tasks must link to both the Spec (for behavior) and the ADR (for implementation details) where applicable.
 
@@ -65,9 +65,9 @@ To maintain a coherent history and architectural map:
 
 To ensure `bd ready` functions as an effective "Next Actions" list:
 
-1.  **Block Aggressively:** When creating an Epic or a set of related tasks, ALWAYS identify the prerequisite (e.g., "Write ADR", "Scaffold Project") and set it as a blocker for all downstream implementation tasks using `bd dep add`.
-2.  **Verify Ready:** After planning, run `bd ready` to ensure only the actionable tasks (unblocked) are visible. If future tasks appear, add dependencies.
-3.  **Linear Flow:** For complex features, create a linear dependency chain (Task A -> Task B -> Task C) rather than a flat list, to guide the agent through the preferred implementation order.
+1. **Block Aggressively:** When creating an Epic or a set of related tasks, ALWAYS identify the prerequisite (e.g., "Write ADR", "Scaffold Project") and set it as a blocker for all downstream implementation tasks using `bd dep add`.
+1. **Verify Ready:** After planning, run `bd ready` to ensure only the actionable tasks (unblocked) are visible. If future tasks appear, add dependencies.
+1. **Linear Flow:** For complex features, create a linear dependency chain (Task A -> Task B -> Task C) rather than a flat list, to guide the agent through the preferred implementation order.
 
 ## 7. Execution Forbidden (Planning Mode)
 
