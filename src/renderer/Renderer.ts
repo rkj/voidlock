@@ -180,7 +180,6 @@ export class Renderer {
 
     this.ctx.textAlign = "center";
     this.ctx.textBaseline = "middle";
-    this.ctx.font = "bold 20px Arial";
 
     this.overlayOptions.forEach((opt) => {
       if (opt.pos) {
@@ -194,22 +193,23 @@ export class Renderer {
         const cy = drawY * this.cellSize;
 
         // Draw Circle background
-        this.ctx.fillStyle = "rgba(255, 255, 0, 0.8)"; // Yellow
+        this.ctx.fillStyle = "rgba(255, 255, 0, 0.9)"; // Yellow, slightly more opaque
         this.ctx.beginPath();
-        this.ctx.arc(cx, cy, 12, 0, Math.PI * 2);
+        this.ctx.arc(cx, cy, 24, 0, Math.PI * 2);
         this.ctx.fill();
 
-        // Draw Number
+        // Draw Key (Large)
         this.ctx.fillStyle = "#000";
+        this.ctx.font = "bold 32px Arial";
         this.ctx.fillText(opt.key, cx, cy);
 
         // Draw Label text below
         if (opt.label) {
           this.ctx.fillStyle = "#FFF";
-          this.ctx.font = "bold 14px Arial";
+          this.ctx.font = "bold 18px Arial";
           this.ctx.shadowColor = "black";
           this.ctx.shadowBlur = 4;
-          this.ctx.fillText(opt.label, cx, cy + 25);
+          this.ctx.fillText(opt.label, cx, cy + 45);
           this.ctx.shadowBlur = 0; // Reset
         }
       }

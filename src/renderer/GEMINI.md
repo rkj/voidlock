@@ -41,6 +41,7 @@ This directory contains the main thread rendering logic and user interface for X
   - `ConfigManager.migration.test.ts`: Verifies configuration migration and defaulting from old storage formats.
   - `ConfigManager.isolation.test.ts`: Verifies that Custom and Campaign configurations are stored and loaded independently.
   - `MenuController.discovery.test.ts`: Verifies room discovery filtering and stable numbering in the command menu.
+  - `regression_09cn_room_mapping.test.ts`: Verifies room mapping logic based on discovery order and stable key assignments.
 
 ## Connections
 

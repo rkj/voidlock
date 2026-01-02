@@ -56,12 +56,13 @@ describe("MenuController Room Discovery", () => {
       o.label.includes("Room"),
     );
 
-    // Should find Room 1 but not Room 2
+    // Should find Room 1 (mapped to Key 1) but not Room 2
     expect(roomOptions.length).toBe(1);
-    expect(roomOptions[0].label).toContain("Room 1");
+    expect(roomOptions[0].key).toBe("1");
+    expect(roomOptions[0].label).toBe("1. Room");
   });
 
-  it("should show Room 2 as 'Room 2' even if Room 1 is NOT discovered", () => {
+  it("should show discovered room as '1. Room' even if it wasn't the first room in map data", () => {
     const stateOnlyRoom2Discovered = {
       ...mockState,
       discoveredCells: ["5,5"], // Only room-2 is partially discovered
@@ -74,7 +75,8 @@ describe("MenuController Room Discovery", () => {
     );
 
     expect(roomOptions.length).toBe(1);
-    expect(roomOptions[0].label).toContain("Room 2");
+    expect(roomOptions[0].key).toBe("1");
+    expect(roomOptions[0].label).toBe("1. Room");
   });
 
   it("should not list corridors as rooms", () => {
@@ -101,10 +103,10 @@ describe("MenuController Room Discovery", () => {
     expect(roomOptions.some((o) => o.label.includes("corridor"))).toBe(false);
   });
 
-  it("should show both rooms if both are discovered", () => {
+  it("should show both rooms if both are discovered, in discovery order", () => {
     const stateWithBothDiscovered = {
       ...mockState,
-      discoveredCells: ["1,1", "5,5"],
+      discoveredCells: ["5,5", "1,1"], // 5,5 (room-2) first, 1,1 (room-1) second
     };
 
     controller.handleMenuInput("1", stateWithBothDiscovered);
@@ -114,7 +116,9 @@ describe("MenuController Room Discovery", () => {
     );
 
     expect(roomOptions.length).toBe(2);
-    expect(roomOptions.some((o) => o.label.includes("Room 1"))).toBe(true);
-    expect(roomOptions.some((o) => o.label.includes("Room 2"))).toBe(true);
+    expect(roomOptions[0].key).toBe("1");
+    expect(roomOptions[0].label).toBe("1. Room");
+    expect(roomOptions[1].key).toBe("2");
+    expect(roomOptions[1].label).toBe("2. Room");
   });
 });

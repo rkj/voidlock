@@ -284,6 +284,7 @@ const launchMission = () => {
   const rightPanel = document.getElementById("right-panel");
   if (rightPanel) rightPanel.innerHTML = "";
   menuController.reset();
+  menuController.clearDiscoveryOrder();
 
   gameClient.onStateUpdate((state) => {
     currentGameState = state;
