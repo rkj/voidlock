@@ -45,8 +45,9 @@ describe("Mission Replay Regression", () => {
     const finalSimState = engineSim.getState();
     const commandLog = finalSimState.commandLog || [];
 
-    expect(commandLog.length).toBe(1);
-    expect(commandLog[0].command).toEqual(moveCmd);
+    expect(commandLog.length).toBe(2);
+    expect(commandLog[0].command.type).toBe(CommandType.EXPLORE);
+    expect(commandLog[1].command).toEqual(moveCmd);
 
     // 2. Replay Phase
     const engineReplay = new CoreEngine(

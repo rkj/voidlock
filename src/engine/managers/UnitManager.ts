@@ -909,6 +909,15 @@ export class UnitManager {
     isManual: boolean = true,
   ) {
     unit.activeCommand = cmd;
+
+    if (
+      isManual &&
+      cmd.type !== CommandType.EXPLORE &&
+      cmd.type !== CommandType.RESUME_AI
+    ) {
+      unit.aiEnabled = false;
+    }
+
     if (cmd.type === CommandType.MOVE_TO) {
       if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
         unit.forcedTargetId = undefined;

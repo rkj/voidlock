@@ -16,6 +16,7 @@ import {
   Vector2,
   EngineMode,
   CommandLogEntry,
+  CommandType,
 } from "../shared/types";
 import { PRNG } from "../shared/PRNG";
 import { GameGrid } from "./GameGrid";
@@ -278,6 +279,18 @@ export class CoreEngine {
         aiEnabled: false,
       } as Unit);
     });
+
+    // Default EXPLORE command for all non-VIP units
+    const explorationUnitIds = this.state.units
+      .filter((u) => u.archetypeId !== "vip")
+      .map((u) => u.id);
+
+    if (explorationUnitIds.length > 0) {
+      this.applyCommand({
+        type: CommandType.EXPLORE,
+        unitIds: explorationUnitIds,
+      });
+    }
   }
 
   public clearUnits() {
