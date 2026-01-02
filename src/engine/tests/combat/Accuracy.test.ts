@@ -55,6 +55,8 @@ describe("Combat Accuracy (Percentage Model)", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
 
     engine.addEnemy({
@@ -103,6 +105,8 @@ describe("Combat Accuracy (Percentage Model)", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
 
     engine.addEnemy({
@@ -155,6 +159,8 @@ describe("Combat Accuracy (Percentage Model)", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
 
     engine.addEnemy({
@@ -205,6 +211,8 @@ describe("Combat Accuracy (Percentage Model)", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
 
     engine.addEnemy({
@@ -252,6 +260,8 @@ describe("Combat Accuracy (Percentage Model)", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
 
     engine.addEnemy({
@@ -302,6 +312,8 @@ describe("Combat Accuracy (Percentage Model)", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
 
     engine.addEnemy({
@@ -349,6 +361,8 @@ describe("Combat Accuracy (Percentage Model)", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
 
     engine.addEnemy({

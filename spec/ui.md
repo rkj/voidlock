@@ -148,11 +148,21 @@ The UI must be optimized for visibility and information density, utilizing the f
 
 ### 8.2 Debug affordances (non-negotiable for balancing)
 
-- Toggle “show all” (disable fog) for quick iteration.
-- Heatmaps/overlays:
-  - Spawn intensity
-  - LOS cones (Visualization must be an overlay from individual characters/enemies to distinguish their specific LOS, rather than a generic grid painting)
+**Toggle:** `~` (Tilde/Backquote) or Button in Config.
+
+When enabled, the game displays additional diagnostic information:
+- **Map:** Grid coordinates overlaid on cells.
+- **LOS:** Raycast lines showing visibility calculations.
+- **Fog:** Option to disable Fog of War.
+- **HUD:** A "Copy World State" button appears in the Right Panel.
+
+**World State Export:**
+Clicking "Copy World State" requests a full serialization of the engine state (including seed, map definition, unit positions, and command history).
+- **Format:** JSON
+- **Destination:** System Clipboard (primary) and Console (fallback).
+- **Usage:** This JSON can be attached to bug reports to reproduce specific states.
+
+- **Legacy Requirements:**
   - Navmesh/path display
-- Deterministic replay:
-  - Export `(seed, config, commandStream)` as JSON
-  - Import to replay exact run
+  - Spawn intensity heatmaps
+  - Deterministic replay import/export (ReplayData)

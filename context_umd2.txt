@@ -1,0 +1,9 @@
+The build failed with 60 TypeScript errors. Most of them are missing 'damageDealt' and 'objectivesCompleted' properties in 'Unit' objects (both in tests and in CoreEngine.ts).
+
+Example error:
+src/engine/CoreEngine.ts:170:22 - error TS2352: Conversion of type '{ ... }' to type 'Unit' may be a mistake because neither type sufficiently overlaps with the other.
+  Property 'damageDealt' is missing in type '{ ... }' but required in type 'Unit'.
+  Property 'objectivesCompleted' is missing in type '{ ... }' but required in type 'Unit'.
+
+Please fix all these errors by adding the missing properties (defaulting to 0) to the relevant object literals.
+Also, ensure 'soldierAim' is present in 'CampaignSoldier' mocks if you encounter related errors, as mentioned in the task description.

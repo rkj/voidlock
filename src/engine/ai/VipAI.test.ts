@@ -70,6 +70,8 @@ describe("VIP AI Behavior", () => {
       aiEnabled: false,
       commandQueue: [],
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
 
     // Soldier at (0,0)
@@ -93,6 +95,8 @@ describe("VIP AI Behavior", () => {
       aiEnabled: true,
       commandQueue: [],
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
 
     engine.update(100);
@@ -148,6 +152,8 @@ describe("VIP AI Behavior", () => {
       aiEnabled: true,
       commandQueue: [],
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
 
     // Enemy at (2,1)
@@ -217,6 +223,8 @@ describe("VIP AI Behavior", () => {
       aiEnabled: true,
       commandQueue: [],
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
 
     engine.update(100);
@@ -258,6 +266,8 @@ describe("VIP AI Behavior", () => {
       aiEnabled: true,
       commandQueue: [],
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
 
     // Objective at (1,1)

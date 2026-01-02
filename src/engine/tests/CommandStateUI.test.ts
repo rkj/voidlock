@@ -118,6 +118,8 @@ describe("Unit Command State UI Tracking", () => {
       commandQueue: [],
       aiEnabled: true,
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
 
     (engine as any).state.discoveredCells = ["0,0"];

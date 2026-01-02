@@ -71,6 +71,8 @@ describe("Movement through Doors", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
   });
 

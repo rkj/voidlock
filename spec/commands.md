@@ -80,6 +80,15 @@ Soldiers decide _who_ to shoot based on a priority heuristic, removing the need 
 - **Queueing (`Shift` Key):** Holding `Shift` while issuing a command **APPENDS** it to the end of the queue.
 - **Queue Display:** The UI should visualize the queued path/actions.
 
+### 4. Debug & System Commands
+
+| Type | Direction | Payload | Description |
+| :--- | :--- | :--- | :--- |
+| `TOGGLE_DEBUG_OVERLAY` | Main -> Worker | `{ enabled: boolean }` | Toggles debug visualizations and data generation. |
+| `GET_FULL_STATE` | Main -> Worker | `null` | Requests a full dump of the engine state. |
+| `FULL_STATE_DATA` | Worker -> Main | `{ state: GameState, seed: number, history: CommandLogEntry[] }` | The serialized world state. |
+
+## 5. Determinism & validation
 ## 5. UI Interaction & Menu Flow
 
 ### 5.1 Menu Hierarchy

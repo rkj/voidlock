@@ -89,6 +89,8 @@ describe("Coordinated Objectives AI", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
 
     // Unit 2 further from objective
@@ -111,6 +113,8 @@ describe("Coordinated Objectives AI", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
   });
 
@@ -181,6 +185,8 @@ describe("Coordinated Objectives AI", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
     engine.addUnit({
       id: "u2",
@@ -201,6 +207,8 @@ describe("Coordinated Objectives AI", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
 
     engine.update(100);
