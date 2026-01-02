@@ -67,11 +67,13 @@ Example:
   - `load(mapData: MapDefinition) -> MapDefinition` (New: to load predefined maps)
 
   - `validate(map) -> issues[]`
+
     - **Enforces Strict Placement Rules (Section 8.5):** Ensures all spawn points (squad and enemy) and objectives are located in rooms (not corridors) and that squad and enemy spawns occupy mutually exclusive rooms.
 
   - **Map Generation Strategy Selection**: The `MapGenerator` (or its client) must support selecting different generation strategies (e.g., `procedural-maze`, `static-predefined`, `custom-scripted`).
 
   - **Connectivity Guarantee (No "Open Walls to Nowhere"):**
+
     - **Concept:** "Walls" are edges between cells, never full tiles.
     - **Implementation Rule:** The generator must post-process the map using a flood-fill algorithm starting from the spawn point(s).
       - Any cell reached by flood-fill (passing only through open walls/doors) becomes a valid `Floor` cell.
@@ -127,7 +129,9 @@ A high-density generator designed for exploration depth.
 To facilitate easy creation and debugging of maps, especially for hardcoded or test scenarios, the system should support conversion between `MapDefinition` and a simplified ASCII string format that accurately reflects the "walls between cells" model.
 
 - **Format**: The ASCII representation will use an expanded grid where each character position either represents a cell's content, a wall segment, or a wall corner. For a map of `width` W and `height` H, the ASCII grid will be `(2W+1)` columns wide and `(2H+1)` rows tall.
+
   - **Cell Content Characters (at `(2x+1, 2y+1)` positions):**
+
     - `' '` (space): Floor cell (passable, default interior of the ship).
     - `'#'`: Wall cell (impassable, "void" or "outside" the ship).
     - `'S'`: Floor cell with a Spawn Point
@@ -136,6 +140,7 @@ To facilitate easy creation and debugging of maps, especially for hardcoded or t
     - _Priority_: For Floor cells: `S` > `E` > `O` > ` `. If Cell is `Wall`, then `#` overrides all other content.
 
   - **Wall/Passage Characters:**
+
     - **Horizontal Wall/Passage (at `(2x+1, 2y)` positions):**
       - `'-'`: Horizontal wall segment
       - `' '` (space): Horizontal open passage (no wall)
@@ -150,6 +155,7 @@ To facilitate easy creation and debugging of maps, especially for hardcoded or t
       - `' '` (space): Corner with no adjacent walls (or just for visual spacing if open passages meet)
 
 - **Conversion**:
+
   - `toAscii(map: MapDefinition) -> string`: Convert a `MapDefinition` object into its ASCII string representation.
   - `fromAscii(asciiMap: string) -> MapDefinition`: Parse an ASCII string representation back into a `MapDefinition` object.
   - _Note_: The `fromAscii` conversion will need sensible defaults for attributes not explicitly representable in ASCII (e.g., door HP, objective kind). It will also need to infer wall `true`/`false` based on the presence of `'-'`, `'|'`, `'='`, `'I'` characters.
