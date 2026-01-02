@@ -28,6 +28,7 @@ import { VisibilityManager } from "./managers/VisibilityManager";
 import { EnemyManager } from "./managers/EnemyManager";
 import { UnitManager } from "./managers/UnitManager";
 import { CommandHandler } from "./managers/CommandHandler";
+import { LootManager } from "./managers/LootManager";
 
 export class CoreEngine {
   private prng: PRNG;
@@ -42,6 +43,7 @@ export class CoreEngine {
   private visibilityManager: VisibilityManager;
   private enemyManager: EnemyManager;
   private unitManager: UnitManager;
+  private lootManager: LootManager;
   private commandHandler: CommandHandler;
 
   private commandLog: CommandLogEntry[] = [];
@@ -85,6 +87,7 @@ export class CoreEngine {
       this.los,
       agentControlEnabled,
     );
+    this.lootManager = new LootManager();
     this.missionManager = new MissionManager(missionType, this.prng);
     this.visibilityManager = new VisibilityManager(this.los);
 
@@ -111,6 +114,7 @@ export class CoreEngine {
       },
       units: [],
       enemies: [],
+      loot: [],
       visibleCells: [],
       discoveredCells: [],
       objectives: [],
@@ -431,6 +435,7 @@ export class CoreEngine {
       scaledDt,
       this.doorManager.getDoors(),
       this.prng,
+      this.lootManager,
       scaledDt,
     );
 
@@ -460,6 +465,15 @@ export class CoreEngine {
               x: Math.floor(unit.pos.x),
               y: Math.floor(unit.pos.y),
             };
+
+            if (unit.carriedObjectiveId.startsWith("artifact")) {
+              this.lootManager.spawnLoot(
+                this.state,
+                "artifact_heavy",
+                unit.pos,
+                obj.id,
+              );
+            }
           }
           unit.carriedObjectiveId = undefined;
           this.unitManager.recalculateStats(unit);

@@ -34,7 +34,8 @@ export class CommandHandler {
       cmd.type === CommandType.STOP ||
       cmd.type === CommandType.RESUME_AI ||
       cmd.type === CommandType.OVERWATCH_POINT ||
-      cmd.type === CommandType.EXPLORE
+      cmd.type === CommandType.EXPLORE ||
+      cmd.type === CommandType.PICKUP
     ) {
       if (cmd.type === CommandType.ATTACK_TARGET) {
         const unit = state.units.find((u) => u.id === cmd.unitId);
@@ -43,7 +44,7 @@ export class CommandHandler {
             unit.commandQueue.push(cmd);
           } else {
             unit.commandQueue = [];
-            this.unitManager.executeCommand(unit, cmd);
+            this.unitManager.executeCommand(unit, cmd, state);
           }
         }
       } else {
@@ -54,7 +55,7 @@ export class CommandHandler {
               unit.commandQueue.push(cmd);
             } else {
               unit.commandQueue = [];
-              this.unitManager.executeCommand(unit, cmd);
+              this.unitManager.executeCommand(unit, cmd, state);
             }
           }
         });

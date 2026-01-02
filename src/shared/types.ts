@@ -113,7 +113,7 @@ export enum AIProfile {
 }
 
 export type ChannelingState = {
-  action: "Extract" | "Collect";
+  action: "Extract" | "Collect" | "Pickup";
   remaining: number; // ms
   totalDuration: number; // ms
   targetId?: string; // ID of object/objective being interacted with
@@ -170,6 +170,13 @@ export type Mine = {
   damage: number;
   radius: number;
   ownerId: string;
+};
+
+export type LootItem = {
+  id: string;
+  itemId: string;
+  pos: Vector2;
+  objectiveId?: string;
 };
 
 // --- Item & Equipment Definitions ---
@@ -611,6 +618,7 @@ export type GameState = {
   settings: SimulationSettings;
   commandLog?: CommandLogEntry[];
   squadInventory: { [itemId: string]: number };
+  loot: LootItem[];
 };
 
 // --- Protocol ---
@@ -676,6 +684,7 @@ export enum CommandType {
   USE_ITEM = "USE_ITEM",
   OVERWATCH_POINT = "OVERWATCH_POINT",
   EXPLORE = "EXPLORE",
+  PICKUP = "PICKUP",
 }
 
 export type MoveCommand = {
@@ -749,6 +758,14 @@ export type UseItemCommand = {
   label?: string;
 };
 
+export type PickupCommand = {
+  type: CommandType.PICKUP;
+  unitIds: string[];
+  lootId: string;
+  queue?: boolean;
+  label?: string;
+};
+
 export type Command =
   | MoveCommand
   | OpenDoorCommand
@@ -759,7 +776,8 @@ export type Command =
   | ResumeAiCommand
   | UseItemCommand
   | OverwatchPointCommand
-  | ExploreCommand;
+  | ExploreCommand
+  | PickupCommand;
 
 export interface IMapValidationResult {
   isValid: boolean;

@@ -5,6 +5,7 @@ import {
   CommandType,
   Vector2,
   Command,
+  PickupCommand,
   Door,
   WeaponLibrary,
   ItemLibrary,
@@ -16,6 +17,7 @@ import { Pathfinder } from "../Pathfinder";
 import { LineOfSight } from "../LineOfSight";
 import { VipAI } from "../ai/VipAI";
 import { PRNG } from "../../shared/PRNG";
+import { LootManager } from "./LootManager";
 
 const EPSILON = 0.05;
 
@@ -41,6 +43,7 @@ export class UnitManager {
     dt: number,
     doors: Map<string, Door>,
     prng: PRNG,
+    lootManager: LootManager,
     realDt: number = dt,
   ) {
     const claimedObjectives = new Set<string>();
@@ -118,7 +121,7 @@ export class UnitManager {
       ) {
         const vipCommand = this.vipAi.think(unit, state);
         if (vipCommand) {
-          this.executeCommand(unit, vipCommand, false);
+          this.executeCommand(unit, vipCommand, state, false);
         }
       }
 
@@ -140,6 +143,27 @@ export class UnitManager {
                   unit.carriedObjectiveId = obj.id;
                   this.recalculateStats(unit);
                 }
+              }
+            }
+            unit.state = UnitState.Idle;
+            unit.channeling = undefined;
+            return;
+          } else if (unit.channeling.action === "Pickup") {
+            if (unit.channeling.targetId) {
+              const loot = state.loot?.find(
+                (l) => l.id === unit.channeling!.targetId,
+              );
+              if (loot) {
+                if (loot.objectiveId) {
+                  unit.carriedObjectiveId = loot.objectiveId;
+                  this.recalculateStats(unit);
+                } else {
+                  // Regular item
+                  const itemId = loot.itemId;
+                  state.squadInventory[itemId] =
+                    (state.squadInventory[itemId] || 0) + 1;
+                }
+                lootManager.removeLoot(state, loot.id);
               }
             }
             unit.state = UnitState.Idle;
@@ -227,6 +251,7 @@ export class UnitManager {
                 target: { x: closestSafe.x, y: closestSafe.y },
                 label: "Retreating",
               },
+              state,
               false,
             );
           }
@@ -264,6 +289,7 @@ export class UnitManager {
                 },
                 label: "Grouping Up",
               },
+              state,
               false,
             );
           }
@@ -278,6 +304,38 @@ export class UnitManager {
           unit.engagementPolicy = "ENGAGE";
           unit.engagementPolicySource = undefined;
         }
+      }
+
+      if (state.loot) {
+        const loot = state.loot.find(
+          (l) =>
+            Math.abs(unit.pos.x - l.pos.x) < 0.6 &&
+            Math.abs(unit.pos.y - l.pos.y) < 0.6,
+        );
+
+        if (
+          loot &&
+          unit.activeCommand?.type === CommandType.PICKUP &&
+          (unit.activeCommand as PickupCommand).lootId === loot.id
+        ) {
+          if (unit.state === UnitState.Idle) {
+            const duration = 1000; // 1s as per spec
+            unit.state = UnitState.Channeling;
+            unit.channeling = {
+              action: "Pickup",
+              remaining: duration,
+              totalDuration: duration,
+              targetId: loot.id,
+            };
+            unit.path = undefined;
+            unit.targetPos = undefined;
+            unit.activeCommand = undefined;
+          }
+        }
+      }
+
+      if (unit.state === UnitState.Channeling) {
+        return;
       }
 
       if (unit.archetypeId !== "vip" && state.objectives) {
@@ -354,7 +412,7 @@ export class UnitManager {
       if (unit.state === UnitState.Idle && unit.commandQueue.length > 0) {
         const nextCmd = unit.commandQueue.shift();
         if (nextCmd) {
-          this.executeCommand(unit, nextCmd);
+          this.executeCommand(unit, nextCmd, state);
         }
       } else if (
         unit.archetypeId !== "vip" &&
@@ -387,6 +445,7 @@ export class UnitManager {
                   },
                   label: "Rushing",
                 },
+                state,
                 false,
               );
               actionTaken = true;
@@ -442,6 +501,7 @@ export class UnitManager {
                     target: { x: bestRetreat.x, y: bestRetreat.y },
                     label: "Retreating",
                   },
+                  state,
                   false,
                 );
                 actionTaken = true;
@@ -461,6 +521,7 @@ export class UnitManager {
                   },
                   label: "Engaging",
                 },
+                state,
                 false,
               );
               actionTaken = true;
@@ -548,6 +609,7 @@ export class UnitManager {
                     target,
                     label,
                   },
+                  state,
                   false,
                 );
                 actionTaken = true;
@@ -592,6 +654,7 @@ export class UnitManager {
                   label: "Extracting",
                 },
 
+                state,
                 false,
               );
 
@@ -660,6 +723,7 @@ export class UnitManager {
                       target: targetCell,
                       label: "Exploring",
                     },
+                    state,
                     false,
                   );
                 }
@@ -672,6 +736,7 @@ export class UnitManager {
                     target: unit.explorationTarget!,
                     label: "Exploring",
                   },
+                  state,
                   false,
                 );
               }
@@ -775,7 +840,9 @@ export class UnitManager {
       } else if (!isAttacking && !isMoving) {
         if (unit.state !== UnitState.WaitingForDoor) {
           unit.state = UnitState.Idle;
-          unit.activeCommand = undefined;
+          if (unit.activeCommand?.type !== CommandType.PICKUP) {
+            unit.activeCommand = undefined;
+          }
         }
       }
     });
@@ -819,7 +886,9 @@ export class UnitManager {
         unit.path = undefined;
         unit.targetPos = undefined;
         unit.state = UnitState.Idle;
-        unit.activeCommand = undefined;
+        if (unit.activeCommand?.type === CommandType.MOVE_TO) {
+          unit.activeCommand = undefined;
+        }
       } else {
         unit.targetPos = {
           x: unit.path[0].x + 0.5 + (unit.visualJitter?.x || 0),
@@ -833,7 +902,12 @@ export class UnitManager {
     }
   }
 
-  public executeCommand(unit: Unit, cmd: Command, isManual: boolean = true) {
+  public executeCommand(
+    unit: Unit,
+    cmd: Command,
+    state: GameState,
+    isManual: boolean = true,
+  ) {
     unit.activeCommand = cmd;
     if (cmd.type === CommandType.MOVE_TO) {
       if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
@@ -893,6 +967,7 @@ export class UnitManager {
             target: cmd.target,
             label: "Overwatching",
           },
+          state,
           isManual,
         );
         unit.activeCommand = cmd;
@@ -933,6 +1008,24 @@ export class UnitManager {
     } else if (cmd.type === CommandType.RESUME_AI) {
       unit.aiEnabled = true;
       unit.activeCommand = undefined;
+    } else if (cmd.type === CommandType.PICKUP) {
+      if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
+        const loot = state.loot?.find((l) => l.id === cmd.lootId);
+        if (loot) {
+          this.executeCommand(
+            unit,
+            {
+              type: CommandType.MOVE_TO,
+              unitIds: [unit.id],
+              target: { x: Math.floor(loot.pos.x), y: Math.floor(loot.pos.y) },
+              label: "Picking up",
+            },
+            state,
+            isManual,
+          );
+          unit.activeCommand = cmd;
+        }
+      }
     }
   }
 
