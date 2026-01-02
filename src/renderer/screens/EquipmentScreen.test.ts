@@ -72,6 +72,41 @@ describe("EquipmentScreen", () => {
     expect(medicItem.classList.contains("active")).toBe(true);
   });
 
+  it("should pre-populate equipment from archetype defaults", () => {
+    const screen = new EquipmentScreen(
+      "screen-equipment",
+      initialConfig, // assault has pulse_rifle and combat_knife in ArchetypeLibrary
+      onSave,
+      onBack,
+    );
+    screen.show();
+
+    // Check soldier list display
+    const soldierListTexts = Array.from(
+      container.querySelectorAll(".menu-item.clickable div"),
+    ).map((el) => el.textContent?.trim());
+    expect(soldierListTexts.some((text) => text?.includes("pulse_rifle"))).toBe(
+      true,
+    );
+    expect(
+      soldierListTexts.some((text) => text?.includes("combat_knife")),
+    ).toBe(true);
+
+    // Check paper doll slots
+    const slots = Array.from(container.querySelectorAll("div")).filter(
+      (el) => el.style.width === "100px" && el.style.height === "100px",
+    );
+    const rightHandSlot = slots.find((el) =>
+      el.textContent?.includes("Right Hand"),
+    );
+    const leftHandSlot = slots.find((el) =>
+      el.textContent?.includes("Left Hand"),
+    );
+
+    expect(rightHandSlot?.textContent).toContain("Pulse Rifle");
+    expect(leftHandSlot?.textContent).toContain("Combat Knife");
+  });
+
   it("should allow adding global items", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
