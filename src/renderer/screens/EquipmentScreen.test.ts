@@ -194,13 +194,13 @@ describe("EquipmentScreen", () => {
     armorBtn?.click();
 
     // Heavy Plate gives +150 HP
-    const statsDiv = container.querySelector(
-      "div[style*='grid-template-columns: 1fr 1fr']",
-    );
-    expect(statsDiv?.textContent).toContain("250"); // 100 + 150
+    const soldierStatsDiv = Array.from(container.querySelectorAll("h3")).find(
+      (el) => el.textContent === "SOLDIER ATTRIBUTES",
+    )?.parentElement;
+    expect(soldierStatsDiv?.textContent).toContain("250"); // 100 + 150
 
-    // Check Speed - should be raw 15, not 1.5 (20 - 5 penalty)
-    expect(statsDiv?.textContent).toContain("Speed:15");
+    // Check Speed - should be raw 15 (20 - 5 penalty)
+    expect(soldierStatsDiv?.textContent).toContain("15");
   });
 
   it("should trigger onBack", () => {

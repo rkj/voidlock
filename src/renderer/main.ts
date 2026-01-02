@@ -22,6 +22,8 @@ import { DebriefScreen } from "./screens/DebriefScreen";
 import { CampaignManager } from "./campaign/CampaignManager";
 import { CampaignScreen } from "./screens/CampaignScreen";
 import { CampaignNode, MissionReport } from "../shared/campaign_types";
+import { Icons } from "./Icons";
+import { StatDisplay } from "./ui/StatDisplay";
 import pkg from "../../package.json";
 
 const VERSION = pkg.version;
@@ -737,8 +739,12 @@ document.addEventListener("DOMContentLoaded", () => {
         scaledFireRate > 0 ? (1000 / scaledFireRate).toFixed(1) : "0";
       info.innerHTML = `
         <strong style="color:#0f0;">${arch.name}</strong>
-        <div style="font-size:0.75em; color:#888; margin-top:2px;">
-          SPD:${arch.speed} | ACC:${arch.accuracy} | DMG:${arch.damage} | FR:${fireRateVal} | RNG:${arch.attackRange}
+        <div style="font-size:0.75em; color:#888; margin-top:2px; display:flex; gap:8px;">
+          ${StatDisplay.render(Icons.Speed, arch.speed, "Speed")}
+          ${StatDisplay.render(Icons.Accuracy, arch.accuracy, "Accuracy")}
+          ${StatDisplay.render(Icons.Damage, arch.damage, "Damage")}
+          ${StatDisplay.render(Icons.Rate, fireRateVal, "Fire Rate")}
+          ${StatDisplay.render(Icons.Range, arch.attackRange, "Range")}
         </div>
       `;
 

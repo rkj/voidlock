@@ -5,4 +5,4 @@ UI screens for different game states.
 ## Files
 
 - `CampaignScreen.ts`: Visualizes the Sector Map (DAG) for the campaign mode. Allows navigation between nodes and mission selection.
-- `EquipmentScreen.ts`: Squad management and equipment selection UI. Features an enhanced Armory with compact item stats (Damage, Range, Fire Rate) and detailed tooltips for all equipment and global supplies.
+- `EquipmentScreen.ts`: Squad management and equipment selection UI. Features a unified `StatDisplay` system and separates Soldier Attributes (HP, Speed, Aim) from Weaponry Stats (Damage, Fire Rate, Range) for better clarity. Includes an enhanced Armory with compact item stats and detailed tooltips.

@@ -2,6 +2,7 @@ import { GameState, UnitState, Unit, WeaponLibrary } from "../../shared/types";
 import { MenuController } from "../MenuController";
 import { MenuRenderer } from "./MenuRenderer";
 import { Icons } from "../Icons";
+import { StatDisplay } from "./StatDisplay";
 
 export class HUDManager {
   private lastMenuHtml = "";
@@ -18,19 +19,6 @@ export class HUDManager {
     this.updateTopBar(state);
     this.updateRightPanel(state);
     this.updateSoldierList(state, selectedUnitId);
-  }
-
-  private renderStat(
-    icon: string,
-    value: string | number,
-    title: string,
-  ): string {
-    return `
-      <span style="display:inline-flex; align-items:center; gap:2px;" title="${title}">
-        <img src="${icon}" style="width:12px; height:12px; filter: brightness(0.8);" />
-        <span style="color:#eee">${value}</span>
-      </span>
-    `;
   }
 
   private getWeaponStats(unit: Unit, weaponId?: string) {
@@ -226,11 +214,11 @@ export class HUDManager {
             <strong style="color:#f44336; font-size:0.9em;">${type} x${count}</strong>
           </div>
           <div style="font-size:0.7em; color:#888; display:flex; gap:8px; margin-top:4px; flex-wrap:wrap;">
-            ${this.renderStat(Icons.Speed, e.speed, "Speed")}
-            ${this.renderStat(Icons.Accuracy, e.accuracy, "Accuracy")}
-            ${this.renderStat(Icons.Damage, e.damage, "Damage")}
-            ${this.renderStat(Icons.Rate, fireRateVal, "Fire Rate")}
-            ${this.renderStat(Icons.Range, e.attackRange, "Range")}
+            ${StatDisplay.render(Icons.Speed, e.speed, "Speed")}
+            ${StatDisplay.render(Icons.Accuracy, e.accuracy, "Accuracy")}
+            ${StatDisplay.render(Icons.Damage, e.damage, "Damage")}
+            ${StatDisplay.render(Icons.Rate, fireRateVal, "Fire Rate")}
+            ${StatDisplay.render(Icons.Range, e.attackRange, "Range")}
           </div>
         </div>
       `;
@@ -364,7 +352,7 @@ export class HUDManager {
         `${hpPercent}%`;
 
       (el.querySelector(".u-speed-box") as HTMLElement).innerHTML =
-        this.renderStat(Icons.Speed, unit.stats.speed, "Speed");
+        StatDisplay.render(Icons.Speed, unit.stats.speed, "Speed");
 
       const lhStats = this.getWeaponStats(unit, unit.leftHand);
       const rhStats = this.getWeaponStats(unit, unit.rightHand);
@@ -372,10 +360,10 @@ export class HUDManager {
       const renderWep = (stats: any) => {
         if (!stats) return '<span style="color:#444">EMPTY</span>';
         return `
-          ${this.renderStat(Icons.Damage, stats.damage, "Damage")}
-          ${this.renderStat(Icons.Accuracy, stats.accuracy, "Accuracy")}
-          ${this.renderStat(Icons.Rate, stats.fireRate, "Fire Rate")}
-          ${this.renderStat(Icons.Range, stats.range, "Range")}
+          ${StatDisplay.render(Icons.Damage, stats.damage, "Damage")}
+          ${StatDisplay.render(Icons.Accuracy, stats.accuracy, "Accuracy")}
+          ${StatDisplay.render(Icons.Rate, stats.fireRate, "Fire Rate")}
+          ${StatDisplay.render(Icons.Range, stats.range, "Range")}
         `;
       };
 
