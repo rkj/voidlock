@@ -4,6 +4,9 @@ import {
   Vector2,
   EnemyType,
   EnemyArchetypeLibrary,
+  GameState,
+  ItemLibrary,
+  UseItemCommand,
 } from "../shared/types";
 import { PRNG } from "../shared/PRNG";
 
@@ -73,6 +76,60 @@ export class Director {
     // No longer capped at 100% in the state, but logic that uses it should cap as needed.
     const progress = this.timeInCurrentTurn / this.turnDuration;
     return (this.turn + progress) * this.threatPerTurn;
+  }
+
+  public handleUseItem(state: GameState, cmd: UseItemCommand) {
+    const item = ItemLibrary[cmd.itemId];
+    if (!item) return;
+
+    if (item.action === "Heal") {
+      if (cmd.target) {
+        state.units.forEach((u) => {
+          if (
+            u.hp > 0 &&
+            Math.floor(u.pos.x) === cmd.target!.x &&
+            Math.floor(u.pos.y) === cmd.target!.y
+          ) {
+            u.hp = Math.min(u.maxHp, u.hp + 50);
+          }
+        });
+      }
+    } else if (item.action === "Grenade") {
+      if (cmd.target) {
+        state.enemies.forEach((e) => {
+          const dx = e.pos.x - (cmd.target!.x + 0.5);
+          const dy = e.pos.y - (cmd.target!.y + 0.5);
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist <= 2.5) {
+            e.hp -= 100;
+          }
+        });
+      }
+    } else if (item.action === "Scanner") {
+      if (cmd.target) {
+        const radius = 5;
+        const radiusSq = radius * radius;
+        for (let dy = -radius; dy <= radius; dy++) {
+          for (let dx = -radius; dx <= radius; dx++) {
+            if (dx * dx + dy * dy <= radiusSq) {
+              const tx = Math.floor(cmd.target.x + dx);
+              const ty = Math.floor(cmd.target.y + dy);
+              if (
+                tx >= 0 &&
+                tx < state.map.width &&
+                ty >= 0 &&
+                ty < state.map.height
+              ) {
+                const key = `${tx},${ty}`;
+                if (!state.discoveredCells.includes(key)) {
+                  state.discoveredCells.push(key);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
   }
 
   private spawnWave() {

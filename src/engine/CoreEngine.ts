@@ -86,7 +86,6 @@ export class CoreEngine {
     );
     this.missionManager = new MissionManager(missionType, this.prng);
     this.visibilityManager = new VisibilityManager(this.los);
-    this.commandHandler = new CommandHandler(this.unitManager);
 
     this.commandLog = initialCommandLog;
     this.replayIndex = 0;
@@ -116,14 +115,6 @@ export class CoreEngine {
       squadInventory: squadConfig.inventory || {},
     };
 
-    // Mission Setup
-    this.missionManager.setupMission(
-      this.state,
-      map,
-      this.enemyManager,
-      squadConfig,
-    );
-
     // Initialize Director
     const spawnPoints = map.spawnPoints || [];
     this.director = new Director(
@@ -133,6 +124,16 @@ export class CoreEngine {
       startingThreatLevel,
     );
     this.director.preSpawn();
+
+    this.commandHandler = new CommandHandler(this.unitManager, this.director);
+
+    // Mission Setup
+    this.missionManager.setupMission(
+      this.state,
+      map,
+      this.enemyManager,
+      squadConfig,
+    );
 
     // Mission-specific Spawns
     if (missionType === MissionType.EscortVIP) {

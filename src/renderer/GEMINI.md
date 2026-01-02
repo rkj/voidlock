@@ -8,7 +8,7 @@ This directory contains the main thread rendering logic and user interface for X
 - `Renderer.ts`: The core rendering engine using HTML5 Canvas. Handles drawing the map, units, combat effects, and fog of war.
 - `InputManager.ts`: Manages mouse and keyboard input, translating them into game actions.
 - `ScreenManager.ts`: Manages transitions between different screens (Main Menu, Setup, Mission).
-- `MenuController.ts`: Implements the hierarchical keyboard-driven command menu. Includes context-aware logic to hide or disable options based on game state (e.g., hiding undiscovered extraction points).
+- `MenuController.ts`: Implements the hierarchical keyboard-driven command menu. Includes context-aware logic to hide or disable options based on game state (e.g., hiding undiscovered extraction points or disabling item usage if inventory is empty).
 - `ConfigManager.ts`: Handles loading and saving game configuration and mission parameters.
 - `VisibilityPolygon.ts`: Implements visibility calculations for rendering accurate LOS cones.
 - `Icons.ts`: Contains SVG or canvas-based icon definitions for units, UI elements, and core unit statistics (Speed, Accuracy, Damage, Rate, Range).
