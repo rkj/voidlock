@@ -6,6 +6,7 @@ import {
   UnitState,
   CommandType,
   EnemyType,
+  AIProfile,
 } from "../../../shared/types";
 
 describe("Shooting Through Walls Repro", () => {
@@ -54,6 +55,7 @@ describe("Shooting Through Walls Repro", () => {
         attackRange: 10,
         speed: 20,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     });
@@ -133,6 +135,7 @@ describe("Shooting Through Walls Repro", () => {
         attackRange: 10,
         speed: 20,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     });
@@ -177,6 +180,7 @@ describe("Shooting Through Walls Repro", () => {
         attackRange: 10,
         speed: 20,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     });
@@ -220,6 +224,7 @@ describe("Shooting Through Walls Repro", () => {
         attackRange: 10,
         speed: 20,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     });

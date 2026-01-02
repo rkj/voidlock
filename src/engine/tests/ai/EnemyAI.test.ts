@@ -7,6 +7,7 @@ import {
   SquadConfig,
   CommandType,
   EnemyType,
+  AIProfile,
 } from "../../../shared/types";
 
 describe("Enemy AI", () => {
@@ -98,9 +99,10 @@ describe("Enemy AI", () => {
         accuracy: 1000,
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
-        attackRange: 10,
+        attackRange: 5,
         speed: 20,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     });

@@ -5,6 +5,7 @@ import {
   CellType,
   UnitState,
   SquadConfig,
+  AIProfile,
 } from "../../../shared/types";
 
 describe("Coordinated Objectives AI", () => {
@@ -81,9 +82,10 @@ describe("Coordinated Objectives AI", () => {
         accuracy: 1000,
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
-        attackRange: 1,
-        speed: 10,
+        attackRange: 5,
+        speed: 20,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     });
@@ -101,9 +103,10 @@ describe("Coordinated Objectives AI", () => {
         accuracy: 1000,
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
-        attackRange: 1,
-        speed: 10,
+        attackRange: 5,
+        speed: 20,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     });
@@ -169,9 +172,10 @@ describe("Coordinated Objectives AI", () => {
         accuracy: 1000,
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
-        attackRange: 1,
-        speed: 10,
+        attackRange: 5,
+        speed: 20,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     });
@@ -187,9 +191,10 @@ describe("Coordinated Objectives AI", () => {
         accuracy: 1000,
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
-        attackRange: 1,
-        speed: 10,
+        attackRange: 5,
+        speed: 20,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     });

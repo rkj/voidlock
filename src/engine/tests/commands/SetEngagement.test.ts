@@ -9,6 +9,7 @@ import {
   Archetype,
   ArchetypeLibrary,
   EnemyType,
+  AIProfile,
 } from "../../../shared/types";
 import { GameGrid } from "../../GameGrid";
 
@@ -48,8 +49,10 @@ describe("Command: SET_ENGAGEMENT", () => {
         accuracy: 1000,
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
-                attackRange: 10,
-                speed: 20,      },
+        attackRange: 5,
+        speed: 20,
+      },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     });

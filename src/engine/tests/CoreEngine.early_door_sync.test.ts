@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { CoreEngine } from "../CoreEngine";
-import { CellType, MapDefinition, MissionType } from "../../shared/types";
+import { CellType, MapDefinition, MissionType, AIProfile, UnitState } from "../../shared/types";
 
 describe("CoreEngine Early Door Sync", () => {
   const mockMap: MapDefinition = {
@@ -51,16 +51,17 @@ describe("CoreEngine Early Door Sync", () => {
       pos: { x: 0.5, y: 0.5 },
       hp: 10,
       maxHp: 10,
-      state: "Idle" as any,
+      state: UnitState.Idle,
       stats: {
         damage: 1,
         fireRate: 500,
         accuracy: 1000,
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
-        attackRange: 5,
+        attackRange: 1,
         speed: 20,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       aiEnabled: true,
       commandQueue: [],
       archetypeId: "assault",

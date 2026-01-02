@@ -6,6 +6,7 @@ import {
   UnitState,
   CommandType,
   MissionType,
+  AIProfile,
 } from "../../shared/types";
 
 describe("Unit Command State UI Tracking", () => {
@@ -109,6 +110,7 @@ describe("Unit Command State UI Tracking", () => {
         attackRange: 2,
         speed: 20,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       aiEnabled: true,
     });

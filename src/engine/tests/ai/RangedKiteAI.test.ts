@@ -5,6 +5,7 @@ import {
   CellType,
   UnitState,
   EnemyType,
+  AIProfile,
 } from "../../../shared/types";
 
 describe("RangedKiteAI", () => {
@@ -67,9 +68,10 @@ describe("RangedKiteAI", () => {
         accuracy: 1000,
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
-        attackRange: 5,
-        speed: 2,
+        attackRange: 10,
+        speed: 20,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     });
@@ -114,9 +116,10 @@ describe("RangedKiteAI", () => {
         accuracy: 1000,
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
-        attackRange: 5,
-        speed: 2,
+        attackRange: 10,
+        speed: 20,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     });
@@ -159,9 +162,10 @@ describe("RangedKiteAI", () => {
         accuracy: 1000,
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
-        attackRange: 5,
-        speed: 2,
+        attackRange: 10,
+        speed: 20,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     });

@@ -7,6 +7,7 @@ import {
   CommandType,
   SquadConfig,
   Vector2,
+  AIProfile,
 } from "../../../shared/types";
 import { GameGrid } from "../../GameGrid";
 
@@ -60,9 +61,10 @@ describe("Soldier Exploration AI", () => {
         accuracy: 1000,
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
-        attackRange: 1,
+        attackRange: 5,
         speed: 20,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
     });
   });

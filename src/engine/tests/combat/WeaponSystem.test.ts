@@ -6,6 +6,7 @@ import {
   WeaponLibrary,
   MapDefinition,
   CellType,
+  AIProfile,
 } from "../../../shared/types";
 import { GameGrid } from "../../GameGrid";
 import { Pathfinder } from "../../Pathfinder";
@@ -61,6 +62,7 @@ describe("Weapon System", () => {
         accuracy: 0,
         attackRange: 0,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       archetypeId: "assault",
       leftHand: "combat_knife",
       rightHand: "pulse_rifle",
@@ -93,6 +95,7 @@ describe("Weapon System", () => {
         equipmentAccuracyBonus: 0,
         attackRange: 4,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       archetypeId: "assault",
       leftHand: "combat_knife",
       rightHand: "pulse_rifle",
@@ -149,6 +152,7 @@ describe("Weapon System", () => {
         equipmentAccuracyBonus: 0,
         attackRange: 1,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       archetypeId: "assault",
       leftHand: "combat_knife",
       rightHand: "pulse_rifle",

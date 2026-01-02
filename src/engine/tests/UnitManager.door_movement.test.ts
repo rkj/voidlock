@@ -5,6 +5,7 @@ import {
   MapDefinition,
   MissionType,
   UnitState,
+  AIProfile,
 } from "../../shared/types";
 
 describe("UnitManager Door Movement", () => {
@@ -57,9 +58,10 @@ describe("UnitManager Door Movement", () => {
         accuracy: 1000,
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
-        attackRange: 5,
+        attackRange: 1,
         speed: 20,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       aiEnabled: true,
       commandQueue: [
         {

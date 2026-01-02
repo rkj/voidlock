@@ -10,6 +10,7 @@ import {
   Archetype,
   ArchetypeLibrary,
   EnemyType,
+  AIProfile,
 } from "../../../shared/types";
 
 describe("Command: ATTACK_TARGET", () => {
@@ -49,9 +50,10 @@ describe("Command: ATTACK_TARGET", () => {
         accuracy: 1000, // Fast fire for testing
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
-        attackRange: 10,
+        attackRange: 5,
         speed: 20,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     });
@@ -116,9 +118,10 @@ describe("Command: ATTACK_TARGET", () => {
         accuracy: 1000,
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
-        attackRange: 10,
+        attackRange: 5,
         speed: 20,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     });

@@ -7,6 +7,7 @@ import {
   CommandType,
   SquadConfig,
   EnemyType,
+  AIProfile,
 } from "../../../shared/types";
 
 describe("Command: SET_ENGAGEMENT (Policy Logic)", () => {
@@ -48,6 +49,7 @@ describe("Command: SET_ENGAGEMENT (Policy Logic)", () => {
         attackRange: 10,
         speed: 20,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       engagementPolicy: "IGNORE", // Start with IGNORE
       archetypeId: "assault",

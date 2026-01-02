@@ -11,6 +11,7 @@ import {
   EnemyType,
   SpawnPoint,
   Objective,
+  AIProfile,
 } from "./types";
 
 describe("Shared Types", () => {
@@ -56,6 +57,7 @@ describe("Shared Types", () => {
         attackRange: 1,
         speed: 2,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     };
@@ -80,6 +82,7 @@ describe("Shared Types", () => {
         attackRange: 1,
         speed: 2,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     };
@@ -114,6 +117,7 @@ describe("Shared Types", () => {
         attackRange: 2,
         speed: 2,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     };

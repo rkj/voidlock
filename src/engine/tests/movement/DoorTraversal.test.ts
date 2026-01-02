@@ -10,6 +10,7 @@ import {
   SquadConfig,
   Archetype,
   ArchetypeLibrary,
+  AIProfile,
 } from "../../../shared/types";
 import { Pathfinder } from "../../Pathfinder";
 
@@ -66,6 +67,7 @@ describe("Movement through Doors", () => {
         attackRange: 5,
         speed: 20,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     });
