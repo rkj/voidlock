@@ -134,7 +134,16 @@ export class EnemyManager {
     });
 
     const deadEnemies = state.enemies.filter((enemy) => enemy.hp <= 0);
-    state.stats.aliensKilled += deadEnemies.length;
+    deadEnemies.forEach((enemy) => {
+      state.stats.aliensKilled++;
+      if (enemy.difficulty === 2) {
+        state.stats.elitesKilled++;
+        state.stats.scrapGained += 10;
+      } else if (enemy.difficulty >= 3) {
+        state.stats.elitesKilled++;
+        state.stats.scrapGained += 25;
+      }
+    });
     state.enemies = state.enemies.filter((enemy) => enemy.hp > 0);
   }
 

@@ -77,6 +77,8 @@ export type ObjectiveState = "Pending" | "Completed" | "Failed";
 export type Objective = ObjectiveDefinition & {
   state: ObjectiveState;
   visible?: boolean;
+  scrapRewarded?: boolean;
+  xpRewarded?: boolean;
 };
 
 export interface Grid {
@@ -580,6 +582,8 @@ export type SimulationSettings = {
 export type MissionStats = {
   threatLevel: number;
   aliensKilled: number;
+  elitesKilled: number;
+  scrapGained: number;
   casualties: number;
 };
 
