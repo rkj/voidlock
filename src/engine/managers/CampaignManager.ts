@@ -4,11 +4,10 @@ import {
   GameRules,
   MissionReport,
   CampaignSoldier,
-  CampaignNodeType,
 } from "../../shared/campaign_types";
 import { PRNG } from "../../shared/PRNG";
-import { Vector2 } from "../../shared/types";
 import { StorageProvider } from "../persistence/StorageProvider";
+import { SectorMapGenerator } from "../generators/SectorMapGenerator";
 
 const STORAGE_KEY = "xenopurge_campaign_v1";
 
@@ -20,6 +19,7 @@ export class CampaignManager {
   private static instance: CampaignManager | null = null;
   private storage: StorageProvider;
   private state: CampaignState | null = null;
+  private sectorMapGenerator: SectorMapGenerator;
 
   /**
    * Private constructor to enforce singleton pattern.
@@ -27,6 +27,7 @@ export class CampaignManager {
    */
   private constructor(storage: StorageProvider) {
     this.storage = storage;
+    this.sectorMapGenerator = new SectorMapGenerator();
   }
 
   /**
@@ -58,13 +59,13 @@ export class CampaignManager {
   public startNewCampaign(seed: number, difficulty: string): void {
     const prng = new PRNG(seed);
 
-    const rules: GameRules = this.getRulesForDifficulty(difficulty);
+    const rules = this.getRulesForDifficulty(difficulty);
 
-    const nodes = this.generateSectorMap(seed, rules);
+    const nodes = this.sectorMapGenerator.generate(seed, rules);
     const roster = this.generateInitialRoster(prng);
 
     this.state = {
-      version: "0.41.3", // Current project version
+      version: "0.42.0", // Current project version
       seed,
       rules,
       scrap: 500,
@@ -105,91 +106,6 @@ export class CampaignManager {
           resourceScarcity: 1.0,
         };
     }
-  }
-
-  private generateSectorMap(seed: number, rules: GameRules): CampaignNode[] {
-    const prng = new PRNG(seed);
-    const nodes: CampaignNode[] = [];
-    const layers = 10;
-    const nodesPerLayer = 3;
-
-    // TODO: Implement proper DAG generation (Handled by another task)
-    // For now, a very simple linear-ish DAG
-
-    let previousLayerNodes: CampaignNode[] = [];
-
-    for (let l = 0; l < layers; l++) {
-      const currentLayerNodes: CampaignNode[] = [];
-      const numNodes =
-        l === 0 || l === layers - 1 ? 1 : prng.nextInt(2, nodesPerLayer);
-
-      for (let i = 0; i < numNodes; i++) {
-        const id = `node_${l}_${i}`;
-        const type = this.getRandomNodeType(l, layers, prng);
-        const node: CampaignNode = {
-          id,
-          type,
-          status: l === 0 ? "Accessible" : "Hidden",
-          difficulty: 1 + l * rules.difficultyScaling,
-          mapSeed: prng.nextInt(0, 1000000),
-          connections: [],
-          position: {
-            x: l * 100,
-            y: i * 100 + (nodesPerLayer - numNodes) * 50,
-          },
-        };
-        nodes.push(node);
-        currentLayerNodes.push(node);
-      }
-
-      if (previousLayerNodes.length > 0) {
-        // Connect previous layer to current layer
-        previousLayerNodes.forEach((prev) => {
-          // Each node connects to at least one in next layer
-          const targetIndex = prng.nextInt(0, currentLayerNodes.length - 1);
-          prev.connections.push(currentLayerNodes[targetIndex].id);
-
-          // Potentially connect to more
-          if (currentLayerNodes.length > 1 && prng.next() > 0.6) {
-            let secondTarget;
-            do {
-              secondTarget = prng.nextInt(0, currentLayerNodes.length - 1);
-            } while (secondTarget === targetIndex);
-            prev.connections.push(currentLayerNodes[secondTarget].id);
-          }
-        });
-
-        // Ensure every node in current layer has at least one incoming connection
-        currentLayerNodes.forEach((curr) => {
-          const hasIncoming = previousLayerNodes.some((prev) =>
-            prev.connections.includes(curr.id),
-          );
-          if (!hasIncoming) {
-            const sourceIndex = prng.nextInt(0, previousLayerNodes.length - 1);
-            previousLayerNodes[sourceIndex].connections.push(curr.id);
-          }
-        });
-      }
-
-      previousLayerNodes = currentLayerNodes;
-    }
-
-    return nodes;
-  }
-
-  private getRandomNodeType(
-    layer: number,
-    totalLayers: number,
-    prng: PRNG,
-  ): CampaignNodeType {
-    if (layer === 0) return "Combat";
-    if (layer === totalLayers - 1) return "Boss";
-
-    const roll = prng.next();
-    if (roll < 0.6) return "Combat";
-    if (roll < 0.8) return "Elite";
-    if (roll < 0.9) return "Shop";
-    return "Event";
   }
 
   private generateInitialRoster(prng: PRNG): CampaignSoldier[] {
