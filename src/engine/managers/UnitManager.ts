@@ -367,7 +367,7 @@ export class UnitManager {
             // Move towards enemy to minimize distance, even if in range
             // Stop if very close (e.g. melee range)
             if (dist > 1.5) {
-               this.executeCommand(
+              this.executeCommand(
                 unit,
                 {
                   type: CommandType.MOVE_TO,
@@ -383,46 +383,64 @@ export class UnitManager {
               actionTaken = true;
             }
           } else if (unit.aiProfile === "RETREAT") {
-             // Maximize distance while maintaining LOF
-             // Simple implementation: Move away from enemy if close
-             // But try to stay within attackRange
-             if (dist < unit.stats.attackRange * 0.8) {
-                // Too close, back off
-                // Find a cell further away but still in range/LOF?
-                // For now, just simplistic "run away" to a safe cell if possible, or just away from enemy vector
-                
-                // Find neighbors that increase distance
-                const currentCell = { x: Math.floor(unit.pos.x), y: Math.floor(unit.pos.y) };
-                const neighbors = [
-                    { x: currentCell.x + 1, y: currentCell.y },
-                    { x: currentCell.x - 1, y: currentCell.y },
-                    { x: currentCell.x, y: currentCell.y + 1 },
-                    { x: currentCell.x, y: currentCell.y - 1 },
-                ].filter(n => this.gameGrid.isWalkable(n.x, n.y) && this.gameGrid.canMove(currentCell.x, currentCell.y, n.x, n.y, doors, false));
-                
-                const bestRetreat = neighbors
-                    .map(n => ({ ...n, dist: this.getDistance({ x: n.x + 0.5, y: n.y + 0.5 }, primaryThreat.pos) }))
-                    .sort((a, b) => b.dist - a.dist)[0]; // Maximize distance
+            // Maximize distance while maintaining LOF
+            // Simple implementation: Move away from enemy if close
+            // But try to stay within attackRange
+            if (dist < unit.stats.attackRange * 0.8) {
+              // Too close, back off
+              // Find a cell further away but still in range/LOF?
+              // For now, just simplistic "run away" to a safe cell if possible, or just away from enemy vector
 
-                 if (bestRetreat && bestRetreat.dist > dist) {
-                     this.executeCommand(
-                        unit,
-                        {
-                          type: CommandType.MOVE_TO,
-                          unitIds: [unit.id],
-                          target: { x: bestRetreat.x, y: bestRetreat.y },
-                          label: "Retreating",
-                        },
-                        false,
-                      );
-                      actionTaken = true;
-                 }
-             }
+              // Find neighbors that increase distance
+              const currentCell = {
+                x: Math.floor(unit.pos.x),
+                y: Math.floor(unit.pos.y),
+              };
+              const neighbors = [
+                { x: currentCell.x + 1, y: currentCell.y },
+                { x: currentCell.x - 1, y: currentCell.y },
+                { x: currentCell.x, y: currentCell.y + 1 },
+                { x: currentCell.x, y: currentCell.y - 1 },
+              ].filter(
+                (n) =>
+                  this.gameGrid.isWalkable(n.x, n.y) &&
+                  this.gameGrid.canMove(
+                    currentCell.x,
+                    currentCell.y,
+                    n.x,
+                    n.y,
+                    doors,
+                    false,
+                  ),
+              );
+
+              const bestRetreat = neighbors
+                .map((n) => ({
+                  ...n,
+                  dist: this.getDistance(
+                    { x: n.x + 0.5, y: n.y + 0.5 },
+                    primaryThreat.pos,
+                  ),
+                }))
+                .sort((a, b) => b.dist - a.dist)[0]; // Maximize distance
+
+              if (bestRetreat && bestRetreat.dist > dist) {
+                this.executeCommand(
+                  unit,
+                  {
+                    type: CommandType.MOVE_TO,
+                    unitIds: [unit.id],
+                    target: { x: bestRetreat.x, y: bestRetreat.y },
+                    label: "Retreating",
+                  },
+                  false,
+                );
+                actionTaken = true;
+              }
+            }
           } else {
             // Default behavior (maintain optimal range / move to engage if out of range)
-            if (
-              dist > unit.stats.attackRange
-            ) {
+            if (dist > unit.stats.attackRange) {
               this.executeCommand(
                 unit,
                 {

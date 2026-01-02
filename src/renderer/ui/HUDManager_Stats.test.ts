@@ -120,7 +120,7 @@ describe("HUDManager Stats & Enemy Intel", () => {
     // Speed is in base-stats-row
     const speedBox = item.querySelector(".u-speed-box");
     expect(speedBox?.innerHTML).toContain('title="Speed"');
-    expect(speedBox?.textContent?.trim()).toBe("2.0");
+    expect(speedBox?.textContent?.trim()).toBe("20");
 
     // Check RH stats for pulse_rifle
     const rhStats = item.querySelector(".u-rh-stats");
@@ -141,7 +141,7 @@ describe("HUDManager Stats & Enemy Intel", () => {
 
     // Check stats using titles
     expect(intelDiv?.innerHTML).toContain('title="Speed"');
-    expect(intelDiv?.innerHTML).toContain("3.0");
+    expect(intelDiv?.innerHTML).toContain("30");
     expect(intelDiv?.innerHTML).toContain('title="Accuracy"');
     expect(intelDiv?.innerHTML).toContain("50");
     expect(intelDiv?.innerHTML).toContain('title="Damage"');

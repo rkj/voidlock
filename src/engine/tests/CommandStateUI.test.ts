@@ -81,7 +81,11 @@ describe("Unit Command State UI Tracking", () => {
       ],
     };
     for (let i = 0; i < 30; i++) {
-      longMap.cells.push({ x: i, y: 0, type: i === 1 ? CellType.Wall : CellType.Floor });
+      longMap.cells.push({
+        x: i,
+        y: 0,
+        type: i === 1 ? CellType.Wall : CellType.Floor,
+      });
       longMap.cells.push({ x: i, y: 1, type: CellType.Floor });
     }
 

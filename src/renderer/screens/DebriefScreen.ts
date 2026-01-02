@@ -56,7 +56,9 @@ export class DebriefScreen {
     this.container.appendChild(header);
 
     const subHeader = document.createElement("div");
-    subHeader.textContent = isWon ? "All objectives completed." : "Squad wiped or mission aborted.";
+    subHeader.textContent = isWon
+      ? "All objectives completed."
+      : "Squad wiped or mission aborted.";
     subHeader.style.color = "#888";
     subHeader.style.marginBottom = "40px";
     subHeader.style.fontSize = "1.2em";
@@ -97,7 +99,7 @@ export class DebriefScreen {
 
     // Right Panel: Squad
     const squadPanel = this.createPanel("SQUAD AFTER-ACTION REPORT");
-    this.report.soldierResults.forEach(res => {
+    this.report.soldierResults.forEach((res) => {
       const soldierRow = document.createElement("div");
       soldierRow.style.background = "rgba(0,0,0,0.3)";
       soldierRow.style.border = "1px solid #333";
@@ -106,7 +108,12 @@ export class DebriefScreen {
       soldierRow.style.display = "flex";
       soldierRow.style.flexDirection = "column";
 
-      const statusColor = res.status === "Healthy" ? "#0f0" : res.status === "Wounded" ? "#ff0" : "#f00";
+      const statusColor =
+        res.status === "Healthy"
+          ? "#0f0"
+          : res.status === "Wounded"
+            ? "#ff0"
+            : "#f00";
 
       soldierRow.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center;">
@@ -128,7 +135,7 @@ export class DebriefScreen {
     // Footer
     const footer = document.createElement("div");
     footer.style.marginTop = "50px";
-    
+
     const continueBtn = document.createElement("button");
     continueBtn.textContent = "RETURN TO COMMAND BRIDGE";
     continueBtn.style.padding = "20px 60px";
@@ -138,7 +145,7 @@ export class DebriefScreen {
     continueBtn.style.borderColor = "#0f0";
     continueBtn.onclick = () => this.onContinue();
     footer.appendChild(continueBtn);
-    
+
     this.container.appendChild(footer);
   }
 

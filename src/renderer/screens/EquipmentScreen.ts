@@ -6,7 +6,7 @@ import {
   SquadSoldierConfig,
   Item,
   Weapon,
-  Archetype
+  Archetype,
 } from "../../shared/types";
 
 export class EquipmentScreen {
@@ -20,7 +20,7 @@ export class EquipmentScreen {
     containerId: string,
     initialConfig: SquadConfig,
     onSave: (config: SquadConfig) => void,
-    onBack: () => void
+    onBack: () => void,
   ) {
     const el = document.getElementById(containerId);
     if (!el) throw new Error(`Container #${containerId} not found`);
@@ -121,7 +121,7 @@ export class EquipmentScreen {
       item.className = `menu-item clickable ${this.selectedSoldierIndex === index ? "active" : ""}`;
       item.style.marginBottom = "10px";
       item.style.padding = "10px";
-      
+
       const arch = ArchetypeLibrary[soldier.archetypeId];
       item.innerHTML = `
         <div style="font-weight:bold; color:${this.selectedSoldierIndex === index ? "#0f0" : "#eee"};">
@@ -171,7 +171,7 @@ export class EquipmentScreen {
     const currentStats = this.calculateStats(soldier);
     stats.innerHTML = `
       <span>HP:</span><span style="color:#0f0">${currentStats.hp}</span>
-      <span>Speed:</span><span style="color:#0f0">${(currentStats.speed / 10).toFixed(1)}</span>
+      <span>Speed:</span><span style="color:#0f0">${currentStats.speed}</span>
       <span>Accuracy:</span><span style="color:#0f0">${currentStats.accuracy}%</span>
       <span>Damage:</span><span style="color:#0f0">${currentStats.damage}</span>
     `;
@@ -185,31 +185,64 @@ export class EquipmentScreen {
     slotsGrid.style.gap = "20px";
     slotsGrid.style.marginTop = "20px";
 
-    slotsGrid.appendChild(this.createSlot("Right Hand", soldier.rightHand, (id) => {
-        soldier.rightHand = id;
-        this.render();
-    }, "Weapon"));
+    slotsGrid.appendChild(
+      this.createSlot(
+        "Right Hand",
+        soldier.rightHand,
+        (id) => {
+          soldier.rightHand = id;
+          this.render();
+        },
+        "Weapon",
+      ),
+    );
 
-    slotsGrid.appendChild(this.createSlot("Left Hand", soldier.leftHand, (id) => {
-        soldier.leftHand = id;
-        this.render();
-    }, "Weapon"));
+    slotsGrid.appendChild(
+      this.createSlot(
+        "Left Hand",
+        soldier.leftHand,
+        (id) => {
+          soldier.leftHand = id;
+          this.render();
+        },
+        "Weapon",
+      ),
+    );
 
-    slotsGrid.appendChild(this.createSlot("Body", soldier.body, (id) => {
-        soldier.body = id;
-        this.render();
-    }, "Armor"));
+    slotsGrid.appendChild(
+      this.createSlot(
+        "Body",
+        soldier.body,
+        (id) => {
+          soldier.body = id;
+          this.render();
+        },
+        "Armor",
+      ),
+    );
 
-    slotsGrid.appendChild(this.createSlot("Feet", soldier.feet, (id) => {
-        soldier.feet = id;
-        this.render();
-    }, "Feet"));
+    slotsGrid.appendChild(
+      this.createSlot(
+        "Feet",
+        soldier.feet,
+        (id) => {
+          soldier.feet = id;
+          this.render();
+        },
+        "Feet",
+      ),
+    );
 
     content.appendChild(slotsGrid);
     panel.appendChild(content);
   }
 
-  private createSlot(label: string, itemId: string | undefined, onDrop: (id: string) => void, category: string): HTMLElement {
+  private createSlot(
+    label: string,
+    itemId: string | undefined,
+    onDrop: (id: string) => void,
+    category: string,
+  ): HTMLElement {
     const slot = document.createElement("div");
     slot.style.width = "100px";
     slot.style.height = "100px";
@@ -239,7 +272,7 @@ export class EquipmentScreen {
         name.style.textAlign = "center";
         name.style.color = "#0f0";
         slot.appendChild(name);
-        
+
         slot.style.borderStyle = "solid";
         slot.style.borderColor = "#0f0";
 
@@ -250,23 +283,23 @@ export class EquipmentScreen {
         removeBtn.style.right = "5px";
         removeBtn.style.color = "#f00";
         removeBtn.onclick = (e) => {
-            e.stopPropagation();
-            onDrop("");
+          e.stopPropagation();
+          onDrop("");
         };
         slot.appendChild(removeBtn);
       }
     } else {
-        const plus = document.createElement("div");
-        plus.textContent = "+";
-        plus.style.fontSize = "2em";
-        plus.style.color = "#333";
-        slot.appendChild(plus);
+      const plus = document.createElement("div");
+      plus.textContent = "+";
+      plus.style.fontSize = "2em";
+      plus.style.color = "#333";
+      slot.appendChild(plus);
     }
 
     slot.onclick = () => {
-        // In a real UI we might open a selection menu or handle drag/drop
-        // For this prototype, clicking a slot could highlight available items in the Armory
-        // but we'll just keep it simple.
+      // In a real UI we might open a selection menu or handle drag/drop
+      // For this prototype, clicking a slot could highlight available items in the Armory
+      // but we'll just keep it simple.
     };
 
     return slot;
@@ -274,31 +307,53 @@ export class EquipmentScreen {
 
   private renderArmory(panel: HTMLElement) {
     // Ranged Weapons
-    this.renderCategory(panel, "Ranged Weapons", Object.values(WeaponLibrary).filter(w => w.type === "Ranged"), (w) => {
+    this.renderCategory(
+      panel,
+      "Ranged Weapons",
+      Object.values(WeaponLibrary).filter((w) => w.type === "Ranged"),
+      (w) => {
         const s = this.config.soldiers[this.selectedSoldierIndex];
         s.rightHand = w.id;
         this.render();
-    });
+      },
+    );
 
     // Melee Weapons
-    this.renderCategory(panel, "Melee Weapons", Object.values(WeaponLibrary).filter(w => w.type === "Melee"), (w) => {
+    this.renderCategory(
+      panel,
+      "Melee Weapons",
+      Object.values(WeaponLibrary).filter((w) => w.type === "Melee"),
+      (w) => {
         const s = this.config.soldiers[this.selectedSoldierIndex];
         s.leftHand = w.id;
         this.render();
-    });
+      },
+    );
 
     // Armor & Gear
-    this.renderCategory(panel, "Armor", Object.values(ItemLibrary).filter(i => i.id.includes("recon") || i.id.includes("plate")), (i) => {
+    this.renderCategory(
+      panel,
+      "Armor",
+      Object.values(ItemLibrary).filter(
+        (i) => i.id.includes("recon") || i.id.includes("plate"),
+      ),
+      (i) => {
         const s = this.config.soldiers[this.selectedSoldierIndex];
         s.body = i.id;
         this.render();
-    });
+      },
+    );
 
-    this.renderCategory(panel, "Footwear", Object.values(ItemLibrary).filter(i => i.id.includes("boots")), (i) => {
+    this.renderCategory(
+      panel,
+      "Footwear",
+      Object.values(ItemLibrary).filter((i) => i.id.includes("boots")),
+      (i) => {
         const s = this.config.soldiers[this.selectedSoldierIndex];
         s.feet = i.id;
         this.render();
-    });
+      },
+    );
 
     // Global Supplies
     const suppliesTitle = document.createElement("h3");
@@ -308,61 +363,66 @@ export class EquipmentScreen {
     suppliesTitle.style.paddingBottom = "5px";
     panel.appendChild(suppliesTitle);
 
-    const supplyItems = Object.values(ItemLibrary).filter(i => i.action);
-    supplyItems.forEach(item => {
-        const row = document.createElement("div");
-        row.style.display = "flex";
-        row.style.justifyContent = "space-between";
-        row.style.alignItems = "center";
-        row.style.marginBottom = "5px";
-        row.style.padding = "5px";
-        row.style.border = "1px solid #333";
+    const supplyItems = Object.values(ItemLibrary).filter((i) => i.action);
+    supplyItems.forEach((item) => {
+      const row = document.createElement("div");
+      row.style.display = "flex";
+      row.style.justifyContent = "space-between";
+      row.style.alignItems = "center";
+      row.style.marginBottom = "5px";
+      row.style.padding = "5px";
+      row.style.border = "1px solid #333";
 
-        const name = document.createElement("span");
-        name.textContent = item.name;
-        name.style.fontSize = "0.9em";
+      const name = document.createElement("span");
+      name.textContent = item.name;
+      name.style.fontSize = "0.9em";
 
-        const controls = document.createElement("div");
-        controls.style.display = "flex";
-        controls.style.alignItems = "center";
-        controls.style.gap = "10px";
+      const controls = document.createElement("div");
+      controls.style.display = "flex";
+      controls.style.alignItems = "center";
+      controls.style.gap = "10px";
 
-        const count = this.config.inventory[item.id] || 0;
+      const count = this.config.inventory[item.id] || 0;
 
-        const minus = document.createElement("button");
-        minus.textContent = "-";
-        minus.style.padding = "2px 8px";
-        minus.onclick = () => {
-            if (count > 0) {
-                this.config.inventory[item.id] = count - 1;
-                this.render();
-            }
-        };
+      const minus = document.createElement("button");
+      minus.textContent = "-";
+      minus.style.padding = "2px 8px";
+      minus.onclick = () => {
+        if (count > 0) {
+          this.config.inventory[item.id] = count - 1;
+          this.render();
+        }
+      };
 
-        const countDisplay = document.createElement("span");
-        countDisplay.textContent = count.toString();
-        countDisplay.style.minWidth = "20px";
-        countDisplay.style.textAlign = "center";
+      const countDisplay = document.createElement("span");
+      countDisplay.textContent = count.toString();
+      countDisplay.style.minWidth = "20px";
+      countDisplay.style.textAlign = "center";
 
-        const plus = document.createElement("button");
-        plus.textContent = "+";
-        plus.style.padding = "2px 8px";
-        plus.onclick = () => {
-            this.config.inventory[item.id] = count + 1;
-            this.render();
-        };
+      const plus = document.createElement("button");
+      plus.textContent = "+";
+      plus.style.padding = "2px 8px";
+      plus.onclick = () => {
+        this.config.inventory[item.id] = count + 1;
+        this.render();
+      };
 
-        controls.appendChild(minus);
-        controls.appendChild(countDisplay);
-        controls.appendChild(plus);
+      controls.appendChild(minus);
+      controls.appendChild(countDisplay);
+      controls.appendChild(plus);
 
-        row.appendChild(name);
-        row.appendChild(controls);
-        panel.appendChild(row);
+      row.appendChild(name);
+      row.appendChild(controls);
+      panel.appendChild(row);
     });
   }
 
-  private renderCategory(panel: HTMLElement, title: string, items: (Weapon | Item)[], onSelect: (item: any) => void) {
+  private renderCategory(
+    panel: HTMLElement,
+    title: string,
+    items: (Weapon | Item)[],
+    onSelect: (item: any) => void,
+  ) {
     const h3 = document.createElement("h3");
     h3.textContent = title;
     h3.style.fontSize = "1em";
@@ -370,20 +430,20 @@ export class EquipmentScreen {
     h3.style.margin = "15px 0 5px 0";
     panel.appendChild(h3);
 
-    items.forEach(item => {
-        const btn = document.createElement("div");
-        btn.className = "menu-item clickable";
-        btn.style.padding = "5px 10px";
-        btn.style.marginBottom = "3px";
-        btn.style.fontSize = "0.85em";
-        btn.innerHTML = `
+    items.forEach((item) => {
+      const btn = document.createElement("div");
+      btn.className = "menu-item clickable";
+      btn.style.padding = "5px 10px";
+      btn.style.marginBottom = "3px";
+      btn.style.fontSize = "0.85em";
+      btn.innerHTML = `
             <div style="display:flex; justify-content:space-between;">
                 <span>${item.name}</span>
                 <span style="color:#888;">${item.cost} CR</span>
             </div>
         `;
-        btn.onclick = () => onSelect(item);
-        panel.appendChild(btn);
+      btn.onclick = () => onSelect(item);
+      panel.appendChild(btn);
     });
   }
 
@@ -397,22 +457,27 @@ export class EquipmentScreen {
     let damage = arch.damage;
 
     // Apply equipment bonuses
-    const slots = [soldier.body, soldier.feet, soldier.rightHand, soldier.leftHand];
-    slots.forEach(id => {
-        if (!id) return;
-        const item = ItemLibrary[id];
-        if (item) {
-            if (item.hpBonus) hp += item.hpBonus;
-            if (item.speedBonus) speed += item.speedBonus;
-            if (item.accuracyBonus) accuracy += item.accuracyBonus;
-        }
-        const weapon = WeaponLibrary[id];
-        if (weapon) {
-            // Weapon accuracy is a modifier to soldierAim?
-            // Types say: accuracy: number; // Percentage modifier relative to soldierAim
-            // But we'll just show the weapon damage/accuracy for now.
-            damage = Math.max(damage, weapon.damage);
-        }
+    const slots = [
+      soldier.body,
+      soldier.feet,
+      soldier.rightHand,
+      soldier.leftHand,
+    ];
+    slots.forEach((id) => {
+      if (!id) return;
+      const item = ItemLibrary[id];
+      if (item) {
+        if (item.hpBonus) hp += item.hpBonus;
+        if (item.speedBonus) speed += item.speedBonus;
+        if (item.accuracyBonus) accuracy += item.accuracyBonus;
+      }
+      const weapon = WeaponLibrary[id];
+      if (weapon) {
+        // Weapon accuracy is a modifier to soldierAim?
+        // Types say: accuracy: number; // Percentage modifier relative to soldierAim
+        // But we'll just show the weapon damage/accuracy for now.
+        damage = Math.max(damage, weapon.damage);
+      }
     });
 
     return { hp, speed, accuracy, damage };

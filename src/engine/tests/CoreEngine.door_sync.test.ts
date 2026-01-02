@@ -1,6 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { CoreEngine } from "../CoreEngine";
-import { CellType, MapDefinition, MissionType, AIProfile, UnitState } from "../../shared/types";
+import {
+  CellType,
+  MapDefinition,
+  MissionType,
+  AIProfile,
+  UnitState,
+} from "../../shared/types";
 
 describe("CoreEngine Door Sync", () => {
   const mockMap: MapDefinition = {

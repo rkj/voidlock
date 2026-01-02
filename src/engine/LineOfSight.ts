@@ -13,9 +13,7 @@ export class LineOfSight {
     const originCellY = Math.floor(origin.y);
 
     const actualRange =
-      range !== undefined
-        ? range
-        : this.graph.width + this.graph.height;
+      range !== undefined ? range : this.graph.width + this.graph.height;
 
     // Iterate through a bounding box around the origin, centered on cells
     const searchRange = Math.ceil(actualRange);

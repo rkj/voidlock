@@ -344,22 +344,26 @@ document.addEventListener("DOMContentLoaded", () => {
       currentMapWidth = 14 + Math.floor(node.difficulty * 2);
       currentMapHeight = 14 + Math.floor(node.difficulty * 2);
       currentSpawnPointCount = 1 + Math.floor(node.difficulty / 5);
-      
+
       // Update Setup UI
-      const mapSeedInput = document.getElementById("map-seed") as HTMLInputElement;
+      const mapSeedInput = document.getElementById(
+        "map-seed",
+      ) as HTMLInputElement;
       if (mapSeedInput) mapSeedInput.value = currentSeed.toString();
-      
+
       const wInput = document.getElementById("map-width") as HTMLInputElement;
       const hInput = document.getElementById("map-height") as HTMLInputElement;
       if (wInput) wInput.value = currentMapWidth.toString();
       if (hInput) hInput.value = currentMapHeight.toString();
 
-      const spInput = document.getElementById("map-spawn-points") as HTMLInputElement;
+      const spInput = document.getElementById(
+        "map-spawn-points",
+      ) as HTMLInputElement;
       if (spInput) spInput.value = currentSpawnPointCount.toString();
 
       screenManager.show("mission-setup");
     },
-    () => screenManager.goBack()
+    () => screenManager.goBack(),
   );
 
   document
@@ -734,7 +738,7 @@ document.addEventListener("DOMContentLoaded", () => {
       info.innerHTML = `
         <strong style="color:#0f0;">${arch.name}</strong>
         <div style="font-size:0.75em; color:#888; margin-top:2px;">
-          SPD:${(arch.speed / 10).toFixed(1)} | ACC:${arch.accuracy} | DMG:${arch.damage} | FR:${fireRateVal} | RNG:${arch.attackRange}
+          SPD:${arch.speed} | ACC:${arch.accuracy} | DMG:${arch.damage} | FR:${fireRateVal} | RNG:${arch.attackRange}
         </div>
       `;
 

@@ -1,4 +1,10 @@
-export type ScreenId = "main-menu" | "campaign" | "mission-setup" | "equipment" | "mission" | "debrief";
+export type ScreenId =
+  | "main-menu"
+  | "campaign"
+  | "mission-setup"
+  | "equipment"
+  | "mission"
+  | "debrief";
 
 export class ScreenManager {
   private screens: Map<ScreenId, HTMLElement> = new Map();

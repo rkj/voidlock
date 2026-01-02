@@ -37,7 +37,9 @@ describe("CampaignManager", () => {
     expect(state?.scrap).toBe(500);
     expect(state?.roster.length).toBe(4);
     expect(state?.nodes.length).toBeGreaterThan(0);
-    expect(state?.nodes.filter(n => n.status === "Accessible").length).toBeGreaterThan(0);
+    expect(
+      state?.nodes.filter((n) => n.status === "Accessible").length,
+    ).toBeGreaterThan(0);
   });
 
   it("should save and load campaign state", () => {
@@ -55,7 +57,7 @@ describe("CampaignManager", () => {
     manager.startNewCampaign(12345, "Normal");
     const availableNodes = manager.getAvailableNodes();
     const targetNodeId = availableNodes[0].id;
-    
+
     const report: MissionReport = {
       nodeId: targetNodeId,
       seed: 123,
@@ -65,20 +67,26 @@ describe("CampaignManager", () => {
       intelGained: 5,
       timeSpent: 1000,
       soldierResults: [
-        { soldierId: "soldier_0", xpGained: 50, kills: 3, promoted: false, status: "Healthy" }
-      ]
+        {
+          soldierId: "soldier_0",
+          xpGained: 50,
+          kills: 3,
+          promoted: false,
+          status: "Healthy",
+        },
+      ],
     };
 
     manager.processMissionResult(report);
     const state = manager.getState();
 
-    const node = state?.nodes.find(n => n.id === targetNodeId);
+    const node = state?.nodes.find((n) => n.id === targetNodeId);
     expect(node?.status).toBe("Cleared");
     expect(state?.scrap).toBe(600);
     expect(state?.intel).toBe(5);
     expect(state?.history.length).toBe(1);
-    
-    const soldier = state?.roster.find(s => s.id === "soldier_0");
+
+    const soldier = state?.roster.find((s) => s.id === "soldier_0");
     expect(soldier?.xp).toBe(50);
     expect(soldier?.kills).toBe(3);
     expect(soldier?.missions).toBe(1);
@@ -88,7 +96,7 @@ describe("CampaignManager", () => {
     manager.startNewCampaign(12345, "Normal");
     const startNode = manager.getAvailableNodes()[0];
     const nextNodeIds = startNode.connections;
-    
+
     expect(nextNodeIds.length).toBeGreaterThan(0);
 
     const report: MissionReport = {
@@ -99,13 +107,13 @@ describe("CampaignManager", () => {
       scrapGained: 50,
       intelGained: 0,
       timeSpent: 500,
-      soldierResults: []
+      soldierResults: [],
     };
 
     manager.processMissionResult(report);
-    
-    nextNodeIds.forEach(id => {
-      const node = manager.getState()?.nodes.find(n => n.id === id);
+
+    nextNodeIds.forEach((id) => {
+      const node = manager.getState()?.nodes.find((n) => n.id === id);
       expect(node?.status).toBe("Accessible");
     });
   });
@@ -113,7 +121,7 @@ describe("CampaignManager", () => {
   it("should support different difficulty levels", () => {
     manager.startNewCampaign(1, "Easy");
     expect(manager.getState()?.rules.deathRule).toBe("Simulation");
-    
+
     manager.startNewCampaign(1, "Hard");
     expect(manager.getState()?.rules.deathRule).toBe("Iron");
   });

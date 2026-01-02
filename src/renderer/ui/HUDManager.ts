@@ -226,7 +226,7 @@ export class HUDManager {
             <strong style="color:#f44336; font-size:0.9em;">${type} x${count}</strong>
           </div>
           <div style="font-size:0.7em; color:#888; display:flex; gap:8px; margin-top:4px; flex-wrap:wrap;">
-            ${this.renderStat(Icons.Speed, (e.speed / 10).toFixed(1), "Speed")}
+            ${this.renderStat(Icons.Speed, e.speed, "Speed")}
             ${this.renderStat(Icons.Accuracy, e.accuracy, "Accuracy")}
             ${this.renderStat(Icons.Damage, e.damage, "Damage")}
             ${this.renderStat(Icons.Rate, fireRateVal, "Fire Rate")}
@@ -364,7 +364,7 @@ export class HUDManager {
         `${hpPercent}%`;
 
       (el.querySelector(".u-speed-box") as HTMLElement).innerHTML =
-        this.renderStat(Icons.Speed, (unit.stats.speed / 10).toFixed(1), "Speed");
+        this.renderStat(Icons.Speed, unit.stats.speed, "Speed");
 
       const lhStats = this.getWeaponStats(unit, unit.leftHand);
       const rhStats = this.getWeaponStats(unit, unit.rightHand);

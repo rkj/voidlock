@@ -11,7 +11,7 @@ export class CampaignScreen {
     containerId: string,
     manager: CampaignManager,
     onNodeSelect: (node: CampaignNode) => void,
-    onBack: () => void
+    onBack: () => void,
   ) {
     const el = document.getElementById(containerId);
     if (!el) throw new Error(`Container #${containerId} not found`);
@@ -79,7 +79,8 @@ export class CampaignScreen {
     viewport.style.position = "relative";
     viewport.style.overflow = "auto";
     viewport.style.padding = "100px";
-    viewport.style.background = "radial-gradient(circle, #1a1a1a 0%, #000 100%)";
+    viewport.style.background =
+      "radial-gradient(circle, #1a1a1a 0%, #000 100%)";
 
     this.renderMap(viewport, state.nodes);
     this.container.appendChild(viewport);
@@ -144,7 +145,7 @@ export class CampaignScreen {
     }, 0);
 
     // Nodes
-    nodes.forEach(node => {
+    nodes.forEach((node) => {
       const nodeEl = document.createElement("div");
       nodeEl.className = `campaign-node ${node.status.toLowerCase()}`;
       nodeEl.style.position = "absolute";
@@ -190,11 +191,21 @@ export class CampaignScreen {
       const icon = document.createElement("span");
       icon.style.fontSize = "0.8em";
       switch (node.type) {
-        case "Combat": icon.textContent = "⚔️"; break;
-        case "Elite": icon.textContent = "💀"; break;
-        case "Shop": icon.textContent = "💰"; break;
-        case "Event": icon.textContent = "❓"; break;
-        case "Boss": icon.textContent = "👹"; break;
+        case "Combat":
+          icon.textContent = "⚔️";
+          break;
+        case "Elite":
+          icon.textContent = "💀";
+          break;
+        case "Shop":
+          icon.textContent = "💰";
+          break;
+        case "Event":
+          icon.textContent = "❓";
+          break;
+        case "Boss":
+          icon.textContent = "👹";
+          break;
       }
       nodeEl.appendChild(icon);
 
@@ -210,24 +221,27 @@ export class CampaignScreen {
     ctx.lineWidth = 2;
     ctx.setLineDash([5, 5]);
 
-    nodes.forEach(node => {
+    nodes.forEach((node) => {
       if (node.status === "Hidden") return;
 
-      node.connections.forEach(connId => {
-        const target = nodes.find(n => n.id === connId);
+      node.connections.forEach((connId) => {
+        const target = nodes.find((n) => n.id === connId);
         if (target && target.status !== "Hidden") {
           ctx.beginPath();
           ctx.moveTo(node.position.x + 120, node.position.y + 120);
           ctx.lineTo(target.position.x + 120, target.position.y + 120);
-          
-          if (node.status === "Cleared" && (target.status === "Accessible" || target.status === "Cleared")) {
+
+          if (
+            node.status === "Cleared" &&
+            (target.status === "Accessible" || target.status === "Cleared")
+          ) {
             ctx.strokeStyle = "#080";
             ctx.setLineDash([]);
           } else {
             ctx.strokeStyle = "#444";
             ctx.setLineDash([5, 5]);
           }
-          
+
           ctx.stroke();
         }
       });
