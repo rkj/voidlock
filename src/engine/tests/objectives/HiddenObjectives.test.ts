@@ -68,6 +68,8 @@ describe("Hidden Objectives", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
 
     // Tick 1: Update visibility

@@ -75,6 +75,8 @@ describe("RangedKiteAI", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
 
     engine.update(100);
@@ -124,6 +126,8 @@ describe("RangedKiteAI", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
 
     engine.update(100);
@@ -171,6 +175,8 @@ describe("RangedKiteAI", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
   });
 });

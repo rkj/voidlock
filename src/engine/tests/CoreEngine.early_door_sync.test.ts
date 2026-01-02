@@ -72,6 +72,8 @@ describe("CoreEngine Early Door Sync", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
 
     // Run update to trigger "Opening" logic (timer start)

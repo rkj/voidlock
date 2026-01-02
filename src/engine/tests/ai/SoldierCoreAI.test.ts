@@ -58,6 +58,8 @@ describe("SoldierCoreAI", () => {
       engagementPolicy: "ENGAGE",
       archetypeId: "assault",
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
     engine.addEnemy({
       id: "e1",
@@ -108,6 +110,8 @@ describe("SoldierCoreAI", () => {
       engagementPolicy: "ENGAGE",
       archetypeId: "assault",
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
     engine.addEnemy({
       id: "e1",
@@ -159,6 +163,8 @@ describe("SoldierCoreAI", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
     engine.addUnit({
       id: "u2",
@@ -179,6 +185,8 @@ describe("SoldierCoreAI", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
     engine.addEnemy({
       id: "e1",

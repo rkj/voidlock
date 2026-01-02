@@ -195,6 +195,8 @@ export class CoreEngine {
           aiEnabled: false,
           commandQueue: [],
           kills: 0,
+          damageDealt: 0,
+          objectivesCompleted: 0,
         } as Unit);
 
         // Reveal VIP position
@@ -282,6 +284,8 @@ export class CoreEngine {
         commandQueue: [],
         aiEnabled: false,
         kills: 0,
+        damageDealt: 0,
+        objectivesCompleted: 0,
       } as Unit);
     });
 

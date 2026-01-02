@@ -74,6 +74,8 @@ describe("Objective Prioritization AI", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
   });
 

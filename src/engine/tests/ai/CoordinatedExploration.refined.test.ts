@@ -134,6 +134,8 @@ describe("Coordinated Exploration Refined", () => {
         archetypeId: "assault",
 
         kills: 0,
+        damageDealt: 0,
+        objectivesCompleted: 0,
       });
     }
 
@@ -189,6 +191,8 @@ describe("Coordinated Exploration Refined", () => {
       archetypeId: "assault",
 
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
 
     engine.addUnit({
@@ -225,6 +229,8 @@ describe("Coordinated Exploration Refined", () => {
       archetypeId: "assault",
 
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
 
     engine.update(100);

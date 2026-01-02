@@ -74,6 +74,8 @@ describe("Enemy Movement", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
     });
 
     const visited = new Set<string>();

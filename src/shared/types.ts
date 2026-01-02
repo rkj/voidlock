@@ -163,6 +163,8 @@ export type Unit = Entity & {
   archetypeId: string;
   carriedObjectiveId?: string; // New: ID of objective being carried (e.g. artifact)
   kills: number;
+  damageDealt: number;
+  objectivesCompleted: number;
 };
 
 export type Mine = {
