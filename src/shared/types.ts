@@ -167,6 +167,7 @@ export type Item = {
   id: string;
   name: string;
   type: ItemType;
+  description?: string;
   // Passive effects
   hpBonus?: number;
   speedBonus?: number;
@@ -189,6 +190,7 @@ export const ItemLibrary: { [id: string]: Item } = {
     id: "frag_grenade",
     name: "Frag Grenade",
     type: "Active",
+    description: "Anti-personnel explosive with a moderate blast radius.",
     action: "Grenade",
     charges: 2,
     cost: 15,
@@ -197,6 +199,7 @@ export const ItemLibrary: { [id: string]: Item } = {
     id: "medkit",
     name: "Medkit",
     type: "Active",
+    description: "Portable medical supplies to treat injuries in the field.",
     action: "Heal",
     charges: 1,
     cost: 10,
@@ -205,6 +208,7 @@ export const ItemLibrary: { [id: string]: Item } = {
     id: "mine",
     name: "Landmine",
     type: "Active",
+    description: "Proximity-detonated explosive. Good for covering retreats.",
     action: "Mine",
     charges: 2,
     cost: 15,
@@ -213,6 +217,7 @@ export const ItemLibrary: { [id: string]: Item } = {
     id: "scanner",
     name: "Scanner",
     type: "Active",
+    description: "Reveals enemies and objectives through fog of war.",
     action: "Scanner",
     charges: 3,
     cost: 20,
@@ -221,6 +226,7 @@ export const ItemLibrary: { [id: string]: Item } = {
     id: "combat_boots",
     name: "Combat Boots",
     type: "Passive",
+    description: "Standard issue tactical footwear.",
     speedBonus: 5, // +0.5 tiles/s
     cost: 0,
   },
@@ -228,6 +234,8 @@ export const ItemLibrary: { [id: string]: Item } = {
     id: "mag_lev_boots",
     name: "Mag-Lev Boots",
     type: "Passive",
+    description:
+      "Advanced boots that reduce friction, significantly increasing movement speed.",
     speedBonus: 10, // +1.0 tiles/s
     cost: 30,
   },
@@ -235,6 +243,8 @@ export const ItemLibrary: { [id: string]: Item } = {
     id: "light_recon",
     name: "Light Recon Armor",
     type: "Passive",
+    description:
+      "Lightweight plating that provides protection without sacrificing mobility.",
     hpBonus: 50,
     speedBonus: 2,
     cost: 20,
@@ -243,6 +253,8 @@ export const ItemLibrary: { [id: string]: Item } = {
     id: "heavy_plate",
     name: "Heavy Plate Armor",
     type: "Passive",
+    description:
+      "Thick ceramic plating. Provides massive HP but slows the user and slightly impairs aim.",
     hpBonus: 150,
     speedBonus: -5,
     accuracyBonus: -10,
@@ -274,6 +286,7 @@ export type Weapon = {
   id: string;
   name: string;
   type: WeaponType;
+  description?: string;
   damage: number;
   fireRate: number; // ms
   accuracy: number; // Percentage modifier relative to soldierAim
@@ -286,6 +299,7 @@ export const WeaponLibrary: { [id: string]: Weapon } = {
     id: "combat_knife",
     name: "Combat Knife",
     type: "Melee",
+    description: "A reliable blade for close-quarters combat.",
     damage: 15,
     fireRate: 400,
     accuracy: 10,
@@ -296,6 +310,7 @@ export const WeaponLibrary: { [id: string]: Weapon } = {
     id: "power_sword",
     name: "Power Sword",
     type: "Melee",
+    description: "Energized blade that shears through armor with ease.",
     damage: 35,
     fireRate: 800,
     accuracy: 15,
@@ -306,6 +321,7 @@ export const WeaponLibrary: { [id: string]: Weapon } = {
     id: "thunder_hammer",
     name: "Thunder Hammer",
     type: "Melee",
+    description: "A massive hammer that releases a kinetic blast upon impact.",
     damage: 80,
     fireRate: 1500,
     accuracy: 5,
@@ -316,6 +332,7 @@ export const WeaponLibrary: { [id: string]: Weapon } = {
     id: "pistol",
     name: "Pistol",
     type: "Ranged",
+    description: "Standard semi-automatic sidearm.",
     damage: 15,
     fireRate: 500,
     accuracy: 0,
@@ -326,6 +343,7 @@ export const WeaponLibrary: { [id: string]: Weapon } = {
     id: "pulse_rifle",
     name: "Pulse Rifle",
     type: "Ranged",
+    description: "Versatile assault rifle with good range and rate of fire.",
     damage: 20,
     fireRate: 600,
     accuracy: 5,
@@ -336,6 +354,7 @@ export const WeaponLibrary: { [id: string]: Weapon } = {
     id: "shotgun",
     name: "Shotgun",
     type: "Ranged",
+    description: "Devastating at short range, but quickly loses effectiveness.",
     damage: 40,
     fireRate: 1000,
     accuracy: -10,
@@ -346,6 +365,8 @@ export const WeaponLibrary: { [id: string]: Weapon } = {
     id: "flamer",
     name: "Flamer",
     type: "Ranged",
+    description:
+      "Projects a stream of liquid fire. Inaccurate but fast firing.",
     damage: 25,
     fireRate: 100,
     accuracy: -5,
