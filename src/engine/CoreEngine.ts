@@ -194,6 +194,7 @@ export class CoreEngine {
           aiProfile: vipArch.aiProfile,
           aiEnabled: false,
           commandQueue: [],
+          kills: 0,
         } as Unit);
 
         // Reveal VIP position
@@ -219,7 +220,9 @@ export class CoreEngine {
       const startX = startPos.x + 0.5;
       const startY = startPos.y + 0.5;
 
-      let hp = arch.baseHp;
+      let hp = soldierConfig.hp ?? arch.baseHp;
+      let maxHp = soldierConfig.maxHp ?? soldierConfig.hp ?? arch.baseHp;
+      const soldierAim = soldierConfig.soldierAim ?? arch.soldierAim;
       let speed = arch.speed;
       let equipmentAccuracyBonus = 0;
 
@@ -234,6 +237,7 @@ export class CoreEngine {
           const item = ItemLibrary[itemId];
           if (item) {
             hp += item.hpBonus || 0;
+            maxHp += item.hpBonus || 0;
             speed += item.speedBonus || 0;
             equipmentAccuracyBonus += item.accuracyBonus || 0;
           }
@@ -245,7 +249,7 @@ export class CoreEngine {
       const weaponAccuracy = activeWeapon ? activeWeapon.accuracy : 0;
 
       this.addUnit({
-        id: `${arch.id}-${unitCount++}`,
+        id: soldierConfig.id || `${arch.id}-${unitCount++}`,
         archetypeId: arch.id,
         pos: {
           x: startX + (this.prng.next() - 0.5),
@@ -256,14 +260,14 @@ export class CoreEngine {
           y: (this.prng.next() - 0.5) * 0.4,
         },
         hp: hp,
-        maxHp: hp,
+        maxHp: maxHp,
         state: UnitState.Idle,
         stats: {
           damage: activeWeapon ? activeWeapon.damage : arch.damage,
           fireRate: activeWeapon ? activeWeapon.fireRate : arch.fireRate,
-          soldierAim: arch.soldierAim,
+          soldierAim: soldierAim,
           equipmentAccuracyBonus,
-          accuracy: arch.soldierAim + equipmentAccuracyBonus + weaponAccuracy,
+          accuracy: soldierAim + equipmentAccuracyBonus + weaponAccuracy,
           attackRange: activeWeapon ? activeWeapon.range : arch.attackRange,
           speed: speed,
         },
@@ -277,6 +281,7 @@ export class CoreEngine {
         engagementPolicySource: "Manual",
         commandQueue: [],
         aiEnabled: false,
+        kills: 0,
       } as Unit);
     });
 

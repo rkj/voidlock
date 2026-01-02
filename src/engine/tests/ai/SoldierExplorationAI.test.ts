@@ -66,6 +66,7 @@ describe("Soldier Exploration AI", () => {
       },
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
+      kills: 0,
     });
   });
 

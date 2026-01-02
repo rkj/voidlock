@@ -162,6 +162,7 @@ export type Unit = Entity & {
   channeling?: ChannelingState; // New
   archetypeId: string;
   carriedObjectiveId?: string; // New: ID of objective being carried (e.g. artifact)
+  kills: number;
 };
 
 export type Mine = {
@@ -624,11 +625,15 @@ export type GameState = {
 // --- Protocol ---
 
 export type SquadSoldierConfig = {
+  id?: string;
   archetypeId: string;
   rightHand?: string;
   leftHand?: string;
   body?: string;
   feet?: string;
+  hp?: number;
+  maxHp?: number;
+  soldierAim?: number;
 };
 
 export type SquadConfig = {

@@ -65,6 +65,7 @@ describe("Unit WaitingForDoor State", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
+      kills: 0,
     });
 
     // Order move to 1,0

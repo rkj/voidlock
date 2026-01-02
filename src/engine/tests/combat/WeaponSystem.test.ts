@@ -103,6 +103,7 @@ describe("Weapon System", () => {
       leftHand: "combat_knife",
       rightHand: "pulse_rifle",
       activeWeaponId: "pulse_rifle",
+      kills: 0,
     } as Unit;
     const enemy = {
       id: "e1",
@@ -160,6 +161,7 @@ describe("Weapon System", () => {
       leftHand: "combat_knife",
       rightHand: "pulse_rifle",
       activeWeaponId: "combat_knife",
+      kills: 0,
     } as Unit;
     const enemy = {
       id: "e1",

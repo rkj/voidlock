@@ -32,6 +32,7 @@ describe("Campaign Types", () => {
       archetypeId: "assault",
       hp: 100,
       maxHp: 100,
+      soldierAim: 90,
       xp: 0,
       level: 1,
       kills: 0,

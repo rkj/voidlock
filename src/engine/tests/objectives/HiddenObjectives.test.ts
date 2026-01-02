@@ -67,6 +67,7 @@ describe("Hidden Objectives", () => {
       },
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
+      kills: 0,
     });
 
     // Tick 1: Update visibility

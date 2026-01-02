@@ -810,6 +810,9 @@ export class UnitManager {
 
             if (prng.next() <= hitChance) {
               targetEnemy.hp -= unit.stats.damage;
+              if (targetEnemy.hp <= 0) {
+                unit.kills++;
+              }
             }
 
             unit.lastAttackTime = state.t;

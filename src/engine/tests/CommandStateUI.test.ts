@@ -117,6 +117,7 @@ describe("Unit Command State UI Tracking", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       aiEnabled: true,
+      kills: 0,
     });
 
     (engine as any).state.discoveredCells = ["0,0"];

@@ -126,8 +126,9 @@ const generateMissionReport = (
       soldierId: u.id,
       xpGained:
         (state.status === "Won" ? 50 : 10) +
-        (u.state !== UnitState.Dead ? 20 : 0),
-      kills: 0,
+        (u.state !== UnitState.Dead ? 20 : 0) +
+        u.kills * 10,
+      kills: u.kills,
       promoted: false,
       status: u.state === UnitState.Dead ? "Dead" : "Healthy",
     })),
@@ -787,6 +788,46 @@ document.addEventListener("DOMContentLoaded", () => {
       if (agentCheck) agentCheck.checked = agentControlEnabled;
 
       if (mapGenSelect) mapGenSelect.dispatchEvent(new Event("change"));
+    }
+
+    // Always sync with roster if in campaign mode to ensure latest stats/leveling are applied
+    if (isCampaign) {
+      const state = campaignManager.getState();
+      if (state) {
+        // If squad is empty (first time), auto-populate with first 4 healthy soldiers
+        if (currentSquad.soldiers.length === 0) {
+          const healthy = state.roster
+            .filter((s) => s.status === "Healthy")
+            .slice(0, 4);
+          currentSquad.soldiers = healthy.map((s) => ({
+            id: s.id,
+            archetypeId: s.archetypeId,
+            hp: s.hp,
+            maxHp: s.maxHp,
+            soldierAim: s.soldierAim,
+            rightHand: s.equipment.rightHand,
+            leftHand: s.equipment.leftHand,
+            body: s.equipment.body,
+            feet: s.equipment.feet,
+          }));
+        } else {
+          // Sync existing squad soldiers with roster
+          currentSquad.soldiers.forEach((s) => {
+            if (s.id) {
+              const rs = state.roster.find((r) => r.id === s.id);
+              if (rs) {
+                s.hp = rs.hp;
+                s.maxHp = rs.maxHp;
+                s.soldierAim = rs.soldierAim;
+                s.rightHand = rs.equipment.rightHand;
+                s.leftHand = rs.equipment.leftHand;
+                s.body = rs.equipment.body;
+                s.feet = rs.equipment.feet;
+              }
+            }
+          });
+        }
+      }
     }
 
     renderSquadBuilder();

@@ -4,10 +4,14 @@ import {
   GameRules,
   MissionReport,
   CampaignSoldier,
+  XP_THRESHOLDS,
+  STAT_BOOSTS,
+  calculateLevel,
 } from "../../shared/campaign_types";
 import { PRNG } from "../../shared/PRNG";
 import { StorageProvider } from "../persistence/StorageProvider";
 import { SectorMapGenerator } from "../generators/SectorMapGenerator";
+import { ArchetypeLibrary } from "../../shared/types";
 
 const STORAGE_KEY = "xenopurge_campaign_v1";
 
@@ -65,7 +69,7 @@ export class CampaignManager {
     const roster = this.generateInitialRoster(prng);
 
     this.state = {
-      version: "0.42.1", // Current project version
+      version: "0.43.0", // Current project version
       seed,
       rules,
       scrap: 500,
@@ -113,13 +117,15 @@ export class CampaignManager {
     const roster: CampaignSoldier[] = [];
 
     for (let i = 0; i < 4; i++) {
-      const arch = archetypes[i % archetypes.length];
+      const archId = archetypes[i % archetypes.length];
+      const arch = ArchetypeLibrary[archId];
       roster.push({
         id: `soldier_${i}`,
         name: `Recruit ${i + 1}`,
-        archetypeId: arch,
-        hp: 100,
-        maxHp: 100,
+        archetypeId: archId,
+        hp: arch ? arch.baseHp : 100,
+        maxHp: arch ? arch.baseHp : 100,
+        soldierAim: arch ? arch.soldierAim : 80,
         xp: 0,
         level: 1,
         kills: 0,
@@ -193,12 +199,23 @@ export class CampaignManager {
     report.soldierResults.forEach((res) => {
       const soldier = this.state!.roster.find((s) => s.id === res.soldierId);
       if (soldier) {
+        const oldLevel = soldier.level;
         soldier.xp += res.xpGained;
         soldier.kills += res.kills;
         soldier.missions += 1;
         soldier.status = res.status;
-        if (res.promoted && res.newLevel) {
-          soldier.level = res.newLevel;
+
+        const newLevel = calculateLevel(soldier.xp);
+        if (newLevel > oldLevel) {
+          const levelsGained = newLevel - oldLevel;
+          soldier.level = newLevel;
+          soldier.maxHp += levelsGained * STAT_BOOSTS.hpPerLevel;
+          soldier.hp += levelsGained * STAT_BOOSTS.hpPerLevel;
+          soldier.soldierAim += levelsGained * STAT_BOOSTS.aimPerLevel;
+
+          // Update the result so UI can show the promotion
+          res.promoted = true;
+          res.newLevel = newLevel;
         }
 
         // Handle death rules

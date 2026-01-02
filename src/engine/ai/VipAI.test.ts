@@ -69,6 +69,7 @@ describe("VIP AI Behavior", () => {
       aiProfile: AIProfile.RETREAT,
       aiEnabled: false,
       commandQueue: [],
+      kills: 0,
     });
 
     // Soldier at (0,0)
@@ -91,6 +92,7 @@ describe("VIP AI Behavior", () => {
       aiProfile: AIProfile.RUSH,
       aiEnabled: true,
       commandQueue: [],
+      kills: 0,
     });
 
     engine.update(100);
@@ -145,6 +147,7 @@ describe("VIP AI Behavior", () => {
       aiProfile: AIProfile.RETREAT,
       aiEnabled: true,
       commandQueue: [],
+      kills: 0,
     });
 
     // Enemy at (2,1)
@@ -213,6 +216,7 @@ describe("VIP AI Behavior", () => {
       aiProfile: AIProfile.RETREAT,
       aiEnabled: true,
       commandQueue: [],
+      kills: 0,
     });
 
     engine.update(100);
@@ -253,6 +257,7 @@ describe("VIP AI Behavior", () => {
       aiProfile: AIProfile.RETREAT,
       aiEnabled: true,
       commandQueue: [],
+      kills: 0,
     });
 
     // Objective at (1,1)

@@ -4,13 +4,13 @@ This directory contains specialized managers that handle specific domains of the
 
 ## Files
 
-- `CampaignManager.ts`: Orchestrates the strategic layer, managing persistent state, squad roster, and sector map progression. Implemented as a singleton that uses a `StorageProvider` for persistence.
+- `CampaignManager.ts`: Orchestrates the strategic layer, managing persistent state, squad roster, and sector map progression. Implemented as a singleton that uses a `StorageProvider` for persistence. Handles mission reconciliation, including XP calculation, soldier leveling, and stat boosts (+20 Max HP, +5 Aim per level).
 - `CommandHandler.ts`: Processes and validates incoming commands from the player or bots.
 - `DoorManager.ts`: Manages the state (Open, Closed, Locked, Destroyed) and logic of doors.
 - `EnemyManager.ts`: Manages the lifecycle and state updates for all enemy units. Handles scrap rewards for elite kills.
 - `LootManager.ts`: Manages spawning and despawning of dropped items (loot) on the map.
 - `MissionManager.ts`: Handles mission-specific setup, objective tracking, scrap reward calculation, and win/loss conditions.
-- `UnitManager.ts`: Manages the lifecycle, movement, combat, and AI updates for soldier units. Handles loot interaction and `PICKUP` commands. Manual commands issued to units (except `EXPLORE` or `RESUME_AI`) automatically disable autonomous behavior (`aiEnabled = false`) to ensure user orders take priority over autonomous exploration.
+- `UnitManager.ts`: Manages the lifecycle, movement, combat, and AI updates for soldier units. Handles loot interaction, `PICKUP` commands, and attributes kills to individual units for XP calculation. Manual commands issued to units (except `EXPLORE` or `RESUME_AI`) automatically disable autonomous behavior (`aiEnabled = false`) to ensure user orders take priority over autonomous exploration.
 - `VisibilityManager.ts`: Manages fog-of-war and unit line-of-sight updates.
 - `placeholder.ts`: A placeholder file, possibly for future managers or as a template.
 

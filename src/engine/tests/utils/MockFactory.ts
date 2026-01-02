@@ -27,6 +27,7 @@ export function createMockUnit(overrides: Partial<Unit> = {}): Unit {
     },
     commandQueue: [],
     archetypeId: "assault",
+    kills: 0,
     ...overrides,
   } as Unit;
 }

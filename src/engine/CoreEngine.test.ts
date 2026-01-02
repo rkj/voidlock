@@ -77,6 +77,7 @@ describe("CoreEngine with Objectives and Game Loop", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
+      kills: 0,
     });
   });
 

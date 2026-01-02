@@ -132,6 +132,8 @@ describe("Coordinated Exploration Refined", () => {
         commandQueue: [],
 
         archetypeId: "assault",
+
+        kills: 0,
       });
     }
 
@@ -185,6 +187,8 @@ describe("Coordinated Exploration Refined", () => {
       commandQueue: [],
 
       archetypeId: "assault",
+
+      kills: 0,
     });
 
     engine.addUnit({
@@ -219,6 +223,8 @@ describe("Coordinated Exploration Refined", () => {
       commandQueue: [],
 
       archetypeId: "assault",
+
+      kills: 0,
     });
 
     engine.update(100);
