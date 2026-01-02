@@ -18,3 +18,8 @@ This directory contains tools and infrastructure for testing the game engine wit
 
 - Uses `src/engine/CoreEngine.ts` to run the simulation.
 - Communicates with the engine using the same protocol as the `GameClient`.
+
+## Related ADRs
+
+- [ADR 0006: Autonomous Agent Architecture](../../docs/adr/0006-autonomous-agent-architecture.md)
+- [ADR 0007: Command Pattern & Queue](../../docs/adr/0007-command-pattern-queue.md)

@@ -32,3 +32,8 @@ This directory contains the automated test suite for the game engine, using Vite
 
 - Tests components in `src/engine/`.
 - Depends on `src/shared/types.ts` and `src/shared/PRNG.ts`.
+
+## Related ADRs
+
+- [ADR 0006: Autonomous Agent Architecture](../../../docs/adr/0006-autonomous-agent-architecture.md)
+- [ADR 0007: Command Pattern & Queue](../../../docs/adr/0007-command-pattern-queue.md)
