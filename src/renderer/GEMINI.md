@@ -48,3 +48,8 @@ This directory contains the main thread rendering logic and user interface for X
 - Communicates with the engine via `src/engine/GameClient.ts`.
 - Uses types from `src/shared/types.ts`.
 - Rendered in `index.html`.
+
+## References
+
+- **ADR 0007**: Command Pattern & Queue (Shared Protocol)
+- **ADR 0008**: Renderer & UI Separation (Hybrid Rendering)
