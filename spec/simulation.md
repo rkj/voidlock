@@ -94,3 +94,59 @@ To prevent state leakage and UI "ghosting", the following sanitization rules app
 1. **Return to Menu**:
    - Explicitly clear the "Game Over" summary and any active pause overlays.
    - Stop the Replay background process if running.
+
+### World Interaction: Loot & Drops
+
+- **Dropped Items:**
+  - When a unit carrying a "Physical Item" (e.g., Artifact) dies, the item is spawned on the map at their death coordinates (`x, y`).
+  - **Interaction:** Any unit can perform a `Pickup` action (channeling: 1s) to retrieve the item.
+
+### AI & Commands
+
+- **Escort Command:**
+  - **Target:** Friendly Unit (VIP or Artifact Carrier).
+  - **Behavior:** Participating units form a protective screen.
+    - **Vanguard:** 1 Unit moves to the tile *ahead* of the target (relative to destination/facing).
+    - **Rearguard:** 1 Unit moves to the tile *behind*.
+    - **Bodyguard:** Remaining units stay adjacent to the target.
+  - **Sync:** Escorts match the target's speed.
+
+## 12) Mission Types & Win Conditions
+
+### Mission Types
+
+1. **Recover Intel:**
+   - **Goal:** Locate and secure distributed data terminals.
+   - **Setup:** Spawns multiple (default: 3) objectives spread across the map.
+   - **Win Condition:** All Intel objectives are `Completed`.
+   - **Failure:** Squad wiped before all Intel is secured.
+   - **Extraction:** Optional. Mission is a Victory if all Intel is secured, even if the squad is subsequently lost.
+
+2. **Extract Artifact:**
+   - **Goal:** Locate the Artifact, pick it up, and Extract with it.
+   - **Mechanics:**
+     - The Artifact is an item (`artifact_heavy`) added to the soldier's inventory upon objective completion.
+     - **Burden:** The carrier suffers stat penalties (e.g., reduced Speed and Aim).
+   - **Win Condition:** A unit *carrying the Artifact* successfully Extracts.
+   - **Failure:** Squad wiped, or the Artifact is not extracted.
+
+3. **Destroy Hive:**
+   - **Goal:** Eliminate the central Hive structure.
+   - **Win Condition:** Hive entity killed.
+   - **Extraction:** Optional (Expendable Crew).
+
+4. **Escort VIP:**
+   - **Goal:** Escort the VIP to the Extraction zone.
+   - **Win Condition:** VIP Extracts.
+   - **Failure:** VIP dies.
+
+### Win/Loss Conditions Summary
+
+- **Victory:**
+  - **Recover Intel / Destroy Hive:** Objectives Complete (regardless of Squad Status).
+  - **Extract Artifact:** Objectives Complete AND >0 Units Extracted.
+  - **Escort VIP:** VIP Extracted.
+- **Defeat:**
+  - Squad Wiped (Active Units = 0) AND Objectives Incomplete.
+  - VIP Dead (in Escort missions).
+  - Artifact Lost (Squad wiped in Extract Artifact).
