@@ -26,6 +26,7 @@ export class EquipmentScreen {
     if (!el) throw new Error(`Container #${containerId} not found`);
     this.container = el;
     this.config = JSON.parse(JSON.stringify(initialConfig)); // Deep copy
+    this.applyDefaults();
     this.onSave = onSave;
     this.onBack = onBack;
   }
@@ -41,8 +42,29 @@ export class EquipmentScreen {
 
   public updateConfig(config: SquadConfig) {
     this.config = JSON.parse(JSON.stringify(config));
+    this.applyDefaults();
     this.selectedSoldierIndex = 0;
     this.render();
+  }
+
+  private applyDefaults() {
+    this.config.soldiers.forEach((soldier) => {
+      const arch = ArchetypeLibrary[soldier.archetypeId];
+      if (!arch) return;
+
+      if (soldier.rightHand === undefined && arch.rightHand) {
+        soldier.rightHand = arch.rightHand;
+      }
+      if (soldier.leftHand === undefined && arch.leftHand) {
+        soldier.leftHand = arch.leftHand;
+      }
+      if (soldier.body === undefined && arch.body) {
+        soldier.body = arch.body;
+      }
+      if (soldier.feet === undefined && arch.feet) {
+        soldier.feet = arch.feet;
+      }
+    });
   }
 
   private render() {
