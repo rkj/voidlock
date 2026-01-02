@@ -62,6 +62,8 @@ run_shell_command("./scripts/dispatch_agent.sh <TASK_ID> context.txt")
 1. **Verify**: Run `take_screenshot()` (if UI changed).
    - _Check_: Use `navigate_page("http://192.168.20.8:5173/")` for validation.
    - _🚨 Regression Rule_: If browser validation discovers a problem that automated tests missed, the sub-agent MUST be re-dispatched with an instruction to FIRST write a failing test for the issue, then fix it.
+1. **Build**: Run `npm run build`.
+   - _Check_: Ensure the project compiles without TypeScript errors.
 1. **Format**: Run automated formatting:
    - Code: `npm run lint` or `npx prettier --write .`
    - Markdown: ` /home/rkj/.local/bin/mdformat <FILE_PATH>` (Run this on any modified .md file).
