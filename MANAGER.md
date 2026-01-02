@@ -66,7 +66,7 @@ run_shell_command("./scripts/dispatch_agent.sh <TASK_ID> context.txt")
    - _Check_: Ensure the project compiles without TypeScript errors.
 1. **Format**: Run automated formatting:
    - Code: `npm run lint` or `npx prettier --write .`
-   - Markdown: ` /home/rkj/.local/bin/mdformat <FILE_PATH>` (Run this on any modified .md file).
+   - Markdown: `mdformat <FILE_PATH>` (Run this on any modified .md file).
 
 ## 4. Finalization
 
