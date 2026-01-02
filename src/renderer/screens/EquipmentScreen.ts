@@ -86,7 +86,7 @@ export class EquipmentScreen {
     this.renderPaperDoll(centerPanel);
 
     // Right: Armory / Global Inventory
-    const rightPanel = this.createPanel("Armory & Supplies", "350px");
+    const rightPanel = this.createPanel("Armory & Supplies", "400px");
     this.renderArmory(rightPanel);
 
     this.container.appendChild(leftPanel);
@@ -394,6 +394,7 @@ export class EquipmentScreen {
       row.style.marginBottom = "5px";
       row.style.padding = "5px";
       row.style.border = "1px solid #333";
+      row.title = `${item.name}\n${item.description || ""}\nCharges: ${item.charges}\nCost: ${item.cost} CR`;
 
       const name = document.createElement("span");
       name.textContent = item.name;
@@ -458,10 +459,53 @@ export class EquipmentScreen {
       btn.style.padding = "5px 10px";
       btn.style.marginBottom = "3px";
       btn.style.fontSize = "0.85em";
+
+      let statsLine = "";
+      let fullStats = "";
+      if ("damage" in item) {
+        // Weapon
+        statsLine = `DMG:${item.damage} RNG:${item.range} FR:${item.fireRate}`;
+        fullStats = `Damage: ${item.damage}\nRange: ${item.range}\nFire Rate: ${item.fireRate}ms\nAccuracy: ${item.accuracy > 0 ? "+" : ""}${item.accuracy}%`;
+      } else {
+        // Item (Armor/Boots)
+        const bonuses = [];
+        if (item.hpBonus)
+          bonuses.push(`HP:${item.hpBonus > 0 ? "+" : ""}${item.hpBonus}`);
+        if (item.speedBonus)
+          bonuses.push(
+            `SPD:${item.speedBonus > 0 ? "+" : ""}${item.speedBonus / 10}`,
+          );
+        if (item.accuracyBonus)
+          bonuses.push(
+            `ACC:${item.accuracyBonus > 0 ? "+" : ""}${item.accuracyBonus}%`,
+          );
+        statsLine = bonuses.join(" ");
+
+        const fullBonuses = [];
+        if (item.hpBonus)
+          fullBonuses.push(`HP: ${item.hpBonus > 0 ? "+" : ""}${item.hpBonus}`);
+        if (item.speedBonus)
+          fullBonuses.push(
+            `Speed: ${item.speedBonus > 0 ? "+" : ""}${item.speedBonus / 10}`,
+          );
+        if (item.accuracyBonus)
+          fullBonuses.push(
+            `Accuracy: ${item.accuracyBonus > 0 ? "+" : ""}${item.accuracyBonus}%`,
+          );
+        fullStats = fullBonuses.join("\n");
+      }
+
+      btn.title = `${item.name}\n${item.description || ""}${fullStats ? "\n\n" + fullStats : ""}`;
+
       btn.innerHTML = `
-            <div style="display:flex; justify-content:space-between;">
-                <span>${item.name}</span>
-                <span style="color:#888;">${item.cost} CR</span>
+            <div style="display:flex; flex-direction:column;">
+                <div style="display:flex; justify-content:space-between; font-weight:bold;">
+                    <span>${item.name}</span>
+                    <span style="color:#888;">${item.cost} CR</span>
+                </div>
+                <div style="font-size:0.8em; color:#aaa; margin-top:2px;">
+                    ${statsLine}
+                </div>
             </div>
         `;
       btn.onclick = () => onSelect(item);
