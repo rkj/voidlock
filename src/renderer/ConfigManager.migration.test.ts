@@ -30,7 +30,7 @@ describe("ConfigManager Migration", () => {
 
     localStorage.setItem("xenopurge_config", JSON.stringify(oldConfig));
 
-    const loadedConfig = ConfigManager.load();
+    const loadedConfig = ConfigManager.loadCustom();
     expect(loadedConfig).not.toBeNull();
     expect(loadedConfig?.squadConfig.soldiers).toBeDefined();
     expect(Array.isArray(loadedConfig?.squadConfig.soldiers)).toBe(true);
@@ -46,7 +46,7 @@ describe("ConfigManager Migration", () => {
 
     localStorage.setItem("xenopurge_config", JSON.stringify(oldConfig));
 
-    const loadedConfig = ConfigManager.load();
+    const loadedConfig = ConfigManager.loadCustom();
     expect(loadedConfig).not.toBeNull();
     expect(loadedConfig?.squadConfig).toBeDefined();
     expect(loadedConfig?.squadConfig.soldiers).toBeDefined();
@@ -59,7 +59,7 @@ describe("ConfigManager Migration", () => {
 
     localStorage.setItem("xenopurge_config", JSON.stringify(oldConfig));
 
-    const loadedConfig = ConfigManager.load();
+    const loadedConfig = ConfigManager.loadCustom();
     expect(loadedConfig).not.toBeNull();
     expect(loadedConfig?.squadConfig.soldiers).toBeDefined();
     expect(Array.isArray(loadedConfig?.squadConfig.soldiers)).toBe(true);
