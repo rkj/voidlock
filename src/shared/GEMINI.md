@@ -19,3 +19,7 @@ This directory contains types, constants, and utilities that are shared between 
 
 - Imported by almost every other file in the project.
 - Critical for the communication between `src/engine/GameClient.ts` and `src/engine/worker.ts`.
+
+## Related ADRs
+
+- [ADR 0007: Command Pattern & Queue](../docs/adr/0007-command-pattern-queue.md)
