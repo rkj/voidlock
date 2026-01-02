@@ -43,8 +43,11 @@ export class MissionManager {
       }
     }
 
-    if (this.missionType === MissionType.ExtractArtifacts) {
-      // In ExtractArtifacts, we typically replace map objectives with artifacts,
+    if (
+      this.missionType === MissionType.ExtractArtifacts ||
+      this.missionType === MissionType.RecoverIntel
+    ) {
+      // In these missions, we typically replace map objectives with the mission-specific ones,
       // but we should keep the Escort objective if it exists.
       const escortObjectives = objectives.filter((o) => o.kind === "Escort");
       objectives = [...escortObjectives];
@@ -63,9 +66,13 @@ export class MissionManager {
       }
 
       const count = Math.min(3, candidates.length);
+      const idPrefix =
+        this.missionType === MissionType.ExtractArtifacts
+          ? "artifact"
+          : "intel";
       for (let i = 0; i < count; i++) {
         objectives.push({
-          id: `artifact-${i}`,
+          id: `${idPrefix}-${i}`,
           kind: "Recover",
           state: "Pending",
           targetCell: { x: candidates[i].x, y: candidates[i].y },
@@ -168,6 +175,22 @@ export class MissionManager {
       (u) => u.state === UnitState.Extracted,
     );
 
+    const allObjectivesComplete = state.objectives.every(
+      (o) => o.state === "Completed",
+    );
+
+    // 1. Recover Intel & Destroy Hive: Instant win upon objective completion (Extraction optional)
+    if (
+      this.missionType === MissionType.RecoverIntel ||
+      this.missionType === MissionType.DestroyHive
+    ) {
+      if (allObjectivesComplete) {
+        state.status = "Won";
+        return;
+      }
+    }
+
+    // 2. Escort VIP: Win if VIP extracts, Loss if squad wiped (excluding VIP)
     if (this.missionType === MissionType.EscortVIP) {
       const allVipsExtracted =
         vips.length > 0 && vips.every((v) => v.state === UnitState.Extracted);
@@ -185,12 +208,23 @@ export class MissionManager {
       return;
     }
 
+    // 3. Generic/Extract Artifacts: Squad must extract after objectives
     if (activeUnits.length === 0) {
-      const allObjectivesComplete = state.objectives.every(
-        (o) => o.state === "Completed",
-      );
-      if (allObjectivesComplete && extractedUnits.length > 0) {
-        state.status = "Won";
+      if (allObjectivesComplete) {
+        if (
+          this.missionType === MissionType.ExtractArtifacts ||
+          this.missionType === MissionType.Default
+        ) {
+          // Extraction required
+          if (extractedUnits.length > 0) {
+            state.status = "Won";
+          } else {
+            state.status = "Lost";
+          }
+        } else {
+          // If for some reason it's another type but everyone died after objectives, it's a Win (RecoverIntel/DestroyHive)
+          state.status = "Won";
+        }
       } else {
         state.status = "Lost";
       }
