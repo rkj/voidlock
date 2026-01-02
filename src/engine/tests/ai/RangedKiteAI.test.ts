@@ -74,6 +74,7 @@ describe("RangedKiteAI", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
+      kills: 0,
     });
 
     engine.update(100);
@@ -122,6 +123,7 @@ describe("RangedKiteAI", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
+      kills: 0,
     });
 
     engine.update(100);
@@ -168,6 +170,7 @@ describe("RangedKiteAI", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
+      kills: 0,
     });
   });
 });

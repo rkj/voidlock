@@ -53,6 +53,7 @@ describe("Command: SET_ENGAGEMENT (Policy Logic)", () => {
       commandQueue: [],
       engagementPolicy: "IGNORE", // Start with IGNORE
       archetypeId: "assault",
+      kills: 0,
     });
     engine.addEnemy({
       id: "e1",

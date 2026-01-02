@@ -90,6 +90,7 @@ describe("Coordinated Exploration", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
+      kills: 0,
     });
     engine.addUnit({
       id: "u2",
@@ -109,6 +110,7 @@ describe("Coordinated Exploration", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
+      kills: 0,
     });
 
     // Manually set discovered cells to include only center and adjacent

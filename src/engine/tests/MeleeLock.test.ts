@@ -70,6 +70,7 @@ describe("Melee Lock & Ignore Policy", () => {
       commandQueue: [],
       engagementPolicy: "IGNORE",
       archetypeId: "assault",
+      kills: 0,
     });
 
     const state = engine.getState();
@@ -158,6 +159,7 @@ describe("Melee Lock & Ignore Policy", () => {
       aiEnabled: true,
       commandQueue: [],
       archetypeId: "assault",
+      kills: 0,
     });
 
     const state = engine.getState();

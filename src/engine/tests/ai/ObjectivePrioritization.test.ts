@@ -73,6 +73,7 @@ describe("Objective Prioritization AI", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
+      kills: 0,
     });
   });
 

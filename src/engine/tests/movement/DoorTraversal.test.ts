@@ -70,6 +70,7 @@ describe("Movement through Doors", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
+      kills: 0,
     });
   });
 

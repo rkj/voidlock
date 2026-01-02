@@ -54,6 +54,7 @@ describe("Combat Accuracy (Percentage Model)", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
+      kills: 0,
     });
 
     engine.addEnemy({
@@ -101,6 +102,7 @@ describe("Combat Accuracy (Percentage Model)", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
+      kills: 0,
     });
 
     engine.addEnemy({
@@ -152,6 +154,7 @@ describe("Combat Accuracy (Percentage Model)", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
+      kills: 0,
     });
 
     engine.addEnemy({
@@ -201,6 +204,7 @@ describe("Combat Accuracy (Percentage Model)", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
+      kills: 0,
     });
 
     engine.addEnemy({
@@ -247,6 +251,7 @@ describe("Combat Accuracy (Percentage Model)", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
+      kills: 0,
     });
 
     engine.addEnemy({
@@ -296,6 +301,7 @@ describe("Combat Accuracy (Percentage Model)", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
+      kills: 0,
     });
 
     engine.addEnemy({
@@ -342,6 +348,7 @@ describe("Combat Accuracy (Percentage Model)", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
+      kills: 0,
     });
 
     engine.addEnemy({

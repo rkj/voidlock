@@ -105,6 +105,7 @@ describe("Enemy AI", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
+      kills: 0,
     });
 
     const initialDist = Math.sqrt((0.5 - 4.5) ** 2 + (0.5 - 4.5) ** 2);

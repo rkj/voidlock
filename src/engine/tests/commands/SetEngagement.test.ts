@@ -55,6 +55,7 @@ describe("Command: SET_ENGAGEMENT", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
+      kills: 0,
     });
     engine.addEnemy({
       id: "e1",

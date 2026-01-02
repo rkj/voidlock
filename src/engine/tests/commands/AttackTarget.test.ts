@@ -56,6 +56,7 @@ describe("Command: ATTACK_TARGET", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
+      kills: 0,
     });
   });
 
@@ -124,6 +125,7 @@ describe("Command: ATTACK_TARGET", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
+      kills: 0,
     });
     engine.addEnemy({
       id: "e1",

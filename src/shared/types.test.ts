@@ -62,6 +62,7 @@ describe("Shared Types", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
+      kills: 0,
     };
     expect(unitWithOutPath).not.toHaveProperty("path");
 
@@ -87,6 +88,7 @@ describe("Shared Types", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
+      kills: 0,
     };
     expect(unitWithPath.path).toEqual([
       { x: 1, y: 0 },
@@ -122,6 +124,7 @@ describe("Shared Types", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
+      kills: 0,
     };
     expect(unit.stats.damage).toBe(15);
     expect(unit.stats.attackRange).toBe(2);

@@ -58,6 +58,7 @@ describe("Shooting Through Walls Repro", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
+      kills: 0,
     });
 
     // Add Enemy at (1.5, 0.5)
@@ -138,6 +139,7 @@ describe("Shooting Through Walls Repro", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
+      kills: 0,
     });
     engine2.addEnemy({
       id: "e1",
@@ -183,6 +185,7 @@ describe("Shooting Through Walls Repro", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
+      kills: 0,
     });
     engine.addEnemy({
       id: "e1",
@@ -227,6 +230,7 @@ describe("Shooting Through Walls Repro", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
+      kills: 0,
     });
     engine.addEnemy({
       id: "e1",

@@ -19,6 +19,7 @@ export interface CampaignSoldier {
   archetypeId: string;
   hp: number;
   maxHp: number;
+  soldierAim: number;
   xp: number;
   level: number;
   kills: number;
@@ -93,4 +94,31 @@ export interface CampaignState {
   roster: CampaignSoldier[];
   history: MissionReport[];
   unlockedArchetypes: string[];
+}
+
+/**
+ * XP required to reach each level.
+ * Level 1: 0-99
+ * Level 2: 100-249
+ * Level 3: 250-499
+ * Level 4: 500-999
+ * Level 5: 1000+
+ */
+export const XP_THRESHOLDS = [0, 100, 250, 500, 1000];
+
+export const STAT_BOOSTS = {
+  hpPerLevel: 20,
+  aimPerLevel: 5,
+};
+
+/**
+ * Calculates the level for a given amount of XP.
+ */
+export function calculateLevel(xp: number): number {
+  for (let i = XP_THRESHOLDS.length - 1; i >= 0; i--) {
+    if (xp >= XP_THRESHOLDS[i]) {
+      return i + 1;
+    }
+  }
+  return 1;
 }
