@@ -33,6 +33,9 @@ export class MenuController {
   public pendingTargetLocation: Vector2 | null = null;
   public overlayOptions: OverlayOption[] = [];
 
+  private cellToRoomId: Map<string, string> = new Map();
+  private discoveredRoomOrder: string[] = [];
+
   constructor(private client: { sendCommand: (cmd: any) => void }) {}
 
   public reset() {
@@ -43,6 +46,11 @@ export class MenuController {
     this.pendingLabel = null;
     this.pendingTargetLocation = null;
     this.overlayOptions = [];
+  }
+
+  public clearDiscoveryOrder() {
+    this.cellToRoomId.clear();
+    this.discoveredRoomOrder = [];
   }
 
   public selectUnit(unitId: string) {
@@ -195,6 +203,19 @@ export class MenuController {
       title: config.title,
       options: [],
     };
+
+    // Live-update overlays if in Target Select
+    if (this.menuState === "TARGET_SELECT") {
+      if (this.pendingAction === CommandType.MOVE_TO) {
+        if (this.pendingLabel === "Collecting") {
+          this.generateTargetOverlay("ITEM", gameState);
+        } else {
+          this.generateTargetOverlay("CELL", gameState);
+        }
+      } else if (this.pendingAction === CommandType.USE_ITEM) {
+        this.generateTargetOverlay("CELL", gameState);
+      }
+    }
 
     if (
       this.menuState === "ACTION_SELECT" ||
@@ -372,80 +393,111 @@ export class MenuController {
     this.reset();
   }
 
+  private updateDiscoveryOrder(gameState: GameState) {
+    if (this.cellToRoomId.size === 0) {
+      gameState.map.cells.forEach((cell) => {
+        if (cell.roomId) {
+          this.cellToRoomId.set(`${cell.x},${cell.y}`, cell.roomId);
+        }
+      });
+    }
+
+    gameState.discoveredCells.forEach((cellKey) => {
+      const roomId = this.cellToRoomId.get(cellKey);
+      if (
+        roomId &&
+        roomId.startsWith("room") &&
+        !this.discoveredRoomOrder.includes(roomId)
+      ) {
+        this.discoveredRoomOrder.push(roomId);
+      }
+    });
+  }
+
+  private getRoomKey(index: number): string {
+    if (index < 9) return (index + 1).toString();
+    return String.fromCharCode(65 + (index - 9)); // 65 is 'A'
+  }
+
   private generateTargetOverlay(type: "CELL" | "ITEM", gameState: GameState) {
     this.overlayOptions = [];
-    let counter = 1;
 
     if (type === "ITEM") {
+      let itemCounter = 0;
       gameState.objectives.forEach((obj) => {
         if (obj.state === "Pending" && obj.visible && obj.targetCell) {
           this.overlayOptions.push({
-            key: counter.toString(36),
+            key: this.getRoomKey(itemCounter),
             label: `Collect ${obj.kind}`,
             pos: obj.targetCell,
           });
-          counter++;
+          itemCounter++;
         }
       });
     } else if (type === "CELL") {
+      // Add Rooms in Discovery Order FIRST to ensure stable keys 1, 2, etc.
+      this.updateDiscoveryOrder(gameState);
+
+      this.discoveredRoomOrder.forEach((roomId, index) => {
+        const cellsInRoom = gameState.map.cells.filter(
+          (c) => c.roomId === roomId,
+        );
+        if (cellsInRoom.length === 0) return;
+
+        // Find rough center
+        const avgX =
+          cellsInRoom.reduce((sum, c) => sum + c.x, 0) / cellsInRoom.length;
+        const avgY =
+          cellsInRoom.reduce((sum, c) => sum + c.y, 0) / cellsInRoom.length;
+        // Find cell closest to center
+        const centerCell = cellsInRoom.reduce((prev, curr) => {
+          const prevDist = (prev.x - avgX) ** 2 + (prev.y - avgY) ** 2;
+          const currDist = (curr.x - avgX) ** 2 + (curr.y - avgY) ** 2;
+          return currDist < prevDist ? curr : prev;
+        });
+
+        const key = this.getRoomKey(index);
+        this.overlayOptions.push({
+          key: key,
+          label: `Room`,
+          pos: { x: centerCell.x, y: centerCell.y },
+        });
+      });
+
+      // Other POIs come after rooms
+      let poiCounter = this.discoveredRoomOrder.length;
+
       if (gameState.map.extraction) {
         const ext = gameState.map.extraction;
         const key = `${ext.x},${ext.y}`;
         if (gameState.discoveredCells.includes(key)) {
           this.overlayOptions.push({
-            key: counter.toString(36),
+            key: this.getRoomKey(poiCounter),
             label: "Extraction",
             pos: ext,
           });
-          counter++;
+          poiCounter++;
         }
       }
+
       gameState.objectives.forEach((obj) => {
         if (obj.state === "Pending" && obj.visible && obj.targetCell) {
+          // Avoid double-counting if objective is at extraction (already handled in renderer, but here for keys)
+          if (
+            gameState.map.extraction &&
+            obj.targetCell.x === gameState.map.extraction.x &&
+            obj.targetCell.y === gameState.map.extraction.y
+          ) {
+            return;
+          }
+
           this.overlayOptions.push({
-            key: counter.toString(36),
+            key: this.getRoomKey(poiCounter),
             label: `Obj ${obj.id}`,
             pos: obj.targetCell,
           });
-          counter++;
+          poiCounter++;
         }
-      });
-
-      // Add Rooms
-      const roomMap = new Map<string, Vector2[]>();
-      gameState.map.cells.forEach((cell) => {
-        if (cell.roomId && cell.roomId.startsWith("room")) {
-          if (!roomMap.has(cell.roomId)) roomMap.set(cell.roomId, []);
-          roomMap.get(cell.roomId)?.push({ x: cell.x, y: cell.y });
-        }
-      });
-
-      let roomCounter = 1;
-      roomMap.forEach((cells, roomId) => {
-        // Only list discovered rooms
-        const isDiscovered = cells.some((c) =>
-          gameState.discoveredCells.includes(`${c.x},${c.y}`),
-        );
-
-        if (isDiscovered) {
-          // Find rough center
-          const avgX = cells.reduce((sum, c) => sum + c.x, 0) / cells.length;
-          const avgY = cells.reduce((sum, c) => sum + c.y, 0) / cells.length;
-          // Find cell closest to center
-          const centerCell = cells.reduce((prev, curr) => {
-            const prevDist = (prev.x - avgX) ** 2 + (prev.y - avgY) ** 2;
-            const currDist = (curr.x - avgX) ** 2 + (curr.y - avgY) ** 2;
-            return currDist < prevDist ? curr : prev;
-          });
-
-          this.overlayOptions.push({
-            key: counter.toString(36),
-            label: `Room ${roomCounter}`,
-            pos: { x: centerCell.x, y: centerCell.y },
-          });
-          counter++;
-        }
-        roomCounter++;
       });
     }
   }
