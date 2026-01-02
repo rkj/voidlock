@@ -561,6 +561,13 @@ export class Renderer {
       this.ctx.lineWidth = 3;
       this.ctx.stroke();
 
+      // Render Burdened Indicator
+      if (unit.carriedObjectiveId) {
+        this.ctx.fillStyle = "#FF0000";
+        this.ctx.font = `bold ${Math.floor(this.cellSize / 10)}px monospace`;
+        this.ctx.fillText("BURDENED", x, y - this.cellSize / 4);
+      }
+
       // Render Soldier Number
       this.ctx.fillStyle = "#000";
       this.ctx.font = `bold ${Math.floor(this.cellSize / 8)}px monospace`;

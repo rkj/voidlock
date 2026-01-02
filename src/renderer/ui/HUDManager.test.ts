@@ -125,6 +125,18 @@ describe("HUDManager", () => {
     expect(item?.classList.contains("selected")).toBe(true);
   });
 
+  it("should display burden icon when unit is carrying an objective", () => {
+    const burdenedState = {
+      ...mockState,
+      units: [{ ...mockState.units[0], carriedObjectiveId: "artifact-0" }],
+    };
+
+    hud.update(burdenedState, null);
+
+    const burdenEl = document.querySelector(".u-burden");
+    expect(burdenEl?.textContent).toContain("📦");
+  });
+
   it("should call onUnitClick when a soldier item is clicked", () => {
     hud.update(mockState, null);
 

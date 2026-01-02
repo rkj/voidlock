@@ -1,6 +1,7 @@
 # Campaign Mode Specification
 
 **Relevant ADRs:**
+
 - [ADR 0003: Campaign System Architecture](../docs/adr/0003-campaign-system-architecture.md)
 
 ## 1. Vision & Core Loop

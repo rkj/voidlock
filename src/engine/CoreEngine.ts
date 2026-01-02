@@ -449,6 +449,21 @@ export class CoreEngine {
       if (unit.hp <= 0 && unit.state !== UnitState.Dead) {
         unit.state = UnitState.Dead;
         this.state.stats.casualties++;
+
+        if (unit.carriedObjectiveId) {
+          const obj = this.state.objectives.find(
+            (o) => o.id === unit.carriedObjectiveId,
+          );
+          if (obj) {
+            obj.state = "Pending";
+            obj.targetCell = {
+              x: Math.floor(unit.pos.x),
+              y: Math.floor(unit.pos.y),
+            };
+          }
+          unit.carriedObjectiveId = undefined;
+          this.unitManager.recalculateStats(unit);
+        }
       }
     });
 

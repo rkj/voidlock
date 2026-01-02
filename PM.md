@@ -56,7 +56,7 @@ You manage tasks in `.beads/README.md`. Tasks must be optimized for lightweight
 
 To maintain a coherent history and architectural map:
 
-1.  **Spec -> ADR:** Specifications should list relevant Architectural Decision Records (ADRs) that define *how* the feature is implemented.
+1.  **Spec -> ADR:** Specifications should list relevant Architectural Decision Records (ADRs) that define _how_ the feature is implemented.
 2.  **ADR -> Spec:** ADRs must link back to the specific Spec file/section they are addressing.
 3.  **Beads -> Docs:** Beads tasks must link to both the Spec (for behavior) and the ADR (for implementation details) where applicable.
 

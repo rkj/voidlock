@@ -161,6 +161,7 @@ export type Unit = Entity & {
   activeCommand?: Command; // Track currently executing command
   channeling?: ChannelingState; // New
   archetypeId: string;
+  carriedObjectiveId?: string; // New: ID of objective being carried (e.g. artifact)
 };
 
 export type Mine = {
