@@ -50,21 +50,21 @@ describe("MenuController", () => {
     expect(controller.menuState).toBe("ACTION_SELECT");
   });
 
-  it("should transition to MODE_SELECT when ENGAGEMENT (3) is selected", () => {
-    controller.handleMenuInput("3", mockState);
+  it("should transition to MODE_SELECT when ENGAGEMENT (2) is selected", () => {
+    controller.handleMenuInput("2", mockState);
     expect(controller.menuState).toBe("MODE_SELECT");
     expect(controller.pendingAction).toBe(CommandType.SET_ENGAGEMENT);
   });
 
   it("should transition to UNIT_SELECT when ENGAGE mode (1) is selected", () => {
-    controller.handleMenuInput("3", mockState); // Select Action
-    controller.handleMenuInput("1", mockState); // Select Mode
+    controller.handleMenuInput("2", mockState); // Select Action: Engagement
+    controller.handleMenuInput("1", mockState); // Select Mode: Engage
     expect(controller.menuState).toBe("UNIT_SELECT");
     expect(controller.pendingMode).toBe("ENGAGE");
   });
 
   it("should send command when ALL UNITS are selected", () => {
-    controller.handleMenuInput("3", mockState); // Action: Engagement
+    controller.handleMenuInput("2", mockState); // Action: Engagement
     controller.handleMenuInput("1", mockState); // Mode: Engage
     controller.handleMenuInput("3", mockState); // Units: All (1, 2, 3=All)
 
@@ -80,7 +80,7 @@ describe("MenuController", () => {
   });
 
   it("should support IGNORE mode", () => {
-    controller.handleMenuInput("3", mockState); // Action
+    controller.handleMenuInput("2", mockState); // Action
     controller.handleMenuInput("2", mockState); // Mode: Ignore
     controller.handleMenuInput("3", mockState); // All Units
 
@@ -93,7 +93,7 @@ describe("MenuController", () => {
   });
 
   it("should support canceling via goBack (ESC)", () => {
-    controller.handleMenuInput("3", mockState);
+    controller.handleMenuInput("2", mockState);
     expect(controller.menuState).toBe("MODE_SELECT");
     controller.goBack();
     expect(controller.menuState).toBe("ACTION_SELECT");
@@ -104,11 +104,12 @@ describe("MenuController", () => {
     const state = controller.getRenderableState(mockState);
     expect(state.title).toBe("ACTIONS");
     expect(state.options.length).toBeGreaterThan(0);
-    expect(state.options[0].label).toContain("MOVE");
+    expect(state.options[0].label).toContain("ORDERS");
   });
 
   it("should return correct renderable state for UNIT_SELECT", () => {
-    controller.handleMenuInput("2", mockState); // STOP -> UNIT_SELECT
+    controller.handleMenuInput("1", mockState); // ORDERS -> ORDERS_SELECT
+    controller.handleMenuInput("4", mockState); // HOLD -> UNIT_SELECT
     const state = controller.getRenderableState(mockState);
     expect(state.title).toBe("SELECT UNIT(S)");
     // u1, u2, ALL, BACK = 4 options

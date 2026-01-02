@@ -45,7 +45,10 @@ Agents and developers should consult the specific files below for implementation
 - **[Units & Combat](spec/combat_units.md)**
   - Unit Stats (Speed, Health)
   - Weapon & Accuracy Model (Angular Dispersion)
-  - Command Interface
+
+- **[Command System & AI](spec/commands.md)**
+  - Command Protocol (MOVE, STOP, ATTACK)
+  - Specialized Behaviors (Escort, Overwatch)
 
 - **[AI & Game Logic](spec/ai.md)**
   - Enemy AI Behaviors

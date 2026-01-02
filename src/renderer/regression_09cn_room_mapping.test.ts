@@ -52,7 +52,8 @@ describe("MenuController Room Mapping Regression (09cn)", () => {
       discoveredCells: ["5,5"], // Room B discovered first
     };
 
-    controller.handleMenuInput("1", state1); // Select MOVE
+    controller.handleMenuInput("1", state1); // Select ORDERS
+    controller.handleMenuInput("1", state1); // Select MOVE TO ROOM
     let renderState = controller.getRenderableState(state1);
     let roomOptions = renderState.options.filter((o) =>
       o.label.includes("Room"),
@@ -99,7 +100,8 @@ describe("MenuController Room Mapping Regression (09cn)", () => {
       manyRoomsState.discoveredCells.push(`${i},0`);
     }
 
-    controller.handleMenuInput("1", manyRoomsState);
+    controller.handleMenuInput("1", manyRoomsState); // Select ORDERS
+    controller.handleMenuInput("1", manyRoomsState); // Select MOVE TO ROOM
     const renderState = controller.getRenderableState(manyRoomsState);
     const roomOptions = renderState.options.filter((o) =>
       o.label.includes("Room"),

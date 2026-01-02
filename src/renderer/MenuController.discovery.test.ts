@@ -16,6 +16,7 @@ describe("MenuController Room Discovery", () => {
         { x: 5, y: 5, type: CellType.Floor, roomId: "room-2" },
         { x: 5, y: 6, type: CellType.Floor, roomId: "room-2" },
       ],
+      boundaries: [],
     },
     units: [{ id: "u1", state: UnitState.Idle } as any],
     enemies: [],
@@ -47,7 +48,8 @@ describe("MenuController Room Discovery", () => {
   });
 
   it("should only show discovered rooms in MOVE target select with stable numbering", () => {
-    // Select MOVE (1)
+    // Select ORDERS (1) then MOVE TO ROOM (1)
+    controller.handleMenuInput("1", mockState);
     controller.handleMenuInput("1", mockState);
     expect(controller.menuState).toBe("TARGET_SELECT");
 
@@ -69,6 +71,7 @@ describe("MenuController Room Discovery", () => {
     };
 
     controller.handleMenuInput("1", stateOnlyRoom2Discovered);
+    controller.handleMenuInput("1", stateOnlyRoom2Discovered);
     const renderState = controller.getRenderableState(stateOnlyRoom2Discovered);
     const roomOptions = renderState.options.filter((o) =>
       o.label.includes("Room"),
@@ -88,10 +91,12 @@ describe("MenuController Room Discovery", () => {
           ...mockState.map.cells,
           { x: 9, y: 9, type: CellType.Floor, roomId: "corridor-1" },
         ],
+        boundaries: [],
       },
       discoveredCells: ["1,1", "5,5", "9,9"],
     };
 
+    controller.handleMenuInput("1", stateWithCorridor);
     controller.handleMenuInput("1", stateWithCorridor);
     const renderState = controller.getRenderableState(stateWithCorridor);
     const roomOptions = renderState.options.filter((o) =>
@@ -109,6 +114,7 @@ describe("MenuController Room Discovery", () => {
       discoveredCells: ["5,5", "1,1"], // 5,5 (room-2) first, 1,1 (room-1) second
     };
 
+    controller.handleMenuInput("1", stateWithBothDiscovered);
     controller.handleMenuInput("1", stateWithBothDiscovered);
     const renderState = controller.getRenderableState(stateWithBothDiscovered);
     const roomOptions = renderState.options.filter((o) =>

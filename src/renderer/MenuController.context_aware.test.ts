@@ -30,72 +30,52 @@ describe("MenuController Context Awareness", () => {
     });
   });
 
-  it("should disable COLLECT when no visible objectives", () => {
-    mockState.objectives = [];
+  it("should disable USE ITEM when inventory is empty", () => {
+    mockState.squadInventory = {};
     const renderState = controller.getRenderableState(mockState);
-    const collectOption = renderState.options.find((o) =>
-      o.label.includes("COLLECT"),
+    const useItemOption = renderState.options.find((o) =>
+      o.label.includes("USE ITEM"),
     );
-    expect(collectOption?.disabled).toBe(true);
+    expect(useItemOption?.disabled).toBe(true);
   });
 
-  it("should enable COLLECT when visible objectives exist", () => {
-    mockState.objectives = [
-      {
-        id: "obj1",
-        kind: "Recover",
-        state: "Pending",
-        visible: true,
-        targetCell: { x: 1, y: 1 },
-      },
-    ];
+  it("should enable USE ITEM when inventory has items", () => {
+    mockState.squadInventory = { medkit: 1 };
     const renderState = controller.getRenderableState(mockState);
-    const collectOption = renderState.options.find((o) =>
-      o.label.includes("COLLECT"),
+    const useItemOption = renderState.options.find((o) =>
+      o.label.includes("USE ITEM"),
     );
-    expect(collectOption?.disabled).toBeFalsy();
+    expect(useItemOption?.disabled).toBeFalsy();
   });
 
-  it("should disable EXTRACT when no extraction point", () => {
-    mockState.map.extraction = undefined;
-    const renderState = controller.getRenderableState(mockState);
-    const extractOption = renderState.options.find((o) =>
-      o.label.includes("EXTRACT"),
-    );
-    expect(extractOption?.disabled).toBe(true);
-  });
-
-  it("should enable EXTRACT when extraction point exists and is discovered", () => {
+  it("should show extraction point in target select when discovered", () => {
     mockState.map.extraction = { x: 5, y: 5 };
     mockState.discoveredCells = ["5,5"];
+    
+    // Navigate to MOVE TO ROOM
+    controller.handleMenuInput("1", mockState); // ORDERS
+    controller.handleMenuInput("1", mockState); // MOVE TO ROOM
+    
+    expect(controller.menuState).toBe("TARGET_SELECT");
     const renderState = controller.getRenderableState(mockState);
     const extractOption = renderState.options.find((o) =>
-      o.label.includes("EXTRACT"),
+      o.label.includes("Extraction"),
     );
-    expect(extractOption?.disabled).toBeFalsy();
+    expect(extractOption).toBeDefined();
   });
 
-  it("should disable EXTRACT when extraction point exists but is NOT discovered", () => {
+  it("should NOT show extraction point in target select when NOT discovered", () => {
     mockState.map.extraction = { x: 5, y: 5 };
-    mockState.discoveredCells = ["0,0", "1,1"]; // Far away
+    mockState.discoveredCells = ["0,0"];
+    
+    // Navigate to MOVE TO ROOM
+    controller.handleMenuInput("1", mockState); // ORDERS
+    controller.handleMenuInput("1", mockState); // MOVE TO ROOM
+    
     const renderState = controller.getRenderableState(mockState);
     const extractOption = renderState.options.find((o) =>
-      o.label.includes("EXTRACT"),
+      o.label.includes("Extraction"),
     );
-    expect(extractOption?.disabled).toBe(true);
-  });
-
-  it("should not allow selecting disabled COLLECT option", () => {
-    mockState.objectives = [];
-    const renderState = controller.getRenderableState(mockState);
-    const collectOption = renderState.options.find((o) =>
-      o.label.includes("COLLECT"),
-    );
-    const key = collectOption!.key;
-
-    controller.handleMenuInput(key, mockState);
-
-    // Should remain in ACTION_SELECT
-    expect(controller.menuState).toBe("ACTION_SELECT");
+    expect(extractOption).toBeUndefined();
   });
 });

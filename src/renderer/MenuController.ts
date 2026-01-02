@@ -1,4 +1,6 @@
 import {
+  BoundaryDefinition,
+  CellType,
   CommandType,
   EngagementPolicy,
   GameState,
@@ -82,21 +84,35 @@ export class MenuController {
 
     const config = MENU_CONFIG[this.menuState];
 
-    if (this.menuState === "ACTION_SELECT") {
+    if (
+      this.menuState === "ACTION_SELECT" ||
+      this.menuState === "ORDERS_SELECT"
+    ) {
       const option = config.options.find((o) => o.key.toString() === key);
       if (option) {
         if (this.isOptionDisabled(option, gameState)) return;
 
+        if (option.type === "TRANSITION") {
+          this.menuState = option.nextState || "ACTION_SELECT";
+          return;
+        }
+
         this.pendingAction = option.commandType || null;
 
         // Special Case Handling based on Label or custom logic
-        // Ideally we'd have a specific ID in config, but Label/Key works for now
-        if (option.label === "MOVE") {
+        if (option.label === "MOVE TO ROOM") {
           this.pendingLabel = "Moving";
-          this.menuState = "TARGET_SELECT"; // Default next state
+          this.menuState = "TARGET_SELECT";
           this.generateTargetOverlay("CELL", gameState);
-        } else if (option.label === "STOP") {
-          this.pendingLabel = "Stopping";
+        } else if (option.label === "OVERWATCH INTERSECTION") {
+          this.pendingLabel = "Overwatching";
+          this.menuState = "TARGET_SELECT";
+          this.generateTargetOverlay("INTERSECTION", gameState);
+        } else if (option.label === "EXPLORE") {
+          this.pendingLabel = "Exploring";
+          this.menuState = "UNIT_SELECT";
+        } else if (option.label === "HOLD") {
+          this.pendingLabel = "Holding";
           this.menuState = "UNIT_SELECT";
         } else if (option.label === "ENGAGEMENT") {
           this.pendingLabel = "Policy Change";
@@ -104,23 +120,6 @@ export class MenuController {
         } else if (option.label === "USE ITEM") {
           this.pendingLabel = "Using Item";
           this.menuState = "ITEM_SELECT";
-        } else if (option.label === "COLLECT") {
-          this.pendingLabel = "Collecting";
-          this.menuState = "TARGET_SELECT";
-          this.generateTargetOverlay("ITEM", gameState);
-        } else if (option.label === "EXTRACT") {
-          this.pendingLabel = "Extracting";
-          if (gameState.map.extraction) {
-            this.pendingTargetLocation = gameState.map.extraction;
-            this.menuState = "UNIT_SELECT";
-          } else {
-            // If no extraction point, maybe stay or show error?
-            // For now, let's just go to UNIT_SELECT but it might fail or we handle it in execute
-            this.menuState = "UNIT_SELECT";
-          }
-        } else if (option.label === "RESUME AI") {
-          this.pendingLabel = "Resuming AI";
-          this.menuState = "UNIT_SELECT";
         }
       }
     } else if (this.menuState === "ITEM_SELECT") {
@@ -173,9 +172,19 @@ export class MenuController {
     if (this.menuState === "UNIT_SELECT") {
       if (this.pendingAction === CommandType.SET_ENGAGEMENT)
         this.menuState = "MODE_SELECT";
-      else if (this.pendingAction === CommandType.MOVE_TO)
+      else if (
+        this.pendingAction === CommandType.MOVE_TO ||
+        this.pendingAction === CommandType.OVERWATCH_POINT
+      )
         this.menuState = "TARGET_SELECT";
+      else if (
+        this.pendingAction === CommandType.EXPLORE ||
+        this.pendingAction === CommandType.STOP
+      )
+        this.menuState = "ORDERS_SELECT";
       else this.menuState = "ACTION_SELECT";
+    } else if (this.menuState === "ORDERS_SELECT") {
+      this.menuState = "ACTION_SELECT";
     } else if (this.menuState === "ITEM_SELECT") {
       this.menuState = "ACTION_SELECT";
     } else if (
@@ -187,6 +196,12 @@ export class MenuController {
         this.pendingAction === CommandType.USE_ITEM
       ) {
         this.menuState = "ITEM_SELECT";
+      } else if (
+        this.menuState === "TARGET_SELECT" &&
+        (this.pendingAction === CommandType.MOVE_TO ||
+          this.pendingAction === CommandType.OVERWATCH_POINT)
+      ) {
+        this.menuState = "ORDERS_SELECT";
       } else {
         this.menuState = "ACTION_SELECT";
       }
@@ -212,6 +227,8 @@ export class MenuController {
         } else {
           this.generateTargetOverlay("CELL", gameState);
         }
+      } else if (this.pendingAction === CommandType.OVERWATCH_POINT) {
+        this.generateTargetOverlay("INTERSECTION", gameState);
       } else if (this.pendingAction === CommandType.USE_ITEM) {
         this.generateTargetOverlay("CELL", gameState);
       }
@@ -219,6 +236,7 @@ export class MenuController {
 
     if (
       this.menuState === "ACTION_SELECT" ||
+      this.menuState === "ORDERS_SELECT" ||
       this.menuState === "MODE_SELECT"
     ) {
       result.options = config.options.map((opt) => ({
@@ -231,6 +249,8 @@ export class MenuController {
 
       if (this.menuState === "ACTION_SELECT") {
         result.footer = "(Select Action)";
+      } else if (this.menuState === "ORDERS_SELECT") {
+        result.footer = "(Select Order)";
       } else {
         result.footer = "(ESC to Go Back)";
       }
@@ -328,16 +348,6 @@ export class MenuController {
         (count) => count > 0,
       );
       return !hasItems;
-    } else if (option.label === "COLLECT") {
-      // Check for any visible pending items
-      const hasVisibleItems = gameState.objectives.some(
-        (obj) => obj.state === "Pending" && obj.visible && obj.targetCell,
-      );
-      return !hasVisibleItems;
-    } else if (option.label === "EXTRACT") {
-      if (!gameState.map.extraction) return true;
-      const key = `${gameState.map.extraction.x},${gameState.map.extraction.y}`;
-      return !gameState.discoveredCells.includes(key);
     }
     return false;
   }
@@ -353,6 +363,22 @@ export class MenuController {
         type: CommandType.MOVE_TO,
         unitIds,
         target: this.pendingTargetLocation,
+        label: this.pendingLabel || undefined,
+      });
+    } else if (
+      this.pendingAction === CommandType.OVERWATCH_POINT &&
+      this.pendingTargetLocation
+    ) {
+      this.client.sendCommand({
+        type: CommandType.OVERWATCH_POINT,
+        unitIds,
+        target: this.pendingTargetLocation,
+        label: this.pendingLabel || undefined,
+      });
+    } else if (this.pendingAction === CommandType.EXPLORE) {
+      this.client.sendCommand({
+        type: CommandType.EXPLORE,
+        unitIds,
         label: this.pendingLabel || undefined,
       });
     } else if (this.pendingAction === CommandType.STOP) {
@@ -419,7 +445,10 @@ export class MenuController {
     return String.fromCharCode(65 + (index - 9)); // 65 is 'A'
   }
 
-  private generateTargetOverlay(type: "CELL" | "ITEM", gameState: GameState) {
+  private generateTargetOverlay(
+    type: "CELL" | "ITEM" | "INTERSECTION",
+    gameState: GameState,
+  ) {
     this.overlayOptions = [];
 
     if (type === "ITEM") {
@@ -432,6 +461,34 @@ export class MenuController {
             pos: obj.targetCell,
           });
           itemCounter++;
+        }
+      });
+    } else if (type === "INTERSECTION") {
+      let intersectionCounter = 0;
+      gameState.map.cells.forEach((cell) => {
+        if (cell.type !== CellType.Floor) return;
+        const key = `${cell.x},${cell.y}`;
+        if (!gameState.discoveredCells.includes(key)) return;
+
+        // Count connections (boundaries that are NOT walls)
+        let connections = 0;
+        const boundaries = (gameState.map.boundaries || []).filter(
+          (b: BoundaryDefinition) =>
+            (b.x1 === cell.x && b.y1 === cell.y) ||
+            (b.x2 === cell.x && b.y2 === cell.y),
+        );
+
+        boundaries.forEach((b: BoundaryDefinition) => {
+          if (!b.isWall) connections++;
+        });
+
+        if (connections >= 3) {
+          this.overlayOptions.push({
+            key: this.getRoomKey(intersectionCounter),
+            label: `Intersection`,
+            pos: { x: cell.x, y: cell.y },
+          });
+          intersectionCounter++;
         }
       });
     } else if (type === "CELL") {

@@ -41,6 +41,11 @@ describe("Regression 8b9a: Auto Extraction Discovery", () => {
       false,
     );
 
+    engine.applyCommand({
+      type: CommandType.EXPLORE,
+      unitIds: [engine.getState().units[0].id],
+    });
+
     // Run a few ticks to allow thinking
     for (let i = 0; i < 10; i++) {
       engine.update(100);
