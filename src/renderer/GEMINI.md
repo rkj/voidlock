@@ -51,5 +51,6 @@ This directory contains the main thread rendering logic and user interface for X
 
 ## References
 
+- **ADR 0006**: Autonomous Agent Architecture (AI & Tick Sync)
 - **ADR 0007**: Command Pattern & Queue (Shared Protocol)
 - **ADR 0008**: Renderer & UI Separation (Hybrid Rendering)

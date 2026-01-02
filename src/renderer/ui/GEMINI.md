@@ -20,4 +20,8 @@ This directory contains UI components and managers for the Xenopurge renderer.
 - **Objective HUD Cleanup**: Objectives list now hides coordinates by default (shown only in debug mode), removes explicit status text (Pending/Completed), and adds tooltips to status icons for better clarity.
 - **Enemy Intel**: New section in the right panel that displays icon-based stats for all currently visible enemies, grouped by type.
 - **Command Menu Rendering**: Generates clickable HTML for the tactical menu.
-- **Event Handling**: Manages clicks on soldier items and menu options.
+- Event Handling**: Manages clicks on soldier items and menu options.
+
+## Related ADRs
+
+- [ADR 0008: Renderer & UI Separation](../../../docs/adr/0008-renderer-ui-separation.md)

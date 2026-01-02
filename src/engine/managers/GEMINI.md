@@ -24,3 +24,8 @@ This directory contains specialized managers that handle specific domains of the
 
 - All managers are instantiated and orchestrated by `src/engine/CoreEngine.ts`.
 - They frequently interact with each other (e.g., `UnitManager` uses `VisibilityManager` and `DoorManager`).
+
+## Related ADRs
+
+- [ADR 0006: Autonomous Agent Architecture](../../../docs/adr/0006-autonomous-agent-architecture.md)
+- [ADR 0007: Command Pattern & Queue](../../../docs/adr/0007-command-pattern-queue.md)

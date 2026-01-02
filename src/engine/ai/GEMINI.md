@@ -17,3 +17,7 @@ This directory contains autonomous behavior logic for both enemies and soldiers.
 
 - Used by `src/engine/managers/UnitManager.ts` and `src/engine/managers/EnemyManager.ts` to update unit intents during each tick.
 - Depends on `src/engine/Pathfinder.ts` and `src/shared/types.ts`.
+
+## Related ADRs
+
+- [ADR 0006: Autonomous Agent Architecture](../../../docs/adr/0006-autonomous-agent-architecture.md)
