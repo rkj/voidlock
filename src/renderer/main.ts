@@ -483,11 +483,11 @@ document.addEventListener("DOMContentLoaded", () => {
       missionDiv.innerHTML = `
         <label for="mission-type">Mission Type:</label>
         <select id="mission-type">
-            <option value="${MissionType.Default}">Default (Single Objective)</option>
-            <option value="${MissionType.ExtractArtifacts}">Extract Artifacts</option>
-            <option value="${MissionType.DestroyHive}">Destroy Hive</option>
-            <option value="${MissionType.EscortVIP}">Escort VIP</option>
-        </select>
+                    <option value="${MissionType.Default}">Default (Single Objective)</option>
+                    <option value="${MissionType.ExtractArtifacts}">Extract Artifacts</option>
+                    <option value="${MissionType.DestroyHive}">Destroy Hive</option>
+                    <option value="${MissionType.EscortVIP}">Escort VIP</option>
+                    <option value="${MissionType.RecoverIntel}">Recover Intel</option>        </select>
       `;
       mapGenGroup.insertBefore(missionDiv, mapGenGroup.firstChild);
       const missionSelect = document.getElementById(

@@ -9,7 +9,7 @@
 - UI supports keyboard-driven gameplay and provides clear tactical feedback (soldier list, tracers).
 - Map resembles a tight spaceship interior with edge-based walls.
 
----
+______________________________________________________________________
 
 ## 13) Agent Debugging & Visual Feedback
 
@@ -22,7 +22,7 @@
 - **Console Output**: Debug logs in the browser console remain critical for understanding runtime state and should be provided when requested.
 - **Agent Browser Environment**: The agent's internal browser operates in a headless environment. If a headful browser is attempted, an X server must be present. When reporting issues, assume the agent is using a headless browser.
 
----
+______________________________________________________________________
 
 ## 14) Testing and Debugging Strategy
 
@@ -45,7 +45,7 @@
 - **Test Execution**: Run tests using `npx vitest run` to ensure non-interactive execution, especially in automated environments. Avoid `npx vitest` without `run` as it defaults to interactive watch mode.
 - **Commit Frequency**: The agent must commit changes after the completion of _every_ Beads task.
 
----
+______________________________________________________________________
 
 ### Critical Runtime Errors
 

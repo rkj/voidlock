@@ -19,26 +19,31 @@
 The automated soldier AI follows a multi-tier logic profile when not under direct manual control:
 
 1. **Threat Evaluation:**
+
    - Units continuously scan for visible enemies.
    - Threat level is calculated based on distance, enemy type, and unit's current HP.
    - Enemies attacking the unit or its squadmates receive highest priority.
 
 1. **Engagement (Default Policy: `ENGAGE`):**
+
    - If a threat is detected and `engagementPolicy` is `ENGAGE`:
      - The unit will prioritize attacking the highest-priority target within `attackRange`.
      - If no targets are in `attackRange` but threats are visible, the unit will move toward the closest threat until in range.
      - Units will "Stop & Shoot" — pausing movement to resolve combat unless the command was explicitly queued with `IGNORE`.
 
 1. **Self-preservation:**
+
    - **Retreat:** If HP falls below 25%, the unit's logic switches to `IGNORE` engagement and prioritizes moving away from the closest threat toward a discovered "safe" cell (no visible enemies).
    - **Group Up:** If a unit is isolated (no allies within 5 tiles) and threats are present, it prioritizes moving toward the closest ally.
 
 1. **Autonomous Exploration & Objective Acquisition**:
+
    - If no threats are present and no manual commands are queued, units prioritize exploring the closest undiscovered floor cells.
    - **Priority Override**: If an objective item (e.g., Artifact) or a target (e.g., Hive) is visible in LOS, units **MUST** immediately prioritize its acquisition over general exploration.
    - Once the map is fully discovered and all objectives are complete, units automatically pathfind to the extraction point.
 
 1. **VIP Logic (MissionType: EscortVIP)**:
+
    - **Unit Profile**:
      - **Unarmed**: Cannot attack (`damage: 0`, `fireRate: 0`).
      - **Stats**: ~50% HP of a standard soldier. Good speed.
@@ -56,10 +61,12 @@ The automated soldier AI follows a multi-tier logic profile when not under direc
    - **Multiple VIPs**: Missions can support more than one VIP unit. All must be extracted for success.
 
 1. **Timed Actions**:
+
    - Actions like extraction and picking up items take **5 seconds** (at 1x speed) to complete.
    - During this time, the unit is locked in place and cannot perform other actions until the process finishes.
 
 1. **Task Coordination**:
+
    - Units must coordinate their autonomous tasks. Multiple units should NOT attempt the same task (e.g., picking up the same item) simultaneously. If one unit is already performing a task, others must prioritize different objectives.
 
 ### 4.3 The Director (Spawning)

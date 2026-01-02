@@ -618,6 +618,7 @@ export enum MissionType {
   ExtractArtifacts = "ExtractArtifacts",
   DestroyHive = "DestroyHive",
   EscortVIP = "EscortVIP",
+  RecoverIntel = "RecoverIntel",
 }
 
 export type WorkerMessage =

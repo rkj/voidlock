@@ -12,6 +12,7 @@ import {
   SpawnPoint,
   Objective,
   AIProfile,
+  MissionType,
 } from "./types";
 
 describe("Shared Types", () => {
@@ -21,6 +22,7 @@ describe("Shared Types", () => {
     expect(UnitState.Attacking).toBe("Attacking");
     expect(UnitState.Extracted).toBe("Extracted");
     expect(CommandType.MOVE_TO).toBe("MOVE_TO");
+    expect(MissionType.RecoverIntel).toBe("RecoverIntel");
   });
 
   it("should allow Vector2 creation", () => {
