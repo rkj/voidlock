@@ -13,7 +13,7 @@ describe("Mission Win/Loss Conditions", () => {
     width: 10,
     height: 10,
     cells: [],
-    spawnPoints: [{ x: 1, y: 1 }],
+    spawnPoints: [{ id: "spawn-1", pos: { x: 1, y: 1 }, radius: 1 }],
     squadSpawn: { x: 1, y: 1 },
     extraction: { x: 9, y: 9 },
     objectives: [],
@@ -32,7 +32,7 @@ describe("Mission Win/Loss Conditions", () => {
 
   describe("Expendable Crew Missions (Intel/Hive)", () => {
     it("should win RecoverIntel as soon as all objectives are completed, even if squad is wiped later", () => {
-      const intelMap = {
+      const intelMap: MapDefinition = {
         ...mockMap,
         objectives: [
           { id: "intel-0", kind: "Recover", targetCell: { x: 2, y: 2 } },
@@ -92,7 +92,7 @@ describe("Mission Win/Loss Conditions", () => {
     });
 
     it("should lose if squad is wiped before objectives are completed", () => {
-      const intelMap = {
+      const intelMap: MapDefinition = {
         ...mockMap,
         objectives: [
           { id: "intel-0", kind: "Recover", targetCell: { x: 2, y: 2 } },
@@ -118,7 +118,7 @@ describe("Mission Win/Loss Conditions", () => {
 
   describe("Must Survive Missions (Artifact/VIP)", () => {
     it("should win ExtractArtifacts only if artifact is picked up AND at least one unit extracts", () => {
-      const artifactMap = {
+      const artifactMap: MapDefinition = {
         ...mockMap,
         objectives: [
           { id: "artifact-0", kind: "Recover", targetCell: { x: 2, y: 2 } },
@@ -153,8 +153,8 @@ describe("Mission Win/Loss Conditions", () => {
       expect(state.status).toBe("Won");
     });
 
-    it("should lose ExtractArtifacts if carrier dies and others extract without the artifact", () => {
-      const artifactMap = {
+    it("should lose ExtractArtifacts if all units die, even if artifact was picked up", () => {
+      const artifactMap: MapDefinition = {
         ...mockMap,
         objectives: [
           { id: "artifact-0", kind: "Recover", targetCell: { x: 2, y: 2 } },

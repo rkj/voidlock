@@ -18,9 +18,11 @@ describe("HUDManager Regression kvi1", () => {
     t: 1000,
     status: "Playing",
     stats: {
-      threatLevel: 25,
-      aliensKilled: 5,
+      threatLevel: 0,
+      aliensKilled: 0,
+      elitesKilled: 0,
       casualties: 0,
+      scrapGained: 0,
     },
     map: { width: 10, height: 10, cells: [] },
     units: [

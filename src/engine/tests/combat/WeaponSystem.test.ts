@@ -13,6 +13,7 @@ import { Pathfinder } from "../../Pathfinder";
 import { LineOfSight } from "../../LineOfSight";
 import { UnitManager } from "../../managers/UnitManager";
 import { PRNG } from "../../../shared/PRNG";
+import { LootManager } from "../../managers/LootManager";
 
 describe("Weapon System", () => {
   let unitManager: UnitManager;
@@ -20,6 +21,7 @@ describe("Weapon System", () => {
   let pathfinder: Pathfinder;
   let los: LineOfSight;
   let prng: PRNG;
+  let lootManager: LootManager;
 
   beforeEach(() => {
     const map: MapDefinition = {
@@ -32,12 +34,13 @@ describe("Weapon System", () => {
         map.cells.push({ x, y, type: CellType.Floor });
       }
     }
-
     gameGrid = new GameGrid(map);
-    pathfinder = new Pathfinder(gameGrid.getGraph(), new Map());
-    los = new LineOfSight(gameGrid.getGraph(), new Map());
+    const doors = new Map();
+    pathfinder = new Pathfinder(gameGrid.getGraph(), doors);
+    los = new LineOfSight(gameGrid.getGraph(), doors);
     unitManager = new UnitManager(gameGrid, pathfinder, los, true);
     prng = new PRNG(123);
+    lootManager = new LootManager();
   });
 
   it("should have melee and ranged weapons defined in WeaponLibrary", () => {
@@ -122,7 +125,7 @@ describe("Weapon System", () => {
       map: map,
     };
 
-    unitManager.update(state, 100, new Map(), prng);
+    unitManager.update(state, 100, new Map(), prng, lootManager);
 
     expect(unit.activeWeaponId).toBe("combat_knife");
     expect(unit.stats.damage).toBe(15); // Knife damage
@@ -179,7 +182,7 @@ describe("Weapon System", () => {
       map: map,
     };
 
-    unitManager.update(state, 100, new Map(), prng);
+    unitManager.update(state, 100, new Map(), prng, lootManager);
 
     expect(unit.activeWeaponId).toBe("pulse_rifle");
     expect(unit.stats.damage).toBe(20); // Pulse Rifle damage

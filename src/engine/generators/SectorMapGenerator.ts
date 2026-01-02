@@ -87,7 +87,7 @@ export class SectorMapGenerator {
           let secondTarget;
           do {
             secondTarget = prng.nextInt(0, nextLayer.length - 1);
-          } while (secondTarget === node.connections[0]); // Simple check since we only had one
+          } while (nextLayer[secondTarget].id === node.connections[0]); // Simple check since we only had one
 
           // Re-check if we already have it in case logic evolves
           if (!node.connections.includes(nextLayer[secondTarget].id)) {

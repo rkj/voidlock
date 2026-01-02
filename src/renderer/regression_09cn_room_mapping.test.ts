@@ -20,10 +20,13 @@ describe("MenuController Room Mapping Regression (09cn)", () => {
     visibleCells: [],
     discoveredCells: [],
     objectives: [],
+    loot: [],
     stats: {
       threatLevel: 0,
       aliensKilled: 0,
+      elitesKilled: 0,
       casualties: 0,
+      scrapGained: 0,
     },
     status: "Playing",
     settings: {

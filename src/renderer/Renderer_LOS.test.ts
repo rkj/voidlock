@@ -131,7 +131,9 @@ describe("Renderer LOS", () => {
       stats: {
         threatLevel: 0,
         aliensKilled: 0,
+        elitesKilled: 0,
         casualties: 0,
+        scrapGained: 0,
       },
     });
   });

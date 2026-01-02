@@ -29,7 +29,8 @@ describe("MenuController Intersection Discovery", () => {
     visibleCells: [],
     discoveredCells: ["1,1"],
     objectives: [],
-    stats: { threatLevel: 0, aliensKilled: 0, casualties: 0 },
+    loot: [],
+    stats: { threatLevel: 0, aliensKilled: 0, elitesKilled: 0, casualties: 0, scrapGained: 0 },
     status: "Playing",
     settings: {
       mode: "Simulation" as any,
