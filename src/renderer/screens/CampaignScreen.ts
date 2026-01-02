@@ -1,5 +1,5 @@
 import { CampaignManager } from "../campaign/CampaignManager";
-import { CampaignNode } from "../../shared/campaign_types";
+import { CampaignNode, CampaignState } from "../../shared/campaign_types";
 
 export class CampaignScreen {
   private container: HTMLElement;
@@ -80,9 +80,24 @@ export class CampaignScreen {
     viewport.style.overflow = "auto";
     viewport.style.padding = "100px";
     viewport.style.background =
-      "radial-gradient(circle, #1a1a1a 0%, #000 100%)";
+      "radial-gradient(circle, #1a1a1a 0%, #000 100%), linear-gradient(#111 1px, transparent 1px), linear-gradient(90deg, #111 1px, transparent 1px)";
+    viewport.style.backgroundSize = "100% 100%, 40px 40px, 40px 40px";
 
-    this.renderMap(viewport, state.nodes);
+    // Scanline effect
+    const scanline = document.createElement("div");
+    scanline.style.position = "absolute";
+    scanline.style.top = "0";
+    scanline.style.left = "0";
+    scanline.style.width = "100%";
+    scanline.style.height = "100%";
+    scanline.style.background =
+      "linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06))";
+    scanline.style.backgroundSize = "100% 4px, 3px 100%";
+    scanline.style.pointerEvents = "none";
+    scanline.style.zIndex = "5";
+    viewport.appendChild(scanline);
+
+    this.renderMap(viewport, state);
     this.container.appendChild(viewport);
 
     // Footer
@@ -128,7 +143,8 @@ export class CampaignScreen {
     this.container.appendChild(content);
   }
 
-  private renderMap(container: HTMLElement, nodes: CampaignNode[]) {
+  private renderMap(container: HTMLElement, state: CampaignState) {
+    const nodes = state.nodes;
     // Canvas for connections
     const canvas = document.createElement("canvas");
     canvas.style.position = "absolute";
@@ -146,22 +162,27 @@ export class CampaignScreen {
 
     // Nodes
     nodes.forEach((node) => {
+      const isCurrent = state.currentNodeId === node.id;
       const nodeEl = document.createElement("div");
       nodeEl.className = `campaign-node ${node.status.toLowerCase()}`;
+      if (isCurrent) nodeEl.className += " current";
+      nodeEl.dataset.id = node.id;
       nodeEl.style.position = "absolute";
       nodeEl.style.left = `${node.position.x + 100}px`;
       nodeEl.style.top = `${node.position.y + 100}px`;
-      nodeEl.style.width = "40px";
-      nodeEl.style.height = "40px";
-      nodeEl.style.borderRadius = "50%";
-      nodeEl.style.border = "2px solid #444";
+      nodeEl.style.width = "44px";
+      nodeEl.style.height = "44px";
+      nodeEl.style.borderRadius = "4px"; // Square-ish for sci-fi look
+      nodeEl.style.border = "1px solid #444";
       nodeEl.style.display = "flex";
       nodeEl.style.alignItems = "center";
       nodeEl.style.justifyContent = "center";
       nodeEl.style.cursor = "pointer";
       nodeEl.style.transition = "all 0.2s";
       nodeEl.style.zIndex = "2";
-      nodeEl.title = `${node.type} (Difficulty: ${node.difficulty.toFixed(1)})`;
+      nodeEl.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
+      const statusText = node.status === "Revealed" ? "Locked" : node.status;
+      nodeEl.title = `${node.type} (${statusText}) - Difficulty: ${node.difficulty.toFixed(1)}`;
 
       // Visuals based on status
       switch (node.status) {
@@ -170,26 +191,33 @@ export class CampaignScreen {
           nodeEl.style.pointerEvents = "none";
           break;
         case "Revealed":
-          nodeEl.style.opacity = "0.5";
-          nodeEl.style.background = "#222";
+          nodeEl.style.opacity = "0.4";
+          nodeEl.style.borderColor = "#333";
           nodeEl.style.cursor = "default";
           break;
         case "Accessible":
-          nodeEl.style.background = "#333";
           nodeEl.style.borderColor = "#0f0";
-          nodeEl.style.boxShadow = "0 0 10px #0f0";
+          nodeEl.style.boxShadow =
+            "inset 0 0 10px rgba(0, 255, 0, 0.3), 0 0 15px rgba(0, 255, 0, 0.2)";
           nodeEl.onclick = () => this.onNodeSelect(node);
           break;
         case "Cleared":
-          nodeEl.style.background = "#040";
           nodeEl.style.borderColor = "#080";
+          nodeEl.style.background = "rgba(0, 80, 0, 0.4)";
           nodeEl.style.cursor = "default";
           break;
       }
 
+      if (isCurrent) {
+        nodeEl.style.borderColor = "#0af";
+        nodeEl.style.boxShadow =
+          "inset 0 0 15px rgba(0, 170, 255, 0.4), 0 0 20px rgba(0, 170, 255, 0.3)";
+      }
+
       // Icon/Text
       const icon = document.createElement("span");
-      icon.style.fontSize = "0.8em";
+      icon.style.fontSize = "1.2em";
+      icon.style.filter = "drop-shadow(0 0 2px currentColor)";
       switch (node.type) {
         case "Combat":
           icon.textContent = "⚔️";
@@ -209,17 +237,41 @@ export class CampaignScreen {
       }
       nodeEl.appendChild(icon);
 
+      // Current Indicator (Ship Icon)
+      if (isCurrent) {
+        const indicator = document.createElement("div");
+        indicator.textContent = "▲";
+        indicator.style.position = "absolute";
+        indicator.style.top = "-20px";
+        indicator.style.color = "#0af";
+        indicator.style.fontSize = "1.2em";
+        indicator.style.textShadow = "0 0 5px #0af";
+        nodeEl.appendChild(indicator);
+      }
+
       container.appendChild(nodeEl);
     });
+
+    // Resize observer for canvas
+    const ro = new ResizeObserver(() => {
+      canvas.width = container.scrollWidth;
+      canvas.height = container.scrollHeight;
+      this.drawConnections(canvas, nodes);
+    });
+    ro.observe(container);
+    // Initial call after a tick to ensure layout
+    setTimeout(() => {
+      canvas.width = container.scrollWidth;
+      canvas.height = container.scrollHeight;
+      this.drawConnections(canvas, nodes);
+    }, 0);
   }
 
   private drawConnections(canvas: HTMLCanvasElement, nodes: CampaignNode[]) {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    ctx.strokeStyle = "#444";
-    ctx.lineWidth = 2;
-    ctx.setLineDash([5, 5]);
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
     nodes.forEach((node) => {
       if (node.status === "Hidden") return;
@@ -228,18 +280,21 @@ export class CampaignScreen {
         const target = nodes.find((n) => n.id === connId);
         if (target && target.status !== "Hidden") {
           ctx.beginPath();
-          ctx.moveTo(node.position.x + 120, node.position.y + 120);
-          ctx.lineTo(target.position.x + 120, target.position.y + 120);
+          // Center of 44x44 node is +22. Added to 100 padding = 122.
+          ctx.moveTo(node.position.x + 122, node.position.y + 122);
+          ctx.lineTo(target.position.x + 122, target.position.y + 122);
 
           if (
             node.status === "Cleared" &&
             (target.status === "Accessible" || target.status === "Cleared")
           ) {
-            ctx.strokeStyle = "#080";
+            ctx.strokeStyle = "rgba(0, 255, 0, 0.4)";
             ctx.setLineDash([]);
+            ctx.lineWidth = 2;
           } else {
-            ctx.strokeStyle = "#444";
-            ctx.setLineDash([5, 5]);
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
+            ctx.setLineDash([4, 4]);
+            ctx.lineWidth = 1;
           }
 
           ctx.stroke();

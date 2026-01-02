@@ -14,6 +14,13 @@ describe("CampaignScreen", () => {
     document.body.innerHTML = '<div id="screen-campaign"></div>';
     container = document.getElementById("screen-campaign")!;
 
+    // Mock ResizeObserver
+    global.ResizeObserver = vi.fn().mockImplementation(() => ({
+      observe: vi.fn(),
+      unobserve: vi.fn(),
+      disconnect: vi.fn(),
+    }));
+
     CampaignManager.resetInstance();
     manager = CampaignManager.getInstance(
       new (class {
@@ -76,6 +83,28 @@ describe("CampaignScreen", () => {
 
     accessibleNode.click();
     expect(onNodeSelect).toHaveBeenCalled();
+  });
+
+  it("should render a 'current' indicator on the current node", () => {
+    manager.startNewCampaign(12345, "normal");
+    const state = manager.getState()!;
+    // Set a node as cleared and mark it as current
+    state.nodes[0].status = "Cleared";
+    state.currentNodeId = state.nodes[0].id;
+
+    const screen = new CampaignScreen(
+      "screen-campaign",
+      manager,
+      onNodeSelect,
+      onBack,
+    );
+    screen.show();
+
+    const currentNode = container.querySelector(
+      `.campaign-node[data-id="${state.currentNodeId}"]`,
+    ) as HTMLElement;
+    expect(currentNode).not.toBeNull();
+    expect(currentNode.innerHTML).toContain("▲"); // Using triangle as indicator for now
   });
 
   it("should trigger onBack when back button is clicked", () => {
