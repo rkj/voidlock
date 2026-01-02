@@ -57,7 +57,7 @@ export class SectorMapGenerator {
         const node: CampaignNode = {
           id,
           type,
-          status: l === 0 ? "Accessible" : "Hidden",
+          status: l === 0 ? "Accessible" : "Revealed",
           difficulty: 1 + l * rules.difficultyScaling,
           mapSeed: prng.nextInt(0, 1000000),
           connections: [],

@@ -65,7 +65,7 @@ export class CampaignManager {
     const roster = this.generateInitialRoster(prng);
 
     this.state = {
-      version: "0.42.0", // Current project version
+      version: "0.42.1", // Current project version
       seed,
       rules,
       scrap: 500,
@@ -176,7 +176,10 @@ export class CampaignManager {
       // Unlock connected nodes
       node.connections.forEach((connId) => {
         const nextNode = this.state!.nodes.find((n) => n.id === connId);
-        if (nextNode && nextNode.status === "Hidden") {
+        if (
+          nextNode &&
+          (nextNode.status === "Hidden" || nextNode.status === "Revealed")
+        ) {
           nextNode.status = "Accessible";
         }
       });
