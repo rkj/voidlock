@@ -4,16 +4,18 @@ export type MenuState =
   | "ACTION_SELECT"
   | "TARGET_SELECT"
   | "UNIT_SELECT"
-  | "MODE_SELECT";
+  | "MODE_SELECT"
+  | "ITEM_SELECT";
 
 export interface MenuOptionDefinition {
   key: number;
   label: string;
-  type: "ACTION" | "TRANSITION" | "MODE" | "BACK" | "SPECIAL";
+  type: "ACTION" | "TRANSITION" | "MODE" | "BACK" | "SPECIAL" | "ITEM";
   commandType?: CommandType;
   nextState?: MenuState;
   modeValue?: EngagementPolicy;
   specialId?: string; // For "ALL_UNITS" etc.
+  itemId?: string; // For ITEM_SELECT
 }
 
 export interface MenuStateDefinition {
@@ -49,20 +51,27 @@ export const MENU_CONFIG: Record<MenuState, MenuStateDefinition> = {
       },
       {
         key: 4,
+        label: "USE ITEM",
+        type: "ACTION",
+        commandType: CommandType.USE_ITEM,
+        nextState: "ITEM_SELECT",
+      },
+      {
+        key: 5,
         label: "COLLECT",
         type: "ACTION",
         commandType: CommandType.MOVE_TO,
         nextState: "TARGET_SELECT",
       }, // Collect is Move To Item
       {
-        key: 5,
+        key: 6,
         label: "EXTRACT",
         type: "ACTION",
         commandType: CommandType.MOVE_TO,
         nextState: "UNIT_SELECT",
       }, // Special handling in controller for target
       {
-        key: 6,
+        key: 7,
         label: "RESUME AI",
         type: "ACTION",
         commandType: CommandType.RESUME_AI,
@@ -89,6 +98,11 @@ export const MENU_CONFIG: Record<MenuState, MenuStateDefinition> = {
       },
       { key: 0, label: "BACK", type: "BACK" },
     ],
+  },
+  ITEM_SELECT: {
+    title: "SELECT ITEM",
+    options: [{ key: 0, label: "BACK", type: "BACK" }],
+    dynamic: true,
   },
   TARGET_SELECT: {
     title: "SELECT TARGET",
