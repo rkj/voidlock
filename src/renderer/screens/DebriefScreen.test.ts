@@ -31,9 +31,9 @@ describe("DebriefScreen", () => {
           kills: 5,
           promoted: true,
           newLevel: 2,
-          status: "Healthy"
-        }
-      ]
+          status: "Healthy",
+        },
+      ],
     };
 
     screen.show(report);
@@ -61,9 +61,9 @@ describe("DebriefScreen", () => {
           xpGained: 10,
           kills: 0,
           promoted: false,
-          status: "Dead"
-        }
-      ]
+          status: "Dead",
+        },
+      ],
     };
 
     screen.show(report);
@@ -81,7 +81,7 @@ describe("DebriefScreen", () => {
       scrapGained: 0,
       intelGained: 0,
       timeSpent: 0,
-      soldierResults: []
+      soldierResults: [],
     };
 
     screen.show(report);

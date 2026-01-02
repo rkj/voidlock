@@ -1,4 +1,10 @@
-import { CampaignState, CampaignNode, GameRules, MissionReport, CampaignSoldier } from "../../shared/campaign_types";
+import {
+  CampaignState,
+  CampaignNode,
+  GameRules,
+  MissionReport,
+  CampaignSoldier,
+} from "../../shared/campaign_types";
 import { PRNG } from "../../shared/PRNG";
 import { Vector2 } from "../../shared/types";
 
@@ -11,9 +17,9 @@ export class CampaignManager {
 
   public startNewCampaign(seed: number, difficulty: string): void {
     const prng = new PRNG(seed);
-    
+
     const rules: GameRules = this.getRulesForDifficulty(difficulty);
-    
+
     const nodes = this.generateSectorMap(seed, rules);
     const roster = this.generateInitialRoster(prng);
 
@@ -28,7 +34,7 @@ export class CampaignManager {
       nodes,
       roster,
       history: [],
-      unlockedArchetypes: ["assault", "medic", "scout", "heavy"]
+      unlockedArchetypes: ["assault", "medic", "scout", "heavy"],
     };
 
     this.save();
@@ -41,14 +47,14 @@ export class CampaignManager {
           mode: "Custom",
           deathRule: "Simulation",
           difficultyScaling: 0.8,
-          resourceScarcity: 1.2
+          resourceScarcity: 1.2,
         };
       case "hard":
         return {
           mode: "Custom",
           deathRule: "Iron",
           difficultyScaling: 1.5,
-          resourceScarcity: 0.7
+          resourceScarcity: 0.7,
         };
       case "normal":
       default:
@@ -56,7 +62,7 @@ export class CampaignManager {
           mode: "Custom",
           deathRule: "Clone",
           difficultyScaling: 1.0,
-          resourceScarcity: 1.0
+          resourceScarcity: 1.0,
         };
     }
   }
@@ -69,12 +75,13 @@ export class CampaignManager {
 
     // TODO: Implement proper DAG generation
     // For now, a very simple linear-ish DAG
-    
+
     let previousLayerNodes: CampaignNode[] = [];
 
     for (let l = 0; l < layers; l++) {
       const currentLayerNodes: CampaignNode[] = [];
-      const numNodes = (l === 0 || l === layers - 1) ? 1 : prng.nextInt(2, nodesPerLayer);
+      const numNodes =
+        l === 0 || l === layers - 1 ? 1 : prng.nextInt(2, nodesPerLayer);
 
       for (let i = 0; i < numNodes; i++) {
         const id = `node_${l}_${i}`;
@@ -86,7 +93,10 @@ export class CampaignManager {
           difficulty: 1 + l * rules.difficultyScaling,
           mapSeed: prng.nextInt(0, 1000000),
           connections: [],
-          position: { x: l * 100, y: i * 100 + (nodesPerLayer - numNodes) * 50 }
+          position: {
+            x: l * 100,
+            y: i * 100 + (nodesPerLayer - numNodes) * 50,
+          },
         };
         nodes.push(node);
         currentLayerNodes.push(node);
@@ -94,11 +104,11 @@ export class CampaignManager {
 
       if (previousLayerNodes.length > 0) {
         // Connect previous layer to current layer
-        previousLayerNodes.forEach(prev => {
+        previousLayerNodes.forEach((prev) => {
           // Each node connects to at least one in next layer
           const targetIndex = prng.nextInt(0, currentLayerNodes.length - 1);
           prev.connections.push(currentLayerNodes[targetIndex].id);
-          
+
           // Potentially connect to more
           if (currentLayerNodes.length > 1 && prng.next() > 0.6) {
             let secondTarget;
@@ -110,8 +120,10 @@ export class CampaignManager {
         });
 
         // Ensure every node in current layer has at least one incoming connection
-        currentLayerNodes.forEach(curr => {
-          const hasIncoming = previousLayerNodes.some(prev => prev.connections.includes(curr.id));
+        currentLayerNodes.forEach((curr) => {
+          const hasIncoming = previousLayerNodes.some((prev) =>
+            prev.connections.includes(curr.id),
+          );
           if (!hasIncoming) {
             const sourceIndex = prng.nextInt(0, previousLayerNodes.length - 1);
             previousLayerNodes[sourceIndex].connections.push(curr.id);
@@ -125,10 +137,14 @@ export class CampaignManager {
     return nodes;
   }
 
-  private getRandomNodeType(layer: number, totalLayers: number, prng: PRNG): any {
+  private getRandomNodeType(
+    layer: number,
+    totalLayers: number,
+    prng: PRNG,
+  ): any {
     if (layer === 0) return "Combat";
     if (layer === totalLayers - 1) return "Boss";
-    
+
     const roll = prng.next();
     if (roll < 0.6) return "Combat";
     if (roll < 0.8) return "Elite";
@@ -139,7 +155,7 @@ export class CampaignManager {
   private generateInitialRoster(prng: PRNG): CampaignSoldier[] {
     const archetypes = ["assault", "medic", "scout", "heavy"];
     const roster: CampaignSoldier[] = [];
-    
+
     for (let i = 0; i < 4; i++) {
       const arch = archetypes[i % archetypes.length];
       roster.push({
@@ -153,7 +169,7 @@ export class CampaignManager {
         kills: 0,
         missions: 0,
         status: "Healthy",
-        equipment: {}
+        equipment: {},
       });
     }
     return roster;
@@ -183,21 +199,21 @@ export class CampaignManager {
 
   public getAvailableNodes(): CampaignNode[] {
     if (!this.state) return [];
-    return this.state.nodes.filter(n => n.status === "Accessible");
+    return this.state.nodes.filter((n) => n.status === "Accessible");
   }
 
   public processMissionResult(report: MissionReport): void {
     if (!this.state) return;
 
     // 1. Update node status
-    const node = this.state.nodes.find(n => n.id === report.nodeId);
+    const node = this.state.nodes.find((n) => n.id === report.nodeId);
     if (node) {
       node.status = "Cleared";
       this.state.currentNodeId = node.id;
 
       // Unlock connected nodes
-      node.connections.forEach(connId => {
-        const nextNode = this.state!.nodes.find(n => n.id === connId);
+      node.connections.forEach((connId) => {
+        const nextNode = this.state!.nodes.find((n) => n.id === connId);
         if (nextNode && nextNode.status === "Hidden") {
           nextNode.status = "Accessible";
         }
@@ -209,8 +225,8 @@ export class CampaignManager {
     this.state.intel += report.intelGained;
 
     // 3. Update soldiers
-    report.soldierResults.forEach(res => {
-      const soldier = this.state!.roster.find(s => s.id === res.soldierId);
+    report.soldierResults.forEach((res) => {
+      const soldier = this.state!.roster.find((s) => s.id === res.soldierId);
       if (soldier) {
         soldier.xp += res.xpGained;
         soldier.kills += res.kills;
@@ -227,8 +243,8 @@ export class CampaignManager {
             soldier.status = "Healthy";
             soldier.hp = soldier.maxHp;
           } else if (this.state!.rules.deathRule === "Clone") {
-             // Clone cost logic could go here, for now they just stay dead
-             // until user revives them in Barracks
+            // Clone cost logic could go here, for now they just stay dead
+            // until user revives them in Barracks
           }
         }
       }

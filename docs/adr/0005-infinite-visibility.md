@@ -17,7 +17,7 @@ This mechanic was deemed "ridiculous" and detrimental to the desired "Tactical S
 
 ## Technical Implementation
 
--   **Performance**: The original `range` parameter served as an optimization (Bounding Box) for the raycasting algorithm.
--   **Mitigation**: The project has a strict constraint of **16x16 max map size** (`spec/map.md`). Iterating over 256 cells is computationally trivial.
-    -   *Future Optimization*: Only relevant if map size constraints are lifted significantly (>128x128).
--   **Tests**: Extensive test suites relied on `sightRange` to create specific isolation scenarios. These tests must be updated to either accept global visibility or use walls/doors to construct the desired isolation.
+- **Performance**: The original `range` parameter served as an optimization (Bounding Box) for the raycasting algorithm.
+- **Mitigation**: The project has a strict constraint of **16x16 max map size** (`spec/map.md`). Iterating over 256 cells is computationally trivial.
+  - _Future Optimization_: Only relevant if map size constraints are lifted significantly (>128x128).
+- **Tests**: Extensive test suites relied on `sightRange` to create specific isolation scenarios. These tests must be updated to either accept global visibility or use walls/doors to construct the desired isolation.

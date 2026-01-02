@@ -13,7 +13,7 @@ test("Icons are valid data URLs", () => {
   const iconKeys = ["Speed", "Accuracy", "Damage", "Rate", "Range"] as const;
   iconKeys.forEach((key) => {
     expect(Icons[key]).toMatch(/^data:image\/svg\+xml;base64,/);
-    
+
     // Verify it's actually base64 and decodable
     const base64Part = Icons[key].split(",")[1];
     const decoded = atob(base64Part);
