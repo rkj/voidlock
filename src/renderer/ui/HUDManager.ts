@@ -312,6 +312,7 @@ export class HUDManager {
       const hpPercent =
         unit.state === UnitState.Dead ? 0 : (unit.hp / unit.maxHp) * 100;
       const policyIcon = unit.engagementPolicy === "IGNORE" ? "🏃" : "⚔️";
+      const burdenIcon = unit.carriedObjectiveId ? " 📦" : "";
 
       if (!el.hasChildNodes()) {
         el.innerHTML = `
@@ -319,6 +320,7 @@ export class HUDManager {
             <div style="display:flex; align-items:center; gap:6px;">
                <span class="u-icon" style="font-size:1.2em;"></span>
                <strong class="u-id"></strong>
+               <span class="u-burden" style="color:#f44336; font-size:1em;"></span>
             </div>
             <span class="u-hp" style="font-weight:bold;"></span>
           </div>
@@ -344,6 +346,7 @@ export class HUDManager {
 
       (el.querySelector(".u-icon") as HTMLElement).textContent = policyIcon;
       (el.querySelector(".u-id") as HTMLElement).textContent = unit.id;
+      (el.querySelector(".u-burden") as HTMLElement).textContent = burdenIcon;
       (el.querySelector(".u-status-text") as HTMLElement).textContent =
         statusText;
       (el.querySelector(".u-hp") as HTMLElement).textContent =

@@ -15,7 +15,7 @@ This directory contains specialized managers that handle specific domains of the
 
 ## Functionality
 
-- **Unit & Enemy Management**: `UnitManager` and `EnemyManager` handle movement and combat logic, including hit chance calculations based on the new Weapon/Aim model (`HitChance = ((SoldierAim + WeaponMod + EquipmentBonus) / 100) * (WeaponEffectiveRange / Distance)`). `UnitManager` also handles autonomous weapon switching between melee and ranged weapons based on target distance, ensuring accuracy stats (`soldierAim`, `equipmentAccuracyBonus`) are preserved during swaps.
+- **Unit & Enemy Management**: `UnitManager` and `EnemyManager` handle movement and combat logic, including hit chance calculations based on the new Weapon/Aim model (`HitChance = ((SoldierAim + WeaponMod + EquipmentBonus) / 100) * (WeaponEffectiveRange / Distance)`). `UnitManager` also handles autonomous weapon switching between melee and ranged weapons based on target distance, ensuring accuracy stats (`soldierAim`, `equipmentAccuracyBonus`) are preserved during swaps. `UnitManager` includes `recalculateStats` to dynamically apply bonuses from equipment and burdens from carried objectives (like the "Artifact Burden" which reduces speed and accuracy).
 - **Infinite Sight**: Soldiers have infinite sight range by default, managed via `VisibilityManager`.
 - **Unified Pacing**: Managers follow the global `scaledDt` to ensure that movement, threat growth, and timed actions (like extraction) scale consistently with the game speed setting. This ensures that pausing the game freezes all simulation logic.
 
