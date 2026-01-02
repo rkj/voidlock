@@ -38,9 +38,9 @@ All interactions with units are mediated through the `Command` object structure.
 - **Targets:** Restricted to **Intersections** and **Dead Ends** (identified by the Map Analysis).
 - **Behavior:**
   1. Unit moves to the specified point.
-  2. Upon arrival, unit faces the `target` direction.
-  3. Unit enters `Stationary` state, gaining accuracy bonuses.
-  4. **AI Override:** Disables autonomous wandering.
+  1. Upon arrival, unit faces the `target` direction.
+  1. Unit enters `Stationary` state, gaining accuracy bonuses.
+  1. **AI Override:** Disables autonomous wandering.
 
 ### 2.3 Use Item (`USE_ITEM`)
 
@@ -64,10 +64,15 @@ Soldiers decide *who* to shoot based on a priority heuristic, removing the need 
    - $T$ dies.
    - $T$ leaves Line of Fire (LOF).
    - $T$ moves out of range.
-2. **Priority (New Target):**
+1. **Priority (New Target):**
    - **Score = (MaxHP - CurrentHP) + (100 / Distance)**
    - *Logic:* Prioritize **Weakest** enemies (Kill confirm) > **Closest** enemies (Immediate threat).
    - If scores are equal, pick the Closest.
+
+### 3.2 Default Behavior
+
+- **Mission Start:** All units automatically receive an `EXPLORE` command upon deployment.
+- **Idle Fallback:** If a unit completes its queue and has no active command, it reverts to `Idle` (Stationary) but maintains its `ENGAGEMENT` policy (Shoot if visible).
 
 ## 4. Command Queueing
 
@@ -82,22 +87,26 @@ Soldiers decide *who* to shoot based on a priority heuristic, removing the need 
 **Navigation:** `Q` or `ESC` to Go Back.
 
 1. **Top Level (Action Select)**
+
    - `1. ORDERS` -> Transitions to **Orders Select**.
    - `2. ENGAGEMENT` -> Transitions to **Mode Select**.
    - `3. USE ITEM` -> Transitions to **Item Select**.
    - `4. PICKUP` -> **Target Select** (Visible Items).
    - `5. EXTRACT` -> Immediate action (if in zone) or Move Command.
 
-2. **Orders Select**
+1. **Orders Select**
+
    - `1. MOVE TO ROOM` -> **Target Select** (Room IDs).
    - `2. OVERWATCH INTERSECTION` -> **Target Select** (Intersections 1-9).
    - `3. ESCORT` -> **Unit Select** (Friendly Units).
    - `4. EXPLORE` -> **Unit Select**.
    - `5. HOLD` -> **Unit Select**.
 
-3. **Target Select**
+1. **Target Select**
+
    - Displays overlays on map.
    - Selection sets the `target` Vector2 for the command.
 
-4. **Unit Select**
+1. **Unit Select**
+
    - Selects which units receive the command (`u1`, `u2`, `ALL`).
