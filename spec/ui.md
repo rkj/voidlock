@@ -81,31 +81,37 @@ The application is divided into distinct screens to reduce UI clutter and improv
 ### 8.3 Control Scheme & Keyboard Navigation
 
 The game must be fully playable via keyboard using a strict hierarchical command menu.
+For detailed Command behaviors, see **[Command System & AI](commands.md)**.
 
 - **Menu Hierarchy (Implemented):**
   - **Level 1 (Action):**
-    - `1`: Move
-    - `2`: Stop (Halts unit and disables AI)
-    - `3`: Engagement (Toggle Engage/Ignore)
-    - `4`: Use Item (Global Inventory) - _Disabled if inventory empty_
-    - `5`: Collect (Objectives) - _Disabled if no items visible_
-    - `6`: Extract - _Disabled if not at extraction_
+    - `1`: Orders (Move, Explore, Hold, Escort)
+    - `2`: Engagement (Toggle Engage/Ignore)
+    - `3`: Use Item
+    - `4`: Pickup (Loot)
+    - `5`: Extract
   - **Level 2 (Orders):**
     - `1`: Move To Room... (Select Room ID)
     - `2`: Overwatch Intersection... (Select Intersection)
     - `3`: Explore (Autonomous)
-    - `4`: Hold Position
+    - `4`: Escort... (Select Friendly Unit)
+    - `5`: Hold Position
   - **Level 3 (Target Selection):**
     - **Move To Room:** Select Room (Mapped 1-9, A-Z).
     - **Overwatch Intersection:** Select Intersection Point (Mapped 1-9).
-  - **Universal Back:** option `0` or `ESC` always goes back one level.
+    - **Escort:** Select Unit (Mapped 1-4).
+  - **Universal Back:** `Q` or `ESC` always goes back one level.
 - **Mouse Support:**
   - Full mouse support implemented via clickable menu items and map overlays.
   - Includes a "0. BACK" button in submenus for mouse-only navigation.
+- **Queueing:**
+  - Hold `Shift` while issuing a command to **Append** to queue.
+  - Default behavior (No Shift) **Replaces** current queue.
 - **Workflow:** Action -> [Target/Mode] -> Unit(s).
 - **Input Handling:**
   - `1-9`: Select menu option.
-  - `ESC`: Cancel/Back to previous menu level.
+  - `Q` / `ESC`: Cancel/Back to previous menu level.
+  - `Shift`: Queue modifier.
   - Mouse: Clicking a menu item or a target cell/unit is a secondary shortcut that executes the selection for that specific level.
 
 ### 8.4 UI Layout Reorganization

@@ -49,6 +49,7 @@ You manage tasks in `.beads/README.md`. Tasks must be optimized for lightweight
   "Expected Output."
 - **Epics:** Group related tasks under a header (Epic).
 - **Persistence:** NEVER close a task as "failed". If a task is blocked or fails, leave it OPEN and annotate it with the failure reason. Closed means Fixed.
+- **Spec Linkage:** Every task description MUST start with a link to the specific section of the Spec file it implements (e.g., "See `spec/commands.md#3-ai-behavior`"). This is the Single Source of Truth for the developer.
 
 ## 5. Execution Forbidden (Planning Mode)
 
