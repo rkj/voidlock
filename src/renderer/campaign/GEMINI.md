@@ -1,8 +1,7 @@
 # Campaign Renderer
 
-This directory contains the campaign management logic for the renderer.
+This directory contains the campaign management bridge for the renderer.
 
 ## Files
 
-- `CampaignManager.ts`: The central orchestrator for the campaign strategic layer. Handles state management, persistence, map generation, and mission reconciliation.
-- `CampaignManager.test.ts`: Unit tests for the CampaignManager.
+- `CampaignManager.ts`: A bridge to the `src/engine/managers/CampaignManager.ts` singleton. It initializes the manager with a `LocalStorageProvider` for use in the browser.

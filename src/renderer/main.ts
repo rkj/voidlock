@@ -30,7 +30,7 @@ const VERSION = pkg.version;
 
 // --- State ---
 const screenManager = new ScreenManager();
-const campaignManager = new CampaignManager();
+const campaignManager = CampaignManager.getInstance();
 const debriefScreen = new DebriefScreen("screen-debrief", () => {
   debriefScreen.hide();
   if (currentCampaignNode) {
