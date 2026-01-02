@@ -13,6 +13,7 @@ import {
   SpawnPoint,
   Objective,
   EnemyType,
+  AIProfile,
 } from "../shared/types";
 import { Pathfinder } from "../engine/Pathfinder";
 
@@ -71,7 +72,9 @@ describe("CoreEngine with Objectives and Game Loop", () => {
         soldierAim: 90,
         attackRange: 5,
         speed: 20,
+        equipmentAccuracyBonus: 0,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     });

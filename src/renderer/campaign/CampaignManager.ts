@@ -153,10 +153,7 @@ export class CampaignManager {
         kills: 0,
         missions: 0,
         status: "Healthy",
-        equipment: {
-          weapons: [], // Default will be handled by CoreEngine if empty
-          gadgets: []
-        }
+        equipment: {}
       });
     }
     return roster;

@@ -6,6 +6,7 @@ import {
   UnitState,
   CommandType,
   SquadConfig,
+  AIProfile,
 } from "../../../shared/types";
 
 describe("Objective Prioritization AI", () => {
@@ -69,6 +70,7 @@ describe("Objective Prioritization AI", () => {
         attackRange: 2,
         speed: 10, // 1 tile per second (1000ms)
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     });

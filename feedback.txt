@@ -1,0 +1,9 @@
+The removal of 'sightRange' was successful, but the codebase now has 59 TypeScript errors.
+Running 'npx tsc --noEmit' reveals that many unit definitions (mostly in tests) are missing the 'aiProfile' and 'equipmentAccuracyBonus' properties.
+
+Please fix all type errors in the codebase.
+Ensure that:
+1. All 'Unit' object literals include an 'aiProfile' (e.g., 'AIProfile.RUSH' or 'AIProfile.STAND_GROUND').
+2. All 'UnitStats' object literals include 'equipmentAccuracyBonus' (usually 0 for tests).
+3. Verify the fix by running 'npx tsc --noEmit' and ensuring it passes without errors.
+4. Also verify with 'npx vitest run' to ensure tests still pass.

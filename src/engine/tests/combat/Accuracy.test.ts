@@ -6,6 +6,7 @@ import {
   UnitState,
   SquadConfig,
   EnemyType,
+  AIProfile,
 } from "../../../shared/types";
 
 describe("Combat Accuracy (Percentage Model)", () => {
@@ -50,6 +51,7 @@ describe("Combat Accuracy (Percentage Model)", () => {
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     });
@@ -96,6 +98,7 @@ describe("Combat Accuracy (Percentage Model)", () => {
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     });
@@ -146,6 +149,7 @@ describe("Combat Accuracy (Percentage Model)", () => {
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     });
@@ -194,6 +198,7 @@ describe("Combat Accuracy (Percentage Model)", () => {
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     });
@@ -239,6 +244,7 @@ describe("Combat Accuracy (Percentage Model)", () => {
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     });
@@ -287,6 +293,7 @@ describe("Combat Accuracy (Percentage Model)", () => {
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     });
@@ -332,6 +339,7 @@ describe("Combat Accuracy (Percentage Model)", () => {
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     });

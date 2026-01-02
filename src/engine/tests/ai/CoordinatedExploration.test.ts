@@ -6,6 +6,7 @@ import {
   UnitState,
   SquadConfig,
   CommandType,
+  AIProfile,
 } from "../../../shared/types";
 
 describe("Coordinated Exploration", () => {
@@ -83,9 +84,10 @@ describe("Coordinated Exploration", () => {
         accuracy: 1000,
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
-        attackRange: 2,
+        attackRange: 5,
         speed: 20,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     });
@@ -101,9 +103,10 @@ describe("Coordinated Exploration", () => {
         accuracy: 1000,
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
-        attackRange: 2,
+        attackRange: 5,
         speed: 20,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     });

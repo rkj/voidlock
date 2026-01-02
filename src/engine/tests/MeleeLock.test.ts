@@ -8,6 +8,7 @@ import {
   CommandType,
   UnitState,
   EnemyType,
+  AIProfile,
 } from "../../shared/types";
 
 const mockMap: MapDefinition = {
@@ -64,6 +65,7 @@ describe("Melee Lock & Ignore Policy", () => {
         attackRange: 1,
         speed: 20,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       aiEnabled: true,
       commandQueue: [],
       engagementPolicy: "IGNORE",
@@ -152,6 +154,7 @@ describe("Melee Lock & Ignore Policy", () => {
         attackRange: 1,
         speed: 20,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       aiEnabled: true,
       commandQueue: [],
       archetypeId: "assault",

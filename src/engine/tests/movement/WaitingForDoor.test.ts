@@ -6,6 +6,7 @@ import {
   MapDefinition,
   SquadConfig,
   CommandType,
+  AIProfile,
 } from "../../../shared/types";
 
 describe("Unit WaitingForDoor State", () => {
@@ -61,6 +62,7 @@ describe("Unit WaitingForDoor State", () => {
         attackRange: 10,
         speed: 20,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       archetypeId: "assault",
     });

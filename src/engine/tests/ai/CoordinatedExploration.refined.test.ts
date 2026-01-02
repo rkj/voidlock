@@ -5,6 +5,7 @@ import {
   CellType,
   UnitState,
   SquadConfig,
+  AIProfile,
 } from "../../../shared/types";
 
 describe("Coordinated Exploration Refined", () => {
@@ -155,6 +156,8 @@ describe("Coordinated Exploration Refined", () => {
 
           },
 
+          aiProfile: AIProfile.STAND_GROUND,
+
           commandQueue: [],
 
           archetypeId: "assault",
@@ -223,6 +226,8 @@ describe("Coordinated Exploration Refined", () => {
 
         },
 
+        aiProfile: AIProfile.STAND_GROUND,
+
         commandQueue: [],
 
         archetypeId: "assault",
@@ -258,6 +263,8 @@ describe("Coordinated Exploration Refined", () => {
           speed: 20,
 
         },
+
+        aiProfile: AIProfile.STAND_GROUND,
 
         commandQueue: [],
 

@@ -9,6 +9,7 @@ import {
   MissionType,
   ArchetypeLibrary,
   EnemyType,
+  AIProfile,
 } from "../../shared/types";
 
 describe("VIP AI Behavior", () => {
@@ -65,6 +66,7 @@ describe("VIP AI Behavior", () => {
         attackRange: 0,
         speed: 20,
       },
+      aiProfile: AIProfile.RETREAT,
       aiEnabled: false,
       commandQueue: [],
     });
@@ -86,6 +88,7 @@ describe("VIP AI Behavior", () => {
         attackRange: 4,
         speed: 20,
       },
+      aiProfile: AIProfile.RUSH,
       aiEnabled: true,
       commandQueue: [],
     });
@@ -139,6 +142,7 @@ describe("VIP AI Behavior", () => {
         attackRange: 0,
         speed: 20,
       },
+      aiProfile: AIProfile.RETREAT,
       aiEnabled: true,
       commandQueue: [],
     });
@@ -206,6 +210,7 @@ describe("VIP AI Behavior", () => {
         attackRange: 0,
         speed: 20,
       },
+      aiProfile: AIProfile.RETREAT,
       aiEnabled: true,
       commandQueue: [],
     });
@@ -245,6 +250,7 @@ describe("VIP AI Behavior", () => {
         attackRange: 0,
         speed: 20,
       },
+      aiProfile: AIProfile.RETREAT,
       aiEnabled: true,
       commandQueue: [],
     });

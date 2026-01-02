@@ -6,6 +6,7 @@ import {
   SquadConfig,
   MapGeneratorType,
   Vector2,
+  AIProfile,
 } from "../../shared/types";
 
 describe("Exploration Efficiency Regression (ICWK)", () => {
@@ -55,6 +56,7 @@ describe("Exploration Efficiency Regression (ICWK)", () => {
         attackRange: 1,
         speed: 20,
       },
+      aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
     });
 
