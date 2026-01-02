@@ -51,11 +51,11 @@ describe("MenuController Context Awareness", () => {
   it("should show extraction point in target select when discovered", () => {
     mockState.map.extraction = { x: 5, y: 5 };
     mockState.discoveredCells = ["5,5"];
-    
+
     // Navigate to MOVE TO ROOM
     controller.handleMenuInput("1", mockState); // ORDERS
     controller.handleMenuInput("1", mockState); // MOVE TO ROOM
-    
+
     expect(controller.menuState).toBe("TARGET_SELECT");
     const renderState = controller.getRenderableState(mockState);
     const extractOption = renderState.options.find((o) =>
@@ -67,11 +67,11 @@ describe("MenuController Context Awareness", () => {
   it("should NOT show extraction point in target select when NOT discovered", () => {
     mockState.map.extraction = { x: 5, y: 5 };
     mockState.discoveredCells = ["0,0"];
-    
+
     // Navigate to MOVE TO ROOM
     controller.handleMenuInput("1", mockState); // ORDERS
     controller.handleMenuInput("1", mockState); // MOVE TO ROOM
-    
+
     const renderState = controller.getRenderableState(mockState);
     const extractOption = renderState.options.find((o) =>
       o.label.includes("Extraction"),

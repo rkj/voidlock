@@ -6,18 +6,18 @@ All interactions with units are mediated through the `Command` object structure.
 
 ### 1.1 Command Types
 
-| Command | Payload | Description |
-| :--- | :--- | :--- |
-| `MOVE_TO` | `target: Vector2` | Move to a specific cell. Pathfinding handles obstacles. |
-| `STOP` | - | Clear command queue and halt immediately. |
-| `SET_ENGAGEMENT` | `mode: "ENGAGE" \| "IGNORE"` | **ENGAGE**: Auto-attack visible enemies. **IGNORE**: Hold fire (Stealth/Run). |
-| `OPEN_DOOR` | `doorId: string` | Interact with a door. Unit moves to interaction range first. |
-| `USE_ITEM` | `itemId: string`, `target?: Vector2` | Use an inventory item. May require channeling (e.g., Medkit). |
-| `OVERWATCH_POINT` | `target: Vector2` | Move to a strategic point (Intersection/Dead End) and hold angle. |
-| `EXPLORE` | - | Autonomous behavior: Move to nearest unexplored Fog of War. |
-| `ESCORT_UNIT` | `targetId: string` | Form a protective formation around a target unit. |
-| `PICKUP` | `targetId: string` | Move to and pick up a World Item (Loot). |
-| `EXTRACT` | - | Attempt to extract at the Extraction Zone. |
+| Command           | Payload                              | Description                                                                   |
+| :---------------- | :----------------------------------- | :---------------------------------------------------------------------------- |
+| `MOVE_TO`         | `target: Vector2`                    | Move to a specific cell. Pathfinding handles obstacles.                       |
+| `STOP`            | -                                    | Clear command queue and halt immediately.                                     |
+| `SET_ENGAGEMENT`  | `mode: "ENGAGE" \| "IGNORE"`         | **ENGAGE**: Auto-attack visible enemies. **IGNORE**: Hold fire (Stealth/Run). |
+| `OPEN_DOOR`       | `doorId: string`                     | Interact with a door. Unit moves to interaction range first.                  |
+| `USE_ITEM`        | `itemId: string`, `target?: Vector2` | Use an inventory item. May require channeling (e.g., Medkit).                 |
+| `OVERWATCH_POINT` | `target: Vector2`                    | Move to a strategic point (Intersection/Dead End) and hold angle.             |
+| `EXPLORE`         | -                                    | Autonomous behavior: Move to nearest unexplored Fog of War.                   |
+| `ESCORT_UNIT`     | `targetId: string`                   | Form a protective formation around a target unit.                             |
+| `PICKUP`          | `targetId: string`                   | Move to and pick up a World Item (Loot).                                      |
+| `EXTRACT`         | -                                    | Attempt to extract at the Extraction Zone.                                    |
 
 > **Note:** `ATTACK_TARGET` has been removed. Soldiers autonomously prioritize targets based on logic (See Section 3).
 
@@ -27,8 +27,8 @@ All interactions with units are mediated through the `Command` object structure.
 
 - **Target:** Friendly Unit (VIP or Artifact Carrier).
 - **Behavior:** Participating units form a protective screen around the target.
-  - **Vanguard:** 1 Unit moves to the tile *ahead* of the target.
-  - **Rearguard:** 1 Unit moves to the tile *behind*.
+  - **Vanguard:** 1 Unit moves to the tile _ahead_ of the target.
+  - **Rearguard:** 1 Unit moves to the tile _behind_.
   - **Bodyguard:** Remaining units stay adjacent to the target.
 - **Synchronization:** Escorts dynamically adjust speed to match the target.
 - **AI State:** Disables autonomous wandering.
@@ -58,7 +58,7 @@ All interactions with units are mediated through the `Command` object structure.
 
 ### 3.1 Autonomous Targeting Logic
 
-Soldiers decide *who* to shoot based on a priority heuristic, removing the need for manual targeting.
+Soldiers decide _who_ to shoot based on a priority heuristic, removing the need for manual targeting.
 
 1. **Stickiness:** If already attacking a target ($T$), continue attacking $T$ unless:
    - $T$ dies.
@@ -66,7 +66,7 @@ Soldiers decide *who* to shoot based on a priority heuristic, removing the need 
    - $T$ moves out of range.
 1. **Priority (New Target):**
    - **Score = (MaxHP - CurrentHP) + (100 / Distance)**
-   - *Logic:* Prioritize **Weakest** enemies (Kill confirm) > **Closest** enemies (Immediate threat).
+   - _Logic:_ Prioritize **Weakest** enemies (Kill confirm) > **Closest** enemies (Immediate threat).
    - If scores are equal, pick the Closest.
 
 ### 3.2 Default Behavior
@@ -87,7 +87,6 @@ Soldiers decide *who* to shoot based on a priority heuristic, removing the need 
 **Navigation:** `Q` or `ESC` to Go Back.
 
 1. **Top Level (Action Select)**
-
    - `1. ORDERS` -> Transitions to **Orders Select**.
    - `2. ENGAGEMENT` -> Transitions to **Mode Select**.
    - `3. USE ITEM` -> Transitions to **Item Select**.
@@ -95,7 +94,6 @@ Soldiers decide *who* to shoot based on a priority heuristic, removing the need 
    - `5. EXTRACT` -> Immediate action (if in zone) or Move Command.
 
 1. **Orders Select**
-
    - `1. MOVE TO ROOM` -> **Target Select** (Room IDs).
    - `2. OVERWATCH INTERSECTION` -> **Target Select** (Intersections 1-9).
    - `3. ESCORT` -> **Unit Select** (Friendly Units).
@@ -103,10 +101,8 @@ Soldiers decide *who* to shoot based on a priority heuristic, removing the need 
    - `5. HOLD` -> **Unit Select**.
 
 1. **Target Select**
-
    - Displays overlays on map.
    - Selection sets the `target` Vector2 for the command.
 
 1. **Unit Select**
-
    - Selects which units receive the command (`u1`, `u2`, `ALL`).
