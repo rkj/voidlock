@@ -154,6 +154,26 @@ export class MissionManager {
         } else if (anyVipDead) {
           obj.state = "Failed";
         }
+      } else if (obj.state !== "Completed") {
+        // Handle Kill objective completion in MissionManager
+        if (obj.kind === "Kill" && obj.targetEnemyId) {
+          const enemy = state.enemies.find((e) => e.id === obj.targetEnemyId);
+          if (!enemy || enemy.hp <= 0) {
+            obj.state = "Completed";
+          }
+        }
+      }
+
+      // Reward scrap for newly completed objectives
+      if (obj.state === "Completed" && !obj.scrapRewarded) {
+        if (obj.kind === "Kill" && obj.targetEnemyId === "enemy-hive") {
+          state.stats.scrapGained += 75;
+        } else if (obj.kind === "Escort" || obj.id === "obj-escort") {
+          state.stats.scrapGained += 50;
+        } else {
+          state.stats.scrapGained += 25;
+        }
+        obj.scrapRewarded = true;
       }
     });
   }
@@ -185,6 +205,9 @@ export class MissionManager {
       this.missionType === MissionType.DestroyHive
     ) {
       if (allObjectivesComplete) {
+        if (state.status !== "Won") {
+          state.stats.scrapGained += 100;
+        }
         state.status = "Won";
         return;
       }
@@ -196,12 +219,18 @@ export class MissionManager {
         vips.length > 0 && vips.every((v) => v.state === UnitState.Extracted);
 
       if (allVipsExtracted) {
+        if (state.status !== "Won") {
+          state.stats.scrapGained += 100;
+        }
         state.status = "Won";
         return;
       }
 
       const combatUnits = activeUnits.filter((u) => u.archetypeId !== "vip");
       if (combatUnits.length === 0) {
+        if (state.status !== "Lost") {
+          state.stats.scrapGained += 10;
+        }
         state.status = "Lost";
         return;
       }
@@ -217,15 +246,27 @@ export class MissionManager {
         ) {
           // Extraction required
           if (extractedUnits.length > 0) {
+            if (state.status !== "Won") {
+              state.stats.scrapGained += 100;
+            }
             state.status = "Won";
           } else {
+            if (state.status !== "Lost") {
+              state.stats.scrapGained += 10;
+            }
             state.status = "Lost";
           }
         } else {
           // If for some reason it's another type but everyone died after objectives, it's a Win (RecoverIntel/DestroyHive)
+          if (state.status !== "Won") {
+            state.stats.scrapGained += 100;
+          }
           state.status = "Won";
         }
       } else {
+        if (state.status !== "Lost") {
+          state.stats.scrapGained += 10;
+        }
         state.status = "Lost";
       }
     }

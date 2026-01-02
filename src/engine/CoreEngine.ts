@@ -117,6 +117,8 @@ export class CoreEngine {
       stats: {
         threatLevel: startingThreatLevel,
         aliensKilled: 0,
+        elitesKilled: 0,
+        scrapGained: 0,
         casualties: 0,
       },
       status: "Playing",

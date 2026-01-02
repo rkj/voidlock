@@ -10,14 +10,16 @@ All interactions with units are mediated through the `Command` object structure.
 | :--- | :--- | :--- |
 | `MOVE_TO` | `target: Vector2` | Move to a specific cell. Pathfinding handles obstacles. |
 | `STOP` | - | Clear command queue and halt immediately. |
-| `ATTACK_TARGET` | `targetId: string` | Engage a specific enemy unit. Overrides auto-targeting. |
 | `SET_ENGAGEMENT` | `mode: "ENGAGE" \| "IGNORE"` | **ENGAGE**: Auto-attack visible enemies. **IGNORE**: Hold fire (Stealth/Run). |
 | `OPEN_DOOR` | `doorId: string` | Interact with a door. Unit moves to interaction range first. |
-| `LOCK_DOOR` | `doorId: string` | Lock a door (requires Engineering skill/tool - TBD). |
-| `USE_ITEM` | `itemId: string`, `target?: Vector2` | Use an inventory item (Medkit, Grenade). |
-| `OVERWATCH_POINT` | `target: Vector2` | Move to position and hold angle. Grants reaction fire bonus (TBD). |
+| `USE_ITEM` | `itemId: string`, `target?: Vector2` | Use an inventory item. May require channeling (e.g., Medkit). |
+| `OVERWATCH_POINT` | `target: Vector2` | Move to a strategic point (Intersection/Dead End) and hold angle. |
 | `EXPLORE` | - | Autonomous behavior: Move to nearest unexplored Fog of War. |
 | `ESCORT_UNIT` | `targetId: string` | Form a protective formation around a target unit. |
+| `PICKUP` | `targetId: string` | Move to and pick up a World Item (Loot). |
+| `EXTRACT` | - | Attempt to extract at the Extraction Zone. |
+
+> **Note:** `ATTACK_TARGET` has been removed. Soldiers autonomously prioritize targets based on logic (See Section 3).
 
 ## 2. Specialized Commands
 
@@ -25,78 +27,77 @@ All interactions with units are mediated through the `Command` object structure.
 
 - **Target:** Friendly Unit (VIP or Artifact Carrier).
 - **Behavior:** Participating units form a protective screen around the target.
-  - **Vanguard:** 1 Unit moves to the tile *ahead* of the target (relative to destination/facing).
+  - **Vanguard:** 1 Unit moves to the tile *ahead* of the target.
   - **Rearguard:** 1 Unit moves to the tile *behind*.
-  - **Bodyguard:** Remaining units stay adjacent to the target (Sides).
-- **Synchronization:** Escorts dynamically adjust speed to match the target, preventing separation.
-- **AI State:** Disables autonomous wandering. Units strictly follow formation slots.
+  - **Bodyguard:** Remaining units stay adjacent to the target.
+- **Synchronization:** Escorts dynamically adjust speed to match the target.
+- **AI State:** Disables autonomous wandering.
 
 ### 2.2 Overwatch Point (`OVERWATCH_POINT`)
 
-- **Goal:** Secure a specific sightline or intersection.
+- **Targets:** Restricted to **Intersections** and **Dead Ends** (identified by the Map Analysis).
 - **Behavior:**
   1. Unit moves to the specified point.
-  1. Upon arrival, unit faces the `target` direction (implied by path or explicit target).
-  1. Unit enters `Stationary` state, gaining accuracy bonuses (if applicable).
-  1. **AI Override:** Disables autonomous wandering. Unit will NOT chase enemies.
+  2. Upon arrival, unit faces the `target` direction.
+  3. Unit enters `Stationary` state, gaining accuracy bonuses.
+  4. **AI Override:** Disables autonomous wandering.
 
-### 2.3 Explore (`EXPLORE`)
+### 2.3 Use Item (`USE_ITEM`)
 
-- **Goal:** Autonomous map discovery.
 - **Behavior:**
-  - AI calculates path to the nearest "Frontier" cell (adjacent to Fog of War).
-  - Prioritizes areas that reveal the most new cells.
-  - **Interrupts:**
-    - **Engagement:** If `ENGAGE` policy is active, unit stops to fight enemies.
-    - **Damage:** Taking damage may trigger retreat/cover logic (if `aiProfile` dictates).
+  - **Instant:** (e.g., Stimpack). Effect applied immediately.
+  - **Channeled:** (e.g., Medkit, Mine). Unit enters `Channeling` state for `item.channelTime` ms. Effect applied on completion.
+- **Cost:** Consumes 1 charge from Squad Inventory.
 
-### 2.4 Stop / Hold (`STOP`)
+### 2.4 Pickup & Extract
 
-- **Goal:** Cancel all current actions.
-- **Behavior:**
-  - Clears `commandQueue`.
-  - Sets state to `Idle`.
-  - **AI Override:** Disables autonomous AI (e.g., stops `EXPLORE`).
-  - **Combat:** Does NOT disable reaction fire. Unit will still shoot at visible enemies if `ENGAGE` policy is active.
+- **PICKUP:** Moves to a World Item. Upon arrival, channels for 1s. Adds item to inventory.
+- **EXTRACT:** Moves to Extraction Zone. Upon arrival, channels for 2s. Unit is removed from map (Saved).
 
-### 2.5 Use Item (`USE_ITEM`)
+## 3. AI Behavior & Targeting
 
-- **Goal:** Activate a global inventory item.
-- **Behavior:**
-  - **Instant:** Action is performed immediately (no channeling time).
-  - **Global Range:** Can target any valid location/unit (e.g., Drone Drop).
-  - **Cost:** Consumes 1 charge from Squad Inventory.
+### 3.1 Autonomous Targeting Logic
 
-## 3. Command Queueing
+Soldiers decide *who* to shoot based on a priority heuristic, removing the need for manual targeting.
 
-- **Structure:** `unit.commandQueue` is a FIFO list.
-- **Execution:** The engine executes the first command in the queue. When complete, it pops and starts the next.
-- **Interruption:** Issuing a `STOP` or an immediate (non-queued) command clears the queue.
+1. **Stickiness:** If already attacking a target ($T$), continue attacking $T$ unless:
+   - $T$ dies.
+   - $T$ leaves Line of Fire (LOF).
+   - $T$ moves out of range.
+2. **Priority (New Target):**
+   - **Score = (MaxHP - CurrentHP) + (100 / Distance)**
+   - *Logic:* Prioritize **Weakest** enemies (Kill confirm) > **Closest** enemies (Immediate threat).
+   - If scores are equal, pick the Closest.
 
-## 4. UI Interaction & Menu Flow
+## 4. Command Queueing
 
-The Command Menu facilitates issuing these commands via a hierarchical structure.
+- **Default Behavior:** Issuing a command **CLEARS** the current queue and executes immediately.
+- **Queueing (`Shift` Key):** Holding `Shift` while issuing a command **APPENDS** it to the end of the queue.
+- **Queue Display:** The UI should visualize the queued path/actions.
 
-### 4.1 Menu Hierarchy
+## 5. UI Interaction & Menu Flow
+
+### 5.1 Menu Hierarchy
+
+**Navigation:** `Q` or `ESC` to Go Back.
 
 1. **Top Level (Action Select)**
-
    - `1. ORDERS` -> Transitions to **Orders Select**.
    - `2. ENGAGEMENT` -> Transitions to **Mode Select**.
    - `3. USE ITEM` -> Transitions to **Item Select**.
+   - `4. PICKUP` -> **Target Select** (Visible Items).
+   - `5. EXTRACT` -> Immediate action (if in zone) or Move Command.
 
-1. **Orders Select**
+2. **Orders Select**
+   - `1. MOVE TO ROOM` -> **Target Select** (Room IDs).
+   - `2. OVERWATCH INTERSECTION` -> **Target Select** (Intersections 1-9).
+   - `3. ESCORT` -> **Unit Select** (Friendly Units).
+   - `4. EXPLORE` -> **Unit Select**.
+   - `5. HOLD` -> **Unit Select**.
 
-   - `1. MOVE TO ROOM` -> **Target Select** (Room IDs). Payload: `MOVE_TO`.
-   - `2. OVERWATCH INTERSECTION` -> **Target Select** (Intersections). Payload: `OVERWATCH_POINT`.
-   - `3. EXPLORE` -> **Unit Select**. Payload: `EXPLORE`.
-   - `4. HOLD` -> **Unit Select**. Payload: `STOP`.
-
-1. **Target Select**
-
-   - Displays overlays on map (Rooms A-Z, Intersections 1-9).
+3. **Target Select**
+   - Displays overlays on map.
    - Selection sets the `target` Vector2 for the command.
 
-1. **Unit Select**
-
+4. **Unit Select**
    - Selects which units receive the command (`u1`, `u2`, `ALL`).

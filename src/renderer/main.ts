@@ -119,10 +119,7 @@ const generateMissionReport = (
     seed: currentSeed,
     result: state.status === "Won" ? "Won" : "Lost",
     aliensKilled: state.stats.aliensKilled,
-    scrapGained:
-      state.status === "Won"
-        ? 100 + Math.floor(state.stats.aliensKilled * 5)
-        : 10,
+    scrapGained: state.stats.scrapGained,
     intelGained: state.status === "Won" ? 5 : 0,
     timeSpent: state.t,
     soldierResults: state.units.map((u) => ({
