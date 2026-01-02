@@ -50,8 +50,17 @@ You manage tasks in `.beads/README.md`. Tasks must be optimized for lightweight
 - **Epics:** Group related tasks under a header (Epic).
 - **Persistence:** NEVER close a task as "failed". If a task is blocked or fails, leave it OPEN and annotate it with the failure reason. Closed means Fixed.
 - **Spec Linkage:** Every task description MUST start with a link to the specific section of the Spec file it implements (e.g., "See `spec/commands.md#3-ai-behavior`"). This is the Single Source of Truth for the developer.
+- **ADR Requirement:** Any non-trivial task (complex logic, new architecture, or system-wide changes) MUST reference an approved ADR. If no ADR exists, a prerequisite task to write one must be created first.
 
-## 5. Execution Forbidden (Planning Mode)
+## 5. Documentation Standards
+
+To maintain a coherent history and architectural map:
+
+1.  **Spec -> ADR:** Specifications should list relevant Architectural Decision Records (ADRs) that define *how* the feature is implemented.
+2.  **ADR -> Spec:** ADRs must link back to the specific Spec file/section they are addressing.
+3.  **Beads -> Docs:** Beads tasks must link to both the Spec (for behavior) and the ADR (for implementation details) where applicable.
+
+## 6. Execution Forbidden (Planning Mode)
 
 You are strictly a **PLANNER** when wearing this hat.
 

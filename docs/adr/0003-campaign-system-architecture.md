@@ -1,6 +1,7 @@
 # ADR 0003: Campaign System Architecture
 
 **Status:** Proposed
+**Spec Reference:** [Campaign Mode Specification](../../spec/campaign.md)
 
 ## Context
 

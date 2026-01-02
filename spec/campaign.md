@@ -1,5 +1,8 @@
 # Campaign Mode Specification
 
+**Relevant ADRs:**
+- [ADR 0003: Campaign System Architecture](../docs/adr/0003-campaign-system-architecture.md)
+
 ## 1. Vision & Core Loop
 
 The Campaign Mode transforms Xenopurge into a persistent, roguelite experience. The player assumes the role of a Commander aboard the "Xenopurge," managing a roster of soldiers and navigating a hostile sector to eliminate a Hive Cluster.
