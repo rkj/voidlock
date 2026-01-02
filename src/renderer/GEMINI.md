@@ -9,7 +9,7 @@ This directory contains the main thread rendering logic and user interface for X
 - `InputManager.ts`: Manages mouse and keyboard input, translating them into game actions.
 - `ScreenManager.ts`: Manages transitions between different screens (Main Menu, Setup, Mission).
 - `MenuController.ts`: Implements the hierarchical keyboard-driven command menu. Includes context-aware logic to hide or disable options based on game state (e.g., hiding undiscovered extraction points or disabling item usage if inventory is empty).
-- `ConfigManager.ts`: Handles loading and saving game configuration and mission parameters.
+- `ConfigManager.ts`: Handles loading and saving game configuration and mission parameters. Supports isolated storage for Custom Missions and Campaign mode to prevent state pollution.
 - `VisibilityPolygon.ts`: Implements visibility calculations for rendering accurate LOS cones.
 - `Icons.ts`: Contains SVG or canvas-based icon definitions for units, UI elements, and core unit statistics (Speed, Accuracy, Damage, Rate, Range).
 - `MapUtility.ts`: Utility functions for map coordinate transformations and rendering helpers.
@@ -39,6 +39,7 @@ This directory contains the main thread rendering logic and user interface for X
   - `SquadBuilder.test.ts`: Verifies squad selection logic and constraints.
   - `ui/HUDManager.test.ts`: Verifies soldier list rendering and HUD updates.
   - `ConfigManager.migration.test.ts`: Verifies configuration migration and defaulting from old storage formats.
+  - `ConfigManager.isolation.test.ts`: Verifies that Custom and Campaign configurations are stored and loaded independently.
   - `MenuController.discovery.test.ts`: Verifies room discovery filtering and stable numbering in the command menu.
 
 ## Connections

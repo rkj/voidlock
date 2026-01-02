@@ -22,22 +22,50 @@ export interface GameConfig {
   squadConfig: SquadConfig;
 }
 
-const STORAGE_KEY = "xenopurge_config";
+const CUSTOM_STORAGE_KEY = "xenopurge_custom_config";
+const CAMPAIGN_STORAGE_KEY = "xenopurge_campaign_config";
 
 export class ConfigManager {
-  public static save(config: GameConfig) {
+  public static saveCustom(config: GameConfig) {
+    this.save(CUSTOM_STORAGE_KEY, config);
+  }
+
+  public static saveCampaign(config: GameConfig) {
+    this.save(CAMPAIGN_STORAGE_KEY, config);
+  }
+
+  private static save(key: string, config: GameConfig) {
     try {
       const json = JSON.stringify(config);
-      localStorage.setItem(STORAGE_KEY, json);
-      console.log("Configuration saved to LocalStorage.");
+      localStorage.setItem(key, json);
+      console.log(`Configuration saved to LocalStorage (${key}).`);
     } catch (e) {
-      console.warn("Failed to save configuration to LocalStorage:", e);
+      console.warn(`Failed to save configuration to LocalStorage (${key}):`, e);
     }
   }
 
-  public static load(): GameConfig | null {
+  public static loadCustom(): GameConfig | null {
+    const config = this.load(CUSTOM_STORAGE_KEY);
+    if (config) return config;
+
+    // Migration from old key
+    const oldConfig = this.load("xenopurge_config");
+    if (oldConfig) {
+      this.saveCustom(oldConfig);
+      // Optional: localStorage.removeItem("xenopurge_config");
+      return oldConfig;
+    }
+
+    return null;
+  }
+
+  public static loadCampaign(): GameConfig | null {
+    return this.load(CAMPAIGN_STORAGE_KEY);
+  }
+
+  private static load(key: string): GameConfig | null {
     try {
-      const json = localStorage.getItem(STORAGE_KEY);
+      const json = localStorage.getItem(key);
       if (!json) return null;
       const config = JSON.parse(json) as GameConfig;
       const defaults = this.getDefault();
@@ -56,7 +84,10 @@ export class ConfigManager {
 
       return config;
     } catch (e) {
-      console.warn("Failed to load configuration from LocalStorage:", e);
+      console.warn(
+        `Failed to load configuration from LocalStorage (${key}):`,
+        e,
+      );
       return null;
     }
   }

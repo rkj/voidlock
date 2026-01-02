@@ -227,7 +227,7 @@ const launchMission = () => {
   ) as HTMLInputElement;
   const initialTimeScale = tsSlider ? parseFloat(tsSlider.value) : 1.0;
 
-  ConfigManager.save({
+  const config = {
     mapWidth: currentMapWidth,
     mapHeight: currentMapHeight,
     spawnPointCount: currentSpawnPointCount,
@@ -240,7 +240,13 @@ const launchMission = () => {
     lastSeed: currentSeed,
     squadConfig: currentSquad,
     startingThreatLevel,
-  });
+  };
+
+  if (currentCampaignNode) {
+    ConfigManager.saveCampaign(config);
+  } else {
+    ConfigManager.saveCustom(config);
+  }
 
   gameClient.init(
     currentSeed,
@@ -342,6 +348,15 @@ document.addEventListener("DOMContentLoaded", () => {
     campaignManager,
     (node) => {
       // Node selected! Prepare mission setup
+      currentCampaignNode = node;
+      currentSeed = node.mapSeed;
+      currentMapWidth = 14 + Math.floor(node.difficulty * 2);
+      currentMapHeight = 14 + Math.floor(node.difficulty * 2);
+      currentSpawnPointCount = 1 + Math.floor(node.difficulty / 5);
+
+      loadAndApplyConfig(true);
+
+      // Explicitly override map settings from node since loadAndApplyConfig might have loaded something else
       currentSeed = node.mapSeed;
       currentMapWidth = 14 + Math.floor(node.difficulty * 2);
       currentMapHeight = 14 + Math.floor(node.difficulty * 2);
@@ -368,9 +383,11 @@ document.addEventListener("DOMContentLoaded", () => {
     () => screenManager.goBack(),
   );
 
-  document
-    .getElementById("btn-menu-custom")
-    ?.addEventListener("click", () => screenManager.show("mission-setup"));
+  document.getElementById("btn-menu-custom")?.addEventListener("click", () => {
+    currentCampaignNode = null;
+    loadAndApplyConfig(false);
+    screenManager.show("mission-setup");
+  });
   document
     .getElementById("btn-menu-campaign")
     ?.addEventListener("click", () => {
@@ -517,7 +534,12 @@ document.addEventListener("DOMContentLoaded", () => {
             <input type="range" id="time-scale-slider" min="0.1" max="5.0" step="0.1" value="1.0" style="width: 100%; height: 20px; cursor: pointer;">
         </div>
       `;
-    presetControls.closest(".control-group")?.after(togglesDiv);
+    const mapConfigSection = document.getElementById("map-config-section");
+    if (mapConfigSection) {
+      mapConfigSection.appendChild(togglesDiv);
+    } else {
+      presetControls.closest(".control-group")?.after(togglesDiv);
+    }
     document
       .getElementById("toggle-fog-of-war")
       ?.addEventListener(
@@ -611,8 +633,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  const loadAndApplyConfig = () => {
-    const config = ConfigManager.load();
+  const loadAndApplyConfig = (isCampaign: boolean = false) => {
+    const config = isCampaign
+      ? ConfigManager.loadCampaign()
+      : ConfigManager.loadCustom();
+
+    const mapConfigSection = document.getElementById("map-config-section");
+    if (mapConfigSection) {
+      mapConfigSection.style.display = isCampaign ? "none" : "block";
+    }
+
     if (config) {
       currentMapWidth = config.mapWidth;
       currentMapHeight = config.mapHeight;
@@ -685,7 +715,82 @@ document.addEventListener("DOMContentLoaded", () => {
       if (agentCheck) agentCheck.checked = agentControlEnabled;
 
       if (mapGenSelect) mapGenSelect.dispatchEvent(new Event("change"));
+    } else {
+      // Fallback to defaults if no saved config exists for this mode
+      const defaults = ConfigManager.getDefault();
+      currentMapWidth = defaults.mapWidth;
+      currentMapHeight = defaults.mapHeight;
+      currentSpawnPointCount = defaults.spawnPointCount;
+      fogOfWarEnabled = defaults.fogOfWarEnabled;
+      debugOverlayEnabled = defaults.debugOverlayEnabled;
+      losOverlayEnabled = defaults.losOverlayEnabled;
+      agentControlEnabled = defaults.agentControlEnabled;
+      currentMapGeneratorType = defaults.mapGeneratorType;
+      currentMissionType = defaults.missionType;
+      currentSeed = defaults.lastSeed;
+      currentSquad = JSON.parse(JSON.stringify(defaults.squadConfig)); // Deep copy
+      const startingThreatLevel = defaults.startingThreatLevel;
+
+      // Apply to UI
+      const missionSelect = document.getElementById(
+        "mission-type",
+      ) as HTMLSelectElement;
+      if (missionSelect) missionSelect.value = currentMissionType;
+
+      const mapSeedInput = document.getElementById(
+        "map-seed",
+      ) as HTMLInputElement;
+      if (mapSeedInput) mapSeedInput.value = currentSeed.toString();
+
+      const mapGenSelect = document.getElementById(
+        "map-generator-type",
+      ) as HTMLSelectElement;
+      if (mapGenSelect) mapGenSelect.value = currentMapGeneratorType;
+
+      const wInput = document.getElementById("map-width") as HTMLInputElement;
+      const hInput = document.getElementById("map-height") as HTMLInputElement;
+      const spInput = document.getElementById(
+        "map-spawn-points",
+      ) as HTMLInputElement;
+      const threatInput = document.getElementById(
+        "map-starting-threat",
+      ) as HTMLInputElement;
+
+      if (wInput) wInput.value = currentMapWidth.toString();
+      if (hInput) hInput.value = currentMapHeight.toString();
+      if (spInput) spInput.value = currentSpawnPointCount.toString();
+      if (threatInput) {
+        threatInput.value = startingThreatLevel.toString();
+        const threatValueDisplay = document.getElementById(
+          "map-starting-threat-value",
+        );
+        if (threatValueDisplay)
+          threatValueDisplay.textContent = threatInput.value;
+      }
+
+      const fowCheck = document.getElementById(
+        "toggle-fog-of-war",
+      ) as HTMLInputElement;
+      if (fowCheck) fowCheck.checked = fogOfWarEnabled;
+
+      const debugCheck = document.getElementById(
+        "toggle-debug-overlay",
+      ) as HTMLInputElement;
+      if (debugCheck) debugCheck.checked = debugOverlayEnabled;
+
+      const losCheck = document.getElementById(
+        "toggle-los-overlay",
+      ) as HTMLInputElement;
+      if (losCheck) losCheck.checked = losOverlayEnabled;
+
+      const agentCheck = document.getElementById(
+        "toggle-agent-control",
+      ) as HTMLInputElement;
+      if (agentCheck) agentCheck.checked = agentControlEnabled;
+
+      if (mapGenSelect) mapGenSelect.dispatchEvent(new Event("change"));
     }
+
     renderSquadBuilder();
   };
 
@@ -793,6 +898,6 @@ document.addEventListener("DOMContentLoaded", () => {
     updateCount();
   }
 
-  loadAndApplyConfig();
+  loadAndApplyConfig(false);
   screenManager.show("main-menu");
 });
