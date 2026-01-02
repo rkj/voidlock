@@ -43,3 +43,8 @@ A mission run can be perfectly reproduced by re-initializing the engine with the
 - Depends on `src/shared/` for types and utilities.
 - Used by `src/renderer/` to display the game state and send user commands.
 - Leverages `src/content/` for map generation data.
+
+## Related ADRs
+
+- [ADR 0006: Autonomous Agent Architecture](../docs/adr/0006-autonomous-agent-architecture.md)
+- [ADR 0007: Command Pattern & Queue](../docs/adr/0007-command-pattern-queue.md)
