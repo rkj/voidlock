@@ -385,10 +385,17 @@ export class TreeShipGenerator {
         const allRoomCells = floors.filter(
           (c) => c.roomId && c.roomId.startsWith("room-"),
         );
-        const squadCell =
-          allRoomCells[this.prng.nextInt(0, allRoomCells.length - 1)];
-        this.squadSpawn = { x: squadCell.x, y: squadCell.y };
-        this.squadSpawns = [this.squadSpawn];
+        if (allRoomCells.length > 0) {
+          const squadCell =
+            allRoomCells[this.prng.nextInt(0, allRoomCells.length - 1)];
+          this.squadSpawn = { x: squadCell.x, y: squadCell.y };
+          this.squadSpawns = [this.squadSpawn];
+        } else {
+          const squadCell =
+            floors[this.prng.nextInt(0, floors.length - 1)];
+          this.squadSpawn = { x: squadCell.x, y: squadCell.y };
+          this.squadSpawns = [this.squadSpawn];
+        }
       }
     }
 
