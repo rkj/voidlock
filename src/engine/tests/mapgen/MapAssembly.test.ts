@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { MapGenerator } from "../../MapGenerator";
-import { TileAssembly, TileDefinition, CellType } from "../../../shared/types";
-import { SpaceHulkTiles } from "../../../content/tiles";
-import { Graph } from "../../Graph";
+import { MapGenerator } from "@src/engine/MapGenerator";
+import { TileAssembly, TileDefinition, CellType } from "@src/shared/types";
+import { SpaceHulkTiles } from "@src/content/tiles";
+import { Graph } from "@src/engine/Graph";
 
 describe("MapGenerator.assemble", () => {
   it("should assemble a single 1x1 corridor tile", () => {

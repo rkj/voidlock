@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { TreeShipGenerator } from "../../generators/TreeShipGenerator";
-import { CellType } from "../../../shared/types";
-import { Graph } from "../../Graph";
+import { TreeShipGenerator } from "@src/engine/generators/TreeShipGenerator";
+import { CellType } from "@src/shared/types";
+import { Graph } from "@src/engine/Graph";
 
 describe("TreeShipGenerator Missing Walls Repro", () => {
   it("should generate correct for Seed 1766029929040 on 12x12 map", () => {

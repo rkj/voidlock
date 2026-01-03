@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { CoreEngine } from "../../CoreEngine";
+import { CoreEngine } from "@src/engine/CoreEngine";
 import {
   MapDefinition,
   CellType,
@@ -8,7 +8,7 @@ import {
   SquadConfig,
   EnemyType,
   AIProfile,
-} from "../../../shared/types";
+} from "@src/shared/types";
 
 describe("Command: SET_ENGAGEMENT (Policy Logic)", () => {
   let engine: CoreEngine;

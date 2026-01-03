@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { MissionType } from "../../shared/types";
+import { MissionType } from "@src/shared/types";
 
 describe("MissionType Enum", () => {
   it("should contain RecoverIntel", () => {

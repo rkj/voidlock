@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { SpaceshipGenerator } from "../../generators/SpaceshipGenerator";
-import { CellType } from "../../../shared/types";
+import { SpaceshipGenerator } from "@src/engine/generators/SpaceshipGenerator";
+import { CellType } from "@src/shared/types";
 
 describe("SpaceshipGenerator", () => {
   it("should generate a valid map with connected corridors and rooms", () => {

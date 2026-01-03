@@ -1,11 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { CoreEngine } from "../CoreEngine";
+import { CoreEngine } from "@src/engine/CoreEngine";
 import {
   CommandType,
   CellType,
   MapDefinition,
   UseItemCommand,
-} from "../../shared/types";
+} from "@src/shared/types";
 
 describe("Scanner Item Regression", () => {
   const mockMap: MapDefinition = {

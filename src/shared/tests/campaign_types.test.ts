@@ -5,7 +5,7 @@ import {
   CampaignNode,
   CampaignSoldier,
   MissionReport,
-} from "../campaign_types";
+} from "@src/shared/campaign_types";
 
 describe("Campaign Types", () => {
   it("should allow creating a valid CampaignState object with all sub-types", () => {

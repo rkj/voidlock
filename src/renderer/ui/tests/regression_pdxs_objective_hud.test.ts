@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { HUDManager } from "../HUDManager";
-import { GameState, UnitState } from "../../../shared/types";
+import { HUDManager } from "@src/renderer/ui/HUDManager";
+import { GameState, UnitState } from "@src/shared/types";
 
 describe("HUDManager Objective Regression PDXS", () => {
   let hud: HUDManager;

@@ -3,7 +3,7 @@ import {
   ArchetypeLibrary,
   EnemyArchetypeLibrary,
   EnemyType,
-} from "../../shared/types";
+} from "@src/shared/types";
 
 describe("Enemy Speed Tuning (uto8)", () => {
   it("should have enemy speeds that are 10-20% faster than corresponding soldier archetypes", () => {

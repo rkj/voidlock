@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { MapGenerator } from "../../MapGenerator";
-import { MapGeneratorType, Door } from "../../../shared/types";
-import { LineOfSight } from "../../LineOfSight";
-import { GameGrid } from "../../GameGrid";
+import { MapGenerator } from "@src/engine/MapGenerator";
+import { MapGeneratorType, Door } from "@src/shared/types";
+import { LineOfSight } from "@src/engine/LineOfSight";
+import { GameGrid } from "@src/engine/GameGrid";
 import * as fs from "fs";
 import * as path from "path";
 

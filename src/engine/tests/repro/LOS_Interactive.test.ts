@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { GameGrid } from "../../GameGrid";
-import { CellType, Door, MapDefinition } from "../../../shared/types";
+import { GameGrid } from "@src/engine/GameGrid";
+import { CellType, Door, MapDefinition } from "@src/shared/types";
 
 describe("GameGrid Door Interaction Repro", () => {
   it("should verify if misplaced door blocks movement", () => {

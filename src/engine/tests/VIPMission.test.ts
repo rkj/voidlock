@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { CoreEngine } from "../CoreEngine";
-import { MapGenerator } from "../MapGenerator";
+import { CoreEngine } from "@src/engine/CoreEngine";
+import { MapGenerator } from "@src/engine/MapGenerator";
 import {
   MapDefinition,
   CellType,
   MissionType,
   UnitState,
-} from "../../shared/types";
+} from "@src/shared/types";
 
 describe("VIP Mission Mechanics", () => {
   const mockMap: MapDefinition = {

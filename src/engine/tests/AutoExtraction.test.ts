@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { CoreEngine } from "../CoreEngine";
-import { MapDefinition, CellType, UnitState } from "../../shared/types";
+import { CoreEngine } from "@src/engine/CoreEngine";
+import { MapDefinition, CellType, UnitState } from "@src/shared/types";
 
 describe("Auto Extraction Logic", () => {
   it("should proceed to extraction immediately when objectives are complete, ignoring unexplored areas", () => {

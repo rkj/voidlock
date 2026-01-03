@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 
 // Mock GameClient
-vi.mock("../../engine/GameClient", () => {
+vi.mock("@src/engine/GameClient", () => {
   return {
     GameClient: vi.fn().mockImplementation((mapGeneratorFactory: any) => ({
       // Add mapGeneratorFactory to constructor
@@ -11,11 +11,11 @@ vi.mock("../../engine/GameClient", () => {
   };
 });
 
-import { BotHarness } from "../BotHarness";
-import { GameClient } from "../../engine/GameClient";
-import { Bot } from "../Bot";
-import { GameState, CommandType } from "../../shared/types";
-import { MapGenerator } from "../../engine/MapGenerator";
+import { BotHarness } from "@src/harness/BotHarness";
+import { GameClient } from "@src/engine/GameClient";
+import { Bot } from "@src/harness/Bot";
+import { GameState, CommandType } from "@src/shared/types";
+import { MapGenerator } from "@src/engine/MapGenerator";
 
 describe("BotHarness", () => {
   it("should register listener and send commands", () => {

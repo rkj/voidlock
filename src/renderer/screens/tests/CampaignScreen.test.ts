@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { CampaignScreen } from "../CampaignScreen";
-import { CampaignManager } from "../../campaign/CampaignManager";
-import { CampaignNode } from "../../../shared/campaign_types";
+import { CampaignScreen } from "@src/renderer/screens/CampaignScreen";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { CampaignNode } from "@src/shared/campaign_types";
 
 describe("CampaignScreen", () => {
   let container: HTMLElement;

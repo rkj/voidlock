@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { Renderer } from "../Renderer";
+import { Renderer } from "@src/renderer/Renderer";
 import {
   GameState,
   MapDefinition,
   CellType,
   UnitState,
   Door,
-} from "../../shared/types";
-import { createMockGameState } from "../../engine/tests/utils/MockFactory";
+} from "@src/shared/types";
+import { createMockGameState } from "@src/engine/tests/utils/MockFactory";
 
 // Mock HTMLCanvasElement
 const mockCanvas = {

@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { VisibilityPolygon } from "../VisibilityPolygon";
-import { Vector2 } from "../../shared/types";
-import { DenseShipGenerator } from "../../engine/generators/DenseShipGenerator";
-import { Graph } from "../../engine/Graph";
+import { VisibilityPolygon } from "@src/renderer/VisibilityPolygon";
+import { Vector2 } from "@src/shared/types";
+import { DenseShipGenerator } from "@src/engine/generators/DenseShipGenerator";
+import { Graph } from "@src/engine/Graph";
 
 describe("VisibilityPolygon Repro", () => {
   it("should NOT block horizontal ray with the fixed generator segments", () => {

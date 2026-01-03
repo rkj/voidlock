@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { DenseShipGenerator } from "../../generators/DenseShipGenerator";
-import { MapGenerator } from "../../MapGenerator";
+import { DenseShipGenerator } from "@src/engine/generators/DenseShipGenerator";
+import { MapGenerator } from "@src/engine/MapGenerator";
 import * as fs from "fs";
 import * as path from "path";
 

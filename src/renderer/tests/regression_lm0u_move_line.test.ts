@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { Renderer } from "../Renderer";
-import { GameState, MapDefinition, CellType, UnitState } from "../../shared/types";
+import { Renderer } from "@src/renderer/Renderer";
+import { GameState, MapDefinition, CellType, UnitState } from "@src/shared/types";
 import {
   createMockUnit,
   createMockGameState,
-} from "../../engine/tests/utils/MockFactory";
+} from "@src/engine/tests/utils/MockFactory";
 
 // Mock Image
 class MockImage {

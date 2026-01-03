@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { MapGenerator } from "../../MapGenerator";
-import { MapGeneratorType, CellType } from "../../../shared/types";
+import { MapGenerator } from "@src/engine/MapGenerator";
+import { MapGeneratorType, CellType } from "@src/shared/types";
 
 describe("MapGenerator Dual Entrances", () => {
   const seeds = [123, 456, 789];

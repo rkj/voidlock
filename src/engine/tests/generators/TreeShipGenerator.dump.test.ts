@@ -1,6 +1,6 @@
 import { describe, it } from "vitest";
-import { TreeShipGenerator } from "../../generators/TreeShipGenerator";
-import { MapGenerator } from "../../MapGenerator";
+import { TreeShipGenerator } from "@src/engine/generators/TreeShipGenerator";
+import { MapGenerator } from "@src/engine/MapGenerator";
 import * as fs from "fs";
 
 describe("TreeShipGenerator Dump", () => {

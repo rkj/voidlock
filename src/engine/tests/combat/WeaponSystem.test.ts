@@ -7,13 +7,13 @@ import {
   MapDefinition,
   CellType,
   AIProfile,
-} from "../../../shared/types";
-import { GameGrid } from "../../GameGrid";
-import { Pathfinder } from "../../Pathfinder";
-import { LineOfSight } from "../../LineOfSight";
-import { UnitManager } from "../../managers/UnitManager";
-import { PRNG } from "../../../shared/PRNG";
-import { LootManager } from "../../managers/LootManager";
+} from "@src/shared/types";
+import { GameGrid } from "@src/engine/GameGrid";
+import { Pathfinder } from "@src/engine/Pathfinder";
+import { LineOfSight } from "@src/engine/LineOfSight";
+import { UnitManager } from "@src/engine/managers/UnitManager";
+import { PRNG } from "@src/shared/PRNG";
+import { LootManager } from "@src/engine/managers/LootManager";
 
 describe("Weapon System", () => {
   let unitManager: UnitManager;

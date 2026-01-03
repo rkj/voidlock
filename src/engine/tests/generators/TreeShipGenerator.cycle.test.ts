@@ -1,12 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { TreeShipGenerator } from "../../generators/TreeShipGenerator";
-import { MapDefinition, CellType } from "../../../shared/types";
+import { TreeShipGenerator } from "@src/engine/generators/TreeShipGenerator";
+import { MapDefinition, CellType } from "@src/shared/types";
 import {
   mapToAdjacencyList,
   hasCycleDFS,
   calculateFillRate,
   checkConnectivity,
-} from "../utils/GraphUtils";
+} from "@src/engine/tests/utils/GraphUtils";
 
 describe("TreeShipGenerator Cycle Detection", () => {
   const numTests = 100;

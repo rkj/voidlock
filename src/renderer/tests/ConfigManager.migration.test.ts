@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { ConfigManager } from "../ConfigManager";
-import { MapGeneratorType, MissionType } from "../../shared/types";
+import { ConfigManager } from "@src/renderer/ConfigManager";
+import { MapGeneratorType, MissionType } from "@src/shared/types";
 
 describe("ConfigManager Migration", () => {
   beforeEach(() => {

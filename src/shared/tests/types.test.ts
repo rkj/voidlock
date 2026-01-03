@@ -13,7 +13,7 @@ import {
   Objective,
   AIProfile,
   MissionType,
-} from "../types";
+} from "@src/shared/types";
 
 describe("Shared Types", () => {
   it("should have correct enum values", () => {

@@ -1,11 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { CoreEngine } from "../CoreEngine";
+import { CoreEngine } from "@src/engine/CoreEngine";
 import {
   MapDefinition,
   CellType,
   SquadConfig,
   MissionType,
-} from "../../shared/types";
+} from "@src/shared/types";
 
 describe("Regression Task 0adr: Default EXPLORE command", () => {
   const mockMap: MapDefinition = {

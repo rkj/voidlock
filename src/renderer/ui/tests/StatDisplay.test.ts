@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { StatDisplay } from "../StatDisplay";
+import { StatDisplay } from "@src/renderer/ui/StatDisplay";
 
 describe("StatDisplay", () => {
   it("should render correctly with default options", () => {

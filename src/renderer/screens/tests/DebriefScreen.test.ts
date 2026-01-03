@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { DebriefScreen } from "../DebriefScreen";
-import { MissionReport } from "../../../shared/campaign_types";
+import { DebriefScreen } from "@src/renderer/screens/DebriefScreen";
+import { MissionReport } from "@src/shared/campaign_types";
 
 describe("DebriefScreen", () => {
   let container: HTMLElement;

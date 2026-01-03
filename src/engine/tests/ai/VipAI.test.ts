@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { CoreEngine } from "../../CoreEngine";
+import { CoreEngine } from "@src/engine/CoreEngine";
 import {
   MapDefinition,
   CellType,
@@ -10,7 +10,7 @@ import {
   ArchetypeLibrary,
   EnemyType,
   AIProfile,
-} from "../../../shared/types";
+} from "@src/shared/types";
 
 describe("VIP AI Behavior", () => {
   const mockMap: MapDefinition = {

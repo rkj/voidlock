@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { CoreEngine } from "../../CoreEngine";
+import { CoreEngine } from "@src/engine/CoreEngine";
 import {
   CellType,
   UnitState,
@@ -7,7 +7,7 @@ import {
   SquadConfig,
   CommandType,
   AIProfile,
-} from "../../../shared/types";
+} from "@src/shared/types";
 
 describe("Unit WaitingForDoor State", () => {
   let engine: CoreEngine;

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { CoreEngine } from "../../CoreEngine";
+import { CoreEngine } from "@src/engine/CoreEngine";
 import {
   MapDefinition,
   CellType,
@@ -10,8 +10,8 @@ import {
   ArchetypeLibrary,
   EnemyType,
   AIProfile,
-} from "../../../shared/types";
-import { GameGrid } from "../../GameGrid";
+} from "@src/shared/types";
+import { GameGrid } from "@src/engine/GameGrid";
 
 describe("Command: SET_ENGAGEMENT", () => {
   let engine: CoreEngine;

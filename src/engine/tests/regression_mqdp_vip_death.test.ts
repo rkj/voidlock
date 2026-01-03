@@ -1,11 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { CoreEngine } from "../CoreEngine";
+import { CoreEngine } from "@src/engine/CoreEngine";
 import {
   MissionType,
   UnitState,
   SquadConfig,
   Objective,
-} from "../../shared/types";
+} from "@src/shared/types";
 
 describe("Regression mqdp: VIP Death Mission Success", () => {
   const mockMap = {

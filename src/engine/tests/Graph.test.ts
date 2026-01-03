@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { Graph, Boundary, GraphCell } from "../Graph";
-import { CellType, MapDefinition } from "../../shared/types";
+import { Graph, Boundary, GraphCell } from "@src/engine/Graph";
+import { CellType, MapDefinition } from "@src/shared/types";
 
 describe("Graph", () => {
   const mockMap: MapDefinition = {

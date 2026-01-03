@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { MissionManager } from "../managers/MissionManager";
+import { MissionManager } from "@src/engine/managers/MissionManager";
 import {
   MissionType,
   GameState,
@@ -7,10 +7,10 @@ import {
   Objective,
   CellType,
   EnemyType,
-} from "../../shared/types";
-import { PRNG } from "../../shared/PRNG";
-import { createMockGameState, createMockUnit } from "./utils/MockFactory";
-import { EnemyManager } from "../managers/EnemyManager";
+} from "@src/shared/types";
+import { PRNG } from "@src/shared/PRNG";
+import { createMockGameState, createMockUnit } from "@src/engine/tests/utils/MockFactory";
+import { EnemyManager } from "@src/engine/managers/EnemyManager";
 
 describe("MissionManager", () => {
   let missionManager: MissionManager;

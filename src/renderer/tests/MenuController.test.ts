@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { MenuController } from "../MenuController";
+import { MenuController } from "@src/renderer/MenuController";
 import {
   CommandType,
   GameState,
   UnitState,
   CellType,
   EngagementPolicy,
-} from "../../shared/types";
+} from "@src/shared/types";
 
 describe("MenuController", () => {
   let controller: MenuController;

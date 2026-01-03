@@ -1,11 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { TreeShipGenerator } from "../../generators/TreeShipGenerator";
+import { TreeShipGenerator } from "@src/engine/generators/TreeShipGenerator";
 import {
   mapToAdjacencyList,
   hasCycleDFS,
   calculateFillRate,
   checkConnectivity,
-} from "../utils/GraphUtils";
+} from "@src/engine/tests/utils/GraphUtils";
 
 describe("TreeShipGenerator Multi-Corridor", () => {
   const seeds = [1, 42, 123, 999];

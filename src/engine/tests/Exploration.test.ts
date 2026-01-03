@@ -1,12 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { CoreEngine } from "../CoreEngine";
+import { CoreEngine } from "@src/engine/CoreEngine";
 import {
   MapDefinition,
   CellType,
   UnitState,
   MissionType,
   CommandType,
-} from "../../shared/types";
+} from "@src/shared/types";
 
 describe("Exploration Logic", () => {
   it("should not explore deep into a dead end if it is already visible", () => {

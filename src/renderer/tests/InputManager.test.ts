@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { InputManager } from "../InputManager";
-import { CommandType, EngineMode } from "../../shared/types";
+import { InputManager } from "@src/renderer/InputManager";
+import { CommandType, EngineMode } from "@src/shared/types";
 
 describe("InputManager", () => {
   let inputManager: InputManager;

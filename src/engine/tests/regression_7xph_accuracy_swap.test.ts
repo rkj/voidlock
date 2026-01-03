@@ -1,12 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { CoreEngine } from "../CoreEngine";
+import { CoreEngine } from "@src/engine/CoreEngine";
 import {
   MapDefinition,
   CellType,
   SquadConfig,
   UnitState,
   EnemyType,
-} from "../../shared/types";
+} from "@src/shared/types";
 
 describe("Regression 7xph - Accuracy Stats Reset on Weapon Swap", () => {
   const mockMap: MapDefinition = {

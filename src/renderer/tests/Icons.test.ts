@@ -1,5 +1,5 @@
 import { expect, test } from "vitest";
-import { Icons } from "../Icons";
+import { Icons } from "@src/renderer/Icons";
 
 test("Icons object contains all required stat icons", () => {
   expect(Icons.Speed).toBeDefined();

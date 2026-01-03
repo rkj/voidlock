@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { HUDManager } from "../HUDManager";
-import { GameState, UnitState, Unit } from "../../../shared/types";
+import { HUDManager } from "@src/renderer/ui/HUDManager";
+import { GameState, UnitState, Unit } from "@src/shared/types";
 
 describe("HUDManager", () => {
   let hud: HUDManager;

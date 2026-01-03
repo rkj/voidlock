@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { MapDefinition, CellType } from "../../shared/types";
-import { mapToAdjacencyList, hasCycleDFS } from "./utils/GraphUtils";
+import { MapDefinition, CellType } from "@src/shared/types";
+import { mapToAdjacencyList, hasCycleDFS } from "@src/engine/tests/utils/GraphUtils";
 
 describe("Cycle Detection Utilities", () => {
   it("should detect no cycles in a simple acyclic graph (line)", () => {

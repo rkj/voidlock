@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { CoreEngine } from "../CoreEngine";
+import { CoreEngine } from "@src/engine/CoreEngine";
 
 // Mock CoreEngine
-vi.mock("../CoreEngine", () => {
+vi.mock("@src/engine/CoreEngine", () => {
   return {
     CoreEngine: vi.fn().mockImplementation(() => {
       return {
@@ -29,7 +29,7 @@ describe("worker.ts Regression zzjz", () => {
     });
 
     // Import worker.ts - this will execute the module and set self.onmessage
-    await import("../worker");
+    await import("@src/engine/worker");
     onmessageHandler = (self as any).onmessage;
   });
 
