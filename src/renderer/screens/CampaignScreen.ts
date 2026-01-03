@@ -5,12 +5,14 @@ export class CampaignScreen {
   private container: HTMLElement;
   private manager: CampaignManager;
   private onNodeSelect: (node: CampaignNode) => void;
+  private onBarracks: () => void;
   private onBack: () => void;
 
   constructor(
     containerId: string,
     manager: CampaignManager,
     onNodeSelect: (node: CampaignNode) => void,
+    onBarracks: () => void,
     onBack: () => void,
   ) {
     const el = document.getElementById(containerId);
@@ -18,6 +20,7 @@ export class CampaignScreen {
     this.container = el;
     this.manager = manager;
     this.onNodeSelect = onNodeSelect;
+    this.onBarracks = onBarracks;
     this.onBack = onBack;
   }
 
@@ -115,8 +118,8 @@ export class CampaignScreen {
     footer.appendChild(backBtn);
 
     const barracksBtn = document.createElement("button");
-    barracksBtn.textContent = "BARRACKS (TODO)";
-    barracksBtn.disabled = true;
+    barracksBtn.textContent = "BARRACKS";
+    barracksBtn.onclick = () => this.onBarracks();
     footer.appendChild(barracksBtn);
 
     this.container.appendChild(footer);

@@ -11,7 +11,7 @@ import {
 import { PRNG } from "../../shared/PRNG";
 import { StorageProvider } from "../persistence/StorageProvider";
 import { SectorMapGenerator } from "../generators/SectorMapGenerator";
-import { ArchetypeLibrary } from "../../shared/types";
+import { ArchetypeLibrary, EquipmentState } from "../../shared/types";
 
 const STORAGE_KEY = "voidlock_campaign_v1";
 
@@ -69,7 +69,7 @@ export class CampaignManager {
     const roster = this.generateInitialRoster(prng);
 
     this.state = {
-      version: "0.43.2", // Current project version
+      version: "0.51.1", // Current project version
       seed,
       rules,
       scrap: 500,
@@ -131,7 +131,12 @@ export class CampaignManager {
         kills: 0,
         missions: 0,
         status: "Healthy",
-        equipment: {},
+        equipment: {
+          rightHand: arch?.rightHand,
+          leftHand: arch?.leftHand,
+          body: arch?.body,
+          feet: arch?.feet,
+        },
       });
     }
     return roster;
@@ -242,5 +247,123 @@ export class CampaignManager {
    */
   public getState(): CampaignState | null {
     return this.state;
+  }
+
+  /**
+   * Recruits a new soldier of the given archetype.
+   * @param archetypeId The ID of the archetype to recruit.
+   * @param name The name of the new soldier.
+   */
+  public recruitSoldier(archetypeId: string, name: string): void {
+    if (!this.state) return;
+
+    const COST = 100;
+    if (this.state.scrap < COST) {
+      throw new Error("Insufficient scrap to recruit soldier.");
+    }
+
+    const arch = ArchetypeLibrary[archetypeId];
+    if (!arch) {
+      throw new Error(`Invalid archetype ID: ${archetypeId}`);
+    }
+
+    const newSoldier: CampaignSoldier = {
+      id: `soldier_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+      name,
+      archetypeId,
+      hp: arch.baseHp,
+      maxHp: arch.baseHp,
+      soldierAim: arch.soldierAim,
+      xp: 0,
+      level: 1,
+      kills: 0,
+      missions: 0,
+      status: "Healthy",
+      equipment: {
+        rightHand: arch.rightHand,
+        leftHand: arch.leftHand,
+        body: arch.body,
+        feet: arch.feet,
+      },
+    };
+
+    this.state.scrap -= COST;
+    this.state.roster.push(newSoldier);
+    this.save();
+  }
+
+  /**
+   * Heals a wounded soldier to full health.
+   * @param soldierId The ID of the soldier to heal.
+   */
+  public healSoldier(soldierId: string): void {
+    if (!this.state) return;
+
+    const COST = 50;
+    if (this.state.scrap < COST) {
+      throw new Error("Insufficient scrap to heal soldier.");
+    }
+
+    const soldier = this.state.roster.find((s) => s.id === soldierId);
+    if (!soldier) {
+      throw new Error(`Soldier not found: ${soldierId}`);
+    }
+
+    if (soldier.status !== "Wounded") {
+      throw new Error("Soldier is not wounded.");
+    }
+
+    this.state.scrap -= COST;
+    soldier.status = "Healthy";
+    soldier.hp = soldier.maxHp;
+    this.save();
+  }
+
+  /**
+   * Revives a dead soldier. Only allowed in 'Clone' death rule.
+   * @param soldierId The ID of the soldier to revive.
+   */
+  public reviveSoldier(soldierId: string): void {
+    if (!this.state) return;
+
+    if (this.state.rules.deathRule !== "Clone") {
+      throw new Error("Revival only allowed in 'Clone' mode.");
+    }
+
+    const COST = 250;
+    if (this.state.scrap < COST) {
+      throw new Error("Insufficient scrap to revive soldier.");
+    }
+
+    const soldier = this.state.roster.find((s) => s.id === soldierId);
+    if (!soldier) {
+      throw new Error(`Soldier not found: ${soldierId}`);
+    }
+
+    if (soldier.status !== "Dead") {
+      throw new Error("Soldier is not dead.");
+    }
+
+    this.state.scrap -= COST;
+    soldier.status = "Healthy";
+    soldier.hp = soldier.maxHp;
+    this.save();
+  }
+
+  /**
+   * Assigns new equipment to a soldier.
+   * @param soldierId The ID of the soldier.
+   * @param equipment The new equipment state.
+   */
+  public assignEquipment(soldierId: string, equipment: EquipmentState): void {
+    if (!this.state) return;
+
+    const soldier = this.state.roster.find((s) => s.id === soldierId);
+    if (!soldier) {
+      throw new Error(`Soldier not found: ${soldierId}`);
+    }
+
+    soldier.equipment = { ...equipment };
+    this.save();
   }
 }

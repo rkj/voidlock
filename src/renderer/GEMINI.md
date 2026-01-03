@@ -21,6 +21,7 @@ This directory contains the main thread rendering logic and user interface for V
 - `ui/`: Specific UI components like the HUD and menu renderers.
 - `screens/`: Individual screen components for the Strategic and Tactical layers.
   - `CampaignScreen.ts`: Displays the Sector Map DAG.
+  - `BarracksScreen.ts`: Interface for roster management, recruitment, and soldier healing/equipment.
   - `EquipmentScreen.ts`: Handles soldier loadouts and armory.
   - `DebriefScreen.ts`: Displays mission results and plays accelerated replay in background.
 - `tests/`: Automated test suite for the renderer.

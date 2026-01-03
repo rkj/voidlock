@@ -18,6 +18,7 @@ import { HUDManager } from "./ui/HUDManager";
 import { MapUtility } from "./MapUtility";
 import { InputManager } from "./InputManager";
 import { EquipmentScreen } from "./screens/EquipmentScreen";
+import { BarracksScreen } from "./screens/BarracksScreen";
 import { DebriefScreen } from "./screens/DebriefScreen";
 import { CampaignManager } from "./campaign/CampaignManager";
 import { CampaignScreen } from "./screens/CampaignScreen";
@@ -31,9 +32,13 @@ const VERSION = pkg.version;
 // --- State ---
 const screenManager = new ScreenManager();
 const campaignManager = CampaignManager.getInstance();
+let campaignScreen: CampaignScreen;
+let barracksScreen: BarracksScreen;
+
 const debriefScreen = new DebriefScreen("screen-debrief", () => {
   debriefScreen.hide();
   if (currentCampaignNode) {
+    campaignScreen.show();
     screenManager.show("campaign");
   } else {
     screenManager.show("main-menu");
@@ -372,7 +377,16 @@ document.addEventListener("DOMContentLoaded", () => {
   inputManager.init();
 
   // Navigation
-  const campaignScreen = new CampaignScreen(
+  barracksScreen = new BarracksScreen(
+    "screen-barracks",
+    campaignManager,
+    () => {
+      campaignScreen.show();
+      screenManager.goBack();
+    },
+  );
+
+  campaignScreen = new CampaignScreen(
     "screen-campaign",
     campaignManager,
     (node) => {
@@ -408,6 +422,10 @@ document.addEventListener("DOMContentLoaded", () => {
       if (spInput) spInput.value = currentSpawnPointCount.toString();
 
       screenManager.show("mission-setup");
+    },
+    () => {
+      barracksScreen.show();
+      screenManager.show("barracks");
     },
     () => screenManager.goBack(),
   );
