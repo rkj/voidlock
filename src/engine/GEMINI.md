@@ -30,7 +30,7 @@ A mission run can be perfectly reproduced by re-initializing the engine with the
 - `ai/`: Specialized AI logic for enemies and soldiers.
 - `generators/`: Specific map generation algorithms (e.g., `SpaceshipGenerator`, `TreeShipGenerator`).
 - `managers/`: Modules that handle specific aspects of the game (Unit, Enemy, Door, Visibility, Mission, Command).
-- `tests/`: Comprehensive test suite for the engine.
+- `tests/`: Comprehensive test suite for the engine, including core components (`CoreEngine`, `GameGrid`, `Pathfinder`), and regression tests.
     - `regression_x81g_map_placement_fuzz.test.ts`: Fuzz test (100 seeds) verifying strict entity placement rules across varying map sizes (3x3 to 10x10).
 
 ## Testing Strategy

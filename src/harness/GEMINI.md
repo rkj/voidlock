@@ -14,6 +14,10 @@ This directory contains tools and infrastructure for testing the game engine wit
 - **Agent Testing**: Allows testing the game simulation without a human player.
 - **Balancing**: Facilitates large-scale simulations to tune game parameters (enemy health, weapon damage, spawn rates).
 
+## Subdirectories
+
+- `tests/`: Tests for the harness and bots.
+
 ## Connections
 
 - Uses `src/engine/CoreEngine.ts` to run the simulation.

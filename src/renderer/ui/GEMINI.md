@@ -7,9 +7,10 @@ This directory contains UI components and managers for the Voidlock renderer.
 - `HUDManager.ts`: Manages the Head-Up Display, including soldier list, stats, and top bar.
 - `StatDisplay.ts`: Reusable component for rendering icon-based stat blocks with tooltips.
 - `MenuRenderer.ts`: Renders the hierarchical command menu into HTML strings.
-- `HUDManager.test.ts`: Unit tests for HUD rendering and interaction, utilizing JSDOM.
-- `regression_kvi1_actions_visible_on_restart.test.ts`: Regression test for the bug where actions were not visible after restarting a mission.
-- `regression_pdxs_objective_hud.test.ts`: Regression test for Objective HUD cleanup (hiding coords, removing status text).
+
+## Subdirectories
+
+- `tests/`: Unit and regression tests for UI components.
 
 ## Functionality
 
