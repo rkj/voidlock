@@ -38,6 +38,8 @@ This directory contains the main thread rendering logic and user interface for X
 - **Test Suites**:
   - `SquadBuilder.test.ts`: Verifies squad selection logic and constraints.
   - `ui/HUDManager.test.ts`: Verifies soldier list rendering and HUD updates.
+  - `InputManager.test.ts`: Verifies keyboard shortcuts and debug overlay toggles.
+  - `Renderer.test.ts`: Verifies map, unit, and debug/LOS overlay rendering.
   - `ConfigManager.migration.test.ts`: Verifies configuration migration and defaulting from old storage formats.
   - `ConfigManager.isolation.test.ts`: Verifies that Custom and Campaign configurations are stored and loaded independently.
   - `MenuController.discovery.test.ts`: Verifies room discovery filtering and stable numbering in the command menu.

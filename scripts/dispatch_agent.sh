@@ -35,6 +35,8 @@ gemini --model gemini-3-flash-preview \
   --allowed-tools replace \
   --allowed-tools write_file \
   --allowed-tools "run_shell_command(npx vitest)" \
+  --allowed-tools "run_shell_command(npx vite build)" \
+  --allowed-tools "run_shell_command(npm run build)" \
   --allowed-tools "run_shell_command(npx tsc)" \
   --allowed-tools "run_shell_command(jj diff)" \
   --allowed-tools "run_shell_command(ls)" \

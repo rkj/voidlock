@@ -27,6 +27,16 @@ export class CommandHandler {
       return;
     }
 
+    if (cmd.type === CommandType.TOGGLE_DEBUG_OVERLAY) {
+      state.settings.debugOverlayEnabled = cmd.enabled;
+      return;
+    }
+
+    if (cmd.type === CommandType.TOGGLE_LOS_OVERLAY) {
+      state.settings.losOverlayEnabled = cmd.enabled;
+      return;
+    }
+
     if (
       cmd.type === CommandType.MOVE_TO ||
       cmd.type === CommandType.ATTACK_TARGET ||

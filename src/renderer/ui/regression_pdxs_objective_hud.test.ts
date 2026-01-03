@@ -63,6 +63,7 @@ describe("HUDManager Objective Regression PDXS", () => {
       vi.fn(),
       vi.fn(),
       vi.fn(),
+      vi.fn(),
       "1.0.0",
     );
   });
