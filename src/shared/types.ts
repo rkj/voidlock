@@ -692,6 +692,7 @@ export enum CommandType {
   OVERWATCH_POINT = "OVERWATCH_POINT",
   EXPLORE = "EXPLORE",
   PICKUP = "PICKUP",
+  ESCORT_UNIT = "ESCORT_UNIT",
   TOGGLE_DEBUG_OVERLAY = "TOGGLE_DEBUG_OVERLAY",
   TOGGLE_LOS_OVERLAY = "TOGGLE_LOS_OVERLAY",
 }
@@ -700,6 +701,14 @@ export type MoveCommand = {
   type: CommandType.MOVE_TO;
   unitIds: string[];
   target: Vector2;
+  queue?: boolean;
+  label?: string;
+};
+
+export type EscortUnitCommand = {
+  type: CommandType.ESCORT_UNIT;
+  unitIds: string[];
+  targetId: string;
   queue?: boolean;
   label?: string;
 };
@@ -799,6 +808,7 @@ export type Command =
   | OverwatchPointCommand
   | ExploreCommand
   | PickupCommand
+  | EscortUnitCommand
   | ToggleDebugOverlayCommand
   | ToggleLosOverlayCommand;
 
