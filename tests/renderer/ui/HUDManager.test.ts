@@ -149,7 +149,7 @@ describe("HUDManager", () => {
     const item = document.querySelector(".soldier-item") as HTMLElement;
     item.click();
 
-    expect(onUnitClick).toHaveBeenCalledWith(mockState.units[0]);
+    expect(onUnitClick).toHaveBeenCalledWith(mockState.units[0], false);
   });
 
   it("should call onMenuInput when a menu item is clicked", () => {
@@ -166,7 +166,7 @@ describe("HUDManager", () => {
     expect(menuItem).not.toBeNull();
 
     menuItem.click();
-    expect(onMenuInput).toHaveBeenCalledWith("1");
+    expect(onMenuInput).toHaveBeenCalledWith("1", false);
   });
 
   it("should render objectives in the right panel", () => {

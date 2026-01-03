@@ -76,6 +76,7 @@ describe("MenuController", () => {
       unitIds: ["u1", "u2"],
       mode: "ENGAGE",
       label: "Policy Change",
+      queue: false,
     });
 
     // Should reset
@@ -92,6 +93,7 @@ describe("MenuController", () => {
       unitIds: ["u1", "u2"],
       mode: "IGNORE",
       label: "Policy Change",
+      queue: false,
     });
   });
 
