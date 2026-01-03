@@ -49,6 +49,20 @@ export const MENU_CONFIG: Record<MenuState, MenuStateDefinition> = {
         commandType: CommandType.USE_ITEM,
         nextState: "ITEM_SELECT",
       },
+      {
+        key: 4,
+        label: "PICKUP",
+        type: "ACTION",
+        commandType: CommandType.PICKUP,
+        nextState: "TARGET_SELECT",
+      },
+      {
+        key: 5,
+        label: "EXTRACT",
+        type: "ACTION",
+        commandType: CommandType.EXTRACT,
+        nextState: "UNIT_SELECT",
+      },
     ],
   },
   ORDERS_SELECT: {
@@ -77,6 +91,13 @@ export const MENU_CONFIG: Record<MenuState, MenuStateDefinition> = {
       },
       {
         key: 4,
+        label: "ESCORT",
+        type: "ACTION",
+        commandType: CommandType.ESCORT_UNIT,
+        nextState: "TARGET_SELECT",
+      },
+      {
+        key: 5,
         label: "HOLD",
         type: "ACTION",
         commandType: CommandType.STOP,

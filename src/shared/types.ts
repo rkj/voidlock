@@ -693,6 +693,7 @@ export enum CommandType {
   EXPLORE = "EXPLORE",
   PICKUP = "PICKUP",
   ESCORT_UNIT = "ESCORT_UNIT",
+  EXTRACT = "EXTRACT",
   TOGGLE_DEBUG_OVERLAY = "TOGGLE_DEBUG_OVERLAY",
   TOGGLE_LOS_OVERLAY = "TOGGLE_LOS_OVERLAY",
 }
@@ -701,6 +702,13 @@ export type MoveCommand = {
   type: CommandType.MOVE_TO;
   unitIds: string[];
   target: Vector2;
+  queue?: boolean;
+  label?: string;
+};
+
+export type ExtractCommand = {
+  type: CommandType.EXTRACT;
+  unitIds: string[];
   queue?: boolean;
   label?: string;
 };
@@ -809,6 +817,7 @@ export type Command =
   | ExploreCommand
   | PickupCommand
   | EscortUnitCommand
+  | ExtractCommand
   | ToggleDebugOverlayCommand
   | ToggleLosOverlayCommand;
 
@@ -863,6 +872,7 @@ export type OverlayOption = {
   key: string;
   label: string;
   pos: Vector2;
+  id?: string;
 };
 
 export * from "./campaign_types";

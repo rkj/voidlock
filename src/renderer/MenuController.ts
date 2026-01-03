@@ -30,6 +30,7 @@ export class MenuController {
   public menuState: MenuState = "ACTION_SELECT";
   public pendingAction: CommandType | null = null;
   public pendingItemId: string | null = null;
+  public pendingTargetId: string | null = null;
   public pendingMode: EngagementPolicy | null = null;
   public pendingLabel: string | null = null;
   public pendingTargetLocation: Vector2 | null = null;
@@ -45,6 +46,7 @@ export class MenuController {
     this.menuState = "ACTION_SELECT";
     this.pendingAction = null;
     this.pendingItemId = null;
+    this.pendingTargetId = null;
     this.pendingMode = null;
     this.pendingLabel = null;
     this.pendingTargetLocation = null;
@@ -115,6 +117,17 @@ export class MenuController {
         } else if (option.label === "HOLD") {
           this.pendingLabel = "Holding";
           this.menuState = "UNIT_SELECT";
+        } else if (option.label === "PICKUP") {
+          this.pendingLabel = "Picking up";
+          this.menuState = "TARGET_SELECT";
+          this.generateTargetOverlay("ITEM", gameState);
+        } else if (option.label === "EXTRACT") {
+          this.pendingLabel = "Extracting";
+          this.menuState = "UNIT_SELECT";
+        } else if (option.label === "ESCORT") {
+          this.pendingLabel = "Escorting";
+          this.menuState = "TARGET_SELECT";
+          this.generateTargetOverlay("FRIENDLY_UNIT", gameState);
         } else if (option.label === "ENGAGEMENT") {
           this.pendingLabel = "Policy Change";
           this.menuState = "MODE_SELECT";
@@ -144,6 +157,7 @@ export class MenuController {
       const option = this.overlayOptions.find((o) => o.key === key);
       if (option && option.pos) {
         this.pendingTargetLocation = option.pos;
+        this.pendingTargetId = option.id || null;
         if (this.pendingAction === CommandType.USE_ITEM) {
           this.executePendingCommand([]);
         } else {
@@ -175,7 +189,9 @@ export class MenuController {
         this.menuState = "MODE_SELECT";
       else if (
         this.pendingAction === CommandType.MOVE_TO ||
-        this.pendingAction === CommandType.OVERWATCH_POINT
+        this.pendingAction === CommandType.OVERWATCH_POINT ||
+        this.pendingAction === CommandType.PICKUP ||
+        this.pendingAction === CommandType.ESCORT_UNIT
       )
         this.menuState = "TARGET_SELECT";
       else if (
@@ -183,6 +199,8 @@ export class MenuController {
         this.pendingAction === CommandType.STOP
       )
         this.menuState = "ORDERS_SELECT";
+      else if (this.pendingAction === CommandType.EXTRACT)
+        this.menuState = "ACTION_SELECT";
       else this.menuState = "ACTION_SELECT";
     } else if (this.menuState === "ORDERS_SELECT") {
       this.menuState = "ACTION_SELECT";
@@ -200,7 +218,8 @@ export class MenuController {
       } else if (
         this.menuState === "TARGET_SELECT" &&
         (this.pendingAction === CommandType.MOVE_TO ||
-          this.pendingAction === CommandType.OVERWATCH_POINT)
+          this.pendingAction === CommandType.OVERWATCH_POINT ||
+          this.pendingAction === CommandType.ESCORT_UNIT)
       ) {
         this.menuState = "ORDERS_SELECT";
       } else {
@@ -232,6 +251,10 @@ export class MenuController {
         this.generateTargetOverlay("INTERSECTION", gameState);
       } else if (this.pendingAction === CommandType.USE_ITEM) {
         this.generateTargetOverlay("CELL", gameState);
+      } else if (this.pendingAction === CommandType.PICKUP) {
+        this.generateTargetOverlay("ITEM", gameState);
+      } else if (this.pendingAction === CommandType.ESCORT_UNIT) {
+        this.generateTargetOverlay("FRIENDLY_UNIT", gameState);
       }
     }
 
@@ -411,6 +434,32 @@ export class MenuController {
         label: this.pendingLabel || undefined,
         queue,
       });
+    } else if (this.pendingAction === CommandType.PICKUP && this.pendingTargetId) {
+      this.client.sendCommand({
+        type: CommandType.PICKUP,
+        unitIds,
+        lootId: this.pendingTargetId,
+        label: this.pendingLabel || undefined,
+        queue,
+      });
+    } else if (this.pendingAction === CommandType.EXTRACT) {
+      this.client.sendCommand({
+        type: CommandType.EXTRACT,
+        unitIds,
+        label: this.pendingLabel || undefined,
+        queue,
+      });
+    } else if (
+      this.pendingAction === CommandType.ESCORT_UNIT &&
+      this.pendingTargetId
+    ) {
+      this.client.sendCommand({
+        type: CommandType.ESCORT_UNIT,
+        unitIds,
+        targetId: this.pendingTargetId,
+        label: this.pendingLabel || undefined,
+        queue,
+      });
     } else if (
       this.pendingAction === CommandType.USE_ITEM &&
       this.pendingItemId &&
@@ -455,7 +504,7 @@ export class MenuController {
   }
 
   private generateTargetOverlay(
-    type: "CELL" | "ITEM" | "INTERSECTION",
+    type: "CELL" | "ITEM" | "INTERSECTION" | "FRIENDLY_UNIT",
     gameState: GameState,
   ) {
     this.overlayOptions = [];
@@ -468,8 +517,37 @@ export class MenuController {
             key: this.getRoomKey(itemCounter),
             label: `Collect ${obj.kind}`,
             pos: obj.targetCell,
+            id: obj.id,
           });
           itemCounter++;
+        }
+      });
+
+      if (gameState.loot) {
+        gameState.loot.forEach((loot) => {
+          const key = `${Math.floor(loot.pos.x)},${Math.floor(loot.pos.y)}`;
+          if (gameState.visibleCells.includes(key)) {
+            this.overlayOptions.push({
+              key: this.getRoomKey(itemCounter),
+              label: `Pickup ${loot.itemId}`,
+              pos: { x: Math.floor(loot.pos.x), y: Math.floor(loot.pos.y) },
+              id: loot.id,
+            });
+            itemCounter++;
+          }
+        });
+      }
+    } else if (type === "FRIENDLY_UNIT") {
+      let unitCounter = 0;
+      gameState.units.forEach((u) => {
+        if (u.state !== UnitState.Dead && u.state !== UnitState.Extracted) {
+          this.overlayOptions.push({
+            key: this.getRoomKey(unitCounter),
+            label: `Unit ${u.id}`,
+            pos: { x: Math.floor(u.pos.x), y: Math.floor(u.pos.y) },
+            id: u.id,
+          });
+          unitCounter++;
         }
       });
     } else if (type === "INTERSECTION") {

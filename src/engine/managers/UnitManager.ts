@@ -546,8 +546,11 @@ export class UnitManager {
           Math.floor(unit.pos.x) === ext.x &&
           Math.floor(unit.pos.y) === ext.y;
 
+        const isExplicitExtract =
+          unit.activeCommand?.type === CommandType.EXTRACT;
+
         if (
-          (allOtherObjectivesComplete || isVipAtExtraction) &&
+          (allOtherObjectivesComplete || isVipAtExtraction || isExplicitExtract) &&
           Math.floor(unit.pos.x) === ext.x &&
           Math.floor(unit.pos.y) === ext.y
         ) {
@@ -1012,7 +1015,8 @@ export class UnitManager {
             unit.activeCommand?.type !== CommandType.PICKUP &&
             unit.activeCommand?.type !== CommandType.ESCORT_UNIT &&
             unit.activeCommand?.type !== CommandType.EXPLORE &&
-            unit.activeCommand?.type !== CommandType.OVERWATCH_POINT
+            unit.activeCommand?.type !== CommandType.OVERWATCH_POINT &&
+            unit.activeCommand?.type !== CommandType.EXTRACT
           ) {
             unit.activeCommand = undefined;
           }
@@ -1206,6 +1210,7 @@ export class UnitManager {
     } else if (cmd.type === CommandType.PICKUP) {
       if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
         const loot = state.loot?.find((l) => l.id === cmd.lootId);
+        const objective = state.objectives?.find((o) => o.id === cmd.lootId);
         if (loot) {
           this.executeCommand(
             unit,
@@ -1214,6 +1219,36 @@ export class UnitManager {
               unitIds: [unit.id],
               target: { x: Math.floor(loot.pos.x), y: Math.floor(loot.pos.y) },
               label: "Picking up",
+            },
+            state,
+            isManual,
+          );
+          unit.activeCommand = cmd;
+        } else if (objective && objective.targetCell) {
+          this.executeCommand(
+            unit,
+            {
+              type: CommandType.MOVE_TO,
+              unitIds: [unit.id],
+              target: objective.targetCell,
+              label: "Picking up",
+            },
+            state,
+            isManual,
+          );
+          unit.activeCommand = cmd;
+        }
+      }
+    } else if (cmd.type === CommandType.EXTRACT) {
+      if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
+        if (state.map.extraction) {
+          this.executeCommand(
+            unit,
+            {
+              type: CommandType.MOVE_TO,
+              unitIds: [unit.id],
+              target: state.map.extraction,
+              label: "Extracting",
             },
             state,
             isManual,

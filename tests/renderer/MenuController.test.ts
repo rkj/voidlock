@@ -15,8 +15,8 @@ describe("MenuController", () => {
     t: 1000,
     map: { width: 10, height: 10, cells: [] },
     units: [
-      { id: "u1", state: UnitState.Idle } as any,
-      { id: "u2", state: UnitState.Idle } as any,
+      { id: "u1", pos: { x: 0.5, y: 0.5 }, state: UnitState.Idle } as any,
+      { id: "u2", pos: { x: 0.5, y: 0.5 }, state: UnitState.Idle } as any,
     ],
     enemies: [],
     visibleCells: [],
@@ -114,7 +114,7 @@ describe("MenuController", () => {
 
   it("should return correct renderable state for UNIT_SELECT", () => {
     controller.handleMenuInput("1", mockState); // ORDERS -> ORDERS_SELECT
-    controller.handleMenuInput("4", mockState); // HOLD -> UNIT_SELECT
+    controller.handleMenuInput("5", mockState); // HOLD -> UNIT_SELECT
     const state = controller.getRenderableState(mockState);
     expect(state.title).toBe("SELECT UNIT(S)");
     // u1, u2, ALL, BACK = 4 options
