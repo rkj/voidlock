@@ -5,7 +5,7 @@ This directory contains the core simulation logic for Voidlock. It follows a det
 ## Files
 
 - `CoreEngine.ts`: The main orchestrator of the game simulation. It manages state (including `isPaused`, `timeScale`, and `isSlowMotion`), initializes managers, and runs the game loop.
-- `Director.ts`: Manages enemy spawning based on threat levels and timers. Also handles global commander abilities (Medkits, Grenades, Scanners).
+- `Director.ts`: Manages enemy spawning based on threat levels and timers. Also handles global commander abilities (Medkits, Stimpacks, Grenades, Scanners).
 - `GameClient.ts`: Provides an interface for the renderer (main thread) to communicate with the engine (worker). Exposes typed methods for debug actions (overlays, state queries) to decouple the renderer from the underlying protocol.
 - `GameGrid.ts`: Manages the logical grid, including walkability and movement validation between cells (respecting walls and doors).
 - `Graph.ts`: Represents the map as a graph of cells and boundaries (walls/doors).
