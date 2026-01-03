@@ -4,7 +4,7 @@
 
 ## Context
 
-Xenopurge is a tactical game where missions can be intense. Players benefit from seeing a recap of their performance. We want to implement a "Debrief" screen that appears after mission completion (Victory or Defeat). To make this screen more engaging, we want to play a time-accelerated replay of the mission in the background.
+Voidlock is a tactical game where missions can be intense. Players benefit from seeing a recap of their performance. We want to implement a "Debrief" screen that appears after mission completion (Victory or Defeat). To make this screen more engaging, we want to play a time-accelerated replay of the mission in the background.
 
 ## Proposed Architecture
 

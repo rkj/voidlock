@@ -4,7 +4,7 @@
 
 ## Context
 
-Xenopurge requires a robust system for autonomous units—both friendly soldiers and enemy aliens—to operate effectively in a real-time tactical environment. The system must support complex behaviors like threat assessment, exploration, and objective coordination, while maintaining simulation determinism and efficient tick synchronization.
+Voidlock requires a robust system for autonomous units—both friendly soldiers and enemy aliens—to operate effectively in a real-time tactical environment. The system must support complex behaviors like threat assessment, exploration, and objective coordination, while maintaining simulation determinism and efficient tick synchronization.
 
 ## Solution
 

@@ -5,7 +5,7 @@
 
 ## Context
 
-Xenopurge is evolving from a single-mission tactical game into a persistent roguelite experience. This requires an architecture that supports:
+Voidlock is evolving from a single-mission tactical game into a persistent roguelite experience. This requires an architecture that supports:
 
 1.  **Persistent State:** Data that lives across multiple tactical missions (Squad roster, Scrap, Map progress).
 2.  **Strategic Layer:** New gameplay modes like the "Sector Map" (Bridge) and "Barracks" (Squad Management).

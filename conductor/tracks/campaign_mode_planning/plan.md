@@ -2,13 +2,13 @@
 
 ## Goal
 
-Establish the technical and narrative foundation for the Xenopurge Campaign Mode.
+Establish the technical and narrative foundation for the Voidlock Campaign Mode.
 
 ## Proposed Strategy
 
 ### 1. Narrative & Structure
 
-- **Setting:** A derelict starship ("The Xenopurge") or a sector of space with multiple derelicts.
+- **Setting:** A derelict starship ("The Voidlock") or a sector of space with multiple derelicts.
 - **Goal:** Reach the core of the ship / Clear the sector.
 - **Pathing:** Node-based map (similar to FTL or Slay the Spire) to provide player agency while maintaining a controlled progression.
 

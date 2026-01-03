@@ -1,4 +1,4 @@
-# Asset Generation Prompts for Xenopurge
+# Asset Generation Prompts for Voidlock
 
 **Target Aesthetic:** "Neon-on-Dark" Sci-Fi. Claustrophobic spaceship interiors. High contrast, industrial, retro-futuristic.
 **Perspective:** Top-Down (90-degree look-down, minimal perspective distortion for grid alignment).
@@ -53,7 +53,7 @@
 
 ## 3. Enemies (Aliens)
 
-**Context:** The "Xenopurge" targets. Insectoid/Biomechanical horrors.
+**Context:** The "Voidlock" targets. Insectoid/Biomechanical horrors.
 **Primary Color:** Dark carapace with glowing Red/Orange/Green weak points.
 
 ### Xeno-Mite (Swarmer)

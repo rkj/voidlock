@@ -1,4 +1,4 @@
-# Xenopurge Specifications
+# Voidlock Specifications
 
 The specifications have been split into focused documents to improve context management.
 

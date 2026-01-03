@@ -1,6 +1,6 @@
 # src/renderer
 
-This directory contains the main thread rendering logic and user interface for Xenopurge.
+This directory contains the main thread rendering logic and user interface for Voidlock.
 
 ## Files
 
