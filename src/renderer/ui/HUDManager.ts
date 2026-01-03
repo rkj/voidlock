@@ -286,7 +286,7 @@ export class HUDManager {
     stats.style.textAlign = "left";
     stats.innerHTML = `
       <p><strong>Time Elapsed:</strong> ${(state.t / 1000).toFixed(1)}s</p>
-      <p><strong>Aliens Purged:</strong> ${state.stats.aliensKilled}</p>
+      <p><strong>Xenos Neutralized:</strong> ${state.stats.aliensKilled}</p>
       <p><strong>Casualties:</strong> ${state.stats.casualties}</p>
     `;
     summaryDiv.appendChild(stats);
