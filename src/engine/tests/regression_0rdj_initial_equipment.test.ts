@@ -1,12 +1,13 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { CampaignManager } from "../managers/CampaignManager";
-import { StorageProvider } from "../persistence/StorageProvider";
+import { CampaignManager } from "@src/engine/managers/CampaignManager";
+import { StorageProvider } from "@src/engine/persistence/StorageProvider";
 
 class MockStorage implements StorageProvider {
   private data: Record<string, any> = {};
   save(key: string, data: any): void { this.data[key] = data; }
   load<T>(key: string): T | null { return this.data[key] || null; }
-  delete(key: string): void { delete this.data[key]; }
+  remove(key: string): void { delete this.data[key]; }
+  clear(): void { this.data = {}; }
 }
 
 describe("CampaignManager Regression: Initial Roster Equipment", () => {

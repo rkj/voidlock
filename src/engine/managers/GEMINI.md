@@ -33,3 +33,4 @@ This directory contains specialized managers that handle specific domains of the
 
 - [ADR 0006: Autonomous Agent Architecture](../../../docs/adr/0006-autonomous-agent-architecture.md)
 - [ADR 0007: Command Pattern & Queue](../../../docs/adr/0007-command-pattern-queue.md)
+- [ADR 0010: Unit System Architecture](../../../docs/adr/0010-unit-system-architecture.md)
