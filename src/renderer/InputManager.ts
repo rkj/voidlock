@@ -34,19 +34,18 @@ export class InputManager {
       return;
 
     if (this.screenManager.getCurrentScreen() === "mission") {
-      if (e.key === "Escape") {
+      if (e.key === "Escape" || e.key === "q" || e.key === "Q") {
         if (this.menuController.menuState !== "ACTION_SELECT") {
           this.menuController.goBack();
         } else {
           if (this.getSelectedUnitId()) {
             this.onUnitDeselect();
-          } else {
+          } else if (e.key === "Escape") {
             if (confirm("Abort Mission and return to menu?")) {
               this.abortMission();
             }
           }
         }
-        // We need access to state to update UI
         return;
       }
 
@@ -80,7 +79,7 @@ export class InputManager {
         this.handleMenuInput(key);
       }
     } else {
-      if (e.key === "Escape") {
+      if (e.key === "Escape" || e.key === "q" || e.key === "Q") {
         this.screenManager.goBack();
       }
     }

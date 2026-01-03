@@ -77,7 +77,7 @@ export class MenuController {
   }
 
   public handleMenuInput(key: string, gameState: GameState): void {
-    if (key === "0") {
+    if (key === "0" || key === "q") {
       this.goBack();
       return;
     }
@@ -252,7 +252,7 @@ export class MenuController {
       } else if (this.menuState === "ORDERS_SELECT") {
         result.footer = "(Select Order)";
       } else {
-        result.footer = "(ESC to Go Back)";
+        result.footer = "(Q/ESC to Go Back)";
       }
     } else if (this.menuState === "ITEM_SELECT") {
       const items = Object.entries(gameState.squadInventory).filter(
@@ -269,7 +269,7 @@ export class MenuController {
         isBack: true,
         dataAttributes: { index: "0" },
       });
-      result.footer = "(Select Item)";
+      result.footer = "(Select Item, Q/ESC to Back)";
     } else if (this.menuState === "TARGET_SELECT") {
       if (
         this.overlayOptions.length === 0 &&
@@ -290,7 +290,7 @@ export class MenuController {
         isBack: true,
         dataAttributes: { index: "0" },
       });
-      result.footer = "(Click map or press 1-9)";
+      result.footer = "(Click map or press 1-9, Q/ESC to Back)";
     } else if (this.menuState === "UNIT_SELECT") {
       let counter = 1;
       const activeUnits = gameState.units.filter(
@@ -333,7 +333,7 @@ export class MenuController {
         isBack: true,
         dataAttributes: { index: "0" },
       });
-      result.footer = "(Press 1-9 or ESC)";
+      result.footer = "(Press 1-9 or Q/ESC)";
     }
 
     return result;
