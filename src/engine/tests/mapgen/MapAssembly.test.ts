@@ -78,11 +78,13 @@ describe("MapGenerator.assemble", () => {
       tiles: [
         { tileId: "room_3x3", x: 0, y: 0, rotation: 0 },
         { tileId: "room_3x3", x: 3, y: 0, rotation: 0 },
+        { tileId: "room_3x3", x: 6, y: 0, rotation: 0 },
+        { tileId: "room_3x3", x: 9, y: 0, rotation: 0 },
       ],
-      globalSpawnPoints: [{ id: "sp1", cell: { x: 3, y: 1 } }],
+      globalSpawnPoints: [{ id: "sp1", cell: { x: 4, y: 1 } }],
       globalSquadSpawn: { cell: { x: 1, y: 1 } },
-      globalExtraction: { cell: { x: 4, y: 1 } },
-      globalObjectives: [{ id: "obj1", kind: "Recover", cell: { x: 1, y: 0 } }],
+      globalExtraction: { cell: { x: 7, y: 1 } },
+      globalObjectives: [{ id: "obj1", kind: "Recover", cell: { x: 10, y: 1 } }],
     };
 
     const map = MapGenerator.assemble(assembly, SpaceHulkTiles);

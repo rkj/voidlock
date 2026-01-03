@@ -321,205 +321,205 @@ export class TreeShipGenerator {
   }
 
   private placeFeatures(spawnPointCount: number) {
-    const floors = this.cells.filter((c) => c.type === CellType.Floor);
-    if (floors.length === 0) return;
+    let floors = this.cells.filter((c) => c.type === CellType.Floor);
+    if (floors.length < 3) {
+      const points = [
+        { x: Math.floor(this.width / 2), y: Math.floor(this.height / 2) },
+        { x: Math.floor(this.width / 2), y: Math.floor(this.height / 2) - 1 },
+        { x: Math.floor(this.width / 2), y: Math.floor(this.height / 2) + 1 },
+        { x: Math.floor(this.width / 2) - 1, y: Math.floor(this.height / 2) },
+        { x: Math.floor(this.width / 2) + 1, y: Math.floor(this.height / 2) },
+      ];
+      for (const p of points) {
+        if (p.x >= 0 && p.x < this.width && p.y >= 0 && p.y < this.height) {
+          this.setFloor(p.x, p.y);
+          if (
+            p.x !== Math.floor(this.width / 2) ||
+            p.y !== Math.floor(this.height / 2)
+          ) {
+            const dx = p.x - Math.floor(this.width / 2);
+            const dy = p.y - Math.floor(this.height / 2);
+            if (dx > 0) this.openWall(p.x, p.y, "w");
+            else if (dx < 0) this.openWall(p.x, p.y, "e");
+            else if (dy > 0) this.openWall(p.x, p.y, "n");
+            else if (dy < 0) this.openWall(p.x, p.y, "s");
+          }
+        }
+      }
+      floors = this.cells.filter((c) => c.type === CellType.Floor);
+    }
 
-    // 1. Divide floor cells into quadrants
     const midX = this.width / 2;
     const midY = this.height / 2;
-
     const quadrants: Cell[][] = [[], [], [], []];
-    floors.forEach((c) => {
-      if (c.x < midX && c.y < midY) quadrants[0].push(c);
-      else if (c.x >= midX && c.y < midY) quadrants[1].push(c);
-      else if (c.x < midX && c.y >= midY) quadrants[2].push(c);
-      else quadrants[3].push(c);
-    });
+    const getQuadIdx = (c: { x: number; y: number }) => {
+      if (c.x < midX && c.y < midY) return 0;
+      if (c.x >= midX && c.y < midY) return 1;
+      if (c.x < midX && c.y >= midY) return 2;
+      return 3;
+    };
+    floors.forEach((c) => quadrants[getQuadIdx(c)].push(c));
 
-    // 2. Pick Squad Spawn quadrant
     const nonEmptyQuads = quadrants
       .map((q, i) => ({ q, i }))
-      .filter((obj) => obj.q.length > 0);
-    if (nonEmptyQuads.length === 0) return;
-
+      .filter((o) => o.q.length > 0);
     const squadQuadIdx =
       nonEmptyQuads[this.prng.nextInt(0, nonEmptyQuads.length - 1)].i;
     const squadQuad = quadrants[squadQuadIdx];
 
-    // Pick TWO distinct entrance points in the same quadrant but different rooms
-    const roomsInQuad = new Map<string, Cell[]>();
-    squadQuad.forEach((c) => {
-      if (c.roomId) {
-        if (!roomsInQuad.has(c.roomId)) roomsInQuad.set(c.roomId, []);
-        roomsInQuad.get(c.roomId)!.push(c);
-      }
-    });
-
-    const roomIds = Array.from(roomsInQuad.keys()).filter((id) =>
-      id.startsWith("room-"),
-    );
-
-    if (roomIds.length >= 2) {
-      this.prng.shuffle(roomIds);
-      const r1 = roomIds[0];
-      const r2 = roomIds[1];
-      const r1Cells = roomsInQuad.get(r1)!;
-      const r2Cells = roomsInQuad.get(r2)!;
-      const c1 = r1Cells[this.prng.nextInt(0, r1Cells.length - 1)];
-      const c2 = r2Cells[this.prng.nextInt(0, r2Cells.length - 1)];
-      this.squadSpawns = [
-        { x: c1.x, y: c1.y },
-        { x: c2.x, y: c2.y },
-      ];
-      this.squadSpawn = this.squadSpawns[0];
-    } else {
-      const roomCellsInQuad = squadQuad.filter(
-        (c) => c.roomId && c.roomId.startsWith("room-"),
-      );
-      if (roomCellsInQuad.length > 0) {
-        const squadCell =
-          roomCellsInQuad[this.prng.nextInt(0, roomCellsInQuad.length - 1)];
-        this.squadSpawn = { x: squadCell.x, y: squadCell.y };
-        this.squadSpawns = [this.squadSpawn];
-      } else {
-        const allRoomCells = floors.filter(
-          (c) => c.roomId && c.roomId.startsWith("room-"),
-        );
-        if (allRoomCells.length > 0) {
-          const squadCell =
-            allRoomCells[this.prng.nextInt(0, allRoomCells.length - 1)];
-          this.squadSpawn = { x: squadCell.x, y: squadCell.y };
-          this.squadSpawns = [this.squadSpawn];
-        } else {
-          const squadCell =
-            floors[this.prng.nextInt(0, floors.length - 1)];
-          this.squadSpawn = { x: squadCell.x, y: squadCell.y };
-          this.squadSpawns = [this.squadSpawn];
+    const getRoomsInCells = (cells: Cell[]) => {
+      const roomMap = new Map<string, Cell[]>();
+      cells.forEach((c) => {
+        if (c.roomId && !c.roomId.startsWith("corridor-")) {
+          if (!roomMap.has(c.roomId)) roomMap.set(c.roomId, []);
+          roomMap.get(c.roomId)!.push(c);
         }
+      });
+      return roomMap;
+    };
+
+    // 1. Squad Spawns
+    const roomsInSquadQuadMap = getRoomsInCells(squadQuad);
+    const squadRoomIds = Array.from(roomsInSquadQuadMap.keys());
+    this.prng.shuffle(squadRoomIds);
+
+    if (squadRoomIds.length >= 2) {
+      const c1 = roomsInSquadQuadMap.get(squadRoomIds[0])![0];
+      const c2 = roomsInSquadQuadMap.get(squadRoomIds[1])![0];
+      this.squadSpawn = c1;
+      this.squadSpawns = [c1, c2];
+      this.placementValidator.occupy(c1, OccupantType.SquadSpawn, c1.roomId);
+      this.placementValidator.occupy(c2, OccupantType.SquadSpawn, c2.roomId);
+    } else {
+      const available = squadQuad.filter((c) => !this.placementValidator.isCellOccupied(c));
+      this.prng.shuffle(available);
+      const c1 = available.length > 0 ? available[0] : squadQuad[0];
+      const r1 = `room-forced-squad1-${c1.x}-${c1.y}`;
+      c1.roomId = r1;
+      this.squadSpawn = c1;
+      this.placementValidator.occupy(c1, OccupantType.SquadSpawn, r1);
+
+      if (available.length > 1) {
+        const c2 = available[1];
+        const r2 = `room-forced-squad2-${c2.x}-${c2.y}`;
+        c2.roomId = r2;
+        this.squadSpawns = [c1, c2];
+        this.placementValidator.occupy(c2, OccupantType.SquadSpawn, r2);
+      } else {
+        this.squadSpawns = [c1];
       }
     }
 
-    if (this.squadSpawns) {
-      this.squadSpawns.forEach((ss) =>
-        this.placementValidator.occupy(ss, OccupantType.SquadSpawn),
-      );
-    }
-
-    // 3. Pick Extraction quadrant (opposite if possible)
+    // 2. Extraction Point
     const oppositeMap: Record<number, number> = { 0: 3, 3: 0, 1: 2, 2: 1 };
     let extQuadIdx = oppositeMap[squadQuadIdx];
-
     if (quadrants[extQuadIdx].length === 0) {
       let maxDist = -1;
-      nonEmptyQuads.forEach((obj) => {
+      nonEmptyQuads.forEach((o) => {
         const dist =
-          Math.abs((obj.i % 2) - (squadQuadIdx % 2)) +
-          Math.abs(Math.floor(obj.i / 2) - Math.floor(squadQuadIdx / 2));
+          Math.abs((o.i % 2) - (squadQuadIdx % 2)) +
+          Math.abs(Math.floor(o.i / 2) - Math.floor(squadQuadIdx / 2));
         if (dist > maxDist) {
           maxDist = dist;
-          extQuadIdx = obj.i;
+          extQuadIdx = o.i;
         }
       });
     }
-
     const extQuad = quadrants[extQuadIdx];
-    const extIdx = this.prng.nextInt(0, extQuad.length - 1);
-    const extCell = extQuad[extIdx];
-    this.extraction = { x: extCell.x, y: extCell.y };
-    this.placementValidator.occupy(this.extraction, OccupantType.Extraction);
+    const roomsInExtQuadMap = getRoomsInCells(extQuad);
+    const extRoomIds = Array.from(roomsInExtQuadMap.keys()).filter(
+      (rid) => !this.placementValidator.isRoomOccupied(rid)
+    );
 
-    // 4. Enemy spawns
-    const squadRoomIds = new Set<string>();
-    if (this.squadSpawns) {
-      this.squadSpawns.forEach((ss) => {
-        const cell = this.getCell(ss.x, ss.y);
-        if (cell?.roomId) squadRoomIds.add(cell.roomId);
-      });
+    if (extRoomIds.length > 0) {
+      const rid = extRoomIds[this.prng.nextInt(0, extRoomIds.length - 1)];
+      const c = roomsInExtQuadMap.get(rid)![0];
+      this.extraction = c;
+      this.placementValidator.occupy(c, OccupantType.Extraction, rid);
+    } else {
+      const available = extQuad.filter((c) => !this.placementValidator.isCellOccupied(c));
+      const c = available.length > 0 ? available[0] : extQuad[0];
+      const rid = `room-forced-ext-${c.x}-${c.y}`;
+      c.roomId = rid;
+      this.extraction = c;
+      this.placementValidator.occupy(c, OccupantType.Extraction, rid);
     }
 
-    const roomMap = new Map<string, Cell[]>();
-    floors.forEach((c) => {
-      if (c.roomId && c.roomId.startsWith("room-")) {
-        if (!roomMap.has(c.roomId)) roomMap.set(c.roomId, []);
-        roomMap.get(c.roomId)!.push(c);
-      }
-    });
+    // 3. Enemy Spawns
+    const allRoomsMap = getRoomsInCells(floors);
+    const otherRoomIds = Array.from(allRoomsMap.keys()).filter(
+      (rid) => !this.placementValidator.isRoomOccupied(rid)
+    );
+    this.prng.shuffle(otherRoomIds);
 
-    const otherRooms = Array.from(roomMap.entries())
-      .filter(([rid, _cells]) => !squadRoomIds.has(rid))
-      .map(([_rid, cells]) => cells);
+    let enemiesPlaced = 0;
+    while (otherRoomIds.length > 0 && enemiesPlaced < spawnPointCount) {
+      const rid = otherRoomIds.pop()!;
+      const c = allRoomsMap.get(rid)![0];
+      this.spawnPoints.push({
+        id: `spawn-${enemiesPlaced + 1}`,
+        pos: { x: c.x, y: c.y },
+        radius: 1,
+      });
+      this.placementValidator.occupy(c, OccupantType.EnemySpawn, rid);
+      enemiesPlaced++;
+    }
 
-    this.prng.shuffle(otherRooms);
-
-    let enemySpawnsPlaced = 0;
-    for (
-      let i = 0;
-      i < otherRooms.length && enemySpawnsPlaced < spawnPointCount;
-      i++
-    ) {
-      const r = otherRooms[i];
-      const spIdx = this.prng.nextInt(0, r.length - 1);
-      const sp = r[spIdx];
-      if (this.placementValidator.occupy(sp, OccupantType.EnemySpawn)) {
+    if (enemiesPlaced < spawnPointCount) {
+      const available = floors.filter((c) => !this.placementValidator.isCellOccupied(c));
+      this.prng.shuffle(available);
+      for (const c of available) {
+        if (enemiesPlaced >= spawnPointCount) break;
+        const rid = `room-forced-enemy-${enemiesPlaced}-${c.x}-${c.y}`;
+        c.roomId = rid;
         this.spawnPoints.push({
-          id: `spawn-${enemySpawnsPlaced + 1}`,
-          pos: { x: sp.x, y: sp.y },
+          id: `spawn-${enemiesPlaced + 1}`,
+          pos: { x: c.x, y: c.y },
           radius: 1,
         });
-        enemySpawnsPlaced++;
-      } else {
-        const available = r.find(
-          (c) => !this.placementValidator.isCellOccupied(c),
-        );
-        if (
-          available &&
-          this.placementValidator.occupy(available, OccupantType.EnemySpawn)
-        ) {
-          this.spawnPoints.push({
-            id: `spawn-${enemySpawnsPlaced + 1}`,
-            pos: { x: available.x, y: available.y },
-            radius: 1,
-          });
-          enemySpawnsPlaced++;
-        }
+        this.placementValidator.occupy(c, OccupantType.EnemySpawn, rid);
+        enemiesPlaced++;
       }
     }
 
-    // 5. Objectives
-    const referencePos = this.squadSpawn!;
-    const objectiveCandidates = floors.filter((c) => {
-      if (!c.roomId || !c.roomId.startsWith("room-")) return false;
-      if (squadRoomIds.has(c.roomId)) return false;
-      return (
-        Math.abs(c.x - referencePos.x) + Math.abs(c.y - referencePos.y) > 5
-      );
-    });
+    if (enemiesPlaced === 0 && spawnPointCount > 0) {
+      const available = floors.find((c) => !this.placementValidator.isCellOccupied(c)) || floors[floors.length - 1];
+      const rid = `room-forced-enemy-fallback-${available.x}-${available.y}`;
+      available.roomId = rid;
+      this.spawnPoints.push({ id: `spawn-1`, pos: { x: available.x, y: available.y }, radius: 1 });
+      this.placementValidator.occupy(available, OccupantType.EnemySpawn, rid, false);
+    }
 
-    if (objectiveCandidates.length > 0) {
-      const objIdx = this.prng.nextInt(0, objectiveCandidates.length - 1);
-      const objCell = objectiveCandidates[objIdx];
-      if (this.placementValidator.occupy(objCell, OccupantType.Objective)) {
+    // 4. Objectives
+    const remainingRoomIds = Array.from(allRoomsMap.keys()).filter(
+      (rid) => !this.placementValidator.isRoomOccupied(rid)
+    );
+    this.prng.shuffle(remainingRoomIds);
+
+    if (remainingRoomIds.length > 0) {
+      const rid = remainingRoomIds[0];
+      const c = allRoomsMap.get(rid)![0];
+      this.objectives.push({
+        id: "obj-1",
+        kind: "Recover",
+        targetCell: { x: c.x, y: c.y },
+        state: "Pending",
+      });
+      this.placementValidator.occupy(c, OccupantType.Objective, rid);
+    } else {
+      const available = floors.filter((c) => !this.placementValidator.isCellOccupied(c));
+      this.prng.shuffle(available);
+      if (available.length > 0) {
+        const c = available[0];
+        const rid = `room-forced-obj-${c.x}-${c.y}`;
+        c.roomId = rid;
         this.objectives.push({
           id: "obj-1",
           kind: "Recover",
-          targetCell: { x: objCell.x, y: objCell.y },
+          targetCell: { x: c.x, y: c.y },
           state: "Pending",
         });
-      } else {
-        const available = objectiveCandidates.find(
-          (c) => !this.placementValidator.isCellOccupied(c),
-        );
-        if (
-          available &&
-          this.placementValidator.occupy(available, OccupantType.Objective)
-        ) {
-          this.objectives.push({
-            id: "obj-1",
-            kind: "Recover",
-            targetCell: { x: available.x, y: available.y },
-            state: "Pending",
-          });
-        }
+        this.placementValidator.occupy(c, OccupantType.Objective, rid);
       }
     }
   }

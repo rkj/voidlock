@@ -13,6 +13,7 @@ export enum OccupantType {
  */
 export class PlacementValidator {
   private occupiedCells: Map<string, OccupantType> = new Map();
+  private occupiedRooms: Map<string, OccupantType> = new Map();
 
   private getCellKey(pos: Vector2): string {
     return `${pos.x},${pos.y}`;
@@ -26,6 +27,14 @@ export class PlacementValidator {
   }
 
   /**
+   * Checks if a room is already occupied.
+   */
+  public isRoomOccupied(roomId: string): boolean {
+    if (!roomId || roomId.startsWith("corridor-")) return false;
+    return this.occupiedRooms.has(roomId);
+  }
+
+  /**
    * Returns the type of occupant in a cell, or undefined if empty.
    */
   public getOccupantType(pos: Vector2): OccupantType | undefined {
@@ -33,29 +42,46 @@ export class PlacementValidator {
   }
 
   /**
-   * Attempts to occupy a cell with a specific entity type.
-   * Returns true if successful, false if the cell is already occupied.
+   * Attempts to occupy a cell and its room with a specific entity type.
+   * Returns true if successful, false if the cell or room is already occupied by a DIFFERENT type.
    */
-  public occupy(pos: Vector2, type: OccupantType): boolean {
+  public occupy(
+    pos: Vector2,
+    type: OccupantType,
+    roomId?: string,
+    enforceRoomExclusivity: boolean = true,
+  ): boolean {
     if (this.isCellOccupied(pos)) {
       return false;
     }
+
+    if (enforceRoomExclusivity && roomId && this.isRoomOccupied(roomId)) {
+      // Allow multiple occupants of the same type in the same room (e.g. multiple squad spawns)
+      if (this.occupiedRooms.get(roomId) !== type) {
+        return false;
+      }
+    }
+
     this.occupiedCells.set(this.getCellKey(pos), type);
+    if (roomId && !roomId.startsWith("corridor-")) {
+      this.occupiedRooms.set(roomId, type);
+    }
     return true;
   }
 
   /**
-   * Removes an occupant from a cell.
+   * Removes an occupant from a cell. Note: does not fully release the room.
    */
   public release(pos: Vector2): void {
     this.occupiedCells.delete(this.getCellKey(pos));
   }
 
   /**
-   * Clears all occupied cells.
+   * Clears all occupied cells and rooms.
    */
   public clear(): void {
     this.occupiedCells.clear();
+    this.occupiedRooms.clear();
   }
 
   /**
