@@ -264,6 +264,35 @@ export class MapGenerator {
             `Extraction point at (${extraction.x}, ${extraction.y}) is not on a Floor cell.`,
           );
         }
+        if (!cell.roomId || cell.roomId.startsWith("corridor-")) {
+          issues.push(
+            `Extraction point at (${extraction.x}, ${extraction.y}) must be in a room, not a corridor.`,
+          );
+        }
+      }
+    }
+
+    if (map.objectives) {
+      for (const obj of map.objectives) {
+        if (obj.targetCell) {
+          if (!isWithinBounds(obj.targetCell.x, obj.targetCell.y)) {
+            issues.push(
+              `Objective ${obj.id} at (${obj.targetCell.x}, ${obj.targetCell.y}) is out of map bounds.`,
+            );
+          } else {
+            const cell = graph.cells[obj.targetCell.y][obj.targetCell.x];
+            if (cell.type !== CellType.Floor) {
+              issues.push(
+                `Objective ${obj.id} at (${obj.targetCell.x}, ${obj.targetCell.y}) is not on a Floor cell.`,
+              );
+            }
+            if (!cell.roomId || cell.roomId.startsWith("corridor-")) {
+              issues.push(
+                `Objective ${obj.id} at (${obj.targetCell.x}, ${obj.targetCell.y}) must be in a room, not a corridor.`,
+              );
+            }
+          }
+        }
       }
     }
 
@@ -310,7 +339,7 @@ export class MapGenerator {
       }
     }
 
-    // Mutually exclusive rooms for squad and enemy spawns
+    // Mutually exclusive rooms for major entities and objectives
     const enemySpawnRooms = new Set<string>();
     if (spawnPoints) {
       for (const sp of spawnPoints) {
@@ -335,11 +364,62 @@ export class MapGenerator {
       }
     }
 
+    let extractionRoomId: string | undefined;
+    if (extraction && isWithinBounds(extraction.x, extraction.y)) {
+      const cell = graph.cells[extraction.y][extraction.x];
+      extractionRoomId = cell.roomId;
+    }
+
+    const objectiveRoomIds = new Set<string>();
+    if (map.objectives) {
+      for (const obj of map.objectives) {
+        if (
+          obj.targetCell &&
+          isWithinBounds(obj.targetCell.x, obj.targetCell.y)
+        ) {
+          const cell = graph.cells[obj.targetCell.y][obj.targetCell.x];
+          if (cell.roomId) objectiveRoomIds.add(cell.roomId);
+        }
+      }
+    }
+
+    // Major Entity mutual exclusivity
     for (const roomId of squadSpawnRooms) {
       if (enemySpawnRooms.has(roomId)) {
         issues.push(
           `Squad and Enemy spawn points share the same room: ${roomId}`,
         );
+      }
+      if (extractionRoomId === roomId) {
+        issues.push(`Squad spawn and Extraction share the same room: ${roomId}`);
+      }
+      if (objectiveRoomIds.has(roomId)) {
+        issues.push(`Squad spawn and Objective share the same room: ${roomId}`);
+      }
+    }
+
+    for (const roomId of enemySpawnRooms) {
+      if (extractionRoomId === roomId) {
+        issues.push(
+          `Enemy spawn and Extraction share the same room: ${roomId}`,
+        );
+      }
+    }
+
+    // Objective isolation on large maps
+    const isSmallMap = width * height <= 25;
+    if (!isSmallMap) {
+      for (const roomId of objectiveRoomIds) {
+        if (enemySpawnRooms.has(roomId)) {
+          issues.push(
+            `Objective and Enemy spawn share the same room on large map: ${roomId}`,
+          );
+        }
+        if (extractionRoomId === roomId) {
+          issues.push(
+            `Objective and Extraction share the same room on large map: ${roomId}`,
+          );
+        }
       }
     }
 

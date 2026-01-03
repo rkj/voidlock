@@ -31,8 +31,9 @@ A mission run can be perfectly reproduced by re-initializing the engine with the
 - `generators/`: Specific map generation algorithms (e.g., `SpaceshipGenerator`, `TreeShipGenerator`).
 - `managers/`: Modules that handle specific aspects of the game (Unit, Enemy, Door, Visibility, Mission, Command).
 - `tests/`: Comprehensive test suite for the engine.
+    - `regression_x81g_map_placement_fuzz.test.ts`: Fuzz test (100 seeds) verifying strict entity placement rules across varying map sizes (3x3 to 10x10).
 
-## Functionality
+## Testing Strategy
 
 - **Deterministic Simulation**: The engine uses a seeded `PRNG` to ensure reproducible game runs.
 - **Tick-based Loop**: The simulation progresses in discrete time steps (ticks). It supports time scaling (0.05x to 5.0x), with all game logic (movement, threat growth, timed actions) following the scaled game time. When the game is paused (timeScale = 0), the simulation stops updating completely.
