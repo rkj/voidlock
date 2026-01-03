@@ -9,9 +9,7 @@ import {
   PickupCommand,
   Door,
   Enemy,
-  WeaponLibrary,
   ItemLibrary,
-  ArchetypeLibrary,
   AIProfile,
 } from "../../shared/types";
 import { GameGrid } from "../GameGrid";
@@ -20,12 +18,16 @@ import { LineOfSight } from "../LineOfSight";
 import { VipAI } from "../ai/VipAI";
 import { PRNG } from "../../shared/PRNG";
 import { LootManager } from "./LootManager";
+import { StatsManager } from "./StatsManager";
+import { MovementManager } from "./MovementManager";
 
 const EPSILON = 0.05;
 
 export class UnitManager {
   private vipAi: VipAI;
   private totalFloorCells: number;
+  private statsManager: StatsManager;
+  private movementManager: MovementManager;
 
   constructor(
     private gameGrid: GameGrid,
@@ -38,6 +40,12 @@ export class UnitManager {
       .getGraph()
       .cells.flat()
       .filter((c) => c.type === "Floor").length;
+    this.statsManager = new StatsManager();
+    this.movementManager = new MovementManager(gameGrid);
+  }
+
+  public recalculateStats(unit: Unit) {
+    this.statsManager.recalculateStats(unit);
   }
 
   public update(
@@ -111,7 +119,7 @@ export class UnitManager {
       const perp = { x: -heading.y, y: heading.x };
 
       escorts.forEach((escort, index) => {
-        this.recalculateStats(escort);
+        this.statsManager.recalculateStats(escort);
         let formationOffset = { x: 0, y: 0 };
         if (index === 0) {
           // Vanguard
@@ -212,7 +220,7 @@ export class UnitManager {
       if (unit.state === UnitState.Extracted || unit.state === UnitState.Dead)
         return;
 
-      this.updateActiveWeapon(unit, state, newVisibleCellsSet);
+      this.statsManager.updateActiveWeapon(unit, state, newVisibleCellsSet);
 
       // Apply escort speed and target cell if applicable
       const eData = escortData.get(unit.id);
@@ -304,7 +312,7 @@ export class UnitManager {
                 obj.state = "Completed";
                 if (obj.id.startsWith("artifact")) {
                   unit.carriedObjectiveId = obj.id;
-                  this.recalculateStats(unit);
+                  this.statsManager.recalculateStats(unit);
                 }
               }
             }
@@ -319,7 +327,7 @@ export class UnitManager {
               if (loot) {
                 if (loot.objectiveId) {
                   unit.carriedObjectiveId = loot.objectiveId;
-                  this.recalculateStats(unit);
+                  this.statsManager.recalculateStats(unit);
                 } else {
                   // Regular item
                   const itemId = loot.itemId;
@@ -1041,7 +1049,7 @@ export class UnitManager {
         if (isLockedInMelee) {
           unit.state = UnitState.Attacking;
         } else if (!isAttacking) {
-          this.handleMovement(unit, dt, doors);
+          this.movementManager.handleMovement(unit, dt, doors);
         } else {
           // If we are RUSHing or RETREATing, we SHOULD be allowed to move while attacking
           if (
@@ -1049,7 +1057,7 @@ export class UnitManager {
             unit.aiProfile === "RETREAT" ||
             unit.activeCommand?.type === CommandType.ESCORT_UNIT
           ) {
-            this.handleMovement(unit, dt, doors);
+            this.movementManager.handleMovement(unit, dt, doors);
             // Ensure state reflects attacking if we moved while attacking
             if (unit.state === UnitState.Moving) {
               unit.state = UnitState.Attacking;
@@ -1071,60 +1079,6 @@ export class UnitManager {
         }
       }
     });
-  }
-
-  private handleMovement(unit: Unit, dt: number, doors: Map<string, Door>) {
-    if (!unit.targetPos || !unit.path) return;
-
-    const dx = unit.targetPos.x - unit.pos.x;
-    const dy = unit.targetPos.y - unit.pos.y;
-    const dist = Math.sqrt(dx * dx + dy * dy);
-
-    const moveDist = ((unit.stats.speed / 10) * dt) / 1000;
-
-    const currentCell = {
-      x: Math.floor(unit.pos.x),
-      y: Math.floor(unit.pos.y),
-    };
-    const nextCell = {
-      x: Math.floor(unit.targetPos.x),
-      y: Math.floor(unit.targetPos.y),
-    };
-
-    if (
-      (currentCell.x !== nextCell.x || currentCell.y !== nextCell.y) &&
-      !this.gameGrid.canMove(
-        currentCell.x,
-        currentCell.y,
-        nextCell.x,
-        nextCell.y,
-        doors,
-        false,
-      )
-    ) {
-      unit.state = UnitState.WaitingForDoor;
-    } else if (dist <= moveDist + EPSILON) {
-      unit.pos = { ...unit.targetPos };
-      unit.path.shift();
-
-      if (unit.path.length === 0) {
-        unit.path = undefined;
-        unit.targetPos = undefined;
-        unit.state = UnitState.Idle;
-        if (unit.activeCommand?.type === CommandType.MOVE_TO) {
-          unit.activeCommand = undefined;
-        }
-      } else {
-        unit.targetPos = {
-          x: unit.path[0].x + 0.5 + (unit.visualJitter?.x || 0),
-          y: unit.path[0].y + 0.5 + (unit.visualJitter?.y || 0),
-        };
-      }
-    } else {
-      unit.pos.x += (dx / dist) * moveDist;
-      unit.pos.y += (dy / dist) * moveDist;
-      unit.state = UnitState.Moving;
-    }
   }
 
   public executeCommand(
@@ -1350,107 +1304,6 @@ export class UnitManager {
           }
         }
       }
-    }
-  }
-
-  public recalculateStats(unit: Unit) {
-    const arch = ArchetypeLibrary[unit.archetypeId];
-    if (!arch) return;
-
-    let hpBonus = 0;
-    let speedBonus = 0;
-    let equipmentAccuracyBonus = 0;
-
-    const slots = [unit.body, unit.feet, unit.rightHand, unit.leftHand];
-    slots.forEach((itemId) => {
-      if (itemId) {
-        const item = ItemLibrary[itemId];
-        if (item) {
-          hpBonus += item.hpBonus || 0;
-          speedBonus += item.speedBonus || 0;
-          equipmentAccuracyBonus += item.accuracyBonus || 0;
-        }
-      }
-    });
-
-    // Apply carried objective (artifact) burden
-    if (unit.carriedObjectiveId) {
-      // For now all carried objectives are assumed to be "artifact_heavy"
-      const item = ItemLibrary["artifact_heavy"];
-      if (item) {
-        speedBonus += item.speedBonus || 0;
-        equipmentAccuracyBonus += item.accuracyBonus || 0;
-      }
-    }
-
-    unit.maxHp = arch.baseHp + hpBonus;
-    unit.stats.speed = arch.speed + speedBonus;
-    unit.stats.equipmentAccuracyBonus = equipmentAccuracyBonus;
-
-    // Update weapon-dependent stats
-    const weaponId = unit.activeWeaponId || unit.rightHand || "";
-    const weapon = WeaponLibrary[weaponId];
-    if (weapon) {
-      unit.stats.damage = weapon.damage;
-      unit.stats.attackRange = weapon.range;
-      unit.stats.accuracy =
-        unit.stats.soldierAim +
-        (weapon.accuracy || 0) +
-        unit.stats.equipmentAccuracyBonus;
-      unit.stats.fireRate =
-        weapon.fireRate * (unit.stats.speed > 0 ? 10 / unit.stats.speed : 1);
-    } else {
-      unit.stats.damage = arch.damage;
-      unit.stats.attackRange = arch.attackRange;
-      unit.stats.accuracy = unit.stats.soldierAim + equipmentAccuracyBonus;
-      unit.stats.fireRate = arch.fireRate;
-    }
-  }
-
-  private updateActiveWeapon(
-    unit: Unit,
-    state: GameState,
-    visibleCells: Set<string>,
-  ) {
-    if (!unit.rightHand && !unit.leftHand) return;
-
-    const visibleEnemies = state.enemies.filter(
-      (enemy) =>
-        enemy.hp > 0 &&
-        visibleCells.has(
-          `${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`,
-        ),
-    );
-
-    const rightWeapon = unit.rightHand
-      ? WeaponLibrary[unit.rightHand]
-      : undefined;
-    const leftWeapon = unit.leftHand ? WeaponLibrary[unit.leftHand] : undefined;
-
-    if (!rightWeapon && !leftWeapon) return;
-
-    let targetWeaponId = unit.activeWeaponId || unit.rightHand || unit.leftHand;
-
-    const enemiesInMelee = visibleEnemies.filter((e) => {
-      const meleeRange =
-        (leftWeapon?.type === "Melee" ? leftWeapon.range : 1) + 0.05;
-      return this.getDistance(unit.pos, e.pos) <= meleeRange;
-    });
-
-    if (enemiesInMelee.length > 0 && leftWeapon?.type === "Melee") {
-      targetWeaponId = unit.leftHand;
-    } else if (rightWeapon) {
-      const enemiesInRanged = visibleEnemies.filter(
-        (e) => this.getDistance(unit.pos, e.pos) <= rightWeapon.range + 0.5,
-      );
-      if (enemiesInRanged.length > 0) {
-        targetWeaponId = unit.rightHand;
-      }
-    }
-
-    if (targetWeaponId && unit.activeWeaponId !== targetWeaponId) {
-      unit.activeWeaponId = targetWeaponId;
-      this.recalculateStats(unit);
     }
   }
 
