@@ -90,7 +90,7 @@ export class Director {
             Math.floor(u.pos.x) === cmd.target!.x &&
             Math.floor(u.pos.y) === cmd.target!.y
           ) {
-            u.hp = Math.min(u.maxHp, u.hp + 50);
+            u.hp = Math.min(u.maxHp, u.hp + (item.healAmount || 50));
           }
         });
       }

@@ -199,6 +199,7 @@ export type Item = {
   action?: "Heal" | "Grenade" | "Mine" | "Scanner";
   charges?: number;
   channelTime?: number; // New: time in ms to use the item
+  healAmount?: number; // New: amount of HP to recover
   cost: number;
 };
 
@@ -227,7 +228,19 @@ export const ItemLibrary: { [id: string]: Item } = {
     action: "Heal",
     charges: 1,
     channelTime: 2000,
+    healAmount: 50,
     cost: 10,
+  },
+  stimpack: {
+    id: "stimpack",
+    name: "Stimpack",
+    type: "Active",
+    description:
+      "A single-use chemical stimulant that provides instant minor healing.",
+    action: "Heal",
+    charges: 1,
+    healAmount: 25,
+    cost: 5,
   },
   mine: {
     id: "mine",
