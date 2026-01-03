@@ -8,6 +8,7 @@ import {
   EscortUnitCommand,
   PickupCommand,
   Door,
+  Enemy,
   WeaponLibrary,
   ItemLibrary,
   ArchetypeLibrary,
@@ -934,7 +935,8 @@ export class UnitManager {
         }
       }
 
-      let enemiesInRange = state.enemies.filter(
+      // 1. Identification: All visible enemies in range
+      const visibleEnemiesInRange = state.enemies.filter(
         (enemy) =>
           enemy.hp > 0 &&
           this.getDistance(unit.pos, enemy.pos) <=
@@ -952,40 +954,60 @@ export class UnitManager {
       );
       const isLockedInMelee = enemiesInSameCell.length > 0;
 
+      // 2. Stickiness: Check if current forcedTarget is still valid
+      let targetEnemy: Enemy | undefined;
       if (unit.forcedTargetId) {
-        const forced = enemiesInRange.find((e) => e.id === unit.forcedTargetId);
-        if (forced) {
-          enemiesInRange = [forced];
+        const sticky = visibleEnemiesInRange.find(
+          (e) => e.id === unit.forcedTargetId,
+        );
+        // Valid if: alive, in range, and HAS LINE OF FIRE
+        if (sticky && this.los.hasLineOfFire(unit.pos, sticky.pos)) {
+          targetEnemy = sticky;
         } else {
-          const isTargetAlive = state.enemies.some(
-            (e) => e.id === unit.forcedTargetId && e.hp > 0,
-          );
-          if (!isTargetAlive) {
-            unit.forcedTargetId = undefined;
-          } else {
-            enemiesInRange = [];
+          unit.forcedTargetId = undefined;
+        }
+      }
+
+      // 3. New Target Acquisition (if no sticky target)
+      if (!targetEnemy && visibleEnemiesInRange.length > 0) {
+        let bestScore = -1;
+        let bestTarget: Enemy | undefined;
+
+        for (const enemy of visibleEnemiesInRange) {
+          if (this.los.hasLineOfFire(unit.pos, enemy.pos)) {
+            const distance = this.getDistance(unit.pos, enemy.pos);
+            // Score = (MaxHP - CurrentHP) + (100 / Distance)
+            const score =
+              enemy.maxHp - enemy.hp + 100 / Math.max(0.1, distance);
+
+            if (score > bestScore) {
+              bestScore = score;
+              bestTarget = enemy;
+            } else if (score === bestScore && bestTarget) {
+              // Tie-breaker: Closest
+              const bestDist = this.getDistance(unit.pos, bestTarget.pos);
+              if (distance < bestDist) {
+                bestTarget = enemy;
+              }
+            }
           }
+        }
+
+        if (bestTarget) {
+          targetEnemy = bestTarget;
+          unit.forcedTargetId = bestTarget.id;
         }
       }
 
       let isAttacking = false;
-      const canAttack = enemiesInRange.length > 0;
       const isMoving = (unit.path && unit.path.length > 0) || !!unit.targetPos;
       const policy = unit.engagementPolicy || "ENGAGE";
 
       if (
         unit.archetypeId !== "vip" &&
-        canAttack &&
-        (policy === "ENGAGE" || !!unit.forcedTargetId || isLockedInMelee)
+        targetEnemy &&
+        (policy === "ENGAGE" || isLockedInMelee)
       ) {
-        let targetEnemy = enemiesInRange[0];
-        if (isLockedInMelee && enemiesInSameCell.length > 0) {
-          const lockingTarget = enemiesInSameCell.find((e) =>
-            enemiesInRange.includes(e),
-          );
-          if (lockingTarget) targetEnemy = lockingTarget;
-        }
-
         if (this.los.hasLineOfFire(unit.pos, targetEnemy.pos)) {
           if (
             !unit.lastAttackTime ||
@@ -1001,6 +1023,7 @@ export class UnitManager {
               targetEnemy.hp -= unit.stats.damage;
               if (targetEnemy.hp <= 0) {
                 unit.kills++;
+                unit.forcedTargetId = undefined; // Clear sticky target on death
               }
             }
 
@@ -1202,17 +1225,6 @@ export class UnitManager {
       if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
         unit.aiEnabled = true;
         // Default exploration behavior will take over in update()
-      }
-    } else if (cmd.type === CommandType.ATTACK_TARGET) {
-      if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
-        unit.forcedTargetId = cmd.targetId;
-        unit.path = undefined;
-        unit.targetPos = undefined;
-
-        if (unit.state === UnitState.Channeling) {
-          unit.channeling = undefined;
-          unit.state = UnitState.Idle;
-        }
       }
     } else if (cmd.type === CommandType.SET_ENGAGEMENT) {
       unit.engagementPolicy = cmd.mode;

@@ -48,7 +48,6 @@ export class CommandHandler {
 
     if (
       cmd.type === CommandType.MOVE_TO ||
-      cmd.type === CommandType.ATTACK_TARGET ||
       cmd.type === CommandType.SET_ENGAGEMENT ||
       cmd.type === CommandType.STOP ||
       cmd.type === CommandType.RESUME_AI ||
@@ -58,8 +57,8 @@ export class CommandHandler {
       cmd.type === CommandType.ESCORT_UNIT ||
       cmd.type === CommandType.EXTRACT
     ) {
-      if (cmd.type === CommandType.ATTACK_TARGET) {
-        const unit = state.units.find((u) => u.id === cmd.unitId);
+      cmd.unitIds.forEach((id) => {
+        const unit = state.units.find((u) => u.id === id);
         if (unit) {
           if (cmd.queue) {
             unit.commandQueue.push(cmd);
@@ -68,19 +67,7 @@ export class CommandHandler {
             this.unitManager.executeCommand(unit, cmd, state, true, this.director);
           }
         }
-      } else {
-        cmd.unitIds.forEach((id) => {
-          const unit = state.units.find((u) => u.id === id);
-          if (unit) {
-            if (cmd.queue) {
-              unit.commandQueue.push(cmd);
-            } else {
-              unit.commandQueue = [];
-              this.unitManager.executeCommand(unit, cmd, state, true, this.director);
-            }
-          }
-        });
-      }
+      });
     }
   }
 }

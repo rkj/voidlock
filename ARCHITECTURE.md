@@ -73,7 +73,7 @@ Sent via `GameClient`.
 - **`INIT`**: Initializes the `CoreEngine`.
   - _Payload_: `{ seed, map, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled, squadConfig, missionType }`
 - **`COMMAND`**: Issues a tactical command to units.
-  - _Payload_: A `Command` object (e.g., `MOVE_TO`, `ATTACK_TARGET`, `SET_ENGAGEMENT`).
+  - _Payload_: A `Command` object (e.g., `MOVE_TO`, `SET_ENGAGEMENT`, `EXPLORE`).
 - **`QUERY_STATE`**: Explicitly requests a state update.
 
 ### 2. Worker -> Main Thread (`MainMessage`)

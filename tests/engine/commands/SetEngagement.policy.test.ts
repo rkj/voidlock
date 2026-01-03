@@ -87,12 +87,12 @@ describe("Command: SET_ENGAGEMENT (Policy Logic)", () => {
     expect(e1?.hp).toBe(100);
   });
 
-  it("should attack if explicitly ordered even if IGNORE", () => {
-    // Force attack
+  it("should attack if policy is changed to ENGAGE", () => {
+    // Change policy to ENGAGE
     engine.applyCommand({
-      type: CommandType.ATTACK_TARGET,
-      unitId: "u1",
-      targetId: "e1",
+      type: CommandType.SET_ENGAGEMENT,
+      unitIds: ["u1"],
+      mode: "ENGAGE",
     });
 
     engine.update(100);
