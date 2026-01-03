@@ -700,7 +700,6 @@ export enum CommandType {
   MOVE_TO = "MOVE_TO",
   OPEN_DOOR = "OPEN_DOOR",
   LOCK_DOOR = "LOCK_DOOR",
-  ATTACK_TARGET = "ATTACK_TARGET",
   SET_ENGAGEMENT = "SET_ENGAGEMENT",
   STOP = "STOP",
   RESUME_AI = "RESUME_AI",
@@ -765,13 +764,6 @@ export type LockDoorCommand = {
   queue?: boolean;
   label?: string;
 };
-export type AttackTargetCommand = {
-  type: CommandType.ATTACK_TARGET;
-  unitId: string;
-  targetId: string;
-  queue?: boolean;
-  label?: string;
-};
 export type SetEngagementCommand = {
   type: CommandType.SET_ENGAGEMENT;
   unitIds: string[];
@@ -825,7 +817,6 @@ export type Command =
   | MoveCommand
   | OpenDoorCommand
   | LockDoorCommand
-  | AttackTargetCommand
   | SetEngagementCommand
   | StopCommand
   | ResumeAiCommand
