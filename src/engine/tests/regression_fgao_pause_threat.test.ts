@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { CoreEngine } from "../CoreEngine";
-import { MapDefinition, MissionType, CellType } from "../../shared/types";
+import { CoreEngine } from "@src/engine/CoreEngine";
+import { MapDefinition, MissionType, CellType } from "@src/shared/types";
 
 describe("Regression fgao: Pause Threat", () => {
   const minimalMap: MapDefinition = {

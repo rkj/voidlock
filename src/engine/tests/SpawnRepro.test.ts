@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { TreeShipGenerator } from "../generators/TreeShipGenerator";
-import { SpaceshipGenerator } from "../generators/SpaceshipGenerator";
-import { DenseShipGenerator } from "../generators/DenseShipGenerator";
+import { TreeShipGenerator } from "@src/engine/generators/TreeShipGenerator";
+import { SpaceshipGenerator } from "@src/engine/generators/SpaceshipGenerator";
+import { DenseShipGenerator } from "@src/engine/generators/DenseShipGenerator";
 
 describe("Spawn Point Count Verification", () => {
   const seed = 12345;

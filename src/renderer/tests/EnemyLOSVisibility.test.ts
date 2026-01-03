@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { Renderer } from "../Renderer";
+import { Renderer } from "@src/renderer/Renderer";
 import {
   GameState,
   MapDefinition,
@@ -7,8 +7,8 @@ import {
   UnitState,
   EnemyType,
   EngineMode,
-} from "../../shared/types";
-import { createMockGameState } from "../../engine/tests/utils/MockFactory";
+} from "@src/shared/types";
+import { createMockGameState } from "@src/engine/tests/utils/MockFactory";
 
 // Mock CanvasRenderingContext2D
 const mockContext = {
@@ -56,7 +56,7 @@ class MockImage {
 }
 vi.stubGlobal("Image", MockImage);
 
-vi.mock("../VisibilityPolygon", () => ({
+vi.mock("@src/renderer/VisibilityPolygon", () => ({
   VisibilityPolygon: {
     compute: vi.fn(() => [
       { x: 0, y: 0 },
@@ -66,7 +66,7 @@ vi.mock("../VisibilityPolygon", () => ({
   },
 }));
 
-import { VisibilityPolygon } from "../VisibilityPolygon";
+import { VisibilityPolygon } from "@src/renderer/VisibilityPolygon";
 
 describe("Enemy LOS Visibility", () => {
   let renderer: Renderer;

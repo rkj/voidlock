@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { Renderer } from "../Renderer";
+import { Renderer } from "@src/renderer/Renderer";
 import {
   GameState,
   MapDefinition,
@@ -7,12 +7,12 @@ import {
   UnitState,
   Objective,
   EnemyType,
-} from "../../shared/types";
+} from "@src/shared/types";
 import {
   createMockUnit,
   createMockEnemy,
   createMockGameState,
-} from "../../engine/tests/utils/MockFactory";
+} from "@src/engine/tests/utils/MockFactory";
 
 // Mock HTMLCanvasElement
 const mockCanvas = {

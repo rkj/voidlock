@@ -1,12 +1,12 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { EquipmentScreen } from "../EquipmentScreen";
+import { EquipmentScreen } from "@src/renderer/screens/EquipmentScreen";
 import {
   SquadConfig,
   ArchetypeLibrary,
   ItemLibrary,
   WeaponLibrary,
-} from "../../../shared/types";
+} from "@src/shared/types";
 
 describe("EquipmentScreen", () => {
   let container: HTMLElement;

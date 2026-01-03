@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { CoreEngine } from "../CoreEngine";
+import { CoreEngine } from "@src/engine/CoreEngine";
 import {
   MissionType,
   UnitState,
   CellType,
   MapDefinition,
   SquadConfig,
-} from "../../shared/types";
+} from "@src/shared/types";
 
 describe("Mission Win/Loss Conditions", () => {
   const mockMap: MapDefinition = {

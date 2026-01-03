@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { CoreEngine } from "../../engine/CoreEngine";
-import { GameGrid } from "../../engine/GameGrid";
+import { CoreEngine } from "@src/engine/CoreEngine";
+import { GameGrid } from "@src/engine/GameGrid";
 import {
   MapDefinition,
   CellType,
@@ -14,8 +14,8 @@ import {
   Objective,
   EnemyType,
   AIProfile,
-} from "../../shared/types";
-import { Pathfinder } from "../../engine/Pathfinder";
+} from "@src/shared/types";
+import { Pathfinder } from "@src/engine/Pathfinder";
 
 describe("CoreEngine with Objectives and Game Loop", () => {
   let engine: CoreEngine;

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { PRNG } from "../PRNG";
+import { PRNG } from "@src/shared/PRNG";
 
 describe("PRNG", () => {
   it("should be deterministic with the same seed", () => {

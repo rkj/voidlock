@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { CampaignManager } from "../../managers/CampaignManager";
+import { CampaignManager } from "@src/engine/managers/CampaignManager";
 import {
   MissionReport,
   STAT_BOOSTS,
   XP_THRESHOLDS,
-} from "../../../shared/campaign_types";
-import { MockStorageProvider } from "../../persistence/MockStorageProvider";
+} from "@src/shared/campaign_types";
+import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 
 describe("Campaign Progression (XP and Leveling)", () => {
   let manager: CampaignManager;

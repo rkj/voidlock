@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { UnitManager } from "../managers/UnitManager";
-import { GameGrid } from "../GameGrid";
-import { Pathfinder } from "../Pathfinder";
-import { LineOfSight } from "../LineOfSight";
-import { PRNG } from "../../shared/PRNG";
-import { LootManager } from "../managers/LootManager";
+import { UnitManager } from "@src/engine/managers/UnitManager";
+import { GameGrid } from "@src/engine/GameGrid";
+import { Pathfinder } from "@src/engine/Pathfinder";
+import { LineOfSight } from "@src/engine/LineOfSight";
+import { PRNG } from "@src/shared/PRNG";
+import { LootManager } from "@src/engine/managers/LootManager";
 import {
   GameState,
   UnitState,
@@ -14,7 +14,7 @@ import {
   Enemy,
   EnemyType,
   MapDefinition,
-} from "../../shared/types";
+} from "@src/shared/types";
 
 describe("UnitManager Combat (15hj)", () => {
   let grid: GameGrid;

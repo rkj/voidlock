@@ -1,18 +1,18 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { HUDManager } from "../HUDManager";
+import { HUDManager } from "@src/renderer/ui/HUDManager";
 import {
   GameState,
   UnitState,
   Unit,
   Enemy,
   EnemyType,
-} from "../../../shared/types";
+} from "@src/shared/types";
 import {
   createMockGameState,
   createMockUnit,
   createMockEnemy,
-} from "../../../engine/tests/utils/MockFactory";
+} from "@src/engine/tests/utils/MockFactory";
 
 describe("HUDManager Stats & Enemy Intel", () => {
   let hud: HUDManager;

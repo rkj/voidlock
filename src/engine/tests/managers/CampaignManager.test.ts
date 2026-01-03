@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { CampaignManager } from "../../managers/CampaignManager";
-import { MissionReport } from "../../../shared/campaign_types";
-import { MockStorageProvider } from "../../persistence/MockStorageProvider";
+import { CampaignManager } from "@src/engine/managers/CampaignManager";
+import { MissionReport } from "@src/shared/campaign_types";
+import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 
 describe("CampaignManager", () => {
   let manager: CampaignManager;

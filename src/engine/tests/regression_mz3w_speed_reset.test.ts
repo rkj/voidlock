@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { GameClient } from "../GameClient";
-import { MapGeneratorType } from "../../shared/types";
+import { GameClient } from "@src/engine/GameClient";
+import { MapGeneratorType } from "@src/shared/types";
 
 // Mock Worker
 const postMessageMock = vi.fn();

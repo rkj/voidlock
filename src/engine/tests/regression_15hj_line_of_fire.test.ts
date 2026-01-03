@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { LineOfSight } from "../LineOfSight";
-import { GameGrid } from "../GameGrid";
-import { MapDefinition, CellType, Door, Cell } from "../../shared/types";
+import { LineOfSight } from "@src/engine/LineOfSight";
+import { GameGrid } from "@src/engine/GameGrid";
+import { MapDefinition, CellType, Door, Cell } from "@src/shared/types";
 
 describe("LineOfFire Regression (15hj)", () => {
   it("should have LOS but NOT LOF through an opening door", () => {

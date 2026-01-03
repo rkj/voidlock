@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { CoreEngine } from "../../engine/CoreEngine";
+import { CoreEngine } from "@src/engine/CoreEngine";
 import {
   MapDefinition,
   UnitState,
   CommandType,
   AIProfile,
   EnemyType,
-} from "../../shared/types";
+} from "@src/shared/types";
 
 describe("Regression OCMI: Innate AI Profiles", () => {
   const mockMap: MapDefinition = {

@@ -1,12 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { MapGenerator } from "../MapGenerator";
+import { MapGenerator } from "@src/engine/MapGenerator";
 import {
   CellType,
   MapDefinition,
   IMapValidationResult,
   Door,
   Vector2,
-} from "../../shared/types";
+} from "@src/shared/types";
 
 describe("MapGenerator", () => {
   it("should generate a map with cells and walls", () => {

@@ -1,12 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { TreeShipGenerator } from "../../generators/TreeShipGenerator";
-import { MapGenerator } from "../../MapGenerator";
-import { MapDefinition, CellType } from "../../../shared/types";
+import { TreeShipGenerator } from "@src/engine/generators/TreeShipGenerator";
+import { MapGenerator } from "@src/engine/MapGenerator";
+import { MapDefinition, CellType } from "@src/shared/types";
 import {
   mapToAdjacencyList,
   hasCycleDFS,
   calculateFillRate,
-} from "../utils/GraphUtils";
+} from "@src/engine/tests/utils/GraphUtils";
 
 describe("TreeShipGenerator 7x7", () => {
   it("should generate a 7x7 map (Seed 42) with sparse fill", async () => {

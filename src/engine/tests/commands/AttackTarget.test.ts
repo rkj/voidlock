@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { CoreEngine } from "../../CoreEngine";
+import { CoreEngine } from "@src/engine/CoreEngine";
 import {
   MapDefinition,
   CellType,
@@ -11,7 +11,7 @@ import {
   ArchetypeLibrary,
   EnemyType,
   AIProfile,
-} from "../../../shared/types";
+} from "@src/shared/types";
 
 describe("Command: ATTACK_TARGET", () => {
   let engine: CoreEngine;

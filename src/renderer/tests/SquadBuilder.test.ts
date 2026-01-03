@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { ArchetypeLibrary, MissionType } from "../../shared/types";
+import { ArchetypeLibrary, MissionType } from "@src/shared/types";
 
 describe("SquadBuilder UI logic", () => {
   let currentSquad: { archetypeId: string; count: number }[] = [];

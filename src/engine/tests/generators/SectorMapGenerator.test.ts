@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { SectorMapGenerator } from "../../generators/SectorMapGenerator";
-import { GameRules } from "../../../shared/campaign_types";
+import { SectorMapGenerator } from "@src/engine/generators/SectorMapGenerator";
+import { GameRules } from "@src/shared/campaign_types";
 
 describe("SectorMapGenerator", () => {
   const defaultRules: GameRules = {

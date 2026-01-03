@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { CoreEngine } from "../CoreEngine";
+import { CoreEngine } from "@src/engine/CoreEngine";
 import {
   MapDefinition,
   CommandType,
   UnitState,
   MissionType,
   CellType,
-} from "../../shared/types";
+} from "@src/shared/types";
 
 describe("Regression 1jmd: Command Queuing", () => {
   let engine: CoreEngine;

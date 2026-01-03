@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { VisibilityPolygon } from "../VisibilityPolygon";
-import { MapDefinition, CellType, Vector2 } from "../../shared/types";
-import { Graph } from "../../engine/Graph";
+import { VisibilityPolygon } from "@src/renderer/VisibilityPolygon";
+import { MapDefinition, CellType, Vector2 } from "@src/shared/types";
+import { Graph } from "@src/engine/Graph";
 
 describe("VisibilityPolygon", () => {
   const createMap = (width: number, height: number): MapDefinition => ({

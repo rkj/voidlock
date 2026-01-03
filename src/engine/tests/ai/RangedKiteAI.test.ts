@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { CoreEngine } from "../../CoreEngine";
+import { CoreEngine } from "@src/engine/CoreEngine";
 import {
   MapDefinition,
   CellType,
   UnitState,
   EnemyType,
   AIProfile,
-} from "../../../shared/types";
+} from "@src/shared/types";
 
 describe("RangedKiteAI", () => {
   let engine: CoreEngine;

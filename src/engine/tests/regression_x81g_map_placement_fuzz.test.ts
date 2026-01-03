@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { MapGenerator } from "../MapGenerator";
-import { MapGeneratorType, MapDefinition, CellType } from "../../shared/types";
-import { Graph } from "../Graph";
+import { MapGenerator } from "@src/engine/MapGenerator";
+import { MapGeneratorType, MapDefinition, CellType } from "@src/shared/types";
+import { Graph } from "@src/engine/Graph";
 
 describe("Map Placement Fuzzing (voidlock-gemini-x81g)", () => {
   const seeds = Array.from({ length: 100 }, (_, i) => i + 1000);

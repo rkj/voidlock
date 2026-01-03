@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   PlacementValidator,
   OccupantType,
-} from "../../generators/PlacementValidator";
+} from "@src/engine/generators/PlacementValidator";
 
 describe("PlacementValidator", () => {
   it("should start with no occupied cells", () => {

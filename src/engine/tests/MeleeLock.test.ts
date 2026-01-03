@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { CoreEngine } from "../CoreEngine";
+import { CoreEngine } from "@src/engine/CoreEngine";
 import {
   MapDefinition,
   CellType,
@@ -9,7 +9,7 @@ import {
   UnitState,
   EnemyType,
   AIProfile,
-} from "../../shared/types";
+} from "@src/shared/types";
 
 const mockMap: MapDefinition = {
   width: 3,

@@ -1,11 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { CoreEngine } from "../CoreEngine";
+import { CoreEngine } from "@src/engine/CoreEngine";
 import {
   MapDefinition,
   CellType,
   SquadConfig,
   MissionType,
-} from "../../shared/types";
+} from "@src/shared/types";
 
 describe("CoreEngine Dual Spawn Splitting", () => {
   it("should split squad members randomly between available squad spawns", () => {

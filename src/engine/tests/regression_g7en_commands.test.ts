@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { CoreEngine } from "../CoreEngine";
+import { CoreEngine } from "@src/engine/CoreEngine";
 import {
   MapDefinition,
   CommandType,
@@ -7,7 +7,7 @@ import {
   MissionType,
   CellType,
   AIProfile,
-} from "../../shared/types";
+} from "@src/shared/types";
 
 describe("New Command Logic: EXPLORE, OVERWATCH, and Agent Control", () => {
   let engine: CoreEngine;

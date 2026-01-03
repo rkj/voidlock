@@ -1,19 +1,19 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { Renderer } from "../Renderer";
+import { Renderer } from "@src/renderer/Renderer";
 import {
   GameState,
   MapDefinition,
   CellType,
   UnitState,
   EnemyType,
-} from "../../shared/types";
+} from "@src/shared/types";
 import {
   createMockUnit,
   createMockEnemy,
   createMockGameState,
-} from "../../engine/tests/utils/MockFactory";
-import { Graph } from "../../engine/Graph";
-import { VisibilityPolygon } from "../VisibilityPolygon";
+} from "@src/engine/tests/utils/MockFactory";
+import { Graph } from "@src/engine/Graph";
+import { VisibilityPolygon } from "@src/renderer/VisibilityPolygon";
 
 // Mock HTMLCanvasElement and Context
 const mockContext = {

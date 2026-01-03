@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { CoreEngine } from "../CoreEngine";
+import { CoreEngine } from "@src/engine/CoreEngine";
 import {
   CommandType,
   GameState,
   MapDefinition,
   CellType,
   EngineMode,
-} from "../../shared/types";
+} from "@src/shared/types";
 
 describe("Global Squad Inventory", () => {
   const mockMap: MapDefinition = {

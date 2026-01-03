@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { WeaponLibrary, ItemLibrary } from "../types";
+import { WeaponLibrary, ItemLibrary } from "@src/shared/types";
 
 describe("Equipment Definitions", () => {
   it("should have all required Melee Weapons with costs", () => {

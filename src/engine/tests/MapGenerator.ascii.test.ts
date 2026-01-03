@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { MapGenerator } from "../MapGenerator";
-import { MapDefinition, CellType, Door, Vector2 } from "../../shared/types";
+import { MapGenerator } from "@src/engine/MapGenerator";
+import { MapDefinition, CellType, Door, Vector2 } from "@src/shared/types";
 
 describe("MapGenerator.toAscii", () => {
   it("should correctly convert a simple MapDefinition to ASCII", () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { SimpleBot } from "../SimpleBot";
+import { SimpleBot } from "@src/harness/SimpleBot";
 import {
   GameState,
   UnitState,
@@ -8,11 +8,11 @@ import {
   MapDefinition,
   Unit,
   Enemy,
-} from "../../shared/types";
+} from "@src/shared/types";
 import {
   createMockUnit,
   createMockGameState,
-} from "../../engine/tests/utils/MockFactory";
+} from "@src/engine/tests/utils/MockFactory";
 
 describe("SimpleBot", () => {
   const mockMap: MapDefinition = {

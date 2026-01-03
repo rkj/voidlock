@@ -1,12 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { CoreEngine } from "../../CoreEngine";
+import { CoreEngine } from "@src/engine/CoreEngine";
 import {
   MapDefinition,
   CellType,
   UnitState,
   CommandType,
   MissionType,
-} from "../../../shared/types";
+} from "@src/shared/types";
 
 describe("Timed Actions (Extraction/Collection)", () => {
   const mockMap: MapDefinition = {

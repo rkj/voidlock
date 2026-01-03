@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { ItemLibrary } from "../../shared/types";
+import { ItemLibrary } from "@src/shared/types";
 
 describe("ItemLibrary", () => {
   it("should contain artifact_heavy with negative stats", () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { CoreEngine } from "../CoreEngine";
+import { CoreEngine } from "@src/engine/CoreEngine";
 import {
   MapDefinition,
   UnitState,
@@ -7,8 +7,8 @@ import {
   MissionType,
   EngineMode,
   CommandType,
-} from "../../shared/types";
-import { createMockUnit, createMockEnemy } from "./utils/MockFactory";
+} from "@src/shared/types";
+import { createMockUnit, createMockEnemy } from "@src/engine/tests/utils/MockFactory";
 
 describe("Regression IHFP: Unit Kill Tracking", () => {
   const mockMap: MapDefinition = {

@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { MapGenerator } from "../MapGenerator";
-import { SpaceshipGenerator } from "../generators/SpaceshipGenerator";
-import { TreeShipGenerator } from "../generators/TreeShipGenerator";
-import { CellType, MapDefinition } from "../../shared/types";
-import { Graph } from "../Graph";
+import { MapGenerator } from "@src/engine/MapGenerator";
+import { SpaceshipGenerator } from "@src/engine/generators/SpaceshipGenerator";
+import { TreeShipGenerator } from "@src/engine/generators/TreeShipGenerator";
+import { CellType, MapDefinition } from "@src/shared/types";
+import { Graph } from "@src/engine/Graph";
 
 describe("MapGenerator Connectivity Guarantee", () => {
   const checkConnectivity = (

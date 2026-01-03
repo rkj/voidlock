@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { DenseShipGenerator } from "../../generators/DenseShipGenerator";
-import { MapGenerator } from "../../MapGenerator";
-import { CellType } from "../../../shared/types";
+import { DenseShipGenerator } from "@src/engine/generators/DenseShipGenerator";
+import { MapGenerator } from "@src/engine/MapGenerator";
+import { CellType } from "@src/shared/types";
 import * as fs from "fs";
 import * as path from "path";
 

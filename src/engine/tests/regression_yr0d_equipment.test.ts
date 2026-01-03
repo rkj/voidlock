@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { CoreEngine } from "../CoreEngine";
-import { MapDefinition, CellType, SquadConfig } from "../../shared/types";
+import { CoreEngine } from "@src/engine/CoreEngine";
+import { MapDefinition, CellType, SquadConfig } from "@src/shared/types";
 
 describe("Equipment System - Passive Buffs", () => {
   const mockMap: MapDefinition = {

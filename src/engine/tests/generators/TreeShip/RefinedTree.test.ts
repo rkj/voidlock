@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { TreeShipGenerator } from "../../../generators/TreeShipGenerator";
-import { CellType } from "../../../../shared/types";
+import { TreeShipGenerator } from "@src/engine/generators/TreeShipGenerator";
+import { CellType } from "@src/shared/types";
 
 describe("TreeShipGenerator (Refined)", () => {
   it("should generate distinct corridors and rooms (visual structure)", () => {

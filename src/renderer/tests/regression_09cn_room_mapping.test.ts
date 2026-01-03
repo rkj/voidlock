@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { MenuController } from "../MenuController";
-import { GameState, UnitState, CellType } from "../../shared/types";
+import { MenuController } from "@src/renderer/MenuController";
+import { GameState, UnitState, CellType } from "@src/shared/types";
 
 describe("MenuController Room Mapping Regression (09cn)", () => {
   let controller: MenuController;

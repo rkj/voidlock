@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { DenseShipGenerator } from "../../generators/DenseShipGenerator";
-import { CellType } from "../../../shared/types";
+import { DenseShipGenerator } from "@src/engine/generators/DenseShipGenerator";
+import { CellType } from "@src/shared/types";
 
 describe("DenseShipGenerator", () => {
   it("should generate a map with >90% fill rate", () => {

@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
-import { LineOfSight } from "../LineOfSight";
-import { GameGrid } from "../GameGrid";
-import { CellType, MapDefinition } from "../../shared/types";
+import { LineOfSight } from "@src/engine/LineOfSight";
+import { GameGrid } from "@src/engine/GameGrid";
+import { CellType, MapDefinition } from "@src/shared/types";
 
 describe("LOS Boundary Logic", () => {
   it("should handle unit exactly on cell boundary", () => {

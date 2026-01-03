@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { CoreEngine } from "../CoreEngine";
-import { MapDefinition, CellType, CommandType } from "../../shared/types";
+import { CoreEngine } from "@src/engine/CoreEngine";
+import { MapDefinition, CellType, CommandType } from "@src/shared/types";
 
 describe("Regression 8b9a: Auto Extraction Discovery", () => {
   it("should NOT automatically order units to extract if the extraction point is undiscovered", () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { CoreEngine } from "../../CoreEngine";
+import { CoreEngine } from "@src/engine/CoreEngine";
 import {
   MapDefinition,
   CellType,
@@ -8,8 +8,8 @@ import {
   SquadConfig,
   Vector2,
   AIProfile,
-} from "../../../shared/types";
-import { GameGrid } from "../../GameGrid";
+} from "@src/shared/types";
+import { GameGrid } from "@src/engine/GameGrid";
 
 describe("Soldier Exploration AI", () => {
   let engine: CoreEngine;

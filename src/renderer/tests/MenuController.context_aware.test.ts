@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { MenuController } from "../MenuController";
-import { CommandType, GameState, UnitState } from "../../shared/types";
-import { createMockGameState } from "../../engine/tests/utils/MockFactory";
+import { MenuController } from "@src/renderer/MenuController";
+import { CommandType, GameState, UnitState } from "@src/shared/types";
+import { createMockGameState } from "@src/engine/tests/utils/MockFactory";
 
 describe("MenuController Context Awareness", () => {
   let controller: MenuController;
