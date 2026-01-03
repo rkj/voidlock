@@ -3,7 +3,7 @@ import { MapGenerator } from "../MapGenerator";
 import { MapGeneratorType, MapDefinition, CellType } from "../../shared/types";
 import { Graph } from "../Graph";
 
-describe("Map Placement Fuzzing (xenopurge-gemini-x81g)", () => {
+describe("Map Placement Fuzzing (voidlock-gemini-x81g)", () => {
   const seeds = Array.from({ length: 100 }, (_, i) => i + 1000);
   const generatorTypes = [
     MapGeneratorType.Procedural,

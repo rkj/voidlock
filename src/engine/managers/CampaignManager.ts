@@ -13,7 +13,7 @@ import { StorageProvider } from "../persistence/StorageProvider";
 import { SectorMapGenerator } from "../generators/SectorMapGenerator";
 import { ArchetypeLibrary } from "../../shared/types";
 
-const STORAGE_KEY = "xenopurge_campaign_v1";
+const STORAGE_KEY = "voidlock_campaign_v1";
 
 /**
  * Orchestrates the strategic layer of the game.

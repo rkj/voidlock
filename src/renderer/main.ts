@@ -652,9 +652,10 @@ document.addEventListener("DOMContentLoaded", () => {
       const blob = new Blob([JSON.stringify(replay, null, 2)], {
         type: "application/json",
       });
+      const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = `xenopurge-replay-${replay.seed}.json`;
+      a.href = url;
+      a.download = `voidlock-replay-${replay.seed}.json`;
       a.click();
       URL.revokeObjectURL(a.href);
     }

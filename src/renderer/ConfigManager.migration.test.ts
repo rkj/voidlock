@@ -9,6 +9,27 @@ describe("ConfigManager Migration", () => {
     vi.restoreAllMocks();
   });
 
+  it("should migrate from 'xenopurge_custom_config'", () => {
+    const oldConfig = {
+      mapWidth: 20,
+      mapHeight: 20,
+      squadConfig: {
+        soldiers: [{ archetypeId: "heavy" }],
+        inventory: { medkit: 5 },
+      },
+    };
+
+    localStorage.setItem("xenopurge_custom_config", JSON.stringify(oldConfig));
+
+    const loadedConfig = ConfigManager.loadCustom();
+    expect(loadedConfig).not.toBeNull();
+    expect(loadedConfig?.mapWidth).toBe(20);
+    expect(loadedConfig?.squadConfig.inventory.medkit).toBe(5);
+    
+    // Should have saved to the new key
+    expect(localStorage.getItem("voidlock_custom_config")).not.toBeNull();
+  });
+
   it("should handle missing soldiers in squadConfig (old format migration)", () => {
     const oldConfig = {
       mapWidth: 14,
