@@ -80,18 +80,20 @@ Soldiers decide _who_ to shoot based on a priority heuristic, removing the need 
 - **Queueing (`Shift` Key):** Holding `Shift` while issuing a command **APPENDS** it to the end of the queue.
 - **Queue Display:** The UI should visualize the queued path/actions.
 
-### 4. Debug & System Commands
+## 5. Debug & System Commands
+
+These commands facilitate testing, balancing, and state reproduction.
 
 | Type | Direction | Payload | Description |
 | :--- | :--- | :--- | :--- |
-| `TOGGLE_DEBUG_OVERLAY` | Main -> Worker | `{ enabled: boolean }` | Toggles debug visualizations and data generation. |
-| `GET_FULL_STATE` | Main -> Worker | `null` | Requests a full dump of the engine state. |
-| `FULL_STATE_DATA` | Worker -> Main | `{ state: GameState, seed: number, history: CommandLogEntry[] }` | The serialized world state. |
+| `TOGGLE_DEBUG_OVERLAY` | Main -> Worker | `{ enabled: boolean }` | Toggles debug visualizations (Coordinates, Raycasts). |
+| `TOGGLE_LOS_OVERLAY` | Main -> Worker | `{ enabled: boolean }` | Toggles Line-of-Sight polygons (Gradients). |
+| `QUERY_STATE` | Main -> Worker | `null` | Requests an immediate state snapshot. |
+| `STATE_UPDATE` | Worker -> Main | `GameState` | The serialized world state, including command history. |
 
-## 5. Determinism & validation
-## 5. UI Interaction & Menu Flow
+## 6. UI Interaction & Menu Flow
 
-### 5.1 Menu Hierarchy
+### 6.1 Menu Hierarchy
 
 **Navigation:** `Q` or `ESC` to Go Back.
 
