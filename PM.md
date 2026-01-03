@@ -58,6 +58,7 @@ To maintain a coherent history and architectural map:
 
 1. **Spec -> ADR:** Specifications should list relevant Architectural Decision Records (ADRs) that define _how_ the feature is implemented.
 1. **ADR -> Spec:** ADRs must link back to the specific Spec file/section they are addressing.
+1. **Behavior Only:** Spec files must describe **BEHAVIOR** only. Do not reference class names, method names, or specific code structures. Move implementation details to ADRs.
 
 - **Beads -> Docs:** Beads tasks must link to both the Spec (for behavior) and the ADR (for implementation details) where applicable.
 

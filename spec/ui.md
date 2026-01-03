@@ -148,19 +148,28 @@ The UI must be optimized for visibility and information density, utilizing the f
 
 ### 8.2 Debug affordances (non-negotiable for balancing)
 
-**Toggle:** `~` (Tilde/Backquote) or Button in Config.
+**Toggle:** `~` (Tilde/Backquote) or "Debug Overlay" checkbox in Mission Setup.
 
 When enabled, the game displays additional diagnostic information:
-- **Map:** Grid coordinates overlaid on cells.
-- **LOS:** Raycast lines showing visibility calculations.
-- **Fog:** Option to disable Fog of War.
-- **HUD:** A "Copy World State" button appears in the Right Panel.
+- **Map Visualization**:
+  - Grid coordinates overlaid on all cells.
+  - **Full Visibility**: Bypasses Fog of War/Shroud visually to show the entire map and all entities.
+- **LOS Diagnostics**:
+  - Raycast lines showing individual visibility checks from units to visible cells.
+- **HUD (Right Panel)**:
+  - A **"Copy World State"** button appears.
+  - Objective coordinates (`at (x,y)`) become visible in the objectives list.
 
 **World State Export:**
-Clicking "Copy World State" requests a full serialization of the engine state (including seed, map definition, unit positions, and command history).
+Clicking "Copy World State" captures a comprehensive snapshot of the session.
 - **Format:** JSON
+- **Contents**:
+  - `replayData`: Seed, Map Definition, Squad Config, and the full Command History.
+  - `currentState`: The full `GameState` object from the engine.
+  - `version`: Engine/Protocol version.
+  - `timestamp`: System time of export.
 - **Destination:** System Clipboard (primary) and Console (fallback).
-- **Usage:** This JSON can be attached to bug reports to reproduce specific states.
+- **Usage:** This JSON can be attached to bug reports or used with "Load Replay" to reproduce exact states.
 
 - **Legacy Requirements:**
   - Navmesh/path display

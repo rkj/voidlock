@@ -85,8 +85,16 @@ Example:
   - Enemy Spawn Point
   - Extraction Point
   - Objective Target
-- **Implementation:** Generators must use a shared `PlacementValidator` logic to track occupied cells during generation and reject candidates that are already occupied.
-- **Validation:** The `validate()` method must return an issue if any of these entities share the same `(x, y)` coordinates.
+- **Room Exclusivity (Strict):**
+  - **Major Entities:** The following entities are considered "Major" and must **NEVER** share a room with each other (in any combination):
+    1. **Squad Spawn** (or Drop Point)
+    2. **Enemy Spawn**
+    3. **Extraction Point**
+  - **Ideal Separation:** Ideally, **Objectives** (Artifacts/Intel/VIP) should also be in their own isolated rooms.
+  - **Small Map Fallback:** On very small maps where room count is limited, **Objectives** MAY share a room with **Enemy Spawns** or **Extraction Points** (if absolutely necessary), but **Squad Spawns** must ALWAYS remain completely isolated (containing only the Squad Spawn).
+- **Validation Strategy:**
+  - This logic is validated via automated testing suites that generate a large volume of maps across various sizes (e.g., 3x3 to 10x10) to ensure compliance.
+  - It is **NOT** a runtime check during normal gameplay generation to avoid performance overhead.
 
 **TreeShipGenerator (Sector Layout) Specifics:**
 The `TreeShipGenerator` produces maps with a structured layout:
