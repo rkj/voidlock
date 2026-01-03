@@ -1,6 +1,6 @@
 # src/engine
 
-This directory contains the core simulation logic for Xenopurge. It follows a deterministic, tick-based approach.
+This directory contains the core simulation logic for Voidlock. It follows a deterministic, tick-based approach.
 
 ## Files
 

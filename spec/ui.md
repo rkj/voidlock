@@ -7,7 +7,7 @@
 The application is divided into distinct screens to reduce UI clutter and improve flow.
 
 1. **Main Menu (Welcome Screen)**
-   - **Title**: "Xenopurge"
+   - **Title**: "Voidlock"
    - **Credits**: Author/Version info.
    - **Navigation**:
      - "Campaign" -> Go to Campaign Screen.

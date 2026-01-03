@@ -4,7 +4,7 @@
 
 ## Context
 
-Xenopurge requires a high-performance tactical display for the game world alongside a complex, interactive User Interface (UI). Attempting to render the entire UI within the same HTML5 Canvas used for the game world leads to several challenges:
+Voidlock requires a high-performance tactical display for the game world alongside a complex, interactive User Interface (UI). Attempting to render the entire UI within the same HTML5 Canvas used for the game world leads to several challenges:
 - **Complexity**: Manual hit-testing and event handling for UI elements on a Canvas is error-prone and difficult to maintain.
 - **Accessibility**: Canvas-based text and buttons are invisible to screen readers and lack native browser features like tooltips and selectable text.
 - **Layout**: Implementing responsive layouts (flexbox, grid) manually in Canvas is significantly more difficult than using standard CSS.

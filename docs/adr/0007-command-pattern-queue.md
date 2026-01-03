@@ -4,7 +4,7 @@
 
 ## Context
 
-To achieve high-fidelity determinism and support both player-driven and AI-driven control, Xenopurge requires a unified interaction model. The engine runs in a separate Web Worker, necessitating a robust message-passing protocol that can be recorded, replayed, and validated.
+To achieve high-fidelity determinism and support both player-driven and AI-driven control, Voidlock requires a unified interaction model. The engine runs in a separate Web Worker, necessitating a robust message-passing protocol that can be recorded, replayed, and validated.
 
 ## Solution
 

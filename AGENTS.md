@@ -1,6 +1,6 @@
-# Xenopurge Contributor Guidelines
+# Voidlock Contributor Guidelines
 
-You are an AI contributor agent working on the Xenopurge project. Your goal is to implement features or fix bugs as instructed by the Manager Agent.
+You are an AI contributor agent working on the Voidlock project. Your goal is to implement features or fix bugs as instructed by the Manager Agent.
 
 ## 1. Core Workflow
 

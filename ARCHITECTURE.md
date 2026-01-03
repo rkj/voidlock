@@ -1,8 +1,8 @@
-# Xenopurge Architecture
+# Voidlock Architecture
 
 ## Overview
 
-Xenopurge is a tactical squad-based game engine designed with a strict separation of concerns between the core simulation logic, the rendering layer, and the content generation. The architecture follows a client-server model (where the "server" is a Web Worker) to ensure deterministic execution and responsive UI.
+Voidlock is a tactical squad-based game engine designed with a strict separation of concerns between the core simulation logic, the rendering layer, and the content generation. The architecture follows a client-server model (where the "server" is a Web Worker) to ensure deterministic execution and responsive UI.
 
 ## Core Modules
 
@@ -92,7 +92,7 @@ The simulation runs at a fixed 100ms tick rate. The `CoreEngine` maintains the a
 
 ## Determinism & Simulation
 
-Xenopurge achieves strict determinism through a fixed-step simulation loop and a seeded Pseudo-Random Number Generator (PRNG).
+Voidlock achieves strict determinism through a fixed-step simulation loop and a seeded Pseudo-Random Number Generator (PRNG).
 
 ### 1. Deterministic Tick Loop
 

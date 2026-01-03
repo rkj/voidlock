@@ -1,6 +1,6 @@
 # src/renderer/ui
 
-This directory contains UI components and managers for the Xenopurge renderer.
+This directory contains UI components and managers for the Voidlock renderer.
 
 ## Files
 

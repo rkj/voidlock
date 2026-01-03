@@ -1,4 +1,4 @@
-# Product Guidelines: Xenopurge
+# Product Guidelines: Voidlock
 
 ## Tone & Voice
 

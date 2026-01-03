@@ -6,7 +6,7 @@
 
 ## 1. Vision & Core Loop
 
-The Campaign Mode transforms Xenopurge into a persistent, roguelite experience. The player assumes the role of a Commander aboard the "Xenopurge," managing a roster of soldiers and navigating a hostile sector to eliminate a Hive Cluster.
+The Campaign Mode transforms Voidlock into a persistent, roguelite experience. The player assumes the role of a Commander aboard the "Voidlock," managing a roster of soldiers and navigating a hostile sector to eliminate a Hive Cluster.
 
 ### 1.1 The "Command Bridge" Loop
 

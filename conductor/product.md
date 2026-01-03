@@ -1,8 +1,8 @@
-# Product Guide: Xenopurge
+# Product Guide: Voidlock
 
 ## Initial Concept
 
-Xenopurge is a deterministic, Real-Time with Pause (RTwP) tactical squad combat game set in a claustrophobic spaceship environment. It combines the strategic depth of classic grid-based tactical games with modern procedural generation and a deterministic simulation engine.
+Voidlock is a deterministic, Real-Time with Pause (RTwP) tactical squad combat game set in a claustrophobic spaceship environment. It combines the strategic depth of classic grid-based tactical games with modern procedural generation and a deterministic simulation engine.
 
 ## Target Audience
 
