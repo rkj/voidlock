@@ -21,8 +21,17 @@ export class CommandHandler {
     if (cmd.type === CommandType.USE_ITEM) {
       const count = state.squadInventory[cmd.itemId] || 0;
       if (count > 0) {
-        state.squadInventory[cmd.itemId] = count - 1;
-        this.director.handleUseItem(state, cmd);
+        cmd.unitIds.forEach((id) => {
+          const unit = state.units.find((u) => u.id === id);
+          if (unit) {
+            if (cmd.queue) {
+              unit.commandQueue.push(cmd);
+            } else {
+              unit.commandQueue = [];
+              this.unitManager.executeCommand(unit, cmd, state, true, this.director);
+            }
+          }
+        });
       }
       return;
     }
@@ -56,7 +65,7 @@ export class CommandHandler {
             unit.commandQueue.push(cmd);
           } else {
             unit.commandQueue = [];
-            this.unitManager.executeCommand(unit, cmd, state);
+            this.unitManager.executeCommand(unit, cmd, state, true, this.director);
           }
         }
       } else {
@@ -67,7 +76,7 @@ export class CommandHandler {
               unit.commandQueue.push(cmd);
             } else {
               unit.commandQueue = [];
-              this.unitManager.executeCommand(unit, cmd, state);
+              this.unitManager.executeCommand(unit, cmd, state, true, this.director);
             }
           }
         });
