@@ -14,7 +14,8 @@ describe("InputManager", () => {
   let getSelectedUnitId: any;
   let updateUI: any;
   let handleCanvasClick: any;
-  let sendCommand: any;
+  let onToggleDebug: any;
+  let onToggleLos: any;
   let currentGameState: any;
 
   const mockState = {
@@ -41,7 +42,8 @@ describe("InputManager", () => {
     getSelectedUnitId = vi.fn(() => null);
     updateUI = vi.fn();
     handleCanvasClick = vi.fn();
-    sendCommand = vi.fn();
+    onToggleDebug = vi.fn();
+    onToggleLos = vi.fn();
     currentGameState = vi.fn(() => mockState);
 
     inputManager = new InputManager(
@@ -54,7 +56,8 @@ describe("InputManager", () => {
       getSelectedUnitId,
       updateUI,
       handleCanvasClick,
-      sendCommand,
+      onToggleDebug,
+      onToggleLos,
       currentGameState,
     );
     inputManager.init();
@@ -64,10 +67,7 @@ describe("InputManager", () => {
     const event = new KeyboardEvent("keydown", { code: "Backquote" });
     document.dispatchEvent(event);
 
-    expect(sendCommand).toHaveBeenCalledWith({
-      type: CommandType.TOGGLE_DEBUG_OVERLAY,
-      enabled: true,
-    });
+    expect(onToggleDebug).toHaveBeenCalledWith(true);
   });
 
   it("should toggle LOS overlay on Shift+Backquote", () => {
@@ -77,10 +77,7 @@ describe("InputManager", () => {
     });
     document.dispatchEvent(event);
 
-    expect(sendCommand).toHaveBeenCalledWith({
-      type: CommandType.TOGGLE_LOS_OVERLAY,
-      enabled: true,
-    });
+    expect(onToggleLos).toHaveBeenCalledWith(true);
   });
 
   it("should toggle pause on Space", () => {

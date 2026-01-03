@@ -262,4 +262,54 @@ describe("GameClient", () => {
     );
     expect(commandCalls.length).toBe(0);
   });
+
+  it("should send toggleDebugOverlay command", () => {
+    client.init(
+      12345,
+      MapGeneratorType.Procedural,
+      mockMap,
+      true,
+      false,
+      true,
+      defaultSquad,
+    );
+    client.toggleDebugOverlay(true);
+
+    expect(postMessageMock).toHaveBeenLastCalledWith({
+      type: "COMMAND",
+      payload: {
+        type: CommandType.TOGGLE_DEBUG_OVERLAY,
+        enabled: true,
+      },
+    });
+  });
+
+  it("should send toggleLosOverlay command", () => {
+    client.init(
+      12345,
+      MapGeneratorType.Procedural,
+      mockMap,
+      true,
+      false,
+      true,
+      defaultSquad,
+    );
+    client.toggleLosOverlay(true);
+
+    expect(postMessageMock).toHaveBeenLastCalledWith({
+      type: "COMMAND",
+      payload: {
+        type: CommandType.TOGGLE_LOS_OVERLAY,
+        enabled: true,
+      },
+    });
+  });
+
+  it("should send queryState message", () => {
+    client.queryState();
+
+    expect(postMessageMock).toHaveBeenLastCalledWith({
+      type: "QUERY_STATE",
+    });
+  });
 });

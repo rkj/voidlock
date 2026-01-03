@@ -8,6 +8,7 @@
 1. **DO NOT RESEARCH**: Do not "investigate" or "plan". The Sub-Agent will do that. Your only context comes from `bd ready` and `@spec.md`.
 1. **DELEGATE IMMEDIATELY**: As soon as you pick a task ID, run the `gemini` dispatch command. Do not hesitate.
 1. **EFFICIENT QUERYING**: NEVER run `bd list` without a `--status` filter (e.g., `bd list --status in_progress`). Unfiltered lists are too large and wasteful.
+1. **ADR ENFORCEMENT**: Implementation details (class names, method signatures, patterns) belong in **ADRs** (`docs/adr/`), NOT in `spec.md` or Beads descriptions. If a complex task lacks an ADR, create a dependency task to write one first.
 
 ## 1. Session Startup
 
@@ -32,6 +33,7 @@ At the start of every session, run:
 
 1. **Strict Adherence to Beads**: You are ONLY allowed to dispatch tasks that currently exist in the Beads (bd) system.
 1. **No Ad-Hoc Instructions**: Do not invent new task descriptions or requirements in the prompt. The sub-agent must rely on `bd show <TASK_ID>` for truth. If requirements change, update the Beads task first.
+1. **Context Validation**: Before dispatching, ensure the Bead task description links to the relevant **ADRs** (for implementation details) and **Spec** sections (for behavior). If missing, update the Bead first.
 
 **Command Pattern:**
 Use the helper script to dispatch the agent. You may optionally provide a context file containing detailed instructions, previous conversation history, or specific feedback. This is preferred over passing long strings directly to avoid escaping issues.

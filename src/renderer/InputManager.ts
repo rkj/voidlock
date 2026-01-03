@@ -13,7 +13,8 @@ export class InputManager {
     private getSelectedUnitId: () => string | null,
     private updateUI: (state: GameState) => void,
     private handleCanvasClick: (e: MouseEvent) => void,
-    private sendCommand: (cmd: any) => void,
+    private onToggleDebug: (enabled: boolean) => void,
+    private onToggleLos: (enabled: boolean) => void,
     private currentGameState: () => GameState | null,
   ) {}
 
@@ -59,15 +60,9 @@ export class InputManager {
         const state = this.currentGameState();
         if (state) {
           if (e.shiftKey) {
-            this.sendCommand({
-              type: CommandType.TOGGLE_LOS_OVERLAY,
-              enabled: !state.settings.losOverlayEnabled,
-            });
+            this.onToggleLos(!state.settings.losOverlayEnabled);
           } else {
-            this.sendCommand({
-              type: CommandType.TOGGLE_DEBUG_OVERLAY,
-              enabled: !state.settings.debugOverlayEnabled,
-            });
+            this.onToggleDebug(!state.settings.debugOverlayEnabled);
           }
         }
         return;
