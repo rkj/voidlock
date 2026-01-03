@@ -20,6 +20,10 @@ This directory contains specialized managers that handle specific domains of the
 - **Infinite Sight**: Soldiers have infinite sight range by default, managed via `VisibilityManager`.
 - **Unified Pacing**: Managers follow the global `scaledDt` to ensure that movement, threat growth, and timed actions (like extraction) scale consistently with the game speed setting. This ensures that pausing the game freezes all simulation logic.
 
+## Subdirectories
+
+- `tests/`: Tests for various engine managers.
+
 ## Connections
 
 - All managers are instantiated and orchestrated by `src/engine/CoreEngine.ts`.

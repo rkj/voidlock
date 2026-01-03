@@ -23,6 +23,7 @@ This directory contains the main thread rendering logic and user interface for V
   - `CampaignScreen.ts`: Displays the Sector Map DAG.
   - `EquipmentScreen.ts`: Handles soldier loadouts and armory.
   - `DebriefScreen.ts`: Displays mission results and plays accelerated replay in background.
+- `tests/`: Automated test suite for the renderer.
 
 ## Functionality
 
@@ -30,20 +31,6 @@ This directory contains the main thread rendering logic and user interface for V
 - **Hierarchical Command Menu**: A keyboard-first interface for controlling squad members.
 - **Fog of War**: Implements visual shroud and discovery states based on the simulation data.
 - **Visual Feedback**: Provides tactical information through tracers, health bars, and status overlays. Includes a high-precision threat bar in `index.html` with pixel-perfect divider alignment.
-
-## Testing
-
-- **JSDOM Environment**: UI components (HUD, SquadBuilder) are tested using Vitest with the `jsdom` environment.
-- **Manual Canvas Mocks**: The core `Renderer.ts` is tested using manual stubs for the Canvas API to avoid heavy native dependencies.
-- **Test Suites**:
-  - `SquadBuilder.test.ts`: Verifies squad selection logic and constraints.
-  - `ui/HUDManager.test.ts`: Verifies soldier list rendering and HUD updates.
-  - `InputManager.test.ts`: Verifies keyboard shortcuts and debug overlay toggles.
-  - `Renderer.test.ts`: Verifies map, unit, and debug/LOS overlay rendering.
-  - `ConfigManager.migration.test.ts`: Verifies configuration migration and defaulting from old storage formats.
-  - `ConfigManager.isolation.test.ts`: Verifies that Custom and Campaign configurations are stored and loaded independently.
-  - `MenuController.discovery.test.ts`: Verifies room discovery filtering and stable numbering in the command menu.
-  - `regression_09cn_room_mapping.test.ts`: Verifies room mapping logic based on discovery order and stable key assignments.
 
 ## Connections
 

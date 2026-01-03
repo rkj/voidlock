@@ -8,6 +8,10 @@ This directory contains types, constants, and utilities that are shared between 
 - `campaign_types.ts`: Interfaces and types specifically for the persistent campaign mode (e.g., `CampaignState`, `CampaignSoldier`, `CampaignNode`, `GameRules`, `MissionReport`). Includes progression constants (`XP_THRESHOLDS`, `STAT_BOOSTS`) and leveling logic (`calculateLevel`).
 - `PRNG.ts`: A deterministic Pseudo-Random Number Generator implementation.
 
+## Subdirectories
+
+- `tests/`: Comprehensive test suite for shared components.
+
 ## Functionality
 
 - **Weapon & Item Systems**: Defines `WeaponLibrary` and `ItemLibrary`, supporting units with various equipment. Accuracy is handled via a percentage-based modifier model (`soldierAim + weapon.accuracy + equipmentAccuracyBonus`). Items can provide passive bonuses (HP, Speed, Accuracy) or active abilities (Heal, Grenade).
