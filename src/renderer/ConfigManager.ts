@@ -22,8 +22,8 @@ export interface GameConfig {
   squadConfig: SquadConfig;
 }
 
-const CUSTOM_STORAGE_KEY = "xenopurge_custom_config";
-const CAMPAIGN_STORAGE_KEY = "xenopurge_campaign_config";
+const CUSTOM_STORAGE_KEY = "voidlock_custom_config";
+const CAMPAIGN_STORAGE_KEY = "voidlock_campaign_config";
 
 export class ConfigManager {
   public static saveCustom(config: GameConfig) {
@@ -48,10 +48,11 @@ export class ConfigManager {
     const config = this.load(CUSTOM_STORAGE_KEY);
     if (config) return config;
 
-    // Migration from old key
-    const oldConfig = this.load("xenopurge_config");
+    // Migration from old keys
+    const oldConfig = this.load("xenopurge_custom_config") || this.load("xenopurge_config");
     if (oldConfig) {
       this.saveCustom(oldConfig);
+      // Optional: localStorage.removeItem("xenopurge_custom_config");
       // Optional: localStorage.removeItem("xenopurge_config");
       return oldConfig;
     }
@@ -60,7 +61,17 @@ export class ConfigManager {
   }
 
   public static loadCampaign(): GameConfig | null {
-    return this.load(CAMPAIGN_STORAGE_KEY);
+    const config = this.load(CAMPAIGN_STORAGE_KEY);
+    if (config) return config;
+
+    // Migration from old key
+    const oldCampaign = this.load("xenopurge_campaign_config");
+    if (oldCampaign) {
+      this.saveCampaign(oldCampaign);
+      return oldCampaign;
+    }
+
+    return null;
   }
 
   private static load(key: string): GameConfig | null {

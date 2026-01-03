@@ -1,4 +1,4 @@
-// Tactical Icons for Xenopurge
+// Tactical Icons for Voidlock
 export const Icons = {
   // Exit / Extraction Icon (Cyan)
   Exit: `data:image/svg+xml;base64,${btoa(`
