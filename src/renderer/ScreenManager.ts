@@ -4,6 +4,7 @@ export type ScreenId =
   | "mission-setup"
   | "equipment"
   | "mission"
+  | "barracks"
   | "debrief";
 
 export class ScreenManager {
@@ -17,6 +18,7 @@ export class ScreenManager {
     this.registerScreen("mission-setup");
     this.registerScreen("equipment");
     this.registerScreen("mission");
+    this.registerScreen("barracks");
     this.registerScreen("debrief");
 
     this.show("main-menu");

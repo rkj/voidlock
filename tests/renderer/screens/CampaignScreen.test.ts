@@ -8,6 +8,7 @@ describe("CampaignScreen", () => {
   let container: HTMLElement;
   let manager: CampaignManager;
   let onNodeSelect: any;
+  let onBarracks: any;
   let onBack: any;
 
   beforeEach(() => {
@@ -33,6 +34,7 @@ describe("CampaignScreen", () => {
       })(),
     );
     onNodeSelect = vi.fn();
+    onBarracks = vi.fn();
     onBack = vi.fn();
   });
 
@@ -41,6 +43,7 @@ describe("CampaignScreen", () => {
       "screen-campaign",
       manager,
       onNodeSelect,
+      onBarracks,
       onBack,
     );
     screen.show();
@@ -54,6 +57,7 @@ describe("CampaignScreen", () => {
       "screen-campaign",
       manager,
       onNodeSelect,
+      onBarracks,
       onBack,
     );
     screen.show();
@@ -72,6 +76,7 @@ describe("CampaignScreen", () => {
       "screen-campaign",
       manager,
       onNodeSelect,
+      onBarracks,
       onBack,
     );
     screen.show();
@@ -85,6 +90,26 @@ describe("CampaignScreen", () => {
     expect(onNodeSelect).toHaveBeenCalled();
   });
 
+  it("should trigger onBarracks when barracks button is clicked", () => {
+    manager.startNewCampaign(12345, "normal");
+    const screen = new CampaignScreen(
+      "screen-campaign",
+      manager,
+      onNodeSelect,
+      onBarracks,
+      onBack,
+    );
+    screen.show();
+
+    const barracksBtn = Array.from(container.querySelectorAll("button")).find(
+      (btn) => btn.textContent === "BARRACKS",
+    );
+    expect(barracksBtn).toBeDefined();
+    barracksBtn?.click();
+
+    expect(onBarracks).toHaveBeenCalled();
+  });
+
   it("should render a 'current' indicator on the current node", () => {
     manager.startNewCampaign(12345, "normal");
     const state = manager.getState()!;
@@ -96,6 +121,7 @@ describe("CampaignScreen", () => {
       "screen-campaign",
       manager,
       onNodeSelect,
+      onBarracks,
       onBack,
     );
     screen.show();
@@ -112,6 +138,7 @@ describe("CampaignScreen", () => {
       "screen-campaign",
       manager,
       onNodeSelect,
+      onBarracks,
       onBack,
     );
     screen.show();

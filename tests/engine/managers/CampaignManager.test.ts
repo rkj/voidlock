@@ -118,4 +118,91 @@ describe("CampaignManager", () => {
     CampaignManager.resetInstance();
     expect(() => CampaignManager.getInstance()).toThrow();
   });
+
+  describe("Roster Management", () => {
+    beforeEach(() => {
+      manager.startNewCampaign(12345, "Normal"); // deathRule: Clone, scrap: 500
+    });
+
+    it("should recruit a new soldier", () => {
+      manager.recruitSoldier("assault", "New Recruit");
+      const state = manager.getState();
+      expect(state?.scrap).toBe(400);
+      expect(state?.roster.length).toBe(5);
+      const newSoldier = state?.roster.find((s) => s.name === "New Recruit");
+      expect(newSoldier).toBeDefined();
+      expect(newSoldier?.archetypeId).toBe("assault");
+      expect(newSoldier?.status).toBe("Healthy");
+    });
+
+    it("should throw error when recruiting with insufficient scrap", () => {
+      manager.startNewCampaign(12345, "Normal");
+      // Spend all scrap
+      const state = manager.getState()!;
+      state.scrap = 50;
+      expect(() => manager.recruitSoldier("assault", "Poor Guy")).toThrow(
+        "Insufficient scrap to recruit soldier.",
+      );
+    });
+
+    it("should heal a wounded soldier", () => {
+      const state = manager.getState()!;
+      const soldier = state.roster[0];
+      soldier.status = "Wounded";
+      soldier.hp = 10;
+
+      manager.healSoldier(soldier.id);
+
+      expect(state.scrap).toBe(450);
+      expect(soldier.status).toBe("Healthy");
+      expect(soldier.hp).toBe(soldier.maxHp);
+    });
+
+    it("should throw error when healing a healthy soldier", () => {
+      const state = manager.getState()!;
+      const soldier = state.roster[0];
+      expect(() => manager.healSoldier(soldier.id)).toThrow(
+        "Soldier is not wounded.",
+      );
+    });
+
+    it("should revive a dead soldier in Clone mode", () => {
+      const state = manager.getState()!;
+      const soldier = state.roster[0];
+      soldier.status = "Dead";
+      soldier.hp = 0;
+
+      manager.reviveSoldier(soldier.id);
+
+      expect(state.scrap).toBe(250);
+      expect(soldier.status).toBe("Healthy");
+      expect(soldier.hp).toBe(soldier.maxHp);
+    });
+
+    it("should throw error when reviving in Iron mode", () => {
+      manager.startNewCampaign(12345, "Hard"); // Iron mode
+      const state = manager.getState()!;
+      const soldier = state.roster[0];
+      soldier.status = "Dead";
+
+      expect(() => manager.reviveSoldier(soldier.id)).toThrow(
+        "Revival only allowed in 'Clone' mode.",
+      );
+    });
+
+    it("should assign equipment to a soldier", () => {
+      const state = manager.getState()!;
+      const soldier = state.roster[0];
+      const newEquipment = {
+        rightHand: "pulse_rifle",
+        leftHand: "medkit",
+        body: "light_recon",
+        feet: "combat_boots",
+      };
+
+      manager.assignEquipment(soldier.id, newEquipment);
+
+      expect(soldier.equipment).toEqual(newEquipment);
+    });
+  });
 });
