@@ -20,6 +20,7 @@ import { PRNG } from "../../shared/PRNG";
 import { LootManager } from "./LootManager";
 import { StatsManager } from "./StatsManager";
 import { MovementManager } from "./MovementManager";
+import { CombatManager } from "./CombatManager";
 
 const EPSILON = 0.05;
 
@@ -28,6 +29,7 @@ export class UnitManager {
   private totalFloorCells: number;
   private statsManager: StatsManager;
   private movementManager: MovementManager;
+  private combatManager: CombatManager;
 
   constructor(
     private gameGrid: GameGrid,
@@ -42,6 +44,7 @@ export class UnitManager {
       .filter((c) => c.type === "Floor").length;
     this.statsManager = new StatsManager();
     this.movementManager = new MovementManager(gameGrid);
+    this.combatManager = new CombatManager(los, this.statsManager);
   }
 
   public recalculateStats(unit: Unit) {
@@ -219,8 +222,6 @@ export class UnitManager {
     state.units.forEach((unit) => {
       if (unit.state === UnitState.Extracted || unit.state === UnitState.Dead)
         return;
-
-      this.statsManager.updateActiveWeapon(unit, state, newVisibleCellsSet);
 
       // Apply escort speed and target cell if applicable
       const eData = escortData.get(unit.id);
@@ -943,17 +944,15 @@ export class UnitManager {
         }
       }
 
-      // 1. Identification: All visible enemies in range
-      const visibleEnemiesInRange = state.enemies.filter(
-        (enemy) =>
-          enemy.hp > 0 &&
-          this.getDistance(unit.pos, enemy.pos) <=
-            unit.stats.attackRange + 0.5 &&
-          newVisibleCellsSet.has(
-            `${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`,
-          ),
+      const isAttacking = this.combatManager.update(
+        unit,
+        state,
+        dt,
+        prng,
+        newVisibleCellsSet,
       );
 
+      const isMoving = (unit.path && unit.path.length > 0) || !!unit.targetPos;
       const enemiesInSameCell = state.enemies.filter(
         (enemy) =>
           enemy.hp > 0 &&
@@ -961,89 +960,6 @@ export class UnitManager {
           Math.floor(enemy.pos.y) === Math.floor(unit.pos.y),
       );
       const isLockedInMelee = enemiesInSameCell.length > 0;
-
-      // 2. Stickiness: Check if current forcedTarget is still valid
-      let targetEnemy: Enemy | undefined;
-      if (unit.forcedTargetId) {
-        const sticky = visibleEnemiesInRange.find(
-          (e) => e.id === unit.forcedTargetId,
-        );
-        // Valid if: alive, in range, and HAS LINE OF FIRE
-        if (sticky && this.los.hasLineOfFire(unit.pos, sticky.pos)) {
-          targetEnemy = sticky;
-        } else {
-          unit.forcedTargetId = undefined;
-        }
-      }
-
-      // 3. New Target Acquisition (if no sticky target)
-      if (!targetEnemy && visibleEnemiesInRange.length > 0) {
-        let bestScore = -1;
-        let bestTarget: Enemy | undefined;
-
-        for (const enemy of visibleEnemiesInRange) {
-          if (this.los.hasLineOfFire(unit.pos, enemy.pos)) {
-            const distance = this.getDistance(unit.pos, enemy.pos);
-            // Score = (MaxHP - CurrentHP) + (100 / Distance)
-            const score =
-              enemy.maxHp - enemy.hp + 100 / Math.max(0.1, distance);
-
-            if (score > bestScore) {
-              bestScore = score;
-              bestTarget = enemy;
-            } else if (score === bestScore && bestTarget) {
-              // Tie-breaker: Closest
-              const bestDist = this.getDistance(unit.pos, bestTarget.pos);
-              if (distance < bestDist) {
-                bestTarget = enemy;
-              }
-            }
-          }
-        }
-
-        if (bestTarget) {
-          targetEnemy = bestTarget;
-          unit.forcedTargetId = bestTarget.id;
-        }
-      }
-
-      let isAttacking = false;
-      const isMoving = (unit.path && unit.path.length > 0) || !!unit.targetPos;
-      const policy = unit.engagementPolicy || "ENGAGE";
-
-      if (
-        unit.archetypeId !== "vip" &&
-        targetEnemy &&
-        (policy === "ENGAGE" || isLockedInMelee)
-      ) {
-        if (this.los.hasLineOfFire(unit.pos, targetEnemy.pos)) {
-          if (
-            !unit.lastAttackTime ||
-            state.t - unit.lastAttackTime >= unit.stats.fireRate
-          ) {
-            const distance = this.getDistance(unit.pos, targetEnemy.pos);
-            const S = unit.stats.accuracy;
-            const R = unit.stats.attackRange;
-            let hitChance = (S / 100) * (R / Math.max(0.1, distance));
-            hitChance = Math.max(0, Math.min(1.0, hitChance));
-
-            if (prng.next() <= hitChance) {
-              targetEnemy.hp -= unit.stats.damage;
-              if (targetEnemy.hp <= 0) {
-                unit.kills++;
-                unit.forcedTargetId = undefined; // Clear sticky target on death
-              }
-            }
-
-            unit.lastAttackTime = state.t;
-            unit.lastAttackTarget = { ...targetEnemy.pos };
-          }
-
-          unit.state = UnitState.Attacking;
-          isAttacking = true;
-          // console.log(`[UnitManager] Unit ${unit.id} is attacking enemy at ${targetEnemy.pos.x}, ${targetEnemy.pos.y}`);
-        }
-      }
 
       if (isMoving && unit.targetPos && unit.path) {
         if (isLockedInMelee) {
