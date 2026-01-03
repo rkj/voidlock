@@ -9,6 +9,7 @@ import {
   MapGeneratorType,
   SquadConfig,
   MissionType,
+  CommandType,
 } from "../shared/types";
 import { MapGenerator } from "./MapGenerator";
 
@@ -125,6 +126,31 @@ export class GameClient {
       payload: cmd,
     };
     this.worker.postMessage(msg);
+  }
+
+  public toggleDebugOverlay(enabled: boolean) {
+    this.sendCommand({
+      type: CommandType.TOGGLE_DEBUG_OVERLAY,
+      enabled,
+    });
+  }
+
+  public toggleLosOverlay(enabled: boolean) {
+    this.sendCommand({
+      type: CommandType.TOGGLE_LOS_OVERLAY,
+      enabled,
+    });
+  }
+
+  public queryState() {
+    const msg: WorkerMessage = {
+      type: "QUERY_STATE",
+    };
+    this.worker.postMessage(msg);
+  }
+
+  public getFullState() {
+    this.queryState();
   }
 
   public setTickRate(rate: number) {

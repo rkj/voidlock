@@ -128,7 +128,8 @@ const inputManager = new InputManager(
   () => selectedUnitId,
   (state) => updateUI(state),
   (e) => handleCanvasClick(e),
-  (cmd) => gameClient.sendCommand(cmd),
+  (enabled) => gameClient.toggleDebugOverlay(enabled),
+  (enabled) => gameClient.toggleLosOverlay(enabled),
   () => currentGameState,
 );
 
