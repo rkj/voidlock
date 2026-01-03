@@ -9,9 +9,9 @@ export class HUDManager {
 
   constructor(
     private menuController: MenuController,
-    private onUnitClick: (unit: Unit) => void,
+    private onUnitClick: (unit: Unit, shiftHeld?: boolean) => void,
     private onAbortMission: () => void,
-    private onMenuInput: (key: string) => void,
+    private onMenuInput: (key: string, shiftHeld?: boolean) => void,
     private onCopyWorldState: () => void,
     private version: string,
   ) {}
@@ -102,7 +102,7 @@ export class HUDManager {
         const clickable = target.closest(".menu-item.clickable") as HTMLElement;
         if (clickable) {
           const idxStr = clickable.dataset.index;
-          if (idxStr !== undefined) this.onMenuInput(idxStr);
+          if (idxStr !== undefined) this.onMenuInput(idxStr, e.shiftKey);
         }
       });
       rightPanel.appendChild(menuDiv);
@@ -316,7 +316,7 @@ export class HUDManager {
         el = document.createElement("div");
         el.className = "soldier-item";
         el.dataset.unitId = unit.id;
-        el.addEventListener("click", () => this.onUnitClick(unit));
+        el.addEventListener("click", (e) => this.onUnitClick(unit, e.shiftKey));
         listContainer.appendChild(el);
       }
 

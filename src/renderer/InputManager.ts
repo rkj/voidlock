@@ -7,7 +7,7 @@ export class InputManager {
     private screenManager: ScreenManager,
     private menuController: MenuController,
     private togglePause: () => void,
-    private handleMenuInput: (key: string) => void,
+    private handleMenuInput: (key: string, shiftHeld?: boolean) => void,
     private abortMission: () => void,
     private onUnitDeselect: () => void,
     private getSelectedUnitId: () => string | null,
@@ -20,13 +20,18 @@ export class InputManager {
 
   public init() {
     document.addEventListener("keydown", (e) => this.handleKeyDown(e));
+    document.addEventListener("keyup", (e) => {
+      this.menuController.isShiftHeld = e.shiftKey;
+    });
     const canvas = document.getElementById("game-canvas");
-    canvas?.addEventListener("click", (e) =>
-      this.handleCanvasClick(e as MouseEvent),
-    );
+    canvas?.addEventListener("click", (e) => {
+      this.menuController.isShiftHeld = (e as MouseEvent).shiftKey;
+      this.handleCanvasClick(e as MouseEvent);
+    });
   }
 
   private handleKeyDown(e: KeyboardEvent) {
+    this.menuController.isShiftHeld = e.shiftKey;
     if (
       (e.target as HTMLElement).tagName === "INPUT" ||
       (e.target as HTMLElement).tagName === "TEXTAREA"
@@ -69,14 +74,14 @@ export class InputManager {
 
       if (e.key === "m" || e.key === "M") {
         if (this.menuController.menuState === "ACTION_SELECT") {
-          this.handleMenuInput("1");
+          this.handleMenuInput("1", e.shiftKey);
         }
         return;
       }
 
       const key = e.key.toLowerCase();
       if (/^[0-9a-z]$/.test(key)) {
-        this.handleMenuInput(key);
+        this.handleMenuInput(key, e.shiftKey);
       }
     } else {
       if (e.key === "Escape" || e.key === "q" || e.key === "Q") {

@@ -34,6 +34,7 @@ export class MenuController {
   public pendingLabel: string | null = null;
   public pendingTargetLocation: Vector2 | null = null;
   public overlayOptions: OverlayOption[] = [];
+  public isShiftHeld: boolean = false;
 
   private cellToRoomId: Map<string, string> = new Map();
   private discoveredRoomOrder: string[] = [];
@@ -354,6 +355,7 @@ export class MenuController {
 
   private executePendingCommand(unitIds: string[]) {
     if (!this.pendingAction) return;
+    const queue = this.isShiftHeld;
 
     if (
       this.pendingAction === CommandType.MOVE_TO &&
@@ -364,6 +366,7 @@ export class MenuController {
         unitIds,
         target: this.pendingTargetLocation,
         label: this.pendingLabel || undefined,
+        queue,
       });
     } else if (
       this.pendingAction === CommandType.OVERWATCH_POINT &&
@@ -374,18 +377,21 @@ export class MenuController {
         unitIds,
         target: this.pendingTargetLocation,
         label: this.pendingLabel || undefined,
+        queue,
       });
     } else if (this.pendingAction === CommandType.EXPLORE) {
       this.client.sendCommand({
         type: CommandType.EXPLORE,
         unitIds,
         label: this.pendingLabel || undefined,
+        queue,
       });
     } else if (this.pendingAction === CommandType.STOP) {
       this.client.sendCommand({
         type: CommandType.STOP,
         unitIds,
         label: this.pendingLabel || undefined,
+        queue,
       });
     } else if (
       this.pendingAction === CommandType.SET_ENGAGEMENT &&
@@ -396,12 +402,14 @@ export class MenuController {
         unitIds,
         mode: this.pendingMode,
         label: this.pendingLabel || undefined,
+        queue,
       });
     } else if (this.pendingAction === CommandType.RESUME_AI) {
       this.client.sendCommand({
         type: CommandType.RESUME_AI,
         unitIds,
         label: this.pendingLabel || undefined,
+        queue,
       });
     } else if (
       this.pendingAction === CommandType.USE_ITEM &&
@@ -413,6 +421,7 @@ export class MenuController {
         itemId: this.pendingItemId,
         target: this.pendingTargetLocation,
         label: this.pendingLabel || undefined,
+        queue,
       });
     }
 

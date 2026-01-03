@@ -163,8 +163,9 @@ const generateMissionReport = (
   };
 };
 
-const handleMenuInput = (key: string) => {
+const handleMenuInput = (key: string, shiftHeld: boolean = false) => {
   if (!currentGameState) return;
+  menuController.isShiftHeld = shiftHeld;
   menuController.handleMenuInput(key, currentGameState);
   updateUI(currentGameState);
 };
@@ -190,8 +191,9 @@ const togglePause = () => {
   }
 };
 
-const onUnitClick = (unit: Unit) => {
+const onUnitClick = (unit: Unit, shiftHeld: boolean = false) => {
   if (menuController.menuState === "UNIT_SELECT") {
+    menuController.isShiftHeld = shiftHeld;
     menuController.selectUnit(unit.id);
     if (currentGameState) updateUI(currentGameState);
     return;
