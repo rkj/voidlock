@@ -15,6 +15,11 @@ This is the main source directory for the Voidlock project.
 
 Voidlock uses a decoupled architecture where the game simulation (`engine`) runs in a Web Worker, and the visual presentation (`renderer`) runs on the main thread. Communication between them happens via a JSON-based observation/command protocol.
 
+### Path Aliases
+
+The project uses TypeScript and Vitest path aliases for cleaner imports:
+- `@src`: Points to the `src/` directory (e.g., `import { PRNG } from '@src/shared/PRNG'`).
+
 ### Relevant ADRs
 
 - **ADR 0006: Autonomous Agent Architecture** - Defines the profile-based AI system and tick synchronization.
