@@ -81,12 +81,37 @@ const gameClient = new GameClient(
 const menuController = new MenuController(gameClient);
 let renderer: Renderer;
 
+const copyWorldState = () => {
+  if (!currentGameState) return;
+  const replayData = gameClient.getReplayData();
+  const fullState = {
+    replayData,
+    currentState: currentGameState,
+    version: VERSION,
+    timestamp: Date.now(),
+  };
+
+  const json = JSON.stringify(fullState, null, 2);
+  navigator.clipboard
+    .writeText(json)
+    .then(() => {
+      alert("World State copied to clipboard!");
+    })
+    .catch((err) => {
+      console.error("Failed to copy state to clipboard:", err);
+      console.log("Full World State JSON:");
+      console.log(json);
+      alert("Failed to copy to clipboard. See console for JSON.");
+    });
+};
+
 // --- Managers ---
 const hudManager = new HUDManager(
   menuController,
   (unit) => onUnitClick(unit),
   () => abortMission(),
   (key) => handleMenuInput(key),
+  () => copyWorldState(),
   VERSION,
 );
 
@@ -103,6 +128,8 @@ const inputManager = new InputManager(
   () => selectedUnitId,
   (state) => updateUI(state),
   (e) => handleCanvasClick(e),
+  (cmd) => gameClient.sendCommand(cmd),
+  () => currentGameState,
 );
 
 // --- Functions ---

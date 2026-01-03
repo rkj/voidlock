@@ -692,6 +692,8 @@ export enum CommandType {
   OVERWATCH_POINT = "OVERWATCH_POINT",
   EXPLORE = "EXPLORE",
   PICKUP = "PICKUP",
+  TOGGLE_DEBUG_OVERLAY = "TOGGLE_DEBUG_OVERLAY",
+  TOGGLE_LOS_OVERLAY = "TOGGLE_LOS_OVERLAY",
 }
 
 export type MoveCommand = {
@@ -773,6 +775,18 @@ export type PickupCommand = {
   label?: string;
 };
 
+export type ToggleDebugOverlayCommand = {
+  type: CommandType.TOGGLE_DEBUG_OVERLAY;
+  enabled: boolean;
+  label?: string;
+};
+
+export type ToggleLosOverlayCommand = {
+  type: CommandType.TOGGLE_LOS_OVERLAY;
+  enabled: boolean;
+  label?: string;
+};
+
 export type Command =
   | MoveCommand
   | OpenDoorCommand
@@ -784,7 +798,9 @@ export type Command =
   | UseItemCommand
   | OverwatchPointCommand
   | ExploreCommand
-  | PickupCommand;
+  | PickupCommand
+  | ToggleDebugOverlayCommand
+  | ToggleLosOverlayCommand;
 
 export interface IMapValidationResult {
   isValid: boolean;

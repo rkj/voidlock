@@ -13,6 +13,7 @@ describe("HUDManager Regression kvi1", () => {
   let onUnitClick: any;
   let onAbortMission: any;
   let onMenuInput: any;
+  let onCopyWorldState: any;
 
   const mockState: GameState = createMockGameState({
     t: 1000,
@@ -71,12 +72,14 @@ describe("HUDManager Regression kvi1", () => {
     onUnitClick = vi.fn();
     onAbortMission = vi.fn();
     onMenuInput = vi.fn();
+    onCopyWorldState = vi.fn();
 
     hud = new HUDManager(
       mockMenuController,
       onUnitClick,
       onAbortMission,
       onMenuInput,
+      onCopyWorldState,
       "1.0.0",
     );
   });

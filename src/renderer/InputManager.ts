@@ -1,6 +1,6 @@
 import { ScreenManager } from "./ScreenManager";
 import { MenuController } from "./MenuController";
-import { GameState } from "../shared/types";
+import { GameState, CommandType } from "../shared/types";
 
 export class InputManager {
   constructor(
@@ -13,6 +13,8 @@ export class InputManager {
     private getSelectedUnitId: () => string | null,
     private updateUI: (state: GameState) => void,
     private handleCanvasClick: (e: MouseEvent) => void,
+    private sendCommand: (cmd: any) => void,
+    private currentGameState: () => GameState | null,
   ) {}
 
   public init() {
@@ -50,6 +52,24 @@ export class InputManager {
       if (e.code === "Space") {
         e.preventDefault();
         this.togglePause();
+        return;
+      }
+
+      if (e.code === "Backquote") {
+        const state = this.currentGameState();
+        if (state) {
+          if (e.shiftKey) {
+            this.sendCommand({
+              type: CommandType.TOGGLE_LOS_OVERLAY,
+              enabled: !state.settings.losOverlayEnabled,
+            });
+          } else {
+            this.sendCommand({
+              type: CommandType.TOGGLE_DEBUG_OVERLAY,
+              enabled: !state.settings.debugOverlayEnabled,
+            });
+          }
+        }
         return;
       }
 

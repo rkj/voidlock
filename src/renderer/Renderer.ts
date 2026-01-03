@@ -94,6 +94,30 @@ export class Renderer {
   private renderLOSOverlay(state: GameState) {
     if (!this.graph) return;
 
+    // Render Raycast Lines for Debug
+    if (state.settings.debugOverlayEnabled) {
+      this.ctx.strokeStyle = "rgba(0, 255, 0, 0.2)";
+      this.ctx.lineWidth = 1;
+      state.units.forEach((u) => {
+        if (
+          u.hp > 0 &&
+          u.state !== UnitState.Extracted &&
+          u.state !== UnitState.Dead
+        ) {
+          state.visibleCells.forEach((cellKey) => {
+            const [cx, cy] = cellKey.split(",").map(Number);
+            this.ctx.beginPath();
+            this.ctx.moveTo(u.pos.x * this.cellSize, u.pos.y * this.cellSize);
+            this.ctx.lineTo(
+              (cx + 0.5) * this.cellSize,
+              (cy + 0.5) * this.cellSize,
+            );
+            this.ctx.stroke();
+          });
+        }
+      });
+    }
+
     // Render Soldier LOS (Green Gradient)
     state.units.forEach((u) => {
       if (
@@ -793,6 +817,8 @@ export class Renderer {
   }
 
   private renderFog(state: GameState) {
+    if (state.settings.debugOverlayEnabled) return;
+
     const map = state.map;
     for (let y = 0; y < map.height; y++) {
       for (let x = 0; x < map.width; x++) {

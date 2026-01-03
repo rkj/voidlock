@@ -12,6 +12,7 @@ export class HUDManager {
     private onUnitClick: (unit: Unit) => void,
     private onAbortMission: () => void,
     private onMenuInput: (key: string) => void,
+    private onCopyWorldState: () => void,
     private version: string,
   ) {}
 
@@ -131,6 +132,31 @@ export class HUDManager {
     // Remove old extraction div if it exists (now handled by objectives)
     const extDiv = rightPanel.querySelector(".extraction-status");
     if (extDiv) extDiv.remove();
+
+    // Debug Buttons
+    let debugDiv = rightPanel.querySelector(".debug-controls") as HTMLElement;
+    if (state.settings.debugOverlayEnabled) {
+      if (!debugDiv) {
+        debugDiv = document.createElement("div");
+        debugDiv.className = "debug-controls";
+        debugDiv.style.marginTop = "10px";
+        debugDiv.style.borderTop = "1px solid #444";
+        debugDiv.style.paddingTop = "10px";
+        rightPanel.appendChild(debugDiv);
+      }
+      const debugHtml = `
+        <h3>Debug Tools</h3>
+        <button id="btn-copy-world-state" style="width:100%; font-size:0.8em; padding:8px;">Copy World State</button>
+      `;
+      if (debugDiv.innerHTML !== debugHtml) {
+        debugDiv.innerHTML = debugHtml;
+        document
+          .getElementById("btn-copy-world-state")
+          ?.addEventListener("click", () => this.onCopyWorldState());
+      }
+    } else if (debugDiv) {
+      debugDiv.remove();
+    }
 
     this.updateEnemyIntel(state, rightPanel);
   }

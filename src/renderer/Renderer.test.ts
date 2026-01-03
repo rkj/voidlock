@@ -206,4 +206,30 @@ describe("Renderer", () => {
       expect.any(Number),
     );
   });
+
+  it("should render debug overlay when enabled", () => {
+    const debugState: GameState = {
+      ...mockGameState,
+      settings: { ...mockGameState.settings, debugOverlayEnabled: true },
+    };
+
+    renderer.render(debugState);
+    // Debug overlay renders coordinate text
+    expect(mockContext.fillText).toHaveBeenCalledWith(
+      "0,0",
+      expect.any(Number),
+      expect.any(Number),
+    );
+  });
+
+  it("should render LOS overlay when enabled", () => {
+    const losState: GameState = {
+      ...mockGameState,
+      settings: { ...mockGameState.settings, losOverlayEnabled: true },
+    };
+
+    renderer.render(losState);
+    // LOS overlay uses radial gradients
+    expect(mockContext.createRadialGradient).toHaveBeenCalled();
+  });
 });

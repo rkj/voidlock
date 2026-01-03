@@ -9,6 +9,7 @@ describe("HUDManager", () => {
   let onUnitClick: any;
   let onAbortMission: any;
   let onMenuInput: any;
+  let onCopyWorldState: any;
 
   const mockState: GameState = {
     t: 1000,
@@ -75,12 +76,14 @@ describe("HUDManager", () => {
     onUnitClick = vi.fn();
     onAbortMission = vi.fn();
     onMenuInput = vi.fn();
+    onCopyWorldState = vi.fn();
 
     hud = new HUDManager(
       mockMenuController,
       onUnitClick,
       onAbortMission,
       onMenuInput,
+      onCopyWorldState,
       "1.0.0",
     );
   });
@@ -196,6 +199,34 @@ describe("HUDManager", () => {
     );
     expect(icons?.[0].getAttribute("title")).toBe("Pending");
     expect(icons?.[1].getAttribute("title")).toBe("Completed");
+  });
+
+  it("should render debug tools when debug overlay is enabled", () => {
+    const debugState: GameState = {
+      ...mockState,
+      settings: { ...mockState.settings, debugOverlayEnabled: true },
+    };
+
+    hud.update(debugState, null);
+
+    const debugDiv = document.querySelector(".debug-controls");
+    expect(debugDiv).not.toBeNull();
+    expect(debugDiv?.innerHTML).toContain("Debug Tools");
+    expect(debugDiv?.querySelector("#btn-copy-world-state")).not.toBeNull();
+  });
+
+  it("should call onCopyWorldState when the copy button is clicked", () => {
+    const debugState: GameState = {
+      ...mockState,
+      settings: { ...mockState.settings, debugOverlayEnabled: true },
+    };
+
+    hud.update(debugState, null);
+
+    const btn = document.getElementById("btn-copy-world-state");
+    btn?.click();
+
+    expect(onCopyWorldState).toHaveBeenCalled();
   });
 
   it("should render objectives in game over summary", () => {
