@@ -45,7 +45,8 @@ export class CommandHandler {
       cmd.type === CommandType.RESUME_AI ||
       cmd.type === CommandType.OVERWATCH_POINT ||
       cmd.type === CommandType.EXPLORE ||
-      cmd.type === CommandType.PICKUP
+      cmd.type === CommandType.PICKUP ||
+      cmd.type === CommandType.ESCORT_UNIT
     ) {
       if (cmd.type === CommandType.ATTACK_TARGET) {
         const unit = state.units.find((u) => u.id === cmd.unitId);

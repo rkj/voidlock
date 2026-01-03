@@ -5,6 +5,7 @@ import {
   CommandType,
   Vector2,
   Command,
+  EscortUnitCommand,
   PickupCommand,
   Door,
   WeaponLibrary,
@@ -47,6 +48,121 @@ export class UnitManager {
     realDt: number = dt,
   ) {
     const claimedObjectives = new Set<string>();
+
+    // 2. Group escorts
+    const escortGroups = new Map<string, Unit[]>();
+    state.units.forEach((u) => {
+      if (
+        u.hp > 0 &&
+        u.state !== UnitState.Dead &&
+        u.state !== UnitState.Extracted &&
+        u.activeCommand?.type === CommandType.ESCORT_UNIT
+      ) {
+        const cmd = u.activeCommand as EscortUnitCommand;
+        if (!escortGroups.has(cmd.targetId)) escortGroups.set(cmd.targetId, []);
+        escortGroups.get(cmd.targetId)!.push(u);
+      }
+    });
+
+    // 3. Process escort groups
+    const escortData = new Map<
+      string,
+      { targetCell: Vector2; matchedSpeed?: number }
+    >();
+    for (const [targetId, escorts] of escortGroups) {
+      const targetUnit = state.units.find((u) => u.id === targetId);
+      if (
+        !targetUnit ||
+        targetUnit.hp <= 0 ||
+        targetUnit.state === UnitState.Dead ||
+        targetUnit.state === UnitState.Extracted
+      ) {
+        // Target is gone, stop escorting
+        escorts.forEach((e) => {
+          e.activeCommand = undefined;
+          e.state = UnitState.Idle;
+        });
+        continue;
+      }
+
+      // Sort escorts by ID for stable role assignment
+      escorts.sort((a, b) => a.id.localeCompare(b.id));
+
+      // Determine target's heading
+      let heading = { x: 0, y: -1 }; // Default North
+      if (targetUnit.targetPos) {
+        const dx = targetUnit.targetPos.x - targetUnit.pos.x;
+        const dy = targetUnit.targetPos.y - targetUnit.pos.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist > 0.1) {
+          heading = { x: dx / dist, y: dy / dist };
+        }
+      } else if (targetUnit.path && targetUnit.path.length > 0) {
+        const dx = targetUnit.path[0].x + 0.5 - targetUnit.pos.x;
+        const dy = targetUnit.path[0].y + 0.5 - targetUnit.pos.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist > 0.1) {
+          heading = { x: dx / dist, y: dy / dist };
+        }
+      }
+
+      const perp = { x: -heading.y, y: heading.x };
+
+      escorts.forEach((escort, index) => {
+        this.recalculateStats(escort);
+        let formationOffset = { x: 0, y: 0 };
+        if (index === 0) {
+          // Vanguard
+          formationOffset = {
+            x: Math.round(heading.x),
+            y: Math.round(heading.y),
+          };
+        } else if (index === 1) {
+          // Rearguard
+          formationOffset = {
+            x: -Math.round(heading.x),
+            y: -Math.round(heading.y),
+          };
+        } else {
+          // Bodyguard
+          const side = (index - 2) % 2 === 0 ? 1 : -1;
+          const depth = Math.floor((index - 2) / 2);
+          // Stay adjacent (left or right)
+          formationOffset = {
+            x: Math.round(perp.x * side),
+            y: Math.round(perp.y * side),
+          };
+          if (depth > 0) {
+            // If many bodyguards, push them back slightly to spread out
+            formationOffset.x -= Math.round(heading.x * depth);
+            formationOffset.y -= Math.round(heading.y * depth);
+          }
+        }
+
+        const targetCell = {
+          x: Math.floor(targetUnit.pos.x) + formationOffset.x,
+          y: Math.floor(targetUnit.pos.y) + formationOffset.y,
+        };
+
+        // Validate target cell
+        if (!this.gameGrid.isWalkable(targetCell.x, targetCell.y)) {
+          // Fallback to target's cell if formation slot is blocked
+          targetCell.x = Math.floor(targetUnit.pos.x);
+          targetCell.y = Math.floor(targetUnit.pos.y);
+        }
+
+        let matchedSpeed: number | undefined = undefined;
+        const distToSlot = this.getDistance(escort.pos, {
+          x: targetCell.x + 0.5,
+          y: targetCell.y + 0.5,
+        });
+        if (distToSlot <= 0.8) {
+          matchedSpeed = Math.min(escort.stats.speed, targetUnit.stats.speed);
+        }
+
+        escortData.set(escort.id, { targetCell, matchedSpeed });
+      });
+    }
 
     // Pre-populate claimed objectives from units already pursuing them
     state.units.forEach((u) => {
@@ -95,6 +211,51 @@ export class UnitManager {
         return;
 
       this.updateActiveWeapon(unit, state, newVisibleCellsSet);
+
+      // Apply escort speed and target cell if applicable
+      const eData = escortData.get(unit.id);
+      if (eData) {
+        if (eData.matchedSpeed !== undefined) {
+          unit.stats.speed = eData.matchedSpeed;
+        }
+
+        const targetCell = eData.targetCell;
+        const distToCenter = this.getDistance(unit.pos, {
+          x: targetCell.x + 0.5,
+          y: targetCell.y + 0.5,
+        });
+
+        // Update escort's movement if not at center of target cell
+        if (distToCenter > 0.1) {
+          if (
+            !unit.targetPos ||
+            Math.floor(unit.targetPos.x) !== targetCell.x ||
+            Math.floor(unit.targetPos.y) !== targetCell.y
+          ) {
+            const path = this.pathfinder.findPath(
+              { x: Math.floor(unit.pos.x), y: Math.floor(unit.pos.y) },
+              targetCell,
+              true,
+            );
+            if (path) {
+              if (path.length > 0) {
+                unit.path = path;
+                unit.targetPos = {
+                  x: path[0].x + 0.5 + (unit.visualJitter?.x || 0),
+                  y: path[0].y + 0.5 + (unit.visualJitter?.y || 0),
+                };
+              } else {
+                unit.path = undefined;
+                unit.targetPos = {
+                  x: targetCell.x + 0.5 + (unit.visualJitter?.x || 0),
+                  y: targetCell.y + 0.5 + (unit.visualJitter?.y || 0),
+                };
+              }
+              unit.state = UnitState.Moving;
+            }
+          }
+        }
+      }
 
       if (unit.archetypeId === "vip" && !unit.aiEnabled) {
         const rescueSoldier = state.units.find(
@@ -832,7 +993,11 @@ export class UnitManager {
           this.handleMovement(unit, dt, doors);
         } else {
           // If we are RUSHing or RETREATing, we SHOULD be allowed to move while attacking
-          if (unit.aiProfile === "RUSH" || unit.aiProfile === "RETREAT") {
+          if (
+            unit.aiProfile === "RUSH" ||
+            unit.aiProfile === "RETREAT" ||
+            unit.activeCommand?.type === CommandType.ESCORT_UNIT
+          ) {
             this.handleMovement(unit, dt, doors);
             // Ensure state reflects attacking if we moved while attacking
             if (unit.state === UnitState.Moving) {
@@ -843,7 +1008,12 @@ export class UnitManager {
       } else if (!isAttacking && !isMoving) {
         if (unit.state !== UnitState.WaitingForDoor) {
           unit.state = UnitState.Idle;
-          if (unit.activeCommand?.type !== CommandType.PICKUP) {
+          if (
+            unit.activeCommand?.type !== CommandType.PICKUP &&
+            unit.activeCommand?.type !== CommandType.ESCORT_UNIT &&
+            unit.activeCommand?.type !== CommandType.EXPLORE &&
+            unit.activeCommand?.type !== CommandType.OVERWATCH_POINT
+          ) {
             unit.activeCommand = undefined;
           }
         }
@@ -966,6 +1136,19 @@ export class UnitManager {
           unit.state = UnitState.Idle;
           unit.activeCommand = undefined;
         }
+      }
+    } else if (cmd.type === CommandType.ESCORT_UNIT) {
+      if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
+        unit.forcedTargetId = undefined;
+        unit.explorationTarget = undefined;
+        if (unit.state === UnitState.Channeling) {
+          unit.channeling = undefined;
+          unit.state = UnitState.Idle;
+        }
+        unit.path = undefined;
+        unit.targetPos = undefined;
+        unit.aiEnabled = false;
+        unit.activeCommand = cmd;
       }
     } else if (cmd.type === CommandType.OVERWATCH_POINT) {
       if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
