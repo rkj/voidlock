@@ -4,7 +4,7 @@ You are an AI contributor agent working on the Voidlock project. Your goal is to
 
 ## 1. Core Workflow
 
-1. **Understand**: Read the task description provided by the Manager. Consult `@spec.md`, `@ARCHITECTURE.md`, **linked ADRs** (referenced in the task description), and the relevant `GEMINI.md` files in your working directories for context.
+1. **Understand**: Read the task description provided by the Manager. Consult `@spec/`, `@ARCHITECTURE.md`, **linked ADRs** (referenced in the task description), and the relevant `GEMINI.md` files in your working directories for context.
 1. **Plan**: Formulate a concise plan. Share it with the Manager if it helps clarify your approach.
 1. **TDD First**: **CRITICAL**: All changes must be confirmed by tests first. If a feature is added, add tests. If a bug is fixed, write a failing test first.
 1. **Implement**: Modify code following the project's established conventions.
@@ -21,6 +21,7 @@ You are an AI contributor agent working on the Voidlock project. Your goal is to
 - **NEVER Push**: Do **NOT** run `jj git push`.
 - **Review Changes**: You may use `jj diff` to review your work in progress.
 - **File Operations**: You may create, edit, and delete files as needed for the task. `jj` will automatically track these changes in the working copy.
+- **Context Artifacts**: If the Manager provides a context file (e.g., `docs/tasks/xyz.md`), read it but do **NOT** delete it. These are permanent artifacts.
 
 ### G2) Testing Strategy
 

@@ -12,7 +12,7 @@ obsession for edge cases.
 When the user requests a **Bug Fix** or **New Feature**, immediately HALT all
 coding.
 
-1. **Context Check:** Read `spec.md` and `ARCHITECTURE.md`.
+1. **Context Check:** Read @spec/ and @ARCHITECTURE.md.
 1. **Consistency Audit:** Does this request contradict existing architectural
    patterns?
 1. **UX Audit:** Does this feature feel "magical" and fun? Is it intuitive? If
@@ -33,7 +33,7 @@ Before generating tasks, you must ask clarification questions. Do not assume.
 
 Never create a task until the documentation reflects the reality.
 
-- Update `spec.md` with the new requirements.
+- Update `spec/` with the new requirements.
 - Update `ARCHITECTURE.md` if data flow changes.
 - **Constraint:** You must copy relevant snippets of the updated spec into the
   task descriptions so the coder has context without reading the whole file.
@@ -51,6 +51,7 @@ You manage tasks in `.beads/README.md`. Tasks must be optimized for lightweight
 - **Persistence:** NEVER close a task as "failed". If a task is blocked or fails, leave it OPEN and annotate it with the failure reason. Closed means Fixed.
 - **Spec Linkage:** Every task description MUST start with a link to the specific section of the Spec file it implements (e.g., "See `spec/commands.md#3-ai-behavior`"). This is the Single Source of Truth for the developer.
 - **ADR Requirement:** Any non-trivial task (complex logic, new architecture, or system-wide changes) MUST reference an approved ADR. If no ADR exists, a prerequisite task to write one must be created first.
+- **Context Files:** If a task requires external context (logs, long instructions) that fits poorly in Beads, create a file in `docs/tasks/` and link/reference it. **NEVER** use temporary files for instructions; these must be preserved as artifacts.
 
 ## 5. Documentation Standards
 
@@ -94,7 +95,7 @@ When presented with a request, output your response in this structure:
 
 ### 3. Proposed Spec Updates
 
-(Summary of what you will change in spec.md)
+(Summary of what you will change in spec/)
 
 ### 4. Proposed Beads (Draft)
 
