@@ -71,11 +71,7 @@ export class MenuController {
         this.pendingAction === CommandType.USE_ITEM)
     ) {
       this.pendingTargetLocation = cell;
-      if (this.pendingAction === CommandType.USE_ITEM) {
-        this.executePendingCommand([]);
-      } else {
-        this.menuState = "UNIT_SELECT";
-      }
+      this.menuState = "UNIT_SELECT";
     }
   }
 
@@ -158,11 +154,7 @@ export class MenuController {
       if (option && option.pos) {
         this.pendingTargetLocation = option.pos;
         this.pendingTargetId = option.id || null;
-        if (this.pendingAction === CommandType.USE_ITEM) {
-          this.executePendingCommand([]);
-        } else {
-          this.menuState = "UNIT_SELECT";
-        }
+        this.menuState = "UNIT_SELECT";
       }
     } else if (this.menuState === "UNIT_SELECT") {
       const activeUnits = gameState.units.filter(
@@ -191,7 +183,8 @@ export class MenuController {
         this.pendingAction === CommandType.MOVE_TO ||
         this.pendingAction === CommandType.OVERWATCH_POINT ||
         this.pendingAction === CommandType.PICKUP ||
-        this.pendingAction === CommandType.ESCORT_UNIT
+        this.pendingAction === CommandType.ESCORT_UNIT ||
+        this.pendingAction === CommandType.USE_ITEM
       )
         this.menuState = "TARGET_SELECT";
       else if (
@@ -467,6 +460,7 @@ export class MenuController {
     ) {
       this.client.sendCommand({
         type: CommandType.USE_ITEM,
+        unitIds,
         itemId: this.pendingItemId,
         target: this.pendingTargetLocation,
         label: this.pendingLabel || undefined,

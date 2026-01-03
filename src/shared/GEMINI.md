@@ -14,7 +14,7 @@ This directory contains types, constants, and utilities that are shared between 
 
 ## Functionality
 
-- **Weapon & Item Systems**: Defines `WeaponLibrary` and `ItemLibrary`, supporting units with various equipment. Accuracy is handled via a percentage-based modifier model (`soldierAim + weapon.accuracy + equipmentAccuracyBonus`). Items can provide passive bonuses (HP, Speed, Accuracy) or active abilities (Heal, Grenade).
+- **Weapon & Item Systems**: Defines `WeaponLibrary` and `ItemLibrary`, supporting units with various equipment. Accuracy is handled via a percentage-based modifier model (`soldierAim + weapon.accuracy + equipmentAccuracyBonus`). Items can provide passive bonuses (HP, Speed, Accuracy) or active abilities (Heal, Grenade, Mine). Active items may require `channelTime` (e.g., Medkit, Mine), during which the unit enters a `Channeling` state.
 - **Type Safety**: Provides a common language for both threads to ensure data consistency.
 - **Protocol Definition**: The types here define the contract for the JSON observation/command protocol.
 - **Determinism**: The `PRNG` ensures that given the same seed, both the engine and any replays produce the same results.

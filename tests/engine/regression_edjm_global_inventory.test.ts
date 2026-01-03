@@ -38,16 +38,18 @@ describe("Global Squad Inventory", () => {
       false,
     );
 
-    const initialUnit = engine.getState().units[0];
-    initialUnit.hp = 50; // Damage it
+    const units = (engine as any).state.units;
+    units[0].hp = 50; 
 
     const cmd: any = {
       type: CommandType.USE_ITEM,
+      unitIds: [units[0].id],
       itemId: "medkit",
       target: { x: 1, y: 1 },
     };
 
     engine.applyCommand(cmd);
+    engine.update(2100, 2100); 
 
     const state = engine.getState();
     expect(state.squadInventory["medkit"]).toBe(0);

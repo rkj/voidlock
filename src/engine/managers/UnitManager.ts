@@ -45,6 +45,7 @@ export class UnitManager {
     doors: Map<string, Door>,
     prng: PRNG,
     lootManager: LootManager,
+    director?: any,
     realDt: number = dt,
   ) {
     const claimedObjectives = new Set<string>();
@@ -282,7 +283,7 @@ export class UnitManager {
       ) {
         const vipCommand = this.vipAi.think(unit, state);
         if (vipCommand) {
-          this.executeCommand(unit, vipCommand, state, false);
+          this.executeCommand(unit, vipCommand, state, false, director);
         }
       }
 
@@ -329,6 +330,21 @@ export class UnitManager {
             }
             unit.state = UnitState.Idle;
             unit.channeling = undefined;
+            return;
+          } else if (unit.channeling.action === "UseItem") {
+            if (unit.activeCommand && unit.activeCommand.type === CommandType.USE_ITEM) {
+              const cmd = unit.activeCommand;
+              const count = state.squadInventory[cmd.itemId] || 0;
+              if (count > 0) {
+                state.squadInventory[cmd.itemId] = count - 1;
+                if (director) {
+                  director.handleUseItem(state, cmd);
+                }
+              }
+            }
+            unit.state = UnitState.Idle;
+            unit.channeling = undefined;
+            unit.activeCommand = undefined;
             return;
           }
         } else {
@@ -414,6 +430,7 @@ export class UnitManager {
               },
               state,
               false,
+              director,
             );
           }
         }
@@ -452,6 +469,7 @@ export class UnitManager {
               },
               state,
               false,
+              director,
             );
           }
         }
@@ -576,7 +594,7 @@ export class UnitManager {
       if (unit.state === UnitState.Idle && unit.commandQueue.length > 0) {
         const nextCmd = unit.commandQueue.shift();
         if (nextCmd) {
-          this.executeCommand(unit, nextCmd, state);
+          this.executeCommand(unit, nextCmd, state, true, director);
         }
       } else if (
         unit.archetypeId !== "vip" &&
@@ -611,6 +629,7 @@ export class UnitManager {
                 },
                 state,
                 false,
+                director,
               );
               actionTaken = true;
             }
@@ -667,6 +686,7 @@ export class UnitManager {
                   },
                   state,
                   false,
+                  director,
                 );
                 actionTaken = true;
               }
@@ -687,6 +707,7 @@ export class UnitManager {
                 },
                 state,
                 false,
+                director,
               );
               actionTaken = true;
             }
@@ -775,6 +796,7 @@ export class UnitManager {
                   },
                   state,
                   false,
+                  director,
                 );
                 actionTaken = true;
               }
@@ -820,6 +842,7 @@ export class UnitManager {
 
                 state,
                 false,
+                director,
               );
 
               actionTaken = true;
@@ -889,6 +912,7 @@ export class UnitManager {
                     },
                     state,
                     false,
+                    director,
                   );
                 }
               } else if (unit.state === UnitState.Idle) {
@@ -902,6 +926,7 @@ export class UnitManager {
                   },
                   state,
                   false,
+                  director,
                 );
               }
             }
@@ -1084,6 +1109,7 @@ export class UnitManager {
     cmd: Command,
     state: GameState,
     isManual: boolean = true,
+    director?: any,
   ) {
     unit.activeCommand = cmd;
 
@@ -1168,6 +1194,7 @@ export class UnitManager {
           },
           state,
           isManual,
+          director,
         );
         unit.activeCommand = cmd;
       }
@@ -1222,6 +1249,7 @@ export class UnitManager {
             },
             state,
             isManual,
+            director,
           );
           unit.activeCommand = cmd;
         } else if (objective && objective.targetCell) {
@@ -1235,6 +1263,7 @@ export class UnitManager {
             },
             state,
             isManual,
+            director,
           );
           unit.activeCommand = cmd;
         }
@@ -1252,8 +1281,61 @@ export class UnitManager {
             },
             state,
             isManual,
+            director,
           );
           unit.activeCommand = cmd;
+        }
+      }
+    } else if (cmd.type === CommandType.USE_ITEM) {
+      if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
+        const item = ItemLibrary[cmd.itemId];
+        if (item) {
+          // If item has a target, move there first?
+          // For now, assume unit must be at target or it's a global effect.
+          // Medkit/Mine usually require being at the target cell.
+          if (cmd.target && (item.action === "Heal" || item.action === "Mine")) {
+            const dist = this.getDistance(unit.pos, {
+              x: cmd.target.x + 0.5,
+              y: cmd.target.y + 0.5,
+            });
+            if (dist > 1.0) {
+              this.executeCommand(
+                unit,
+                {
+                  type: CommandType.MOVE_TO,
+                  unitIds: [unit.id],
+                  target: cmd.target,
+                  label: "Moving to use item",
+                },
+                state,
+                isManual,
+                director,
+              );
+              unit.activeCommand = cmd; // Re-set active command to USE_ITEM so it resumes after move
+              return;
+            }
+          }
+
+          if (item.channelTime && item.channelTime > 0) {
+            unit.state = UnitState.Channeling;
+            unit.channeling = {
+              action: "UseItem",
+              remaining: item.channelTime,
+              totalDuration: item.channelTime,
+            };
+            unit.path = undefined;
+            unit.targetPos = undefined;
+          } else {
+            // Instant use
+            const count = state.squadInventory[cmd.itemId] || 0;
+            if (count > 0) {
+              state.squadInventory[cmd.itemId] = count - 1;
+              if (director) {
+                director.handleUseItem(state, cmd);
+              }
+            }
+            unit.activeCommand = undefined;
+          }
         }
       }
     }

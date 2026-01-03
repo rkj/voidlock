@@ -458,6 +458,7 @@ export class CoreEngine {
       this.doorManager.getDoors(),
       this.prng,
       this.lootManager,
+      this.director,
       scaledDt,
     );
 

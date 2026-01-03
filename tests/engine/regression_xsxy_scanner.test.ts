@@ -33,8 +33,10 @@ describe("Scanner Item Regression", () => {
     );
 
     const target = { x: 10, y: 10 };
+    const units = engine.getState().units;
     const cmd: UseItemCommand = {
       type: CommandType.USE_ITEM,
+      unitIds: [units[0].id],
       itemId: "scanner",
       target,
     };

@@ -113,7 +113,7 @@ export enum AIProfile {
 }
 
 export type ChannelingState = {
-  action: "Extract" | "Collect" | "Pickup";
+  action: "Extract" | "Collect" | "Pickup" | "UseItem";
   remaining: number; // ms
   totalDuration: number; // ms
   targetId?: string; // ID of object/objective being interacted with
@@ -198,6 +198,7 @@ export type Item = {
   // Active effects
   action?: "Heal" | "Grenade" | "Mine" | "Scanner";
   charges?: number;
+  channelTime?: number; // New: time in ms to use the item
   cost: number;
 };
 
@@ -225,6 +226,7 @@ export const ItemLibrary: { [id: string]: Item } = {
     description: "Portable medical supplies to treat injuries in the field.",
     action: "Heal",
     charges: 1,
+    channelTime: 2000,
     cost: 10,
   },
   mine: {
@@ -234,6 +236,7 @@ export const ItemLibrary: { [id: string]: Item } = {
     description: "Proximity-detonated explosive. Good for covering retreats.",
     action: "Mine",
     charges: 2,
+    channelTime: 3000,
     cost: 15,
   },
   scanner: {
@@ -778,6 +781,7 @@ export type ResumeAiCommand = {
 
 export type UseItemCommand = {
   type: CommandType.USE_ITEM;
+  unitIds: string[];
   itemId: string;
   target?: Vector2;
   queue?: boolean;
