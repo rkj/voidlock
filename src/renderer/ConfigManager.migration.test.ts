@@ -9,7 +9,7 @@ describe("ConfigManager Migration", () => {
     vi.restoreAllMocks();
   });
 
-  it("should migrate from 'xenopurge_custom_config'", () => {
+  it("should migrate from 'voidlock_legacy_custom_config'", () => {
     const oldConfig = {
       mapWidth: 20,
       mapHeight: 20,
@@ -19,7 +19,7 @@ describe("ConfigManager Migration", () => {
       },
     };
 
-    localStorage.setItem("xenopurge_custom_config", JSON.stringify(oldConfig));
+    localStorage.setItem("voidlock_legacy_custom_config", JSON.stringify(oldConfig));
 
     const loadedConfig = ConfigManager.loadCustom();
     expect(loadedConfig).not.toBeNull();
@@ -49,7 +49,7 @@ describe("ConfigManager Migration", () => {
       },
     };
 
-    localStorage.setItem("xenopurge_config", JSON.stringify(oldConfig));
+    localStorage.setItem("voidlock_legacy_config", JSON.stringify(oldConfig));
 
     const loadedConfig = ConfigManager.loadCustom();
     expect(loadedConfig).not.toBeNull();
@@ -65,7 +65,7 @@ describe("ConfigManager Migration", () => {
       // squadConfig missing
     };
 
-    localStorage.setItem("xenopurge_config", JSON.stringify(oldConfig));
+    localStorage.setItem("voidlock_legacy_config", JSON.stringify(oldConfig));
 
     const loadedConfig = ConfigManager.loadCustom();
     expect(loadedConfig).not.toBeNull();
@@ -78,7 +78,7 @@ describe("ConfigManager Migration", () => {
       squadConfig: [{ archetypeId: "assault" }], // Old format was just an array
     };
 
-    localStorage.setItem("xenopurge_config", JSON.stringify(oldConfig));
+    localStorage.setItem("voidlock_legacy_config", JSON.stringify(oldConfig));
 
     const loadedConfig = ConfigManager.loadCustom();
     expect(loadedConfig).not.toBeNull();

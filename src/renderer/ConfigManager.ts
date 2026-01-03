@@ -49,11 +49,11 @@ export class ConfigManager {
     if (config) return config;
 
     // Migration from old keys
-    const oldConfig = this.load("xenopurge_custom_config") || this.load("xenopurge_config");
+    const oldConfig = this.load("voidlock_legacy_custom_config") || this.load("voidlock_legacy_config");
     if (oldConfig) {
       this.saveCustom(oldConfig);
-      // Optional: localStorage.removeItem("xenopurge_custom_config");
-      // Optional: localStorage.removeItem("xenopurge_config");
+      // Optional: localStorage.removeItem("voidlock_legacy_custom_config");
+      // Optional: localStorage.removeItem("voidlock_legacy_config");
       return oldConfig;
     }
 
@@ -65,7 +65,7 @@ export class ConfigManager {
     if (config) return config;
 
     // Migration from old key
-    const oldCampaign = this.load("xenopurge_campaign_config");
+    const oldCampaign = this.load("voidlock_legacy_campaign_config");
     if (oldCampaign) {
       this.saveCampaign(oldCampaign);
       return oldCampaign;
