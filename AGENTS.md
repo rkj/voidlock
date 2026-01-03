@@ -11,7 +11,7 @@ You are an AI contributor agent working on the Voidlock project. Your goal is to
 1. **Update Documentation (MANDATORY)**: If you add new files or change significant APIs, you MUST update the `GEMINI.md` file in the relevant directory. This is critical for maintaining codebase navigability.
 1. **Verify**: All changes MUST be verified with `npx vitest run`.
    - **🚨 REGRESSION RULE**: If browser validation discovers a problem that automated tests missed, you MUST stop, write a failing unit/integration test that reproduces the bug, and THEN fix the code.
-1. **Beads Context**: You may read task details using `bd show <id> --json` or `bd list --status <filter>`, but you are **FORBIDDEN** from using `bd list` without a status filter or using state-changing commands (`update`, `close`, `create`). The Manager Agent handles all Beads status updates.
+1. **Beads Context**: You may read task details using `bd show <id> --json` and you are **FORBIDDEN** from using `bd list` using state-changing commands (`update`, `close`, `create`). The Manager Agent handles all Beads status updates.
 
 ## 2. Technical Guidelines
 
