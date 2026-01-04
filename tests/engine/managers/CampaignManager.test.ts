@@ -75,7 +75,7 @@ describe("CampaignManager", () => {
     expect(state?.history.length).toBe(1);
 
     const soldier = state?.roster.find((s) => s.id === "soldier_0");
-    expect(soldier?.xp).toBe(50);
+    expect(soldier?.xp).toBe(100);
     expect(soldier?.kills).toBe(3);
     expect(soldier?.missions).toBe(1);
   });
