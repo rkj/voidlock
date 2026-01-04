@@ -2,6 +2,10 @@
 
 This is the main source directory for the Voidlock project.
 
+## Core Files
+
+- `index.html`: Main application entry point.
+
 ## Subdirectories
 
 - `content/`: Static data and tile definitions.
