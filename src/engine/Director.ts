@@ -9,6 +9,7 @@ import {
   UseItemCommand,
 } from "../shared/types";
 import { PRNG } from "../shared/PRNG";
+import { SPEED_NORMALIZATION_CONST } from "./Constants";
 
 export class Director {
   private turn: number = 0;
@@ -195,7 +196,7 @@ export class Director {
       maxHp: arch.hp,
       type: arch.type,
       damage: arch.damage,
-      fireRate: arch.fireRate * (arch.speed > 0 ? 10 / arch.speed : 1),
+      fireRate: arch.fireRate * (arch.speed > 0 ? SPEED_NORMALIZATION_CONST / arch.speed : 1),
       accuracy: arch.accuracy,
       attackRange: arch.attackRange,
       speed: arch.speed,

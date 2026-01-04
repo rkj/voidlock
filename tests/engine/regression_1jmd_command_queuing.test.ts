@@ -120,9 +120,9 @@ describe("Regression 1jmd: Command Queuing", () => {
     // Unit starts at 1.5, 1.5. 
     // Command 1: to 2.5, 1.5 (dist 1.0)
     // Command 2: to 3.5, 1.5 (dist 1.0)
-    // Total dist 2.0. Speed 2.0. Time 1.0s.
+    // Total dist 2.0. Speed 20. Now moves at 0.66 tiles/s. Time 3.0s.
     
-    for (let i = 0; i < 20; i++) {
+    for (let i = 0; i < 60; i++) {
         engine.update(100);
     }
 

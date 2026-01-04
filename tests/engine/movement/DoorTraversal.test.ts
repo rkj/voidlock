@@ -98,8 +98,8 @@ describe("Movement through Doors", () => {
     expect(u1.path).toBeDefined(); // Path found!
 
     // 3. Move until reaching the door (0.5 -> 1.0 boundary)
-    // Distance 0.5. Speed 2. Time = 0.25s = 250ms.
-    engine.update(200);
+    // Distance 0.5. Speed 20. Now moves at 0.66 tiles/s. Time = 0.75s = 750ms.
+    engine.update(800);
     state = engine.getState();
     u1 = state.units[0];
     // Should be near door.
@@ -113,7 +113,7 @@ describe("Movement through Doors", () => {
 
     // 5. Simulate wait time
     // Door open duration 0.2s = 200ms.
-    engine.update(300); // Wait for door
+    engine.update(1200); // Wait for door and some more move time
 
     state = engine.getState();
     door = state.map.doors![0];
@@ -123,9 +123,8 @@ describe("Movement through Doors", () => {
     expect(door.state).toBe("Open");
 
     // Unit should have passed through
-    // Total time ~600ms. Move 0->2 is dist 2. 1 second.
-    // But we waited 200ms for door.
-    // So unit should be around x=1.5
+    // Total time ~2s. Move 0->2 is dist 2. 3 seconds at 0.66 tiles/s.
+    // But we waited for door.
     expect(u1.pos.x).toBeGreaterThan(1.0);
   });
 });

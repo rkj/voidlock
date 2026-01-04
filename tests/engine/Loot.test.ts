@@ -72,8 +72,17 @@ describe("Loot Mechanics", () => {
       lootId: lootId,
     } as PickupCommand);
 
-    // Update to reach loot (pos 0.5, 0.5 to 2.5, 2.5 is dist ~2.8. Speed 20 is 2.0 tiles/s. Should take ~1.4s)
-    for (let i = 0; i < 30; i++) engine.update(100);
+    // Update to reach loot (pos 0.5, 0.5 to 2.5, 2.5 is dist ~2.8. Speed 20 is 0.66 tiles/s. Should take ~4.2s)
+    let reached = false;
+    for (let i = 0; i < 100; i++) {
+      engine.update(100);
+      if (engine.getState().units[0].state === UnitState.Channeling) {
+        reached = true;
+        break;
+      }
+    }
+
+    expect(reached).toBe(true);
 
     // Should be at loot position and starting channeling
     const stateAfterMove = engine.getState();
@@ -184,6 +193,7 @@ describe("Loot Mechanics", () => {
     engine.update(100); // Trigger channeling
     expect(engine.getState().units[0].state).toBe(UnitState.Channeling);
 
+    // Channeling duration 1s
     engine.update(1100); // Complete channeling
 
     const state = engine.getState();
