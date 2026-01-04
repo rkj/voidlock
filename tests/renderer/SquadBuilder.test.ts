@@ -52,7 +52,7 @@ describe("SquadBuilder UI logic", () => {
     };
 
     Object.values(ArchetypeLibrary).forEach((arch) => {
-      if (currentMissionType === MissionType.EscortVIP && arch.id === "vip") {
+      if (arch.id === "vip") {
         return;
       }
       const row = document.createElement("div");
@@ -148,6 +148,18 @@ describe("SquadBuilder UI logic", () => {
     expect(medicInput.value).toBe("0");
     expect(currentSquad.length).toBe(1);
     expect(currentSquad[0].count).toBe(4);
+  });
+
+  it("should NEVER include VIP in the list regardless of mission type", () => {
+    currentMissionType = MissionType.Default;
+    renderSquadBuilder();
+    const vipRow = document.querySelector('[data-arch-id="vip"]');
+    expect(vipRow).toBeNull();
+
+    currentMissionType = MissionType.EscortVIP;
+    renderSquadBuilder();
+    const vipRowEscort = document.querySelector('[data-arch-id="vip"]');
+    expect(vipRowEscort).toBeNull();
   });
 
   it("should allow changing counts within limit", () => {
