@@ -16,6 +16,7 @@ import { ConfigManager } from "./ConfigManager";
 import { MenuController } from "./MenuController";
 import { HUDManager } from "./ui/HUDManager";
 import { MapUtility } from "./MapUtility";
+import { TimeUtility } from "./TimeUtility";
 import { InputManager } from "./InputManager";
 import { EquipmentScreen } from "./screens/EquipmentScreen";
 import { BarracksScreen } from "./screens/BarracksScreen";
@@ -192,7 +193,8 @@ const togglePause = () => {
   } else {
     if (btn) btn.textContent = "⏸ Pause";
     if (gameSpeedValue) gameSpeedValue.textContent = `${lastSpeed.toFixed(1)}x`;
-    if (gameSpeedSlider) gameSpeedSlider.value = lastSpeed.toString();
+    if (gameSpeedSlider)
+      gameSpeedSlider.value = TimeUtility.scaleToSlider(lastSpeed).toString();
   }
 };
 
@@ -258,7 +260,9 @@ const launchMission = () => {
   const tsSlider = document.getElementById(
     "time-scale-slider",
   ) as HTMLInputElement;
-  const initialTimeScale = tsSlider ? parseFloat(tsSlider.value) : 1.0;
+  const initialTimeScale = tsSlider
+    ? TimeUtility.sliderToScale(parseFloat(tsSlider.value))
+    : 1.0;
 
   const config = {
     mapWidth: currentMapWidth,
@@ -308,7 +312,8 @@ const launchMission = () => {
   ) as HTMLInputElement;
   const gameSpeedValue = document.getElementById("speed-value");
   const currentScale = gameClient.getTargetScale();
-  if (gameSpeedSlider) gameSpeedSlider.value = currentScale.toString();
+  if (gameSpeedSlider)
+    gameSpeedSlider.value = TimeUtility.scaleToSlider(currentScale).toString();
   if (gameSpeedValue)
     gameSpeedValue.textContent = `${currentScale.toFixed(1)}x`;
 
@@ -365,7 +370,7 @@ const abortMission = () => {
   ) as HTMLInputElement;
   const tsValue = document.getElementById("time-scale-value");
   if (tsSlider) {
-    tsSlider.value = "1.0";
+    tsSlider.value = "50";
     if (tsValue) tsValue.textContent = "1.0";
   }
 
@@ -484,15 +489,14 @@ document.addEventListener("DOMContentLoaded", () => {
   ) as HTMLInputElement;
   const gameSpeedValue = document.getElementById("speed-value");
   if (gameSpeedSlider && gameSpeedValue) {
-    gameSpeedSlider.max = "5.0";
     gameSpeedSlider.addEventListener("input", () => {
-      const speed = parseFloat(gameSpeedSlider.value);
-      gameClient.setTimeScale(speed);
+      const scale = TimeUtility.sliderToScale(parseFloat(gameSpeedSlider.value));
+      gameClient.setTimeScale(scale);
 
       if (gameClient.getIsPaused()) {
         gameSpeedValue.textContent = `0.05x`;
       } else {
-        gameSpeedValue.textContent = `${speed.toFixed(1)}x`;
+        gameSpeedValue.textContent = `${scale.toFixed(1)}x`;
       }
     });
   }
@@ -578,7 +582,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <div><input type="checkbox" id="toggle-agent-control" checked><label for="toggle-agent-control" style="display:inline;">Agent Control</label></div>
         <div style="margin-top: 20px;">
             <label for="time-scale-slider" style="display: block; margin-bottom: 10px;">Game Speed (x): <span id="time-scale-value">1.0</span></label>
-            <input type="range" id="time-scale-slider" min="0.1" max="5.0" step="0.1" value="1.0" style="width: 100%; height: 20px; cursor: pointer;">
+            <input type="range" id="time-scale-slider" min="0" max="100" step="1" value="50" style="width: 100%; height: 20px; cursor: pointer;">
         </div>
       `;
     const mapConfigSection = document.getElementById("map-config-section");
@@ -616,8 +620,8 @@ document.addEventListener("DOMContentLoaded", () => {
     ) as HTMLInputElement;
     const tsValue = document.getElementById("time-scale-value");
     tsSlider?.addEventListener("input", () => {
-      const scale = parseFloat(tsSlider.value);
-      if (tsValue) tsValue.textContent = scale.toString();
+      const scale = TimeUtility.sliderToScale(parseFloat(tsSlider.value));
+      if (tsValue) tsValue.textContent = scale.toFixed(1);
       gameClient.setTimeScale(scale);
     });
   }
