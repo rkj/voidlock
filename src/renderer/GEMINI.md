@@ -15,6 +15,7 @@ This directory contains the main thread rendering logic and user interface for V
 - `Icons.ts`: Contains SVG or canvas-based icon definitions for units, UI elements, and core unit statistics (Speed, Accuracy, Damage, Rate, Range).
 - `MapUtility.ts`: Utility functions for map coordinate transformations and rendering helpers.
 - `MenuConfig.ts`: Configuration for the hierarchical menu structure.
+- `ThemeManager.ts`: Centralized management of visual themes, CSS variables, and asset mapping.
 
 ## Subdirectories
 
@@ -45,3 +46,4 @@ This directory contains the main thread rendering logic and user interface for V
 - **ADR 0006**: Autonomous Agent Architecture (AI & Tick Sync)
 - **ADR 0007**: Command Pattern & Queue (Shared Protocol)
 - **ADR 0008**: Renderer & UI Separation (Hybrid Rendering)
+- **ADR 0012**: Theming System & Asset Pipeline

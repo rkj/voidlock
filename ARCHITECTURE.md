@@ -54,6 +54,14 @@ Common definitions.
 - **`types.ts`**: Contains all shared interfaces (`GameState`, `Command`, `MapDefinition`, `Unit`, etc.) ensuring type safety across the Worker boundary.
 - **`PRNG`**: A seedable Pseudo-Random Number Generator to ensure determinism.
 
+### 5. Theming & Assets (`src/renderer/`, `scripts/`)
+
+Centralized visual configuration and asset processing.
+
+- **`ThemeManager`**: Manages the application's visual state. It synchronizes CSS variables used in the DOM UI with the Canvas `Renderer`, allowing for dynamic theme switching and consistent color palettes.
+- **Asset Pipeline**: An automated script (`scripts/process_assets.ts`) that transforms raw assets from `NanoBanana Assets/` into optimized, standardized web formats in `public/assets/`.
+- **Icon Library**: A decoupled set of tactical SVG icons styled via CSS, replacing hardcoded data strings.
+
 ## Key Concepts
 
 - **Determinism**: The engine is fully deterministic based on the initial `seed`. Replaying the same sequence of commands on the same seed produces the exact same game state.
