@@ -19,6 +19,7 @@ describe("HUDManager Objective Regression PDXS", () => {
       timeScale: 1.0,
       isPaused: false,
       isSlowMotion: false,
+      allowTacticalPause: true,
     },
     squadInventory: {},
     stats: {

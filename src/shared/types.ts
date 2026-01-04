@@ -628,6 +628,7 @@ export type SimulationSettings = {
   timeScale: number;
   isPaused: boolean;
   isSlowMotion: boolean;
+  allowTacticalPause: boolean;
 };
 
 export type MissionStats = {
@@ -698,6 +699,7 @@ export type WorkerMessage =
         startingThreatLevel?: number;
         initialTimeScale?: number;
         startPaused?: boolean;
+        allowTacticalPause?: boolean;
         mode?: EngineMode;
         commandLog?: CommandLogEntry[];
       };

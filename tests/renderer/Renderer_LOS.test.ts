@@ -126,6 +126,7 @@ describe("Renderer LOS", () => {
         timeScale: 1.0,
         isPaused: false,
         isSlowMotion: false,
+        allowTacticalPause: true,
       },
       status: "Playing",
       stats: {

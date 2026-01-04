@@ -82,6 +82,7 @@ describe("GameClient", () => {
         startingThreatLevel: 0,
         initialTimeScale: 1.0,
         startPaused: false,
+        allowTacticalPause: true,
       },
     });
 
@@ -167,6 +168,7 @@ describe("GameClient", () => {
         startingThreatLevel: 0,
         initialTimeScale: 1.0,
         startPaused: false,
+        allowTacticalPause: true,
       },
     });
 

@@ -69,6 +69,7 @@ export class CoreEngine {
     startPaused: boolean = false,
     mode: EngineMode = EngineMode.Simulation,
     initialCommandLog: CommandLogEntry[] = [],
+    allowTacticalPause: boolean = true,
   ) {
     this.prng = new PRNG(seed);
     this.gameGrid = new GameGrid(map);
@@ -137,6 +138,7 @@ export class CoreEngine {
         timeScale: initialTimeScale,
         isPaused: startPaused,
         isSlowMotion: initialTimeScale < 1.0,
+        allowTacticalPause: allowTacticalPause,
       },
       squadInventory: squadConfig.inventory || {},
     };
@@ -331,8 +333,12 @@ export class CoreEngine {
   }
 
   public setTimeScale(scale: number) {
-    this.state.settings.timeScale = scale;
-    this.state.settings.isSlowMotion = scale < 1.0;
+    let effectiveScale = scale;
+    if (!this.state.settings.allowTacticalPause && scale < 1.0 && scale > 0) {
+      effectiveScale = 1.0;
+    }
+    this.state.settings.timeScale = effectiveScale;
+    this.state.settings.isSlowMotion = effectiveScale < 1.0;
   }
 
   public setPaused(paused: boolean) {

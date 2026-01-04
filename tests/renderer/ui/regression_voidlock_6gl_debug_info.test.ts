@@ -47,6 +47,7 @@ describe("HUDManager Debug Info Regression (voidlock-6gl)", () => {
         timeScale: 1.0,
         isPaused: false,
         isSlowMotion: false,
+        allowTacticalPause: true,
       },
       squadInventory: {},
       stats: {

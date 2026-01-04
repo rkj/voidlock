@@ -21,12 +21,13 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
         msg.payload.agentControlEnabled,
         msg.payload.debugOverlayEnabled,
         msg.payload.missionType,
-        msg.payload.losOverlayEnabled,
+        msg.payload.losOverlayEnabled ?? false,
         msg.payload.startingThreatLevel,
         timeScale,
         msg.payload.startPaused ?? false,
         msg.payload.mode ?? EngineMode.Simulation,
         msg.payload.commandLog ?? [],
+        msg.payload.allowTacticalPause ?? true,
       );
 
       // Start loop
