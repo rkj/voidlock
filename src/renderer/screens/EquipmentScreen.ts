@@ -203,9 +203,10 @@ export class EquipmentScreen {
       if (!w)
         return `<div style="color:var(--color-text-dim); font-size:0.7em; margin-bottom:8px;">${label}: [EMPTY SLOT]</div>`;
       return `
-            <div style="margin-bottom:12px; border-bottom:1px solid #222; padding-bottom:8px;">
+            <div style="margin-bottom:12px; border-bottom:1px solid var(--color-surface-elevated); padding-bottom:8px;">
                 <div style="font-size:0.8em; font-weight:bold; color:var(--color-primary); margin-bottom:4px;">${label}: ${w.name}</div>
                 <div style="display:flex; gap:12px; flex-wrap:wrap;">
+
                     ${StatDisplay.render(Icons.Damage, w.damage, "Damage per hit")}
                     ${StatDisplay.render(Icons.Rate, w.fireRate, "Rounds per second")}
                     ${StatDisplay.render(Icons.Range, w.range, "Effective Range (m)")}

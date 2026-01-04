@@ -217,14 +217,15 @@ export class CampaignScreen {
             node.status === "Cleared" &&
             (target.status === "Accessible" || target.status === "Cleared")
           ) {
-            ctx.strokeStyle = "rgba(0, 255, 0, 0.4)";
+            ctx.strokeStyle = "var(--color-los-soldier)";
             ctx.setLineDash([]);
             ctx.lineWidth = 2;
           } else {
-            ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
+            ctx.strokeStyle = "var(--color-text-dim)";
             ctx.setLineDash([4, 4]);
             ctx.lineWidth = 1;
           }
+
 
           ctx.stroke();
         }

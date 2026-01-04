@@ -281,8 +281,9 @@ export class BarracksScreen {
 
       const select = document.createElement("select");
       select.className = "w-full";
-      select.style.background = "#000";
+      select.style.background = "var(--color-bg)";
       select.style.color = "var(--color-text)";
+
       select.style.border = "1px solid var(--color-border-strong)";
       select.style.padding = "4px";
 
