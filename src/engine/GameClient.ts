@@ -113,7 +113,7 @@ export class GameClient {
     this.worker.postMessage(msg);
 
     // Sync current scale to new worker
-    this.sendTimeScaleToWorker(this.isPaused ? 0.05 : this.currentScale);
+    this.sendTimeScaleToWorker(this.isPaused ? 0.1 : this.currentScale);
   }
 
   public sendCommand(cmd: Command) {
@@ -164,7 +164,7 @@ export class GameClient {
   public setTimeScale(scale: number) {
     if (this.isPaused) {
       this.lastNonPausedScale = scale;
-      // Do not update worker immediately, keep at 0.05
+      // Do not update worker immediately, keep at 0.1
     } else {
       this.currentScale = scale;
       this.lastNonPausedScale = scale;
@@ -176,7 +176,7 @@ export class GameClient {
     if (!this.isPaused) {
       this.isPaused = true;
       this.lastNonPausedScale = this.currentScale;
-      this.sendTimeScaleToWorker(0.05);
+      this.sendTimeScaleToWorker(0.1);
     }
   }
 
@@ -194,7 +194,7 @@ export class GameClient {
   }
 
   public getTimeScale(): number {
-    return this.isPaused ? 0.05 : this.currentScale;
+    return this.isPaused ? 0.1 : this.currentScale;
   }
 
   public getTargetScale(): number {

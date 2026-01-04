@@ -57,10 +57,10 @@ describe("GameClient Regression zzjz (Pause/Speed Leak)", () => {
       defaultSquad,
     );
     client.setTimeScale(2.0);
-    client.pause(); // Should set scale to 0.05 and isPaused to true
+    client.pause(); // Should set scale to 0.1 and isPaused to true
 
     expect(client.getIsPaused()).toBe(true);
-    expect(client.getTimeScale()).toBe(0.05);
+    expect(client.getTimeScale()).toBe(0.1);
     expect(client.getTargetScale()).toBe(2.0);
 
     postMessageMock.mockClear();
