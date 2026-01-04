@@ -74,7 +74,8 @@ export class MapRenderer {
     if (!this.graph) return;
 
     this.ctx.lineCap = "round";
-    this.ctx.strokeStyle = "#00FFFF";
+    // Draw Walls
+    this.ctx.strokeStyle = "#00FFFF"; // --color-wall
     this.ctx.lineWidth = 2;
     this.ctx.beginPath();
 

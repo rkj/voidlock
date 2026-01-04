@@ -37,10 +37,10 @@ describe("SquadBuilder UI logic", () => {
         display.textContent = `Total Soldiers: ${total}/${MAX_SQUAD_SIZE}`;
         display.style.color =
           total > MAX_SQUAD_SIZE
-            ? "#f00"
+            ? "var(--color-danger)"
             : total === MAX_SQUAD_SIZE
-              ? "#0f0"
-              : "#aaa";
+              ? "var(--color-primary)"
+              : "var(--color-text-muted)";
       }
 
       const launchBtn = document.getElementById(

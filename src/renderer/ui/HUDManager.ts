@@ -45,7 +45,7 @@ export class HUDManager {
   private updateTopBar(state: GameState) {
     const statusElement = document.getElementById("game-status");
     if (statusElement) {
-      statusElement.innerHTML = `<span style="color:#888">TIME:</span>${(state.t / 1000).toFixed(1)}s | <span style="color:#888">STATUS:</span>${state.status}`;
+      statusElement.innerHTML = `<span style="color:var(--color-text-muted)">TIME:</span>${(state.t / 1000).toFixed(1)}s | <span style="color:var(--color-text-muted)">STATUS:</span>${state.status}`;
     }
 
     const vEl = document.getElementById("version-display");
@@ -62,15 +62,15 @@ export class HUDManager {
     const topThreatValue = document.getElementById("top-threat-value");
 
     if (topThreatFill && topThreatValue) {
-      let threatColor = "#4caf50";
-      if (threatLevel > 30) threatColor = "#ff9800";
-      if (threatLevel > 70) threatColor = "#f44336";
-      if (threatLevel > 90) threatColor = "#b71c1c";
+      let threatVar = "--color-success";
+      if (threatLevel > 30) threatVar = "--color-warning";
+      if (threatLevel > 70) threatVar = "--color-danger";
+      if (threatLevel > 90) threatVar = "--color-danger"; // Could add a darker red if needed
 
       topThreatFill.style.width = `${Math.min(100, threatLevel)}%`;
-      topThreatFill.style.backgroundColor = threatColor;
+      topThreatFill.style.backgroundColor = `var(${threatVar})`;
       topThreatValue.textContent = `${threatLevel.toFixed(0)}%`;
-      topThreatValue.style.color = threatColor;
+      topThreatValue.style.color = `var(${threatVar})`;
     }
   }
 
@@ -94,7 +94,7 @@ export class HUDManager {
     if (!menuDiv) {
       menuDiv = document.createElement("div");
       menuDiv.className = "command-menu";
-      menuDiv.style.borderBottom = "1px solid #444";
+      menuDiv.style.borderBottom = "1px solid var(--color-border-strong)";
       menuDiv.style.paddingBottom = "10px";
       menuDiv.style.marginBottom = "10px";
       menuDiv.addEventListener("click", (e) => {
@@ -140,7 +140,7 @@ export class HUDManager {
         debugDiv = document.createElement("div");
         debugDiv.className = "debug-controls";
         debugDiv.style.marginTop = "10px";
-        debugDiv.style.borderTop = "1px solid #444";
+        debugDiv.style.borderTop = "1px solid var(--color-border-strong)";
         debugDiv.style.paddingTop = "10px";
         rightPanel.appendChild(debugDiv);
       }
@@ -168,7 +168,7 @@ export class HUDManager {
       const isCompleted = obj.state === "Completed";
       const isFailed = obj.state === "Failed";
       const icon = isCompleted ? "✔" : isFailed ? "✘" : "○";
-      const color = isCompleted ? "#0f0" : isFailed ? "#f00" : "#888";
+      const color = isCompleted ? "var(--color-success)" : isFailed ? "var(--color-danger)" : "var(--color-text-muted)";
 
       html += `<p style="margin: 5px 0;">
         <span style="color:${color}; margin-right:8px; font-weight:bold;" title="${obj.state}">${icon}</span>
@@ -187,7 +187,7 @@ export class HUDManager {
       const totalUnits = state.units.length;
       const isCompleted = extractedCount === totalUnits && totalUnits > 0;
       const icon = extractedCount > 0 ? "✔" : "○";
-      const color = extractedCount > 0 ? "#0f0" : "#888";
+      const color = extractedCount > 0 ? "var(--color-success)" : "var(--color-text-muted)";
       const status = isCompleted ? "Completed" : "Pending";
       const locStr = showCoords
         ? ` at (${state.map.extraction.x},${state.map.extraction.y})`
@@ -206,7 +206,7 @@ export class HUDManager {
       intelDiv = document.createElement("div");
       intelDiv.className = "enemy-intel";
       intelDiv.style.marginTop = "10px";
-      intelDiv.style.borderTop = "1px solid #444";
+      intelDiv.style.borderTop = "1px solid var(--color-border-strong)";
       intelDiv.style.paddingTop = "10px";
       rightPanel.appendChild(intelDiv);
     }
@@ -218,7 +218,7 @@ export class HUDManager {
 
     if (visibleEnemies.length === 0) {
       intelDiv.innerHTML =
-        "<h3>Enemy Intel</h3><p style='color:#666; font-size:0.8em;'>No hostiles detected.</p>";
+        "<h3>Enemy Intel</h3><p style='color:var(--color-text-dim); font-size:0.8em;'>No hostiles detected.</p>";
       return;
     }
 
@@ -235,11 +235,11 @@ export class HUDManager {
       const fireRateVal = e.fireRate > 0 ? (1000 / e.fireRate).toFixed(1) : "0";
 
       html += `
-        <div style="margin-bottom:8px; border:1px solid #333; padding:4px 8px; background:#111; border-left: 3px solid #f44336;">
+        <div class="intel-box">
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <strong style="color:#f44336; font-size:0.9em;">${type} x${count}</strong>
+            <strong style="color:var(--color-danger); font-size:0.9em;">${type} x${count}</strong>
           </div>
-          <div style="font-size:0.7em; color:#888; display:flex; gap:8px; margin-top:4px; flex-wrap:wrap;">
+          <div style="font-size:0.7em; color:var(--color-text-muted); display:flex; gap:8px; margin-top:4px; flex-wrap:wrap;">
             ${StatDisplay.render(Icons.Speed, e.speed, "Speed")}
             ${StatDisplay.render(Icons.Accuracy, e.accuracy, "Accuracy")}
             ${StatDisplay.render(Icons.Damage, e.damage, "Damage")}
@@ -258,26 +258,22 @@ export class HUDManager {
   private renderGameOver(rightPanel: HTMLElement, state: GameState) {
     rightPanel.innerHTML = "";
     const summaryDiv = document.createElement("div");
-    summaryDiv.className = "game-over-summary";
-    summaryDiv.style.textAlign = "center";
-    summaryDiv.style.padding = "20px";
-    summaryDiv.style.background = "#222";
-    summaryDiv.style.border =
-      "2px solid " + (state.status === "Won" ? "#0f0" : "#f00");
+    summaryDiv.className = "game-over-summary" + (state.status === "Won" ? "" : " lost");
+    summaryDiv.style.margin = "20px";
 
     const title = document.createElement("h2");
     title.textContent =
       state.status === "Won" ? "MISSION ACCOMPLISHED" : "SQUAD WIPED";
-    title.style.color = state.status === "Won" ? "#0f0" : "#f00";
+    title.style.color = state.status === "Won" ? "var(--color-success)" : "var(--color-danger)";
     summaryDiv.appendChild(title);
 
     // Objectives List
     const objectivesDiv = document.createElement("div");
     objectivesDiv.style.margin = "20px 0";
     objectivesDiv.style.textAlign = "left";
-    objectivesDiv.style.borderBottom = "1px solid #444";
+    objectivesDiv.style.borderBottom = "1px solid var(--color-border-strong)";
     objectivesDiv.style.paddingBottom = "10px";
-    objectivesDiv.innerHTML = `<h3 style="font-size:0.9em; color:#888; margin-top:0;">OBJECTIVES</h3>${this.renderObjectivesList(state)}`;
+    objectivesDiv.innerHTML = `<h3 style="font-size:0.9em; color:var(--color-text-muted); margin-top:0;">OBJECTIVES</h3>${this.renderObjectivesList(state)}`;
 
     summaryDiv.appendChild(objectivesDiv);
 
@@ -346,24 +342,24 @@ export class HUDManager {
             <div style="display:flex; align-items:center; gap:6px;">
                <span class="u-icon" style="font-size:1.2em;"></span>
                <strong class="u-id"></strong>
-               <span class="u-burden" style="color:#f44336; font-size:1em;"></span>
+               <span class="u-burden" style="color:var(--color-danger); font-size:1em;"></span>
             </div>
             <span class="u-hp" style="font-weight:bold;"></span>
           </div>
-          <div class="base-stats-row" style="font-size:0.7em; display:flex; gap:8px; color:#888; margin-top:2px;">
+          <div class="base-stats-row" style="font-size:0.7em; display:flex; gap:8px; color:var(--color-text-muted); margin-top:2px;">
              <span class="u-speed-box"></span>
           </div>
           <div class="weapon-stats-container" style="font-size:0.65em; margin-top:4px; display:flex; flex-direction:column; gap:2px; border-top:1px solid #222; padding-top:2px;">
              <div class="u-lh-row" style="display:flex; gap:6px; align-items:center;">
-                <span style="color:#666; width:15px;">LH:</span>
+                <span style="color:var(--color-text-dim); width:15px;">LH:</span>
                 <span class="u-lh-stats" style="display:flex; gap:6px;"></span>
              </div>
              <div class="u-rh-row" style="display:flex; gap:6px; align-items:center;">
-                <span style="color:#666; width:15px;">RH:</span>
+                <span style="color:var(--color-text-dim); width:15px;">RH:</span>
                 <span class="u-rh-stats" style="display:flex; gap:6px;"></span>
              </div>
           </div>
-          <div class="status-row" style="font-size:0.75em; color:#aaa; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;">
+          <div class="status-row" style="font-size:0.75em; color:var(--color-text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;">
                <span class="u-status-text"></span>
           </div>
           <div class="hp-bar" style="margin-top:2px;"><div class="hp-fill"></div></div>
@@ -387,7 +383,7 @@ export class HUDManager {
       const rhStats = this.getWeaponStats(unit, unit.rightHand);
 
       const renderWep = (stats: any) => {
-        if (!stats) return '<span style="color:#444">EMPTY</span>';
+        if (!stats) return '<span style="color:var(--color-border-strong)">EMPTY</span>';
         return `
           ${StatDisplay.render(Icons.Damage, stats.damage, "Damage")}
           ${StatDisplay.render(Icons.Accuracy, stats.accuracy, "Accuracy")}
@@ -405,10 +401,10 @@ export class HUDManager {
       const rhRow = el.querySelector(".u-rh-row") as HTMLElement;
 
       if (unit.activeWeaponId === unit.leftHand && unit.leftHand) {
-        lhRow.style.background = "#222";
+        lhRow.style.background = "var(--color-surface-elevated)";
         rhRow.style.background = "transparent";
       } else if (unit.activeWeaponId === unit.rightHand && unit.rightHand) {
-        rhRow.style.background = "#222";
+        rhRow.style.background = "var(--color-surface-elevated)";
         lhRow.style.background = "transparent";
       } else {
         lhRow.style.background = "transparent";

@@ -902,10 +902,10 @@ document.addEventListener("DOMContentLoaded", () => {
       totalDiv.textContent = `Total Soldiers: ${total}/${MAX_SQUAD_SIZE}`;
       totalDiv.style.color =
         total > MAX_SQUAD_SIZE
-          ? "#f00"
+          ? "var(--color-danger)"
           : total === MAX_SQUAD_SIZE
-            ? "#0f0"
-            : "#aaa";
+            ? "var(--color-primary)"
+            : "var(--color-text-muted)";
       const launchBtn = document.getElementById(
         "btn-goto-equipment",
       ) as HTMLButtonElement;
@@ -917,10 +917,8 @@ document.addEventListener("DOMContentLoaded", () => {
         return; // VIP is auto-added in this mission type
       }
       const row = document.createElement("div");
-      row.style.display = "flex";
-      row.style.alignItems = "center";
-      row.style.justifyContent = "space-between";
-      row.style.borderBottom = "1px solid #333";
+      row.className = "flex-row align-center justify-between";
+      row.style.borderBottom = "1px solid var(--color-border)";
       row.style.padding = "5px 0";
 
       const info = document.createElement("div");
@@ -930,8 +928,8 @@ document.addEventListener("DOMContentLoaded", () => {
       const fireRateVal =
         scaledFireRate > 0 ? (1000 / scaledFireRate).toFixed(1) : "0";
       info.innerHTML = `
-        <strong style="color:#0f0;">${arch.name}</strong>
-        <div style="font-size:0.75em; color:#888; margin-top:2px; display:flex; gap:8px;">
+        <strong style="color:var(--color-primary);">${arch.name}</strong>
+        <div style="font-size:0.75em; color:var(--color-text-muted); margin-top:2px; display:flex; gap:8px;">
           ${StatDisplay.render(Icons.Speed, arch.speed, "Speed")}
           ${StatDisplay.render(Icons.Accuracy, arch.accuracy, "Accuracy")}
           ${StatDisplay.render(Icons.Damage, arch.damage, "Damage")}

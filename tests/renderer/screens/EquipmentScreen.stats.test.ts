@@ -104,11 +104,9 @@ describe("EquipmentScreen Stats and Tooltips", () => {
     );
     screen.show();
 
-    // Global supplies are in rows with border: 1px solid #333
-    const supplyRows = Array.from(container.querySelectorAll("div")).filter(
-      (el) =>
-        el.style.border === "1px solid rgb(51, 51, 51)" &&
-        el.textContent?.includes("Medkit"),
+    // Global supplies are in rows with class 'card'
+    const supplyRows = Array.from(container.querySelectorAll(".card")).filter(
+      (el) => el.textContent?.includes("Medkit"),
     );
 
     expect(supplyRows.length).toBeGreaterThan(0);

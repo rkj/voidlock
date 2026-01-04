@@ -12,7 +12,7 @@ This directory contains the main thread rendering logic and user interface for V
 - `MenuController.ts`: Implements the hierarchical keyboard-driven command menu. Includes context-aware logic to hide or disable options based on game state, and handles Shift-key modifiers for command queueing.
 - `ConfigManager.ts`: Handles loading and saving game configuration and mission parameters. Supports isolated storage for Custom Missions and Campaign mode to prevent state pollution.
 - `VisibilityPolygon.ts`: Implements visibility calculations for rendering accurate LOS cones.
-- `Icons.ts`: Contains SVG or canvas-based icon definitions for units, UI elements, and core unit statistics (Speed, Accuracy, Damage, Rate, Range).
+- `Icons.ts`: Contains URL definitions for tactical icons pointing to external SVG files.
 - `MapUtility.ts`: Utility functions for map coordinate transformations and rendering helpers.
 - `MenuConfig.ts`: Configuration for the hierarchical menu structure.
 - `ThemeManager.ts`: Centralized management of visual themes, CSS variables, and asset mapping.
