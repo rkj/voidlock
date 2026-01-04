@@ -11,7 +11,9 @@ describe("Campaign Types", () => {
   it("should allow creating a valid CampaignState object with all sub-types", () => {
     const rules: GameRules = {
       mode: "Preset",
+      difficulty: "Standard",
       deathRule: "Iron",
+      allowTacticalPause: true,
       difficultyScaling: 1.0,
       resourceScarcity: 1.0,
     };

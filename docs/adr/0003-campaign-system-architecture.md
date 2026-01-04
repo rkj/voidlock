@@ -75,9 +75,13 @@ interface CampaignState {
 #### `GameRules` (Difficulty Settings)
 
 ```typescript
+export type CampaignDifficulty = "Simulation" | "Clone" | "Standard" | "Ironman";
+
 interface GameRules {
   mode: "Custom" | "Preset";
+  difficulty: CampaignDifficulty;
   deathRule: "Iron" | "Clone" | "Simulation";
+  allowTacticalPause: boolean;
   difficultyScaling: number; // Multiplier for enemy density/stats
   resourceScarcity: number; // Multiplier for scrap rewards
 }
