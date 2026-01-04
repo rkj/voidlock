@@ -1,0 +1,22 @@
+{
+  "floor": "assets/floor.png",
+  "wall": "assets/wall.png",
+  "door_closed": "assets/door_closed.png",
+  "door_open": "assets/door_open.png",
+  "soldier_heavy": "assets/soldier_heavy.png",
+  "soldier_demolition": "assets/soldier_demolition.png",
+  "soldier_medic": "assets/soldier_medic.png",
+  "soldier_scout": "assets/soldier_scout.png",
+  "crate": "assets/crate.png",
+  "reticle": "assets/reticle.png",
+  "selection_ring": "assets/selection_ring.png",
+  "spawn_point": "assets/spawn_point.png",
+  "spawn_point_2": "assets/spawn_point_2.png",
+  "terminal": "assets/terminal.png",
+  "void": "assets/void.png",
+  "waypoint": "assets/waypoint.png",
+  "xeno_drone_2": "assets/xeno_drone_2.png",
+  "xeno_guard_3": "assets/xeno_guard_3.png",
+  "xeno_spitter": "assets/xeno_spitter.png",
+  "xeno_swarmer_1": "assets/xeno_swarmer_1.png"
+}

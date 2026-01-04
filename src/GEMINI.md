@@ -29,3 +29,4 @@ The project uses TypeScript and Vitest path aliases for cleaner imports:
 - **ADR 0006: Autonomous Agent Architecture** - Defines the profile-based AI system and tick synchronization.
 - **ADR 0007: Command Pattern & Queue** - Specifies the strict JSON protocol and deterministic command processing.
 - **ADR 0008: Renderer & UI Separation** - Explains the split between Canvas world rendering and DOM-based UI.
+- **ADR 0012: Theming System & Asset Pipeline** - Defines the automated asset processing and CSS-based theming.
