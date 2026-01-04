@@ -5,7 +5,9 @@ import { GameRules } from "@src/shared/campaign_types";
 describe("SectorMapGenerator", () => {
   const defaultRules: GameRules = {
     mode: "Custom",
+    difficulty: "Clone",
     deathRule: "Clone",
+    allowTacticalPause: true,
     difficultyScaling: 1.0,
     resourceScarcity: 1.0,
   };

@@ -69,7 +69,7 @@ export class CampaignManager {
     const roster = this.generateInitialRoster(prng);
 
     this.state = {
-      version: "0.53.0", // Current project version
+      version: "0.56.0", // Current project version
       seed,
       rules,
       scrap: 500,
@@ -87,25 +87,52 @@ export class CampaignManager {
 
   private getRulesForDifficulty(difficulty: string): GameRules {
     switch (difficulty.toLowerCase()) {
+      case "simulation":
       case "easy":
         return {
           mode: "Custom",
+          difficulty: "Simulation",
           deathRule: "Simulation",
+          allowTacticalPause: true,
           difficultyScaling: 0.8,
           resourceScarcity: 1.2,
         };
+      case "clone":
+      case "normal":
+        return {
+          mode: "Custom",
+          difficulty: "Clone",
+          deathRule: "Clone",
+          allowTacticalPause: true,
+          difficultyScaling: 1.0,
+          resourceScarcity: 1.0,
+        };
+      case "standard":
       case "hard":
         return {
           mode: "Custom",
+          difficulty: "Standard",
           deathRule: "Iron",
+          allowTacticalPause: true,
           difficultyScaling: 1.5,
           resourceScarcity: 0.7,
         };
-      case "normal":
+      case "ironman":
+      case "extreme":
+        return {
+          mode: "Custom",
+          difficulty: "Ironman",
+          deathRule: "Iron",
+          allowTacticalPause: false,
+          difficultyScaling: 2.0,
+          resourceScarcity: 0.5,
+        };
       default:
         return {
           mode: "Custom",
+          difficulty: "Clone",
           deathRule: "Clone",
+          allowTacticalPause: true,
           difficultyScaling: 1.0,
           resourceScarcity: 1.0,
         };
