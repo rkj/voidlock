@@ -39,18 +39,27 @@ Curated experiences with fixed parameters.
 - **Examples:** "The Long Retreat" (Low resources, high enemy speed), "Bug Hunt" (High resources, massive swarms).
 - **Overrides:** Can override specific node maps with hand-crafted layouts instead of procedural generation.
 
-### 2.3 Death & Recovery Settings (Difficulty Rules)
+### 2.3 Difficulty Levels
 
-These rules apply to both Custom and Preset campaigns.
+The game supports four difficulty presets defining failure consequences.
 
-- **Iron Mode (Hardcore):**
-  - **Death:** Permanent. Dead soldiers are gone forever.
-  - **Healing:** Costly (Scrap). Wounds persist.
-- **Clone Mode (Standard):**
-  - **Death:** If the mission is _Successful_, dead bodies are recovered. They can be revived/cloned for a high Scrap cost.
-  - **Wipe:** If the squad wipes (Mission Failed), bodies are lost (Permadeath).
-- **Simulation Mode (Easy/Training):**
-  - **Death:** No consequence. Soldiers return to full health after every mission, successful or not.
+- **Simulation (Easy):**
+  - **Mission Failure:** Option to **Retry**.
+  - **Death:** Recovered on retry.
+- **Clone Protocol (Normal):**
+  - **Mission Failure:** Squad Wipe (Soldiers lost). Campaign continues.
+  - **Death (Success):** Bodies recovered. Can be cloned (Revived) for Scrap.
+- **Standard (Hard):**
+  - **Mission Failure:** Squad Wipe.
+  - **Death:** Permanent (No cloning).
+- **Ironman (Extreme):**
+  - **Mission Failure:** Campaign Over (Save deleted).
+
+### 2.4 Tactical Settings
+
+- **Tactical Assist (Time Dilation):**
+  - **Enabled (Default):** Player can use Active Pause (0x) and Slow Motion (<1.0x) to issue commands.
+  - **Disabled (Real-time):** Minimum speed is 1.0x. Active Pause is disabled (System pause via ESC still works but blocks commands).
 
 ## 3. Systems Overview
 
@@ -88,7 +97,11 @@ These rules apply to both Custom and Preset campaigns.
 
 ### 4.2 Main Menu Integration
 
-- **New Campaign**: Opens a sub-menu to choose "Preset" or "Custom".
+- **New Campaign**: Opens a wizard:
+  1. **Campaign Type**: Preset vs Custom.
+  2. **Difficulty**: Simulation, Clone Protocol, Standard, Ironman.
+  3. **Tactical Options**: Toggle "Enable Tactical Pause/Slowmo".
+  4. **Start**: Launches the campaign.
 - **Continue**: Resumes the active campaign state (if any).
 
 ### 4.3 Mission Launch Constraints
