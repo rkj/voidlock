@@ -12,7 +12,7 @@ Upon receiving the `INIT` command, the engine **MUST** reset internal time scali
 **Time Handling:**
 The engine `update(scaledDt, realDt)` method accepts two deltas:
 
-1. **`scaledDt` (Game Time)**: Affected by the speed slider (0.05x - 5.0x). Used for:
+1. **`scaledDt` (Game Time)**: Affected by the speed slider (0.1x - 10.0x). Used for:
    - Unit Movement
    - Combat Cooldowns (Fire Rate)
    - Animation states
@@ -40,6 +40,15 @@ The engine `update(scaledDt, realDt)` method accepts two deltas:
 
 - **Visibility (LOS):** Allowed immediately when a door starts opening (transitioning from `Closed` -> `Open`).
 - **Line of Fire (LOF):** Blocked until the door is **Fully Open** (`state === "Open"`). Shooting through a partially opening door is impossible. This applies symmetrically to both Squad and Enemy units.
+
+### 2.4 Speed & Movement Normalization
+
+To ensure consistent simulation across different unit types and time scales, all speed-based calculations use a normalization constant of **30**.
+
+- **Movement**: `Tiles/Second = UnitSpeed / 30`.
+  - A unit with `Speed 30` moves at exactly **1.0 tile per second** at 1x game speed.
+- **Timed Actions**: `Duration(s) = BaseDuration * (30 / UnitSpeed)`.
+- **Firing Rate**: Cooldowns and fire rates are similarly scaled using the factor of 30.
 
 ## 5) Protocol: Engine ↔ Client
 

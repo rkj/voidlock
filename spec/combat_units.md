@@ -6,8 +6,8 @@
 
 - `hp`: Current Health.
 - `speed`: Global Action Speed. Default: **20**.
-  - **Movement**: `Speed / 10` tiles per second (e.g., 20 = 2.0 tiles/s).
-  - **Timed Actions**: `Duration = BaseDuration * (10 / Speed)`.
+  - **Movement**: `Speed / 30` tiles per second (e.g., 30 = 1.0 tiles/s).
+  - **Timed Actions**: `Duration = BaseDuration * (30 / Speed)`.
   - **Firing Rate (FR)**: Impacted by unit speed. (See Formula below).
 - `visibility`: **Infinite** (Blocked only by walls/doors). Not displayed in UI.
 - `aiProfile`: Innate unit behavior profile:
@@ -21,8 +21,8 @@
 **Weapon Definition:**
 
 - **Range**: Infinite projectile path. The `range` stat represents the **Effective Range** for accuracy scaling.
-- **Fire Rate (Stat)**: Defined as "Shots per 10 seconds at unit speed 10."
-- **Internal Cooldown**: `Cooldown(ms) = 100,000 / (WeaponFR * UnitSpeed)`.
+- **Fire Rate (Stat)**: Defined as "Shots per 10 seconds at unit speed 30."
+- **Internal Cooldown**: `Cooldown(ms) = 300,000 / (WeaponFR * UnitSpeed)`.
 - **Stats**: `damage`, `range`, `fireRate`.
 
 ## 3.3 Shoot / Accuracy model
@@ -70,7 +70,7 @@ Each soldier has specific equipment slots that define their combat performance:
    - **Stats**: `Damage`, `FR` (Firing Rate), `Range` (Effective).
 1. **Left Hand (Melee):** CQC weapon.
    - **Stats**: `Damage`, `ASP` (Attack Speed).
-   - **ASP Formula**: Same as Firing Rate (Actions per 10s at Speed 10).
+   - **ASP Formula**: Same as Firing Rate (Actions per 10s at Speed 30).
 1. **Body (Armor):** Passive protection.
 1. **Feet (Shoes):** Passive mobility.
 
