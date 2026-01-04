@@ -15,21 +15,21 @@ import {
 import { GameGrid } from "../GameGrid";
 import { Pathfinder } from "../Pathfinder";
 import { LineOfSight } from "../LineOfSight";
-import { VipAI } from "../ai/VipAI";
 import { PRNG } from "../../shared/PRNG";
 import { LootManager } from "./LootManager";
 import { StatsManager } from "./StatsManager";
 import { MovementManager } from "./MovementManager";
 import { CombatManager } from "./CombatManager";
+import { UnitAI, AIContext } from "./UnitAI";
 
 const EPSILON = 0.05;
 
 export class UnitManager {
-  private vipAi: VipAI;
   private totalFloorCells: number;
   private statsManager: StatsManager;
   private movementManager: MovementManager;
   private combatManager: CombatManager;
+  private unitAi: UnitAI;
 
   constructor(
     private gameGrid: GameGrid,
@@ -37,7 +37,6 @@ export class UnitManager {
     private los: LineOfSight,
     private agentControlEnabled: boolean,
   ) {
-    this.vipAi = new VipAI(gameGrid, pathfinder, los);
     this.totalFloorCells = gameGrid
       .getGraph()
       .cells.flat()
@@ -45,6 +44,7 @@ export class UnitManager {
     this.statsManager = new StatsManager();
     this.movementManager = new MovementManager(gameGrid);
     this.combatManager = new CombatManager(los, this.statsManager);
+    this.unitAi = new UnitAI(gameGrid, pathfinder, los);
   }
 
   public recalculateStats(unit: Unit) {
@@ -217,7 +217,16 @@ export class UnitManager {
 
     const newVisibleCellsSet = new Set(state.visibleCells);
     const discoveredCellsSet = new Set(state.discoveredCells);
-    const mapFullyDiscovered = this.isMapFullyDiscovered(state);
+
+    const aiContext: AIContext = {
+      agentControlEnabled: this.agentControlEnabled,
+      totalFloorCells: this.totalFloorCells,
+      newVisibleCellsSet,
+      discoveredCellsSet,
+      claimedObjectives,
+      executeCommand: (u, cmd, s, isManual, dir) =>
+        this.executeCommand(u, cmd, s, isManual, dir),
+    };
 
     state.units.forEach((unit) => {
       if (unit.state === UnitState.Extracted || unit.state === UnitState.Dead)
@@ -265,35 +274,6 @@ export class UnitManager {
               unit.state = UnitState.Moving;
             }
           }
-        }
-      }
-
-      if (unit.archetypeId === "vip" && !unit.aiEnabled) {
-        const rescueSoldier = state.units.find(
-          (u) =>
-            u.id !== unit.id &&
-            u.archetypeId !== "vip" &&
-            u.hp > 0 &&
-            (this.getDistance(unit.pos, u.pos) <= 1.5 ||
-              this.los.hasLineOfSight(u.pos, unit.pos)),
-        );
-        if (rescueSoldier) {
-          unit.aiEnabled = true;
-        } else {
-          // Locked VIPs don't do anything
-          return;
-        }
-      }
-
-      if (
-        unit.archetypeId === "vip" &&
-        unit.aiEnabled &&
-        unit.state === UnitState.Idle &&
-        unit.commandQueue.length === 0
-      ) {
-        const vipCommand = this.vipAi.think(unit, state);
-        if (vipCommand) {
-          this.executeCommand(unit, vipCommand, state, false, director);
         }
       }
 
@@ -362,240 +342,7 @@ export class UnitManager {
         }
       }
 
-      if (unit.explorationTarget) {
-        const key = `${Math.floor(unit.explorationTarget.x)},${Math.floor(unit.explorationTarget.y)}`;
-        if (discoveredCellsSet.has(key)) {
-          unit.explorationTarget = undefined;
-          if (unit.state === UnitState.Moving) {
-            unit.path = undefined;
-            unit.targetPos = undefined;
-            unit.state = UnitState.Idle;
-            unit.activeCommand = undefined;
-          }
-        }
-      }
-
-      const visibleEnemies = state.enemies.filter(
-        (enemy) =>
-          enemy.hp > 0 &&
-          newVisibleCellsSet.has(
-            `${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`,
-          ),
-      );
-
-      const threats = visibleEnemies
-        .map((enemy) => ({
-          enemy,
-          distance: this.getDistance(unit.pos, enemy.pos),
-          priority: 1 / (this.getDistance(unit.pos, enemy.pos) + 1),
-        }))
-        .sort((a, b) => b.priority - a.priority);
-
-      const isLowHP = unit.hp < unit.maxHp * 0.25;
-      const nearbyAllies = state.units.filter(
-        (u) =>
-          u.id !== unit.id &&
-          u.hp > 0 &&
-          u.state !== UnitState.Extracted &&
-          u.state !== UnitState.Dead &&
-          this.getDistance(unit.pos, u.pos) <= 5,
-      );
-      const isIsolated = nearbyAllies.length === 0 && threats.length > 0;
-
-      if (unit.archetypeId !== "vip" && isLowHP && threats.length > 0) {
-        const safeCells = state.discoveredCells.filter((cellKey) => {
-          const [cx, cy] = cellKey.split(",").map(Number);
-          return !visibleEnemies.some(
-            (e) => Math.floor(e.pos.x) === cx && Math.floor(e.pos.y) === cy,
-          );
-        });
-
-        if (safeCells.length > 0) {
-          const closestSafe = safeCells
-            .map((cellKey) => {
-              const [cx, cy] = cellKey.split(",").map(Number);
-              return {
-                x: cx,
-                y: cy,
-                dist: this.getDistance(unit.pos, { x: cx + 0.5, y: cy + 0.5 }),
-              };
-            })
-            .sort((a, b) => a.dist - b.dist)[0];
-
-          if (
-            unit.state !== UnitState.Moving ||
-            !unit.targetPos ||
-            Math.floor(unit.targetPos.x) !== closestSafe.x ||
-            Math.floor(unit.targetPos.y) !== closestSafe.y
-          ) {
-            unit.engagementPolicy = "IGNORE";
-            unit.engagementPolicySource = "Autonomous";
-            this.executeCommand(
-              unit,
-              {
-                type: CommandType.MOVE_TO,
-                unitIds: [unit.id],
-                target: { x: closestSafe.x, y: closestSafe.y },
-                label: "Retreating",
-              },
-              state,
-              false,
-              director,
-            );
-          }
-        }
-      } else if (unit.archetypeId !== "vip" && isIsolated) {
-        const otherUnits = state.units.filter(
-          (u) =>
-            u.id !== unit.id &&
-            u.hp > 0 &&
-            u.state !== UnitState.Extracted &&
-            u.state !== UnitState.Dead,
-        );
-        if (otherUnits.length > 0) {
-          const closestAlly = otherUnits.sort(
-            (a, b) =>
-              this.getDistance(unit.pos, a.pos) -
-              this.getDistance(unit.pos, b.pos),
-          )[0];
-          if (
-            unit.state !== UnitState.Moving ||
-            !unit.targetPos ||
-            Math.floor(unit.targetPos.x) !== Math.floor(closestAlly.pos.x) ||
-            Math.floor(unit.targetPos.y) !== Math.floor(closestAlly.pos.y)
-          ) {
-            unit.engagementPolicy = "IGNORE";
-            unit.engagementPolicySource = "Autonomous";
-            this.executeCommand(
-              unit,
-              {
-                type: CommandType.MOVE_TO,
-                unitIds: [unit.id],
-                target: {
-                  x: Math.floor(closestAlly.pos.x),
-                  y: Math.floor(closestAlly.pos.y),
-                },
-                label: "Grouping Up",
-              },
-              state,
-              false,
-              director,
-            );
-          }
-        }
-      } else {
-        if (
-          unit.engagementPolicy === "IGNORE" &&
-          unit.engagementPolicySource === "Autonomous" &&
-          unit.state === UnitState.Idle &&
-          unit.commandQueue.length === 0
-        ) {
-          unit.engagementPolicy = "ENGAGE";
-          unit.engagementPolicySource = undefined;
-        }
-      }
-
-      if (state.loot) {
-        const loot = state.loot.find(
-          (l) =>
-            Math.abs(unit.pos.x - l.pos.x) < 0.6 &&
-            Math.abs(unit.pos.y - l.pos.y) < 0.6,
-        );
-
-        if (
-          loot &&
-          unit.activeCommand?.type === CommandType.PICKUP &&
-          (unit.activeCommand as PickupCommand).lootId === loot.id
-        ) {
-          if (unit.state === UnitState.Idle) {
-            const duration = 1000; // 1s as per spec
-            unit.state = UnitState.Channeling;
-            unit.channeling = {
-              action: "Pickup",
-              remaining: duration,
-              totalDuration: duration,
-              targetId: loot.id,
-            };
-            unit.path = undefined;
-            unit.targetPos = undefined;
-            unit.activeCommand = undefined;
-          }
-        }
-      }
-
-      if (unit.state === UnitState.Channeling) {
-        return;
-      }
-
-      if (unit.archetypeId !== "vip" && state.objectives) {
-        state.objectives.forEach((obj) => {
-          if (obj.state === "Pending" && !claimedObjectives.has(obj.id)) {
-            if (obj.kind === "Recover" && obj.targetCell) {
-              if (
-                Math.floor(unit.pos.x) === obj.targetCell.x &&
-                Math.floor(unit.pos.y) === obj.targetCell.y
-              ) {
-                if (unit.state === UnitState.Idle) {
-                  const duration = 5000 * (10 / unit.stats.speed);
-                  unit.state = UnitState.Channeling;
-                  unit.channeling = {
-                    action: "Collect",
-                    remaining: duration,
-                    totalDuration: duration,
-                    targetId: obj.id,
-                  };
-
-                  claimedObjectives.add(obj.id);
-                  unit.path = undefined;
-                  unit.targetPos = undefined;
-                  unit.activeCommand = undefined;
-                }
-              }
-            } else if (obj.kind === "Kill" && obj.targetEnemyId) {
-              const target = state.enemies.find(
-                (e) => e.id === obj.targetEnemyId,
-              );
-              if (!target || target.hp <= 0) {
-                obj.state = "Completed";
-              }
-            }
-          }
-        });
-      }
-
-      if (state.map.extraction) {
-        const ext = state.map.extraction;
-        const allOtherObjectivesComplete = state.objectives
-          .filter((o) => o.kind !== "Escort")
-          .every((o) => o.state === "Completed");
-
-        const isVipAtExtraction =
-          unit.archetypeId === "vip" &&
-          Math.floor(unit.pos.x) === ext.x &&
-          Math.floor(unit.pos.y) === ext.y;
-
-        const isExplicitExtract =
-          unit.activeCommand?.type === CommandType.EXTRACT;
-
-        if (
-          (allOtherObjectivesComplete || isVipAtExtraction || isExplicitExtract) &&
-          Math.floor(unit.pos.x) === ext.x &&
-          Math.floor(unit.pos.y) === ext.y
-        ) {
-          if (unit.state === UnitState.Idle) {
-            const duration = 5000 * (10 / unit.stats.speed);
-            unit.state = UnitState.Channeling;
-            unit.channeling = {
-              action: "Extract",
-              remaining: duration,
-              totalDuration: duration,
-            };
-            unit.path = undefined;
-            unit.targetPos = undefined;
-            unit.activeCommand = undefined;
-          }
-        }
-      }
+      this.unitAi.process(unit, state, dt, doors, prng, aiContext, director);
 
       if (unit.state === UnitState.Channeling) {
         return;
@@ -605,342 +352,6 @@ export class UnitManager {
         const nextCmd = unit.commandQueue.shift();
         if (nextCmd) {
           this.executeCommand(unit, nextCmd, state, true, director);
-        }
-      } else if (
-        unit.archetypeId !== "vip" &&
-        (unit.state === UnitState.Idle || unit.explorationTarget) &&
-        unit.commandQueue.length === 0 &&
-        this.agentControlEnabled &&
-        unit.aiEnabled !== false
-      ) {
-        let actionTaken = false;
-
-        if (threats.length > 0 && unit.engagementPolicy !== "IGNORE") {
-          const primaryThreat = threats[0].enemy;
-          const dist = this.getDistance(unit.pos, primaryThreat.pos);
-
-          if (unit.aiProfile === "STAND_GROUND") {
-            // Do not move to engage. Just hold position.
-            // Attack logic elsewhere handles shooting if in range.
-          } else if (unit.aiProfile === "RUSH") {
-            // Move towards enemy to minimize distance, even if in range
-            // Stop if very close (e.g. melee range)
-            if (dist > 1.5) {
-              this.executeCommand(
-                unit,
-                {
-                  type: CommandType.MOVE_TO,
-                  unitIds: [unit.id],
-                  target: {
-                    x: Math.floor(primaryThreat.pos.x),
-                    y: Math.floor(primaryThreat.pos.y),
-                  },
-                  label: "Rushing",
-                },
-                state,
-                false,
-                director,
-              );
-              actionTaken = true;
-            }
-          } else if (unit.aiProfile === "RETREAT") {
-            // Maximize distance while maintaining LOF
-            // Simple implementation: Move away from enemy if close
-            // But try to stay within attackRange
-            if (dist < unit.stats.attackRange * 0.8) {
-              // Too close, back off
-              // Find a cell further away but still in range/LOF?
-              // For now, just simplistic "run away" to a safe cell if possible, or just away from enemy vector
-
-              // Find neighbors that increase distance
-              const currentCell = {
-                x: Math.floor(unit.pos.x),
-                y: Math.floor(unit.pos.y),
-              };
-              const neighbors = [
-                { x: currentCell.x + 1, y: currentCell.y },
-                { x: currentCell.x - 1, y: currentCell.y },
-                { x: currentCell.x, y: currentCell.y + 1 },
-                { x: currentCell.x, y: currentCell.y - 1 },
-              ].filter(
-                (n) =>
-                  this.gameGrid.isWalkable(n.x, n.y) &&
-                  this.gameGrid.canMove(
-                    currentCell.x,
-                    currentCell.y,
-                    n.x,
-                    n.y,
-                    doors,
-                    false,
-                  ),
-              );
-
-              const bestRetreat = neighbors
-                .map((n) => ({
-                  ...n,
-                  dist: this.getDistance(
-                    { x: n.x + 0.5, y: n.y + 0.5 },
-                    primaryThreat.pos,
-                  ),
-                }))
-                .sort((a, b) => b.dist - a.dist)[0]; // Maximize distance
-
-              if (bestRetreat && bestRetreat.dist > dist) {
-                this.executeCommand(
-                  unit,
-                  {
-                    type: CommandType.MOVE_TO,
-                    unitIds: [unit.id],
-                    target: { x: bestRetreat.x, y: bestRetreat.y },
-                    label: "Retreating",
-                  },
-                  state,
-                  false,
-                  director,
-                );
-                actionTaken = true;
-              }
-            }
-          } else {
-            // Default behavior (maintain optimal range / move to engage if out of range)
-            if (dist > unit.stats.attackRange) {
-              this.executeCommand(
-                unit,
-                {
-                  type: CommandType.MOVE_TO,
-                  unitIds: [unit.id],
-                  target: {
-                    x: Math.floor(primaryThreat.pos.x),
-                    y: Math.floor(primaryThreat.pos.y),
-                  },
-                  label: "Engaging",
-                },
-                state,
-                false,
-                director,
-              );
-              actionTaken = true;
-            }
-          }
-        }
-
-        if (!actionTaken && state.objectives) {
-          const pendingObjectives = state.objectives.filter(
-            (o) =>
-              o.state === "Pending" &&
-              !claimedObjectives.has(o.id) &&
-              o.visible,
-          );
-          if (pendingObjectives.length > 0) {
-            let bestObj: { obj: any; dist: number } | null = null;
-
-            for (const obj of pendingObjectives) {
-              let targetPos: Vector2 | null = null;
-              if (
-                (obj.kind === "Recover" || obj.kind === "Escort") &&
-                obj.targetCell
-              ) {
-                targetPos = {
-                  x: obj.targetCell.x + 0.5,
-                  y: obj.targetCell.y + 0.5,
-                };
-              } else if (obj.kind === "Kill" && obj.targetEnemyId) {
-                const enemy = state.enemies.find(
-                  (e) => e.id === obj.targetEnemyId,
-                );
-                if (
-                  enemy &&
-                  newVisibleCellsSet.has(
-                    `${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`,
-                  )
-                ) {
-                  targetPos = enemy.pos;
-                }
-              }
-
-              if (targetPos) {
-                const dist = this.getDistance(unit.pos, targetPos);
-                if (!bestObj || dist < bestObj.dist) {
-                  bestObj = { obj, dist };
-                }
-              }
-            }
-
-            if (bestObj) {
-              claimedObjectives.add(bestObj.obj.id);
-              let target = { x: 0, y: 0 };
-              if (
-                (bestObj.obj.kind === "Recover" ||
-                  bestObj.obj.kind === "Escort") &&
-                bestObj.obj.targetCell
-              )
-                target = bestObj.obj.targetCell;
-              else if (
-                bestObj.obj.kind === "Kill" &&
-                bestObj.obj.targetEnemyId
-              ) {
-                const e = state.enemies.find(
-                  (en) => en.id === bestObj.obj.targetEnemyId,
-                );
-                if (e)
-                  target = { x: Math.floor(e.pos.x), y: Math.floor(e.pos.y) };
-              }
-
-              if (
-                Math.floor(unit.pos.x) !== target.x ||
-                Math.floor(unit.pos.y) !== target.y
-              ) {
-                const label =
-                  bestObj.obj.kind === "Recover"
-                    ? "Recovering"
-                    : bestObj.obj.kind === "Escort"
-                      ? "Escorting"
-                      : "Hunting";
-                this.executeCommand(
-                  unit,
-                  {
-                    type: CommandType.MOVE_TO,
-                    unitIds: [unit.id],
-                    target,
-                    label,
-                  },
-                  state,
-                  false,
-                  director,
-                );
-                actionTaken = true;
-              }
-            }
-          }
-        }
-
-        const objectivesComplete =
-          !state.objectives ||
-          state.objectives.every((o) => o.state !== "Pending");
-
-        let canExtract = false;
-
-        if (!actionTaken && objectivesComplete && state.map.extraction) {
-          const ext = state.map.extraction;
-
-          const extKey = `${ext.x},${ext.y}`;
-
-          const isExtDiscovered = state.discoveredCells.includes(extKey);
-
-          if (isExtDiscovered) {
-            const unitCurrentCell = {
-              x: Math.floor(unit.pos.x),
-
-              y: Math.floor(unit.pos.y),
-            };
-
-            if (unitCurrentCell.x !== ext.x || unitCurrentCell.y !== ext.y) {
-              unit.explorationTarget = undefined;
-
-              this.executeCommand(
-                unit,
-
-                {
-                  type: CommandType.MOVE_TO,
-
-                  unitIds: [unit.id],
-
-                  target: ext,
-
-                  label: "Extracting",
-                },
-
-                state,
-                false,
-                director,
-              );
-
-              actionTaken = true;
-
-              canExtract = true;
-            }
-          }
-        }
-
-        if (!actionTaken && !mapFullyDiscovered) {
-          let shouldReevaluate = !unit.explorationTarget;
-
-          if (unit.explorationTarget) {
-            const key = `${Math.floor(unit.explorationTarget.x)},${Math.floor(unit.explorationTarget.y)}`;
-            if (discoveredCellsSet.has(key)) {
-              unit.explorationTarget = undefined;
-              shouldReevaluate = true;
-            } else {
-              const checkInterval = 1000;
-              const lastCheck = Math.floor((state.t - dt) / checkInterval);
-              const currentCheck = Math.floor(state.t / checkInterval);
-              if (currentCheck > lastCheck || unit.state === UnitState.Idle) {
-                shouldReevaluate = true;
-              }
-            }
-          }
-
-          if (shouldReevaluate) {
-            const targetCell = this.findClosestUndiscoveredCell(
-              unit,
-              state,
-              discoveredCellsSet,
-              doors,
-            );
-            if (targetCell) {
-              const newTarget = { x: targetCell.x, y: targetCell.y };
-              const isDifferent =
-                !unit.explorationTarget ||
-                unit.explorationTarget.x !== newTarget.x ||
-                unit.explorationTarget.y !== newTarget.y;
-
-              if (isDifferent) {
-                let switchTarget = !unit.explorationTarget;
-                if (unit.explorationTarget) {
-                  const oldDist = this.getDistance(unit.pos, {
-                    x: unit.explorationTarget.x + 0.5,
-                    y: unit.explorationTarget.y + 0.5,
-                  });
-                  const newDist = this.getDistance(unit.pos, {
-                    x: newTarget.x + 0.5,
-                    y: newTarget.y + 0.5,
-                  });
-                  if (newDist < oldDist * 0.7) {
-                    switchTarget = true;
-                  }
-                }
-
-                if (switchTarget) {
-                  unit.explorationTarget = newTarget;
-                  this.executeCommand(
-                    unit,
-                    {
-                      type: CommandType.MOVE_TO,
-                      unitIds: [unit.id],
-                      target: targetCell,
-                      label: "Exploring",
-                    },
-                    state,
-                    false,
-                    director,
-                  );
-                }
-              } else if (unit.state === UnitState.Idle) {
-                this.executeCommand(
-                  unit,
-                  {
-                    type: CommandType.MOVE_TO,
-                    unitIds: [unit.id],
-                    target: unit.explorationTarget!,
-                    label: "Exploring",
-                  },
-                  state,
-                  false,
-                  director,
-                );
-              }
-            }
-          }
         }
       }
 
@@ -1227,97 +638,5 @@ export class UnitManager {
     const dx = pos1.x - pos2.x;
     const dy = pos1.y - pos2.y;
     return Math.sqrt(dx * dx + dy * dy);
-  }
-
-  private isMapFullyDiscovered(state: GameState): boolean {
-    const discoveredFloors = state.discoveredCells.filter((key) => {
-      const [x, y] = key.split(",").map(Number);
-      return this.gameGrid.isWalkable(x, y);
-    }).length;
-    return discoveredFloors >= this.totalFloorCells;
-  }
-
-  private findClosestUndiscoveredCell(
-    unit: Unit,
-    state: GameState,
-    discoveredCellsSet: Set<string>,
-    doors: Map<string, Door>,
-  ): Vector2 | null {
-    const startX = Math.floor(unit.pos.x);
-    const startY = Math.floor(unit.pos.y);
-
-    const claimedTargets = state.units
-      .filter((u) => u.id !== unit.id && u.explorationTarget)
-      .map((u) => u.explorationTarget!);
-
-    const otherUnitPositions = state.units
-      .filter(
-        (u) =>
-          u.id !== unit.id &&
-          u.hp > 0 &&
-          u.state !== UnitState.Extracted &&
-          u.state !== UnitState.Dead,
-      )
-      .map((u) => u.pos);
-
-    const mapDim = Math.max(state.map.width, state.map.height);
-    const avoidRadius = Math.max(3.0, Math.min(5, mapDim / 4));
-    const unitAvoidRadius = Math.max(1.5, Math.min(3, mapDim / 6));
-
-    const queue: { x: number; y: number }[] = [{ x: startX, y: startY }];
-    const visited = new Set<string>();
-    visited.add(`${startX},${startY}`);
-
-    let fallbackCell: Vector2 | null = null;
-    let head = 0;
-
-    while (head < queue.length) {
-      const curr = queue[head++];
-
-      const cellKey = `${curr.x},${curr.y}`;
-      if (!discoveredCellsSet.has(cellKey)) {
-        const target = { x: curr.x + 0.5, y: curr.y + 0.5 };
-        const isClaimed = claimedTargets.some(
-          (claimed) => this.getDistance(target, claimed) < avoidRadius,
-        );
-        const tooCloseToUnit = otherUnitPositions.some(
-          (pos) => this.getDistance(target, pos) < unitAvoidRadius,
-        );
-
-        if (!isClaimed && !tooCloseToUnit) {
-          return { x: curr.x, y: curr.y };
-        }
-
-        if (!fallbackCell) {
-          fallbackCell = { x: curr.x, y: curr.y };
-        }
-      }
-
-      const neighbors = [
-        { x: curr.x + 1, y: curr.y },
-        { x: curr.x - 1, y: curr.y },
-        { x: curr.x, y: curr.y + 1 },
-        { x: curr.x, y: curr.y - 1 },
-      ];
-
-      for (const n of neighbors) {
-        if (
-          n.x >= 0 &&
-          n.x < state.map.width &&
-          n.y >= 0 &&
-          n.y < state.map.height
-        ) {
-          const nKey = `${n.x},${n.y}`;
-          if (!visited.has(nKey) && this.gameGrid.isWalkable(n.x, n.y)) {
-            if (this.gameGrid.canMove(curr.x, curr.y, n.x, n.y, doors, true)) {
-              visited.add(nKey);
-              queue.push({ x: n.x, y: n.y });
-            }
-          }
-        }
-      }
-    }
-
-    return fallbackCell;
   }
 }
