@@ -93,9 +93,7 @@ describe("EquipmentScreen", () => {
     ).toBe(true);
 
     // Check paper doll slots
-    const slots = Array.from(container.querySelectorAll("div")).filter(
-      (el) => el.style.width === "100px" && el.style.height === "100px",
-    );
+    const slots = Array.from(container.querySelectorAll(".paper-doll-slot"));
     const rightHandSlot = slots.find((el) =>
       el.textContent?.includes("Right Hand"),
     );

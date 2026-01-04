@@ -71,13 +71,8 @@ export class EquipmentScreen {
 
   private render() {
     this.container.innerHTML = "";
-    this.container.className = "screen equipment-screen";
-    this.container.style.flexDirection = "row";
-    this.container.style.backgroundColor = "#111";
-    this.container.style.color = "#eee";
-    this.container.style.padding = "20px";
-    this.container.style.boxSizing = "border-box";
-    this.container.style.gap = "20px";
+    this.container.className = "screen equipment-screen flex-row p-20 gap-20 relative";
+    this.container.style.display = "flex";
 
     // Left: Soldier List
     const leftPanel = this.createPanel("Soldier List", "250px");
@@ -97,11 +92,7 @@ export class EquipmentScreen {
 
     // Footer Buttons
     const footer = document.createElement("div");
-    footer.style.position = "absolute";
-    footer.style.bottom = "20px";
-    footer.style.right = "20px";
-    footer.style.display = "flex";
-    footer.style.gap = "10px";
+    footer.className = "screen-footer screen-footer-right";
 
     const backBtn = document.createElement("button");
     backBtn.textContent = "BACK";
@@ -119,21 +110,13 @@ export class EquipmentScreen {
 
   private createPanel(title: string, width: string): HTMLElement {
     const panel = document.createElement("div");
-    panel.style.display = "flex";
-    panel.style.flexDirection = "column";
+    panel.className = "panel";
     panel.style.width = width === "1fr" ? "auto" : width;
     if (width === "1fr") panel.style.flexGrow = "1";
-    panel.style.border = "1px solid #444";
-    panel.style.background = "#1a1a1a";
-    panel.style.padding = "15px";
-    panel.style.overflowY = "auto";
 
     const h2 = document.createElement("h2");
+    h2.className = "panel-title";
     h2.textContent = title;
-    h2.style.marginTop = "0";
-    h2.style.fontSize = "1.2em";
-    h2.style.borderBottom = "1px solid #333";
-    h2.style.paddingBottom = "10px";
     panel.appendChild(h2);
 
     return panel;
@@ -148,10 +131,10 @@ export class EquipmentScreen {
 
       const arch = ArchetypeLibrary[soldier.archetypeId];
       item.innerHTML = `
-        <div style="font-weight:bold; color:${this.selectedSoldierIndex === index ? "#0f0" : "#eee"};">
+        <div style="font-weight:bold; color:${this.selectedSoldierIndex === index ? "var(--color-primary)" : "var(--color-text)"};">
           ${index + 1}. ${arch ? arch.name : soldier.archetypeId}
         </div>
-        <div style="font-size:0.8em; color:#888; margin-top:4px;">
+        <div style="font-size:0.8em; color:var(--color-text-muted); margin-top:4px;">
           ${soldier.rightHand || "Empty"} / ${soldier.leftHand || "Empty"}
         </div>
       `;
@@ -172,33 +155,25 @@ export class EquipmentScreen {
     }
 
     const content = document.createElement("div");
-    content.style.display = "flex";
-    content.style.flexDirection = "column";
-    content.style.alignItems = "center";
+    content.className = "flex-col align-center gap-20";
     content.style.marginTop = "20px";
-    content.style.gap = "20px";
 
     // Soldier Stats Panel
     const soldierStatsDiv = document.createElement("div");
-    soldierStatsDiv.style.width = "100%";
+    soldierStatsDiv.className = "w-full stat-box";
     soldierStatsDiv.style.maxWidth = "400px";
-    soldierStatsDiv.style.background = "#111";
-    soldierStatsDiv.style.padding = "12px";
-    soldierStatsDiv.style.border = "1px solid #333";
     soldierStatsDiv.style.borderRadius = "4px";
 
     const h3Soldier = document.createElement("h3");
     h3Soldier.textContent = "SOLDIER ATTRIBUTES";
+    h3Soldier.className = "stat-label";
     h3Soldier.style.margin = "0 0 10px 0";
-    h3Soldier.style.fontSize = "0.75em";
-    h3Soldier.style.color = "#888";
     h3Soldier.style.letterSpacing = "1px";
     soldierStatsDiv.appendChild(h3Soldier);
 
     const sStats = this.calculateSoldierStats(soldier);
     const sGrid = document.createElement("div");
-    sGrid.style.display = "flex";
-    sGrid.style.gap = "20px";
+    sGrid.className = "flex-row gap-20";
     sGrid.innerHTML = `
       ${StatDisplay.render(Icons.Health, sStats.hp, "Max Health", { iconSize: "14px" })}
       ${StatDisplay.render(Icons.Speed, sStats.speed, "Movement Speed", { iconSize: "14px" })}
@@ -209,19 +184,15 @@ export class EquipmentScreen {
 
     // Weapon Stats Panel
     const weaponStatsDiv = document.createElement("div");
-    weaponStatsDiv.style.width = "100%";
+    weaponStatsDiv.className = "w-full stat-box";
     weaponStatsDiv.style.maxWidth = "400px";
-    weaponStatsDiv.style.background = "#111";
-    weaponStatsDiv.style.padding = "12px";
-    weaponStatsDiv.style.border = "1px solid #333";
     weaponStatsDiv.style.borderRadius = "4px";
-    weaponStatsDiv.style.borderLeft = "3px solid #0f0";
+    weaponStatsDiv.style.borderLeft = "3px solid var(--color-primary)";
 
     const h3Weapon = document.createElement("h3");
     h3Weapon.textContent = "EQUIPPED WEAPONRY";
+    h3Weapon.className = "stat-label";
     h3Weapon.style.margin = "0 0 10px 0";
-    h3Weapon.style.fontSize = "0.75em";
-    h3Weapon.style.color = "#888";
     h3Weapon.style.letterSpacing = "1px";
     weaponStatsDiv.appendChild(h3Weapon);
 
@@ -230,10 +201,10 @@ export class EquipmentScreen {
 
     const renderWepBlock = (w: any, label: string) => {
       if (!w)
-        return `<div style="color:#444; font-size:0.7em; margin-bottom:8px;">${label}: [EMPTY SLOT]</div>`;
+        return `<div style="color:var(--color-text-dim); font-size:0.7em; margin-bottom:8px;">${label}: [EMPTY SLOT]</div>`;
       return `
             <div style="margin-bottom:12px; border-bottom:1px solid #222; padding-bottom:8px;">
-                <div style="font-size:0.8em; font-weight:bold; color:#0f0; margin-bottom:4px;">${label}: ${w.name}</div>
+                <div style="font-size:0.8em; font-weight:bold; color:var(--color-primary); margin-bottom:4px;">${label}: ${w.name}</div>
                 <div style="display:flex; gap:12px; flex-wrap:wrap;">
                     ${StatDisplay.render(Icons.Damage, w.damage, "Damage per hit")}
                     ${StatDisplay.render(Icons.Rate, w.fireRate, "Rounds per second")}
@@ -317,21 +288,12 @@ export class EquipmentScreen {
     category: string,
   ): HTMLElement {
     const slot = document.createElement("div");
-    slot.style.width = "100px";
-    slot.style.height = "100px";
-    slot.style.border = "2px dashed #444";
-    slot.style.background = "#111";
-    slot.style.display = "flex";
-    slot.style.flexDirection = "column";
-    slot.style.alignItems = "center";
-    slot.style.justifyContent = "center";
-    slot.style.position = "relative";
-    slot.style.cursor = "pointer";
+    slot.className = "paper-doll-slot" + (itemId ? " equipped" : "");
 
     const title = document.createElement("div");
     title.textContent = label;
     title.style.fontSize = "0.7em";
-    title.style.color = "#666";
+    title.style.color = "var(--color-text-dim)";
     title.style.position = "absolute";
     title.style.top = "5px";
     slot.appendChild(title);
@@ -343,18 +305,15 @@ export class EquipmentScreen {
         name.textContent = item.name;
         name.style.fontSize = "0.8em";
         name.style.textAlign = "center";
-        name.style.color = "#0f0";
+        name.style.color = "var(--color-primary)";
         slot.appendChild(name);
-
-        slot.style.borderStyle = "solid";
-        slot.style.borderColor = "#0f0";
 
         const removeBtn = document.createElement("div");
         removeBtn.textContent = "×";
         removeBtn.style.position = "absolute";
         removeBtn.style.top = "2px";
         removeBtn.style.right = "5px";
-        removeBtn.style.color = "#f00";
+        removeBtn.style.color = "var(--color-danger)";
         removeBtn.onclick = (e) => {
           e.stopPropagation();
           onDrop("");
@@ -365,14 +324,12 @@ export class EquipmentScreen {
       const plus = document.createElement("div");
       plus.textContent = "+";
       plus.style.fontSize = "2em";
-      plus.style.color = "#333";
+      plus.style.color = "var(--color-border-strong)";
       slot.appendChild(plus);
     }
 
     slot.onclick = () => {
       // In a real UI we might open a selection menu or handle drag/drop
-      // For this prototype, clicking a slot could highlight available items in the Armory
-      // but we'll just keep it simple.
     };
 
     return slot;
@@ -431,20 +388,18 @@ export class EquipmentScreen {
     // Global Supplies
     const suppliesTitle = document.createElement("h3");
     suppliesTitle.textContent = "Global Supplies";
-    suppliesTitle.style.color = "#0f0";
-    suppliesTitle.style.borderBottom = "1px solid #333";
+    suppliesTitle.style.color = "var(--color-primary)";
+    suppliesTitle.style.borderBottom = "1px solid var(--color-border)";
     suppliesTitle.style.paddingBottom = "5px";
     panel.appendChild(suppliesTitle);
 
     const supplyItems = Object.values(ItemLibrary).filter((i) => i.action);
     supplyItems.forEach((item) => {
       const row = document.createElement("div");
-      row.style.display = "flex";
-      row.style.justifyContent = "space-between";
-      row.style.alignItems = "center";
+      row.className = "flex-row justify-between align-center card";
       row.style.marginBottom = "5px";
       row.style.padding = "5px";
-      row.style.border = "1px solid #333";
+      row.style.gap = "0";
       row.title = `${item.name}\n${item.description || ""}\nCharges: ${item.charges}\nCost: ${item.cost} CR`;
 
       const name = document.createElement("span");
@@ -452,9 +407,7 @@ export class EquipmentScreen {
       name.style.fontSize = "0.9em";
 
       const controls = document.createElement("div");
-      controls.style.display = "flex";
-      controls.style.alignItems = "center";
-      controls.style.gap = "10px";
+      controls.className = "flex-row align-center gap-10";
 
       const count = this.config.inventory[item.id] || 0;
 
@@ -500,7 +453,7 @@ export class EquipmentScreen {
     const h3 = document.createElement("h3");
     h3.textContent = title;
     h3.style.fontSize = "1em";
-    h3.style.color = "#0f0";
+    h3.style.color = "var(--color-primary)";
     h3.style.margin = "15px 0 5px 0";
     panel.appendChild(h3);
 
@@ -556,12 +509,12 @@ export class EquipmentScreen {
       btn.title = `${item.name}\n${item.description || ""}${fullStats ? "\n\n" + fullStats : ""}`;
 
       btn.innerHTML = `
-            <div style="display:flex; flex-direction:column;">
-                <div style="display:flex; justify-content:space-between; font-weight:bold;">
+            <div class="flex-col">
+                <div class="flex-row justify-between" style="font-weight:bold;">
                     <span>${item.name}</span>
-                    <span style="color:#888;">${item.cost} CR</span>
+                    <span style="color:var(--color-text-muted);">${item.cost} CR</span>
                 </div>
-                <div style="font-size:0.8em; color:#aaa; margin-top:2px; display:flex; gap:8px;">
+                <div style="font-size:0.8em; color:var(--color-text-muted); margin-top:2px; display:flex; gap:8px;">
                     ${statsHtml}
                 </div>
             </div>

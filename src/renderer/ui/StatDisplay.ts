@@ -19,12 +19,12 @@ export class StatDisplay {
   ): string {
     const fontSize = options.fontSize || "inherit";
     const iconSize = options.iconSize || "12px";
-    const color = options.color || "#eee";
+    const color = options.color || "var(--color-text)";
     const gap = options.gap || "2px";
 
     return `
       <span class="stat-display" style="display:inline-flex; align-items:center; gap:${gap}; font-size:${fontSize};" title="${title}">
-        <img src="${icon}" style="width:${iconSize}; height:${iconSize}; filter: brightness(0.8);" />
+        <img src="${icon}" style="width:${iconSize}; height:${iconSize};" />
         <span style="color:${color}">${value}</span>
       </span>
     `.trim();

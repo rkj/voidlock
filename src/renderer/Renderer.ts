@@ -13,6 +13,7 @@ import { LineOfSight } from "../engine/LineOfSight";
 import { GameGrid } from "../engine/GameGrid";
 import { VisibilityPolygon } from "./VisibilityPolygon";
 import { Graph } from "../engine/Graph";
+import { ThemeManager } from "./ThemeManager";
 
 export class Renderer {
   private ctx: CanvasRenderingContext2D;
@@ -22,6 +23,7 @@ export class Renderer {
   private overlayOptions: OverlayOption[] = [];
   private graph: Graph | null = null;
   private currentMapId: string | null = null;
+  private theme = ThemeManager.getInstance();
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -133,7 +135,8 @@ export class Renderer {
           const radius = (state.map.width + state.map.height) * this.cellSize;
 
           const gradient = this.ctx.createRadialGradient(x, y, 0, x, y, radius);
-          gradient.addColorStop(0, "rgba(0, 255, 0, 0.4)");
+          const colorBase = this.theme.getColor("--color-los-soldier");
+          gradient.addColorStop(0, colorBase);
           gradient.addColorStop(1, "rgba(0, 255, 0, 0)");
 
           this.ctx.fillStyle = gradient;
@@ -173,7 +176,8 @@ export class Renderer {
           const y = e.pos.y * this.cellSize;
 
           const gradient = this.ctx.createRadialGradient(x, y, 0, x, y, radius);
-          gradient.addColorStop(0, "rgba(255, 0, 0, 0.4)");
+          const colorBase = this.theme.getColor("--color-los-enemy");
+          gradient.addColorStop(0, colorBase);
           gradient.addColorStop(1, "rgba(255, 0, 0, 0)");
 
           this.ctx.fillStyle = gradient;
@@ -264,7 +268,7 @@ export class Renderer {
       const cx = ((p1.x + p2.x) / 2) * this.cellSize + this.cellSize / 2;
       const cy = ((p1.y + p2.y) / 2) * this.cellSize + this.cellSize / 2;
 
-      this.ctx.fillStyle = "#FF00FF";
+      this.ctx.fillStyle = this.theme.getColor("--color-hive"); // Purple for debug doors
       this.ctx.beginPath();
       this.ctx.arc(cx, cy, 5, 0, Math.PI * 2);
       this.ctx.fill();
@@ -285,7 +289,7 @@ export class Renderer {
     // Floor
     map.cells.forEach((cell) => {
       if (cell.type === CellType.Floor) {
-        this.ctx.fillStyle = "#0a0a0a"; // Very dark grey, almost black
+        this.ctx.fillStyle = this.theme.getColor("--color-floor");
         this.ctx.fillRect(
           cell.x * this.cellSize,
           cell.y * this.cellSize,
@@ -294,7 +298,7 @@ export class Renderer {
         );
 
         // Grid lines (faint)
-        this.ctx.strokeStyle = "#111";
+        this.ctx.strokeStyle = this.theme.getColor("--color-grid");
         this.ctx.lineWidth = 1;
         this.ctx.strokeRect(
           cell.x * this.cellSize,
@@ -311,7 +315,7 @@ export class Renderer {
     this.ctx.lineCap = "round";
 
     // Render Walls (Neon Cyan)
-    this.ctx.strokeStyle = "#00FFFF";
+    this.ctx.strokeStyle = this.theme.getColor("--color-wall");
     this.ctx.lineWidth = 2;
     this.ctx.beginPath();
 
@@ -415,12 +419,12 @@ export class Renderer {
 
     // Colors
     if (door.state === "Locked" || door.targetState === "Locked") {
-      this.ctx.strokeStyle = "#FF0000"; // Red
+      this.ctx.strokeStyle = this.theme.getColor("--color-door-locked");
     } else if (door.state === "Destroyed") {
-      this.ctx.strokeStyle = "#550000";
+      this.ctx.strokeStyle = this.theme.getColor("--color-door-destroyed");
     } else {
-      this.ctx.strokeStyle = "#FFD700"; // Gold (even when open/opening, maybe dim it?)
-      if (openRatio > 0.8) this.ctx.strokeStyle = "#AA8800"; // Dim when fully open
+      this.ctx.strokeStyle = this.theme.getColor("--color-door-closed");
+      if (openRatio > 0.8) this.ctx.strokeStyle = this.theme.getColor("--color-door-dim");
     }
 
     if (door.state !== "Destroyed") {
@@ -449,7 +453,7 @@ export class Renderer {
 
       // Draw struts
       this.ctx.lineWidth = 2; // Match regular wall width
-      this.ctx.strokeStyle = "#00FFFF"; // Wall color
+      this.ctx.strokeStyle = this.theme.getColor("--color-wall");
 
       this.ctx.beginPath();
       this.ctx.moveTo(strut1_sx, strut1_sy);
@@ -470,10 +474,10 @@ export class Renderer {
       const y = ext.y * this.cellSize;
 
       // Extraction Zone
-      this.ctx.fillStyle = "rgba(0, 255, 255, 0.1)";
+      this.ctx.fillStyle = this.theme.getColor("--color-los-visible") || "rgba(0, 255, 255, 0.1)";
       this.ctx.fillRect(x, y, this.cellSize, this.cellSize);
 
-      this.ctx.strokeStyle = "#00FFFF";
+      this.ctx.strokeStyle = this.theme.getColor("--color-info");
       this.ctx.lineWidth = 2;
       this.ctx.setLineDash([10, 5]);
       this.ctx.strokeRect(x + 5, y + 5, this.cellSize - 10, this.cellSize - 10);
@@ -571,13 +575,13 @@ export class Renderer {
       this.ctx.arc(x, y, this.cellSize / 6, 0, Math.PI * 2);
 
       if (unit.state === UnitState.Channeling) {
-        this.ctx.fillStyle = "#00FFFF"; // Cyan
+        this.ctx.fillStyle = this.theme.getColor("--color-info");
       } else if (unit.state === UnitState.Attacking) {
         this.ctx.fillStyle = "#FF4400";
       } else if (unit.state === UnitState.Moving) {
-        this.ctx.fillStyle = "#FFD700";
+        this.ctx.fillStyle = this.theme.getColor("--color-door-closed");
       } else {
-        this.ctx.fillStyle = "#00FF00";
+        this.ctx.fillStyle = this.theme.getColor("--color-primary");
       }
 
       this.ctx.fill();
@@ -587,7 +591,7 @@ export class Renderer {
 
       // Render Burdened Indicator
       if (unit.carriedObjectiveId) {
-        this.ctx.fillStyle = "#FF0000";
+        this.ctx.fillStyle = this.theme.getColor("--color-danger");
         this.ctx.font = `bold ${Math.floor(this.cellSize / 10)}px monospace`;
         this.ctx.fillText("BURDENED", x, y - this.cellSize / 4);
       }
@@ -742,7 +746,7 @@ export class Renderer {
         }
         this.ctx.closePath();
 
-        this.ctx.fillStyle = "#FF0000";
+        this.ctx.fillStyle = this.theme.getColor("--color-danger");
         this.ctx.fill();
         this.ctx.strokeStyle = "#000";
         this.ctx.lineWidth = 3;
@@ -787,7 +791,7 @@ export class Renderer {
     this.ctx.fillRect(x - barWidth / 2, y + yOffset, barWidth, barHeight);
 
     const pct = Math.max(0, hp / maxHp);
-    this.ctx.fillStyle = pct > 0.5 ? "#0f0" : pct > 0.25 ? "#ff0" : "#f00";
+    this.ctx.fillStyle = pct > 0.5 ? this.theme.getColor("--color-success") : pct > 0.25 ? this.theme.getColor("--color-warning") : this.theme.getColor("--color-danger");
     this.ctx.fillRect(x - barWidth / 2, y + yOffset, barWidth * pct, barHeight);
   }
 
@@ -807,7 +811,7 @@ export class Renderer {
 
     // Progress
     const pct = Math.max(0, 1 - remaining / total);
-    this.ctx.fillStyle = "#00FFFF";
+    this.ctx.fillStyle = this.theme.getColor("--color-info");
     this.ctx.fillRect(x - barWidth / 2, y + yOffset, barWidth * pct, barHeight);
 
     // Border
@@ -829,7 +833,7 @@ export class Renderer {
         if (isVisible) continue;
 
         if (isDiscovered) {
-          this.ctx.fillStyle = "rgba(0, 0, 0, 0.6)";
+          this.ctx.fillStyle = this.theme.getColor("--color-fog-discovered");
           this.ctx.fillRect(
             x * this.cellSize,
             y * this.cellSize,
@@ -837,7 +841,7 @@ export class Renderer {
             this.cellSize,
           );
         } else {
-          this.ctx.fillStyle = "#000";
+          this.ctx.fillStyle = this.theme.getColor("--color-fog-unexplored");
           this.ctx.fillRect(
             x * this.cellSize,
             y * this.cellSize,

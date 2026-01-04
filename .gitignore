@@ -25,3 +25,5 @@ tags
 *.njsproj
 *.sln
 *.sw?
+.beads/last-touched
+

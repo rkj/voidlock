@@ -5,281 +5,7 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Voidlock Prototype</title>
-    <style>
-      body {
-        margin: 0;
-        overflow: hidden;
-        background-color: #1a1a1a;
-        color: #eee;
-        font-family: "Courier New", Courier, monospace;
-      }
-      #app {
-        width: 100vw;
-        height: 100vh;
-        position: relative;
-      }
-
-      /* Screens */
-      .screen {
-        width: 100%;
-        height: 100%;
-        display: none; /* Hidden by default */
-        flex-direction: column;
-        background-color: #111;
-      }
-
-      /* Centered Screens (Menu, Setup) */
-      .screen-centered {
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-      }
-
-      /* Screen: Mission (Game) */
-      #screen-mission {
-        display: none; /* Hidden initially */
-        flex-direction: column;
-      }
-
-      #game-container {
-        flex-grow: 1;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        position: relative;
-        overflow: hidden;
-        background-color: #000;
-      }
-      canvas {
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: contain;
-      }
-
-      h1 {
-        color: #0f0;
-        text-shadow: 0 0 5px #0f0;
-        font-size: 2em;
-        margin-bottom: 20px;
-      }
-      h2 {
-        color: #ccc;
-        border-bottom: 1px solid #444;
-        padding-bottom: 5px;
-        width: 100%;
-        margin-bottom: 15px;
-      }
-      h3 {
-        color: #0f0;
-        font-size: 1.1em;
-        margin: 10px 0;
-      }
-
-      /* Buttons */
-      button {
-        background-color: #333;
-        color: #0f0;
-        border: 1px solid #0f0;
-        padding: 10px 20px;
-        cursor: pointer;
-        margin-top: 5px;
-        font-size: 1em;
-        transition: all 0.2s;
-      }
-      button:hover {
-        background-color: #0f0;
-        color: #333;
-      }
-      button.active {
-        background-color: #0f0;
-        color: #333;
-        font-weight: bold;
-      }
-
-      .menu-button {
-        width: 300px;
-        margin: 10px 0;
-        font-size: 1.2em;
-      }
-      .back-button {
-        margin-top: 20px;
-        background-color: #442222;
-        border-color: #ff4444;
-        color: #ffcccc;
-      }
-      .back-button:hover {
-        background-color: #ff4444;
-        color: #000;
-      }
-
-      /* Controls */
-      .control-group {
-        margin-top: 15px;
-        border-top: 1px solid #444;
-        padding-top: 10px;
-        text-align: left;
-        width: 100%;
-        max-width: 500px;
-      }
-      .mission-sidebar-group {
-        margin-top: 15px;
-        border-top: 1px solid #444;
-        padding-top: 10px;
-      }
-
-      input[type="file"],
-      input[type="text"],
-      input[type="number"],
-      select,
-      textarea {
-        margin-top: 5px;
-        color: #000;
-        font-size: 0.9em;
-        width: 100%;
-        box-sizing: border-box;
-        padding: 5px;
-      }
-      label {
-        display: block;
-        margin-top: 10px;
-        color: #aaa;
-      }
-
-      /* Lists */
-      #soldier-list {
-        width: 100%;
-        display: flex;
-        gap: 5px;
-        height: 100%;
-        justify-content: flex-start;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-      }
-      .soldier-item {
-        min-width: 220px;
-        width: 220px;
-        flex: 0 0 auto;
-        height: 100%;
-        border: 1px solid #333;
-        cursor: pointer;
-        background: #111;
-        display: flex;
-        flex-direction: column;
-        padding: 2px 8px;
-        box-sizing: border-box;
-        overflow: hidden;
-        transition: border-color 0.2s;
-      }
-      .soldier-item:hover {
-        background-color: #1a1a1a;
-      }
-      .soldier-item.selected {
-        border-color: #0f0;
-        background-color: #1a1a1a;
-      }
-      .soldier-item.dead {
-        color: #eee;
-        background-color: #500;
-        border-color: #f00;
-        opacity: 0.9;
-      }
-      .soldier-item.extracted {
-        color: #0aa;
-        border-color: #0aa;
-        opacity: 0.7;
-      }
-
-      .info-row {
-        height: 20px;
-        overflow: hidden;
-        white-space: nowrap;
-        margin-bottom: 0;
-      }
-      .u-id {
-        color: #0f0;
-        font-size: 1em;
-      }
-      .u-status {
-        font-size: 0.8em;
-        color: #aaa;
-        margin-left: 10px;
-        flex-grow: 1;
-        text-align: right;
-        overflow: hidden;
-        text-overflow: ellipsis;
-      }
-
-      .hp-bar {
-        height: 4px;
-        background: #222;
-        margin: 2px 0;
-        border: 1px solid #444;
-        width: 100%;
-      }
-      .hp-fill {
-        height: 100%;
-        background: #0f0;
-        transition: width 0.3s ease-in-out;
-      }
-
-      .menu-item {
-        border: 1px solid #444;
-        padding: 5px 10px;
-        margin-bottom: 5px;
-      }
-      .menu-item.clickable {
-        cursor: pointer;
-      }
-      .menu-item.clickable:hover {
-        background-color: #333;
-        border-color: #0f0;
-      }
-      .menu-item.active {
-        border-color: #0f0;
-        background-color: #040;
-      }
-      .menu-item.disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-
-      .unit-commands {
-        margin-top: auto;
-        display: flex;
-        gap: 5px;
-      }
-      .unit-commands button {
-        padding: 5px 10px;
-        font-size: 0.85em;
-        flex: 1;
-        margin: 0;
-      }
-
-      /* Setup Screen Layout */
-      #setup-content {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        width: 100%;
-        max-width: 600px;
-        padding: 20px;
-        background: #1a1a1a;
-        border: 1px solid #444;
-        max-height: 80vh;
-        overflow-y: auto;
-      }
-
-      /* Campaign Map */
-      .campaign-node:hover {
-        transform: scale(1.2);
-        z-index: 10 !important;
-      }
-      .campaign-node.accessible:hover {
-        background-color: #444 !important;
-        border-color: #0f0 !important;
-      }
-    </style>
+    <link rel="stylesheet" href="/styles/main.css" />
   </head>
   <body>
     <div id="app">
@@ -298,7 +24,7 @@
           <div
             style="
               margin-top: 20px;
-              border-top: 1px solid #333;
+              border-top: 1px solid var(--color-border);
               padding-top: 20px;
             "
           >
@@ -307,7 +33,7 @@
               style="
                 cursor: pointer;
                 display: inline-block;
-                border: 1px solid #666;
+                border: 1px solid var(--color-text-dim);
                 padding: 5px 10px;
               "
               >Load Replay JSON</label
@@ -441,20 +167,8 @@
       <!-- 4. Mission Screen (Game Loop) -->
       <div id="screen-mission" class="screen">
         <!-- 1. Top Bar -->
-        <div
-          id="top-bar"
-          style="
-            height: 40px;
-            background: #222;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 20px;
-            border-bottom: 1px solid #444;
-            flex-shrink: 0;
-          "
-        >
-          <div id="game-status" style="font-weight: bold; color: #0f0">
+        <div id="top-bar" class="top-bar">
+          <div id="game-status" style="font-weight: bold; color: var(--color-primary)">
             Status: Active
           </div>
           <div
@@ -469,21 +183,10 @@
               margin: 0 20px;
             "
           >
-            <span style="font-size: 0.8em; color: #aaa; white-space: nowrap"
+            <span style="font-size: 0.8em; color: var(--color-text-muted); white-space: nowrap"
               >THREAT:</span
             >
-            <div
-              id="top-threat-bar"
-              style="
-                width: 100%;
-                background: #333;
-                height: 12px;
-                border: 1px solid #555;
-                position: relative;
-                overflow: hidden;
-                box-sizing: border-box;
-              "
-            >
+            <div id="top-threat-bar" class="threat-bar">
               <!-- Robust Flex-based Dividers every 10% -->
               <div
                 style="
@@ -570,23 +273,11 @@
                   style="width: 10%; height: 100%; box-sizing: border-box"
                 ></div>
               </div>
-              <div
-                id="top-threat-fill"
-                style="
-                  width: 0%;
-                  background: #4caf50;
-                  height: 100%;
-                  position: relative;
-                  z-index: 0;
-                  transition:
-                    width 0.5s,
-                    background-color 0.5s;
-                "
-              ></div>
+              <div id="top-threat-fill" class="threat-fill"></div>
             </div>
             <span
               id="top-threat-value"
-              style="font-size: 0.8em; color: #4caf50; min-width: 40px"
+              style="font-size: 0.8em; color: var(--color-success); min-width: 40px"
               >0%</span
             >
           </div>
@@ -618,7 +309,7 @@
             </button>
             <label
               for="game-speed"
-              style="font-size: 0.8em; color: #aaa; margin: 0"
+              style="font-size: 0.8em; color: var(--color-text-muted); margin: 0"
               >Speed:</label
             >
             <input
@@ -633,7 +324,7 @@
             />
             <span
               id="speed-value"
-              style="font-size: 0.8em; color: #aaa; min-width: 30px"
+              style="font-size: 0.8em; color: var(--color-text-muted); min-width: 30px"
               >1.0x</span
             >
           </div>
@@ -660,16 +351,7 @@
         </div>
 
         <!-- 2. Soldier Bar (RPG Style) -->
-        <div
-          id="soldier-panel"
-          style="
-            background: #111;
-            border-bottom: 1px solid #444;
-            padding: 2px 10px;
-            overflow: hidden;
-            flex-shrink: 0;
-          "
-        >
+        <div id="soldier-panel" class="soldier-panel">
           <div id="soldier-list">
             <!-- Soldier cards injected here -->
           </div>
@@ -699,19 +381,7 @@
             <canvas id="game-canvas"></canvas>
           </div>
 
-          <div
-            id="right-panel"
-            style="
-              width: 300px;
-              background: #1a1a1a;
-              border-left: 1px solid #444;
-              padding: 10px;
-              display: flex;
-              flex-direction: column;
-              overflow-y: auto;
-              flex-shrink: 0;
-            "
-          >
+          <div id="right-panel" class="right-panel">
             <!-- Commands and Objectives will be injected here -->
           </div>
         </div>
