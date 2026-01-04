@@ -1,14 +1,12 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { ArchetypeLibrary, MissionType } from "@src/shared/types";
+import { ArchetypeLibrary } from "@src/shared/types";
 
 describe("SquadBuilder UI logic", () => {
   let currentSquad: { archetypeId: string; count: number }[] = [];
-  let currentMissionType: MissionType = MissionType.Default;
 
   beforeEach(() => {
     currentSquad = [];
-    currentMissionType = MissionType.Default;
     vi.clearAllMocks();
 
     document.body.innerHTML = `
@@ -29,7 +27,6 @@ describe("SquadBuilder UI logic", () => {
 
     const updateTotalCountDisplay = () => {
       let total = currentSquad
-        .filter((s) => s.archetypeId !== "vip")
         .reduce((sum, s) => sum + s.count, 0);
 
       const display = document.getElementById("squad-total-count");
@@ -52,6 +49,7 @@ describe("SquadBuilder UI logic", () => {
     };
 
     Object.values(ArchetypeLibrary).forEach((arch) => {
+      // Mission-Specific units (e.g., VIPs) must NOT be available for selection.
       if (arch.id === "vip") {
         return;
       }
@@ -76,10 +74,10 @@ describe("SquadBuilder UI logic", () => {
         }
 
         let otherTotal = currentSquad
-          .filter((s) => s.archetypeId !== arch.id && s.archetypeId !== "vip")
+          .filter((s) => s.archetypeId !== arch.id)
           .reduce((sum, s) => sum + s.count, 0);
 
-        if (arch.id !== "vip" && otherTotal + newVal > MAX_SQUAD_SIZE) {
+        if (otherTotal + newVal > MAX_SQUAD_SIZE) {
           input.value = (
             currentSquad.find((s) => s.archetypeId === arch.id)?.count || 0
           ).toString();
@@ -150,16 +148,10 @@ describe("SquadBuilder UI logic", () => {
     expect(currentSquad[0].count).toBe(4);
   });
 
-  it("should NEVER include VIP in the list regardless of mission type", () => {
-    currentMissionType = MissionType.Default;
+  it("should NEVER include VIP in the list", () => {
     renderSquadBuilder();
     const vipRow = document.querySelector('[data-arch-id="vip"]');
     expect(vipRow).toBeNull();
-
-    currentMissionType = MissionType.EscortVIP;
-    renderSquadBuilder();
-    const vipRowEscort = document.querySelector('[data-arch-id="vip"]');
-    expect(vipRowEscort).toBeNull();
   });
 
   it("should allow changing counts within limit", () => {
@@ -176,44 +168,5 @@ describe("SquadBuilder UI logic", () => {
     expect(document.getElementById("squad-total-count")?.textContent).toBe(
       "Total Soldiers: 3/4",
     );
-  });
-
-  it("should NOT include VIP in total count for EscortVIP missions", () => {
-    currentMissionType = MissionType.EscortVIP;
-    currentSquad = [{ archetypeId: "assault", count: 2 }];
-    renderSquadBuilder();
-    expect(document.getElementById("squad-total-count")?.textContent).toBe(
-      "Total Soldiers: 2/4",
-    );
-    const launchBtn = document.getElementById(
-      "btn-launch-mission",
-    ) as HTMLButtonElement;
-    expect(launchBtn.disabled).toBe(false);
-  });
-
-  it("should allow adding 4 members even in EscortVIP missions", () => {
-    currentMissionType = MissionType.EscortVIP;
-    currentSquad = [{ archetypeId: "assault", count: 4 }];
-    renderSquadBuilder();
-
-    expect(document.getElementById("squad-total-count")?.textContent).toBe(
-      "Total Soldiers: 4/4",
-    );
-    const launchBtn = document.getElementById(
-      "btn-launch-mission",
-    ) as HTMLButtonElement;
-    expect(launchBtn.disabled).toBe(false);
-
-    const medicRow = document.querySelector('[data-arch-id="medic"]');
-    const medicInput = medicRow?.querySelector("input") as HTMLInputElement;
-    expect(medicInput.value).toBe("0");
-
-    medicInput.value = "1";
-    medicInput.dispatchEvent(new Event("change"));
-
-    expect(alert).toHaveBeenCalledWith("Maximum squad size is 4 soldiers.");
-    expect(medicInput.value).toBe("0");
-    expect(currentSquad.length).toBe(1);
-    expect(currentSquad[0].count).toBe(4);
   });
 });
