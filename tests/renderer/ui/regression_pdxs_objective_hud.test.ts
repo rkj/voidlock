@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { HUDManager } from "@src/renderer/ui/HUDManager";
-import { GameState, UnitState } from "@src/shared/types";
+import { GameState, UnitState, MissionType } from "@src/shared/types";
 
 describe("HUDManager Objective Regression PDXS", () => {
   let hud: HUDManager;
@@ -9,6 +9,8 @@ describe("HUDManager Objective Regression PDXS", () => {
 
   const mockState: GameState = {
     t: 0,
+    seed: 12345,
+    missionType: MissionType.Default,
     status: "Playing",
     settings: {
       mode: "Simulation" as any,

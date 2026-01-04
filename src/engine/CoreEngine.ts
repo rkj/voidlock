@@ -98,6 +98,8 @@ export class CoreEngine {
 
     this.state = {
       t: 0,
+      seed: seed,
+      missionType: missionType,
       map: {
         ...map,
         boundaries:

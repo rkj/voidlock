@@ -4,6 +4,7 @@ import {
   CommandType,
   GameState,
   UnitState,
+  MissionType,
 } from "@src/shared/types";
 
 describe("MenuController Shift Queueing", () => {
@@ -11,6 +12,8 @@ describe("MenuController Shift Queueing", () => {
   let mockClient: any;
   const mockState: GameState = {
     t: 1000,
+    seed: 12345,
+    missionType: MissionType.Default,
     map: { width: 10, height: 10, cells: [] },
     units: [
       { id: "u1", state: UnitState.Idle } as any,

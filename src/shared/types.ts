@@ -640,6 +640,8 @@ export type MissionStats = {
 
 export type GameState = {
   t: number;
+  seed: number;
+  missionType: MissionType;
   map: MapDefinition;
   units: Unit[];
   enemies: Enemy[];

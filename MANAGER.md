@@ -60,7 +60,7 @@ run_shell_command("./scripts/dispatch_agent.sh <TASK_ID> docs/tasks/context_123.
 
 **Manager Actions:**
 
-1. **Inspect**: Run `jj diff`.
+1. **Inspect**: Run `jj diff --git`.
    - _Check_: Did it follow conventions? Did it remove tests? (Forbidden!)
    - _Architecture Review_: Does the code adhere to `@ARCHITECTURE.md` and SOLID principles? If not, create a **P1 task** to refactor/clean up.
    - _Documentation (MANDATORY)_: Ensure `GEMINI.md` files in modified directories were updated if files were added or significant APIs changed. If documentation is missing or outdated, you MUST fail verification and re-dispatch with instructions to update it.
