@@ -6,6 +6,7 @@ This directory contains the main thread rendering logic and user interface for V
 
 - `main.ts`: The entry point for the main game application. Initializes the `GameClient`, `Renderer`, and UI components.
 - `Renderer.ts`: The core rendering engine using HTML5 Canvas. Handles drawing the map, units, combat effects, and fog of war.
+- `TimeUtility.ts`: Utility for logarithmic time scale conversions (slider to scale and vice versa).
 - `InputManager.ts`: Manages mouse and keyboard input. It is decoupled from the specific command protocol by using callbacks for actions like pausing and toggling overlays.
 - `ScreenManager.ts`: Manages transitions between different screens (Main Menu, Setup, Mission).
 - `MenuController.ts`: Implements the hierarchical keyboard-driven command menu. Includes context-aware logic to hide or disable options based on game state, and handles Shift-key modifiers for command queueing.
