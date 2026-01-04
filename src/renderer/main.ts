@@ -158,13 +158,15 @@ const generateMissionReport = (
     timeSpent: state.t,
     soldierResults: state.units.map((u) => ({
       soldierId: u.id,
-      xpGained:
-        (state.status === "Won" ? 50 : 10) +
-        (u.state !== UnitState.Dead ? 20 : 0) +
-        u.kills * 10,
+      xpGained: 0, // Calculated by CampaignManager
       kills: u.kills,
       promoted: false,
-      status: u.state === UnitState.Dead ? "Dead" : "Healthy",
+      status:
+        u.state === UnitState.Dead
+          ? "Dead"
+          : u.hp < u.maxHp
+            ? "Wounded"
+            : "Healthy",
     })),
   };
 };

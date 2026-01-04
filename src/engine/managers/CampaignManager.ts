@@ -69,7 +69,7 @@ export class CampaignManager {
     const roster = this.generateInitialRoster(prng);
 
     this.state = {
-      version: "0.51.1", // Current project version
+      version: "0.53.0", // Current project version
       seed,
       rules,
       scrap: 500,
@@ -205,6 +205,18 @@ export class CampaignManager {
       const soldier = this.state!.roster.find((s) => s.id === res.soldierId);
       if (soldier) {
         const oldLevel = soldier.level;
+
+        // Calculate XP:
+        // - Mission: +50 for Win, +10 for Loss
+        // - Survival: +20 for Healthy/Wounded
+        // - Kills: +10 per kill
+        const missionXp = report.result === "Won" ? 50 : 10;
+        const survivalXp =
+          res.status === "Healthy" || res.status === "Wounded" ? 20 : 0;
+        const killXp = res.kills * 10;
+
+        res.xpGained = missionXp + survivalXp + killXp;
+
         soldier.xp += res.xpGained;
         soldier.kills += res.kills;
         soldier.missions += 1;
