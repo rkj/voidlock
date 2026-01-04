@@ -21,16 +21,15 @@ The application is divided into distinct screens to reduce UI clutter and improv
      - Seed Input / Randomize.
      - Map Size (Width/Height).
      - Static Map Import (Text/File/ASCII).
-   - **Game Options**:
-     - Fog of War, Debug Overlay, LOS Visualization toggles.
-     - **Game Speed Control**:
-       - **Slider Range**: 0.05x (Active Pause) to 5.0x (Fast Forward). Default 1.0x.
-       - **Active Pause**: Speed 0.05x acts as "Active Pause", allowing commands to be issued while time moves very slowly.
-       - **In-Game Access**: This control must be accessible during a mission.
-       - **Controls**:
-         - **Spacebar**: Toggles between "Active Pause" (0.05x) and the last used speed.
-         - **UI Button**: A dedicated button (Play/Pause icon) in the UI should also toggle this state.
-
+        - **Game Options**:
+        - Fog of War, Debug Overlay, LOS Visualization toggles.
+        - **Game Speed Control**:
+          - **Slider Range**: 0.1x (Active Pause) to 10.0x (Fast Forward). Default 1.0x.
+          - **Active Pause**: Speed 0.1x acts as "Active Pause", allowing commands to be issued while time moves very slowly.
+          - **In-Game Access**: This control must be accessible during a mission.
+          - **Controls**:
+            - **Spacebar**: Toggles between "Active Pause" (0.1x) and the last used speed.
+            - **UI Button**: A dedicated button (Play/Pause icon) in the UI should also toggle this state.
 - **Command Set Updates:**
   - `ENGAGE/IGNORE Toggle`: Units can be toggled between 'ENGAGE' (Stop & Shoot) and 'IGNORE' (Run) policies. This toggle should be easily accessible in the command menu.
   - **Squad Configuration**:
