@@ -169,6 +169,7 @@ Clicking "Copy World State" captures a comprehensive snapshot of the session.
   - `version`: Engine/Protocol version.
   - `timestamp`: System time of export.
 - **Destination:** System Clipboard (primary) and Console (fallback).
+  - **Constraint:** Must check for `navigator.clipboard` availability. If unavailable (e.g., non-secure context), strictly fallback to `console.log` and alert the user.
 - **Usage:** This JSON can be attached to bug reports or used with "Load Replay" to reproduce exact states.
 
 - **Legacy Requirements:**
