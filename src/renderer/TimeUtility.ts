@@ -20,4 +20,14 @@ export class TimeUtility {
     // formula: val = 50 * log10(scale) + 50
     return 50 * Math.log10(scale) + 50;
   }
+
+  /**
+   * Formats a speed scale for display in the UI.
+   */
+  public static formatSpeed(scale: number, isPaused: boolean): string {
+    if (isPaused) {
+      return `0.1x (Active Pause)`;
+    }
+    return `${scale.toFixed(1)}x`;
+  }
 }

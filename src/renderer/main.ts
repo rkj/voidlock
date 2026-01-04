@@ -176,8 +176,7 @@ const handleMenuInput = (key: string, shiftHeld: boolean = false) => {
   updateUI(currentGameState);
 };
 
-const togglePause = () => {
-  gameClient.togglePause();
+const syncSpeedUI = () => {
   const isPaused = gameClient.getIsPaused();
   const lastSpeed = gameClient.getTargetScale();
 
@@ -187,15 +186,22 @@ const togglePause = () => {
   ) as HTMLInputElement;
   const gameSpeedValue = document.getElementById("speed-value");
 
-  if (isPaused) {
-    if (btn) btn.textContent = "▶ Play";
-    if (gameSpeedValue) gameSpeedValue.textContent = `0.05x`;
-  } else {
-    if (btn) btn.textContent = "⏸ Pause";
-    if (gameSpeedValue) gameSpeedValue.textContent = `${lastSpeed.toFixed(1)}x`;
-    if (gameSpeedSlider)
-      gameSpeedSlider.value = TimeUtility.scaleToSlider(lastSpeed).toString();
+  if (btn) {
+    btn.textContent = isPaused ? "▶ Play" : "⏸ Pause";
   }
+
+  if (gameSpeedValue) {
+    gameSpeedValue.textContent = TimeUtility.formatSpeed(lastSpeed, isPaused);
+  }
+
+  if (gameSpeedSlider) {
+    gameSpeedSlider.value = TimeUtility.scaleToSlider(lastSpeed).toString();
+  }
+};
+
+const togglePause = () => {
+  gameClient.togglePause();
+  syncSpeedUI();
 };
 
 const onUnitClick = (unit: Unit, shiftHeld: boolean = false) => {
@@ -307,15 +313,7 @@ const launchMission = () => {
   if (seedDisplay) seedDisplay.textContent = `Seed: ${currentSeed}`;
 
   // Sync Speed Slider
-  const gameSpeedSlider = document.getElementById(
-    "game-speed",
-  ) as HTMLInputElement;
-  const gameSpeedValue = document.getElementById("speed-value");
-  const currentScale = gameClient.getTargetScale();
-  if (gameSpeedSlider)
-    gameSpeedSlider.value = TimeUtility.scaleToSlider(currentScale).toString();
-  if (gameSpeedValue)
-    gameSpeedValue.textContent = `${currentScale.toFixed(1)}x`;
+  syncSpeedUI();
 
   selectedUnitId = null;
   debriefShown = false;
@@ -492,12 +490,7 @@ document.addEventListener("DOMContentLoaded", () => {
     gameSpeedSlider.addEventListener("input", () => {
       const scale = TimeUtility.sliderToScale(parseFloat(gameSpeedSlider.value));
       gameClient.setTimeScale(scale);
-
-      if (gameClient.getIsPaused()) {
-        gameSpeedValue.textContent = `0.05x`;
-      } else {
-        gameSpeedValue.textContent = `${scale.toFixed(1)}x`;
-      }
+      syncSpeedUI();
     });
   }
 

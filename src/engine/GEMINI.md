@@ -37,7 +37,7 @@ A mission run can be perfectly reproduced by re-initializing the engine with the
 ## Testing Strategy
 
 - **Deterministic Simulation**: The engine uses a seeded `PRNG` to ensure reproducible game runs.
-- **Tick-based Loop**: The simulation progresses in discrete time steps (ticks). It supports time scaling (0.05x to 5.0x), with all game logic (movement, threat growth, timed actions) following the scaled game time. When the game is paused (timeScale = 0), the simulation stops updating completely.
+- **Tick-based Loop**: The simulation progresses in discrete time steps (ticks). It supports time scaling (0.1x to 10.0x), with all game logic (movement, threat growth, timed actions) following the scaled game time. Active Pause (0.1x) allows commands to be issued while time moves slowly, while an absolute pause (timeScale = 0) stops the simulation entirely.
 - **Communication**: Communicates with the main thread via a JSON-based protocol (Observation/Command).
 
 ## Connections
