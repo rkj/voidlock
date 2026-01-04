@@ -43,10 +43,9 @@ Never create a task until the documentation reflects the reality.
 You manage tasks in `.beads/README.md`. Tasks must be optimized for lightweight
 (Flash) models.
 
-- **Atomic Granularity:** Each task must be solvable in a single file or single
-  function change.
-- **No Ambiguity:** Tasks must include "Input," "Processing Logic," and
-  "Expected Output."
+- **Atomic Granularity:** Tasks must be as small as possible. Before finalizing a task, ask: "Can this be broken down further?" If yes, break it down. Ideally, a task touches only a few files or a single functional unit.
+
+- **No Ambiguity:** Tasks must include "Input," "Processing Logic," and "Expected Output."
 - **Epics:** Group related tasks under a header (Epic).
 - **Persistence:** NEVER close a task as "failed". If a task is blocked or fails, leave it OPEN and annotate it with the failure reason. Closed means Fixed.
 - **Spec Linkage:** Every task description MUST start with a link to the specific section of the Spec file it implements (e.g., "See `spec/commands.md#3-ai-behavior`"). This is the Single Source of Truth for the developer.
