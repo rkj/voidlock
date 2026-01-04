@@ -1,19 +1,19 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, afterAll } from 'vitest';
 import fs from 'fs';
 import path from 'path';
 import { processAssets } from '../../scripts/process_assets';
 
 describe('Asset Pipeline', () => {
-  it('should process assets and generate manifest', async () => {
-    // Ensure output directory is clean
-    const outputDir = 'public/assets';
+  const outputDir = 'tests/public/assets';
+
+  afterAll(() => {
     if (fs.existsSync(outputDir)) {
-      // We don't want to delete it completely if it contains other things,
-      // but for this test we want to ensure it's generated.
+      fs.rmSync(outputDir, { recursive: true, force: true });
     }
+  });
 
-    await processAssets();
-
+  it('should process assets and generate manifest', async () => {
+    await processAssets(outputDir);
     const manifestPath = path.join(outputDir, 'assets.json');
     expect(fs.existsSync(manifestPath)).toBe(true);
 
