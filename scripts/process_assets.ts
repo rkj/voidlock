@@ -1,9 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 
+const DEFAULT_OUTPUT_DIR = 'public/assets';
 const SOURCE_DIR = 'NanoBanana Assets';
-const OUTPUT_DIR = 'public/assets';
-const MANIFEST_FILE = path.join(OUTPUT_DIR, 'assets.json');
 
 const MAPPING: Record<string, string> = {
   'Floor Tile.png': 'floor.png',
@@ -28,9 +27,11 @@ const MAPPING: Record<string, string> = {
   'Xeno Swarmer 1.png': 'xeno_swarmer_1.png',
 };
 
-async function processAssets() {
-  if (!fs.existsSync(OUTPUT_DIR)) {
-    fs.mkdirSync(OUTPUT_DIR, { recursive: true });
+async function processAssets(outputDir: string = DEFAULT_OUTPUT_DIR) {
+  const manifestFile = path.join(outputDir, 'assets.json');
+
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir, { recursive: true });
   }
 
   const manifest: Record<string, string> = {};
@@ -46,7 +47,7 @@ async function processAssets() {
 
   for (const [sourceFile, targetFile] of Object.entries(MAPPING)) {
     const sourcePath = path.join(SOURCE_DIR, sourceFile);
-    const targetPath = path.join(OUTPUT_DIR, targetFile);
+    const targetPath = path.join(outputDir, targetFile);
 
     if (fs.existsSync(sourcePath)) {
       console.log(`Processing ${sourceFile} -> ${targetFile}...`);
@@ -74,8 +75,8 @@ async function processAssets() {
     }
   }
 
-  fs.writeFileSync(MANIFEST_FILE, JSON.stringify(manifest, null, 2));
-  console.log(`Manifest generated: ${MANIFEST_FILE}`);
+  fs.writeFileSync(manifestFile, JSON.stringify(manifest, null, 2));
+  console.log(`Manifest generated: ${manifestFile}`);
 }
 
 // Check if we are running as a script
