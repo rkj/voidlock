@@ -6,6 +6,7 @@ import {
   UnitState,
   CellType,
   EngagementPolicy,
+  MissionType,
 } from "@src/shared/types";
 
 describe("MenuController", () => {
@@ -13,6 +14,8 @@ describe("MenuController", () => {
   let mockClient: any;
   const mockState: GameState = {
     t: 1000,
+    seed: 12345,
+    missionType: MissionType.Default,
     map: { width: 10, height: 10, cells: [] },
     units: [
       { id: "u1", pos: { x: 0.5, y: 0.5 }, state: UnitState.Idle } as any,

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { HUDManager } from "@src/renderer/ui/HUDManager";
-import { GameState, UnitState, Unit } from "@src/shared/types";
+import { GameState, UnitState, Unit, MissionType } from "@src/shared/types";
 
 describe("HUDManager", () => {
   let hud: HUDManager;
@@ -13,6 +13,8 @@ describe("HUDManager", () => {
 
   const mockState: GameState = {
     t: 1000,
+    seed: 12345,
+    missionType: MissionType.Default,
     status: "Playing",
     settings: {
       mode: "Simulation" as any,

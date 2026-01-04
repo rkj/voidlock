@@ -1,12 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { MenuController } from "@src/renderer/MenuController";
-import { GameState, UnitState, CellType } from "@src/shared/types";
+import { GameState, UnitState, CellType, MissionType } from "@src/shared/types";
 
 describe("MenuController Room Discovery", () => {
   let controller: MenuController;
   let mockClient: any;
   const mockState: GameState = {
     t: 1000,
+    seed: 12345,
+    missionType: MissionType.Default,
     map: {
       width: 10,
       height: 10,

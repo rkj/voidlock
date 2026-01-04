@@ -33,6 +33,7 @@ A mission run can be perfectly reproduced by re-initializing the engine with the
 - `managers/`: Modules that handle specific aspects of the game (Unit, Enemy, Door, Visibility, Mission, Command).
 - `tests/`: Comprehensive test suite for the engine, including core components (`CoreEngine`, `GameGrid`, `Pathfinder`), and regression tests.
     - `regression_x81g_map_placement_fuzz.test.ts`: Fuzz test (100 seeds) verifying strict entity placement rules across varying map sizes (3x3 to 10x10).
+    - `regression_v78_exposed_seed_mission.test.ts`: Verifies that `seed` and `missionType` are correctly exposed in the `GameState`.
 
 ## Testing Strategy
 
