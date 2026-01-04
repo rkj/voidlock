@@ -146,6 +146,11 @@ export class HUDManager {
       }
       const debugHtml = `
         <h3>Debug Tools</h3>
+        <div style="font-size:0.8em; color:var(--color-text-muted); margin-bottom:10px; display:flex; flex-direction:column; gap:4px;">
+          <span><strong>Seed:</strong> ${state.seed}</span>
+          <span><strong>Size:</strong> ${state.map.width}x${state.map.height}</span>
+          <span><strong>Type:</strong> ${state.missionType}</span>
+        </div>
         <button id="btn-copy-world-state" style="width:100%; font-size:0.8em; padding:8px;">Copy World State</button>
       `;
       if (debugDiv.innerHTML !== debugHtml) {
