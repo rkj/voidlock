@@ -34,6 +34,7 @@ The application is divided into distinct screens to reduce UI clutter and improv
   - `ENGAGE/IGNORE Toggle`: Units can be toggled between 'ENGAGE' (Stop & Shoot) and 'IGNORE' (Run) policies. This toggle should be easily accessible in the command menu.
   - **Squad Configuration**:
     - Select archetypes/count.
+    - **Constraint**: Mission-Specific units (e.g., VIPs) must NOT be available for selection. They are auto-assigned by the engine based on Mission Type.
   - **Actions**:
     - "Launch Mission" -> Starts Engine, switches to Mission Screen.
     - "Back" -> Main Menu.
