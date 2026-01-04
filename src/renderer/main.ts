@@ -913,8 +913,8 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     Object.values(ArchetypeLibrary).forEach((arch) => {
-      if (currentMissionType === MissionType.EscortVIP && arch.id === "vip") {
-        return; // VIP is auto-added in this mission type
+      if (arch.id === "vip") {
+        return; // VIP is never available for manual selection
       }
       const row = document.createElement("div");
       row.className = "flex-row align-center justify-between";
