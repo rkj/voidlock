@@ -15,6 +15,7 @@ import { Pathfinder } from "../Pathfinder";
 import { LineOfSight } from "../LineOfSight";
 import { VipAI } from "../ai/VipAI";
 import { PRNG } from "../../shared/PRNG";
+import { SPEED_NORMALIZATION_CONST } from "../Constants";
 
 export interface AIContext {
   agentControlEnabled: boolean;
@@ -297,7 +298,7 @@ export class UnitAI {
               Math.floor(unit.pos.x) === obj.targetCell.x &&
               Math.floor(unit.pos.y) === obj.targetCell.y
             ) {
-              const duration = 5000 * (10 / unit.stats.speed);
+              const duration = 5000 * (SPEED_NORMALIZATION_CONST / unit.stats.speed);
               unit.state = UnitState.Channeling;
               unit.channeling = {
                 action: "Collect",
@@ -336,7 +337,7 @@ export class UnitAI {
         Math.floor(unit.pos.x) === ext.x &&
         Math.floor(unit.pos.y) === ext.y
       ) {
-        const duration = 5000 * (10 / unit.stats.speed);
+        const duration = 5000 * (SPEED_NORMALIZATION_CONST / unit.stats.speed);
         unit.state = UnitState.Channeling;
         unit.channeling = {
           action: "Extract",

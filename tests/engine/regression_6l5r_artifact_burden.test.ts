@@ -47,9 +47,9 @@ describe("Artifact Burden Regression", () => {
     expect(unit.state).toBe(UnitState.Channeling);
     expect(unit.channeling?.action).toBe("Collect");
 
-    // Advance time to complete collection (default 5000ms * (10/speed) = 5000 * (10/20) = 2500ms)
-    // Actually speed of assault is 20 (2.0 tiles/s)
-    engine.update(3000);
+    // Advance time to complete collection (default 5000ms * (30/speed) = 5000 * (30/20) = 7500ms)
+    // Actually speed of assault is 20 (0.66 tiles/s)
+    engine.update(8000);
 
     expect(unit.state).toBe(UnitState.Idle);
     expect(unit.carriedObjectiveId).toBe("artifact-0");
@@ -79,7 +79,7 @@ describe("Artifact Burden Regression", () => {
 
     // Complete collection
     engine.update(100);
-    engine.update(3000);
+    engine.update(8000);
 
     expect(unit.carriedObjectiveId).toBe("artifact-0");
     expect(unit.stats.speed).toBe(initialSpeed - 10);
@@ -114,20 +114,20 @@ describe("Artifact Burden Regression", () => {
 
     // Complete collection
     engine.update(100);
-    engine.update(3000);
+    engine.update(8000);
     expect(unit.carriedObjectiveId).toBe("artifact-0");
 
     // Teleport to extraction
     unit.pos = { x: 9.5, y: 9.5 };
 
-    // Start extraction (default 5000ms * (10/speed) = 5000 * (10/10) = 5000ms? Wait, assault speed with artifact is 10)
+    // Start extraction (default 5000ms * (30/speed) = 5000 * (30/10) = 15000ms)
     // Assault base speed is 20. Artifact burden is -10. So speed is 10.
-    // Duration = 5000 * (10/10) = 5000ms.
+    // Duration = 15000ms.
     engine.update(100);
     expect(unit.state).toBe(UnitState.Channeling);
     expect(unit.channeling?.action).toBe("Extract");
 
-    engine.update(6000);
+    engine.update(16000);
     expect(unit.state).toBe(UnitState.Extracted);
     expect(engine.getState().status).toBe("Won");
   });

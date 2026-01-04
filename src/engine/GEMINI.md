@@ -4,6 +4,7 @@ This directory contains the core simulation logic for Voidlock. It follows a det
 
 ## Files
 
+- `Constants.ts`: Global engine constants for simulation scaling and normalization (e.g., `SPEED_NORMALIZATION_CONST`).
 - `CoreEngine.ts`: The main orchestrator of the game simulation. It manages state (including `isPaused`, `timeScale`, and `isSlowMotion`), initializes managers, and runs the game loop.
 - `Director.ts`: Manages enemy spawning based on threat levels and timers. Also handles global commander abilities (Medkits, Stimpacks, Grenades, Scanners).
 - `GameClient.ts`: Provides an interface for the renderer (main thread) to communicate with the engine (worker). Exposes typed methods for debug actions (overlays, state queries) to decouple the renderer from the underlying protocol.
@@ -50,3 +51,4 @@ A mission run can be perfectly reproduced by re-initializing the engine with the
 - [ADR 0006: Autonomous Agent Architecture](../docs/adr/0006-autonomous-agent-architecture.md)
 - [ADR 0007: Command Pattern & Queue](../docs/adr/0007-command-pattern-queue.md)
 - [ADR 0008: Renderer & UI Separation](../docs/adr/0008-renderer-ui-separation.md)
+- [ADR 0011: Standardized Unit Speed](../docs/adr/0011-standardized-unit-speed.md)

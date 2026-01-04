@@ -98,6 +98,7 @@ describe("Regression 65pf: Extract Command", () => {
     
     (engine as any).state.units[0].pos = { x: 4.5, y: 4.5 };
     (engine as any).state.units[0].state = UnitState.Idle;
+    (engine as any).state.units[0].stats.speed = 60;
     
     // Start channeling
     engine.update(100);

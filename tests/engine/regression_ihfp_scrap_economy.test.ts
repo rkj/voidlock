@@ -76,6 +76,10 @@ describe("Scrap Economy Regression", () => {
     // Move unit to objective - must modify internal state
     const internalState = (engine as any).state;
     internalState.units[0].pos = { x: 2.5, y: 0.5 };
+    internalState.units[0].stats.speed = 60;
+
+    // First update starts channeling
+
 
     // First update starts channeling
     engine.update(100);
@@ -97,6 +101,10 @@ describe("Scrap Economy Regression", () => {
     // Complete objective
     const internalState = (engine as any).state;
     internalState.units[0].pos = { x: 2.5, y: 0.5 };
+    internalState.units[0].stats.speed = 60;
+
+    // First update starts channeling
+
     engine.update(100); // Start channeling
     engine.update(2500); // Complete channeling
     engine.update(100); // Process completion

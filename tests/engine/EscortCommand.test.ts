@@ -71,7 +71,7 @@ describe("Escort Command", () => {
     });
 
     // Wait to reach formation
-    for (let i = 0; i < 50; i++) engine.update(100);
+    for (let i = 0; i < 150; i++) engine.update(100);
 
     let state = engine.getState();
     let e1 = state.units.find(u => u.id === "escort1")!;
@@ -89,7 +89,7 @@ describe("Escort Command", () => {
       targetId: "target",
     });
 
-    for (let i = 0; i < 50; i++) engine.update(100);
+    for (let i = 0; i < 150; i++) engine.update(100);
 
     // Move target East
     engine.applyCommand({
@@ -98,9 +98,9 @@ describe("Escort Command", () => {
       target: { x: 15, y: 5 },
     });
 
-    // Target speed is 15 (1.5 tiles/s). 
-    // From 5.5 to 15.5 is 10 tiles. Takes ~6.7s.
-    for (let i = 0; i < 100; i++) engine.update(100);
+    // Target speed is 15 (0.5 tiles/s). 
+    // From 5.5 to 15.5 is 10 tiles. Takes ~20s.
+    for (let i = 0; i < 300; i++) engine.update(100);
 
     const state = engine.getState();
     const target = state.units.find(u => u.id === "target")!;
@@ -123,7 +123,7 @@ describe("Escort Command", () => {
       targetId: "target",
     });
 
-    for (let i = 0; i < 50; i++) engine.update(100);
+    for (let i = 0; i < 150; i++) engine.update(100);
 
     const state = engine.getState();
     const e1 = state.units.find(u => u.id === "escort1")!; // Vanguard

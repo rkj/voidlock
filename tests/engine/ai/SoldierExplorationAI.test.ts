@@ -35,7 +35,7 @@ describe("Soldier Exploration AI", () => {
         { x: 1, y: 2, type: CellType.Floor },
         { x: 2, y: 2, type: CellType.Floor },
       ],
-      spawnPoints: [{ id: "s1", pos: { x: 0, y: 0 }, radius: 1 }],
+      spawnPoints: [],
       extraction: { x: 0, y: 2 },
       objectives: [
         {
@@ -110,8 +110,8 @@ describe("Soldier Exploration AI", () => {
 
     // Unit is at (0.5,0.5). Extraction is at (0,2).
     // Simulate updates until unit reaches extraction
-    for (let i = 0; i < 100; i++) {
-      // Enough time for unit to move from (0,0) to (0,2) AND Channel (5s)
+    for (let i = 0; i < 250; i++) {
+      // Enough time for unit to move from (0,0) to (0,2) AND Channel (7.5s)
       engine.update(100);
     }
     const state = engine.getState();

@@ -1,5 +1,6 @@
 import { Unit, UnitState, CommandType, Door } from "../../shared/types";
 import { GameGrid } from "../GameGrid";
+import { SPEED_NORMALIZATION_CONST } from "../Constants";
 
 const EPSILON = 0.05;
 
@@ -13,7 +14,7 @@ export class MovementManager {
     const dy = unit.targetPos.y - unit.pos.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
 
-    const moveDist = ((unit.stats.speed / 10) * dt) / 1000;
+    const moveDist = ((unit.stats.speed / SPEED_NORMALIZATION_CONST) * dt) / 1000;
 
     const currentCell = {
       x: Math.floor(unit.pos.x),

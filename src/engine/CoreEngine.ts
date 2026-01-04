@@ -30,6 +30,7 @@ import { EnemyManager } from "./managers/EnemyManager";
 import { UnitManager } from "./managers/UnitManager";
 import { CommandHandler } from "./managers/CommandHandler";
 import { LootManager } from "./managers/LootManager";
+import { SPEED_NORMALIZATION_CONST } from "./Constants";
 
 export class CoreEngine {
   private prng: PRNG;
@@ -184,7 +185,7 @@ export class CoreEngine {
           stats: {
             damage: vipArch.damage,
             fireRate:
-              vipArch.fireRate * (vipArch.speed > 0 ? 10 / vipArch.speed : 1),
+              vipArch.fireRate * (vipArch.speed > 0 ? SPEED_NORMALIZATION_CONST / vipArch.speed : 1),
             soldierAim: vipArch.soldierAim,
             equipmentAccuracyBonus: 0,
             accuracy: vipArch.soldierAim,

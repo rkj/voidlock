@@ -10,6 +10,7 @@ import { LineOfSight } from "../LineOfSight";
 import { PRNG } from "../../shared/PRNG";
 import { IEnemyAI, SwarmMeleeAI } from "../ai/EnemyAI";
 import { RangedKiteAI } from "../ai/RangedKiteAI";
+import { SPEED_NORMALIZATION_CONST } from "../Constants";
 
 const EPSILON = 0.05;
 
@@ -112,7 +113,7 @@ export class EnemyManager {
           const dy = enemy.targetPos.y - enemy.pos.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
 
-          const moveDist = ((enemy.speed / 10) * dt) / 1000;
+          const moveDist = ((enemy.speed / SPEED_NORMALIZATION_CONST) * dt) / 1000;
 
           if (dist <= moveDist + EPSILON) {
             enemy.pos = { ...enemy.targetPos };
