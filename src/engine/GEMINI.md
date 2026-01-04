@@ -5,9 +5,9 @@ This directory contains the core simulation logic for Voidlock. It follows a det
 ## Files
 
 - `Constants.ts`: Global engine constants for simulation scaling and normalization (e.g., `SPEED_NORMALIZATION_CONST`).
-- `CoreEngine.ts`: The main orchestrator of the game simulation. It manages state (including `isPaused`, `timeScale`, and `isSlowMotion`), initializes managers, and runs the game loop.
+- `CoreEngine.ts`: The main orchestrator of the game simulation. It manages state (including `isPaused`, `timeScale`, and `isSlowMotion`), initializes managers, and runs the game loop. It respects `allowTacticalPause`, enforcing minimum speed of 1.0x (except for absolute pause) when disabled.
 - `Director.ts`: Manages enemy spawning based on threat levels and timers. Also handles global commander abilities (Medkits, Stimpacks, Grenades, Scanners).
-- `GameClient.ts`: Provides an interface for the renderer (main thread) to communicate with the engine (worker). Exposes typed methods for debug actions (overlays, state queries) to decouple the renderer from the underlying protocol.
+- `GameClient.ts`: Provides an interface for the renderer (main thread) to communicate with the engine (worker). Exposes typed methods for debug actions (overlays, state queries) and handles time scaling, including Active Pause (0.1x) and System Pause (0.0x).
 - `GameGrid.ts`: Manages the logical grid, including walkability and movement validation between cells (respecting walls and doors).
 - `Graph.ts`: Represents the map as a graph of cells and boundaries (walls/doors).
 - `LineOfSight.ts`: Handles LOS and LOF (Line of Fire) calculations between units and cells. LOS allows seeing through opening doors, while LOF strictly requires doors to be fully open.
@@ -38,7 +38,7 @@ A mission run can be perfectly reproduced by re-initializing the engine with the
 ## Testing Strategy
 
 - **Deterministic Simulation**: The engine uses a seeded `PRNG` to ensure reproducible game runs.
-- **Tick-based Loop**: The simulation progresses in discrete time steps (ticks). It supports time scaling (0.1x to 10.0x), with all game logic (movement, threat growth, timed actions) following the scaled game time. Active Pause (0.1x) allows commands to be issued while time moves slowly, while an absolute pause (timeScale = 0) stops the simulation entirely.
+- **Tick-based Loop**: The simulation progresses in discrete time steps (ticks). It supports time scaling (0.1x to 10.0x), with all game logic (movement, threat growth, timed actions) following the scaled game time. Active Pause (0.1x) allows commands to be issued while time moves slowly, while an absolute "System Pause" (0.0x) stops the simulation entirely. When `allowTacticalPause` is disabled, time scaling below 1.0x is clamped to 1.0x, but System Pause (0.0x) remains available.
 - **Communication**: Communicates with the main thread via a JSON-based protocol (Observation/Command).
 
 ## Connections

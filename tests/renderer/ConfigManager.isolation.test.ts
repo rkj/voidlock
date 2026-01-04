@@ -17,6 +17,7 @@ describe("ConfigManager Isolation", () => {
     debugOverlayEnabled: false,
     losOverlayEnabled: false,
     agentControlEnabled: true,
+    allowTacticalPause: true,
     mapGeneratorType: MapGeneratorType.TreeShip,
     missionType: MissionType.Default,
     lastSeed: seed,

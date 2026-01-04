@@ -47,6 +47,7 @@ describe("MenuController Intersection Discovery", () => {
       timeScale: 1,
       isPaused: false,
       isSlowMotion: false,
+      allowTacticalPause: true,
     },
     squadInventory: {},
   };

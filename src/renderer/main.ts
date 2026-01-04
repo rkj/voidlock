@@ -57,6 +57,7 @@ let fogOfWarEnabled = ConfigManager.getDefault().fogOfWarEnabled;
 let debugOverlayEnabled = ConfigManager.getDefault().debugOverlayEnabled;
 let losOverlayEnabled = false;
 let agentControlEnabled = ConfigManager.getDefault().agentControlEnabled;
+let allowTacticalPause = true;
 let currentSeed: number = ConfigManager.getDefault().lastSeed;
 let currentMapGeneratorType: MapGeneratorType =
   ConfigManager.getDefault().mapGeneratorType;
@@ -265,6 +266,7 @@ const launchMission = () => {
     debugOverlayEnabled,
     losOverlayEnabled,
     agentControlEnabled,
+    allowTacticalPause,
     mapGeneratorType: currentMapGeneratorType,
     missionType: currentMissionType,
     lastSeed: currentSeed,
@@ -273,6 +275,10 @@ const launchMission = () => {
   };
 
   if (currentCampaignNode) {
+    const campaignState = campaignManager.getState();
+    if (campaignState) {
+      allowTacticalPause = campaignState.rules.allowTacticalPause;
+    }
     ConfigManager.saveCampaign(config);
   } else {
     ConfigManager.saveCustom(config);
@@ -294,6 +300,7 @@ const launchMission = () => {
     startingThreatLevel,
     initialTimeScale,
     false, // startPaused
+    allowTacticalPause,
   );
 
   const seedDisplay = document.getElementById("seed-display");
@@ -560,6 +567,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <div><input type="checkbox" id="toggle-debug-overlay"><label for="toggle-debug-overlay" style="display:inline;">Debug Overlay</label></div>
         <div><input type="checkbox" id="toggle-los-overlay"><label for="toggle-los-overlay" style="display:inline;">LOS Visualization</label></div>
         <div><input type="checkbox" id="toggle-agent-control" checked><label for="toggle-agent-control" style="display:inline;">Agent Control</label></div>
+        <div><input type="checkbox" id="toggle-allow-tactical-pause" checked><label for="toggle-allow-tactical-pause" style="display:inline;">Allow Tactical Pause (0.1x)</label></div>
         <div style="margin-top: 20px;">
             <label for="time-scale-slider" style="display: block; margin-bottom: 10px;">Game Speed (x): <span id="time-scale-value">1.0</span></label>
             <input type="range" id="time-scale-slider" min="0" max="100" step="1" value="50" style="width: 100%; height: 20px; cursor: pointer;">
@@ -594,6 +602,12 @@ document.addEventListener("DOMContentLoaded", () => {
       ?.addEventListener(
         "change",
         (e) => (agentControlEnabled = (e.target as HTMLInputElement).checked),
+      );
+    document
+      .getElementById("toggle-allow-tactical-pause")
+      ?.addEventListener(
+        "change",
+        (e) => (allowTacticalPause = (e.target as HTMLInputElement).checked),
       );
     const tsSlider = document.getElementById(
       "time-scale-slider",
@@ -683,6 +697,7 @@ document.addEventListener("DOMContentLoaded", () => {
       debugOverlayEnabled = config.debugOverlayEnabled;
       losOverlayEnabled = config.losOverlayEnabled || false;
       agentControlEnabled = config.agentControlEnabled;
+      allowTacticalPause = config.allowTacticalPause !== undefined ? config.allowTacticalPause : true;
       currentMapGeneratorType = config.mapGeneratorType;
       currentMissionType = config.missionType || MissionType.Default;
       currentSeed = config.lastSeed;
@@ -746,6 +761,11 @@ document.addEventListener("DOMContentLoaded", () => {
       ) as HTMLInputElement;
       if (agentCheck) agentCheck.checked = agentControlEnabled;
 
+      const allowPauseCheck = document.getElementById(
+        "toggle-allow-tactical-pause",
+      ) as HTMLInputElement;
+      if (allowPauseCheck) allowPauseCheck.checked = allowTacticalPause;
+
       if (mapGenSelect) mapGenSelect.dispatchEvent(new Event("change"));
     } else {
       // Fallback to defaults if no saved config exists for this mode
@@ -757,6 +777,7 @@ document.addEventListener("DOMContentLoaded", () => {
       debugOverlayEnabled = defaults.debugOverlayEnabled;
       losOverlayEnabled = defaults.losOverlayEnabled;
       agentControlEnabled = defaults.agentControlEnabled;
+      allowTacticalPause = defaults.allowTacticalPause;
       currentMapGeneratorType = defaults.mapGeneratorType;
       currentMissionType = defaults.missionType;
       currentSeed = defaults.lastSeed;
@@ -819,6 +840,11 @@ document.addEventListener("DOMContentLoaded", () => {
         "toggle-agent-control",
       ) as HTMLInputElement;
       if (agentCheck) agentCheck.checked = agentControlEnabled;
+
+      const allowPauseCheck = document.getElementById(
+        "toggle-allow-tactical-pause",
+      ) as HTMLInputElement;
+      if (allowPauseCheck) allowPauseCheck.checked = allowTacticalPause;
 
       if (mapGenSelect) mapGenSelect.dispatchEvent(new Event("change"));
     }

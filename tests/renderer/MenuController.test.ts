@@ -41,6 +41,7 @@ describe("MenuController", () => {
       timeScale: 1.0,
       isPaused: false,
       isSlowMotion: false,
+      allowTacticalPause: true,
     },
     squadInventory: {},
   };

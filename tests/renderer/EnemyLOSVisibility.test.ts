@@ -130,6 +130,7 @@ describe("Enemy LOS Visibility", () => {
       timeScale: 1.0,
       isPaused: false,
       isSlowMotion: false,
+      allowTacticalPause: true,
     },
   });
 

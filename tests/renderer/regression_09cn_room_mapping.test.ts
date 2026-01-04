@@ -38,6 +38,7 @@ describe("MenuController Room Mapping Regression (09cn)", () => {
       timeScale: 1,
       isPaused: false,
       isSlowMotion: false,
+      allowTacticalPause: true,
     },
     squadInventory: {},
   };

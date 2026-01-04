@@ -13,6 +13,7 @@ export interface GameConfig {
   debugOverlayEnabled: boolean;
   losOverlayEnabled: boolean; // Added
   agentControlEnabled: boolean;
+  allowTacticalPause: boolean;
   mapGeneratorType: MapGeneratorType;
   missionType: MissionType;
   lastSeed: number;
@@ -112,6 +113,7 @@ export class ConfigManager {
       debugOverlayEnabled: false,
       losOverlayEnabled: false, // Added
       agentControlEnabled: true,
+      allowTacticalPause: true,
       mapGeneratorType: MapGeneratorType.TreeShip,
       missionType: MissionType.Default,
       lastSeed: Date.now(),
