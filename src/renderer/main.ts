@@ -26,6 +26,7 @@ import { CampaignScreen } from "./screens/CampaignScreen";
 import { CampaignNode, MissionReport } from "../shared/campaign_types";
 import { Icons } from "./Icons";
 import { StatDisplay } from "./ui/StatDisplay";
+import { DebugUtility } from "./DebugUtility";
 import pkg from "../../package.json";
 
 const VERSION = pkg.version;
@@ -88,27 +89,11 @@ const menuController = new MenuController(gameClient);
 let renderer: Renderer;
 
 const copyWorldState = () => {
-  if (!currentGameState) return;
-  const replayData = gameClient.getReplayData();
-  const fullState = {
-    replayData,
-    currentState: currentGameState,
-    version: VERSION,
-    timestamp: Date.now(),
-  };
-
-  const json = JSON.stringify(fullState, null, 2);
-  navigator.clipboard
-    .writeText(json)
-    .then(() => {
-      alert("World State copied to clipboard!");
-    })
-    .catch((err) => {
-      console.error("Failed to copy state to clipboard:", err);
-      console.log("Full World State JSON:");
-      console.log(json);
-      alert("Failed to copy to clipboard. See console for JSON.");
-    });
+  DebugUtility.copyWorldState(
+    currentGameState!,
+    gameClient.getReplayData(),
+    VERSION,
+  );
 };
 
 // --- Managers ---
