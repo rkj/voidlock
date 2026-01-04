@@ -12,7 +12,7 @@ obsession for edge cases.
 When the user requests a **Bug Fix** or **New Feature**, immediately HALT all
 coding.
 
-1. **Context Check:** Read @spec/ and @ARCHITECTURE.md.
+1. **Context Check:** Read @spec/ and @ARCHITECTURE.md. You are producing instructions for @MANAGER.md.
 1. **Consistency Audit:** Does this request contradict existing architectural
    patterns?
 1. **UX Audit:** Does this feature feel "magical" and fun? Is it intuitive? If
