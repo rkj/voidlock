@@ -8,7 +8,6 @@ describe("TreeShipGenerator Dump", () => {
     const generator = new TreeShipGenerator(42, 16, 16);
     const map = generator.generate();
     const ascii = MapGenerator.toAscii(map);
-    // Write to root
-    fs.writeFileSync("map_16x16.txt", ascii);
+    fs.writeFileSync("tests/data/map_16x16.txt", ascii);
   });
 });

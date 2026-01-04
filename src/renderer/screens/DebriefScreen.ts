@@ -118,8 +118,9 @@ export class DebriefScreen {
     continueBtn.style.padding = "20px 60px";
     continueBtn.style.fontSize = "1.4em";
     continueBtn.style.letterSpacing = "2px";
-    continueBtn.style.background = "#040";
+    continueBtn.style.background = "rgba(0, 255, 0, 0.2)";
     continueBtn.style.borderColor = "var(--color-primary)";
+
     continueBtn.onclick = () => this.onContinue();
     footer.appendChild(continueBtn);
 

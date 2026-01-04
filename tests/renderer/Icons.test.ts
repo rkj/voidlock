@@ -9,9 +9,10 @@ test("Icons object contains all required stat icons", () => {
   expect(Icons.Range).toBeDefined();
 });
 
-  it("Icons are valid URLs", () => {
+  test("Icons are valid URLs", () => {
     const iconKeys = ["Speed", "Accuracy", "Damage", "Rate", "Range"] as const;
     iconKeys.forEach((key) => {
       expect(Icons[key]).toMatch(/^\/assets\/icons\/.*\.svg$/);
     });
   });
+

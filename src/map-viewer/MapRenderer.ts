@@ -1,5 +1,6 @@
 import { MapDefinition, CellType, Vector2 } from "../shared/types";
 import { Graph } from "../engine/Graph";
+import { ThemeManager } from "../renderer/ThemeManager";
 
 export class MapRenderer {
   private ctx: CanvasRenderingContext2D;
@@ -7,6 +8,7 @@ export class MapRenderer {
   private cellSize: number = 64;
   private graph: Graph | null = null;
   private currentMapId: string | null = null;
+  private theme = ThemeManager.getInstance();
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -49,7 +51,7 @@ export class MapRenderer {
   private renderCells(map: MapDefinition) {
     map.cells.forEach((cell) => {
       if (cell.type === CellType.Floor) {
-        this.ctx.fillStyle = "#111"; // Dark grey floor
+        this.ctx.fillStyle = this.theme.getColor("--color-floor");
         this.ctx.fillRect(
           cell.x * this.cellSize,
           cell.y * this.cellSize,
@@ -58,7 +60,7 @@ export class MapRenderer {
         );
 
         // Grid lines
-        this.ctx.strokeStyle = "#222";
+        this.ctx.strokeStyle = this.theme.getColor("--color-grid");
         this.ctx.lineWidth = 1;
         this.ctx.strokeRect(
           cell.x * this.cellSize,
@@ -75,7 +77,7 @@ export class MapRenderer {
 
     this.ctx.lineCap = "round";
     // Draw Walls
-    this.ctx.strokeStyle = "#00FFFF"; // --color-wall
+    this.ctx.strokeStyle = this.theme.getColor("--color-wall");
     this.ctx.lineWidth = 2;
     this.ctx.beginPath();
 
@@ -91,21 +93,21 @@ export class MapRenderer {
 
   private renderDoors(map: MapDefinition) {
     map.doors?.forEach((door) => {
-      let doorColor: string = "#888";
-      let doorStroke: string = "#AAA";
+      let doorColor: string = this.theme.getColor("--color-text-dim");
+      let doorStroke: string = this.theme.getColor("--color-text-muted");
 
       // Default to Closed if state is somehow missing or simplified
       const state = door.state || "Closed";
 
       if (state === "Closed") {
-        doorColor = "#FFD700";
-        doorStroke = "#FFAA00";
+        doorColor = this.theme.getColor("--color-door-closed");
+        doorStroke = this.theme.getColor("--color-door-dim");
       } else if (state === "Locked") {
-        doorColor = "#FF0000";
-        doorStroke = "#880000";
+        doorColor = this.theme.getColor("--color-door-locked");
+        doorStroke = this.theme.getColor("--color-danger");
       } else if (state === "Destroyed") {
-        doorColor = "#330000";
-        doorStroke = "#550000";
+        doorColor = this.theme.getColor("--color-door-destroyed");
+        doorStroke = this.theme.getColor("--color-door-destroyed");
       }
 
       const doorThickness = this.cellSize / 8;
@@ -122,7 +124,7 @@ export class MapRenderer {
           drawHeight = s;
 
         if (state === "Open") {
-          this.ctx.fillStyle = "#444";
+          this.ctx.fillStyle = this.theme.getColor("--color-border-strong");
           if (door.orientation === "Vertical") {
             this.ctx.fillRect(x + s - 4, y, 4, doorInset);
             this.ctx.fillRect(x + s - 4, y + s - doorInset, 4, doorInset);
@@ -166,7 +168,7 @@ export class MapRenderer {
   private renderObjectives(map: MapDefinition) {
     if (map.extraction) {
       const ext = map.extraction;
-      this.ctx.fillStyle = "#00AAAA";
+      this.ctx.fillStyle = this.theme.getColor("--color-info");
       this.ctx.globalAlpha = 0.3;
       this.ctx.fillRect(
         ext.x * this.cellSize + 4,
@@ -177,7 +179,7 @@ export class MapRenderer {
       this.ctx.globalAlpha = 1.0;
 
       // Label 'E'
-      this.ctx.fillStyle = "#00FFFF";
+      this.ctx.fillStyle = this.theme.getColor("--color-info");
       this.ctx.font = `bold ${this.cellSize / 2}px monospace`;
       this.ctx.textAlign = "center";
       this.ctx.textBaseline = "middle";
@@ -190,7 +192,7 @@ export class MapRenderer {
 
     map.objectives?.forEach((obj) => {
       if (obj.targetCell) {
-        this.ctx.fillStyle = "#FFAA00";
+        this.ctx.fillStyle = this.theme.getColor("--color-objective");
         this.ctx.globalAlpha = 0.3;
         this.ctx.fillRect(
           obj.targetCell.x * this.cellSize + 4,
@@ -201,7 +203,7 @@ export class MapRenderer {
         this.ctx.globalAlpha = 1.0;
 
         // Label 'O'
-        this.ctx.fillStyle = "#FFDD00";
+        this.ctx.fillStyle = this.theme.getColor("--color-objective");
         this.ctx.font = `bold ${this.cellSize / 2}px monospace`;
         this.ctx.textAlign = "center";
         this.ctx.textBaseline = "middle";
@@ -216,7 +218,7 @@ export class MapRenderer {
 
   private renderSpawnPoints(map: MapDefinition) {
     map.spawnPoints?.forEach((sp) => {
-      this.ctx.fillStyle = "#440044";
+      this.ctx.fillStyle = this.theme.getColor("--color-hive");
       this.ctx.globalAlpha = 0.3;
       // Spawn point is a radius, usually 1?
       // Just render a circle at pos
@@ -229,7 +231,7 @@ export class MapRenderer {
       this.ctx.globalAlpha = 1.0;
 
       // Label 'S'
-      this.ctx.fillStyle = "#FF00FF";
+      this.ctx.fillStyle = this.theme.getColor("--color-hive");
       this.ctx.font = `bold ${this.cellSize / 3}px monospace`;
       this.ctx.textAlign = "center";
       this.ctx.textBaseline = "middle";

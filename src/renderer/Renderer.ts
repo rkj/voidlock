@@ -98,7 +98,7 @@ export class Renderer {
 
     // Render Raycast Lines for Debug
     if (state.settings.debugOverlayEnabled) {
-      this.ctx.strokeStyle = "rgba(0, 255, 0, 0.2)";
+      this.ctx.strokeStyle = this.theme.getColor("--color-los-soldier");
       this.ctx.lineWidth = 1;
       state.units.forEach((u) => {
         if (
@@ -155,7 +155,7 @@ export class Renderer {
           this.ctx.fill();
 
           // Optional: Stroke for definition
-          this.ctx.strokeStyle = "rgba(0, 255, 0, 0.5)";
+          this.ctx.strokeStyle = this.theme.getColor("--color-los-soldier");
           this.ctx.lineWidth = 2;
           this.ctx.stroke();
         }
@@ -195,7 +195,7 @@ export class Renderer {
           this.ctx.closePath();
           this.ctx.fill();
 
-          this.ctx.strokeStyle = "rgba(255, 0, 0, 0.5)";
+          this.ctx.strokeStyle = this.theme.getColor("--color-los-enemy");
           this.ctx.lineWidth = 2;
           this.ctx.stroke();
         }
@@ -221,19 +221,19 @@ export class Renderer {
         const cy = drawY * this.cellSize;
 
         // Draw Circle background
-        this.ctx.fillStyle = "rgba(255, 255, 0, 0.9)"; // Yellow, slightly more opaque
+        this.ctx.fillStyle = this.theme.getColor("--color-warning"); 
         this.ctx.beginPath();
         this.ctx.arc(cx, cy, 24, 0, Math.PI * 2);
         this.ctx.fill();
 
         // Draw Key (Large)
-        this.ctx.fillStyle = "#000";
+        this.ctx.fillStyle = "#000"; // Always black for contrast on yellow
         this.ctx.font = "bold 32px Arial";
         this.ctx.fillText(opt.key, cx, cy);
 
         // Draw Label text below
         if (opt.label) {
-          this.ctx.fillStyle = "#FFF";
+          this.ctx.fillStyle = this.theme.getColor("--color-text");
           this.ctx.font = "bold 18px Arial";
           this.ctx.shadowColor = "black";
           this.ctx.shadowBlur = 4;
@@ -246,7 +246,7 @@ export class Renderer {
 
   private renderDebugOverlay(state: GameState) {
     const map = state.map;
-    this.ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+    this.ctx.fillStyle = this.theme.getColor("--color-text-dim");
     this.ctx.font = "10px Arial";
     this.ctx.textAlign = "left";
     this.ctx.textBaseline = "top";
@@ -275,6 +275,7 @@ export class Renderer {
       this.ctx.fillText(door.id, cx + 8, cy);
     });
   }
+
 
   private renderMap(state: GameState) {
     const map = state.map;
@@ -577,7 +578,7 @@ export class Renderer {
       if (unit.state === UnitState.Channeling) {
         this.ctx.fillStyle = this.theme.getColor("--color-info");
       } else if (unit.state === UnitState.Attacking) {
-        this.ctx.fillStyle = "#FF4400";
+        this.ctx.fillStyle = this.theme.getColor("--color-danger");
       } else if (unit.state === UnitState.Moving) {
         this.ctx.fillStyle = this.theme.getColor("--color-door-closed");
       } else {
@@ -585,7 +586,7 @@ export class Renderer {
       }
 
       this.ctx.fill();
-      this.ctx.strokeStyle = "#000";
+      this.ctx.strokeStyle = "#000"; // Always black for contrast
       this.ctx.lineWidth = 3;
       this.ctx.stroke();
 
@@ -597,13 +598,14 @@ export class Renderer {
       }
 
       // Render Soldier Number
-      this.ctx.fillStyle = "#000";
+      this.ctx.fillStyle = "#000"; // Always black for contrast
       this.ctx.font = `bold ${Math.floor(this.cellSize / 8)}px monospace`;
       this.ctx.textAlign = "center";
       this.ctx.textBaseline = "middle";
       this.ctx.fillText((index + 1).toString(), x, y);
 
       this.renderHealthBar(x, y, unit.hp, unit.maxHp);
+
 
       if (unit.state === UnitState.Channeling && unit.channeling) {
         this.renderChannelingBar(
@@ -627,7 +629,7 @@ export class Renderer {
           }
         }
 
-        this.ctx.strokeStyle = "#FF00FF";
+        this.ctx.strokeStyle = this.theme.getColor("--color-hive");
         this.ctx.lineWidth = 2;
         this.ctx.setLineDash([10, 10]);
 
@@ -669,7 +671,7 @@ export class Renderer {
           unit.lastAttackTarget.x * this.cellSize,
           unit.lastAttackTarget.y * this.cellSize,
         );
-        this.ctx.strokeStyle = "#FFFF00";
+        this.ctx.strokeStyle = this.theme.getColor("--color-warning");
         this.ctx.lineWidth = 3;
         this.ctx.stroke();
       }
@@ -702,7 +704,7 @@ export class Renderer {
           );
         } else {
           // Fallback
-          this.ctx.fillStyle = "#9900FF";
+          this.ctx.fillStyle = this.theme.getColor("--color-hive");
           const hiveSize = this.cellSize * 0.6;
           this.ctx.rect(x - hiveSize / 2, y - hiveSize / 2, hiveSize, hiveSize);
           this.ctx.fill();
@@ -748,13 +750,13 @@ export class Renderer {
 
         this.ctx.fillStyle = this.theme.getColor("--color-danger");
         this.ctx.fill();
-        this.ctx.strokeStyle = "#000";
+        this.ctx.strokeStyle = "#000"; // Always black for contrast
         this.ctx.lineWidth = 3;
         this.ctx.stroke();
 
         // Render Difficulty Number
         if (enemy.difficulty) {
-          this.ctx.fillStyle = "#FFF";
+          this.ctx.fillStyle = this.theme.getColor("--color-text");
           this.ctx.font = `bold ${Math.floor(this.cellSize / 10)}px monospace`;
           this.ctx.textAlign = "center";
           this.ctx.textBaseline = "middle";
@@ -775,25 +777,27 @@ export class Renderer {
           enemy.lastAttackTarget.x * this.cellSize,
           enemy.lastAttackTarget.y * this.cellSize,
         );
-        this.ctx.strokeStyle = "#FF8800";
+        this.ctx.strokeStyle = this.theme.getColor("--color-warning");
         this.ctx.lineWidth = 3;
         this.ctx.stroke();
       }
     });
   }
 
+
   private renderHealthBar(x: number, y: number, hp: number, maxHp: number) {
     const barWidth = this.cellSize * 0.5;
     const barHeight = 6;
     const yOffset = -this.cellSize / 6 - 12;
 
-    this.ctx.fillStyle = "#000";
+    this.ctx.fillStyle = "#000"; // Always black for background
     this.ctx.fillRect(x - barWidth / 2, y + yOffset, barWidth, barHeight);
 
     const pct = Math.max(0, hp / maxHp);
     this.ctx.fillStyle = pct > 0.5 ? this.theme.getColor("--color-success") : pct > 0.25 ? this.theme.getColor("--color-warning") : this.theme.getColor("--color-danger");
     this.ctx.fillRect(x - barWidth / 2, y + yOffset, barWidth * pct, barHeight);
   }
+
 
   private renderChannelingBar(
     x: number,
