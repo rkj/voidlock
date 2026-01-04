@@ -1,6 +1,6 @@
 # ADR 0011: Standardized Unit Speed & Game Pacing
 
-**Status:** Draft
+**Status:** Implemented
 
 ## Context
 
