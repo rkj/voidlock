@@ -10,7 +10,9 @@ This directory contains the main thread rendering logic and user interface for V
 - `TimeUtility.ts`: Utility for logarithmic time scale conversions (slider to scale and vice versa).
 - `InputManager.ts`: Manages mouse and keyboard input. It is decoupled from the specific command protocol by using callbacks for actions like pausing and toggling overlays.
 - `ScreenManager.ts`: Manages transitions between different screens (Main Menu, Setup, Mission).
-- `MenuController.ts`: Implements the hierarchical keyboard-driven command menu. Includes context-aware logic to hide or disable options based on game state (e.g. Grenades are disabled if no enemies are visible), handles specific item targeting modes (Friendly vs Hostile units), and handles Shift-key modifiers for command queueing.
+- `ScreenTransitions.ts`: Defines the valid state machine transitions for the ScreenManager.
+- `MenuController.ts`: Implements the hierarchical keyboard-driven command menu.
+  Includes context-aware logic to hide or disable options based on game state (e.g. Grenades are disabled if no enemies are visible), handles specific item targeting modes (Friendly vs Hostile units), and handles Shift-key modifiers for command queueing.
 - `ConfigManager.ts`: Handles loading and saving game configuration and mission parameters. Supports isolated storage for Custom Missions and Campaign mode to prevent state pollution.
 - `VisibilityPolygon.ts`: Implements visibility calculations for rendering accurate LOS cones.
 - `Icons.ts`: Contains URL definitions for tactical icons pointing to external SVG files.

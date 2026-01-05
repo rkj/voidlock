@@ -38,7 +38,8 @@ export class CampaignScreen {
 
   private render() {
     this.container.innerHTML = "";
-    this.container.className = "screen campaign-screen flex-col relative h-full w-full";
+    this.container.className =
+      "screen campaign-screen flex-col relative h-full w-full";
     this.container.style.display = "flex";
 
     const state = this.manager.getState();
@@ -93,6 +94,17 @@ export class CampaignScreen {
     backBtn.className = "back-button";
     backBtn.onclick = () => this.onBack();
     footer.appendChild(backBtn);
+
+    const resetBtn = document.createElement("button");
+    resetBtn.textContent = "NEW CAMPAIGN";
+    resetBtn.style.color = "var(--color-error)";
+    resetBtn.onclick = () => {
+      if (confirm("Are you sure you want to abandon the current campaign?")) {
+        this.manager.reset();
+        this.onBack();
+      }
+    };
+    footer.appendChild(resetBtn);
 
     const barracksBtn = document.createElement("button");
     barracksBtn.textContent = "BARRACKS";
@@ -321,7 +333,6 @@ export class CampaignScreen {
             ctx.setLineDash([4, 4]);
             ctx.lineWidth = 1;
           }
-
 
           ctx.stroke();
         }

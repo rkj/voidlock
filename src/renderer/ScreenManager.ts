@@ -1,3 +1,5 @@
+import { VALID_TRANSITIONS } from "./ScreenTransitions";
+
 export type ScreenId =
   | "main-menu"
   | "campaign"
@@ -21,7 +23,10 @@ export class ScreenManager {
     this.registerScreen("barracks");
     this.registerScreen("debrief");
 
-    this.show("main-menu");
+    // Force show initial screen without transition validation
+    this.currentScreen = "main-menu";
+    const el = this.screens.get("main-menu");
+    if (el) el.style.display = "flex";
   }
 
   private registerScreen(id: ScreenId) {
@@ -34,12 +39,23 @@ export class ScreenManager {
   }
 
   public show(id: ScreenId) {
+    if (this.currentScreen === id) return;
+
+    // Validate transition
+    const validNext = VALID_TRANSITIONS[this.currentScreen];
+    if (!validNext || !validNext.includes(id)) {
+      console.error(
+        `Invalid screen transition: ${this.currentScreen} -> ${id}`,
+      );
+      return;
+    }
+
     // Hide current
     const currentEl = this.screens.get(this.currentScreen);
     if (currentEl) currentEl.style.display = "none";
 
     // Push to history if we are navigating deeper (not back to menu necessarily, but let's keep it simple)
-    if (id !== "main-menu" && this.currentScreen !== id) {
+    if (id !== "main-menu") {
       this.history.push(this.currentScreen);
     } else {
       this.history = []; // Reset history on returning to menu
