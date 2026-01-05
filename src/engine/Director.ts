@@ -119,12 +119,24 @@ export class Director {
       }
 
       if (targetPos) {
+        const targetX = Math.floor(targetPos.x);
+        const targetY = Math.floor(targetPos.y);
+
         state.enemies.forEach((e) => {
-          const dx = e.pos.x - (targetPos!.x + 0.5);
-          const dy = e.pos.y - (targetPos!.y + 0.5);
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist <= 2.5) {
+          if (
+            Math.floor(e.pos.x) === targetX &&
+            Math.floor(e.pos.y) === targetY
+          ) {
             e.hp -= 100;
+          }
+        });
+
+        state.units.forEach((u) => {
+          if (
+            Math.floor(u.pos.x) === targetX &&
+            Math.floor(u.pos.y) === targetY
+          ) {
+            u.hp -= 100;
           }
         });
       }
