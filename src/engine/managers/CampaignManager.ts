@@ -60,10 +60,17 @@ export class CampaignManager {
   /**
    * Starts a new campaign with the given seed and difficulty.
    */
-  public startNewCampaign(seed: number, difficulty: string): void {
+  public startNewCampaign(
+    seed: number,
+    difficulty: string,
+    allowTacticalPause?: boolean,
+  ): void {
     const prng = new PRNG(seed);
 
     const rules = this.getRulesForDifficulty(difficulty);
+    if (allowTacticalPause !== undefined) {
+      rules.allowTacticalPause = allowTacticalPause;
+    }
 
     const nodes = this.sectorMapGenerator.generate(seed, rules);
     const roster = this.generateInitialRoster(prng);

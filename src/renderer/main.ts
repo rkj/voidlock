@@ -435,10 +435,6 @@ document.addEventListener("DOMContentLoaded", () => {
   document
     .getElementById("btn-menu-campaign")
     ?.addEventListener("click", () => {
-      if (!campaignManager.getState()) {
-        // For prototype, automatically start a campaign if none exists
-        campaignManager.startNewCampaign(Date.now(), "normal");
-      }
       campaignScreen.show();
       screenManager.show("campaign");
     });

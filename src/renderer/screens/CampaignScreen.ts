@@ -101,14 +101,87 @@ export class CampaignScreen {
 
   private renderNoCampaign() {
     const content = document.createElement("div");
-    content.className = "flex-col align-center justify-center h-full gap-20";
+    content.className =
+      "flex-col align-center justify-center h-full gap-20 campaign-setup-wizard";
+    content.style.maxWidth = "400px";
+    content.style.margin = "0 auto";
 
     const h1 = document.createElement("h1");
-    h1.textContent = "NO ACTIVE CAMPAIGN";
+    h1.textContent = "NEW CAMPAIGN";
+    h1.style.letterSpacing = "4px";
+    h1.style.color = "var(--color-primary)";
     content.appendChild(h1);
+
+    const form = document.createElement("div");
+    form.className = "flex-col gap-20 w-full p-20";
+    form.style.background = "var(--color-surface-elevated)";
+    form.style.border = "1px solid var(--color-border-strong)";
+
+    // Difficulty
+    const diffGroup = document.createElement("div");
+    diffGroup.className = "flex-col gap-5";
+    const diffLabel = document.createElement("label");
+    diffLabel.textContent = "DIFFICULTY";
+    diffLabel.style.fontSize = "0.8em";
+    diffLabel.style.color = "var(--color-text-dim)";
+    const diffSelect = document.createElement("select");
+    diffSelect.id = "campaign-difficulty";
+    diffSelect.innerHTML = `
+      <option value="easy">SIMULATION (Easy)</option>
+      <option value="normal" selected>CLONE (Normal)</option>
+      <option value="hard">STANDARD (Hard)</option>
+      <option value="extreme">IRONMAN (Extreme)</option>
+    `;
+    diffGroup.appendChild(diffLabel);
+    diffGroup.appendChild(diffSelect);
+    form.appendChild(diffGroup);
+
+    // Tactical Pause
+    const pauseGroup = document.createElement("div");
+    pauseGroup.className = "flex-row align-center gap-10";
+    const pauseCheck = document.createElement("input");
+    pauseCheck.type = "checkbox";
+    pauseCheck.id = "campaign-tactical-pause";
+    pauseCheck.checked = true;
+    const pauseLabel = document.createElement("label");
+    pauseLabel.htmlFor = "campaign-tactical-pause";
+    pauseLabel.textContent = "Allow Tactical Pause (0.1x)";
+    pauseLabel.style.fontSize = "0.9em";
+    pauseGroup.appendChild(pauseCheck);
+    pauseGroup.appendChild(pauseLabel);
+    form.appendChild(pauseGroup);
+
+    // Update pause checkbox based on difficulty
+    diffSelect.addEventListener("change", () => {
+      if (diffSelect.value === "extreme") {
+        pauseCheck.checked = false;
+        pauseCheck.disabled = true;
+      } else {
+        pauseCheck.disabled = false;
+        if (diffSelect.value === "easy" || diffSelect.value === "normal") {
+          pauseCheck.checked = true;
+        }
+      }
+    });
+
+    content.appendChild(form);
+
+    const startBtn = document.createElement("button");
+    startBtn.textContent = "INITIALIZE EXPEDITION";
+    startBtn.className = "primary-button w-full";
+    startBtn.onclick = () => {
+      this.manager.startNewCampaign(
+        Date.now(),
+        diffSelect.value,
+        pauseCheck.checked,
+      );
+      this.render();
+    };
+    content.appendChild(startBtn);
 
     const backBtn = document.createElement("button");
     backBtn.textContent = "BACK TO MENU";
+    backBtn.className = "back-button w-full";
     backBtn.onclick = () => this.onBack();
     content.appendChild(backBtn);
 

@@ -4,7 +4,7 @@ This directory contains specialized managers that handle specific domains of the
 
 ## Files
 
-- `CampaignManager.ts`: Orchestrates the strategic layer, managing persistent state, squad roster, and sector map progression. Implemented as a singleton that uses a `StorageProvider` for persistence. Handles mission reconciliation, including XP calculation, soldier leveling, and stat boosts (+20 Max HP, +5 Aim per level). Provides methods for roster management: recruitment (100 Scrap), healing (50 Scrap), revival (250 Scrap, Clone mode only), and equipment assignment.
+- `CampaignManager.ts`: Orchestrates the strategic layer, managing persistent state, squad roster, and sector map progression. Implemented as a singleton that uses a `StorageProvider` for persistence. Handles mission reconciliation, including XP calculation, soldier leveling, and stat boosts (+20 Max HP, +5 Aim per level). Provides methods for roster management: recruitment (100 Scrap), healing (50 Scrap), revival (250 Scrap, Clone mode only), and equipment assignment. `startNewCampaign` accepts a seed, difficulty level, and an optional `allowTacticalPause` override.
 - `CombatManager.ts`: Manages target selection, Line of Fire (LOF) checks, weapon selection, and cooldowns. Applies damage to enemies and updates unit kill counts.
 - `CommandExecutor.ts`: Translates `Command` objects (MOVE, STOP, etc.) into actionable unit states (pathfinding, state resets).
 - `CommandHandler.ts`: Processes and validates incoming commands from the player or bots.

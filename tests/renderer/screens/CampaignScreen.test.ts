@@ -38,7 +38,7 @@ describe("CampaignScreen", () => {
     onBack = vi.fn();
   });
 
-  it("should render 'No Active Campaign' when state is null", () => {
+  it("should render 'New Campaign' wizard when state is null", () => {
     const screen = new CampaignScreen(
       "screen-campaign",
       manager,
@@ -48,7 +48,9 @@ describe("CampaignScreen", () => {
     );
     screen.show();
 
-    expect(container.textContent).toContain("NO ACTIVE CAMPAIGN");
+    expect(container.textContent).toContain("NEW CAMPAIGN");
+    expect(container.querySelector("#campaign-difficulty")).not.toBeNull();
+    expect(container.querySelector("#campaign-tactical-pause")).not.toBeNull();
   });
 
   it("should render Sector Map when campaign is active", () => {
