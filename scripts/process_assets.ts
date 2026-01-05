@@ -36,14 +36,9 @@ async function processAssets(outputDir: string = DEFAULT_OUTPUT_DIR) {
 
   const manifest: Record<string, string> = {};
   
-  let sharp: any;
-  try {
-    // Satisfy the compiler and handle missing module at runtime
-    const sharpModule = await import('sharp' as string);
-    sharp = sharpModule.default;
-  } catch (error) {
-    console.warn('Sharp library not found. Falling back to simple file copy (no resize/crop/webp).');
-  }
+  // Fail loudly if sharp is missing
+  const sharpModule = await import('sharp');
+  const sharp = sharpModule.default;
 
   for (const [sourceFile, targetFile] of Object.entries(MAPPING)) {
     const sourcePath = path.join(SOURCE_DIR, sourceFile);
@@ -53,33 +48,20 @@ async function processAssets(outputDir: string = DEFAULT_OUTPUT_DIR) {
       console.log(`Processing ${sourceFile} -> ${targetFile}...`);
       
       try {
-        if (sharp) {
-          await sharp(sourcePath)
-            .trim() // Trim transparency/Crop to content
-            .resize(128, 128, {
-              fit: 'contain',
-              background: { r: 0, g: 0, b: 0, alpha: 0 }
-            })
-            .webp({ quality: 90 })
-            .toFile(targetPath);
-        } else {
-          // Fallback: copy file. Note: it won't be WebP if source is PNG and sharp is missing.
-          // But we keep the target filename as requested in the manifest.
-          // If we want to be strictly correct, we should check extension.
-          const actualTargetPath = sharp ? targetPath : targetPath.replace('.webp', '.png');
-          fs.copyFileSync(sourcePath, actualTargetPath);
-          
-          // Update targetFile for manifest if we did a fallback to png
-          const manifestTargetFile = sharp ? targetFile : targetFile.replace('.webp', '.png');
-          const logicalName = targetFile.replace('.webp', '');
-          manifest[logicalName] = `assets/${manifestTargetFile}`;
-          continue;
-        }
+        await sharp(sourcePath)
+          .trim() // Trim transparency/Crop to content
+          .resize(128, 128, {
+            fit: 'contain',
+            background: { r: 0, g: 0, b: 0, alpha: 0 }
+          })
+          .webp({ quality: 90 })
+          .toFile(targetPath);
 
         const logicalName = targetFile.replace('.webp', '');
         manifest[logicalName] = `assets/${targetFile}`;
       } catch (error) {
         console.error(`Error processing ${sourceFile}:`, error);
+        throw error; // Fail the build
       }
     } else {
       console.warn(`Source file not found: ${sourcePath}`);
