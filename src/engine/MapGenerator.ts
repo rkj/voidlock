@@ -527,6 +527,83 @@ export class MapGenerator {
       }
     }
 
+    // Squad reachability check
+    const squadStart = map.squadSpawn || (map.squadSpawns && map.squadSpawns[0]);
+    if (squadStart) {
+      const visitedFromSquad = new Set<string>();
+      const queue: Vector2[] = [squadStart];
+      visitedFromSquad.add(`${squadStart.x},${squadStart.y}`);
+
+      let head = 0;
+      while (head < queue.length) {
+        const current = queue[head++];
+        const cell = graph.cells[current.y]?.[current.x];
+        if (!cell) continue;
+
+        const dirs: Direction[] = ["n", "e", "s", "w"];
+        for (const d of dirs) {
+          const boundary = cell.edges[d];
+          if (boundary) {
+            let canTraverse = !boundary.isWall;
+            if (boundary.doorId && doors) {
+              const door = doors.find((dr) => dr.id === boundary.doorId);
+              if (door && door.state !== "Locked") {
+                canTraverse = true;
+              }
+            }
+
+            if (canTraverse) {
+              const nx =
+                d === "e"
+                  ? current.x + 1
+                  : d === "w"
+                    ? current.x - 1
+                    : current.x;
+              const ny =
+                d === "s"
+                  ? current.y + 1
+                  : d === "n"
+                    ? current.y - 1
+                    : current.y;
+
+              if (
+                isWithinBounds(nx, ny) &&
+                !visitedFromSquad.has(`${nx},${ny}`)
+              ) {
+                const nCell = graph.cells[ny]?.[nx];
+                if (nCell && nCell.type === CellType.Floor) {
+                  visitedFromSquad.add(`${nx},${ny}`);
+                  queue.push({ x: nx, y: ny });
+                }
+              }
+            }
+          }
+        }
+      }
+
+      if (
+        extraction &&
+        !visitedFromSquad.has(`${extraction.x},${extraction.y}`)
+      ) {
+        issues.push(
+          `Extraction point at (${extraction.x}, ${extraction.y}) is not reachable from squad spawn.`,
+        );
+      }
+
+      if (objectives) {
+        for (const obj of objectives) {
+          if (
+            obj.targetCell &&
+            !visitedFromSquad.has(`${obj.targetCell.x},${obj.targetCell.y}`)
+          ) {
+            issues.push(
+              `Objective ${obj.id} at (${obj.targetCell.x}, ${obj.targetCell.y}) is not reachable from squad spawn.`,
+            );
+          }
+        }
+      }
+    }
+
     return { isValid: issues.length === 0, issues };
   }
 
@@ -760,6 +837,66 @@ export class MapGenerator {
                 { x: d.cell.x - minX, y: d.cell.y - minY },
               ],
       })) || [];
+
+    if (assembly.tileDoors) {
+      assembly.tileDoors.forEach((td) => {
+        const tileRef = assembly.tiles[td.tileIndex];
+        if (!tileRef) return;
+        const def = library[tileRef.tileId];
+        if (!def || !def.doorSockets) return;
+        const socket = def.doorSockets[td.socketIndex];
+        if (!socket) return;
+
+        const localPos = rotatePoint(
+          socket.x,
+          socket.y,
+          def.width,
+          def.height,
+          tileRef.rotation,
+        );
+        const gx = tileRef.x + localPos.x - minX;
+        const gy = tileRef.y + localPos.y - minY;
+
+        const rotateEdge = (e: Direction, rot: number): Direction => {
+          const edges: Direction[] = ["n", "e", "s", "w"];
+          return edges[(edges.indexOf(e) + rot / 90) % 4];
+        };
+        const re = rotateEdge(socket.edge as Direction, tileRef.rotation);
+
+        const orientation =
+          re === "e" || re === "w" ? "Vertical" : "Horizontal";
+        const segment =
+          orientation === "Vertical"
+            ? re === "e"
+              ? [
+                  { x: gx, y: gy },
+                  { x: gx + 1, y: gy },
+                ]
+              : [
+                  { x: gx - 1, y: gy },
+                  { x: gx, y: gy },
+                ]
+            : re === "s"
+              ? [
+                  { x: gx, y: gy },
+                  { x: gx, y: gy + 1 },
+                ]
+              : [
+                  { x: gx, y: gy - 1 },
+                  { x: gx, y: gy },
+                ];
+
+        doors.push({
+          id: td.id,
+          orientation,
+          state: "Closed",
+          hp: 50,
+          maxHp: 50,
+          openDuration: 1,
+          segment,
+        });
+      });
+    }
 
     return {
       width,
