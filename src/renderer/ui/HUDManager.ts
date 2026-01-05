@@ -3,6 +3,7 @@ import { MenuController } from "../MenuController";
 import { MenuRenderer } from "./MenuRenderer";
 import { Icons } from "../Icons";
 import { StatDisplay } from "./StatDisplay";
+import { TimeUtility } from "../TimeUtility";
 
 export class HUDManager {
   private lastMenuHtml = "";
@@ -71,6 +72,25 @@ export class HUDManager {
       topThreatFill.style.backgroundColor = `var(${threatVar})`;
       topThreatValue.textContent = `${threatLevel.toFixed(0)}%`;
       topThreatValue.style.color = `var(${threatVar})`;
+    }
+
+    const gameSpeedSlider = document.getElementById("game-speed") as HTMLInputElement;
+    if (gameSpeedSlider) {
+      const minVal = state.settings.allowTacticalPause ? "0" : "50";
+      if (gameSpeedSlider.min !== minVal) {
+        gameSpeedSlider.min = minVal;
+      }
+    }
+
+    const speedValue = document.getElementById("speed-value");
+    if (speedValue) {
+      const isPaused = state.settings.isPaused;
+      const scale = isPaused
+        ? state.settings.allowTacticalPause
+          ? 0.1
+          : 0.0
+        : state.settings.timeScale;
+      speedValue.textContent = TimeUtility.formatSpeed(scale, isPaused);
     }
   }
 
