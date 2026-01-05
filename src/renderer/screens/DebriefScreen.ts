@@ -121,7 +121,7 @@ export class DebriefScreen {
             <span>XP: ${res.xpBefore} (+${res.xpGained})</span>
             <span>${xpAfter} / ${nextLevelThreshold}</span>
           </div>
-          <div style="height: 8px; background: #222; border: 1px solid #444; position: relative; overflow: hidden;">
+          <div style="height: 8px; background: var(--color-surface-elevated); border: 1px solid var(--color-border-strong); position: relative; overflow: hidden;">
             <div style="height: 100%; background: var(--color-primary); width: ${progressBefore}%; position: absolute; left: 0; top: 0; z-index: 2;"></div>
             <div style="height: 100%; background: var(--color-accent); width: ${progressAfter}%; position: absolute; left: 0; top: 0; z-index: 1;"></div>
           </div>
@@ -146,7 +146,7 @@ export class DebriefScreen {
     continueBtn.style.padding = "20px 60px";
     continueBtn.style.fontSize = "1.4em";
     continueBtn.style.letterSpacing = "2px";
-    continueBtn.style.background = "rgba(0, 255, 0, 0.2)";
+    continueBtn.style.background = "var(--color-success-muted)";
     continueBtn.style.borderColor = "var(--color-primary)";
 
     continueBtn.onclick = () => this.onContinue();

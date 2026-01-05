@@ -16,7 +16,7 @@ This directory contains the main thread rendering logic and user interface for V
 - `Icons.ts`: Contains URL definitions for tactical icons pointing to external SVG files.
 - `MapUtility.ts`: Utility functions for map coordinate transformations and rendering helpers.
 - `MenuConfig.ts`: Configuration for the hierarchical menu structure.
-- `ThemeManager.ts`: Centralized management of visual themes, CSS variables, and asset mapping.
+- `ThemeManager.ts`: Centralized management of visual themes, CSS variables, and asset mapping. Supports `ThemeConfig` for programmatic overrides.
 
 ## Subdirectories
 

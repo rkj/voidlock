@@ -909,4 +909,10 @@ export type OverlayOption = {
   id?: string;
 };
 
+export interface ThemeConfig {
+  id: string;
+  name: string;
+  colors: Record<string, string>;
+}
+
 export * from "./campaign_types";

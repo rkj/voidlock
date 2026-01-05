@@ -374,7 +374,7 @@ export class HUDManager {
           <div class="base-stats-row" style="font-size:0.7em; display:flex; gap:8px; color:var(--color-text-muted); margin-top:2px;">
              <span class="u-speed-box"></span>
           </div>
-          <div class="weapon-stats-container" style="font-size:0.65em; margin-top:4px; display:flex; flex-direction:column; gap:2px; border-top:1px solid #222; padding-top:2px;">
+          <div class="weapon-stats-container" style="font-size:0.65em; margin-top:4px; display:flex; flex-direction:column; gap:2px; border-top:1px solid var(--color-surface-elevated); padding-top:2px;">
              <div class="u-lh-row" style="display:flex; gap:6px; align-items:center;">
                 <span style="color:var(--color-text-dim); width:15px;">LH:</span>
                 <span class="u-lh-stats" style="display:flex; gap:6px;"></span>

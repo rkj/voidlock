@@ -1,3 +1,5 @@
+import { ThemeConfig } from "../shared/types";
+
 export class ThemeManager {
   private static instance: ThemeManager;
   private colorCache: Map<string, string> = new Map();
@@ -44,6 +46,7 @@ export class ThemeManager {
       "--color-accent": "#0af",
       "--color-danger": "#f00",
       "--color-success": "#4caf50",
+      "--color-success-muted": "rgba(0, 255, 0, 0.2)",
       "--color-warning": "#ff9800",
       "--color-wall": "#00ffff",
       "--color-floor": "#0a0a0a",
@@ -57,6 +60,13 @@ export class ThemeManager {
       "--color-fog-unexplored": "#000",
       "--color-hive": "#9900ff",
       "--color-info": "#00ffff",
+      "--color-black": "#000000",
+      "--color-white": "#ffffff",
+      "--color-los-soldier-fade": "rgba(0, 255, 0, 0)",
+      "--color-los-enemy-fade": "rgba(255, 0, 0, 0)",
+      "--color-objective-bg": "rgba(255, 170, 0, 0.1)",
+      "--color-spawn-bg": "rgba(255, 0, 0, 0.05)",
+      "--color-extraction-bg": "rgba(0, 255, 255, 0.1)",
     };
     return fallbacks[varName] || "#000000";
   }
@@ -74,5 +84,18 @@ export class ThemeManager {
   public setTheme(themeName: string): void {
     document.body.className = `theme-${themeName}`;
     this.colorCache.clear(); // Clear cache as colors might have changed
+  }
+
+  /**
+   * Programmatically applies a theme configuration by overriding CSS variables.
+   */
+  public applyTheme(config: ThemeConfig): void {
+    const root = document.body;
+    Object.entries(config.colors).forEach(([name, value]) => {
+      // Ensure variable names start with --
+      const varName = name.startsWith("--") ? name : `--${name}`;
+      root.style.setProperty(varName, value);
+    });
+    this.colorCache.clear();
   }
 }

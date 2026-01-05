@@ -136,8 +136,9 @@ export class Renderer {
 
           const gradient = this.ctx.createRadialGradient(x, y, 0, x, y, radius);
           const colorBase = this.theme.getColor("--color-los-soldier");
+          const colorFade = this.theme.getColor("--color-los-soldier-fade");
           gradient.addColorStop(0, colorBase);
-          gradient.addColorStop(1, "rgba(0, 255, 0, 0)");
+          gradient.addColorStop(1, colorFade);
 
           this.ctx.fillStyle = gradient;
           this.ctx.beginPath();
@@ -177,8 +178,9 @@ export class Renderer {
 
           const gradient = this.ctx.createRadialGradient(x, y, 0, x, y, radius);
           const colorBase = this.theme.getColor("--color-los-enemy");
+          const colorFade = this.theme.getColor("--color-los-enemy-fade");
           gradient.addColorStop(0, colorBase);
-          gradient.addColorStop(1, "rgba(255, 0, 0, 0)");
+          gradient.addColorStop(1, colorFade);
 
           this.ctx.fillStyle = gradient;
           this.ctx.beginPath();
@@ -227,7 +229,7 @@ export class Renderer {
         this.ctx.fill();
 
         // Draw Key (Large)
-        this.ctx.fillStyle = "#000"; // Always black for contrast on yellow
+        this.ctx.fillStyle = this.theme.getColor("--color-black"); // Contrast on yellow
         this.ctx.font = "bold 32px Arial";
         this.ctx.fillText(opt.key, cx, cy);
 
@@ -235,7 +237,7 @@ export class Renderer {
         if (opt.label) {
           this.ctx.fillStyle = this.theme.getColor("--color-text");
           this.ctx.font = "bold 18px Arial";
-          this.ctx.shadowColor = "black";
+          this.ctx.shadowColor = this.theme.getColor("--color-black");
           this.ctx.shadowBlur = 4;
           this.ctx.fillText(opt.label, cx, cy + 45);
           this.ctx.shadowBlur = 0; // Reset
@@ -475,7 +477,7 @@ export class Renderer {
       const y = ext.y * this.cellSize;
 
       // Extraction Zone
-      this.ctx.fillStyle = this.theme.getColor("--color-los-visible") || "rgba(0, 255, 255, 0.1)";
+      this.ctx.fillStyle = this.theme.getColor("--color-extraction-bg");
       this.ctx.fillRect(x, y, this.cellSize, this.cellSize);
 
       this.ctx.strokeStyle = this.theme.getColor("--color-info");
@@ -509,7 +511,7 @@ export class Renderer {
 
       if (!isKnown && !state.settings.debugOverlayEnabled) return;
 
-      this.ctx.fillStyle = "rgba(255, 0, 0, 0.05)";
+      this.ctx.fillStyle = this.theme.getColor("--color-spawn-bg");
       this.ctx.fillRect(x, y, this.cellSize, this.cellSize);
 
       const icon = this.iconImages.Spawn;
@@ -539,7 +541,7 @@ export class Renderer {
         const x = obj.targetCell.x * this.cellSize;
         const y = obj.targetCell.y * this.cellSize;
 
-        this.ctx.fillStyle = "rgba(255, 170, 0, 0.1)";
+        this.ctx.fillStyle = this.theme.getColor("--color-objective-bg");
         this.ctx.fillRect(x + 4, y + 4, this.cellSize - 8, this.cellSize - 8);
 
         const icon = this.iconImages.Objective;
@@ -586,7 +588,7 @@ export class Renderer {
       }
 
       this.ctx.fill();
-      this.ctx.strokeStyle = "#000"; // Always black for contrast
+      this.ctx.strokeStyle = this.theme.getColor("--color-black"); // Contrast
       this.ctx.lineWidth = 3;
       this.ctx.stroke();
 
@@ -598,7 +600,7 @@ export class Renderer {
       }
 
       // Render Soldier Number
-      this.ctx.fillStyle = "#000"; // Always black for contrast
+      this.ctx.fillStyle = this.theme.getColor("--color-black"); // Contrast
       this.ctx.font = `bold ${Math.floor(this.cellSize / 8)}px monospace`;
       this.ctx.textAlign = "center";
       this.ctx.textBaseline = "middle";
@@ -750,7 +752,7 @@ export class Renderer {
 
         this.ctx.fillStyle = this.theme.getColor("--color-danger");
         this.ctx.fill();
-        this.ctx.strokeStyle = "#000"; // Always black for contrast
+        this.ctx.strokeStyle = this.theme.getColor("--color-black"); // Contrast
         this.ctx.lineWidth = 3;
         this.ctx.stroke();
 
@@ -790,7 +792,7 @@ export class Renderer {
     const barHeight = 6;
     const yOffset = -this.cellSize / 6 - 12;
 
-    this.ctx.fillStyle = "#000"; // Always black for background
+    this.ctx.fillStyle = this.theme.getColor("--color-black"); // Background
     this.ctx.fillRect(x - barWidth / 2, y + yOffset, barWidth, barHeight);
 
     const pct = Math.max(0, hp / maxHp);
@@ -810,7 +812,7 @@ export class Renderer {
     const yOffset = -this.cellSize / 6 - 22; // Above health bar
 
     // Background
-    this.ctx.fillStyle = "#000";
+    this.ctx.fillStyle = this.theme.getColor("--color-black");
     this.ctx.fillRect(x - barWidth / 2, y + yOffset, barWidth, barHeight);
 
     // Progress
@@ -819,7 +821,7 @@ export class Renderer {
     this.ctx.fillRect(x - barWidth / 2, y + yOffset, barWidth * pct, barHeight);
 
     // Border
-    this.ctx.strokeStyle = "#FFFFFF";
+    this.ctx.strokeStyle = this.theme.getColor("--color-white");
     this.ctx.lineWidth = 1;
     this.ctx.strokeRect(x - barWidth / 2, y + yOffset, barWidth, barHeight);
   }
