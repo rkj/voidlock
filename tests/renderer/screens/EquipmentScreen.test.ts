@@ -85,11 +85,11 @@ describe("EquipmentScreen", () => {
     const soldierListTexts = Array.from(
       container.querySelectorAll(".menu-item.clickable div"),
     ).map((el) => el.textContent?.trim());
-    expect(soldierListTexts.some((text) => text?.includes("pulse_rifle"))).toBe(
+    expect(soldierListTexts.some((text) => text?.includes("Pulse Rifle"))).toBe(
       true,
     );
     expect(
-      soldierListTexts.some((text) => text?.includes("combat_knife")),
+      soldierListTexts.some((text) => text?.includes("Combat Knife")),
     ).toBe(true);
 
     // Check paper doll slots
