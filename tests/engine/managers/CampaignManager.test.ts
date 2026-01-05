@@ -28,6 +28,13 @@ describe("CampaignManager", () => {
     ).toBeGreaterThan(0);
   });
 
+  it("should start a new campaign with a specific theme", () => {
+    manager.startNewCampaign(12345, "Normal", true, "industrial");
+    const state = manager.getState();
+
+    expect(state?.rules.themeId).toBe("industrial");
+  });
+
   it("should save and load campaign state using StorageProvider", () => {
     manager.startNewCampaign(12345, "Normal");
     const originalState = JSON.parse(JSON.stringify(manager.getState()));

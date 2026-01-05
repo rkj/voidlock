@@ -15,6 +15,7 @@ export interface GameRules {
   allowTacticalPause: boolean;
   difficultyScaling: number; // Multiplier for enemy density/stats
   resourceScarcity: number; // Multiplier for scrap rewards
+  themeId?: string;
 }
 
 /**

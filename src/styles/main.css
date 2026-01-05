@@ -43,6 +43,24 @@
   --color-extraction-bg: rgba(0, 255, 255, 0.1);
 }
 
+/* Themes */
+body.theme-industrial {
+  --color-primary: #ffaa00;
+  --color-accent: #888;
+  --color-wall: #cc8800;
+  --color-info: #ffaa00;
+  --color-door-closed: #aa6600;
+}
+
+body.theme-hive {
+  --color-primary: #9900ff;
+  --color-accent: #0f0;
+  --color-wall: #660099;
+  --color-info: #9900ff;
+  --color-door-closed: #440066;
+  --color-floor: #050008;
+}
+
 body {
   margin: 0;
   overflow: hidden;

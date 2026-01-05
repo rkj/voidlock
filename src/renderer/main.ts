@@ -24,6 +24,7 @@ import { DebriefScreen } from "./screens/DebriefScreen";
 import { CampaignManager } from "./campaign/CampaignManager";
 import { CampaignScreen } from "./screens/CampaignScreen";
 import { CampaignNode, MissionReport } from "../shared/campaign_types";
+import { ThemeManager } from "./ThemeManager";
 import { Icons } from "./Icons";
 import { StatDisplay } from "./ui/StatDisplay";
 import { DebugUtility } from "./DebugUtility";
@@ -96,6 +97,15 @@ const copyWorldState = () => {
     gameClient.getReplayData(),
     VERSION,
   );
+};
+
+const applyCampaignTheme = () => {
+  const state = campaignManager.getState();
+  if (state && state.rules.themeId) {
+    ThemeManager.getInstance().setTheme(state.rules.themeId);
+  } else {
+    ThemeManager.getInstance().setTheme("default");
+  }
 };
 
 // --- Managers ---
@@ -429,16 +439,19 @@ document.addEventListener("DOMContentLoaded", () => {
       screenManager.show("barracks");
     },
     () => screenManager.goBack(),
+    () => applyCampaignTheme(),
   );
 
   document.getElementById("btn-menu-custom")?.addEventListener("click", () => {
     currentCampaignNode = null;
+    ThemeManager.getInstance().setTheme("default");
     loadAndApplyConfig(false);
     screenManager.show("mission-setup");
   });
   document
     .getElementById("btn-menu-campaign")
     ?.addEventListener("click", () => {
+      applyCampaignTheme();
       campaignScreen.show();
       screenManager.show("campaign");
     });

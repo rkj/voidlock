@@ -64,6 +64,7 @@ export class CampaignManager {
     seed: number,
     difficulty: string,
     allowTacticalPause?: boolean,
+    themeId?: string,
   ): void {
     const prng = new PRNG(seed);
 
@@ -71,12 +72,15 @@ export class CampaignManager {
     if (allowTacticalPause !== undefined) {
       rules.allowTacticalPause = allowTacticalPause;
     }
+    if (themeId) {
+      rules.themeId = themeId;
+    }
 
     const nodes = this.sectorMapGenerator.generate(seed, rules);
     const roster = this.generateInitialRoster(prng);
 
     this.state = {
-      version: "0.56.0", // Current project version
+      version: "0.62.0", // Current project version
       seed,
       rules,
       scrap: 500,
