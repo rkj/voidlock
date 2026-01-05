@@ -12,7 +12,7 @@ All interactions with units are mediated through the `Command` object structure.
 | `STOP`            | -                                    | Clear command queue and halt immediately.                                     |
 | `SET_ENGAGEMENT`  | `mode: "ENGAGE" \| "IGNORE"`         | **ENGAGE**: Auto-attack visible enemies. **IGNORE**: Hold fire (Stealth/Run). |
 | `OPEN_DOOR`       | `doorId: string`                     | Interact with a door. Unit moves to interaction range first.                  |
-| `USE_ITEM`        | `itemId: string`, `target?: Vector2` | Use an inventory item. May require channeling (e.g., Medkit).                 |
+| `USE_ITEM`        | `itemId: string`, `target?: Vector2`, `targetUnitId?: string` | Use an inventory item. May require channeling (e.g., Medkit).                 |
 | `OVERWATCH_POINT` | `target: Vector2`                    | Move to a strategic point (Intersection/Dead End) and hold angle.             |
 | `EXPLORE`         | -                                    | Autonomous behavior: Move to nearest unexplored Fog of War.                   |
 | `ESCORT_UNIT`     | `targetId: string`                   | Form a protective formation around a target unit.                             |

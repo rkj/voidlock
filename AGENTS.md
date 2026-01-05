@@ -59,6 +59,12 @@ You are an AI contributor agent working on the Voidlock project. Your goal is to
 - **Aim for Focus**: Aim for files with fewer than 500 lines.
 - **Mandatory Refactoring**: When a file crosses 1000 lines, it MUST be refactored into smaller, more focused modules according to SOLID principles.
 
+### G7) Documentation Integrity (Specs)
+
+- **Read-Only**: The `spec/` directory is **READ-ONLY** for coding agents. You must NEVER modify these files.
+- **Authority**: These files are the Single Source of Truth. If you find a contradiction between the code and the spec, assume the spec is correct (unless explicitly told otherwise by the Manager).
+- **Updates**: Only the Manager Agent (PM) is authorized to modify specs, in coordination with the human user.
+
 ## 3. Feature/Task Completion Checklist
 
 When finishing a feature or task, you MUST perform the following steps in order:

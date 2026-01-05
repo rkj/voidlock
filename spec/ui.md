@@ -8,7 +8,7 @@ The application is divided into distinct screens to reduce UI clutter and improv
 
 1. **Main Menu (Welcome Screen)**
    - **Title**: "Voidlock"
-   - **Credits**: Author/Version info.
+   - **Version**: displayed here (e.g., v0.62.0).
    - **Navigation**:
      - "Campaign" -> Go to Campaign Screen.
      - "Custom Mission" -> Go to Mission Setup Screen.
@@ -24,11 +24,11 @@ The application is divided into distinct screens to reduce UI clutter and improv
         - **Game Options**:
         - Fog of War, Debug Overlay, LOS Visualization toggles.
         - **Game Speed Control**:
-          - **Slider Range**: 0.1x (Active Pause) to 10.0x (Fast Forward). Default 1.0x.
-          - **Active Pause**: Speed 0.1x acts as "Active Pause", allowing commands to be issued while time moves very slowly.
+          - **Slider Range**: 0.1x to 10.0x (Fast Forward). Default 1.0x.
+          - **Active Pause**: Speed 0.05x acts as "Active Pause", allowing commands to be issued while time moves very slowly. It is NOT part of the slider range.
           - **In-Game Access**: This control must be accessible during a mission.
           - **Controls**:
-            - **Spacebar**: Toggles between "Active Pause" (0.1x) and the last used speed.
+            - **Spacebar**: Toggles between "Active Pause" (0.05x) and the last used speed.
             - **UI Button**: A dedicated button (Play/Pause icon) in the UI should also toggle this state.
 - **Command Set Updates:**
   - `ENGAGE/IGNORE Toggle`: Units can be toggled between 'ENGAGE' (Stop & Shoot) and 'IGNORE' (Run) policies. This toggle should be easily accessible in the command menu.
@@ -56,10 +56,11 @@ The application is divided into distinct screens to reduce UI clutter and improv
 \- **Initialization**: When opening this screen, the slots MUST be pre-populated with the soldier's currently assigned equipment. It must NEVER default to empty hands unless the soldier is actually unarmed.
 \- Assign weapons/armor to specific soldier slots.
 \- Allocate global items (e.g., "Take 3 Grenades") to the mission inventory pool.
+- **Asset Integration**:
+  - Weapon names must use the user-visible `name` field from `WeaponLibrary` / `ItemLibrary` (e.g., "Pulse Rifle"), NOT the internal ID (e.g., `pulse_rifle_mk1`).
 
 3. **Mission Screen** (Active Gameplay)
    - **Main View**: Canvas/WebGL rendering of the game world.
-   - **Top Left Overlay**: Display current Map Seed (e.g., "Seed: 12345").
    - **Left Panel**: Squad List (Health, Status) + Quick Commands.
    - **Right Panel**:
      - **Objectives List**: Current status of mission objectives.
@@ -71,7 +72,7 @@ The application is divided into distinct screens to reduce UI clutter and improv
        - **Coordinates**: The text `at (x,y)` MUST be hidden by default to prevent meta-gaming. It should be visible **ONLY** if the Debug Overlay is enabled.
        - **Map Rendering**: Objectives at the Extraction Zone (e.g., "Extract Squad") must NOT render a separate "Objective" icon on the map, as the Extraction Zone itself is already visualized.
      - **Extraction Status**: Location/Progress (Coordinates subject to the same visibility rules as objectives).
-     - **Threat Meter**: Visual indicator of Director intensity.
+     - **Threat Meter**: Visual indicator of Director intensity (can also be in Top Bar).
    - **Bottom Panel**: Timeline/Event Log.
    - **Input**:
      - `ESC`: Opens **Pause Overlay** (Resume / Abort Mission).
@@ -98,6 +99,9 @@ For detailed Command behaviors, see **[Command System & AI](commands.md)**.
     - **Move To Room:** Select Room (Mapped 1-9, A-Z).
     - **Overwatch Intersection:** Select Intersection Point (Mapped 1-9).
     - **Escort:** Select Unit (Mapped 1-4).
+    - **Item Targeting:**
+      - **Grenades:** Target **Visible Enemies** ONLY. If no enemies are visible, the action is disabled.
+      - **Medkits/Stimpacks:** Target **Friendly Units** (Self included).
   - **Universal Back:** `Q` or `ESC` always goes back one level.
 - **Mouse Support:**
   - Full mouse support implemented via clickable menu items and map overlays.
@@ -116,7 +120,12 @@ For detailed Command behaviors, see **[Command System & AI](commands.md)**.
 
 The UI must be optimized for visibility and information density, utilizing the full width of the screen.
 
-- **Top Bar (Header):** Fixed height (40px). Displays Game Time, Status, Seed, Version, and the **Threat Meter**.
+- **Top Bar (Header):** Fixed height (40px).
+  - **Content:**
+    - **Time**: "TIME: 12.4s"
+    - **Threat**: Visual Meter.
+    - **Speed Control**: Play/Pause | Speed Slider (0.1x - 10x).
+    - **Give Up**: Button.
   - **Soldier Bar (Sub-header):** Full-width strip below the top bar (Height: 56px). Displays all soldiers in a horizontal layout.
     - **Reusable Stat Component**: The icon-based stat display used here MUST be extracted and reused in:
       - **Squad Selection Screen**: Replacing the text-based stats.
@@ -154,6 +163,7 @@ When enabled, the game displays additional diagnostic information:
 - **Map Visualization**:
   - Grid coordinates overlaid on all cells.
   - **Full Visibility**: Bypasses Fog of War/Shroud visually to show the entire map and all entities.
+  - **Generator Info**: Display the Generator Type and Seed used for the current map (e.g., "TreeShipGenerator (785411)").
 - **LOS Diagnostics**:
   - Raycast lines showing individual visibility checks from units to visible cells.
 - **HUD (Right Panel)**:

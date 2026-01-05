@@ -103,6 +103,7 @@ The game supports four difficulty presets defining failure consequences.
   3. **Tactical Options**: Toggle "Enable Tactical Pause/Slowmo".
   4. **Start**: Launches the campaign.
 - **Continue**: Resumes the active campaign state (if any).
+  - **Restart**: If a campaign is already active (or game over), the "New Campaign" flow must warn the user that the current save will be overwritten.
 
 ### 4.3 Mission Launch Constraints
 
@@ -110,5 +111,6 @@ The game supports four difficulty presets defining failure consequences.
   - The **Map Configuration** (Seed, Size, Generator) MUST be **HIDDEN**. The UI should skip directly to Squad Selection or display a read-only briefing.
   - The player CANNOT modify these settings.
   - The **Squad Selection** remains active.
+  - **Roster Selection**: The player selects soldiers from their *Available Roster*, NOT by setting a generic "Number of Soldiers" slider. The slider is for Custom Missions only.
 - **State Isolation**:
   - Campaign mission settings MUST NOT overwrite the "Custom Mission" defaults. The two modes must maintain separate persistent states for their last-used configurations.
