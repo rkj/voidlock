@@ -67,15 +67,15 @@ describe("HUDManager Debug Info Regression (voidlock-6gl)", () => {
     };
   });
 
-  it("should display Map Seed, Map Size, and Mission Type in debug tools", () => {
+  it("should display Map Info (with seed), Map Size, and Mission Type in debug tools", () => {
     hud.update(mockState, null);
 
     const debugDiv = document.querySelector(".debug-controls");
     expect(debugDiv).not.toBeNull();
-    
+
     const text = debugDiv?.textContent || "";
-    expect(text).toContain("Seed: 98765");
+    expect(text).toContain("Map: UnknownGenerator (98765)");
     expect(text).toContain("Size: 32x24");
-    expect(text).toContain("Type: EscortVIP");
+    expect(text).toContain("Mission: EscortVIP");
   });
 });
