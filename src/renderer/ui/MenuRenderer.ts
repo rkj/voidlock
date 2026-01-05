@@ -14,7 +14,7 @@ export class MenuRenderer {
     let html = `<h3>${this.escapeHtml(state.title)}</h3>`;
 
     if (state.error) {
-      html += `<p style="color:#f00;">${this.escapeHtml(state.error)}</p>`;
+      html += `<p style="color:var(--color-danger);">${this.escapeHtml(state.error)}</p>`;
     }
 
     state.options.forEach((opt) => {
@@ -22,11 +22,11 @@ export class MenuRenderer {
       let cssClass = "menu-item";
 
       if (opt.disabled) {
-        style = 'style="color: #666; cursor: not-allowed;"';
+        style = 'style="color: var(--color-text-dim); cursor: not-allowed;"';
       } else {
         cssClass += " clickable";
         if (opt.isBack) {
-          style = 'style="color: #ffaa00; margin-top: 10px;"';
+          style = 'style="color: var(--color-warning); margin-top: 10px;"';
         }
       }
 
@@ -41,7 +41,7 @@ export class MenuRenderer {
     });
 
     if (state.footer) {
-      html += `<p style="color:#888; font-size:0.8em; margin-top:10px;">${this.escapeHtml(state.footer)}</p>`;
+      html += `<p style="color:var(--color-text-muted); font-size:0.8em; margin-top:10px;">${this.escapeHtml(state.footer)}</p>`;
     }
 
     return html;

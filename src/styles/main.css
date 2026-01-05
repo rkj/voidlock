@@ -13,9 +13,14 @@
   --color-danger: #f00;
   --color-warning: #ff9800;
   --color-success: #4caf50;
+  --color-success-muted: rgba(0, 255, 0, 0.2);
   --color-info: #00ffff;
   --color-objective: #ffa500;
   --color-hive: #9900ff;
+
+  /* Basic Colors */
+  --color-black: #000000;
+  --color-white: #ffffff;
 
   /* Game World Colors (Canvas) */
   --color-wall: #00ffff;
@@ -27,8 +32,15 @@
   --color-door-dim: #aa8800;
   --color-los-soldier: rgba(0, 255, 0, 0.4);
   --color-los-enemy: rgba(255, 0, 0, 0.4);
+  --color-los-soldier-fade: rgba(0, 255, 0, 0);
+  --color-los-enemy-fade: rgba(255, 0, 0, 0);
   --color-fog-discovered: rgba(0, 0, 0, 0.6);
   --color-fog-unexplored: #000;
+
+  /* Objective & Zone Backgrounds */
+  --color-objective-bg: rgba(255, 170, 0, 0.1);
+  --color-spawn-bg: rgba(255, 0, 0, 0.05);
+  --color-extraction-bg: rgba(0, 255, 255, 0.1);
 }
 
 body {
