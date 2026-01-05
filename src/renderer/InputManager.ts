@@ -16,21 +16,39 @@ export class InputManager {
     private onToggleDebug: (enabled: boolean) => void,
     private onToggleLos: (enabled: boolean) => void,
     private currentGameState: () => GameState | null,
-  ) {}
+    private isDebriefing: () => boolean,
+  ) {
+    this.boundHandleKeyDown = this.handleKeyDown.bind(this);
+    this.boundHandleKeyUp = (e: KeyboardEvent) => {
+      this.menuController.isShiftHeld = e.shiftKey;
+    };
+    this.boundHandleCanvasClick = (e: MouseEvent) => {
+      if (this.isDebriefing()) return;
+      this.menuController.isShiftHeld = e.shiftKey;
+      this.handleCanvasClick(e);
+    };
+  }
+
+  private boundHandleKeyDown: (e: KeyboardEvent) => void;
+  private boundHandleKeyUp: (e: KeyboardEvent) => void;
+  private boundHandleCanvasClick: (e: MouseEvent) => void;
 
   public init() {
-    document.addEventListener("keydown", (e) => this.handleKeyDown(e));
-    document.addEventListener("keyup", (e) => {
-      this.menuController.isShiftHeld = e.shiftKey;
-    });
+    document.addEventListener("keydown", this.boundHandleKeyDown);
+    document.addEventListener("keyup", this.boundHandleKeyUp);
     const canvas = document.getElementById("game-canvas");
-    canvas?.addEventListener("click", (e) => {
-      this.menuController.isShiftHeld = (e as MouseEvent).shiftKey;
-      this.handleCanvasClick(e as MouseEvent);
-    });
+    canvas?.addEventListener("click", this.boundHandleCanvasClick);
+  }
+
+  public destroy() {
+    document.removeEventListener("keydown", this.boundHandleKeyDown);
+    document.removeEventListener("keyup", this.boundHandleKeyUp);
+    const canvas = document.getElementById("game-canvas");
+    canvas?.removeEventListener("click", this.boundHandleCanvasClick);
   }
 
   private handleKeyDown(e: KeyboardEvent) {
+    if (this.isDebriefing()) return;
     this.menuController.isShiftHeld = e.shiftKey;
     if (
       (e.target as HTMLElement).tagName === "INPUT" ||

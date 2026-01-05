@@ -39,6 +39,7 @@ let barracksScreen: BarracksScreen;
 
 const debriefScreen = new DebriefScreen("screen-debrief", () => {
   debriefScreen.hide();
+  gameClient.stop();
   if (currentCampaignNode) {
     campaignScreen.show();
     screenManager.show("campaign");
@@ -123,6 +124,7 @@ const inputManager = new InputManager(
   (enabled) => gameClient.toggleDebugOverlay(enabled),
   (enabled) => gameClient.toggleLosOverlay(enabled),
   () => currentGameState,
+  () => debriefScreen.isVisible(),
 );
 
 // --- Functions ---
@@ -144,6 +146,7 @@ const generateMissionReport = (
     timeSpent: state.t,
     soldierResults: state.units.map((u) => ({
       soldierId: u.id,
+      xpBefore: 0, // Will be filled by CampaignManager
       xpGained: 0, // Calculated by CampaignManager
       kills: u.kills,
       promoted: false,
@@ -153,6 +156,7 @@ const generateMissionReport = (
           : u.hp < u.maxHp
             ? "Wounded"
             : "Healthy",
+      recoveryTime: 0,
     })),
   };
 };

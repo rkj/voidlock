@@ -57,6 +57,7 @@ describe("CampaignManager", () => {
       soldierResults: [
         {
           soldierId: "soldier_0",
+          xpBefore: 0,
           xpGained: 50,
           kills: 3,
           promoted: false,

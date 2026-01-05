@@ -65,11 +65,13 @@ export interface CampaignNode {
  */
 export interface SoldierMissionResult {
   soldierId: string;
+  xpBefore: number;
   xpGained: number;
   kills: number;
   promoted: boolean;
   newLevel?: number;
   status: "Healthy" | "Wounded" | "Dead";
+  recoveryTime?: number;
 }
 
 /**

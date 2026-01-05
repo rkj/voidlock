@@ -6,6 +6,8 @@ import {
   MapGeneratorType,
   MoveCommand,
   SquadConfig,
+  EngineMode,
+  CommandLogEntry,
 } from "@src/shared/types";
 import { MapGenerator } from "@src/engine/MapGenerator";
 
@@ -83,6 +85,8 @@ describe("GameClient", () => {
         initialTimeScale: 1.0,
         startPaused: false,
         allowTacticalPause: true,
+        mode: EngineMode.Simulation,
+        commandLog: [],
       },
     });
 
@@ -169,100 +173,31 @@ describe("GameClient", () => {
         initialTimeScale: 1.0,
         startPaused: false,
         allowTacticalPause: true,
+        mode: EngineMode.Replay,
+        commandLog: [
+          { tick: 100, command: replayData.commands[0].cmd },
+          { tick: 500, command: replayData.commands[1].cmd },
+        ],
       },
     });
 
     // Clear mocks to check subsequent calls
     postMessageMock.mockClear();
 
-    // Advance time to 100ms
-    vi.advanceTimersByTime(100);
-    expect(postMessageMock).toHaveBeenCalledWith({
-      type: "COMMAND",
-      payload: replayData.commands[0].cmd,
-    });
-
-    // Advance to 500ms (total)
-    vi.advanceTimersByTime(400);
-    expect(postMessageMock).toHaveBeenCalledWith({
-      type: "COMMAND",
-      payload: replayData.commands[1].cmd,
-    });
+    // Advance time and ensure NO COMMAND messages are sent via timeouts (since engine handles it now)
+    vi.advanceTimersByTime(500);
+    const commandCalls = postMessageMock.mock.calls.filter(
+      (call) => call[0].type === "COMMAND",
+    );
+    expect(commandCalls.length).toBe(0);
   });
 
-  it("should send STOP message and clear replay timeouts", () => {
-    // Setup replay data with far future command
-    const replayData = {
-      seed: 555,
-      map: mockMap,
-      squadConfig: defaultSquad,
-      commands: [
-        {
-          t: 5000,
-          cmd: {
-            type: CommandType.MOVE_TO,
-            unitIds: ["u1"],
-            target: { x: 1, y: 1 },
-          } as MoveCommand,
-        },
-      ],
-    };
-
-    client.loadReplay(replayData);
-    postMessageMock.mockClear();
-
+  it("should send STOP message", () => {
     client.stop();
 
     expect(postMessageMock).toHaveBeenCalledWith({
       type: "STOP",
     });
-
-    // Advance time and ensure no COMMAND message is sent
-    vi.advanceTimersByTime(5000);
-    const commandCalls = postMessageMock.mock.calls.filter(
-      (call) => call[0].type === "COMMAND",
-    );
-    expect(commandCalls.length).toBe(0);
-  });
-
-  it("should clear replay timeouts on init", () => {
-    // Setup replay data with far future command
-    const replayData = {
-      seed: 555,
-      map: mockMap,
-      squadConfig: defaultSquad,
-      commands: [
-        {
-          t: 5000,
-          cmd: {
-            type: CommandType.MOVE_TO,
-            unitIds: ["u1"],
-            target: { x: 1, y: 1 },
-          } as MoveCommand,
-        },
-      ],
-    };
-
-    client.loadReplay(replayData);
-    postMessageMock.mockClear();
-
-    // Re-initialize should clear previous replay timeouts
-    client.init(
-      123,
-      MapGeneratorType.Procedural,
-      mockMap,
-      true,
-      false,
-      true,
-      defaultSquad,
-    );
-
-    // Advance time and ensure no COMMAND message from the replay is sent
-    vi.advanceTimersByTime(5000);
-    const commandCalls = postMessageMock.mock.calls.filter(
-      (call) => call[0].type === "COMMAND",
-    );
-    expect(commandCalls.length).toBe(0);
   });
 
   it("should send toggleDebugOverlay command", () => {

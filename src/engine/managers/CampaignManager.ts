@@ -235,9 +235,20 @@ export class CampaignManager {
     this.state.intel += report.intelGained;
 
     // 3. Update soldiers
+    this.state.roster.forEach((s) => {
+      if (s.recoveryTime && s.recoveryTime > 0) {
+        s.recoveryTime--;
+        if (s.recoveryTime === 0 && s.status === "Wounded") {
+          s.status = "Healthy";
+          s.hp = s.maxHp;
+        }
+      }
+    });
+
     report.soldierResults.forEach((res) => {
       const soldier = this.state!.roster.find((s) => s.id === res.soldierId);
       if (soldier) {
+        res.xpBefore = soldier.xp;
         const oldLevel = soldier.level;
 
         // Calculate XP:
@@ -255,6 +266,11 @@ export class CampaignManager {
         soldier.kills += res.kills;
         soldier.missions += 1;
         soldier.status = res.status;
+
+        if (soldier.status === "Wounded") {
+          soldier.recoveryTime = 1; // Out for 1 mission
+          res.recoveryTime = 1;
+        }
 
         const newLevel = calculateLevel(soldier.xp);
         if (newLevel > oldLevel) {
