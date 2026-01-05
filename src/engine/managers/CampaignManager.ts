@@ -58,6 +58,14 @@ export class CampaignManager {
   }
 
   /**
+   * Resets the campaign state, effectively deleting the current campaign.
+   */
+  public reset(): void {
+    this.state = null;
+    this.storage.save(STORAGE_KEY, null);
+  }
+
+  /**
    * Starts a new campaign with the given seed and difficulty.
    */
   public startNewCampaign(
@@ -80,7 +88,7 @@ export class CampaignManager {
     const roster = this.generateInitialRoster(prng);
 
     this.state = {
-      version: "0.62.0", // Current project version
+      version: "0.63.0", // Current project version
       seed,
       rules,
       scrap: 500,

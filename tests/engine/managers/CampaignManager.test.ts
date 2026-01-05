@@ -122,6 +122,15 @@ describe("CampaignManager", () => {
     expect(manager.getState()?.rules.deathRule).toBe("Iron");
   });
 
+  it("should reset the campaign state", () => {
+    manager.startNewCampaign(12345, "Normal");
+    expect(manager.getState()).not.toBeNull();
+
+    manager.reset();
+    expect(manager.getState()).toBeNull();
+    expect(storage.load("voidlock_campaign_v1")).toBeNull();
+  });
+
   it("should throw error if getInstance called without storage on first time", () => {
     CampaignManager.resetInstance();
     expect(() => CampaignManager.getInstance()).toThrow();
