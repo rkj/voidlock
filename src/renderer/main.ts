@@ -317,9 +317,6 @@ const launchMission = () => {
     allowTacticalPause,
   );
 
-  const seedDisplay = document.getElementById("seed-display");
-  if (seedDisplay) seedDisplay.textContent = `Seed: ${currentSeed}`;
-
   // Sync Speed Slider
   syncSpeedUI();
 
@@ -495,7 +492,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const gameSpeedValue = document.getElementById("speed-value");
   if (gameSpeedSlider && gameSpeedValue) {
     gameSpeedSlider.addEventListener("input", () => {
-      const scale = TimeUtility.sliderToScale(parseFloat(gameSpeedSlider.value));
+      const scale = TimeUtility.sliderToScale(
+        parseFloat(gameSpeedSlider.value),
+      );
       gameClient.setTimeScale(scale);
       syncSpeedUI();
     });
@@ -710,7 +709,10 @@ document.addEventListener("DOMContentLoaded", () => {
       debugOverlayEnabled = config.debugOverlayEnabled;
       losOverlayEnabled = config.losOverlayEnabled || false;
       agentControlEnabled = config.agentControlEnabled;
-      allowTacticalPause = config.allowTacticalPause !== undefined ? config.allowTacticalPause : true;
+      allowTacticalPause =
+        config.allowTacticalPause !== undefined
+          ? config.allowTacticalPause
+          : true;
       currentMapGeneratorType = config.mapGeneratorType;
       currentMissionType = config.missionType || MissionType.Default;
       currentSeed = config.lastSeed;
@@ -1008,5 +1010,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   loadAndApplyConfig(false);
+  const mvEl = document.getElementById("menu-version");
+  if (mvEl) mvEl.textContent = `v${VERSION}`;
   screenManager.show("main-menu");
 });
