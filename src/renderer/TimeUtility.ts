@@ -26,6 +26,7 @@ export class TimeUtility {
    */
   public static formatSpeed(scale: number, isPaused: boolean): string {
     if (isPaused) {
+      if (scale === 0) return "0.0x (Paused)";
       return `0.1x (Active Pause)`;
     }
     return `${scale.toFixed(1)}x`;
