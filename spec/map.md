@@ -13,27 +13,7 @@ The map is a grid of `Cells`, but walls are defined as **Shared Boundaries** (Ed
 
 **Cell Data Model (Logical):**
 
-```typescript
-interface Cell {
-  x: number;
-  y: number;
-  type: "Floor" | "Void";
-  // Edges point to shared Boundary objects
-  edges: {
-    n: Boundary | null;
-    e: Boundary | null;
-    s: Boundary | null;
-    w: Boundary | null;
-  };
-  roomId?: string;
-}
-
-interface Boundary {
-  isWall: boolean;
-  doorId?: string;
-  // Methods to get visual segment coordinates
-}
-```
+See [ADR 0001: Edge-Based Map Architecture](../docs/adr/0001-edge-based-map.md) for the authoritative `Cell` and `Boundary` data structures.
 
 ## 7) Pluggable balancing and generation interfaces
 
@@ -144,11 +124,11 @@ To facilitate easy creation and debugging of maps, especially for hardcoded or t
 - **Format**: The ASCII representation will use an expanded grid where each character position either represents a cell's content, a wall segment, or a wall corner. For a map of `width` W and `height` H, the ASCII grid will be `(2W+1)` columns wide and `(2H+1)` rows tall.
   - **Cell Content Characters (at `(2x+1, 2y+1)` positions):**
     - `' '` (space): Floor cell (passable, default interior of the ship).
-    - `'#'`: Wall cell (impassable, "void" or "outside" the ship).
+    - `'#'`: Void cell (impassable, empty space or solid rock).
     - `'S'`: Floor cell with a Spawn Point
     - `'E'`: Floor cell with an Extraction Point
     - `'O'`: Floor cell with an Objective
-    - _Priority_: For Floor cells: `S` > `E` > `O` > ` `. If Cell is `Wall`, then `#` overrides all other content.
+    - _Priority_: For Floor cells: `S` > `E` > `O` > ` `. If Cell is `Void`, then `#` overrides all other content.
 
   - **Wall/Passage Characters:**
     - **Horizontal Wall/Passage (at `(2x+1, 2y)` positions):**

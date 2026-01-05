@@ -126,6 +126,7 @@ You are strictly a **PLANNER** when wearing this hat.
 
 - **ALLOWED**: Modifying `spec/*.md`, `docs/*.md`, and running `bd create`.
 - **FORBIDDEN**: Modifying source code (`src/*`), running tests, or dispatching agents (`./scripts/dispatch_agent.sh`).
+- **RULE**: **NEVER** create a beads task to modify documentation (`spec/` or `docs/`). You must perform all documentation updates yourself **BEFORE** creating implementation tasks.
 - **STOP**: After creating the Beads tasks, do not ask for "confirmation". Simply stop and await the next user command. If the user provides no new input, you must remain idle.
 
 # Output Format for New Work
