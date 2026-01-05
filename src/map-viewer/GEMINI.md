@@ -11,6 +11,9 @@ This directory contains a standalone web application dedicated to loading and di
 
 - **Map Visualization**: Provides a way to visually inspect generated or hardcoded map definitions without playing a full mission.
 - **Debugging**: Useful for identifying map generation artifacts or verifying manual map edits.
+- **Interactive Controls**: Supports click-and-drag panning and Ctrl + mouse wheel zooming.
+- **Debug Overlays**: Toggleable coordinate display for floor cells.
+- **Export**: Export rendered maps as high-quality PNG or SVG files.
 
 ## Connections
 
