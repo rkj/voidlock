@@ -7,6 +7,7 @@ export class CampaignScreen {
   private onNodeSelect: (node: CampaignNode) => void;
   private onBarracks: () => void;
   private onBack: () => void;
+  private onCampaignStart?: () => void;
 
   constructor(
     containerId: string,
@@ -14,6 +15,7 @@ export class CampaignScreen {
     onNodeSelect: (node: CampaignNode) => void,
     onBarracks: () => void,
     onBack: () => void,
+    onCampaignStart?: () => void,
   ) {
     const el = document.getElementById(containerId);
     if (!el) throw new Error(`Container #${containerId} not found`);
@@ -22,6 +24,7 @@ export class CampaignScreen {
     this.onNodeSelect = onNodeSelect;
     this.onBarracks = onBarracks;
     this.onBack = onBack;
+    this.onCampaignStart = onCampaignStart;
   }
 
   public show() {
@@ -151,6 +154,24 @@ export class CampaignScreen {
     pauseGroup.appendChild(pauseLabel);
     form.appendChild(pauseGroup);
 
+    // Theme Selection
+    const themeGroup = document.createElement("div");
+    themeGroup.className = "flex-col gap-5";
+    const themeLabel = document.createElement("label");
+    themeLabel.textContent = "VISUAL THEME";
+    themeLabel.style.fontSize = "0.8em";
+    themeLabel.style.color = "var(--color-text-dim)";
+    const themeSelect = document.createElement("select");
+    themeSelect.id = "campaign-theme";
+    themeSelect.innerHTML = `
+      <option value="default" selected>DEFAULT (Voidlock Green)</option>
+      <option value="industrial">INDUSTRIAL (Amber/Steel)</option>
+      <option value="hive">ALIEN HIVE (Purple/Biolume)</option>
+    `;
+    themeGroup.appendChild(themeLabel);
+    themeGroup.appendChild(themeSelect);
+    form.appendChild(themeGroup);
+
     // Update pause checkbox based on difficulty
     diffSelect.addEventListener("change", () => {
       if (diffSelect.value === "extreme") {
@@ -174,7 +195,9 @@ export class CampaignScreen {
         Date.now(),
         diffSelect.value,
         pauseCheck.checked,
+        themeSelect.value,
       );
+      if (this.onCampaignStart) this.onCampaignStart();
       this.render();
     };
     content.appendChild(startBtn);
