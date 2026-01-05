@@ -46,16 +46,8 @@ export class HUDManager {
   private updateTopBar(state: GameState) {
     const statusElement = document.getElementById("game-status");
     if (statusElement) {
-      statusElement.innerHTML = `<span style="color:var(--color-text-muted)">TIME:</span>${(state.t / 1000).toFixed(1)}s | <span style="color:var(--color-text-muted)">STATUS:</span>${state.status}`;
+      statusElement.innerHTML = `<span style="color:var(--color-text-muted)">TIME:</span>${(state.t / 1000).toFixed(1)}s`;
     }
-
-    const vEl = document.getElementById("version-display");
-    if (vEl && vEl.textContent !== `v${this.version}`)
-      vEl.textContent = `v${this.version}`;
-
-    const mvEl = document.getElementById("menu-version");
-    if (mvEl && mvEl.textContent !== `v${this.version}`)
-      mvEl.textContent = `v${this.version}`;
 
     const threatLevel = state.stats.threatLevel || 0;
 
@@ -74,7 +66,9 @@ export class HUDManager {
       topThreatValue.style.color = `var(${threatVar})`;
     }
 
-    const gameSpeedSlider = document.getElementById("game-speed") as HTMLInputElement;
+    const gameSpeedSlider = document.getElementById(
+      "game-speed",
+    ) as HTMLInputElement;
     if (gameSpeedSlider) {
       const minVal = state.settings.allowTacticalPause ? "0" : "50";
       if (gameSpeedSlider.min !== minVal) {
@@ -193,7 +187,11 @@ export class HUDManager {
       const isCompleted = obj.state === "Completed";
       const isFailed = obj.state === "Failed";
       const icon = isCompleted ? "✔" : isFailed ? "✘" : "○";
-      const color = isCompleted ? "var(--color-success)" : isFailed ? "var(--color-danger)" : "var(--color-text-muted)";
+      const color = isCompleted
+        ? "var(--color-success)"
+        : isFailed
+          ? "var(--color-danger)"
+          : "var(--color-text-muted)";
 
       html += `<p style="margin: 5px 0;">
         <span style="color:${color}; margin-right:8px; font-weight:bold;" title="${obj.state}">${icon}</span>
@@ -212,7 +210,8 @@ export class HUDManager {
       const totalUnits = state.units.length;
       const isCompleted = extractedCount === totalUnits && totalUnits > 0;
       const icon = extractedCount > 0 ? "✔" : "○";
-      const color = extractedCount > 0 ? "var(--color-success)" : "var(--color-text-muted)";
+      const color =
+        extractedCount > 0 ? "var(--color-success)" : "var(--color-text-muted)";
       const status = isCompleted ? "Completed" : "Pending";
       const locStr = showCoords
         ? ` at (${state.map.extraction.x},${state.map.extraction.y})`
@@ -283,13 +282,15 @@ export class HUDManager {
   private renderGameOver(rightPanel: HTMLElement, state: GameState) {
     rightPanel.innerHTML = "";
     const summaryDiv = document.createElement("div");
-    summaryDiv.className = "game-over-summary" + (state.status === "Won" ? "" : " lost");
+    summaryDiv.className =
+      "game-over-summary" + (state.status === "Won" ? "" : " lost");
     summaryDiv.style.margin = "20px";
 
     const title = document.createElement("h2");
     title.textContent =
       state.status === "Won" ? "MISSION ACCOMPLISHED" : "SQUAD WIPED";
-    title.style.color = state.status === "Won" ? "var(--color-success)" : "var(--color-danger)";
+    title.style.color =
+      state.status === "Won" ? "var(--color-success)" : "var(--color-danger)";
     summaryDiv.appendChild(title);
 
     // Objectives List
@@ -408,7 +409,8 @@ export class HUDManager {
       const rhStats = this.getWeaponStats(unit, unit.rightHand);
 
       const renderWep = (stats: any) => {
-        if (!stats) return '<span style="color:var(--color-border-strong)">EMPTY</span>';
+        if (!stats)
+          return '<span style="color:var(--color-border-strong)">EMPTY</span>';
         return `
           ${StatDisplay.render(Icons.Damage, stats.damage, "Damage")}
           ${StatDisplay.render(Icons.Accuracy, stats.accuracy, "Accuracy")}

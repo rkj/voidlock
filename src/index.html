@@ -15,8 +15,7 @@
         <p id="menu-version"></p>
 
         <div style="margin-top: 40px">
-          <button id="btn-menu-campaign" class="menu-button">
-            Campaign</button
+          <button id="btn-menu-campaign" class="menu-button">Campaign</button
           ><br />
           <button id="btn-menu-custom" class="menu-button">
             Custom Mission</button
@@ -168,8 +167,11 @@
       <div id="screen-mission" class="screen">
         <!-- 1. Top Bar -->
         <div id="top-bar" class="top-bar">
-          <div id="game-status" style="font-weight: bold; color: var(--color-primary)">
-            Status: Active
+          <div
+            id="game-status"
+            style="font-weight: bold; color: var(--color-primary)"
+          >
+            TIME: 0.0s
           </div>
           <div
             id="top-threat-container"
@@ -183,7 +185,12 @@
               margin: 0 20px;
             "
           >
-            <span style="font-size: 0.8em; color: var(--color-text-muted); white-space: nowrap"
+            <span
+              style="
+                font-size: 0.8em;
+                color: var(--color-text-muted);
+                white-space: nowrap;
+              "
               >THREAT:</span
             >
             <div id="top-threat-bar" class="threat-bar">
@@ -277,14 +284,14 @@
             </div>
             <span
               id="top-threat-value"
-              style="font-size: 0.8em; color: var(--color-success); min-width: 40px"
+              style="
+                font-size: 0.8em;
+                color: var(--color-success);
+                min-width: 40px;
+              "
               >0%</span
             >
           </div>
-          <div
-            id="seed-display"
-            style="color: #888; font-family: monospace; font-size: 0.85em"
-          ></div>
 
           <!-- Speed Control -->
           <div
@@ -309,7 +316,11 @@
             </button>
             <label
               for="game-speed"
-              style="font-size: 0.8em; color: var(--color-text-muted); margin: 0"
+              style="
+                font-size: 0.8em;
+                color: var(--color-text-muted);
+                margin: 0;
+              "
               >Speed:</label
             >
             <input
@@ -324,15 +335,14 @@
             />
             <span
               id="speed-value"
-              style="font-size: 0.8em; color: var(--color-text-muted); min-width: 30px"
+              style="
+                font-size: 0.8em;
+                color: var(--color-text-muted);
+                min-width: 30px;
+              "
               >1.0x</span
             >
           </div>
-
-          <div
-            id="version-display"
-            style="font-size: 0.8em; color: #888; margin-left: 20px"
-          ></div>
 
           <button
             id="btn-give-up"

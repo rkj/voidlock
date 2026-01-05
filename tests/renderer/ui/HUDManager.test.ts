@@ -96,7 +96,7 @@ describe("HUDManager", () => {
 
     const statusEl = document.getElementById("game-status");
     expect(statusEl?.innerHTML).toContain("TIME:</span>1.0s");
-    expect(statusEl?.innerHTML).toContain("STATUS:</span>Playing");
+    expect(statusEl?.innerHTML).not.toContain("STATUS:");
 
     const threatValue = document.getElementById("top-threat-value");
     expect(threatValue?.textContent).toBe("25%");
