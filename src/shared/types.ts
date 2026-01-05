@@ -808,6 +808,7 @@ export type UseItemCommand = {
   unitIds: string[];
   itemId: string;
   target?: Vector2;
+  targetUnitId?: string;
   queue?: boolean;
   label?: string;
 };

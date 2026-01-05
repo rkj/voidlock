@@ -188,13 +188,29 @@ export class CommandExecutor {
       if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
         const item = ItemLibrary[cmd.itemId];
         if (item) {
+          let targetLocation: Vector2 | undefined = cmd.target;
+          if (cmd.targetUnitId) {
+            const targetUnit =
+              state.units.find((u) => u.id === cmd.targetUnitId) ||
+              state.enemies.find((e) => e.id === cmd.targetUnitId);
+            if (targetUnit) {
+              targetLocation = {
+                x: Math.floor(targetUnit.pos.x),
+                y: Math.floor(targetUnit.pos.y),
+              };
+            }
+          }
+
           // If item has a target, move there first?
           // For now, assume unit must be at target or it's a global effect.
           // Medkit/Mine usually require being at the target cell.
-          if (cmd.target && (item.action === "Heal" || item.action === "Mine")) {
+          if (
+            targetLocation &&
+            (item.action === "Heal" || item.action === "Mine")
+          ) {
             const dist = this.getDistance(unit.pos, {
-              x: cmd.target.x + 0.5,
-              y: cmd.target.y + 0.5,
+              x: targetLocation.x + 0.5,
+              y: targetLocation.y + 0.5,
             });
             if (dist > 1.0) {
               this.executeCommand(
@@ -202,7 +218,7 @@ export class CommandExecutor {
                 {
                   type: CommandType.MOVE_TO,
                   unitIds: [unit.id],
-                  target: cmd.target,
+                  target: targetLocation,
                   label: "Moving to use item",
                 },
                 state,

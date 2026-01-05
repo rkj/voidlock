@@ -84,7 +84,15 @@ export class Director {
     if (!item) return;
 
     if (item.action === "Heal") {
-      if (cmd.target) {
+      if (cmd.targetUnitId) {
+        const targetUnit = state.units.find((u) => u.id === cmd.targetUnitId);
+        if (targetUnit && targetUnit.hp > 0) {
+          targetUnit.hp = Math.min(
+            targetUnit.maxHp,
+            targetUnit.hp + (item.healAmount || 50),
+          );
+        }
+      } else if (cmd.target) {
         state.units.forEach((u) => {
           if (
             u.hp > 0 &&
@@ -96,10 +104,24 @@ export class Director {
         });
       }
     } else if (item.action === "Grenade") {
-      if (cmd.target) {
+      let targetPos: Vector2 | undefined = cmd.target;
+
+      if (cmd.targetUnitId) {
+        const targetEnemy = state.enemies.find(
+          (e) => e.id === cmd.targetUnitId,
+        );
+        if (targetEnemy) {
+          targetPos = {
+            x: Math.floor(targetEnemy.pos.x),
+            y: Math.floor(targetEnemy.pos.y),
+          };
+        }
+      }
+
+      if (targetPos) {
         state.enemies.forEach((e) => {
-          const dx = e.pos.x - (cmd.target!.x + 0.5);
-          const dy = e.pos.y - (cmd.target!.y + 0.5);
+          const dx = e.pos.x - (targetPos!.x + 0.5);
+          const dy = e.pos.y - (targetPos!.y + 0.5);
           const dist = Math.sqrt(dx * dx + dy * dy);
           if (dist <= 2.5) {
             e.hp -= 100;
@@ -196,7 +218,9 @@ export class Director {
       maxHp: arch.hp,
       type: arch.type,
       damage: arch.damage,
-      fireRate: arch.fireRate * (arch.speed > 0 ? SPEED_NORMALIZATION_CONST / arch.speed : 1),
+      fireRate:
+        arch.fireRate *
+        (arch.speed > 0 ? SPEED_NORMALIZATION_CONST / arch.speed : 1),
       accuracy: arch.accuracy,
       attackRange: arch.attackRange,
       speed: arch.speed,
