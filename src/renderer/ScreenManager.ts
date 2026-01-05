@@ -1,4 +1,5 @@
 import { VALID_TRANSITIONS } from "./ScreenTransitions";
+import { SessionManager } from "./SessionManager";
 
 export type ScreenId =
   | "main-menu"
@@ -13,8 +14,10 @@ export class ScreenManager {
   private screens: Map<ScreenId, HTMLElement> = new Map();
   private currentScreen: ScreenId = "main-menu";
   private history: ScreenId[] = [];
+  private sessionManager: SessionManager;
 
   constructor() {
+    this.sessionManager = new SessionManager();
     this.registerScreen("main-menu");
     this.registerScreen("campaign");
     this.registerScreen("mission-setup");
@@ -63,6 +66,7 @@ export class ScreenManager {
 
     // Show new
     this.currentScreen = id;
+    this.sessionManager.saveState(id);
     const newEl = this.screens.get(id);
     if (newEl) newEl.style.display = "flex"; // Assuming flex layout for screens
   }
@@ -88,5 +92,20 @@ export class ScreenManager {
 
   public getCurrentScreen(): ScreenId {
     return this.currentScreen;
+  }
+
+  public loadPersistedState(): ScreenId | null {
+    const persisted = this.sessionManager.loadState();
+    if (persisted && persisted !== this.currentScreen) {
+      // We use a simplified show() without transition validation for restoration
+      const currentEl = this.screens.get(this.currentScreen);
+      if (currentEl) currentEl.style.display = "none";
+
+      this.currentScreen = persisted;
+      const newEl = this.screens.get(this.currentScreen);
+      if (newEl) newEl.style.display = "flex";
+      return persisted;
+    }
+    return null;
   }
 }

@@ -76,6 +76,7 @@ export class GameClient {
     allowTacticalPause: boolean = true,
     mode: EngineMode = EngineMode.Simulation,
     commandLog: CommandLogEntry[] = [],
+    campaignNodeId?: string,
   ) {
     this.initialSeed = seed;
     this.initialSquadConfig = squadConfig;
@@ -87,8 +88,19 @@ export class GameClient {
         : generator.generate(width, height, mapGeneratorType, spawnPointCount);
 
     this.initialMap = map;
-    this.commandStream = [];
     this.startTime = Date.now();
+
+    // If we have a command log, synchronize startTime so subsequent commands have correct ticks
+    if (commandLog && commandLog.length > 0) {
+      const lastTick = commandLog[commandLog.length - 1].tick;
+      this.startTime -= lastTick;
+      this.commandStream = commandLog.map((cl) => ({
+        t: cl.tick,
+        cmd: cl.command,
+      }));
+    } else {
+      this.commandStream = [];
+    }
 
     // Reset speed state for new session
     this.isPaused = startPaused;
@@ -119,12 +131,72 @@ export class GameClient {
 
     // Sync current scale to new worker
     this.sendTimeScaleToWorker(this.isPaused ? (this.allowTacticalPause ? 0.1 : 0.0) : this.currentScale);
+
+    if (mode === EngineMode.Simulation && typeof localStorage !== "undefined") {
+      this.saveMissionConfig({
+        seed,
+        mapGeneratorType,
+        mapData,
+        fogOfWarEnabled,
+        debugOverlayEnabled,
+        agentControlEnabled,
+        squadConfig,
+        missionType,
+        width,
+        height,
+        spawnPointCount,
+        losOverlayEnabled,
+        startingThreatLevel,
+        initialTimeScale,
+        startPaused,
+        allowTacticalPause,
+        campaignNodeId,
+      });
+
+      // If we provided an initial command log, make sure it's also in the persistent log
+      if (commandLog && commandLog.length > 0) {
+        localStorage.setItem("voidlock_mission_log", JSON.stringify(commandLog));
+      } else {
+        localStorage.setItem("voidlock_mission_log", "[]");
+      }
+    }
+  }
+
+  private saveMissionConfig(config: any) {
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem("voidlock_mission_config", JSON.stringify(config));
+    }
+  }
+
+  private appendCommand(cmd: Command) {
+    if (typeof localStorage === "undefined") return;
+    try {
+      const logStr = localStorage.getItem("voidlock_mission_log") || "[]";
+      const log: CommandLogEntry[] = JSON.parse(logStr);
+      log.push({
+        tick: Date.now() - this.startTime,
+        command: cmd,
+      });
+      localStorage.setItem("voidlock_mission_log", JSON.stringify(log));
+    } catch (e) {
+      console.error("Failed to append command to persistent log", e);
+    }
+  }
+
+  public clearMissionData() {
+    if (typeof localStorage !== "undefined") {
+      localStorage.removeItem("voidlock_mission_config");
+      localStorage.removeItem("voidlock_mission_log");
+    }
   }
 
   public sendCommand(cmd: Command) {
     // Record command
     const t = Date.now() - this.startTime;
     this.commandStream.push({ t, cmd });
+
+    // Auto-save command
+    this.appendCommand(cmd);
 
     const msg: WorkerMessage = {
       type: "COMMAND",
@@ -270,6 +342,7 @@ export class GameClient {
   }
 
   public stop() {
+    this.clearMissionData();
     const msg: WorkerMessage = {
       type: "STOP",
     };
@@ -277,6 +350,7 @@ export class GameClient {
   }
 
   public terminate() {
+    this.clearMissionData();
     this.worker.terminate();
   }
 }

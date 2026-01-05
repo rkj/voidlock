@@ -50,6 +50,7 @@ export class CoreEngine {
 
   private commandLog: CommandLogEntry[] = [];
   private replayIndex: number = 0;
+  private isCatchingUp: boolean = false;
 
   // For test compatibility
   public get doors(): Map<string, Door> {
@@ -299,11 +300,22 @@ export class CoreEngine {
       .filter((u) => u.archetypeId !== "vip")
       .map((u) => u.id);
 
-    if (explorationUnitIds.length > 0) {
+    if (explorationUnitIds.length > 0 && this.commandLog.length === 0) {
       this.applyCommand({
         type: CommandType.EXPLORE,
         unitIds: explorationUnitIds,
       });
+    }
+
+    // Catch-up Phase: If in Simulation mode but have a command log, fast-forward
+    if (mode === EngineMode.Simulation && this.commandLog.length > 0) {
+      this.isCatchingUp = true;
+      const lastTick = this.commandLog[this.commandLog.length - 1].tick;
+      while (this.state.t < lastTick) {
+        // We use a fixed 16ms step for deterministic catch-up
+        this.update(16, 16);
+      }
+      this.isCatchingUp = false;
     }
   }
 
@@ -327,7 +339,9 @@ export class CoreEngine {
 
   public applyCommand(cmd: Command) {
     if (this.state.settings.mode === EngineMode.Simulation) {
-      this.commandLog.push({ tick: this.state.t, command: cmd });
+      if (!this.isCatchingUp) {
+        this.commandLog.push({ tick: this.state.t, command: cmd });
+      }
       this.commandHandler.applyCommand(this.state, cmd);
     }
   }
@@ -426,13 +440,15 @@ export class CoreEngine {
   public update(scaledDt: number, realDt: number = scaledDt) {
     if (
       this.state.status !== "Playing" &&
-      this.state.settings.mode !== EngineMode.Replay
+      this.state.settings.mode !== EngineMode.Replay &&
+      !this.isCatchingUp
     )
       return;
-    if (scaledDt === 0) return;
 
-    // Command Playback in Replay Mode
-    if (this.state.settings.mode === EngineMode.Replay) {
+    if (scaledDt === 0 && !this.isCatchingUp) return;
+
+    // Command Playback in Replay Mode or Catch-up Phase
+    if (this.state.settings.mode === EngineMode.Replay || this.isCatchingUp) {
       while (
         this.replayIndex < this.commandLog.length &&
         this.commandLog[this.replayIndex].tick <= this.state.t

@@ -9,6 +9,7 @@ import {
   MissionType,
   SquadConfig,
   ArchetypeLibrary,
+  EngineMode,
 } from "../shared/types";
 import { MapGenerator } from "../engine/MapGenerator";
 import { ScreenManager } from "./ScreenManager";
@@ -286,6 +287,7 @@ const launchMission = () => {
     lastSeed: currentSeed,
     squadConfig: currentSquad,
     startingThreatLevel,
+    campaignNodeId: currentCampaignNode?.id,
   };
 
   if (currentCampaignNode) {
@@ -315,11 +317,19 @@ const launchMission = () => {
     initialTimeScale,
     false, // startPaused
     allowTacticalPause,
+    EngineMode.Simulation,
+    [], // commandLog
+    currentCampaignNode?.id,
   );
 
   // Sync Speed Slider
   syncSpeedUI();
 
+  setupGameClientCallbacks();
+  screenManager.show("mission");
+};
+
+const setupGameClientCallbacks = () => {
   selectedUnitId = null;
   debriefShown = false;
   const rightPanel = document.getElementById("right-panel");
@@ -360,7 +370,77 @@ const launchMission = () => {
 
     updateUI(state);
   });
-  screenManager.show("mission");
+};
+
+const resumeMission = () => {
+  const configStr = localStorage.getItem("voidlock_mission_config");
+  const logStr = localStorage.getItem("voidlock_mission_log");
+
+  if (!configStr) return;
+
+  try {
+    const config = JSON.parse(configStr);
+    const commandLog = logStr ? JSON.parse(logStr) : [];
+
+    // Restore campaign node if needed
+    if (config.campaignNodeId) {
+      campaignManager.load();
+      const campaignState = campaignManager.getState();
+      if (campaignState) {
+        currentCampaignNode =
+          campaignState.nodes.find((n) => n.id === config.campaignNodeId) ||
+          null;
+        applyCampaignTheme();
+      }
+    }
+
+    // Set global state from config
+    currentSeed = config.seed;
+    currentMapGeneratorType = config.mapGeneratorType;
+    currentStaticMapData = config.mapData;
+    fogOfWarEnabled = config.fogOfWarEnabled;
+    debugOverlayEnabled = config.debugOverlayEnabled;
+    agentControlEnabled = config.agentControlEnabled;
+    currentSquad = config.squadConfig;
+    currentMissionType = config.missionType;
+    currentMapWidth = config.width;
+    currentMapHeight = config.height;
+    currentSpawnPointCount = config.spawnPointCount;
+    losOverlayEnabled = config.losOverlayEnabled;
+    const startingThreatLevel = config.startingThreatLevel;
+    const initialTimeScale = config.initialTimeScale || 1.0;
+    const allowTacticalPause = config.allowTacticalPause ?? true;
+
+    setupGameClientCallbacks();
+
+    gameClient.init(
+      currentSeed,
+      currentMapGeneratorType,
+      currentStaticMapData,
+      fogOfWarEnabled,
+      debugOverlayEnabled,
+      agentControlEnabled,
+      currentSquad,
+      currentMissionType,
+      currentMapWidth,
+      currentMapHeight,
+      currentSpawnPointCount,
+      losOverlayEnabled,
+      startingThreatLevel,
+      initialTimeScale,
+      false, // startPaused
+      allowTacticalPause,
+      EngineMode.Simulation,
+      commandLog,
+      config.campaignNodeId,
+    );
+
+    syncSpeedUI();
+    screenManager.show("mission");
+  } catch (e) {
+    console.error("Failed to resume mission", e);
+    screenManager.show("main-menu");
+  }
 };
 
 const abortMission = () => {
@@ -1012,5 +1092,22 @@ document.addEventListener("DOMContentLoaded", () => {
   loadAndApplyConfig(false);
   const mvEl = document.getElementById("menu-version");
   if (mvEl) mvEl.textContent = `v${VERSION}`;
-  screenManager.show("main-menu");
+
+  // Session Restoration
+  const persistedScreen = screenManager.loadPersistedState();
+  if (persistedScreen === "mission") {
+    resumeMission();
+  } else if (persistedScreen) {
+    // If we restored a specific screen, ensure its logic is initialized
+    if (persistedScreen === "campaign") {
+      applyCampaignTheme();
+      campaignScreen.show();
+    } else if (persistedScreen === "equipment") {
+      equipmentScreen.updateConfig(currentSquad);
+    } else if (persistedScreen === "barracks") {
+      barracksScreen.show();
+    }
+  } else {
+    screenManager.show("main-menu");
+  }
 });
