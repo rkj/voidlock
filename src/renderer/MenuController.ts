@@ -139,9 +139,26 @@ export class MenuController {
       const num = parseInt(key);
       if (!isNaN(num) && num > 0 && num <= items.length) {
         const [itemId] = items[num - 1];
+
+        // Check if disabled
+        const item = ItemLibrary[itemId];
+        if (item?.action === "Grenade") {
+          const hasVisibleEnemies = gameState.enemies.some((e) => {
+            const key = `${Math.floor(e.pos.x)},${Math.floor(e.pos.y)}`;
+            return gameState.visibleCells.includes(key);
+          });
+          if (!hasVisibleEnemies) return;
+        }
+
         this.pendingItemId = itemId;
         this.menuState = "TARGET_SELECT";
-        this.generateTargetOverlay("CELL", gameState);
+        if (item?.action === "Heal") {
+          this.generateTargetOverlay("FRIENDLY_UNIT", gameState);
+        } else if (item?.action === "Grenade") {
+          this.generateTargetOverlay("HOSTILE_UNIT", gameState);
+        } else {
+          this.generateTargetOverlay("CELL", gameState);
+        }
       }
     } else if (this.menuState === "MODE_SELECT") {
       const option = config.options.find((o) => o.key.toString() === key);
@@ -243,7 +260,16 @@ export class MenuController {
       } else if (this.pendingAction === CommandType.OVERWATCH_POINT) {
         this.generateTargetOverlay("INTERSECTION", gameState);
       } else if (this.pendingAction === CommandType.USE_ITEM) {
-        this.generateTargetOverlay("CELL", gameState);
+        const item = this.pendingItemId
+          ? ItemLibrary[this.pendingItemId]
+          : null;
+        if (item?.action === "Heal") {
+          this.generateTargetOverlay("FRIENDLY_UNIT", gameState);
+        } else if (item?.action === "Grenade") {
+          this.generateTargetOverlay("HOSTILE_UNIT", gameState);
+        } else {
+          this.generateTargetOverlay("CELL", gameState);
+        }
       } else if (this.pendingAction === CommandType.PICKUP) {
         this.generateTargetOverlay("ITEM", gameState);
       } else if (this.pendingAction === CommandType.ESCORT_UNIT) {
@@ -275,11 +301,24 @@ export class MenuController {
       const items = Object.entries(gameState.squadInventory).filter(
         ([_, count]) => count > 0,
       );
-      result.options = items.map(([itemId, count], idx) => ({
-        key: (idx + 1).toString(),
-        label: `${idx + 1}. ${ItemLibrary[itemId]?.name || itemId} (${count})`,
-        dataAttributes: { index: (idx + 1).toString(), "item-id": itemId },
-      }));
+      result.options = items.map(([itemId, count], idx) => {
+        const item = ItemLibrary[itemId];
+        let disabled = false;
+        if (item?.action === "Grenade") {
+          const hasVisibleEnemies = gameState.enemies.some((e) => {
+            const key = `${Math.floor(e.pos.x)},${Math.floor(e.pos.y)}`;
+            return gameState.visibleCells.includes(key);
+          });
+          disabled = !hasVisibleEnemies;
+        }
+
+        return {
+          key: (idx + 1).toString(),
+          label: `${idx + 1}. ${item?.name || itemId} (${count})`,
+          disabled,
+          dataAttributes: { index: (idx + 1).toString(), "item-id": itemId },
+        };
+      });
       result.options.push({
         key: "0",
         label: "0. BACK",
@@ -361,10 +400,20 @@ export class MenuController {
     gameState: GameState,
   ): boolean {
     if (option.label === "USE ITEM") {
-      const hasItems = Object.values(gameState.squadInventory).some(
-        (count) => count > 0,
+      const availableItems = Object.entries(gameState.squadInventory).filter(
+        ([itemId, count]) => {
+          if (count <= 0) return false;
+          const item = ItemLibrary[itemId];
+          if (item?.action === "Grenade") {
+            return gameState.enemies.some((e) => {
+              const key = `${Math.floor(e.pos.x)},${Math.floor(e.pos.y)}`;
+              return gameState.visibleCells.includes(key);
+            });
+          }
+          return true;
+        },
       );
-      return !hasItems;
+      return availableItems.length === 0;
     }
     return false;
   }
@@ -427,7 +476,10 @@ export class MenuController {
         label: this.pendingLabel || undefined,
         queue,
       });
-    } else if (this.pendingAction === CommandType.PICKUP && this.pendingTargetId) {
+    } else if (
+      this.pendingAction === CommandType.PICKUP &&
+      this.pendingTargetId
+    ) {
       this.client.sendCommand({
         type: CommandType.PICKUP,
         unitIds,
@@ -456,13 +508,14 @@ export class MenuController {
     } else if (
       this.pendingAction === CommandType.USE_ITEM &&
       this.pendingItemId &&
-      this.pendingTargetLocation
+      (this.pendingTargetLocation || this.pendingTargetId)
     ) {
       this.client.sendCommand({
         type: CommandType.USE_ITEM,
         unitIds,
         itemId: this.pendingItemId,
-        target: this.pendingTargetLocation,
+        target: this.pendingTargetLocation || undefined,
+        targetUnitId: this.pendingTargetId || undefined,
         label: this.pendingLabel || undefined,
         queue,
       });
@@ -498,12 +551,26 @@ export class MenuController {
   }
 
   private generateTargetOverlay(
-    type: "CELL" | "ITEM" | "INTERSECTION" | "FRIENDLY_UNIT",
+    type: "CELL" | "ITEM" | "INTERSECTION" | "FRIENDLY_UNIT" | "HOSTILE_UNIT",
     gameState: GameState,
   ) {
     this.overlayOptions = [];
 
-    if (type === "ITEM") {
+    if (type === "HOSTILE_UNIT") {
+      let enemyCounter = 0;
+      gameState.enemies.forEach((e) => {
+        const key = `${Math.floor(e.pos.x)},${Math.floor(e.pos.y)}`;
+        if (gameState.visibleCells.includes(key)) {
+          this.overlayOptions.push({
+            key: this.getRoomKey(enemyCounter),
+            label: `${e.type}`,
+            pos: { x: Math.floor(e.pos.x), y: Math.floor(e.pos.y) },
+            id: e.id,
+          });
+          enemyCounter++;
+        }
+      });
+    } else if (type === "ITEM") {
       let itemCounter = 0;
       gameState.objectives.forEach((obj) => {
         if (obj.state === "Pending" && obj.visible && obj.targetCell) {

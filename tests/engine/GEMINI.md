@@ -9,6 +9,7 @@ This directory contains the automated test suite for the game engine, using Vite
 - `regression_mplv_objective_ignored.test.ts`: Fix for soldiers ignoring visible objectives during exploration.
 - `regression_mplv_accidental_claim.test.ts`: Specific case where exploration target overlaps objective.
 - `regression_mplv_escort_ignored.test.ts`: Fix for Escort objectives being ignored by autonomous AI.
+- `regression_awkp_item_targeting.test.ts`: Verifies item targeting logic (Grenades vs Medkits) and unit-based targeting for USE_ITEM.
 - `regression_0rdj_initial_equipment.test.ts`: Fix for initial roster missing equipment.
 
 ## Subdirectories
