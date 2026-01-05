@@ -61,13 +61,20 @@ Example:
 
 ### 7.2 Required interfaces
 
+**Map Generation Configuration**
+
+The map generation subsystem must utilize a unified configuration model. Instead of passing parameters piecemeal during function calls, a comprehensive configuration object (defining seed, dimensions, strategy, and spawn counts) must be provided upon initialization.
+
+-   **Behavior:** The generator instance is immutable regarding its configuration. To generate a map with different parameters, a new generator instance must be created.
+-   **Implementation:** See [ADR 0013: Unified Map Generation Configuration](../docs/adr/0013-unified-map-generation-config.md) for the specific `MapGenerationConfig` interface and class structure.
+
 **MapGenerator**
 
-- `generate(prng, config) -> MapDefinition`
-  - `load(mapData: MapDefinition) -> MapDefinition` (New: to load predefined maps)
-
-  - `validate(map) -> issues[]`
-    - **Enforces Strict Placement Rules (Section 8.5):** Ensures all spawn points (squad and enemy) and objectives are located in rooms (not corridors) and that squad and enemy spawns occupy mutually exclusive rooms.
+-   **Initialization:** Accepts the configuration object at startup.
+-   **Generation:** A parameter-less execution method that produces a `MapDefinition` based on the injected configuration.
+-   **Loading:** Ability to bypass generation and load a specific `MapDefinition` (for static maps or save games).
+-   **Validation:**
+    -   **Enforces Strict Placement Rules (Section 8.5):** Ensures all spawn points (squad and enemy) and objectives are located in rooms (not corridors) and that squad and enemy spawns occupy mutually exclusive rooms.
 
   - **Map Generation Strategy Selection**: The `MapGenerator` (or its client) must support selecting different generation strategies (e.g., `procedural-maze`, `static-predefined`, `custom-scripted`).
 
