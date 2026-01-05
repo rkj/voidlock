@@ -10,6 +10,41 @@ The initial `MapDefinition` relied on `Cell` objects containing `walls` (n, e, s
 
 Transition to a **Graph of Cells with Shared Boundaries**.
 
+### Data Structures
+
+```typescript
+export enum CellType {
+  Floor = "Floor",
+  Void = "Void", // Represents empty space or solid rock
+}
+
+export enum BoundaryType {
+  Open = "Open",   // Passable
+  Wall = "Wall",   // Impassable
+  Door = "Door",   // Passable if open, impassable if closed/locked
+}
+
+interface Cell {
+  x: number;
+  y: number;
+  type: CellType;
+  // Edges point to shared Boundary objects
+  edges: {
+    n: Boundary | null;
+    e: Boundary | null;
+    s: Boundary | null;
+    w: Boundary | null;
+  };
+  roomId?: string;
+}
+
+interface Boundary {
+  type: BoundaryType;
+  doorId?: string;
+  // Methods to get visual segment coordinates
+}
+```
+
 ### Runtime Architecture (`GameGrid`)
 
 At runtime, the `GameGrid` hydrates the static data into a graph structure:
