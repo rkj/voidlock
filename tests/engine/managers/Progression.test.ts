@@ -36,6 +36,7 @@ describe("Campaign Progression (XP and Leveling)", () => {
       soldierResults: [
         {
           soldierId: soldier.id,
+          xpBefore: 0,
           xpGained: 120, // Enough for Level 2
           kills: 5,
           promoted: false, // CampaignManager should update this
@@ -79,6 +80,7 @@ describe("Campaign Progression (XP and Leveling)", () => {
       soldierResults: [
         {
           soldierId: soldier.id,
+          xpBefore: 0,
           xpGained: 0,
           kills: 2,
           promoted: false,
@@ -111,6 +113,7 @@ describe("Campaign Progression (XP and Leveling)", () => {
       soldierResults: [
         {
           soldierId: soldier.id,
+          xpBefore: 0,
           xpGained: 0,
           kills: 0,
           promoted: false,
@@ -144,6 +147,7 @@ describe("Campaign Progression (XP and Leveling)", () => {
       soldierResults: [
         {
           soldierId: soldier.id,
+          xpBefore: 0,
           xpGained: 0,
           kills: 20,
           promoted: false,

@@ -54,6 +54,7 @@ describe("Campaign Types", () => {
       soldierResults: [
         {
           soldierId: "s1",
+          xpBefore: 0,
           xpGained: 10,
           kills: 2,
           promoted: false,

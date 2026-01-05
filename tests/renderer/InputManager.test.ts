@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { InputManager } from "@src/renderer/InputManager";
 import { CommandType, EngineMode } from "@src/shared/types";
 
@@ -17,6 +17,7 @@ describe("InputManager", () => {
   let onToggleDebug: any;
   let onToggleLos: any;
   let currentGameState: any;
+  let debriefingActive = false;
 
   const mockState = {
     settings: {
@@ -27,6 +28,7 @@ describe("InputManager", () => {
 
   beforeEach(() => {
     document.body.innerHTML = '<canvas id="game-canvas"></canvas>';
+    debriefingActive = false;
     mockScreenManager = {
       getCurrentScreen: vi.fn(() => "mission"),
       goBack: vi.fn(),
@@ -59,8 +61,13 @@ describe("InputManager", () => {
       onToggleDebug,
       onToggleLos,
       currentGameState,
+      () => debriefingActive,
     );
     inputManager.init();
+  });
+
+  afterEach(() => {
+    inputManager.destroy();
   });
 
   it("should toggle debug overlay on Backquote", () => {
@@ -85,5 +92,14 @@ describe("InputManager", () => {
     document.dispatchEvent(event);
 
     expect(togglePause).toHaveBeenCalled();
+  });
+
+  it("should block inputs when isDebriefing is true", () => {
+    debriefingActive = true;
+
+    const event = new KeyboardEvent("keydown", { code: "Space" });
+    document.dispatchEvent(event);
+
+    expect(togglePause).not.toHaveBeenCalled();
   });
 });

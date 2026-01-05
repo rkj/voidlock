@@ -1,4 +1,4 @@
-import { MissionReport } from "../../shared/campaign_types";
+import { MissionReport, XP_THRESHOLDS, calculateLevel } from "../../shared/campaign_types";
 
 export class DebriefScreen {
   private container: HTMLElement;
@@ -20,6 +20,10 @@ export class DebriefScreen {
 
   public hide() {
     this.container.style.display = "none";
+  }
+
+  public isVisible(): boolean {
+    return this.container.style.display === "flex";
   }
 
   private render() {
@@ -92,17 +96,41 @@ export class DebriefScreen {
             ? "var(--color-warning)"
             : "var(--color-danger)";
 
+      const currentLevel = calculateLevel(res.xpBefore);
+      const nextLevelThreshold = XP_THRESHOLDS[currentLevel] || XP_THRESHOLDS[XP_THRESHOLDS.length - 1];
+      const prevLevelThreshold = XP_THRESHOLDS[currentLevel - 1];
+      
+      const xpInCurrentLevel = res.xpBefore - prevLevelThreshold;
+      const xpNeededForNext = nextLevelThreshold - prevLevelThreshold;
+      const xpAfter = res.xpBefore + res.xpGained;
+      const xpInCurrentLevelAfter = Math.min(xpAfter, nextLevelThreshold) - prevLevelThreshold;
+
+      const progressBefore = (xpInCurrentLevel / xpNeededForNext) * 100;
+      const progressAfter = (xpInCurrentLevelAfter / xpNeededForNext) * 100;
+
       soldierRow.innerHTML = `
         <div class="flex-row justify-between align-center">
-          <span style="font-size: 1.2em; font-weight:bold;">${res.soldierId}</span>
+          <span style="font-size: 1.2em; font-weight:bold;">${res.soldierId} <span style="font-size: 0.7em; color: var(--color-text-muted); font-weight: normal;">LVL ${currentLevel}</span></span>
           <span style="color:${statusColor}; font-weight:bold; border: 1px solid ${statusColor}; padding: 2px 8px; font-size: 0.8em; border-radius: 4px;">
             ${res.status.toUpperCase()}
           </span>
         </div>
+        
+        <div style="margin-top: 10px;">
+          <div class="flex-row justify-between" style="font-size: 0.8em; color: var(--color-text-muted); margin-bottom: 4px;">
+            <span>XP: ${res.xpBefore} (+${res.xpGained})</span>
+            <span>${xpAfter} / ${nextLevelThreshold}</span>
+          </div>
+          <div style="height: 8px; background: #222; border: 1px solid #444; position: relative; overflow: hidden;">
+            <div style="height: 100%; background: var(--color-primary); width: ${progressBefore}%; position: absolute; left: 0; top: 0; z-index: 2;"></div>
+            <div style="height: 100%; background: var(--color-accent); width: ${progressAfter}%; position: absolute; left: 0; top: 0; z-index: 1;"></div>
+          </div>
+        </div>
+
         <div class="flex-row gap-20" style="margin-top: 10px; font-size: 0.9em; color: var(--color-text-muted);">
           <span>Kills: <span style="color:var(--color-text);">${res.kills}</span></span>
-          <span>XP Gained: <span style="color:var(--color-primary);">+${res.xpGained}</span></span>
           ${res.promoted ? `<span style="color:var(--color-accent); font-weight:bold;">LEVEL UP! (LVL ${res.newLevel})</span>` : ""}
+          ${res.status === "Wounded" && res.recoveryTime ? `<span style="color:var(--color-warning);">RECOVERY: ${res.recoveryTime} MISSIONS</span>` : ""}
         </div>
       `;
       squadPanel.appendChild(soldierRow);

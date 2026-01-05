@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { InputManager } from "@src/renderer/InputManager";
 import { MenuController } from "@src/renderer/MenuController";
 import { ScreenManager } from "@src/renderer/ScreenManager";
@@ -53,8 +53,13 @@ describe("Q and ESC Key Navigation", () => {
       onToggleDebug,
       onToggleLos,
       currentGameState,
+      () => false,
     );
     inputManager.init();
+  });
+
+  afterEach(() => {
+    inputManager.destroy();
   });
 
   it("should call menuController.goBack() when 'q' is pressed in mission submenu", () => {

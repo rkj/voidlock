@@ -27,10 +27,10 @@ describe("DebriefScreen", () => {
       soldierResults: [
         {
           soldierId: "soldier_1",
+          xpBefore: 20,
           xpGained: 70,
           kills: 5,
-          promoted: true,
-          newLevel: 2,
+          promoted: false,
           status: "Healthy",
         },
       ],
@@ -43,7 +43,7 @@ describe("DebriefScreen", () => {
     expect(container.innerHTML).toContain("10"); // aliensKilled
     expect(container.innerHTML).toContain("+150"); // scrapGained
     expect(container.innerHTML).toContain("soldier_1");
-    expect(container.innerHTML).toContain("LEVEL UP");
+    expect(container.innerHTML).toContain("XP: 20 (+70)");
   });
 
   it("should render failure report correctly", () => {
@@ -58,6 +58,7 @@ describe("DebriefScreen", () => {
       soldierResults: [
         {
           soldierId: "soldier_1",
+          xpBefore: 120,
           xpGained: 10,
           kills: 0,
           promoted: false,
@@ -70,6 +71,7 @@ describe("DebriefScreen", () => {
 
     expect(container.innerHTML).toContain("MISSION FAILED");
     expect(container.innerHTML).toContain("DEAD");
+    expect(container.innerHTML).toContain("XP: 120 (+10)");
   });
 
   it("should call onContinue when button is clicked", () => {
