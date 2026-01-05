@@ -249,4 +249,56 @@ describe("GameClient", () => {
       type: "QUERY_STATE",
     });
   });
+
+  it("should save mission config and campaignNodeId to localStorage in Simulation mode", () => {
+    const seed = 12345;
+    const campaignNodeId = "test-node-123";
+
+    // Mock localStorage
+    const storage: Record<string, string> = {};
+    const mockLocalStorage = {
+      setItem: vi.fn((key, value) => {
+        storage[key] = value;
+      }),
+      getItem: vi.fn((key) => storage[key] || null),
+      removeItem: vi.fn((key) => {
+        delete storage[key];
+      }),
+      clear: vi.fn(() => {
+        for (const key in storage) delete storage[key];
+      }),
+    };
+    vi.stubGlobal("localStorage", mockLocalStorage);
+
+    client.init(
+      seed,
+      MapGeneratorType.Procedural,
+      mockMap,
+      true, // fog
+      false, // debug
+      true, // agent
+      defaultSquad,
+      "Default" as any,
+      16,
+      16,
+      3,
+      false, // los
+      0, // threat
+      1.0, // scale
+      false, // paused
+      true, // allowPause
+      EngineMode.Simulation,
+      [],
+      campaignNodeId,
+    );
+
+    expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
+      "voidlock_mission_config",
+      expect.any(String),
+    );
+
+    const savedConfig = JSON.parse(storage["voidlock_mission_config"]);
+    expect(savedConfig.seed).toBe(seed);
+    expect(savedConfig.campaignNodeId).toBe(campaignNodeId);
+  });
 });

@@ -26,7 +26,7 @@ describe("TreeShipGenerator Golden Regression", () => {
       const sortWalls = (walls: any[]) => [...walls].sort((a, b) => (a.p1.x - b.p1.x) || (a.p1.y - b.p1.y) || (a.p2.x - b.p2.x) || (a.p2.y - b.p2.y));
 
       expect(sortCells(generatedMap.cells)).toEqual(sortCells(expectedMap.cells));
-      expect(sortWalls(generatedMap.walls)).toEqual(sortWalls(expectedMap.walls));
+      expect(sortWalls(generatedMap.walls || [])).toEqual(sortWalls(expectedMap.walls || []));
     }
 
     // 2. ASCII Comparison

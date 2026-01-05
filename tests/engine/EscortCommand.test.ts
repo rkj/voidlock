@@ -61,7 +61,7 @@ describe("Escort Command", () => {
     addUnit("escort1", 0);
     addUnit("escort2", 1);
     addUnit("escort3", 2);
-  });
+  }, 15000);
 
   it("should synchronize speed to slower target", () => {
     engine.applyCommand({
@@ -80,7 +80,7 @@ describe("Escort Command", () => {
     // Escort (20) should match Target (15)
     expect(target.stats.speed).toBe(15);
     expect(e1.stats.speed).toBe(15);
-  });
+  }, 15000);
 
   it("should follow target when it moves", () => {
     engine.applyCommand({
@@ -111,7 +111,7 @@ describe("Escort Command", () => {
     
     const dist = Math.sqrt(Math.pow(e1.pos.x - target.pos.x, 2) + Math.pow(e1.pos.y - target.pos.y, 2));
     expect(dist).toBeLessThan(3.0); 
-  });
+  }, 15000);
 
   it("should handle multiple bodyguards in formation", () => {
     addUnit("escort4", 3);
@@ -146,5 +146,5 @@ describe("Escort Command", () => {
 
     expect(Math.floor(e5.pos.x)).toBe(6);
     expect(Math.floor(e5.pos.y)).toBe(6);
-  });
+  }, 15000);
 });

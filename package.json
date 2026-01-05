@@ -1,12 +1,13 @@
 {
   "name": "voidlock",
   "private": true,
-  "version": "0.63.0",
+  "version": "0.64.3",
   "description": "Tactical squad combat game. Rebrand Epic: xenopurge-gemini-58ka",
   "type": "module",
   "scripts": {
     "dev": "vite --host",
     "build": "tsc && vite build",
+    "lint": "tsc --noEmit",
     "preview": "vite preview",
     "balance-sim": "tsx src/harness/BalanceSimulator.ts",
     "process-assets": "tsx scripts/process_assets.ts"
