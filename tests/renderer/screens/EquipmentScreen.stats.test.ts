@@ -31,8 +31,12 @@ describe("EquipmentScreen Stats and Tooltips", () => {
     );
     screen.show();
 
+    const armoryPanel = Array.from(container.querySelectorAll(".panel")).find(
+      (p) =>
+        p.querySelector(".panel-title")?.textContent === "Armory & Supplies",
+    ) as HTMLElement;
     const armoryItems = Array.from(
-      container.querySelectorAll(".menu-item.clickable"),
+      armoryPanel.querySelectorAll(".menu-item.clickable"),
     );
     const pulseRifle = armoryItems.find((el) =>
       el.textContent?.includes("Pulse Rifle"),
@@ -56,8 +60,12 @@ describe("EquipmentScreen Stats and Tooltips", () => {
     );
     screen.show();
 
+    const armoryPanel = Array.from(container.querySelectorAll(".panel")).find(
+      (p) =>
+        p.querySelector(".panel-title")?.textContent === "Armory & Supplies",
+    ) as HTMLElement;
     const armoryItems = Array.from(
-      container.querySelectorAll(".menu-item.clickable"),
+      armoryPanel.querySelectorAll(".menu-item.clickable"),
     );
     const heavyPlate = armoryItems.find((el) =>
       el.textContent?.includes("Heavy Plate Armor"),
@@ -80,8 +88,12 @@ describe("EquipmentScreen Stats and Tooltips", () => {
     );
     screen.show();
 
+    const armoryPanel = Array.from(container.querySelectorAll(".panel")).find(
+      (p) =>
+        p.querySelector(".panel-title")?.textContent === "Armory & Supplies",
+    ) as HTMLElement;
     const armoryItems = Array.from(
-      container.querySelectorAll(".menu-item.clickable"),
+      armoryPanel.querySelectorAll(".menu-item.clickable"),
     );
     const pulseRifle = armoryItems.find((el) =>
       el.textContent?.includes("Pulse Rifle"),

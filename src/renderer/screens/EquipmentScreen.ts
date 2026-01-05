@@ -71,7 +71,8 @@ export class EquipmentScreen {
 
   private render() {
     this.container.innerHTML = "";
-    this.container.className = "screen equipment-screen flex-row p-20 gap-20 relative";
+    this.container.className =
+      "screen equipment-screen flex-row p-20 gap-20 relative";
     this.container.style.display = "flex";
 
     // Left: Soldier List
@@ -135,7 +136,7 @@ export class EquipmentScreen {
           ${index + 1}. ${arch ? arch.name : soldier.archetypeId}
         </div>
         <div style="font-size:0.8em; color:var(--color-text-muted); margin-top:4px;">
-          ${soldier.rightHand || "Empty"} / ${soldier.leftHand || "Empty"}
+          ${this.getItemName(soldier.rightHand)} / ${this.getItemName(soldier.leftHand)}
         </div>
       `;
 
@@ -145,6 +146,12 @@ export class EquipmentScreen {
       };
       panel.appendChild(item);
     });
+  }
+
+  private getItemName(id?: string): string {
+    if (!id) return "Empty";
+    const item = WeaponLibrary[id] || ItemLibrary[id];
+    return item ? item.name : id;
   }
 
   private renderPaperDoll(panel: HTMLElement) {
