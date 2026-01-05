@@ -4,7 +4,7 @@ This directory contains types, constants, and utilities that are shared between 
 
 ## Files
 
-- `types.ts`: The central location for all shared interfaces, enums, and type definitions (e.g., `GameState`, `Unit`, `MapDefinition`, `Command`, `Weapon`, `Item`). `Unit` tracks stats including `kills`, `damageDealt`, and `objectivesCompleted`. `MissionStats` tracks mission progress including `aliensKilled`, `elitesKilled`, and `scrapGained`. `GameState` and `Unit` use sub-objects (e.g., `stats`, `settings`) to group related properties for easier management and test mocking. `Weapon` and `Item` types include a `description` field for UI tooltips.
+- `types.ts`: The central location for all shared interfaces, enums, and type definitions (e.g., `GameState`, `Unit`, `MapDefinition`, `Command`, `Weapon`, `Item`). `Unit` tracks stats including `kills`, `damageDealt`, and `objectivesCompleted`. `MissionStats` tracks mission progress including `aliensKilled`, `elitesKilled`, and `scrapGained`. `GameState` and `Unit` use sub-objects (e.g., `stats`, `settings`) to group related properties for easier management and test mocking. `Weapon` and `Item` types include a `description` field for UI tooltips. Includes `TileDefinition`, `TileAssembly`, and related types for the Space Hulk map importer.
 - `campaign_types.ts`: Interfaces and types specifically for the persistent campaign mode (e.g., `CampaignDifficulty`, `CampaignState`, `CampaignSoldier`, `CampaignNode`, `GameRules`, `MissionReport`). `GameRules` includes `allowTacticalPause` to restrict Active Pause in higher difficulties. Includes progression constants (`XP_THRESHOLDS`, `STAT_BOOSTS`) and leveling logic (`calculateLevel`).
 - `PRNG.ts`: A deterministic Pseudo-Random Number Generator implementation.
 

@@ -862,11 +862,18 @@ export type TileCellDefinition = {
   openEdges: Edge[];
 };
 
+export type TileDoorSocket = {
+  x: number;
+  y: number;
+  edge: Edge;
+};
+
 export type TileDefinition = {
   id: string;
   width: number;
   height: number;
   cells: TileCellDefinition[];
+  doorSockets?: TileDoorSocket[];
 };
 
 export type TileReference = {
@@ -878,6 +885,7 @@ export type TileReference = {
 
 export type TileAssembly = {
   tiles: TileReference[];
+  tileDoors?: { tileIndex: number; socketIndex: number; id: string }[];
   doors?: { tileIndex: number; cellIndex: number; edge: Edge; id: string }[]; // Optional door placement relative to tiles?
   // Actually, simplest is to define doors in global coordinates or relative to a tile.
   // For now, let's assume we extract doors from the tiles themselves if they have "sockets" or just add them manually later.

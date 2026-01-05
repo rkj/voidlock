@@ -9,7 +9,7 @@ This directory contains static data definitions for the game, specifically tile 
 
 ## Functionality
 
-- **Tile Definitions**: Each tile is defined by its dimensions (`width`, `height`) and a list of cells. Each cell specifies its relative position and which edges are "open" (`n`, `e`, `s`, `w`). Open edges allow movement and line-of-sight between cells and between adjacent tiles when assembled.
+- **Tile Definitions**: Each tile is defined by its dimensions (`width`, `height`) and a list of cells. Each cell specifies its relative position and which edges are "open" (`n`, `e`, `s`, `w`). Open edges allow movement and line-of-sight between cells and between adjacent tiles when assembled. Tiles can also include `doorSockets`, which define recommended locations for door placement at tile boundaries or internal segments.
 
 ## Connections
 
