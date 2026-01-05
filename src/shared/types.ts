@@ -48,6 +48,7 @@ export enum MapGeneratorType {
 export type MapDefinition = {
   width: number;
   height: number;
+  generatorName?: string;
   cells: Cell[];
   walls?: WallDefinition[]; // New: Array of Wall boundaries
   boundaries?: BoundaryDefinition[];

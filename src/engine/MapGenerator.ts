@@ -35,27 +35,33 @@ export class MapGenerator {
     spawnPointCount?: number,
   ): MapDefinition {
     const spCount = spawnPointCount ?? 1;
+    let map: MapDefinition;
     switch (type) {
       case MapGeneratorType.TreeShip:
-        return new TreeShipGenerator(this.seed, width, height).generate(
-          spCount,
-        );
+        map = new TreeShipGenerator(this.seed, width, height).generate(spCount);
+        break;
       case MapGeneratorType.Procedural:
-        return new SpaceshipGenerator(this.seed, width, height).generate(
+        map = new SpaceshipGenerator(this.seed, width, height).generate(
           spCount,
         );
+        break;
       case MapGeneratorType.DenseShip:
-        return new DenseShipGenerator(this.seed, width, height).generate(
+        map = new DenseShipGenerator(this.seed, width, height).generate(
           spCount,
         );
+        break;
       default:
-        return new SpaceshipGenerator(this.seed, width, height).generate(
+        map = new SpaceshipGenerator(this.seed, width, height).generate(
           spCount,
         );
     }
+    map.generatorName = type;
+    return map;
   }
 
   public load(mapDefinition: MapDefinition): MapDefinition {
+    mapDefinition.generatorName =
+      mapDefinition.generatorName || MapGeneratorType.Static;
     return mapDefinition;
   }
 
@@ -391,7 +397,9 @@ export class MapGenerator {
         );
       }
       if (extractionRoomId === roomId) {
-        issues.push(`Squad spawn and Extraction share the same room: ${roomId}`);
+        issues.push(
+          `Squad spawn and Extraction share the same room: ${roomId}`,
+        );
       }
       if (objectiveRoomIds.has(roomId)) {
         issues.push(`Squad spawn and Objective share the same room: ${roomId}`);
@@ -528,7 +536,8 @@ export class MapGenerator {
     }
 
     // Squad reachability check
-    const squadStart = map.squadSpawn || (map.squadSpawns && map.squadSpawns[0]);
+    const squadStart =
+      map.squadSpawn || (map.squadSpawns && map.squadSpawns[0]);
     if (squadStart) {
       const visitedFromSquad = new Set<string>();
       const queue: Vector2[] = [squadStart];

@@ -218,6 +218,22 @@ describe("HUDManager", () => {
     expect(debugDiv?.querySelector("#btn-copy-world-state")).not.toBeNull();
   });
 
+  it("should display generator name and seed in the correct format", () => {
+    const debugState: GameState = {
+      ...mockState,
+      seed: 9999,
+      map: { ...mockState.map, generatorName: "TreeShip" },
+      settings: { ...mockState.settings, debugOverlayEnabled: true },
+    };
+
+    hud.update(debugState, null);
+
+    const debugDiv = document.querySelector(".debug-controls");
+    // "TreeShip" should be displayed as "TreeShipGenerator"
+    expect(debugDiv?.innerHTML).toContain("TreeShipGenerator (9999)");
+    expect(debugDiv?.innerHTML).toContain("Mission:</strong> Default");
+  });
+
   it("should call onCopyWorldState when the copy button is clicked", () => {
     const debugState: GameState = {
       ...mockState,
