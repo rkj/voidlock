@@ -165,7 +165,7 @@ export class CampaignScreen {
     pauseCheck.checked = true;
     const pauseLabel = document.createElement("label");
     pauseLabel.htmlFor = "campaign-tactical-pause";
-    pauseLabel.textContent = "Allow Tactical Pause (0.1x)";
+    pauseLabel.textContent = "Allow Tactical Pause (0.05x)";
     pauseLabel.style.fontSize = "0.9em";
     pauseGroup.appendChild(pauseCheck);
     pauseGroup.appendChild(pauseLabel);
