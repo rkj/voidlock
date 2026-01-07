@@ -152,4 +152,33 @@ describe("CampaignScreen", () => {
 
     expect(onBack).toHaveBeenCalled();
   });
+
+  it("should render Game Over screen when campaign status is Defeat", () => {
+    manager.startNewCampaign(12345, "extreme");
+    const state = manager.getState()!;
+    state.status = "Defeat";
+
+    const screen = new CampaignScreen(
+      "screen-campaign",
+      manager,
+      onNodeSelect,
+      onBarracks,
+      onBack,
+    );
+    screen.show();
+
+    expect(container.textContent).toContain("MISSION FAILED");
+    expect(container.textContent).toContain("CAMPAIGN OVER");
+
+    const menuBtn = Array.from(container.querySelectorAll("button")).find(
+      (btn) => btn.textContent === "RETURN TO MENU",
+    );
+    expect(menuBtn).toBeDefined();
+
+    const deleteSaveSpy = vi.spyOn(manager, "deleteSave");
+    menuBtn?.click();
+
+    expect(deleteSaveSpy).toHaveBeenCalled();
+    expect(onBack).toHaveBeenCalled();
+  });
 });

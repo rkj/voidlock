@@ -66,6 +66,14 @@ export class CampaignManager {
   }
 
   /**
+   * Deletes the campaign save from storage.
+   */
+  public deleteSave(): void {
+    this.state = null;
+    this.storage.remove(STORAGE_KEY);
+  }
+
+  /**
    * Starts a new campaign with the given seed and difficulty.
    */
   public startNewCampaign(
@@ -88,8 +96,9 @@ export class CampaignManager {
     const roster = this.generateInitialRoster(prng);
 
     this.state = {
-      version: "0.63.0", // Current project version
+      version: "0.64.4", // Current project version
       seed,
+      status: "Active",
       rules,
       scrap: 500,
       intel: 0,
@@ -245,6 +254,11 @@ export class CampaignManager {
     // 2. Update resources
     this.state.scrap += report.scrapGained;
     this.state.intel += report.intelGained;
+
+    // 2.5 Handle Ironman Defeat
+    if (this.state.rules.deathRule === "Iron" && report.result === "Lost") {
+      this.state.status = "Defeat";
+    }
 
     // 3. Update soldiers
     this.state.roster.forEach((s) => {

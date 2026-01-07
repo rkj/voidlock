@@ -95,6 +95,7 @@ export interface MissionReport {
 export interface CampaignState {
   version: string;
   seed: number;
+  status: "Active" | "Victory" | "Defeat";
   rules: GameRules;
   scrap: number;
   intel: number;

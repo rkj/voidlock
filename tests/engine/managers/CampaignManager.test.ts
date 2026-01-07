@@ -19,6 +19,7 @@ describe("CampaignManager", () => {
 
     expect(state).not.toBeNull();
     expect(state?.seed).toBe(12345);
+    expect(state?.status).toBe("Active");
     expect(state?.rules.deathRule).toBe("Clone");
     expect(state?.scrap).toBe(500);
     expect(state?.roster.length).toBe(4);
@@ -129,6 +130,28 @@ describe("CampaignManager", () => {
     manager.reset();
     expect(manager.getState()).toBeNull();
     expect(storage.load("voidlock_campaign_v1")).toBeNull();
+  });
+
+  it("should mark campaign as Defeat when Ironman mission is lost", () => {
+    manager.startNewCampaign(12345, "Hard"); // Hard has deathRule: "Iron"
+    const availableNodes = manager.getAvailableNodes();
+    const targetNodeId = availableNodes[0].id;
+
+    const report: MissionReport = {
+      nodeId: targetNodeId,
+      seed: 123,
+      result: "Lost",
+      aliensKilled: 0,
+      scrapGained: 0,
+      intelGained: 0,
+      timeSpent: 100,
+      soldierResults: [],
+    };
+
+    manager.processMissionResult(report);
+    const state = manager.getState();
+
+    expect(state?.status).toBe("Defeat");
   });
 
   it("should throw error if getInstance called without storage on first time", () => {
