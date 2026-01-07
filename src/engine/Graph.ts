@@ -60,7 +60,7 @@ export class Graph {
     for (let y = 0; y < height; y++) {
       this.cells[y] = [];
       for (let x = 0; x < width; x++) {
-        this.cells[y][x] = new GraphCell(x, y, CellType.Wall);
+        this.cells[y][x] = new GraphCell(x, y, CellType.Void);
       }
     }
 

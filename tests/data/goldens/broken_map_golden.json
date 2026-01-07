@@ -8,12 +8,12 @@
         {
           "x": 0,
           "y": 0,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
           "y": 0,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 2,
@@ -24,12 +24,12 @@
         {
           "x": 3,
           "y": 0,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 4,
           "y": 0,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 5,
@@ -40,7 +40,7 @@
         {
           "x": 6,
           "y": 0,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 7,
@@ -57,12 +57,12 @@
         {
           "x": 9,
           "y": 0,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 10,
           "y": 0,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 11,
@@ -79,27 +79,27 @@
         {
           "x": 13,
           "y": 0,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 14,
           "y": 0,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 15,
           "y": 0,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 0,
           "y": 1,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
           "y": 1,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 2,
@@ -110,12 +110,12 @@
         {
           "x": 3,
           "y": 1,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 4,
           "y": 1,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 5,
@@ -126,7 +126,7 @@
         {
           "x": 6,
           "y": 1,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 7,
@@ -137,12 +137,12 @@
         {
           "x": 8,
           "y": 1,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 9,
           "y": 1,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 10,
@@ -165,22 +165,22 @@
         {
           "x": 13,
           "y": 1,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 14,
           "y": 1,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 15,
           "y": 1,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 0,
           "y": 2,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
@@ -245,62 +245,62 @@
         {
           "x": 11,
           "y": 2,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 12,
           "y": 2,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 13,
           "y": 2,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 14,
           "y": 2,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 15,
           "y": 2,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 0,
           "y": 3,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
           "y": 3,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 2,
           "y": 3,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 3,
           "y": 3,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 4,
           "y": 3,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 5,
           "y": 3,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 6,
           "y": 3,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 7,
@@ -311,12 +311,12 @@
         {
           "x": 8,
           "y": 3,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 9,
           "y": 3,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 10,
@@ -327,22 +327,22 @@
         {
           "x": 11,
           "y": 3,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 12,
           "y": 3,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 13,
           "y": 3,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 14,
           "y": 3,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 15,
@@ -353,37 +353,37 @@
         {
           "x": 0,
           "y": 4,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
           "y": 4,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 2,
           "y": 4,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 3,
           "y": 4,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 4,
           "y": 4,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 5,
           "y": 4,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 6,
           "y": 4,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 7,
@@ -394,12 +394,12 @@
         {
           "x": 8,
           "y": 4,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 9,
           "y": 4,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 10,
@@ -410,22 +410,22 @@
         {
           "x": 11,
           "y": 4,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 12,
           "y": 4,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 13,
           "y": 4,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 14,
           "y": 4,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 15,
@@ -436,27 +436,27 @@
         {
           "x": 0,
           "y": 5,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
           "y": 5,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 2,
           "y": 5,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 3,
           "y": 5,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 4,
           "y": 5,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 5,
@@ -479,7 +479,7 @@
         {
           "x": 8,
           "y": 5,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 9,
@@ -496,7 +496,7 @@
         {
           "x": 11,
           "y": 5,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 12,
@@ -507,7 +507,7 @@
         {
           "x": 13,
           "y": 5,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 14,
@@ -524,22 +524,22 @@
         {
           "x": 0,
           "y": 6,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
           "y": 6,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 2,
           "y": 6,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 3,
           "y": 6,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 4,
@@ -550,12 +550,12 @@
         {
           "x": 5,
           "y": 6,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 6,
           "y": 6,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 7,
@@ -566,12 +566,12 @@
         {
           "x": 8,
           "y": 6,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 9,
           "y": 6,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 10,
@@ -582,7 +582,7 @@
         {
           "x": 11,
           "y": 6,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 12,
@@ -593,7 +593,7 @@
         {
           "x": 13,
           "y": 6,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 14,
@@ -610,7 +610,7 @@
         {
           "x": 0,
           "y": 7,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
@@ -699,17 +699,17 @@
         {
           "x": 15,
           "y": 7,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 0,
           "y": 8,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
           "y": 8,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 2,
@@ -720,22 +720,22 @@
         {
           "x": 3,
           "y": 8,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 4,
           "y": 8,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 5,
           "y": 8,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 6,
           "y": 8,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 7,
@@ -746,12 +746,12 @@
         {
           "x": 8,
           "y": 8,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 9,
           "y": 8,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 10,
@@ -762,7 +762,7 @@
         {
           "x": 11,
           "y": 8,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 12,
@@ -773,27 +773,27 @@
         {
           "x": 13,
           "y": 8,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 14,
           "y": 8,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 15,
           "y": 8,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 0,
           "y": 9,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
           "y": 9,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 2,
@@ -804,12 +804,12 @@
         {
           "x": 3,
           "y": 9,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 4,
           "y": 9,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 5,
@@ -832,7 +832,7 @@
         {
           "x": 8,
           "y": 9,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 9,
@@ -849,7 +849,7 @@
         {
           "x": 11,
           "y": 9,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 12,
@@ -860,52 +860,52 @@
         {
           "x": 13,
           "y": 9,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 14,
           "y": 9,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 15,
           "y": 9,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 0,
           "y": 10,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
           "y": 10,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 2,
           "y": 10,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 3,
           "y": 10,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 4,
           "y": 10,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 5,
           "y": 10,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 6,
           "y": 10,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 7,
@@ -916,12 +916,12 @@
         {
           "x": 8,
           "y": 10,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 9,
           "y": 10,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 10,
@@ -932,7 +932,7 @@
         {
           "x": 11,
           "y": 10,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 12,
@@ -949,47 +949,47 @@
         {
           "x": 14,
           "y": 10,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 15,
           "y": 10,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 0,
           "y": 11,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
           "y": 11,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 2,
           "y": 11,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 3,
           "y": 11,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 4,
           "y": 11,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 5,
           "y": 11,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 6,
           "y": 11,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 7,
@@ -1006,7 +1006,7 @@
         {
           "x": 9,
           "y": 11,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 10,
@@ -1017,7 +1017,7 @@
         {
           "x": 11,
           "y": 11,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 12,
@@ -1034,47 +1034,47 @@
         {
           "x": 14,
           "y": 11,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 15,
           "y": 11,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 0,
           "y": 12,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
           "y": 12,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 2,
           "y": 12,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 3,
           "y": 12,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 4,
           "y": 12,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 5,
           "y": 12,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 6,
           "y": 12,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 7,
@@ -1085,77 +1085,77 @@
         {
           "x": 8,
           "y": 12,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 9,
           "y": 12,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 10,
           "y": 12,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 11,
           "y": 12,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 12,
           "y": 12,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 13,
           "y": 12,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 14,
           "y": 12,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 15,
           "y": 12,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 0,
           "y": 13,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
           "y": 13,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 2,
           "y": 13,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 3,
           "y": 13,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 4,
           "y": 13,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 5,
           "y": 13,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 6,
           "y": 13,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 7,
@@ -1166,67 +1166,67 @@
         {
           "x": 8,
           "y": 13,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 9,
           "y": 13,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 10,
           "y": 13,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 11,
           "y": 13,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 12,
           "y": 13,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 13,
           "y": 13,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 14,
           "y": 13,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 15,
           "y": 13,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 0,
           "y": 14,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
           "y": 14,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 2,
           "y": 14,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 3,
           "y": 14,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 4,
           "y": 14,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 5,
@@ -1249,67 +1249,67 @@
         {
           "x": 8,
           "y": 14,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 9,
           "y": 14,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 10,
           "y": 14,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 11,
           "y": 14,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 12,
           "y": 14,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 13,
           "y": 14,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 14,
           "y": 14,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 15,
           "y": 14,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 0,
           "y": 15,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
           "y": 15,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 2,
           "y": 15,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 3,
           "y": 15,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 4,
           "y": 15,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 5,
@@ -1326,47 +1326,47 @@
         {
           "x": 7,
           "y": 15,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 8,
           "y": 15,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 9,
           "y": 15,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 10,
           "y": 15,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 11,
           "y": 15,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 12,
           "y": 15,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 13,
           "y": 15,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 14,
           "y": 15,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 15,
           "y": 15,
-          "type": "Wall"
+          "type": "Void"
         }
       ],
       "walls": [
@@ -6356,12 +6356,12 @@
         {
           "x": 0,
           "y": 0,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
           "y": 0,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 2,
@@ -6372,12 +6372,12 @@
         {
           "x": 3,
           "y": 0,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 4,
           "y": 0,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 5,
@@ -6388,7 +6388,7 @@
         {
           "x": 6,
           "y": 0,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 7,
@@ -6405,12 +6405,12 @@
         {
           "x": 9,
           "y": 0,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 10,
           "y": 0,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 11,
@@ -6427,27 +6427,27 @@
         {
           "x": 13,
           "y": 0,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 14,
           "y": 0,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 15,
           "y": 0,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 0,
           "y": 1,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
           "y": 1,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 2,
@@ -6458,12 +6458,12 @@
         {
           "x": 3,
           "y": 1,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 4,
           "y": 1,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 5,
@@ -6474,7 +6474,7 @@
         {
           "x": 6,
           "y": 1,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 7,
@@ -6485,12 +6485,12 @@
         {
           "x": 8,
           "y": 1,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 9,
           "y": 1,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 10,
@@ -6513,22 +6513,22 @@
         {
           "x": 13,
           "y": 1,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 14,
           "y": 1,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 15,
           "y": 1,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 0,
           "y": 2,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
@@ -6593,62 +6593,62 @@
         {
           "x": 11,
           "y": 2,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 12,
           "y": 2,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 13,
           "y": 2,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 14,
           "y": 2,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 15,
           "y": 2,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 0,
           "y": 3,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
           "y": 3,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 2,
           "y": 3,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 3,
           "y": 3,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 4,
           "y": 3,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 5,
           "y": 3,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 6,
           "y": 3,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 7,
@@ -6659,12 +6659,12 @@
         {
           "x": 8,
           "y": 3,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 9,
           "y": 3,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 10,
@@ -6675,22 +6675,22 @@
         {
           "x": 11,
           "y": 3,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 12,
           "y": 3,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 13,
           "y": 3,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 14,
           "y": 3,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 15,
@@ -6701,37 +6701,37 @@
         {
           "x": 0,
           "y": 4,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
           "y": 4,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 2,
           "y": 4,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 3,
           "y": 4,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 4,
           "y": 4,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 5,
           "y": 4,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 6,
           "y": 4,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 7,
@@ -6742,12 +6742,12 @@
         {
           "x": 8,
           "y": 4,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 9,
           "y": 4,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 10,
@@ -6758,22 +6758,22 @@
         {
           "x": 11,
           "y": 4,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 12,
           "y": 4,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 13,
           "y": 4,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 14,
           "y": 4,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 15,
@@ -6784,27 +6784,27 @@
         {
           "x": 0,
           "y": 5,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
           "y": 5,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 2,
           "y": 5,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 3,
           "y": 5,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 4,
           "y": 5,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 5,
@@ -6827,7 +6827,7 @@
         {
           "x": 8,
           "y": 5,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 9,
@@ -6844,7 +6844,7 @@
         {
           "x": 11,
           "y": 5,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 12,
@@ -6855,7 +6855,7 @@
         {
           "x": 13,
           "y": 5,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 14,
@@ -6872,22 +6872,22 @@
         {
           "x": 0,
           "y": 6,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
           "y": 6,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 2,
           "y": 6,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 3,
           "y": 6,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 4,
@@ -6898,12 +6898,12 @@
         {
           "x": 5,
           "y": 6,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 6,
           "y": 6,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 7,
@@ -6914,12 +6914,12 @@
         {
           "x": 8,
           "y": 6,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 9,
           "y": 6,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 10,
@@ -6930,7 +6930,7 @@
         {
           "x": 11,
           "y": 6,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 12,
@@ -6941,7 +6941,7 @@
         {
           "x": 13,
           "y": 6,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 14,
@@ -6958,7 +6958,7 @@
         {
           "x": 0,
           "y": 7,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
@@ -7047,17 +7047,17 @@
         {
           "x": 15,
           "y": 7,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 0,
           "y": 8,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
           "y": 8,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 2,
@@ -7068,22 +7068,22 @@
         {
           "x": 3,
           "y": 8,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 4,
           "y": 8,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 5,
           "y": 8,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 6,
           "y": 8,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 7,
@@ -7094,12 +7094,12 @@
         {
           "x": 8,
           "y": 8,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 9,
           "y": 8,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 10,
@@ -7110,7 +7110,7 @@
         {
           "x": 11,
           "y": 8,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 12,
@@ -7121,27 +7121,27 @@
         {
           "x": 13,
           "y": 8,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 14,
           "y": 8,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 15,
           "y": 8,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 0,
           "y": 9,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
           "y": 9,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 2,
@@ -7152,12 +7152,12 @@
         {
           "x": 3,
           "y": 9,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 4,
           "y": 9,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 5,
@@ -7180,7 +7180,7 @@
         {
           "x": 8,
           "y": 9,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 9,
@@ -7197,7 +7197,7 @@
         {
           "x": 11,
           "y": 9,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 12,
@@ -7208,52 +7208,52 @@
         {
           "x": 13,
           "y": 9,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 14,
           "y": 9,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 15,
           "y": 9,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 0,
           "y": 10,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
           "y": 10,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 2,
           "y": 10,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 3,
           "y": 10,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 4,
           "y": 10,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 5,
           "y": 10,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 6,
           "y": 10,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 7,
@@ -7264,12 +7264,12 @@
         {
           "x": 8,
           "y": 10,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 9,
           "y": 10,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 10,
@@ -7280,7 +7280,7 @@
         {
           "x": 11,
           "y": 10,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 12,
@@ -7297,47 +7297,47 @@
         {
           "x": 14,
           "y": 10,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 15,
           "y": 10,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 0,
           "y": 11,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
           "y": 11,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 2,
           "y": 11,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 3,
           "y": 11,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 4,
           "y": 11,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 5,
           "y": 11,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 6,
           "y": 11,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 7,
@@ -7354,7 +7354,7 @@
         {
           "x": 9,
           "y": 11,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 10,
@@ -7365,7 +7365,7 @@
         {
           "x": 11,
           "y": 11,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 12,
@@ -7382,47 +7382,47 @@
         {
           "x": 14,
           "y": 11,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 15,
           "y": 11,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 0,
           "y": 12,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
           "y": 12,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 2,
           "y": 12,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 3,
           "y": 12,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 4,
           "y": 12,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 5,
           "y": 12,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 6,
           "y": 12,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 7,
@@ -7433,77 +7433,77 @@
         {
           "x": 8,
           "y": 12,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 9,
           "y": 12,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 10,
           "y": 12,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 11,
           "y": 12,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 12,
           "y": 12,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 13,
           "y": 12,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 14,
           "y": 12,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 15,
           "y": 12,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 0,
           "y": 13,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
           "y": 13,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 2,
           "y": 13,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 3,
           "y": 13,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 4,
           "y": 13,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 5,
           "y": 13,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 6,
           "y": 13,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 7,
@@ -7514,67 +7514,67 @@
         {
           "x": 8,
           "y": 13,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 9,
           "y": 13,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 10,
           "y": 13,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 11,
           "y": 13,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 12,
           "y": 13,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 13,
           "y": 13,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 14,
           "y": 13,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 15,
           "y": 13,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 0,
           "y": 14,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
           "y": 14,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 2,
           "y": 14,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 3,
           "y": 14,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 4,
           "y": 14,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 5,
@@ -7597,67 +7597,67 @@
         {
           "x": 8,
           "y": 14,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 9,
           "y": 14,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 10,
           "y": 14,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 11,
           "y": 14,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 12,
           "y": 14,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 13,
           "y": 14,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 14,
           "y": 14,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 15,
           "y": 14,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 0,
           "y": 15,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 1,
           "y": 15,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 2,
           "y": 15,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 3,
           "y": 15,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 4,
           "y": 15,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 5,
@@ -7674,47 +7674,47 @@
         {
           "x": 7,
           "y": 15,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 8,
           "y": 15,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 9,
           "y": 15,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 10,
           "y": 15,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 11,
           "y": 15,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 12,
           "y": 15,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 13,
           "y": 15,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 14,
           "y": 15,
-          "type": "Wall"
+          "type": "Void"
         },
         {
           "x": 15,
           "y": 15,
-          "type": "Wall"
+          "type": "Void"
         }
       ],
       "walls": [

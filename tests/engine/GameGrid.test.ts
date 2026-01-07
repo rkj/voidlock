@@ -43,7 +43,7 @@ describe("GameGrid", () => {
       { x: 0, y: 0, type: CellType.Floor },
       { x: 1, y: 0, type: CellType.Floor },
       { x: 0, y: 1, type: CellType.Floor },
-      { x: 1, y: 1, type: CellType.Wall },
+      { x: 1, y: 1, type: CellType.Void },
     ];
 
     mockMap = {
@@ -66,7 +66,7 @@ describe("GameGrid", () => {
     expect(grid.canMove(0, 0, 0, 1, new Map())).toBe(false);
   });
 
-  it("should block movement to void/wall cells", () => {
+  it("should block movement to void cells", () => {
     expect(grid.canMove(1, 0, 1, 1, new Map())).toBe(false);
   });
 

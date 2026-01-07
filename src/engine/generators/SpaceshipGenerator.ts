@@ -51,7 +51,7 @@ export class SpaceshipGenerator {
       .map((_, i) => ({
         x: i % this.width,
         y: Math.floor(i / this.width),
-        type: CellType.Wall,
+        type: CellType.Void,
       }));
 
     this.walls.clear();
@@ -116,14 +116,14 @@ export class SpaceshipGenerator {
     for (let i = 0; i < 100; i++) {
       const tx = this.prng.nextInt(1, this.width - 2);
       const ty = this.prng.nextInt(1, this.height - 2);
-      if (this.getCell(tx, ty)?.type === CellType.Wall) {
+      if (this.getCell(tx, ty)?.type === CellType.Void) {
         startX = tx;
         startY = ty;
         break;
       }
     }
 
-    if (this.getCell(startX, startY)?.type === CellType.Wall) {
+    if (this.getCell(startX, startY)?.type === CellType.Void) {
       this.setFloor(startX, startY);
       const cell = this.getCell(startX, startY);
       if (cell) cell.roomId = "corridor-maze";
@@ -145,7 +145,7 @@ export class SpaceshipGenerator {
         const nx = current.x + dir.dx;
         const ny = current.y + dir.dy;
         const neighbor = this.getCell(nx, ny);
-        if (neighbor && neighbor.type === CellType.Wall) {
+        if (neighbor && neighbor.type === CellType.Void) {
           neighbors.push({ x: nx, y: ny, dir: dir.k });
         }
       }
@@ -201,7 +201,7 @@ export class SpaceshipGenerator {
     // 5. Ensure Full Connectivity
     for (let y = 1; y < this.height - 1; y++) {
       for (let x = 1; x < this.width - 1; x++) {
-        if (this.getCell(x, y)?.type === CellType.Wall) {
+        if (this.getCell(x, y)?.type === CellType.Void) {
           const floorNeighbors = dirs
             .map((d) => ({ x: x + d.dx, y: y + d.dy, d: d.k }))
             .filter((n) => this.getCell(n.x, n.y)?.type === CellType.Floor);

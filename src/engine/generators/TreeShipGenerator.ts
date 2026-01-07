@@ -57,7 +57,7 @@ export class TreeShipGenerator {
       .map((_, i) => ({
         x: i % this.width,
         y: Math.floor(i / this.width),
-        type: CellType.Wall,
+        type: CellType.Void,
       }));
 
     this.walls.clear();
@@ -90,7 +90,7 @@ export class TreeShipGenerator {
           nx < this.width &&
           ny >= 0 &&
           ny < this.height &&
-          this.getCell(nx, ny)?.type === CellType.Wall
+          this.getCell(nx, ny)?.type === CellType.Void
         ) {
           this.frontier.push({
             parentX: cell.x,
@@ -243,7 +243,7 @@ export class TreeShipGenerator {
             nx < this.width &&
             ny >= 0 &&
             ny < this.height &&
-            this.getCell(nx, ny)?.type === CellType.Wall
+            this.getCell(nx, ny)?.type === CellType.Void
           ) {
             if (this.prng.next() < 0.5)
               this.frontier.push({

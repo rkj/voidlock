@@ -46,7 +46,7 @@ describe("LineOfSight", () => {
     for (let y = 0; y < 5; y++) {
       for (let x = 0; x < 5; x++) {
         let type = CellType.Floor;
-        if (x === 2 && y === 2) type = CellType.Wall;
+        if (x === 2 && y === 2) type = CellType.Void;
         cells.push({ x, y, type });
       }
     }

@@ -21,7 +21,7 @@ describe("TreeShipGenerator Missing Walls Repro", () => {
       const ny = dir === "s" ? y + 1 : dir === "n" ? y - 1 : y;
       const neighbor = graph.cells[ny]?.[nx];
 
-      if (!neighbor || neighbor.type === CellType.Wall) {
+      if (!neighbor || neighbor.type === CellType.Void) {
         const b = cell.edges[dir];
         expect(
           b?.isWall,

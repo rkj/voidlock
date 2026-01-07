@@ -119,7 +119,7 @@ export class MapGenerator {
       if (reachable.has(key)) {
         cellDef.type = CellType.Floor;
       } else {
-        cellDef.type = CellType.Wall;
+        cellDef.type = CellType.Void;
       }
     }
 
@@ -134,8 +134,8 @@ export class MapGenerator {
       if (
         !c1 ||
         !c2 ||
-        c1.type === CellType.Wall ||
-        c2.type === CellType.Wall
+        c1.type === CellType.Void ||
+        c2.type === CellType.Void
       ) {
         isWall = true;
       }
@@ -631,7 +631,7 @@ export class MapGenerator {
         const ex = x * 2 + 1;
         const ey = y * 2 + 1;
 
-        if (cell.type === CellType.Wall) {
+        if (cell.type === CellType.Void) {
           asciiGrid[ey][ex] = "#";
         } else {
           let cellChar = " ";
@@ -764,7 +764,7 @@ export class MapGenerator {
       .map((_, i) => ({
         x: i % width,
         y: Math.floor(i / width),
-        type: CellType.Wall,
+        type: CellType.Void,
       }));
 
     const openBoundaries = new Set<string>();
@@ -965,7 +965,7 @@ export class MapGenerator {
         cells.push({
           x,
           y,
-          type: char === "#" ? CellType.Wall : CellType.Floor,
+          type: char === "#" ? CellType.Void : CellType.Floor,
         });
         if (char === "S")
           spawnPoints.push({
