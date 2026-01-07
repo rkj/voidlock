@@ -120,7 +120,7 @@ describe("HUDManager: Pause Constraints", () => {
     expect(speedValue?.textContent).toBe("0.0x (Paused)");
   });
 
-  it("should show '0.1x (Active Pause)' when allowTacticalPause is true and paused", () => {
+  it("should show '0.05x (Active Pause)' when allowTacticalPause is true and paused", () => {
     const state = {
       ...mockState,
       settings: {
@@ -133,6 +133,6 @@ describe("HUDManager: Pause Constraints", () => {
     hud.update(state, null);
 
     const speedValue = document.getElementById("speed-value");
-    expect(speedValue?.textContent).toBe("0.1x (Active Pause)");
+    expect(speedValue?.textContent).toBe("0.05x (Active Pause)");
   });
 });

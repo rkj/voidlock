@@ -659,7 +659,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <div><input type="checkbox" id="toggle-debug-overlay"><label for="toggle-debug-overlay" style="display:inline;">Debug Overlay</label></div>
         <div><input type="checkbox" id="toggle-los-overlay"><label for="toggle-los-overlay" style="display:inline;">LOS Visualization</label></div>
         <div><input type="checkbox" id="toggle-agent-control" checked><label for="toggle-agent-control" style="display:inline;">Agent Control</label></div>
-        <div><input type="checkbox" id="toggle-allow-tactical-pause" checked><label for="toggle-allow-tactical-pause" style="display:inline;">Allow Tactical Pause (0.1x)</label></div>
+        <div><input type="checkbox" id="toggle-allow-tactical-pause" checked><label for="toggle-allow-tactical-pause" style="display:inline;">Allow Tactical Pause (0.05x)</label></div>
         <div style="margin-top: 20px;">
             <label for="time-scale-slider" style="display: block; margin-bottom: 10px;">Game Speed (x): <span id="time-scale-value">1.0</span></label>
             <input type="range" id="time-scale-slider" min="0" max="100" step="1" value="50" style="width: 100%; height: 20px; cursor: pointer;">
