@@ -1,4 +1,4 @@
-import { Vector2 } from "../shared/types";
+import { Vector2, BoundaryType } from "../shared/types";
 import { Graph } from "../engine/Graph";
 
 type Segment = { p1: Vector2; p2: Vector2 };
@@ -32,7 +32,7 @@ export class VisibilityPolygon {
 
     // Grid Walls from Graph Boundaries
     for (const boundary of graph.getAllBoundaries()) {
-      if (boundary.isWall) {
+      if (boundary.type !== BoundaryType.Open) {
         segments.push(boundary.getVisualSegment());
       }
     }

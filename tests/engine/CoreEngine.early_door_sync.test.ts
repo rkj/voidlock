@@ -6,6 +6,7 @@ import {
   MissionType,
   AIProfile,
   UnitState,
+  BoundaryType,
 } from "@src/shared/types";
 
 describe("CoreEngine Early Door Sync", () => {
@@ -35,7 +36,7 @@ describe("CoreEngine Early Door Sync", () => {
     objectives: [],
   };
 
-  it("should update Graph boundary isWall IMMEDIATELY when door starts opening", () => {
+  it("should update Graph boundary type IMMEDIATELY when door starts opening", () => {
     const engine = new CoreEngine(
       mockMap,
       123,
@@ -49,7 +50,7 @@ describe("CoreEngine Early Door Sync", () => {
     const boundary = graph.getBoundary(0, 0, 1, 0);
 
     expect(boundary).toBeDefined();
-    expect(boundary?.isWall).toBe(true); // Initially closed
+    expect(boundary?.type).toBe(BoundaryType.Door); // Initially closed
 
     // Trigger door open
     engine.addUnit({
@@ -82,12 +83,12 @@ describe("CoreEngine Early Door Sync", () => {
     expect(door.targetState).toBe("Open");
     expect(door.openTimer).toBe(500);
 
-    // CHECK: Boundary should already be NOT a wall (Early Visibility)
-    expect(boundary?.isWall).toBe(false);
+    // CHECK: Boundary should already be Open (Early Visibility)
+    expect(boundary?.type).toBe(BoundaryType.Open);
 
     // Run update to complete timer
     engine.update(600);
     expect(door.state).toBe("Open");
-    expect(boundary?.isWall).toBe(false);
+    expect(boundary?.type).toBe(BoundaryType.Open);
   });
 });

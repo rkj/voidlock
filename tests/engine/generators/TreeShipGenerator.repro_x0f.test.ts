@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { TreeShipGenerator } from "@src/engine/generators/TreeShipGenerator";
 import { MapGenerator } from "@src/engine/MapGenerator";
-import { CellType } from "@src/shared/types";
+import { CellType, BoundaryType } from "@src/shared/types";
 import { Graph } from "@src/engine/Graph";
 import * as fs from "fs";
 import * as path from "path";
@@ -50,7 +50,10 @@ describe("TreeShipGenerator Repro Seed 1766029929040", () => {
           const b_v2 = graph.getBoundary(x, y + 1, x + 1, y + 1);
 
           const hasInternalWall =
-            b_h1?.isWall || b_h2?.isWall || b_v1?.isWall || b_v2?.isWall;
+            (b_h1 && b_h1.type !== BoundaryType.Open) ||
+            (b_h2 && b_h2.type !== BoundaryType.Open) ||
+            (b_v1 && b_v1.type !== BoundaryType.Open) ||
+            (b_v2 && b_v2.type !== BoundaryType.Open);
 
           if (hasInternalWall) {
             const failedMapPath = path.join(

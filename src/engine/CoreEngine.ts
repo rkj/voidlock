@@ -114,7 +114,7 @@ export class CoreEngine {
               y1: b.y1,
               x2: b.x2,
               y2: b.y2,
-              isWall: b.isWall,
+              type: b.type,
               doorId: b.doorId,
             })),
       },

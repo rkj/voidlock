@@ -1,5 +1,6 @@
 import {
   BoundaryDefinition,
+  BoundaryType,
   CellType,
   CommandType,
   EngagementPolicy,
@@ -627,7 +628,7 @@ export class MenuController {
         );
 
         boundaries.forEach((b: BoundaryDefinition) => {
-          if (!b.isWall) connections++;
+          if (b.type === BoundaryType.Open) connections++;
         });
 
         if (connections >= 3) {

@@ -1,4 +1,4 @@
-import { GameState, Door, UnitState, Vector2 } from "../../shared/types";
+import { GameState, Door, UnitState, Vector2, BoundaryType } from "../../shared/types";
 import { GameGrid } from "../GameGrid";
 
 export class DoorManager {
@@ -64,7 +64,7 @@ export class DoorManager {
           door.state === "Open" ||
           door.state === "Destroyed" ||
           door.targetState === "Open";
-        boundary.isWall = !isPassable;
+        boundary.type = isPassable ? BoundaryType.Open : BoundaryType.Door;
       }
     }
   }

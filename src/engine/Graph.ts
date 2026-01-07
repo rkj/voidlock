@@ -1,9 +1,9 @@
-import { CellType, MapDefinition, Vector2 } from "../shared/types";
+import { BoundaryType, CellType, MapDefinition, Vector2 } from "../shared/types";
 
 export type Direction = "n" | "e" | "s" | "w";
 
 export class Boundary {
-  public isWall: boolean = false;
+  public type: BoundaryType = BoundaryType.Open;
   public doorId?: string;
 
   constructor(
@@ -11,10 +11,10 @@ export class Boundary {
     public readonly y1: number,
     public readonly x2: number,
     public readonly y2: number,
-    isWall: boolean = false,
+    type: BoundaryType = BoundaryType.Open,
     doorId?: string,
   ) {
-    this.isWall = isWall;
+    this.type = type;
     this.doorId = doorId;
   }
 
@@ -93,7 +93,7 @@ export class Graph {
 
           // If neighbor is outside map bounds, it's a boundary to the void (default to wall)
           if (!this.isValid(nx, ny)) {
-            boundary.isWall = true;
+            boundary.type = BoundaryType.Wall;
           }
         }
       }
@@ -108,7 +108,7 @@ export class Graph {
           wall.p2.x,
           wall.p2.y,
         );
-        boundary.isWall = true;
+        boundary.type = BoundaryType.Wall;
       }
     }
 
@@ -120,7 +120,7 @@ export class Graph {
           const c2 = door.segment[1];
           const boundary = this.getOrCreateBoundary(c1.x, c1.y, c2.x, c2.y);
           boundary.doorId = door.id;
-          boundary.isWall = true; // Doors act as walls until opened/destroyed logic is applied in engine
+          boundary.type = BoundaryType.Door; // Doors act as walls until opened/destroyed logic is applied in engine
         }
       }
     }

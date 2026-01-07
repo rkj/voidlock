@@ -7,6 +7,7 @@ import {
   Door,
   Objective,
   OverlayOption,
+  BoundaryType,
 } from "../shared/types";
 import { Icons } from "./Icons";
 import { VisibilityPolygon } from "./VisibilityPolygon";
@@ -103,7 +104,7 @@ export class Renderer {
             door.state === "Open" ||
             door.state === "Destroyed" ||
             door.targetState === "Open";
-          boundary.isWall = !isPassable;
+          boundary.type = isPassable ? BoundaryType.Open : BoundaryType.Door;
         }
       }
     });
@@ -366,7 +367,7 @@ export class Renderer {
 
     this.graph.getAllBoundaries().forEach((boundary) => {
       // Only draw permanent walls here. Doors are handled separately.
-      if (boundary.isWall && !boundary.doorId) {
+      if (boundary.type === BoundaryType.Wall) {
         const seg = boundary.getVisualSegment();
         this.ctx.moveTo(seg.p1.x * this.cellSize, seg.p1.y * this.cellSize);
         this.ctx.lineTo(seg.p2.x * this.cellSize, seg.p2.y * this.cellSize);

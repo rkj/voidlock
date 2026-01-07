@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { MapGenerator } from "@src/engine/MapGenerator";
-import { TileAssembly, TileDefinition, CellType } from "@src/shared/types";
+import { TileAssembly, TileDefinition, CellType, BoundaryType } from "@src/shared/types";
 import { SpaceHulkTiles } from "@src/content/tiles";
 import { Graph } from "@src/engine/Graph";
 
@@ -19,8 +19,8 @@ describe("MapGenerator.assemble", () => {
 
     // 1x1 Corridor has Open North/South, Closed East/West
     const cell = graph.cells[0][0];
-    expect(cell.edges.n?.isWall).toBe(true); // Border is wall
-    expect(cell.edges.s?.isWall).toBe(true); // Border is wall
+    expect(cell.edges.n?.type).toBe(BoundaryType.Wall); // Border is wall
+    expect(cell.edges.s?.type).toBe(BoundaryType.Wall); // Border is wall
     // Wait, SpaceHulkTiles might have different definitions.
     // Let's check what's actually expected.
   });
@@ -41,7 +41,7 @@ describe("MapGenerator.assemble", () => {
 
     const boundary = graph.getBoundary(0, 0, 0, 1);
     // Should be open if tiles connect
-    expect(boundary?.isWall).toBe(false);
+    expect(boundary?.type).toBe(BoundaryType.Open);
   });
 
   it("should assemble a larger room and handle internal walls", () => {
@@ -56,10 +56,10 @@ describe("MapGenerator.assemble", () => {
 
     // Center cell (1,1) should have all internal edges open
     const cell = graph.cells[1][1];
-    expect(cell.edges.n?.isWall).toBe(false);
-    expect(cell.edges.e?.isWall).toBe(false);
-    expect(cell.edges.s?.isWall).toBe(false);
-    expect(cell.edges.w?.isWall).toBe(false);
+    expect(cell.edges.n?.type).toBe(BoundaryType.Open);
+    expect(cell.edges.e?.type).toBe(BoundaryType.Open);
+    expect(cell.edges.s?.type).toBe(BoundaryType.Open);
+    expect(cell.edges.w?.type).toBe(BoundaryType.Open);
   });
 
   it("should normalize coordinates (handle negative placement)", () => {

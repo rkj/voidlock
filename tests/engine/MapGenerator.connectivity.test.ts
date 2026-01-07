@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { MapGenerator } from "@src/engine/MapGenerator";
 import { SpaceshipGenerator } from "@src/engine/generators/SpaceshipGenerator";
 import { TreeShipGenerator } from "@src/engine/generators/TreeShipGenerator";
-import { CellType, MapDefinition } from "@src/shared/types";
+import { CellType, MapDefinition, BoundaryType } from "@src/shared/types";
 import { Graph } from "@src/engine/Graph";
 
 describe("MapGenerator Connectivity Guarantee", () => {
@@ -27,7 +27,7 @@ describe("MapGenerator Connectivity Guarantee", () => {
         const dirs = ["n", "e", "s", "w"] as const;
         for (const d of dirs) {
           const b = cell.edges[d];
-          if (b && !b.isWall) {
+          if (b && b.type === BoundaryType.Open) {
             const nx = d === "e" ? x + 1 : d === "w" ? x - 1 : x;
             const ny = d === "s" ? y + 1 : d === "n" ? y - 1 : y;
 

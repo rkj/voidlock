@@ -1,4 +1,4 @@
-import { MapDefinition, CellType, Vector2 } from "../shared/types";
+import { MapDefinition, CellType, Door, BoundaryType } from "../shared/types";
 import { Graph } from "../engine/Graph";
 import { ThemeManager } from "../renderer/ThemeManager";
 
@@ -55,8 +55,9 @@ export class MapRenderer {
     if (this.graph) {
       svg += `  <g stroke="${wall}" stroke-width="2" stroke-linecap="round">\n`;
       this.graph.getAllBoundaries().forEach((boundary) => {
-        if (boundary.isWall && !boundary.doorId) {
-          const seg = boundary.getVisualSegment();
+      // Only draw permanent walls here. Doors are handled separately.
+      if (boundary.type === BoundaryType.Wall) {
+        const seg = boundary.getVisualSegment();
           svg += `    <line x1="${seg.p1.x * this.cellSize}" y1="${seg.p1.y * this.cellSize}" x2="${seg.p2.x * this.cellSize}" y2="${seg.p2.y * this.cellSize}" />\n`;
         }
       });
@@ -208,7 +209,7 @@ export class MapRenderer {
     this.ctx.beginPath();
 
     this.graph.getAllBoundaries().forEach((boundary) => {
-      if (boundary.isWall && !boundary.doorId) {
+      if (boundary.type === BoundaryType.Wall) {
         const seg = boundary.getVisualSegment();
         this.ctx.moveTo(seg.p1.x * this.cellSize, seg.p1.y * this.cellSize);
         this.ctx.lineTo(seg.p2.x * this.cellSize, seg.p2.y * this.cellSize);

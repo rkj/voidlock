@@ -1,4 +1,4 @@
-import { Vector2, Door, CellType } from "../shared/types";
+import { Vector2, Door, CellType, BoundaryType } from "../shared/types";
 import { Graph } from "./Graph";
 
 export class Pathfinder {
@@ -75,7 +75,7 @@ export class Pathfinder {
         );
         if (!boundary) continue;
 
-        let canTraverse = !boundary.isWall;
+        let canTraverse = boundary.type === BoundaryType.Open;
         if (boundary.doorId) {
           const door = this.doors.get(boundary.doorId);
           if (door) {

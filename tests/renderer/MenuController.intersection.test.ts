@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { MenuController } from "@src/renderer/MenuController";
-import { GameState, UnitState, CellType, MissionType } from "@src/shared/types";
+import { GameState, UnitState, CellType, MissionType, BoundaryType } from "@src/shared/types";
 
 describe("MenuController Intersection Discovery", () => {
   let controller: MenuController;
@@ -20,10 +20,10 @@ describe("MenuController Intersection Discovery", () => {
         { x: 2, y: 1, type: CellType.Floor },
       ],
       boundaries: [
-        { x1: 1, y1: 1, x2: 1, y2: 0, isWall: false },
-        { x1: 1, y1: 1, x2: 1, y2: 2, isWall: false },
-        { x1: 1, y1: 1, x2: 0, y2: 1, isWall: false },
-        { x1: 1, y1: 1, x2: 2, y2: 1, isWall: false },
+        { x1: 1, y1: 1, x2: 1, y2: 0, type: BoundaryType.Open },
+        { x1: 1, y1: 1, x2: 1, y2: 2, type: BoundaryType.Open },
+        { x1: 1, y1: 1, x2: 0, y2: 1, type: BoundaryType.Open },
+        { x1: 1, y1: 1, x2: 2, y2: 1, type: BoundaryType.Open },
       ],
     },
     units: [{ id: "u1", state: UnitState.Idle } as any],
