@@ -2,12 +2,12 @@
 
 ## 3.1 The Grid (Shared Walls / Edge-Based)
 
-The map is a grid of `Cells`, but walls are defined as **Shared Boundaries** (Edges) between cells, not as solid blocks. This "Thin Wall" architecture allows for more realistic spaceship interiors.
+The map is a grid of `Cells`, but walls are defined as **Shared Boundaries** (Edges) between cells, not as solid blocks. This "Thin Wall" architecture allows for more realistic spaceship interiors. Non-floor areas (outer space or solid rock) are represented as **Void** cells, not as solid Wall tiles.
 
 - **Coordinate System:** `x` (Column), `y` (Row). Top-left is `0,0`.
 - **Adjacency:** Orthogonal only (North, South, East, West).
 - **Graph Architecture**:
-  - **Cell**: Represents a floor tile.
+  - **Cell**: Represents a floor tile or a Void (empty) tile.
   - **Boundary**: A shared object between two adjacent cells (e.g., the East edge of (0,0) is the same object as the West edge of (1,0)).
   - **State**: A Boundary can be a `Wall`, a `Door`, or `Open`. Changes to a Boundary (e.g. opening a door) instantly affect both adjacent cells.
 
@@ -59,11 +59,11 @@ The map generation subsystem must utilize a unified configuration model. Instead
   - **Map Generation Strategy Selection**: The `MapGenerator` (or its client) must support selecting different generation strategies (e.g., `procedural-maze`, `static-predefined`, `custom-scripted`).
 
   - **Connectivity Guarantee (No "Open Walls to Nowhere"):**
-    - **Concept:** "Walls" are edges between cells, never full tiles.
+    - **Concept:** "Walls" are edges between cells, never full tiles. Impassable full tiles are referred to as **Void** cells.
     - **Implementation Rule:** The generator must post-process the map using a flood-fill algorithm starting from the spawn point(s).
-      - Any cell reached by flood-fill (passing only through open walls/doors) becomes a valid `Floor` cell.
+      - Any cell reached by flood-fill (passing only through open passages/doors) becomes a valid `Floor` cell.
       - Any cell _not_ reached by this flood-fill must be converted to `Void` (Outer Space).
-    - **Goal:** This prevents the rendering artifact where a Floor cell has an open edge (no wall) leading into a Void cell, effectively creating an "open wall to nowhere".
+    - **Goal:** This prevents the rendering artifact where a Floor cell has an open edge leading into a Void cell, effectively creating an "open passage to nowhere".
 
 ### 8.5 Entity Placement Constraints (Strict)
 
@@ -193,7 +193,7 @@ The `toAscii` representation should be:
 - **Purpose**: Develop a separate, standalone web application dedicated to loading and displaying `MapDefinition` JSON.
 - **Features**:
   - Load `MapDefinition` JSON (via paste or file upload).
-  - Render the map accurately, including cells, walls, doors (with their states), spawn points, extraction, and objectives.
+  - Render the map accurately, including Floor/Void cells, walls, doors (with their states), spawn points, extraction, and objectives.
   - Ability to download the rendered map as a PNG or SVG file.
   - (Optional but desired) Interactive elements for zooming, panning, and toggling debug overlays (e.g., cell coordinates).
 - **Utility**: This app will be crucial for debugging map definitions, creating test scenarios, and generating visual test assets.

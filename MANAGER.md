@@ -6,7 +6,7 @@
 1. **SEPARATE COMMANDS**: Always execute commands as separate tool calls. Do NOT chain them with `&&`, `||`, or `;`.
 1. **DO NOT READ SOURCE CODE**: You are FORBIDDEN from reading `.ts`, `.html`, or `.css` files before the Verification phase. You do not need to understand the implementation details to assign the task.
 1. **DO NOT RESEARCH**: Do not "investigate" or "plan". The Sub-Agent will do that. Your only context comes from `bd ready` and `@spec/`.
-1. **DELEGATE IMMEDIATELY**: As soon as you pick a task ID, run the `gemini` dispatch command. Do not hesitate.
+1. **DELEGATE IMMEDIATELY**: As soon as you pick a task ID, run the `dispatch_agent.sh` command. Do not hesitate.
 1. **EFFICIENT QUERYING**: NEVER run `bd list` without a `--status` filter (e.g., `bd list --status in_progress`). Unfiltered lists are too large and wasteful.
 1. **ADR ENFORCEMENT**: Implementation details (class names, method signatures, patterns) belong in **ADRs** (`docs/adr/`), NOT in `spec/` or Beads descriptions. If a complex task lacks an ADR, create a dependency task to write one first.
 
@@ -22,7 +22,7 @@ At the start of every session, run:
 - If `in_progress` exists: **RESUME** management (Skip to Section 3: Verification).
 - If `ready` exists: **SELECT** the highest priority task.
   1. **CLAIM**: Run `bd update <TASK_ID> --status in_progress`.
-  1. **DISPATCH**: Run the `gemini` command (Section 2).
+  1. **DISPATCH**: Run the `dispatch_agent.sh` command (Section 2).
 - **Dependency Management**: If a task is selected but you realize it has prerequisites, **DO NOT DISPATCH**. Use `bd dep add <TASK_ID> <PREREQ_ID>` and then run `bd ready` again.
 
 ## 2. Task Delegation (The Dispatch)
@@ -40,7 +40,7 @@ Use the helper script to dispatch the agent. You may optionally provide a contex
 
 **Context File Rules:**
 1. **Location:** Must be in `docs/tasks/`.
-2. **Naming:** Use the task ID or a descriptive name (e.g., `docs/tasks/xenopurge-gemini-123_context.md`).
+2. **Naming:** Use the task ID or a descriptive name (e.g., `docs/tasks/voidlock-123_context.md`).
 3. **Persistence:** Do **NOT** delete these files. They serve as permanent work artifacts.
 
 ```bash
