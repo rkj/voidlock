@@ -113,15 +113,15 @@ export class MapGenerator {
       }
     }
 
-    // 2. Mark unreachable as Void and Reset Walls
-    for (const cellDef of map.cells) {
+    // 2. Filter unreachable and Omit Void cells
+    map.cells = map.cells.filter((cellDef) => {
       const key = `${cellDef.x},${cellDef.y}`;
       if (reachable.has(key)) {
         cellDef.type = CellType.Floor;
-      } else {
-        cellDef.type = CellType.Void;
+        return true;
       }
-    }
+      return false;
+    });
 
     // 3. Re-build map.walls from Graph (ensuring unreachable cells are walled off)
     const newWalls: WallDefinition[] = [];
@@ -151,10 +151,8 @@ export class MapGenerator {
       map.doors = map.doors.filter((door) => {
         if (door.segment.length !== 2) return false;
         const [s1, s2] = door.segment;
-        const c1 = map.cells[s1.y * width + s1.x];
-        const c2 = map.cells[s2.y * width + s2.x];
         return (
-          c1 && c1.type === CellType.Floor && c2 && c2.type === CellType.Floor
+          reachable.has(`${s1.x},${s1.y}`) && reachable.has(`${s2.x},${s2.y}`)
         );
       });
     }
@@ -184,12 +182,6 @@ export class MapGenerator {
       if (!isWithinBounds(cell.x, cell.y)) {
         issues.push(`Cell at (${cell.x}, ${cell.y}) is out of map bounds.`);
       }
-    }
-
-    if (cells.length !== width * height) {
-      issues.push(
-        `Number of cells (${cells.length}) does not match map dimensions (${width}x${height} = ${width * height}).`,
-      );
     }
 
     if (doors) {
@@ -910,7 +902,7 @@ export class MapGenerator {
     return {
       width,
       height,
-      cells,
+      cells: cells.filter((c) => c.type === CellType.Floor),
       walls,
       doors,
       spawnPoints:
@@ -1027,7 +1019,7 @@ export class MapGenerator {
     const map: MapDefinition = {
       width,
       height,
-      cells,
+      cells: cells.filter((c) => c.type === CellType.Floor),
       walls,
       doors,
       spawnPoints,

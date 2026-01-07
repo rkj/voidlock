@@ -9,9 +9,9 @@ This directory contains the core simulation logic for Voidlock. It follows a det
 - `Director.ts`: Manages enemy spawning based on threat levels and timers. Also handles global commander abilities (Medkits, Stimpacks, Grenades, Scanners).
 - `GameClient.ts`: Provides an interface for the renderer (main thread) to communicate with the engine (worker). Exposes typed methods for debug actions (overlays, state queries) and handles time scaling, including Active Pause (0.05x). Now implements mission auto-save for crash recovery.
 - `GameGrid.ts`: Manages the logical grid, including walkability and movement validation between cells (respecting walls and doors).
-- `Graph.ts`: Represents the map as a graph of cells and boundaries (walls/doors).
+- `Graph.ts`: Represents the map as a graph of cells and boundaries (walls/doors). Now supports sparse initialization from `MapDefinition`, implicitly treating missing cells as `Void`.
 - `LineOfSight.ts`: Handles LOS and LOF (Line of Fire) calculations between units and cells. LOS allows seeing through opening doors, while LOF strictly requires doors to be fully open.
-- `MapGenerator.ts`: Orchestrates map generation using various strategies.
+- `MapGenerator.ts`: Orchestrates map generation using various strategies. Optimized JSON output by omitting `Void` cells from the `cells` array in 'sanitize', 'assemble', and 'fromAscii' methods.
 - `Pathfinder.ts`: Implements A\* pathfinding on the `Graph`, respecting door states.
 - `worker.ts`: The Web Worker entry point that runs the `CoreEngine` loop.
 

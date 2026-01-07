@@ -74,27 +74,27 @@ export class Graph {
     }
 
     // 3. Hydrate boundaries from cells (initialize all edges)
-    for (const cellDef of map.cells) {
-      if (!this.isValid(cellDef.x, cellDef.y)) continue;
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const neighbors: { dir: Direction; dx: number; dy: number }[] = [
+          { dir: "n", dx: 0, dy: -1 },
+          { dir: "e", dx: 1, dy: 0 },
+          { dir: "s", dx: 0, dy: 1 },
+          { dir: "w", dx: -1, dy: 0 },
+        ];
 
-      const neighbors: { dir: Direction; dx: number; dy: number }[] = [
-        { dir: "n", dx: 0, dy: -1 },
-        { dir: "e", dx: 1, dy: 0 },
-        { dir: "s", dx: 0, dy: 1 },
-        { dir: "w", dx: -1, dy: 0 },
-      ];
+        for (const { dir, dx, dy } of neighbors) {
+          const nx = x + dx;
+          const ny = y + dy;
 
-      for (const { dir, dx, dy } of neighbors) {
-        const nx = cellDef.x + dx;
-        const ny = cellDef.y + dy;
+          // Ensure boundary object exists for this edge
+          const boundary = this.getOrCreateBoundary(x, y, nx, ny);
+          this.cells[y][x].edges[dir] = boundary;
 
-        // Ensure boundary object exists for this edge
-        const boundary = this.getOrCreateBoundary(cellDef.x, cellDef.y, nx, ny);
-        this.cells[cellDef.y][cellDef.x].edges[dir] = boundary;
-
-        // If neighbor is outside map bounds, it's a boundary to the void (default to wall)
-        if (!this.isValid(nx, ny)) {
-          boundary.isWall = true;
+          // If neighbor is outside map bounds, it's a boundary to the void (default to wall)
+          if (!this.isValid(nx, ny)) {
+            boundary.isWall = true;
+          }
         }
       }
     }

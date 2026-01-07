@@ -41,10 +41,12 @@ describe("MapGenerator Quadrant Distribution", () => {
           expect(ssQuad).not.toBe(exQuad);
 
           // Verify they are on Floor cells
-          const ssCell = map.cells[ss.y * width + ss.x];
-          const exCell = map.cells[ex.y * width + ex.x];
-          expect(ssCell.type).toBe(CellType.Floor);
-          expect(exCell.type).toBe(CellType.Floor);
+          const ssCell = map.cells.find((c) => c.x === ss.x && c.y === ss.y);
+          const exCell = map.cells.find((c) => c.x === ex.x && c.y === ex.y);
+          expect(ssCell).toBeDefined();
+          expect(ssCell?.type).toBe(CellType.Floor);
+          expect(exCell).toBeDefined();
+          expect(exCell?.type).toBe(CellType.Floor);
         });
       });
     });

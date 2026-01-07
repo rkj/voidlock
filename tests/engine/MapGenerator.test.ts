@@ -76,17 +76,6 @@ describe("MapGenerator.validate", () => {
     );
   });
 
-  it("should invalidate map with incorrect number of cells", () => {
-    const generator = new MapGenerator(1);
-    const map = createBaseMap();
-    map.cells.pop(); // Remove one cell
-    const result = generator.validate(map);
-    expect(result.isValid).toBe(false);
-    expect(result.issues).toContain(
-      "Number of cells (3) does not match map dimensions (2x2 = 4).",
-    );
-  });
-
   it("should invalidate map with cells out of bounds", () => {
     const generator = new MapGenerator(1);
     const map = createBaseMap();

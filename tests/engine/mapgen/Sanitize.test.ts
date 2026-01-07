@@ -18,8 +18,11 @@ describe("MapGenerator.sanitize", () => {
 
     MapGenerator.sanitize(map);
 
+    // After fix, map.cells should only contain (0,0) because (1,0) became Void and was omitted
+    expect(map.cells.length).toBe(1);
+    expect(map.cells[0].x).toBe(0);
+    expect(map.cells[0].y).toBe(0);
     expect(map.cells[0].type).toBe(CellType.Floor);
-    expect(map.cells[1].type).toBe(CellType.Void);
   });
 
   it("should keep reachable Floor cells as Floor", () => {
