@@ -461,7 +461,10 @@ const abortMission = () => {
 };
 
 // --- Initialization ---
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  // Load asset manifest
+  await ThemeManager.getInstance().init();
+
   inputManager.init();
 
   // Navigation

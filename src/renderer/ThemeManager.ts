@@ -3,6 +3,7 @@ import { ThemeConfig } from "../shared/types";
 export class ThemeManager {
   private static instance: ThemeManager;
   private colorCache: Map<string, string> = new Map();
+  private assets: Record<string, string> = {};
 
   private constructor() {
     // Listen for theme changes if needed in the future
@@ -13,6 +14,29 @@ export class ThemeManager {
       ThemeManager.instance = new ThemeManager();
     }
     return ThemeManager.instance;
+  }
+
+  /**
+   * Loads the asset manifest from /assets/assets.json
+   */
+  public async init(): Promise<void> {
+    try {
+      const response = await fetch("/assets/assets.json");
+      if (!response.ok) {
+        throw new Error(`Failed to fetch assets.json: ${response.statusText}`);
+      }
+      this.assets = await response.json();
+    } catch (error) {
+      console.error("ThemeManager: Failed to load assets.json", error);
+    }
+  }
+
+  /**
+   * Returns the absolute URL for a logical asset name.
+   */
+  public getAssetUrl(logicalName: string): string | null {
+    const path = this.assets[logicalName];
+    return path ? `/${path}` : null;
   }
 
   /**
