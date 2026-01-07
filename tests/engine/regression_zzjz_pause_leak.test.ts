@@ -4,6 +4,7 @@ import {
   MapDefinition,
   MapGeneratorType,
   SquadConfig,
+  MapGenerationConfig,
 } from "@src/shared/types";
 import { MapGenerator } from "@src/engine/MapGenerator";
 
@@ -17,27 +18,14 @@ class MockWorker {
 vi.stubGlobal("Worker", MockWorker);
 
 // Mock MapGeneratorFactory
-const mockMapGeneratorFactory = (
-  seed: number,
-  type: MapGeneratorType,
-  width: number,
-  height: number,
-  spawnPointCount?: number,
-  mapData?: MapDefinition,
-) => {
-  const generator = new MapGenerator({
-    seed,
-    width,
-    height,
-    type,
-    spawnPointCount,
-  });
+const mockMapGeneratorFactory = (config: MapGenerationConfig) => {
+  const generator = new MapGenerator(config);
   generator.generate = vi
     .fn()
-    .mockReturnValue(mapData || { width: 10, height: 10, cells: [] });
+    .mockReturnValue({ width: 10, height: 10, cells: [] });
   generator.load = vi
     .fn()
-    .mockReturnValue(mapData || { width: 10, height: 10, cells: [] });
+    .mockImplementation((data) => data || { width: 10, height: 10, cells: [] });
   return generator;
 };
 

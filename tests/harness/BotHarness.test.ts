@@ -19,12 +19,7 @@ import { MapGenerator } from "@src/engine/MapGenerator";
 
 describe("BotHarness", () => {
   it("should register listener and send commands", () => {
-    const client = new GameClient(() => new MapGenerator({
-      seed: 123,
-      width: 10,
-      height: 10,
-      type: MapGeneratorType.Procedural,
-    }));
+    const client = new GameClient((config) => new MapGenerator(config));
     const bot: Bot = {
       act: vi.fn().mockReturnValue({
         type: CommandType.MOVE_TO,

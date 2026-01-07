@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { GameClient } from "@src/engine/GameClient";
-import { MapDefinition, MapGeneratorType, SquadConfig } from "@src/shared/types";
+import { MapDefinition, MapGeneratorType, SquadConfig, MapGenerationConfig } from "@src/shared/types";
 import { MapGenerator } from "@src/engine/MapGenerator";
 
 // Mock Worker
@@ -16,23 +16,10 @@ class MockWorker {
 vi.stubGlobal("Worker", MockWorker);
 
 // Mock MapGeneratorFactory
-const mockMapGeneratorFactory = (
-  seed: number,
-  type: MapGeneratorType,
-  width: number,
-  height: number,
-  spawnPointCount?: number,
-  mapData?: MapDefinition,
-) => {
-  const generator = new MapGenerator({
-    seed,
-    width,
-    height,
-    type,
-    spawnPointCount,
-  });
-  generator.generate = vi.fn().mockReturnValue(mapData || { width: 10, height: 10, cells: [] });
-  generator.load = vi.fn().mockReturnValue(mapData || { width: 10, height: 10, cells: [] });
+const mockMapGeneratorFactory = (config: MapGenerationConfig) => {
+  const generator = new MapGenerator(config);
+  generator.generate = vi.fn().mockReturnValue({ width: 10, height: 10, cells: [] });
+  generator.load = vi.fn().mockImplementation((data) => data || { width: 10, height: 10, cells: [] });
   return generator;
 };
 
