@@ -125,7 +125,7 @@ describe("Regression awkp: Item Targeting Logic", () => {
     expect(roomOption).toBeUndefined();
   });
 
-  it("Medkit: selecting a unit target should set pendingTargetId and move to UNIT_SELECT", () => {
+  it("Medkit: selecting a unit target should execute immediately and reset", () => {
     controller.handleMenuInput("3", mockState); // USE ITEM
     const items = Object.entries(mockState.squadInventory).filter(
       ([_, count]) => count > 0,
@@ -140,7 +140,12 @@ describe("Regression awkp: Item Targeting Logic", () => {
 
     controller.handleMenuInput(unit1Option.key, mockState);
 
-    expect(controller.menuState).toBe("UNIT_SELECT");
-    expect(controller.pendingTargetId).toBe("u1");
+    // After fix, it should NOT move to UNIT_SELECT but execute and reset
+    expect(mockClient.sendCommand).toHaveBeenCalledWith(expect.objectContaining({
+      type: CommandType.USE_ITEM,
+      itemId: "medkit",
+      targetUnitId: "u1"
+    }));
+    expect(controller.menuState).toBe("ACTION_SELECT");
   });
 });
