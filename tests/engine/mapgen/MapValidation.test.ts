@@ -55,4 +55,59 @@ describe("MapGenerator.validate", () => {
       "Floor cell at (1, 0) is not reachable from any spawn point.",
     );
   });
+
+  it("should invalidate map with an open boundary between Floor and Void", () => {
+    const map = createBaseMap();
+    map.cells[1].type = CellType.Void;
+    // Boundary between (0,0) and (1,0) is open by default (walls: [])
+    const result = generator.validate(map);
+    expect(result.isValid).toBe(false);
+    expect(result.issues).toContain(
+      "Open boundary at (0,0)--(1,0) must be between two Floor cells.",
+    );
+  });
+
+  it("should invalidate map if Enemy Spawn is on a Void cell", () => {
+    const map = createBaseMap();
+    map.cells[0].type = CellType.Void;
+    // (0,0) has spawnPoint sp1
+    const result = generator.validate(map);
+    expect(result.isValid).toBe(false);
+    expect(result.issues).toContain(
+      "Spawn point sp1 at (0, 0) is not on a Floor cell.",
+    );
+  });
+
+  it("should invalidate map if Squad Spawn is on a Void cell", () => {
+    const map = createBaseMap();
+    map.squadSpawn = { x: 1, y: 0 };
+    map.cells[1].type = CellType.Void;
+    const result = generator.validate(map);
+    expect(result.isValid).toBe(false);
+    expect(result.issues).toContain(
+      "Squad spawn point at (1, 0) is not on a Floor cell.",
+    );
+  });
+
+  it("should invalidate map if Extraction is on a Void cell", () => {
+    const map = createBaseMap();
+    map.cells[2].type = CellType.Void;
+    // (2,0) is extraction
+    const result = generator.validate(map);
+    expect(result.isValid).toBe(false);
+    expect(result.issues).toContain(
+      "Extraction point at (2, 0) is not on a Floor cell.",
+    );
+  });
+
+  it("should invalidate map if Objective is on a Void cell", () => {
+    const map = createBaseMap();
+    map.cells[1].type = CellType.Void;
+    // (1,0) is objective obj1
+    const result = generator.validate(map);
+    expect(result.isValid).toBe(false);
+    expect(result.issues).toContain(
+      "Objective obj1 at (1, 0) is not on a Floor cell.",
+    );
+  });
 });
