@@ -74,6 +74,7 @@ export class MenuController {
         this.pendingAction === CommandType.USE_ITEM)
     ) {
       this.pendingTargetLocation = cell;
+      this.overlayOptions = [];
 
       // If clicking on a unit, set pendingTargetId
       const unitAtCell = gameState.units.find(
@@ -205,6 +206,7 @@ export class MenuController {
       if (option && option.pos) {
         this.pendingTargetLocation = option.pos;
         this.pendingTargetId = option.id || null;
+        this.overlayOptions = [];
 
         const item = this.pendingItemId ? ItemLibrary[this.pendingItemId] : null;
         if (this.pendingUnitIds && this.pendingUnitIds.length > 0) {
@@ -287,6 +289,9 @@ export class MenuController {
       this.menuState === "MODE_SELECT" ||
       this.menuState === "TARGET_SELECT"
     ) {
+      if (this.menuState === "TARGET_SELECT") {
+        this.overlayOptions = [];
+      }
       const item = this.pendingItemId ? ItemLibrary[this.pendingItemId] : null;
       if (
         this.menuState === "TARGET_SELECT" &&
