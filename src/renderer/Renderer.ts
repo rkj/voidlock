@@ -9,8 +9,6 @@ import {
   OverlayOption,
 } from "../shared/types";
 import { Icons } from "./Icons";
-import { LineOfSight } from "../engine/LineOfSight";
-import { GameGrid } from "../engine/GameGrid";
 import { VisibilityPolygon } from "./VisibilityPolygon";
 import { Graph } from "../engine/Graph";
 import { ThemeManager } from "./ThemeManager";
@@ -20,10 +18,28 @@ export class Renderer {
   private canvas: HTMLCanvasElement;
   private cellSize: number = 128; // Increased tile size for M8
   private iconImages: Record<string, HTMLImageElement> = {};
+  private unitSprites: Record<string, HTMLImageElement> = {};
+  private enemySprites: Record<string, HTMLImageElement> = {};
   private overlayOptions: OverlayOption[] = [];
   private graph: Graph | null = null;
   private currentMapId: string | null = null;
   private theme = ThemeManager.getInstance();
+
+  private readonly UNIT_SPRITE_MAP: Record<string, string> = {
+    assault: "soldier_demolition",
+    heavy: "soldier_heavy",
+    medic: "soldier_medic",
+    scout: "soldier_scout",
+    vip: "soldier_scout",
+  };
+
+  private readonly ENEMY_SPRITE_MAP: Record<string, string> = {
+    "Xeno-Mite": "xeno_swarmer_1",
+    "Warrior-Drone": "xeno_drone_2",
+    "Praetorian-Guard": "xeno_guard_3",
+    "Spitter-Acid": "xeno_spitter",
+    Hive: "void",
+  };
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -34,6 +50,32 @@ export class Renderer {
       const img = new Image();
       img.src = src;
       this.iconImages[key] = img;
+    });
+
+    this.loadSprites();
+  }
+
+  private loadSprites() {
+    // Load Unit Sprites
+    Object.values(this.UNIT_SPRITE_MAP).forEach((logicalName) => {
+      if (this.unitSprites[logicalName]) return;
+      const url = this.theme.getAssetUrl(logicalName);
+      if (url) {
+        const img = new Image();
+        img.src = url;
+        this.unitSprites[logicalName] = img;
+      }
+    });
+
+    // Load Enemy Sprites
+    Object.values(this.ENEMY_SPRITE_MAP).forEach((logicalName) => {
+      if (this.enemySprites[logicalName]) return;
+      const url = this.theme.getAssetUrl(logicalName);
+      if (url) {
+        const img = new Image();
+        img.src = url;
+        this.enemySprites[logicalName] = img;
+      }
     });
   }
 
@@ -560,11 +602,6 @@ export class Renderer {
   }
 
   private renderUnits(state: GameState) {
-    const allEntities = [
-      ...state.units,
-      ...state.enemies.filter((e) => e.hp > 0),
-    ]; // For collision consideration
-
     state.units.forEach((unit, index) => {
       if (unit.state === UnitState.Extracted || unit.state === UnitState.Dead)
         return;
@@ -572,25 +609,40 @@ export class Renderer {
       const x = unit.pos.x * this.cellSize;
       const y = unit.pos.y * this.cellSize;
 
-      this.ctx.beginPath();
-      // Unit size: 1/6 radius = 1/3 diameter relative to cell.
-      // 128 / 6 ~= 21px radius -> 42px diameter.
-      this.ctx.arc(x, y, this.cellSize / 6, 0, Math.PI * 2);
+      const logicalName = this.UNIT_SPRITE_MAP[unit.archetypeId];
+      const sprite = logicalName ? this.unitSprites[logicalName] : null;
 
-      if (unit.state === UnitState.Channeling) {
-        this.ctx.fillStyle = this.theme.getColor("--color-info");
-      } else if (unit.state === UnitState.Attacking) {
-        this.ctx.fillStyle = this.theme.getColor("--color-danger");
-      } else if (unit.state === UnitState.Moving) {
-        this.ctx.fillStyle = this.theme.getColor("--color-door-closed");
+      if (sprite && sprite.complete && sprite.naturalWidth > 0) {
+        const spriteSize = this.cellSize * 0.8;
+        this.ctx.drawImage(
+          sprite,
+          x - spriteSize / 2,
+          y - spriteSize / 2,
+          spriteSize,
+          spriteSize,
+        );
       } else {
-        this.ctx.fillStyle = this.theme.getColor("--color-primary");
-      }
+        // Fallback to geometric shape
+        this.ctx.beginPath();
+        // Unit size: 1/6 radius = 1/3 diameter relative to cell.
+        // 128 / 6 ~= 21px radius -> 42px diameter.
+        this.ctx.arc(x, y, this.cellSize / 6, 0, Math.PI * 2);
 
-      this.ctx.fill();
-      this.ctx.strokeStyle = this.theme.getColor("--color-black"); // Contrast
-      this.ctx.lineWidth = 3;
-      this.ctx.stroke();
+        if (unit.state === UnitState.Channeling) {
+          this.ctx.fillStyle = this.theme.getColor("--color-info");
+        } else if (unit.state === UnitState.Attacking) {
+          this.ctx.fillStyle = this.theme.getColor("--color-danger");
+        } else if (unit.state === UnitState.Moving) {
+          this.ctx.fillStyle = this.theme.getColor("--color-door-closed");
+        } else {
+          this.ctx.fillStyle = this.theme.getColor("--color-primary");
+        }
+
+        this.ctx.fill();
+        this.ctx.strokeStyle = this.theme.getColor("--color-black"); // Contrast
+        this.ctx.lineWidth = 3;
+        this.ctx.stroke();
+      }
 
       // Render Burdened Indicator
       if (unit.carriedObjectiveId) {
@@ -691,78 +743,98 @@ export class Renderer {
       const y = enemy.pos.y * this.cellSize;
       const size = this.cellSize / 6;
 
-      this.ctx.beginPath();
-      if (enemy.type === "Hive") {
-        // Hive: Special Icon
-        const icon = this.iconImages.Hive;
-        if (icon) {
-          const hiveSize = this.cellSize * 0.8;
-          this.ctx.drawImage(
-            icon,
-            x - hiveSize / 2,
-            y - hiveSize / 2,
-            hiveSize,
-            hiveSize,
-          );
-        } else {
-          // Fallback
-          this.ctx.fillStyle = this.theme.getColor("--color-hive");
-          const hiveSize = this.cellSize * 0.6;
-          this.ctx.rect(x - hiveSize / 2, y - hiveSize / 2, hiveSize, hiveSize);
-          this.ctx.fill();
-        }
+      const logicalName = this.ENEMY_SPRITE_MAP[enemy.type];
+      const sprite = logicalName ? this.enemySprites[logicalName] : null;
+
+      if (sprite && sprite.complete && sprite.naturalWidth > 0) {
+        const spriteSize = this.cellSize * 0.8;
+        this.ctx.drawImage(
+          sprite,
+          x - spriteSize / 2,
+          y - spriteSize / 2,
+          spriteSize,
+          spriteSize,
+        );
       } else {
-        // Regular Enemy Shapes based on Type
-        if (enemy.type === "Xeno-Mite") {
-          // Triangle
-          this.ctx.moveTo(x, y - size);
-          this.ctx.lineTo(x + size, y + size);
-          this.ctx.lineTo(x - size, y + size);
-        } else if (enemy.type === "Warrior-Drone") {
-          // Diamond
-          this.ctx.moveTo(x, y - size * 1.2);
-          this.ctx.lineTo(x + size * 1.2, y);
-          this.ctx.lineTo(x, y + size * 1.2);
-          this.ctx.lineTo(x - size * 1.2, y);
-        } else if (enemy.type === "Spitter-Acid") {
-          // Octagon
-          for (let i = 0; i < 8; i++) {
-            const angle = (i * Math.PI) / 4;
-            const px = x + Math.cos(angle) * size * 1.1;
-            const py = y + Math.sin(angle) * size * 1.1;
-            if (i === 0) this.ctx.moveTo(px, py);
-            else this.ctx.lineTo(px, py);
-          }
-        } else if (enemy.type === "Praetorian-Guard") {
-          // Hexagon (Large)
-          for (let i = 0; i < 6; i++) {
-            const angle = (i * Math.PI) / 3;
-            const px = x + Math.cos(angle) * size * 1.5;
-            const py = y + Math.sin(angle) * size * 1.5;
-            if (i === 0) this.ctx.moveTo(px, py);
-            else this.ctx.lineTo(px, py);
+        // Fallback to geometric shapes
+        this.ctx.beginPath();
+        if (enemy.type === "Hive") {
+          // Hive: Special Icon
+          const icon = this.iconImages.Hive;
+          if (icon) {
+            const hiveSize = this.cellSize * 0.8;
+            this.ctx.drawImage(
+              icon,
+              x - hiveSize / 2,
+              y - hiveSize / 2,
+              hiveSize,
+              hiveSize,
+            );
+          } else {
+            // Fallback
+            this.ctx.fillStyle = this.theme.getColor("--color-hive");
+            const hiveSize = this.cellSize * 0.6;
+            this.ctx.rect(
+              x - hiveSize / 2,
+              y - hiveSize / 2,
+              hiveSize,
+              hiveSize,
+            );
+            this.ctx.fill();
           }
         } else {
-          // Default: Triangle
-          this.ctx.moveTo(x, y - size);
-          this.ctx.lineTo(x + size, y + size);
-          this.ctx.lineTo(x - size, y + size);
-        }
-        this.ctx.closePath();
+          // Regular Enemy Shapes based on Type
+          if (enemy.type === "Xeno-Mite") {
+            // Triangle
+            this.ctx.moveTo(x, y - size);
+            this.ctx.lineTo(x + size, y + size);
+            this.ctx.lineTo(x - size, y + size);
+          } else if (enemy.type === "Warrior-Drone") {
+            // Diamond
+            this.ctx.moveTo(x, y - size * 1.2);
+            this.ctx.lineTo(x + size * 1.2, y);
+            this.ctx.lineTo(x, y + size * 1.2);
+            this.ctx.lineTo(x - size * 1.2, y);
+          } else if (enemy.type === "Spitter-Acid") {
+            // Octagon
+            for (let i = 0; i < 8; i++) {
+              const angle = (i * Math.PI) / 4;
+              const px = x + Math.cos(angle) * size * 1.1;
+              const py = y + Math.sin(angle) * size * 1.1;
+              if (i === 0) this.ctx.moveTo(px, py);
+              else this.ctx.lineTo(px, py);
+            }
+          } else if (enemy.type === "Praetorian-Guard") {
+            // Hexagon (Large)
+            for (let i = 0; i < 6; i++) {
+              const angle = (i * Math.PI) / 3;
+              const px = x + Math.cos(angle) * size * 1.5;
+              const py = y + Math.sin(angle) * size * 1.5;
+              if (i === 0) this.ctx.moveTo(px, py);
+              else this.ctx.lineTo(px, py);
+            }
+          } else {
+            // Default: Triangle
+            this.ctx.moveTo(x, y - size);
+            this.ctx.lineTo(x + size, y + size);
+            this.ctx.lineTo(x - size, y + size);
+          }
+          this.ctx.closePath();
 
-        this.ctx.fillStyle = this.theme.getColor("--color-danger");
-        this.ctx.fill();
-        this.ctx.strokeStyle = this.theme.getColor("--color-black"); // Contrast
-        this.ctx.lineWidth = 3;
-        this.ctx.stroke();
+          this.ctx.fillStyle = this.theme.getColor("--color-danger");
+          this.ctx.fill();
+          this.ctx.strokeStyle = this.theme.getColor("--color-black"); // Contrast
+          this.ctx.lineWidth = 3;
+          this.ctx.stroke();
 
-        // Render Difficulty Number
-        if (enemy.difficulty) {
-          this.ctx.fillStyle = this.theme.getColor("--color-text");
-          this.ctx.font = `bold ${Math.floor(this.cellSize / 10)}px monospace`;
-          this.ctx.textAlign = "center";
-          this.ctx.textBaseline = "middle";
-          this.ctx.fillText(enemy.difficulty.toString(), x, y);
+          // Render Difficulty Number
+          if (enemy.difficulty) {
+            this.ctx.fillStyle = this.theme.getColor("--color-text");
+            this.ctx.font = `bold ${Math.floor(this.cellSize / 10)}px monospace`;
+            this.ctx.textAlign = "center";
+            this.ctx.textBaseline = "middle";
+            this.ctx.fillText(enemy.difficulty.toString(), x, y);
+          }
         }
       }
 
