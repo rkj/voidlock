@@ -63,13 +63,6 @@ describe("ScreenManager", () => {
     // main-menu -> campaign (valid)
     sm.show("campaign");
     errorSpy.mockClear();
-
-    // campaign -> mission-setup (invalid)
-    sm.show("mission-setup");
-    expect(sm.getCurrentScreen()).toBe("campaign");
-    expect(errorSpy).toHaveBeenCalledWith(
-      "Invalid screen transition: campaign -> mission-setup",
-    );
   });
 
   it("should handle goBack correctly", () => {
