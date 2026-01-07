@@ -20,6 +20,7 @@ This directory contains UI components and managers for the Voidlock renderer.
   - **Unified Objectives**: Includes unified objective and extraction status rendering via `renderObjectivesList`.
   - **Speed Slider Constraints**: Automatically adjusts the speed slider's range based on `allowTacticalPause`. If disabled, prevents speeds below 1.0x (except for absolute pause).
 - **Debug Info**: When the debug overlay is enabled, the 'Debug Tools' section now displays Map Seed, Map Size (WxH), and Mission Type.
+  - **Force Win/Lose**: Added "Force Win" and "Force Lose" buttons to the debug tools to trigger immediate mission completion or failure for testing end-of-mission flows.
 - **Objective HUD Cleanup**: Objectives list now hides coordinates by default (shown only in debug mode), removes explicit status text (Pending/Completed), and adds tooltips to status icons for better clarity.
 - **Enemy Intel**: New section in the right panel that displays icon-based stats for all currently visible enemies, grouped by type.
 - **Command Menu Rendering**: Generates clickable HTML for the tactical menu.

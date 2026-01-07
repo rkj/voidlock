@@ -744,6 +744,8 @@ export enum CommandType {
   EXTRACT = "EXTRACT",
   TOGGLE_DEBUG_OVERLAY = "TOGGLE_DEBUG_OVERLAY",
   TOGGLE_LOS_OVERLAY = "TOGGLE_LOS_OVERLAY",
+  DEBUG_FORCE_WIN = "DEBUG_FORCE_WIN",
+  DEBUG_FORCE_LOSE = "DEBUG_FORCE_LOSE",
 }
 
 export type MoveCommand = {
@@ -847,6 +849,16 @@ export type ToggleLosOverlayCommand = {
   label?: string;
 };
 
+export type DebugForceWinCommand = {
+  type: CommandType.DEBUG_FORCE_WIN;
+  label?: string;
+};
+
+export type DebugForceLoseCommand = {
+  type: CommandType.DEBUG_FORCE_LOSE;
+  label?: string;
+};
+
 export type Command =
   | MoveCommand
   | OpenDoorCommand
@@ -861,7 +873,9 @@ export type Command =
   | EscortUnitCommand
   | ExtractCommand
   | ToggleDebugOverlayCommand
-  | ToggleLosOverlayCommand;
+  | ToggleLosOverlayCommand
+  | DebugForceWinCommand
+  | DebugForceLoseCommand;
 
 export interface IMapValidationResult {
   isValid: boolean;

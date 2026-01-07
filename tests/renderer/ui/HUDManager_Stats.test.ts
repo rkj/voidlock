@@ -103,6 +103,8 @@ describe("HUDManager Stats & Enemy Intel", () => {
       onAbortMission,
       onMenuInput,
       onCopyWorldState,
+      vi.fn(),
+      vi.fn(),
       "1.0.0",
     );
   });
