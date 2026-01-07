@@ -71,4 +71,27 @@ describe("DebugUtility", () => {
       "Failed to copy to clipboard. See console for JSON."
     );
   });
+
+  it("should fallback to console when writeText throws synchronously", () => {
+    const error = new Error("Sync Clipboard fail");
+    const writeTextMock = vi.fn().mockImplementation(() => {
+      throw error;
+    });
+    vi.stubGlobal("navigator", {
+      clipboard: {
+        writeText: writeTextMock,
+      },
+    });
+
+    // This should NOT throw if the fix is implemented correctly
+    DebugUtility.copyWorldState(mockState, mockReplayData, version);
+
+    expect(console.error).toHaveBeenCalledWith(
+      "Failed to copy state to clipboard:",
+      error
+    );
+    expect(window.alert).toHaveBeenCalledWith(
+      "Failed to copy to clipboard. See console for JSON."
+    );
+  });
 });

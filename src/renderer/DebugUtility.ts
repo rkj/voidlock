@@ -25,15 +25,22 @@ export class DebugUtility {
     const json = JSON.stringify(fullState, null, 2);
 
     // Check if navigator.clipboard is available
-    if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
-      navigator.clipboard
-        .writeText(json)
-        .then(() => {
-          alert("World State copied to clipboard!");
-        })
-        .catch((err) => {
-          this.handleCopyFallback(json, err);
-        });
+    if (
+      navigator.clipboard &&
+      typeof navigator.clipboard.writeText === "function"
+    ) {
+      try {
+        navigator.clipboard
+          .writeText(json)
+          .then(() => {
+            alert("World State copied to clipboard!");
+          })
+          .catch((err) => {
+            this.handleCopyFallback(json, err);
+          });
+      } catch (err) {
+        this.handleCopyFallback(json, err);
+      }
     } else {
       this.handleCopyFallback(json, new Error("Clipboard API unavailable"));
     }
