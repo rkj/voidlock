@@ -83,7 +83,13 @@ describe("GameClient", () => {
         allowTacticalPause: true,
         mode: EngineMode.Simulation,
         commandLog: [],
+        targetTick: 0,
       },
+    });
+
+    expect(postMessageMock).toHaveBeenCalledWith({
+      type: "SET_TIME_SCALE",
+      payload: 1.0,
     });
 
     const replay = client.getReplayData();
@@ -174,7 +180,13 @@ describe("GameClient", () => {
           { tick: 100, command: replayData.commands[0].cmd },
           { tick: 500, command: replayData.commands[1].cmd },
         ],
+        targetTick: 0,
       },
+    });
+
+    expect(postMessageMock).toHaveBeenCalledWith({
+      type: "SET_TIME_SCALE",
+      payload: 1.0,
     });
 
     // Clear mocks to check subsequent calls

@@ -717,6 +717,7 @@ export type WorkerMessage =
         allowTacticalPause?: boolean;
         mode?: EngineMode;
         commandLog?: CommandLogEntry[];
+        targetTick?: number;
       };
     } // Updated
   | { type: "COMMAND"; payload: Command }

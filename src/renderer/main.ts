@@ -362,12 +362,14 @@ const setupGameClientCallbacks = () => {
 const resumeMission = () => {
   const configStr = localStorage.getItem("voidlock_mission_config");
   const logStr = localStorage.getItem("voidlock_mission_log");
+  const tickStr = localStorage.getItem("voidlock_mission_tick");
 
   if (!configStr) return;
 
   try {
     const config = JSON.parse(configStr);
     const commandLog = logStr ? JSON.parse(logStr) : [];
+    const targetTick = tickStr ? parseInt(tickStr, 10) : 0;
 
     // Restore campaign node if needed
     if (config.campaignNodeId) {
@@ -420,6 +422,7 @@ const resumeMission = () => {
       EngineMode.Simulation,
       commandLog,
       config.campaignNodeId,
+      targetTick,
     );
 
     syncSpeedUI();

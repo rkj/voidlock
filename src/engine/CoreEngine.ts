@@ -71,6 +71,7 @@ export class CoreEngine {
     mode: EngineMode = EngineMode.Simulation,
     initialCommandLog: CommandLogEntry[] = [],
     allowTacticalPause: boolean = true,
+    targetTick: number = 0,
   ) {
     this.prng = new PRNG(seed);
     this.gameGrid = new GameGrid(map);
@@ -307,11 +308,15 @@ export class CoreEngine {
       });
     }
 
-    // Catch-up Phase: If in Simulation mode but have a command log, fast-forward
-    if (mode === EngineMode.Simulation && this.commandLog.length > 0) {
+    // Catch-up Phase: If in Simulation mode but have a command log or target tick, fast-forward
+    const lastCommandTick = this.commandLog.length > 0 
+      ? this.commandLog[this.commandLog.length - 1].tick 
+      : 0;
+    const finalCatchupTick = Math.max(lastCommandTick, targetTick);
+
+    if (mode === EngineMode.Simulation && finalCatchupTick > 0) {
       this.isCatchingUp = true;
-      const lastTick = this.commandLog[this.commandLog.length - 1].tick;
-      while (this.state.t < lastTick) {
+      while (this.state.t < finalCatchupTick) {
         // We use a fixed 16ms step for deterministic catch-up
         this.update(16, 16);
       }
