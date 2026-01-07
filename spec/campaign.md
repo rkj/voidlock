@@ -111,6 +111,10 @@ The game supports four difficulty presets defining failure consequences.
   - The **Map Configuration** (Seed, Size, Generator) MUST be **HIDDEN**. The UI should skip directly to Squad Selection or display a read-only briefing.
   - The player CANNOT modify these settings.
   - The **Squad Selection** remains active.
-  - **Roster Selection**: The player selects soldiers from their *Available Roster*, NOT by setting a generic "Number of Soldiers" slider. The slider is for Custom Missions only.
+  - **Roster Selection**: The UI must list individual soldiers from the player's *Available Roster* using checkboxes or toggles.
+    - **Selection Limit**: Enforce the maximum squad size (4 soldiers).
+    - **Injury Handling**: Soldiers with a status other than "Healthy" (e.g., "Injured") must be listed but disabled for selection.
+    - **Display**: Each entry should show the soldier's Name, Archetype, Level, and Status.
+    - **No Sliders**: The generic "Number of Soldiers" slider is for Custom Missions only and MUST be hidden or disabled in Campaign mode.
 - **State Isolation**:
   - Campaign mission settings MUST NOT overwrite the "Custom Mission" defaults. The two modes must maintain separate persistent states for their last-used configurations.
