@@ -39,6 +39,7 @@ export class MenuController {
   public overlayOptions: OverlayOption[] = [];
   public isShiftHeld: boolean = false;
 
+  private stateStack: MenuState[] = [];
   private cellToRoomId: Map<string, string> = new Map();
   private discoveredRoomOrder: string[] = [];
 
@@ -54,6 +55,12 @@ export class MenuController {
     this.pendingTargetLocation = null;
     this.pendingUnitIds = null;
     this.overlayOptions = [];
+    this.stateStack = [];
+  }
+
+  private transitionTo(nextState: MenuState) {
+    this.stateStack.push(this.menuState);
+    this.menuState = nextState;
   }
 
   public clearDiscoveryOrder() {
@@ -101,7 +108,7 @@ export class MenuController {
         );
         this.executePendingCommand(activeUnits.map((u) => u.id));
       } else {
-        this.menuState = "UNIT_SELECT";
+        this.transitionTo("UNIT_SELECT");
       }
     }
   }
@@ -112,207 +119,195 @@ export class MenuController {
       return;
     }
 
-    const config = MENU_CONFIG[this.menuState];
+    switch (this.menuState) {
+      case "ACTION_SELECT":
+        this.handleActionSelect(key, gameState);
+        break;
+      case "ORDERS_SELECT":
+        this.handleOrdersSelect(key, gameState);
+        break;
+      case "ITEM_SELECT":
+        this.handleItemSelect(key, gameState);
+        break;
+      case "MODE_SELECT":
+        this.handleModeSelect(key, gameState);
+        break;
+      case "TARGET_SELECT":
+        this.handleTargetSelect(key, gameState);
+        break;
+      case "UNIT_SELECT":
+        this.handleUnitSelect(key, gameState);
+        break;
+    }
+  }
 
-    if (
-      this.menuState === "ACTION_SELECT" ||
-      this.menuState === "ORDERS_SELECT"
-    ) {
-      const option = config.options.find((o) => o.key.toString() === key);
-      if (option) {
-        if (this.isOptionDisabled(option, gameState)) return;
+  private handleActionSelect(key: string, gameState: GameState) {
+    const config = MENU_CONFIG.ACTION_SELECT;
+    const option = config.options.find((o) => o.key.toString() === key);
+    if (!option || this.isOptionDisabled(option, gameState)) return;
 
-        if (option.type === "TRANSITION") {
-          this.menuState = option.nextState || "ACTION_SELECT";
-          return;
-        }
+    if (option.type === "TRANSITION") {
+      this.transitionTo(option.nextState || "ACTION_SELECT");
+      return;
+    }
 
-        this.pendingAction = option.commandType || null;
+    this.pendingAction = option.commandType || null;
 
-        // Special Case Handling based on Label or custom logic
-        if (option.label === "MOVE TO ROOM") {
-          this.pendingLabel = "Moving";
-          this.menuState = "TARGET_SELECT";
-          this.generateTargetOverlay("CELL", gameState);
-        } else if (option.label === "OVERWATCH INTERSECTION") {
-          this.pendingLabel = "Overwatching";
-          this.menuState = "TARGET_SELECT";
-          this.generateTargetOverlay("INTERSECTION", gameState);
-        } else if (option.label === "EXPLORE") {
-          this.pendingLabel = "Exploring";
-          this.menuState = "UNIT_SELECT";
-        } else if (option.label === "HOLD") {
-          this.pendingLabel = "Holding";
-          this.menuState = "UNIT_SELECT";
-        } else if (option.label === "PICKUP") {
-          this.pendingLabel = "Picking up";
-          this.menuState = "TARGET_SELECT";
-          this.generateTargetOverlay("ITEM", gameState);
-        } else if (option.label === "EXTRACT") {
-          this.pendingLabel = "Extracting";
-          this.menuState = "UNIT_SELECT";
-        } else if (option.label === "ESCORT") {
-          this.pendingLabel = "Escorting";
-          this.menuState = "TARGET_SELECT";
+    if (option.label === "PICKUP") {
+      this.pendingLabel = "Picking up";
+      this.transitionTo("TARGET_SELECT");
+      this.generateTargetOverlay("ITEM", gameState);
+    } else if (option.label === "EXTRACT") {
+      this.pendingLabel = "Extracting";
+      this.transitionTo("UNIT_SELECT");
+    } else if (option.label === "ENGAGEMENT") {
+      this.pendingLabel = "Policy Change";
+      this.transitionTo("MODE_SELECT");
+    } else if (option.label === "USE ITEM") {
+      this.pendingLabel = "Using Item";
+      this.transitionTo("ITEM_SELECT");
+    }
+  }
+
+  private handleOrdersSelect(key: string, gameState: GameState) {
+    const config = MENU_CONFIG.ORDERS_SELECT;
+    const option = config.options.find((o) => o.key.toString() === key);
+    if (!option) return;
+
+    this.pendingAction = option.commandType || null;
+
+    if (option.label === "MOVE TO ROOM") {
+      this.pendingLabel = "Moving";
+      this.transitionTo("TARGET_SELECT");
+      this.generateTargetOverlay("CELL", gameState);
+    } else if (option.label === "OVERWATCH INTERSECTION") {
+      this.pendingLabel = "Overwatching";
+      this.transitionTo("TARGET_SELECT");
+      this.generateTargetOverlay("INTERSECTION", gameState);
+    } else if (option.label === "EXPLORE") {
+      this.pendingLabel = "Exploring";
+      this.transitionTo("UNIT_SELECT");
+    } else if (option.label === "HOLD") {
+      this.pendingLabel = "Holding";
+      this.transitionTo("UNIT_SELECT");
+    } else if (option.label === "ESCORT") {
+      this.pendingLabel = "Escorting";
+      this.transitionTo("TARGET_SELECT");
+      this.generateTargetOverlay("FRIENDLY_UNIT", gameState);
+    }
+  }
+
+  private handleItemSelect(key: string, gameState: GameState) {
+    const items = Object.entries(gameState.squadInventory).filter(
+      ([_, count]) => count > 0,
+    );
+    const num = parseInt(key);
+    if (!isNaN(num) && num > 0 && num <= items.length) {
+      const [itemId] = items[num - 1];
+
+      // Check if disabled
+      const item = ItemLibrary[itemId];
+      if (item?.action === "Grenade") {
+        const hasVisibleEnemies = gameState.enemies.some((e) => {
+          const key = `${Math.floor(e.pos.x)},${Math.floor(e.pos.y)}`;
+          return gameState.visibleCells.includes(key);
+        });
+        if (!hasVisibleEnemies) return;
+      }
+
+      this.pendingItemId = itemId;
+      if (item?.action === "Mine") {
+        this.transitionTo("UNIT_SELECT");
+      } else {
+        this.transitionTo("TARGET_SELECT");
+        if (item?.action === "Heal") {
           this.generateTargetOverlay("FRIENDLY_UNIT", gameState);
-        } else if (option.label === "ENGAGEMENT") {
-          this.pendingLabel = "Policy Change";
-          this.menuState = "MODE_SELECT";
-        } else if (option.label === "USE ITEM") {
-          this.pendingLabel = "Using Item";
-          this.menuState = "ITEM_SELECT";
-        }
-      }
-    } else if (this.menuState === "ITEM_SELECT") {
-      const items = Object.entries(gameState.squadInventory).filter(
-        ([_, count]) => count > 0,
-      );
-      const num = parseInt(key);
-      if (!isNaN(num) && num > 0 && num <= items.length) {
-        const [itemId] = items[num - 1];
-
-        // Check if disabled
-        const item = ItemLibrary[itemId];
-        if (item?.action === "Grenade") {
-          const hasVisibleEnemies = gameState.enemies.some((e) => {
-            const key = `${Math.floor(e.pos.x)},${Math.floor(e.pos.y)}`;
-            return gameState.visibleCells.includes(key);
-          });
-          if (!hasVisibleEnemies) return;
-        }
-
-        this.pendingItemId = itemId;
-        if (item?.action === "Mine") {
-          this.menuState = "UNIT_SELECT";
+        } else if (item?.action === "Grenade") {
+          this.generateTargetOverlay("HOSTILE_UNIT", gameState);
         } else {
-          this.menuState = "TARGET_SELECT";
-          if (item?.action === "Heal") {
-            this.generateTargetOverlay("FRIENDLY_UNIT", gameState);
-          } else if (item?.action === "Grenade") {
-            this.generateTargetOverlay("HOSTILE_UNIT", gameState);
-          } else {
-            this.generateTargetOverlay("CELL", gameState);
-          }
-        }
-      }
-    } else if (this.menuState === "MODE_SELECT") {
-      const option = config.options.find((o) => o.key.toString() === key);
-      if (option && option.type === "MODE") {
-        this.pendingMode = option.modeValue || null;
-        this.menuState = option.nextState || "UNIT_SELECT";
-      }
-    } else if (this.menuState === "TARGET_SELECT") {
-      const option = this.overlayOptions.find((o) => o.key === key);
-      if (option && option.pos) {
-        this.pendingTargetLocation = option.pos;
-        this.pendingTargetId = option.id || null;
-        this.overlayOptions = [];
-
-        const item = this.pendingItemId ? ItemLibrary[this.pendingItemId] : null;
-        if (this.pendingUnitIds && this.pendingUnitIds.length > 0) {
-          this.executePendingCommand(this.pendingUnitIds);
-        } else if (
-          this.pendingAction === CommandType.USE_ITEM &&
-          item?.action === "Heal"
-        ) {
-          const activeUnits = gameState.units.filter(
-            (u) => u.state !== UnitState.Dead && u.state !== UnitState.Extracted,
-          );
-          this.executePendingCommand(activeUnits.map((u) => u.id));
-        } else {
-          this.menuState = "UNIT_SELECT";
-        }
-      }
-    } else if (this.menuState === "UNIT_SELECT") {
-      const activeUnits = gameState.units.filter(
-        (u) => u.state !== UnitState.Dead && u.state !== UnitState.Extracted,
-      );
-      let selectedIds: string[] = [];
-
-      const num = parseInt(key);
-      if (!isNaN(num) && num > 0 && num <= activeUnits.length) {
-        selectedIds = [activeUnits[num - 1].id];
-      } else if (!isNaN(num) && num === activeUnits.length + 1) {
-        selectedIds = activeUnits.map((u) => u.id);
-      }
-
-      if (selectedIds.length > 0 && this.pendingAction) {
-        const item = this.pendingItemId
-          ? ItemLibrary[this.pendingItemId]
-          : null;
-        if (
-          this.pendingAction === CommandType.USE_ITEM &&
-          item?.action === "Mine" &&
-          !this.pendingTargetLocation
-        ) {
-          this.pendingUnitIds = selectedIds;
-          this.menuState = "TARGET_SELECT";
           this.generateTargetOverlay("CELL", gameState);
-        } else {
-          this.executePendingCommand(selectedIds);
         }
       }
     }
   }
 
-  public goBack() {
-    if (this.menuState === "UNIT_SELECT") {
+  private handleModeSelect(key: string, gameState: GameState) {
+    const config = MENU_CONFIG.MODE_SELECT;
+    const option = config.options.find((o) => o.key.toString() === key);
+    if (option && option.type === "MODE") {
+      this.pendingMode = option.modeValue || null;
+      this.transitionTo(option.nextState || "UNIT_SELECT");
+    }
+  }
+
+  private handleTargetSelect(key: string, gameState: GameState) {
+    const option = this.overlayOptions.find((o) => o.key === key);
+    if (option && option.pos) {
+      this.pendingTargetLocation = option.pos;
+      this.pendingTargetId = option.id || null;
+      this.overlayOptions = [];
+
       const item = this.pendingItemId ? ItemLibrary[this.pendingItemId] : null;
-      if (this.pendingAction === CommandType.SET_ENGAGEMENT)
-        this.menuState = "MODE_SELECT";
-      else if (
+      if (this.pendingUnitIds && this.pendingUnitIds.length > 0) {
+        this.executePendingCommand(this.pendingUnitIds);
+      } else if (
         this.pendingAction === CommandType.USE_ITEM &&
-        item?.action === "Mine"
-      )
-        this.menuState = "ITEM_SELECT";
-      else if (
-        this.pendingAction === CommandType.MOVE_TO ||
-        this.pendingAction === CommandType.OVERWATCH_POINT ||
-        this.pendingAction === CommandType.PICKUP ||
-        this.pendingAction === CommandType.ESCORT_UNIT ||
-        this.pendingAction === CommandType.USE_ITEM
-      )
-        this.menuState = "TARGET_SELECT";
-      else if (
-        this.pendingAction === CommandType.EXPLORE ||
-        this.pendingAction === CommandType.STOP
-      )
-        this.menuState = "ORDERS_SELECT";
-      else if (this.pendingAction === CommandType.EXTRACT)
-        this.menuState = "ACTION_SELECT";
-      else this.menuState = "ACTION_SELECT";
-    } else if (this.menuState === "ORDERS_SELECT") {
-      this.menuState = "ACTION_SELECT";
-    } else if (this.menuState === "ITEM_SELECT") {
-      this.menuState = "ACTION_SELECT";
-    } else if (
-      this.menuState === "MODE_SELECT" ||
-      this.menuState === "TARGET_SELECT"
-    ) {
-      if (this.menuState === "TARGET_SELECT") {
-        this.overlayOptions = [];
+        item?.action === "Heal"
+      ) {
+        const activeUnits = gameState.units.filter(
+          (u) => u.state !== UnitState.Dead && u.state !== UnitState.Extracted,
+        );
+        this.executePendingCommand(activeUnits.map((u) => u.id));
+      } else {
+        this.transitionTo("UNIT_SELECT");
       }
+    }
+  }
+
+  private handleUnitSelect(key: string, gameState: GameState) {
+    const activeUnits = gameState.units.filter(
+      (u) => u.state !== UnitState.Dead && u.state !== UnitState.Extracted,
+    );
+    let selectedIds: string[] = [];
+
+    const num = parseInt(key);
+    if (!isNaN(num) && num > 0 && num <= activeUnits.length) {
+      selectedIds = [activeUnits[num - 1].id];
+    } else if (!isNaN(num) && num === activeUnits.length + 1) {
+      selectedIds = activeUnits.map((u) => u.id);
+    }
+
+    if (selectedIds.length > 0 && this.pendingAction) {
       const item = this.pendingItemId ? ItemLibrary[this.pendingItemId] : null;
       if (
-        this.menuState === "TARGET_SELECT" &&
-        this.pendingAction === CommandType.USE_ITEM
+        this.pendingAction === CommandType.USE_ITEM &&
+        item?.action === "Mine" &&
+        !this.pendingTargetLocation
       ) {
-        if (item?.action === "Mine" && this.pendingUnitIds) {
-          this.menuState = "UNIT_SELECT";
-          this.pendingUnitIds = null;
-        } else {
-          this.menuState = "ITEM_SELECT";
-        }
-      } else if (
-        this.menuState === "TARGET_SELECT" &&
-        (this.pendingAction === CommandType.MOVE_TO ||
-          this.pendingAction === CommandType.OVERWATCH_POINT ||
-          this.pendingAction === CommandType.ESCORT_UNIT)
-      ) {
-        this.menuState = "ORDERS_SELECT";
+        this.pendingUnitIds = selectedIds;
+        this.transitionTo("TARGET_SELECT");
+        this.generateTargetOverlay("CELL", gameState);
       } else {
-        this.menuState = "ACTION_SELECT";
+        this.executePendingCommand(selectedIds);
       }
+    }
+  }
+
+  public goBack() {
+    const prevState = this.stateStack.pop();
+
+    if (this.menuState === "TARGET_SELECT") {
+      this.overlayOptions = [];
+    }
+
+    if (this.menuState === "TARGET_SELECT" && this.pendingUnitIds) {
+      this.pendingUnitIds = null;
+    }
+
+    if (prevState) {
+      this.menuState = prevState;
+    } else {
+      this.reset();
     }
 
     if (this.menuState === "ACTION_SELECT") {
