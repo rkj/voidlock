@@ -48,6 +48,11 @@ export class CampaignScreen {
       return;
     }
 
+    if (state.status === "Defeat") {
+      this.renderGameOver();
+      return;
+    }
+
     // Header
     const header = document.createElement("div");
     header.className = "flex-row justify-between align-center p-20";
@@ -338,5 +343,42 @@ export class CampaignScreen {
         }
       });
     });
+  }
+
+  private renderGameOver() {
+    const content = document.createElement("div");
+    content.className =
+      "flex-col align-center justify-center h-full gap-40 campaign-game-over";
+    content.style.background = "rgba(0,0,0,0.85)";
+    content.style.position = "absolute";
+    content.style.inset = "0";
+    content.style.zIndex = "100";
+
+    const h1 = document.createElement("h1");
+    h1.textContent = "MISSION FAILED";
+    h1.style.color = "var(--color-error)";
+    h1.style.fontSize = "3em";
+    h1.style.letterSpacing = "8px";
+    h1.style.margin = "0";
+    content.appendChild(h1);
+
+    const sub = document.createElement("h2");
+    sub.textContent = "CAMPAIGN OVER";
+    sub.style.color = "var(--color-text-dim)";
+    sub.style.letterSpacing = "4px";
+    sub.style.margin = "0";
+    content.appendChild(sub);
+
+    const backBtn = document.createElement("button");
+    backBtn.textContent = "RETURN TO MENU";
+    backBtn.className = "primary-button";
+    backBtn.style.minWidth = "200px";
+    backBtn.onclick = () => {
+      this.manager.deleteSave();
+      this.onBack();
+    };
+    content.appendChild(backBtn);
+
+    this.container.appendChild(content);
   }
 }

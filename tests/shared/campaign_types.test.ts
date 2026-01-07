@@ -66,6 +66,7 @@ describe("Campaign Types", () => {
     const state: CampaignState = {
       version: "0.1.0",
       seed: 42,
+      status: "Active",
       rules,
       scrap: 100,
       intel: 0,
