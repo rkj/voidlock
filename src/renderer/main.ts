@@ -71,23 +71,29 @@ let currentSpawnPointCount = ConfigManager.getDefault().spawnPointCount;
 
 const mapGeneratorFactory = (
   seed: number,
-  _type: MapGeneratorType,
-  _mapData?: MapDefinition,
-  _width: number = 32,
-  _height: number = 32,
+  type: MapGeneratorType,
+  width: number,
+  height: number,
+  spawnPointCount: number = 1,
 ): MapGenerator => {
-  return new MapGenerator(seed);
+  return new MapGenerator({
+    seed,
+    width,
+    height,
+    type,
+    spawnPointCount,
+  });
 };
 
 const gameClient = new GameClient(
-  (seed, type, mapData) =>
+  (seed, type, width, height, spawnPointCount, _mapData) =>
     mapGeneratorFactory(
       seed,
       type,
-      mapData,
-      currentMapWidth,
-      currentMapHeight,
-    ) as any,
+      width,
+      height,
+      spawnPointCount,
+    ),
 );
 const menuController = new MenuController(gameClient);
 let renderer: Renderer;

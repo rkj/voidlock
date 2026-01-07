@@ -23,9 +23,18 @@ vi.stubGlobal("Worker", MockWorker);
 const mockMapGeneratorFactory = (
   seed: number,
   type: MapGeneratorType,
+  width: number,
+  height: number,
+  spawnPointCount?: number,
   mapData?: MapDefinition,
 ) => {
-  const generator = new MapGenerator(seed);
+  const generator = new MapGenerator({
+    seed,
+    width,
+    height,
+    type,
+    spawnPointCount,
+  });
   generator.generate = vi
     .fn()
     .mockReturnValue(mapData || { width: 10, height: 10, cells: [] });

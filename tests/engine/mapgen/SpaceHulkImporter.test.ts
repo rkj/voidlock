@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { MapGenerator } from "@src/engine/MapGenerator";
-import { TileAssembly, CellType } from "@src/shared/types";
+import { TileAssembly, CellType, MapGeneratorType } from "@src/shared/types";
 import { SpaceHulkTileLibrary } from "@src/content/spaceHulkTiles";
 
 describe("Space Hulk Importer", () => {
@@ -28,7 +28,12 @@ describe("Space Hulk Importer", () => {
     expect(map.doors?.[0].segment).toContainEqual({ x: 0, y: 2 });
     expect(map.doors?.[0].orientation).toBe("Horizontal");
 
-    const generator = new MapGenerator(123);
+    const generator = new MapGenerator({
+      seed: 123,
+      width: map.width,
+      height: map.height,
+      type: MapGeneratorType.Procedural,
+    });
     const result = generator.validate(map);
     // Should be invalid because spawns are in corridors, but we can check if it's otherwise okay
     // Actually, let's fix the test to put spawns in rooms so it passes validation
@@ -52,7 +57,12 @@ describe("Space Hulk Importer", () => {
     };
 
     const map = MapGenerator.assemble(assembly, SpaceHulkTileLibrary);
-    const generator = new MapGenerator(123);
+    const generator = new MapGenerator({
+      seed: 123,
+      width: map.width,
+      height: map.height,
+      type: MapGeneratorType.Procedural,
+    });
     
     // We expect some issues because of room exclusivity rules in validate()
     // but connectivity should be fine.

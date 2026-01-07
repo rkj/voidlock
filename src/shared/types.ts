@@ -51,6 +51,14 @@ export enum MapGeneratorType {
   DenseShip = "DenseShip",
 }
 
+export interface MapGenerationConfig {
+  seed: number;
+  width: number;
+  height: number;
+  type: MapGeneratorType;
+  spawnPointCount?: number; // Optional, defaults to 1
+}
+
 export type MapDefinition = {
   width: number;
   height: number;

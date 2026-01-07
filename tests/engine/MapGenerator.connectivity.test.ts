@@ -2,7 +2,12 @@ import { describe, it, expect } from "vitest";
 import { MapGenerator } from "@src/engine/MapGenerator";
 import { SpaceshipGenerator } from "@src/engine/generators/SpaceshipGenerator";
 import { TreeShipGenerator } from "@src/engine/generators/TreeShipGenerator";
-import { CellType, MapDefinition, BoundaryType } from "@src/shared/types";
+import {
+  CellType,
+  MapDefinition,
+  BoundaryType,
+  MapGeneratorType,
+} from "@src/shared/types";
 import { Graph } from "@src/engine/Graph";
 
 describe("MapGenerator Connectivity Guarantee", () => {
@@ -11,7 +16,12 @@ describe("MapGenerator Connectivity Guarantee", () => {
     seed: number,
     genName: string,
   ) => {
-    const validator = new MapGenerator(0);
+    const validator = new MapGenerator({
+      seed: 0,
+      width: map.width,
+      height: map.height,
+      type: MapGeneratorType.Procedural,
+    });
     const result = validator.validate(map);
     expect(
       result.isValid,
@@ -49,8 +59,13 @@ describe("MapGenerator Connectivity Guarantee", () => {
 
   it("MapGenerator: should never generate unreachable Floor cells or open to Void", () => {
     for (let i = 0; i < 50; i++) {
-      const generator = new MapGenerator(i);
-      const map = generator.generate(16, 16);
+      const generator = new MapGenerator({
+        seed: i,
+        width: 16,
+        height: 16,
+        type: MapGeneratorType.Procedural,
+      });
+      const map = generator.generate();
       checkConnectivity(map, i, "MapGenerator");
     }
   });

@@ -18,8 +18,13 @@ describe("Map Placement Fuzzing (voidlock-gemini-x81g)", () => {
         const height = 3 + ((seed + 1) % 8);
 
         it(`should have valid entity placement for seed ${seed} (${width}x${height})`, () => {
-          const generator = new MapGenerator(seed);
-          const map = generator.generate(width, height, genType);
+          const generator = new MapGenerator({
+            seed,
+            width,
+            height,
+            type: genType,
+          });
+          const map = generator.generate();
           
           assertPlacementRules(map, width, height);
         });
@@ -29,7 +34,12 @@ describe("Map Placement Fuzzing (voidlock-gemini-x81g)", () => {
 });
 
 function assertPlacementRules(map: MapDefinition, width: number, height: number) {
-  const generator = new MapGenerator(0);
+  const generator = new MapGenerator({
+    seed: 0,
+    width,
+    height,
+    type: MapGeneratorType.Procedural,
+  });
   const result = generator.validate(map);
   
   if (!result.isValid) {

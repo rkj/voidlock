@@ -1,6 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { MapGenerator } from "@src/engine/MapGenerator";
-import { TileAssembly, TileDefinition, CellType, BoundaryType } from "@src/shared/types";
+import {
+  TileAssembly,
+  TileDefinition,
+  CellType,
+  BoundaryType,
+  MapGeneratorType,
+} from "@src/shared/types";
 import { SpaceHulkTiles } from "@src/content/tiles";
 import { Graph } from "@src/engine/Graph";
 
@@ -88,7 +94,12 @@ describe("MapGenerator.assemble", () => {
     };
 
     const map = MapGenerator.assemble(assembly, SpaceHulkTiles);
-    const generator = new MapGenerator(123);
+    const generator = new MapGenerator({
+      seed: 123,
+      width: map.width,
+      height: map.height,
+      type: MapGeneratorType.Procedural,
+    });
     const result = generator.validate(map);
 
     expect(

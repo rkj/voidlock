@@ -13,8 +13,13 @@ describe("MapGenerator Dual Entrances", () => {
   generatorTypes.forEach((type) => {
     seeds.forEach((seed) => {
       it(`should generate two distinct squad spawns in different rooms for ${type} (seed: ${seed})`, () => {
-        const gen = new MapGenerator(seed);
-        const map = gen.generate(16, 16, type);
+        const gen = new MapGenerator({
+          seed,
+          width: 16,
+          height: 16,
+          type,
+        });
+        const map = gen.generate();
 
         if (map.squadSpawns && map.squadSpawns.length >= 2) {
           expect(map.squadSpawns.length).toBeGreaterThanOrEqual(2);

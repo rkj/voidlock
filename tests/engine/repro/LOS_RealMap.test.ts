@@ -12,13 +12,14 @@ describe("LOS Bug Repro - Seed 1766364915449", () => {
     const width = 6;
     const height = 6;
 
-    const mapGen = new MapGenerator(seed);
-    const mapDef = mapGen.generate(
+    const mapGen = new MapGenerator({
+      seed,
       width,
       height,
-      MapGeneratorType.DenseShip,
-      1,
-    );
+      type: MapGeneratorType.DenseShip,
+      spawnPointCount: 1,
+    });
+    const mapDef = mapGen.generate();
 
     const ascii = MapGenerator.toAscii(mapDef);
     const snapshotDir = path.join(__dirname, "snapshots");
