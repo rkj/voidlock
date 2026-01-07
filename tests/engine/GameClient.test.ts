@@ -4,10 +4,10 @@ import {
   CommandType,
   MapDefinition,
   MapGeneratorType,
-  MoveCommand,
   SquadConfig,
+  MapGenerationConfig,
   EngineMode,
-  CommandLogEntry,
+  MoveCommand,
 } from "@src/shared/types";
 import { MapGenerator } from "@src/engine/MapGenerator";
 

@@ -6,12 +6,12 @@ import {
   Unit,
   MapDefinition,
   MapGeneratorType,
-  MissionType,
   SquadConfig,
-  ArchetypeLibrary,
+  MapGenerationConfig,
+  MissionType,
   EngineMode,
-} from "../shared/types";
-import { MapGenerator } from "../engine/MapGenerator";
+  ArchetypeLibrary,
+} from "../shared/types";import { MapGenerator } from "../engine/MapGenerator";
 import { ScreenManager } from "./ScreenManager";
 import { ConfigManager } from "./ConfigManager";
 import { MenuController } from "./MenuController";
