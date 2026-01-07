@@ -35,6 +35,7 @@ export class MenuController {
   public pendingMode: EngagementPolicy | null = null;
   public pendingLabel: string | null = null;
   public pendingTargetLocation: Vector2 | null = null;
+  public pendingUnitIds: string[] | null = null;
   public overlayOptions: OverlayOption[] = [];
   public isShiftHeld: boolean = false;
 
@@ -51,6 +52,7 @@ export class MenuController {
     this.pendingMode = null;
     this.pendingLabel = null;
     this.pendingTargetLocation = null;
+    this.pendingUnitIds = null;
     this.overlayOptions = [];
   }
 
@@ -87,7 +89,9 @@ export class MenuController {
 
       // Special case: Healing items bypass UNIT_SELECT and use all active units
       const item = this.pendingItemId ? ItemLibrary[this.pendingItemId] : null;
-      if (
+      if (this.pendingUnitIds && this.pendingUnitIds.length > 0) {
+        this.executePendingCommand(this.pendingUnitIds);
+      } else if (
         this.pendingAction === CommandType.USE_ITEM &&
         item?.action === "Heal"
       ) {
@@ -177,13 +181,17 @@ export class MenuController {
         }
 
         this.pendingItemId = itemId;
-        this.menuState = "TARGET_SELECT";
-        if (item?.action === "Heal") {
-          this.generateTargetOverlay("FRIENDLY_UNIT", gameState);
-        } else if (item?.action === "Grenade") {
-          this.generateTargetOverlay("HOSTILE_UNIT", gameState);
+        if (item?.action === "Mine") {
+          this.menuState = "UNIT_SELECT";
         } else {
-          this.generateTargetOverlay("CELL", gameState);
+          this.menuState = "TARGET_SELECT";
+          if (item?.action === "Heal") {
+            this.generateTargetOverlay("FRIENDLY_UNIT", gameState);
+          } else if (item?.action === "Grenade") {
+            this.generateTargetOverlay("HOSTILE_UNIT", gameState);
+          } else {
+            this.generateTargetOverlay("CELL", gameState);
+          }
         }
       }
     } else if (this.menuState === "MODE_SELECT") {
@@ -198,9 +206,10 @@ export class MenuController {
         this.pendingTargetLocation = option.pos;
         this.pendingTargetId = option.id || null;
 
-        // Special case: Healing items bypass UNIT_SELECT and use all active units
         const item = this.pendingItemId ? ItemLibrary[this.pendingItemId] : null;
-        if (
+        if (this.pendingUnitIds && this.pendingUnitIds.length > 0) {
+          this.executePendingCommand(this.pendingUnitIds);
+        } else if (
           this.pendingAction === CommandType.USE_ITEM &&
           item?.action === "Heal"
         ) {
@@ -226,15 +235,34 @@ export class MenuController {
       }
 
       if (selectedIds.length > 0 && this.pendingAction) {
-        this.executePendingCommand(selectedIds);
+        const item = this.pendingItemId
+          ? ItemLibrary[this.pendingItemId]
+          : null;
+        if (
+          this.pendingAction === CommandType.USE_ITEM &&
+          item?.action === "Mine" &&
+          !this.pendingTargetLocation
+        ) {
+          this.pendingUnitIds = selectedIds;
+          this.menuState = "TARGET_SELECT";
+          this.generateTargetOverlay("CELL", gameState);
+        } else {
+          this.executePendingCommand(selectedIds);
+        }
       }
     }
   }
 
   public goBack() {
     if (this.menuState === "UNIT_SELECT") {
+      const item = this.pendingItemId ? ItemLibrary[this.pendingItemId] : null;
       if (this.pendingAction === CommandType.SET_ENGAGEMENT)
         this.menuState = "MODE_SELECT";
+      else if (
+        this.pendingAction === CommandType.USE_ITEM &&
+        item?.action === "Mine"
+      )
+        this.menuState = "ITEM_SELECT";
       else if (
         this.pendingAction === CommandType.MOVE_TO ||
         this.pendingAction === CommandType.OVERWATCH_POINT ||
@@ -259,11 +287,17 @@ export class MenuController {
       this.menuState === "MODE_SELECT" ||
       this.menuState === "TARGET_SELECT"
     ) {
+      const item = this.pendingItemId ? ItemLibrary[this.pendingItemId] : null;
       if (
         this.menuState === "TARGET_SELECT" &&
         this.pendingAction === CommandType.USE_ITEM
       ) {
-        this.menuState = "ITEM_SELECT";
+        if (item?.action === "Mine" && this.pendingUnitIds) {
+          this.menuState = "UNIT_SELECT";
+          this.pendingUnitIds = null;
+        } else {
+          this.menuState = "ITEM_SELECT";
+        }
       } else if (
         this.menuState === "TARGET_SELECT" &&
         (this.pendingAction === CommandType.MOVE_TO ||
