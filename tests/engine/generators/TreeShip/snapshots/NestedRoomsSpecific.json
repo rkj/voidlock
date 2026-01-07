@@ -3,16 +3,6 @@
   "height": 8,
   "cells": [
     {
-      "x": 0,
-      "y": 0,
-      "type": "Void"
-    },
-    {
-      "x": 1,
-      "y": 0,
-      "type": "Void"
-    },
-    {
       "x": 2,
       "y": 0,
       "type": "Floor",
@@ -25,31 +15,6 @@
       "roomId": "room-2-0"
     },
     {
-      "x": 4,
-      "y": 0,
-      "type": "Void"
-    },
-    {
-      "x": 5,
-      "y": 0,
-      "type": "Void"
-    },
-    {
-      "x": 6,
-      "y": 0,
-      "type": "Void"
-    },
-    {
-      "x": 7,
-      "y": 0,
-      "type": "Void"
-    },
-    {
-      "x": 0,
-      "y": 1,
-      "type": "Void"
-    },
-    {
       "x": 1,
       "y": 1,
       "type": "Floor",
@@ -60,36 +25,6 @@
       "y": 1,
       "type": "Floor",
       "roomId": "room-1-1"
-    },
-    {
-      "x": 3,
-      "y": 1,
-      "type": "Void"
-    },
-    {
-      "x": 4,
-      "y": 1,
-      "type": "Void"
-    },
-    {
-      "x": 5,
-      "y": 1,
-      "type": "Void"
-    },
-    {
-      "x": 6,
-      "y": 1,
-      "type": "Void"
-    },
-    {
-      "x": 7,
-      "y": 1,
-      "type": "Void"
-    },
-    {
-      "x": 0,
-      "y": 2,
-      "type": "Void"
     },
     {
       "x": 1,
@@ -110,25 +45,10 @@
       "roomId": "corridor-artery-up-3"
     },
     {
-      "x": 4,
-      "y": 2,
-      "type": "Void"
-    },
-    {
       "x": 5,
       "y": 2,
       "type": "Floor",
       "roomId": "room-5-2"
-    },
-    {
-      "x": 6,
-      "y": 2,
-      "type": "Void"
-    },
-    {
-      "x": 7,
-      "y": 2,
-      "type": "Void"
     },
     {
       "x": 0,
@@ -137,41 +57,16 @@
       "roomId": "room-0-3"
     },
     {
-      "x": 1,
-      "y": 3,
-      "type": "Void"
-    },
-    {
-      "x": 2,
-      "y": 3,
-      "type": "Void"
-    },
-    {
       "x": 3,
       "y": 3,
       "type": "Floor",
       "roomId": "corridor-artery-up-3"
     },
     {
-      "x": 4,
-      "y": 3,
-      "type": "Void"
-    },
-    {
       "x": 5,
       "y": 3,
       "type": "Floor",
       "roomId": "room-5-2"
-    },
-    {
-      "x": 6,
-      "y": 3,
-      "type": "Void"
-    },
-    {
-      "x": 7,
-      "y": 3,
-      "type": "Void"
     },
     {
       "x": 0,
@@ -222,41 +117,16 @@
       "roomId": "room-7-4"
     },
     {
-      "x": 0,
-      "y": 5,
-      "type": "Void"
-    },
-    {
-      "x": 1,
-      "y": 5,
-      "type": "Void"
-    },
-    {
-      "x": 2,
-      "y": 5,
-      "type": "Void"
-    },
-    {
       "x": 3,
       "y": 5,
       "type": "Floor",
       "roomId": "corridor-artery-down-3"
     },
     {
-      "x": 4,
-      "y": 5,
-      "type": "Void"
-    },
-    {
       "x": 5,
       "y": 5,
       "type": "Floor",
       "roomId": "room-5-5"
-    },
-    {
-      "x": 6,
-      "y": 5,
-      "type": "Void"
     },
     {
       "x": 7,
@@ -265,56 +135,16 @@
       "roomId": "room-7-4"
     },
     {
-      "x": 0,
-      "y": 6,
-      "type": "Void"
-    },
-    {
-      "x": 1,
-      "y": 6,
-      "type": "Void"
-    },
-    {
-      "x": 2,
-      "y": 6,
-      "type": "Void"
-    },
-    {
       "x": 3,
       "y": 6,
       "type": "Floor",
       "roomId": "corridor-artery-down-3"
     },
     {
-      "x": 4,
-      "y": 6,
-      "type": "Void"
-    },
-    {
       "x": 5,
       "y": 6,
       "type": "Floor",
       "roomId": "room-5-5"
-    },
-    {
-      "x": 6,
-      "y": 6,
-      "type": "Void"
-    },
-    {
-      "x": 7,
-      "y": 6,
-      "type": "Void"
-    },
-    {
-      "x": 0,
-      "y": 7,
-      "type": "Void"
-    },
-    {
-      "x": 1,
-      "y": 7,
-      "type": "Void"
     },
     {
       "x": 2,
@@ -333,21 +163,6 @@
       "y": 7,
       "type": "Floor",
       "roomId": "room-4-7"
-    },
-    {
-      "x": 5,
-      "y": 7,
-      "type": "Void"
-    },
-    {
-      "x": 6,
-      "y": 7,
-      "type": "Void"
-    },
-    {
-      "x": 7,
-      "y": 7,
-      "type": "Void"
     }
   ],
   "walls": [
