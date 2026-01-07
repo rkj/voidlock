@@ -17,6 +17,7 @@ This directory contains the automated test suite for the Voidlock renderer, usin
 - `ConfigManager.isolation.test.ts`: Verifies that Custom and Campaign configurations are stored and loaded independently.
 - `MenuController.discovery.test.ts`: Verifies room discovery filtering and stable numbering in the command menu.
 - `regression_09cn_room_mapping.test.ts`: Verifies room mapping logic based on discovery order and stable key assignments.
+- `regression_voidlock-hs8n_vip_selection.test.ts`: Verifies VIP availability logic in Custom Missions and its exclusion from Campaign Mode.
 
 ## Related ADRs
 
