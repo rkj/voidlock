@@ -39,11 +39,11 @@ describe("Regression mz3w: Speed Reset on Unpause", () => {
     });
 
     // 2. Pause the game
-    // Note: Pause should set time scale to 0.1 (Active Pause)
+    // Note: Pause should set time scale to 0.05 (Active Pause)
     client.pause();
     expect(postMessageMock).toHaveBeenCalledWith({
       type: "SET_TIME_SCALE",
-      payload: 0.1,
+      payload: 0.05,
     });
 
     // 3. Unpause (Resume)
@@ -60,13 +60,13 @@ describe("Regression mz3w: Speed Reset on Unpause", () => {
     client.pause();
     expect(postMessageMock).toHaveBeenCalledWith({
       type: "SET_TIME_SCALE",
-      payload: 0.1,
+      payload: 0.05,
     });
 
     // Change speed while paused
     client.setTimeScale(2.5);
-    // Should NOT send to worker immediately, OR should send 0.1 again to ensure it stays paused
-    // If we want "Active Pause" to be strictly 0.1, we keep it there.
+    // Should NOT send to worker immediately, OR should send 0.05 again to ensure it stays paused
+    // If we want "Active Pause" to be strictly 0.05, we keep it there.
 
     client.resume();
     expect(postMessageMock).toHaveBeenLastCalledWith({

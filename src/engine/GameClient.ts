@@ -105,8 +105,12 @@ export class GameClient {
     // Reset speed state for new session
     this.isPaused = startPaused;
     this.allowTacticalPause = allowTacticalPause;
-    this.currentScale = initialTimeScale;
-    this.lastNonPausedScale = initialTimeScale;
+
+    const minScale = this.allowTacticalPause ? 0.1 : 1.0;
+    const clampedScale = Math.min(Math.max(initialTimeScale, minScale), 10.0);
+
+    this.currentScale = clampedScale;
+    this.lastNonPausedScale = clampedScale;
 
     const msg: WorkerMessage = {
       type: "INIT",
@@ -120,7 +124,7 @@ export class GameClient {
         missionType,
         losOverlayEnabled,
         startingThreatLevel,
-        initialTimeScale,
+        initialTimeScale: clampedScale,
         startPaused,
         allowTacticalPause,
         mode,
@@ -130,7 +134,9 @@ export class GameClient {
     this.worker.postMessage(msg);
 
     // Sync current scale to new worker
-    this.sendTimeScaleToWorker(this.isPaused ? (this.allowTacticalPause ? 0.1 : 0.0) : this.currentScale);
+    this.sendTimeScaleToWorker(
+      this.isPaused ? (this.allowTacticalPause ? 0.05 : 0.0) : this.currentScale,
+    );
 
     if (mode === EngineMode.Simulation && typeof localStorage !== "undefined") {
       this.saveMissionConfig({
@@ -239,14 +245,12 @@ export class GameClient {
   }
 
   public setTimeScale(scale: number) {
-    let effectiveScale = scale;
-    if (!this.allowTacticalPause && scale < 1.0) {
-      effectiveScale = 1.0;
-    }
+    const minScale = this.allowTacticalPause ? 0.1 : 1.0;
+    const effectiveScale = Math.min(Math.max(scale, minScale), 10.0);
 
     if (this.isPaused) {
       this.lastNonPausedScale = effectiveScale;
-      // Do not update worker immediately, keep at paused value (0.1 or 0.0)
+      // Do not update worker immediately, keep at paused value (0.05 or 0.0)
     } else {
       this.currentScale = effectiveScale;
       this.lastNonPausedScale = effectiveScale;
@@ -258,7 +262,7 @@ export class GameClient {
     if (!this.isPaused) {
       this.isPaused = true;
       this.lastNonPausedScale = this.currentScale;
-      this.sendTimeScaleToWorker(this.allowTacticalPause ? 0.1 : 0.0);
+      this.sendTimeScaleToWorker(this.allowTacticalPause ? 0.05 : 0.0);
     }
   }
 
@@ -271,13 +275,16 @@ export class GameClient {
   }
 
   public togglePause() {
-    if (this.isPaused) this.resume();
-    else this.pause();
+    if (this.isPaused) {
+      this.resume();
+    } else if (this.allowTacticalPause) {
+      this.pause();
+    }
   }
 
   public getTimeScale(): number {
     if (this.isPaused) {
-      return this.allowTacticalPause ? 0.1 : 0.0;
+      return this.allowTacticalPause ? 0.05 : 0.0;
     }
     return this.currentScale;
   }
