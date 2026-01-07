@@ -72,7 +72,32 @@ export class MenuController {
         this.pendingAction === CommandType.USE_ITEM)
     ) {
       this.pendingTargetLocation = cell;
-      this.menuState = "UNIT_SELECT";
+
+      // If clicking on a unit, set pendingTargetId
+      const unitAtCell = gameState.units.find(
+        (u) =>
+          Math.floor(u.pos.x) === cell.x &&
+          Math.floor(u.pos.y) === cell.y &&
+          u.state !== UnitState.Dead &&
+          u.state !== UnitState.Extracted,
+      );
+      if (unitAtCell) {
+        this.pendingTargetId = unitAtCell.id;
+      }
+
+      // Special case: Healing items bypass UNIT_SELECT and use all active units
+      const item = this.pendingItemId ? ItemLibrary[this.pendingItemId] : null;
+      if (
+        this.pendingAction === CommandType.USE_ITEM &&
+        item?.action === "Heal"
+      ) {
+        const activeUnits = gameState.units.filter(
+          (u) => u.state !== UnitState.Dead && u.state !== UnitState.Extracted,
+        );
+        this.executePendingCommand(activeUnits.map((u) => u.id));
+      } else {
+        this.menuState = "UNIT_SELECT";
+      }
     }
   }
 
@@ -172,7 +197,20 @@ export class MenuController {
       if (option && option.pos) {
         this.pendingTargetLocation = option.pos;
         this.pendingTargetId = option.id || null;
-        this.menuState = "UNIT_SELECT";
+
+        // Special case: Healing items bypass UNIT_SELECT and use all active units
+        const item = this.pendingItemId ? ItemLibrary[this.pendingItemId] : null;
+        if (
+          this.pendingAction === CommandType.USE_ITEM &&
+          item?.action === "Heal"
+        ) {
+          const activeUnits = gameState.units.filter(
+            (u) => u.state !== UnitState.Dead && u.state !== UnitState.Extracted,
+          );
+          this.executePendingCommand(activeUnits.map((u) => u.id));
+        } else {
+          this.menuState = "UNIT_SELECT";
+        }
       }
     } else if (this.menuState === "UNIT_SELECT") {
       const activeUnits = gameState.units.filter(
