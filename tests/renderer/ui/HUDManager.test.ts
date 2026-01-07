@@ -10,6 +10,8 @@ describe("HUDManager", () => {
   let onAbortMission: any;
   let onMenuInput: any;
   let onCopyWorldState: any;
+  let onForceWin: any;
+  let onForceLose: any;
 
   const mockState: GameState = {
     t: 1000,
@@ -80,6 +82,8 @@ describe("HUDManager", () => {
     onAbortMission = vi.fn();
     onMenuInput = vi.fn();
     onCopyWorldState = vi.fn();
+    onForceWin = vi.fn();
+    onForceLose = vi.fn();
 
     hud = new HUDManager(
       mockMenuController,
@@ -87,6 +91,8 @@ describe("HUDManager", () => {
       onAbortMission,
       onMenuInput,
       onCopyWorldState,
+      onForceWin,
+      onForceLose,
       "1.0.0",
     );
   });
@@ -216,6 +222,8 @@ describe("HUDManager", () => {
     expect(debugDiv).not.toBeNull();
     expect(debugDiv?.innerHTML).toContain("Debug Tools");
     expect(debugDiv?.querySelector("#btn-copy-world-state")).not.toBeNull();
+    expect(debugDiv?.querySelector("#btn-force-win")).not.toBeNull();
+    expect(debugDiv?.querySelector("#btn-force-lose")).not.toBeNull();
   });
 
   it("should display generator name and seed in the correct format", () => {
@@ -246,6 +254,23 @@ describe("HUDManager", () => {
     btn?.click();
 
     expect(onCopyWorldState).toHaveBeenCalled();
+  });
+
+  it("should call onForceWin and onForceLose when the respective buttons are clicked", () => {
+    const debugState: GameState = {
+      ...mockState,
+      settings: { ...mockState.settings, debugOverlayEnabled: true },
+    };
+
+    hud.update(debugState, null);
+
+    const winBtn = document.getElementById("btn-force-win");
+    winBtn?.click();
+    expect(onForceWin).toHaveBeenCalled();
+
+    const loseBtn = document.getElementById("btn-force-lose");
+    loseBtn?.click();
+    expect(onForceLose).toHaveBeenCalled();
   });
 
   it("should render objectives in game over summary", () => {

@@ -76,6 +76,8 @@ describe("HUDManager: Pause Constraints", () => {
       onAbortMission,
       onMenuInput,
       onCopyWorldState,
+      vi.fn(),
+      vi.fn(),
       "1.0.0",
     );
   });

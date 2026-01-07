@@ -14,6 +14,8 @@ export class HUDManager {
     private onAbortMission: () => void,
     private onMenuInput: (key: string, shiftHeld?: boolean) => void,
     private onCopyWorldState: () => void,
+    private onForceWin: () => void,
+    private onForceLose: () => void,
     private version: string,
   ) {}
 
@@ -170,6 +172,10 @@ export class HUDManager {
           <span><strong>Size:</strong> ${state.map.width}x${state.map.height}</span>
           <span><strong>Mission:</strong> ${state.missionType}</span>
         </div>
+        <div style="display:flex; gap:4px; margin-bottom:4px;">
+          <button id="btn-force-win" style="flex:1; font-size:0.8em; padding:8px; background-color:var(--color-success); color:white; border:none; cursor:pointer;">Force Win</button>
+          <button id="btn-force-lose" style="flex:1; font-size:0.8em; padding:8px; background-color:var(--color-danger); color:white; border:none; cursor:pointer;">Force Lose</button>
+        </div>
         <button id="btn-copy-world-state" style="width:100%; font-size:0.8em; padding:8px;">Copy World State</button>
       `;
       if (debugDiv.innerHTML !== debugHtml) {
@@ -177,6 +183,12 @@ export class HUDManager {
         document
           .getElementById("btn-copy-world-state")
           ?.addEventListener("click", () => this.onCopyWorldState());
+        document
+          .getElementById("btn-force-win")
+          ?.addEventListener("click", () => this.onForceWin());
+        document
+          .getElementById("btn-force-lose")
+          ?.addEventListener("click", () => this.onForceLose());
       }
     } else if (debugDiv) {
       debugDiv.remove();

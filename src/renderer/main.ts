@@ -101,6 +101,8 @@ const hudManager = new HUDManager(
   () => abortMission(),
   (key) => handleMenuInput(key),
   () => copyWorldState(),
+  () => gameClient.forceWin(),
+  () => gameClient.forceLose(),
   VERSION,
 );
 

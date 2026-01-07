@@ -231,6 +231,18 @@ export class GameClient {
     });
   }
 
+  public forceWin() {
+    this.sendCommand({
+      type: CommandType.DEBUG_FORCE_WIN,
+    });
+  }
+
+  public forceLose() {
+    this.sendCommand({
+      type: CommandType.DEBUG_FORCE_LOSE,
+    });
+  }
+
   public queryState() {
     const msg: WorkerMessage = {
       type: "QUERY_STATE",

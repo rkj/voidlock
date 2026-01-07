@@ -46,6 +46,17 @@ export class CommandHandler {
       return;
     }
 
+    if (cmd.type === CommandType.DEBUG_FORCE_WIN) {
+      state.objectives.forEach((o) => (o.state = "Completed"));
+      state.status = "Won";
+      return;
+    }
+
+    if (cmd.type === CommandType.DEBUG_FORCE_LOSE) {
+      state.status = "Lost";
+      return;
+    }
+
     if (
       cmd.type === CommandType.MOVE_TO ||
       cmd.type === CommandType.SET_ENGAGEMENT ||
