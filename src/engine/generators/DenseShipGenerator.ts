@@ -7,6 +7,7 @@ import {
   ObjectiveDefinition,
   Vector2,
   WallDefinition,
+  BoundaryType,
 } from "../../shared/types";
 import { PRNG } from "../../shared/PRNG";
 import { MapGenerator } from "../MapGenerator";
@@ -114,13 +115,13 @@ export class DenseShipGenerator {
 
         const cell = graph.cells[y][x];
         const n = cell.edges.n;
-        if (n?.isWall) grid[ey - 1][ex] = n.doorId ? "=" : "-";
+        if (n && n.type !== BoundaryType.Open) grid[ey - 1][ex] = n.doorId ? "=" : "-";
         const s = cell.edges.s;
-        if (s?.isWall) grid[ey + 1][ex] = s.doorId ? "=" : "-";
+        if (s && s.type !== BoundaryType.Open) grid[ey + 1][ex] = s.doorId ? "=" : "-";
         const e = cell.edges.e;
-        if (e?.isWall) grid[ey][ex + 1] = e.doorId ? "I" : "|";
+        if (e && e.type !== BoundaryType.Open) grid[ey][ex + 1] = e.doorId ? "I" : "|";
         const w = cell.edges.w;
-        if (w?.isWall) grid[ey][ex - 1] = w.doorId ? "I" : "|";
+        if (w && w.type !== BoundaryType.Open) grid[ey][ex - 1] = w.doorId ? "I" : "|";
       }
     }
 

@@ -5,6 +5,12 @@ export enum CellType {
   Floor = "Floor",
 }
 
+export enum BoundaryType {
+  Open = "Open",
+  Wall = "Wall",
+  Door = "Door",
+}
+
 export type WallDefinition = {
   p1: Vector2;
   p2: Vector2;
@@ -15,7 +21,7 @@ export type BoundaryDefinition = {
   y1: number;
   x2: number;
   y2: number;
-  isWall: boolean;
+  type: BoundaryType;
   doorId?: string;
 };
 

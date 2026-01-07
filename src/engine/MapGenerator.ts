@@ -12,6 +12,7 @@ import {
   MapGeneratorType,
   ObjectiveDefinition,
   WallDefinition,
+  BoundaryType,
 } from "../shared/types";
 import { PRNG } from "../shared/PRNG";
 import { TreeShipGenerator } from "./generators/TreeShipGenerator";
@@ -100,7 +101,7 @@ export class MapGenerator {
 
         const boundary = cell.edges[d];
         // Traverse if NO wall OR if there is a Door
-        if (boundary && (!boundary.isWall || boundary.doorId)) {
+        if (boundary && (boundary.type === BoundaryType.Open || boundary.type === BoundaryType.Door)) {
           const nKey = `${nx},${ny}`;
           if (!reachable.has(nKey)) {
             const nCell = graph.cells[ny][nx];
@@ -129,7 +130,7 @@ export class MapGenerator {
       const c1 = graph.cells[b.y1]?.[b.x1];
       const c2 = graph.cells[b.y2]?.[b.x2];
 
-      let isWall = b.isWall;
+      let shouldBeWall = b.type !== BoundaryType.Open;
       // If neighbor is outside or either cell is now a Wall (Void), it must be a wall
       if (
         !c1 ||
@@ -137,10 +138,10 @@ export class MapGenerator {
         c1.type === CellType.Void ||
         c2.type === CellType.Void
       ) {
-        isWall = true;
+        shouldBeWall = true;
       }
 
-      if (isWall && !b.doorId) {
+      if (shouldBeWall && b.type !== BoundaryType.Door) {
         newWalls.push({ p1: { x: b.x1, y: b.y1 }, p2: { x: b.x2, y: b.y2 } });
       }
     }
@@ -212,7 +213,7 @@ export class MapGenerator {
     for (const b of graph.getAllBoundaries()) {
       const c1 = graph.cells[b.y1]?.[b.x1];
       const c2 = graph.cells[b.y2]?.[b.x2];
-      if (!b.isWall) {
+      if (b.type === BoundaryType.Open) {
         if (
           !c1 ||
           !c2 ||
@@ -481,7 +482,7 @@ export class MapGenerator {
         for (const d of dirs) {
           const boundary = cell.edges[d];
           if (boundary) {
-            let canTraverse = !boundary.isWall;
+            let canTraverse = boundary.type === BoundaryType.Open;
             if (boundary.doorId && doors) {
               const door = doors.find((dr) => dr.id === boundary.doorId);
               if (door && door.state !== "Locked") {
@@ -545,7 +546,7 @@ export class MapGenerator {
         for (const d of dirs) {
           const boundary = cell.edges[d];
           if (boundary) {
-            let canTraverse = !boundary.isWall;
+            let canTraverse = boundary.type === BoundaryType.Open;
             if (boundary.doorId && doors) {
               const door = doors.find((dr) => dr.id === boundary.doorId);
               if (door && door.state !== "Locked") {
@@ -646,13 +647,13 @@ export class MapGenerator {
         }
 
         const n = cell.edges.n;
-        if (n?.isWall) asciiGrid[ey - 1][ex] = n.doorId ? "=" : "-";
+        if (n && n.type !== BoundaryType.Open) asciiGrid[ey - 1][ex] = n.doorId ? "=" : "-";
         const e = cell.edges.e;
-        if (e?.isWall) asciiGrid[ey][ex + 1] = e.doorId ? "I" : "|";
+        if (e && e.type !== BoundaryType.Open) asciiGrid[ey][ex + 1] = e.doorId ? "I" : "|";
         const s = cell.edges.s;
-        if (s?.isWall) asciiGrid[ey + 1][ex] = s.doorId ? "=" : "-";
+        if (s && s.type !== BoundaryType.Open) asciiGrid[ey + 1][ex] = s.doorId ? "=" : "-";
         const w = cell.edges.w;
-        if (w?.isWall) asciiGrid[ey][ex - 1] = w.doorId ? "I" : "|";
+        if (w && w.type !== BoundaryType.Open) asciiGrid[ey][ex - 1] = w.doorId ? "I" : "|";
       }
     }
 
@@ -1066,7 +1067,7 @@ export class MapGenerator {
 
               const boundary = graph.getBoundary(current.x, current.y, nx, ny);
               // Rooms are separated by walls or doors
-              if (boundary && !boundary.isWall && !boundary.doorId) {
+              if (boundary && boundary.type === BoundaryType.Open) {
                 if (!visited.has(`${nx},${ny}`)) {
                   visited.add(`${nx},${ny}`);
                   queue.push({ x: nx, y: ny });

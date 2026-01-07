@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { TreeShipGenerator } from "@src/engine/generators/TreeShipGenerator";
-import { CellType } from "@src/shared/types";
+import { CellType, BoundaryType } from "@src/shared/types";
 import { Graph } from "@src/engine/Graph";
 
 describe("TreeShipGenerator Missing Walls Repro", () => {
@@ -24,7 +24,7 @@ describe("TreeShipGenerator Missing Walls Repro", () => {
       if (!neighbor || neighbor.type === CellType.Void) {
         const b = cell.edges[dir];
         expect(
-          b?.isWall,
+          b?.type === BoundaryType.Wall,
           `Cell (${x},${y}) should have ${dir} wall against Void`,
         ).toBe(true);
       }

@@ -3,7 +3,7 @@ import * as path from "path";
 import { describe, it, expect } from "vitest";
 import { TreeShipGenerator } from "@src/engine/generators/TreeShipGenerator";
 import { MapGenerator } from "@src/engine/MapGenerator";
-import { CellType } from "@src/shared/types";
+import { CellType, BoundaryType } from "@src/shared/types";
 import { Graph } from "@src/engine/Graph";
 
 describe("TreeShipGenerator Nested Room Specific", () => {
@@ -39,13 +39,13 @@ describe("TreeShipGenerator Nested Room Specific", () => {
     expect(nw11.type).toBe(CellType.Floor);
 
     // Verify internal are open
-    expect(graph.getBoundary(nwX, nwY, nwX + 1, nwY)?.isWall).toBe(false);
-    expect(graph.getBoundary(nwX, nwY, nwX, nwY + 1)?.isWall).toBe(false);
-    expect(graph.getBoundary(nwX + 1, nwY, nwX + 1, nwY + 1)?.isWall).toBe(
-      false,
+    expect(graph.getBoundary(nwX, nwY, nwX + 1, nwY)?.type).toBe(BoundaryType.Open);
+    expect(graph.getBoundary(nwX, nwY, nwX, nwY + 1)?.type).toBe(BoundaryType.Open);
+    expect(graph.getBoundary(nwX + 1, nwY, nwX + 1, nwY + 1)?.type).toBe(
+      BoundaryType.Open,
     );
-    expect(graph.getBoundary(nwX, nwY + 1, nwX + 1, nwY + 1)?.isWall).toBe(
-      false,
+    expect(graph.getBoundary(nwX, nwY + 1, nwX + 1, nwY + 1)?.type).toBe(
+      BoundaryType.Open,
     );
   });
 });

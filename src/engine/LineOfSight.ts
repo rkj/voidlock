@@ -1,4 +1,4 @@
-import { Vector2, Door, CellType } from "../shared/types";
+import { Vector2, Door, CellType, BoundaryType } from "../shared/types";
 import { Graph } from "./Graph";
 
 export class LineOfSight {
@@ -53,7 +53,7 @@ export class LineOfSight {
         ) {
           return false;
         }
-      } else if (boundary.isWall) {
+      } else if (boundary.type === BoundaryType.Wall) {
         return false;
       }
       return true;
@@ -67,7 +67,7 @@ export class LineOfSight {
         if (door && door.state !== "Open" && door.state !== "Destroyed") {
           return false;
         }
-      } else if (boundary.isWall) {
+      } else if (boundary.type === BoundaryType.Wall) {
         return false;
       }
       return true;

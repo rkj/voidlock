@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { Graph, Boundary, GraphCell } from "@src/engine/Graph";
-import { CellType, MapDefinition } from "@src/shared/types";
+import { CellType, MapDefinition, BoundaryType } from "@src/shared/types";
 
 describe("Graph", () => {
   const mockMap: MapDefinition = {
@@ -40,7 +40,7 @@ describe("Graph", () => {
     expect(cell0.edges.e).toBeDefined();
     expect(cell1.edges.w).toBeDefined();
     expect(cell0.edges.e).toBe(cell1.edges.w); // Reference equality
-    expect(cell0.edges.e?.isWall).toBe(true);
+    expect(cell0.edges.e?.type).toBe(BoundaryType.Wall);
   });
 
   it("should handle doors correctly", () => {
@@ -69,7 +69,7 @@ describe("Graph", () => {
     const graph = new Graph(mapWithDoor);
     const boundary = graph.cells[0][0].edges.e;
     expect(boundary?.doorId).toBe("door1");
-    expect(boundary?.isWall).toBe(true);
+    expect(boundary?.type).toBe(BoundaryType.Door);
   });
 
   it("should create separate boundaries for non-shared edges (map boundaries)", () => {

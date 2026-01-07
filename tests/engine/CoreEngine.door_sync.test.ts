@@ -6,6 +6,7 @@ import {
   MissionType,
   AIProfile,
   UnitState,
+  BoundaryType,
 } from "@src/shared/types";
 
 describe("CoreEngine Door Sync", () => {
@@ -35,7 +36,7 @@ describe("CoreEngine Door Sync", () => {
     objectives: [],
   };
 
-  it("should update Graph boundary isWall when door opens", () => {
+  it("should update Graph boundary type when door opens", () => {
     const engine = new CoreEngine(
       mockMap,
       123,
@@ -49,7 +50,7 @@ describe("CoreEngine Door Sync", () => {
     const boundary = graph.getBoundary(0, 0, 1, 0);
 
     expect(boundary).toBeDefined();
-    expect(boundary?.isWall).toBe(true); // Initially closed
+    expect(boundary?.type).toBe(BoundaryType.Door); // Initially closed
 
     // Trigger door open
     engine.addUnit({
@@ -86,11 +87,11 @@ describe("CoreEngine Door Sync", () => {
     engine.update(600);
     expect(door.state).toBe("Open");
 
-    // CHECK: Boundary should now be NOT a wall
-    expect(boundary?.isWall).toBe(false);
+    // CHECK: Boundary should now be Open
+    expect(boundary?.type).toBe(BoundaryType.Open);
   });
 
-  it("should update Graph boundary isWall when door closes", () => {
+  it("should update Graph boundary type when door closes", () => {
     // Setup with OPEN door
     const mapWithOpenDoor = JSON.parse(JSON.stringify(mockMap));
     mapWithOpenDoor.doors[0].state = "Open";
@@ -132,8 +133,8 @@ describe("CoreEngine Door Sync", () => {
       objectivesCompleted: 0,
     });
 
-    // Initial state check: Boundary should be OPEN (isWall: false)
-    expect(boundary?.isWall).toBe(false);
+    // Initial state check: Boundary should be OPEN
+    expect(boundary?.type).toBe(BoundaryType.Open);
 
     // Update to trigger Close logic (starts timer)
     engine.update(100);
@@ -145,6 +146,6 @@ describe("CoreEngine Door Sync", () => {
     engine.update(600);
     expect(door.state).toBe("Closed");
 
-    expect(boundary?.isWall).toBe(true);
+    expect(boundary?.type).toBe(BoundaryType.Door);
   });
 });

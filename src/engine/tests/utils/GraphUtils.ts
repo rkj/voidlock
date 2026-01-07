@@ -1,4 +1,4 @@
-import { MapDefinition, CellType } from "../../../shared/types";
+import { MapDefinition, CellType, BoundaryType } from "../../../shared/types";
 import { Graph } from "../../Graph";
 
 // Helper to convert MapDefinition to an adjacency list for graph traversal
@@ -28,7 +28,7 @@ export function mapToAdjacencyList(map: MapDefinition): Map<string, string[]> {
           const nx = x + dx;
           const ny = y + dy;
           const b = cell.edges[d];
-          if (b && (!b.isWall || b.doorId)) {
+          if (b && (b.type === BoundaryType.Open || b.doorId)) {
             const nCell = graph.cells[ny]?.[nx];
             if (nCell && nCell.type === CellType.Floor) {
               adj.get(cellKey)?.push(`${nx},${ny}`);

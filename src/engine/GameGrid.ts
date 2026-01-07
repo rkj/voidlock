@@ -1,4 +1,4 @@
-import { MapDefinition, CellType, Grid, Door } from "../shared/types";
+import { MapDefinition, CellType, Grid, Door, BoundaryType } from "../shared/types";
 import { Graph } from "./Graph";
 
 export class GameGrid implements Grid {
@@ -64,6 +64,6 @@ export class GameGrid implements Grid {
       }
     }
 
-    return !boundary.isWall;
+    return boundary.type === BoundaryType.Open;
   }
 }
