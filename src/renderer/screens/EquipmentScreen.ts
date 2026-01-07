@@ -71,37 +71,52 @@ export class EquipmentScreen {
 
   private render() {
     this.container.innerHTML = "";
-    this.container.className =
-      "screen equipment-screen flex-row p-20 gap-20 relative";
+    this.container.className = "screen equipment-screen flex-col h-full";
     this.container.style.display = "flex";
+    this.container.style.overflow = "hidden";
+
+    // Main Content Wrapper (Flex Row for panels)
+    const contentWrapper = document.createElement("div");
+    contentWrapper.className = "flex-row flex-grow p-20 gap-20";
+    contentWrapper.style.overflow = "hidden";
+    contentWrapper.style.minHeight = "0"; // Crucial for nested flex scrolling
 
     // Left: Soldier List
     const leftPanel = this.createPanel("Soldier List", "250px");
+    leftPanel.style.overflowY = "auto";
     this.renderSoldierList(leftPanel);
 
     // Center: Paper Doll / Slots
     const centerPanel = this.createPanel("Soldier Equipment", "1fr");
+    centerPanel.style.overflowY = "auto";
     this.renderPaperDoll(centerPanel);
 
     // Right: Armory / Global Inventory
     const rightPanel = this.createPanel("Armory & Supplies", "400px");
+    rightPanel.style.overflowY = "auto";
     this.renderArmory(rightPanel);
 
-    this.container.appendChild(leftPanel);
-    this.container.appendChild(centerPanel);
-    this.container.appendChild(rightPanel);
+    contentWrapper.appendChild(leftPanel);
+    contentWrapper.appendChild(centerPanel);
+    contentWrapper.appendChild(rightPanel);
+    this.container.appendChild(contentWrapper);
 
-    // Footer Buttons
+    // Footer Buttons (Direct child of container)
     const footer = document.createElement("div");
-    footer.className = "screen-footer screen-footer-right";
+    footer.className = "flex-row justify-end p-20 gap-10";
+    footer.style.flexShrink = "0";
+    footer.style.borderTop = "1px solid var(--color-border-strong)";
+    footer.style.backgroundColor = "var(--color-bg)";
 
     const backBtn = document.createElement("button");
     backBtn.textContent = "BACK";
     backBtn.className = "back-button";
+    backBtn.style.marginTop = "0";
     backBtn.onclick = () => this.onBack();
 
     const saveBtn = document.createElement("button");
     saveBtn.textContent = "CONFIRM SQUAD";
+    saveBtn.style.marginTop = "0";
     saveBtn.onclick = () => this.onSave(this.config);
 
     footer.appendChild(backBtn);
