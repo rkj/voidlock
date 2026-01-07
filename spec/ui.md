@@ -82,7 +82,40 @@ The application is divided into distinct screens to reduce UI clutter and improv
 The game must be fully playable via keyboard using a strict hierarchical command menu.
 For detailed Command behaviors, see **[Command System & AI](commands.md)**.
 
-- **Menu Hierarchy (Implemented):**
+#### 8.3.1 Menu State Machine
+
+To ensure consistent navigation, the UI follows a strict state machine.
+
+| Current State | Input / Trigger | Next State | Action / Side Effect |
+| :--- | :--- | :--- | :--- |
+| **ACTION_SELECT** (Root) | `1` (Orders) | **ORDERS_SELECT** | Show Order Submenu |
+| | `2` (Engage) | **MODE_SELECT** | Show Mode Submenu |
+| | `3` (Use Item) | **ITEM_SELECT** | Show Inventory List |
+| | `4` (Pickup) | **TARGET_SELECT** | Filter: Loot Items |
+| | `5` (Extract) | **UNIT_SELECT** | Filter: All Units |
+| **ORDERS_SELECT** | `1` (Move) | **TARGET_SELECT** | Filter: Rooms |
+| | `2` (Overwatch) | **TARGET_SELECT** | Filter: Intersections |
+| | `3` (Explore) | **UNIT_SELECT** | Filter: All Units |
+| | `4` (Escort) | **TARGET_SELECT** | Filter: Friendly Units |
+| | `5` (Hold) | **UNIT_SELECT** | Filter: All Units |
+| | `Q` / `ESC` | **ACTION_SELECT** | Clear Submenu |
+| **ITEM_SELECT** | `1-9` (Select Item) | **TARGET_SELECT** | Filter: Contextual (See below) |
+| | `Q` / `ESC` | **ACTION_SELECT** | Clear Inventory |
+| **MODE_SELECT** | `1-2` (Select Mode) | **UNIT_SELECT** | Set Pending Mode |
+| | `Q` / `ESC` | **ACTION_SELECT** | Clear Submenu |
+| **TARGET_SELECT** | `1-9` / Click | **UNIT_SELECT** | Set Pending Target |
+| | `Q` / `ESC` | *Previous State* | **CRITICAL:** Return to parent (Order/Item/Action) |
+| **UNIT_SELECT** | `1-9` (Select Unit) | **ACTION_SELECT** | **EXECUTE COMMAND** |
+| | `Q` / `ESC` | *Previous State* | Return to Target/Mode selection |
+
+**Item Targeting Context:**
+- **Grenades:** `TARGET_SELECT` filter = **Visible Enemies** (If none, disable option).
+- **Medkits/Stimpacks:** `TARGET_SELECT` filter = **Friendly Units**.
+- **Mines/Scanners:** `TARGET_SELECT` filter = **Grid Cells** (Range limited).
+
+#### 8.3.2 Menu Hierarchy (Visual)
+
+- **Level 1 (Action):**
   - **Level 1 (Action):**
     - `1`: Orders (Move, Explore, Hold, Escort)
     - `2`: Engagement (Toggle Engage/Ignore)
