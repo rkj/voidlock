@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { GameClient } from "@src/engine/GameClient";
-import { MapGeneratorType } from "@src/shared/types";
+import { MapGeneratorType, MapGenerationConfig } from "@src/shared/types";
 
 // Mock Worker
 const postMessageMock = vi.fn();
@@ -15,10 +15,10 @@ class MockWorker {
 vi.stubGlobal("Worker", MockWorker);
 
 // Mock MapGeneratorFactory
-const mockMapGeneratorFactory = () => {
+const mockMapGeneratorFactory = (config: MapGenerationConfig) => {
   return {
     generate: vi.fn().mockReturnValue({ width: 10, height: 10, cells: [] }),
-    load: vi.fn().mockReturnValue({ width: 10, height: 10, cells: [] }),
+    load: vi.fn().mockImplementation((data) => data || { width: 10, height: 10, cells: [] }),
   } as any;
 };
 

@@ -12,18 +12,12 @@ import {
   CommandType,
   EngineMode,
   CommandLogEntry,
+  MapGenerationConfig,
 } from "../shared/types";
 import { MapGenerator } from "./MapGenerator";
 
-// Factory type for creating MapGenerator instances based on type
-type MapGeneratorFactory = (
-  seed: number,
-  type: MapGeneratorType,
-  width: number,
-  height: number,
-  spawnPointCount?: number,
-  mapData?: MapDefinition,
-) => MapGenerator;
+// Factory type for creating MapGenerator instances based on config
+type MapGeneratorFactory = (config: MapGenerationConfig) => MapGenerator;
 
 export class GameClient {
   private worker: Worker;
@@ -83,15 +77,17 @@ export class GameClient {
   ) {
     this.initialSeed = seed;
     this.initialSquadConfig = squadConfig;
-    // Use the factory to get the map, based on type and data
-    const generator = this.mapGeneratorFactory(
+
+    const config: MapGenerationConfig = {
       seed,
-      mapGeneratorType,
       width,
       height,
+      type: mapGeneratorType,
       spawnPointCount,
-      mapData,
-    );
+    };
+
+    // Use the factory to get the map, based on type and data
+    const generator = this.mapGeneratorFactory(config);
     const map =
       mapGeneratorType === MapGeneratorType.Static
         ? generator.load(mapData!)

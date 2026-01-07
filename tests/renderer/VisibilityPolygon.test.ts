@@ -43,7 +43,8 @@ describe("VisibilityPolygon", () => {
         map.cells.push({ x, y, type: CellType.Floor });
         if (x === 5) {
           // Continuous Wall at x=6 (East of origin)
-          map.walls.push({ p1: { x: 5, y }, p2: { x: 6, y } });
+          const y2 = y + 1;
+          map.walls.push({ p1: { x: 6, y }, p2: { x: 6, y: y2 } });
         }
       }
     }

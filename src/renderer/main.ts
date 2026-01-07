@@ -69,32 +69,11 @@ let currentStaticMapData: MapDefinition | undefined = undefined;
 let currentSquad: SquadConfig = ConfigManager.getDefault().squadConfig;
 let currentSpawnPointCount = ConfigManager.getDefault().spawnPointCount;
 
-const mapGeneratorFactory = (
-  seed: number,
-  type: MapGeneratorType,
-  width: number,
-  height: number,
-  spawnPointCount: number = 1,
-): MapGenerator => {
-  return new MapGenerator({
-    seed,
-    width,
-    height,
-    type,
-    spawnPointCount,
-  });
+const mapGeneratorFactory = (config: MapGenerationConfig): MapGenerator => {
+  return new MapGenerator(config);
 };
 
-const gameClient = new GameClient(
-  (seed, type, width, height, spawnPointCount, _mapData) =>
-    mapGeneratorFactory(
-      seed,
-      type,
-      width,
-      height,
-      spawnPointCount,
-    ),
-);
+const gameClient = new GameClient((config) => mapGeneratorFactory(config));
 const menuController = new MenuController(gameClient);
 let renderer: Renderer;
 
