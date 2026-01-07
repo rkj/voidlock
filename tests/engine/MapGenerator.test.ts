@@ -6,12 +6,18 @@ import {
   IMapValidationResult,
   Door,
   Vector2,
+  MapGeneratorType,
 } from "@src/shared/types";
 
 describe("MapGenerator", () => {
   it("should generate a map with cells and walls", () => {
-    const generator = new MapGenerator(123);
-    const map = generator.generate(16, 16);
+    const generator = new MapGenerator({
+      seed: 123,
+      width: 16,
+      height: 16,
+      type: MapGeneratorType.Procedural,
+    });
+    const map = generator.generate();
 
     expect(map.width).toBe(16);
     expect(map.height).toBe(16);
@@ -30,11 +36,17 @@ describe("MapGenerator", () => {
   });
 
   it("should be deterministic with same seed", () => {
-    const gen1 = new MapGenerator(555);
-    const map1 = gen1.generate(10, 10);
+    const config = {
+      seed: 555,
+      width: 10,
+      height: 10,
+      type: MapGeneratorType.Procedural,
+    };
+    const gen1 = new MapGenerator(config);
+    const map1 = gen1.generate();
 
-    const gen2 = new MapGenerator(555);
-    const map2 = gen2.generate(10, 10);
+    const gen2 = new MapGenerator(config);
+    const map2 = gen2.generate();
 
     expect(map1).toEqual(map2);
   });
@@ -57,8 +69,15 @@ describe("MapGenerator.validate", () => {
     walls: [],
   });
 
+  const defaultConfig = {
+    seed: 1,
+    width: 10,
+    height: 10,
+    type: MapGeneratorType.Procedural,
+  };
+
   it("should validate a simple valid map", () => {
-    const generator = new MapGenerator(1);
+    const generator = new MapGenerator(defaultConfig);
     const map = createBaseMap();
     const result = generator.validate(map);
     expect(result.isValid).toBe(true);
@@ -66,7 +85,7 @@ describe("MapGenerator.validate", () => {
   });
 
   it("should invalidate map with non-positive dimensions", () => {
-    const generator = new MapGenerator(1);
+    const generator = new MapGenerator(defaultConfig);
     const map = createBaseMap();
     map.width = 0;
     const result = generator.validate(map);
@@ -77,7 +96,7 @@ describe("MapGenerator.validate", () => {
   });
 
   it("should invalidate map with cells out of bounds", () => {
-    const generator = new MapGenerator(1);
+    const generator = new MapGenerator(defaultConfig);
     const map = createBaseMap();
     map.cells[0] = { x: -1, y: 0, type: CellType.Floor };
     const result = generator.validate(map);
@@ -86,7 +105,7 @@ describe("MapGenerator.validate", () => {
   });
 
   it("should invalidate map with unreachable floor cells", () => {
-    const generator = new MapGenerator(1);
+    const generator = new MapGenerator(defaultConfig);
     const map = createBaseMap();
     map.walls = [
       { p1: { x: 0, y: 1 }, p2: { x: 1, y: 1 } },
@@ -100,7 +119,7 @@ describe("MapGenerator.validate", () => {
   });
 
   it("should invalidate map if extraction is unreachable", () => {
-    const generator = new MapGenerator(1);
+    const generator = new MapGenerator(defaultConfig);
     const map = createBaseMap();
     map.extraction = { x: 1, y: 1 };
     map.walls = [
@@ -115,7 +134,7 @@ describe("MapGenerator.validate", () => {
   });
 
   it("should validate map if a door provides reachability", () => {
-    const generator = new MapGenerator(1);
+    const generator = new MapGenerator(defaultConfig);
     const map = createBaseMap();
     map.walls = [];
     map.doors = [
@@ -137,7 +156,7 @@ describe("MapGenerator.validate", () => {
   });
 
   it("should invalidate map if a LOCKED door is the only path", () => {
-    const generator = new MapGenerator(1);
+    const generator = new MapGenerator(defaultConfig);
     const map = createBaseMap();
     map.walls = [
       { p1: { x: 0, y: 1 }, p2: { x: 1, y: 1 } },

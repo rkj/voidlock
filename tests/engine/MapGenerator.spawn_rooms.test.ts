@@ -14,8 +14,14 @@ describe("MapGenerator - Spawn Room Exclusivity", () => {
     describe(`Generator Type: ${type}`, () => {
       seeds.forEach((seed) => {
         it(`should never place squad and enemy spawns in the same room (seed: ${seed})`, () => {
-          const generator = new MapGenerator(seed);
-          const map = generator.generate(16, 16, type, 5);
+          const generator = new MapGenerator({
+            seed,
+            width: 16,
+            height: 16,
+            type,
+            spawnPointCount: 5,
+          });
+          const map = generator.generate();
 
           const validation = generator.validate(map);
           expect(

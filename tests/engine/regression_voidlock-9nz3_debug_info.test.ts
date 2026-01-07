@@ -4,14 +4,24 @@ import { MapGeneratorType } from "@src/shared/types";
 
 describe("Regression voidlock-9nz3: Map Generator Name", () => {
   it("should set generatorName on generated map", () => {
-    const generator = new MapGenerator(123);
-    const map = generator.generate(16, 16, MapGeneratorType.TreeShip);
+    const generator = new MapGenerator({
+      seed: 123,
+      width: 16,
+      height: 16,
+      type: MapGeneratorType.TreeShip,
+    });
+    const map = generator.generate();
 
     expect(map.generatorName).toBe(MapGeneratorType.TreeShip);
   });
 
   it("should set generatorName on loaded map", () => {
-    const generator = new MapGenerator(123);
+    const generator = new MapGenerator({
+      seed: 123,
+      width: 10,
+      height: 10,
+      type: MapGeneratorType.Static,
+    });
     const map = generator.load({
       width: 10,
       height: 10,

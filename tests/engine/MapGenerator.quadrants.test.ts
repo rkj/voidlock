@@ -14,10 +14,15 @@ describe("MapGenerator Quadrant Distribution", () => {
     describe(`Generator: ${type}`, () => {
       seeds.forEach((seed) => {
         it(`should place squadSpawn and extraction in different quadrants for seed ${seed}`, () => {
-          const generator = new MapGenerator(seed);
           const width = 16;
           const height = 16;
-          const map = generator.generate(width, height, type);
+          const generator = new MapGenerator({
+            seed,
+            width,
+            height,
+            type,
+          });
+          const map = generator.generate();
 
           expect(map.squadSpawn).toBeDefined();
           expect(map.extraction).toBeDefined();

@@ -27,9 +27,18 @@ vi.stubGlobal("Worker", MockWorker);
 const mockMapGeneratorFactory = (
   seed: number,
   type: MapGeneratorType,
+  width: number,
+  height: number,
+  spawnPointCount?: number,
   mapData?: MapDefinition,
 ) => {
-  const generator = new MapGenerator(seed); // Doesn't matter too much for tests, just needs to be an instance
+  const generator = new MapGenerator({
+    seed,
+    width,
+    height,
+    type,
+    spawnPointCount,
+  }); // Doesn't matter too much for tests, just needs to be an instance
   // Mock the generate and load methods
   generator.generate = vi
     .fn()

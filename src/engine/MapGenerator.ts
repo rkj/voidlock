@@ -13,6 +13,7 @@ import {
   ObjectiveDefinition,
   WallDefinition,
   BoundaryType,
+  MapGenerationConfig,
 } from "../shared/types";
 import { PRNG } from "../shared/PRNG";
 import { TreeShipGenerator } from "./generators/TreeShipGenerator";
@@ -21,38 +22,32 @@ import { DenseShipGenerator } from "./generators/DenseShipGenerator";
 import { Graph, Direction } from "./Graph";
 
 export class MapGenerator {
-  private prng: PRNG;
-  private seed: number;
+  private config: MapGenerationConfig;
 
-  constructor(seed: number) {
-    this.prng = new PRNG(seed);
-    this.seed = seed;
+  constructor(config: MapGenerationConfig) {
+    this.config = config;
   }
 
-  public generate(
-    width: number,
-    height: number,
-    type: MapGeneratorType = MapGeneratorType.Procedural,
-    spawnPointCount?: number,
-  ): MapDefinition {
+  public generate(): MapDefinition {
+    const { width, height, type, seed, spawnPointCount } = this.config;
     const spCount = spawnPointCount ?? 1;
     let map: MapDefinition;
     switch (type) {
       case MapGeneratorType.TreeShip:
-        map = new TreeShipGenerator(this.seed, width, height).generate(spCount);
+        map = new TreeShipGenerator(seed, width, height).generate(spCount);
         break;
       case MapGeneratorType.Procedural:
-        map = new SpaceshipGenerator(this.seed, width, height).generate(
+        map = new SpaceshipGenerator(seed, width, height).generate(
           spCount,
         );
         break;
       case MapGeneratorType.DenseShip:
-        map = new DenseShipGenerator(this.seed, width, height).generate(
+        map = new DenseShipGenerator(seed, width, height).generate(
           spCount,
         );
         break;
       default:
-        map = new SpaceshipGenerator(this.seed, width, height).generate(
+        map = new SpaceshipGenerator(seed, width, height).generate(
           spCount,
         );
     }

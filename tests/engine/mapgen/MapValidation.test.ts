@@ -1,12 +1,23 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { MapGenerator } from "@src/engine/MapGenerator";
-import { MapDefinition, CellType, Cell, Door } from "@src/shared/types";
+import {
+  MapDefinition,
+  CellType,
+  Cell,
+  Door,
+  MapGeneratorType,
+} from "@src/shared/types";
 
 describe("MapGenerator.validate", () => {
   let generator: MapGenerator;
 
   beforeEach(() => {
-    generator = new MapGenerator(123);
+    generator = new MapGenerator({
+      seed: 123,
+      width: 10,
+      height: 10,
+      type: MapGeneratorType.Procedural,
+    });
   });
 
   const createBaseMap = (): MapDefinition => ({
