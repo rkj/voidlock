@@ -28,6 +28,7 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
         msg.payload.mode ?? EngineMode.Simulation,
         msg.payload.commandLog ?? [],
         msg.payload.allowTacticalPause ?? true,
+        msg.payload.targetTick ?? 0,
       );
 
       // Start loop

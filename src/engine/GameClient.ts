@@ -47,6 +47,9 @@ export class GameClient {
     this.worker.onmessage = (e: MessageEvent<MainMessage>) => {
       const msg = e.data;
       if (msg.type === "STATE_UPDATE") {
+        if (typeof localStorage !== "undefined" && msg.payload.settings.mode === EngineMode.Simulation) {
+          localStorage.setItem("voidlock_mission_tick", Math.floor(msg.payload.t).toString());
+        }
         if (this.onStateUpdateCb) {
           this.onStateUpdateCb(msg.payload);
         }
@@ -74,6 +77,7 @@ export class GameClient {
     mode: EngineMode = EngineMode.Simulation,
     commandLog: CommandLogEntry[] = [],
     campaignNodeId?: string,
+    targetTick: number = 0,
   ) {
     this.initialSeed = seed;
     this.initialSquadConfig = squadConfig;
@@ -97,9 +101,14 @@ export class GameClient {
     this.startTime = Date.now();
 
     // If we have a command log, synchronize startTime so subsequent commands have correct ticks
+    const lastCommandTick = commandLog && commandLog.length > 0
+      ? commandLog[commandLog.length - 1].tick
+      : 0;
+    
+    const effectiveStartTimeTick = Math.max(lastCommandTick, targetTick);
+    this.startTime -= effectiveStartTimeTick;
+
     if (commandLog && commandLog.length > 0) {
-      const lastTick = commandLog[commandLog.length - 1].tick;
-      this.startTime -= lastTick;
       this.commandStream = commandLog.map((cl) => ({
         t: cl.tick,
         cmd: cl.command,
@@ -135,6 +144,7 @@ export class GameClient {
         allowTacticalPause,
         mode,
         commandLog,
+        targetTick,
       },
     };
     this.worker.postMessage(msg);
@@ -171,6 +181,10 @@ export class GameClient {
       } else {
         localStorage.setItem("voidlock_mission_log", "[]");
       }
+
+      if (targetTick > 0) {
+        localStorage.setItem("voidlock_mission_tick", targetTick.toString());
+      }
     }
   }
 
@@ -199,6 +213,7 @@ export class GameClient {
     if (typeof localStorage !== "undefined") {
       localStorage.removeItem("voidlock_mission_config");
       localStorage.removeItem("voidlock_mission_log");
+      localStorage.removeItem("voidlock_mission_tick");
     }
   }
 

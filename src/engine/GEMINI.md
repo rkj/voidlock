@@ -5,9 +5,9 @@ This directory contains the core simulation logic for Voidlock. It follows a det
 ## Files
 
 - `Constants.ts`: Global engine constants for simulation scaling and normalization (e.g., `SPEED_NORMALIZATION_CONST`).
-- `CoreEngine.ts`: The main orchestrator of the game simulation. It manages state (including `isPaused`, `timeScale`, and `isSlowMotion`), initializes managers, and runs the game loop. It respects `allowTacticalPause`, enforcing minimum speed of 1.0x (except for absolute pause) when disabled. Now includes a catch-up phase for session recovery.
+- `CoreEngine.ts`: The main orchestrator of the game simulation. It manages state (including `isPaused`, `timeScale`, and `isSlowMotion`), initializes managers, and runs the game loop. It respects `allowTacticalPause`, enforcing minimum speed of 1.0x (except for absolute pause) when disabled. Now includes a catch-up phase for session recovery, supporting catch-up to a specific `targetTick`.
 - `Director.ts`: Manages enemy spawning based on threat levels and timers. Also handles global commander abilities (Medkits, Stimpacks, Grenades, Scanners).
-- `GameClient.ts`: Provides an interface for the renderer (main thread) to communicate with the engine (worker). Exposes typed methods for debug actions (overlays, state queries) and handles time scaling, including Active Pause (0.05x). Now implements mission auto-save for crash recovery.
+- `GameClient.ts`: Provides an interface for the renderer (main thread) to communicate with the engine (worker). Exposes typed methods for debug actions (overlays, state queries) and handles time scaling, including Active Pause (0.05x). Now implements mission auto-save for crash recovery, persisting both the command log and the current engine tick to `localStorage`.
 - `GameGrid.ts`: Manages the logical grid, including walkability and movement validation between cells (respecting walls and doors).
 - `Graph.ts`: Represents the map as a graph of cells and boundaries (walls/doors). Now supports sparse initialization from `MapDefinition`, implicitly treating missing cells as `Void`. Hydrates `walls` from corner-to-corner geometric segments.
 - `LineOfSight.ts`: Handles LOS and LOF (Line of Fire) calculations between units and cells. LOS allows seeing through opening doors, while LOF strictly requires doors to be fully open.
