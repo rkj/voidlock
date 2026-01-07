@@ -65,7 +65,7 @@ describe("Renderer", () => {
     height: 2,
     cells: [
       { x: 0, y: 0, type: CellType.Floor },
-      { x: 1, y: 0, type: CellType.Wall },
+      { x: 1, y: 0, type: CellType.Void },
       { x: 0, y: 1, type: CellType.Floor },
       { x: 1, y: 1, type: CellType.Floor },
     ],

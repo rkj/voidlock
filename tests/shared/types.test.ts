@@ -17,7 +17,7 @@ import {
 
 describe("Shared Types", () => {
   it("should have correct enum values", () => {
-    expect(CellType.Wall).toBe("Wall");
+    expect(CellType.Void).toBe("Void");
     expect(UnitState.Moving).toBe("Moving");
     expect(UnitState.Attacking).toBe("Attacking");
     expect(UnitState.Extracted).toBe("Extracted");

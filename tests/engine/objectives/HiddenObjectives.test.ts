@@ -20,7 +20,7 @@ describe("Hidden Objectives", () => {
         cells.push({
           x,
           y,
-          type: x === 5 ? CellType.Wall : CellType.Floor,
+          type: x === 5 ? CellType.Void : CellType.Floor,
         });
       }
     }

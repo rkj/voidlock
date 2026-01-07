@@ -1,7 +1,7 @@
 export type Vector2 = { x: number; y: number };
 
 export enum CellType {
-  Wall = "Wall", // Now represents Void/Unreachable
+  Void = "Void",
   Floor = "Floor",
 }
 

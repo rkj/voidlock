@@ -46,7 +46,7 @@ describe("Pathfinder", () => {
     for (let y = 0; y < 5; y++) {
       for (let x = 0; x < 5; x++) {
         let type = CellType.Floor;
-        if ((x === 1 || x === 3) && y >= 1 && y <= 3) type = CellType.Wall;
+        if ((x === 1 || x === 3) && y >= 1 && y <= 3) type = CellType.Void;
         cells.push({ x, y, type });
       }
     }

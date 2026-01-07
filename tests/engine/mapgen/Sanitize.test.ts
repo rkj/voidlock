@@ -4,7 +4,7 @@ import { MapDefinition, CellType } from "@src/shared/types";
 import { Graph } from "@src/engine/Graph";
 
 describe("MapGenerator.sanitize", () => {
-  it("should mark unreachable Floor cells as Wall", () => {
+  it("should mark unreachable Floor cells as Void", () => {
     const map: MapDefinition = {
       width: 2,
       height: 1,
@@ -19,7 +19,7 @@ describe("MapGenerator.sanitize", () => {
     MapGenerator.sanitize(map);
 
     expect(map.cells[0].type).toBe(CellType.Floor);
-    expect(map.cells[1].type).toBe(CellType.Wall);
+    expect(map.cells[1].type).toBe(CellType.Void);
   });
 
   it("should keep reachable Floor cells as Floor", () => {

@@ -180,7 +180,7 @@ export class DenseShipGenerator {
         this.cells.push({
           x,
           y,
-          type: CellType.Wall,
+          type: CellType.Void,
         });
         // Initialize walls
         this.walls.add(this.getBoundaryKey(x, y, x + 1, y));
@@ -336,7 +336,7 @@ export class DenseShipGenerator {
   private finalizeCells() {
     for (let i = 0; i < this.width * this.height; i++) {
       if (this.genMap[i] === "Void") {
-        this.cells[i].type = CellType.Wall;
+        this.cells[i].type = CellType.Void;
       } else {
         this.cells[i].type = CellType.Floor;
         if (this.roomIds[i]) this.cells[i].roomId = this.roomIds[i];

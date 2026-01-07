@@ -154,7 +154,7 @@ export class LineOfSight {
         return false;
       }
 
-      if (this.graph.cells[nextY][nextX].type === CellType.Wall) {
+      if (this.graph.cells[nextY][nextX].type === CellType.Void) {
         // Blocked by void/wall cell, but allow seeing the cell itself if it's the target
         return nextX === x1 && nextY === y1;
       }
