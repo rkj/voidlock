@@ -95,4 +95,54 @@ describe("ThemeManager", () => {
     expect(theme.getColor("--color-black")).toBe("#000000");
     expect(theme.getColor("--color-white")).toBe("#ffffff");
   });
+
+  describe("Assets", () => {
+    it("should load assets from assets.json", async () => {
+      const mockAssets = {
+        "floor": "assets/floor.webp",
+        "wall": "assets/wall.webp"
+      };
+
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve(mockAssets)
+      });
+
+      await theme.init();
+
+      expect(theme.getAssetUrl("floor")).toBe("/assets/floor.webp");
+      expect(theme.getAssetUrl("wall")).toBe("/assets/wall.webp");
+      expect(theme.getAssetUrl("unknown")).toBeNull();
+    });
+
+    it("should handle fetch error gracefully", async () => {
+      global.fetch = vi.fn().mockRejectedValue(new Error("Network error"));
+      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+      await theme.init();
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to load assets.json"),
+        expect.any(Error)
+      );
+      expect(theme.getAssetUrl("any")).toBeNull();
+      consoleSpy.mockRestore();
+    });
+
+    it("should handle non-ok response gracefully", async () => {
+      global.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        statusText: "Not Found"
+      });
+      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+
+      await theme.init();
+
+      expect(consoleSpy).toHaveBeenCalledWith(
+        expect.stringContaining("Failed to load assets.json"),
+        expect.any(Error)
+      );
+      consoleSpy.mockRestore();
+    });
+  });
 });
