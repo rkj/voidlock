@@ -51,7 +51,7 @@ describe("GameGrid", () => {
       height: 2,
       cells,
       walls: [
-        { p1: { x: 0, y: 0 }, p2: { x: 0, y: 1 } }, // Wall between (0,0) and (0,1)
+        { p1: { x: 0, y: 1 }, p2: { x: 1, y: 1 } }, // Wall between (0,0) and (0,1)
       ],
     };
     grid = new GameGrid(mockMap);
@@ -110,7 +110,7 @@ describe("GameGrid", () => {
         width: 2,
         height: 1,
         cells,
-        walls: [{ p1: { x: 0, y: 0 }, p2: { x: 1, y: 0 } }],
+        walls: [{ p1: { x: 1, y: 0 }, p2: { x: 1, y: 1 } }],
       };
       const testGrid = new GameGrid(map);
       expect(testGrid.canMove(0, 0, 1, 0, new Map())).toBe(false);

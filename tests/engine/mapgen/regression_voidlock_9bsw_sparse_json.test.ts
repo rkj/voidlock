@@ -12,7 +12,7 @@ describe("regression_voidlock_9bsw_sparse_json", () => {
         { x: 0, y: 0, type: CellType.Floor },
         { x: 1, y: 0, type: CellType.Floor },
       ],
-      walls: [{ p1: { x: 0, y: 0 }, p2: { x: 1, y: 0 } }], // Blocked
+      walls: [{ p1: { x: 1, y: 0 }, p2: { x: 1, y: 1 } }], // Blocked
       spawnPoints: [{ id: "sp1", pos: { x: 0, y: 0 }, radius: 1 }],
     };
 

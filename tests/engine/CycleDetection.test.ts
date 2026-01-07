@@ -128,9 +128,9 @@ describe("Cycle Detection Utilities", () => {
         { x: 2, y: 1, type: CellType.Floor },
       ],
       walls: [
-        { p1: { x: 0, y: 0 }, p2: { x: 0, y: 1 } },
-        { p1: { x: 1, y: 0 }, p2: { x: 1, y: 1 } },
-        { p1: { x: 2, y: 0 }, p2: { x: 2, y: 1 } },
+        { p1: { x: 0, y: 1 }, p2: { x: 1, y: 1 } },
+        { p1: { x: 1, y: 1 }, p2: { x: 2, y: 1 } },
+        { p1: { x: 2, y: 1 }, p2: { x: 3, y: 1 } },
       ],
       doors: [],
       spawnPoints: [],
@@ -154,9 +154,9 @@ describe("Cycle Detection Utilities", () => {
         { x: 2, y: 1, type: CellType.Floor },
       ],
       walls: [
-        { p1: { x: 0, y: 0 }, p2: { x: 0, y: 1 } },
+        { p1: { x: 0, y: 1 }, p2: { x: 1, y: 1 } },
         // (1,0)-(1,1) is open
-        { p1: { x: 2, y: 0 }, p2: { x: 2, y: 1 } },
+        { p1: { x: 2, y: 1 }, p2: { x: 3, y: 1 } },
       ],
       doors: [],
       spawnPoints: [],
