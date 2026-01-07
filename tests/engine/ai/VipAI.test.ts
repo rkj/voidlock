@@ -34,7 +34,7 @@ describe("VIP AI Behavior", () => {
     const wallMap: MapDefinition = {
       ...mockMap,
       walls: [
-        { p1: { x: 1, y: 0 }, p2: { x: 2, y: 0 } }, // Wall between (1,0) and (2,0)
+        { p1: { x: 2, y: 0 }, p2: { x: 2, y: 1 } }, // Wall between (1,0) and (2,0)
       ],
     };
     const engine = new CoreEngine(

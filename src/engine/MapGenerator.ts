@@ -142,7 +142,8 @@ export class MapGenerator {
       }
 
       if (shouldBeWall && b.type !== BoundaryType.Door) {
-        newWalls.push({ p1: { x: b.x1, y: b.y1 }, p2: { x: b.x2, y: b.y2 } });
+        const seg = b.getVisualSegment();
+        newWalls.push({ p1: seg.p1, p2: seg.p2 });
       }
     }
     map.walls = newWalls;
@@ -803,20 +804,26 @@ export class MapGenerator {
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
         const neighbors = [
-          { nx: x + 1, ny: y },
-          { nx: x, ny: y + 1 },
+          { nx: x + 1, ny: y, isVertical: true },
+          { nx: x, ny: y + 1, isVertical: false },
         ];
-        for (const { nx, ny } of neighbors) {
+        for (const { nx, ny, isVertical } of neighbors) {
           const key = getBoundaryKey(x, y, nx, ny);
           if (!openBoundaries.has(key)) {
-            walls.push({ p1: { x, y }, p2: { x: nx, y: ny } });
+            if (isVertical) {
+              walls.push({ p1: { x: nx, y: ny }, p2: { x: nx, y: ny + 1 } });
+            } else {
+              walls.push({ p1: { x: nx, y: ny }, p2: { x: nx + 1, y: ny } });
+            }
           }
         }
         // Borders
-        if (x === 0) walls.push({ p1: { x: -1, y }, p2: { x: 0, y } });
-        if (x === width - 1) walls.push({ p1: { x, y }, p2: { x: x + 1, y } });
-        if (y === 0) walls.push({ p1: { x, y: -1 }, p2: { x, y: 0 } });
-        if (y === height - 1) walls.push({ p1: { x, y }, p2: { x, y: y + 1 } });
+        if (x === 0) walls.push({ p1: { x: 0, y: y }, p2: { x: 0, y: y + 1 } });
+        if (x === width - 1)
+          walls.push({ p1: { x: x + 1, y: y }, p2: { x: x + 1, y: y + 1 } });
+        if (y === 0) walls.push({ p1: { x: x, y: 0 }, p2: { x: x + 1, y: 0 } });
+        if (y === height - 1)
+          walls.push({ p1: { x: x, y: y + 1 }, p2: { x: x + 1, y: y + 1 } });
       }
     }
 
@@ -982,7 +989,7 @@ export class MapGenerator {
         if (x < width - 1) {
           const wallChar = lines[ey][ex + 1];
           if (wallChar === "|")
-            walls.push({ p1: { x, y }, p2: { x: x + 1, y } });
+            walls.push({ p1: { x: x + 1, y }, p2: { x: x + 1, y: y + 1 } });
           else if (wallChar === "I")
             doors.push({
               id: `d-${doors.length}`,
@@ -1000,7 +1007,7 @@ export class MapGenerator {
         if (y < height - 1) {
           const wallChar = lines[ey + 1][ex];
           if (wallChar === "-")
-            walls.push({ p1: { x, y }, p2: { x, y: y + 1 } });
+            walls.push({ p1: { x, y: y + 1 }, p2: { x: x + 1, y: y + 1 } });
           else if (wallChar === "=")
             doors.push({
               id: `d-${doors.length}`,

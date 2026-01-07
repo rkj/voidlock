@@ -73,10 +73,24 @@ export class DenseShipGenerator {
     const mapWalls: WallDefinition[] = [];
     this.walls.forEach((key) => {
       const parts = key.split("--").map((p) => p.split(",").map(Number));
-      mapWalls.push({
-        p1: { x: parts[0][0], y: parts[0][1] },
-        p2: { x: parts[1][0], y: parts[1][1] },
-      });
+      const c1 = { x: parts[0][0], y: parts[0][1] };
+      const c2 = { x: parts[1][0], y: parts[1][1] };
+
+      if (c1.x === c2.x) {
+        // Vertical adjacency -> Horizontal wall
+        const maxY = Math.max(c1.y, c2.y);
+        mapWalls.push({
+          p1: { x: c1.x, y: maxY },
+          p2: { x: c1.x + 1, y: maxY },
+        });
+      } else {
+        // Horizontal adjacency -> Vertical wall
+        const maxX = Math.max(c1.x, c2.x);
+        mapWalls.push({
+          p1: { x: maxX, y: c1.y },
+          p2: { x: maxX, y: c1.y + 1 },
+        });
+      }
     });
 
     const map: MapDefinition = {

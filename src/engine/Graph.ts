@@ -102,12 +102,27 @@ export class Graph {
     // 4. Hydrate walls from MapDefinition
     if (map.walls) {
       for (const wall of map.walls) {
-        const boundary = this.getOrCreateBoundary(
-          wall.p1.x,
-          wall.p1.y,
-          wall.p2.x,
-          wall.p2.y,
-        );
+        let x1: number, y1: number, x2: number, y2: number;
+        if (wall.p1.x === wall.p2.x) {
+          // Vertical wall segment from corner (x, y) to (x, y+1)
+          // Separates cell (x-1, y) and (x, y)
+          const x = wall.p1.x;
+          const minY = Math.min(wall.p1.y, wall.p2.y);
+          x1 = x - 1;
+          y1 = minY;
+          x2 = x;
+          y2 = minY;
+        } else {
+          // Horizontal wall segment from corner (x, y) to (x+1, y)
+          // Separates cell (x, y-1) and (x, y)
+          const y = wall.p1.y;
+          const minX = Math.min(wall.p1.x, wall.p2.x);
+          x1 = minX;
+          y1 = y - 1;
+          x2 = minX;
+          y2 = y;
+        }
+        const boundary = this.getOrCreateBoundary(x1, y1, x2, y2);
         boundary.type = BoundaryType.Wall;
       }
     }

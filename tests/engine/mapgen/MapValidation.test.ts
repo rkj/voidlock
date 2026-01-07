@@ -26,7 +26,7 @@ describe("MapGenerator.validate", () => {
   it("should invalidate map if Floor cell is unreachable due to wall", () => {
     const map = createBaseMap();
     // Put wall between 0,0 and 1,0
-    map.walls = [{ p1: { x: 0, y: 0 }, p2: { x: 1, y: 0 } }];
+    map.walls = [{ p1: { x: 1, y: 0 }, p2: { x: 1, y: 1 } }];
     const result = generator.validate(map);
     expect(result.isValid).toBe(false);
     expect(result.issues).toContain(
@@ -37,7 +37,7 @@ describe("MapGenerator.validate", () => {
   it("should invalidate map if extraction is unreachable due to wall", () => {
     const map = createBaseMap();
     // Put wall between 1,0 and 2,0
-    map.walls = [{ p1: { x: 1, y: 0 }, p2: { x: 2, y: 0 } }];
+    map.walls = [{ p1: { x: 2, y: 0 }, p2: { x: 2, y: 1 } }];
     const result = generator.validate(map);
     expect(result.isValid).toBe(false);
     expect(result.issues).toContain(
@@ -48,7 +48,7 @@ describe("MapGenerator.validate", () => {
   it("should invalidate map if objective is unreachable due to wall", () => {
     const map = createBaseMap();
     // Put wall between 0,0 and 1,0
-    map.walls = [{ p1: { x: 0, y: 0 }, p2: { x: 1, y: 0 } }];
+    map.walls = [{ p1: { x: 1, y: 0 }, p2: { x: 1, y: 1 } }];
     const result = generator.validate(map);
     expect(result.isValid).toBe(false);
     expect(result.issues).toContain(

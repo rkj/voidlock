@@ -111,7 +111,7 @@ describe("Pathfinder", () => {
       width: 2,
       height: 1,
       cells,
-      walls: [{ p1: { x: 0, y: 0 }, p2: { x: 1, y: 0 } }],
+      walls: [{ p1: { x: 1, y: 0 }, p2: { x: 1, y: 1 } }],
     };
     const tg = new GameGrid(map);
     const tp = new Pathfinder(tg.getGraph(), new Map());

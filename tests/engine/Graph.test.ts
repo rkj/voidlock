@@ -10,7 +10,7 @@ describe("Graph", () => {
       { x: 0, y: 0, type: CellType.Floor },
       { x: 1, y: 0, type: CellType.Floor },
     ],
-    walls: [{ p1: { x: 0, y: 0 }, p2: { x: 1, y: 0 } }],
+    walls: [{ p1: { x: 1, y: 0 }, p2: { x: 1, y: 1 } }],
   };
 
   it("should initialize with correct dimensions from MapDefinition", () => {
