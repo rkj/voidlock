@@ -1014,6 +1014,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       const roster = state.roster;
 
       roster.forEach((soldier) => {
+        if (soldier.archetypeId === "vip") return;
         const row = document.createElement("div");
         row.className = "flex-row align-center justify-between";
         row.style.borderBottom = "1px solid var(--color-border)";
@@ -1078,9 +1079,9 @@ document.addEventListener("DOMContentLoaded", async () => {
       });
     } else {
       Object.values(ArchetypeLibrary).forEach((arch) => {
-        if (arch.id === "vip") {
-          return; // VIP is never available for manual selection
-        }
+        const isVip = arch.id === "vip";
+        const isEscortMission = currentMissionType === MissionType.EscortVIP;
+
         const row = document.createElement("div");
         row.className = "flex-row align-center justify-between";
         row.style.borderBottom = "1px solid var(--color-border)";
@@ -1103,6 +1104,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         </div>
       `;
 
+        if (isVip && isEscortMission) {
+          const note = document.createElement("div");
+          note.style.fontSize = "0.75em";
+          note.style.color = "var(--color-primary)";
+          note.style.marginTop = "2px";
+          note.textContent = "(Auto-assigned)";
+          info.appendChild(note);
+        }
+
         const input = document.createElement("input");
         input.type = "number";
         input.min = "0";
@@ -1112,6 +1122,11 @@ document.addEventListener("DOMContentLoaded", async () => {
           (s) => s.archetypeId === arch.id,
         ).length;
         input.value = currentCount.toString();
+
+        if (isVip && isEscortMission) {
+          input.disabled = true;
+          input.value = "0";
+        }
 
         input.style.width = "60px";
         input.style.marginLeft = "10px";
