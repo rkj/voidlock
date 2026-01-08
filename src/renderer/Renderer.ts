@@ -8,11 +8,12 @@ import {
   Objective,
   OverlayOption,
   BoundaryType,
-} from "../shared/types";
-import { Icons } from "./Icons";
-import { VisibilityPolygon } from "./VisibilityPolygon";
-import { Graph } from "../engine/Graph";
-import { ThemeManager } from "./ThemeManager";
+  UnitStyle,
+} from "@src/shared/types";
+import { Icons } from "@src/renderer/Icons";
+import { VisibilityPolygon } from "@src/renderer/VisibilityPolygon";
+import { Graph } from "@src/engine/Graph";
+import { ThemeManager } from "@src/renderer/ThemeManager";
 
 export class Renderer {
   private ctx: CanvasRenderingContext2D;
@@ -25,6 +26,7 @@ export class Renderer {
   private graph: Graph | null = null;
   private currentMapId: string | null = null;
   private theme = ThemeManager.getInstance();
+  private unitStyle: UnitStyle = UnitStyle.Sprites;
 
   private readonly UNIT_SPRITE_MAP: Record<string, string> = {
     assault: "soldier_demolition",
@@ -82,6 +84,10 @@ export class Renderer {
 
   public setCellSize(size: number) {
     this.cellSize = size;
+  }
+
+  public setUnitStyle(style: UnitStyle) {
+    this.unitStyle = style;
   }
 
   public setOverlay(options: OverlayOption[]) {
@@ -613,7 +619,12 @@ export class Renderer {
       const logicalName = this.UNIT_SPRITE_MAP[unit.archetypeId];
       const sprite = logicalName ? this.unitSprites[logicalName] : null;
 
-      if (sprite && sprite.complete && sprite.naturalWidth > 0) {
+      if (
+        this.unitStyle === UnitStyle.Sprites &&
+        sprite &&
+        sprite.complete &&
+        sprite.naturalWidth > 0
+      ) {
         const spriteSize = this.cellSize * 0.8;
         this.ctx.drawImage(
           sprite,
@@ -622,11 +633,23 @@ export class Renderer {
           spriteSize,
           spriteSize,
         );
+
+        // Render Soldier Number (High Contrast)
+        this.ctx.font = `bold ${Math.floor(this.cellSize / 6)}px monospace`;
+        this.ctx.textAlign = "center";
+        this.ctx.textBaseline = "middle";
+
+        // Black outline
+        this.ctx.strokeStyle = this.theme.getColor("--color-black");
+        this.ctx.lineWidth = 4;
+        this.ctx.strokeText((index + 1).toString(), x, y);
+
+        // White text
+        this.ctx.fillStyle = this.theme.getColor("--color-white");
+        this.ctx.fillText((index + 1).toString(), x, y);
       } else {
-        // Fallback to geometric shape
+        // Fallback or Tactical Icons
         this.ctx.beginPath();
-        // Unit size: 1/6 radius = 1/3 diameter relative to cell.
-        // 128 / 6 ~= 21px radius -> 42px diameter.
         this.ctx.arc(x, y, this.cellSize / 6, 0, Math.PI * 2);
 
         if (unit.state === UnitState.Channeling) {
@@ -643,6 +666,13 @@ export class Renderer {
         this.ctx.strokeStyle = this.theme.getColor("--color-black"); // Contrast
         this.ctx.lineWidth = 3;
         this.ctx.stroke();
+
+        // Render Soldier Number (Tactical style: solid black or white)
+        this.ctx.fillStyle = this.theme.getColor("--color-black");
+        this.ctx.font = `bold ${Math.floor(this.cellSize / 8)}px monospace`;
+        this.ctx.textAlign = "center";
+        this.ctx.textBaseline = "middle";
+        this.ctx.fillText((index + 1).toString(), x, y);
       }
 
       // Render Burdened Indicator
@@ -651,13 +681,6 @@ export class Renderer {
         this.ctx.font = `bold ${Math.floor(this.cellSize / 10)}px monospace`;
         this.ctx.fillText("BURDENED", x, y - this.cellSize / 4);
       }
-
-      // Render Soldier Number
-      this.ctx.fillStyle = this.theme.getColor("--color-black"); // Contrast
-      this.ctx.font = `bold ${Math.floor(this.cellSize / 8)}px monospace`;
-      this.ctx.textAlign = "center";
-      this.ctx.textBaseline = "middle";
-      this.ctx.fillText((index + 1).toString(), x, y);
 
       this.renderHealthBar(x, y, unit.hp, unit.maxHp);
 
@@ -747,7 +770,12 @@ export class Renderer {
       const logicalName = this.ENEMY_SPRITE_MAP[enemy.type];
       const sprite = logicalName ? this.enemySprites[logicalName] : null;
 
-      if (sprite && sprite.complete && sprite.naturalWidth > 0) {
+      if (
+        this.unitStyle === UnitStyle.Sprites &&
+        sprite &&
+        sprite.complete &&
+        sprite.naturalWidth > 0
+      ) {
         const spriteSize = this.cellSize * 0.8;
         this.ctx.drawImage(
           sprite,
@@ -756,13 +784,29 @@ export class Renderer {
           spriteSize,
           spriteSize,
         );
+
+        // Render Difficulty Number (High Contrast)
+        if (enemy.difficulty) {
+          this.ctx.font = `bold ${Math.floor(this.cellSize / 10)}px monospace`;
+          this.ctx.textAlign = "center";
+          this.ctx.textBaseline = "middle";
+
+          // Black outline
+          this.ctx.strokeStyle = this.theme.getColor("--color-black");
+          this.ctx.lineWidth = 3;
+          this.ctx.strokeText(enemy.difficulty.toString(), x, y);
+
+          // White text
+          this.ctx.fillStyle = this.theme.getColor("--color-white");
+          this.ctx.fillText(enemy.difficulty.toString(), x, y);
+        }
       } else {
-        // Fallback to geometric shapes
+        // Fallback or Tactical Icons
         this.ctx.beginPath();
         if (enemy.type === "Hive") {
           // Hive: Special Icon
           const icon = this.iconImages.Hive;
-          if (icon) {
+          if (icon && this.unitStyle === UnitStyle.Sprites) {
             const hiveSize = this.cellSize * 0.8;
             this.ctx.drawImage(
               icon,
@@ -772,7 +816,7 @@ export class Renderer {
               hiveSize,
             );
           } else {
-            // Fallback
+            // Fallback or Tactical style for Hive
             this.ctx.fillStyle = this.theme.getColor("--color-hive");
             const hiveSize = this.cellSize * 0.6;
             this.ctx.rect(
@@ -782,6 +826,9 @@ export class Renderer {
               hiveSize,
             );
             this.ctx.fill();
+            this.ctx.strokeStyle = this.theme.getColor("--color-black");
+            this.ctx.lineWidth = 3;
+            this.ctx.stroke();
           }
         } else {
           // Regular Enemy Shapes based on Type
@@ -815,10 +862,8 @@ export class Renderer {
               else this.ctx.lineTo(px, py);
             }
           } else {
-            // Default: Triangle
-            this.ctx.moveTo(x, y - size);
-            this.ctx.lineTo(x + size, y + size);
-            this.ctx.lineTo(x - size, y + size);
+            // Default: Circle for Tactical Icons if not matched or default shape
+            this.ctx.arc(x, y, size, 0, Math.PI * 2);
           }
           this.ctx.closePath();
 

@@ -9,8 +9,8 @@ import {
   OverlayOption,
   UnitState,
   Vector2,
-} from "../shared/types";
-import { MENU_CONFIG, MenuOptionDefinition, MenuState } from "./MenuConfig";
+} from "@src/shared/types";
+import { MENU_CONFIG, MenuOptionDefinition, MenuState } from "@src/renderer/MenuConfig";
 
 export interface RenderableMenuOption {
   key: string;

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { ConfigManager, GameConfig } from "@src/renderer/ConfigManager";
-import { MapGeneratorType, MissionType } from "@src/shared/types";
+import { MapGeneratorType, MissionType, UnitStyle } from "@src/shared/types";
 
 describe("ConfigManager Isolation", () => {
   beforeEach(() => {
@@ -18,6 +18,7 @@ describe("ConfigManager Isolation", () => {
     losOverlayEnabled: false,
     agentControlEnabled: true,
     allowTacticalPause: true,
+    unitStyle: UnitStyle.Sprites,
     mapGeneratorType: MapGeneratorType.TreeShip,
     missionType: MissionType.Default,
     lastSeed: seed,

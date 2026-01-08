@@ -1,4 +1,4 @@
-import { GameState } from "../shared/types";
+import { GameState } from "@src/shared/types";
 
 /**
  * Utility for debug-related actions.

@@ -1,4 +1,4 @@
-import { ThemeConfig } from "../shared/types";
+import { ThemeConfig } from "@src/shared/types";
 
 export class ThemeManager {
   private static instance: ThemeManager;

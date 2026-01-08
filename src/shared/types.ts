@@ -51,6 +51,11 @@ export enum MapGeneratorType {
   DenseShip = "DenseShip",
 }
 
+export enum UnitStyle {
+  Sprites = "Sprites",
+  TacticalIcons = "TacticalIcons",
+}
+
 export interface MapGenerationConfig {
   seed: number;
   width: number;

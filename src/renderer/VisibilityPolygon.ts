@@ -1,5 +1,5 @@
-import { Vector2, BoundaryType } from "../shared/types";
-import { Graph } from "../engine/Graph";
+import { Vector2, BoundaryType } from "@src/shared/types";
+import { Graph } from "@src/engine/Graph";
 
 type Segment = { p1: Vector2; p2: Vector2 };
 

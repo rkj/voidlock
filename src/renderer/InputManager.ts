@@ -1,6 +1,6 @@
-import { ScreenManager } from "./ScreenManager";
-import { MenuController } from "./MenuController";
-import { GameState, CommandType } from "../shared/types";
+import { ScreenManager } from "@src/renderer/ScreenManager";
+import { MenuController } from "@src/renderer/MenuController";
+import { GameState, CommandType } from "@src/shared/types";
 
 export class InputManager {
   constructor(

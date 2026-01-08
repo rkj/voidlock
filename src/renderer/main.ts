@@ -1,5 +1,5 @@
-import { GameClient } from "../engine/GameClient";
-import { Renderer } from "./Renderer";
+import { GameClient } from "@src/engine/GameClient";
+import { Renderer } from "@src/renderer/Renderer";
 import {
   GameState,
   UnitState,
@@ -11,24 +11,26 @@ import {
   MissionType,
   EngineMode,
   ArchetypeLibrary,
-} from "../shared/types";import { MapGenerator } from "../engine/MapGenerator";
-import { ScreenManager } from "./ScreenManager";
-import { ConfigManager } from "./ConfigManager";
-import { MenuController } from "./MenuController";
-import { HUDManager } from "./ui/HUDManager";
-import { MapUtility } from "./MapUtility";
-import { TimeUtility } from "./TimeUtility";
-import { InputManager } from "./InputManager";
-import { EquipmentScreen } from "./screens/EquipmentScreen";
-import { BarracksScreen } from "./screens/BarracksScreen";
-import { DebriefScreen } from "./screens/DebriefScreen";
-import { CampaignManager } from "./campaign/CampaignManager";
-import { CampaignScreen } from "./screens/CampaignScreen";
-import { CampaignNode, MissionReport } from "../shared/campaign_types";
-import { ThemeManager } from "./ThemeManager";
-import { Icons } from "./Icons";
-import { StatDisplay } from "./ui/StatDisplay";
-import { DebugUtility } from "./DebugUtility";
+  UnitStyle,
+} from "@src/shared/types";
+import { MapGenerator } from "@src/engine/MapGenerator";
+import { ScreenManager } from "@src/renderer/ScreenManager";
+import { ConfigManager } from "@src/renderer/ConfigManager";
+import { MenuController } from "@src/renderer/MenuController";
+import { HUDManager } from "@src/renderer/ui/HUDManager";
+import { MapUtility } from "@src/renderer/MapUtility";
+import { TimeUtility } from "@src/renderer/TimeUtility";
+import { InputManager } from "@src/renderer/InputManager";
+import { EquipmentScreen } from "@src/renderer/screens/EquipmentScreen";
+import { BarracksScreen } from "@src/renderer/screens/BarracksScreen";
+import { DebriefScreen } from "@src/renderer/screens/DebriefScreen";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { CampaignScreen } from "@src/renderer/screens/CampaignScreen";
+import { CampaignNode, MissionReport } from "@src/shared/campaign_types";
+import { ThemeManager } from "@src/renderer/ThemeManager";
+import { Icons } from "@src/renderer/Icons";
+import { StatDisplay } from "@src/renderer/ui/StatDisplay";
+import { DebugUtility } from "@src/renderer/DebugUtility";
 import pkg from "../../package.json";
 
 const VERSION = pkg.version;
@@ -61,6 +63,7 @@ let debugOverlayEnabled = ConfigManager.getDefault().debugOverlayEnabled;
 let losOverlayEnabled = false;
 let agentControlEnabled = ConfigManager.getDefault().agentControlEnabled;
 let allowTacticalPause = true;
+let unitStyle = ConfigManager.getDefault().unitStyle;
 let currentSeed: number = ConfigManager.getDefault().lastSeed;
 let currentMapGeneratorType: MapGeneratorType =
   ConfigManager.getDefault().mapGeneratorType;
@@ -269,6 +272,7 @@ const launchMission = () => {
     losOverlayEnabled,
     agentControlEnabled,
     allowTacticalPause,
+    unitStyle,
     mapGeneratorType: currentMapGeneratorType,
     missionType: currentMissionType,
     lastSeed: currentSeed,
@@ -336,6 +340,7 @@ const setupGameClientCallbacks = () => {
       }
     }
     if (renderer) {
+      renderer.setUnitStyle(unitStyle);
       renderer.setOverlay(menuController.overlayOptions);
       renderer.render(state);
     }
@@ -653,6 +658,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         <div><input type="checkbox" id="toggle-los-overlay"><label for="toggle-los-overlay" style="display:inline;">LOS Visualization</label></div>
         <div><input type="checkbox" id="toggle-agent-control" checked><label for="toggle-agent-control" style="display:inline;">Agent Control</label></div>
         <div><input type="checkbox" id="toggle-allow-tactical-pause" checked><label for="toggle-allow-tactical-pause" style="display:inline;">Allow Tactical Pause (0.05x)</label></div>
+        <div style="margin-top: 10px;">
+            <label for="select-unit-style">Unit Style:</label>
+            <select id="select-unit-style">
+                <option value="Sprites">Sprites</option>
+                <option value="TacticalIcons">Tactical Icons</option>
+            </select>
+        </div>
         <div style="margin-top: 20px;">
             <label for="time-scale-slider" style="display: block; margin-bottom: 10px;">Game Speed (x): <span id="time-scale-value">1.0</span></label>
             <input type="range" id="time-scale-slider" min="0" max="100" step="1" value="50" style="width: 100%; height: 20px; cursor: pointer;">
@@ -694,6 +706,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         "change",
         (e) => (allowTacticalPause = (e.target as HTMLInputElement).checked),
       );
+    document
+      .getElementById("select-unit-style")
+      ?.addEventListener("change", (e) => {
+        unitStyle = (e.target as HTMLSelectElement).value as any;
+      });
     const tsSlider = document.getElementById(
       "time-scale-slider",
     ) as HTMLInputElement;
@@ -786,6 +803,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         config.allowTacticalPause !== undefined
           ? config.allowTacticalPause
           : true;
+      unitStyle = config.unitStyle || UnitStyle.Sprites;
       currentMapGeneratorType = config.mapGeneratorType;
       currentMissionType = config.missionType || MissionType.Default;
       currentSeed = config.lastSeed;
@@ -854,6 +872,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       ) as HTMLInputElement;
       if (allowPauseCheck) allowPauseCheck.checked = allowTacticalPause;
 
+      const styleSelect = document.getElementById(
+        "select-unit-style",
+      ) as HTMLSelectElement;
+      if (styleSelect) styleSelect.value = unitStyle;
+
       if (mapGenSelect) mapGenSelect.dispatchEvent(new Event("change"));
     } else {
       // Fallback to defaults if no saved config exists for this mode
@@ -866,6 +889,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       losOverlayEnabled = defaults.losOverlayEnabled;
       agentControlEnabled = defaults.agentControlEnabled;
       allowTacticalPause = defaults.allowTacticalPause;
+      unitStyle = defaults.unitStyle;
       currentMapGeneratorType = defaults.mapGeneratorType;
       currentMissionType = defaults.missionType;
       currentSeed = defaults.lastSeed;
@@ -934,6 +958,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       ) as HTMLInputElement;
       if (allowPauseCheck) allowPauseCheck.checked = allowTacticalPause;
 
+      const styleSelect = document.getElementById(
+        "select-unit-style",
+      ) as HTMLSelectElement;
+      if (styleSelect) styleSelect.value = unitStyle;
+
       if (mapGenSelect) mapGenSelect.dispatchEvent(new Event("change"));
     }
 
@@ -941,6 +970,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (isCampaign) {
       const state = campaignManager.getState();
       if (state) {
+        if (state.rules.unitStyle) {
+          unitStyle = state.rules.unitStyle;
+          const styleSelect = document.getElementById(
+            "select-unit-style",
+          ) as HTMLSelectElement;
+          if (styleSelect) styleSelect.value = unitStyle;
+        }
+
         // If squad has non-campaign soldiers (no ID), or is empty, auto-populate with first 4 healthy soldiers
         const hasNonCampaignSoldiers = currentSquad.soldiers.some((s) => !s.id);
 

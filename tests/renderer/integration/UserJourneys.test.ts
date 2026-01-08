@@ -35,6 +35,7 @@ vi.mock("@src/renderer/Renderer", () => ({
   Renderer: vi.fn().mockImplementation(() => ({
     render: vi.fn(),
     setCellSize: vi.fn(),
+    setUnitStyle: vi.fn(),
     setOverlay: vi.fn(),
     getCellCoordinates: vi.fn().mockReturnValue({ x: 0, y: 0 }),
   })),

@@ -1,4 +1,4 @@
-import { MissionReport, XP_THRESHOLDS, calculateLevel } from "../../shared/campaign_types";
+import { MissionReport, XP_THRESHOLDS, calculateLevel } from "@src/shared/campaign_types";
 
 export class DebriefScreen {
   private container: HTMLElement;
