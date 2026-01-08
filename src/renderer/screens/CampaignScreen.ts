@@ -1,5 +1,5 @@
-import { CampaignManager } from "../campaign/CampaignManager";
-import { CampaignNode, CampaignState } from "../../shared/campaign_types";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { CampaignNode, CampaignState } from "@src/shared/campaign_types";
 
 export class CampaignScreen {
   private container: HTMLElement;
@@ -285,6 +285,23 @@ export class CampaignScreen {
     themeGroup.appendChild(themeSelect);
     form.appendChild(themeGroup);
 
+    // Unit Style Selection
+    const styleGroup = document.createElement("div");
+    styleGroup.className = "flex-col gap-5";
+    const styleLabel = document.createElement("label");
+    styleLabel.textContent = "VISUAL STYLE";
+    styleLabel.style.fontSize = "0.8em";
+    styleLabel.style.color = "var(--color-text-dim)";
+    const styleSelect = document.createElement("select");
+    styleSelect.id = "campaign-unit-style";
+    styleSelect.innerHTML = `
+      <option value="Sprites" selected>SPRITES (Default)</option>
+      <option value="TacticalIcons">TACTICAL ICONS</option>
+    `;
+    styleGroup.appendChild(styleLabel);
+    styleGroup.appendChild(styleSelect);
+    form.appendChild(styleGroup);
+
     content.appendChild(form);
 
     const startBtn = document.createElement("button");
@@ -296,6 +313,7 @@ export class CampaignScreen {
         selectedDifficulty,
         pauseCheck.checked,
         themeSelect.value,
+        styleSelect.value as any,
       );
       if (this.onCampaignStart) this.onCampaignStart();
       this.render();

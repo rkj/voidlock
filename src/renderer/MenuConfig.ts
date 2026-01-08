@@ -1,4 +1,4 @@
-import { CommandType, EngagementPolicy } from "../shared/types";
+import { CommandType, EngagementPolicy } from "@src/shared/types";
 
 export type MenuState =
   | "ACTION_SELECT"

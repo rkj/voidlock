@@ -1,5 +1,5 @@
-import { VALID_TRANSITIONS } from "./ScreenTransitions";
-import { SessionManager } from "./SessionManager";
+import { VALID_TRANSITIONS } from "@src/renderer/ScreenTransitions";
+import { SessionManager } from "@src/renderer/SessionManager";
 
 export type ScreenId =
   | "main-menu"

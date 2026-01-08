@@ -1,4 +1,4 @@
-import { MapDefinition, Door, Vector2 } from "../shared/types";
+import { MapDefinition, Door, Vector2 } from "@src/shared/types";
 
 export class MapUtility {
   public static transformMapData(oldMapData: any): MapDefinition {

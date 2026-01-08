@@ -1,4 +1,4 @@
-import { RenderableMenuState } from "../MenuController";
+import { RenderableMenuState } from "@src/renderer/MenuController";
 
 export class MenuRenderer {
   public static escapeHtml(unsafe: string): string {

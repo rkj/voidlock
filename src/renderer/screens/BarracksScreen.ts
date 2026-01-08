@@ -1,5 +1,5 @@
-import { CampaignManager } from "../campaign/CampaignManager";
-import { CampaignSoldier } from "../../shared/campaign_types";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { CampaignSoldier } from "@src/shared/campaign_types";
 import {
   ArchetypeLibrary,
   ItemLibrary,
@@ -7,9 +7,9 @@ import {
   Item,
   Weapon,
   EquipmentState,
-} from "../../shared/types";
-import { Icons } from "../Icons";
-import { StatDisplay } from "../ui/StatDisplay";
+} from "@src/shared/types";
+import { Icons } from "@src/renderer/Icons";
+import { StatDisplay } from "@src/renderer/ui/StatDisplay";
 
 export class BarracksScreen {
   private container: HTMLElement;

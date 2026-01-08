@@ -11,7 +11,7 @@ import {
 import { PRNG } from "../../shared/PRNG";
 import { StorageProvider } from "../persistence/StorageProvider";
 import { SectorMapGenerator } from "../generators/SectorMapGenerator";
-import { ArchetypeLibrary, EquipmentState } from "../../shared/types";
+import { ArchetypeLibrary, EquipmentState, UnitStyle } from "../../shared/types";
 
 const STORAGE_KEY = "voidlock_campaign_v1";
 
@@ -81,6 +81,7 @@ export class CampaignManager {
     difficulty: string,
     allowTacticalPause?: boolean,
     themeId?: string,
+    unitStyle?: UnitStyle,
   ): void {
     const prng = new PRNG(seed);
 
@@ -90,6 +91,9 @@ export class CampaignManager {
     }
     if (themeId) {
       rules.themeId = themeId;
+    }
+    if (unitStyle) {
+      rules.unitStyle = unitStyle;
     }
 
     const nodes = this.sectorMapGenerator.generate(seed, rules);

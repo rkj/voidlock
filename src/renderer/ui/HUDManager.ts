@@ -1,9 +1,9 @@
-import { GameState, UnitState, Unit, WeaponLibrary } from "../../shared/types";
-import { MenuController } from "../MenuController";
-import { MenuRenderer } from "./MenuRenderer";
-import { Icons } from "../Icons";
-import { StatDisplay } from "./StatDisplay";
-import { TimeUtility } from "../TimeUtility";
+import { GameState, UnitState, Unit, WeaponLibrary } from "@src/shared/types";
+import { MenuController } from "@src/renderer/MenuController";
+import { MenuRenderer } from "@src/renderer/ui/MenuRenderer";
+import { Icons } from "@src/renderer/Icons";
+import { StatDisplay } from "@src/renderer/ui/StatDisplay";
+import { TimeUtility } from "@src/renderer/TimeUtility";
 
 export class HUDManager {
   private lastMenuHtml = "";

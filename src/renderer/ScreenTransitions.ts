@@ -1,4 +1,4 @@
-import { ScreenId } from "./ScreenManager";
+import { ScreenId } from "@src/renderer/ScreenManager";
 
 export const VALID_TRANSITIONS: Record<ScreenId, ScreenId[]> = {
   "main-menu": ["campaign", "mission-setup"],

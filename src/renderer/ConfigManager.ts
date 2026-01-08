@@ -3,7 +3,8 @@ import {
   SquadConfig,
   MapDefinition,
   MissionType,
-} from "../shared/types";
+  UnitStyle,
+} from "@src/shared/types";
 
 export interface GameConfig {
   mapWidth: number;
@@ -14,6 +15,7 @@ export interface GameConfig {
   losOverlayEnabled: boolean; // Added
   agentControlEnabled: boolean;
   allowTacticalPause: boolean;
+  unitStyle: UnitStyle; // New
   mapGeneratorType: MapGeneratorType;
   missionType: MissionType;
   lastSeed: number;
@@ -82,6 +84,10 @@ export class ConfigManager {
       const config = JSON.parse(json) as GameConfig;
       const defaults = this.getDefault();
 
+      if (config.unitStyle === undefined) {
+        config.unitStyle = defaults.unitStyle;
+      }
+
       // Migration/Defaulting: Ensure squadConfig and soldiers exist and are in the correct format
       if (!config.squadConfig || Array.isArray(config.squadConfig)) {
         config.squadConfig = defaults.squadConfig;
@@ -114,6 +120,7 @@ export class ConfigManager {
       losOverlayEnabled: false, // Added
       agentControlEnabled: true,
       allowTacticalPause: true,
+      unitStyle: UnitStyle.Sprites,
       mapGeneratorType: MapGeneratorType.TreeShip,
       missionType: MissionType.Default,
       lastSeed: Date.now(),

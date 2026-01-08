@@ -1,4 +1,4 @@
-import { ScreenId } from "./ScreenManager";
+import { ScreenId } from "@src/renderer/ScreenManager";
 
 export class SessionManager {
   private static readonly STORAGE_KEY = "voidlock_session_state";
