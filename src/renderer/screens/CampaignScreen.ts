@@ -136,27 +136,48 @@ export class CampaignScreen {
     form.className = "flex-col gap-20 w-full p-20";
     form.style.background = "var(--color-surface-elevated)";
     form.style.border = "1px solid var(--color-border-strong)";
+    form.style.minWidth = "800px";
 
-    // Difficulty
-    const diffGroup = document.createElement("div");
-    diffGroup.className = "flex-col gap-5";
+    // Difficulty Cards
     const diffLabel = document.createElement("label");
-    diffLabel.textContent = "DIFFICULTY";
+    diffLabel.textContent = "SELECT DIFFICULTY";
     diffLabel.style.fontSize = "0.8em";
     diffLabel.style.color = "var(--color-text-dim)";
-    const diffSelect = document.createElement("select");
-    diffSelect.id = "campaign-difficulty";
-    diffSelect.innerHTML = `
-      <option value="easy">SIMULATION (Easy)</option>
-      <option value="normal" selected>CLONE (Normal)</option>
-      <option value="hard">STANDARD (Hard)</option>
-      <option value="extreme">IRONMAN (Extreme)</option>
-    `;
-    diffGroup.appendChild(diffLabel);
-    diffGroup.appendChild(diffSelect);
-    form.appendChild(diffGroup);
+    diffLabel.style.marginBottom = "-10px";
+    form.appendChild(diffLabel);
 
-    // Tactical Pause
+    const cardsContainer = document.createElement("div");
+    cardsContainer.className = "flex-row gap-10 w-full";
+    cardsContainer.style.justifyContent = "space-between";
+
+    let selectedDifficulty = "normal";
+
+    const DIFFICULTIES = [
+      {
+        id: "easy",
+        name: "SIMULATION",
+        rules: ["Permadeath: OFF", "Save: Manual", "Pause: ALLOWED"],
+      },
+      {
+        id: "normal",
+        name: "CLONE",
+        rules: ["Permadeath: PARTIAL (Cloneable)", "Save: Manual", "Pause: ALLOWED"],
+      },
+      {
+        id: "hard",
+        name: "STANDARD",
+        rules: ["Permadeath: ON", "Save: Manual", "Pause: ALLOWED"],
+      },
+      {
+        id: "extreme",
+        name: "IRONMAN",
+        rules: ["Permadeath: ON", "Save: Auto-Delete", "Pause: DISABLED"],
+      },
+    ];
+
+    const cards: HTMLElement[] = [];
+
+    // Tactical Pause (needed early for card click logic)
     const pauseGroup = document.createElement("div");
     pauseGroup.className = "flex-row align-center gap-10";
     const pauseCheck = document.createElement("input");
@@ -169,6 +190,81 @@ export class CampaignScreen {
     pauseLabel.style.fontSize = "0.9em";
     pauseGroup.appendChild(pauseCheck);
     pauseGroup.appendChild(pauseLabel);
+
+    DIFFICULTIES.forEach((diff) => {
+      const card = document.createElement("div");
+      card.className = "difficulty-card flex-col gap-10 p-15 flex-1";
+      card.style.border = "1px solid var(--color-border-strong)";
+      card.style.background = "rgba(255, 255, 255, 0.05)";
+      card.style.cursor = "pointer";
+      card.style.transition = "all 0.2s ease";
+
+      const title = document.createElement("h3");
+      title.textContent = diff.name;
+      title.style.margin = "0";
+      title.style.color = "var(--color-text)";
+      card.appendChild(title);
+
+      const rulesList = document.createElement("ul");
+      rulesList.style.margin = "0";
+      rulesList.style.paddingLeft = "15px";
+      rulesList.style.fontSize = "0.8em";
+      rulesList.style.color = "var(--color-text-dim)";
+      diff.rules.forEach((rule) => {
+        const li = document.createElement("li");
+        li.textContent = rule;
+        rulesList.appendChild(li);
+      });
+      card.appendChild(rulesList);
+
+      if (diff.id === selectedDifficulty) {
+        card.classList.add("selected");
+        card.style.borderColor = "var(--color-primary)";
+        card.style.background = "rgba(var(--color-primary-rgb), 0.1)";
+        title.style.color = "var(--color-primary)";
+      }
+
+      card.onclick = () => {
+        selectedDifficulty = diff.id;
+        cards.forEach((c) => {
+          c.classList.remove("selected");
+          c.style.borderColor = "var(--color-border-strong)";
+          c.style.background = "rgba(255, 255, 255, 0.05)";
+          (c.querySelector("h3") as HTMLElement).style.color = "var(--color-text)";
+        });
+        card.classList.add("selected");
+        card.style.borderColor = "var(--color-primary)";
+        card.style.background = "rgba(var(--color-primary-rgb), 0.1)";
+        title.style.color = "var(--color-primary)";
+
+        // Ironman logic
+        if (selectedDifficulty === "extreme") {
+          pauseCheck.checked = false;
+          pauseCheck.disabled = true;
+          const tooltip = "Tactical Pause is disabled in Ironman mode.";
+          pauseCheck.title = tooltip;
+          pauseLabel.title = tooltip;
+          pauseLabel.style.opacity = "0.5";
+        } else {
+          pauseCheck.disabled = false;
+          pauseCheck.title = "";
+          pauseLabel.title = "";
+          pauseLabel.style.opacity = "1";
+          if (
+            selectedDifficulty === "easy" ||
+            selectedDifficulty === "normal" ||
+            selectedDifficulty === "hard"
+          ) {
+            pauseCheck.checked = true;
+          }
+        }
+      };
+
+      cards.push(card);
+      cardsContainer.appendChild(card);
+    });
+
+    form.appendChild(cardsContainer);
     form.appendChild(pauseGroup);
 
     // Theme Selection
@@ -189,19 +285,6 @@ export class CampaignScreen {
     themeGroup.appendChild(themeSelect);
     form.appendChild(themeGroup);
 
-    // Update pause checkbox based on difficulty
-    diffSelect.addEventListener("change", () => {
-      if (diffSelect.value === "extreme") {
-        pauseCheck.checked = false;
-        pauseCheck.disabled = true;
-      } else {
-        pauseCheck.disabled = false;
-        if (diffSelect.value === "easy" || diffSelect.value === "normal") {
-          pauseCheck.checked = true;
-        }
-      }
-    });
-
     content.appendChild(form);
 
     const startBtn = document.createElement("button");
@@ -210,7 +293,7 @@ export class CampaignScreen {
     startBtn.onclick = () => {
       this.manager.startNewCampaign(
         Date.now(),
-        diffSelect.value,
+        selectedDifficulty,
         pauseCheck.checked,
         themeSelect.value,
       );
