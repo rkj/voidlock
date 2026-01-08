@@ -508,7 +508,7 @@ document.addEventListener("DOMContentLoaded", async () => {
       barracksScreen.show();
       screenManager.show("barracks");
     },
-    () => screenManager.goBack(),
+    () => screenManager.show("main-menu"),
     () => applyCampaignTheme(),
   );
 
