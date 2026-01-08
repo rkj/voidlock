@@ -15,9 +15,13 @@ export class DebugUtility {
   ): void {
     if (!state) return;
 
+    const mapGenerator =
+      state.map?.generatorName || replayData?.map?.generatorName || "Unknown";
+
     const fullState = {
       replayData,
       currentState: state,
+      mapGenerator,
       version: version,
       timestamp: Date.now(),
     };
