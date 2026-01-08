@@ -103,19 +103,19 @@ The game supports four difficulty presets defining failure consequences.
     - **Exit:** "Leave Depot" button (advances Rank).
   - **Event (Signal):**
     - **Interaction:** Opens a **Narrative Dialog**.
-    - **Mechanic:** Simple text choice (e.g., "Investigate Derelict" -> 50% Scrap / 50% Injury).
+    - **Mechanic:** Text-based choices with Risk/Reward.
+    - **Types:**
+      - **Derelict Ship:** 'Search' (Chance for Scrap vs Injury) vs 'Leave'.
+      - **Distress Signal:** 'Rescue' (Chance for Free Recruit vs Ambush) vs 'Ignore'.
+      - **Black Market:** 'Trade' (Scrap for Intel/Items) vs 'Leave'.
     - **Exit:** Choice selection advances Rank.
 - **Bonus Loot (Scrap Crates):**
   - Each mission contains **0-3** optional Scrap Crates (approx. 20% of mission value each).
   - **Intel (Map Visibility):**
     - **Simulation/Clone:** The number of crates is visible on the Sector Map (e.g., via "⭐" pips).
     - **Standard/Ironman:** Crate count is hidden (Fog of War).
-  - **Elite:** Harder enemies. Reward: High XP, Item/Weapon.
-  - **Supply Depot (Shop):** Buy recruits/gear.
-  - **Event:** Narrative choice (risk/reward).
-  - **Boss:** Sector climax.
 
-### 3.2 Economy (Scrap)
+### 3.2 Economy (Scrap) & Modes
 
 - **Earned:** Mission objectives, extraction, elite kills.
 - **Spent:** Recruitment, Healing/Revival, Equipment (Phase 2).
