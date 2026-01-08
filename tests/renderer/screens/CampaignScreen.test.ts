@@ -49,7 +49,7 @@ describe("CampaignScreen", () => {
     screen.show();
 
     expect(container.textContent).toContain("NEW CAMPAIGN");
-    expect(container.querySelector("#campaign-difficulty")).not.toBeNull();
+    expect(container.querySelectorAll(".difficulty-card").length).toBe(4);
     expect(container.querySelector("#campaign-tactical-pause")).not.toBeNull();
   });
 
