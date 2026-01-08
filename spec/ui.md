@@ -32,9 +32,17 @@ The application is divided into distinct screens to reduce UI clutter and improv
             - **UI Button**: A dedicated button (Play/Pause icon) in the UI should also toggle this state.
 - **Command Set Updates:**
   - `ENGAGE/IGNORE Toggle`: Units can be toggled between 'ENGAGE' (Stop & Shoot) and 'IGNORE' (Run) policies. This toggle should be easily accessible in the command menu.
-  - **Squad Configuration**:
-    - Select archetypes/count.
-    - **Constraint**: Mission-Specific units (e.g., VIPs) must NOT be available for selection. They are auto-assigned by the engine based on Mission Type.
+  - **Squad Configuration (Drag & Drop):**
+    - **Interface**:
+      - **Left Panel (Roster)**: Scrollable list of available soldiers/archetypes.
+      - **Right Panel (Deployment)**: 4 fixed slots representing the squad.
+    - **Interaction**:
+      - **Drag & Drop**: Drag a soldier card from the Roster to a Deployment Slot to assign.
+      - **Removal**: Drag a soldier out of a slot or click a "Remove" (X) button to unassign.
+      - **Double-Click**: Quickly assigns/unassigns the target soldier.
+    - **Constraints**:
+      - Mission-Specific units (e.g., VIPs) are auto-assigned to locked slots.
+      - Deployment slots reflect the maximum squad size (4).
   - **Actions**:
     - "Launch Mission" -> Starts Engine, switches to Mission Screen.
     - "Back" -> Main Menu.
@@ -130,6 +138,7 @@ To ensure consistent navigation, the UI follows a strict state machine.
     - `5`: Hold Position
   - **Level 3 (Target Selection):**
     - **Move To Room:** Select Room (Mapped 1-9, A-Z).
+      - **Labeling:** Menu options must display the target name/ID directly (e.g., "soldier_1", "Room A") without redundant prefixes like "Unit" or generic labels repeated.
     - **Overwatch Intersection:** Select Intersection Point (Mapped 1-9).
     - **Escort:** Select Unit (Mapped 1-4).
     - **Item Targeting:**
@@ -209,6 +218,7 @@ Clicking "Copy World State" captures a comprehensive snapshot of the session.
 - **Contents**:
   - `replayData`: Seed, Map Definition, Squad Config, and the full Command History.
   - `currentState`: The full `GameState` object from the engine.
+  - `mapGenerator`: The name of the generator algorithm used (e.g., "TreeShipGenerator").
   - `version`: Engine/Protocol version.
   - `timestamp`: System time of export.
 - **Destination:** System Clipboard (primary) and Console (fallback).
@@ -219,3 +229,69 @@ Clicking "Copy World State" captures a comprehensive snapshot of the session.
   - Navmesh/path display
   - Spawn intensity heatmaps
   - Deterministic replay import/export (ReplayData)
+
+### 8.7 Shared UI Components
+
+To ensure consistency between Campaign Management (Barracks) and Mission Preparation (Ready Room), the following components must be shared:
+
+- **Soldier Inspector (Loadout UI):**
+  - **Usage:** Used in both **BarracksScreen** and **EquipmentScreen**.
+  - **Layout:**
+    - **Left:** Soldier Stats (Attributes).
+    - **Center:** Paper Doll (Visual slots for Right Hand, Left Hand, Body, Feet).
+    - **Right:** Contextual Panel (Armory/Store or Recruitment).
+  - **Behavior:**
+    - **Persistence:** Changes made here MUST immediately write back to the `CampaignManager`.
+    - **Economy:** Selecting items from the Armory triggers the "Pay-to-Equip" logic (deducting Scrap).
+    - **Visuals:** Must display prices, stats, and "Owned/Equipped" indicators clearly.
+
+- **Global Resource Header:** (See Section 8.6)
+
+### 8.6 Campaign Setup & Strategic UI
+
+To ensure economic clarity, all strategic and setup screens must follow a consistent resource display.
+
+- **Global Resource Header**:
+  - **Visibility**: MUST be visible on the Sector Map, Barracks, and Equipment (Ready Room) screens.
+  - **Content**:
+    - **SCRAP**: Displayed in `var(--color-primary)` (Green).
+    - **INTEL**: Displayed in `var(--color-accent)` (Blue).
+  - **Style**: Floating overlay in the top-right or integrated into the top bar, consistent with the `BarracksScreen` implementation.
+- **Difficulty Selection (Card Selector)**:
+  - Replaces the traditional dropdown menu.
+  - **Visuals**: A horizontal row of 4 distinct cards.
+  - **Interaction**: Single-click selection. Selected card is highlighted.
+  - **Card Content**:
+    - **Header**: Difficulty Name (e.g., "IRONMAN").
+    - **Icon**: Unique icon or visual cue.
+    - **Rules List**: Bullet points defining the constraints.
+      - **Simulation**: "Permadeath: OFF", "Save: Manual", "Pause: ALLOWED".
+      - **Clone**: "Permadeath: PARTIAL (Cloneable)", "Save: Manual", "Pause: ALLOWED".
+      - **Standard**: "Permadeath: ON", "Save: Manual", "Pause: ALLOWED".
+      - **Ironman**: "Permadeath: ON", "Save: Auto-Delete", "Pause: DISABLED".
+- **Tactical Pause Toggle**:
+  - Located below the card selector.
+  - **Behavior**:
+    - **Default**: Checked (Enabled) for Sim, Clone, Standard.
+    - **Ironman**: Unchecked and **Disabled** (Grayed out).
+    - **Tooltip**: Hovering the disabled checkbox while Ironman is selected must verify: "Tactical Pause is disabled in Ironman mode."
+- **Theme Selection**:
+  - Dropdown or palette selector below difficulty.
+- **Unit Style Selection**:
+  - **Option**: Dropdown or toggle (e.g., "Visual Style").
+  - **Values**:
+    - **Sprites (Default)**: Renders units as WebP images.
+      - **Overlay Requirement**: MUST strictly render the unit's tactical number (e.g., "1", "2") as a high-contrast overlay on top of the sprite to ensure readability.
+    - **Tactical Icons**: Renders units as abstract geometric shapes (circles) with numbers, mimicking a tactical board.
+- **Advanced Options (Collapsible):**
+  - **Toggle**: "Show Advanced Settings" (Default: Collapsed).
+  - **Content**:
+    - **Seed**: Text input (allows pasting a specific seed). Randomize button.
+    - **Map Generator**: Dropdown to force a specific generator (e.g., "DenseShip") for all missions, overriding the default procedural selection.
+    - **Custom Difficulty**:
+      - **Scaling**: Slider (50% - 200%). Affects enemy progression speed.
+      - **Scarcity**: Slider (50% - 200%). Affects loot/scrap rewards.
+      - **Death Rule**: Dropdown (Simulation, Clone, Iron). Decouples death consequences from the preset difficulty.
+- **Actions**:
+  - **Start Campaign**: Commits the configuration.
+  - **Back**: Returns to Main Menu.

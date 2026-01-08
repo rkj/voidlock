@@ -35,7 +35,10 @@ The automated soldier AI follows a multi-tier logic profile when not under direc
 
 1. **Autonomous Exploration & Objective Acquisition**:
    - If no threats are present and no manual commands are queued, units prioritize exploring the closest undiscovered floor cells.
-   - **Priority Override**: If an objective item (e.g., Artifact) or a target (e.g., Hive) is visible in LOS, units **MUST** immediately prioritize its acquisition over general exploration.
+   - **Priority Override (Opportunistic Pickup):**
+     - If a **Loot Item** or **Objective** is visible within Line of Sight:
+       - The unit MUST interrupt exploration to move to and interact with the item.
+       - **State Restoration:** Upon completion of the interaction (Pickup/Collect), the unit MUST automatically resume its previous exploration or escort logic without requiring manual intervention.
    - Once the map is fully discovered and all objectives are complete, units automatically pathfind to the extraction point.
 
 1. **VIP Logic (MissionType: EscortVIP)**:
@@ -73,8 +76,9 @@ Spawns occur on a fixed timer (default 30s).
 
 **Algorithm:**
 
-1. **Base Amount:** Map difficulty defines `X` base enemies. Currently, waves start at 1 enemy and scale up.
-1. **Scaling:** `+1` enemy added to the pool per wave (turn). Wave size = `1 + currentTurn`.
+1. **Base Amount:** Defined by Mission Config (Default: 3 for Campaign Start).
+1. **Scaling:** Defined by Mission Depth. `WaveSize = BaseAmount + (Depth * GrowthFactor)`.
+   - *Campaign Default:* Base 3, Growth 1. (Mission 1 = 3, Mission 2 = 4...).
 1. **Distribution:** Enemies are distributed randomly among valid `SpawnPoints`.
 1. **Upgrade Logic:** Probabilistic replacement of weak enemies with strong ones based on current threat level.
 1. **Threat Growth:** Threat level increases by 10% per turn (10s at 1x speed), capping at 100% after 10 turns.
