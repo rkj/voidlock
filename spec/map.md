@@ -1,21 +1,19 @@
 # World Model & Map Generation
 
-## 3.1 The Grid (Shared Walls / Edge-Based)
+**Relevant ADRs:**
+- [ADR 0001: Edge-Based Map Architecture](../docs/adr/0001-edge-based-map.md)
+- [ADR 0013: Unified Map Generation Config](../docs/adr/0013-unified-map-generation-config.md)
+- [ADR 0014: Map Generation Correctness](../docs/adr/0014-map-generation-correctness.md)
 
-The map is a grid of `Cells`, but walls are defined as **Shared Boundaries** (Edges) between cells, not as solid blocks. This "Thin Wall" architecture allows for more realistic spaceship interiors. Non-floor areas (outer space or solid rock) are represented as **Void** cells, not as solid Wall tiles.
+## 3. World Concepts
 
-- **Coordinate System:** `x` (Column), `y` (Row). Top-left is `0,0`.
-- **Adjacency:** Orthogonal only (North, South, East, West).
-- **Graph Architecture**:
-  - **Cell**: Represents a floor tile or a Void (empty) tile.
-  - **Boundary**: A shared object between two adjacent cells (e.g., the East edge of (0,0) is the same object as the West edge of (1,0)).
-  - **State**: A Boundary can be a `Wall`, a `Door`, or `Open`. Changes to a Boundary (e.g. opening a door) instantly affect both adjacent cells.
+The world is a grid of cells representing the interior of a derelict spaceship.
 
-**Cell Data Model (Logical):**
+- **Cells:** The fundamental unit of space. A cell is either **Floor** (walkable interior) or **Void** (impassable outer space).
+- **Boundaries:** The edges between cells. Walls are thin boundaries, not solid blocks.
+- **Connectivity:** The map is a single connected graph. All playable areas (rooms, corridors) must be reachable from the starting point. Isolated "islands" are not permitted.
 
-See [ADR 0001: Edge-Based Map Architecture](../docs/adr/0001-edge-based-map.md) for the authoritative `Cell` and `Boundary` data structures.
-
-## 7) Pluggable balancing and generation interfaces
+## 7) Map Generation
 
 ### 7.1 Content pack structure
 
@@ -58,12 +56,9 @@ The map generation subsystem must utilize a unified configuration model. Instead
 
   - **Map Generation Strategy Selection**: The `MapGenerator` (or its client) must support selecting different generation strategies (e.g., `procedural-maze`, `static-predefined`, `custom-scripted`).
 
-  - **Connectivity Guarantee (No "Open Walls to Nowhere"):**
-    - **Concept:** "Walls" are edges between cells, never full tiles. Impassable full tiles are referred to as **Void** cells.
-    - **Implementation Rule:** The generator must post-process the map using a flood-fill algorithm starting from the spawn point(s).
-      - Any cell reached by flood-fill (passing only through open passages/doors) becomes a valid `Floor` cell.
-      - Any cell _not_ reached by this flood-fill must be converted to `Void` (Outer Space).
-    - **Goal:** This prevents the rendering artifact where a Floor cell has an open edge leading into a Void cell, effectively creating an "open passage to nowhere".
+  - **Connectivity Guarantee:**
+    - The generator must ensure that every playable cell (Floor) is part of a single connected component reachable from the Squad Spawn. "Islands" or unreachable rooms are a critical failure.
+    - *Implementation Note:* See [ADR 0014](../docs/adr/0014-map-generation-correctness.md) for the "Correct by Construction" technical requirement.
 
 ### 8.5 Entity Placement Constraints (Strict)
 
