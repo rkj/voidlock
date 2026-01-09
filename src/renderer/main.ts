@@ -230,6 +230,18 @@ const handleCanvasClick = (event: MouseEvent) => {
 };
 
 const launchMission = () => {
+  // Sync with campaign rules if applicable
+  if (currentCampaignNode) {
+    const campaignState = campaignManager.getState();
+    if (campaignState) {
+      allowTacticalPause = campaignState.rules.allowTacticalPause;
+      currentMapGeneratorType = campaignState.rules.mapGeneratorType;
+      if (campaignState.rules.unitStyle) {
+        unitStyle = campaignState.rules.unitStyle;
+      }
+    }
+  }
+
   const mapSeedInput = document.getElementById("map-seed") as HTMLInputElement;
   if (mapSeedInput && !mapSeedInput.disabled) {
     const val = parseInt(mapSeedInput.value);
@@ -282,10 +294,6 @@ const launchMission = () => {
   };
 
   if (currentCampaignNode) {
-    const campaignState = campaignManager.getState();
-    if (campaignState) {
-      allowTacticalPause = campaignState.rules.allowTacticalPause;
-    }
     ConfigManager.saveCampaign(config);
   } else {
     ConfigManager.saveCustom(config);
@@ -989,6 +997,22 @@ document.addEventListener("DOMContentLoaded", async () => {
             "select-unit-style",
           ) as HTMLSelectElement;
           if (styleSelect) styleSelect.value = unitStyle;
+        }
+
+        if (state.rules.mapGeneratorType) {
+          currentMapGeneratorType = state.rules.mapGeneratorType;
+          const mapGenSelect = document.getElementById(
+            "map-generator-type",
+          ) as HTMLSelectElement;
+          if (mapGenSelect) mapGenSelect.value = currentMapGeneratorType;
+        }
+
+        if (state.rules.allowTacticalPause !== undefined) {
+          allowTacticalPause = state.rules.allowTacticalPause;
+          const allowPauseCheck = document.getElementById(
+            "toggle-allow-tactical-pause",
+          ) as HTMLInputElement;
+          if (allowPauseCheck) allowPauseCheck.checked = allowTacticalPause;
         }
 
         // If squad has non-campaign soldiers (no ID), or is empty, auto-populate with first 4 healthy soldiers
