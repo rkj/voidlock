@@ -117,7 +117,7 @@ export class CampaignManager {
       seed,
       status: "Active",
       rules,
-      scrap: 500,
+      scrap: rules.startingScrap,
       intel: 0,
       currentSector: 1,
       currentNodeId: null,
@@ -142,6 +142,7 @@ export class CampaignManager {
           mapGeneratorType: MapGeneratorType.DenseShip,
           difficultyScaling: 0.8,
           resourceScarcity: 1.2,
+          startingScrap: 1000,
           mapGrowthRate: 1.0,
         };
       case "clone":
@@ -154,6 +155,7 @@ export class CampaignManager {
           mapGeneratorType: MapGeneratorType.DenseShip,
           difficultyScaling: 1.0,
           resourceScarcity: 1.0,
+          startingScrap: 500,
           mapGrowthRate: 1.0,
         };
       case "standard":
@@ -166,6 +168,7 @@ export class CampaignManager {
           mapGeneratorType: MapGeneratorType.DenseShip,
           difficultyScaling: 1.5,
           resourceScarcity: 0.7,
+          startingScrap: 300,
           mapGrowthRate: 1.0,
         };
       case "ironman":
@@ -178,6 +181,7 @@ export class CampaignManager {
           mapGeneratorType: MapGeneratorType.DenseShip,
           difficultyScaling: 2.0,
           resourceScarcity: 0.5,
+          startingScrap: 150,
           mapGrowthRate: 1.0,
         };
       default:
@@ -189,6 +193,7 @@ export class CampaignManager {
           mapGeneratorType: MapGeneratorType.DenseShip,
           difficultyScaling: 1.0,
           resourceScarcity: 1.0,
+          startingScrap: 500,
           mapGrowthRate: 1.0,
         };
     }
