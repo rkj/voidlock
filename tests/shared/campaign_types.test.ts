@@ -18,6 +18,7 @@ describe("Campaign Types", () => {
       mapGeneratorType: MapGeneratorType.DenseShip,
       difficultyScaling: 1.0,
       resourceScarcity: 1.0,
+      mapGrowthRate: 1.0,
     };
 
     const node: CampaignNode = {
@@ -25,6 +26,7 @@ describe("Campaign Types", () => {
       type: "Combat",
       status: "Accessible",
       difficulty: 1,
+      rank: 0,
       mapSeed: 12345,
       connections: ["node-2"],
       position: { x: 0, y: 0 },

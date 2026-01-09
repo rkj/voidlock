@@ -88,6 +88,7 @@ export class CampaignManager {
     themeId?: string,
     unitStyle?: UnitStyle,
     mapGeneratorType?: MapGeneratorType,
+    mapGrowthRate?: number,
   ): void {
     const prng = new PRNG(seed);
 
@@ -104,12 +105,15 @@ export class CampaignManager {
     if (mapGeneratorType) {
       rules.mapGeneratorType = mapGeneratorType;
     }
+    if (mapGrowthRate !== undefined) {
+      rules.mapGrowthRate = mapGrowthRate;
+    }
 
     const nodes = this.sectorMapGenerator.generate(seed, rules);
     const roster = this.generateInitialRoster(prng);
 
     this.state = {
-      version: "0.74.5", // Current project version
+      version: "0.75.0", // Current project version
       seed,
       status: "Active",
       rules,
@@ -138,6 +142,7 @@ export class CampaignManager {
           mapGeneratorType: MapGeneratorType.DenseShip,
           difficultyScaling: 0.8,
           resourceScarcity: 1.2,
+          mapGrowthRate: 1.0,
         };
       case "clone":
       case "normal":
@@ -149,6 +154,7 @@ export class CampaignManager {
           mapGeneratorType: MapGeneratorType.DenseShip,
           difficultyScaling: 1.0,
           resourceScarcity: 1.0,
+          mapGrowthRate: 1.0,
         };
       case "standard":
       case "hard":
@@ -160,6 +166,7 @@ export class CampaignManager {
           mapGeneratorType: MapGeneratorType.DenseShip,
           difficultyScaling: 1.5,
           resourceScarcity: 0.7,
+          mapGrowthRate: 1.0,
         };
       case "ironman":
       case "extreme":
@@ -171,6 +178,7 @@ export class CampaignManager {
           mapGeneratorType: MapGeneratorType.DenseShip,
           difficultyScaling: 2.0,
           resourceScarcity: 0.5,
+          mapGrowthRate: 1.0,
         };
       default:
         return {
@@ -181,6 +189,7 @@ export class CampaignManager {
           mapGeneratorType: MapGeneratorType.DenseShip,
           difficultyScaling: 1.0,
           resourceScarcity: 1.0,
+          mapGrowthRate: 1.0,
         };
     }
   }

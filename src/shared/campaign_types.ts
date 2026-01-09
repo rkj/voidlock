@@ -23,6 +23,7 @@ export interface GameRules {
   mapGeneratorType: MapGeneratorType;
   difficultyScaling: number; // Multiplier for enemy density/stats
   resourceScarcity: number; // Multiplier for scrap rewards
+  mapGrowthRate: number; // NEW: +MapSize per rank
   themeId?: string;
 }
 
@@ -63,6 +64,7 @@ export interface CampaignNode {
   type: CampaignNodeType;
   status: CampaignNodeStatus;
   difficulty: number;
+  rank: number; // NEW: Layer/Depth in the DAG
   mapSeed: number;
   connections: string[]; // IDs of child nodes in the DAG
   position: Vector2;
@@ -140,4 +142,20 @@ export function calculateLevel(xp: number): number {
     }
   }
   return 1;
+}
+
+/**
+ * Calculates the map dimensions based on rank and growth rate.
+ */
+export function calculateMapSize(rank: number, growthRate: number): number {
+  const BASE_SIZE = 6;
+  const CAP = 12;
+  return Math.min(CAP, BASE_SIZE + Math.floor(rank * growthRate));
+}
+
+/**
+ * Calculates the number of spawn points based on map size.
+ */
+export function calculateSpawnPoints(mapSize: number): number {
+  return 1 + Math.floor((mapSize - 6) / 2);
 }

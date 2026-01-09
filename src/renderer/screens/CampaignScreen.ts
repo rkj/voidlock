@@ -285,6 +285,23 @@ export class CampaignScreen {
     themeGroup.appendChild(themeSelect);
     form.appendChild(themeGroup);
 
+    // Campaign Length Selection
+    const lengthGroup = document.createElement("div");
+    lengthGroup.className = "flex-col gap-5";
+    const lengthLabel = document.createElement("label");
+    lengthLabel.textContent = "CAMPAIGN LENGTH";
+    lengthLabel.style.fontSize = "0.8em";
+    lengthLabel.style.color = "var(--color-text-dim)";
+    const lengthSelect = document.createElement("select");
+    lengthSelect.id = "campaign-length";
+    lengthSelect.innerHTML = `
+      <option value="1.0" selected>STANDARD (Short, ~6-8 Missions)</option>
+      <option value="0.5">EXTENDED (Long, ~12-16 Missions)</option>
+    `;
+    lengthGroup.appendChild(lengthLabel);
+    lengthGroup.appendChild(lengthSelect);
+    form.appendChild(lengthGroup);
+
     // Unit Style Selection
     const styleGroup = document.createElement("div");
     styleGroup.className = "flex-col gap-5";
@@ -314,6 +331,8 @@ export class CampaignScreen {
         pauseCheck.checked,
         themeSelect.value,
         styleSelect.value as any,
+        undefined, // mapGeneratorType
+        parseFloat(lengthSelect.value),
       );
       if (this.onCampaignStart) this.onCampaignStart();
       this.render();

@@ -26,7 +26,12 @@ import { BarracksScreen } from "@src/renderer/screens/BarracksScreen";
 import { DebriefScreen } from "@src/renderer/screens/DebriefScreen";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import { CampaignScreen } from "@src/renderer/screens/CampaignScreen";
-import { CampaignNode, MissionReport } from "@src/shared/campaign_types";
+import {
+  CampaignNode,
+  MissionReport,
+  calculateMapSize,
+  calculateSpawnPoints,
+} from "@src/shared/campaign_types";
 import { ThemeManager } from "@src/renderer/ThemeManager";
 import { Icons } from "@src/renderer/Icons";
 import { StatDisplay } from "@src/renderer/ui/StatDisplay";
@@ -487,17 +492,23 @@ document.addEventListener("DOMContentLoaded", async () => {
       // Node selected! Prepare mission setup
       currentCampaignNode = node;
       currentSeed = node.mapSeed;
-      currentMapWidth = 14 + Math.floor(node.difficulty * 2);
-      currentMapHeight = 14 + Math.floor(node.difficulty * 2);
-      currentSpawnPointCount = 1 + Math.floor(node.difficulty / 5);
+
+      const state = campaignManager.getState();
+      const rules = state?.rules;
+      const growthRate = rules?.mapGrowthRate ?? 1.0;
+      const size = calculateMapSize(node.rank, growthRate);
+
+      currentMapWidth = size;
+      currentMapHeight = size;
+      currentSpawnPointCount = calculateSpawnPoints(size);
 
       loadAndApplyConfig(true);
 
       // Explicitly override map settings from node since loadAndApplyConfig might have loaded something else
       currentSeed = node.mapSeed;
-      currentMapWidth = 14 + Math.floor(node.difficulty * 2);
-      currentMapHeight = 14 + Math.floor(node.difficulty * 2);
-      currentSpawnPointCount = 1 + Math.floor(node.difficulty / 5);
+      currentMapWidth = size;
+      currentMapHeight = size;
+      currentSpawnPointCount = calculateSpawnPoints(size);
 
       // Update Setup UI
       const mapSeedInput = document.getElementById(

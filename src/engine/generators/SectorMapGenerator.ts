@@ -7,6 +7,7 @@ import { PRNG } from "../../shared/PRNG";
 
 export interface SectorMapOptions {
   layers?: number;
+  targetLength?: number; // NEW: Alias for layers to reach specific rank
   nodesPerLayer?: number;
   width?: number;
   height?: number;
@@ -29,7 +30,16 @@ export class SectorMapGenerator {
     options: SectorMapOptions = {},
   ): CampaignNode[] {
     const prng = new PRNG(seed);
-    const layers = options.layers || 10;
+    
+    // Calculate layers to reach 12x12 cap from 6x6 base
+    // 12 = 6 + floor(MaxRank * mapGrowthRate)
+    // floor(MaxRank * mapGrowthRate) = 6
+    // If rate = 1.0, MaxRank = 6. Total layers = 7 (0 to 6)
+    // If rate = 0.5, MaxRank = 12. Total layers = 13 (0 to 12)
+    const growthRate = rules.mapGrowthRate || 1.0;
+    const defaultLayers = Math.ceil(6 / growthRate) + 1;
+    const layers = options.targetLength || options.layers || defaultLayers;
+
     const nodesPerLayer = options.nodesPerLayer || 3;
     const width = options.width || 800;
     const height = options.height || 600;
@@ -59,6 +69,7 @@ export class SectorMapGenerator {
           type,
           status: l === 0 ? "Accessible" : "Revealed",
           difficulty: 1 + l * rules.difficultyScaling,
+          rank: l,
           mapSeed: prng.nextInt(0, 1000000),
           connections: [],
           position: {
