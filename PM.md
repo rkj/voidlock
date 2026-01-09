@@ -101,7 +101,7 @@ bd dep add <BLOCKED_ID> <BLOCKER_ID>
 - **Persistence:** NEVER close a task as "failed". If a task is blocked or fails, leave it OPEN and annotate it with the failure reason. Closed means Fixed.
 - **Spec Linkage:** Every task description MUST start with a link to the specific section of the Spec file it implements (e.g., "See `spec/commands.md#3-ai-behavior`"). This is the Single Source of Truth for the developer.
 - **ADR Requirement:** Any non-trivial task (complex logic, new architecture, or system-wide changes) MUST reference an approved ADR. If no ADR exists, a prerequisite task to write one must be created first.
-- **Context Files:** If a task requires external context (logs, long instructions) that fits poorly in Beads, create a file in `docs/tasks/` and link/reference it. **NEVER** use temporary files for instructions; these must be preserved as artifacts.
+- **Context:** If a task requires significant external context (logs, long instructions), first consider if the task can be broken down further. If not feasible, include the context directly in the Beads description. Do NOT create separate context files.
 
 ## 5. Documentation Standards
 

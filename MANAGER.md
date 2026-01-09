@@ -35,23 +35,21 @@ At the start of every session, run:
 1. **Strict Adherence to Beads**: You are ONLY allowed to dispatch tasks that currently exist in the Beads (bd) system.
 1. **No Ad-Hoc Instructions**: Do not invent new task descriptions or requirements in the prompt. The sub-agent must rely on `bd show <TASK_ID>` for truth. If requirements change, update the Beads task first.
 1. **Context Validation**: Before dispatching, ensure the Bead task description links to the relevant **ADRs** (for implementation details) and **Spec** sections (for behavior). If missing, update the Bead first.
+1. **Adding Context**: If you need to provide extra context (e.g. from research or previous attempts), append it to the task description using `bd update <TASK_ID> --description "..."`.
 1. **No Backticks**: NEVER use backticks (`) in task descriptions. Use single quotes or plain text.
 
 **Command Pattern:**
-Use the helper script to dispatch the agent. You may optionally provide a context file containing detailed instructions, previous conversation history, or specific feedback.
-
-**Context File Rules:**
-1. **Location:** Must be in `docs/tasks/`.
-2. **Naming:** Use the task ID or a descriptive name (e.g., `docs/tasks/voidlock-123_context.md`).
-3. **Persistence:** Do **NOT** delete these files. They serve as permanent work artifacts.
+Use the helper script to dispatch the agent.
 
 ```bash
 # Basic dispatch
 run_shell_command("./scripts/dispatch_agent.sh <TASK_ID>")
 
-# Dispatch with detailed context (Recommended for re-dispatch or complex tasks)
-write_file("docs/tasks/context_123.md", "Previous attempt failed. Please focus on...")
-run_shell_command("./scripts/dispatch_agent.sh <TASK_ID> docs/tasks/context_123.md")
+# If you need to add context before dispatching:
+# 1. Get current description: bd show <TASK_ID> --json
+# 2. Append new info
+# 3. Update: bd update <TASK_ID> --description "Original description... \n\nNew Context: ..."
+# 4. Dispatch: run_shell_command("./scripts/dispatch_agent.sh <TASK_ID>")
 ```
 
 ## 3. Verification & Quality Control (The Audit)
@@ -87,10 +85,13 @@ run_shell_command("./scripts/dispatch_agent.sh <TASK_ID> docs/tasks/context_123.
 - **If Failed**:
   **🚨 NEVER FIX CODE**: You are FORBIDDEN from making code changes.
   **🚨 NEVER CLOSE AS FAILED**: Beads does not support a "failed" state. Leave the task OPEN.
-  1. **Re-Dispatch**: If the failure is directly related to the task, create a detailed feedback file and re-dispatch.
+  1. **Re-Dispatch**: If the failure is directly related to the task, append the feedback to the task description and re-dispatch.
      ```bash
-     write_file("feedback.md", "Tests failed with error: ... \nPlease fix the logic in ...")
-     run_shell_command("./scripts/dispatch_agent.sh <TASK_ID> feedback.md")
+     # Update description with failure details
+     bd update <TASK_ID> --description "... \n\nAttempt Failed: Tests failed with error..."
+     
+     # Re-dispatch
+     run_shell_command("./scripts/dispatch_agent.sh <TASK_ID>")
      ```
   1. **New Task**: If the failure is a regression in an unrelated area or requires a separate fix, create a **P0 task** using `bd create` and schedule a sub-agent to fix it immediately.
   1. **Critical**: If the changes are fundamentally flawed, `jj undo` and re-plan. Keep the issue open, and comment on the problems encountered.
