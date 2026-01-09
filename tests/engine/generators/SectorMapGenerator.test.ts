@@ -12,6 +12,7 @@ describe("SectorMapGenerator", () => {
     mapGeneratorType: MapGeneratorType.DenseShip,
     difficultyScaling: 1.0,
     resourceScarcity: 1.0,
+    mapGrowthRate: 1.0,
   };
 
   it("should generate a deterministic map with a given seed", () => {
