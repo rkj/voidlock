@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import { CampaignManager } from "@src/engine/managers/CampaignManager";
 import { MissionReport } from "@src/shared/campaign_types";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
+import { MapGeneratorType } from "@src/shared/types";
 
 describe("CampaignManager", () => {
   let manager: CampaignManager;
@@ -34,6 +35,34 @@ describe("CampaignManager", () => {
     const state = manager.getState();
 
     expect(state?.rules.themeId).toBe("industrial");
+  });
+
+  it("should have MapGeneratorType.DenseShip as default for all difficulties", () => {
+    manager.startNewCampaign(1, "Easy");
+    expect(manager.getState()?.rules.mapGeneratorType).toBe("DenseShip");
+
+    manager.startNewCampaign(1, "Normal");
+    expect(manager.getState()?.rules.mapGeneratorType).toBe("DenseShip");
+
+    manager.startNewCampaign(1, "Hard");
+    expect(manager.getState()?.rules.mapGeneratorType).toBe("DenseShip");
+
+    manager.startNewCampaign(1, "Ironman");
+    expect(manager.getState()?.rules.mapGeneratorType).toBe("DenseShip");
+  });
+
+  it("should allow overriding mapGeneratorType in startNewCampaign", () => {
+    manager.startNewCampaign(
+      12345,
+      "Normal",
+      true,
+      "default",
+      undefined,
+      MapGeneratorType.TreeShip,
+    );
+    const state = manager.getState();
+
+    expect(state?.rules.mapGeneratorType).toBe("TreeShip");
   });
 
   it("should save and load campaign state using StorageProvider", () => {

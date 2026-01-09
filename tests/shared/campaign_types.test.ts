@@ -6,6 +6,7 @@ import {
   CampaignSoldier,
   MissionReport,
 } from "@src/shared/campaign_types";
+import { MapGeneratorType } from "@src/shared/types";
 
 describe("Campaign Types", () => {
   it("should allow creating a valid CampaignState object with all sub-types", () => {
@@ -14,6 +15,7 @@ describe("Campaign Types", () => {
       difficulty: "Standard",
       deathRule: "Iron",
       allowTacticalPause: true,
+      mapGeneratorType: MapGeneratorType.DenseShip,
       difficultyScaling: 1.0,
       resourceScarcity: 1.0,
     };

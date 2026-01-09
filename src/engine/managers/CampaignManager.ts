@@ -11,7 +11,12 @@ import {
 import { PRNG } from "../../shared/PRNG";
 import { StorageProvider } from "../persistence/StorageProvider";
 import { SectorMapGenerator } from "../generators/SectorMapGenerator";
-import { ArchetypeLibrary, EquipmentState, UnitStyle } from "../../shared/types";
+import {
+  ArchetypeLibrary,
+  EquipmentState,
+  UnitStyle,
+  MapGeneratorType,
+} from "../../shared/types";
 
 const STORAGE_KEY = "voidlock_campaign_v1";
 
@@ -82,6 +87,7 @@ export class CampaignManager {
     allowTacticalPause?: boolean,
     themeId?: string,
     unitStyle?: UnitStyle,
+    mapGeneratorType?: MapGeneratorType,
   ): void {
     const prng = new PRNG(seed);
 
@@ -95,12 +101,15 @@ export class CampaignManager {
     if (unitStyle) {
       rules.unitStyle = unitStyle;
     }
+    if (mapGeneratorType) {
+      rules.mapGeneratorType = mapGeneratorType;
+    }
 
     const nodes = this.sectorMapGenerator.generate(seed, rules);
     const roster = this.generateInitialRoster(prng);
 
     this.state = {
-      version: "0.64.4", // Current project version
+      version: "0.74.1", // Current project version
       seed,
       status: "Active",
       rules,
@@ -126,6 +135,7 @@ export class CampaignManager {
           difficulty: "Simulation",
           deathRule: "Simulation",
           allowTacticalPause: true,
+          mapGeneratorType: MapGeneratorType.DenseShip,
           difficultyScaling: 0.8,
           resourceScarcity: 1.2,
         };
@@ -136,6 +146,7 @@ export class CampaignManager {
           difficulty: "Clone",
           deathRule: "Clone",
           allowTacticalPause: true,
+          mapGeneratorType: MapGeneratorType.DenseShip,
           difficultyScaling: 1.0,
           resourceScarcity: 1.0,
         };
@@ -146,6 +157,7 @@ export class CampaignManager {
           difficulty: "Standard",
           deathRule: "Iron",
           allowTacticalPause: true,
+          mapGeneratorType: MapGeneratorType.DenseShip,
           difficultyScaling: 1.5,
           resourceScarcity: 0.7,
         };
@@ -156,6 +168,7 @@ export class CampaignManager {
           difficulty: "Ironman",
           deathRule: "Iron",
           allowTacticalPause: false,
+          mapGeneratorType: MapGeneratorType.DenseShip,
           difficultyScaling: 2.0,
           resourceScarcity: 0.5,
         };
@@ -165,6 +178,7 @@ export class CampaignManager {
           difficulty: "Clone",
           deathRule: "Clone",
           allowTacticalPause: true,
+          mapGeneratorType: MapGeneratorType.DenseShip,
           difficultyScaling: 1.0,
           resourceScarcity: 1.0,
         };

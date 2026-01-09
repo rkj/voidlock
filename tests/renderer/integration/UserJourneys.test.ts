@@ -75,7 +75,16 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
             currentNodeId: null,
             history: [],
             unlockedArchetypes: ["scout", "heavy", "medic", "demolition"],
-            rules: { allowTacticalPause: pause, themeId: theme, mode: "Preset", difficulty: diff, deathRule: "Simulation", difficultyScaling: 1, resourceScarcity: 1 }
+            rules: {
+              allowTacticalPause: pause,
+              themeId: theme,
+              mode: "Preset",
+              difficulty: diff,
+              deathRule: "Simulation",
+              mapGeneratorType: "DenseShip",
+              difficultyScaling: 1,
+              resourceScarcity: 1,
+            },
           };
         }),
         reset: vi.fn(() => { currentCampaignState = null; }),

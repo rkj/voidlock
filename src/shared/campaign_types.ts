@@ -1,4 +1,10 @@
-import { EquipmentState, Vector2, MissionType, UnitStyle } from "./types";
+import {
+  EquipmentState,
+  Vector2,
+  MissionType,
+  UnitStyle,
+  MapGeneratorType,
+} from "./types";
 
 /**
  * Difficulty presets for the campaign.
@@ -14,6 +20,7 @@ export interface GameRules {
   deathRule: "Iron" | "Clone" | "Simulation";
   allowTacticalPause: boolean;
   unitStyle?: UnitStyle;
+  mapGeneratorType: MapGeneratorType;
   difficultyScaling: number; // Multiplier for enemy density/stats
   resourceScarcity: number; // Multiplier for scrap rewards
   themeId?: string;
