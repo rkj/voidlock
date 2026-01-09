@@ -20,6 +20,7 @@ This directory contains the automated test suite for the Voidlock renderer, usin
 - `regression_voidlock-hs8n_vip_selection.test.ts`: Verifies VIP availability logic in Custom Missions and its exclusion from Campaign Mode.
 - `regression_7twz_campaign_transition.test.ts`: Verifies that the transition from Campaign to Mission Setup is valid.
 - `regression_voidlock-1i9o_map_generator_export.test.ts`: Verifies that the map generator name is correctly included in the world state export.
+- `regression_rfw4_consumable_cap.test.ts`: Verifies that consumable items are limited to 2 per mission and UI feedback is provided.
 - `integration/ScreenFlow.test.ts`: Verifies end-to-end screen transitions and game flow for both Campaign and Custom missions, including win/loss states and debriefing.
 - `integration/EquipmentPersistence.test.ts`: Verifies that equipment changes in the Ready Room are correctly persisted to the campaign roster.
 - `integration/UserJourneys.test.ts`: Comprehensive integration test suite covering major user journeys, including New Campaign Wizard, Barracks management, Mission Abort flow, and Session Restoration.

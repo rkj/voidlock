@@ -478,9 +478,15 @@ export class EquipmentScreen {
       const plus = document.createElement("button");
       plus.textContent = "+";
       plus.style.padding = "2px 8px";
+      if (count >= 2) {
+        plus.disabled = true;
+        plus.title = "Maximum 2 per mission reached";
+      }
       plus.onclick = () => {
-        this.config.inventory[item.id] = count + 1;
-        this.render();
+        if (count < 2) {
+          this.config.inventory[item.id] = count + 1;
+          this.render();
+        }
       };
 
       controls.appendChild(minus);
