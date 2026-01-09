@@ -7,6 +7,7 @@ import {
   Item,
   Weapon,
   Archetype,
+  EquipmentState,
 } from "@src/shared/types";
 import { Icons } from "@src/renderer/Icons";
 import { StatDisplay } from "@src/renderer/ui/StatDisplay";
@@ -272,10 +273,7 @@ export class EquipmentScreen {
       this.createSlot(
         "Right Hand",
         soldier.rightHand,
-        (id) => {
-          soldier.rightHand = id;
-          this.render();
-        },
+        (id) => this.handleSlotChange(soldier, "rightHand", id),
         "Weapon",
       ),
     );
@@ -284,10 +282,7 @@ export class EquipmentScreen {
       this.createSlot(
         "Left Hand",
         soldier.leftHand,
-        (id) => {
-          soldier.leftHand = id;
-          this.render();
-        },
+        (id) => this.handleSlotChange(soldier, "leftHand", id),
         "Weapon",
       ),
     );
@@ -296,10 +291,7 @@ export class EquipmentScreen {
       this.createSlot(
         "Body",
         soldier.body,
-        (id) => {
-          soldier.body = id;
-          this.render();
-        },
+        (id) => this.handleSlotChange(soldier, "body", id),
         "Armor",
       ),
     );
@@ -308,10 +300,7 @@ export class EquipmentScreen {
       this.createSlot(
         "Feet",
         soldier.feet,
-        (id) => {
-          soldier.feet = id;
-          this.render();
-        },
+        (id) => this.handleSlotChange(soldier, "feet", id),
         "Feet",
       ),
     );
@@ -382,9 +371,9 @@ export class EquipmentScreen {
       Object.values(WeaponLibrary).filter((w) => w.type === "Ranged"),
       (w) => {
         const s = this.config.soldiers[this.selectedSoldierIndex];
-        s.rightHand = w.id;
-        this.render();
+        this.handleSlotChange(s, "rightHand", w.id);
       },
+      "rightHand",
     );
 
     // Melee Weapons
@@ -394,9 +383,9 @@ export class EquipmentScreen {
       Object.values(WeaponLibrary).filter((w) => w.type === "Melee"),
       (w) => {
         const s = this.config.soldiers[this.selectedSoldierIndex];
-        s.leftHand = w.id;
-        this.render();
+        this.handleSlotChange(s, "leftHand", w.id);
       },
+      "leftHand",
     );
 
     // Armor & Gear
@@ -408,9 +397,9 @@ export class EquipmentScreen {
       ),
       (i) => {
         const s = this.config.soldiers[this.selectedSoldierIndex];
-        s.body = i.id;
-        this.render();
+        this.handleSlotChange(s, "body", i.id);
       },
+      "body",
     );
 
     this.renderCategory(
@@ -419,9 +408,9 @@ export class EquipmentScreen {
       Object.values(ItemLibrary).filter((i) => i.id.includes("boots")),
       (i) => {
         const s = this.config.soldiers[this.selectedSoldierIndex];
-        s.feet = i.id;
-        this.render();
+        this.handleSlotChange(s, "feet", i.id);
       },
+      "feet",
     );
 
     // Global Supplies
@@ -504,6 +493,7 @@ export class EquipmentScreen {
     title: string,
     items: (Weapon | Item)[],
     onSelect: (item: any) => void,
+    slot?: keyof EquipmentState,
   ) {
     const h3 = document.createElement("h3");
     h3.textContent = title;
@@ -512,9 +502,22 @@ export class EquipmentScreen {
     h3.style.margin = "15px 0 5px 0";
     panel.appendChild(h3);
 
+    const state = this.manager.getState();
+    const selectedSoldier = this.config.soldiers[this.selectedSoldierIndex];
+
     items.forEach((item) => {
+      const isCurrentlyEquipped = slot && selectedSoldier[slot] === item.id;
+      const isOwned =
+        slot && this.isEquippedInRoster(selectedSoldier.id, slot, item.id);
+      const canAfford = !state || state.scrap >= item.cost;
+
       const btn = document.createElement("div");
-      btn.className = "menu-item clickable";
+      btn.className = `menu-item clickable ${isCurrentlyEquipped ? "active" : ""}`;
+      if (!isCurrentlyEquipped && !isOwned && !canAfford) {
+        btn.classList.add("disabled");
+        btn.style.opacity = "0.5";
+        btn.style.pointerEvents = "none";
+      }
       btn.style.padding = "5px 10px";
       btn.style.marginBottom = "3px";
       btn.style.fontSize = "0.85em";
@@ -563,11 +566,17 @@ export class EquipmentScreen {
 
       btn.title = `${item.name}\n${item.description || ""}${fullStats ? "\n\n" + fullStats : ""}`;
 
+      const priceText = isOwned || isCurrentlyEquipped ? "OWNED" : `${item.cost} CR`;
+      const priceColor =
+        isOwned || isCurrentlyEquipped
+          ? "var(--color-primary)"
+          : "var(--color-text-muted)";
+
       btn.innerHTML = `
             <div class="flex-col">
                 <div class="flex-row justify-between" style="font-weight:bold;">
                     <span>${item.name}</span>
-                    <span style="color:var(--color-text-muted);">${item.cost} CR</span>
+                    <span style="color:${priceColor};">${priceText}</span>
                 </div>
                 <div style="font-size:0.8em; color:var(--color-text-muted); margin-top:2px; display:flex; gap:8px;">
                     ${statsHtml}
@@ -637,5 +646,60 @@ export class EquipmentScreen {
       accuracy: s.accuracy,
       damage: rw ? rw.damage : 0,
     };
+  }
+
+  private isEquippedInRoster(
+    soldierId: string | undefined,
+    slot: keyof EquipmentState,
+    itemId: string,
+  ): boolean {
+    if (!soldierId) return false;
+    const state = this.manager.getState();
+    if (!state) return false;
+    const soldier = state.roster.find((s) => s.id === soldierId);
+    if (!soldier) return false;
+    return soldier.equipment[slot] === itemId;
+  }
+
+  private handleSlotChange(
+    soldier: SquadSoldierConfig,
+    slot: keyof EquipmentState,
+    newItemId: string,
+  ) {
+    if (soldier[slot] === newItemId) return;
+
+    if (newItemId === "") {
+      soldier[slot] = "";
+      this.render();
+      return;
+    }
+
+    // Check if owned (already in roster)
+    if (this.isEquippedInRoster(soldier.id, slot, newItemId)) {
+      soldier[slot] = newItemId;
+      this.render();
+      return;
+    }
+
+    // New purchase
+    const item = WeaponLibrary[newItemId] || ItemLibrary[newItemId];
+    if (!item) return;
+
+    const state = this.manager.getState();
+    if (!state) {
+      // Custom Mission mode - free
+      soldier[slot] = newItemId;
+      this.render();
+      return;
+    }
+
+    if (state.scrap < item.cost) {
+      // Optional: show some visual feedback that they can't afford it
+      return;
+    }
+
+    this.manager.spendScrap(item.cost);
+    soldier[slot] = newItemId;
+    this.render();
   }
 }

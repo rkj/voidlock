@@ -471,6 +471,19 @@ export class CampaignManager {
   }
 
   /**
+   * Deducts the given amount of scrap from the campaign balance.
+   * @param amount The amount of scrap to spend.
+   */
+  public spendScrap(amount: number): void {
+    if (!this.state) return;
+    if (this.state.scrap < amount) {
+      throw new Error("Insufficient scrap.");
+    }
+    this.state.scrap -= amount;
+    this.save();
+  }
+
+  /**
    * Assigns new equipment to a soldier.
    * @param soldierId The ID of the soldier.
    * @param equipment The new equipment state.
