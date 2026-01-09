@@ -12,6 +12,7 @@ describe("Regression: g77z Map Scaling", () => {
     mapGeneratorType: MapGeneratorType.DenseShip,
     difficultyScaling: 1.0,
     resourceScarcity: 1.0,
+    startingScrap: 500,
     mapGrowthRate: 1.0,
   };
 

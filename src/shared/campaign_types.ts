@@ -23,6 +23,7 @@ export interface GameRules {
   mapGeneratorType: MapGeneratorType;
   difficultyScaling: number; // Multiplier for enemy density/stats
   resourceScarcity: number; // Multiplier for scrap rewards
+  startingScrap: number; // NEW: Initial funds
   mapGrowthRate: number; // NEW: +MapSize per rank
   themeId?: string;
 }
