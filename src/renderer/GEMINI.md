@@ -28,7 +28,7 @@ This directory contains the main thread rendering logic and user interface for V
 - `screens/`: Individual screen components for the Strategic and Tactical layers.
   - `CampaignScreen.ts`: Displays the Sector Map DAG.
   - `BarracksScreen.ts`: Interface for roster management, recruitment, and soldier healing/equipment.
-  - `EquipmentScreen.ts`: Handles soldier loadouts and armory.
+  - `EquipmentScreen.ts`: Handles soldier loadouts and armory. Implements pay-to-equip economic logic where new equipment purchases deduct Scrap from the campaign balance while re-equipping owned items is free.
   - `DebriefScreen.ts`: Displays mission results and plays accelerated replay in background.
 - `tests/`: Automated test suite for the renderer.
 

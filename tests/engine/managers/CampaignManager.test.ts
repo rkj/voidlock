@@ -273,5 +273,18 @@ describe("CampaignManager", () => {
 
       expect(soldier.equipment).toEqual(newEquipment);
     });
+
+    it("should deduct scrap via spendScrap", () => {
+      const state = manager.getState()!;
+      const initialScrap = state.scrap;
+      manager.spendScrap(50);
+      expect(state.scrap).toBe(initialScrap - 50);
+    });
+
+    it("should throw error when spendScrap called with insufficient funds", () => {
+      const state = manager.getState()!;
+      state.scrap = 10;
+      expect(() => manager.spendScrap(20)).toThrow("Insufficient scrap.");
+    });
   });
 });
