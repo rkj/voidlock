@@ -547,6 +547,18 @@ document.addEventListener("DOMContentLoaded", async () => {
     "screen-equipment",
     currentSquad,
     (config) => {
+      // Persist equipment changes to campaign roster if applicable
+      config.soldiers.forEach((soldier) => {
+        if (soldier.id) {
+          campaignManager.assignEquipment(soldier.id, {
+            rightHand: soldier.rightHand,
+            leftHand: soldier.leftHand,
+            body: soldier.body,
+            feet: soldier.feet,
+          });
+        }
+      });
+
       currentSquad = config;
       launchMission();
     },

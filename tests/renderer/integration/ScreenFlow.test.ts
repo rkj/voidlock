@@ -78,6 +78,7 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
         startNewCampaign: vi.fn(),
         reset: vi.fn(),
         deleteSave: vi.fn(),
+        assignEquipment: vi.fn(),
       }),
     },
   };
