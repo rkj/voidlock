@@ -545,6 +545,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const equipmentScreen = new EquipmentScreen(
     "screen-equipment",
+    campaignManager,
     currentSquad,
     (config) => {
       // Persist equipment changes to campaign roster if applicable

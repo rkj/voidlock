@@ -10,9 +10,11 @@ import {
 } from "@src/shared/types";
 import { Icons } from "@src/renderer/Icons";
 import { StatDisplay } from "@src/renderer/ui/StatDisplay";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 
 export class EquipmentScreen {
   private container: HTMLElement;
+  private manager: CampaignManager;
   private config: SquadConfig;
   private selectedSoldierIndex: number = 0;
   private onSave: (config: SquadConfig) => void;
@@ -20,6 +22,7 @@ export class EquipmentScreen {
 
   constructor(
     containerId: string,
+    manager: CampaignManager,
     initialConfig: SquadConfig,
     onSave: (config: SquadConfig) => void,
     onBack: () => void,
@@ -27,6 +30,7 @@ export class EquipmentScreen {
     const el = document.getElementById(containerId);
     if (!el) throw new Error(`Container #${containerId} not found`);
     this.container = el;
+    this.manager = manager;
     this.config = JSON.parse(JSON.stringify(initialConfig)); // Deep copy
     this.applyDefaults();
     this.onSave = onSave;
@@ -100,6 +104,18 @@ export class EquipmentScreen {
     contentWrapper.appendChild(centerPanel);
     contentWrapper.appendChild(rightPanel);
     this.container.appendChild(contentWrapper);
+
+    // Header Stats (Floating)
+    const state = this.manager.getState();
+    if (state) {
+      const statsOverlay = document.createElement("div");
+      statsOverlay.className = "overlay-stats";
+      statsOverlay.innerHTML = `
+        <span style="margin-right:20px;">SCRAP: <span style="color:var(--color-primary)">${state.scrap}</span></span>
+        <span>INTEL: <span style="color:var(--color-accent)">${state.intel}</span></span>
+      `;
+      this.container.appendChild(statsOverlay);
+    }
 
     // Footer Buttons (Direct child of container)
     const footer = document.createElement("div");

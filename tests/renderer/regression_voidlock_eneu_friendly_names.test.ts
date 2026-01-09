@@ -8,6 +8,7 @@ describe("Regression: voidlock-eneu - Friendly Weapon Names in Soldier List", ()
   let initialConfig: SquadConfig;
   let onSave: any;
   let onBack: any;
+  let mockManager: any;
 
   beforeEach(() => {
     document.body.innerHTML = '<div id="screen-equipment"></div>';
@@ -18,6 +19,10 @@ describe("Regression: voidlock-eneu - Friendly Weapon Names in Soldier List", ()
       inventory: {},
     };
 
+    mockManager = {
+      getState: vi.fn().mockReturnValue(null),
+    };
+
     onSave = vi.fn();
     onBack = vi.fn();
   });
@@ -25,6 +30,7 @@ describe("Regression: voidlock-eneu - Friendly Weapon Names in Soldier List", ()
   it("should show 'Pulse Rifle' instead of 'pulse_rifle' in the soldier list", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
+      mockManager,
       initialConfig,
       onSave,
       onBack,
