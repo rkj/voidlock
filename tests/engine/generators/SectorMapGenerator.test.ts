@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { SectorMapGenerator } from "@src/engine/generators/SectorMapGenerator";
 import { GameRules } from "@src/shared/campaign_types";
+import { MapGeneratorType } from "@src/shared/types";
 
 describe("SectorMapGenerator", () => {
   const defaultRules: GameRules = {
@@ -8,6 +9,7 @@ describe("SectorMapGenerator", () => {
     difficulty: "Clone",
     deathRule: "Clone",
     allowTacticalPause: true,
+    mapGeneratorType: MapGeneratorType.DenseShip,
     difficultyScaling: 1.0,
     resourceScarcity: 1.0,
   };
