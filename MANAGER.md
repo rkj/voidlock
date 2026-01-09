@@ -35,7 +35,9 @@ At the start of every session, run:
 1. **Strict Adherence to Beads**: You are ONLY allowed to dispatch tasks that currently exist in the Beads (bd) system.
 1. **No Ad-Hoc Instructions**: Do not invent new task descriptions or requirements in the prompt. The sub-agent must rely on `bd show <TASK_ID>` for truth. If requirements change, update the Beads task first.
 1. **Context Validation**: Before dispatching, ensure the Bead task description links to the relevant **ADRs** (for implementation details) and **Spec** sections (for behavior). If missing, update the Bead first.
-1. **Adding Context**: If you need to provide extra context (e.g. from research or previous attempts), append it to the task description using `bd update <TASK_ID> --description "..."`.
+1. **Adding Context (Non-Destructive)**: When adding info (errors, research), you MUST preserve the original description.
+   - **Strategy A (Subtask)**: Create a new dependent task (e.g., `bd create ...` then `bd dep add ...`). This is cleaner for long error logs.
+   - **Strategy B (Append)**: Append to the bottom: `bd update <TASK_ID> --description "<ORIGINAL_DESC>\n\n## Update\n<NEW_INFO>"`. **NEVER** overwrite with just the new info.
 1. **No Backticks**: NEVER use backticks (`) in task descriptions. Use single quotes or plain text.
 
 **Command Pattern:**
@@ -47,8 +49,8 @@ run_shell_command("./scripts/dispatch_agent.sh <TASK_ID>")
 
 # If you need to add context before dispatching:
 # 1. Get current description: bd show <TASK_ID> --json
-# 2. Append new info
-# 3. Update: bd update <TASK_ID> --description "Original description... \n\nNew Context: ..."
+# 2. Append new info (DO NOT OVERWRITE)
+# 3. Update: bd update <TASK_ID> --description "<ORIGINAL_DESC> \n\n## New Context\n..."
 # 4. Dispatch: run_shell_command("./scripts/dispatch_agent.sh <TASK_ID>")
 ```
 
@@ -85,13 +87,13 @@ run_shell_command("./scripts/dispatch_agent.sh <TASK_ID>")
 - **If Failed**:
   **🚨 NEVER FIX CODE**: You are FORBIDDEN from making code changes.
   **🚨 NEVER CLOSE AS FAILED**: Beads does not support a "failed" state. Leave the task OPEN.
-  1. **Re-Dispatch**: If the failure is directly related to the task, append the feedback to the task description and re-dispatch.
+  1. **Re-Dispatch**: If the failure is directly related to the task, you must preserve the original instructions.
+     - **Option A (Preferred)**: Create a new blocking task for the fix (e.g., "Fix TypeScript errors in <TASK_ID>").
+     - **Option B (Append)**: Append the error log to the existing description. **DO NOT** replace the description.
      ```bash
-     # Update description with failure details
-     bd update <TASK_ID> --description "... \n\nAttempt Failed: Tests failed with error..."
-     
-     # Re-dispatch
-     run_shell_command("./scripts/dispatch_agent.sh <TASK_ID>")
+     # 1. Get original description: bd show <TASK_ID> --json
+     # 2. Update: bd update <TASK_ID> --description "<ORIGINAL_DESC>\n\n## Failure Log\nTests failed..."
+     # 3. Re-dispatch: run_shell_command("./scripts/dispatch_agent.sh <TASK_ID>")
      ```
   1. **New Task**: If the failure is a regression in an unrelated area or requires a separate fix, create a **P0 task** using `bd create` and schedule a sub-agent to fix it immediately.
   1. **Critical**: If the changes are fundamentally flawed, `jj undo` and re-plan. Keep the issue open, and comment on the problems encountered.
