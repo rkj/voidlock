@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "fs";
 import { join } from "path";
-import { GameState } from "../../../src/shared/types";
-import { Graph, BoundaryType } from "../../../src/engine/Graph";
+import { GameState, BoundaryType } from "../../../src/shared/types";
+import { Graph } from "../../../src/engine/Graph";
 
 describe("Broken Walls Reproduction", () => {
   it("should have correct boundaries matching the map definition", () => {
