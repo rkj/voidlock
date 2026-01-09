@@ -21,6 +21,7 @@ coding.
 1. **Context Check:** Read @spec/ and @ARCHITECTURE.md. You are producing instructions for @MANAGER.md.
 1. **Consistency Audit:** Does this request contradict existing architectural
    patterns?
+1. **TDD Mandate (Bugfixes):** For every bug report, you MUST first create a task to write a failing test that reproduces the bug. This task must block the actual fix task.
 1. **UX Audit:** Does this feature feel "magical" and fun? Is it intuitive? If
    it feels clunky or standard, propose a "delightful" alternative.
 
@@ -72,7 +73,7 @@ You manage tasks using the `bd` CLI tool. Tasks must be optimized for lightweigh
 ```bash
 bd create \
   --title "Brief Title" \
-  --description 'Full instructions. NO BACKTICKS allowed.' \
+  --description 'Full instructions. NO BACKTICKS allowed. Use single quotes.' \
   --type <TYPE> \
   --priority <P0-P4>
 ```
