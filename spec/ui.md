@@ -6,14 +6,14 @@
 
 The application is divided into distinct screens to reduce UI clutter and improve flow.
 
-1. **Main Menu (Welcome Screen)**
-   - **Title**: "Voidlock"
-   - **Version**: displayed here (e.g., v0.62.0).
-   - **Navigation**:
-     - "Campaign" -> Go to Campaign Screen.
-     - "Custom Mission" -> Go to Mission Setup Screen.
-     - "Load Replay" -> Import replay JSON.
-   - _Note_: Pressing `ESC` from other screens (except Mission) returns here (or to previous screen).
+### Main Menu
+- **Title**: Voidlock
+- **Version**: [Current Version]
+- **Buttons**:
+    - **Campaign**: Enter Campaign Mode.
+    - **Custom Mission**: Enter Mission Setup.
+    - **Reset Data**: Clear all local storage and reload (Destructive, with confirmation).
+- **Import**: "Load Replay JSON" file picker.
 
 1. **Mission Setup Screen** (formerly Config Screen)
    - **Map Configuration**:
