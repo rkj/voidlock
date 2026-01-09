@@ -8,6 +8,7 @@ describe("EquipmentScreen Stats and Tooltips", () => {
   let initialConfig: SquadConfig;
   let onSave: any;
   let onBack: any;
+  let mockManager: any;
 
   beforeEach(() => {
     document.body.innerHTML = '<div id="screen-equipment"></div>';
@@ -18,6 +19,10 @@ describe("EquipmentScreen Stats and Tooltips", () => {
       inventory: {},
     };
 
+    mockManager = {
+      getState: vi.fn().mockReturnValue(null),
+    };
+
     onSave = vi.fn();
     onBack = vi.fn();
   });
@@ -25,6 +30,7 @@ describe("EquipmentScreen Stats and Tooltips", () => {
   it("should display compact stats for weapons in the armory", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
+      mockManager,
       initialConfig,
       onSave,
       onBack,
@@ -54,6 +60,7 @@ describe("EquipmentScreen Stats and Tooltips", () => {
   it("should display compact stats for items (armor/boots) in the armory", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
+      mockManager,
       initialConfig,
       onSave,
       onBack,
@@ -82,6 +89,7 @@ describe("EquipmentScreen Stats and Tooltips", () => {
   it("should have tooltips with descriptions and full stats for armory items", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
+      mockManager,
       initialConfig,
       onSave,
       onBack,
@@ -110,6 +118,7 @@ describe("EquipmentScreen Stats and Tooltips", () => {
   it("should have tooltips for global supply items", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
+      mockManager,
       initialConfig,
       onSave,
       onBack,

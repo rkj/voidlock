@@ -13,6 +13,7 @@ describe("EquipmentScreen", () => {
   let initialConfig: SquadConfig;
   let onSave: any;
   let onBack: any;
+  let mockManager: any;
 
   beforeEach(() => {
     document.body.innerHTML = '<div id="screen-equipment"></div>';
@@ -23,6 +24,10 @@ describe("EquipmentScreen", () => {
       inventory: { medkit: 1 },
     };
 
+    mockManager = {
+      getState: vi.fn().mockReturnValue(null),
+    };
+
     onSave = vi.fn();
     onBack = vi.fn();
   });
@@ -30,6 +35,7 @@ describe("EquipmentScreen", () => {
   it("should render soldier list on show", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
+      mockManager,
       initialConfig,
       onSave,
       onBack,
@@ -50,6 +56,7 @@ describe("EquipmentScreen", () => {
   it("should allow selecting a soldier", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
+      mockManager,
       initialConfig,
       onSave,
       onBack,
@@ -75,6 +82,7 @@ describe("EquipmentScreen", () => {
   it("should pre-populate equipment from archetype defaults", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
+      mockManager,
       initialConfig, // assault has pulse_rifle and combat_knife in ArchetypeLibrary
       onSave,
       onBack,
@@ -108,6 +116,7 @@ describe("EquipmentScreen", () => {
   it("should allow adding global items", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
+      mockManager,
       initialConfig,
       onSave,
       onBack,
@@ -143,6 +152,7 @@ describe("EquipmentScreen", () => {
   it("should allow assigning weapons to soldiers", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
+      mockManager,
       initialConfig,
       onSave,
       onBack,
@@ -176,6 +186,7 @@ describe("EquipmentScreen", () => {
   it("should calculate stats correctly", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
+      mockManager,
       initialConfig,
       onSave,
       onBack,
@@ -204,6 +215,7 @@ describe("EquipmentScreen", () => {
   it("should trigger onBack", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
+      mockManager,
       initialConfig,
       onSave,
       onBack,
