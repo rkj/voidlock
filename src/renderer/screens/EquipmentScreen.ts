@@ -439,11 +439,21 @@ export class EquipmentScreen {
       row.style.marginBottom = "5px";
       row.style.padding = "5px";
       row.style.gap = "0";
-      row.title = `${item.name}\n${item.description || ""}\nCharges: ${item.charges}\nCost: ${item.cost} CR`;
+      row.title = `${item.name}\n${item.description || ""}\nCharges: ${item.charges}`;
 
-      const name = document.createElement("span");
-      name.textContent = item.name;
-      name.style.fontSize = "0.9em";
+      const nameGroup = document.createElement("div");
+      nameGroup.className = "flex-col";
+      nameGroup.style.flexGrow = "1";
+      nameGroup.style.marginRight = "15px";
+      nameGroup.innerHTML = `
+        <div class="flex-row justify-between" style="font-weight:bold;">
+            <span style="font-size: 0.9em;">${item.name}</span>
+            <span style="color:var(--color-text-muted); font-size: 0.8em;">${item.cost} CR</span>
+        </div>
+        <div style="font-size:0.75em; color:var(--color-text-muted); margin-top:2px;">
+            Charges: ${item.charges}
+        </div>
+      `;
 
       const controls = document.createElement("div");
       controls.className = "flex-row align-center gap-10";
@@ -477,7 +487,7 @@ export class EquipmentScreen {
       controls.appendChild(countDisplay);
       controls.appendChild(plus);
 
-      row.appendChild(name);
+      row.appendChild(nameGroup);
       row.appendChild(controls);
       panel.appendChild(row);
     });
