@@ -11,6 +11,7 @@ This directory contains the automated test suite for the game engine, using Vite
 - `regression_mplv_escort_ignored.test.ts`: Fix for Escort objectives being ignored by autonomous AI.
 - `regression_awkp_item_targeting.test.ts`: Verifies item targeting logic (Grenades vs Medkits) and unit-based targeting for USE_ITEM.
 - `regression_0rdj_initial_equipment.test.ts`: Fix for initial roster missing equipment.
+- `regression_voidlock_5zjs_scrap_display.test.ts`: Regression test for verifying scrap display updates.
 
 ## Subdirectories
 

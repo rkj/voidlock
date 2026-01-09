@@ -37,6 +37,7 @@ Only once Docs are updated, map work to `bd`.
 
 **Task Constraints:**
 * **Atomic:** One task = one functional unit.
+* **TDD Mandate:** For `bug` type tasks, a prerequisite task for a failing regression test MUST exist and block the fix.
 * **Types:** `feature`, `bug`, `chore`, `task`, `epic`. (Refactor is NOT a type, use chore).
 * **Spec Linkage:** Description MUST start with: "Implements `spec/file.md#section`".
 * **ADR Linkage:** If applicable, add: "Ref: `docs/adr/00X-name.md`".
@@ -44,8 +45,9 @@ Only once Docs are updated, map work to `bd`.
 
 **Execution Rules:**
 1.  **SERIAL ONLY:** `bd` commands must be executed **one at a time**.
-2.  **NO BATCHING:** Do not use `&&`.
-3.  **Dep Hygiene:** Use `bd dep add <BLOCKED> <BLOCKER>` to enforce order.
+2.  **TDD ENFORCEMENT:** When creating a bug fix task, always create the reproduction test task first and link them immediately.
+3.  **NO BATCHING:** Do not use `&&`.
+4.  **Dep Hygiene:** Use `bd dep add <BLOCKED> <BLOCKER>` to enforce order.
 
 # OUTPUT_TEMPLATE
 
