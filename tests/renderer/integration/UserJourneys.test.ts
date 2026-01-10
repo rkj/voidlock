@@ -233,11 +233,11 @@ describe("Comprehensive User Journeys", () => {
     document.getElementById("btn-menu-custom")?.click();
     
     // 2. Setup -> Mission
-    const scoutInput = Array.from(document.querySelectorAll("#squad-builder div")).find(d => d.textContent?.includes("Scout"))?.querySelector("input");
-    if (scoutInput) {
-      scoutInput.value = "1";
-      scoutInput.dispatchEvent(new Event("change"));
-    }
+    // Choose squad (2 assaults)
+    const assaultCard = Array.from(document.querySelectorAll(".soldier-card")).find(c => c.textContent?.includes("Assault")) as HTMLElement;
+    assaultCard?.dispatchEvent(new Event("dblclick"));
+    assaultCard?.dispatchEvent(new Event("dblclick"));
+
     document.getElementById("btn-goto-equipment")?.click();
     const equipmentLaunchBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent?.includes("CONFIRM")) as HTMLElement;
     equipmentLaunchBtn.click();
@@ -262,8 +262,10 @@ describe("Comprehensive User Journeys", () => {
 
     // Launch mission
     (document.querySelector(".campaign-node.accessible") as HTMLElement).click();
-    const scoutCb = document.querySelector("#squad-builder input[type='checkbox']") as HTMLInputElement;
-    if (!scoutCb.checked) scoutCb.click();
+    const soldierCard = Array.from(document.querySelectorAll(".soldier-card")).find(c => c.textContent?.includes("Soldier 1")) as HTMLElement;
+    if (soldierCard && !soldierCard.classList.contains("selected")) {
+      soldierCard.dispatchEvent(new Event("dblclick"));
+    }
     document.getElementById("btn-goto-equipment")?.click();
     const equipmentLaunchBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent?.includes("CONFIRM")) as HTMLElement;
     equipmentLaunchBtn.click();
