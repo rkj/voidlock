@@ -214,7 +214,7 @@ describe("Comprehensive User Journeys", () => {
     expect(document.getElementById("screen-barracks")?.style.display).toBe("flex");
 
     // 2. Recruit a soldier
-    const recruitBtn = document.querySelector("#screen-barracks .panel:nth-child(3) button") as HTMLElement;
+    const recruitBtn = Array.from(document.querySelectorAll("#screen-barracks .panel:nth-child(3) button")).find(b => b.textContent === "RECRUIT") as HTMLElement;
     recruitBtn.click();
     expect(window.prompt).toHaveBeenCalled();
     

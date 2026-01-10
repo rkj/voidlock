@@ -7,6 +7,7 @@ This directory contains UI components and managers for the Voidlock renderer.
 - `HUDManager.ts`: Manages the Head-Up Display, including soldier list, stats, and top bar.
 - `StatDisplay.ts`: Reusable component for rendering icon-based stat blocks with tooltips.
 - `MenuRenderer.ts`: Renders the hierarchical command menu into HTML strings.
+- `SoldierInspector.ts`: Unified component for viewing soldier attributes and managing equipment (Paper Doll and Armory).
 
 ## Subdirectories
 
@@ -24,6 +25,10 @@ This directory contains UI components and managers for the Voidlock renderer.
 - **Objective HUD Cleanup**: Objectives list now hides coordinates by default (shown only in debug mode), removes explicit status text (Pending/Completed), and adds tooltips to status icons for better clarity.
 - **Enemy Intel**: New section in the right panel that displays icon-based stats for all currently visible enemies, grouped by type.
 - **Command Menu Rendering**: Generates clickable HTML for the tactical menu.
+- **Soldier Inspector**: Shared component used in Barracks and Equipment screens.
+  - Displays innate soldier attributes (HP, SPD, Base ACC) and aggregate weapon stats.
+  - Features a "Paper Doll" layout for equipping items to specific slots.
+  - Integrates with the "Pay-to-Equip" economy, handling ownership checks and Scrap deduction.
 - Event Handling**: Manages clicks on soldier items and menu options.
 
 ## Related ADRs

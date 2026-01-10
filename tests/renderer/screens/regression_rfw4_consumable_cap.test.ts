@@ -23,6 +23,8 @@ describe("EquipmentScreen Consumable Cap Regression (rfw4)", () => {
 
     mockManager = {
       getState: vi.fn().mockReturnValue({ scrap: 1000, intel: 0 }),
+      spendScrap: vi.fn(),
+      assignEquipment: vi.fn(),
     };
 
     onSave = vi.fn();
