@@ -37,6 +37,7 @@ This directory contains the main thread rendering logic and user interface for V
 - **Real-time Rendering**: Efficiently draws the game state at 60 FPS.
 - **Hierarchical Command Menu**: A keyboard-first interface for controlling squad members.
 - **Fog of War**: Implements visual shroud and discovery states based on the simulation data.
+- **Reset Data**: Provides a way to wipe all campaign progress and settings via the Main Menu.
 - **Visual Feedback**: Provides tactical information through tracers, health bars, and status overlays. Includes a high-precision threat bar in `index.html` with pixel-perfect divider alignment.
 
 ## Connections
