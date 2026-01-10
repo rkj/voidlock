@@ -12,6 +12,7 @@ import {
 import { Icons } from "@src/renderer/Icons";
 import { StatDisplay } from "@src/renderer/ui/StatDisplay";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { SoldierInspector } from "@src/renderer/ui/SoldierInspector";
 
 export class EquipmentScreen {
   private container: HTMLElement;
@@ -20,6 +21,7 @@ export class EquipmentScreen {
   private selectedSoldierIndex: number = 0;
   private onSave: (config: SquadConfig) => void;
   private onBack: () => void;
+  private inspector: SoldierInspector;
 
   constructor(
     containerId: string,
@@ -36,6 +38,10 @@ export class EquipmentScreen {
     this.applyDefaults();
     this.onSave = onSave;
     this.onBack = onBack;
+    this.inspector = new SoldierInspector({
+      manager: this.manager,
+      onUpdate: () => this.render(),
+    });
   }
 
   public show() {
@@ -94,12 +100,15 @@ export class EquipmentScreen {
     // Center: Paper Doll / Slots
     const centerPanel = this.createPanel("Soldier Equipment", "1fr");
     centerPanel.style.overflowY = "auto";
-    this.renderPaperDoll(centerPanel);
+    const centerBody = document.createElement("div");
+    centerPanel.appendChild(centerBody);
+    this.inspector.setSoldier(this.config.soldiers[this.selectedSoldierIndex], true);
+    this.inspector.renderDetails(centerBody);
 
     // Right: Armory / Global Inventory
     const rightPanel = this.createPanel("Armory & Supplies", "400px");
     rightPanel.style.overflowY = "auto";
-    this.renderArmory(rightPanel);
+    this.renderRightPanel(rightPanel);
 
     contentWrapper.appendChild(leftPanel);
     contentWrapper.appendChild(centerPanel);
@@ -186,232 +195,11 @@ export class EquipmentScreen {
     return item ? item.name : id;
   }
 
-  private renderPaperDoll(panel: HTMLElement) {
-    const soldier = this.config.soldiers[this.selectedSoldierIndex];
-    if (!soldier) {
-      panel.innerHTML += "<p>No soldier selected</p>";
-      return;
-    }
-
-    const content = document.createElement("div");
-    content.className = "flex-col align-center gap-20";
-    content.style.marginTop = "20px";
-
-    // Soldier Stats Panel
-    const soldierStatsDiv = document.createElement("div");
-    soldierStatsDiv.className = "w-full stat-box";
-    soldierStatsDiv.style.maxWidth = "400px";
-    soldierStatsDiv.style.borderRadius = "4px";
-
-    const h3Soldier = document.createElement("h3");
-    h3Soldier.textContent = "SOLDIER ATTRIBUTES";
-    h3Soldier.className = "stat-label";
-    h3Soldier.style.margin = "0 0 10px 0";
-    h3Soldier.style.letterSpacing = "1px";
-    soldierStatsDiv.appendChild(h3Soldier);
-
-    const sStats = this.calculateSoldierStats(soldier);
-    const sGrid = document.createElement("div");
-    sGrid.className = "flex-row gap-20";
-    sGrid.innerHTML = `
-      ${StatDisplay.render(Icons.Health, sStats.hp, "Max Health", { iconSize: "14px" })}
-      ${StatDisplay.render(Icons.Speed, sStats.speed, "Movement Speed", { iconSize: "14px" })}
-      ${StatDisplay.render(Icons.Accuracy, sStats.accuracy, "Base Accuracy (Aim)", { iconSize: "14px" })}
-    `;
-    soldierStatsDiv.appendChild(sGrid);
-    content.appendChild(soldierStatsDiv);
-
-    // Weapon Stats Panel
-    const weaponStatsDiv = document.createElement("div");
-    weaponStatsDiv.className = "w-full stat-box";
-    weaponStatsDiv.style.maxWidth = "400px";
-    weaponStatsDiv.style.borderRadius = "4px";
-    weaponStatsDiv.style.borderLeft = "3px solid var(--color-primary)";
-
-    const h3Weapon = document.createElement("h3");
-    h3Weapon.textContent = "EQUIPPED WEAPONRY";
-    h3Weapon.className = "stat-label";
-    h3Weapon.style.margin = "0 0 10px 0";
-    h3Weapon.style.letterSpacing = "1px";
-    weaponStatsDiv.appendChild(h3Weapon);
-
-    const rw = this.getWeaponStats(soldier.rightHand, sStats.speed);
-    const lw = this.getWeaponStats(soldier.leftHand, sStats.speed);
-
-    const renderWepBlock = (w: any, label: string) => {
-      if (!w)
-        return `<div style="color:var(--color-text-dim); font-size:0.7em; margin-bottom:8px;">${label}: [EMPTY SLOT]</div>`;
-      return `
-            <div style="margin-bottom:12px; border-bottom:1px solid var(--color-surface-elevated); padding-bottom:8px;">
-                <div style="font-size:0.8em; font-weight:bold; color:var(--color-primary); margin-bottom:4px;">${label}: ${w.name}</div>
-                <div style="display:flex; gap:12px; flex-wrap:wrap;">
-
-                    ${StatDisplay.render(Icons.Damage, w.damage, "Damage per hit")}
-                    ${StatDisplay.render(Icons.Rate, w.fireRate, "Rounds per second")}
-                    ${StatDisplay.render(Icons.Range, w.range, "Effective Range (m)")}
-                    ${StatDisplay.render(Icons.Accuracy, (w.accuracy >= 0 ? "+" : "") + w.accuracy, "Weapon Accuracy Modifier")}
-                </div>
-            </div>
-        `;
-    };
-
-    const wContent = document.createElement("div");
-    wContent.innerHTML =
-      renderWepBlock(rw, "PRIMARY (RH)") + renderWepBlock(lw, "SECONDARY (LH)");
-    weaponStatsDiv.appendChild(wContent);
-    content.appendChild(weaponStatsDiv);
-
-    // Slots
-    const slotsGrid = document.createElement("div");
-    slotsGrid.style.display = "grid";
-    slotsGrid.style.gridTemplateColumns = "100px 100px";
-    slotsGrid.style.gridTemplateRows = "100px 100px";
-    slotsGrid.style.gap = "20px";
-    slotsGrid.style.marginTop = "20px";
-
-    slotsGrid.appendChild(
-      this.createSlot(
-        "Right Hand",
-        soldier.rightHand,
-        (id) => this.handleSlotChange(soldier, "rightHand", id),
-        "Weapon",
-      ),
-    );
-
-    slotsGrid.appendChild(
-      this.createSlot(
-        "Left Hand",
-        soldier.leftHand,
-        (id) => this.handleSlotChange(soldier, "leftHand", id),
-        "Weapon",
-      ),
-    );
-
-    slotsGrid.appendChild(
-      this.createSlot(
-        "Body",
-        soldier.body,
-        (id) => this.handleSlotChange(soldier, "body", id),
-        "Armor",
-      ),
-    );
-
-    slotsGrid.appendChild(
-      this.createSlot(
-        "Feet",
-        soldier.feet,
-        (id) => this.handleSlotChange(soldier, "feet", id),
-        "Feet",
-      ),
-    );
-
-    content.appendChild(slotsGrid);
-    panel.appendChild(content);
-  }
-
-  private createSlot(
-    label: string,
-    itemId: string | undefined,
-    onDrop: (id: string) => void,
-    category: string,
-  ): HTMLElement {
-    const slot = document.createElement("div");
-    slot.className = "paper-doll-slot" + (itemId ? " equipped" : "");
-
-    const title = document.createElement("div");
-    title.textContent = label;
-    title.style.fontSize = "0.7em";
-    title.style.color = "var(--color-text-dim)";
-    title.style.position = "absolute";
-    title.style.top = "5px";
-    slot.appendChild(title);
-
-    if (itemId) {
-      const item = WeaponLibrary[itemId] || ItemLibrary[itemId];
-      if (item) {
-        const name = document.createElement("div");
-        name.textContent = item.name;
-        name.style.fontSize = "0.8em";
-        name.style.textAlign = "center";
-        name.style.color = "var(--color-primary)";
-        slot.appendChild(name);
-
-        const removeBtn = document.createElement("div");
-        removeBtn.textContent = "×";
-        removeBtn.style.position = "absolute";
-        removeBtn.style.top = "2px";
-        removeBtn.style.right = "5px";
-        removeBtn.style.color = "var(--color-danger)";
-        removeBtn.onclick = (e) => {
-          e.stopPropagation();
-          onDrop("");
-        };
-        slot.appendChild(removeBtn);
-      }
-    } else {
-      const plus = document.createElement("div");
-      plus.textContent = "+";
-      plus.style.fontSize = "2em";
-      plus.style.color = "var(--color-border-strong)";
-      slot.appendChild(plus);
-    }
-
-    slot.onclick = () => {
-      // In a real UI we might open a selection menu or handle drag/drop
-    };
-
-    return slot;
-  }
-
-  private renderArmory(panel: HTMLElement) {
-    // Ranged Weapons
-    this.renderCategory(
-      panel,
-      "Ranged Weapons",
-      Object.values(WeaponLibrary).filter((w) => w.type === "Ranged"),
-      (w) => {
-        const s = this.config.soldiers[this.selectedSoldierIndex];
-        this.handleSlotChange(s, "rightHand", w.id);
-      },
-      "rightHand",
-    );
-
-    // Melee Weapons
-    this.renderCategory(
-      panel,
-      "Melee Weapons",
-      Object.values(WeaponLibrary).filter((w) => w.type === "Melee"),
-      (w) => {
-        const s = this.config.soldiers[this.selectedSoldierIndex];
-        this.handleSlotChange(s, "leftHand", w.id);
-      },
-      "leftHand",
-    );
-
-    // Armor & Gear
-    this.renderCategory(
-      panel,
-      "Armor",
-      Object.values(ItemLibrary).filter(
-        (i) => i.id.includes("recon") || i.id.includes("plate"),
-      ),
-      (i) => {
-        const s = this.config.soldiers[this.selectedSoldierIndex];
-        this.handleSlotChange(s, "body", i.id);
-      },
-      "body",
-    );
-
-    this.renderCategory(
-      panel,
-      "Footwear",
-      Object.values(ItemLibrary).filter((i) => i.id.includes("boots")),
-      (i) => {
-        const s = this.config.soldiers[this.selectedSoldierIndex];
-        this.handleSlotChange(s, "feet", i.id);
-      },
-      "feet",
-    );
+  private renderRightPanel(panel: HTMLElement) {
+    // We use the inspector for the Armory part, but we still need the Supplies part
+    const armoryBody = document.createElement("div");
+    panel.appendChild(armoryBody);
+    this.inspector.renderArmory(armoryBody);
 
     // Global Supplies
     const suppliesTitle = document.createElement("h3");
@@ -473,6 +261,10 @@ export class EquipmentScreen {
       }
       plus.onclick = () => {
         if (count < 2) {
+          const state = this.manager.getState();
+          if (state && state.scrap < item.cost) return;
+          if (state) this.manager.spendScrap(item.cost);
+          
           this.config.inventory[item.id] = count + 1;
           this.render();
         }
@@ -486,220 +278,5 @@ export class EquipmentScreen {
       row.appendChild(controls);
       panel.appendChild(row);
     });
-  }
-
-  private renderCategory(
-    panel: HTMLElement,
-    title: string,
-    items: (Weapon | Item)[],
-    onSelect: (item: any) => void,
-    slot?: keyof EquipmentState,
-  ) {
-    const h3 = document.createElement("h3");
-    h3.textContent = title;
-    h3.style.fontSize = "1em";
-    h3.style.color = "var(--color-primary)";
-    h3.style.margin = "15px 0 5px 0";
-    panel.appendChild(h3);
-
-    const state = this.manager.getState();
-    const selectedSoldier = this.config.soldiers[this.selectedSoldierIndex];
-
-    items.forEach((item) => {
-      const isCurrentlyEquipped = slot && selectedSoldier[slot] === item.id;
-      const isOwned =
-        slot && this.isEquippedInRoster(selectedSoldier.id, slot, item.id);
-      const canAfford = !state || state.scrap >= item.cost;
-
-      const btn = document.createElement("div");
-      btn.className = `menu-item clickable ${isCurrentlyEquipped ? "active" : ""}`;
-      if (!isCurrentlyEquipped && !isOwned && !canAfford) {
-        btn.classList.add("disabled");
-        btn.style.opacity = "0.5";
-        btn.style.pointerEvents = "none";
-      }
-      btn.style.padding = "5px 10px";
-      btn.style.marginBottom = "3px";
-      btn.style.fontSize = "0.85em";
-
-      let statsHtml = "";
-      let fullStats = "";
-      if ("damage" in item) {
-        // Weapon
-        const fireRateVal = item.fireRate;
-        const fireRateStr =
-          fireRateVal > 0 ? (1000 / fireRateVal).toFixed(1) : "0";
-        statsHtml = `
-          ${StatDisplay.render(Icons.Damage, item.damage, "Damage")}
-          ${StatDisplay.render(Icons.Rate, fireRateStr, "Fire Rate")}
-          ${StatDisplay.render(Icons.Range, item.range, "Range")}
-        `;
-        fullStats = `Damage: ${item.damage}\nRange: ${item.range}\nFire Rate: ${item.fireRate}ms\nAccuracy: ${item.accuracy > 0 ? "+" : ""}${item.accuracy}%`;
-      } else {
-        // Item (Armor/Boots)
-        const bonuses = [];
-        if (item.hpBonus)
-          bonuses.push(StatDisplay.render(Icons.Health, item.hpBonus, "HP"));
-        if (item.speedBonus)
-          bonuses.push(
-            StatDisplay.render(Icons.Speed, item.speedBonus / 10, "Speed"),
-          );
-        if (item.accuracyBonus)
-          bonuses.push(
-            StatDisplay.render(Icons.Accuracy, item.accuracyBonus, "Accuracy"),
-          );
-        statsHtml = bonuses.join(" ");
-
-        const fullBonuses = [];
-        if (item.hpBonus)
-          fullBonuses.push(`HP: ${item.hpBonus > 0 ? "+" : ""}${item.hpBonus}`);
-        if (item.speedBonus)
-          fullBonuses.push(
-            `Speed: ${item.speedBonus > 0 ? "+" : ""}${item.speedBonus / 10}`,
-          );
-        if (item.accuracyBonus)
-          fullBonuses.push(
-            `Accuracy: ${item.accuracyBonus > 0 ? "+" : ""}${item.accuracyBonus}%`,
-          );
-        fullStats = fullBonuses.join("\n");
-      }
-
-      btn.title = `${item.name}\n${item.description || ""}${fullStats ? "\n\n" + fullStats : ""}`;
-
-      const priceText = isOwned || isCurrentlyEquipped ? "OWNED" : `${item.cost} CR`;
-      const priceColor =
-        isOwned || isCurrentlyEquipped
-          ? "var(--color-primary)"
-          : "var(--color-text-muted)";
-
-      btn.innerHTML = `
-            <div class="flex-col">
-                <div class="flex-row justify-between" style="font-weight:bold;">
-                    <span>${item.name}</span>
-                    <span style="color:${priceColor};">${priceText}</span>
-                </div>
-                <div style="font-size:0.8em; color:var(--color-text-muted); margin-top:2px; display:flex; gap:8px;">
-                    ${statsHtml}
-                </div>
-            </div>
-        `;
-      btn.onclick = () => onSelect(item);
-      panel.appendChild(btn);
-    });
-  }
-
-  private calculateSoldierStats(soldier: SquadSoldierConfig) {
-    const arch = ArchetypeLibrary[soldier.archetypeId];
-    if (!arch) return { hp: 0, speed: 0, accuracy: 0 };
-
-    let hp = arch.baseHp;
-    let speed = arch.speed;
-    let accuracy = arch.soldierAim;
-
-    // Apply equipment bonuses
-    const slots = [
-      soldier.body,
-      soldier.feet,
-      soldier.rightHand,
-      soldier.leftHand,
-    ];
-    slots.forEach((id) => {
-      if (!id) return;
-      const item = ItemLibrary[id];
-      if (item) {
-        if (item.hpBonus) hp += item.hpBonus;
-        if (item.speedBonus) speed += item.speedBonus;
-        if (item.accuracyBonus) accuracy += item.accuracyBonus;
-      }
-    });
-
-    return { hp, speed, accuracy };
-  }
-
-  private getWeaponStats(weaponId?: string, soldierSpeed: number = 20) {
-    if (!weaponId) return null;
-    const weapon = WeaponLibrary[weaponId];
-    if (!weapon) return null;
-
-    // Fire rate in the engine is scaled by speed: fireRate * (speed > 0 ? 10 / speed : 1)
-    // We want to show rounds per second: 1000 / scaledFireRate
-    const scaledFireRate =
-      weapon.fireRate * (soldierSpeed > 0 ? 10 / soldierSpeed : 1);
-    const fireRateVal =
-      scaledFireRate > 0 ? (1000 / scaledFireRate).toFixed(1) : "0";
-
-    return {
-      name: weapon.name,
-      damage: weapon.damage,
-      range: weapon.range,
-      fireRate: fireRateVal,
-      accuracy: weapon.accuracy,
-    };
-  }
-
-  private calculateStats(soldier: SquadSoldierConfig) {
-    const s = this.calculateSoldierStats(soldier);
-    const rw = this.getWeaponStats(soldier.rightHand, s.speed);
-    return {
-      hp: s.hp,
-      speed: s.speed,
-      accuracy: s.accuracy,
-      damage: rw ? rw.damage : 0,
-    };
-  }
-
-  private isEquippedInRoster(
-    soldierId: string | undefined,
-    slot: keyof EquipmentState,
-    itemId: string,
-  ): boolean {
-    if (!soldierId) return false;
-    const state = this.manager.getState();
-    if (!state) return false;
-    const soldier = state.roster.find((s) => s.id === soldierId);
-    if (!soldier) return false;
-    return soldier.equipment[slot] === itemId;
-  }
-
-  private handleSlotChange(
-    soldier: SquadSoldierConfig,
-    slot: keyof EquipmentState,
-    newItemId: string,
-  ) {
-    if (soldier[slot] === newItemId) return;
-
-    if (newItemId === "") {
-      soldier[slot] = "";
-      this.render();
-      return;
-    }
-
-    // Check if owned (already in roster)
-    if (this.isEquippedInRoster(soldier.id, slot, newItemId)) {
-      soldier[slot] = newItemId;
-      this.render();
-      return;
-    }
-
-    // New purchase
-    const item = WeaponLibrary[newItemId] || ItemLibrary[newItemId];
-    if (!item) return;
-
-    const state = this.manager.getState();
-    if (!state) {
-      // Custom Mission mode - free
-      soldier[slot] = newItemId;
-      this.render();
-      return;
-    }
-
-    if (state.scrap < item.cost) {
-      // Optional: show some visual feedback that they can't afford it
-      return;
-    }
-
-    this.manager.spendScrap(item.cost);
-    soldier[slot] = newItemId;
-    this.render();
   }
 }

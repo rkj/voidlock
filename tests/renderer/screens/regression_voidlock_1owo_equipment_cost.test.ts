@@ -32,7 +32,8 @@ describe("EquipmentScreen Economics", () => {
 
     mockManager = {
       getState: vi.fn(() => mockState),
-      spendScrap: vi.fn((amount) => { mockState.scrap -= amount; })
+      spendScrap: vi.fn((amount) => { mockState.scrap -= amount; }),
+      assignEquipment: vi.fn()
     };
 
     onSave = vi.fn();

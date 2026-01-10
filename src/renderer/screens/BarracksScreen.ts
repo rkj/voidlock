@@ -10,12 +10,15 @@ import {
 } from "@src/shared/types";
 import { Icons } from "@src/renderer/Icons";
 import { StatDisplay } from "@src/renderer/ui/StatDisplay";
+import { SoldierInspector } from "@src/renderer/ui/SoldierInspector";
 
 export class BarracksScreen {
   private container: HTMLElement;
   private manager: CampaignManager;
   private selectedSoldierId: string | null = null;
   private onBack: () => void;
+  private inspector: SoldierInspector;
+  private activeTab: "Recruitment" | "Armory" = "Recruitment";
 
   constructor(
     containerId: string,
@@ -27,6 +30,10 @@ export class BarracksScreen {
     this.container = el;
     this.manager = manager;
     this.onBack = onBack;
+    this.inspector = new SoldierInspector({
+      manager: this.manager,
+      onUpdate: () => this.render(),
+    });
   }
 
   public show() {
@@ -44,19 +51,25 @@ export class BarracksScreen {
 
     this.container.innerHTML = "";
     this.container.className = "screen barracks-screen flex-row p-20 gap-20 relative";
-    this.container.style.display = "flex"; // Ensure it's visible if show() was called
+    this.container.style.display = "flex";
+    this.container.style.overflow = "hidden";
 
     // Left: Roster List
     const leftPanel = this.createPanel("ROSTER", "300px");
+    leftPanel.style.overflowY = "auto";
     this.renderRoster(leftPanel);
 
     // Center: Soldier Details & Equipment
     const centerPanel = this.createPanel("SOLDIER DETAILS", "1fr");
-    this.renderSoldierDetails(centerPanel);
+    centerPanel.style.overflowY = "auto";
+    const centerBody = document.createElement("div");
+    centerPanel.appendChild(centerBody);
+    this.renderSoldierDetails(centerBody);
 
     // Right: Recruitment & Store
-    const rightPanel = this.createPanel("RECRUITMENT", "350px");
-    this.renderRecruitment(rightPanel);
+    const rightPanel = this.createPanel("", "400px");
+    rightPanel.style.overflowY = "auto";
+    this.renderRightSidebar(rightPanel);
 
     this.container.appendChild(leftPanel);
     this.container.appendChild(centerPanel);
@@ -90,10 +103,12 @@ export class BarracksScreen {
     panel.style.width = width === "1fr" ? "auto" : width;
     if (width === "1fr") panel.style.flexGrow = "1";
 
-    const h2 = document.createElement("h2");
-    h2.className = "panel-title";
-    h2.textContent = title;
-    panel.appendChild(h2);
+    if (title) {
+      const h2 = document.createElement("h2");
+      h2.className = "panel-title";
+      h2.textContent = title;
+      panel.appendChild(h2);
+    }
 
     return panel;
   }
@@ -164,21 +179,15 @@ export class BarracksScreen {
 
     const soldier = state.roster.find((s) => s.id === this.selectedSoldierId);
     if (!soldier) {
-      const placeholder = document.createElement("div");
-      placeholder.className = "flex-col align-center justify-center h-full";
-      placeholder.style.color = "var(--color-border-strong)";
-      placeholder.innerHTML = `
-        <div style="font-size:3em; margin-bottom:10px;">👤</div>
-        <div>Select a soldier to view details</div>
-      `;
-      panel.appendChild(placeholder);
+      this.inspector.setSoldier(null, false);
+      this.inspector.renderDetails(panel);
       return;
     }
 
     // Soldier Header
     const header = document.createElement("div");
     header.className = "flex-row justify-between align-center w-full";
-    header.style.marginBottom = "20px";
+    header.style.marginBottom = "10px";
 
     const nameInfo = document.createElement("div");
     nameInfo.innerHTML = `
@@ -197,10 +206,11 @@ export class BarracksScreen {
 
     // Actions (Heal / Revive)
     const actions = document.createElement("div");
-    actions.className = "flex-row gap-10 p-20";
-    actions.style.marginBottom = "20px";
+    actions.className = "flex-row gap-10 p-10";
+    actions.style.marginBottom = "10px";
     actions.style.background = "var(--color-surface)";
     actions.style.border = "1px solid var(--color-border)";
+    actions.style.justifyContent = "center";
 
     if (soldier.status === "Wounded") {
       const healBtn = document.createElement("button");
@@ -234,100 +244,64 @@ export class BarracksScreen {
     }
     panel.appendChild(actions);
 
-    // Stats
-    const statsGrid = document.createElement("div");
-    statsGrid.className = "stats-grid";
-    statsGrid.style.marginBottom = "20px";
+    this.inspector.setSoldier(soldier, false);
+    const inspectorBody = document.createElement("div");
+    panel.appendChild(inspectorBody);
+    this.inspector.renderDetails(inspectorBody);
+  }
 
-    const addStat = (label: string, value: any, icon: string) => {
-      const div = document.createElement("div");
-      div.className = "stat-box";
-      div.innerHTML = `
-        <div class="stat-label">${label}</div>
-        <div class="flex-row align-center gap-10">
-          <img src="${icon}" style="width:20px; height:20px;" />
-          <span style="font-size:1.1em; font-weight:bold;">${value}</span>
-        </div>
-      `;
-      statsGrid.appendChild(div);
+  private renderRightSidebar(panel: HTMLElement) {
+    const state = this.manager.getState();
+    if (!state) return;
+
+    // Tabs
+    const tabs = document.createElement("div");
+    tabs.className = "flex-row gap-5";
+    tabs.style.marginBottom = "15px";
+
+    const recruitTab = document.createElement("button");
+    recruitTab.textContent = "RECRUITMENT";
+    recruitTab.className = this.activeTab === "Recruitment" ? "active" : "";
+    recruitTab.style.flex = "1";
+    recruitTab.style.marginTop = "0";
+    recruitTab.onclick = () => {
+      this.activeTab = "Recruitment";
+      this.render();
     };
 
-    addStat("HEALTH", `${soldier.hp} / ${soldier.maxHp}`, Icons.Health);
-    addStat("ACCURACY (AIM)", soldier.soldierAim, Icons.Accuracy);
-    addStat("KILLS", soldier.kills, Icons.Objective); // Placeholder icon
-    addStat("MISSIONS", soldier.missions, Icons.Exit); // Placeholder icon
+    const armoryTab = document.createElement("button");
+    armoryTab.textContent = "ARMORY";
+    armoryTab.className = this.activeTab === "Armory" ? "active" : "";
+    armoryTab.style.flex = "1";
+    armoryTab.style.marginTop = "0";
+    armoryTab.onclick = () => {
+      this.activeTab = "Armory";
+      this.render();
+    };
 
-    panel.appendChild(statsGrid);
+    tabs.appendChild(recruitTab);
+    tabs.appendChild(armoryTab);
+    panel.appendChild(tabs);
 
-    // Equipment Slots
-    const equipTitle = document.createElement("h4");
-    equipTitle.textContent = "EQUIPMENT";
-    equipTitle.style.borderBottom = "1px solid var(--color-border)";
-    equipTitle.style.paddingBottom = "5px";
-    equipTitle.style.color = "var(--color-text-muted)";
-    panel.appendChild(equipTitle);
+    const body = document.createElement("div");
+    panel.appendChild(body);
 
-    const slotsContainer = document.createElement("div");
-    slotsContainer.className = "slots-grid";
-
-    const renderSlot = (label: string, slot: keyof EquipmentState, category: string) => {
-      const div = document.createElement("div");
-      div.className = "equipment-slot";
-
-      const title = document.createElement("div");
-      title.textContent = label;
-      title.className = "stat-label";
-      div.appendChild(title);
-
-      const select = document.createElement("select");
-      select.className = "w-full";
-      select.style.background = "var(--color-bg)";
-      select.style.color = "var(--color-text)";
-
-      select.style.border = "1px solid var(--color-border-strong)";
-      select.style.padding = "4px";
-
-      const noneOpt = document.createElement("option");
-      noneOpt.value = "";
-      noneOpt.textContent = "[ EMPTY ]";
-      select.appendChild(noneOpt);
-
-      let items: (Weapon | Item)[] = [];
-      if (category === "Ranged") {
-        items = Object.values(WeaponLibrary).filter(w => w.type === "Ranged");
-      } else if (category === "Melee") {
-        items = Object.values(WeaponLibrary).filter(w => w.type === "Melee");
-      } else if (category === "Armor") {
-        items = Object.values(ItemLibrary).filter(i => i.id.includes("recon") || i.id.includes("plate"));
-      } else if (category === "Feet") {
-        items = Object.values(ItemLibrary).filter(i => i.id.includes("boots"));
+    if (this.activeTab === "Recruitment") {
+      this.renderRecruitment(body);
+    } else {
+      const soldier = state.roster.find((s) => s.id === this.selectedSoldierId);
+      if (soldier) {
+        this.inspector.setSoldier(soldier, false);
+        this.inspector.renderArmory(body);
+      } else {
+        const placeholder = document.createElement("div");
+        placeholder.style.textAlign = "center";
+        placeholder.style.color = "var(--color-text-dim)";
+        placeholder.style.marginTop = "40px";
+        placeholder.textContent = "Select a soldier to access Armory";
+        body.appendChild(placeholder);
       }
-
-      items.forEach(item => {
-        const opt = document.createElement("option");
-        opt.value = item.id;
-        opt.textContent = item.name;
-        if (soldier.equipment[slot as keyof EquipmentState] === item.id) opt.selected = true;
-        select.appendChild(opt);
-      });
-
-      select.onchange = () => {
-        const newEquip = { ...soldier.equipment };
-        (newEquip as any)[slot] = select.value || undefined;
-        this.manager.assignEquipment(soldier.id, newEquip);
-        this.render();
-      };
-
-      div.appendChild(select);
-      slotsContainer.appendChild(div);
-    };
-
-    renderSlot("RIGHT HAND", "rightHand", "Ranged");
-    renderSlot("LEFT HAND", "leftHand", "Melee");
-    renderSlot("BODY", "body", "Armor");
-    renderSlot("FEET", "feet", "Feet");
-
-    panel.appendChild(slotsContainer);
+    }
   }
 
   private renderRecruitment(panel: HTMLElement) {
@@ -342,20 +316,24 @@ export class BarracksScreen {
 
       const card = document.createElement("div");
       card.className = "card";
+      card.style.padding = "10px";
+      card.style.marginBottom = "10px";
 
       card.innerHTML = `
         <div class="flex-row justify-between align-center">
-          <strong style="color:var(--color-primary); font-size:1.1em;">${arch.name}</strong>
-          <span style="color:var(--color-text); font-weight:bold;">100 Scrap</span>
+          <strong style="color:var(--color-primary); font-size:1em;">${arch.name}</strong>
+          <span style="color:var(--color-text); font-weight:bold; font-size:0.9em;">100 Scrap</span>
         </div>
-        <div style="font-size:0.8em; color:var(--color-text-muted);">
-          Base HP: ${arch.baseHp} | Aim: ${arch.soldierAim} | Speed: ${arch.speed/10}
+        <div style="font-size:0.75em; color:var(--color-text-muted); margin-top:4px;">
+          HP: ${arch.baseHp} | Aim: ${arch.soldierAim} | Spd: ${arch.speed/10}
         </div>
       `;
 
       const recruitBtn = document.createElement("button");
       recruitBtn.textContent = "RECRUIT";
       recruitBtn.className = "w-full";
+      recruitBtn.style.padding = "5px";
+      recruitBtn.style.fontSize = "0.8em";
       recruitBtn.disabled = state.scrap < 100;
       recruitBtn.onclick = () => {
         const name = prompt("Enter soldier name:", `Recruit ${Math.floor(Math.random()*1000)}`);
