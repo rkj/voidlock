@@ -4,6 +4,7 @@ import {
   GameRules,
   MissionReport,
   CampaignSoldier,
+  CampaignOverrides,
   XP_THRESHOLDS,
   STAT_BOOSTS,
   calculateLevel,
@@ -84,7 +85,7 @@ export class CampaignManager {
   public startNewCampaign(
     seed: number,
     difficulty: string,
-    allowTacticalPause?: boolean,
+    overrides?: CampaignOverrides | boolean, // Support legacy boolean for allowTacticalPause
     themeId?: string,
     unitStyle?: UnitStyle,
     mapGeneratorType?: MapGeneratorType,
@@ -93,28 +94,45 @@ export class CampaignManager {
     const prng = new PRNG(seed);
 
     const rules = this.getRulesForDifficulty(difficulty);
-    if (allowTacticalPause !== undefined) {
-      rules.allowTacticalPause = allowTacticalPause;
-    }
-    if (themeId) {
-      rules.themeId = themeId;
-    }
-    if (unitStyle) {
-      rules.unitStyle = unitStyle;
-    }
-    if (mapGeneratorType) {
-      rules.mapGeneratorType = mapGeneratorType;
-    }
-    if (mapGrowthRate !== undefined) {
-      rules.mapGrowthRate = mapGrowthRate;
+
+    // Handle overrides
+    if (typeof overrides === "object" && overrides !== null) {
+      if (overrides.deathRule) rules.deathRule = overrides.deathRule;
+      if (overrides.allowTacticalPause !== undefined)
+        rules.allowTacticalPause = overrides.allowTacticalPause;
+      if (overrides.mapGeneratorType)
+        rules.mapGeneratorType = overrides.mapGeneratorType;
+      if (overrides.scaling !== undefined)
+        rules.difficultyScaling = overrides.scaling;
+      if (overrides.scarcity !== undefined)
+        rules.resourceScarcity = overrides.scarcity;
+      if (overrides.startingScrap !== undefined)
+        rules.startingScrap = overrides.startingScrap;
+      if (overrides.mapGrowthRate !== undefined)
+        rules.mapGrowthRate = overrides.mapGrowthRate;
+      if (overrides.themeId) rules.themeId = overrides.themeId;
+      if (overrides.unitStyle) rules.unitStyle = overrides.unitStyle;
+      if (overrides.customSeed !== undefined) {
+        rules.customSeed = overrides.customSeed;
+      }
+    } else {
+      // Legacy argument mapping
+      if (overrides !== undefined) {
+        rules.allowTacticalPause = overrides;
+      }
+      if (themeId) rules.themeId = themeId;
+      if (unitStyle) rules.unitStyle = unitStyle;
+      if (mapGeneratorType) rules.mapGeneratorType = mapGeneratorType;
+      if (mapGrowthRate !== undefined) rules.mapGrowthRate = mapGrowthRate;
     }
 
-    const nodes = this.sectorMapGenerator.generate(seed, rules);
+    const effectiveSeed = rules.customSeed ?? seed;
+    const nodes = this.sectorMapGenerator.generate(effectiveSeed, rules);
     const roster = this.generateInitialRoster(prng);
 
     this.state = {
       version: "0.75.0", // Current project version
-      seed,
+      seed: effectiveSeed,
       status: "Active",
       rules,
       scrap: rules.startingScrap,
