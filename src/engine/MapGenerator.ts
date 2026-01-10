@@ -121,27 +121,41 @@ export class MapGenerator {
 
     // 3. Re-build map.walls from Graph (ensuring unreachable cells are walled off)
     const newWalls: WallDefinition[] = [];
-    for (const b of graph.getAllBoundaries()) {
-      const c1 = graph.cells[b.y1]?.[b.x1];
-      const c2 = graph.cells[b.y2]?.[b.x2];
+    const newBoundaries: any[] = [];
 
-      let shouldBeWall = b.type !== BoundaryType.Open;
-      // If neighbor is outside or either cell is now a Wall (Void), it must be a wall
-      if (
-        !c1 ||
-        !c2 ||
-        c1.type === CellType.Void ||
-        c2.type === CellType.Void
-      ) {
+    for (const b of graph.getAllBoundaries()) {
+      const isC1Reachable = reachable.has(`${b.x1},${b.y1}`);
+      const isC2Reachable = reachable.has(`${b.x2},${b.y2}`);
+
+      // A boundary should be a wall if it separates a reachable cell from an unreachable one,
+      // or if it was already a wall between two reachable cells.
+      let shouldBeWall = b.type === BoundaryType.Wall;
+      if (isC1Reachable !== isC2Reachable) {
         shouldBeWall = true;
       }
 
-      if (shouldBeWall && b.type !== BoundaryType.Door) {
+      // If it's a door, but connects to an unreachable cell, it MUST become a wall.
+      const isDoor = b.type === BoundaryType.Door;
+      const isValidDoor = isDoor && isC1Reachable && isC2Reachable;
+
+      if (shouldBeWall && !isValidDoor) {
         const seg = b.getVisualSegment();
         newWalls.push({ p1: seg.p1, p2: seg.p2 });
       }
+
+      newBoundaries.push({
+        x1: b.x1,
+        y1: b.y1,
+        x2: b.x2,
+        y2: b.y2,
+        type: isValidDoor ? BoundaryType.Door : (shouldBeWall ? BoundaryType.Wall : BoundaryType.Open),
+        doorId: isValidDoor ? b.doorId : undefined,
+      });
     }
     map.walls = newWalls;
+    if (map.boundaries) {
+      map.boundaries = newBoundaries;
+    }
 
     // 4. Remove Doors connected to Void
     if (map.doors) {

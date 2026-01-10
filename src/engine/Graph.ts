@@ -139,6 +139,20 @@ export class Graph {
         }
       }
     }
+
+    // 6. Hydrate from boundaries array if present (authoritative)
+    if (map.boundaries) {
+      for (const bDef of map.boundaries) {
+        const boundary = this.getOrCreateBoundary(
+          bDef.x1,
+          bDef.y1,
+          bDef.x2,
+          bDef.y2,
+        );
+        boundary.type = bDef.type;
+        if (bDef.doorId) boundary.doorId = bDef.doorId;
+      }
+    }
   }
 
   public get width(): number {

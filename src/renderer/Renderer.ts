@@ -120,7 +120,7 @@ export class Renderer {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     // Update Graph if map changed
-    const mapId = `${state.map.width}x${state.map.height}-${state.map.cells.length}`;
+    const mapId = `${state.seed}-${state.map.width}x${state.map.height}-${state.map.cells.length}`;
     if (this.currentMapId !== mapId) {
       this.graph = new Graph(state.map);
       this.currentMapId = mapId;
