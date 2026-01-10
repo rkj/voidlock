@@ -319,21 +319,150 @@ export class CampaignScreen {
     styleGroup.appendChild(styleSelect);
     form.appendChild(styleGroup);
 
+    // Advanced Options (Collapsible)
+    const advancedWrapper = document.createElement("div");
+    advancedWrapper.className = "flex-col gap-10";
+    advancedWrapper.style.marginTop = "10px";
+    advancedWrapper.style.paddingTop = "10px";
+    advancedWrapper.style.borderTop = "1px solid var(--color-border)";
+
+    const advancedToggle = document.createElement("button");
+    advancedToggle.textContent = "SHOW ADVANCED SETTINGS ▼";
+    advancedToggle.style.background = "none";
+    advancedToggle.style.border = "none";
+    advancedToggle.style.color = "var(--color-text-dim)";
+    advancedToggle.style.fontSize = "0.8em";
+    advancedToggle.style.cursor = "pointer";
+    advancedToggle.style.textAlign = "left";
+    advancedToggle.style.padding = "0";
+
+    const advancedContent = document.createElement("div");
+    advancedContent.className = "flex-col gap-15";
+    advancedContent.style.display = "none";
+    advancedContent.style.marginTop = "10px";
+
+    advancedToggle.onclick = () => {
+      const isHidden = advancedContent.style.display === "none";
+      advancedContent.style.display = isHidden ? "flex" : "none";
+      advancedToggle.textContent = isHidden
+        ? "HIDE ADVANCED SETTINGS ▲"
+        : "SHOW ADVANCED SETTINGS ▼";
+    };
+
+    // Custom Seed
+    const seedGroup = document.createElement("div");
+    seedGroup.className = "flex-col gap-5";
+    const seedLabel = document.createElement("label");
+    seedLabel.textContent = "CUSTOM SEED (Optional)";
+    seedLabel.style.fontSize = "0.7em";
+    seedLabel.style.color = "var(--color-text-dim)";
+    const seedInput = document.createElement("input");
+    seedInput.type = "number";
+    seedInput.placeholder = "Enter seed...";
+    seedGroup.appendChild(seedLabel);
+    seedGroup.appendChild(seedInput);
+    advancedContent.appendChild(seedGroup);
+
+    // Forced Map Generator
+    const genGroup = document.createElement("div");
+    genGroup.className = "flex-col gap-5";
+    const genLabel = document.createElement("label");
+    genLabel.textContent = "FORCE MAP GENERATOR";
+    genLabel.style.fontSize = "0.7em";
+    genLabel.style.color = "var(--color-text-dim)";
+    const genSelect = document.createElement("select");
+    genSelect.innerHTML = `
+      <option value="">(Default for mission)</option>
+      <option value="DenseShip">DENSE SHIP (>90% fill)</option>
+      <option value="TreeShip">TREE SHIP (No Loops)</option>
+      <option value="Procedural">SPACESHIP (Balanced)</option>
+    `;
+    genGroup.appendChild(genLabel);
+    genGroup.appendChild(genSelect);
+    advancedContent.appendChild(genGroup);
+
+    // Scaling Slider
+    const scalingGroup = document.createElement("div");
+    scalingGroup.className = "flex-col gap-5";
+    const scalingLabel = document.createElement("label");
+    scalingLabel.innerHTML = `DIFFICULTY SCALING: <span id="scaling-val">100</span>%`;
+    scalingLabel.style.fontSize = "0.7em";
+    scalingLabel.style.color = "var(--color-text-dim)";
+    const scalingSlider = document.createElement("input");
+    scalingSlider.type = "range";
+    scalingSlider.min = "50";
+    scalingSlider.max = "200";
+    scalingSlider.value = "100";
+    scalingSlider.oninput = () => {
+      document.getElementById("scaling-val")!.textContent = scalingSlider.value;
+    };
+    scalingGroup.appendChild(scalingLabel);
+    scalingGroup.appendChild(scalingSlider);
+    advancedContent.appendChild(scalingGroup);
+
+    // Scarcity Slider
+    const scarcityGroup = document.createElement("div");
+    scarcityGroup.className = "flex-col gap-5";
+    const scarcityLabel = document.createElement("label");
+    scarcityLabel.innerHTML = `RESOURCE SCARCITY: <span id="scarcity-val">100</span>%`;
+    scarcityLabel.style.fontSize = "0.7em";
+    scarcityLabel.style.color = "var(--color-text-dim)";
+    const scarcitySlider = document.createElement("input");
+    scarcitySlider.type = "range";
+    scarcitySlider.min = "50";
+    scarcitySlider.max = "200";
+    scarcitySlider.value = "100";
+    scarcitySlider.oninput = () => {
+      document.getElementById("scarcity-val")!.textContent = scarcitySlider.value;
+    };
+    scarcityGroup.appendChild(scarcityLabel);
+    scarcityGroup.appendChild(scarcitySlider);
+    advancedContent.appendChild(scarcityGroup);
+
+    // Death Rule
+    const deathGroup = document.createElement("div");
+    deathGroup.className = "flex-col gap-5";
+    const deathLabel = document.createElement("label");
+    deathLabel.textContent = "DEATH RULE";
+    deathLabel.style.fontSize = "0.7em";
+    deathLabel.style.color = "var(--color-text-dim)";
+    const deathSelect = document.createElement("select");
+    deathSelect.innerHTML = `
+      <option value="">(Preset Default)</option>
+      <option value="Simulation">SIMULATION (No Death)</option>
+      <option value="Clone">CLONE (Pay to revive)</option>
+      <option value="Iron">IRON (Permanent)</option>
+    `;
+    deathGroup.appendChild(deathLabel);
+    deathGroup.appendChild(deathSelect);
+    advancedContent.appendChild(deathGroup);
+
+    advancedWrapper.appendChild(advancedToggle);
+    advancedWrapper.appendChild(advancedContent);
+    form.appendChild(advancedWrapper);
+
     content.appendChild(form);
 
     const startBtn = document.createElement("button");
     startBtn.textContent = "INITIALIZE EXPEDITION";
     startBtn.className = "primary-button w-full";
     startBtn.onclick = () => {
-      this.manager.startNewCampaign(
-        Date.now(),
-        selectedDifficulty,
-        pauseCheck.checked,
-        themeSelect.value,
-        styleSelect.value as any,
-        undefined, // mapGeneratorType
-        parseFloat(lengthSelect.value),
-      );
+      const overrides: any = {
+        allowTacticalPause: pauseCheck.checked,
+        themeId: themeSelect.value,
+        unitStyle: styleSelect.value as any,
+        mapGrowthRate: parseFloat(lengthSelect.value),
+      };
+
+      if (seedInput.value) overrides.customSeed = parseInt(seedInput.value);
+      if (genSelect.value) overrides.mapGeneratorType = genSelect.value;
+      if (scalingSlider.value !== "100")
+        overrides.scaling = parseInt(scalingSlider.value) / 100;
+      if (scarcitySlider.value !== "100")
+        overrides.scarcity = 100 / parseInt(scarcitySlider.value); // Scarcity means less rewards, so higher scarcity = lower multiplier
+      if (deathSelect.value) overrides.deathRule = deathSelect.value;
+
+      this.manager.startNewCampaign(Date.now(), selectedDifficulty, overrides);
       if (this.onCampaignStart) this.onCampaignStart();
       this.render();
     };

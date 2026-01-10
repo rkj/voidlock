@@ -26,6 +26,23 @@ export interface GameRules {
   startingScrap: number; // NEW: Initial funds
   mapGrowthRate: number; // NEW: +MapSize per rank
   themeId?: string;
+  customSeed?: number;
+}
+
+/**
+ * Advanced rule overrides for starting a new campaign.
+ */
+export interface CampaignOverrides {
+  deathRule?: "Iron" | "Clone" | "Simulation";
+  allowTacticalPause?: boolean;
+  mapGeneratorType?: MapGeneratorType;
+  scaling?: number;
+  scarcity?: number;
+  startingScrap?: number;
+  mapGrowthRate?: number;
+  themeId?: string;
+  unitStyle?: UnitStyle;
+  customSeed?: number;
 }
 
 /**
