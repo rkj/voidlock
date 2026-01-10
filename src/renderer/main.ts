@@ -550,6 +550,17 @@ document.addEventListener("DOMContentLoaded", async () => {
       screenManager.show("campaign");
     });
 
+  document.getElementById("btn-menu-reset")?.addEventListener("click", () => {
+    if (
+      confirm(
+        "Are you sure? This will wipe all campaign progress and settings.",
+      )
+    ) {
+      localStorage.clear();
+      window.location.reload();
+    }
+  });
+
   document
     .getElementById("btn-campaign-back")
     ?.addEventListener("click", () => screenManager.goBack());
