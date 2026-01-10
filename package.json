@@ -2,7 +2,7 @@
   "name": "voidlock",
   "private": true,
   "version": "0.81.0",
-  "description": "Tactical squad combat game. Rebrand Epic: xenopurge-gemini-58ka",
+  "description": "Tactical squad combat game.",
   "type": "module",
   "scripts": {
     "dev": "vite --host",

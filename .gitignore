@@ -14,6 +14,7 @@ dist-ssr
 *.local
 NanoBanana Assets
 tags
+coverage/
 
 # Editor directories and files
 .vscode/*
@@ -26,4 +27,3 @@ tags
 *.sln
 *.sw?
 .beads/last-touched
-
