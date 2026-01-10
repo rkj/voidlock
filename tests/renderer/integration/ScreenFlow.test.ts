@@ -188,11 +188,11 @@ describe("Screen Flow Integration", () => {
 
     // 3. Mission Setup -> Equipment
     const btnGotoEquipment = document.getElementById("btn-goto-equipment") as HTMLButtonElement;
-    // In campaign mode, squad builder has checkboxes
-    const checkboxes = document.querySelectorAll("#squad-builder input[type='checkbox']");
-    checkboxes.forEach(cb => {
-      if (!(cb as HTMLInputElement).checked) {
-        (cb as HTMLInputElement).click();
+    // In campaign mode, squad builder has soldier cards
+    const cards = document.querySelectorAll(".soldier-card");
+    cards.forEach(card => {
+      if (!card.classList.contains("selected")) {
+        card.dispatchEvent(new Event("dblclick"));
       }
     });
     
@@ -240,11 +240,8 @@ describe("Screen Flow Integration", () => {
 
     // 2. Mission Setup -> Mission
     // Select a soldier (scout)
-    const scoutInput = Array.from(document.querySelectorAll("#squad-builder div")).find(d => d.textContent?.includes("Scout"))?.querySelector("input");
-    if (scoutInput) {
-      scoutInput.value = "1";
-      scoutInput.dispatchEvent(new Event("change"));
-    }
+    const scoutCard = Array.from(document.querySelectorAll(".soldier-card")).find(c => c.textContent?.includes("Scout")) as HTMLElement;
+    scoutCard?.dispatchEvent(new Event("dblclick"));
 
     const btnGotoEquipment = document.getElementById("btn-goto-equipment") as HTMLButtonElement;
     btnGotoEquipment.click();

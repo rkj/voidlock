@@ -1084,14 +1084,27 @@ document.addEventListener("DOMContentLoaded", async () => {
     container.innerHTML = "";
 
     const MAX_SQUAD_SIZE = 4;
+    const isEscortMission = currentMissionType === MissionType.EscortVIP;
+
     const totalDiv = document.createElement("div");
     totalDiv.id = "squad-total-count";
     totalDiv.style.marginBottom = "10px";
     totalDiv.style.fontWeight = "bold";
     container.appendChild(totalDiv);
 
+    const mainWrapper = document.createElement("div");
+    mainWrapper.className = "squad-builder-container";
+    container.appendChild(mainWrapper);
+
+    const rosterPanel = document.createElement("div");
+    rosterPanel.className = "roster-panel";
+    mainWrapper.appendChild(rosterPanel);
+
+    const deploymentPanel = document.createElement("div");
+    deploymentPanel.className = "deployment-panel";
+    mainWrapper.appendChild(deploymentPanel);
+
     const updateCount = () => {
-      // VIPs do not count towards the squad size limit
       let total = currentSquad.soldiers.filter(
         (s) => s.archetypeId !== "vip",
       ).length;
@@ -1107,96 +1120,110 @@ document.addEventListener("DOMContentLoaded", async () => {
         "btn-goto-equipment",
       ) as HTMLButtonElement;
       if (launchBtn) launchBtn.disabled = total === 0 || total > MAX_SQUAD_SIZE;
+      
+      renderRoster();
+      renderSlots();
     };
 
-    if (isCampaign) {
-      const state = campaignManager.getState();
-      if (!state) return;
-      const roster = state.roster;
-
-      roster.forEach((soldier) => {
-        if (soldier.archetypeId === "vip") return;
-        const row = document.createElement("div");
-        row.className = "flex-row align-center justify-between";
-        row.style.borderBottom = "1px solid var(--color-border)";
-        row.style.padding = "5px 0";
-
-        const isChecked = currentSquad.soldiers.some((s) => s.id === soldier.id);
-        const isDisabled = soldier.status !== "Healthy";
-
-        const info = document.createElement("div");
-        info.style.flex = "1";
-        const arch = ArchetypeLibrary[soldier.archetypeId];
-        info.innerHTML = `
-          <strong style="color:${isDisabled ? "var(--color-text-muted)" : "var(--color-primary)"};">
-            ${soldier.name} (${arch?.name || soldier.archetypeId} Lvl ${soldier.level})
-          </strong>
-          <div style="font-size:0.75em; color:var(--color-text-muted); margin-top:2px;">
-            Status: ${soldier.status}
-          </div>
-        `;
-
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.checked = isChecked;
-        checkbox.disabled = isDisabled;
-        checkbox.style.width = "20px";
-        checkbox.style.height = "20px";
-        checkbox.style.marginLeft = "10px";
-
-        checkbox.addEventListener("change", () => {
-          if (checkbox.checked) {
-            const currentTotal = currentSquad.soldiers.filter(
-              (s) => s.archetypeId !== "vip",
-            ).length;
-            if (currentTotal >= MAX_SQUAD_SIZE) {
-              checkbox.checked = false;
-              alert(`Max squad size is ${MAX_SQUAD_SIZE}.`);
-              return;
-            }
-            // Add deep copy of soldier data
-            currentSquad.soldiers.push({
-              id: soldier.id,
-              archetypeId: soldier.archetypeId,
-              hp: soldier.hp,
-              maxHp: soldier.maxHp,
-              soldierAim: soldier.soldierAim,
-              rightHand: soldier.equipment.rightHand,
-              leftHand: soldier.equipment.leftHand,
-              body: soldier.equipment.body,
-              feet: soldier.equipment.feet,
-            });
-          } else {
-            // Remove from squad
-            currentSquad.soldiers = currentSquad.soldiers.filter(
-              (s) => s.id !== soldier.id,
-            );
-          }
-          updateCount();
+    const renderRoster = () => {
+      rosterPanel.innerHTML = "<h3>Roster</h3>";
+      if (isCampaign) {
+        const state = campaignManager.getState();
+        if (state) {
+          state.roster.forEach((soldier) => {
+            if (soldier.archetypeId === "vip") return;
+            const isSelected = currentSquad.soldiers.some((s) => s.id === soldier.id);
+            const isDisabled = soldier.status !== "Healthy";
+            rosterPanel.appendChild(createCampaignCard(soldier, isSelected, isDisabled));
+          });
+        }
+      } else {
+        Object.values(ArchetypeLibrary).forEach((arch) => {
+          if (arch.id === "vip" && isEscortMission) return;
+          rosterPanel.appendChild(createArchetypeCard(arch));
         });
+      }
+    };
 
-        row.append(info, checkbox);
-        container.appendChild(row);
+    const renderSlots = () => {
+      deploymentPanel.innerHTML = "<h3>Deployment</h3>";
+      for (let i = 0; i < 4; i++) {
+        deploymentPanel.appendChild(createSlot(i));
+      }
+    };
+
+    const addToSquad = (data: any) => {
+      const totalNonVip = currentSquad.soldiers.filter(s => s.archetypeId !== "vip").length;
+      const totalOccupied = currentSquad.soldiers.length + (isEscortMission ? 1 : 0);
+
+      if (totalOccupied >= 4) {
+        alert("All deployment slots are full.");
+        return;
+      }
+
+      if (data.archetypeId !== "vip" && totalNonVip >= MAX_SQUAD_SIZE) {
+        alert(`Maximum of ${MAX_SQUAD_SIZE} soldiers allowed.`);
+        return;
+      }
+
+      if (data.type === "campaign") {
+        if (currentSquad.soldiers.some(s => s.id === data.id)) return;
+        const state = campaignManager.getState();
+        const s = state?.roster.find((r) => r.id === data.id);
+        if (s) {
+          currentSquad.soldiers.push({
+            id: s.id,
+            archetypeId: s.archetypeId,
+            hp: s.hp,
+            maxHp: s.maxHp,
+            soldierAim: s.soldierAim,
+            rightHand: s.equipment.rightHand,
+            leftHand: s.equipment.leftHand,
+            body: s.equipment.body,
+            feet: s.equipment.feet,
+          });
+        }
+      } else {
+        currentSquad.soldiers.push({ archetypeId: data.archetypeId });
+      }
+      updateCount();
+    };
+
+    const createCampaignCard = (soldier: any, isSelected: boolean, isDisabled: boolean) => {
+      const arch = ArchetypeLibrary[soldier.archetypeId];
+      const card = document.createElement("div");
+      card.className = `soldier-card ${isDisabled ? "disabled" : ""} ${isSelected ? "selected" : ""}`;
+      if (!isDisabled && !isSelected) {
+        card.draggable = true;
+        card.addEventListener("dragstart", (e) => {
+          e.dataTransfer?.setData("text/plain", JSON.stringify({ type: "campaign", id: soldier.id, archetypeId: soldier.archetypeId }));
+        });
+        card.addEventListener("dblclick", () => addToSquad({ type: "campaign", id: soldier.id, archetypeId: soldier.archetypeId }));
+      }
+      card.innerHTML = `
+        <strong>${soldier.name}</strong>
+        <div style="font-size:0.75em; color:var(--color-text-muted);">
+          ${arch?.name || soldier.archetypeId} Lvl ${soldier.level} | Status: ${soldier.status}
+        </div>
+      `;
+      return card;
+    };
+
+    const createArchetypeCard = (arch: any) => {
+      const card = document.createElement("div");
+      card.className = "soldier-card";
+      card.draggable = true;
+      card.addEventListener("dragstart", (e) => {
+        e.dataTransfer?.setData("text/plain", JSON.stringify({ type: "custom", archetypeId: arch.id }));
       });
-    } else {
-      Object.values(ArchetypeLibrary).forEach((arch) => {
-        const isVip = arch.id === "vip";
-        const isEscortMission = currentMissionType === MissionType.EscortVIP;
+      card.addEventListener("dblclick", () => addToSquad({ type: "custom", archetypeId: arch.id }));
 
-        const row = document.createElement("div");
-        row.className = "flex-row align-center justify-between";
-        row.style.borderBottom = "1px solid var(--color-border)";
-        row.style.padding = "5px 0";
+      const scaledFireRate = arch.fireRate * (arch.speed > 0 ? 10 / arch.speed : 1);
+      const fireRateVal = scaledFireRate > 0 ? (1000 / scaledFireRate).toFixed(1) : "0";
 
-        const info = document.createElement("div");
-        info.style.flex = "1";
-        const scaledFireRate =
-          arch.fireRate * (arch.speed > 0 ? 10 / arch.speed : 1);
-        const fireRateVal =
-          scaledFireRate > 0 ? (1000 / scaledFireRate).toFixed(1) : "0";
-        info.innerHTML = `
+      card.innerHTML = `
         <strong style="color:var(--color-primary);">${arch.name}</strong>
-        <div style="font-size:0.75em; color:var(--color-text-muted); margin-top:2px; display:flex; gap:8px;">
+        <div style="font-size:0.75em; color:var(--color-text-muted); display:flex; gap:8px; flex-wrap:wrap;">
           ${StatDisplay.render(Icons.Speed, arch.speed, "Speed")}
           ${StatDisplay.render(Icons.Accuracy, arch.accuracy, "Accuracy")}
           ${StatDisplay.render(Icons.Damage, arch.damage, "Damage")}
@@ -1204,64 +1231,69 @@ document.addEventListener("DOMContentLoaded", async () => {
           ${StatDisplay.render(Icons.Range, arch.attackRange, "Range")}
         </div>
       `;
+      return card;
+    };
 
-        if (isVip && isEscortMission) {
-          const note = document.createElement("div");
-          note.style.fontSize = "0.75em";
-          note.style.color = "var(--color-primary)";
-          note.style.marginTop = "2px";
-          note.textContent = "(Auto-assigned)";
-          info.appendChild(note);
+    const createSlot = (index: number) => {
+      const slot = document.createElement("div");
+      slot.className = "deployment-slot";
+      
+      if (index === 0 && isEscortMission) {
+        slot.classList.add("locked");
+        slot.innerHTML = `<div class="slot-label">VIP (Auto-Assigned)</div><strong style="color:var(--color-accent);">VIP</strong>`;
+        return slot;
+      }
+
+      const soldierIdx = isEscortMission ? index - 1 : index;
+      const soldier = currentSquad.soldiers[soldierIdx];
+
+      if (soldier) {
+        slot.classList.add("occupied");
+        const arch = ArchetypeLibrary[soldier.archetypeId];
+        let name = arch?.name || soldier.archetypeId;
+        if (isCampaign && soldier.id) {
+          const state = campaignManager.getState();
+          const rs = state?.roster.find((r) => r.id === soldier.id);
+          if (rs) name = rs.name;
         }
-
-        const input = document.createElement("input");
-        input.type = "number";
-        input.min = "0";
-        input.max = "4";
-        // Count soldiers of this archetype
-        const currentCount = currentSquad.soldiers.filter(
-          (s) => s.archetypeId === arch.id,
-        ).length;
-        input.value = currentCount.toString();
-
-        if (isVip && isEscortMission) {
-          input.disabled = true;
-          input.value = "0";
-        }
-
-        input.style.width = "60px";
-        input.style.marginLeft = "10px";
-
-        input.addEventListener("change", () => {
-          const val = parseInt(input.value) || 0;
-
-          // Calculate total excluding this archetype
-          const otherSoldiers = currentSquad.soldiers.filter(
-            (s) => s.archetypeId !== arch.id,
-          );
-          const otherTotal = otherSoldiers.filter(
-            (s) => s.archetypeId !== "vip",
-          ).length;
-
-          if (arch.id !== "vip" && otherTotal + val > MAX_SQUAD_SIZE) {
-            input.value = currentCount.toString();
-            alert(`Max squad size is ${MAX_SQUAD_SIZE}.`);
-            return;
-          }
-
-          // Reconstruct soldiers list: keep others, add 'val' of this archetype
-          const newSoldiers = [...otherSoldiers];
-          for (let i = 0; i < val; i++) {
-            newSoldiers.push({ archetypeId: arch.id });
-          }
-          currentSquad.soldiers = newSoldiers;
-
+        
+        slot.innerHTML = `
+          <div class="slot-label">Slot ${index + 1}</div>
+          <strong style="color:var(--color-primary);">${name}</strong>
+          <div class="slot-remove" title="Remove">X</div>
+        `;
+        
+        slot.querySelector(".slot-remove")?.addEventListener("click", (e) => {
+          e.stopPropagation();
+          currentSquad.soldiers.splice(soldierIdx, 1);
           updateCount();
         });
-        row.append(info, input);
-        container.appendChild(row);
-      });
-    }
+        
+        slot.addEventListener("dblclick", () => {
+          currentSquad.soldiers.splice(soldierIdx, 1);
+          updateCount();
+        });
+      } else {
+        slot.innerHTML = `<div class="slot-label">Slot ${index + 1}</div><div style="color:var(--color-text-dim); font-size:0.8em;">(Empty)</div>`;
+        
+        slot.addEventListener("dragover", (e) => {
+          e.preventDefault();
+          slot.classList.add("drag-over");
+        });
+
+        slot.addEventListener("dragleave", () => slot.classList.remove("drag-over"));
+
+        slot.addEventListener("drop", (e) => {
+          e.preventDefault();
+          slot.classList.remove("drag-over");
+          const dataStr = e.dataTransfer?.getData("text/plain");
+          if (dataStr) addToSquad(JSON.parse(dataStr));
+        });
+      }
+
+      return slot;
+    };
+
     updateCount();
   }
 
