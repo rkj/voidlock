@@ -110,10 +110,10 @@ describe("Regression awkp: Item Targeting Logic", () => {
 
     // Should show friendly units as targets
     const unit1Option = renderState.options.find((o) =>
-      o.label.includes("Unit u1"),
+      o.label.includes("u1"),
     );
     const unit2Option = renderState.options.find((o) =>
-      o.label.includes("Unit u2"),
+      o.label.includes("u2"),
     );
     expect(unit1Option).toBeDefined();
     expect(unit2Option).toBeDefined();
@@ -135,7 +135,7 @@ describe("Regression awkp: Item Targeting Logic", () => {
 
     const renderState = controller.getRenderableState(mockState);
     const unit1Option = renderState.options.find((o) =>
-      o.label.includes("Unit u1"),
+      o.label.includes("u1"),
     )!;
 
     controller.handleMenuInput(unit1Option.key, mockState);

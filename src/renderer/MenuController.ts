@@ -426,25 +426,11 @@ export class MenuController {
         (u) => u.state !== UnitState.Dead && u.state !== UnitState.Extracted,
       );
 
-      result.options = activeUnits.map((u) => ({
-        key: counter.toString(),
-        label: `${counter}. Unit ${u.id}`,
-        dataAttributes: { index: counter.toString(), "unit-id": u.id },
-      }));
-      counter = activeUnits.length + 1; // Correct counter for ALL UNITS
-
-      // Add options based on counter, but we need to increment correctly
-      // map used previously, so let's just push to options array
-      // Fix: result.options is already populated by map.
-      // Need to update counter after map.
-
-      // Re-do mapping to be cleaner
       result.options = [];
-      counter = 1;
       activeUnits.forEach((u) => {
         result.options.push({
           key: counter.toString(),
-          label: `${counter}. Unit ${u.id}`,
+          label: `${counter}. ${u.id}`,
           dataAttributes: { index: counter.toString(), "unit-id": u.id },
         });
         counter++;
@@ -677,7 +663,7 @@ export class MenuController {
         if (u.state !== UnitState.Dead && u.state !== UnitState.Extracted) {
           this.overlayOptions.push({
             key: this.getRoomKey(unitCounter),
-            label: `Unit ${u.id}`,
+            label: `${u.id}`,
             pos: { x: Math.floor(u.pos.x), y: Math.floor(u.pos.y) },
             id: u.id,
           });
@@ -737,7 +723,7 @@ export class MenuController {
         const key = this.getRoomKey(index);
         this.overlayOptions.push({
           key: key,
-          label: `Room`,
+          label: `Room ${key}`,
           pos: { x: centerCell.x, y: centerCell.y },
         });
       });

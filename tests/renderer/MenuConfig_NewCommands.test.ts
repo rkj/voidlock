@@ -108,7 +108,7 @@ describe("MenuConfig New Commands", () => {
     controller.handleMenuInput("4", mockState); // ESCORT
     
     const renderState = controller.getRenderableState(mockState);
-    const unitOption = renderState.options.find(o => o.label.includes("Unit u1"));
+    const unitOption = renderState.options.find(o => o.label.includes("u1"));
     expect(unitOption).toBeDefined();
   });
 
@@ -137,7 +137,7 @@ describe("MenuConfig New Commands", () => {
     
     // Find key for Unit u2
     const renderState = controller.getRenderableState(mockState);
-    const unitOption = renderState.options.find(o => o.label.includes("Unit u2"));
+    const unitOption = renderState.options.find(o => o.label.includes("u2"));
     const key = unitOption?.key || "2";
     
     controller.handleMenuInput(key, mockState); // Target u2
