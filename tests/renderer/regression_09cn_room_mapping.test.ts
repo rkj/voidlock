@@ -67,7 +67,7 @@ describe("MenuController Room Mapping Regression (09cn)", () => {
 
     expect(roomOptions.length).toBe(1);
     expect(roomOptions[0].key).toBe("1");
-    expect(roomOptions[0].label).toBe("1. Room");
+    expect(roomOptions[0].label).toBe("1. Room 1");
 
     const state2 = {
       ...state1,
@@ -80,9 +80,9 @@ describe("MenuController Room Mapping Regression (09cn)", () => {
 
     expect(roomOptions.length).toBe(2);
     expect(roomOptions[0].key).toBe("1");
-    expect(roomOptions[0].label).toBe("1. Room");
+    expect(roomOptions[0].label).toBe("1. Room 1");
     expect(roomOptions[1].key).toBe("2");
-    expect(roomOptions[1].label).toBe("2. Room");
+    expect(roomOptions[1].label).toBe("2. Room 2");
   });
 
   it("should use A-Z after 1-9", () => {

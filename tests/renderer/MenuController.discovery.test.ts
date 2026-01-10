@@ -67,7 +67,7 @@ describe("MenuController Room Discovery", () => {
     // Should find Room 1 (mapped to Key 1) but not Room 2
     expect(roomOptions.length).toBe(1);
     expect(roomOptions[0].key).toBe("1");
-    expect(roomOptions[0].label).toBe("1. Room");
+    expect(roomOptions[0].label).toBe("1. Room 1");
   });
 
   it("should show discovered room as '1. Room' even if it wasn't the first room in map data", () => {
@@ -85,7 +85,7 @@ describe("MenuController Room Discovery", () => {
 
     expect(roomOptions.length).toBe(1);
     expect(roomOptions[0].key).toBe("1");
-    expect(roomOptions[0].label).toBe("1. Room");
+    expect(roomOptions[0].label).toBe("1. Room 1");
   });
 
   it("should not list corridors as rooms", () => {
@@ -129,8 +129,8 @@ describe("MenuController Room Discovery", () => {
 
     expect(roomOptions.length).toBe(2);
     expect(roomOptions[0].key).toBe("1");
-    expect(roomOptions[0].label).toBe("1. Room");
+    expect(roomOptions[0].label).toBe("1. Room 1");
     expect(roomOptions[1].key).toBe("2");
-    expect(roomOptions[1].label).toBe("2. Room");
+    expect(roomOptions[1].label).toBe("2. Room 2");
   });
 });
