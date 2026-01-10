@@ -55,31 +55,16 @@ describe("Broken Walls Reproduction", () => {
     // Check if this wall exists in the Graph
     const internalWall = graph.getBoundary(1, 0, 2, 0);
     expect(internalWall).toBeDefined();
-    expect(internalWall?.type).toBe(BoundaryType.Wall); // This assertion might fail if the bug exists
+    
+    // In this specific bad JSON, there is BOTH a wall and a door at this boundary.
+    // The Graph constructor (and sanitize) should prefer Door.
+    // If the bug was "soldiers walking through rendered walls", it's because both were present
+    // and the renderer might have drawn the wall even if it was an open door.
+    expect(internalWall?.type).toBe(BoundaryType.Door);
+    expect(internalWall?.doorId).toBe("door-5");
 
     // Let's verify doors too
     // Door door-1 at segment [(2,0), (3,0)]
-    // Horizontal segment? No, p1.y=0, p2.y=0 -> Horizontal visual segment.
-    // Wait, logic says:
-    // if (c1.x === c2.x) -> Vertical (separated by y)
-    // else -> Horizontal (separated by x)
-    // Door segment in JSON: [{x:2, y:0}, {x:3, y:0}]
-    // x varies. y is constant. 
-    // Boundary between (2,0) and (3,0) ??? No.
-    // MapGenerator hydration of doors:
-    // const c1 = door.segment[0]; const c2 = door.segment[1];
-    // boundary = getOrCreateBoundary(c1.x, c1.y, c2.x, c2.y);
-    
-    // Wait, the JSON `door.segment` are CELLS?
-    // "segment": [ { "x": 2, "y": 0 }, { "x": 3, "y": 0 } ]
-    // Yes, these look like cell coordinates.
-    // (2,0) and (3,0) are adjacent horizontally.
-    // So the boundary is between (2,0) and (3,0).
-    
-    // The JSON `walls` use p1, p2 as visual coordinates (corners).
-    // The JSON `doors` use segment as cell coordinates.
-    
-    // Let's check door-1
     const doorBoundary = graph.getBoundary(2, 0, 3, 0);
     expect(doorBoundary).toBeDefined();
     expect(doorBoundary?.type).toBe(BoundaryType.Door);
