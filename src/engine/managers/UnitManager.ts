@@ -194,6 +194,12 @@ export class UnitManager {
         if (obj) claimedObjectives.add(obj.id);
       }
       // If unit has an active command targeting an objective
+      if (u.activeCommand?.type === CommandType.PICKUP) {
+        const cmd = u.activeCommand as PickupCommand;
+        claimedObjectives.add(cmd.lootId);
+      }
+
+      // If unit has an active command targeting an objective
       if (
         u.activeCommand?.type === CommandType.MOVE_TO &&
         u.activeCommand.target &&

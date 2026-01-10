@@ -292,26 +292,34 @@ export class UnitAI {
     // 2. Objective Interaction
     if (unit.archetypeId !== "vip" && state.objectives) {
       for (const obj of state.objectives) {
-        if (obj.state === "Pending" && !context.claimedObjectives.has(obj.id)) {
-          if (obj.kind === "Recover" && obj.targetCell) {
-            if (
-              Math.floor(unit.pos.x) === obj.targetCell.x &&
-              Math.floor(unit.pos.y) === obj.targetCell.y
-            ) {
-              const duration = 5000 * (SPEED_NORMALIZATION_CONST / unit.stats.speed);
-              unit.state = UnitState.Channeling;
-              unit.channeling = {
-                action: "Collect",
-                remaining: duration,
-                totalDuration: duration,
-                targetId: obj.id,
-              };
-              context.claimedObjectives.add(obj.id);
-              unit.path = undefined;
-              unit.targetPos = undefined;
-              unit.activeCommand = undefined;
-              return;
-            }
+        if (obj.state === "Pending") {
+          const isAtTarget =
+            obj.targetCell &&
+            Math.floor(unit.pos.x) === obj.targetCell.x &&
+            Math.floor(unit.pos.y) === obj.targetCell.y;
+
+          const isClaimedByMe =
+            unit.activeCommand?.type === CommandType.PICKUP &&
+            (unit.activeCommand as PickupCommand).lootId === obj.id;
+
+          if (
+            isAtTarget &&
+            (!context.claimedObjectives.has(obj.id) || isClaimedByMe)
+          ) {
+            const duration =
+              5000 * (SPEED_NORMALIZATION_CONST / unit.stats.speed);
+            unit.state = UnitState.Channeling;
+            unit.channeling = {
+              action: "Collect",
+              remaining: duration,
+              totalDuration: duration,
+              targetId: obj.id,
+            };
+            context.claimedObjectives.add(obj.id);
+            unit.path = undefined;
+            unit.targetPos = undefined;
+            unit.activeCommand = undefined;
+            return;
           }
         }
       }
@@ -462,7 +470,83 @@ export class UnitAI {
       }
     }
 
-    // 2. Objectives
+    // 2. Opportunistic Loot & Objectives (In current LOS)
+    if (!actionTaken) {
+      const visibleLoot = (state.loot || []).filter((l) =>
+        context.newVisibleCellsSet.has(
+          `${Math.floor(l.pos.x)},${Math.floor(l.pos.y)}`
+        )
+      );
+
+      const visibleObjectives = (state.objectives || []).filter((o) => {
+        if (o.state !== "Pending" || context.claimedObjectives.has(o.id))
+          return false;
+        if (o.kind !== "Recover") return false;
+        if (o.targetCell) {
+          return context.newVisibleCellsSet.has(
+            `${o.targetCell.x},${o.targetCell.y}`
+          );
+        }
+        return false;
+      });
+
+      if (visibleLoot.length > 0 || visibleObjectives.length > 0) {
+        const targetedIds = state.units
+          .filter(
+            (u) =>
+              u.id !== unit.id && u.activeCommand?.type === CommandType.PICKUP
+          )
+          .map((u) => (u.activeCommand as PickupCommand).lootId);
+
+        const availableLoot = visibleLoot.filter(
+          (l) => !targetedIds.includes(l.id)
+        );
+        const availableObjectives = visibleObjectives.filter(
+          (o) => !targetedIds.includes(o.id)
+        );
+
+        const items = [
+          ...availableLoot.map((l) => ({
+            id: l.id,
+            pos: l.pos,
+            type: "loot" as const,
+          })),
+          ...availableObjectives.map((o) => ({
+            id: o.id,
+            pos: { x: o.targetCell!.x + 0.5, y: o.targetCell!.y + 0.5 },
+            type: "objective" as const,
+          })),
+        ];
+
+        if (items.length > 0) {
+          const closest = items.sort(
+            (a, b) =>
+              this.getDistance(unit.pos, a.pos) -
+              this.getDistance(unit.pos, b.pos)
+          )[0];
+
+          if (closest.type === "objective") {
+            context.claimedObjectives.add(closest.id);
+          }
+
+          context.executeCommand(
+            unit,
+            {
+              type: CommandType.PICKUP,
+              unitIds: [unit.id],
+              lootId: closest.id,
+              label: closest.type === "objective" ? "Recovering" : "Picking up",
+            },
+            state,
+            false,
+            director
+          );
+          actionTaken = true;
+        }
+      }
+    }
+
+    // 3. Objectives
     if (!actionTaken && state.objectives) {
       const pendingObjectives = state.objectives.filter(
         (o) =>
@@ -547,7 +631,7 @@ export class UnitAI {
       }
     }
 
-    // 3. Extraction
+    // 4. Extraction
     const objectivesComplete =
       !state.objectives || state.objectives.every((o) => o.state !== "Pending");
 
@@ -581,7 +665,7 @@ export class UnitAI {
       }
     }
 
-    // 4. Exploration
+    // 5. Exploration
     if (!actionTaken && !this.isMapFullyDiscovered(state, context.totalFloorCells)) {
       let shouldReevaluate = !unit.explorationTarget;
 

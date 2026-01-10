@@ -103,8 +103,8 @@ describe("Objective Prioritization AI", () => {
     // If the fix is implemented, it should now be moving towards the objective (4,0)
     // instead of continuing to initialTarget.
     expect(unit2.activeCommand?.label).toBe("Recovering");
-    expect((unit2.activeCommand as any).target.x).toBe(4);
-    expect((unit2.activeCommand as any).target.y).toBe(0);
+    expect(unit2.activeCommand?.type).toBe(CommandType.PICKUP);
+    expect((unit2.activeCommand as any).lootId).toBe("obj1");
     expect(unit2.explorationTarget).toBeUndefined();
   });
 });
