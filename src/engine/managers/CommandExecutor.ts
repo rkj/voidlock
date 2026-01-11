@@ -27,6 +27,17 @@ export class CommandExecutor {
       cmd.type !== CommandType.EXPLORE &&
       cmd.type !== CommandType.RESUME_AI
     ) {
+      // If we are issuing a manual PICKUP or USE_ITEM command while AI is enabled,
+      // we want to resume AI after the action is complete.
+      if (
+        unit.aiEnabled &&
+        (cmd.type === CommandType.PICKUP || cmd.type === CommandType.USE_ITEM)
+      ) {
+        unit.commandQueue.push({
+          type: CommandType.RESUME_AI,
+          unitIds: [unit.id],
+        });
+      }
       unit.aiEnabled = false;
     }
 
