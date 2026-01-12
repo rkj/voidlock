@@ -68,7 +68,8 @@ describe("Campaign Progression (XP and Leveling)", () => {
     const state = manager.getState()!;
     const soldier = state.roster[0];
 
-    // Lost: 10, Dead: 0, Kills: 2 * 10 = 20. Total: 30.
+    // Lost: 10, Dead: 0, Kills: 2 * 10 = 20. Total: 30 (OLD RULES).
+    // NEW RULES: Dead = 0 XP (spec/campaign.md#3.3).
     const report: MissionReport = {
       nodeId: state.nodes.filter((n) => n.status === "Accessible")[0].id,
       seed: 1,
@@ -92,8 +93,8 @@ describe("Campaign Progression (XP and Leveling)", () => {
     manager.processMissionResult(report);
 
     const updatedSoldier = manager.getState()!.roster[0];
-    expect(updatedSoldier.xp).toBe(30);
-    expect(report.soldierResults[0].xpGained).toBe(30);
+    expect(updatedSoldier.xp).toBe(0);
+    expect(report.soldierResults[0].xpGained).toBe(0);
   });
 
   it("should calculate XP correctly for a survivor in a lost mission", () => {
