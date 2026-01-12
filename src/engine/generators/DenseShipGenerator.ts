@@ -53,7 +53,10 @@ export class DenseShipGenerator {
     return [p1, p2].sort().join("--");
   }
 
-  public generate(spawnPointCount: number = 2): MapDefinition {
+  public generate(
+    spawnPointCount: number = 2,
+    bonusLootCount: number = 0,
+  ): MapDefinition {
     this.placementValidator.clear();
     this.reset();
 

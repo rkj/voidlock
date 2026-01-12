@@ -5,6 +5,7 @@ export enum OccupantType {
   EnemySpawn = "EnemySpawn",
   Extraction = "Extraction",
   Objective = "Objective",
+  Loot = "Loot",
 }
 
 /**

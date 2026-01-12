@@ -20,6 +20,8 @@ import { DenseShipGenerator } from "../generators/DenseShipGenerator";
 import { Graph, Direction } from "../Graph";
 import { MapSanitizer } from "./MapSanitizer";
 import { MapValidator } from "./MapValidator";
+import { PRNG } from "../../shared/PRNG";
+import { PlacementValidator, OccupantType } from "../generators/PlacementValidator";
 
 export class MapFactory {
   private config: MapGenerationConfig;
@@ -33,26 +35,31 @@ export class MapFactory {
   }
 
   public static generate(config: MapGenerationConfig): MapDefinition {
-    const { width, height, type, seed, spawnPointCount } = config;
+    const { width, height, type, seed, spawnPointCount, bonusLootCount } = config;
     const spCount = spawnPointCount ?? 1;
+    const blCount = bonusLootCount ?? 0;
     let map: MapDefinition;
 
     switch (type) {
       case MapGeneratorType.TreeShip:
-        map = new TreeShipGenerator(seed, width, height).generate(spCount);
+        map = new TreeShipGenerator(seed, width, height).generate(spCount, blCount);
         break;
       case MapGeneratorType.Procedural:
-        map = new SpaceshipGenerator(seed, width, height).generate(spCount);
+        map = new SpaceshipGenerator(seed, width, height).generate(spCount, blCount);
         break;
       case MapGeneratorType.DenseShip:
-        map = new DenseShipGenerator(seed, width, height).generate(spCount);
+        map = new DenseShipGenerator(seed, width, height).generate(spCount, blCount);
         break;
       default:
-        map = new SpaceshipGenerator(seed, width, height).generate(spCount);
+        map = new SpaceshipGenerator(seed, width, height).generate(spCount, blCount);
     }
 
     map.generatorName = type;
-    
+
+    if (bonusLootCount && bonusLootCount > 0) {
+      this.placeBonusLoot(map, bonusLootCount, seed);
+    }
+
     // Auto-sanitize after generation
     MapSanitizer.sanitize(map);
 
@@ -61,8 +68,53 @@ export class MapFactory {
     if (!validation.isValid) {
       console.warn("Generated map has validation issues:", validation.issues);
     }
-    
+
     return map;
+  }
+
+  private static placeBonusLoot(
+    map: MapDefinition,
+    count: number,
+    seed: number,
+  ) {
+    const prng = new PRNG(seed + 999); // Offset seed to avoid correlation with map structure
+    const validator = new PlacementValidator();
+
+    // Populate validator with existing occupants from map definition
+    if (map.squadSpawn) validator.occupy(map.squadSpawn, OccupantType.SquadSpawn);
+    if (map.squadSpawns)
+      map.squadSpawns.forEach((s) =>
+        validator.occupy(s, OccupantType.SquadSpawn),
+      );
+    if (map.extraction)
+      validator.occupy(map.extraction, OccupantType.Extraction);
+    if (map.spawnPoints)
+      map.spawnPoints.forEach((s) =>
+        validator.occupy(s.pos, OccupantType.EnemySpawn),
+      );
+    if (map.objectives)
+      map.objectives.forEach((o) => {
+        if (o.targetCell) validator.occupy(o.targetCell, OccupantType.Objective);
+      });
+
+    // We only want to place loot in rooms (cells that have a roomId)
+    const roomCells = map.cells.filter(
+      (c) =>
+        c.type === CellType.Floor &&
+        c.roomId &&
+        !c.roomId.startsWith("corridor-"),
+    );
+    const available = roomCells.filter((c) => !validator.isCellOccupied(c));
+
+    prng.shuffle(available);
+
+    const loot: Vector2[] = [];
+    for (let i = 0; i < Math.min(count, available.length); i++) {
+      loot.push({ x: available[i].x, y: available[i].y });
+      validator.occupy(available[i], OccupantType.Loot);
+    }
+
+    map.bonusLoot = loot;
   }
 
   public validate(map: MapDefinition): IMapValidationResult {

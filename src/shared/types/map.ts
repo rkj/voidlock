@@ -52,6 +52,7 @@ export interface MapGenerationConfig {
   height: number;
   type: MapGeneratorType;
   spawnPointCount?: number; // Optional, defaults to 1
+  bonusLootCount?: number; // Optional, defaults to 0
 }
 
 export type MapDefinition = {
@@ -67,6 +68,7 @@ export type MapDefinition = {
   squadSpawns?: Vector2[];
   extraction?: Vector2;
   objectives?: ObjectiveDefinition[];
+  bonusLoot?: Vector2[];
 };
 
 export type SpawnPoint = {

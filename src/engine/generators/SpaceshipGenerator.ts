@@ -58,7 +58,10 @@ export class SpaceshipGenerator {
     return [p1, p2].sort().join("--");
   }
 
-  public generate(spawnPointCount: number = 1): MapDefinition {
+  public generate(
+    spawnPointCount: number = 1,
+    bonusLootCount: number = 0,
+  ): MapDefinition {
     this.placementValidator.clear();
     this.doors = [];
     this.spawnPoints = [];

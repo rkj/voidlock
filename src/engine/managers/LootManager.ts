@@ -25,4 +25,17 @@ export class LootManager {
     if (!state.loot) return;
     state.loot = state.loot.filter((l) => l.id !== lootId);
   }
+
+  public awardScrap(state: GameState, itemId: string) {
+    if (itemId === "scrap_crate") {
+      const isBoss = state.nodeType === "Boss";
+      const isElite = state.nodeType === "Elite";
+      const multiplier = isBoss ? 3 : isElite ? 2 : 1;
+
+      // Approx 20% of base mission value (which is 125 * multiplier)
+      // 125 * 0.2 = 25
+      const scrapAmount = 25 * multiplier;
+      state.stats.scrapGained += scrapAmount;
+    }
+  }
 }
