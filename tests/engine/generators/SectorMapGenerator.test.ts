@@ -16,6 +16,7 @@ describe("SectorMapGenerator", () => {
     mapGrowthRate: 1.0,
     baseEnemyCount: 3,
     enemyGrowthPerMission: 1,
+    economyMode: "Open",
   };
 
   it("should generate a deterministic map with a given seed", () => {

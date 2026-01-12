@@ -22,6 +22,7 @@ export class EquipmentScreen {
   private onSave: (config: SquadConfig) => void;
   private onBack: () => void;
   private inspector: SoldierInspector;
+  private isShop: boolean = false;
 
   constructor(
     containerId: string,
@@ -29,6 +30,7 @@ export class EquipmentScreen {
     initialConfig: SquadConfig,
     onSave: (config: SquadConfig) => void,
     onBack: () => void,
+    isShop: boolean = false,
   ) {
     const el = document.getElementById(containerId);
     if (!el) throw new Error(`Container #${containerId} not found`);
@@ -38,10 +40,17 @@ export class EquipmentScreen {
     this.applyDefaults();
     this.onSave = onSave;
     this.onBack = onBack;
+    this.isShop = isShop;
     this.inspector = new SoldierInspector({
       manager: this.manager,
       onUpdate: () => this.render(),
     });
+    this.inspector.setShop(this.isShop);
+  }
+
+  public setShop(isShop: boolean) {
+    this.isShop = isShop;
+    this.inspector.setShop(isShop);
   }
 
   public show() {

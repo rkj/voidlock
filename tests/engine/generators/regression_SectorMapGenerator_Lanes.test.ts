@@ -16,6 +16,7 @@ describe("SectorMapGenerator - Lane-Based", () => {
     mapGrowthRate: 1.0,
     baseEnemyCount: 3,
     enemyGrowthPerMission: 1,
+    economyMode: "Open",
   };
 
   it("should have exactly 4 lanes (implicit in positioning and connectivity)", () => {

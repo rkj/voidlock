@@ -22,6 +22,7 @@ describe("Campaign Types", () => {
       mapGrowthRate: 1.0,
       baseEnemyCount: 3,
       enemyGrowthPerMission: 1,
+      economyMode: "Open",
     };
 
     const node: CampaignNode = {

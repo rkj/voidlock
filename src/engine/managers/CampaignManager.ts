@@ -114,6 +114,7 @@ export class CampaignManager {
         rules.baseEnemyCount = overrides.baseEnemyCount;
       if (overrides.enemyGrowthPerMission !== undefined)
         rules.enemyGrowthPerMission = overrides.enemyGrowthPerMission;
+      if (overrides.economyMode) rules.economyMode = overrides.economyMode;
       if (overrides.themeId) rules.themeId = overrides.themeId;
       if (overrides.unitStyle) rules.unitStyle = overrides.unitStyle;
       if (overrides.customSeed !== undefined) {
@@ -168,6 +169,7 @@ export class CampaignManager {
           mapGrowthRate: 1.0,
           baseEnemyCount: 2,
           enemyGrowthPerMission: 0.5,
+          economyMode: "Open",
         };
       case "clone":
       case "normal":
@@ -183,6 +185,7 @@ export class CampaignManager {
           mapGrowthRate: 1.0,
           baseEnemyCount: 3,
           enemyGrowthPerMission: 1.0,
+          economyMode: "Open",
         };
       case "standard":
       case "hard":
@@ -198,6 +201,7 @@ export class CampaignManager {
           mapGrowthRate: 1.0,
           baseEnemyCount: 4,
           enemyGrowthPerMission: 1.5,
+          economyMode: "Open",
         };
       case "ironman":
       case "extreme":
@@ -213,6 +217,7 @@ export class CampaignManager {
           mapGrowthRate: 1.0,
           baseEnemyCount: 5,
           enemyGrowthPerMission: 2.0,
+          economyMode: "Open",
         };
       default:
         return {
@@ -227,6 +232,7 @@ export class CampaignManager {
           mapGrowthRate: 1.0,
           baseEnemyCount: 3,
           enemyGrowthPerMission: 1.0,
+          economyMode: "Open",
         };
     }
   }

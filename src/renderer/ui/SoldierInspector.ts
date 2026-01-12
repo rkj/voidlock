@@ -23,6 +23,7 @@ export class SoldierInspector {
 
   private soldier: CampaignSoldier | SquadSoldierConfig | null = null;
   private isMissionSetup: boolean = false;
+  private isShop: boolean = false;
 
   constructor(options: SoldierInspectorOptions) {
     this.manager = options.manager;
@@ -32,6 +33,10 @@ export class SoldierInspector {
   public setSoldier(soldier: CampaignSoldier | SquadSoldierConfig | null, isMissionSetup: boolean) {
     this.soldier = soldier;
     this.isMissionSetup = isMissionSetup;
+  }
+
+  public setShop(isShop: boolean) {
+    this.isShop = isShop;
   }
 
   public renderDetails(container: HTMLElement) {
@@ -280,7 +285,20 @@ export class SoldierInspector {
     items.forEach((item) => {
       const isCurrentlyEquipped = equip[slot] === item.id;
       const isOwned = this.isEquippedInRoster(this.soldier!.id, slot, item.id);
-      const canAfford = !state || state.scrap >= item.cost;
+      
+      const economyMode = state?.rules?.economyMode || "Open";
+      
+      // Limited Mode: Hide unowned items in EquipmentScreen
+      if (economyMode === "Limited" && !this.isShop && !isOwned && !isCurrentlyEquipped) {
+        return;
+      }
+
+      let cost = item.cost;
+      if (this.isShop && economyMode === "Open") {
+        cost = Math.floor(cost * 0.5);
+      }
+
+      const canAfford = !state || state.scrap >= cost;
 
       const btn = document.createElement("div");
       btn.className = `menu-item clickable ${isCurrentlyEquipped ? "active" : ""}`;
@@ -335,7 +353,7 @@ export class SoldierInspector {
 
       btn.title = `${item.name}\n${item.description || ""}${fullStats ? "\n\n" + fullStats : ""}`;
 
-      const priceText = isOwned || isCurrentlyEquipped ? "OWNED" : `${item.cost} CR`;
+      const priceText = isOwned || isCurrentlyEquipped ? "OWNED" : `${cost} CR`;
       const priceColor =
         isOwned || isCurrentlyEquipped
           ? "var(--color-primary)"
@@ -449,14 +467,26 @@ export class SoldierInspector {
     const isOwned = this.isEquippedInRoster(this.soldier.id, slot, newItemId);
     
     if (newItemId !== "" && !isOwned) {
+        const state = this.manager.getState();
+        const economyMode = state?.rules?.economyMode || "Open";
+
+        // Limited mode: cannot buy outside of shop
+        if (economyMode === "Limited" && !this.isShop) {
+            return;
+        }
+
         const item = WeaponLibrary[newItemId] || ItemLibrary[newItemId];
         if (item) {
-            const state = this.manager.getState();
-            if (state && state.scrap < item.cost) {
+            let cost = item.cost;
+            if (this.isShop && economyMode === "Open") {
+                cost = Math.floor(cost * 0.5);
+            }
+
+            if (state && state.scrap < cost) {
                 return; // Cannot afford
             }
             if (state) {
-                this.manager.spendScrap(item.cost);
+                this.manager.spendScrap(cost);
             }
         }
     }
