@@ -96,6 +96,7 @@ export interface CampaignNode {
   connections: string[]; // IDs of child nodes in the DAG
   position: Vector2;
   missionType?: MissionType;
+  bonusLootCount: number; // NEW: 0-3 optional scrap crates
 }
 
 /**
