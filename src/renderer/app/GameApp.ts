@@ -39,6 +39,9 @@ import { TimeUtility } from "@src/renderer/TimeUtility";
 import { ArchetypeLibrary } from "@src/shared/types/units";
 import { Icons } from "@src/renderer/Icons";
 import { StatDisplay } from "@src/renderer/ui/StatDisplay";
+import { CampaignEvents } from "@src/content/CampaignEvents";
+import { EventModal, OutcomeModal } from "@src/renderer/ui/EventModal";
+import { PRNG } from "@src/shared/PRNG";
 import pkg from "../../../package.json";
 
 const VERSION = pkg.version;
@@ -373,20 +376,28 @@ export class GameApp {
     }
 
     if (node.type === "Event") {
-      if (confirm("SIGNAL DETECTED: Abandoned freighter drifting in void. Search wreckage for scrap?")) {
-        const success = Math.random() > 0.5;
-        if (success) {
-          alert("SEARCH SUCCESSFUL: Recovered 50 Scrap from the derelict.");
-          this.context.campaignManager.advanceCampaignWithoutMission(node.id, 50, 0);
-        } else {
-          alert("SEARCH FAILED: The wreckage was empty.");
-          this.context.campaignManager.advanceCampaignWithoutMission(node.id, 0, 0);
-        }
-      } else {
-        alert("Signal ignored. Expedition continues.");
-        this.context.campaignManager.advanceCampaignWithoutMission(node.id, 0, 0);
-      }
-      this.campaignScreen.show();
+      const prng = new PRNG(node.mapSeed);
+      const event =
+        CampaignEvents[Math.floor(prng.next() * CampaignEvents.length)];
+
+      const modal = new EventModal((choice) => {
+        const outcome = this.context.campaignManager.applyEventChoice(
+          node.id,
+          choice,
+          prng,
+        );
+
+        const outcomeModal = new OutcomeModal(() => {
+          if (outcome.ambush) {
+            // Ambush triggers a combat mission at this node
+            this.onCampaignNodeSelected(node);
+          } else {
+            this.campaignScreen.show();
+          }
+        });
+        outcomeModal.show(event.title, outcome.text);
+      });
+      modal.show(event);
       return;
     }
 

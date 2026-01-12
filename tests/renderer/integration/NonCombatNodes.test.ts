@@ -44,6 +44,21 @@ vi.mock("@src/renderer/ThemeManager", () => ({
   },
 }));
 
+let mockOnChoice: (choice: any) => void;
+vi.mock("@src/renderer/ui/EventModal", () => ({
+  EventModal: vi.fn().mockImplementation((onChoice) => {
+    mockOnChoice = onChoice;
+    return {
+      show: vi.fn(),
+      hide: vi.fn(),
+    };
+  }),
+  OutcomeModal: vi.fn().mockImplementation((onConfirm) => ({
+    show: vi.fn().mockImplementation(() => onConfirm()),
+    hide: vi.fn(),
+  }))
+}));
+
 describe("Non-Combat Node Interactions", () => {
   let app: GameApp;
   let manager: CampaignManager;
@@ -133,55 +148,11 @@ describe("Non-Combat Node Interactions", () => {
     expect(nextNode.status).toBe("Accessible");
   });
 
-  it("should handle Event nodes with a successful search", async () => {
+  it("should handle Event nodes correctly", async () => {
     manager.startNewCampaign(12345, "normal");
     const state = manager.getState()!;
     
-    const eventNode = {
-      id: "node-event",
-      type: "Event" as any,
-      status: "Accessible" as any,
-      difficulty: 1,
-      rank: 0,
-      mapSeed: 456,
-      connections: ["node-next"],
-      position: { x: 100, y: 100 },
-      bonusLootCount: 0
-    };
-    const nextNode = {
-      id: "node-next",
-      type: "Combat" as any,
-      status: "Revealed" as any,
-      difficulty: 2,
-      rank: 1,
-      mapSeed: 789,
-      connections: [],
-      position: { x: 200, y: 100 },
-      bonusLootCount: 0
-    };
-    state.nodes = [eventNode, nextNode];
-
-    const initialScrap = state.scrap;
-    const advanceSpy = vi.spyOn(manager, "advanceCampaignWithoutMission");
-
-    // Force Math.random to return > 0.5 for success
-    vi.spyOn(Math, "random").mockReturnValue(0.6);
-    // Force confirm to true
-    (window.confirm as any).mockReturnValue(true);
-
-    (app as any).onCampaignNodeSelected(eventNode);
-
-    expect(window.confirm).toHaveBeenCalled();
-    expect(window.alert).toHaveBeenCalledWith(expect.stringContaining("SEARCH SUCCESSFUL"));
-    expect(advanceSpy).toHaveBeenCalledWith("node-event", 50, 0);
-    expect(state.scrap).toBe(initialScrap + 50);
-    expect(eventNode.status).toBe("Cleared");
-  });
-
-  it("should handle Event nodes with a failed search", async () => {
-    manager.startNewCampaign(12345, "normal");
-    const state = manager.getState()!;
-    
+    // Seed 456 with derelict_ship (first event in CampaignEvents)
     const eventNode = {
       id: "node-event",
       type: "Event" as any,
@@ -196,46 +167,19 @@ describe("Non-Combat Node Interactions", () => {
     state.nodes = [eventNode];
 
     const initialScrap = state.scrap;
-    const advanceSpy = vi.spyOn(manager, "advanceCampaignWithoutMission");
-
-    // Force Math.random to return < 0.5 for failure
-    vi.spyOn(Math, "random").mockReturnValue(0.4);
-    (window.confirm as any).mockReturnValue(true);
+    const applyChoiceSpy = vi.spyOn(manager, "applyEventChoice");
 
     (app as any).onCampaignNodeSelected(eventNode);
 
-    expect(window.alert).toHaveBeenCalledWith(expect.stringContaining("SEARCH FAILED"));
-    expect(advanceSpy).toHaveBeenCalledWith("node-event", 0, 0);
-    expect(state.scrap).toBe(initialScrap);
-    expect(eventNode.status).toBe("Cleared");
-  });
+    // Verify EventModal was shown
+    const { EventModal } = await import("@src/renderer/ui/EventModal");
+    expect(EventModal).toHaveBeenCalled();
 
-  it("should handle Event nodes when ignored", async () => {
-    manager.startNewCampaign(12345, "normal");
-    const state = manager.getState()!;
-    
-    const eventNode = {
-      id: "node-event",
-      type: "Event" as any,
-      status: "Accessible" as any,
-      difficulty: 1,
-      rank: 0,
-      mapSeed: 456,
-      connections: ["node-next"],
-      position: { x: 100, y: 100 },
-      bonusLootCount: 0
-    };
-    state.nodes = [eventNode];
+    // Trigger a choice (e.g., the first one: Search)
+    const choice = { label: "Search", reward: { scrap: 50 } };
+    mockOnChoice(choice);
 
-    const advanceSpy = vi.spyOn(manager, "advanceCampaignWithoutMission");
-
-    // Force confirm to false
-    (window.confirm as any).mockReturnValue(false);
-
-    (app as any).onCampaignNodeSelected(eventNode);
-
-    expect(window.alert).toHaveBeenCalledWith(expect.stringContaining("Signal ignored"));
-    expect(advanceSpy).toHaveBeenCalledWith("node-event", 0, 0);
+    expect(applyChoiceSpy).toHaveBeenCalled();
     expect(eventNode.status).toBe("Cleared");
   });
 });
