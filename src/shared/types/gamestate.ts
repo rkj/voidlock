@@ -2,6 +2,7 @@ import { Vector2 } from "./geometry";
 import { LootItem } from "./items";
 import { MapDefinition, Objective } from "./map";
 import { Command, Enemy, SquadConfig, Unit } from "./units";
+import { CampaignNodeType } from "../campaign_types";
 
 export enum EngineMode {
   Simulation = "Simulation",
@@ -57,6 +58,7 @@ export type GameState = {
   t: number;
   seed: number;
   missionType: MissionType;
+  nodeType?: CampaignNodeType;
   map: MapDefinition;
   units: Unit[];
   enemies: Enemy[];
@@ -84,6 +86,7 @@ export type WorkerMessage =
         agentControlEnabled: boolean;
         squadConfig: SquadConfig;
         missionType?: MissionType;
+        nodeType?: CampaignNodeType;
         losOverlayEnabled?: boolean;
         startingThreatLevel?: number;
         baseEnemyCount?: number;

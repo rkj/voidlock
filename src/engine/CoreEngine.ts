@@ -17,6 +17,7 @@ import {
   EngineMode,
   CommandLogEntry,
   CommandType,
+  CampaignNodeType,
 } from "../shared/types";
 import { PRNG } from "../shared/PRNG";
 import { GameGrid } from "./GameGrid";
@@ -75,6 +76,7 @@ export class CoreEngine {
     baseEnemyCount: number = 3,
     enemyGrowthPerMission: number = 1,
     missionDepth: number = 0,
+    nodeType?: CampaignNodeType,
   ) {
     this.prng = new PRNG(seed);
     this.gameGrid = new GameGrid(map);
@@ -106,6 +108,7 @@ export class CoreEngine {
       t: 0,
       seed: seed,
       missionType: missionType,
+      nodeType: nodeType, // Add nodeType to state if needed, let's check GameState first
       map: {
         ...map,
         boundaries:
@@ -169,6 +172,7 @@ export class CoreEngine {
       map,
       this.enemyManager,
       squadConfig,
+      nodeType,
     );
 
     // Mission-specific Spawns
