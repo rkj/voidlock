@@ -168,10 +168,10 @@ describe("CampaignScreen", () => {
     screen.show();
 
     expect(container.textContent).toContain("MISSION FAILED");
-    expect(container.textContent).toContain("CAMPAIGN OVER");
+    expect(container.textContent).toContain("SECTOR LOST");
 
     const menuBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.textContent === "RETURN TO MENU",
+      (btn) => btn.textContent === "ABANDON CAMPAIGN",
     );
     expect(menuBtn).toBeDefined();
 
