@@ -1,4 +1,5 @@
 .beads
 .gitignore
 scripts/pm.sh
+docs/tasks
 
