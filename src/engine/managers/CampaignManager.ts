@@ -135,7 +135,7 @@ export class CampaignManager {
     const roster = this.generateInitialRoster(prng);
 
     this.state = {
-      version: "0.82.0", // Current project version
+      version: "0.83.0", // Current project version
       seed: effectiveSeed,
       status: "Active",
       rules,
@@ -320,7 +320,7 @@ export class CampaignManager {
     this.state.intel += report.intelGained;
 
     // 2.5 Handle Ironman Defeat
-    if (this.state.rules.deathRule === "Iron" && report.result === "Lost") {
+    if (this.state.rules.difficulty === "Ironman" && report.result === "Lost") {
       this.state.status = "Defeat";
     }
 
@@ -404,7 +404,27 @@ export class CampaignManager {
     // 4. Record history
     this.state.history.push(report);
 
+    // 5. Check for bankruptcy/defeat
+    if (this.checkBankruptcy()) {
+      this.state.status = "Defeat";
+    }
+
     this.save();
+  }
+
+  private checkBankruptcy(): boolean {
+    if (!this.state) return false;
+
+    // Bankruptcy occurs if:
+    // 1. Active Roster is empty (All dead). 
+    //    Wounded soldiers count as alive because they recover over time.
+    // 2. AND Scrap < 100 (Cannot recruit a new soldier).
+    const aliveCount = this.state.roster.filter(
+      (s) => s.status !== "Dead",
+    ).length;
+    const canAffordRecruit = this.state.scrap >= 100;
+
+    return aliveCount === 0 && !canAffordRecruit;
   }
 
   /**

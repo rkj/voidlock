@@ -162,7 +162,7 @@ describe("CampaignManager", () => {
   });
 
   it("should mark campaign as Defeat when Ironman mission is lost", () => {
-    manager.startNewCampaign(12345, "Hard"); // Hard has deathRule: "Iron"
+    manager.startNewCampaign(12345, "Ironman"); 
     const availableNodes = manager.getAvailableNodes();
     const targetNodeId = availableNodes[0].id;
 
