@@ -524,7 +524,11 @@ document.addEventListener("DOMContentLoaded", async () => {
       const spInput = document.getElementById(
         "map-spawn-points",
       ) as HTMLInputElement;
-      if (spInput) spInput.value = currentSpawnPointCount.toString();
+      if (spInput) {
+        spInput.value = currentSpawnPointCount.toString();
+        const spVal = document.getElementById("map-spawn-points-value");
+        if (spVal) spVal.textContent = spInput.value;
+      }
 
       screenManager.show("mission-setup");
     },
@@ -636,6 +640,32 @@ document.addEventListener("DOMContentLoaded", async () => {
   const mapGenSelect = document.getElementById(
     "map-generator-type",
   ) as HTMLSelectElement;
+
+  const wInput = document.getElementById("map-width") as HTMLInputElement;
+  const hInput = document.getElementById("map-height") as HTMLInputElement;
+  const spInput = document.getElementById(
+    "map-spawn-points",
+  ) as HTMLInputElement;
+  const spValue = document.getElementById("map-spawn-points-value");
+  if (spInput && spValue) {
+    spInput.addEventListener("input", () => {
+      spValue.textContent = spInput.value;
+    });
+  }
+
+  const updateSpawnPointsFromSize = () => {
+    if (currentCampaignNode) return; // Managed by campaign node rank
+    const width = parseInt(wInput.value) || 14;
+    currentSpawnPointCount = calculateSpawnPoints(width);
+    if (spInput) {
+      spInput.value = currentSpawnPointCount.toString();
+      if (spValue) spValue.textContent = spInput.value;
+    }
+  };
+
+  wInput?.addEventListener("input", updateSpawnPointsFromSize);
+  hInput?.addEventListener("input", updateSpawnPointsFromSize);
+
   if (mapGenSelect) {
     const treeOpt = document.createElement("option");
     treeOpt.value = "TreeShip";
@@ -880,7 +910,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       if (wInput) wInput.value = currentMapWidth.toString();
       if (hInput) hInput.value = currentMapHeight.toString();
-      if (spInput) spInput.value = currentSpawnPointCount.toString();
+      if (spInput) {
+        spInput.value = currentSpawnPointCount.toString();
+        const spVal = document.getElementById("map-spawn-points-value");
+        if (spVal) spVal.textContent = spInput.value;
+      }
       if (threatInput) {
         threatInput.value = startingThreatLevel.toString();
         const threatValueDisplay = document.getElementById(
@@ -966,7 +1000,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
       if (wInput) wInput.value = currentMapWidth.toString();
       if (hInput) hInput.value = currentMapHeight.toString();
-      if (spInput) spInput.value = currentSpawnPointCount.toString();
+      if (spInput) {
+        spInput.value = currentSpawnPointCount.toString();
+        const spVal = document.getElementById("map-spawn-points-value");
+        if (spVal) spVal.textContent = spInput.value;
+      }
       if (threatInput) {
         threatInput.value = startingThreatLevel.toString();
         const threatValueDisplay = document.getElementById(

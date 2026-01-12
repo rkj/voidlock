@@ -114,7 +114,7 @@ export class ConfigManager {
     return {
       mapWidth: 14,
       mapHeight: 14,
-      spawnPointCount: 3,
+      spawnPointCount: 5,
       fogOfWarEnabled: true,
       debugOverlayEnabled: false,
       losOverlayEnabled: false, // Added
