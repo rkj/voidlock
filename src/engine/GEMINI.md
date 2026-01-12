@@ -11,26 +11,15 @@ This directory contains the core simulation logic for Voidlock. It follows a det
 - `GameGrid.ts`: Manages the logical grid, including walkability and movement validation between cells (respecting walls and doors).
 - `Graph.ts`: Represents the map as a graph of cells and boundaries (walls/doors). Supports sparse initialization from `MapDefinition` and authoritative hydration from `boundaries` array. Hydrates `walls` from corner-to-corner geometric segments.
 - `LineOfSight.ts`: Handles LOS and LOF (Line of Fire) calculations between units and cells. LOS allows seeing through opening doors, while LOF strictly requires doors to be fully open.
-- `MapGenerator.ts`: Orchestrates map generation using various strategies. Optimized JSON output by omitting `Void` cells. Now consistently produces corner-to-corner `WallDefinition` segments.
-- `Pathfinder.ts`: Implements A\* pathfinding on the `Graph`, respecting door states.
-- `worker.ts`: The Web Worker entry point that runs the `CoreEngine` loop.
-
-## Engine Modes
-
-The engine supports two modes defined in `EngineMode`:
-
-- `Simulation`: Active gameplay where user commands are recorded and processed.
-- `Replay`: Non-interactive playback of a `commandLog`, used for background replays during the mission debrief.
-
-## Mission Replay
-
-A mission run can be perfectly reproduced by re-initializing the engine with the same seed and the recorded `commandLog`. This is used to show a time-accelerated recap of the mission while the player reviews their stats.
+- `MapGenerator.ts`: Deprecated wrapper that re-exports `MapFactory` for backward compatibility. Use `@src/engine/map/MapFactory` for new code.
 
 ## Subdirectories
 
 - `ai/`: Specialized AI logic for enemies and soldiers.
 - `generators/`: Specific map generation algorithms (e.g., `SpaceshipGenerator`, `TreeShipGenerator`).
+- `map/`: Modular map generation system (Factory, Sanitizer, Validator).
 - `managers/`: Modules that handle specific aspects of the game (Unit, Enemy, Door, Visibility, Mission, Command).
+- `persistence/`: Logic for saving and loading game state.
 
 ## Testing Strategy
 
