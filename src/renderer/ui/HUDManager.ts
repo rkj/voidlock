@@ -57,6 +57,11 @@ export class HUDManager {
     const topThreatValue = document.getElementById("top-threat-value");
 
     if (topThreatFill && topThreatValue) {
+      const isInitial = state.t < 1000;
+      if (isInitial) {
+        topThreatFill.classList.add("no-transition");
+      }
+
       let threatVar = "--color-success";
       if (threatLevel > 30) threatVar = "--color-warning";
       if (threatLevel > 70) threatVar = "--color-danger";
@@ -66,6 +71,12 @@ export class HUDManager {
       topThreatFill.style.backgroundColor = `var(${threatVar})`;
       topThreatValue.textContent = `${threatLevel.toFixed(0)}%`;
       topThreatValue.style.color = `var(${threatVar})`;
+
+      if (isInitial) {
+        // Force a reflow to ensure the width is applied without transition
+        void topThreatFill.offsetWidth;
+        topThreatFill.classList.remove("no-transition");
+      }
     }
 
     const gameSpeedSlider = document.getElementById(
