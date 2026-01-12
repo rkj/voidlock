@@ -10,7 +10,7 @@ import {
   BoundaryType,
 } from "../../shared/types";
 import { PRNG } from "../../shared/PRNG";
-import { MapGenerator } from "../MapGenerator";
+import { MapSanitizer } from "../map/MapSanitizer";
 import { Graph } from "../Graph";
 import { PlacementValidator, OccupantType } from "./PlacementValidator";
 
@@ -106,7 +106,7 @@ export class DenseShipGenerator {
       objectives: this.objectives,
     };
 
-    MapGenerator.sanitize(map);
+    MapSanitizer.sanitize(map);
     return map;
   }
 

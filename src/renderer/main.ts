@@ -13,7 +13,7 @@ import {
   ArchetypeLibrary,
   UnitStyle,
 } from "@src/shared/types";
-import { MapGenerator } from "@src/engine/MapGenerator";
+import { MapFactory } from "@src/engine/map/MapFactory";
 import { ScreenManager } from "@src/renderer/ScreenManager";
 import { ConfigManager } from "@src/renderer/ConfigManager";
 import { MenuController } from "@src/renderer/MenuController";
@@ -77,8 +77,8 @@ let currentStaticMapData: MapDefinition | undefined = undefined;
 let currentSquad: SquadConfig = ConfigManager.getDefault().squadConfig;
 let currentSpawnPointCount = ConfigManager.getDefault().spawnPointCount;
 
-const mapGeneratorFactory = (config: MapGenerationConfig): MapGenerator => {
-  return new MapGenerator(config);
+const mapGeneratorFactory = (config: MapGenerationConfig): MapFactory => {
+  return new MapFactory(config);
 };
 
 const gameClient = new GameClient((config) => mapGeneratorFactory(config));
@@ -896,7 +896,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         const ascii = (
           document.getElementById("ascii-map-input") as HTMLTextAreaElement
         ).value;
-        currentStaticMapData = MapGenerator.fromAscii(ascii);
+    if (ascii) {
+      currentStaticMapData = MapFactory.fromAscii(ascii);
+    }
+
         alert("ASCII Map Converted.");
       } catch (e) {
         alert("Invalid ASCII.");

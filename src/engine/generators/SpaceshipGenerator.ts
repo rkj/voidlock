@@ -9,7 +9,7 @@ import {
   WallDefinition,
 } from "../../shared/types";
 import { PRNG } from "../../shared/PRNG";
-import { MapGenerator } from "../MapGenerator";
+import { MapSanitizer } from "../map/MapSanitizer";
 import { PlacementValidator, OccupantType } from "./PlacementValidator";
 
 interface Node {
@@ -128,7 +128,7 @@ export class SpaceshipGenerator {
       objectives: this.objectives,
     };
 
-    MapGenerator.sanitize(map);
+    MapSanitizer.sanitize(map);
     return map;
   }
 

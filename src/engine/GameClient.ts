@@ -14,10 +14,10 @@ import {
   CommandLogEntry,
   MapGenerationConfig,
 } from "../shared/types";
-import { MapGenerator } from "./MapGenerator";
+import { MapFactory } from "./map/MapFactory";
 
-// Factory type for creating MapGenerator instances based on config
-type MapGeneratorFactory = (config: MapGenerationConfig) => MapGenerator;
+// Factory type for creating MapFactory instances based on config
+type MapGeneratorFactory = (config: MapGenerationConfig) => MapFactory;
 
 export class GameClient {
   private worker: Worker;
