@@ -27,8 +27,9 @@ Before creating tasks, you must validate the request.
 ## PHASE 2: DOCUMENTATION (The Planner)
 You are the Single Source of Truth. Code is ephemeral; Docs are forever.
 1.  **Draft/Update ADR:** If this is a non-trivial change (complex logic/new architecture), you MUST reference or create an ADR in `docs/adr/`.
-2.  **Update Spec:** Update `spec/*.md` to reflect new *behavior*.
-3.  **Linkage:**
+2.  **Update Architecture:** If the change alters the system topology, module boundaries, or core data flow, you must plan to update `@ARCHITECTURE.md`.
+3.  **Update Spec:** Update `spec/*.md` to reflect new *behavior*.
+4.  **Linkage:**
     * Spec must list relevant ADRs.
     * ADR must link back to the Spec section it solves.
 

@@ -62,8 +62,8 @@ run_shell_command("./scripts/dispatch_agent.sh <TASK_ID>")
 
 1. **Inspect**: Execute `jj diff --git` to review all file status and content changes in a single view.
    - _Check_: Did it follow conventions? Did it remove tests? (Forbidden!)
-   - _Architecture Review_: Does the code adhere to `@ARCHITECTURE.md` and SOLID principles? If not, create a **P1 task** to refactor/clean up.
-   - _Documentation (MANDATORY)_: Ensure `GEMINI.md` files in modified directories were updated if files were added or significant APIs changed. If documentation is missing or outdated, you MUST fail verification and re-dispatch with instructions to update it.
+   - _Architecture Review_: Does the code adhere to `@ARCHITECTURE.md` and SOLID principles? If the code *validly* changes the architecture (based on an ADR), ensure `@ARCHITECTURE.md` is updated.
+   - _Documentation (MANDATORY)_: Ensure `GEMINI.md` files in modified directories were updated. If the high-level system design changed, ensure `@ARCHITECTURE.md` is updated. If documentation is missing or outdated, you MUST fail verification and re-dispatch with instructions to update it.
 1. **Test**: Run `npx vitest run`.
    - _Check_: **CRITICAL**: All changes MUST be confirmed by tests first. Sub-agents are required to write/update tests before or alongside implementation.
 1. **Verify**: Run `take_screenshot()` (if UI changed).
