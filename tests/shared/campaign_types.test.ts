@@ -33,6 +33,7 @@ describe("Campaign Types", () => {
       mapSeed: 12345,
       connections: ["node-2"],
       position: { x: 0, y: 0 },
+      bonusLootCount: 1,
     };
 
     const soldier: CampaignSoldier = {
