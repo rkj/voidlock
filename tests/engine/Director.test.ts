@@ -22,8 +22,8 @@ describe("Director", () => {
     // Update to reach turnDuration (10s)
     director.update(5000);
     expect(onSpawn).toHaveBeenCalled();
-    // At Turn 1, count = 1 + 1 = 2
-    expect(onSpawn).toHaveBeenCalledTimes(2);
+    // At Turn 1, count = (3 + 0*1) + 1 = 4
+    expect(onSpawn).toHaveBeenCalledTimes(4);
     expect(director.getThreatLevel()).toBe(10);
   });
 
@@ -34,17 +34,17 @@ describe("Director", () => {
     const director = new Director(spawnPoints, prng, onSpawn);
 
     // Fast forward to turn 5
-    // Turn 1: 2
-    // Turn 2: 3
-    // Turn 3: 4
-    // Turn 4: 5
-    // Turn 5: 6
-    // Total: 2+3+4+5+6 = 20
+    // Turn 1: 4
+    // Turn 2: 5
+    // Turn 3: 6
+    // Turn 4: 7
+    // Turn 5: 8
+    // Total: 4+5+6+7+8 = 30
     for (let i = 0; i < 5; i++) {
       director.update(10000);
     }
 
-    expect(onSpawn).toHaveBeenCalledTimes(20);
+    expect(onSpawn).toHaveBeenCalledTimes(30);
     expect(director.getThreatLevel()).toBe(50);
   });
 
@@ -57,12 +57,12 @@ describe("Director", () => {
     // 100 seconds
     director.update(100000);
 
-    // Turn 1 (10s): 2
-    // Turn 2 (20s): 3
+    // Turn 1 (10s): 4
+    // Turn 2 (20s): 5
     // ...
-    // Turn 10 (100s): 11
-    // Total: 2+3+4+5+6+7+8+9+10+11 = 65
-    expect(onSpawn).toHaveBeenCalledTimes(65);
+    // Turn 10 (100s): 13
+    // Total: 4+5+6+7+8+9+10+11+12+13 = 85
+    expect(onSpawn).toHaveBeenCalledTimes(85);
   });
 
   it("should exceed 100% threat", () => {
@@ -75,9 +75,9 @@ describe("Director", () => {
     director.update(110000);
 
     expect(director.getThreatLevel()).toBe(110);
-    // At turn 11, scalingTurn is capped at 10, so count is 11.
-    // Total for turn 11 should be previous 65 + 11 = 76.
-    expect(onSpawn).toHaveBeenCalledTimes(76);
+    // At turn 11, scalingTurn is capped at 10, so count is 13.
+    // Total for turn 11 should be previous 85 + 13 = 98.
+    expect(onSpawn).toHaveBeenCalledTimes(98);
   });
 
   it("should initialize with startingThreatLevel and preSpawn enemies", () => {
@@ -87,15 +87,15 @@ describe("Director", () => {
 
     // 30% threat means we are at Turn 3 start.
     // Completed turns: 0, 1, 2.
-    // Wave 0: 1 enemy
-    // Wave 1: 2 enemies
-    // Wave 2: 3 enemies
-    // Total pre-spawn = 1 + 2 + 3 = 6
+    // Wave 0: 3 enemies (turn 0)
+    // Wave 1: 4 enemies (turn 1)
+    // Wave 2: 5 enemies (turn 2)
+    // Total pre-spawn = 3 + 4 + 5 = 12
     const director = new Director(spawnPoints, prng, onSpawn, 30);
     director.preSpawn();
 
     expect(director.getThreatLevel()).toBe(30);
-    expect(onSpawn).toHaveBeenCalledTimes(6);
+    expect(onSpawn).toHaveBeenCalledTimes(12);
   });
 
   it("should not preSpawn if threat <= 10", () => {

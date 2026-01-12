@@ -72,6 +72,9 @@ export class CoreEngine {
     initialCommandLog: CommandLogEntry[] = [],
     allowTacticalPause: boolean = true,
     targetTick: number = 0,
+    baseEnemyCount: number = 3,
+    enemyGrowthPerMission: number = 1,
+    missionDepth: number = 0,
   ) {
     this.prng = new PRNG(seed);
     this.gameGrid = new GameGrid(map);
@@ -152,6 +155,9 @@ export class CoreEngine {
       this.prng,
       (enemy) => this.enemyManager.addEnemy(this.state, enemy),
       startingThreatLevel,
+      baseEnemyCount,
+      enemyGrowthPerMission,
+      missionDepth,
     );
     this.director.preSpawn();
 

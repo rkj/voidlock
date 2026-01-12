@@ -258,6 +258,12 @@ const launchMission = () => {
   const spInput = document.getElementById(
     "map-spawn-points",
   ) as HTMLInputElement;
+  const baseEnemiesInput = document.getElementById(
+    "map-base-enemies",
+  ) as HTMLInputElement;
+  const growthInput = document.getElementById(
+    "map-enemy-growth",
+  ) as HTMLInputElement;
   const threatInput = document.getElementById(
     "map-starting-threat",
   ) as HTMLInputElement;
@@ -268,9 +274,32 @@ const launchMission = () => {
   }
   if (spInput) currentSpawnPointCount = parseInt(spInput.value) || 1;
 
+  let baseEnemyCount = 3;
+  if (baseEnemiesInput) baseEnemyCount = parseInt(baseEnemiesInput.value) || 3;
+
+  let enemyGrowthPerMission = 1;
+  if (growthInput) enemyGrowthPerMission = parseFloat(growthInput.value) || 1;
+
+  let missionDepth = 0;
+
   let startingThreatLevel = 0;
   if (threatInput) {
     startingThreatLevel = parseInt(threatInput.value) || 0;
+  }
+
+  // Sync with campaign rules if applicable
+  if (currentCampaignNode) {
+    const campaignState = campaignManager.getState();
+    if (campaignState) {
+      allowTacticalPause = campaignState.rules.allowTacticalPause;
+      currentMapGeneratorType = campaignState.rules.mapGeneratorType;
+      baseEnemyCount = campaignState.rules.baseEnemyCount;
+      enemyGrowthPerMission = campaignState.rules.enemyGrowthPerMission;
+      missionDepth = currentCampaignNode.rank;
+      if (campaignState.rules.unitStyle) {
+        unitStyle = campaignState.rules.unitStyle;
+      }
+    }
   }
 
   const tsSlider = document.getElementById(
@@ -295,6 +324,8 @@ const launchMission = () => {
     lastSeed: currentSeed,
     squadConfig: currentSquad,
     startingThreatLevel,
+    baseEnemyCount,
+    enemyGrowthPerMission,
     campaignNodeId: currentCampaignNode?.id,
   };
 
@@ -324,6 +355,10 @@ const launchMission = () => {
     EngineMode.Simulation,
     [], // commandLog
     currentCampaignNode?.id,
+    0, // targetTick
+    baseEnemyCount,
+    enemyGrowthPerMission,
+    missionDepth,
   );
 
   // Sync Speed Slider
@@ -417,6 +452,9 @@ const resumeMission = () => {
     const startingThreatLevel = config.startingThreatLevel;
     const initialTimeScale = config.initialTimeScale || 1.0;
     const allowTacticalPause = config.allowTacticalPause ?? true;
+    const baseEnemyCount = config.baseEnemyCount ?? 3;
+    const enemyGrowthPerMission = config.enemyGrowthPerMission ?? 1;
+    const missionDepth = config.missionDepth ?? 0;
 
     setupGameClientCallbacks();
 
@@ -441,6 +479,9 @@ const resumeMission = () => {
       commandLog,
       config.campaignNodeId,
       targetTick,
+      baseEnemyCount,
+      enemyGrowthPerMission,
+      missionDepth,
     );
 
     syncSpeedUI();
@@ -633,6 +674,28 @@ document.addEventListener("DOMContentLoaded", async () => {
   if (threatSlider && threatValue) {
     threatSlider.addEventListener("input", () => {
       threatValue.textContent = threatSlider.value;
+    });
+  }
+
+  // Base Enemies Slider
+  const baseEnemiesSlider = document.getElementById(
+    "map-base-enemies",
+  ) as HTMLInputElement;
+  const baseEnemiesValue = document.getElementById("map-base-enemies-value");
+  if (baseEnemiesSlider && baseEnemiesValue) {
+    baseEnemiesSlider.addEventListener("input", () => {
+      baseEnemiesValue.textContent = baseEnemiesSlider.value;
+    });
+  }
+
+  // Enemy Growth Slider
+  const growthSlider = document.getElementById(
+    "map-enemy-growth",
+  ) as HTMLInputElement;
+  const growthValue = document.getElementById("map-enemy-growth-value");
+  if (growthSlider && growthValue) {
+    growthSlider.addEventListener("input", () => {
+      growthValue.textContent = growthSlider.value;
     });
   }
 
@@ -882,39 +945,6 @@ document.addEventListener("DOMContentLoaded", async () => {
       currentSeed = config.lastSeed;
       currentSquad = config.squadConfig;
       const startingThreatLevel = config.startingThreatLevel || 0;
-
-      // Apply to UI
-      const missionSelect = document.getElementById(
-        "mission-type",
-      ) as HTMLSelectElement;
-      if (missionSelect) missionSelect.value = currentMissionType;
-
-      const mapSeedInput = document.getElementById(
-        "map-seed",
-      ) as HTMLInputElement;
-      if (mapSeedInput) mapSeedInput.value = currentSeed.toString();
-
-      const mapGenSelect = document.getElementById(
-        "map-generator-type",
-      ) as HTMLSelectElement;
-      if (mapGenSelect) mapGenSelect.value = currentMapGeneratorType;
-
-      const wInput = document.getElementById("map-width") as HTMLInputElement;
-      const hInput = document.getElementById("map-height") as HTMLInputElement;
-      const spInput = document.getElementById(
-        "map-spawn-points",
-      ) as HTMLInputElement;
-      const threatInput = document.getElementById(
-        "map-starting-threat",
-      ) as HTMLInputElement;
-
-      if (wInput) wInput.value = currentMapWidth.toString();
-      if (hInput) hInput.value = currentMapHeight.toString();
-      if (spInput) {
-        spInput.value = currentSpawnPointCount.toString();
-        const spVal = document.getElementById("map-spawn-points-value");
-        if (spVal) spVal.textContent = spInput.value;
-      }
       if (threatInput) {
         threatInput.value = startingThreatLevel.toString();
         const threatValueDisplay = document.getElementById(
@@ -922,6 +952,24 @@ document.addEventListener("DOMContentLoaded", async () => {
         );
         if (threatValueDisplay)
           threatValueDisplay.textContent = threatInput.value;
+      }
+
+      const baseEnemiesInput = document.getElementById(
+        "map-base-enemies",
+      ) as HTMLInputElement;
+      if (baseEnemiesInput) {
+        baseEnemiesInput.value = baseEnemyCount.toString();
+        const valDisp = document.getElementById("map-base-enemies-value");
+        if (valDisp) valDisp.textContent = baseEnemiesInput.value;
+      }
+
+      const growthInput = document.getElementById(
+        "map-enemy-growth",
+      ) as HTMLInputElement;
+      if (growthInput) {
+        growthInput.value = enemyGrowthPerMission.toString();
+        const valDisp = document.getElementById("map-enemy-growth-value");
+        if (valDisp) valDisp.textContent = growthInput.value;
       }
 
       const fowCheck = document.getElementById(
@@ -972,6 +1020,8 @@ document.addEventListener("DOMContentLoaded", async () => {
       currentSeed = defaults.lastSeed;
       currentSquad = JSON.parse(JSON.stringify(defaults.squadConfig)); // Deep copy
       const startingThreatLevel = defaults.startingThreatLevel;
+      const baseEnemyCount = defaults.baseEnemyCount;
+      const enemyGrowthPerMission = defaults.enemyGrowthPerMission;
 
       // Apply to UI
       const missionSelect = document.getElementById(
@@ -1012,6 +1062,24 @@ document.addEventListener("DOMContentLoaded", async () => {
         );
         if (threatValueDisplay)
           threatValueDisplay.textContent = threatInput.value;
+      }
+
+      const baseEnemiesInput = document.getElementById(
+        "map-base-enemies",
+      ) as HTMLInputElement;
+      if (baseEnemiesInput) {
+        baseEnemiesInput.value = baseEnemyCount.toString();
+        const valDisp = document.getElementById("map-base-enemies-value");
+        if (valDisp) valDisp.textContent = baseEnemiesInput.value;
+      }
+
+      const growthInput = document.getElementById(
+        "map-enemy-growth",
+      ) as HTMLInputElement;
+      if (growthInput) {
+        growthInput.value = enemyGrowthPerMission.toString();
+        const valDisp = document.getElementById("map-enemy-growth-value");
+        if (valDisp) valDisp.textContent = growthInput.value;
       }
 
       const fowCheck = document.getElementById(

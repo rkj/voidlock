@@ -25,6 +25,8 @@ export interface GameRules {
   resourceScarcity: number; // Multiplier for scrap rewards
   startingScrap: number; // NEW: Initial funds
   mapGrowthRate: number; // NEW: +MapSize per rank
+  baseEnemyCount: number; // NEW: Starting wave size
+  enemyGrowthPerMission: number; // NEW: Wave size growth per rank
   themeId?: string;
   customSeed?: number;
 }
@@ -40,6 +42,8 @@ export interface CampaignOverrides {
   scarcity?: number;
   startingScrap?: number;
   mapGrowthRate?: number;
+  baseEnemyCount?: number;
+  enemyGrowthPerMission?: number;
   themeId?: string;
   unitStyle?: UnitStyle;
   customSeed?: number;

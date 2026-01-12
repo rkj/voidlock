@@ -84,6 +84,9 @@ describe("GameClient", () => {
         mode: EngineMode.Simulation,
         commandLog: [],
         targetTick: 0,
+        baseEnemyCount: 3,
+        enemyGrowthPerMission: 1,
+        missionDepth: 0,
       },
     });
 
@@ -181,6 +184,9 @@ describe("GameClient", () => {
           { tick: 500, command: replayData.commands[1].cmd },
         ],
         targetTick: 0,
+        baseEnemyCount: 3,
+        enemyGrowthPerMission: 1,
+        missionDepth: 0,
       },
     });
 
