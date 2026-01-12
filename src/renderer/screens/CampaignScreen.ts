@@ -48,8 +48,13 @@ export class CampaignScreen {
       return;
     }
 
+    if (state.status === "Victory") {
+      this.renderVictory();
+      return;
+    }
+
     if (state.status === "Defeat") {
-      this.renderGameOver();
+      this.renderDefeat();
       return;
     }
 
@@ -594,39 +599,111 @@ export class CampaignScreen {
     });
   }
 
-  private renderGameOver() {
+  private renderVictory() {
+    const state = this.manager.getState();
+    if (!state) return;
+
+    const totalKills = state.history.reduce(
+      (sum, report) => sum + report.aliensKilled,
+      0,
+    );
+    const totalMissions = state.history.length;
+
     const content = document.createElement("div");
     content.className =
-      "flex-col align-center justify-center h-full gap-40 campaign-game-over";
-    content.style.background = "rgba(0,0,0,0.85)";
+      "flex-col align-center justify-center h-full gap-40 campaign-victory-overlay";
+    content.style.background = "rgba(0,20,0,0.9)";
     content.style.position = "absolute";
     content.style.inset = "0";
     content.style.zIndex = "100";
+    content.style.border = "4px solid var(--color-primary)";
+
+    const h1 = document.createElement("h1");
+    h1.textContent = "SECTOR SECURED";
+    h1.style.color = "var(--color-primary)";
+    h1.style.fontSize = "4em";
+    h1.style.letterSpacing = "10px";
+    h1.style.margin = "0";
+    h1.style.textShadow = "0 0 20px var(--color-primary)";
+    content.appendChild(h1);
+
+    const stats = document.createElement("div");
+    stats.className = "flex-col align-center gap-10";
+    stats.style.fontSize = "1.5em";
+    stats.style.color = "var(--color-text)";
+    stats.innerHTML = `
+      <div>ALIENS KILLED: <span style="color:var(--color-primary)">${totalKills}</span></div>
+      <div>MISSIONS: <span style="color:var(--color-primary)">${totalMissions}</span></div>
+    `;
+    content.appendChild(stats);
+
+    const menuBtn = document.createElement("button");
+    menuBtn.textContent = "RETURN TO MAIN MENU";
+    menuBtn.className = "primary-button";
+    menuBtn.style.minWidth = "300px";
+    menuBtn.style.padding = "20px";
+    menuBtn.onclick = () => {
+      this.manager.deleteSave();
+      this.onBack();
+    };
+    content.appendChild(menuBtn);
+
+    this.container.appendChild(content);
+  }
+
+  private renderDefeat() {
+    const state = this.manager.getState();
+    if (!state) return;
+
+    const content = document.createElement("div");
+    content.className =
+      "flex-col align-center justify-center h-full gap-40 campaign-game-over";
+    content.style.background = "rgba(20,0,0,0.9)";
+    content.style.position = "absolute";
+    content.style.inset = "0";
+    content.style.zIndex = "100";
+    content.style.border = "4px solid var(--color-error)";
 
     const h1 = document.createElement("h1");
     h1.textContent = "MISSION FAILED";
     h1.style.color = "var(--color-error)";
-    h1.style.fontSize = "3em";
+    h1.style.fontSize = "4em";
     h1.style.letterSpacing = "8px";
     h1.style.margin = "0";
+    h1.style.textShadow = "0 0 20px var(--color-error)";
     content.appendChild(h1);
 
     const sub = document.createElement("h2");
-    sub.textContent = "CAMPAIGN OVER";
+    sub.textContent = "SECTOR LOST";
     sub.style.color = "var(--color-text-dim)";
     sub.style.letterSpacing = "4px";
     sub.style.margin = "0";
     content.appendChild(sub);
 
-    const backBtn = document.createElement("button");
-    backBtn.textContent = "RETURN TO MENU";
-    backBtn.className = "primary-button";
-    backBtn.style.minWidth = "200px";
-    backBtn.onclick = () => {
+    // Cause of death
+    const cause = document.createElement("div");
+    cause.style.fontSize = "1.2em";
+    cause.style.color = "var(--color-text)";
+    
+    // Determine cause: Ironman mission loss or Bankruptcy
+    const aliveCount = state.roster.filter(s => s.status !== "Dead").length;
+    const canAffordRecruit = state.scrap >= 100;
+    const isBankruptcy = aliveCount === 0 && !canAffordRecruit;
+    
+    cause.textContent = `CAUSE: ${isBankruptcy ? "BANKRUPTCY" : "SQUAD WIPED"}`;
+    content.appendChild(cause);
+
+    const abandonBtn = document.createElement("button");
+    abandonBtn.textContent = "ABANDON CAMPAIGN";
+    abandonBtn.className = "primary-button";
+    abandonBtn.style.backgroundColor = "var(--color-error)";
+    abandonBtn.style.minWidth = "300px";
+    abandonBtn.style.padding = "20px";
+    abandonBtn.onclick = () => {
       this.manager.deleteSave();
       this.onBack();
     };
-    content.appendChild(backBtn);
+    content.appendChild(abandonBtn);
 
     this.container.appendChild(content);
   }
