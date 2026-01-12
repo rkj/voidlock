@@ -41,7 +41,7 @@ Only once Docs are updated, map work to `bd`.
 * **Types:** `feature`, `bug`, `chore`, `task`, `epic`. (Refactor is NOT a type, use chore).
 * **Spec Linkage:** Description MUST start with: "Implements `spec/file.md#section`".
 * **ADR Linkage:** If applicable, add: "Ref: `docs/adr/00X-name.md`".
-* **No Backticks:** NEVER use backticks (`) in `--description`.
+* **No Backticks:** NEVER use backticks (`) in `--description`. Use single quotes or plain text.
 
 **Execution Rules:**
 1.  **SERIAL ONLY:** `bd` commands must be executed **one at a time**.

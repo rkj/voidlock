@@ -30,10 +30,10 @@ Only once specs are updated, map the work into `bd` tasks.
 **RULES FOR `bd` COMMANDS:**
 1.  **NO BATCHING:** Never use `&&` or `;`. Run one command, wait for the ID, then run the next.
 2.  **TDD REQUIREMENT:** For every `bug` type task, you MUST create a prerequisite task to write a failing test that reproduces the bug and link it as a blocker.
-3.  **NO BACKTICKS:** Never use backticks inside the `--description`.
+3.  **NO BACKTICKS:** Never use backticks (`) inside the `--description`. Use single quotes or plain text.
 4.  **LINK TO SPEC:** Every task description must start with: "Implements `spec/filename.md#section`".
 5.  **DEPENDENCY HYGIENE:** Use `bd dep add` to enforce order.
-6.  **SERIAL EXECUTION:** DO NOT output multiple commands. Do not assume the output of command A is immediately available for command B in the same turn.
+6.  **SERIAL EXECUTION:** DO NOT output multiple commands. Do not assume the output of command A is immediately available for command B in the same turn. Wait for the ID.
 
 # ATOMIC_EXECUTION_PROTOCOL
 You must treat every tool call as a discrete, failing event.
