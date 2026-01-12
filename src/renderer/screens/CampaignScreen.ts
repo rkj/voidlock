@@ -532,15 +532,39 @@ export class CampaignScreen {
         case "Event":
           icon.textContent = "❓";
           break;
-        case "Boss":
-          icon.textContent = "👹";
-          break;
-      }
-      nodeEl.appendChild(icon);
-
-      // Current Indicator (Ship Icon)
-      if (isCurrent) {
-        const indicator = document.createElement("div");
+                  case "Boss":
+                  icon.textContent = "👹";
+                  break;
+              }
+              nodeEl.appendChild(icon);
+        
+              // Bonus Loot Pips (Intel)
+              const showLootIntel =
+                state.rules.difficulty === "Simulation" ||
+                state.rules.difficulty === "Clone";
+              if (showLootIntel && node.bonusLootCount > 0) {
+                const pipsContainer = document.createElement("div");
+                pipsContainer.className = "pips-container flex-row justify-center";
+                pipsContainer.style.position = "absolute";
+                pipsContainer.style.bottom = "-12px";
+                pipsContainer.style.width = "100%";
+                pipsContainer.style.gap = "2px";
+                pipsContainer.style.pointerEvents = "none";
+        
+                for (let i = 0; i < node.bonusLootCount; i++) {
+                  const pip = document.createElement("span");
+                  pip.className = "loot-pip";
+                  pip.textContent = "⭐";
+                  pip.style.fontSize = "0.7em";
+                  pip.style.color = "var(--color-warning)";
+                  pip.style.textShadow = "0 0 3px rgba(255, 152, 0, 0.5)";
+                  pipsContainer.appendChild(pip);
+                }
+                nodeEl.appendChild(pipsContainer);
+              }
+        
+              // Current Indicator (Ship Icon)
+              if (isCurrent) {        const indicator = document.createElement("div");
         indicator.textContent = "▲";
         indicator.style.position = "absolute";
         indicator.style.top = "-20px";
