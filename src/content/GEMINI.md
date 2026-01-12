@@ -6,6 +6,7 @@ This directory contains static data definitions for the game, specifically tile 
 
 - `spaceHulkTiles.ts`: Contains `SpaceHulkTileLibrary`, a collection of tile definitions based on the 1993 Space Hulk board game (corridors, rooms, junctions).
 - `tiles.ts`: Contains `SpaceHulkTiles`, another set of tile definitions including 1x1, 1x2, 1x3 corridors, junctions, corners, and 3x3 rooms.
+- `CampaignEvents.ts`: Contains `CampaignEvents`, a collection of narrative events for the campaign mode.
 
 ## Functionality
 

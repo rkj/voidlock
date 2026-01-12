@@ -148,6 +148,38 @@ export interface CampaignState {
 }
 
 /**
+ * A choice within a narrative event.
+ */
+export interface EventChoice {
+  label: string;
+  description?: string;
+  cost?: {
+    scrap?: number;
+    intel?: number;
+  };
+  reward?: {
+    scrap?: number;
+    intel?: number;
+    recruit?: boolean;
+  };
+  risk?: {
+    chance: number; // 0.0 to 1.0
+    damage?: number; // Damage to a random soldier (0.0 to 1.0 of max HP)
+    ambush?: boolean; // Triggers a combat mission
+  };
+}
+
+/**
+ * Definition of a narrative event.
+ */
+export interface CampaignEventDefinition {
+  id: string;
+  title: string;
+  text: string;
+  choices: EventChoice[];
+}
+
+/**
  * XP required to reach each level.
  * Level 1: 0-99
  * Level 2: 100-249
