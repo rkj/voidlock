@@ -142,6 +142,13 @@ export const ItemLibrary: { [id: string]: Item } = {
     accuracyBonus: -15,
     cost: 0,
   },
+  scrap_crate: {
+    id: "scrap_crate",
+    name: "Scrap Crate",
+    type: "Passive",
+    description: "A crate filled with valuable scrap metal and components.",
+    cost: 0,
+  },
 };
 
 export type WeaponType = "Melee" | "Ranged";

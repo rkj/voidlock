@@ -321,8 +321,11 @@ export class UnitManager {
                 } else {
                   // Regular item
                   const itemId = loot.itemId;
-                  state.squadInventory[itemId] =
-                    (state.squadInventory[itemId] || 0) + 1;
+                  if (itemId !== "scrap_crate") {
+                    state.squadInventory[itemId] =
+                      (state.squadInventory[itemId] || 0) + 1;
+                  }
+                  lootManager.awardScrap(state, itemId);
                 }
                 lootManager.removeLoot(state, loot.id);
               }

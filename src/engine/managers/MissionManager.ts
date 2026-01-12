@@ -11,6 +11,7 @@ import {
 } from "../../shared/types";
 import { PRNG } from "../../shared/PRNG";
 import { EnemyManager } from "./EnemyManager";
+import { LootManager } from "./LootManager";
 
 export class MissionManager {
   constructor(
@@ -24,11 +25,19 @@ export class MissionManager {
     enemyManager: EnemyManager,
     squadConfig?: SquadConfig,
     nodeType?: CampaignNodeType,
+    lootManager?: LootManager,
   ) {
     let objectives: Objective[] = (map.objectives || []).map((o) => ({
       ...o,
       state: "Pending",
     }));
+
+    // Spawn bonus loot if present in map definition
+    if (map.bonusLoot && lootManager) {
+      map.bonusLoot.forEach((pos) => {
+        lootManager.spawnLoot(state, "scrap_crate", pos);
+      });
+    }
 
     const hasVipInSquad =
       squadConfig?.soldiers?.some((s) => s.archetypeId === "vip") ?? false;

@@ -265,8 +265,8 @@ export class UnitAI {
     if (state.loot) {
       const loot = state.loot.find(
         (l) =>
-          Math.abs(unit.pos.x - l.pos.x) < 0.6 &&
-          Math.abs(unit.pos.y - l.pos.y) < 0.6
+          Math.abs(unit.pos.x - l.pos.x) < 0.8 &&
+          Math.abs(unit.pos.y - l.pos.y) < 0.8
       );
 
       if (

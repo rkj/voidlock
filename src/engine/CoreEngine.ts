@@ -173,6 +173,7 @@ export class CoreEngine {
       this.enemyManager,
       squadConfig,
       nodeType,
+      this.lootManager,
     );
 
     // Mission-specific Spawns

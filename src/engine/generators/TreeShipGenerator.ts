@@ -49,7 +49,10 @@ export class TreeShipGenerator {
     return [p1, p2].sort().join("--");
   }
 
-  public generate(spawnPointCount: number = 1): MapDefinition {
+  public generate(
+    spawnPointCount: number = 1,
+    bonusLootCount: number = 0,
+  ): MapDefinition {
     this.placementValidator.clear();
     // 1. Initialize Grid (Void) and walls
     this.cells = Array(this.height * this.width)
