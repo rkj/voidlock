@@ -110,6 +110,10 @@ export class CampaignManager {
         rules.startingScrap = overrides.startingScrap;
       if (overrides.mapGrowthRate !== undefined)
         rules.mapGrowthRate = overrides.mapGrowthRate;
+      if (overrides.baseEnemyCount !== undefined)
+        rules.baseEnemyCount = overrides.baseEnemyCount;
+      if (overrides.enemyGrowthPerMission !== undefined)
+        rules.enemyGrowthPerMission = overrides.enemyGrowthPerMission;
       if (overrides.themeId) rules.themeId = overrides.themeId;
       if (overrides.unitStyle) rules.unitStyle = overrides.unitStyle;
       if (overrides.customSeed !== undefined) {
@@ -162,6 +166,8 @@ export class CampaignManager {
           resourceScarcity: 1.2,
           startingScrap: 1000,
           mapGrowthRate: 1.0,
+          baseEnemyCount: 2,
+          enemyGrowthPerMission: 0.5,
         };
       case "clone":
       case "normal":
@@ -175,6 +181,8 @@ export class CampaignManager {
           resourceScarcity: 1.0,
           startingScrap: 500,
           mapGrowthRate: 1.0,
+          baseEnemyCount: 3,
+          enemyGrowthPerMission: 1.0,
         };
       case "standard":
       case "hard":
@@ -188,6 +196,8 @@ export class CampaignManager {
           resourceScarcity: 0.7,
           startingScrap: 300,
           mapGrowthRate: 1.0,
+          baseEnemyCount: 4,
+          enemyGrowthPerMission: 1.5,
         };
       case "ironman":
       case "extreme":
@@ -201,6 +211,8 @@ export class CampaignManager {
           resourceScarcity: 0.5,
           startingScrap: 150,
           mapGrowthRate: 1.0,
+          baseEnemyCount: 5,
+          enemyGrowthPerMission: 2.0,
         };
       default:
         return {
@@ -213,6 +225,8 @@ export class CampaignManager {
           resourceScarcity: 1.0,
           startingScrap: 500,
           mapGrowthRate: 1.0,
+          baseEnemyCount: 3,
+          enemyGrowthPerMission: 1.0,
         };
     }
   }

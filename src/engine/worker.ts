@@ -29,6 +29,9 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
         msg.payload.commandLog ?? [],
         msg.payload.allowTacticalPause ?? true,
         msg.payload.targetTick ?? 0,
+        msg.payload.baseEnemyCount,
+        msg.payload.enemyGrowthPerMission,
+        msg.payload.missionDepth,
       );
 
       // Start loop

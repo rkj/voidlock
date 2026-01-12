@@ -717,6 +717,9 @@ export type WorkerMessage =
         missionType?: MissionType;
         losOverlayEnabled?: boolean;
         startingThreatLevel?: number;
+        baseEnemyCount?: number;
+        enemyGrowthPerMission?: number;
+        missionDepth?: number;
         initialTimeScale?: number;
         startPaused?: boolean;
         allowTacticalPause?: boolean;

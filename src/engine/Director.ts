@@ -22,17 +22,26 @@ export class Director {
   private enemyIdCounter: number = 0;
   private prng: PRNG;
   private startingThreatLevel: number;
+  private baseEnemyCount: number;
+  private enemyGrowthPerMission: number;
+  private missionDepth: number;
 
   constructor(
     spawnPoints: SpawnPoint[],
     prng: PRNG,
     onSpawn: (enemy: Enemy) => void,
     startingThreatLevel: number = 0,
+    baseEnemyCount: number = 3,
+    enemyGrowthPerMission: number = 1,
+    missionDepth: number = 0,
   ) {
     this.spawnPoints = spawnPoints;
     this.prng = prng;
     this.onSpawn = onSpawn;
     this.startingThreatLevel = startingThreatLevel;
+    this.baseEnemyCount = baseEnemyCount;
+    this.enemyGrowthPerMission = enemyGrowthPerMission;
+    this.missionDepth = missionDepth;
 
     // Initialize turn and time based on starting threat level
     // Threat = (turn + progress) * 10
@@ -170,10 +179,13 @@ export class Director {
   private spawnWave() {
     if (this.spawnPoints.length === 0) return;
 
-    // Scaling: 1 base + 1 per turn.
-    // Cap difficulty growth at turn 10.
+    // Scaling: (base + depth * growth) + per turn.
+    // Cap turn scaling at turn 10.
     const scalingTurn = Math.min(this.turn, 10);
-    const count = 1 + scalingTurn;
+    const count =
+      this.baseEnemyCount +
+      this.missionDepth * this.enemyGrowthPerMission +
+      scalingTurn;
 
     for (let i = 0; i < count; i++) {
       this.spawnOneEnemy();

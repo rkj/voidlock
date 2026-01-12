@@ -78,6 +78,9 @@ export class GameClient {
     commandLog: CommandLogEntry[] = [],
     campaignNodeId?: string,
     targetTick: number = 0,
+    baseEnemyCount: number = 3,
+    enemyGrowthPerMission: number = 1,
+    missionDepth: number = 0,
   ) {
     this.initialSeed = seed;
     this.initialSquadConfig = squadConfig;
@@ -139,6 +142,9 @@ export class GameClient {
         missionType,
         losOverlayEnabled,
         startingThreatLevel,
+        baseEnemyCount,
+        enemyGrowthPerMission,
+        missionDepth,
         initialTimeScale: clampedScale,
         startPaused,
         allowTacticalPause,
@@ -169,6 +175,9 @@ export class GameClient {
         spawnPointCount,
         losOverlayEnabled,
         startingThreatLevel,
+        baseEnemyCount,
+        enemyGrowthPerMission,
+        missionDepth,
         initialTimeScale,
         startPaused,
         allowTacticalPause,
@@ -374,6 +383,11 @@ export class GameClient {
       true, // allowTacticalPause
       EngineMode.Replay,
       commandLog,
+      undefined, // campaignNodeId
+      0, // targetTick
+      3, // baseEnemyCount
+      1, // enemyGrowthPerMission
+      0, // missionDepth
     );
   }
 
