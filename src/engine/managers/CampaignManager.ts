@@ -331,12 +331,18 @@ export class CampaignManager {
         // - Mission: +50 for Win, +10 for Loss
         // - Survival: +20 for Healthy/Wounded
         // - Kills: +10 per kill
-        const missionXp = report.result === "Won" ? 50 : 10;
-        const survivalXp =
-          res.status === "Healthy" || res.status === "Wounded" ? 20 : 0;
-        const killXp = res.kills * 10;
+        // Dead soldiers get 0 XP (spec/campaign.md#3.3)
+        if (res.status === "Dead") {
+          res.xpGained = 0;
+          res.promoted = false;
+        } else {
+          const missionXp = report.result === "Won" ? 50 : 10;
+          const survivalXp =
+            res.status === "Healthy" || res.status === "Wounded" ? 20 : 0;
+          const killXp = res.kills * 10;
 
-        res.xpGained = missionXp + survivalXp + killXp;
+          res.xpGained = missionXp + survivalXp + killXp;
+        }
 
         soldier.xp += res.xpGained;
         soldier.kills += res.kills;
@@ -348,17 +354,19 @@ export class CampaignManager {
           res.recoveryTime = 1;
         }
 
-        const newLevel = calculateLevel(soldier.xp);
-        if (newLevel > oldLevel) {
-          const levelsGained = newLevel - oldLevel;
-          soldier.level = newLevel;
-          soldier.maxHp += levelsGained * STAT_BOOSTS.hpPerLevel;
-          soldier.hp += levelsGained * STAT_BOOSTS.hpPerLevel;
-          soldier.soldierAim += levelsGained * STAT_BOOSTS.aimPerLevel;
+        if (res.status !== "Dead") {
+          const newLevel = calculateLevel(soldier.xp);
+          if (newLevel > oldLevel) {
+            const levelsGained = newLevel - oldLevel;
+            soldier.level = newLevel;
+            soldier.maxHp += levelsGained * STAT_BOOSTS.hpPerLevel;
+            soldier.hp += levelsGained * STAT_BOOSTS.hpPerLevel;
+            soldier.soldierAim += levelsGained * STAT_BOOSTS.aimPerLevel;
 
-          // Update the result so UI can show the promotion
-          res.promoted = true;
-          res.newLevel = newLevel;
+            // Update the result so UI can show the promotion
+            res.promoted = true;
+            res.newLevel = newLevel;
+          }
         }
 
         // Handle death rules
