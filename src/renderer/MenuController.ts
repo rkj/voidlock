@@ -347,21 +347,18 @@ export class MenuController {
   }
 
   public goBack() {
-    const prevState = this.stateMachine.pop();
+    const leavingState = this.stateMachine.state;
+    const targetState = this.stateMachine.pop();
 
-    if (this.stateMachine.state === "TARGET_SELECT") {
+    if (leavingState === "TARGET_SELECT" || leavingState === "UNIT_SELECT") {
       this.selection.overlayOptions = [];
     }
 
-    if (this.stateMachine.state === "TARGET_SELECT" && this.selection.pendingUnitIds) {
+    if (this.stateMachine.state === "UNIT_SELECT" && this.selection.pendingUnitIds) {
       this.selection.pendingUnitIds = null;
     }
 
-    if (!prevState) {
-      this.reset();
-    }
-
-    if (this.stateMachine.state === "ACTION_SELECT") {
+    if (!targetState || this.stateMachine.state === "ACTION_SELECT") {
       this.reset();
     }
   }

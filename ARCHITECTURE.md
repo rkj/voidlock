@@ -17,28 +17,35 @@ The heart of the game. It runs deterministically given a seed and a command stre
   - It handles collision detection (`canMove`), wall states, and door interactions, providing a queryable interface for the Pathfinder and LOS systems.
 - **`Pathfinder`**: Implements pathfinding algorithms (A\*) on the `GameGrid`. It supports pathing through Open doors and planning paths through Closed doors (which units can then open).
 - **`LineOfSight`**: Handles visibility calculations ("Fog of War"). It determines which cells are visible to the player's squad based on their position and blocking terrain (Walls, Closed Doors).
-- **`Director`**: The AI logic that manages enemy spawning, pacing, and difficulty ramping. It monitors game state and injects events or enemies.
-- **`GameClient`**: The bridge between the UI/Main Thread and the Engine Worker. It handles initializing the worker, sending commands, receiving state updates, and managing the Replay recording.
+- **`Managers` (`src/engine/managers/`)**: Domain-specific logic handlers instantiated by the CoreEngine.
+  - **`CampaignManager`**: Orchestrates the strategic layer, managing persistent state, squad roster, and sector map progression (ADR 0003).
+  - **`MissionManager`**: Handles mission-specific setup, objectives, and win/loss conditions.
+  - **`UnitManager` / `EnemyManager`**: Manage lifecycles, state updates, and combat logic for their respective entities.
+  - **`CommandExecutor`**: Translates abstract `Commands` into concrete unit actions.
+- **`GameClient`**: The bridge between the UI/Main Thread and the Engine Worker. It handles initializing the worker, sending commands, receiving state updates, and managing the Replay recording. It also handles session recovery (ADR 0019).
 
-### 2. Generators (`src/engine/generators/`)
+### 2. Map Generation (`src/engine/map/`, `src/engine/generators/`)
 
-Procedural content generation modules.
+Modular procedural content generation system (ADR 0016).
 
-- **`MapGenerator`**: Abstract base class for map generation strategies.
-- **`TreeShipGenerator`**: Generates acyclic "Tree-like" spaceship layouts. It ensures connectivity and prevents loops, prioritizing a "forward-moving" tactical experience.
-- **`SpaceshipGenerator`**: Generates dense, interconnected spaceship interiors with rooms and corridors.
-- **`DenseShipGenerator`**: Maximizes floor coverage (>90%) while maintaining a strict acyclic tree structure from a central spine.
+- **`MapFactory`**: The central entry point. It orchestrates the generation pipeline: `Generate -> Sanitize -> Validate`.
+- **`MapGenerator` (Strategy Interface)**: Implementations of specific layout algorithms.
+  - **`TreeShipGenerator`**: Generates acyclic "Tree-like" layouts ensuring connectivity.
+  - **`SpaceshipGenerator`**: Generates dense, interconnected interiors.
+  - **`SectorMapGenerator`**: Generates the campaign progression DAG.
+- **`MapSanitizer` / `MapValidator`**: Post-processing steps to ensure map correctness (reachability, entity placement).
 
 ### 3. AI System (`src/engine/ai/`)
 
-Encapsulates decision-making logic for units and enemies.
+Encapsulates decision-making logic for units and enemies (ADR 0006).
 
 - **`EnemyAI`**: Interface-based strategy pattern for different enemy behaviors.
-  - **`SwarmMeleeAI`**: The default behavior for current hostiles. Roams the ship autonomously and aggressively pursues any detected soldiers for melee combat.
+  - **`SwarmMeleeAI`**: The default behavior for current hostiles.
+- **`UnitAI`**: Autonomous behaviors for soldiers (e.g., opportunistic fire, exploration).
 
 ### 4. Renderer (`src/renderer/`)
 
-Purely visual layer.
+Purely visual layer and user interface.
 
 - **`Renderer`**: Renders the `GameState` to an HTML5 Canvas. It handles:
   - Grid visualization (Floor, Walls).
@@ -46,6 +53,11 @@ Purely visual layer.
   - Fog of War overlays (Visible, Discovered, Hidden).
   - Visual effects (Tracers, Highlights).
   - **Independence**: The Renderer has no game logic. It simply draws what the State tells it.
+- **`ScreenManager`**: Manages the high-level application state (MainMenu, Mission, Debrief, Campaign) and transitions (ADR 0019).
+- **`MenuController`**: A facade for the decoupled tactical command UI (ADR 0017). It coordinates:
+  - **`SelectionManager`**: Handles unit selection and grouping.
+  - **`CommandBuilder`**: Constructs complex commands (e.g., target selection).
+  - **`RoomDiscoveryManager`**: Manages room identification and navigation.
 
 ### 4. Shared (`src/shared/`)
 
