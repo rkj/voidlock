@@ -11,6 +11,10 @@ import {
   Vector2,
 } from "@src/shared/types";
 import { MENU_CONFIG, MenuOptionDefinition, MenuState } from "@src/renderer/MenuConfig";
+import { MenuStateMachine } from "./controllers/MenuStateMachine";
+import { SelectionManager } from "./controllers/SelectionManager";
+import { RoomDiscoveryManager } from "./controllers/RoomDiscoveryManager";
+import { CommandBuilder } from "./controllers/CommandBuilder";
 
 export interface RenderableMenuOption {
   key: string;
@@ -28,60 +32,109 @@ export interface RenderableMenuState {
 }
 
 export class MenuController {
-  public menuState: MenuState = "ACTION_SELECT";
-  public pendingAction: CommandType | null = null;
-  public pendingItemId: string | null = null;
-  public pendingTargetId: string | null = null;
-  public pendingMode: EngagementPolicy | null = null;
-  public pendingLabel: string | null = null;
-  public pendingTargetLocation: Vector2 | null = null;
-  public pendingUnitIds: string[] | null = null;
-  public overlayOptions: OverlayOption[] = [];
-  public isShiftHeld: boolean = false;
+  private stateMachine = new MenuStateMachine();
+  private selection = new SelectionManager();
+  private discovery = new RoomDiscoveryManager();
 
-  private stateStack: MenuState[] = [];
-  private cellToRoomId: Map<string, string> = new Map();
-  private discoveredRoomOrder: string[] = [];
+  public get menuState(): MenuState {
+    return this.stateMachine.state;
+  }
+  public set menuState(value: MenuState) {
+    this.stateMachine.state = value;
+  }
+
+  public get pendingAction(): CommandType | null {
+    return this.selection.pendingAction;
+  }
+  public set pendingAction(value: CommandType | null) {
+    this.selection.pendingAction = value;
+  }
+
+  public get pendingItemId(): string | null {
+    return this.selection.pendingItemId;
+  }
+  public set pendingItemId(value: string | null) {
+    this.selection.pendingItemId = value;
+  }
+
+  public get pendingTargetId(): string | null {
+    return this.selection.pendingTargetId;
+  }
+  public set pendingTargetId(value: string | null) {
+    this.selection.pendingTargetId = value;
+  }
+
+  public get pendingMode(): EngagementPolicy | null {
+    return this.selection.pendingMode;
+  }
+  public set pendingMode(value: EngagementPolicy | null) {
+    this.selection.pendingMode = value;
+  }
+
+  public get pendingLabel(): string | null {
+    return this.selection.pendingLabel;
+  }
+  public set pendingLabel(value: string | null) {
+    this.selection.pendingLabel = value;
+  }
+
+  public get pendingTargetLocation(): Vector2 | null {
+    return this.selection.pendingTargetLocation;
+  }
+  public set pendingTargetLocation(value: Vector2 | null) {
+    this.selection.pendingTargetLocation = value;
+  }
+
+  public get pendingUnitIds(): string[] | null {
+    return this.selection.pendingUnitIds;
+  }
+  public set pendingUnitIds(value: string[] | null) {
+    this.selection.pendingUnitIds = value;
+  }
+
+  public get overlayOptions(): OverlayOption[] {
+    return this.selection.overlayOptions;
+  }
+  public set overlayOptions(value: OverlayOption[]) {
+    this.selection.overlayOptions = value;
+  }
+
+  public get isShiftHeld(): boolean {
+    return this.selection.isShiftHeld;
+  }
+  public set isShiftHeld(value: boolean) {
+    this.selection.isShiftHeld = value;
+  }
 
   constructor(private client: { sendCommand: (cmd: any) => void }) {}
 
   public reset() {
-    this.menuState = "ACTION_SELECT";
-    this.pendingAction = null;
-    this.pendingItemId = null;
-    this.pendingTargetId = null;
-    this.pendingMode = null;
-    this.pendingLabel = null;
-    this.pendingTargetLocation = null;
-    this.pendingUnitIds = null;
-    this.overlayOptions = [];
-    this.stateStack = [];
+    this.stateMachine.reset();
+    this.selection.reset();
   }
 
   private transitionTo(nextState: MenuState) {
-    this.stateStack.push(this.menuState);
-    this.menuState = nextState;
+    this.stateMachine.push(nextState);
   }
 
   public clearDiscoveryOrder() {
-    this.cellToRoomId.clear();
-    this.discoveredRoomOrder = [];
+    this.discovery.clear();
   }
 
   public selectUnit(unitId: string) {
-    if (this.menuState === "UNIT_SELECT" && this.pendingAction) {
+    if (this.stateMachine.state === "UNIT_SELECT" && this.selection.pendingAction) {
       this.executePendingCommand([unitId]);
     }
   }
 
   public handleCanvasClick(cell: Vector2, gameState: GameState): void {
     if (
-      this.menuState === "TARGET_SELECT" &&
-      (this.pendingAction === CommandType.MOVE_TO ||
-        this.pendingAction === CommandType.USE_ITEM)
+      this.stateMachine.state === "TARGET_SELECT" &&
+      (this.selection.pendingAction === CommandType.MOVE_TO ||
+        this.selection.pendingAction === CommandType.USE_ITEM)
     ) {
-      this.pendingTargetLocation = cell;
-      this.overlayOptions = [];
+      this.selection.pendingTargetLocation = cell;
+      this.selection.overlayOptions = [];
 
       // If clicking on a unit, set pendingTargetId
       const unitAtCell = gameState.units.find(
@@ -92,15 +145,15 @@ export class MenuController {
           u.state !== UnitState.Extracted,
       );
       if (unitAtCell) {
-        this.pendingTargetId = unitAtCell.id;
+        this.selection.pendingTargetId = unitAtCell.id;
       }
 
       // Special case: Healing items bypass UNIT_SELECT and use all active units
-      const item = this.pendingItemId ? ItemLibrary[this.pendingItemId] : null;
-      if (this.pendingUnitIds && this.pendingUnitIds.length > 0) {
-        this.executePendingCommand(this.pendingUnitIds);
+      const item = this.selection.pendingItemId ? ItemLibrary[this.selection.pendingItemId] : null;
+      if (this.selection.pendingUnitIds && this.selection.pendingUnitIds.length > 0) {
+        this.executePendingCommand(this.selection.pendingUnitIds);
       } else if (
-        this.pendingAction === CommandType.USE_ITEM &&
+        this.selection.pendingAction === CommandType.USE_ITEM &&
         item?.action === "Heal"
       ) {
         const activeUnits = gameState.units.filter(
@@ -119,7 +172,7 @@ export class MenuController {
       return;
     }
 
-    switch (this.menuState) {
+    switch (this.stateMachine.state) {
       case "ACTION_SELECT":
         this.handleActionSelect(key, gameState);
         break;
@@ -151,20 +204,20 @@ export class MenuController {
       return;
     }
 
-    this.pendingAction = option.commandType || null;
+    this.selection.pendingAction = option.commandType || null;
 
     if (option.label === "PICKUP") {
-      this.pendingLabel = "Picking up";
+      this.selection.pendingLabel = "Picking up";
       this.transitionTo("TARGET_SELECT");
       this.generateTargetOverlay("ITEM", gameState);
     } else if (option.label === "EXTRACT") {
-      this.pendingLabel = "Extracting";
+      this.selection.pendingLabel = "Extracting";
       this.transitionTo("UNIT_SELECT");
     } else if (option.label === "ENGAGEMENT") {
-      this.pendingLabel = "Policy Change";
+      this.selection.pendingLabel = "Policy Change";
       this.transitionTo("MODE_SELECT");
     } else if (option.label === "USE ITEM") {
-      this.pendingLabel = "Using Item";
+      this.selection.pendingLabel = "Using Item";
       this.transitionTo("ITEM_SELECT");
     }
   }
@@ -174,24 +227,24 @@ export class MenuController {
     const option = config.options.find((o) => o.key.toString() === key);
     if (!option) return;
 
-    this.pendingAction = option.commandType || null;
+    this.selection.pendingAction = option.commandType || null;
 
     if (option.label === "MOVE TO ROOM") {
-      this.pendingLabel = "Moving";
+      this.selection.pendingLabel = "Moving";
       this.transitionTo("TARGET_SELECT");
       this.generateTargetOverlay("CELL", gameState);
     } else if (option.label === "OVERWATCH INTERSECTION") {
-      this.pendingLabel = "Overwatching";
+      this.selection.pendingLabel = "Overwatching";
       this.transitionTo("TARGET_SELECT");
       this.generateTargetOverlay("INTERSECTION", gameState);
     } else if (option.label === "EXPLORE") {
-      this.pendingLabel = "Exploring";
+      this.selection.pendingLabel = "Exploring";
       this.transitionTo("UNIT_SELECT");
     } else if (option.label === "HOLD") {
-      this.pendingLabel = "Holding";
+      this.selection.pendingLabel = "Holding";
       this.transitionTo("UNIT_SELECT");
     } else if (option.label === "ESCORT") {
-      this.pendingLabel = "Escorting";
+      this.selection.pendingLabel = "Escorting";
       this.transitionTo("TARGET_SELECT");
       this.generateTargetOverlay("FRIENDLY_UNIT", gameState);
     }
@@ -215,7 +268,7 @@ export class MenuController {
         if (!hasVisibleEnemies) return;
       }
 
-      this.pendingItemId = itemId;
+      this.selection.pendingItemId = itemId;
       if (item?.action === "Mine") {
         this.transitionTo("UNIT_SELECT");
       } else {
@@ -235,23 +288,23 @@ export class MenuController {
     const config = MENU_CONFIG.MODE_SELECT;
     const option = config.options.find((o) => o.key.toString() === key);
     if (option && option.type === "MODE") {
-      this.pendingMode = option.modeValue || null;
+      this.selection.pendingMode = option.modeValue || null;
       this.transitionTo(option.nextState || "UNIT_SELECT");
     }
   }
 
   private handleTargetSelect(key: string, gameState: GameState) {
-    const option = this.overlayOptions.find((o) => o.key === key);
+    const option = this.selection.overlayOptions.find((o) => o.key === key);
     if (option && option.pos) {
-      this.pendingTargetLocation = option.pos;
-      this.pendingTargetId = option.id || null;
-      this.overlayOptions = [];
+      this.selection.pendingTargetLocation = option.pos;
+      this.selection.pendingTargetId = option.id || null;
+      this.selection.overlayOptions = [];
 
-      const item = this.pendingItemId ? ItemLibrary[this.pendingItemId] : null;
-      if (this.pendingUnitIds && this.pendingUnitIds.length > 0) {
-        this.executePendingCommand(this.pendingUnitIds);
+      const item = this.selection.pendingItemId ? ItemLibrary[this.selection.pendingItemId] : null;
+      if (this.selection.pendingUnitIds && this.selection.pendingUnitIds.length > 0) {
+        this.executePendingCommand(this.selection.pendingUnitIds);
       } else if (
-        this.pendingAction === CommandType.USE_ITEM &&
+        this.selection.pendingAction === CommandType.USE_ITEM &&
         item?.action === "Heal"
       ) {
         const activeUnits = gameState.units.filter(
@@ -277,14 +330,14 @@ export class MenuController {
       selectedIds = activeUnits.map((u) => u.id);
     }
 
-    if (selectedIds.length > 0 && this.pendingAction) {
-      const item = this.pendingItemId ? ItemLibrary[this.pendingItemId] : null;
+    if (selectedIds.length > 0 && this.selection.pendingAction) {
+      const item = this.selection.pendingItemId ? ItemLibrary[this.selection.pendingItemId] : null;
       if (
-        this.pendingAction === CommandType.USE_ITEM &&
+        this.selection.pendingAction === CommandType.USE_ITEM &&
         item?.action === "Mine" &&
-        !this.pendingTargetLocation
+        !this.selection.pendingTargetLocation
       ) {
-        this.pendingUnitIds = selectedIds;
+        this.selection.pendingUnitIds = selectedIds;
         this.transitionTo("TARGET_SELECT");
         this.generateTargetOverlay("CELL", gameState);
       } else {
@@ -294,47 +347,45 @@ export class MenuController {
   }
 
   public goBack() {
-    const prevState = this.stateStack.pop();
+    const prevState = this.stateMachine.pop();
 
-    if (this.menuState === "TARGET_SELECT") {
-      this.overlayOptions = [];
+    if (this.stateMachine.state === "TARGET_SELECT") {
+      this.selection.overlayOptions = [];
     }
 
-    if (this.menuState === "TARGET_SELECT" && this.pendingUnitIds) {
-      this.pendingUnitIds = null;
+    if (this.stateMachine.state === "TARGET_SELECT" && this.selection.pendingUnitIds) {
+      this.selection.pendingUnitIds = null;
     }
 
-    if (prevState) {
-      this.menuState = prevState;
-    } else {
+    if (!prevState) {
       this.reset();
     }
 
-    if (this.menuState === "ACTION_SELECT") {
+    if (this.stateMachine.state === "ACTION_SELECT") {
       this.reset();
     }
   }
 
   public getRenderableState(gameState: GameState): RenderableMenuState {
-    const config = MENU_CONFIG[this.menuState];
+    const config = MENU_CONFIG[this.stateMachine.state];
     const result: RenderableMenuState = {
       title: config.title,
       options: [],
     };
 
     // Live-update overlays if in Target Select
-    if (this.menuState === "TARGET_SELECT") {
-      if (this.pendingAction === CommandType.MOVE_TO) {
-        if (this.pendingLabel === "Collecting") {
+    if (this.stateMachine.state === "TARGET_SELECT") {
+      if (this.selection.pendingAction === CommandType.MOVE_TO) {
+        if (this.selection.pendingLabel === "Collecting") {
           this.generateTargetOverlay("ITEM", gameState);
         } else {
           this.generateTargetOverlay("CELL", gameState);
         }
-      } else if (this.pendingAction === CommandType.OVERWATCH_POINT) {
+      } else if (this.selection.pendingAction === CommandType.OVERWATCH_POINT) {
         this.generateTargetOverlay("INTERSECTION", gameState);
-      } else if (this.pendingAction === CommandType.USE_ITEM) {
-        const item = this.pendingItemId
-          ? ItemLibrary[this.pendingItemId]
+      } else if (this.selection.pendingAction === CommandType.USE_ITEM) {
+        const item = this.selection.pendingItemId
+          ? ItemLibrary[this.selection.pendingItemId]
           : null;
         if (item?.action === "Heal") {
           this.generateTargetOverlay("FRIENDLY_UNIT", gameState);
@@ -343,17 +394,17 @@ export class MenuController {
         } else {
           this.generateTargetOverlay("CELL", gameState);
         }
-      } else if (this.pendingAction === CommandType.PICKUP) {
+      } else if (this.selection.pendingAction === CommandType.PICKUP) {
         this.generateTargetOverlay("ITEM", gameState);
-      } else if (this.pendingAction === CommandType.ESCORT_UNIT) {
+      } else if (this.selection.pendingAction === CommandType.ESCORT_UNIT) {
         this.generateTargetOverlay("FRIENDLY_UNIT", gameState);
       }
     }
 
     if (
-      this.menuState === "ACTION_SELECT" ||
-      this.menuState === "ORDERS_SELECT" ||
-      this.menuState === "MODE_SELECT"
+      this.stateMachine.state === "ACTION_SELECT" ||
+      this.stateMachine.state === "ORDERS_SELECT" ||
+      this.stateMachine.state === "MODE_SELECT"
     ) {
       result.options = config.options.map((opt) => ({
         key: opt.key.toString(),
@@ -363,14 +414,14 @@ export class MenuController {
         dataAttributes: { index: opt.key.toString() },
       }));
 
-      if (this.menuState === "ACTION_SELECT") {
+      if (this.stateMachine.state === "ACTION_SELECT") {
         result.footer = "(Select Action)";
-      } else if (this.menuState === "ORDERS_SELECT") {
+      } else if (this.stateMachine.state === "ORDERS_SELECT") {
         result.footer = "(Select Order)";
       } else {
         result.footer = "(Q/ESC to Go Back)";
       }
-    } else if (this.menuState === "ITEM_SELECT") {
+    } else if (this.stateMachine.state === "ITEM_SELECT") {
       const items = Object.entries(gameState.squadInventory).filter(
         ([_, count]) => count > 0,
       );
@@ -399,15 +450,15 @@ export class MenuController {
         dataAttributes: { index: "0" },
       });
       result.footer = "(Select Item, Q/ESC to Back)";
-    } else if (this.menuState === "TARGET_SELECT") {
+    } else if (this.stateMachine.state === "TARGET_SELECT") {
       if (
-        this.overlayOptions.length === 0 &&
-        this.pendingAction !== CommandType.MOVE_TO &&
-        this.pendingAction !== CommandType.USE_ITEM
+        this.selection.overlayOptions.length === 0 &&
+        this.selection.pendingAction !== CommandType.MOVE_TO &&
+        this.selection.pendingAction !== CommandType.USE_ITEM
       ) {
         result.error = "No POIs available.";
       } else {
-        result.options = this.overlayOptions.map((opt) => ({
+        result.options = this.selection.overlayOptions.map((opt) => ({
           key: opt.key,
           label: `${opt.key}. ${opt.label}`,
           dataAttributes: { index: opt.key, key: opt.key },
@@ -420,7 +471,7 @@ export class MenuController {
         dataAttributes: { index: "0" },
       });
       result.footer = "(Click map or press 1-9, Q/ESC to Back)";
-    } else if (this.menuState === "UNIT_SELECT") {
+    } else if (this.stateMachine.state === "UNIT_SELECT") {
       let counter = 1;
       const activeUnits = gameState.units.filter(
         (u) => u.state !== UnitState.Dead && u.state !== UnitState.Extracted,
@@ -478,130 +529,28 @@ export class MenuController {
   }
 
   private executePendingCommand(unitIds: string[]) {
-    if (!this.pendingAction) return;
-    const queue = this.isShiftHeld;
+    const command = CommandBuilder.build(
+      {
+        action: this.selection.pendingAction,
+        itemId: this.selection.pendingItemId,
+        targetId: this.selection.pendingTargetId,
+        mode: this.selection.pendingMode,
+        label: this.selection.pendingLabel,
+        targetLocation: this.selection.pendingTargetLocation,
+        isShiftHeld: this.selection.isShiftHeld,
+      },
+      unitIds,
+    );
 
-    if (
-      this.pendingAction === CommandType.MOVE_TO &&
-      this.pendingTargetLocation
-    ) {
-      this.client.sendCommand({
-        type: CommandType.MOVE_TO,
-        unitIds,
-        target: this.pendingTargetLocation,
-        label: this.pendingLabel || undefined,
-        queue,
-      });
-    } else if (
-      this.pendingAction === CommandType.OVERWATCH_POINT &&
-      this.pendingTargetLocation
-    ) {
-      this.client.sendCommand({
-        type: CommandType.OVERWATCH_POINT,
-        unitIds,
-        target: this.pendingTargetLocation,
-        label: this.pendingLabel || undefined,
-        queue,
-      });
-    } else if (this.pendingAction === CommandType.EXPLORE) {
-      this.client.sendCommand({
-        type: CommandType.EXPLORE,
-        unitIds,
-        label: this.pendingLabel || undefined,
-        queue,
-      });
-    } else if (this.pendingAction === CommandType.STOP) {
-      this.client.sendCommand({
-        type: CommandType.STOP,
-        unitIds,
-        label: this.pendingLabel || undefined,
-        queue,
-      });
-    } else if (
-      this.pendingAction === CommandType.SET_ENGAGEMENT &&
-      this.pendingMode
-    ) {
-      this.client.sendCommand({
-        type: CommandType.SET_ENGAGEMENT,
-        unitIds,
-        mode: this.pendingMode,
-        label: this.pendingLabel || undefined,
-        queue,
-      });
-    } else if (this.pendingAction === CommandType.RESUME_AI) {
-      this.client.sendCommand({
-        type: CommandType.RESUME_AI,
-        unitIds,
-        label: this.pendingLabel || undefined,
-        queue,
-      });
-    } else if (
-      this.pendingAction === CommandType.PICKUP &&
-      this.pendingTargetId
-    ) {
-      this.client.sendCommand({
-        type: CommandType.PICKUP,
-        unitIds,
-        lootId: this.pendingTargetId,
-        label: this.pendingLabel || undefined,
-        queue,
-      });
-    } else if (this.pendingAction === CommandType.EXTRACT) {
-      this.client.sendCommand({
-        type: CommandType.EXTRACT,
-        unitIds,
-        label: this.pendingLabel || undefined,
-        queue,
-      });
-    } else if (
-      this.pendingAction === CommandType.ESCORT_UNIT &&
-      this.pendingTargetId
-    ) {
-      this.client.sendCommand({
-        type: CommandType.ESCORT_UNIT,
-        unitIds,
-        targetId: this.pendingTargetId,
-        label: this.pendingLabel || undefined,
-        queue,
-      });
-    } else if (
-      this.pendingAction === CommandType.USE_ITEM &&
-      this.pendingItemId &&
-      (this.pendingTargetLocation || this.pendingTargetId)
-    ) {
-      this.client.sendCommand({
-        type: CommandType.USE_ITEM,
-        unitIds,
-        itemId: this.pendingItemId,
-        target: this.pendingTargetLocation || undefined,
-        targetUnitId: this.pendingTargetId || undefined,
-        label: this.pendingLabel || undefined,
-        queue,
-      });
+    if (command) {
+      this.client.sendCommand(command);
     }
 
     this.reset();
   }
 
   private updateDiscoveryOrder(gameState: GameState) {
-    if (this.cellToRoomId.size === 0) {
-      gameState.map.cells.forEach((cell) => {
-        if (cell.roomId) {
-          this.cellToRoomId.set(`${cell.x},${cell.y}`, cell.roomId);
-        }
-      });
-    }
-
-    gameState.discoveredCells.forEach((cellKey) => {
-      const roomId = this.cellToRoomId.get(cellKey);
-      if (
-        roomId &&
-        roomId.startsWith("room") &&
-        !this.discoveredRoomOrder.includes(roomId)
-      ) {
-        this.discoveredRoomOrder.push(roomId);
-      }
-    });
+    this.discovery.update(gameState);
   }
 
   private getRoomKey(index: number): string {
@@ -613,14 +562,14 @@ export class MenuController {
     type: "CELL" | "ITEM" | "INTERSECTION" | "FRIENDLY_UNIT" | "HOSTILE_UNIT",
     gameState: GameState,
   ) {
-    this.overlayOptions = [];
+    this.selection.overlayOptions = [];
 
     if (type === "HOSTILE_UNIT") {
       let enemyCounter = 0;
       gameState.enemies.forEach((e) => {
         const key = `${Math.floor(e.pos.x)},${Math.floor(e.pos.y)}`;
         if (gameState.visibleCells.includes(key)) {
-          this.overlayOptions.push({
+          this.selection.overlayOptions.push({
             key: this.getRoomKey(enemyCounter),
             label: `${e.type}`,
             pos: { x: Math.floor(e.pos.x), y: Math.floor(e.pos.y) },
@@ -633,7 +582,7 @@ export class MenuController {
       let itemCounter = 0;
       gameState.objectives.forEach((obj) => {
         if (obj.state === "Pending" && obj.visible && obj.targetCell) {
-          this.overlayOptions.push({
+          this.selection.overlayOptions.push({
             key: this.getRoomKey(itemCounter),
             label: `Collect ${obj.kind}`,
             pos: obj.targetCell,
@@ -647,7 +596,7 @@ export class MenuController {
         gameState.loot.forEach((loot) => {
           const key = `${Math.floor(loot.pos.x)},${Math.floor(loot.pos.y)}`;
           if (gameState.visibleCells.includes(key)) {
-            this.overlayOptions.push({
+            this.selection.overlayOptions.push({
               key: this.getRoomKey(itemCounter),
               label: `Pickup ${loot.itemId}`,
               pos: { x: Math.floor(loot.pos.x), y: Math.floor(loot.pos.y) },
@@ -661,7 +610,7 @@ export class MenuController {
       let unitCounter = 0;
       gameState.units.forEach((u) => {
         if (u.state !== UnitState.Dead && u.state !== UnitState.Extracted) {
-          this.overlayOptions.push({
+          this.selection.overlayOptions.push({
             key: this.getRoomKey(unitCounter),
             label: `${u.id}`,
             pos: { x: Math.floor(u.pos.x), y: Math.floor(u.pos.y) },
@@ -690,7 +639,7 @@ export class MenuController {
         });
 
         if (connections >= 3) {
-          this.overlayOptions.push({
+          this.selection.overlayOptions.push({
             key: this.getRoomKey(intersectionCounter),
             label: `Intersection`,
             pos: { x: cell.x, y: cell.y },
@@ -702,7 +651,7 @@ export class MenuController {
       // Add Rooms in Discovery Order FIRST to ensure stable keys 1, 2, etc.
       this.updateDiscoveryOrder(gameState);
 
-      this.discoveredRoomOrder.forEach((roomId, index) => {
+      this.discovery.roomOrder.forEach((roomId, index) => {
         const cellsInRoom = gameState.map.cells.filter(
           (c) => c.roomId === roomId,
         );
@@ -721,7 +670,7 @@ export class MenuController {
         });
 
         const key = this.getRoomKey(index);
-        this.overlayOptions.push({
+        this.selection.overlayOptions.push({
           key: key,
           label: `Room ${key}`,
           pos: { x: centerCell.x, y: centerCell.y },
@@ -729,13 +678,13 @@ export class MenuController {
       });
 
       // Other POIs come after rooms
-      let poiCounter = this.discoveredRoomOrder.length;
+      let poiCounter = this.discovery.roomOrder.length;
 
       if (gameState.map.extraction) {
         const ext = gameState.map.extraction;
         const key = `${ext.x},${ext.y}`;
         if (gameState.discoveredCells.includes(key)) {
-          this.overlayOptions.push({
+          this.selection.overlayOptions.push({
             key: this.getRoomKey(poiCounter),
             label: "Extraction",
             pos: ext,
@@ -755,7 +704,7 @@ export class MenuController {
             return;
           }
 
-          this.overlayOptions.push({
+          this.selection.overlayOptions.push({
             key: this.getRoomKey(poiCounter),
             label: `Obj ${obj.id}`,
             pos: obj.targetCell,

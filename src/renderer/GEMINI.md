@@ -12,17 +12,13 @@ This directory contains the main thread rendering logic and user interface for V
 - `ScreenManager.ts`: Manages transitions between different screens (Main Menu, Setup, Mission).
 - `SessionManager.ts`: Manages persistent session state for crash recovery and navigation restoration.
 - `ScreenTransitions.ts`: Defines the valid state machine transitions for the ScreenManager.
-- `MenuController.ts`: Implements the hierarchical keyboard-driven command menu using a formal state machine and state stack for robust back-navigation.
-  Includes context-aware logic to hide or disable options based on game state (e.g. Grenades are disabled if no enemies are visible), handles specific item targeting modes (Friendly vs Hostile units), and handles Shift-key modifiers for command queueing.
-- `ConfigManager.ts`: Handles loading and saving game configuration and mission parameters. Supports isolated storage for Custom Missions and Campaign mode to prevent state pollution.
-- `VisibilityPolygon.ts`: Implements visibility calculations for rendering accurate LOS cones.
-- `Icons.ts`: Contains URL definitions for tactical icons pointing to external SVG files.
-- `MapUtility.ts`: Utility functions for map coordinate transformations and rendering helpers.
+- `MenuController.ts`: Acts as a facade for the hierarchical keyboard-driven command menu, coordinating between various state and logic managers.
 - `MenuConfig.ts`: Configuration for the hierarchical menu structure.
 - `ThemeManager.ts`: Centralized management of visual themes, CSS variables, and asset mapping. Loads the `assets.json` manifest and provides URL lookups for sprites and icons. Supports `ThemeConfig` for programmatic overrides.
 
 ## Subdirectories
 
+- `controllers/`: Decoupled logic managers for the tactical UI (StateMachine, Selection, CommandBuilder, RoomDiscovery).
 - `campaign/`: Campaign management logic and state persistence.
 - `ui/`: Specific UI components like the HUD and menu renderers.
 - `screens/`: Individual screen components for the Strategic and Tactical layers.
