@@ -81,6 +81,7 @@ export class GameClient {
     baseEnemyCount: number = 3,
     enemyGrowthPerMission: number = 1,
     missionDepth: number = 0,
+    nodeType?: string, // Actually CampaignNodeType but string is fine for the client
   ) {
     this.initialSeed = seed;
     this.initialSquadConfig = squadConfig;
@@ -151,6 +152,7 @@ export class GameClient {
         mode,
         commandLog,
         targetTick,
+        nodeType: nodeType as any,
       },
     };
     this.worker.postMessage(msg);
@@ -182,6 +184,7 @@ export class GameClient {
         startPaused,
         allowTacticalPause,
         campaignNodeId,
+        nodeType,
       });
 
       // If we provided an initial command log, make sure it's also in the persistent log

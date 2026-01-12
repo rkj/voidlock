@@ -7,6 +7,7 @@ import {
   UnitState,
   SquadConfig,
   EnemyType,
+  CampaignNodeType,
 } from "../../shared/types";
 import { PRNG } from "../../shared/PRNG";
 import { EnemyManager } from "./EnemyManager";
@@ -22,6 +23,7 @@ export class MissionManager {
     map: MapDefinition,
     enemyManager: EnemyManager,
     squadConfig?: SquadConfig,
+    nodeType?: CampaignNodeType,
   ) {
     let objectives: Objective[] = (map.objectives || []).map((o) => ({
       ...o,
@@ -45,7 +47,9 @@ export class MissionManager {
 
     if (
       this.missionType === MissionType.ExtractArtifacts ||
-      this.missionType === MissionType.RecoverIntel
+      this.missionType === MissionType.RecoverIntel ||
+      nodeType === "Boss" ||
+      nodeType === "Elite"
     ) {
       // In these missions, we typically replace map objectives with the mission-specific ones,
       // but we should keep the Escort objective if it exists.
@@ -65,12 +69,28 @@ export class MissionManager {
         [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
       }
 
-      const count = Math.min(3, candidates.length);
+      const count =
+        nodeType === "Boss"
+          ? 3
+          : nodeType === "Elite"
+            ? 2
+            : Math.min(3, candidates.length);
       const idPrefix =
         this.missionType === MissionType.ExtractArtifacts
           ? "artifact"
-          : "intel";
-      for (let i = 0; i < count; i++) {
+          : this.missionType === MissionType.RecoverIntel
+            ? "intel"
+            : nodeType === "Boss"
+              ? "boss"
+              : "elite";
+
+      // Boss Mix: 1x Hive, 2x Recover (if possible)
+      // Elite Mix: 1x Hive, 1x Recover (if possible)
+      let recoverCount = count;
+      if (nodeType === "Boss") recoverCount = 2;
+      else if (nodeType === "Elite") recoverCount = 1;
+      
+      for (let i = 0; i < Math.min(recoverCount, candidates.length); i++) {
         objectives.push({
           id: `${idPrefix}-${i}`,
           kind: "Recover",
@@ -78,11 +98,49 @@ export class MissionManager {
           targetCell: { x: candidates[i].x, y: candidates[i].y },
         });
       }
+
+      if (nodeType === "Boss" || nodeType === "Elite") {
+        // Find a room for the Hive that's far from extraction
+        const roomCandidates = floors.filter((c) => {
+          const isRoom = c.roomId && c.roomId.startsWith("room-");
+          if (!isRoom) return false;
+
+          const dx = c.x - extraction.x;
+          const dy = c.y - extraction.y;
+          return Math.sqrt(dx * dx + dy * dy) > map.width * 0.5;
+        });
+
+        if (roomCandidates.length > 0) {
+          const hiveLoc = roomCandidates[this.prng.nextInt(0, roomCandidates.length - 1)];
+          const hiveId = nodeType === "Boss" ? "boss-hive" : "elite-hive";
+
+          enemyManager.addEnemy(state, {
+            id: hiveId,
+            pos: { x: hiveLoc.x + 0.5, y: hiveLoc.y + 0.5 },
+            hp: nodeType === "Boss" ? 1000 : 500, // Boss hive is tougher
+            maxHp: nodeType === "Boss" ? 1000 : 500,
+            type: EnemyType.Hive,
+            damage: 0,
+            fireRate: 1000,
+            accuracy: 100,
+            attackRange: 0,
+            speed: 0,
+            difficulty: nodeType === "Boss" ? 20 : 15,
+          });
+
+          objectives.push({
+            id: `obj-${hiveId}`,
+            kind: "Kill",
+            state: "Pending",
+            targetEnemyId: hiveId,
+          });
+        }
+      }
     }
 
     state.objectives = objectives;
 
-    if (this.missionType === MissionType.DestroyHive) {
+    if (this.missionType === MissionType.DestroyHive && nodeType !== "Boss" && nodeType !== "Elite") {
       const floors = map.cells.filter((c) => c.type === CellType.Floor);
       const extraction = map.extraction || { x: 0, y: 0 };
       const candidates = floors.filter((c) => {
@@ -166,12 +224,16 @@ export class MissionManager {
 
       // Reward scrap for newly completed objectives
       if (obj.state === "Completed" && !obj.scrapRewarded) {
-        if (obj.kind === "Kill" && obj.targetEnemyId === "enemy-hive") {
-          state.stats.scrapGained += 75;
+        const isBoss = state.nodeType === "Boss";
+        const isElite = state.nodeType === "Elite";
+        const multiplier = isBoss ? 3 : isElite ? 2 : 1;
+
+        if (obj.kind === "Kill" && (obj.targetEnemyId === "enemy-hive" || obj.targetEnemyId === "boss-hive" || obj.targetEnemyId === "elite-hive")) {
+          state.stats.scrapGained += 75 * multiplier;
         } else if (obj.kind === "Escort" || obj.id === "obj-escort") {
-          state.stats.scrapGained += 50;
+          state.stats.scrapGained += 50 * multiplier;
         } else {
-          state.stats.scrapGained += 25;
+          state.stats.scrapGained += 25 * multiplier;
         }
         obj.scrapRewarded = true;
       }
@@ -199,14 +261,20 @@ export class MissionManager {
       (o) => o.state === "Completed",
     );
 
-    // 1. Recover Intel & Destroy Hive: Instant win upon objective completion (Extraction optional)
+    const isBoss = state.nodeType === "Boss";
+    const isElite = state.nodeType === "Elite";
+    const multiplier = isBoss ? 3 : isElite ? 2 : 1;
+
+    // 1. Recover Intel, Destroy Hive, and Boss/Elite nodes: Instant win upon objective completion (Extraction optional)
     if (
       this.missionType === MissionType.RecoverIntel ||
-      this.missionType === MissionType.DestroyHive
+      this.missionType === MissionType.DestroyHive ||
+      isBoss ||
+      isElite
     ) {
       if (allObjectivesComplete) {
         if (state.status !== "Won") {
-          state.stats.scrapGained += 100;
+          state.stats.scrapGained += 100 * multiplier;
         }
         state.status = "Won";
         return;
@@ -220,7 +288,7 @@ export class MissionManager {
 
       if (allVipsExtracted) {
         if (state.status !== "Won") {
-          state.stats.scrapGained += 100;
+          state.stats.scrapGained += 100 * multiplier;
         }
         state.status = "Won";
         return;
@@ -247,7 +315,7 @@ export class MissionManager {
           // Extraction required
           if (extractedUnits.length > 0) {
             if (state.status !== "Won") {
-              state.stats.scrapGained += 100;
+              state.stats.scrapGained += 100 * multiplier;
             }
             state.status = "Won";
           } else {
@@ -259,7 +327,7 @@ export class MissionManager {
         } else {
           // If for some reason it's another type but everyone died after objectives, it's a Win (RecoverIntel/DestroyHive)
           if (state.status !== "Won") {
-            state.stats.scrapGained += 100;
+            state.stats.scrapGained += 100 * multiplier;
           }
           state.status = "Won";
         }

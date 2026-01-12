@@ -604,6 +604,7 @@ export class GameApp {
       baseEnemyCount,
       enemyGrowthPerMission,
       missionDepth,
+      this.currentCampaignNode?.type,
     );
 
     this.syncSpeedUI();
@@ -737,6 +738,7 @@ export class GameApp {
         baseEnemyCount,
         enemyGrowthPerMission,
         missionDepth,
+        config.nodeType,
       );
 
       this.syncSpeedUI();

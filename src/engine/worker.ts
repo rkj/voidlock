@@ -32,6 +32,7 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
         msg.payload.baseEnemyCount,
         msg.payload.enemyGrowthPerMission,
         msg.payload.missionDepth,
+        msg.payload.nodeType,
       );
 
       // Start loop
