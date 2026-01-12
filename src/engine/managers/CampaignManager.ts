@@ -438,6 +438,64 @@ export class CampaignManager {
   }
 
   /**
+   * Advances the campaign without a combat mission (for Shop/Event nodes).
+   * @param nodeId The ID of the node being cleared.
+   * @param scrapGained Amount of scrap gained.
+   * @param intelGained Amount of intel gained.
+   */
+  public advanceCampaignWithoutMission(
+    nodeId: string,
+    scrapGained: number,
+    intelGained: number,
+  ): void {
+    if (!this.state) return;
+
+    const node = this.state.nodes.find((n) => n.id === nodeId);
+    if (node) {
+      node.status = "Cleared";
+      this.state.currentNodeId = node.id;
+      this.state.currentSector = node.rank + 2;
+
+      // All nodes that were Accessible but NOT this one become Skipped
+      this.state.nodes.forEach((n) => {
+        if (n.status === "Accessible" && n.id !== node.id) {
+          n.status = "Skipped";
+        }
+      });
+
+      // Unlock connected nodes
+      node.connections.forEach((connId) => {
+        const nextNode = this.state!.nodes.find((n) => n.id === connId);
+        if (
+          nextNode &&
+          (nextNode.status === "Hidden" ||
+            nextNode.status === "Revealed" ||
+            nextNode.status === "Accessible")
+        ) {
+          nextNode.status = "Accessible";
+        }
+      });
+    }
+
+    this.state.scrap += scrapGained;
+    this.state.intel += intelGained;
+
+    // Save history as a pseudo-report
+    this.state.history.push({
+      nodeId: nodeId,
+      seed: 0,
+      result: "Won",
+      aliensKilled: 0,
+      scrapGained: scrapGained,
+      intelGained: intelGained,
+      timeSpent: 0,
+      soldierResults: [],
+    });
+
+    this.save();
+  }
+
+  /**
    * Returns the current campaign state.
    */
   public getState(): CampaignState | null {
