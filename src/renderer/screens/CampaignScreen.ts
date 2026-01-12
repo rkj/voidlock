@@ -442,6 +442,23 @@ export class CampaignScreen {
     deathGroup.appendChild(deathSelect);
     advancedContent.appendChild(deathGroup);
 
+    // Economy Mode
+    const economyGroup = document.createElement("div");
+    economyGroup.className = "flex-col gap-5";
+    const economyLabel = document.createElement("label");
+    economyLabel.textContent = "ECONOMY MODE";
+    economyLabel.style.fontSize = "0.7em";
+    economyLabel.style.color = "var(--color-text-dim)";
+    const economySelect = document.createElement("select");
+    economySelect.id = "campaign-economy-mode";
+    economySelect.innerHTML = `
+      <option value="Open" selected>OPEN (Buy anywhere, shop discount)</option>
+      <option value="Limited">LIMITED (Buy ONLY at Supply Depots)</option>
+    `;
+    economyGroup.appendChild(economyLabel);
+    economyGroup.appendChild(economySelect);
+    advancedContent.appendChild(economyGroup);
+
     advancedWrapper.appendChild(advancedToggle);
     advancedWrapper.appendChild(advancedContent);
     form.appendChild(advancedWrapper);
@@ -457,6 +474,7 @@ export class CampaignScreen {
         themeId: themeSelect.value,
         unitStyle: styleSelect.value as any,
         mapGrowthRate: parseFloat(lengthSelect.value),
+        economyMode: (document.getElementById("campaign-economy-mode") as HTMLSelectElement).value as "Open" | "Limited",
       };
 
       if (seedInput.value) overrides.customSeed = parseInt(seedInput.value);

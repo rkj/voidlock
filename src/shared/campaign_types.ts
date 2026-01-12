@@ -27,6 +27,7 @@ export interface GameRules {
   mapGrowthRate: number; // NEW: +MapSize per rank
   baseEnemyCount: number; // NEW: Starting wave size
   enemyGrowthPerMission: number; // NEW: Wave size growth per rank
+  economyMode: "Open" | "Limited";
   themeId?: string;
   customSeed?: number;
 }
@@ -44,6 +45,7 @@ export interface CampaignOverrides {
   mapGrowthRate?: number;
   baseEnemyCount?: number;
   enemyGrowthPerMission?: number;
+  economyMode?: "Open" | "Limited";
   themeId?: string;
   unitStyle?: UnitStyle;
   customSeed?: number;
