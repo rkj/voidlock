@@ -144,6 +144,29 @@ describe("CampaignManager", () => {
     });
   });
 
+  it("should advance campaign without mission (Shop/Event)", () => {
+    manager.startNewCampaign(12345, "Normal");
+    const startNode = manager.getAvailableNodes()[0];
+    const nextNodeIds = startNode.connections;
+
+    manager.advanceCampaignWithoutMission(startNode.id, 100, 10);
+    const state = manager.getState();
+
+    expect(state?.nodes.find((n) => n.id === startNode.id)?.status).toBe(
+      "Cleared",
+    );
+    expect(state?.scrap).toBe(600); // 500 starting + 100 gained
+    expect(state?.intel).toBe(10);
+    expect(state?.history.length).toBe(1);
+    expect(state?.history[0].nodeId).toBe(startNode.id);
+    expect(state?.history[0].aliensKilled).toBe(0);
+
+    nextNodeIds.forEach((id) => {
+      const node = state?.nodes.find((n) => n.id === id);
+      expect(node?.status).toBe("Accessible");
+    });
+  });
+
   it("should support different difficulty levels", () => {
     manager.startNewCampaign(1, "Easy");
     expect(manager.getState()?.rules.deathRule).toBe("Simulation");

@@ -365,6 +365,31 @@ export class GameApp {
   }
 
   private onCampaignNodeSelected(node: CampaignNode) {
+    if (node.type === "Shop") {
+      alert("Supply Depot reached. +100 Scrap granted for resupply.");
+      this.context.campaignManager.advanceCampaignWithoutMission(node.id, 100, 0);
+      this.campaignScreen.show();
+      return;
+    }
+
+    if (node.type === "Event") {
+      if (confirm("SIGNAL DETECTED: Abandoned freighter drifting in void. Search wreckage for scrap?")) {
+        const success = Math.random() > 0.5;
+        if (success) {
+          alert("SEARCH SUCCESSFUL: Recovered 50 Scrap from the derelict.");
+          this.context.campaignManager.advanceCampaignWithoutMission(node.id, 50, 0);
+        } else {
+          alert("SEARCH FAILED: The wreckage was empty.");
+          this.context.campaignManager.advanceCampaignWithoutMission(node.id, 0, 0);
+        }
+      } else {
+        alert("Signal ignored. Expedition continues.");
+        this.context.campaignManager.advanceCampaignWithoutMission(node.id, 0, 0);
+      }
+      this.campaignScreen.show();
+      return;
+    }
+
     this.currentCampaignNode = node;
     this.currentSeed = node.mapSeed;
 
