@@ -454,6 +454,10 @@ label {
   text-transform: uppercase;
 }
 
+.no-transition {
+  transition: none !important;
+}
+
 /* Stats Grid */
 .stats-grid {
   display: grid;

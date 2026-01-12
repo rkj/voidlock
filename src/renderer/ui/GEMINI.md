@@ -20,6 +20,7 @@ This directory contains UI components and managers for the Voidlock renderer.
   - **Dual Weapon Stats**: Soldier cards now display separate stats for Left Hand (LH) and Right Hand (RH) weapons. The currently active weapon row is highlighted.
   - **Unified Objectives**: Includes unified objective and extraction status rendering via `renderObjectivesList`.
   - **Speed Slider Constraints**: Automatically adjusts the speed slider's range based on `allowTacticalPause`. If disabled, prevents speeds below 1.0x (except for absolute pause).
+  - **Threat Meter Snapping**: Snaps the threat meter to its initial value at the start of a mission, disabling transitions to prevent animating down from previous mission values.
 - **Debug Info**: When the debug overlay is enabled, the 'Debug Tools' section now displays Map Seed, Map Size (WxH), and Mission Type.
   - **Force Win/Lose**: Added "Force Win" and "Force Lose" buttons to the debug tools to trigger immediate mission completion or failure for testing end-of-mission flows.
 - **Objective HUD Cleanup**: Objectives list now hides coordinates by default (shown only in debug mode), removes explicit status text (Pending/Completed), and adds tooltips to status icons for better clarity.
