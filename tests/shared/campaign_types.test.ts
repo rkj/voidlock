@@ -16,10 +16,12 @@ describe("Campaign Types", () => {
       deathRule: "Iron",
       allowTacticalPause: true,
       mapGeneratorType: MapGeneratorType.DenseShip,
-      difficultyScaling: 1.0,
-      resourceScarcity: 1.0,
-      startingScrap: 500,
+      difficultyScaling: 1.5,
+      resourceScarcity: 0.7,
+      startingScrap: 300,
       mapGrowthRate: 1.0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
     };
 
     const node: CampaignNode = {

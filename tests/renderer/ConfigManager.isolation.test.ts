@@ -23,9 +23,11 @@ describe("ConfigManager Isolation", () => {
     missionType: MissionType.Default,
     lastSeed: seed,
     startingThreatLevel: 0,
+    baseEnemyCount: 3,
+    enemyGrowthPerMission: 1,
     squadConfig: {
-      soldiers: [{ archetypeId: "assault" }],
-      inventory: { medkit: 1 },
+      soldiers: [],
+      inventory: {},
     },
   });
 

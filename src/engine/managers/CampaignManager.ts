@@ -135,7 +135,7 @@ export class CampaignManager {
     const roster = this.generateInitialRoster(prng);
 
     this.state = {
-      version: "0.76.0", // Current project version
+      version: "0.82.0", // Current project version
       seed: effectiveSeed,
       status: "Active",
       rules,
@@ -322,6 +322,11 @@ export class CampaignManager {
     // 2.5 Handle Ironman Defeat
     if (this.state.rules.deathRule === "Iron" && report.result === "Lost") {
       this.state.status = "Defeat";
+    }
+
+    // 2.6 Handle Campaign Victory
+    if (report.result === "Won" && node?.type === "Boss") {
+      this.state.status = "Victory";
     }
 
     // 3. Update soldiers

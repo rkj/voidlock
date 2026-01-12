@@ -14,6 +14,8 @@ describe("Regression: g77z Map Scaling", () => {
     resourceScarcity: 1.0,
     startingScrap: 500,
     mapGrowthRate: 1.0,
+    baseEnemyCount: 3,
+    enemyGrowthPerMission: 1,
   };
 
   it("should generate 7 layers for standard growth rate (1.0)", () => {

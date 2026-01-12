@@ -945,6 +945,12 @@ document.addEventListener("DOMContentLoaded", async () => {
       currentSeed = config.lastSeed;
       currentSquad = config.squadConfig;
       const startingThreatLevel = config.startingThreatLevel || 0;
+      const baseEnemyCount = config.baseEnemyCount ?? 3;
+      const enemyGrowthPerMission = config.enemyGrowthPerMission ?? 1;
+
+      const threatInput = document.getElementById(
+        "map-starting-threat",
+      ) as HTMLInputElement;
       if (threatInput) {
         threatInput.value = startingThreatLevel.toString();
         const threatValueDisplay = document.getElementById(
