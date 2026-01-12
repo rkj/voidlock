@@ -4,11 +4,12 @@ This directory contains the main thread rendering logic and user interface for V
 
 ## Files
 
-- `main.ts`: The entry point for the main game application. Initializes the `GameClient`, `Renderer`, and UI components.
+- `main.ts`: The minimal entry point for the main game application. It instantiates and starts the `GameApp`.
 - `Renderer.ts`: The main entry point for the rendering system. Now refactored into a layered architecture (ADR 0018). It acts as a compositor for specialized layers.
 
 ## Subdirectories
 
+- `app/`: Application lifecycle and bootstrapping logic (ADR 0019).
 - `visuals/`: Layered rendering system (MapLayer, UnitLayer, EffectLayer, OverlayLayer).
 - `controllers/`: Decoupled logic managers for the tactical UI (StateMachine, Selection, CommandBuilder, RoomDiscovery).
 - `campaign/`: Campaign management logic and state persistence.
