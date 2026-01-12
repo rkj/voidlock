@@ -503,7 +503,12 @@ export class CampaignScreen {
       nodeEl.style.left = `${node.position.x + 100}px`;
       nodeEl.style.top = `${node.position.y + 100}px`;
 
-      const statusText = node.status === "Revealed" ? "Locked" : node.status;
+      const statusText =
+        node.status === "Revealed"
+          ? "Locked"
+          : node.status === "Skipped"
+            ? "Skipped"
+            : node.status;
       nodeEl.title = `${node.type} (${statusText}) - Difficulty: ${node.difficulty.toFixed(1)}`;
 
       if (node.status === "Accessible") {

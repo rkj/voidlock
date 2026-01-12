@@ -71,12 +71,12 @@ export interface CampaignSoldier {
 /**
  * Represents a node on the campaign sector map.
  */
-export type CampaignNodeType = "Combat" | "Elite" | "Shop" | "Event" | "Boss";
 export type CampaignNodeStatus =
   | "Hidden"
   | "Revealed"
   | "Accessible"
-  | "Cleared";
+  | "Cleared"
+  | "Skipped";
 
 /**
  * A node in the Sector Map DAG.
