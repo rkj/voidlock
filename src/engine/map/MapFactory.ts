@@ -80,21 +80,27 @@ export class MapFactory {
     const prng = new PRNG(seed + 999); // Offset seed to avoid correlation with map structure
     const validator = new PlacementValidator();
 
+    const getRoomId = (pos: Vector2) => {
+      return map.cells.find((c) => c.x === pos.x && c.y === pos.y)?.roomId;
+    };
+
     // Populate validator with existing occupants from map definition
-    if (map.squadSpawn) validator.occupy(map.squadSpawn, OccupantType.SquadSpawn);
+    if (map.squadSpawn)
+      validator.occupy(map.squadSpawn, OccupantType.SquadSpawn, getRoomId(map.squadSpawn));
     if (map.squadSpawns)
       map.squadSpawns.forEach((s) =>
-        validator.occupy(s, OccupantType.SquadSpawn),
+        validator.occupy(s, OccupantType.SquadSpawn, getRoomId(s)),
       );
     if (map.extraction)
-      validator.occupy(map.extraction, OccupantType.Extraction);
+      validator.occupy(map.extraction, OccupantType.Extraction, getRoomId(map.extraction));
     if (map.spawnPoints)
       map.spawnPoints.forEach((s) =>
-        validator.occupy(s.pos, OccupantType.EnemySpawn),
+        validator.occupy(s.pos, OccupantType.EnemySpawn, getRoomId(s.pos)),
       );
     if (map.objectives)
       map.objectives.forEach((o) => {
-        if (o.targetCell) validator.occupy(o.targetCell, OccupantType.Objective);
+        if (o.targetCell)
+          validator.occupy(o.targetCell, OccupantType.Objective, getRoomId(o.targetCell));
       });
 
     // We only want to place loot in rooms (cells that have a roomId)
@@ -111,7 +117,7 @@ export class MapFactory {
     const loot: Vector2[] = [];
     for (let i = 0; i < Math.min(count, available.length); i++) {
       loot.push({ x: available[i].x, y: available[i].y });
-      validator.occupy(available[i], OccupantType.Loot);
+      validator.occupy(available[i], OccupantType.Loot, available[i].roomId);
     }
 
     map.bonusLoot = loot;
