@@ -33,11 +33,12 @@ The automated soldier AI follows a multi-tier logic profile when not under direc
    - **Retreat:** If HP falls below 25%, the unit's logic switches to `IGNORE` engagement and prioritizes moving away from the closest threat toward a discovered "safe" cell (no visible enemies).
    - **Group Up:** If a unit is isolated (no allies within 5 tiles) and threats are present, it prioritizes moving toward the closest ally.
 
-1. **Autonomous Exploration & Objective Acquisition**:
+   - **Autonomous Exploration & Objective Acquisition**:
    - If no threats are present and no manual commands are queued, units prioritize exploring the closest undiscovered floor cells.
    - **Priority Override (Opportunistic Pickup):**
      - If a **Loot Item** or **Objective** is visible within Line of Sight:
        - The unit MUST interrupt exploration to move to and interact with the item.
+       - **Competition Resolution:** If multiple units detect the same item simultaneously (or in the same tick), the unit with the **shortest path distance** to the item claims the task. Other units must ignore it and continue their previous behavior.
        - **State Restoration:** Upon completion of the interaction (Pickup/Collect), the unit MUST automatically resume its previous exploration or escort logic without requiring manual intervention.
    - Once the map is fully discovered and all objectives are complete, units automatically pathfind to the extraction point.
 

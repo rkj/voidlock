@@ -177,6 +177,33 @@ The game supports four difficulty presets defining failure consequences.
   - Cause of Death (e.g., "Squad Wiped", "Funding Collapse").
   - **"Abandon Campaign"** button.
 
+## 6. Meta-Progression
+
+The game tracks cumulative statistics across all campaigns (regardless of Victory/Defeat) to provide long-term engagement.
+
+### 6.1 Global Stats (Persistent)
+Stored independently of individual save files (e.g., `voidlock_meta_v1`).
+
+- **Campaigns:**
+  - `totalCampaignsStarted`: Count.
+  - `campaignsWon`: Count (Victory State).
+  - `campaignsLost`: Count (Defeat State).
+- **Combat:**
+  - `totalKills`: Global enemy kill count.
+  - `totalCasualties`: Global soldier death count.
+  - `totalMissionsPlayed`: Count.
+  - `totalMissionsWon`: Count.
+- **Economy:**
+  - `totalScrapEarned`: Cumulative lifetime earnings.
+
+### 6.2 Implementation
+- **Update Trigger:**
+  - Stats are updated incrementally at the end of each mission (for combat/eco stats) or at Campaign End (for Win/Loss counts).
+  - *Constraint:* Must support "Crash Recovery" (i.e., if game crashes, stats accrued during the mission might be lost unless synced carefully, but syncing at End of Mission is acceptable for MVP).
+- **Visualization:**
+  - **Profile Screen:** (Future Feature)
+  - **Main Menu:** Simple tally (e.g., "Aliens Killed: 10,432") displayed in a corner.
+
 ## 4. User Experience (UX) Requirements
 
 ### 4.1 Debrief Screen
