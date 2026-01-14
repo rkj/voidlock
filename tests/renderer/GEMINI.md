@@ -12,6 +12,7 @@ This directory contains the automated test suite for the Voidlock renderer, usin
 - `SquadBuilder.test.ts`: Verifies squad selection logic and constraints.
 - `screens/CampaignScreen.test.ts`: Verifies sector map rendering and node selection.
 - `screens/CampaignScreen_Loot.test.ts`: Verifies bonus loot intel (star pips) display based on difficulty.
+- `integration/CampaignEnd.test.ts`: Verifies that completing a Boss mission triggers the Victory state and displays the summary UI.
 - `ui/tests/HUDManager.test.ts`: Verifies soldier list rendering and HUD updates.
 - `InputManager.test.ts`: Verifies keyboard shortcuts and debug overlay toggles.
 - `Renderer.test.ts`: Verifies map, unit, and debug/LOS overlay rendering.
