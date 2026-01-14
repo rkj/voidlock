@@ -206,6 +206,31 @@ describe("CampaignManager", () => {
     expect(state?.status).toBe("Defeat");
   });
 
+  it("should mark campaign as Victory when Boss mission is won", () => {
+    manager.startNewCampaign(12345, "Normal");
+    const state = manager.getState()!;
+    // Find a boss node or force one
+    let bossNode = state.nodes.find((n) => n.type === "Boss");
+    if (!bossNode) {
+      bossNode = state.nodes[state.nodes.length - 1];
+      bossNode.type = "Boss";
+    }
+
+    const report: MissionReport = {
+      nodeId: bossNode.id,
+      seed: 123,
+      result: "Won",
+      aliensKilled: 10,
+      scrapGained: 500,
+      intelGained: 10,
+      timeSpent: 1000,
+      soldierResults: [],
+    };
+
+    manager.processMissionResult(report);
+    expect(manager.getState()?.status).toBe("Victory");
+  });
+
   it("should throw error if getInstance called without storage on first time", () => {
     CampaignManager.resetInstance();
     expect(() => CampaignManager.getInstance()).toThrow();
