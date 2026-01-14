@@ -23,6 +23,7 @@ export interface AIContext {
   newVisibleCellsSet: Set<string>;
   discoveredCellsSet: Set<string>;
   claimedObjectives: Set<string>;
+  itemAssignments: Map<string, string>;
   executeCommand: (
     unit: Unit,
     cmd: Command,
@@ -498,12 +499,16 @@ export class UnitAI {
           )
           .map((u) => (u.activeCommand as PickupCommand).lootId);
 
-        const availableLoot = visibleLoot.filter(
-          (l) => !targetedIds.includes(l.id)
-        );
-        const availableObjectives = visibleObjectives.filter(
-          (o) => !targetedIds.includes(o.id)
-        );
+        const availableLoot = visibleLoot.filter((l) => {
+          if (targetedIds.includes(l.id)) return false;
+          const assignedUnitId = context.itemAssignments.get(l.id);
+          return !assignedUnitId || assignedUnitId === unit.id;
+        });
+        const availableObjectives = visibleObjectives.filter((o) => {
+          if (targetedIds.includes(o.id)) return false;
+          const assignedUnitId = context.itemAssignments.get(o.id);
+          return !assignedUnitId || assignedUnitId === unit.id;
+        });
 
         const items = [
           ...availableLoot.map((l) => ({
@@ -548,12 +553,13 @@ export class UnitAI {
 
     // 3. Objectives
     if (!actionTaken && state.objectives) {
-      const pendingObjectives = state.objectives.filter(
-        (o) =>
-          o.state === "Pending" &&
-          !context.claimedObjectives.has(o.id) &&
-          o.visible
-      );
+      const pendingObjectives = state.objectives.filter((o) => {
+        if (o.state !== "Pending" || context.claimedObjectives.has(o.id) || !o.visible)
+          return false;
+        
+        const assignedUnitId = context.itemAssignments.get(o.id);
+        return !assignedUnitId || assignedUnitId === unit.id;
+      });
       if (pendingObjectives.length > 0) {
         let bestObj: { obj: any; dist: number } | null = null;
 
