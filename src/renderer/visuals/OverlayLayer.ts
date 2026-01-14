@@ -12,7 +12,6 @@ export class OverlayLayer implements RenderLayer {
   constructor(private sharedState: SharedRendererState) {}
 
   public draw(ctx: CanvasRenderingContext2D, state: GameState): void {
-    this.renderObjectives(ctx, state);
     if (state.settings.debugOverlayEnabled) {
       this.renderDebugOverlay(ctx, state);
     }
@@ -20,65 +19,6 @@ export class OverlayLayer implements RenderLayer {
       this.renderLOSOverlay(ctx, state);
     }
     this.renderOverlay(ctx);
-  }
-
-  private renderObjectives(ctx: CanvasRenderingContext2D, state: GameState) {
-    const cellSize = this.sharedState.cellSize;
-
-    if (state.map.extraction) {
-      const ext = state.map.extraction;
-      const x = ext.x * cellSize;
-      const y = ext.y * cellSize;
-
-      ctx.fillStyle = this.theme.getColor("--color-extraction-bg");
-      ctx.fillRect(x, y, cellSize, cellSize);
-      ctx.strokeStyle = this.theme.getColor("--color-info");
-      ctx.lineWidth = 2;
-      ctx.setLineDash([10, 5]);
-      ctx.strokeRect(x + 5, y + 5, cellSize - 10, cellSize - 10);
-      ctx.setLineDash([]);
-
-      const icon = this.assets.iconImages.Exit;
-      if (icon) {
-        const iconSize = cellSize * 0.6;
-        ctx.drawImage(icon, x + (cellSize - iconSize) / 2, y + (cellSize - iconSize) / 2, iconSize, iconSize);
-      }
-    }
-
-    state.map.spawnPoints?.forEach((sp) => {
-      const x = sp.pos.x * cellSize;
-      const y = sp.pos.y * cellSize;
-      const key = `${Math.floor(sp.pos.x)},${Math.floor(sp.pos.y)}`;
-      const isKnown = state.discoveredCells.includes(key) || state.visibleCells.includes(key);
-
-      if (!isKnown && !state.settings.debugOverlayEnabled) return;
-
-      ctx.fillStyle = this.theme.getColor("--color-spawn-bg");
-      ctx.fillRect(x, y, cellSize, cellSize);
-
-      const icon = this.assets.iconImages.Spawn;
-      if (icon) {
-        const iconSize = cellSize * 0.5;
-        ctx.drawImage(icon, x + (cellSize - iconSize) / 2, y + (cellSize - iconSize) / 2, iconSize, iconSize);
-      }
-    });
-
-    state.objectives?.forEach((obj) => {
-      if (obj.state === "Pending" && obj.targetCell && obj.visible) {
-        if (state.map.extraction && obj.targetCell.x === state.map.extraction.x && obj.targetCell.y === state.map.extraction.y) return;
-
-        const x = obj.targetCell.x * cellSize;
-        const y = obj.targetCell.y * cellSize;
-        ctx.fillStyle = this.theme.getColor("--color-objective-bg");
-        ctx.fillRect(x + 4, y + 4, cellSize - 8, cellSize - 8);
-
-        const icon = this.assets.iconImages.Objective;
-        if (icon) {
-          const iconSize = cellSize * 0.6;
-          ctx.drawImage(icon, x + (cellSize - iconSize) / 2, y + (cellSize - iconSize) / 2, iconSize, iconSize);
-        }
-      }
-    });
   }
 
   private renderDebugOverlay(ctx: CanvasRenderingContext2D, state: GameState) {

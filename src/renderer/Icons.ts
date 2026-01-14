@@ -13,4 +13,5 @@ export const Icons = {
   Range: "/assets/icons/range.svg",
   Health: "/assets/icons/health.svg",
   Visibility: "/assets/icons/visibility.svg",
+  Crate: "/assets/crate.webp",
 };
