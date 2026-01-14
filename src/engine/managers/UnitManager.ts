@@ -227,12 +227,71 @@ export class UnitManager {
     const newVisibleCellsSet = new Set(state.visibleCells);
     const discoveredCellsSet = new Set(state.discoveredCells);
 
+    // Pre-pass for item competition (Opportunistic Pickups & General Objectives)
+    const itemAssignments = new Map<string, string>(); // itemId -> unitId
+    const allVisibleItems = [
+      ...(state.loot || []).map((l) => ({
+        id: l.id,
+        pos: l.pos,
+        mustBeInLOS: true,
+      })),
+      ...(state.objectives || [])
+        .filter((o) => o.state === "Pending" && (o.kind === "Recover" || o.kind === "Escort" || o.kind === "Kill"))
+        .map((o) => {
+          let pos = { x: 0.5, y: 0.5 };
+          if (o.targetCell) {
+            pos = { x: o.targetCell.x + 0.5, y: o.targetCell.y + 0.5 };
+          } else if (o.targetEnemyId) {
+            const enemy = state.enemies.find((e) => e.id === o.targetEnemyId);
+            if (enemy) pos = enemy.pos;
+          }
+          return {
+            id: o.id,
+            pos,
+            mustBeInLOS: o.kind === "Recover", // Recoveries are usually opportunistic if not known
+            visible: o.visible,
+          };
+        }),
+    ].filter((item: any) => {
+      if (item.visible) return true;
+      const cellKey = `${Math.floor(item.pos.x)},${Math.floor(item.pos.y)}`;
+      return newVisibleCellsSet.has(cellKey);
+    });
+
+    allVisibleItems.forEach((item) => {
+      const unitsSeeingItem = state.units.filter((u) => {
+        if (
+          u.hp <= 0 ||
+          u.state === UnitState.Dead ||
+          u.state === UnitState.Extracted
+        )
+          return false;
+        
+        // Only consider units that can actually perform autonomous opportunistic pickups
+        if (u.archetypeId === "vip") return false;
+        if (u.aiEnabled === false) return false;
+        if (u.commandQueue.length > 0) return false;
+
+        return true;
+      });
+
+      if (unitsSeeingItem.length > 0) {
+        // Find closest unit by Euclidean distance
+        const closestUnit = unitsSeeingItem.sort(
+          (a, b) =>
+            this.getDistance(a.pos, item.pos) - this.getDistance(b.pos, item.pos),
+        )[0];
+        itemAssignments.set(item.id, closestUnit.id);
+      }
+    });
+
     const aiContext: AIContext = {
       agentControlEnabled: this.agentControlEnabled,
       totalFloorCells: this.totalFloorCells,
       newVisibleCellsSet,
       discoveredCellsSet,
       claimedObjectives,
+      itemAssignments,
       executeCommand: (u, cmd, s, isManual, dir) =>
         this.commandExecutor.executeCommand(u, cmd, s, isManual, dir),
     };
