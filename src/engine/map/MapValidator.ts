@@ -144,6 +144,26 @@ export class MapValidator {
       }
     }
 
+    if (map.bonusLoot) {
+      for (const loot of map.bonusLoot) {
+        if (!isWithinBounds(loot.x, loot.y)) {
+          issues.push(`Loot at (${loot.x}, ${loot.y}) is out of map bounds.`);
+        } else {
+          const cell = graph.cells[loot.y][loot.x];
+          if (cell.type !== CellType.Floor) {
+            issues.push(
+              `Loot at (${loot.x}, ${loot.y}) is not on a Floor cell.`,
+            );
+          }
+          if (!cell.roomId || cell.roomId.startsWith("corridor-")) {
+            issues.push(
+              `Loot at (${loot.x}, ${loot.y}) must be in a room, not a corridor.`,
+            );
+          }
+        }
+      }
+    }
+
     if (map.squadSpawn) {
       const ss = map.squadSpawn;
       if (!isWithinBounds(ss.x, ss.y)) {
@@ -309,6 +329,11 @@ export class MapValidator {
       for (const obj of objectives) {
         if (obj.targetCell)
           checkExclusivity(obj.targetCell, `Objective ${obj.id}`);
+      }
+    }
+    if (map.bonusLoot) {
+      for (const loot of map.bonusLoot) {
+        checkExclusivity(loot, "Loot container");
       }
     }
 

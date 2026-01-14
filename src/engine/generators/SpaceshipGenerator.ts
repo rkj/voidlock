@@ -412,15 +412,27 @@ export class SpaceshipGenerator {
     if (floors.length >= 4) {
       this.squadSpawn = { x: floors[0].x, y: floors[0].y };
       this.squadSpawns = [floors[0], floors[1]];
-      this.extraction = floors[floors.length - 1];
+      this.placementValidator.occupy(floors[0], OccupantType.SquadSpawn, floors[0].roomId);
+      this.placementValidator.occupy(floors[1], OccupantType.SquadSpawn, floors[1].roomId);
+
+      const ext = floors[floors.length - 1];
+      this.extraction = { x: ext.x, y: ext.y };
+      this.placementValidator.occupy(ext, OccupantType.Extraction, ext.roomId);
+
+      const objCell = floors[floors.length - 2];
       this.objectives.push({
         id: "obj-1",
         kind: "Recover",
-        targetCell: floors[floors.length - 2],
+        targetCell: { x: objCell.x, y: objCell.y },
       });
+      this.placementValidator.occupy(objCell, OccupantType.Objective, objCell.roomId);
+
       for (let i = 0; i < spawnPointCount; i++) {
         const c = floors[2 + i];
-        if (c) this.spawnPoints.push({ id: `spawn-${i + 1}`, pos: c, radius: 1 });
+        if (c) {
+          this.spawnPoints.push({ id: `spawn-${i + 1}`, pos: { x: c.x, y: c.y }, radius: 1 });
+          this.placementValidator.occupy(c, OccupantType.EnemySpawn, c.roomId);
+        }
       }
     }
   }

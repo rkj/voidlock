@@ -56,6 +56,11 @@ export class PlacementValidator {
       return false;
     }
 
+    // Corridor Ban: All static entities must be placed in rooms, not corridors.
+    if (!roomId || roomId.startsWith("corridor-")) {
+      return false;
+    }
+
     if (enforceRoomExclusivity && roomId && this.isRoomOccupied(roomId)) {
       // Allow multiple occupants of the same type in the same room (e.g. multiple squad spawns)
       if (this.occupiedRooms.get(roomId) !== type) {
