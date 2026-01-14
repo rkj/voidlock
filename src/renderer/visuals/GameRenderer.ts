@@ -2,6 +2,7 @@ import { GameState, UnitStyle, OverlayOption, BoundaryType, Vector2 } from "@src
 import { RenderLayer } from "./RenderLayer";
 import { SharedRendererState } from "./SharedRendererState";
 import { MapLayer } from "./MapLayer";
+import { MapEntityLayer } from "./MapEntityLayer";
 import { UnitLayer } from "./UnitLayer";
 import { EffectLayer } from "./EffectLayer";
 import { OverlayLayer } from "./OverlayLayer";
@@ -22,6 +23,7 @@ export class GameRenderer {
     // Default layer stack
     this.layers = [
       new MapLayer(this.sharedState),
+      new MapEntityLayer(this.sharedState),
       new UnitLayer(this.sharedState),
       new EffectLayer(this.sharedState),
       new OverlayLayer(this.sharedState),
