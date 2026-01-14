@@ -67,11 +67,13 @@ The map generation subsystem must utilize a unified configuration model. Instead
   - Enemy Spawn Point
   - Extraction Point
   - Objective Target
+  - Loot Container (Scrap Crate)
 - **Room Exclusivity (Strict):**
   - **Major Entities:** The following entities are considered "Major" and must **NEVER** share a room with each other (in any combination):
     1. **Squad Spawn** (or Drop Point)
     2. **Enemy Spawn**
     3. **Extraction Point**
+  - **Corridor Ban:** All static entities (Spawns, Objectives, Extraction, Loot Containers) must **ONLY** be placed in rooms. They are strictly forbidden in corridors to prevent blocking movement or line of fire in narrow spaces.
   - **Ideal Separation:** Ideally, **Objectives** (Artifacts/Intel/VIP) should also be in their own isolated rooms.
   - **Small Map Fallback:** On very small maps where room count is limited, **Objectives** MAY share a room with **Enemy Spawns** or **Extraction Points** (if absolutely necessary), but **Squad Spawns** must ALWAYS remain completely isolated (containing only the Squad Spawn).
 - **Validation Strategy:**

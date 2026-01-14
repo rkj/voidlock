@@ -18,6 +18,7 @@ import {
   EquipmentState,
   UnitStyle,
   MapGeneratorType,
+  MissionType,
 } from "../../shared/types";
 
 const STORAGE_KEY = "voidlock_campaign_v1";
@@ -751,7 +752,7 @@ export class CampaignManager {
       const node = this.state.nodes.find((n) => n.id === nodeId);
       if (node) {
         node.type = "Combat";
-        node.missionType = "Hive";
+        node.missionType = MissionType.DestroyHive;
       }
     }
 

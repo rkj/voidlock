@@ -247,6 +247,30 @@ To ensure consistency between Campaign Management (Barracks) and Mission Prepara
 
 - **Global Resource Header:** (See Section 8.6)
 
+### 8.8 Visual Rendering Rules
+
+To ensure visual clarity and correct occlusion, the renderer must adhere to a strict Layer Stacking Order (Z-Index).
+
+1.  **Background Layer:**
+    -   Floor Tiles
+    -   Wall Geometry (Base)
+    -   Static Map Details (Decals)
+2.  **Ground Decal Layer:**
+    -   Zone Indicators (Extraction Zone, Deployment Zone)
+    -   Static Mission Entities (Spawn Points, Loot Crates, Terminals)
+3.  **Unit Layer (Dynamic):**
+    -   **Soldiers & Enemies:** Must render **ON TOP** of the Ground Decal Layer.
+    -   *Example:* A soldier standing on a Spawn Point must obscure the Spawn Point graphic.
+    -   **Projectiles/Tracers:** Rendered above units.
+4.  **Fog of War (Shroud):**
+    -   Obscures Layers 1-3 based on visibility.
+5.  **Overlay Layer (UI):**
+    -   Selection Rings/Highlights.
+    -   Health Bars.
+    -   Floating Text (Damage Numbers).
+    -   Movement Paths (Ghosts).
+    -   Objective Indicators (Icons).
+
 ### 8.6 Campaign Setup & Strategic UI
 
 To ensure economic clarity, all strategic and setup screens must follow a consistent resource display.
