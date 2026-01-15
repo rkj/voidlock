@@ -87,6 +87,7 @@ describe("Non-Combat Node Interactions", () => {
       <div id="screen-equipment"></div>
       <div id="screen-mission"></div>
       <div id="screen-debrief"></div>
+      <div id="screen-campaign-summary"></div>
       <canvas id="game-canvas"></canvas>
     `;
 

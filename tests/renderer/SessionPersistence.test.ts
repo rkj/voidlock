@@ -16,6 +16,7 @@ describe("Session Persistence", () => {
       <div id="screen-mission"></div>
       <div id="screen-barracks"></div>
       <div id="screen-debrief"></div>
+      <div id="screen-campaign-summary"></div>
     `;
   });
 

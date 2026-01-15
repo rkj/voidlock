@@ -55,6 +55,7 @@ describe("Reset Data Button", () => {
       <div id="screen-equipment" class="screen" style="display:none"></div>
       <div id="screen-barracks" class="screen" style="display:none"></div>
       <div id="screen-debrief" class="screen" style="display:none"></div>
+      <div id="screen-campaign-summary" class="screen" style="display:none"></div>
     `;
 
     // Mock window.confirm

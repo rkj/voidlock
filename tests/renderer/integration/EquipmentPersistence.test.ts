@@ -126,7 +126,10 @@ describe("Equipment Persistence Integration", () => {
       <div id="screen-mission" class="screen" style="display:none">
          <canvas id="game-canvas"></canvas>
       </div>
+      <div id="screen-barracks" class="screen" style="display:none"></div>
+      <div id="screen-mission" class="screen" style="display:none"></div>
       <div id="screen-debrief" class="screen" style="display:none"></div>
+      <div id="screen-campaign-summary" class="screen" style="display:none"></div>
     `;
 
     window.confirm = vi.fn().mockReturnValue(true);

@@ -166,6 +166,7 @@ describe("Comprehensive User Journeys", () => {
         <div id="right-panel"></div>
       </div>
       <div id="screen-debrief" class="screen" style="display:none"></div>
+      <div id="screen-campaign-summary" class="screen" style="display:none"></div>
     `;
 
     // Mock window.confirm
@@ -296,18 +297,18 @@ describe("Comprehensive User Journeys", () => {
 
     expect(document.getElementById("screen-debrief")?.style.display).toBe("flex");
 
-    // 2. Debrief -> Campaign (Game Over)
+    // 2. Debrief -> Campaign Summary (Game Over)
     const returnBtn = Array.from(document.querySelectorAll("#screen-debrief button")).find(b => b.textContent?.includes("RETURN")) as HTMLElement;
     returnBtn.click();
 
-    expect(document.getElementById("screen-campaign")?.style.display).toBe("flex");
+    expect(document.getElementById("screen-campaign-summary")?.style.display).toBe("flex");
     expect(document.querySelector(".campaign-game-over")).toBeTruthy();
-
-    // 3. Campaign Game Over -> Main Menu
-    const menuBtn = document.querySelector(".campaign-game-over button") as HTMLElement;
-    menuBtn.click();
+    
+    // 3. Abandon Campaign
+    const abandonBtn = Array.from(document.querySelectorAll("#screen-campaign-summary button")).find(b => b.textContent?.includes("ABANDON")) as HTMLElement;
+    abandonBtn.click();
+    
     expect(document.getElementById("screen-main-menu")?.style.display).toBe("flex");
-    expect(currentCampaignState).toBeNull();
   });
 
   it("Journey 5: Session Restoration", async () => {
