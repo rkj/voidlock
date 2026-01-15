@@ -98,6 +98,7 @@ export type WorkerMessage =
         mode?: EngineMode;
         commandLog?: CommandLogEntry[];
         targetTick?: number;
+        campaignNodeId?: string;
       };
     }
   | { type: "COMMAND"; payload: Command }

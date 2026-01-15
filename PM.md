@@ -40,6 +40,7 @@ Only once Docs are updated, map work to `bd`.
 * **Atomic:** One task = one functional unit.
 * **TDD Mandate:** For `bug` type tasks, a prerequisite task for a failing regression test MUST exist and block the fix.
 * **Types:** `feature`, `bug`, `chore`, `task`, `epic`. (Refactor is NOT a type, use chore).
+* **Title:** Concise, one-sentence summary (e.g., "Fix campaign victory trigger"). NEVER use the type (e.g., "bug") as the title.
 * **Spec Linkage:** Description MUST start with: "Implements `spec/file.md#section`".
 * **ADR Linkage:** If applicable, add: "Ref: `docs/adr/00X-name.md`".
 * **No Backticks:** NEVER use backticks (`) in `--description`. Use single quotes or plain text.
