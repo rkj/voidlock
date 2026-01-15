@@ -8,6 +8,7 @@ import {
   MapGenerationConfig,
   EngineMode,
   MoveCommand,
+  MissionType,
 } from "@src/shared/types";
 import { MapGenerator } from "@src/engine/MapGenerator";
 
@@ -314,5 +315,64 @@ describe("GameClient", () => {
     const savedConfig = JSON.parse(storage["voidlock_mission_config"]);
     expect(savedConfig.seed).toBe(seed);
     expect(savedConfig.campaignNodeId).toBe(campaignNodeId);
+  });
+
+  it("should propagate campaignNodeId and nodeType to worker in INIT message", () => {
+    const seed = 12345;
+    const campaignNodeId = "test-node-123";
+    const nodeType = "Elite";
+
+    client.init(
+      seed,
+      MapGeneratorType.Procedural,
+      mockMap,
+      true, // fog
+      false, // debug
+      true, // agent
+      defaultSquad,
+      MissionType.Default,
+      16,
+      16,
+      3,
+      false, // los
+      0, // threat
+      1.0, // scale
+      false, // paused
+      true, // allowPause
+      EngineMode.Simulation,
+      [],
+      campaignNodeId,
+      0,
+      3,
+      1,
+      0,
+      nodeType
+    );
+
+    expect(postMessageMock).toHaveBeenCalledWith({
+      type: "INIT",
+      payload: {
+        seed,
+        map: mockMap,
+        missionType: "Default",
+        fogOfWarEnabled: true,
+        debugOverlayEnabled: false,
+        agentControlEnabled: true,
+        squadConfig: defaultSquad,
+        losOverlayEnabled: false,
+        startingThreatLevel: 0,
+        initialTimeScale: 1.0,
+        startPaused: false,
+        allowTacticalPause: true,
+        mode: EngineMode.Simulation,
+        commandLog: [],
+        targetTick: 0,
+        baseEnemyCount: 3,
+        enemyGrowthPerMission: 1,
+        missionDepth: 0,
+        nodeType,
+        campaignNodeId,
+      },
+    });
   });
 });

@@ -77,6 +77,7 @@ export class CoreEngine {
     enemyGrowthPerMission: number = 1,
     missionDepth: number = 0,
     nodeType?: CampaignNodeType,
+    private campaignNodeId?: string,
   ) {
     this.prng = new PRNG(seed);
     this.gameGrid = new GameGrid(map);

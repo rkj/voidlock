@@ -153,6 +153,7 @@ export class GameClient {
         commandLog,
         targetTick,
         nodeType: nodeType as any,
+        campaignNodeId,
       },
     };
     this.worker.postMessage(msg);
