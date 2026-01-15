@@ -14,6 +14,7 @@ import { BarracksScreen } from "@src/renderer/screens/BarracksScreen";
 import { CampaignScreen } from "@src/renderer/screens/CampaignScreen";
 import { EquipmentScreen } from "@src/renderer/screens/EquipmentScreen";
 import { DebriefScreen } from "@src/renderer/screens/DebriefScreen";
+import { CampaignSummaryScreen } from "@src/renderer/screens/CampaignSummaryScreen";
 import { MapFactory } from "@src/engine/map/MapFactory";
 import { 
     GameState, 
@@ -55,6 +56,7 @@ export class GameApp {
   private barracksScreen!: BarracksScreen;
   private debriefScreen!: DebriefScreen;
   private equipmentScreen!: EquipmentScreen;
+  private campaignSummaryScreen!: CampaignSummaryScreen;
 
   // app state
   private currentCampaignNode: CampaignNode | null = null;
@@ -128,9 +130,23 @@ export class GameApp {
     );
 
     // 3. Initialize screens
+    this.campaignSummaryScreen = new CampaignSummaryScreen("screen-campaign-summary", () => {
+      this.campaignSummaryScreen.hide();
+      this.context.campaignManager.deleteSave();
+      this.context.screenManager.show("main-menu");
+    });
+
     this.debriefScreen = new DebriefScreen("screen-debrief", () => {
       this.debriefScreen.hide();
       this.context.gameClient.stop();
+
+      const state = this.context.campaignManager.getState();
+      if (state && (state.status === "Victory" || state.status === "Defeat")) {
+        this.campaignSummaryScreen.show(state);
+        this.context.screenManager.show("campaign-summary");
+        return;
+      }
+
       if (this.currentCampaignNode) {
         this.campaignScreen.show();
         this.context.screenManager.show("campaign");
@@ -158,6 +174,13 @@ export class GameApp {
       },
       () => this.context.screenManager.show("main-menu"),
       () => this.applyCampaignTheme(),
+      () => {
+        const state = this.context.campaignManager.getState();
+        if (state) {
+          this.campaignSummaryScreen.show(state);
+          this.context.screenManager.show("campaign-summary");
+        }
+      },
     );
 
     this.equipmentScreen = new EquipmentScreen(
@@ -181,8 +204,14 @@ export class GameApp {
         },
         onCampaignMenu: () => {
             this.applyCampaignTheme();
-            this.campaignScreen.show();
-            this.context.screenManager.show("campaign");
+            const state = this.context.campaignManager.getState();
+            if (state && (state.status === "Victory" || state.status === "Defeat")) {
+              this.campaignSummaryScreen.show(state);
+              this.context.screenManager.show("campaign-summary");
+            } else {
+              this.campaignScreen.show();
+              this.context.screenManager.show("campaign");
+            }
         },
         onResetData: () => {
             if (confirm("Are you sure? This will wipe all campaign progress and settings.")) {
@@ -260,9 +289,16 @@ export class GameApp {
     if (persistedScreen === "mission") {
       this.resumeMission();
     } else if (persistedScreen) {
-      if (persistedScreen === "campaign") {
+      if (persistedScreen === "campaign" || persistedScreen === "campaign-summary") {
         this.applyCampaignTheme();
-        this.campaignScreen.show();
+        const state = this.context.campaignManager.getState();
+        if (state && (state.status === "Victory" || state.status === "Defeat")) {
+          this.campaignSummaryScreen.show(state);
+          this.context.screenManager.show("campaign-summary");
+        } else {
+          this.campaignScreen.show();
+          this.context.screenManager.show("campaign");
+        }
       } else if (persistedScreen === "equipment") {
         this.equipmentScreen.updateConfig(this.currentSquad);
       } else if (persistedScreen === "barracks") {

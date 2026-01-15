@@ -153,7 +153,7 @@ describe("CampaignScreen", () => {
     expect(onBack).toHaveBeenCalled();
   });
 
-  it("should render Game Over screen when campaign status is Defeat", () => {
+  it("should render Defeat placeholder when campaign status is Defeat", () => {
     manager.startNewCampaign(12345, "extreme");
     const state = manager.getState()!;
     state.status = "Defeat";
@@ -167,18 +167,25 @@ describe("CampaignScreen", () => {
     );
     screen.show();
 
-    expect(container.textContent).toContain("MISSION FAILED");
-    expect(container.textContent).toContain("SECTOR LOST");
+    expect(container.textContent).toContain("CAMPAIGN DEFEAT");
+    expect(container.querySelector("#btn-defeat-summary")).not.toBeNull();
+  });
 
-    const menuBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.textContent === "ABANDON CAMPAIGN",
+  it("should render Victory placeholder when campaign status is Victory", () => {
+    manager.startNewCampaign(12345, "normal");
+    const state = manager.getState()!;
+    state.status = "Victory";
+
+    const screen = new CampaignScreen(
+      "screen-campaign",
+      manager,
+      onNodeSelect,
+      onBarracks,
+      onBack,
     );
-    expect(menuBtn).toBeDefined();
+    screen.show();
 
-    const deleteSaveSpy = vi.spyOn(manager, "deleteSave");
-    menuBtn?.click();
-
-    expect(deleteSaveSpy).toHaveBeenCalled();
-    expect(onBack).toHaveBeenCalled();
+    expect(container.textContent).toContain("CAMPAIGN VICTORY");
+    expect(container.querySelector("#btn-victory-summary")).not.toBeNull();
   });
 });

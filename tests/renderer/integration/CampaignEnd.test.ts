@@ -183,6 +183,7 @@ describe("Campaign End Integration", () => {
         <div id="right-panel"></div>
       </div>
       <div id="screen-debrief" class="screen" style="display:none"></div>
+      <div id="screen-campaign-summary" class="screen" style="display:none"></div>
     `;
 
     // Mock window.confirm
@@ -242,11 +243,11 @@ describe("Campaign End Integration", () => {
     expect(document.getElementById("screen-debrief")?.style.display).toBe("flex");
     expect(mockCampaignState.status).toBe("Victory");
 
-    // 5. Return to Campaign Screen
+    // 5. Return to Campaign Screen (now summary if Victory)
     const continueBtn = Array.from(document.querySelectorAll("#screen-debrief button")).find(b => b.textContent?.includes("RETURN")) as HTMLElement;
     continueBtn?.click();
 
-    expect(document.getElementById("screen-campaign")?.style.display).toBe("flex");
+    expect(document.getElementById("screen-campaign-summary")?.style.display).toBe("flex");
 
     // 6. Verify Victory Report is displayed
     const victoryOverlay = document.querySelector(".campaign-victory-overlay");
@@ -256,7 +257,7 @@ describe("Campaign End Integration", () => {
     expect(victoryOverlay?.textContent).toContain("MISSIONS: 1");
 
     // 7. Verify Return to Main Menu works
-    const menuBtn = Array.from(document.querySelectorAll(".campaign-victory-overlay button")).find(b => b.textContent?.includes("RETURN TO MAIN MENU")) as HTMLElement;
+    const menuBtn = Array.from(document.querySelectorAll(".campaign-summary-screen button")).find(b => b.textContent?.includes("RETURN TO MAIN MENU") || b.textContent?.includes("RETIRE TO MAIN MENU")) as HTMLElement;
     expect(menuBtn).toBeDefined();
     menuBtn.click();
 

@@ -1,25 +1,16 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { CampaignScreen } from "@src/renderer/screens/CampaignScreen";
+import { CampaignSummaryScreen } from "@src/renderer/screens/CampaignSummaryScreen";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 
-describe("CampaignScreen Victory/Defeat Screens", () => {
+describe("CampaignSummaryScreen Victory/Defeat Screens", () => {
   let container: HTMLElement;
   let manager: CampaignManager;
-  let onNodeSelect: any;
-  let onBarracks: any;
-  let onBack: any;
+  let onMainMenu: any;
 
   beforeEach(() => {
-    document.body.innerHTML = '<div id="screen-campaign"></div>';
-    container = document.getElementById("screen-campaign")!;
-
-    // Mock ResizeObserver
-    global.ResizeObserver = vi.fn().mockImplementation(() => ({
-      observe: vi.fn(),
-      unobserve: vi.fn(),
-      disconnect: vi.fn(),
-    }));
+    document.body.innerHTML = '<div id="screen-campaign-summary"></div>';
+    container = document.getElementById("screen-campaign-summary")!;
 
     CampaignManager.resetInstance();
     manager = CampaignManager.getInstance(
@@ -32,9 +23,7 @@ describe("CampaignScreen Victory/Defeat Screens", () => {
         clear() {}
       })(),
     );
-    onNodeSelect = vi.fn();
-    onBarracks = vi.fn();
-    onBack = vi.fn();
+    onMainMenu = vi.fn();
   });
 
   it("should render Victory screen when campaign status is Victory", () => {
@@ -52,29 +41,23 @@ describe("CampaignScreen Victory/Defeat Screens", () => {
       soldierResults: []
     });
 
-    const screen = new CampaignScreen(
-      "screen-campaign",
-      manager,
-      onNodeSelect,
-      onBarracks,
-      onBack,
+    const screen = new CampaignSummaryScreen(
+      "screen-campaign-summary",
+      onMainMenu,
     );
-    screen.show();
+    screen.show(state);
 
     expect(container.textContent).toContain("SECTOR SECURED");
     expect(container.textContent).toContain("ALIENS KILLED: 42");
     expect(container.textContent).toContain("MISSIONS: 1");
 
     const menuBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.textContent === "RETURN TO MAIN MENU",
+      (btn) => btn.textContent === "RETIRE TO MAIN MENU",
     );
     expect(menuBtn).toBeDefined();
 
-    const deleteSaveSpy = vi.spyOn(manager, "deleteSave");
     menuBtn?.click();
-
-    expect(deleteSaveSpy).toHaveBeenCalled();
-    expect(onBack).toHaveBeenCalled();
+    expect(onMainMenu).toHaveBeenCalled();
   });
 
   it("should render Defeat screen when campaign status is Defeat (Mission Failure)", () => {
@@ -92,28 +75,22 @@ describe("CampaignScreen Victory/Defeat Screens", () => {
       soldierResults: []
     });
 
-    const screen = new CampaignScreen(
-      "screen-campaign",
-      manager,
-      onNodeSelect,
-      onBarracks,
-      onBack,
+    const screen = new CampaignSummaryScreen(
+      "screen-campaign-summary",
+      onMainMenu,
     );
-    screen.show();
+    screen.show(state);
 
     expect(container.textContent).toContain("MISSION FAILED");
     expect(container.textContent).toContain("CAUSE: SQUAD WIPED");
 
     const abandonBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.textContent === "ABANDON CAMPAIGN",
+      (btn) => btn.textContent === "ABANDON EXPEDITION",
     );
     expect(abandonBtn).toBeDefined();
 
-    const deleteSaveSpy = vi.spyOn(manager, "deleteSave");
     abandonBtn?.click();
-
-    expect(deleteSaveSpy).toHaveBeenCalled();
-    expect(onBack).toHaveBeenCalled();
+    expect(onMainMenu).toHaveBeenCalled();
   });
 
   it("should render Defeat screen when campaign status is Defeat (Bankruptcy)", () => {
@@ -123,14 +100,11 @@ describe("CampaignScreen Victory/Defeat Screens", () => {
     state.scrap = 50;
     state.roster.forEach(s => s.status = "Dead");
 
-    const screen = new CampaignScreen(
-      "screen-campaign",
-      manager,
-      onNodeSelect,
-      onBarracks,
-      onBack,
+    const screen = new CampaignSummaryScreen(
+      "screen-campaign-summary",
+      onMainMenu,
     );
-    screen.show();
+    screen.show(state);
 
     expect(container.textContent).toContain("MISSION FAILED");
     expect(container.textContent).toContain("CAUSE: BANKRUPTCY");

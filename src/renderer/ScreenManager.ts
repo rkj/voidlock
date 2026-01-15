@@ -8,7 +8,8 @@ export type ScreenId =
   | "equipment"
   | "mission"
   | "barracks"
-  | "debrief";
+  | "debrief"
+  | "campaign-summary";
 
 export class ScreenManager {
   private screens: Map<ScreenId, HTMLElement> = new Map();
@@ -25,6 +26,7 @@ export class ScreenManager {
     this.registerScreen("mission");
     this.registerScreen("barracks");
     this.registerScreen("debrief");
+    this.registerScreen("campaign-summary");
 
     // Force show initial screen without transition validation
     this.currentScreen = "main-menu";

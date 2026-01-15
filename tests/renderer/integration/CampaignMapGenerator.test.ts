@@ -157,7 +157,10 @@ describe("Campaign Map Generator Integration", () => {
         <canvas id="game-canvas"></canvas>
         <div id="right-panel"></div>
       </div>
+      <div id="screen-barracks" class="screen" style="display:none"></div>
+      <div id="screen-mission" class="screen" style="display:none"></div>
       <div id="screen-debrief" class="screen" style="display:none"></div>
+      <div id="screen-campaign-summary" class="screen" style="display:none"></div>
     `;
 
     // Mock window.confirm

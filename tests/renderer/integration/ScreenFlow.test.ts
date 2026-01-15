@@ -140,21 +140,9 @@ describe("Screen Flow Integration", () => {
       </div>
       <div id="screen-equipment" class="screen" style="display:none"></div>
       <div id="screen-barracks" class="screen" style="display:none"></div>
-      <div id="screen-mission" class="screen" style="display:none">
-        <div id="top-bar">
-          <div id="game-status"></div>
-          <div id="top-threat-fill"></div>
-          <div id="top-threat-value">0%</div>
-          <button id="btn-pause-toggle">Pause</button>
-          <input type="range" id="game-speed" />
-          <span id="speed-value">1.0x</span>
-          <button id="btn-give-up">Give Up</button>
-        </div>
-        <div id="soldier-list"></div>
-        <canvas id="game-canvas"></canvas>
-        <div id="right-panel"></div>
-      </div>
+      <div id="screen-mission" class="screen" style="display:none"></div>
       <div id="screen-debrief" class="screen" style="display:none"></div>
+      <div id="screen-campaign-summary" class="screen" style="display:none"></div>
     `;
 
     // Mock window.confirm
