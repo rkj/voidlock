@@ -74,6 +74,7 @@ The map generation subsystem must utilize a unified configuration model. Instead
     2. **Enemy Spawn**
     3. **Extraction Point**
   - **Corridor Ban:** All static entities (Spawns, Objectives, Extraction, Loot Containers) must **ONLY** be placed in rooms. They are strictly forbidden in corridors to prevent blocking movement or line of fire in narrow spaces.
+  - **Fog of War:** The Extraction Point is a static entity and must respect Fog of War rules. It should only be rendered on the map if the cell it occupies has been **DISCOVERED** by the player. It should not be visible in unexplored areas (shroud).
   - **Ideal Separation:** Ideally, **Objectives** (Artifacts/Intel/VIP) should also be in their own isolated rooms.
   - **Small Map Fallback:** On very small maps where room count is limited, **Objectives** MAY share a room with **Enemy Spawns** or **Extraction Points** (if absolutely necessary), but **Squad Spawns** must ALWAYS remain completely isolated (containing only the Squad Spawn).
 - **Validation Strategy:**
