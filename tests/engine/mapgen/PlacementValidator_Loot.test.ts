@@ -28,6 +28,7 @@ describe("PlacementValidator - Loot in Corridors", () => {
     const map: MapDefinition = goldenData.replayData.map;
     
     // Add objective in a corridor (1, 2)
+    if (!map.objectives) map.objectives = [];
     map.objectives.push({
       id: "elite-0",
       kind: "Recover",

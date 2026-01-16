@@ -206,6 +206,7 @@ When enabled, the game displays additional diagnostic information:
   - Grid coordinates overlaid on all cells.
   - **Full Visibility**: Bypasses Fog of War/Shroud visually to show the entire map and all entities.
   - **Generator Info**: Display the Generator Type and Seed used for the current map (e.g., "TreeShipGenerator (785411)").
+  - **Entity Visibility**: MUST render all hidden entities, including **Items/Loot**, Enemies, and Objectives, even if they are in the fog or undiscovered.
 - **LOS Diagnostics**:
   - Raycast lines showing individual visibility checks from units to visible cells.
 - **HUD (Right Panel)**:
@@ -258,6 +259,9 @@ To ensure visual clarity and correct occlusion, the renderer must adhere to a st
 2.  **Ground Decal Layer:**
     -   Zone Indicators (Extraction Zone, Deployment Zone)
     -   Static Mission Entities (Spawn Points, Loot Crates, Terminals)
+    -   **Icon Distinction**:
+      -   **Objectives**: Must render with the `Objective` icon (e.g., Target/Flag).
+      -   **Loot Crates**: Must render with a distinct `Crate` icon to differentiate them from mission critical objectives.
 3.  **Unit Layer (Dynamic):**
     -   **Soldiers & Enemies:** Must render **ON TOP** of the Ground Decal Layer.
     -   *Example:* A soldier standing on a Spawn Point must obscure the Spawn Point graphic.
