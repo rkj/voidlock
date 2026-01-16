@@ -16,6 +16,7 @@ This directory contains the automated test suite for the Voidlock renderer, usin
 - `ui/tests/HUDManager.test.ts`: Verifies soldier list rendering and HUD updates.
 - `InputManager.test.ts`: Verifies keyboard shortcuts and debug overlay toggles.
 - `Renderer.test.ts`: Verifies map, unit, and debug/LOS overlay rendering.
+- `visuals/LayerOrder.test.ts`: Verifies the rendering order of different layers (e.g., units above spawn points).
 - `ConfigManager.migration.test.ts`: Verifies configuration migration and defaulting from old storage formats.
 - `ConfigManager.isolation.test.ts`: Verifies that Custom and Campaign configurations are stored and loaded independently.
 - `MenuController.discovery.test.ts`: Verifies room discovery filtering and stable numbering in the command menu.
@@ -29,6 +30,7 @@ This directory contains the automated test suite for the Voidlock renderer, usin
 - `integration/NonCombatNodes.test.ts`: Verifies handling of Shop and Event nodes in Campaign mode.
 - `integration/EquipmentPersistence.test.ts`: Verifies that equipment changes in the Ready Room are correctly persisted to the campaign roster.
 - `integration/CampaignMapGenerator.test.ts`: Verifies that campaign-specific map generator settings are correctly applied when launching a mission.
+- `integration/FullCampaignFlow.test.ts`: Comprehensive E2E campaign flow test covering starting a campaign, handling casualties, boss victory, and bankruptcy/defeat.
 - `integration/UserJourneys.test.ts`: Comprehensive integration test suite covering major user journeys, including New Campaign Wizard, Barracks management, Mission Abort flow, and Session Restoration.
 
 ## Related ADRs

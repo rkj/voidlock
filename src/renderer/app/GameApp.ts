@@ -908,10 +908,11 @@ export class GameApp {
             feet: s.equipment.feet,
           }));
         } else {
-          this.currentSquad.soldiers.forEach((s) => {
+          this.currentSquad.soldiers = this.currentSquad.soldiers.filter((s) => {
             if (s.id) {
               const rs = state.roster.find((r) => r.id === s.id);
               if (rs) {
+                if (rs.status === "Dead" || rs.status === "Wounded") return false;
                 s.hp = rs.hp;
                 s.maxHp = rs.maxHp;
                 s.soldierAim = rs.soldierAim;
@@ -919,8 +920,10 @@ export class GameApp {
                 s.leftHand = rs.equipment.leftHand;
                 s.body = rs.equipment.body;
                 s.feet = rs.equipment.feet;
+                return true;
               }
             }
+            return true;
           });
         }
       }

@@ -42,7 +42,6 @@ describe("Layer Rendering Order", () => {
         addColorStop: vi.fn(),
       })),
       getContext: vi.fn(() => mockContext),
-      setLineDash: vi.fn(),
       measureText: vi.fn(() => ({ width: 0 })),
     };
 
@@ -68,7 +67,7 @@ describe("Layer Rendering Order", () => {
         width: 2,
         height: 2,
         cells: [{ x: 0, y: 0, type: CellType.Floor }],
-        spawnPoints: [{ pos: { x: 0, y: 0 }, id: "sp1" }],
+        spawnPoints: [{ pos: { x: 0, y: 0 }, id: "sp1", radius: 1 }],
       },
       units: [
         createMockUnit({
