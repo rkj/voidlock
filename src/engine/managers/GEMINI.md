@@ -11,6 +11,7 @@ This directory contains specialized managers that handle specific domains of the
 - `DoorManager.ts`: Manages the state (Open, Closed, Locked, Destroyed) and logic of doors.
 - `EnemyManager.ts`: Manages the lifecycle and state updates for all enemy units. Handles scrap rewards for elite kills.
 - `LootManager.ts`: Manages spawning and despawning of dropped items (loot) on the map.
+- `MetaManager.ts`: Manages global statistics tracked across all campaigns (Total Kills, Campaigns Won/Lost, etc.). Implemented as a singleton that uses a `StorageProvider` for persistence.
 - `MissionManager.ts`: Handles mission-specific setup, objective tracking, scrap reward calculation, and win/loss conditions. Supports special logic for `Boss` nodes (3 objectives, 3x scrap) and `Elite` nodes (2 objectives, 2x scrap), including specialized Hive/Recover mix. Boss/Elite missions trigger instant win upon all objectives being completed.
 - `MovementManager.ts`: Translates path data into unit position updates. Handles door interactions and formation offsets.
 - `StatsManager.ts`: Calculates derived stats (Speed, HP, Accuracy) from base archetypes, equipment, and status effects.

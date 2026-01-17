@@ -148,6 +148,20 @@ export interface CampaignState {
 }
 
 /**
+ * Global statistics tracked across all campaigns.
+ */
+export interface MetaStats {
+  totalCampaignsStarted: number;
+  campaignsWon: number;
+  campaignsLost: number;
+  totalKills: number;
+  totalCasualties: number;
+  totalMissionsPlayed: number;
+  totalMissionsWon: number;
+  totalScrapEarned: number;
+}
+
+/**
  * A choice within a narrative event.
  */
 export interface EventChoice {
