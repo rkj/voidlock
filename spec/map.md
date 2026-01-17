@@ -1,6 +1,7 @@
 # World Model & Map Generation
 
 **Relevant ADRs:**
+
 - [ADR 0001: Edge-Based Map Architecture](../docs/adr/0001-edge-based-map.md)
 - [ADR 0013: Unified Map Generation Config](../docs/adr/0013-unified-map-generation-config.md)
 - [ADR 0014: Map Generation Correctness](../docs/adr/0014-map-generation-correctness.md)
@@ -43,22 +44,27 @@ Example:
 
 The map generation subsystem must utilize a unified configuration model. Instead of passing parameters piecemeal during function calls, a comprehensive configuration object (defining seed, dimensions, strategy, and spawn counts) must be provided upon initialization.
 
--   **Behavior:** The generator instance is immutable regarding its configuration. To generate a map with different parameters, a new generator instance must be created.
--   **Implementation:** See [ADR 0013: Unified Map Generation Configuration](../docs/adr/0013-unified-map-generation-config.md) for the specific `MapGenerationConfig` interface and class structure.
+- **Behavior:** The generator instance is immutable regarding its configuration. To generate a map with different parameters, a new generator instance must be created.
+- **Implementation:** See [ADR 0013: Unified Map Generation Configuration](../docs/adr/0013-unified-map-generation-config.md) for the specific `MapGenerationConfig` interface and class structure.
 
 **MapGenerator**
 
--   **Initialization:** Accepts the configuration object at startup.
--   **Generation:** A parameter-less execution method that produces a `MapDefinition` based on the injected configuration.
--   **Loading:** Ability to bypass generation and load a specific `MapDefinition` (for static maps or save games).
--   **Validation:**
-    -   **Enforces Strict Placement Rules (Section 8.5):** Ensures all spawn points (squad and enemy) and objectives are located in rooms (not corridors) and that squad and enemy spawns occupy mutually exclusive rooms.
+- **Initialization:** Accepts the configuration object at startup.
 
-  - **Map Generation Strategy Selection**: The `MapGenerator` (or its client) must support selecting different generation strategies (e.g., `procedural-maze`, `static-predefined`, `custom-scripted`).
+- **Generation:** A parameter-less execution method that produces a `MapDefinition` based on the injected configuration.
 
-  - **Connectivity Guarantee:**
-    - The generator must ensure that every playable cell (Floor) is part of a single connected component reachable from the Squad Spawn. "Islands" or unreachable rooms are a critical failure.
-    - *Implementation Note:* See [ADR 0014](../docs/adr/0014-map-generation-correctness.md) for the "Correct by Construction" technical requirement.
+- **Loading:** Ability to bypass generation and load a specific `MapDefinition` (for static maps or save games).
+
+- **Validation:**
+
+  - **Enforces Strict Placement Rules (Section 8.5):** Ensures all spawn points (squad and enemy) and objectives are located in rooms (not corridors) and that squad and enemy spawns occupy mutually exclusive rooms.
+
+- **Map Generation Strategy Selection**: The `MapGenerator` (or its client) must support selecting different generation strategies (e.g., `procedural-maze`, `static-predefined`, `custom-scripted`).
+
+- **Connectivity Guarantee:**
+
+  - The generator must ensure that every playable cell (Floor) is part of a single connected component reachable from the Squad Spawn. "Islands" or unreachable rooms are a critical failure.
+  - *Implementation Note:* See [ADR 0014](../docs/adr/0014-map-generation-correctness.md) for the "Correct by Construction" technical requirement.
 
 ### 8.5 Entity Placement Constraints (Strict)
 
@@ -71,15 +77,24 @@ The map generation subsystem must utilize a unified configuration model. Instead
 - **Room Exclusivity (Strict):**
   - **Major Entities:** The following entities are considered "Major" and must **NEVER** share a room with each other (in any combination):
     1. **Squad Spawn** (or Drop Point)
-    2. **Enemy Spawn**
-    3. **Extraction Point**
+    1. **Enemy Spawn**
+    1. **Extraction Point**
   - **Corridor Ban:** All static entities (Spawns, Objectives, Extraction, Loot Containers) must **ONLY** be placed in rooms. They are strictly forbidden in corridors to prevent blocking movement or line of fire in narrow spaces.
-  - **Fog of War:** The Extraction Point is a static entity and must respect Fog of War rules. It should only be rendered on the map if the cell it occupies has been **DISCOVERED** by the player. It should not be visible in unexplored areas (shroud).
   - **Ideal Separation:** Ideally, **Objectives** (Artifacts/Intel/VIP) should also be in their own isolated rooms.
   - **Small Map Fallback:** On very small maps where room count is limited, **Objectives** MAY share a room with **Enemy Spawns** or **Extraction Points** (if absolutely necessary), but **Squad Spawns** must ALWAYS remain completely isolated (containing only the Squad Spawn).
 - **Validation Strategy:**
   - This logic is validated via automated testing suites that generate a large volume of maps across various sizes (e.g., 3x3 to 10x10) to ensure compliance.
   - It is **NOT** a runtime check during normal gameplay generation to avoid performance overhead.
+
+### 8.6 Extraction Point
+
+The Extraction Point is a static map entity that defines the goal location for certain mission types (e.g., Escort VIP, Extract Artifact) and the universal escape route for the squad.
+
+- **Visibility & Fog of War:**
+  - The Extraction Point **MUST** respect Fog of War rules.
+  - It is only rendered on the map if the cell it occupies has been **DISCOVERED** by the player (i.e., the cell is no longer under the black "shroud").
+  - Once a cell is discovered, the Extraction Point remains visible even if the cell is currently in the "fog" (grayed out, no active unit LOS).
+  - It must **NEVER** be visible in unexplored (black shroud) areas.
 
 **TreeShipGenerator (Sector Layout) Specifics:**
 The `TreeShipGenerator` produces maps with a structured layout:
@@ -120,7 +135,9 @@ A high-density generator designed for exploration depth.
 To facilitate easy creation and debugging of maps, especially for hardcoded or test scenarios, the system should support conversion between `MapDefinition` and a simplified ASCII string format that accurately reflects the "walls between cells" model.
 
 - **Format**: The ASCII representation will use an expanded grid where each character position either represents a cell's content, a wall segment, or a wall corner. For a map of `width` W and `height` H, the ASCII grid will be `(2W+1)` columns wide and `(2H+1)` rows tall.
+
   - **Cell Content Characters (at `(2x+1, 2y+1)` positions):**
+
     - `' '` (space): Floor cell (passable, default interior of the ship).
     - `'#'`: Void cell (impassable, empty space or solid rock).
     - `'S'`: Floor cell with a Spawn Point
@@ -129,6 +146,7 @@ To facilitate easy creation and debugging of maps, especially for hardcoded or t
     - _Priority_: For Floor cells: `S` > `E` > `O` > ` `. If Cell is `Void`, then `#` overrides all other content.
 
   - **Wall/Passage Characters:**
+
     - **Horizontal Wall/Passage (at `(2x+1, 2y)` positions):**
       - `'-'`: Horizontal wall segment
       - `' '` (space): Horizontal open passage (no wall)
@@ -143,6 +161,7 @@ To facilitate easy creation and debugging of maps, especially for hardcoded or t
       - `' '` (space): Corner with no adjacent walls (or just for visual spacing if open passages meet)
 
 - **Conversion**:
+
   - `toAscii(map: MapDefinition) -> string`: Convert a `MapDefinition` object into its ASCII string representation.
   - `fromAscii(asciiMap: string) -> MapDefinition`: Parse an ASCII string representation back into a `MapDefinition` object.
   - _Note_: The `fromAscii` conversion will need sensible defaults for attributes not explicitly representable in ASCII (e.g., door HP, objective kind). It will also need to infer wall `true`/`false` based on the presence of `'-'`, `'|'`, `'='`, `'I'` characters.

@@ -27,7 +27,8 @@ if [ -n "$CONTEXT_FILE" ]; then
   fi
 fi
 
-gemini --model gemini-3-flash-preview \
+gemini --output stream-json \
+  --model gemini-3-flash-preview \
   --allowed-tools list_directory \
   --allowed-tools read_file \
   --allowed-tools search_file_content \
