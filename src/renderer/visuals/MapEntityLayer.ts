@@ -25,6 +25,11 @@ export class MapEntityLayer implements RenderLayer {
     const x = ext.x * cellSize;
     const y = ext.y * cellSize;
 
+    const key = `${Math.floor(ext.x)},${Math.floor(ext.y)}`;
+    const isKnown = state.discoveredCells.includes(key) || state.visibleCells.includes(key);
+
+    if (!isKnown && !state.settings.debugOverlayEnabled) return;
+
     ctx.fillStyle = this.theme.getColor("--color-extraction-bg");
     ctx.fillRect(x, y, cellSize, cellSize);
     ctx.strokeStyle = this.theme.getColor("--color-info");
