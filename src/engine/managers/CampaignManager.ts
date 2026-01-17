@@ -13,6 +13,7 @@ import {
 import { PRNG } from "../../shared/PRNG";
 import { StorageProvider } from "../persistence/StorageProvider";
 import { SectorMapGenerator } from "../generators/SectorMapGenerator";
+import { MetaManager } from "./MetaManager";
 import {
   ArchetypeLibrary,
   EquipmentState,
@@ -138,7 +139,7 @@ export class CampaignManager {
     const roster = this.generateInitialRoster(prng);
 
     this.state = {
-      version: "0.90.0", // Current project version
+      version: "0.93.0", // Current project version
       seed: effectiveSeed,
       status: "Active",
       rules,
@@ -152,6 +153,7 @@ export class CampaignManager {
       unlockedArchetypes: ["assault", "medic", "scout", "heavy"],
     };
 
+    MetaManager.getInstance(this.storage).recordCampaignStarted();
     this.save();
   }
 
@@ -305,6 +307,8 @@ export class CampaignManager {
   public processMissionResult(report: MissionReport): void {
     if (!this.state) return;
 
+    const previousStatus = this.state.status;
+
     // 1. Update node status
     const node = this.state.nodes.find((n) => n.id === report.nodeId);
     if (node) {
@@ -422,9 +426,29 @@ export class CampaignManager {
     // 4. Record history
     this.state.history.push(report);
 
+    // 4.5 Update MetaManager
+    const casualties = report.soldierResults.filter(
+      (r) => r.status === "Dead",
+    ).length;
+    MetaManager.getInstance(this.storage).recordMissionResult(
+      report.aliensKilled,
+      casualties,
+      report.result === "Won",
+      report.scrapGained,
+    );
+
     // 5. Check for bankruptcy/defeat
-    if (this.checkBankruptcy()) {
+    const wasActive = previousStatus === "Active";
+    if (this.state.status !== "Defeat" && this.checkBankruptcy()) {
       this.state.status = "Defeat";
+    }
+
+    if (wasActive) {
+      if (this.state.status === "Victory") {
+        MetaManager.getInstance(this.storage).recordCampaignResult(true);
+      } else if (this.state.status === "Defeat") {
+        MetaManager.getInstance(this.storage).recordCampaignResult(false);
+      }
     }
 
     this.save();
@@ -487,6 +511,14 @@ export class CampaignManager {
 
     this.state.scrap += scrapGained;
     this.state.intel += intelGained;
+
+    // Sync with MetaManager (0 kills, 0 casualties, mission "won")
+    MetaManager.getInstance(this.storage).recordMissionResult(
+      0,
+      0,
+      true,
+      scrapGained,
+    );
 
     // Save history as a pseudo-report
     this.state.history.push({
