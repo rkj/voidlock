@@ -17,6 +17,7 @@ This directory contains the automated test suite for the Voidlock renderer, usin
 - `InputManager.test.ts`: Verifies keyboard shortcuts and debug overlay toggles.
 - `Renderer.test.ts`: Verifies map, unit, and debug/LOS overlay rendering.
 - `visuals/LayerOrder.test.ts`: Verifies the rendering order of different layers (e.g., units above spawn points).
+- `visuals/MapEntityLayer.test.ts`: Verifies that extraction points and other map entities respect Fog of War and discovery rules.
 - `ConfigManager.migration.test.ts`: Verifies configuration migration and defaulting from old storage formats.
 - `ConfigManager.isolation.test.ts`: Verifies that Custom and Campaign configurations are stored and loaded independently.
 - `MenuController.discovery.test.ts`: Verifies room discovery filtering and stable numbering in the command menu.
