@@ -41,7 +41,7 @@ describe("Regression: Recruit Speed Display (voidlock-95y7.5)", () => {
     // The current buggy code displays speed/10, which would be 2.
     // We expect it to be 20.
     expect(assaultCard.textContent).toContain(`Spd: ${assaultArch.speed}`);
-    expect(assaultCard.textContent).not.toContain(`Spd: ${assaultArch.speed / 10}`);
+    expect(assaultCard.textContent).not.toMatch(/Spd:\s*[0-9](\s|$)/);
   });
 
   it("should display the raw speed stat for Scout in the recruitment card", () => {
@@ -58,6 +58,6 @@ describe("Regression: Recruit Speed Display (voidlock-95y7.5)", () => {
     // The raw speed for scout is 30.
     // The current buggy code displays speed/10, which would be 3.
     expect(scoutCard.textContent).toContain(`Spd: ${scoutArch.speed}`);
-    expect(scoutCard.textContent).not.toContain(`Spd: ${scoutArch.speed / 10}`);
+    expect(scoutCard.textContent).not.toMatch(/Spd:\s*[0-9](\s|$)/);
   });
 });

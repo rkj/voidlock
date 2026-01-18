@@ -329,7 +329,7 @@ export class SoldierInspector {
           bonuses.push(StatDisplay.render(Icons.Health, item.hpBonus, "HP"));
         if (item.speedBonus)
           bonuses.push(
-            StatDisplay.render(Icons.Speed, item.speedBonus / 10, "Speed")
+            StatDisplay.render(Icons.Speed, item.speedBonus, "Speed")
           );
         if (item.accuracyBonus)
           bonuses.push(
@@ -342,7 +342,7 @@ export class SoldierInspector {
           fullBonuses.push(`HP: ${item.hpBonus > 0 ? "+" : ""}${item.hpBonus}`);
         if (item.speedBonus)
           fullBonuses.push(
-            `Speed: ${item.speedBonus > 0 ? "+" : ""}${item.speedBonus / 10}`
+            `Speed: ${item.speedBonus > 0 ? "+" : ""}${item.speedBonus}`
           );
         if (item.accuracyBonus)
           fullBonuses.push(

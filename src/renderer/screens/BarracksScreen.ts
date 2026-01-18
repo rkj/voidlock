@@ -313,7 +313,7 @@ export class BarracksScreen {
           <span style="color:var(--color-text); font-weight:bold; font-size:0.9em;">100 Scrap</span>
         </div>
         <div style="font-size:0.75em; color:var(--color-text-muted); margin-top:4px;">
-          HP: ${arch.baseHp} | Aim: ${arch.soldierAim} | Spd: ${arch.speed/10}
+          HP: ${arch.baseHp} | Aim: ${arch.soldierAim} | Spd: ${arch.speed}
         </div>
       `;
 
