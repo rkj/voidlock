@@ -108,4 +108,37 @@ describe("DebugLoot Rendering", () => {
     const called = mockContext.drawImage.mock.calls.length > 0 || mockContext.fillRect.mock.calls.length > 0;
     expect(called).toBe(true);
   });
+
+  it("should NOT render objective when NOT visible and debug is OFF", () => {
+    const gameState: GameState = createMockGameState({
+      objectives: [
+        { id: "obj-1", kind: "Recover", state: "Pending", targetCell: { x: 3, y: 3 }, visible: false } as any
+      ],
+      settings: {
+        debugOverlayEnabled: false
+      } as any
+    });
+
+    layer.draw(mockContext, gameState);
+
+    expect(mockContext.drawImage).not.toHaveBeenCalled();
+    expect(mockContext.fillRect).not.toHaveBeenCalled();
+  });
+
+  it("should render objective when NOT visible but debug is ON", () => {
+    const gameState: GameState = createMockGameState({
+      objectives: [
+        { id: "obj-1", kind: "Recover", state: "Pending", targetCell: { x: 3, y: 3 }, visible: false } as any
+      ],
+      settings: {
+        debugOverlayEnabled: true
+      } as any
+    });
+
+    layer.draw(mockContext, gameState);
+
+    expect(mockContext.drawImage).toHaveBeenCalled();
+    const [icon] = mockContext.drawImage.mock.calls[0];
+    expect(icon.src).toContain("objective.svg");
+  });
 });

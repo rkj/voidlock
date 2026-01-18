@@ -80,7 +80,7 @@ export class MapEntityLayer implements RenderLayer {
       if (!isVisible && !isDiscovered && !state.settings.debugOverlayEnabled) return;
 
       // Render loot crate
-      const icon = this.assets.iconImages.Crate || this.assets.iconImages.Objective;
+      const icon = this.assets.iconImages.Crate;
       if (icon) {
         const iconSize = cellSize * 0.5;
         ctx.drawImage(icon, x + (cellSize - iconSize) / 2, y + (cellSize - iconSize) / 2, iconSize, iconSize);
@@ -95,7 +95,7 @@ export class MapEntityLayer implements RenderLayer {
     const cellSize = this.sharedState.cellSize;
 
     state.objectives?.forEach((obj) => {
-      if (obj.state === "Pending" && obj.targetCell && obj.visible) {
+      if (obj.state === "Pending" && obj.targetCell && (obj.visible || state.settings.debugOverlayEnabled)) {
         if (state.map.extraction && obj.targetCell.x === state.map.extraction.x && obj.targetCell.y === state.map.extraction.y) return;
 
         const x = obj.targetCell.x * cellSize;
