@@ -835,6 +835,21 @@ export class GameApp {
   }
 
   private loadAndApplyConfig(isCampaign: boolean = false) {
+    const contextHeader = document.getElementById("mission-setup-context");
+    if (contextHeader) {
+      if (isCampaign) {
+        const state = this.context.campaignManager.getState();
+        if (state) {
+          const missionNum = state.history.length + 1;
+          const sectorNum = state.currentSector;
+          const difficulty = state.rules.difficulty.toUpperCase();
+          contextHeader.textContent = `CAMPAIGN: ${difficulty} | MISSION ${missionNum} | SECTOR ${sectorNum}`;
+        }
+      } else {
+        contextHeader.textContent = "CUSTOM SIMULATION";
+      }
+    }
+
     const config = isCampaign ? ConfigManager.loadCampaign() : ConfigManager.loadCustom();
     const mapConfigSection = document.getElementById("map-config-section");
     if (mapConfigSection) mapConfigSection.style.display = isCampaign ? "none" : "block";
