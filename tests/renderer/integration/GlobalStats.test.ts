@@ -68,33 +68,25 @@ describe("StatisticsScreen Integration", () => {
   beforeEach(() => {
     document.body.innerHTML = `
       <div id="app">
-        <div id="screen-main-menu">
-           <p id="menu-version"></p>
-           <button id="btn-menu-campaign"></button>
-           <button id="btn-menu-custom"></button>
-           <button id="btn-menu-statistics"></button>
-           <button id="btn-menu-reset"></button>
-        </div>
-        <div id="mission-setup-context"></div>
-        <div id="map-config-section">
-           <div class="control-group">
-             <select id="map-generator-type"></select>
-           </div>
-        </div>
-        <div id="squad-builder"></div>
-        <input id="map-width" />
-        <input id="map-height" />
-        <input id="map-spawn-points" />
-        <input id="map-seed" />
-        <div id="screen-campaign"></div>
-        <div id="screen-mission-setup"></div>
-        <div id="screen-equipment"></div>
-        <div id="screen-barracks"></div>
-        <div id="screen-mission"></div>
-        <div id="screen-debrief"></div>
-        <div id="screen-campaign-summary"></div>
-        <div id="screen-statistics"></div>
+      <div id="screen-main-menu" class="screen">
+        <button id="btn-menu-campaign">Campaign</button>
+        <button id="btn-menu-statistics">Statistics</button>
+        <p id="menu-version"></p>
       </div>
+
+      <div id="screen-campaign-shell" class="screen flex-col" style="display:none">
+          <div id="campaign-shell-top-bar"></div>
+          <div id="campaign-shell-content" class="flex-grow relative overflow-hidden">
+              <div id="screen-campaign" class="screen" style="display:none"></div>
+              <div id="screen-barracks" class="screen" style="display:none"></div>
+              <div id="screen-equipment" class="screen" style="display:none"></div>
+              <div id="screen-statistics" class="screen" style="display:none"></div>
+          </div>
+      </div>
+      <div id="screen-mission-setup" class="screen" style="display:none"></div>
+      <div id="screen-mission" class="screen" style="display:none"></div>
+      <div id="screen-debrief" class="screen" style="display:none"></div>
+      <div id="screen-campaign-summary" class="screen" style="display:none"></div>
     `;
 
     (MetaManager.getInstance as any).mockReturnValue({
@@ -123,8 +115,9 @@ describe("StatisticsScreen Integration", () => {
     // Go to stats
     document.getElementById("btn-menu-statistics")?.click();
     
-    // Click back
-    const backBtn = document.querySelector("#screen-statistics .back-button") as HTMLElement;
+    // Click Main Menu button in the shell
+    const backBtn = Array.from(document.querySelectorAll("#campaign-shell-top-bar button")).find(b => b.textContent === "Main Menu") as HTMLElement;
+    expect(backBtn).toBeTruthy();
     backBtn?.click();
     
     expect(document.getElementById("screen-main-menu")?.style.display).toBe("flex");

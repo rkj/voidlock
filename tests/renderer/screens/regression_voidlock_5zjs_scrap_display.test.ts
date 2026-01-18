@@ -1,18 +1,29 @@
-// @vitest-environment jsdom
+/**
+ * @vitest-environment jsdom
+ */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { EquipmentScreen } from "@src/renderer/screens/EquipmentScreen";
+import { CampaignShell } from "@src/renderer/ui/CampaignShell";
 import { SquadConfig } from "@src/shared/types";
 
 describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => {
   let container: HTMLElement;
+  let shellContainer: HTMLElement;
   let initialConfig: SquadConfig;
   let onSave: any;
   let onBack: any;
   let mockManager: any;
+  let shell: CampaignShell;
 
   beforeEach(() => {
-    document.body.innerHTML = '<div id="screen-equipment"></div>';
+    document.body.innerHTML = `
+      <div id="screen-campaign-shell">
+        <div id="campaign-shell-top-bar"></div>
+        <div id="screen-equipment"></div>
+      </div>
+    `;
     container = document.getElementById("screen-equipment")!;
+    shellContainer = document.getElementById("screen-campaign-shell")!;
 
     initialConfig = {
       soldiers: [{ archetypeId: "assault" }],
@@ -28,8 +39,11 @@ describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => 
       getState: vi.fn().mockReturnValue({
         scrap: 450,
         intel: 120,
-      }),
+        currentSector: 1
+      })
     };
+
+    shell = new CampaignShell("screen-campaign-shell", mockManager, vi.fn(), vi.fn());
 
     const screen = new EquipmentScreen(
       "screen-equipment",
@@ -37,20 +51,18 @@ describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => 
       initialConfig,
       onSave,
       onBack,
+      () => shell.refresh()
     );
+    
+    shell.show("campaign");
     screen.show();
 
-    const overlay = container.querySelector(".overlay-stats");
-    expect(overlay).not.toBeNull();
-    expect(overlay?.textContent).toContain("Scrap: 450");
-    expect(overlay?.textContent).toContain("Intel: 120");
-
-    // Check for colors
-    const scrapValue = Array.from(overlay!.querySelectorAll("span")).find(s => s.textContent === "450");
-    expect(scrapValue?.style.color).toBe("var(--color-primary)");
-
-    const intelValue = Array.from(overlay!.querySelectorAll("span")).find(s => s.textContent === "120");
-    expect(intelValue?.style.color).toBe("var(--color-accent)");
+    // Stats should now be in the shell top bar
+    const topBar = document.getElementById("campaign-shell-top-bar")!;
+    expect(topBar.textContent).toContain("SCRAP:");
+    expect(topBar.textContent).toContain("450");
+    expect(topBar.textContent).toContain("INTEL:");
+    expect(topBar.textContent).toContain("120");
   });
 
   it("should not display stats overlay when campaign is NOT active", () => {
@@ -58,16 +70,21 @@ describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => 
       getState: vi.fn().mockReturnValue(null),
     };
 
+    shell = new CampaignShell("screen-campaign-shell", mockManager, vi.fn(), vi.fn());
+
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
       initialConfig,
       onSave,
       onBack,
+      () => shell.refresh()
     );
+    
+    shell.show("custom");
     screen.show();
 
-    const overlay = container.querySelector(".overlay-stats");
-    expect(overlay).toBeNull();
+    const topBar = document.getElementById("campaign-shell-top-bar")!;
+    expect(topBar.textContent).not.toContain("SCRAP:");
   });
 });

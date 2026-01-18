@@ -30,6 +30,7 @@ export class InputBinder {
     onUpdateSquadBuilder: () => void;
     onApplyCampaignTheme: () => void;
     onShowStatistics: () => void;
+    onSetupBack: () => void;
   }) {
     const { context } = this;
 
@@ -41,7 +42,7 @@ export class InputBinder {
 
     // Navigation Back
     this.addListener("btn-campaign-back", "click", () => context.screenManager.goBack());
-    this.addListener("btn-setup-back", "click", () => context.screenManager.goBack());
+    this.addListener("btn-setup-back", "click", () => callbacks.onSetupBack());
     this.addListener("btn-give-up", "click", async () => {
       if (await context.modalService.confirm("Abort Mission and return to menu?")) {
         callbacks.onAbortMission();

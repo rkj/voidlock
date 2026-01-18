@@ -10,7 +10,8 @@ export type ScreenId =
   | "barracks"
   | "debrief"
   | "campaign-summary"
-  | "statistics";
+  | "statistics"
+  | "campaign-shell";
 
 export class ScreenManager {
   private screens: Map<ScreenId, HTMLElement> = new Map();
@@ -21,6 +22,7 @@ export class ScreenManager {
   constructor() {
     this.sessionManager = new SessionManager();
     this.registerScreen("main-menu");
+    this.registerScreen("campaign-shell");
     this.registerScreen("campaign");
     this.registerScreen("mission-setup");
     this.registerScreen("equipment");

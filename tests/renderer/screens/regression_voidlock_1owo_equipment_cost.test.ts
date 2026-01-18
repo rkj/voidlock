@@ -1,6 +1,9 @@
-// @vitest-environment jsdom
+/**
+ * @vitest-environment jsdom
+ */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { EquipmentScreen } from "@src/renderer/screens/EquipmentScreen";
+import { CampaignShell } from "@src/renderer/ui/CampaignShell";
 import {
   SquadConfig,
 } from "@src/shared/types";
@@ -12,14 +15,22 @@ describe("EquipmentScreen Economics", () => {
   let onBack: any;
   let mockManager: any;
   let mockState: any;
+  let shell: CampaignShell;
 
   beforeEach(() => {
-    document.body.innerHTML = '<div id="screen-equipment"></div>';
+    document.body.innerHTML = `
+      <div id="screen-campaign-shell">
+        <div id="campaign-shell-top-bar"></div>
+        <div id="screen-equipment"></div>
+      </div>
+    `;
     container = document.getElementById("screen-equipment")!;
 
     mockState = {
         scrap: 100,
         intel: 0,
+        currentSector: 1,
+        status: "Active",
         roster: [
             { id: "s1", archetypeId: "assault", equipment: { rightHand: "pulse_rifle", leftHand: "combat_knife" } }
         ]
@@ -38,6 +49,9 @@ describe("EquipmentScreen Economics", () => {
 
     onSave = vi.fn();
     onBack = vi.fn();
+    
+    shell = new CampaignShell("screen-campaign-shell", mockManager, vi.fn(), vi.fn());
+    shell.show("campaign");
   });
 
   it("should not charge for items already in roster", () => {
@@ -47,6 +61,7 @@ describe("EquipmentScreen Economics", () => {
       initialConfig,
       onSave,
       onBack,
+      () => shell.refresh()
     );
     screen.show();
 
@@ -70,6 +85,7 @@ describe("EquipmentScreen Economics", () => {
       initialConfig,
       onSave,
       onBack,
+      () => shell.refresh()
     );
     screen.show();
 
@@ -94,6 +110,7 @@ describe("EquipmentScreen Economics", () => {
       initialConfig,
       onSave,
       onBack,
+      () => shell.refresh()
     );
     screen.show();
 
@@ -117,25 +134,27 @@ describe("EquipmentScreen Economics", () => {
       initialConfig,
       onSave,
       onBack,
+      () => shell.refresh()
     );
     screen.show();
 
     const armoryPanel = Array.from(container.querySelectorAll(".panel")).find(p => p.querySelector(".panel-title")?.textContent === "Armory & Supplies") as HTMLElement;
 
-    // Find the stats overlay. We need to look inside container since it's added in render()
     const getScrapText = () => {
-        const overlay = container.querySelector(".overlay-stats");
-        return overlay?.textContent || "";
+        const topBar = document.getElementById("campaign-shell-top-bar")!;
+        return topBar.textContent || "";
     };
 
-    expect(getScrapText()).toContain("Scrap: 100");
+    expect(getScrapText()).toContain("SCRAP:");
+    expect(getScrapText()).toContain("100");
 
     const pistolBtn = Array.from(
       armoryPanel.querySelectorAll(".menu-item.clickable"),
     ).find((el) => el.textContent?.includes("Pistol")) as HTMLElement;
     pistolBtn?.click();
 
-    expect(getScrapText()).toContain("Scrap: 90");
+    expect(getScrapText()).toContain("SCRAP:");
+    expect(getScrapText()).toContain("90");
   });
 
   it("should not charge for unequipping", () => {
@@ -145,6 +164,7 @@ describe("EquipmentScreen Economics", () => {
       initialConfig,
       onSave,
       onBack,
+      () => shell.refresh()
     );
     screen.show();
 
@@ -166,6 +186,7 @@ describe("EquipmentScreen Economics", () => {
       initialConfig,
       onSave,
       onBack,
+      () => shell.refresh()
     );
     screen.show();
 
@@ -194,6 +215,7 @@ describe("EquipmentScreen Economics", () => {
       initialConfig,
       onSave,
       onBack,
+      () => shell.refresh()
     );
     screen.show();
 

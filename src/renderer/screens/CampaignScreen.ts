@@ -7,7 +7,6 @@ export class CampaignScreen {
   private manager: CampaignManager;
   private modalService: ModalService;
   private onNodeSelect: (node: CampaignNode) => void;
-  private onBarracks: () => void;
   private onBack: () => void;
   private onCampaignStart?: () => void;
   private onShowSummary?: () => void;
@@ -17,7 +16,6 @@ export class CampaignScreen {
     manager: CampaignManager,
     modalService: ModalService,
     onNodeSelect: (node: CampaignNode) => void,
-    onBarracks: () => void,
     onBack: () => void,
     onCampaignStart?: () => void,
     onShowSummary?: () => void,
@@ -28,7 +26,6 @@ export class CampaignScreen {
     this.manager = manager;
     this.modalService = modalService;
     this.onNodeSelect = onNodeSelect;
-    this.onBarracks = onBarracks;
     this.onBack = onBack;
     this.onCampaignStart = onCampaignStart;
     this.onShowSummary = onShowSummary;
@@ -79,29 +76,6 @@ export class CampaignScreen {
       return;
     }
 
-    // Header
-    const header = document.createElement("div");
-    header.className = "flex-row justify-between align-center p-20";
-    header.style.borderBottom = "1px solid var(--color-border-strong)";
-    header.style.background = "var(--color-surface-elevated)";
-
-    const title = document.createElement("h1");
-    title.textContent = "Sector Map";
-    title.style.margin = "0";
-    title.style.fontSize = "1.5em";
-    header.appendChild(title);
-
-    const stats = document.createElement("div");
-    stats.className = "flex-row gap-20";
-    stats.innerHTML = `
-      <span>Scrap: <span style="color:var(--color-primary)">${state.scrap}</span></span>
-      <span>Intel: <span style="color:var(--color-accent)">${state.intel}</span></span>
-      <span>Sector: <span style="color:var(--color-text)">${state.currentSector}</span></span>
-    `;
-    header.appendChild(stats);
-
-    this.container.appendChild(header);
-
     // Map Viewport
     const viewport = document.createElement("div");
     viewport.className = "campaign-map-viewport";
@@ -114,35 +88,24 @@ export class CampaignScreen {
     this.renderMap(viewport, state);
     this.container.appendChild(viewport);
 
-    // Footer
-    const footer = document.createElement("div");
-    footer.className = "flex-row justify-between p-20";
-    footer.style.borderTop = "1px solid var(--color-border-strong)";
-    footer.style.background = "var(--color-surface-elevated)";
-
-    const backBtn = document.createElement("button");
-    backBtn.textContent = "Back to Menu";
-    backBtn.className = "back-button";
-    backBtn.onclick = () => this.onBack();
-    footer.appendChild(backBtn);
-
-    const resetBtn = document.createElement("button");
-    resetBtn.textContent = "New Campaign";
-    resetBtn.style.color = "var(--color-error)";
-    resetBtn.onclick = async () => {
+    // Abandon Campaign button (Subtle, in the corner)
+    const abandonBtn = document.createElement("button");
+    abandonBtn.textContent = "Abandon Campaign";
+    abandonBtn.className = "back-button";
+    abandonBtn.style.position = "absolute";
+    abandonBtn.style.bottom = "20px";
+    abandonBtn.style.right = "20px";
+    abandonBtn.style.fontSize = "0.7em";
+    abandonBtn.style.opacity = "0.6";
+    abandonBtn.style.margin = "0";
+    abandonBtn.style.color = "var(--color-error)";
+    abandonBtn.onclick = async () => {
       if (await this.modalService.confirm("Are you sure you want to abandon the current campaign?")) {
         this.manager.reset();
         this.onBack();
       }
     };
-    footer.appendChild(resetBtn);
-
-    const barracksBtn = document.createElement("button");
-    barracksBtn.textContent = "Barracks";
-    barracksBtn.onclick = () => this.onBarracks();
-    footer.appendChild(barracksBtn);
-
-    this.container.appendChild(footer);
+    this.container.appendChild(abandonBtn);
   }
 
   private renderNoCampaign() {

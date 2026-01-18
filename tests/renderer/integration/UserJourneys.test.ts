@@ -139,10 +139,21 @@ describe("Comprehensive User Journeys", () => {
       <div id="screen-main-menu" class="screen">
         <button id="btn-menu-campaign">Campaign</button>
         <button id="btn-menu-custom">Custom Mission</button>
+        <button id="btn-menu-statistics">Statistics</button>
+        <button id="btn-menu-reset">Reset Data</button>
         <p id="menu-version"></p>
       </div>
-      <div id="screen-campaign" class="screen" style="display:none"></div>
-      <div id="screen-barracks" class="screen" style="display:none"></div>
+
+      <div id="screen-campaign-shell" class="screen flex-col" style="display:none">
+          <div id="campaign-shell-top-bar"></div>
+          <div id="campaign-shell-content" class="flex-grow relative overflow-hidden">
+              <div id="screen-campaign" class="screen" style="display:none"></div>
+              <div id="screen-barracks" class="screen" style="display:none"></div>
+              <div id="screen-equipment" class="screen" style="display:none"></div>
+              <div id="screen-statistics" class="screen" style="display:none"></div>
+          </div>
+      </div>
+
       <div id="screen-mission-setup" class="screen" style="display:none">
         <div id="map-config-section">
           <select id="map-generator-type">
@@ -178,7 +189,6 @@ describe("Comprehensive User Journeys", () => {
       </div>
       <div id="screen-debrief" class="screen" style="display:none"></div>
       <div id="screen-campaign-summary" class="screen" style="display:none"></div>
-      <div id="screen-statistics" class="screen" style="display:none"></div>
     `;
 
     // Mock window.confirm
@@ -222,8 +232,8 @@ describe("Comprehensive User Journeys", () => {
     (document.querySelector(".campaign-setup-wizard .primary-button") as HTMLElement).click();
 
     // 1. Map -> Barracks
-    const barracksBtn = Array.from(document.querySelectorAll("#screen-campaign button")).find(b => b.textContent?.includes("Barracks")) as HTMLElement;
-    barracksBtn.click();
+    const barracksTab = Array.from(document.querySelectorAll("#campaign-shell-top-bar button")).find(b => b.textContent?.includes("Barracks")) as HTMLElement;
+    barracksTab.click();
     expect(document.getElementById("screen-barracks")?.style.display).toBe("flex");
 
     // 2. Recruit a soldier
@@ -241,8 +251,8 @@ describe("Comprehensive User Journeys", () => {
     expect(rosterItems.length).toBe(2);
 
     // 3. Back to Map
-    const backBtn = document.querySelector("#screen-barracks .back-button") as HTMLElement;
-    backBtn.click();
+    const mapTab = Array.from(document.querySelectorAll("#campaign-shell-top-bar button")).find(b => b.textContent?.includes("Sector Map")) as HTMLElement;
+    mapTab.click();
     expect(document.getElementById("screen-campaign")?.style.display).toBe("flex");
   });
 

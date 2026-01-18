@@ -79,6 +79,17 @@ describe("Mission Setup Context Header", () => {
         <button id="btn-menu-campaign">Campaign</button>
         <button id="btn-menu-custom">Custom Mission</button>
       </div>
+
+      <div id="screen-campaign-shell" class="screen flex-col" style="display:none">
+          <div id="campaign-shell-top-bar"></div>
+          <div id="campaign-shell-content" class="flex-grow relative overflow-hidden">
+              <div id="screen-campaign" class="screen" style="display:none"></div>
+              <div id="screen-barracks" class="screen" style="display:none"></div>
+              <div id="screen-equipment" class="screen" style="display:none"></div>
+              <div id="screen-statistics" class="screen" style="display:none"></div>
+          </div>
+      </div>
+
       <div id="screen-mission-setup" class="screen screen-centered">
         <h1>MISSION CONFIGURATION</h1>
         <div id="mission-setup-context" style="margin-bottom: 20px; color: var(--color-primary); font-weight: bold; letter-spacing: 1px;"></div>
@@ -106,7 +117,6 @@ describe("Mission Setup Context Header", () => {
       <div id="screen-mission" class="screen" style="display:none"></div>
       <div id="screen-debrief" class="screen" style="display:none"></div>
       <div id="screen-campaign-summary" class="screen" style="display:none"></div>
-      <div id="screen-statistics" class="screen" style="display:none"></div>
     `;
 
     vi.resetModules();

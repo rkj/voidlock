@@ -2,13 +2,11 @@ import { MetaManager } from "@src/renderer/campaign/MetaManager";
 
 export class StatisticsScreen {
   private container: HTMLElement;
-  private onBack: () => void;
 
-  constructor(containerId: string, onBack: () => void) {
+  constructor(containerId: string) {
     const el = document.getElementById(containerId);
     if (!el) throw new Error(`Container #${containerId} not found`);
     this.container = el;
-    this.onBack = onBack;
   }
 
   public show() {
@@ -78,12 +76,6 @@ export class StatisticsScreen {
     statsGrid.appendChild(createStatRow("Total Scrap Earned", stats.totalScrapEarned.toLocaleString(), "var(--color-primary)"));
 
     this.container.appendChild(statsGrid);
-
-    const backBtn = document.createElement("button");
-    backBtn.textContent = "Back to Menu";
-    backBtn.className = "back-button w-full";
-    backBtn.onclick = () => this.onBack();
-    this.container.appendChild(backBtn);
   }
 
   private createHeader(text: string) {

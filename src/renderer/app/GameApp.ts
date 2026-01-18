@@ -46,6 +46,7 @@ import { CampaignEvents } from "@src/content/CampaignEvents";
 import { EventModal, OutcomeModal } from "@src/renderer/ui/EventModal";
 import { ModalService } from "@src/renderer/ui/ModalService";
 import { PRNG } from "@src/shared/PRNG";
+import { CampaignShell, CampaignTabId } from "@src/renderer/ui/CampaignShell";
 import pkg from "../../../package.json";
 
 const VERSION = pkg.version;
@@ -96,6 +97,13 @@ export class GameApp {
     this.context.campaignManager = CampaignManager.getInstance();
     this.context.modalService = new ModalService();
     this.context.screenManager = new ScreenManager();
+
+    this.context.campaignShell = new CampaignShell(
+      "screen-campaign-shell",
+      this.context.campaignManager,
+      (tabId) => this.onShellTabChange(tabId),
+      () => this.showMainMenu(),
+    );
     
     const mapGeneratorFactory = (config: MapGenerationConfig): MapFactory => {
       return new MapFactory(config);
@@ -156,7 +164,9 @@ export class GameApp {
       if (this.currentCampaignNode) {
         this.campaignScreen.show();
         this.context.screenManager.show("campaign");
+        this.context.campaignShell.show("campaign", "sector-map");
       } else {
+        this.context.campaignShell.hide();
         this.showMainMenu();
       }
     });
@@ -165,10 +175,7 @@ export class GameApp {
       "screen-barracks",
       this.context.campaignManager,
       this.context.modalService,
-      () => {
-        this.campaignScreen.show();
-        this.context.screenManager.goBack();
-      },
+      () => this.context.campaignShell.refresh(),
     );
 
     this.campaignScreen = new CampaignScreen(
@@ -176,17 +183,17 @@ export class GameApp {
       this.context.campaignManager,
       this.context.modalService,
       (node) => this.onCampaignNodeSelected(node),
+      () => this.showMainMenu(),
       () => {
-        this.barracksScreen.show();
-        this.context.screenManager.show("barracks");
+        this.applyCampaignTheme();
+        this.context.campaignShell.show("campaign", "sector-map");
       },
-      () => this.context.screenManager.show("main-menu"),
-      () => this.applyCampaignTheme(),
       () => {
         const state = this.context.campaignManager.getState();
         if (state) {
           this.campaignSummaryScreen.show(state);
           this.context.screenManager.show("campaign-summary");
+          this.context.campaignShell.hide();
         }
       },
     );
@@ -196,12 +203,18 @@ export class GameApp {
         this.context.campaignManager,
         this.currentSquad,
         (config) => this.onEquipmentConfirmed(config),
-        () => this.context.screenManager.goBack(),
+        () => {
+          this.context.screenManager.goBack();
+          const screen = this.context.screenManager.getCurrentScreen();
+          if (screen === "campaign") this.context.campaignShell.show("campaign", "sector-map");
+          else if (screen === "barracks") this.context.campaignShell.show("campaign", "barracks");
+          else if (screen === "mission-setup") this.context.campaignShell.hide();
+        },
+        () => this.context.campaignShell.refresh(),
       );
 
     this.statisticsScreen = new StatisticsScreen(
       "screen-statistics",
-      () => this.showMainMenu(),
     );
 
     // 4. Bind events
@@ -213,6 +226,7 @@ export class GameApp {
             this.currentCampaignNode = null;
             this.context.themeManager.setTheme("default");
             this.loadAndApplyConfig(false);
+            this.context.campaignShell.hide();
             this.context.screenManager.show("mission-setup");
         },
         onCampaignMenu: () => {
@@ -221,9 +235,11 @@ export class GameApp {
             if (state && (state.status === "Victory" || state.status === "Defeat")) {
               this.campaignSummaryScreen.show(state);
               this.context.screenManager.show("campaign-summary");
+              this.context.campaignShell.hide();
             } else {
               this.campaignScreen.show();
               this.context.screenManager.show("campaign");
+              this.context.campaignShell.show("campaign", "sector-map");
             }
         },
         onResetData: async () => {
@@ -235,10 +251,16 @@ export class GameApp {
         onShowEquipment: () => {
             this.equipmentScreen.updateConfig(this.currentSquad);
             this.context.screenManager.show("equipment");
+            if (this.currentCampaignNode) {
+              this.context.campaignShell.show("campaign", "sector-map");
+            } else {
+              this.context.campaignShell.show("custom");
+            }
         },
         onShowBarracks: () => {
             this.barracksScreen.show();
             this.context.screenManager.show("barracks");
+            this.context.campaignShell.show("campaign", "barracks");
         },
         onLoadStaticMap: async (json) => {
             try {
@@ -287,7 +309,17 @@ export class GameApp {
         onShowStatistics: () => {
           this.statisticsScreen.show();
           this.context.screenManager.show("statistics");
+          this.context.campaignShell.show("statistics", "stats");
         },
+        onSetupBack: () => {
+          this.context.screenManager.goBack();
+          const screen = this.context.screenManager.getCurrentScreen();
+          if (screen === "campaign") {
+            this.context.campaignShell.show("campaign", "sector-map");
+          } else {
+            this.context.campaignShell.hide();
+          }
+        }
     });
 
     // Special bindings that were in main.ts
@@ -302,12 +334,38 @@ export class GameApp {
   }
 
   private showMainMenu() {
+    this.context.campaignShell.hide();
     this.context.screenManager.show("main-menu");
+  }
+
+  private onShellTabChange(tabId: CampaignTabId) {
+    switch (tabId) {
+      case "sector-map":
+        this.campaignScreen.show();
+        this.context.screenManager.show("campaign");
+        break;
+      case "barracks":
+        this.barracksScreen.show();
+        this.context.screenManager.show("barracks");
+        break;
+      case "engineering":
+        // Not implemented
+        break;
+      case "stats":
+        this.statisticsScreen.show();
+        this.context.screenManager.show("statistics");
+        break;
+    }
+    
+    const state = this.context.campaignManager.getState();
+    const mode = state ? "campaign" : "statistics";
+    this.context.campaignShell.show(mode as any, tabId);
   }
 
   public start() {
     const persistedScreen = this.context.screenManager.loadPersistedState();
     if (persistedScreen === "mission") {
+      this.context.campaignShell.hide();
       this.resumeMission();
     } else if (persistedScreen) {
       if (persistedScreen === "campaign" || persistedScreen === "campaign-summary") {
@@ -316,14 +374,27 @@ export class GameApp {
         if (state && (state.status === "Victory" || state.status === "Defeat")) {
           this.campaignSummaryScreen.show(state);
           this.context.screenManager.show("campaign-summary");
+          this.context.campaignShell.hide();
         } else {
           this.campaignScreen.show();
           this.context.screenManager.show("campaign");
+          this.context.campaignShell.show("campaign", "sector-map");
         }
       } else if (persistedScreen === "equipment") {
         this.equipmentScreen.updateConfig(this.currentSquad);
+        if (this.currentCampaignNode) {
+          this.context.campaignShell.show("campaign", "sector-map");
+        } else {
+          this.context.campaignShell.show("custom");
+        }
       } else if (persistedScreen === "barracks") {
         this.barracksScreen.show();
+        this.context.campaignShell.show("campaign", "barracks");
+      } else if (persistedScreen === "statistics") {
+        this.statisticsScreen.show();
+        this.context.campaignShell.show("statistics", "stats");
+      } else {
+        this.context.campaignShell.hide();
       }
     } else {
       this.showMainMenu();
@@ -673,6 +744,8 @@ export class GameApp {
     } else {
       ConfigManager.saveCustom(config);
     }
+
+    this.context.campaignShell.hide();
 
     this.context.gameClient.init(
       this.currentSeed,

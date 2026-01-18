@@ -91,15 +91,25 @@ describe("Non-Combat Node Interactions", () => {
 
     // Setup DOM
     document.body.innerHTML = `
-      <div id="screen-main-menu"></div>
-      <div id="screen-campaign"></div>
-      <div id="screen-barracks"></div>
-      <div id="screen-mission-setup"></div>
-      <div id="screen-equipment"></div>
-      <div id="screen-mission"></div>
+      <div id="screen-main-menu" class="screen">
+        <button id="btn-menu-campaign">Campaign</button>
+        <button id="btn-menu-custom">Custom Mission</button>
+        <p id="menu-version"></p>
+      </div>
+
+      <div id="screen-campaign-shell" class="screen flex-col" style="display:none">
+          <div id="campaign-shell-top-bar"></div>
+          <div id="campaign-shell-content" class="flex-grow relative overflow-hidden">
+              <div id="screen-campaign" class="screen" style="display:none"></div>
+              <div id="screen-barracks" class="screen" style="display:none"></div>
+              <div id="screen-equipment" class="screen" style="display:none"></div>
+              <div id="screen-statistics" class="screen" style="display:none"></div>
+          </div>
+      </div>
+      <div id="screen-mission-setup" class="screen" style="display:none"></div>
+      <div id="screen-mission" class="screen" style="display:none"></div>
       <div id="screen-debrief" class="screen" style="display:none"></div>
       <div id="screen-campaign-summary" class="screen" style="display:none"></div>
-      <div id="screen-statistics" class="screen" style="display:none"></div>
     `;
 
     CampaignManager.resetInstance();

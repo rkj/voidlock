@@ -28,7 +28,7 @@ describe("StatisticsScreen", () => {
   });
 
   it("should render correctly with default stats", () => {
-    const screen = new StatisticsScreen("screen-statistics", onBack);
+    const screen = new StatisticsScreen("screen-statistics");
     screen.show();
 
     expect(container.textContent).toContain("Service Record");
@@ -46,7 +46,7 @@ describe("StatisticsScreen", () => {
     meta.recordMissionResult(10, 2, true, 500);
     meta.recordCampaignResult(true);
 
-    const screen = new StatisticsScreen("screen-statistics", onBack);
+    const screen = new StatisticsScreen("screen-statistics");
     screen.show();
 
     expect(container.textContent).toContain("Total Xeno Kills");
@@ -57,16 +57,5 @@ describe("StatisticsScreen", () => {
     expect(container.textContent).toContain("1");
     expect(container.textContent).toContain("Total Scrap Earned");
     expect(container.textContent).toContain("500");
-  });
-
-  it("should trigger onBack when back button is clicked", () => {
-    const screen = new StatisticsScreen("screen-statistics", onBack);
-    screen.show();
-
-    const backBtn = container.querySelector(".back-button") as HTMLElement;
-    expect(backBtn).not.toBeNull();
-    backBtn.click();
-
-    expect(onBack).toHaveBeenCalled();
   });
 });
