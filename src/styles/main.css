@@ -708,6 +708,24 @@ label {
   border: 1px dashed var(--color-primary);
 }
 
+.soldier-card.deployed {
+  opacity: 0.6;
+  border-color: var(--color-accent);
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.soldier-card.dead {
+  background-color: #300;
+  border-color: var(--color-danger);
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.soldier-card.wounded {
+  border-color: var(--color-warning);
+}
+
 .soldier-card.disabled {
   opacity: 0.5;
   cursor: not-allowed;

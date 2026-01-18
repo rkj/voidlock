@@ -231,10 +231,9 @@ describe("E2E Campaign Failure Modes", () => {
     // 3. Handle Mission Setup
     expect(document.getElementById("screen-mission-setup")?.style.display).toBe("flex");
 
-    // Ensure squad is selected (double click on soldier cards)
     const soldierCards = document.querySelectorAll(".soldier-card");
     soldierCards.forEach(card => {
-        if (!card.classList.contains("selected") && !card.classList.contains("disabled")) {
+        if (!card.classList.contains("deployed") && !card.classList.contains("disabled")) {
             card.dispatchEvent(new Event("dblclick"));
         }
     });
@@ -344,7 +343,7 @@ describe("E2E Campaign Failure Modes", () => {
     // Mission Setup
     const soldierCards = document.querySelectorAll(".soldier-card");
     soldierCards.forEach(card => {
-        if (!card.classList.contains("selected") && !card.classList.contains("disabled")) {
+        if (!card.classList.contains("deployed") && !card.classList.contains("disabled")) {
             card.dispatchEvent(new Event("dblclick"));
         }
     });
@@ -412,7 +411,7 @@ describe("E2E Campaign Failure Modes", () => {
     const deadCard = Array.from(rosterCards).find(c => c.querySelector("strong")?.textContent?.includes("Recruit 1"));
     expect(deadCard).toBeTruthy();
     expect(deadCard?.classList.contains("disabled")).toBe(true);
-    expect(deadCard?.classList.contains("selected")).toBe(false);
+    expect(deadCard?.classList.contains("deployed")).toBe(false);
 
     // Try to double click the dead card
     deadCard?.dispatchEvent(new Event("dblclick"));
