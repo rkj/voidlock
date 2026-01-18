@@ -400,4 +400,12 @@ The application must remain navigable even in the event of a catastrophic logic 
 - **Emergency Reset**: The "Reset Data" button logic MUST be initialized independently of the main application bundle (e.g., via an inline script) to ensure users can wipe corrupted state even if the main game engine fails to start.
 - **Verification**: The system must be resilient to `JSON.parse` failures and missing asset manifests.
 
+### 8.13 Geometric LOS/LOF Constraints
+
+To ensure consistency between the visual representation and the simulation logic:
+
+- **Door Struts**: Doors only occupy the middle 1/3 of a cell boundary. The outer 1/3 segments (struts) MUST always block LOS and LOF, regardless of the door's state.
+- **Unit Precision**: LOS and LOF checks between units MUST account for the unit's physical radius. A single center-to-center ray is insufficient; the simulation should verify that a "fat" ray (or multiple sampled rays) can pass without hitting solid geometry.
+- **Corner Cutting**: Shots passing extremely close to wall corners MUST be blocked if any part of the unit's radius would collide with the corner.
+
 
