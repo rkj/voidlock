@@ -56,11 +56,32 @@
         </div>
       </div>
 
-      <!-- 2. Campaign Screen -->
-      <div id="screen-campaign" class="screen screen-centered">
-        <h1>Campaign</h1>
-        <p>Mission list unavailable in prototype.</p>
-        <button id="btn-campaign-back" class="back-button">Back to Menu</button>
+      <!-- 2. Campaign Shell wrapper -->
+      <div id="screen-campaign-shell" class="screen flex-col">
+          <div id="campaign-shell-top-bar"></div>
+          <div id="campaign-shell-content" class="flex-grow relative overflow-hidden">
+              <!-- 2a. Campaign Screen -->
+              <div id="screen-campaign" class="screen screen-centered">
+                <h1>Campaign</h1>
+                <p>Mission list unavailable in prototype.</p>
+                <button id="btn-campaign-back" class="back-button">Back to Menu</button>
+              </div>
+
+              <!-- 2b. Equipment Screen -->
+              <div id="screen-equipment" class="screen">
+                <!-- Content will be injected by EquipmentScreen.ts -->
+              </div>
+
+              <!-- 2c. Barracks Screen -->
+              <div id="screen-barracks" class="screen">
+                <!-- Content will be injected by BarracksScreen.ts -->
+              </div>
+
+              <!-- 2d. Statistics Screen -->
+              <div id="screen-statistics" class="screen">
+                <!-- Content will be injected by StatisticsScreen.ts -->
+              </div>
+          </div>
       </div>
 
       <!-- 3. Mission Setup Screen -->
@@ -182,16 +203,6 @@
             </button>
           </div>
         </div>
-      </div>
-
-      <!-- 3b. Equipment Screen -->
-      <div id="screen-equipment" class="screen">
-        <!-- Content will be injected by EquipmentScreen.ts -->
-      </div>
-
-      <!-- 3c. Barracks Screen -->
-      <div id="screen-barracks" class="screen">
-        <!-- Content will be injected by BarracksScreen.ts -->
       </div>
 
       <!-- 4. Mission Screen (Game Loop) -->
@@ -460,11 +471,6 @@
         "
       >
         <!-- Content will be injected by CampaignSummaryScreen.ts -->
-      </div>
-
-      <!-- 7. Statistics Screen -->
-      <div id="screen-statistics" class="screen">
-        <!-- Content will be injected by StatisticsScreen.ts -->
       </div>
     <div id="modal-container"></div>
     <script type="module" src="/renderer/main.ts"></script>

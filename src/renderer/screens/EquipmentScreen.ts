@@ -21,6 +21,7 @@ export class EquipmentScreen {
   private selectedSoldierIndex: number = 0;
   private onSave: (config: SquadConfig) => void;
   private onBack: () => void;
+  private onUpdate?: () => void;
   private inspector: SoldierInspector;
   private isShop: boolean = false;
 
@@ -30,6 +31,7 @@ export class EquipmentScreen {
     initialConfig: SquadConfig,
     onSave: (config: SquadConfig) => void,
     onBack: () => void,
+    onUpdate?: () => void,
     isShop: boolean = false,
   ) {
     const el = document.getElementById(containerId);
@@ -40,10 +42,14 @@ export class EquipmentScreen {
     this.applyDefaults();
     this.onSave = onSave;
     this.onBack = onBack;
+    this.onUpdate = onUpdate;
     this.isShop = isShop;
     this.inspector = new SoldierInspector({
       manager: this.manager,
-      onUpdate: () => this.render(),
+      onUpdate: () => {
+        this.render();
+        if (this.onUpdate) this.onUpdate();
+      },
     });
     this.inspector.setShop(this.isShop);
   }
@@ -123,18 +129,6 @@ export class EquipmentScreen {
     contentWrapper.appendChild(centerPanel);
     contentWrapper.appendChild(rightPanel);
     this.container.appendChild(contentWrapper);
-
-    // Header Stats (Floating)
-    const state = this.manager.getState();
-    if (state) {
-      const statsOverlay = document.createElement("div");
-      statsOverlay.className = "overlay-stats";
-      statsOverlay.innerHTML = `
-        <span style="margin-right:20px;">Scrap: <span style="color:var(--color-primary)">${state.scrap}</span></span>
-        <span>Intel: <span style="color:var(--color-accent)">${state.intel}</span></span>
-      `;
-      this.container.appendChild(statsOverlay);
-    }
 
     // Footer Buttons (Direct child of container)
     const footer = document.createElement("div");

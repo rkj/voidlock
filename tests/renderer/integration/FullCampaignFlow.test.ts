@@ -98,8 +98,17 @@ describe("Full Campaign Flow Integration", () => {
         <button id="btn-menu-custom">Custom Mission</button>
         <p id="menu-version"></p>
       </div>
-      <div id="screen-campaign" class="screen" style="display:none"></div>
-      <div id="screen-barracks" class="screen" style="display:none"></div>
+
+      <div id="screen-campaign-shell" class="screen flex-col" style="display:none">
+          <div id="campaign-shell-top-bar"></div>
+          <div id="campaign-shell-content" class="flex-grow relative overflow-hidden">
+              <div id="screen-campaign" class="screen" style="display:none"></div>
+              <div id="screen-barracks" class="screen" style="display:none"></div>
+              <div id="screen-equipment" class="screen" style="display:none"></div>
+              <div id="screen-statistics" class="screen" style="display:none"></div>
+          </div>
+      </div>
+
       <div id="screen-mission-setup" class="screen" style="display:none">
         <div id="map-config-section">
           <select id="map-generator-type">
@@ -118,7 +127,7 @@ describe("Full Campaign Flow Integration", () => {
         <button id="btn-goto-equipment">Equipment</button>
         <button id="btn-setup-back">Back</button>
       </div>
-      <div id="screen-equipment" class="screen" style="display:none"></div>
+
       <div id="screen-mission" class="screen" style="display:none">
         <div id="top-bar">
           <div id="game-status"></div>
@@ -135,7 +144,6 @@ describe("Full Campaign Flow Integration", () => {
       </div>
       <div id="screen-debrief" class="screen" style="display:none"></div>
       <div id="screen-campaign-summary" class="screen" style="display:none"></div>
-      <div id="screen-statistics" class="screen" style="display:none"></div>
     `;
 
     // Mock window.confirm

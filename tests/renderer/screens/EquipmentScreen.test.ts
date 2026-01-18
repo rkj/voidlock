@@ -39,6 +39,7 @@ describe("EquipmentScreen", () => {
       initialConfig,
       onSave,
       onBack,
+      null as any,
     );
     screen.show();
 
@@ -60,6 +61,7 @@ describe("EquipmentScreen", () => {
       initialConfig,
       onSave,
       onBack,
+      null as any,
     );
     screen.show();
 
@@ -86,6 +88,7 @@ describe("EquipmentScreen", () => {
       initialConfig, // assault has pulse_rifle and combat_knife in ArchetypeLibrary
       onSave,
       onBack,
+      null as any,
     );
     screen.show();
 
@@ -120,6 +123,7 @@ describe("EquipmentScreen", () => {
       initialConfig,
       onSave,
       onBack,
+      null as any,
     );
     screen.show();
 
@@ -156,6 +160,7 @@ describe("EquipmentScreen", () => {
       initialConfig,
       onSave,
       onBack,
+      null as any,
     );
     screen.show();
 
@@ -190,6 +195,7 @@ describe("EquipmentScreen", () => {
       initialConfig,
       onSave,
       onBack,
+      null as any,
     );
     screen.show();
 
@@ -219,6 +225,7 @@ describe("EquipmentScreen", () => {
       initialConfig,
       onSave,
       onBack,
+      null as any,
     );
     screen.show();
 

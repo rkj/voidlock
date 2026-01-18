@@ -18,25 +18,28 @@ export class BarracksScreen {
   private manager: CampaignManager;
   private modalService: ModalService;
   private selectedSoldierId: string | null = null;
-  private onBack: () => void;
   private inspector: SoldierInspector;
   private activeTab: "Recruitment" | "Armory" = "Recruitment";
+  private onUpdate?: () => void;
 
   constructor(
     containerId: string,
     manager: CampaignManager,
     modalService: ModalService,
-    onBack: () => void,
+    onUpdate?: () => void,
   ) {
     const el = document.getElementById(containerId);
     if (!el) throw new Error(`Container #${containerId} not found`);
     this.container = el;
     this.manager = manager;
     this.modalService = modalService;
-    this.onBack = onBack;
+    this.onUpdate = onUpdate;
     this.inspector = new SoldierInspector({
       manager: this.manager,
-      onUpdate: () => this.render(),
+      onUpdate: () => {
+        this.render();
+        if (this.onUpdate) this.onUpdate();
+      },
     });
   }
 
@@ -78,27 +81,6 @@ export class BarracksScreen {
     this.container.appendChild(leftPanel);
     this.container.appendChild(centerPanel);
     this.container.appendChild(rightPanel);
-
-    // Header Stats (Floating)
-    const statsOverlay = document.createElement("div");
-    statsOverlay.className = "overlay-stats";
-    statsOverlay.innerHTML = `
-      <span style="margin-right:20px;">Scrap: <span style="color:var(--color-primary)">${state.scrap}</span></span>
-      <span>Intel: <span style="color:var(--color-accent)">${state.intel}</span></span>
-    `;
-    this.container.appendChild(statsOverlay);
-
-    // Footer Buttons
-    const footer = document.createElement("div");
-    footer.className = "screen-footer";
-
-    const backBtn = document.createElement("button");
-    backBtn.textContent = "Back to Sector Map";
-    backBtn.className = "back-button";
-    backBtn.onclick = () => this.onBack();
-
-    footer.appendChild(backBtn);
-    this.container.appendChild(footer);
   }
 
   private createPanel(title: string, width: string): HTMLElement {
@@ -223,6 +205,7 @@ export class BarracksScreen {
       healBtn.onclick = () => {
         this.manager.healSoldier(soldier.id);
         this.render();
+        if (this.onUpdate) this.onUpdate();
       };
       actions.appendChild(healBtn);
     } else if (soldier.status === "Dead" && state.rules.deathRule === "Clone") {
@@ -232,6 +215,7 @@ export class BarracksScreen {
       reviveBtn.onclick = () => {
         this.manager.reviveSoldier(soldier.id);
         this.render();
+        if (this.onUpdate) this.onUpdate();
       };
       actions.appendChild(reviveBtn);
     } else if (soldier.status === "Dead") {
@@ -344,6 +328,7 @@ export class BarracksScreen {
         if (name) {
           this.manager.recruitSoldier(archId, name);
           this.render();
+          if (this.onUpdate) this.onUpdate();
         }
       };
       card.appendChild(recruitBtn);

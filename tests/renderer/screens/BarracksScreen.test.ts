@@ -28,7 +28,7 @@ describe("BarracksScreen", () => {
   });
 
   it("should render roster and recruitment on show", () => {
-    const screen = new BarracksScreen("screen-barracks", manager, mockModalService, onBack);
+    const screen = new BarracksScreen("screen-barracks", manager, mockModalService);
     screen.show();
 
     expect(container.textContent).toContain("Roster");
@@ -43,7 +43,7 @@ describe("BarracksScreen", () => {
   });
 
   it("should show soldier details when a soldier is selected", () => {
-    const screen = new BarracksScreen("screen-barracks", manager, mockModalService, onBack);
+    const screen = new BarracksScreen("screen-barracks", manager, mockModalService);
     screen.show();
 
     const state = manager.getState()!;
@@ -65,7 +65,7 @@ describe("BarracksScreen", () => {
     state.roster[0].status = "Wounded";
     state.roster[0].hp = 10;
 
-    const screen = new BarracksScreen("screen-barracks", manager, mockModalService, onBack);
+    const screen = new BarracksScreen("screen-barracks", manager, mockModalService);
     screen.show();
 
     const soldierItem = Array.from(container.querySelectorAll(".menu-item.clickable"))
@@ -85,7 +85,7 @@ describe("BarracksScreen", () => {
     state.roster[0].hp = 0;
     state.rules.deathRule = "Clone";
 
-    const screen = new BarracksScreen("screen-barracks", manager, mockModalService, onBack);
+    const screen = new BarracksScreen("screen-barracks", manager, mockModalService);
     screen.show();
 
     const soldierItem = Array.from(container.querySelectorAll(".menu-item.clickable"))
@@ -98,7 +98,7 @@ describe("BarracksScreen", () => {
   it("should allow recruiting a new soldier", async () => {
     mockModalService.prompt.mockResolvedValue("Bob");
     
-    const screen = new BarracksScreen("screen-barracks", manager, mockModalService, onBack);
+    const screen = new BarracksScreen("screen-barracks", manager, mockModalService);
     screen.show();
 
     const recruitBtns = Array.from(container.querySelectorAll("button"))
@@ -112,16 +112,5 @@ describe("BarracksScreen", () => {
     expect(mockModalService.prompt).toHaveBeenCalled();
     expect(manager.getState()?.roster.some(s => s.name === "Bob")).toBe(true);
     expect(container.textContent).toContain("Bob");
-  });
-
-  it("should trigger onBack", () => {
-    const screen = new BarracksScreen("screen-barracks", manager, mockModalService, onBack);
-    screen.show();
-
-    const backBtn = Array.from(container.querySelectorAll("button"))
-      .find(btn => btn.textContent === "Back to Sector Map");
-    backBtn?.click();
-
-    expect(onBack).toHaveBeenCalled();
   });
 });

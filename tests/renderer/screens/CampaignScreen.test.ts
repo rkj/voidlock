@@ -8,7 +8,6 @@ describe("CampaignScreen", () => {
   let container: HTMLElement;
   let manager: CampaignManager;
   let onNodeSelect: any;
-  let onBarracks: any;
   let onBack: any;
   let mockModalService: any;
 
@@ -35,7 +34,6 @@ describe("CampaignScreen", () => {
       })(),
     );
     onNodeSelect = vi.fn();
-    onBarracks = vi.fn();
     onBack = vi.fn();
     mockModalService = {
       alert: vi.fn().mockResolvedValue(undefined),
@@ -49,7 +47,6 @@ describe("CampaignScreen", () => {
       manager,
       mockModalService,
       onNodeSelect,
-      onBarracks,
       onBack,
     );
     screen.show();
@@ -66,13 +63,12 @@ describe("CampaignScreen", () => {
       manager,
       mockModalService,
       onNodeSelect,
-      onBarracks,
       onBack,
     );
     screen.show();
 
-    expect(container.textContent).toContain("Sector Map");
-    expect(container.textContent).toContain("Scrap:");
+    // The 'Sector Map' header is now in the CampaignShell, but the screen itself renders nodes
+    // expect(container.textContent).toContain("Sector Map"); 
 
     // Should find nodes
     const nodes = container.querySelectorAll(".campaign-node");
@@ -86,7 +82,6 @@ describe("CampaignScreen", () => {
       manager,
       mockModalService,
       onNodeSelect,
-      onBarracks,
       onBack,
     );
     screen.show();
@@ -98,27 +93,6 @@ describe("CampaignScreen", () => {
 
     accessibleNode.click();
     expect(onNodeSelect).toHaveBeenCalled();
-  });
-
-  it("should trigger onBarracks when barracks button is clicked", () => {
-    manager.startNewCampaign(12345, "normal");
-    const screen = new CampaignScreen(
-      "screen-campaign",
-      manager,
-      mockModalService,
-      onNodeSelect,
-      onBarracks,
-      onBack,
-    );
-    screen.show();
-
-    const barracksBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.textContent === "Barracks",
-    );
-    expect(barracksBtn).toBeDefined();
-    barracksBtn?.click();
-
-    expect(onBarracks).toHaveBeenCalled();
   });
 
   it("should render a 'current' indicator on the current node", () => {
@@ -133,7 +107,6 @@ describe("CampaignScreen", () => {
       manager,
       mockModalService,
       onNodeSelect,
-      onBarracks,
       onBack,
     );
     screen.show();
@@ -145,13 +118,12 @@ describe("CampaignScreen", () => {
     expect(currentNode.innerHTML).toContain("▼"); // Using downward triangle as indicator
   });
 
-  it("should trigger onBack when back button is clicked", () => {
+  it("should trigger onBack when back button is clicked in wizard", () => {
     const screen = new CampaignScreen(
       "screen-campaign",
       manager,
       mockModalService,
       onNodeSelect,
-      onBarracks,
       onBack,
     );
     screen.show();
@@ -174,7 +146,6 @@ describe("CampaignScreen", () => {
       manager,
       mockModalService,
       onNodeSelect,
-      onBarracks,
       onBack,
     );
     screen.show();
@@ -193,7 +164,6 @@ describe("CampaignScreen", () => {
       manager,
       mockModalService,
       onNodeSelect,
-      onBarracks,
       onBack,
     );
     screen.show();
