@@ -1,17 +1,19 @@
 // Tactical Icons for Voidlock
 // Now pointing to external SVG files in public/assets/icons/
 
+const base = import.meta.env.BASE_URL;
+
 export const Icons = {
-  Exit: "/assets/icons/exit.svg",
-  Spawn: "/assets/icons/spawn.svg",
-  Objective: "/assets/icons/objective.svg",
-  Hive: "/assets/icons/hive.svg",
-  Speed: "/assets/icons/speed.svg",
-  Accuracy: "/assets/icons/accuracy.svg",
-  Damage: "/assets/icons/damage.svg",
-  Rate: "/assets/icons/rate.svg",
-  Range: "/assets/icons/range.svg",
-  Health: "/assets/icons/health.svg",
-  Visibility: "/assets/icons/visibility.svg",
-  Crate: "/assets/crate.webp",
+  Exit: base + "assets/icons/exit.svg",
+  Spawn: base + "assets/icons/spawn.svg",
+  Objective: base + "assets/icons/objective.svg",
+  Hive: base + "assets/icons/hive.svg",
+  Speed: base + "assets/icons/speed.svg",
+  Accuracy: base + "assets/icons/accuracy.svg",
+  Damage: base + "assets/icons/damage.svg",
+  Rate: base + "assets/icons/rate.svg",
+  Range: base + "assets/icons/range.svg",
+  Health: base + "assets/icons/health.svg",
+  Visibility: base + "assets/icons/visibility.svg",
+  Crate: base + "assets/crate.webp",
 };

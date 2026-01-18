@@ -21,7 +21,7 @@ export class ThemeManager {
    */
   public async init(): Promise<void> {
     try {
-      const response = await fetch("/assets/assets.json");
+      const response = await fetch(import.meta.env.BASE_URL + "assets/assets.json");
       if (!response.ok) {
         throw new Error(`Failed to fetch assets.json: ${response.statusText}`);
       }
@@ -36,7 +36,7 @@ export class ThemeManager {
    */
   public getAssetUrl(logicalName: string): string | null {
     const path = this.assets[logicalName];
-    return path ? `/${path}` : null;
+    return path ? import.meta.env.BASE_URL + path : null;
   }
 
   /**
@@ -99,7 +99,7 @@ export class ThemeManager {
    * Returns the URL for a standard icon.
    */
   public getIconUrl(iconName: string): string {
-    return `/assets/icons/${iconName.toLowerCase()}.svg`;
+    return import.meta.env.BASE_URL + `assets/icons/${iconName.toLowerCase()}.svg`;
   }
 
   /**
