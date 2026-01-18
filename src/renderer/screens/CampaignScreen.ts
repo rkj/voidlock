@@ -598,16 +598,20 @@ export class CampaignScreen {
                 nodeEl.appendChild(pipsContainer);
               }
         
-              // Current Indicator (Ship Icon)
-              if (isCurrent) {        const indicator = document.createElement("div");
-        indicator.textContent = "▲";
-        indicator.style.position = "absolute";
-        indicator.style.top = "-20px";
-        indicator.style.color = "var(--color-accent)";
-        indicator.style.fontSize = "1.2em";
-        indicator.style.textShadow = "0 0 5px var(--color-accent)";
-        nodeEl.appendChild(indicator);
-      }
+        // Current Indicator (Ship Icon)
+        if (isCurrent) {
+          const indicator = document.createElement("div");
+          indicator.textContent = "▼";
+          indicator.style.position = "absolute";
+          indicator.style.top = "-22px";
+          indicator.style.left = "50%";
+          indicator.style.transform = "translateX(-50%)";
+          indicator.style.color = "var(--color-accent)";
+          indicator.style.fontSize = "1.4em";
+          indicator.style.textShadow = "0 0 8px var(--color-accent)";
+          indicator.style.zIndex = "10";
+          nodeEl.appendChild(indicator);
+        }
 
       container.appendChild(nodeEl);
     });
