@@ -86,9 +86,9 @@ describe("Non-Combat Node Interactions", () => {
       <div id="screen-mission-setup"></div>
       <div id="screen-equipment"></div>
       <div id="screen-mission"></div>
-      <div id="screen-debrief"></div>
-      <div id="screen-campaign-summary"></div>
-      <canvas id="game-canvas"></canvas>
+      <div id="screen-debrief" class="screen" style="display:none"></div>
+      <div id="screen-campaign-summary" class="screen" style="display:none"></div>
+      <div id="screen-statistics" class="screen" style="display:none"></div>
     `;
 
     CampaignManager.resetInstance();

@@ -29,12 +29,14 @@ export class InputBinder {
     onExportReplay: () => void;
     onUpdateSquadBuilder: () => void;
     onApplyCampaignTheme: () => void;
+    onShowStatistics: () => void;
   }) {
     const { context } = this;
 
     // Main Menu
     this.addListener("btn-menu-custom", "click", () => callbacks.onCustomMission());
     this.addListener("btn-menu-campaign", "click", () => callbacks.onCampaignMenu());
+    this.addListener("btn-menu-statistics", "click", () => callbacks.onShowStatistics());
     this.addListener("btn-menu-reset", "click", () => callbacks.onResetData());
 
     // Navigation Back

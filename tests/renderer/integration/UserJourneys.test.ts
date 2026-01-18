@@ -167,6 +167,7 @@ describe("Comprehensive User Journeys", () => {
       </div>
       <div id="screen-debrief" class="screen" style="display:none"></div>
       <div id="screen-campaign-summary" class="screen" style="display:none"></div>
+      <div id="screen-statistics" class="screen" style="display:none"></div>
     `;
 
     // Mock window.confirm

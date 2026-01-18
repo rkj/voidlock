@@ -16,6 +16,7 @@ import { CampaignScreen } from "@src/renderer/screens/CampaignScreen";
 import { EquipmentScreen } from "@src/renderer/screens/EquipmentScreen";
 import { DebriefScreen } from "@src/renderer/screens/DebriefScreen";
 import { CampaignSummaryScreen } from "@src/renderer/screens/CampaignSummaryScreen";
+import { StatisticsScreen } from "@src/renderer/screens/StatisticsScreen";
 import { MapFactory } from "@src/engine/map/MapFactory";
 import { 
     GameState, 
@@ -58,6 +59,7 @@ export class GameApp {
   private debriefScreen!: DebriefScreen;
   private equipmentScreen!: EquipmentScreen;
   private campaignSummaryScreen!: CampaignSummaryScreen;
+  private statisticsScreen!: StatisticsScreen;
 
   // app state
   private currentCampaignNode: CampaignNode | null = null;
@@ -192,6 +194,11 @@ export class GameApp {
         () => this.context.screenManager.goBack(),
       );
 
+    this.statisticsScreen = new StatisticsScreen(
+      "screen-statistics",
+      () => this.showMainMenu(),
+    );
+
     // 4. Bind events
     this.inputBinder.bindAll({
         onLaunchMission: () => this.launchMission(),
@@ -272,6 +279,10 @@ export class GameApp {
         },
         onUpdateSquadBuilder: () => this.renderSquadBuilder(this.currentCampaignNode !== null),
         onApplyCampaignTheme: () => this.applyCampaignTheme(),
+        onShowStatistics: () => {
+          this.statisticsScreen.show();
+          this.context.screenManager.show("statistics");
+        },
     });
 
     // Special bindings that were in main.ts
@@ -281,21 +292,11 @@ export class GameApp {
     
     // Initial UI state
     this.loadAndApplyConfig(false);
-    this.updateGlobalStats();
     const mvEl = document.getElementById("menu-version");
     if (mvEl) mvEl.textContent = `v${VERSION}`;
   }
 
-  private updateGlobalStats() {
-    const stats = MetaManager.getInstance().getStats();
-    const el = document.getElementById("global-stats-tally");
-    if (el) {
-      el.textContent = `Total Kills: ${stats.totalKills} | Campaigns Won: ${stats.campaignsWon}`;
-    }
-  }
-
   private showMainMenu() {
-    this.updateGlobalStats();
     this.context.screenManager.show("main-menu");
   }
 

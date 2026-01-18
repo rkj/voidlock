@@ -96,7 +96,7 @@ describe("Mission Setup Context Header", () => {
       <div id="screen-mission" class="screen" style="display:none"></div>
       <div id="screen-debrief" class="screen" style="display:none"></div>
       <div id="screen-campaign-summary" class="screen" style="display:none"></div>
-      <p id="menu-version"></p>
+      <div id="screen-statistics" class="screen" style="display:none"></div>
     `;
 
     vi.resetModules();
