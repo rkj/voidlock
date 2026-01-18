@@ -12,10 +12,20 @@ The application is divided into distinct screens to reduce UI clutter and improv
 - **Buttons**:
     - **Campaign**: Enter Campaign Mode.
     - **Custom Mission**: Enter Mission Setup.
-    - **Reset Data**: Clear all local storage and reload (Destructive, with confirmation).
+    - **Reset Data**: Clear all local storage and reload (Destructive, with confirmation via Custom Modal).
 - **Import**: "Load Replay JSON" file picker.
+- **Global Stats Tally**:
+  - **Location**: Bottom-right or unobtrusive corner.
+  - **Content**: Summary of cumulative stats (e.g., "Total Kills: X | Campaigns Won: Y").
+  - **Source**: `MetaManager`.
 
 1. **Mission Setup Screen** (formerly Config Screen)
+   - **Campaign Context Header**:
+     - **Location**: Below the "MISSION CONFIGURATION" title.
+     - **Content**:
+       - **Campaign Mode**: "CAMPAIGN: [Difficulty] | MISSION [N] | SECTOR [N]"
+       - **Custom Mode**: "CUSTOM SIMULATION"
+     - **Style**: Subtle, informative header text (e.g., smaller font, dimmed color).
    - **Map Configuration**:
      - Generator Type (Procedural, TreeShip, Static).
      - Seed Input / Randomize.
@@ -43,6 +53,13 @@ The application is divided into distinct screens to reduce UI clutter and improv
     - **Constraints**:
       - Mission-Specific units (e.g., VIPs) are auto-assigned to locked slots.
       - Deployment slots reflect the maximum squad size (4).
+    - **Visuals**:
+      - **No Slot Labels**: Deployment slots MUST NOT display text like "Slot 1" or "Slot 2". Use `aria-label` for accessibility, but keep the visual clean.
+      - **Roster Sorting**: The Roster list MUST be sorted by status to prioritize available units:
+        1. **Healthy** (Top)
+        2. **Wounded**
+        3. **Dead** (Bottom)
+      - **Deployed State**: Soldiers currently assigned to a Deployment Slot MUST be visually distinct in the Roster (e.g., dimmed opacity, blue border, or "Deployed" tag). This indicates they cannot be dragged again.
   - **Actions**:
     - "Launch Mission" -> Starts Engine, switches to Mission Screen.
     - "Back" -> Main Menu.
@@ -84,6 +101,40 @@ The application is divided into distinct screens to reduce UI clutter and improv
    - **Bottom Panel**: Timeline/Event Log.
    - **Input**:
      - `ESC`: Opens **Pause Overlay** (Resume / Abort Mission).
+
+### 8.2 Debug affordances (non-negotiable for balancing)
+
+**Toggle:** `~` (Tilde/Backquote) or "Debug Overlay" checkbox in Mission Setup.
+
+When enabled, the game displays additional diagnostic information:
+- **Map Visualization**:
+  - Grid coordinates overlaid on all cells.
+  - **Full Visibility**: Bypasses Fog of War/Shroud visually to show the entire map and all entities.
+  - **Generator Info**: Display the Generator Type and Seed used for the current map (e.g., "TreeShipGenerator (785411)").
+  - **Entity Visibility**: MUST render all hidden entities, including **Items/Loot**, Enemies, and Objectives, even if they are in the fog or undiscovered.
+- **LOS Diagnostics**:
+  - Raycast lines showing individual visibility checks from units to visible cells.
+- **HUD (Right Panel)**:
+  - A **"Copy World State"** button appears.
+  - Objective coordinates (`at (x,y)`) become visible in the objectives list.
+
+**World State Export:**
+Clicking "Copy World State" captures a comprehensive snapshot of the session.
+- **Format:** JSON
+- **Contents**:
+  - `replayData`: Seed, Map Definition, Squad Config, and the full Command History.
+  - `currentState`: The full `GameState` object from the engine.
+  - `mapGenerator`: The name of the generator algorithm used (e.g., "TreeShipGenerator").
+  - `version`: Engine/Protocol version.
+  - `timestamp`: System time of export.
+- **Destination:** System Clipboard (primary) and Console (fallback).
+  - **Constraint:** Must check for `navigator.clipboard` availability. If unavailable (e.g., non-secure context), strictly fallback to `console.log` and alert the user.
+- **Usage:** This JSON can be attached to bug reports or used with "Load Replay" to reproduce exact states.
+
+- **Legacy Requirements:**
+  - Navmesh/path display
+  - Spawn intensity heatmaps
+  - Deterministic replay import/export (ReplayData)
 
 ### 8.3 Control Scheme & Keyboard Navigation
 
@@ -197,84 +248,6 @@ The UI must be optimized for visibility and information density, utilizing the f
   - **Objectives & Hive:** Must ONLY be placed in rooms, never in corridors.
   - **Corridors:** Must remain clear of all static mission entities to maintain the "frame" integrity.
 
-### 8.2 Debug affordances (non-negotiable for balancing)
-
-**Toggle:** `~` (Tilde/Backquote) or "Debug Overlay" checkbox in Mission Setup.
-
-When enabled, the game displays additional diagnostic information:
-- **Map Visualization**:
-  - Grid coordinates overlaid on all cells.
-  - **Full Visibility**: Bypasses Fog of War/Shroud visually to show the entire map and all entities.
-  - **Generator Info**: Display the Generator Type and Seed used for the current map (e.g., "TreeShipGenerator (785411)").
-  - **Entity Visibility**: MUST render all hidden entities, including **Items/Loot**, Enemies, and Objectives, even if they are in the fog or undiscovered.
-- **LOS Diagnostics**:
-  - Raycast lines showing individual visibility checks from units to visible cells.
-- **HUD (Right Panel)**:
-  - A **"Copy World State"** button appears.
-  - Objective coordinates (`at (x,y)`) become visible in the objectives list.
-
-**World State Export:**
-Clicking "Copy World State" captures a comprehensive snapshot of the session.
-- **Format:** JSON
-- **Contents**:
-  - `replayData`: Seed, Map Definition, Squad Config, and the full Command History.
-  - `currentState`: The full `GameState` object from the engine.
-  - `mapGenerator`: The name of the generator algorithm used (e.g., "TreeShipGenerator").
-  - `version`: Engine/Protocol version.
-  - `timestamp`: System time of export.
-- **Destination:** System Clipboard (primary) and Console (fallback).
-  - **Constraint:** Must check for `navigator.clipboard` availability. If unavailable (e.g., non-secure context), strictly fallback to `console.log` and alert the user.
-- **Usage:** This JSON can be attached to bug reports or used with "Load Replay" to reproduce exact states.
-
-- **Legacy Requirements:**
-  - Navmesh/path display
-  - Spawn intensity heatmaps
-  - Deterministic replay import/export (ReplayData)
-
-### 8.7 Shared UI Components
-
-To ensure consistency between Campaign Management (Barracks) and Mission Preparation (Ready Room), the following components must be shared:
-
-- **Soldier Inspector (Loadout UI):**
-  - **Usage:** Used in both **BarracksScreen** and **EquipmentScreen**.
-  - **Layout:**
-    - **Left:** Soldier Stats (Attributes).
-    - **Center:** Paper Doll (Visual slots for Right Hand, Left Hand, Body, Feet).
-    - **Right:** Contextual Panel (Armory/Store or Recruitment).
-  - **Behavior:**
-    - **Persistence:** Changes made here MUST immediately write back to the `CampaignManager`.
-    - **Economy:** Selecting items from the Armory triggers the "Pay-to-Equip" logic (deducting Scrap).
-    - **Visuals:** Must display prices, stats, and "Owned/Equipped" indicators clearly.
-
-- **Global Resource Header:** (See Section 8.6)
-
-### 8.8 Visual Rendering Rules
-
-To ensure visual clarity and correct occlusion, the renderer must adhere to a strict Layer Stacking Order (Z-Index).
-
-1.  **Background Layer:**
-    -   Floor Tiles
-    -   Wall Geometry (Base)
-    -   Static Map Details (Decals)
-2.  **Ground Decal Layer:**
-    -   Zone Indicators (Extraction Zone, Deployment Zone)
-    -   Static Mission Entities (Spawn Points, Loot Crates, Terminals)
-    -   **Icon Distinction**:
-      -   **Objectives**: Must render with the `Objective` icon (e.g., Target/Flag).
-      -   **Loot Crates**: Must render with a distinct `Crate` icon to differentiate them from mission critical objectives.
-3.  **Unit Layer (Dynamic):**
-    -   **Soldiers & Enemies:** Must render **ON TOP** of the Ground Decal Layer.
-    -   *Example:* A soldier standing on a Spawn Point must obscure the Spawn Point graphic.
-    -   **Projectiles/Tracers:** Rendered above units.
-4.  **Fog of War (Shroud):**
-    -   Obscures Layers 1-3 based on visibility.
-5.  **Overlay Layer (UI):**
-    -   Selection Rings/Highlights.
-    -   Health Bars.
-    -   Floating Text (Damage Numbers).
-    -   Movement Paths (Ghosts).
-    -   Objective Indicators (Icons).
-
 ### 8.6 Campaign Setup & Strategic UI
 
 To ensure economic clarity, all strategic and setup screens must follow a consistent resource display.
@@ -285,6 +258,9 @@ To ensure economic clarity, all strategic and setup screens must follow a consis
     - **SCRAP**: Displayed in `var(--color-primary)` (Green).
     - **INTEL**: Displayed in `var(--color-accent)` (Blue).
   - **Style**: Floating overlay in the top-right or integrated into the top bar, consistent with the `BarracksScreen` implementation.
+- **Meta Stats Display**:
+  - **Location**: Visible on the Campaign Screen (e.g., in the footer or a compact header panel).
+  - **Content**: Summary of key global metrics (e.g., "Total Kills").
 - **Difficulty Selection (Card Selector)**:
   - Replaces the traditional dropdown menu.
   - **Visuals**: A horizontal row of 4 distinct cards.
@@ -323,3 +299,74 @@ To ensure economic clarity, all strategic and setup screens must follow a consis
 - **Actions**:
   - **Start Campaign**: Commits the configuration.
   - **Back**: Returns to Main Menu.
+
+### 8.7 Shared UI Components
+
+To ensure consistency between Campaign Management (Barracks) and Mission Preparation (Ready Room), the following components must be shared:
+
+- **Soldier Inspector (Loadout UI):**
+  - **Usage:** Used in both **BarracksScreen** and **EquipmentScreen**.
+  - **Layout:**
+    - **Left:** Soldier Stats (Attributes).
+    - **Center:** Paper Doll (Visual slots for Right Hand, Left Hand, Body, Feet).
+    - **Right:** Contextual Panel (Armory/Store or Recruitment).
+  - **Behavior:**
+    - **Persistence:** Changes made here MUST immediately write back to the `CampaignManager`.
+    - **Economy:** Selecting items from the Armory triggers the "Pay-to-Equip" logic (deducting Scrap).
+    - **Visuals:** Must display prices, stats, and "Owned/Equipped" indicators clearly.
+
+- **Global Resource Header**: (See Section 8.6)
+
+### 8.8 Visual Rendering Rules
+
+To ensure visual clarity and correct occlusion, the renderer must adhere to a strict Layer Stacking Order (Z-Index).
+
+1.  **Background Layer:**
+    -   Floor Tiles
+    -   Wall Geometry (Base)
+    -   Static Map Details (Decals)
+2.  **Ground Decal Layer:**
+    -   Zone Indicators (Extraction Zone, Deployment Zone)
+    -   Static Mission Entities (Spawn Points, Loot Crates, Terminals)
+    -   **Icon Distinction**:
+      -   **Objectives**: Must render with the `Objective` icon (e.g., Target/Flag).
+      -   **Loot Crates**: Must render with a distinct `Crate` icon to differentiate them from mission critical objectives.
+3.  **Unit Layer (Dynamic):**
+    -   **Soldiers & Enemies:** Must render **ON TOP** of the Ground Decal Layer.
+    -   *Example:* A soldier standing on a Spawn Point must obscure the Spawn Point graphic.
+    -   **Projectiles/Tracers:** Rendered above units.
+4.  **Fog of War (Shroud):**
+    -   Obscures Layers 1-3 based on visibility.
+5.  **Overlay Layer (UI):**
+    -   Selection Rings/Highlights.
+    -   Health Bars.
+    -   Floating Text (Damage Numbers).
+    -   Movement Paths (Ghosts).
+    -   Objective Indicators (Icons).
+
+### 8.9 Campaign Shell Architecture
+
+All campaign-related screens (Sector Map, Barracks, Engineering, Stats) MUST share a common parent layout ("The Campaign Shell") to ensure UI consistency and prevent layout shifts.
+
+- **Structure:**
+  - **Top Bar (Persistent):**
+    - **Left:** "Campaign Mode" Label / Current Date or Depth.
+    - **Center (Navigation):** Tab-like buttons to switch between views (Sector Map, Barracks, Engineering). This replaces ad-hoc "Back" buttons.
+    - **Right (Resources):** Persistent display of Scrap and Intel.
+    - **Far Right:** Main Menu / Pause button.
+  - **Content Area:** The active screen (Sector Map, Barracks, etc.) renders here.
+- **Benefits:**
+  - Solves overlap issues where local UI elements cover global resources.
+  - Provides a consistent anchor for navigation.
+  - Eliminates "Back button cut-off" visual bugs.
+
+### 8.10 System Notifications (Modal System)
+
+- **Requirement:** The game MUST NOT use native browser `alert()` or `confirm()` dialogs.
+- **Implementation:** A custom `ModalService` or overlay component must be used.
+- **Style:** Must match the game's theme (Dark, Cyberpunk/Tactical).
+- **Usage:**
+  - Confirmation actions (e.g., "Reset Data", "Abort Mission").
+  - Critical errors (e.g., "Save Corrupted").
+  - Narrative Events (Campaign).
+

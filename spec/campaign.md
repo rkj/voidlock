@@ -186,6 +186,12 @@ Stored independently of individual save files (e.g., `voidlock_meta_v1`).
 
 - **Campaigns:**
   - `totalCampaignsStarted`: Count.
+  - **Campaign Mode Visualization:**
+    - **Campaign Shell:** All campaign screens (Bridge, Barracks, Shop) are rendered within a consistent shell containing the global resource bar (Top Right) and navigation tabs (Top Center).
+    - **Sector Map Layout:**
+      - **Nodes:** Rendered in the main content area.
+      - **Controls:** "New Campaign" and "Main Menu" buttons are positioned in the **Top Right** of the shell (or distinct from the bottom action bar).
+      - **Bottom Bar:** Reserved for context-specific actions (e.g., "Deploy", "Visit Shop").
   - `campaignsWon`: Count (Victory State).
   - `campaignsLost`: Count (Defeat State).
 - **Combat:**
