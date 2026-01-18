@@ -12,19 +12,16 @@ The application is divided into distinct screens to reduce UI clutter and improv
 - **Buttons**:
     - **Campaign**: Enter Campaign Mode.
     - **Custom Mission**: Enter Mission Setup.
+    - **Statistics**: Opens the Statistics Screen (Service Record).
     - **Reset Data**: Clear all local storage and reload (Destructive, with confirmation via Custom Modal).
 - **Import**: "Load Replay JSON" file picker.
-- **Global Stats Tally**:
-  - **Location**: Bottom-right or unobtrusive corner.
-  - **Content**: Summary of cumulative stats (e.g., "Total Kills: X | Campaigns Won: Y").
-  - **Source**: `MetaManager`.
 
 1. **Mission Setup Screen** (formerly Config Screen)
    - **Campaign Context Header**:
-     - **Location**: Below the "MISSION CONFIGURATION" title.
+     - **Location**: Below the "Mission Configuration" title.
      - **Content**:
-       - **Campaign Mode**: "CAMPAIGN: [Difficulty] | MISSION [N] | SECTOR [N]"
-       - **Custom Mode**: "CUSTOM SIMULATION"
+       - **Campaign Mode**: "Campaign: [Difficulty] | Mission [N] | Sector [N]"
+       - **Custom Mode**: "Custom Simulation"
      - **Style**: Subtle, informative header text (e.g., smaller font, dimmed color).
    - **Map Configuration**:
      - Generator Type (Procedural, TreeShip, Static).
@@ -147,24 +144,24 @@ To ensure consistent navigation, the UI follows a strict state machine.
 
 | Current State | Input / Trigger | Next State | Action / Side Effect |
 | :--- | :--- | :--- | :--- |
-| **ACTION_SELECT** (Root) | `1` (Orders) | **ORDERS_SELECT** | Show Order Submenu |
-| | `2` (Engage) | **MODE_SELECT** | Show Mode Submenu |
-| | `3` (Use Item) | **ITEM_SELECT** | Show Inventory List |
-| | `4` (Pickup) | **TARGET_SELECT** | Filter: Loot Items |
-| | `5` (Extract) | **UNIT_SELECT** | Filter: All Units |
-| **ORDERS_SELECT** | `1` (Move) | **TARGET_SELECT** | Filter: Rooms |
-| | `2` (Overwatch) | **TARGET_SELECT** | Filter: Intersections |
-| | `3` (Explore) | **UNIT_SELECT** | Filter: All Units |
-| | `4` (Escort) | **TARGET_SELECT** | Filter: Friendly Units |
-| | `5` (Hold) | **UNIT_SELECT** | Filter: All Units |
-| | `Q` / `ESC` | **ACTION_SELECT** | Clear Submenu |
-| **ITEM_SELECT** | `1-9` (Select Item) | **TARGET_SELECT** | Filter: Contextual (See below) |
-| | `Q` / `ESC` | **ACTION_SELECT** | Clear Inventory |
-| **MODE_SELECT** | `1-2` (Select Mode) | **UNIT_SELECT** | Set Pending Mode |
-| | `Q` / `ESC` | **ACTION_SELECT** | Clear Submenu |
-| **TARGET_SELECT** | `1-9` / Click | **UNIT_SELECT** | Set Pending Target |
+| **Action Select** (Root) | `1` (Orders) | **Orders Select** | Show Order Submenu |
+| | `2` (Engage) | **Mode Select** | Show Mode Submenu |
+| | `3` (Use Item) | **Item Select** | Show Inventory List |
+| | `4` (Pickup) | **Target Select** | Filter: Loot Items |
+| | `5` (Extract) | **Unit Select** | Filter: All Units |
+| **Orders Select** | `1` (Move) | **Target Select** | Filter: Rooms |
+| | `2` (Overwatch) | **Target Select** | Filter: Intersections |
+| | `3` (Explore) | **Unit Select** | Filter: All Units |
+| | `4` (Escort) | **Target Select** | Filter: Friendly Units |
+| | `5` (Hold) | **Unit Select** | Filter: All Units |
+| | `Q` / `ESC` | **Action Select** | Clear Submenu |
+| **Item Select** | `1-9` (Select Item) | **Target Select** | Filter: Contextual (See below) |
+| | `Q` / `ESC` | **Action Select** | Clear Inventory |
+| **Mode Select** | `1-2` (Select Mode) | **Unit Select** | Set Pending Mode |
+| | `Q` / `ESC` | **Action Select** | Clear Submenu |
+| **Target Select** | `1-9` / Click | **Unit Select** | Set Pending Target |
 | | `Q` / `ESC` | *Previous State* | **CRITICAL:** Return to parent (Order/Item/Action) |
-| **UNIT_SELECT** | `1-9` (Select Unit) | **ACTION_SELECT** | **EXECUTE COMMAND** |
+| **Unit Select** | `1-9` (Select Unit) | **Action Select** | **EXECUTE COMMAND** |
 | | `Q` / `ESC` | *Previous State* | Return to Target/Mode selection |
 
 **Item Targeting Context:**
@@ -255,8 +252,8 @@ To ensure economic clarity, all strategic and setup screens must follow a consis
 - **Global Resource Header**:
   - **Visibility**: MUST be visible on the Sector Map, Barracks, and Equipment (Ready Room) screens.
   - **Content**:
-    - **SCRAP**: Displayed in `var(--color-primary)` (Green).
-    - **INTEL**: Displayed in `var(--color-accent)` (Blue).
+    - **Scrap**: Displayed in `var(--color-primary)` (Green).
+    - **Intel**: Displayed in `var(--color-accent)` (Blue).
   - **Style**: Floating overlay in the top-right or integrated into the top bar, consistent with the `BarracksScreen` implementation.
 - **Meta Stats Display**:
   - **Location**: Visible on the Campaign Screen (e.g., in the footer or a compact header panel).
@@ -266,13 +263,13 @@ To ensure economic clarity, all strategic and setup screens must follow a consis
   - **Visuals**: A horizontal row of 4 distinct cards.
   - **Interaction**: Single-click selection. Selected card is highlighted.
   - **Card Content**:
-    - **Header**: Difficulty Name (e.g., "IRONMAN").
+    - **Header**: Difficulty Name (e.g., "Ironman").
     - **Icon**: Unique icon or visual cue.
     - **Rules List**: Bullet points defining the constraints.
-      - **Simulation**: "Permadeath: OFF", "Save: Manual", "Pause: ALLOWED".
-      - **Clone**: "Permadeath: PARTIAL (Cloneable)", "Save: Manual", "Pause: ALLOWED".
-      - **Standard**: "Permadeath: ON", "Save: Manual", "Pause: ALLOWED".
-      - **Ironman**: "Permadeath: ON", "Save: Auto-Delete", "Pause: DISABLED".
+      - **Simulation**: "Permadeath: Off", "Save: Manual", "Pause: Allowed".
+      - **Clone**: "Permadeath: Partial (Cloneable)", "Save: Manual", "Pause: Allowed".
+      - **Standard**: "Permadeath: On", "Save: Manual", "Pause: Allowed".
+      - **Ironman**: "Permadeath: On", "Save: Auto-Delete", "Pause: Disabled".
 - **Tactical Pause Toggle**:
   - Located below the card selector.
   - **Behavior**:
@@ -365,8 +362,26 @@ All campaign-related screens (Sector Map, Barracks, Engineering, Stats) MUST sha
 - **Requirement:** The game MUST NOT use native browser `alert()` or `confirm()` dialogs.
 - **Implementation:** A custom `ModalService` or overlay component must be used.
 - **Style:** Must match the game's theme (Dark, Cyberpunk/Tactical).
-- **Usage:**
+  - Usage:
   - Confirmation actions (e.g., "Reset Data", "Abort Mission").
   - Critical errors (e.g., "Save Corrupted").
   - Narrative Events (Campaign).
+
+### 8.11 Statistics Screen (Service Record)
+
+- **Title**: Service Record
+- **Purpose**: Display cumulative lifetime statistics across all campaigns and missions.
+- **Content**:
+  - **Campaigns**:
+    - Total Campaigns Started
+    - Campaigns Won
+    - Campaigns Lost
+  - **Combat**:
+    - Total Xeno Kills
+    - Total Soldier Casualties
+    - Total Missions Played
+    - Total Missions Won
+  - **Economy**:
+    - Total Scrap Earned (Lifetime)
+- **Action**: "Back to Menu" button returns the user to the Main Menu.
 
