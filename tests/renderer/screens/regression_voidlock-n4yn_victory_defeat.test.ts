@@ -47,12 +47,12 @@ describe("CampaignSummaryScreen Victory/Defeat Screens", () => {
     );
     screen.show(state);
 
-    expect(container.textContent).toContain("SECTOR SECURED");
-    expect(container.textContent).toContain("ALIENS KILLED: 42");
-    expect(container.textContent).toContain("MISSIONS: 1");
+    expect(container.textContent).toContain("Sector Secured");
+    expect(container.textContent).toContain("Aliens Killed: 42");
+    expect(container.textContent).toContain("Missions: 1");
 
     const menuBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.textContent === "RETIRE TO MAIN MENU",
+      (btn) => btn.textContent === "Retire to Main Menu",
     );
     expect(menuBtn).toBeDefined();
 
@@ -81,11 +81,11 @@ describe("CampaignSummaryScreen Victory/Defeat Screens", () => {
     );
     screen.show(state);
 
-    expect(container.textContent).toContain("MISSION FAILED");
-    expect(container.textContent).toContain("CAUSE: SQUAD WIPED");
+    expect(container.textContent).toContain("Mission Failed");
+    expect(container.textContent).toContain("Cause: Squad Wiped");
 
     const abandonBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.textContent === "ABANDON EXPEDITION",
+      (btn) => btn.textContent === "Abandon Expedition",
     );
     expect(abandonBtn).toBeDefined();
 
@@ -106,7 +106,7 @@ describe("CampaignSummaryScreen Victory/Defeat Screens", () => {
     );
     screen.show(state);
 
-    expect(container.textContent).toContain("MISSION FAILED");
-    expect(container.textContent).toContain("CAUSE: BANKRUPTCY");
+    expect(container.textContent).toContain("Mission Failed");
+    expect(container.textContent).toContain("Cause: Bankruptcy");
   });
 });

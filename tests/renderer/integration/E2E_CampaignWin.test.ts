@@ -211,7 +211,7 @@ describe("E2E Campaign Happy Path", () => {
     document.getElementById("btn-menu-campaign")?.click();
     expect(document.getElementById("screen-campaign")?.style.display).toBe("flex");
     
-    const standardCard = Array.from(document.querySelectorAll(".difficulty-card")).find(c => c.textContent?.includes("STANDARD")) as HTMLElement;
+    const standardCard = Array.from(document.querySelectorAll(".difficulty-card")).find(c => c.textContent?.includes("Standard")) as HTMLElement;
     expect(standardCard).toBeTruthy();
     standardCard?.click();
 
@@ -260,7 +260,7 @@ describe("E2E Campaign Happy Path", () => {
       expect(document.getElementById("screen-equipment")?.style.display).toBe("flex");
 
       // Confirm and Launch mission
-      const equipmentLaunchBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent?.includes("CONFIRM")) as HTMLElement;
+      const equipmentLaunchBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent?.includes("Confirm")) as HTMLElement;
       expect(equipmentLaunchBtn).toBeTruthy();
       equipmentLaunchBtn?.click();
 
@@ -320,7 +320,7 @@ describe("E2E Campaign Happy Path", () => {
       // 5. Debrief Screen
       expect(document.getElementById("screen-debrief")?.style.display).toBe("flex");
       
-      const returnBtn = Array.from(document.querySelectorAll("#screen-debrief button")).find(b => b.textContent?.includes("RETURN")) as HTMLElement;
+      const returnBtn = Array.from(document.querySelectorAll("#screen-debrief button")).find(b => b.textContent?.includes("Return")) as HTMLElement;
       expect(returnBtn).toBeTruthy();
       returnBtn?.click();
 

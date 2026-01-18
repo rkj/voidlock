@@ -48,7 +48,7 @@ describe("CampaignScreen", () => {
     );
     screen.show();
 
-    expect(container.textContent).toContain("NEW CAMPAIGN");
+    expect(container.textContent).toContain("New Campaign");
     expect(container.querySelectorAll(".difficulty-card").length).toBe(4);
     expect(container.querySelector("#campaign-tactical-pause")).not.toBeNull();
   });
@@ -64,8 +64,8 @@ describe("CampaignScreen", () => {
     );
     screen.show();
 
-    expect(container.textContent).toContain("SECTOR MAP");
-    expect(container.textContent).toContain("SCRAP:");
+    expect(container.textContent).toContain("Sector Map");
+    expect(container.textContent).toContain("Scrap:");
 
     // Should find nodes
     const nodes = container.querySelectorAll(".campaign-node");
@@ -104,7 +104,7 @@ describe("CampaignScreen", () => {
     screen.show();
 
     const barracksBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.textContent === "BARRACKS",
+      (btn) => btn.textContent === "Barracks",
     );
     expect(barracksBtn).toBeDefined();
     barracksBtn?.click();
@@ -146,7 +146,7 @@ describe("CampaignScreen", () => {
     screen.show();
 
     const backBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.textContent === "BACK TO MENU",
+      (btn) => btn.textContent === "Back to Menu",
     );
     backBtn?.click();
 
@@ -167,7 +167,7 @@ describe("CampaignScreen", () => {
     );
     screen.show();
 
-    expect(container.textContent).toContain("CAMPAIGN DEFEAT");
+    expect(container.textContent).toContain("Campaign Defeat");
     expect(container.querySelector("#btn-defeat-summary")).not.toBeNull();
   });
 
@@ -185,7 +185,7 @@ describe("CampaignScreen", () => {
     );
     screen.show();
 
-    expect(container.textContent).toContain("CAMPAIGN VICTORY");
+    expect(container.textContent).toContain("Campaign Victory");
     expect(container.querySelector("#btn-victory-summary")).not.toBeNull();
   });
 });

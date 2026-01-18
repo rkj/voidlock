@@ -153,7 +153,7 @@ describe("Full Campaign Flow Integration", () => {
     document.getElementById("btn-menu-campaign")?.click();
     expect(document.getElementById("screen-campaign")?.style.display).toBe("flex");
     
-    const standardCard = Array.from(document.querySelectorAll(".difficulty-card")).find(c => c.textContent?.includes("STANDARD")) as HTMLElement;
+    const standardCard = Array.from(document.querySelectorAll(".difficulty-card")).find(c => c.textContent?.includes("Standard")) as HTMLElement;
     expect(standardCard).toBeTruthy();
     standardCard?.click();
 
@@ -180,7 +180,7 @@ describe("Full Campaign Flow Integration", () => {
     });
     
     document.getElementById("btn-goto-equipment")?.click();
-    const equipmentLaunchBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent?.includes("CONFIRM")) as HTMLElement;
+    const equipmentLaunchBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent?.includes("Confirm")) as HTMLElement;
     equipmentLaunchBtn?.click();
 
     expect(document.getElementById("screen-mission")?.style.display).toBe("flex");
@@ -209,7 +209,7 @@ describe("Full Campaign Flow Integration", () => {
     expect(cm.getState()?.roster.find(s => s.id === deadSoldierId)?.status).toBe("Dead");
 
     // 3. Verify Dead soldiers are NOT in the next Mission Setup squad
-    const returnBtn = Array.from(document.querySelectorAll("#screen-debrief button")).find(b => b.textContent?.includes("RETURN")) as HTMLElement;
+    const returnBtn = Array.from(document.querySelectorAll("#screen-debrief button")).find(b => b.textContent?.includes("Return")) as HTMLElement;
     returnBtn?.click();
 
     expect(document.getElementById("screen-campaign")?.style.display).toBe("flex");
@@ -244,7 +244,7 @@ describe("Full Campaign Flow Integration", () => {
         }
     });
     document.getElementById("btn-goto-equipment")?.click();
-    (Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent?.includes("CONFIRM")) as HTMLElement).click();
+    (Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent?.includes("Confirm")) as HTMLElement).click();
 
     stateUpdateCallback!({
       status: "Won",
@@ -261,14 +261,14 @@ describe("Full Campaign Flow Integration", () => {
     });
 
     expect(cm.getState()?.status).toBe("Victory");
-    const returnFromBossBtn = Array.from(document.querySelectorAll("#screen-debrief button")).find(b => b.textContent?.includes("RETURN")) as HTMLElement;
+    const returnFromBossBtn = Array.from(document.querySelectorAll("#screen-debrief button")).find(b => b.textContent?.includes("Return")) as HTMLElement;
     returnFromBossBtn?.click();
 
     expect(document.getElementById("screen-campaign-summary")?.style.display).toBe("flex");
     expect(document.querySelector(".campaign-victory-overlay")).toBeTruthy();
 
     // 5. Verify Bankruptcy triggers Defeat screen
-    const summaryBtn = Array.from(document.querySelectorAll(".campaign-summary-screen button")).find(b => b.textContent?.includes("RETIRE") || b.textContent?.includes("ABANDON")) as HTMLElement;
+    const summaryBtn = Array.from(document.querySelectorAll(".campaign-summary-screen button")).find(b => b.textContent?.includes("Retire") || b.textContent?.includes("Abandon")) as HTMLElement;
     expect(summaryBtn).toBeTruthy();
     summaryBtn?.click();
     
@@ -277,7 +277,7 @@ describe("Full Campaign Flow Integration", () => {
     expect(document.getElementById("screen-campaign")?.style.display).toBe("flex");
 
     // Choose Standard again
-    const standardCard2 = Array.from(document.querySelectorAll(".difficulty-card")).find(c => c.textContent?.includes("STANDARD")) as HTMLElement;
+    const standardCard2 = Array.from(document.querySelectorAll(".difficulty-card")).find(c => c.textContent?.includes("Standard")) as HTMLElement;
     expect(standardCard2).toBeTruthy();
     standardCard2?.click();
 
@@ -298,7 +298,7 @@ describe("Full Campaign Flow Integration", () => {
     (document.querySelector(`.campaign-node[data-id="${bNode.id}"]`) as HTMLElement).click();
     
     document.getElementById("btn-goto-equipment")?.click();
-    const confBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent?.includes("CONFIRM")) as HTMLElement;
+    const confBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent?.includes("Confirm")) as HTMLElement;
     confBtn?.click();
     
     expect(document.getElementById("screen-mission")?.style.display).toBe("flex");
@@ -318,7 +318,7 @@ describe("Full Campaign Flow Integration", () => {
     });
     
     expect(cm.getState()?.status).toBe("Defeat");
-    const returnFromDefeatBtn = Array.from(document.querySelectorAll("#screen-debrief button")).find(b => b.textContent?.includes("RETURN")) as HTMLElement;
+    const returnFromDefeatBtn = Array.from(document.querySelectorAll("#screen-debrief button")).find(b => b.textContent?.includes("Return")) as HTMLElement;
     returnFromDefeatBtn?.click();
 
     expect(document.getElementById("screen-campaign-summary")?.style.display).toBe("flex");

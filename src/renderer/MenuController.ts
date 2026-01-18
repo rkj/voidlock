@@ -206,17 +206,17 @@ export class MenuController {
 
     this.selection.pendingAction = option.commandType || null;
 
-    if (option.label === "PICKUP") {
+    if (option.commandType === CommandType.PICKUP) {
       this.selection.pendingLabel = "Picking up";
       this.transitionTo("TARGET_SELECT");
       this.generateTargetOverlay("ITEM", gameState);
-    } else if (option.label === "EXTRACT") {
+    } else if (option.commandType === CommandType.EXTRACT) {
       this.selection.pendingLabel = "Extracting";
       this.transitionTo("UNIT_SELECT");
-    } else if (option.label === "ENGAGEMENT") {
+    } else if (option.commandType === CommandType.SET_ENGAGEMENT) {
       this.selection.pendingLabel = "Policy Change";
       this.transitionTo("MODE_SELECT");
-    } else if (option.label === "USE ITEM") {
+    } else if (option.commandType === CommandType.USE_ITEM) {
       this.selection.pendingLabel = "Using Item";
       this.transitionTo("ITEM_SELECT");
     }
@@ -229,21 +229,21 @@ export class MenuController {
 
     this.selection.pendingAction = option.commandType || null;
 
-    if (option.label === "MOVE TO ROOM") {
+    if (option.commandType === CommandType.MOVE_TO) {
       this.selection.pendingLabel = "Moving";
       this.transitionTo("TARGET_SELECT");
       this.generateTargetOverlay("CELL", gameState);
-    } else if (option.label === "OVERWATCH INTERSECTION") {
+    } else if (option.commandType === CommandType.OVERWATCH_POINT) {
       this.selection.pendingLabel = "Overwatching";
       this.transitionTo("TARGET_SELECT");
       this.generateTargetOverlay("INTERSECTION", gameState);
-    } else if (option.label === "EXPLORE") {
+    } else if (option.commandType === CommandType.EXPLORE) {
       this.selection.pendingLabel = "Exploring";
       this.transitionTo("UNIT_SELECT");
-    } else if (option.label === "HOLD") {
+    } else if (option.commandType === CommandType.STOP) {
       this.selection.pendingLabel = "Holding";
       this.transitionTo("UNIT_SELECT");
-    } else if (option.label === "ESCORT") {
+    } else if (option.commandType === CommandType.ESCORT_UNIT) {
       this.selection.pendingLabel = "Escorting";
       this.transitionTo("TARGET_SELECT");
       this.generateTargetOverlay("FRIENDLY_UNIT", gameState);
@@ -405,7 +405,7 @@ export class MenuController {
     ) {
       result.options = config.options.map((opt) => ({
         key: opt.key.toString(),
-        label: opt.key === 0 ? "BACK" : `${opt.key}. ${opt.label}`,
+        label: opt.key === 0 ? "Back" : `${opt.key}. ${opt.label}`,
         isBack: opt.key === 0,
         disabled: this.isOptionDisabled(opt, gameState),
         dataAttributes: { index: opt.key.toString() },
@@ -442,7 +442,7 @@ export class MenuController {
       });
       result.options.push({
         key: "0",
-        label: "0. BACK",
+        label: "0. Back",
         isBack: true,
         dataAttributes: { index: "0" },
       });
@@ -463,7 +463,7 @@ export class MenuController {
       }
       result.options.push({
         key: "0",
-        label: "0. BACK",
+        label: "0. Back",
         isBack: true,
         dataAttributes: { index: "0" },
       });
@@ -486,13 +486,13 @@ export class MenuController {
 
       result.options.push({
         key: counter.toString(),
-        label: `${counter}. ALL UNITS`,
+        label: `${counter}. All Units`,
         dataAttributes: { index: counter.toString(), "unit-id": "ALL" },
       });
 
       result.options.push({
         key: "0",
-        label: "0. BACK",
+        label: "0. Back",
         isBack: true,
         dataAttributes: { index: "0" },
       });
@@ -506,7 +506,7 @@ export class MenuController {
     option: MenuOptionDefinition,
     gameState: GameState,
   ): boolean {
-    if (option.label === "USE ITEM") {
+    if (option.commandType === CommandType.USE_ITEM) {
       const availableItems = Object.entries(gameState.squadInventory).filter(
         ([itemId, count]) => {
           if (count <= 0) return false;

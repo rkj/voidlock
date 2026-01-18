@@ -42,8 +42,8 @@ describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => 
 
     const overlay = container.querySelector(".overlay-stats");
     expect(overlay).not.toBeNull();
-    expect(overlay?.textContent).toContain("SCRAP: 450");
-    expect(overlay?.textContent).toContain("INTEL: 120");
+    expect(overlay?.textContent).toContain("Scrap: 450");
+    expect(overlay?.textContent).toContain("Intel: 120");
 
     // Check for colors
     const scrapValue = Array.from(overlay!.querySelectorAll("span")).find(s => s.textContent === "450");

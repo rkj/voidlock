@@ -164,7 +164,7 @@ describe("Equipment Persistence Integration", () => {
 
     // 4. Find the 'CONFIRM SQUAD' button and click it
     // Note: The EquipmentScreen renders its own UI.
-    const confirmBtn = Array.from(document.querySelectorAll("button")).find(b => b.textContent === "CONFIRM SQUAD");
+    const confirmBtn = Array.from(document.querySelectorAll("button")).find(b => b.textContent === "Confirm Squad");
     expect(confirmBtn).toBeTruthy();
     
     confirmBtn?.click();

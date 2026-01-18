@@ -130,8 +130,8 @@ export class EquipmentScreen {
       const statsOverlay = document.createElement("div");
       statsOverlay.className = "overlay-stats";
       statsOverlay.innerHTML = `
-        <span style="margin-right:20px;">SCRAP: <span style="color:var(--color-primary)">${state.scrap}</span></span>
-        <span>INTEL: <span style="color:var(--color-accent)">${state.intel}</span></span>
+        <span style="margin-right:20px;">Scrap: <span style="color:var(--color-primary)">${state.scrap}</span></span>
+        <span>Intel: <span style="color:var(--color-accent)">${state.intel}</span></span>
       `;
       this.container.appendChild(statsOverlay);
     }
@@ -144,13 +144,13 @@ export class EquipmentScreen {
     footer.style.backgroundColor = "var(--color-bg)";
 
     const backBtn = document.createElement("button");
-    backBtn.textContent = "BACK";
+    backBtn.textContent = "Back";
     backBtn.className = "back-button";
     backBtn.style.marginTop = "0";
     backBtn.onclick = () => this.onBack();
 
     const saveBtn = document.createElement("button");
-    saveBtn.textContent = "CONFIRM SQUAD";
+    saveBtn.textContent = "Confirm Squad";
     saveBtn.style.marginTop = "0";
     saveBtn.onclick = () => this.onSave(this.config);
 

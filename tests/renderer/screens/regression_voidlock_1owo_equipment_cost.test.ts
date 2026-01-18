@@ -128,14 +128,14 @@ describe("EquipmentScreen Economics", () => {
         return overlay?.textContent || "";
     };
 
-    expect(getScrapText()).toContain("SCRAP: 100");
+    expect(getScrapText()).toContain("Scrap: 100");
 
     const pistolBtn = Array.from(
       armoryPanel.querySelectorAll(".menu-item.clickable"),
     ).find((el) => el.textContent?.includes("Pistol")) as HTMLElement;
     pistolBtn?.click();
 
-    expect(getScrapText()).toContain("SCRAP: 90");
+    expect(getScrapText()).toContain("Scrap: 90");
   });
 
   it("should not charge for unequipping", () => {
@@ -205,6 +205,6 @@ describe("EquipmentScreen Economics", () => {
       armoryPanel.querySelectorAll(".menu-item.clickable"),
     ).find((el) => el.textContent?.includes("Pulse Rifle")) as HTMLElement;
     
-    expect(pulseRifleBtn.textContent).toContain("OWNED");
+    expect(pulseRifleBtn.textContent).toContain("Owned");
   });
 });

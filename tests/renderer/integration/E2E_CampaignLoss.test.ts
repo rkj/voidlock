@@ -210,7 +210,7 @@ describe("E2E Campaign Failure Modes", () => {
     // 1. Start Ironman Campaign
     document.getElementById("btn-menu-campaign")?.click();
     
-    const ironmanCard = Array.from(document.querySelectorAll(".difficulty-card")).find(c => c.textContent?.includes("IRONMAN")) as HTMLElement;
+    const ironmanCard = Array.from(document.querySelectorAll(".difficulty-card")).find(c => c.textContent?.includes("Ironman")) as HTMLElement;
     expect(ironmanCard).toBeTruthy();
     ironmanCard?.click();
 
@@ -243,7 +243,7 @@ describe("E2E Campaign Failure Modes", () => {
     document.getElementById("btn-goto-equipment")?.click();
     
     // Confirm and Launch mission
-    const equipmentLaunchBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent?.includes("CONFIRM")) as HTMLElement;
+    const equipmentLaunchBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent?.includes("Confirm")) as HTMLElement;
     equipmentLaunchBtn?.click();
 
     // 4. Mission Screen
@@ -302,7 +302,7 @@ describe("E2E Campaign Failure Modes", () => {
     // 6. Debrief Screen
     expect(document.getElementById("screen-debrief")?.style.display).toBe("flex");
     
-    const returnBtn = Array.from(document.querySelectorAll("#screen-debrief button")).find(b => b.textContent?.includes("RETURN")) as HTMLElement;
+    const returnBtn = Array.from(document.querySelectorAll("#screen-debrief button")).find(b => b.textContent?.includes("Return")) as HTMLElement;
     returnBtn?.click();
 
     // 7. Verify Campaign Defeat Summary
@@ -311,7 +311,7 @@ describe("E2E Campaign Failure Modes", () => {
     expect(document.querySelector(".campaign-game-over")).toBeTruthy();
 
     // 8. Abandon Expedition and verify save is deleted
-    const abandonBtn = Array.from(document.querySelectorAll("#screen-campaign-summary button")).find(b => b.textContent?.includes("ABANDON EXPEDITION")) as HTMLElement;
+    const abandonBtn = Array.from(document.querySelectorAll("#screen-campaign-summary button")).find(b => b.textContent?.includes("Abandon Expedition")) as HTMLElement;
     expect(abandonBtn).toBeTruthy();
     abandonBtn?.click();
 
@@ -325,7 +325,7 @@ describe("E2E Campaign Failure Modes", () => {
     // 1. Start Standard Campaign
     document.getElementById("btn-menu-campaign")?.click();
     
-    const standardCard = Array.from(document.querySelectorAll(".difficulty-card")).find(c => c.textContent?.includes("STANDARD")) as HTMLElement;
+    const standardCard = Array.from(document.querySelectorAll(".difficulty-card")).find(c => c.textContent?.includes("Standard")) as HTMLElement;
     expect(standardCard).toBeTruthy();
     standardCard?.click();
 
@@ -349,7 +349,7 @@ describe("E2E Campaign Failure Modes", () => {
         }
     });
     document.getElementById("btn-goto-equipment")?.click();
-    const equipLaunchBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent?.includes("CONFIRM")) as HTMLElement;
+    const equipLaunchBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent?.includes("Confirm")) as HTMLElement;
     equipLaunchBtn?.click();
 
     // Mission Screen
@@ -393,7 +393,7 @@ describe("E2E Campaign Failure Modes", () => {
 
     // Debrief
     expect(document.getElementById("screen-debrief")?.style.display).toBe("flex");
-    const returnBtn = Array.from(document.querySelectorAll("#screen-debrief button")).find(b => b.textContent?.includes("RETURN")) as HTMLElement;
+    const returnBtn = Array.from(document.querySelectorAll("#screen-debrief button")).find(b => b.textContent?.includes("Return")) as HTMLElement;
     returnBtn?.click();
 
     // 3. Verify Roster status
@@ -403,6 +403,7 @@ describe("E2E Campaign Failure Modes", () => {
     // 4. Mission 2: Verify dead soldier is NOT in squad selection
     const node2 = cm.getState()!.nodes.find(n => n.status === "Accessible")!;
     const node2El = document.querySelector(`.campaign-node[data-id="${node2.id}"]`) as HTMLElement;
+    expect(node2El).toBeTruthy();
     node2El.click();
 
     expect(document.getElementById("screen-mission-setup")?.style.display).toBe("flex");

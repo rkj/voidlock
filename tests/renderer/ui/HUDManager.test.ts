@@ -74,7 +74,7 @@ describe("HUDManager", () => {
 
     mockMenuController = {
       getRenderableState: vi.fn(() => ({
-        title: "ACTIONS",
+        title: "Actions",
         options: [],
       })),
     };
@@ -101,7 +101,7 @@ describe("HUDManager", () => {
     hud.update(mockState, null);
 
     const statusEl = document.getElementById("game-status");
-    expect(statusEl?.innerHTML).toContain("TIME:</span>1.0s");
+    expect(statusEl?.innerHTML).toContain("Time:</span>1.0s");
     expect(statusEl?.innerHTML).not.toContain("STATUS:");
 
     const threatValue = document.getElementById("top-threat-value");
@@ -163,8 +163,8 @@ describe("HUDManager", () => {
 
   it("should call onMenuInput when a menu item is clicked", () => {
     mockMenuController.getRenderableState.mockReturnValue({
-      title: "ACTIONS",
-      options: [{ key: "1", label: "1. MOVE", dataAttributes: { index: "1" } }],
+      title: "Actions",
+      options: [{ key: "1", label: "1. Move", dataAttributes: { index: "1" } }],
     });
 
     hud.update(mockState, null);
@@ -284,7 +284,7 @@ describe("HUDManager", () => {
 
     const summary = document.querySelector(".game-over-summary");
     expect(summary).not.toBeNull();
-    expect(summary?.textContent).toContain("MISSION ACCOMPLISHED");
+    expect(summary?.textContent).toContain("Mission Accomplished");
     expect(summary?.innerHTML).toContain("Recover");
     expect(summary?.innerHTML).toContain("✔");
   });

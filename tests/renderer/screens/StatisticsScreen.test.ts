@@ -31,10 +31,10 @@ describe("StatisticsScreen", () => {
     const screen = new StatisticsScreen("screen-statistics", onBack);
     screen.show();
 
-    expect(container.textContent).toContain("SERVICE RECORD");
-    expect(container.textContent).toContain("CAMPAIGNS");
-    expect(container.textContent).toContain("COMBAT");
-    expect(container.textContent).toContain("ECONOMY");
+    expect(container.textContent).toContain("Service Record");
+    expect(container.textContent).toContain("Campaigns");
+    expect(container.textContent).toContain("Combat");
+    expect(container.textContent).toContain("Economy");
     
     expect(container.textContent).toContain("Total Xeno Kills");
     expect(container.textContent).toContain("0"); // Default value

@@ -135,7 +135,7 @@ describe("EquipmentScreen", () => {
     plusBtn?.click();
 
     const confirmBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.textContent === "CONFIRM SQUAD",
+      (btn) => btn.textContent === "Confirm Squad",
     );
     confirmBtn?.click();
 
@@ -167,7 +167,7 @@ describe("EquipmentScreen", () => {
     pulseRifleBtn?.click();
 
     const confirmBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.textContent === "CONFIRM SQUAD",
+      (btn) => btn.textContent === "Confirm Squad",
     );
     confirmBtn?.click();
 
@@ -204,7 +204,7 @@ describe("EquipmentScreen", () => {
 
     // Heavy Plate gives +150 HP
     const soldierStatsDiv = Array.from(container.querySelectorAll("h3")).find(
-      (el) => el.textContent === "SOLDIER ATTRIBUTES",
+      (el) => el.textContent === "Soldier Attributes",
     )?.parentElement;
     expect(soldierStatsDiv?.textContent).toContain("250"); // 100 + 150
 
@@ -223,7 +223,7 @@ describe("EquipmentScreen", () => {
     screen.show();
 
     const backBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.textContent === "BACK",
+      (btn) => btn.textContent === "Back",
     );
     backBtn?.click();
 

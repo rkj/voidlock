@@ -224,7 +224,7 @@ describe("Campaign Map Generator Integration", () => {
     document.getElementById("btn-goto-equipment")?.click();
     
     // 6. Confirm and Launch Mission
-    const equipmentLaunchBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent?.includes("CONFIRM")) as HTMLElement;
+    const equipmentLaunchBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent?.includes("Confirm")) as HTMLElement;
     expect(equipmentLaunchBtn).toBeTruthy();
     equipmentLaunchBtn.click();
     
