@@ -139,7 +139,7 @@ export class CampaignManager {
     const roster = this.generateInitialRoster(prng);
 
     this.state = {
-      version: "0.93.0", // Current project version
+      version: "0.93.3", // Current project version
       seed: effectiveSeed,
       status: "Active",
       rules,
@@ -347,7 +347,11 @@ export class CampaignManager {
     }
 
     // 2.6 Handle Campaign Victory
-    if (report.result === "Won" && node?.type === "Boss") {
+    const maxRank = Math.max(...this.state.nodes.map((n) => n.rank));
+    const isLastNode = node?.rank === maxRank;
+
+    if (report.result === "Won" && (node?.type === "Boss" || isLastNode)) {
+      console.log(`Campaign Victory Triggered: nodeId=${report.nodeId}, type=${node?.type}, rank=${node?.rank}, maxRank=${maxRank}`);
       this.state.status = "Victory";
     }
 
