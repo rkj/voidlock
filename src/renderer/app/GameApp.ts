@@ -5,6 +5,7 @@ import { GameClient } from "@src/engine/GameClient";
 import { Renderer } from "@src/renderer/Renderer";
 import { ScreenManager } from "@src/renderer/ScreenManager";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { ThemeManager } from "@src/renderer/ThemeManager";
 import { ConfigManager } from "@src/renderer/ConfigManager";
 import { MenuController } from "@src/renderer/MenuController";
@@ -133,7 +134,7 @@ export class GameApp {
     this.campaignSummaryScreen = new CampaignSummaryScreen("screen-campaign-summary", () => {
       this.campaignSummaryScreen.hide();
       this.context.campaignManager.deleteSave();
-      this.context.screenManager.show("main-menu");
+      this.showMainMenu();
     });
 
     this.debriefScreen = new DebriefScreen("screen-debrief", () => {
@@ -151,7 +152,7 @@ export class GameApp {
         this.campaignScreen.show();
         this.context.screenManager.show("campaign");
       } else {
-        this.context.screenManager.show("main-menu");
+        this.showMainMenu();
       }
     });
 
@@ -280,8 +281,22 @@ export class GameApp {
     
     // Initial UI state
     this.loadAndApplyConfig(false);
+    this.updateGlobalStats();
     const mvEl = document.getElementById("menu-version");
     if (mvEl) mvEl.textContent = `v${VERSION}`;
+  }
+
+  private updateGlobalStats() {
+    const stats = MetaManager.getInstance().getStats();
+    const el = document.getElementById("global-stats-tally");
+    if (el) {
+      el.textContent = `Total Kills: ${stats.totalKills} | Campaigns Won: ${stats.campaignsWon}`;
+    }
+  }
+
+  private showMainMenu() {
+    this.updateGlobalStats();
+    this.context.screenManager.show("main-menu");
   }
 
   public start() {
@@ -305,7 +320,7 @@ export class GameApp {
         this.barracksScreen.show();
       }
     } else {
-      this.context.screenManager.show("main-menu");
+      this.showMainMenu();
     }
   }
 
@@ -817,7 +832,7 @@ export class GameApp {
       this.context.screenManager.show("mission");
     } catch (e) {
       console.error("Failed to resume mission", e);
-      this.context.screenManager.show("main-menu");
+      this.showMainMenu();
     }
   }
 
@@ -831,7 +846,7 @@ export class GameApp {
       tsSlider.value = "50";
       if (tsValue) tsValue.textContent = "1.0";
     }
-    this.context.screenManager.show("main-menu");
+    this.showMainMenu();
   }
 
   private loadAndApplyConfig(isCampaign: boolean = false) {
