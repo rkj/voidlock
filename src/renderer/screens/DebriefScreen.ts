@@ -37,7 +37,7 @@ export class DebriefScreen {
 
     // Header
     const header = document.createElement("h1");
-    header.textContent = isWon ? "MISSION SUCCESS" : "MISSION FAILED";
+    header.textContent = isWon ? "Mission Success" : "Mission Failed";
     header.className = `debrief-header ${isWon ? "success" : "failed"}`;
     this.container.appendChild(header);
 
@@ -60,7 +60,7 @@ export class DebriefScreen {
     this.container.appendChild(content);
 
     // Left Panel: Stats
-    const statsPanel = this.createPanel("MISSION STATISTICS");
+    const statsPanel = this.createPanel("Mission Statistics");
     statsPanel.innerHTML += `
       <div class="flex-row justify-between" style="margin-bottom: 15px; font-size: 1.1em;">
         <span>Xenos Neutralized:</span>
@@ -72,11 +72,11 @@ export class DebriefScreen {
       </div>
       <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--color-border);">
         <div class="flex-row justify-between" style="margin-bottom: 10px;">
-          <span style="font-size: 1.2em;">SCRAP RECOVERED:</span>
+          <span style="font-size: 1.2em;">Scrap Recovered:</span>
           <span style="color:var(--color-primary); font-weight:bold; font-size: 1.2em;">+${this.report.scrapGained}</span>
         </div>
         <div class="flex-row justify-between">
-          <span style="font-size: 1.2em;">INTEL GATHERED:</span>
+          <span style="font-size: 1.2em;">Intel Gathered:</span>
           <span style="color:var(--color-accent); font-weight:bold; font-size: 1.2em;">+${this.report.intelGained}</span>
         </div>
       </div>
@@ -84,7 +84,7 @@ export class DebriefScreen {
     content.appendChild(statsPanel);
 
     // Right Panel: Squad
-    const squadPanel = this.createPanel("SQUAD AFTER-ACTION REPORT");
+    const squadPanel = this.createPanel("Squad After-Action Report");
     this.report.soldierResults.forEach((res) => {
       const soldierRow = document.createElement("div");
       soldierRow.className = "debrief-item";
@@ -112,7 +112,7 @@ export class DebriefScreen {
         <div class="flex-row justify-between align-center">
           <span style="font-size: 1.2em; font-weight:bold;">${res.soldierId} <span style="font-size: 0.7em; color: var(--color-text-muted); font-weight: normal;">LVL ${currentLevel}</span></span>
           <span style="color:${statusColor}; font-weight:bold; border: 1px solid ${statusColor}; padding: 2px 8px; font-size: 0.8em; border-radius: 4px;">
-            ${res.status.toUpperCase()}
+            ${res.status}
           </span>
         </div>
         
@@ -129,8 +129,8 @@ export class DebriefScreen {
 
         <div class="flex-row gap-20" style="margin-top: 10px; font-size: 0.9em; color: var(--color-text-muted);">
           <span>Kills: <span style="color:var(--color-text);">${res.kills}</span></span>
-          ${res.promoted ? `<span style="color:var(--color-accent); font-weight:bold;">LEVEL UP! (LVL ${res.newLevel})</span>` : ""}
-          ${res.status === "Wounded" && res.recoveryTime ? `<span style="color:var(--color-warning);">RECOVERY: ${res.recoveryTime} MISSIONS</span>` : ""}
+          ${res.promoted ? `<span style="color:var(--color-accent); font-weight:bold;">Level Up! (LVL ${res.newLevel})</span>` : ""}
+          ${res.status === "Wounded" && res.recoveryTime ? `<span style="color:var(--color-warning);">Recovery: ${res.recoveryTime} Missions</span>` : ""}
         </div>
       `;
       squadPanel.appendChild(soldierRow);
@@ -142,7 +142,7 @@ export class DebriefScreen {
     footer.style.marginTop = "50px";
 
     const continueBtn = document.createElement("button");
-    continueBtn.textContent = "RETURN TO COMMAND BRIDGE";
+    continueBtn.textContent = "Return to Command Bridge";
     continueBtn.style.padding = "20px 60px";
     continueBtn.style.fontSize = "1.4em";
     continueBtn.style.letterSpacing = "2px";

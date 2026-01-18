@@ -102,7 +102,7 @@ describe("StatisticsScreen Integration", () => {
     
     const screen = document.getElementById("screen-statistics");
     expect(screen?.style.display).toBe("flex");
-    expect(screen?.textContent).toContain("SERVICE RECORD");
+    expect(screen?.textContent).toContain("Service Record");
     expect(screen?.textContent).toContain("Total Xeno Kills");
     expect(screen?.textContent).toContain("150");
   });

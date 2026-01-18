@@ -190,7 +190,7 @@ describe("Screen Flow Integration", () => {
 
     // 4. Equipment -> Mission
     const allButtons = document.querySelectorAll("#screen-equipment button");
-    const equipmentLaunchBtn = Array.from(allButtons).find(b => b.textContent?.includes("CONFIRM")) as HTMLElement;
+    const equipmentLaunchBtn = Array.from(allButtons).find(b => b.textContent?.includes("Confirm")) as HTMLElement;
     expect(equipmentLaunchBtn).toBeDefined();
     equipmentLaunchBtn?.click();
 
@@ -215,7 +215,7 @@ describe("Screen Flow Integration", () => {
     expect(document.getElementById("screen-debrief")?.style.display).toBe("flex");
 
     // 6. Debrief -> Campaign
-    const continueBtn = Array.from(document.querySelectorAll("#screen-debrief button")).find(b => b.textContent?.includes("RETURN")) as HTMLElement;
+    const continueBtn = Array.from(document.querySelectorAll("#screen-debrief button")).find(b => b.textContent?.includes("Return")) as HTMLElement;
     continueBtn?.click();
 
     expect(document.getElementById("screen-campaign")?.style.display).toBe("flex");
@@ -236,7 +236,7 @@ describe("Screen Flow Integration", () => {
     btnGotoEquipment.click();
     
     const allButtons = document.querySelectorAll("#screen-equipment button");
-    const equipmentLaunchBtn = Array.from(allButtons).find(b => b.textContent?.includes("CONFIRM")) as HTMLElement;
+    const equipmentLaunchBtn = Array.from(allButtons).find(b => b.textContent?.includes("Confirm")) as HTMLElement;
     equipmentLaunchBtn?.click();
 
     expect(document.getElementById("screen-mission")?.style.display).toBe("flex");
@@ -260,7 +260,7 @@ describe("Screen Flow Integration", () => {
     expect(document.getElementById("screen-debrief")?.style.display).toBe("flex");
 
     // 4. Debrief -> Main Menu
-    const continueBtn = Array.from(document.querySelectorAll("#screen-debrief button")).find(b => b.textContent?.includes("RETURN")) as HTMLElement;
+    const continueBtn = Array.from(document.querySelectorAll("#screen-debrief button")).find(b => b.textContent?.includes("Return")) as HTMLElement;
     continueBtn?.click();
 
     expect(document.getElementById("screen-main-menu")?.style.display).toBe("flex");

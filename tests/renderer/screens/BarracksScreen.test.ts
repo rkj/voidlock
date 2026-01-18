@@ -24,9 +24,9 @@ describe("BarracksScreen", () => {
     const screen = new BarracksScreen("screen-barracks", manager, onBack);
     screen.show();
 
-    expect(container.textContent).toContain("ROSTER");
-    expect(container.textContent).toContain("RECRUITMENT");
-    expect(container.textContent).toContain("SOLDIER DETAILS");
+    expect(container.textContent).toContain("Roster");
+    expect(container.textContent).toContain("Recruitment");
+    expect(container.textContent).toContain("Soldier Details");
     
     // Initial roster has 4 soldiers
     const state = manager.getState()!;
@@ -47,9 +47,9 @@ describe("BarracksScreen", () => {
     
     soldierItem.click();
 
-    expect(container.textContent).toContain("SOLDIER DETAILS");
-    expect(container.textContent).toContain("HEALTH");
-    expect(container.textContent).toContain("EQUIPMENT");
+    expect(container.textContent).toContain("Soldier Details");
+    expect(container.textContent).toContain("Soldier Attributes");
+    expect(container.textContent).toContain("Equipment");
     expect(container.textContent).toContain(firstSoldierName);
   });
 
@@ -65,9 +65,9 @@ describe("BarracksScreen", () => {
       .find(el => el.textContent?.includes(state.roster[0].name)) as HTMLElement;
     soldierItem.click();
 
-    expect(container.textContent).toContain("HEAL (50 Scrap)");
+    expect(container.textContent).toContain("Heal (50 Scrap)");
     const healBtn = Array.from(container.querySelectorAll("button"))
-      .find(btn => btn.textContent?.includes("HEAL")) as HTMLButtonElement;
+      .find(btn => btn.textContent?.includes("Heal")) as HTMLButtonElement;
     
     expect(healBtn.disabled).toBe(false);
   });
@@ -85,7 +85,7 @@ describe("BarracksScreen", () => {
       .find(el => el.textContent?.includes(state.roster[0].name)) as HTMLElement;
     soldierItem.click();
 
-    expect(container.textContent).toContain("REVIVE (250 Scrap)");
+    expect(container.textContent).toContain("Revive (250 Scrap)");
   });
 
   it("should allow recruiting a new soldier", () => {
@@ -96,7 +96,7 @@ describe("BarracksScreen", () => {
     screen.show();
 
     const recruitBtns = Array.from(container.querySelectorAll("button"))
-      .filter(btn => btn.textContent === "RECRUIT");
+      .filter(btn => btn.textContent === "Recruit");
     
     recruitBtns[0].click();
 
@@ -112,7 +112,7 @@ describe("BarracksScreen", () => {
     screen.show();
 
     const backBtn = Array.from(container.querySelectorAll("button"))
-      .find(btn => btn.textContent === "BACK TO SECTOR MAP");
+      .find(btn => btn.textContent === "Back to Sector Map");
     backBtn?.click();
 
     expect(onBack).toHaveBeenCalled();

@@ -197,7 +197,7 @@ describe("Comprehensive User Journeys", () => {
     
     // 2. Setup options and start
     const startBtn = document.querySelector(".campaign-setup-wizard .primary-button") as HTMLElement;
-    expect(startBtn.textContent).toContain("INITIALIZE EXPEDITION");
+    expect(startBtn.textContent).toContain("Initialize Expedition");
     startBtn.click();
     
     // 3. Should now show the map
@@ -211,13 +211,14 @@ describe("Comprehensive User Journeys", () => {
     (document.querySelector(".campaign-setup-wizard .primary-button") as HTMLElement).click();
 
     // 1. Map -> Barracks
-    const barracksBtn = Array.from(document.querySelectorAll("#screen-campaign button")).find(b => b.textContent === "BARRACKS") as HTMLElement;
+    const barracksBtn = Array.from(document.querySelectorAll("#screen-campaign button")).find(b => b.textContent?.includes("Barracks")) as HTMLElement;
     barracksBtn.click();
     expect(document.getElementById("screen-barracks")?.style.display).toBe("flex");
 
     // 2. Recruit a soldier
-    const recruitBtn = Array.from(document.querySelectorAll("#screen-barracks .panel:nth-child(3) button")).find(b => b.textContent === "RECRUIT") as HTMLElement;
-    recruitBtn.click();
+    const recruitBtns = Array.from(document.querySelectorAll("#screen-barracks button"))
+      .filter(btn => btn.textContent === "Recruit") as HTMLButtonElement[];
+    recruitBtns[0].click();
     expect(window.prompt).toHaveBeenCalled();
     
     // Verify roster increased (mocked)
@@ -241,7 +242,7 @@ describe("Comprehensive User Journeys", () => {
     assaultCard?.dispatchEvent(new Event("dblclick"));
 
     document.getElementById("btn-goto-equipment")?.click();
-    const equipmentLaunchBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent?.includes("CONFIRM")) as HTMLElement;
+    const equipmentLaunchBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent?.includes("Confirm")) as HTMLElement;
     equipmentLaunchBtn.click();
     
     expect(document.getElementById("screen-mission")?.style.display).toBe("flex");
@@ -269,7 +270,7 @@ describe("Comprehensive User Journeys", () => {
       soldierCard.dispatchEvent(new Event("dblclick"));
     }
     document.getElementById("btn-goto-equipment")?.click();
-    const equipmentLaunchBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent?.includes("CONFIRM")) as HTMLElement;
+    const equipmentLaunchBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent?.includes("Confirm")) as HTMLElement;
     equipmentLaunchBtn.click();
 
     // 1. Mission -> Lose
@@ -299,14 +300,14 @@ describe("Comprehensive User Journeys", () => {
     expect(document.getElementById("screen-debrief")?.style.display).toBe("flex");
 
     // 2. Debrief -> Campaign Summary (Game Over)
-    const returnBtn = Array.from(document.querySelectorAll("#screen-debrief button")).find(b => b.textContent?.includes("RETURN")) as HTMLElement;
+    const returnBtn = Array.from(document.querySelectorAll("#screen-debrief button")).find(b => b.textContent?.includes("Return")) as HTMLElement;
     returnBtn.click();
 
     expect(document.getElementById("screen-campaign-summary")?.style.display).toBe("flex");
     expect(document.querySelector(".campaign-game-over")).toBeTruthy();
     
     // 3. Abandon Campaign
-    const abandonBtn = Array.from(document.querySelectorAll("#screen-campaign-summary button")).find(b => b.textContent?.includes("ABANDON")) as HTMLElement;
+    const abandonBtn = Array.from(document.querySelectorAll("#screen-campaign-summary button")).find(b => b.textContent?.includes("Abandon")) as HTMLElement;
     abandonBtn.click();
     
     expect(document.getElementById("screen-main-menu")?.style.display).toBe("flex");

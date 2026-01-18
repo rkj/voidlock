@@ -53,8 +53,8 @@ export class CampaignScreen {
 
     if (state.status === "Victory") {
       this.container.innerHTML = `<div class="flex-col align-center justify-center h-full">
-        <h1 style="color:var(--color-primary)">CAMPAIGN VICTORY</h1>
-        <button class="primary-button" id="btn-victory-summary">VIEW SUMMARY</button>
+        <h1 style="color:var(--color-primary)">Campaign Victory</h1>
+        <button class="primary-button" id="btn-victory-summary">View Summary</button>
       </div>`;
       const btn = this.container.querySelector("#btn-victory-summary");
       if (btn) (btn as HTMLElement).onclick = () => {
@@ -65,8 +65,8 @@ export class CampaignScreen {
 
     if (state.status === "Defeat") {
       this.container.innerHTML = `<div class="flex-col align-center justify-center h-full">
-        <h1 style="color:var(--color-error)">CAMPAIGN DEFEAT</h1>
-        <button class="primary-button" style="background-color:var(--color-error)" id="btn-defeat-summary">VIEW SUMMARY</button>
+        <h1 style="color:var(--color-error)">Campaign Defeat</h1>
+        <button class="primary-button" style="background-color:var(--color-error)" id="btn-defeat-summary">View Summary</button>
       </div>`;
       const btn = this.container.querySelector("#btn-defeat-summary");
       if (btn) (btn as HTMLElement).onclick = () => {
@@ -82,7 +82,7 @@ export class CampaignScreen {
     header.style.background = "var(--color-surface-elevated)";
 
     const title = document.createElement("h1");
-    title.textContent = "SECTOR MAP";
+    title.textContent = "Sector Map";
     title.style.margin = "0";
     title.style.fontSize = "1.5em";
     header.appendChild(title);
@@ -90,9 +90,9 @@ export class CampaignScreen {
     const stats = document.createElement("div");
     stats.className = "flex-row gap-20";
     stats.innerHTML = `
-      <span>SCRAP: <span style="color:var(--color-primary)">${state.scrap}</span></span>
-      <span>INTEL: <span style="color:var(--color-accent)">${state.intel}</span></span>
-      <span>SECTOR: <span style="color:var(--color-text)">${state.currentSector}</span></span>
+      <span>Scrap: <span style="color:var(--color-primary)">${state.scrap}</span></span>
+      <span>Intel: <span style="color:var(--color-accent)">${state.intel}</span></span>
+      <span>Sector: <span style="color:var(--color-text)">${state.currentSector}</span></span>
     `;
     header.appendChild(stats);
 
@@ -117,13 +117,13 @@ export class CampaignScreen {
     footer.style.background = "var(--color-surface-elevated)";
 
     const backBtn = document.createElement("button");
-    backBtn.textContent = "BACK TO MENU";
+    backBtn.textContent = "Back to Menu";
     backBtn.className = "back-button";
     backBtn.onclick = () => this.onBack();
     footer.appendChild(backBtn);
 
     const resetBtn = document.createElement("button");
-    resetBtn.textContent = "NEW CAMPAIGN";
+    resetBtn.textContent = "New Campaign";
     resetBtn.style.color = "var(--color-error)";
     resetBtn.onclick = () => {
       if (confirm("Are you sure you want to abandon the current campaign?")) {
@@ -134,7 +134,7 @@ export class CampaignScreen {
     footer.appendChild(resetBtn);
 
     const barracksBtn = document.createElement("button");
-    barracksBtn.textContent = "BARRACKS";
+    barracksBtn.textContent = "Barracks";
     barracksBtn.onclick = () => this.onBarracks();
     footer.appendChild(barracksBtn);
 
@@ -149,7 +149,7 @@ export class CampaignScreen {
     content.style.margin = "0 auto";
 
     const h1 = document.createElement("h1");
-    h1.textContent = "NEW CAMPAIGN";
+    h1.textContent = "New Campaign";
     h1.style.letterSpacing = "4px";
     h1.style.color = "var(--color-primary)";
     content.appendChild(h1);
@@ -162,7 +162,7 @@ export class CampaignScreen {
 
     // Difficulty Cards
     const diffLabel = document.createElement("label");
-    diffLabel.textContent = "SELECT DIFFICULTY";
+    diffLabel.textContent = "Select Difficulty";
     diffLabel.style.fontSize = "0.8em";
     diffLabel.style.color = "var(--color-text-dim)";
     diffLabel.style.marginBottom = "-10px";
@@ -177,23 +177,23 @@ export class CampaignScreen {
     const DIFFICULTIES = [
       {
         id: "easy",
-        name: "SIMULATION",
-        rules: ["Permadeath: OFF", "Save: Manual", "Pause: ALLOWED"],
+        name: "Simulation",
+        rules: ["Permadeath: Off", "Save: Manual", "Pause: Allowed"],
       },
       {
         id: "normal",
-        name: "CLONE",
-        rules: ["Permadeath: PARTIAL (Cloneable)", "Save: Manual", "Pause: ALLOWED"],
+        name: "Clone",
+        rules: ["Permadeath: Partial (Cloneable)", "Save: Manual", "Pause: Allowed"],
       },
       {
         id: "hard",
-        name: "STANDARD",
-        rules: ["Permadeath: ON", "Save: Manual", "Pause: ALLOWED"],
+        name: "Standard",
+        rules: ["Permadeath: On", "Save: Manual", "Pause: Allowed"],
       },
       {
         id: "extreme",
-        name: "IRONMAN",
-        rules: ["Permadeath: ON", "Save: Auto-Delete", "Pause: DISABLED"],
+        name: "Ironman",
+        rules: ["Permadeath: On", "Save: Auto-Delete", "Pause: Disabled"],
       },
     ];
 
@@ -293,15 +293,15 @@ export class CampaignScreen {
     const themeGroup = document.createElement("div");
     themeGroup.className = "flex-col gap-5";
     const themeLabel = document.createElement("label");
-    themeLabel.textContent = "VISUAL THEME";
+    themeLabel.textContent = "Visual Theme";
     themeLabel.style.fontSize = "0.8em";
     themeLabel.style.color = "var(--color-text-dim)";
     const themeSelect = document.createElement("select");
     themeSelect.id = "campaign-theme";
     themeSelect.innerHTML = `
-      <option value="default" selected>DEFAULT (Voidlock Green)</option>
-      <option value="industrial">INDUSTRIAL (Amber/Steel)</option>
-      <option value="hive">ALIEN HIVE (Purple/Biolume)</option>
+      <option value="default" selected>Default (Voidlock Green)</option>
+      <option value="industrial">Industrial (Amber/Steel)</option>
+      <option value="hive">Alien Hive (Purple/Biolume)</option>
     `;
     themeGroup.appendChild(themeLabel);
     themeGroup.appendChild(themeSelect);
@@ -311,14 +311,14 @@ export class CampaignScreen {
     const lengthGroup = document.createElement("div");
     lengthGroup.className = "flex-col gap-5";
     const lengthLabel = document.createElement("label");
-    lengthLabel.textContent = "CAMPAIGN LENGTH";
+    lengthLabel.textContent = "Campaign Length";
     lengthLabel.style.fontSize = "0.8em";
     lengthLabel.style.color = "var(--color-text-dim)";
     const lengthSelect = document.createElement("select");
     lengthSelect.id = "campaign-length";
     lengthSelect.innerHTML = `
-      <option value="1.0" selected>STANDARD (Short, ~6-8 Missions)</option>
-      <option value="0.5">EXTENDED (Long, ~12-16 Missions)</option>
+      <option value="1.0" selected>Standard (Short, ~6-8 Missions)</option>
+      <option value="0.5">Extended (Long, ~12-16 Missions)</option>
     `;
     lengthGroup.appendChild(lengthLabel);
     lengthGroup.appendChild(lengthSelect);
@@ -328,14 +328,14 @@ export class CampaignScreen {
     const styleGroup = document.createElement("div");
     styleGroup.className = "flex-col gap-5";
     const styleLabel = document.createElement("label");
-    styleLabel.textContent = "VISUAL STYLE";
+    styleLabel.textContent = "Visual Style";
     styleLabel.style.fontSize = "0.8em";
     styleLabel.style.color = "var(--color-text-dim)";
     const styleSelect = document.createElement("select");
     styleSelect.id = "campaign-unit-style";
     styleSelect.innerHTML = `
-      <option value="Sprites" selected>SPRITES (Default)</option>
-      <option value="TacticalIcons">TACTICAL ICONS</option>
+      <option value="Sprites" selected>Sprites (Default)</option>
+      <option value="TacticalIcons">Tactical Icons</option>
     `;
     styleGroup.appendChild(styleLabel);
     styleGroup.appendChild(styleSelect);
@@ -349,7 +349,7 @@ export class CampaignScreen {
     advancedWrapper.style.borderTop = "1px solid var(--color-border)";
 
     const advancedToggle = document.createElement("button");
-    advancedToggle.textContent = "SHOW ADVANCED SETTINGS ▼";
+    advancedToggle.textContent = "Show Advanced Settings ▼";
     advancedToggle.style.background = "none";
     advancedToggle.style.border = "none";
     advancedToggle.style.color = "var(--color-text-dim)";
@@ -367,15 +367,15 @@ export class CampaignScreen {
       const isHidden = advancedContent.style.display === "none";
       advancedContent.style.display = isHidden ? "flex" : "none";
       advancedToggle.textContent = isHidden
-        ? "HIDE ADVANCED SETTINGS ▲"
-        : "SHOW ADVANCED SETTINGS ▼";
+        ? "Hide Advanced Settings ▲"
+        : "Show Advanced Settings ▼";
     };
 
     // Custom Seed
     const seedGroup = document.createElement("div");
     seedGroup.className = "flex-col gap-5";
     const seedLabel = document.createElement("label");
-    seedLabel.textContent = "CUSTOM SEED (Optional)";
+    seedLabel.textContent = "Custom Seed (Optional)";
     seedLabel.style.fontSize = "0.7em";
     seedLabel.style.color = "var(--color-text-dim)";
     const seedInput = document.createElement("input");
@@ -389,15 +389,15 @@ export class CampaignScreen {
     const genGroup = document.createElement("div");
     genGroup.className = "flex-col gap-5";
     const genLabel = document.createElement("label");
-    genLabel.textContent = "FORCE MAP GENERATOR";
+    genLabel.textContent = "Force Map Generator";
     genLabel.style.fontSize = "0.7em";
     genLabel.style.color = "var(--color-text-dim)";
     const genSelect = document.createElement("select");
     genSelect.innerHTML = `
       <option value="">(Default for mission)</option>
-      <option value="DenseShip">DENSE SHIP (>90% fill)</option>
-      <option value="TreeShip">TREE SHIP (No Loops)</option>
-      <option value="Procedural">SPACESHIP (Balanced)</option>
+      <option value="DenseShip">Dense Ship (>90% fill)</option>
+      <option value="TreeShip">Tree Ship (No Loops)</option>
+      <option value="Procedural">Spaceship (Balanced)</option>
     `;
     genGroup.appendChild(genLabel);
     genGroup.appendChild(genSelect);
@@ -407,7 +407,7 @@ export class CampaignScreen {
     const scalingGroup = document.createElement("div");
     scalingGroup.className = "flex-col gap-5";
     const scalingLabel = document.createElement("label");
-    scalingLabel.innerHTML = `DIFFICULTY SCALING: <span id="scaling-val">100</span>%`;
+    scalingLabel.innerHTML = `Difficulty Scaling: <span id="scaling-val">100</span>%`;
     scalingLabel.style.fontSize = "0.7em";
     scalingLabel.style.color = "var(--color-text-dim)";
     const scalingSlider = document.createElement("input");
@@ -426,7 +426,7 @@ export class CampaignScreen {
     const scarcityGroup = document.createElement("div");
     scarcityGroup.className = "flex-col gap-5";
     const scarcityLabel = document.createElement("label");
-    scarcityLabel.innerHTML = `RESOURCE SCARCITY: <span id="scarcity-val">100</span>%`;
+    scarcityLabel.innerHTML = `Resource Scarcity: <span id="scarcity-val">100</span>%`;
     scarcityLabel.style.fontSize = "0.7em";
     scarcityLabel.style.color = "var(--color-text-dim)";
     const scarcitySlider = document.createElement("input");
@@ -445,15 +445,15 @@ export class CampaignScreen {
     const deathGroup = document.createElement("div");
     deathGroup.className = "flex-col gap-5";
     const deathLabel = document.createElement("label");
-    deathLabel.textContent = "DEATH RULE";
+    deathLabel.textContent = "Death Rule";
     deathLabel.style.fontSize = "0.7em";
     deathLabel.style.color = "var(--color-text-dim)";
     const deathSelect = document.createElement("select");
     deathSelect.innerHTML = `
       <option value="">(Preset Default)</option>
-      <option value="Simulation">SIMULATION (No Death)</option>
-      <option value="Clone">CLONE (Pay to revive)</option>
-      <option value="Iron">IRON (Permanent)</option>
+      <option value="Simulation">Simulation (No Death)</option>
+      <option value="Clone">Clone (Pay to revive)</option>
+      <option value="Iron">Iron (Permanent)</option>
     `;
     deathGroup.appendChild(deathLabel);
     deathGroup.appendChild(deathSelect);
@@ -463,14 +463,14 @@ export class CampaignScreen {
     const economyGroup = document.createElement("div");
     economyGroup.className = "flex-col gap-5";
     const economyLabel = document.createElement("label");
-    economyLabel.textContent = "ECONOMY MODE";
+    economyLabel.textContent = "Economy Mode";
     economyLabel.style.fontSize = "0.7em";
     economyLabel.style.color = "var(--color-text-dim)";
     const economySelect = document.createElement("select");
     economySelect.id = "campaign-economy-mode";
     economySelect.innerHTML = `
-      <option value="Open" selected>OPEN (Buy anywhere, shop discount)</option>
-      <option value="Limited">LIMITED (Buy ONLY at Supply Depots)</option>
+      <option value="Open" selected>Open (Buy anywhere, shop discount)</option>
+      <option value="Limited">Limited (Buy only at Supply Depots)</option>
     `;
     economyGroup.appendChild(economyLabel);
     economyGroup.appendChild(economySelect);
@@ -483,7 +483,7 @@ export class CampaignScreen {
     content.appendChild(form);
 
     const startBtn = document.createElement("button");
-    startBtn.textContent = "INITIALIZE EXPEDITION";
+    startBtn.textContent = "Initialize Expedition";
     startBtn.className = "primary-button w-full";
     startBtn.onclick = () => {
       const overrides: any = {
@@ -509,7 +509,7 @@ export class CampaignScreen {
     content.appendChild(startBtn);
 
     const backBtn = document.createElement("button");
-    backBtn.textContent = "BACK TO MENU";
+    backBtn.textContent = "Back to Menu";
     backBtn.className = "back-button w-full";
     backBtn.onclick = () => this.onBack();
     content.appendChild(backBtn);

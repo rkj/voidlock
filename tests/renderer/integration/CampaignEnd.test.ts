@@ -220,7 +220,7 @@ describe("Campaign End Integration", () => {
     
     document.getElementById("btn-goto-equipment")?.click();
     const allButtons = document.querySelectorAll("#screen-equipment button");
-    const equipmentLaunchBtn = Array.from(allButtons).find(b => b.textContent?.includes("CONFIRM")) as HTMLElement;
+    const equipmentLaunchBtn = Array.from(allButtons).find(b => b.textContent?.includes("Confirm")) as HTMLElement;
     equipmentLaunchBtn?.click();
 
     expect(document.getElementById("screen-mission")?.style.display).toBe("flex");
@@ -245,7 +245,7 @@ describe("Campaign End Integration", () => {
     expect(mockCampaignState.status).toBe("Victory");
 
     // 5. Return to Campaign Screen (now summary if Victory)
-    const continueBtn = Array.from(document.querySelectorAll("#screen-debrief button")).find(b => b.textContent?.includes("RETURN")) as HTMLElement;
+    const continueBtn = Array.from(document.querySelectorAll("#screen-debrief button")).find(b => b.textContent?.includes("Return")) as HTMLElement;
     continueBtn?.click();
 
     expect(document.getElementById("screen-campaign-summary")?.style.display).toBe("flex");
@@ -253,12 +253,12 @@ describe("Campaign End Integration", () => {
     // 6. Verify Victory Report is displayed
     const victoryOverlay = document.querySelector(".campaign-victory-overlay");
     expect(victoryOverlay).not.toBeNull();
-    expect(victoryOverlay?.textContent).toContain("SECTOR SECURED");
-    expect(victoryOverlay?.textContent).toContain("ALIENS KILLED: 42");
-    expect(victoryOverlay?.textContent).toContain("MISSIONS: 1");
+    expect(victoryOverlay?.textContent).toContain("Sector Secured");
+    expect(victoryOverlay?.textContent).toContain("Aliens Killed: 42");
+    expect(victoryOverlay?.textContent).toContain("Missions: 1");
 
     // 7. Verify Return to Main Menu works
-    const menuBtn = Array.from(document.querySelectorAll(".campaign-summary-screen button")).find(b => b.textContent?.includes("RETURN TO MAIN MENU") || b.textContent?.includes("RETIRE TO MAIN MENU")) as HTMLElement;
+    const menuBtn = Array.from(document.querySelectorAll(".campaign-summary-screen button")).find(b => b.textContent?.includes("Retire to Main Menu")) as HTMLElement;
     expect(menuBtn).toBeDefined();
     menuBtn.click();
 

@@ -55,12 +55,12 @@ export class BarracksScreen {
     this.container.style.overflow = "hidden";
 
     // Left: Roster List
-    const leftPanel = this.createPanel("ROSTER", "300px");
+    const leftPanel = this.createPanel("Roster", "300px");
     leftPanel.style.overflowY = "auto";
     this.renderRoster(leftPanel);
 
     // Center: Soldier Details & Equipment
-    const centerPanel = this.createPanel("SOLDIER DETAILS", "1fr");
+    const centerPanel = this.createPanel("Soldier Details", "1fr");
     centerPanel.style.overflowY = "auto";
     const centerBody = document.createElement("div");
     centerPanel.appendChild(centerBody);
@@ -79,8 +79,8 @@ export class BarracksScreen {
     const statsOverlay = document.createElement("div");
     statsOverlay.className = "overlay-stats";
     statsOverlay.innerHTML = `
-      <span style="margin-right:20px;">SCRAP: <span style="color:var(--color-primary)">${state.scrap}</span></span>
-      <span>INTEL: <span style="color:var(--color-accent)">${state.intel}</span></span>
+      <span style="margin-right:20px;">Scrap: <span style="color:var(--color-primary)">${state.scrap}</span></span>
+      <span>Intel: <span style="color:var(--color-accent)">${state.intel}</span></span>
     `;
     this.container.appendChild(statsOverlay);
 
@@ -89,7 +89,7 @@ export class BarracksScreen {
     footer.className = "screen-footer";
 
     const backBtn = document.createElement("button");
-    backBtn.textContent = "BACK TO SECTOR MAP";
+    backBtn.textContent = "Back to Sector Map";
     backBtn.className = "back-button";
     backBtn.onclick = () => this.onBack();
 
@@ -140,7 +140,7 @@ export class BarracksScreen {
         </div>
         <div style="font-size:0.75em; color:var(--color-text-muted); margin-top:4px; display:flex; justify-content:space-between;">
           <span>${ArchetypeLibrary[soldier.archetypeId]?.name || soldier.archetypeId}</span>
-          <span style="color:${this.getStatusColor(soldier.status)};">${soldier.status.toUpperCase()}</span>
+          <span style="color:${this.getStatusColor(soldier.status)};">${soldier.status}</span>
         </div>
         <div style="font-size:0.7em; color:var(--color-text-dim); margin-top:4px;">
           HP: ${soldier.hp}/${soldier.maxHp} | XP: ${soldier.xp}
@@ -198,7 +198,7 @@ export class BarracksScreen {
 
     const statusBadge = document.createElement("div");
     statusBadge.className = "status-badge";
-    statusBadge.textContent = soldier.status.toUpperCase();
+    statusBadge.textContent = soldier.status;
     statusBadge.style.background = this.getStatusColor(soldier.status);
     header.appendChild(statusBadge);
 
@@ -214,7 +214,7 @@ export class BarracksScreen {
 
     if (soldier.status === "Wounded") {
       const healBtn = document.createElement("button");
-      healBtn.textContent = "HEAL (50 Scrap)";
+      healBtn.textContent = "Heal (50 Scrap)";
       healBtn.disabled = state.scrap < 50;
       healBtn.onclick = () => {
         this.manager.healSoldier(soldier.id);
@@ -223,7 +223,7 @@ export class BarracksScreen {
       actions.appendChild(healBtn);
     } else if (soldier.status === "Dead" && state.rules.deathRule === "Clone") {
       const reviveBtn = document.createElement("button");
-      reviveBtn.textContent = "REVIVE (250 Scrap)";
+      reviveBtn.textContent = "Revive (250 Scrap)";
       reviveBtn.disabled = state.scrap < 250;
       reviveBtn.onclick = () => {
         this.manager.reviveSoldier(soldier.id);
@@ -232,13 +232,13 @@ export class BarracksScreen {
       actions.appendChild(reviveBtn);
     } else if (soldier.status === "Dead") {
       const deadText = document.createElement("div");
-      deadText.textContent = "DECEASED - CANNOT BE RECOVERED";
+      deadText.textContent = "Deceased - Cannot be recovered";
       deadText.style.color = "var(--color-danger)";
       deadText.style.fontWeight = "bold";
       actions.appendChild(deadText);
     } else {
       const healthyText = document.createElement("div");
-      healthyText.textContent = "SOLDIER IS FIT FOR COMBAT";
+      healthyText.textContent = "Soldier is fit for combat";
       healthyText.style.color = "var(--color-primary)";
       actions.appendChild(healthyText);
     }
@@ -260,7 +260,7 @@ export class BarracksScreen {
     tabs.style.marginBottom = "15px";
 
     const recruitTab = document.createElement("button");
-    recruitTab.textContent = "RECRUITMENT";
+    recruitTab.textContent = "Recruitment";
     recruitTab.className = this.activeTab === "Recruitment" ? "active" : "";
     recruitTab.style.flex = "1";
     recruitTab.style.marginTop = "0";
@@ -270,7 +270,7 @@ export class BarracksScreen {
     };
 
     const armoryTab = document.createElement("button");
-    armoryTab.textContent = "ARMORY";
+    armoryTab.textContent = "Armory";
     armoryTab.className = this.activeTab === "Armory" ? "active" : "";
     armoryTab.style.flex = "1";
     armoryTab.style.marginTop = "0";
@@ -330,7 +330,7 @@ export class BarracksScreen {
       `;
 
       const recruitBtn = document.createElement("button");
-      recruitBtn.textContent = "RECRUIT";
+      recruitBtn.textContent = "Recruit";
       recruitBtn.className = "w-full";
       recruitBtn.style.padding = "5px";
       recruitBtn.style.fontSize = "0.8em";

@@ -28,7 +28,7 @@ export class StatisticsScreen {
     this.container.style.display = "flex";
     
     const h1 = document.createElement("h1");
-    h1.textContent = "SERVICE RECORD";
+    h1.textContent = "Service Record";
     h1.style.letterSpacing = "4px";
     h1.style.color = "var(--color-primary)";
     this.container.appendChild(h1);
@@ -57,7 +57,7 @@ export class StatisticsScreen {
     };
 
     // Campaigns
-    statsGrid.appendChild(this.createHeader("CAMPAIGNS"));
+    statsGrid.appendChild(this.createHeader("Campaigns"));
     statsGrid.appendChild(createStatRow("Total Started", stats.totalCampaignsStarted));
     statsGrid.appendChild(createStatRow("Campaigns Won", stats.campaignsWon, "var(--color-primary)"));
     statsGrid.appendChild(createStatRow("Campaigns Lost", stats.campaignsLost, "var(--color-error)"));
@@ -65,7 +65,7 @@ export class StatisticsScreen {
     statsGrid.appendChild(document.createElement("br"));
 
     // Combat
-    statsGrid.appendChild(this.createHeader("COMBAT"));
+    statsGrid.appendChild(this.createHeader("Combat"));
     statsGrid.appendChild(createStatRow("Total Xeno Kills", stats.totalKills, "var(--color-warning)"));
     statsGrid.appendChild(createStatRow("Total Casualties", stats.totalCasualties, "var(--color-error)"));
     statsGrid.appendChild(createStatRow("Missions Played", stats.totalMissionsPlayed));
@@ -74,13 +74,13 @@ export class StatisticsScreen {
     statsGrid.appendChild(document.createElement("br"));
 
     // Economy
-    statsGrid.appendChild(this.createHeader("ECONOMY"));
+    statsGrid.appendChild(this.createHeader("Economy"));
     statsGrid.appendChild(createStatRow("Total Scrap Earned", stats.totalScrapEarned.toLocaleString(), "var(--color-primary)"));
 
     this.container.appendChild(statsGrid);
 
     const backBtn = document.createElement("button");
-    backBtn.textContent = "BACK TO MENU";
+    backBtn.textContent = "Back to Menu";
     backBtn.className = "back-button w-full";
     backBtn.onclick = () => this.onBack();
     this.container.appendChild(backBtn);

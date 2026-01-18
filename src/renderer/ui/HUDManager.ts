@@ -48,7 +48,7 @@ export class HUDManager {
   private updateTopBar(state: GameState) {
     const statusElement = document.getElementById("game-status");
     if (statusElement) {
-      statusElement.innerHTML = `<span style="color:var(--color-text-muted)">TIME:</span>${(state.t / 1000).toFixed(1)}s`;
+      statusElement.innerHTML = `<span style="color:var(--color-text-muted)">Time:</span>${(state.t / 1000).toFixed(1)}s`;
     }
 
     const threatLevel = state.stats.threatLevel || 0;
@@ -316,7 +316,7 @@ export class HUDManager {
 
     const title = document.createElement("h2");
     title.textContent =
-      state.status === "Won" ? "MISSION ACCOMPLISHED" : "SQUAD WIPED";
+      state.status === "Won" ? "Mission Accomplished" : "Squad Wiped";
     title.style.color =
       state.status === "Won" ? "var(--color-success)" : "var(--color-danger)";
     summaryDiv.appendChild(title);
@@ -327,7 +327,7 @@ export class HUDManager {
     objectivesDiv.style.textAlign = "left";
     objectivesDiv.style.borderBottom = "1px solid var(--color-border-strong)";
     objectivesDiv.style.paddingBottom = "10px";
-    objectivesDiv.innerHTML = `<h3 style="font-size:0.9em; color:var(--color-text-muted); margin-top:0;">OBJECTIVES</h3>${this.renderObjectivesList(state)}`;
+    objectivesDiv.innerHTML = `<h3 style="font-size:0.9em; color:var(--color-text-muted); margin-top:0;">Objectives</h3>${this.renderObjectivesList(state)}`;
 
     summaryDiv.appendChild(objectivesDiv);
 
@@ -342,7 +342,7 @@ export class HUDManager {
     summaryDiv.appendChild(stats);
 
     const menuBtn = document.createElement("button");
-    menuBtn.textContent = "BACK TO MENU";
+    menuBtn.textContent = "Back to Menu";
     menuBtn.style.width = "100%";
     menuBtn.style.padding = "15px";
     menuBtn.addEventListener("click", () => this.onAbortMission());
@@ -438,7 +438,7 @@ export class HUDManager {
 
       const renderWep = (stats: any) => {
         if (!stats)
-          return '<span style="color:var(--color-border-strong)">EMPTY</span>';
+          return '<span style="color:var(--color-border-strong)">Empty</span>';
         return `
           ${StatDisplay.render(Icons.Damage, stats.damage, "Damage")}
           ${StatDisplay.render(Icons.Accuracy, stats.accuracy, "Accuracy")}

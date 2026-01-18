@@ -57,6 +57,9 @@ The application is divided into distinct screens to reduce UI clutter and improv
         2. **Wounded**
         3. **Dead** (Bottom)
       - **Deployed State**: Soldiers currently assigned to a Deployment Slot MUST be visually distinct in the Roster (e.g., dimmed opacity, blue border, or "Deployed" tag). This indicates they cannot be dragged again.
+      - **Quick Actions**:
+        - **Revive**: If a soldier is "Dead" and the difficulty allows cloning, a "Revive (250 Scrap)" button MUST be available directly on the soldier card in the roster.
+        - **Recruit**: If the total number of available soldiers (healthy + wounded) is less than the squad size (4), a "Recruit (100 Scrap)" button MUST be available to hire a generic random rookie.
   - **Actions**:
     - "Launch Mission" -> Starts Engine, switches to Mission Screen.
     - "Back" -> Main Menu.
@@ -384,4 +387,17 @@ All campaign-related screens (Sector Map, Barracks, Engineering, Stats) MUST sha
   - **Economy**:
     - Total Scrap Earned (Lifetime)
 - **Action**: "Back to Menu" button returns the user to the Main Menu.
+
+### 8.12 Resilience & Recovery
+
+The application must remain navigable even in the event of a catastrophic logic crash (e.g., malformed state in LocalStorage).
+
+- **Global Error Handling**: A top-level error listener MUST be active from the moment the page loads.
+- **Panic UI Recovery**: If an unhandled exception or promise rejection occurs, the application MUST:
+  1.  Force the "Main Menu" screen to be visible (`display: flex`).
+  2.  Hide all other screens.
+  3.  Log the error to the console for debugging.
+- **Emergency Reset**: The "Reset Data" button logic MUST be initialized independently of the main application bundle (e.g., via an inline script) to ensure users can wipe corrupted state even if the main game engine fails to start.
+- **Verification**: The system must be resilient to `JSON.parse` failures and missing asset manifests.
+
 

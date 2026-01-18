@@ -65,7 +65,7 @@ export class SoldierInspector {
     soldierStatsDiv.style.borderRadius = "4px";
 
     const h3Soldier = document.createElement("h3");
-    h3Soldier.textContent = "SOLDIER ATTRIBUTES";
+    h3Soldier.textContent = "Soldier Attributes";
     h3Soldier.className = "stat-label";
     h3Soldier.style.margin = "0 0 10px 0";
     h3Soldier.style.letterSpacing = "1px";
@@ -90,7 +90,7 @@ export class SoldierInspector {
     weaponStatsDiv.style.borderLeft = "3px solid var(--color-primary)";
 
     const h3Weapon = document.createElement("h3");
-    h3Weapon.textContent = "EQUIPMENT";
+    h3Weapon.textContent = "Equipment";
     h3Weapon.className = "stat-label";
     h3Weapon.style.margin = "0 0 10px 0";
     h3Weapon.style.letterSpacing = "1px";
@@ -102,7 +102,7 @@ export class SoldierInspector {
 
     const renderWepBlock = (w: any, label: string) => {
       if (!w)
-        return `<div style="color:var(--color-text-dim); font-size:0.7em; margin-bottom:8px;">${label}: [EMPTY SLOT]</div>`;
+        return `<div style="color:var(--color-text-dim); font-size:0.7em; margin-bottom:8px;">${label}: [Empty Slot]</div>`;
       return `
             <div style="margin-bottom:12px; border-bottom:1px solid var(--color-surface-elevated); padding-bottom:8px;">
                 <div style="font-size:0.8em; font-weight:bold; color:var(--color-primary); margin-bottom:4px;">${label}: ${w.name}</div>
@@ -119,7 +119,7 @@ export class SoldierInspector {
 
     const wContent = document.createElement("div");
     wContent.innerHTML =
-      renderWepBlock(rw, "PRIMARY (RH)") + renderWepBlock(lw, "SECONDARY (LH)");
+      renderWepBlock(rw, "Primary (RH)") + renderWepBlock(lw, "Secondary (LH)");
     weaponStatsDiv.appendChild(wContent);
     content.appendChild(weaponStatsDiv);
 
@@ -353,7 +353,7 @@ export class SoldierInspector {
 
       btn.title = `${item.name}\n${item.description || ""}${fullStats ? "\n\n" + fullStats : ""}`;
 
-      const priceText = isOwned || isCurrentlyEquipped ? "OWNED" : `${cost} CR`;
+      const priceText = isOwned || isCurrentlyEquipped ? "Owned" : `${cost} CR`;
       const priceColor =
         isOwned || isCurrentlyEquipped
           ? "var(--color-primary)"
