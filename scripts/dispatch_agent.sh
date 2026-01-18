@@ -29,26 +29,35 @@ fi
 
 gemini --output-format stream-json \
   --model gemini-3-flash-preview \
-  --allowed-tools list_directory \
-  --allowed-tools read_file \
-  --allowed-tools search_file_content \
-  --allowed-tools glob \
-  --allowed-tools replace \
-  --allowed-tools write_file \
-  --allowed-tools "run_shell_command(npx vitest)" \
-  --allowed-tools "run_shell_command(npx vite build)" \
-  --allowed-tools "run_shell_command(npm run build)" \
-  --allowed-tools "run_shell_command(npx tsc)" \
+  --allowed-tools "run_shell_command(bd show)" \
+  --allowed-tools "run_shell_command(grep)" \
   --allowed-tools "run_shell_command(jj diff)" \
   --allowed-tools "run_shell_command(ls)" \
+  --allowed-tools "run_shell_command(npm run build)" \
+  --allowed-tools "run_shell_command(npx tsc)" \
+  --allowed-tools "run_shell_command(npx vite build)" \
+  --allowed-tools "run_shell_command(npx vitest)" \
   --allowed-tools "run_shell_command(tail)" \
   --allowed-tools "run_shell_command(tree)" \
-  --allowed-tools "run_shell_command(grep)" \
-  --allowed-tools "run_shell_command(bd show)" \
-  --allowed-tools ew_page \
-  --allowed-tools navigate_page \
-  --allowed-tools take_screenshot \
   --allowed-tools click \
-  --allowed-tools wait_for \
+  --allowed-tools close_page \
+  --allowed-tools drag \
   --allowed-tools evaluate_script \
+  --allowed-tools fill \
+  --allowed-tools fill_form \
+  --allowed-tools get_console_message \
+  --allowed-tools handle_dialog \
+  --allowed-tools glob \
+  --allowed-tools list_directory \
+  --allowed-tools press_key \
+  --allowed-tools list_pages \
+  --allowed-tools navigate_page \
+  --allowed-tools new_page \
+  --allowed-tools read_file \
+  --allowed-tools replace \
+  --allowed-tools search_file_content \
+  --allowed-tools take_screenshot \
+  --allowed-tools take_snapshot \
+  --allowed-tools wait_for \
+  --allowed-tools write_file \
   "$PROMPT"
