@@ -43,10 +43,30 @@
   - Analyze console output to pinpoint logical errors.
   - Remove debug logs once the issue is resolved and tests pass.
 - **Test Execution**: Run tests using `npx vitest run` to ensure non-interactive execution, especially in automated environments. Avoid `npx vitest` without `run` as it defaults to interactive watch mode.
-- **Commit Frequency**: The agent must commit changes after the completion of _every_ Beads task.
+  - **Commit Frequency**: The agent must commit changes after the completion of _every_ Beads task.
 
 ---
 
 ### Critical Runtime Errors
 
 - **"Maximum call stack size exceeded"**: Observed in browser console logs during live gameplay. This is a critical error likely indicating infinite recursion. Despite passing unit tests for core mechanics, this runtime error persists and must be addressed immediately, as it will impact core game logic (pathfinding, LOS, door states, unit actions). A full stack trace from the browser console is required for debugging.
+
+---
+
+## 15) Deployment
+
+### 15.1 GitHub Pages
+
+The project uses GitHub Actions to automatically build and deploy to GitHub Pages.
+
+- **Workflow File**: `.github/workflows/deploy.yml`
+- **Trigger**: Pushes to the `main` branch.
+- **Process**:
+  1.  Checkout code.
+  2.  Setup Node.js.
+  3.  Install dependencies (`npm ci`).
+  4.  Build project (`npm run build`).
+  5.  Deploy `dist/` directory to GitHub Pages via the official `actions/deploy-pages`.
+- **Configuration**:
+  - **Vite Base Path**: The `base` property in `vite.config.ts` is conditionally set to `'/voidlock/'` during production builds to ensure assets load correctly on GitHub Pages.
+
