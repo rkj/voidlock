@@ -50,6 +50,17 @@ vi.mock("@src/renderer/ThemeManager", () => ({
   },
 }));
 
+const mockModalService = {
+  alert: vi.fn().mockResolvedValue(undefined),
+  confirm: vi.fn().mockResolvedValue(true),
+  prompt: vi.fn().mockResolvedValue("New Recruit"),
+  show: vi.fn().mockResolvedValue(undefined),
+};
+
+vi.mock("@src/renderer/ui/ModalService", () => ({
+  ModalService: vi.fn().mockImplementation(() => mockModalService),
+}));
+
 // Mock CampaignManager
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 let currentCampaignState: any = null;
@@ -219,7 +230,11 @@ describe("Comprehensive User Journeys", () => {
     const recruitBtns = Array.from(document.querySelectorAll("#screen-barracks button"))
       .filter(btn => btn.textContent === "Recruit") as HTMLButtonElement[];
     recruitBtns[0].click();
-    expect(window.prompt).toHaveBeenCalled();
+    
+    // Wait for async ModalService.prompt
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(mockModalService.prompt).toHaveBeenCalled();
     
     // Verify roster increased (mocked)
     const rosterItems = document.querySelectorAll("#screen-barracks .panel:first-child .menu-item");
@@ -248,13 +263,21 @@ describe("Comprehensive User Journeys", () => {
     expect(document.getElementById("screen-mission")?.style.display).toBe("flex");
 
     // 3. Mission -> Give Up (Cancel)
-    (window.confirm as any).mockReturnValue(false);
+    mockModalService.confirm.mockResolvedValue(false);
     document.getElementById("btn-give-up")?.click();
+    
+    // Wait for async ModalService.confirm
+    await new Promise(resolve => setTimeout(resolve, 0));
+    
     expect(document.getElementById("screen-mission")?.style.display).toBe("flex"); // Still in mission
 
     // 4. Mission -> Give Up (Confirm)
-    (window.confirm as any).mockReturnValue(true);
+    mockModalService.confirm.mockResolvedValue(true);
     document.getElementById("btn-give-up")?.click();
+    
+    // Wait for async ModalService.confirm
+    await new Promise(resolve => setTimeout(resolve, 0));
+    
     expect(document.getElementById("screen-main-menu")?.style.display).toBe("flex");
   });
 

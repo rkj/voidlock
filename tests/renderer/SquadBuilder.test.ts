@@ -4,6 +4,7 @@ import { ArchetypeLibrary } from "@src/shared/types";
 
 describe("SquadBuilder UI logic", () => {
   let currentSquad: { archetypeId: string; count: number }[] = [];
+  let mockModalService: any;
 
   beforeEach(() => {
     currentSquad = [];
@@ -15,7 +16,10 @@ describe("SquadBuilder UI logic", () => {
       <button id="btn-launch-mission"></button>
     `;
 
-    vi.stubGlobal("alert", vi.fn());
+    mockModalService = {
+      alert: vi.fn().mockResolvedValue(undefined),
+      confirm: vi.fn().mockResolvedValue(true),
+    };
   });
 
   const renderSquadBuilder = () => {
@@ -64,7 +68,7 @@ describe("SquadBuilder UI logic", () => {
         currentSquad.find((s) => s.archetypeId === arch.id)?.count || 0
       ).toString();
 
-      input.addEventListener("change", () => {
+      input.addEventListener("change", async () => {
         const newVal = parseInt(input.value);
         if (isNaN(newVal) || newVal < 0) {
           input.value = (
@@ -81,7 +85,7 @@ describe("SquadBuilder UI logic", () => {
           input.value = (
             currentSquad.find((s) => s.archetypeId === arch.id)?.count || 0
           ).toString();
-          alert(`Maximum squad size is ${MAX_SQUAD_SIZE} soldiers.`);
+          await mockModalService.alert(`Maximum squad size is ${MAX_SQUAD_SIZE} soldiers.`);
           return;
         }
 
@@ -130,7 +134,7 @@ describe("SquadBuilder UI logic", () => {
     );
   });
 
-  it("should prevent adding more than 4 members", () => {
+  it("should prevent adding more than 4 members", async () => {
     currentSquad = [{ archetypeId: "assault", count: 4 }];
     renderSquadBuilder();
 
@@ -142,7 +146,10 @@ describe("SquadBuilder UI logic", () => {
     medicInput.value = "1";
     medicInput.dispatchEvent(new Event("change"));
 
-    expect(alert).toHaveBeenCalledWith("Maximum squad size is 4 soldiers.");
+    // Wait for async ModalService.alert
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(mockModalService.alert).toHaveBeenCalledWith("Maximum squad size is 4 soldiers.");
     expect(medicInput.value).toBe("0");
     expect(currentSquad.length).toBe(1);
     expect(currentSquad[0].count).toBe(4);
@@ -155,18 +162,19 @@ describe("SquadBuilder UI logic", () => {
   });
 
   it("should allow changing counts within limit", () => {
-    currentSquad = [{ archetypeId: "assault", count: 2 }];
+    currentSquad = [{ archetypeId: "assault", count: 1 }];
     renderSquadBuilder();
 
     const assaultRow = document.querySelector('[data-arch-id="assault"]');
     const assaultInput = assaultRow?.querySelector("input") as HTMLInputElement;
+    expect(assaultInput.value).toBe("1");
 
-    assaultInput.value = "3";
+    assaultInput.value = "2";
     assaultInput.dispatchEvent(new Event("change"));
 
-    expect(currentSquad[0].count).toBe(3);
+    expect(currentSquad[0].count).toBe(2);
     expect(document.getElementById("squad-total-count")?.textContent).toBe(
-      "Total Soldiers: 3/4",
+      "Total Soldiers: 2/4",
     );
   });
 });

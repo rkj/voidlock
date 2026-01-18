@@ -55,6 +55,16 @@ vi.mock("@src/renderer/ThemeManager", () => ({
   },
 }));
 
+const mockModalService = {
+  alert: vi.fn().mockResolvedValue(undefined),
+  confirm: vi.fn().mockResolvedValue(true),
+  show: vi.fn().mockResolvedValue(undefined),
+};
+
+vi.mock("@src/renderer/ui/ModalService", () => ({
+  ModalService: vi.fn().mockImplementation(() => mockModalService),
+}));
+
 describe("Full Campaign Flow Integration", () => {
   let storage: MockStorageProvider;
   let app: GameApp;
@@ -170,6 +180,9 @@ describe("Full Campaign Flow Integration", () => {
     const firstNode = document.querySelector(".campaign-node.accessible") as HTMLElement;
     firstNode?.click();
     
+    // Wait for async onCampaignNodeSelected
+    await new Promise(resolve => setTimeout(resolve, 20));
+
     expect(document.getElementById("screen-mission-setup")?.style.display).toBe("flex");
 
     const soldierCards = document.querySelectorAll(".soldier-card");
@@ -217,6 +230,9 @@ describe("Full Campaign Flow Integration", () => {
     const nextNode = document.querySelector(".campaign-node.accessible") as HTMLElement;
     nextNode?.click();
 
+    // Wait for async onCampaignNodeSelected
+    await new Promise(resolve => setTimeout(resolve, 20));
+
     expect(document.getElementById("screen-mission-setup")?.style.display).toBe("flex");
 
     const selectedCards = document.querySelectorAll(".soldier-card.deployed");
@@ -236,6 +252,9 @@ describe("Full Campaign Flow Integration", () => {
     const bossNodeEl = document.querySelector(`.campaign-node[data-id="${bossNode.id}"]`) as HTMLElement;
     expect(bossNodeEl).toBeTruthy();
     bossNodeEl.click();
+
+    // Wait for async onCampaignNodeSelected
+    await new Promise(resolve => setTimeout(resolve, 20));
 
     // Re-select squad
     document.querySelectorAll(".soldier-card").forEach(card => {
@@ -297,6 +316,9 @@ describe("Full Campaign Flow Integration", () => {
     const bNode = bankruptcyState.nodes.find(n => n.status === "Accessible")!;
     (document.querySelector(`.campaign-node[data-id="${bNode.id}"]`) as HTMLElement).click();
     
+    // Wait for async onCampaignNodeSelected
+    await new Promise(resolve => setTimeout(resolve, 20));
+
     document.getElementById("btn-goto-equipment")?.click();
     const confBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent?.includes("Confirm")) as HTMLElement;
     confBtn?.click();

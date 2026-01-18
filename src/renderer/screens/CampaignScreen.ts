@@ -1,9 +1,11 @@
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import { CampaignNode, CampaignState } from "@src/shared/campaign_types";
+import { ModalService } from "../ui/ModalService";
 
 export class CampaignScreen {
   private container: HTMLElement;
   private manager: CampaignManager;
+  private modalService: ModalService;
   private onNodeSelect: (node: CampaignNode) => void;
   private onBarracks: () => void;
   private onBack: () => void;
@@ -13,6 +15,7 @@ export class CampaignScreen {
   constructor(
     containerId: string,
     manager: CampaignManager,
+    modalService: ModalService,
     onNodeSelect: (node: CampaignNode) => void,
     onBarracks: () => void,
     onBack: () => void,
@@ -23,6 +26,7 @@ export class CampaignScreen {
     if (!el) throw new Error(`Container #${containerId} not found`);
     this.container = el;
     this.manager = manager;
+    this.modalService = modalService;
     this.onNodeSelect = onNodeSelect;
     this.onBarracks = onBarracks;
     this.onBack = onBack;
@@ -125,8 +129,8 @@ export class CampaignScreen {
     const resetBtn = document.createElement("button");
     resetBtn.textContent = "New Campaign";
     resetBtn.style.color = "var(--color-error)";
-    resetBtn.onclick = () => {
-      if (confirm("Are you sure you want to abandon the current campaign?")) {
+    resetBtn.onclick = async () => {
+      if (await this.modalService.confirm("Are you sure you want to abandon the current campaign?")) {
         this.manager.reset();
         this.onBack();
       }

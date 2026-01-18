@@ -11,10 +11,12 @@ import {
 import { Icons } from "@src/renderer/Icons";
 import { StatDisplay } from "@src/renderer/ui/StatDisplay";
 import { SoldierInspector } from "@src/renderer/ui/SoldierInspector";
+import { ModalService } from "../ui/ModalService";
 
 export class BarracksScreen {
   private container: HTMLElement;
   private manager: CampaignManager;
+  private modalService: ModalService;
   private selectedSoldierId: string | null = null;
   private onBack: () => void;
   private inspector: SoldierInspector;
@@ -23,12 +25,14 @@ export class BarracksScreen {
   constructor(
     containerId: string,
     manager: CampaignManager,
+    modalService: ModalService,
     onBack: () => void,
   ) {
     const el = document.getElementById(containerId);
     if (!el) throw new Error(`Container #${containerId} not found`);
     this.container = el;
     this.manager = manager;
+    this.modalService = modalService;
     this.onBack = onBack;
     this.inspector = new SoldierInspector({
       manager: this.manager,
@@ -335,8 +339,8 @@ export class BarracksScreen {
       recruitBtn.style.padding = "5px";
       recruitBtn.style.fontSize = "0.8em";
       recruitBtn.disabled = state.scrap < 100;
-      recruitBtn.onclick = () => {
-        const name = prompt("Enter soldier name:", `Recruit ${Math.floor(Math.random()*1000)}`);
+      recruitBtn.onclick = async () => {
+        const name = await this.modalService.prompt("Enter soldier name:", `Recruit ${Math.floor(Math.random()*1000)}`);
         if (name) {
           this.manager.recruitSoldier(archId, name);
           this.render();

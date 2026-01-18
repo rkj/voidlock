@@ -48,6 +48,16 @@ vi.mock("@src/renderer/ThemeManager", () => ({
   },
 }));
 
+const mockModalService = {
+  alert: vi.fn().mockResolvedValue(undefined),
+  confirm: vi.fn().mockResolvedValue(true),
+  show: vi.fn().mockResolvedValue(undefined),
+};
+
+vi.mock("@src/renderer/ui/ModalService", () => ({
+  ModalService: vi.fn().mockImplementation(() => mockModalService),
+}));
+
 // Mock CampaignManager
 let currentCampaignState: any = null;
 
@@ -215,6 +225,9 @@ describe("Campaign Map Generator Integration", () => {
     const nodeEl = document.querySelector(".campaign-node.accessible") as HTMLElement;
     expect(nodeEl).toBeTruthy();
     nodeEl.click();
+
+    // Wait for async onCampaignNodeSelected
+    await new Promise(resolve => setTimeout(resolve, 0));
     
     // 4. In Mission Setup, ensure at least one soldier is selected
     const scoutCb = document.querySelector("#squad-builder input[type='checkbox']") as HTMLInputElement;

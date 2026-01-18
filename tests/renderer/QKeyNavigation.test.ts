@@ -40,9 +40,15 @@ describe("Q and ESC Key Navigation", () => {
     onToggleLos = vi.fn();
     currentGameState = vi.fn(() => ({}));
 
+    const mockModalService = {
+      alert: vi.fn(),
+      confirm: vi.fn().mockResolvedValue(true),
+    };
+
     inputManager = new InputManager(
       mockScreenManager,
       mockMenuController,
+      mockModalService as any,
       togglePause,
       handleMenuInput,
       abortMission,
@@ -86,12 +92,15 @@ describe("Q and ESC Key Navigation", () => {
     expect(abortMission).not.toHaveBeenCalled();
   });
 
-  it("should call abortMission() when 'Escape' is pressed in mission ACTION_SELECT with NO unit selected", () => {
+  it("should call abortMission() when 'Escape' is pressed in mission ACTION_SELECT with NO unit selected", async () => {
     mockMenuController.menuState = "ACTION_SELECT";
     getSelectedUnitId.mockReturnValue(null);
-    window.confirm = vi.fn(() => true);
     const event = new KeyboardEvent("keydown", { key: "Escape" });
     document.dispatchEvent(event);
+    
+    // Wait for the promise in InputManager
+    await new Promise(resolve => setTimeout(resolve, 0));
+    
     expect(abortMission).toHaveBeenCalled();
   });
 

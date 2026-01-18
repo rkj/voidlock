@@ -42,8 +42,8 @@ export class InputBinder {
     // Navigation Back
     this.addListener("btn-campaign-back", "click", () => context.screenManager.goBack());
     this.addListener("btn-setup-back", "click", () => context.screenManager.goBack());
-    this.addListener("btn-give-up", "click", () => {
-      if (confirm("Abort Mission and return to menu?")) {
+    this.addListener("btn-give-up", "click", async () => {
+      if (await context.modalService.confirm("Abort Mission and return to menu?")) {
         callbacks.onAbortMission();
       }
     });

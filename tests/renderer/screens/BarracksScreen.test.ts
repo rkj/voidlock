@@ -8,6 +8,7 @@ describe("BarracksScreen", () => {
   let container: HTMLElement;
   let manager: CampaignManager;
   let onBack: any;
+  let mockModalService: any;
 
   beforeEach(() => {
     document.body.innerHTML = '<div id="screen-barracks"></div>';
@@ -18,10 +19,16 @@ describe("BarracksScreen", () => {
     manager.startNewCampaign(12345, "normal");
 
     onBack = vi.fn();
+    mockModalService = {
+      alert: vi.fn().mockResolvedValue(undefined),
+      confirm: vi.fn().mockResolvedValue(true),
+      prompt: vi.fn().mockResolvedValue("Bob"),
+      show: vi.fn().mockResolvedValue(undefined),
+    };
   });
 
   it("should render roster and recruitment on show", () => {
-    const screen = new BarracksScreen("screen-barracks", manager, onBack);
+    const screen = new BarracksScreen("screen-barracks", manager, mockModalService, onBack);
     screen.show();
 
     expect(container.textContent).toContain("Roster");
@@ -36,7 +43,7 @@ describe("BarracksScreen", () => {
   });
 
   it("should show soldier details when a soldier is selected", () => {
-    const screen = new BarracksScreen("screen-barracks", manager, onBack);
+    const screen = new BarracksScreen("screen-barracks", manager, mockModalService, onBack);
     screen.show();
 
     const state = manager.getState()!;
@@ -58,7 +65,7 @@ describe("BarracksScreen", () => {
     state.roster[0].status = "Wounded";
     state.roster[0].hp = 10;
 
-    const screen = new BarracksScreen("screen-barracks", manager, onBack);
+    const screen = new BarracksScreen("screen-barracks", manager, mockModalService, onBack);
     screen.show();
 
     const soldierItem = Array.from(container.querySelectorAll(".menu-item.clickable"))
@@ -78,7 +85,7 @@ describe("BarracksScreen", () => {
     state.roster[0].hp = 0;
     state.rules.deathRule = "Clone";
 
-    const screen = new BarracksScreen("screen-barracks", manager, onBack);
+    const screen = new BarracksScreen("screen-barracks", manager, mockModalService, onBack);
     screen.show();
 
     const soldierItem = Array.from(container.querySelectorAll(".menu-item.clickable"))
@@ -88,27 +95,27 @@ describe("BarracksScreen", () => {
     expect(container.textContent).toContain("Revive (250 Scrap)");
   });
 
-  it("should allow recruiting a new soldier", () => {
-    // Mock window.prompt
-    const promptSpy = vi.spyOn(window, 'prompt').mockReturnValue("Bob");
+  it("should allow recruiting a new soldier", async () => {
+    mockModalService.prompt.mockResolvedValue("Bob");
     
-    const screen = new BarracksScreen("screen-barracks", manager, onBack);
+    const screen = new BarracksScreen("screen-barracks", manager, mockModalService, onBack);
     screen.show();
 
     const recruitBtns = Array.from(container.querySelectorAll("button"))
-      .filter(btn => btn.textContent === "Recruit");
+      .filter(btn => btn.textContent === "Recruit") as HTMLButtonElement[];
     
     recruitBtns[0].click();
 
-    expect(promptSpy).toHaveBeenCalled();
+    // Wait for async ModalService.prompt
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(mockModalService.prompt).toHaveBeenCalled();
     expect(manager.getState()?.roster.some(s => s.name === "Bob")).toBe(true);
     expect(container.textContent).toContain("Bob");
-    
-    promptSpy.mockRestore();
   });
 
   it("should trigger onBack", () => {
-    const screen = new BarracksScreen("screen-barracks", manager, onBack);
+    const screen = new BarracksScreen("screen-barracks", manager, mockModalService, onBack);
     screen.show();
 
     const backBtn = Array.from(container.querySelectorAll("button"))

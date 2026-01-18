@@ -19,6 +19,7 @@ const mockCampaignManager = {
 
 describe("Regression: Campaign Roster Selection (voidlock-9hda.2)", () => {
   let currentSquad: any = { soldiers: [], inventory: {} };
+  let mockModalService: any;
 
   beforeEach(() => {
     currentSquad = { soldiers: [], inventory: {} };
@@ -26,7 +27,10 @@ describe("Regression: Campaign Roster Selection (voidlock-9hda.2)", () => {
       <div id="squad-builder"></div>
       <button id="btn-goto-equipment"></button>
     `;
-    vi.stubGlobal("alert", vi.fn());
+    mockModalService = {
+      alert: vi.fn().mockResolvedValue(undefined),
+      confirm: vi.fn().mockResolvedValue(true),
+    };
   });
 
   function renderSquadBuilder(isCampaign: boolean = false) {
@@ -59,12 +63,12 @@ describe("Regression: Campaign Roster Selection (voidlock-9hda.2)", () => {
         checkbox.disabled = isDisabled;
         checkbox.dataset.id = soldier.id;
 
-        checkbox.addEventListener("change", () => {
+        checkbox.addEventListener("change", async () => {
           if (checkbox.checked) {
             const currentTotal = currentSquad.soldiers.filter((s: any) => s.archetypeId !== "vip").length;
             if (currentTotal >= MAX_SQUAD_SIZE) {
               checkbox.checked = false;
-              alert(`Max squad size is ${MAX_SQUAD_SIZE}.`);
+              await mockModalService.alert(`Max squad size is ${MAX_SQUAD_SIZE}.`);
               return;
             }
             currentSquad.soldiers.push({ id: soldier.id, archetypeId: soldier.archetypeId });
@@ -130,7 +134,7 @@ describe("Regression: Campaign Roster Selection (voidlock-9hda.2)", () => {
     expect(document.getElementById("squad-total-count")?.textContent).toBe("Total Soldiers: 0/4");
   });
 
-  it("should enforce max squad size in campaign mode", () => {
+  it("should enforce max squad size in campaign mode", async () => {
     currentSquad.soldiers = [
         { id: "s1", archetypeId: "assault" },
         { id: "s2", archetypeId: "medic" },
@@ -145,8 +149,11 @@ describe("Regression: Campaign Roster Selection (voidlock-9hda.2)", () => {
     s6Checkbox.checked = true;
     s6Checkbox.dispatchEvent(new Event("change"));
 
+    // Wait for async ModalService.alert
+    await new Promise(resolve => setTimeout(resolve, 0));
+
     expect(s6Checkbox.checked).toBe(false);
-    expect(vi.mocked(alert)).toHaveBeenCalledWith("Max squad size is 4.");
+    expect(mockModalService.alert).toHaveBeenCalledWith("Max squad size is 4.");
     expect(currentSquad.soldiers.length).toBe(4);
   });
 

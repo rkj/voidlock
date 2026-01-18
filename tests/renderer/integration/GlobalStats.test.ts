@@ -20,6 +20,16 @@ global.fetch = vi.fn().mockResolvedValue({
   json: () => Promise.resolve({})
 });
 
+const mockModalService = {
+  alert: vi.fn().mockResolvedValue(undefined),
+  confirm: vi.fn().mockResolvedValue(true),
+  show: vi.fn().mockResolvedValue(undefined),
+};
+
+vi.mock("@src/renderer/ui/ModalService", () => ({
+  ModalService: vi.fn().mockImplementation(() => mockModalService),
+}));
+
 // Mock MetaManager
 vi.mock("@src/renderer/campaign/MetaManager", () => {
   return {

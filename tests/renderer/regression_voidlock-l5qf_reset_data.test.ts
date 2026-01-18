@@ -31,10 +31,24 @@ vi.mock("@src/renderer/ThemeManager", () => ({
   },
 }));
 
+const mockModalService = {
+  alert: vi.fn().mockResolvedValue(undefined),
+  confirm: vi.fn().mockResolvedValue(true),
+  show: vi.fn().mockResolvedValue(undefined),
+};
+
+vi.mock("@src/renderer/ui/ModalService", () => ({
+  ModalService: vi.fn().mockImplementation(() => mockModalService),
+}));
+
 describe("Reset Data Button", () => {
   let reloadMock: any;
 
   beforeEach(async () => {
+    // Reset mocks
+    vi.clearAllMocks();
+    mockModalService.confirm.mockResolvedValue(true);
+    
     // Set up DOM
     document.body.innerHTML = `
       <div id="screen-main-menu" class="screen">
@@ -87,7 +101,10 @@ describe("Reset Data Button", () => {
 
     resetBtn?.click();
 
-    expect(window.confirm).toHaveBeenCalledWith(
+    // Wait for async ModalService.confirm
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(mockModalService.confirm).toHaveBeenCalledWith(
       "Are you sure? This will wipe all campaign progress and settings."
     );
     expect(Storage.prototype.clear).toHaveBeenCalled();
@@ -95,12 +112,15 @@ describe("Reset Data Button", () => {
   });
 
   it("should do nothing when Reset Data is clicked but cancelled", async () => {
-    (window.confirm as any).mockReturnValue(false);
+    mockModalService.confirm.mockResolvedValue(false);
     
     const resetBtn = document.getElementById("btn-menu-reset");
     resetBtn?.click();
 
-    expect(window.confirm).toHaveBeenCalled();
+    // Wait for async ModalService.confirm
+    await new Promise(resolve => setTimeout(resolve, 0));
+
+    expect(mockModalService.confirm).toHaveBeenCalled();
     expect(Storage.prototype.clear).not.toHaveBeenCalled();
     expect(reloadMock).not.toHaveBeenCalled();
   });

@@ -47,6 +47,16 @@ vi.mock("@src/renderer/ThemeManager", () => ({
   },
 }));
 
+const mockModalService = {
+  alert: vi.fn().mockResolvedValue(undefined),
+  confirm: vi.fn().mockResolvedValue(true),
+  show: vi.fn().mockResolvedValue(undefined),
+};
+
+vi.mock("@src/renderer/ui/ModalService", () => ({
+  ModalService: vi.fn().mockImplementation(() => mockModalService),
+}));
+
 // Mock CampaignManager
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 let currentCampaignState: any = null;
@@ -153,6 +163,9 @@ describe("Equipment Persistence Integration", () => {
     // 2. Select node and go to mission setup
     const nodeEl = document.querySelector(".campaign-node.accessible") as HTMLElement;
     nodeEl.click();
+    
+    // Wait for async onCampaignNodeSelected
+    await new Promise(resolve => setTimeout(resolve, 0));
     
     // In mission setup, select the scout
     const scoutCb = document.querySelector("#squad-builder input[type='checkbox']") as HTMLInputElement;

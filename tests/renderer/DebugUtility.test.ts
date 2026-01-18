@@ -6,9 +6,13 @@ describe("DebugUtility", () => {
   const mockState: any = { t: 100, status: "Playing" };
   const mockReplayData: any = { seed: 12345 };
   const version = "1.0.0";
+  let mockModalService: any;
 
   beforeEach(() => {
-    vi.stubGlobal("alert", vi.fn());
+    mockModalService = {
+      alert: vi.fn().mockResolvedValue(undefined),
+      confirm: vi.fn().mockResolvedValue(true),
+    };
     vi.spyOn(console, "log").mockImplementation(() => {});
     vi.spyOn(console, "error").mockImplementation(() => {});
   });
@@ -26,25 +30,23 @@ describe("DebugUtility", () => {
       },
     });
 
-    DebugUtility.copyWorldState(mockState, mockReplayData, version);
+    await DebugUtility.copyWorldState(mockState, mockReplayData, version, mockModalService);
 
     expect(writeTextMock).toHaveBeenCalled();
-    // Since writeText is async, we need to wait for the promise to resolve to see the alert
-    await new Promise(resolve => setTimeout(resolve, 0));
-    expect(window.alert).toHaveBeenCalledWith("World State copied to clipboard!");
+    expect(mockModalService.alert).toHaveBeenCalledWith("World State copied to clipboard!");
   });
 
-  it("should fallback to console when navigator.clipboard is missing", () => {
+  it("should fallback to console when navigator.clipboard is missing", async () => {
     vi.stubGlobal("navigator", {});
 
-    DebugUtility.copyWorldState(mockState, mockReplayData, version);
+    await DebugUtility.copyWorldState(mockState, mockReplayData, version, mockModalService);
 
     expect(console.error).toHaveBeenCalledWith(
       "Failed to copy state to clipboard:",
       expect.any(Error)
     );
     expect(console.log).toHaveBeenCalledWith("Full World State JSON:");
-    expect(window.alert).toHaveBeenCalledWith(
+    expect(mockModalService.alert).toHaveBeenCalledWith(
       "Failed to copy to clipboard. See console for JSON."
     );
   });
@@ -58,21 +60,20 @@ describe("DebugUtility", () => {
       },
     });
 
-    DebugUtility.copyWorldState(mockState, mockReplayData, version);
+    await DebugUtility.copyWorldState(mockState, mockReplayData, version, mockModalService);
 
     expect(writeTextMock).toHaveBeenCalled();
-    await new Promise(resolve => setTimeout(resolve, 0));
     
     expect(console.error).toHaveBeenCalledWith(
       "Failed to copy state to clipboard:",
       error
     );
-    expect(window.alert).toHaveBeenCalledWith(
+    expect(mockModalService.alert).toHaveBeenCalledWith(
       "Failed to copy to clipboard. See console for JSON."
     );
   });
 
-  it("should fallback to console when writeText throws synchronously", () => {
+  it("should fallback to console when writeText throws synchronously", async () => {
     const error = new Error("Sync Clipboard fail");
     const writeTextMock = vi.fn().mockImplementation(() => {
       throw error;
@@ -83,14 +84,13 @@ describe("DebugUtility", () => {
       },
     });
 
-    // This should NOT throw if the fix is implemented correctly
-    DebugUtility.copyWorldState(mockState, mockReplayData, version);
+    await DebugUtility.copyWorldState(mockState, mockReplayData, version, mockModalService);
 
     expect(console.error).toHaveBeenCalledWith(
       "Failed to copy state to clipboard:",
       error
     );
-    expect(window.alert).toHaveBeenCalledWith(
+    expect(mockModalService.alert).toHaveBeenCalledWith(
       "Failed to copy to clipboard. See console for JSON."
     );
   });

@@ -1,11 +1,13 @@
 import { ScreenManager } from "@src/renderer/ScreenManager";
 import { MenuController } from "@src/renderer/MenuController";
 import { GameState, CommandType } from "@src/shared/types";
+import { ModalService } from "./ui/ModalService";
 
 export class InputManager {
   constructor(
     private screenManager: ScreenManager,
     private menuController: MenuController,
+    private modalService: ModalService,
     private togglePause: () => void,
     private handleMenuInput: (key: string, shiftHeld?: boolean) => void,
     private abortMission: () => void,
@@ -64,9 +66,11 @@ export class InputManager {
           if (this.getSelectedUnitId()) {
             this.onUnitDeselect();
           } else if (e.key === "Escape") {
-            if (confirm("Abort Mission and return to menu?")) {
-              this.abortMission();
-            }
+            this.modalService.confirm("Abort Mission and return to menu?").then(confirmed => {
+              if (confirmed) {
+                this.abortMission();
+              }
+            });
           }
         }
         return;

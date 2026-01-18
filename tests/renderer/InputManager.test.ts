@@ -48,9 +48,15 @@ describe("InputManager", () => {
     onToggleLos = vi.fn();
     currentGameState = vi.fn(() => mockState);
 
+    const mockModalService = {
+      alert: vi.fn(),
+      confirm: vi.fn(),
+    };
+
     inputManager = new InputManager(
       mockScreenManager,
       mockMenuController,
+      mockModalService as any,
       togglePause,
       handleMenuInput,
       abortMission,

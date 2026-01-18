@@ -26,6 +26,7 @@ const mockCampaignManager = {
 describe("SquadBuilder VIP Selection (regression_voidlock-hs8n)", () => {
   let currentSquad: { soldiers: { archetypeId: string, id?: string }[] } = { soldiers: [] };
   let currentMissionType: MissionType = MissionType.Default;
+  let mockModalService: any;
 
   beforeEach(() => {
     currentSquad = { soldiers: [] };
@@ -37,7 +38,10 @@ describe("SquadBuilder VIP Selection (regression_voidlock-hs8n)", () => {
       <button id="btn-goto-equipment"></button>
     `;
 
-    vi.stubGlobal("alert", vi.fn());
+    mockModalService = {
+      alert: vi.fn().mockResolvedValue(undefined),
+      confirm: vi.fn().mockResolvedValue(true),
+    };
   });
 
   // Simplified version of renderSquadBuilder from main.ts with the proposed changes
@@ -99,14 +103,14 @@ describe("SquadBuilder VIP Selection (regression_voidlock-hs8n)", () => {
             input.value = "0";
         }
 
-        input.addEventListener("change", () => {
+        input.addEventListener("change", async () => {
           const val = parseInt(input.value) || 0;
           const otherSoldiers = currentSquad.soldiers.filter((s) => s.archetypeId !== arch.id);
           const otherTotal = otherSoldiers.filter((s) => s.archetypeId !== "vip").length;
 
           if (arch.id !== "vip" && otherTotal + val > MAX_SQUAD_SIZE) {
             input.value = currentCount.toString();
-            alert(`Max squad size is ${MAX_SQUAD_SIZE}.`);
+            await mockModalService.alert(`Max squad size is ${MAX_SQUAD_SIZE}.`);
             return;
           }
 
@@ -176,6 +180,6 @@ describe("SquadBuilder VIP Selection (regression_voidlock-hs8n)", () => {
     
     expect(currentSquad.soldiers.filter(s => s.archetypeId === "vip").length).toBe(1);
     expect(document.getElementById("squad-total-count")?.textContent).toBe("Total Soldiers: 4/4");
-    expect(alert).not.toHaveBeenCalled();
+    expect(mockModalService.alert).not.toHaveBeenCalled();
   });
 });

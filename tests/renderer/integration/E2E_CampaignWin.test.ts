@@ -54,15 +54,25 @@ vi.mock("@src/renderer/ThemeManager", () => ({
   },
 }));
 
+const mockModalService = {
+  alert: vi.fn().mockResolvedValue(undefined),
+  confirm: vi.fn().mockResolvedValue(true),
+  show: vi.fn().mockResolvedValue(undefined),
+};
+
+vi.mock("@src/renderer/ui/ModalService", () => ({
+  ModalService: vi.fn().mockImplementation(() => mockModalService),
+}));
+
 vi.mock("@src/renderer/ui/EventModal", () => ({
-  EventModal: vi.fn().mockImplementation((onChoice) => ({
+  EventModal: vi.fn().mockImplementation((modalService, onChoice) => ({
     show: vi.fn().mockImplementation((event) => {
         // Automatically pick first choice
         onChoice(event.choices[0]);
     }),
     hide: vi.fn(),
   })),
-  OutcomeModal: vi.fn().mockImplementation((onConfirm) => ({
+  OutcomeModal: vi.fn().mockImplementation((modalService, onConfirm) => ({
     show: vi.fn().mockImplementation(() => {
         onConfirm();
     }),
@@ -238,6 +248,9 @@ describe("E2E Campaign Happy Path", () => {
       const nodeEl = document.querySelector(`.campaign-node[data-id="${accessibleNode!.id}"]`) as HTMLElement;
       expect(nodeEl).toBeTruthy();
       nodeEl.click();
+
+      // Wait for async onCampaignNodeSelected
+      await new Promise(resolve => setTimeout(resolve, 0));
 
       // If we are still on campaign screen, it was a Shop or non-ambush Event that got resolved immediately
       if (document.getElementById("screen-campaign")?.style.display !== "none") {
