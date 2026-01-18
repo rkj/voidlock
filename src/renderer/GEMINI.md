@@ -21,6 +21,7 @@ This directory contains the main thread rendering logic and user interface for V
   - `EquipmentScreen.ts`: Handles soldier loadouts and armory. Implements pay-to-equip economic logic where new equipment purchases deduct Scrap from the campaign balance while re-equipping owned items is free.
   - `DebriefScreen.ts`: Displays mission results and plays accelerated replay in background.
   - `CampaignSummaryScreen.ts`: Displays final victory or defeat reports for the campaign.
+  - `StatisticsScreen.ts`: Displays cumulative global statistics (Service Record).
 - `tests/`: Automated test suite for the renderer.
 
 ## Functionality
@@ -31,7 +32,7 @@ This directory contains the main thread rendering logic and user interface for V
 - **Mission Setup**: Allows configuring map parameters for custom missions. Automatically calculates the recommended number of enemy spawn points based on map size (`1 + floor((size - 6) / 2)`), while allowing manual overrides. Features a Campaign Context Header displaying difficulty, mission number, and sector when in campaign mode.
 - **Fog of War**: Implements visual shroud and discovery states based on the simulation data.
 - **Reset Data**: Provides a way to wipe all campaign progress and settings via the Main Menu.
-- **Global Stats**: Displays cumulative statistics (Total Kills, Campaigns Won) on the Main Menu, fetched via `MetaManager`.
+- **Global Stats**: Displays cumulative statistics (Service Record) via a dedicated Statistics Screen, fetched via `MetaManager`.
 - **Visual Feedback**: Provides tactical information through tracers, health bars, and status overlays. Includes a high-precision threat bar in `index.html` with pixel-perfect divider alignment.
 
 ## Connections

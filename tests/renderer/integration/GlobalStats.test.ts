@@ -42,7 +42,7 @@ vi.mock("@src/renderer/ThemeManager", () => {
   };
 });
 
-describe("GlobalStats Integration", () => {
+describe("StatisticsScreen Integration", () => {
   let app: GameApp;
   const mockStats = {
     totalKills: 150,
@@ -60,7 +60,10 @@ describe("GlobalStats Integration", () => {
       <div id="app">
         <div id="screen-main-menu">
            <p id="menu-version"></p>
-           <div id="global-stats-tally"></div>
+           <button id="btn-menu-campaign"></button>
+           <button id="btn-menu-custom"></button>
+           <button id="btn-menu-statistics"></button>
+           <button id="btn-menu-reset"></button>
         </div>
         <div id="mission-setup-context"></div>
         <div id="map-config-section">
@@ -80,6 +83,7 @@ describe("GlobalStats Integration", () => {
         <div id="screen-mission"></div>
         <div id="screen-debrief"></div>
         <div id="screen-campaign-summary"></div>
+        <div id="screen-statistics"></div>
       </div>
     `;
 
@@ -90,24 +94,30 @@ describe("GlobalStats Integration", () => {
     app = new GameApp();
   });
 
-  it("should display global stats in the main menu on initialization", async () => {
+  it("should navigate to statistics screen when button is clicked", async () => {
     await app.initialize();
     
-    const el = document.getElementById("global-stats-tally");
-    expect(el?.textContent).toBe("Total Kills: 150 | Campaigns Won: 5");
+    const btn = document.getElementById("btn-menu-statistics");
+    btn?.click();
+    
+    const screen = document.getElementById("screen-statistics");
+    expect(screen?.style.display).toBe("flex");
+    expect(screen?.textContent).toContain("SERVICE RECORD");
+    expect(screen?.textContent).toContain("Total Xeno Kills");
+    expect(screen?.textContent).toContain("150");
   });
 
-  it("should update global stats when showing main menu", async () => {
+  it("should return to main menu from statistics screen", async () => {
     await app.initialize();
     
-    // Change stats
-    mockStats.totalKills = 200;
-    mockStats.campaignsWon = 6;
+    // Go to stats
+    document.getElementById("btn-menu-statistics")?.click();
     
-    // Trigger showMainMenu (indirectly via abortMission or start)
-    (app as any).showMainMenu();
+    // Click back
+    const backBtn = document.querySelector("#screen-statistics .back-button") as HTMLElement;
+    backBtn?.click();
     
-    const el = document.getElementById("global-stats-tally");
-    expect(el?.textContent).toBe("Total Kills: 200 | Campaigns Won: 6");
+    expect(document.getElementById("screen-main-menu")?.style.display).toBe("flex");
+    expect(document.getElementById("screen-statistics")?.style.display).toBe("none");
   });
 });
