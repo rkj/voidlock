@@ -281,9 +281,9 @@ To ensure economic clarity, all strategic and setup screens must follow a consis
 - **Unit Style Selection**:
   - **Option**: Dropdown or toggle (e.g., "Visual Style").
   - **Values**:
-    - **Sprites (Default)**: Renders units as WebP images.
+    - **Tactical Icons (Default)**: Renders units as abstract geometric shapes (circles) with numbers, mimicking a tactical board.
+    - **Sprites**: Renders units as WebP images.
       - **Overlay Requirement**: MUST strictly render the unit's tactical number (e.g., "1", "2") as a high-contrast overlay on top of the sprite to ensure readability.
-    - **Tactical Icons**: Renders units as abstract geometric shapes (circles) with numbers, mimicking a tactical board.
 - **Advanced Options (Collapsible):**
   - **Toggle**: "Show Advanced Settings" (Default: Collapsed).
   - **Content**:
