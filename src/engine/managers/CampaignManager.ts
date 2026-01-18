@@ -139,7 +139,7 @@ export class CampaignManager {
     const roster = this.generateInitialRoster(prng);
 
     this.state = {
-      version: "0.93.3", // Current project version
+      version: "0.93.4", // Current project version
       seed: effectiveSeed,
       status: "Active",
       rules,

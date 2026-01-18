@@ -132,7 +132,7 @@ describe("CampaignScreen", () => {
       `.campaign-node[data-id="${state.currentNodeId}"]`,
     ) as HTMLElement;
     expect(currentNode).not.toBeNull();
-    expect(currentNode.innerHTML).toContain("▲"); // Using triangle as indicator for now
+    expect(currentNode.innerHTML).toContain("▼"); // Using downward triangle as indicator
   });
 
   it("should trigger onBack when back button is clicked", () => {
