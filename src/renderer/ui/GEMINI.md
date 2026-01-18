@@ -9,6 +9,7 @@ This directory contains UI components and managers for the Voidlock renderer.
 - `MenuRenderer.ts`: Renders the hierarchical command menu into HTML strings.
 - `SoldierInspector.ts`: Unified component for viewing soldier attributes and managing equipment (Paper Doll and Armory).
 - `EventModal.ts`: Narrative event and outcome modals for the campaign mode.
+- `ModalService.ts`: (Planned) Centralized service for themed UI notifications and confirmations, replacing native dialogs.
 
 ## Subdirectories
 
@@ -36,3 +37,4 @@ This directory contains UI components and managers for the Voidlock renderer.
 ## Related ADRs
 
 - [ADR 0008: Renderer & UI Separation](../../../docs/adr/0008-renderer-ui-separation.md)
+- [ADR 0025: ModalService Architecture](../../../docs/adr/0025-modal-service-architecture.md)
