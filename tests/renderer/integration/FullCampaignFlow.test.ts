@@ -173,7 +173,7 @@ describe("Full Campaign Flow Integration", () => {
 
     const soldierCards = document.querySelectorAll(".soldier-card");
     soldierCards.forEach(card => {
-        if (!card.classList.contains("selected")) {
+        if (!card.classList.contains("deployed")) {
             card.dispatchEvent(new Event("dblclick"));
         }
     });
@@ -218,7 +218,7 @@ describe("Full Campaign Flow Integration", () => {
 
     expect(document.getElementById("screen-mission-setup")?.style.display).toBe("flex");
 
-    const selectedCards = document.querySelectorAll(".soldier-card.selected");
+    const selectedCards = document.querySelectorAll(".soldier-card.deployed");
     const isS0Selected = Array.from(selectedCards).some(c => (c as HTMLElement).textContent?.includes("Recruit 1"));
     expect(isS0Selected).toBe(false); 
 
@@ -238,7 +238,7 @@ describe("Full Campaign Flow Integration", () => {
 
     // Re-select squad
     document.querySelectorAll(".soldier-card").forEach(card => {
-        if (!card.classList.contains("selected") && !card.classList.contains("disabled")) {
+        if (!card.classList.contains("deployed") && !card.classList.contains("disabled")) {
             card.dispatchEvent(new Event("dblclick"));
         }
     });

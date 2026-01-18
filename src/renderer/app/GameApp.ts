@@ -1042,11 +1042,21 @@ export class GameApp {
       if (isCampaign) {
         const state = this.context.campaignManager.getState();
         if (state) {
-          state.roster.forEach((soldier) => {
+          const statusWeights = {
+            "Healthy": 0,
+            "Wounded": 1,
+            "Dead": 2
+          };
+          const sortedRoster = [...state.roster].sort((a, b) => {
+            const weightA = statusWeights[a.status] ?? 3;
+            const weightB = statusWeights[b.status] ?? 3;
+            return weightA - weightB;
+          });
+
+          sortedRoster.forEach((soldier) => {
             if (soldier.archetypeId === "vip") return;
             const isSelected = this.currentSquad.soldiers.some((s) => s.id === soldier.id);
-            const isDisabled = soldier.status !== "Healthy";
-            rosterPanel.appendChild(createCampaignCard(soldier, isSelected, isDisabled));
+            rosterPanel.appendChild(createCampaignCard(soldier, isSelected));
           });
         }
       } else {
@@ -1091,11 +1101,21 @@ export class GameApp {
       updateCount();
     };
 
-    const createCampaignCard = (soldier: any, isSelected: boolean, isDisabled: boolean) => {
+    const createCampaignCard = (soldier: any, isDeployed: boolean) => {
       const arch = ArchetypeLibrary[soldier.archetypeId];
       const card = document.createElement("div");
-      card.className = `soldier-card ${isDisabled ? "disabled" : ""} ${isSelected ? "selected" : ""}`;
-      if (!isDisabled && !isSelected) {
+      
+      const isDead = soldier.status === "Dead";
+      const isWounded = soldier.status === "Wounded";
+      const isHealthy = soldier.status === "Healthy";
+      
+      card.className = "soldier-card";
+      if (isDead) card.classList.add("dead");
+      if (isWounded) card.classList.add("wounded");
+      if (isDeployed) card.classList.add("deployed");
+      if (!isHealthy) card.classList.add("disabled");
+
+      if (isHealthy && !isDeployed) {
         card.draggable = true;
         card.addEventListener("dragstart", (e) => {
           e.dataTransfer?.setData("text/plain", JSON.stringify({ type: "campaign", id: soldier.id, archetypeId: soldier.archetypeId }));
