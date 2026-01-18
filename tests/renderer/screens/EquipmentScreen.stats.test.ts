@@ -80,9 +80,9 @@ describe("EquipmentScreen Stats and Tooltips", () => {
 
     expect(heavyPlate).toBeDefined();
     // Heavy Plate: hpBonus 150, speedBonus -5, accuracyBonus -10
-    // Speed bonus is shown as speedBonus / 10 = -0.5
+    // Speed bonus is now shown as raw value
     expect(heavyPlate?.textContent).toContain("150");
-    expect(heavyPlate?.textContent).toContain("-0.5");
+    expect(heavyPlate?.textContent).toContain("-5");
     expect(heavyPlate?.textContent).toContain("-10");
   });
 
