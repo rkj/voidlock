@@ -1,8 +1,9 @@
 import { defineConfig } from 'vite';
 import path from 'path';
 
-export default defineConfig({
+export default defineConfig(({ command }) => ({
   root: 'src',
+  base: command === 'build' ? '/voidlock/' : '/',
   publicDir: '../public',
   build: {
     outDir: '../dist',
@@ -13,4 +14,4 @@ export default defineConfig({
       '@src': path.resolve(__dirname, './src'),
     },
   },
-});
+}));
