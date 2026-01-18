@@ -8,6 +8,7 @@ import { ThemeManager } from "@src/renderer/ThemeManager";
 import { MenuController } from "@src/renderer/MenuController";
 import { HUDManager } from "@src/renderer/ui/HUDManager";
 import { InputManager } from "@src/renderer/InputManager";
+import { ModalService } from "@src/renderer/ui/ModalService";
 
 /**
  * AppContext serves as a simple Dependency Injection container or Service Locator.
@@ -22,5 +23,6 @@ export class AppContext {
   public menuController!: MenuController;
   public hudManager!: HUDManager;
   public inputManager!: InputManager;
+  public modalService!: ModalService;
   public configManager = ConfigManager; // Static class reference
 }

@@ -44,6 +44,7 @@ import { Icons } from "@src/renderer/Icons";
 import { StatDisplay } from "@src/renderer/ui/StatDisplay";
 import { CampaignEvents } from "@src/content/CampaignEvents";
 import { EventModal, OutcomeModal } from "@src/renderer/ui/EventModal";
+import { ModalService } from "@src/renderer/ui/ModalService";
 import { PRNG } from "@src/shared/PRNG";
 import pkg from "../../../package.json";
 
@@ -93,6 +94,7 @@ export class GameApp {
     await ThemeManager.getInstance().init();
     this.context.themeManager = ThemeManager.getInstance();
     this.context.campaignManager = CampaignManager.getInstance();
+    this.context.modalService = new ModalService();
     this.context.screenManager = new ScreenManager();
     
     const mapGeneratorFactory = (config: MapGenerationConfig): MapFactory => {
@@ -116,6 +118,7 @@ export class GameApp {
     this.context.inputManager = new InputManager(
       this.context.screenManager,
       this.context.menuController,
+      this.context.modalService,
       () => this.togglePause(),
       (key, shift) => this.handleMenuInput(key, shift),
       () => this.abortMission(),
@@ -161,6 +164,7 @@ export class GameApp {
     this.barracksScreen = new BarracksScreen(
       "screen-barracks",
       this.context.campaignManager,
+      this.context.modalService,
       () => {
         this.campaignScreen.show();
         this.context.screenManager.goBack();
@@ -170,6 +174,7 @@ export class GameApp {
     this.campaignScreen = new CampaignScreen(
       "screen-campaign",
       this.context.campaignManager,
+      this.context.modalService,
       (node) => this.onCampaignNodeSelected(node),
       () => {
         this.barracksScreen.show();
@@ -221,8 +226,8 @@ export class GameApp {
               this.context.screenManager.show("campaign");
             }
         },
-        onResetData: () => {
-            if (confirm("Are you sure? This will wipe all campaign progress and settings.")) {
+        onResetData: async () => {
+            if (await this.context.modalService.confirm("Are you sure? This will wipe all campaign progress and settings.")) {
                 localStorage.clear();
                 window.location.reload();
             }
@@ -235,34 +240,34 @@ export class GameApp {
             this.barracksScreen.show();
             this.context.screenManager.show("barracks");
         },
-        onLoadStaticMap: (json) => {
+        onLoadStaticMap: async (json) => {
             try {
                 this.currentStaticMapData = MapUtility.transformMapData(JSON.parse(json));
-                alert("Static Map Loaded.");
+                await this.context.modalService.alert("Static Map Loaded.");
             } catch (e) {
-                alert("Invalid JSON.");
+                await this.context.modalService.alert("Invalid JSON.");
             }
         },
         onUploadStaticMap: (file) => {
             const reader = new FileReader();
-            reader.onload = (ev) => {
+            reader.onload = async (ev) => {
                 try {
                     this.currentStaticMapData = MapUtility.transformMapData(JSON.parse(ev.target?.result as string));
-                    alert("Static Map Loaded from File.");
+                    await this.context.modalService.alert("Static Map Loaded from File.");
                 } catch (err) {
-                    alert("Invalid file.");
+                    await this.context.modalService.alert("Invalid file.");
                 }
             };
             reader.readAsText(file);
         },
-        onConvertAscii: (ascii) => {
+        onConvertAscii: async (ascii) => {
             try {
                 if (ascii) {
                     this.currentStaticMapData = MapFactory.fromAscii(ascii);
                 }
-                alert("ASCII Map Converted.");
+                await this.context.modalService.alert("ASCII Map Converted.");
             } catch (e) {
-                alert("Invalid ASCII.");
+                await this.context.modalService.alert("Invalid ASCII.");
             }
         },
         onExportReplay: () => {
@@ -419,9 +424,9 @@ export class GameApp {
       hInput?.addEventListener("input", updateSpawnPointsFromSize);
   }
 
-  private onCampaignNodeSelected(node: CampaignNode) {
+  private async onCampaignNodeSelected(node: CampaignNode) {
     if (node.type === "Shop") {
-      alert("Supply Depot reached. +100 Scrap granted for resupply.");
+      await this.context.modalService.alert("Supply Depot reached. +100 Scrap granted for resupply.");
       this.context.campaignManager.advanceCampaignWithoutMission(node.id, 100, 0);
       this.campaignScreen.show();
       return;
@@ -432,14 +437,14 @@ export class GameApp {
       const event =
         CampaignEvents[Math.floor(prng.next() * CampaignEvents.length)];
 
-      const modal = new EventModal((choice) => {
+      const modal = new EventModal(this.context.modalService, (choice) => {
         const outcome = this.context.campaignManager.applyEventChoice(
           node.id,
           choice,
           prng,
         );
 
-        const outcomeModal = new OutcomeModal(() => {
+        const outcomeModal = new OutcomeModal(this.context.modalService, () => {
           if (outcome.ambush) {
             // Ambush triggers a combat mission at this node
             this.onCampaignNodeSelected(node);
@@ -510,12 +515,13 @@ export class GameApp {
     this.context.hudManager.update(state, this.selectedUnitId);
   }
 
-  private copyWorldState() {
+  private async copyWorldState() {
     if (this.currentGameState) {
-        DebugUtility.copyWorldState(
+        await DebugUtility.copyWorldState(
             this.currentGameState,
             this.context.gameClient.getReplayData(),
             VERSION,
+            this.context.modalService,
         );
     }
   }
@@ -1088,11 +1094,11 @@ export class GameApp {
       for (let i = 0; i < 4; i++) deploymentPanel.appendChild(createSlot(i));
     };
 
-    const addToSquad = (data: any) => {
+    const addToSquad = async (data: any) => {
       const totalNonVip = this.currentSquad.soldiers.filter(s => s.archetypeId !== "vip").length;
       const totalOccupied = this.currentSquad.soldiers.length + (isEscortMission ? 1 : 0);
-      if (totalOccupied >= 4) { alert("All deployment slots are full."); return; }
-      if (data.archetypeId !== "vip" && totalNonVip >= MAX_SQUAD_SIZE) { alert(`Maximum of ${MAX_SQUAD_SIZE} soldiers allowed.`); return; }
+      if (totalOccupied >= 4) { await this.context.modalService.alert("All deployment slots are full."); return; }
+      if (data.archetypeId !== "vip" && totalNonVip >= MAX_SQUAD_SIZE) { await this.context.modalService.alert(`Maximum of ${MAX_SQUAD_SIZE} soldiers allowed.`); return; }
 
       if (data.type === "campaign") {
         if (this.currentSquad.soldiers.some(s => s.id === data.id)) return;

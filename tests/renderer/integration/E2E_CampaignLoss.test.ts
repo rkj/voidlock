@@ -54,15 +54,25 @@ vi.mock("@src/renderer/ThemeManager", () => ({
   },
 }));
 
+const mockModalService = {
+  alert: vi.fn().mockResolvedValue(undefined),
+  confirm: vi.fn().mockResolvedValue(true),
+  show: vi.fn().mockResolvedValue(undefined),
+};
+
+vi.mock("@src/renderer/ui/ModalService", () => ({
+  ModalService: vi.fn().mockImplementation(() => mockModalService),
+}));
+
 vi.mock("@src/renderer/ui/EventModal", () => ({
-  EventModal: vi.fn().mockImplementation((onChoice) => ({
+  EventModal: vi.fn().mockImplementation((modalService, onChoice) => ({
     show: vi.fn().mockImplementation((event) => {
         // Automatically pick first choice
         onChoice(event.choices[0]);
     }),
     hide: vi.fn(),
   })),
-  OutcomeModal: vi.fn().mockImplementation((onConfirm) => ({
+  OutcomeModal: vi.fn().mockImplementation((modalService, onConfirm) => ({
     show: vi.fn().mockImplementation(() => {
         onConfirm();
     }),
@@ -229,6 +239,9 @@ describe("E2E Campaign Failure Modes", () => {
     expect(nodeEl).toBeTruthy();
     nodeEl.click();
 
+    // Wait for async onCampaignNodeSelected
+    await new Promise(resolve => setTimeout(resolve, 0));
+
     // 3. Handle Mission Setup
     expect(document.getElementById("screen-mission-setup")?.style.display).toBe("flex");
 
@@ -341,6 +354,9 @@ describe("E2E Campaign Failure Modes", () => {
     const node1El = document.querySelector(`.campaign-node[data-id="${node1.id}"]`) as HTMLElement;
     node1El.click();
 
+    // Wait for async onCampaignNodeSelected
+    await new Promise(resolve => setTimeout(resolve, 0));
+
     // Mission Setup
     const soldierCards = document.querySelectorAll(".soldier-card");
     soldierCards.forEach(card => {
@@ -405,6 +421,9 @@ describe("E2E Campaign Failure Modes", () => {
     const node2El = document.querySelector(`.campaign-node[data-id="${node2.id}"]`) as HTMLElement;
     expect(node2El).toBeTruthy();
     node2El.click();
+
+    // Wait for async onCampaignNodeSelected
+    await new Promise(resolve => setTimeout(resolve, 0));
 
     expect(document.getElementById("screen-mission-setup")?.style.display).toBe("flex");
     

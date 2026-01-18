@@ -1,4 +1,5 @@
 import { GameState } from "@src/shared/types";
+import { ModalService } from "./ui/ModalService";
 
 /**
  * Utility for debug-related actions.
@@ -8,11 +9,12 @@ export class DebugUtility {
    * Captures the world state and attempts to copy it to the clipboard.
    * Falls back to console.log if the Clipboard API is unavailable.
    */
-  public static copyWorldState(
+  public static async copyWorldState(
     state: GameState,
     replayData: any,
     version: string,
-  ): void {
+    modalService: ModalService,
+  ): Promise<void> {
     if (!state) return;
 
     const mapGenerator =
@@ -34,26 +36,20 @@ export class DebugUtility {
       typeof navigator.clipboard.writeText === "function"
     ) {
       try {
-        navigator.clipboard
-          .writeText(json)
-          .then(() => {
-            alert("World State copied to clipboard!");
-          })
-          .catch((err) => {
-            this.handleCopyFallback(json, err);
-          });
+        await navigator.clipboard.writeText(json);
+        await modalService.alert("World State copied to clipboard!");
       } catch (err) {
-        this.handleCopyFallback(json, err);
+        await this.handleCopyFallback(json, err, modalService);
       }
     } else {
-      this.handleCopyFallback(json, new Error("Clipboard API unavailable"));
+      await this.handleCopyFallback(json, new Error("Clipboard API unavailable"), modalService);
     }
   }
 
-  private static handleCopyFallback(json: string, error: any): void {
+  private static async handleCopyFallback(json: string, error: any, modalService: ModalService): Promise<void> {
     console.error("Failed to copy state to clipboard:", error);
     console.log("Full World State JSON:");
     console.log(json);
-    alert("Failed to copy to clipboard. See console for JSON.");
+    await modalService.alert("Failed to copy to clipboard. See console for JSON.");
   }
 }

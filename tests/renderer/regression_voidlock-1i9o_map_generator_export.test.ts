@@ -12,9 +12,13 @@ describe("DebugUtility Map Generator Export Regression", () => {
   };
   const mockReplayData: any = { seed: 12345 };
   const version = "1.0.0";
+  let mockModalService: any;
 
   beforeEach(() => {
-    vi.stubGlobal("alert", vi.fn());
+    mockModalService = {
+      alert: vi.fn().mockResolvedValue(undefined),
+      confirm: vi.fn().mockResolvedValue(true),
+    };
     vi.spyOn(console, "log").mockImplementation(() => {});
     vi.spyOn(console, "error").mockImplementation(() => {});
   });
@@ -32,7 +36,7 @@ describe("DebugUtility Map Generator Export Regression", () => {
       },
     });
 
-    DebugUtility.copyWorldState(mockState, mockReplayData, version);
+    await DebugUtility.copyWorldState(mockState, mockReplayData, version, mockModalService);
 
     expect(writeTextMock).toHaveBeenCalled();
     const jsonString = writeTextMock.mock.calls[0][0];
@@ -57,7 +61,7 @@ describe("DebugUtility Map Generator Export Regression", () => {
       },
     });
 
-    DebugUtility.copyWorldState(stateWithoutGenerator, replayDataWithGenerator, version);
+    await DebugUtility.copyWorldState(stateWithoutGenerator, replayDataWithGenerator, version, mockModalService);
 
     const jsonString = writeTextMock.mock.calls[0][0];
     const exportedObject = JSON.parse(jsonString);
@@ -76,7 +80,7 @@ describe("DebugUtility Map Generator Export Regression", () => {
       },
     });
 
-    DebugUtility.copyWorldState(stateWithoutGenerator, replayDataWithoutGenerator, version);
+    await DebugUtility.copyWorldState(stateWithoutGenerator, replayDataWithoutGenerator, version, mockModalService);
 
     const jsonString = writeTextMock.mock.calls[0][0];
     const exportedObject = JSON.parse(jsonString);

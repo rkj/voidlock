@@ -9,6 +9,7 @@ describe("CampaignScreen Difficulty Cards", () => {
   let onNodeSelect: any;
   let onBarracks: any;
   let onBack: any;
+  let mockModalService: any;
 
   beforeEach(() => {
     document.body.innerHTML = '<div id="screen-campaign"></div>';
@@ -35,12 +36,17 @@ describe("CampaignScreen Difficulty Cards", () => {
     onNodeSelect = vi.fn();
     onBarracks = vi.fn();
     onBack = vi.fn();
+    mockModalService = {
+      alert: vi.fn().mockResolvedValue(undefined),
+      confirm: vi.fn().mockResolvedValue(true),
+    };
   });
 
   it("should render 4 difficulty cards", () => {
     const screen = new CampaignScreen(
       "screen-campaign",
       manager,
+      mockModalService,
       onNodeSelect,
       onBarracks,
       onBack,
@@ -60,6 +66,7 @@ describe("CampaignScreen Difficulty Cards", () => {
     const screen = new CampaignScreen(
       "screen-campaign",
       manager,
+      mockModalService,
       onNodeSelect,
       onBarracks,
       onBack,

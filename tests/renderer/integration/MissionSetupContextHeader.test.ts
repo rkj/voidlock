@@ -39,6 +39,16 @@ vi.mock("@src/renderer/ThemeManager", () => ({
   },
 }));
 
+const mockModalService = {
+  alert: vi.fn().mockResolvedValue(undefined),
+  confirm: vi.fn().mockResolvedValue(true),
+  show: vi.fn().mockResolvedValue(undefined),
+};
+
+vi.mock("@src/renderer/ui/ModalService", () => ({
+  ModalService: vi.fn().mockImplementation(() => mockModalService),
+}));
+
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 let currentCampaignState: any = null;
 
@@ -161,6 +171,9 @@ describe("Mission Setup Context Header", () => {
     const node = document.querySelector(".campaign-node.accessible") as HTMLElement;
     if (node) {
       node.click();
+      
+      // Wait for async onCampaignNodeSelected
+      await new Promise(resolve => setTimeout(resolve, 0));
       
       const contextHeader = document.getElementById("mission-setup-context");
       // Mission 3 because history has 2 items. Sector 3 from state.

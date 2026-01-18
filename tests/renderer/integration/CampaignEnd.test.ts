@@ -52,6 +52,16 @@ vi.mock("@src/renderer/ThemeManager", () => ({
   },
 }));
 
+const mockModalService = {
+  alert: vi.fn().mockResolvedValue(undefined),
+  confirm: vi.fn().mockResolvedValue(true),
+  show: vi.fn().mockResolvedValue(undefined),
+};
+
+vi.mock("@src/renderer/ui/ModalService", () => ({
+  ModalService: vi.fn().mockImplementation(() => mockModalService),
+}));
+
 // Mock CampaignManager
 const mockCampaignState: any = {
   status: "Active",
@@ -211,6 +221,9 @@ describe("Campaign End Integration", () => {
     const bossNode = document.querySelector(".campaign-node[data-id='node-boss']") as HTMLElement;
     expect(bossNode).toBeDefined();
     bossNode.click();
+    
+    // Wait for async onCampaignNodeSelected
+    await new Promise(resolve => setTimeout(resolve, 0));
     
     expect(document.getElementById("screen-mission-setup")?.style.display).toBe("flex");
 

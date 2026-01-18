@@ -50,6 +50,16 @@ vi.mock("@src/renderer/ThemeManager", () => ({
   },
 }));
 
+const mockModalService = {
+  alert: vi.fn().mockResolvedValue(undefined),
+  confirm: vi.fn().mockResolvedValue(true),
+  show: vi.fn().mockResolvedValue(undefined),
+};
+
+vi.mock("@src/renderer/ui/ModalService", () => ({
+  ModalService: vi.fn().mockImplementation(() => mockModalService),
+}));
+
 // Mock CampaignManager
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 const mockCampaignState = {
@@ -172,6 +182,9 @@ describe("Screen Flow Integration", () => {
     const nodes = document.querySelectorAll(".campaign-node");
     expect(nodes.length).toBeGreaterThan(0);
     (nodes[0] as HTMLElement).click();
+    
+    // Wait for async onCampaignNodeSelected
+    await new Promise(resolve => setTimeout(resolve, 0));
     
     expect(document.getElementById("screen-mission-setup")?.style.display).toBe("flex");
 

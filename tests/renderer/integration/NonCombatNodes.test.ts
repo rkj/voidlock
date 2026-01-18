@@ -44,16 +44,27 @@ vi.mock("@src/renderer/ThemeManager", () => ({
   },
 }));
 
+const mockModalService = {
+  alert: vi.fn().mockResolvedValue(undefined),
+  confirm: vi.fn().mockResolvedValue(true),
+  prompt: vi.fn().mockResolvedValue("New Recruit"),
+  show: vi.fn().mockResolvedValue(undefined),
+};
+
+vi.mock("@src/renderer/ui/ModalService", () => ({
+  ModalService: vi.fn().mockImplementation(() => mockModalService),
+}));
+
 let mockOnChoice: (choice: any) => void;
 vi.mock("@src/renderer/ui/EventModal", () => ({
-  EventModal: vi.fn().mockImplementation((onChoice) => {
+  EventModal: vi.fn().mockImplementation((modalService, onChoice) => {
     mockOnChoice = onChoice;
     return {
       show: vi.fn(),
       hide: vi.fn(),
     };
   }),
-  OutcomeModal: vi.fn().mockImplementation((onConfirm) => ({
+  OutcomeModal: vi.fn().mockImplementation((modalService, onConfirm) => ({
     show: vi.fn().mockImplementation(() => onConfirm()),
     hide: vi.fn(),
   }))
@@ -141,8 +152,11 @@ describe("Non-Combat Node Interactions", () => {
     // We can call it directly for the test
     (app as any).onCampaignNodeSelected(shopNode);
 
+    // Wait for async onCampaignNodeSelected
+    await new Promise(resolve => setTimeout(resolve, 0));
+
     // 4. Verify results
-    expect(window.alert).toHaveBeenCalledWith(expect.stringContaining("Supply Depot reached"));
+    expect(mockModalService.alert).toHaveBeenCalledWith(expect.stringContaining("Supply Depot reached"));
     expect(advanceSpy).toHaveBeenCalledWith("node-shop", 100, 0);
     expect(state.scrap).toBe(initialScrap + 100);
     expect(shopNode.status).toBe("Cleared");
