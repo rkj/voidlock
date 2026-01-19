@@ -297,7 +297,9 @@ describe("Comprehensive User Journeys", () => {
     (document.querySelector(".campaign-setup-wizard .primary-button") as HTMLElement).click();
 
     // Launch mission
-    (document.querySelector(".campaign-node.accessible") as HTMLElement).click();
+    const cmState = CampaignManager.getInstance().getState()!;
+    const combatNode = cmState.nodes.find(n => n.status === "Accessible" && (n.type === "Combat" || n.type === "Elite" || n.type === "Boss"))!;
+    (document.querySelector(`.campaign-node[data-id="${combatNode.id}"]`) as HTMLElement).click();
     const soldierCard = Array.from(document.querySelectorAll(".soldier-card")).find(c => c.textContent?.includes("Soldier 1")) as HTMLElement;
     if (soldierCard && !soldierCard.classList.contains("selected")) {
       soldierCard.dispatchEvent(new Event("dblclick"));

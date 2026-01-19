@@ -240,7 +240,7 @@ describe("E2E Campaign Failure Modes", () => {
 
     // 2. Select an accessible node
     const state = cm.getState()!;
-    const accessibleNode = state.nodes.find(n => n.status === "Accessible");
+    const accessibleNode = state.nodes.find(n => n.status === "Accessible" && (n.type === "Combat" || n.type === "Elite" || n.type === "Boss"));
     expect(accessibleNode).toBeTruthy();
     
     const nodeEl = document.querySelector(`.campaign-node[data-id="${accessibleNode!.id}"]`) as HTMLElement;
@@ -358,7 +358,7 @@ describe("E2E Campaign Failure Modes", () => {
 
     // 2. Mission 1: Soldier dies but mission is won (or lost, doesn't matter for this test)
     const state = cm.getState()!;
-    const node1 = state.nodes.find(n => n.status === "Accessible")!;
+    const node1 = state.nodes.find(n => n.status === "Accessible" && (n.type === "Combat" || n.type === "Elite" || n.type === "Boss"))!;
     const node1El = document.querySelector(`.campaign-node[data-id="${node1.id}"]`) as HTMLElement;
     node1El.click();
 

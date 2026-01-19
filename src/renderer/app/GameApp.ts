@@ -1158,6 +1158,30 @@ export class GameApp {
             const isSelected = this.currentSquad.soldiers.some((s) => s.id === soldier.id);
             rosterPanel.appendChild(createCampaignCard(soldier, isSelected));
           });
+
+          // Quick Action: Recruit
+          const availableCount = state.roster.filter((s) => s.status === "Healthy" || s.status === "Wounded").length;
+          if (availableCount < 4) {
+            const recruitBtn = document.createElement("button");
+            recruitBtn.className = "btn-recruit";
+            recruitBtn.style.marginTop = "10px";
+            recruitBtn.style.width = "100%";
+            recruitBtn.textContent = "Recruit (100 Scrap)";
+            recruitBtn.disabled = state.scrap < 100;
+            recruitBtn.onclick = async () => {
+              const name = await this.context.modalService.prompt("Enter soldier name:", `Recruit ${state.roster.length + 1}`);
+              if (name) {
+                try {
+                  const archId = state.unlockedArchetypes[Math.floor(Math.random() * state.unlockedArchetypes.length)];
+                  this.context.campaignManager.recruitSoldier(archId, name);
+                  updateCount();
+                } catch (err: any) {
+                  await this.context.modalService.alert(err.message);
+                }
+              }
+            };
+            rosterPanel.appendChild(recruitBtn);
+          }
         }
       } else {
         Object.values(ArchetypeLibrary).forEach((arch) => {
@@ -1223,6 +1247,32 @@ export class GameApp {
         card.addEventListener("dblclick", () => addToSquad({ type: "campaign", id: soldier.id, archetypeId: soldier.archetypeId }));
       }
       card.innerHTML = `<strong>${soldier.name}</strong><div style="font-size:0.75em; color:var(--color-text-muted);">${arch?.name || soldier.archetypeId} Lvl ${soldier.level} | Status: ${soldier.status}</div>`;
+
+      if (isDead && isCampaign) {
+        const state = this.context.campaignManager.getState();
+        if (state?.rules.deathRule === "Clone") {
+          const reviveBtn = document.createElement("button");
+          reviveBtn.className = "btn-revive";
+          reviveBtn.style.marginTop = "5px";
+          reviveBtn.style.fontSize = "0.8em";
+          reviveBtn.textContent = "Revive (250 Scrap)";
+          
+          const canAfford = state.scrap >= 250;
+          reviveBtn.disabled = !canAfford;
+          
+          reviveBtn.onclick = async (e) => {
+            e.stopPropagation();
+            try {
+              this.context.campaignManager.reviveSoldier(soldier.id);
+              updateCount();
+            } catch (err: any) {
+              await this.context.modalService.alert(err.message);
+            }
+          };
+          card.appendChild(reviveBtn);
+        }
+      }
+
       return card;
     };
 

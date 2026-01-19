@@ -185,7 +185,8 @@ describe("Full Campaign Flow Integration", () => {
     expect(state?.roster.length).toBe(4);
 
     // 2. Force Lose a mission with casualties
-    const firstNode = document.querySelector(".campaign-node.accessible") as HTMLElement;
+    const accessibleCombatNode = cm.getState()?.nodes.find(n => n.status === "Accessible" && (n.type === "Combat" || n.type === "Elite" || n.type === "Boss"));
+    const firstNode = document.querySelector(`.campaign-node[data-id="${accessibleCombatNode?.id}"]`) as HTMLElement;
     firstNode?.click();
     
     // Wait for async onCampaignNodeSelected
@@ -235,7 +236,8 @@ describe("Full Campaign Flow Integration", () => {
 
     expect(document.getElementById("screen-campaign")?.style.display).toBe("flex");
 
-    const nextNode = document.querySelector(".campaign-node.accessible") as HTMLElement;
+    const nextCombatNode = cm.getState()?.nodes.find(n => n.status === "Accessible" && (n.type === "Combat" || n.type === "Elite" || n.type === "Boss"));
+    const nextNode = document.querySelector(`.campaign-node[data-id="${nextCombatNode?.id}"]`) as HTMLElement;
     nextNode?.click();
 
     // Wait for async onCampaignNodeSelected
@@ -321,7 +323,7 @@ describe("Full Campaign Flow Integration", () => {
     bankruptcyState.scrap = 50; 
     cm.save();
 
-    const bNode = bankruptcyState.nodes.find(n => n.status === "Accessible")!;
+    const bNode = bankruptcyState.nodes.find(n => n.status === "Accessible" && (n.type === "Combat" || n.type === "Elite" || n.type === "Boss"))!;
     (document.querySelector(`.campaign-node[data-id="${bNode.id}"]`) as HTMLElement).click();
     
     // Wait for async onCampaignNodeSelected
