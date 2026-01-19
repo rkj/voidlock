@@ -1,5 +1,6 @@
 import { Vector2, Door, CellType, BoundaryType } from "../shared/types";
-import { Graph } from "./Graph";
+import { Graph, Boundary } from "./Graph";
+import { UNIT_RADIUS } from "./Constants";
 
 export class LineOfSight {
   constructor(
@@ -42,42 +43,88 @@ export class LineOfSight {
   }
 
   public hasLineOfSight(start: Vector2, end: Vector2): boolean {
-    return this.raycast(start, end, (boundary) => {
-      if (boundary.doorId) {
-        const door = this.doors.get(boundary.doorId);
-        if (
-          door &&
-          door.state !== "Open" &&
-          door.state !== "Destroyed" &&
-          door.targetState !== "Open"
-        ) {
+    const rays = this.getSampledRays(start, end);
+    return rays.some((ray) =>
+      this.raycast(ray.start, ray.end, (boundary, frac) => {
+        if (boundary.doorId) {
+          // Door struts (outer 1/3) always block LOS
+          if (frac < 1 / 3 || frac > 2 / 3) {
+            return false;
+          }
+
+          const door = this.doors.get(boundary.doorId);
+          if (
+            door &&
+            door.state !== "Open" &&
+            door.state !== "Destroyed" &&
+            door.targetState !== "Open"
+          ) {
+            return false;
+          }
+        } else if (boundary.type === BoundaryType.Wall) {
           return false;
         }
-      } else if (boundary.type === BoundaryType.Wall) {
-        return false;
-      }
-      return true;
-    });
+        return true;
+      }),
+    );
   }
 
   public hasLineOfFire(start: Vector2, end: Vector2): boolean {
-    return this.raycast(start, end, (boundary) => {
-      if (boundary.doorId) {
-        const door = this.doors.get(boundary.doorId);
-        if (door && door.state !== "Open" && door.state !== "Destroyed") {
+    const rays = this.getSampledRays(start, end);
+    return rays.every((ray) =>
+      this.raycast(ray.start, ray.end, (boundary, frac) => {
+        if (boundary.doorId) {
+          // Door struts (outer 1/3) always block LOF
+          if (frac < 1 / 3 || frac > 2 / 3) {
+            return false;
+          }
+
+          const door = this.doors.get(boundary.doorId);
+          if (door && door.state !== "Open" && door.state !== "Destroyed") {
+            return false;
+          }
+        } else if (boundary.type === BoundaryType.Wall) {
           return false;
         }
-      } else if (boundary.type === BoundaryType.Wall) {
-        return false;
-      }
-      return true;
-    });
+        return true;
+      }),
+    );
+  }
+
+  private getSampledRays(
+    start: Vector2,
+    end: Vector2,
+  ): { start: Vector2; end: Vector2 }[] {
+    const dx = end.x - start.x;
+    const dy = end.y - start.y;
+    const len = Math.sqrt(dx * dx + dy * dy);
+
+    if (len < 0.001) return [{ start, end }];
+
+    const ux = dx / len;
+    const uy = dy / len;
+
+    // Perpendicular vector
+    const px = -uy;
+    const py = ux;
+
+    return [
+      { start, end }, // Center
+      {
+        start: { x: start.x + px * UNIT_RADIUS, y: start.y + py * UNIT_RADIUS },
+        end: { x: end.x + px * UNIT_RADIUS, y: end.y + py * UNIT_RADIUS },
+      },
+      {
+        start: { x: start.x - px * UNIT_RADIUS, y: start.y - py * UNIT_RADIUS },
+        end: { x: end.x - px * UNIT_RADIUS, y: end.y - py * UNIT_RADIUS },
+      },
+    ];
   }
 
   private raycast(
     start: Vector2,
     end: Vector2,
-    isPassable: (boundary: any) => boolean,
+    isPassable: (boundary: Boundary, frac: number) => boolean,
   ): boolean {
     // Add small epsilon to start position towards end to avoid boundary singularities
     const dxRaw = end.x - start.x;
@@ -137,20 +184,37 @@ export class LineOfSight {
       // Determine next step
       let nextX = x;
       let nextY = y;
+      let tInter = 0;
 
       if (tMaxX < tMaxY) {
+        tInter = tMaxX;
         tMaxX += tDeltaX;
         nextX += stepX;
       } else {
+        tInter = tMaxY;
         tMaxY += tDeltaY;
         nextY += stepY;
       }
+
+      // Intersection point
+      const ix = start.x + tInter * dx;
+      const iy = start.y + tInter * dy;
 
       // Direct Boundary Check
       const boundary = this.graph.getBoundary(x, y, nextX, nextY);
       if (!boundary) return false;
 
-      if (!isPassable(boundary)) {
+      // Fractional coordinate along boundary (0 to 1)
+      let frac = 0;
+      if (x === nextX) {
+        // Horizontal boundary (step in Y)
+        frac = ix - Math.floor(ix);
+      } else {
+        // Vertical boundary (step in X)
+        frac = iy - Math.floor(iy);
+      }
+
+      if (!isPassable(boundary, frac)) {
         return false;
       }
 

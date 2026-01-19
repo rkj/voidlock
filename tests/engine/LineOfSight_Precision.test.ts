@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { LineOfSight } from "@src/engine/LineOfSight";
 import { GameGrid } from "@src/engine/GameGrid";
-import { MapDefinition, CellType, Door, Cell } from "@src/shared/types";
+import { MapDefinition, CellType, Door, Cell, BoundaryType } from "@src/shared/types";
 
 describe("LineOfSight Precision (ADR 0026)", () => {
   const createTestMapWithDoor = (
@@ -178,19 +178,22 @@ describe("LineOfSight Precision (ADR 0026)", () => {
             width: 2,
             height: 2,
             cells,
+            boundaries: [
+                { x1: 0, y1: 1, x2: 1, y2: 1, type: BoundaryType.Wall }
+            ]
         };
         const grid = new GameGrid(map);
         const los = new LineOfSight(grid.getGraph(), new Map());
 
-        // Horizontal shot from (0.5, 0.6) to (1.5, 0.6)
-        // Center ray: y=0.6. Passes through boundary between (0,0) and (1,0). Clear.
-        // Offset 2: y=0.6 + 0.3 = 0.9. Passes through boundary between (0,1) and (1,1).
-        // Cell (1,1) is Void, so (0,1)-(1,1) boundary is a Wall.
+        // Horizontal shot from (0.5, 0.8) to (1.5, 0.8)
+        // Center ray: y=0.8. Passes through boundary between (0,0) and (1,0). Clear.
+        // Offset 2: y=0.8 + 0.3 = 1.1. Passes through boundary between (0,1) and (1,1).
+        // This boundary is explicitly marked as a Wall.
         // So Offset 2 is blocked.
         // LOF should be blocked.
         
-        const start = { x: 0.5, y: 0.6 };
-        const end = { x: 1.5, y: 0.6 };
+        const start = { x: 0.5, y: 0.8 };
+        const end = { x: 1.5, y: 0.8 };
         
         expect(los.hasLineOfFire(start, end)).toBe(false);
         
