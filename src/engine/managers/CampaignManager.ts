@@ -21,6 +21,9 @@ import {
   MapGeneratorType,
   MissionType,
 } from "../../shared/types";
+import { RosterManager } from "../campaign/RosterManager";
+import { MissionReconciler } from "../campaign/MissionReconciler";
+import { EventManager } from "../campaign/EventManager";
 
 const STORAGE_KEY = "voidlock_campaign_v1";
 
@@ -34,6 +37,10 @@ export class CampaignManager {
   private state: CampaignState | null = null;
   private sectorMapGenerator: SectorMapGenerator;
 
+  private rosterManager: RosterManager;
+  private missionReconciler: MissionReconciler;
+  private eventManager: EventManager;
+
   /**
    * Private constructor to enforce singleton pattern.
    * @param storage The storage provider to use for persistence.
@@ -41,6 +48,9 @@ export class CampaignManager {
   private constructor(storage: StorageProvider) {
     this.storage = storage;
     this.sectorMapGenerator = new SectorMapGenerator();
+    this.rosterManager = new RosterManager();
+    this.missionReconciler = new MissionReconciler();
+    this.eventManager = new EventManager();
   }
 
   /**
@@ -136,7 +146,7 @@ export class CampaignManager {
 
     const effectiveSeed = rules.customSeed ?? seed;
     const nodes = this.sectorMapGenerator.generate(effectiveSeed, rules);
-    const roster = this.generateInitialRoster(prng);
+    const roster = this.rosterManager.generateInitialRoster(prng);
 
     this.state = {
       version: "0.100.0", // Current project version
@@ -241,36 +251,6 @@ export class CampaignManager {
     }
   }
 
-  private generateInitialRoster(prng: PRNG): CampaignSoldier[] {
-    const archetypes = ["assault", "medic", "scout", "heavy"];
-    const roster: CampaignSoldier[] = [];
-
-    for (let i = 0; i < 4; i++) {
-      const archId = archetypes[i % archetypes.length];
-      const arch = ArchetypeLibrary[archId];
-      roster.push({
-        id: `soldier_${i}`,
-        name: `Recruit ${i + 1}`,
-        archetypeId: archId,
-        hp: arch ? arch.baseHp : 100,
-        maxHp: arch ? arch.baseHp : 100,
-        soldierAim: arch ? arch.soldierAim : 80,
-        xp: 0,
-        level: 1,
-        kills: 0,
-        missions: 0,
-        status: "Healthy",
-        recoveryTime: 0,
-        equipment: {
-          rightHand: arch?.rightHand,
-          leftHand: arch?.leftHand,
-          body: arch?.body,
-          feet: arch?.feet,
-        },
-      });
-    }
-    return roster;
-  }
 
   /**
    * Persists the current campaign state to the storage provider.
@@ -391,126 +371,7 @@ export class CampaignManager {
 
     const previousStatus = this.state.status;
 
-    // 1. Update node status
-    const node = this.state.nodes.find((n) => n.id === report.nodeId);
-    if (node) {
-      node.status = "Cleared";
-      this.state.currentNodeId = node.id;
-      this.state.currentSector = node.rank + 2;
-
-      // All nodes that were Accessible but NOT this one become Skipped
-      this.state.nodes.forEach((n) => {
-        if (n.status === "Accessible" && n.id !== node.id) {
-          n.status = "Skipped";
-        }
-      });
-
-      // Unlock connected nodes
-      node.connections.forEach((connId) => {
-        const nextNode = this.state!.nodes.find((n) => n.id === connId);
-        if (
-          nextNode &&
-          (nextNode.status === "Hidden" ||
-            nextNode.status === "Revealed" ||
-            nextNode.status === "Accessible")
-        ) {
-          nextNode.status = "Accessible";
-        }
-      });
-    }
-
-    // 2. Update resources
-    this.state.scrap += report.scrapGained;
-    this.state.intel += report.intelGained;
-
-    // 2.5 Handle Ironman Defeat
-    if (this.state.rules.difficulty === "Ironman" && report.result === "Lost") {
-      this.state.status = "Defeat";
-    }
-
-    // 2.6 Handle Campaign Victory
-    const maxRank = Math.max(...this.state.nodes.map((n) => n.rank));
-    const isLastNode = node?.rank === maxRank;
-
-    if (report.result === "Won" && (node?.type === "Boss" || isLastNode)) {
-      console.log(`Campaign Victory Triggered: nodeId=${report.nodeId}, type=${node?.type}, rank=${node?.rank}, maxRank=${maxRank}`);
-      this.state.status = "Victory";
-    }
-
-    // 3. Update soldiers
-    this.state.roster.forEach((s) => {
-      if (s.recoveryTime && s.recoveryTime > 0) {
-        s.recoveryTime--;
-        if (s.recoveryTime === 0 && s.status === "Wounded") {
-          s.status = "Healthy";
-          s.hp = s.maxHp;
-        }
-      }
-    });
-
-    report.soldierResults.forEach((res) => {
-      const soldier = this.state!.roster.find((s) => s.id === res.soldierId);
-      if (soldier) {
-        res.xpBefore = soldier.xp;
-        const oldLevel = soldier.level;
-
-        // Calculate XP:
-        // - Mission: +50 for Win, +10 for Loss
-        // - Survival: +20 for Healthy/Wounded
-        // - Kills: +10 per kill
-        // Dead soldiers get 0 XP (spec/campaign.md#3.3)
-        if (res.status === "Dead") {
-          res.xpGained = 0;
-          res.promoted = false;
-        } else {
-          const missionXp = report.result === "Won" ? 50 : 10;
-          const survivalXp =
-            res.status === "Healthy" || res.status === "Wounded" ? 20 : 0;
-          const killXp = res.kills * 10;
-
-          res.xpGained = missionXp + survivalXp + killXp;
-        }
-
-        soldier.xp += res.xpGained;
-        soldier.kills += res.kills;
-        soldier.missions += 1;
-        soldier.status = res.status;
-
-        if (soldier.status === "Wounded") {
-          soldier.recoveryTime = 1; // Out for 1 mission
-          res.recoveryTime = 1;
-        }
-
-        if (res.status !== "Dead") {
-          const newLevel = calculateLevel(soldier.xp);
-          if (newLevel > oldLevel) {
-            const levelsGained = newLevel - oldLevel;
-            soldier.level = newLevel;
-            soldier.maxHp += levelsGained * STAT_BOOSTS.hpPerLevel;
-            soldier.hp += levelsGained * STAT_BOOSTS.hpPerLevel;
-            soldier.soldierAim += levelsGained * STAT_BOOSTS.aimPerLevel;
-
-            // Update the result so UI can show the promotion
-            res.promoted = true;
-            res.newLevel = newLevel;
-          }
-        }
-
-        // Handle death rules
-        if (soldier.status === "Dead") {
-          if (this.state!.rules.deathRule === "Simulation") {
-            soldier.status = "Healthy";
-            soldier.hp = soldier.maxHp;
-          }
-          // Note: "Clone" and "Iron" rules are handled by keeping status as "Dead".
-          // In "Clone" mode, player can revive them in Barracks (spent scrap).
-          // In "Iron" mode, they stay dead.
-        }
-      }
-    });
-
-    // 4. Record history
-    this.state.history.push(report);
+    this.missionReconciler.processMissionResult(this.state, report);
 
     // 4.5 Update MetaManager
     const casualties = report.soldierResults.filter(
@@ -523,12 +384,8 @@ export class CampaignManager {
       report.scrapGained,
     );
 
-    // 5. Check for bankruptcy/defeat
+    // 5. Check for campaign end
     const wasActive = previousStatus === "Active";
-    if (this.state.status !== "Defeat" && this.checkBankruptcy()) {
-      this.state.status = "Defeat";
-    }
-
     if (wasActive) {
       if (this.state.status === "Victory") {
         MetaManager.getInstance(this.storage).recordCampaignResult(true);
@@ -542,17 +399,7 @@ export class CampaignManager {
 
   private checkBankruptcy(): boolean {
     if (!this.state) return false;
-
-    // Bankruptcy occurs if:
-    // 1. Active Roster is empty (All dead). 
-    //    Wounded soldiers count as alive because they recover over time.
-    // 2. AND Scrap < 100 (Cannot recruit a new soldier).
-    const aliveCount = this.state.roster.filter(
-      (s) => s.status !== "Dead",
-    ).length;
-    const canAffordRecruit = this.state.scrap >= 100;
-
-    return aliveCount === 0 && !canAffordRecruit;
+    return this.missionReconciler.checkBankruptcy(this.state);
   }
 
   /**
@@ -568,35 +415,12 @@ export class CampaignManager {
   ): void {
     if (!this.state) return;
 
-    const node = this.state.nodes.find((n) => n.id === nodeId);
-    if (node) {
-      node.status = "Cleared";
-      this.state.currentNodeId = node.id;
-      this.state.currentSector = node.rank + 2;
-
-      // All nodes that were Accessible but NOT this one become Skipped
-      this.state.nodes.forEach((n) => {
-        if (n.status === "Accessible" && n.id !== node.id) {
-          n.status = "Skipped";
-        }
-      });
-
-      // Unlock connected nodes
-      node.connections.forEach((connId) => {
-        const nextNode = this.state!.nodes.find((n) => n.id === connId);
-        if (
-          nextNode &&
-          (nextNode.status === "Hidden" ||
-            nextNode.status === "Revealed" ||
-            nextNode.status === "Accessible")
-        ) {
-          nextNode.status = "Accessible";
-        }
-      });
-    }
-
-    this.state.scrap += scrapGained;
-    this.state.intel += intelGained;
+    this.missionReconciler.advanceCampaignWithoutMission(
+      this.state,
+      nodeId,
+      scrapGained,
+      intelGained,
+    );
 
     // Sync with MetaManager (0 kills, 0 casualties, mission "won")
     MetaManager.getInstance(this.storage).recordMissionResult(
@@ -605,18 +429,6 @@ export class CampaignManager {
       true,
       scrapGained,
     );
-
-    // Save history as a pseudo-report
-    this.state.history.push({
-      nodeId: nodeId,
-      seed: 0,
-      result: "Won",
-      aliensKilled: 0,
-      scrapGained: scrapGained,
-      intelGained: intelGained,
-      timeSpent: 0,
-      soldierResults: [],
-    });
 
     this.save();
   }
@@ -635,40 +447,7 @@ export class CampaignManager {
    */
   public recruitSoldier(archetypeId: string, name: string): void {
     if (!this.state) return;
-
-    const COST = 100;
-    if (this.state.scrap < COST) {
-      throw new Error("Insufficient scrap to recruit soldier.");
-    }
-
-    const arch = ArchetypeLibrary[archetypeId];
-    if (!arch) {
-      throw new Error(`Invalid archetype ID: ${archetypeId}`);
-    }
-
-    const newSoldier: CampaignSoldier = {
-      id: `soldier_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
-      name,
-      archetypeId,
-      hp: arch.baseHp,
-      maxHp: arch.baseHp,
-      soldierAim: arch.soldierAim,
-      xp: 0,
-      level: 1,
-      kills: 0,
-      missions: 0,
-      status: "Healthy",
-      recoveryTime: 0,
-      equipment: {
-        rightHand: arch.rightHand,
-        leftHand: arch.leftHand,
-        body: arch.body,
-        feet: arch.feet,
-      },
-    };
-
-    this.state.scrap -= COST;
-    this.state.roster.push(newSoldier);
+    this.rosterManager.recruitSoldier(this.state, archetypeId, name);
     this.save();
   }
 
@@ -678,24 +457,7 @@ export class CampaignManager {
    */
   public healSoldier(soldierId: string): void {
     if (!this.state) return;
-
-    const COST = 50;
-    if (this.state.scrap < COST) {
-      throw new Error("Insufficient scrap to heal soldier.");
-    }
-
-    const soldier = this.state.roster.find((s) => s.id === soldierId);
-    if (!soldier) {
-      throw new Error(`Soldier not found: ${soldierId}`);
-    }
-
-    if (soldier.status !== "Wounded") {
-      throw new Error("Soldier is not wounded.");
-    }
-
-    this.state.scrap -= COST;
-    soldier.status = "Healthy";
-    soldier.hp = soldier.maxHp;
+    this.rosterManager.healSoldier(this.state, soldierId);
     this.save();
   }
 
@@ -705,28 +467,7 @@ export class CampaignManager {
    */
   public reviveSoldier(soldierId: string): void {
     if (!this.state) return;
-
-    if (this.state.rules.deathRule !== "Clone") {
-      throw new Error("Revival only allowed in 'Clone' mode.");
-    }
-
-    const COST = 250;
-    if (this.state.scrap < COST) {
-      throw new Error("Insufficient scrap to revive soldier.");
-    }
-
-    const soldier = this.state.roster.find((s) => s.id === soldierId);
-    if (!soldier) {
-      throw new Error(`Soldier not found: ${soldierId}`);
-    }
-
-    if (soldier.status !== "Dead") {
-      throw new Error("Soldier is not dead.");
-    }
-
-    this.state.scrap -= COST;
-    soldier.status = "Healthy";
-    soldier.hp = soldier.maxHp;
+    this.rosterManager.reviveSoldier(this.state, soldierId);
     this.save();
   }
 
@@ -750,13 +491,7 @@ export class CampaignManager {
    */
   public assignEquipment(soldierId: string, equipment: EquipmentState): void {
     if (!this.state) return;
-
-    const soldier = this.state.roster.find((s) => s.id === soldierId);
-    if (!soldier) {
-      throw new Error(`Soldier not found: ${soldierId}`);
-    }
-
-    soldier.equipment = { ...equipment };
+    this.rosterManager.assignEquipment(this.state, soldierId, equipment);
     this.save();
   }
 
@@ -774,109 +509,15 @@ export class CampaignManager {
   ): { text: string; ambush: boolean } {
     if (!this.state) throw new Error("No active campaign.");
 
-    let outcomeText = "";
-    let ambushOccurred = false;
-
-    // 1. Handle Costs
-    if (choice.cost) {
-      if (choice.cost.scrap) {
-        if (this.state.scrap < choice.cost.scrap)
-          throw new Error("Not enough scrap.");
-        this.state.scrap -= choice.cost.scrap;
-        outcomeText += `Spent ${choice.cost.scrap} Scrap. `;
-      }
-      if (choice.cost.intel) {
-        if (this.state.intel < choice.cost.intel)
-          throw new Error("Not enough intel.");
-        this.state.intel -= choice.cost.intel;
-        outcomeText += `Spent ${choice.cost.intel} Intel. `;
-      }
-    }
-
-    // 2. Handle Risks
-    if (choice.risk) {
-      if (prng.next() < choice.risk.chance) {
-        if (choice.risk.damage) {
-          const healthyRoster = this.state.roster.filter(
-            (s) => s.status === "Healthy",
-          );
-          if (healthyRoster.length > 0) {
-            const victim =
-              healthyRoster[Math.floor(prng.next() * healthyRoster.length)];
-            const damageAmount = Math.floor(victim.maxHp * choice.risk.damage);
-            victim.hp -= damageAmount;
-            if (victim.hp <= 0) {
-              victim.hp = 0;
-              victim.status = "Wounded";
-              victim.recoveryTime = 2; // Extra recovery time for event injuries
-              outcomeText += `${victim.name} was seriously injured! `;
-            } else {
-              outcomeText += `${victim.name} took ${damageAmount} damage. `;
-            }
-          }
-        }
-        if (choice.risk.ambush) {
-          ambushOccurred = true;
-          outcomeText += "It's an ambush! ";
-        }
-      }
-    }
-
-    // 3. Handle Rewards
-    if (!ambushOccurred) {
-      if (choice.reward) {
-        if (choice.reward.scrap) {
-          this.state.scrap += choice.reward.scrap;
-          outcomeText += `Gained ${choice.reward.scrap} Scrap. `;
-        }
-        if (choice.reward.intel) {
-          this.state.intel += choice.reward.intel;
-          outcomeText += `Gained ${choice.reward.intel} Intel. `;
-        }
-        if (choice.reward.recruit) {
-          const archetypes = ["assault", "medic", "scout", "heavy"];
-          const archId = archetypes[Math.floor(prng.next() * archetypes.length)];
-          const arch = ArchetypeLibrary[archId];
-          const newSoldier: CampaignSoldier = {
-            id: `soldier_${Date.now()}_${Math.floor(prng.next() * 1000)}`,
-            name: `Volunteer ${this.state.roster.length + 1}`,
-            archetypeId: archId,
-            hp: arch ? arch.baseHp : 100,
-            maxHp: arch ? arch.baseHp : 100,
-            soldierAim: arch ? arch.soldierAim : 80,
-            xp: 0,
-            level: 1,
-            kills: 0,
-            missions: 0,
-            status: "Healthy",
-            recoveryTime: 0,
-            equipment: {
-              rightHand: arch?.rightHand,
-              leftHand: arch?.leftHand,
-              body: arch?.body,
-              feet: arch?.feet,
-            },
-          };
-          this.state.roster.push(newSoldier);
-          outcomeText += `Recruited ${newSoldier.name} (${archId}). `;
-        }
-      }
-    }
-
-    if (outcomeText === "") outcomeText = "Nothing happened.";
-
-    // 4. Advance campaign
-    if (!ambushOccurred) {
-      this.advanceCampaignWithoutMission(nodeId, 0, 0);
-    } else {
-      const node = this.state.nodes.find((n) => n.id === nodeId);
-      if (node) {
-        node.type = "Combat";
-        node.missionType = MissionType.DestroyHive;
-      }
-    }
+    const result = this.eventManager.applyEventChoice(
+      this.state,
+      nodeId,
+      choice,
+      prng,
+      this.missionReconciler,
+    );
 
     this.save();
-    return { text: outcomeText.trim(), ambush: ambushOccurred };
+    return result;
   }
 }
