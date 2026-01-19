@@ -88,40 +88,23 @@
       <!-- 1. Main Menu -->
       <div id="screen-main-menu" class="screen screen-centered">
         <h1>Voidlock</h1>
-        <p id="menu-version"></p>
+        <p id="menu-version" style="color: var(--color-text-dim); font-size: 0.8em; margin-top: -15px; margin-bottom: 20px;"></p>
 
-        <div style="margin-top: 40px">
-          <button id="btn-menu-campaign" class="menu-button">Campaign</button
-          ><br />
-          <button id="btn-menu-custom" class="menu-button">
-            Custom Mission</button
-          ><br />
-          <button id="btn-menu-statistics" class="menu-button">Statistics</button
-          ><br />
+        <div class="menu-button-container">
+          <button id="btn-menu-campaign" class="menu-button">Campaign</button>
+          <button id="btn-menu-custom" class="menu-button">Custom Mission</button>
+          <button id="btn-menu-statistics" class="menu-button">Statistics</button>
+          
           <button
             id="btn-menu-reset"
             class="menu-button back-button"
-            style="font-size: 0.8em; width: 200px; margin-top: 40px"
+            style="font-size: 0.8em; width: 200px; margin-top: 20px"
           >
             Reset Data
           </button>
-          <div
-            style="
-              margin-top: 20px;
-              border-top: 1px solid var(--color-border);
-              padding-top: 20px;
-            "
-          >
-            <label
-              for="import-replay"
-              style="
-                cursor: pointer;
-                display: inline-block;
-                border: 1px solid var(--color-text-dim);
-                padding: 5px 10px;
-              "
-              >Load Replay JSON</label
-            >
+
+          <div class="menu-import-section">
+            <label for="import-replay" class="menu-import-label">Load Replay JSON</label>
             <input
               type="file"
               id="import-replay"
