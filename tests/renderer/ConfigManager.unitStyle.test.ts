@@ -11,18 +11,18 @@ describe("ConfigManager - unitStyle", () => {
     vi.restoreAllMocks();
   });
 
-  it("should have default unitStyle as Sprites", () => {
+  it("should have default unitStyle as TacticalIcons", () => {
     const config = ConfigManager.getDefault();
-    expect(config.unitStyle).toBe(UnitStyle.Sprites);
+    expect(config.unitStyle).toBe(UnitStyle.TacticalIcons);
   });
 
   it("should persist and load unitStyle", () => {
     const config = ConfigManager.getDefault();
-    config.unitStyle = UnitStyle.TacticalIcons;
+    config.unitStyle = UnitStyle.Sprites;
     ConfigManager.saveCustom(config);
 
     const loaded = ConfigManager.loadCustom();
-    expect(loaded?.unitStyle).toBe(UnitStyle.TacticalIcons);
+    expect(loaded?.unitStyle).toBe(UnitStyle.Sprites);
   });
 
   it("should migrate old config without unitStyle to default", () => {
@@ -46,6 +46,6 @@ describe("ConfigManager - unitStyle", () => {
     localStorage.setItem("voidlock_custom_config", JSON.stringify(oldConfig));
 
     const loaded = ConfigManager.loadCustom();
-    expect(loaded?.unitStyle).toBe(UnitStyle.Sprites);
+    expect(loaded?.unitStyle).toBe(UnitStyle.TacticalIcons);
   });
 });

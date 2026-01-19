@@ -122,7 +122,7 @@ export class ConfigManager {
       losOverlayEnabled: false, // Added
       agentControlEnabled: true,
       allowTacticalPause: true,
-      unitStyle: UnitStyle.Sprites,
+      unitStyle: UnitStyle.TacticalIcons,
       mapGeneratorType: MapGeneratorType.TreeShip,
       missionType: MissionType.Default,
       lastSeed: Date.now(),
