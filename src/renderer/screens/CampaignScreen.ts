@@ -307,8 +307,8 @@ export class CampaignScreen {
     const styleSelect = document.createElement("select");
     styleSelect.id = "campaign-unit-style";
     styleSelect.innerHTML = `
-      <option value="Sprites" selected>Sprites (Default)</option>
-      <option value="TacticalIcons">Tactical Icons</option>
+      <option value="TacticalIcons" selected>Tactical Icons (Default)</option>
+      <option value="Sprites">Sprites</option>
     `;
     styleGroup.appendChild(styleLabel);
     styleGroup.appendChild(styleSelect);
