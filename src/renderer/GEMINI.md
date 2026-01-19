@@ -4,7 +4,7 @@ This directory contains the main thread rendering logic and user interface for V
 
 ## Files
 
-- `main.ts`: The minimal entry point for the main game application. It instantiates and starts the `GameApp`.
+- `main.ts`: The minimal entry point for the main game application. It instantiates and starts the `GameApp`. Now includes global error logging and unhandled rejection tracking (Spec 8.12).
 - `ConfigManager.ts`: Manages persistent game configuration and defaults (Map size, Unit Style, Mission types) in LocalStorage.
 - `Renderer.ts`: The main entry point for the rendering system. Now refactored into a layered architecture (ADR 0018). It acts as a compositor for specialized layers.
 
