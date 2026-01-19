@@ -26,7 +26,7 @@ describe("Regression MPLV: Objective Ignored During Exploration", () => {
         {
           id: "obj1",
           kind: "Recover",
-          targetCell: { x: 5, y: 5 },
+          targetCell: { x: 4, y: 6 },
         },
       ],
       doors: [
@@ -51,6 +51,16 @@ describe("Regression MPLV: Objective Ignored During Exploration", () => {
       }
     }
 
+    // Add walls to block LOS except through the door
+    mockMap.walls = [];
+    for (let x = 0; x < 10; x++) {
+      if (x === 4) continue; // Door is at x=4
+      mockMap.walls.push({
+        p1: { x, y: 5 },
+        p2: { x: x + 1, y: 5 },
+      });
+    }
+
     // Initialize engine with all cells discovered EXCEPT where the objective is
     engine = new CoreEngine(mockMap, 123, defaultSquad, true, false);
     const state = (engine as any).state;
@@ -67,7 +77,7 @@ describe("Regression MPLV: Objective Ignored During Exploration", () => {
     engine.clearUnits();
     engine.addUnit({
       id: "u1",
-      pos: { x: 0.5, y: 0.5 },
+      pos: { x: 4.5, y: 0.5 },
       hp: 100,
       maxHp: 100,
       state: UnitState.Idle,
@@ -114,8 +124,8 @@ describe("Regression MPLV: Objective Ignored During Exploration", () => {
     // If the fix is implemented, it should now be moving towards the objective (5,5)
     expect(unit2.activeCommand?.label).toBe("Recovering");
     expect(unit2.explorationTarget).toBeUndefined();
-    // It should have moved one step from (0,0) towards (5,5).
-    expect([0.5, 1.5]).toContain(unit2.targetPos?.x);
-    expect([0.5, 1.5]).toContain(unit2.targetPos?.y);
+    // It should have moved one step from y=0.5 towards y=6.5
+    expect(unit2.targetPos?.x).toBe(4.5);
+    expect(unit2.targetPos?.y).toBe(1.5);
   });
 });

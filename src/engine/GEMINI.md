@@ -4,13 +4,13 @@ This directory contains the core simulation logic for Voidlock. It follows a det
 
 ## Files
 
-- `Constants.ts`: Global engine constants for simulation scaling and normalization (e.g., `SPEED_NORMALIZATION_CONST`).
+- `Constants.ts`: Global engine constants for simulation scaling and normalization (e.g., `SPEED_NORMALIZATION_CONST`) and unit physical dimensions (`UNIT_RADIUS`).
 - `CoreEngine.ts`: The main orchestrator of the game simulation. It manages state (including `isPaused`, `timeScale`, and `isSlowMotion`), initializes managers, and runs the game loop. It respects `allowTacticalPause`, enforcing minimum speed of 1.0x (except for absolute pause) when disabled. Now supports node-type specific mission setup (e.g., Boss/Elite nodes) and includes a catch-up phase for session recovery.
 - `Director.ts`: Manages enemy spawning based on threat levels and timers. Also handles global commander abilities (Medkits, Stimpacks, Grenades, Scanners).
 - `GameClient.ts`: Provides an interface for the renderer (main thread) to communicate with the engine (worker). Exposes typed methods for debug actions (overlays, state queries) and handles time scaling, including Active Pause (0.05x). Now implements mission auto-save for crash recovery, persisting both the command log and the current engine tick to `localStorage`.
 - `GameGrid.ts`: Manages the logical grid, including walkability and movement validation between cells (respecting walls and doors).
 - `Graph.ts`: Represents the map as a graph of cells and boundaries (walls/doors). Supports sparse initialization from `MapDefinition` and authoritative hydration from `boundaries` array. Hydrates `walls` from corner-to-corner geometric segments.
-- `LineOfSight.ts`: Handles LOS and LOF (Line of Fire) calculations between units and cells. LOS allows seeing through opening doors, while LOF strictly requires doors to be fully open.
+- `LineOfSight.ts`: Handles LOS and LOF (Line of Fire) calculations between units and cells. Implements geometric precision (ADR 0026), accounting for unit physical radius (`UNIT_RADIUS`) and door struts (outer 1/3 of boundary). LOS allows seeing through opening doors (if any ray passes), while LOF strictly requires doors to be fully open and the entire "fat" ray to be clear.
 - `MapGenerator.ts`: Deprecated wrapper that re-exports `MapFactory` for backward compatibility. Use `@src/engine/map/MapFactory` for new code.
 
 ## Subdirectories
