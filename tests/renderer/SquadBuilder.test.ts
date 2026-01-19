@@ -77,7 +77,19 @@ describe("SquadBuilder Component", () => {
 
     const firstSlot = container.querySelectorAll(".deployment-slot")[0];
     expect(firstSlot.classList.contains("locked")).toBe(true);
-    expect(firstSlot.textContent).toContain("VIP (Auto-Assigned)");
+    expect(firstSlot.textContent).not.toContain("VIP (Auto-Assigned)");
+    expect(firstSlot.textContent).toContain("VIP");
+  });
+
+  it("should not have visible slot labels but have aria-labels", () => {
+    const builder = new SquadBuilder("squad-builder", context, squad, MissionType.Default, false, () => {});
+    builder.render();
+
+    const slots = container.querySelectorAll(".deployment-slot");
+    slots.forEach((slot, i) => {
+      expect(slot.textContent).not.toContain(`Slot ${i + 1}`);
+      expect(slot.getAttribute("aria-label")).toBe(`Deployment Slot ${i + 1}`);
+    });
   });
 
   it("should allow adding to squad via dblclick on archetype card", () => {

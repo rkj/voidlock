@@ -104,8 +104,6 @@ export class SquadBuilder {
                     if (availableCount < 4) {
                         const recruitBtn = document.createElement("button");
                         recruitBtn.className = "btn-recruit";
-                        recruitBtn.style.marginTop = "10px";
-                        recruitBtn.style.width = "100%";
                         recruitBtn.textContent = "Recruit (100 Scrap)";
                         recruitBtn.disabled = state.scrap < 100;
                         recruitBtn.onclick = async () => {
@@ -197,8 +195,6 @@ export class SquadBuilder {
                 if (state?.rules.deathRule === "Clone") {
                     const reviveBtn = document.createElement("button");
                     reviveBtn.className = "btn-revive";
-                    reviveBtn.style.marginTop = "5px";
-                    reviveBtn.style.fontSize = "0.8em";
                     reviveBtn.textContent = "Revive (250 Scrap)";
                     
                     const canAfford = state.scrap >= 250;
@@ -238,9 +234,10 @@ export class SquadBuilder {
         const createSlot = (index: number) => {
             const slot = document.createElement("div");
             slot.className = "deployment-slot";
+            slot.setAttribute("aria-label", `Deployment Slot ${index + 1}`);
             if (index === 0 && isEscortMission) {
                 slot.classList.add("locked");
-                slot.innerHTML = `<div class="slot-label">VIP (Auto-Assigned)</div><strong style="color:var(--color-accent);">VIP</strong>`;
+                slot.innerHTML = `<strong style="color:var(--color-accent);">VIP</strong>`;
                 return slot;
             }
             const soldierIdx = isEscortMission ? index - 1 : index;
@@ -254,7 +251,7 @@ export class SquadBuilder {
                     const rs = state?.roster.find((r) => r.id === soldier.id);
                     if (rs) name = rs.name;
                 }
-                slot.innerHTML = `<div class="slot-label">Slot ${index + 1}</div><strong style="color:var(--color-primary);">${name}</strong><div class="slot-remove" title="Remove">X</div>`;
+                slot.innerHTML = `<strong style="color:var(--color-primary);">${name}</strong><div class="slot-remove" title="Remove">X</div>`;
                 slot.querySelector(".slot-remove")?.addEventListener("click", (e) => { 
                     e.stopPropagation(); 
                     this.squad.soldiers.splice(soldierIdx, 1); 
@@ -267,7 +264,7 @@ export class SquadBuilder {
                     updateCount(); 
                 });
             } else {
-                slot.innerHTML = `<div class="slot-label">Slot ${index + 1}</div><div style="color:var(--color-text-dim); font-size:0.8em;">(Empty)</div>`;
+                slot.innerHTML = `<div style="color:var(--color-text-dim); font-size:0.8em;">(Empty)</div>`;
                 slot.addEventListener("dragover", (e) => { e.preventDefault(); slot.classList.add("drag-over"); });
                 slot.addEventListener("dragleave", () => slot.classList.remove("drag-over"));
                 slot.addEventListener("drop", (e) => { 

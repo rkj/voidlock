@@ -176,12 +176,16 @@ button.active {
 /* Controls */
 .control-group {
   margin-top: 15px;
-  border-top: 1px solid var(--color-border-strong);
-  padding-top: 10px;
   text-align: left;
   width: 100%;
   max-width: 500px;
 }
+
+.control-group:not(:first-child) {
+  border-top: 1px solid var(--color-border-strong);
+  padding-top: 10px;
+}
+
 .mission-sidebar-group {
   margin-top: 15px;
   border-top: 1px solid var(--color-border-strong);
@@ -817,6 +821,43 @@ label {
   border-style: solid;
   border-color: var(--color-accent);
   background: rgba(0, 170, 255, 0.05);
+}
+
+.btn-recruit, .btn-revive {
+  margin-top: 10px;
+  width: 100%;
+  background-color: var(--color-surface-elevated);
+  border: 1px dashed var(--color-primary);
+  color: var(--color-primary);
+  padding: 8px;
+  font-size: 0.8em;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.2s;
+}
+
+.btn-recruit:hover, .btn-revive:hover {
+  background-color: var(--color-primary);
+  color: var(--color-surface);
+  border-style: solid;
+}
+
+.btn-recruit:disabled, .btn-revive:disabled {
+  border-color: var(--color-border);
+  color: var(--color-text-dim);
+  cursor: not-allowed;
+  background-color: var(--color-surface);
+  box-shadow: none;
+}
+
+.btn-revive {
+  border-color: var(--color-warning);
+  color: var(--color-warning);
+}
+
+.btn-revive:hover {
+  background-color: var(--color-warning);
+  color: var(--color-surface);
 }
 
 .slot-label {
