@@ -18,6 +18,13 @@
 
           console.error("PANIC: Unhandled exception detected. Forcing UI recovery.", error);
           
+          // Native browser dialog (Spec 8.12 / voidlock-fi6n)
+          if (confirm("CRITICAL ERROR:\n" + error + "\n\nWould you like to RESET ALL DATA and reload the page to recover from this broken state?")) {
+            localStorage.clear();
+            window.location.reload();
+            return;
+          }
+
           if (window.GameAppInstance && typeof window.GameAppInstance.stop === 'function') {
             try { window.GameAppInstance.stop(); } catch(e) {}
           }
@@ -47,6 +54,8 @@
             showPanicUI();
           }
         }
+
+        window.__VOIDLOCK_PANIC_HANDLER__ = panic;
 
         window.addEventListener('error', function(event) {
           if (event.target && (event.target.src || event.target.href)) {
