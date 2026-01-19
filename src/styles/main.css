@@ -69,6 +69,10 @@ body {
   font-family: "Courier New", Courier, monospace;
 }
 
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 #app {
   width: 100vw;
   height: 100vh;
@@ -411,6 +415,8 @@ label {
 .flex-grow { flex-grow: 1; }
 .gap-10 { gap: 10px; }
 .gap-20 { gap: 20px; }
+.p-5 { padding: 5px; }
+.p-10 { padding: 10px; }
 .p-20 { padding: 20px; }
 .relative { position: relative; }
 .align-center { align-items: center; }

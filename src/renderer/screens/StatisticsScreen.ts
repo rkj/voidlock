@@ -22,8 +22,9 @@ export class StatisticsScreen {
     const stats = MetaManager.getInstance().getStats();
 
     this.container.innerHTML = "";
-    this.container.className = "screen screen-centered flex-col gap-20";
+    this.container.className = "screen screen-centered flex-col gap-20 p-20";
     this.container.style.display = "flex";
+    this.container.style.overflowY = "auto";
     
     const h1 = document.createElement("h1");
     h1.textContent = "Service Record";

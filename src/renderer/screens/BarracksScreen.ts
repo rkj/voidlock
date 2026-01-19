@@ -21,11 +21,13 @@ export class BarracksScreen {
   private inspector: SoldierInspector;
   private activeTab: "Recruitment" | "Armory" = "Recruitment";
   private onUpdate?: () => void;
+  private onBack?: () => void;
 
   constructor(
     containerId: string,
     manager: CampaignManager,
     modalService: ModalService,
+    onBack?: () => void,
     onUpdate?: () => void,
   ) {
     const el = document.getElementById(containerId);
@@ -33,6 +35,7 @@ export class BarracksScreen {
     this.container = el;
     this.manager = manager;
     this.modalService = modalService;
+    this.onBack = onBack;
     this.onUpdate = onUpdate;
     this.inspector = new SoldierInspector({
       manager: this.manager,
@@ -57,9 +60,15 @@ export class BarracksScreen {
     if (!state) return;
 
     this.container.innerHTML = "";
-    this.container.className = "screen barracks-screen flex-row p-20 gap-20 relative";
+    this.container.className = "screen barracks-screen flex-col h-full";
     this.container.style.display = "flex";
     this.container.style.overflow = "hidden";
+
+    // Main Content Wrapper (Flex Row for panels)
+    const contentWrapper = document.createElement("div");
+    contentWrapper.className = "flex-row flex-grow p-20 gap-20";
+    contentWrapper.style.overflow = "hidden";
+    contentWrapper.style.minHeight = "0"; // Crucial for nested flex scrolling
 
     // Left: Roster List
     const leftPanel = this.createPanel("Roster", "300px");
@@ -78,9 +87,28 @@ export class BarracksScreen {
     rightPanel.style.overflowY = "auto";
     this.renderRightSidebar(rightPanel);
 
-    this.container.appendChild(leftPanel);
-    this.container.appendChild(centerPanel);
-    this.container.appendChild(rightPanel);
+    contentWrapper.appendChild(leftPanel);
+    contentWrapper.appendChild(centerPanel);
+    contentWrapper.appendChild(rightPanel);
+    this.container.appendChild(contentWrapper);
+
+    // Footer spacing (to match EquipmentScreen layout)
+    const footer = document.createElement("div");
+    footer.className = "flex-row justify-end p-10 gap-10";
+    footer.style.flexShrink = "0";
+    footer.style.borderTop = "1px solid var(--color-border-strong)";
+    footer.style.backgroundColor = "var(--color-bg)";
+    
+    if (this.onBack) {
+      const backBtn = document.createElement("button");
+      backBtn.textContent = "Back to Sector Map";
+      backBtn.className = "back-button";
+      backBtn.style.marginTop = "0";
+      backBtn.onclick = () => this.onBack?.();
+      footer.appendChild(backBtn);
+    }
+    
+    this.container.appendChild(footer);
   }
 
   private createPanel(title: string, width: string): HTMLElement {

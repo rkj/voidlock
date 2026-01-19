@@ -45,6 +45,7 @@ export class CampaignScreen {
     this.container.className =
       "screen campaign-screen flex-col relative h-full w-full";
     this.container.style.display = "flex";
+    this.container.style.overflowY = "hidden";
 
     const state = this.manager.getState();
     if (!state) {
@@ -112,6 +113,7 @@ export class CampaignScreen {
   }
 
   private renderNoCampaign() {
+    this.container.style.overflowY = "auto";
     const content = document.createElement("div");
     content.className =
       "flex-col align-center justify-center h-full gap-20 campaign-setup-wizard";

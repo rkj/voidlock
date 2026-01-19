@@ -28,7 +28,7 @@ describe("BarracksScreen", () => {
   });
 
   it("should render roster and recruitment on show", () => {
-    const screen = new BarracksScreen("screen-barracks", manager, mockModalService);
+    const screen = new BarracksScreen("screen-barracks", manager, mockModalService, onBack);
     screen.show();
 
     expect(container.textContent).toContain("Roster");
@@ -42,8 +42,19 @@ describe("BarracksScreen", () => {
     });
   });
 
+  it("should call onBack when Back button is clicked", () => {
+    const screen = new BarracksScreen("screen-barracks", manager, mockModalService, onBack);
+    screen.show();
+
+    const backBtn = container.querySelector(".back-button") as HTMLButtonElement;
+    expect(backBtn).toBeTruthy();
+    backBtn.click();
+
+    expect(onBack).toHaveBeenCalled();
+  });
+
   it("should show soldier details when a soldier is selected", () => {
-    const screen = new BarracksScreen("screen-barracks", manager, mockModalService);
+    const screen = new BarracksScreen("screen-barracks", manager, mockModalService, onBack);
     screen.show();
 
     const state = manager.getState()!;
@@ -65,7 +76,7 @@ describe("BarracksScreen", () => {
     state.roster[0].status = "Wounded";
     state.roster[0].hp = 10;
 
-    const screen = new BarracksScreen("screen-barracks", manager, mockModalService);
+    const screen = new BarracksScreen("screen-barracks", manager, mockModalService, onBack);
     screen.show();
 
     const soldierItem = Array.from(container.querySelectorAll(".menu-item.clickable"))
@@ -85,7 +96,7 @@ describe("BarracksScreen", () => {
     state.roster[0].hp = 0;
     state.rules.deathRule = "Clone";
 
-    const screen = new BarracksScreen("screen-barracks", manager, mockModalService);
+    const screen = new BarracksScreen("screen-barracks", manager, mockModalService, onBack);
     screen.show();
 
     const soldierItem = Array.from(container.querySelectorAll(".menu-item.clickable"))
@@ -98,7 +109,7 @@ describe("BarracksScreen", () => {
   it("should allow recruiting a new soldier", async () => {
     mockModalService.prompt.mockResolvedValue("Bob");
     
-    const screen = new BarracksScreen("screen-barracks", manager, mockModalService);
+    const screen = new BarracksScreen("screen-barracks", manager, mockModalService, onBack);
     screen.show();
 
     const recruitBtns = Array.from(container.querySelectorAll("button"))
