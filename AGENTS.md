@@ -4,6 +4,12 @@ You are an AI contributor agent working on the Voidlock project. Your goal is to
 
 ## 1. Core Workflow
 
+1. **DIRECT INTERVENTION (User Questions):** If the user asks a question, YOU MUST STOP ALL WORK. Answer the question immediately. Do not queue further tool calls or tasks. Do not say "I will now...". Just answer.
+1. **TOOL FAILURE PROTOCOL:** If a tool call fails due to **permissions** (e.g., "denied by policy") or **installation errors** (e.g., missing dependency that you cannot install), **STOP IMMEDIATELY**. Do not hallucinate a workaround. Report the blocker to the user and ask for instructions.
+1. **VISUAL VERIFICATION:** When a task involves UI layout, CSS, or scrolling:
+   - Try automated E2E tests.
+   - If E2E fails or is unavailable, **YOU MUST** use `chrome-devtools-mcp` tools (`navigate_page`, `take_screenshot`) to visually verify the change.
+   - **NEVER** rely solely on JSDOM for visual/layout verification. It does not render pixels.
 1. **Understand**: Read the task description provided by the Manager. Consult `@spec/`, `@ARCHITECTURE.md`, **linked ADRs** (referenced in the task description), and the relevant `GEMINI.md` files in your working directories for context.
 1. **Plan**: Formulate a concise plan. Share it with the Manager if it helps clarify your approach.
 1. **TDD First**: **CRITICAL**: All changes must be confirmed by tests first. If a feature is added, add tests. If a bug is fixed, write a failing test first.
