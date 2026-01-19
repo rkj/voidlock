@@ -1,17 +1,23 @@
-import { describe, it, expect, afterAll, beforeAll } from "vitest";
+import { describe, it, expect, afterAll, beforeEach, afterEach } from "vitest";
 import { getNewPage, closeBrowser } from "./utils/puppeteer";
 import type { Page } from "puppeteer";
 
 describe("Global Error Alert & Reset E2E", () => {
   let page: Page;
 
-  beforeAll(async () => {
+  beforeEach(async () => {
     page = await getNewPage();
     page.on('console', msg => {
         if (msg.type() === 'error' || msg.type() === 'warning' || msg.text().includes('PANIC')) {
             console.log(`[PAGE ${msg.type()}] ${msg.text()}`);
         }
     });
+  });
+
+  afterEach(async () => {
+    if (page) {
+      await page.close();
+    }
   });
 
   afterAll(async () => {
@@ -28,21 +34,18 @@ describe("Global Error Alert & Reset E2E", () => {
 
     let dialogHandled = false;
     page.once('dialog', async dialog => {
-        // We don't need to check message here as we did in previous run, 
-        // focus on verifying the reload/reset action.
         await dialog.accept(); // Click OK
         dialogHandled = true;
     });
 
     // We expect a reload, so we wait for the navigation
-    // We start waiting BEFORE triggering the error
     const navigationPromise = page.waitForNavigation({ waitUntil: 'load' });
 
     // Trigger a global error
     await page.evaluate(() => {
-        setTimeout(() => {
-            throw new Error("Test Error for Global Alert");
-        }, 100);
+        const script = document.createElement('script');
+        script.textContent = 'setTimeout(() => { throw new Error("Test Error for Global Alert"); }, 100);';
+        document.body.appendChild(script);
     });
 
     // Wait for navigation to complete (triggered by window.location.reload() in the dialog handler)
@@ -55,7 +58,6 @@ describe("Global Error Alert & Reset E2E", () => {
   });
 
   it("should show panic UI if confirm is cancelled", async () => {
-    // Start with a clean page to avoid leftovers
     await page.goto("http://localhost:5173");
     
     // Set some data in localStorage to verify it NOT cleared
@@ -72,10 +74,9 @@ describe("Global Error Alert & Reset E2E", () => {
 
     // Trigger a global error
     await page.evaluate(() => {
-        setTimeout(() => {
-            console.log("Triggering test error for panic UI...");
-            throw new Error("Test Error for Panic UI");
-        }, 100);
+        const script = document.createElement('script');
+        script.textContent = 'setTimeout(() => { throw new Error("Test Error for Panic UI"); }, 100);';
+        document.body.appendChild(script);
     });
 
     const startTime = Date.now();
@@ -85,7 +86,6 @@ describe("Global Error Alert & Reset E2E", () => {
     expect(dialogHandled).toBe(true);
 
     // Check if panic UI is shown
-    // In index.html, panic UI forces screen-main-menu to be visible with special styles
     await page.waitForSelector("#screen-main-menu");
     
     const isPanicUIVisible = await page.evaluate(() => {
@@ -105,15 +105,16 @@ describe("Global Error Alert & Reset E2E", () => {
     await page.goto("http://localhost:5173");
     
     let dialogHandled = false;
-    page.once('dialog', async dialog => {
+    page.on('dialog', async dialog => {
         dialogHandled = true;
         await dialog.accept();
     });
 
+    // Trigger a global unhandled rejection using a script tag to ensure it's out of evaluate context
     await page.evaluate(() => {
-        setTimeout(() => {
-            Promise.reject("Test Rejection for Global Alert");
-        }, 100);
+        const script = document.createElement('script');
+        script.textContent = 'setTimeout(() => { Promise.reject(new Error("Test Rejection for Global Alert")); }, 100);';
+        document.body.appendChild(script);
     });
 
     const startTime = Date.now();
@@ -121,5 +122,5 @@ describe("Global Error Alert & Reset E2E", () => {
         await new Promise(resolve => setTimeout(resolve, 100));
     }
     expect(dialogHandled).toBe(true);
-  });
+  }, 20000);
 });
