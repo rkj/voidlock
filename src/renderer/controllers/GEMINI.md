@@ -7,6 +7,7 @@ This directory contains decoupled logic managers for the tactical UI, following 
 - `MenuStateMachine.ts`: Manages the stack of menu states (`ACTION_SELECT`, `TARGET_SELECT`, etc.) and handles transitions between them.
 - `SelectionManager.ts`: Tracks the current selection context, including pending actions, targets, modes, and shift-key state.
 - `RoomDiscoveryManager.ts`: Encapsulates the logic for tracking discovered rooms and maintaining a stable discovery order for menu keys.
+- `TargetOverlayGenerator.ts`: Handles the generation of tactical map overlays for target selection (e.g., Rooms, Items, Units, Intersections).
 - `CommandBuilder.ts`: A static utility for constructing `Command` objects from the current selection context.
 
 ## Architecture
