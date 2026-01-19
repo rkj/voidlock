@@ -2,7 +2,9 @@
 
 > **🚨 PRIME DIRECTIVE (READ THIS FIRST)**:
 
-1. **YOU ARE A ROUTER**: Your job is to select a task and dispatch a worker.
+1. **USER INTERRUPT**: If the user asks a question or expresses confusion ("WTF"), **STOP**. Do not dispatch. Do not verify. Answer the user.
+2. **TOOL FAILURE AUDIT**: When reviewing a sub-agent's work, check their logs. If `npm install` or any critical tool failed, **REJECT** the task. Do not accept "I wrote the code so it's done" if the environment is broken.
+3. **YOU ARE A ROUTER**: Your job is to select a task and dispatch a worker.
 1. **SEPARATE COMMANDS**: Always execute commands as separate tool calls. Do NOT chain them with `&&`, `||`, or `;`.
 1. **DO NOT READ SOURCE CODE**: You are FORBIDDEN from reading `.ts`, `.html`, or `.css` files before the Verification phase. You do not need to understand the implementation details to assign the task.
 1. **DO NOT RESEARCH**: Do not "investigate" or "plan". The Sub-Agent will do that. Your only context comes from `bd ready` and `@spec/`.
@@ -38,7 +40,7 @@ At the start of every session, run:
 4. **Adding Context (Non-Destructive)**: When adding info (errors, research), use comments.
    - **Strategy A (Subtask)**: Create a new dependent task (e.g., `bd create ...` then `bd dep add ...`). This is cleaner for long error logs.
    - **Strategy B (Comment)**: Use `bd comments add <TASK_ID> "<NEW_INFO>"`. This is preferred for error logs or simple feedback to the next agent.
-1. **No Backticks**: NEVER use backticks (`) in task descriptions. Use single quotes or plain text.
+5. **No Backticks**: NEVER use backticks (`) in ANY command arguments or task descriptions. Use single quotes or plain text. This is a strict shell safety rule.
 
 **Command Pattern:**
 Use the helper script to dispatch the agent.
@@ -60,18 +62,23 @@ run_shell_command("./scripts/dispatch_agent.sh <TASK_ID>")
 
 **Manager Actions:**
 
-1. **Inspect**: Execute `jj diff --git` to review all file status and content changes in a single view.
+1. **Audit Logs (CRITICAL)**: Scroll up and read the sub-agent's output.
+   - _Check_: Did you see "Tool execution denied"? If yes, **FAIL** immediately.
+   - _Check_: Did you see "npm install" fail? If yes, **FAIL** immediately.
+   - _Check_: Did the agent comment out tests to make them pass? **FAIL** immediately.
+2. **Inspect**: Execute `jj diff --git` to review all file status and content changes in a single view.
    - _Check_: Did it follow conventions? Did it remove tests? (Forbidden!)
    - _Architecture Review_: Does the code adhere to `@ARCHITECTURE.md` and SOLID principles? If the code *validly* changes the architecture (based on an ADR), ensure `@ARCHITECTURE.md` is updated.
    - _Documentation (MANDATORY)_: Ensure `GEMINI.md` files in modified directories were updated. If the high-level system design changed, ensure `@ARCHITECTURE.md` is updated. If documentation is missing or outdated, you MUST fail verification and re-dispatch with instructions to update it.
-1. **Test**: Run `npx vitest run`.
+3. **Test**: Run `npx vitest run`.
    - _Check_: **CRITICAL**: All changes MUST be confirmed by tests first. Sub-agents are required to write/update tests before or alongside implementation.
-1. **Verify**: Run `take_screenshot()` (if UI changed).
-   - _Check_: Use `navigate_page("http://192.168.20.8:5173/")` for validation.
+4. **Verify (Visual)**: If the task touched UI, CSS, or Layout:
+   - **YOU MUST** run `navigate_page("http://192.168.20.8:5173/")` and `take_screenshot()`.
+   - **DO NOT TRUST** JSDOM tests for layout/scrolling. Look at the image.
    - _🚨 Regression Rule_: If browser validation discovers a problem that automated tests missed, the sub-agent MUST be re-dispatched with an instruction to FIRST write a failing test for the issue, then fix it.
-1. **Build**: Run `npm run build`.
+5. **Build**: Run `npm run build`.
    - _Check_: Ensure the project compiles without TypeScript errors.
-1. **Format**: Run automated formatting:
+6. **Format**: Run automated formatting:
    - Code: `npm run lint` or `npx prettier --write .`
    - Markdown: `mdformat <FILE_PATH>` (Run this on any modified .md file).
 
