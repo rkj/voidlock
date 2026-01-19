@@ -963,7 +963,7 @@ export class GameApp {
       this.losOverlayEnabled = config.losOverlayEnabled || false;
       this.agentControlEnabled = config.agentControlEnabled;
       this.allowTacticalPause = config.allowTacticalPause !== undefined ? config.allowTacticalPause : true;
-      this.unitStyle = config.unitStyle || UnitStyle.Sprites;
+      this.unitStyle = config.unitStyle || UnitStyle.TacticalIcons;
       this.currentMapGeneratorType = config.mapGeneratorType;
       this.currentMissionType = config.missionType || MissionType.Default;
       this.currentSeed = config.lastSeed;
