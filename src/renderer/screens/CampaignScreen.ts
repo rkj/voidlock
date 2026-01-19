@@ -1,4 +1,5 @@
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { CampaignNode, CampaignState } from "@src/shared/campaign_types";
 import { ModalService } from "../ui/ModalService";
 
@@ -62,6 +63,7 @@ export class CampaignScreen {
       if (btn) (btn as HTMLElement).onclick = () => {
         if (this.onShowSummary) this.onShowSummary();
       };
+      this.renderMetaStats();
       return;
     }
 
@@ -74,6 +76,7 @@ export class CampaignScreen {
       if (btn) (btn as HTMLElement).onclick = () => {
         if (this.onShowSummary) this.onShowSummary();
       };
+      this.renderMetaStats();
       return;
     }
 
@@ -94,7 +97,7 @@ export class CampaignScreen {
     abandonBtn.textContent = "Abandon Campaign";
     abandonBtn.className = "back-button";
     abandonBtn.style.position = "absolute";
-    abandonBtn.style.bottom = "20px";
+    abandonBtn.style.bottom = "40px"; // Moved up to avoid meta-stats footer
     abandonBtn.style.right = "20px";
     abandonBtn.style.fontSize = "0.75em";
     abandonBtn.style.height = "32px";
@@ -110,16 +113,24 @@ export class CampaignScreen {
       }
     };
     this.container.appendChild(abandonBtn);
+
+    this.renderMetaStats();
   }
 
   private renderNoCampaign() {
-    this.container.style.overflowY = "auto";
+    this.container.style.overflowY = "hidden";
+    
+    const scrollContainer = document.createElement("div");
+    scrollContainer.className = "flex-grow w-full h-full overflow-y-auto";
+    scrollContainer.style.paddingBottom = "60px";
+
     const content = document.createElement("div");
     content.className =
-      "flex-col align-center justify-center h-full gap-20 campaign-setup-wizard";
+      "flex-col align-center justify-center gap-20 campaign-setup-wizard";
+    content.style.minHeight = "100%";
     content.style.maxWidth = "800px";
     content.style.margin = "0 auto";
-    content.style.padding = "40px 0";
+    content.style.padding = "40px 20px";
 
     const h1 = document.createElement("h1");
     h1.textContent = "NEW EXPEDITION";
@@ -486,7 +497,9 @@ export class CampaignScreen {
     };
     content.appendChild(startBtn);
 
-    this.container.appendChild(content);
+    scrollContainer.appendChild(content);
+    this.container.appendChild(scrollContainer);
+    this.renderMetaStats();
   }
 
   private renderMap(container: HTMLElement, state: CampaignState) {
@@ -637,5 +650,40 @@ export class CampaignScreen {
         }
       });
     });
+  }
+
+  private renderMetaStats() {
+    const stats = MetaManager.getInstance().getStats();
+    const footer = document.createElement("div");
+    footer.className = "campaign-footer flex-row align-center p-10 gap-20";
+    footer.style.position = "absolute";
+    footer.style.bottom = "0";
+    footer.style.left = "0";
+    footer.style.width = "100%";
+    footer.style.background = "rgba(0, 0, 0, 0.6)";
+    footer.style.backdropFilter = "blur(4px)";
+    footer.style.borderTop = "1px solid var(--color-border)";
+    footer.style.zIndex = "100";
+    footer.style.fontSize = "0.7em";
+    footer.style.color = "var(--color-text-dim)";
+    footer.style.pointerEvents = "none";
+    footer.style.boxSizing = "border-box";
+    footer.style.height = "28px";
+
+    footer.innerHTML = `
+      <div class="flex-row gap-5" style="align-items: center;">
+        <span style="text-transform: uppercase; letter-spacing: 1px; opacity: 0.7;">Lifetime Xeno Purged:</span>
+        <span style="color: var(--color-primary); font-weight: bold;">${stats.totalKills.toLocaleString()}</span>
+      </div>
+      <div class="flex-row gap-5" style="align-items: center;">
+        <span style="text-transform: uppercase; letter-spacing: 1px; opacity: 0.7;">Expeditions:</span>
+        <span style="color: var(--color-primary); font-weight: bold;">${stats.totalCampaignsStarted.toLocaleString()}</span>
+      </div>
+      <div class="flex-row gap-5" style="align-items: center;">
+        <span style="text-transform: uppercase; letter-spacing: 1px; opacity: 0.7;">Missions Won:</span>
+        <span style="color: var(--color-primary); font-weight: bold;">${stats.totalMissionsWon.toLocaleString()}</span>
+      </div>
+    `;
+    this.container.appendChild(footer);
   }
 }
