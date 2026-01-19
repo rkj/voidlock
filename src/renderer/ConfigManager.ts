@@ -83,26 +83,19 @@ export class ConfigManager {
     try {
       const json = localStorage.getItem(key);
       if (!json) return null;
-      const config = JSON.parse(json) as GameConfig;
+      let config = JSON.parse(json);
+      
       const defaults = this.getDefault();
 
-      if (config.unitStyle === undefined) {
-        config.unitStyle = defaults.unitStyle;
+      // Ensure config is an object
+      if (typeof config !== "object" || config === null) {
+        return null;
       }
 
-      // Migration/Defaulting: Ensure squadConfig and soldiers exist and are in the correct format
-      if (!config.squadConfig || Array.isArray(config.squadConfig)) {
-        config.squadConfig = defaults.squadConfig;
-      } else {
-        if (!config.squadConfig.soldiers) {
-          config.squadConfig.soldiers = defaults.squadConfig.soldiers;
-        }
-        if (!config.squadConfig.inventory) {
-          config.squadConfig.inventory = defaults.squadConfig.inventory;
-        }
-      }
+      // Deep validate and merge with defaults
+      config = this.validateAndMerge(config, defaults);
 
-      return config;
+      return config as GameConfig;
     } catch (e) {
       console.warn(
         `Failed to load configuration from LocalStorage (${key}):`,
@@ -110,6 +103,69 @@ export class ConfigManager {
       );
       return null;
     }
+  }
+
+  private static validateAndMerge(loaded: any, defaults: GameConfig): GameConfig {
+    const result = { ...defaults };
+
+    // Numeric fields
+    const numericFields: (keyof GameConfig)[] = [
+      "mapWidth",
+      "mapHeight",
+      "spawnPointCount",
+      "lastSeed",
+      "startingThreatLevel",
+      "baseEnemyCount",
+      "enemyGrowthPerMission",
+    ];
+    for (const field of numericFields) {
+      if (typeof loaded[field] === "number" && !isNaN(loaded[field])) {
+        (result as any)[field] = loaded[field];
+      }
+    }
+
+    // Boolean fields
+    const booleanFields: (keyof GameConfig)[] = [
+      "fogOfWarEnabled",
+      "debugOverlayEnabled",
+      "losOverlayEnabled",
+      "agentControlEnabled",
+      "allowTacticalPause",
+    ];
+    for (const field of booleanFields) {
+      if (typeof loaded[field] === "boolean") {
+        (result as any)[field] = loaded[field];
+      }
+    }
+
+    // Enum fields
+    if (Object.values(UnitStyle).includes(loaded.unitStyle)) {
+      result.unitStyle = loaded.unitStyle;
+    }
+    if (Object.values(MapGeneratorType).includes(loaded.mapGeneratorType)) {
+      result.mapGeneratorType = loaded.mapGeneratorType;
+    }
+    if (Object.values(MissionType).includes(loaded.missionType)) {
+      result.missionType = loaded.missionType;
+    }
+
+    // Complex fields: squadConfig
+    if (loaded.squadConfig && typeof loaded.squadConfig === "object" && !Array.isArray(loaded.squadConfig)) {
+      if (Array.isArray(loaded.squadConfig.soldiers)) {
+        result.squadConfig.soldiers = loaded.squadConfig.soldiers.filter((s: any) => 
+          s && typeof s === "object" && typeof s.archetypeId === "string"
+        );
+        if (result.squadConfig.soldiers.length === 0) {
+          result.squadConfig.soldiers = [...defaults.squadConfig.soldiers];
+        }
+      }
+
+      if (loaded.squadConfig.inventory && typeof loaded.squadConfig.inventory === "object") {
+        result.squadConfig.inventory = { ...loaded.squadConfig.inventory };
+      }
+    }
+
+    return result;
   }
 
   public static getDefault(): GameConfig {

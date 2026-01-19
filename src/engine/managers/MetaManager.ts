@@ -44,11 +44,7 @@ export class MetaManager {
   }
 
   private loadInitialStats(): MetaStats {
-    const data = this.storage.load<MetaStats>(STORAGE_KEY);
-    if (data) {
-      return data;
-    }
-    return {
+    const defaults: MetaStats = {
       totalCampaignsStarted: 0,
       campaignsWon: 0,
       campaignsLost: 0,
@@ -58,6 +54,38 @@ export class MetaManager {
       totalMissionsWon: 0,
       totalScrapEarned: 0,
     };
+
+    try {
+      const data = this.storage.load<any>(STORAGE_KEY);
+      if (data && typeof data === "object") {
+        return this.validateStats(data, defaults);
+      }
+    } catch (e) {
+      console.warn("MetaManager: Failed to load global statistics.", e);
+    }
+    return defaults;
+  }
+
+  private validateStats(data: any, defaults: MetaStats): MetaStats {
+    const result = { ...defaults };
+    const numericFields: (keyof MetaStats)[] = [
+      "totalCampaignsStarted",
+      "campaignsWon",
+      "campaignsLost",
+      "totalKills",
+      "totalCasualties",
+      "totalMissionsPlayed",
+      "totalMissionsWon",
+      "totalScrapEarned",
+    ];
+
+    for (const field of numericFields) {
+      if (typeof data[field] === "number" && !isNaN(data[field])) {
+        result[field] = data[field];
+      }
+    }
+
+    return result;
   }
 
   /**

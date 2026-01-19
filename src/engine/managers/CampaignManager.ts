@@ -260,6 +260,7 @@ export class CampaignManager {
         kills: 0,
         missions: 0,
         status: "Healthy",
+        recoveryTime: 0,
         equipment: {
           rightHand: arch?.rightHand,
           leftHand: arch?.leftHand,
@@ -281,15 +282,96 @@ export class CampaignManager {
 
   /**
    * Loads the campaign state from the storage provider.
-   * @returns True if the state was successfully loaded.
+   * @returns True if the state was successfully loaded and validated.
    */
   public load(): boolean {
-    const data = this.storage.load<CampaignState>(STORAGE_KEY);
-    if (data) {
-      this.state = data;
-      return true;
+    try {
+      const data = this.storage.load<any>(STORAGE_KEY);
+      if (data) {
+        const validated = this.validateState(data);
+        if (validated) {
+          this.state = validated;
+          return true;
+        }
+      }
+    } catch (e) {
+      console.warn("CampaignManager: Failed to load campaign state.", e);
     }
     return false;
+  }
+
+  private validateState(data: any): CampaignState | null {
+    if (!data || typeof data !== "object") return null;
+
+    // Required top-level fields
+    const requiredFields = ["version", "seed", "status", "rules", "scrap", "intel", "nodes", "roster"];
+    for (const field of requiredFields) {
+      if (data[field] === undefined) {
+        console.warn(`CampaignManager: Missing required field '${field}' in persisted state.`);
+        return null;
+      }
+    }
+
+    // Validate Status
+    const validStatuses = ["Active", "Victory", "Defeat"];
+    if (!validStatuses.includes(data.status)) {
+      data.status = "Active";
+    }
+
+    // Validate Rules
+    if (!data.rules || typeof data.rules !== "object") return null;
+    const defaultRules = this.getRulesForDifficulty(data.rules.difficulty || "Standard");
+    data.rules = { ...defaultRules, ...data.rules };
+
+    // Validate Roster
+    if (!Array.isArray(data.roster)) return null;
+    data.roster = data.roster.map((s: any, index: number) => {
+      if (!s || typeof s !== "object" || !s.archetypeId) {
+        // Highly corrupted soldier, but we must try to maintain roster size if possible
+        // Better to just filter out completely broken ones if we can, 
+        // but here we just ensure basic fields.
+        return null;
+      }
+      const arch = ArchetypeLibrary[s.archetypeId];
+      return {
+        id: s.id || `soldier_recovered_${index}`,
+        name: s.name || `Recovered Recruit ${index + 1}`,
+        archetypeId: s.archetypeId,
+        hp: typeof s.hp === "number" ? s.hp : (arch ? arch.baseHp : 100),
+        maxHp: typeof s.maxHp === "number" ? s.maxHp : (arch ? arch.baseHp : 100),
+        soldierAim: typeof s.soldierAim === "number" ? s.soldierAim : (arch ? arch.soldierAim : 80),
+        xp: typeof s.xp === "number" ? s.xp : 0,
+        level: typeof s.level === "number" ? s.level : 1,
+        kills: typeof s.kills === "number" ? s.kills : 0,
+        missions: typeof s.missions === "number" ? s.missions : 0,
+        status: ["Healthy", "Wounded", "Dead"].includes(s.status) ? s.status : "Healthy",
+        recoveryTime: typeof s.recoveryTime === "number" ? s.recoveryTime : 0,
+        equipment: s.equipment || {
+          rightHand: arch?.rightHand,
+          leftHand: arch?.leftHand,
+          body: arch?.body,
+          feet: arch?.feet,
+        },
+      };
+    }).filter((s: any) => s !== null);
+
+    // Validate Nodes
+    if (!Array.isArray(data.nodes)) return null;
+    const nodeIds = new Set(data.nodes.map((n: any) => n.id));
+    data.nodes = data.nodes.map((n: any) => {
+      if (!n || typeof n !== "object" || !n.id) return null;
+      return {
+        ...n,
+        type: ["Combat", "Shop", "Event", "Boss", "Elite"].includes(n.type) ? n.type : "Combat",
+        status: ["Hidden", "Revealed", "Accessible", "Cleared", "Skipped"].includes(n.status) ? n.status : "Hidden",
+        connections: Array.isArray(n.connections) ? n.connections.filter((id: any) => nodeIds.has(id)) : [],
+      };
+    }).filter((n: any) => n !== null);
+
+    // If nodes list became empty, the campaign is unplayable
+    if (data.nodes.length === 0) return null;
+
+    return data as CampaignState;
   }
 
   /**
@@ -576,6 +658,7 @@ export class CampaignManager {
       kills: 0,
       missions: 0,
       status: "Healthy",
+      recoveryTime: 0,
       equipment: {
         rightHand: arch.rightHand,
         leftHand: arch.leftHand,
@@ -766,6 +849,7 @@ export class CampaignManager {
             kills: 0,
             missions: 0,
             status: "Healthy",
+            recoveryTime: 0,
             equipment: {
               rightHand: arch?.rightHand,
               leftHand: arch?.leftHand,
