@@ -64,9 +64,11 @@ export class CampaignShell {
     }
 
     topBar.className = "campaign-top-bar flex-row justify-between align-center p-10";
-    topBar.style.height = "50px";
+    topBar.style.height = "52px"; // Increased from 50px to accommodate 32px buttons with p-10
+    topBar.style.boxSizing = "border-box";
     topBar.style.background = "var(--color-surface-elevated)";
     topBar.style.borderBottom = "1px solid var(--color-border-strong)";
+    topBar.style.flexShrink = "0"; // Ensure top bar doesn't shrink
     topBar.innerHTML = "";
 
     // Left: Label

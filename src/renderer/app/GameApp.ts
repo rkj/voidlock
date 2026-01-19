@@ -175,6 +175,11 @@ export class GameApp {
       "screen-barracks",
       this.context.campaignManager,
       this.context.modalService,
+      () => {
+        this.campaignScreen.show();
+        this.context.screenManager.show("campaign");
+        this.context.campaignShell.show("campaign", "sector-map");
+      },
       () => this.context.campaignShell.refresh(),
     );
 
