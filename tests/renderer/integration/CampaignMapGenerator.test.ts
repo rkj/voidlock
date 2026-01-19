@@ -236,7 +236,7 @@ describe("Campaign Map Generator Integration", () => {
     nodeEl.click();
 
     // Wait for async onCampaignNodeSelected
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise(resolve => setTimeout(resolve, 50));
     
     // 4. In Mission Setup, ensure at least one soldier is selected
     const scoutCb = document.querySelector("#squad-builder input[type='checkbox']") as HTMLInputElement;

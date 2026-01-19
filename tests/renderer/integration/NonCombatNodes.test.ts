@@ -163,7 +163,7 @@ describe("Non-Combat Node Interactions", () => {
     (app as any).onCampaignNodeSelected(shopNode);
 
     // Wait for async onCampaignNodeSelected
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     // 4. Verify results
     expect(mockModalService.alert).toHaveBeenCalledWith(expect.stringContaining("Supply Depot reached"));

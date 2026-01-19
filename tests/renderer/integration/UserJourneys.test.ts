@@ -242,7 +242,7 @@ describe("Comprehensive User Journeys", () => {
     recruitBtns[0].click();
     
     // Wait for async ModalService.prompt
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     expect(mockModalService.prompt).toHaveBeenCalled();
     
@@ -277,7 +277,7 @@ describe("Comprehensive User Journeys", () => {
     document.getElementById("btn-give-up")?.click();
     
     // Wait for async ModalService.confirm
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise(resolve => setTimeout(resolve, 50));
     
     expect(document.getElementById("screen-mission")?.style.display).toBe("flex"); // Still in mission
 
@@ -286,7 +286,7 @@ describe("Comprehensive User Journeys", () => {
     document.getElementById("btn-give-up")?.click();
     
     // Wait for async ModalService.confirm
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise(resolve => setTimeout(resolve, 50));
     
     expect(document.getElementById("screen-main-menu")?.style.display).toBe("flex");
   });

@@ -257,9 +257,8 @@ describe("E2E Campaign Happy Path", () => {
       expect(nodeEl).toBeTruthy();
       nodeEl.click();
 
-      // Wait for async onCampaignNodeSelected
-      await new Promise(resolve => setTimeout(resolve, 0));
-
+          // Wait for async onCampaignNodeSelected
+          await new Promise(resolve => setTimeout(resolve, 50));
       // If we are still on campaign screen, it was a Shop or non-ambush Event that got resolved immediately
       if (document.getElementById("screen-campaign")?.style.display !== "none") {
           continue;

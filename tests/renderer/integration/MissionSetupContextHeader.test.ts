@@ -182,9 +182,8 @@ describe("Mission Setup Context Header", () => {
     if (node) {
       node.click();
       
-      // Wait for async onCampaignNodeSelected
-      await new Promise(resolve => setTimeout(resolve, 0));
-      
+          // Wait for async onCampaignNodeSelected
+          await new Promise(resolve => setTimeout(resolve, 50));      
       const contextHeader = document.getElementById("mission-setup-context");
       // Mission 3 because history has 2 items. Sector 3 from state.
       expect(contextHeader?.textContent).toBe("CAMPAIGN: STANDARD | MISSION 3 | SECTOR 3");
