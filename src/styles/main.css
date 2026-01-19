@@ -356,8 +356,9 @@ label {
 
 /* Setup Screen Layout */
 #screen-mission-setup {
-  overflow-y: auto;
+  /* overflow-y: auto;  <-- Removed, let child scroll */
   justify-content: flex-start;
+  align-items: center; /* Ensure columns are centered horizontally */
   padding: 20px 0;
 }
 
@@ -373,6 +374,7 @@ label {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  margin-bottom: 10px; /* Space above footer */
 }
 
 /* Campaign Map */
