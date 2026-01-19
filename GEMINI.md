@@ -7,6 +7,7 @@ This document outlines the top-level structure of the Voidlock project.
 - `src/`: Main source code directory.
   - **CRITICAL**: Do NOT place any test files (`.test.ts`, `.spec.ts`) inside `src/`. All tests must be located in the `tests/` directory.
 - `tests/`: Global test suite directory. All unit, integration, and regression tests must be placed here, mirroring the `src/` structure where appropriate (e.g., `tests/engine/` tests `src/engine/`).
+  - `tests/e2e/`: End-to-End visual tests using Puppeteer.
 - `scripts/`: Utility scripts for build, maintenance, and asset processing.
 - `docs/`: Documentation, including Architecture Decision Records (ADRs) and task context.
 - `public/`: Static assets served by the application.
