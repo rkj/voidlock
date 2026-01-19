@@ -29,7 +29,7 @@ This directory contains the main thread rendering logic and user interface for V
 
 - **Real-time Rendering**: Efficiently draws the game state at 60 FPS.
 - **Hierarchical Command Menu**: A keyboard-first interface for controlling squad members.
-- **Drag & Drop Squad Builder**: A modern interface for selecting and assigning units to the squad, featuring a draggable roster and deployment slots with mission-specific locking (e.g., VIPs).
+- **Drag & Drop Squad Builder**: A modern interface for selecting and assigning units to the squad, featuring a draggable roster and deployment slots with mission-specific locking (e.g., VIPs). Includes **Quick Actions** (Revive for Clone mode, Recruit for generic reinforcements).
 - **Mission Setup**: Allows configuring map parameters for custom missions. Automatically calculates the recommended number of enemy spawn points based on map size (`1 + floor((size - 6) / 2)`), while allowing manual overrides. Features a Campaign Context Header displaying difficulty, mission number, and sector when in campaign mode.
 - **Fog of War**: Implements visual shroud and discovery states based on the simulation data.
 - **Reset Data**: Provides a way to wipe all campaign progress and settings via the Main Menu.
