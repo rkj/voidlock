@@ -17,3 +17,8 @@ This directory contains the layered rendering system for Voidlock (ADR 0018).
 ## Architecture
 
 The system follows a compositor pattern. The `GameRenderer` maintains a stack of layers and calls their `draw` method in sequence. This allows for better separation of concerns and facilitates future optimizations like layer-specific caching.
+
+## Related ADRs
+
+- [ADR 0018: Layered Renderer Architecture](../../docs/adr/0018-layered-renderer-architecture.md)
+- [ADR 0026: Geometric LOS and LOF Precision](../../docs/adr/0026-geometric-los-lof-precision.md)
