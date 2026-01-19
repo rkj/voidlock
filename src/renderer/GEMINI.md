@@ -12,6 +12,7 @@ This directory contains the main thread rendering logic and user interface for V
 
 - `app/`: Application lifecycle and bootstrapping logic (ADR 0019).
   - `GameApp.ts`: Handles node selection in Campaign Mode, including non-combat dispatch for Shop and Event nodes.
+- `components/`: Reusable UI components (e.g., SquadBuilder).
 - `visuals/`: Layered rendering system (MapLayer, UnitLayer, EffectLayer, OverlayLayer).
 - `controllers/`: Decoupled logic managers for the tactical UI (StateMachine, Selection, CommandBuilder, RoomDiscovery, TargetOverlay).
 - `campaign/`: Campaign management logic and state persistence.
