@@ -1,180 +1,108 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { ArchetypeLibrary } from "@src/shared/types";
+import { SquadBuilder } from "@src/renderer/components/SquadBuilder";
+import { AppContext } from "@src/renderer/app/AppContext";
+import { MissionType, SquadConfig } from "@src/shared/types";
 
-describe("SquadBuilder UI logic", () => {
-  let currentSquad: { archetypeId: string; count: number }[] = [];
-  let mockModalService: any;
+describe("SquadBuilder Component", () => {
+  let context: AppContext;
+  let container: HTMLElement;
+  let squad: SquadConfig;
 
   beforeEach(() => {
-    currentSquad = [];
-    vi.clearAllMocks();
+    document.body.innerHTML = '<div id="squad-builder"></div><button id="btn-goto-equipment"></button>';
+    container = document.getElementById("squad-builder")!;
 
-    document.body.innerHTML = `
-      <div id="squad-builder"></div>
-      <div id="squad-total-count"></div>
-      <button id="btn-launch-mission"></button>
-    `;
-
-    mockModalService = {
-      alert: vi.fn().mockResolvedValue(undefined),
-      confirm: vi.fn().mockResolvedValue(true),
+    squad = {
+        soldiers: [],
+        inventory: {}
     };
+
+    context = {
+        campaignManager: {
+            getState: vi.fn().mockReturnValue({
+                roster: [],
+                scrap: 100,
+                unlockedArchetypes: ["assault", "medic"]
+            }),
+            recruitSoldier: vi.fn(),
+            reviveSoldier: vi.fn(),
+        },
+        modalService: {
+            alert: vi.fn().mockResolvedValue(undefined),
+            confirm: vi.fn().mockResolvedValue(true),
+            prompt: vi.fn().mockResolvedValue("New Soldier"),
+        }
+    } as any;
   });
 
-  const renderSquadBuilder = () => {
-    const container = document.getElementById("squad-builder");
-    if (!container) return;
-    container.innerHTML = "";
+  it("should render roster and deployment panels", () => {
+    const builder = new SquadBuilder("squad-builder", context, squad, MissionType.Default, false, () => {});
+    builder.render();
 
-    const MAX_SQUAD_SIZE = 4;
+    expect(container.querySelector(".roster-panel")).not.toBeNull();
+    expect(container.querySelector(".deployment-panel")).not.toBeNull();
+    expect(container.querySelectorAll(".deployment-slot").length).toBe(4);
+  });
 
-    const updateTotalCountDisplay = () => {
-      let total = currentSquad
-        .reduce((sum, s) => sum + s.count, 0);
+  it("should show total soldiers count", () => {
+    squad.soldiers = [{ archetypeId: "assault" }];
+    const builder = new SquadBuilder("squad-builder", context, squad, MissionType.Default, false, () => {});
+    builder.render();
 
-      const display = document.getElementById("squad-total-count");
-      if (display) {
-        display.textContent = `Total Soldiers: ${total}/${MAX_SQUAD_SIZE}`;
-        display.style.color =
-          total > MAX_SQUAD_SIZE
-            ? "var(--color-danger)"
-            : total === MAX_SQUAD_SIZE
-              ? "var(--color-primary)"
-              : "var(--color-text-muted)";
-      }
-
-      const launchBtn = document.getElementById(
-        "btn-launch-mission",
-      ) as HTMLButtonElement;
-      if (launchBtn) {
-        launchBtn.disabled = total === 0 || total > MAX_SQUAD_SIZE;
-      }
-    };
-
-    Object.values(ArchetypeLibrary).forEach((arch) => {
-      // Mission-Specific units (e.g., VIPs) must NOT be available for selection.
-      if (arch.id === "vip") {
-        return;
-      }
-      const row = document.createElement("div");
-      row.className = "squad-row";
-      row.dataset.archId = arch.id;
-
-      const input = document.createElement("input");
-      input.type = "number";
-      input.className = "squad-count-input";
-      input.value = (
-        currentSquad.find((s) => s.archetypeId === arch.id)?.count || 0
-      ).toString();
-
-      input.addEventListener("change", async () => {
-        const newVal = parseInt(input.value);
-        if (isNaN(newVal) || newVal < 0) {
-          input.value = (
-            currentSquad.find((s) => s.archetypeId === arch.id)?.count || 0
-          ).toString();
-          return;
-        }
-
-        let otherTotal = currentSquad
-          .filter((s) => s.archetypeId !== arch.id)
-          .reduce((sum, s) => sum + s.count, 0);
-
-        if (otherTotal + newVal > MAX_SQUAD_SIZE) {
-          input.value = (
-            currentSquad.find((s) => s.archetypeId === arch.id)?.count || 0
-          ).toString();
-          await mockModalService.alert(`Maximum squad size is ${MAX_SQUAD_SIZE} soldiers.`);
-          return;
-        }
-
-        const idx = currentSquad.findIndex((s) => s.archetypeId === arch.id);
-        if (idx >= 0) {
-          if (newVal === 0) {
-            currentSquad.splice(idx, 1);
-          } else {
-            currentSquad[idx].count = newVal;
-          }
-        } else if (newVal > 0) {
-          currentSquad.push({ archetypeId: arch.id, count: newVal });
-        }
-
-        updateTotalCountDisplay();
-      });
-
-      row.appendChild(input);
-      container.appendChild(row);
-    });
-
-    updateTotalCountDisplay();
-  };
+    const countDiv = document.getElementById("squad-total-count");
+    expect(countDiv?.textContent).toContain("Total Soldiers: 1/4");
+  });
 
   it("should disable launch button if squad is empty", () => {
-    currentSquad = [];
-    renderSquadBuilder();
-    const launchBtn = document.getElementById(
-      "btn-launch-mission",
-    ) as HTMLButtonElement;
+    const builder = new SquadBuilder("squad-builder", context, squad, MissionType.Default, false, () => {});
+    builder.render();
+
+    const launchBtn = document.getElementById("btn-goto-equipment") as HTMLButtonElement;
     expect(launchBtn.disabled).toBe(true);
-    expect(document.getElementById("squad-total-count")?.textContent).toBe(
-      "Total Soldiers: 0/4",
-    );
   });
 
-  it("should enable launch button if squad has 1-4 members", () => {
-    currentSquad = [{ archetypeId: "assault", count: 1 }];
-    renderSquadBuilder();
-    const launchBtn = document.getElementById(
-      "btn-launch-mission",
-    ) as HTMLButtonElement;
+  it("should enable launch button if squad has members", () => {
+    squad.soldiers = [{ archetypeId: "assault" }];
+    const builder = new SquadBuilder("squad-builder", context, squad, MissionType.Default, false, () => {});
+    builder.render();
+
+    const launchBtn = document.getElementById("btn-goto-equipment") as HTMLButtonElement;
     expect(launchBtn.disabled).toBe(false);
-    expect(document.getElementById("squad-total-count")?.textContent).toBe(
-      "Total Soldiers: 1/4",
-    );
   });
 
-  it("should prevent adding more than 4 members", async () => {
-    currentSquad = [{ archetypeId: "assault", count: 4 }];
-    renderSquadBuilder();
+  it("should lock first slot for Escort VIP mission", () => {
+    const builder = new SquadBuilder("squad-builder", context, squad, MissionType.EscortVIP, false, () => {});
+    builder.render();
 
-    // ArchetypeLibrary usually has assault, medic, heavy
-    const medicRow = document.querySelector('[data-arch-id="medic"]');
-    const medicInput = medicRow?.querySelector("input") as HTMLInputElement;
-    expect(medicInput.value).toBe("0");
-
-    medicInput.value = "1";
-    medicInput.dispatchEvent(new Event("change"));
-
-    // Wait for async ModalService.alert
-    await new Promise(resolve => setTimeout(resolve, 0));
-
-    expect(mockModalService.alert).toHaveBeenCalledWith("Maximum squad size is 4 soldiers.");
-    expect(medicInput.value).toBe("0");
-    expect(currentSquad.length).toBe(1);
-    expect(currentSquad[0].count).toBe(4);
+    const firstSlot = container.querySelectorAll(".deployment-slot")[0];
+    expect(firstSlot.classList.contains("locked")).toBe(true);
+    expect(firstSlot.textContent).toContain("VIP (Auto-Assigned)");
   });
 
-  it("should NEVER include VIP in the list", () => {
-    renderSquadBuilder();
-    const vipRow = document.querySelector('[data-arch-id="vip"]');
-    expect(vipRow).toBeNull();
+  it("should allow adding to squad via dblclick on archetype card", () => {
+    const onUpdate = vi.fn();
+    const builder = new SquadBuilder("squad-builder", context, squad, MissionType.Default, false, onUpdate);
+    builder.render();
+
+    const assaultCard = container.querySelector(".roster-panel .soldier-card") as HTMLElement;
+    assaultCard.dispatchEvent(new MouseEvent("dblclick"));
+
+    expect(squad.soldiers.length).toBe(1);
+    expect(squad.soldiers[0].archetypeId).toBe("assault");
+    expect(onUpdate).toHaveBeenCalledWith(squad);
   });
 
-  it("should allow changing counts within limit", () => {
-    currentSquad = [{ archetypeId: "assault", count: 1 }];
-    renderSquadBuilder();
+  it("should allow removing from squad via click on X", () => {
+    squad.soldiers = [{ archetypeId: "assault" }];
+    const onUpdate = vi.fn();
+    const builder = new SquadBuilder("squad-builder", context, squad, MissionType.Default, false, onUpdate);
+    builder.render();
 
-    const assaultRow = document.querySelector('[data-arch-id="assault"]');
-    const assaultInput = assaultRow?.querySelector("input") as HTMLInputElement;
-    expect(assaultInput.value).toBe("1");
+    const removeBtn = container.querySelector(".slot-remove") as HTMLElement;
+    removeBtn.click();
 
-    assaultInput.value = "2";
-    assaultInput.dispatchEvent(new Event("change"));
-
-    expect(currentSquad[0].count).toBe(2);
-    expect(document.getElementById("squad-total-count")?.textContent).toBe(
-      "Total Soldiers: 2/4",
-    );
+    expect(squad.soldiers.length).toBe(0);
+    expect(onUpdate).toHaveBeenCalledWith(squad);
   });
 });

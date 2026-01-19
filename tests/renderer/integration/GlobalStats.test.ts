@@ -83,8 +83,44 @@ describe("StatisticsScreen Integration", () => {
               <div id="screen-statistics" class="screen" style="display:none"></div>
           </div>
       </div>
-      <div id="screen-mission-setup" class="screen" style="display:none"></div>
-      <div id="screen-mission" class="screen" style="display:none"></div>
+      <div id="screen-mission-setup" class="screen" style="display:none">
+        <div id="mission-setup-context"></div>
+        <div id="squad-builder"></div>
+        <select id="mission-type"></select>
+        <select id="map-generator-type"></select>
+        <input id="map-seed" />
+        <input id="map-width" />
+        <input id="map-height" />
+        <input id="map-spawn-points" />
+        <span id="map-spawn-points-value"></span>
+        <input id="map-starting-threat" />
+        <span id="map-starting-threat-value"></span>
+        <input id="map-base-enemies" />
+        <span id="map-base-enemies-value"></span>
+        <input id="map-enemy-growth" />
+        <span id="map-enemy-growth-value"></span>
+        <input id="toggle-fog-of-war" type="checkbox" />
+        <input id="toggle-debug-overlay" type="checkbox" />
+        <input id="toggle-los-overlay" type="checkbox" />
+        <input id="toggle-agent-control" type="checkbox" />
+        <input id="toggle-allow-tactical-pause" type="checkbox" />
+        <select id="select-unit-style"></select>
+        <button id="btn-goto-equipment"></button>
+        <button id="btn-setup-back"></button>
+      </div>
+      <div id="screen-mission" class="screen" style="display:none">
+        <button id="btn-pause-toggle"></button>
+        <input id="game-speed" type="range" />
+        <span id="speed-value"></span>
+        <input id="time-scale-slider" type="range" />
+        <span id="time-scale-value"></span>
+        <button id="btn-give-up"></button>
+        <div id="top-threat-fill"></div>
+        <span id="top-threat-value"></span>
+        <div id="game-canvas-container">
+            <canvas id="game-canvas"></canvas>
+        </div>
+      </div>
       <div id="screen-debrief" class="screen" style="display:none"></div>
       <div id="screen-campaign-summary" class="screen" style="display:none"></div>
     `;

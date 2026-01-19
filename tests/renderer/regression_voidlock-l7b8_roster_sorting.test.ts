@@ -3,6 +3,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { GameApp } from "@src/renderer/app/GameApp";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import { ConfigManager } from "@src/renderer/ConfigManager";
+import { SquadBuilder } from "@src/renderer/components/SquadBuilder";
+import { MissionType } from "@src/shared/types";
 
 vi.mock("@src/renderer/campaign/CampaignManager", () => ({
   CampaignManager: {
@@ -17,7 +19,7 @@ vi.mock("@src/renderer/ConfigManager", () => ({
   ConfigManager: {
     getDefault: vi.fn(() => ({
       fogOfWarEnabled: true,
-      debugOverlayEnabled: false,
+      debugOverlayOverlayEnabled: false,
       agentControlEnabled: false,
       unitStyle: "Sprites",
       mapWidth: 14,
@@ -56,21 +58,38 @@ describe("Roster Sorting Regression (voidlock-l7b8)", () => {
       <div id="toggle-allow-tactical-pause"></div>
       <div id="select-unit-style"></div>
       <div id="mission-type"></div>
+      <button id="btn-goto-equipment"></button>
     `;
 
     mockCampaignManager = CampaignManager.getInstance();
     app = new GameApp();
     (app as any).context = {
-      campaignManager: mockCampaignManager
+      campaignManager: mockCampaignManager,
+      modalService: {
+        alert: vi.fn(),
+        confirm: vi.fn(),
+        prompt: vi.fn(),
+      }
     };
+    (app as any).currentSquad = { soldiers: [] };
+    (app as any).currentMissionType = MissionType.Default;
+
+    (app as any).squadBuilder = new SquadBuilder(
+        "squad-builder",
+        (app as any).context,
+        (app as any).currentSquad,
+        (app as any).currentMissionType,
+        false,
+        (squad) => { (app as any).currentSquad = squad; }
+    );
   });
 
   it("should sort roster by status: Healthy > Wounded > Dead", async () => {
     const mockState = {
       roster: [
-        { id: "1", name: "Dead Guy", status: "Dead", archetypeId: "assault", level: 1 },
-        { id: "2", name: "Healthy Guy", status: "Healthy", archetypeId: "medic", level: 2 },
-        { id: "3", name: "Wounded Guy", status: "Wounded", archetypeId: "heavy", level: 3 },
+        { id: "1", name: "Dead Guy", status: "Dead", archetypeId: "assault", level: 1, equipment: {} },
+        { id: "2", name: "Healthy Guy", status: "Healthy", archetypeId: "medic", level: 2, equipment: {} },
+        { id: "3", name: "Wounded Guy", status: "Wounded", archetypeId: "heavy", level: 3, equipment: {} },
       ],
       rules: {
         difficulty: "Standard",
@@ -80,10 +99,6 @@ describe("Roster Sorting Regression (voidlock-l7b8)", () => {
       currentSector: 1,
     };
     mockCampaignManager.getState.mockReturnValue(mockState);
-    
-    // We need to trigger renderSquadBuilder(true)
-    // GameApp.renderSquadBuilder is private, so we trigger it via loadAndApplyConfig(true)
-    // which is also private... but it's called in onCampaignNodeSelected
     
     // Accessing private for testing
     (app as any).renderSquadBuilder(true);
@@ -108,8 +123,8 @@ describe("Roster Sorting Regression (voidlock-l7b8)", () => {
   it("should add .deployed class to soldiers in squad", () => {
     const mockState = {
       roster: [
-        { id: "1", name: "In Squad", status: "Healthy", archetypeId: "assault", level: 1 },
-        { id: "2", name: "Out of Squad", status: "Healthy", archetypeId: "medic", level: 2 },
+        { id: "1", name: "In Squad", status: "Healthy", archetypeId: "assault", level: 1, equipment: {} },
+        { id: "2", name: "Out of Squad", status: "Healthy", archetypeId: "medic", level: 2, equipment: {} },
       ],
     };
     mockCampaignManager.getState.mockReturnValue(mockState);
