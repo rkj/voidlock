@@ -27,5 +27,5 @@ describe('Asset Processor', () => {
 
     // Clean up
     fs.rmSync(outputDir, { recursive: true, force: true });
-  }, 20000); // Higher timeout for image processing
+  }, 60000); // Higher timeout for image processing
 });

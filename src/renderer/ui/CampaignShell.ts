@@ -163,8 +163,9 @@ export class CampaignShell {
     if (!contentArea) {
       contentArea = document.createElement("div");
       contentArea.id = "campaign-shell-content";
-      contentArea.className = "flex-grow relative overflow-hidden";
       this.container.appendChild(contentArea);
     }
+    contentArea.className = "flex-grow relative overflow-hidden";
+    contentArea.style.minHeight = "0"; // ADR 0028: Crucial for flex child to be constrained
   }
 }

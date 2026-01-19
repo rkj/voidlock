@@ -49,3 +49,4 @@ This directory contains the main thread rendering logic and user interface for V
 - **ADR 0007**: Command Pattern & Queue (Shared Protocol)
 - **ADR 0008**: Renderer & UI Separation (Hybrid Rendering)
 - **ADR 0012**: Theming System & Asset Pipeline
+- **ADR 0028**: Unified Screen Layout & Global Shell
