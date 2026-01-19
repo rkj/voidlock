@@ -15,6 +15,7 @@ To verify visual fidelity and critical user journeys that cannot be fully tested
 - `utils/`: E2E-specific helper functions.
   - `puppeteer.ts`: Manages the lifecycle of the Puppeteer browser and pages.
 - `setup.ts`: Global setup and teardown for the E2E test suite, managing the lifecycle of the Vite dev server.
+- `CampaignLaunch.test.ts`: E2E test for mission launch from campaign mode, verifying shell visibility and Z-Index correctness.
 
 ## Usage
 
