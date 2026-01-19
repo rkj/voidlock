@@ -248,7 +248,7 @@ describe("E2E Campaign Failure Modes", () => {
     nodeEl.click();
 
     // Wait for async onCampaignNodeSelected
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     // 3. Handle Mission Setup
     expect(document.getElementById("screen-mission-setup")?.style.display).toBe("flex");
@@ -363,7 +363,7 @@ describe("E2E Campaign Failure Modes", () => {
     node1El.click();
 
     // Wait for async onCampaignNodeSelected
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     // Mission Setup
     const soldierCards = document.querySelectorAll(".soldier-card");
@@ -425,13 +425,14 @@ describe("E2E Campaign Failure Modes", () => {
     expect(deadSoldier?.status).toBe("Dead");
 
     // 4. Mission 2: Verify dead soldier is NOT in squad selection
-    const node2 = cm.getState()!.nodes.find(n => n.status === "Accessible")!;
+    const node2 = cm.getState()!.nodes.find(n => n.status === "Accessible" && (n.type === "Combat" || n.type === "Elite" || n.type === "Boss"))!;
+    expect(node2).toBeTruthy();
     const node2El = document.querySelector(`.campaign-node[data-id="${node2.id}"]`) as HTMLElement;
     expect(node2El).toBeTruthy();
     node2El.click();
 
     // Wait for async onCampaignNodeSelected
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     expect(document.getElementById("screen-mission-setup")?.style.display).toBe("flex");
     

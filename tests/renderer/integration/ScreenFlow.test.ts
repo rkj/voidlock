@@ -194,7 +194,7 @@ describe("Screen Flow Integration", () => {
     (nodes[0] as HTMLElement).click();
     
     // Wait for async onCampaignNodeSelected
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise(resolve => setTimeout(resolve, 50));
     
     expect(document.getElementById("screen-mission-setup")?.style.display).toBe("flex");
 

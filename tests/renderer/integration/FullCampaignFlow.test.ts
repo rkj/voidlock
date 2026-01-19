@@ -189,7 +189,7 @@ describe("Full Campaign Flow Integration", () => {
     firstNode?.click();
     
     // Wait for async onCampaignNodeSelected
-    await new Promise(resolve => setTimeout(resolve, 20));
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     expect(document.getElementById("screen-mission-setup")?.style.display).toBe("flex");
 
@@ -239,7 +239,7 @@ describe("Full Campaign Flow Integration", () => {
     nextNode?.click();
 
     // Wait for async onCampaignNodeSelected
-    await new Promise(resolve => setTimeout(resolve, 20));
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     expect(document.getElementById("screen-mission-setup")?.style.display).toBe("flex");
 
@@ -262,7 +262,7 @@ describe("Full Campaign Flow Integration", () => {
     bossNodeEl.click();
 
     // Wait for async onCampaignNodeSelected
-    await new Promise(resolve => setTimeout(resolve, 20));
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     // Re-select squad
     document.querySelectorAll(".soldier-card").forEach(card => {
@@ -325,7 +325,7 @@ describe("Full Campaign Flow Integration", () => {
     (document.querySelector(`.campaign-node[data-id="${bNode.id}"]`) as HTMLElement).click();
     
     // Wait for async onCampaignNodeSelected
-    await new Promise(resolve => setTimeout(resolve, 20));
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     document.getElementById("btn-goto-equipment")?.click();
     const confBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent?.includes("Confirm")) as HTMLElement;

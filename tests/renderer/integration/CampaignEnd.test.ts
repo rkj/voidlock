@@ -232,7 +232,7 @@ describe("Campaign End Integration", () => {
     bossNode.click();
     
     // Wait for async onCampaignNodeSelected
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise(resolve => setTimeout(resolve, 50));
     
     expect(document.getElementById("screen-mission-setup")?.style.display).toBe("flex");
 

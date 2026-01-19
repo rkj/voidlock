@@ -55,7 +55,7 @@ export class CampaignScreen {
     if (state.status === "Victory") {
       this.container.innerHTML = `<div class="flex-col align-center justify-center h-full">
         <h1 style="color:var(--color-primary)">Campaign Victory</h1>
-        <button class="primary-button" id="btn-victory-summary">View Summary</button>
+        <button class="primary-button" id="btn-victory-summary" style="height: 32px; padding: 0 30px; display: flex; align-items: center; font-size: 0.9em;">View Summary</button>
       </div>`;
       const btn = this.container.querySelector("#btn-victory-summary");
       if (btn) (btn as HTMLElement).onclick = () => {
@@ -67,7 +67,7 @@ export class CampaignScreen {
     if (state.status === "Defeat") {
       this.container.innerHTML = `<div class="flex-col align-center justify-center h-full">
         <h1 style="color:var(--color-error)">Campaign Defeat</h1>
-        <button class="primary-button" style="background-color:var(--color-error)" id="btn-defeat-summary">View Summary</button>
+        <button class="primary-button" style="background-color:var(--color-error); height: 32px; padding: 0 30px; display: flex; align-items: center; font-size: 0.9em;" id="btn-defeat-summary">View Summary</button>
       </div>`;
       const btn = this.container.querySelector("#btn-defeat-summary");
       if (btn) (btn as HTMLElement).onclick = () => {
@@ -95,7 +95,10 @@ export class CampaignScreen {
     abandonBtn.style.position = "absolute";
     abandonBtn.style.bottom = "20px";
     abandonBtn.style.right = "20px";
-    abandonBtn.style.fontSize = "0.7em";
+    abandonBtn.style.fontSize = "0.75em";
+    abandonBtn.style.height = "32px";
+    abandonBtn.style.display = "flex";
+    abandonBtn.style.alignItems = "center";
     abandonBtn.style.opacity = "0.6";
     abandonBtn.style.margin = "0";
     abandonBtn.style.color = "var(--color-error)";
@@ -112,11 +115,12 @@ export class CampaignScreen {
     const content = document.createElement("div");
     content.className =
       "flex-col align-center justify-center h-full gap-20 campaign-setup-wizard";
-    content.style.maxWidth = "400px";
+    content.style.maxWidth = "800px";
     content.style.margin = "0 auto";
+    content.style.padding = "40px 0";
 
     const h1 = document.createElement("h1");
-    h1.textContent = "New Campaign";
+    h1.textContent = "NEW EXPEDITION";
     h1.style.letterSpacing = "4px";
     h1.style.color = "var(--color-primary)";
     content.appendChild(h1);
@@ -452,6 +456,11 @@ export class CampaignScreen {
     const startBtn = document.createElement("button");
     startBtn.textContent = "Initialize Expedition";
     startBtn.className = "primary-button w-full";
+    startBtn.style.height = "32px";
+    startBtn.style.display = "flex";
+    startBtn.style.alignItems = "center";
+    startBtn.style.justifyContent = "center";
+    startBtn.style.fontSize = "0.9em";
     startBtn.onclick = () => {
       const overrides: any = {
         allowTacticalPause: pauseCheck.checked,
@@ -474,12 +483,6 @@ export class CampaignScreen {
       this.render();
     };
     content.appendChild(startBtn);
-
-    const backBtn = document.createElement("button");
-    backBtn.textContent = "Back to Menu";
-    backBtn.className = "back-button w-full";
-    backBtn.onclick = () => this.onBack();
-    content.appendChild(backBtn);
 
     this.container.appendChild(content);
   }

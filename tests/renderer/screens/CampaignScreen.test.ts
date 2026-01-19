@@ -51,7 +51,7 @@ describe("CampaignScreen", () => {
     );
     screen.show();
 
-    expect(container.textContent).toContain("New Campaign");
+    expect(container.textContent).toContain("NEW EXPEDITION");
     expect(container.querySelectorAll(".difficulty-card").length).toBe(4);
     expect(container.querySelector("#campaign-tactical-pause")).not.toBeNull();
   });
@@ -118,7 +118,7 @@ describe("CampaignScreen", () => {
     expect(currentNode.innerHTML).toContain("▼"); // Using downward triangle as indicator
   });
 
-  it("should trigger onBack when back button is clicked in wizard", () => {
+  it("should not render its own back button in wizard (handled by shell)", () => {
     const screen = new CampaignScreen(
       "screen-campaign",
       manager,
@@ -131,9 +131,7 @@ describe("CampaignScreen", () => {
     const backBtn = Array.from(container.querySelectorAll("button")).find(
       (btn) => btn.textContent === "Back to Menu",
     );
-    backBtn?.click();
-
-    expect(onBack).toHaveBeenCalled();
+    expect(backBtn).toBeUndefined();
   });
 
   it("should render Defeat placeholder when campaign status is Defeat", () => {

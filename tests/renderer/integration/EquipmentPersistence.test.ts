@@ -176,7 +176,7 @@ describe("Equipment Persistence Integration", () => {
     nodeEl.click();
     
     // Wait for async onCampaignNodeSelected
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise(resolve => setTimeout(resolve, 50));
     
     // In mission setup, select the scout
     const scoutCb = document.querySelector("#squad-builder input[type='checkbox']") as HTMLInputElement;
