@@ -103,18 +103,20 @@ export class EquipmentScreen {
 
     // Main Content Wrapper (Flex Row for panels)
     const contentWrapper = document.createElement("div");
-    contentWrapper.className = "flex-row flex-grow p-20 gap-20";
+    contentWrapper.className = "flex-row flex-grow p-10 gap-10";
     contentWrapper.style.overflow = "hidden";
     contentWrapper.style.minHeight = "0"; // Crucial for nested flex scrolling
 
     // Left: Soldier List
     const leftPanel = this.createPanel("Soldier List", "250px");
     leftPanel.style.overflowY = "auto";
+    leftPanel.style.padding = "10px";
     this.renderSoldierList(leftPanel);
 
     // Center: Paper Doll / Slots
     const centerPanel = this.createPanel("Soldier Equipment", "1fr");
     centerPanel.style.overflowY = "auto";
+    centerPanel.style.padding = "10px";
     const centerBody = document.createElement("div");
     centerPanel.appendChild(centerBody);
     this.inspector.setSoldier(this.config.soldiers[this.selectedSoldierIndex], true);
@@ -123,6 +125,7 @@ export class EquipmentScreen {
     // Right: Armory / Global Inventory
     const rightPanel = this.createPanel("Armory & Supplies", "400px");
     rightPanel.style.overflowY = "auto";
+    rightPanel.style.padding = "10px";
     this.renderRightPanel(rightPanel);
 
     contentWrapper.appendChild(leftPanel);
@@ -132,20 +135,31 @@ export class EquipmentScreen {
 
     // Footer Buttons (Direct child of container)
     const footer = document.createElement("div");
-    footer.className = "flex-row justify-end p-20 gap-10";
+    footer.className = "flex-row justify-end p-10 gap-10";
     footer.style.flexShrink = "0";
     footer.style.borderTop = "1px solid var(--color-border-strong)";
-    footer.style.backgroundColor = "var(--color-bg)";
+    footer.style.backgroundColor = "var(--color-surface-elevated)";
 
     const backBtn = document.createElement("button");
     backBtn.textContent = "Back";
     backBtn.className = "back-button";
-    backBtn.style.marginTop = "0";
+    backBtn.style.margin = "0";
+    backBtn.style.height = "32px";
+    backBtn.style.padding = "0 15px";
+    backBtn.style.fontSize = "0.9em";
+    backBtn.style.display = "flex";
+    backBtn.style.alignItems = "center";
     backBtn.onclick = () => this.onBack();
 
     const saveBtn = document.createElement("button");
     saveBtn.textContent = "Confirm Squad";
-    saveBtn.style.marginTop = "0";
+    saveBtn.className = "primary-button";
+    saveBtn.style.margin = "0";
+    saveBtn.style.height = "32px";
+    saveBtn.style.padding = "0 15px";
+    saveBtn.style.fontSize = "0.9em";
+    saveBtn.style.display = "flex";
+    saveBtn.style.alignItems = "center";
     saveBtn.onclick = () => this.onSave(this.config);
 
     footer.appendChild(backBtn);
@@ -171,15 +185,15 @@ export class EquipmentScreen {
     this.config.soldiers.forEach((soldier, index) => {
       const item = document.createElement("div");
       item.className = `menu-item clickable ${this.selectedSoldierIndex === index ? "active" : ""}`;
-      item.style.marginBottom = "10px";
-      item.style.padding = "10px";
+      item.style.marginBottom = "8px";
+      item.style.padding = "8px 12px";
 
       const arch = ArchetypeLibrary[soldier.archetypeId];
       item.innerHTML = `
-        <div style="font-weight:bold; color:${this.selectedSoldierIndex === index ? "var(--color-primary)" : "var(--color-text)"};">
+        <div style="font-weight:bold; color:${this.selectedSoldierIndex === index ? "var(--color-primary)" : "var(--color-text)"}; font-size: 0.9em;">
           ${index + 1}. ${arch ? arch.name : soldier.archetypeId}
         </div>
-        <div style="font-size:0.8em; color:var(--color-text-muted); margin-top:4px;">
+        <div style="font-size:0.75em; color:var(--color-text-muted); margin-top:2px;">
           ${this.getItemName(soldier.rightHand)} / ${this.getItemName(soldier.leftHand)}
         </div>
       `;
@@ -209,26 +223,29 @@ export class EquipmentScreen {
     suppliesTitle.textContent = "Global Supplies";
     suppliesTitle.style.color = "var(--color-primary)";
     suppliesTitle.style.borderBottom = "1px solid var(--color-border)";
-    suppliesTitle.style.paddingBottom = "5px";
+    suppliesTitle.style.paddingBottom = "8px";
+    suppliesTitle.style.margin = "20px 0 12px 0";
+    suppliesTitle.style.fontSize = "1em";
+    suppliesTitle.style.textTransform = "uppercase";
+    suppliesTitle.style.letterSpacing = "1px";
     panel.appendChild(suppliesTitle);
 
     const supplyItems = Object.values(ItemLibrary).filter((i) => i.action);
     supplyItems.forEach((item) => {
       const row = document.createElement("div");
       row.className = "flex-row justify-between align-center card";
-      row.style.marginBottom = "5px";
-      row.style.padding = "5px";
-      row.style.gap = "0";
+      row.style.marginBottom = "8px";
+      row.style.padding = "8px 12px";
+      row.style.gap = "10px";
       row.title = `${item.name}\n${item.description || ""}\nCharges: ${item.charges}`;
 
       const nameGroup = document.createElement("div");
       nameGroup.className = "flex-col";
       nameGroup.style.flexGrow = "1";
-      nameGroup.style.marginRight = "15px";
       nameGroup.innerHTML = `
-        <div class="flex-row justify-between" style="font-weight:bold;">
-            <span style="font-size: 0.9em;">${item.name}</span>
-            <span style="color:var(--color-text-muted); font-size: 0.8em;">${item.cost} CR</span>
+        <div class="flex-row justify-between" style="font-weight:bold; font-size: 0.9em;">
+            <span>${item.name}</span>
+            <span style="color:var(--color-primary);">${item.cost} CR</span>
         </div>
         <div style="font-size:0.75em; color:var(--color-text-muted); margin-top:2px;">
             Charges: ${item.charges}
