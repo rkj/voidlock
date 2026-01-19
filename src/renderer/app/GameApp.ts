@@ -581,6 +581,7 @@ export class GameApp {
       if (spVal) spVal.textContent = spInput.value;
     }
 
+    this.context.campaignShell.hide();
     this.context.screenManager.show("mission-setup");
   }
 
