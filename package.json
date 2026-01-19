@@ -1,12 +1,13 @@
 {
   "name": "voidlock",
   "private": true,
-  "version": "0.105.8",
+  "version": "0.105.9",
   "description": "Tactical squad combat game.",
   "type": "module",
   "scripts": {
     "dev": "vite --host",
     "build": "tsc && vite build",
+    "test": "vitest run",
     "lint": "tsc --noEmit",
     "preview": "vite preview",
     "balance-sim": "tsx src/harness/BalanceSimulator.ts",
