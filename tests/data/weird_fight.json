@@ -1,0 +1,3487 @@
+{
+  "replayData": {
+    "seed": 675720,
+    "map": {
+      "width": 6,
+      "height": 6,
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "type": "Floor",
+          "roomId": "room-0-0"
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "type": "Floor",
+          "roomId": "room-0-0"
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "type": "Floor",
+          "roomId": "corridor-v-spine"
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "type": "Floor",
+          "roomId": "room-3-0"
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "type": "Floor",
+          "roomId": "room-3-0"
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "type": "Floor",
+          "roomId": "room-5-0"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "type": "Floor",
+          "roomId": "room-0-0"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "type": "Floor",
+          "roomId": "room-0-0"
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "type": "Floor",
+          "roomId": "corridor-v-spine"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "type": "Floor",
+          "roomId": "room-3-0"
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "type": "Floor",
+          "roomId": "room-3-0"
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "type": "Floor",
+          "roomId": "room-5-0"
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "type": "Floor",
+          "roomId": "corridor-h-spine"
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "type": "Floor",
+          "roomId": "corridor-h-spine"
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "type": "Floor",
+          "roomId": "corridor-v-spine"
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "type": "Floor",
+          "roomId": "corridor-h-spine"
+        },
+        {
+          "x": 4,
+          "y": 2,
+          "type": "Floor",
+          "roomId": "corridor-h-spine"
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "type": "Floor",
+          "roomId": "corridor-h-spine"
+        },
+        {
+          "x": 0,
+          "y": 3,
+          "type": "Floor",
+          "roomId": "room-0-3"
+        },
+        {
+          "x": 1,
+          "y": 3,
+          "type": "Floor",
+          "roomId": "room-0-3"
+        },
+        {
+          "x": 2,
+          "y": 3,
+          "type": "Floor",
+          "roomId": "corridor-v-spine"
+        },
+        {
+          "x": 3,
+          "y": 3,
+          "type": "Floor",
+          "roomId": "room-3-3"
+        },
+        {
+          "x": 4,
+          "y": 3,
+          "type": "Floor",
+          "roomId": "room-3-3"
+        },
+        {
+          "x": 5,
+          "y": 3,
+          "type": "Floor",
+          "roomId": "room-5-3"
+        },
+        {
+          "x": 0,
+          "y": 4,
+          "type": "Floor",
+          "roomId": "room-0-4"
+        },
+        {
+          "x": 1,
+          "y": 4,
+          "type": "Floor",
+          "roomId": "room-0-4"
+        },
+        {
+          "x": 2,
+          "y": 4,
+          "type": "Floor",
+          "roomId": "corridor-v-spine"
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "type": "Floor",
+          "roomId": "room-3-3"
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "type": "Floor",
+          "roomId": "room-3-3"
+        },
+        {
+          "x": 5,
+          "y": 4,
+          "type": "Floor",
+          "roomId": "room-5-3"
+        },
+        {
+          "x": 0,
+          "y": 5,
+          "type": "Floor",
+          "roomId": "room-0-4"
+        },
+        {
+          "x": 1,
+          "y": 5,
+          "type": "Floor",
+          "roomId": "room-0-4"
+        },
+        {
+          "x": 2,
+          "y": 5,
+          "type": "Floor",
+          "roomId": "corridor-v-spine"
+        },
+        {
+          "x": 3,
+          "y": 5,
+          "type": "Floor",
+          "roomId": "room-3-5"
+        },
+        {
+          "x": 4,
+          "y": 5,
+          "type": "Floor",
+          "roomId": "room-4-5"
+        },
+        {
+          "x": 5,
+          "y": 5,
+          "type": "Floor",
+          "roomId": "room-4-5"
+        }
+      ],
+      "walls": [
+        {
+          "p1": {
+            "x": 0,
+            "y": 0
+          },
+          "p2": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "p1": {
+            "x": 0,
+            "y": 0
+          },
+          "p2": {
+            "x": 0,
+            "y": 1
+          }
+        },
+        {
+          "p1": {
+            "x": 1,
+            "y": 0
+          },
+          "p2": {
+            "x": 2,
+            "y": 0
+          }
+        },
+        {
+          "p1": {
+            "x": 2,
+            "y": 0
+          },
+          "p2": {
+            "x": 2,
+            "y": 1
+          }
+        },
+        {
+          "p1": {
+            "x": 2,
+            "y": 0
+          },
+          "p2": {
+            "x": 3,
+            "y": 0
+          }
+        },
+        {
+          "p1": {
+            "x": 3,
+            "y": 0
+          },
+          "p2": {
+            "x": 4,
+            "y": 0
+          }
+        },
+        {
+          "p1": {
+            "x": 4,
+            "y": 0
+          },
+          "p2": {
+            "x": 5,
+            "y": 0
+          }
+        },
+        {
+          "p1": {
+            "x": 5,
+            "y": 0
+          },
+          "p2": {
+            "x": 6,
+            "y": 0
+          }
+        },
+        {
+          "p1": {
+            "x": 6,
+            "y": 0
+          },
+          "p2": {
+            "x": 6,
+            "y": 1
+          }
+        },
+        {
+          "p1": {
+            "x": 0,
+            "y": 1
+          },
+          "p2": {
+            "x": 0,
+            "y": 2
+          }
+        },
+        {
+          "p1": {
+            "x": 2,
+            "y": 1
+          },
+          "p2": {
+            "x": 2,
+            "y": 2
+          }
+        },
+        {
+          "p1": {
+            "x": 1,
+            "y": 2
+          },
+          "p2": {
+            "x": 2,
+            "y": 2
+          }
+        },
+        {
+          "p1": {
+            "x": 3,
+            "y": 1
+          },
+          "p2": {
+            "x": 3,
+            "y": 2
+          }
+        },
+        {
+          "p1": {
+            "x": 3,
+            "y": 2
+          },
+          "p2": {
+            "x": 4,
+            "y": 2
+          }
+        },
+        {
+          "p1": {
+            "x": 5,
+            "y": 1
+          },
+          "p2": {
+            "x": 5,
+            "y": 2
+          }
+        },
+        {
+          "p1": {
+            "x": 4,
+            "y": 2
+          },
+          "p2": {
+            "x": 5,
+            "y": 2
+          }
+        },
+        {
+          "p1": {
+            "x": 6,
+            "y": 1
+          },
+          "p2": {
+            "x": 6,
+            "y": 2
+          }
+        },
+        {
+          "p1": {
+            "x": 5,
+            "y": 2
+          },
+          "p2": {
+            "x": 6,
+            "y": 2
+          }
+        },
+        {
+          "p1": {
+            "x": 0,
+            "y": 3
+          },
+          "p2": {
+            "x": 1,
+            "y": 3
+          }
+        },
+        {
+          "p1": {
+            "x": 0,
+            "y": 2
+          },
+          "p2": {
+            "x": 0,
+            "y": 3
+          }
+        },
+        {
+          "p1": {
+            "x": 1,
+            "y": 3
+          },
+          "p2": {
+            "x": 2,
+            "y": 3
+          }
+        },
+        {
+          "p1": {
+            "x": 3,
+            "y": 3
+          },
+          "p2": {
+            "x": 4,
+            "y": 3
+          }
+        },
+        {
+          "p1": {
+            "x": 4,
+            "y": 3
+          },
+          "p2": {
+            "x": 5,
+            "y": 3
+          }
+        },
+        {
+          "p1": {
+            "x": 6,
+            "y": 2
+          },
+          "p2": {
+            "x": 6,
+            "y": 3
+          }
+        },
+        {
+          "p1": {
+            "x": 0,
+            "y": 4
+          },
+          "p2": {
+            "x": 1,
+            "y": 4
+          }
+        },
+        {
+          "p1": {
+            "x": 0,
+            "y": 3
+          },
+          "p2": {
+            "x": 0,
+            "y": 4
+          }
+        },
+        {
+          "p1": {
+            "x": 2,
+            "y": 3
+          },
+          "p2": {
+            "x": 2,
+            "y": 4
+          }
+        },
+        {
+          "p1": {
+            "x": 3,
+            "y": 3
+          },
+          "p2": {
+            "x": 3,
+            "y": 4
+          }
+        },
+        {
+          "p1": {
+            "x": 5,
+            "y": 3
+          },
+          "p2": {
+            "x": 5,
+            "y": 4
+          }
+        },
+        {
+          "p1": {
+            "x": 6,
+            "y": 3
+          },
+          "p2": {
+            "x": 6,
+            "y": 4
+          }
+        },
+        {
+          "p1": {
+            "x": 0,
+            "y": 4
+          },
+          "p2": {
+            "x": 0,
+            "y": 5
+          }
+        },
+        {
+          "p1": {
+            "x": 2,
+            "y": 4
+          },
+          "p2": {
+            "x": 2,
+            "y": 5
+          }
+        },
+        {
+          "p1": {
+            "x": 5,
+            "y": 4
+          },
+          "p2": {
+            "x": 5,
+            "y": 5
+          }
+        },
+        {
+          "p1": {
+            "x": 4,
+            "y": 5
+          },
+          "p2": {
+            "x": 5,
+            "y": 5
+          }
+        },
+        {
+          "p1": {
+            "x": 6,
+            "y": 4
+          },
+          "p2": {
+            "x": 6,
+            "y": 5
+          }
+        },
+        {
+          "p1": {
+            "x": 0,
+            "y": 6
+          },
+          "p2": {
+            "x": 1,
+            "y": 6
+          }
+        },
+        {
+          "p1": {
+            "x": 0,
+            "y": 5
+          },
+          "p2": {
+            "x": 0,
+            "y": 6
+          }
+        },
+        {
+          "p1": {
+            "x": 1,
+            "y": 6
+          },
+          "p2": {
+            "x": 2,
+            "y": 6
+          }
+        },
+        {
+          "p1": {
+            "x": 3,
+            "y": 5
+          },
+          "p2": {
+            "x": 3,
+            "y": 6
+          }
+        },
+        {
+          "p1": {
+            "x": 2,
+            "y": 6
+          },
+          "p2": {
+            "x": 3,
+            "y": 6
+          }
+        },
+        {
+          "p1": {
+            "x": 4,
+            "y": 5
+          },
+          "p2": {
+            "x": 4,
+            "y": 6
+          }
+        },
+        {
+          "p1": {
+            "x": 3,
+            "y": 6
+          },
+          "p2": {
+            "x": 4,
+            "y": 6
+          }
+        },
+        {
+          "p1": {
+            "x": 4,
+            "y": 6
+          },
+          "p2": {
+            "x": 5,
+            "y": 6
+          }
+        },
+        {
+          "p1": {
+            "x": 6,
+            "y": 5
+          },
+          "p2": {
+            "x": 6,
+            "y": 6
+          }
+        },
+        {
+          "p1": {
+            "x": 5,
+            "y": 6
+          },
+          "p2": {
+            "x": 6,
+            "y": 6
+          }
+        }
+      ],
+      "doors": [
+        {
+          "id": "door-0",
+          "segment": [
+            {
+              "x": 2,
+              "y": 4
+            },
+            {
+              "x": 3,
+              "y": 4
+            }
+          ],
+          "orientation": "Vertical",
+          "state": "Closed",
+          "hp": 50,
+          "maxHp": 50,
+          "openDuration": 1
+        },
+        {
+          "id": "door-1",
+          "segment": [
+            {
+              "x": 0,
+              "y": 2
+            },
+            {
+              "x": 0,
+              "y": 1
+            }
+          ],
+          "orientation": "Horizontal",
+          "state": "Closed",
+          "hp": 50,
+          "maxHp": 50,
+          "openDuration": 1
+        },
+        {
+          "id": "door-2",
+          "segment": [
+            {
+              "x": 5,
+              "y": 2
+            },
+            {
+              "x": 5,
+              "y": 3
+            }
+          ],
+          "orientation": "Horizontal",
+          "state": "Closed",
+          "hp": 50,
+          "maxHp": 50,
+          "openDuration": 1
+        },
+        {
+          "id": "door-3",
+          "segment": [
+            {
+              "x": 5,
+              "y": 4
+            },
+            {
+              "x": 5,
+              "y": 5
+            }
+          ],
+          "orientation": "Horizontal",
+          "state": "Closed",
+          "hp": 50,
+          "maxHp": 50,
+          "openDuration": 1
+        },
+        {
+          "id": "door-4",
+          "segment": [
+            {
+              "x": 2,
+              "y": 5
+            },
+            {
+              "x": 1,
+              "y": 5
+            }
+          ],
+          "orientation": "Vertical",
+          "state": "Closed",
+          "hp": 50,
+          "maxHp": 50,
+          "openDuration": 1
+        },
+        {
+          "id": "door-5",
+          "segment": [
+            {
+              "x": 2,
+              "y": 0
+            },
+            {
+              "x": 3,
+              "y": 0
+            }
+          ],
+          "orientation": "Vertical",
+          "state": "Closed",
+          "hp": 50,
+          "maxHp": 50,
+          "openDuration": 1
+        },
+        {
+          "id": "door-6",
+          "segment": [
+            {
+              "x": 1,
+              "y": 4
+            },
+            {
+              "x": 1,
+              "y": 3
+            }
+          ],
+          "orientation": "Horizontal",
+          "state": "Closed",
+          "hp": 50,
+          "maxHp": 50,
+          "openDuration": 1
+        },
+        {
+          "id": "door-7",
+          "segment": [
+            {
+              "x": 4,
+              "y": 0
+            },
+            {
+              "x": 5,
+              "y": 0
+            }
+          ],
+          "orientation": "Vertical",
+          "state": "Closed",
+          "hp": 50,
+          "maxHp": 50,
+          "openDuration": 1
+        },
+        {
+          "id": "door-8",
+          "segment": [
+            {
+              "x": 3,
+              "y": 4
+            },
+            {
+              "x": 3,
+              "y": 5
+            }
+          ],
+          "orientation": "Horizontal",
+          "state": "Closed",
+          "hp": 50,
+          "maxHp": 50,
+          "openDuration": 1
+        }
+      ],
+      "spawnPoints": [
+        {
+          "id": "sp-enemy-0",
+          "pos": {
+            "x": 4,
+            "y": 5
+          },
+          "radius": 1
+        }
+      ],
+      "squadSpawn": {
+        "x": 3,
+        "y": 3,
+        "type": "Floor",
+        "roomId": "room-3-3"
+      },
+      "squadSpawns": [
+        {
+          "x": 3,
+          "y": 3,
+          "type": "Floor",
+          "roomId": "room-3-3"
+        },
+        {
+          "x": 3,
+          "y": 5,
+          "type": "Floor",
+          "roomId": "room-3-5"
+        }
+      ],
+      "extraction": {
+        "x": 0,
+        "y": 0,
+        "type": "Floor",
+        "roomId": "room-0-0"
+      },
+      "objectives": [
+        {
+          "id": "obj-0",
+          "kind": "Recover",
+          "targetCell": {
+            "x": 5,
+            "y": 3
+          }
+        },
+        {
+          "id": "obj-1",
+          "kind": "Recover",
+          "targetCell": {
+            "x": 3,
+            "y": 0
+          }
+        }
+      ],
+      "generatorName": "DenseShip"
+    },
+    "squadConfig": {
+      "soldiers": [
+        {
+          "id": "soldier_0",
+          "archetypeId": "assault",
+          "hp": 100,
+          "maxHp": 100,
+          "soldierAim": 90,
+          "rightHand": "pulse_rifle",
+          "leftHand": "combat_knife"
+        },
+        {
+          "id": "soldier_1",
+          "archetypeId": "medic",
+          "hp": 80,
+          "maxHp": 80,
+          "soldierAim": 80,
+          "rightHand": "pistol",
+          "leftHand": "combat_knife"
+        },
+        {
+          "id": "soldier_2",
+          "archetypeId": "scout",
+          "hp": 80,
+          "maxHp": 80,
+          "soldierAim": 85,
+          "rightHand": "pistol",
+          "leftHand": "combat_knife"
+        },
+        {
+          "id": "soldier_3",
+          "archetypeId": "heavy",
+          "hp": 120,
+          "maxHp": 120,
+          "soldierAim": 70,
+          "rightHand": "shotgun",
+          "leftHand": "thunder_hammer"
+        }
+      ],
+      "inventory": {
+        "medkit": 1,
+        "frag_grenade": 2
+      }
+    },
+    "commands": [
+      {
+        "t": 24479,
+        "cmd": {
+          "type": "TOGGLE_DEBUG_OVERLAY",
+          "enabled": true
+        }
+      }
+    ]
+  },
+  "currentState": {
+    "t": 52340.254950673356,
+    "seed": 675720,
+    "missionType": "Default",
+    "nodeType": "Combat",
+    "map": {
+      "width": 6,
+      "height": 6,
+      "cells": [
+        {
+          "x": 0,
+          "y": 0,
+          "type": "Floor",
+          "roomId": "room-0-0"
+        },
+        {
+          "x": 1,
+          "y": 0,
+          "type": "Floor",
+          "roomId": "room-0-0"
+        },
+        {
+          "x": 2,
+          "y": 0,
+          "type": "Floor",
+          "roomId": "corridor-v-spine"
+        },
+        {
+          "x": 3,
+          "y": 0,
+          "type": "Floor",
+          "roomId": "room-3-0"
+        },
+        {
+          "x": 4,
+          "y": 0,
+          "type": "Floor",
+          "roomId": "room-3-0"
+        },
+        {
+          "x": 5,
+          "y": 0,
+          "type": "Floor",
+          "roomId": "room-5-0"
+        },
+        {
+          "x": 0,
+          "y": 1,
+          "type": "Floor",
+          "roomId": "room-0-0"
+        },
+        {
+          "x": 1,
+          "y": 1,
+          "type": "Floor",
+          "roomId": "room-0-0"
+        },
+        {
+          "x": 2,
+          "y": 1,
+          "type": "Floor",
+          "roomId": "corridor-v-spine"
+        },
+        {
+          "x": 3,
+          "y": 1,
+          "type": "Floor",
+          "roomId": "room-3-0"
+        },
+        {
+          "x": 4,
+          "y": 1,
+          "type": "Floor",
+          "roomId": "room-3-0"
+        },
+        {
+          "x": 5,
+          "y": 1,
+          "type": "Floor",
+          "roomId": "room-5-0"
+        },
+        {
+          "x": 0,
+          "y": 2,
+          "type": "Floor",
+          "roomId": "corridor-h-spine"
+        },
+        {
+          "x": 1,
+          "y": 2,
+          "type": "Floor",
+          "roomId": "corridor-h-spine"
+        },
+        {
+          "x": 2,
+          "y": 2,
+          "type": "Floor",
+          "roomId": "corridor-v-spine"
+        },
+        {
+          "x": 3,
+          "y": 2,
+          "type": "Floor",
+          "roomId": "corridor-h-spine"
+        },
+        {
+          "x": 4,
+          "y": 2,
+          "type": "Floor",
+          "roomId": "corridor-h-spine"
+        },
+        {
+          "x": 5,
+          "y": 2,
+          "type": "Floor",
+          "roomId": "corridor-h-spine"
+        },
+        {
+          "x": 0,
+          "y": 3,
+          "type": "Floor",
+          "roomId": "room-0-3"
+        },
+        {
+          "x": 1,
+          "y": 3,
+          "type": "Floor",
+          "roomId": "room-0-3"
+        },
+        {
+          "x": 2,
+          "y": 3,
+          "type": "Floor",
+          "roomId": "corridor-v-spine"
+        },
+        {
+          "x": 3,
+          "y": 3,
+          "type": "Floor",
+          "roomId": "room-3-3"
+        },
+        {
+          "x": 4,
+          "y": 3,
+          "type": "Floor",
+          "roomId": "room-3-3"
+        },
+        {
+          "x": 5,
+          "y": 3,
+          "type": "Floor",
+          "roomId": "room-5-3"
+        },
+        {
+          "x": 0,
+          "y": 4,
+          "type": "Floor",
+          "roomId": "room-0-4"
+        },
+        {
+          "x": 1,
+          "y": 4,
+          "type": "Floor",
+          "roomId": "room-0-4"
+        },
+        {
+          "x": 2,
+          "y": 4,
+          "type": "Floor",
+          "roomId": "corridor-v-spine"
+        },
+        {
+          "x": 3,
+          "y": 4,
+          "type": "Floor",
+          "roomId": "room-3-3"
+        },
+        {
+          "x": 4,
+          "y": 4,
+          "type": "Floor",
+          "roomId": "room-3-3"
+        },
+        {
+          "x": 5,
+          "y": 4,
+          "type": "Floor",
+          "roomId": "room-5-3"
+        },
+        {
+          "x": 0,
+          "y": 5,
+          "type": "Floor",
+          "roomId": "room-0-4"
+        },
+        {
+          "x": 1,
+          "y": 5,
+          "type": "Floor",
+          "roomId": "room-0-4"
+        },
+        {
+          "x": 2,
+          "y": 5,
+          "type": "Floor",
+          "roomId": "corridor-v-spine"
+        },
+        {
+          "x": 3,
+          "y": 5,
+          "type": "Floor",
+          "roomId": "room-3-5"
+        },
+        {
+          "x": 4,
+          "y": 5,
+          "type": "Floor",
+          "roomId": "room-4-5"
+        },
+        {
+          "x": 5,
+          "y": 5,
+          "type": "Floor",
+          "roomId": "room-4-5"
+        }
+      ],
+      "walls": [
+        {
+          "p1": {
+            "x": 0,
+            "y": 0
+          },
+          "p2": {
+            "x": 1,
+            "y": 0
+          }
+        },
+        {
+          "p1": {
+            "x": 0,
+            "y": 0
+          },
+          "p2": {
+            "x": 0,
+            "y": 1
+          }
+        },
+        {
+          "p1": {
+            "x": 1,
+            "y": 0
+          },
+          "p2": {
+            "x": 2,
+            "y": 0
+          }
+        },
+        {
+          "p1": {
+            "x": 2,
+            "y": 0
+          },
+          "p2": {
+            "x": 2,
+            "y": 1
+          }
+        },
+        {
+          "p1": {
+            "x": 2,
+            "y": 0
+          },
+          "p2": {
+            "x": 3,
+            "y": 0
+          }
+        },
+        {
+          "p1": {
+            "x": 3,
+            "y": 0
+          },
+          "p2": {
+            "x": 4,
+            "y": 0
+          }
+        },
+        {
+          "p1": {
+            "x": 4,
+            "y": 0
+          },
+          "p2": {
+            "x": 5,
+            "y": 0
+          }
+        },
+        {
+          "p1": {
+            "x": 5,
+            "y": 0
+          },
+          "p2": {
+            "x": 6,
+            "y": 0
+          }
+        },
+        {
+          "p1": {
+            "x": 6,
+            "y": 0
+          },
+          "p2": {
+            "x": 6,
+            "y": 1
+          }
+        },
+        {
+          "p1": {
+            "x": 0,
+            "y": 1
+          },
+          "p2": {
+            "x": 0,
+            "y": 2
+          }
+        },
+        {
+          "p1": {
+            "x": 2,
+            "y": 1
+          },
+          "p2": {
+            "x": 2,
+            "y": 2
+          }
+        },
+        {
+          "p1": {
+            "x": 1,
+            "y": 2
+          },
+          "p2": {
+            "x": 2,
+            "y": 2
+          }
+        },
+        {
+          "p1": {
+            "x": 3,
+            "y": 1
+          },
+          "p2": {
+            "x": 3,
+            "y": 2
+          }
+        },
+        {
+          "p1": {
+            "x": 3,
+            "y": 2
+          },
+          "p2": {
+            "x": 4,
+            "y": 2
+          }
+        },
+        {
+          "p1": {
+            "x": 5,
+            "y": 1
+          },
+          "p2": {
+            "x": 5,
+            "y": 2
+          }
+        },
+        {
+          "p1": {
+            "x": 4,
+            "y": 2
+          },
+          "p2": {
+            "x": 5,
+            "y": 2
+          }
+        },
+        {
+          "p1": {
+            "x": 6,
+            "y": 1
+          },
+          "p2": {
+            "x": 6,
+            "y": 2
+          }
+        },
+        {
+          "p1": {
+            "x": 5,
+            "y": 2
+          },
+          "p2": {
+            "x": 6,
+            "y": 2
+          }
+        },
+        {
+          "p1": {
+            "x": 0,
+            "y": 3
+          },
+          "p2": {
+            "x": 1,
+            "y": 3
+          }
+        },
+        {
+          "p1": {
+            "x": 0,
+            "y": 2
+          },
+          "p2": {
+            "x": 0,
+            "y": 3
+          }
+        },
+        {
+          "p1": {
+            "x": 1,
+            "y": 3
+          },
+          "p2": {
+            "x": 2,
+            "y": 3
+          }
+        },
+        {
+          "p1": {
+            "x": 3,
+            "y": 3
+          },
+          "p2": {
+            "x": 4,
+            "y": 3
+          }
+        },
+        {
+          "p1": {
+            "x": 4,
+            "y": 3
+          },
+          "p2": {
+            "x": 5,
+            "y": 3
+          }
+        },
+        {
+          "p1": {
+            "x": 6,
+            "y": 2
+          },
+          "p2": {
+            "x": 6,
+            "y": 3
+          }
+        },
+        {
+          "p1": {
+            "x": 0,
+            "y": 4
+          },
+          "p2": {
+            "x": 1,
+            "y": 4
+          }
+        },
+        {
+          "p1": {
+            "x": 0,
+            "y": 3
+          },
+          "p2": {
+            "x": 0,
+            "y": 4
+          }
+        },
+        {
+          "p1": {
+            "x": 2,
+            "y": 3
+          },
+          "p2": {
+            "x": 2,
+            "y": 4
+          }
+        },
+        {
+          "p1": {
+            "x": 3,
+            "y": 3
+          },
+          "p2": {
+            "x": 3,
+            "y": 4
+          }
+        },
+        {
+          "p1": {
+            "x": 5,
+            "y": 3
+          },
+          "p2": {
+            "x": 5,
+            "y": 4
+          }
+        },
+        {
+          "p1": {
+            "x": 6,
+            "y": 3
+          },
+          "p2": {
+            "x": 6,
+            "y": 4
+          }
+        },
+        {
+          "p1": {
+            "x": 0,
+            "y": 4
+          },
+          "p2": {
+            "x": 0,
+            "y": 5
+          }
+        },
+        {
+          "p1": {
+            "x": 2,
+            "y": 4
+          },
+          "p2": {
+            "x": 2,
+            "y": 5
+          }
+        },
+        {
+          "p1": {
+            "x": 5,
+            "y": 4
+          },
+          "p2": {
+            "x": 5,
+            "y": 5
+          }
+        },
+        {
+          "p1": {
+            "x": 4,
+            "y": 5
+          },
+          "p2": {
+            "x": 5,
+            "y": 5
+          }
+        },
+        {
+          "p1": {
+            "x": 6,
+            "y": 4
+          },
+          "p2": {
+            "x": 6,
+            "y": 5
+          }
+        },
+        {
+          "p1": {
+            "x": 0,
+            "y": 6
+          },
+          "p2": {
+            "x": 1,
+            "y": 6
+          }
+        },
+        {
+          "p1": {
+            "x": 0,
+            "y": 5
+          },
+          "p2": {
+            "x": 0,
+            "y": 6
+          }
+        },
+        {
+          "p1": {
+            "x": 1,
+            "y": 6
+          },
+          "p2": {
+            "x": 2,
+            "y": 6
+          }
+        },
+        {
+          "p1": {
+            "x": 3,
+            "y": 5
+          },
+          "p2": {
+            "x": 3,
+            "y": 6
+          }
+        },
+        {
+          "p1": {
+            "x": 2,
+            "y": 6
+          },
+          "p2": {
+            "x": 3,
+            "y": 6
+          }
+        },
+        {
+          "p1": {
+            "x": 4,
+            "y": 5
+          },
+          "p2": {
+            "x": 4,
+            "y": 6
+          }
+        },
+        {
+          "p1": {
+            "x": 3,
+            "y": 6
+          },
+          "p2": {
+            "x": 4,
+            "y": 6
+          }
+        },
+        {
+          "p1": {
+            "x": 4,
+            "y": 6
+          },
+          "p2": {
+            "x": 5,
+            "y": 6
+          }
+        },
+        {
+          "p1": {
+            "x": 6,
+            "y": 5
+          },
+          "p2": {
+            "x": 6,
+            "y": 6
+          }
+        },
+        {
+          "p1": {
+            "x": 5,
+            "y": 6
+          },
+          "p2": {
+            "x": 6,
+            "y": 6
+          }
+        }
+      ],
+      "doors": [
+        {
+          "id": "door-0",
+          "segment": [
+            {
+              "x": 2,
+              "y": 4
+            },
+            {
+              "x": 3,
+              "y": 4
+            }
+          ],
+          "orientation": "Vertical",
+          "state": "Closed",
+          "hp": 50,
+          "maxHp": 50,
+          "openDuration": 1
+        },
+        {
+          "id": "door-1",
+          "segment": [
+            {
+              "x": 0,
+              "y": 2
+            },
+            {
+              "x": 0,
+              "y": 1
+            }
+          ],
+          "orientation": "Horizontal",
+          "state": "Open",
+          "hp": 50,
+          "maxHp": 50,
+          "openDuration": 1
+        },
+        {
+          "id": "door-2",
+          "segment": [
+            {
+              "x": 5,
+              "y": 2
+            },
+            {
+              "x": 5,
+              "y": 3
+            }
+          ],
+          "orientation": "Horizontal",
+          "state": "Open",
+          "hp": 50,
+          "maxHp": 50,
+          "openDuration": 1
+        },
+        {
+          "id": "door-3",
+          "segment": [
+            {
+              "x": 5,
+              "y": 4
+            },
+            {
+              "x": 5,
+              "y": 5
+            }
+          ],
+          "orientation": "Horizontal",
+          "state": "Open",
+          "hp": 50,
+          "maxHp": 50,
+          "openDuration": 1
+        },
+        {
+          "id": "door-4",
+          "segment": [
+            {
+              "x": 2,
+              "y": 5
+            },
+            {
+              "x": 1,
+              "y": 5
+            }
+          ],
+          "orientation": "Vertical",
+          "state": "Closed",
+          "hp": 50,
+          "maxHp": 50,
+          "openDuration": 1
+        },
+        {
+          "id": "door-5",
+          "segment": [
+            {
+              "x": 2,
+              "y": 0
+            },
+            {
+              "x": 3,
+              "y": 0
+            }
+          ],
+          "orientation": "Vertical",
+          "state": "Closed",
+          "hp": 50,
+          "maxHp": 50,
+          "openDuration": 1,
+          "targetState": "Open",
+          "openTimer": 409.4994635497712
+        },
+        {
+          "id": "door-6",
+          "segment": [
+            {
+              "x": 1,
+              "y": 4
+            },
+            {
+              "x": 1,
+              "y": 3
+            }
+          ],
+          "orientation": "Horizontal",
+          "state": "Closed",
+          "hp": 50,
+          "maxHp": 50,
+          "openDuration": 1
+        },
+        {
+          "id": "door-7",
+          "segment": [
+            {
+              "x": 4,
+              "y": 0
+            },
+            {
+              "x": 5,
+              "y": 0
+            }
+          ],
+          "orientation": "Vertical",
+          "state": "Closed",
+          "hp": 50,
+          "maxHp": 50,
+          "openDuration": 1
+        },
+        {
+          "id": "door-8",
+          "segment": [
+            {
+              "x": 3,
+              "y": 4
+            },
+            {
+              "x": 3,
+              "y": 5
+            }
+          ],
+          "orientation": "Horizontal",
+          "state": "Closed",
+          "hp": 50,
+          "maxHp": 50,
+          "openDuration": 1
+        }
+      ],
+      "spawnPoints": [
+        {
+          "id": "sp-enemy-0",
+          "pos": {
+            "x": 4,
+            "y": 5
+          },
+          "radius": 1
+        }
+      ],
+      "squadSpawn": {
+        "x": 3,
+        "y": 3,
+        "type": "Floor",
+        "roomId": "room-3-3"
+      },
+      "squadSpawns": [
+        {
+          "x": 3,
+          "y": 3,
+          "type": "Floor",
+          "roomId": "room-3-3"
+        },
+        {
+          "x": 3,
+          "y": 5,
+          "type": "Floor",
+          "roomId": "room-3-5"
+        }
+      ],
+      "extraction": {
+        "x": 0,
+        "y": 0,
+        "type": "Floor",
+        "roomId": "room-0-0"
+      },
+      "objectives": [
+        {
+          "id": "obj-0",
+          "kind": "Recover",
+          "targetCell": {
+            "x": 5,
+            "y": 3
+          }
+        },
+        {
+          "id": "obj-1",
+          "kind": "Recover",
+          "targetCell": {
+            "x": 3,
+            "y": 0
+          }
+        }
+      ],
+      "generatorName": "DenseShip",
+      "boundaries": [
+        {
+          "x1": 0,
+          "y1": 0,
+          "x2": 0,
+          "y2": -1,
+          "type": "Wall"
+        },
+        {
+          "x1": 0,
+          "y1": 0,
+          "x2": 1,
+          "y2": 0,
+          "type": "Open"
+        },
+        {
+          "x1": 0,
+          "y1": 0,
+          "x2": 0,
+          "y2": 1,
+          "type": "Open"
+        },
+        {
+          "x1": 0,
+          "y1": 0,
+          "x2": -1,
+          "y2": 0,
+          "type": "Wall"
+        },
+        {
+          "x1": 1,
+          "y1": 0,
+          "x2": 1,
+          "y2": -1,
+          "type": "Wall"
+        },
+        {
+          "x1": 1,
+          "y1": 0,
+          "x2": 2,
+          "y2": 0,
+          "type": "Wall"
+        },
+        {
+          "x1": 1,
+          "y1": 0,
+          "x2": 1,
+          "y2": 1,
+          "type": "Open"
+        },
+        {
+          "x1": 2,
+          "y1": 0,
+          "x2": 2,
+          "y2": -1,
+          "type": "Wall"
+        },
+        {
+          "x1": 2,
+          "y1": 0,
+          "x2": 3,
+          "y2": 0,
+          "type": "Door",
+          "doorId": "door-5"
+        },
+        {
+          "x1": 2,
+          "y1": 0,
+          "x2": 2,
+          "y2": 1,
+          "type": "Open"
+        },
+        {
+          "x1": 3,
+          "y1": 0,
+          "x2": 3,
+          "y2": -1,
+          "type": "Wall"
+        },
+        {
+          "x1": 3,
+          "y1": 0,
+          "x2": 4,
+          "y2": 0,
+          "type": "Open"
+        },
+        {
+          "x1": 3,
+          "y1": 0,
+          "x2": 3,
+          "y2": 1,
+          "type": "Open"
+        },
+        {
+          "x1": 4,
+          "y1": 0,
+          "x2": 4,
+          "y2": -1,
+          "type": "Wall"
+        },
+        {
+          "x1": 4,
+          "y1": 0,
+          "x2": 5,
+          "y2": 0,
+          "type": "Door",
+          "doorId": "door-7"
+        },
+        {
+          "x1": 4,
+          "y1": 0,
+          "x2": 4,
+          "y2": 1,
+          "type": "Open"
+        },
+        {
+          "x1": 5,
+          "y1": 0,
+          "x2": 5,
+          "y2": -1,
+          "type": "Wall"
+        },
+        {
+          "x1": 5,
+          "y1": 0,
+          "x2": 6,
+          "y2": 0,
+          "type": "Wall"
+        },
+        {
+          "x1": 5,
+          "y1": 0,
+          "x2": 5,
+          "y2": 1,
+          "type": "Open"
+        },
+        {
+          "x1": 0,
+          "y1": 1,
+          "x2": 1,
+          "y2": 1,
+          "type": "Open"
+        },
+        {
+          "x1": 0,
+          "y1": 1,
+          "x2": 0,
+          "y2": 2,
+          "type": "Door",
+          "doorId": "door-1"
+        },
+        {
+          "x1": 0,
+          "y1": 1,
+          "x2": -1,
+          "y2": 1,
+          "type": "Wall"
+        },
+        {
+          "x1": 1,
+          "y1": 1,
+          "x2": 2,
+          "y2": 1,
+          "type": "Wall"
+        },
+        {
+          "x1": 1,
+          "y1": 1,
+          "x2": 1,
+          "y2": 2,
+          "type": "Wall"
+        },
+        {
+          "x1": 2,
+          "y1": 1,
+          "x2": 3,
+          "y2": 1,
+          "type": "Wall"
+        },
+        {
+          "x1": 2,
+          "y1": 1,
+          "x2": 2,
+          "y2": 2,
+          "type": "Open"
+        },
+        {
+          "x1": 3,
+          "y1": 1,
+          "x2": 4,
+          "y2": 1,
+          "type": "Open"
+        },
+        {
+          "x1": 3,
+          "y1": 1,
+          "x2": 3,
+          "y2": 2,
+          "type": "Wall"
+        },
+        {
+          "x1": 4,
+          "y1": 1,
+          "x2": 5,
+          "y2": 1,
+          "type": "Wall"
+        },
+        {
+          "x1": 4,
+          "y1": 1,
+          "x2": 4,
+          "y2": 2,
+          "type": "Wall"
+        },
+        {
+          "x1": 5,
+          "y1": 1,
+          "x2": 6,
+          "y2": 1,
+          "type": "Wall"
+        },
+        {
+          "x1": 5,
+          "y1": 1,
+          "x2": 5,
+          "y2": 2,
+          "type": "Wall"
+        },
+        {
+          "x1": 0,
+          "y1": 2,
+          "x2": 1,
+          "y2": 2,
+          "type": "Open"
+        },
+        {
+          "x1": 0,
+          "y1": 2,
+          "x2": 0,
+          "y2": 3,
+          "type": "Wall"
+        },
+        {
+          "x1": 0,
+          "y1": 2,
+          "x2": -1,
+          "y2": 2,
+          "type": "Wall"
+        },
+        {
+          "x1": 1,
+          "y1": 2,
+          "x2": 2,
+          "y2": 2,
+          "type": "Open"
+        },
+        {
+          "x1": 1,
+          "y1": 2,
+          "x2": 1,
+          "y2": 3,
+          "type": "Wall"
+        },
+        {
+          "x1": 2,
+          "y1": 2,
+          "x2": 3,
+          "y2": 2,
+          "type": "Open"
+        },
+        {
+          "x1": 2,
+          "y1": 2,
+          "x2": 2,
+          "y2": 3,
+          "type": "Open"
+        },
+        {
+          "x1": 3,
+          "y1": 2,
+          "x2": 4,
+          "y2": 2,
+          "type": "Open"
+        },
+        {
+          "x1": 3,
+          "y1": 2,
+          "x2": 3,
+          "y2": 3,
+          "type": "Wall"
+        },
+        {
+          "x1": 4,
+          "y1": 2,
+          "x2": 5,
+          "y2": 2,
+          "type": "Open"
+        },
+        {
+          "x1": 4,
+          "y1": 2,
+          "x2": 4,
+          "y2": 3,
+          "type": "Wall"
+        },
+        {
+          "x1": 5,
+          "y1": 2,
+          "x2": 6,
+          "y2": 2,
+          "type": "Wall"
+        },
+        {
+          "x1": 5,
+          "y1": 2,
+          "x2": 5,
+          "y2": 3,
+          "type": "Door",
+          "doorId": "door-2"
+        },
+        {
+          "x1": 0,
+          "y1": 3,
+          "x2": 1,
+          "y2": 3,
+          "type": "Open"
+        },
+        {
+          "x1": 0,
+          "y1": 3,
+          "x2": 0,
+          "y2": 4,
+          "type": "Wall"
+        },
+        {
+          "x1": 0,
+          "y1": 3,
+          "x2": -1,
+          "y2": 3,
+          "type": "Wall"
+        },
+        {
+          "x1": 1,
+          "y1": 3,
+          "x2": 2,
+          "y2": 3,
+          "type": "Wall"
+        },
+        {
+          "x1": 1,
+          "y1": 3,
+          "x2": 1,
+          "y2": 4,
+          "type": "Door",
+          "doorId": "door-6"
+        },
+        {
+          "x1": 2,
+          "y1": 3,
+          "x2": 3,
+          "y2": 3,
+          "type": "Wall"
+        },
+        {
+          "x1": 2,
+          "y1": 3,
+          "x2": 2,
+          "y2": 4,
+          "type": "Open"
+        },
+        {
+          "x1": 3,
+          "y1": 3,
+          "x2": 4,
+          "y2": 3,
+          "type": "Open"
+        },
+        {
+          "x1": 3,
+          "y1": 3,
+          "x2": 3,
+          "y2": 4,
+          "type": "Open"
+        },
+        {
+          "x1": 4,
+          "y1": 3,
+          "x2": 5,
+          "y2": 3,
+          "type": "Wall"
+        },
+        {
+          "x1": 4,
+          "y1": 3,
+          "x2": 4,
+          "y2": 4,
+          "type": "Open"
+        },
+        {
+          "x1": 5,
+          "y1": 3,
+          "x2": 6,
+          "y2": 3,
+          "type": "Wall"
+        },
+        {
+          "x1": 5,
+          "y1": 3,
+          "x2": 5,
+          "y2": 4,
+          "type": "Open"
+        },
+        {
+          "x1": 0,
+          "y1": 4,
+          "x2": 1,
+          "y2": 4,
+          "type": "Open"
+        },
+        {
+          "x1": 0,
+          "y1": 4,
+          "x2": 0,
+          "y2": 5,
+          "type": "Open"
+        },
+        {
+          "x1": 0,
+          "y1": 4,
+          "x2": -1,
+          "y2": 4,
+          "type": "Wall"
+        },
+        {
+          "x1": 1,
+          "y1": 4,
+          "x2": 2,
+          "y2": 4,
+          "type": "Wall"
+        },
+        {
+          "x1": 1,
+          "y1": 4,
+          "x2": 1,
+          "y2": 5,
+          "type": "Open"
+        },
+        {
+          "x1": 2,
+          "y1": 4,
+          "x2": 3,
+          "y2": 4,
+          "type": "Door",
+          "doorId": "door-0"
+        },
+        {
+          "x1": 2,
+          "y1": 4,
+          "x2": 2,
+          "y2": 5,
+          "type": "Open"
+        },
+        {
+          "x1": 3,
+          "y1": 4,
+          "x2": 4,
+          "y2": 4,
+          "type": "Open"
+        },
+        {
+          "x1": 3,
+          "y1": 4,
+          "x2": 3,
+          "y2": 5,
+          "type": "Door",
+          "doorId": "door-8"
+        },
+        {
+          "x1": 4,
+          "y1": 4,
+          "x2": 5,
+          "y2": 4,
+          "type": "Wall"
+        },
+        {
+          "x1": 4,
+          "y1": 4,
+          "x2": 4,
+          "y2": 5,
+          "type": "Wall"
+        },
+        {
+          "x1": 5,
+          "y1": 4,
+          "x2": 6,
+          "y2": 4,
+          "type": "Wall"
+        },
+        {
+          "x1": 5,
+          "y1": 4,
+          "x2": 5,
+          "y2": 5,
+          "type": "Door",
+          "doorId": "door-3"
+        },
+        {
+          "x1": 0,
+          "y1": 5,
+          "x2": 1,
+          "y2": 5,
+          "type": "Open"
+        },
+        {
+          "x1": 0,
+          "y1": 5,
+          "x2": 0,
+          "y2": 6,
+          "type": "Wall"
+        },
+        {
+          "x1": 0,
+          "y1": 5,
+          "x2": -1,
+          "y2": 5,
+          "type": "Wall"
+        },
+        {
+          "x1": 1,
+          "y1": 5,
+          "x2": 2,
+          "y2": 5,
+          "type": "Door",
+          "doorId": "door-4"
+        },
+        {
+          "x1": 1,
+          "y1": 5,
+          "x2": 1,
+          "y2": 6,
+          "type": "Wall"
+        },
+        {
+          "x1": 2,
+          "y1": 5,
+          "x2": 3,
+          "y2": 5,
+          "type": "Wall"
+        },
+        {
+          "x1": 2,
+          "y1": 5,
+          "x2": 2,
+          "y2": 6,
+          "type": "Wall"
+        },
+        {
+          "x1": 3,
+          "y1": 5,
+          "x2": 4,
+          "y2": 5,
+          "type": "Wall"
+        },
+        {
+          "x1": 3,
+          "y1": 5,
+          "x2": 3,
+          "y2": 6,
+          "type": "Wall"
+        },
+        {
+          "x1": 4,
+          "y1": 5,
+          "x2": 5,
+          "y2": 5,
+          "type": "Open"
+        },
+        {
+          "x1": 4,
+          "y1": 5,
+          "x2": 4,
+          "y2": 6,
+          "type": "Wall"
+        },
+        {
+          "x1": 5,
+          "y1": 5,
+          "x2": 6,
+          "y2": 5,
+          "type": "Wall"
+        },
+        {
+          "x1": 5,
+          "y1": 5,
+          "x2": 5,
+          "y2": 6,
+          "type": "Wall"
+        }
+      ]
+    },
+    "units": [
+      {
+        "id": "soldier_0",
+        "archetypeId": "assault",
+        "pos": {
+          "x": 5.000389875988481,
+          "y": 2.6855104784481227
+        },
+        "visualJitter": {
+          "x": -0.05334417261183262,
+          "y": 0.18551047844812274
+        },
+        "hp": 100,
+        "maxHp": 100,
+        "state": "Attacking",
+        "stats": {
+          "damage": 15,
+          "fireRate": 600,
+          "soldierAim": 90,
+          "equipmentAccuracyBonus": 0,
+          "accuracy": 100,
+          "attackRange": 1,
+          "speed": 20
+        },
+        "rightHand": "pulse_rifle",
+        "leftHand": "combat_knife",
+        "activeWeaponId": "combat_knife",
+        "aiProfile": "RUSH",
+        "engagementPolicy": "ENGAGE",
+        "engagementPolicySource": "Manual",
+        "commandQueue": [],
+        "aiEnabled": true,
+        "kills": 0,
+        "damageDealt": 0,
+        "objectivesCompleted": 0,
+        "activeCommand": {
+          "type": "MOVE_TO",
+          "unitIds": [
+            "soldier_0"
+          ],
+          "target": {
+            "x": 5,
+            "y": 4
+          },
+          "label": "Rushing"
+        },
+        "path": [
+          {
+            "x": 5,
+            "y": 2
+          },
+          {
+            "x": 5,
+            "y": 3
+          },
+          {
+            "x": 5,
+            "y": 4
+          }
+        ],
+        "targetPos": {
+          "x": 5.446655827388168,
+          "y": 2.6855104784481227
+        }
+      },
+      {
+        "id": "soldier_1",
+        "archetypeId": "medic",
+        "pos": {
+          "x": 0.5766686050158938,
+          "y": 1.9746243012183804
+        },
+        "visualJitter": {
+          "x": -0.0009081409312784672,
+          "y": 0.0711435528472066
+        },
+        "hp": 80,
+        "maxHp": 80,
+        "state": "Moving",
+        "stats": {
+          "damage": 15,
+          "fireRate": 500,
+          "soldierAim": 80,
+          "equipmentAccuracyBonus": 0,
+          "accuracy": 80,
+          "attackRange": 6,
+          "speed": 25
+        },
+        "rightHand": "pistol",
+        "leftHand": "combat_knife",
+        "activeWeaponId": "pistol",
+        "aiProfile": "RETREAT",
+        "engagementPolicy": "ENGAGE",
+        "engagementPolicySource": "Manual",
+        "commandQueue": [],
+        "aiEnabled": true,
+        "kills": 0,
+        "damageDealt": 0,
+        "objectivesCompleted": 0,
+        "activeCommand": {
+          "type": "MOVE_TO",
+          "unitIds": [
+            "soldier_1"
+          ],
+          "target": {
+            "x": 0,
+            "y": 1
+          },
+          "label": "Retreating"
+        },
+        "path": [
+          {
+            "x": 0,
+            "y": 1
+          }
+        ],
+        "targetPos": {
+          "x": 0.49909185906872156,
+          "y": 1.5711435528472066
+        }
+      },
+      {
+        "id": "soldier_2",
+        "archetypeId": "scout",
+        "pos": {
+          "x": 2.3356348326429726,
+          "y": 0.6642322328872978
+        },
+        "visualJitter": {
+          "x": -0.16436516735702755,
+          "y": 0.16423223288729788
+        },
+        "hp": 80,
+        "maxHp": 80,
+        "state": "Waiting for Door",
+        "stats": {
+          "damage": 15,
+          "fireRate": 500,
+          "soldierAim": 85,
+          "equipmentAccuracyBonus": 0,
+          "accuracy": 85,
+          "attackRange": 6,
+          "speed": 30
+        },
+        "rightHand": "pistol",
+        "leftHand": "combat_knife",
+        "activeWeaponId": "pistol",
+        "aiProfile": "RETREAT",
+        "engagementPolicy": "ENGAGE",
+        "engagementPolicySource": "Manual",
+        "commandQueue": [],
+        "aiEnabled": true,
+        "kills": 0,
+        "damageDealt": 0,
+        "objectivesCompleted": 0,
+        "activeCommand": {
+          "type": "MOVE_TO",
+          "unitIds": [
+            "soldier_2"
+          ],
+          "target": {
+            "x": 5,
+            "y": 0
+          },
+          "label": "Exploring"
+        },
+        "explorationTarget": {
+          "x": 5,
+          "y": 0
+        },
+        "path": [
+          {
+            "x": 3,
+            "y": 0
+          },
+          {
+            "x": 4,
+            "y": 0
+          },
+          {
+            "x": 5,
+            "y": 0
+          }
+        ],
+        "targetPos": {
+          "x": 3.3356348326429726,
+          "y": 0.6642322328872978
+        }
+      },
+      {
+        "id": "soldier_3",
+        "archetypeId": "heavy",
+        "pos": {
+          "x": 5.145963575090447,
+          "y": 2.5685344100558716
+        },
+        "visualJitter": {
+          "x": 0.08331178734079003,
+          "y": -0.15274938233196736
+        },
+        "hp": 120,
+        "maxHp": 120,
+        "state": "Attacking",
+        "stats": {
+          "damage": 80,
+          "fireRate": 3000,
+          "soldierAim": 70,
+          "equipmentAccuracyBonus": 0,
+          "accuracy": 75,
+          "attackRange": 1,
+          "speed": 15
+        },
+        "rightHand": "shotgun",
+        "leftHand": "thunder_hammer",
+        "activeWeaponId": "thunder_hammer",
+        "aiProfile": "STAND_GROUND",
+        "engagementPolicy": "ENGAGE",
+        "engagementPolicySource": "Manual",
+        "commandQueue": [],
+        "aiEnabled": true,
+        "kills": 0,
+        "damageDealt": 0,
+        "objectivesCompleted": 0,
+        "activeCommand": {
+          "type": "PICKUP",
+          "unitIds": [
+            "soldier_3"
+          ],
+          "lootId": "obj-0",
+          "label": "Recovering"
+        },
+        "path": [
+          {
+            "x": 5,
+            "y": 3
+          }
+        ],
+        "targetPos": {
+          "x": 5.58331178734079,
+          "y": 3.3472506176680326
+        }
+      }
+    ],
+    "enemies": [
+      {
+        "id": "enemy-0",
+        "pos": {
+          "x": 5.493794922604084,
+          "y": 2.966801236537915
+        },
+        "hp": 50,
+        "maxHp": 50,
+        "type": "Xeno-Mite",
+        "damage": 15,
+        "fireRate": 400,
+        "accuracy": 50,
+        "attackRange": 1,
+        "speed": 30,
+        "difficulty": 1,
+        "path": []
+      },
+      {
+        "id": "enemy-1",
+        "pos": {
+          "x": 5.5,
+          "y": 2.9924104554497175
+        },
+        "hp": 50,
+        "maxHp": 50,
+        "type": "Xeno-Mite",
+        "damage": 15,
+        "fireRate": 400,
+        "accuracy": 50,
+        "attackRange": 1,
+        "speed": 30,
+        "difficulty": 1,
+        "path": []
+      },
+      {
+        "id": "enemy-2",
+        "pos": {
+          "x": 5.5,
+          "y": 2.9620522772485876
+        },
+        "hp": 50,
+        "maxHp": 50,
+        "type": "Xeno-Mite",
+        "damage": 15,
+        "fireRate": 400,
+        "accuracy": 50,
+        "attackRange": 1,
+        "speed": 30,
+        "difficulty": 1,
+        "path": []
+      },
+      {
+        "id": "enemy-3",
+        "pos": {
+          "x": 5.5,
+          "y": 2.9620522772485876
+        },
+        "hp": 50,
+        "maxHp": 50,
+        "type": "Xeno-Mite",
+        "damage": 15,
+        "fireRate": 400,
+        "accuracy": 50,
+        "attackRange": 1,
+        "speed": 30,
+        "difficulty": 1,
+        "path": []
+      },
+      {
+        "id": "enemy-4",
+        "pos": {
+          "x": 5.5,
+          "y": 2.9620522772485876
+        },
+        "hp": 50,
+        "maxHp": 50,
+        "type": "Xeno-Mite",
+        "damage": 15,
+        "fireRate": 400,
+        "accuracy": 50,
+        "attackRange": 1,
+        "speed": 30,
+        "difficulty": 1,
+        "path": []
+      },
+      {
+        "id": "enemy-5",
+        "pos": {
+          "x": 5.491038571642756,
+          "y": 2.973045074467929
+        },
+        "hp": 50,
+        "maxHp": 50,
+        "type": "Xeno-Mite",
+        "damage": 15,
+        "fireRate": 400,
+        "accuracy": 50,
+        "attackRange": 1,
+        "speed": 30,
+        "difficulty": 1,
+        "path": []
+      },
+      {
+        "id": "enemy-6",
+        "pos": {
+          "x": 5.479428507145167,
+          "y": 2.959633613558579
+        },
+        "hp": 50,
+        "maxHp": 50,
+        "type": "Xeno-Mite",
+        "damage": 15,
+        "fireRate": 400,
+        "accuracy": 50,
+        "attackRange": 1,
+        "speed": 30,
+        "difficulty": 1,
+        "path": []
+      },
+      {
+        "id": "enemy-7",
+        "pos": {
+          "x": 5.4884777973831795,
+          "y": 2.979074291815588
+        },
+        "hp": 50,
+        "maxHp": 50,
+        "type": "Xeno-Mite",
+        "damage": 15,
+        "fireRate": 400,
+        "accuracy": 50,
+        "attackRange": 1,
+        "speed": 30,
+        "difficulty": 1,
+        "path": []
+      },
+      {
+        "id": "enemy-8",
+        "pos": {
+          "x": 5.495398090207166,
+          "y": 2.96472303483999
+        },
+        "hp": 50,
+        "maxHp": 50,
+        "type": "Xeno-Mite",
+        "damage": 15,
+        "fireRate": 400,
+        "accuracy": 50,
+        "attackRange": 1,
+        "speed": 30,
+        "difficulty": 1,
+        "path": []
+      },
+      {
+        "id": "enemy-9",
+        "pos": {
+          "x": 5.5,
+          "y": 2.9926128676991652
+        },
+        "hp": 120,
+        "maxHp": 120,
+        "type": "Spitter-Acid",
+        "damage": 30,
+        "fireRate": 1285.7142857142858,
+        "accuracy": 90,
+        "attackRange": 6,
+        "speed": 28,
+        "difficulty": 2,
+        "path": []
+      },
+      {
+        "id": "enemy-10",
+        "pos": {
+          "x": 5.478432741171478,
+          "y": 2.9728833536280006
+        },
+        "hp": 150,
+        "maxHp": 150,
+        "type": "Warrior-Drone",
+        "damage": 35,
+        "fireRate": 1000,
+        "accuracy": 75,
+        "attackRange": 1,
+        "speed": 24,
+        "difficulty": 2,
+        "path": []
+      },
+      {
+        "id": "enemy-11",
+        "pos": {
+          "x": 5.485382161937841,
+          "y": 2.980359487947737
+        },
+        "hp": 150,
+        "maxHp": 150,
+        "type": "Warrior-Drone",
+        "damage": 35,
+        "fireRate": 1000,
+        "accuracy": 75,
+        "attackRange": 1,
+        "speed": 24,
+        "difficulty": 2,
+        "path": []
+      },
+      {
+        "id": "enemy-12",
+        "pos": {
+          "x": 5.48910506590268,
+          "y": 2.968094015919876
+        },
+        "hp": 150,
+        "maxHp": 150,
+        "type": "Warrior-Drone",
+        "damage": 35,
+        "fireRate": 1000,
+        "accuracy": 75,
+        "attackRange": 1,
+        "speed": 24,
+        "difficulty": 2,
+        "path": []
+      },
+      {
+        "id": "enemy-13",
+        "pos": {
+          "x": 5.478567697427539,
+          "y": 2.9612275270696147
+        },
+        "hp": 50,
+        "maxHp": 50,
+        "type": "Xeno-Mite",
+        "damage": 15,
+        "fireRate": 400,
+        "accuracy": 50,
+        "attackRange": 1,
+        "speed": 30,
+        "difficulty": 1,
+        "path": []
+      },
+      {
+        "id": "enemy-14",
+        "pos": {
+          "x": 5.486753098404429,
+          "y": 2.955094653311844
+        },
+        "hp": 50,
+        "maxHp": 50,
+        "type": "Xeno-Mite",
+        "damage": 15,
+        "fireRate": 400,
+        "accuracy": 50,
+        "attackRange": 1,
+        "speed": 30,
+        "difficulty": 1,
+        "path": []
+      },
+      {
+        "id": "enemy-15",
+        "pos": {
+          "x": 5.4870533965741,
+          "y": 2.9582641151524545
+        },
+        "hp": 50,
+        "maxHp": 50,
+        "type": "Xeno-Mite",
+        "damage": 15,
+        "fireRate": 400,
+        "accuracy": 50,
+        "attackRange": 1,
+        "speed": 30,
+        "difficulty": 1,
+        "path": []
+      },
+      {
+        "id": "enemy-16",
+        "pos": {
+          "x": 5.476535867623324,
+          "y": 2.9993113531181868
+        },
+        "hp": 50,
+        "maxHp": 50,
+        "type": "Xeno-Mite",
+        "damage": 15,
+        "fireRate": 400,
+        "accuracy": 50,
+        "attackRange": 1,
+        "speed": 30,
+        "difficulty": 1,
+        "path": []
+      },
+      {
+        "id": "enemy-17",
+        "pos": {
+          "x": 5.4792052615889535,
+          "y": 2.9685558686170177
+        },
+        "hp": 50,
+        "maxHp": 50,
+        "type": "Xeno-Mite",
+        "damage": 15,
+        "fireRate": 400,
+        "accuracy": 50,
+        "attackRange": 1,
+        "speed": 30,
+        "difficulty": 1,
+        "path": []
+      },
+      {
+        "id": "enemy-18",
+        "pos": {
+          "x": 5.475064485881406,
+          "y": 2.9645671815593446
+        },
+        "hp": 150,
+        "maxHp": 150,
+        "type": "Warrior-Drone",
+        "damage": 35,
+        "fireRate": 1000,
+        "accuracy": 75,
+        "attackRange": 1,
+        "speed": 24,
+        "difficulty": 2,
+        "path": []
+      },
+      {
+        "id": "enemy-19",
+        "pos": {
+          "x": 5.5,
+          "y": 2.9620522772485876
+        },
+        "hp": 50,
+        "maxHp": 50,
+        "type": "Xeno-Mite",
+        "damage": 15,
+        "fireRate": 400,
+        "accuracy": 50,
+        "attackRange": 1,
+        "speed": 30,
+        "difficulty": 1,
+        "path": []
+      },
+      {
+        "id": "enemy-20",
+        "pos": {
+          "x": 5.5,
+          "y": 2.9897389796786147
+        },
+        "hp": 150,
+        "maxHp": 150,
+        "type": "Warrior-Drone",
+        "damage": 35,
+        "fireRate": 1000,
+        "accuracy": 75,
+        "attackRange": 1,
+        "speed": 24,
+        "difficulty": 2,
+        "path": []
+      },
+      {
+        "id": "enemy-21",
+        "pos": {
+          "x": 5.5,
+          "y": 2.9926128676991652
+        },
+        "hp": 120,
+        "maxHp": 120,
+        "type": "Spitter-Acid",
+        "damage": 30,
+        "fireRate": 1285.7142857142858,
+        "accuracy": 90,
+        "attackRange": 6,
+        "speed": 28,
+        "difficulty": 2,
+        "path": []
+      },
+      {
+        "id": "enemy-22",
+        "pos": {
+          "x": 4.531359999999982,
+          "y": 5.5
+        },
+        "hp": 120,
+        "maxHp": 120,
+        "type": "Spitter-Acid",
+        "damage": 30,
+        "fireRate": 1285.7142857142858,
+        "accuracy": 90,
+        "attackRange": 6,
+        "speed": 28,
+        "difficulty": 2,
+        "path": [
+          {
+            "x": 5,
+            "y": 5
+          },
+          {
+            "x": 5,
+            "y": 4
+          },
+          {
+            "x": 5,
+            "y": 3
+          },
+          {
+            "x": 5,
+            "y": 2
+          },
+          {
+            "x": 4,
+            "y": 2
+          },
+          {
+            "x": 3,
+            "y": 2
+          }
+        ],
+        "targetPos": {
+          "x": 5.5,
+          "y": 5.5
+        }
+      },
+      {
+        "id": "enemy-23",
+        "pos": {
+          "x": 5.5,
+          "y": 4.732274744919711
+        },
+        "hp": 150,
+        "maxHp": 150,
+        "type": "Warrior-Drone",
+        "damage": 35,
+        "fireRate": 1000,
+        "accuracy": 75,
+        "attackRange": 1,
+        "speed": 24,
+        "difficulty": 2,
+        "path": [
+          {
+            "x": 5,
+            "y": 3
+          },
+          {
+            "x": 5,
+            "y": 2
+          }
+        ],
+        "targetPos": {
+          "x": 5.5,
+          "y": 3.5
+        }
+      },
+      {
+        "id": "enemy-24",
+        "pos": {
+          "x": 5.400530613580641,
+          "y": 4.564713780958554
+        },
+        "hp": 50,
+        "maxHp": 50,
+        "type": "Xeno-Mite",
+        "damage": 15,
+        "fireRate": 400,
+        "accuracy": 50,
+        "attackRange": 1,
+        "speed": 30,
+        "difficulty": 1,
+        "path": [
+          {
+            "x": 5,
+            "y": 3
+          },
+          {
+            "x": 5,
+            "y": 2
+          }
+        ],
+        "targetPos": {
+          "x": 5.5,
+          "y": 3.5
+        }
+      },
+      {
+        "id": "enemy-25",
+        "pos": {
+          "x": 4.531359999999982,
+          "y": 5.5
+        },
+        "hp": 120,
+        "maxHp": 120,
+        "type": "Spitter-Acid",
+        "damage": 30,
+        "fireRate": 1285.7142857142858,
+        "accuracy": 90,
+        "attackRange": 6,
+        "speed": 28,
+        "difficulty": 2,
+        "path": [
+          {
+            "x": 5,
+            "y": 5
+          },
+          {
+            "x": 5,
+            "y": 4
+          },
+          {
+            "x": 5,
+            "y": 3
+          },
+          {
+            "x": 5,
+            "y": 2
+          },
+          {
+            "x": 4,
+            "y": 2
+          },
+          {
+            "x": 3,
+            "y": 2
+          },
+          {
+            "x": 2,
+            "y": 2
+          },
+          {
+            "x": 1,
+            "y": 2
+          },
+          {
+            "x": 0,
+            "y": 2
+          },
+          {
+            "x": 0,
+            "y": 1
+          },
+          {
+            "x": 0,
+            "y": 0
+          },
+          {
+            "x": 1,
+            "y": 0
+          }
+        ],
+        "targetPos": {
+          "x": 5.5,
+          "y": 5.5
+        }
+      },
+      {
+        "id": "enemy-26",
+        "pos": {
+          "x": 5.5,
+          "y": 4.540343431149583
+        },
+        "hp": 50,
+        "maxHp": 50,
+        "type": "Xeno-Mite",
+        "damage": 15,
+        "fireRate": 400,
+        "accuracy": 50,
+        "attackRange": 1,
+        "speed": 30,
+        "difficulty": 1,
+        "path": [
+          {
+            "x": 5,
+            "y": 3
+          },
+          {
+            "x": 5,
+            "y": 2
+          }
+        ],
+        "targetPos": {
+          "x": 5.5,
+          "y": 3.5
+        }
+      },
+      {
+        "id": "enemy-27",
+        "pos": {
+          "x": 5.420446963408582,
+          "y": 4.698702874652094
+        },
+        "hp": 150,
+        "maxHp": 150,
+        "type": "Warrior-Drone",
+        "damage": 35,
+        "fireRate": 1000,
+        "accuracy": 75,
+        "attackRange": 1,
+        "speed": 24,
+        "difficulty": 2,
+        "path": [
+          {
+            "x": 5,
+            "y": 3
+          },
+          {
+            "x": 5,
+            "y": 2
+          }
+        ],
+        "targetPos": {
+          "x": 5.5,
+          "y": 3.5
+        }
+      },
+      {
+        "id": "enemy-28",
+        "pos": {
+          "x": 5.5,
+          "y": 4.540343431149583
+        },
+        "hp": 50,
+        "maxHp": 50,
+        "type": "Xeno-Mite",
+        "damage": 15,
+        "fireRate": 400,
+        "accuracy": 50,
+        "attackRange": 1,
+        "speed": 30,
+        "difficulty": 1,
+        "path": [
+          {
+            "x": 5,
+            "y": 3
+          },
+          {
+            "x": 5,
+            "y": 2
+          }
+        ],
+        "targetPos": {
+          "x": 5.5,
+          "y": 3.5
+        }
+      },
+      {
+        "id": "enemy-29",
+        "pos": {
+          "x": 5.5,
+          "y": 4.8627297584198335
+        },
+        "hp": 120,
+        "maxHp": 120,
+        "type": "Spitter-Acid",
+        "damage": 30,
+        "fireRate": 1285.7142857142858,
+        "accuracy": 90,
+        "attackRange": 6,
+        "speed": 28,
+        "difficulty": 2,
+        "path": [
+          {
+            "x": 5,
+            "y": 4
+          }
+        ],
+        "targetPos": {
+          "x": 5.5,
+          "y": 4.5
+        }
+      }
+    ],
+    "loot": [],
+    "visibleCells": [
+      "2,1",
+      "0,2",
+      "1,2",
+      "2,2",
+      "3,2",
+      "4,2",
+      "5,2",
+      "5,3",
+      "5,4",
+      "0,0",
+      "1,0",
+      "0,1",
+      "1,1",
+      "2,0",
+      "3,0",
+      "4,0",
+      "4,1",
+      "2,3",
+      "2,4",
+      "2,5"
+    ],
+    "discoveredCells": [
+      "3,3",
+      "4,3",
+      "3,4",
+      "4,4",
+      "3,5",
+      "2,0",
+      "2,1",
+      "2,2",
+      "3,2",
+      "4,2",
+      "5,2",
+      "2,3",
+      "2,4",
+      "2,5",
+      "1,2",
+      "0,5",
+      "1,5",
+      "0,2",
+      "0,4",
+      "1,4",
+      "3,0",
+      "4,0",
+      "1,3",
+      "0,3",
+      "4,1",
+      "3,1",
+      "5,3",
+      "5,4",
+      "0,0",
+      "0,1",
+      "1,0",
+      "1,1"
+    ],
+    "objectives": [
+      {
+        "id": "obj-0",
+        "kind": "Recover",
+        "targetCell": {
+          "x": 5,
+          "y": 3
+        },
+        "state": "Pending",
+        "visible": true
+      },
+      {
+        "id": "obj-1",
+        "kind": "Recover",
+        "targetCell": {
+          "x": 3,
+          "y": 0
+        },
+        "state": "Completed",
+        "visible": true,
+        "scrapRewarded": true
+      }
+    ],
+    "stats": {
+      "threatLevel": 52.34025495067275,
+      "aliensKilled": 0,
+      "elitesKilled": 0,
+      "scrapGained": 25,
+      "casualties": 0
+    },
+    "status": "Playing",
+    "settings": {
+      "mode": "Simulation",
+      "debugOverlayEnabled": true,
+      "losOverlayEnabled": false,
+      "timeScale": 0.05,
+      "isPaused": false,
+      "isSlowMotion": true,
+      "allowTacticalPause": true
+    },
+    "squadInventory": {
+      "medkit": 1,
+      "frag_grenade": 2
+    },
+    "commandLog": [
+      {
+        "tick": 0,
+        "command": {
+          "type": "EXPLORE",
+          "unitIds": [
+            "soldier_0",
+            "soldier_1",
+            "soldier_2",
+            "soldier_3"
+          ]
+        }
+      },
+      {
+        "tick": 52231.45495067296,
+        "command": {
+          "type": "TOGGLE_DEBUG_OVERLAY",
+          "enabled": true
+        }
+      }
+    ]
+  },
+  "mapGenerator": "DenseShip",
+  "version": "0.106.4",
+  "timestamp": 1768867780307
+}
