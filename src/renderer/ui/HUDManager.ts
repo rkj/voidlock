@@ -48,7 +48,7 @@ export class HUDManager {
   private updateTopBar(state: GameState) {
     const statusElement = document.getElementById("game-status");
     if (statusElement) {
-      statusElement.innerHTML = `<span style="color:var(--color-text-muted)">Time:</span>${(state.t / 1000).toFixed(1)}s`;
+      statusElement.innerHTML = `<span style="color:var(--color-text-muted); text-transform:uppercase; letter-spacing:1px; font-size:0.8em;">Time</span> ${(state.t / 1000).toFixed(1)}s`;
     }
 
     const threatLevel = state.stats.threatLevel || 0;
@@ -98,6 +98,12 @@ export class HUDManager {
           : 0.0
         : state.settings.timeScale;
       speedValue.textContent = TimeUtility.formatSpeed(scale, isPaused);
+    }
+
+    const btn = document.getElementById("btn-pause-toggle") as HTMLButtonElement;
+    if (btn) {
+      const isPaused = state.settings.isPaused;
+      btn.textContent = isPaused ? "▶ PLAY" : "|| PAUSE";
     }
   }
 
@@ -404,13 +410,13 @@ export class HUDManager {
              <span class="u-speed-box"></span>
           </div>
           <div class="weapon-stats-container" style="font-size:0.65em; margin-top:4px; display:flex; flex-direction:column; gap:2px; border-top:1px solid var(--color-surface-elevated); padding-top:2px;">
-             <div class="u-lh-row" style="display:flex; gap:6px; align-items:center;">
-                <span style="color:var(--color-text-dim); width:15px;">LH:</span>
-                <span class="u-lh-stats" style="display:flex; gap:6px;"></span>
+             <div class="u-lh-row" style="display:flex; gap:6px; align-items:center; padding: 1px 2px;">
+                <span style="color:var(--color-text-dim); flex: 0 0 24px;">LH:</span>
+                <span class="u-lh-stats" style="display:flex; gap:8px;"></span>
              </div>
-             <div class="u-rh-row" style="display:flex; gap:6px; align-items:center;">
-                <span style="color:var(--color-text-dim); width:15px;">RH:</span>
-                <span class="u-rh-stats" style="display:flex; gap:6px;"></span>
+             <div class="u-rh-row" style="display:flex; gap:6px; align-items:center; padding: 1px 2px;">
+                <span style="color:var(--color-text-dim); flex: 0 0 24px;">RH:</span>
+                <span class="u-rh-stats" style="display:flex; gap:8px;"></span>
              </div>
           </div>
           <div class="status-row" style="font-size:0.75em; color:var(--color-text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;">
