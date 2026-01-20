@@ -23,6 +23,7 @@ export class GameClient {
   private worker: Worker;
   private onStateUpdateCb: ((state: GameState) => void) | null = null;
   private mapGeneratorFactory: MapGeneratorFactory;
+  private isStopped: boolean = false;
 
   // Replay State
   private initialSeed: number = 0;
@@ -45,6 +46,7 @@ export class GameClient {
     });
 
     this.worker.onmessage = (e: MessageEvent<MainMessage>) => {
+      if (this.isStopped) return;
       const msg = e.data;
       if (msg.type === "STATE_UPDATE") {
         if (typeof localStorage !== "undefined" && msg.payload.settings.mode === EngineMode.Simulation) {
@@ -83,6 +85,7 @@ export class GameClient {
     missionDepth: number = 0,
     nodeType?: string, // Actually CampaignNodeType but string is fine for the client
   ) {
+    this.isStopped = false;
     this.initialSeed = seed;
     this.initialSquadConfig = squadConfig;
 
@@ -400,6 +403,7 @@ export class GameClient {
   }
 
   public stop() {
+    this.isStopped = true;
     this.clearMissionData();
     const msg: WorkerMessage = {
       type: "STOP",
@@ -408,6 +412,7 @@ export class GameClient {
   }
 
   public terminate() {
+    this.isStopped = true;
     this.clearMissionData();
     this.worker.terminate();
   }

@@ -936,6 +936,11 @@ export class GameApp {
   }
 
   private abortMission() {
+    if (this.currentCampaignNode) {
+      const report = this.generateAbortReport();
+      this.context.campaignManager.processMissionResult(report);
+    }
+
     this.context.gameClient.stop();
     this.context.gameClient.onStateUpdate(null);
 
@@ -946,6 +951,52 @@ export class GameApp {
       if (tsValue) tsValue.textContent = "1.0";
     }
     this.showMainMenu();
+  }
+
+  private generateAbortReport(): MissionReport {
+    const state = this.currentGameState;
+    const node = this.currentCampaignNode;
+
+    if (state) {
+      return {
+        nodeId: node ? node.id : "custom",
+        seed: this.currentSeed,
+        result: "Lost",
+        aliensKilled: state.stats.aliensKilled,
+        scrapGained: state.stats.scrapGained,
+        intelGained: 0,
+        timeSpent: state.t,
+        soldierResults: state.units.map((u) => ({
+          soldierId: u.id,
+          xpBefore: 0,
+          xpGained: 0,
+          kills: u.kills,
+          promoted: false,
+          status: "Dead", // Abort = Squad Wipe
+          recoveryTime: 0,
+        })),
+      };
+    }
+
+    // Fallback if no game state
+    return {
+      nodeId: node ? node.id : "custom",
+      seed: this.currentSeed,
+      result: "Lost",
+      aliensKilled: 0,
+      scrapGained: 0,
+      intelGained: 0,
+      timeSpent: 0,
+      soldierResults: this.currentSquad.soldiers.map((s) => ({
+        soldierId: s.id!,
+        xpBefore: 0,
+        xpGained: 0,
+        kills: 0,
+        promoted: false,
+        status: "Dead",
+        recoveryTime: 0,
+      })),
+    };
   }
 
   private loadAndApplyConfig(isCampaign: boolean = false) {
