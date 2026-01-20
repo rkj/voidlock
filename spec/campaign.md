@@ -232,6 +232,17 @@ Stored independently of individual save files (e.g., `voidlock_meta_v1`).
 - **Continue**: Resumes the active campaign state (if any).
   - **Restart**: If a campaign is already active (or game over), the "New Campaign" flow must warn the user that the current save will be overwritten.
 
+### 4.4 Mission Abort Flow
+
+- **Trigger**: User selects "Give Up" or "Abort Mission" from the Pause Menu.
+- **State Cleanup**:
+  - The Active Mission Session (Engine State) MUST be cleared from persistence immediately.
+  - The `currentMission` pointer in `CampaignManager` implies a "Loss".
+- **Outcome**:
+  - **Campaign Mode**: Treated as a **Defeat** (Squad Wipe logic applies unless "Retreat" logic is implemented). Returns to Campaign Hub (or Game Over screen).
+  - **Custom Mode**: Returns to Mission Setup.
+- **Anti-Pattern**: The user MUST NOT be dropped back into the *same* tactical state upon restarting the game or the mission.
+
 ### 4.3 Mission Launch Constraints
 
 - **Configuration Locking**: When launching a mission from the Campaign Bridge:

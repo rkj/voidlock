@@ -17,6 +17,9 @@ The application is divided into distinct screens to reduce UI clutter and improv
 - **Import**: "Load Replay JSON" file picker.
 
 1. **Mission Setup Screen** (formerly Config Screen)
+   - **Shell Integration**:
+     - **Campaign Mode**: MUST be rendered *within* the `CampaignShell` content area to ensure the Global Resource Header (Scrap/Intel) is visible.
+     - **Custom Mode**: Can use the standalone layout.
    - **Campaign Context Header**:
      - **Location**: Below the "Mission Configuration" title.
      - **Content**:
