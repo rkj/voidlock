@@ -276,8 +276,8 @@ describe("Campaign End Integration", () => {
     const victoryOverlay = document.querySelector(".campaign-victory-overlay");
     expect(victoryOverlay).not.toBeNull();
     expect(victoryOverlay?.textContent).toContain("Sector Secured");
-    expect(victoryOverlay?.textContent).toContain("Aliens Killed: 42");
-    expect(victoryOverlay?.textContent).toContain("Missions: 1");
+    expect(victoryOverlay?.textContent).toMatch(/Aliens Killed:\s*42/);
+    expect(victoryOverlay?.textContent).toMatch(/Missions:\s*1/);
 
     // 7. Verify Return to Main Menu works
     const menuBtn = Array.from(document.querySelectorAll(".campaign-summary-screen button")).find(b => b.textContent?.includes("Retire to Main Menu")) as HTMLElement;
