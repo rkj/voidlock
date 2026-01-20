@@ -244,7 +244,7 @@ export class GameApp {
             this.currentCampaignNode = null;
             this.context.themeManager.setTheme("default");
             this.loadAndApplyConfig(false);
-            this.context.campaignShell.hide();
+            this.context.campaignShell.show("custom");
             this.context.screenManager.show("mission-setup");
         },
         onCampaignMenu: () => {
@@ -394,9 +394,13 @@ export class GameApp {
           this.context.screenManager.show("campaign-summary");
           this.context.campaignShell.hide();
         } else {
-          this.campaignScreen.show();
-          this.context.screenManager.show("campaign");
           this.context.campaignShell.show("campaign", "sector-map");
+        }
+      } else if (persistedScreen === "mission-setup") {
+        if (this.currentCampaignNode) {
+          this.context.campaignShell.show("campaign", "sector-map");
+        } else {
+          this.context.campaignShell.show("custom");
         }
       } else if (persistedScreen === "equipment") {
         this.equipmentScreen.updateConfig(this.currentSquad);
@@ -581,7 +585,7 @@ export class GameApp {
       if (spVal) spVal.textContent = spInput.value;
     }
 
-    this.context.campaignShell.hide();
+    this.context.campaignShell.show("campaign", "sector-map");
     this.context.screenManager.show("mission-setup");
   }
 

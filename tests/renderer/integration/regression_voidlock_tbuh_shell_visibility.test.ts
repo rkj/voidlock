@@ -219,7 +219,7 @@ describe("Regression: Campaign Shell Visibility (voidlock-tbuh)", () => {
     // 4. Verify we are on Mission Setup
     expect(missionSetup?.style.display).toBe("flex");
     
-    // BUG: Shell should be hidden, but it's likely still "flex"
-    expect(shell?.style.display).toBe("none");
+    // Spec 8.5: Campaign Mode MUST be rendered within the CampaignShell
+    expect(shell?.style.display).toBe("flex");
   });
 });
