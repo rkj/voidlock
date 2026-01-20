@@ -34,6 +34,7 @@ This directory contains the automated test suite for the Voidlock renderer, usin
 - `integration/NonCombatNodes.test.ts`: Verifies handling of Shop and Event nodes in Campaign mode.
 - `integration/EquipmentPersistence.test.ts`: Verifies that equipment changes in the Ready Room are correctly persisted to the campaign roster.
 - `integration/CampaignMapGenerator.test.ts`: Verifies that campaign-specific map generator settings are correctly applied when launching a mission.
+- `integration/regression_voidlock_awkx_setup_shell.test.ts`: Regression test verifying CampaignShell visibility on Mission Setup.
 - `integration/E2E_CampaignWin.test.ts`: E2E Campaign Happy Path test from start to victory.
 - `integration/E2E_CampaignLoss.test.ts`: E2E Campaign failure mode tests (Ironman defeat, Standard casualties).
 - `integration/FullCampaignFlow.test.ts`: Comprehensive E2E campaign flow test covering starting a campaign, handling casualties, boss victory, and bankruptcy/defeat.
