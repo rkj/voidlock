@@ -56,6 +56,8 @@ export class MissionReconciler {
 
     if (report.result === "Won" && (node?.type === "Boss" || isLastNode)) {
       state.status = "Victory";
+    } else if (report.result === "Lost" && (node?.type === "Boss" || isLastNode)) {
+      state.status = "Defeat";
     }
 
     // 3. Update soldiers
@@ -168,6 +170,17 @@ export class MissionReconciler {
     state.scrap += scrapGained;
     state.intel += intelGained;
 
+    // Advance time for wounded soldiers
+    state.roster.forEach((s) => {
+      if (s.recoveryTime && s.recoveryTime > 0) {
+        s.recoveryTime--;
+        if (s.recoveryTime === 0 && s.status === "Wounded") {
+          s.status = "Healthy";
+          s.hp = s.maxHp;
+        }
+      }
+    });
+
     state.history.push({
       nodeId: nodeId,
       seed: 0,
@@ -184,8 +197,9 @@ export class MissionReconciler {
    * Checks if the campaign is in a bankruptcy state.
    */
   public checkBankruptcy(state: CampaignState): boolean {
-    const aliveCount = state.roster.filter((s) => s.status !== "Dead").length;
+    const healthyCount = state.roster.filter((s) => s.status === "Healthy")
+      .length;
     const canAffordRecruit = state.scrap >= 100;
-    return aliveCount === 0 && !canAffordRecruit;
+    return healthyCount === 0 && !canAffordRecruit;
   }
 }

@@ -943,6 +943,15 @@ export class GameApp {
     if (this.currentCampaignNode) {
       const report = this.generateAbortReport();
       this.context.campaignManager.processMissionResult(report);
+
+      const state = this.context.campaignManager.getState();
+      if (state && (state.status === "Victory" || state.status === "Defeat")) {
+        this.context.gameClient.stop();
+        this.context.gameClient.onStateUpdate(null);
+        this.campaignSummaryScreen.show(state);
+        this.context.screenManager.show("campaign-summary");
+        return;
+      }
     }
 
     this.context.gameClient.stop();
