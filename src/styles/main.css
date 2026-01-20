@@ -11,6 +11,7 @@
   --color-primary: #0f0; /* Voidlock Green */
   --color-accent: #0af;
   --color-danger: #f00;
+  --color-error: var(--color-danger);
   --color-warning: #ff9800;
   --color-success: #4caf50;
   --color-success-muted: rgba(0, 255, 0, 0.2);
@@ -987,10 +988,17 @@ label {
   font-weight: bold;
 }
 
-.primary-button:hover {
+.danger-button {
+  background-color: var(--color-danger);
+  color: #fff;
+  border-color: var(--color-danger);
+  font-weight: bold;
+}
+
+.danger-button:hover {
   background-color: #fff;
-  color: #000;
-  box-shadow: 0 0 10px var(--color-primary);
+  color: var(--color-danger);
+  box-shadow: 0 0 10px var(--color-danger);
 }
 
 .event-choice-button:hover {
@@ -1103,4 +1111,116 @@ label {
   border-radius: 4px;
   display: flex;
   gap: 8px;
+}
+
+/* Campaign Summary Screen */
+.campaign-summary-screen {
+  position: absolute;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  backdrop-filter: blur(10px);
+}
+
+.campaign-victory-overlay {
+  background: rgba(0, 20, 0, 0.95);
+  border: 8px solid var(--color-primary);
+  box-shadow: inset 0 0 100px rgba(0, 255, 0, 0.2);
+}
+
+.campaign-game-over {
+  background: rgba(20, 0, 0, 0.95);
+  border: 8px solid var(--color-danger);
+  box-shadow: inset 0 0 100px rgba(255, 0, 0, 0.2);
+}
+
+.summary-header {
+  font-size: 5em;
+  letter-spacing: 12px;
+  margin: 0 0 10px 0;
+  text-transform: uppercase;
+}
+
+.campaign-victory-overlay .summary-header {
+  color: var(--color-primary);
+  text-shadow: 0 0 30px var(--color-primary);
+}
+
+.campaign-game-over .summary-header {
+  color: var(--color-danger);
+  text-shadow: 0 0 30px var(--color-danger);
+}
+
+.summary-subheader {
+  font-size: 2em;
+  letter-spacing: 4px;
+  margin: 0 0 40px 0;
+  color: var(--color-text-dim);
+  text-transform: uppercase;
+}
+
+.summary-content {
+  display: flex;
+  flex-direction: row;
+  gap: 40px;
+  width: 100%;
+  max-width: 1200px;
+  justify-content: center;
+}
+
+.summary-panel {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.02);
+  padding: 30px;
+  border: 1px solid var(--color-border-strong);
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-panel-title {
+  margin: 0 0 20px 0;
+  font-size: 1.2em;
+  color: var(--color-text-dim);
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 10px;
+  text-transform: uppercase;
+}
+
+.summary-stat-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.5em;
+  margin-bottom: 20px;
+}
+
+.summary-roster-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.summary-roster-item {
+  padding: 10px 15px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.summary-footer {
+  margin-top: 60px;
+}
+
+.summary-button {
+  padding: 25px 80px;
+  font-size: 1.8em;
+  letter-spacing: 4px;
+  text-transform: uppercase;
 }

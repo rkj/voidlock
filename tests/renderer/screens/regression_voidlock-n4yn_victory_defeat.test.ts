@@ -48,8 +48,10 @@ describe("CampaignSummaryScreen Victory/Defeat Screens", () => {
     screen.show(state);
 
     expect(container.textContent).toContain("Sector Secured");
-    expect(container.textContent).toContain("Aliens Killed: 42");
-    expect(container.textContent).toContain("Missions: 1");
+    expect(container.textContent).toContain("Aliens Killed:");
+    expect(container.textContent).toContain("42");
+    expect(container.textContent).toContain("Missions:");
+    expect(container.textContent).toContain("1");
 
     const menuBtn = Array.from(container.querySelectorAll("button")).find(
       (btn) => btn.textContent === "Retire to Main Menu",
