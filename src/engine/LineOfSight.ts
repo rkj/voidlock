@@ -70,6 +70,12 @@ export class LineOfSight {
   }
 
   public hasLineOfFire(start: Vector2, end: Vector2): boolean {
+    if (
+      Math.floor(start.x) === Math.floor(end.x) &&
+      Math.floor(start.y) === Math.floor(end.y)
+    ) {
+      return true;
+    }
     const rays = this.getSampledRays(start, end);
     return rays.every((ray) =>
       this.raycast(ray.start, ray.end, (boundary, frac) => {
