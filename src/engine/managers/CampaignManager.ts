@@ -373,6 +373,7 @@ export class CampaignManager {
 
     this.missionReconciler.processMissionResult(this.state, report);
 
+
     // 4.5 Update MetaManager
     const casualties = report.soldierResults.filter(
       (r) => r.status === "Dead",
