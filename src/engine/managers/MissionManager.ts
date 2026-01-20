@@ -12,6 +12,7 @@ import {
 import { PRNG } from "../../shared/PRNG";
 import { EnemyManager } from "./EnemyManager";
 import { LootManager } from "./LootManager";
+import { PlacementValidator, OccupantType } from "../generators/PlacementValidator";
 
 export class MissionManager {
   constructor(
@@ -27,6 +28,7 @@ export class MissionManager {
     nodeType?: CampaignNodeType,
     lootManager?: LootManager,
   ) {
+    const validator = PlacementValidator.fromMap(map);
     let objectives: Objective[] = (map.objectives || []).map((o) => ({
       ...o,
       state: "Pending",
@@ -68,6 +70,7 @@ export class MissionManager {
       const floors = map.cells.filter((c) => c.type === CellType.Floor);
       const extraction = map.extraction || { x: 0, y: 0 };
       const candidates = floors.filter((c) => {
+        if (validator.isCellOccupied(c)) return false;
         const dx = c.x - extraction.x;
         const dy = c.y - extraction.y;
         return Math.sqrt(dx * dx + dy * dy) > map.width * 0.4;
@@ -111,6 +114,7 @@ export class MissionManager {
       if (nodeType === "Boss" || nodeType === "Elite") {
         // Find a room for the Hive that's far from extraction
         const roomCandidates = floors.filter((c) => {
+          if (validator.isCellOccupied(c)) return false;
           const isRoom = c.roomId && c.roomId.startsWith("room-");
           if (!isRoom) return false;
 
@@ -153,6 +157,7 @@ export class MissionManager {
       const floors = map.cells.filter((c) => c.type === CellType.Floor);
       const extraction = map.extraction || { x: 0, y: 0 };
       const candidates = floors.filter((c) => {
+        if (validator.isCellOccupied(c)) return false;
         const isRoom = c.roomId && c.roomId.startsWith("room-");
         if (!isRoom) return false;
 
