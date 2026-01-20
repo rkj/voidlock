@@ -30,8 +30,12 @@ export class DebriefScreen {
     if (!this.report) return;
 
     this.container.innerHTML = "";
-    this.container.className = "screen debrief-screen flex-col align-center justify-center p-20";
+    this.container.className = "screen debrief-screen";
     this.container.style.display = "flex";
+
+    const inner = document.createElement("div");
+    inner.className = "debrief-inner";
+    this.container.appendChild(inner);
 
     const isWon = this.report.result === "Won";
 
@@ -39,45 +43,39 @@ export class DebriefScreen {
     const header = document.createElement("h1");
     header.textContent = isWon ? "Mission Success" : "Mission Failed";
     header.className = `debrief-header ${isWon ? "success" : "failed"}`;
-    this.container.appendChild(header);
+    inner.appendChild(header);
 
     const subHeader = document.createElement("div");
     subHeader.textContent = isWon
       ? "All objectives completed."
       : "Squad wiped or mission aborted.";
-    subHeader.style.color = "var(--color-text-muted)";
-    subHeader.style.marginBottom = "40px";
-    subHeader.style.fontSize = "1.2em";
-    this.container.appendChild(subHeader);
+    subHeader.className = "debrief-subheader";
+    inner.appendChild(subHeader);
 
     // Main Content Grid
     const content = document.createElement("div");
-    content.style.display = "grid";
-    content.style.gridTemplateColumns = "1fr 1.5fr";
-    content.style.gap = "30px";
-    content.style.maxWidth = "1000px";
-    content.style.width = "100%";
-    this.container.appendChild(content);
+    content.className = "debrief-content";
+    inner.appendChild(content);
 
     // Left Panel: Stats
     const statsPanel = this.createPanel("Mission Statistics");
     statsPanel.innerHTML += `
-      <div class="flex-row justify-between" style="margin-bottom: 15px; font-size: 1.1em;">
+      <div class="debrief-stat-row">
         <span>Xenos Neutralized:</span>
         <span style="color:var(--color-hive); font-weight:bold;">${this.report.aliensKilled}</span>
       </div>
-      <div class="flex-row justify-between" style="margin-bottom: 15px; font-size: 1.1em;">
+      <div class="debrief-stat-row">
         <span>Operation Time:</span>
         <span style="color:var(--color-accent); font-weight:bold;">${(this.report.timeSpent / 60).toFixed(1)}s</span>
       </div>
-      <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid var(--color-border);">
-        <div class="flex-row justify-between" style="margin-bottom: 10px;">
-          <span style="font-size: 1.2em;">Scrap Recovered:</span>
-          <span style="color:var(--color-primary); font-weight:bold; font-size: 1.2em;">+${this.report.scrapGained}</span>
+      <div class="debrief-resource-section">
+        <div class="debrief-resource-row">
+          <span>Scrap Recovered:</span>
+          <span style="color:var(--color-primary); font-weight:bold;">+${this.report.scrapGained}</span>
         </div>
-        <div class="flex-row justify-between">
-          <span style="font-size: 1.2em;">Intel Gathered:</span>
-          <span style="color:var(--color-accent); font-weight:bold; font-size: 1.2em;">+${this.report.intelGained}</span>
+        <div class="debrief-resource-row">
+          <span>Intel Gathered:</span>
+          <span style="color:var(--color-accent); font-weight:bold;">+${this.report.intelGained}</span>
         </div>
       </div>
     `;
@@ -116,14 +114,14 @@ export class DebriefScreen {
           </span>
         </div>
         
-        <div style="margin-top: 10px;">
+        <div class="debrief-xp-container">
           <div class="flex-row justify-between" style="font-size: 0.8em; color: var(--color-text-muted); margin-bottom: 4px;">
             <span>XP: ${res.xpBefore} (+${res.xpGained})</span>
             <span>${xpAfter} / ${nextLevelThreshold}</span>
           </div>
-          <div style="height: 8px; background: var(--color-surface-elevated); border: 1px solid var(--color-border-strong); position: relative; overflow: hidden;">
-            <div style="height: 100%; background: var(--color-primary); width: ${progressBefore}%; position: absolute; left: 0; top: 0; z-index: 2;"></div>
-            <div style="height: 100%; background: var(--color-accent); width: ${progressAfter}%; position: absolute; left: 0; top: 0; z-index: 1;"></div>
+          <div class="debrief-xp-bar">
+            <div class="debrief-xp-fill-before" style="width: ${progressBefore}%;"></div>
+            <div class="debrief-xp-fill-after" style="width: ${progressAfter}%;"></div>
           </div>
         </div>
 
@@ -139,20 +137,16 @@ export class DebriefScreen {
 
     // Footer
     const footer = document.createElement("div");
-    footer.style.marginTop = "50px";
+    footer.className = "debrief-footer";
 
     const continueBtn = document.createElement("button");
     continueBtn.textContent = "Return to Command Bridge";
-    continueBtn.style.padding = "20px 60px";
-    continueBtn.style.fontSize = "1.4em";
-    continueBtn.style.letterSpacing = "2px";
-    continueBtn.style.background = "var(--color-success-muted)";
-    continueBtn.style.borderColor = "var(--color-primary)";
+    continueBtn.className = "debrief-button";
 
     continueBtn.onclick = () => this.onContinue();
     footer.appendChild(continueBtn);
 
-    this.container.appendChild(footer);
+    inner.appendChild(footer);
   }
 
   private createPanel(title: string): HTMLElement {
@@ -161,11 +155,7 @@ export class DebriefScreen {
 
     const h2 = document.createElement("h2");
     h2.textContent = title;
-    h2.className = "stat-label";
-    h2.style.fontSize = "1.2em";
-    h2.style.borderBottom = "1px solid var(--color-border)";
-    h2.style.paddingBottom = "10px";
-    h2.style.margin = "0 0 20px 0";
+    h2.className = "stat-label debrief-panel-title";
     panel.appendChild(h2);
 
     return panel;

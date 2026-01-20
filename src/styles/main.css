@@ -651,6 +651,19 @@ label {
   left: 0;
   width: 100%;
   height: 100%;
+  overflow-y: auto;
+  padding: 50px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.debrief-inner {
+  margin: auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
 }
 
 .debrief-header {
@@ -676,12 +689,95 @@ label {
   flex-direction: column;
 }
 
+.debrief-panel-title {
+  font-size: 1.2em;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 10px;
+  margin: 0 0 20px 0;
+}
+
 .debrief-item {
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid var(--color-border);
   padding: 15px;
   margin-bottom: 10px;
   display: flex; flex-direction: column;
+}
+
+.debrief-subheader {
+  color: var(--color-text-muted);
+  margin-bottom: 40px;
+  font-size: 1.2em;
+}
+
+.debrief-content {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 30px;
+  max-width: 1000px;
+  width: 100%;
+}
+
+.debrief-stat-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  font-size: 1.1em;
+}
+
+.debrief-resource-section {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-border);
+}
+
+.debrief-resource-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-size: 1.2em;
+}
+
+.debrief-xp-container {
+  margin-top: 10px;
+}
+
+.debrief-xp-bar {
+  height: 8px;
+  background: var(--color-surface-elevated);
+  border: 1px solid var(--color-border-strong);
+  position: relative;
+  overflow: hidden;
+}
+
+.debrief-xp-fill-before {
+  height: 100%;
+  background: var(--color-primary);
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 2;
+}
+
+.debrief-xp-fill-after {
+  height: 100%;
+  background: var(--color-accent);
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
+
+.debrief-footer {
+  margin-top: 50px;
+}
+
+.debrief-button {
+  padding: 20px 60px;
+  font-size: 1.4em;
+  letter-spacing: 2px;
+  background: var(--color-success-muted);
+  border-color: var(--color-primary);
 }
 
 /* Campaign Map */
