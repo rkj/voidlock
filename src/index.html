@@ -282,10 +282,7 @@
       <div id="screen-mission" class="screen">
         <!-- 1. Top Bar -->
         <div id="top-bar" class="top-bar">
-          <div
-            id="game-status"
-            style="font-weight: bold; color: var(--color-primary)"
-          >
+          <div id="game-status">
             Time: 0.0s
           </div>
           <div
@@ -305,8 +302,10 @@
                 font-size: 0.8em;
                 color: var(--color-text-muted);
                 white-space: nowrap;
+                text-transform: uppercase;
+                letter-spacing: 1px;
               "
-              >Threat:</span
+              >Threat</span
             >
             <div id="top-threat-bar" class="threat-bar">
               <!-- Robust Flex-based Dividers every 10% -->
@@ -403,41 +402,18 @@
                 font-size: 0.8em;
                 color: var(--color-success);
                 min-width: 40px;
+                font-weight: bold;
               "
               >0%</span
             >
           </div>
 
           <!-- Speed Control -->
-          <div
-            id="speed-control"
-            style="
-              display: flex;
-              align-items: center;
-              gap: 5px;
-              margin-left: 20px;
-            "
-          >
-            <button
-              id="btn-pause-toggle"
-              style="
-                margin: 0;
-                padding: 2px 10px;
-                min-width: 60px;
-                font-size: 0.8em;
-              "
-            >
-              ⏸ Pause
+          <div id="speed-control">
+            <button id="btn-pause-toggle">
+              || PAUSE
             </button>
-            <label
-              for="game-speed"
-              style="
-                font-size: 0.8em;
-                color: var(--color-text-muted);
-                margin: 0;
-              "
-              >Speed:</label
-            >
+            <label for="game-speed">SPEED</label>
             <input
               type="range"
               id="game-speed"
@@ -445,30 +421,19 @@
               max="100"
               step="1"
               value="50"
-              style="width: 80px"
+              style="width: 80px; margin: 0;"
               title="Game Speed (0.1x to 10.0x)"
             />
-            <span
-              id="speed-value"
-              style="
-                font-size: 0.8em;
-                color: var(--color-text-muted);
-                min-width: 30px;
-              "
-              >1.0x</span
-            >
+            <span id="speed-value">1.0x</span>
           </div>
 
           <button
             id="btn-give-up"
             style="
-              margin-left: 10px;
-              padding: 2px 10px;
-              font-size: 0.8em;
               background-color: #442222;
               border-color: #ff4444;
               color: #ffcccc;
-              white-space: nowrap;
+              margin-left: 10px;
             "
           >
             Give Up

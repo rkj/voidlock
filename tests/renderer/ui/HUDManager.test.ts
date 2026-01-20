@@ -101,7 +101,7 @@ describe("HUDManager", () => {
     hud.update(mockState, null);
 
     const statusEl = document.getElementById("game-status");
-    expect(statusEl?.innerHTML).toContain("Time:</span>1.0s");
+    expect(statusEl?.innerHTML).toContain("Time</span> 1.0s");
     expect(statusEl?.innerHTML).not.toContain("STATUS:");
 
     const threatValue = document.getElementById("top-threat-value");
