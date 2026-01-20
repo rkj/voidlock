@@ -33,7 +33,7 @@ describe("CampaignManager Bankruptcy", () => {
     expect(state.status).toBe("Active");
   });
 
-  it("should NOT trigger bankruptcy if there are wounded soldiers even if scrap < 100", () => {
+  it("should trigger bankruptcy if there are only wounded soldiers and scrap < 100", () => {
     manager.startNewCampaign(12345, "Normal");
     const state = manager.getState()!;
     state.scrap = 50;
@@ -51,7 +51,7 @@ describe("CampaignManager Bankruptcy", () => {
     };
 
     manager.processMissionResult(report);
-    expect(state.status).toBe("Active");
+    expect(state.status).toBe("Defeat");
   });
 
   it("should trigger bankruptcy if all soldiers are dead AND scrap < 100", () => {

@@ -1,4 +1,4 @@
-import { Vector2 } from "../../shared/types";
+import { Vector2, MapDefinition } from "../../shared/types";
 
 export enum OccupantType {
   SquadSpawn = "SquadSpawn",
@@ -18,6 +18,53 @@ export class PlacementValidator {
 
   private getCellKey(pos: Vector2): string {
     return `${pos.x},${pos.y}`;
+  }
+
+  /**
+   * Creates a PlacementValidator populated with existing occupants from a map definition.
+   */
+  public static fromMap(map: MapDefinition): PlacementValidator {
+    const validator = new PlacementValidator();
+
+    const getRoomId = (pos: Vector2) => {
+      return map.cells.find((c) => c.x === pos.x && c.y === pos.y)?.roomId;
+    };
+
+    if (map.squadSpawn)
+      validator.occupy(
+        map.squadSpawn,
+        OccupantType.SquadSpawn,
+        getRoomId(map.squadSpawn),
+      );
+    if (map.squadSpawns)
+      map.squadSpawns.forEach((s) =>
+        validator.occupy(s, OccupantType.SquadSpawn, getRoomId(s)),
+      );
+    if (map.extraction)
+      validator.occupy(
+        map.extraction,
+        OccupantType.Extraction,
+        getRoomId(map.extraction),
+      );
+    if (map.spawnPoints)
+      map.spawnPoints.forEach((s) =>
+        validator.occupy(s.pos, OccupantType.EnemySpawn, getRoomId(s.pos)),
+      );
+    if (map.objectives)
+      map.objectives.forEach((o) => {
+        if (o.targetCell)
+          validator.occupy(
+            o.targetCell,
+            OccupantType.Objective,
+            getRoomId(o.targetCell),
+          );
+      });
+    if (map.bonusLoot)
+      map.bonusLoot.forEach((l) =>
+        validator.occupy(l, OccupantType.Loot, getRoomId(l)),
+      );
+
+    return validator;
   }
 
   /**
@@ -64,6 +111,9 @@ export class PlacementValidator {
     if (enforceRoomExclusivity && roomId && this.isRoomOccupied(roomId)) {
       // Allow multiple occupants of the same type in the same room (e.g. multiple squad spawns)
       if (this.occupiedRooms.get(roomId) !== type) {
+        // CRITICAL: Even if room exclusivity is violated, we MUST mark the cell as occupied
+        // to prevent other entities (like Loot) from overlapping with this specific cell.
+        this.occupiedCells.set(this.getCellKey(pos), type);
         return false;
       }
     }
