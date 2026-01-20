@@ -1,7 +1,7 @@
 import { ScreenId } from "@src/renderer/ScreenManager";
 
 export const VALID_TRANSITIONS: Record<ScreenId, ScreenId[]> = {
-  "main-menu": ["campaign", "mission-setup", "statistics"],
+  "main-menu": ["campaign", "mission-setup", "statistics", "mission"],
   campaign: ["main-menu", "barracks", "equipment", "mission", "mission-setup", "campaign-summary"],
   "mission-setup": ["main-menu", "equipment", "mission", "campaign"],
   equipment: ["campaign", "mission-setup", "mission", "main-menu"],
