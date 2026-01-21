@@ -120,6 +120,12 @@ export class InteractionBehavior implements Behavior {
       }
     }
 
+    // 4. Use Item Interaction
+    if (unit.activeCommand?.type === CommandType.USE_ITEM) {
+      context.executeCommand(unit, unit.activeCommand, state, true, _director);
+      return true;
+    }
+
     return false;
   }
 }

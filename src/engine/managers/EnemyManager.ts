@@ -37,6 +37,45 @@ export class EnemyManager {
     prng: PRNG,
     combatManager: CombatManager,
   ) {
+    // 1. Mine Explosions
+    const triggeredMineIds = new Set<string>();
+    state.mines.forEach((mine) => {
+      const triggeringEnemy = state.enemies.find(
+        (e) =>
+          e.hp > 0 &&
+          Math.floor(e.pos.x) === Math.floor(mine.pos.x) &&
+          Math.floor(e.pos.y) === Math.floor(mine.pos.y),
+      );
+
+      if (triggeringEnemy) {
+        triggeredMineIds.add(mine.id);
+
+        const targetX = Math.floor(mine.pos.x);
+        const targetY = Math.floor(mine.pos.y);
+
+        state.enemies.forEach((e) => {
+          if (
+            Math.floor(e.pos.x) === targetX &&
+            Math.floor(e.pos.y) === targetY
+          ) {
+            e.hp -= mine.damage;
+          }
+        });
+
+        state.units.forEach((u) => {
+          if (
+            Math.floor(u.pos.x) === targetX &&
+            Math.floor(u.pos.y) === targetY
+          ) {
+            u.hp -= mine.damage;
+          }
+        });
+      }
+    });
+
+    state.mines = state.mines.filter((m) => !triggeredMineIds.has(m.id));
+
+    // 2. Enemy AI & Movement
     state.enemies.forEach((enemy) => {
       if (enemy.hp <= 0) return;
 

@@ -18,15 +18,22 @@ describe("Regression voidlock-ilv8 - Landmine Flow", () => {
       seed: 12345,
       missionType: MissionType.Default,
       map: { width: 10, height: 10, cells: [
-        { x: 5, y: 5, type: "Floor", roomId: "room1" } as any
+        { x: 5, y: 5, type: "Floor", roomId: "corridor-1" } as any,
+        { x: 4, y: 5, type: "Floor", roomId: "corridor-1" } as any,
+        { x: 6, y: 5, type: "Floor", roomId: "corridor-1" } as any,
+        { x: 5, y: 4, type: "Floor", roomId: "corridor-1" } as any,
+      ], boundaries: [
+        { x1: 5, y1: 5, x2: 4, y2: 5, type: "Open" } as any,
+        { x1: 5, y1: 5, x2: 6, y2: 5, type: "Open" } as any,
+        { x1: 5, y1: 5, x2: 5, y2: 4, type: "Open" } as any,
       ] },
       units: [
-        { id: "u1", pos: { x: 0.5, y: 0.5 }, state: UnitState.Idle, hp: 100, maxHp: 100 } as any,
-        { id: "u2", pos: { x: 1.5, y: 0.5 }, state: UnitState.Idle, hp: 100, maxHp: 100 } as any,
+        { id: "u1", pos: { x: 8.5, y: 8.5 }, state: UnitState.Idle, hp: 100, maxHp: 100 } as any,
+        { id: "u2", pos: { x: 9.5, y: 8.5 }, state: UnitState.Idle, hp: 100, maxHp: 100 } as any,
       ],
       enemies: [],
-      visibleCells: ["5,5"],
-      discoveredCells: ["5,5"],
+      visibleCells: ["5,5", "8,8", "9,8"],
+      discoveredCells: ["5,5", "8,8", "9,8"],
       objectives: [],
       loot: [],
       stats: {

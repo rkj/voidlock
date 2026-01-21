@@ -9,6 +9,7 @@ import {
   AIProfile,
 } from "../../shared/types";
 import { Pathfinder } from "../Pathfinder";
+import { SPEED_NORMALIZATION_CONST } from "../Constants";
 
 export class CommandExecutor {
   constructor(private pathfinder: Pathfinder) {}
@@ -242,11 +243,15 @@ export class CommandExecutor {
           }
 
           if (item.channelTime && item.channelTime > 0) {
+            // Scale duration by unit speed: Actual = Base * (30 / Speed)
+            const scaledDuration =
+              item.channelTime * (SPEED_NORMALIZATION_CONST / unit.stats.speed);
+
             unit.state = UnitState.Channeling;
             unit.channeling = {
               action: "UseItem",
-              remaining: item.channelTime,
-              totalDuration: item.channelTime,
+              remaining: scaledDuration,
+              totalDuration: scaledDuration,
             };
             unit.path = undefined;
             unit.targetPos = undefined;

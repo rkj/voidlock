@@ -13,7 +13,8 @@ export type OverlayType =
   | "ITEM"
   | "INTERSECTION"
   | "FRIENDLY_UNIT"
-  | "HOSTILE_UNIT";
+  | "HOSTILE_UNIT"
+  | "PLACEMENT_POINT";
 
 /**
  * Handles generation of tactical map overlays for target selection.
@@ -111,6 +112,68 @@ export class TargetOverlayGenerator {
           });
           intersectionCounter++;
         }
+      });
+    } else if (type === "PLACEMENT_POINT") {
+      const placementPositions = new Set<string>();
+
+      const isRoom = (c: { roomId?: string }) =>
+        !!c.roomId && !c.roomId.startsWith("corridor-");
+
+      // 1. Current Soldier Position
+      gameState.units.forEach((u) => {
+        if (u.state !== UnitState.Dead && u.state !== UnitState.Extracted) {
+          const ux = Math.floor(u.pos.x);
+          const uy = Math.floor(u.pos.y);
+          placementPositions.add(`${ux},${uy}`);
+        }
+      });
+
+      // 2. Corridor Intersections
+      gameState.map.cells.forEach((cell) => {
+        if (cell.type !== CellType.Floor) return;
+        const key = `${cell.x},${cell.y}`;
+        if (!gameState.discoveredCells.includes(key)) return;
+
+        const cellIsRoom = isRoom(cell);
+        if (cellIsRoom) return; // Strictly corridor only for intersections
+
+        // Get boundaries for this cell
+        const cellBoundaries = (gameState.map.boundaries || []).filter(
+          (b: BoundaryDefinition) =>
+            (b.x1 === cell.x && b.y1 === cell.y) ||
+            (b.x2 === cell.x && b.y2 === cell.y),
+        );
+
+        // Count connections (Open or Door)
+        let connections = 0;
+        cellBoundaries.forEach((b: BoundaryDefinition) => {
+          if (b.type === BoundaryType.Open || b.type === BoundaryType.Door) {
+            connections++;
+          }
+        });
+
+        // Corridor Intersection
+        if (connections >= 3) {
+          placementPositions.add(key);
+        }
+      });
+
+      let placementCounter = 0;
+      // Sort keys to ensure deterministic ordering (important for UI menu keys)
+      const sortedPositions = Array.from(placementPositions).sort((a, b) => {
+        const [ax, ay] = a.split(",").map(Number);
+        const [bx, by] = b.split(",").map(Number);
+        return ay !== by ? ay - by : ax - bx;
+      });
+
+      sortedPositions.forEach((posKey) => {
+        const [x, y] = posKey.split(",").map(Number);
+        options.push({
+          key: this.getRoomKey(placementCounter),
+          label: `Place Mine`,
+          pos: { x, y },
+        });
+        placementCounter++;
       });
     } else if (type === "CELL") {
       // Add Rooms in Discovery Order FIRST to ensure stable keys 1, 2, etc.
