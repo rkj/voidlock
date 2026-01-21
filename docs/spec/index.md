@@ -1,9 +1,9 @@
-# Core Game Mechanics
+# Voidlock Specifications
 
 **Version:** 1.2
 **Core Concept:** Single-player, Real-Time with Pause (RTwP) tactical squad combat in a claustrophobic spaceship environment.
 
-This document serves as the **Game Design Document (GDD) Index**. The detailed specifications have been modularized to improve readability and agent context management.
+This document serves as the **Game Design Document (GDD)** and the index for all detailed specifications.
 
 ---
 
@@ -29,38 +29,50 @@ This document serves as the **Game Design Document (GDD) Index**. The detailed s
 
 Agents and developers should consult the specific files below for implementation details:
 
-- **[Simulation & Protocol](spec/simulation.md)**
+- **[Simulation & Protocol](simulation.md)**
   - Game Loop Architecture (Tick-based)
   - Determinism & PRNG
   - Engine ↔ Client Protocol (JSON)
   - Fog of War Logic
   - Persistence
 
-- **[World Model & Map](spec/map.md)**
+- **[World Model & Map](map.md)**
   - The Grid (Shared Walls / Edges)
   - Map Generation & Content Packs
   - ASCII Map Representation
   - Map Viewer Utility
 
-- **[Units & Combat](spec/combat_units.md)**
+- **[Units & Combat](combat_units.md)**
   - Unit Stats (Speed, Health)
   - Weapon & Accuracy Model (Angular Dispersion)
 
-- **[Command System & AI](spec/commands.md)**
+- **[Command System & AI](commands.md)**
   - Command Protocol (MOVE, STOP, ATTACK)
   - Specialized Behaviors (Escort, Overwatch)
 
-- **[AI & Game Logic](spec/ai.md)**
+- **[AI & Game Logic](ai.md)**
   - Enemy AI Behaviors
   - Soldier Logic (Engagement, Self-preservation)
   - The Director (Spawning Algorithm)
 
-- **[User Interface](spec/ui.md)**
+- **[Items & Abilities](items.md)**
+  - Global Inventory (Pool)
+  - Commander Abilities (Instant)
+  - Tactical Actions (Timed/Unit-Driven)
+
+- **[User Interface](ui.md)**
   - Screen Flow & Layout
   - Control Scheme (Keyboard/Mouse)
   - Mission Configuration
 
-- **[Developer Guide](spec/dev_guide.md)**
+- **[Campaign & Meta](campaign.md)**
+  - Sector Map Logic
+  - Economy (Scrap) & Roster Management
+
+- **[Backlog & Future](backlog.md)**
+  - Planned features and roadmap.
+
+- **[Developer Guide](dev_guide.md)**
   - Acceptance Criteria
   - Testing Strategy
   - Agent Debugging Protocols
