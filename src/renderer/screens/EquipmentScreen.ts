@@ -24,6 +24,11 @@ export class EquipmentScreen {
   private onUpdate?: () => void;
   private inspector: SoldierInspector;
   private isShop: boolean = false;
+  private savedScrollTop: { left: number; center: number; right: number } = {
+    left: 0,
+    center: 0,
+    right: 0,
+  };
 
   constructor(
     containerId: string,
@@ -96,6 +101,14 @@ export class EquipmentScreen {
   }
 
   private render() {
+    // Save scroll positions before clearing
+    const oldLeft = this.container.querySelector(".soldier-list-panel");
+    const oldCenter = this.container.querySelector(".soldier-equipment-panel");
+    const oldRight = this.container.querySelector(".armory-panel");
+    if (oldLeft) this.savedScrollTop.left = oldLeft.scrollTop;
+    if (oldCenter) this.savedScrollTop.center = oldCenter.scrollTop;
+    if (oldRight) this.savedScrollTop.right = oldRight.scrollTop;
+
     this.container.innerHTML = "";
     this.container.className = "screen equipment-screen flex-col h-full";
     this.container.style.display = "flex";
@@ -109,12 +122,14 @@ export class EquipmentScreen {
 
     // Left: Soldier List
     const leftPanel = this.createPanel("Soldier List", "250px");
+    leftPanel.classList.add("soldier-list-panel");
     leftPanel.style.overflowY = "auto";
     leftPanel.style.padding = "10px";
     this.renderSoldierList(leftPanel);
 
     // Center: Paper Doll / Slots
     const centerPanel = this.createPanel("Soldier Equipment", "1fr");
+    centerPanel.classList.add("soldier-equipment-panel");
     centerPanel.style.overflowY = "auto";
     centerPanel.style.padding = "10px";
     const centerBody = document.createElement("div");
@@ -124,6 +139,7 @@ export class EquipmentScreen {
 
     // Right: Armory / Global Inventory
     const rightPanel = this.createPanel("Armory & Supplies", "400px");
+    rightPanel.classList.add("armory-panel");
     rightPanel.style.overflowY = "auto";
     rightPanel.style.padding = "10px";
     this.renderRightPanel(rightPanel);
@@ -132,6 +148,11 @@ export class EquipmentScreen {
     contentWrapper.appendChild(centerPanel);
     contentWrapper.appendChild(rightPanel);
     this.container.appendChild(contentWrapper);
+
+    // Restore scroll positions
+    leftPanel.scrollTop = this.savedScrollTop.left;
+    centerPanel.scrollTop = this.savedScrollTop.center;
+    rightPanel.scrollTop = this.savedScrollTop.right;
 
     // Footer Buttons (Direct child of container)
     const footer = document.createElement("div");
@@ -233,7 +254,7 @@ export class EquipmentScreen {
     const supplyItems = Object.values(ItemLibrary).filter((i) => i.action);
     supplyItems.forEach((item) => {
       const row = document.createElement("div");
-      row.className = "flex-row justify-between align-center card";
+      row.className = "flex-row justify-between align-center card w-full";
       row.style.marginBottom = "8px";
       row.style.padding = "8px 12px";
       row.style.gap = "10px";
@@ -243,7 +264,7 @@ export class EquipmentScreen {
       nameGroup.className = "flex-col";
       nameGroup.style.flexGrow = "1";
       nameGroup.innerHTML = `
-        <div class="flex-row justify-between" style="font-weight:bold; font-size: 0.9em;">
+        <div class="flex-row justify-between" style="font-weight:bold; font-size: 0.9em; width: 100%;">
             <span>${item.name}</span>
             <span style="color:var(--color-primary);">${item.cost} CR</span>
         </div>

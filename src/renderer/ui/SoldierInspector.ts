@@ -378,8 +378,8 @@ export class SoldierInspector {
           : "var(--color-text-muted)";
 
       btn.innerHTML = `
-            <div class="flex-col">
-                <div class="flex-row justify-between" style="font-weight:bold; font-size: 0.95em;">
+            <div class="flex-col" style="width: 100%;">
+                <div class="flex-row justify-between" style="font-weight:bold; font-size: 0.95em; width: 100%;">
                     <span>${item.name}</span>
                     <span style="color:${priceColor};">${priceText}</span>
                 </div>
