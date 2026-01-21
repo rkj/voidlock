@@ -49,6 +49,10 @@ Only once Docs are updated, map work to `bd`.
 * **ADR Linkage:** If applicable, add: "Ref: `docs/adr/00X-name.md`".
 * **No Backticks:** NEVER use backticks (`) in `--description`. Use single quotes or plain text.
 
+**Command Reference:**
+*   **Create Task:** `bd create 'Title' --type <type> --description 'Description' --priority <P0-P4>`
+*   **Create with Dep:** `bd create 'Title' --type <type> --description '...' --deps <ID>`
+
 **Execution Rules:**
 1.  **SERIAL ONLY:** `bd` commands must be executed **one at a time**.
 2.  **TDD ENFORCEMENT:** When creating a bug fix task, always create the reproduction test task first and link them immediately.
