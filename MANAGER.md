@@ -11,7 +11,12 @@
 1. **DELEGATE IMMEDIATELY**: As soon as you pick a task ID, run the `dispatch_agent.sh` command. Do not hesitate.
 1. **EFFICIENT QUERYING**: NEVER run `bd list` without a `--status` filter (e.g., `bd list --status in_progress`). Unfiltered lists are too large and wasteful.
 1. **ADR ENFORCEMENT**: Implementation details (class names, method signatures, patterns) belong in **ADRs** (`docs/adr/`), NOT in `spec/` or Beads descriptions. If a complex task lacks an ADR, create a dependency task to write one first.
-1. **TDD ENFORCEMENT**: For any `bug` type task, there MUST be a blocking task that creates a failing regression test first. If missing, create the test task and link it before dispatching the fix.
+1. **TDD ENFORCEMENT**:
+   - **Logic Bugs**: Must have a failing unit/integration test (JSDOM/Node).
+   - **Visual/Layout Bugs**: MUST have a failing **E2E test** (`tests/e2e/`) using Puppeteer.
+     - The test must navigate to the specific state.
+     - It must capture a screenshot (for manual review) OR assert layout metrics (scrollTop, coordinates) in the browser context.
+     - **Do not accept JSDOM tests for CSS/Scroll issues.**
 
 ## 1. Session Startup
 
@@ -73,7 +78,8 @@ run_shell_command("./scripts/dispatch_agent.sh <TASK_ID>")
 3. **Test**: Run `npx vitest run`.
    - _Check_: **CRITICAL**: All changes MUST be confirmed by tests first. Sub-agents are required to write/update tests before or alongside implementation.
 4. **Verify (Visual)**: If the task touched UI, CSS, or Layout:
-   - **YOU MUST** run `navigate_page("http://192.168.20.8:5173/")` and `take_screenshot()`.
+   - **YOU MUST** navigate to the **specific screen and state** modified. A screenshot of the Main Menu is **NOT** verification.
+   - **Interactive Validation**: Use `click`, `fill`, and `evaluate_script` to reach the feature. If fixing a bug, you must reproduce the state (e.g., scroll down, open modal) before capturing the screenshot.
    - **DO NOT TRUST** JSDOM tests for layout/scrolling. Look at the image.
    - _🚨 Regression Rule_: If browser validation discovers a problem that automated tests missed, the sub-agent MUST be re-dispatched with an instruction to FIRST write a failing test for the issue, then fix it.
 5. **Build**: Run `npm run build`.
