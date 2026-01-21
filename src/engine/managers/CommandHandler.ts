@@ -19,6 +19,18 @@ export class CommandHandler {
     if (state.status !== "Playing") return;
 
     if (cmd.type === CommandType.USE_ITEM) {
+      const item = ItemLibrary[cmd.itemId];
+      const isGlobal = item && (item.action === "Heal" || item.action === "Grenade" || item.action === "Scanner");
+
+      if (isGlobal && cmd.unitIds.length === 0) {
+        const count = state.squadInventory[cmd.itemId] || 0;
+        if (count > 0) {
+          state.squadInventory[cmd.itemId] = count - 1;
+          this.director.handleUseItem(state, cmd);
+        }
+        return;
+      }
+
       const count = state.squadInventory[cmd.itemId] || 0;
       if (count > 0) {
         cmd.unitIds.forEach((id) => {

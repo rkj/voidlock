@@ -132,7 +132,7 @@ export class OverlayLayer implements RenderLayer {
     ctx.textBaseline = "middle";
 
     this.sharedState.overlayOptions.forEach((opt) => {
-      if (opt.pos) {
+      if (opt.pos && opt.renderOnBoard !== false) {
         let drawX = opt.pos.x;
         let drawY = opt.pos.y;
         if (Number.isInteger(drawX)) drawX += 0.5;

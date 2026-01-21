@@ -152,18 +152,14 @@ export class MenuController {
         this.selection.pendingTargetId = unitAtCell.id;
       }
 
-      // Special case: Healing items bypass UNIT_SELECT and use all active units
+      // Special case: Global items bypass UNIT_SELECT
       const item = this.selection.pendingItemId ? ItemLibrary[this.selection.pendingItemId] : null;
-      if (this.selection.pendingUnitIds && this.selection.pendingUnitIds.length > 0) {
+      const isGlobal = item && (item.action === "Heal" || item.action === "Grenade" || item.action === "Scanner");
+
+      if (isGlobal) {
+        this.executePendingCommand([]);
+      } else if (this.selection.pendingUnitIds && this.selection.pendingUnitIds.length > 0) {
         this.executePendingCommand(this.selection.pendingUnitIds);
-      } else if (
-        this.selection.pendingAction === CommandType.USE_ITEM &&
-        item?.action === "Heal"
-      ) {
-        const activeUnits = gameState.units.filter(
-          (u) => u.state !== UnitState.Dead && u.state !== UnitState.Extracted,
-        );
-        this.executePendingCommand(activeUnits.map((u) => u.id));
       } else {
         this.transitionTo("UNIT_SELECT");
       }
@@ -298,10 +294,10 @@ export class MenuController {
             "FRIENDLY_UNIT",
             gameState,
             this.discovery,
-          );
+          ).map((opt) => ({ ...opt, renderOnBoard: false }));
         } else if (item?.action === "Grenade") {
           this.selection.overlayOptions = TargetOverlayGenerator.generate(
-            "HOSTILE_UNIT",
+            "CELL",
             gameState,
             this.discovery,
           );
@@ -333,16 +329,12 @@ export class MenuController {
       this.selection.overlayOptions = [];
 
       const item = this.selection.pendingItemId ? ItemLibrary[this.selection.pendingItemId] : null;
-      if (this.selection.pendingUnitIds && this.selection.pendingUnitIds.length > 0) {
+      const isGlobal = item && (item.action === "Heal" || item.action === "Grenade" || item.action === "Scanner");
+
+      if (isGlobal) {
+        this.executePendingCommand([]);
+      } else if (this.selection.pendingUnitIds && this.selection.pendingUnitIds.length > 0) {
         this.executePendingCommand(this.selection.pendingUnitIds);
-      } else if (
-        this.selection.pendingAction === CommandType.USE_ITEM &&
-        item?.action === "Heal"
-      ) {
-        const activeUnits = gameState.units.filter(
-          (u) => u.state !== UnitState.Dead && u.state !== UnitState.Extracted,
-        );
-        this.executePendingCommand(activeUnits.map((u) => u.id));
       } else {
         this.transitionTo("UNIT_SELECT");
       }
@@ -437,10 +429,10 @@ export class MenuController {
             "FRIENDLY_UNIT",
             gameState,
             this.discovery,
-          );
+          ).map((opt) => ({ ...opt, renderOnBoard: false }));
         } else if (item?.action === "Grenade") {
           this.selection.overlayOptions = TargetOverlayGenerator.generate(
-            "HOSTILE_UNIT",
+            "CELL",
             gameState,
             this.discovery,
           );
