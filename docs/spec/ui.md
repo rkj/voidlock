@@ -173,7 +173,8 @@ To ensure consistent navigation, the UI follows a strict state machine.
 **Item Targeting Context:**
 - **Grenades:** `TARGET_SELECT` filter = **Visible Enemies** (If none, disable option).
 - **Medkits/Stimpacks:** `TARGET_SELECT` filter = **Friendly Units**.
-- **Mines/Scanners:** `TARGET_SELECT` filter = **Grid Cells** (Range limited).
+- **Mines:** `TARGET_SELECT` filter = **Placement Points** (Intersections/Exits).
+- **Scanners:** `TARGET_SELECT` filter = **Grid Cells** (Anywhere in FOW).
 
 #### 8.3.2 Menu Hierarchy (Visual)
 
@@ -410,5 +411,3 @@ To ensure consistency between the visual representation and the simulation logic
 - **Door Struts**: Doors only occupy the middle 1/3 of a cell boundary. The outer 1/3 segments (struts) MUST always block LOS and LOF, regardless of the door's state.
 - **Unit Precision**: LOS and LOF checks between units MUST account for the unit's physical radius. A single center-to-center ray is insufficient; the simulation should verify that a "fat" ray (or multiple sampled rays) can pass without hitting solid geometry.
 - **Corner Cutting**: Shots passing extremely close to wall corners MUST be blocked if any part of the unit's radius would collide with the corner.
-
-

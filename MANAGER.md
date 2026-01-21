@@ -7,10 +7,10 @@
 3. **YOU ARE A ROUTER**: Your job is to select a task and dispatch a worker.
 1. **SEPARATE COMMANDS**: Always execute commands as separate tool calls. Do NOT chain them with `&&`, `||`, or `;`.
 1. **DO NOT READ SOURCE CODE**: You are FORBIDDEN from reading `.ts`, `.html`, or `.css` files before the Verification phase. You do not need to understand the implementation details to assign the task.
-1. **DO NOT RESEARCH**: Do not "investigate" or "plan". The Sub-Agent will do that. Your only context comes from `bd ready` and `@spec/`.
+1. **DO NOT RESEARCH**: Do not "investigate" or "plan". The Sub-Agent will do that. Your only context comes from `bd ready` and `@docs/spec/`.
 1. **DELEGATE IMMEDIATELY**: As soon as you pick a task ID, run the `dispatch_agent.sh` command. Do not hesitate.
 1. **EFFICIENT QUERYING**: NEVER run `bd list` without a `--status` filter (e.g., `bd list --status in_progress`). Unfiltered lists are too large and wasteful.
-1. **ADR ENFORCEMENT**: Implementation details (class names, method signatures, patterns) belong in **ADRs** (`docs/adr/`), NOT in `spec/` or Beads descriptions. If a complex task lacks an ADR, create a dependency task to write one first.
+1. **ADR ENFORCEMENT**: Implementation details (class names, method signatures, patterns) belong in **ADRs** (`docs/adr/`), NOT in `docs/spec/` or Beads descriptions. If a complex task lacks an ADR, create a dependency task to write one first.
 1. **TDD ENFORCEMENT**:
    - **Logic Bugs**: Must have a failing unit/integration test (JSDOM/Node).
    - **Visual/Layout Bugs**: MUST have a failing **E2E test** (`tests/e2e/`) using Puppeteer.
@@ -73,8 +73,8 @@ run_shell_command("./scripts/dispatch_agent.sh <TASK_ID>")
    - _Check_: Did the agent comment out tests to make them pass? **FAIL** immediately.
 2. **Inspect**: Execute `jj diff --git` to review all file status and content changes in a single view.
    - _Check_: Did it follow conventions? Did it remove tests? (Forbidden!)
-   - _Architecture Review_: Does the code adhere to `@ARCHITECTURE.md` and SOLID principles? If the code *validly* changes the architecture (based on an ADR), ensure `@ARCHITECTURE.md` is updated.
-   - _Documentation (MANDATORY)_: Ensure `GEMINI.md` files in modified directories were updated. If the high-level system design changed, ensure `@ARCHITECTURE.md` is updated. If documentation is missing or outdated, you MUST fail verification and re-dispatch with instructions to update it.
+   - _Architecture Review_: Does the code adhere to `@docs/ARCHITECTURE.md` and SOLID principles? If the code *validly* changes the architecture (based on an ADR), ensure `@docs/ARCHITECTURE.md` is updated.
+   - _Documentation (MANDATORY)_: Ensure `GEMINI.md` files in modified directories were updated. If the high-level system design changed, ensure `@docs/ARCHITECTURE.md` is updated. If documentation is missing or outdated, you MUST fail verification and re-dispatch with instructions to update it.
 3. **Test**: Run `npx vitest run`.
    - _Check_: **CRITICAL**: All changes MUST be confirmed by tests first. Sub-agents are required to write/update tests before or alongside implementation.
 4. **Verify (Visual)**: If the task touched UI, CSS, or Layout:
@@ -94,7 +94,7 @@ run_shell_command("./scripts/dispatch_agent.sh <TASK_ID>")
 
 - **If Verified**:
   1. `jj commit -m "feat/fix: <description>"`
-  1. \`bd close <id> --reason "Implemented via sub-agent and verified."
+  1. `bd close <id> --reason "Implemented via sub-agent and verified."
 - **If Failed**:
   **🚨 NEVER FIX CODE**: You are FORBIDDEN from making code changes.
   **🚨 NEVER CLOSE AS FAILED**: Beads does not support a "failed" state. Leave the task OPEN.
