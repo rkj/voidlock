@@ -364,7 +364,7 @@ export class MenuController {
         this.selection.pendingUnitIds = selectedIds;
         this.transitionTo("TARGET_SELECT");
         this.selection.overlayOptions = TargetOverlayGenerator.generate(
-          "CELL",
+          "PLACEMENT_POINT",
           gameState,
           this.discovery,
         );
@@ -433,6 +433,12 @@ export class MenuController {
         } else if (item?.action === "Grenade") {
           this.selection.overlayOptions = TargetOverlayGenerator.generate(
             "CELL",
+            gameState,
+            this.discovery,
+          );
+        } else if (item?.action === "Mine") {
+          this.selection.overlayOptions = TargetOverlayGenerator.generate(
+            "PLACEMENT_POINT",
             gameState,
             this.discovery,
           );

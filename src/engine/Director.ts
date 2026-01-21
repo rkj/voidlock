@@ -173,6 +173,16 @@ export class Director {
           }
         }
       }
+    } else if (item.action === "Mine") {
+      if (cmd.target) {
+        state.mines.push({
+          id: `mine-${state.t}`,
+          pos: { ...cmd.target },
+          damage: 100,
+          radius: 1,
+          ownerId: cmd.unitIds[0] || "squad",
+        });
+      }
     }
   }
 

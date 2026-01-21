@@ -1,5 +1,5 @@
 import { Vector2 } from "./geometry";
-import { LootItem } from "./items";
+import { LootItem, Mine } from "./items";
 import { MapDefinition, Objective } from "./map";
 import { Command, Enemy, SquadConfig, Unit } from "./units";
 import { CampaignNodeType } from "../campaign_types";
@@ -80,6 +80,7 @@ export type GameState = {
   squadInventory: { [itemId: string]: number };
   loot: LootItem[];
   attackEvents?: AttackEvent[];
+  mines: Mine[];
 };
 
 // --- Protocol ---

@@ -467,13 +467,17 @@ export class UnitManager {
           }
         }
       } else if (!isAttacking && !isMoving) {
-        if (unit.state !== UnitState.WaitingForDoor) {
+        if (
+          unit.state !== UnitState.WaitingForDoor &&
+          unit.state !== UnitState.Channeling
+        ) {
           unit.state = UnitState.Idle;
           if (
             unit.activeCommand?.type !== CommandType.PICKUP &&
             unit.activeCommand?.type !== CommandType.ESCORT_UNIT &&
             unit.activeCommand?.type !== CommandType.EXPLORE &&
             unit.activeCommand?.type !== CommandType.OVERWATCH_POINT &&
+            unit.activeCommand?.type !== CommandType.USE_ITEM &&
             unit.activeCommand?.type !== CommandType.EXTRACT
           ) {
             unit.activeCommand = undefined;

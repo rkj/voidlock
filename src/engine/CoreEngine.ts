@@ -129,6 +129,7 @@ export class CoreEngine {
       units: [],
       enemies: [],
       loot: [],
+      mines: [],
       visibleCells: [],
       discoveredCells: [],
       objectives: [],

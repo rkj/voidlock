@@ -15,6 +15,35 @@ export class MapEntityLayer implements RenderLayer {
     this.renderSpawnPoints(ctx, state);
     this.renderLoot(ctx, state);
     this.renderObjectives(ctx, state);
+    this.renderMines(ctx, state);
+  }
+
+  private renderMines(ctx: CanvasRenderingContext2D, state: GameState) {
+    const cellSize = this.sharedState.cellSize;
+
+    state.mines?.forEach((mine) => {
+      const x = mine.pos.x * cellSize;
+      const y = mine.pos.y * cellSize;
+      const key = `${Math.floor(mine.pos.x)},${Math.floor(mine.pos.y)}`;
+      const isVisible = state.visibleCells.includes(key);
+
+      if (!isVisible && !state.settings.debugOverlayEnabled) return;
+
+      ctx.fillStyle = this.theme.getColor("--color-danger");
+      ctx.beginPath();
+      ctx.arc(x + cellSize / 2, y + cellSize / 2, cellSize * 0.2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = this.theme.getColor("--color-black");
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Draw a small 'M' or just a dot
+      ctx.fillStyle = this.theme.getColor("--color-white");
+      ctx.font = `bold ${Math.floor(cellSize / 5)}px Arial`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("M", x + cellSize / 2, y + cellSize / 2);
+    });
   }
 
   private renderExtraction(ctx: CanvasRenderingContext2D, state: GameState) {
