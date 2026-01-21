@@ -84,6 +84,7 @@ export class GameClient {
     enemyGrowthPerMission: number = 1,
     missionDepth: number = 0,
     nodeType?: string, // Actually CampaignNodeType but string is fine for the client
+    bonusLootCount: number = 0,
   ) {
     this.isStopped = false;
     this.initialSeed = seed;
@@ -95,6 +96,7 @@ export class GameClient {
       height,
       type: mapGeneratorType,
       spawnPointCount,
+      bonusLootCount,
     };
 
     // Use the factory to get the map, based on type and data
@@ -189,6 +191,7 @@ export class GameClient {
         allowTacticalPause,
         campaignNodeId,
         nodeType,
+        bonusLootCount,
       });
 
       // If we provided an initial command log, make sure it's also in the persistent log
@@ -395,6 +398,8 @@ export class GameClient {
       3, // baseEnemyCount
       1, // enemyGrowthPerMission
       0, // missionDepth
+      undefined, // nodeType
+      0, // bonusLootCount
     );
   }
 

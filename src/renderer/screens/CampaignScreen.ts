@@ -196,6 +196,7 @@ export class CampaignScreen {
               if (showLootIntel && node.bonusLootCount > 0) {
                 const pipsContainer = document.createElement("div");
                 pipsContainer.className = "pips-container flex-row justify-center";
+                pipsContainer.title = `Bonus Loot: ${node.bonusLootCount} crate${node.bonusLootCount > 1 ? "s" : ""}`;
                 pipsContainer.style.position = "absolute";
                 pipsContainer.style.bottom = "-12px";
                 pipsContainer.style.width = "100%";
@@ -205,7 +206,7 @@ export class CampaignScreen {
                 for (let i = 0; i < node.bonusLootCount; i++) {
                   const pip = document.createElement("span");
                   pip.className = "loot-pip";
-                  pip.textContent = "⭐";
+                  pip.textContent = "📦";
                   pip.style.fontSize = "0.7em";
                   pip.style.color = "var(--color-warning)";
                   pip.style.textShadow = "0 0 3px rgba(255, 152, 0, 0.5)";
