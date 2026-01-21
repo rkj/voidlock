@@ -13,6 +13,8 @@ This directory contains the automated test suite for the Voidlock renderer, usin
 - `GlobalErrorLogging.test.ts`: Verifies that global error listeners are correctly registered in main.ts.
 - `screens/CampaignScreen.test.ts`: Verifies sector map rendering and node selection.
 - `screens/CampaignScreen_Loot.test.ts`: Verifies bonus loot intel (star pips) display based on difficulty.
+- `screens/regression_voidlock-9xr6_scroll_reset.test.ts`: Regression test for Equipment Screen scroll position preservation.
+- `screens/regression_voidlock-9xr6_price_formatting.test.ts`: Regression test for Equipment Screen item price formatting layout.
 - `integration/CampaignEnd.test.ts`: Verifies that completing a Boss mission triggers the Victory state and displays the summary UI.
 - `ui/tests/HUDManager.test.ts`: Verifies soldier list rendering and HUD updates.
 - `InputManager.test.ts`: Verifies keyboard shortcuts and debug overlay toggles.
