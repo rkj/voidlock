@@ -7,7 +7,7 @@ describe("HUD Visual Audit", () => {
 
   beforeAll(async () => {
     page = await getNewPage();
-    await page.goto("http://localhost:5173");
+    await page.goto("http://localhost:5188");
     await page.evaluate(() => localStorage.clear());
   });
 
@@ -16,7 +16,7 @@ describe("HUD Visual Audit", () => {
   });
 
   it("should capture a screenshot of the tactical HUD", async () => {
-    await page.goto("http://localhost:5173");
+    await page.goto("http://localhost:5188");
     
     // 1. Click "Custom Mission" on Main Menu
     await page.waitForSelector("#btn-menu-custom");

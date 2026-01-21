@@ -8,7 +8,7 @@
 //   beforeAll(async () => {
 //     page = await getNewPage();
 //     // Ensure clean state
-//     await page.goto("http://localhost:5173");
+//     await page.goto("http://localhost:5188");
 //     await page.evaluate(() => localStorage.clear());
 //   });
 
@@ -17,7 +17,7 @@
 //   });
 
 //   it("should hide campaign shell when entering mission setup to avoid obscuring the screen", async () => {
-//     await page.goto("http://localhost:5173");
+//     await page.goto("http://localhost:5188");
     
 //     // 1. Click "Campaign" on Main Menu
 //     await page.waitForSelector("#btn-menu-campaign");
