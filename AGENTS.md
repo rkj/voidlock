@@ -70,6 +70,21 @@ You are an AI contributor agent working on the Voidlock project. Your goal is to
 - **Authority**: These files are the Single Source of Truth. If you find a contradiction between the code and the spec, assume the spec is correct (unless explicitly told otherwise by the Manager).
 - **Updates**: Only the Manager Agent (PM) is authorized to modify specs, in coordination with the human user.
 
+### G8) Engineering Standards (Strict Enforcement)
+
+- **Production Ready**: All code must be robust, error-handled, and free of debug logs or temporary hacks.
+- **SOLID Principles**: Adhere strictly to SOLID principles.
+  - **S**: Single Responsibility Principle.
+  - **O**: Open/Closed Principle.
+  - **L**: Liskov Substitution Principle.
+  - **I**: Interface Segregation Principle.
+  - **D**: Dependency Inversion Principle.
+- **TDD (Test-Driven Development)**: You must write the test *before* the implementation.
+  - **Red**: Write a failing test that reproduces the bug or defines the new feature.
+  - **Green**: Write the minimal code to make the test pass.
+  - **Refactor**: Improve the code while keeping the test passing.
+- **Spec-Driven**: Your implementation must exactly match the `docs/spec/` requirements. Do not invent features.
+
 ## 3. Feature/Task Completion Checklist
 
 When finishing a feature or task, you MUST perform the following steps in order:
