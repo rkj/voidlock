@@ -17,7 +17,9 @@ describe("Equipment Screen Layout Clipping Repro", () => {
     // 1. Set a small viewport where clipping is expected
     await page.setViewport({ width: 600, height: 400 });
     
-    await page.goto("http://localhost:5173");
+    await page.goto("http://localhost:5188");
+    await page.evaluate(() => localStorage.clear());
+    await page.goto("http://localhost:5188");
     
     // 2. Navigate to Custom Mission
     await page.waitForSelector("#btn-menu-custom");

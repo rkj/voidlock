@@ -16,7 +16,7 @@ describe("Custom Mission Scrollbar Clipping Repro", () => {
   });
 
   it("should ensure the 'Confirm' button is reachable on small viewports", async () => {
-    await page.goto("http://localhost:5173");
+    await page.goto("http://localhost:5188");
     
     // 1. Navigate to Custom Mission
     await page.waitForSelector("#btn-menu-custom");

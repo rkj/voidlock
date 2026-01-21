@@ -511,6 +511,7 @@ label {
 .relative { position: relative; }
 .align-center { align-items: center; }
 .justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
 .text-center { text-align: center; }
 .w-full { width: 100%; }
 .h-full { height: 100%; }

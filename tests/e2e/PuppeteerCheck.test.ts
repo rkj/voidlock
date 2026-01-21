@@ -8,7 +8,7 @@ describe("Puppeteer Setup Verification", () => {
 
   it("should load the page and check the title", async () => {
     const page = await getNewPage();
-    await page.goto("http://localhost:5173");
+    await page.goto("http://localhost:5188");
     const title = await page.title();
     expect(title).toBe("Voidlock");
   });

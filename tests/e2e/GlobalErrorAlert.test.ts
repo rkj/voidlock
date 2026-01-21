@@ -25,7 +25,7 @@ describe("Global Error Alert & Reset E2E", () => {
   });
 
   it("should show confirm dialog on global error and reset data on OK", async () => {
-    await page.goto("http://localhost:5173");
+    await page.goto("http://localhost:5188");
     
     // Set some data in localStorage to verify it gets cleared
     await page.evaluate(() => {
@@ -58,7 +58,7 @@ describe("Global Error Alert & Reset E2E", () => {
   });
 
   it("should show panic UI if confirm is cancelled", async () => {
-    await page.goto("http://localhost:5173");
+    await page.goto("http://localhost:5188");
     
     // Set some data in localStorage to verify it NOT cleared
     await page.evaluate(() => {
@@ -102,7 +102,7 @@ describe("Global Error Alert & Reset E2E", () => {
   });
 
   it("should show confirm dialog on unhandled promise rejection", async () => {
-    await page.goto("http://localhost:5173");
+    await page.goto("http://localhost:5188");
     
     let dialogHandled = false;
     page.on('dialog', async dialog => {
