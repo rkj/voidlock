@@ -10,6 +10,7 @@ import { LineOfSight } from "../LineOfSight";
 import { PRNG } from "../../shared/PRNG";
 import { IEnemyAI, SwarmMeleeAI } from "../ai/EnemyAI";
 import { RangedKiteAI } from "../ai/RangedKiteAI";
+import { CombatManager } from "./CombatManager";
 import { SPEED_NORMALIZATION_CONST } from "../Constants";
 
 const EPSILON = 0.05;
@@ -34,6 +35,7 @@ export class EnemyManager {
     pathfinder: Pathfinder,
     los: LineOfSight,
     prng: PRNG,
+    combatManager: CombatManager,
   ) {
     state.enemies.forEach((enemy) => {
       if (enemy.hp <= 0) return;
@@ -77,26 +79,18 @@ export class EnemyManager {
           if (lockingTarget) targetUnit = lockingTarget;
         }
 
-        if (los.hasLineOfFire(enemy.pos, targetUnit.pos)) {
-          if (
-            !enemy.lastAttackTime ||
-            state.t - enemy.lastAttackTime >= enemy.fireRate
-          ) {
-            const distance = this.getDistance(enemy.pos, targetUnit.pos);
-            const S = enemy.accuracy;
-            const R = enemy.attackRange;
-            let hitChance = (S / 100) * (R / Math.max(0.1, distance));
-            hitChance = Math.max(0, Math.min(1.0, hitChance));
-
-            if (prng.next() <= hitChance) {
-              targetUnit.hp -= enemy.damage;
-            }
-
-            enemy.lastAttackTime = state.t;
-            enemy.lastAttackTarget = { ...targetUnit.pos };
-          }
-          isAttacking = true;
-        }
+        isAttacking = combatManager.handleAttack(
+          enemy,
+          targetUnit,
+          {
+            damage: enemy.damage,
+            fireRate: enemy.fireRate,
+            accuracy: enemy.accuracy,
+            attackRange: enemy.attackRange,
+          },
+          state,
+          prng,
+        );
       }
 
       if (

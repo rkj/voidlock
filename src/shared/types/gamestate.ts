@@ -28,6 +28,14 @@ export type ReplayData = {
 
 export type GameStatus = "Playing" | "Won" | "Lost";
 
+export type AttackEvent = {
+  attackerId: string;
+  attackerPos: Vector2;
+  targetId: string;
+  targetPos: Vector2;
+  time: number;
+};
+
 export type SimulationSettings = {
   mode: EngineMode;
   debugOverlayEnabled: boolean;
@@ -71,6 +79,7 @@ export type GameState = {
   commandLog?: CommandLogEntry[];
   squadInventory: { [itemId: string]: number };
   loot: LootItem[];
+  attackEvents?: AttackEvent[];
 };
 
 // --- Protocol ---
