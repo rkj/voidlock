@@ -14,7 +14,8 @@ To verify visual fidelity and critical user journeys that cannot be fully tested
 - `__snapshots__/`: Contains "golden" images for visual regression testing.
 - `utils/`: E2E-specific helper functions.
   - `puppeteer.ts`: Manages the lifecycle of the Puppeteer browser and pages.
-- `setup.ts`: Global setup and teardown for the E2E test suite, managing the lifecycle of the Vite dev server (on port 5188).
+- `setup.ts`: Global setup and teardown for the E2E test suite, managing the lifecycle of the Vite dev server (port configured in `config.ts`).
+- `config.ts`: Shared configuration for E2E tests, including port and base URL.
 - `CampaignLaunch.test.ts`: E2E test for mission launch from campaign mode, verifying shell visibility and Z-Index correctness.
 - `EquipmentScreenFixes.test.ts`: Verifies Equipment Screen price alignment and scroll position preservation across re-renders.
 - `EquipmentScreenRepro.test.ts`: Repro test for layout clipping on the Equipment Screen at small viewports.

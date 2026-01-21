@@ -1,5 +1,6 @@
 import { describe, it, expect, afterAll } from "vitest";
 import { getNewPage, closeBrowser } from "./utils/puppeteer";
+import { E2E_URL } from "./config";
 
 describe("Puppeteer Setup Verification", () => {
   afterAll(async () => {
@@ -8,7 +9,7 @@ describe("Puppeteer Setup Verification", () => {
 
   it("should load the page and check the title", async () => {
     const page = await getNewPage();
-    await page.goto("http://localhost:5188");
+    await page.goto(E2E_URL);
     const title = await page.title();
     expect(title).toBe("Voidlock");
   });

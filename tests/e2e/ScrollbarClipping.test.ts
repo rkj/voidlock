@@ -1,6 +1,7 @@
 import { describe, it, expect, afterAll, beforeAll } from "vitest";
 import { getNewPage, closeBrowser } from "./utils/puppeteer";
 import type { Page } from "puppeteer";
+import { E2E_URL } from "./config";
 
 describe("Custom Mission Scrollbar Clipping Repro", () => {
   let page: Page;
@@ -16,7 +17,7 @@ describe("Custom Mission Scrollbar Clipping Repro", () => {
   });
 
   it("should ensure the 'Confirm' button is reachable on small viewports", async () => {
-    await page.goto("http://localhost:5188");
+    await page.goto(E2E_URL);
     
     // 1. Navigate to Custom Mission
     await page.waitForSelector("#btn-menu-custom");

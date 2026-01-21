@@ -1,6 +1,7 @@
 import { describe, it, expect, afterAll, beforeEach, afterEach } from "vitest";
 import { getNewPage, closeBrowser } from "./utils/puppeteer";
 import type { Page } from "puppeteer";
+import { E2E_URL } from "./config";
 
 describe("Global Error Alert & Reset E2E", () => {
   let page: Page;
@@ -25,7 +26,7 @@ describe("Global Error Alert & Reset E2E", () => {
   });
 
   it("should show confirm dialog on global error and reset data on OK", async () => {
-    await page.goto("http://localhost:5188");
+    await page.goto(E2E_URL);
     
     // Set some data in localStorage to verify it gets cleared
     await page.evaluate(() => {
@@ -58,7 +59,7 @@ describe("Global Error Alert & Reset E2E", () => {
   });
 
   it("should show panic UI if confirm is cancelled", async () => {
-    await page.goto("http://localhost:5188");
+    await page.goto(E2E_URL);
     
     // Set some data in localStorage to verify it NOT cleared
     await page.evaluate(() => {
@@ -102,7 +103,7 @@ describe("Global Error Alert & Reset E2E", () => {
   });
 
   it("should show confirm dialog on unhandled promise rejection", async () => {
-    await page.goto("http://localhost:5188");
+    await page.goto(E2E_URL);
     
     let dialogHandled = false;
     page.on('dialog', async dialog => {

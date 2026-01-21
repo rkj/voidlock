@@ -1,12 +1,13 @@
 import { createServer } from "vite";
 import type { ViteDevServer } from "vite";
+import { E2E_PORT } from "./config";
 
 let server: ViteDevServer;
 
 export async function setup() {
   server = await createServer({
     server: {
-      port: 5188,
+      port: E2E_PORT,
       strictPort: true,
     },
   });
