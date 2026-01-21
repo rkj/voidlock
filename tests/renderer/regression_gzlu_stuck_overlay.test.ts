@@ -27,6 +27,7 @@ describe("Regression voidlock-gzlu - Stuck Overlay on Back", () => {
       discoveredCells: ["5,5"],
       objectives: [],
       loot: [],
+      mines: [],
       stats: {
         threatLevel: 0,
         aliensKilled: 0,

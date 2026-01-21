@@ -23,6 +23,7 @@ describe("MenuController Room Mapping Regression (09cn)", () => {
     discoveredCells: [],
     objectives: [],
     loot: [],
+    mines: [],
     stats: {
       threatLevel: 0,
       aliensKilled: 0,
@@ -35,7 +36,7 @@ describe("MenuController Room Mapping Regression (09cn)", () => {
       mode: "Simulation" as any,
       debugOverlayEnabled: false,
       losOverlayEnabled: false,
-      timeScale: 1,
+      timeScale: 1.0,
       isPaused: false,
       isSlowMotion: false,
       allowTacticalPause: true,

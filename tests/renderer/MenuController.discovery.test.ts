@@ -26,6 +26,7 @@ describe("MenuController Room Discovery", () => {
     discoveredCells: ["1,1"], // Only room-1 is partially discovered
     objectives: [],
     loot: [],
+    mines: [],
     stats: {
       threatLevel: 0,
       aliensKilled: 0,
@@ -38,7 +39,7 @@ describe("MenuController Room Discovery", () => {
       mode: "Simulation" as any,
       debugOverlayEnabled: false,
       losOverlayEnabled: false,
-      timeScale: 1,
+      timeScale: 1.0,
       isPaused: false,
       isSlowMotion: false,
       allowTacticalPause: true,
