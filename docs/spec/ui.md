@@ -26,13 +26,14 @@ The application is divided into distinct screens to reduce UI clutter and improv
        - **Campaign Mode**: "Campaign: [Difficulty] | Mission [N] | Sector [N]"
        - **Custom Mode**: "Custom Simulation"
      - **Style**: Subtle, informative header text (e.g., smaller font, dimmed color).
-   - **Map Configuration**:
-     - Generator Type (Procedural, TreeShip, Static).
-     - Seed Input / Randomize.
-     - Map Size (Width/Height).
-     - Static Map Import (Text/File/ASCII).
-        - **Game Options**:
-        - Fog of War, Debug Overlay, LOS Visualization toggles.
+       - **Map Configuration**:
+        - Generator Type (Procedural, TreeShip, Static).
+        - Seed Input / Randomize.
+        - Map Size (Width/Height).
+        - Static Map Import (Text/File/ASCII).
+        - **Visual Theme**: Dropdown to select the active UI/Map theme (e.g., "Default", "Matrix", "Retro").
+           - **Game Options**:
+           - Fog of War, Debug Overlay, LOS Visualization toggles.
         - **Game Speed Control**:
           - **Slider Range**: 0.1x to 10.0x (Fast Forward). Default 1.0x.
           - **Active Pause**: Speed 0.05x acts as "Active Pause", allowing commands to be issued while time moves very slowly. It is NOT part of the slider range.
@@ -335,6 +336,7 @@ To ensure visual clarity and correct occlusion, the renderer must adhere to a st
     -   **Icon Distinction**:
       -   **Objectives**: Must render with the `Objective` icon (e.g., Target/Flag).
       -   **Loot Crates**: Must render with a distinct `Crate` icon to differentiate them from mission critical objectives.
+      -   **Unit Style adherence**: If the visual style is set to `TacticalIcons`, map entities (like Loot) must render as abstract, high-contrast geometric shapes using the active theme colors, ignoring sprite assets.
 3.  **Unit Layer (Dynamic):**
     -   **Soldiers & Enemies:** Must render **ON TOP** of the Ground Decal Layer.
     -   *Example:* A soldier standing on a Spawn Point must obscure the Spawn Point graphic.

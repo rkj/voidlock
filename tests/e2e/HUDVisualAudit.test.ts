@@ -1,13 +1,14 @@
 import { describe, it, beforeAll, afterAll } from "vitest";
 import { getNewPage, closeBrowser } from "./utils/puppeteer";
 import type { Page } from "puppeteer";
+import { E2E_URL } from "./config";
 
 describe("HUD Visual Audit", () => {
   let page: Page;
 
   beforeAll(async () => {
     page = await getNewPage();
-    await page.goto("http://localhost:5188");
+    await page.goto(E2E_URL);
     await page.evaluate(() => localStorage.clear());
   });
 
@@ -16,7 +17,7 @@ describe("HUD Visual Audit", () => {
   });
 
   it("should capture a screenshot of the tactical HUD", async () => {
-    await page.goto("http://localhost:5188");
+    await page.goto(E2E_URL);
     
     // 1. Click "Custom Mission" on Main Menu
     await page.waitForSelector("#btn-menu-custom");
