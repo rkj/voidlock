@@ -1,11 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { CoreEngine } from "@src/engine/CoreEngine";
+import { SPEED_NORMALIZATION_CONST } from "@src/engine/Constants";
 import {
   MapDefinition,
   CellType,
   UnitState,
   CommandType,
-  SPEED_NORMALIZATION_CONST,
   ItemLibrary,
 } from "@src/shared/types";
 

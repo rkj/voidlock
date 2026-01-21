@@ -32,6 +32,7 @@ describe("MenuController Intersection Discovery", () => {
     discoveredCells: ["1,1"],
     objectives: [],
     loot: [],
+    mines: [],
     stats: {
       threatLevel: 0,
       aliensKilled: 0,

@@ -73,7 +73,8 @@ describe("Renderer Stale Graph Regression (voidlock-weyd)", () => {
         allowTacticalPause: true,
       },
       squadInventory: {},
-      loot: []
+      loot: [],
+      mines: [],
     };
 
     renderer.render(state1);

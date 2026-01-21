@@ -74,7 +74,9 @@ describe("Renderer - unitStyle", () => {
       allowTacticalPause: true,
     },
     squadInventory: {},
-    loot: []
+    attackEvents: [],
+    mines: [],
+    loot: [],
   };
 
   it("should use strokeText and fillText for unit numbers in Sprites style (high contrast)", () => {

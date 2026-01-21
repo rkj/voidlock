@@ -35,8 +35,14 @@ describe("HUDManager Objective Regression PDXS", () => {
     visibleCells: [],
     discoveredCells: [],
     loot: [],
+    mines: [],
     objectives: [
-      { id: "o1", kind: "Kill", state: "Pending" },
+      {
+        id: "artifact-1",
+        kind: "Recover",
+        state: "Pending",
+        targetCell: { x: 2, y: 2 },
+      },
       {
         id: "o2",
         kind: "Recover",

@@ -427,6 +427,9 @@ export class UnitManager {
         const nextCmd = unit.commandQueue.shift();
         if (nextCmd) {
           this.commandExecutor.executeCommand(unit, nextCmd, state, true, director);
+          if ((unit.state as any) === UnitState.Channeling) {
+            return;
+          }
         }
       }
 
@@ -467,21 +470,16 @@ export class UnitManager {
           }
         }
       } else if (!isAttacking && !isMoving) {
+        unit.state = UnitState.Idle;
         if (
-          unit.state !== UnitState.WaitingForDoor &&
-          unit.state !== UnitState.Channeling
+          unit.activeCommand?.type !== CommandType.PICKUP &&
+          unit.activeCommand?.type !== CommandType.ESCORT_UNIT &&
+          unit.activeCommand?.type !== CommandType.EXPLORE &&
+          unit.activeCommand?.type !== CommandType.OVERWATCH_POINT &&
+          unit.activeCommand?.type !== CommandType.USE_ITEM &&
+          unit.activeCommand?.type !== CommandType.EXTRACT
         ) {
-          unit.state = UnitState.Idle;
-          if (
-            unit.activeCommand?.type !== CommandType.PICKUP &&
-            unit.activeCommand?.type !== CommandType.ESCORT_UNIT &&
-            unit.activeCommand?.type !== CommandType.EXPLORE &&
-            unit.activeCommand?.type !== CommandType.OVERWATCH_POINT &&
-            unit.activeCommand?.type !== CommandType.USE_ITEM &&
-            unit.activeCommand?.type !== CommandType.EXTRACT
-          ) {
-            unit.activeCommand = undefined;
-          }
+          unit.activeCommand = undefined;
         }
       }
     });

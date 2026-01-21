@@ -65,6 +65,7 @@ describe("HUDManager Debug Info Regression (voidlock-6gl)", () => {
       visibleCells: [],
       discoveredCells: [],
       loot: [],
+      mines: [],
       objectives: [],
     };
   });
