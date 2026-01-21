@@ -760,6 +760,7 @@ export class GameApp {
       baseEnemyCount,
       enemyGrowthPerMission,
       campaignNodeId: this.currentCampaignNode?.id,
+      bonusLootCount: this.currentCampaignNode?.bonusLootCount || 0,
     };
 
     if (this.currentCampaignNode) {
@@ -795,6 +796,7 @@ export class GameApp {
       enemyGrowthPerMission,
       missionDepth,
       this.currentCampaignNode?.type,
+      this.currentCampaignNode?.bonusLootCount || 0,
     );
 
     this.syncSpeedUI();
@@ -929,6 +931,7 @@ export class GameApp {
         enemyGrowthPerMission,
         missionDepth,
         config.nodeType,
+        config.bonusLootCount || 0,
       );
 
       this.syncSpeedUI();
