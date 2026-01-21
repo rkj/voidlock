@@ -5,6 +5,7 @@ import {
   Enemy,
   WeaponLibrary,
   Vector2,
+  AttackEvent,
 } from "../../shared/types";
 import { LineOfSight } from "../LineOfSight";
 import { PRNG } from "../../shared/PRNG";
@@ -97,34 +98,85 @@ export class CombatManager {
       (policy === "ENGAGE" || isLockedInMelee)
     ) {
       if (this.los.hasLineOfFire(unit.pos, targetEnemy.pos)) {
-        if (
-          !unit.lastAttackTime ||
-          state.t - unit.lastAttackTime >= unit.stats.fireRate
-        ) {
-          const distance = this.getDistance(unit.pos, targetEnemy.pos);
-          const S = unit.stats.accuracy;
-          const R = unit.stats.attackRange;
-          let hitChance = (S / 100) * (R / Math.max(0.1, distance));
-          hitChance = Math.max(0, Math.min(1.0, hitChance));
-
-          if (prng.next() <= hitChance) {
-            targetEnemy.hp -= unit.stats.damage;
-            if (targetEnemy.hp <= 0) {
-              unit.kills++;
-              unit.forcedTargetId = undefined; // Clear sticky target on death
-            }
-          }
-
-          unit.lastAttackTime = state.t;
-          unit.lastAttackTarget = { ...targetEnemy.pos };
-        }
+        this.handleAttack(
+          unit,
+          targetEnemy,
+          {
+            damage: unit.stats.damage,
+            fireRate: unit.stats.fireRate,
+            accuracy: unit.stats.accuracy,
+            attackRange: unit.stats.attackRange,
+          },
+          state,
+          prng,
+          () => {
+            unit.kills++;
+            unit.forcedTargetId = undefined;
+          },
+        );
 
         unit.state = UnitState.Attacking;
-        return true; // isAttacking
+        return true;
       }
     }
 
     return false; // isAttacking
+  }
+
+  /**
+   * Universal attack handler for both Units and Enemies.
+   * Updates health, lastAttack fields and emits AttackEvents.
+   */
+  public handleAttack(
+    attacker: Unit | Enemy,
+    target: Unit | Enemy,
+    stats: {
+      damage: number;
+      fireRate: number;
+      accuracy: number;
+      attackRange: number;
+    },
+    state: GameState,
+    prng: PRNG,
+    onKilled?: () => void,
+  ): boolean {
+    if (attacker.hp <= 0 || target.hp <= 0) return false;
+
+    if (
+      !attacker.lastAttackTime ||
+      state.t - attacker.lastAttackTime >= stats.fireRate
+    ) {
+      if (this.los.hasLineOfFire(attacker.pos, target.pos)) {
+        const distance = this.getDistance(attacker.pos, target.pos);
+        const S = stats.accuracy;
+        const R = stats.attackRange;
+        let hitChance = (S / 100) * (R / Math.max(0.1, distance));
+        hitChance = Math.max(0, Math.min(1.0, hitChance));
+
+        if (prng.next() <= hitChance) {
+          target.hp -= stats.damage;
+          if (target.hp <= 0 && onKilled) {
+            onKilled();
+          }
+        }
+
+        attacker.lastAttackTime = state.t;
+        attacker.lastAttackTarget = { ...target.pos };
+
+        // Emit Attack Event for feedback systems
+        if (!state.attackEvents) state.attackEvents = [];
+        state.attackEvents.push({
+          attackerId: attacker.id,
+          attackerPos: { ...attacker.pos },
+          targetId: target.id,
+          targetPos: { ...target.pos },
+          time: state.t,
+        });
+
+        return true;
+      }
+    }
+    return false;
   }
 
   public updateActiveWeapon(

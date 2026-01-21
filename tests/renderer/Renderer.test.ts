@@ -172,13 +172,15 @@ describe("Renderer", () => {
   });
 
   it("should render combat tracers", () => {
-    const combatState = {
+    const combatState: GameState = {
       ...mockGameState,
-      units: [
+      attackEvents: [
         {
-          ...mockGameState.units[0],
-          lastAttackTime: 950,
-          lastAttackTarget: { x: 0.5, y: 0.5 },
+          attackerId: "s1",
+          attackerPos: { x: 0.5, y: 0.5 },
+          targetId: "e1",
+          targetPos: { x: 0.5, y: 0.5 },
+          time: 950,
         },
       ],
     };

@@ -479,6 +479,7 @@ export class CoreEngine {
     }
 
     this.state.t += scaledDt;
+    this.state.attackEvents = [];
 
     // 1. Director & Spawn (Uses scaledDt to follow game speed and pause)
     this.director.update(scaledDt);
@@ -512,6 +513,7 @@ export class CoreEngine {
       this.pathfinder,
       this.los,
       this.prng,
+      this.unitManager.getCombatManager(),
     );
 
     // 7. Cleanup Death (Must be after both Unit and Enemy updates)

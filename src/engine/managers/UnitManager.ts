@@ -54,6 +54,10 @@ export class UnitManager {
     this.statsManager.recalculateStats(unit);
   }
 
+  public getCombatManager(): CombatManager {
+    return this.combatManager;
+  }
+
   public update(
     state: GameState,
     dt: number,

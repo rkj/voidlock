@@ -9,7 +9,7 @@ Modular shared type definitions for Voidlock (ADR 0015).
 - `map.ts`: Map-related structures (`MapDefinition`, `Cell`, `Door`, `Boundary`, `SpawnPoint`, `Grid`, `TileAssembly`).
 - `units.ts`: Unit definitions and behaviors (`Unit`, `UnitState`, `Archetype`, `Enemy`, `Command`).
 - `items.ts`: Item and weapon definitions and libraries (`Item`, `Weapon`, `ItemLibrary`, `WeaponLibrary`).
-- `gamestate.ts`: Root state objects and communication protocol (`GameState`, `MissionStats`, `WorkerMessage`, `MainMessage`). Includes `OverlayOption` with support for `renderOnBoard` toggle.
+- `gamestate.ts`: Root state objects and communication protocol (`GameState`, `MissionStats`, `WorkerMessage`, `MainMessage`). Includes `OverlayOption` with support for `renderOnBoard` toggle and `AttackEvent` for tactical feedback.
 
 ## Guidelines
 
