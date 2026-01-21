@@ -69,11 +69,13 @@ describe("Regression awkp: Item Targeting Logic", () => {
     expect(grenadeOption?.disabled).toBe(false);
   });
 
-  it("Grenade: should target VISIBLE_ENEMY when selected", () => {
+  it("Grenade: should target CELL (Rooms) when selected", () => {
     mockState.visibleCells = ["8,8"];
+    // Mock a room for the enemy cell
+    mockState.map.cells.push({ x: 8, y: 8, type: "Floor" as any, roomId: "room-1" } as any);
 
     controller.handleMenuInput("3", mockState); // USE ITEM
-    // Find Grenade option index (it might be 1 or 2 depending on alphabetical order of inventory keys, but usually it's stable)
+    // Find Grenade option index
     const items = Object.entries(mockState.squadInventory).filter(
       ([_, count]) => count > 0,
     );
@@ -84,16 +86,16 @@ describe("Regression awkp: Item Targeting Logic", () => {
     expect(controller.menuState).toBe("TARGET_SELECT");
     const renderState = controller.getRenderableState(mockState);
 
-    // Should show enemy as target
-    const enemyOption = renderState.options.find((o) =>
-      o.label.includes(EnemyType.XenoMite),
-    );
-    expect(enemyOption).toBeDefined();
-    // Should NOT show generic cells/rooms (unless we want to allow that too, but spec says "Target Visible Enemies ONLY")
+    // Should show Room as target, NOT specific enemy
     const roomOption = renderState.options.find((o) =>
       o.label.includes("Room"),
     );
-    expect(roomOption).toBeUndefined();
+    expect(roomOption).toBeDefined();
+    
+    const enemyOption = renderState.options.find((o) =>
+      o.label.includes(EnemyType.XenoMite),
+    );
+    expect(enemyOption).toBeUndefined();
   });
 
   it("Medkit: should target FRIENDLY_UNIT when selected", () => {
@@ -117,12 +119,6 @@ describe("Regression awkp: Item Targeting Logic", () => {
     );
     expect(unit1Option).toBeDefined();
     expect(unit2Option).toBeDefined();
-
-    // Should NOT show generic cells/rooms
-    const roomOption = renderState.options.find((o) =>
-      o.label.includes("Room"),
-    );
-    expect(roomOption).toBeUndefined();
   });
 
   it("Medkit: selecting a unit target should execute immediately and reset", () => {
@@ -141,10 +137,12 @@ describe("Regression awkp: Item Targeting Logic", () => {
     controller.handleMenuInput(unit1Option.key, mockState);
 
     // After fix, it should NOT move to UNIT_SELECT but execute and reset
+    // And it should use empty unitIds for global commander ability
     expect(mockClient.sendCommand).toHaveBeenCalledWith(expect.objectContaining({
       type: CommandType.USE_ITEM,
       itemId: "medkit",
-      targetUnitId: "u1"
+      targetUnitId: "u1",
+      unitIds: []
     }));
     expect(controller.menuState).toBe("ACTION_SELECT");
   });

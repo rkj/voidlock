@@ -116,6 +116,7 @@ export type OverlayOption = {
   label: string;
   pos: Vector2;
   id?: string;
+  renderOnBoard?: boolean;
 };
 
 export interface ThemeConfig {

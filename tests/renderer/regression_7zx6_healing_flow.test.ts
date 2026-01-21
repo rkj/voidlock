@@ -72,17 +72,20 @@ describe("Regression 7zx6 - Healing Flow", () => {
     expect(mockClient.sendCommand).toHaveBeenCalledWith(expect.objectContaining({
       type: CommandType.USE_ITEM,
       itemId: "medkit",
-      targetUnitId: "u1"
+      targetUnitId: "u1",
+      unitIds: []
     }));
 
     // Should return to ACTION_SELECT
     expect(controller.menuState).toBe("ACTION_SELECT");
   });
 
-  it("should STILL transition to UNIT_SELECT after selecting a target for Grenade", () => {
+  it("should NOT transition to UNIT_SELECT after selecting a target for Grenade", () => {
     mockState.squadInventory = { frag_grenade: 1 };
     mockState.enemies = [{ id: "e1", pos: { x: 5.5, y: 5.5 }, hp: 100, maxHp: 100, type: "Warrior-Drone" } as any];
     mockState.visibleCells = ["5,5"];
+    mockState.discoveredCells = ["5,5"];
+    mockState.map.cells.push({ x: 5, y: 5, type: "Floor" as any, roomId: "room-1" } as any);
 
     // 1. Action Select -> Use Item (3)
     controller.handleMenuInput("3", mockState);
@@ -93,12 +96,16 @@ describe("Regression 7zx6 - Healing Flow", () => {
     expect(controller.menuState).toBe("TARGET_SELECT");
     expect(controller.pendingItemId).toBe("frag_grenade");
 
-    // 3. Target Select -> Enemy 1 (1)
+    // 3. Target Select -> Room 1 (1)
     controller.handleMenuInput("1", mockState);
 
-    // Should transition to UNIT_SELECT for grenades
-    expect(controller.menuState).toBe("UNIT_SELECT");
-    expect(mockClient.sendCommand).not.toHaveBeenCalled();
+    // Should EXECUTE IMMEDIATELY for grenades now
+    expect(mockClient.sendCommand).toHaveBeenCalledWith(expect.objectContaining({
+      type: CommandType.USE_ITEM,
+      itemId: "frag_grenade",
+      unitIds: []
+    }));
+    expect(controller.menuState).toBe("ACTION_SELECT");
   });
 
   it("should bypass UNIT_SELECT when clicking on canvas for healing items", () => {
@@ -115,7 +122,8 @@ describe("Regression 7zx6 - Healing Flow", () => {
     expect(mockClient.sendCommand).toHaveBeenCalledWith(expect.objectContaining({
       type: CommandType.USE_ITEM,
       itemId: "medkit",
-      targetUnitId: "u1"
+      targetUnitId: "u1",
+      unitIds: []
     }));
 
     // Should return to ACTION_SELECT

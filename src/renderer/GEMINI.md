@@ -29,7 +29,7 @@ This directory contains the main thread rendering logic and user interface for V
 ## Functionality
 
 - **Real-time Rendering**: Efficiently draws the game state at 60 FPS.
-- **Hierarchical Command Menu**: A keyboard-first interface for controlling squad members.
+- **Hierarchical Command Menu**: A keyboard-first interface for controlling squad members. Includes improved Commander Ability UX for Medkits (hidden board labels), Grenades (cell-based targeting), and Scanners.
 - **Drag & Drop Squad Builder**: A modern interface for selecting and assigning units to the squad, featuring a draggable roster and deployment slots with mission-specific locking (e.g., VIPs). Includes **Quick Actions** (Revive for Clone mode, Recruit for generic reinforcements).
 - **Mission Setup**: Allows configuring map parameters for custom missions. Automatically calculates the recommended number of enemy spawn points based on map size (`1 + floor((size - 6) / 2)`), while allowing manual overrides. Features a Campaign Context Header displaying difficulty, mission number, and sector when in campaign mode. Now integrated into `CampaignShell` for both Campaign and Custom modes to ensure consistent navigation.
 - **Fog of War**: Implements visual shroud and discovery states based on the simulation data.
