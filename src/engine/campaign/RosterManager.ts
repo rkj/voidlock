@@ -46,7 +46,7 @@ export class RosterManager {
   /**
    * Recruits a new soldier.
    */
-  public recruitSoldier(state: CampaignState, archetypeId: string, name: string): void {
+  public recruitSoldier(state: CampaignState, archetypeId: string, name: string): string {
     const COST = 100;
     if (state.scrap < COST) {
       throw new Error("Insufficient scrap to recruit soldier.");
@@ -80,6 +80,7 @@ export class RosterManager {
 
     state.scrap -= COST;
     state.roster.push(newSoldier);
+    return newSoldier.id;
   }
 
   /**

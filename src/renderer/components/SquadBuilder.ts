@@ -110,11 +110,33 @@ export class SquadBuilder {
                             const name = await this.context.modalService.prompt("Enter soldier name:", `Recruit ${state.roster.length + 1}`);
                             if (name) {
                                 try {
-                                    this.context.campaignManager.recruitSoldier(
+                                    const newId = this.context.campaignManager.recruitSoldier(
                                         state.unlockedArchetypes[Math.floor(Math.random() * state.unlockedArchetypes.length)],
                                         name
                                     );
+                                    
+                                    // Auto-deploy if slot available
+                                    const totalOccupied = this.squad.soldiers.length + (isEscortMission ? 1 : 0);
+                                    if (totalOccupied < 4) {
+                                        const newState = this.context.campaignManager.getState();
+                                        const s = newState?.roster.find(r => r.id === newId);
+                                        if (s) {
+                                            this.squad.soldiers.push({
+                                                id: s.id,
+                                                archetypeId: s.archetypeId,
+                                                hp: s.hp,
+                                                maxHp: s.maxHp,
+                                                soldierAim: s.soldierAim,
+                                                rightHand: s.equipment.rightHand,
+                                                leftHand: s.equipment.leftHand,
+                                                body: s.equipment.body,
+                                                feet: s.equipment.feet,
+                                            });
+                                        }
+                                    }
+
                                     this.onSquadUpdated(this.squad);
+                                    if (this.context.campaignShell) this.context.campaignShell.refresh();
                                     updateCount();
                                 } catch (err: any) {
                                     await this.context.modalService.alert(err.message);
@@ -204,7 +226,29 @@ export class SquadBuilder {
                         e.stopPropagation();
                         try {
                             this.context.campaignManager.reviveSoldier(soldier.id);
+                            
+                            // Auto-deploy if slot available
+                            const totalOccupied = this.squad.soldiers.length + (isEscortMission ? 1 : 0);
+                            if (totalOccupied < 4 && !this.squad.soldiers.some(s => s.id === soldier.id)) {
+                                const newState = this.context.campaignManager.getState();
+                                const s = newState?.roster.find(r => r.id === soldier.id);
+                                if (s) {
+                                    this.squad.soldiers.push({
+                                        id: s.id,
+                                        archetypeId: s.archetypeId,
+                                        hp: s.hp,
+                                        maxHp: s.maxHp,
+                                        soldierAim: s.soldierAim,
+                                        rightHand: s.equipment.rightHand,
+                                        leftHand: s.equipment.leftHand,
+                                        body: s.equipment.body,
+                                        feet: s.equipment.feet,
+                                    });
+                                }
+                            }
+
                             this.onSquadUpdated(this.squad);
+                            if (this.context.campaignShell) this.context.campaignShell.refresh();
                             updateCount();
                         } catch (err: any) {
                             await this.context.modalService.alert(err.message);
