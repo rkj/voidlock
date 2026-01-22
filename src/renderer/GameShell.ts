@@ -31,13 +31,13 @@ export class GameShell {
     }
 
     if (config.secondaryAction) {
-        const secBtn = document.createElement("button");
-        secBtn.textContent = config.secondaryAction.label;
-        secBtn.className = "menu-button shell-button";
-        secBtn.style.fontSize = "0.8em";
-        secBtn.style.padding = "4px 12px";
-        secBtn.onclick = config.secondaryAction.onClick;
-        this.headerControls.appendChild(secBtn);
+      const secBtn = document.createElement("button");
+      secBtn.textContent = config.secondaryAction.label;
+      secBtn.className = "menu-button shell-button";
+      secBtn.style.fontSize = "0.8em";
+      secBtn.style.padding = "4px 12px";
+      secBtn.onclick = config.secondaryAction.onClick;
+      this.headerControls.appendChild(secBtn);
     }
 
     // Update Footer

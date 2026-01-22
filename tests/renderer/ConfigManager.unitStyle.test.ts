@@ -3,7 +3,11 @@
  */
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { ConfigManager } from "../../src/renderer/ConfigManager";
-import { MapGeneratorType, MissionType, UnitStyle } from "../../src/shared/types";
+import {
+  MapGeneratorType,
+  MissionType,
+  UnitStyle,
+} from "../../src/shared/types";
 
 describe("ConfigManager - unitStyle", () => {
   beforeEach(() => {

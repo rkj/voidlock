@@ -25,7 +25,7 @@ describe("Map Placement Fuzzing (voidlock-gemini-x81g)", () => {
             type: genType,
           });
           const map = generator.generate();
-          
+
           assertPlacementRules(map, width, height);
         });
       });
@@ -33,7 +33,11 @@ describe("Map Placement Fuzzing (voidlock-gemini-x81g)", () => {
   });
 });
 
-function assertPlacementRules(map: MapDefinition, width: number, height: number) {
+function assertPlacementRules(
+  map: MapDefinition,
+  width: number,
+  height: number,
+) {
   const generator = new MapGenerator({
     seed: 0,
     width,
@@ -41,8 +45,10 @@ function assertPlacementRules(map: MapDefinition, width: number, height: number)
     type: MapGeneratorType.Procedural,
   });
   const result = generator.validate(map);
-  
+
   if (!result.isValid) {
-    throw new Error(`Validation failed for ${width}x${height} map:\n${result.issues.join("\n")}`);
+    throw new Error(
+      `Validation failed for ${width}x${height} map:\n${result.issues.join("\n")}`,
+    );
   }
 }

@@ -56,15 +56,13 @@ The map generation subsystem must utilize a unified configuration model. Instead
 - **Loading:** Ability to bypass generation and load a specific `MapDefinition` (for static maps or save games).
 
 - **Validation:**
-
   - **Enforces Strict Placement Rules (Section 8.5):** Ensures all spawn points (squad and enemy) and objectives are located in rooms (not corridors) and that squad and enemy spawns occupy mutually exclusive rooms.
 
 - **Map Generation Strategy Selection**: The `MapGenerator` (or its client) must support selecting different generation strategies (e.g., `procedural-maze`, `static-predefined`, `custom-scripted`).
 
 - **Connectivity Guarantee:**
-
   - The generator must ensure that every playable cell (Floor) is part of a single connected component reachable from the Squad Spawn. "Islands" or unreachable rooms are a critical failure.
-  - *Implementation Note:* See [ADR 0014](../docs/adr/0014-map-generation-correctness.md) for the "Correct by Construction" technical requirement.
+  - _Implementation Note:_ See [ADR 0014](../docs/adr/0014-map-generation-correctness.md) for the "Correct by Construction" technical requirement.
 
 ### 8.5 Entity Placement Constraints (Strict)
 
@@ -135,9 +133,7 @@ A high-density generator designed for exploration depth.
 To facilitate easy creation and debugging of maps, especially for hardcoded or test scenarios, the system should support conversion between `MapDefinition` and a simplified ASCII string format that accurately reflects the "walls between cells" model.
 
 - **Format**: The ASCII representation will use an expanded grid where each character position either represents a cell's content, a wall segment, or a wall corner. For a map of `width` W and `height` H, the ASCII grid will be `(2W+1)` columns wide and `(2H+1)` rows tall.
-
   - **Cell Content Characters (at `(2x+1, 2y+1)` positions):**
-
     - `' '` (space): Floor cell (passable, default interior of the ship).
     - `'#'`: Void cell (impassable, empty space or solid rock).
     - `'S'`: Floor cell with a Spawn Point
@@ -146,7 +142,6 @@ To facilitate easy creation and debugging of maps, especially for hardcoded or t
     - _Priority_: For Floor cells: `S` > `E` > `O` > ` `. If Cell is `Void`, then `#` overrides all other content.
 
   - **Wall/Passage Characters:**
-
     - **Horizontal Wall/Passage (at `(2x+1, 2y)` positions):**
       - `'-'`: Horizontal wall segment
       - `' '` (space): Horizontal open passage (no wall)
@@ -161,7 +156,6 @@ To facilitate easy creation and debugging of maps, especially for hardcoded or t
       - `' '` (space): Corner with no adjacent walls (or just for visual spacing if open passages meet)
 
 - **Conversion**:
-
   - `toAscii(map: MapDefinition) -> string`: Convert a `MapDefinition` object into its ASCII string representation.
   - `fromAscii(asciiMap: string) -> MapDefinition`: Parse an ASCII string representation back into a `MapDefinition` object.
   - _Note_: The `fromAscii` conversion will need sensible defaults for attributes not explicitly representable in ASCII (e.g., door HP, objective kind). It will also need to infer wall `true`/`false` based on the presence of `'-'`, `'|'`, `'='`, `'I'` characters.

@@ -97,10 +97,10 @@ describe("Q and ESC Key Navigation", () => {
     getSelectedUnitId.mockReturnValue(null);
     const event = new KeyboardEvent("keydown", { key: "Escape" });
     document.dispatchEvent(event);
-    
+
     // Wait for the promise in InputManager
-    await new Promise(resolve => setTimeout(resolve, 0));
-    
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
     expect(abortMission).toHaveBeenCalled();
   });
 

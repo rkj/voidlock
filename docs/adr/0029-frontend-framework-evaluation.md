@@ -12,6 +12,7 @@ We need to evaluate whether continuing with custom Vanilla DOM manipulation is s
 ## Analysis
 
 ### 1. Current Architecture (Vanilla TypeScript)
+
 - **Pattern:** Immediate-mode style updates for HUD (re-rendering innerHTML) and Component-style classes for Screens (managing their own root elements).
 - **State:** Local class properties act as state. `render()` methods are called manually after state changes.
 - **Performance:** extremely high. Direct DOM updates have zero library overhead.
@@ -19,6 +20,7 @@ We need to evaluate whether continuing with custom Vanilla DOM manipulation is s
 - **Development Experience:** "Close to the metal." Full control, but requires writing boilerplate for element creation, event delegation, and diffing (or nuking `innerHTML`).
 
 ### 2. Framework Alternative (e.g., React/Preact)
+
 - **Pattern:** Declarative components.
 - **State:** `useState`, `useReducer`, Context API.
 - **Performance:** Virtual DOM (VDOM) overhead. In a game loop running at 60 FPS, syncing the React tree with the Engine's `GameState` can be costly if not heavily optimized (e.g., `memo`, `useRef` bridges).
@@ -47,7 +49,7 @@ We will **NOT** adopt a frontend framework at this time.
 
 4.  **Error Prone Concerns:**
     - Frameworks hide complexity. In a deterministic simulation environment, "hidden" behavior is a liability.
-    - Custom DOM code explicitly defines *exactly* what happens on every user interaction, reducing the surface area for "magic" bugs.
+    - Custom DOM code explicitly defines _exactly_ what happens on every user interaction, reducing the surface area for "magic" bugs.
 
 ## Future Considerations
 

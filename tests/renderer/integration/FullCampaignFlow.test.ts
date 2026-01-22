@@ -10,7 +10,7 @@ import { GameApp } from "@src/renderer/app/GameApp";
 
 // Mock dependencies
 vi.mock("@package.json", () => ({
-  default: { version: "1.0.0" }
+  default: { version: "1.0.0" },
 }));
 
 // Trigger for GameClient callbacks
@@ -18,7 +18,9 @@ let stateUpdateCallback: ((state: any) => void) | null = null;
 
 const mockGameClient = {
   init: vi.fn(),
-  onStateUpdate: vi.fn((cb) => { stateUpdateCallback = cb; }),
+  onStateUpdate: vi.fn((cb) => {
+    stateUpdateCallback = cb;
+  }),
   stop: vi.fn(),
   getIsPaused: vi.fn().mockReturnValue(false),
   getTargetScale: vi.fn().mockReturnValue(1.0),
@@ -169,43 +171,63 @@ describe("Full Campaign Flow Integration", () => {
 
     // 1. Start Standard Campaign
     document.getElementById("btn-menu-campaign")?.click();
-    expect(document.getElementById("screen-campaign")?.style.display).toBe("flex");
-    
-    const standardCard = Array.from(document.querySelectorAll(".difficulty-card")).find(c => c.textContent?.includes("Standard")) as HTMLElement;
+    expect(document.getElementById("screen-campaign")?.style.display).toBe(
+      "flex",
+    );
+
+    const standardCard = Array.from(
+      document.querySelectorAll(".difficulty-card"),
+    ).find((c) => c.textContent?.includes("Standard")) as HTMLElement;
     expect(standardCard).toBeTruthy();
     standardCard?.click();
 
-    const startBtn = document.querySelector(".campaign-setup-wizard .primary-button") as HTMLElement;
+    const startBtn = document.querySelector(
+      ".campaign-setup-wizard .primary-button",
+    ) as HTMLElement;
     expect(startBtn).toBeTruthy();
     startBtn?.click();
-    
+
     const state = cm.getState();
     expect(state).toBeTruthy();
     expect(state?.rules.difficulty).toBe("Standard");
     expect(state?.roster.length).toBe(4);
 
     // 2. Force Lose a mission with casualties
-    const accessibleCombatNode = cm.getState()?.nodes.find(n => n.status === "Accessible" && (n.type === "Combat" || n.type === "Elite" || n.type === "Boss"));
-    const firstNode = document.querySelector(`.campaign-node[data-id="${accessibleCombatNode?.id}"]`) as HTMLElement;
+    const accessibleCombatNode = cm
+      .getState()
+      ?.nodes.find(
+        (n) =>
+          n.status === "Accessible" &&
+          (n.type === "Combat" || n.type === "Elite" || n.type === "Boss"),
+      );
+    const firstNode = document.querySelector(
+      `.campaign-node[data-id="${accessibleCombatNode?.id}"]`,
+    ) as HTMLElement;
     firstNode?.click();
-    
-    // Wait for async onCampaignNodeSelected
-    await new Promise(resolve => setTimeout(resolve, 50));
 
-    expect(document.getElementById("screen-mission-setup")?.style.display).toBe("flex");
+    // Wait for async onCampaignNodeSelected
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(document.getElementById("screen-mission-setup")?.style.display).toBe(
+      "flex",
+    );
 
     const soldierCards = document.querySelectorAll(".soldier-card");
-    soldierCards.forEach(card => {
-        if (!card.classList.contains("deployed")) {
-            card.dispatchEvent(new Event("dblclick"));
-        }
+    soldierCards.forEach((card) => {
+      if (!card.classList.contains("deployed")) {
+        card.dispatchEvent(new Event("dblclick"));
+      }
     });
-    
+
     document.getElementById("btn-goto-equipment")?.click();
-    const equipmentLaunchBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent?.includes("Confirm")) as HTMLElement;
+    const equipmentLaunchBtn = Array.from(
+      document.querySelectorAll("#screen-equipment button"),
+    ).find((b) => b.textContent?.includes("Confirm")) as HTMLElement;
     equipmentLaunchBtn?.click();
 
-    expect(document.getElementById("screen-mission")?.style.display).toBe("flex");
+    expect(document.getElementById("screen-mission")?.style.display).toBe(
+      "flex",
+    );
 
     const deadSoldierId = cm.getState()!.roster[0].id;
     stateUpdateCallback!({
@@ -213,10 +235,42 @@ describe("Full Campaign Flow Integration", () => {
       t: 100,
       stats: { aliensKilled: 5, scrapGained: 50, threatLevel: 80 },
       units: [
-        { id: deadSoldierId, hp: 0, maxHp: 100, kills: 2, state: UnitState.Dead, pos: { x: 0, y: 0 }, stats: { speed: 20 } },
-        { id: cm.getState()!.roster[1].id, hp: 50, maxHp: 100, kills: 1, state: UnitState.Idle, pos: { x: 1, y: 1 }, stats: { speed: 20 } },
-        { id: cm.getState()!.roster[2].id, hp: 100, maxHp: 100, kills: 1, state: UnitState.Idle, pos: { x: 2, y: 2 }, stats: { speed: 20 } },
-        { id: cm.getState()!.roster[3].id, hp: 100, maxHp: 100, kills: 1, state: UnitState.Idle, pos: { x: 3, y: 3 }, stats: { speed: 20 } },
+        {
+          id: deadSoldierId,
+          hp: 0,
+          maxHp: 100,
+          kills: 2,
+          state: UnitState.Dead,
+          pos: { x: 0, y: 0 },
+          stats: { speed: 20 },
+        },
+        {
+          id: cm.getState()!.roster[1].id,
+          hp: 50,
+          maxHp: 100,
+          kills: 1,
+          state: UnitState.Idle,
+          pos: { x: 1, y: 1 },
+          stats: { speed: 20 },
+        },
+        {
+          id: cm.getState()!.roster[2].id,
+          hp: 100,
+          maxHp: 100,
+          kills: 1,
+          state: UnitState.Idle,
+          pos: { x: 2, y: 2 },
+          stats: { speed: 20 },
+        },
+        {
+          id: cm.getState()!.roster[3].id,
+          hp: 100,
+          maxHp: 100,
+          kills: 1,
+          state: UnitState.Idle,
+          pos: { x: 3, y: 3 },
+          stats: { speed: 20 },
+        },
       ],
       objectives: [],
       settings: { debugOverlayEnabled: false, timeScale: 1.0, isPaused: false },
@@ -227,31 +281,51 @@ describe("Full Campaign Flow Integration", () => {
       loot: [],
     });
 
-    expect(document.getElementById("screen-debrief")?.style.display).toBe("flex");
-    expect(cm.getState()?.roster.find(s => s.id === deadSoldierId)?.status).toBe("Dead");
+    expect(document.getElementById("screen-debrief")?.style.display).toBe(
+      "flex",
+    );
+    expect(
+      cm.getState()?.roster.find((s) => s.id === deadSoldierId)?.status,
+    ).toBe("Dead");
 
     // 3. Verify Dead soldiers are NOT in the next Mission Setup squad
-    const returnBtn = Array.from(document.querySelectorAll("#screen-debrief button")).find(b => b.textContent?.includes("Return")) as HTMLElement;
+    const returnBtn = Array.from(
+      document.querySelectorAll("#screen-debrief button"),
+    ).find((b) => b.textContent?.includes("Return")) as HTMLElement;
     returnBtn?.click();
 
-    expect(document.getElementById("screen-campaign")?.style.display).toBe("flex");
+    expect(document.getElementById("screen-campaign")?.style.display).toBe(
+      "flex",
+    );
 
-    const nextCombatNode = cm.getState()?.nodes.find(n => n.status === "Accessible" && (n.type === "Combat" || n.type === "Elite" || n.type === "Boss"));
-    const nextNode = document.querySelector(`.campaign-node[data-id="${nextCombatNode?.id}"]`) as HTMLElement;
+    const nextCombatNode = cm
+      .getState()
+      ?.nodes.find(
+        (n) =>
+          n.status === "Accessible" &&
+          (n.type === "Combat" || n.type === "Elite" || n.type === "Boss"),
+      );
+    const nextNode = document.querySelector(
+      `.campaign-node[data-id="${nextCombatNode?.id}"]`,
+    ) as HTMLElement;
     nextNode?.click();
 
     // Wait for async onCampaignNodeSelected
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
-    expect(document.getElementById("screen-mission-setup")?.style.display).toBe("flex");
+    expect(document.getElementById("screen-mission-setup")?.style.display).toBe(
+      "flex",
+    );
 
     const selectedCards = document.querySelectorAll(".soldier-card.deployed");
-    const isS0Selected = Array.from(selectedCards).some(c => (c as HTMLElement).textContent?.includes("Recruit 1"));
-    expect(isS0Selected).toBe(false); 
+    const isS0Selected = Array.from(selectedCards).some((c) =>
+      (c as HTMLElement).textContent?.includes("Recruit 1"),
+    );
+    expect(isS0Selected).toBe(false);
 
     // 4. Verify Boss Win triggers Victory screen
     const bossState = cm.getState()!;
-    const bossNode = bossState.nodes.find(n => n.type === "Boss")!;
+    const bossNode = bossState.nodes.find((n) => n.type === "Boss")!;
     bossNode.status = "Accessible";
     cm.save();
 
@@ -259,27 +333,46 @@ describe("Full Campaign Flow Integration", () => {
     document.getElementById("btn-setup-back")?.click();
     document.getElementById("btn-menu-campaign")?.click();
 
-    const bossNodeEl = document.querySelector(`.campaign-node[data-id="${bossNode.id}"]`) as HTMLElement;
+    const bossNodeEl = document.querySelector(
+      `.campaign-node[data-id="${bossNode.id}"]`,
+    ) as HTMLElement;
     expect(bossNodeEl).toBeTruthy();
     bossNodeEl.click();
 
     // Wait for async onCampaignNodeSelected
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
     // Re-select squad
-    document.querySelectorAll(".soldier-card").forEach(card => {
-        if (!card.classList.contains("deployed") && !card.classList.contains("disabled")) {
-            card.dispatchEvent(new Event("dblclick"));
-        }
+    document.querySelectorAll(".soldier-card").forEach((card) => {
+      if (
+        !card.classList.contains("deployed") &&
+        !card.classList.contains("disabled")
+      ) {
+        card.dispatchEvent(new Event("dblclick"));
+      }
     });
     document.getElementById("btn-goto-equipment")?.click();
-    (Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent?.includes("Confirm")) as HTMLElement).click();
+    (
+      Array.from(document.querySelectorAll("#screen-equipment button")).find(
+        (b) => b.textContent?.includes("Confirm"),
+      ) as HTMLElement
+    ).click();
 
     stateUpdateCallback!({
       status: "Won",
       t: 200,
       stats: { aliensKilled: 50, scrapGained: 1000, threatLevel: 0 },
-      units: [{ id: cm.getState()!.roster[1].id, hp: 100, maxHp: 100, kills: 20, state: UnitState.Idle, pos: { x: 0, y: 0 }, stats: { speed: 20 } }],
+      units: [
+        {
+          id: cm.getState()!.roster[1].id,
+          hp: 100,
+          maxHp: 100,
+          kills: 20,
+          state: UnitState.Idle,
+          pos: { x: 0, y: 0 },
+          stats: { speed: 20 },
+        },
+      ],
       objectives: [],
       settings: { debugOverlayEnabled: false, timeScale: 1.0, isPaused: false },
       map: { width: 10, height: 10, cells: [] },
@@ -290,27 +383,44 @@ describe("Full Campaign Flow Integration", () => {
     });
 
     expect(cm.getState()?.status).toBe("Victory");
-    const returnFromBossBtn = Array.from(document.querySelectorAll("#screen-debrief button")).find(b => b.textContent?.includes("Return")) as HTMLElement;
+    const returnFromBossBtn = Array.from(
+      document.querySelectorAll("#screen-debrief button"),
+    ).find((b) => b.textContent?.includes("Return")) as HTMLElement;
     returnFromBossBtn?.click();
 
-    expect(document.getElementById("screen-campaign-summary")?.style.display).toBe("flex");
+    expect(
+      document.getElementById("screen-campaign-summary")?.style.display,
+    ).toBe("flex");
     expect(document.querySelector(".campaign-victory-overlay")).toBeTruthy();
 
     // 5. Verify Bankruptcy triggers Defeat screen
-    const summaryBtn = Array.from(document.querySelectorAll(".campaign-summary-screen button")).find(b => b.textContent?.includes("Retire") || b.textContent?.includes("Abandon")) as HTMLElement;
+    const summaryBtn = Array.from(
+      document.querySelectorAll(".campaign-summary-screen button"),
+    ).find(
+      (b) =>
+        b.textContent?.includes("Retire") || b.textContent?.includes("Abandon"),
+    ) as HTMLElement;
     expect(summaryBtn).toBeTruthy();
     summaryBtn?.click();
-    
-    expect(document.getElementById("screen-main-menu")?.style.display).toBe("flex");
+
+    expect(document.getElementById("screen-main-menu")?.style.display).toBe(
+      "flex",
+    );
     document.getElementById("btn-menu-campaign")?.click();
-    expect(document.getElementById("screen-campaign")?.style.display).toBe("flex");
+    expect(document.getElementById("screen-campaign")?.style.display).toBe(
+      "flex",
+    );
 
     // Choose Standard again
-    const standardCard2 = Array.from(document.querySelectorAll(".difficulty-card")).find(c => c.textContent?.includes("Standard")) as HTMLElement;
+    const standardCard2 = Array.from(
+      document.querySelectorAll(".difficulty-card"),
+    ).find((c) => c.textContent?.includes("Standard")) as HTMLElement;
     expect(standardCard2).toBeTruthy();
     standardCard2?.click();
 
-    const startBtn2 = document.querySelector(".campaign-setup-wizard .primary-button") as HTMLElement;
+    const startBtn2 = document.querySelector(
+      ".campaign-setup-wizard .primary-button",
+    ) as HTMLElement;
     expect(startBtn2).toBeTruthy();
     startBtn2?.click();
 
@@ -318,23 +428,35 @@ describe("Full Campaign Flow Integration", () => {
     expect(bankruptcyState).toBeTruthy();
 
     // Kill everyone
-    bankruptcyState.roster.forEach(s => s.status = "Dead");
+    bankruptcyState.roster.forEach((s) => (s.status = "Dead"));
     // Spend all scrap
-    bankruptcyState.scrap = 50; 
+    bankruptcyState.scrap = 50;
     cm.save();
 
-    const bNode = bankruptcyState.nodes.find(n => n.status === "Accessible" && (n.type === "Combat" || n.type === "Elite" || n.type === "Boss"))!;
-    (document.querySelector(`.campaign-node[data-id="${bNode.id}"]`) as HTMLElement).click();
-    
+    const bNode = bankruptcyState.nodes.find(
+      (n) =>
+        n.status === "Accessible" &&
+        (n.type === "Combat" || n.type === "Elite" || n.type === "Boss"),
+    )!;
+    (
+      document.querySelector(
+        `.campaign-node[data-id="${bNode.id}"]`,
+      ) as HTMLElement
+    ).click();
+
     // Wait for async onCampaignNodeSelected
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
     document.getElementById("btn-goto-equipment")?.click();
-    const confBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent?.includes("Confirm")) as HTMLElement;
+    const confBtn = Array.from(
+      document.querySelectorAll("#screen-equipment button"),
+    ).find((b) => b.textContent?.includes("Confirm")) as HTMLElement;
     confBtn?.click();
-    
-    expect(document.getElementById("screen-mission")?.style.display).toBe("flex");
-    
+
+    expect(document.getElementById("screen-mission")?.style.display).toBe(
+      "flex",
+    );
+
     stateUpdateCallback!({
       status: "Lost",
       t: 10,
@@ -348,12 +470,16 @@ describe("Full Campaign Flow Integration", () => {
       discoveredCells: [],
       loot: [],
     });
-    
+
     expect(cm.getState()?.status).toBe("Defeat");
-    const returnFromDefeatBtn = Array.from(document.querySelectorAll("#screen-debrief button")).find(b => b.textContent?.includes("Return")) as HTMLElement;
+    const returnFromDefeatBtn = Array.from(
+      document.querySelectorAll("#screen-debrief button"),
+    ).find((b) => b.textContent?.includes("Return")) as HTMLElement;
     returnFromDefeatBtn?.click();
 
-    expect(document.getElementById("screen-campaign-summary")?.style.display).toBe("flex");
+    expect(
+      document.getElementById("screen-campaign-summary")?.style.display,
+    ).toBe("flex");
     expect(document.querySelector(".campaign-game-over")).toBeTruthy();
   });
 });

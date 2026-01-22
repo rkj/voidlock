@@ -40,7 +40,7 @@ describe("regression_voidlock_9bsw_sparse_json", () => {
 
     expect(graph.cells[0][0].type).toBe(CellType.Floor);
     expect(graph.cells[0][1].type).toBe(CellType.Void);
-    
+
     // Check if boundaries are correctly created even for sparse cells
     // Boundary between (0,0) and (1,0) should exist and be accessible from (0,0)
     expect(graph.cells[0][0].edges.e).toBeDefined();

@@ -57,15 +57,18 @@ describe("Regression voidlock-z1zk: State Restoration after Manual Actions", () 
       kills: 0,
       damageDealt: 0,
       objectivesCompleted: 0,
-      aiEnabled: true
+      aiEnabled: true,
     });
   });
 
   it("should resume AI after a manual PICKUP command if it was enabled before", () => {
     // Add loot at (3, 0)
     const actualState = (engine as any).state;
-    (engine as any).lootManager.spawnLoot(actualState, "medkit", { x: 3.5, y: 0.5 });
-    
+    (engine as any).lootManager.spawnLoot(actualState, "medkit", {
+      x: 3.5,
+      y: 0.5,
+    });
+
     expect(actualState.loot.length).toBe(1);
     const lootId = actualState.loot[0].id;
 
@@ -95,7 +98,7 @@ describe("Regression voidlock-z1zk: State Restoration after Manual Actions", () 
         break;
       }
     }
-    
+
     expect(lootPickedUp).toBe(true);
     expect(engine.getState().units[0].aiEnabled).toBe(true);
   });
@@ -126,7 +129,7 @@ describe("Regression voidlock-z1zk: State Restoration after Manual Actions", () 
       engine.update(100);
       if (engine.getState().units[0].aiEnabled) break;
     }
-    
+
     expect(engine.getState().units[0].aiEnabled).toBe(true);
     expect(engine.getState().squadInventory["medkit"]).toBe(0);
   });

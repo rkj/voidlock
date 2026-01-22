@@ -13,15 +13,15 @@ describe("Regression 3dz9: Session Recovery / Catch-up", () => {
     const seed = 123;
     // Simple 4x4 open map
     const map: MapDefinition = {
-        width: 4,
-        height: 4,
-        cells: [],
-        squadSpawn: { x: 1, y: 1 }
+      width: 4,
+      height: 4,
+      cells: [],
+      squadSpawn: { x: 1, y: 1 },
     };
     for (let y = 0; y < 4; y++) {
-        for (let x = 0; x < 4; x++) {
-            map.cells.push({ x, y, type: CellType.Floor });
-        }
+      for (let x = 0; x < 4; x++) {
+        map.cells.push({ x, y, type: CellType.Floor });
+      }
     }
 
     const squadConfig = {
@@ -41,7 +41,7 @@ describe("Regression 3dz9: Session Recovery / Catch-up", () => {
       0, // threat
       1.0, // timeScale
       false, // startPaused
-      EngineMode.Simulation
+      EngineMode.Simulation,
     );
 
     // Give a move command
@@ -84,15 +84,15 @@ describe("Regression 3dz9: Session Recovery / Catch-up", () => {
       1.0,
       false,
       EngineMode.Simulation,
-      commandLog
+      commandLog,
     );
 
     const recoveredState = recoveredEngine.getState();
-    
+
     // It should have caught up to the last tick in the command log
     const lastTick = commandLog[commandLog.length - 1].tick;
     expect(recoveredState.t).toBeGreaterThanOrEqual(lastTick);
-    
+
     // The unit should be at the same (or very close) position
     expect(recoveredState.units[0].pos.x).toBeCloseTo(finalPos.x);
     expect(recoveredState.units[0].pos.y).toBeCloseTo(finalPos.y);

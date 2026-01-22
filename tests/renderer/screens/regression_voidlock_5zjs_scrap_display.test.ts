@@ -39,11 +39,16 @@ describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => 
       getState: vi.fn().mockReturnValue({
         scrap: 450,
         intel: 120,
-        currentSector: 1
-      })
+        currentSector: 1,
+      }),
     };
 
-    shell = new CampaignShell("screen-campaign-shell", mockManager, vi.fn(), vi.fn());
+    shell = new CampaignShell(
+      "screen-campaign-shell",
+      mockManager,
+      vi.fn(),
+      vi.fn(),
+    );
 
     const screen = new EquipmentScreen(
       "screen-equipment",
@@ -51,9 +56,9 @@ describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => 
       initialConfig,
       onSave,
       onBack,
-      () => shell.refresh()
+      () => shell.refresh(),
     );
-    
+
     shell.show("campaign");
     screen.show();
 
@@ -70,7 +75,12 @@ describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => 
       getState: vi.fn().mockReturnValue(null),
     };
 
-    shell = new CampaignShell("screen-campaign-shell", mockManager, vi.fn(), vi.fn());
+    shell = new CampaignShell(
+      "screen-campaign-shell",
+      mockManager,
+      vi.fn(),
+      vi.fn(),
+    );
 
     const screen = new EquipmentScreen(
       "screen-equipment",
@@ -78,9 +88,9 @@ describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => 
       initialConfig,
       onSave,
       onBack,
-      () => shell.refresh()
+      () => shell.refresh(),
     );
-    
+
     shell.show("custom");
     screen.show();
 

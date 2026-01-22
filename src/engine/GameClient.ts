@@ -49,8 +49,14 @@ export class GameClient {
       if (this.isStopped) return;
       const msg = e.data;
       if (msg.type === "STATE_UPDATE") {
-        if (typeof localStorage !== "undefined" && msg.payload.settings.mode === EngineMode.Simulation) {
-          localStorage.setItem("voidlock_mission_tick", Math.floor(msg.payload.t).toString());
+        if (
+          typeof localStorage !== "undefined" &&
+          msg.payload.settings.mode === EngineMode.Simulation
+        ) {
+          localStorage.setItem(
+            "voidlock_mission_tick",
+            Math.floor(msg.payload.t).toString(),
+          );
         }
         if (this.onStateUpdateCb) {
           this.onStateUpdateCb(msg.payload);
@@ -110,10 +116,11 @@ export class GameClient {
     this.startTime = Date.now();
 
     // If we have a command log, synchronize startTime so subsequent commands have correct ticks
-    const lastCommandTick = commandLog && commandLog.length > 0
-      ? commandLog[commandLog.length - 1].tick
-      : 0;
-    
+    const lastCommandTick =
+      commandLog && commandLog.length > 0
+        ? commandLog[commandLog.length - 1].tick
+        : 0;
+
     const effectiveStartTimeTick = Math.max(lastCommandTick, targetTick);
     this.startTime -= effectiveStartTimeTick;
 
@@ -165,7 +172,11 @@ export class GameClient {
 
     // Sync current scale to new worker
     this.sendTimeScaleToWorker(
-      this.isPaused ? (this.allowTacticalPause ? 0.05 : 0.0) : this.currentScale,
+      this.isPaused
+        ? this.allowTacticalPause
+          ? 0.05
+          : 0.0
+        : this.currentScale,
     );
 
     if (mode === EngineMode.Simulation && typeof localStorage !== "undefined") {
@@ -196,7 +207,10 @@ export class GameClient {
 
       // If we provided an initial command log, make sure it's also in the persistent log
       if (commandLog && commandLog.length > 0) {
-        localStorage.setItem("voidlock_mission_log", JSON.stringify(commandLog));
+        localStorage.setItem(
+          "voidlock_mission_log",
+          JSON.stringify(commandLog),
+        );
       } else {
         localStorage.setItem("voidlock_mission_log", "[]");
       }

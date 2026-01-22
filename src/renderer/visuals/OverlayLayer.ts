@@ -56,7 +56,11 @@ export class OverlayLayer implements RenderLayer {
       ctx.strokeStyle = this.theme.getColor("--color-los-soldier");
       ctx.lineWidth = 1;
       state.units.forEach((u) => {
-        if (u.hp > 0 && u.state !== UnitState.Extracted && u.state !== UnitState.Dead) {
+        if (
+          u.hp > 0 &&
+          u.state !== UnitState.Extracted &&
+          u.state !== UnitState.Dead
+        ) {
           state.visibleCells.forEach((cellKey) => {
             const [cx, cy] = cellKey.split(",").map(Number);
             ctx.beginPath();
@@ -69,15 +73,25 @@ export class OverlayLayer implements RenderLayer {
     }
 
     state.units.forEach((u) => {
-      if (u.hp > 0 && u.state !== UnitState.Extracted && u.state !== UnitState.Dead) {
-        const polygon = VisibilityPolygon.compute(u.pos, this.sharedState.graph!);
+      if (
+        u.hp > 0 &&
+        u.state !== UnitState.Extracted &&
+        u.state !== UnitState.Dead
+      ) {
+        const polygon = VisibilityPolygon.compute(
+          u.pos,
+          this.sharedState.graph!,
+        );
         if (polygon.length > 0) {
           const x = u.pos.x * cellSize;
           const y = u.pos.y * cellSize;
           const radius = (state.map.width + state.map.height) * cellSize;
           const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
           gradient.addColorStop(0, this.theme.getColor("--color-los-soldier"));
-          gradient.addColorStop(1, this.theme.getColor("--color-los-soldier-fade"));
+          gradient.addColorStop(
+            1,
+            this.theme.getColor("--color-los-soldier-fade"),
+          );
 
           ctx.fillStyle = gradient;
           ctx.beginPath();
@@ -100,13 +114,19 @@ export class OverlayLayer implements RenderLayer {
         if (!state.visibleCells.includes(cellKey)) return;
 
         const radius = (state.map.width + state.map.height) * cellSize;
-        const polygon = VisibilityPolygon.compute(e.pos, this.sharedState.graph!);
+        const polygon = VisibilityPolygon.compute(
+          e.pos,
+          this.sharedState.graph!,
+        );
         if (polygon.length > 0) {
           const x = e.pos.x * cellSize;
           const y = e.pos.y * cellSize;
           const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
           gradient.addColorStop(0, this.theme.getColor("--color-los-enemy"));
-          gradient.addColorStop(1, this.theme.getColor("--color-los-enemy-fade"));
+          gradient.addColorStop(
+            1,
+            this.theme.getColor("--color-los-enemy-fade"),
+          );
 
           ctx.fillStyle = gradient;
           ctx.beginPath();

@@ -1,12 +1,12 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { CoreEngine } from "../../src/engine/CoreEngine";
-import { 
-  MapDefinition, 
-  SquadConfig, 
-  MissionType, 
+import {
+  MapDefinition,
+  SquadConfig,
+  MissionType,
   UnitState,
   EnemyType,
-  CellType
+  CellType,
 } from "../../src/shared/types";
 
 describe("Enemy Tracers Regression (voidlock-uk61)", () => {
@@ -26,15 +26,20 @@ describe("Enemy Tracers Regression (voidlock-uk61)", () => {
   }
 
   const squadConfig: SquadConfig = {
-    soldiers: [
-      { id: "s1", archetypeId: "assault", hp: 100 }
-    ],
-    inventory: {}
+    soldiers: [{ id: "s1", archetypeId: "assault", hp: 100 }],
+    inventory: {},
   };
 
   it("should set lastAttackTime and lastAttackTarget when an enemy attacks", () => {
-    const engine = new CoreEngine(mockMap, 123, squadConfig, false, false, MissionType.Default);
-    
+    const engine = new CoreEngine(
+      mockMap,
+      123,
+      squadConfig,
+      false,
+      false,
+      MissionType.Default,
+    );
+
     // Clear initial units/enemies and add our own
     engine.clearUnits();
     engine.addUnit({
@@ -45,8 +50,13 @@ describe("Enemy Tracers Regression (voidlock-uk61)", () => {
       maxHp: 100,
       state: UnitState.Idle,
       stats: {
-        damage: 20, fireRate: 500, accuracy: 90, soldierAim: 90,
-        equipmentAccuracyBonus: 0, attackRange: 10, speed: 20
+        damage: 20,
+        fireRate: 500,
+        accuracy: 90,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 10,
+        speed: 20,
       },
       aiEnabled: false,
       commandQueue: [],
@@ -73,8 +83,8 @@ describe("Enemy Tracers Regression (voidlock-uk61)", () => {
     engine.update(16, 16);
 
     const updatedState = engine.getState();
-    const enemy = updatedState.enemies.find(e => e.id === "e1");
-    
+    const enemy = updatedState.enemies.find((e) => e.id === "e1");
+
     expect(enemy).toBeDefined();
     expect(enemy!.lastAttackTime).toBeDefined();
     expect(enemy!.lastAttackTime).toBe(updatedState.t);
@@ -84,7 +94,7 @@ describe("Enemy Tracers Regression (voidlock-uk61)", () => {
 
     expect(updatedState.attackEvents).toBeDefined();
     expect(updatedState.attackEvents!.length).toBeGreaterThan(0);
-    const event = updatedState.attackEvents!.find(e => e.attackerId === "e1");
+    const event = updatedState.attackEvents!.find((e) => e.attackerId === "e1");
     expect(event).toBeDefined();
     expect(event!.attackerId).toBe("e1");
     expect(event!.targetId).toBe("s1");

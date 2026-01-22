@@ -79,7 +79,7 @@ You are an AI contributor agent working on the Voidlock project. Your goal is to
   - **L**: Liskov Substitution Principle.
   - **I**: Interface Segregation Principle.
   - **D**: Dependency Inversion Principle.
-- **TDD (Test-Driven Development)**: You must write the test *before* the implementation.
+- **TDD (Test-Driven Development)**: You must write the test _before_ the implementation.
   - **Red**: Write a failing test that reproduces the bug or defines the new feature.
   - **Green**: Write the minimal code to make the test pass.
   - **Refactor**: Improve the code while keeping the test passing.
@@ -98,4 +98,3 @@ When finishing a feature or task, you MUST perform the following steps in order:
    - Update `package.json` with the new version.
 1. **Signal Completion**: Inform the Manager that the task is complete and ready for review. Do NOT perform the final commit or close the Beads task yourself.
 1. **NEVER Close as Failed**: Beads does not support a "failed" state. If a task cannot be completed or is blocked, leave it OPEN. Add a comment explaining the issue and return control to the Manager. Closing a task means it is fixed/done.
-

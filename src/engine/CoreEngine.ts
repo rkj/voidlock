@@ -204,7 +204,10 @@ export class CoreEngine {
           stats: {
             damage: vipArch.damage,
             fireRate:
-              vipArch.fireRate * (vipArch.speed > 0 ? SPEED_NORMALIZATION_CONST / vipArch.speed : 1),
+              vipArch.fireRate *
+              (vipArch.speed > 0
+                ? SPEED_NORMALIZATION_CONST / vipArch.speed
+                : 1),
             soldierAim: vipArch.soldierAim,
             equipmentAccuracyBonus: 0,
             accuracy: vipArch.soldierAim,
@@ -322,9 +325,10 @@ export class CoreEngine {
     }
 
     // Catch-up Phase: If in Simulation mode but have a command log or target tick, fast-forward
-    const lastCommandTick = this.commandLog.length > 0 
-      ? this.commandLog[this.commandLog.length - 1].tick 
-      : 0;
+    const lastCommandTick =
+      this.commandLog.length > 0
+        ? this.commandLog[this.commandLog.length - 1].tick
+        : 0;
     const finalCatchupTick = Math.max(lastCommandTick, targetTick);
 
     if (mode === EngineMode.Simulation && finalCatchupTick > 0) {

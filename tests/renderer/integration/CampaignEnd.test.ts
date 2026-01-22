@@ -7,7 +7,7 @@ import { MissionType, UnitState } from "@src/shared/types";
 
 // Mock dependencies before importing main.ts
 vi.mock("@package.json", () => ({
-  default: { version: "1.0.0" }
+  default: { version: "1.0.0" },
 }));
 
 // We need a way to trigger the GameClient callbacks
@@ -15,7 +15,9 @@ let stateUpdateCallback: ((state: any) => void) | null = null;
 
 const mockGameClient = {
   init: vi.fn(),
-  onStateUpdate: vi.fn((cb) => { stateUpdateCallback = cb; }),
+  onStateUpdate: vi.fn((cb) => {
+    stateUpdateCallback = cb;
+  }),
   stop: vi.fn(),
   getIsPaused: vi.fn().mockReturnValue(false),
   getTargetScale: vi.fn().mockReturnValue(1.0),
@@ -66,20 +68,36 @@ vi.mock("@src/renderer/ui/ModalService", () => ({
 const mockCampaignState: any = {
   status: "Active",
   nodes: [
-    { 
-      id: "node-boss", 
-      type: "Boss", 
-      status: "Accessible", 
+    {
+      id: "node-boss",
+      type: "Boss",
+      status: "Accessible",
       rank: 5,
-      difficulty: 3, 
-      mapSeed: 999, 
-      connections: [], 
+      difficulty: 3,
+      mapSeed: 999,
+      connections: [],
       position: { x: 500, y: 0 },
-      bonusLootCount: 0
-    }
+      bonusLootCount: 0,
+    },
   ],
   roster: [
-    { id: "s1", name: "Soldier 1", archetypeId: "scout", status: "Healthy", level: 1, hp: 100, maxHp: 100, xp: 0, soldierAim: 80, equipment: { rightHand: "pulse_rifle", leftHand: null, body: "basic_armor", feet: null } }
+    {
+      id: "s1",
+      name: "Soldier 1",
+      archetypeId: "scout",
+      status: "Healthy",
+      level: 1,
+      hp: 100,
+      maxHp: 100,
+      xp: 0,
+      soldierAim: 80,
+      equipment: {
+        rightHand: "pulse_rifle",
+        leftHand: null,
+        body: "basic_armor",
+        feet: null,
+      },
+    },
   ],
   scrap: 100,
   intel: 10,
@@ -110,7 +128,9 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
         load: vi.fn(),
         processMissionResult: vi.fn((report) => {
           if (report.result === "Won") {
-            const node = mockCampaignState.nodes.find((n: any) => n.id === report.nodeId);
+            const node = mockCampaignState.nodes.find(
+              (n: any) => n.id === report.nodeId,
+            );
             if (node?.type === "Boss") {
               mockCampaignState.status = "Victory";
             }
@@ -216,7 +236,7 @@ describe("Campaign End Integration", () => {
     // Import main.ts
     vi.resetModules();
     await import("@src/renderer/main");
-    
+
     // Trigger DOMContentLoaded
     document.dispatchEvent(new Event("DOMContentLoaded"));
   });
@@ -224,28 +244,38 @@ describe("Campaign End Integration", () => {
   it("should trigger Victory state and show victory report after Boss mission win", async () => {
     // 1. Go to Campaign
     document.getElementById("btn-menu-campaign")?.click();
-    expect(document.getElementById("screen-campaign")?.style.display).toBe("flex");
+    expect(document.getElementById("screen-campaign")?.style.display).toBe(
+      "flex",
+    );
 
     // 2. Select Boss Node
-    const bossNode = document.querySelector(".campaign-node[data-id='node-boss']") as HTMLElement;
+    const bossNode = document.querySelector(
+      ".campaign-node[data-id='node-boss']",
+    ) as HTMLElement;
     expect(bossNode).toBeDefined();
     bossNode.click();
-    
+
     // Wait for async onCampaignNodeSelected
-    await new Promise(resolve => setTimeout(resolve, 50));
-    
-    expect(document.getElementById("screen-mission-setup")?.style.display).toBe("flex");
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(document.getElementById("screen-mission-setup")?.style.display).toBe(
+      "flex",
+    );
 
     // 3. Launch Mission (skip Equipment for brevity, trigger CONFIRM directly if possible or just dblclick card)
     const cards = document.querySelectorAll(".soldier-card");
-    cards.forEach(card => card.dispatchEvent(new Event("dblclick")));
-    
+    cards.forEach((card) => card.dispatchEvent(new Event("dblclick")));
+
     document.getElementById("btn-goto-equipment")?.click();
     const allButtons = document.querySelectorAll("#screen-equipment button");
-    const equipmentLaunchBtn = Array.from(allButtons).find(b => b.textContent?.includes("Confirm")) as HTMLElement;
+    const equipmentLaunchBtn = Array.from(allButtons).find((b) =>
+      b.textContent?.includes("Confirm"),
+    ) as HTMLElement;
     equipmentLaunchBtn?.click();
 
-    expect(document.getElementById("screen-mission")?.style.display).toBe("flex");
+    expect(document.getElementById("screen-mission")?.style.display).toBe(
+      "flex",
+    );
 
     // 4. Trigger Win on Boss Node
     expect(stateUpdateCallback).not.toBeNull();
@@ -253,7 +283,17 @@ describe("Campaign End Integration", () => {
       status: "Won",
       t: 100,
       stats: { aliensKilled: 42, scrapGained: 500, threatLevel: 0 },
-      units: [{ id: "s1", hp: 100, maxHp: 100, kills: 10, state: UnitState.Idle, pos: { x: 0, y: 0 }, stats: { speed: 20 } }],
+      units: [
+        {
+          id: "s1",
+          hp: 100,
+          maxHp: 100,
+          kills: 10,
+          state: UnitState.Idle,
+          pos: { x: 0, y: 0 },
+          stats: { speed: 20 },
+        },
+      ],
       objectives: [],
       settings: { debugOverlayEnabled: false, timeScale: 1.0, isPaused: false },
       map: { width: 10, height: 10, cells: [] },
@@ -263,14 +303,20 @@ describe("Campaign End Integration", () => {
       loot: [],
     });
 
-    expect(document.getElementById("screen-debrief")?.style.display).toBe("flex");
+    expect(document.getElementById("screen-debrief")?.style.display).toBe(
+      "flex",
+    );
     expect(mockCampaignState.status).toBe("Victory");
 
     // 5. Return to Campaign Screen (now summary if Victory)
-    const continueBtn = Array.from(document.querySelectorAll("#screen-debrief button")).find(b => b.textContent?.includes("Return")) as HTMLElement;
+    const continueBtn = Array.from(
+      document.querySelectorAll("#screen-debrief button"),
+    ).find((b) => b.textContent?.includes("Return")) as HTMLElement;
     continueBtn?.click();
 
-    expect(document.getElementById("screen-campaign-summary")?.style.display).toBe("flex");
+    expect(
+      document.getElementById("screen-campaign-summary")?.style.display,
+    ).toBe("flex");
 
     // 6. Verify Victory Report is displayed
     const victoryOverlay = document.querySelector(".campaign-victory-overlay");
@@ -280,10 +326,16 @@ describe("Campaign End Integration", () => {
     expect(victoryOverlay?.textContent).toMatch(/Missions:\s*1/);
 
     // 7. Verify Return to Main Menu works
-    const menuBtn = Array.from(document.querySelectorAll(".campaign-summary-screen button")).find(b => b.textContent?.includes("Retire to Main Menu")) as HTMLElement;
+    const menuBtn = Array.from(
+      document.querySelectorAll(".campaign-summary-screen button"),
+    ).find((b) =>
+      b.textContent?.includes("Retire to Main Menu"),
+    ) as HTMLElement;
     expect(menuBtn).toBeDefined();
     menuBtn.click();
 
-    expect(document.getElementById("screen-main-menu")?.style.display).toBe("flex");
+    expect(document.getElementById("screen-main-menu")?.style.display).toBe(
+      "flex",
+    );
   });
 });

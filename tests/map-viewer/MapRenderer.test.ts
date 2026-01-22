@@ -63,7 +63,7 @@ describe("MapRenderer", () => {
     // Should call fillText for coordinates (4 cells) + extraction (1) + spawn (1)
     // So at least 6 calls.
     expect(mockContext.fillText).toHaveBeenCalled();
-    
+
     vi.clearAllMocks();
     renderer.setShowCoordinates(false);
     renderer.render(sampleMap);
@@ -77,7 +77,7 @@ describe("MapRenderer", () => {
     renderer.setShowCoordinates(true);
     const svg = renderer.toSVG(sampleMap);
     expect(svg).toContain("<svg");
-    expect(svg).toContain("xmlns=\"http://www.w3.org/2000/svg\"");
+    expect(svg).toContain('xmlns="http://www.w3.org/2000/svg"');
     expect(svg).toContain("<rect");
     expect(svg).toContain("<circle");
     expect(svg).toContain("<text");

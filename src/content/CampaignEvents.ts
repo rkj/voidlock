@@ -8,15 +8,16 @@ export const CampaignEvents: CampaignEventDefinition[] = [
     choices: [
       {
         label: "Search for Supplies",
-        description: "Attempt to scavenge what remains before the ship breaks apart.",
+        description:
+          "Attempt to scavenge what remains before the ship breaks apart.",
         reward: { scrap: 50 },
-        risk: { chance: 0.2, damage: 0.2 }
+        risk: { chance: 0.2, damage: 0.2 },
       },
       {
         label: "Leave",
-        description: "It's too dangerous. Better to move on."
-      }
-    ]
+        description: "It's too dangerous. Better to move on.",
+      },
+    ],
   },
   {
     id: "distress_signal",
@@ -27,13 +28,13 @@ export const CampaignEvents: CampaignEventDefinition[] = [
         label: "Attempt Rescue",
         description: "Send a team to recover the pod and its occupant.",
         reward: { recruit: true },
-        risk: { chance: 0.3, ambush: true }
+        risk: { chance: 0.3, ambush: true },
       },
       {
         label: "Ignore Signal",
-        description: "We don't have time for side missions."
-      }
-    ]
+        description: "We don't have time for side missions.",
+      },
+    ],
   },
   {
     id: "black_market",
@@ -44,12 +45,12 @@ export const CampaignEvents: CampaignEventDefinition[] = [
         label: "Buy Intel",
         description: "Spend scrap to gain information about the sector.",
         cost: { scrap: 50 },
-        reward: { intel: 10 }
+        reward: { intel: 10 },
       },
       {
         label: "Leave",
-        description: "We can't afford to waste resources."
-      }
-    ]
-  }
+        description: "We can't afford to waste resources.",
+      },
+    ],
+  },
 ];

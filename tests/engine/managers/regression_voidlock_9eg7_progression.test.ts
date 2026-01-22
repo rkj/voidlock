@@ -16,9 +16,9 @@ describe("Regression voidlock-9eg7: Node Locking and Forward Progression", () =>
   it("should mark sibling nodes as Skipped when a node is cleared", () => {
     manager.startNewCampaign(1, "Normal");
     const state = manager.getState()!;
-    
+
     // Clear rank 0 node first to make rank 1 nodes Accessible
-    const rank0Node = state.nodes.find(n => n.rank === 0)!;
+    const rank0Node = state.nodes.find((n) => n.rank === 0)!;
     manager.processMissionResult({
       nodeId: rank0Node.id,
       seed: 123,
@@ -31,9 +31,9 @@ describe("Regression voidlock-9eg7: Node Locking and Forward Progression", () =>
     });
 
     // Find all rank 1 nodes. They should all be Accessible now.
-    const rank1Nodes = state.nodes.filter(n => n.rank === 1);
+    const rank1Nodes = state.nodes.filter((n) => n.rank === 1);
     expect(rank1Nodes.length).toBeGreaterThan(1); // PRNG seed 1 should give > 1 nodes
-    rank1Nodes.forEach(n => expect(n.status).toBe("Accessible"));
+    rank1Nodes.forEach((n) => expect(n.status).toBe("Accessible"));
 
     const nodeToClear = rank1Nodes[0];
     const siblingNodes = rank1Nodes.slice(1);
@@ -52,11 +52,13 @@ describe("Regression voidlock-9eg7: Node Locking and Forward Progression", () =>
     manager.processMissionResult(report);
 
     // After clearing, nodeToClear should be Cleared
-    expect(state.nodes.find(n => n.id === nodeToClear.id)!.status).toBe("Cleared");
+    expect(state.nodes.find((n) => n.id === nodeToClear.id)!.status).toBe(
+      "Cleared",
+    );
 
     // Sibling nodes should be Skipped
-    siblingNodes.forEach(sibling => {
-      const updatedSibling = state.nodes.find(n => n.id === sibling.id)!;
+    siblingNodes.forEach((sibling) => {
+      const updatedSibling = state.nodes.find((n) => n.id === sibling.id)!;
       expect(updatedSibling.status).toBe("Skipped");
     });
   });
@@ -64,17 +66,19 @@ describe("Regression voidlock-9eg7: Node Locking and Forward Progression", () =>
   it("should only make connected nodes Accessible", () => {
     manager.startNewCampaign(1, "Normal");
     const state = manager.getState()!;
-    
-    const rank0Nodes = state.nodes.filter(n => n.rank === 0);
+
+    const rank0Nodes = state.nodes.filter((n) => n.rank === 0);
     const nodeA = rank0Nodes[0];
-    
+
     // Find a node at rank 1 that is NOT connected to nodeA
-    const rank1Nodes = state.nodes.filter(n => n.rank === 1);
-    const notConnectedToA = rank1Nodes.find(n1 => !nodeA.connections.includes(n1.id));
-    
+    const rank1Nodes = state.nodes.filter((n) => n.rank === 1);
+    const notConnectedToA = rank1Nodes.find(
+      (n1) => !nodeA.connections.includes(n1.id),
+    );
+
     // Note: It's possible for all rank 1 nodes to be connected to nodeA if there are few nodes.
     // If that happens, this test part might be trivial.
-    
+
     const report: MissionReport = {
       nodeId: nodeA.id,
       seed: 123,
@@ -89,23 +93,27 @@ describe("Regression voidlock-9eg7: Node Locking and Forward Progression", () =>
     manager.processMissionResult(report);
 
     // Connected nodes should be Accessible
-    nodeA.connections.forEach(connId => {
-      expect(state.nodes.find(n => n.id === connId)!.status).toBe("Accessible");
+    nodeA.connections.forEach((connId) => {
+      expect(state.nodes.find((n) => n.id === connId)!.status).toBe(
+        "Accessible",
+      );
     });
 
     // Non-connected nodes at rank 1 should NOT be Accessible
     if (notConnectedToA) {
-      expect(state.nodes.find(n => n.id === notConnectedToA.id)!.status).not.toBe("Accessible");
+      expect(
+        state.nodes.find((n) => n.id === notConnectedToA.id)!.status,
+      ).not.toBe("Accessible");
     }
   });
 
   it("should increment currentSector based on cleared node rank", () => {
     manager.startNewCampaign(1, "Normal");
     const state = manager.getState()!;
-    
-    const rank0Nodes = state.nodes.filter(n => n.rank === 0);
+
+    const rank0Nodes = state.nodes.filter((n) => n.rank === 0);
     const nodeA = rank0Nodes[0];
-    
+
     expect(state.currentSector).toBe(1);
 
     const report: MissionReport = {

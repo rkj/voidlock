@@ -31,7 +31,13 @@ export class MapEntityLayer implements RenderLayer {
 
       ctx.fillStyle = this.theme.getColor("--color-danger");
       ctx.beginPath();
-      ctx.arc(x + cellSize / 2, y + cellSize / 2, cellSize * 0.2, 0, Math.PI * 2);
+      ctx.arc(
+        x + cellSize / 2,
+        y + cellSize / 2,
+        cellSize * 0.2,
+        0,
+        Math.PI * 2,
+      );
       ctx.fill();
       ctx.strokeStyle = this.theme.getColor("--color-black");
       ctx.lineWidth = 2;
@@ -56,7 +62,8 @@ export class MapEntityLayer implements RenderLayer {
     const y = ext.y * cellSize;
 
     const key = `${Math.floor(ext.x)},${Math.floor(ext.y)}`;
-    const isKnown = state.discoveredCells.includes(key) || state.visibleCells.includes(key);
+    const isKnown =
+      state.discoveredCells.includes(key) || state.visibleCells.includes(key);
 
     if (!isKnown && !state.settings.debugOverlayEnabled) return;
 
@@ -71,7 +78,13 @@ export class MapEntityLayer implements RenderLayer {
     const icon = !isTactical ? this.assets.iconImages.Exit : null;
     if (icon) {
       const iconSize = cellSize * 0.6;
-      ctx.drawImage(icon, x + (cellSize - iconSize) / 2, y + (cellSize - iconSize) / 2, iconSize, iconSize);
+      ctx.drawImage(
+        icon,
+        x + (cellSize - iconSize) / 2,
+        y + (cellSize - iconSize) / 2,
+        iconSize,
+        iconSize,
+      );
     }
   }
 
@@ -83,7 +96,8 @@ export class MapEntityLayer implements RenderLayer {
       const x = sp.pos.x * cellSize;
       const y = sp.pos.y * cellSize;
       const key = `${Math.floor(sp.pos.x)},${Math.floor(sp.pos.y)}`;
-      const isKnown = state.discoveredCells.includes(key) || state.visibleCells.includes(key);
+      const isKnown =
+        state.discoveredCells.includes(key) || state.visibleCells.includes(key);
 
       if (!isKnown && !state.settings.debugOverlayEnabled) return;
 
@@ -93,7 +107,13 @@ export class MapEntityLayer implements RenderLayer {
       const icon = !isTactical ? this.assets.iconImages.Spawn : null;
       if (icon) {
         const iconSize = cellSize * 0.5;
-        ctx.drawImage(icon, x + (cellSize - iconSize) / 2, y + (cellSize - iconSize) / 2, iconSize, iconSize);
+        ctx.drawImage(
+          icon,
+          x + (cellSize - iconSize) / 2,
+          y + (cellSize - iconSize) / 2,
+          iconSize,
+          iconSize,
+        );
       }
     });
   }
@@ -109,22 +129,39 @@ export class MapEntityLayer implements RenderLayer {
       const isVisible = state.visibleCells.includes(key);
       const isDiscovered = state.discoveredCells.includes(key);
 
-      if (!isVisible && !isDiscovered && !state.settings.debugOverlayEnabled) return;
+      if (!isVisible && !isDiscovered && !state.settings.debugOverlayEnabled)
+        return;
 
       // Render loot crate
       const icon = !isTactical ? this.assets.iconImages.Crate : null;
       if (icon) {
         const iconSize = cellSize * 0.5;
-        ctx.drawImage(icon, x + (cellSize - iconSize) / 2, y + (cellSize - iconSize) / 2, iconSize, iconSize);
+        ctx.drawImage(
+          icon,
+          x + (cellSize - iconSize) / 2,
+          y + (cellSize - iconSize) / 2,
+          iconSize,
+          iconSize,
+        );
       } else {
         ctx.fillStyle = this.theme.getColor("--color-objective-bg");
-        ctx.fillRect(x + cellSize * 0.2, y + cellSize * 0.2, cellSize * 0.6, cellSize * 0.6);
-        
+        ctx.fillRect(
+          x + cellSize * 0.2,
+          y + cellSize * 0.2,
+          cellSize * 0.6,
+          cellSize * 0.6,
+        );
+
         // Add a border if tactical
         if (isTactical) {
           ctx.strokeStyle = this.theme.getColor("--color-info");
           ctx.lineWidth = 2;
-          ctx.strokeRect(x + cellSize * 0.2, y + cellSize * 0.2, cellSize * 0.6, cellSize * 0.6);
+          ctx.strokeRect(
+            x + cellSize * 0.2,
+            y + cellSize * 0.2,
+            cellSize * 0.6,
+            cellSize * 0.6,
+          );
         }
       }
     });
@@ -135,8 +172,17 @@ export class MapEntityLayer implements RenderLayer {
     const isTactical = this.sharedState.unitStyle === "TacticalIcons";
 
     state.objectives?.forEach((obj) => {
-      if (obj.state === "Pending" && obj.targetCell && (obj.visible || state.settings.debugOverlayEnabled)) {
-        if (state.map.extraction && obj.targetCell.x === state.map.extraction.x && obj.targetCell.y === state.map.extraction.y) return;
+      if (
+        obj.state === "Pending" &&
+        obj.targetCell &&
+        (obj.visible || state.settings.debugOverlayEnabled)
+      ) {
+        if (
+          state.map.extraction &&
+          obj.targetCell.x === state.map.extraction.x &&
+          obj.targetCell.y === state.map.extraction.y
+        )
+          return;
 
         const x = obj.targetCell.x * cellSize;
         const y = obj.targetCell.y * cellSize;
@@ -146,7 +192,13 @@ export class MapEntityLayer implements RenderLayer {
         const icon = !isTactical ? this.assets.iconImages.Objective : null;
         if (icon) {
           const iconSize = cellSize * 0.6;
-          ctx.drawImage(icon, x + (cellSize - iconSize) / 2, y + (cellSize - iconSize) / 2, iconSize, iconSize);
+          ctx.drawImage(
+            icon,
+            x + (cellSize - iconSize) / 2,
+            y + (cellSize - iconSize) / 2,
+            iconSize,
+            iconSize,
+          );
         }
       }
     });

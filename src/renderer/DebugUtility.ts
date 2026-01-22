@@ -42,14 +42,24 @@ export class DebugUtility {
         await this.handleCopyFallback(json, err, modalService);
       }
     } else {
-      await this.handleCopyFallback(json, new Error("Clipboard API unavailable"), modalService);
+      await this.handleCopyFallback(
+        json,
+        new Error("Clipboard API unavailable"),
+        modalService,
+      );
     }
   }
 
-  private static async handleCopyFallback(json: string, error: any, modalService: ModalService): Promise<void> {
+  private static async handleCopyFallback(
+    json: string,
+    error: any,
+    modalService: ModalService,
+  ): Promise<void> {
     console.error("Failed to copy state to clipboard:", error);
     console.log("Full World State JSON:");
     console.log(json);
-    await modalService.alert("Failed to copy to clipboard. See console for JSON.");
+    await modalService.alert(
+      "Failed to copy to clipboard. See console for JSON.",
+    );
   }
 }

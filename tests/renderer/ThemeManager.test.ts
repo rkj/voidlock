@@ -23,7 +23,7 @@ describe("ThemeManager", () => {
 
   it("should return value from CSS variable if defined", () => {
     document.body.style.setProperty("--color-wall", "#123456");
-    
+
     const color = theme.getColor("--color-wall");
     expect(color.trim()).toBe("#123456");
   });
@@ -42,7 +42,7 @@ describe("ThemeManager", () => {
   it("should clear cache when setting theme class", () => {
     document.documentElement.style.setProperty("--color-primary", "#00ff00");
     theme.getColor("--color-primary");
-    
+
     theme.setTheme("dark");
     expect(document.body.className).toBe("theme-dark");
 
@@ -59,8 +59,8 @@ describe("ThemeManager", () => {
       colors: {
         "--color-wall": "#ff00ff",
         "--color-floor": "#220022",
-        "color-primary": "#00ffff" // Test without -- prefix
-      }
+        "color-primary": "#00ffff", // Test without -- prefix
+      },
     };
 
     theme.applyTheme(config);
@@ -79,10 +79,10 @@ describe("ThemeManager", () => {
       "--color-objective-bg",
       "--color-spawn-bg",
       "--color-extraction-bg",
-      "--color-success-muted"
+      "--color-success-muted",
     ];
 
-    required.forEach(v => {
+    required.forEach((v) => {
       const color = theme.getColor(v);
       expect(color).toBeDefined();
       if (v === "--color-black") {
@@ -91,7 +91,7 @@ describe("ThemeManager", () => {
         expect(color).not.toBe("#000000");
       }
     });
-    
+
     expect(theme.getColor("--color-black")).toBe("#000000");
     expect(theme.getColor("--color-white")).toBe("#ffffff");
   });
@@ -99,13 +99,13 @@ describe("ThemeManager", () => {
   describe("Assets", () => {
     it("should load assets from assets.json", async () => {
       const mockAssets = {
-        "floor": "assets/floor.webp",
-        "wall": "assets/wall.webp"
+        floor: "assets/floor.webp",
+        wall: "assets/wall.webp",
       };
 
       global.fetch = vi.fn().mockResolvedValue({
         ok: true,
-        json: () => Promise.resolve(mockAssets)
+        json: () => Promise.resolve(mockAssets),
       });
 
       await theme.init();
@@ -117,13 +117,15 @@ describe("ThemeManager", () => {
 
     it("should handle fetch error gracefully", async () => {
       global.fetch = vi.fn().mockRejectedValue(new Error("Network error"));
-      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      const consoleSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
 
       await theme.init();
 
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining("Failed to load assets.json"),
-        expect.any(Error)
+        expect.any(Error),
       );
       expect(theme.getAssetUrl("any")).toBeNull();
       consoleSpy.mockRestore();
@@ -132,15 +134,17 @@ describe("ThemeManager", () => {
     it("should handle non-ok response gracefully", async () => {
       global.fetch = vi.fn().mockResolvedValue({
         ok: false,
-        statusText: "Not Found"
+        statusText: "Not Found",
       });
-      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+      const consoleSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
 
       await theme.init();
 
       expect(consoleSpy).toHaveBeenCalledWith(
         expect.stringContaining("Failed to load assets.json"),
-        expect.any(Error)
+        expect.any(Error),
       );
       consoleSpy.mockRestore();
     });

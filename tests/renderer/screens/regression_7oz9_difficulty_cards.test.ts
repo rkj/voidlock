@@ -55,7 +55,7 @@ describe("CampaignScreen Difficulty Cards", () => {
 
     const cards = container.querySelectorAll(".difficulty-card");
     expect(cards.length).toBe(4);
-    
+
     expect(container.textContent).toContain("Simulation");
     expect(container.textContent).toContain("Clone");
     expect(container.textContent).toContain("Standard");
@@ -73,13 +73,19 @@ describe("CampaignScreen Difficulty Cards", () => {
     );
     screen.show();
 
-    const pauseCheck = container.querySelector("#campaign-tactical-pause") as HTMLInputElement;
+    const pauseCheck = container.querySelector(
+      "#campaign-tactical-pause",
+    ) as HTMLInputElement;
     expect(pauseCheck.checked).toBe(true);
     expect(pauseCheck.disabled).toBe(false);
 
     const cards = container.querySelectorAll(".difficulty-card");
-    const ironmanCard = Array.from(cards).find(card => card.textContent?.includes("Ironman")) as HTMLElement;
-    const simulationCard = Array.from(cards).find(card => card.textContent?.includes("Simulation")) as HTMLElement;
+    const ironmanCard = Array.from(cards).find((card) =>
+      card.textContent?.includes("Ironman"),
+    ) as HTMLElement;
+    const simulationCard = Array.from(cards).find((card) =>
+      card.textContent?.includes("Simulation"),
+    ) as HTMLElement;
 
     // Click Ironman
     ironmanCard.click();

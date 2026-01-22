@@ -32,7 +32,8 @@ describe("SpaceshipGenerator", () => {
       const generator = new SpaceshipGenerator(seed, width, height);
       const map = generator.generate();
 
-      const squadStart = map.squadSpawn || (map.squadSpawns && map.squadSpawns[0]);
+      const squadStart =
+        map.squadSpawn || (map.squadSpawns && map.squadSpawns[0]);
       expect(squadStart, `Seed ${seed} has no squad spawn`).toBeDefined();
       if (!squadStart) continue;
 
@@ -40,7 +41,12 @@ describe("SpaceshipGenerator", () => {
       const queue: { x: number; y: number }[] = [squadStart];
       visited.add(`${squadStart.x},${squadStart.y}`);
 
-      const graph = new MapGenerator({ seed, width, height, type: MapGeneratorType.Procedural }).load(map);
+      const graph = new MapGenerator({
+        seed,
+        width,
+        height,
+        type: MapGeneratorType.Procedural,
+      }).load(map);
       const g = new Graph(graph);
 
       let head = 0;
@@ -52,7 +58,7 @@ describe("SpaceshipGenerator", () => {
           { dx: 0, dy: -1, d: "n" },
           { dx: 1, dy: 0, d: "e" },
           { dx: 0, dy: 1, d: "s" },
-          { dx: -1, dy: 0, d: "w" }
+          { dx: -1, dy: 0, d: "w" },
         ];
 
         for (const { dx, dy, d } of dirs) {
@@ -61,7 +67,11 @@ describe("SpaceshipGenerator", () => {
           if (nx < 0 || nx >= width || ny < 0 || ny >= height) continue;
 
           const boundary = cell.edges[d];
-          if (boundary && (boundary.type === BoundaryType.Open || boundary.type === BoundaryType.Door)) {
+          if (
+            boundary &&
+            (boundary.type === BoundaryType.Open ||
+              boundary.type === BoundaryType.Door)
+          ) {
             const nKey = `${nx},${ny}`;
             if (!visited.has(nKey)) {
               const nCell = g.cells[ny][nx];
@@ -75,7 +85,10 @@ describe("SpaceshipGenerator", () => {
       }
 
       const totalFloors = map.cells.length;
-      expect(visited.size, `Seed ${seed} produced disconnected map: reachable ${visited.size} / total ${totalFloors}`).toBe(totalFloors);
+      expect(
+        visited.size,
+        `Seed ${seed} produced disconnected map: reachable ${visited.size} / total ${totalFloors}`,
+      ).toBe(totalFloors);
     }
   });
 
@@ -86,10 +99,18 @@ describe("SpaceshipGenerator", () => {
     const generator = new SpaceshipGenerator(seed, width, height);
     const map = generator.generate();
 
-    const mg = new MapGenerator({ seed, width, height, type: MapGeneratorType.Procedural });
+    const mg = new MapGenerator({
+      seed,
+      width,
+      height,
+      type: MapGeneratorType.Procedural,
+    });
     const validation = mg.validate(map);
-    
-    expect(validation.isValid, `Seed ${seed} produced invalid map:\n${validation.issues.join("\n")}`).toBe(true);
+
+    expect(
+      validation.isValid,
+      `Seed ${seed} produced invalid map:\n${validation.issues.join("\n")}`,
+    ).toBe(true);
   });
 
   it("should generate a fully connected map for seed 785411 (broken_map repro)", () => {
@@ -99,9 +120,17 @@ describe("SpaceshipGenerator", () => {
     const generator = new SpaceshipGenerator(seed, width, height);
     const map = generator.generate();
 
-    const mg = new MapGenerator({ seed, width, height, type: MapGeneratorType.Procedural });
+    const mg = new MapGenerator({
+      seed,
+      width,
+      height,
+      type: MapGeneratorType.Procedural,
+    });
     const validation = mg.validate(map);
-    
-    expect(validation.isValid, `Seed ${seed} produced invalid map:\n${validation.issues.join("\n")}`).toBe(true);
+
+    expect(
+      validation.isValid,
+      `Seed ${seed} produced invalid map:\n${validation.issues.join("\n")}`,
+    ).toBe(true);
   });
 });

@@ -83,7 +83,8 @@ export class SpaceshipGenerator {
     for (let y = 0; y <= this.height; y++) {
       for (let x = 0; x <= this.width; x++) {
         if (x < this.width) this.walls.add(this.getBoundaryKey(x, y, x + 1, y));
-        if (y < this.height) this.walls.add(this.getBoundaryKey(x, y, x, y + 1));
+        if (y < this.height)
+          this.walls.add(this.getBoundaryKey(x, y, x, y + 1));
       }
     }
 
@@ -121,7 +122,7 @@ export class SpaceshipGenerator {
     const map: MapDefinition = {
       width: this.width,
       height: this.height,
-      cells: this.cells.filter(c => c.type === CellType.Floor),
+      cells: this.cells.filter((c) => c.type === CellType.Floor),
       walls: mapWalls,
       doors: this.doors,
       spawnPoints: this.spawnPoints,
@@ -171,84 +172,110 @@ export class SpaceshipGenerator {
     // 3. Pick Key Nodes
     const squadNode = this.pickNodeInQuad(nodes, cols, rows, 0, 0);
     // For Dual Entrances, pick a second squad node in the SAME quadrant
-    const squadNode2 = this.pickNodeInQuad(nodes, cols, rows, 0, 0, [squadNode]);
-    
-    const extractionNode = this.pickNodeInQuad(nodes, cols, rows, 1, 1, [squadNode, squadNode2]);
-    const objectiveNode = this.pickNodeInQuad(nodes, cols, rows, 0, 1, [squadNode, squadNode2, extractionNode]);
-    
+    const squadNode2 = this.pickNodeInQuad(nodes, cols, rows, 0, 0, [
+      squadNode,
+    ]);
+
+    const extractionNode = this.pickNodeInQuad(nodes, cols, rows, 1, 1, [
+      squadNode,
+      squadNode2,
+    ]);
+    const objectiveNode = this.pickNodeInQuad(nodes, cols, rows, 0, 1, [
+      squadNode,
+      squadNode2,
+      extractionNode,
+    ]);
+
     const enemySpawnNodes: Node[] = [];
-    const avoidForEnemy = [squadNode, squadNode2, extractionNode, objectiveNode];
+    const avoidForEnemy = [
+      squadNode,
+      squadNode2,
+      extractionNode,
+      objectiveNode,
+    ];
     for (let i = 0; i < spawnPointCount; i++) {
-        const n = this.pickNodeInQuad(nodes, cols, rows, 1, 0, [...avoidForEnemy, ...enemySpawnNodes]);
-        enemySpawnNodes.push(n);
+      const n = this.pickNodeInQuad(nodes, cols, rows, 1, 0, [
+        ...avoidForEnemy,
+        ...enemySpawnNodes,
+      ]);
+      enemySpawnNodes.push(n);
     }
 
     const keyNodeIds = new Set<number>([
-        squadNode.id,
-        squadNode2.id,
-        extractionNode.id,
-        objectiveNode.id,
-        ...enemySpawnNodes.map(n => n.id)
+      squadNode.id,
+      squadNode2.id,
+      extractionNode.id,
+      objectiveNode.id,
+      ...enemySpawnNodes.map((n) => n.id),
     ]);
 
     // 4. Generate Spanning Tree connecting all Key Nodes
     const connectedNodeIds = new Set<number>([squadNode.id]);
     const shipEdges: Edge[] = [];
-    
-    const getFrontier = () => allEdges.filter(e => 
-        (connectedNodeIds.has(e.u) && !connectedNodeIds.has(e.v)) ||
-        (connectedNodeIds.has(e.v) && !connectedNodeIds.has(e.u))
-    );
 
-    while (Array.from(keyNodeIds).some(id => !connectedNodeIds.has(id))) {
-        const frontier = getFrontier();
-        if (frontier.length === 0) break;
+    const getFrontier = () =>
+      allEdges.filter(
+        (e) =>
+          (connectedNodeIds.has(e.u) && !connectedNodeIds.has(e.v)) ||
+          (connectedNodeIds.has(e.v) && !connectedNodeIds.has(e.u)),
+      );
 
-        frontier.sort((a, b) => a.weight - b.weight);
-        const bestEdge = frontier[0];
-        
-        connectedNodeIds.add(bestEdge.u);
-        connectedNodeIds.add(bestEdge.v);
-        shipEdges.push(bestEdge);
+    while (Array.from(keyNodeIds).some((id) => !connectedNodeIds.has(id))) {
+      const frontier = getFrontier();
+      if (frontier.length === 0) break;
+
+      frontier.sort((a, b) => a.weight - b.weight);
+      const bestEdge = frontier[0];
+
+      connectedNodeIds.add(bestEdge.u);
+      connectedNodeIds.add(bestEdge.v);
+      shipEdges.push(bestEdge);
     }
 
     // 5. Add more nodes for density
     const targetDensity = 0.5 + this.prng.next() * 0.3;
     const targetNodeCount = Math.floor(nodes.length * targetDensity);
     while (connectedNodeIds.size < targetNodeCount) {
-        const frontier = getFrontier();
-        if (frontier.length === 0) break;
-        frontier.sort((a, b) => a.weight - b.weight);
-        const bestEdge = frontier[0];
-        connectedNodeIds.add(bestEdge.u);
-        connectedNodeIds.add(bestEdge.v);
-        shipEdges.push(bestEdge);
+      const frontier = getFrontier();
+      if (frontier.length === 0) break;
+      frontier.sort((a, b) => a.weight - b.weight);
+      const bestEdge = frontier[0];
+      connectedNodeIds.add(bestEdge.u);
+      connectedNodeIds.add(bestEdge.v);
+      shipEdges.push(bestEdge);
     }
 
     // 6. Add some cycles
-    allEdges.forEach(e => {
-        if (connectedNodeIds.has(e.u) && connectedNodeIds.has(e.v)) {
-            const alreadyConnected = shipEdges.some(se => 
-                (se.u === e.u && se.v === e.v) || (se.u === e.v && se.v === e.u)
-            );
-            if (!alreadyConnected && this.prng.next() < 0.15) {
-                shipEdges.push(e);
-            }
+    allEdges.forEach((e) => {
+      if (connectedNodeIds.has(e.u) && connectedNodeIds.has(e.v)) {
+        const alreadyConnected = shipEdges.some(
+          (se) =>
+            (se.u === e.u && se.v === e.v) || (se.u === e.v && se.v === e.u),
+        );
+        if (!alreadyConnected && this.prng.next() < 0.15) {
+          shipEdges.push(e);
         }
+      }
     });
 
     // 7. Flesh out Rooms
-    connectedNodeIds.forEach(nodeId => {
-        this.generateRoomForNode(nodes[nodeId], nodeSize);
+    connectedNodeIds.forEach((nodeId) => {
+      this.generateRoomForNode(nodes[nodeId], nodeSize);
     });
 
     // 8. Flesh out Corridors
-    shipEdges.forEach(edge => {
-        this.generateCorridorBetweenNodes(nodes[edge.u], nodes[edge.v]);
+    shipEdges.forEach((edge) => {
+      this.generateCorridorBetweenNodes(nodes[edge.u], nodes[edge.v]);
     });
 
     // 9. Place Features
-    this.placeFeaturesInNodes(squadNode, squadNode2, extractionNode, objectiveNode, enemySpawnNodes);
+    this.placeFeaturesInNodes(
+      squadNode,
+      squadNode2,
+      extractionNode,
+      objectiveNode,
+      enemySpawnNodes,
+    );
   }
 
   private generateRoomForNode(node: Node, nodeSize: number) {
@@ -258,15 +285,27 @@ export class SpaceshipGenerator {
     const rx = node.gridX * nodeSize + this.prng.nextInt(0, nodeSize - w);
     const ry = node.gridY * nodeSize + this.prng.nextInt(0, nodeSize - h);
 
-    const finalRx = Math.max(node.gridX * nodeSize, Math.min(node.centerX, rx, (node.gridX + 1) * nodeSize - w));
-    const finalRy = Math.max(node.gridY * nodeSize, Math.min(node.centerY, ry, (node.gridY + 1) * nodeSize - h));
+    const finalRx = Math.max(
+      node.gridX * nodeSize,
+      Math.min(node.centerX, rx, (node.gridX + 1) * nodeSize - w),
+    );
+    const finalRy = Math.max(
+      node.gridY * nodeSize,
+      Math.min(node.centerY, ry, (node.gridY + 1) * nodeSize - h),
+    );
 
-    const adjustedRx = (node.centerX >= finalRx && node.centerX < finalRx + w) 
-        ? finalRx 
-        : (node.centerX < finalRx ? node.centerX : node.centerX - w + 1);
-    const adjustedRy = (node.centerY >= finalRy && node.centerY < finalRy + h) 
-        ? finalRy 
-        : (node.centerY < finalRy ? node.centerY : node.centerY - h + 1);
+    const adjustedRx =
+      node.centerX >= finalRx && node.centerX < finalRx + w
+        ? finalRx
+        : node.centerX < finalRx
+          ? node.centerX
+          : node.centerX - w + 1;
+    const adjustedRy =
+      node.centerY >= finalRy && node.centerY < finalRy + h
+        ? finalRy
+        : node.centerY < finalRy
+          ? node.centerY
+          : node.centerY - h + 1;
 
     const roomId = `room-${node.gridX}-${node.gridY}`;
     node.roomId = roomId;
@@ -297,19 +336,39 @@ export class SpaceshipGenerator {
 
       if (this.prng.next() < 0.5) {
         if (currX !== targetX) {
-          if (currX < targetX) { currX++; dir = "e"; }
-          else { currX--; dir = "w"; }
+          if (currX < targetX) {
+            currX++;
+            dir = "e";
+          } else {
+            currX--;
+            dir = "w";
+          }
         } else {
-          if (currY < targetY) { currY++; dir = "s"; }
-          else { currY--; dir = "n"; }
+          if (currY < targetY) {
+            currY++;
+            dir = "s";
+          } else {
+            currY--;
+            dir = "n";
+          }
         }
       } else {
         if (currY !== targetY) {
-          if (currY < targetY) { currY++; dir = "s"; }
-          else { currY--; dir = "n"; }
+          if (currY < targetY) {
+            currY++;
+            dir = "s";
+          } else {
+            currY--;
+            dir = "n";
+          }
         } else {
-          if (currX < targetX) { currX++; dir = "e"; }
-          else { currX--; dir = "w"; }
+          if (currX < targetX) {
+            currX++;
+            dir = "e";
+          } else {
+            currX--;
+            dir = "w";
+          }
         }
       }
 
@@ -328,73 +387,117 @@ export class SpaceshipGenerator {
     }
   }
 
-  private pickNodeInQuad(nodes: Node[], cols: number, rows: number, qx: 0|1, qy: 0|1, avoid: Node[] = []): Node {
+  private pickNodeInQuad(
+    nodes: Node[],
+    cols: number,
+    rows: number,
+    qx: 0 | 1,
+    qy: 0 | 1,
+    avoid: Node[] = [],
+  ): Node {
     const minX = qx === 0 ? 0 : Math.floor(cols / 2);
     const maxX = qx === 0 ? Math.floor(cols / 2) - 1 : cols - 1;
     const minY = qy === 0 ? 0 : Math.floor(rows / 2);
     const maxY = qy === 0 ? Math.floor(rows / 2) - 1 : rows - 1;
 
-    const quadNodes = nodes.filter(n => 
-        n.gridX >= minX && n.gridX <= maxX && 
-        n.gridY >= minY && n.gridY <= maxY && 
-        !avoid.some(a => a.id === n.id)
+    const quadNodes = nodes.filter(
+      (n) =>
+        n.gridX >= minX &&
+        n.gridX <= maxX &&
+        n.gridY >= minY &&
+        n.gridY <= maxY &&
+        !avoid.some((a) => a.id === n.id),
     );
 
     if (quadNodes.length === 0) {
-        const available = nodes.filter(n => !avoid.some(a => a.id === n.id));
-        return available[this.prng.nextInt(0, available.length - 1)] || nodes[0];
+      const available = nodes.filter((n) => !avoid.some((a) => a.id === n.id));
+      return available[this.prng.nextInt(0, available.length - 1)] || nodes[0];
     }
     return quadNodes[this.prng.nextInt(0, quadNodes.length - 1)];
   }
 
-  private placeFeaturesInNodes(squadNode: Node, squadNode2: Node, extractionNode: Node, objectiveNode: Node, enemySpawnNodes: Node[]) {
+  private placeFeaturesInNodes(
+    squadNode: Node,
+    squadNode2: Node,
+    extractionNode: Node,
+    objectiveNode: Node,
+    enemySpawnNodes: Node[],
+  ) {
     // 1. Squad Spawn
-    const sq1Cells = this.cells.filter(c => c.roomId === squadNode.roomId);
-    const sq2Cells = this.cells.filter(c => c.roomId === squadNode2.roomId);
-    
+    const sq1Cells = this.cells.filter((c) => c.roomId === squadNode.roomId);
+    const sq2Cells = this.cells.filter((c) => c.roomId === squadNode2.roomId);
+
     if (sq1Cells.length > 0) {
-        this.squadSpawn = { x: sq1Cells[0].x, y: sq1Cells[0].y };
-        this.squadSpawns = [this.squadSpawn];
-        this.placementValidator.occupy(sq1Cells[0], OccupantType.SquadSpawn, squadNode.roomId);
+      this.squadSpawn = { x: sq1Cells[0].x, y: sq1Cells[0].y };
+      this.squadSpawns = [this.squadSpawn];
+      this.placementValidator.occupy(
+        sq1Cells[0],
+        OccupantType.SquadSpawn,
+        squadNode.roomId,
+      );
     }
     if (sq2Cells.length > 0) {
-        if (!this.squadSpawns) this.squadSpawns = [];
-        this.squadSpawns.push({ x: sq2Cells[0].x, y: sq2Cells[0].y });
-        this.placementValidator.occupy(sq2Cells[0], OccupantType.SquadSpawn, squadNode2.roomId);
+      if (!this.squadSpawns) this.squadSpawns = [];
+      this.squadSpawns.push({ x: sq2Cells[0].x, y: sq2Cells[0].y });
+      this.placementValidator.occupy(
+        sq2Cells[0],
+        OccupantType.SquadSpawn,
+        squadNode2.roomId,
+      );
     }
 
     // 2. Extraction
-    const extCells = this.cells.filter(c => c.roomId === extractionNode.roomId && !this.placementValidator.isCellOccupied(c));
+    const extCells = this.cells.filter(
+      (c) =>
+        c.roomId === extractionNode.roomId &&
+        !this.placementValidator.isCellOccupied(c),
+    );
     if (extCells.length > 0) {
-        const c = extCells[this.prng.nextInt(0, extCells.length - 1)];
-        this.extraction = { x: c.x, y: c.y };
-        this.placementValidator.occupy(c, OccupantType.Extraction, extractionNode.roomId);
+      const c = extCells[this.prng.nextInt(0, extCells.length - 1)];
+      this.extraction = { x: c.x, y: c.y };
+      this.placementValidator.occupy(
+        c,
+        OccupantType.Extraction,
+        extractionNode.roomId,
+      );
     }
 
     // 3. Objective
-    const objCells = this.cells.filter(c => c.roomId === objectiveNode.roomId && !this.placementValidator.isCellOccupied(c));
+    const objCells = this.cells.filter(
+      (c) =>
+        c.roomId === objectiveNode.roomId &&
+        !this.placementValidator.isCellOccupied(c),
+    );
     if (objCells.length > 0) {
-        const c = objCells[this.prng.nextInt(0, objCells.length - 1)];
-        this.objectives.push({
-            id: "obj-1",
-            kind: "Recover",
-            targetCell: { x: c.x, y: c.y },
-        });
-        this.placementValidator.occupy(c, OccupantType.Objective, objectiveNode.roomId);
+      const c = objCells[this.prng.nextInt(0, objCells.length - 1)];
+      this.objectives.push({
+        id: "obj-1",
+        kind: "Recover",
+        targetCell: { x: c.x, y: c.y },
+      });
+      this.placementValidator.occupy(
+        c,
+        OccupantType.Objective,
+        objectiveNode.roomId,
+      );
     }
 
     // 4. Enemy Spawns
     enemySpawnNodes.forEach((node, idx) => {
-        const enemyCells = this.cells.filter(c => c.roomId === node.roomId && !this.placementValidator.isCellOccupied(c));
-        if (enemyCells.length > 0) {
-            const c = enemyCells[this.prng.nextInt(0, enemyCells.length - 1)];
-            this.spawnPoints.push({
-                id: `spawn-${idx + 1}`,
-                pos: { x: c.x, y: c.y },
-                radius: 1,
-            });
-            this.placementValidator.occupy(c, OccupantType.EnemySpawn, node.roomId);
-        }
+      const enemyCells = this.cells.filter(
+        (c) =>
+          c.roomId === node.roomId &&
+          !this.placementValidator.isCellOccupied(c),
+      );
+      if (enemyCells.length > 0) {
+        const c = enemyCells[this.prng.nextInt(0, enemyCells.length - 1)];
+        this.spawnPoints.push({
+          id: `spawn-${idx + 1}`,
+          pos: { x: c.x, y: c.y },
+          radius: 1,
+        });
+        this.placementValidator.occupy(c, OccupantType.EnemySpawn, node.roomId);
+      }
     });
   }
 
@@ -408,12 +511,20 @@ export class SpaceshipGenerator {
         if (y < this.height - 1) this.openWall(x, y, "s");
       }
     }
-    const floors = this.cells.filter(c => c.type === CellType.Floor);
+    const floors = this.cells.filter((c) => c.type === CellType.Floor);
     if (floors.length >= 4) {
       this.squadSpawn = { x: floors[0].x, y: floors[0].y };
       this.squadSpawns = [floors[0], floors[1]];
-      this.placementValidator.occupy(floors[0], OccupantType.SquadSpawn, floors[0].roomId);
-      this.placementValidator.occupy(floors[1], OccupantType.SquadSpawn, floors[1].roomId);
+      this.placementValidator.occupy(
+        floors[0],
+        OccupantType.SquadSpawn,
+        floors[0].roomId,
+      );
+      this.placementValidator.occupy(
+        floors[1],
+        OccupantType.SquadSpawn,
+        floors[1].roomId,
+      );
 
       const ext = floors[floors.length - 1];
       this.extraction = { x: ext.x, y: ext.y };
@@ -425,12 +536,20 @@ export class SpaceshipGenerator {
         kind: "Recover",
         targetCell: { x: objCell.x, y: objCell.y },
       });
-      this.placementValidator.occupy(objCell, OccupantType.Objective, objCell.roomId);
+      this.placementValidator.occupy(
+        objCell,
+        OccupantType.Objective,
+        objCell.roomId,
+      );
 
       for (let i = 0; i < spawnPointCount; i++) {
         const c = floors[2 + i];
         if (c) {
-          this.spawnPoints.push({ id: `spawn-${i + 1}`, pos: { x: c.x, y: c.y }, radius: 1 });
+          this.spawnPoints.push({
+            id: `spawn-${i + 1}`,
+            pos: { x: c.x, y: c.y },
+            radius: 1,
+          });
           this.placementValidator.occupy(c, OccupantType.EnemySpawn, c.roomId);
         }
       }
@@ -448,7 +567,8 @@ export class SpaceshipGenerator {
   }
 
   private openWall(x: number, y: number, dir: "n" | "e" | "s" | "w") {
-    let x2 = x, y2 = y;
+    let x2 = x,
+      y2 = y;
     if (dir === "n") y2--;
     else if (dir === "e") x2++;
     else if (dir === "s") y2++;
@@ -462,16 +582,28 @@ export class SpaceshipGenerator {
     let orientation: "Horizontal" | "Vertical";
     if (dir === "n") {
       orientation = "Horizontal";
-      segment = [{ x, y: y - 1 }, { x, y }];
+      segment = [
+        { x, y: y - 1 },
+        { x, y },
+      ];
     } else if (dir === "s") {
       orientation = "Horizontal";
-      segment = [{ x, y }, { x, y: y + 1 }];
+      segment = [
+        { x, y },
+        { x, y: y + 1 },
+      ];
     } else if (dir === "w") {
       orientation = "Vertical";
-      segment = [{ x: x - 1, y }, { x, y }];
+      segment = [
+        { x: x - 1, y },
+        { x, y },
+      ];
     } else {
       orientation = "Vertical";
-      segment = [{ x, y }, { x: x + 1, y }];
+      segment = [
+        { x, y },
+        { x: x + 1, y },
+      ];
     }
     this.openWall(x, y, dir as any);
     this.doors.push({

@@ -1,6 +1,11 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { CoreEngine } from "@src/engine/CoreEngine";
-import { CommandType, MissionType, UnitState, CellType } from "@src/shared/types";
+import {
+  CommandType,
+  MissionType,
+  UnitState,
+  CellType,
+} from "@src/shared/types";
 
 describe("Regression 65pf: Extract Command", () => {
   let engine: CoreEngine;
@@ -20,9 +25,7 @@ describe("Regression 65pf: Extract Command", () => {
     ],
     extraction: { x: 4, y: 4 },
     squadSpawn: { x: 0, y: 0 },
-    objectives: [
-        { id: "obj-1", kind: "Recover", targetCell: { x: 1, y: 1 } }
-    ]
+    objectives: [{ id: "obj-1", kind: "Recover", targetCell: { x: 1, y: 1 } }],
   } as any;
 
   const squadConfig = {
@@ -31,7 +34,14 @@ describe("Regression 65pf: Extract Command", () => {
   };
 
   beforeEach(() => {
-    engine = new CoreEngine(mockMap, 123, squadConfig, false, true, MissionType.Default);
+    engine = new CoreEngine(
+      mockMap,
+      123,
+      squadConfig,
+      false,
+      true,
+      MissionType.Default,
+    );
   });
 
   it("should move unit to extraction point when EXTRACT command is issued", () => {
@@ -51,7 +61,7 @@ describe("Regression 65pf: Extract Command", () => {
     const updatedUnit = updatedState.units[0];
     expect(updatedUnit.activeCommand?.type).toBe(CommandType.EXTRACT);
     expect(updatedUnit.state).toBe(UnitState.Moving);
-    
+
     // Check path is set to extraction
     expect(updatedUnit.path).toBeDefined();
     const lastPathPoint = updatedUnit.path![updatedUnit.path!.length - 1];
@@ -69,23 +79,23 @@ describe("Regression 65pf: Extract Command", () => {
     unit.pos = { x: 4.5, y: 4.5 };
     // We need to reach into the internal state or just apply a command that moves it there
     // Actually, CoreEngine doesn't let us easily teleport, but we can mock it for test.
-    
+
     // Let's use the command and then teleport internal unit
     engine.applyCommand({
       type: CommandType.EXTRACT,
       unitIds: ["u1"],
     });
-    
+
     // Access internal unit to teleport
     (engine as any).state.units[0].pos = { x: 4.5, y: 4.5 };
     (engine as any).state.units[0].state = UnitState.Idle;
-    
+
     // Update engine
     engine.update(100);
 
     const updatedState = engine.getState();
     const updatedUnit = updatedState.units[0];
-    
+
     expect(updatedUnit.state).toBe(UnitState.Channeling);
     expect(updatedUnit.channeling?.action).toBe("Extract");
   });
@@ -95,11 +105,11 @@ describe("Regression 65pf: Extract Command", () => {
       type: CommandType.EXTRACT,
       unitIds: ["u1"],
     });
-    
+
     (engine as any).state.units[0].pos = { x: 4.5, y: 4.5 };
     (engine as any).state.units[0].state = UnitState.Idle;
     (engine as any).state.units[0].stats.speed = 60;
-    
+
     // Start channeling
     engine.update(100);
     expect(engine.getState().units[0].state).toBe(UnitState.Channeling);

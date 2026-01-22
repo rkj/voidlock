@@ -1,11 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { GameRenderer } from "@src/renderer/visuals/GameRenderer";
-import {
-  GameState,
-  CellType,
-  UnitState,
-  UnitStyle,
-} from "@src/shared/types";
+import { GameState, CellType, UnitState, UnitStyle } from "@src/shared/types";
 import {
   createMockUnit,
   createMockGameState,
@@ -78,9 +73,7 @@ describe("Layer Rendering Order", () => {
           state: UnitState.Idle,
         }),
       ],
-      loot: [
-        { id: "l1", itemId: "medkit", pos: { x: 0, y: 0 } }
-      ],
+      loot: [{ id: "l1", itemId: "medkit", pos: { x: 0, y: 0 } }],
       visibleCells: ["0,0"],
       discoveredCells: ["0,0"],
     });
@@ -88,11 +81,15 @@ describe("Layer Rendering Order", () => {
     renderer.render(gameState);
 
     const calls: { name: string; order: number; args: any[] }[] = [];
-    Object.keys(mockContext).forEach(key => {
+    Object.keys(mockContext).forEach((key) => {
       const mock = (mockContext as any)[key];
       if (mock && mock.mock && mock.mock.invocationCallOrder) {
         mock.mock.calls.forEach((args: any[], i: number) => {
-          calls.push({ name: key, order: mock.mock.invocationCallOrder[i], args });
+          calls.push({
+            name: key,
+            order: mock.mock.invocationCallOrder[i],
+            args,
+          });
         });
       }
     });
@@ -102,23 +99,26 @@ describe("Layer Rendering Order", () => {
     // UnitLayer uses arc() (for non-sprite units)
     // MapEntityLayer uses fillRect() (for spawn bg) and drawImage() (for spawn icon)
 
-    const arcCall = calls.find(c => c.name === "arc");
+    const arcCall = calls.find((c) => c.name === "arc");
     const arcIndex = arcCall ? arcCall.order : -1;
 
-    const fillRectCalls = calls.filter(c => c.name === "fillRect");
+    const fillRectCalls = calls.filter((c) => c.name === "fillRect");
     // The first few fillRects are for the floor in MapLayer.
     // The spawn point is drawn in MapEntityLayer, which is between MapLayer and UnitLayer.
-    const spawnBgCall = fillRectCalls.find(c => c.args[0] === 0 && c.args[1] === 0 && c.args[2] === 32 && c.order > 5);
+    const spawnBgCall = fillRectCalls.find(
+      (c) =>
+        c.args[0] === 0 && c.args[1] === 0 && c.args[2] === 32 && c.order > 5,
+    );
     const spawnBgIndex = spawnBgCall ? spawnBgCall.order : -1;
 
-    const drawImageCalls = calls.filter(c => c.name === "drawImage");
-    const spawnIconCall = drawImageCalls.find(c => c.order > 0);
+    const drawImageCalls = calls.filter((c) => c.name === "drawImage");
+    const spawnIconCall = drawImageCalls.find((c) => c.order > 0);
     const spawnIconIndex = spawnIconCall ? spawnIconCall.order : -1;
 
     expect(arcIndex).toBeDefined();
     expect(spawnBgIndex).not.toBe(-1);
     expect(spawnIconIndex).not.toBe(-1);
-    
+
     // Both background and icon should be drawn before the unit
     expect(arcIndex).toBeGreaterThan(spawnBgIndex);
     expect(arcIndex).toBeGreaterThan(spawnIconIndex);

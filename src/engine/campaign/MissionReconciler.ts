@@ -12,7 +12,10 @@ export class MissionReconciler {
   /**
    * Reconciles the campaign state with the result of a completed mission.
    */
-  public processMissionResult(state: CampaignState, report: MissionReport): void {
+  public processMissionResult(
+    state: CampaignState,
+    report: MissionReport,
+  ): void {
     // 1. Update node status
     const node = state.nodes.find((n) => n.id === report.nodeId);
     if (node) {
@@ -56,7 +59,10 @@ export class MissionReconciler {
 
     if (report.result === "Won" && (node?.type === "Boss" || isLastNode)) {
       state.status = "Victory";
-    } else if (report.result === "Lost" && (node?.type === "Boss" || isLastNode)) {
+    } else if (
+      report.result === "Lost" &&
+      (node?.type === "Boss" || isLastNode)
+    ) {
       state.status = "Defeat";
     }
 
@@ -197,8 +203,9 @@ export class MissionReconciler {
    * Checks if the campaign is in a bankruptcy state.
    */
   public checkBankruptcy(state: CampaignState): boolean {
-    const healthyCount = state.roster.filter((s) => s.status === "Healthy")
-      .length;
+    const healthyCount = state.roster.filter(
+      (s) => s.status === "Healthy",
+    ).length;
     const canAffordRecruit = state.scrap >= 100;
     return healthyCount === 0 && !canAffordRecruit;
   }

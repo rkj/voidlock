@@ -1,30 +1,50 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { ArchetypeLibrary, MissionType, UnitState, AIProfile } from "@src/shared/types";
+import {
+  ArchetypeLibrary,
+  MissionType,
+  UnitState,
+  AIProfile,
+} from "@src/shared/types";
 
 // Mocking StatDisplay and Icons since they are used in main.ts
 const StatDisplay = {
-  render: (icon: string, value: any, label: string) => `<span>${icon} ${value}</span>`
+  render: (icon: string, value: any, label: string) =>
+    `<span>${icon} ${value}</span>`,
 };
 const Icons = {
   Speed: "S",
   Accuracy: "A",
   Damage: "D",
   Rate: "R",
-  Range: "RG"
+  Range: "RG",
 };
 
 const mockCampaignManager = {
-    getState: () => ({
-        roster: [
-            { id: "s1", name: "Soldier 1", archetypeId: "assault", status: "Healthy", level: 1 },
-            { id: "v1", name: "VIP 1", archetypeId: "vip", status: "Healthy", level: 1 }
-        ]
-    })
+  getState: () => ({
+    roster: [
+      {
+        id: "s1",
+        name: "Soldier 1",
+        archetypeId: "assault",
+        status: "Healthy",
+        level: 1,
+      },
+      {
+        id: "v1",
+        name: "VIP 1",
+        archetypeId: "vip",
+        status: "Healthy",
+        level: 1,
+      },
+    ],
+  }),
 };
 
 describe("SquadBuilder VIP Selection (regression_voidlock-hs8n)", () => {
-  let currentSquad: { soldiers: { archetypeId: string, id?: string }[] } = { soldiers: [] };
+  let currentSquad: { soldiers: { archetypeId: string; id?: string }[] } = {
+    soldiers: [],
+  };
   let currentMissionType: MissionType = MissionType.Default;
   let mockModalService: any;
 
@@ -60,19 +80,21 @@ describe("SquadBuilder VIP Selection (regression_voidlock-hs8n)", () => {
         (s) => s.archetypeId !== "vip",
       ).length;
       totalDiv.textContent = `Total Soldiers: ${total}/${MAX_SQUAD_SIZE}`;
-      const launchBtn = document.getElementById("btn-goto-equipment") as HTMLButtonElement;
+      const launchBtn = document.getElementById(
+        "btn-goto-equipment",
+      ) as HTMLButtonElement;
       if (launchBtn) launchBtn.disabled = total === 0 || total > MAX_SQUAD_SIZE;
     };
 
     if (isCampaign) {
-        const state = mockCampaignManager.getState();
-        state.roster.forEach((soldier) => {
-            if (soldier.archetypeId === "vip") return;
-            const row = document.createElement("div");
-            row.dataset.soldierId = soldier.id;
-            row.textContent = soldier.name;
-            container.appendChild(row);
-        });
+      const state = mockCampaignManager.getState();
+      state.roster.forEach((soldier) => {
+        if (soldier.archetypeId === "vip") return;
+        const row = document.createElement("div");
+        row.dataset.soldierId = soldier.id;
+        row.textContent = soldier.name;
+        container.appendChild(row);
+      });
     } else {
       Object.values(ArchetypeLibrary).forEach((arch) => {
         const isVip = arch.id === "vip";
@@ -83,12 +105,12 @@ describe("SquadBuilder VIP Selection (regression_voidlock-hs8n)", () => {
 
         const info = document.createElement("div");
         info.innerHTML = `<strong>${arch.name}</strong>`;
-        
+
         if (isVip && isEscortMission) {
-            const note = document.createElement("div");
-            note.className = "vip-note";
-            note.textContent = "(Auto-assigned)";
-            info.appendChild(note);
+          const note = document.createElement("div");
+          note.className = "vip-note";
+          note.textContent = "(Auto-assigned)";
+          info.appendChild(note);
         }
 
         const input = document.createElement("input");
@@ -99,18 +121,24 @@ describe("SquadBuilder VIP Selection (regression_voidlock-hs8n)", () => {
         input.value = currentCount.toString();
 
         if (isVip && isEscortMission) {
-            input.disabled = true;
-            input.value = "0";
+          input.disabled = true;
+          input.value = "0";
         }
 
         input.addEventListener("change", async () => {
           const val = parseInt(input.value) || 0;
-          const otherSoldiers = currentSquad.soldiers.filter((s) => s.archetypeId !== arch.id);
-          const otherTotal = otherSoldiers.filter((s) => s.archetypeId !== "vip").length;
+          const otherSoldiers = currentSquad.soldiers.filter(
+            (s) => s.archetypeId !== arch.id,
+          );
+          const otherTotal = otherSoldiers.filter(
+            (s) => s.archetypeId !== "vip",
+          ).length;
 
           if (arch.id !== "vip" && otherTotal + val > MAX_SQUAD_SIZE) {
             input.value = currentCount.toString();
-            await mockModalService.alert(`Max squad size is ${MAX_SQUAD_SIZE}.`);
+            await mockModalService.alert(
+              `Max squad size is ${MAX_SQUAD_SIZE}.`,
+            );
             return;
           }
 
@@ -160,26 +188,32 @@ describe("SquadBuilder VIP Selection (regression_voidlock-hs8n)", () => {
   it("should not count VIP towards squad size limit", () => {
     currentMissionType = MissionType.Default;
     renderSquadBuilder(false);
-    
+
     // Fill squad with 4 assaults
     currentSquad.soldiers = [
-        { archetypeId: "assault" },
-        { archetypeId: "assault" },
-        { archetypeId: "assault" },
-        { archetypeId: "assault" }
+      { archetypeId: "assault" },
+      { archetypeId: "assault" },
+      { archetypeId: "assault" },
+      { archetypeId: "assault" },
     ];
     renderSquadBuilder(false);
-    
-    expect(document.getElementById("squad-total-count")?.textContent).toBe("Total Soldiers: 4/4");
-    
+
+    expect(document.getElementById("squad-total-count")?.textContent).toBe(
+      "Total Soldiers: 4/4",
+    );
+
     // Add a VIP
     const vipRow = document.querySelector('[data-arch-id="vip"]');
     const input = vipRow?.querySelector("input") as HTMLInputElement;
     input.value = "1";
     input.dispatchEvent(new Event("change"));
-    
-    expect(currentSquad.soldiers.filter(s => s.archetypeId === "vip").length).toBe(1);
-    expect(document.getElementById("squad-total-count")?.textContent).toBe("Total Soldiers: 4/4");
+
+    expect(
+      currentSquad.soldiers.filter((s) => s.archetypeId === "vip").length,
+    ).toBe(1);
+    expect(document.getElementById("squad-total-count")?.textContent).toBe(
+      "Total Soldiers: 4/4",
+    );
     expect(mockModalService.alert).not.toHaveBeenCalled();
   });
 });

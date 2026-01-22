@@ -87,7 +87,7 @@ The game supports four difficulty presets defining failure consequences.
   - **Reachability:** A node in Lane `i` connects to 1-3 nodes in the next Rank.
   - **No Crossing (Monotonicity):** Connections must preserve relative order.
     - If Node A is "above" Node B in the current Rank, then ALL of Node A's targets must be "above" or "equal to" ALL of Node B's targets in the next Rank.
-    - *Visually:* Lines never form an 'X'.
+    - _Visually:_ Lines never form an 'X'.
 - **Progression (One Way):**
   - The player chooses **exactly one** node per Rank.
   - Upon clearing a node, the campaign advances to the next Rank.
@@ -149,14 +149,15 @@ The game supports four difficulty presets defining failure consequences.
   - **Mission Cap:** Max **2** of any single consumable type per mission (e.g., max 2 Grenades total for the squad).
   - **Usage:** Used items are removed from stockpile. Unused are returned.
 - **Starting Funds (Scrap):**
-    - Simulation: 1000
-    - Clone: 500
-    - Standard: 300
-    - Ironman: 150
+  - Simulation: 1000
+  - Clone: 500
+  - Standard: 300
+  - Ironman: 150
 
 ## 5. End Game Flow
 
 ### 5.1 Victory State
+
 - **Trigger:** Successfully completing a mission at a node of type **"Boss"**.
 - **State Change:** Campaign `status` changes to **"Victory"**.
 - **UI:** The Campaign Screen is replaced by a **Victory Report**:
@@ -166,6 +167,7 @@ The game supports four difficulty presets defining failure consequences.
   - **"New Campaign"** button (Returns to Main Menu).
 
 ### 5.2 Defeat State
+
 - **Triggers:**
   - **Ironman:** Any Mission Loss.
   - **Standard/Clone:** **Bankruptcy**. Occurs when:
@@ -182,6 +184,7 @@ The game supports four difficulty presets defining failure consequences.
 The game tracks cumulative statistics across all campaigns (regardless of Victory/Defeat) to provide long-term engagement.
 
 ### 6.1 Global Stats (Persistent)
+
 Stored independently of individual save files (e.g., `voidlock_meta_v1`).
 
 - **Campaigns:**
@@ -203,9 +206,10 @@ Stored independently of individual save files (e.g., `voidlock_meta_v1`).
   - `totalScrapEarned`: Cumulative lifetime earnings.
 
 ### 6.2 Implementation
+
 - **Update Trigger:**
   - Stats are updated incrementally at the end of each mission (for combat/eco stats) or at Campaign End (for Win/Loss counts).
-  - *Constraint:* Must support "Crash Recovery" (i.e., if game crashes, stats accrued during the mission might be lost unless synced carefully, but syncing at End of Mission is acceptable for MVP).
+  - _Constraint:_ Must support "Crash Recovery" (i.e., if game crashes, stats accrued during the mission might be lost unless synced carefully, but syncing at End of Mission is acceptable for MVP).
 - **Visualization:**
   - **Profile Screen:** (Future Feature)
   - **Main Menu:** Simple tally (e.g., "Aliens Killed: 10,432") displayed in a corner.
@@ -241,7 +245,7 @@ Stored independently of individual save files (e.g., `voidlock_meta_v1`).
 - **Outcome**:
   - **Campaign Mode**: Treated as a **Defeat** (Squad Wipe logic applies unless "Retreat" logic is implemented). Returns to Campaign Hub (or Game Over screen).
   - **Custom Mode**: Returns to Mission Setup.
-- **Anti-Pattern**: The user MUST NOT be dropped back into the *same* tactical state upon restarting the game or the mission.
+- **Anti-Pattern**: The user MUST NOT be dropped back into the _same_ tactical state upon restarting the game or the mission.
 
 ### 4.3 Mission Launch Constraints
 
@@ -249,7 +253,7 @@ Stored independently of individual save files (e.g., `voidlock_meta_v1`).
   - The **Map Configuration** (Seed, Size, Generator) MUST be **HIDDEN**. The UI should skip directly to Squad Selection or display a read-only briefing.
   - The player CANNOT modify these settings.
   - The **Squad Selection** remains active.
-  - **Roster Selection**: The UI must list individual soldiers from the player's *Available Roster* using checkboxes or toggles.
+  - **Roster Selection**: The UI must list individual soldiers from the player's _Available Roster_ using checkboxes or toggles.
     - **Selection Limit**: Enforce the maximum squad size (4 soldiers).
     - **Injury Handling**: Soldiers with a status other than "Healthy" (e.g., "Injured") must be listed but disabled for selection.
     - **Display**: Each entry should show the soldier's Name, Archetype, Level, and Status.

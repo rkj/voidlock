@@ -408,7 +408,9 @@ export class TreeShipGenerator {
       this.placementValidator.occupy(c1, OccupantType.SquadSpawn, c1.roomId);
       this.placementValidator.occupy(c2, OccupantType.SquadSpawn, c2.roomId);
     } else {
-      const available = squadQuad.filter((c) => !this.placementValidator.isCellOccupied(c));
+      const available = squadQuad.filter(
+        (c) => !this.placementValidator.isCellOccupied(c),
+      );
       this.prng.shuffle(available);
       const c1 = available.length > 0 ? available[0] : squadQuad[0];
       const r1 = `room-forced-squad1-${c1.x}-${c1.y}`;
@@ -445,7 +447,7 @@ export class TreeShipGenerator {
     const extQuad = quadrants[extQuadIdx];
     const roomsInExtQuadMap = getRoomsInCells(extQuad);
     const extRoomIds = Array.from(roomsInExtQuadMap.keys()).filter(
-      (rid) => !this.placementValidator.isRoomOccupied(rid)
+      (rid) => !this.placementValidator.isRoomOccupied(rid),
     );
 
     if (extRoomIds.length > 0) {
@@ -454,7 +456,9 @@ export class TreeShipGenerator {
       this.extraction = c;
       this.placementValidator.occupy(c, OccupantType.Extraction, rid);
     } else {
-      const available = extQuad.filter((c) => !this.placementValidator.isCellOccupied(c));
+      const available = extQuad.filter(
+        (c) => !this.placementValidator.isCellOccupied(c),
+      );
       const c = available.length > 0 ? available[0] : extQuad[0];
       const rid = `room-forced-ext-${c.x}-${c.y}`;
       c.roomId = rid;
@@ -465,7 +469,7 @@ export class TreeShipGenerator {
     // 3. Enemy Spawns
     const allRoomsMap = getRoomsInCells(floors);
     const otherRoomIds = Array.from(allRoomsMap.keys()).filter(
-      (rid) => !this.placementValidator.isRoomOccupied(rid)
+      (rid) => !this.placementValidator.isRoomOccupied(rid),
     );
     this.prng.shuffle(otherRoomIds);
 
@@ -483,7 +487,9 @@ export class TreeShipGenerator {
     }
 
     if (enemiesPlaced < spawnPointCount) {
-      const available = floors.filter((c) => !this.placementValidator.isCellOccupied(c));
+      const available = floors.filter(
+        (c) => !this.placementValidator.isCellOccupied(c),
+      );
       this.prng.shuffle(available);
       for (const c of available) {
         if (enemiesPlaced >= spawnPointCount) break;
@@ -500,16 +506,27 @@ export class TreeShipGenerator {
     }
 
     if (enemiesPlaced === 0 && spawnPointCount > 0) {
-      const available = floors.find((c) => !this.placementValidator.isCellOccupied(c)) || floors[floors.length - 1];
+      const available =
+        floors.find((c) => !this.placementValidator.isCellOccupied(c)) ||
+        floors[floors.length - 1];
       const rid = `room-forced-enemy-fallback-${available.x}-${available.y}`;
       available.roomId = rid;
-      this.spawnPoints.push({ id: `spawn-1`, pos: { x: available.x, y: available.y }, radius: 1 });
-      this.placementValidator.occupy(available, OccupantType.EnemySpawn, rid, false);
+      this.spawnPoints.push({
+        id: `spawn-1`,
+        pos: { x: available.x, y: available.y },
+        radius: 1,
+      });
+      this.placementValidator.occupy(
+        available,
+        OccupantType.EnemySpawn,
+        rid,
+        false,
+      );
     }
 
     // 4. Objectives
     const remainingRoomIds = Array.from(allRoomsMap.keys()).filter(
-      (rid) => !this.placementValidator.isRoomOccupied(rid)
+      (rid) => !this.placementValidator.isRoomOccupied(rid),
     );
     this.prng.shuffle(remainingRoomIds);
 
@@ -524,7 +541,9 @@ export class TreeShipGenerator {
       });
       this.placementValidator.occupy(c, OccupantType.Objective, rid);
     } else {
-      const available = floors.filter((c) => !this.placementValidator.isCellOccupied(c));
+      const available = floors.filter(
+        (c) => !this.placementValidator.isCellOccupied(c),
+      );
       this.prng.shuffle(available);
       if (available.length > 0) {
         const c = available[0];

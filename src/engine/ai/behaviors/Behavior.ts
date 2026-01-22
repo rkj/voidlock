@@ -10,6 +10,6 @@ export interface Behavior {
     doors: Map<string, Door>,
     prng: PRNG,
     context: AIContext,
-    director?: any
+    director?: any,
   ): boolean;
 }

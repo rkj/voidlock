@@ -56,15 +56,18 @@ describe("Regression voidlock-v5n8: Opportunistic Loot Pickup", () => {
       kills: 0,
       damageDealt: 0,
       objectivesCompleted: 0,
-      aiEnabled: true
+      aiEnabled: true,
     });
   });
 
   it("should autonomously move to and pick up visible loot", () => {
     // Add loot at (3, 0)
     const actualState = (engine as any).state;
-    (engine as any).lootManager.spawnLoot(actualState, "medkit", { x: 3.5, y: 0.5 });
-    
+    (engine as any).lootManager.spawnLoot(actualState, "medkit", {
+      x: 3.5,
+      y: 0.5,
+    });
+
     // Verify loot exists in actual state
     expect(actualState.loot.length).toBe(1);
     const lootId = actualState.loot[0].id;
@@ -75,13 +78,13 @@ describe("Regression voidlock-v5n8: Opportunistic Loot Pickup", () => {
       engine.update(100);
       const currentState = engine.getState();
       const unit = currentState.units[0];
-      
+
       if (currentState.loot.length === 0) {
         lootPickedUp = true;
         break;
       }
     }
-    
+
     expect(lootPickedUp).toBe(true);
     expect(engine.getState().units[0].aiEnabled).toBe(true);
   });
@@ -109,28 +112,34 @@ describe("Regression voidlock-v5n8: Opportunistic Loot Pickup", () => {
       kills: 0,
       damageDealt: 0,
       objectivesCompleted: 0,
-      aiEnabled: true
+      aiEnabled: true,
     });
 
     // Add only ONE loot at (3, 0)
     const actualState = (engine as any).state;
-    (engine as any).lootManager.spawnLoot(actualState, "medkit", { x: 3.5, y: 0.5 });
-    
+    (engine as any).lootManager.spawnLoot(actualState, "medkit", {
+      x: 3.5,
+      y: 0.5,
+    });
+
     // Run updates
     for (let i = 0; i < 100; i++) {
       engine.update(100);
       const currentState = engine.getState();
-      const u1 = currentState.units.find(u => u.id === "u1")!;
-      const u2 = currentState.units.find(u => u.id === "u2")!;
-      
+      const u1 = currentState.units.find((u) => u.id === "u1")!;
+      const u2 = currentState.units.find((u) => u.id === "u2")!;
+
       // Check that they are not both targeting the same loot
-      if (u1.activeCommand?.type === CommandType.PICKUP && u2.activeCommand?.type === CommandType.PICKUP) {
+      if (
+        u1.activeCommand?.type === CommandType.PICKUP &&
+        u2.activeCommand?.type === CommandType.PICKUP
+      ) {
         throw new Error("Both units targeting same loot!");
       }
 
       if (currentState.loot.length === 0) break;
     }
-    
+
     expect(engine.getState().loot.length).toBe(0);
   });
 
@@ -143,7 +152,7 @@ describe("Regression voidlock-v5n8: Opportunistic Loot Pickup", () => {
       kind: "Recover",
       state: "Pending",
       targetCell: { x: 3, y: 3 },
-      visible: false // Will be set to true when discovered
+      visible: false, // Will be set to true when discovered
     });
 
     // Run updates. Unit should detect objective and move to it.
@@ -152,14 +161,14 @@ describe("Regression voidlock-v5n8: Opportunistic Loot Pickup", () => {
       engine.update(100);
       const currentState = engine.getState();
       const unit = currentState.units[0];
-      const obj = currentState.objectives.find(o => o.id === "obj-1")!;
+      const obj = currentState.objectives.find((o) => o.id === "obj-1")!;
 
       if (obj.state === "Completed") {
         objectiveCompleted = true;
         break;
       }
     }
-    
+
     expect(objectiveCompleted).toBe(true);
   });
 });

@@ -59,8 +59,10 @@ describe("DebriefScreen Visual Audit", () => {
     // Panels
     const panels = container.querySelectorAll(".debrief-panel");
     expect(panels.length).toBe(2);
-    
-    const panelTitle = panels[0].querySelector(".debrief-panel-title") as HTMLElement;
+
+    const panelTitle = panels[0].querySelector(
+      ".debrief-panel-title",
+    ) as HTMLElement;
     expect(panelTitle).not.toBeNull();
     expect(panelTitle.style.fontSize).toBe(""); // Should be in CSS
 
@@ -69,15 +71,19 @@ describe("DebriefScreen Visual Audit", () => {
     expect(statRows.length).toBeGreaterThan(0);
 
     // Resource section
-    const resourceSection = container.querySelector(".debrief-resource-section") as HTMLElement;
+    const resourceSection = container.querySelector(
+      ".debrief-resource-section",
+    ) as HTMLElement;
     expect(resourceSection).not.toBeNull();
 
     // XP Bar
     const xpBar = container.querySelector(".debrief-xp-bar") as HTMLElement;
     expect(xpBar).not.toBeNull();
-    
+
     // XP Fills
-    const xpFillBefore = container.querySelector(".debrief-xp-fill-before") as HTMLElement;
+    const xpFillBefore = container.querySelector(
+      ".debrief-xp-fill-before",
+    ) as HTMLElement;
     expect(xpFillBefore).not.toBeNull();
     expect(xpFillBefore.style.width).not.toBe(""); // This remains inline because it's dynamic
 
@@ -100,10 +106,41 @@ describe("DebriefScreen Visual Audit", () => {
       intelGained: 25,
       timeSpent: 3600,
       soldierResults: [
-        { soldierId: "Soldier 1", xpBefore: 100, xpGained: 50, kills: 10, promoted: true, newLevel: 2, status: "Healthy" },
-        { soldierId: "Soldier 2", xpBefore: 200, xpGained: 60, kills: 15, promoted: false, status: "Wounded", recoveryTime: 2 },
-        { soldierId: "Soldier 3", xpBefore: 300, xpGained: 70, kills: 20, promoted: true, newLevel: 3, status: "Healthy" },
-        { soldierId: "Soldier 4", xpBefore: 400, xpGained: 80, kills: 5, promoted: false, status: "Dead" },
+        {
+          soldierId: "Soldier 1",
+          xpBefore: 100,
+          xpGained: 50,
+          kills: 10,
+          promoted: true,
+          newLevel: 2,
+          status: "Healthy",
+        },
+        {
+          soldierId: "Soldier 2",
+          xpBefore: 200,
+          xpGained: 60,
+          kills: 15,
+          promoted: false,
+          status: "Wounded",
+          recoveryTime: 2,
+        },
+        {
+          soldierId: "Soldier 3",
+          xpBefore: 300,
+          xpGained: 70,
+          kills: 20,
+          promoted: true,
+          newLevel: 3,
+          status: "Healthy",
+        },
+        {
+          soldierId: "Soldier 4",
+          xpBefore: 400,
+          xpGained: 80,
+          kills: 5,
+          promoted: false,
+          status: "Dead",
+        },
       ],
     };
 

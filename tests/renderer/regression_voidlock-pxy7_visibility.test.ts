@@ -1,4 +1,3 @@
-
 /**
  * @vitest-environment jsdom
  */
@@ -13,9 +12,9 @@ describe("UI Visibility Regression", () => {
         <div id="screen-campaign-summary" class="screen campaign-summary-screen"></div>
       </div>
     `;
-    
+
     // Mock the CSS that we suspect is causing the issue
-    const style = document.createElement('style');
+    const style = document.createElement("style");
     style.innerHTML = `
       .screen { display: none; }
       .debrief-screen { }

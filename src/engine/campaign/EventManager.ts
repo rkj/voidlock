@@ -82,7 +82,8 @@ export class EventManager {
         }
         if (choice.reward.recruit) {
           const archetypes = ["assault", "medic", "scout", "heavy"];
-          const archId = archetypes[Math.floor(prng.next() * archetypes.length)];
+          const archId =
+            archetypes[Math.floor(prng.next() * archetypes.length)];
           const arch = ArchetypeLibrary[archId];
           const newSoldier: CampaignSoldier = {
             id: `soldier_${Date.now()}_${Math.floor(prng.next() * 1000)}`,

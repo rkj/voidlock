@@ -19,7 +19,7 @@ export class SafetyBehavior implements Behavior {
     _doors: Map<string, any>,
     _prng: PRNG,
     context: AIContext,
-    director?: any
+    director?: any,
   ): boolean {
     if (unit.archetypeId === "vip") return false;
 
@@ -27,8 +27,8 @@ export class SafetyBehavior implements Behavior {
       (enemy) =>
         enemy.hp > 0 &&
         context.newVisibleCellsSet.has(
-          `${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`
-        )
+          `${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`,
+        ),
     );
 
     const threats = visibleEnemies
@@ -36,10 +36,7 @@ export class SafetyBehavior implements Behavior {
         enemy,
         distance: getDistance(unit.pos, enemy.pos),
       }))
-      .sort(
-        (a, b) =>
-          1 / (b.distance + 1) - (1 / (a.distance + 1))
-      );
+      .sort((a, b) => 1 / (b.distance + 1) - 1 / (a.distance + 1));
 
     const isLowHP = unit.hp < unit.maxHp * 0.25;
     const nearbyAllies = state.units.filter(
@@ -48,7 +45,7 @@ export class SafetyBehavior implements Behavior {
         u.hp > 0 &&
         u.state !== UnitState.Extracted &&
         u.state !== UnitState.Dead &&
-        getDistance(unit.pos, u.pos) <= 5
+        getDistance(unit.pos, u.pos) <= 5,
     );
     const isIsolated = nearbyAllies.length === 0 && threats.length > 0;
 
@@ -56,7 +53,9 @@ export class SafetyBehavior implements Behavior {
       const safeCells = state.discoveredCells.filter((cellKey) => {
         const [cx, cy] = cellKey.split(",").map(Number);
         return !threats.some(
-          (t) => Math.floor(t.enemy.pos.x) === cx && Math.floor(t.enemy.pos.y) === cy
+          (t) =>
+            Math.floor(t.enemy.pos.x) === cx &&
+            Math.floor(t.enemy.pos.y) === cy,
         );
       });
 
@@ -90,7 +89,7 @@ export class SafetyBehavior implements Behavior {
             },
             state,
             false,
-            director
+            director,
           );
           return unit.state === UnitState.Moving;
         }
@@ -102,13 +101,11 @@ export class SafetyBehavior implements Behavior {
           u.id !== unit.id &&
           u.hp > 0 &&
           u.state !== UnitState.Extracted &&
-          u.state !== UnitState.Dead
+          u.state !== UnitState.Dead,
       );
       if (otherUnits.length > 0) {
         const closestAlly = otherUnits.sort(
-          (a, b) =>
-            getDistance(unit.pos, a.pos) -
-            getDistance(unit.pos, b.pos)
+          (a, b) => getDistance(unit.pos, a.pos) - getDistance(unit.pos, b.pos),
         )[0];
         if (
           unit.state !== UnitState.Moving ||
@@ -131,7 +128,7 @@ export class SafetyBehavior implements Behavior {
             },
             state,
             false,
-            director
+            director,
           );
           return true;
         }
@@ -151,4 +148,3 @@ export class SafetyBehavior implements Behavior {
     return false;
   }
 }
-

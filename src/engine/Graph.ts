@@ -1,4 +1,9 @@
-import { BoundaryType, CellType, MapDefinition, Vector2 } from "../shared/types";
+import {
+  BoundaryType,
+  CellType,
+  MapDefinition,
+  Vector2,
+} from "../shared/types";
 
 export type Direction = "n" | "e" | "s" | "w";
 

@@ -1,6 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { Renderer } from "@src/renderer/Renderer";
-import { GameState, MapDefinition, CellType, UnitState, UnitStyle } from "@src/shared/types";
+import {
+  GameState,
+  MapDefinition,
+  CellType,
+  UnitState,
+  UnitStyle,
+} from "@src/shared/types";
 import { createMockGameState } from "@src/engine/tests/utils/MockFactory";
 import { Icons } from "@src/renderer/Icons";
 

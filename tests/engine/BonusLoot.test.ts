@@ -12,9 +12,7 @@ import { MapFactory } from "../../src/engine/map/MapFactory";
 
 describe("Bonus Loot (Scrap Crates)", () => {
   const squadConfig: SquadConfig = {
-    soldiers: [
-      { id: "s1", archetypeId: "scout" },
-    ],
+    soldiers: [{ id: "s1", archetypeId: "scout" }],
     inventory: {},
   };
 
@@ -52,7 +50,11 @@ describe("Bonus Loot (Scrap Crates)", () => {
     const state = engine.getState();
 
     expect(state.loot).toBeDefined();
-    expect(state.loot?.some(l => l.itemId === "scrap_crate" && l.pos.x === 2 && l.pos.y === 0)).toBe(true);
+    expect(
+      state.loot?.some(
+        (l) => l.itemId === "scrap_crate" && l.pos.x === 2 && l.pos.y === 0,
+      ),
+    ).toBe(true);
   });
 
   it("should award scrap when a scrap crate is picked up and not add it to inventory", () => {
@@ -73,17 +75,19 @@ describe("Bonus Loot (Scrap Crates)", () => {
     };
 
     const engine = new CoreEngine(map, 12345, squadConfig, false, false);
-    
+
     // Initial scrap should be 0 (stats.scrapGained)
     expect(engine.getState().stats.scrapGained).toBe(0);
 
-    const loot = engine.getState().loot!.find(l => l.itemId === "scrap_crate")!;
-    
+    const loot = engine
+      .getState()
+      .loot!.find((l) => l.itemId === "scrap_crate")!;
+
     // Command unit to pick up loot
     engine.applyCommand({
       type: CommandType.PICKUP,
       unitIds: ["s1"],
-      lootId: loot.id
+      lootId: loot.id,
     });
 
     // Run engine until pickup is complete
@@ -112,17 +116,38 @@ describe("Bonus Loot (Scrap Crates)", () => {
       }
     }
 
-    const engine = new CoreEngine(map, 12345, squadConfig, false, false, MissionType.Default, false, 0, 1.0, false, undefined, [], true, 0, 3, 1, 0, "Elite");
-    
+    const engine = new CoreEngine(
+      map,
+      12345,
+      squadConfig,
+      false,
+      false,
+      MissionType.Default,
+      false,
+      0,
+      1.0,
+      false,
+      undefined,
+      [],
+      true,
+      0,
+      3,
+      1,
+      0,
+      "Elite",
+    );
+
     // Ensure there is an objective
     expect(engine.getState().objectives.length).toBeGreaterThan(0);
     expect(engine.getState().status).toBe("Playing");
 
-    const loot = engine.getState().loot!.find(l => l.itemId === "scrap_crate")!;
+    const loot = engine
+      .getState()
+      .loot!.find((l) => l.itemId === "scrap_crate")!;
     engine.applyCommand({
       type: CommandType.PICKUP,
       unitIds: ["s1"],
-      lootId: loot.id
+      lootId: loot.id,
     });
 
     for (let i = 0; i < 300; i++) {

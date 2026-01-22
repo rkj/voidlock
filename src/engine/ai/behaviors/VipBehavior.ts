@@ -1,8 +1,4 @@
-import {
-  GameState,
-  Unit,
-  UnitState,
-} from "../../../shared/types";
+import { GameState, Unit, UnitState } from "../../../shared/types";
 import { AIContext } from "../../managers/UnitAI";
 import { PRNG } from "../../../shared/PRNG";
 import { Behavior } from "./Behavior";
@@ -11,7 +7,10 @@ import { LineOfSight } from "../../LineOfSight";
 import { VipAI } from "../VipAI";
 
 export class VipBehavior implements Behavior {
-  constructor(private vipAi: VipAI, private los: LineOfSight) {}
+  constructor(
+    private vipAi: VipAI,
+    private los: LineOfSight,
+  ) {}
 
   public evaluate(
     unit: Unit,
@@ -20,7 +19,7 @@ export class VipBehavior implements Behavior {
     _doors: Map<string, any>,
     _prng: PRNG,
     context: AIContext,
-    director?: any
+    director?: any,
   ): boolean {
     if (unit.archetypeId !== "vip") return false;
 
@@ -31,7 +30,7 @@ export class VipBehavior implements Behavior {
           u.archetypeId !== "vip" &&
           u.hp > 0 &&
           (getDistance(unit.pos, u.pos) <= 1.5 ||
-            this.los.hasLineOfSight(u.pos, unit.pos))
+            this.los.hasLineOfSight(u.pos, unit.pos)),
       );
       if (rescueSoldier) {
         unit.aiEnabled = true;

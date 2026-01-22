@@ -14,7 +14,7 @@ describe("MapFactory Loot Generation", () => {
     };
 
     const map = MapFactory.generate(config);
-    
+
     expect(map.bonusLoot).toBeDefined();
     expect(map.bonusLoot?.length).toBe(3);
   });
@@ -30,7 +30,7 @@ describe("MapFactory Loot Generation", () => {
     };
 
     const map = MapFactory.generate(config);
-    
+
     expect(map.bonusLoot || []).toHaveLength(0);
   });
 
@@ -45,7 +45,7 @@ describe("MapFactory Loot Generation", () => {
     };
 
     const map = MapFactory.generate(config);
-    
+
     // Should be capped by available room cells
     expect(map.bonusLoot?.length).toBeLessThan(100);
   });

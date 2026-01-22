@@ -5,6 +5,7 @@
 ## Context
 
 Voidlock requires a high-performance tactical display for the game world alongside a complex, interactive User Interface (UI). Attempting to render the entire UI within the same HTML5 Canvas used for the game world leads to several challenges:
+
 - **Complexity**: Manual hit-testing and event handling for UI elements on a Canvas is error-prone and difficult to maintain.
 - **Accessibility**: Canvas-based text and buttons are invisible to screen readers and lack native browser features like tooltips and selectable text.
 - **Layout**: Implementing responsive layouts (flexbox, grid) manually in Canvas is significantly more difficult than using standard CSS.
@@ -26,15 +27,15 @@ The "Main Simulation Area" is rendered on an `<canvas>` element. This is ideal f
 
 All interactive UI elements, overlays, and screens (Main Menu, Squad Configuration, HUD) are implemented using standard HTML/CSS.
 
-- **Responsibility**: 
-    - **Header**: Game time, status, and threat meter.
-    - **Squad Bar**: Horizontal list of soldier cards with HP bars and stat icons.
-    - **Command Panel**: Hierarchical command menu and enemy intel grouping.
-    - **Screens**: Full-screen overlays for menus and mission setup.
-- **Benefits**: 
-    - Leverages the browser's layout engine for responsive design.
-    - Native support for tooltips (`title` attribute) and accessibility.
-    - Easy styling and animations via CSS.
+- **Responsibility**:
+  - **Header**: Game time, status, and threat meter.
+  - **Squad Bar**: Horizontal list of soldier cards with HP bars and stat icons.
+  - **Command Panel**: Hierarchical command menu and enemy intel grouping.
+  - **Screens**: Full-screen overlays for menus and mission setup.
+- **Benefits**:
+  - Leverages the browser's layout engine for responsive design.
+  - Native support for tooltips (`title` attribute) and accessibility.
+  - Easy styling and animations via CSS.
 - **Interaction**: The DOM UI communicates with the engine via the `GameClient` and `MenuController`, issuing `Command` objects based on user clicks or key presses.
 
 ### 3. Unified Input Management (`InputManager.ts`)

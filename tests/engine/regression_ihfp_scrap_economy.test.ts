@@ -80,7 +80,6 @@ describe("Scrap Economy Regression", () => {
 
     // First update starts channeling
 
-
     // First update starts channeling
     engine.update(100);
     expect(internalState.units[0].state).toBe(UnitState.Channeling);

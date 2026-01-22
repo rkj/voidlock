@@ -8,7 +8,7 @@ import { GameApp } from "@src/renderer/app/GameApp";
 
 // Mock dependencies
 vi.mock("@package.json", () => ({
-  default: { version: "1.0.0" }
+  default: { version: "1.0.0" },
 }));
 
 const mockGameClient = {
@@ -133,55 +133,64 @@ describe("regression_voidlock_4eeb_loot_spawning", () => {
     const cm = CampaignManager.getInstance();
     cm.startNewCampaign(123, "Simulation");
     const state = cm.getState()!;
-    
+
     // Force bonusLootCount on the first node
-    const accessibleNode = state.nodes.find(n => n.status === "Accessible")!;
+    const accessibleNode = state.nodes.find((n) => n.status === "Accessible")!;
     accessibleNode.bonusLootCount = 3;
     cm.save();
 
     // 2. Launch mission
     app.start();
     document.getElementById("btn-menu-campaign")?.click();
-    
+
     // Select the node
-    const nodeEl = document.querySelector(`.campaign-node[data-id="${accessibleNode.id}"]`) as HTMLElement;
+    const nodeEl = document.querySelector(
+      `.campaign-node[data-id="${accessibleNode.id}"]`,
+    ) as HTMLElement;
     nodeEl?.click();
-    
+
     // Wait for mission-setup screen
-    await new Promise(resolve => {
-        const check = () => {
-            if (document.getElementById("screen-mission-setup")?.style.display !== "none") {
-                resolve(true);
-            } else {
-                setTimeout(check, 10);
-            }
-        };
-        check();
+    await new Promise((resolve) => {
+      const check = () => {
+        if (
+          document.getElementById("screen-mission-setup")?.style.display !==
+          "none"
+        ) {
+          resolve(true);
+        } else {
+          setTimeout(check, 10);
+        }
+      };
+      check();
     });
 
     // Click Equipment button in mission-setup
     document.getElementById("btn-goto-equipment")?.click();
 
     // Wait for equipment screen
-    await new Promise(resolve => {
-        const check = () => {
-            if (document.getElementById("screen-equipment")?.style.display !== "none") {
-                resolve(true);
-            } else {
-                setTimeout(check, 10);
-            }
-        };
-        check();
+    await new Promise((resolve) => {
+      const check = () => {
+        if (
+          document.getElementById("screen-equipment")?.style.display !== "none"
+        ) {
+          resolve(true);
+        } else {
+          setTimeout(check, 10);
+        }
+      };
+      check();
     });
 
     // Confirm equipment to launch
-    const confirmBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent?.includes("Confirm")) as HTMLElement;
+    const confirmBtn = Array.from(
+      document.querySelectorAll("#screen-equipment button"),
+    ).find((b) => b.textContent?.includes("Confirm")) as HTMLElement;
     confirmBtn?.click();
 
     // 3. Verify GameClient.init was called with bonusLootCount = 3
     expect(mockGameClient.init).toHaveBeenCalled();
     const lastCall = mockGameClient.init.mock.calls[0];
-    
+
     // bonusLootCount is the 25th argument (index 24)
     expect(lastCall[24]).toBe(3);
   });

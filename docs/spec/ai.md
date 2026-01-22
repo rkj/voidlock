@@ -79,7 +79,7 @@ Spawns occur on a fixed timer (default 30s).
 
 1. **Base Amount:** Defined by Mission Config (Default: 3 for Campaign Start).
 1. **Scaling:** Defined by Mission Depth. `WaveSize = BaseAmount + (Depth * GrowthFactor)`.
-   - *Campaign Default:* Base 3, Growth 1. (Mission 1 = 3, Mission 2 = 4...).
+   - _Campaign Default:_ Base 3, Growth 1. (Mission 1 = 3, Mission 2 = 4...).
 1. **Distribution:** Enemies are distributed randomly among valid `SpawnPoints`.
 1. **Upgrade Logic:** Probabilistic replacement of weak enemies with strong ones based on current threat level.
 1. **Threat Growth:** Threat level increases by 10% per turn (10s at 1x speed), capping at 100% after 10 turns.

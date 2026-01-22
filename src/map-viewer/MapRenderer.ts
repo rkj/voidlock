@@ -55,9 +55,9 @@ export class MapRenderer {
     if (this.graph) {
       svg += `  <g stroke="${wall}" stroke-width="2" stroke-linecap="round">\n`;
       this.graph.getAllBoundaries().forEach((boundary) => {
-      // Only draw permanent walls here. Doors are handled separately.
-      if (boundary.type === BoundaryType.Wall) {
-        const seg = boundary.getVisualSegment();
+        // Only draw permanent walls here. Doors are handled separately.
+        if (boundary.type === BoundaryType.Wall) {
+          const seg = boundary.getVisualSegment();
           svg += `    <line x1="${seg.p1.x * this.cellSize}" y1="${seg.p1.y * this.cellSize}" x2="${seg.p2.x * this.cellSize}" y2="${seg.p2.y * this.cellSize}" />\n`;
         }
       });
@@ -103,7 +103,7 @@ export class MapRenderer {
         }
 
         svg += `  <rect x="${drawX}" y="${drawY}" width="${drawWidth}" height="${drawHeight}" fill="${doorColor}" stroke="${doorStroke}" stroke-width="2" />\n`;
-        
+
         if (state === "Locked") {
           svg += `  <line x1="${drawX}" y1="${drawY}" x2="${drawX + drawWidth}" y2="${drawY + drawHeight}" stroke="${doorStroke}" stroke-width="2" />\n`;
           svg += `  <line x1="${drawX + drawWidth}" y1="${drawY}" x2="${drawX}" y2="${drawY + drawHeight}" stroke="${doorStroke}" stroke-width="2" />\n`;

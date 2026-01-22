@@ -39,7 +39,7 @@ describe("Global Squad Inventory", () => {
     );
 
     const units = (engine as any).state.units;
-    units[0].hp = 50; 
+    units[0].hp = 50;
 
     const cmd: any = {
       type: CommandType.USE_ITEM,

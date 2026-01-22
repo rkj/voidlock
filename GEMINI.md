@@ -47,21 +47,25 @@ Use these scripts from `package.json`:
 ## Development Guidelines
 
 ### 1. Architecture Restrictions
+
 - **Decoupling:** The `engine` must NOT import from `renderer`. Communication is strictly via JSON protocol (Commands/Observations).
 - **Determinism:** The `engine` must use the seeded `PRNG` for all random numbers. `Math.random()` is forbidden in the engine.
 - **Testing:** All tests reside in `tests/`. Do not co-locate tests with source files.
 
 ### 2. Context Files (`GEMINI.md`)
+
 - Detailed context for specific subsystems is found in local `GEMINI.md` files (e.g., `src/engine/GEMINI.md`).
 - Keep these files updated when architecture or folder structure changes.
 
 ### 3. File conventions
+
 - **Imports:** Use `@src/` alias for imports from the source directory.
 - **Styles:** Use existing patterns (CSS variables, BEM-like naming) found in `src/styles`.
 
 ## Sub-Contexts
 
 For deeper dives, refer to:
+
 - [Engine Context](./src/engine/GEMINI.md)
 - [Renderer Context](./src/renderer/GEMINI.md)
 - [Shared Types Context](./src/shared/GEMINI.md)

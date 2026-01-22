@@ -134,7 +134,10 @@ export class EquipmentScreen {
     centerPanel.style.padding = "10px";
     const centerBody = document.createElement("div");
     centerPanel.appendChild(centerBody);
-    this.inspector.setSoldier(this.config.soldiers[this.selectedSoldierIndex], true);
+    this.inspector.setSoldier(
+      this.config.soldiers[this.selectedSoldierIndex],
+      true,
+    );
     this.inspector.renderDetails(centerBody);
 
     // Right: Armory / Global Inventory
@@ -305,7 +308,7 @@ export class EquipmentScreen {
           const state = this.manager.getState();
           if (state && state.scrap < item.cost) return;
           if (state) this.manager.spendScrap(item.cost);
-          
+
           this.config.inventory[item.id] = count + 1;
           this.render();
         }

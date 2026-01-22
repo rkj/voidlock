@@ -100,7 +100,9 @@ export class HUDManager {
       speedValue.textContent = TimeUtility.formatSpeed(scale, isPaused);
     }
 
-    const btn = document.getElementById("btn-pause-toggle") as HTMLButtonElement;
+    const btn = document.getElementById(
+      "btn-pause-toggle",
+    ) as HTMLButtonElement;
     if (btn) {
       const isPaused = state.settings.isPaused;
       btn.textContent = isPaused ? "▶ PLAY" : "|| PAUSE";

@@ -6,18 +6,18 @@ All interactions with units are mediated through the `Command` object structure.
 
 ### 1.1 Command Types
 
-| Command           | Payload                              | Description                                                                   |
-| :---------------- | :----------------------------------- | :---------------------------------------------------------------------------- |
-| `MOVE_TO`         | `target: Vector2`                    | Move to a specific cell. Pathfinding handles obstacles.                       |
-| `STOP`            | -                                    | Clear command queue and halt immediately.                                     |
-| `SET_ENGAGEMENT`  | `mode: "ENGAGE" \| "IGNORE"`         | **ENGAGE**: Auto-attack visible enemies. **IGNORE**: Hold fire (Stealth/Run). |
-| `OPEN_DOOR`       | `doorId: string`                     | Interact with a door. Unit moves to interaction range first.                  |
+| Command           | Payload                                                       | Description                                                                   |
+| :---------------- | :------------------------------------------------------------ | :---------------------------------------------------------------------------- |
+| `MOVE_TO`         | `target: Vector2`                                             | Move to a specific cell. Pathfinding handles obstacles.                       |
+| `STOP`            | -                                                             | Clear command queue and halt immediately.                                     |
+| `SET_ENGAGEMENT`  | `mode: "ENGAGE" \| "IGNORE"`                                  | **ENGAGE**: Auto-attack visible enemies. **IGNORE**: Hold fire (Stealth/Run). |
+| `OPEN_DOOR`       | `doorId: string`                                              | Interact with a door. Unit moves to interaction range first.                  |
 | `USE_ITEM`        | `itemId: string`, `target?: Vector2`, `targetUnitId?: string` | Use an inventory item. May require channeling (e.g., Medkit).                 |
-| `OVERWATCH_POINT` | `target: Vector2`                    | Move to a strategic point (Intersection/Dead End) and hold angle.             |
-| `EXPLORE`         | -                                    | Autonomous behavior: Move to nearest unexplored Fog of War.                   |
-| `ESCORT_UNIT`     | `targetId: string`                   | Form a protective formation around a target unit.                             |
-| `PICKUP`          | `targetId: string`                   | Move to and pick up a World Item (Loot).                                      |
-| `EXTRACT`         | -                                    | Attempt to extract at the Extraction Zone.                                    |
+| `OVERWATCH_POINT` | `target: Vector2`                                             | Move to a strategic point (Intersection/Dead End) and hold angle.             |
+| `EXPLORE`         | -                                                             | Autonomous behavior: Move to nearest unexplored Fog of War.                   |
+| `ESCORT_UNIT`     | `targetId: string`                                            | Form a protective formation around a target unit.                             |
+| `PICKUP`          | `targetId: string`                                            | Move to and pick up a World Item (Loot).                                      |
+| `EXTRACT`         | -                                                             | Attempt to extract at the Extraction Zone.                                    |
 
 > **Note:** `ATTACK_TARGET` has been removed. Soldiers autonomously prioritize targets based on logic (See Section 3).
 
@@ -26,6 +26,7 @@ All interactions with units are mediated through the `Command` object structure.
 Certain actions require the unit to remain stationary and focus for a duration.
 
 ### 2.1 Mechanics
+
 - **State:** Unit enters `UnitState.Busy` (or `Channeling`).
 - **Duration Formula:**
   - All timed actions follow the global speed normalization rule.
@@ -36,6 +37,7 @@ Certain actions require the unit to remain stationary and focus for a duration.
   - **Involuntary:** Taking damage does **NOT** interrupt (unless unit dies).
 
 ### 2.2 Standard Durations (Base Time)
+
 - **Artifact Pickup:** **3.0 Seconds**.
 - **Extracting:** **5.0 Seconds**.
 - **Medkit / Mine:** **3.0 Seconds** (See [Items](items.md)).
@@ -101,12 +103,12 @@ Soldiers decide _who_ to shoot based on a priority heuristic, removing the need 
 
 These commands facilitate testing, balancing, and state reproduction.
 
-| Type | Direction | Payload | Description |
-| :--- | :--- | :--- | :--- |
-| `TOGGLE_DEBUG_OVERLAY` | Main -> Worker | `{ enabled: boolean }` | Toggles debug visualizations (Coordinates, Raycasts). |
-| `TOGGLE_LOS_OVERLAY` | Main -> Worker | `{ enabled: boolean }` | Toggles Line-of-Sight polygons (Gradients). |
-| `QUERY_STATE` | Main -> Worker | `null` | Requests an immediate state snapshot. |
-| `STATE_UPDATE` | Worker -> Main | `GameState` | The serialized world state, including command history. |
+| Type                   | Direction      | Payload                | Description                                            |
+| :--------------------- | :------------- | :--------------------- | :----------------------------------------------------- |
+| `TOGGLE_DEBUG_OVERLAY` | Main -> Worker | `{ enabled: boolean }` | Toggles debug visualizations (Coordinates, Raycasts).  |
+| `TOGGLE_LOS_OVERLAY`   | Main -> Worker | `{ enabled: boolean }` | Toggles Line-of-Sight polygons (Gradients).            |
+| `QUERY_STATE`          | Main -> Worker | `null`                 | Requests an immediate state snapshot.                  |
+| `STATE_UPDATE`         | Worker -> Main | `GameState`            | The serialized world state, including command history. |
 
 ## 7. UI Interaction & Menu Flow
 

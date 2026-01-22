@@ -59,7 +59,7 @@ describe("UnitAI Pickup Competition", () => {
       kills: 0,
       damageDealt: 0,
       objectivesCompleted: 0,
-      aiEnabled: true
+      aiEnabled: true,
     });
 
     // Soldier A (Closer)
@@ -84,13 +84,16 @@ describe("UnitAI Pickup Competition", () => {
       kills: 0,
       damageDealt: 0,
       objectivesCompleted: 0,
-      aiEnabled: true
+      aiEnabled: true,
     });
 
     // Add loot at (0, 0)
     const actualState = (engine as any).state;
-    (engine as any).lootManager.spawnLoot(actualState, "medkit", { x: 0.5, y: 0.5 });
-    
+    (engine as any).lootManager.spawnLoot(actualState, "medkit", {
+      x: 0.5,
+      y: 0.5,
+    });
+
     expect(actualState.loot.length).toBe(1);
     const lootId = actualState.loot[0].id;
 
@@ -98,13 +101,13 @@ describe("UnitAI Pickup Competition", () => {
     engine.update(100);
 
     const currentState = engine.getState();
-    const soldierA = currentState.units.find(u => u.id === "soldier-A")!;
-    const soldierB = currentState.units.find(u => u.id === "soldier-B")!;
+    const soldierA = currentState.units.find((u) => u.id === "soldier-A")!;
+    const soldierB = currentState.units.find((u) => u.id === "soldier-B")!;
 
     // Soldier A should have claimed it because it's closer (dist 2 vs dist 10)
     expect(soldierA.activeCommand?.type).toBe(CommandType.PICKUP);
     expect((soldierA.activeCommand as PickupCommand).lootId).toBe(lootId);
-    
+
     // Soldier B should NOT have claimed it
     expect(soldierB.activeCommand?.type).not.toBe(CommandType.PICKUP);
   });
@@ -132,7 +135,7 @@ describe("UnitAI Pickup Competition", () => {
       kills: 0,
       damageDealt: 0,
       objectivesCompleted: 0,
-      aiEnabled: true
+      aiEnabled: true,
     });
 
     // Soldier A (Closer)
@@ -157,7 +160,7 @@ describe("UnitAI Pickup Competition", () => {
       kills: 0,
       damageDealt: 0,
       objectivesCompleted: 0,
-      aiEnabled: true
+      aiEnabled: true,
     });
 
     // Add recover objective at (0, 0)
@@ -167,9 +170,9 @@ describe("UnitAI Pickup Competition", () => {
       kind: "Recover",
       state: "Pending",
       targetCell: { x: 0, y: 0 },
-      visible: true
+      visible: true,
     });
-    
+
     // Ensure visibility info is updated so units can "see" it
     actualState.visibleCells.push("0,0");
 
@@ -177,13 +180,13 @@ describe("UnitAI Pickup Competition", () => {
     engine.update(100);
 
     const currentState = engine.getState();
-    const soldierA = currentState.units.find(u => u.id === "soldier-A")!;
-    const soldierB = currentState.units.find(u => u.id === "soldier-B")!;
+    const soldierA = currentState.units.find((u) => u.id === "soldier-A")!;
+    const soldierB = currentState.units.find((u) => u.id === "soldier-B")!;
 
     // Soldier A should have claimed it
     expect(soldierA.activeCommand?.type).toBe(CommandType.PICKUP);
     expect((soldierA.activeCommand as PickupCommand).lootId).toBe("obj-1");
-    
+
     // Soldier B should NOT have claimed it
     expect(soldierB.activeCommand?.type).not.toBe(CommandType.PICKUP);
   });

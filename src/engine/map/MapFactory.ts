@@ -21,7 +21,10 @@ import { Graph, Direction } from "../Graph";
 import { MapSanitizer } from "./MapSanitizer";
 import { MapValidator } from "./MapValidator";
 import { PRNG } from "../../shared/PRNG";
-import { PlacementValidator, OccupantType } from "../generators/PlacementValidator";
+import {
+  PlacementValidator,
+  OccupantType,
+} from "../generators/PlacementValidator";
 
 export class MapFactory {
   private config: MapGenerationConfig;
@@ -35,23 +38,36 @@ export class MapFactory {
   }
 
   public static generate(config: MapGenerationConfig): MapDefinition {
-    const { width, height, type, seed, spawnPointCount, bonusLootCount } = config;
+    const { width, height, type, seed, spawnPointCount, bonusLootCount } =
+      config;
     const spCount = spawnPointCount ?? 1;
     const blCount = bonusLootCount ?? 0;
     let map: MapDefinition;
 
     switch (type) {
       case MapGeneratorType.TreeShip:
-        map = new TreeShipGenerator(seed, width, height).generate(spCount, blCount);
+        map = new TreeShipGenerator(seed, width, height).generate(
+          spCount,
+          blCount,
+        );
         break;
       case MapGeneratorType.Procedural:
-        map = new SpaceshipGenerator(seed, width, height).generate(spCount, blCount);
+        map = new SpaceshipGenerator(seed, width, height).generate(
+          spCount,
+          blCount,
+        );
         break;
       case MapGeneratorType.DenseShip:
-        map = new DenseShipGenerator(seed, width, height).generate(spCount, blCount);
+        map = new DenseShipGenerator(seed, width, height).generate(
+          spCount,
+          blCount,
+        );
         break;
       default:
-        map = new SpaceshipGenerator(seed, width, height).generate(spCount, blCount);
+        map = new SpaceshipGenerator(seed, width, height).generate(
+          spCount,
+          blCount,
+        );
     }
 
     map.generatorName = type;
@@ -392,13 +408,17 @@ export class MapFactory {
         }
 
         const n = cell.edges.n;
-        if (n && n.type !== BoundaryType.Open) asciiGrid[ey - 1][ex] = n.doorId ? "=" : "-";
+        if (n && n.type !== BoundaryType.Open)
+          asciiGrid[ey - 1][ex] = n.doorId ? "=" : "-";
         const e = cell.edges.e;
-        if (e && e.type !== BoundaryType.Open) asciiGrid[ey][ex + 1] = e.doorId ? "I" : "|";
+        if (e && e.type !== BoundaryType.Open)
+          asciiGrid[ey][ex + 1] = e.doorId ? "I" : "|";
         const s = cell.edges.s;
-        if (s && s.type !== BoundaryType.Open) asciiGrid[ey + 1][ex] = s.doorId ? "=" : "-";
+        if (s && s.type !== BoundaryType.Open)
+          asciiGrid[ey + 1][ex] = s.doorId ? "=" : "-";
         const w = cell.edges.w;
-        if (w && w.type !== BoundaryType.Open) asciiGrid[ey][ex - 1] = w.doorId ? "I" : "|";
+        if (w && w.type !== BoundaryType.Open)
+          asciiGrid[ey][ex - 1] = w.doorId ? "I" : "|";
       }
     }
 

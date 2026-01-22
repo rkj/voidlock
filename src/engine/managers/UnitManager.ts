@@ -240,7 +240,11 @@ export class UnitManager {
         mustBeInLOS: true,
       })),
       ...(state.objectives || [])
-        .filter((o) => o.state === "Pending" && (o.kind === "Recover" || o.kind === "Escort" || o.kind === "Kill"))
+        .filter(
+          (o) =>
+            o.state === "Pending" &&
+            (o.kind === "Recover" || o.kind === "Escort" || o.kind === "Kill"),
+        )
         .map((o) => {
           let pos = { x: 0.5, y: 0.5 };
           if (o.targetCell) {
@@ -270,7 +274,7 @@ export class UnitManager {
           u.state === UnitState.Extracted
         )
           return false;
-        
+
         // Only consider units that can actually perform autonomous opportunistic pickups
         if (u.archetypeId === "vip") return false;
         if (u.aiEnabled === false) return false;
@@ -283,7 +287,8 @@ export class UnitManager {
         // Find closest unit by Euclidean distance
         const closestUnit = unitsSeeingItem.sort(
           (a, b) =>
-            this.getDistance(a.pos, item.pos) - this.getDistance(b.pos, item.pos),
+            this.getDistance(a.pos, item.pos) -
+            this.getDistance(b.pos, item.pos),
         )[0];
         itemAssignments.set(item.id, closestUnit.id);
       }
@@ -397,7 +402,10 @@ export class UnitManager {
             unit.channeling = undefined;
             return;
           } else if (unit.channeling.action === "UseItem") {
-            if (unit.activeCommand && unit.activeCommand.type === CommandType.USE_ITEM) {
+            if (
+              unit.activeCommand &&
+              unit.activeCommand.type === CommandType.USE_ITEM
+            ) {
               const cmd = unit.activeCommand;
               const count = state.squadInventory[cmd.itemId] || 0;
               if (count > 0) {
@@ -426,7 +434,13 @@ export class UnitManager {
       if (unit.state === UnitState.Idle && unit.commandQueue.length > 0) {
         const nextCmd = unit.commandQueue.shift();
         if (nextCmd) {
-          this.commandExecutor.executeCommand(unit, nextCmd, state, true, director);
+          this.commandExecutor.executeCommand(
+            unit,
+            nextCmd,
+            state,
+            true,
+            director,
+          );
           if ((unit.state as any) === UnitState.Channeling) {
             return;
           }

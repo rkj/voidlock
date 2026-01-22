@@ -1,4 +1,8 @@
-import { MissionReport, XP_THRESHOLDS, calculateLevel } from "@src/shared/campaign_types";
+import {
+  MissionReport,
+  XP_THRESHOLDS,
+  calculateLevel,
+} from "@src/shared/campaign_types";
 
 export class DebriefScreen {
   private container: HTMLElement;
@@ -95,13 +99,15 @@ export class DebriefScreen {
             : "var(--color-danger)";
 
       const currentLevel = calculateLevel(res.xpBefore);
-      const nextLevelThreshold = XP_THRESHOLDS[currentLevel] || XP_THRESHOLDS[XP_THRESHOLDS.length - 1];
+      const nextLevelThreshold =
+        XP_THRESHOLDS[currentLevel] || XP_THRESHOLDS[XP_THRESHOLDS.length - 1];
       const prevLevelThreshold = XP_THRESHOLDS[currentLevel - 1];
-      
+
       const xpInCurrentLevel = res.xpBefore - prevLevelThreshold;
       const xpNeededForNext = nextLevelThreshold - prevLevelThreshold;
       const xpAfter = res.xpBefore + res.xpGained;
-      const xpInCurrentLevelAfter = Math.min(xpAfter, nextLevelThreshold) - prevLevelThreshold;
+      const xpInCurrentLevelAfter =
+        Math.min(xpAfter, nextLevelThreshold) - prevLevelThreshold;
 
       const progressBefore = (xpInCurrentLevel / xpNeededForNext) * 100;
       const progressAfter = (xpInCurrentLevelAfter / xpNeededForNext) * 100;

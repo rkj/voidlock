@@ -35,7 +35,7 @@ describe("StatisticsScreen", () => {
     expect(container.textContent).toContain("Campaigns");
     expect(container.textContent).toContain("Combat");
     expect(container.textContent).toContain("Economy");
-    
+
     expect(container.textContent).toContain("Total Xeno Kills");
     expect(container.textContent).toContain("0"); // Default value
   });

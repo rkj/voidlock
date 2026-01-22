@@ -41,7 +41,7 @@ describe("MenuController State Machine Refactor (n0xw)", () => {
       isSlowMotion: false,
       allowTacticalPause: true,
     },
-    squadInventory: { "medkit": 1, "mine": 1 },
+    squadInventory: { medkit: 1, mine: 1 },
   };
 
   beforeEach(() => {
@@ -56,7 +56,7 @@ describe("MenuController State Machine Refactor (n0xw)", () => {
     expect(controller.menuState).toBe("ORDERS_SELECT");
     controller.handleMenuInput("1", mockState); // MOVE TO ROOM
     expect(controller.menuState).toBe("TARGET_SELECT");
-    
+
     controller.goBack();
     expect(controller.menuState).toBe("ORDERS_SELECT");
   });
@@ -67,7 +67,7 @@ describe("MenuController State Machine Refactor (n0xw)", () => {
     // Assuming medkit is the first item
     controller.handleMenuInput("1", mockState); // Select Medkit
     expect(controller.menuState).toBe("TARGET_SELECT");
-    
+
     controller.goBack();
     expect(controller.menuState).toBe("ITEM_SELECT");
   });
@@ -75,7 +75,7 @@ describe("MenuController State Machine Refactor (n0xw)", () => {
   it("should return to ACTION_SELECT from TARGET_SELECT if it was the parent (PICKUP)", () => {
     controller.handleMenuInput("4", mockState); // PICKUP
     expect(controller.menuState).toBe("TARGET_SELECT");
-    
+
     controller.goBack();
     expect(controller.menuState).toBe("ACTION_SELECT");
   });
@@ -85,11 +85,11 @@ describe("MenuController State Machine Refactor (n0xw)", () => {
     expect(controller.menuState).toBe("MODE_SELECT");
     controller.handleMenuInput("1", mockState); // ENGAGE
     expect(controller.menuState).toBe("UNIT_SELECT");
-    
+
     controller.goBack();
     expect(controller.menuState).toBe("MODE_SELECT");
   });
-  
+
   it("should reset completely when going back from Level 1 menus", () => {
     controller.handleMenuInput("1", mockState); // ORDERS
     expect(controller.menuState).toBe("ORDERS_SELECT");
@@ -102,15 +102,17 @@ describe("MenuController State Machine Refactor (n0xw)", () => {
     controller.handleMenuInput("3", mockState); // USE ITEM
     controller.handleMenuInput("1", mockState); // Select Medkit
     expect(controller.menuState).toBe("TARGET_SELECT");
-    
+
     // Simulate clicking a unit in Target Select
     // In our mockState, u1 is at (0.5, 0.5)
     controller.handleCanvasClick({ x: 0, y: 0 }, mockState);
-    
-    expect(mockClient.sendCommand).toHaveBeenCalledWith(expect.objectContaining({
-      type: CommandType.USE_ITEM,
-      itemId: "medkit",
-    }));
+
+    expect(mockClient.sendCommand).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: CommandType.USE_ITEM,
+        itemId: "medkit",
+      }),
+    );
     expect(controller.menuState).toBe("ACTION_SELECT");
   });
 
@@ -118,14 +120,14 @@ describe("MenuController State Machine Refactor (n0xw)", () => {
     controller.handleMenuInput("3", mockState); // USE ITEM
     controller.handleMenuInput("2", mockState); // Select Landmine (assuming it's 2nd)
     expect(controller.menuState).toBe("UNIT_SELECT");
-    
+
     controller.handleMenuInput("1", mockState); // Select Unit 1
     expect(controller.menuState).toBe("TARGET_SELECT");
-    
+
     controller.goBack();
     expect(controller.menuState).toBe("UNIT_SELECT");
     expect(controller.pendingUnitIds).toBeNull();
-    
+
     controller.goBack();
     expect(controller.menuState).toBe("ITEM_SELECT");
   });

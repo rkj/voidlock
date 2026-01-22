@@ -10,34 +10,42 @@ describe("SquadBuilder Component", () => {
   let squad: SquadConfig;
 
   beforeEach(() => {
-    document.body.innerHTML = '<div id="squad-builder"></div><button id="btn-goto-equipment"></button>';
+    document.body.innerHTML =
+      '<div id="squad-builder"></div><button id="btn-goto-equipment"></button>';
     container = document.getElementById("squad-builder")!;
 
     squad = {
-        soldiers: [],
-        inventory: {}
+      soldiers: [],
+      inventory: {},
     };
 
     context = {
-        campaignManager: {
-            getState: vi.fn().mockReturnValue({
-                roster: [],
-                scrap: 100,
-                unlockedArchetypes: ["assault", "medic"]
-            }),
-            recruitSoldier: vi.fn(),
-            reviveSoldier: vi.fn(),
-        },
-        modalService: {
-            alert: vi.fn().mockResolvedValue(undefined),
-            confirm: vi.fn().mockResolvedValue(true),
-            prompt: vi.fn().mockResolvedValue("New Soldier"),
-        }
+      campaignManager: {
+        getState: vi.fn().mockReturnValue({
+          roster: [],
+          scrap: 100,
+          unlockedArchetypes: ["assault", "medic"],
+        }),
+        recruitSoldier: vi.fn(),
+        reviveSoldier: vi.fn(),
+      },
+      modalService: {
+        alert: vi.fn().mockResolvedValue(undefined),
+        confirm: vi.fn().mockResolvedValue(true),
+        prompt: vi.fn().mockResolvedValue("New Soldier"),
+      },
     } as any;
   });
 
   it("should render roster and deployment panels", () => {
-    const builder = new SquadBuilder("squad-builder", context, squad, MissionType.Default, false, () => {});
+    const builder = new SquadBuilder(
+      "squad-builder",
+      context,
+      squad,
+      MissionType.Default,
+      false,
+      () => {},
+    );
     builder.render();
 
     expect(container.querySelector(".roster-panel")).not.toBeNull();
@@ -47,7 +55,14 @@ describe("SquadBuilder Component", () => {
 
   it("should show total soldiers count", () => {
     squad.soldiers = [{ archetypeId: "assault" }];
-    const builder = new SquadBuilder("squad-builder", context, squad, MissionType.Default, false, () => {});
+    const builder = new SquadBuilder(
+      "squad-builder",
+      context,
+      squad,
+      MissionType.Default,
+      false,
+      () => {},
+    );
     builder.render();
 
     const countDiv = document.getElementById("squad-total-count");
@@ -55,24 +70,49 @@ describe("SquadBuilder Component", () => {
   });
 
   it("should disable launch button if squad is empty", () => {
-    const builder = new SquadBuilder("squad-builder", context, squad, MissionType.Default, false, () => {});
+    const builder = new SquadBuilder(
+      "squad-builder",
+      context,
+      squad,
+      MissionType.Default,
+      false,
+      () => {},
+    );
     builder.render();
 
-    const launchBtn = document.getElementById("btn-goto-equipment") as HTMLButtonElement;
+    const launchBtn = document.getElementById(
+      "btn-goto-equipment",
+    ) as HTMLButtonElement;
     expect(launchBtn.disabled).toBe(true);
   });
 
   it("should enable launch button if squad has members", () => {
     squad.soldiers = [{ archetypeId: "assault" }];
-    const builder = new SquadBuilder("squad-builder", context, squad, MissionType.Default, false, () => {});
+    const builder = new SquadBuilder(
+      "squad-builder",
+      context,
+      squad,
+      MissionType.Default,
+      false,
+      () => {},
+    );
     builder.render();
 
-    const launchBtn = document.getElementById("btn-goto-equipment") as HTMLButtonElement;
+    const launchBtn = document.getElementById(
+      "btn-goto-equipment",
+    ) as HTMLButtonElement;
     expect(launchBtn.disabled).toBe(false);
   });
 
   it("should lock first slot for Escort VIP mission", () => {
-    const builder = new SquadBuilder("squad-builder", context, squad, MissionType.EscortVIP, false, () => {});
+    const builder = new SquadBuilder(
+      "squad-builder",
+      context,
+      squad,
+      MissionType.EscortVIP,
+      false,
+      () => {},
+    );
     builder.render();
 
     const firstSlot = container.querySelectorAll(".deployment-slot")[0];
@@ -82,7 +122,14 @@ describe("SquadBuilder Component", () => {
   });
 
   it("should not have visible slot labels but have aria-labels", () => {
-    const builder = new SquadBuilder("squad-builder", context, squad, MissionType.Default, false, () => {});
+    const builder = new SquadBuilder(
+      "squad-builder",
+      context,
+      squad,
+      MissionType.Default,
+      false,
+      () => {},
+    );
     builder.render();
 
     const slots = container.querySelectorAll(".deployment-slot");
@@ -94,10 +141,19 @@ describe("SquadBuilder Component", () => {
 
   it("should allow adding to squad via dblclick on archetype card", () => {
     const onUpdate = vi.fn();
-    const builder = new SquadBuilder("squad-builder", context, squad, MissionType.Default, false, onUpdate);
+    const builder = new SquadBuilder(
+      "squad-builder",
+      context,
+      squad,
+      MissionType.Default,
+      false,
+      onUpdate,
+    );
     builder.render();
 
-    const assaultCard = container.querySelector(".roster-panel .soldier-card") as HTMLElement;
+    const assaultCard = container.querySelector(
+      ".roster-panel .soldier-card",
+    ) as HTMLElement;
     assaultCard.dispatchEvent(new MouseEvent("dblclick"));
 
     expect(squad.soldiers.length).toBe(1);
@@ -108,7 +164,14 @@ describe("SquadBuilder Component", () => {
   it("should allow removing from squad via click on X", () => {
     squad.soldiers = [{ archetypeId: "assault" }];
     const onUpdate = vi.fn();
-    const builder = new SquadBuilder("squad-builder", context, squad, MissionType.Default, false, onUpdate);
+    const builder = new SquadBuilder(
+      "squad-builder",
+      context,
+      squad,
+      MissionType.Default,
+      false,
+      onUpdate,
+    );
     builder.render();
 
     const removeBtn = container.querySelector(".slot-remove") as HTMLElement;

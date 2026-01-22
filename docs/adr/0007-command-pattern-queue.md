@@ -12,7 +12,7 @@ We implement a strict **Command Pattern** where all state-mutating interactions 
 
 ### 1. Strict JSON Protocol
 
-Every interaction—whether from the UI, a scripted sequence, or an autonomous bot—must be expressed as a `Command`. 
+Every interaction—whether from the UI, a scripted sequence, or an autonomous bot—must be expressed as a `Command`.
 
 - **Encapsulation**: Commands contain all data required for execution (e.g., `unitIds`, `target` coordinates, `itemId`).
 - **Serializability**: Being plain JSON, commands are easily logged to a `CommandLog` for replays.
@@ -23,9 +23,9 @@ Every interaction—whether from the UI, a scripted sequence, or an autonomous b
 Each unit maintains its own `commandQueue`.
 
 - **Atomic Execution**: The engine processes the `activeCommand`. When complete (e.g., unit reaches destination), it pulls the next command from the queue.
-- **Interrupts vs. Appends**: 
-    - By default, issuing a new command clears the current queue (Interrupt).
-    - If the `queue` flag is set to `true` (e.g., when holding `Shift` in the UI), the command is appended to the end of the queue.
+- **Interrupts vs. Appends**:
+  - By default, issuing a new command clears the current queue (Interrupt).
+  - If the `queue` flag is set to `true` (e.g., when holding `Shift` in the UI), the command is appended to the end of the queue.
 - **Immediate Commands**: Some commands (like `STOP` or `SET_ENGAGEMENT`) may trigger immediate state changes while clearing or modifying the queue.
 
 ### 3. Determinism & Tick Synchronization
@@ -34,10 +34,10 @@ Commands are not executed immediately upon receipt. Instead, they are stamped wi
 
 - **Tick-stamping**: When a command reaches the engine, it is queued to be processed at the start of the next simulation tick.
 - **Order of Operations**:
-    1. Collect incoming commands from the message port.
-    2. Append/Replace unit queues based on command flags.
-    3. Update unit states based on the `activeCommand`.
-    4. Resolve simulation logic (Movement, Combat, LOS).
+  1. Collect incoming commands from the message port.
+  2. Append/Replace unit queues based on command flags.
+  3. Update unit states based on the `activeCommand`.
+  4. Resolve simulation logic (Movement, Combat, LOS).
 - **Replayability**: By recording the `(Tick, Command)` pairs, the exact state of the game can be reconstructed if the initial `Seed` and `MapDefinition` are known.
 
 ### 4. Shared Protocol Definition

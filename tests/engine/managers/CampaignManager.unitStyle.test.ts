@@ -14,7 +14,13 @@ describe("CampaignManager - unitStyle", () => {
   });
 
   it("should persist unitStyle when starting a new campaign", () => {
-    manager.startNewCampaign(123, "Standard", true, "default", UnitStyle.TacticalIcons);
+    manager.startNewCampaign(
+      123,
+      "Standard",
+      true,
+      "default",
+      UnitStyle.TacticalIcons,
+    );
     const state = manager.getState();
     expect(state?.rules.unitStyle).toBe(UnitStyle.TacticalIcons);
 
@@ -23,7 +29,9 @@ describe("CampaignManager - unitStyle", () => {
     CampaignManager.resetInstance();
     const newManager = CampaignManager.getInstance(storage);
     newManager.load();
-    expect(newManager.getState()?.rules.unitStyle).toBe(UnitStyle.TacticalIcons);
+    expect(newManager.getState()?.rules.unitStyle).toBe(
+      UnitStyle.TacticalIcons,
+    );
   });
 
   it("should handle optional unitStyle (defaulting to undefined in Rules but Sprites is intended fallback)", () => {

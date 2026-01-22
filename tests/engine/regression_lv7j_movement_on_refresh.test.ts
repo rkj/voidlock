@@ -13,15 +13,15 @@ describe("Regression lv7j: Unit Movement on Refresh", () => {
   it("should preserve movement state even if no command was issued exactly at refresh time", () => {
     const seed = 123;
     const map: MapDefinition = {
-        width: 10,
-        height: 10,
-        cells: [],
-        squadSpawn: { x: 1, y: 1 }
+      width: 10,
+      height: 10,
+      cells: [],
+      squadSpawn: { x: 1, y: 1 },
     };
     for (let y = 0; y < 10; y++) {
-        for (let x = 0; x < 10; x++) {
-            map.cells.push({ x, y, type: CellType.Floor });
-        }
+      for (let x = 0; x < 10; x++) {
+        map.cells.push({ x, y, type: CellType.Floor });
+      }
     }
 
     const squadConfig = {
@@ -40,11 +40,11 @@ describe("Regression lv7j: Unit Movement on Refresh", () => {
       0,
       1.0,
       false,
-      EngineMode.Simulation
+      EngineMode.Simulation,
     );
 
     const unitId = engine.getState().units[0].id;
-    
+
     // 1. Issue MOVE command at t=0
     engine.applyCommand({
       type: CommandType.MOVE_TO,
@@ -56,7 +56,7 @@ describe("Regression lv7j: Unit Movement on Refresh", () => {
     for (let i = 0; i < 62; i++) {
       engine.update(16, 16);
     }
-    
+
     const stateBeforeRefresh = engine.getState();
     const posBeforeRefresh = { ...stateBeforeRefresh.units[0].pos };
     const tickBeforeRefresh = stateBeforeRefresh.t;
@@ -78,15 +78,15 @@ describe("Regression lv7j: Unit Movement on Refresh", () => {
       EngineMode.Simulation,
       commandLog,
       true, // allowTacticalPause
-      tickBeforeRefresh
+      tickBeforeRefresh,
     );
 
     const recoveredState = recoveredEngine.getState();
-    
+
     // EXPECTATION FAILURE:
     // Without the fix, recoveredState.t will be 0 (or whatever the last command tick was)
     // and the unit will be at the start position.
-    
+
     // We want it to be at tickBeforeRefresh and posBeforeRefresh.
     expect(recoveredState.t).toBeGreaterThanOrEqual(tickBeforeRefresh);
     expect(recoveredState.units[0].pos.x).toBeCloseTo(posBeforeRefresh.x);

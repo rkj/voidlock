@@ -9,7 +9,10 @@ import {
   EnemyType,
 } from "@src/shared/types";
 import { PRNG } from "@src/shared/PRNG";
-import { createMockGameState, createMockUnit } from "@src/engine/tests/utils/MockFactory";
+import {
+  createMockGameState,
+  createMockUnit,
+} from "@src/engine/tests/utils/MockFactory";
 import { EnemyManager } from "@src/engine/managers/EnemyManager";
 
 describe("MissionManager", () => {

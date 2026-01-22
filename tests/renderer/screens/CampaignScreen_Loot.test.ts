@@ -61,7 +61,7 @@ describe("CampaignScreen Bonus Loot Pips", () => {
 
     const nodeEl = container.querySelector(`[data-id="${state.nodes[0].id}"]`);
     expect(nodeEl).not.toBeNull();
-    
+
     // Check for pips. We expect 3 stars or dots.
     // Based on the task: "Draw X 'Star' pips (or dots) next to the node icon"
     const pips = nodeEl?.querySelectorAll(".loot-pip");

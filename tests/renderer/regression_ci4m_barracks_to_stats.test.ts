@@ -29,7 +29,7 @@ describe("Regression voidlock-ci4m: Barracks to Statistics Transition", () => {
 
     // Attempt navigate to statistics
     sm.show("statistics");
-    
+
     expect(sm.getCurrentScreen()).toBe("statistics");
     expect(errorSpy).not.toHaveBeenCalled();
   });
@@ -44,7 +44,7 @@ describe("Regression voidlock-ci4m: Barracks to Statistics Transition", () => {
 
     // Attempt navigate to statistics
     sm.show("statistics");
-    
+
     expect(sm.getCurrentScreen()).toBe("statistics");
     expect(errorSpy).not.toHaveBeenCalled();
   });
@@ -59,7 +59,7 @@ describe("Regression voidlock-ci4m: Barracks to Statistics Transition", () => {
 
     // Attempt navigate to campaign
     sm.show("campaign");
-    
+
     expect(sm.getCurrentScreen()).toBe("campaign");
     expect(errorSpy).not.toHaveBeenCalled();
   });
@@ -76,7 +76,7 @@ describe("Regression voidlock-ci4m: Barracks to Statistics Transition", () => {
 
     // Attempt navigate to statistics
     sm.show("statistics");
-    
+
     expect(sm.getCurrentScreen()).toBe("statistics");
     expect(errorSpy).not.toHaveBeenCalled();
   });

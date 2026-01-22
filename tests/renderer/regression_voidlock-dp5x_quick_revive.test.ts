@@ -5,7 +5,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // Mock dependencies
 vi.mock("@package.json", () => ({
-  default: { version: "1.0.0" }
+  default: { version: "1.0.0" },
 }));
 
 const mockGameClient = {
@@ -57,11 +57,11 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
         getState: vi.fn(() => currentCampaignState),
         load: vi.fn().mockReturnValue(true),
         reviveSoldier: vi.fn((id) => {
-            const s = currentCampaignState.roster.find((r: any) => r.id === id);
-            if (s) {
-                s.status = "Healthy";
-                currentCampaignState.scrap -= 250;
-            }
+          const s = currentCampaignState.roster.find((r: any) => r.id === id);
+          if (s) {
+            s.status = "Healthy";
+            currentCampaignState.scrap -= 250;
+          }
         }),
       }),
     },
@@ -106,10 +106,30 @@ describe("Quick Revive in Mission Setup", () => {
         deathRule: "Clone",
       },
       roster: [
-        { id: "s1", name: "Dead Soldier", archetypeId: "assault", status: "Dead", level: 1, hp: 100, maxHp: 100, xp: 0, soldierAim: 80, equipment: {} },
+        {
+          id: "s1",
+          name: "Dead Soldier",
+          archetypeId: "assault",
+          status: "Dead",
+          level: 1,
+          hp: 100,
+          maxHp: 100,
+          xp: 0,
+          soldierAim: 80,
+          equipment: {},
+        },
       ],
       nodes: [
-        { id: "node-1", type: "Combat", status: "Accessible", rank: 0, connections: [], position: { x: 0, y: 0 }, mapSeed: 123, difficulty: 1 }
+        {
+          id: "node-1",
+          type: "Combat",
+          status: "Accessible",
+          rank: 0,
+          connections: [],
+          position: { x: 0, y: 0 },
+          mapSeed: 123,
+          difficulty: 1,
+        },
       ],
     };
 
@@ -131,20 +151,28 @@ describe("Quick Revive in Mission Setup", () => {
   it("should show Revive button for dead soldiers in Clone mode", async () => {
     // 1. Navigate to Mission Setup
     document.getElementById("btn-menu-campaign")?.click();
-    
+
     // In CampaignScreen, click the accessible node
-    const node = document.querySelector(".campaign-node.accessible") as HTMLElement;
+    const node = document.querySelector(
+      ".campaign-node.accessible",
+    ) as HTMLElement;
     node?.click();
 
-    expect(document.getElementById("screen-mission-setup")?.style.display).toBe("flex");
+    expect(document.getElementById("screen-mission-setup")?.style.display).toBe(
+      "flex",
+    );
 
     // 2. Check roster for Dead Soldier card
-    const deadCard = Array.from(document.querySelectorAll(".soldier-card")).find(c => c.textContent?.includes("Dead Soldier")) as HTMLElement;
+    const deadCard = Array.from(
+      document.querySelectorAll(".soldier-card"),
+    ).find((c) => c.textContent?.includes("Dead Soldier")) as HTMLElement;
     expect(deadCard).toBeTruthy();
     expect(deadCard.classList.contains("dead")).toBe(true);
 
     // 3. Look for Revive button
-    const reviveBtn = deadCard.querySelector(".btn-revive") as HTMLButtonElement;
+    const reviveBtn = deadCard.querySelector(
+      ".btn-revive",
+    ) as HTMLButtonElement;
     expect(reviveBtn).toBeTruthy();
     expect(reviveBtn.textContent).toContain("Revive");
     expect(reviveBtn.textContent).toContain("250");
@@ -155,29 +183,45 @@ describe("Quick Revive in Mission Setup", () => {
     currentCampaignState.scrap = 100;
 
     document.getElementById("btn-menu-campaign")?.click();
-    (document.querySelector(".campaign-node.accessible") as HTMLElement)?.click();
+    (
+      document.querySelector(".campaign-node.accessible") as HTMLElement
+    )?.click();
 
-    const deadCard = Array.from(document.querySelectorAll(".soldier-card")).find(c => c.textContent?.includes("Dead Soldier")) as HTMLElement;
-    const reviveBtn = deadCard.querySelector(".btn-revive") as HTMLButtonElement;
+    const deadCard = Array.from(
+      document.querySelectorAll(".soldier-card"),
+    ).find((c) => c.textContent?.includes("Dead Soldier")) as HTMLElement;
+    const reviveBtn = deadCard.querySelector(
+      ".btn-revive",
+    ) as HTMLButtonElement;
     expect(reviveBtn.disabled).toBe(true);
   });
 
   it("should call reviveSoldier and refresh UI when clicked", async () => {
     document.getElementById("btn-menu-campaign")?.click();
-    (document.querySelector(".campaign-node.accessible") as HTMLElement)?.click();
+    (
+      document.querySelector(".campaign-node.accessible") as HTMLElement
+    )?.click();
 
-    const deadCard = Array.from(document.querySelectorAll(".soldier-card")).find(c => c.textContent?.includes("Dead Soldier")) as HTMLElement;
-    const reviveBtn = deadCard.querySelector(".btn-revive") as HTMLButtonElement;
-    
+    const deadCard = Array.from(
+      document.querySelectorAll(".soldier-card"),
+    ).find((c) => c.textContent?.includes("Dead Soldier")) as HTMLElement;
+    const reviveBtn = deadCard.querySelector(
+      ".btn-revive",
+    ) as HTMLButtonElement;
+
     reviveBtn.click();
 
-    expect(CampaignManager.getInstance().reviveSoldier).toHaveBeenCalledWith("s1");
-    
+    expect(CampaignManager.getInstance().reviveSoldier).toHaveBeenCalledWith(
+      "s1",
+    );
+
     // Roster should refresh and soldier should be Healthy
     // Wait for UI update
-    await new Promise(resolve => setTimeout(resolve, 0));
-    
-    const updatedCard = Array.from(document.querySelectorAll(".soldier-card")).find(c => c.textContent?.includes("Dead Soldier")) as HTMLElement;
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    const updatedCard = Array.from(
+      document.querySelectorAll(".soldier-card"),
+    ).find((c) => c.textContent?.includes("Dead Soldier")) as HTMLElement;
     expect(updatedCard.classList.contains("dead")).toBe(false);
     expect(updatedCard.textContent).toContain("Status: Healthy");
   });
@@ -185,31 +229,94 @@ describe("Quick Revive in Mission Setup", () => {
   it("should show Recruit button if less than 4 healthy/wounded soldiers", async () => {
     // Current roster has 1 dead, 0 healthy/wounded
     currentCampaignState.roster = [
-        { id: "s1", name: "Dead Soldier", archetypeId: "assault", status: "Dead", level: 1, hp: 100, maxHp: 100, xp: 0, soldierAim: 80, equipment: {} },
+      {
+        id: "s1",
+        name: "Dead Soldier",
+        archetypeId: "assault",
+        status: "Dead",
+        level: 1,
+        hp: 100,
+        maxHp: 100,
+        xp: 0,
+        soldierAim: 80,
+        equipment: {},
+      },
     ];
 
     document.getElementById("btn-menu-campaign")?.click();
-    (document.querySelector(".campaign-node.accessible") as HTMLElement)?.click();
+    (
+      document.querySelector(".campaign-node.accessible") as HTMLElement
+    )?.click();
 
     const rosterPanel = document.querySelector(".roster-panel") as HTMLElement;
-    const recruitBtn = rosterPanel.querySelector(".btn-recruit") as HTMLButtonElement;
+    const recruitBtn = rosterPanel.querySelector(
+      ".btn-recruit",
+    ) as HTMLButtonElement;
     expect(recruitBtn).toBeTruthy();
     expect(recruitBtn.textContent).toContain("Recruit (100 Scrap)");
   });
 
   it("should NOT show Recruit button if 4 or more healthy/wounded soldiers", async () => {
     currentCampaignState.roster = [
-        { id: "s1", name: "S1", archetypeId: "assault", status: "Healthy", level: 1, hp: 100, maxHp: 100, xp: 0, soldierAim: 80, equipment: {} },
-        { id: "s2", name: "S2", archetypeId: "assault", status: "Healthy", level: 1, hp: 100, maxHp: 100, xp: 0, soldierAim: 80, equipment: {} },
-        { id: "s3", name: "S3", archetypeId: "assault", status: "Healthy", level: 1, hp: 100, maxHp: 100, xp: 0, soldierAim: 80, equipment: {} },
-        { id: "s4", name: "S4", archetypeId: "assault", status: "Wounded", level: 1, hp: 100, maxHp: 100, xp: 0, soldierAim: 80, equipment: {} },
+      {
+        id: "s1",
+        name: "S1",
+        archetypeId: "assault",
+        status: "Healthy",
+        level: 1,
+        hp: 100,
+        maxHp: 100,
+        xp: 0,
+        soldierAim: 80,
+        equipment: {},
+      },
+      {
+        id: "s2",
+        name: "S2",
+        archetypeId: "assault",
+        status: "Healthy",
+        level: 1,
+        hp: 100,
+        maxHp: 100,
+        xp: 0,
+        soldierAim: 80,
+        equipment: {},
+      },
+      {
+        id: "s3",
+        name: "S3",
+        archetypeId: "assault",
+        status: "Healthy",
+        level: 1,
+        hp: 100,
+        maxHp: 100,
+        xp: 0,
+        soldierAim: 80,
+        equipment: {},
+      },
+      {
+        id: "s4",
+        name: "S4",
+        archetypeId: "assault",
+        status: "Wounded",
+        level: 1,
+        hp: 100,
+        maxHp: 100,
+        xp: 0,
+        soldierAim: 80,
+        equipment: {},
+      },
     ];
 
     document.getElementById("btn-menu-campaign")?.click();
-    (document.querySelector(".campaign-node.accessible") as HTMLElement)?.click();
+    (
+      document.querySelector(".campaign-node.accessible") as HTMLElement
+    )?.click();
 
     const rosterPanel = document.querySelector(".roster-panel") as HTMLElement;
-    const recruitBtn = rosterPanel.querySelector(".btn-recruit") as HTMLButtonElement;
+    const recruitBtn = rosterPanel.querySelector(
+      ".btn-recruit",
+    ) as HTMLButtonElement;
     expect(recruitBtn).toBeNull();
   });
 });

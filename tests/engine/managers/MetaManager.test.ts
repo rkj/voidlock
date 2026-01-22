@@ -31,8 +31,22 @@ describe("MetaManager", () => {
       intelGained: 10,
       timeSpent: 1000,
       soldierResults: [
-        { soldierId: "soldier_0", xpBefore: 0, xpGained: 0, kills: 5, promoted: false, status: "Healthy" },
-        { soldierId: "soldier_1", xpBefore: 0, xpGained: 0, kills: 5, promoted: false, status: "Healthy" },
+        {
+          soldierId: "soldier_0",
+          xpBefore: 0,
+          xpGained: 0,
+          kills: 5,
+          promoted: false,
+          status: "Healthy",
+        },
+        {
+          soldierId: "soldier_1",
+          xpBefore: 0,
+          xpGained: 0,
+          kills: 5,
+          promoted: false,
+          status: "Healthy",
+        },
       ],
     };
     campaign.processMissionResult(report1);
@@ -60,8 +74,22 @@ describe("MetaManager", () => {
       intelGained: 0,
       timeSpent: 500,
       soldierResults: [
-        { soldierId: "soldier_0", xpBefore: 0, xpGained: 0, kills: 2, promoted: false, status: "Dead" },
-        { soldierId: "soldier_1", xpBefore: 0, xpGained: 0, kills: 3, promoted: false, status: "Healthy" },
+        {
+          soldierId: "soldier_0",
+          xpBefore: 0,
+          xpGained: 0,
+          kills: 2,
+          promoted: false,
+          status: "Dead",
+        },
+        {
+          soldierId: "soldier_1",
+          xpBefore: 0,
+          xpGained: 0,
+          kills: 3,
+          promoted: false,
+          status: "Healthy",
+        },
       ],
     };
     campaign2.processMissionResult(report2);
@@ -83,11 +111,11 @@ describe("MetaManager", () => {
     const campaign = CampaignManager.getInstance(storage);
 
     campaign.startNewCampaign(123, "Simulation");
-    
+
     // Manually set a node to Boss and clear it
     const state = campaign.getState();
     if (state) {
-      const bossNode = state.nodes.find(n => n.type === "Boss");
+      const bossNode = state.nodes.find((n) => n.type === "Boss");
       if (bossNode) {
         bossNode.status = "Accessible";
         const report: MissionReport = {
@@ -113,7 +141,7 @@ describe("MetaManager", () => {
     const campaign = CampaignManager.getInstance(storage);
 
     campaign.startNewCampaign(123, "Ironman");
-    
+
     const report: MissionReport = {
       nodeId: "node_0_0",
       seed: 123,
@@ -135,29 +163,29 @@ describe("MetaManager", () => {
     const campaign = CampaignManager.getInstance(storage);
 
     campaign.startNewCampaign(123, "Standard");
-    
+
     // Kill all soldiers and spend all scrap
     const state = campaign.getState();
     if (state) {
-        state.scrap = 0;
-        const report: MissionReport = {
-            nodeId: "node_0_0",
-            seed: 123,
-            result: "Lost",
-            aliensKilled: 0,
-            scrapGained: 0,
-            intelGained: 0,
-            timeSpent: 100,
-            soldierResults: state.roster.map(s => ({
-                soldierId: s.id,
-                xpBefore: 0,
-                xpGained: 0,
-                kills: 0,
-                promoted: false,
-                status: "Dead"
-            })),
-        };
-        campaign.processMissionResult(report);
+      state.scrap = 0;
+      const report: MissionReport = {
+        nodeId: "node_0_0",
+        seed: 123,
+        result: "Lost",
+        aliensKilled: 0,
+        scrapGained: 0,
+        intelGained: 0,
+        timeSpent: 100,
+        soldierResults: state.roster.map((s) => ({
+          soldierId: s.id,
+          xpBefore: 0,
+          xpGained: 0,
+          kills: 0,
+          promoted: false,
+          status: "Dead",
+        })),
+      };
+      campaign.processMissionResult(report);
     }
 
     expect(meta.getStats().campaignsWon).toBe(0);

@@ -20,7 +20,11 @@ export class CommandHandler {
 
     if (cmd.type === CommandType.USE_ITEM) {
       const item = ItemLibrary[cmd.itemId];
-      const isGlobal = item && (item.action === "Heal" || item.action === "Grenade" || item.action === "Scanner");
+      const isGlobal =
+        item &&
+        (item.action === "Heal" ||
+          item.action === "Grenade" ||
+          item.action === "Scanner");
 
       if (isGlobal && cmd.unitIds.length === 0) {
         const count = state.squadInventory[cmd.itemId] || 0;
@@ -40,7 +44,13 @@ export class CommandHandler {
               unit.commandQueue.push(cmd);
             } else {
               unit.commandQueue = [];
-              this.unitManager.executeCommand(unit, cmd, state, true, this.director);
+              this.unitManager.executeCommand(
+                unit,
+                cmd,
+                state,
+                true,
+                this.director,
+              );
             }
           }
         });
@@ -87,7 +97,13 @@ export class CommandHandler {
             unit.commandQueue.push(cmd);
           } else {
             unit.commandQueue = [];
-            this.unitManager.executeCommand(unit, cmd, state, true, this.director);
+            this.unitManager.executeCommand(
+              unit,
+              cmd,
+              state,
+              true,
+              this.director,
+            );
           }
         }
       });

@@ -1,4 +1,10 @@
-import { Vector2, GameState, Unit, UnitState, Door } from "../../../shared/types";
+import {
+  Vector2,
+  GameState,
+  Unit,
+  UnitState,
+  Door,
+} from "../../../shared/types";
 import { GameGrid } from "../../GameGrid";
 
 export function getDistance(pos1: Vector2, pos2: Vector2): number {
@@ -10,7 +16,7 @@ export function getDistance(pos1: Vector2, pos2: Vector2): number {
 export function isMapFullyDiscovered(
   state: GameState,
   totalFloorCells: number,
-  gameGrid: GameGrid
+  gameGrid: GameGrid,
 ): boolean {
   const discoveredFloors = state.discoveredCells.filter((key) => {
     const [x, y] = key.split(",").map(Number);
@@ -24,7 +30,7 @@ export function findClosestUndiscoveredCell(
   state: GameState,
   discoveredCellsSet: Set<string>,
   doors: Map<string, Door>,
-  gameGrid: GameGrid
+  gameGrid: GameGrid,
 ): Vector2 | null {
   const startX = Math.floor(unit.pos.x);
   const startY = Math.floor(unit.pos.y);
@@ -39,7 +45,7 @@ export function findClosestUndiscoveredCell(
         u.id !== unit.id &&
         u.hp > 0 &&
         u.state !== UnitState.Extracted &&
-        u.state !== UnitState.Dead
+        u.state !== UnitState.Dead,
     )
     .map((u) => u.pos);
 
@@ -61,10 +67,10 @@ export function findClosestUndiscoveredCell(
     if (!discoveredCellsSet.has(cellKey)) {
       const target = { x: curr.x + 0.5, y: curr.y + 0.5 };
       const isClaimed = claimedTargets.some(
-        (claimed) => getDistance(target, claimed) < avoidRadius
+        (claimed) => getDistance(target, claimed) < avoidRadius,
       );
       const tooCloseToUnit = otherUnitPositions.some(
-        (pos) => getDistance(target, pos) < unitAvoidRadius
+        (pos) => getDistance(target, pos) < unitAvoidRadius,
       );
 
       if (!isClaimed && !tooCloseToUnit) {

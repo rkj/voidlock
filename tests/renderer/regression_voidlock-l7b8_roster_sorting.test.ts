@@ -69,27 +69,50 @@ describe("Roster Sorting Regression (voidlock-l7b8)", () => {
         alert: vi.fn(),
         confirm: vi.fn(),
         prompt: vi.fn(),
-      }
+      },
     };
     (app as any).currentSquad = { soldiers: [] };
     (app as any).currentMissionType = MissionType.Default;
 
     (app as any).squadBuilder = new SquadBuilder(
-        "squad-builder",
-        (app as any).context,
-        (app as any).currentSquad,
-        (app as any).currentMissionType,
-        false,
-        (squad) => { (app as any).currentSquad = squad; }
+      "squad-builder",
+      (app as any).context,
+      (app as any).currentSquad,
+      (app as any).currentMissionType,
+      false,
+      (squad) => {
+        (app as any).currentSquad = squad;
+      },
     );
   });
 
   it("should sort roster by status: Healthy > Wounded > Dead", async () => {
     const mockState = {
       roster: [
-        { id: "1", name: "Dead Guy", status: "Dead", archetypeId: "assault", level: 1, equipment: {} },
-        { id: "2", name: "Healthy Guy", status: "Healthy", archetypeId: "medic", level: 2, equipment: {} },
-        { id: "3", name: "Wounded Guy", status: "Wounded", archetypeId: "heavy", level: 3, equipment: {} },
+        {
+          id: "1",
+          name: "Dead Guy",
+          status: "Dead",
+          archetypeId: "assault",
+          level: 1,
+          equipment: {},
+        },
+        {
+          id: "2",
+          name: "Healthy Guy",
+          status: "Healthy",
+          archetypeId: "medic",
+          level: 2,
+          equipment: {},
+        },
+        {
+          id: "3",
+          name: "Wounded Guy",
+          status: "Wounded",
+          archetypeId: "heavy",
+          level: 3,
+          equipment: {},
+        },
       ],
       rules: {
         difficulty: "Standard",
@@ -99,13 +122,13 @@ describe("Roster Sorting Regression (voidlock-l7b8)", () => {
       currentSector: 1,
     };
     mockCampaignManager.getState.mockReturnValue(mockState);
-    
+
     // Accessing private for testing
     (app as any).renderSquadBuilder(true);
 
     const cards = document.querySelectorAll(".soldier-card");
     expect(cards.length).toBe(3);
-    
+
     // Healthy should be first
     expect(cards[0].textContent).toContain("Healthy Guy");
     expect(cards[0].classList.contains("dead")).toBe(false);
@@ -123,21 +146,39 @@ describe("Roster Sorting Regression (voidlock-l7b8)", () => {
   it("should add .deployed class to soldiers in squad", () => {
     const mockState = {
       roster: [
-        { id: "1", name: "In Squad", status: "Healthy", archetypeId: "assault", level: 1, equipment: {} },
-        { id: "2", name: "Out of Squad", status: "Healthy", archetypeId: "medic", level: 2, equipment: {} },
+        {
+          id: "1",
+          name: "In Squad",
+          status: "Healthy",
+          archetypeId: "assault",
+          level: 1,
+          equipment: {},
+        },
+        {
+          id: "2",
+          name: "Out of Squad",
+          status: "Healthy",
+          archetypeId: "medic",
+          level: 2,
+          equipment: {},
+        },
       ],
     };
     mockCampaignManager.getState.mockReturnValue(mockState);
     (app as any).currentSquad = {
-        soldiers: [{ id: "1", archetypeId: "assault" }]
+      soldiers: [{ id: "1", archetypeId: "assault" }],
     };
 
     (app as any).renderSquadBuilder(true);
 
     const cards = document.querySelectorAll(".soldier-card");
-    
-    const card1 = Array.from(cards).find(c => c.textContent?.includes("In Squad"));
-    const card2 = Array.from(cards).find(c => c.textContent?.includes("Out of Squad"));
+
+    const card1 = Array.from(cards).find((c) =>
+      c.textContent?.includes("In Squad"),
+    );
+    const card2 = Array.from(cards).find((c) =>
+      c.textContent?.includes("Out of Squad"),
+    );
 
     expect(card1?.classList.contains("deployed")).toBe(true);
     expect(card2?.classList.contains("deployed")).toBe(false);

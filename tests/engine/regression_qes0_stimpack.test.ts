@@ -1,10 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { CoreEngine } from "@src/engine/CoreEngine";
-import {
-  CommandType,
-  MapDefinition,
-  CellType,
-} from "@src/shared/types";
+import { CommandType, MapDefinition, CellType } from "@src/shared/types";
 
 describe("Stimpack Item", () => {
   const mockMap: MapDefinition = {
@@ -37,7 +33,7 @@ describe("Stimpack Item", () => {
     );
 
     const units = (engine as any).state.units;
-    units[0].hp = 50; 
+    units[0].hp = 50;
 
     const cmd: any = {
       type: CommandType.USE_ITEM,
@@ -47,12 +43,12 @@ describe("Stimpack Item", () => {
     };
 
     engine.applyCommand(cmd);
-    
+
     // Stimpack is instant, so even a small update should apply it
     // Wait, Director.handleUseItem is called by UnitManager when channelTime completes.
     // If channelTime is 0/undefined, it happens in the same tick if UnitManager detects it.
-    
-    engine.update(100, 100); 
+
+    engine.update(100, 100);
 
     const state = engine.getState();
     expect(state.squadInventory["stimpack"]).toBe(0);

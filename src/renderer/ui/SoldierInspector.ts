@@ -30,7 +30,10 @@ export class SoldierInspector {
     this.onUpdate = options.onUpdate;
   }
 
-  public setSoldier(soldier: CampaignSoldier | SquadSoldierConfig | null, isMissionSetup: boolean) {
+  public setSoldier(
+    soldier: CampaignSoldier | SquadSoldierConfig | null,
+    isMissionSetup: boolean,
+  ) {
     this.soldier = soldier;
     this.isMissionSetup = isMissionSetup;
   }
@@ -207,7 +210,7 @@ export class SoldierInspector {
       container,
       "Armor",
       Object.values(ItemLibrary).filter(
-        (i) => i.id.includes("recon") || i.id.includes("plate")
+        (i) => i.id.includes("recon") || i.id.includes("plate"),
       ),
       (i) => this.handleSlotChange("body", i.id),
       "body",
@@ -303,11 +306,16 @@ export class SoldierInspector {
     items.forEach((item) => {
       const isCurrentlyEquipped = equip[slot] === item.id;
       const isOwned = this.isEquippedInRoster(this.soldier!.id, slot, item.id);
-      
+
       const economyMode = state?.rules?.economyMode || "Open";
-      
+
       // Limited Mode: Hide unowned items in EquipmentScreen
-      if (economyMode === "Limited" && !this.isShop && !isOwned && !isCurrentlyEquipped) {
+      if (
+        economyMode === "Limited" &&
+        !this.isShop &&
+        !isOwned &&
+        !isCurrentlyEquipped
+      ) {
         return;
       }
 
@@ -347,11 +355,11 @@ export class SoldierInspector {
           bonuses.push(StatDisplay.render(Icons.Health, item.hpBonus, "HP"));
         if (item.speedBonus)
           bonuses.push(
-            StatDisplay.render(Icons.Speed, item.speedBonus, "Speed")
+            StatDisplay.render(Icons.Speed, item.speedBonus, "Speed"),
           );
         if (item.accuracyBonus)
           bonuses.push(
-            StatDisplay.render(Icons.Accuracy, item.accuracyBonus, "Accuracy")
+            StatDisplay.render(Icons.Accuracy, item.accuracyBonus, "Accuracy"),
           );
         statsHtml = bonuses.join(" ");
 
@@ -360,11 +368,11 @@ export class SoldierInspector {
           fullBonuses.push(`HP: ${item.hpBonus > 0 ? "+" : ""}${item.hpBonus}`);
         if (item.speedBonus)
           fullBonuses.push(
-            `Speed: ${item.speedBonus > 0 ? "+" : ""}${item.speedBonus}`
+            `Speed: ${item.speedBonus > 0 ? "+" : ""}${item.speedBonus}`,
           );
         if (item.accuracyBonus)
           fullBonuses.push(
-            `Accuracy: ${item.accuracyBonus > 0 ? "+" : ""}${item.accuracyBonus}%`
+            `Accuracy: ${item.accuracyBonus > 0 ? "+" : ""}${item.accuracyBonus}%`,
           );
         fullStats = fullBonuses.join("\n");
       }
@@ -403,17 +411,18 @@ export class SoldierInspector {
 
     // Use current soldier values if they exist (for levels/campaign)
     if ("id" in soldier && soldier.id) {
-        const state = this.manager.getState();
-        const rosterSoldier = state?.roster.find(s => s.id === soldier.id);
-        if (rosterSoldier) {
-            hp = rosterSoldier.maxHp;
-            speed = arch.speed; // Speed is currently not increased by level in CampaignManager, but we follow archetype
-            accuracy = rosterSoldier.soldierAim;
-        }
+      const state = this.manager.getState();
+      const rosterSoldier = state?.roster.find((s) => s.id === soldier.id);
+      if (rosterSoldier) {
+        hp = rosterSoldier.maxHp;
+        speed = arch.speed; // Speed is currently not increased by level in CampaignManager, but we follow archetype
+        accuracy = rosterSoldier.soldierAim;
+      }
     } else {
-        // Fallback to config values if provided (e.g. for custom missions)
-        if ("maxHp" in soldier && soldier.maxHp !== undefined) hp = soldier.maxHp;
-        if ("soldierAim" in soldier && soldier.soldierAim !== undefined) accuracy = soldier.soldierAim;
+      // Fallback to config values if provided (e.g. for custom missions)
+      if ("maxHp" in soldier && soldier.maxHp !== undefined) hp = soldier.maxHp;
+      if ("soldierAim" in soldier && soldier.soldierAim !== undefined)
+        accuracy = soldier.soldierAim;
     }
 
     // Apply equipment bonuses
@@ -451,7 +460,9 @@ export class SoldierInspector {
     };
   }
 
-  private getEquipment(soldier: CampaignSoldier | SquadSoldierConfig): EquipmentState {
+  private getEquipment(
+    soldier: CampaignSoldier | SquadSoldierConfig,
+  ): EquipmentState {
     if ("equipment" in soldier) {
       return soldier.equipment;
     }
@@ -483,48 +494,50 @@ export class SoldierInspector {
 
     // Check if owned (already in roster)
     const isOwned = this.isEquippedInRoster(this.soldier.id, slot, newItemId);
-    
+
     if (newItemId !== "" && !isOwned) {
-        const state = this.manager.getState();
-        const economyMode = state?.rules?.economyMode || "Open";
+      const state = this.manager.getState();
+      const economyMode = state?.rules?.economyMode || "Open";
 
-        // Limited mode: cannot buy outside of shop
-        if (economyMode === "Limited" && !this.isShop) {
-            return;
+      // Limited mode: cannot buy outside of shop
+      if (economyMode === "Limited" && !this.isShop) {
+        return;
+      }
+
+      const item = WeaponLibrary[newItemId] || ItemLibrary[newItemId];
+      if (item) {
+        let cost = item.cost;
+        if (this.isShop && economyMode === "Open") {
+          cost = Math.floor(cost * 0.5);
         }
 
-        const item = WeaponLibrary[newItemId] || ItemLibrary[newItemId];
-        if (item) {
-            let cost = item.cost;
-            if (this.isShop && economyMode === "Open") {
-                cost = Math.floor(cost * 0.5);
-            }
-
-            if (state && state.scrap < cost) {
-                return; // Cannot afford
-            }
-            if (state) {
-                this.manager.spendScrap(cost);
-            }
+        if (state && state.scrap < cost) {
+          return; // Cannot afford
         }
+        if (state) {
+          this.manager.spendScrap(cost);
+        }
+      }
     }
 
     // Update the soldier object
     if ("equipment" in this.soldier) {
-        this.soldier.equipment[slot] = newItemId || undefined;
-        this.manager.assignEquipment(this.soldier.id, this.soldier.equipment);
+      this.soldier.equipment[slot] = newItemId || undefined;
+      this.manager.assignEquipment(this.soldier.id, this.soldier.equipment);
     } else {
-        (this.soldier as any)[slot] = newItemId || undefined;
-        // Persistence: write back to CampaignManager if it's a roster soldier
-        if (this.soldier.id) {
-            const state = this.manager.getState();
-            const rosterSoldier = state?.roster.find(s => s.id === this.soldier!.id);
-            if (rosterSoldier) {
-                const newEquip = { ...rosterSoldier.equipment };
-                newEquip[slot] = newItemId || undefined;
-                this.manager.assignEquipment(this.soldier.id, newEquip);
-            }
+      (this.soldier as any)[slot] = newItemId || undefined;
+      // Persistence: write back to CampaignManager if it's a roster soldier
+      if (this.soldier.id) {
+        const state = this.manager.getState();
+        const rosterSoldier = state?.roster.find(
+          (s) => s.id === this.soldier!.id,
+        );
+        if (rosterSoldier) {
+          const newEquip = { ...rosterSoldier.equipment };
+          newEquip[slot] = newItemId || undefined;
+          this.manager.assignEquipment(this.soldier.id, newEquip);
         }
+      }
     }
 
     this.onUpdate();

@@ -1,4 +1,10 @@
-import { MapDefinition, CellType, Grid, Door, BoundaryType } from "../shared/types";
+import {
+  MapDefinition,
+  CellType,
+  Grid,
+  Door,
+  BoundaryType,
+} from "../shared/types";
 import { Graph } from "./Graph";
 
 export class GameGrid implements Grid {

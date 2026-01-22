@@ -50,9 +50,13 @@ describe("CampaignScreen Unit Style Default Regression", () => {
     );
     screen.show();
 
-    const styleSelect = container.querySelector("#campaign-unit-style") as HTMLSelectElement;
+    const styleSelect = container.querySelector(
+      "#campaign-unit-style",
+    ) as HTMLSelectElement;
     expect(styleSelect).not.toBeNull();
     expect(styleSelect.value).toBe("TacticalIcons");
-    expect(styleSelect.options[styleSelect.selectedIndex].text).toContain("Tactical Icons");
+    expect(styleSelect.options[styleSelect.selectedIndex].text).toContain(
+      "Tactical Icons",
+    );
   });
 });

@@ -1,6 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { MenuController } from "@src/renderer/MenuController";
-import { GameState, UnitState, CellType, MissionType, BoundaryType } from "@src/shared/types";
+import {
+  GameState,
+  UnitState,
+  CellType,
+  MissionType,
+  BoundaryType,
+} from "@src/shared/types";
 
 describe("MenuController Intersection Discovery", () => {
   let controller: MenuController;

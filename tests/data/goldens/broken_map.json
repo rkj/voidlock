@@ -5517,12 +5517,7 @@
         "t": 10408,
         "cmd": {
           "type": "USE_ITEM",
-          "unitIds": [
-            "soldier_0",
-            "soldier_1",
-            "soldier_2",
-            "soldier_3"
-          ],
+          "unitIds": ["soldier_0", "soldier_1", "soldier_2", "soldier_3"],
           "itemId": "medkit",
           "target": {
             "x": 11,
@@ -15126,24 +15121,14 @@
         "tick": 0,
         "command": {
           "type": "EXPLORE",
-          "unitIds": [
-            "soldier_0",
-            "soldier_1",
-            "soldier_2",
-            "soldier_3"
-          ]
+          "unitIds": ["soldier_0", "soldier_1", "soldier_2", "soldier_3"]
         }
       },
       {
         "tick": 10400,
         "command": {
           "type": "USE_ITEM",
-          "unitIds": [
-            "soldier_0",
-            "soldier_1",
-            "soldier_2",
-            "soldier_3"
-          ],
+          "unitIds": ["soldier_0", "soldier_1", "soldier_2", "soldier_3"],
           "itemId": "medkit",
           "target": {
             "x": 11,

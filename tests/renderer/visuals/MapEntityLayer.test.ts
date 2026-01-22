@@ -2,14 +2,8 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { MapEntityLayer } from "@src/renderer/visuals/MapEntityLayer";
 import { SharedRendererState } from "@src/renderer/visuals/SharedRendererState";
 import { AssetManager } from "@src/renderer/visuals/AssetManager";
-import {
-  GameState,
-  CellType,
-  UnitStyle,
-} from "@src/shared/types";
-import {
-  createMockGameState,
-} from "@src/engine/tests/utils/MockFactory";
+import { GameState, CellType, UnitStyle } from "@src/shared/types";
+import { createMockGameState } from "@src/engine/tests/utils/MockFactory";
 
 // Mock Image
 class MockImage {
@@ -61,7 +55,7 @@ describe("MapEntityLayer", () => {
     // We expect 0 calls to fillRect at (5*32, 5*32)
     const fillRectCalls = mockContext.fillRect.mock.calls;
     const extractionPointFill = fillRectCalls.find(
-      (args: any[]) => args[0] === 5 * 32 && args[1] === 5 * 32
+      (args: any[]) => args[0] === 5 * 32 && args[1] === 5 * 32,
     );
 
     expect(extractionPointFill).toBeUndefined();
@@ -83,7 +77,7 @@ describe("MapEntityLayer", () => {
 
     const fillRectCalls = mockContext.fillRect.mock.calls;
     const extractionPointFill = fillRectCalls.find(
-      (args: any[]) => args[0] === 5 * 32 && args[1] === 5 * 32
+      (args: any[]) => args[0] === 5 * 32 && args[1] === 5 * 32,
     );
 
     expect(extractionPointFill).toBeDefined();
@@ -105,7 +99,7 @@ describe("MapEntityLayer", () => {
 
     const fillRectCalls = mockContext.fillRect.mock.calls;
     const extractionPointFill = fillRectCalls.find(
-      (args: any[]) => args[0] === 5 * 32 && args[1] === 5 * 32
+      (args: any[]) => args[0] === 5 * 32 && args[1] === 5 * 32,
     );
 
     expect(extractionPointFill).toBeDefined();
@@ -122,15 +116,15 @@ describe("MapEntityLayer", () => {
       visibleCells: [],
       discoveredCells: [],
       settings: {
-        debugOverlayEnabled: true
-      } as any
+        debugOverlayEnabled: true,
+      } as any,
     });
 
     layer.draw(mockContext, gameState);
 
     const fillRectCalls = mockContext.fillRect.mock.calls;
     const extractionPointFill = fillRectCalls.find(
-      (args: any[]) => args[0] === 5 * 32 && args[1] === 5 * 32
+      (args: any[]) => args[0] === 5 * 32 && args[1] === 5 * 32,
     );
 
     expect(extractionPointFill).toBeDefined();
@@ -138,7 +132,7 @@ describe("MapEntityLayer", () => {
 
   it("should NOT call drawImage for loot when UnitStyle is TacticalIcons, even if Crate icon exists", () => {
     sharedState.unitStyle = UnitStyle.TacticalIcons;
-    
+
     // Ensure Crate icon exists in AssetManager
     const assetManager = AssetManager.getInstance();
     const mockCrateIcon = new MockImage() as any;
@@ -160,11 +154,11 @@ describe("MapEntityLayer", () => {
     // Assert drawImage was NOT called for the Crate icon
     const drawImageCalls = mockContext.drawImage.mock.calls;
     const crateDraw = drawImageCalls.find(
-      (args: any[]) => args[0] === mockCrateIcon
+      (args: any[]) => args[0] === mockCrateIcon,
     );
 
     expect(crateDraw).toBeUndefined();
-    
+
     // Should use fillRect instead
     // renderLoot uses fillRect if icon is missing, and we want it to use it for TacticalIcons too
     expect(mockContext.fillRect).toHaveBeenCalled();

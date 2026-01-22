@@ -62,9 +62,10 @@ export class CampaignScreen {
         <button class="primary-button" id="btn-victory-summary" style="height: 32px; padding: 0 30px; display: flex; align-items: center; font-size: 0.9em;">View Summary</button>
       </div>`;
       const btn = this.container.querySelector("#btn-victory-summary");
-      if (btn) (btn as HTMLElement).onclick = () => {
-        if (this.onShowSummary) this.onShowSummary();
-      };
+      if (btn)
+        (btn as HTMLElement).onclick = () => {
+          if (this.onShowSummary) this.onShowSummary();
+        };
       this.renderMetaStats();
       return;
     }
@@ -75,9 +76,10 @@ export class CampaignScreen {
         <button class="primary-button" style="background-color:var(--color-error); height: 32px; padding: 0 30px; display: flex; align-items: center; font-size: 0.9em;" id="btn-defeat-summary">View Summary</button>
       </div>`;
       const btn = this.container.querySelector("#btn-defeat-summary");
-      if (btn) (btn as HTMLElement).onclick = () => {
-        if (this.onShowSummary) this.onShowSummary();
-      };
+      if (btn)
+        (btn as HTMLElement).onclick = () => {
+          if (this.onShowSummary) this.onShowSummary();
+        };
       this.renderMetaStats();
       return;
     }
@@ -109,7 +111,11 @@ export class CampaignScreen {
     abandonBtn.style.margin = "0";
     abandonBtn.style.color = "var(--color-error)";
     abandonBtn.onclick = async () => {
-      if (await this.modalService.confirm("Are you sure you want to abandon the current campaign?")) {
+      if (
+        await this.modalService.confirm(
+          "Are you sure you want to abandon the current campaign?",
+        )
+      ) {
         this.manager.reset();
         this.onBack();
       }
@@ -183,52 +189,52 @@ export class CampaignScreen {
         case "Event":
           icon.textContent = "❓";
           break;
-                  case "Boss":
-                  icon.textContent = "👹";
-                  break;
-              }
-              nodeEl.appendChild(icon);
-        
-              // Bonus Loot Pips (Intel)
-              const showLootIntel =
-                state.rules.difficulty === "Simulation" ||
-                state.rules.difficulty === "Clone";
-              if (showLootIntel && node.bonusLootCount > 0) {
-                const pipsContainer = document.createElement("div");
-                pipsContainer.className = "pips-container flex-row justify-center";
-                pipsContainer.title = `Bonus Loot: ${node.bonusLootCount} crate${node.bonusLootCount > 1 ? "s" : ""}`;
-                pipsContainer.style.position = "absolute";
-                pipsContainer.style.bottom = "-12px";
-                pipsContainer.style.width = "100%";
-                pipsContainer.style.gap = "2px";
-                pipsContainer.style.pointerEvents = "none";
-        
-                for (let i = 0; i < node.bonusLootCount; i++) {
-                  const pip = document.createElement("span");
-                  pip.className = "loot-pip";
-                  pip.textContent = "📦";
-                  pip.style.fontSize = "0.7em";
-                  pip.style.color = "var(--color-warning)";
-                  pip.style.textShadow = "0 0 3px rgba(255, 152, 0, 0.5)";
-                  pipsContainer.appendChild(pip);
-                }
-                nodeEl.appendChild(pipsContainer);
-              }
-        
-        // Current Indicator (Ship Icon)
-        if (isCurrent) {
-          const indicator = document.createElement("div");
-          indicator.textContent = "▼";
-          indicator.style.position = "absolute";
-          indicator.style.top = "-22px";
-          indicator.style.left = "50%";
-          indicator.style.transform = "translateX(-50%)";
-          indicator.style.color = "var(--color-accent)";
-          indicator.style.fontSize = "1.4em";
-          indicator.style.textShadow = "0 0 8px var(--color-accent)";
-          indicator.style.zIndex = "10";
-          nodeEl.appendChild(indicator);
+        case "Boss":
+          icon.textContent = "👹";
+          break;
+      }
+      nodeEl.appendChild(icon);
+
+      // Bonus Loot Pips (Intel)
+      const showLootIntel =
+        state.rules.difficulty === "Simulation" ||
+        state.rules.difficulty === "Clone";
+      if (showLootIntel && node.bonusLootCount > 0) {
+        const pipsContainer = document.createElement("div");
+        pipsContainer.className = "pips-container flex-row justify-center";
+        pipsContainer.title = `Bonus Loot: ${node.bonusLootCount} crate${node.bonusLootCount > 1 ? "s" : ""}`;
+        pipsContainer.style.position = "absolute";
+        pipsContainer.style.bottom = "-12px";
+        pipsContainer.style.width = "100%";
+        pipsContainer.style.gap = "2px";
+        pipsContainer.style.pointerEvents = "none";
+
+        for (let i = 0; i < node.bonusLootCount; i++) {
+          const pip = document.createElement("span");
+          pip.className = "loot-pip";
+          pip.textContent = "📦";
+          pip.style.fontSize = "0.7em";
+          pip.style.color = "var(--color-warning)";
+          pip.style.textShadow = "0 0 3px rgba(255, 152, 0, 0.5)";
+          pipsContainer.appendChild(pip);
         }
+        nodeEl.appendChild(pipsContainer);
+      }
+
+      // Current Indicator (Ship Icon)
+      if (isCurrent) {
+        const indicator = document.createElement("div");
+        indicator.textContent = "▼";
+        indicator.style.position = "absolute";
+        indicator.style.top = "-22px";
+        indicator.style.left = "50%";
+        indicator.style.transform = "translateX(-50%)";
+        indicator.style.color = "var(--color-accent)";
+        indicator.style.fontSize = "1.4em";
+        indicator.style.textShadow = "0 0 8px var(--color-accent)";
+        indicator.style.zIndex = "10";
+        nodeEl.appendChild(indicator);
+      }
 
       container.appendChild(nodeEl);
     });

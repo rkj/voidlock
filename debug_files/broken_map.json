@@ -16521,9 +16521,7 @@
         "objectivesCompleted": 0,
         "activeCommand": {
           "type": "MOVE_TO",
-          "unitIds": [
-            "assault-1"
-          ],
+          "unitIds": ["assault-1"],
           "target": {
             "x": 7,
             "y": 0
@@ -16581,9 +16579,7 @@
         "objectivesCompleted": 0,
         "activeCommand": {
           "type": "MOVE_TO",
-          "unitIds": [
-            "medic-2"
-          ],
+          "unitIds": ["medic-2"],
           "target": {
             "x": 9,
             "y": 2
@@ -16643,9 +16639,7 @@
         "objectivesCompleted": 0,
         "activeCommand": {
           "type": "MOVE_TO",
-          "unitIds": [
-            "scout-3"
-          ],
+          "unitIds": ["scout-3"],
           "target": {
             "x": 10,
             "y": 8
@@ -16719,9 +16713,7 @@
         "objectivesCompleted": 0,
         "activeCommand": {
           "type": "MOVE_TO",
-          "unitIds": [
-            "heavy-4"
-          ],
+          "unitIds": ["heavy-4"],
           "target": {
             "x": 6,
             "y": 9
@@ -16974,12 +16966,7 @@
         "tick": 0,
         "command": {
           "type": "EXPLORE",
-          "unitIds": [
-            "assault-1",
-            "medic-2",
-            "scout-3",
-            "heavy-4"
-          ]
+          "unitIds": ["assault-1", "medic-2", "scout-3", "heavy-4"]
         }
       },
       {

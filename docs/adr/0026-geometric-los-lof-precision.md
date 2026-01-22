@@ -18,23 +18,23 @@ We will transition to a geometric ray-segment intersection model that accounts f
 
 The `raycast` algorithm will be updated to calculate the exact intersection point (fractional coordinate) on each boundary it crosses.
 
--   **Strut Detection**: When a ray hits a boundary containing a door, we calculate the intersection parameter $t \in [0, 1]$ along that boundary.
-    -   If $t < 1/3$ or $t > 2/3$, the ray has hit a **Strut**. Struts are treated as `Wall` boundaries (always block LOS/LOF).
-    -   If $1/3 \le t \le 2/3$, the ray has hit the **Door Leaf**. It blocks LOS/LOF based on the door's state (Closed/Locked blocks; Open/Destroyed passes).
+- **Strut Detection**: When a ray hits a boundary containing a door, we calculate the intersection parameter $t \in [0, 1]$ along that boundary.
+  - If $t < 1/3$ or $t > 2/3$, the ray has hit a **Strut**. Struts are treated as `Wall` boundaries (always block LOS/LOF).
+  - If $1/3 \le t \le 2/3$, the ray has hit the **Door Leaf**. It blocks LOS/LOF based on the door's state (Closed/Locked blocks; Open/Destroyed passes).
 
 ### 2. Multi-Ray LOF (Line of Fire)
 
 To account for unit radius during combat, `hasLineOfFire` will use a **Multi-Ray Sampling** strategy:
 
--   **Primary Ray**: Center-to-center.
--   **Secondary Rays**: Two rays offset by `UNIT_RADIUS` perpendicular to the shot direction.
--   **Condition**: LOF is only granted if **ALL** sampled rays are clear. This prevents units from shooting through narrow gaps (like a partially open door) that would physically block their weapon or body.
+- **Primary Ray**: Center-to-center.
+- **Secondary Rays**: Two rays offset by `UNIT_RADIUS` perpendicular to the shot direction.
+- **Condition**: LOF is only granted if **ALL** sampled rays are clear. This prevents units from shooting through narrow gaps (like a partially open door) that would physically block their weapon or body.
 
 ### 3. Peek-Aware LOS (Line of Sight)
 
 For visibility/fog-of-war, we want to allow units to "peek" around corners.
 
--   **Condition**: `hasLineOfSight` is granted if **ANY** of the sampled rays (Center or Offsets) is clear. This ensures that if a soldier can see even a sliver of a cell, it is revealed.
+- **Condition**: `hasLineOfSight` is granted if **ANY** of the sampled rays (Center or Offsets) is clear. This ensures that if a soldier can see even a sliver of a cell, it is revealed.
 
 ### 4. Corner Buffering
 
@@ -42,7 +42,7 @@ To prevent corner cutting, the intersection check will include a small epsilon o
 
 ## Consequences
 
--   **Performance**: LOS/LOF checks become $3\times$ to $5\times$ more expensive due to multi-ray sampling. However, since the unit count is low (4 soldiers + $\approx 10-20$ enemies), this is acceptable for a Web Worker simulation.
--   **Determinism**: The geometric calculations must use consistent precision to maintain determinism across different browsers.
--   **Visual Feedback**: The `Renderer` (and specifically the `OverlayLayer`) must be updated to visualize these "fat" rays when LOS diagnostics are enabled, helping players understand why a shot is blocked.
--   **Complexity**: `LineOfSight.ts` will require a significant refactor to move beyond simple grid traversal into exact intersection math.
+- **Performance**: LOS/LOF checks become $3\times$ to $5\times$ more expensive due to multi-ray sampling. However, since the unit count is low (4 soldiers + $\approx 10-20$ enemies), this is acceptable for a Web Worker simulation.
+- **Determinism**: The geometric calculations must use consistent precision to maintain determinism across different browsers.
+- **Visual Feedback**: The `Renderer` (and specifically the `OverlayLayer`) must be updated to visualize these "fat" rays when LOS diagnostics are enabled, helping players understand why a shot is blocked.
+- **Complexity**: `LineOfSight.ts` will require a significant refactor to move beyond simple grid traversal into exact intersection math.

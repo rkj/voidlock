@@ -2,7 +2,11 @@ import { describe, it, expect } from "vitest";
 import { MapFactory } from "../../../src/engine/map/MapFactory";
 import { MapSanitizer } from "../../../src/engine/map/MapSanitizer";
 import { MapValidator } from "../../../src/engine/map/MapValidator";
-import { MapGeneratorType, CellType, BoundaryType } from "../../../src/shared/types";
+import {
+  MapGeneratorType,
+  CellType,
+  BoundaryType,
+} from "../../../src/shared/types";
 
 describe("Modular Map Generation", () => {
   it("MapFactory should generate a map and sanitize it", () => {
@@ -17,9 +21,9 @@ describe("Modular Map Generation", () => {
     expect(map).toBeDefined();
     expect(map.width).toBe(16);
     expect(map.height).toBe(16);
-    
+
     // Check if it's sanitized (no Void cells in map.cells)
-    const hasVoid = map.cells.some(c => c.type === CellType.Void);
+    const hasVoid = map.cells.some((c) => c.type === CellType.Void);
     expect(hasVoid).toBe(false);
   });
 
@@ -32,7 +36,9 @@ describe("Modular Map Generation", () => {
     };
     const result = MapValidator.validate(invalidMap);
     expect(result.isValid).toBe(false);
-    expect(result.issues).toContain("Map dimensions (width and height) must be positive.");
+    expect(result.issues).toContain(
+      "Map dimensions (width and height) must be positive.",
+    );
     expect(result.issues).toContain("No spawn points defined.");
   });
 
@@ -52,9 +58,9 @@ describe("Modular Map Generation", () => {
     };
     // Re-calculating walls/boundaries for 3x3 to make it clearer
     // (0,0)-(1,0) is horizontal adjacency. Wall is vertical at x=1.
-    
+
     MapSanitizer.sanitize(map);
-    
+
     const reachableCells = map.cells.map((c: any) => `${c.x},${c.y}`);
     expect(reachableCells).toContain("0,0");
     expect(reachableCells).not.toContain("2,2");

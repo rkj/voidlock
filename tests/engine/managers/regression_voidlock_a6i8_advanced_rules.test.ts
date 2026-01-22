@@ -20,18 +20,22 @@ describe("CampaignManager Advanced Rules (voidlock-a6i8)", () => {
 
     expect(state?.seed).toBe(customSeed);
     // Verify nodes were generated with the custom seed (stable check)
-    const nodeSeeds = state?.nodes.map(n => n.mapSeed);
-    
+    const nodeSeeds = state?.nodes.map((n) => n.mapSeed);
+
     CampaignManager.resetInstance();
     const manager2 = CampaignManager.getInstance(new MockStorageProvider());
     manager2.startNewCampaign(54321, "Normal", { customSeed });
     const state2 = manager2.getState();
-    expect(state2?.nodes.map(n => n.mapSeed)).toEqual(nodeSeeds);
+    expect(state2?.nodes.map((n) => n.mapSeed)).toEqual(nodeSeeds);
   });
 
   it("should support map generator override", () => {
-    manager.startNewCampaign(12345, "Normal", { mapGeneratorType: MapGeneratorType.TreeShip });
-    expect(manager.getState()?.rules.mapGeneratorType).toBe(MapGeneratorType.TreeShip);
+    manager.startNewCampaign(12345, "Normal", {
+      mapGeneratorType: MapGeneratorType.TreeShip,
+    });
+    expect(manager.getState()?.rules.mapGeneratorType).toBe(
+      MapGeneratorType.TreeShip,
+    );
   });
 
   it("should support difficulty scaling override", () => {
@@ -58,7 +62,7 @@ describe("CampaignManager Advanced Rules (voidlock-a6i8)", () => {
       deathRule: "Simulation",
       mapGeneratorType: MapGeneratorType.Procedural,
       startingScrap: 2000,
-      mapGrowthRate: 0.5
+      mapGrowthRate: 0.5,
     });
 
     const rules = manager.getState()?.rules;
@@ -74,8 +78,16 @@ describe("CampaignManager Advanced Rules (voidlock-a6i8)", () => {
 
   it("should maintain backward compatibility with legacy arguments", () => {
     // startNewCampaign(seed, difficulty, allowTacticalPause, themeId, unitStyle, mapGeneratorType, mapGrowthRate)
-    manager.startNewCampaign(12345, "Normal", false, "industrial", undefined, MapGeneratorType.TreeShip, 0.8);
-    
+    manager.startNewCampaign(
+      12345,
+      "Normal",
+      false,
+      "industrial",
+      undefined,
+      MapGeneratorType.TreeShip,
+      0.8,
+    );
+
     const rules = manager.getState()?.rules;
     expect(rules?.allowTacticalPause).toBe(false);
     expect(rules?.themeId).toBe("industrial");

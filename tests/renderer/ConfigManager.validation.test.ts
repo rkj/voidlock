@@ -14,9 +14,9 @@ describe("ConfigManager Validation", () => {
   it("should handle completely malformed JSON in LocalStorage", () => {
     localStorage.setItem("voidlock_custom_config", "not-json");
     const consoleSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-    
+
     const config = ConfigManager.loadCustom();
-    
+
     expect(config).toBeNull();
     expect(consoleSpy).toHaveBeenCalled();
   });
@@ -26,11 +26,14 @@ describe("ConfigManager Validation", () => {
       mapWidth: 10,
       // missing mapHeight, unitStyle, etc.
     };
-    localStorage.setItem("voidlock_custom_config", JSON.stringify(partialConfig));
-    
+    localStorage.setItem(
+      "voidlock_custom_config",
+      JSON.stringify(partialConfig),
+    );
+
     const config = ConfigManager.loadCustom();
     const defaults = ConfigManager.getDefault();
-    
+
     expect(config).not.toBeNull();
     expect(config!.mapWidth).toBe(10);
     expect(config!.mapHeight).toBe(defaults.mapHeight);
@@ -44,11 +47,14 @@ describe("ConfigManager Validation", () => {
       unitStyle: "INVALID_STYLE",
       mapGeneratorType: "INVALID_GEN",
     };
-    localStorage.setItem("voidlock_custom_config", JSON.stringify(invalidConfig));
-    
+    localStorage.setItem(
+      "voidlock_custom_config",
+      JSON.stringify(invalidConfig),
+    );
+
     const config = ConfigManager.loadCustom();
     const defaults = ConfigManager.getDefault();
-    
+
     expect(config!.unitStyle).toBe(defaults.unitStyle);
     expect(config!.mapGeneratorType).toBe(defaults.mapGeneratorType);
   });
@@ -59,11 +65,14 @@ describe("ConfigManager Validation", () => {
       mapWidth: "large",
       spawnPointCount: NaN,
     };
-    localStorage.setItem("voidlock_custom_config", JSON.stringify(invalidConfig));
-    
+    localStorage.setItem(
+      "voidlock_custom_config",
+      JSON.stringify(invalidConfig),
+    );
+
     const config = ConfigManager.loadCustom();
     const defaults = ConfigManager.getDefault();
-    
+
     expect(config!.mapWidth).toBe(defaults.mapWidth);
     expect(config!.spawnPointCount).toBe(defaults.spawnPointCount);
   });

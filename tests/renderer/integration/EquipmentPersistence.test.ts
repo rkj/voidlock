@@ -5,7 +5,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // Mock dependencies before importing main.ts
 vi.mock("@package.json", () => ({
-  default: { version: "1.0.0" }
+  default: { version: "1.0.0" },
 }));
 
 const mockGameClient = {
@@ -72,9 +72,35 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
         startNewCampaign: vi.fn((seed, diff, pause, theme) => {
           currentCampaignState = {
             status: "Active",
-            nodes: [{ id: "node-1", type: "Combat", status: "Accessible", difficulty: 1, mapSeed: 123, connections: [], position: { x: 0, y: 0 } }],
+            nodes: [
+              {
+                id: "node-1",
+                type: "Combat",
+                status: "Accessible",
+                difficulty: 1,
+                mapSeed: 123,
+                connections: [],
+                position: { x: 0, y: 0 },
+              },
+            ],
             roster: [
-              { id: "s1", name: "Soldier 1", archetypeId: "scout", status: "Healthy", level: 1, hp: 100, maxHp: 100, xp: 0, soldierAim: 80, equipment: { rightHand: "pulse_rifle", leftHand: null, body: "basic_armor", feet: null } }
+              {
+                id: "s1",
+                name: "Soldier 1",
+                archetypeId: "scout",
+                status: "Healthy",
+                level: 1,
+                hp: 100,
+                maxHp: 100,
+                xp: 0,
+                soldierAim: 80,
+                equipment: {
+                  rightHand: "pulse_rifle",
+                  leftHand: null,
+                  body: "basic_armor",
+                  feet: null,
+                },
+              },
             ],
             scrap: 100,
             intel: 0,
@@ -94,8 +120,12 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
             },
           };
         }),
-        reset: vi.fn(() => { currentCampaignState = null; }),
-        deleteSave: vi.fn(() => { currentCampaignState = null; }),
+        reset: vi.fn(() => {
+          currentCampaignState = null;
+        }),
+        deleteSave: vi.fn(() => {
+          currentCampaignState = null;
+        }),
         assignEquipment: vi.fn(),
       }),
     },
@@ -165,37 +195,50 @@ describe("Equipment Persistence Integration", () => {
 
   it("should call campaignManager.assignEquipment when equipment is saved in campaign mode", async () => {
     const manager = CampaignManager.getInstance();
-    
+
     // 1. Start Campaign
     document.getElementById("btn-menu-campaign")?.click();
-    const startBtn = document.querySelector(".campaign-setup-wizard .primary-button") as HTMLElement;
+    const startBtn = document.querySelector(
+      ".campaign-setup-wizard .primary-button",
+    ) as HTMLElement;
     startBtn.click();
 
     // 2. Select node and go to mission setup
-    const nodeEl = document.querySelector(".campaign-node.accessible") as HTMLElement;
+    const nodeEl = document.querySelector(
+      ".campaign-node.accessible",
+    ) as HTMLElement;
     nodeEl.click();
-    
+
     // Wait for async onCampaignNodeSelected
-    await new Promise(resolve => setTimeout(resolve, 50));
-    
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
     // In mission setup, select the scout
-    const scoutCb = document.querySelector("#squad-builder input[type='checkbox']") as HTMLInputElement;
+    const scoutCb = document.querySelector(
+      "#squad-builder input[type='checkbox']",
+    ) as HTMLInputElement;
     if (scoutCb && !scoutCb.checked) scoutCb.click();
 
     // 3. Go to Equipment Screen
     document.getElementById("btn-goto-equipment")?.click();
-    expect(document.getElementById("screen-equipment")?.style.display).toBe("flex");
+    expect(document.getElementById("screen-equipment")?.style.display).toBe(
+      "flex",
+    );
 
     // 4. Find the 'CONFIRM SQUAD' button and click it
     // Note: The EquipmentScreen renders its own UI.
-    const confirmBtn = Array.from(document.querySelectorAll("button")).find(b => b.textContent === "Confirm Squad");
+    const confirmBtn = Array.from(document.querySelectorAll("button")).find(
+      (b) => b.textContent === "Confirm Squad",
+    );
     expect(confirmBtn).toBeTruthy();
-    
+
     confirmBtn?.click();
 
     // 5. Verify assignEquipment was called for soldier 's1'
     expect(manager.assignEquipment).toHaveBeenCalled();
     // It should be called with soldier ID 's1' and some equipment
-    expect(manager.assignEquipment).toHaveBeenCalledWith("s1", expect.anything());
+    expect(manager.assignEquipment).toHaveBeenCalledWith(
+      "s1",
+      expect.anything(),
+    );
   });
 });

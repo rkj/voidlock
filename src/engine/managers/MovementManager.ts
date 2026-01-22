@@ -14,7 +14,8 @@ export class MovementManager {
     const dy = unit.targetPos.y - unit.pos.y;
     const dist = Math.sqrt(dx * dx + dy * dy);
 
-    const moveDist = ((unit.stats.speed / SPEED_NORMALIZATION_CONST) * dt) / 1000;
+    const moveDist =
+      ((unit.stats.speed / SPEED_NORMALIZATION_CONST) * dt) / 1000;
 
     const currentCell = {
       x: Math.floor(unit.pos.x),

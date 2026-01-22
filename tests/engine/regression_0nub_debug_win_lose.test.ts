@@ -16,9 +16,7 @@ describe("Regression 0nub: Debug Force Win/Lose Buttons", () => {
     spawnPoints: [{ id: "spawn-1", pos: { x: 1, y: 1 }, radius: 1 }],
     squadSpawn: { x: 1, y: 1 },
     extraction: { x: 9, y: 9 },
-    objectives: [
-      { id: "obj-1", kind: "Recover", targetCell: { x: 5, y: 5 } }
-    ],
+    objectives: [{ id: "obj-1", kind: "Recover", targetCell: { x: 5, y: 5 } }],
   };
 
   for (let y = 0; y < 10; y++) {

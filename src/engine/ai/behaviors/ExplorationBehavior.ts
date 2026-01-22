@@ -25,7 +25,7 @@ export class ExplorationBehavior implements Behavior {
     doors: Map<string, Door>,
     _prng: PRNG,
     context: AIContext,
-    director?: any
+    director?: any,
   ): boolean {
     if (unit.state !== UnitState.Idle && !unit.explorationTarget) return false;
     if (unit.commandQueue.length > 0) return false;
@@ -55,7 +55,7 @@ export class ExplorationBehavior implements Behavior {
           state,
           context.discoveredCellsSet,
           doors,
-          this.gameGrid
+          this.gameGrid,
         );
         if (targetCell) {
           const newTarget = { x: targetCell.x, y: targetCell.y };
@@ -92,7 +92,7 @@ export class ExplorationBehavior implements Behavior {
                 },
                 state,
                 false,
-                director
+                director,
               );
               return true;
             }
@@ -107,7 +107,7 @@ export class ExplorationBehavior implements Behavior {
               },
               state,
               false,
-              director
+              director,
             );
             return true;
           }

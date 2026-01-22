@@ -53,7 +53,10 @@ export class StatsManager {
         (weapon.accuracy || 0) +
         unit.stats.equipmentAccuracyBonus;
       unit.stats.fireRate =
-        weapon.fireRate * (unit.stats.speed > 0 ? SPEED_NORMALIZATION_CONST / unit.stats.speed : 1);
+        weapon.fireRate *
+        (unit.stats.speed > 0
+          ? SPEED_NORMALIZATION_CONST / unit.stats.speed
+          : 1);
     } else {
       unit.stats.damage = arch.damage;
       unit.stats.attackRange = arch.attackRange;

@@ -34,7 +34,7 @@ describe("Regression: voidlock-3dz9 Screen Transitions", () => {
     // Transition path: main-menu -> mission-setup -> equipment -> mission
     sm.show("mission-setup");
     expect(sm.getCurrentScreen()).toBe("mission-setup");
-    
+
     sm.show("equipment");
     expect(sm.getCurrentScreen()).toBe("equipment");
 

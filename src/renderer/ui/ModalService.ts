@@ -21,8 +21,17 @@ export interface ModalInstance {
 
 export class ModalService {
   private container: HTMLElement;
-  private queue: Array<{ options: ModalOptions; resolve: (value: any) => void }> = [];
-  private activeModal: { options: ModalOptions; element: HTMLElement; backdrop: HTMLElement; resolve: (value: any) => void; instance: ModalInstance } | null = null;
+  private queue: Array<{
+    options: ModalOptions;
+    resolve: (value: any) => void;
+  }> = [];
+  private activeModal: {
+    options: ModalOptions;
+    element: HTMLElement;
+    backdrop: HTMLElement;
+    resolve: (value: any) => void;
+    instance: ModalInstance;
+  } | null = null;
 
   constructor() {
     let container = document.getElementById("modal-container");
@@ -44,13 +53,16 @@ export class ModalService {
         {
           label: "OK",
           isPrimary: true,
-          onClick: (modal) => modal.close()
-        }
-      ]
+          onClick: (modal) => modal.close(),
+        },
+      ],
     });
   }
 
-  public async confirm(message: string, title: string = "CONFIRM"): Promise<boolean> {
+  public async confirm(
+    message: string,
+    title: string = "CONFIRM",
+  ): Promise<boolean> {
     return this.show({
       title,
       message,
@@ -58,18 +70,22 @@ export class ModalService {
         {
           label: "CANCEL",
           isCancel: true,
-          onClick: (modal) => modal.close(false)
+          onClick: (modal) => modal.close(false),
         },
         {
           label: "OK",
           isPrimary: true,
-          onClick: (modal) => modal.close(true)
-        }
-      ]
+          onClick: (modal) => modal.close(true),
+        },
+      ],
     });
   }
 
-  public async prompt(message: string, defaultValue: string = "", title: string = "INPUT"): Promise<string | null> {
+  public async prompt(
+    message: string,
+    defaultValue: string = "",
+    title: string = "INPUT",
+  ): Promise<string | null> {
     const input = document.createElement("input");
     input.type = "text";
     input.value = defaultValue;
@@ -89,14 +105,14 @@ export class ModalService {
         {
           label: "CANCEL",
           isCancel: true,
-          onClick: (modal) => modal.close(null)
+          onClick: (modal) => modal.close(null),
         },
         {
           label: "OK",
           isPrimary: true,
-          onClick: (modal) => modal.close(input.value)
-        }
-      ]
+          onClick: (modal) => modal.close(input.value),
+        },
+      ],
     });
   }
 
@@ -164,7 +180,7 @@ export class ModalService {
           currentResolve(value);
           this.processQueue();
         }
-      }
+      },
     };
 
     if (options.content) {
@@ -188,7 +204,7 @@ export class ModalService {
         } else if (btnOptions.isPrimary) {
           btn.className = "primary-button";
         }
-        
+
         btn.onclick = () => btnOptions.onClick(instance);
         buttonsContainer.appendChild(btn);
       });
@@ -202,15 +218,15 @@ export class ModalService {
     // Focus management
     const input = modal.querySelector("input") as HTMLElement;
     if (input) {
-        input.focus();
+      input.focus();
     } else {
-        const primaryBtn = modal.querySelector(".primary-button") as HTMLElement;
-        if (primaryBtn) {
-            primaryBtn.focus();
-        } else {
-            const firstBtn = modal.querySelector("button") as HTMLElement;
-            if (firstBtn) firstBtn.focus();
-        }
+      const primaryBtn = modal.querySelector(".primary-button") as HTMLElement;
+      if (primaryBtn) {
+        primaryBtn.focus();
+      } else {
+        const firstBtn = modal.querySelector("button") as HTMLElement;
+        if (firstBtn) firstBtn.focus();
+      }
     }
   }
 
@@ -220,7 +236,7 @@ export class ModalService {
     const { options, instance } = this.activeModal;
 
     if (e.key === "Escape") {
-      const cancelBtn = options.buttons?.find(b => b.isCancel);
+      const cancelBtn = options.buttons?.find((b) => b.isCancel);
       if (cancelBtn) {
         cancelBtn.onClick(instance);
       } else {
@@ -228,7 +244,7 @@ export class ModalService {
       }
       e.preventDefault();
     } else if (e.key === "Enter") {
-      const primaryBtn = options.buttons?.find(b => b.isPrimary);
+      const primaryBtn = options.buttons?.find((b) => b.isPrimary);
       if (primaryBtn) {
         primaryBtn.onClick(instance);
         e.preventDefault();

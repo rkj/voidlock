@@ -25,7 +25,7 @@ describe("Regression: voidlock-g50s - Equipment to Main Menu Transition", () => 
 
     // Try to go to main-menu directly (e.g. from CampaignShell)
     sm.show("main-menu");
-    
+
     // THIS IS EXPECTED TO FAIL BEFORE FIX
     expect(sm.getCurrentScreen()).toBe("main-menu");
     expect(errorSpy).not.toHaveBeenCalled();
@@ -36,18 +36,21 @@ describe("Regression: voidlock-g50s - Equipment to Main Menu Transition", () => 
     const errorSpy = vi.spyOn(console, "error");
 
     // Manually set state to simulate refresh on equipment screen
-    // We can't easily mock history because it's private, 
+    // We can't easily mock history because it's private,
     // but goBack calls show("main-menu") when history is empty.
-    
+
     // Setup initial state as equipment with empty history
     // Since we can't easily set history, let's just use ScreenManager as is.
     // By default ScreenManager starts at main-menu.
-    
+
     // We need to bypass validation for the "restoration" part if we want to simulate it properly,
     // but ScreenManager.loadPersistedState does exactly that.
-    
+
     // Let's use loadPersistedState to simulate restoration
-    localStorage.setItem("voidlock_session_state", JSON.stringify({ screenId: "equipment" }));
+    localStorage.setItem(
+      "voidlock_session_state",
+      JSON.stringify({ screenId: "equipment" }),
+    );
     sm.loadPersistedState();
     expect(sm.getCurrentScreen()).toBe("equipment");
     // History should be empty now.

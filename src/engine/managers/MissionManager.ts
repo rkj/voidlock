@@ -12,7 +12,10 @@ import {
 import { PRNG } from "../../shared/PRNG";
 import { EnemyManager } from "./EnemyManager";
 import { LootManager } from "./LootManager";
-import { PlacementValidator, OccupantType } from "../generators/PlacementValidator";
+import {
+  PlacementValidator,
+  OccupantType,
+} from "../generators/PlacementValidator";
 
 export class MissionManager {
   constructor(
@@ -101,7 +104,7 @@ export class MissionManager {
       let recoverCount = count;
       if (nodeType === "Boss") recoverCount = 2;
       else if (nodeType === "Elite") recoverCount = 1;
-      
+
       for (let i = 0; i < Math.min(recoverCount, candidates.length); i++) {
         objectives.push({
           id: `${idPrefix}-${i}`,
@@ -124,7 +127,8 @@ export class MissionManager {
         });
 
         if (roomCandidates.length > 0) {
-          const hiveLoc = roomCandidates[this.prng.nextInt(0, roomCandidates.length - 1)];
+          const hiveLoc =
+            roomCandidates[this.prng.nextInt(0, roomCandidates.length - 1)];
           const hiveId = nodeType === "Boss" ? "boss-hive" : "elite-hive";
 
           enemyManager.addEnemy(state, {
@@ -153,7 +157,11 @@ export class MissionManager {
 
     state.objectives = objectives;
 
-    if (this.missionType === MissionType.DestroyHive && nodeType !== "Boss" && nodeType !== "Elite") {
+    if (
+      this.missionType === MissionType.DestroyHive &&
+      nodeType !== "Boss" &&
+      nodeType !== "Elite"
+    ) {
       const floors = map.cells.filter((c) => c.type === CellType.Floor);
       const extraction = map.extraction || { x: 0, y: 0 };
       const candidates = floors.filter((c) => {
@@ -242,7 +250,12 @@ export class MissionManager {
         const isElite = state.nodeType === "Elite";
         const multiplier = isBoss ? 3 : isElite ? 2 : 1;
 
-        if (obj.kind === "Kill" && (obj.targetEnemyId === "enemy-hive" || obj.targetEnemyId === "boss-hive" || obj.targetEnemyId === "elite-hive")) {
+        if (
+          obj.kind === "Kill" &&
+          (obj.targetEnemyId === "enemy-hive" ||
+            obj.targetEnemyId === "boss-hive" ||
+            obj.targetEnemyId === "elite-hive")
+        ) {
           state.stats.scrapGained += 75 * multiplier;
         } else if (obj.kind === "Escort" || obj.id === "obj-escort") {
           state.stats.scrapGained += 50 * multiplier;

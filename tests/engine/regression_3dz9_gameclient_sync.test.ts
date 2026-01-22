@@ -27,8 +27,12 @@ vi.stubGlobal("Worker", MockWorker);
 // Mock MapGeneratorFactory
 const mockMapGeneratorFactory = (config: MapGenerationConfig) => {
   const generator = new MapGenerator(config);
-  generator.generate = vi.fn().mockReturnValue({ width: 10, height: 10, cells: [] });
-  generator.load = vi.fn().mockImplementation((data) => data || { width: 10, height: 10, cells: [] });
+  generator.generate = vi
+    .fn()
+    .mockReturnValue({ width: 10, height: 10, cells: [] });
+  generator.load = vi
+    .fn()
+    .mockImplementation((data) => data || { width: 10, height: 10, cells: [] });
   return generator;
 };
 
@@ -47,7 +51,7 @@ describe("Regression 3dz9: GameClient startTime Synchronization", () => {
   it("should synchronize startTime when initialized with commandLog", () => {
     vi.useFakeTimers();
     const client = new GameClient(mockMapGeneratorFactory);
-    
+
     const commandLog: CommandLogEntry[] = [
       { tick: 1000, command: { type: CommandType.STOP, unitIds: [] } },
       { tick: 5000, command: { type: CommandType.STOP, unitIds: [] } },
@@ -56,9 +60,13 @@ describe("Regression 3dz9: GameClient startTime Synchronization", () => {
     // Mock localStorage
     const storage: Record<string, string> = {};
     const mockLocalStorage = {
-      setItem: vi.fn((key, value) => { storage[key] = value; }),
+      setItem: vi.fn((key, value) => {
+        storage[key] = value;
+      }),
       getItem: vi.fn((key) => storage[key] || null),
-      removeItem: vi.fn((key) => { delete storage[key]; }),
+      removeItem: vi.fn((key) => {
+        delete storage[key];
+      }),
     };
     vi.stubGlobal("localStorage", mockLocalStorage);
 
@@ -69,12 +77,21 @@ describe("Regression 3dz9: GameClient startTime Synchronization", () => {
       123,
       MapGeneratorType.Procedural,
       mockMap,
-      true, false, true,
+      true,
+      false,
+      true,
       defaultSquad,
       "Default" as any,
-      16, 16, 3, false, 0, 1.0, false, true,
+      16,
+      16,
+      3,
+      false,
+      0,
+      1.0,
+      false,
+      true,
       EngineMode.Simulation,
-      commandLog
+      commandLog,
     );
 
     // Advance time by 200ms (to 10200)
@@ -96,7 +113,7 @@ describe("Regression 3dz9: GameClient startTime Synchronization", () => {
     const logStr = storage["voidlock_mission_log"];
     const log: CommandLogEntry[] = JSON.parse(logStr);
     expect(log[log.length - 1].tick).toBe(5200);
-    
+
     // Verify commandStream was initialized from commandLog
     expect(replay?.commands.length).toBe(3);
     expect(replay?.commands[0].t).toBe(1000);

@@ -11,14 +11,14 @@ describe("Space Hulk Importer", () => {
         { tileId: "corridor_1x2", x: 0, y: 2, rotation: 0 },
       ],
       tileDoors: [
-        { tileIndex: 0, socketIndex: 2, id: "door1" } // South socket of first 1x2 corridor (at 0,1 edge S)
+        { tileIndex: 0, socketIndex: 2, id: "door1" }, // South socket of first 1x2 corridor (at 0,1 edge S)
       ],
       globalSquadSpawn: { cell: { x: 0, y: 0 } },
-      globalExtraction: { cell: { x: 0, y: 3 } }
+      globalExtraction: { cell: { x: 0, y: 3 } },
     };
 
     const map = MapGenerator.assemble(assembly, SpaceHulkTileLibrary);
-    
+
     expect(map.width).toBe(1);
     expect(map.height).toBe(4);
     expect(map.doors?.length).toBe(1);
@@ -53,7 +53,7 @@ describe("Space Hulk Importer", () => {
       globalSquadSpawn: { cell: { x: 0, y: 0 } },
       globalExtraction: { cell: { x: 5, y: 1 } },
       globalObjectives: [{ id: "obj1", kind: "Recover", cell: { x: 5, y: 0 } }],
-      globalSpawnPoints: [{ id: "enemy-spawn", cell: { x: 4, y: 0 } }]
+      globalSpawnPoints: [{ id: "enemy-spawn", cell: { x: 4, y: 0 } }],
     };
 
     const map = MapGenerator.assemble(assembly, SpaceHulkTileLibrary);
@@ -63,13 +63,15 @@ describe("Space Hulk Importer", () => {
       height: map.height,
       type: MapGeneratorType.Procedural,
     });
-    
+
     // We expect some issues because of room exclusivity rules in validate()
     // but connectivity should be fine.
     const result = generator.validate(map);
-    
+
     // Check reachability specifically (if validation fails for other reasons)
-    const reachabilityIssues = result.issues.filter(i => i.includes("not reachable"));
+    const reachabilityIssues = result.issues.filter((i) =>
+      i.includes("not reachable"),
+    );
     expect(reachabilityIssues).toHaveLength(0);
   });
 });

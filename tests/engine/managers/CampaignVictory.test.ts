@@ -32,10 +32,10 @@ describe("Campaign Victory Logic", () => {
       economyMode: "Open",
     };
     const nodes = generator.generate(12345, rules);
-    
-    const maxRank = Math.max(...nodes.map(n => n.rank));
-    const lastRankNodes = nodes.filter(n => n.rank === maxRank);
-    
+
+    const maxRank = Math.max(...nodes.map((n) => n.rank));
+    const lastRankNodes = nodes.filter((n) => n.rank === maxRank);
+
     expect(lastRankNodes.length).toBe(1);
     expect(lastRankNodes[0].type).toBe("Boss");
   });
@@ -43,10 +43,10 @@ describe("Campaign Victory Logic", () => {
   it("should trigger victory when Boss node is won", () => {
     manager.startNewCampaign(12345, "standard");
     const state = manager.getState()!;
-    
-    const bossNode = state.nodes.find(n => n.type === "Boss")!;
+
+    const bossNode = state.nodes.find((n) => n.type === "Boss")!;
     expect(bossNode).toBeTruthy();
-    
+
     const report: MissionReport = {
       nodeId: bossNode.id,
       seed: 12345,
@@ -55,7 +55,7 @@ describe("Campaign Victory Logic", () => {
       scrapGained: 100,
       intelGained: 5,
       timeSpent: 1000,
-      soldierResults: state.roster.map(s => ({
+      soldierResults: state.roster.map((s) => ({
         soldierId: s.id,
         xpBefore: 0,
         xpGained: 50,
@@ -64,23 +64,23 @@ describe("Campaign Victory Logic", () => {
         status: "Healthy",
       })),
     };
-    
+
     manager.processMissionResult(report);
-    
+
     expect(manager.getState()?.status).toBe("Victory");
   });
 
   it("should trigger victory in Extended campaign", () => {
     manager.startNewCampaign(12345, "standard", { mapGrowthRate: 0.5 });
     const state = manager.getState()!;
-    
+
     // With 0.5 growthRate, defaultLayers should be 13
-    const maxRank = Math.max(...state.nodes.map(n => n.rank));
+    const maxRank = Math.max(...state.nodes.map((n) => n.rank));
     expect(maxRank).toBe(12); // Ranks 0 to 12
-    
-    const bossNode = state.nodes.find(n => n.rank === maxRank)!;
+
+    const bossNode = state.nodes.find((n) => n.rank === maxRank)!;
     expect(bossNode.type).toBe("Boss");
-    
+
     const report: MissionReport = {
       nodeId: bossNode.id,
       seed: 12345,
@@ -91,7 +91,7 @@ describe("Campaign Victory Logic", () => {
       timeSpent: 1000,
       soldierResults: [],
     };
-    
+
     manager.processMissionResult(report);
     expect(manager.getState()?.status).toBe("Victory");
   });

@@ -38,7 +38,7 @@ describe("Regression: voidlock-7twz Campaign Transition", () => {
     // Transition path: main-menu -> campaign -> mission-setup
     sm.show("campaign");
     expect(sm.getCurrentScreen()).toBe("campaign");
-    
+
     sm.show("mission-setup");
     expect(sm.getCurrentScreen()).toBe("mission-setup");
     expect(errorSpy).not.toHaveBeenCalled();

@@ -212,7 +212,9 @@ describe("Autonomous Targeting Logic", () => {
     expect(state.units[0].forcedTargetId).toBe("e1");
 
     // Move e1 out of range (range is 5)
-    const e1_real = (engine as any).state.enemies.find((e: any) => e.id === "e1")!;
+    const e1_real = (engine as any).state.enemies.find(
+      (e: any) => e.id === "e1",
+    )!;
     e1_real.pos = { x: 5.5, y: 15.5 }; // Distance 10
 
     // Add another enemy in range

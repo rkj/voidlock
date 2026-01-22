@@ -19,7 +19,7 @@ describe("CampaignManager Bankruptcy", () => {
     state.scrap = 50; // Less than 100
 
     const report: MissionReport = {
-      nodeId: state.nodes.filter(n => n.status === "Accessible")[0].id,
+      nodeId: state.nodes.filter((n) => n.status === "Accessible")[0].id,
       seed: 123,
       result: "Won",
       aliensKilled: 0,
@@ -37,10 +37,10 @@ describe("CampaignManager Bankruptcy", () => {
     manager.startNewCampaign(12345, "Normal");
     const state = manager.getState()!;
     state.scrap = 50;
-    state.roster.forEach(s => s.status = "Wounded");
+    state.roster.forEach((s) => (s.status = "Wounded"));
 
     const report: MissionReport = {
-      nodeId: state.nodes.filter(n => n.status === "Accessible")[0].id,
+      nodeId: state.nodes.filter((n) => n.status === "Accessible")[0].id,
       seed: 123,
       result: "Won",
       aliensKilled: 0,
@@ -58,19 +58,19 @@ describe("CampaignManager Bankruptcy", () => {
     manager.startNewCampaign(12345, "Normal");
     const state = manager.getState()!;
     state.scrap = 50;
-    
+
     // Mark all soldiers as dead in the state
-    state.roster.forEach(s => s.status = "Dead");
+    state.roster.forEach((s) => (s.status = "Dead"));
 
     const report: MissionReport = {
-      nodeId: state.nodes.filter(n => n.status === "Accessible")[0].id,
+      nodeId: state.nodes.filter((n) => n.status === "Accessible")[0].id,
       seed: 123,
       result: "Lost",
       aliensKilled: 0,
       scrapGained: 0,
       intelGained: 0,
       timeSpent: 100,
-      soldierResults: state.roster.map(s => ({
+      soldierResults: state.roster.map((s) => ({
         soldierId: s.id,
         xpBefore: 0,
         xpGained: 0,
@@ -88,18 +88,18 @@ describe("CampaignManager Bankruptcy", () => {
     manager.startNewCampaign(12345, "Normal");
     const state = manager.getState()!;
     state.scrap = 150;
-    
-    state.roster.forEach(s => s.status = "Dead");
+
+    state.roster.forEach((s) => (s.status = "Dead"));
 
     const report: MissionReport = {
-      nodeId: state.nodes.filter(n => n.status === "Accessible")[0].id,
+      nodeId: state.nodes.filter((n) => n.status === "Accessible")[0].id,
       seed: 123,
       result: "Lost",
       aliensKilled: 0,
       scrapGained: 0,
       intelGained: 0,
       timeSpent: 100,
-      soldierResults: state.roster.map(s => ({
+      soldierResults: state.roster.map((s) => ({
         soldierId: s.id,
         xpBefore: 0,
         xpGained: 0,
@@ -117,10 +117,10 @@ describe("CampaignManager Bankruptcy", () => {
     manager.startNewCampaign(12345, "Hard"); // Hard/Standard has deathRule: "Iron"
     const state = manager.getState()!;
     state.scrap = 500;
-    
+
     // Some soldiers die, but not all
     const report: MissionReport = {
-      nodeId: state.nodes.filter(n => n.status === "Accessible")[0].id,
+      nodeId: state.nodes.filter((n) => n.status === "Accessible")[0].id,
       seed: 123,
       result: "Lost",
       aliensKilled: 0,
@@ -135,7 +135,7 @@ describe("CampaignManager Bankruptcy", () => {
           kills: 0,
           promoted: false,
           status: "Dead",
-        }
+        },
       ],
     };
 

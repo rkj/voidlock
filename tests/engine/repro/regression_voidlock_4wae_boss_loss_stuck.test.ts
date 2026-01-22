@@ -16,13 +16,13 @@ describe("Regression: voidlock-4wae - Campaign Lost Screen Not Appearing", () =>
   it("should mark campaign as Defeat when Boss mission is lost (even in non-Ironman)", () => {
     manager.startNewCampaign(12345, "Normal"); // Clone mode, status: Active
     const state = manager.getState()!;
-    
+
     // Find the boss node
     let bossNode = state.nodes.find((n) => n.type === "Boss");
     if (!bossNode) {
       // Force last node to be boss
-      const maxRank = Math.max(...state.nodes.map(n => n.rank));
-      bossNode = state.nodes.find(n => n.rank === maxRank)!;
+      const maxRank = Math.max(...state.nodes.map((n) => n.rank));
+      bossNode = state.nodes.find((n) => n.rank === maxRank)!;
       bossNode.type = "Boss";
     }
 
@@ -38,7 +38,7 @@ describe("Regression: voidlock-4wae - Campaign Lost Screen Not Appearing", () =>
     };
 
     manager.processMissionResult(report);
-    
+
     // Expect Defeat because it was the final mission and we lost
     expect(manager.getState()?.status).toBe("Defeat");
   });
@@ -46,9 +46,9 @@ describe("Regression: voidlock-4wae - Campaign Lost Screen Not Appearing", () =>
   it("should mark campaign as Defeat when roster is empty (all dead or wounded) and cannot afford recruitment", () => {
     manager.startNewCampaign(12345, "Normal"); // Clone mode, starting scrap: 500
     const state = manager.getState()!;
-    
+
     // Set all soldiers to Wounded and scrap to 0
-    state.roster.forEach(s => {
+    state.roster.forEach((s) => {
       s.status = "Wounded";
       s.recoveryTime = 2;
     });
