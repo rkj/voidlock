@@ -127,7 +127,7 @@ describe("Mission Setup Shell Visibility (voidlock-awkx)", () => {
       setLineDash: vi.fn(),
     }) as any;
 
-    // Set up DOM
+    // Set up DOM - NESTED STRUCTURE (matching index.html)
     document.body.innerHTML = `
       <div id="screen-main-menu" class="screen">
         <button id="btn-menu-campaign">Campaign</button>
@@ -144,30 +144,32 @@ describe("Mission Setup Shell Visibility (voidlock-awkx)", () => {
               <div id="screen-barracks" class="screen" style="display:none"></div>
               <div id="screen-equipment" class="screen" style="display:none"></div>
               <div id="screen-statistics" class="screen" style="display:none"></div>
+              
+              <!-- Mission Setup is INSIDE the shell in current architecture -->
+              <div id="screen-mission-setup" class="screen" style="display:none">
+                <div id="mission-setup-context"></div>
+                <div id="map-config-section">
+                  <select id="map-generator-type">
+                    <option value="Procedural">Procedural</option>
+                  </select>
+                  <input type="number" id="map-seed" />
+                  <div id="preset-map-controls">
+                    <input type="number" id="map-width" value="14" />
+                    <input type="number" id="map-height" value="14" />
+                    <input type="number" id="map-spawn-points" value="1" />
+                    <input type="range" id="map-starting-threat" value="0" />
+                    <span id="map-starting-threat-value">0</span>
+                    <input type="range" id="map-base-enemies" value="3" />
+                    <input type="range" id="map-enemy-growth" value="1.0" />
+                  </div>
+                </div>
+                <div id="squad-builder"></div>
+                <button id="btn-goto-equipment">Equipment</button>
+                <button id="btn-setup-back">Back</button>
+              </div>
           </div>
       </div>
 
-      <div id="screen-mission-setup" class="screen" style="display:none">
-        <div id="mission-setup-context"></div>
-        <div id="map-config-section">
-          <select id="map-generator-type">
-            <option value="Procedural">Procedural</option>
-          </select>
-          <input type="number" id="map-seed" />
-          <div id="preset-map-controls">
-            <input type="number" id="map-width" value="14" />
-            <input type="number" id="map-height" value="14" />
-            <input type="number" id="map-spawn-points" value="1" />
-            <input type="range" id="map-starting-threat" value="0" />
-            <span id="map-starting-threat-value">0</span>
-            <input type="range" id="map-base-enemies" value="3" />
-            <input type="range" id="map-enemy-growth" value="1.0" />
-          </div>
-        </div>
-        <div id="squad-builder"></div>
-        <button id="btn-goto-equipment">Equipment</button>
-        <button id="btn-setup-back">Back</button>
-      </div>
       <div id="screen-mission" class="screen" style="display:none">
         <div id="top-bar">
           <div id="game-status"></div>
@@ -219,7 +221,7 @@ describe("Mission Setup Shell Visibility (voidlock-awkx)", () => {
     // 4. Verify we are on Mission Setup
     expect(missionSetup?.style.display).toBe("flex");
     
-    // 5. Verify Shell is still visible (THIS IS EXPECTED TO FAIL CURRENTLY)
+    // 5. Verify Shell is still visible
     expect(shell?.style.display).toBe("flex");
   });
 });
