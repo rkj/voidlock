@@ -50,6 +50,7 @@ describe("SquadBuilder Component", () => {
 
     expect(container.querySelector(".roster-panel")).not.toBeNull();
     expect(container.querySelector(".deployment-panel")).not.toBeNull();
+    // Default mission with no VIP should have 4 slots
     expect(container.querySelectorAll(".deployment-slot").length).toBe(4);
   });
 
@@ -115,6 +116,7 @@ describe("SquadBuilder Component", () => {
     );
     builder.render();
 
+    expect(container.querySelectorAll(".deployment-slot").length).toBe(5);
     const firstSlot = container.querySelectorAll(".deployment-slot")[0];
     expect(firstSlot.classList.contains("locked")).toBe(true);
     expect(firstSlot.textContent).not.toContain("VIP (Auto-Assigned)");

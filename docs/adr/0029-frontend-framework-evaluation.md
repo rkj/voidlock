@@ -11,21 +11,17 @@ We need to evaluate whether continuing with custom Vanilla DOM manipulation is s
 
 ## Analysis
 
-
-
 ### 1. Current Architecture (Vanilla TypeScript)
 
 - **Pattern:** Immediate-mode style updates for HUD (re-rendering innerHTML) and Component-style classes for Screens (managing their own root elements).
 
 - **State:** Local class properties act as state. `render()` methods are called manually after state changes.
 
-- **Performance:** **Mixed.** Direct DOM updates *can* be fast, but our current "nuke and rebuild" strategy (setting `innerHTML` on every frame) causes layout thrashing and visible flickering, especially under load or with DevTools open.
+- **Performance:** **Mixed.** Direct DOM updates _can_ be fast, but our current "nuke and rebuild" strategy (setting `innerHTML` on every frame) causes layout thrashing and visible flickering, especially under load or with DevTools open.
 
 - **Dependencies:** None.
 
 - **Development Experience:** "Close to the metal." Full control, but requires writing boilerplate for element creation, event delegation, and diffing (or nuking `innerHTML`).
-
-
 
 ### 2. Framework Alternative (e.g., React/Preact)
 
@@ -37,26 +33,15 @@ We need to evaluate whether continuing with custom Vanilla DOM manipulation is s
 
 - **Development Experience:** Faster iteration for complex forms and lists. extensive ecosystem.
 
-
-
 ## Decision
-
-
 
 **We will continue to use Vanilla TypeScript for the UI Layer, but we MUST optimize the rendering logic.**
 
-
-
 We will **NOT** adopt a frontend framework at this time, but we acknowledge that the current "naive" Vanilla implementation is insufficient.
-
-
 
 ## Rationale
 
-
-
 1.  **Performance & Overhead:**
-
     - The game loop dictates the render cycle. We need absolute control over when the DOM updates relative to the Canvas frame.
 
     - Frameworks often assume they "own" the page lifecycle. Integrating them with a custom game loop often leads to fighting the framework (e.g., "tearing" issues or unnecessary re-renders).
@@ -65,11 +50,7 @@ We will **NOT** adopt a frontend framework at this time, but we acknowledge that
 
     - **Correction:** The reported flickering is due to inefficient `innerHTML` replacement in the game loop (`HUDManager.ts`), not an inherent flaw in Vanilla JS. We can fix this by updating only changed text nodes (`textContent`) or attributes, rather than rebuilding sub-trees.
 
-
-
 2.  **Architectural Simplicity:**
-
-
     - The current codebase is uniform (all TypeScript classes). Introducing a framework bifurcates the mental model: "How does the GameClient talk to a React Component?" vs "How does it talk to the Canvas?".
     - We avoid the complexity of a dual-state world (React State vs Engine State).
 

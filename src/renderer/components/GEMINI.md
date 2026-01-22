@@ -4,7 +4,7 @@ This directory contains reusable UI components for the Voidlock renderer.
 
 ## Files
 
-- `SquadBuilder.ts`: Handles the squad selection and deployment UI, including roster management and drag-and-drop slots. Used in the Mission Setup screen.
+- `SquadBuilder.ts`: Handles the squad selection and deployment UI, including roster management and drag-and-drop slots. Used in the Mission Setup screen. Supports a maximum of 4 soldiers plus an optional VIP slot (auto-assigned in Escort missions, or manually added in Custom missions).
 
 ## Guidelines
 
