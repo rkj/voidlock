@@ -68,7 +68,7 @@ export class SquadBuilder {
     mainWrapper.appendChild(deploymentPanel);
 
     const updateCount = () => {
-      let total = this.squad.soldiers.filter(
+      const total = this.squad.soldiers.filter(
         (s) => s.archetypeId !== "vip",
       ).length;
       totalDiv.textContent = `Total Soldiers: ${total}/${MAX_SQUAD_SIZE}`;
@@ -136,9 +136,10 @@ export class SquadBuilder {
                   );
 
                   // Auto-deploy if slot available
-                  const totalOccupied =
-                    this.squad.soldiers.length + (isEscortMission ? 1 : 0);
-                  if (totalOccupied < 4) {
+                  const totalNonVip = this.squad.soldiers.filter(
+                    (s) => s.archetypeId !== "vip",
+                  ).length;
+                  if (totalNonVip < MAX_SQUAD_SIZE) {
                     const newState = this.context.campaignManager.getState();
                     const s = newState?.roster.find((r) => r.id === newId);
                     if (s) {
@@ -178,24 +179,34 @@ export class SquadBuilder {
 
     const renderSlots = () => {
       deploymentPanel.innerHTML = "<h3>Deployment</h3>";
-      for (let i = 0; i < 4; i++) deploymentPanel.appendChild(createSlot(i));
+      const hasVip =
+        isEscortMission ||
+        this.squad.soldiers.some((s) => s.archetypeId === "vip");
+      const numSlots = hasVip ? 5 : 4;
+      for (let i = 0; i < numSlots; i++)
+        deploymentPanel.appendChild(createSlot(i));
     };
 
     const addToSquad = async (data: any) => {
       const totalNonVip = this.squad.soldiers.filter(
         (s) => s.archetypeId !== "vip",
       ).length;
-      const totalOccupied =
-        this.squad.soldiers.length + (isEscortMission ? 1 : 0);
-      if (totalOccupied >= 4) {
-        await this.context.modalService.alert("All deployment slots are full.");
-        return;
-      }
-      if (data.archetypeId !== "vip" && totalNonVip >= MAX_SQUAD_SIZE) {
-        await this.context.modalService.alert(
-          `Maximum of ${MAX_SQUAD_SIZE} soldiers allowed.`,
-        );
-        return;
+      const hasVipInSquad = this.squad.soldiers.some(
+        (s) => s.archetypeId === "vip",
+      );
+
+      if (data.archetypeId === "vip") {
+        if (isEscortMission || hasVipInSquad) {
+          await this.context.modalService.alert("VIP already assigned.");
+          return;
+        }
+      } else {
+        if (totalNonVip >= MAX_SQUAD_SIZE) {
+          await this.context.modalService.alert(
+            `Maximum of ${MAX_SQUAD_SIZE} soldiers allowed.`,
+          );
+          return;
+        }
       }
 
       if (data.type === "campaign") {
@@ -274,10 +285,11 @@ export class SquadBuilder {
               this.context.campaignManager.reviveSoldier(soldier.id);
 
               // Auto-deploy if slot available
-              const totalOccupied =
-                this.squad.soldiers.length + (isEscortMission ? 1 : 0);
+              const totalNonVip = this.squad.soldiers.filter(
+                (s) => s.archetypeId !== "vip",
+              ).length;
               if (
-                totalOccupied < 4 &&
+                totalNonVip < MAX_SQUAD_SIZE &&
                 !this.squad.soldiers.some((s) => s.id === soldier.id)
               ) {
                 const newState = this.context.campaignManager.getState();
@@ -334,16 +346,50 @@ export class SquadBuilder {
     };
 
     const createSlot = (index: number) => {
+      const hasVip =
+        isEscortMission ||
+        this.squad.soldiers.some((s) => s.archetypeId === "vip");
+      const vipInSquad = this.squad.soldiers.find(
+        (s) => s.archetypeId === "vip",
+      );
+
       const slot = document.createElement("div");
       slot.className = "deployment-slot";
-      slot.setAttribute("aria-label", `Deployment Slot ${index + 1}`);
-      if (index === 0 && isEscortMission) {
-        slot.classList.add("locked");
-        slot.innerHTML = `<strong style="color:var(--color-accent);">VIP</strong>`;
-        return slot;
+
+      if (index === 0 && hasVip) {
+        slot.setAttribute("aria-label", "VIP Slot");
+        if (isEscortMission) {
+          slot.classList.add("locked");
+          slot.innerHTML = `<strong style="color:var(--color-accent);">VIP</strong>`;
+          return slot;
+        } else if (vipInSquad) {
+          slot.classList.add("occupied");
+          slot.classList.add("vip-slot");
+          slot.innerHTML = `<strong style="color:var(--color-accent);">VIP</strong><div class="slot-remove" title="Remove">X</div>`;
+          slot.querySelector(".slot-remove")?.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const idx = this.squad.soldiers.findIndex(
+              (s) => s.archetypeId === "vip",
+            );
+            if (idx !== -1) this.squad.soldiers.splice(idx, 1);
+            this.onSquadUpdated(this.squad);
+            updateCount();
+          });
+          return slot;
+        }
       }
-      const soldierIdx = isEscortMission ? index - 1 : index;
-      const soldier = this.squad.soldiers[soldierIdx];
+
+      slot.setAttribute(
+        "aria-label",
+        `Deployment Slot ${hasVip ? index : index + 1}`,
+      );
+
+      const nonVipSoldiers = this.squad.soldiers.filter(
+        (s) => s.archetypeId !== "vip",
+      );
+      const soldierIdx = hasVip ? index - 1 : index;
+      const soldier = nonVipSoldiers[soldierIdx];
+
       if (soldier) {
         slot.classList.add("occupied");
         const arch = ArchetypeLibrary[soldier.archetypeId];
@@ -356,12 +402,15 @@ export class SquadBuilder {
         slot.innerHTML = `<strong style="color:var(--color-primary);">${name}</strong><div class="slot-remove" title="Remove">X</div>`;
         slot.querySelector(".slot-remove")?.addEventListener("click", (e) => {
           e.stopPropagation();
-          this.squad.soldiers.splice(soldierIdx, 1);
+          // Find actual index in this.squad.soldiers
+          const actualIdx = this.squad.soldiers.indexOf(soldier);
+          if (actualIdx !== -1) this.squad.soldiers.splice(actualIdx, 1);
           this.onSquadUpdated(this.squad);
           updateCount();
         });
         slot.addEventListener("dblclick", () => {
-          this.squad.soldiers.splice(soldierIdx, 1);
+          const actualIdx = this.squad.soldiers.indexOf(soldier);
+          if (actualIdx !== -1) this.squad.soldiers.splice(actualIdx, 1);
           this.onSquadUpdated(this.squad);
           updateCount();
         });
