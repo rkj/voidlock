@@ -394,6 +394,7 @@ export class GameApp {
           this.context.screenManager.show("campaign-summary");
           this.context.campaignShell.hide();
         } else {
+          this.campaignScreen.show();
           this.context.campaignShell.show("campaign", "sector-map");
         }
       } else if (persistedScreen === "mission-setup") {
