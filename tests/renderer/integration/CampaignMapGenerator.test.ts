@@ -2,11 +2,16 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { MapGeneratorType, EngineMode, UnitStyle, MissionType } from "@src/shared/types";
+import {
+  MapGeneratorType,
+  EngineMode,
+  UnitStyle,
+  MissionType,
+} from "@src/shared/types";
 
 // Mock dependencies before importing main.ts
 vi.mock("@package.json", () => ({
-  default: { version: "1.0.0" }
+  default: { version: "1.0.0" },
 }));
 
 const mockGameClient = {
@@ -72,9 +77,35 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
         startNewCampaign: vi.fn((seed, diff, pause, theme, style, mapGen) => {
           currentCampaignState = {
             status: "Active",
-            nodes: [{ id: "node-1", type: "Combat", status: "Accessible", difficulty: 1, mapSeed: 123, connections: [], position: { x: 0, y: 0 } }],
+            nodes: [
+              {
+                id: "node-1",
+                type: "Combat",
+                status: "Accessible",
+                difficulty: 1,
+                mapSeed: 123,
+                connections: [],
+                position: { x: 0, y: 0 },
+              },
+            ],
             roster: [
-              { id: "s1", name: "Soldier 1", archetypeId: "scout", status: "Healthy", level: 1, hp: 100, maxHp: 100, xp: 0, soldierAim: 80, equipment: { rightHand: "pulse_rifle", leftHand: null, body: "basic_armor", feet: null } }
+              {
+                id: "s1",
+                name: "Soldier 1",
+                archetypeId: "scout",
+                status: "Healthy",
+                level: 1,
+                hp: 100,
+                maxHp: 100,
+                xp: 0,
+                soldierAim: 80,
+                equipment: {
+                  rightHand: "pulse_rifle",
+                  leftHand: null,
+                  body: "basic_armor",
+                  feet: null,
+                },
+              },
             ],
             scrap: 100,
             intel: 0,
@@ -95,8 +126,12 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
             },
           };
         }),
-        reset: vi.fn(() => { currentCampaignState = null; }),
-        deleteSave: vi.fn(() => { currentCampaignState = null; }),
+        reset: vi.fn(() => {
+          currentCampaignState = null;
+        }),
+        deleteSave: vi.fn(() => {
+          currentCampaignState = null;
+        }),
         assignEquipment: vi.fn(),
       }),
     },
@@ -107,7 +142,7 @@ describe("Campaign Map Generator Integration", () => {
   beforeEach(async () => {
     currentCampaignState = null;
     vi.clearAllMocks();
-    
+
     // Mock ResizeObserver
     global.ResizeObserver = vi.fn().mockImplementation(() => ({
       observe: vi.fn(),
@@ -191,24 +226,44 @@ describe("Campaign Map Generator Integration", () => {
     // Import main.ts
     vi.resetModules();
     await import("@src/renderer/main");
-    
+
     // Trigger DOMContentLoaded
     document.dispatchEvent(new Event("DOMContentLoaded"));
   });
 
   it("should use the mapGeneratorType from campaign rules when starting a mission", async () => {
     // 1. Manually set campaign state with TreeShip generator
-    const { CampaignManager } = await import("@src/renderer/campaign/CampaignManager");
+    const { CampaignManager } =
+      await import("@src/renderer/campaign/CampaignManager");
     const manager = CampaignManager.getInstance();
-    
+
     // Simulate an existing campaign with TreeShip rules
     currentCampaignState = {
       status: "Active",
       nodes: [
-        { id: "node-1", type: "Combat", status: "Accessible", difficulty: 1, mapSeed: 123, connections: [], position: { x: 0, y: 0 } }
+        {
+          id: "node-1",
+          type: "Combat",
+          status: "Accessible",
+          difficulty: 1,
+          mapSeed: 123,
+          connections: [],
+          position: { x: 0, y: 0 },
+        },
       ],
       roster: [
-        { id: "s1", name: "Soldier 1", archetypeId: "scout", status: "Healthy", level: 1, hp: 100, maxHp: 100, xp: 0, soldierAim: 80, equipment: {} }
+        {
+          id: "s1",
+          name: "Soldier 1",
+          archetypeId: "scout",
+          status: "Healthy",
+          level: 1,
+          hp: 100,
+          maxHp: 100,
+          xp: 0,
+          soldierAim: 80,
+          equipment: {},
+        },
       ],
       scrap: 100,
       intel: 0,
@@ -229,30 +284,36 @@ describe("Campaign Map Generator Integration", () => {
 
     // 2. Go to Campaign Map
     document.getElementById("btn-menu-campaign")?.click();
-    
+
     // 3. Select the mission node
-    const nodeEl = document.querySelector(".campaign-node.accessible") as HTMLElement;
+    const nodeEl = document.querySelector(
+      ".campaign-node.accessible",
+    ) as HTMLElement;
     expect(nodeEl).toBeTruthy();
     nodeEl.click();
 
     // Wait for async onCampaignNodeSelected
-    await new Promise(resolve => setTimeout(resolve, 50));
-    
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
     // 4. In Mission Setup, ensure at least one soldier is selected
-    const scoutCb = document.querySelector("#squad-builder input[type='checkbox']") as HTMLInputElement;
+    const scoutCb = document.querySelector(
+      "#squad-builder input[type='checkbox']",
+    ) as HTMLInputElement;
     if (scoutCb && !scoutCb.checked) scoutCb.click();
-    
+
     // 5. Go to Equipment
     document.getElementById("btn-goto-equipment")?.click();
-    
+
     // 6. Confirm and Launch Mission
-    const equipmentLaunchBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent?.includes("Confirm")) as HTMLElement;
+    const equipmentLaunchBtn = Array.from(
+      document.querySelectorAll("#screen-equipment button"),
+    ).find((b) => b.textContent?.includes("Confirm")) as HTMLElement;
     expect(equipmentLaunchBtn).toBeTruthy();
     equipmentLaunchBtn.click();
-    
+
     // 7. Verify GameClient.init was called with DenseShip
     expect(mockGameClient.init).toHaveBeenCalled();
-    
+
     // init(seed, mapGeneratorType, ...)
     const callArgs = mockGameClient.init.mock.calls[0];
     expect(callArgs[1]).toBe(MapGeneratorType.DenseShip);

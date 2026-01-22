@@ -1,13 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { MapEntityLayer } from "@src/renderer/visuals/MapEntityLayer";
 import { SharedRendererState } from "@src/renderer/visuals/SharedRendererState";
-import {
-  GameState,
-  UnitStyle,
-} from "@src/shared/types";
-import {
-  createMockGameState,
-} from "@src/engine/tests/utils/MockFactory";
+import { GameState, UnitStyle } from "@src/shared/types";
+import { createMockGameState } from "@src/engine/tests/utils/MockFactory";
 
 // Mock Image
 class MockImage {
@@ -39,14 +34,12 @@ describe("DebugLoot Rendering", () => {
 
   it("should NOT render loot when NOT discovered, NOT visible, and debug is OFF", () => {
     const gameState: GameState = createMockGameState({
-      loot: [
-        { id: "loot-1", pos: { x: 2, y: 2 }, itemId: "scrap_crate" }
-      ],
+      loot: [{ id: "loot-1", pos: { x: 2, y: 2 }, itemId: "scrap_crate" }],
       visibleCells: [],
       discoveredCells: [],
       settings: {
-        debugOverlayEnabled: false
-      } as any
+        debugOverlayEnabled: false,
+      } as any,
     });
 
     layer.draw(mockContext, gameState);
@@ -57,14 +50,12 @@ describe("DebugLoot Rendering", () => {
 
   it("should render loot when NOT discovered/visible but debug is ON", () => {
     const gameState: GameState = createMockGameState({
-      loot: [
-        { id: "loot-1", pos: { x: 2, y: 2 }, itemId: "scrap_crate" }
-      ],
+      loot: [{ id: "loot-1", pos: { x: 2, y: 2 }, itemId: "scrap_crate" }],
       visibleCells: [],
       discoveredCells: [],
       settings: {
-        debugOverlayEnabled: true
-      } as any
+        debugOverlayEnabled: true,
+      } as any,
     });
 
     layer.draw(mockContext, gameState);
@@ -77,48 +68,54 @@ describe("DebugLoot Rendering", () => {
 
   it("should render loot when visible even if debug is OFF", () => {
     const gameState: GameState = createMockGameState({
-      loot: [
-        { id: "loot-1", pos: { x: 2, y: 2 }, itemId: "scrap_crate" }
-      ],
+      loot: [{ id: "loot-1", pos: { x: 2, y: 2 }, itemId: "scrap_crate" }],
       visibleCells: ["2,2"],
       discoveredCells: [],
       settings: {
-        debugOverlayEnabled: false
-      } as any
+        debugOverlayEnabled: false,
+      } as any,
     });
 
     layer.draw(mockContext, gameState);
 
-    const called = mockContext.drawImage.mock.calls.length > 0 || mockContext.fillRect.mock.calls.length > 0;
+    const called =
+      mockContext.drawImage.mock.calls.length > 0 ||
+      mockContext.fillRect.mock.calls.length > 0;
     expect(called).toBe(true);
   });
 
   it("should render loot when discovered even if debug is OFF", () => {
     const gameState: GameState = createMockGameState({
-      loot: [
-        { id: "loot-1", pos: { x: 2, y: 2 }, itemId: "scrap_crate" }
-      ],
+      loot: [{ id: "loot-1", pos: { x: 2, y: 2 }, itemId: "scrap_crate" }],
       visibleCells: [],
       discoveredCells: ["2,2"],
       settings: {
-        debugOverlayEnabled: false
-      } as any
+        debugOverlayEnabled: false,
+      } as any,
     });
 
     layer.draw(mockContext, gameState);
 
-    const called = mockContext.drawImage.mock.calls.length > 0 || mockContext.fillRect.mock.calls.length > 0;
+    const called =
+      mockContext.drawImage.mock.calls.length > 0 ||
+      mockContext.fillRect.mock.calls.length > 0;
     expect(called).toBe(true);
   });
 
   it("should NOT render objective when NOT visible and debug is OFF", () => {
     const gameState: GameState = createMockGameState({
       objectives: [
-        { id: "obj-1", kind: "Recover", state: "Pending", targetCell: { x: 3, y: 3 }, visible: false } as any
+        {
+          id: "obj-1",
+          kind: "Recover",
+          state: "Pending",
+          targetCell: { x: 3, y: 3 },
+          visible: false,
+        } as any,
       ],
       settings: {
-        debugOverlayEnabled: false
-      } as any
+        debugOverlayEnabled: false,
+      } as any,
     });
 
     layer.draw(mockContext, gameState);
@@ -130,11 +127,17 @@ describe("DebugLoot Rendering", () => {
   it("should render objective when NOT visible but debug is ON", () => {
     const gameState: GameState = createMockGameState({
       objectives: [
-        { id: "obj-1", kind: "Recover", state: "Pending", targetCell: { x: 3, y: 3 }, visible: false } as any
+        {
+          id: "obj-1",
+          kind: "Recover",
+          state: "Pending",
+          targetCell: { x: 3, y: 3 },
+          visible: false,
+        } as any,
       ],
       settings: {
-        debugOverlayEnabled: true
-      } as any
+        debugOverlayEnabled: true,
+      } as any,
     });
 
     layer.draw(mockContext, gameState);

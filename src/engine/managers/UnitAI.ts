@@ -1,10 +1,4 @@
-import {
-  GameState,
-  Unit,
-  UnitState,
-  Door,
-  Command,
-} from "../../shared/types";
+import { GameState, Unit, UnitState, Door, Command } from "../../shared/types";
 import { GameGrid } from "../GameGrid";
 import { Pathfinder } from "../Pathfinder";
 import { LineOfSight } from "../LineOfSight";
@@ -30,7 +24,7 @@ export interface AIContext {
     cmd: Command,
     state: GameState,
     isManual: boolean,
-    director?: any
+    director?: any,
   ) => void;
 }
 
@@ -41,11 +35,11 @@ export class UnitAI {
   constructor(
     private gameGrid: GameGrid,
     pathfinder: Pathfinder,
-    private los: LineOfSight
+    private los: LineOfSight,
   ) {
     const vipAi = new VipAI(gameGrid, pathfinder, los);
     this.vipBehavior = new VipBehavior(vipAi, los);
-    
+
     // Ordered by priority
     this.behaviors = [
       new SafetyBehavior(),
@@ -63,13 +57,21 @@ export class UnitAI {
     doors: Map<string, Door>,
     prng: PRNG,
     context: AIContext,
-    director?: any
+    director?: any,
   ) {
     if (unit.state === UnitState.Extracted || unit.state === UnitState.Dead)
       return;
 
     // 1. VIP Specific AI
-    const vipHandled = this.vipBehavior.evaluate(unit, state, dt, doors, prng, context, director);
+    const vipHandled = this.vipBehavior.evaluate(
+      unit,
+      state,
+      dt,
+      doors,
+      prng,
+      context,
+      director,
+    );
     if (vipHandled && !unit.aiEnabled) return;
 
     if (unit.state === UnitState.Channeling) return;
@@ -90,7 +92,15 @@ export class UnitAI {
 
     // 3. Sequential behavior evaluation
     for (const behavior of this.behaviors) {
-      const handled = behavior.evaluate(unit, state, dt, doors, prng, context, director);
+      const handled = behavior.evaluate(
+        unit,
+        state,
+        dt,
+        doors,
+        prng,
+        context,
+        director,
+      );
       if (handled) break;
     }
   }

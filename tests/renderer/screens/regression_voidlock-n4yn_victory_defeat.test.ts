@@ -38,7 +38,7 @@ describe("CampaignSummaryScreen Victory/Defeat Screens", () => {
       scrapGained: 100,
       intelGained: 10,
       timeSpent: 1000,
-      soldierResults: []
+      soldierResults: [],
     });
 
     const screen = new CampaignSummaryScreen(
@@ -74,7 +74,7 @@ describe("CampaignSummaryScreen Victory/Defeat Screens", () => {
       scrapGained: 0,
       intelGained: 0,
       timeSpent: 500,
-      soldierResults: []
+      soldierResults: [],
     });
 
     const screen = new CampaignSummaryScreen(
@@ -100,7 +100,7 @@ describe("CampaignSummaryScreen Victory/Defeat Screens", () => {
     const state = manager.getState()!;
     state.status = "Defeat";
     state.scrap = 50;
-    state.roster.forEach(s => s.status = "Dead");
+    state.roster.forEach((s) => (s.status = "Dead"));
 
     const screen = new CampaignSummaryScreen(
       "screen-campaign-summary",

@@ -50,4 +50,3 @@ npx vitest run
 
 - [Architecture](./ARCHITECTURE.md) - Deep dive into the engine, communication protocol, and simulation logic.
 - [Specification](./spec/index.md) - Detailed game design document.
-

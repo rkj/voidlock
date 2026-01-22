@@ -137,21 +137,25 @@ canvasWrapper.addEventListener("mousemove", (e) => {
 });
 
 // Interactive Zoom (Mouse Wheel)
-canvasWrapper.addEventListener("wheel", (e) => {
-  if (e.ctrlKey) {
-    e.preventDefault();
-    const delta = e.deltaY > 0 ? -16 : 16;
-    const currentSize = parseInt(zoomSlider.value, 10);
-    const newSize = Math.min(256, Math.max(32, currentSize + delta));
-    
-    if (newSize !== currentSize) {
-      zoomSlider.value = newSize.toString();
-      zoomValue.textContent = `${newSize}px`;
-      renderer.setCellSize(newSize);
-      render();
+canvasWrapper.addEventListener(
+  "wheel",
+  (e) => {
+    if (e.ctrlKey) {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? -16 : 16;
+      const currentSize = parseInt(zoomSlider.value, 10);
+      const newSize = Math.min(256, Math.max(32, currentSize + delta));
+
+      if (newSize !== currentSize) {
+        zoomSlider.value = newSize.toString();
+        zoomValue.textContent = `${newSize}px`;
+        renderer.setCellSize(newSize);
+        render();
+      }
     }
-  }
-}, { passive: false });
+  },
+  { passive: false },
+);
 
 // Load initial example if empty (optional, but good for testing)
 // For now, leave empty.

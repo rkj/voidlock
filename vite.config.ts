@@ -1,17 +1,17 @@
-import { defineConfig } from 'vite';
-import path from 'path';
+import { defineConfig } from "vite";
+import path from "path";
 
 export default defineConfig(({ command }) => ({
-  root: 'src',
-  base: command === 'build' ? '/voidlock/' : '/',
-  publicDir: '../public',
+  root: "src",
+  base: command === "build" ? "/voidlock/" : "/",
+  publicDir: "../public",
   build: {
-    outDir: '../dist',
+    outDir: "../dist",
     emptyOutDir: true,
   },
   resolve: {
     alias: {
-      '@src': path.resolve(__dirname, './src'),
+      "@src": path.resolve(__dirname, "./src"),
     },
   },
 }));

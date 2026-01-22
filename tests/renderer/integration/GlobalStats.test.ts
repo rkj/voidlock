@@ -17,7 +17,7 @@ global.URL.createObjectURL = vi.fn();
 // Mock fetch
 global.fetch = vi.fn().mockResolvedValue({
   ok: true,
-  json: () => Promise.resolve({})
+  json: () => Promise.resolve({}),
 });
 
 const mockModalService = {
@@ -34,8 +34,8 @@ vi.mock("@src/renderer/ui/ModalService", () => ({
 vi.mock("@src/renderer/campaign/MetaManager", () => {
   return {
     MetaManager: {
-      getInstance: vi.fn()
-    }
+      getInstance: vi.fn(),
+    },
   };
 });
 
@@ -43,12 +43,12 @@ vi.mock("@src/renderer/campaign/MetaManager", () => {
 vi.mock("@src/renderer/ThemeManager", () => {
   const mockInstance = {
     init: vi.fn().mockResolvedValue(undefined),
-    setTheme: vi.fn()
+    setTheme: vi.fn(),
   };
   return {
     ThemeManager: {
-      getInstance: vi.fn(() => mockInstance)
-    }
+      getInstance: vi.fn(() => mockInstance),
+    },
   };
 });
 
@@ -62,7 +62,7 @@ describe("StatisticsScreen Integration", () => {
     totalCasualties: 10,
     totalMissionsPlayed: 20,
     totalMissionsWon: 18,
-    totalScrapEarned: 5000
+    totalScrapEarned: 5000,
   };
 
   beforeEach(() => {
@@ -126,7 +126,7 @@ describe("StatisticsScreen Integration", () => {
     `;
 
     (MetaManager.getInstance as any).mockReturnValue({
-      getStats: () => mockStats
+      getStats: () => mockStats,
     });
 
     app = new GameApp();
@@ -134,10 +134,10 @@ describe("StatisticsScreen Integration", () => {
 
   it("should navigate to statistics screen when button is clicked", async () => {
     await app.initialize();
-    
+
     const btn = document.getElementById("btn-menu-statistics");
     btn?.click();
-    
+
     const screen = document.getElementById("screen-statistics");
     expect(screen?.style.display).toBe("flex");
     expect(screen?.textContent).toContain("Service Record");
@@ -147,16 +147,22 @@ describe("StatisticsScreen Integration", () => {
 
   it("should return to main menu from statistics screen", async () => {
     await app.initialize();
-    
+
     // Go to stats
     document.getElementById("btn-menu-statistics")?.click();
-    
+
     // Click Main Menu button in the shell
-    const backBtn = Array.from(document.querySelectorAll("#campaign-shell-top-bar button")).find(b => b.textContent === "Main Menu") as HTMLElement;
+    const backBtn = Array.from(
+      document.querySelectorAll("#campaign-shell-top-bar button"),
+    ).find((b) => b.textContent === "Main Menu") as HTMLElement;
     expect(backBtn).toBeTruthy();
     backBtn?.click();
-    
-    expect(document.getElementById("screen-main-menu")?.style.display).toBe("flex");
-    expect(document.getElementById("screen-statistics")?.style.display).toBe("none");
+
+    expect(document.getElementById("screen-main-menu")?.style.display).toBe(
+      "flex",
+    );
+    expect(document.getElementById("screen-statistics")?.style.display).toBe(
+      "none",
+    );
   });
 });

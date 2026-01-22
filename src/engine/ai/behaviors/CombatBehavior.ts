@@ -21,7 +21,7 @@ export class CombatBehavior implements Behavior {
     doors: Map<string, any>,
     _prng: PRNG,
     context: AIContext,
-    director?: any
+    director?: any,
   ): boolean {
     if (unit.archetypeId === "vip") return false;
     if (unit.state !== UnitState.Idle && !unit.explorationTarget) return false;
@@ -32,8 +32,8 @@ export class CombatBehavior implements Behavior {
       (enemy) =>
         enemy.hp > 0 &&
         context.newVisibleCellsSet.has(
-          `${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`
-        )
+          `${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`,
+        ),
     );
 
     const threats = visibleEnemies
@@ -41,10 +41,7 @@ export class CombatBehavior implements Behavior {
         enemy,
         distance: getDistance(unit.pos, enemy.pos),
       }))
-      .sort(
-        (a, b) =>
-          1 / (b.distance + 1) - (1 / (a.distance + 1))
-      );
+      .sort((a, b) => 1 / (b.distance + 1) - 1 / (a.distance + 1));
 
     if (threats.length > 0 && unit.engagementPolicy !== "IGNORE") {
       const primaryThreat = threats[0].enemy;
@@ -68,7 +65,7 @@ export class CombatBehavior implements Behavior {
             },
             state,
             false,
-            director
+            director,
           );
           return true;
         }
@@ -92,8 +89,8 @@ export class CombatBehavior implements Behavior {
                 n.x,
                 n.y,
                 doors,
-                false
-              )
+                false,
+              ),
           );
 
           const bestRetreat = neighbors
@@ -101,7 +98,7 @@ export class CombatBehavior implements Behavior {
               ...n,
               dist: getDistance(
                 { x: n.x + 0.5, y: n.y + 0.5 },
-                primaryThreat.pos
+                primaryThreat.pos,
               ),
             }))
             .sort((a, b) => b.dist - a.dist)[0];
@@ -117,7 +114,7 @@ export class CombatBehavior implements Behavior {
               },
               state,
               false,
-              director
+              director,
             );
             return true;
           }
@@ -138,7 +135,7 @@ export class CombatBehavior implements Behavior {
             },
             state,
             false,
-            director
+            director,
           );
           return true;
         }

@@ -27,7 +27,7 @@ describe("Regression voidlock-rui6: Landmine Placement & Scaling", () => {
 
   it("should scale landmine placement duration based on unit speed", () => {
     const baseChannelTime = ItemLibrary["mine"].channelTime || 3000;
-    
+
     // Test with standard speed (30)
     const engine30 = new CoreEngine(
       mockMap,
@@ -44,7 +44,7 @@ describe("Regression voidlock-rui6: Landmine Placement & Scaling", () => {
       type: CommandType.USE_ITEM,
       unitIds: [unit30.id],
       itemId: "mine",
-      target: { x: 2, y: 2 }
+      target: { x: 2, y: 2 },
     });
 
     // It should be channeling now
@@ -70,7 +70,7 @@ describe("Regression voidlock-rui6: Landmine Placement & Scaling", () => {
       type: CommandType.USE_ITEM,
       unitIds: [unit15.id],
       itemId: "mine",
-      target: { x: 2, y: 2 }
+      target: { x: 2, y: 2 },
     });
 
     engine15.update(100);
@@ -95,7 +95,7 @@ describe("Regression voidlock-rui6: Landmine Placement & Scaling", () => {
       type: CommandType.USE_ITEM,
       unitIds: [unit60.id],
       itemId: "mine",
-      target: { x: 2, y: 2 }
+      target: { x: 2, y: 2 },
     });
 
     engine60.update(100);
@@ -122,7 +122,7 @@ describe("Regression voidlock-rui6: Landmine Placement & Scaling", () => {
       type: CommandType.USE_ITEM,
       unitIds: [unit.id],
       itemId: "mine",
-      target: { x: 2, y: 2 }
+      target: { x: 2, y: 2 },
     });
 
     // Should be moving first
@@ -135,7 +135,7 @@ describe("Regression voidlock-rui6: Landmine Placement & Scaling", () => {
     // Actually MovementManager uses speed / normalization_const? No.
     // CoreEngine updates unit.pos based on speed and dt.
     // Normalized speed is unit.stats.speed / 10? No.
-    
+
     // Let's check MovementManager.ts
     // Wait, let's just update enough time.
     // We need multiple ticks because the path might have multiple steps
@@ -153,13 +153,13 @@ describe("Regression voidlock-rui6: Landmine Placement & Scaling", () => {
 
     // Should be Idle now
     expect(engine.getState().units[0].state).toBe(UnitState.Idle);
-    
+
     // Mine should be spawned
     const state = engine.getState();
     expect(state.mines.length).toBe(1);
     expect(state.mines[0].pos.x).toBe(2);
     expect(state.mines[0].pos.y).toBe(2);
-    
+
     // Test explosion
     // Add an enemy at (2,2)
     engine.addEnemy({
@@ -173,7 +173,7 @@ describe("Regression voidlock-rui6: Landmine Placement & Scaling", () => {
       accuracy: 50,
       attackRange: 1,
       speed: 30,
-      difficulty: 1
+      difficulty: 1,
     } as any);
 
     // Update to trigger explosion

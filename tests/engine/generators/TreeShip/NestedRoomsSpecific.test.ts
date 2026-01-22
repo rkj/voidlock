@@ -39,8 +39,12 @@ describe("TreeShipGenerator Nested Room Specific", () => {
     expect(nw11.type).toBe(CellType.Floor);
 
     // Verify internal are open
-    expect(graph.getBoundary(nwX, nwY, nwX + 1, nwY)?.type).toBe(BoundaryType.Open);
-    expect(graph.getBoundary(nwX, nwY, nwX, nwY + 1)?.type).toBe(BoundaryType.Open);
+    expect(graph.getBoundary(nwX, nwY, nwX + 1, nwY)?.type).toBe(
+      BoundaryType.Open,
+    );
+    expect(graph.getBoundary(nwX, nwY, nwX, nwY + 1)?.type).toBe(
+      BoundaryType.Open,
+    );
     expect(graph.getBoundary(nwX + 1, nwY, nwX + 1, nwY + 1)?.type).toBe(
       BoundaryType.Open,
     );

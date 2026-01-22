@@ -16,7 +16,7 @@ describe("CampaignManager Validation (voidlock-g8ed)", () => {
 
   it("should handle corrupted campaign state in storage", () => {
     storage.save(STORAGE_KEY, { something: "is wrong" });
-    
+
     // It should not crash, but return false or handle it
     const loaded = manager.load();
     expect(loaded).toBe(false);
@@ -31,25 +31,33 @@ describe("CampaignManager Validation (voidlock-g8ed)", () => {
       scrap: 100,
       intel: 0,
       currentSector: 1,
-      nodes: [{ id: "node_1", rank: 0, type: "Combat", status: "Accessible", connections: [] }],
+      nodes: [
+        {
+          id: "node_1",
+          rank: 0,
+          type: "Combat",
+          status: "Accessible",
+          connections: [],
+        },
+      ],
       roster: [
         {
           id: "soldier_1",
           name: "Recruit 1",
           archetypeId: "assault",
           // missing stats
-        }
+        },
       ],
       history: [],
       rules: {
-         difficulty: "Standard",
-         deathRule: "Iron",
-         allowTacticalPause: true
-      }
+        difficulty: "Standard",
+        deathRule: "Iron",
+        allowTacticalPause: true,
+      },
     };
-    
+
     storage.save(STORAGE_KEY, partialState);
-    
+
     const loaded = manager.load();
     expect(loaded).toBe(true);
     const state = manager.getState();
@@ -66,10 +74,10 @@ describe("CampaignManager Validation (voidlock-g8ed)", () => {
         rank: 0,
         type: "INVALID_TYPE",
         status: "Accessible",
-        connections: ["non-existent"]
-      }
+        connections: ["non-existent"],
+      },
     ];
-    
+
     const state = {
       version: "0.100.0",
       seed: 12345,
@@ -81,14 +89,14 @@ describe("CampaignManager Validation (voidlock-g8ed)", () => {
       roster: [],
       history: [],
       rules: {
-         difficulty: "Standard",
-         deathRule: "Iron",
-         allowTacticalPause: true
-      }
+        difficulty: "Standard",
+        deathRule: "Iron",
+        allowTacticalPause: true,
+      },
     };
-    
+
     storage.save(STORAGE_KEY, state);
-    
+
     const loaded = manager.load();
     expect(loaded).toBe(true);
     const loadedState = manager.getState();

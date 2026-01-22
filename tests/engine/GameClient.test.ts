@@ -346,7 +346,7 @@ describe("GameClient", () => {
       3,
       1,
       0,
-      nodeType
+      nodeType,
     );
 
     expect(postMessageMock).toHaveBeenCalledWith({

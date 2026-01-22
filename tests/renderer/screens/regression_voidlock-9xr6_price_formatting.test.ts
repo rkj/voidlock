@@ -21,9 +21,9 @@ describe("EquipmentScreen Regression: Price Formatting", () => {
 
     mockManager = {
       getState: vi.fn().mockReturnValue({
-          rules: { economyMode: "Open" },
-          scrap: 1000,
-          roster: []
+        rules: { economyMode: "Open" },
+        scrap: 1000,
+        roster: [],
       }),
       spendScrap: vi.fn(),
     };
@@ -45,11 +45,15 @@ describe("EquipmentScreen Regression: Price Formatting", () => {
 
     // Find a weapon button in the armory panel
     const armoryPanel = container.querySelector(".armory-panel")!;
-    const weaponBtn = Array.from(armoryPanel.querySelectorAll(".menu-item.clickable")).find(el => el.textContent?.includes("Pulse Rifle"));
+    const weaponBtn = Array.from(
+      armoryPanel.querySelectorAll(".menu-item.clickable"),
+    ).find((el) => el.textContent?.includes("Pulse Rifle"));
     expect(weaponBtn).not.toBeNull();
 
     // The price container should have width: 100%
-    const priceContainer = weaponBtn?.querySelector(".flex-row.justify-between") as HTMLElement;
+    const priceContainer = weaponBtn?.querySelector(
+      ".flex-row.justify-between",
+    ) as HTMLElement;
     expect(priceContainer).not.toBeNull();
     expect(priceContainer.style.width).toBe("100%");
   });
@@ -72,7 +76,9 @@ describe("EquipmentScreen Regression: Price Formatting", () => {
     const nameGroup = rows[0].closest(".flex-col") as HTMLElement;
     expect(nameGroup).not.toBeNull();
 
-    const priceContainer = nameGroup.querySelector(".flex-row.justify-between") as HTMLElement;
+    const priceContainer = nameGroup.querySelector(
+      ".flex-row.justify-between",
+    ) as HTMLElement;
     expect(priceContainer).not.toBeNull();
     expect(priceContainer.style.width).toBe("100%");
   });

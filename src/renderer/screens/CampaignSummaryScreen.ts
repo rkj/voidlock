@@ -52,9 +52,15 @@ export class CampaignSummaryScreen {
 
     // Left: Stats
     const statsPanel = this.createPanel("Campaign Statistics");
-    const totalKills = this.state.history.reduce((sum, r) => sum + r.aliensKilled, 0);
+    const totalKills = this.state.history.reduce(
+      (sum, r) => sum + r.aliensKilled,
+      0,
+    );
     const totalMissions = this.state.history.length;
-    const totalScrap = this.state.history.reduce((sum, r) => sum + r.scrapGained, 0);
+    const totalScrap = this.state.history.reduce(
+      (sum, r) => sum + r.scrapGained,
+      0,
+    );
 
     statsPanel.innerHTML += `
       <div class="flex-col gap-20">
@@ -70,28 +76,39 @@ export class CampaignSummaryScreen {
           <span>Total Scrap:</span>
           <span style="color:var(--color-warning); font-weight:bold;">${totalScrap}</span>
         </div>
-        ${!isVictory ? `
+        ${
+          !isVictory
+            ? `
           <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--color-border-strong);">
             <div style="color: var(--color-text-dim); font-size: 0.9em; text-transform: uppercase; letter-spacing: 1px;">
               Cause: <span style="color: var(--color-danger); font-weight: bold; letter-spacing: 2px;">${this.getCauseOfDeath()}</span>
             </div>
           </div>
-        ` : ""}
+        `
+            : ""
+        }
       </div>
     `;
     content.appendChild(statsPanel);
 
     // Right: Survivors (if Victory) or Roster Status
-    const rosterPanel = this.createPanel(isVictory ? "Surviving Squad" : "Final Roster Status");
+    const rosterPanel = this.createPanel(
+      isVictory ? "Surviving Squad" : "Final Roster Status",
+    );
     const rosterList = document.createElement("div");
     rosterList.className = "summary-roster-list";
-    
-    this.state.roster.forEach(s => {
+
+    this.state.roster.forEach((s) => {
       const row = document.createElement("div");
       row.className = "summary-roster-item";
-      
-      const statusColor = s.status === "Healthy" ? "var(--color-primary)" : s.status === "Wounded" ? "var(--color-warning)" : "var(--color-danger)";
-      
+
+      const statusColor =
+        s.status === "Healthy"
+          ? "var(--color-primary)"
+          : s.status === "Wounded"
+            ? "var(--color-warning)"
+            : "var(--color-danger)";
+
       row.innerHTML = `
         <div class="flex-col">
           <div style="font-weight:bold; letter-spacing: 1px;">${s.name.toUpperCase()}</div>
@@ -134,9 +151,11 @@ export class CampaignSummaryScreen {
 
   private getCauseOfDeath(): string {
     if (!this.state) return "Unknown";
-    const aliveCount = this.state.roster.filter(s => s.status !== "Dead").length;
+    const aliveCount = this.state.roster.filter(
+      (s) => s.status !== "Dead",
+    ).length;
     const canAffordRecruit = this.state.scrap >= 100;
-    
+
     if (aliveCount === 0 && !canAffordRecruit) return "Bankruptcy";
     return "Squad Wiped";
   }

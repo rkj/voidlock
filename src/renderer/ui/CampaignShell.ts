@@ -15,7 +15,7 @@ export class CampaignShell {
     containerId: string,
     manager: CampaignManager,
     onTabChange: (tabId: CampaignTabId) => void,
-    onMenu: () => void
+    onMenu: () => void,
   ) {
     const el = document.getElementById(containerId);
     if (!el) throw new Error(`Container #${containerId} not found`);
@@ -25,7 +25,10 @@ export class CampaignShell {
     this.onMenu = onMenu;
   }
 
-  public show(mode: CampaignShellMode, activeTabId: CampaignTabId = "sector-map") {
+  public show(
+    mode: CampaignShellMode,
+    activeTabId: CampaignTabId = "sector-map",
+  ) {
     this.mode = mode;
     this.activeTabId = activeTabId;
     this.container.style.display = "flex";
@@ -44,7 +47,9 @@ export class CampaignShell {
   }
 
   public getContentContainer(): HTMLElement {
-    return this.container.querySelector("#campaign-shell-content") as HTMLElement;
+    return this.container.querySelector(
+      "#campaign-shell-content",
+    ) as HTMLElement;
   }
 
   private render() {
@@ -56,14 +61,17 @@ export class CampaignShell {
     const currentSector = state?.currentSector ?? 1;
 
     // Top Bar
-    let topBar = this.container.querySelector("#campaign-shell-top-bar") as HTMLElement;
+    let topBar = this.container.querySelector(
+      "#campaign-shell-top-bar",
+    ) as HTMLElement;
     if (!topBar) {
       topBar = document.createElement("div");
       topBar.id = "campaign-shell-top-bar";
       this.container.prepend(topBar);
     }
 
-    topBar.className = "campaign-top-bar flex-row justify-between align-center p-10";
+    topBar.className =
+      "campaign-top-bar flex-row justify-between align-center p-10";
     topBar.style.height = "52px"; // Increased from 50px to accommodate 32px buttons with p-10
     topBar.style.boxSizing = "border-box";
     topBar.style.background = "var(--color-surface-elevated)";
@@ -74,7 +82,7 @@ export class CampaignShell {
     // Left: Label
     const leftPart = document.createElement("div");
     leftPart.className = "flex-col";
-    
+
     if (this.mode === "campaign") {
       leftPart.innerHTML = `
         <div style="font-size: 0.7em; color: var(--color-text-dim); text-transform: uppercase; letter-spacing: 1px;">Campaign Mode</div>
@@ -159,7 +167,9 @@ export class CampaignShell {
     topBar.appendChild(rightSide);
 
     // Content Area (Ensuring it exists but NOT clearing it)
-    let contentArea = this.container.querySelector("#campaign-shell-content") as HTMLElement;
+    let contentArea = this.container.querySelector(
+      "#campaign-shell-content",
+    ) as HTMLElement;
     if (!contentArea) {
       contentArea = document.createElement("div");
       contentArea.id = "campaign-shell-content";

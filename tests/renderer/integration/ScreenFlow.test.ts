@@ -5,7 +5,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // Mock dependencies before importing main.ts
 vi.mock("@package.json", () => ({
-  default: { version: "1.0.0" }
+  default: { version: "1.0.0" },
 }));
 
 // We need a way to trigger the GameClient callbacks
@@ -13,7 +13,9 @@ let stateUpdateCallback: ((state: any) => void) | null = null;
 
 const mockGameClient = {
   init: vi.fn(),
-  onStateUpdate: vi.fn((cb) => { stateUpdateCallback = cb; }),
+  onStateUpdate: vi.fn((cb) => {
+    stateUpdateCallback = cb;
+  }),
   stop: vi.fn(),
   getIsPaused: vi.fn().mockReturnValue(false),
   getTargetScale: vi.fn().mockReturnValue(1.0),
@@ -64,9 +66,35 @@ vi.mock("@src/renderer/ui/ModalService", () => ({
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 const mockCampaignState = {
   status: "Active",
-  nodes: [{ id: "node-1", type: "Combat", status: "Accessible", difficulty: 1, mapSeed: 123, connections: [], position: { x: 0, y: 0 } }],
+  nodes: [
+    {
+      id: "node-1",
+      type: "Combat",
+      status: "Accessible",
+      difficulty: 1,
+      mapSeed: 123,
+      connections: [],
+      position: { x: 0, y: 0 },
+    },
+  ],
   roster: [
-    { id: "s1", name: "Soldier 1", archetypeId: "scout", status: "Healthy", level: 1, hp: 100, maxHp: 100, xp: 0, soldierAim: 80, equipment: { rightHand: "pulse_rifle", leftHand: null, body: "basic_armor", feet: null } }
+    {
+      id: "s1",
+      name: "Soldier 1",
+      archetypeId: "scout",
+      status: "Healthy",
+      level: 1,
+      hp: 100,
+      maxHp: 100,
+      xp: 0,
+      soldierAim: 80,
+      equipment: {
+        rightHand: "pulse_rifle",
+        leftHand: null,
+        body: "basic_armor",
+        feet: null,
+      },
+    },
   ],
   scrap: 0,
   intel: 0,
@@ -176,7 +204,7 @@ describe("Screen Flow Integration", () => {
     // Import main.ts
     vi.resetModules();
     await import("@src/renderer/main");
-    
+
     // Trigger DOMContentLoaded
     document.dispatchEvent(new Event("DOMContentLoaded"));
   });
@@ -185,39 +213,51 @@ describe("Screen Flow Integration", () => {
     // 1. Main Menu -> Campaign
     const btnCampaign = document.getElementById("btn-menu-campaign");
     btnCampaign?.click();
-    expect(document.getElementById("screen-campaign")?.style.display).toBe("flex");
+    expect(document.getElementById("screen-campaign")?.style.display).toBe(
+      "flex",
+    );
 
     // 2. Campaign -> Mission Setup
     // CampaignScreen renders nodes as .campaign-node
     const nodes = document.querySelectorAll(".campaign-node");
     expect(nodes.length).toBeGreaterThan(0);
     (nodes[0] as HTMLElement).click();
-    
+
     // Wait for async onCampaignNodeSelected
-    await new Promise(resolve => setTimeout(resolve, 50));
-    
-    expect(document.getElementById("screen-mission-setup")?.style.display).toBe("flex");
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(document.getElementById("screen-mission-setup")?.style.display).toBe(
+      "flex",
+    );
 
     // 3. Mission Setup -> Equipment
-    const btnGotoEquipment = document.getElementById("btn-goto-equipment") as HTMLButtonElement;
+    const btnGotoEquipment = document.getElementById(
+      "btn-goto-equipment",
+    ) as HTMLButtonElement;
     // In campaign mode, squad builder has soldier cards
     const cards = document.querySelectorAll(".soldier-card");
-    cards.forEach(card => {
+    cards.forEach((card) => {
       if (!card.classList.contains("selected")) {
         card.dispatchEvent(new Event("dblclick"));
       }
     });
-    
+
     btnGotoEquipment.click();
-    expect(document.getElementById("screen-equipment")?.style.display).toBe("flex");
+    expect(document.getElementById("screen-equipment")?.style.display).toBe(
+      "flex",
+    );
 
     // 4. Equipment -> Mission
     const allButtons = document.querySelectorAll("#screen-equipment button");
-    const equipmentLaunchBtn = Array.from(allButtons).find(b => b.textContent?.includes("Confirm")) as HTMLElement;
+    const equipmentLaunchBtn = Array.from(allButtons).find((b) =>
+      b.textContent?.includes("Confirm"),
+    ) as HTMLElement;
     expect(equipmentLaunchBtn).toBeDefined();
     equipmentLaunchBtn?.click();
 
-    expect(document.getElementById("screen-mission")?.style.display).toBe("flex");
+    expect(document.getElementById("screen-mission")?.style.display).toBe(
+      "flex",
+    );
 
     // 5. Mission -> Win
     expect(stateUpdateCallback).not.toBeNull();
@@ -225,7 +265,17 @@ describe("Screen Flow Integration", () => {
       status: "Won",
       t: 10,
       stats: { aliensKilled: 5, scrapGained: 100, threatLevel: 0 },
-      units: [{ id: "s1", hp: 100, maxHp: 100, kills: 2, state: 0, pos: { x: 0, y: 0 }, stats: { speed: 20 } }],
+      units: [
+        {
+          id: "s1",
+          hp: 100,
+          maxHp: 100,
+          kills: 2,
+          state: 0,
+          pos: { x: 0, y: 0 },
+          stats: { speed: 20 },
+        },
+      ],
       objectives: [],
       settings: { debugOverlayEnabled: false, timeScale: 1.0, isPaused: false },
       map: { width: 10, height: 10, cells: [] },
@@ -235,34 +285,50 @@ describe("Screen Flow Integration", () => {
       loot: [],
     });
 
-    expect(document.getElementById("screen-debrief")?.style.display).toBe("flex");
+    expect(document.getElementById("screen-debrief")?.style.display).toBe(
+      "flex",
+    );
 
     // 6. Debrief -> Campaign
-    const continueBtn = Array.from(document.querySelectorAll("#screen-debrief button")).find(b => b.textContent?.includes("Return")) as HTMLElement;
+    const continueBtn = Array.from(
+      document.querySelectorAll("#screen-debrief button"),
+    ).find((b) => b.textContent?.includes("Return")) as HTMLElement;
     continueBtn?.click();
 
-    expect(document.getElementById("screen-campaign")?.style.display).toBe("flex");
+    expect(document.getElementById("screen-campaign")?.style.display).toBe(
+      "flex",
+    );
   });
 
   it("should follow Flow 2: MainMenu -> Mission Setup -> Mission -> Lose -> Debrief -> Main Menu", async () => {
     // 1. Main Menu -> Mission Setup
     const btnCustom = document.getElementById("btn-menu-custom");
     btnCustom?.click();
-    expect(document.getElementById("screen-mission-setup")?.style.display).toBe("flex");
+    expect(document.getElementById("screen-mission-setup")?.style.display).toBe(
+      "flex",
+    );
 
     // 2. Mission Setup -> Mission
     // Select a soldier (scout)
-    const scoutCard = Array.from(document.querySelectorAll(".soldier-card")).find(c => c.textContent?.includes("Scout")) as HTMLElement;
+    const scoutCard = Array.from(
+      document.querySelectorAll(".soldier-card"),
+    ).find((c) => c.textContent?.includes("Scout")) as HTMLElement;
     scoutCard?.dispatchEvent(new Event("dblclick"));
 
-    const btnGotoEquipment = document.getElementById("btn-goto-equipment") as HTMLButtonElement;
+    const btnGotoEquipment = document.getElementById(
+      "btn-goto-equipment",
+    ) as HTMLButtonElement;
     btnGotoEquipment.click();
-    
+
     const allButtons = document.querySelectorAll("#screen-equipment button");
-    const equipmentLaunchBtn = Array.from(allButtons).find(b => b.textContent?.includes("Confirm")) as HTMLElement;
+    const equipmentLaunchBtn = Array.from(allButtons).find((b) =>
+      b.textContent?.includes("Confirm"),
+    ) as HTMLElement;
     equipmentLaunchBtn?.click();
 
-    expect(document.getElementById("screen-mission")?.style.display).toBe("flex");
+    expect(document.getElementById("screen-mission")?.style.display).toBe(
+      "flex",
+    );
 
     // 3. Mission -> Lose
     expect(stateUpdateCallback).not.toBeNull();
@@ -270,7 +336,17 @@ describe("Screen Flow Integration", () => {
       status: "Lost",
       t: 20,
       stats: { aliensKilled: 1, scrapGained: 10, threatLevel: 50 },
-      units: [{ id: "s1", hp: 0, maxHp: 100, kills: 0, state: 2, pos: { x: 0, y: 0 }, stats: { speed: 20 } }], // Dead
+      units: [
+        {
+          id: "s1",
+          hp: 0,
+          maxHp: 100,
+          kills: 0,
+          state: 2,
+          pos: { x: 0, y: 0 },
+          stats: { speed: 20 },
+        },
+      ], // Dead
       objectives: [],
       settings: { debugOverlayEnabled: false, timeScale: 1.0, isPaused: false },
       map: { width: 10, height: 10, cells: [] },
@@ -280,12 +356,18 @@ describe("Screen Flow Integration", () => {
       loot: [],
     });
 
-    expect(document.getElementById("screen-debrief")?.style.display).toBe("flex");
+    expect(document.getElementById("screen-debrief")?.style.display).toBe(
+      "flex",
+    );
 
     // 4. Debrief -> Main Menu
-    const continueBtn = Array.from(document.querySelectorAll("#screen-debrief button")).find(b => b.textContent?.includes("Return")) as HTMLElement;
+    const continueBtn = Array.from(
+      document.querySelectorAll("#screen-debrief button"),
+    ).find((b) => b.textContent?.includes("Return")) as HTMLElement;
     continueBtn?.click();
 
-    expect(document.getElementById("screen-main-menu")?.style.display).toBe("flex");
+    expect(document.getElementById("screen-main-menu")?.style.display).toBe(
+      "flex",
+    );
   });
 });

@@ -1,6 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { SectorMapGenerator } from "@src/engine/generators/SectorMapGenerator";
-import { GameRules, calculateMapSize, calculateSpawnPoints } from "@src/shared/campaign_types";
+import {
+  GameRules,
+  calculateMapSize,
+  calculateSpawnPoints,
+} from "@src/shared/campaign_types";
 import { MapGeneratorType } from "@src/shared/types";
 
 describe("Regression: g77z Map Scaling", () => {
@@ -22,13 +26,13 @@ describe("Regression: g77z Map Scaling", () => {
   it("should generate 7 layers for standard growth rate (1.0)", () => {
     const generator = new SectorMapGenerator();
     const nodes = generator.generate(123, baseRules);
-    
-    const maxRank = Math.max(...nodes.map(n => n.rank));
+
+    const maxRank = Math.max(...nodes.map((n) => n.rank));
     expect(maxRank).toBe(6);
-    
+
     // Check rank assignment
-    nodes.forEach(node => {
-        expect(node.id).toContain(`node_${node.rank}_`);
+    nodes.forEach((node) => {
+      expect(node.id).toContain(`node_${node.rank}_`);
     });
   });
 
@@ -36,8 +40,8 @@ describe("Regression: g77z Map Scaling", () => {
     const generator = new SectorMapGenerator();
     const rules = { ...baseRules, mapGrowthRate: 0.5 };
     const nodes = generator.generate(123, rules);
-    
-    const maxRank = Math.max(...nodes.map(n => n.rank));
+
+    const maxRank = Math.max(...nodes.map((n) => n.rank));
     expect(maxRank).toBe(12);
   });
 

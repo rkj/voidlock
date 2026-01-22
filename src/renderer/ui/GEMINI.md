@@ -38,7 +38,7 @@ This directory contains UI components and managers for the Voidlock renderer.
   - Promise-based asynchronous API.
   - Fully navigable via keyboard (Enter/ESC).
   - Handles custom content and button layouts.
-- Event Handling**: Manages clicks on soldier items and menu options.
+- Event Handling\*\*: Manages clicks on soldier items and menu options.
 
 ## Related ADRs
 

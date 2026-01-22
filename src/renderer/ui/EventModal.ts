@@ -1,10 +1,13 @@
-import { CampaignEventDefinition, EventChoice } from "../../shared/campaign_types";
+import {
+  CampaignEventDefinition,
+  EventChoice,
+} from "../../shared/campaign_types";
 import { ModalService, ModalInstance } from "./ModalService";
 
 export class EventModal {
   constructor(
     private modalService: ModalService,
-    private onChoice: (choice: EventChoice) => void
+    private onChoice: (choice: EventChoice) => void,
   ) {}
 
   public async show(event: CampaignEventDefinition) {
@@ -15,8 +18,8 @@ export class EventModal {
       content: (instance: ModalInstance) => {
         const choicesContainer = document.createElement("div");
         choicesContainer.className = "flex-col gap-10";
-        
-        event.choices.forEach(choice => {
+
+        event.choices.forEach((choice) => {
           const btn = document.createElement("button");
           btn.className = "event-choice-button flex-col align-start p-15";
           btn.style.width = "100%";
@@ -56,10 +59,12 @@ export class EventModal {
 
           if (choice.reward) {
             const rewards: string[] = [];
-            if (choice.reward.scrap) rewards.push(`${choice.reward.scrap} SCRAP`);
-            if (choice.reward.intel) rewards.push(`${choice.reward.intel} INTEL`);
+            if (choice.reward.scrap)
+              rewards.push(`${choice.reward.scrap} SCRAP`);
+            if (choice.reward.intel)
+              rewards.push(`${choice.reward.intel} INTEL`);
             if (choice.reward.recruit) rewards.push(`NEW RECRUIT`);
-            
+
             if (rewards.length > 0) {
               const span = document.createElement("span");
               span.textContent = `REWARD: ${rewards.join(", ")}`;
@@ -96,7 +101,7 @@ export class EventModal {
           choicesContainer.appendChild(btn);
         });
         return choicesContainer;
-      }
+      },
     });
   }
 }
@@ -104,7 +109,7 @@ export class EventModal {
 export class OutcomeModal {
   constructor(
     private modalService: ModalService,
-    private onConfirm: () => void
+    private onConfirm: () => void,
   ) {}
 
   public async show(title: string, text: string) {
@@ -119,9 +124,9 @@ export class OutcomeModal {
           onClick: (modal) => {
             modal.close();
             this.onConfirm();
-          }
-        }
-      ]
+          },
+        },
+      ],
     });
   }
 }

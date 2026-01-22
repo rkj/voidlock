@@ -1,4 +1,10 @@
-import { GameState, UnitStyle, OverlayOption, BoundaryType, Vector2 } from "@src/shared/types";
+import {
+  GameState,
+  UnitStyle,
+  OverlayOption,
+  BoundaryType,
+  Vector2,
+} from "@src/shared/types";
 import { RenderLayer } from "./RenderLayer";
 import { SharedRendererState } from "./SharedRendererState";
 import { MapLayer } from "./MapLayer";
@@ -102,8 +108,12 @@ export class GameRenderer {
     const scaleX = this.canvas.width / rect.width;
     const scaleY = this.canvas.height / rect.height;
 
-    const x = Math.floor(((pixelX - rect.left) * scaleX) / this.sharedState.cellSize);
-    const y = Math.floor(((pixelY - rect.top) * scaleY) / this.sharedState.cellSize);
+    const x = Math.floor(
+      ((pixelX - rect.left) * scaleX) / this.sharedState.cellSize,
+    );
+    const y = Math.floor(
+      ((pixelY - rect.top) * scaleY) / this.sharedState.cellSize,
+    );
     return { x, y };
   }
 }

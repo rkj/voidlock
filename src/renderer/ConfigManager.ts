@@ -55,7 +55,9 @@ export class ConfigManager {
     if (config) return config;
 
     // Migration from old keys
-    const oldConfig = this.load("voidlock_legacy_custom_config") || this.load("voidlock_legacy_config");
+    const oldConfig =
+      this.load("voidlock_legacy_custom_config") ||
+      this.load("voidlock_legacy_config");
     if (oldConfig) {
       this.saveCustom(oldConfig);
       // Optional: localStorage.removeItem("voidlock_legacy_custom_config");
@@ -85,7 +87,7 @@ export class ConfigManager {
       const json = localStorage.getItem(key);
       if (!json) return null;
       let config = JSON.parse(json);
-      
+
       const defaults = this.getDefault();
 
       // Ensure config is an object
@@ -106,7 +108,10 @@ export class ConfigManager {
     }
   }
 
-  private static validateAndMerge(loaded: any, defaults: GameConfig): GameConfig {
+  private static validateAndMerge(
+    loaded: any,
+    defaults: GameConfig,
+  ): GameConfig {
     const result = { ...defaults };
 
     // Numeric fields
@@ -152,17 +157,25 @@ export class ConfigManager {
     }
 
     // Complex fields: squadConfig
-    if (loaded.squadConfig && typeof loaded.squadConfig === "object" && !Array.isArray(loaded.squadConfig)) {
+    if (
+      loaded.squadConfig &&
+      typeof loaded.squadConfig === "object" &&
+      !Array.isArray(loaded.squadConfig)
+    ) {
       if (Array.isArray(loaded.squadConfig.soldiers)) {
-        result.squadConfig.soldiers = loaded.squadConfig.soldiers.filter((s: any) => 
-          s && typeof s === "object" && typeof s.archetypeId === "string"
+        result.squadConfig.soldiers = loaded.squadConfig.soldiers.filter(
+          (s: any) =>
+            s && typeof s === "object" && typeof s.archetypeId === "string",
         );
         if (result.squadConfig.soldiers.length === 0) {
           result.squadConfig.soldiers = [...defaults.squadConfig.soldiers];
         }
       }
 
-      if (loaded.squadConfig.inventory && typeof loaded.squadConfig.inventory === "object") {
+      if (
+        loaded.squadConfig.inventory &&
+        typeof loaded.squadConfig.inventory === "object"
+      ) {
         result.squadConfig.inventory = { ...loaded.squadConfig.inventory };
       }
     }

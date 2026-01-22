@@ -20,4 +20,3 @@ This directory contains a standalone web application dedicated to loading and di
 - Depends on `src/shared/types.ts` for map data structures.
 - Uses `src/renderer/ThemeManager.ts` for consistent styling and colors.
 - Shares some rendering concepts with `src/renderer/`, but is optimized for static map display.
-

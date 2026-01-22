@@ -1,4 +1,3 @@
-
 import { AppContext } from "./AppContext";
 import { InputBinder } from "./InputBinder";
 import { GameClient } from "@src/engine/GameClient";
@@ -18,23 +17,23 @@ import { DebriefScreen } from "@src/renderer/screens/DebriefScreen";
 import { CampaignSummaryScreen } from "@src/renderer/screens/CampaignSummaryScreen";
 import { StatisticsScreen } from "@src/renderer/screens/StatisticsScreen";
 import { MapFactory } from "@src/engine/map/MapFactory";
-import { 
-    GameState, 
-    MapGeneratorType, 
-    MissionType, 
-    SquadConfig, 
-    UnitStyle, 
-    EngineMode, 
-    Unit,
-    UnitState,
-    MapDefinition,
-    MapGenerationConfig,
+import {
+  GameState,
+  MapGeneratorType,
+  MissionType,
+  SquadConfig,
+  UnitStyle,
+  EngineMode,
+  Unit,
+  UnitState,
+  MapDefinition,
+  MapGenerationConfig,
 } from "@src/shared/types";
-import { 
-    CampaignNode, 
-    MissionReport, 
-    calculateMapSize, 
-    calculateSpawnPoints 
+import {
+  CampaignNode,
+  MissionReport,
+  calculateMapSize,
+  calculateSpawnPoints,
 } from "@src/shared/campaign_types";
 import { DebugUtility } from "@src/renderer/DebugUtility";
 import { MapUtility } from "@src/renderer/MapUtility";
@@ -56,7 +55,7 @@ export class GameApp {
   private context: AppContext;
   private inputBinder: InputBinder;
   private squadBuilder!: SquadBuilder;
-  
+
   // screens
   private campaignScreen!: CampaignScreen;
   private barracksScreen!: BarracksScreen;
@@ -70,19 +69,21 @@ export class GameApp {
   private selectedUnitId: string | null = null;
   private currentGameState: GameState | null = null;
   private debriefShown = false;
-  
+
   private fogOfWarEnabled = ConfigManager.getDefault().fogOfWarEnabled;
   private debugOverlayEnabled = ConfigManager.getDefault().debugOverlayEnabled;
   private losOverlayEnabled = false;
   private agentControlEnabled = ConfigManager.getDefault().agentControlEnabled;
   private allowTacticalPause = true;
   private unitStyle = ConfigManager.getDefault().unitStyle;
-  
+
   private currentMapWidth = ConfigManager.getDefault().mapWidth;
   private currentMapHeight = ConfigManager.getDefault().mapHeight;
   private currentSeed: number = ConfigManager.getDefault().lastSeed;
-  private currentMapGeneratorType: MapGeneratorType = ConfigManager.getDefault().mapGeneratorType;
-  private currentMissionType: MissionType = ConfigManager.getDefault().missionType;
+  private currentMapGeneratorType: MapGeneratorType =
+    ConfigManager.getDefault().mapGeneratorType;
+  private currentMissionType: MissionType =
+    ConfigManager.getDefault().missionType;
   private currentStaticMapData: MapDefinition | undefined = undefined;
   private currentSquad: SquadConfig = ConfigManager.getDefault().squadConfig;
   private currentSpawnPointCount = ConfigManager.getDefault().spawnPointCount;
@@ -106,11 +107,13 @@ export class GameApp {
       (tabId) => this.onShellTabChange(tabId),
       () => this.showMainMenu(),
     );
-    
+
     const mapGeneratorFactory = (config: MapGenerationConfig): MapFactory => {
       return new MapFactory(config);
     };
-    this.context.gameClient = new GameClient((config) => mapGeneratorFactory(config));
+    this.context.gameClient = new GameClient((config) =>
+      mapGeneratorFactory(config),
+    );
     this.context.menuController = new MenuController(this.context.gameClient);
 
     // 2. Initialize UI managers
@@ -146,11 +149,14 @@ export class GameApp {
     );
 
     // 3. Initialize screens
-    this.campaignSummaryScreen = new CampaignSummaryScreen("screen-campaign-summary", () => {
-      this.campaignSummaryScreen.hide();
-      this.context.campaignManager.deleteSave();
-      this.showMainMenu();
-    });
+    this.campaignSummaryScreen = new CampaignSummaryScreen(
+      "screen-campaign-summary",
+      () => {
+        this.campaignSummaryScreen.hide();
+        this.context.campaignManager.deleteSave();
+        this.showMainMenu();
+      },
+    );
 
     this.debriefScreen = new DebriefScreen("screen-debrief", () => {
       this.debriefScreen.hide();
@@ -206,23 +212,23 @@ export class GameApp {
     );
 
     this.equipmentScreen = new EquipmentScreen(
-        "screen-equipment",
-        this.context.campaignManager,
-        this.currentSquad,
-        (config) => this.onEquipmentConfirmed(config),
-        () => {
-          this.context.screenManager.goBack();
-          const screen = this.context.screenManager.getCurrentScreen();
-          if (screen === "campaign") this.context.campaignShell.show("campaign", "sector-map");
-          else if (screen === "barracks") this.context.campaignShell.show("campaign", "barracks");
-          else if (screen === "mission-setup") this.context.campaignShell.hide();
-        },
-        () => this.context.campaignShell.refresh(),
-      );
-
-    this.statisticsScreen = new StatisticsScreen(
-      "screen-statistics",
+      "screen-equipment",
+      this.context.campaignManager,
+      this.currentSquad,
+      (config) => this.onEquipmentConfirmed(config),
+      () => {
+        this.context.screenManager.goBack();
+        const screen = this.context.screenManager.getCurrentScreen();
+        if (screen === "campaign")
+          this.context.campaignShell.show("campaign", "sector-map");
+        else if (screen === "barracks")
+          this.context.campaignShell.show("campaign", "barracks");
+        else if (screen === "mission-setup") this.context.campaignShell.hide();
+      },
+      () => this.context.campaignShell.refresh(),
     );
+
+    this.statisticsScreen = new StatisticsScreen("screen-statistics");
 
     this.squadBuilder = new SquadBuilder(
       "squad-builder",
@@ -232,119 +238,135 @@ export class GameApp {
       false,
       (squad) => {
         this.currentSquad = squad;
-      }
+      },
     );
 
     // 4. Bind events
     this.inputBinder.bindAll({
-        onLaunchMission: () => this.launchMission(),
-        onTogglePause: () => this.togglePause(),
-        onAbortMission: () => this.abortMission(),
-        onCustomMission: () => {
-            this.currentCampaignNode = null;
-            this.context.themeManager.setTheme("default");
-            this.loadAndApplyConfig(false);
-            this.context.campaignShell.show("custom");
-            this.context.screenManager.show("mission-setup");
-        },
-        onCampaignMenu: () => {
-            this.applyCampaignTheme();
-            const state = this.context.campaignManager.getState();
-            if (state && (state.status === "Victory" || state.status === "Defeat")) {
-              this.campaignSummaryScreen.show(state);
-              this.context.screenManager.show("campaign-summary");
-              this.context.campaignShell.hide();
-            } else {
-              this.campaignScreen.show();
-              this.context.screenManager.show("campaign");
-              this.context.campaignShell.show("campaign", "sector-map");
-            }
-        },
-        onResetData: async () => {
-            if (await this.context.modalService.confirm("Are you sure? This will wipe all campaign progress and settings.")) {
-                localStorage.clear();
-                window.location.reload();
-            }
-        },
-        onShowEquipment: () => {
-            this.equipmentScreen.updateConfig(this.currentSquad);
-            this.context.screenManager.show("equipment");
-            if (this.currentCampaignNode) {
-              this.context.campaignShell.show("campaign", "sector-map");
-            } else {
-              this.context.campaignShell.show("custom");
-            }
-        },
-        onShowBarracks: () => {
-            this.barracksScreen.show();
-            this.context.screenManager.show("barracks");
-            this.context.campaignShell.show("campaign", "barracks");
-        },
-        onLoadStaticMap: async (json) => {
-            try {
-                this.currentStaticMapData = MapUtility.transformMapData(JSON.parse(json));
-                await this.context.modalService.alert("Static Map Loaded.");
-            } catch (e) {
-                await this.context.modalService.alert("Invalid JSON.");
-            }
-        },
-        onUploadStaticMap: (file) => {
-            const reader = new FileReader();
-            reader.onload = async (ev) => {
-                try {
-                    this.currentStaticMapData = MapUtility.transformMapData(JSON.parse(ev.target?.result as string));
-                    await this.context.modalService.alert("Static Map Loaded from File.");
-                } catch (err) {
-                    await this.context.modalService.alert("Invalid file.");
-                }
-            };
-            reader.readAsText(file);
-        },
-        onConvertAscii: async (ascii) => {
-            try {
-                if (ascii) {
-                    this.currentStaticMapData = MapFactory.fromAscii(ascii);
-                }
-                await this.context.modalService.alert("ASCII Map Converted.");
-            } catch (e) {
-                await this.context.modalService.alert("Invalid ASCII.");
-            }
-        },
-        onExportReplay: () => {
-            const replay = this.context.gameClient.getReplayData();
-            if (replay) {
-                const blob = new Blob([JSON.stringify(replay, null, 2)], { type: "application/json" });
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = `voidlock-replay-${replay.seed}.json`;
-                a.click();
-                URL.revokeObjectURL(a.href);
-            }
-        },
-        onUpdateSquadBuilder: () => this.renderSquadBuilder(this.currentCampaignNode !== null),
-        onApplyCampaignTheme: () => this.applyCampaignTheme(),
-        onShowStatistics: () => {
-          this.statisticsScreen.show();
-          this.context.screenManager.show("statistics");
-          this.context.campaignShell.show("statistics", "stats");
-        },
-        onSetupBack: () => {
-          this.context.screenManager.goBack();
-          const screen = this.context.screenManager.getCurrentScreen();
-          if (screen === "campaign") {
-            this.context.campaignShell.show("campaign", "sector-map");
-          } else {
-            this.context.campaignShell.hide();
-          }
+      onLaunchMission: () => this.launchMission(),
+      onTogglePause: () => this.togglePause(),
+      onAbortMission: () => this.abortMission(),
+      onCustomMission: () => {
+        this.currentCampaignNode = null;
+        this.context.themeManager.setTheme("default");
+        this.loadAndApplyConfig(false);
+        this.context.campaignShell.show("custom");
+        this.context.screenManager.show("mission-setup");
+      },
+      onCampaignMenu: () => {
+        this.applyCampaignTheme();
+        const state = this.context.campaignManager.getState();
+        if (
+          state &&
+          (state.status === "Victory" || state.status === "Defeat")
+        ) {
+          this.campaignSummaryScreen.show(state);
+          this.context.screenManager.show("campaign-summary");
+          this.context.campaignShell.hide();
+        } else {
+          this.campaignScreen.show();
+          this.context.screenManager.show("campaign");
+          this.context.campaignShell.show("campaign", "sector-map");
         }
+      },
+      onResetData: async () => {
+        if (
+          await this.context.modalService.confirm(
+            "Are you sure? This will wipe all campaign progress and settings.",
+          )
+        ) {
+          localStorage.clear();
+          window.location.reload();
+        }
+      },
+      onShowEquipment: () => {
+        this.equipmentScreen.updateConfig(this.currentSquad);
+        this.context.screenManager.show("equipment");
+        if (this.currentCampaignNode) {
+          this.context.campaignShell.show("campaign", "sector-map");
+        } else {
+          this.context.campaignShell.show("custom");
+        }
+      },
+      onShowBarracks: () => {
+        this.barracksScreen.show();
+        this.context.screenManager.show("barracks");
+        this.context.campaignShell.show("campaign", "barracks");
+      },
+      onLoadStaticMap: async (json) => {
+        try {
+          this.currentStaticMapData = MapUtility.transformMapData(
+            JSON.parse(json),
+          );
+          await this.context.modalService.alert("Static Map Loaded.");
+        } catch (e) {
+          await this.context.modalService.alert("Invalid JSON.");
+        }
+      },
+      onUploadStaticMap: (file) => {
+        const reader = new FileReader();
+        reader.onload = async (ev) => {
+          try {
+            this.currentStaticMapData = MapUtility.transformMapData(
+              JSON.parse(ev.target?.result as string),
+            );
+            await this.context.modalService.alert(
+              "Static Map Loaded from File.",
+            );
+          } catch (err) {
+            await this.context.modalService.alert("Invalid file.");
+          }
+        };
+        reader.readAsText(file);
+      },
+      onConvertAscii: async (ascii) => {
+        try {
+          if (ascii) {
+            this.currentStaticMapData = MapFactory.fromAscii(ascii);
+          }
+          await this.context.modalService.alert("ASCII Map Converted.");
+        } catch (e) {
+          await this.context.modalService.alert("Invalid ASCII.");
+        }
+      },
+      onExportReplay: () => {
+        const replay = this.context.gameClient.getReplayData();
+        if (replay) {
+          const blob = new Blob([JSON.stringify(replay, null, 2)], {
+            type: "application/json",
+          });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `voidlock-replay-${replay.seed}.json`;
+          a.click();
+          URL.revokeObjectURL(a.href);
+        }
+      },
+      onUpdateSquadBuilder: () =>
+        this.renderSquadBuilder(this.currentCampaignNode !== null),
+      onApplyCampaignTheme: () => this.applyCampaignTheme(),
+      onShowStatistics: () => {
+        this.statisticsScreen.show();
+        this.context.screenManager.show("statistics");
+        this.context.campaignShell.show("statistics", "stats");
+      },
+      onSetupBack: () => {
+        this.context.screenManager.goBack();
+        const screen = this.context.screenManager.getCurrentScreen();
+        if (screen === "campaign") {
+          this.context.campaignShell.show("campaign", "sector-map");
+        } else {
+          this.context.campaignShell.hide();
+        }
+      },
     });
 
     // Special bindings that were in main.ts
     this.setupAdditionalUIBindings();
 
     this.context.inputManager.init();
-    
+
     // Initial UI state
     this.loadAndApplyConfig(false);
     const mvEl = document.getElementById("menu-version");
@@ -374,7 +396,7 @@ export class GameApp {
         this.context.screenManager.show("statistics");
         break;
     }
-    
+
     const state = this.context.campaignManager.getState();
     const mode = state ? "campaign" : "statistics";
     this.context.campaignShell.show(mode as any, tabId);
@@ -386,10 +408,16 @@ export class GameApp {
       this.context.campaignShell.hide();
       this.resumeMission();
     } else if (persistedScreen) {
-      if (persistedScreen === "campaign" || persistedScreen === "campaign-summary") {
+      if (
+        persistedScreen === "campaign" ||
+        persistedScreen === "campaign-summary"
+      ) {
         this.applyCampaignTheme();
         const state = this.context.campaignManager.getState();
-        if (state && (state.status === "Victory" || state.status === "Defeat")) {
+        if (
+          state &&
+          (state.status === "Victory" || state.status === "Defeat")
+        ) {
           this.campaignSummaryScreen.show(state);
           this.context.screenManager.show("campaign-summary");
           this.context.campaignShell.hide();
@@ -433,40 +461,44 @@ export class GameApp {
   // --- Logic copied from main.ts ---
 
   private setupAdditionalUIBindings() {
-      const missionSelect = document.getElementById("mission-type") as HTMLSelectElement;
-      if (missionSelect) {
-          missionSelect.addEventListener("change", () => {
-              this.currentMissionType = missionSelect.value as MissionType;
-              if (this.currentMissionType === MissionType.EscortVIP) {
-                  this.currentSquad.soldiers = this.currentSquad.soldiers.filter(
-                      (s) => s.archetypeId !== "vip",
-                  );
-              }
-              this.renderSquadBuilder(this.currentCampaignNode !== null);
-          });
-      }
+    const missionSelect = document.getElementById(
+      "mission-type",
+    ) as HTMLSelectElement;
+    if (missionSelect) {
+      missionSelect.addEventListener("change", () => {
+        this.currentMissionType = missionSelect.value as MissionType;
+        if (this.currentMissionType === MissionType.EscortVIP) {
+          this.currentSquad.soldiers = this.currentSquad.soldiers.filter(
+            (s) => s.archetypeId !== "vip",
+          );
+        }
+        this.renderSquadBuilder(this.currentCampaignNode !== null);
+      });
+    }
 
-      // Add options to map generator select if they don't exist
-      const mapGenSelect = document.getElementById("map-generator-type") as HTMLSelectElement;
-      if (mapGenSelect && mapGenSelect.options.length < 3) {
-          const treeOpt = document.createElement("option");
-          treeOpt.value = "TreeShip";
-          treeOpt.textContent = "Tree Ship (No Loops)";
-          mapGenSelect.appendChild(treeOpt);
-          const denseOpt = document.createElement("option");
-          denseOpt.value = "DenseShip";
-          denseOpt.textContent = "Dense Ship (>90% fill)";
-          mapGenSelect.appendChild(denseOpt);
-      }
+    // Add options to map generator select if they don't exist
+    const mapGenSelect = document.getElementById(
+      "map-generator-type",
+    ) as HTMLSelectElement;
+    if (mapGenSelect && mapGenSelect.options.length < 3) {
+      const treeOpt = document.createElement("option");
+      treeOpt.value = "TreeShip";
+      treeOpt.textContent = "Tree Ship (No Loops)";
+      mapGenSelect.appendChild(treeOpt);
+      const denseOpt = document.createElement("option");
+      denseOpt.value = "DenseShip";
+      denseOpt.textContent = "Dense Ship (>90% fill)";
+      mapGenSelect.appendChild(denseOpt);
+    }
 
-      // Injection of mission type select if not present
-      if (mapGenSelect && !document.getElementById("mission-type")) {
-          const mapGenGroup = mapGenSelect.closest(".control-group");
-          if (mapGenGroup) {
-              const missionDiv = document.createElement("div");
-              missionDiv.style.marginBottom = "10px";
-              missionDiv.id = "mission-type-container";
-              missionDiv.innerHTML = `
+    // Injection of mission type select if not present
+    if (mapGenSelect && !document.getElementById("mission-type")) {
+      const mapGenGroup = mapGenSelect.closest(".control-group");
+      if (mapGenGroup) {
+        const missionDiv = document.createElement("div");
+        missionDiv.style.marginBottom = "10px";
+        missionDiv.id = "mission-type-container";
+        missionDiv.innerHTML = `
                 <label for="mission-type">Mission Type:</label>
                 <select id="mission-type">
                             <option value="${MissionType.Default}">Default (Single Objective)</option>
@@ -475,53 +507,94 @@ export class GameApp {
                             <option value="${MissionType.EscortVIP}">Escort VIP</option>
                             <option value="${MissionType.RecoverIntel}">Recover Intel</option>        </select>
               `;
-              mapGenGroup.insertBefore(missionDiv, mapGenGroup.firstChild);
-              const newMissionSelect = document.getElementById("mission-type") as HTMLSelectElement;
-              newMissionSelect.addEventListener("change", () => {
-                  this.currentMissionType = newMissionSelect.value as MissionType;
-                  if (this.currentMissionType === MissionType.EscortVIP) {
-                      this.currentSquad.soldiers = this.currentSquad.soldiers.filter(
-                          (s) => s.archetypeId !== "vip",
-                      );
-                  }
-                  this.renderSquadBuilder(this.currentCampaignNode !== null);
-              });
+        mapGenGroup.insertBefore(missionDiv, mapGenGroup.firstChild);
+        const newMissionSelect = document.getElementById(
+          "mission-type",
+        ) as HTMLSelectElement;
+        newMissionSelect.addEventListener("change", () => {
+          this.currentMissionType = newMissionSelect.value as MissionType;
+          if (this.currentMissionType === MissionType.EscortVIP) {
+            this.currentSquad.soldiers = this.currentSquad.soldiers.filter(
+              (s) => s.archetypeId !== "vip",
+            );
           }
+          this.renderSquadBuilder(this.currentCampaignNode !== null);
+        });
       }
+    }
 
-      // Toggles and Unit Style
-      document.getElementById("toggle-fog-of-war")?.addEventListener("change", (e) => this.fogOfWarEnabled = (e.target as HTMLInputElement).checked);
-      document.getElementById("toggle-debug-overlay")?.addEventListener("change", (e) => this.debugOverlayEnabled = (e.target as HTMLInputElement).checked);
-      document.getElementById("toggle-los-overlay")?.addEventListener("change", (e) => this.losOverlayEnabled = (e.target as HTMLInputElement).checked);
-      document.getElementById("toggle-agent-control")?.addEventListener("change", (e) => this.agentControlEnabled = (e.target as HTMLInputElement).checked);
-      document.getElementById("toggle-allow-tactical-pause")?.addEventListener("change", (e) => this.allowTacticalPause = (e.target as HTMLInputElement).checked);
-      document.getElementById("select-unit-style")?.addEventListener("change", (e) => {
-          this.unitStyle = (e.target as HTMLSelectElement).value as UnitStyle;
+    // Toggles and Unit Style
+    document
+      .getElementById("toggle-fog-of-war")
+      ?.addEventListener(
+        "change",
+        (e) => (this.fogOfWarEnabled = (e.target as HTMLInputElement).checked),
+      );
+    document
+      .getElementById("toggle-debug-overlay")
+      ?.addEventListener(
+        "change",
+        (e) =>
+          (this.debugOverlayEnabled = (e.target as HTMLInputElement).checked),
+      );
+    document
+      .getElementById("toggle-los-overlay")
+      ?.addEventListener(
+        "change",
+        (e) =>
+          (this.losOverlayEnabled = (e.target as HTMLInputElement).checked),
+      );
+    document
+      .getElementById("toggle-agent-control")
+      ?.addEventListener(
+        "change",
+        (e) =>
+          (this.agentControlEnabled = (e.target as HTMLInputElement).checked),
+      );
+    document
+      .getElementById("toggle-allow-tactical-pause")
+      ?.addEventListener(
+        "change",
+        (e) =>
+          (this.allowTacticalPause = (e.target as HTMLInputElement).checked),
+      );
+    document
+      .getElementById("select-unit-style")
+      ?.addEventListener("change", (e) => {
+        this.unitStyle = (e.target as HTMLSelectElement).value as UnitStyle;
       });
 
-      const wInput = document.getElementById("map-width") as HTMLInputElement;
-      const hInput = document.getElementById("map-height") as HTMLInputElement;
-      const spInput = document.getElementById("map-spawn-points") as HTMLInputElement;
-      const spValue = document.getElementById("map-spawn-points-value");
+    const wInput = document.getElementById("map-width") as HTMLInputElement;
+    const hInput = document.getElementById("map-height") as HTMLInputElement;
+    const spInput = document.getElementById(
+      "map-spawn-points",
+    ) as HTMLInputElement;
+    const spValue = document.getElementById("map-spawn-points-value");
 
-      const updateSpawnPointsFromSize = () => {
-          if (this.currentCampaignNode) return;
-          const width = parseInt(wInput.value) || 14;
-          this.currentSpawnPointCount = calculateSpawnPoints(width);
-          if (spInput) {
-              spInput.value = this.currentSpawnPointCount.toString();
-              if (spValue) spValue.textContent = spInput.value;
-          }
-      };
+    const updateSpawnPointsFromSize = () => {
+      if (this.currentCampaignNode) return;
+      const width = parseInt(wInput.value) || 14;
+      this.currentSpawnPointCount = calculateSpawnPoints(width);
+      if (spInput) {
+        spInput.value = this.currentSpawnPointCount.toString();
+        if (spValue) spValue.textContent = spInput.value;
+      }
+    };
 
-      wInput?.addEventListener("input", updateSpawnPointsFromSize);
-      hInput?.addEventListener("input", updateSpawnPointsFromSize);
+    wInput?.addEventListener("input", updateSpawnPointsFromSize);
+    hInput?.addEventListener("input", updateSpawnPointsFromSize);
   }
 
   private async onCampaignNodeSelected(node: CampaignNode) {
     if (node.type === "Shop") {
-      await this.context.modalService.alert("Supply Depot reached. +100 Scrap granted for resupply.");
-      this.context.campaignManager.advanceCampaignWithoutMission(node.id, 100, 0);
+      await this.context.modalService.alert(
+        "Supply Depot reached. +100 Scrap granted for resupply.",
+      );
+      this.context.campaignManager.advanceCampaignWithoutMission(
+        node.id,
+        100,
+        0,
+      );
       this.campaignScreen.show();
       return;
     }
@@ -571,7 +644,9 @@ export class GameApp {
     this.currentMapHeight = size;
     this.currentSpawnPointCount = calculateSpawnPoints(size);
 
-    const mapSeedInput = document.getElementById("map-seed") as HTMLInputElement;
+    const mapSeedInput = document.getElementById(
+      "map-seed",
+    ) as HTMLInputElement;
     if (mapSeedInput) mapSeedInput.value = this.currentSeed.toString();
 
     const wInput = document.getElementById("map-width") as HTMLInputElement;
@@ -579,7 +654,9 @@ export class GameApp {
     if (wInput) wInput.value = this.currentMapWidth.toString();
     if (hInput) hInput.value = this.currentMapHeight.toString();
 
-    const spInput = document.getElementById("map-spawn-points") as HTMLInputElement;
+    const spInput = document.getElementById(
+      "map-spawn-points",
+    ) as HTMLInputElement;
     if (spInput) {
       spInput.value = this.currentSpawnPointCount.toString();
       const spVal = document.getElementById("map-spawn-points-value");
@@ -591,19 +668,19 @@ export class GameApp {
   }
 
   private onEquipmentConfirmed(config: SquadConfig) {
-      config.soldiers.forEach((soldier) => {
-          if (soldier.id) {
-              this.context.campaignManager.assignEquipment(soldier.id, {
-                  rightHand: soldier.rightHand,
-                  leftHand: soldier.leftHand,
-                  body: soldier.body,
-                  feet: soldier.feet,
-              });
-          }
-      });
+    config.soldiers.forEach((soldier) => {
+      if (soldier.id) {
+        this.context.campaignManager.assignEquipment(soldier.id, {
+          rightHand: soldier.rightHand,
+          leftHand: soldier.leftHand,
+          body: soldier.body,
+          feet: soldier.feet,
+        });
+      }
+    });
 
-      this.currentSquad = config;
-      this.launchMission();
+    this.currentSquad = config;
+    this.launchMission();
   }
 
   private updateUI(state: GameState) {
@@ -612,12 +689,12 @@ export class GameApp {
 
   private async copyWorldState() {
     if (this.currentGameState) {
-        await DebugUtility.copyWorldState(
-            this.currentGameState,
-            this.context.gameClient.getReplayData(),
-            VERSION,
-            this.context.modalService,
-        );
+      await DebugUtility.copyWorldState(
+        this.currentGameState,
+        this.context.gameClient.getReplayData(),
+        VERSION,
+        this.context.modalService,
+      );
     }
   }
 
@@ -646,13 +723,19 @@ export class GameApp {
     const isPaused = this.context.gameClient.getIsPaused();
     const lastSpeed = this.context.gameClient.getTargetScale();
 
-    const btn = document.getElementById("btn-pause-toggle") as HTMLButtonElement;
-    const gameSpeedSlider = document.getElementById("game-speed") as HTMLInputElement;
+    const btn = document.getElementById(
+      "btn-pause-toggle",
+    ) as HTMLButtonElement;
+    const gameSpeedSlider = document.getElementById(
+      "game-speed",
+    ) as HTMLInputElement;
     const gameSpeedValue = document.getElementById("speed-value");
 
     if (btn) btn.textContent = isPaused ? "▶ PLAY" : "|| PAUSE";
-    if (gameSpeedValue) gameSpeedValue.textContent = TimeUtility.formatSpeed(lastSpeed, isPaused);
-    if (gameSpeedSlider) gameSpeedSlider.value = TimeUtility.scaleToSlider(lastSpeed).toString();
+    if (gameSpeedValue)
+      gameSpeedValue.textContent = TimeUtility.formatSpeed(lastSpeed, isPaused);
+    if (gameSpeedSlider)
+      gameSpeedSlider.value = TimeUtility.scaleToSlider(lastSpeed).toString();
   }
 
   private onUnitClick(unit: Unit, shiftHeld: boolean = false) {
@@ -668,9 +751,15 @@ export class GameApp {
 
   private handleCanvasClick(event: MouseEvent) {
     if (!this.context.renderer || !this.currentGameState) return;
-    const clickedCell = this.context.renderer.getCellCoordinates(event.clientX, event.clientY);
+    const clickedCell = this.context.renderer.getCellCoordinates(
+      event.clientX,
+      event.clientY,
+    );
     const prevState = this.context.menuController.menuState;
-    this.context.menuController.handleCanvasClick(clickedCell, this.currentGameState);
+    this.context.menuController.handleCanvasClick(
+      clickedCell,
+      this.currentGameState,
+    );
 
     if (this.context.menuController.menuState !== prevState) {
       this.updateUI(this.currentGameState);
@@ -699,7 +788,9 @@ export class GameApp {
       }
     }
 
-    const mapSeedInput = document.getElementById("map-seed") as HTMLInputElement;
+    const mapSeedInput = document.getElementById(
+      "map-seed",
+    ) as HTMLInputElement;
     if (mapSeedInput && !mapSeedInput.disabled) {
       const val = parseInt(mapSeedInput.value);
       this.currentSeed = !isNaN(val) ? val : Date.now();
@@ -707,10 +798,18 @@ export class GameApp {
 
     const wInput = document.getElementById("map-width") as HTMLInputElement;
     const hInput = document.getElementById("map-height") as HTMLInputElement;
-    const spInput = document.getElementById("map-spawn-points") as HTMLInputElement;
-    const baseEnemiesInput = document.getElementById("map-base-enemies") as HTMLInputElement;
-    const growthInput = document.getElementById("map-enemy-growth") as HTMLInputElement;
-    const threatInput = document.getElementById("map-starting-threat") as HTMLInputElement;
+    const spInput = document.getElementById(
+      "map-spawn-points",
+    ) as HTMLInputElement;
+    const baseEnemiesInput = document.getElementById(
+      "map-base-enemies",
+    ) as HTMLInputElement;
+    const growthInput = document.getElementById(
+      "map-enemy-growth",
+    ) as HTMLInputElement;
+    const threatInput = document.getElementById(
+      "map-starting-threat",
+    ) as HTMLInputElement;
 
     if (wInput && hInput) {
       this.currentMapWidth = parseInt(wInput.value) || 14;
@@ -719,7 +818,8 @@ export class GameApp {
     if (spInput) this.currentSpawnPointCount = parseInt(spInput.value) || 1;
 
     let baseEnemyCount = 3;
-    if (baseEnemiesInput) baseEnemyCount = parseInt(baseEnemiesInput.value) || 3;
+    if (baseEnemiesInput)
+      baseEnemyCount = parseInt(baseEnemiesInput.value) || 3;
     let enemyGrowthPerMission = 1;
     if (growthInput) enemyGrowthPerMission = parseFloat(growthInput.value) || 1;
     let missionDepth = 0;
@@ -740,8 +840,12 @@ export class GameApp {
       }
     }
 
-    const tsSlider = document.getElementById("time-scale-slider") as HTMLInputElement;
-    const initialTimeScale = tsSlider ? TimeUtility.sliderToScale(parseFloat(tsSlider.value)) : 1.0;
+    const tsSlider = document.getElementById(
+      "time-scale-slider",
+    ) as HTMLInputElement;
+    const initialTimeScale = tsSlider
+      ? TimeUtility.sliderToScale(parseFloat(tsSlider.value))
+      : 1.0;
 
     const config = {
       mapWidth: this.currentMapWidth,
@@ -816,7 +920,9 @@ export class GameApp {
     this.context.gameClient.onStateUpdate((state) => {
       this.currentGameState = state;
       if (!this.context.renderer) {
-        const canvas = document.getElementById("game-canvas") as HTMLCanvasElement;
+        const canvas = document.getElementById(
+          "game-canvas",
+        ) as HTMLCanvasElement;
         if (canvas) {
           this.context.renderer = new Renderer(canvas);
           this.context.renderer.setCellSize(128);
@@ -824,13 +930,21 @@ export class GameApp {
       }
       if (this.context.renderer) {
         this.context.renderer.setUnitStyle(this.unitStyle);
-        this.context.renderer.setOverlay(this.context.menuController.overlayOptions);
+        this.context.renderer.setOverlay(
+          this.context.menuController.overlayOptions,
+        );
         this.context.renderer.render(state);
       }
 
-      if ((state.status === "Won" || state.status === "Lost") && !this.debriefShown) {
+      if (
+        (state.status === "Won" || state.status === "Lost") &&
+        !this.debriefShown
+      ) {
         this.debriefShown = true;
-        const report = this.generateMissionReport(state, this.currentCampaignNode);
+        const report = this.generateMissionReport(
+          state,
+          this.currentCampaignNode,
+        );
         this.context.campaignManager.processMissionResult(report);
 
         const replayData = this.context.gameClient.getReplayData();
@@ -844,7 +958,10 @@ export class GameApp {
     });
   }
 
-  private generateMissionReport(state: GameState, node: CampaignNode | null): MissionReport {
+  private generateMissionReport(
+    state: GameState,
+    node: CampaignNode | null,
+  ): MissionReport {
     return {
       nodeId: node ? node.id : "custom",
       seed: this.currentSeed,
@@ -859,7 +976,12 @@ export class GameApp {
         xpGained: 0,
         kills: u.kills,
         promoted: false,
-        status: u.state === UnitState.Dead ? "Dead" : u.hp < u.maxHp ? "Wounded" : "Healthy",
+        status:
+          u.state === UnitState.Dead
+            ? "Dead"
+            : u.hp < u.maxHp
+              ? "Wounded"
+              : "Healthy",
         recoveryTime: 0,
       })),
     };
@@ -881,7 +1003,9 @@ export class GameApp {
         this.context.campaignManager.load();
         const campaignState = this.context.campaignManager.getState();
         if (campaignState) {
-          this.currentCampaignNode = campaignState.nodes.find((n) => n.id === config.campaignNodeId) || null;
+          this.currentCampaignNode =
+            campaignState.nodes.find((n) => n.id === config.campaignNodeId) ||
+            null;
           this.applyCampaignTheme();
         }
       }
@@ -961,7 +1085,9 @@ export class GameApp {
     this.context.gameClient.stop();
     this.context.gameClient.onStateUpdate(null);
 
-    const tsSlider = document.getElementById("time-scale-slider") as HTMLInputElement;
+    const tsSlider = document.getElementById(
+      "time-scale-slider",
+    ) as HTMLInputElement;
     const tsValue = document.getElementById("time-scale-value");
     if (tsSlider) {
       tsSlider.value = "50";
@@ -1032,9 +1158,12 @@ export class GameApp {
       }
     }
 
-    const config = isCampaign ? ConfigManager.loadCampaign() : ConfigManager.loadCustom();
+    const config = isCampaign
+      ? ConfigManager.loadCampaign()
+      : ConfigManager.loadCustom();
     const mapConfigSection = document.getElementById("map-config-section");
-    if (mapConfigSection) mapConfigSection.style.display = isCampaign ? "none" : "block";
+    if (mapConfigSection)
+      mapConfigSection.style.display = isCampaign ? "none" : "block";
 
     if (config) {
       this.currentMapWidth = config.mapWidth;
@@ -1044,31 +1173,34 @@ export class GameApp {
       this.debugOverlayEnabled = config.debugOverlayEnabled;
       this.losOverlayEnabled = config.losOverlayEnabled || false;
       this.agentControlEnabled = config.agentControlEnabled;
-      this.allowTacticalPause = config.allowTacticalPause !== undefined ? config.allowTacticalPause : true;
+      this.allowTacticalPause =
+        config.allowTacticalPause !== undefined
+          ? config.allowTacticalPause
+          : true;
       this.unitStyle = config.unitStyle || UnitStyle.TacticalIcons;
       this.currentMapGeneratorType = config.mapGeneratorType;
       this.currentMissionType = config.missionType || MissionType.Default;
       this.currentSeed = config.lastSeed;
       this.currentSquad = config.squadConfig;
-      
+
       this.updateSetupUIFromConfig(config);
     } else {
-        const defaults = ConfigManager.getDefault();
-        this.currentMapWidth = defaults.mapWidth;
-        this.currentMapHeight = defaults.mapHeight;
-        this.currentSpawnPointCount = defaults.spawnPointCount;
-        this.fogOfWarEnabled = defaults.fogOfWarEnabled;
-        this.debugOverlayEnabled = defaults.debugOverlayEnabled;
-        this.losOverlayEnabled = defaults.losOverlayEnabled;
-        this.agentControlEnabled = defaults.agentControlEnabled;
-        this.allowTacticalPause = defaults.allowTacticalPause;
-        this.unitStyle = defaults.unitStyle;
-        this.currentMapGeneratorType = defaults.mapGeneratorType;
-        this.currentMissionType = defaults.missionType;
-        this.currentSeed = defaults.lastSeed;
-        this.currentSquad = JSON.parse(JSON.stringify(defaults.squadConfig));
-        
-        this.updateSetupUIFromConfig(defaults as any);
+      const defaults = ConfigManager.getDefault();
+      this.currentMapWidth = defaults.mapWidth;
+      this.currentMapHeight = defaults.mapHeight;
+      this.currentSpawnPointCount = defaults.spawnPointCount;
+      this.fogOfWarEnabled = defaults.fogOfWarEnabled;
+      this.debugOverlayEnabled = defaults.debugOverlayEnabled;
+      this.losOverlayEnabled = defaults.losOverlayEnabled;
+      this.agentControlEnabled = defaults.agentControlEnabled;
+      this.allowTacticalPause = defaults.allowTacticalPause;
+      this.unitStyle = defaults.unitStyle;
+      this.currentMapGeneratorType = defaults.mapGeneratorType;
+      this.currentMissionType = defaults.missionType;
+      this.currentSeed = defaults.lastSeed;
+      this.currentSquad = JSON.parse(JSON.stringify(defaults.squadConfig));
+
+      this.updateSetupUIFromConfig(defaults as any);
     }
 
     if (isCampaign) {
@@ -1076,23 +1208,34 @@ export class GameApp {
       if (state) {
         if (state.rules.unitStyle) {
           this.unitStyle = state.rules.unitStyle;
-          const styleSelect = document.getElementById("select-unit-style") as HTMLSelectElement;
+          const styleSelect = document.getElementById(
+            "select-unit-style",
+          ) as HTMLSelectElement;
           if (styleSelect) styleSelect.value = this.unitStyle;
         }
         if (state.rules.mapGeneratorType) {
           this.currentMapGeneratorType = state.rules.mapGeneratorType;
-          const mapGenSelect = document.getElementById("map-generator-type") as HTMLSelectElement;
+          const mapGenSelect = document.getElementById(
+            "map-generator-type",
+          ) as HTMLSelectElement;
           if (mapGenSelect) mapGenSelect.value = this.currentMapGeneratorType;
         }
         if (state.rules.allowTacticalPause !== undefined) {
           this.allowTacticalPause = state.rules.allowTacticalPause;
-          const allowPauseCheck = document.getElementById("toggle-allow-tactical-pause") as HTMLInputElement;
-          if (allowPauseCheck) allowPauseCheck.checked = this.allowTacticalPause;
+          const allowPauseCheck = document.getElementById(
+            "toggle-allow-tactical-pause",
+          ) as HTMLInputElement;
+          if (allowPauseCheck)
+            allowPauseCheck.checked = this.allowTacticalPause;
         }
 
-        const hasNonCampaignSoldiers = this.currentSquad.soldiers.some((s) => !s.id);
+        const hasNonCampaignSoldiers = this.currentSquad.soldiers.some(
+          (s) => !s.id,
+        );
         if (this.currentSquad.soldiers.length === 0 || hasNonCampaignSoldiers) {
-          const healthy = state.roster.filter((s) => s.status === "Healthy").slice(0, 4);
+          const healthy = state.roster
+            .filter((s) => s.status === "Healthy")
+            .slice(0, 4);
           this.currentSquad.soldiers = healthy.map((s) => ({
             id: s.id,
             archetypeId: s.archetypeId,
@@ -1105,23 +1248,26 @@ export class GameApp {
             feet: s.equipment.feet,
           }));
         } else {
-          this.currentSquad.soldiers = this.currentSquad.soldiers.filter((s) => {
-            if (s.id) {
-              const rs = state.roster.find((r) => r.id === s.id);
-              if (rs) {
-                if (rs.status === "Dead" || rs.status === "Wounded") return false;
-                s.hp = rs.hp;
-                s.maxHp = rs.maxHp;
-                s.soldierAim = rs.soldierAim;
-                s.rightHand = rs.equipment.rightHand;
-                s.leftHand = rs.equipment.leftHand;
-                s.body = rs.equipment.body;
-                s.feet = rs.equipment.feet;
-                return true;
+          this.currentSquad.soldiers = this.currentSquad.soldiers.filter(
+            (s) => {
+              if (s.id) {
+                const rs = state.roster.find((r) => r.id === s.id);
+                if (rs) {
+                  if (rs.status === "Dead" || rs.status === "Wounded")
+                    return false;
+                  s.hp = rs.hp;
+                  s.maxHp = rs.maxHp;
+                  s.soldierAim = rs.soldierAim;
+                  s.rightHand = rs.equipment.rightHand;
+                  s.leftHand = rs.equipment.leftHand;
+                  s.body = rs.equipment.body;
+                  s.feet = rs.equipment.feet;
+                  return true;
+                }
               }
-            }
-            return true;
-          });
+              return true;
+            },
+          );
         }
       }
     }
@@ -1129,17 +1275,27 @@ export class GameApp {
   }
 
   private updateSetupUIFromConfig(config: any) {
-    const missionSelect = document.getElementById("mission-type") as HTMLSelectElement;
+    const missionSelect = document.getElementById(
+      "mission-type",
+    ) as HTMLSelectElement;
     if (missionSelect) missionSelect.value = this.currentMissionType;
-    const mapSeedInput = document.getElementById("map-seed") as HTMLInputElement;
+    const mapSeedInput = document.getElementById(
+      "map-seed",
+    ) as HTMLInputElement;
     if (mapSeedInput) mapSeedInput.value = this.currentSeed.toString();
-    const mapGenSelect = document.getElementById("map-generator-type") as HTMLSelectElement;
+    const mapGenSelect = document.getElementById(
+      "map-generator-type",
+    ) as HTMLSelectElement;
     if (mapGenSelect) mapGenSelect.value = this.currentMapGeneratorType;
 
     const wInput = document.getElementById("map-width") as HTMLInputElement;
     const hInput = document.getElementById("map-height") as HTMLInputElement;
-    const spInput = document.getElementById("map-spawn-points") as HTMLInputElement;
-    const threatInput = document.getElementById("map-starting-threat") as HTMLInputElement;
+    const spInput = document.getElementById(
+      "map-spawn-points",
+    ) as HTMLInputElement;
+    const threatInput = document.getElementById(
+      "map-starting-threat",
+    ) as HTMLInputElement;
 
     if (wInput) wInput.value = this.currentMapWidth.toString();
     if (hInput) hInput.value = this.currentMapHeight.toString();
@@ -1154,36 +1310,56 @@ export class GameApp {
       if (threatVal) threatVal.textContent = threatInput.value;
     }
 
-    const baseEnemiesInput = document.getElementById("map-base-enemies") as HTMLInputElement;
+    const baseEnemiesInput = document.getElementById(
+      "map-base-enemies",
+    ) as HTMLInputElement;
     if (baseEnemiesInput) {
-        baseEnemiesInput.value = (config.baseEnemyCount ?? 3).toString();
-        const valDisp = document.getElementById("map-base-enemies-value");
-        if (valDisp) valDisp.textContent = baseEnemiesInput.value;
+      baseEnemiesInput.value = (config.baseEnemyCount ?? 3).toString();
+      const valDisp = document.getElementById("map-base-enemies-value");
+      if (valDisp) valDisp.textContent = baseEnemiesInput.value;
     }
-    const growthInput = document.getElementById("map-enemy-growth") as HTMLInputElement;
+    const growthInput = document.getElementById(
+      "map-enemy-growth",
+    ) as HTMLInputElement;
     if (growthInput) {
-        growthInput.value = (config.enemyGrowthPerMission ?? 1).toString();
-        const valDisp = document.getElementById("map-enemy-growth-value");
-        if (valDisp) valDisp.textContent = growthInput.value;
+      growthInput.value = (config.enemyGrowthPerMission ?? 1).toString();
+      const valDisp = document.getElementById("map-enemy-growth-value");
+      if (valDisp) valDisp.textContent = growthInput.value;
     }
 
-    const fowCheck = document.getElementById("toggle-fog-of-war") as HTMLInputElement;
+    const fowCheck = document.getElementById(
+      "toggle-fog-of-war",
+    ) as HTMLInputElement;
     if (fowCheck) fowCheck.checked = this.fogOfWarEnabled;
-    const debugCheck = document.getElementById("toggle-debug-overlay") as HTMLInputElement;
+    const debugCheck = document.getElementById(
+      "toggle-debug-overlay",
+    ) as HTMLInputElement;
     if (debugCheck) debugCheck.checked = this.debugOverlayEnabled;
-    const losCheck = document.getElementById("toggle-los-overlay") as HTMLInputElement;
+    const losCheck = document.getElementById(
+      "toggle-los-overlay",
+    ) as HTMLInputElement;
     if (losCheck) losCheck.checked = this.losOverlayEnabled;
-    const agentCheck = document.getElementById("toggle-agent-control") as HTMLInputElement;
+    const agentCheck = document.getElementById(
+      "toggle-agent-control",
+    ) as HTMLInputElement;
     if (agentCheck) agentCheck.checked = this.agentControlEnabled;
-    const allowPauseCheck = document.getElementById("toggle-allow-tactical-pause") as HTMLInputElement;
+    const allowPauseCheck = document.getElementById(
+      "toggle-allow-tactical-pause",
+    ) as HTMLInputElement;
     if (allowPauseCheck) allowPauseCheck.checked = this.allowTacticalPause;
-    const styleSelect = document.getElementById("select-unit-style") as HTMLSelectElement;
+    const styleSelect = document.getElementById(
+      "select-unit-style",
+    ) as HTMLSelectElement;
     if (styleSelect) styleSelect.value = this.unitStyle;
 
     if (mapGenSelect) mapGenSelect.dispatchEvent(new Event("change"));
   }
 
   private renderSquadBuilder(isCampaign: boolean = false) {
-    this.squadBuilder.update(this.currentSquad, this.currentMissionType, isCampaign);
+    this.squadBuilder.update(
+      this.currentSquad,
+      this.currentMissionType,
+      isCampaign,
+    );
   }
 }

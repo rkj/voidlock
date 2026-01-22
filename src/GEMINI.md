@@ -22,6 +22,7 @@ Voidlock uses a decoupled architecture where the game simulation (`engine`) runs
 ### Path Aliases
 
 The project uses TypeScript and Vitest path aliases for cleaner imports:
+
 - `@src`: Points to the `src/` directory (e.g., `import { PRNG } from '@src/shared/PRNG'`).
 
 ### Relevant ADRs

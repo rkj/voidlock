@@ -20,8 +20,20 @@ describe("Regression 7zx6 - Healing Flow", () => {
       missionType: MissionType.Default,
       map: { width: 10, height: 10, cells: [] },
       units: [
-        { id: "u1", pos: { x: 0.5, y: 0.5 }, state: UnitState.Idle, hp: 50, maxHp: 100 } as any,
-        { id: "u2", pos: { x: 1.5, y: 0.5 }, state: UnitState.Idle, hp: 100, maxHp: 100 } as any,
+        {
+          id: "u1",
+          pos: { x: 0.5, y: 0.5 },
+          state: UnitState.Idle,
+          hp: 50,
+          maxHp: 100,
+        } as any,
+        {
+          id: "u2",
+          pos: { x: 1.5, y: 0.5 },
+          state: UnitState.Idle,
+          hp: 100,
+          maxHp: 100,
+        } as any,
       ],
       enemies: [],
       visibleCells: [],
@@ -68,12 +80,14 @@ describe("Regression 7zx6 - Healing Flow", () => {
     controller.handleMenuInput("1", mockState);
 
     // SHOULD EXECUTE IMMEDIATELY
-    expect(mockClient.sendCommand).toHaveBeenCalledWith(expect.objectContaining({
-      type: CommandType.USE_ITEM,
-      itemId: "medkit",
-      targetUnitId: "u1",
-      unitIds: []
-    }));
+    expect(mockClient.sendCommand).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: CommandType.USE_ITEM,
+        itemId: "medkit",
+        targetUnitId: "u1",
+        unitIds: [],
+      }),
+    );
 
     // Should return to ACTION_SELECT
     expect(controller.menuState).toBe("ACTION_SELECT");
@@ -81,10 +95,23 @@ describe("Regression 7zx6 - Healing Flow", () => {
 
   it("should NOT transition to UNIT_SELECT after selecting a target for Grenade", () => {
     mockState.squadInventory = { frag_grenade: 1 };
-    mockState.enemies = [{ id: "e1", pos: { x: 5.5, y: 5.5 }, hp: 100, maxHp: 100, type: "Warrior-Drone" } as any];
+    mockState.enemies = [
+      {
+        id: "e1",
+        pos: { x: 5.5, y: 5.5 },
+        hp: 100,
+        maxHp: 100,
+        type: "Warrior-Drone",
+      } as any,
+    ];
     mockState.visibleCells = ["5,5"];
     mockState.discoveredCells = ["5,5"];
-    mockState.map.cells.push({ x: 5, y: 5, type: "Floor" as any, roomId: "room-1" } as any);
+    mockState.map.cells.push({
+      x: 5,
+      y: 5,
+      type: "Floor" as any,
+      roomId: "room-1",
+    } as any);
 
     // 1. Action Select -> Use Item (3)
     controller.handleMenuInput("3", mockState);
@@ -99,31 +126,35 @@ describe("Regression 7zx6 - Healing Flow", () => {
     controller.handleMenuInput("1", mockState);
 
     // Should EXECUTE IMMEDIATELY for grenades now
-    expect(mockClient.sendCommand).toHaveBeenCalledWith(expect.objectContaining({
-      type: CommandType.USE_ITEM,
-      itemId: "frag_grenade",
-      unitIds: []
-    }));
+    expect(mockClient.sendCommand).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: CommandType.USE_ITEM,
+        itemId: "frag_grenade",
+        unitIds: [],
+      }),
+    );
     expect(controller.menuState).toBe("ACTION_SELECT");
   });
 
   it("should bypass UNIT_SELECT when clicking on canvas for healing items", () => {
     // 1. Action Select -> Use Item (3)
     controller.handleMenuInput("3", mockState);
-    
+
     // 2. Item Select -> Medkit (1)
     controller.handleMenuInput("1", mockState);
-    
+
     // 3. Canvas Click on Unit 1 (0,0)
     controller.handleCanvasClick({ x: 0, y: 0 }, mockState);
 
     // SHOULD EXECUTE IMMEDIATELY
-    expect(mockClient.sendCommand).toHaveBeenCalledWith(expect.objectContaining({
-      type: CommandType.USE_ITEM,
-      itemId: "medkit",
-      targetUnitId: "u1",
-      unitIds: []
-    }));
+    expect(mockClient.sendCommand).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: CommandType.USE_ITEM,
+        itemId: "medkit",
+        targetUnitId: "u1",
+        unitIds: [],
+      }),
+    );
 
     // Should return to ACTION_SELECT
     expect(controller.menuState).toBe("ACTION_SELECT");

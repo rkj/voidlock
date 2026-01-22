@@ -72,7 +72,12 @@ describe("Regression awkp: Item Targeting Logic", () => {
   it("Grenade: should target CELL (Rooms) when selected", () => {
     mockState.visibleCells = ["8,8"];
     // Mock a room for the enemy cell
-    mockState.map.cells.push({ x: 8, y: 8, type: "Floor" as any, roomId: "room-1" } as any);
+    mockState.map.cells.push({
+      x: 8,
+      y: 8,
+      type: "Floor" as any,
+      roomId: "room-1",
+    } as any);
 
     controller.handleMenuInput("3", mockState); // USE ITEM
     // Find Grenade option index
@@ -91,7 +96,7 @@ describe("Regression awkp: Item Targeting Logic", () => {
       o.label.includes("Room"),
     );
     expect(roomOption).toBeDefined();
-    
+
     const enemyOption = renderState.options.find((o) =>
       o.label.includes(EnemyType.XenoMite),
     );
@@ -111,12 +116,8 @@ describe("Regression awkp: Item Targeting Logic", () => {
     const renderState = controller.getRenderableState(mockState);
 
     // Should show friendly units as targets
-    const unit1Option = renderState.options.find((o) =>
-      o.label.includes("u1"),
-    );
-    const unit2Option = renderState.options.find((o) =>
-      o.label.includes("u2"),
-    );
+    const unit1Option = renderState.options.find((o) => o.label.includes("u1"));
+    const unit2Option = renderState.options.find((o) => o.label.includes("u2"));
     expect(unit1Option).toBeDefined();
     expect(unit2Option).toBeDefined();
   });
@@ -138,12 +139,14 @@ describe("Regression awkp: Item Targeting Logic", () => {
 
     // After fix, it should NOT move to UNIT_SELECT but execute and reset
     // And it should use empty unitIds for global commander ability
-    expect(mockClient.sendCommand).toHaveBeenCalledWith(expect.objectContaining({
-      type: CommandType.USE_ITEM,
-      itemId: "medkit",
-      targetUnitId: "u1",
-      unitIds: []
-    }));
+    expect(mockClient.sendCommand).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: CommandType.USE_ITEM,
+        itemId: "medkit",
+        targetUnitId: "u1",
+        unitIds: [],
+      }),
+    );
     expect(controller.menuState).toBe("ACTION_SELECT");
   });
 });

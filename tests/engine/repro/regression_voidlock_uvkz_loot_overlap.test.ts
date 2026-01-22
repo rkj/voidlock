@@ -11,14 +11,12 @@ describe("Regression voidlock-uvkz: Loot overlap with EnemySpawn", () => {
       cells: [],
       walls: [],
       doors: [],
-      spawnPoints: [
-        { id: "sp-1", pos: { x: 2, y: 2 }, radius: 1 }
-      ],
+      spawnPoints: [{ id: "sp-1", pos: { x: 2, y: 2 }, radius: 1 }],
       squadSpawn: { x: 1, y: 1 },
       extraction: { x: 4, y: 4 },
       objectives: [
-        { id: "obj-1", kind: "Recover", targetCell: { x: 3, y: 3 } }
-      ]
+        { id: "obj-1", kind: "Recover", targetCell: { x: 3, y: 3 } },
+      ],
     };
 
     // Fill all cells as a single room
@@ -28,32 +26,34 @@ describe("Regression voidlock-uvkz: Loot overlap with EnemySpawn", () => {
       }
     }
 
-    // Attempt to place bonus loot. 
-    // In the bug scenario, EnemySpawn at (2, 2) fails to occupy room-1 in validator 
+    // Attempt to place bonus loot.
+    // In the bug scenario, EnemySpawn at (2, 2) fails to occupy room-1 in validator
     // because SquadSpawn already occupied it (or something else).
     // Wait, let's check the order in MapFactory.placeBonusLoot
-    
+
     // SquadSpawn occupies room-1.
     // EnemySpawn (2, 2) tries to occupy room-1 -> FAILS because room-1 is SquadSpawn.
     // (2, 2) is NOT marked as occupied.
     // placeBonusLoot picks (2, 2) for loot.
 
     // We need enough bonus loot to surely hit (2, 2) if it's available.
-    const bonusLootCount = 20; 
-    
+    const bonusLootCount = 20;
+
     // We use a fixed seed for reproducibility
     const seed = 12345;
-    
+
     // MapFactory.placeBonusLoot is private, but MapFactory.generate calls it.
-    // We can't easily use MapFactory.generate with a custom map, 
-    // but we can use MapFactory.assemble if we wanted to be fancy, 
+    // We can't easily use MapFactory.generate with a custom map,
+    // but we can use MapFactory.assemble if we wanted to be fancy,
     // or we can just call placeBonusLoot if we make it public (or cast to any).
-    
+
     (MapFactory as any).placeBonusLoot(map, bonusLootCount, seed);
 
     expect(map.bonusLoot).toBeDefined();
-    const overlaps = map.bonusLoot!.some(l => l.x === 2 && l.y === 2);
-    
-    expect(overlaps, "Loot should not overlap with EnemySpawn at (2, 2)").toBe(false);
+    const overlaps = map.bonusLoot!.some((l) => l.x === 2 && l.y === 2);
+
+    expect(overlaps, "Loot should not overlap with EnemySpawn at (2, 2)").toBe(
+      false,
+    );
   });
 });

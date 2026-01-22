@@ -10,7 +10,11 @@ import {
   UnitState,
   Vector2,
 } from "@src/shared/types";
-import { MENU_CONFIG, MenuOptionDefinition, MenuState } from "@src/renderer/MenuConfig";
+import {
+  MENU_CONFIG,
+  MenuOptionDefinition,
+  MenuState,
+} from "@src/renderer/MenuConfig";
 import { MenuStateMachine } from "./controllers/MenuStateMachine";
 import { SelectionManager } from "./controllers/SelectionManager";
 import { RoomDiscoveryManager } from "./controllers/RoomDiscoveryManager";
@@ -126,7 +130,10 @@ export class MenuController {
   }
 
   public selectUnit(unitId: string) {
-    if (this.stateMachine.state === "UNIT_SELECT" && this.selection.pendingAction) {
+    if (
+      this.stateMachine.state === "UNIT_SELECT" &&
+      this.selection.pendingAction
+    ) {
       this.executePendingCommand([unitId]);
     }
   }
@@ -153,12 +160,21 @@ export class MenuController {
       }
 
       // Special case: Global items bypass UNIT_SELECT
-      const item = this.selection.pendingItemId ? ItemLibrary[this.selection.pendingItemId] : null;
-      const isGlobal = item && (item.action === "Heal" || item.action === "Grenade" || item.action === "Scanner");
+      const item = this.selection.pendingItemId
+        ? ItemLibrary[this.selection.pendingItemId]
+        : null;
+      const isGlobal =
+        item &&
+        (item.action === "Heal" ||
+          item.action === "Grenade" ||
+          item.action === "Scanner");
 
       if (isGlobal) {
         this.executePendingCommand([]);
-      } else if (this.selection.pendingUnitIds && this.selection.pendingUnitIds.length > 0) {
+      } else if (
+        this.selection.pendingUnitIds &&
+        this.selection.pendingUnitIds.length > 0
+      ) {
         this.executePendingCommand(this.selection.pendingUnitIds);
       } else {
         this.transitionTo("UNIT_SELECT");
@@ -328,12 +344,21 @@ export class MenuController {
       this.selection.pendingTargetId = option.id || null;
       this.selection.overlayOptions = [];
 
-      const item = this.selection.pendingItemId ? ItemLibrary[this.selection.pendingItemId] : null;
-      const isGlobal = item && (item.action === "Heal" || item.action === "Grenade" || item.action === "Scanner");
+      const item = this.selection.pendingItemId
+        ? ItemLibrary[this.selection.pendingItemId]
+        : null;
+      const isGlobal =
+        item &&
+        (item.action === "Heal" ||
+          item.action === "Grenade" ||
+          item.action === "Scanner");
 
       if (isGlobal) {
         this.executePendingCommand([]);
-      } else if (this.selection.pendingUnitIds && this.selection.pendingUnitIds.length > 0) {
+      } else if (
+        this.selection.pendingUnitIds &&
+        this.selection.pendingUnitIds.length > 0
+      ) {
         this.executePendingCommand(this.selection.pendingUnitIds);
       } else {
         this.transitionTo("UNIT_SELECT");
@@ -355,7 +380,9 @@ export class MenuController {
     }
 
     if (selectedIds.length > 0 && this.selection.pendingAction) {
-      const item = this.selection.pendingItemId ? ItemLibrary[this.selection.pendingItemId] : null;
+      const item = this.selection.pendingItemId
+        ? ItemLibrary[this.selection.pendingItemId]
+        : null;
       if (
         this.selection.pendingAction === CommandType.USE_ITEM &&
         item?.action === "Mine" &&
@@ -382,7 +409,10 @@ export class MenuController {
       this.selection.overlayOptions = [];
     }
 
-    if (this.stateMachine.state === "UNIT_SELECT" && this.selection.pendingUnitIds) {
+    if (
+      this.stateMachine.state === "UNIT_SELECT" &&
+      this.selection.pendingUnitIds
+    ) {
       this.selection.pendingUnitIds = null;
     }
 

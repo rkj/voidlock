@@ -5,7 +5,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // Mocking needed for main.ts
 vi.mock("../../package.json", () => ({
-  default: { version: "1.0.0" }
+  default: { version: "1.0.0" },
 }));
 
 vi.mock("@src/engine/GameClient", () => ({
@@ -48,7 +48,7 @@ describe("Reset Data Button", () => {
     // Reset mocks
     vi.clearAllMocks();
     mockModalService.confirm.mockResolvedValue(true);
-    
+
     // Set up DOM
     document.body.innerHTML = `
       <div id="screen-main-menu" class="screen">
@@ -82,21 +82,21 @@ describe("Reset Data Button", () => {
 
     // Mock window.confirm
     window.confirm = vi.fn().mockReturnValue(true);
-    
+
     // Mock window.location.reload
     reloadMock = vi.fn();
-    Object.defineProperty(window, 'location', {
+    Object.defineProperty(window, "location", {
       value: { reload: reloadMock },
-      writable: true
+      writable: true,
     });
 
     // Mock localStorage.clear
-    vi.spyOn(Storage.prototype, 'clear');
+    vi.spyOn(Storage.prototype, "clear");
 
     // Import main.ts
     vi.resetModules();
     await import("@src/renderer/main");
-    
+
     // Trigger DOMContentLoaded
     document.dispatchEvent(new Event("DOMContentLoaded"));
   });
@@ -108,10 +108,10 @@ describe("Reset Data Button", () => {
     resetBtn?.click();
 
     // Wait for async ModalService.confirm
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(mockModalService.confirm).toHaveBeenCalledWith(
-      "Are you sure? This will wipe all campaign progress and settings."
+      "Are you sure? This will wipe all campaign progress and settings.",
     );
     expect(Storage.prototype.clear).toHaveBeenCalled();
     expect(reloadMock).toHaveBeenCalled();
@@ -119,12 +119,12 @@ describe("Reset Data Button", () => {
 
   it("should do nothing when Reset Data is clicked but cancelled", async () => {
     mockModalService.confirm.mockResolvedValue(false);
-    
+
     const resetBtn = document.getElementById("btn-menu-reset");
     resetBtn?.click();
 
     // Wait for async ModalService.confirm
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(mockModalService.confirm).toHaveBeenCalled();
     expect(Storage.prototype.clear).not.toHaveBeenCalled();

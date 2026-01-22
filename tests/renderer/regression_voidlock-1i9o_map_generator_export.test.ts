@@ -3,12 +3,12 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { DebugUtility } from "@src/renderer/DebugUtility";
 
 describe("DebugUtility Map Generator Export Regression", () => {
-  const mockState: any = { 
-    t: 100, 
+  const mockState: any = {
+    t: 100,
     status: "Playing",
     map: {
-      generatorName: "TreeShipGenerator"
-    }
+      generatorName: "TreeShipGenerator",
+    },
   };
   const mockReplayData: any = { seed: 12345 };
   const version = "1.0.0";
@@ -36,7 +36,12 @@ describe("DebugUtility Map Generator Export Regression", () => {
       },
     });
 
-    await DebugUtility.copyWorldState(mockState, mockReplayData, version, mockModalService);
+    await DebugUtility.copyWorldState(
+      mockState,
+      mockReplayData,
+      version,
+      mockModalService,
+    );
 
     expect(writeTextMock).toHaveBeenCalled();
     const jsonString = writeTextMock.mock.calls[0][0];
@@ -47,13 +52,13 @@ describe("DebugUtility Map Generator Export Regression", () => {
 
   it("should include mapGenerator in the exported JSON when generatorName is in replayData.map", async () => {
     const stateWithoutGenerator: any = { t: 100, status: "Playing", map: {} };
-    const replayDataWithGenerator: any = { 
+    const replayDataWithGenerator: any = {
       seed: 12345,
       map: {
-        generatorName: "DenseShipGenerator"
-      }
+        generatorName: "DenseShipGenerator",
+      },
     };
-    
+
     const writeTextMock = vi.fn().mockResolvedValue(undefined);
     vi.stubGlobal("navigator", {
       clipboard: {
@@ -61,7 +66,12 @@ describe("DebugUtility Map Generator Export Regression", () => {
       },
     });
 
-    await DebugUtility.copyWorldState(stateWithoutGenerator, replayDataWithGenerator, version, mockModalService);
+    await DebugUtility.copyWorldState(
+      stateWithoutGenerator,
+      replayDataWithGenerator,
+      version,
+      mockModalService,
+    );
 
     const jsonString = writeTextMock.mock.calls[0][0];
     const exportedObject = JSON.parse(jsonString);
@@ -72,7 +82,7 @@ describe("DebugUtility Map Generator Export Regression", () => {
   it("should fallback to 'Unknown' if generatorName is missing in both", async () => {
     const stateWithoutGenerator: any = { t: 100, status: "Playing", map: {} };
     const replayDataWithoutGenerator: any = { seed: 12345, map: {} };
-    
+
     const writeTextMock = vi.fn().mockResolvedValue(undefined);
     vi.stubGlobal("navigator", {
       clipboard: {
@@ -80,7 +90,12 @@ describe("DebugUtility Map Generator Export Regression", () => {
       },
     });
 
-    await DebugUtility.copyWorldState(stateWithoutGenerator, replayDataWithoutGenerator, version, mockModalService);
+    await DebugUtility.copyWorldState(
+      stateWithoutGenerator,
+      replayDataWithoutGenerator,
+      version,
+      mockModalService,
+    );
 
     const jsonString = writeTextMock.mock.calls[0][0];
     const exportedObject = JSON.parse(jsonString);

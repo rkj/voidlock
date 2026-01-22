@@ -29,7 +29,7 @@ describe("CampaignScreen - Global Stats", () => {
     storage = new MockStorageProvider();
     MetaManager.resetInstance();
     MetaManager.getInstance(storage);
-    
+
     // Initialize stats
     const meta = MetaManager.getInstance();
     meta.recordCampaignStarted();
@@ -37,13 +37,13 @@ describe("CampaignScreen - Global Stats", () => {
 
     manager = CampaignManager.getInstance(storage);
     modalService = new ModalService();
-    
+
     screen = new CampaignScreen(
       "screen-campaign",
       manager,
       modalService,
       vi.fn(),
-      vi.fn()
+      vi.fn(),
     );
   });
 
@@ -67,9 +67,9 @@ describe("CampaignScreen - Global Stats", () => {
       status: "Active",
       nodes: [],
       rules: { difficulty: "normal" },
-      history: []
+      history: [],
     } as any);
-    
+
     screen.show();
 
     const footer = container.querySelector(".campaign-footer");
@@ -84,9 +84,9 @@ describe("CampaignScreen - Global Stats", () => {
       status: "Victory",
       nodes: [],
       rules: { difficulty: "normal" },
-      history: []
+      history: [],
     } as any);
-    
+
     screen.show();
 
     const footer = container.querySelector(".campaign-footer");

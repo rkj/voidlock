@@ -2511,9 +2511,7 @@
         "objectivesCompleted": 0,
         "activeCommand": {
           "type": "MOVE_TO",
-          "unitIds": [
-            "soldier_2"
-          ],
+          "unitIds": ["soldier_2"],
           "target": {
             "x": 4,
             "y": 2
@@ -2574,9 +2572,7 @@
         "objectivesCompleted": 0,
         "activeCommand": {
           "type": "PICKUP",
-          "unitIds": [
-            "soldier_3"
-          ],
+          "unitIds": ["soldier_3"],
           "lootId": "elite-0",
           "label": "Recovering"
         },
@@ -2878,10 +2874,7 @@
         "tick": 0,
         "command": {
           "type": "EXPLORE",
-          "unitIds": [
-            "soldier_2",
-            "soldier_3"
-          ]
+          "unitIds": ["soldier_2", "soldier_3"]
         }
       },
       {

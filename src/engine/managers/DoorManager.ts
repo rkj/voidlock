@@ -1,4 +1,10 @@
-import { GameState, Door, UnitState, Vector2, BoundaryType } from "../../shared/types";
+import {
+  GameState,
+  Door,
+  UnitState,
+  Vector2,
+  BoundaryType,
+} from "../../shared/types";
 import { GameGrid } from "../GameGrid";
 
 export class DoorManager {

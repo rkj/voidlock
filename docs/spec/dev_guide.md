@@ -69,4 +69,3 @@ The project uses GitHub Actions to automatically build and deploy to GitHub Page
   5.  Deploy `dist/` directory to GitHub Pages via the official `actions/deploy-pages`.
 - **Configuration**:
   - **Vite Base Path**: The `base` property in `vite.config.ts` is conditionally set to `'/voidlock/'` during production builds to ensure assets load correctly on GitHub Pages.
-

@@ -68,7 +68,7 @@ describe("CampaignScreen", () => {
     screen.show();
 
     // The 'Sector Map' header is now in the CampaignShell, but the screen itself renders nodes
-    // expect(container.textContent).toContain("Sector Map"); 
+    // expect(container.textContent).toContain("Sector Map");
 
     // Should find nodes
     const nodes = container.querySelectorAll(".campaign-node");

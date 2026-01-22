@@ -5,6 +5,7 @@ This directory contains End-to-End (E2E) visual tests for Voidlock, using Puppet
 ## Purpose
 
 To verify visual fidelity and critical user journeys that cannot be fully tested in a JSDOM environment, such as:
+
 - Z-Index layering issues.
 - CSS layout and scrollbar behavior.
 - WebGL canvas rendering.
@@ -24,9 +25,11 @@ To verify visual fidelity and critical user journeys that cannot be fully tested
 ## Usage
 
 Run the E2E tests using the following command:
+
 ```bash
 npm run test:e2e
 ```
+
 This will automatically start the Vite dev server before running tests and stop it afterwards.
 
 ## Related ADRs

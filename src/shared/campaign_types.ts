@@ -9,7 +9,11 @@ import {
 /**
  * Difficulty presets for the campaign.
  */
-export type CampaignDifficulty = "Simulation" | "Clone" | "Standard" | "Ironman";
+export type CampaignDifficulty =
+  | "Simulation"
+  | "Clone"
+  | "Standard"
+  | "Ironman";
 
 /**
  * Difficulty and gameplay settings for the campaign.

@@ -1,7 +1,4 @@
-import {
-  CampaignState,
-  CampaignSoldier,
-} from "../../shared/campaign_types";
+import { CampaignState, CampaignSoldier } from "../../shared/campaign_types";
 import { ArchetypeLibrary, EquipmentState } from "../../shared/types";
 import { PRNG } from "../../shared/PRNG";
 
@@ -46,7 +43,11 @@ export class RosterManager {
   /**
    * Recruits a new soldier.
    */
-  public recruitSoldier(state: CampaignState, archetypeId: string, name: string): string {
+  public recruitSoldier(
+    state: CampaignState,
+    archetypeId: string,
+    name: string,
+  ): string {
     const COST = 100;
     if (state.scrap < COST) {
       throw new Error("Insufficient scrap to recruit soldier.");
@@ -136,7 +137,11 @@ export class RosterManager {
   /**
    * Assigns equipment to a soldier.
    */
-  public assignEquipment(state: CampaignState, soldierId: string, equipment: EquipmentState): void {
+  public assignEquipment(
+    state: CampaignState,
+    soldierId: string,
+    equipment: EquipmentState,
+  ): void {
     const soldier = state.roster.find((s) => s.id === soldierId);
     if (!soldier) {
       throw new Error(`Soldier not found: ${soldierId}`);

@@ -19,7 +19,7 @@ export class ObjectiveBehavior implements Behavior {
     _doors: Map<string, any>,
     _prng: PRNG,
     context: AIContext,
-    director?: any
+    director?: any,
   ): boolean {
     if (unit.archetypeId === "vip") return false;
     if (unit.state !== UnitState.Idle && !unit.explorationTarget) return false;
@@ -31,8 +31,8 @@ export class ObjectiveBehavior implements Behavior {
     // 1. Opportunistic Loot & Objectives (In current LOS)
     const visibleLoot = (state.loot || []).filter((l) =>
       context.newVisibleCellsSet.has(
-        `${Math.floor(l.pos.x)},${Math.floor(l.pos.y)}`
-      )
+        `${Math.floor(l.pos.x)},${Math.floor(l.pos.y)}`,
+      ),
     );
 
     const visibleObjectives = (state.objectives || []).filter((o) => {
@@ -41,7 +41,7 @@ export class ObjectiveBehavior implements Behavior {
       if (o.kind !== "Recover") return false;
       if (o.targetCell) {
         return context.newVisibleCellsSet.has(
-          `${o.targetCell.x},${o.targetCell.y}`
+          `${o.targetCell.x},${o.targetCell.y}`,
         );
       }
       return false;
@@ -51,7 +51,7 @@ export class ObjectiveBehavior implements Behavior {
       const targetedIds = state.units
         .filter(
           (u) =>
-            u.id !== unit.id && u.activeCommand?.type === CommandType.PICKUP
+            u.id !== unit.id && u.activeCommand?.type === CommandType.PICKUP,
         )
         .map((u) => (u.activeCommand as PickupCommand).lootId);
 
@@ -81,9 +81,7 @@ export class ObjectiveBehavior implements Behavior {
 
       if (items.length > 0) {
         const closest = items.sort(
-          (a, b) =>
-            getDistance(unit.pos, a.pos) -
-            getDistance(unit.pos, b.pos)
+          (a, b) => getDistance(unit.pos, a.pos) - getDistance(unit.pos, b.pos),
         )[0];
 
         if (closest.type === "objective") {
@@ -100,7 +98,7 @@ export class ObjectiveBehavior implements Behavior {
           },
           state,
           false,
-          director
+          director,
         );
         actionTaken = true;
       }
@@ -109,9 +107,13 @@ export class ObjectiveBehavior implements Behavior {
     // 2. Objectives
     if (!actionTaken && state.objectives) {
       const pendingObjectives = state.objectives.filter((o) => {
-        if (o.state !== "Pending" || context.claimedObjectives.has(o.id) || !o.visible)
+        if (
+          o.state !== "Pending" ||
+          context.claimedObjectives.has(o.id) ||
+          !o.visible
+        )
           return false;
-        
+
         const assignedUnitId = context.itemAssignments.get(o.id);
         return !assignedUnitId || assignedUnitId === unit.id;
       });
@@ -133,7 +135,7 @@ export class ObjectiveBehavior implements Behavior {
             if (
               enemy &&
               context.newVisibleCellsSet.has(
-                `${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`
+                `${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`,
               )
             ) {
               targetPos = enemy.pos;
@@ -152,14 +154,13 @@ export class ObjectiveBehavior implements Behavior {
           context.claimedObjectives.add(bestObj.obj.id);
           let target = { x: 0, y: 0 };
           if (
-            (bestObj.obj.kind === "Recover" ||
-              bestObj.obj.kind === "Escort") &&
+            (bestObj.obj.kind === "Recover" || bestObj.obj.kind === "Escort") &&
             bestObj.obj.targetCell
           )
             target = bestObj.obj.targetCell;
           else if (bestObj.obj.kind === "Kill" && bestObj.obj.targetEnemyId) {
             const e = state.enemies.find(
-              (en) => en.id === bestObj.obj.targetEnemyId
+              (en) => en.id === bestObj.obj.targetEnemyId,
             );
             if (e) target = { x: Math.floor(e.pos.x), y: Math.floor(e.pos.y) };
           }
@@ -172,8 +173,8 @@ export class ObjectiveBehavior implements Behavior {
               bestObj.obj.kind === "Recover"
                 ? "Recovering"
                 : bestObj.obj.kind === "Escort"
-                ? "Escorting"
-                : "Hunting";
+                  ? "Escorting"
+                  : "Hunting";
             context.executeCommand(
               unit,
               {
@@ -184,7 +185,7 @@ export class ObjectiveBehavior implements Behavior {
               },
               state,
               false,
-              director
+              director,
             );
             actionTaken = true;
           }
@@ -219,7 +220,7 @@ export class ObjectiveBehavior implements Behavior {
             },
             state,
             false,
-            director
+            director,
           );
           actionTaken = true;
         }

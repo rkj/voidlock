@@ -3,14 +3,14 @@ import { TileDefinition } from "../shared/types";
 /**
  * Space Hulk (1993) Tile Library
  * Based on the modular corridor and room tiles from the classic board game.
- * 
+ *
  * Coordinate system: x (column), y (row). (0,0) is top-left of the tile.
  * openEdges: list of edges that are NOT walled off within the tile.
  * doorSockets: suggested locations where doors can be placed.
  */
 export const SpaceHulkTileLibrary: { [id: string]: TileDefinition } = {
   // --- Corridors ---
-  
+
   corridor_1x1: {
     id: "corridor_1x1",
     width: 1,
@@ -18,8 +18,8 @@ export const SpaceHulkTileLibrary: { [id: string]: TileDefinition } = {
     cells: [{ x: 0, y: 0, openEdges: ["n", "s"] }],
     doorSockets: [
       { x: 0, y: 0, edge: "n" },
-      { x: 0, y: 0, edge: "s" }
-    ]
+      { x: 0, y: 0, edge: "s" },
+    ],
   },
 
   corridor_1x2: {
@@ -28,13 +28,13 @@ export const SpaceHulkTileLibrary: { [id: string]: TileDefinition } = {
     height: 2,
     cells: [
       { x: 0, y: 0, openEdges: ["n", "s"] },
-      { x: 0, y: 1, openEdges: ["n", "s"] }
+      { x: 0, y: 1, openEdges: ["n", "s"] },
     ],
     doorSockets: [
       { x: 0, y: 0, edge: "n" },
       { x: 0, y: 1, edge: "n" },
-      { x: 0, y: 1, edge: "s" }
-    ]
+      { x: 0, y: 1, edge: "s" },
+    ],
   },
 
   corridor_1x3: {
@@ -44,14 +44,14 @@ export const SpaceHulkTileLibrary: { [id: string]: TileDefinition } = {
     cells: [
       { x: 0, y: 0, openEdges: ["n", "s"] },
       { x: 0, y: 1, openEdges: ["n", "s"] },
-      { x: 0, y: 2, openEdges: ["n", "s"] }
+      { x: 0, y: 2, openEdges: ["n", "s"] },
     ],
     doorSockets: [
       { x: 0, y: 0, edge: "n" },
       { x: 0, y: 1, edge: "n" },
       { x: 0, y: 2, edge: "n" },
-      { x: 0, y: 2, edge: "s" }
-    ]
+      { x: 0, y: 2, edge: "s" },
+    ],
   },
 
   corridor_1x4: {
@@ -62,15 +62,15 @@ export const SpaceHulkTileLibrary: { [id: string]: TileDefinition } = {
       { x: 0, y: 0, openEdges: ["n", "s"] },
       { x: 0, y: 1, openEdges: ["n", "s"] },
       { x: 0, y: 2, openEdges: ["n", "s"] },
-      { x: 0, y: 3, openEdges: ["n", "s"] }
+      { x: 0, y: 3, openEdges: ["n", "s"] },
     ],
     doorSockets: [
       { x: 0, y: 0, edge: "n" },
       { x: 0, y: 1, edge: "n" },
       { x: 0, y: 2, edge: "n" },
       { x: 0, y: 3, edge: "n" },
-      { x: 0, y: 3, edge: "s" }
-    ]
+      { x: 0, y: 3, edge: "s" },
+    ],
   },
 
   // --- Junctions ---
@@ -83,8 +83,8 @@ export const SpaceHulkTileLibrary: { [id: string]: TileDefinition } = {
     doorSockets: [
       { x: 0, y: 0, edge: "n" },
       { x: 0, y: 0, edge: "e" },
-      { x: 0, y: 0, edge: "s" }
-    ]
+      { x: 0, y: 0, edge: "s" },
+    ],
   },
 
   junction_cross: {
@@ -96,8 +96,8 @@ export const SpaceHulkTileLibrary: { [id: string]: TileDefinition } = {
       { x: 0, y: 0, edge: "n" },
       { x: 0, y: 0, edge: "e" },
       { x: 0, y: 0, edge: "s" },
-      { x: 0, y: 0, edge: "w" }
-    ]
+      { x: 0, y: 0, edge: "w" },
+    ],
   },
 
   corner_l: {
@@ -107,8 +107,8 @@ export const SpaceHulkTileLibrary: { [id: string]: TileDefinition } = {
     cells: [{ x: 0, y: 0, openEdges: ["s", "e"] }],
     doorSockets: [
       { x: 0, y: 0, edge: "s" },
-      { x: 0, y: 0, edge: "e" }
-    ]
+      { x: 0, y: 0, edge: "e" },
+    ],
   },
 
   // --- Rooms ---
@@ -129,14 +129,14 @@ export const SpaceHulkTileLibrary: { [id: string]: TileDefinition } = {
       // Bottom row
       { x: 0, y: 2, openEdges: ["n", "e"] },
       { x: 1, y: 2, openEdges: ["n", "e", "w", "s"] }, // Entry South
-      { x: 2, y: 2, openEdges: ["n", "w"] }
+      { x: 2, y: 2, openEdges: ["n", "w"] },
     ],
     doorSockets: [
       { x: 1, y: 0, edge: "n" },
       { x: 2, y: 1, edge: "e" },
       { x: 1, y: 2, edge: "s" },
-      { x: 0, y: 1, edge: "w" }
-    ]
+      { x: 0, y: 1, edge: "w" },
+    ],
   },
 
   room_2x2: {
@@ -147,13 +147,13 @@ export const SpaceHulkTileLibrary: { [id: string]: TileDefinition } = {
       { x: 0, y: 0, openEdges: ["e", "s", "n"] }, // Entry North
       { x: 1, y: 0, openEdges: ["w", "s", "e"] }, // Entry East
       { x: 0, y: 1, openEdges: ["n", "e", "w"] }, // Entry West
-      { x: 1, y: 1, openEdges: ["n", "w", "s"] }  // Entry South
+      { x: 1, y: 1, openEdges: ["n", "w", "s"] }, // Entry South
     ],
     doorSockets: [
       { x: 0, y: 0, edge: "n" },
       { x: 1, y: 0, edge: "e" },
       { x: 1, y: 1, edge: "s" },
-      { x: 0, y: 1, edge: "w" }
-    ]
-  }
+      { x: 0, y: 1, edge: "w" },
+    ],
+  },
 };

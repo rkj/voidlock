@@ -251,7 +251,6 @@ export class CampaignManager {
     }
   }
 
-
   /**
    * Persists the current campaign state to the storage provider.
    */
@@ -284,10 +283,21 @@ export class CampaignManager {
     if (!data || typeof data !== "object") return null;
 
     // Required top-level fields
-    const requiredFields = ["version", "seed", "status", "rules", "scrap", "intel", "nodes", "roster"];
+    const requiredFields = [
+      "version",
+      "seed",
+      "status",
+      "rules",
+      "scrap",
+      "intel",
+      "nodes",
+      "roster",
+    ];
     for (const field of requiredFields) {
       if (data[field] === undefined) {
-        console.warn(`CampaignManager: Missing required field '${field}' in persisted state.`);
+        console.warn(
+          `CampaignManager: Missing required field '${field}' in persisted state.`,
+        );
         return null;
       }
     }
@@ -300,53 +310,79 @@ export class CampaignManager {
 
     // Validate Rules
     if (!data.rules || typeof data.rules !== "object") return null;
-    const defaultRules = this.getRulesForDifficulty(data.rules.difficulty || "Standard");
+    const defaultRules = this.getRulesForDifficulty(
+      data.rules.difficulty || "Standard",
+    );
     data.rules = { ...defaultRules, ...data.rules };
 
     // Validate Roster
     if (!Array.isArray(data.roster)) return null;
-    data.roster = data.roster.map((s: any, index: number) => {
-      if (!s || typeof s !== "object" || !s.archetypeId) {
-        // Highly corrupted soldier, but we must try to maintain roster size if possible
-        // Better to just filter out completely broken ones if we can, 
-        // but here we just ensure basic fields.
-        return null;
-      }
-      const arch = ArchetypeLibrary[s.archetypeId];
-      return {
-        id: s.id || `soldier_recovered_${index}`,
-        name: s.name || `Recovered Recruit ${index + 1}`,
-        archetypeId: s.archetypeId,
-        hp: typeof s.hp === "number" ? s.hp : (arch ? arch.baseHp : 100),
-        maxHp: typeof s.maxHp === "number" ? s.maxHp : (arch ? arch.baseHp : 100),
-        soldierAim: typeof s.soldierAim === "number" ? s.soldierAim : (arch ? arch.soldierAim : 80),
-        xp: typeof s.xp === "number" ? s.xp : 0,
-        level: typeof s.level === "number" ? s.level : 1,
-        kills: typeof s.kills === "number" ? s.kills : 0,
-        missions: typeof s.missions === "number" ? s.missions : 0,
-        status: ["Healthy", "Wounded", "Dead"].includes(s.status) ? s.status : "Healthy",
-        recoveryTime: typeof s.recoveryTime === "number" ? s.recoveryTime : 0,
-        equipment: s.equipment || {
-          rightHand: arch?.rightHand,
-          leftHand: arch?.leftHand,
-          body: arch?.body,
-          feet: arch?.feet,
-        },
-      };
-    }).filter((s: any) => s !== null);
+    data.roster = data.roster
+      .map((s: any, index: number) => {
+        if (!s || typeof s !== "object" || !s.archetypeId) {
+          // Highly corrupted soldier, but we must try to maintain roster size if possible
+          // Better to just filter out completely broken ones if we can,
+          // but here we just ensure basic fields.
+          return null;
+        }
+        const arch = ArchetypeLibrary[s.archetypeId];
+        return {
+          id: s.id || `soldier_recovered_${index}`,
+          name: s.name || `Recovered Recruit ${index + 1}`,
+          archetypeId: s.archetypeId,
+          hp: typeof s.hp === "number" ? s.hp : arch ? arch.baseHp : 100,
+          maxHp:
+            typeof s.maxHp === "number" ? s.maxHp : arch ? arch.baseHp : 100,
+          soldierAim:
+            typeof s.soldierAim === "number"
+              ? s.soldierAim
+              : arch
+                ? arch.soldierAim
+                : 80,
+          xp: typeof s.xp === "number" ? s.xp : 0,
+          level: typeof s.level === "number" ? s.level : 1,
+          kills: typeof s.kills === "number" ? s.kills : 0,
+          missions: typeof s.missions === "number" ? s.missions : 0,
+          status: ["Healthy", "Wounded", "Dead"].includes(s.status)
+            ? s.status
+            : "Healthy",
+          recoveryTime: typeof s.recoveryTime === "number" ? s.recoveryTime : 0,
+          equipment: s.equipment || {
+            rightHand: arch?.rightHand,
+            leftHand: arch?.leftHand,
+            body: arch?.body,
+            feet: arch?.feet,
+          },
+        };
+      })
+      .filter((s: any) => s !== null);
 
     // Validate Nodes
     if (!Array.isArray(data.nodes)) return null;
     const nodeIds = new Set(data.nodes.map((n: any) => n.id));
-    data.nodes = data.nodes.map((n: any) => {
-      if (!n || typeof n !== "object" || !n.id) return null;
-      return {
-        ...n,
-        type: ["Combat", "Shop", "Event", "Boss", "Elite"].includes(n.type) ? n.type : "Combat",
-        status: ["Hidden", "Revealed", "Accessible", "Cleared", "Skipped"].includes(n.status) ? n.status : "Hidden",
-        connections: Array.isArray(n.connections) ? n.connections.filter((id: any) => nodeIds.has(id)) : [],
-      };
-    }).filter((n: any) => n !== null);
+    data.nodes = data.nodes
+      .map((n: any) => {
+        if (!n || typeof n !== "object" || !n.id) return null;
+        return {
+          ...n,
+          type: ["Combat", "Shop", "Event", "Boss", "Elite"].includes(n.type)
+            ? n.type
+            : "Combat",
+          status: [
+            "Hidden",
+            "Revealed",
+            "Accessible",
+            "Cleared",
+            "Skipped",
+          ].includes(n.status)
+            ? n.status
+            : "Hidden",
+          connections: Array.isArray(n.connections)
+            ? n.connections.filter((id: any) => nodeIds.has(id))
+            : [],
+        };
+      })
+      .filter((n: any) => n !== null);
 
     // If nodes list became empty, the campaign is unplayable
     if (data.nodes.length === 0) return null;
@@ -372,7 +408,6 @@ export class CampaignManager {
     const previousStatus = this.state.status;
 
     this.missionReconciler.processMissionResult(this.state, report);
-
 
     // 4.5 Update MetaManager
     const casualties = report.soldierResults.filter(

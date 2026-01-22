@@ -12,7 +12,10 @@ import { PRNG } from "../../shared/PRNG";
 import { StatsManager } from "./StatsManager";
 
 export class CombatManager {
-  constructor(private los: LineOfSight, private statsManager: StatsManager) {}
+  constructor(
+    private los: LineOfSight,
+    private statsManager: StatsManager,
+  ) {}
 
   public update(
     unit: Unit,
@@ -30,8 +33,7 @@ export class CombatManager {
     const visibleEnemiesInRange = state.enemies.filter(
       (enemy) =>
         enemy.hp > 0 &&
-        this.getDistance(unit.pos, enemy.pos) <=
-          unit.stats.attackRange + 0.5 &&
+        this.getDistance(unit.pos, enemy.pos) <= unit.stats.attackRange + 0.5 &&
         visibleCells.has(
           `${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`,
         ),
@@ -68,8 +70,7 @@ export class CombatManager {
         if (this.los.hasLineOfFire(unit.pos, enemy.pos)) {
           const distance = this.getDistance(unit.pos, enemy.pos);
           // Score = (MaxHP - CurrentHP) + (100 / Distance)
-          const score =
-            enemy.maxHp - enemy.hp + 100 / Math.max(0.1, distance);
+          const score = enemy.maxHp - enemy.hp + 100 / Math.max(0.1, distance);
 
           if (score > bestScore) {
             bestScore = score;

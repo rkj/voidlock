@@ -75,7 +75,11 @@ interface CampaignState {
 #### `GameRules` (Difficulty Settings)
 
 ```typescript
-export type CampaignDifficulty = "Simulation" | "Clone" | "Standard" | "Ironman";
+export type CampaignDifficulty =
+  | "Simulation"
+  | "Clone"
+  | "Standard"
+  | "Ironman";
 
 interface GameRules {
   mode: "Custom" | "Preset";

@@ -22,7 +22,7 @@ describe("CampaignManager Regression NE16", () => {
 
     CampaignManager.resetInstance();
     manager = CampaignManager.getInstance(storage);
-    
+
     // Normal normally has allowTacticalPause: true
     manager.startNewCampaign(67890, "Normal", false);
     state = manager.getState();

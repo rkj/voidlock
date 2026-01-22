@@ -66,11 +66,13 @@ export class InputManager {
           if (this.getSelectedUnitId()) {
             this.onUnitDeselect();
           } else if (e.key === "Escape") {
-            this.modalService.confirm("Abort Mission and return to menu?").then(confirmed => {
-              if (confirmed) {
-                this.abortMission();
-              }
-            });
+            this.modalService
+              .confirm("Abort Mission and return to menu?")
+              .then((confirmed) => {
+                if (confirmed) {
+                  this.abortMission();
+                }
+              });
           }
         }
         return;

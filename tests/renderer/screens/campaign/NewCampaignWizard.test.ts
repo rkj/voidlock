@@ -31,7 +31,10 @@ describe("NewCampaignWizard", () => {
   });
 
   it("should render the wizard title and content", () => {
-    const wizard = new NewCampaignWizard(container, { onStartCampaign, onBack });
+    const wizard = new NewCampaignWizard(container, {
+      onStartCampaign,
+      onBack,
+    });
     wizard.render();
 
     expect(container.innerHTML).toContain("NEW EXPEDITION");
@@ -40,13 +43,18 @@ describe("NewCampaignWizard", () => {
   });
 
   it("should select a difficulty and call onStartCampaign with correct parameters", () => {
-    const wizard = new NewCampaignWizard(container, { onStartCampaign, onBack });
+    const wizard = new NewCampaignWizard(container, {
+      onStartCampaign,
+      onBack,
+    });
     wizard.render();
 
-    const hardCard = Array.from(container.querySelectorAll(".difficulty-card")).find(
-      (c) => c.querySelector("h3")?.textContent === "Standard"
+    const hardCard = Array.from(
+      container.querySelectorAll(".difficulty-card"),
+    ).find(
+      (c) => c.querySelector("h3")?.textContent === "Standard",
     ) as HTMLElement;
-    
+
     expect(hardCard).toBeDefined();
     hardCard.click();
 
@@ -62,29 +70,43 @@ describe("NewCampaignWizard", () => {
   });
 
   it("should disable tactical pause in Ironman mode", () => {
-    const wizard = new NewCampaignWizard(container, { onStartCampaign, onBack });
+    const wizard = new NewCampaignWizard(container, {
+      onStartCampaign,
+      onBack,
+    });
     wizard.render();
 
-    const ironmanCard = Array.from(container.querySelectorAll(".difficulty-card")).find(
-      (c) => c.querySelector("h3")?.textContent === "Ironman"
+    const ironmanCard = Array.from(
+      container.querySelectorAll(".difficulty-card"),
+    ).find(
+      (c) => c.querySelector("h3")?.textContent === "Ironman",
     ) as HTMLElement;
-    
+
     ironmanCard.click();
 
-    const pauseCheck = container.querySelector("#campaign-tactical-pause") as HTMLInputElement;
+    const pauseCheck = container.querySelector(
+      "#campaign-tactical-pause",
+    ) as HTMLInputElement;
     expect(pauseCheck.checked).toBe(false);
     expect(pauseCheck.disabled).toBe(true);
   });
 
   it("should toggle advanced options", () => {
-    const wizard = new NewCampaignWizard(container, { onStartCampaign, onBack });
+    const wizard = new NewCampaignWizard(container, {
+      onStartCampaign,
+      onBack,
+    });
     wizard.render();
 
-    const advancedToggle = Array.from(container.querySelectorAll("button")).find(
-      (b) => b.textContent?.includes("Show Advanced Settings")
+    const advancedToggle = Array.from(
+      container.querySelectorAll("button"),
+    ).find((b) =>
+      b.textContent?.includes("Show Advanced Settings"),
     ) as HTMLElement;
-    
-    const advancedContent = container.querySelector(".flex-col.gap-15") as HTMLElement;
+
+    const advancedContent = container.querySelector(
+      ".flex-col.gap-15",
+    ) as HTMLElement;
     expect(advancedContent.style.display).toBe("none");
 
     advancedToggle.click();
@@ -93,7 +115,10 @@ describe("NewCampaignWizard", () => {
   });
 
   it("should render meta statistics in the footer", () => {
-    const wizard = new NewCampaignWizard(container, { onStartCampaign, onBack });
+    const wizard = new NewCampaignWizard(container, {
+      onStartCampaign,
+      onBack,
+    });
     wizard.render();
 
     expect(container.innerHTML).toContain("Lifetime Xeno Purged:");

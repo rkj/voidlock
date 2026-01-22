@@ -132,13 +132,17 @@ export class DenseShipGenerator {
 
         const cell = graph.cells[y][x];
         const n = cell.edges.n;
-        if (n && n.type !== BoundaryType.Open) grid[ey - 1][ex] = n.doorId ? "=" : "-";
+        if (n && n.type !== BoundaryType.Open)
+          grid[ey - 1][ex] = n.doorId ? "=" : "-";
         const s = cell.edges.s;
-        if (s && s.type !== BoundaryType.Open) grid[ey + 1][ex] = s.doorId ? "=" : "-";
+        if (s && s.type !== BoundaryType.Open)
+          grid[ey + 1][ex] = s.doorId ? "=" : "-";
         const e = cell.edges.e;
-        if (e && e.type !== BoundaryType.Open) grid[ey][ex + 1] = e.doorId ? "I" : "|";
+        if (e && e.type !== BoundaryType.Open)
+          grid[ey][ex + 1] = e.doorId ? "I" : "|";
         const w = cell.edges.w;
-        if (w && w.type !== BoundaryType.Open) grid[ey][ex - 1] = w.doorId ? "I" : "|";
+        if (w && w.type !== BoundaryType.Open)
+          grid[ey][ex - 1] = w.doorId ? "I" : "|";
       }
     }
 
@@ -434,7 +438,9 @@ export class DenseShipGenerator {
       this.placementValidator.occupy(c1, OccupantType.SquadSpawn, c1.roomId);
       this.placementValidator.occupy(c2, OccupantType.SquadSpawn, c2.roomId);
     } else {
-      const available = squadQuad.filter((c) => !this.placementValidator.isCellOccupied(c));
+      const available = squadQuad.filter(
+        (c) => !this.placementValidator.isCellOccupied(c),
+      );
       this.prng.shuffle(available);
       const c1 = available.length > 0 ? available[0] : squadQuad[0];
       const r1 = `room-forced-squad1-${c1.x}-${c1.y}`;
@@ -471,7 +477,7 @@ export class DenseShipGenerator {
     const extQuad = quadrants[extQuadIdx];
     const roomsInExtQuadMap = getRoomsInCells(extQuad);
     const extRoomIds = Array.from(roomsInExtQuadMap.keys()).filter(
-      (rid) => !this.placementValidator.isRoomOccupied(rid)
+      (rid) => !this.placementValidator.isRoomOccupied(rid),
     );
 
     if (extRoomIds.length > 0) {
@@ -480,7 +486,9 @@ export class DenseShipGenerator {
       this.extraction = c;
       this.placementValidator.occupy(c, OccupantType.Extraction, rid);
     } else {
-      const available = extQuad.filter((c) => !this.placementValidator.isCellOccupied(c));
+      const available = extQuad.filter(
+        (c) => !this.placementValidator.isCellOccupied(c),
+      );
       const c = available.length > 0 ? available[0] : extQuad[0];
       const rid = `room-forced-ext-${c.x}-${c.y}`;
       c.roomId = rid;
@@ -491,7 +499,7 @@ export class DenseShipGenerator {
     // 3. Enemy Spawns
     const allRoomsMap = getRoomsInCells(floors);
     const otherRoomIds = Array.from(allRoomsMap.keys()).filter(
-      (rid) => !this.placementValidator.isRoomOccupied(rid)
+      (rid) => !this.placementValidator.isRoomOccupied(rid),
     );
     this.prng.shuffle(otherRoomIds);
 
@@ -509,7 +517,9 @@ export class DenseShipGenerator {
     }
 
     if (enemiesPlaced < spawnPointCount) {
-      const available = floors.filter((c) => !this.placementValidator.isCellOccupied(c));
+      const available = floors.filter(
+        (c) => !this.placementValidator.isCellOccupied(c),
+      );
       this.prng.shuffle(available);
       for (const c of available) {
         if (enemiesPlaced >= spawnPointCount) break;
@@ -526,16 +536,27 @@ export class DenseShipGenerator {
     }
 
     if (enemiesPlaced === 0 && spawnPointCount > 0) {
-      const available = floors.find((c) => !this.placementValidator.isCellOccupied(c)) || floors[floors.length - 1];
+      const available =
+        floors.find((c) => !this.placementValidator.isCellOccupied(c)) ||
+        floors[floors.length - 1];
       const rid = `room-forced-enemy-fallback-${available.x}-${available.y}`;
       available.roomId = rid;
-      this.spawnPoints.push({ id: `sp-enemy-fallback`, pos: { x: available.x, y: available.y }, radius: 1 });
-      this.placementValidator.occupy(available, OccupantType.EnemySpawn, rid, false);
+      this.spawnPoints.push({
+        id: `sp-enemy-fallback`,
+        pos: { x: available.x, y: available.y },
+        radius: 1,
+      });
+      this.placementValidator.occupy(
+        available,
+        OccupantType.EnemySpawn,
+        rid,
+        false,
+      );
     }
 
     // 4. Objectives
     const remainingRoomIds = Array.from(allRoomsMap.keys()).filter(
-      (rid) => !this.placementValidator.isRoomOccupied(rid)
+      (rid) => !this.placementValidator.isRoomOccupied(rid),
     );
     this.prng.shuffle(remainingRoomIds);
 
@@ -553,7 +574,9 @@ export class DenseShipGenerator {
     }
 
     if (objectivesPlaced < 2) {
-      const available = floors.filter((c) => !this.placementValidator.isCellOccupied(c));
+      const available = floors.filter(
+        (c) => !this.placementValidator.isCellOccupied(c),
+      );
       this.prng.shuffle(available);
       for (const c of available) {
         if (objectivesPlaced >= 2) break;

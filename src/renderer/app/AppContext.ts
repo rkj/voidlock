@@ -1,4 +1,3 @@
-
 import { GameClient } from "@src/engine/GameClient";
 import { Renderer } from "@src/renderer/Renderer";
 import { ScreenManager } from "@src/renderer/ScreenManager";

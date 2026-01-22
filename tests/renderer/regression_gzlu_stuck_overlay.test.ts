@@ -1,10 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { MenuController } from "@src/renderer/MenuController";
-import {
-  GameState,
-  UnitState,
-  MissionType,
-} from "@src/shared/types";
+import { GameState, UnitState, MissionType } from "@src/shared/types";
 
 describe("Regression voidlock-gzlu - Stuck Overlay on Back", () => {
   let controller: MenuController;
@@ -16,11 +12,19 @@ describe("Regression voidlock-gzlu - Stuck Overlay on Back", () => {
       t: 1000,
       seed: 12345,
       missionType: MissionType.Default,
-      map: { width: 10, height: 10, cells: [
-        { x: 5, y: 5, type: "Floor", roomId: "room1" } as any
-      ] },
+      map: {
+        width: 10,
+        height: 10,
+        cells: [{ x: 5, y: 5, type: "Floor", roomId: "room1" } as any],
+      },
       units: [
-        { id: "u1", pos: { x: 0.5, y: 0.5 }, state: UnitState.Idle, hp: 100, maxHp: 100 } as any,
+        {
+          id: "u1",
+          pos: { x: 0.5, y: 0.5 },
+          state: UnitState.Idle,
+          hp: 100,
+          maxHp: 100,
+        } as any,
       ],
       enemies: [],
       visibleCells: ["5,5"],
@@ -46,7 +50,7 @@ describe("Regression voidlock-gzlu - Stuck Overlay on Back", () => {
         allowTacticalPause: true,
       },
       squadInventory: {
-        mine: 1
+        mine: 1,
       },
     };
     mockClient = {
@@ -62,9 +66,9 @@ describe("Regression voidlock-gzlu - Stuck Overlay on Back", () => {
     controller.handleMenuInput("1", mockState);
     // 3. Unit Select -> Unit 1 (1)
     controller.handleMenuInput("1", mockState);
-    
+
     expect(controller.menuState).toBe("TARGET_SELECT");
-    
+
     // Refresh state to generate overlays
     controller.getRenderableState(mockState);
     expect(controller.overlayOptions.length).toBeGreaterThan(0);
@@ -72,7 +76,7 @@ describe("Regression voidlock-gzlu - Stuck Overlay on Back", () => {
     // 4. Go Back
     controller.goBack();
     expect(controller.menuState).toBe("UNIT_SELECT");
-    
+
     // Verify overlayOptions is cleared
     expect(controller.overlayOptions).toEqual([]);
   });
@@ -82,9 +86,9 @@ describe("Regression voidlock-gzlu - Stuck Overlay on Back", () => {
     controller.handleMenuInput("1", mockState);
     // 2. Orders Select -> Move To Room (1)
     controller.handleMenuInput("1", mockState);
-    
+
     expect(controller.menuState).toBe("TARGET_SELECT");
-    
+
     // Refresh state to generate overlays
     controller.getRenderableState(mockState);
     expect(controller.overlayOptions.length).toBeGreaterThan(0);
@@ -92,7 +96,7 @@ describe("Regression voidlock-gzlu - Stuck Overlay on Back", () => {
     // 3. Go Back
     controller.goBack();
     expect(controller.menuState).toBe("ORDERS_SELECT");
-    
+
     // Verify overlayOptions is cleared
     expect(controller.overlayOptions).toEqual([]);
   });
@@ -102,9 +106,9 @@ describe("Regression voidlock-gzlu - Stuck Overlay on Back", () => {
     controller.handleMenuInput("1", mockState);
     // 2. Orders Select -> Move To Room (1)
     controller.handleMenuInput("1", mockState);
-    
+
     expect(controller.menuState).toBe("TARGET_SELECT");
-    
+
     // Refresh state to generate overlays
     controller.getRenderableState(mockState);
     expect(controller.overlayOptions.length).toBeGreaterThan(0);
@@ -112,7 +116,7 @@ describe("Regression voidlock-gzlu - Stuck Overlay on Back", () => {
     // 3. Select a target (Room 1)
     controller.handleMenuInput("1", mockState);
     expect(controller.menuState).toBe("UNIT_SELECT");
-    
+
     // Verify overlayOptions is cleared (currently it probably isn't)
     expect(controller.overlayOptions).toEqual([]);
   });

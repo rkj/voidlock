@@ -2,7 +2,11 @@ import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { CampaignOverrides } from "@src/shared/campaign_types";
 
 export interface NewCampaignWizardOptions {
-  onStartCampaign: (seed: number, difficulty: string, overrides: CampaignOverrides) => void;
+  onStartCampaign: (
+    seed: number,
+    difficulty: string,
+    overrides: CampaignOverrides,
+  ) => void;
   onBack: () => void;
 }
 
@@ -20,7 +24,7 @@ export class NewCampaignWizard {
   public render() {
     this.container.innerHTML = "";
     this.container.style.overflowY = "hidden";
-    
+
     const scrollContainer = document.createElement("div");
     scrollContainer.className = "flex-grow w-full h-full overflow-y-auto";
     scrollContainer.style.paddingBottom = "60px";
@@ -66,7 +70,11 @@ export class NewCampaignWizard {
       {
         id: "normal",
         name: "Clone",
-        rules: ["Permadeath: Partial (Cloneable)", "Save: Manual", "Pause: Allowed"],
+        rules: [
+          "Permadeath: Partial (Cloneable)",
+          "Save: Manual",
+          "Pause: Allowed",
+        ],
       },
       {
         id: "hard",
@@ -135,7 +143,8 @@ export class NewCampaignWizard {
           c.classList.remove("selected");
           c.style.borderColor = "var(--color-border-strong)";
           c.style.background = "rgba(255, 255, 255, 0.05)";
-          (c.querySelector("h3") as HTMLElement).style.color = "var(--color-text)";
+          (c.querySelector("h3") as HTMLElement).style.color =
+            "var(--color-text)";
         });
         card.classList.add("selected");
         card.style.borderColor = "var(--color-primary)";
@@ -239,7 +248,9 @@ export class NewCampaignWizard {
     advancedWrapper.style.borderTop = "1px solid var(--color-border)";
 
     const advancedToggle = document.createElement("button");
-    advancedToggle.textContent = this.isAdvancedShown ? "Hide Advanced Settings ▲" : "Show Advanced Settings ▼";
+    advancedToggle.textContent = this.isAdvancedShown
+      ? "Hide Advanced Settings ▲"
+      : "Show Advanced Settings ▼";
     advancedToggle.style.background = "none";
     advancedToggle.style.border = "none";
     advancedToggle.style.color = "var(--color-text-dim)";
@@ -389,7 +400,9 @@ export class NewCampaignWizard {
         themeId: themeSelect.value,
         unitStyle: styleSelect.value as any,
         mapGrowthRate: parseFloat(lengthSelect.value),
-        economyMode: (document.getElementById("campaign-economy-mode") as HTMLSelectElement).value as "Open" | "Limited",
+        economyMode: (
+          document.getElementById("campaign-economy-mode") as HTMLSelectElement
+        ).value as "Open" | "Limited",
       };
 
       if (seedInput.value) overrides.customSeed = parseInt(seedInput.value);
@@ -397,10 +410,14 @@ export class NewCampaignWizard {
       if (scalingSlider.value !== "100")
         overrides.scaling = parseInt(scalingSlider.value) / 100;
       if (scarcitySlider.value !== "100")
-        overrides.scarcity = 100 / parseInt(scarcitySlider.value); 
+        overrides.scarcity = 100 / parseInt(scarcitySlider.value);
       if (deathSelect.value) overrides.deathRule = deathSelect.value as any;
 
-      this.options.onStartCampaign(Date.now(), this.selectedDifficulty, overrides);
+      this.options.onStartCampaign(
+        Date.now(),
+        this.selectedDifficulty,
+        overrides,
+      );
     };
     content.appendChild(startBtn);
 

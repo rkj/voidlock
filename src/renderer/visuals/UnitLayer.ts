@@ -19,16 +19,28 @@ export class UnitLayer implements RenderLayer {
     const cellSize = this.sharedState.cellSize;
 
     state.units.forEach((unit, index) => {
-      if (unit.state === UnitState.Extracted || unit.state === UnitState.Dead) return;
+      if (unit.state === UnitState.Extracted || unit.state === UnitState.Dead)
+        return;
 
       const x = unit.pos.x * cellSize;
       const y = unit.pos.y * cellSize;
 
       const sprite = this.assets.getUnitSprite(unit.archetypeId);
 
-      if (this.sharedState.unitStyle === UnitStyle.Sprites && sprite && sprite.complete && sprite.naturalWidth > 0) {
+      if (
+        this.sharedState.unitStyle === UnitStyle.Sprites &&
+        sprite &&
+        sprite.complete &&
+        sprite.naturalWidth > 0
+      ) {
         const spriteSize = cellSize * 0.8;
-        ctx.drawImage(sprite, x - spriteSize / 2, y - spriteSize / 2, spriteSize, spriteSize);
+        ctx.drawImage(
+          sprite,
+          x - spriteSize / 2,
+          y - spriteSize / 2,
+          spriteSize,
+          spriteSize,
+        );
 
         ctx.font = `bold ${Math.floor(cellSize / 6)}px monospace`;
         ctx.textAlign = "center";
@@ -42,9 +54,12 @@ export class UnitLayer implements RenderLayer {
         ctx.beginPath();
         ctx.arc(x, y, cellSize / 6, 0, Math.PI * 2);
 
-        if (unit.state === UnitState.Channeling) ctx.fillStyle = this.theme.getColor("--color-info");
-        else if (unit.state === UnitState.Attacking) ctx.fillStyle = this.theme.getColor("--color-danger");
-        else if (unit.state === UnitState.Moving) ctx.fillStyle = this.theme.getColor("--color-door-closed");
+        if (unit.state === UnitState.Channeling)
+          ctx.fillStyle = this.theme.getColor("--color-info");
+        else if (unit.state === UnitState.Attacking)
+          ctx.fillStyle = this.theme.getColor("--color-danger");
+        else if (unit.state === UnitState.Moving)
+          ctx.fillStyle = this.theme.getColor("--color-door-closed");
         else ctx.fillStyle = this.theme.getColor("--color-primary");
 
         ctx.fill();
@@ -68,7 +83,13 @@ export class UnitLayer implements RenderLayer {
       this.renderHealthBar(ctx, x, y, unit.hp, unit.maxHp);
 
       if (unit.state === UnitState.Channeling && unit.channeling) {
-        this.renderChannelingBar(ctx, x, y, unit.channeling.remaining, unit.channeling.totalDuration);
+        this.renderChannelingBar(
+          ctx,
+          x,
+          y,
+          unit.channeling.remaining,
+          unit.channeling.totalDuration,
+        );
       }
 
       if (unit.state === UnitState.Moving && unit.targetPos) {
@@ -92,9 +113,20 @@ export class UnitLayer implements RenderLayer {
 
       const sprite = this.assets.getEnemySprite(enemy.type);
 
-      if (this.sharedState.unitStyle === UnitStyle.Sprites && sprite && sprite.complete && sprite.naturalWidth > 0) {
+      if (
+        this.sharedState.unitStyle === UnitStyle.Sprites &&
+        sprite &&
+        sprite.complete &&
+        sprite.naturalWidth > 0
+      ) {
         const spriteSize = cellSize * 0.8;
-        ctx.drawImage(sprite, x - spriteSize / 2, y - spriteSize / 2, spriteSize, spriteSize);
+        ctx.drawImage(
+          sprite,
+          x - spriteSize / 2,
+          y - spriteSize / 2,
+          spriteSize,
+          spriteSize,
+        );
 
         if (enemy.difficulty) {
           ctx.font = `bold ${Math.floor(cellSize / 10)}px monospace`;
@@ -112,7 +144,13 @@ export class UnitLayer implements RenderLayer {
           const icon = this.assets.iconImages.Hive;
           if (icon && this.sharedState.unitStyle === UnitStyle.Sprites) {
             const hiveSize = cellSize * 0.8;
-            ctx.drawImage(icon, x - hiveSize / 2, y - hiveSize / 2, hiveSize, hiveSize);
+            ctx.drawImage(
+              icon,
+              x - hiveSize / 2,
+              y - hiveSize / 2,
+              hiveSize,
+              hiveSize,
+            );
           } else {
             ctx.fillStyle = this.theme.getColor("--color-hive");
             const hiveSize = cellSize * 0.6;
@@ -144,7 +182,13 @@ export class UnitLayer implements RenderLayer {
     });
   }
 
-  private drawEnemyShape(ctx: CanvasRenderingContext2D, x: number, y: number, size: number, type: string) {
+  private drawEnemyShape(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    size: number,
+    type: string,
+  ) {
     if (type === "Xeno-Mite") {
       ctx.moveTo(x, y - size);
       ctx.lineTo(x + size, y + size);
@@ -176,7 +220,13 @@ export class UnitLayer implements RenderLayer {
     ctx.closePath();
   }
 
-  private renderHealthBar(ctx: CanvasRenderingContext2D, x: number, y: number, hp: number, maxHp: number) {
+  private renderHealthBar(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    hp: number,
+    maxHp: number,
+  ) {
     const cellSize = this.sharedState.cellSize;
     const barWidth = cellSize * 0.5;
     const barHeight = 6;
@@ -186,11 +236,22 @@ export class UnitLayer implements RenderLayer {
     ctx.fillRect(x - barWidth / 2, y + yOffset, barWidth, barHeight);
 
     const pct = Math.max(0, hp / maxHp);
-    ctx.fillStyle = pct > 0.5 ? this.theme.getColor("--color-success") : pct > 0.25 ? this.theme.getColor("--color-warning") : this.theme.getColor("--color-danger");
+    ctx.fillStyle =
+      pct > 0.5
+        ? this.theme.getColor("--color-success")
+        : pct > 0.25
+          ? this.theme.getColor("--color-warning")
+          : this.theme.getColor("--color-danger");
     ctx.fillRect(x - barWidth / 2, y + yOffset, barWidth * pct, barHeight);
   }
 
-  private renderChannelingBar(ctx: CanvasRenderingContext2D, x: number, y: number, remaining: number, total: number) {
+  private renderChannelingBar(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    remaining: number,
+    total: number,
+  ) {
     const cellSize = this.sharedState.cellSize;
     const barWidth = cellSize * 0.6;
     const barHeight = 6;
@@ -208,7 +269,12 @@ export class UnitLayer implements RenderLayer {
     ctx.strokeRect(x - barWidth / 2, y + yOffset, barWidth, barHeight);
   }
 
-  private renderMovementPath(ctx: CanvasRenderingContext2D, x: number, y: number, unit: any) {
+  private renderMovementPath(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    unit: any,
+  ) {
     const cellSize = this.sharedState.cellSize;
     const jitter = unit.visualJitter || { x: 0, y: 0 };
     const pathPoints: Vector2[] = [unit.targetPos];

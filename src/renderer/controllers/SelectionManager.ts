@@ -1,4 +1,9 @@
-import { CommandType, EngagementPolicy, OverlayOption, Vector2 } from "@src/shared/types";
+import {
+  CommandType,
+  EngagementPolicy,
+  OverlayOption,
+  Vector2,
+} from "@src/shared/types";
 
 /**
  * Tracks the current selection context, including pending actions, targets, and modes.

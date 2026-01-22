@@ -98,7 +98,7 @@ export class BarracksScreen {
     footer.style.flexShrink = "0";
     footer.style.borderTop = "1px solid var(--color-border-strong)";
     footer.style.backgroundColor = "var(--color-bg)";
-    
+
     if (this.onBack) {
       const backBtn = document.createElement("button");
       backBtn.textContent = "Back to Sector Map";
@@ -107,7 +107,7 @@ export class BarracksScreen {
       backBtn.onclick = () => this.onBack?.();
       footer.appendChild(backBtn);
     }
-    
+
     this.container.appendChild(footer);
   }
 
@@ -180,10 +180,14 @@ export class BarracksScreen {
 
   private getStatusColor(status: string): string {
     switch (status) {
-      case "Healthy": return "var(--color-primary)";
-      case "Wounded": return "var(--color-hive)";
-      case "Dead": return "var(--color-danger)";
-      default: return "var(--color-text)";
+      case "Healthy":
+        return "var(--color-primary)";
+      case "Wounded":
+        return "var(--color-hive)";
+      case "Dead":
+        return "var(--color-danger)";
+      default:
+        return "var(--color-text)";
     }
   }
 
@@ -325,7 +329,7 @@ export class BarracksScreen {
     if (!state) return;
 
     const archetypes = state.unlockedArchetypes;
-    
+
     archetypes.forEach((archId) => {
       const arch = ArchetypeLibrary[archId];
       if (!arch) return;
@@ -352,7 +356,10 @@ export class BarracksScreen {
       recruitBtn.style.fontSize = "0.8em";
       recruitBtn.disabled = state.scrap < 100;
       recruitBtn.onclick = async () => {
-        const name = await this.modalService.prompt("Enter soldier name:", `Recruit ${Math.floor(Math.random()*1000)}`);
+        const name = await this.modalService.prompt(
+          "Enter soldier name:",
+          `Recruit ${Math.floor(Math.random() * 1000)}`,
+        );
         if (name) {
           this.manager.recruitSoldier(archId, name);
           this.render();

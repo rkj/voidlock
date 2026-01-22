@@ -19,13 +19,16 @@ describe("ConfigManager Migration", () => {
       },
     };
 
-    localStorage.setItem("voidlock_legacy_custom_config", JSON.stringify(oldConfig));
+    localStorage.setItem(
+      "voidlock_legacy_custom_config",
+      JSON.stringify(oldConfig),
+    );
 
     const loadedConfig = ConfigManager.loadCustom();
     expect(loadedConfig).not.toBeNull();
     expect(loadedConfig?.mapWidth).toBe(20);
     expect(loadedConfig?.squadConfig.inventory.medkit).toBe(5);
-    
+
     // Should have saved to the new key
     expect(localStorage.getItem("voidlock_custom_config")).not.toBeNull();
   });

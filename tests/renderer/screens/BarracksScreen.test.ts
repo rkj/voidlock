@@ -28,25 +28,37 @@ describe("BarracksScreen", () => {
   });
 
   it("should render roster and recruitment on show", () => {
-    const screen = new BarracksScreen("screen-barracks", manager, mockModalService, onBack);
+    const screen = new BarracksScreen(
+      "screen-barracks",
+      manager,
+      mockModalService,
+      onBack,
+    );
     screen.show();
 
     expect(container.textContent).toContain("Roster");
     expect(container.textContent).toContain("Recruitment");
     expect(container.textContent).toContain("Soldier Details");
-    
+
     // Initial roster has 4 soldiers
     const state = manager.getState()!;
-    state.roster.forEach(s => {
+    state.roster.forEach((s) => {
       expect(container.textContent).toContain(s.name);
     });
   });
 
   it("should call onBack when Back button is clicked", () => {
-    const screen = new BarracksScreen("screen-barracks", manager, mockModalService, onBack);
+    const screen = new BarracksScreen(
+      "screen-barracks",
+      manager,
+      mockModalService,
+      onBack,
+    );
     screen.show();
 
-    const backBtn = container.querySelector(".back-button") as HTMLButtonElement;
+    const backBtn = container.querySelector(
+      ".back-button",
+    ) as HTMLButtonElement;
     expect(backBtn).toBeTruthy();
     backBtn.click();
 
@@ -54,15 +66,21 @@ describe("BarracksScreen", () => {
   });
 
   it("should show soldier details when a soldier is selected", () => {
-    const screen = new BarracksScreen("screen-barracks", manager, mockModalService, onBack);
+    const screen = new BarracksScreen(
+      "screen-barracks",
+      manager,
+      mockModalService,
+      onBack,
+    );
     screen.show();
 
     const state = manager.getState()!;
     const firstSoldierName = state.roster[0].name;
-    
-    const soldierItem = Array.from(container.querySelectorAll(".menu-item.clickable"))
-      .find(el => el.textContent?.includes(firstSoldierName)) as HTMLElement;
-    
+
+    const soldierItem = Array.from(
+      container.querySelectorAll(".menu-item.clickable"),
+    ).find((el) => el.textContent?.includes(firstSoldierName)) as HTMLElement;
+
     soldierItem.click();
 
     expect(container.textContent).toContain("Soldier Details");
@@ -76,17 +94,26 @@ describe("BarracksScreen", () => {
     state.roster[0].status = "Wounded";
     state.roster[0].hp = 10;
 
-    const screen = new BarracksScreen("screen-barracks", manager, mockModalService, onBack);
+    const screen = new BarracksScreen(
+      "screen-barracks",
+      manager,
+      mockModalService,
+      onBack,
+    );
     screen.show();
 
-    const soldierItem = Array.from(container.querySelectorAll(".menu-item.clickable"))
-      .find(el => el.textContent?.includes(state.roster[0].name)) as HTMLElement;
+    const soldierItem = Array.from(
+      container.querySelectorAll(".menu-item.clickable"),
+    ).find((el) =>
+      el.textContent?.includes(state.roster[0].name),
+    ) as HTMLElement;
     soldierItem.click();
 
     expect(container.textContent).toContain("Heal (50 Scrap)");
-    const healBtn = Array.from(container.querySelectorAll("button"))
-      .find(btn => btn.textContent?.includes("Heal")) as HTMLButtonElement;
-    
+    const healBtn = Array.from(container.querySelectorAll("button")).find(
+      (btn) => btn.textContent?.includes("Heal"),
+    ) as HTMLButtonElement;
+
     expect(healBtn.disabled).toBe(false);
   });
 
@@ -96,11 +123,19 @@ describe("BarracksScreen", () => {
     state.roster[0].hp = 0;
     state.rules.deathRule = "Clone";
 
-    const screen = new BarracksScreen("screen-barracks", manager, mockModalService, onBack);
+    const screen = new BarracksScreen(
+      "screen-barracks",
+      manager,
+      mockModalService,
+      onBack,
+    );
     screen.show();
 
-    const soldierItem = Array.from(container.querySelectorAll(".menu-item.clickable"))
-      .find(el => el.textContent?.includes(state.roster[0].name)) as HTMLElement;
+    const soldierItem = Array.from(
+      container.querySelectorAll(".menu-item.clickable"),
+    ).find((el) =>
+      el.textContent?.includes(state.roster[0].name),
+    ) as HTMLElement;
     soldierItem.click();
 
     expect(container.textContent).toContain("Revive (250 Scrap)");
@@ -108,20 +143,26 @@ describe("BarracksScreen", () => {
 
   it("should allow recruiting a new soldier", async () => {
     mockModalService.prompt.mockResolvedValue("Bob");
-    
-    const screen = new BarracksScreen("screen-barracks", manager, mockModalService, onBack);
+
+    const screen = new BarracksScreen(
+      "screen-barracks",
+      manager,
+      mockModalService,
+      onBack,
+    );
     screen.show();
 
-    const recruitBtns = Array.from(container.querySelectorAll("button"))
-      .filter(btn => btn.textContent === "Recruit") as HTMLButtonElement[];
-    
+    const recruitBtns = Array.from(container.querySelectorAll("button")).filter(
+      (btn) => btn.textContent === "Recruit",
+    ) as HTMLButtonElement[];
+
     recruitBtns[0].click();
 
     // Wait for async ModalService.prompt
-    await new Promise(resolve => setTimeout(resolve, 0));
+    await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(mockModalService.prompt).toHaveBeenCalled();
-    expect(manager.getState()?.roster.some(s => s.name === "Bob")).toBe(true);
+    expect(manager.getState()?.roster.some((s) => s.name === "Bob")).toBe(true);
     expect(container.textContent).toContain("Bob");
   });
 });

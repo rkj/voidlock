@@ -83,7 +83,7 @@ describe("LineOfFire Regression (15hj)", () => {
     const p2 = { x: 1.5, y: 0.5 };
 
     expect(los.hasLineOfSight(p1, p2)).toBe(true);
-    // LOF is blocked by door struts (outer 1/3) because UNIT_RADIUS (0.3) 
+    // LOF is blocked by door struts (outer 1/3) because UNIT_RADIUS (0.3)
     // makes the "fat" ray (0.6 wide) wider than the opening (0.33 wide).
     expect(los.hasLineOfFire(p1, p2)).toBe(false);
   });
@@ -165,7 +165,7 @@ describe("LineOfFire Regression (15hj)", () => {
 
     // Currently allowed as state is still "Open"
     expect(los.hasLineOfSight(p1, p2)).toBe(true);
-    // LOF is blocked by door struts (outer 1/3) because UNIT_RADIUS (0.3) 
+    // LOF is blocked by door struts (outer 1/3) because UNIT_RADIUS (0.3)
     // makes the "fat" ray (0.6 wide) wider than the opening (0.33 wide).
     expect(los.hasLineOfFire(p1, p2)).toBe(false);
   });

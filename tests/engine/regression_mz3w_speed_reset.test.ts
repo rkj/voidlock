@@ -18,7 +18,11 @@ vi.stubGlobal("Worker", MockWorker);
 const mockMapGeneratorFactory = (config: MapGenerationConfig) => {
   return {
     generate: vi.fn().mockReturnValue({ width: 10, height: 10, cells: [] }),
-    load: vi.fn().mockImplementation((data) => data || { width: 10, height: 10, cells: [] }),
+    load: vi
+      .fn()
+      .mockImplementation(
+        (data) => data || { width: 10, height: 10, cells: [] },
+      ),
   } as any;
 };
 

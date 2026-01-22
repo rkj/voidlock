@@ -90,7 +90,9 @@ describe("MapGenerator.assemble", () => {
       globalSpawnPoints: [{ id: "sp1", cell: { x: 4, y: 1 } }],
       globalSquadSpawn: { cell: { x: 1, y: 1 } },
       globalExtraction: { cell: { x: 7, y: 1 } },
-      globalObjectives: [{ id: "obj1", kind: "Recover", cell: { x: 10, y: 1 } }],
+      globalObjectives: [
+        { id: "obj1", kind: "Recover", cell: { x: 10, y: 1 } },
+      ],
     };
 
     const map = MapGenerator.assemble(assembly, SpaceHulkTiles);

@@ -57,17 +57,21 @@ describe("Regression voidlock-rui6: Landmine Placement Rules", () => {
   const discovery = new RoomDiscoveryManager();
 
   it("should only allow placement at intersections or current unit position", () => {
-    const options = TargetOverlayGenerator.generate("PLACEMENT_POINT", mockState, discovery);
-    
+    const options = TargetOverlayGenerator.generate(
+      "PLACEMENT_POINT",
+      mockState,
+      discovery,
+    );
+
     // 1. (1,0) is a T-junction in corridor-1 (3 connections)
     // 2. (5,5) is the current position of unit-1
-    
+
     expect(options.length).toBe(2);
-    
-    const posKeys = options.map(o => `${o.pos.x},${o.pos.y}`);
+
+    const posKeys = options.map((o) => `${o.pos.x},${o.pos.y}`);
     expect(posKeys).toContain("1,0");
     expect(posKeys).toContain("5,5");
-    
+
     // (0,0), (2,0), (1,1) are corridor ends (1 connection), not intersections.
     expect(posKeys).not.toContain("0,0");
     expect(posKeys).not.toContain("2,0");
@@ -76,12 +80,21 @@ describe("Regression voidlock-rui6: Landmine Placement Rules", () => {
 
   it("should NOT allow placement in open rooms if not unit position", () => {
     const stateWithRoomFloor = JSON.parse(JSON.stringify(mockState));
-    stateWithRoomFloor.map.cells.push({ x: 6, y: 5, type: CellType.Floor, roomId: "room-1" });
+    stateWithRoomFloor.map.cells.push({
+      x: 6,
+      y: 5,
+      type: CellType.Floor,
+      roomId: "room-1",
+    });
     stateWithRoomFloor.discoveredCells.push("6,5");
-    
-    const options = TargetOverlayGenerator.generate("PLACEMENT_POINT", stateWithRoomFloor, discovery);
-    const posKeys = options.map(o => `${o.pos.x},${o.pos.y}`);
-    
+
+    const options = TargetOverlayGenerator.generate(
+      "PLACEMENT_POINT",
+      stateWithRoomFloor,
+      discovery,
+    );
+    const posKeys = options.map((o) => `${o.pos.x},${o.pos.y}`);
+
     expect(posKeys).not.toContain("6,5");
   });
 });

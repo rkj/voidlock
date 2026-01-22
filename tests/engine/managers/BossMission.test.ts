@@ -22,7 +22,12 @@ describe("Boss Mission Objectives and Rewards", () => {
   for (let y = 0; y < 20; y++) {
     for (let x = 0; x < 20; x++) {
       // Create some rooms for Hive placement
-      const roomId = (x > 15 && y > 15) ? "room-target" : (x < 5 && y < 5) ? "room-start" : undefined;
+      const roomId =
+        x > 15 && y > 15
+          ? "room-target"
+          : x < 5 && y < 5
+            ? "room-start"
+            : undefined;
       mockMap.cells.push({ x, y, type: CellType.Floor, roomId });
     }
   }
@@ -51,20 +56,22 @@ describe("Boss Mission Objectives and Rewards", () => {
       3,
       1,
       0,
-      "Boss"
+      "Boss",
     );
 
     const state = engine.getState();
     expect(state.objectives.length).toBe(3);
-    
-    const recoverObjectives = state.objectives.filter(o => o.kind === "Recover");
-    const killObjectives = state.objectives.filter(o => o.kind === "Kill");
-    
+
+    const recoverObjectives = state.objectives.filter(
+      (o) => o.kind === "Recover",
+    );
+    const killObjectives = state.objectives.filter((o) => o.kind === "Kill");
+
     expect(recoverObjectives.length).toBe(2);
     expect(killObjectives.length).toBe(1);
     expect(killObjectives[0].targetEnemyId).toBe("boss-hive");
-    
-    const bossHive = state.enemies.find(e => e.id === "boss-hive");
+
+    const bossHive = state.enemies.find((e) => e.id === "boss-hive");
     expect(bossHive).toBeDefined();
     expect(bossHive?.hp).toBe(1000);
   });
@@ -88,42 +95,50 @@ describe("Boss Mission Objectives and Rewards", () => {
       3,
       1,
       0,
-      "Boss"
+      "Boss",
     );
 
     let state = engine.getState();
     const initialScrap = state.stats.scrapGained;
 
     // 1. Complete a Recover objective
-    const recoverObj = state.objectives.find(o => o.kind === "Recover")!;
+    const recoverObj = state.objectives.find((o) => o.kind === "Recover")!;
     // In engine, we need to bypass internal state for testing easily or trigger completion
     // MissionManager.updateObjectives rewards scrap.
-    
+
     // We can simulate completion by setting state and calling update
-    (engine as any).state.objectives.find((o: any) => o.id === recoverObj.id).state = "Completed";
+    (engine as any).state.objectives.find(
+      (o: any) => o.id === recoverObj.id,
+    ).state = "Completed";
     engine.update(16);
-    
+
     state = engine.getState();
     // Standard Recover is 25. Boss is 75.
     expect(state.stats.scrapGained).toBe(initialScrap + 75);
 
     // 2. Complete Boss Hive objective
-    const hiveObj = state.objectives.find(o => o.kind === "Kill")!;
-    (engine as any).state.objectives.find((o: any) => o.id === hiveObj.id).state = "Completed";
+    const hiveObj = state.objectives.find((o) => o.kind === "Kill")!;
+    (engine as any).state.objectives.find(
+      (o: any) => o.id === hiveObj.id,
+    ).state = "Completed";
     engine.update(16);
-    
+
     state = engine.getState();
     // Standard Hive is 75. Boss is 225.
     // Total should be 75 + 225 = 300.
     expect(state.stats.scrapGained).toBe(initialScrap + 300);
 
     // 3. Complete last Recover objective
-    const lastRecoverObj = state.objectives.filter(o => o.kind === "Recover")[1];
-    (engine as any).state.objectives.find((o: any) => o.id === lastRecoverObj.id).state = "Completed";
+    const lastRecoverObj = state.objectives.filter(
+      (o) => o.kind === "Recover",
+    )[1];
+    (engine as any).state.objectives.find(
+      (o: any) => o.id === lastRecoverObj.id,
+    ).state = "Completed";
     engine.update(16);
-    
+
     state = engine.getState();
-    // Total: 300 + 75 = 375. 
+    // Total: 300 + 75 = 375.
     // PLUS mission win reward (100 * 3 = 300) since all objectives are now complete.
     // Total: 675
     expect(state.status).toBe("Won");
@@ -149,20 +164,22 @@ describe("Boss Mission Objectives and Rewards", () => {
       3,
       1,
       0,
-      "Elite"
+      "Elite",
     );
 
     const state = engine.getState();
     expect(state.objectives.length).toBe(2);
-    
-    const recoverObjectives = state.objectives.filter(o => o.kind === "Recover");
-    const killObjectives = state.objectives.filter(o => o.kind === "Kill");
-    
+
+    const recoverObjectives = state.objectives.filter(
+      (o) => o.kind === "Recover",
+    );
+    const killObjectives = state.objectives.filter((o) => o.kind === "Kill");
+
     expect(recoverObjectives.length).toBe(1);
     expect(killObjectives.length).toBe(1);
     expect(killObjectives[0].targetEnemyId).toBe("elite-hive");
-    
-    const eliteHive = state.enemies.find(e => e.id === "elite-hive");
+
+    const eliteHive = state.enemies.find((e) => e.id === "elite-hive");
     expect(eliteHive).toBeDefined();
     expect(eliteHive?.hp).toBe(500);
   });
@@ -186,26 +203,30 @@ describe("Boss Mission Objectives and Rewards", () => {
       3,
       1,
       0,
-      "Elite"
+      "Elite",
     );
 
     let state = engine.getState();
     const initialScrap = state.stats.scrapGained;
 
     // 1. Complete a Recover objective
-    const recoverObj = state.objectives.find(o => o.kind === "Recover")!;
-    (engine as any).state.objectives.find((o: any) => o.id === recoverObj.id).state = "Completed";
+    const recoverObj = state.objectives.find((o) => o.kind === "Recover")!;
+    (engine as any).state.objectives.find(
+      (o: any) => o.id === recoverObj.id,
+    ).state = "Completed";
     engine.update(16);
-    
+
     state = engine.getState();
     // Standard Recover is 25. Elite is 50.
     expect(state.stats.scrapGained).toBe(initialScrap + 50);
 
     // 2. Complete Elite Hive objective
-    const hiveObj = state.objectives.find(o => o.kind === "Kill")!;
-    (engine as any).state.objectives.find((o: any) => o.id === hiveObj.id).state = "Completed";
+    const hiveObj = state.objectives.find((o) => o.kind === "Kill")!;
+    (engine as any).state.objectives.find(
+      (o: any) => o.id === hiveObj.id,
+    ).state = "Completed";
     engine.update(16);
-    
+
     state = engine.getState();
     // Standard Hive is 75. Elite is 150.
     // Mission win reward: 100 * 2 = 200.

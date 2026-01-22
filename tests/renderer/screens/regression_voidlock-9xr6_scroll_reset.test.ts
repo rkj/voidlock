@@ -44,7 +44,7 @@ describe("EquipmentScreen Regression: Scroll Reset", () => {
 
     // Set scroll position manually (JSDOM doesn't do layout, but we can set this)
     rightPanel.scrollTop = 150;
-    
+
     // Trigger a re-render by adding an item
     const rows = Array.from(container.querySelectorAll("div")).filter((el) =>
       el.textContent?.includes("Frag Grenade"),
@@ -53,15 +53,17 @@ describe("EquipmentScreen Regression: Scroll Reset", () => {
     const plusBtn = Array.from(row.querySelectorAll("button")).find(
       (btn) => btn.textContent === "+",
     );
-    
+
     plusBtn?.click();
 
     // After re-render, find the new right panel
-    const newRightPanel = container.querySelector(".armory-panel") as HTMLElement;
+    const newRightPanel = container.querySelector(
+      ".armory-panel",
+    ) as HTMLElement;
     expect(newRightPanel).not.toBeNull();
     // It should NOT be the same element instance
     expect(newRightPanel).not.toBe(rightPanel);
-    
+
     // The scroll position should be preserved
     expect(newRightPanel.scrollTop).toBe(150);
   });

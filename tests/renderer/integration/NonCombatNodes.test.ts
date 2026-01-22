@@ -7,7 +7,7 @@ import { GameApp } from "@src/renderer/app/GameApp";
 
 // Mock dependencies
 vi.mock("@package.json", () => ({
-  default: { version: "1.0.0" }
+  default: { version: "1.0.0" },
 }));
 
 const mockGameClient = {
@@ -67,7 +67,7 @@ vi.mock("@src/renderer/ui/EventModal", () => ({
   OutcomeModal: vi.fn().mockImplementation((modalService, onConfirm) => ({
     show: vi.fn().mockImplementation(() => onConfirm()),
     hide: vi.fn(),
-  }))
+  })),
 }));
 
 describe("Non-Combat Node Interactions", () => {
@@ -77,7 +77,7 @@ describe("Non-Combat Node Interactions", () => {
   beforeEach(async () => {
     // Reset mocks
     vi.clearAllMocks();
-    
+
     // Mock ResizeObserver
     global.ResizeObserver = vi.fn().mockImplementation(() => ({
       observe: vi.fn(),
@@ -149,12 +149,16 @@ describe("Non-Combat Node Interactions", () => {
     `;
 
     CampaignManager.resetInstance();
-    manager = CampaignManager.getInstance(new (class {
-      save() {}
-      load() { return null; }
-      remove() {}
-      clear() {}
-    })());
+    manager = CampaignManager.getInstance(
+      new (class {
+        save() {}
+        load() {
+          return null;
+        }
+        remove() {}
+        clear() {}
+      })(),
+    );
 
     app = new GameApp();
     await app.initialize();
@@ -164,7 +168,7 @@ describe("Non-Combat Node Interactions", () => {
     // 1. Start a campaign
     manager.startNewCampaign(12345, "normal");
     const state = manager.getState()!;
-    
+
     // 2. Find a Shop node (or force one for testing)
     const shopNode = {
       id: "node-shop",
@@ -175,7 +179,7 @@ describe("Non-Combat Node Interactions", () => {
       mapSeed: 456,
       connections: ["node-next"],
       position: { x: 100, y: 100 },
-      bonusLootCount: 0
+      bonusLootCount: 0,
     };
     const nextNode = {
       id: "node-next",
@@ -186,7 +190,7 @@ describe("Non-Combat Node Interactions", () => {
       mapSeed: 789,
       connections: [],
       position: { x: 200, y: 100 },
-      bonusLootCount: 0
+      bonusLootCount: 0,
     };
     state.nodes = [shopNode, nextNode];
 
@@ -199,10 +203,12 @@ describe("Non-Combat Node Interactions", () => {
     (app as any).onCampaignNodeSelected(shopNode);
 
     // Wait for async onCampaignNodeSelected
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
     // 4. Verify results
-    expect(mockModalService.alert).toHaveBeenCalledWith(expect.stringContaining("Supply Depot reached"));
+    expect(mockModalService.alert).toHaveBeenCalledWith(
+      expect.stringContaining("Supply Depot reached"),
+    );
     expect(advanceSpy).toHaveBeenCalledWith("node-shop", 100, 0);
     expect(state.scrap).toBe(initialScrap + 100);
     expect(shopNode.status).toBe("Cleared");
@@ -212,7 +218,7 @@ describe("Non-Combat Node Interactions", () => {
   it("should handle Event nodes correctly", async () => {
     manager.startNewCampaign(12345, "normal");
     const state = manager.getState()!;
-    
+
     // Seed 456 with derelict_ship (first event in CampaignEvents)
     const eventNode = {
       id: "node-event",
@@ -223,7 +229,7 @@ describe("Non-Combat Node Interactions", () => {
       mapSeed: 456,
       connections: ["node-next"],
       position: { x: 100, y: 100 },
-      bonusLootCount: 0
+      bonusLootCount: 0,
     };
     state.nodes = [eventNode];
 

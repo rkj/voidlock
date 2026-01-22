@@ -50,22 +50,29 @@ describe("GameClient Pause Logic (sstg.2)", () => {
       12345,
       MapGeneratorType.Procedural,
       mockMap,
-      true, false, true,
+      true,
+      false,
+      true,
       defaultSquad,
-      undefined, 16, 16, 3, false, 0,
+      undefined,
+      16,
+      16,
+      3,
+      false,
+      0,
       1.0, // initial scale
       false, // startPaused
-      true // allowTacticalPause
+      true, // allowTacticalPause
     );
 
     client.togglePause(); // Should pause
     expect(client.getIsPaused()).toBe(true);
     expect(client.getTimeScale()).toBe(0.05);
-    
+
     // Verify SET_TIME_SCALE was sent to worker with 0.05
     expect(postMessageMock).toHaveBeenCalledWith({
       type: "SET_TIME_SCALE",
-      payload: 0.05
+      payload: 0.05,
     });
   });
 
@@ -74,10 +81,19 @@ describe("GameClient Pause Logic (sstg.2)", () => {
       12345,
       MapGeneratorType.Procedural,
       mockMap,
-      true, false, true,
+      true,
+      false,
+      true,
       defaultSquad,
-      undefined, 16, 16, 3, false, 0,
-      1.0, false, true
+      undefined,
+      16,
+      16,
+      3,
+      false,
+      0,
+      1.0,
+      false,
+      true,
     );
 
     client.setTimeScale(2.0);
@@ -88,7 +104,7 @@ describe("GameClient Pause Logic (sstg.2)", () => {
     expect(client.getTimeScale()).toBe(2.0);
     expect(postMessageMock).toHaveBeenLastCalledWith({
       type: "SET_TIME_SCALE",
-      payload: 2.0
+      payload: 2.0,
     });
   });
 
@@ -97,12 +113,19 @@ describe("GameClient Pause Logic (sstg.2)", () => {
       12345,
       MapGeneratorType.Procedural,
       mockMap,
-      true, false, true,
+      true,
+      false,
+      true,
       defaultSquad,
-      undefined, 16, 16, 3, false, 0,
+      undefined,
+      16,
+      16,
+      3,
+      false,
+      0,
       1.0,
       false, // startPaused
-      false // allowTacticalPause = FALSE
+      false, // allowTacticalPause = FALSE
     );
 
     client.togglePause();
@@ -115,35 +138,51 @@ describe("GameClient Pause Logic (sstg.2)", () => {
       12345,
       MapGeneratorType.Procedural,
       mockMap,
-      true, false, true,
+      true,
+      false,
+      true,
       defaultSquad,
-      undefined, 16, 16, 3, false, 0,
+      undefined,
+      16,
+      16,
+      3,
+      false,
+      0,
       1.0,
       false,
-      false // allowTacticalPause = FALSE
+      false, // allowTacticalPause = FALSE
     );
 
     client.setTimeScale(0.5);
     expect(client.getTimeScale()).toBe(1.0);
-    
+
     client.setTimeScale(5.0);
     expect(client.getTimeScale()).toBe(5.0);
-    
+
     client.setTimeScale(20.0);
     expect(client.getTimeScale()).toBe(10.0);
   });
-  
+
   it("should return 0.05 for getTimeScale when paused and tactical allowed", () => {
-      client.init(
-          12345,
-          MapGeneratorType.Procedural,
-          mockMap,
-          true, false, true,
-          defaultSquad,
-          undefined, 16, 16, 3, false, 0,
-          1.0, true, true
-      );
-      expect(client.getIsPaused()).toBe(true);
-      expect(client.getTimeScale()).toBe(0.05);
+    client.init(
+      12345,
+      MapGeneratorType.Procedural,
+      mockMap,
+      true,
+      false,
+      true,
+      defaultSquad,
+      undefined,
+      16,
+      16,
+      3,
+      false,
+      0,
+      1.0,
+      true,
+      true,
+    );
+    expect(client.getIsPaused()).toBe(true);
+    expect(client.getTimeScale()).toBe(0.05);
   });
 });

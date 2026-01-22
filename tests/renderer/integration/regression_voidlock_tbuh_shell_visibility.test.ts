@@ -5,7 +5,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // Mock dependencies before importing main.ts
 vi.mock("@package.json", () => ({
-  default: { version: "1.0.0" }
+  default: { version: "1.0.0" },
 }));
 
 const mockGameClient = {
@@ -72,9 +72,35 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
         startNewCampaign: vi.fn((seed, diff, pause, theme) => {
           currentCampaignState = {
             status: "Active",
-            nodes: [{ id: "node-1", type: "Combat", status: "Accessible", difficulty: 1, mapSeed: 123, connections: [], position: { x: 0, y: 0 } }],
+            nodes: [
+              {
+                id: "node-1",
+                type: "Combat",
+                status: "Accessible",
+                difficulty: 1,
+                mapSeed: 123,
+                connections: [],
+                position: { x: 0, y: 0 },
+              },
+            ],
             roster: [
-              { id: "s1", name: "Soldier 1", archetypeId: "scout", status: "Healthy", level: 1, hp: 100, maxHp: 100, xp: 0, soldierAim: 80, equipment: { rightHand: "pulse_rifle", leftHand: null, body: "basic_armor", feet: null } }
+              {
+                id: "s1",
+                name: "Soldier 1",
+                archetypeId: "scout",
+                status: "Healthy",
+                level: 1,
+                hp: 100,
+                maxHp: 100,
+                xp: 0,
+                soldierAim: 80,
+                equipment: {
+                  rightHand: "pulse_rifle",
+                  leftHand: null,
+                  body: "basic_armor",
+                  feet: null,
+                },
+              },
             ],
             scrap: 100,
             intel: 0,
@@ -94,8 +120,12 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
             },
           };
         }),
-        reset: vi.fn(() => { currentCampaignState = null; }),
-        deleteSave: vi.fn(() => { currentCampaignState = null; }),
+        reset: vi.fn(() => {
+          currentCampaignState = null;
+        }),
+        deleteSave: vi.fn(() => {
+          currentCampaignState = null;
+        }),
         healSoldier: vi.fn(),
         recruitSoldier: vi.fn(),
         assignEquipment: vi.fn(),
@@ -109,7 +139,7 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
 describe("Regression: Campaign Shell Visibility (voidlock-tbuh)", () => {
   beforeEach(async () => {
     currentCampaignState = null;
-    
+
     // Mock ResizeObserver
     global.ResizeObserver = vi.fn().mockImplementation(() => ({
       observe: vi.fn(),
@@ -193,7 +223,7 @@ describe("Regression: Campaign Shell Visibility (voidlock-tbuh)", () => {
     // Import main.ts
     vi.resetModules();
     await import("@src/renderer/main");
-    
+
     // Trigger DOMContentLoaded
     document.dispatchEvent(new Event("DOMContentLoaded"));
   });
@@ -201,24 +231,28 @@ describe("Regression: Campaign Shell Visibility (voidlock-tbuh)", () => {
   it("should hide campaign shell when entering mission setup from campaign screen", async () => {
     const shell = document.getElementById("screen-campaign-shell");
     const missionSetup = document.getElementById("screen-mission-setup");
-    
+
     // 1. Main Menu -> Campaign (Initial wizard)
     document.getElementById("btn-menu-campaign")?.click();
     expect(shell?.style.display).toBe("flex");
-    
+
     // 2. Start Campaign
-    const startBtn = document.querySelector(".campaign-setup-wizard .primary-button") as HTMLElement;
+    const startBtn = document.querySelector(
+      ".campaign-setup-wizard .primary-button",
+    ) as HTMLElement;
     startBtn.click();
     expect(shell?.style.display).toBe("flex");
-    
+
     // 3. Click an accessible node
-    const nodeEl = document.querySelector(".campaign-node.accessible") as HTMLElement;
+    const nodeEl = document.querySelector(
+      ".campaign-node.accessible",
+    ) as HTMLElement;
     expect(nodeEl).toBeTruthy();
     nodeEl.click();
-    
+
     // 4. Verify we are on Mission Setup
     expect(missionSetup?.style.display).toBe("flex");
-    
+
     // Spec 8.5: Campaign Mode MUST be rendered within the CampaignShell
     expect(shell?.style.display).toBe("flex");
   });

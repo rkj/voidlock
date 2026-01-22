@@ -8,7 +8,10 @@ import {
   EngineMode,
   CommandType,
 } from "@src/shared/types";
-import { createMockUnit, createMockEnemy } from "@src/engine/tests/utils/MockFactory";
+import {
+  createMockUnit,
+  createMockEnemy,
+} from "@src/engine/tests/utils/MockFactory";
 
 describe("Regression IHFP: Unit Kill Tracking", () => {
   const mockMap: MapDefinition = {

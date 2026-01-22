@@ -117,17 +117,17 @@ describe("Regression 1jmd: Command Queuing", () => {
     expect(engine.getState().units[0].commandQueue.length).toBe(1);
 
     // 3. Update engine until both commands should be finished
-    // Unit starts at 1.5, 1.5. 
+    // Unit starts at 1.5, 1.5.
     // Command 1: to 2.5, 1.5 (dist 1.0)
     // Command 2: to 3.5, 1.5 (dist 1.0)
     // Total dist 2.0. Speed 20. Now moves at 0.66 tiles/s. Time 3.0s.
-    
+
     for (let i = 0; i < 60; i++) {
-        engine.update(100);
+      engine.update(100);
     }
 
     const finalUnit = engine.getState().units[0];
-    
+
     // Should have finished both
     expect(finalUnit.commandQueue.length).toBe(0);
     expect(finalUnit.activeCommand).toBeUndefined();

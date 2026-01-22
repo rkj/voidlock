@@ -22,7 +22,12 @@ describe("Escort Command", () => {
     extraction: { x: 19, y: 19 },
   };
 
-  const addUnit = (id: string, x: number, archetype: string = "assault", speed: number = 20) => {
+  const addUnit = (
+    id: string,
+    x: number,
+    archetype: string = "assault",
+    speed: number = 20,
+  ) => {
     engine.addUnit({
       id,
       pos: { x: x + 0.5, y: 5.5 },
@@ -74,8 +79,8 @@ describe("Escort Command", () => {
     for (let i = 0; i < 150; i++) engine.update(100);
 
     let state = engine.getState();
-    let e1 = state.units.find(u => u.id === "escort1")!;
-    let target = state.units.find(u => u.id === "target")!;
+    let e1 = state.units.find((u) => u.id === "escort1")!;
+    let target = state.units.find((u) => u.id === "target")!;
 
     // Escort (20) should match Target (15)
     expect(target.stats.speed).toBe(15);
@@ -98,19 +103,24 @@ describe("Escort Command", () => {
       target: { x: 15, y: 5 },
     });
 
-    // Target speed is 15 (0.5 tiles/s). 
+    // Target speed is 15 (0.5 tiles/s).
     // From 5.5 to 15.5 is 10 tiles. Takes ~20s.
     for (let i = 0; i < 300; i++) engine.update(100);
 
     const state = engine.getState();
-    const target = state.units.find(u => u.id === "target")!;
-    const e1 = state.units.find(u => u.id === "escort1")!;
+    const target = state.units.find((u) => u.id === "target")!;
+    const e1 = state.units.find((u) => u.id === "escort1")!;
 
     expect(Math.floor(target.pos.x)).toBeGreaterThanOrEqual(14);
-    expect(Math.floor(e1.pos.x)).toBeGreaterThanOrEqual(Math.floor(target.pos.x));
-    
-    const dist = Math.sqrt(Math.pow(e1.pos.x - target.pos.x, 2) + Math.pow(e1.pos.y - target.pos.y, 2));
-    expect(dist).toBeLessThan(3.0); 
+    expect(Math.floor(e1.pos.x)).toBeGreaterThanOrEqual(
+      Math.floor(target.pos.x),
+    );
+
+    const dist = Math.sqrt(
+      Math.pow(e1.pos.x - target.pos.x, 2) +
+        Math.pow(e1.pos.y - target.pos.y, 2),
+    );
+    expect(dist).toBeLessThan(3.0);
   }, 15000);
 
   it("should handle multiple bodyguards in formation", () => {
@@ -126,11 +136,11 @@ describe("Escort Command", () => {
     for (let i = 0; i < 150; i++) engine.update(100);
 
     const state = engine.getState();
-    const e1 = state.units.find(u => u.id === "escort1")!; // Vanguard
-    const e2 = state.units.find(u => u.id === "escort2")!; // Rearguard
-    const e3 = state.units.find(u => u.id === "escort3")!; // Bodyguard 1 (Right)
-    const e4 = state.units.find(u => u.id === "escort4")!; // Bodyguard 2 (Left)
-    const e5 = state.units.find(u => u.id === "escort5")!; // Bodyguard 3 (Right, Depth 1)
+    const e1 = state.units.find((u) => u.id === "escort1")!; // Vanguard
+    const e2 = state.units.find((u) => u.id === "escort2")!; // Rearguard
+    const e3 = state.units.find((u) => u.id === "escort3")!; // Bodyguard 1 (Right)
+    const e4 = state.units.find((u) => u.id === "escort4")!; // Bodyguard 2 (Left)
+    const e5 = state.units.find((u) => u.id === "escort5")!; // Bodyguard 3 (Right, Depth 1)
 
     expect(Math.floor(e1.pos.x)).toBe(5);
     expect(Math.floor(e1.pos.y)).toBe(4);

@@ -19,9 +19,9 @@ export enum CellType {
 }
 
 export enum BoundaryType {
-  Open = "Open",   // Passable
-  Wall = "Wall",   // Impassable
-  Door = "Door",   // Passable if open, impassable if closed/locked
+  Open = "Open", // Passable
+  Wall = "Wall", // Impassable
+  Door = "Door", // Passable if open, impassable if closed/locked
 }
 
 interface Cell {

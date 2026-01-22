@@ -3,7 +3,13 @@
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { Renderer } from "../../src/renderer/Renderer";
-import { GameState, CellType, BoundaryType, EngineMode, MissionType } from "../../src/shared/types";
+import {
+  GameState,
+  CellType,
+  BoundaryType,
+  EngineMode,
+  MissionType,
+} from "../../src/shared/types";
 
 describe("Renderer Stale Graph Regression (voidlock-weyd)", () => {
   let canvas: HTMLCanvasElement;
@@ -48,20 +54,31 @@ describe("Renderer Stale Graph Regression (voidlock-weyd)", () => {
         doors: [
           {
             id: "door-1",
-            segment: [{ x: 1, y: 0 }, { x: 2, y: 0 }],
+            segment: [
+              { x: 1, y: 0 },
+              { x: 2, y: 0 },
+            ],
             orientation: "Vertical",
             state: "Open", // Important: Passable
-            hp: 50, maxHp: 50, openDuration: 1
-          }
+            hp: 50,
+            maxHp: 50,
+            openDuration: 1,
+          },
         ],
-        walls: []
+        walls: [],
       },
       units: [],
       enemies: [],
       visibleCells: ["1,0", "2,0"],
       discoveredCells: ["1,0", "2,0"],
       objectives: [],
-      stats: { threatLevel: 0, aliensKilled: 0, elitesKilled: 0, scrapGained: 0, casualties: 0 },
+      stats: {
+        threatLevel: 0,
+        aliensKilled: 0,
+        elitesKilled: 0,
+        scrapGained: 0,
+        casualties: 0,
+      },
       status: "Playing",
       settings: {
         mode: EngineMode.Simulation,
@@ -78,7 +95,7 @@ describe("Renderer Stale Graph Regression (voidlock-weyd)", () => {
     };
 
     renderer.render(state1);
-    
+
     // Check internal graph state via private access (casting to any)
     let graph = (renderer as any).graph;
     let boundary = graph.getBoundary(1, 0, 2, 0);
@@ -92,15 +109,15 @@ describe("Renderer Stale Graph Regression (voidlock-weyd)", () => {
       map: {
         ...state1.map,
         doors: [],
-        walls: [{ p1: { x: 2, y: 0 }, p2: { x: 2, y: 1 } }] // Vertical wall between (1,0) and (2,0)
-      }
+        walls: [{ p1: { x: 2, y: 0 }, p2: { x: 2, y: 1 } }], // Vertical wall between (1,0) and (2,0)
+      },
     };
 
     renderer.render(state2);
 
     graph = (renderer as any).graph;
     boundary = graph.getBoundary(1, 0, 2, 0);
-    
+
     // IF THE BUG EXISTS, this will fail because the graph was reused and the boundary is still 'Open'
     expect(boundary.type).toBe(BoundaryType.Wall);
   });

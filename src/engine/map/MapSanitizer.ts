@@ -42,7 +42,11 @@ export class MapSanitizer {
 
         const boundary = cell.edges[d];
         // Traverse if NO wall OR if there is a Door
-        if (boundary && (boundary.type === BoundaryType.Open || boundary.type === BoundaryType.Door)) {
+        if (
+          boundary &&
+          (boundary.type === BoundaryType.Open ||
+            boundary.type === BoundaryType.Door)
+        ) {
           const nKey = `${nx},${ny}`;
           if (!reachable.has(nKey)) {
             const nCell = graph.cells[ny][nx];
@@ -94,7 +98,11 @@ export class MapSanitizer {
         y1: b.y1,
         x2: b.x2,
         y2: b.y2,
-        type: isValidDoor ? BoundaryType.Door : (shouldBeWall ? BoundaryType.Wall : BoundaryType.Open),
+        type: isValidDoor
+          ? BoundaryType.Door
+          : shouldBeWall
+            ? BoundaryType.Wall
+            : BoundaryType.Open,
         doorId: isValidDoor ? b.doorId : undefined,
       });
     }

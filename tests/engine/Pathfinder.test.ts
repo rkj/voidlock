@@ -1,7 +1,13 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { Pathfinder } from "@src/engine/Pathfinder";
 import { GameGrid } from "@src/engine/GameGrid";
-import { MapDefinition, CellType, Vector2, Door, Cell } from "@src/shared/types";
+import {
+  MapDefinition,
+  CellType,
+  Vector2,
+  Door,
+  Cell,
+} from "@src/shared/types";
 
 describe("Pathfinder", () => {
   let mockMap: MapDefinition;

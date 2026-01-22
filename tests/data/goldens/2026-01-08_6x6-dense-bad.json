@@ -2542,9 +2542,7 @@
         "objectivesCompleted": 0,
         "activeCommand": {
           "type": "MOVE_TO",
-          "unitIds": [
-            "soldier_0"
-          ],
+          "unitIds": ["soldier_0"],
           "target": {
             "x": 0,
             "y": 5,
@@ -2626,9 +2624,7 @@
         "objectivesCompleted": 0,
         "activeCommand": {
           "type": "MOVE_TO",
-          "unitIds": [
-            "soldier_1"
-          ],
+          "unitIds": ["soldier_1"],
           "target": {
             "x": 0,
             "y": 5,
@@ -2695,9 +2691,7 @@
         "objectivesCompleted": 0,
         "activeCommand": {
           "type": "MOVE_TO",
-          "unitIds": [
-            "soldier_2"
-          ],
+          "unitIds": ["soldier_2"],
           "target": {
             "x": 0,
             "y": 5,
@@ -2764,9 +2758,7 @@
         "objectivesCompleted": 0,
         "activeCommand": {
           "type": "MOVE_TO",
-          "unitIds": [
-            "soldier_3"
-          ],
+          "unitIds": ["soldier_3"],
           "target": {
             "x": 0,
             "y": 5,
@@ -2984,12 +2976,7 @@
         "tick": 0,
         "command": {
           "type": "EXPLORE",
-          "unitIds": [
-            "soldier_0",
-            "soldier_1",
-            "soldier_2",
-            "soldier_3"
-          ]
+          "unitIds": ["soldier_0", "soldier_1", "soldier_2", "soldier_3"]
         }
       },
       {

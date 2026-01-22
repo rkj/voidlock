@@ -30,24 +30,36 @@ describe("DebugUtility", () => {
       },
     });
 
-    await DebugUtility.copyWorldState(mockState, mockReplayData, version, mockModalService);
+    await DebugUtility.copyWorldState(
+      mockState,
+      mockReplayData,
+      version,
+      mockModalService,
+    );
 
     expect(writeTextMock).toHaveBeenCalled();
-    expect(mockModalService.alert).toHaveBeenCalledWith("World State copied to clipboard!");
+    expect(mockModalService.alert).toHaveBeenCalledWith(
+      "World State copied to clipboard!",
+    );
   });
 
   it("should fallback to console when navigator.clipboard is missing", async () => {
     vi.stubGlobal("navigator", {});
 
-    await DebugUtility.copyWorldState(mockState, mockReplayData, version, mockModalService);
+    await DebugUtility.copyWorldState(
+      mockState,
+      mockReplayData,
+      version,
+      mockModalService,
+    );
 
     expect(console.error).toHaveBeenCalledWith(
       "Failed to copy state to clipboard:",
-      expect.any(Error)
+      expect.any(Error),
     );
     expect(console.log).toHaveBeenCalledWith("Full World State JSON:");
     expect(mockModalService.alert).toHaveBeenCalledWith(
-      "Failed to copy to clipboard. See console for JSON."
+      "Failed to copy to clipboard. See console for JSON.",
     );
   });
 
@@ -60,16 +72,21 @@ describe("DebugUtility", () => {
       },
     });
 
-    await DebugUtility.copyWorldState(mockState, mockReplayData, version, mockModalService);
+    await DebugUtility.copyWorldState(
+      mockState,
+      mockReplayData,
+      version,
+      mockModalService,
+    );
 
     expect(writeTextMock).toHaveBeenCalled();
-    
+
     expect(console.error).toHaveBeenCalledWith(
       "Failed to copy state to clipboard:",
-      error
+      error,
     );
     expect(mockModalService.alert).toHaveBeenCalledWith(
-      "Failed to copy to clipboard. See console for JSON."
+      "Failed to copy to clipboard. See console for JSON.",
     );
   });
 
@@ -84,14 +101,19 @@ describe("DebugUtility", () => {
       },
     });
 
-    await DebugUtility.copyWorldState(mockState, mockReplayData, version, mockModalService);
+    await DebugUtility.copyWorldState(
+      mockState,
+      mockReplayData,
+      version,
+      mockModalService,
+    );
 
     expect(console.error).toHaveBeenCalledWith(
       "Failed to copy state to clipboard:",
-      error
+      error,
     );
     expect(mockModalService.alert).toHaveBeenCalledWith(
-      "Failed to copy to clipboard. See console for JSON."
+      "Failed to copy to clipboard. See console for JSON.",
     );
   });
 });

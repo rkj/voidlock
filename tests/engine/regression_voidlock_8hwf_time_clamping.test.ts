@@ -1,6 +1,11 @@
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { GameClient } from "@src/engine/GameClient";
-import { MapDefinition, MapGeneratorType, SquadConfig, MapGenerationConfig } from "@src/shared/types";
+import {
+  MapDefinition,
+  MapGeneratorType,
+  SquadConfig,
+  MapGenerationConfig,
+} from "@src/shared/types";
 import { MapGenerator } from "@src/engine/MapGenerator";
 
 // Mock Worker
@@ -18,8 +23,12 @@ vi.stubGlobal("Worker", MockWorker);
 // Mock MapGeneratorFactory
 const mockMapGeneratorFactory = (config: MapGenerationConfig) => {
   const generator = new MapGenerator(config);
-  generator.generate = vi.fn().mockReturnValue({ width: 10, height: 10, cells: [] });
-  generator.load = vi.fn().mockImplementation((data) => data || { width: 10, height: 10, cells: [] });
+  generator.generate = vi
+    .fn()
+    .mockReturnValue({ width: 10, height: 10, cells: [] });
+  generator.load = vi
+    .fn()
+    .mockImplementation((data) => data || { width: 10, height: 10, cells: [] });
   return generator;
 };
 
@@ -51,7 +60,14 @@ describe("Regression: Voidlock-8hwf Time Clamping", () => {
       true,
       defaultSquad,
       "Default" as any,
-      16, 16, 3, false, 0, 1.0, false, true // allowTacticalPause = true
+      16,
+      16,
+      3,
+      false,
+      0,
+      1.0,
+      false,
+      true, // allowTacticalPause = true
     );
 
     client.pause();
@@ -72,7 +88,14 @@ describe("Regression: Voidlock-8hwf Time Clamping", () => {
       true,
       defaultSquad,
       "Default" as any,
-      16, 16, 3, false, 0, 1.0, false, false // allowTacticalPause = false
+      16,
+      16,
+      3,
+      false,
+      0,
+      1.0,
+      false,
+      false, // allowTacticalPause = false
     );
 
     client.pause();
@@ -93,7 +116,14 @@ describe("Regression: Voidlock-8hwf Time Clamping", () => {
       true,
       defaultSquad,
       "Default" as any,
-      16, 16, 3, false, 0, 1.0, false, false // allowTacticalPause = false
+      16,
+      16,
+      3,
+      false,
+      0,
+      1.0,
+      false,
+      false, // allowTacticalPause = false
     );
 
     client.setTimeScale(0.5);
@@ -114,7 +144,14 @@ describe("Regression: Voidlock-8hwf Time Clamping", () => {
       true,
       defaultSquad,
       "Default" as any,
-      16, 16, 3, false, 0, 1.0, false, false // allowTacticalPause = false
+      16,
+      16,
+      3,
+      false,
+      0,
+      1.0,
+      false,
+      false, // allowTacticalPause = false
     );
 
     client.setTimeScale(2.0);

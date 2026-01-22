@@ -6,14 +6,17 @@ import * as path from "path";
 
 describe("Invincible Combat Repro (voidlock-zkhz)", () => {
   it("should deal damage when units are attacking enemies in range", () => {
-    const dataPath = path.join(__dirname, "../../../tests/data/weird_fight.json");
+    const dataPath = path.join(
+      __dirname,
+      "../../../tests/data/weird_fight.json",
+    );
     const data = JSON.parse(fs.readFileSync(dataPath, "utf8"));
     const currentState = data.currentState;
 
     const map: MapDefinition = currentState.map;
     const squadConfig: SquadConfig = {
       soldiers: [],
-      inventory: currentState.squadInventory
+      inventory: currentState.squadInventory,
     };
 
     // Initialize engine with map from state
@@ -28,7 +31,7 @@ describe("Invincible Combat Repro (voidlock-zkhz)", () => {
       currentState.stats.threatLevel,
       0.05, // initialTimeScale
       false, // startPaused
-      EngineMode.Simulation
+      EngineMode.Simulation,
     );
 
     // Manually override engine state to match currentState from JSON
@@ -41,20 +44,27 @@ describe("Invincible Combat Repro (voidlock-zkhz)", () => {
     state.objectives = JSON.parse(JSON.stringify(currentState.objectives));
     state.stats = JSON.parse(JSON.stringify(currentState.stats));
 
-    const initialEnemiesHp = state.enemies.map((e: any) => ({ id: e.id, hp: e.hp }));
+    const initialEnemiesHp = state.enemies.map((e: any) => ({
+      id: e.id,
+      hp: e.hp,
+    }));
     const initialAliensKilled = state.stats.aliensKilled;
 
     // Run one tick of combat (16ms)
     engine.update(16, 16);
 
     const newState = engine.getState();
-    const finalEnemiesHp = newState.enemies.map((e: any) => ({ id: e.id, hp: e.hp }));
-    
+    const finalEnemiesHp = newState.enemies.map((e: any) => ({
+      id: e.id,
+      hp: e.hp,
+    }));
+
     // Check if any enemy took damage
-    const tookDamage = newState.enemies.some((e: any) => {
+    const tookDamage =
+      newState.enemies.some((e: any) => {
         const initial = initialEnemiesHp.find((ie: any) => ie.id === e.id);
         return initial && e.hp < initial.hp;
-    }) || newState.stats.aliensKilled > initialAliensKilled;
+      }) || newState.stats.aliensKilled > initialAliensKilled;
 
     // Based on the bug report, we expect this to FAIL (tookDamage will be false)
     expect(tookDamage, "Enemies should have taken damage or died").toBe(true);

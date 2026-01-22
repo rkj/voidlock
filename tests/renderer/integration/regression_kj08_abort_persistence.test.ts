@@ -5,7 +5,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // Mock dependencies
 vi.mock("@package.json", () => ({
-  default: { version: "1.0.0" }
+  default: { version: "1.0.0" },
 }));
 
 // Mock Worker
@@ -60,7 +60,7 @@ describe("Regression kj08: Abort Persistence", () => {
     localStorage.clear();
     CampaignManager.resetInstance();
     cm = CampaignManager.getInstance(new LocalStorageProvider());
-    
+
     // Mock ResizeObserver
     global.ResizeObserver = vi.fn().mockImplementation(() => ({
       observe: vi.fn(),
@@ -134,38 +134,52 @@ describe("Regression kj08: Abort Persistence", () => {
     document.dispatchEvent(new Event("DOMContentLoaded"));
 
     // Give it a bit of time to initialize
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 50));
   });
 
   it("should clear mission persistence but currently FAILS to mark campaign node as cleared on abort", async () => {
     // 1. Start Campaign
     document.getElementById("btn-menu-campaign")?.click();
-    
-    await new Promise(resolve => setTimeout(resolve, 50));
-    (document.querySelector(".campaign-setup-wizard .primary-button") as HTMLElement).click();
-    
-    await new Promise(resolve => setTimeout(resolve, 50));
-    
+
+    await new Promise((resolve) => setTimeout(resolve, 50));
+    (
+      document.querySelector(
+        ".campaign-setup-wizard .primary-button",
+      ) as HTMLElement
+    ).click();
+
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
     cm.load(); // Sync with what wizard did
     const state = cm.getState();
-    const combatNode = state!.nodes.find(n => n.status === "Accessible")!;
+    const combatNode = state!.nodes.find((n) => n.status === "Accessible")!;
     expect(combatNode).toBeDefined();
 
     // 2. Launch Mission
-    (document.querySelector(`.campaign-node[data-id="${combatNode.id}"]`) as HTMLElement).click();
-    
+    (
+      document.querySelector(
+        `.campaign-node[data-id="${combatNode.id}"]`,
+      ) as HTMLElement
+    ).click();
+
     // Select squad member (double click on card)
     const soldierCard = document.querySelector(".soldier-card") as HTMLElement;
     soldierCard?.dispatchEvent(new Event("dblclick"));
 
-    const launchBtn = Array.from(document.querySelectorAll("button")).find(b => b.textContent?.includes("Launch"));
+    const launchBtn = Array.from(document.querySelectorAll("button")).find(
+      (b) => b.textContent?.includes("Launch"),
+    );
     launchBtn?.click();
 
-    const confirmBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent?.includes("Confirm Squad")) as HTMLElement;
+    const confirmBtn = Array.from(
+      document.querySelectorAll("#screen-equipment button"),
+    ).find((b) => b.textContent?.includes("Confirm Squad")) as HTMLElement;
     confirmBtn?.click();
 
-    expect(document.getElementById("screen-mission")?.style.display).toBe("flex");
-    
+    expect(document.getElementById("screen-mission")?.style.display).toBe(
+      "flex",
+    );
+
     // Verify session state in localStorage
     expect(localStorage.getItem("voidlock_session_state")).toContain("mission");
     expect(localStorage.getItem("voidlock_mission_config")).not.toBeNull();
@@ -173,22 +187,26 @@ describe("Regression kj08: Abort Persistence", () => {
     // 3. Abort Mission
     mockModalService.confirm.mockResolvedValue(true);
     document.getElementById("btn-give-up")?.click();
-    
+
     // Wait for async ModalService.confirm AND potentially in-flight worker messages
-    await new Promise(resolve => setTimeout(resolve, 200));
+    await new Promise((resolve) => setTimeout(resolve, 200));
 
     // Verify we are back to Main Menu
-    expect(document.getElementById("screen-main-menu")?.style.display).toBe("flex");
-    expect(localStorage.getItem("voidlock_session_state")).toContain("main-menu");
-    
+    expect(document.getElementById("screen-main-menu")?.style.display).toBe(
+      "flex",
+    );
+    expect(localStorage.getItem("voidlock_session_state")).toContain(
+      "main-menu",
+    );
+
     // Verify mission config is cleared
     expect(localStorage.getItem("voidlock_mission_config")).toBeNull();
 
     // BUG 1: Mission node should be treated as LOST in CampaignManager
     cm.load();
     const updatedState = cm.getState()!;
-    const abortedNode = updatedState.nodes.find(n => n.id === combatNode.id)!;
-    
+    const abortedNode = updatedState.nodes.find((n) => n.id === combatNode.id)!;
+
     // Spec 4.4: "Treated as a Defeat (Squad Wipe logic applies...)"
     // This implies the node should no longer be Accessible, but Cleared/Lost.
     expect(abortedNode.status).toBe("Cleared");

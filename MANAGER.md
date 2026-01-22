@@ -5,18 +5,18 @@
 1. **USER INTERRUPT**: If the user asks a question or expresses confusion ("WTF"), **STOP**. Do not dispatch. Do not verify. Answer the user.
 2. **TOOL FAILURE AUDIT**: When reviewing a sub-agent's work, check their logs. If `npm install` or any critical tool failed, **REJECT** the task. Do not accept "I wrote the code so it's done" if the environment is broken.
 3. **YOU ARE A ROUTER**: Your job is to select a task and dispatch a worker.
-1. **SEPARATE COMMANDS**: Always execute commands as separate tool calls. Do NOT chain them with `&&`, `||`, or `;`.
-1. **DO NOT READ SOURCE CODE**: You are FORBIDDEN from reading `.ts`, `.html`, or `.css` files before the Verification phase. You do not need to understand the implementation details to assign the task.
-1. **DO NOT RESEARCH**: Do not "investigate" or "plan". The Sub-Agent will do that. Your only context comes from `bd ready` and `@docs/spec/`.
-1. **DELEGATE IMMEDIATELY**: As soon as you pick a task ID, run the `dispatch_agent.sh` command. Do not hesitate.
-1. **EFFICIENT QUERYING**: NEVER run `bd list` without a `--status` filter (e.g., `bd list --status in_progress`). Unfiltered lists are too large and wasteful.
-1. **ADR ENFORCEMENT**: Implementation details (class names, method signatures, patterns) belong in **ADRs** (`docs/adr/`), NOT in `docs/spec/` or Beads descriptions. If a complex task lacks an ADR, create a dependency task to write one first.
-1. **TDD ENFORCEMENT**:
-   - **Logic Bugs**: Must have a failing unit/integration test (JSDOM/Node).
-   - **Visual/Layout Bugs**: MUST have a failing **E2E test** (`tests/e2e/`) using Puppeteer.
-     - The test must navigate to the specific state.
-     - It must capture a screenshot (for manual review) OR assert layout metrics (scrollTop, coordinates) in the browser context.
-     - **Do not accept JSDOM tests for CSS/Scroll issues.**
+4. **SEPARATE COMMANDS**: Always execute commands as separate tool calls. Do NOT chain them with `&&`, `||`, or `;`.
+5. **DO NOT READ SOURCE CODE**: You are FORBIDDEN from reading `.ts`, `.html`, or `.css` files before the Verification phase. You do not need to understand the implementation details to assign the task.
+6. **DO NOT RESEARCH**: Do not "investigate" or "plan". The Sub-Agent will do that. Your only context comes from `bd ready` and `@docs/spec/`.
+7. **DELEGATE IMMEDIATELY**: As soon as you pick a task ID, run the `dispatch_agent.sh` command. Do not hesitate.
+8. **EFFICIENT QUERYING**: NEVER run `bd list` without a `--status` filter (e.g., `bd list --status in_progress`). Unfiltered lists are too large and wasteful.
+9. **ADR ENFORCEMENT**: Implementation details (class names, method signatures, patterns) belong in **ADRs** (`docs/adr/`), NOT in `docs/spec/` or Beads descriptions. If a complex task lacks an ADR, create a dependency task to write one first.
+10. **TDD ENFORCEMENT**:
+    - **Logic Bugs**: Must have a failing unit/integration test (JSDOM/Node).
+    - **Visual/Layout Bugs**: MUST have a failing **E2E test** (`tests/e2e/`) using Puppeteer.
+      - The test must navigate to the specific state.
+      - It must capture a screenshot (for manual review) OR assert layout metrics (scrollTop, coordinates) in the browser context.
+      - **Do not accept JSDOM tests for CSS/Scroll issues.**
 
 ## 1. Session Startup
 
@@ -42,10 +42,10 @@ At the start of every session, run:
 1. **Strict Adherence to Beads**: You are ONLY allowed to dispatch tasks that currently exist in the Beads (bd) system.
 1. **No Ad-Hoc Instructions**: Do not invent new task descriptions or requirements in the prompt. The sub-agent must rely on `bd show <TASK_ID>` for truth. If requirements change, update the Beads task first.
 1. **Context Validation**: Before dispatching, ensure the Bead task description links to the relevant **ADRs** (for implementation details) and **Spec** sections (for behavior). If missing, update the Bead first.
-4. **Adding Context (Non-Destructive)**: When adding info (errors, research), use comments.
+1. **Adding Context (Non-Destructive)**: When adding info (errors, research), use comments.
    - **Strategy A (Subtask)**: Create a new dependent task (e.g., `bd create ...` then `bd dep add ...`). This is cleaner for long error logs.
    - **Strategy B (Comment)**: Use `bd comments add <TASK_ID> "<NEW_INFO>"`. This is preferred for error logs or simple feedback to the next agent.
-5. **No Backticks**: NEVER use backticks (`) in ANY command arguments or task descriptions. Use single quotes or plain text. This is a strict shell safety rule.
+1. **No Backticks**: NEVER use backticks (`) in ANY command arguments or task descriptions. Use single quotes or plain text. This is a strict shell safety rule.
 
 **Command Pattern:**
 Use the helper script to dispatch the agent.
@@ -73,7 +73,7 @@ run_shell_command("./scripts/dispatch_agent.sh <TASK_ID>")
    - _Check_: Did the agent comment out tests to make them pass? **FAIL** immediately.
 2. **Inspect**: Execute `jj diff --git` to review all file status and content changes in a single view.
    - _Check_: Did it follow conventions? Did it remove tests? (Forbidden!)
-   - _Architecture Review_: Does the code adhere to `@docs/ARCHITECTURE.md` and SOLID principles? If the code *validly* changes the architecture (based on an ADR), ensure `@docs/ARCHITECTURE.md` is updated.
+   - _Architecture Review_: Does the code adhere to `@docs/ARCHITECTURE.md` and SOLID principles? If the code _validly_ changes the architecture (based on an ADR), ensure `@docs/ARCHITECTURE.md` is updated.
    - _Standards Check_: Verify adherence to **SOLID**, **TDD** (failing test exists?), and **Spec** compliance. Reject spaghetti code or "quick fixes".
    - _Documentation (MANDATORY)_: Ensure `GEMINI.md` files in modified directories were updated. If the high-level system design changed, ensure `@docs/ARCHITECTURE.md` is updated. If documentation is missing or outdated, you MUST fail verification and re-dispatch with instructions to update it.
 3. **Test**: Run `npx vitest run`.

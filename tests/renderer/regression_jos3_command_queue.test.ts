@@ -15,9 +15,7 @@ describe("MenuController Shift Queueing", () => {
     seed: 12345,
     missionType: MissionType.Default,
     map: { width: 10, height: 10, cells: [] },
-    units: [
-      { id: "u1", state: UnitState.Idle } as any,
-    ],
+    units: [{ id: "u1", state: UnitState.Idle } as any],
     enemies: [],
     visibleCells: [],
     discoveredCells: [],
@@ -53,21 +51,23 @@ describe("MenuController Shift Queueing", () => {
 
   it("should set queue: true when isShiftHeld is true", () => {
     controller.isShiftHeld = true;
-    
+
     // Select Order: EXPLORE (1 -> 3)
     controller.handleMenuInput("1", mockState); // ORDERS
     controller.handleMenuInput("3", mockState); // EXPLORE
     controller.handleMenuInput("2", mockState); // ALL UNITS (u1=1, ALL=2)
 
-    expect(mockClient.sendCommand).toHaveBeenCalledWith(expect.objectContaining({
-      type: CommandType.EXPLORE,
-      queue: true
-    }));
+    expect(mockClient.sendCommand).toHaveBeenCalledWith(
+      expect.objectContaining({
+        type: CommandType.EXPLORE,
+        queue: true,
+      }),
+    );
   });
 
   it("should set queue: false (or undefined/false) when isShiftHeld is false", () => {
     controller.isShiftHeld = false;
-    
+
     // Select Order: EXPLORE (1 -> 3)
     controller.handleMenuInput("1", mockState); // ORDERS
     controller.handleMenuInput("3", mockState); // EXPLORE

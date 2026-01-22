@@ -4,12 +4,18 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { CampaignManager } from "@src/engine/managers/CampaignManager";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
-import { UnitState, GameState, MissionType, EngineMode, AIProfile } from "@src/shared/types";
+import {
+  UnitState,
+  GameState,
+  MissionType,
+  EngineMode,
+  AIProfile,
+} from "@src/shared/types";
 import { GameApp } from "@src/renderer/app/GameApp";
 
 // Mock dependencies
 vi.mock("@package.json", () => ({
-  default: { version: "1.0.0" }
+  default: { version: "1.0.0" },
 }));
 
 // Trigger for GameClient callbacks
@@ -17,7 +23,9 @@ let stateUpdateCallback: ((state: GameState) => void) | null = null;
 
 const mockGameClient = {
   init: vi.fn(),
-  onStateUpdate: vi.fn((cb) => { stateUpdateCallback = cb; }),
+  onStateUpdate: vi.fn((cb) => {
+    stateUpdateCallback = cb;
+  }),
   stop: vi.fn(),
   getIsPaused: vi.fn().mockReturnValue(false),
   getTargetScale: vi.fn().mockReturnValue(1.0),
@@ -67,14 +75,14 @@ vi.mock("@src/renderer/ui/ModalService", () => ({
 vi.mock("@src/renderer/ui/EventModal", () => ({
   EventModal: vi.fn().mockImplementation((modalService, onChoice) => ({
     show: vi.fn().mockImplementation((event) => {
-        // Automatically pick first choice
-        onChoice(event.choices[0]);
+      // Automatically pick first choice
+      onChoice(event.choices[0]);
     }),
     hide: vi.fn(),
   })),
   OutcomeModal: vi.fn().mockImplementation((modalService, onConfirm) => ({
     show: vi.fn().mockImplementation(() => {
-        onConfirm();
+      onConfirm();
     }),
     hide: vi.fn(),
   })),
@@ -192,7 +200,7 @@ describe("E2E Campaign Happy Path", () => {
         boundaries: [],
         doors: [],
         walls: [],
-        spawnPoints: []
+        spawnPoints: [],
       },
       units: [],
       enemies: [],
@@ -204,7 +212,7 @@ describe("E2E Campaign Happy Path", () => {
         aliensKilled: 0,
         elitesKilled: 0,
         scrapGained: 0,
-        casualties: 0
+        casualties: 0,
       },
       status: "Playing",
       settings: {
@@ -214,12 +222,12 @@ describe("E2E Campaign Happy Path", () => {
         timeScale: 1.0,
         isPaused: false,
         isSlowMotion: false,
-        allowTacticalPause: true
+        allowTacticalPause: true,
       },
       squadInventory: {},
       loot: [],
       mines: [],
-      ...overrides
+      ...overrides,
     };
   };
 
@@ -228,141 +236,210 @@ describe("E2E Campaign Happy Path", () => {
 
     // 1. Start Standard Campaign
     document.getElementById("btn-menu-campaign")?.click();
-    expect(document.getElementById("screen-campaign")?.style.display).toBe("flex");
-    
-    const standardCard = Array.from(document.querySelectorAll(".difficulty-card")).find(c => c.textContent?.includes("Standard")) as HTMLElement;
+    expect(document.getElementById("screen-campaign")?.style.display).toBe(
+      "flex",
+    );
+
+    const standardCard = Array.from(
+      document.querySelectorAll(".difficulty-card"),
+    ).find((c) => c.textContent?.includes("Standard")) as HTMLElement;
     expect(standardCard).toBeTruthy();
     standardCard?.click();
 
-    const startBtn = document.querySelector(".campaign-setup-wizard .primary-button") as HTMLElement;
+    const startBtn = document.querySelector(
+      ".campaign-setup-wizard .primary-button",
+    ) as HTMLElement;
     expect(startBtn).toBeTruthy();
     startBtn?.click();
-    
+
     expect(cm.getState()?.status).toBe("Active");
     expect(cm.getState()?.roster.length).toBe(4);
     expect(cm.getState()?.currentSector).toBe(1);
 
     let loopCount = 0;
-    const MAX_LOOPS = 50; 
+    const MAX_LOOPS = 50;
     let lastSector = 1;
 
     while (cm.getState()?.status === "Active" && loopCount < MAX_LOOPS) {
       loopCount++;
       const state = cm.getState()!;
-      
+
       // 2. Select an accessible node
-      const accessibleNode = state.nodes.find(n => n.status === "Accessible");
+      const accessibleNode = state.nodes.find((n) => n.status === "Accessible");
       expect(accessibleNode).toBeTruthy();
-      
-      const nodeEl = document.querySelector(`.campaign-node[data-id="${accessibleNode!.id}"]`) as HTMLElement;
+
+      const nodeEl = document.querySelector(
+        `.campaign-node[data-id="${accessibleNode!.id}"]`,
+      ) as HTMLElement;
       expect(nodeEl).toBeTruthy();
       nodeEl.click();
 
-          // Wait for async onCampaignNodeSelected
-          await new Promise(resolve => setTimeout(resolve, 50));
+      // Wait for async onCampaignNodeSelected
+      await new Promise((resolve) => setTimeout(resolve, 50));
       // If we are still on campaign screen, it was a Shop or non-ambush Event that got resolved immediately
-      if (document.getElementById("screen-campaign")?.style.display !== "none") {
-          continue;
+      if (
+        document.getElementById("screen-campaign")?.style.display !== "none"
+      ) {
+        continue;
       }
 
       // 3. Handle Mission Setup
-      expect(document.getElementById("screen-mission-setup")?.style.display).toBe("flex");
+      expect(
+        document.getElementById("screen-mission-setup")?.style.display,
+      ).toBe("flex");
 
       // Ensure squad is selected
       const soldierCards = document.querySelectorAll(".soldier-card");
-      soldierCards.forEach(card => {
-          if (!card.classList.contains("selected") && !card.classList.contains("disabled")) {
-              card.dispatchEvent(new Event("dblclick"));
-          }
+      soldierCards.forEach((card) => {
+        if (
+          !card.classList.contains("selected") &&
+          !card.classList.contains("disabled")
+        ) {
+          card.dispatchEvent(new Event("dblclick"));
+        }
       });
 
       // Launch to Equipment
       document.getElementById("btn-goto-equipment")?.click();
-      expect(document.getElementById("screen-equipment")?.style.display).toBe("flex");
+      expect(document.getElementById("screen-equipment")?.style.display).toBe(
+        "flex",
+      );
 
       // Confirm and Launch mission
-      const equipmentLaunchBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent?.includes("Confirm")) as HTMLElement;
+      const equipmentLaunchBtn = Array.from(
+        document.querySelectorAll("#screen-equipment button"),
+      ).find((b) => b.textContent?.includes("Confirm")) as HTMLElement;
       expect(equipmentLaunchBtn).toBeTruthy();
       equipmentLaunchBtn?.click();
 
       // 4. Mission Screen
-      expect(document.getElementById("screen-mission")?.style.display).toBe("flex");
+      expect(document.getElementById("screen-mission")?.style.display).toBe(
+        "flex",
+      );
 
       // We need an initial state update to render the HUD and Debug Tools
-      stateUpdateCallback!(createMockState({
-        units: cm.getState()!.roster.filter(s => s.status === "Healthy").slice(0, 4).map(s => ({
-          id: s.id,
-          hp: s.maxHp,
-          maxHp: s.maxHp,
-          kills: 0,
-          state: UnitState.Idle,
-          pos: { x: 0, y: 0 },
-          stats: { speed: 20, damage: 10, fireRate: 1, accuracy: 80, soldierAim: 80, sightRange: 10, range: 10, attackRange: 10, equipmentAccuracyBonus: 0 },
-          engagementPolicy: "ENGAGE",
-          archetypeId: s.archetypeId,
-          aiProfile: AIProfile.STAND_GROUND,
-          commandQueue: [],
-          damageDealt: 0,
-          objectivesCompleted: 0
-        })),
-        nodeType: accessibleNode!.type
-      }));
+      stateUpdateCallback!(
+        createMockState({
+          units: cm
+            .getState()!
+            .roster.filter((s) => s.status === "Healthy")
+            .slice(0, 4)
+            .map((s) => ({
+              id: s.id,
+              hp: s.maxHp,
+              maxHp: s.maxHp,
+              kills: 0,
+              state: UnitState.Idle,
+              pos: { x: 0, y: 0 },
+              stats: {
+                speed: 20,
+                damage: 10,
+                fireRate: 1,
+                accuracy: 80,
+                soldierAim: 80,
+                sightRange: 10,
+                range: 10,
+                attackRange: 10,
+                equipmentAccuracyBonus: 0,
+              },
+              engagementPolicy: "ENGAGE",
+              archetypeId: s.archetypeId,
+              aiProfile: AIProfile.STAND_GROUND,
+              commandQueue: [],
+              damageDealt: 0,
+              objectivesCompleted: 0,
+            })),
+          nodeType: accessibleNode!.type,
+        }),
+      );
 
       // Simulate Force Win via Debug Overlay
       const debugWinBtn = document.getElementById("btn-force-win");
       expect(debugWinBtn).toBeTruthy();
       debugWinBtn?.click();
-      
+
       expect(mockGameClient.forceWin).toHaveBeenCalled();
 
       // Mock the engine response for winning
-      stateUpdateCallback!(createMockState({
-        status: "Won",
-        t: 100,
-        stats: { aliensKilled: 10, elitesKilled: 0, scrapGained: 100, threatLevel: 0, casualties: 0 },
-        units: cm.getState()!.roster.filter(s => s.status === "Healthy").slice(0, 4).map(s => ({
-          id: s.id,
-          hp: s.maxHp,
-          maxHp: s.maxHp,
-          kills: 2,
-          state: UnitState.Idle,
-          pos: { x: 0, y: 0 },
-          stats: { speed: 20, damage: 10, fireRate: 1, accuracy: 80, soldierAim: 80, sightRange: 10, range: 10, attackRange: 10, equipmentAccuracyBonus: 0 },
-          engagementPolicy: "ENGAGE",
-          archetypeId: s.archetypeId,
-          aiProfile: AIProfile.STAND_GROUND,
-          commandQueue: [],
-          damageDealt: 0,
-          objectivesCompleted: 0
-        })),
-        nodeType: accessibleNode!.type
-      }));
+      stateUpdateCallback!(
+        createMockState({
+          status: "Won",
+          t: 100,
+          stats: {
+            aliensKilled: 10,
+            elitesKilled: 0,
+            scrapGained: 100,
+            threatLevel: 0,
+            casualties: 0,
+          },
+          units: cm
+            .getState()!
+            .roster.filter((s) => s.status === "Healthy")
+            .slice(0, 4)
+            .map((s) => ({
+              id: s.id,
+              hp: s.maxHp,
+              maxHp: s.maxHp,
+              kills: 2,
+              state: UnitState.Idle,
+              pos: { x: 0, y: 0 },
+              stats: {
+                speed: 20,
+                damage: 10,
+                fireRate: 1,
+                accuracy: 80,
+                soldierAim: 80,
+                sightRange: 10,
+                range: 10,
+                attackRange: 10,
+                equipmentAccuracyBonus: 0,
+              },
+              engagementPolicy: "ENGAGE",
+              archetypeId: s.archetypeId,
+              aiProfile: AIProfile.STAND_GROUND,
+              commandQueue: [],
+              damageDealt: 0,
+              objectivesCompleted: 0,
+            })),
+          nodeType: accessibleNode!.type,
+        }),
+      );
 
       // 5. Debrief Screen
-      expect(document.getElementById("screen-debrief")?.style.display).toBe("flex");
-      
-      const returnBtn = Array.from(document.querySelectorAll("#screen-debrief button")).find(b => b.textContent?.includes("Return")) as HTMLElement;
+      expect(document.getElementById("screen-debrief")?.style.display).toBe(
+        "flex",
+      );
+
+      const returnBtn = Array.from(
+        document.querySelectorAll("#screen-debrief button"),
+      ).find((b) => b.textContent?.includes("Return")) as HTMLElement;
       expect(returnBtn).toBeTruthy();
       returnBtn?.click();
 
       // 6. Check Transition
       const currentCmState = cm.getState()!;
       if (currentCmState.status === "Victory") {
-          expect(document.getElementById("screen-campaign-summary")?.style.display).toBe("flex");
+        expect(
+          document.getElementById("screen-campaign-summary")?.style.display,
+        ).toBe("flex");
       } else {
-          expect(document.getElementById("screen-campaign")?.style.display).toBe("flex");
-          
-          // Verify progression to next sector
-          expect(currentCmState.currentSector).toBeGreaterThanOrEqual(lastSector);
-          lastSector = currentCmState.currentSector;
+        expect(document.getElementById("screen-campaign")?.style.display).toBe(
+          "flex",
+        );
+
+        // Verify progression to next sector
+        expect(currentCmState.currentSector).toBeGreaterThanOrEqual(lastSector);
+        lastSector = currentCmState.currentSector;
       }
     }
 
     // 7. Final Verification
     expect(cm.getState()?.status).toBe("Victory");
-    expect(document.getElementById("screen-campaign-summary")?.style.display).toBe("flex");
+    expect(
+      document.getElementById("screen-campaign-summary")?.style.display,
+    ).toBe("flex");
     expect(document.querySelector(".campaign-victory-overlay")).toBeTruthy();
-    
+
     expect(loopCount).toBeGreaterThan(5);
   });
 });

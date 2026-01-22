@@ -21,12 +21,7 @@ export class MapLayer implements RenderLayer {
     map.cells.forEach((cell) => {
       if (cell.type === CellType.Floor) {
         ctx.fillStyle = this.theme.getColor("--color-floor");
-        ctx.fillRect(
-          cell.x * cellSize,
-          cell.y * cellSize,
-          cellSize,
-          cellSize,
-        );
+        ctx.fillRect(cell.x * cellSize, cell.y * cellSize, cellSize, cellSize);
 
         // Grid lines (faint)
         ctx.strokeStyle = this.theme.getColor("--color-grid");
@@ -73,8 +68,14 @@ export class MapLayer implements RenderLayer {
 
     const s = cellSize;
     let startX: number, startY: number, endX: number, endY: number;
-    let strut1_sx: number, strut1_sy: number, strut1_ex: number, strut1_ey: number;
-    let strut2_sx: number, strut2_sy: number, strut2_ex: number, strut2_ey: number;
+    let strut1_sx: number,
+      strut1_sy: number,
+      strut1_ex: number,
+      strut1_ey: number;
+    let strut2_sx: number,
+      strut2_sy: number,
+      strut2_ex: number,
+      strut2_ey: number;
 
     if (door.orientation === "Vertical") {
       const cellX = Math.min(p1.x, p2.x);
@@ -87,8 +88,14 @@ export class MapLayer implements RenderLayer {
       endX = wallX;
       endY = startY + doorLength;
 
-      strut1_sx = wallX; strut1_sy = wallY; strut1_ex = wallX; strut1_ey = startY;
-      strut2_sx = wallX; strut2_sy = endY; strut2_ex = wallX; strut2_ey = wallY + s;
+      strut1_sx = wallX;
+      strut1_sy = wallY;
+      strut1_ex = wallX;
+      strut1_ey = startY;
+      strut2_sx = wallX;
+      strut2_sy = endY;
+      strut2_ex = wallX;
+      strut2_ey = wallY + s;
     } else {
       const cellX = p1.x;
       const cellY = Math.min(p1.y, p2.y);
@@ -100,17 +107,33 @@ export class MapLayer implements RenderLayer {
       endX = startX + doorLength;
       endY = wallY;
 
-      strut1_sx = wallX; strut1_sy = wallY; strut1_ex = startX; strut1_ey = wallY;
-      strut2_sx = endX; strut2_sy = wallY; strut2_ex = wallX + s; strut2_ey = wallY;
+      strut1_sx = wallX;
+      strut1_sy = wallY;
+      strut1_ex = startX;
+      strut1_ey = wallY;
+      strut2_sx = endX;
+      strut2_sy = wallY;
+      strut2_ex = wallX + s;
+      strut2_ey = wallY;
     }
 
     ctx.lineWidth = doorThickness;
 
     let openRatio = 0;
     if (door.state === "Open" && !door.targetState) openRatio = 1;
-    else if (door.state === "Closed" && door.targetState === "Open" && door.openTimer && door.openDuration) {
+    else if (
+      door.state === "Closed" &&
+      door.targetState === "Open" &&
+      door.openTimer &&
+      door.openDuration
+    ) {
       openRatio = 1 - door.openTimer / (door.openDuration * 1000);
-    } else if (door.state === "Open" && door.targetState === "Closed" && door.openTimer && door.openDuration) {
+    } else if (
+      door.state === "Open" &&
+      door.targetState === "Closed" &&
+      door.openTimer &&
+      door.openDuration
+    ) {
       openRatio = door.openTimer / (door.openDuration * 1000);
     }
 
@@ -122,7 +145,8 @@ export class MapLayer implements RenderLayer {
       ctx.strokeStyle = this.theme.getColor("--color-door-destroyed");
     } else {
       ctx.strokeStyle = this.theme.getColor("--color-door-closed");
-      if (openRatio > 0.8) ctx.strokeStyle = this.theme.getColor("--color-door-dim");
+      if (openRatio > 0.8)
+        ctx.strokeStyle = this.theme.getColor("--color-door-dim");
     }
 
     if (door.state !== "Destroyed") {

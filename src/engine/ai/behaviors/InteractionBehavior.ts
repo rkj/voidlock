@@ -18,7 +18,7 @@ export class InteractionBehavior implements Behavior {
     _doors: Map<string, any>,
     _prng: PRNG,
     context: AIContext,
-    _director?: any
+    _director?: any,
   ): boolean {
     if (unit.state !== UnitState.Idle) return false;
 
@@ -27,7 +27,7 @@ export class InteractionBehavior implements Behavior {
       const loot = state.loot.find(
         (l) =>
           Math.abs(unit.pos.x - l.pos.x) < 0.8 &&
-          Math.abs(unit.pos.y - l.pos.y) < 0.8
+          Math.abs(unit.pos.y - l.pos.y) < 0.8,
       );
 
       if (
@@ -102,7 +102,9 @@ export class InteractionBehavior implements Behavior {
         unit.activeCommand?.type === CommandType.EXTRACT;
 
       if (
-        (allOtherObjectivesComplete || isVipAtExtraction || isExplicitExtract) &&
+        (allOtherObjectivesComplete ||
+          isVipAtExtraction ||
+          isExplicitExtract) &&
         Math.floor(unit.pos.x) === ext.x &&
         Math.floor(unit.pos.y) === ext.y
       ) {

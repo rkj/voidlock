@@ -20,6 +20,6 @@ const rules = {
 const generator = new SectorMapGenerator();
 const nodes = generator.generate(12345, rules as any);
 
-nodes.forEach(n => {
-    console.log(`Rank ${n.rank}, ID ${n.id}, Type ${n.type}`);
+nodes.forEach((n) => {
+  console.log(`Rank ${n.rank}, ID ${n.id}, Type ${n.type}`);
 });

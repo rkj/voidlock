@@ -7,18 +7,19 @@
 The application is divided into distinct screens to reduce UI clutter and improve flow.
 
 ### Main Menu
+
 - **Title**: Voidlock
 - **Version**: [Current Version]
 - **Buttons**:
-    - **Campaign**: Enter Campaign Mode.
-    - **Custom Mission**: Enter Mission Setup.
-    - **Statistics**: Opens the Statistics Screen (Service Record).
-    - **Reset Data**: Clear all local storage and reload (Destructive, with confirmation via Custom Modal).
+  - **Campaign**: Enter Campaign Mode.
+  - **Custom Mission**: Enter Mission Setup.
+  - **Statistics**: Opens the Statistics Screen (Service Record).
+  - **Reset Data**: Clear all local storage and reload (Destructive, with confirmation via Custom Modal).
 - **Import**: "Load Replay JSON" file picker.
 
 1. **Mission Setup Screen** (formerly Config Screen)
    - **Shell Integration**:
-     - **Campaign Mode**: MUST be rendered *within* the `CampaignShell` content area to ensure the Global Resource Header (Scrap/Intel) is visible.
+     - **Campaign Mode**: MUST be rendered _within_ the `CampaignShell` content area to ensure the Global Resource Header (Scrap/Intel) is visible.
      - **Custom Mode**: Can use the standalone layout.
    - **Campaign Context Header**:
      - **Location**: Below the "Mission Configuration" title.
@@ -27,20 +28,21 @@ The application is divided into distinct screens to reduce UI clutter and improv
        - **Custom Mode**: "Custom Simulation"
      - **Style**: Subtle, informative header text (e.g., smaller font, dimmed color).
        - **Map Configuration**:
-        - Generator Type (Procedural, TreeShip, Static).
-        - Seed Input / Randomize.
-        - Map Size (Width/Height).
-        - Static Map Import (Text/File/ASCII).
-        - **Visual Theme**: Dropdown to select the active UI/Map theme (e.g., "Default", "Matrix", "Retro").
-           - **Game Options**:
-           - Fog of War, Debug Overlay, LOS Visualization toggles.
-        - **Game Speed Control**:
-          - **Slider Range**: 0.1x to 10.0x (Fast Forward). Default 1.0x.
-          - **Active Pause**: Speed 0.05x acts as "Active Pause", allowing commands to be issued while time moves very slowly. It is NOT part of the slider range.
-          - **In-Game Access**: This control must be accessible during a mission.
-          - **Controls**:
-            - **Spacebar**: Toggles between "Active Pause" (0.05x) and the last used speed.
-            - **UI Button**: A dedicated button (Play/Pause icon) in the UI should also toggle this state.
+       - Generator Type (Procedural, TreeShip, Static).
+       - Seed Input / Randomize.
+       - Map Size (Width/Height).
+       - Static Map Import (Text/File/ASCII).
+       - **Visual Theme**: Dropdown to select the active UI/Map theme (e.g., "Default", "Matrix", "Retro").
+         - **Game Options**:
+         - Fog of War, Debug Overlay, LOS Visualization toggles.
+       - **Game Speed Control**:
+         - **Slider Range**: 0.1x to 10.0x (Fast Forward). Default 1.0x.
+         - **Active Pause**: Speed 0.05x acts as "Active Pause", allowing commands to be issued while time moves very slowly. It is NOT part of the slider range.
+         - **In-Game Access**: This control must be accessible during a mission.
+         - **Controls**:
+           - **Spacebar**: Toggles between "Active Pause" (0.05x) and the last used speed.
+           - **UI Button**: A dedicated button (Play/Pause icon) in the UI should also toggle this state.
+
 - **Command Set Updates:**
   - `ENGAGE/IGNORE Toggle`: Units can be toggled between 'ENGAGE' (Stop & Shoot) and 'IGNORE' (Run) policies. This toggle should be easily accessible in the command menu.
   - **Squad Configuration (Drag & Drop):**
@@ -85,6 +87,7 @@ The application is divided into distinct screens to reduce UI clutter and improv
 \- **Initialization**: When opening this screen, the slots MUST be pre-populated with the soldier's currently assigned equipment. It must NEVER default to empty hands unless the soldier is actually unarmed.
 \- Assign weapons/armor to specific soldier slots.
 \- Allocate global items (e.g., "Take 3 Grenades") to the mission inventory pool.
+
 - **Asset Integration**:
   - Weapon names must use the user-visible `name` field from `WeaponLibrary` / `ItemLibrary` (e.g., "Pulse Rifle"), NOT the internal ID (e.g., `pulse_rifle_mk1`).
 
@@ -111,6 +114,7 @@ The application is divided into distinct screens to reduce UI clutter and improv
 **Toggle:** `~` (Tilde/Backquote) or "Debug Overlay" checkbox in Mission Setup.
 
 When enabled, the game displays additional diagnostic information:
+
 - **Map Visualization**:
   - Grid coordinates overlaid on all cells.
   - **Full Visibility**: Bypasses Fog of War/Shroud visually to show the entire map and all entities.
@@ -124,6 +128,7 @@ When enabled, the game displays additional diagnostic information:
 
 **World State Export:**
 Clicking "Copy World State" captures a comprehensive snapshot of the session.
+
 - **Format:** JSON
 - **Contents**:
   - `replayData`: Seed, Map Definition, Squad Config, and the full Command History.
@@ -149,29 +154,30 @@ For detailed Command behaviors, see **[Command System & AI](commands.md)**.
 
 To ensure consistent navigation, the UI follows a strict state machine.
 
-| Current State | Input / Trigger | Next State | Action / Side Effect |
-| :--- | :--- | :--- | :--- |
-| **Action Select** (Root) | `1` (Orders) | **Orders Select** | Show Order Submenu |
-| | `2` (Engage) | **Mode Select** | Show Mode Submenu |
-| | `3` (Use Item) | **Item Select** | Show Inventory List |
-| | `4` (Pickup) | **Target Select** | Filter: Loot Items |
-| | `5` (Extract) | **Unit Select** | Filter: All Units |
-| **Orders Select** | `1` (Move) | **Target Select** | Filter: Rooms |
-| | `2` (Overwatch) | **Target Select** | Filter: Intersections |
-| | `3` (Explore) | **Unit Select** | Filter: All Units |
-| | `4` (Escort) | **Target Select** | Filter: Friendly Units |
-| | `5` (Hold) | **Unit Select** | Filter: All Units |
-| | `Q` / `ESC` | **Action Select** | Clear Submenu |
-| **Item Select** | `1-9` (Select Item) | **Target Select** | Filter: Contextual (See below) |
-| | `Q` / `ESC` | **Action Select** | Clear Inventory |
-| **Mode Select** | `1-2` (Select Mode) | **Unit Select** | Set Pending Mode |
-| | `Q` / `ESC` | **Action Select** | Clear Submenu |
-| **Target Select** | `1-9` / Click | **Unit Select** | Set Pending Target |
-| | `Q` / `ESC` | *Previous State* | **CRITICAL:** Return to parent (Order/Item/Action) |
-| **Unit Select** | `1-9` (Select Unit) | **Action Select** | **EXECUTE COMMAND** |
-| | `Q` / `ESC` | *Previous State* | Return to Target/Mode selection |
+| Current State            | Input / Trigger     | Next State        | Action / Side Effect                               |
+| :----------------------- | :------------------ | :---------------- | :------------------------------------------------- |
+| **Action Select** (Root) | `1` (Orders)        | **Orders Select** | Show Order Submenu                                 |
+|                          | `2` (Engage)        | **Mode Select**   | Show Mode Submenu                                  |
+|                          | `3` (Use Item)      | **Item Select**   | Show Inventory List                                |
+|                          | `4` (Pickup)        | **Target Select** | Filter: Loot Items                                 |
+|                          | `5` (Extract)       | **Unit Select**   | Filter: All Units                                  |
+| **Orders Select**        | `1` (Move)          | **Target Select** | Filter: Rooms                                      |
+|                          | `2` (Overwatch)     | **Target Select** | Filter: Intersections                              |
+|                          | `3` (Explore)       | **Unit Select**   | Filter: All Units                                  |
+|                          | `4` (Escort)        | **Target Select** | Filter: Friendly Units                             |
+|                          | `5` (Hold)          | **Unit Select**   | Filter: All Units                                  |
+|                          | `Q` / `ESC`         | **Action Select** | Clear Submenu                                      |
+| **Item Select**          | `1-9` (Select Item) | **Target Select** | Filter: Contextual (See below)                     |
+|                          | `Q` / `ESC`         | **Action Select** | Clear Inventory                                    |
+| **Mode Select**          | `1-2` (Select Mode) | **Unit Select**   | Set Pending Mode                                   |
+|                          | `Q` / `ESC`         | **Action Select** | Clear Submenu                                      |
+| **Target Select**        | `1-9` / Click       | **Unit Select**   | Set Pending Target                                 |
+|                          | `Q` / `ESC`         | _Previous State_  | **CRITICAL:** Return to parent (Order/Item/Action) |
+| **Unit Select**          | `1-9` (Select Unit) | **Action Select** | **EXECUTE COMMAND**                                |
+|                          | `Q` / `ESC`         | _Previous State_  | Return to Target/Mode selection                    |
 
 **Item Targeting Context:**
+
 - **Grenades:** `TARGET_SELECT` filter = **Visible Enemies** (If none, disable option).
 - **Medkits/Stimpacks:** `TARGET_SELECT` filter = **Friendly Units**.
 - **Mines:** `TARGET_SELECT` filter = **Placement Points** (Intersections/Exits).
@@ -327,28 +333,28 @@ To ensure consistency between Campaign Management (Barracks) and Mission Prepara
 To ensure visual clarity and correct occlusion, the renderer must adhere to a strict Layer Stacking Order (Z-Index).
 
 1.  **Background Layer:**
-    -   Floor Tiles
-    -   Wall Geometry (Base)
-    -   Static Map Details (Decals)
+    - Floor Tiles
+    - Wall Geometry (Base)
+    - Static Map Details (Decals)
 2.  **Ground Decal Layer:**
-    -   Zone Indicators (Extraction Zone, Deployment Zone)
-    -   Static Mission Entities (Spawn Points, Loot Crates, Terminals)
-    -   **Icon Distinction**:
-      -   **Objectives**: Must render with the `Objective` icon (e.g., Target/Flag).
-      -   **Loot Crates**: Must render with a distinct `Crate` icon to differentiate them from mission critical objectives.
-      -   **Unit Style adherence**: If the visual style is set to `TacticalIcons`, map entities (like Loot) must render as abstract, high-contrast geometric shapes using the active theme colors, ignoring sprite assets.
+    - Zone Indicators (Extraction Zone, Deployment Zone)
+    - Static Mission Entities (Spawn Points, Loot Crates, Terminals)
+    - **Icon Distinction**:
+    - **Objectives**: Must render with the `Objective` icon (e.g., Target/Flag).
+    - **Loot Crates**: Must render with a distinct `Crate` icon to differentiate them from mission critical objectives.
+    - **Unit Style adherence**: If the visual style is set to `TacticalIcons`, map entities (like Loot) must render as abstract, high-contrast geometric shapes using the active theme colors, ignoring sprite assets.
 3.  **Unit Layer (Dynamic):**
-    -   **Soldiers & Enemies:** Must render **ON TOP** of the Ground Decal Layer.
-    -   *Example:* A soldier standing on a Spawn Point must obscure the Spawn Point graphic.
-    -   **Projectiles/Tracers:** Rendered above units.
+    - **Soldiers & Enemies:** Must render **ON TOP** of the Ground Decal Layer.
+    - _Example:_ A soldier standing on a Spawn Point must obscure the Spawn Point graphic.
+    - **Projectiles/Tracers:** Rendered above units.
 4.  **Fog of War (Shroud):**
-    -   Obscures Layers 1-3 based on visibility.
+    - Obscures Layers 1-3 based on visibility.
 5.  **Overlay Layer (UI):**
-    -   Selection Rings/Highlights.
-    -   Health Bars.
-    -   Floating Text (Damage Numbers).
-    -   Movement Paths (Ghosts).
-    -   Objective Indicators (Icons).
+    - Selection Rings/Highlights.
+    - Health Bars.
+    - Floating Text (Damage Numbers).
+    - Movement Paths (Ghosts).
+    - Objective Indicators (Icons).
 
 ### 8.9 Campaign Shell Architecture
 
