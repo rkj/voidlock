@@ -242,12 +242,13 @@ describe("CampaignManager", () => {
     });
 
     it("should recruit a new soldier", () => {
-      manager.recruitSoldier("assault", "New Recruit");
+      const id = manager.recruitSoldier("assault", "New Recruit");
       const state = manager.getState();
       expect(state?.scrap).toBe(400);
       expect(state?.roster.length).toBe(5);
-      const newSoldier = state?.roster.find((s) => s.name === "New Recruit");
+      const newSoldier = state?.roster.find((s) => s.id === id);
       expect(newSoldier).toBeDefined();
+      expect(newSoldier?.name).toBe("New Recruit");
       expect(newSoldier?.archetypeId).toBe("assault");
       expect(newSoldier?.status).toBe("Healthy");
     });
