@@ -4,6 +4,7 @@ import {
   GameState,
   CellType,
   UnitState,
+  UnitStyle,
 } from "@src/shared/types";
 import {
   createMockUnit,
@@ -58,6 +59,7 @@ describe("Layer Rendering Order", () => {
     } as any;
 
     renderer = new GameRenderer(mockCanvas);
+    renderer.setUnitStyle(UnitStyle.Sprites);
     renderer.setCellSize(32);
   });
 

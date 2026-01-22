@@ -136,7 +136,7 @@ describe("MapEntityLayer", () => {
     expect(extractionPointFill).toBeDefined();
   });
 
-  it.skip("should NOT call drawImage for loot when UnitStyle is TacticalIcons, even if Crate icon exists", () => {
+  it("should NOT call drawImage for loot when UnitStyle is TacticalIcons, even if Crate icon exists", () => {
     sharedState.unitStyle = UnitStyle.TacticalIcons;
     
     // Ensure Crate icon exists in AssetManager

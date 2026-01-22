@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { Renderer } from "@src/renderer/Renderer";
-import { GameState, MapDefinition, CellType, UnitState } from "@src/shared/types";
+import { GameState, MapDefinition, CellType, UnitState, UnitStyle } from "@src/shared/types";
 import { createMockGameState } from "@src/engine/tests/utils/MockFactory";
 import { Icons } from "@src/renderer/Icons";
 
@@ -97,6 +97,7 @@ describe("Renderer Regression: LTH3 Redundant Objective Marker", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     renderer = new Renderer(mockCanvas);
+    renderer.setUnitStyle(UnitStyle.Sprites);
     renderer.setCellSize(32);
   });
 
