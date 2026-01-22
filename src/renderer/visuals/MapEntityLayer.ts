@@ -50,6 +50,7 @@ export class MapEntityLayer implements RenderLayer {
     if (!state.map.extraction) return;
 
     const cellSize = this.sharedState.cellSize;
+    const isTactical = this.sharedState.unitStyle === "TacticalIcons";
     const ext = state.map.extraction;
     const x = ext.x * cellSize;
     const y = ext.y * cellSize;
@@ -67,7 +68,7 @@ export class MapEntityLayer implements RenderLayer {
     ctx.strokeRect(x + 5, y + 5, cellSize - 10, cellSize - 10);
     ctx.setLineDash([]);
 
-    const icon = this.assets.iconImages.Exit;
+    const icon = !isTactical ? this.assets.iconImages.Exit : null;
     if (icon) {
       const iconSize = cellSize * 0.6;
       ctx.drawImage(icon, x + (cellSize - iconSize) / 2, y + (cellSize - iconSize) / 2, iconSize, iconSize);
@@ -76,6 +77,7 @@ export class MapEntityLayer implements RenderLayer {
 
   private renderSpawnPoints(ctx: CanvasRenderingContext2D, state: GameState) {
     const cellSize = this.sharedState.cellSize;
+    const isTactical = this.sharedState.unitStyle === "TacticalIcons";
 
     state.map.spawnPoints?.forEach((sp) => {
       const x = sp.pos.x * cellSize;
@@ -88,7 +90,7 @@ export class MapEntityLayer implements RenderLayer {
       ctx.fillStyle = this.theme.getColor("--color-spawn-bg");
       ctx.fillRect(x, y, cellSize, cellSize);
 
-      const icon = this.assets.iconImages.Spawn;
+      const icon = !isTactical ? this.assets.iconImages.Spawn : null;
       if (icon) {
         const iconSize = cellSize * 0.5;
         ctx.drawImage(icon, x + (cellSize - iconSize) / 2, y + (cellSize - iconSize) / 2, iconSize, iconSize);
@@ -98,6 +100,7 @@ export class MapEntityLayer implements RenderLayer {
 
   private renderLoot(ctx: CanvasRenderingContext2D, state: GameState) {
     const cellSize = this.sharedState.cellSize;
+    const isTactical = this.sharedState.unitStyle === "TacticalIcons";
 
     state.loot?.forEach((loot) => {
       const x = loot.pos.x * cellSize;
@@ -109,19 +112,27 @@ export class MapEntityLayer implements RenderLayer {
       if (!isVisible && !isDiscovered && !state.settings.debugOverlayEnabled) return;
 
       // Render loot crate
-      const icon = this.assets.iconImages.Crate;
+      const icon = !isTactical ? this.assets.iconImages.Crate : null;
       if (icon) {
         const iconSize = cellSize * 0.5;
         ctx.drawImage(icon, x + (cellSize - iconSize) / 2, y + (cellSize - iconSize) / 2, iconSize, iconSize);
       } else {
         ctx.fillStyle = this.theme.getColor("--color-objective-bg");
         ctx.fillRect(x + cellSize * 0.2, y + cellSize * 0.2, cellSize * 0.6, cellSize * 0.6);
+        
+        // Add a border if tactical
+        if (isTactical) {
+          ctx.strokeStyle = this.theme.getColor("--color-info");
+          ctx.lineWidth = 2;
+          ctx.strokeRect(x + cellSize * 0.2, y + cellSize * 0.2, cellSize * 0.6, cellSize * 0.6);
+        }
       }
     });
   }
 
   private renderObjectives(ctx: CanvasRenderingContext2D, state: GameState) {
     const cellSize = this.sharedState.cellSize;
+    const isTactical = this.sharedState.unitStyle === "TacticalIcons";
 
     state.objectives?.forEach((obj) => {
       if (obj.state === "Pending" && obj.targetCell && (obj.visible || state.settings.debugOverlayEnabled)) {
@@ -132,7 +143,7 @@ export class MapEntityLayer implements RenderLayer {
         ctx.fillStyle = this.theme.getColor("--color-objective-bg");
         ctx.fillRect(x + 4, y + 4, cellSize - 8, cellSize - 8);
 
-        const icon = this.assets.iconImages.Objective;
+        const icon = !isTactical ? this.assets.iconImages.Objective : null;
         if (icon) {
           const iconSize = cellSize * 0.6;
           ctx.drawImage(icon, x + (cellSize - iconSize) / 2, y + (cellSize - iconSize) / 2, iconSize, iconSize);

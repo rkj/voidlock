@@ -3,6 +3,7 @@ import { MapEntityLayer } from "@src/renderer/visuals/MapEntityLayer";
 import { SharedRendererState } from "@src/renderer/visuals/SharedRendererState";
 import {
   GameState,
+  UnitStyle,
 } from "@src/shared/types";
 import {
   createMockGameState,
@@ -31,6 +32,7 @@ describe("DebugLoot Rendering", () => {
     };
 
     sharedState = new SharedRendererState();
+    sharedState.unitStyle = UnitStyle.Sprites;
     sharedState.cellSize = 32;
     layer = new MapEntityLayer(sharedState);
   });
