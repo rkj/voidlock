@@ -311,9 +311,9 @@ export class MenuController {
             gameState,
             this.discovery,
           ).map((opt) => ({ ...opt, renderOnBoard: false }));
-        } else if (item?.action === "Grenade") {
+        } else if (item?.action === "Scanner") {
           this.selection.overlayOptions = TargetOverlayGenerator.generate(
-            "CELL",
+            "FRIENDLY_UNIT",
             gameState,
             this.discovery,
           );
@@ -466,9 +466,9 @@ export class MenuController {
             gameState,
             this.discovery,
           );
-        } else if (item?.action === "Mine") {
+        } else if (item?.action === "Scanner") {
           this.selection.overlayOptions = TargetOverlayGenerator.generate(
-            "PLACEMENT_POINT",
+            "FRIENDLY_UNIT",
             gameState,
             this.discovery,
           );

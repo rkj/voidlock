@@ -150,14 +150,26 @@ export class Director {
         });
       }
     } else if (item.action === "Scanner") {
-      if (cmd.target) {
+      let targetPos: Vector2 | undefined = cmd.target;
+
+      if (cmd.targetUnitId) {
+        const targetUnit = state.units.find((u) => u.id === cmd.targetUnitId);
+        if (targetUnit) {
+          targetPos = {
+            x: Math.floor(targetUnit.pos.x),
+            y: Math.floor(targetUnit.pos.y),
+          };
+        }
+      }
+
+      if (targetPos) {
         const radius = 5;
         const radiusSq = radius * radius;
         for (let dy = -radius; dy <= radius; dy++) {
           for (let dx = -radius; dx <= radius; dx++) {
             if (dx * dx + dy * dy <= radiusSq) {
-              const tx = Math.floor(cmd.target.x + dx);
-              const ty = Math.floor(cmd.target.y + dy);
+              const tx = Math.floor(targetPos.x + dx);
+              const ty = Math.floor(targetPos.y + dy);
               if (
                 tx >= 0 &&
                 tx < state.map.width &&
