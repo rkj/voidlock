@@ -48,7 +48,17 @@ export class HUDManager {
   private updateTopBar(state: GameState) {
     const statusElement = document.getElementById("game-status");
     if (statusElement) {
-      statusElement.innerHTML = `<span style="color:var(--color-text-muted); text-transform:uppercase; letter-spacing:1px; font-size:0.8em;">Time</span> ${(state.t / 1000).toFixed(1)}s`;
+      let timeVal = statusElement.querySelector(".time-value");
+      if (!timeVal) {
+        statusElement.innerHTML = `<span style="color:var(--color-text-muted); text-transform:uppercase; letter-spacing:1px; font-size:0.8em;">Time</span> <span class="time-value"></span>s`;
+        timeVal = statusElement.querySelector(".time-value");
+      }
+      if (timeVal) {
+        const timeStr = (state.t / 1000).toFixed(1);
+        if (timeVal.textContent !== timeStr) {
+          timeVal.textContent = timeStr;
+        }
+      }
     }
 
     const threatLevel = state.stats.threatLevel || 0;
@@ -159,10 +169,10 @@ export class HUDManager {
     if (!objectivesDiv) {
       objectivesDiv = document.createElement("div");
       objectivesDiv.className = "objectives-status";
+      objectivesDiv.innerHTML = "<h3>Objectives</h3><div class='obj-list'></div>";
       rightPanel.appendChild(objectivesDiv);
     }
-    const objHtml = "<h3>Objectives</h3>" + this.renderObjectivesList(state);
-    if (objectivesDiv.innerHTML !== objHtml) objectivesDiv.innerHTML = objHtml;
+    this.updateObjectives(state, objectivesDiv.querySelector(".obj-list") as HTMLElement);
 
     // Remove old extraction div if it exists (now handled by objectives)
     const extDiv = rightPanel.querySelector(".extraction-status");
@@ -216,10 +226,17 @@ export class HUDManager {
     this.updateEnemyIntel(state, rightPanel);
   }
 
-  private renderObjectivesList(state: GameState): string {
-    let html = "";
+  private getObjectivesData(state: GameState) {
     const showCoords = state.settings.debugOverlayEnabled;
-    state.objectives.forEach((obj) => {
+    const data: {
+      id: string;
+      icon: string;
+      color: string;
+      text: string;
+      state: string;
+    }[] = [];
+
+    state.objectives.forEach((obj, idx) => {
       const isCompleted = obj.state === "Completed";
       const isFailed = obj.state === "Failed";
       const icon = isCompleted ? "✔" : isFailed ? "✘" : "○";
@@ -229,10 +246,13 @@ export class HUDManager {
           ? "var(--color-danger)"
           : "var(--color-text-muted)";
 
-      html += `<p style="margin: 5px 0;">
-        <span style="color:${color}; margin-right:8px; font-weight:bold;" title="${obj.state}">${icon}</span>
-        ${obj.kind}${obj.targetCell && showCoords ? ` at (${obj.targetCell.x},${obj.targetCell.y})` : ""}
-      </p>`;
+      data.push({
+        id: obj.id || `obj-${idx}`,
+        icon,
+        color,
+        text: `${obj.kind}${obj.targetCell && showCoords ? ` at (${obj.targetCell.x},${obj.targetCell.y})` : ""}`,
+        state: obj.state,
+      });
     });
 
     // Extraction Status (as an implicit objective if not already present)
@@ -252,12 +272,58 @@ export class HUDManager {
       const locStr = showCoords
         ? ` at (${state.map.extraction.x},${state.map.extraction.y})`
         : "";
-      html += `<p style="margin: 5px 0;">
-        <span style="color:${color}; margin-right:8px; font-weight:bold;" title="${status}">${icon}</span>
-        Extraction (${extractedCount}/${totalUnits})${locStr}
-      </p>`;
+      data.push({
+        id: "extraction",
+        icon,
+        color,
+        text: `Extraction (${extractedCount}/${totalUnits})${locStr}`,
+        state: status,
+      });
     }
-    return html;
+    return data;
+  }
+
+  private updateObjectives(state: GameState, container: HTMLElement) {
+    const data = this.getObjectivesData(state);
+    const existingRows = Array.from(container.querySelectorAll("p"));
+
+    if (existingRows.length !== data.length) {
+      container.innerHTML = data
+        .map(
+          (d) => `
+        <p style="margin: 5px 0;" data-obj-id="${d.id}">
+          <span class="obj-icon" style="color:${d.color}; margin-right:8px; font-weight:bold;" title="${d.state}">${d.icon}</span>
+          <span class="obj-text">${d.text}</span>
+        </p>
+      `,
+        )
+        .join("");
+    } else {
+      data.forEach((d, i) => {
+        const row = existingRows[i];
+        const iconSpan = row.querySelector(".obj-icon") as HTMLElement;
+        const textSpan = row.querySelector(".obj-text") as HTMLElement;
+
+        if (iconSpan.textContent !== d.icon) iconSpan.textContent = d.icon;
+        if (iconSpan.title !== d.state) iconSpan.title = d.state;
+        if (iconSpan.style.color !== d.color) iconSpan.style.color = d.color;
+        if (textSpan.textContent !== d.text) textSpan.textContent = d.text;
+      });
+    }
+  }
+
+  private renderObjectivesList(state: GameState): string {
+    const data = this.getObjectivesData(state);
+    return data
+      .map(
+        (d) => `
+      <p style="margin: 5px 0;">
+        <span style="color:${d.color}; margin-right:8px; font-weight:bold;" title="${d.state}">${d.icon}</span>
+        ${d.text}
+      </p>
+    `,
+      )
+      .join("");
   }
 
   private updateEnemyIntel(state: GameState, rightPanel: HTMLElement) {
@@ -277,42 +343,84 @@ export class HUDManager {
     });
 
     if (visibleEnemies.length === 0) {
-      intelDiv.innerHTML =
+      const emptyHtml =
         "<h3>Enemy Intel</h3><p style='color:var(--color-text-dim); font-size:0.8em;'>No hostiles detected.</p>";
+      if (intelDiv.innerHTML !== emptyHtml) {
+        intelDiv.innerHTML = emptyHtml;
+      }
       return;
     }
 
-    let html = "<h3>Enemy Intel</h3>";
+    // Ensure header exists
+    let header = intelDiv.querySelector("h3");
+    if (!header) {
+      intelDiv.innerHTML = "<h3>Enemy Intel</h3>";
+      header = intelDiv.querySelector("h3");
+    }
+
+    // Remove "No hostiles detected" if it exists
+    const noHostiles = intelDiv.querySelector("p");
+    if (noHostiles) noHostiles.remove();
+
     // Group by type
     const groups: { [type: string]: number } = {};
     visibleEnemies.forEach((e) => {
       groups[e.type] = (groups[e.type] || 0) + 1;
     });
 
-    Object.keys(groups).forEach((type) => {
+    const types = Object.keys(groups).sort();
+    const existingTypes = new Set<string>();
+
+    types.forEach((type) => {
+      existingTypes.add(type);
       const count = groups[type];
       const e = visibleEnemies.find((en) => en.type === type)!;
       const fireRateVal = e.fireRate > 0 ? (1000 / e.fireRate).toFixed(1) : "0";
 
-      html += `
-        <div class="intel-box">
+      let box = intelDiv.querySelector(
+        `.intel-box[data-type="${type}"]`,
+      ) as HTMLElement;
+      if (!box) {
+        box = document.createElement("div");
+        box.className = "intel-box";
+        box.dataset.type = type;
+        box.innerHTML = `
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <strong style="color:var(--color-danger); font-size:0.9em;">${type} x${count}</strong>
+            <strong class="intel-title" style="color:var(--color-danger); font-size:0.9em;"></strong>
           </div>
-          <div style="font-size:0.7em; color:var(--color-text-muted); display:flex; gap:8px; margin-top:4px; flex-wrap:wrap;">
+          <div class="intel-stats" style="font-size:0.7em; color:var(--color-text-muted); display:flex; gap:8px; margin-top:4px; flex-wrap:wrap;">
             ${StatDisplay.render(Icons.Speed, e.speed, "Speed")}
             ${StatDisplay.render(Icons.Accuracy, e.accuracy, "Accuracy")}
             ${StatDisplay.render(Icons.Damage, e.damage, "Damage")}
             ${StatDisplay.render(Icons.Rate, fireRateVal, "Fire Rate")}
             ${StatDisplay.render(Icons.Range, e.attackRange, "Range")}
           </div>
-        </div>
-      `;
+        `;
+        intelDiv.appendChild(box);
+      }
+
+      const title = box.querySelector(".intel-title") as HTMLElement;
+      const titleText = `${type} x${count}`;
+      if (title.textContent !== titleText) title.textContent = titleText;
+
+      const statsContainer = box.querySelector(".intel-stats") as HTMLElement;
+      const statsEls = statsContainer.querySelectorAll(".stat-display");
+      if (statsEls.length === 5) {
+        StatDisplay.update(statsEls[0] as HTMLElement, e.speed);
+        StatDisplay.update(statsEls[1] as HTMLElement, e.accuracy);
+        StatDisplay.update(statsEls[2] as HTMLElement, e.damage);
+        StatDisplay.update(statsEls[3] as HTMLElement, fireRateVal);
+        StatDisplay.update(statsEls[4] as HTMLElement, e.attackRange);
+      }
     });
 
-    if (intelDiv.innerHTML !== html) {
-      intelDiv.innerHTML = html;
-    }
+    // Remove boxes for types that are no longer visible
+    Array.from(intelDiv.querySelectorAll(".intel-box")).forEach((box) => {
+      const type = (box as HTMLElement).dataset.type;
+      if (type && !existingTypes.has(type)) {
+        box.remove();
+      }
+    });
   }
 
   private renderGameOver(rightPanel: HTMLElement, state: GameState) {
@@ -428,37 +536,73 @@ export class HUDManager {
         `;
       }
 
-      (el.querySelector(".u-icon") as HTMLElement).textContent = policyIcon;
-      (el.querySelector(".u-id") as HTMLElement).textContent = unit.id;
-      (el.querySelector(".u-burden") as HTMLElement).textContent = burdenIcon;
-      (el.querySelector(".u-status-text") as HTMLElement).textContent =
-        statusText;
-      (el.querySelector(".u-hp") as HTMLElement).textContent =
-        `${unit.hp}/${unit.maxHp}`;
-      (el.querySelector(".hp-fill") as HTMLElement).style.width =
-        `${hpPercent}%`;
+      const iconSpan = el.querySelector(".u-icon") as HTMLElement;
+      if (iconSpan.textContent !== policyIcon) iconSpan.textContent = policyIcon;
 
-      (el.querySelector(".u-speed-box") as HTMLElement).innerHTML =
-        StatDisplay.render(Icons.Speed, unit.stats.speed, "Speed");
+      const idSpan = el.querySelector(".u-id") as HTMLElement;
+      if (idSpan.textContent !== unit.id) idSpan.textContent = unit.id;
+
+      const burdenSpan = el.querySelector(".u-burden") as HTMLElement;
+      if (burdenSpan.textContent !== burdenIcon)
+        burdenSpan.textContent = burdenIcon;
+
+      const statusSpan = el.querySelector(".u-status-text") as HTMLElement;
+      if (statusSpan.textContent !== statusText)
+        statusSpan.textContent = statusText;
+
+      const hpSpan = el.querySelector(".u-hp") as HTMLElement;
+      const hpStr = `${unit.hp}/${unit.maxHp}`;
+      if (hpSpan.textContent !== hpStr) hpSpan.textContent = hpStr;
+
+      const hpFill = el.querySelector(".hp-fill") as HTMLElement;
+      const hpWidth = `${hpPercent}%`;
+      if (hpFill.style.width !== hpWidth) hpFill.style.width = hpWidth;
+
+      const speedBox = el.querySelector(".u-speed-box") as HTMLElement;
+      if (!speedBox.hasChildNodes()) {
+        speedBox.innerHTML = StatDisplay.render(
+          Icons.Speed,
+          unit.stats.speed,
+          "Speed",
+        );
+      } else {
+        StatDisplay.update(speedBox, unit.stats.speed);
+      }
 
       const lhStats = this.getWeaponStats(unit, unit.leftHand);
       const rhStats = this.getWeaponStats(unit, unit.rightHand);
 
-      const renderWep = (stats: any) => {
-        if (!stats)
-          return '<span style="color:var(--color-border-strong)">Empty</span>';
-        return `
-          ${StatDisplay.render(Icons.Damage, stats.damage, "Damage")}
-          ${StatDisplay.render(Icons.Accuracy, stats.accuracy, "Accuracy")}
-          ${StatDisplay.render(Icons.Rate, stats.fireRate, "Fire Rate")}
-          ${StatDisplay.render(Icons.Range, stats.range, "Range")}
-        `;
+      const updateWep = (container: HTMLElement, stats: any) => {
+        if (!stats) {
+          const emptyHtml =
+            '<span style="color:var(--color-border-strong)">Empty</span>';
+          if (container.innerHTML !== emptyHtml) container.innerHTML = emptyHtml;
+          return;
+        }
+
+        if (
+          !container.querySelector(".stat-display") ||
+          container.textContent === "Empty"
+        ) {
+          container.innerHTML = `
+            ${StatDisplay.render(Icons.Damage, stats.damage, "Damage")}
+            ${StatDisplay.render(Icons.Accuracy, stats.accuracy, "Accuracy")}
+            ${StatDisplay.render(Icons.Rate, stats.fireRate, "Fire Rate")}
+            ${StatDisplay.render(Icons.Range, stats.range, "Range")}
+          `;
+        } else {
+          const statsEls = container.querySelectorAll(".stat-display");
+          if (statsEls.length === 4) {
+            StatDisplay.update(statsEls[0] as HTMLElement, stats.damage);
+            StatDisplay.update(statsEls[1] as HTMLElement, stats.accuracy);
+            StatDisplay.update(statsEls[2] as HTMLElement, stats.fireRate);
+            StatDisplay.update(statsEls[3] as HTMLElement, stats.range);
+          }
+        }
       };
 
-      (el.querySelector(".u-lh-stats") as HTMLElement).innerHTML =
-        renderWep(lhStats);
-      (el.querySelector(".u-rh-stats") as HTMLElement).innerHTML =
-        renderWep(rhStats);
+      updateWep(el.querySelector(".u-lh-stats") as HTMLElement, lhStats);
+      updateWep(el.querySelector(".u-rh-stats") as HTMLElement, rhStats);
 
       const lhRow = el.querySelector(".u-lh-row") as HTMLElement;
       const rhRow = el.querySelector(".u-rh-row") as HTMLElement;

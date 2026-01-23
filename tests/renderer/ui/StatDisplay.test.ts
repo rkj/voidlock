@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { describe, it, expect } from "vitest";
 import { StatDisplay } from "@src/renderer/ui/StatDisplay";
 
@@ -14,13 +15,23 @@ describe("StatDisplay", () => {
     const html = StatDisplay.render("icon.png", "50%", "Accuracy", {
       fontSize: "10px",
       iconSize: "16px",
-      color: "#ff0",
+      color: "blue",
       gap: "5px",
     });
     expect(html).toContain("font-size:10px");
     expect(html).toContain("width:16px");
     expect(html).toContain("height:16px");
-    expect(html).toContain("color:#ff0");
-    expect(html).toContain("gap:5px");
+    expect(html).toContain('style="color:blue"');
+    expect(html).toContain('gap:5px');
+  });
+
+  it("should update existing element value", () => {
+    const container = document.createElement("div");
+    container.innerHTML = StatDisplay.render("icon.png", 10, "Strength");
+    const el = container.firstChild as HTMLElement;
+
+    StatDisplay.update(el, 20);
+    const valSpan = el.querySelector(".stat-value");
+    expect(valSpan?.textContent).toBe("20");
   });
 });
