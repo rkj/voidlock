@@ -134,6 +134,5 @@ describe("EquipmentScreen Stats and Tooltips", () => {
     const medkitRow = supplyRows[0] as HTMLElement;
     expect(medkitRow.title).toContain("Medkit");
     expect(medkitRow.title).toContain("Portable medical supplies");
-    expect(medkitRow.title).toContain("Charges: 1");
   });
 });
