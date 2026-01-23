@@ -43,6 +43,10 @@ This directory contains the automated test suite for the Voidlock renderer, usin
 - `integration/FullCampaignFlow.test.ts`: Comprehensive E2E campaign flow test covering starting a campaign, handling casualties, boss victory, and bankruptcy/defeat.
 - `integration/UserJourneys.test.ts`: Comprehensive integration test suite covering major user journeys, including New Campaign Wizard, Barracks management, Mission Abort flow, and Session Restoration.
 
+## Reproduction Tests
+
+- `repro/GameApp_MapGenerator.test.ts`: Verifies that changing the map generator type in Mission Setup correctly persists the setting.
+
 ## Related ADRs
 
 - [ADR 0006: Autonomous Agent Architecture](../../../docs/adr/0006-autonomous-agent-architecture.md)
