@@ -25,8 +25,19 @@ export class StatDisplay {
     return `
       <span class="stat-display" style="display:inline-flex; align-items:center; gap:${gap}; font-size:${fontSize};" title="${title}">
         <img src="${icon}" style="width:${iconSize}; height:${iconSize};" />
-        <span style="color:${color}">${value}</span>
+        <span class="stat-value" style="color:${color}">${value}</span>
       </span>
     `.trim();
+  }
+
+  /**
+   * Updates an existing stat-display element with a new value.
+   * Assumes the element was created with the StatDisplay structure.
+   */
+  public static update(el: HTMLElement, value: string | number) {
+    const valSpan = el.querySelector(".stat-value");
+    if (valSpan && valSpan.textContent !== value.toString()) {
+      valSpan.textContent = value.toString();
+    }
   }
 }
