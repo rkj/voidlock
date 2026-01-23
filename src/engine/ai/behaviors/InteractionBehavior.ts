@@ -20,7 +20,9 @@ export class InteractionBehavior implements Behavior {
     context: AIContext,
     _director?: any,
   ): boolean {
-    if (unit.state !== UnitState.Idle) return false;
+    if (unit.state !== UnitState.Idle) {
+      return false;
+    }
 
     // 1. Loot Interaction
     if (state.loot) {
@@ -35,7 +37,9 @@ export class InteractionBehavior implements Behavior {
         unit.activeCommand?.type === CommandType.PICKUP &&
         (unit.activeCommand as PickupCommand).lootId === loot.id
       ) {
-        const duration = 1000;
+        const baseTime = 3000;
+        const duration =
+          baseTime * (SPEED_NORMALIZATION_CONST / unit.stats.speed);
         unit.state = UnitState.Channeling;
         unit.channeling = {
           action: "Pickup",
@@ -67,8 +71,9 @@ export class InteractionBehavior implements Behavior {
             isAtTarget &&
             (!context.claimedObjectives.has(obj.id) || isClaimedByMe)
           ) {
+            const baseTime = 3000;
             const duration =
-              5000 * (SPEED_NORMALIZATION_CONST / unit.stats.speed);
+              baseTime * (SPEED_NORMALIZATION_CONST / unit.stats.speed);
             unit.state = UnitState.Channeling;
             unit.channeling = {
               action: "Collect",
@@ -108,7 +113,9 @@ export class InteractionBehavior implements Behavior {
         Math.floor(unit.pos.x) === ext.x &&
         Math.floor(unit.pos.y) === ext.y
       ) {
-        const duration = 5000 * (SPEED_NORMALIZATION_CONST / unit.stats.speed);
+        const baseTime = 5000;
+        const duration =
+          baseTime * (SPEED_NORMALIZATION_CONST / unit.stats.speed);
         unit.state = UnitState.Channeling;
         unit.channeling = {
           action: "Extract",

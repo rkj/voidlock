@@ -242,10 +242,12 @@ export class CommandExecutor {
             }
           }
 
-          if (item.channelTime && item.channelTime > 0) {
-            // Scale duration by unit speed: Actual = Base * (30 / Speed)
+          const isTimedAction =
+            cmd.itemId === "medkit" || cmd.itemId === "mine";
+          if (isTimedAction) {
+            const baseTime = 3000;
             const scaledDuration =
-              item.channelTime * (SPEED_NORMALIZATION_CONST / unit.stats.speed);
+              baseTime * (SPEED_NORMALIZATION_CONST / unit.stats.speed);
 
             unit.state = UnitState.Channeling;
             unit.channeling = {

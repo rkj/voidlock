@@ -38,7 +38,7 @@ describe("Regression voidlock-3dpu: Scanner UI Targeting", () => {
   it("Scanner: should target FRIENDLY_UNIT when selected", () => {
     controller.handleMenuInput("3", mockState); // USE ITEM
     expect(controller.menuState).toBe("ITEM_SELECT");
-    
+
     controller.handleMenuInput("1", mockState); // Select Scanner (first item)
 
     expect(controller.menuState).toBe("TARGET_SELECT");
@@ -51,7 +51,9 @@ describe("Regression voidlock-3dpu: Scanner UI Targeting", () => {
     expect(unit2Option).toBeDefined();
 
     // Should NOT show generic Room cells as targets
-    const roomOption = renderState.options.find((o) => o.label.includes("Room"));
+    const roomOption = renderState.options.find((o) =>
+      o.label.includes("Room"),
+    );
     expect(roomOption).toBeUndefined();
   });
 
@@ -60,7 +62,9 @@ describe("Regression voidlock-3dpu: Scanner UI Targeting", () => {
     controller.handleMenuInput("1", mockState); // Select Scanner
 
     const renderState = controller.getRenderableState(mockState);
-    const unit1Option = renderState.options.find((o) => o.label.includes("u1"))!;
+    const unit1Option = renderState.options.find((o) =>
+      o.label.includes("u1"),
+    )!;
 
     controller.handleMenuInput(unit1Option.key, mockState);
 
@@ -78,7 +82,7 @@ describe("Regression voidlock-3dpu: Scanner UI Targeting", () => {
   it("Scanner: clicking on a unit on canvas should target that unit", () => {
     controller.handleMenuInput("3", mockState); // USE ITEM
     controller.handleMenuInput("1", mockState); // Select Scanner
-    
+
     // Click on cell 2,2 where u2 is located
     controller.handleCanvasClick({ x: 2, y: 2 }, mockState);
 

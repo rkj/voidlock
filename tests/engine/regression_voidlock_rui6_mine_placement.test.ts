@@ -26,7 +26,7 @@ describe("Regression voidlock-rui6: Landmine Placement & Scaling", () => {
   }
 
   it("should scale landmine placement duration based on unit speed", () => {
-    const baseChannelTime = ItemLibrary["mine"].channelTime || 3000;
+    const baseChannelTime = 3000;
 
     // Test with standard speed (30)
     const engine30 = new CoreEngine(
