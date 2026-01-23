@@ -30,7 +30,6 @@ export type Item = {
   accuracyBonus?: number;
   // Active effects
   action?: "Heal" | "Grenade" | "Mine" | "Scanner";
-  charges?: number;
   channelTime?: number; // time in ms to use the item
   healAmount?: number; // amount of HP to recover
   cost: number;
@@ -50,7 +49,6 @@ export const ItemLibrary: { [id: string]: Item } = {
     type: "Active",
     description: "Anti-personnel explosive with a moderate blast radius.",
     action: "Grenade",
-    charges: 2,
     cost: 15,
   },
   medkit: {
@@ -59,7 +57,6 @@ export const ItemLibrary: { [id: string]: Item } = {
     type: "Active",
     description: "Portable medical supplies to treat injuries in the field.",
     action: "Heal",
-    charges: 1,
     channelTime: 2000,
     healAmount: 50,
     cost: 10,
@@ -71,7 +68,6 @@ export const ItemLibrary: { [id: string]: Item } = {
     description:
       "A single-use chemical stimulant that provides instant minor healing.",
     action: "Heal",
-    charges: 1,
     healAmount: 25,
     cost: 5,
   },
@@ -81,7 +77,6 @@ export const ItemLibrary: { [id: string]: Item } = {
     type: "Active",
     description: "Proximity-detonated explosive. Good for covering retreats.",
     action: "Mine",
-    charges: 2,
     channelTime: 3000,
     cost: 15,
   },
@@ -91,7 +86,6 @@ export const ItemLibrary: { [id: string]: Item } = {
     type: "Active",
     description: "Reveals enemies and objectives through fog of war.",
     action: "Scanner",
-    charges: 3,
     cost: 20,
   },
   combat_boots: {

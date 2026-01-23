@@ -261,7 +261,7 @@ export class EquipmentScreen {
       row.style.marginBottom = "8px";
       row.style.padding = "8px 12px";
       row.style.gap = "10px";
-      row.title = `${item.name}\n${item.description || ""}\nCharges: ${item.charges}`;
+      row.title = `${item.name}\n${item.description || ""}`;
 
       const nameGroup = document.createElement("div");
       nameGroup.className = "flex-col";
@@ -270,9 +270,6 @@ export class EquipmentScreen {
         <div class="flex-row justify-between" style="font-weight:bold; font-size: 0.9em; width: 100%;">
             <span>${item.name}</span>
             <span style="color:var(--color-primary);">${item.cost} CR</span>
-        </div>
-        <div style="font-size:0.75em; color:var(--color-text-muted); margin-top:2px;">
-            Charges: ${item.charges}
         </div>
       `;
 
