@@ -30,7 +30,6 @@ export type Item = {
   accuracyBonus?: number;
   // Active effects
   action?: "Heal" | "Grenade" | "Mine" | "Scanner";
-  channelTime?: number; // time in ms to use the item
   healAmount?: number; // amount of HP to recover
   cost: number;
 };
@@ -57,7 +56,6 @@ export const ItemLibrary: { [id: string]: Item } = {
     type: "Active",
     description: "Portable medical supplies to treat injuries in the field.",
     action: "Heal",
-    channelTime: 2000,
     healAmount: 50,
     cost: 10,
   },
@@ -77,7 +75,6 @@ export const ItemLibrary: { [id: string]: Item } = {
     type: "Active",
     description: "Proximity-detonated explosive. Good for covering retreats.",
     action: "Mine",
-    channelTime: 3000,
     cost: 15,
   },
   scanner: {

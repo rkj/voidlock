@@ -89,8 +89,8 @@ describe("Loot Mechanics", () => {
     expect(stateAfterMove.units[0].state).toBe(UnitState.Channeling);
     expect(stateAfterMove.units[0].channeling?.action).toBe("Pickup");
 
-    // Wait for channeling (1s)
-    engine.update(1100);
+    // Wait for channeling (base 3000 * 30/20 = 4500ms)
+    engine.update(4600);
 
     const finalState = engine.getState();
     expect(finalState.units[0].state).toBe(UnitState.Idle);
@@ -193,8 +193,8 @@ describe("Loot Mechanics", () => {
     engine.update(100); // Trigger channeling
     expect(engine.getState().units[0].state).toBe(UnitState.Channeling);
 
-    // Channeling duration 1s
-    engine.update(1100); // Complete channeling
+    // Channeling duration base 3000 * 30/20 = 4500ms
+    engine.update(4600); // Complete channeling
 
     const state = engine.getState();
     const unit = state.units[0];

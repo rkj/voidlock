@@ -56,8 +56,9 @@ describe("Item Targeting (voidlock-awkp)", () => {
     // In this test they both spawn at {2,2} but might have slight jitter.
 
     // Advance time to complete channeling
-    engine.update(1000, 1000);
-    engine.update(1000, 1000);
+    // Assault speed 20. Base 3000ms * (30/20) = 4500ms.
+    engine.update(2000, 2000);
+    engine.update(2000, 2000);
     engine.update(1000, 1000);
 
     const finalState = engine.getState();

@@ -50,7 +50,8 @@ describe("Global Squad Inventory", () => {
 
     engine.applyCommand(cmd);
     engine.update(100); // Trigger Channeling start
-    engine.update(3100, 3100); // Process Channeling completion (Scaled: 2000 * 30/20 = 3000)
+    // Process Channeling completion (Scaled: 3000 * 30/20 = 4500)
+    engine.update(4500, 4500);
 
     const state = engine.getState();
     expect(state.squadInventory["medkit"]).toBe(0);

@@ -14,14 +14,12 @@ describe("Scanner Targeting Regression (voidlock-3dpu)", () => {
       width: 3,
       height: 1,
       cells: [
-          { x: 0, y: 0, type: CellType.Floor },
-          { x: 1, y: 0, type: CellType.Floor },
-          { x: 2, y: 0, type: CellType.Floor },
+        { x: 0, y: 0, type: CellType.Floor },
+        { x: 1, y: 0, type: CellType.Floor },
+        { x: 2, y: 0, type: CellType.Floor },
       ],
       squadSpawn: { x: 0, y: 0 },
-      boundaries: [
-          { x1: 0, y1: 0, x2: 1, y2: 0, type: BoundaryType.Wall },
-      ]
+      boundaries: [{ x1: 0, y1: 0, x2: 1, y2: 0, type: BoundaryType.Wall }],
     };
 
     const engine = new CoreEngine(

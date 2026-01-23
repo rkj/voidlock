@@ -61,6 +61,7 @@ describe("Timed Actions (Extraction/Collection)", () => {
     expect(unitChanneling.state).toBe(UnitState.Channeling);
     expect(unitChanneling.channeling).toBeDefined();
     expect(unitChanneling.channeling?.action).toBe("Extract");
+    // Speed is 30, base is 5000. 5000 * (30/30) = 5000
     expect(unitChanneling.channeling?.totalDuration).toBe(5000);
     expect(unitChanneling.channeling?.remaining).toBeLessThanOrEqual(5000);
 
@@ -76,7 +77,7 @@ describe("Timed Actions (Extraction/Collection)", () => {
     expect(unitExtracted.state).toBe(UnitState.Extracted);
   });
 
-  it("should delay collection by 5 seconds", () => {
+  it("should delay collection by 3 seconds", () => {
     const objMap: MapDefinition = {
       ...mockMap,
       objectives: [{ id: "obj1", kind: "Recover", targetCell: { x: 2, y: 2 } }],
@@ -110,15 +111,17 @@ describe("Timed Actions (Extraction/Collection)", () => {
     expect(Math.floor(unitChanneling.pos.y)).toBe(2);
     expect(unitChanneling.state).toBe(UnitState.Channeling);
     expect(unitChanneling.channeling?.action).toBe("Collect");
+    // Speed is 30, base is 3000. 3000 * (30/30) = 3000
+    expect(unitChanneling.channeling?.totalDuration).toBe(3000);
 
     // Advance
-    engine.update(4900);
+    engine.update(2500);
     expect(engine.getState().units[0].state).toBe(UnitState.Channeling);
     const objBefore = engine.getState().objectives[0];
     expect(objBefore.state).toBe("Pending");
 
     // Finish
-    engine.update(200);
+    engine.update(600);
     const unitIdle = engine.getState().units[0];
     expect(unitIdle.state).toBe(UnitState.Idle); // Should be Idle after collection
     const objAfter = engine.getState().objectives[0];
