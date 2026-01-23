@@ -480,15 +480,24 @@ export class GameApp {
     const mapGenSelect = document.getElementById(
       "map-generator-type",
     ) as HTMLSelectElement;
-    if (mapGenSelect && mapGenSelect.options.length < 3) {
-      const treeOpt = document.createElement("option");
-      treeOpt.value = "TreeShip";
-      treeOpt.textContent = "Tree Ship (No Loops)";
-      mapGenSelect.appendChild(treeOpt);
-      const denseOpt = document.createElement("option");
-      denseOpt.value = "DenseShip";
-      denseOpt.textContent = "Dense Ship (>90% fill)";
-      mapGenSelect.appendChild(denseOpt);
+    if (mapGenSelect) {
+      if (mapGenSelect.options.length < 3) {
+        const treeOpt = document.createElement("option");
+        treeOpt.value = "TreeShip";
+        treeOpt.textContent = "Tree Ship (No Loops)";
+        mapGenSelect.appendChild(treeOpt);
+        const denseOpt = document.createElement("option");
+        denseOpt.value = "DenseShip";
+        denseOpt.textContent = "Dense Ship (>90% fill)";
+        mapGenSelect.appendChild(denseOpt);
+      }
+
+      mapGenSelect.addEventListener("change", () => {
+        const newValue = mapGenSelect.value as MapGeneratorType;
+        if (this.currentMapGeneratorType === newValue) return;
+        this.currentMapGeneratorType = newValue;
+        this.saveCurrentConfig();
+      });
     }
 
     // Injection of mission type select if not present
@@ -788,57 +797,8 @@ export class GameApp {
       }
     }
 
-    const mapSeedInput = document.getElementById(
-      "map-seed",
-    ) as HTMLInputElement;
-    if (mapSeedInput && !mapSeedInput.disabled) {
-      const val = parseInt(mapSeedInput.value);
-      this.currentSeed = !isNaN(val) ? val : Date.now();
-    }
-
-    const wInput = document.getElementById("map-width") as HTMLInputElement;
-    const hInput = document.getElementById("map-height") as HTMLInputElement;
-    const spInput = document.getElementById(
-      "map-spawn-points",
-    ) as HTMLInputElement;
-    const baseEnemiesInput = document.getElementById(
-      "map-base-enemies",
-    ) as HTMLInputElement;
-    const growthInput = document.getElementById(
-      "map-enemy-growth",
-    ) as HTMLInputElement;
-    const threatInput = document.getElementById(
-      "map-starting-threat",
-    ) as HTMLInputElement;
-
-    if (wInput && hInput) {
-      this.currentMapWidth = parseInt(wInput.value) || 14;
-      this.currentMapHeight = parseInt(hInput.value) || 14;
-    }
-    if (spInput) this.currentSpawnPointCount = parseInt(spInput.value) || 1;
-
-    let baseEnemyCount = 3;
-    if (baseEnemiesInput)
-      baseEnemyCount = parseInt(baseEnemiesInput.value) || 3;
-    let enemyGrowthPerMission = 1;
-    if (growthInput) enemyGrowthPerMission = parseFloat(growthInput.value) || 1;
-    let missionDepth = 0;
-    let startingThreatLevel = 0;
-    if (threatInput) startingThreatLevel = parseInt(threatInput.value) || 0;
-
-    if (this.currentCampaignNode) {
-      const campaignState = this.context.campaignManager.getState();
-      if (campaignState) {
-        this.allowTacticalPause = campaignState.rules.allowTacticalPause;
-        this.currentMapGeneratorType = campaignState.rules.mapGeneratorType;
-        baseEnemyCount = campaignState.rules.baseEnemyCount;
-        enemyGrowthPerMission = campaignState.rules.enemyGrowthPerMission;
-        missionDepth = this.currentCampaignNode.rank;
-        if (campaignState.rules.unitStyle) {
-          this.unitStyle = campaignState.rules.unitStyle;
-        }
-      }
-    }
+    const config = this.saveCurrentConfig();
+    const missionDepth = this.currentCampaignNode ? this.currentCampaignNode.rank : 0;
 
     const tsSlider = document.getElementById(
       "time-scale-slider",
@@ -846,33 +806,6 @@ export class GameApp {
     const initialTimeScale = tsSlider
       ? TimeUtility.sliderToScale(parseFloat(tsSlider.value))
       : 1.0;
-
-    const config = {
-      mapWidth: this.currentMapWidth,
-      mapHeight: this.currentMapHeight,
-      spawnPointCount: this.currentSpawnPointCount,
-      fogOfWarEnabled: this.fogOfWarEnabled,
-      debugOverlayEnabled: this.debugOverlayEnabled,
-      losOverlayEnabled: this.losOverlayEnabled,
-      agentControlEnabled: this.agentControlEnabled,
-      allowTacticalPause: this.allowTacticalPause,
-      unitStyle: this.unitStyle,
-      mapGeneratorType: this.currentMapGeneratorType,
-      missionType: this.currentMissionType,
-      lastSeed: this.currentSeed,
-      squadConfig: this.currentSquad,
-      startingThreatLevel,
-      baseEnemyCount,
-      enemyGrowthPerMission,
-      campaignNodeId: this.currentCampaignNode?.id,
-      bonusLootCount: this.currentCampaignNode?.bonusLootCount || 0,
-    };
-
-    if (this.currentCampaignNode) {
-      ConfigManager.saveCampaign(config);
-    } else {
-      ConfigManager.saveCustom(config);
-    }
 
     this.context.campaignShell.hide();
 
@@ -889,7 +822,7 @@ export class GameApp {
       this.currentMapHeight,
       this.currentSpawnPointCount,
       this.losOverlayEnabled,
-      startingThreatLevel,
+      config.startingThreatLevel,
       initialTimeScale,
       false, // startPaused
       this.allowTacticalPause,
@@ -897,8 +830,8 @@ export class GameApp {
       [], // commandLog
       this.currentCampaignNode?.id,
       0, // targetTick
-      baseEnemyCount,
-      enemyGrowthPerMission,
+      config.baseEnemyCount,
+      config.enemyGrowthPerMission,
       missionDepth,
       this.currentCampaignNode?.type,
       this.currentCampaignNode?.bonusLootCount || 0,
@@ -956,6 +889,87 @@ export class GameApp {
       }
       this.updateUI(state);
     });
+  }
+
+  private saveCurrentConfig() {
+    const mapSeedInput = document.getElementById(
+      "map-seed",
+    ) as HTMLInputElement;
+    if (mapSeedInput && !mapSeedInput.disabled) {
+      const val = parseInt(mapSeedInput.value);
+      this.currentSeed = !isNaN(val) ? val : this.currentSeed;
+    }
+
+    const wInput = document.getElementById("map-width") as HTMLInputElement;
+    const hInput = document.getElementById("map-height") as HTMLInputElement;
+    const spInput = document.getElementById(
+      "map-spawn-points",
+    ) as HTMLInputElement;
+    const baseEnemiesInput = document.getElementById(
+      "map-base-enemies",
+    ) as HTMLInputElement;
+    const growthInput = document.getElementById(
+      "map-enemy-growth",
+    ) as HTMLInputElement;
+    const threatInput = document.getElementById(
+      "map-starting-threat",
+    ) as HTMLInputElement;
+
+    if (wInput && hInput) {
+      this.currentMapWidth = parseInt(wInput.value) || 14;
+      this.currentMapHeight = parseInt(hInput.value) || 14;
+    }
+    if (spInput) this.currentSpawnPointCount = parseInt(spInput.value) || 1;
+
+    let baseEnemyCount = 3;
+    if (baseEnemiesInput)
+      baseEnemyCount = parseInt(baseEnemiesInput.value) || 3;
+    let enemyGrowthPerMission = 1;
+    if (growthInput) enemyGrowthPerMission = parseFloat(growthInput.value) || 1;
+    let startingThreatLevel = 0;
+    if (threatInput) startingThreatLevel = parseInt(threatInput.value) || 0;
+
+    if (this.currentCampaignNode) {
+      const campaignState = this.context.campaignManager.getState();
+      if (campaignState) {
+        this.allowTacticalPause = campaignState.rules.allowTacticalPause;
+        this.currentMapGeneratorType = campaignState.rules.mapGeneratorType;
+        baseEnemyCount = campaignState.rules.baseEnemyCount;
+        enemyGrowthPerMission = campaignState.rules.enemyGrowthPerMission;
+        if (campaignState.rules.unitStyle) {
+          this.unitStyle = campaignState.rules.unitStyle;
+        }
+      }
+    }
+
+    const config = {
+      mapWidth: this.currentMapWidth,
+      mapHeight: this.currentMapHeight,
+      spawnPointCount: this.currentSpawnPointCount,
+      fogOfWarEnabled: this.fogOfWarEnabled,
+      debugOverlayEnabled: this.debugOverlayEnabled,
+      losOverlayEnabled: this.losOverlayEnabled,
+      agentControlEnabled: this.agentControlEnabled,
+      allowTacticalPause: this.allowTacticalPause,
+      unitStyle: this.unitStyle,
+      mapGeneratorType: this.currentMapGeneratorType,
+      missionType: this.currentMissionType,
+      lastSeed: this.currentSeed,
+      squadConfig: this.currentSquad,
+      startingThreatLevel,
+      baseEnemyCount,
+      enemyGrowthPerMission,
+      campaignNodeId: this.currentCampaignNode?.id,
+      bonusLootCount: this.currentCampaignNode?.bonusLootCount || 0,
+    };
+
+    if (this.currentCampaignNode) {
+      ConfigManager.saveCampaign(config);
+    } else {
+      ConfigManager.saveCustom(config);
+    }
+
+    return config;
   }
 
   private generateMissionReport(
