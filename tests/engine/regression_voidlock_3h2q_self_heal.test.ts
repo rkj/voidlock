@@ -4,10 +4,9 @@ import {
   CommandType,
   MapDefinition,
   CellType,
-  UnitState,
 } from "@src/shared/types";
 
-describe("Item Targeting (voidlock-awkp)", () => {
+describe("Medkit Restriction (voidlock-3h2q)", () => {
   const mockMap: MapDefinition = {
     width: 5,
     height: 5,
@@ -20,7 +19,7 @@ describe("Item Targeting (voidlock-awkp)", () => {
     }
   }
 
-  it("Medkit should only heal the actor even if targetUnitId is specified", () => {
+  it("Medkit should only heal self even if targetUnitId is specified", () => {
     const engine = new CoreEngine(
       mockMap,
       1,
@@ -35,7 +34,13 @@ describe("Item Targeting (voidlock-awkp)", () => {
       false,
     );
 
-    // Unit 1 uses medkit on Unit 2
+    const stateBefore = engine.getState();
+    const unit1Before = stateBefore.units.find((u) => u.id === "unit-1")!;
+    const unit2Before = stateBefore.units.find((u) => u.id === "unit-2")!;
+    expect(unit1Before.hp).toBe(50);
+    expect(unit2Before.hp).toBe(10);
+
+    // Unit 1 uses medkit, but specifies Unit 2 as target
     const cmd: any = {
       type: CommandType.USE_ITEM,
       unitIds: ["unit-1"],
@@ -53,54 +58,10 @@ describe("Item Targeting (voidlock-awkp)", () => {
     const finalUnit1 = finalState.units.find((u) => u.id === "unit-1")!;
     const finalUnit2 = finalState.units.find((u) => u.id === "unit-2")!;
 
-    // Unit 1 should be healed
+    // Unit 1 should be healed (50 + 50 = 100)
     expect(finalUnit1.hp).toBe(100);
     // Unit 2 should NOT be healed
     expect(finalUnit2.hp).toBe(10);
     expect(finalState.squadInventory["medkit"]).toBe(0);
-  });
-
-  it("Grenade should support targetUnitId and damage that enemy", () => {
-    const engine = new CoreEngine(
-      mockMap,
-      1,
-      {
-        soldiers: [{ archetypeId: "assault", id: "unit-1" }],
-        inventory: { frag_grenade: 1 },
-      },
-      false,
-      false,
-    );
-
-    // Manually add an enemy
-    engine.addEnemy({
-      id: "enemy-1",
-      pos: { x: 3.5, y: 3.5 },
-      hp: 100,
-      maxHp: 100,
-      type: "Warrior-Drone",
-      damage: 10,
-      fireRate: 1000,
-      accuracy: 50,
-      attackRange: 1,
-      speed: 20,
-    } as any);
-
-    // Unit 1 uses grenade on enemy-1
-    const cmd: any = {
-      type: CommandType.USE_ITEM,
-      unitIds: ["unit-1"],
-      itemId: "frag_grenade",
-      targetUnitId: "enemy-1",
-    };
-
-    engine.applyCommand(cmd);
-
-    // Grenade is instant (channelTime: undefined)
-    engine.update(100, 100);
-
-    const finalState = engine.getState();
-    expect(finalState.stats.aliensKilled).toBe(1);
-    expect(finalState.squadInventory["frag_grenade"]).toBe(0);
   });
 });

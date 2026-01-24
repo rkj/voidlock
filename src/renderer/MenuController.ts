@@ -140,6 +140,20 @@ export class MenuController {
   }
 
   public handleCanvasClick(cell: Vector2, gameState: GameState): void {
+    if (this.stateMachine.state === "UNIT_SELECT" && this.selection.pendingAction) {
+      const unitAtCell = gameState.units.find(
+        (u) =>
+          Math.floor(u.pos.x) === cell.x &&
+          Math.floor(u.pos.y) === cell.y &&
+          u.state !== UnitState.Dead &&
+          u.state !== UnitState.Extracted,
+      );
+      if (unitAtCell) {
+        this.executePendingCommand([unitAtCell.id]);
+        return;
+      }
+    }
+
     if (
       this.stateMachine.state === "TARGET_SELECT" &&
       (this.selection.pendingAction === CommandType.MOVE_TO ||
@@ -166,8 +180,7 @@ export class MenuController {
         : null;
       const isGlobal =
         item &&
-        (item.action === "Heal" ||
-          item.action === "Grenade" ||
+        (item.action === "Grenade" ||
           item.action === "Scanner");
 
       if (isGlobal) {
@@ -305,17 +318,11 @@ export class MenuController {
       }
 
       this.selection.pendingItemId = itemId;
-      if (item?.action === "Mine") {
+      if (item?.action === "Mine" || item?.action === "Heal") {
         this.transitionTo("UNIT_SELECT");
       } else {
         this.transitionTo("TARGET_SELECT");
-        if (item?.action === "Heal") {
-          this.selection.overlayOptions = TargetOverlayGenerator.generate(
-            "FRIENDLY_UNIT",
-            gameState,
-            this.discovery,
-          ).map((opt) => ({ ...opt, renderOnBoard: false }));
-        } else if (item?.action === "Scanner") {
+        if (item?.action === "Scanner") {
           this.selection.overlayOptions = TargetOverlayGenerator.generate(
             "FRIENDLY_UNIT",
             gameState,
@@ -353,8 +360,7 @@ export class MenuController {
         : null;
       const isGlobal =
         item &&
-        (item.action === "Heal" ||
-          item.action === "Grenade" ||
+        (item.action === "Grenade" ||
           item.action === "Scanner");
 
       if (isGlobal) {
@@ -458,13 +464,7 @@ export class MenuController {
         const item = this.selection.pendingItemId
           ? ItemLibrary[this.selection.pendingItemId]
           : null;
-        if (item?.action === "Heal") {
-          this.selection.overlayOptions = TargetOverlayGenerator.generate(
-            "FRIENDLY_UNIT",
-            gameState,
-            this.discovery,
-          ).map((opt) => ({ ...opt, renderOnBoard: false }));
-        } else if (item?.action === "Grenade") {
+        if (item?.action === "Grenade") {
           this.selection.overlayOptions = TargetOverlayGenerator.generate(
             "CELL",
             gameState,

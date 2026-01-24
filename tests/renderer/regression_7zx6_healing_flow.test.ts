@@ -66,26 +66,25 @@ describe("Regression 7zx6 - Healing Flow", () => {
     controller = new MenuController(mockClient);
   });
 
-  it("should NOT transition to UNIT_SELECT after selecting a target for Medkit", () => {
+  it("should transition to UNIT_SELECT after selecting Medkit", () => {
     // 1. Action Select -> Use Item (3)
     controller.handleMenuInput("3", mockState);
     expect(controller.menuState).toBe("ITEM_SELECT");
 
     // 2. Item Select -> Medkit (1)
     controller.handleMenuInput("1", mockState);
-    expect(controller.menuState).toBe("TARGET_SELECT");
+    expect(controller.menuState).toBe("UNIT_SELECT");
     expect(controller.pendingItemId).toBe("medkit");
 
-    // 3. Target Select -> Unit 1 (1)
+    // 3. Unit Select -> Unit 1 (1)
     controller.handleMenuInput("1", mockState);
 
-    // SHOULD EXECUTE IMMEDIATELY
+    // SHOULD EXECUTE
     expect(mockClient.sendCommand).toHaveBeenCalledWith(
       expect.objectContaining({
         type: CommandType.USE_ITEM,
         itemId: "medkit",
-        targetUnitId: "u1",
-        unitIds: [],
+        unitIds: ["u1"],
       }),
     );
 
@@ -136,23 +135,23 @@ describe("Regression 7zx6 - Healing Flow", () => {
     expect(controller.menuState).toBe("ACTION_SELECT");
   });
 
-  it("should bypass UNIT_SELECT when clicking on canvas for healing items", () => {
+  it("should transition to UNIT_SELECT when clicking on canvas for healing items", () => {
     // 1. Action Select -> Use Item (3)
     controller.handleMenuInput("3", mockState);
 
     // 2. Item Select -> Medkit (1)
     controller.handleMenuInput("1", mockState);
+    expect(controller.menuState).toBe("UNIT_SELECT");
 
-    // 3. Canvas Click on Unit 1 (0,0)
+    // 3. Canvas Click on Unit 1 (0,0) - In UNIT_SELECT state, canvas click should select the unit
     controller.handleCanvasClick({ x: 0, y: 0 }, mockState);
 
-    // SHOULD EXECUTE IMMEDIATELY
+    // SHOULD EXECUTE
     expect(mockClient.sendCommand).toHaveBeenCalledWith(
       expect.objectContaining({
         type: CommandType.USE_ITEM,
         itemId: "medkit",
-        targetUnitId: "u1",
-        unitIds: [],
+        unitIds: ["u1"],
       }),
     );
 

@@ -93,24 +93,20 @@ export class Director {
     if (!item) return;
 
     if (item.action === "Heal") {
-      if (cmd.targetUnitId) {
-        const targetUnit = state.units.find((u) => u.id === cmd.targetUnitId);
+      let targetUnitId = cmd.targetUnitId;
+      // Medkit and Stimpack are now strictly self-heal
+      if (cmd.itemId === "medkit" || cmd.itemId === "stimpack") {
+        targetUnitId = cmd.unitIds[0];
+      }
+
+      if (targetUnitId) {
+        const targetUnit = state.units.find((u) => u.id === targetUnitId);
         if (targetUnit && targetUnit.hp > 0) {
           targetUnit.hp = Math.min(
             targetUnit.maxHp,
             targetUnit.hp + (item.healAmount || 50),
           );
         }
-      } else if (cmd.target) {
-        state.units.forEach((u) => {
-          if (
-            u.hp > 0 &&
-            Math.floor(u.pos.x) === cmd.target!.x &&
-            Math.floor(u.pos.y) === cmd.target!.y
-          ) {
-            u.hp = Math.min(u.maxHp, u.hp + (item.healAmount || 50));
-          }
-        });
       }
     } else if (item.action === "Grenade") {
       let targetPos: Vector2 | undefined = cmd.target;
