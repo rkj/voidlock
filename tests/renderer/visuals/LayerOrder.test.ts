@@ -8,7 +8,7 @@ import {
 
 // Mock Image
 class MockImage {
-  onload: any = null;
+  onload: (() => void) | null = null;
   src: string = "";
   complete: boolean = true;
 }
@@ -17,7 +17,7 @@ vi.stubGlobal("Image", MockImage);
 describe("Layer Rendering Order", () => {
   let renderer: GameRenderer;
   let mockCanvas: HTMLCanvasElement;
-  let mockContext: any;
+  let mockContext: Record<string, ReturnType<typeof vi.fn>>;
 
   beforeEach(() => {
     mockContext = {
@@ -51,7 +51,7 @@ describe("Layer Rendering Order", () => {
         width: 640,
         height: 480,
       })),
-    } as any;
+    } as unknown as HTMLCanvasElement;
 
     renderer = new GameRenderer(mockCanvas);
     renderer.setUnitStyle(UnitStyle.Sprites);
@@ -80,11 +80,11 @@ describe("Layer Rendering Order", () => {
 
     renderer.render(gameState);
 
-    const calls: { name: string; order: number; args: any[] }[] = [];
+    const calls: { name: string; order: number; args: unknown[] }[] = [];
     Object.keys(mockContext).forEach((key) => {
-      const mock = (mockContext as any)[key];
+      const mock = mockContext[key];
       if (mock && mock.mock && mock.mock.invocationCallOrder) {
-        mock.mock.calls.forEach((args: any[], i: number) => {
+        mock.mock.calls.forEach((args: unknown[], i: number) => {
           calls.push({
             name: key,
             order: mock.mock.invocationCallOrder[i],

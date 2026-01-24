@@ -2,6 +2,7 @@ import {
   BoundaryDefinition,
   BoundaryType,
   CellType,
+  Command,
   CommandType,
   EngagementPolicy,
   GameState,
@@ -115,7 +116,7 @@ export class MenuController {
     this.selection.isShiftHeld = value;
   }
 
-  constructor(private client: { sendCommand: (cmd: any) => void }) {}
+  constructor(private client: { sendCommand: (cmd: Command) => void }) {}
 
   public reset() {
     this.stateMachine.reset();

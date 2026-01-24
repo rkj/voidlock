@@ -6,17 +6,12 @@ import {
   Grid,
   CommandType,
   Command,
-  Enemy,
 } from "../../shared/types";
-import { Pathfinder } from "../Pathfinder";
-import { LineOfSight } from "../LineOfSight";
 import { isCellVisible, isCellDiscovered } from "../../shared/VisibilityUtils";
 
 export class VipAI {
   constructor(
     private grid: Grid,
-    private pathfinder: Pathfinder,
-    private los: LineOfSight,
   ) {}
 
   public think(vip: Unit, state: GameState): Command | null {

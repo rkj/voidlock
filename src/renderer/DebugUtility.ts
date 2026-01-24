@@ -1,4 +1,4 @@
-import { GameState } from "@src/shared/types";
+import { GameState, ReplayData } from "@src/shared/types";
 import { ModalService } from "./ui/ModalService";
 
 /**
@@ -11,7 +11,7 @@ export class DebugUtility {
    */
   public static async copyWorldState(
     state: GameState,
-    replayData: any,
+    replayData: ReplayData | null,
     version: string,
     modalService: ModalService,
   ): Promise<void> {
@@ -52,7 +52,7 @@ export class DebugUtility {
 
   private static async handleCopyFallback(
     json: string,
-    error: any,
+    error: unknown,
     modalService: ModalService,
   ): Promise<void> {
     console.error("Failed to copy state to clipboard:", error);

@@ -3,7 +3,6 @@ import {
   Unit,
   UnitState,
   CommandType,
-  Enemy,
   Vector2,
   Door,
 } from "../../../shared/types";
@@ -57,7 +56,6 @@ export class SafetyBehavior implements Behavior {
     if (isLowHP && threats.length > 0) {
       const safeCells: Vector2[] = [];
       const width = state.map.width;
-      const height = state.map.height;
 
       if (state.gridState) {
         for (let i = 0; i < state.gridState.length; i++) {

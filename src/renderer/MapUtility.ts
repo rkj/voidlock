@@ -1,8 +1,16 @@
-import { MapDefinition, Door, Vector2 } from "@src/shared/types";
+import { MapDefinition, Door, Vector2, Cell } from "@src/shared/types";
+
+interface LegacyCell extends Cell {
+  doorId?: string;
+}
+
+interface LegacyMapData extends Omit<MapDefinition, "cells"> {
+  cells: LegacyCell[];
+}
 
 export class MapUtility {
-  public static transformMapData(oldMapData: any): MapDefinition {
-    const newCells = oldMapData.cells.map((cell: any) => {
+  public static transformMapData(oldMapData: LegacyMapData): MapDefinition {
+    const newCells = oldMapData.cells.map((cell: LegacyCell) => {
       const { doorId, ...rest } = cell;
       return rest;
     });
@@ -13,7 +21,7 @@ export class MapUtility {
       { segment: Vector2[]; orientation: "Horizontal" | "Vertical" }
     >();
 
-    oldMapData.cells.forEach((cell: any) => {
+    oldMapData.cells.forEach((cell: LegacyCell) => {
       if (cell.doorId) {
         const { x, y, doorId } = cell;
         if (!doorIdMap.has(doorId)) {

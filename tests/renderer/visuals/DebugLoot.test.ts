@@ -6,7 +6,7 @@ import { createMockGameState } from "@src/engine/tests/utils/MockFactory";
 
 // Mock Image
 class MockImage {
-  onload: any = null;
+  onload: (() => void) | null = null;
   src: string = "";
   complete: boolean = true;
 }
@@ -15,7 +15,7 @@ vi.stubGlobal("Image", MockImage);
 describe("DebugLoot Rendering", () => {
   let layer: MapEntityLayer;
   let sharedState: SharedRendererState;
-  let mockContext: any;
+  let mockContext: Record<string, ReturnType<typeof vi.fn>>;
 
   beforeEach(() => {
     mockContext = {
@@ -42,7 +42,7 @@ describe("DebugLoot Rendering", () => {
       } as any,
     });
 
-    layer.draw(mockContext, gameState);
+    layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
 
     expect(mockContext.drawImage).not.toHaveBeenCalled();
     expect(mockContext.fillRect).not.toHaveBeenCalled();
@@ -58,7 +58,7 @@ describe("DebugLoot Rendering", () => {
       } as any,
     });
 
-    layer.draw(mockContext, gameState);
+    layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
 
     // It should call drawImage with the Crate icon
     expect(mockContext.drawImage).toHaveBeenCalled();
@@ -76,7 +76,7 @@ describe("DebugLoot Rendering", () => {
       } as any,
     });
 
-    layer.draw(mockContext, gameState);
+    layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
 
     const called =
       mockContext.drawImage.mock.calls.length > 0 ||
@@ -94,7 +94,7 @@ describe("DebugLoot Rendering", () => {
       } as any,
     });
 
-    layer.draw(mockContext, gameState);
+    layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
 
     const called =
       mockContext.drawImage.mock.calls.length > 0 ||
@@ -118,7 +118,7 @@ describe("DebugLoot Rendering", () => {
       } as any,
     });
 
-    layer.draw(mockContext, gameState);
+    layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
 
     expect(mockContext.drawImage).not.toHaveBeenCalled();
     expect(mockContext.fillRect).not.toHaveBeenCalled();
@@ -140,7 +140,7 @@ describe("DebugLoot Rendering", () => {
       } as any,
     });
 
-    layer.draw(mockContext, gameState);
+    layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
 
     expect(mockContext.drawImage).toHaveBeenCalled();
     const [icon] = mockContext.drawImage.mock.calls[0];

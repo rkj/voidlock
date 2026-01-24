@@ -5,7 +5,7 @@ import { MapValidator } from "../../../src/engine/map/MapValidator";
 import {
   MapGeneratorType,
   CellType,
-  BoundaryType,
+  MapDefinition,
 } from "../../../src/shared/types";
 
 describe("Modular Map Generation", () => {
@@ -28,12 +28,12 @@ describe("Modular Map Generation", () => {
   });
 
   it("MapValidator should identify issues in an invalid map", () => {
-    const invalidMap: any = {
+    const invalidMap = {
       width: 0,
       height: 16,
       cells: [],
       walls: [],
-    };
+    } as unknown as MapDefinition;
     const result = MapValidator.validate(invalidMap);
     expect(result.isValid).toBe(false);
     expect(result.issues).toContain(
@@ -43,7 +43,7 @@ describe("Modular Map Generation", () => {
   });
 
   it("MapSanitizer should remove unreachable cells", () => {
-    const map: any = {
+    const map = {
       width: 3,
       height: 3,
       cells: [
@@ -55,13 +55,13 @@ describe("Modular Map Generation", () => {
       walls: [
         { p1: { x: 1, y: 0 }, p2: { x: 1, y: 1 } }, // Wall between (0,0) and (1,0)? No, vertical wall at x=1.
       ],
-    };
+    } as unknown as MapDefinition;
     // Re-calculating walls/boundaries for 3x3 to make it clearer
     // (0,0)-(1,0) is horizontal adjacency. Wall is vertical at x=1.
 
     MapSanitizer.sanitize(map);
 
-    const reachableCells = map.cells.map((c: any) => `${c.x},${c.y}`);
+    const reachableCells = map.cells.map((c) => `${c.x},${c.y}`);
     expect(reachableCells).toContain("0,0");
     expect(reachableCells).not.toContain("2,2");
   });

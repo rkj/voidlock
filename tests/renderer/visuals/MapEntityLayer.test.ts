@@ -7,7 +7,7 @@ import { createMockGameState } from "@src/engine/tests/utils/MockFactory";
 
 // Mock Image
 class MockImage {
-  onload: any = null;
+  onload: (() => void) | null = null;
   src: string = "";
   complete: boolean = true;
 }
@@ -16,7 +16,7 @@ vi.stubGlobal("Image", MockImage);
 describe("MapEntityLayer", () => {
   let layer: MapEntityLayer;
   let sharedState: SharedRendererState;
-  let mockContext: any;
+  let mockContext: Record<string, ReturnType<typeof vi.fn>>;
 
   beforeEach(() => {
     mockContext = {
@@ -49,13 +49,13 @@ describe("MapEntityLayer", () => {
       discoveredCells: [],
     });
 
-    layer.draw(mockContext, gameState);
+    layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
 
     // Currently this will FAIL because it DOES render it.
     // We expect 0 calls to fillRect at (5*32, 5*32)
     const fillRectCalls = mockContext.fillRect.mock.calls;
     const extractionPointFill = fillRectCalls.find(
-      (args: any[]) => args[0] === 5 * 32 && args[1] === 5 * 32,
+      (args: unknown[]) => args[0] === 5 * 32 && args[1] === 5 * 32,
     );
 
     expect(extractionPointFill).toBeUndefined();
@@ -73,11 +73,11 @@ describe("MapEntityLayer", () => {
       discoveredCells: ["5,5"],
     });
 
-    layer.draw(mockContext, gameState);
+    layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
 
     const fillRectCalls = mockContext.fillRect.mock.calls;
     const extractionPointFill = fillRectCalls.find(
-      (args: any[]) => args[0] === 5 * 32 && args[1] === 5 * 32,
+      (args: unknown[]) => args[0] === 5 * 32 && args[1] === 5 * 32,
     );
 
     expect(extractionPointFill).toBeDefined();
@@ -95,11 +95,11 @@ describe("MapEntityLayer", () => {
       discoveredCells: [],
     });
 
-    layer.draw(mockContext, gameState);
+    layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
 
     const fillRectCalls = mockContext.fillRect.mock.calls;
     const extractionPointFill = fillRectCalls.find(
-      (args: any[]) => args[0] === 5 * 32 && args[1] === 5 * 32,
+      (args: unknown[]) => args[0] === 5 * 32 && args[1] === 5 * 32,
     );
 
     expect(extractionPointFill).toBeDefined();
@@ -120,11 +120,11 @@ describe("MapEntityLayer", () => {
       } as any,
     });
 
-    layer.draw(mockContext, gameState);
+    layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
 
     const fillRectCalls = mockContext.fillRect.mock.calls;
     const extractionPointFill = fillRectCalls.find(
-      (args: any[]) => args[0] === 5 * 32 && args[1] === 5 * 32,
+      (args: unknown[]) => args[0] === 5 * 32 && args[1] === 5 * 32,
     );
 
     expect(extractionPointFill).toBeDefined();
@@ -135,7 +135,7 @@ describe("MapEntityLayer", () => {
 
     // Ensure Crate icon exists in AssetManager
     const assetManager = AssetManager.getInstance();
-    const mockCrateIcon = new MockImage() as any;
+    const mockCrateIcon = new MockImage() as unknown as HTMLImageElement;
     assetManager.iconImages.Crate = mockCrateIcon;
 
     const gameState: GameState = createMockGameState({
@@ -149,12 +149,12 @@ describe("MapEntityLayer", () => {
       discoveredCells: [],
     });
 
-    layer.draw(mockContext, gameState);
+    layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
 
     // Assert drawImage WAS called for the Crate icon
     const drawImageCalls = mockContext.drawImage.mock.calls;
     const crateDraw = drawImageCalls.find(
-      (args: any[]) => args[0] === mockCrateIcon,
+      (args: unknown[]) => args[0] === mockCrateIcon,
     );
 
     expect(crateDraw).toBeDefined();

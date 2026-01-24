@@ -1,11 +1,10 @@
 // @vitest-environment jsdom
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { StatisticsScreen } from "@src/renderer/screens/StatisticsScreen";
 import { MetaManager } from "@src/engine/managers/MetaManager";
 
 describe("StatisticsScreen", () => {
   let container: HTMLElement;
-  let onBack: any;
 
   beforeEach(() => {
     document.body.innerHTML = '<div id="screen-statistics"></div>';
@@ -23,8 +22,6 @@ describe("StatisticsScreen", () => {
         clear() {}
       })(),
     );
-
-    onBack = vi.fn();
   });
 
   it("should render correctly with default stats", () => {

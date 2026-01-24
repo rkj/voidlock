@@ -1,12 +1,13 @@
 import { describe, it, expect } from "vitest";
 import { CoreEngine } from "@src/engine/CoreEngine";
-import { SPEED_NORMALIZATION_CONST } from "@src/engine/Constants";
 import {
   MapDefinition,
   CellType,
   UnitState,
   CommandType,
-  ItemLibrary,
+  GameState,
+  Enemy,
+  EnemyType,
 } from "@src/shared/types";
 
 describe("Regression voidlock-rui6: Landmine Placement & Scaling", () => {
@@ -36,7 +37,7 @@ describe("Regression voidlock-rui6: Landmine Placement & Scaling", () => {
       false,
       false,
     );
-    const unit30 = (engine30 as any).state.units[0];
+    const unit30 = (engine30 as unknown as { state: GameState }).state.units[0];
     unit30.stats.speed = 30;
     unit30.pos = { x: 2.5, y: 2.5 };
 
@@ -62,7 +63,7 @@ describe("Regression voidlock-rui6: Landmine Placement & Scaling", () => {
       false,
       false,
     );
-    const unit15 = (engine15 as any).state.units[0];
+    const unit15 = (engine15 as unknown as { state: GameState }).state.units[0];
     unit15.stats.speed = 15;
     unit15.pos = { x: 2.5, y: 2.5 };
 
@@ -87,7 +88,7 @@ describe("Regression voidlock-rui6: Landmine Placement & Scaling", () => {
       false,
       false,
     );
-    const unit60 = (engine60 as any).state.units[0];
+    const unit60 = (engine60 as unknown as { state: GameState }).state.units[0];
     unit60.stats.speed = 60;
     unit60.pos = { x: 2.5, y: 2.5 };
 
@@ -113,7 +114,7 @@ describe("Regression voidlock-rui6: Landmine Placement & Scaling", () => {
       false,
       false,
     );
-    const unit = (engine as any).state.units[0];
+    const unit = (engine as unknown as { state: GameState }).state.units[0];
     unit.stats.speed = 30;
     unit.pos = { x: 0.5, y: 0.5 };
 
@@ -167,14 +168,14 @@ describe("Regression voidlock-rui6: Landmine Placement & Scaling", () => {
       pos: { x: 2.5, y: 2.5 },
       hp: 100,
       maxHp: 100,
-      type: "Xeno-Mite" as any,
+      type: EnemyType.XenoMite,
       damage: 10,
       fireRate: 500,
       accuracy: 50,
       attackRange: 1,
       speed: 30,
       difficulty: 1,
-    } as any);
+    } as unknown as Enemy);
 
     // Update to trigger explosion
     engine.update(100);

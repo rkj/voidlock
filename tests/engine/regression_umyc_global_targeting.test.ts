@@ -3,29 +3,30 @@ import { CommandHandler } from "@src/engine/managers/CommandHandler";
 import {
   CommandType,
   GameState,
-  UnitState,
-  ItemLibrary,
   UseItemCommand,
+  Unit,
 } from "@src/shared/types";
 import { createMockGameState } from "@src/engine/tests/utils/MockFactory";
+import { Director } from "@src/engine/Director";
+import { UnitManager } from "@src/engine/managers/UnitManager";
 
 describe("Regression umyc: Global Item Targeting", () => {
   let handler: CommandHandler;
-  let mockDirector: any;
-  let mockUnitManager: any;
+  let mockDirector: Director;
+  let mockUnitManager: UnitManager;
   let state: GameState;
 
   beforeEach(() => {
     mockDirector = {
       handleUseItem: vi.fn(),
-    };
+    } as unknown as Director;
     mockUnitManager = {
       executeCommand: vi.fn(),
-    };
+    } as unknown as UnitManager;
     handler = new CommandHandler(mockUnitManager, mockDirector);
     state = createMockGameState({
       squadInventory: { medkit: 1, frag_grenade: 1, scanner: 1 },
-      units: [{ id: "u1", hp: 50, maxHp: 100, pos: { x: 1, y: 1 } } as any],
+      units: [{ id: "u1", hp: 50, maxHp: 100, pos: { x: 1, y: 1 } } as unknown as Unit],
     });
   });
 

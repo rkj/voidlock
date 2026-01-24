@@ -3,13 +3,11 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   ArchetypeLibrary,
   MissionType,
-  UnitState,
-  AIProfile,
 } from "@src/shared/types";
 
 // Mocking StatDisplay and Icons since they are used in main.ts
 const StatDisplay = {
-  render: (icon: string, value: any, label: string) =>
+  render: (icon: string, value: string | number) =>
     `<span>${icon} ${value}</span>`,
 };
 const Icons = {
@@ -46,7 +44,10 @@ describe("SquadBuilder VIP Selection (regression_voidlock-hs8n)", () => {
     soldiers: [],
   };
   let currentMissionType: MissionType = MissionType.Default;
-  let mockModalService: any;
+  let mockModalService: {
+    alert: ReturnType<typeof vi.fn>;
+    confirm: ReturnType<typeof vi.fn>;
+  };
 
   beforeEach(() => {
     currentSquad = { soldiers: [] };

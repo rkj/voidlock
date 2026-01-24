@@ -3,6 +3,7 @@ import {
   CellType,
   BoundaryType,
   WallDefinition,
+  BoundaryDefinition,
 } from "../../shared/types";
 import { Graph, Direction } from "../Graph";
 
@@ -71,7 +72,7 @@ export class MapSanitizer {
 
     // 3. Re-build map.walls from Graph (ensuring unreachable cells are walled off)
     const newWalls: WallDefinition[] = [];
-    const newBoundaries: any[] = [];
+    const newBoundaries: BoundaryDefinition[] = [];
 
     for (const b of graph.getAllBoundaries()) {
       const isC1Reachable = reachable.has(`${b.x1},${b.y1}`);

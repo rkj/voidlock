@@ -29,7 +29,6 @@ export class TreeShipGenerator {
     parentX: number;
     parentY: number;
     dir: "n" | "s" | "e" | "w";
-    state: "NewRoom" | "ExpandRoom";
   }[] = [];
 
   constructor(seed: number, width: number, height: number) {
@@ -51,7 +50,7 @@ export class TreeShipGenerator {
 
   public generate(
     spawnPointCount: number = 1,
-    bonusLootCount: number = 0,
+    _bonusLootCount: number = 0,
   ): MapDefinition {
     this.placementValidator.clear();
     // 1. Initialize Grid (Void) and walls
@@ -99,7 +98,6 @@ export class TreeShipGenerator {
             parentX: cell.x,
             parentY: cell.y,
             dir,
-            state: "NewRoom",
           });
         }
       };
@@ -267,7 +265,6 @@ export class TreeShipGenerator {
                 parentX: x,
                 parentY: y,
                 dir: d.k,
-                state: "NewRoom",
               });
           }
         }
@@ -295,7 +292,7 @@ export class TreeShipGenerator {
     this.walls.delete(this.getBoundaryKey(x, y, nx, ny));
   }
 
-  private placeDoor(x: number, y: number, dir: string) {
+  private placeDoor(x: number, y: number, dir: "n" | "e" | "s" | "w") {
     const doorId = `door-${this.doors.length}`;
     let segment: Vector2[];
     let orientation: "Horizontal" | "Vertical";
@@ -325,7 +322,7 @@ export class TreeShipGenerator {
       ];
     }
 
-    this.openWall(x, y, dir as any);
+    this.openWall(x, y, dir);
     this.doors.push({
       id: doorId,
       state: "Closed",

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import { CoreEngine } from "@src/engine/CoreEngine";
 import { MapGenerator } from "@src/engine/MapGenerator";
 import {
@@ -6,6 +6,8 @@ import {
   CellType,
   MissionType,
   UnitState,
+  GameState,
+  Unit,
 } from "@src/shared/types";
 
 describe("VIP Mission Mechanics", () => {
@@ -42,10 +44,10 @@ describe("VIP Mission Mechanics", () => {
     expect(vip).toBeDefined();
 
     // Kill the VIP
-    const internalState = (engine as any).state;
+    const internalState = (engine as unknown as { state: GameState }).state;
     const internalVip = internalState.units.find(
-      (u: any) => u.archetypeId === "vip",
-    );
+      (u: Unit) => u.archetypeId === "vip",
+    )!;
     internalVip.hp = 0;
 
     engine.update(100);
@@ -75,8 +77,8 @@ describe("VIP Mission Mechanics", () => {
     ).toBe(2);
 
     // Kill one of the VIPs
-    const internalState = (engine as any).state;
-    const internalVip2 = internalState.units.find((u: any) => u.id === "vip-2");
+    const internalState = (engine as unknown as { state: GameState }).state;
+    const internalVip2 = internalState.units.find((u: Unit) => u.id === "vip-2")!;
     internalVip2.hp = 0;
 
     engine.update(100);
@@ -103,15 +105,15 @@ describe("VIP Mission Mechanics", () => {
     engine.addUnit(vip2);
 
     // Extract first VIP
-    const internalState = (engine as any).state;
-    const internalVip1 = internalState.units.find((u: any) => u.id === "vip-1");
+    const internalState = (engine as unknown as { state: GameState }).state;
+    const internalVip1 = internalState.units.find((u: Unit) => u.id === "vip-1")!;
     internalVip1.state = UnitState.Extracted;
 
     engine.update(100);
     expect(engine.getState().status).toBe("Playing"); // Still one VIP left
 
     // Extract second VIP
-    const internalVip2 = internalState.units.find((u: any) => u.id === "vip-2");
+    const internalVip2 = internalState.units.find((u: Unit) => u.id === "vip-2")!;
     internalVip2.state = UnitState.Extracted;
 
     engine.update(100);
@@ -204,11 +206,11 @@ describe("VIP Mission Mechanics", () => {
       MissionType.EscortVIP,
     );
 
-    const internalState = (engine2 as any).state;
-    const vip = internalState.units.find((u: any) => u.archetypeId === "vip");
+    const internalState = (engine2 as unknown as { state: GameState }).state;
+    const vip = internalState.units.find((u: Unit) => u.archetypeId === "vip")!;
     const soldier = internalState.units.find(
-      (u: any) => u.archetypeId === "assault",
-    );
+      (u: Unit) => u.archetypeId === "assault",
+    )!;
 
     // Ensure VIP is in the room with 'O'
     vip.pos = { x: 2.5, y: 0.5 };
@@ -217,28 +219,6 @@ describe("VIP Mission Mechanics", () => {
 
     engine2.update(100);
     expect(vip.aiEnabled).toBe(false); // Blocked by wall
-
-    // Move soldier to (1,0) - still blocked by wall at x=1?
-    // In our wall model, wall is BETWEEN cells.
-    // The wall is between (0,0) and (1,0) in my ASCII?
-    // +-+-+-+
-    // |P| |O|  <- wall is between P and empty cell.
-
-    // Let's use coordinates. Wall at x=0.5 (between 0 and 1) and x=1.5 (between 1 and 2).
-    // Cell (0,0) is P. Cell (1,0) is empty. Cell (2,0) is O.
-    // Walls: (0,0)-(1,0) is '|' at x=1. (1,0)-(2,0) is ' ' (open).
-    // Wait, the ASCII:
-    // +-+-+-+
-    // |P| |O|
-    //   ^--- wall here.
-
-    // So (0,0) and (1,0) are separated by a wall.
-    // Soldier at (0.5, 0.5), VIP at (2.5, 0.5).
-    // Line of sight must pass through (1,0).
-    // If there's a wall between (0,0) and (1,0), LOS is blocked.
-
-    engine2.update(100);
-    expect(vip.aiEnabled).toBe(false);
 
     // Move soldier to (1.5, 0.5) - now in same room area as VIP (1,0 and 2,0 are connected)
     soldier.pos = { x: 1.5, y: 0.5 };

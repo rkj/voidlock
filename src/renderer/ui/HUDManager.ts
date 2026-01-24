@@ -5,6 +5,14 @@ import { Icons } from "@src/renderer/Icons";
 import { StatDisplay } from "@src/renderer/ui/StatDisplay";
 import { TimeUtility } from "@src/renderer/TimeUtility";
 
+interface WeaponHUDStats {
+  name: string;
+  damage: number;
+  range: number;
+  accuracy: number;
+  fireRate: string;
+}
+
 export class HUDManager {
   private lastMenuHtml = "";
 
@@ -25,7 +33,10 @@ export class HUDManager {
     this.updateSoldierList(state, selectedUnitId);
   }
 
-  private getWeaponStats(unit: Unit, weaponId?: string) {
+  private getWeaponStats(
+    unit: Unit,
+    weaponId?: string,
+  ): WeaponHUDStats | null {
     if (!weaponId) return null;
     const weapon = WeaponLibrary[weaponId];
     if (!weapon) return null;
@@ -572,7 +583,10 @@ export class HUDManager {
       const lhStats = this.getWeaponStats(unit, unit.leftHand);
       const rhStats = this.getWeaponStats(unit, unit.rightHand);
 
-      const updateWep = (container: HTMLElement, stats: any) => {
+      const updateWep = (
+        container: HTMLElement,
+        stats: WeaponHUDStats | null,
+      ) => {
         if (!stats) {
           const emptyHtml =
             '<span style="color:var(--color-border-strong)">Empty</span>';

@@ -8,7 +8,7 @@ export interface StorageProvider {
    * @param key Unique key for the data.
    * @param data Data to save (will be serialized to JSON).
    */
-  save(key: string, data: any): void;
+  save(key: string, data: unknown): void;
 
   /**
    * Load data from storage.

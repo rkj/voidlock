@@ -5,8 +5,6 @@ import {
   EnemyType,
   GameState,
   EngineMode,
-  Vector2,
-  Command,
 } from "../../../shared/types";
 
 export function createMockUnit(overrides: Partial<Unit> = {}): Unit {

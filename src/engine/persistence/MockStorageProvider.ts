@@ -6,7 +6,7 @@ import { StorageProvider } from "./StorageProvider";
 export class MockStorageProvider implements StorageProvider {
   private storage: Map<string, string> = new Map();
 
-  public save(key: string, data: any): void {
+  public save(key: string, data: unknown): void {
     this.storage.set(key, JSON.stringify(data));
   }
 

@@ -1,6 +1,5 @@
 import {
   Unit,
-  GameState,
   ArchetypeLibrary,
   ItemLibrary,
   WeaponLibrary,

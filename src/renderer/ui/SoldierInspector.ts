@@ -17,6 +17,14 @@ export interface SoldierInspectorOptions {
   onUpdate: () => void;
 }
 
+interface WeaponStats {
+  name: string;
+  damage: number;
+  range: number;
+  fireRate: string;
+  accuracy: number;
+}
+
 export class SoldierInspector {
   private manager: CampaignManager;
   private onUpdate: () => void;
@@ -108,7 +116,7 @@ export class SoldierInspector {
     const rw = this.getWeaponStats(equip.rightHand, sStats.speed);
     const lw = this.getWeaponStats(equip.leftHand, sStats.speed);
 
-    const renderWepBlock = (w: any, label: string) => {
+    const renderWepBlock = (w: WeaponStats | null, label: string) => {
       if (!w)
         return `<div style="color:var(--color-text-dim); font-size:0.75em; margin-bottom:12px; font-style: italic;">${label}: [No Equipment]</div>`;
       return `
@@ -286,7 +294,7 @@ export class SoldierInspector {
     panel: HTMLElement,
     title: string,
     items: (Weapon | Item)[],
-    onSelect: (item: any) => void,
+    onSelect: (item: Weapon | Item) => void,
     slot: keyof EquipmentState,
   ) {
     const h3 = document.createElement("h3");
@@ -526,7 +534,8 @@ export class SoldierInspector {
       this.soldier.equipment[slot] = newItemId || undefined;
       this.manager.assignEquipment(this.soldier.id, this.soldier.equipment);
     } else {
-      (this.soldier as any)[slot] = newItemId || undefined;
+      const config = this.soldier as SquadSoldierConfig;
+      config[slot] = newItemId || undefined;
       // Persistence: write back to CampaignManager if it's a roster soldier
       if (this.soldier.id) {
         const state = this.manager.getState();

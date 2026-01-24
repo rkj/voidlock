@@ -120,9 +120,19 @@ export type WorkerMessage =
   | { type: "SET_TIME_SCALE"; payload: number }
   | { type: "STOP" };
 
+export type EventPayload =
+  | { type: "SOUND"; soundId: string; position: Vector2 }
+  | {
+      type: "COMBAT_LOG";
+      message: string;
+      severity: "info" | "warning" | "error";
+    }
+  | { type: "NOTIFICATION"; text: string }
+  | { type: "STATE_CHANGE"; oldState: string; newState: string };
+
 export type MainMessage =
   | { type: "STATE_UPDATE"; payload: GameState }
-  | { type: "EVENT"; payload: any };
+  | { type: "EVENT"; payload: EventPayload };
 
 export type OverlayOption = {
   key: string;

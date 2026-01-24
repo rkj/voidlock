@@ -6,6 +6,7 @@ import {
   UnitState,
   MissionType,
   CellType,
+  MoveCommand,
 } from "@src/shared/types";
 
 describe("Regression 1jmd: Command Queuing", () => {
@@ -59,7 +60,7 @@ describe("Regression 1jmd: Command Queuing", () => {
 
     const updatedUnit = engine.getState().units[0];
     expect(updatedUnit.commandQueue.length).toBe(1);
-    expect((updatedUnit.commandQueue[0] as any).target).toEqual({ x: 1, y: 1 });
+    expect((updatedUnit.commandQueue[0] as MoveCommand).target).toEqual({ x: 1, y: 1 });
   });
 
   it("should clear the queue and execute immediately when 'queue' flag is false (default)", () => {
@@ -92,7 +93,7 @@ describe("Regression 1jmd: Command Queuing", () => {
     const updatedUnit = engine.getState().units[0];
     expect(updatedUnit.commandQueue.length).toBe(0);
     expect(updatedUnit.activeCommand?.type).toBe(CommandType.MOVE_TO);
-    expect((updatedUnit.activeCommand as any).target).toEqual({ x: 1, y: 1 });
+    expect((updatedUnit.activeCommand as MoveCommand).target).toEqual({ x: 1, y: 1 });
   });
 
   it("should execute the next command in queue after the current one completes", () => {

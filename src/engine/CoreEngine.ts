@@ -569,7 +569,7 @@ export class CoreEngine {
     this.visibilityManager.updateVisibility(this.state);
 
     // 4. Mission (Objectives Visibility)
-    this.missionManager.updateObjectives(this.state, this.state.visibleCells);
+    this.missionManager.updateObjectives(this.state);
 
     // 5. Units (Now uses scaledDt for all timers)
     this.unitManager.update(

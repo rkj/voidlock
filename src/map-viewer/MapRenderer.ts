@@ -1,4 +1,4 @@
-import { MapDefinition, CellType, Door, BoundaryType } from "../shared/types";
+import { MapDefinition, CellType, BoundaryType } from "../shared/types";
 import { Graph } from "../engine/Graph";
 import { ThemeManager } from "../renderer/ThemeManager";
 
@@ -165,7 +165,7 @@ export class MapRenderer {
     this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
     this.renderCells(map);
-    this.renderWalls(map);
+    this.renderWalls();
     this.renderDoors(map);
     this.renderObjectives(map);
     this.renderSpawnPoints(map);
@@ -199,7 +199,7 @@ export class MapRenderer {
     });
   }
 
-  private renderWalls(map: MapDefinition) {
+  private renderWalls() {
     if (!this.graph) return;
 
     this.ctx.lineCap = "round";

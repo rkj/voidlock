@@ -1,8 +1,13 @@
 import { AppContext } from "../app/AppContext";
-import { SquadConfig, MissionType } from "@src/shared/types";
+import { SquadConfig, MissionType, Archetype } from "@src/shared/types";
+import { CampaignSoldier } from "@src/shared/campaign_types";
 import { ArchetypeLibrary } from "@src/shared/types/units";
 import { StatDisplay } from "@src/renderer/ui/StatDisplay";
 import { Icons } from "@src/renderer/Icons";
+
+type DragData =
+  | { type: "campaign"; id: string; archetypeId: string }
+  | { type: "custom"; archetypeId: string };
 
 export class SquadBuilder {
   private container: HTMLElement;
@@ -161,8 +166,10 @@ export class SquadBuilder {
                   if (this.context.campaignShell)
                     this.context.campaignShell.refresh();
                   updateCount();
-                } catch (err: any) {
-                  await this.context.modalService.alert(err.message);
+                } catch (err: unknown) {
+                  const message =
+                    err instanceof Error ? err.message : String(err);
+                  await this.context.modalService.alert(message);
                 }
               }
             };
@@ -187,7 +194,7 @@ export class SquadBuilder {
         deploymentPanel.appendChild(createSlot(i));
     };
 
-    const addToSquad = async (data: any) => {
+    const addToSquad = async (data: DragData) => {
       const totalNonVip = this.squad.soldiers.filter(
         (s) => s.archetypeId !== "vip",
       ).length;
@@ -233,7 +240,10 @@ export class SquadBuilder {
       updateCount();
     };
 
-    const createCampaignCard = (soldier: any, isDeployed: boolean) => {
+    const createCampaignCard = (
+      soldier: CampaignSoldier,
+      isDeployed: boolean,
+    ) => {
       const arch = ArchetypeLibrary[soldier.archetypeId];
       const card = document.createElement("div");
 
@@ -250,14 +260,12 @@ export class SquadBuilder {
       if (isHealthy && !isDeployed) {
         card.draggable = true;
         card.addEventListener("dragstart", (e) => {
-          e.dataTransfer?.setData(
-            "text/plain",
-            JSON.stringify({
-              type: "campaign",
-              id: soldier.id,
-              archetypeId: soldier.archetypeId,
-            }),
-          );
+          const dragData: DragData = {
+            type: "campaign",
+            id: soldier.id,
+            archetypeId: soldier.archetypeId,
+          };
+          e.dataTransfer?.setData("text/plain", JSON.stringify(dragData));
         });
         card.addEventListener("dblclick", () =>
           addToSquad({
@@ -313,8 +321,9 @@ export class SquadBuilder {
               if (this.context.campaignShell)
                 this.context.campaignShell.refresh();
               updateCount();
-            } catch (err: any) {
-              await this.context.modalService.alert(err.message);
+            } catch (err: unknown) {
+              const message = err instanceof Error ? err.message : String(err);
+              await this.context.modalService.alert(message);
             }
           };
           card.appendChild(reviveBtn);
@@ -324,15 +333,13 @@ export class SquadBuilder {
       return card;
     };
 
-    const createArchetypeCard = (arch: any) => {
+    const createArchetypeCard = (arch: Archetype) => {
       const card = document.createElement("div");
       card.className = "soldier-card";
       card.draggable = true;
       card.addEventListener("dragstart", (e) => {
-        e.dataTransfer?.setData(
-          "text/plain",
-          JSON.stringify({ type: "custom", archetypeId: arch.id }),
-        );
+        const dragData: DragData = { type: "custom", archetypeId: arch.id };
+        e.dataTransfer?.setData("text/plain", JSON.stringify(dragData));
       });
       card.addEventListener("dblclick", () =>
         addToSquad({ type: "custom", archetypeId: arch.id }),

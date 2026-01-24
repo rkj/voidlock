@@ -1,9 +1,9 @@
 import {
   MapGeneratorType,
   SquadConfig,
-  MapDefinition,
   MissionType,
   UnitStyle,
+  SquadSoldierConfig,
 } from "@src/shared/types";
 
 export interface GameConfig {
@@ -110,7 +110,7 @@ export class ConfigManager {
   }
 
   private static validateAndMerge(
-    loaded: any,
+    loaded: Record<string, unknown>,
     defaults: GameConfig,
   ): GameConfig {
     const result = { ...defaults };
@@ -127,8 +127,9 @@ export class ConfigManager {
       "bonusLootCount",
     ];
     for (const field of numericFields) {
-      if (typeof loaded[field] === "number" && !isNaN(loaded[field])) {
-        (result as any)[field] = loaded[field];
+      const val = loaded[field];
+      if (typeof val === "number" && !isNaN(val)) {
+        (result as Record<string, unknown>)[field] = val;
       }
     }
 
@@ -141,8 +142,9 @@ export class ConfigManager {
       "allowTacticalPause",
     ];
     for (const field of booleanFields) {
-      if (typeof loaded[field] === "boolean") {
-        (result as any)[field] = loaded[field];
+      const val = loaded[field];
+      if (typeof val === "boolean") {
+        (result as Record<string, unknown>)[field] = val;
       }
     }
 
@@ -152,37 +154,45 @@ export class ConfigManager {
     }
 
     // Enum fields
-    if (Object.values(UnitStyle).includes(loaded.unitStyle)) {
-      result.unitStyle = loaded.unitStyle;
+    if (Object.values(UnitStyle).includes(loaded.unitStyle as UnitStyle)) {
+      result.unitStyle = loaded.unitStyle as UnitStyle;
     }
-    if (Object.values(MapGeneratorType).includes(loaded.mapGeneratorType)) {
-      result.mapGeneratorType = loaded.mapGeneratorType;
+    if (
+      Object.values(MapGeneratorType).includes(
+        loaded.mapGeneratorType as MapGeneratorType,
+      )
+    ) {
+      result.mapGeneratorType = loaded.mapGeneratorType as MapGeneratorType;
     }
-    if (Object.values(MissionType).includes(loaded.missionType)) {
-      result.missionType = loaded.missionType;
+    if (Object.values(MissionType).includes(loaded.missionType as MissionType)) {
+      result.missionType = loaded.missionType as MissionType;
     }
 
     // Complex fields: squadConfig
+    const loadedSquad = loaded.squadConfig;
     if (
-      loaded.squadConfig &&
-      typeof loaded.squadConfig === "object" &&
-      !Array.isArray(loaded.squadConfig)
+      loadedSquad &&
+      typeof loadedSquad === "object" &&
+      !Array.isArray(loadedSquad)
     ) {
-      if (Array.isArray(loaded.squadConfig.soldiers)) {
-        result.squadConfig.soldiers = loaded.squadConfig.soldiers.filter(
-          (s: any) =>
-            s && typeof s === "object" && typeof s.archetypeId === "string",
-        );
+      const squad = loadedSquad as Record<string, unknown>;
+      if (Array.isArray(squad.soldiers)) {
+        result.squadConfig.soldiers = squad.soldiers.filter(
+          (s: unknown) =>
+            s &&
+            typeof s === "object" &&
+            "archetypeId" in s &&
+            typeof (s as Record<string, unknown>).archetypeId === "string",
+        ) as SquadSoldierConfig[];
         if (result.squadConfig.soldiers.length === 0) {
           result.squadConfig.soldiers = [...defaults.squadConfig.soldiers];
         }
       }
 
-      if (
-        loaded.squadConfig.inventory &&
-        typeof loaded.squadConfig.inventory === "object"
-      ) {
-        result.squadConfig.inventory = { ...loaded.squadConfig.inventory };
+      if (squad.inventory && typeof squad.inventory === "object") {
+        result.squadConfig.inventory = {
+          ...(squad.inventory as Record<string, number>),
+        };
       }
     }
 

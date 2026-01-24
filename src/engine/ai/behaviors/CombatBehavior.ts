@@ -3,7 +3,6 @@ import {
   Unit,
   UnitState,
   CommandType,
-  Enemy,
   Door,
 } from "../../../shared/types";
 import { AIContext } from "../../managers/UnitAI";

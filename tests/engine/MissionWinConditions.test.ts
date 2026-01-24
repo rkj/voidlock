@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import { CoreEngine } from "@src/engine/CoreEngine";
 import {
   MissionType,
@@ -6,6 +6,9 @@ import {
   CellType,
   MapDefinition,
   SquadConfig,
+  GameState,
+  Unit,
+  Objective,
 } from "@src/shared/types";
 
 describe("Mission Win/Loss Conditions", () => {
@@ -46,16 +49,16 @@ describe("Mission Win/Loss Conditions", () => {
         false,
         MissionType.RecoverIntel,
       );
-      const state = (engine as any).state;
+      const state = (engine as unknown as { state: GameState }).state;
 
       // Manually complete ALL objectives (RecoverIntel generates 3)
-      state.objectives.forEach((o: any) => (o.state = "Completed"));
+      state.objectives.forEach((o: Objective) => (o.state = "Completed"));
 
       engine.update(100);
       expect(state.status).toBe("Won");
 
       // Wipe squad
-      state.units.forEach((u: any) => (u.hp = 0));
+      state.units.forEach((u: Unit) => (u.hp = 0));
       engine.update(100);
 
       // Should remain "Won"
@@ -71,20 +74,20 @@ describe("Mission Win/Loss Conditions", () => {
         false,
         MissionType.DestroyHive,
       );
-      const state = (engine as any).state;
+      const state = (engine as unknown as { state: GameState }).state;
 
       // Find hive objective
-      const hiveObj = state.objectives.find((o: any) => o.kind === "Kill");
+      const hiveObj = state.objectives.find((o: Objective) => o.kind === "Kill");
       expect(hiveObj).toBeDefined();
 
       // Manually complete objective (kill hive)
-      hiveObj.state = "Completed";
+      if (hiveObj) hiveObj.state = "Completed";
 
       engine.update(100);
       expect(state.status).toBe("Won");
 
       // Wipe squad
-      state.units.forEach((u: any) => (u.hp = 0));
+      state.units.forEach((u: Unit) => (u.hp = 0));
       engine.update(100);
 
       // Should remain "Won"
@@ -106,10 +109,10 @@ describe("Mission Win/Loss Conditions", () => {
         false,
         MissionType.RecoverIntel,
       );
-      const state = (engine as any).state;
+      const state = (engine as unknown as { state: GameState }).state;
 
       // Wipe squad
-      state.units.forEach((u: any) => (u.hp = 0));
+      state.units.forEach((u: Unit) => (u.hp = 0));
       engine.update(100);
 
       expect(state.status).toBe("Lost");
@@ -132,10 +135,10 @@ describe("Mission Win/Loss Conditions", () => {
         false,
         MissionType.ExtractArtifacts,
       );
-      const state = (engine as any).state;
+      const state = (engine as unknown as { state: GameState }).state;
 
       // 1. Pickup ALL artifacts (ExtractArtifacts generates 3)
-      state.objectives.forEach((o: any) => (o.state = "Completed"));
+      state.objectives.forEach((o: Objective) => (o.state = "Completed"));
       state.units[0].carriedObjectiveId = state.objectives[0].id;
 
       engine.update(100);
@@ -168,10 +171,10 @@ describe("Mission Win/Loss Conditions", () => {
         false,
         MissionType.ExtractArtifacts,
       );
-      const state = (engine as any).state;
+      const state = (engine as unknown as { state: GameState }).state;
 
       // 1. All objectives completed (Unit 0 picks up artifact 0)
-      state.objectives.forEach((o: any) => (o.state = "Completed"));
+      state.objectives.forEach((o: Objective) => (o.state = "Completed"));
       state.units[0].carriedObjectiveId = state.objectives[0].id;
 
       engine.update(100);
@@ -199,10 +202,10 @@ describe("Mission Win/Loss Conditions", () => {
         false,
         MissionType.EscortVIP,
       );
-      const state = (engine as any).state;
+      const state = (engine as unknown as { state: GameState }).state;
 
-      const vip = state.units.find((u: any) => u.archetypeId === "vip");
-      const soldier = state.units.find((u: any) => u.archetypeId !== "vip");
+      const vip = state.units.find((u: Unit) => u.archetypeId === "vip")!;
+      const soldier = state.units.find((u: Unit) => u.archetypeId !== "vip")!;
 
       // Soldier dies
       soldier.hp = 0;
@@ -224,9 +227,9 @@ describe("Mission Win/Loss Conditions", () => {
         false,
         MissionType.EscortVIP,
       );
-      const state = (engine as any).state;
+      const state = (engine as unknown as { state: GameState }).state;
 
-      const vip = state.units.find((u: any) => u.archetypeId === "vip");
+      const vip = state.units.find((u: Unit) => u.archetypeId === "vip")!;
 
       vip.hp = 0;
       engine.update(100);
@@ -242,12 +245,12 @@ describe("Mission Win/Loss Conditions", () => {
         false,
         MissionType.EscortVIP,
       );
-      const state = (engine as any).state;
+      const state = (engine as unknown as { state: GameState }).state;
 
       const combatUnits = state.units.filter(
-        (u: any) => u.archetypeId !== "vip",
+        (u: Unit) => u.archetypeId !== "vip",
       );
-      combatUnits.forEach((u: any) => (u.hp = 0));
+      combatUnits.forEach((u: Unit) => (u.hp = 0));
 
       engine.update(100);
       expect(state.status).toBe("Lost");
@@ -262,12 +265,12 @@ describe("Mission Win/Loss Conditions", () => {
         false,
         MissionType.Default,
       );
-      const state = (engine as any).state;
+      const state = (engine as unknown as { state: GameState }).state;
 
       // No objectives in Default by default (unless map has them)
       expect(state.objectives.length).toBe(0);
 
-      state.units.forEach((u: any) => (u.state = UnitState.Extracted));
+      state.units.forEach((u: Unit) => (u.state = UnitState.Extracted));
       engine.update(100);
       expect(state.status).toBe("Won");
     });
@@ -281,9 +284,9 @@ describe("Mission Win/Loss Conditions", () => {
         false,
         MissionType.Default,
       );
-      const state = (engine as any).state;
+      const state = (engine as unknown as { state: GameState }).state;
 
-      state.units.forEach((u: any) => (u.hp = 0));
+      state.units.forEach((u: Unit) => (u.hp = 0));
       engine.update(100);
       expect(state.status).toBe("Lost");
     });

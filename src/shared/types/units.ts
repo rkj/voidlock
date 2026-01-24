@@ -32,6 +32,14 @@ export type Entity = {
   maxHp: number;
 };
 
+export type Attacker = {
+  id: string;
+  pos: Vector2;
+  hp?: number;
+  lastAttackTime?: number;
+  lastAttackTarget?: Vector2;
+};
+
 export type UnitStats = {
   damage: number;
   fireRate: number;

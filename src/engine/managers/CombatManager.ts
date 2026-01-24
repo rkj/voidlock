@@ -5,7 +5,7 @@ import {
   Enemy,
   WeaponLibrary,
   Vector2,
-  AttackEvent,
+  Attacker,
 } from "../../shared/types";
 import { LineOfSight } from "../LineOfSight";
 import { PRNG } from "../../shared/PRNG";
@@ -18,7 +18,7 @@ export class CombatManager {
     private statsManager: StatsManager,
   ) {}
 
-  public update(unit: Unit, state: GameState, dt: number, prng: PRNG) {
+  public update(unit: Unit, state: GameState, prng: PRNG) {
     if (unit.state === UnitState.Extracted || unit.hp <= 0) return;
 
     // 1. Preparation: ensure the correct weapon/stats are active
@@ -122,7 +122,7 @@ export class CombatManager {
    * Updates health, lastAttack fields and emits AttackEvents.
    */
   public handleAttack(
-    attacker: Unit | Enemy,
+    attacker: Attacker,
     target: Unit | Enemy,
     stats: {
       damage: number;
@@ -134,7 +134,9 @@ export class CombatManager {
     prng: PRNG,
     onKilled?: () => void,
   ): boolean {
-    if (attacker.hp <= 0 || target.hp <= 0) return false;
+    if ((attacker.hp !== undefined && attacker.hp <= 0) || target.hp <= 0) {
+      return false;
+    }
 
     if (
       !attacker.lastAttackTime ||

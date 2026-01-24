@@ -9,8 +9,10 @@ import { MapFactory } from "@src/engine/map/MapFactory";
  * it separates the "how" (DOM events) from the "what" (application logic).
  */
 export class InputBinder {
-  private handlers: Map<HTMLElement, { type: string; handler: any }[]> =
-    new Map();
+  private handlers: Map<
+    HTMLElement,
+    { type: string; handler: (e: Event) => void }[]
+  > = new Map();
 
   constructor(private context: AppContext) {}
 
@@ -104,8 +106,9 @@ export class InputBinder {
     this.addListener(hInput, "input", updateSpawnPoints);
 
     // Map Generator & Mission Type
-    this.addListener("map-generator-type", "change", (e: any) => {
-      const val = e.target.value as MapGeneratorType;
+    this.addListener("map-generator-type", "change", (e: Event) => {
+      const target = e.target as HTMLSelectElement;
+      const val = target.value as MapGeneratorType;
       const isStatic = val === MapGeneratorType.Static;
       const staticControls = document.getElementById("static-map-controls");
       if (staticControls)
@@ -135,7 +138,7 @@ export class InputBinder {
       /* update local state */
     });
 
-    this.addListener("select-unit-style", "change", (e: any) => {
+    this.addListener("select-unit-style", "change", (e: Event) => {
       // update unitStyle
     });
 
@@ -157,8 +160,9 @@ export class InputBinder {
       callbacks.onLoadStaticMap(json);
     });
 
-    this.addListener("upload-static-map", "change", (e: any) => {
-      const file = e.target.files?.[0];
+    this.addListener("upload-static-map", "change", (e: Event) => {
+      const target = e.target as HTMLInputElement;
+      const file = target.files?.[0];
       if (file) callbacks.onUploadStaticMap(file);
     });
 
@@ -177,7 +181,7 @@ export class InputBinder {
   private addListener(
     idOrEl: string | HTMLElement | null,
     type: string,
-    handler: (e: any) => void,
+    handler: (e: Event) => void,
   ) {
     const el =
       typeof idOrEl === "string" ? document.getElementById(idOrEl) : idOrEl;
@@ -201,7 +205,10 @@ export class InputBinder {
   private addToggleListener(id: string, callback: (checked: boolean) => void) {
     const el = document.getElementById(id) as HTMLInputElement;
     if (el) {
-      this.addListener(el, "change", (e) => callback(e.target.checked));
+      this.addListener(el, "change", (e: Event) => {
+        const target = e.target as HTMLInputElement;
+        callback(target.checked);
+      });
     }
   }
 

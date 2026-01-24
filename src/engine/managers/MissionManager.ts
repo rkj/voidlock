@@ -14,7 +14,6 @@ import { EnemyManager } from "./EnemyManager";
 import { LootManager } from "./LootManager";
 import {
   PlacementValidator,
-  OccupantType,
 } from "../generators/PlacementValidator";
 import { isCellVisible, isCellDiscovered } from "../../shared/VisibilityUtils";
 
@@ -203,7 +202,7 @@ export class MissionManager {
     }
   }
 
-  public updateObjectives(state: GameState, _visibleCells: string[]) {
+  public updateObjectives(state: GameState) {
     state.objectives.forEach((obj) => {
       if (!obj.visible && obj.targetCell) {
         if (isCellDiscovered(state, obj.targetCell.x, obj.targetCell.y)) {

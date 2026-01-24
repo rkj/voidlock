@@ -6,7 +6,7 @@ import { ScreenManager } from "@src/renderer/ScreenManager";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { ThemeManager } from "@src/renderer/ThemeManager";
-import { ConfigManager } from "@src/renderer/ConfigManager";
+import { ConfigManager, GameConfig } from "@src/renderer/ConfigManager";
 import { MenuController } from "@src/renderer/MenuController";
 import { HUDManager } from "@src/renderer/ui/HUDManager";
 import { InputManager } from "@src/renderer/InputManager";
@@ -45,7 +45,11 @@ import { CampaignEvents } from "@src/content/CampaignEvents";
 import { EventModal, OutcomeModal } from "@src/renderer/ui/EventModal";
 import { ModalService } from "@src/renderer/ui/ModalService";
 import { PRNG } from "@src/shared/PRNG";
-import { CampaignShell, CampaignTabId } from "@src/renderer/ui/CampaignShell";
+import {
+  CampaignShell,
+  CampaignTabId,
+  CampaignShellMode,
+} from "@src/renderer/ui/CampaignShell";
 import pkg from "../../../package.json";
 import { SquadBuilder } from "../components/SquadBuilder";
 
@@ -398,8 +402,8 @@ export class GameApp {
     }
 
     const state = this.context.campaignManager.getState();
-    const mode = state ? "campaign" : "statistics";
-    this.context.campaignShell.show(mode as any, tabId);
+    const mode: CampaignShellMode = state ? "campaign" : "statistics";
+    this.context.campaignShell.show(mode, tabId);
   }
 
   public start() {
@@ -1232,7 +1236,7 @@ export class GameApp {
       this.currentThemeId = defaults.themeId;
       this.currentSquad = JSON.parse(JSON.stringify(defaults.squadConfig));
 
-      this.updateSetupUIFromConfig(defaults as any);
+      this.updateSetupUIFromConfig(defaults);
     }
 
     if (isCampaign) {
@@ -1312,7 +1316,7 @@ export class GameApp {
     this.renderSquadBuilder(isCampaign);
   }
 
-  private updateSetupUIFromConfig(config: any) {
+  private updateSetupUIFromConfig(config: GameConfig | Partial<GameConfig>) {
     const missionSelect = document.getElementById(
       "mission-type",
     ) as HTMLSelectElement;

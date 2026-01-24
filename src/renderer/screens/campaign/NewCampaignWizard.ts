@@ -1,5 +1,6 @@
 import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { CampaignOverrides } from "@src/shared/campaign_types";
+import { UnitStyle, MapGeneratorType } from "@src/shared/types";
 
 export interface NewCampaignWizardOptions {
   onStartCampaign: (
@@ -398,7 +399,7 @@ export class NewCampaignWizard {
       const overrides: CampaignOverrides = {
         allowTacticalPause: pauseCheck.checked,
         themeId: themeSelect.value,
-        unitStyle: styleSelect.value as any,
+        unitStyle: styleSelect.value as UnitStyle,
         mapGrowthRate: parseFloat(lengthSelect.value),
         economyMode: (
           document.getElementById("campaign-economy-mode") as HTMLSelectElement
@@ -406,12 +407,17 @@ export class NewCampaignWizard {
       };
 
       if (seedInput.value) overrides.customSeed = parseInt(seedInput.value);
-      if (genSelect.value) overrides.mapGeneratorType = genSelect.value as any;
+      if (genSelect.value)
+        overrides.mapGeneratorType = genSelect.value as MapGeneratorType;
       if (scalingSlider.value !== "100")
         overrides.scaling = parseInt(scalingSlider.value) / 100;
       if (scarcitySlider.value !== "100")
         overrides.scarcity = 100 / parseInt(scarcitySlider.value);
-      if (deathSelect.value) overrides.deathRule = deathSelect.value as any;
+      if (deathSelect.value)
+        overrides.deathRule = deathSelect.value as
+          | "Simulation"
+          | "Clone"
+          | "Iron";
 
       this.options.onStartCampaign(
         Date.now(),

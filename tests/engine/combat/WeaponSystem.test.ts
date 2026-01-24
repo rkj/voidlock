@@ -2,11 +2,11 @@ import { describe, it, expect, beforeEach } from "vitest";
 import {
   Unit,
   UnitState,
-  ArchetypeLibrary,
   WeaponLibrary,
   MapDefinition,
   CellType,
   AIProfile,
+  GameState,
 } from "@src/shared/types";
 import { GameGrid } from "@src/engine/GameGrid";
 import { Pathfinder } from "@src/engine/Pathfinder";
@@ -51,7 +51,7 @@ describe("Weapon System", () => {
   });
 
   it("should allow a unit to carry one melee and one ranged weapon", () => {
-    const unit: any = {
+    const unit: Unit = {
       id: "u1",
       pos: { x: 1.5, y: 1.5 },
       hp: 100,
@@ -69,7 +69,7 @@ describe("Weapon System", () => {
       archetypeId: "assault",
       leftHand: "combat_knife",
       rightHand: "pulse_rifle",
-    };
+    } as unknown as Unit;
 
     expect(unit.leftHand).toBe("combat_knife");
     expect(unit.rightHand).toBe("pulse_rifle");
@@ -119,14 +119,14 @@ describe("Weapon System", () => {
       attackRange: 1,
       speed: 30,
     };
-    const state: any = {
+    const state = {
       t: 0,
       units: [unit],
       enemies: [enemy],
       visibleCells: ["1,1"],
       discoveredCells: ["1,1"],
       map: map,
-    };
+    } as unknown as GameState;
 
     unitManager.update(state, 100, new Map(), prng, lootManager);
 
@@ -179,14 +179,14 @@ describe("Weapon System", () => {
       attackRange: 1,
       speed: 30,
     };
-    const state: any = {
+    const state = {
       t: 0,
       units: [unit],
       enemies: [enemy],
       visibleCells: ["1,1", "4,1"],
       discoveredCells: ["1,1", "4,1"],
       map: map,
-    };
+    } as unknown as GameState;
 
     unitManager.update(state, 100, new Map(), prng, lootManager);
 

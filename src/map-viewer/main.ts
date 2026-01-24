@@ -49,8 +49,9 @@ function loadMap() {
     }
     currentMap = map;
     render();
-  } catch (e: any) {
-    errorMsg.textContent = `Error: ${e.message}`;
+  } catch (e: unknown) {
+    const message = e instanceof Error ? e.message : String(e);
+    errorMsg.textContent = `Error: ${message}`;
   }
 }
 
