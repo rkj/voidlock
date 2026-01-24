@@ -33,7 +33,6 @@ Use these scripts from `package.json`:
 - `tests/`: Global test suite. Mirrors `src/` structure.
 - `scripts/`: Build, maintenance, and asset processing scripts.
 - `docs/`: Documentation, ADRs, and Design Specs.
-- `conductor/`: Project management, roadmaps, and track definitions.
 - `public/`: Static assets (images, icons) served by Vite.
 
 ### Key Source Directories (`src/`)
