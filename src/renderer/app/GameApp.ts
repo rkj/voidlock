@@ -80,6 +80,7 @@ export class GameApp {
   private currentMapWidth = ConfigManager.getDefault().mapWidth;
   private currentMapHeight = ConfigManager.getDefault().mapHeight;
   private currentSeed: number = ConfigManager.getDefault().lastSeed;
+  private currentThemeId: string = ConfigManager.getDefault().themeId;
   private currentMapGeneratorType: MapGeneratorType =
     ConfigManager.getDefault().mapGeneratorType;
   private currentMissionType: MissionType =
@@ -248,7 +249,6 @@ export class GameApp {
       onAbortMission: () => this.abortMission(),
       onCustomMission: () => {
         this.currentCampaignNode = null;
-        this.context.themeManager.setTheme("default");
         this.loadAndApplyConfig(false);
         this.context.campaignShell.show("custom");
         this.context.screenManager.show("mission-setup");
@@ -496,6 +496,17 @@ export class GameApp {
         const newValue = mapGenSelect.value as MapGeneratorType;
         if (this.currentMapGeneratorType === newValue) return;
         this.currentMapGeneratorType = newValue;
+        this.saveCurrentConfig();
+      });
+    }
+
+    const themeSelect = document.getElementById(
+      "map-theme",
+    ) as HTMLSelectElement;
+    if (themeSelect) {
+      themeSelect.addEventListener("change", () => {
+        this.currentThemeId = themeSelect.value;
+        this.context.themeManager.setTheme(this.currentThemeId);
         this.saveCurrentConfig();
       });
     }
@@ -914,12 +925,16 @@ export class GameApp {
     const threatInput = document.getElementById(
       "map-starting-threat",
     ) as HTMLInputElement;
+    const themeSelect = document.getElementById(
+      "map-theme",
+    ) as HTMLSelectElement;
 
     if (wInput && hInput) {
       this.currentMapWidth = parseInt(wInput.value) || 14;
       this.currentMapHeight = parseInt(hInput.value) || 14;
     }
     if (spInput) this.currentSpawnPointCount = parseInt(spInput.value) || 1;
+    if (themeSelect) this.currentThemeId = themeSelect.value;
 
     let baseEnemyCount = 3;
     if (baseEnemiesInput)
@@ -955,6 +970,7 @@ export class GameApp {
       mapGeneratorType: this.currentMapGeneratorType,
       missionType: this.currentMissionType,
       lastSeed: this.currentSeed,
+      themeId: this.currentThemeId,
       squadConfig: this.currentSquad,
       startingThreatLevel,
       baseEnemyCount,
@@ -1195,6 +1211,7 @@ export class GameApp {
       this.currentMapGeneratorType = config.mapGeneratorType;
       this.currentMissionType = config.missionType || MissionType.Default;
       this.currentSeed = config.lastSeed;
+      this.currentThemeId = config.themeId || "default";
       this.currentSquad = config.squadConfig;
 
       this.updateSetupUIFromConfig(config);
@@ -1212,9 +1229,16 @@ export class GameApp {
       this.currentMapGeneratorType = defaults.mapGeneratorType;
       this.currentMissionType = defaults.missionType;
       this.currentSeed = defaults.lastSeed;
+      this.currentThemeId = defaults.themeId;
       this.currentSquad = JSON.parse(JSON.stringify(defaults.squadConfig));
 
       this.updateSetupUIFromConfig(defaults as any);
+    }
+
+    if (isCampaign) {
+      this.applyCampaignTheme();
+    } else {
+      this.context.themeManager.setTheme(this.currentThemeId);
     }
 
     if (isCampaign) {
@@ -1301,6 +1325,10 @@ export class GameApp {
       "map-generator-type",
     ) as HTMLSelectElement;
     if (mapGenSelect) mapGenSelect.value = this.currentMapGeneratorType;
+    const themeSelect = document.getElementById(
+      "map-theme",
+    ) as HTMLSelectElement;
+    if (themeSelect) themeSelect.value = this.currentThemeId;
 
     const wInput = document.getElementById("map-width") as HTMLInputElement;
     const hInput = document.getElementById("map-height") as HTMLInputElement;
