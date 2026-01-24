@@ -4,6 +4,7 @@ import { GameState, UnitState } from "@src/shared/types";
 import { ThemeManager } from "@src/renderer/ThemeManager";
 import { AssetManager } from "./AssetManager";
 import { VisibilityPolygon } from "@src/renderer/VisibilityPolygon";
+import { isCellVisible } from "@src/shared/VisibilityUtils";
 
 export class OverlayLayer implements RenderLayer {
   private theme = ThemeManager.getInstance();
@@ -61,13 +62,28 @@ export class OverlayLayer implements RenderLayer {
           u.state !== UnitState.Extracted &&
           u.state !== UnitState.Dead
         ) {
-          state.visibleCells.forEach((cellKey) => {
-            const [cx, cy] = cellKey.split(",").map(Number);
-            ctx.beginPath();
-            ctx.moveTo(u.pos.x * cellSize, u.pos.y * cellSize);
-            ctx.lineTo((cx + 0.5) * cellSize, (cy + 0.5) * cellSize);
-            ctx.stroke();
-          });
+          if (state.gridState) {
+            const width = state.map.width;
+            const height = state.map.height;
+            for (let i = 0; i < state.gridState.length; i++) {
+              if (state.gridState[i] & 1) {
+                const cx = i % width;
+                const cy = Math.floor(i / width);
+                ctx.beginPath();
+                ctx.moveTo(u.pos.x * cellSize, u.pos.y * cellSize);
+                ctx.lineTo((cx + 0.5) * cellSize, (cy + 0.5) * cellSize);
+                ctx.stroke();
+              }
+            }
+          } else {
+            state.visibleCells.forEach((cellKey) => {
+              const [cx, cy] = cellKey.split(",").map(Number);
+              ctx.beginPath();
+              ctx.moveTo(u.pos.x * cellSize, u.pos.y * cellSize);
+              ctx.lineTo((cx + 0.5) * cellSize, (cy + 0.5) * cellSize);
+              ctx.stroke();
+            });
+          }
         }
       });
     }
@@ -110,8 +126,9 @@ export class OverlayLayer implements RenderLayer {
 
     state.enemies.forEach((e) => {
       if (e.hp > 0) {
-        const cellKey = `${Math.floor(e.pos.x)},${Math.floor(e.pos.y)}`;
-        if (!state.visibleCells.includes(cellKey)) return;
+        const ex = Math.floor(e.pos.x);
+        const ey = Math.floor(e.pos.y);
+        if (!isCellVisible(state, ex, ey)) return;
 
         const radius = (state.map.width + state.map.height) * cellSize;
         const polygon = VisibilityPolygon.compute(

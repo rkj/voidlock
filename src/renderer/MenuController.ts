@@ -23,6 +23,7 @@ import {
   TargetOverlayGenerator,
   OverlayType,
 } from "./controllers/TargetOverlayGenerator";
+import { isCellVisible } from "@src/shared/VisibilityUtils";
 
 export interface RenderableMenuOption {
   key: string;
@@ -294,8 +295,11 @@ export class MenuController {
       const item = ItemLibrary[itemId];
       if (item?.action === "Grenade") {
         const hasVisibleEnemies = gameState.enemies.some((e) => {
-          const key = `${Math.floor(e.pos.x)},${Math.floor(e.pos.y)}`;
-          return gameState.visibleCells.includes(key);
+          return isCellVisible(
+            gameState,
+            Math.floor(e.pos.x),
+            Math.floor(e.pos.y),
+          );
         });
         if (!hasVisibleEnemies) return;
       }
@@ -523,8 +527,11 @@ export class MenuController {
         let disabled = false;
         if (item?.action === "Grenade") {
           const hasVisibleEnemies = gameState.enemies.some((e) => {
-            const key = `${Math.floor(e.pos.x)},${Math.floor(e.pos.y)}`;
-            return gameState.visibleCells.includes(key);
+            return isCellVisible(
+              gameState,
+              Math.floor(e.pos.x),
+              Math.floor(e.pos.y),
+            );
           });
           disabled = !hasVisibleEnemies;
         }
@@ -609,8 +616,11 @@ export class MenuController {
           const item = ItemLibrary[itemId];
           if (item?.action === "Grenade") {
             return gameState.enemies.some((e) => {
-              const key = `${Math.floor(e.pos.x)},${Math.floor(e.pos.y)}`;
-              return gameState.visibleCells.includes(key);
+              return isCellVisible(
+                gameState,
+                Math.floor(e.pos.x),
+                Math.floor(e.pos.y),
+              );
             });
           }
           return true;

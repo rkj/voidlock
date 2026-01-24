@@ -80,10 +80,13 @@ export class GameRenderer {
     this.lastTime = now;
 
     // Update Graph if map changed
-    const mapId = `${state.seed}-${state.map.width}x${state.map.height}-${state.map.cells.length}`;
-    if (this.sharedState.currentMapId !== mapId) {
-      this.sharedState.graph = new Graph(state.map);
-      this.sharedState.currentMapId = mapId;
+    if (state.map.cells && state.map.cells.length > 0) {
+      const mapId = `${state.seed}-${state.map.width}x${state.map.height}-${state.map.cells.length}`;
+      if (this.sharedState.currentMapId !== mapId) {
+        this.sharedState.graph = new Graph(state.map);
+        this.sharedState.currentMapId = mapId;
+        this.sharedState.cells = state.map.cells;
+      }
     }
 
     this.syncDoorsToGraph(state);

@@ -10,6 +10,7 @@ import {
 import { LineOfSight } from "../LineOfSight";
 import { PRNG } from "../../shared/PRNG";
 import { StatsManager } from "./StatsManager";
+import { isCellVisible } from "../../shared/VisibilityUtils";
 
 export class CombatManager {
   constructor(
@@ -17,26 +18,18 @@ export class CombatManager {
     private statsManager: StatsManager,
   ) {}
 
-  public update(
-    unit: Unit,
-    state: GameState,
-    dt: number,
-    prng: PRNG,
-    visibleCells: Set<string>,
-  ) {
+  public update(unit: Unit, state: GameState, dt: number, prng: PRNG) {
     if (unit.state === UnitState.Extracted || unit.hp <= 0) return;
 
     // 1. Preparation: ensure the correct weapon/stats are active
-    this.updateActiveWeapon(unit, state, visibleCells);
+    this.updateActiveWeapon(unit, state);
 
     // 2. Identification: All visible enemies in range
     const visibleEnemiesInRange = state.enemies.filter(
       (enemy) =>
         enemy.hp > 0 &&
         this.getDistance(unit.pos, enemy.pos) <= unit.stats.attackRange + 0.5 &&
-        visibleCells.has(
-          `${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`,
-        ),
+        isCellVisible(state, Math.floor(enemy.pos.x), Math.floor(enemy.pos.y)),
     );
 
     const enemiesInSameCell = state.enemies.filter(
@@ -180,19 +173,13 @@ export class CombatManager {
     return false;
   }
 
-  public updateActiveWeapon(
-    unit: Unit,
-    state: GameState,
-    visibleCells: Set<string>,
-  ) {
+  public updateActiveWeapon(unit: Unit, state: GameState) {
     if (!unit.rightHand && !unit.leftHand) return;
 
     const visibleEnemies = state.enemies.filter(
       (enemy) =>
         enemy.hp > 0 &&
-        visibleCells.has(
-          `${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`,
-        ),
+        isCellVisible(state, Math.floor(enemy.pos.x), Math.floor(enemy.pos.y)),
     );
 
     const rightWeapon = unit.rightHand

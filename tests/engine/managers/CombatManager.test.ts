@@ -70,7 +70,6 @@ describe("CombatManager", () => {
       state,
       16,
       prng,
-      visibleCells,
     );
 
     expect(isAttacking).toBe(true);
@@ -97,7 +96,6 @@ describe("CombatManager", () => {
       state,
       16,
       prng,
-      visibleCells,
     );
 
     expect(isAttacking).toBe(false);
@@ -125,7 +123,6 @@ describe("CombatManager", () => {
       state,
       16,
       prng,
-      visibleCells,
     );
 
     expect(isAttacking).toBe(true); // Still "attacking" (state-wise) but no damage/time update

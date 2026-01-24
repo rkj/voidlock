@@ -14,6 +14,7 @@ import {
   findClosestUndiscoveredCell,
 } from "./BehaviorUtils";
 import { GameGrid } from "../../GameGrid";
+import { isCellDiscovered } from "../../../shared/VisibilityUtils";
 
 export class ExplorationBehavior implements Behavior {
   constructor(private gameGrid: GameGrid) {}
@@ -35,8 +36,13 @@ export class ExplorationBehavior implements Behavior {
       let shouldReevaluate = !unit.explorationTarget;
 
       if (unit.explorationTarget) {
-        const key = `${Math.floor(unit.explorationTarget.x)},${Math.floor(unit.explorationTarget.y)}`;
-        if (context.discoveredCellsSet.has(key)) {
+        if (
+          isCellDiscovered(
+            state,
+            Math.floor(unit.explorationTarget.x),
+            Math.floor(unit.explorationTarget.y),
+          )
+        ) {
           unit.explorationTarget = undefined;
           shouldReevaluate = true;
         } else {
@@ -53,7 +59,7 @@ export class ExplorationBehavior implements Behavior {
         const targetCell = findClosestUndiscoveredCell(
           unit,
           state,
-          context.discoveredCellsSet,
+          context.gridState,
           doors,
           this.gameGrid,
         );

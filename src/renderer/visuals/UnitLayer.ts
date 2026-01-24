@@ -3,6 +3,7 @@ import { SharedRendererState } from "./SharedRendererState";
 import { GameState, UnitState, UnitStyle, Vector2 } from "@src/shared/types";
 import { ThemeManager } from "@src/renderer/ThemeManager";
 import { AssetManager } from "./AssetManager";
+import { isCellVisible } from "@src/shared/VisibilityUtils";
 
 export class UnitLayer implements RenderLayer {
   private theme = ThemeManager.getInstance();
@@ -104,8 +105,9 @@ export class UnitLayer implements RenderLayer {
     state.enemies.forEach((enemy) => {
       if (enemy.hp <= 0) return;
 
-      const cellKey = `${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`;
-      if (!state.visibleCells.includes(cellKey)) return;
+      const ex = Math.floor(enemy.pos.x);
+      const ey = Math.floor(enemy.pos.y);
+      if (!isCellVisible(state, ex, ey)) return;
 
       const x = enemy.pos.x * cellSize;
       const y = enemy.pos.y * cellSize;

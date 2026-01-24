@@ -7,6 +7,7 @@ This directory contains types, constants, and utilities that are shared between 
 - `types.ts`: A barrel file that re-exports all shared interfaces, enums, and type definitions from the `types/` directory and `campaign_types.ts`. Maintained for backward compatibility.
 - `campaign_types.ts`: Interfaces and types specifically for the persistent campaign mode.
 - `PRNG.ts`: A deterministic Pseudo-Random Number Generator implementation.
+- `VisibilityUtils.ts`: Optimized utilities for visibility and discovery checks using bitsets.
 
 ## Subdirectories
 

@@ -22,6 +22,7 @@ import { MovementManager } from "./MovementManager";
 import { CombatManager } from "./CombatManager";
 import { UnitAI, AIContext } from "./UnitAI";
 import { CommandExecutor } from "./CommandExecutor";
+import { isCellVisible } from "../../shared/VisibilityUtils";
 
 const EPSILON = 0.05;
 
@@ -228,9 +229,6 @@ export class UnitManager {
       }
     });
 
-    const newVisibleCellsSet = new Set(state.visibleCells);
-    const discoveredCellsSet = new Set(state.discoveredCells);
-
     // Pre-pass for item competition (Opportunistic Pickups & General Objectives)
     const itemAssignments = new Map<string, string>(); // itemId -> unitId
     const allVisibleItems = [
@@ -262,8 +260,11 @@ export class UnitManager {
         }),
     ].filter((item: any) => {
       if (item.visible) return true;
-      const cellKey = `${Math.floor(item.pos.x)},${Math.floor(item.pos.y)}`;
-      return newVisibleCellsSet.has(cellKey);
+      return isCellVisible(
+        state,
+        Math.floor(item.pos.x),
+        Math.floor(item.pos.y),
+      );
     });
 
     allVisibleItems.forEach((item) => {
@@ -297,8 +298,7 @@ export class UnitManager {
     const aiContext: AIContext = {
       agentControlEnabled: this.agentControlEnabled,
       totalFloorCells: this.totalFloorCells,
-      newVisibleCellsSet,
-      discoveredCellsSet,
+      gridState: state.gridState, // Pass gridState instead of sets
       claimedObjectives,
       itemAssignments,
       executeCommand: (u, cmd, s, isManual, dir) =>
@@ -452,7 +452,6 @@ export class UnitManager {
         state,
         dt,
         prng,
-        newVisibleCellsSet,
       );
 
       const isMoving = (unit.path && unit.path.length > 0) || !!unit.targetPos;

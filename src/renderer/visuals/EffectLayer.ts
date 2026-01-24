@@ -2,6 +2,7 @@ import { RenderLayer } from "./RenderLayer";
 import { SharedRendererState } from "./SharedRendererState";
 import { GameState, AttackEvent } from "@src/shared/types";
 import { ThemeManager } from "@src/renderer/ThemeManager";
+import { isCellVisible } from "@src/shared/VisibilityUtils";
 
 export class EffectLayer implements RenderLayer {
   private theme = ThemeManager.getInstance();
@@ -33,15 +34,13 @@ export class EffectLayer implements RenderLayer {
 
     // 3. Draw tracers
     this.activeEvents.forEach((ev) => {
-      const attackerCellKey = `${Math.floor(ev.attackerPos.x)},${Math.floor(
-        ev.attackerPos.y,
-      )}`;
-      const targetCellKey = `${Math.floor(ev.targetPos.x)},${Math.floor(
-        ev.targetPos.y,
-      )}`;
+      const ax = Math.floor(ev.attackerPos.x);
+      const ay = Math.floor(ev.attackerPos.y);
+      const tx = Math.floor(ev.targetPos.x);
+      const ty = Math.floor(ev.targetPos.y);
 
-      const attackerVisible = state.visibleCells.includes(attackerCellKey);
-      const targetVisible = state.visibleCells.includes(targetCellKey);
+      const attackerVisible = isCellVisible(state, ax, ay);
+      const targetVisible = isCellVisible(state, tx, ty);
 
       // We show tracers if either end is in a visible cell.
       // This ensures we see shots coming from the fog if they hit a visible unit.

@@ -6,6 +6,7 @@ import {
   Door,
 } from "../../../shared/types";
 import { GameGrid } from "../../GameGrid";
+import { isCellDiscovered } from "../../../shared/VisibilityUtils";
 
 export function getDistance(pos1: Vector2, pos2: Vector2): number {
   const dx = pos1.x - pos2.x;
@@ -18,8 +19,23 @@ export function isMapFullyDiscovered(
   totalFloorCells: number,
   gameGrid: GameGrid,
 ): boolean {
+  if (state.gridState) {
+    let discoveredFloors = 0;
+    const width = state.map.width;
+    const height = state.map.height;
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        if ((state.gridState[y * width + x] & 2) && gameGrid.isWalkable(x, y)) {
+          discoveredFloors++;
+        }
+      }
+    }
+    return discoveredFloors >= totalFloorCells;
+  }
   const discoveredFloors = state.discoveredCells.filter((key) => {
-    const [x, y] = key.split(",").map(Number);
+    const parts = key.split(",");
+    const x = parseInt(parts[0]);
+    const y = parseInt(parts[1]);
     return gameGrid.isWalkable(x, y);
   }).length;
   return discoveredFloors >= totalFloorCells;
@@ -28,7 +44,7 @@ export function isMapFullyDiscovered(
 export function findClosestUndiscoveredCell(
   unit: Unit,
   state: GameState,
-  discoveredCellsSet: Set<string>,
+  _gridState: Uint8Array | undefined,
   doors: Map<string, Door>,
   gameGrid: GameGrid,
 ): Vector2 | null {
@@ -63,8 +79,7 @@ export function findClosestUndiscoveredCell(
   while (head < queue.length) {
     const curr = queue[head++];
 
-    const cellKey = `${curr.x},${curr.y}`;
-    if (!discoveredCellsSet.has(cellKey)) {
+    if (!isCellDiscovered(state, curr.x, curr.y)) {
       const target = { x: curr.x + 0.5, y: curr.y + 0.5 };
       const isClaimed = claimedTargets.some(
         (claimed) => getDistance(target, claimed) < avoidRadius,

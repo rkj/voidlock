@@ -10,6 +10,7 @@ import { PRNG } from "../../../shared/PRNG";
 import { Behavior } from "./Behavior";
 import { getDistance } from "./BehaviorUtils";
 import { GameGrid } from "../../GameGrid";
+import { isCellVisible } from "../../../shared/VisibilityUtils";
 
 export class CombatBehavior implements Behavior {
   constructor(private gameGrid: GameGrid) {}
@@ -31,8 +32,10 @@ export class CombatBehavior implements Behavior {
     const visibleEnemies = state.enemies.filter(
       (enemy) =>
         enemy.hp > 0 &&
-        context.newVisibleCellsSet.has(
-          `${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`,
+        isCellVisible(
+          state,
+          Math.floor(enemy.pos.x),
+          Math.floor(enemy.pos.y),
         ),
     );
 

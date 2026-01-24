@@ -10,6 +10,7 @@ import { AIContext } from "../../managers/UnitAI";
 import { PRNG } from "../../../shared/PRNG";
 import { Behavior } from "./Behavior";
 import { getDistance } from "./BehaviorUtils";
+import { isCellVisible, isCellDiscovered } from "../../../shared/VisibilityUtils";
 
 export class ObjectiveBehavior implements Behavior {
   public evaluate(
@@ -30,9 +31,7 @@ export class ObjectiveBehavior implements Behavior {
 
     // 1. Opportunistic Loot & Objectives (In current LOS)
     const visibleLoot = (state.loot || []).filter((l) =>
-      context.newVisibleCellsSet.has(
-        `${Math.floor(l.pos.x)},${Math.floor(l.pos.y)}`,
-      ),
+      isCellVisible(state, Math.floor(l.pos.x), Math.floor(l.pos.y)),
     );
 
     const visibleObjectives = (state.objectives || []).filter((o) => {
@@ -40,9 +39,7 @@ export class ObjectiveBehavior implements Behavior {
         return false;
       if (o.kind !== "Recover") return false;
       if (o.targetCell) {
-        return context.newVisibleCellsSet.has(
-          `${o.targetCell.x},${o.targetCell.y}`,
-        );
+        return isCellVisible(state, o.targetCell.x, o.targetCell.y);
       }
       return false;
     });
@@ -134,8 +131,10 @@ export class ObjectiveBehavior implements Behavior {
             const enemy = state.enemies.find((e) => e.id === obj.targetEnemyId);
             if (
               enemy &&
-              context.newVisibleCellsSet.has(
-                `${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`,
+              isCellVisible(
+                state,
+                Math.floor(enemy.pos.x),
+                Math.floor(enemy.pos.y),
               )
             ) {
               targetPos = enemy.pos;
@@ -199,8 +198,7 @@ export class ObjectiveBehavior implements Behavior {
 
     if (!actionTaken && objectivesComplete && state.map.extraction) {
       const ext = state.map.extraction;
-      const extKey = `${ext.x},${ext.y}`;
-      const isExtDiscovered = state.discoveredCells.includes(extKey);
+      const isExtDiscovered = isCellDiscovered(state, ext.x, ext.y);
 
       if (isExtDiscovered) {
         const unitCurrentCell = {
