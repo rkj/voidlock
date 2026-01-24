@@ -62,6 +62,39 @@ Use these scripts from `package.json`:
 - **Imports:** Use `@src/` alias for imports from the source directory.
 - **Styles:** Use existing patterns (CSS variables, BEM-like naming) found in `src/styles`.
 
+## Coding Standards & Quality Assurance
+
+To prevent technical debt accumulation, all agents and contributors MUST adhere to these strict standards.
+
+### 1. Strict Type Safety (Zero Tolerance for `any`)
+
+- **NO `any`:** usage of the `any` type is strictly forbidden. Use `unknown` with type guards if the type is truly dynamic.
+- **NO `as` Casting:** Avoid type assertions (`item as Weapon`). Use Type Guards (`isWeapon(item)`) or Zod/validation schemas for external data.
+- **NO Non-Null Assertions:** Do not use `!` (e.g., `item!.id`). Handle `null`/`undefined` explicitly or throw meaningful errors.
+- **Explicit Interfaces:** All component props, function parameters, and API payloads must be defined via `interface` or `type`.
+
+### 2. Performance Hygeine
+
+- **No Deep Cloning in Loops:** `JSON.parse(JSON.stringify(...))` is forbidden in the game loop (`update`, `render`). Use **Immer** or shallow copies with structural sharing.
+- **Spatial Awareness:** Avoid O(N²) collision/visibility checks. Use **Spatial Partitioning** (Grids/Quadtrees) or Maps for entity lookups.
+- **Object Stability:** Do not create new object references inside `render()` or frequently called methods (causes GC thrashing). Reuse vectors/objects where possible.
+
+### 3. Architectural Hygiene
+
+- **Single Responsibility:** "Manager" classes must not exceed ~500 lines. If a class grows too large, decompose it (e.g., `UnitManager` -> `FormationManager`, `UnitSpawner`).
+- **DRY (Don't Repeat Yourself):** Do not duplicate utility logic (e.g., distance calculations). Create shared utilities in `src/shared/utils/`.
+- **No Circular Dependencies:**
+    - Engine must **never** import Renderer.
+    - Child components (e.g., `UnitManager`) should not import Parent components (`CoreEngine`). Use Interfaces (`IDirector`) or Dependency Injection.
+
+### 4. Verification Protocol
+
+After **EVERY** code modification, you MUST perform the following checks before marking a task complete:
+
+1.  **Type Check:** `npm run lint` (Ensures 0 TypeScript errors).
+2.  **Unit Tests:** `npm run test` (Ensures logic correctness).
+3.  **Self-Correction:** If errors occur, fix them immediately. Do not leave "cleanup" for later.
+
 ## Sub-Contexts
 
 For deeper dives, refer to:
