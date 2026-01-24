@@ -19,6 +19,7 @@ export interface GameConfig {
   mapGeneratorType: MapGeneratorType;
   missionType: MissionType;
   lastSeed: number;
+  themeId: string; // Added
   startingThreatLevel: number;
   baseEnemyCount: number;
   enemyGrowthPerMission: number;
@@ -145,6 +146,11 @@ export class ConfigManager {
       }
     }
 
+    // String fields
+    if (typeof loaded.themeId === "string") {
+      result.themeId = loaded.themeId;
+    }
+
     // Enum fields
     if (Object.values(UnitStyle).includes(loaded.unitStyle)) {
       result.unitStyle = loaded.unitStyle;
@@ -197,6 +203,7 @@ export class ConfigManager {
       mapGeneratorType: MapGeneratorType.TreeShip,
       missionType: MissionType.Default,
       lastSeed: Date.now(),
+      themeId: "default",
       startingThreatLevel: 0,
       baseEnemyCount: 3,
       enemyGrowthPerMission: 1,
