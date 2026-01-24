@@ -61,12 +61,12 @@ describe("MenuController State Machine Refactor (n0xw)", () => {
     expect(controller.menuState).toBe("ORDERS_SELECT");
   });
 
-  it("should return to ITEM_SELECT from TARGET_SELECT if it was the parent", () => {
+  it("should return to ITEM_SELECT from UNIT_SELECT if it was the parent (Medkit)", () => {
     controller.handleMenuInput("3", mockState); // USE ITEM
     expect(controller.menuState).toBe("ITEM_SELECT");
     // Assuming medkit is the first item
     controller.handleMenuInput("1", mockState); // Select Medkit
-    expect(controller.menuState).toBe("TARGET_SELECT");
+    expect(controller.menuState).toBe("UNIT_SELECT");
 
     controller.goBack();
     expect(controller.menuState).toBe("ITEM_SELECT");
@@ -98,19 +98,19 @@ describe("MenuController State Machine Refactor (n0xw)", () => {
     expect(controller.pendingAction).toBeNull();
   });
 
-  it("should execute and reset when a healing item target is selected", () => {
+  it("should execute and reset when a healing item unit is selected", () => {
     controller.handleMenuInput("3", mockState); // USE ITEM
     controller.handleMenuInput("1", mockState); // Select Medkit
-    expect(controller.menuState).toBe("TARGET_SELECT");
+    expect(controller.menuState).toBe("UNIT_SELECT");
 
-    // Simulate clicking a unit in Target Select
-    // In our mockState, u1 is at (0.5, 0.5)
+    // Simulate clicking a unit in Unit Select
     controller.handleCanvasClick({ x: 0, y: 0 }, mockState);
 
     expect(mockClient.sendCommand).toHaveBeenCalledWith(
       expect.objectContaining({
         type: CommandType.USE_ITEM,
         itemId: "medkit",
+        unitIds: ["u1"],
       }),
     );
     expect(controller.menuState).toBe("ACTION_SELECT");

@@ -103,7 +103,7 @@ describe("Regression awkp: Item Targeting Logic", () => {
     expect(enemyOption).toBeUndefined();
   });
 
-  it("Medkit: should target FRIENDLY_UNIT when selected", () => {
+  it("Medkit: should transition to UNIT_SELECT when selected", () => {
     controller.handleMenuInput("3", mockState); // USE ITEM
     const items = Object.entries(mockState.squadInventory).filter(
       ([_, count]) => count > 0,
@@ -112,17 +112,10 @@ describe("Regression awkp: Item Targeting Logic", () => {
 
     controller.handleMenuInput(medkitIdx.toString(), mockState);
 
-    expect(controller.menuState).toBe("TARGET_SELECT");
-    const renderState = controller.getRenderableState(mockState);
-
-    // Should show friendly units as targets
-    const unit1Option = renderState.options.find((o) => o.label.includes("u1"));
-    const unit2Option = renderState.options.find((o) => o.label.includes("u2"));
-    expect(unit1Option).toBeDefined();
-    expect(unit2Option).toBeDefined();
+    expect(controller.menuState).toBe("UNIT_SELECT");
   });
 
-  it("Medkit: selecting a unit target should execute immediately and reset", () => {
+  it("Medkit: selecting a unit should execute and reset", () => {
     controller.handleMenuInput("3", mockState); // USE ITEM
     const items = Object.entries(mockState.squadInventory).filter(
       ([_, count]) => count > 0,
@@ -130,6 +123,7 @@ describe("Regression awkp: Item Targeting Logic", () => {
     const medkitIdx = items.findIndex(([id]) => id === "medkit") + 1;
     controller.handleMenuInput(medkitIdx.toString(), mockState);
 
+    expect(controller.menuState).toBe("UNIT_SELECT");
     const renderState = controller.getRenderableState(mockState);
     const unit1Option = renderState.options.find((o) =>
       o.label.includes("u1"),
@@ -137,14 +131,12 @@ describe("Regression awkp: Item Targeting Logic", () => {
 
     controller.handleMenuInput(unit1Option.key, mockState);
 
-    // After fix, it should NOT move to UNIT_SELECT but execute and reset
-    // And it should use empty unitIds for global commander ability
+    // It should now use selected unitIds for self-heal
     expect(mockClient.sendCommand).toHaveBeenCalledWith(
       expect.objectContaining({
         type: CommandType.USE_ITEM,
         itemId: "medkit",
-        targetUnitId: "u1",
-        unitIds: [],
+        unitIds: ["u1"],
       }),
     );
     expect(controller.menuState).toBe("ACTION_SELECT");

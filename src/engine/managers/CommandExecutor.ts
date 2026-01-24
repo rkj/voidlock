@@ -201,10 +201,18 @@ export class CommandExecutor {
         const item = ItemLibrary[cmd.itemId];
         if (item) {
           let targetLocation: Vector2 | undefined = cmd.target;
-          if (cmd.targetUnitId) {
+          let targetUnitId: string | undefined = cmd.targetUnitId;
+
+          // Medkit is now strictly self-heal
+          if (cmd.itemId === "medkit") {
+            targetUnitId = unit.id;
+            targetLocation = undefined;
+          }
+
+          if (targetUnitId) {
             const targetUnit =
-              state.units.find((u) => u.id === cmd.targetUnitId) ||
-              state.enemies.find((e) => e.id === cmd.targetUnitId);
+              state.units.find((u) => u.id === targetUnitId) ||
+              state.enemies.find((e) => e.id === targetUnitId);
             if (targetUnit) {
               targetLocation = {
                 x: Math.floor(targetUnit.pos.x),
