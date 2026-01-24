@@ -5,7 +5,6 @@ import {
   UnitState,
   Vector2,
   Grid,
-  CommandType,
 } from "../../shared/types";
 import { Pathfinder } from "../Pathfinder";
 import { PRNG } from "../../shared/PRNG";
