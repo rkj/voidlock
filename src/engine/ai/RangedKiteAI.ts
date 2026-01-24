@@ -5,7 +5,6 @@ import {
   UnitState,
   Vector2,
   Grid,
-  CommandType,
 } from "../../shared/types";
 import { Pathfinder } from "../Pathfinder";
 import { PRNG } from "../../shared/PRNG";
@@ -39,13 +38,13 @@ export class RangedKiteAI implements IEnemyAI {
     let targetSoldier: Unit | null = null;
     let minDistance = Infinity;
 
-    visibleSoldiers.forEach((u) => {
+    for (const u of visibleSoldiers) {
       const dist = this.getDistance(enemy.pos, u.pos);
       if (dist < minDistance) {
         minDistance = dist;
         targetSoldier = u;
       }
-    });
+    }
 
     if (targetSoldier) {
       const dist = minDistance;
@@ -62,7 +61,7 @@ export class RangedKiteAI implements IEnemyAI {
         // Flee: Find a cell further away
         const fleeTarget = this.findFleeTarget(
           enemy.pos,
-          (targetSoldier as Unit).pos,
+          targetSoldier.pos,
           grid,
           pathfinder,
         );
@@ -81,7 +80,7 @@ export class RangedKiteAI implements IEnemyAI {
         }
       } else if (dist > optimalRange) {
         // Chase
-        const targetPos = (targetSoldier as Unit).pos;
+        const targetPos = targetSoldier.pos;
         const path = pathfinder.findPath(
           { x: Math.floor(enemy.pos.x), y: Math.floor(enemy.pos.y) },
           { x: Math.floor(targetPos.x), y: Math.floor(targetPos.y) },
