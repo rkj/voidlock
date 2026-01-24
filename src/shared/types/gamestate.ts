@@ -67,6 +67,7 @@ export type GameState = {
   seed: number;
   missionType: MissionType;
   nodeType?: CampaignNodeType;
+  campaignNodeId?: string;
   map: MapDefinition;
   units: Unit[];
   enemies: Enemy[];

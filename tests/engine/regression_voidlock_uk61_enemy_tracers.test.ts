@@ -80,7 +80,7 @@ describe("Enemy Tracers Regression (voidlock-uk61)", () => {
     });
 
     // Update engine to trigger attack
-    engine.update(16, 16);
+    engine.update(16);
 
     const updatedState = engine.getState();
     const enemy = updatedState.enemies.find((e) => e.id === "e1");

@@ -56,7 +56,7 @@ describe("Regression 3dz9: Session Recovery / Catch-up", () => {
     // Run for a bit (e.g. 1 second of simulation)
     // 1000ms / 16ms = 62.5 ticks
     for (let i = 0; i < 63; i++) {
-      engine.update(16, 16);
+      engine.update(16);
     }
 
     // Add a marker command at the current time to ensure catch-up reaches this state

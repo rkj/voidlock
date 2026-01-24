@@ -51,7 +51,7 @@ describe("Invincible Combat Repro (voidlock-zkhz)", () => {
     const initialAliensKilled = state.stats.aliensKilled;
 
     // Run one tick of combat (16ms)
-    engine.update(16, 16);
+    engine.update(16);
 
     const newState = engine.getState();
     const finalEnemiesHp = newState.enemies.map((e: any) => ({

@@ -42,9 +42,8 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
 
         // TICK_RATE is 16ms, so 1.0 timeScale should result in 16ms scaledDt.
         const scaledDt = TICK_RATE * timeScale;
-        const realDt = TICK_RATE;
 
-        engine.update(scaledDt, realDt);
+        engine.update(scaledDt);
 
         const state = engine.getState();
         const updateMsg: MainMessage = {

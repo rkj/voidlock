@@ -225,7 +225,7 @@ describe("Timed Actions (Extraction/Collection)", () => {
     const initialRemaining = unitChanneling.channeling?.remaining || 5000;
 
     // Advance with high game speed (scaledDt = 1000, realDt = 100)
-    engine.update(1000, 100);
+    engine.update(1000);
 
     const unitAfterHighSpeed = engine.getState().units[0];
     // Remaining should have decreased by scaledDt (1000), not realDt (100)

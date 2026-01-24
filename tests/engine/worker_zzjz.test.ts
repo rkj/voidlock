@@ -65,7 +65,7 @@ describe("worker.ts Regression zzjz", () => {
     // Check first update call
     // TICK_RATE is 16, so 1.0 timeScale means scaledDt = 16
     // If it didn't reset, it would be 32 (16 * 2.0)
-    expect(engineInstance.update).toHaveBeenCalledWith(16, 16);
+    expect(engineInstance.update).toHaveBeenCalledWith(16);
 
     vi.useRealTimers();
   });

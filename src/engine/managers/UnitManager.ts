@@ -432,8 +432,7 @@ export class UnitManager {
         return;
       }
 
-      const currentState = unit.state;
-      if (currentState === UnitState.Idle && unit.commandQueue.length > 0) {
+      if (unit.state === UnitState.Idle && unit.commandQueue.length > 0) {
         const nextCmd = unit.commandQueue.shift();
         if (nextCmd) {
           this.commandExecutor.executeCommand(
@@ -443,7 +442,8 @@ export class UnitManager {
             true,
             director,
           );
-          if (unit.state === UnitState.Channeling) {
+          const stateAfterCommand = unit.state as UnitState;
+          if (stateAfterCommand === UnitState.Channeling) {
             return;
           }
         }

@@ -48,7 +48,7 @@ describe("Stimpack Item", () => {
     // Wait, Director.handleUseItem is called by UnitManager when channelTime completes.
     // If channelTime is 0/undefined, it happens in the same tick if UnitManager detects it.
 
-    engine.update(100, 100);
+    engine.update(100);
 
     const state = engine.getState();
     expect(state.squadInventory["stimpack"]).toBe(0);
