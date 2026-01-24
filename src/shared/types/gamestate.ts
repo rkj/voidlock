@@ -72,6 +72,7 @@ export type GameState = {
   enemies: Enemy[];
   visibleCells: string[];
   discoveredCells: string[];
+  gridState?: Uint8Array; // Optimized bitset: bit 0 = visible, bit 1 = discovered
   objectives: Objective[];
   stats: MissionStats;
   status: GameStatus;

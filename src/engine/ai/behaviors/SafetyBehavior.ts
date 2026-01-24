@@ -10,6 +10,7 @@ import { AIContext } from "../../managers/UnitAI";
 import { PRNG } from "../../../shared/PRNG";
 import { Behavior } from "./Behavior";
 import { getDistance } from "./BehaviorUtils";
+import { isCellVisible } from "../../../shared/VisibilityUtils";
 
 export class SafetyBehavior implements Behavior {
   public evaluate(
@@ -26,8 +27,10 @@ export class SafetyBehavior implements Behavior {
     const visibleEnemies = state.enemies.filter(
       (enemy) =>
         enemy.hp > 0 &&
-        context.newVisibleCellsSet.has(
-          `${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`,
+        isCellVisible(
+          state,
+          Math.floor(enemy.pos.x),
+          Math.floor(enemy.pos.y),
         ),
     );
 
@@ -50,23 +53,45 @@ export class SafetyBehavior implements Behavior {
     const isIsolated = nearbyAllies.length === 0 && threats.length > 0;
 
     if (isLowHP && threats.length > 0) {
-      const safeCells = state.discoveredCells.filter((cellKey) => {
-        const [cx, cy] = cellKey.split(",").map(Number);
-        return !threats.some(
-          (t) =>
-            Math.floor(t.enemy.pos.x) === cx &&
-            Math.floor(t.enemy.pos.y) === cy,
-        );
-      });
+      const safeCells: Vector2[] = [];
+      const width = state.map.width;
+      const height = state.map.height;
+
+      if (state.gridState) {
+        for (let i = 0; i < state.gridState.length; i++) {
+          if (state.gridState[i] & 2) {
+            const cx = i % width;
+            const cy = Math.floor(i / width);
+            const isThreatened = threats.some(
+              (t) =>
+                Math.floor(t.enemy.pos.x) === cx &&
+                Math.floor(t.enemy.pos.y) === cy,
+            );
+            if (!isThreatened) {
+              safeCells.push({ x: cx, y: cy });
+            }
+          }
+        }
+      } else {
+        state.discoveredCells.forEach((cellKey) => {
+          const [cx, cy] = cellKey.split(",").map(Number);
+          const isThreatened = threats.some(
+            (t) =>
+              Math.floor(t.enemy.pos.x) === cx &&
+              Math.floor(t.enemy.pos.y) === cy,
+          );
+          if (!isThreatened) {
+            safeCells.push({ x: cx, y: cy });
+          }
+        });
+      }
 
       if (safeCells.length > 0) {
         const closestSafe = safeCells
-          .map((cellKey) => {
-            const [cx, cy] = cellKey.split(",").map(Number);
+          .map((cell) => {
             return {
-              x: cx,
-              y: cy,
-              dist: getDistance(unit.pos, { x: cx + 0.5, y: cy + 0.5 }),
+              ...cell,
+              dist: getDistance(unit.pos, { x: cell.x + 0.5, y: cell.y + 0.5 }),
             };
           })
           .sort((a, b) => a.dist - b.dist)[0];

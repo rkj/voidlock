@@ -16,6 +16,7 @@ import {
   PlacementValidator,
   OccupantType,
 } from "../generators/PlacementValidator";
+import { isCellVisible, isCellDiscovered } from "../../shared/VisibilityUtils";
 
 export class MissionManager {
   constructor(
@@ -202,11 +203,10 @@ export class MissionManager {
     }
   }
 
-  public updateObjectives(state: GameState, visibleCells: string[]) {
+  public updateObjectives(state: GameState, _visibleCells: string[]) {
     state.objectives.forEach((obj) => {
       if (!obj.visible && obj.targetCell) {
-        const key = `${obj.targetCell.x},${obj.targetCell.y}`;
-        if (state.discoveredCells.includes(key)) {
+        if (isCellDiscovered(state, obj.targetCell.x, obj.targetCell.y)) {
           obj.visible = true;
         }
       }
@@ -214,8 +214,10 @@ export class MissionManager {
         const enemy = state.enemies.find((e) => e.id === obj.targetEnemyId);
         if (
           enemy &&
-          visibleCells.includes(
-            `${Math.floor(enemy.pos.x)},${Math.floor(enemy.pos.y)}`,
+          isCellVisible(
+            state,
+            Math.floor(enemy.pos.x),
+            Math.floor(enemy.pos.y),
           )
         ) {
           obj.visible = true;

@@ -10,6 +10,7 @@ import {
 } from "../../shared/types";
 import { Pathfinder } from "../Pathfinder";
 import { LineOfSight } from "../LineOfSight";
+import { isCellVisible, isCellDiscovered } from "../../shared/VisibilityUtils";
 
 export class VipAI {
   constructor(
@@ -28,8 +29,10 @@ export class VipAI {
     }
 
     const visibleEnemies = state.enemies.filter((e) => {
-      const key = `${Math.floor(e.pos.x)},${Math.floor(e.pos.y)}`;
-      return e.hp > 0 && state.visibleCells.includes(key);
+      return (
+        e.hp > 0 &&
+        isCellVisible(state, Math.floor(e.pos.x), Math.floor(e.pos.y))
+      );
     });
 
     // 1. Danger Avoidance: Flee from closest enemy if too close
@@ -38,11 +41,7 @@ export class VipAI {
       const dist = this.getDistance(vip.pos, closestEnemy.pos);
 
       if (dist < 5) {
-        const fleeTarget = this.findFleeTarget(
-          vip.pos,
-          closestEnemy.pos,
-          state,
-        );
+        const fleeTarget = this.findFleeTarget(vip.pos, closestEnemy.pos, state);
         if (fleeTarget) {
           return {
             type: CommandType.MOVE_TO,
@@ -57,12 +56,8 @@ export class VipAI {
     // 2. Extraction Priority: Move to extraction if available and no immediate danger
     if (state.map.extraction) {
       const ext = state.map.extraction;
-      const extKey = `${ext.x},${ext.y}`;
-      if (state.discoveredCells.includes(extKey)) {
-        if (
-          Math.floor(vip.pos.x) !== ext.x ||
-          Math.floor(vip.pos.y) !== ext.y
-        ) {
+      if (isCellDiscovered(state, ext.x, ext.y)) {
+        if (Math.floor(vip.pos.x) !== ext.x || Math.floor(vip.pos.y) !== ext.y) {
           return {
             type: CommandType.MOVE_TO,
             unitIds: [vip.id],
@@ -154,7 +149,7 @@ export class VipAI {
         ) {
           if (
             this.grid.isWalkable(tx, ty) &&
-            state.discoveredCells.includes(`${tx},${ty}`)
+            isCellDiscovered(state, tx, ty)
           ) {
             candidates.push({ x: tx, y: ty });
           }

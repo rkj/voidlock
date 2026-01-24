@@ -176,6 +176,9 @@ export class Director {
                 ty >= 0 &&
                 ty < state.map.height
               ) {
+                if (state.gridState) {
+                  state.gridState[ty * state.map.width + tx] |= 2;
+                }
                 const key = `${tx},${ty}`;
                 if (!state.discoveredCells.includes(key)) {
                   state.discoveredCells.push(key);

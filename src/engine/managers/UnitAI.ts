@@ -11,12 +11,12 @@ import { InteractionBehavior } from "../ai/behaviors/InteractionBehavior";
 import { CombatBehavior } from "../ai/behaviors/CombatBehavior";
 import { ObjectiveBehavior } from "../ai/behaviors/ObjectiveBehavior";
 import { ExplorationBehavior } from "../ai/behaviors/ExplorationBehavior";
+import { isCellDiscovered } from "../../shared/VisibilityUtils";
 
 export interface AIContext {
   agentControlEnabled: boolean;
   totalFloorCells: number;
-  newVisibleCellsSet: Set<string>;
-  discoveredCellsSet: Set<string>;
+  gridState?: Uint8Array;
   claimedObjectives: Set<string>;
   itemAssignments: Map<string, string>;
   executeCommand: (
@@ -78,8 +78,13 @@ export class UnitAI {
 
     // 2. Exploration target cleanup (Pre-processing)
     if (unit.explorationTarget) {
-      const key = `${Math.floor(unit.explorationTarget.x)},${Math.floor(unit.explorationTarget.y)}`;
-      if (context.discoveredCellsSet.has(key)) {
+      if (
+        isCellDiscovered(
+          state,
+          Math.floor(unit.explorationTarget.x),
+          Math.floor(unit.explorationTarget.y),
+        )
+      ) {
         unit.explorationTarget = undefined;
         if (unit.state === UnitState.Moving) {
           unit.path = undefined;

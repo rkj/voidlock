@@ -52,6 +52,7 @@ export class CoreEngine {
   private commandLog: CommandLogEntry[] = [];
   private replayIndex: number = 0;
   private isCatchingUp: boolean = false;
+  private sentMap: boolean = false;
 
   // For test compatibility
   public get doors(): Map<string, Door> {
@@ -132,6 +133,7 @@ export class CoreEngine {
       mines: [],
       visibleCells: [],
       discoveredCells: [],
+      gridState: new Uint8Array(map.width * map.height),
       objectives: [],
       stats: {
         threatLevel: startingThreatLevel,
@@ -223,9 +225,14 @@ export class CoreEngine {
         } as Unit);
 
         // Reveal VIP position
-        const vipCellKey = `${Math.floor(startPos.x)},${Math.floor(startPos.y)}`;
+        const vx = Math.floor(startPos.x);
+        const vy = Math.floor(startPos.y);
+        const vipCellKey = `${vx},${vy}`;
         if (!this.state.discoveredCells.includes(vipCellKey)) {
           this.state.discoveredCells.push(vipCellKey);
+          if (this.state.gridState) {
+            this.state.gridState[vy * map.width + vx] |= 2;
+          }
         }
       });
     }
@@ -354,7 +361,68 @@ export class CoreEngine {
   }
 
   public getState(): GameState {
-    const copy = JSON.parse(JSON.stringify(this.state));
+    const state = this.state;
+    // Manual shallow copy of the state structure
+    const copy: GameState = {
+      ...state,
+      // We must clone arrays of objects because they are mutated in place by the engine
+      units: state.units.map((u) => ({
+        ...u,
+        pos: { ...u.pos },
+        stats: { ...u.stats },
+        commandQueue: u.commandQueue.map((c) => ({ ...c })),
+        path: u.path ? u.path.map((p) => ({ ...p })) : undefined,
+        targetPos: u.targetPos ? { ...u.targetPos } : undefined,
+        visualJitter: u.visualJitter ? { ...u.visualJitter } : undefined,
+        channeling: u.channeling ? { ...u.channeling } : undefined,
+      })),
+      enemies: state.enemies.map((e) => ({
+        ...e,
+        pos: { ...e.pos },
+        path: e.path ? e.path.map((p) => ({ ...p })) : undefined,
+        targetPos: e.targetPos ? { ...e.targetPos } : undefined,
+      })),
+      loot: state.loot.map((l) => ({ ...l, pos: { ...l.pos } })),
+      mines: state.mines.map((m) => ({ ...m, pos: { ...m.pos } })),
+      attackEvents: state.attackEvents
+        ? state.attackEvents.map((ae) => ({
+            ...ae,
+            attackerPos: { ...ae.attackerPos },
+            targetPos: { ...ae.targetPos },
+          }))
+        : [],
+      objectives: state.objectives.map((o) => ({
+        ...o,
+        targetCell: o.targetCell ? { ...o.targetCell } : undefined,
+      })),
+      visibleCells: [...state.visibleCells],
+      discoveredCells: [...state.discoveredCells],
+      gridState: state.gridState ? new Uint8Array(state.gridState) : undefined,
+      stats: { ...state.stats },
+      settings: { ...state.settings },
+      squadInventory: { ...state.squadInventory },
+      map: {
+        ...state.map,
+        // Omit static data after first send
+        cells: this.sentMap ? [] : state.map.cells,
+        walls: this.sentMap ? [] : state.map.walls,
+        boundaries: this.sentMap ? [] : state.map.boundaries,
+        spawnPoints: this.sentMap ? [] : state.map.spawnPoints,
+        objectives: this.sentMap ? [] : state.map.objectives,
+        // Doors are dynamic, always send them
+        doors: state.map.doors
+          ? state.map.doors.map((d) => ({
+              ...d,
+              segment: d.segment.map((p) => ({ ...p })),
+            }))
+          : [],
+      },
+    };
+
+    if (!this.sentMap) {
+      this.sentMap = true;
+    }
+
     copy.commandLog = [...this.commandLog];
     return copy;
   }

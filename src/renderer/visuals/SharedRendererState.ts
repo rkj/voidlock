@@ -1,4 +1,4 @@
-import { UnitStyle, OverlayOption } from "@src/shared/types";
+import { UnitStyle, OverlayOption, Cell } from "@src/shared/types";
 import { Graph } from "@src/engine/Graph";
 
 export class SharedRendererState {
@@ -7,4 +7,5 @@ export class SharedRendererState {
   public overlayOptions: OverlayOption[] = [];
   public graph: Graph | null = null;
   public currentMapId: string | null = null;
+  public cells: Cell[] = [];
 }

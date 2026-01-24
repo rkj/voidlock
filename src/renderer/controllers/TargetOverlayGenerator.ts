@@ -7,6 +7,7 @@ import {
   UnitState,
 } from "@src/shared/types";
 import { RoomDiscoveryManager } from "./RoomDiscoveryManager";
+import { isCellVisible, isCellDiscovered } from "@src/shared/VisibilityUtils";
 
 export type OverlayType =
   | "CELL"
@@ -33,8 +34,7 @@ export class TargetOverlayGenerator {
     if (type === "HOSTILE_UNIT") {
       let enemyCounter = 0;
       gameState.enemies.forEach((e) => {
-        const key = `${Math.floor(e.pos.x)},${Math.floor(e.pos.y)}`;
-        if (gameState.visibleCells.includes(key)) {
+        if (isCellVisible(gameState, Math.floor(e.pos.x), Math.floor(e.pos.y))) {
           options.push({
             key: this.getRoomKey(enemyCounter),
             label: `${e.type}`,
@@ -60,8 +60,13 @@ export class TargetOverlayGenerator {
 
       if (gameState.loot) {
         gameState.loot.forEach((loot) => {
-          const key = `${Math.floor(loot.pos.x)},${Math.floor(loot.pos.y)}`;
-          if (gameState.visibleCells.includes(key)) {
+          if (
+            isCellVisible(
+              gameState,
+              Math.floor(loot.pos.x),
+              Math.floor(loot.pos.y),
+            )
+          ) {
             options.push({
               key: this.getRoomKey(itemCounter),
               label: `Pickup ${loot.itemId}`,
@@ -89,8 +94,7 @@ export class TargetOverlayGenerator {
       let intersectionCounter = 0;
       gameState.map.cells.forEach((cell) => {
         if (cell.type !== CellType.Floor) return;
-        const key = `${cell.x},${cell.y}`;
-        if (!gameState.discoveredCells.includes(key)) return;
+        if (!isCellDiscovered(gameState, cell.x, cell.y)) return;
 
         // Count connections (boundaries that are NOT walls)
         let connections = 0;
@@ -131,8 +135,7 @@ export class TargetOverlayGenerator {
       // 2. Corridor Intersections
       gameState.map.cells.forEach((cell) => {
         if (cell.type !== CellType.Floor) return;
-        const key = `${cell.x},${cell.y}`;
-        if (!gameState.discoveredCells.includes(key)) return;
+        if (!isCellDiscovered(gameState, cell.x, cell.y)) return;
 
         const cellIsRoom = isRoom(cell);
         if (cellIsRoom) return; // Strictly corridor only for intersections
@@ -154,7 +157,7 @@ export class TargetOverlayGenerator {
 
         // Corridor Intersection
         if (connections >= 3) {
-          placementPositions.add(key);
+          placementPositions.add(`${cell.x},${cell.y}`);
         }
       });
 
@@ -210,8 +213,7 @@ export class TargetOverlayGenerator {
 
       if (gameState.map.extraction) {
         const ext = gameState.map.extraction;
-        const key = `${ext.x},${ext.y}`;
-        if (gameState.discoveredCells.includes(key)) {
+        if (isCellDiscovered(gameState, ext.x, ext.y)) {
           options.push({
             key: this.getRoomKey(poiCounter),
             label: "Extraction",

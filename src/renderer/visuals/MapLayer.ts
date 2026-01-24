@@ -16,9 +16,11 @@ export class MapLayer implements RenderLayer {
   private renderMap(ctx: CanvasRenderingContext2D, state: GameState) {
     const map = state.map;
     const cellSize = this.sharedState.cellSize;
+    const cells =
+      this.sharedState.cells.length > 0 ? this.sharedState.cells : map.cells;
 
     // Floor
-    map.cells.forEach((cell) => {
+    cells.forEach((cell) => {
       if (cell.type === CellType.Floor) {
         ctx.fillStyle = this.theme.getColor("--color-floor");
         ctx.fillRect(cell.x * cellSize, cell.y * cellSize, cellSize, cellSize);
@@ -187,20 +189,43 @@ export class MapLayer implements RenderLayer {
     const map = state.map;
     const cellSize = this.sharedState.cellSize;
 
-    for (let y = 0; y < map.height; y++) {
-      for (let x = 0; x < map.width; x++) {
-        const key = `${x},${y}`;
-        const isVisible = state.visibleCells.includes(key);
-        const isDiscovered = state.discoveredCells.includes(key);
+    if (state.gridState) {
+      const width = map.width;
+      const height = map.height;
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const val = state.gridState[y * width + x];
+          const isVisible = val & 1;
+          const isDiscovered = val & 2;
 
-        if (isVisible) continue;
+          if (isVisible) continue;
 
-        if (isDiscovered) {
-          ctx.fillStyle = this.theme.getColor("--color-fog-discovered");
-          ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
-        } else {
-          ctx.fillStyle = this.theme.getColor("--color-fog-unexplored");
-          ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+          if (isDiscovered) {
+            ctx.fillStyle = this.theme.getColor("--color-fog-discovered");
+            ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+          } else {
+            ctx.fillStyle = this.theme.getColor("--color-fog-unexplored");
+            ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+          }
+        }
+      }
+    } else {
+      // Fallback for old states
+      for (let y = 0; y < map.height; y++) {
+        for (let x = 0; x < map.width; x++) {
+          const key = `${x},${y}`;
+          const isVisible = state.visibleCells.includes(key);
+          const isDiscovered = state.discoveredCells.includes(key);
+
+          if (isVisible) continue;
+
+          if (isDiscovered) {
+            ctx.fillStyle = this.theme.getColor("--color-fog-discovered");
+            ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+          } else {
+            ctx.fillStyle = this.theme.getColor("--color-fog-unexplored");
+            ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+          }
         }
       }
     }

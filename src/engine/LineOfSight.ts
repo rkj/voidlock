@@ -42,6 +42,40 @@ export class LineOfSight {
     return Array.from(visible);
   }
 
+  public updateVisibleCells(
+    origin: Vector2,
+    gridState: Uint8Array,
+    width: number,
+    height: number,
+    range?: number,
+  ): void {
+    const originCellX = Math.floor(origin.x);
+    const originCellY = Math.floor(origin.y);
+
+    const actualRange = range !== undefined ? range : width + height;
+
+    const searchRange = Math.ceil(actualRange);
+    const minX = Math.max(0, originCellX - searchRange);
+    const maxX = Math.min(width - 1, originCellX + searchRange);
+    const minY = Math.max(0, originCellY - searchRange);
+    const maxY = Math.min(height - 1, originCellY + searchRange);
+
+    for (let y = minY; y <= maxY; y++) {
+      for (let x = minX; x <= maxX; x++) {
+        const cellCenterX = x + 0.5;
+        const cellCenterY = y + 0.5;
+        const distSq =
+          (cellCenterX - origin.x) ** 2 + (cellCenterY - origin.y) ** 2;
+
+        if (distSq <= actualRange * actualRange) {
+          if (this.hasLineOfSight(origin, { x: cellCenterX, y: cellCenterY })) {
+            gridState[y * width + x] |= 3; // bit 0: visible, bit 1: discovered
+          }
+        }
+      }
+    }
+  }
+
   public hasLineOfSight(start: Vector2, end: Vector2): boolean {
     const rays = this.getSampledRays(start, end);
     return rays.some((ray) =>
