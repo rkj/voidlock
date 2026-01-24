@@ -45,6 +45,8 @@ Use these scripts from `package.json`:
 
 ## Development Guidelines
 
+**CRITICAL:** Read [docs/spec/dev_guide.md](./docs/spec/dev_guide.md) before making any code edits.
+
 ### 1. Architecture Restrictions
 
 - **Decoupling:** The `engine` must NOT import from `renderer`. Communication is strictly via JSON protocol (Commands/Observations).

@@ -69,3 +69,39 @@ The project uses GitHub Actions to automatically build and deploy to GitHub Page
   5.  Deploy `dist/` directory to GitHub Pages via the official `actions/deploy-pages`.
 - **Configuration**:
   - **Vite Base Path**: The `base` property in `vite.config.ts` is conditionally set to `'/voidlock/'` during production builds to ensure assets load correctly on GitHub Pages.
+
+---
+
+## 16) Code Quality & Best Practices
+
+All code must be clean, well-factored, easy to read, and follow these best practices.
+
+### 16.1 General Standards
+
+- **Readability**: Code should be self-documenting. Use clear, descriptive variable and function names.
+- **Factorization**: Break down complex functions into smaller, reusable components.
+- **Cleanliness**: Remove unused variables, imports, and commented-out code.
+- **Consistency**: Follow the existing style and naming conventions of the project.
+
+### 16.2 Type Safety & Casting
+
+- **Zero Tolerance for `any`**: Strictly forbidden. Use `unknown` with type guards.
+- **Avoid `as` Casting**: Prefer Type Guards (`isWeapon(item)`) over assertions (`item as Weapon`).
+- **Control Flow Narrowing**: When TypeScript control flow analysis incorrectly narrows a mutable property (causing 'overlap' errors), prefer capturing the property into a `const` variable before the check. This preserves the original property's type for future checks and improves readability, avoiding `as` casting hacks.
+    - *Example*:
+        ```typescript
+        // Bad
+        if (this.state.type === 'A') { ... } // TS narrows this.state
+        // ... later ...
+        if (this.state.type === 'B') { ... } // Error: Type 'B' is not overlapping with 'A'
+
+        // Good
+        const state = this.state;
+        if (state.type === 'A') { ... }
+        if (state.type === 'B') { ... }
+        ```
+
+### 16.3 Performance Hygiene
+
+- **No Deep Cloning in Loops**: Avoid `JSON.parse(JSON.stringify(...))` in hot paths.
+- **Object Stability**: Minimize object creation in `render()` loops to reduce GC pressure.
