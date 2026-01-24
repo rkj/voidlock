@@ -4,6 +4,7 @@ import {
   UnitState,
   CommandType,
   Enemy,
+  Door,
 } from "../../../shared/types";
 import { AIContext } from "../../managers/UnitAI";
 import { PRNG } from "../../../shared/PRNG";
@@ -11,6 +12,7 @@ import { Behavior } from "./Behavior";
 import { getDistance } from "./BehaviorUtils";
 import { GameGrid } from "../../GameGrid";
 import { isCellVisible } from "../../../shared/VisibilityUtils";
+import { IDirector } from "../../interfaces/IDirector";
 
 export class CombatBehavior implements Behavior {
   constructor(private gameGrid: GameGrid) {}
@@ -19,10 +21,10 @@ export class CombatBehavior implements Behavior {
     unit: Unit,
     state: GameState,
     _dt: number,
-    doors: Map<string, any>,
+    doors: Map<string, Door>,
     _prng: PRNG,
     context: AIContext,
-    director?: any,
+    director?: IDirector,
   ): boolean {
     if (unit.archetypeId === "vip") return false;
     if (unit.state !== UnitState.Idle && !unit.explorationTarget) return false;

@@ -1,6 +1,7 @@
 import { GameState, Unit, Door } from "../../../shared/types";
 import { AIContext } from "../../managers/UnitAI";
 import { PRNG } from "../../../shared/PRNG";
+import { IDirector } from "../../interfaces/IDirector";
 
 export interface Behavior {
   evaluate(
@@ -10,6 +11,6 @@ export interface Behavior {
     doors: Map<string, Door>,
     prng: PRNG,
     context: AIContext,
-    director?: any,
+    director?: IDirector,
   ): boolean;
 }

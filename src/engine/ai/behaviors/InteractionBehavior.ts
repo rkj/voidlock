@@ -4,21 +4,23 @@ import {
   UnitState,
   CommandType,
   PickupCommand,
+  Door,
 } from "../../../shared/types";
 import { AIContext } from "../../managers/UnitAI";
 import { PRNG } from "../../../shared/PRNG";
 import { Behavior } from "./Behavior";
 import { SPEED_NORMALIZATION_CONST } from "../../Constants";
+import { IDirector } from "../../interfaces/IDirector";
 
 export class InteractionBehavior implements Behavior {
   public evaluate(
     unit: Unit,
     state: GameState,
     _dt: number,
-    _doors: Map<string, any>,
+    _doors: Map<string, Door>,
     _prng: PRNG,
     context: AIContext,
-    _director?: any,
+    _director?: IDirector,
   ): boolean {
     if (unit.state !== UnitState.Idle) {
       return false;

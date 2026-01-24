@@ -5,22 +5,25 @@ import {
   CommandType,
   PickupCommand,
   Vector2,
+  Door,
+  Objective,
 } from "../../../shared/types";
 import { AIContext } from "../../managers/UnitAI";
 import { PRNG } from "../../../shared/PRNG";
 import { Behavior } from "./Behavior";
 import { getDistance } from "./BehaviorUtils";
 import { isCellVisible, isCellDiscovered } from "../../../shared/VisibilityUtils";
+import { IDirector } from "../../interfaces/IDirector";
 
 export class ObjectiveBehavior implements Behavior {
   public evaluate(
     unit: Unit,
     state: GameState,
     _dt: number,
-    _doors: Map<string, any>,
+    _doors: Map<string, Door>,
     _prng: PRNG,
     context: AIContext,
-    director?: any,
+    director?: IDirector,
   ): boolean {
     if (unit.archetypeId === "vip") return false;
     if (unit.state !== UnitState.Idle && !unit.explorationTarget) return false;
@@ -115,7 +118,7 @@ export class ObjectiveBehavior implements Behavior {
         return !assignedUnitId || assignedUnitId === unit.id;
       });
       if (pendingObjectives.length > 0) {
-        let bestObj: { obj: any; dist: number } | null = null;
+        let bestObj: { obj: Objective; dist: number } | null = null;
 
         for (const obj of pendingObjectives) {
           let targetPos: Vector2 | null = null;

@@ -9,6 +9,8 @@ import {
   STAT_BOOSTS,
   calculateLevel,
   EventChoice,
+  CampaignNodeType,
+  CampaignNodeStatus,
 } from "../../shared/campaign_types";
 import { PRNG } from "../../shared/PRNG";
 import { StorageProvider } from "../persistence/StorageProvider";
@@ -265,7 +267,7 @@ export class CampaignManager {
    */
   public load(): boolean {
     try {
-      const data = this.storage.load<any>(STORAGE_KEY);
+      const data = this.storage.load<unknown>(STORAGE_KEY);
       if (data) {
         const validated = this.validateState(data);
         if (validated) {
@@ -279,8 +281,10 @@ export class CampaignManager {
     return false;
   }
 
-  private validateState(data: any): CampaignState | null {
+  private validateState(data: unknown): CampaignState | null {
     if (!data || typeof data !== "object") return null;
+
+    const candidate = data as Record<string, unknown>;
 
     // Required top-level fields
     const requiredFields = [
@@ -294,7 +298,7 @@ export class CampaignManager {
       "roster",
     ];
     for (const field of requiredFields) {
-      if (data[field] === undefined) {
+      if (candidate[field] === undefined) {
         console.warn(
           `CampaignManager: Missing required field '${field}' in persisted state.`,
         );
@@ -304,50 +308,51 @@ export class CampaignManager {
 
     // Validate Status
     const validStatuses = ["Active", "Victory", "Defeat"];
-    if (!validStatuses.includes(data.status)) {
-      data.status = "Active";
+    let status = candidate.status as string;
+    if (!validStatuses.includes(status)) {
+      status = "Active";
     }
 
     // Validate Rules
-    if (!data.rules || typeof data.rules !== "object") return null;
+    if (!candidate.rules || typeof candidate.rules !== "object") return null;
+    const rulesCandidate = candidate.rules as Record<string, unknown>;
     const defaultRules = this.getRulesForDifficulty(
-      data.rules.difficulty || "Standard",
+      (rulesCandidate.difficulty as string) || "Standard",
     );
-    data.rules = { ...defaultRules, ...data.rules };
+    const rules = { ...defaultRules, ...candidate.rules };
 
     // Validate Roster
-    if (!Array.isArray(data.roster)) return null;
-    data.roster = data.roster
-      .map((s: any, index: number) => {
-        if (!s || typeof s !== "object" || !s.archetypeId) {
-          // Highly corrupted soldier, but we must try to maintain roster size if possible
-          // Better to just filter out completely broken ones if we can,
-          // but here we just ensure basic fields.
+    if (!Array.isArray(candidate.roster)) return null;
+    const roster = candidate.roster
+      .map((s: unknown, index: number) => {
+        if (!s || typeof s !== "object" || !("archetypeId" in s)) {
           return null;
         }
-        const arch = ArchetypeLibrary[s.archetypeId];
+        const soldierCandidate = s as Record<string, unknown>;
+        const archetypeId = soldierCandidate.archetypeId as string;
+        const arch = ArchetypeLibrary[archetypeId];
         return {
-          id: s.id || `soldier_recovered_${index}`,
-          name: s.name || `Recovered Recruit ${index + 1}`,
-          archetypeId: s.archetypeId,
-          hp: typeof s.hp === "number" ? s.hp : arch ? arch.baseHp : 100,
+          id: (soldierCandidate.id as string) || `soldier_recovered_${index}`,
+          name: (soldierCandidate.name as string) || `Recovered Recruit ${index + 1}`,
+          archetypeId: archetypeId,
+          hp: typeof soldierCandidate.hp === "number" ? soldierCandidate.hp : arch ? arch.baseHp : 100,
           maxHp:
-            typeof s.maxHp === "number" ? s.maxHp : arch ? arch.baseHp : 100,
+            typeof soldierCandidate.maxHp === "number" ? soldierCandidate.maxHp : arch ? arch.baseHp : 100,
           soldierAim:
-            typeof s.soldierAim === "number"
-              ? s.soldierAim
+            typeof soldierCandidate.soldierAim === "number"
+              ? soldierCandidate.soldierAim
               : arch
                 ? arch.soldierAim
                 : 80,
-          xp: typeof s.xp === "number" ? s.xp : 0,
-          level: typeof s.level === "number" ? s.level : 1,
-          kills: typeof s.kills === "number" ? s.kills : 0,
-          missions: typeof s.missions === "number" ? s.missions : 0,
-          status: ["Healthy", "Wounded", "Dead"].includes(s.status)
-            ? s.status
+          xp: typeof soldierCandidate.xp === "number" ? soldierCandidate.xp : 0,
+          level: typeof soldierCandidate.level === "number" ? soldierCandidate.level : 1,
+          kills: typeof soldierCandidate.kills === "number" ? soldierCandidate.kills : 0,
+          missions: typeof soldierCandidate.missions === "number" ? soldierCandidate.missions : 0,
+          status: ["Healthy", "Wounded", "Dead"].includes(soldierCandidate.status as string)
+            ? (soldierCandidate.status as "Healthy" | "Wounded" | "Dead")
             : "Healthy",
-          recoveryTime: typeof s.recoveryTime === "number" ? s.recoveryTime : 0,
-          equipment: s.equipment || {
+          recoveryTime: typeof soldierCandidate.recoveryTime === "number" ? soldierCandidate.recoveryTime : 0,
+          equipment: (soldierCandidate.equipment as EquipmentState) || {
             rightHand: arch?.rightHand,
             leftHand: arch?.leftHand,
             body: arch?.body,
@@ -355,18 +360,24 @@ export class CampaignManager {
           },
         };
       })
-      .filter((s: any) => s !== null);
+      .filter((s: CampaignSoldier | null): s is CampaignSoldier => s !== null);
 
     // Validate Nodes
-    if (!Array.isArray(data.nodes)) return null;
-    const nodeIds = new Set(data.nodes.map((n: any) => n.id));
-    data.nodes = data.nodes
-      .map((n: any) => {
-        if (!n || typeof n !== "object" || !n.id) return null;
+    if (!Array.isArray(candidate.nodes)) return null;
+    const nodeIds = new Set(candidate.nodes.map((n: unknown) => {
+      if (n && typeof n === "object" && "id" in n) {
+        return (n as Record<string, unknown>).id as string;
+      }
+      return "";
+    }).filter(id => id !== ""));
+    const nodes = candidate.nodes
+      .map((n: unknown) => {
+        if (!n || typeof n !== "object" || !("id" in n)) return null;
+        const nodeCandidate = n as Record<string, unknown>;
         return {
-          ...n,
-          type: ["Combat", "Shop", "Event", "Boss", "Elite"].includes(n.type)
-            ? n.type
+          ...nodeCandidate,
+          type: ["Combat", "Shop", "Event", "Boss", "Elite"].includes(nodeCandidate.type as string)
+            ? (nodeCandidate.type as CampaignNodeType)
             : "Combat",
           status: [
             "Hidden",
@@ -374,20 +385,26 @@ export class CampaignManager {
             "Accessible",
             "Cleared",
             "Skipped",
-          ].includes(n.status)
-            ? n.status
+          ].includes(nodeCandidate.status as string)
+            ? (nodeCandidate.status as CampaignNodeStatus)
             : "Hidden",
-          connections: Array.isArray(n.connections)
-            ? n.connections.filter((id: any) => nodeIds.has(id))
+          connections: Array.isArray(nodeCandidate.connections)
+            ? nodeCandidate.connections.filter((id: unknown) => typeof id === "string" && nodeIds.has(id))
             : [],
-        };
+        } as CampaignNode;
       })
-      .filter((n: any) => n !== null);
+      .filter((n: CampaignNode | null): n is CampaignNode => n !== null);
 
     // If nodes list became empty, the campaign is unplayable
-    if (data.nodes.length === 0) return null;
+    if (nodes.length === 0) return null;
 
-    return data as CampaignState;
+    return {
+      ...candidate,
+      status,
+      rules,
+      roster,
+      nodes,
+    } as CampaignState;
   }
 
   /**

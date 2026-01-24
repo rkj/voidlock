@@ -12,6 +12,7 @@ import { CombatBehavior } from "../ai/behaviors/CombatBehavior";
 import { ObjectiveBehavior } from "../ai/behaviors/ObjectiveBehavior";
 import { ExplorationBehavior } from "../ai/behaviors/ExplorationBehavior";
 import { isCellDiscovered } from "../../shared/VisibilityUtils";
+import { IDirector } from "../interfaces/IDirector";
 
 export interface AIContext {
   agentControlEnabled: boolean;
@@ -24,7 +25,7 @@ export interface AIContext {
     cmd: Command,
     state: GameState,
     isManual: boolean,
-    director?: any,
+    director?: IDirector,
   ) => void;
 }
 
@@ -57,7 +58,7 @@ export class UnitAI {
     doors: Map<string, Door>,
     prng: PRNG,
     context: AIContext,
-    director?: any,
+    director?: IDirector,
   ) {
     if (unit.state === UnitState.Extracted || unit.state === UnitState.Dead)
       return;

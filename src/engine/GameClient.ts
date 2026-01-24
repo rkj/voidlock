@@ -13,11 +13,37 @@ import {
   EngineMode,
   CommandLogEntry,
   MapGenerationConfig,
+  CampaignNodeType,
 } from "../shared/types";
 import { MapFactory } from "./map/MapFactory";
 
 // Factory type for creating MapFactory instances based on config
 type MapGeneratorFactory = (config: MapGenerationConfig) => MapFactory;
+
+interface MissionConfig {
+  seed: number;
+  mapGeneratorType: MapGeneratorType;
+  mapData?: MapDefinition;
+  fogOfWarEnabled: boolean;
+  debugOverlayEnabled: boolean;
+  agentControlEnabled: boolean;
+  squadConfig: SquadConfig;
+  missionType: MissionType;
+  width: number;
+  height: number;
+  spawnPointCount: number;
+  losOverlayEnabled: boolean;
+  startingThreatLevel: number;
+  baseEnemyCount: number;
+  enemyGrowthPerMission: number;
+  missionDepth: number;
+  initialTimeScale: number;
+  startPaused: boolean;
+  allowTacticalPause: boolean;
+  campaignNodeId?: string;
+  nodeType?: CampaignNodeType;
+  bonusLootCount: number;
+}
 
 export class GameClient {
   private worker: Worker;
@@ -89,7 +115,7 @@ export class GameClient {
     baseEnemyCount: number = 3,
     enemyGrowthPerMission: number = 1,
     missionDepth: number = 0,
-    nodeType?: string, // Actually CampaignNodeType but string is fine for the client
+    nodeType?: CampaignNodeType,
     bonusLootCount: number = 0,
   ) {
     this.isStopped = false;
@@ -164,7 +190,7 @@ export class GameClient {
         mode,
         commandLog,
         targetTick,
-        nodeType: nodeType as any,
+        nodeType,
         campaignNodeId,
       },
     };
@@ -221,7 +247,7 @@ export class GameClient {
     }
   }
 
-  private saveMissionConfig(config: any) {
+  private saveMissionConfig(config: MissionConfig) {
     if (typeof localStorage !== "undefined") {
       localStorage.setItem("voidlock_mission_config", JSON.stringify(config));
     }
