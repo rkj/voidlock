@@ -5,9 +5,6 @@ import {
   MissionReport,
   CampaignSoldier,
   CampaignOverrides,
-  XP_THRESHOLDS,
-  STAT_BOOSTS,
-  calculateLevel,
   EventChoice,
   CampaignNodeType,
   CampaignNodeStatus,
@@ -21,7 +18,6 @@ import {
   EquipmentState,
   UnitStyle,
   MapGeneratorType,
-  MissionType,
 } from "../../shared/types";
 import { RosterManager } from "../campaign/RosterManager";
 import { MissionReconciler } from "../campaign/MissionReconciler";
@@ -448,11 +444,6 @@ export class CampaignManager {
     }
 
     this.save();
-  }
-
-  private checkBankruptcy(): boolean {
-    if (!this.state) return false;
-    return this.missionReconciler.checkBankruptcy(this.state);
   }
 
   /**
