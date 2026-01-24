@@ -34,13 +34,12 @@ describe("Timer Accuracy Regression", () => {
     const timeScale = 1.0;
     const totalRealTimeMs = 10000;
 
-    // After my fix, scaledDt = TICK_RATE * timeScale = 16
+    // After my fix, scaledDt = TICK_RATE * timeScale
     const scaledDt = TICK_RATE * timeScale;
-    const realDt = TICK_RATE;
 
     const iterations = totalRealTimeMs / TICK_RATE;
     for (let i = 0; i < iterations; i++) {
-      engine.update(scaledDt, realDt);
+      engine.update(scaledDt);
     }
 
     const state = engine.getState();
@@ -64,11 +63,10 @@ describe("Timer Accuracy Regression", () => {
 
     // After my fix, scaledDt = 16 * 2.0 = 32
     const scaledDt = TICK_RATE * timeScale;
-    const realDt = TICK_RATE;
 
     const iterations = totalRealTimeMs / TICK_RATE;
     for (let i = 0; i < iterations; i++) {
-      engine.update(scaledDt, realDt);
+      engine.update(scaledDt);
     }
 
     const state = engine.getState();

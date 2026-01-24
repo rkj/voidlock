@@ -167,7 +167,7 @@ describe("CoreEngine with Objectives and Game Loop", () => {
 
     // Advance with high game speed but low real speed
     // scaledDt = 30000 (three turns in game time), realDt = 1000 (1 second real time)
-    engine.update(30000, 1000);
+    engine.update(30000);
 
     // Threat should have increased by scaledDt (30 seconds), so 3 turns
     // (30000/10000) * 10 = 30.0

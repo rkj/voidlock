@@ -97,7 +97,7 @@ describe("Grenade Command Behavior", () => {
       targetUnitId: "target-enemy",
     });
 
-    engine.update(100, 100);
+    engine.update(100);
 
     const finalState = engine.getState();
     const targetEnemy = finalState.enemies.find((e) => e.id === "target-enemy");

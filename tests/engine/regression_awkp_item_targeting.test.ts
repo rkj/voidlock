@@ -47,7 +47,7 @@ describe("Item Targeting (voidlock-awkp)", () => {
 
     // Advance time to complete channeling
     // Assault speed 20. Base 3000ms * (30/20) = 4500ms.
-    engine.update(5000, 5000);
+    engine.update(5000);
 
     const finalState = engine.getState();
     const finalUnit1 = finalState.units.find((u) => u.id === "unit-1")!;
@@ -97,7 +97,7 @@ describe("Item Targeting (voidlock-awkp)", () => {
     engine.applyCommand(cmd);
 
     // Grenade is instant (channelTime: undefined)
-    engine.update(100, 100);
+    engine.update(100);
 
     const finalState = engine.getState();
     expect(finalState.stats.aliensKilled).toBe(1);

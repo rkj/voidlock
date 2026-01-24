@@ -1,6 +1,5 @@
 import {
   MapDefinition,
-  BoundaryDefinition,
   GameState,
   Unit,
   Enemy,
@@ -11,7 +10,6 @@ import {
   ArchetypeLibrary,
   ItemLibrary,
   WeaponLibrary,
-  EquipmentState,
   Door,
   Vector2,
   EngineMode,
@@ -80,7 +78,7 @@ export class CoreEngine {
     enemyGrowthPerMission: number = 1,
     missionDepth: number = 0,
     nodeType?: CampaignNodeType,
-    private campaignNodeId?: string,
+    campaignNodeId?: string,
   ) {
     this.prng = new PRNG(seed);
     this.gameGrid = new GameGrid(map);
@@ -113,7 +111,8 @@ export class CoreEngine {
       t: 0,
       seed: seed,
       missionType: missionType,
-      nodeType: nodeType, // Add nodeType to state if needed, let's check GameState first
+      nodeType,
+      campaignNodeId,
       map: {
         ...map,
         boundaries:
@@ -226,7 +225,7 @@ export class CoreEngine {
           kills: 0,
           damageDealt: 0,
           objectivesCompleted: 0,
-        } as Unit);
+        });
 
         // Reveal VIP position
         const vx = Math.floor(startPos.x);
@@ -320,7 +319,7 @@ export class CoreEngine {
         kills: 0,
         damageDealt: 0,
         objectivesCompleted: 0,
-      } as Unit);
+      });
     });
 
     // Default EXPLORE command for all non-VIP units
@@ -346,7 +345,7 @@ export class CoreEngine {
       this.isCatchingUp = true;
       while (this.state.t < finalCatchupTick) {
         // We use a fixed 16ms step for deterministic catch-up
-        this.update(16, 16);
+        this.update(16);
       }
       this.isCatchingUp = false;
     }
@@ -532,7 +531,7 @@ export class CoreEngine {
     });
   }
 
-  public update(scaledDt: number, realDt: number = scaledDt) {
+  public update(scaledDt: number) {
     if (
       this.state.status !== "Playing" &&
       this.state.settings.mode !== EngineMode.Replay &&
@@ -580,7 +579,6 @@ export class CoreEngine {
       this.prng,
       this.lootManager,
       this.director,
-      scaledDt,
     );
 
     // 6. Enemies
@@ -591,28 +589,19 @@ export class CoreEngine {
       this.pathfinder,
       this.los,
       this.prng,
-            this.unitManager.getCombatManager(),
-          );
-      
-              // 7. Turrets
-      
-              this.turretManager.update(
-      
-                this.state,
-      
-                scaledDt,
-      
-                this.prng,
-      
-                this.unitManager.getCombatManager(),
-      
-              );
-      
-          
-      
-              // 8. Cleanup Death (Must be after both Unit and Enemy updates)
-      
-              this.state.units.forEach((unit) => {
+      this.unitManager.getCombatManager(),
+    );
+
+    // 7. Turrets
+    this.turretManager.update(
+      this.state,
+      scaledDt,
+      this.prng,
+      this.unitManager.getCombatManager(),
+    );
+
+    // 8. Cleanup Death (Must be after both Unit and Enemy updates)
+    this.state.units.forEach((unit) => {
       
           
       if (unit.hp <= 0 && unit.state !== UnitState.Dead) {

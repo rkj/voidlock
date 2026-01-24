@@ -54,7 +54,7 @@ describe("Regression lv7j: Unit Movement on Refresh", () => {
 
     // 2. Run for 1000ms
     for (let i = 0; i < 62; i++) {
-      engine.update(16, 16);
+      engine.update(16);
     }
 
     const stateBeforeRefresh = engine.getState();

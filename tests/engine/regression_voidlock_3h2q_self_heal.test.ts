@@ -52,7 +52,7 @@ describe("Medkit Restriction (voidlock-3h2q)", () => {
 
     // Advance time to complete channeling
     // Assault speed 20. Base 3000ms * (30/20) = 4500ms.
-    engine.update(5000, 5000);
+    engine.update(5000);
 
     const finalState = engine.getState();
     const finalUnit1 = finalState.units.find((u) => u.id === "unit-1")!;
