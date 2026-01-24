@@ -8,9 +8,6 @@ import {
   EscortUnitCommand,
   PickupCommand,
   Door,
-  Enemy,
-  ItemLibrary,
-  AIProfile,
 } from "../../shared/types";
 import { GameGrid } from "../GameGrid";
 import { Pathfinder } from "../Pathfinder";
@@ -25,8 +22,6 @@ import { CommandExecutor } from "./CommandExecutor";
 import { isCellVisible } from "../../shared/VisibilityUtils";
 import { IDirector } from "../interfaces/IDirector";
 
-const EPSILON = 0.05;
-
 export class UnitManager {
   private totalFloorCells: number;
   private statsManager: StatsManager;
@@ -38,7 +33,7 @@ export class UnitManager {
   constructor(
     private gameGrid: GameGrid,
     private pathfinder: Pathfinder,
-    private los: LineOfSight,
+    los: LineOfSight,
     private agentControlEnabled: boolean,
   ) {
     this.totalFloorCells = gameGrid
