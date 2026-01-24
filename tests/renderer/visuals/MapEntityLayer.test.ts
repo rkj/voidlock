@@ -130,7 +130,7 @@ describe("MapEntityLayer", () => {
     expect(extractionPointFill).toBeDefined();
   });
 
-  it("should NOT call drawImage for loot when UnitStyle is TacticalIcons, even if Crate icon exists", () => {
+  it("should call drawImage for loot when UnitStyle is TacticalIcons, if Crate icon exists", () => {
     sharedState.unitStyle = UnitStyle.TacticalIcons;
 
     // Ensure Crate icon exists in AssetManager
@@ -151,16 +151,12 @@ describe("MapEntityLayer", () => {
 
     layer.draw(mockContext, gameState);
 
-    // Assert drawImage was NOT called for the Crate icon
+    // Assert drawImage WAS called for the Crate icon
     const drawImageCalls = mockContext.drawImage.mock.calls;
     const crateDraw = drawImageCalls.find(
       (args: any[]) => args[0] === mockCrateIcon,
     );
 
-    expect(crateDraw).toBeUndefined();
-
-    // Should use fillRect instead
-    // renderLoot uses fillRect if icon is missing, and we want it to use it for TacticalIcons too
-    expect(mockContext.fillRect).toHaveBeenCalled();
+    expect(crateDraw).toBeDefined();
   });
 });
