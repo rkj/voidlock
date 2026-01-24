@@ -29,6 +29,7 @@ import { DoorManager } from "./managers/DoorManager";
 import { VisibilityManager } from "./managers/VisibilityManager";
 import { EnemyManager } from "./managers/EnemyManager";
 import { UnitManager } from "./managers/UnitManager";
+import { TurretManager } from "./managers/TurretManager";
 import { CommandHandler } from "./managers/CommandHandler";
 import { LootManager } from "./managers/LootManager";
 import { SPEED_NORMALIZATION_CONST } from "./Constants";
@@ -46,6 +47,7 @@ export class CoreEngine {
   private visibilityManager: VisibilityManager;
   private enemyManager: EnemyManager;
   private unitManager: UnitManager;
+  private turretManager: TurretManager;
   private lootManager: LootManager;
   private commandHandler: CommandHandler;
 
@@ -99,6 +101,7 @@ export class CoreEngine {
       this.los,
       agentControlEnabled,
     );
+    this.turretManager = new TurretManager(this.los);
     this.lootManager = new LootManager();
     this.missionManager = new MissionManager(missionType, this.prng);
     this.visibilityManager = new VisibilityManager(this.los);
@@ -131,6 +134,7 @@ export class CoreEngine {
       enemies: [],
       loot: [],
       mines: [],
+      turrets: [],
       visibleCells: [],
       discoveredCells: [],
       gridState: new Uint8Array(map.width * map.height),
@@ -384,6 +388,7 @@ export class CoreEngine {
       })),
       loot: state.loot.map((l) => ({ ...l, pos: { ...l.pos } })),
       mines: state.mines.map((m) => ({ ...m, pos: { ...m.pos } })),
+      turrets: state.turrets.map((t) => ({ ...t, pos: { ...t.pos } })),
       attackEvents: state.attackEvents
         ? state.attackEvents.map((ae) => ({
             ...ae,
@@ -586,11 +591,30 @@ export class CoreEngine {
       this.pathfinder,
       this.los,
       this.prng,
-      this.unitManager.getCombatManager(),
-    );
-
-    // 7. Cleanup Death (Must be after both Unit and Enemy updates)
-    this.state.units.forEach((unit) => {
+            this.unitManager.getCombatManager(),
+          );
+      
+              // 7. Turrets
+      
+              this.turretManager.update(
+      
+                this.state,
+      
+                scaledDt,
+      
+                this.prng,
+      
+                this.unitManager.getCombatManager(),
+      
+              );
+      
+          
+      
+              // 8. Cleanup Death (Must be after both Unit and Enemy updates)
+      
+              this.state.units.forEach((unit) => {
+      
+          
       if (unit.hp <= 0 && unit.state !== UnitState.Dead) {
         unit.state = UnitState.Dead;
         this.state.stats.casualties++;

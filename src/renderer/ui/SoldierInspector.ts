@@ -340,15 +340,16 @@ export class SoldierInspector {
       let statsHtml = "";
       let fullStats = "";
       if ("damage" in item) {
-        const fireRateVal = item.fireRate;
+        const fireRateVal = item.fireRate || 0;
         const fireRateStr =
           fireRateVal > 0 ? (1000 / fireRateVal).toFixed(1) : "0";
         statsHtml = `
-          ${StatDisplay.render(Icons.Damage, item.damage, "Damage")}
+          ${StatDisplay.render(Icons.Damage, item.damage || 0, "Damage")}
           ${StatDisplay.render(Icons.Rate, fireRateStr, "Fire Rate")}
-          ${StatDisplay.render(Icons.Range, item.range, "Range")}
+          ${StatDisplay.render(Icons.Range, item.range || 0, "Range")}
         `;
-        fullStats = `Damage: ${item.damage}\nRange: ${item.range}\nFire Rate: ${item.fireRate}ms\nAccuracy: ${item.accuracy > 0 ? "+" : ""}${item.accuracy}%`;
+        const acc = item.accuracy || 0;
+        fullStats = `Damage: ${item.damage}\\nRange: ${item.range}\\nFire Rate: ${item.fireRate}ms\\nAccuracy: ${acc > 0 ? "+" : ""}${acc}%`;
       } else {
         const bonuses = [];
         if (item.hpBonus)

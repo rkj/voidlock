@@ -35,7 +35,7 @@ describe("HUDManager Objective Regression PDXS", () => {
     visibleCells: [],
     discoveredCells: [],
     loot: [],
-    mines: [],
+    mines: [], turrets: [],
     objectives: [
       {
         id: "artifact-1",

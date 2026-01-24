@@ -223,10 +223,10 @@ export class CommandExecutor {
 
           // If item has a target, move there first?
           // For now, assume unit must be at target or it's a global effect.
-          // Medkit/Mine usually require being at the target cell.
+          // Medkit/Mine/Sentry usually require being at the target cell.
           if (
             targetLocation &&
-            (item.action === "Heal" || item.action === "Mine")
+            (item.action === "Heal" || item.action === "Mine" || item.action === "Sentry")
           ) {
             const dist = this.getDistance(unit.pos, {
               x: targetLocation.x + 0.5,
@@ -251,7 +251,7 @@ export class CommandExecutor {
           }
 
           const isTimedAction =
-            cmd.itemId === "medkit" || cmd.itemId === "mine";
+            cmd.itemId === "medkit" || cmd.itemId === "mine" || item.action === "Sentry";
           if (isTimedAction) {
             const baseTime = 3000;
             const scaledDuration =

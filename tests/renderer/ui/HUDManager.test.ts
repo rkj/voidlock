@@ -58,7 +58,7 @@ describe("HUDManager", () => {
     visibleCells: [],
     discoveredCells: [],
     loot: [],
-    mines: [],
+    mines: [], turrets: [],
     objectives: [],
   };
 

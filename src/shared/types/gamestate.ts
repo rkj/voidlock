@@ -1,5 +1,5 @@
 import { Vector2 } from "./geometry";
-import { LootItem, Mine } from "./items";
+import { LootItem, Mine, Turret } from "./items";
 import { MapDefinition, Objective } from "./map";
 import { Command, Enemy, SquadConfig, Unit } from "./units";
 import { CampaignNodeType } from "../campaign_types";
@@ -82,6 +82,7 @@ export type GameState = {
   loot: LootItem[];
   attackEvents?: AttackEvent[];
   mines: Mine[];
+  turrets: Turret[];
 };
 
 // --- Protocol ---
