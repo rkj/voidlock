@@ -226,7 +226,7 @@ describe("E2E Campaign Happy Path", () => {
       },
       squadInventory: {},
       loot: [],
-      mines: [],
+      mines: [], turrets: [],
       ...overrides,
     };
   };

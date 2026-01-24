@@ -102,7 +102,7 @@ describe("Renderer - unitStyle", () => {
     },
     squadInventory: {},
     attackEvents: [],
-    mines: [],
+    mines: [], turrets: [],
     loot: [],
   };
 

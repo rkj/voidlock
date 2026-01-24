@@ -8,6 +8,18 @@ export type Mine = {
   ownerId: string;
 };
 
+export type Turret = {
+  id: string;
+  pos: Vector2;
+  damage: number;
+  fireRate: number;
+  accuracy: number;
+  attackRange: number;
+  lastAttackTime?: number;
+  lastAttackTarget?: Vector2;
+  ownerId: string;
+};
+
 export type LootItem = {
   id: string;
   itemId: string;
@@ -29,8 +41,13 @@ export type Item = {
   speedBonus?: number;
   accuracyBonus?: number;
   // Active effects
-  action?: "Heal" | "Grenade" | "Mine" | "Scanner";
+  action?: "Heal" | "Grenade" | "Mine" | "Scanner" | "Sentry";
   healAmount?: number; // amount of HP to recover
+  // Sentry stats
+  damage?: number;
+  fireRate?: number;
+  accuracy?: number;
+  range?: number;
   cost: number;
 };
 
@@ -84,6 +101,42 @@ export const ItemLibrary: { [id: string]: Item } = {
     description: "Reveals enemies and objectives through fog of war.",
     action: "Scanner",
     cost: 20,
+  },
+  sentry_mk1: {
+    id: "sentry_mk1",
+    name: "Auto Cannon Mk1",
+    type: "Active",
+    description: "Basic deployable sentry turret. Reliable and cheap.",
+    action: "Sentry",
+    damage: 10,
+    fireRate: 500,
+    accuracy: 60,
+    range: 6,
+    cost: 25,
+  },
+  sentry_mk2: {
+    id: "sentry_mk2",
+    name: "Auto Cannon Mk2",
+    type: "Active",
+    description: "Upgraded turret with improved rate of fire and accuracy.",
+    action: "Sentry",
+    damage: 12,
+    fireRate: 350,
+    accuracy: 75,
+    range: 8,
+    cost: 45,
+  },
+  sentry_heavy: {
+    id: "sentry_heavy",
+    name: "Heavy Auto Cannon",
+    type: "Active",
+    description: "Massive deployable turret firing high-caliber shells.",
+    action: "Sentry",
+    damage: 35,
+    fireRate: 1000,
+    accuracy: 85,
+    range: 12,
+    cost: 75,
   },
   combat_boots: {
     id: "combat_boots",

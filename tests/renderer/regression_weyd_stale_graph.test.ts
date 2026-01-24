@@ -91,7 +91,7 @@ describe("Renderer Stale Graph Regression (voidlock-weyd)", () => {
       },
       squadInventory: {},
       loot: [],
-      mines: [],
+      mines: [], turrets: [],
     };
 
     renderer.render(state1);

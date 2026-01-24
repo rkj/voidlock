@@ -26,7 +26,7 @@ describe("MenuController Room Discovery", () => {
     discoveredCells: ["1,1"], // Only room-1 is partially discovered
     objectives: [],
     loot: [],
-    mines: [],
+    mines: [], turrets: [],
     stats: {
       threatLevel: 0,
       aliensKilled: 0,

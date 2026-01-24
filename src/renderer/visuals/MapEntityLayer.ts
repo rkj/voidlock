@@ -16,6 +16,41 @@ export class MapEntityLayer implements RenderLayer {
     this.renderLoot(ctx, state);
     this.renderObjectives(ctx, state);
     this.renderMines(ctx, state);
+    this.renderTurrets(ctx, state);
+  }
+
+  private renderTurrets(ctx: CanvasRenderingContext2D, state: GameState) {
+    const cellSize = this.sharedState.cellSize;
+
+    state.turrets?.forEach((turret) => {
+      const x = turret.pos.x * cellSize;
+      const y = turret.pos.y * cellSize;
+      const key = `${Math.floor(turret.pos.x)},${Math.floor(turret.pos.y)}`;
+      const isVisible = state.visibleCells.includes(key);
+
+      if (!isVisible && !state.settings.debugOverlayEnabled) return;
+
+      ctx.fillStyle = this.theme.getColor("--color-info");
+      ctx.beginPath();
+      ctx.arc(
+        x + cellSize / 2,
+        y + cellSize / 2,
+        cellSize * 0.3,
+        0,
+        Math.PI * 2,
+      );
+      ctx.fill();
+      ctx.strokeStyle = this.theme.getColor("--color-black");
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Draw a small 'T'
+      ctx.fillStyle = this.theme.getColor("--color-white");
+      ctx.font = `bold ${Math.floor(cellSize / 3)}px Arial`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("T", x + cellSize / 2, y + cellSize / 2);
+    });
   }
 
   private renderMines(ctx: CanvasRenderingContext2D, state: GameState) {

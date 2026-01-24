@@ -194,6 +194,18 @@ export class Director {
           ownerId: cmd.unitIds[0] || "squad",
         });
       }
+    } else if (item.action === "Sentry") {
+      if (cmd.target) {
+        state.turrets.push({
+          id: `turret-${state.t}`,
+          pos: { ...cmd.target },
+          damage: item.damage || 10,
+          fireRate: item.fireRate || 500,
+          accuracy: item.accuracy || 60,
+          attackRange: item.range || 6,
+          ownerId: cmd.unitIds[0] || "squad",
+        });
+      }
     }
   }
 

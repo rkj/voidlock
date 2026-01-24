@@ -21,7 +21,7 @@ describe("MenuController Shift Queueing", () => {
     discoveredCells: [],
     objectives: [],
     loot: [],
-    mines: [],
+    mines: [], turrets: [],
     stats: {
       threatLevel: 0,
       aliensKilled: 0,

@@ -226,7 +226,7 @@ describe("E2E Campaign Failure Modes", () => {
       },
       squadInventory: {},
       loot: [],
-      mines: [],
+      mines: [], turrets: [],
       ...overrides,
     };
   };

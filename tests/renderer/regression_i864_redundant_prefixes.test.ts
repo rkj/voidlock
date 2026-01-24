@@ -34,7 +34,7 @@ describe("Regression i864: Redundant Prefixes in Command Menu", () => {
     discoveredCells: ["0,0", "1,0"],
     objectives: [],
     loot: [],
-    mines: [],
+    mines: [], turrets: [],
     stats: {
       threatLevel: 0,
       aliensKilled: 0,
