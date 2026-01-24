@@ -10,6 +10,7 @@ import {
 } from "../../shared/types";
 import { Pathfinder } from "../Pathfinder";
 import { SPEED_NORMALIZATION_CONST } from "../Constants";
+import { IDirector } from "../interfaces/IDirector";
 
 export class CommandExecutor {
   constructor(private pathfinder: Pathfinder) {}
@@ -19,7 +20,7 @@ export class CommandExecutor {
     cmd: Command,
     state: GameState,
     isManual: boolean = true,
-    director?: any,
+    director?: IDirector,
   ) {
     unit.activeCommand = cmd;
 

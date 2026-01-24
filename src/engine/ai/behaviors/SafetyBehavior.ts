@@ -5,22 +5,24 @@ import {
   CommandType,
   Enemy,
   Vector2,
+  Door,
 } from "../../../shared/types";
 import { AIContext } from "../../managers/UnitAI";
 import { PRNG } from "../../../shared/PRNG";
 import { Behavior } from "./Behavior";
 import { getDistance } from "./BehaviorUtils";
 import { isCellVisible } from "../../../shared/VisibilityUtils";
+import { IDirector } from "../../interfaces/IDirector";
 
 export class SafetyBehavior implements Behavior {
   public evaluate(
     unit: Unit,
     state: GameState,
     _dt: number,
-    _doors: Map<string, any>,
+    _doors: Map<string, Door>,
     _prng: PRNG,
     context: AIContext,
-    director?: any,
+    director?: IDirector,
   ): boolean {
     if (unit.archetypeId === "vip") return false;
 

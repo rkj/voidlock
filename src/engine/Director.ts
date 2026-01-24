@@ -10,8 +10,9 @@ import {
 } from "../shared/types";
 import { PRNG } from "../shared/PRNG";
 import { SPEED_NORMALIZATION_CONST } from "./Constants";
+import { IDirector } from "./interfaces/IDirector";
 
-export class Director {
+export class Director implements IDirector {
   private turn: number = 0;
   private timeInCurrentTurn: number = 0;
   private readonly turnDuration: number = 10000; // 10 seconds

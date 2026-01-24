@@ -17,6 +17,7 @@ This directory contains the core simulation logic for Voidlock. It follows a det
 
 - `ai/`: Specialized AI logic for enemies and soldiers.
 - `generators/`: Specific map generation algorithms (e.g., `SpaceshipGenerator`, `TreeShipGenerator`).
+- `interfaces/`: Shared interfaces for breaking circular dependencies (e.g., `IDirector`).
 - `map/`: Modular map generation system (Factory, Sanitizer, Validator).
 - `managers/`: Modules that handle specific aspects of the game (Unit, Enemy, Door, Visibility, Mission, Command).
 - `persistence/`: Logic for saving and loading game state.

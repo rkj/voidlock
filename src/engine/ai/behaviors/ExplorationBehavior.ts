@@ -15,6 +15,7 @@ import {
 } from "./BehaviorUtils";
 import { GameGrid } from "../../GameGrid";
 import { isCellDiscovered } from "../../../shared/VisibilityUtils";
+import { IDirector } from "../../interfaces/IDirector";
 
 export class ExplorationBehavior implements Behavior {
   constructor(private gameGrid: GameGrid) {}
@@ -26,7 +27,7 @@ export class ExplorationBehavior implements Behavior {
     doors: Map<string, Door>,
     _prng: PRNG,
     context: AIContext,
-    director?: any,
+    director?: IDirector,
   ): boolean {
     if (unit.state !== UnitState.Idle && !unit.explorationTarget) return false;
     if (unit.commandQueue.length > 0) return false;

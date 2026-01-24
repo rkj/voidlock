@@ -23,6 +23,7 @@ import { CombatManager } from "./CombatManager";
 import { UnitAI, AIContext } from "./UnitAI";
 import { CommandExecutor } from "./CommandExecutor";
 import { isCellVisible } from "../../shared/VisibilityUtils";
+import { IDirector } from "../interfaces/IDirector";
 
 const EPSILON = 0.05;
 
@@ -65,7 +66,7 @@ export class UnitManager {
     doors: Map<string, Door>,
     prng: PRNG,
     lootManager: LootManager,
-    director?: any,
+    director?: IDirector,
     realDt: number = dt,
   ) {
     const claimedObjectives = new Set<string>();
@@ -258,8 +259,8 @@ export class UnitManager {
             visible: o.visible,
           };
         }),
-    ].filter((item: any) => {
-      if (item.visible) return true;
+    ].filter((item) => {
+      if ("visible" in item && item.visible) return true;
       return isCellVisible(
         state,
         Math.floor(item.pos.x),
@@ -431,7 +432,8 @@ export class UnitManager {
         return;
       }
 
-      if (unit.state === UnitState.Idle && unit.commandQueue.length > 0) {
+      const currentState = unit.state;
+      if (currentState === UnitState.Idle && unit.commandQueue.length > 0) {
         const nextCmd = unit.commandQueue.shift();
         if (nextCmd) {
           this.commandExecutor.executeCommand(
@@ -441,7 +443,7 @@ export class UnitManager {
             true,
             director,
           );
-          if ((unit.state as any) === UnitState.Channeling) {
+          if (unit.state === UnitState.Channeling) {
             return;
           }
         }
@@ -503,7 +505,7 @@ export class UnitManager {
     cmd: Command,
     state: GameState,
     isManual: boolean = true,
-    director?: any,
+    director?: IDirector,
   ) {
     this.commandExecutor.executeCommand(unit, cmd, state, isManual, director);
   }

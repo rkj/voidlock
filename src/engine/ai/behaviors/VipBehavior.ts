@@ -1,10 +1,11 @@
-import { GameState, Unit, UnitState } from "../../../shared/types";
+import { GameState, Unit, UnitState, Door } from "../../../shared/types";
 import { AIContext } from "../../managers/UnitAI";
 import { PRNG } from "../../../shared/PRNG";
 import { Behavior } from "./Behavior";
 import { getDistance } from "./BehaviorUtils";
 import { LineOfSight } from "../../LineOfSight";
 import { VipAI } from "../VipAI";
+import { IDirector } from "../../interfaces/IDirector";
 
 export class VipBehavior implements Behavior {
   constructor(
@@ -16,10 +17,10 @@ export class VipBehavior implements Behavior {
     unit: Unit,
     state: GameState,
     _dt: number,
-    _doors: Map<string, any>,
+    _doors: Map<string, Door>,
     _prng: PRNG,
     context: AIContext,
-    director?: any,
+    director?: IDirector,
   ): boolean {
     if (unit.archetypeId !== "vip") return false;
 
