@@ -110,7 +110,7 @@ export class MapEntityLayer implements RenderLayer {
     ctx.strokeRect(x + 5, y + 5, cellSize - 10, cellSize - 10);
     ctx.setLineDash([]);
 
-    const icon = !isTactical ? this.assets.iconImages.Exit : null;
+    const icon = this.assets.iconImages.Exit;
     if (icon) {
       const iconSize = cellSize * 0.6;
       ctx.drawImage(
@@ -139,7 +139,7 @@ export class MapEntityLayer implements RenderLayer {
       ctx.fillStyle = this.theme.getColor("--color-spawn-bg");
       ctx.fillRect(x, y, cellSize, cellSize);
 
-      const icon = !isTactical ? this.assets.iconImages.Spawn : null;
+      const icon = this.assets.iconImages.Spawn;
       if (icon) {
         const iconSize = cellSize * 0.5;
         ctx.drawImage(
@@ -168,7 +168,7 @@ export class MapEntityLayer implements RenderLayer {
         return;
 
       // Render loot crate
-      const icon = !isTactical ? this.assets.iconImages.Crate : null;
+      const icon = this.assets.iconImages.Crate;
       if (icon) {
         const iconSize = cellSize * 0.5;
         ctx.drawImage(
@@ -224,7 +224,7 @@ export class MapEntityLayer implements RenderLayer {
         ctx.fillStyle = this.theme.getColor("--color-objective-bg");
         ctx.fillRect(x + 4, y + 4, cellSize - 8, cellSize - 8);
 
-        const icon = !isTactical ? this.assets.iconImages.Objective : null;
+        const icon = this.assets.iconImages.Objective;
         if (icon) {
           const iconSize = cellSize * 0.6;
           ctx.drawImage(
