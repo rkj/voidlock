@@ -1,6 +1,5 @@
 import { CampaignState, CampaignSoldier } from "../../shared/campaign_types";
 import { ArchetypeLibrary, EquipmentState } from "../../shared/types";
-import { PRNG } from "../../shared/PRNG";
 
 /**
  * Handles roster-related logic for the campaign.
@@ -9,7 +8,7 @@ export class RosterManager {
   /**
    * Generates the initial roster of soldiers for a new campaign.
    */
-  public generateInitialRoster(prng: PRNG): CampaignSoldier[] {
+  public generateInitialRoster(): CampaignSoldier[] {
     const archetypes = ["assault", "medic", "scout", "heavy"];
     const roster: CampaignSoldier[] = [];
 

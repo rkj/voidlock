@@ -584,14 +584,14 @@ export class MapFactory {
             const cell = cells[current.y * width + current.x];
             cell.roomId = roomId;
 
-            const neighbors: { dx: number; dy: number; d: Direction }[] = [
-              { dx: 0, dy: -1, d: "n" },
-              { dx: 1, dy: 0, d: "e" },
-              { dx: 0, dy: 1, d: "s" },
-              { dx: -1, dy: 0, d: "w" },
+            const neighbors: { dx: number; dy: number }[] = [
+              { dx: 0, dy: -1 },
+              { dx: 1, dy: 0 },
+              { dx: 0, dy: 1 },
+              { dx: -1, dy: 0 },
             ];
 
-            for (const { dx, dy, d } of neighbors) {
+            for (const { dx, dy } of neighbors) {
               const nx = current.x + dx;
               const ny = current.y + dy;
               if (nx < 0 || nx >= width || ny < 0 || ny >= height) continue;

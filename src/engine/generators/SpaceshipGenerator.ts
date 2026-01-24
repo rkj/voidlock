@@ -60,7 +60,7 @@ export class SpaceshipGenerator {
 
   public generate(
     spawnPointCount: number = 1,
-    bonusLootCount: number = 0,
+    _bonusLootCount: number = 0,
   ): MapDefinition {
     this.placementValidator.clear();
     this.doors = [];
@@ -576,7 +576,7 @@ export class SpaceshipGenerator {
     this.walls.delete(this.getBoundaryKey(x, y, x2, y2));
   }
 
-  private placeDoor(x: number, y: number, dir: string) {
+  private placeDoor(x: number, y: number, dir: "n" | "e" | "s" | "w") {
     const doorId = `door-${this.doors.length}`;
     let segment: Vector2[];
     let orientation: "Horizontal" | "Vertical";
@@ -605,7 +605,7 @@ export class SpaceshipGenerator {
         { x: x + 1, y },
       ];
     }
-    this.openWall(x, y, dir as any);
+    this.openWall(x, y, dir);
     this.doors.push({
       id: doorId,
       state: "Closed",

@@ -1,6 +1,5 @@
 import { GameState, Unit, UnitState, Door, Command } from "../../shared/types";
 import { GameGrid } from "../GameGrid";
-import { Pathfinder } from "../Pathfinder";
 import { LineOfSight } from "../LineOfSight";
 import { VipAI } from "../ai/VipAI";
 import { PRNG } from "../../shared/PRNG";
@@ -34,11 +33,10 @@ export class UnitAI {
   private vipBehavior: VipBehavior;
 
   constructor(
-    private gameGrid: GameGrid,
-    pathfinder: Pathfinder,
-    private los: LineOfSight,
+    gameGrid: GameGrid,
+    los: LineOfSight,
   ) {
-    const vipAi = new VipAI(gameGrid, pathfinder, los);
+    const vipAi = new VipAI(gameGrid);
     this.vipBehavior = new VipBehavior(vipAi, los);
 
     // Ordered by priority

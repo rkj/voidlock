@@ -56,9 +56,9 @@ export class MetaManager {
     };
 
     try {
-      const data = this.storage.load<any>(STORAGE_KEY);
+      const data = this.storage.load<unknown>(STORAGE_KEY);
       if (data && typeof data === "object") {
-        return this.validateStats(data, defaults);
+        return this.validateStats(data as Record<string, unknown>, defaults);
       }
     } catch (e) {
       console.warn("MetaManager: Failed to load global statistics.", e);
@@ -66,7 +66,10 @@ export class MetaManager {
     return defaults;
   }
 
-  private validateStats(data: any, defaults: MetaStats): MetaStats {
+  private validateStats(
+    data: Record<string, unknown>,
+    defaults: MetaStats,
+  ): MetaStats {
     const result = { ...defaults };
     const numericFields: (keyof MetaStats)[] = [
       "totalCampaignsStarted",
@@ -80,8 +83,9 @@ export class MetaManager {
     ];
 
     for (const field of numericFields) {
-      if (typeof data[field] === "number" && !isNaN(data[field])) {
-        result[field] = data[field];
+      const value = data[field];
+      if (typeof value === "number" && !isNaN(value)) {
+        result[field] = value;
       }
     }
 

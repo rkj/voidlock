@@ -8,7 +8,6 @@ import {
   GameState,
   UnitState,
   Enemy,
-  ArchetypeLibrary,
 } from "../../../src/shared/types";
 
 describe("CombatManager", () => {
@@ -61,14 +60,12 @@ describe("CombatManager", () => {
       enemies: [enemy],
       visibleCells: ["1,1", "2,1"],
     } as unknown as GameState;
-    const visibleCells = new Set(["1,1", "2,1"]);
 
     vi.mocked(mockLos.hasLineOfFire).mockReturnValue(true);
 
     const isAttacking = combatManager.update(
       unit,
       state,
-      16,
       prng,
     );
 
@@ -87,14 +84,12 @@ describe("CombatManager", () => {
       enemies: [enemy],
       visibleCells: ["1,1", "2,1"],
     } as unknown as GameState;
-    const visibleCells = new Set(["1,1", "2,1"]);
 
     vi.mocked(mockLos.hasLineOfFire).mockReturnValue(false);
 
     const isAttacking = combatManager.update(
       unit,
       state,
-      16,
       prng,
     );
 
@@ -114,14 +109,12 @@ describe("CombatManager", () => {
       enemies: [enemy],
       visibleCells: ["1,1", "2,1"],
     } as unknown as GameState;
-    const visibleCells = new Set(["1,1", "2,1"]);
 
     vi.mocked(mockLos.hasLineOfFire).mockReturnValue(true);
 
     const isAttacking = combatManager.update(
       unit,
       state,
-      16,
       prng,
     );
 

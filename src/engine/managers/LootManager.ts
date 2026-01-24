@@ -1,4 +1,4 @@
-import { GameState, LootItem, Vector2 } from "../../shared/types";
+import { GameState, Vector2 } from "../../shared/types";
 
 export class LootManager {
   private lootIdCounter: number = 0;

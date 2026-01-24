@@ -43,7 +43,7 @@ export class UnitManager {
     this.statsManager = new StatsManager();
     this.movementManager = new MovementManager(gameGrid);
     this.combatManager = new CombatManager(los, this.statsManager);
-    this.unitAi = new UnitAI(gameGrid, pathfinder, los);
+    this.unitAi = new UnitAI(gameGrid, los);
     this.commandExecutor = new CommandExecutor(pathfinder);
   }
 
@@ -447,7 +447,6 @@ export class UnitManager {
       const isAttacking = this.combatManager.update(
         unit,
         state,
-        dt,
         prng,
       );
 

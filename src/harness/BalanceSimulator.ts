@@ -52,7 +52,7 @@ async function runSimulation() {
     const state = engine.getState();
     if (state.status === "Won") {
       wins++;
-      const deadCount = state.units.filter((u) => u.state === "Dead").length;
+      const deadCount = state.units.filter((u) => u.state === UnitState.Dead).length;
       totalCasualties += deadCount;
       if (deadCount > 0) winsWithCasualties++;
     } else {

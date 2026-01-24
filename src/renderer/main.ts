@@ -1,5 +1,12 @@
 import { GameApp } from "./app/GameApp";
 
+declare global {
+  interface Window {
+    __VOIDLOCK_PANIC_HANDLER__?: (error: unknown) => void;
+    GameAppInstance?: GameApp;
+  }
+}
+
 // Global Error Logging (Spec 8.12)
 window.addEventListener("error", (event) => {
   const { message, filename, lineno, colno, error } = event;
@@ -10,20 +17,20 @@ window.addEventListener("error", (event) => {
     colno,
     error,
   });
-  if ((window as any).__VOIDLOCK_PANIC_HANDLER__) {
-    (window as any).__VOIDLOCK_PANIC_HANDLER__(error || message);
+  if (window.__VOIDLOCK_PANIC_HANDLER__) {
+    window.__VOIDLOCK_PANIC_HANDLER__(error || message);
   }
 });
 
 window.addEventListener("unhandledrejection", (event) => {
   console.error("Unhandled Promise Rejection (main.ts):", event.reason);
-  if ((window as any).__VOIDLOCK_PANIC_HANDLER__) {
-    (window as any).__VOIDLOCK_PANIC_HANDLER__(event.reason);
+  if (window.__VOIDLOCK_PANIC_HANDLER__) {
+    window.__VOIDLOCK_PANIC_HANDLER__(event.reason);
   }
 });
 
 const app = new GameApp();
-(window as any).GameAppInstance = app;
+window.GameAppInstance = app;
 
 app
   .initialize()

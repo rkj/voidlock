@@ -1,20 +1,18 @@
 import {
   GameState,
   Enemy,
-  Turret,
   Vector2,
 } from "../../shared/types";
 import { LineOfSight } from "../LineOfSight";
 import { PRNG } from "../../shared/PRNG";
 import { CombatManager } from "./CombatManager";
-import { isCellVisible } from "../../shared/VisibilityUtils";
 
 export class TurretManager {
   constructor(private los: LineOfSight) {}
 
   public update(
     state: GameState,
-    dt: number,
+    _scaledDt: number,
     prng: PRNG,
     combatManager: CombatManager,
   ) {
@@ -45,7 +43,7 @@ export class TurretManager {
 
       if (targetEnemy) {
         combatManager.handleAttack(
-          turret as any, // Turret has the necessary fields: hp, pos, lastAttackTime, etc.
+          turret,
           targetEnemy,
           {
             damage: turret.damage,

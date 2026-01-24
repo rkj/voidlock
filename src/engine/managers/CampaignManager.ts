@@ -102,39 +102,38 @@ export class CampaignManager {
     mapGeneratorType?: MapGeneratorType,
     mapGrowthRate?: number,
   ): void {
-    const prng = new PRNG(seed);
-
     const rules = this.getRulesForDifficulty(difficulty);
 
     // Handle overrides
-    if (typeof overrides === "object" && overrides !== null) {
-      if (overrides.deathRule) rules.deathRule = overrides.deathRule;
-      if (overrides.allowTacticalPause !== undefined)
-        rules.allowTacticalPause = overrides.allowTacticalPause;
-      if (overrides.mapGeneratorType)
-        rules.mapGeneratorType = overrides.mapGeneratorType;
-      if (overrides.scaling !== undefined)
-        rules.difficultyScaling = overrides.scaling;
-      if (overrides.scarcity !== undefined)
-        rules.resourceScarcity = overrides.scarcity;
-      if (overrides.startingScrap !== undefined)
-        rules.startingScrap = overrides.startingScrap;
-      if (overrides.mapGrowthRate !== undefined)
-        rules.mapGrowthRate = overrides.mapGrowthRate;
-      if (overrides.baseEnemyCount !== undefined)
-        rules.baseEnemyCount = overrides.baseEnemyCount;
-      if (overrides.enemyGrowthPerMission !== undefined)
-        rules.enemyGrowthPerMission = overrides.enemyGrowthPerMission;
-      if (overrides.economyMode) rules.economyMode = overrides.economyMode;
-      if (overrides.themeId) rules.themeId = overrides.themeId;
-      if (overrides.unitStyle) rules.unitStyle = overrides.unitStyle;
-      if (overrides.customSeed !== undefined) {
-        rules.customSeed = overrides.customSeed;
+    const currentOverrides = overrides;
+    if (typeof currentOverrides === "object" && currentOverrides !== null) {
+      if (currentOverrides.deathRule) rules.deathRule = currentOverrides.deathRule;
+      if (currentOverrides.allowTacticalPause !== undefined)
+        rules.allowTacticalPause = currentOverrides.allowTacticalPause;
+      if (currentOverrides.mapGeneratorType)
+        rules.mapGeneratorType = currentOverrides.mapGeneratorType;
+      if (currentOverrides.scaling !== undefined)
+        rules.difficultyScaling = currentOverrides.scaling;
+      if (currentOverrides.scarcity !== undefined)
+        rules.resourceScarcity = currentOverrides.scarcity;
+      if (currentOverrides.startingScrap !== undefined)
+        rules.startingScrap = currentOverrides.startingScrap;
+      if (currentOverrides.mapGrowthRate !== undefined)
+        rules.mapGrowthRate = currentOverrides.mapGrowthRate;
+      if (currentOverrides.baseEnemyCount !== undefined)
+        rules.baseEnemyCount = currentOverrides.baseEnemyCount;
+      if (currentOverrides.enemyGrowthPerMission !== undefined)
+        rules.enemyGrowthPerMission = currentOverrides.enemyGrowthPerMission;
+      if (currentOverrides.economyMode) rules.economyMode = currentOverrides.economyMode;
+      if (currentOverrides.themeId) rules.themeId = currentOverrides.themeId;
+      if (currentOverrides.unitStyle) rules.unitStyle = currentOverrides.unitStyle;
+      if (currentOverrides.customSeed !== undefined) {
+        rules.customSeed = currentOverrides.customSeed;
       }
     } else {
       // Legacy argument mapping
-      if (overrides !== undefined) {
-        rules.allowTacticalPause = overrides;
+      if (typeof currentOverrides === "boolean") {
+        rules.allowTacticalPause = currentOverrides;
       }
       if (themeId) rules.themeId = themeId;
       if (unitStyle) rules.unitStyle = unitStyle;
@@ -144,7 +143,7 @@ export class CampaignManager {
 
     const effectiveSeed = rules.customSeed ?? seed;
     const nodes = this.sectorMapGenerator.generate(effectiveSeed, rules);
-    const roster = this.rosterManager.generateInitialRoster(prng);
+    const roster = this.rosterManager.generateInitialRoster();
 
     this.state = {
       version: "0.106.17", // Current project version

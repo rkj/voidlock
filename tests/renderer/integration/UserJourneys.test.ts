@@ -2,6 +2,15 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import {
+  GameState,
+  MapGeneratorType,
+  UnitState,
+  AIProfile,
+  EngineMode,
+  MissionType,
+} from "@src/shared/types";
+import { CampaignState } from "@src/shared/campaign_types";
 
 // Mock dependencies before importing main.ts
 vi.mock("@package.json", () => ({
@@ -9,7 +18,7 @@ vi.mock("@package.json", () => ({
 }));
 
 // Trigger for GameClient callbacks
-let stateUpdateCallback: ((state: any) => void) | null = null;
+let stateUpdateCallback: ((state: GameState) => void) | null = null;
 
 const mockGameClient = {
   init: vi.fn(),
@@ -65,7 +74,7 @@ vi.mock("@src/renderer/ui/ModalService", () => ({
 
 // Mock CampaignManager
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
-let currentCampaignState: any = null;
+let currentCampaignState: CampaignState | null = null;
 
 vi.mock("@src/renderer/campaign/CampaignManager", () => {
   return {
@@ -78,15 +87,19 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
         startNewCampaign: vi.fn((seed, diff, pause, theme) => {
           currentCampaignState = {
             status: "Active",
+            seed,
+            version: "1.0.0",
             nodes: [
               {
                 id: "node-1",
                 type: "Combat",
                 status: "Accessible",
+                rank: 0,
                 difficulty: 1,
                 mapSeed: 123,
                 connections: [],
                 position: { x: 0, y: 0 },
+                bonusLootCount: 0,
               },
             ],
             roster: [
@@ -99,12 +112,15 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
                 hp: 100,
                 maxHp: 100,
                 xp: 0,
+                kills: 0,
+                missions: 0,
+                recoveryTime: 0,
                 soldierAim: 80,
                 equipment: {
                   rightHand: "pulse_rifle",
-                  leftHand: null,
+                  leftHand: undefined,
                   body: "basic_armor",
-                  feet: null,
+                  feet: undefined,
                 },
               },
             ],
@@ -115,16 +131,21 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
             history: [],
             unlockedArchetypes: ["scout", "heavy", "medic", "demolition"],
             rules: {
-              allowTacticalPause: pause,
-              themeId: theme,
-              mode: "Preset",
+              mode: "Custom",
               difficulty: diff,
               deathRule: "Simulation",
-              mapGeneratorType: "DenseShip",
+              allowTacticalPause: pause,
+              mapGeneratorType: MapGeneratorType.DenseShip,
               difficultyScaling: 1,
               resourceScarcity: 1,
+              startingScrap: 100,
+              mapGrowthRate: 1,
+              baseEnemyCount: 3,
+              enemyGrowthPerMission: 1,
+              economyMode: "Open",
+              themeId: theme,
             },
-          };
+          } as CampaignState;
         }),
         reset: vi.fn(() => {
           currentCampaignState = null;
@@ -134,6 +155,7 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
         }),
         healSoldier: vi.fn(),
         recruitSoldier: vi.fn((arch, name) => {
+          if (!currentCampaignState) return "";
           currentCampaignState.roster.push({
             id: "s2",
             name: name,
@@ -143,10 +165,14 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
             hp: 100,
             maxHp: 100,
             xp: 0,
+            kills: 0,
+            missions: 0,
+            recoveryTime: 0,
             soldierAim: 70,
             equipment: {},
           });
           currentCampaignState.scrap -= 100;
+          return "s2";
         }),
         assignEquipment: vi.fn(),
       }),
@@ -173,7 +199,7 @@ describe("Comprehensive User Journeys", () => {
       lineTo: vi.fn(),
       stroke: vi.fn(),
       setLineDash: vi.fn(),
-    }) as any;
+    }) as unknown as any;
 
     // Set up DOM
     document.body.innerHTML = `
@@ -399,36 +425,71 @@ describe("Comprehensive User Journeys", () => {
 
     // Simulate campaign state change to Defeat in the mock when mission is lost
     // In real code, CampaignManager.processMissionResult would handle this.
-    const originalProcess = CampaignManager.getInstance().processMissionResult;
     (
-      CampaignManager.getInstance().processMissionResult as any
+      CampaignManager.getInstance().processMissionResult as unknown as {
+        mockImplementation: (fn: () => void) => void;
+      }
     ).mockImplementation(() => {
-      currentCampaignState.status = "Defeat";
+      if (currentCampaignState) {
+        currentCampaignState.status = "Defeat";
+      }
     });
 
     stateUpdateCallback!({
       status: "Lost",
       t: 20,
-      stats: { aliensKilled: 1, scrapGained: 10, threatLevel: 50 },
+      seed: 123,
+      missionType: MissionType.Default,
+      stats: {
+        aliensKilled: 1,
+        scrapGained: 10,
+        threatLevel: 50,
+        elitesKilled: 0,
+        casualties: 1,
+      },
       units: [
         {
           id: "s1",
           hp: 0,
           maxHp: 100,
           kills: 0,
-          state: 2,
+          state: UnitState.Dead,
           pos: { x: 0, y: 0 },
-          stats: { speed: 20 },
-        },
+          stats: {
+            speed: 20,
+            damage: 10,
+            fireRate: 500,
+            accuracy: 80,
+            soldierAim: 80,
+            attackRange: 5,
+            equipmentAccuracyBonus: 0,
+          },
+          archetypeId: "scout",
+          damageDealt: 0,
+          objectivesCompleted: 0,
+          commandQueue: [],
+          aiProfile: AIProfile.RETREAT,
+        } as any,
       ],
       objectives: [],
-      settings: { debugOverlayEnabled: false, timeScale: 1.0, isPaused: false },
+      settings: {
+        debugOverlayEnabled: false,
+        timeScale: 1.0,
+        isPaused: false,
+        mode: EngineMode.Simulation,
+        losOverlayEnabled: false,
+        isSlowMotion: false,
+        allowTacticalPause: true,
+      },
       map: { width: 10, height: 10, cells: [] },
       enemies: [],
       visibleCells: [],
       discoveredCells: [],
       loot: [],
-    });
+      mines: [],
+      turrets: [],
+      squadInventory: {},
+    } as GameState);
 
     expect(document.getElementById("screen-debrief")?.style.display).toBe(
       "flex",

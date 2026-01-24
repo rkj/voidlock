@@ -1,11 +1,11 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import { CoreEngine } from "@src/engine/CoreEngine";
 import {
   CommandType,
-  GameState,
   MapDefinition,
   CellType,
-  EngineMode,
+  GameState,
+  Command,
 } from "@src/shared/types";
 
 describe("Global Squad Inventory", () => {
@@ -38,10 +38,10 @@ describe("Global Squad Inventory", () => {
       false,
     );
 
-    const units = (engine as any).state.units;
+    const units = (engine as unknown as { state: GameState }).state.units;
     units[0].hp = 50;
 
-    const cmd: any = {
+    const cmd: Command = {
       type: CommandType.USE_ITEM,
       unitIds: [units[0].id],
       itemId: "medkit",

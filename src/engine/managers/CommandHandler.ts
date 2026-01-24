@@ -2,9 +2,7 @@ import {
   GameState,
   Command,
   CommandType,
-  Unit,
   ItemLibrary,
-  UseItemCommand,
 } from "../../shared/types";
 import { UnitManager } from "./UnitManager";
 import { Director } from "../Director";
@@ -37,7 +35,7 @@ export class CommandHandler {
 
       const count = state.squadInventory[cmd.itemId] || 0;
       if (count > 0) {
-        cmd.unitIds.forEach((id) => {
+        for (const id of cmd.unitIds) {
           const unit = state.units.find((u) => u.id === id);
           if (unit) {
             if (cmd.queue) {
@@ -53,7 +51,7 @@ export class CommandHandler {
               );
             }
           }
-        });
+        }
       }
       return;
     }
@@ -69,7 +67,9 @@ export class CommandHandler {
     }
 
     if (cmd.type === CommandType.DEBUG_FORCE_WIN) {
-      state.objectives.forEach((o) => (o.state = "Completed"));
+      for (const o of state.objectives) {
+        o.state = "Completed";
+      }
       state.status = "Won";
       return;
     }
@@ -90,7 +90,7 @@ export class CommandHandler {
       cmd.type === CommandType.ESCORT_UNIT ||
       cmd.type === CommandType.EXTRACT
     ) {
-      cmd.unitIds.forEach((id) => {
+      for (const id of cmd.unitIds) {
         const unit = state.units.find((u) => u.id === id);
         if (unit) {
           if (cmd.queue) {
@@ -106,7 +106,7 @@ export class CommandHandler {
             );
           }
         }
-      });
+      }
     }
   }
 }

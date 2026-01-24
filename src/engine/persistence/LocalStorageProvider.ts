@@ -4,7 +4,7 @@ import { StorageProvider } from "./StorageProvider";
  * StorageProvider implementation using browser's LocalStorage.
  */
 export class LocalStorageProvider implements StorageProvider {
-  public save(key: string, data: any): void {
+  public save(key: string, data: unknown): void {
     try {
       const json = JSON.stringify(data);
       localStorage.setItem(key, json);

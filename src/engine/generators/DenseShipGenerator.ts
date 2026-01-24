@@ -55,13 +55,13 @@ export class DenseShipGenerator {
 
   public generate(
     spawnPointCount: number = 2,
-    bonusLootCount: number = 0,
+    _bonusLootCount: number = 0,
   ): MapDefinition {
     this.placementValidator.clear();
     this.reset();
 
     // 1. Build Frame (Corridors)
-    const corridors = this.buildFrame();
+    this.buildFrame();
 
     // 2. Build Rooms (Depth 1+)
     let placed = true;
@@ -71,7 +71,7 @@ export class DenseShipGenerator {
 
     // 3. Finalize Map
     this.finalizeCells();
-    this.placeEntities(corridors, spawnPointCount);
+    this.placeEntities(spawnPointCount);
 
     const mapWalls: WallDefinition[] = [];
     this.walls.forEach((key) => {
@@ -366,7 +366,7 @@ export class DenseShipGenerator {
     }
   }
 
-  private placeEntities(corridors: Vector2[], spawnPointCount: number) {
+  private placeEntities(spawnPointCount: number) {
     let floors = this.cells.filter((c) => c.type === CellType.Floor);
     if (floors.length < 3) {
       const points = [

@@ -2,7 +2,7 @@ import { CoreEngine } from "./CoreEngine";
 import { WorkerMessage, MainMessage, EngineMode } from "../shared/types";
 
 let engine: CoreEngine | null = null;
-let loopId: any = null;
+let loopId: ReturnType<typeof setInterval> | null = null;
 
 const TICK_RATE = 16; // Fixed 16ms (~60Hz) for smooth state updates
 let timeScale = 1.0; // Default 1.0x speed
@@ -57,8 +57,10 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
           state.status !== "Playing" &&
           state.settings.mode !== EngineMode.Replay
         ) {
-          clearInterval(loopId);
-          loopId = null;
+          if (loopId) {
+            clearInterval(loopId);
+            loopId = null;
+          }
           // We keep engine for QUERY_STATE if needed, or null it?
           // For now, keep it so final state can be inspected if needed.
         }

@@ -4,7 +4,7 @@ import {
   MissionType,
   GameState,
   UnitState,
-  Objective,
+  Cell,
   CellType,
   EnemyType,
 } from "@src/shared/types";
@@ -34,7 +34,7 @@ describe("MissionManager", () => {
       const map = {
         width: 20,
         height: 20,
-        cells: [] as any[],
+        cells: [] as Cell[],
         extraction: { x: 0, y: 0 },
       };
       // Fill map with floors
@@ -58,7 +58,7 @@ describe("MissionManager", () => {
       const map = {
         width: 20,
         height: 20,
-        cells: [] as any[],
+        cells: [] as Cell[],
         extraction: { x: 0, y: 0 },
       };
       // Fill map with floors and rooms

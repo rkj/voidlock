@@ -16,20 +16,20 @@ export interface ModalButton {
 }
 
 export interface ModalInstance {
-  close: (value?: any) => void;
+  close: (value?: unknown) => void;
 }
 
 export class ModalService {
   private container: HTMLElement;
   private queue: Array<{
     options: ModalOptions;
-    resolve: (value: any) => void;
+    resolve: (value: unknown) => void;
   }> = [];
   private activeModal: {
     options: ModalOptions;
     element: HTMLElement;
     backdrop: HTMLElement;
-    resolve: (value: any) => void;
+    resolve: (value: unknown) => void;
     instance: ModalInstance;
   } | null = null;
 
@@ -116,9 +116,12 @@ export class ModalService {
     });
   }
 
-  public show(options: ModalOptions): Promise<any> {
+  public show<T>(options: ModalOptions): Promise<T> {
     return new Promise((resolve) => {
-      this.queue.push({ options, resolve });
+      this.queue.push({
+        options,
+        resolve: resolve as (value: unknown) => void,
+      });
       this.processQueue();
     });
   }
@@ -130,7 +133,7 @@ export class ModalService {
     this.renderModal(options, resolve);
   }
 
-  private renderModal(options: ModalOptions, resolve: (value: any) => void) {
+  private renderModal(options: ModalOptions, resolve: (value: unknown) => void) {
     const backdrop = document.createElement("div");
     backdrop.className = "modal-backdrop";
     backdrop.style.position = "fixed";
@@ -171,7 +174,7 @@ export class ModalService {
     }
 
     const instance: ModalInstance = {
-      close: (value?: any) => {
+      close: (value?: unknown) => {
         if (this.activeModal && this.activeModal.element === modal) {
           this.container.removeChild(backdrop);
           const currentResolve = this.activeModal.resolve;

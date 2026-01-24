@@ -1,6 +1,6 @@
 import { RenderLayer } from "./RenderLayer";
 import { SharedRendererState } from "./SharedRendererState";
-import { GameState, UnitState, UnitStyle, Vector2 } from "@src/shared/types";
+import { GameState, UnitState, UnitStyle, Vector2, Unit } from "@src/shared/types";
 import { ThemeManager } from "@src/renderer/ThemeManager";
 import { AssetManager } from "./AssetManager";
 import { isCellVisible } from "@src/shared/VisibilityUtils";
@@ -275,8 +275,9 @@ export class UnitLayer implements RenderLayer {
     ctx: CanvasRenderingContext2D,
     x: number,
     y: number,
-    unit: any,
+    unit: Unit,
   ) {
+    if (!unit.targetPos) return;
     const cellSize = this.sharedState.cellSize;
     const jitter = unit.visualJitter || { x: 0, y: 0 };
     const pathPoints: Vector2[] = [unit.targetPos];

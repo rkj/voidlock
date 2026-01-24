@@ -4,7 +4,9 @@ import {
   CommandType,
   MapDefinition,
   CellType,
-  UnitState,
+  Command,
+  Enemy,
+  EnemyType,
 } from "@src/shared/types";
 
 describe("Item Targeting (voidlock-awkp)", () => {
@@ -36,7 +38,7 @@ describe("Item Targeting (voidlock-awkp)", () => {
     );
 
     // Unit 1 uses medkit on Unit 2
-    const cmd: any = {
+    const cmd: Command = {
       type: CommandType.USE_ITEM,
       unitIds: ["unit-1"],
       itemId: "medkit",
@@ -78,16 +80,17 @@ describe("Item Targeting (voidlock-awkp)", () => {
       pos: { x: 3.5, y: 3.5 },
       hp: 100,
       maxHp: 100,
-      type: "Warrior-Drone",
+      type: EnemyType.WarriorDrone,
       damage: 10,
       fireRate: 1000,
       accuracy: 50,
       attackRange: 1,
       speed: 20,
-    } as any);
+      difficulty: 1,
+    } as unknown as Enemy);
 
     // Unit 1 uses grenade on enemy-1
-    const cmd: any = {
+    const cmd: Command = {
       type: CommandType.USE_ITEM,
       unitIds: ["unit-1"],
       itemId: "frag_grenade",
