@@ -1,7 +1,4 @@
 import {
-  BoundaryDefinition,
-  BoundaryType,
-  CellType,
   Command,
   CommandType,
   EngagementPolicy,
@@ -22,7 +19,6 @@ import { RoomDiscoveryManager } from "./controllers/RoomDiscoveryManager";
 import { CommandBuilder } from "./controllers/CommandBuilder";
 import {
   TargetOverlayGenerator,
-  OverlayType,
 } from "./controllers/TargetOverlayGenerator";
 import { isCellVisible } from "@src/shared/VisibilityUtils";
 
@@ -340,7 +336,7 @@ export class MenuController {
     }
   }
 
-  private handleModeSelect(key: string, gameState: GameState) {
+  private handleModeSelect(key: string, _gameState: GameState) {
     const config = MENU_CONFIG.MODE_SELECT;
     const option = config.options.find((o) => o.key.toString() === key);
     if (option && option.type === "MODE") {
@@ -349,7 +345,7 @@ export class MenuController {
     }
   }
 
-  private handleTargetSelect(key: string, gameState: GameState) {
+  private handleTargetSelect(key: string, _gameState: GameState) {
     const option = this.selection.overlayOptions.find((o) => o.key === key);
     if (option && option.pos) {
       this.selection.pendingTargetLocation = option.pos;
