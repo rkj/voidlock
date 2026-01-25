@@ -19,8 +19,8 @@ Use these scripts from `package.json`:
 
 - **Development Server:** `npm run dev` (Hosted on local network)
 - **Build:** `npm run build` (Runs `tsc` then `vite build`)
-- **Type Check (Lint):** `npm run lint` (`tsc --noEmit`)
-- **Run Tests:** `npm run test` (Runs Vitest in "run" mode)
+- **Type Check (Lint):** `npm run lint <FILE_PATH>` (Targeted) or `npm run lint` (Full)
+- **Run Tests:** `npm run test <FILE_PATH>` (Targeted) or `npm run test` (All)
 - **Run E2E Tests:** `npm run test:e2e` (Requires visual environment)
 - **Asset Processing:** `npm run process-assets` (Optimizes raw assets)
 - **Balance Simulator:** `npm run balance-sim` (Runs headless simulation stats)
@@ -92,8 +92,8 @@ To prevent technical debt accumulation, all agents and contributors MUST adhere 
 
 After **EVERY** code modification, you MUST perform the following checks before marking a task complete:
 
-1.  **Type Check:** `npm run lint` (Ensures 0 TypeScript errors).
-2.  **Unit Tests:** `npm run test` (Ensures logic correctness).
+1.  **Type Check:** `npm run lint <FILE_PATH>` (Ensures 0 TypeScript errors in modified files).
+2.  **Unit Tests:** `npm run test <FILE_PATH>` (Ensures logic correctness).
 3.  **Self-Correction:** If errors occur, fix them immediately. Do not leave "cleanup" for later.
 
 ## Sub-Contexts

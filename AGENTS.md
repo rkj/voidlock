@@ -16,6 +16,7 @@ You are an AI contributor agent working on the Voidlock project. Your goal is to
 1. **Implement**: Modify code following the project's established conventions.
 1. **Update Documentation (MANDATORY)**: If you add new files or change significant APIs, you MUST update the `GEMINI.md` file in the relevant directory. This is critical for maintaining codebase navigability.
 1. **Verify**: All changes MUST be verified with `npx vitest run`.
+   - **Targeted Testing**: Use `npx vitest run <PATH_TO_TEST>` to test only relevant files.
    - **🚨 REGRESSION RULE**: If browser validation discovers a problem that automated tests missed, you MUST stop, write a failing unit/integration test that reproduces the bug, and THEN fix the code.
 1. **Beads Context**: You may read task details using `bd show <id> --json` and you are **FORBIDDEN** from using `bd list` using state-changing commands (`update`, `close`, `create`). The Manager Agent handles all Beads status updates.
 
@@ -90,6 +91,7 @@ You are an AI contributor agent working on the Voidlock project. Your goal is to
 When finishing a feature or task, you MUST perform the following steps in order:
 
 1. **Strict Verification**: Execute `npx vitest run`. All tests MUST pass. A task is not complete if tests are failing.
+   - Use `npx vitest run <PATH_TO_TEST>` for faster feedback on specific files.
 1. **Visual Verification**: For any UI or rendering changes, navigate to the game URL, take a screenshot, and **carefully review it** to ensure the visual state matches expectations.
 1. **Versioning (Strict SemVer)**:
    - Check the current version in `package.json`.
