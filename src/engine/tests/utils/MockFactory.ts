@@ -1,11 +1,5 @@
-import {
-  Unit,
-  UnitState,
-  Enemy,
-  EnemyType,
-  GameState,
-  EngineMode,
-} from "../../../shared/types";
+import type { Unit, Enemy, GameState } from "@src/shared/types";
+import { UnitState, EnemyType, EngineMode } from "@src/shared/types";
 
 export function createMockUnit(overrides: Partial<Unit> = {}): Unit {
   return {
