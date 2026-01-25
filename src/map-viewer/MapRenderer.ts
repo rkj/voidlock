@@ -67,7 +67,24 @@ export class MapRenderer {
     // Doors
     map.doors?.forEach((door) => {
       const state = door.state || "Closed";
-      if (state === "Open") return; // Simplified: don't draw open door frames for now, matching canvas logic mostly
+      const doorInset = this.cellSize / 8;
+
+      if (state === "Open") {
+        const strutColor = this.theme.getColor("--color-border-strong");
+        door.segment.forEach((segCell) => {
+          const x = segCell.x * this.cellSize;
+          const y = segCell.y * this.cellSize;
+          const s = this.cellSize;
+          if (door.orientation === "Vertical") {
+            svg += `  <rect x="${x + s - 4}" y="${y}" width="4" height="${doorInset}" fill="${strutColor}" />\n`;
+            svg += `  <rect x="${x + s - 4}" y="${y + s - doorInset}" width="4" height="${doorInset}" fill="${strutColor}" />\n`;
+          } else {
+            svg += `  <rect x="${x}" y="${y + s - 4}" width="${doorInset}" height="4" fill="${strutColor}" />\n`;
+            svg += `  <rect x="${x + s - doorInset}" y="${y + s - 4}" width="${doorInset}" height="4" fill="${strutColor}" />\n`;
+          }
+        });
+        return;
+      }
 
       let doorColor = this.theme.getColor("--color-door-closed");
       let doorStroke = this.theme.getColor("--color-door-dim");
@@ -81,7 +98,6 @@ export class MapRenderer {
       }
 
       const doorThickness = this.cellSize / 8;
-      const doorInset = this.cellSize / 8;
 
       door.segment.forEach((segCell) => {
         const x = segCell.x * this.cellSize;
@@ -220,16 +236,30 @@ export class MapRenderer {
 
   private renderDoors(map: MapDefinition) {
     map.doors?.forEach((door) => {
-      let doorColor: string = this.theme.getColor("--color-text-dim");
-      let doorStroke: string = this.theme.getColor("--color-text-muted");
-
-      // Default to Closed if state is somehow missing or simplified
       const state = door.state || "Closed";
 
-      if (state === "Closed") {
-        doorColor = this.theme.getColor("--color-door-closed");
-        doorStroke = this.theme.getColor("--color-door-dim");
-      } else if (state === "Locked") {
+      if (state === "Open") {
+        const doorInset = this.cellSize / 8;
+        this.ctx.fillStyle = this.theme.getColor("--color-border-strong");
+        door.segment.forEach((segCell) => {
+          const x = segCell.x * this.cellSize;
+          const y = segCell.y * this.cellSize;
+          const s = this.cellSize;
+          if (door.orientation === "Vertical") {
+            this.ctx.fillRect(x + s - 4, y, 4, doorInset);
+            this.ctx.fillRect(x + s - 4, y + s - doorInset, 4, doorInset);
+          } else {
+            this.ctx.fillRect(x, y + s - 4, doorInset, 4);
+            this.ctx.fillRect(x + s - doorInset, y + s - 4, doorInset, 4);
+          }
+        });
+        return;
+      }
+
+      let doorColor = this.theme.getColor("--color-door-closed");
+      let doorStroke = this.theme.getColor("--color-door-dim");
+
+      if (state === "Locked") {
         doorColor = this.theme.getColor("--color-door-locked");
         doorStroke = this.theme.getColor("--color-danger");
       } else if (state === "Destroyed") {
@@ -245,48 +275,33 @@ export class MapRenderer {
         const y = segCell.y * this.cellSize;
         const s = this.cellSize;
 
-        let drawX = x,
-          drawY = y,
-          drawWidth = s,
-          drawHeight = s;
+        let drawX, drawY, drawWidth, drawHeight;
 
-        if (state === "Open") {
-          this.ctx.fillStyle = this.theme.getColor("--color-border-strong");
-          if (door.orientation === "Vertical") {
-            this.ctx.fillRect(x + s - 4, y, 4, doorInset);
-            this.ctx.fillRect(x + s - 4, y + s - doorInset, 4, doorInset);
-          } else {
-            this.ctx.fillRect(x, y + s - 4, doorInset, 4);
-            this.ctx.fillRect(x + s - doorInset, y + s - 4, doorInset, 4);
-          }
+        if (door.orientation === "Vertical") {
+          drawX = x + s - doorThickness / 2;
+          drawY = y + doorInset;
+          drawWidth = doorThickness;
+          drawHeight = s - doorInset * 2;
         } else {
-          this.ctx.fillStyle = doorColor;
-          this.ctx.strokeStyle = doorStroke;
-          this.ctx.lineWidth = 2;
+          drawX = x + doorInset;
+          drawY = y + s - doorThickness / 2;
+          drawWidth = s - doorInset * 2;
+          drawHeight = doorThickness;
+        }
 
-          if (door.orientation === "Vertical") {
-            drawX = x + s - doorThickness / 2;
-            drawY = y + doorInset;
-            drawWidth = doorThickness;
-            drawHeight = s - doorInset * 2;
-          } else {
-            drawX = x + doorInset;
-            drawY = y + s - doorThickness / 2;
-            drawWidth = s - doorInset * 2;
-            drawHeight = doorThickness;
-          }
+        this.ctx.fillStyle = doorColor;
+        this.ctx.strokeStyle = doorStroke;
+        this.ctx.lineWidth = 2;
+        this.ctx.fillRect(drawX, drawY, drawWidth, drawHeight);
+        this.ctx.strokeRect(drawX, drawY, drawWidth, drawHeight);
 
-          this.ctx.fillRect(drawX, drawY, drawWidth, drawHeight);
-          this.ctx.strokeRect(drawX, drawY, drawWidth, drawHeight);
-
-          if (state === "Locked") {
-            this.ctx.beginPath();
-            this.ctx.moveTo(drawX, drawY);
-            this.ctx.lineTo(drawX + drawWidth, drawY + drawHeight);
-            this.ctx.moveTo(drawX + drawWidth, drawY);
-            this.ctx.lineTo(drawX, drawY + drawHeight);
-            this.ctx.stroke();
-          }
+        if (state === "Locked") {
+          this.ctx.beginPath();
+          this.ctx.moveTo(drawX, drawY);
+          this.ctx.lineTo(drawX + drawWidth, drawY + drawHeight);
+          this.ctx.moveTo(drawX + drawWidth, drawY);
+          this.ctx.lineTo(drawX, drawY + drawHeight);
+          this.ctx.stroke();
         }
       });
     });
