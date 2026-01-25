@@ -9,13 +9,13 @@ import { AIContext } from "../../managers/UnitAI";
 import { PRNG } from "../../../shared/PRNG";
 import { Behavior } from "./Behavior";
 import {
-  getDistance,
   isMapFullyDiscovered,
   findClosestUndiscoveredCell,
 } from "./BehaviorUtils";
 import { GameGrid } from "../../GameGrid";
 import { isCellDiscovered } from "../../../shared/VisibilityUtils";
 import { IDirector } from "../../interfaces/IDirector";
+import { MathUtils } from "../../../shared/utils/MathUtils";
 
 export class ExplorationBehavior implements Behavior {
   constructor(private gameGrid: GameGrid) {}
@@ -74,11 +74,11 @@ export class ExplorationBehavior implements Behavior {
           if (isDifferent) {
             let switchTarget = !unit.explorationTarget;
             if (unit.explorationTarget) {
-              const oldDist = getDistance(unit.pos, {
+              const oldDist = MathUtils.getDistance(unit.pos, {
                 x: unit.explorationTarget.x + 0.5,
                 y: unit.explorationTarget.y + 0.5,
               });
-              const newDist = getDistance(unit.pos, {
+              const newDist = MathUtils.getDistance(unit.pos, {
                 x: newTarget.x + 0.5,
                 y: newTarget.y + 0.5,
               });

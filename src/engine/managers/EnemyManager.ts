@@ -12,6 +12,7 @@ import { IEnemyAI, SwarmMeleeAI } from "../ai/EnemyAI";
 import { RangedKiteAI } from "../ai/RangedKiteAI";
 import { CombatManager } from "./CombatManager";
 import { SPEED_NORMALIZATION_CONST } from "../Constants";
+import { MathUtils } from "../../shared/utils/MathUtils";
 
 const EPSILON = 0.05;
 
@@ -91,7 +92,7 @@ export class EnemyManager {
           unit.hp > 0 &&
           unit.state !== "Extracted" &&
           unit.state !== "Dead" &&
-          this.getDistance(enemy.pos, unit.pos) <= enemy.attackRange + 0.5,
+          MathUtils.getDistance(enemy.pos, unit.pos) <= enemy.attackRange + 0.5,
       );
 
       const unitsInSameCell = state.units.filter(
@@ -142,9 +143,7 @@ export class EnemyManager {
           enemy.targetPos = undefined;
           enemy.path = [];
         } else {
-          const dx = enemy.targetPos.x - enemy.pos.x;
-          const dy = enemy.targetPos.y - enemy.pos.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
+          const dist = MathUtils.getDistance(enemy.pos, enemy.targetPos);
 
           const moveDist =
             ((enemy.speed / SPEED_NORMALIZATION_CONST) * dt) / 1000;
@@ -161,8 +160,8 @@ export class EnemyManager {
               enemy.targetPos = undefined;
             }
           } else {
-            enemy.pos.x += (dx / dist) * moveDist;
-            enemy.pos.y += (dy / dist) * moveDist;
+            enemy.pos.x += ((enemy.targetPos.x - enemy.pos.x) / dist) * moveDist;
+            enemy.pos.y += ((enemy.targetPos.y - enemy.pos.y) / dist) * moveDist;
           }
         }
       }
@@ -180,14 +179,5 @@ export class EnemyManager {
       }
     });
     state.enemies = state.enemies.filter((enemy) => enemy.hp > 0);
-  }
-
-  private getDistance(
-    pos1: { x: number; y: number },
-    pos2: { x: number; y: number },
-  ): number {
-    const dx = pos1.x - pos2.x;
-    const dy = pos1.y - pos2.y;
-    return Math.sqrt(dx * dx + dy * dy);
   }
 }

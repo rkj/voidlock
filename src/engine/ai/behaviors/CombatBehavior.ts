@@ -8,10 +8,10 @@ import {
 import { AIContext } from "../../managers/UnitAI";
 import { PRNG } from "../../../shared/PRNG";
 import { Behavior } from "./Behavior";
-import { getDistance } from "./BehaviorUtils";
 import { GameGrid } from "../../GameGrid";
 import { isCellVisible } from "../../../shared/VisibilityUtils";
 import { IDirector } from "../../interfaces/IDirector";
+import { MathUtils } from "../../../shared/utils/MathUtils";
 
 export class CombatBehavior implements Behavior {
   constructor(private gameGrid: GameGrid) {}
@@ -43,7 +43,7 @@ export class CombatBehavior implements Behavior {
     const threats = visibleEnemies
       .map((enemy) => ({
         enemy,
-        distance: getDistance(unit.pos, enemy.pos),
+        distance: MathUtils.getDistance(unit.pos, enemy.pos),
       }))
       .sort((a, b) => 1 / (b.distance + 1) - 1 / (a.distance + 1));
 
@@ -100,7 +100,7 @@ export class CombatBehavior implements Behavior {
           const bestRetreat = neighbors
             .map((n) => ({
               ...n,
-              dist: getDistance(
+              dist: MathUtils.getDistance(
                 { x: n.x + 0.5, y: n.y + 0.5 },
                 primaryThreat.pos,
               ),

@@ -21,6 +21,7 @@ import { UnitAI, AIContext } from "./UnitAI";
 import { CommandExecutor } from "./CommandExecutor";
 import { isCellVisible } from "../../shared/VisibilityUtils";
 import { IDirector } from "../interfaces/IDirector";
+import { MathUtils } from "../../shared/utils/MathUtils";
 
 export class UnitManager {
   private totalFloorCells: number;
@@ -108,18 +109,24 @@ export class UnitManager {
       // Determine target's heading
       let heading = { x: 0, y: -1 }; // Default North
       if (targetUnit.targetPos) {
-        const dx = targetUnit.targetPos.x - targetUnit.pos.x;
-        const dy = targetUnit.targetPos.y - targetUnit.pos.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
+        const dist = MathUtils.getDistance(targetUnit.pos, targetUnit.targetPos);
         if (dist > 0.1) {
-          heading = { x: dx / dist, y: dy / dist };
+          heading = {
+            x: (targetUnit.targetPos.x - targetUnit.pos.x) / dist,
+            y: (targetUnit.targetPos.y - targetUnit.pos.y) / dist,
+          };
         }
       } else if (targetUnit.path && targetUnit.path.length > 0) {
-        const dx = targetUnit.path[0].x + 0.5 - targetUnit.pos.x;
-        const dy = targetUnit.path[0].y + 0.5 - targetUnit.pos.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
+        const targetPoint = {
+          x: targetUnit.path[0].x + 0.5,
+          y: targetUnit.path[0].y + 0.5,
+        };
+        const dist = MathUtils.getDistance(targetUnit.pos, targetPoint);
         if (dist > 0.1) {
-          heading = { x: dx / dist, y: dy / dist };
+          heading = {
+            x: (targetPoint.x - targetUnit.pos.x) / dist,
+            y: (targetPoint.y - targetUnit.pos.y) / dist,
+          };
         }
       }
 
@@ -169,7 +176,7 @@ export class UnitManager {
         }
 
         let matchedSpeed: number | undefined = undefined;
-        const distToSlot = this.getDistance(escort.pos, {
+        const distToSlot = MathUtils.getDistance(escort.pos, {
           x: targetCell.x + 0.5,
           y: targetCell.y + 0.5,
         });
@@ -284,8 +291,8 @@ export class UnitManager {
         // Find closest unit by Euclidean distance
         const closestUnit = unitsSeeingItem.sort(
           (a, b) =>
-            this.getDistance(a.pos, item.pos) -
-            this.getDistance(b.pos, item.pos),
+            MathUtils.getDistance(a.pos, item.pos) -
+            MathUtils.getDistance(b.pos, item.pos),
         )[0];
         itemAssignments.set(item.id, closestUnit.id);
       }
@@ -313,7 +320,7 @@ export class UnitManager {
         }
 
         const targetCell = eData.targetCell;
-        const distToCenter = this.getDistance(unit.pos, {
+        const distToCenter = MathUtils.getDistance(unit.pos, {
           x: targetCell.x + 0.5,
           y: targetCell.y + 0.5,
         });
@@ -502,11 +509,5 @@ export class UnitManager {
     director?: IDirector,
   ) {
     this.commandExecutor.executeCommand(unit, cmd, state, isManual, director);
-  }
-
-  private getDistance(pos1: Vector2, pos2: Vector2): number {
-    const dx = pos1.x - pos2.x;
-    const dy = pos1.y - pos2.y;
-    return Math.sqrt(dx * dx + dy * dy);
   }
 }

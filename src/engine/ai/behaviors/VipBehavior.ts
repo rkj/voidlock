@@ -2,10 +2,10 @@ import { GameState, Unit, UnitState, Door } from "../../../shared/types";
 import { AIContext } from "../../managers/UnitAI";
 import { PRNG } from "../../../shared/PRNG";
 import { Behavior } from "./Behavior";
-import { getDistance } from "./BehaviorUtils";
 import { LineOfSight } from "../../LineOfSight";
 import { VipAI } from "../VipAI";
 import { IDirector } from "../../interfaces/IDirector";
+import { MathUtils } from "../../../shared/utils/MathUtils";
 
 export class VipBehavior implements Behavior {
   constructor(
@@ -30,7 +30,7 @@ export class VipBehavior implements Behavior {
           u.id !== unit.id &&
           u.archetypeId !== "vip" &&
           u.hp > 0 &&
-          (getDistance(unit.pos, u.pos) <= 1.5 ||
+          (MathUtils.getDistance(unit.pos, u.pos) <= 1.5 ||
             this.los.hasLineOfSight(u.pos, unit.pos)),
       );
       if (rescueSoldier) {

@@ -8,6 +8,7 @@ import {
   Command,
 } from "../../shared/types";
 import { isCellVisible, isCellDiscovered } from "../../shared/VisibilityUtils";
+import { MathUtils } from "../../shared/utils/MathUtils";
 
 export class VipAI {
   constructor(
@@ -33,7 +34,7 @@ export class VipAI {
     // 1. Danger Avoidance: Flee from closest enemy if too close
     if (visibleEnemies.length > 0) {
       const closestEnemy = this.getClosest(vip.pos, visibleEnemies);
-      const dist = this.getDistance(vip.pos, closestEnemy.pos);
+      const dist = MathUtils.getDistance(vip.pos, closestEnemy.pos);
 
       if (dist < 5) {
         const fleeTarget = this.findFleeTarget(vip.pos, closestEnemy.pos, state);
@@ -80,7 +81,7 @@ export class VipAI {
 
     if (allies.length > 0 && !isAtExtraction) {
       const closestAlly = this.getClosest(vip.pos, allies);
-      const dist = this.getDistance(vip.pos, closestAlly.pos);
+      const dist = MathUtils.getDistance(vip.pos, closestAlly.pos);
 
       if (dist > 2) {
         // Move towards ally but don't stack perfectly (Pathfinder handles grid cells)
@@ -99,18 +100,14 @@ export class VipAI {
     return null;
   }
 
-  private getDistance(p1: Vector2, p2: Vector2): number {
-    return Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
-  }
-
   private getClosest<T extends { pos: Vector2 }>(
     pos: Vector2,
     entities: T[],
   ): T {
     return entities.reduce((prev, curr) => {
-      const prevDist = this.getDistance(pos, prev.pos);
-      const currDist = this.getDistance(pos, curr.pos);
-      return currDist < prevDist ? curr : prev;
+      const prevDistSq = MathUtils.getDistanceSquared(pos, prev.pos);
+      const currDistSq = MathUtils.getDistanceSquared(pos, curr.pos);
+      return currDistSq < prevDistSq ? curr : prev;
     });
   }
 
@@ -157,7 +154,7 @@ export class VipAI {
     return candidates
       .map((c) => ({
         pos: c,
-        score: this.getDistance({ x: c.x + 0.5, y: c.y + 0.5 }, threat),
+        score: MathUtils.getDistance({ x: c.x + 0.5, y: c.y + 0.5 }, threat),
       }))
       .sort((a, b) => b.score - a.score)[0].pos;
   }

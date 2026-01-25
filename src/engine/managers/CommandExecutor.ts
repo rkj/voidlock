@@ -11,6 +11,7 @@ import {
 import { Pathfinder } from "../Pathfinder";
 import { SPEED_NORMALIZATION_CONST } from "../Constants";
 import { IDirector } from "../interfaces/IDirector";
+import { MathUtils } from "../../shared/utils/MathUtils";
 
 export class CommandExecutor {
   constructor(private pathfinder: Pathfinder) {}
@@ -229,7 +230,7 @@ export class CommandExecutor {
             targetLocation &&
             (item.action === "Heal" || item.action === "Mine" || item.action === "Sentry")
           ) {
-            const dist = this.getDistance(unit.pos, {
+            const dist = MathUtils.getDistance(unit.pos, {
               x: targetLocation.x + 0.5,
               y: targetLocation.y + 0.5,
             });
@@ -280,11 +281,5 @@ export class CommandExecutor {
         }
       }
     }
-  }
-
-  private getDistance(pos1: Vector2, pos2: Vector2): number {
-    const dx = pos1.x - pos2.x;
-    const dy = pos1.y - pos2.y;
-    return Math.sqrt(dx * dx + dy * dy);
   }
 }

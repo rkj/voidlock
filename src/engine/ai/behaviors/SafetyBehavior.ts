@@ -9,9 +9,9 @@ import {
 import { AIContext } from "../../managers/UnitAI";
 import { PRNG } from "../../../shared/PRNG";
 import { Behavior } from "./Behavior";
-import { getDistance } from "./BehaviorUtils";
 import { isCellVisible } from "../../../shared/VisibilityUtils";
 import { IDirector } from "../../interfaces/IDirector";
+import { MathUtils } from "../../../shared/utils/MathUtils";
 
 export class SafetyBehavior implements Behavior {
   public evaluate(
@@ -38,7 +38,7 @@ export class SafetyBehavior implements Behavior {
     const threats = visibleEnemies
       .map((enemy) => ({
         enemy,
-        distance: getDistance(unit.pos, enemy.pos),
+        distance: MathUtils.getDistance(unit.pos, enemy.pos),
       }))
       .sort((a, b) => 1 / (b.distance + 1) - 1 / (a.distance + 1));
 
@@ -49,7 +49,7 @@ export class SafetyBehavior implements Behavior {
         u.hp > 0 &&
         u.state !== UnitState.Extracted &&
         u.state !== UnitState.Dead &&
-        getDistance(unit.pos, u.pos) <= 5,
+        MathUtils.getDistance(unit.pos, u.pos) <= 5,
     );
     const isIsolated = nearbyAllies.length === 0 && threats.length > 0;
 
@@ -91,7 +91,7 @@ export class SafetyBehavior implements Behavior {
           .map((cell) => {
             return {
               ...cell,
-              dist: getDistance(unit.pos, { x: cell.x + 0.5, y: cell.y + 0.5 }),
+              dist: MathUtils.getDistance(unit.pos, { x: cell.x + 0.5, y: cell.y + 0.5 }),
             };
           })
           .sort((a, b) => a.dist - b.dist)[0];
@@ -130,7 +130,7 @@ export class SafetyBehavior implements Behavior {
       );
       if (otherUnits.length > 0) {
         const closestAlly = otherUnits.sort(
-          (a, b) => getDistance(unit.pos, a.pos) - getDistance(unit.pos, b.pos),
+          (a, b) => MathUtils.getDistance(unit.pos, a.pos) - MathUtils.getDistance(unit.pos, b.pos),
         )[0];
         if (
           unit.state !== UnitState.Moving ||
