@@ -4,7 +4,6 @@ import { GameClient } from "@src/engine/GameClient";
 import { Renderer } from "@src/renderer/Renderer";
 import { ScreenManager } from "@src/renderer/ScreenManager";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
-import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { ThemeManager } from "@src/renderer/ThemeManager";
 import { ConfigManager, GameConfig } from "@src/renderer/ConfigManager";
 import { MenuController } from "@src/renderer/MenuController";
@@ -38,9 +37,6 @@ import {
 import { DebugUtility } from "@src/renderer/DebugUtility";
 import { MapUtility } from "@src/renderer/MapUtility";
 import { TimeUtility } from "@src/renderer/TimeUtility";
-import { ArchetypeLibrary } from "@src/shared/types/units";
-import { Icons } from "@src/renderer/Icons";
-import { StatDisplay } from "@src/renderer/ui/StatDisplay";
 import { CampaignEvents } from "@src/content/CampaignEvents";
 import { EventModal, OutcomeModal } from "@src/renderer/ui/EventModal";
 import { ModalService } from "@src/renderer/ui/ModalService";
@@ -655,10 +651,6 @@ export class GameApp {
     const rules = state?.rules;
     const growthRate = rules?.mapGrowthRate ?? 1.0;
     const size = calculateMapSize(node.rank, growthRate);
-
-    this.currentMapWidth = size;
-    this.currentMapHeight = size;
-    this.currentSpawnPointCount = calculateSpawnPoints(size);
 
     this.loadAndApplyConfig(true);
 
