@@ -90,7 +90,7 @@ run_shell_command("./scripts/dispatch_agent.sh <TASK_ID>")
 5. **Build**: Run `npm run build`.
    - _Check_: Ensure the project compiles without TypeScript errors.
 6. **Lint**: Run static analysis to check for errors.
-   - `npm run lint <FILE_PATH>` (Targeted) or `npm run lint` (Full).
+   - `npm run lint` (Full Project Check). **Note:** Do not pass file paths, as `tsc` ignores `tsconfig.json` when files are specified.
 7. **Format**: Run automated formatting:
    - Code: `npx prettier --write <FILE_PATH>` (Targeted) or `npx prettier --write .` (Full).
    - Markdown: `mdformat <FILE_PATH>` (Run this on any modified .md file).
