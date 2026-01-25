@@ -3,14 +3,7 @@ import {
   ItemLibrary,
   WeaponLibrary,
   ArchetypeLibrary,
-  SquadSoldierConfig,
-  Item,
-  Weapon,
-  Archetype,
-  EquipmentState,
 } from "@src/shared/types";
-import { Icons } from "@src/renderer/Icons";
-import { StatDisplay } from "@src/renderer/ui/StatDisplay";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import { SoldierInspector } from "@src/renderer/ui/SoldierInspector";
 
