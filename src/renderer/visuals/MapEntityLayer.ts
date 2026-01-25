@@ -91,7 +91,6 @@ export class MapEntityLayer implements RenderLayer {
     if (!state.map.extraction) return;
 
     const cellSize = this.sharedState.cellSize;
-    const isTactical = this.sharedState.unitStyle === "TacticalIcons";
     const ext = state.map.extraction;
     const x = ext.x * cellSize;
     const y = ext.y * cellSize;
@@ -125,7 +124,6 @@ export class MapEntityLayer implements RenderLayer {
 
   private renderSpawnPoints(ctx: CanvasRenderingContext2D, state: GameState) {
     const cellSize = this.sharedState.cellSize;
-    const isTactical = this.sharedState.unitStyle === "TacticalIcons";
 
     state.map.spawnPoints?.forEach((sp) => {
       const x = sp.pos.x * cellSize;
@@ -204,7 +202,6 @@ export class MapEntityLayer implements RenderLayer {
 
   private renderObjectives(ctx: CanvasRenderingContext2D, state: GameState) {
     const cellSize = this.sharedState.cellSize;
-    const isTactical = this.sharedState.unitStyle === "TacticalIcons";
 
     state.objectives?.forEach((obj) => {
       if (
