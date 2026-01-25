@@ -78,9 +78,9 @@ run_shell_command("./scripts/dispatch_agent.sh <TASK_ID>")
    - _Documentation (MANDATORY)_: Ensure `GEMINI.md` files in modified directories were updated. If the high-level system design changed, ensure `@docs/ARCHITECTURE.md` is updated. If documentation is missing or outdated, you MUST fail verification and re-dispatch with instructions to update it.
 3. **Test**: Run `npx vitest run`.
    - **Token Efficiency**: For large test suites, avoid dumping all output to stdout.
-   - **Step A**: Run relevant tests first (e.g., `npx vitest run <PATH_TO_TEST>`).
-   - **Step B**: For full verification, redirect output: `npx vitest run > <temp_dir>/test.log 2>&1`.
-   - **Step C**: Check for failure: `grep "FAIL" <temp_dir>/test.log`. If it exists, read only the failing parts.
+   - **Targeted Testing**: Run `npx vitest run <PATH_TO_TEST>` (or `npm run test <PATH_TO_TEST>`) to test only relevant files.
+   - **Full Verification**: Redirect output: `npx vitest run > <temp_dir>/test.log 2>&1`.
+   - **Check for failure**: `grep "FAIL" <temp_dir>/test.log`. If it exists, read only the failing parts.
    - _Check_: **CRITICAL**: All changes MUST be confirmed by tests first. Sub-agents are required to write/update tests before or alongside implementation.
 4. **Verify (Visual)**: If the task touched UI, CSS, or Layout:
    - **YOU MUST** navigate to the **specific screen and state** modified. A screenshot of the Main Menu is **NOT** verification.
@@ -89,8 +89,10 @@ run_shell_command("./scripts/dispatch_agent.sh <TASK_ID>")
    - _🚨 Regression Rule_: If browser validation discovers a problem that automated tests missed, the sub-agent MUST be re-dispatched with an instruction to FIRST write a failing test for the issue, then fix it.
 5. **Build**: Run `npm run build`.
    - _Check_: Ensure the project compiles without TypeScript errors.
-6. **Format**: Run automated formatting:
-   - Code: `npm run lint` or `npx prettier --write .`
+6. **Lint**: Run static analysis to check for errors.
+   - `npm run lint <FILE_PATH>` (Targeted) or `npm run lint` (Full).
+7. **Format**: Run automated formatting:
+   - Code: `npx prettier --write <FILE_PATH>` (Targeted) or `npx prettier --write .` (Full).
    - Markdown: `mdformat <FILE_PATH>` (Run this on any modified .md file).
 
 ## 4. Finalization
