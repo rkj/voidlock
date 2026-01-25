@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { HUDManager } from "@src/renderer/ui/HUDManager";
-import { GameState, UnitState } from "@src/shared/types";
+import { GameState } from "@src/shared/types";
 
 describe("HUDManager Threat Meter Snap Regression", () => {
   let hud: HUDManager;
@@ -32,7 +32,6 @@ describe("HUDManager Threat Meter Snap Regression", () => {
       vi.fn(),
       vi.fn(),
       vi.fn(),
-      "1.0.0",
     );
 
     mockState = {

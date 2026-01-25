@@ -4,8 +4,6 @@ import { HUDManager } from "@src/renderer/ui/HUDManager";
 import {
   GameState,
   UnitState,
-  Unit,
-  Enemy,
   EnemyType,
 } from "@src/shared/types";
 import {
@@ -105,7 +103,6 @@ describe("HUDManager Stats & Enemy Intel", () => {
       onCopyWorldState,
       vi.fn(),
       vi.fn(),
-      "1.0.0",
     );
   });
 

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { HUDManager } from "@src/renderer/ui/HUDManager";
-import { GameState, UnitState, MissionType } from "@src/shared/types";
+import { GameState, MissionType } from "@src/shared/types";
 
 describe("HUDManager: Pause Constraints", () => {
   let hud: HUDManager;
@@ -79,7 +79,6 @@ describe("HUDManager: Pause Constraints", () => {
       onCopyWorldState,
       vi.fn(),
       vi.fn(),
-      "1.0.0",
     );
   });
 

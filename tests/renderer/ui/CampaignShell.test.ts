@@ -3,7 +3,6 @@
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { CampaignShell } from "@src/renderer/ui/CampaignShell";
-import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 
 describe("CampaignShell", () => {
   let container: HTMLElement;
