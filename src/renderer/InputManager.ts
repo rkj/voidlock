@@ -1,6 +1,6 @@
 import { ScreenManager } from "@src/renderer/ScreenManager";
 import { MenuController } from "@src/renderer/MenuController";
-import { GameState, CommandType } from "@src/shared/types";
+import { GameState } from "@src/shared/types";
 import { ModalService } from "./ui/ModalService";
 
 export class InputManager {
@@ -13,7 +13,6 @@ export class InputManager {
     private abortMission: () => void,
     private onUnitDeselect: () => void,
     private getSelectedUnitId: () => string | null,
-    private updateUI: (state: GameState) => void,
     private handleCanvasClick: (e: MouseEvent) => void,
     private onToggleDebug: (enabled: boolean) => void,
     private onToggleLos: (enabled: boolean) => void,

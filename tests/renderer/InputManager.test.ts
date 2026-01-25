@@ -1,7 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { InputManager } from "@src/renderer/InputManager";
-import { CommandType, EngineMode } from "@src/shared/types";
 
 describe("InputManager", () => {
   let inputManager: InputManager;
@@ -12,7 +11,6 @@ describe("InputManager", () => {
   let abortMission: any;
   let onUnitDeselect: any;
   let getSelectedUnitId: any;
-  let updateUI: any;
   let handleCanvasClick: any;
   let onToggleDebug: any;
   let onToggleLos: any;
@@ -42,7 +40,6 @@ describe("InputManager", () => {
     abortMission = vi.fn();
     onUnitDeselect = vi.fn();
     getSelectedUnitId = vi.fn(() => null);
-    updateUI = vi.fn();
     handleCanvasClick = vi.fn();
     onToggleDebug = vi.fn();
     onToggleLos = vi.fn();
@@ -62,7 +59,6 @@ describe("InputManager", () => {
       abortMission,
       onUnitDeselect,
       getSelectedUnitId,
-      updateUI,
       handleCanvasClick,
       onToggleDebug,
       onToggleLos,

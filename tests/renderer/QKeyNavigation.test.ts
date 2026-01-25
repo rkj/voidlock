@@ -13,7 +13,6 @@ describe("Q and ESC Key Navigation", () => {
   let abortMission: any;
   let onUnitDeselect: any;
   let getSelectedUnitId: any;
-  let updateUI: any;
   let handleCanvasClick: any;
   let onToggleDebug: any;
   let onToggleLos: any;
@@ -34,7 +33,6 @@ describe("Q and ESC Key Navigation", () => {
     abortMission = vi.fn();
     onUnitDeselect = vi.fn();
     getSelectedUnitId = vi.fn(() => null);
-    updateUI = vi.fn();
     handleCanvasClick = vi.fn();
     onToggleDebug = vi.fn();
     onToggleLos = vi.fn();
@@ -54,7 +52,6 @@ describe("Q and ESC Key Navigation", () => {
       abortMission,
       onUnitDeselect,
       getSelectedUnitId,
-      updateUI,
       handleCanvasClick,
       onToggleDebug,
       onToggleLos,

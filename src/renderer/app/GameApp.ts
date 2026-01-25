@@ -145,7 +145,6 @@ export class GameApp {
         if (this.currentGameState) this.updateUI(this.currentGameState);
       },
       () => this.selectedUnitId,
-      (state) => this.updateUI(state),
       (e) => this.handleCanvasClick(e),
       (enabled) => this.context.gameClient.toggleDebugOverlay(enabled),
       (enabled) => this.context.gameClient.toggleLosOverlay(enabled),
