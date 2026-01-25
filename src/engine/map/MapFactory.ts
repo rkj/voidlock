@@ -167,6 +167,11 @@ export class MapFactory {
       return { w, h };
     };
 
+    const rotateEdge = (e: Direction, rot: number): Direction => {
+      const edges: Direction[] = ["n", "e", "s", "w"];
+      return edges[(edges.indexOf(e) + rot / 90) % 4];
+    };
+
     assembly.tiles.forEach((tileRef) => {
       const def = library[tileRef.tileId];
       const { w, h } = getRotatedDimensions(
@@ -217,10 +222,6 @@ export class MapFactory {
         cell.roomId = roomId;
 
         cellDef.openEdges.forEach((edge) => {
-          const rotateEdge = (e: Direction, rot: number): Direction => {
-            const edges: Direction[] = ["n", "e", "s", "w"];
-            return edges[(edges.indexOf(e) + rot / 90) % 4];
-          };
           const re = rotateEdge(edge as Direction, tileRef.rotation);
           const nx = re === "e" ? gx + 1 : re === "w" ? gx - 1 : gx;
           const ny = re === "s" ? gy + 1 : re === "n" ? gy - 1 : gy;
@@ -295,10 +296,6 @@ export class MapFactory {
         const gx = tileRef.x + localPos.x - minX;
         const gy = tileRef.y + localPos.y - minY;
 
-        const rotateEdge = (e: Direction, rot: number): Direction => {
-          const edges: Direction[] = ["n", "e", "s", "w"];
-          return edges[(edges.indexOf(e) + rot / 90) % 4];
-        };
         const re = rotateEdge(socket.edge as Direction, tileRef.rotation);
 
         const orientation =
