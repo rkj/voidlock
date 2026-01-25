@@ -1,15 +1,7 @@
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
-import { CampaignSoldier } from "@src/shared/campaign_types";
 import {
   ArchetypeLibrary,
-  ItemLibrary,
-  WeaponLibrary,
-  Item,
-  Weapon,
-  EquipmentState,
 } from "@src/shared/types";
-import { Icons } from "@src/renderer/Icons";
-import { StatDisplay } from "@src/renderer/ui/StatDisplay";
 import { SoldierInspector } from "@src/renderer/ui/SoldierInspector";
 import { ModalService } from "../ui/ModalService";
 
