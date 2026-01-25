@@ -45,33 +45,15 @@ export class VisibilityPolygon {
     rayDir: Vector2,
     segment: Segment,
   ): { param: number; point: Vector2 } | null {
-    // Ray: O + t * D
-    // Segment: P1 + u * (P2 - P1)
-    const r_px = rayOrigin.x;
-    const r_py = rayOrigin.y;
-    const r_dx = rayDir.x;
-    const r_dy = rayDir.y;
-
-    const s_px = segment.p1.x;
-    const s_py = segment.p1.y;
-    const s_dx = segment.p2.x - segment.p1.x;
-    const s_dy = segment.p2.y - segment.p1.y;
-
-    const r_mag = Math.sqrt(r_dx * r_dx + r_dy * r_dy);
-    const s_mag = Math.sqrt(s_dx * s_dx + s_dy * s_dy);
-
-    if (r_dx / r_mag === s_dx / s_mag && r_dy / r_mag === s_dy / s_mag)
-      return null; // Parallel
-
-    const T2 =
-      (r_dx * (s_py - r_py) + r_dy * (r_px - s_px)) /
-      (s_dx * r_dy - s_dy * r_dx);
-    const T1 = (s_px + s_dx * T2 - r_px) / r_dx;
-
-    const r = { x: r_dx, y: r_dy };
-    const s = { x: s_dx, y: s_dy };
+    // Ray: P + t * R
+    // Segment: Q + u * S
     const p = rayOrigin;
+    const r = rayDir;
     const q = segment.p1;
+    const s = {
+      x: segment.p2.x - segment.p1.x,
+      y: segment.p2.y - segment.p1.y,
+    };
 
     const cross = (v1: Vector2, v2: Vector2) => v1.x * v2.y - v1.y * v2.x;
     const rXs = cross(r, s);
@@ -82,7 +64,7 @@ export class VisibilityPolygon {
     const t = cross(qMp, s) / rXs;
     const u = cross(qMp, r) / rXs;
 
-    if (rXs !== 0 && t >= 0 && u >= 0 && u <= 1) {
+    if (t >= 0 && u >= 0 && u <= 1) {
       return {
         param: t,
         point: { x: p.x + t * r.x, y: p.y + t * r.y },
