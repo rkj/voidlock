@@ -2,13 +2,11 @@ import { RenderLayer } from "./RenderLayer";
 import { SharedRendererState } from "./SharedRendererState";
 import { GameState, UnitState } from "@src/shared/types";
 import { ThemeManager } from "@src/renderer/ThemeManager";
-import { AssetManager } from "./AssetManager";
 import { VisibilityPolygon } from "@src/renderer/VisibilityPolygon";
 import { isCellVisible } from "@src/shared/VisibilityUtils";
 
 export class OverlayLayer implements RenderLayer {
   private theme = ThemeManager.getInstance();
-  private assets = AssetManager.getInstance();
 
   constructor(private sharedState: SharedRendererState) {}
 
@@ -64,7 +62,6 @@ export class OverlayLayer implements RenderLayer {
         ) {
           if (state.gridState) {
             const width = state.map.width;
-            const height = state.map.height;
             for (let i = 0; i < state.gridState.length; i++) {
               if (state.gridState[i] & 1) {
                 const cx = i % width;
