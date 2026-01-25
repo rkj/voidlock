@@ -243,7 +243,6 @@ export class GameApp {
 
     // 4. Bind events
     this.inputBinder.bindAll({
-      onLaunchMission: () => this.launchMission(),
       onTogglePause: () => this.togglePause(),
       onAbortMission: () => this.abortMission(),
       onCustomMission: () => {
@@ -286,11 +285,6 @@ export class GameApp {
         } else {
           this.context.campaignShell.show("custom");
         }
-      },
-      onShowBarracks: () => {
-        this.barracksScreen.show();
-        this.context.screenManager.show("barracks");
-        this.context.campaignShell.show("campaign", "barracks");
       },
       onLoadStaticMap: async (json) => {
         try {
@@ -342,9 +336,6 @@ export class GameApp {
           URL.revokeObjectURL(a.href);
         }
       },
-      onUpdateSquadBuilder: () =>
-        this.renderSquadBuilder(this.currentCampaignNode !== null),
-      onApplyCampaignTheme: () => this.applyCampaignTheme(),
       onShowStatistics: () => {
         this.statisticsScreen.show();
         this.context.screenManager.show("statistics");
