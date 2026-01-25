@@ -1,8 +1,6 @@
 import { AppContext } from "./AppContext";
 import { TimeUtility } from "@src/renderer/TimeUtility";
-import { MissionType, MapGeneratorType, UnitStyle } from "@src/shared/types";
-import { MapUtility } from "@src/renderer/MapUtility";
-import { MapFactory } from "@src/engine/map/MapFactory";
+import { MapGeneratorType } from "@src/shared/types";
 
 /**
  * InputBinder is responsible for attaching and detaching DOM event listeners.
@@ -17,20 +15,16 @@ export class InputBinder {
   constructor(private context: AppContext) {}
 
   public bindAll(callbacks: {
-    onLaunchMission: () => void;
     onTogglePause: () => void;
     onAbortMission: () => void;
     onCustomMission: () => void;
     onCampaignMenu: () => void;
     onResetData: () => void;
     onShowEquipment: () => void;
-    onShowBarracks: () => void;
     onLoadStaticMap: (json: string) => void;
     onUploadStaticMap: (file: File) => void;
     onConvertAscii: (ascii: string) => void;
     onExportReplay: () => void;
-    onUpdateSquadBuilder: () => void;
-    onApplyCampaignTheme: () => void;
     onShowStatistics: () => void;
     onSetupBack: () => void;
   }) {
@@ -122,23 +116,23 @@ export class InputBinder {
     // Mission Type handled in GameApp/main.ts because it affects squad builder
 
     // Toggles
-    this.addToggleListener("toggle-fog-of-war", (checked) => {
+    this.addToggleListener("toggle-fog-of-war", (_checked) => {
       /* update local state */
     });
-    this.addToggleListener("toggle-debug-overlay", (checked) => {
+    this.addToggleListener("toggle-debug-overlay", (_checked) => {
       /* update local state */
     });
-    this.addToggleListener("toggle-los-overlay", (checked) => {
+    this.addToggleListener("toggle-los-overlay", (_checked) => {
       /* update local state */
     });
-    this.addToggleListener("toggle-agent-control", (checked) => {
+    this.addToggleListener("toggle-agent-control", (_checked) => {
       /* update local state */
     });
-    this.addToggleListener("toggle-allow-tactical-pause", (checked) => {
+    this.addToggleListener("toggle-allow-tactical-pause", (_checked) => {
       /* update local state */
     });
 
-    this.addListener("select-unit-style", "change", (e: Event) => {
+    this.addListener("select-unit-style", "change", (_e: Event) => {
       // update unitStyle
     });
 
