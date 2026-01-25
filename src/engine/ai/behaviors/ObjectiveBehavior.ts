@@ -11,9 +11,9 @@ import {
 import { AIContext } from "../../managers/UnitAI";
 import { PRNG } from "../../../shared/PRNG";
 import { Behavior } from "./Behavior";
-import { getDistance } from "./BehaviorUtils";
 import { isCellVisible, isCellDiscovered } from "../../../shared/VisibilityUtils";
 import { IDirector } from "../../interfaces/IDirector";
+import { MathUtils } from "../../../shared/utils/MathUtils";
 
 export class ObjectiveBehavior implements Behavior {
   public evaluate(
@@ -81,7 +81,7 @@ export class ObjectiveBehavior implements Behavior {
 
       if (items.length > 0) {
         const closest = items.sort(
-          (a, b) => getDistance(unit.pos, a.pos) - getDistance(unit.pos, b.pos),
+          (a, b) => MathUtils.getDistance(unit.pos, a.pos) - MathUtils.getDistance(unit.pos, b.pos),
         )[0];
 
         if (closest.type === "objective") {
@@ -145,7 +145,7 @@ export class ObjectiveBehavior implements Behavior {
           }
 
           if (targetPos) {
-            const dist = getDistance(unit.pos, targetPos);
+            const dist = MathUtils.getDistance(unit.pos, targetPos);
             if (!bestObj || dist < bestObj.dist) {
               bestObj = { obj, dist };
             }

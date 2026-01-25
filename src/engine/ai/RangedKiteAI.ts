@@ -10,6 +10,7 @@ import { Pathfinder } from "../Pathfinder";
 import { PRNG } from "../../shared/PRNG";
 import { LineOfSight } from "../LineOfSight";
 import { IEnemyAI } from "./EnemyAI";
+import { MathUtils } from "../../shared/utils/MathUtils";
 
 export class RangedKiteAI implements IEnemyAI {
   think(
@@ -24,7 +25,7 @@ export class RangedKiteAI implements IEnemyAI {
 
     // 1. Detection
     const visibleSoldiers = state.units.filter((u) => {
-      const d = this.getDistance(enemy.pos, u.pos);
+      const d = MathUtils.getDistance(enemy.pos, u.pos);
       const losCheck = los.hasLineOfSight(enemy.pos, u.pos);
       return (
         u.hp > 0 &&
@@ -39,7 +40,7 @@ export class RangedKiteAI implements IEnemyAI {
     let minDistance = Infinity;
 
     for (const u of visibleSoldiers) {
-      const dist = this.getDistance(enemy.pos, u.pos);
+      const dist = MathUtils.getDistance(enemy.pos, u.pos);
       if (dist < minDistance) {
         minDistance = dist;
         targetSoldier = u;
@@ -150,13 +151,13 @@ export class RangedKiteAI implements IEnemyAI {
     ];
 
     let best: Vector2 | null = null;
-    let maxDist = this.getDistance(start, threat);
+    let maxDist = MathUtils.getDistance(start, threat);
 
     for (const c of candidates) {
       const cx = Math.floor(c.x);
       const cy = Math.floor(c.y);
       if (grid.isWalkable(cx, cy)) {
-        const dist = this.getDistance(c, threat);
+        const dist = MathUtils.getDistance(c, threat);
         if (dist > maxDist) {
           // Ensure reachable
           const path = pathfinder.findPath(
@@ -171,9 +172,5 @@ export class RangedKiteAI implements IEnemyAI {
       }
     }
     return best;
-  }
-
-  private getDistance(p1: Vector2, p2: Vector2): number {
-    return Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
   }
 }

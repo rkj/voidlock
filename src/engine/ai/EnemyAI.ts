@@ -9,6 +9,7 @@ import {
 import { Pathfinder } from "../Pathfinder";
 import { PRNG } from "../../shared/PRNG";
 import { LineOfSight } from "../LineOfSight";
+import { MathUtils } from "../../shared/utils/MathUtils";
 
 export interface IEnemyAI {
   think(
@@ -38,7 +39,7 @@ export class SwarmMeleeAI implements IEnemyAI {
         u.hp > 0 &&
         u.state !== UnitState.Extracted &&
         u.state !== UnitState.Dead &&
-        this.getDistance(enemy.pos, u.pos) <= 10 && // Detection radius
+        MathUtils.getDistance(enemy.pos, u.pos) <= 10 && // Detection radius
         los.hasLineOfSight(enemy.pos, u.pos),
     );
 
@@ -46,7 +47,7 @@ export class SwarmMeleeAI implements IEnemyAI {
     let minDistance = Infinity;
 
     visibleSoldiers.forEach((u) => {
-      const dist = this.getDistance(enemy.pos, u.pos);
+      const dist = MathUtils.getDistance(enemy.pos, u.pos);
       if (dist < minDistance) {
         minDistance = dist;
         targetSoldier = u;
@@ -99,9 +100,5 @@ export class SwarmMeleeAI implements IEnemyAI {
         }
       }
     }
-  }
-
-  private getDistance(p1: Vector2, p2: Vector2): number {
-    return Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
   }
 }

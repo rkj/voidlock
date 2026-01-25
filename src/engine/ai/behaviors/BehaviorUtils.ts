@@ -7,12 +7,7 @@ import {
 } from "../../../shared/types";
 import { GameGrid } from "../../GameGrid";
 import { isCellDiscovered } from "../../../shared/VisibilityUtils";
-
-export function getDistance(pos1: Vector2, pos2: Vector2): number {
-  const dx = pos1.x - pos2.x;
-  const dy = pos1.y - pos2.y;
-  return Math.sqrt(dx * dx + dy * dy);
-}
+import { MathUtils } from "../../../shared/utils/MathUtils";
 
 export function isMapFullyDiscovered(
   state: GameState,
@@ -82,10 +77,10 @@ export function findClosestUndiscoveredCell(
     if (!isCellDiscovered(state, curr.x, curr.y)) {
       const target = { x: curr.x + 0.5, y: curr.y + 0.5 };
       const isClaimed = claimedTargets.some(
-        (claimed) => getDistance(target, claimed) < avoidRadius,
+        (claimed) => MathUtils.getDistance(target, claimed) < avoidRadius,
       );
       const tooCloseToUnit = otherUnitPositions.some(
-        (pos) => getDistance(target, pos) < unitAvoidRadius,
+        (pos) => MathUtils.getDistance(target, pos) < unitAvoidRadius,
       );
 
       if (!isClaimed && !tooCloseToUnit) {

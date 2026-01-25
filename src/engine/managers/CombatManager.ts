@@ -11,6 +11,7 @@ import { LineOfSight } from "../LineOfSight";
 import { PRNG } from "../../shared/PRNG";
 import { StatsManager } from "./StatsManager";
 import { isCellVisible } from "../../shared/VisibilityUtils";
+import { MathUtils } from "../../shared/utils/MathUtils";
 
 export class CombatManager {
   constructor(
@@ -28,7 +29,7 @@ export class CombatManager {
     const visibleEnemiesInRange = state.enemies.filter(
       (enemy) =>
         enemy.hp > 0 &&
-        this.getDistance(unit.pos, enemy.pos) <= unit.stats.attackRange + 0.5 &&
+        MathUtils.getDistance(unit.pos, enemy.pos) <= unit.stats.attackRange + 0.5 &&
         isCellVisible(state, Math.floor(enemy.pos.x), Math.floor(enemy.pos.y)),
     );
 
@@ -61,7 +62,7 @@ export class CombatManager {
 
       for (const enemy of visibleEnemiesInRange) {
         if (this.los.hasLineOfFire(unit.pos, enemy.pos)) {
-          const distance = this.getDistance(unit.pos, enemy.pos);
+          const distance = MathUtils.getDistance(unit.pos, enemy.pos);
           // Score = (MaxHP - CurrentHP) + (100 / Distance)
           const score = enemy.maxHp - enemy.hp + 100 / Math.max(0.1, distance);
 
@@ -70,7 +71,7 @@ export class CombatManager {
             bestTarget = enemy;
           } else if (score === bestScore && bestTarget) {
             // Tie-breaker: Closest
-            const bestDist = this.getDistance(unit.pos, bestTarget.pos);
+            const bestDist = MathUtils.getDistance(unit.pos, bestTarget.pos);
             if (distance < bestDist) {
               bestTarget = enemy;
             }
@@ -143,7 +144,7 @@ export class CombatManager {
       state.t - attacker.lastAttackTime >= stats.fireRate
     ) {
       if (this.los.hasLineOfFire(attacker.pos, target.pos)) {
-        const distance = this.getDistance(attacker.pos, target.pos);
+        const distance = MathUtils.getDistance(attacker.pos, target.pos);
         const S = stats.accuracy;
         const R = stats.attackRange;
         let hitChance = (S / 100) * (R / Math.max(0.1, distance));
@@ -196,14 +197,14 @@ export class CombatManager {
     const enemiesInMelee = visibleEnemies.filter((e) => {
       const meleeRange =
         (leftWeapon?.type === "Melee" ? leftWeapon.range : 1) + 0.05;
-      return this.getDistance(unit.pos, e.pos) <= meleeRange;
+      return MathUtils.getDistance(unit.pos, e.pos) <= meleeRange;
     });
 
     if (enemiesInMelee.length > 0 && leftWeapon?.type === "Melee") {
       targetWeaponId = unit.leftHand;
     } else if (rightWeapon) {
       const enemiesInRanged = visibleEnemies.filter(
-        (e) => this.getDistance(unit.pos, e.pos) <= rightWeapon.range + 0.5,
+        (e) => MathUtils.getDistance(unit.pos, e.pos) <= rightWeapon.range + 0.5,
       );
       if (enemiesInRanged.length > 0) {
         targetWeaponId = unit.rightHand;
@@ -214,11 +215,5 @@ export class CombatManager {
       unit.activeWeaponId = targetWeaponId;
       this.statsManager.recalculateStats(unit);
     }
-  }
-
-  private getDistance(pos1: Vector2, pos2: Vector2): number {
-    const dx = pos1.x - pos2.x;
-    const dy = pos1.y - pos2.y;
-    return Math.sqrt(dx * dx + dy * dy);
   }
 }
