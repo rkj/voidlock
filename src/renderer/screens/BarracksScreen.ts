@@ -189,7 +189,7 @@ export class BarracksScreen {
 
     const soldier = state.roster.find((s) => s.id === this.selectedSoldierId);
     if (!soldier) {
-      this.inspector.setSoldier(null, false);
+      this.inspector.setSoldier(null);
       this.inspector.renderDetails(panel);
       return;
     }
@@ -256,7 +256,7 @@ export class BarracksScreen {
     }
     panel.appendChild(actions);
 
-    this.inspector.setSoldier(soldier, false);
+    this.inspector.setSoldier(soldier);
     const inspectorBody = document.createElement("div");
     panel.appendChild(inspectorBody);
     this.inspector.renderDetails(inspectorBody);
@@ -303,7 +303,7 @@ export class BarracksScreen {
     } else {
       const soldier = state.roster.find((s) => s.id === this.selectedSoldierId);
       if (soldier) {
-        this.inspector.setSoldier(soldier, false);
+        this.inspector.setSoldier(soldier);
         this.inspector.renderArmory(body);
       } else {
         const placeholder = document.createElement("div");

@@ -129,7 +129,6 @@ export class EquipmentScreen {
     centerPanel.appendChild(centerBody);
     this.inspector.setSoldier(
       this.config.soldiers[this.selectedSoldierIndex],
-      true,
     );
     this.inspector.renderDetails(centerBody);
 
