@@ -30,7 +30,6 @@ export class SoldierInspector {
   private onUpdate: () => void;
 
   private soldier: CampaignSoldier | SquadSoldierConfig | null = null;
-  private isMissionSetup: boolean = false;
   private isShop: boolean = false;
 
   constructor(options: SoldierInspectorOptions) {
@@ -40,10 +39,8 @@ export class SoldierInspector {
 
   public setSoldier(
     soldier: CampaignSoldier | SquadSoldierConfig | null,
-    isMissionSetup: boolean,
   ) {
     this.soldier = soldier;
-    this.isMissionSetup = isMissionSetup;
   }
 
   public setShop(isShop: boolean) {
@@ -156,7 +153,6 @@ export class SoldierInspector {
         "Right Hand",
         equip.rightHand,
         (id) => this.handleSlotChange("rightHand", id),
-        "Weapon",
       ),
     );
 
@@ -165,7 +161,6 @@ export class SoldierInspector {
         "Left Hand",
         equip.leftHand,
         (id) => this.handleSlotChange("leftHand", id),
-        "Weapon",
       ),
     );
 
@@ -174,7 +169,6 @@ export class SoldierInspector {
         "Body",
         equip.body,
         (id) => this.handleSlotChange("body", id),
-        "Armor",
       ),
     );
 
@@ -183,7 +177,6 @@ export class SoldierInspector {
         "Feet",
         equip.feet,
         (id) => this.handleSlotChange("feet", id),
-        "Feet",
       ),
     );
 
@@ -238,7 +231,6 @@ export class SoldierInspector {
     label: string,
     itemId: string | undefined,
     onDrop: (id: string) => void,
-    category: string,
   ): HTMLElement {
     const slot = document.createElement("div");
     slot.className = "paper-doll-slot" + (itemId ? " equipped" : "");
