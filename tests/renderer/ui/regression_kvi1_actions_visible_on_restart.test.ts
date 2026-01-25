@@ -82,7 +82,6 @@ describe("HUDManager Regression kvi1", () => {
       onCopyWorldState,
       vi.fn(),
       vi.fn(),
-      "1.0.0",
     );
   });
 

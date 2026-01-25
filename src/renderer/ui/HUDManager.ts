@@ -24,7 +24,6 @@ export class HUDManager {
     private onCopyWorldState: () => void,
     private onForceWin: () => void,
     private onForceLose: () => void,
-    private version: string,
   ) {}
 
   public update(state: GameState, selectedUnitId: string | null) {

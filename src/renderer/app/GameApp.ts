@@ -126,7 +126,6 @@ export class GameApp {
       () => this.copyWorldState(),
       () => this.context.gameClient.forceWin(),
       () => this.context.gameClient.forceLose(),
-      VERSION,
     );
 
     this.context.inputManager = new InputManager(
