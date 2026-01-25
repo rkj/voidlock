@@ -1,6 +1,11 @@
-import { CoreEngine } from "../engine/CoreEngine";
-import { DenseShipGenerator } from "../engine/generators/DenseShipGenerator";
-import { SquadConfig, MissionType, UnitState } from "../shared/types";
+import { CoreEngine } from "@src/engine/CoreEngine";
+import { DenseShipGenerator } from "@src/engine/generators/DenseShipGenerator";
+import {
+  SquadConfig,
+  MissionType,
+  UnitState,
+  MapDefinition,
+} from "@src/shared/types";
 
 const ITERATIONS = 100; // Final verification
 const DT = 50; // ms
@@ -17,7 +22,7 @@ async function runSimulation() {
     const seed = Math.floor(Math.random() * 100000);
     // 8x8 Map
     const generator = new DenseShipGenerator(seed, 8, 8);
-    const map = generator.generate();
+    const map: MapDefinition = generator.generate();
 
     // 4 Soldiers
     const squad: SquadConfig = {
@@ -52,7 +57,8 @@ async function runSimulation() {
     const state = engine.getState();
     if (state.status === "Won") {
       wins++;
-      const deadCount = state.units.filter((u) => u.state === UnitState.Dead).length;
+      const deadCount = state.units.filter((u) => u.state === UnitState.Dead)
+        .length;
       totalCasualties += deadCount;
       if (deadCount > 0) winsWithCasualties++;
     } else {
