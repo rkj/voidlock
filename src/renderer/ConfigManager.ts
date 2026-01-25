@@ -1,8 +1,6 @@
-import {
-  MapGeneratorType,
+import { MapGeneratorType, MissionType, UnitStyle } from "@src/shared/types";
+import type {
   SquadConfig,
-  MissionType,
-  UnitStyle,
   SquadSoldierConfig,
 } from "@src/shared/types";
 
@@ -61,8 +59,6 @@ export class ConfigManager {
       this.load("voidlock_legacy_config");
     if (oldConfig) {
       this.saveCustom(oldConfig);
-      // Optional: localStorage.removeItem("voidlock_legacy_custom_config");
-      // Optional: localStorage.removeItem("voidlock_legacy_config");
       return oldConfig;
     }
 
@@ -87,19 +83,22 @@ export class ConfigManager {
     try {
       const json = localStorage.getItem(key);
       if (!json) return null;
-      let config = JSON.parse(json);
+      const loaded = JSON.parse(json) as unknown;
 
       const defaults = this.getDefault();
 
       // Ensure config is an object
-      if (typeof config !== "object" || config === null) {
+      if (typeof loaded !== "object" || loaded === null) {
         return null;
       }
 
       // Deep validate and merge with defaults
-      config = this.validateAndMerge(config, defaults);
+      const config = this.validateAndMerge(
+        loaded as Record<string, unknown>,
+        defaults,
+      );
 
-      return config as GameConfig;
+      return config;
     } catch (e) {
       console.warn(
         `Failed to load configuration from LocalStorage (${key}):`,
