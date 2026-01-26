@@ -3,7 +3,6 @@ import { CampaignManager } from "@src/engine/managers/CampaignManager";
 import {
   MissionReport,
   STAT_BOOSTS,
-  XP_THRESHOLDS,
 } from "@src/shared/campaign_types";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 
