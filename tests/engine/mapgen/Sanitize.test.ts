@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { MapGenerator } from "@src/engine/MapGenerator";
 import { MapDefinition, CellType } from "@src/shared/types";
-import { Graph } from "@src/engine/Graph";
 
 describe("MapGenerator.sanitize", () => {
   it("should mark unreachable Floor cells as Void", () => {
