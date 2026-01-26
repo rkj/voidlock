@@ -4,7 +4,6 @@ import {
   CommandType,
   MapDefinition,
   CellType,
-  UnitState,
 } from "@src/shared/types";
 
 describe("Grenade Command Behavior", () => {
