@@ -64,9 +64,6 @@ describe("Campaign Events", () => {
     };
 
     const prng = new PRNG(1);
-    const healthySoldiersBefore = state.roster.filter(
-      (s) => s.status === "Healthy",
-    ).length;
 
     const result = manager.applyEventChoice(eventNode.id, choice, prng);
 
