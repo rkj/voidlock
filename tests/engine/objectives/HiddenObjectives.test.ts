@@ -4,9 +4,9 @@ import {
   MapDefinition,
   CellType,
   UnitState,
-  Objective,
-  SquadConfig,
   AIProfile,
+  Cell,
+  GameState,
 } from "@src/shared/types";
 
 describe("Hidden Objectives", () => {
@@ -14,7 +14,7 @@ describe("Hidden Objectives", () => {
   let map: MapDefinition;
 
   beforeEach(() => {
-    const cells: any[] = [];
+    const cells: Cell[] = [];
     for (let y = 0; y < 10; y++) {
       for (let x = 0; x < 10; x++) {
         cells.push({
@@ -24,7 +24,7 @@ describe("Hidden Objectives", () => {
         });
       }
     }
-    const map: MapDefinition = {
+    map = {
       width: 10,
       height: 10,
       cells,
@@ -83,9 +83,8 @@ describe("Hidden Objectives", () => {
     expect(obj.visible).toBeFalsy();
 
     // Teleport unit close to objective (8,8)
-    const u1 = engine.getState().units[0]; // Get original ref? No, need to modify via command or hack
     // Hack state for test speed
-    (engine as any).state.units[0].pos = { x: 8.5, y: 8.5 };
+    (engine as unknown as { state: GameState }).state.units[0].pos = { x: 8.5, y: 8.5 };
 
     engine.update(100);
     state = engine.getState();
