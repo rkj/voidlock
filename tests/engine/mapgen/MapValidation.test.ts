@@ -3,8 +3,6 @@ import { MapGenerator } from "@src/engine/MapGenerator";
 import {
   MapDefinition,
   CellType,
-  Cell,
-  Door,
   MapGeneratorType,
 } from "@src/shared/types";
 
