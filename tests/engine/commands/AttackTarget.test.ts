@@ -4,7 +4,6 @@ import {
   MapDefinition,
   CellType,
   UnitState,
-  CommandType,
   SquadConfig,
   EnemyType,
   AIProfile,
