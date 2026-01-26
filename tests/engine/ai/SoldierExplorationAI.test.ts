@@ -4,12 +4,9 @@ import {
   MapDefinition,
   CellType,
   UnitState,
-  CommandType,
   SquadConfig,
-  Vector2,
   AIProfile,
 } from "@src/shared/types";
-import { GameGrid } from "@src/engine/GameGrid";
 
 describe("Soldier Exploration AI", () => {
   let engine: CoreEngine;
