@@ -1,13 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { LineOfSight } from "@src/engine/LineOfSight";
 import { GameGrid } from "@src/engine/GameGrid";
-import {
-  MapDefinition,
-  CellType,
-  Door,
-  Vector2,
-  Cell,
-} from "@src/shared/types";
+import { MapDefinition, CellType, Door, Cell } from "@src/shared/types";
 
 describe("LineOfSight", () => {
   let mockMap: MapDefinition;
