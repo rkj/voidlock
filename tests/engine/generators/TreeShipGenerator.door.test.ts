@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
+import { describe, it } from "vitest";
 import { TreeShipGenerator } from "@src/engine/generators/TreeShipGenerator";
-import { MapDefinition, CellType, Door } from "@src/shared/types";
+import { MapDefinition, CellType } from "@src/shared/types";
 
 describe("TreeShipGenerator Door Validation", () => {
   const checkDoors = (map: MapDefinition) => {
