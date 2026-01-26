@@ -2,6 +2,11 @@
 
 ## 3.2 Units (Soldiers & Enemies)
 
+### 3.2.1 Unit Identification
+
+- **Name Generation:** Soldiers must be assigned random flavor names from a curated list of Sci-Fi/Military themes (e.g., "Hicks", "Vasquez", "Ripley", "Apone") upon recruitment. "soldier_1" style naming is forbidden for UI display.
+- **Tactical Number:** Each unit on the field has a unique single-digit **Tactical Number** (1-9) for quick identification. This number must be visible in the UI alongside the name.
+
 **Soldier Stats:**
 
 - `hp`: Current Health.

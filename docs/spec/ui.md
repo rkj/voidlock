@@ -206,7 +206,12 @@ To ensure consistent navigation, the UI follows a strict state machine.
     - **Item Targeting:**
       - **Grenades:** Target **Visible Enemies** ONLY. If no enemies are visible, the action is disabled.
       - **Medkits/Stimpacks:** Target **Friendly Units** (Self included).
+      - **Pickup:** This action allows selecting **Single Units ONLY**. The "All Units" option must be disabled or hidden.
   - **Universal Back:** `Q` or `ESC` always goes back one level.
+- **Menu UX Requirements:**
+  - **Context Header:** The Menu must display a explicit **Context Header** (Breadcrumbs or Parent Title) to indicate the current active submenu (e.g., "Pickup > Select Target", "Orders > Move").
+  - **Item Display:** Lists of items (Pickup, Inventory) MUST use the user-friendly `name` field (e.g., "Pulse Rifle", "Artifact Alpha") and NEVER internal IDs (e.g., "collect_recover", "scrap_crate").
+  - **Unit Display:** Lists of units MUST display the format `Name (Tactical Number)` (e.g., "Sgt. Apone (1)", "Pvt. Hudson (2)") to allow correlation with the map view.
 - **Mouse Support:**
   - Full mouse support implemented via clickable menu items and map overlays.
   - Includes a "0. BACK" button in submenus for mouse-only navigation.
