@@ -5,8 +5,9 @@ import {
   CellType,
   UnitState,
   CommandType,
+  GameState,
 } from "@src/shared/types";
-import { SPEED_NORMALIZATION_CONST } from "@src/engine/Constants";
+import { LootManager } from "@src/engine/managers/LootManager";
 
 describe("Regression (voidlock-kwh9): Standardized Timed Durations", () => {
   const mockMap: MapDefinition = {
@@ -20,6 +21,12 @@ describe("Regression (voidlock-kwh9): Standardized Timed Durations", () => {
     for (let x = 0; x < 5; x++) {
       mockMap.cells.push({ x, y, type: CellType.Floor });
     }
+  }
+
+  // Type-safe way to access internal engine state for testing
+  interface CoreEngineInternal {
+    state: GameState;
+    lootManager: LootManager;
   }
 
   it("Medkit duration should scale with unit speed (Base 3000ms)", () => {
@@ -91,14 +98,15 @@ describe("Regression (voidlock-kwh9): Standardized Timed Durations", () => {
       false,
     );
 
-    const unit = (engine as any).state.units[0];
+    const internal = engine as unknown as CoreEngineInternal;
+    const unit = internal.state.units[0];
     unit.pos = { x: 2.5, y: 2.5 }; // Right on top of loot
 
-    (engine as any).lootManager.spawnLoot((engine as any).state, "medkit", {
+    internal.lootManager.spawnLoot(internal.state, "medkit", {
       x: 2.5,
       y: 2.5,
     });
-    const loot = (engine as any).state.loot[0];
+    const loot = internal.state.loot[0];
 
     engine.applyCommand({
       type: CommandType.PICKUP,
@@ -128,7 +136,8 @@ describe("Regression (voidlock-kwh9): Standardized Timed Durations", () => {
       false,
     );
 
-    const unit = (engine as any).state.units[0];
+    const internal = engine as unknown as CoreEngineInternal;
+    const unit = internal.state.units[0];
     unit.pos = { x: 4.5, y: 4.5 }; // Right on extraction
 
     // Trigger extraction (InteractionBehavior)
