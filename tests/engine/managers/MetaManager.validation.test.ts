@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { MetaManager } from "@src/engine/managers/MetaManager";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 
