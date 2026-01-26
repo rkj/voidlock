@@ -1,13 +1,14 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { GameClient } from "@src/engine/GameClient";
-import { MapGeneratorType, MapGenerationConfig } from "@src/shared/types";
+import { MapGenerationConfig, MapDefinition } from "@src/shared/types";
+import { MapFactory } from "@src/engine/map/MapFactory";
 
 // Mock Worker
 const postMessageMock = vi.fn();
 const terminateMock = vi.fn();
 
 class MockWorker {
-  onmessage: any = null;
+  onmessage: ((ev: MessageEvent) => void) | null = null;
   postMessage = postMessageMock;
   terminate = terminateMock;
 }
@@ -15,15 +16,15 @@ class MockWorker {
 vi.stubGlobal("Worker", MockWorker);
 
 // Mock MapGeneratorFactory
-const mockMapGeneratorFactory = (config: MapGenerationConfig) => {
+const mockMapGeneratorFactory = (_config: MapGenerationConfig) => {
   return {
     generate: vi.fn().mockReturnValue({ width: 10, height: 10, cells: [] }),
     load: vi
       .fn()
       .mockImplementation(
-        (data) => data || { width: 10, height: 10, cells: [] },
+        (data: MapDefinition) => data || { width: 10, height: 10, cells: [] },
       ),
-  } as any;
+  } as unknown as MapFactory;
 };
 
 describe("Regression mz3w: Speed Reset on Unpause", () => {
