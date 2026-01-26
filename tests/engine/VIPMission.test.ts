@@ -164,28 +164,6 @@ describe("VIP Mission Mechanics", () => {
   });
 
   it("should unlock VIP only when a soldier is nearby or in LOS", () => {
-    const asciiMap = `
-+-+-+-+
-|P| |V|
-+ +-+ +
-| | | |
-+-+-+-+
-    `.trim();
-    // P is squad spawn at (0,0)
-    // V is VIP at (2,0)
-    // Wall between (0,0) and (2,0) is at x=1
-
-    const mapWithWall = MapGenerator.fromAscii(asciiMap);
-
-    const engine = new CoreEngine(
-      mapWithWall,
-      123,
-      { soldiers: [{ archetypeId: "assault" }], inventory: {} },
-      true, // Agent control enabled
-      false,
-      MissionType.EscortVIP,
-    );
-
     // Manually fix VIP position if fromAscii didn't place it (it uses 'S' for spawn, 'V' is not standard)
     // Actually fromAscii doesn't support 'V'. Let's use 'O' for objective and place VIP there.
     const asciiMap2 = `
