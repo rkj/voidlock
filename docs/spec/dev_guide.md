@@ -105,3 +105,27 @@ All code must be clean, well-factored, easy to read, and follow these best pract
 
 - **No Deep Cloning in Loops**: Avoid `JSON.parse(JSON.stringify(...))` in hot paths.
 - **Object Stability**: Minimize object creation in `render()` loops to reduce GC pressure.
+
+---
+
+## 17) Asset Pipeline
+
+Voidlock uses a custom script to process raw assets into web-optimized formats.
+
+### 17.1 Workflow
+
+1.  **Source**: Raw assets (PNG) are placed in `NanoBanana Assets/`.
+2.  **Processing**: Run `npm run process-assets`.
+    - This script uses `sharp` to trim transparency, resize to 128x128, and convert to WebP.
+    - **Constraint**: `sharp` is required. The script will fail if it is not installed. There is no PNG fallback.
+3.  **Output**: Processed assets are saved to `public/assets/` and indexed in `public/assets/assets.json`.
+4.  **Usage**: The `AssetManager` loads `assets.json` at runtime to resolve logical names to file paths.
+
+### 17.2 Adding New Assets
+
+1.  Add the raw PNG file to `NanoBanana Assets/`.
+2.  Update the `MAPPING` object in `scripts/process_assets.ts`.
+    - Key: Source filename (case-sensitive).
+    - Value: Target filename (e.g., `my_asset.webp`).
+3.  Run `npm run process-assets`.
+4.  Register the new asset in `AssetManager` (for dynamic sprites) or `Icons` (for static UI icons).

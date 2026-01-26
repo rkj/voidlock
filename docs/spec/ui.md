@@ -340,9 +340,13 @@ To ensure visual clarity and correct occlusion, the renderer must adhere to a st
     - Zone Indicators (Extraction Zone, Deployment Zone)
     - Static Mission Entities (Spawn Points, Loot Crates, Terminals)
     - **Icon Distinction**:
-    - **Objectives**: Must render with the `Objective` icon (e.g., Target/Flag).
-    - **Loot Crates**: Must render with a distinct `Crate` icon to differentiate them from mission critical objectives.
-    - **Unit Style adherence**: If the visual style is set to `TacticalIcons`, map entities (like Loot) must render as abstract, high-contrast geometric shapes using the active theme colors, ignoring sprite assets.
+      - **Objectives**:
+        - **Standard Mode**: Render as a Sprite (e.g., Data Disk).
+        - **Tactical Mode**: Render as the `Objective` icon (Target/Flag).
+      - **Loot Crates**:
+        - **Standard Mode**: Render as a `Crate` Sprite.
+        - **Tactical Mode**: Render as a distinct Tactical Icon (e.g., Star/Diamond) or `loot_star.svg`, ignoring the sprite asset.
+    - **Unit Style adherence**: If the visual style is set to `TacticalIcons`, ALL map entities must strictly follow the Tactical Mode rules above, using abstract, high-contrast geometric shapes or vector icons.
 3.  **Unit Layer (Dynamic):**
     - **Soldiers & Enemies:** Must render **ON TOP** of the Ground Decal Layer.
     - _Example:_ A soldier standing on a Spawn Point must obscure the Spawn Point graphic.

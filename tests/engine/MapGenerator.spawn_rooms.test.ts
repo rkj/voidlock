@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { MapGenerator } from "@src/engine/MapGenerator";
-import { MapGeneratorType, CellType } from "@src/shared/types";
+import { MapGeneratorType } from "@src/shared/types";
 
 describe("MapGenerator - Spawn Room Exclusivity", () => {
   const seeds = [123, 456, 789, 101112, 131415];
