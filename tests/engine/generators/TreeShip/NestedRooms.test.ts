@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { TreeShipGenerator } from "@src/engine/generators/TreeShipGenerator";
-import { CellType, BoundaryType } from "@src/shared/types";
+import { BoundaryType } from "@src/shared/types";
 import { Graph } from "@src/engine/Graph";
 
 describe("TreeShipGenerator Nested Rooms & Integrity", () => {
