@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import { CoreEngine } from "@src/engine/CoreEngine";
 import {
   MapDefinition,
@@ -22,15 +22,6 @@ describe("Regression OCMI: Innate AI Profiles", () => {
       mockMap.cells.push({ x, y, type: "Floor" as any });
     }
   }
-
-  const squadConfig = {
-    soldiers: [
-      { archetypeId: "assault" }, // RUSH
-      { archetypeId: "heavy" }, // STAND_GROUND
-      { archetypeId: "medic" }, // RETREAT
-    ],
-    inventory: {},
-  };
 
   it("STAND_GROUND (Heavy) should stay put and shoot", () => {
     const engine = new CoreEngine(
