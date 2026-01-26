@@ -1,18 +1,13 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { CoreEngine } from "@src/engine/CoreEngine";
-import { GameGrid } from "@src/engine/GameGrid";
 import {
   MapDefinition,
   CellType,
   UnitState,
   CommandType,
-  Door,
   SquadConfig,
-  Archetype,
-  ArchetypeLibrary,
   AIProfile,
 } from "@src/shared/types";
-import { Pathfinder } from "@src/engine/Pathfinder";
 
 describe("Movement through Doors", () => {
   let engine: CoreEngine;
