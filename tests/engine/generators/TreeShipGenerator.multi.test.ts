@@ -1,8 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { TreeShipGenerator } from "@src/engine/generators/TreeShipGenerator";
 import {
-  mapToAdjacencyList,
-  hasCycleDFS,
   calculateFillRate,
   checkConnectivity,
 } from "@src/engine/tests/utils/GraphUtils";
@@ -21,9 +19,6 @@ describe("TreeShipGenerator Multi-Corridor", () => {
       it(`should generate a ${size.w}x${size.h} map for seed ${seed} with valid fill rate`, () => {
         const generator = new TreeShipGenerator(seed, size.w, size.h);
         const map = generator.generate();
-        // const adj = mapToAdjacencyList(map);
-
-        // expect(hasCycleDFS(adj)).toBe(false); // Cycles allowed
 
         const fillRate = calculateFillRate(map);
         // Larger maps might have slightly lower fill rate if skeleton is sparse,
