@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { CampaignManager } from "@src/engine/managers/CampaignManager";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 import { UnitStyle } from "@src/shared/types";
