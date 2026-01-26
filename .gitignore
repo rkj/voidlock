@@ -12,7 +12,7 @@ screenshots
 dist
 dist-ssr
 *.local
-NanoBanana Assets
+NanoBanana Assets/*.png
 tags
 coverage/
 
