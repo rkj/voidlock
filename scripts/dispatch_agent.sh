@@ -7,6 +7,11 @@ if [ -z "$TASK_ID" ]; then
   exit 1
 fi
 
+# Create logs directory if it doesn't exist
+mkdir -p logs
+
+LOG_FILE="logs/${TASK_ID}.log"
+
 PROMPT="You are a Sub-Agent. Your goal is to implement task $TASK_ID.
 
 Instructions:
@@ -16,7 +21,8 @@ Instructions:
 4. Implement the changes.
 5. Verify with tests.
 6. DO NOT COMMIT or use 'jj'. The Manager handles version control.
-7. Exit when done."
+7. Exit when done.
+8. CRITICAL: When exiting, provide a concise summary of what was done, what was verified, and if there are any outstanding issues. Start your final message with 'SUMMARY:'."
 
 if [ -n "$CONTEXT_FILE" ]; then
   if [ -f "$CONTEXT_FILE" ]; then
@@ -26,6 +32,8 @@ if [ -n "$CONTEXT_FILE" ]; then
     echo "Warning: Context file $CONTEXT_FILE not found."
   fi
 fi
+
+echo "Dispatching agent for task $TASK_ID. Output logged to $LOG_FILE"
 
 gemini --output-format stream-json \
   --model gemini-3-flash-preview \
@@ -65,4 +73,14 @@ gemini --output-format stream-json \
   --allowed-tools take_snapshot \
   --allowed-tools wait_for \
   --allowed-tools write_file \
-  "$PROMPT"
+  "$PROMPT" > "$LOG_FILE" 2>&1
+
+EXIT_CODE=$?
+
+echo "Agent exited with code $EXIT_CODE"
+echo "---------------------------------------------------"
+echo "Log tail ($LOG_FILE):"
+tail -n 20 "$LOG_FILE"
+echo "---------------------------------------------------"
+
+exit $EXIT_CODE

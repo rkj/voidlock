@@ -27,3 +27,4 @@ coverage/
 *.sln
 *.sw?
 .beads/last-touched
+logs/
