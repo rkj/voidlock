@@ -70,14 +70,12 @@ describe("Regression voidlock-v5n8: Opportunistic Loot Pickup", () => {
 
     // Verify loot exists in actual state
     expect(actualState.loot.length).toBe(1);
-    const lootId = actualState.loot[0].id;
 
     // Run updates. Unit should detect loot and move to it.
     let lootPickedUp = false;
     for (let i = 0; i < 100; i++) {
       engine.update(100);
       const currentState = engine.getState();
-      const unit = currentState.units[0];
 
       if (currentState.loot.length === 0) {
         lootPickedUp = true;
@@ -145,7 +143,6 @@ describe("Regression voidlock-v5n8: Opportunistic Loot Pickup", () => {
 
   it("should autonomously move to and pick up visible objectives", () => {
     // Add a recover objective at (3, 3)
-    const state = engine.getState();
     const actualState = (engine as any).state;
     actualState.objectives.push({
       id: "obj-1",
@@ -160,7 +157,6 @@ describe("Regression voidlock-v5n8: Opportunistic Loot Pickup", () => {
     for (let i = 0; i < 250; i++) {
       engine.update(100);
       const currentState = engine.getState();
-      const unit = currentState.units[0];
       const obj = currentState.objectives.find((o) => o.id === "obj-1")!;
 
       if (obj.state === "Completed") {

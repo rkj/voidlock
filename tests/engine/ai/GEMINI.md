@@ -9,6 +9,7 @@ Tests for autonomous behavior logic. Includes tests for exploration, objective p
 - `VipAI.test.ts`: Tests for VIP movement and escort interaction.
 - `SoldierCoreAI.test.ts`, `SoldierExplorationAI.test.ts`: Tests for autonomous soldier behaviors.
 - `CoordinatedExploration.test.ts`, `CoordinatedObjectives.test.ts`: Tests for multi-unit coordination.
+- `regression_v5n8_opportunistic_loot.test.ts`: Regression test for autonomous loot and objective pickup.
 
 ## Related ADRs
 
