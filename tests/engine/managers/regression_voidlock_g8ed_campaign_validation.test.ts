@@ -1,7 +1,6 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { CampaignManager } from "@src/engine/managers/CampaignManager";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
-import { CampaignState } from "@src/shared/campaign_types";
 
 describe("CampaignManager Validation (voidlock-g8ed)", () => {
   let storage: MockStorageProvider;
