@@ -5,7 +5,6 @@ import {
   CellType,
   MapDefinition,
   SquadConfig,
-  UnitState,
 } from "@src/shared/types";
 
 describe("Boss Mission Objectives and Rewards", () => {
