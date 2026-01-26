@@ -1,12 +1,9 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import { CoreEngine } from "@src/engine/CoreEngine";
 import {
   MapDefinition,
-  UnitState,
-  EnemyType,
   MissionType,
-  EngineMode,
-  CommandType,
+  CellType,
 } from "@src/shared/types";
 import {
   createMockUnit,
@@ -18,8 +15,8 @@ describe("Regression IHFP: Unit Kill Tracking", () => {
     width: 10,
     height: 10,
     cells: [
-      { x: 0, y: 0, type: "Floor" as any },
-      { x: 1, y: 0, type: "Floor" as any },
+      { x: 0, y: 0, type: CellType.Floor },
+      { x: 1, y: 0, type: CellType.Floor },
     ],
     squadSpawn: { x: 0, y: 0 },
   };
