@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { GameClient } from "@src/engine/GameClient";
 import {
   MapDefinition,
@@ -13,7 +13,7 @@ const postMessageMock = vi.fn();
 const terminateMock = vi.fn();
 
 class MockWorker {
-  onmessage: any = null;
+  onmessage: unknown = null;
   postMessage = postMessageMock;
   terminate = terminateMock;
 }
