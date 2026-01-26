@@ -88,7 +88,6 @@ describe("Objective Prioritization AI", () => {
     const unit1 = state1.units[0];
     expect(unit1.state).toBe(UnitState.Moving);
     expect(unit1.activeCommand?.label).toBe("Exploring");
-    const initialTarget = { ...unit1.targetPos };
 
     // 2. Objective is at (4,0). Let's make it visible.
     const door = (engine as any).doorManager.getDoors().get("d1");
