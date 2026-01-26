@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it } from "vitest";
 import { TreeShipGenerator } from "@src/engine/generators/TreeShipGenerator";
 import { MapGenerator } from "@src/engine/MapGenerator";
 import * as fs from "fs";
