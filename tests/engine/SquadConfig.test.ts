@@ -4,7 +4,6 @@ import {
   MapDefinition,
   CellType,
   SquadConfig,
-  ArchetypeLibrary,
 } from "@src/shared/types";
 
 describe("Squad Configuration in CoreEngine", () => {
