@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { Director } from "@src/engine/Director";
 import { PRNG } from "@src/shared/PRNG";
-import { Enemy, EnemyType } from "@src/shared/types";
 
 describe("Director", () => {
   it("should spawn enemies after turnDuration", () => {

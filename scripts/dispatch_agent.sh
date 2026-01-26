@@ -44,6 +44,7 @@ gemini --output-format stream-json \
   --allowed-tools "run_shell_command(ls)" \
   --allowed-tools "run_shell_command(npm run build)" \
   --allowed-tools "run_shell_command(npm run lint)" \
+  --allowed-tools "run_shell_command(npm run test)" \
   --allowed-tools "run_shell_command(npx madge)" \
   --allowed-tools "run_shell_command(npx prettier)" \
   --allowed-tools "run_shell_command(npx tsc)" \
