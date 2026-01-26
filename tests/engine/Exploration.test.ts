@@ -3,7 +3,6 @@ import { CoreEngine } from "@src/engine/CoreEngine";
 import {
   MapDefinition,
   CellType,
-  UnitState,
   MissionType,
   CommandType,
 } from "@src/shared/types";
@@ -26,7 +25,6 @@ describe("Exploration Logic", () => {
           targetCell: { x: 99, y: 0 },
         },
       ],
-      // extraction: undefined,
     };
 
     for (let x = 0; x < 10; x++) {
@@ -69,8 +67,6 @@ describe("Exploration Logic", () => {
     // He should be Idle at 0,0 (or near extraction)
     // Or at least NOT at 9,0.
 
-    // console.log(`Soldier pos: ${soldier.pos.x.toFixed(2)}, ${soldier.pos.y.toFixed(2)} State: ${soldier.state}`);
-
     // If logic is bad, he might be moving towards 9
 
     // Let's force him to NOT have extraction at 0,0 to avoid "Go to extraction" logic interfering.
@@ -108,7 +104,6 @@ describe("Exploration Logic", () => {
           targetCell: { x: 9, y: 0 },
         },
       ],
-      // extraction: undefined,
     };
 
     // Top row 0..4
@@ -154,15 +149,10 @@ describe("Exploration Logic", () => {
 
     for (let i = 0; i < 100; i++) {
       engine.update(100);
-      const s = engine.getState().units[0];
-      // console.log(`T=${i} Pos: ${s.pos.x.toFixed(1)},${s.pos.y.toFixed(1)} State: ${s.state} Target: ${s.targetPos?.x},${s.targetPos?.y}`);
     }
 
     const state = engine.getState();
     const soldier = state.units[0];
-
-    // console.log(`Final Pos: ${soldier.pos.x},${soldier.pos.y} State: ${soldier.state}`);
-    // console.log('Discovered:', state.discoveredCells);
 
     // He should reach (4,0), look down to (4,4), see it, and turn back.
     // He should NOT walk to (4,4).
