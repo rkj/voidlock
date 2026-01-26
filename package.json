@@ -1,7 +1,7 @@
 {
   "name": "voidlock",
   "private": true,
-  "version": "0.112.58",
+  "version": "0.112.59",
   "description": "Tactical squad combat game.",
   "type": "module",
   "scripts": {

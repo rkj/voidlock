@@ -4,7 +4,6 @@ import {
   MapDefinition,
   CellType,
   UnitState,
-  CommandType,
   EnemyType,
   AIProfile,
 } from "@src/shared/types";
