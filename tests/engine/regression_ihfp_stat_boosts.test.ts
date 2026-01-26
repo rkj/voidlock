@@ -1,23 +1,15 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import { CoreEngine } from "@src/engine/CoreEngine";
 import {
   MapDefinition,
-  UnitState,
-  EnemyType,
-  MissionType,
-  EngineMode,
-  CommandType,
+  CellType,
 } from "@src/shared/types";
-import {
-  createMockUnit,
-  createMockEnemy,
-} from "@src/engine/tests/utils/MockFactory";
 
 describe("Regression IHFP: Leveling Stat Boosts", () => {
   const mockMap: MapDefinition = {
     width: 10,
     height: 10,
-    cells: [{ x: 0, y: 0, type: "Floor" as any }],
+    cells: [{ x: 0, y: 0, type: CellType.Floor }],
     squadSpawn: { x: 0, y: 0 },
   };
 
