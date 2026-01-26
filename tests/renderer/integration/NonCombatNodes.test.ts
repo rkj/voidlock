@@ -57,14 +57,14 @@ vi.mock("@src/renderer/ui/ModalService", () => ({
 
 let mockOnChoice: (choice: any) => void;
 vi.mock("@src/renderer/ui/EventModal", () => ({
-  EventModal: vi.fn().mockImplementation((modalService, onChoice) => {
+  EventModal: vi.fn().mockImplementation((_modalService, onChoice) => {
     mockOnChoice = onChoice;
     return {
       show: vi.fn(),
       hide: vi.fn(),
     };
   }),
-  OutcomeModal: vi.fn().mockImplementation((modalService, onConfirm) => ({
+  OutcomeModal: vi.fn().mockImplementation((_modalService, onConfirm) => ({
     show: vi.fn().mockImplementation(() => onConfirm()),
     hide: vi.fn(),
   })),

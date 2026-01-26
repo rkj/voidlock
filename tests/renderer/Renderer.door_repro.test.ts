@@ -4,7 +4,6 @@ import {
   GameState,
   MapDefinition,
   CellType,
-  UnitState,
   Door,
 } from "@src/shared/types";
 import { createMockGameState } from "@src/engine/tests/utils/MockFactory";

@@ -54,10 +54,6 @@ describe("Invincible Combat Repro (voidlock-zkhz)", () => {
     engine.update(16);
 
     const newState = engine.getState();
-    const finalEnemiesHp = newState.enemies.map((e: any) => ({
-      id: e.id,
-      hp: e.hp,
-    }));
 
     // Check if any enemy took damage
     const tookDamage =

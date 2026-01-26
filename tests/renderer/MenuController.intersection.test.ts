@@ -70,7 +70,6 @@ describe("MenuController Intersection Discovery", () => {
     controller.handleMenuInput("2", mockState);
     expect(controller.menuState).toBe("TARGET_SELECT");
 
-    const renderState = controller.getRenderableState(mockState);
     const intersectionOptions = controller.overlayOptions.filter((o) =>
       o.label.includes("Intersection"),
     );

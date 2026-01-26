@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { VisibilityPolygon } from "@src/renderer/VisibilityPolygon";
-import { MapDefinition, CellType, Vector2 } from "@src/shared/types";
+import { MapDefinition, CellType } from "@src/shared/types";
 import { Graph } from "@src/engine/Graph";
 
 describe("VisibilityPolygon", () => {

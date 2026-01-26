@@ -12,8 +12,6 @@ import {
   createMockEnemy,
   createMockGameState,
 } from "@src/engine/tests/utils/MockFactory";
-import { Graph } from "@src/engine/Graph";
-import { VisibilityPolygon } from "@src/renderer/VisibilityPolygon";
 
 // Mock HTMLCanvasElement and Context
 const mockContext = {

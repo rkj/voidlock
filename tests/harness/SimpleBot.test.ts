@@ -7,7 +7,6 @@ import {
   Objective,
   MapDefinition,
   Unit,
-  Enemy,
 } from "@src/shared/types";
 import {
   createMockUnit,

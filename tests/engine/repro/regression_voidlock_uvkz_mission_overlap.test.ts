@@ -5,7 +5,6 @@ import {
   CellType,
   MissionType,
   GameState,
-  CampaignNodeType,
 } from "@src/shared/types";
 import { PRNG } from "@src/shared/PRNG";
 import { EnemyManager } from "@src/engine/managers/EnemyManager";
@@ -32,7 +31,6 @@ describe("Regression voidlock-uvkz: Mission objective overlap", () => {
     }
 
     const prng = new PRNG(12345);
-    const missionManager = new MissionManager(MissionType.RecoverIntel, prng);
     const enemyManager = new EnemyManager();
     const state: GameState = {
       status: "InProgress",

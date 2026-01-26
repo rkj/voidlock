@@ -1,7 +1,7 @@
 /**
  * @vitest-environment jsdom
  */
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import { ScreenManager } from "../../src/renderer/ScreenManager";
 import { SessionManager } from "../../src/renderer/SessionManager";
 

@@ -5,7 +5,6 @@ import {
   MapDefinition,
   CellType,
   UnitState,
-  Objective,
   EnemyType,
 } from "@src/shared/types";
 import {

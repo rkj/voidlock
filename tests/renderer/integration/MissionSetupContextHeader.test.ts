@@ -49,7 +49,6 @@ vi.mock("@src/renderer/ui/ModalService", () => ({
   ModalService: vi.fn().mockImplementation(() => mockModalService),
 }));
 
-import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 let currentCampaignState: any = null;
 
 vi.mock("@src/renderer/campaign/CampaignManager", () => {
@@ -183,7 +182,6 @@ describe("Mission Setup Context Header", () => {
     // Wait, CampaignScreen is NOT mocked in my setup, it's the real one but its dependencies might be mocked.
 
     // Let's see if we can find a node to click.
-    const nodes = document.querySelectorAll(".campaign-node");
     // If no nodes, maybe we need to "Initialize Expedition" first if it's a new campaign.
 
     const startBtn = document.querySelector(
