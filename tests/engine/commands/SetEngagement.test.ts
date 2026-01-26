@@ -6,12 +6,9 @@ import {
   UnitState,
   CommandType,
   SquadConfig,
-  Archetype,
-  ArchetypeLibrary,
   EnemyType,
   AIProfile,
 } from "@src/shared/types";
-import { GameGrid } from "@src/engine/GameGrid";
 
 describe("Command: SET_ENGAGEMENT", () => {
   let engine: CoreEngine;
