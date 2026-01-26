@@ -5,7 +5,6 @@ import {
   CellType,
   UnitState,
   CommandType,
-  MissionType,
   AIProfile,
 } from "@src/shared/types";
 

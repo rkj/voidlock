@@ -5,6 +5,7 @@ This directory contains the automated test suite for the game engine, using Vite
 ## Files
 
 - Numerous `.test.ts` files covering core engine components like `CoreEngine`, `GameGrid`, `LineOfSight`, `MapGenerator`, `Pathfinder`, etc.
+- `CommandStateUI.test.ts`: Verifies that unit command states and labels are correctly tracked for UI display.
 - `MissionWinConditions.test.ts`: Verifies win/loss scenarios for all mission types (Intel, Hive, Artifact, VIP).
 - `regression_mplv_objective_ignored.test.ts`: Fix for soldiers ignoring visible objectives during exploration.
 - `regression_mplv_accidental_claim.test.ts`: Specific case where exploration target overlaps objective.
