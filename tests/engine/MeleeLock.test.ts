@@ -3,7 +3,6 @@ import { CoreEngine } from "@src/engine/CoreEngine";
 import {
   MapDefinition,
   CellType,
-  SquadConfig,
   MissionType,
   CommandType,
   UnitState,
@@ -34,10 +33,6 @@ const mockMap: MapDefinition = {
   spawnPoints: [],
 };
 
-const mockSquad: SquadConfig = {
-  soldiers: [{ archetypeId: "assault" }],
-  inventory: {},
-};
 describe("Melee Lock & Ignore Policy", () => {
   it("should force combat and block movement when in same cell, even if IGNORE", () => {
     const engine = new CoreEngine(
@@ -165,9 +160,6 @@ describe("Melee Lock & Ignore Policy", () => {
       damageDealt: 0,
       objectivesCompleted: 0,
     });
-
-    const state = engine.getState();
-    const soldier = state.units[0];
 
     // Add Enemy at 1,0
     engine.addEnemy({
