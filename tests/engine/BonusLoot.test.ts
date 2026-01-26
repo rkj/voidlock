@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import { CoreEngine } from "../../src/engine/CoreEngine";
 import {
   MapDefinition,
@@ -6,7 +6,6 @@ import {
   SquadConfig,
   CellType,
   CommandType,
-  UnitState,
 } from "../../src/shared/types";
 import { MapFactory } from "../../src/engine/map/MapFactory";
 
