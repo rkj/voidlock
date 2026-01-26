@@ -45,7 +45,7 @@ Use these scripts from `package.json`:
 
 ## Development Guidelines
 
-**CRITICAL:** Read [docs/spec/dev_guide.md](./docs/spec/dev_guide.md) before making any code edits.
+**CRITICAL:** Read @docs/dev_guide.md before making any code edits.
 
 ### 1. Architecture Restrictions
 
