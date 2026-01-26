@@ -69,10 +69,3 @@ Agents and developers should consult the specific files below for implementation
   - Sector Map Logic
   - Economy (Scrap) & Roster Management
 
-- **[Backlog & Future](backlog.md)**
-  - Planned features and roadmap.
-
-- **[Developer Guide](dev_guide.md)**
-  - Acceptance Criteria
-  - Testing Strategy
-  - Agent Debugging Protocols
