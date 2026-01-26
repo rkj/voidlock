@@ -165,31 +165,55 @@ export class MapEntityLayer implements RenderLayer {
       if (!isVisible && !isDiscovered && !state.settings.debugOverlayEnabled)
         return;
 
-      // Render loot crate
-      const icon = this.assets.iconImages.Crate;
-      if (icon) {
-        const iconSize = cellSize * 0.5;
-        ctx.drawImage(
-          icon,
-          x + (cellSize - iconSize) / 2,
-          y + (cellSize - iconSize) / 2,
-          iconSize,
-          iconSize,
-        );
-      } else {
-        ctx.fillStyle = this.theme.getColor("--color-objective-bg");
-        ctx.fillRect(
-          x + cellSize * 0.2,
-          y + cellSize * 0.2,
-          cellSize * 0.6,
-          cellSize * 0.6,
-        );
-
-        // Add a border if tactical
-        if (isTactical) {
+      if (isTactical) {
+        // Tactical Mode: Always use the Star Icon for loot
+        const icon = this.assets.iconImages.LootStar;
+        if (icon) {
+          const iconSize = cellSize * 0.6;
+          ctx.drawImage(
+            icon,
+            x + (cellSize - iconSize) / 2,
+            y + (cellSize - iconSize) / 2,
+            iconSize,
+            iconSize,
+          );
+        } else {
+          // Fallback shape
+          ctx.fillStyle = this.theme.getColor("--color-objective-bg");
+          ctx.beginPath();
+          ctx.arc(
+            x + cellSize / 2,
+            y + cellSize / 2,
+            cellSize * 0.3,
+            0,
+            Math.PI * 2,
+          );
+          ctx.fill();
           ctx.strokeStyle = this.theme.getColor("--color-info");
           ctx.lineWidth = 2;
-          ctx.strokeRect(
+          ctx.stroke();
+        }
+      } else {
+        // Standard Mode: Use Sprites
+        // 'scrap_crate' uses the Credits sprite (Loot)
+        // Others use the Crate sprite
+        const assetName =
+          loot.itemId === "scrap_crate" ? "Loot" : "Crate";
+        const icon = this.assets.iconImages[assetName];
+
+        if (icon) {
+          const iconSize = cellSize * 0.5;
+          ctx.drawImage(
+            icon,
+            x + (cellSize - iconSize) / 2,
+            y + (cellSize - iconSize) / 2,
+            iconSize,
+            iconSize,
+          );
+        } else {
+          // Fallback
+          ctx.fillStyle = this.theme.getColor("--color-objective-bg");
+          ctx.fillRect(
             x + cellSize * 0.2,
             y + cellSize * 0.2,
             cellSize * 0.6,
@@ -202,6 +226,7 @@ export class MapEntityLayer implements RenderLayer {
 
   private renderObjectives(ctx: CanvasRenderingContext2D, state: GameState) {
     const cellSize = this.sharedState.cellSize;
+    const isTactical = this.sharedState.unitStyle === "TacticalIcons";
 
     state.objectives?.forEach((obj) => {
       if (
@@ -218,19 +243,40 @@ export class MapEntityLayer implements RenderLayer {
 
         const x = obj.targetCell.x * cellSize;
         const y = obj.targetCell.y * cellSize;
-        ctx.fillStyle = this.theme.getColor("--color-objective-bg");
-        ctx.fillRect(x + 4, y + 4, cellSize - 8, cellSize - 8);
 
-        const icon = this.assets.iconImages.Objective;
-        if (icon) {
-          const iconSize = cellSize * 0.6;
-          ctx.drawImage(
-            icon,
-            x + (cellSize - iconSize) / 2,
-            y + (cellSize - iconSize) / 2,
-            iconSize,
-            iconSize,
-          );
+        if (isTactical) {
+          // Tactical Mode: Use the Objective Icon (Target/Flag)
+          const icon = this.assets.iconImages.Objective;
+          if (icon) {
+            const iconSize = cellSize * 0.6;
+            ctx.drawImage(
+              icon,
+              x + (cellSize - iconSize) / 2,
+              y + (cellSize - iconSize) / 2,
+              iconSize,
+              iconSize,
+            );
+          } else {
+             ctx.fillStyle = this.theme.getColor("--color-objective-bg");
+             ctx.fillRect(x + 4, y + 4, cellSize - 8, cellSize - 8);
+          }
+        } else {
+          // Standard Mode: Use the Data Disk Sprite
+          const icon = this.assets.iconImages.ObjectiveDisk;
+          if (icon) {
+            const iconSize = cellSize * 0.6;
+            ctx.drawImage(
+              icon,
+              x + (cellSize - iconSize) / 2,
+              y + (cellSize - iconSize) / 2,
+              iconSize,
+              iconSize,
+            );
+          } else {
+             // Fallback
+             ctx.fillStyle = this.theme.getColor("--color-objective-bg");
+             ctx.fillRect(x + 4, y + 4, cellSize - 8, cellSize - 8);
+          }
         }
       }
     });

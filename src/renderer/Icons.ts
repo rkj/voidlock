@@ -16,4 +16,7 @@ export const Icons = {
   Health: base + "assets/icons/health.svg",
   Visibility: base + "assets/icons/visibility.svg",
   Crate: base + "assets/crate.webp",
+  Loot: base + "assets/loot_credits.webp",
+  LootStar: base + "assets/icons/loot_star.svg",
+  ObjectiveDisk: base + "assets/data_disk.webp",
 };
