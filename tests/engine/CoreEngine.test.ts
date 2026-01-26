@@ -1,29 +1,18 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { CoreEngine } from "@src/engine/CoreEngine";
-import { GameGrid } from "@src/engine/GameGrid";
 import {
   MapDefinition,
   CellType,
   UnitState,
   CommandType,
-  Vector2,
   SquadConfig,
-  Archetype,
-  ArchetypeLibrary,
-  SpawnPoint,
   Objective,
   EnemyType,
   AIProfile,
 } from "@src/shared/types";
-import { Pathfinder } from "@src/engine/Pathfinder";
 
 describe("CoreEngine with Objectives and Game Loop", () => {
   let engine: CoreEngine;
-  const mockSpawnPoint: SpawnPoint = {
-    id: "sp1",
-    pos: { x: 0, y: 0 },
-    radius: 1,
-  };
   const mockObjective: Objective = {
     id: "obj1",
     kind: "Recover",
