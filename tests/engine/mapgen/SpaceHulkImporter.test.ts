@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { MapGenerator } from "@src/engine/MapGenerator";
-import { TileAssembly, CellType, MapGeneratorType } from "@src/shared/types";
+import { TileAssembly, MapGeneratorType } from "@src/shared/types";
 import { SpaceHulkTileLibrary } from "@src/content/spaceHulkTiles";
 
 describe("Space Hulk Importer", () => {
@@ -35,8 +35,11 @@ describe("Space Hulk Importer", () => {
       type: MapGeneratorType.Procedural,
     });
     const result = generator.validate(map);
-    // Should be invalid because spawns are in corridors, but we can check if it's otherwise okay
-    // Actually, let's fix the test to put spawns in rooms so it passes validation
+    // Invalid because spawns are in corridors, but we check if it validates other aspects
+    expect(result.isValid).toBe(false);
+    expect(result.issues.some((i) => i.includes("must be in a room"))).toBe(
+      true,
+    );
   });
 
   it("should pass validation for a valid Space Hulk assembly", () => {
