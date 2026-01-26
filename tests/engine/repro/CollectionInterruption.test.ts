@@ -4,7 +4,6 @@ import {
   MapDefinition,
   CellType,
   UnitState,
-  CommandType,
 } from "@src/shared/types";
 
 describe("Collection Interruption Repro", () => {
@@ -44,18 +43,10 @@ describe("Collection Interruption Repro", () => {
     realUnit.pos = { x: 2.1, y: 2.1 };
     realUnit.state = UnitState.Idle;
 
-    console.log("Initial state:", realUnit.state, "Pos:", realUnit.pos);
-
     // Update once. It should see it's at objective and start channeling.
     engine.update(100);
 
     const unitAfterFirstUpdate = engine.getState().units[0];
-    console.log(
-      "State after 1st update:",
-      unitAfterFirstUpdate.state,
-      "Label:",
-      (unitAfterFirstUpdate.activeCommand as any)?.label,
-    );
 
     // If bug exists, unit might pick "Exploring" instead of "Collect"
     // Wait, the check for "Recover" objective is at the END of update.
@@ -68,7 +59,6 @@ describe("Collection Interruption Repro", () => {
     // Update again. It should CONTINUE channeling.
     engine.update(100);
     const unitAfterSecondUpdate = engine.getState().units[0];
-    console.log("State after 2nd update:", unitAfterSecondUpdate.state);
     expect(unitAfterSecondUpdate.state).toBe(UnitState.Channeling);
   });
 });
