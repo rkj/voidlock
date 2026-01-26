@@ -2,7 +2,6 @@ import { describe, it, expect } from "vitest";
 import { MapGenerator } from "@src/engine/MapGenerator";
 import {
   TileAssembly,
-  TileDefinition,
   CellType,
   BoundaryType,
   MapGeneratorType,
