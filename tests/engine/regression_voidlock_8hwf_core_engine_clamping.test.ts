@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import { CoreEngine } from "@src/engine/CoreEngine";
-import { MapDefinition, SquadConfig, EngineMode } from "@src/shared/types";
+import { MapDefinition, SquadConfig, EngineMode, MissionType } from "@src/shared/types";
 
 describe("CoreEngine: allowTacticalPause Clamping", () => {
   const mockMap: MapDefinition = { width: 10, height: 10, cells: [] };
@@ -13,7 +13,7 @@ describe("CoreEngine: allowTacticalPause Clamping", () => {
       squadConfig,
       true,
       false,
-      "Default" as any,
+      MissionType.Default,
       false,
       0,
       1.0,
@@ -41,7 +41,7 @@ describe("CoreEngine: allowTacticalPause Clamping", () => {
       squadConfig,
       true,
       false,
-      "Default" as any,
+      MissionType.Default,
       false,
       0,
       1.0,
