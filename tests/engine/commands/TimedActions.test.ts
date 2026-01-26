@@ -5,7 +5,6 @@ import {
   CellType,
   UnitState,
   CommandType,
-  MissionType,
 } from "@src/shared/types";
 
 describe("Timed Actions (Extraction/Collection)", () => {
