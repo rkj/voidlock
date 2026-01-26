@@ -4,8 +4,6 @@ import { MapGenerator } from "@src/engine/MapGenerator";
 import {
   UnitState,
   SquadConfig,
-  MapGeneratorType,
-  Vector2,
   AIProfile,
 } from "@src/shared/types";
 
@@ -70,7 +68,6 @@ describe("Exploration Efficiency Regression (ICWK)", () => {
     for (let t = 0; t < maxTicks; t++) {
       engine.update(dt);
       const state = engine.getState();
-      const unit = state.units[0];
       if (state.discoveredCells.length >= totalFloorCount) {
         break;
       }
