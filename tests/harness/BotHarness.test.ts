@@ -3,8 +3,8 @@ import { describe, it, expect, vi } from "vitest";
 // Mock GameClient
 vi.mock("@src/engine/GameClient", () => {
   return {
-    GameClient: vi.fn().mockImplementation((mapGeneratorFactory: any) => ({
-      // Add mapGeneratorFactory to constructor
+    GameClient: vi.fn().mockImplementation((_mapGeneratorFactory: any) => ({
+      // Add _mapGeneratorFactory to constructor
       onStateUpdate: vi.fn(),
       sendCommand: vi.fn(),
     })),
@@ -14,7 +14,7 @@ vi.mock("@src/engine/GameClient", () => {
 import { BotHarness } from "@src/harness/BotHarness";
 import { GameClient } from "@src/engine/GameClient";
 import { Bot } from "@src/harness/Bot";
-import { GameState, CommandType, MapGeneratorType } from "@src/shared/types";
+import { GameState, CommandType } from "@src/shared/types";
 import { MapGenerator } from "@src/engine/MapGenerator";
 
 describe("BotHarness", () => {

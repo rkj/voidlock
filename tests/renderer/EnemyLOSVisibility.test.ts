@@ -4,7 +4,6 @@ import {
   GameState,
   MapDefinition,
   CellType,
-  UnitState,
   EnemyType,
   EngineMode,
 } from "@src/shared/types";

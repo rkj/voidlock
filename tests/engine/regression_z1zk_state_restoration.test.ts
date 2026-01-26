@@ -9,7 +9,6 @@ import {
   AIProfile,
   PickupCommand,
   GameState,
-  UseItemCommand,
 } from "@src/shared/types";
 import { LootManager } from "@src/engine/managers/LootManager";
 

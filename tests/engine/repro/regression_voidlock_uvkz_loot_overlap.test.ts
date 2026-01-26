@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { MapFactory } from "@src/engine/map/MapFactory";
-import { MapDefinition, CellType, MapGeneratorType } from "@src/shared/types";
+import { MapDefinition, CellType } from "@src/shared/types";
 
 describe("Regression voidlock-uvkz: Loot overlap with EnemySpawn", () => {
   it("should not place loot on an enemy spawn point even if they share a room", () => {

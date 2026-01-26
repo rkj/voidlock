@@ -4,8 +4,6 @@ import {
   CommandType,
   GameState,
   UnitState,
-  CellType,
-  EngagementPolicy,
   MissionType,
 } from "@src/shared/types";
 

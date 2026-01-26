@@ -4,9 +4,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
   MapGeneratorType,
-  EngineMode,
-  UnitStyle,
-  MissionType,
 } from "@src/shared/types";
 
 // Mock dependencies before importing main.ts
@@ -74,7 +71,7 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
         load: vi.fn(),
         processMissionResult: vi.fn(),
         save: vi.fn(),
-        startNewCampaign: vi.fn((seed, diff, pause, theme, style, mapGen) => {
+        startNewCampaign: vi.fn((_seed, diff, pause, theme, style, mapGen) => {
           currentCampaignState = {
             status: "Active",
             nodes: [
@@ -235,7 +232,7 @@ describe("Campaign Map Generator Integration", () => {
     // 1. Manually set campaign state with TreeShip generator
     const { CampaignManager } =
       await import("@src/renderer/campaign/CampaignManager");
-    const manager = CampaignManager.getInstance();
+    CampaignManager.getInstance();
 
     // Simulate an existing campaign with TreeShip rules
     currentCampaignState = {

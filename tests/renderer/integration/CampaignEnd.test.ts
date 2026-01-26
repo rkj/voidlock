@@ -2,8 +2,7 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
-import { MissionType, UnitState } from "@src/shared/types";
+import { UnitState } from "@src/shared/types";
 
 // Mock dependencies before importing main.ts
 vi.mock("@package.json", () => ({

@@ -1,6 +1,5 @@
 import { describe, it, expect } from "vitest";
 import { VisibilityPolygon } from "@src/renderer/VisibilityPolygon";
-import { Vector2 } from "@src/shared/types";
 import { DenseShipGenerator } from "@src/engine/generators/DenseShipGenerator";
 import { Graph } from "@src/engine/Graph";
 
