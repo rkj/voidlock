@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { Graph, Boundary, GraphCell } from "@src/engine/Graph";
+import { Graph } from "@src/engine/Graph";
 import { CellType, MapDefinition, BoundaryType } from "@src/shared/types";
 
 describe("Graph", () => {
