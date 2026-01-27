@@ -23,7 +23,7 @@
 At the start of every session, run:
 
 1. `bd list --status in_progress --json`: Check for unfinished work.
-1. [if in progress is empty] `bd ready --json -n 1`: Check for all actionable tasks that are unblocked.
+1. [if in progress is empty] `bd ready --sort priority --json -n 1`: Check for all actionable tasks that are unblocked.
 
 **Decision Logic:**
 
