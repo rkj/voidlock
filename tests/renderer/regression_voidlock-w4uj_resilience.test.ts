@@ -121,7 +121,7 @@ describe("Resilience Script (voidlock-w4uj)", () => {
     let listenerCalled = false;
 
     // The emergency reset logic from index.html
-    resetBtn.addEventListener("click", function (e) {
+    resetBtn.addEventListener("click", function () {
       const isAppHealthy = window.GameAppInstance && !window.__VOIDLOCK_PANIC__;
       if (!isAppHealthy) {
         if (confirm("EMERGENCY RESET")) {

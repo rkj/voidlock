@@ -233,7 +233,6 @@ describe("Non-Combat Node Interactions", () => {
     };
     state.nodes = [eventNode];
 
-    const initialScrap = state.scrap;
     const applyChoiceSpy = vi.spyOn(manager, "applyEventChoice");
 
     (app as any).onCampaignNodeSelected(eventNode);

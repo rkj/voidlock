@@ -2,7 +2,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { GameApp } from "@src/renderer/app/GameApp";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
-import { ConfigManager } from "@src/renderer/ConfigManager";
 import { SquadBuilder } from "@src/renderer/components/SquadBuilder";
 import { MissionType } from "@src/shared/types";
 

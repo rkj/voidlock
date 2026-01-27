@@ -69,7 +69,7 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
         load: vi.fn(),
         processMissionResult: vi.fn(),
         save: vi.fn(),
-        startNewCampaign: vi.fn((seed, diff, pause, theme) => {
+        startNewCampaign: vi.fn((_seed, _diff, _pause, _theme) => {
           currentCampaignState = {
             status: "Active",
             nodes: [

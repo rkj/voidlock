@@ -4,7 +4,6 @@ import {
   GameState,
   UnitState,
   MissionType,
-  CommandType,
 } from "@src/shared/types";
 
 describe("Regression i864: Redundant Prefixes in Command Menu", () => {

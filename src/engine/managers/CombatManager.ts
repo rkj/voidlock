@@ -4,7 +4,6 @@ import {
   UnitState,
   Enemy,
   WeaponLibrary,
-  Vector2,
   Attacker,
 } from "../../shared/types";
 import { LineOfSight } from "../LineOfSight";

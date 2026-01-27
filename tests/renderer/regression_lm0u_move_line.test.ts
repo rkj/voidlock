@@ -3,7 +3,6 @@ import { Renderer } from "@src/renderer/Renderer";
 import {
   GameState,
   MapDefinition,
-  CellType,
   UnitState,
 } from "@src/shared/types";
 import {

@@ -3,7 +3,6 @@
  */
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { ConfigManager } from "@src/renderer/ConfigManager";
-import { UnitStyle, MapGeneratorType, MissionType } from "@src/shared/types";
 
 describe("ConfigManager Validation (voidlock-g8ed)", () => {
   beforeEach(() => {

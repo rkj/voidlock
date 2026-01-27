@@ -1,7 +1,6 @@
 import {
   GameState,
   Enemy,
-  Vector2,
 } from "../../shared/types";
 import { LineOfSight } from "../LineOfSight";
 import { PRNG } from "../../shared/PRNG";

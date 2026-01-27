@@ -2,7 +2,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { CampaignScreen } from "@src/renderer/screens/CampaignScreen";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
-import { CampaignNode } from "@src/shared/campaign_types";
 
 describe("CampaignScreen Bonus Loot Pips", () => {
   let container: HTMLElement;

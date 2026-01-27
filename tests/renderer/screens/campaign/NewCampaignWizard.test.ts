@@ -3,7 +3,6 @@
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { NewCampaignWizard } from "@src/renderer/screens/campaign/NewCampaignWizard";
-import { MetaManager } from "@src/renderer/campaign/MetaManager";
 
 // Mock MetaManager
 vi.mock("@src/renderer/campaign/MetaManager", () => ({
