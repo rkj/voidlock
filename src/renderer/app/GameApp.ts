@@ -240,6 +240,9 @@ export class GameApp {
       },
     );
 
+    // Special bindings that were in main.ts
+    this.setupAdditionalUIBindings();
+
     // 4. Bind events
     this.inputBinder.bindAll({
       onTogglePause: () => this.togglePause(),
@@ -349,10 +352,66 @@ export class GameApp {
           this.context.campaignShell.hide();
         }
       },
+      onUnitStyleChange: (style: UnitStyle) => {
+        this.unitStyle = style;
+        this.saveCurrentConfig();
+      },
+      onThemeChange: (themeId: string) => {
+        this.currentThemeId = themeId;
+        this.context.themeManager.setTheme(this.currentThemeId);
+        this.saveCurrentConfig();
+      },
+      onMapGeneratorChange: (type: MapGeneratorType) => {
+        if (this.currentMapGeneratorType === type) return;
+        this.currentMapGeneratorType = type;
+        this.saveCurrentConfig();
+      },
+      onMissionTypeChange: (type: MissionType) => {
+        this.currentMissionType = type;
+        if (this.currentMissionType === MissionType.EscortVIP) {
+          this.currentSquad.soldiers = this.currentSquad.soldiers.filter(
+            (s) => s.archetypeId !== "vip",
+          );
+        }
+        this.renderSquadBuilder(this.currentCampaignNode !== null);
+        this.saveCurrentConfig();
+      },
+      onToggleFog: (enabled: boolean) => {
+        this.fogOfWarEnabled = enabled;
+        this.saveCurrentConfig();
+      },
+      onToggleDebug: (enabled: boolean) => {
+        this.debugOverlayEnabled = enabled;
+        this.saveCurrentConfig();
+      },
+      onToggleLos: (enabled: boolean) => {
+        this.losOverlayEnabled = enabled;
+        this.saveCurrentConfig();
+      },
+      onToggleAi: (enabled: boolean) => {
+        this.agentControlEnabled = enabled;
+        this.saveCurrentConfig();
+      },
+      onTogglePauseAllowed: (enabled: boolean) => {
+        this.allowTacticalPause = enabled;
+        this.saveCurrentConfig();
+      },
+      onMapSizeChange: (width: number, _height: number) => {
+        if (this.currentCampaignNode) return;
+        this.currentMapWidth = width;
+        this.currentMapHeight = _height;
+        this.currentSpawnPointCount = calculateSpawnPoints(width);
+        const spInput = document.getElementById(
+          "map-spawn-points",
+        ) as HTMLInputElement;
+        const spValue = document.getElementById("map-spawn-points-value");
+        if (spInput) {
+          spInput.value = this.currentSpawnPointCount.toString();
+          if (spValue) spValue.textContent = spInput.value;
+        }
+        this.saveCurrentConfig();
+      },
     });
-
-    // Special bindings that were in main.ts
-    this.setupAdditionalUIBindings();
 
     this.context.inputManager.init();
 
@@ -450,21 +509,6 @@ export class GameApp {
   // --- Logic copied from main.ts ---
 
   private setupAdditionalUIBindings() {
-    const missionSelect = document.getElementById(
-      "mission-type",
-    ) as HTMLSelectElement;
-    if (missionSelect) {
-      missionSelect.addEventListener("change", () => {
-        this.currentMissionType = missionSelect.value as MissionType;
-        if (this.currentMissionType === MissionType.EscortVIP) {
-          this.currentSquad.soldiers = this.currentSquad.soldiers.filter(
-            (s) => s.archetypeId !== "vip",
-          );
-        }
-        this.renderSquadBuilder(this.currentCampaignNode !== null);
-      });
-    }
-
     // Add options to map generator select if they don't exist
     const mapGenSelect = document.getElementById(
       "map-generator-type",
@@ -480,24 +524,6 @@ export class GameApp {
         denseOpt.textContent = "Dense Ship (>90% fill)";
         mapGenSelect.appendChild(denseOpt);
       }
-
-      mapGenSelect.addEventListener("change", () => {
-        const newValue = mapGenSelect.value as MapGeneratorType;
-        if (this.currentMapGeneratorType === newValue) return;
-        this.currentMapGeneratorType = newValue;
-        this.saveCurrentConfig();
-      });
-    }
-
-    const themeSelect = document.getElementById(
-      "map-theme",
-    ) as HTMLSelectElement;
-    if (themeSelect) {
-      themeSelect.addEventListener("change", () => {
-        this.currentThemeId = themeSelect.value;
-        this.context.themeManager.setTheme(this.currentThemeId);
-        this.saveCurrentConfig();
-      });
     }
 
     // Injection of mission type select if not present
@@ -517,81 +543,8 @@ export class GameApp {
                             <option value="${MissionType.RecoverIntel}">Recover Intel</option>        </select>
               `;
         mapGenGroup.insertBefore(missionDiv, mapGenGroup.firstChild);
-        const newMissionSelect = document.getElementById(
-          "mission-type",
-        ) as HTMLSelectElement;
-        newMissionSelect.addEventListener("change", () => {
-          this.currentMissionType = newMissionSelect.value as MissionType;
-          if (this.currentMissionType === MissionType.EscortVIP) {
-            this.currentSquad.soldiers = this.currentSquad.soldiers.filter(
-              (s) => s.archetypeId !== "vip",
-            );
-          }
-          this.renderSquadBuilder(this.currentCampaignNode !== null);
-        });
       }
     }
-
-    // Toggles and Unit Style
-    document
-      .getElementById("toggle-fog-of-war")
-      ?.addEventListener(
-        "change",
-        (e) => (this.fogOfWarEnabled = (e.target as HTMLInputElement).checked),
-      );
-    document
-      .getElementById("toggle-debug-overlay")
-      ?.addEventListener(
-        "change",
-        (e) =>
-          (this.debugOverlayEnabled = (e.target as HTMLInputElement).checked),
-      );
-    document
-      .getElementById("toggle-los-overlay")
-      ?.addEventListener(
-        "change",
-        (e) =>
-          (this.losOverlayEnabled = (e.target as HTMLInputElement).checked),
-      );
-    document
-      .getElementById("toggle-agent-control")
-      ?.addEventListener(
-        "change",
-        (e) =>
-          (this.agentControlEnabled = (e.target as HTMLInputElement).checked),
-      );
-    document
-      .getElementById("toggle-allow-tactical-pause")
-      ?.addEventListener(
-        "change",
-        (e) =>
-          (this.allowTacticalPause = (e.target as HTMLInputElement).checked),
-      );
-    document
-      .getElementById("select-unit-style")
-      ?.addEventListener("change", (e) => {
-        this.unitStyle = (e.target as HTMLSelectElement).value as UnitStyle;
-      });
-
-    const wInput = document.getElementById("map-width") as HTMLInputElement;
-    const hInput = document.getElementById("map-height") as HTMLInputElement;
-    const spInput = document.getElementById(
-      "map-spawn-points",
-    ) as HTMLInputElement;
-    const spValue = document.getElementById("map-spawn-points-value");
-
-    const updateSpawnPointsFromSize = () => {
-      if (this.currentCampaignNode) return;
-      const width = parseInt(wInput.value) || 14;
-      this.currentSpawnPointCount = calculateSpawnPoints(width);
-      if (spInput) {
-        spInput.value = this.currentSpawnPointCount.toString();
-        if (spValue) spValue.textContent = spInput.value;
-      }
-    };
-
-    wInput?.addEventListener("input", updateSpawnPointsFromSize);
-    hInput?.addEventListener("input", updateSpawnPointsFromSize);
   }
 
   private async onCampaignNodeSelected(node: CampaignNode) {

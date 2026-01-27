@@ -1,6 +1,6 @@
 import { AppContext } from "./AppContext";
 import { TimeUtility } from "@src/renderer/TimeUtility";
-import { MapGeneratorType } from "@src/shared/types";
+import { MapGeneratorType, UnitStyle, MissionType } from "@src/shared/types";
 
 /**
  * InputBinder is responsible for attaching and detaching DOM event listeners.
@@ -27,9 +27,18 @@ export class InputBinder {
     onExportReplay: () => void;
     onShowStatistics: () => void;
     onSetupBack: () => void;
+    onUnitStyleChange: (style: UnitStyle) => void;
+    onThemeChange: (themeId: string) => void;
+    onMapGeneratorChange: (type: MapGeneratorType) => void;
+    onMissionTypeChange: (type: MissionType) => void;
+    onToggleFog: (enabled: boolean) => void;
+    onToggleDebug: (enabled: boolean) => void;
+    onToggleLos: (enabled: boolean) => void;
+    onToggleAi: (enabled: boolean) => void;
+    onTogglePauseAllowed: (enabled: boolean) => void;
+    onMapSizeChange: (width: number, height: number) => void;
   }) {
     const { context } = this;
-
     // Main Menu
     this.addListener("btn-menu-custom", "click", () =>
       callbacks.onCustomMission(),
@@ -93,8 +102,9 @@ export class InputBinder {
     const wInput = document.getElementById("map-width") as HTMLInputElement;
     const hInput = document.getElementById("map-height") as HTMLInputElement;
     const updateSpawnPoints = () => {
-      // This logic was in main.ts
-      // We'll need to pass it or implement it here if it's pure UI
+      const w = parseInt(wInput?.value || "0");
+      const h = parseInt(hInput?.value || "0");
+      callbacks.onMapSizeChange(w, h);
     };
     this.addListener(wInput, "input", updateSpawnPoints);
     this.addListener(hInput, "input", updateSpawnPoints);
@@ -103,6 +113,8 @@ export class InputBinder {
     this.addListener("map-generator-type", "change", (e: Event) => {
       const target = e.target as HTMLSelectElement;
       const val = target.value as MapGeneratorType;
+      callbacks.onMapGeneratorChange(val);
+
       const isStatic = val === MapGeneratorType.Static;
       const staticControls = document.getElementById("static-map-controls");
       if (staticControls)
@@ -113,27 +125,36 @@ export class InputBinder {
       if (sInput) sInput.disabled = isStatic;
     });
 
-    // Mission Type handled in GameApp/main.ts because it affects squad builder
+    this.addListener("mission-type", "change", (e: Event) => {
+      const target = e.target as HTMLSelectElement;
+      callbacks.onMissionTypeChange(target.value as MissionType);
+    });
+
+    this.addListener("map-theme", "change", (e: Event) => {
+      const target = e.target as HTMLSelectElement;
+      callbacks.onThemeChange(target.value);
+    });
 
     // Toggles
-    this.addToggleListener("toggle-fog-of-war", (_checked) => {
-      /* update local state */
+    this.addToggleListener("toggle-fog-of-war", (checked) => {
+      callbacks.onToggleFog(checked);
     });
-    this.addToggleListener("toggle-debug-overlay", (_checked) => {
-      /* update local state */
+    this.addToggleListener("toggle-debug-overlay", (checked) => {
+      callbacks.onToggleDebug(checked);
     });
-    this.addToggleListener("toggle-los-overlay", (_checked) => {
-      /* update local state */
+    this.addToggleListener("toggle-los-overlay", (checked) => {
+      callbacks.onToggleLos(checked);
     });
-    this.addToggleListener("toggle-agent-control", (_checked) => {
-      /* update local state */
+    this.addToggleListener("toggle-agent-control", (checked) => {
+      callbacks.onToggleAi(checked);
     });
-    this.addToggleListener("toggle-allow-tactical-pause", (_checked) => {
-      /* update local state */
+    this.addToggleListener("toggle-allow-tactical-pause", (checked) => {
+      callbacks.onTogglePauseAllowed(checked);
     });
 
-    this.addListener("select-unit-style", "change", (_e: Event) => {
-      // update unitStyle
+    this.addListener("select-unit-style", "change", (e: Event) => {
+      const target = e.target as HTMLSelectElement;
+      callbacks.onUnitStyleChange(target.value as UnitStyle);
     });
 
     const tsSlider = document.getElementById(
