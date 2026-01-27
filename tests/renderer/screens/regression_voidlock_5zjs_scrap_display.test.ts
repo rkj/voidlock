@@ -7,8 +7,6 @@ import { CampaignShell } from "@src/renderer/ui/CampaignShell";
 import { SquadConfig } from "@src/shared/types";
 
 describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => {
-  let container: HTMLElement;
-  let shellContainer: HTMLElement;
   let initialConfig: SquadConfig;
   let onSave: any;
   let onBack: any;
@@ -22,8 +20,6 @@ describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => 
         <div id="screen-equipment"></div>
       </div>
     `;
-    container = document.getElementById("screen-equipment")!;
-    shellContainer = document.getElementById("screen-campaign-shell")!;
 
     initialConfig = {
       soldiers: [{ archetypeId: "assault" }],
@@ -33,6 +29,7 @@ describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => 
     onSave = vi.fn();
     onBack = vi.fn();
   });
+
 
   it("should display Scrap and Intel balance when campaign is active", () => {
     mockManager = {

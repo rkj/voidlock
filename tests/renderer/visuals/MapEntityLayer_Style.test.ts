@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
 import { MapEntityLayer } from "@src/renderer/visuals/MapEntityLayer";
 import { SharedRendererState } from "@src/renderer/visuals/SharedRendererState";
 import { AssetManager } from "@src/renderer/visuals/AssetManager";
-import { GameState, CellType, UnitStyle } from "@src/shared/types";
+import { UnitStyle } from "@src/shared/types";
 import { createMockGameState } from "@src/engine/tests/utils/MockFactory";
 
 // Mock Image
@@ -64,7 +64,7 @@ describe("MapEntityLayer Visual Styles", () => {
 
   describe("Standard Mode", () => {
     beforeEach(() => {
-      sharedState.unitStyle = UnitStyle.Standard;
+      sharedState.unitStyle = UnitStyle.Sprites;
     });
 
     it("should render 'scrap_crate' loot using Loot (Credits) asset", () => {
@@ -109,7 +109,7 @@ describe("MapEntityLayer Visual Styles", () => {
             targetCell: { x: 7, y: 7 }, 
             state: "Pending", 
             visible: true,
-            type: "Recover"
+            kind: "Recover"
         }],
         visibleCells: ["7,7"],
       });
@@ -163,10 +163,11 @@ describe("MapEntityLayer Visual Styles", () => {
             targetCell: { x: 7, y: 7 }, 
             state: "Pending", 
             visible: true,
-            type: "Recover"
+            kind: "Recover"
         }],
         visibleCells: ["7,7"],
       });
+
 
       layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
 

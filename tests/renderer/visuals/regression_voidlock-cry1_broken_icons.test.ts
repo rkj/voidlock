@@ -89,11 +89,12 @@ describe("MapEntityLayer Regression (voidlock-cry1)", () => {
         width: 10,
         height: 10,
         cells: [{ x: 5, y: 5, type: CellType.Floor }],
-        spawnPoints: [{ pos: { x: 5, y: 5 } }],
+        spawnPoints: [{ id: "sp-1", pos: { x: 5, y: 5 }, radius: 1 }],
       },
       visibleCells: ["5,5"],
       discoveredCells: [],
     });
+
 
     layer.draw(mockContext, gameState);
 
