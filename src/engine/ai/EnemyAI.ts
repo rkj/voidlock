@@ -3,7 +3,6 @@ import {
   Enemy,
   Unit,
   UnitState,
-  Vector2,
   Grid,
 } from "../../shared/types";
 import { Pathfinder } from "../Pathfinder";

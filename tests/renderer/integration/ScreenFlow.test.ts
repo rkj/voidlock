@@ -63,7 +63,6 @@ vi.mock("@src/renderer/ui/ModalService", () => ({
 }));
 
 // Mock CampaignManager
-import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 const mockCampaignState = {
   status: "Active",
   nodes: [

@@ -5,41 +5,7 @@ import {
   MissionType,
 } from "@src/shared/types";
 
-// Mocking StatDisplay and Icons since they are used in main.ts
-const StatDisplay = {
-  render: (icon: string, value: string | number) =>
-    `<span>${icon} ${value}</span>`,
-};
-const Icons = {
-  Speed: "S",
-  Accuracy: "A",
-  Damage: "D",
-  Rate: "R",
-  Range: "RG",
-};
-
-const mockCampaignManager = {
-  getState: () => ({
-    roster: [
-      {
-        id: "s1",
-        name: "Soldier 1",
-        archetypeId: "assault",
-        status: "Healthy",
-        level: 1,
-      },
-      {
-        id: "v1",
-        name: "VIP 1",
-        archetypeId: "vip",
-        status: "Healthy",
-        level: 1,
-      },
-    ],
-  }),
-};
-
-describe("SquadBuilder VIP Selection (regression_voidlock-hs8n)", () => {
+describe("Regression voidlock-hs8n: VIP Availability in Custom Missions", () => {
   let currentSquad: { soldiers: { archetypeId: string; id?: string }[] } = {
     soldiers: [],
   };

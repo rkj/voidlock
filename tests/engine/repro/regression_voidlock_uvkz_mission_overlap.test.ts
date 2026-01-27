@@ -1,3 +1,4 @@
+import { PRNG } from "@src/shared/PRNG";
 import { describe, it, expect } from "vitest";
 import { MissionManager } from "@src/engine/managers/MissionManager";
 import {
@@ -6,7 +7,6 @@ import {
   MissionType,
   GameState,
 } from "@src/shared/types";
-import { PRNG } from "@src/shared/PRNG";
 import { EnemyManager } from "@src/engine/managers/EnemyManager";
 
 describe("Regression voidlock-uvkz: Mission objective overlap", () => {
@@ -30,7 +30,6 @@ describe("Regression voidlock-uvkz: Mission objective overlap", () => {
       }
     }
 
-    const prng = new PRNG(12345);
     const enemyManager = new EnemyManager();
     const state: GameState = {
       status: "InProgress",

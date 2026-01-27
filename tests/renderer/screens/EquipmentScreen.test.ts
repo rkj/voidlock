@@ -3,9 +3,6 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { EquipmentScreen } from "@src/renderer/screens/EquipmentScreen";
 import {
   SquadConfig,
-  ArchetypeLibrary,
-  ItemLibrary,
-  WeaponLibrary,
 } from "@src/shared/types";
 
 describe("EquipmentScreen", () => {
@@ -43,7 +40,6 @@ describe("EquipmentScreen", () => {
     );
     screen.show();
 
-    const soldierItems = container.querySelectorAll(".menu-item.clickable");
     // Only looking at the left panel for now, it should have at least 2 items for 2 soldiers
     // Actually, we render many items (armory also has clickable items).
     // Let's be more specific.

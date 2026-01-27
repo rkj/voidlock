@@ -5,7 +5,6 @@ import {
   GameState,
   UnitState,
   EnemyType,
-  ItemLibrary,
 } from "@src/shared/types";
 import { createMockGameState } from "@src/engine/tests/utils/MockFactory";
 
