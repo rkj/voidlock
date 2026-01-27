@@ -31,6 +31,15 @@ describe("Regression voidlock-hs8n: VIP Availability in Custom Missions", () => 
     };
   });
 
+  const mockCampaignManager = {
+    getState: vi.fn().mockReturnValue({
+      roster: [
+        { id: "s1", name: "Soldier 1", archetypeId: "assault" },
+        { id: "v1", name: "VIP 1", archetypeId: "vip" },
+      ],
+    }),
+  };
+
   // Simplified version of renderSquadBuilder from main.ts with the proposed changes
   function renderSquadBuilder(isCampaign: boolean = false) {
     const container = document.getElementById("squad-builder");
@@ -55,7 +64,7 @@ describe("Regression voidlock-hs8n: VIP Availability in Custom Missions", () => 
 
     if (isCampaign) {
       const state = mockCampaignManager.getState();
-      state.roster.forEach((soldier) => {
+      state.roster.forEach((soldier: any) => {
         if (soldier.archetypeId === "vip") return;
         const row = document.createElement("div");
         row.dataset.soldierId = soldier.id;
@@ -63,6 +72,7 @@ describe("Regression voidlock-hs8n: VIP Availability in Custom Missions", () => 
         container.appendChild(row);
       });
     } else {
+
       Object.values(ArchetypeLibrary).forEach((arch) => {
         const isVip = arch.id === "vip";
         const isEscortMission = currentMissionType === MissionType.EscortVIP;

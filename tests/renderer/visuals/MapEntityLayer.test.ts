@@ -130,13 +130,13 @@ describe("MapEntityLayer", () => {
     expect(extractionPointFill).toBeDefined();
   });
 
-  it("should call drawImage for loot when UnitStyle is TacticalIcons, if Crate icon exists", () => {
+  it("should render Loot using LootStar icon when UnitStyle is TacticalIcons", () => {
     sharedState.unitStyle = UnitStyle.TacticalIcons;
 
-    // Ensure Crate icon exists in AssetManager
     const assetManager = AssetManager.getInstance();
-    const mockCrateIcon = new MockImage() as unknown as HTMLImageElement;
-    assetManager.iconImages.Crate = mockCrateIcon;
+    const mockLootStar = new MockImage() as unknown as HTMLImageElement;
+    (mockLootStar as any).id = "LootStar";
+    assetManager.iconImages.LootStar = mockLootStar;
 
     const gameState: GameState = createMockGameState({
       map: {
@@ -151,12 +151,127 @@ describe("MapEntityLayer", () => {
 
     layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
 
-    // Assert drawImage WAS called for the Crate icon
+    const drawImageCalls = mockContext.drawImage.mock.calls;
+    const lootStarDraw = drawImageCalls.find(
+      (args: unknown[]) => args[0] === mockLootStar,
+    );
+
+    expect(lootStarDraw).toBeDefined();
+  });
+
+  it("should render Loot using Crate/Loot sprites when UnitStyle is Sprites", () => {
+    sharedState.unitStyle = UnitStyle.Sprites;
+
+    const assetManager = AssetManager.getInstance();
+    const mockCrate = new MockImage() as unknown as HTMLImageElement;
+    const mockLoot = new MockImage() as unknown as HTMLImageElement;
+    (mockCrate as any).id = "Crate";
+    (mockLoot as any).id = "Loot";
+    assetManager.iconImages.Crate = mockCrate;
+    assetManager.iconImages.Loot = mockLoot;
+
+    const gameState: GameState = createMockGameState({
+      map: {
+        width: 10,
+        height: 10,
+        cells: [
+          { x: 5, y: 5, type: CellType.Floor },
+          { x: 6, y: 6, type: CellType.Floor },
+        ],
+      },
+      loot: [
+        { id: "loot-1", pos: { x: 5, y: 5 }, itemId: "something_else" },
+        { id: "loot-2", pos: { x: 6, y: 6 }, itemId: "scrap_crate" },
+      ],
+      visibleCells: ["5,5", "6,6"],
+      discoveredCells: [],
+    });
+
+    layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
+
     const drawImageCalls = mockContext.drawImage.mock.calls;
     const crateDraw = drawImageCalls.find(
-      (args: unknown[]) => args[0] === mockCrateIcon,
+      (args: unknown[]) => args[0] === mockCrate,
+    );
+    const lootDraw = drawImageCalls.find(
+      (args: unknown[]) => args[0] === mockLoot,
     );
 
     expect(crateDraw).toBeDefined();
+    expect(lootDraw).toBeDefined();
+  });
+
+  it("should render Objective using Objective icon when UnitStyle is TacticalIcons", () => {
+    sharedState.unitStyle = UnitStyle.TacticalIcons;
+
+    const assetManager = AssetManager.getInstance();
+    const mockObjective = new MockImage() as unknown as HTMLImageElement;
+    (mockObjective as any).id = "Objective";
+    assetManager.iconImages.Objective = mockObjective;
+
+    const gameState: GameState = createMockGameState({
+      map: {
+        width: 10,
+        height: 10,
+        cells: [{ x: 5, y: 5, type: CellType.Floor }],
+      },
+      objectives: [
+        {
+          id: "obj-1",
+          kind: "Recover",
+          state: "Pending",
+          targetCell: { x: 5, y: 5 },
+          visible: true,
+        },
+      ],
+      visibleCells: ["5,5"],
+      discoveredCells: [],
+    });
+
+    layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
+
+    const drawImageCalls = mockContext.drawImage.mock.calls;
+    const objectiveDraw = drawImageCalls.find(
+      (args: unknown[]) => args[0] === mockObjective,
+    );
+
+    expect(objectiveDraw).toBeDefined();
+  });
+
+  it("should render Objective using ObjectiveDisk sprite when UnitStyle is Sprites", () => {
+    sharedState.unitStyle = UnitStyle.Sprites;
+
+    const assetManager = AssetManager.getInstance();
+    const mockObjectiveDisk = new MockImage() as unknown as HTMLImageElement;
+    (mockObjectiveDisk as any).id = "ObjectiveDisk";
+    assetManager.iconImages.ObjectiveDisk = mockObjectiveDisk;
+
+    const gameState: GameState = createMockGameState({
+      map: {
+        width: 10,
+        height: 10,
+        cells: [{ x: 5, y: 5, type: CellType.Floor }],
+      },
+      objectives: [
+        {
+          id: "obj-1",
+          kind: "Recover",
+          state: "Pending",
+          targetCell: { x: 5, y: 5 },
+          visible: true,
+        },
+      ],
+      visibleCells: ["5,5"],
+      discoveredCells: [],
+    });
+
+    layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
+
+    const drawImageCalls = mockContext.drawImage.mock.calls;
+    const objectiveDiskDraw = drawImageCalls.find(
+      (args: unknown[]) => args[0] === mockObjectiveDisk,
+    );
+
+    expect(objectiveDiskDraw).toBeDefined();
   });
 });

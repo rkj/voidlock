@@ -60,11 +60,12 @@ describe("DebugLoot Rendering", () => {
 
     layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
 
-    // It should call drawImage with the Crate icon
+    // It should call drawImage with the Loot (Credits) icon because it's scrap_crate
     expect(mockContext.drawImage).toHaveBeenCalled();
     const [icon] = mockContext.drawImage.mock.calls[0];
-    expect(icon.src).toContain("crate.webp");
+    expect(icon.src).toContain("loot_credits.webp");
   });
+
 
   it("should render loot when visible even if debug is OFF", () => {
     const gameState: GameState = createMockGameState({
@@ -144,6 +145,7 @@ describe("DebugLoot Rendering", () => {
 
     expect(mockContext.drawImage).toHaveBeenCalled();
     const [icon] = mockContext.drawImage.mock.calls[0];
-    expect(icon.src).toContain("objective.svg");
+    expect(icon.src).toContain("data_disk.webp");
   });
 });
+
