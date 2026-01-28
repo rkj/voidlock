@@ -1,15 +1,15 @@
 import {
-  GameState,
   Unit,
-  UnitState,
-  CommandType,
-  Vector2,
   Command,
+  CommandType,
+  UnitState,
+  GameState,
   ItemLibrary,
   AIProfile,
+  Vector2,
 } from "../../shared/types";
 import { Pathfinder } from "../Pathfinder";
-import { SPEED_NORMALIZATION_CONST } from "../Constants";
+import { SPEED_NORMALIZATION_CONST, MOVEMENT, ITEMS } from "../config/GameConstants";
 import { IDirector } from "../interfaces/IDirector";
 import { MathUtils } from "../../shared/utils/MathUtils";
 
@@ -65,8 +65,8 @@ export class CommandExecutor {
         if (path && path.length > 0) {
           unit.path = path;
           unit.targetPos = {
-            x: path[0].x + 0.5 + (unit.visualJitter?.x || 0),
-            y: path[0].y + 0.5 + (unit.visualJitter?.y || 0),
+            x: path[0].x + MOVEMENT.CENTER_OFFSET + (unit.visualJitter?.x || 0),
+            y: path[0].y + MOVEMENT.CENTER_OFFSET + (unit.visualJitter?.y || 0),
           };
           unit.state = UnitState.Moving;
         } else if (
@@ -76,8 +76,8 @@ export class CommandExecutor {
           Math.floor(unit.pos.y) === cmd.target.y
         ) {
           unit.pos = {
-            x: cmd.target.x + 0.5 + (unit.visualJitter?.x || 0),
-            y: cmd.target.y + 0.5 + (unit.visualJitter?.y || 0),
+            x: cmd.target.x + MOVEMENT.CENTER_OFFSET + (unit.visualJitter?.x || 0),
+            y: cmd.target.y + MOVEMENT.CENTER_OFFSET + (unit.visualJitter?.y || 0),
           };
           unit.path = undefined;
           unit.targetPos = undefined;
@@ -231,10 +231,10 @@ export class CommandExecutor {
             (item.action === "Heal" || item.action === "Mine" || item.action === "Sentry")
           ) {
             const dist = MathUtils.getDistance(unit.pos, {
-              x: targetLocation.x + 0.5,
-              y: targetLocation.y + 0.5,
+              x: targetLocation.x + MOVEMENT.CENTER_OFFSET,
+              y: targetLocation.y + MOVEMENT.CENTER_OFFSET,
             });
-            if (dist > 1.0) {
+            if (dist > ITEMS.USE_ITEM_RANGE_THRESHOLD) {
               this.executeCommand(
                 unit,
                 {
@@ -255,7 +255,7 @@ export class CommandExecutor {
           const isTimedAction =
             cmd.itemId === "medkit" || cmd.itemId === "mine" || item.action === "Sentry";
           if (isTimedAction) {
-            const baseTime = 3000;
+            const baseTime = ITEMS.BASE_USE_ITEM_TIME;
             const scaledDuration =
               baseTime * (SPEED_NORMALIZATION_CONST / unit.stats.speed);
 

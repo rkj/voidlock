@@ -15,7 +15,15 @@ import { LootManager } from "./LootManager";
 import {
   PlacementValidator,
 } from "../generators/PlacementValidator";
-import { isCellVisible, isCellDiscovered } from "../../shared/VisibilityUtils";
+import {
+  isCellVisible,
+  isCellDiscovered,
+} from "../../shared/VisibilityUtils";
+import {
+  HIVE,
+  SCRAP_REWARDS,
+  MISSION_SCALING,
+} from "../config/GameConstants";
 
 export class MissionManager {
   constructor(
@@ -76,7 +84,10 @@ export class MissionManager {
         if (validator.isCellOccupied(c)) return false;
         const dx = c.x - extraction.x;
         const dy = c.y - extraction.y;
-        return Math.sqrt(dx * dx + dy * dy) > map.width * 0.4;
+        return (
+          Math.sqrt(dx * dx + dy * dy) >
+          map.width * MISSION_SCALING.DISTANCE_EXTRACTION_FACTOR
+        );
       });
 
       for (let i = candidates.length - 1; i > 0; i--) {
@@ -86,10 +97,10 @@ export class MissionManager {
 
       const count =
         nodeType === "Boss"
-          ? 3
+          ? MISSION_SCALING.OBJECTIVE_COUNT_BOSS
           : nodeType === "Elite"
-            ? 2
-            : Math.min(3, candidates.length);
+            ? MISSION_SCALING.OBJECTIVE_COUNT_ELITE
+            : Math.min(MISSION_SCALING.OBJECTIVE_COUNT_DEFAULT, candidates.length);
       const idPrefix =
         this.missionType === MissionType.ExtractArtifacts
           ? "artifact"
@@ -102,8 +113,8 @@ export class MissionManager {
       // Boss Mix: 1x Hive, 2x Recover (if possible)
       // Elite Mix: 1x Hive, 1x Recover (if possible)
       let recoverCount = count;
-      if (nodeType === "Boss") recoverCount = 2;
-      else if (nodeType === "Elite") recoverCount = 1;
+      if (nodeType === "Boss") recoverCount = MISSION_SCALING.RECOVER_COUNT_BOSS;
+      else if (nodeType === "Elite") recoverCount = MISSION_SCALING.RECOVER_COUNT_ELITE;
 
       for (let i = 0; i < Math.min(recoverCount, candidates.length); i++) {
         objectives.push({
@@ -123,7 +134,10 @@ export class MissionManager {
 
           const dx = c.x - extraction.x;
           const dy = c.y - extraction.y;
-          return Math.sqrt(dx * dx + dy * dy) > map.width * 0.5;
+          return (
+            Math.sqrt(dx * dx + dy * dy) >
+            map.width * MISSION_SCALING.DISTANCE_HIVE_FACTOR
+          );
         });
 
         if (roomCandidates.length > 0) {
@@ -134,15 +148,15 @@ export class MissionManager {
           enemyManager.addEnemy(state, {
             id: hiveId,
             pos: { x: hiveLoc.x + 0.5, y: hiveLoc.y + 0.5 },
-            hp: nodeType === "Boss" ? 1000 : 500, // Boss hive is tougher
-            maxHp: nodeType === "Boss" ? 1000 : 500,
+            hp: nodeType === "Boss" ? HIVE.BOSS_HP : HIVE.ELITE_HP, // Boss hive is tougher
+            maxHp: nodeType === "Boss" ? HIVE.BOSS_HP : HIVE.ELITE_HP,
             type: EnemyType.Hive,
             damage: 0,
             fireRate: 1000,
             accuracy: 100,
             attackRange: 0,
             speed: 0,
-            difficulty: nodeType === "Boss" ? 20 : 15,
+            difficulty: nodeType === "Boss" ? HIVE.BOSS_DIFFICULTY : HIVE.ELITE_DIFFICULTY,
           });
 
           objectives.push({
@@ -171,7 +185,10 @@ export class MissionManager {
 
         const dx = c.x - extraction.x;
         const dy = c.y - extraction.y;
-        return Math.sqrt(dx * dx + dy * dy) > map.width * 0.5;
+        return (
+          Math.sqrt(dx * dx + dy * dy) >
+          map.width * MISSION_SCALING.DISTANCE_HIVE_FACTOR
+        );
       });
 
       if (candidates.length > 0) {
@@ -181,15 +198,15 @@ export class MissionManager {
         enemyManager.addEnemy(state, {
           id: hiveId,
           pos: { x: hiveLoc.x + 0.5, y: hiveLoc.y + 0.5 },
-          hp: 500,
-          maxHp: 500,
+          hp: HIVE.NORMAL_HP,
+          maxHp: HIVE.NORMAL_HP,
           type: EnemyType.Hive,
           damage: 0,
           fireRate: 1000,
           accuracy: 100,
           attackRange: 0,
           speed: 0,
-          difficulty: 10,
+          difficulty: HIVE.NORMAL_DIFFICULTY,
         });
 
         state.objectives.push({
@@ -257,7 +274,11 @@ export class MissionManager {
       if (newObj.state === "Completed" && !newObj.scrapRewarded) {
         const isBoss = state.nodeType === "Boss";
         const isElite = state.nodeType === "Elite";
-        const multiplier = isBoss ? 3 : isElite ? 2 : 1;
+        const multiplier = isBoss
+          ? MISSION_SCALING.BOSS_MULTIPLIER
+          : isElite
+            ? MISSION_SCALING.ELITE_MULTIPLIER
+            : MISSION_SCALING.NORMAL_MULTIPLIER;
 
         if (
           newObj.kind === "Kill" &&
@@ -265,11 +286,11 @@ export class MissionManager {
             newObj.targetEnemyId === "boss-hive" ||
             newObj.targetEnemyId === "elite-hive")
         ) {
-          state.stats.scrapGained += 75 * multiplier;
+          state.stats.scrapGained += SCRAP_REWARDS.HIVE_DESTROY * multiplier;
         } else if (newObj.kind === "Escort" || newObj.id === "obj-escort") {
-          state.stats.scrapGained += 50 * multiplier;
+          state.stats.scrapGained += SCRAP_REWARDS.ESCORT_COMPLETE * multiplier;
         } else {
-          state.stats.scrapGained += 25 * multiplier;
+          state.stats.scrapGained += SCRAP_REWARDS.OBJECTIVE_COMPLETE * multiplier;
         }
         newObj.scrapRewarded = true;
         changed = true;
@@ -310,7 +331,11 @@ export class MissionManager {
 
     const isBoss = state.nodeType === "Boss";
     const isElite = state.nodeType === "Elite";
-    const multiplier = isBoss ? 3 : isElite ? 2 : 1;
+    const multiplier = isBoss
+      ? MISSION_SCALING.BOSS_MULTIPLIER
+      : isElite
+        ? MISSION_SCALING.ELITE_MULTIPLIER
+        : MISSION_SCALING.NORMAL_MULTIPLIER;
 
     // 1. Recover Intel, Destroy Hive, and Boss/Elite nodes: Instant win upon objective completion (Extraction optional)
     if (
@@ -321,7 +346,7 @@ export class MissionManager {
     ) {
       if (allObjectivesComplete) {
         if (state.status !== "Won") {
-          state.stats.scrapGained += 100 * multiplier;
+          state.stats.scrapGained += SCRAP_REWARDS.MISSION_WIN * multiplier;
         }
         state.status = "Won";
         return;
@@ -335,7 +360,7 @@ export class MissionManager {
 
       if (allVipsExtracted) {
         if (state.status !== "Won") {
-          state.stats.scrapGained += 100 * multiplier;
+          state.stats.scrapGained += SCRAP_REWARDS.MISSION_WIN * multiplier;
         }
         state.status = "Won";
         return;
@@ -344,7 +369,7 @@ export class MissionManager {
       const combatUnits = activeUnits.filter((u) => u.archetypeId !== "vip");
       if (combatUnits.length === 0) {
         if (state.status !== "Lost") {
-          state.stats.scrapGained += 10;
+          state.stats.scrapGained += SCRAP_REWARDS.MISSION_LOSS_CONSOLATION;
         }
         state.status = "Lost";
         return;
@@ -362,25 +387,25 @@ export class MissionManager {
           // Extraction required
           if (extractedUnits.length > 0) {
             if (state.status !== "Won") {
-              state.stats.scrapGained += 100 * multiplier;
+              state.stats.scrapGained += SCRAP_REWARDS.MISSION_WIN * multiplier;
             }
             state.status = "Won";
           } else {
             if (state.status !== "Lost") {
-              state.stats.scrapGained += 10;
+              state.stats.scrapGained += SCRAP_REWARDS.MISSION_LOSS_CONSOLATION;
             }
             state.status = "Lost";
           }
         } else {
           // If for some reason it's another type but everyone died after objectives, it's a Win (RecoverIntel/DestroyHive)
           if (state.status !== "Won") {
-            state.stats.scrapGained += 100 * multiplier;
+            state.stats.scrapGained += SCRAP_REWARDS.MISSION_WIN * multiplier;
           }
           state.status = "Won";
         }
       } else {
         if (state.status !== "Lost") {
-          state.stats.scrapGained += 10;
+          state.stats.scrapGained += SCRAP_REWARDS.MISSION_LOSS_CONSOLATION;
         }
         state.status = "Lost";
       }

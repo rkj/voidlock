@@ -4,4 +4,5 @@ export interface IDirector {
   handleUseItem(state: GameState, cmd: UseItemCommand): void;
   getThreatLevel(): number;
   update(dt: number): void;
+  preSpawn(): void;
 }

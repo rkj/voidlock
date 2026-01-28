@@ -1,6 +1,6 @@
 import { Vector2, Door, CellType, BoundaryType } from "../shared/types";
 import { Graph, Boundary } from "./Graph";
-import { UNIT_RADIUS } from "./Constants";
+import { UNIT_RADIUS } from "./config/GameConstants";
 
 export class LineOfSight {
   constructor(

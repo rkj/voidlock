@@ -4,7 +4,7 @@ import {
   ItemLibrary,
   WeaponLibrary,
 } from "../../shared/types";
-import { SPEED_NORMALIZATION_CONST } from "../Constants";
+import { SPEED_NORMALIZATION_CONST } from "../config/GameConstants";
 
 export class StatsManager {
   public recalculateStats(unit: Unit): Unit {
