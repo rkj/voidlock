@@ -58,9 +58,6 @@ describe("UnitManager Recalculate Stats Regression", () => {
   });
 
   it("unit should recalculate stats when equipment changes", () => {
-    const state = engine.getState();
-    const unit = state.units[0];
-
     // Manually change equipment in the engine state (hacking it for the test)
     // In a real scenario, this might happen via a command or some other manager.
     // If UnitManager.update calls recalculateStats at the start, it should pick this up.

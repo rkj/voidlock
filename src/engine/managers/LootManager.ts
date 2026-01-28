@@ -1,4 +1,5 @@
 import { GameState, Vector2 } from "../../shared/types";
+import { SCRAP_REWARDS, MISSION_SCALING } from "../config/GameConstants";
 
 export class LootManager {
   private lootIdCounter: number = 0;
@@ -30,11 +31,13 @@ export class LootManager {
     if (itemId === "scrap_crate") {
       const isBoss = state.nodeType === "Boss";
       const isElite = state.nodeType === "Elite";
-      const multiplier = isBoss ? 3 : isElite ? 2 : 1;
+      const multiplier = isBoss
+        ? MISSION_SCALING.BOSS_MULTIPLIER
+        : isElite
+          ? MISSION_SCALING.ELITE_MULTIPLIER
+          : MISSION_SCALING.NORMAL_MULTIPLIER;
 
-      // Approx 20% of base mission value (which is 125 * multiplier)
-      // 125 * 0.2 = 25
-      const scrapAmount = 25 * multiplier;
+      const scrapAmount = SCRAP_REWARDS.LOOT_CRATE * multiplier;
       state.stats.scrapGained += scrapAmount;
     }
   }

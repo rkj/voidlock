@@ -4,6 +4,7 @@ import {
   calculateLevel,
   STAT_BOOSTS,
 } from "../../shared/campaign_types";
+import { XP_REWARDS, RECRUITMENT_COST } from "../config/GameConstants";
 
 /**
  * Handles mission result processing and campaign progression.
@@ -88,10 +89,13 @@ export class MissionReconciler {
           res.xpGained = 0;
           res.promoted = false;
         } else {
-          const missionXp = report.result === "Won" ? 50 : 10;
+          const missionXp =
+            report.result === "Won" ? XP_REWARDS.MISSION_WIN : XP_REWARDS.MISSION_LOSS;
           const survivalXp =
-            res.status === "Healthy" || res.status === "Wounded" ? 20 : 0;
-          const killXp = res.kills * 10;
+            res.status === "Healthy" || res.status === "Wounded"
+              ? XP_REWARDS.SURVIVAL_BONUS
+              : 0;
+          const killXp = res.kills * XP_REWARDS.KILL;
 
           res.xpGained = missionXp + survivalXp + killXp;
         }
@@ -206,7 +210,7 @@ export class MissionReconciler {
     const healthyCount = state.roster.filter(
       (s) => s.status === "Healthy",
     ).length;
-    const canAffordRecruit = state.scrap >= 100;
+    const canAffordRecruit = state.scrap >= RECRUITMENT_COST;
     return healthyCount === 0 && !canAffordRecruit;
   }
 }

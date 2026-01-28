@@ -11,7 +11,7 @@ import { PRNG } from "../../shared/PRNG";
 import { IEnemyAI, SwarmMeleeAI } from "../ai/EnemyAI";
 import { RangedKiteAI } from "../ai/RangedKiteAI";
 import { CombatManager } from "./CombatManager";
-import { SPEED_NORMALIZATION_CONST } from "../Constants";
+import { SPEED_NORMALIZATION_CONST, SCRAP_REWARDS } from "../config/GameConstants";
 import { MathUtils } from "../../shared/utils/MathUtils";
 
 const EPSILON = 0.05;
@@ -174,10 +174,10 @@ export class EnemyManager {
       state.stats.aliensKilled++;
       if (enemy.difficulty === 2) {
         state.stats.elitesKilled++;
-        state.stats.scrapGained += 10;
+        state.stats.scrapGained += SCRAP_REWARDS.ELITE_KILL;
       } else if (enemy.difficulty >= 3) {
         state.stats.elitesKilled++;
-        state.stats.scrapGained += 25;
+        state.stats.scrapGained += SCRAP_REWARDS.BOSS_KILL;
       }
     });
     state.enemies = state.enemies.filter((enemy) => enemy.hp > 0);

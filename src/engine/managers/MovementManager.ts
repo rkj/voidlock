@@ -1,8 +1,6 @@
 import { Unit, UnitState, CommandType, Door } from "../../shared/types";
 import { GameGrid } from "../GameGrid";
-import { SPEED_NORMALIZATION_CONST } from "../Constants";
-
-const EPSILON = 0.05;
+import { SPEED_NORMALIZATION_CONST, MOVEMENT } from "../config/GameConstants";
 
 export class MovementManager {
   constructor(private gameGrid: GameGrid) {}
@@ -39,7 +37,7 @@ export class MovementManager {
     ) {
       if (unit.state === UnitState.WaitingForDoor) return unit;
       return { ...unit, state: UnitState.WaitingForDoor };
-    } else if (dist <= moveDist + EPSILON) {
+    } else if (dist <= moveDist + MOVEMENT.ARRIVAL_THRESHOLD) {
       const nextPath = unit.path ? unit.path.slice(1) : [];
       if (nextPath.length === 0) {
         return {
@@ -59,8 +57,8 @@ export class MovementManager {
           pos: { ...unit.targetPos },
           path: nextPath,
           targetPos: {
-            x: nextPath[0].x + 0.5 + (unit.visualJitter?.x || 0),
-            y: nextPath[0].y + 0.5 + (unit.visualJitter?.y || 0),
+            x: nextPath[0].x + MOVEMENT.CENTER_OFFSET + (unit.visualJitter?.x || 0),
+            y: nextPath[0].y + MOVEMENT.CENTER_OFFSET + (unit.visualJitter?.y || 0),
           },
         };
       }

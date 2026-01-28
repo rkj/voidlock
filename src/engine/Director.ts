@@ -9,14 +9,14 @@ import {
   UseItemCommand,
 } from "../shared/types";
 import { PRNG } from "../shared/PRNG";
-import { SPEED_NORMALIZATION_CONST } from "./Constants";
 import { IDirector } from "./interfaces/IDirector";
+import { DIRECTOR, ITEMS, SPEED_NORMALIZATION_CONST } from "./config/GameConstants";
 
 export class Director implements IDirector {
   private turn: number = 0;
   private timeInCurrentTurn: number = 0;
-  private readonly turnDuration: number = 10000; // 10 seconds
-  private readonly threatPerTurn: number = 10; // 10% per turn
+  private readonly turnDuration: number = DIRECTOR.TURN_DURATION_MS;
+  private readonly threatPerTurn: number = DIRECTOR.THREAT_PER_TURN;
 
   private spawnPoints: SpawnPoint[];
   private onSpawn: (enemy: Enemy) => void;
@@ -105,7 +105,7 @@ export class Director implements IDirector {
         if (targetUnit && targetUnit.hp > 0) {
           targetUnit.hp = Math.min(
             targetUnit.maxHp,
-            targetUnit.hp + (item.healAmount || 50),
+            targetUnit.hp + (item.healAmount || ITEMS.DEFAULT_HEAL),
           );
         }
       }
@@ -133,7 +133,7 @@ export class Director implements IDirector {
             Math.floor(e.pos.x) === targetX &&
             Math.floor(e.pos.y) === targetY
           ) {
-            e.hp -= 100;
+            e.hp -= ITEMS.GRENADE_DAMAGE;
           }
         });
 
@@ -142,7 +142,7 @@ export class Director implements IDirector {
             Math.floor(u.pos.x) === targetX &&
             Math.floor(u.pos.y) === targetY
           ) {
-            u.hp -= 100;
+            u.hp -= ITEMS.GRENADE_DAMAGE;
           }
         });
       }
@@ -160,7 +160,7 @@ export class Director implements IDirector {
       }
 
       if (targetPos) {
-        const radius = 5;
+        const radius = DIRECTOR.SCANNER_RADIUS;
         const radiusSq = radius * radius;
         for (let dy = -radius; dy <= radius; dy++) {
           for (let dx = -radius; dx <= radius; dx++) {
@@ -190,8 +190,8 @@ export class Director implements IDirector {
         state.mines.push({
           id: `mine-${state.t}`,
           pos: { ...cmd.target },
-          damage: 100,
-          radius: 1,
+          damage: ITEMS.MINE_DAMAGE,
+          radius: ITEMS.MINE_RADIUS,
           ownerId: cmd.unitIds[0] || "squad",
         });
       }
@@ -200,10 +200,10 @@ export class Director implements IDirector {
         state.turrets.push({
           id: `turret-${state.t}`,
           pos: { ...cmd.target },
-          damage: item.damage || 10,
-          fireRate: item.fireRate || 500,
-          accuracy: item.accuracy || 60,
-          attackRange: item.range || 6,
+          damage: item.damage || ITEMS.SENTRY_DEFAULT_DAMAGE,
+          fireRate: item.fireRate || ITEMS.SENTRY_DEFAULT_FIRE_RATE,
+          accuracy: item.accuracy || ITEMS.SENTRY_DEFAULT_ACCURACY,
+          attackRange: item.range || ITEMS.SENTRY_DEFAULT_RANGE,
           ownerId: cmd.unitIds[0] || "squad",
         });
       }
@@ -215,7 +215,7 @@ export class Director implements IDirector {
 
     // Scaling: (base + depth * growth) + per turn.
     // Cap turn scaling at turn 10.
-    const scalingTurn = Math.min(this.turn, 10);
+    const scalingTurn = Math.min(this.turn, DIRECTOR.MAX_SCALING_TURNS);
     const count =
       this.baseEnemyCount +
       this.missionDepth * this.enemyGrowthPerMission +
@@ -230,8 +230,8 @@ export class Director implements IDirector {
     const spawnIndex = this.prng.nextInt(0, this.spawnPoints.length - 1);
     const spawnPoint = this.spawnPoints[spawnIndex];
 
-    const offsetX = this.prng.next() * 0.4 - 0.2;
-    const offsetY = this.prng.next() * 0.4 - 0.2;
+    const offsetX = this.prng.next() * DIRECTOR.SPAWN_OFFSET_RANGE - DIRECTOR.SPAWN_OFFSET_BASE;
+    const offsetY = this.prng.next() * DIRECTOR.SPAWN_OFFSET_RANGE - DIRECTOR.SPAWN_OFFSET_BASE;
 
     // Select Type based on Threat (capped at 100 for selection logic)
     const threat = Math.min(100, this.getThreatLevel());
@@ -239,11 +239,11 @@ export class Director implements IDirector {
 
     const roll = this.prng.next();
 
-    if (threat < 30) {
+    if (threat < DIRECTOR.THREAT_LOW) {
       // Mostly Easy
       if (roll < 0.8) type = EnemyType.XenoMite;
       else type = EnemyType.WarriorDrone;
-    } else if (threat < 70) {
+    } else if (threat < DIRECTOR.THREAT_HIGH) {
       // Mix
       if (roll < 0.4) type = EnemyType.XenoMite;
       else if (roll < 0.7) type = EnemyType.WarriorDrone;
@@ -259,11 +259,11 @@ export class Director implements IDirector {
     const arch = EnemyArchetypeLibrary[type];
 
     // Difficulty mapping: 1 (Easy), 2 (Medium), 3 (Hard)
-    let difficulty = 1;
+    let difficulty: number = DIRECTOR.DIFFICULTY_EASY;
     if (type === EnemyType.WarriorDrone || type === EnemyType.SpitterAcid) {
-      difficulty = 2;
+      difficulty = DIRECTOR.DIFFICULTY_MEDIUM;
     } else if (type === EnemyType.PraetorianGuard) {
-      difficulty = 3;
+      difficulty = DIRECTOR.DIFFICULTY_HARD;
     }
 
     const enemy: Enemy = {

@@ -11,6 +11,7 @@ import { PRNG } from "../../shared/PRNG";
 import { StatsManager } from "./StatsManager";
 import { isCellVisible } from "../../shared/VisibilityUtils";
 import { MathUtils } from "../../shared/utils/MathUtils";
+import { COMBAT } from "../config/GameConstants";
 
 export class CombatManager {
   constructor(
@@ -31,7 +32,7 @@ export class CombatManager {
       (enemy) =>
         enemy.hp > 0 &&
         MathUtils.getDistance(currentUnit.pos, enemy.pos) <=
-          currentUnit.stats.attackRange + 0.5 &&
+          currentUnit.stats.attackRange + COMBAT.RANGED_RANGE_BUFFER &&
         isCellVisible(
           state,
           Math.floor(enemy.pos.x),
@@ -70,7 +71,10 @@ export class CombatManager {
         if (this.los.hasLineOfFire(currentUnit.pos, enemy.pos)) {
           const distance = MathUtils.getDistance(currentUnit.pos, enemy.pos);
           // Score = (MaxHP - CurrentHP) + (100 / Distance)
-          const score = enemy.maxHp - enemy.hp + 100 / Math.max(0.1, distance);
+          const score =
+            enemy.maxHp -
+            enemy.hp +
+            COMBAT.STICKY_TARGET_SCORE_NORM / Math.max(COMBAT.MIN_DISTANCE, distance);
 
           if (score > bestScore) {
             bestScore = score;
@@ -175,8 +179,13 @@ export class CombatManager {
         const distance = MathUtils.getDistance(attacker.pos, target.pos);
         const S = stats.accuracy;
         const R = stats.attackRange;
-        let hitChance = (S / 100) * (R / Math.max(0.1, distance));
-        hitChance = Math.max(0, Math.min(1.0, hitChance));
+        let hitChance =
+          (S / COMBAT.HIT_CHANCE_NORM) *
+          (R / Math.max(COMBAT.MIN_DISTANCE, distance));
+        hitChance = Math.max(
+          COMBAT.MIN_HIT_CHANCE,
+          Math.min(COMBAT.MAX_HIT_CHANCE, hitChance),
+        );
 
         if (prng.next() <= hitChance) {
           target.hp -= stats.damage;
@@ -224,7 +233,7 @@ export class CombatManager {
 
     const enemiesInMelee = visibleEnemies.filter((e) => {
       const meleeRange =
-        (leftWeapon?.type === "Melee" ? leftWeapon.range : 1) + 0.05;
+        (leftWeapon?.type === "Melee" ? leftWeapon.range : 1) + COMBAT.MELEE_RANGE_BUFFER;
       return MathUtils.getDistance(unit.pos, e.pos) <= meleeRange;
     });
 
@@ -232,7 +241,7 @@ export class CombatManager {
       targetWeaponId = unit.leftHand;
     } else if (rightWeapon) {
       const enemiesInRanged = visibleEnemies.filter(
-        (e) => MathUtils.getDistance(unit.pos, e.pos) <= rightWeapon.range + 0.5,
+        (e) => MathUtils.getDistance(unit.pos, e.pos) <= rightWeapon.range + COMBAT.RANGED_RANGE_BUFFER,
       );
       if (enemiesInRanged.length > 0) {
         targetWeaponId = unit.rightHand;

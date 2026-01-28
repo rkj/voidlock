@@ -4,7 +4,6 @@ This directory contains the core simulation logic for Voidlock. It follows a det
 
 ## Files
 
-- `Constants.ts`: Global engine constants for simulation scaling and normalization (e.g., `SPEED_NORMALIZATION_CONST`) and unit physical dimensions (`UNIT_RADIUS`).
 - `CoreEngine.ts`: The main orchestrator of the game simulation. It manages state (including `isPaused`, `timeScale`, and `isSlowMotion`), initializes managers, and runs the game loop. It respects `allowTacticalPause`, enforcing minimum speed of 1.0x (except for absolute pause) when disabled. Now supports node-type specific mission setup (e.g., Boss/Elite nodes) and includes a catch-up phase for session recovery. **Optimization:** State serialization now omits static map data after the first send and uses a bitset for visibility/discovery to reduce GC pressure.
 - `Director.ts`: Manages enemy spawning based on threat levels and timers. Also handles global commander abilities (Grenades, Scanners) and unit items (Medkits, Stimpacks - restricted to self-heal).
 - `GameClient.ts`: Provides an interface for the renderer (main thread) to communicate with the engine (worker). Exposes typed methods for debug actions (overlays, state queries) and handles time scaling, including Active Pause (0.05x). Now implements mission auto-save for crash recovery, persisting both the command log and the current engine tick to `localStorage`.
@@ -16,6 +15,8 @@ This directory contains the core simulation logic for Voidlock. It follows a det
 ## Subdirectories
 
 - `ai/`: Specialized AI logic for enemies and soldiers.
+- `campaign/`: Specialized managers for the campaign mode logic.
+- `config/`: Configuration files and constants (e.g., `GameConstants.ts`).
 - `generators/`: Specific map generation algorithms (e.g., `SpaceshipGenerator`, `TreeShipGenerator`).
 - `interfaces/`: Shared interfaces for breaking circular dependencies (e.g., `IDirector`).
 - `map/`: Modular map generation system (Factory, Sanitizer, Validator).

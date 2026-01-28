@@ -9,7 +9,7 @@ import {
 import { AIContext } from "../../managers/UnitAI";
 import { PRNG } from "../../../shared/PRNG";
 import { Behavior } from "./Behavior";
-import { SPEED_NORMALIZATION_CONST } from "../../Constants";
+import { SPEED_NORMALIZATION_CONST, ITEMS } from "../../config/GameConstants";
 import { IDirector } from "../../interfaces/IDirector";
 
 export class InteractionBehavior implements Behavior {
@@ -30,8 +30,8 @@ export class InteractionBehavior implements Behavior {
     if (state.loot) {
       const loot = state.loot.find(
         (l) =>
-          Math.abs(unit.pos.x - l.pos.x) < 0.8 &&
-          Math.abs(unit.pos.y - l.pos.y) < 0.8,
+          Math.abs(unit.pos.x - l.pos.x) < ITEMS.INTERACTION_RADIUS &&
+          Math.abs(unit.pos.y - l.pos.y) < ITEMS.INTERACTION_RADIUS,
       );
 
       if (
@@ -39,7 +39,7 @@ export class InteractionBehavior implements Behavior {
         unit.activeCommand?.type === CommandType.PICKUP &&
         (unit.activeCommand as PickupCommand).lootId === loot.id
       ) {
-        const baseTime = 3000;
+        const baseTime = ITEMS.BASE_PICKUP_TIME;
         const duration =
           baseTime * (SPEED_NORMALIZATION_CONST / unit.stats.speed);
         unit.state = UnitState.Channeling;
@@ -71,7 +71,7 @@ export class InteractionBehavior implements Behavior {
             context.claimedObjectives.get(obj.id) === unit.id;
 
           if (isAtTarget && (!context.claimedObjectives.has(obj.id) || isClaimedByMe)) {
-            const baseTime = 3000;
+            const baseTime = ITEMS.BASE_COLLECT_TIME;
             const duration =
               baseTime * (SPEED_NORMALIZATION_CONST / unit.stats.speed);
             unit.state = UnitState.Channeling;
@@ -116,7 +116,7 @@ export class InteractionBehavior implements Behavior {
         (allObjectivesReady || isVipAtExtraction || isExplicitExtract) &&
         isAtExtraction
       ) {
-        const baseTime = 5000;
+        const baseTime = ITEMS.BASE_EXTRACT_TIME;
         const duration =
           baseTime * (SPEED_NORMALIZATION_CONST / unit.stats.speed);
         unit.state = UnitState.Channeling;

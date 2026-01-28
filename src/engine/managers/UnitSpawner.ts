@@ -9,7 +9,7 @@ import {
   Vector2,
 } from "../../shared/types";
 import { PRNG } from "../../shared/PRNG";
-import { SPEED_NORMALIZATION_CONST } from "../Constants";
+import { SPEED_NORMALIZATION_CONST } from "../config/GameConstants";
 
 export class UnitSpawner {
   constructor(private prng: PRNG) {}
