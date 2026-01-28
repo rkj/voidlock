@@ -1,4 +1,4 @@
-import { CampaignManager as EngineCampaignManager } from "@src/engine/managers/CampaignManager";
+import { CampaignManager as EngineCampaignManager } from "@src/engine/campaign/CampaignManager";
 import { LocalStorageProvider } from "@src/engine/persistence/LocalStorageProvider";
 
 /**

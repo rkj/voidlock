@@ -5,12 +5,12 @@ import {
   ItemLibrary,
 } from "../../shared/types";
 import { UnitManager } from "./UnitManager";
-import { Director } from "../Director";
+import { IDirector } from "../interfaces/IDirector";
 
 export class CommandHandler {
   constructor(
     private unitManager: UnitManager,
-    private director: Director,
+    private director: IDirector,
   ) {}
 
   public applyCommand(state: GameState, cmd: Command) {
