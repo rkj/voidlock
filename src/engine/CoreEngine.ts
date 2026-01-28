@@ -366,39 +366,19 @@ export class CoreEngine {
   public getState(): GameState {
     const state = this.state;
     // Manual shallow copy of the state structure
+    // Leveraging structural sharing: objects like 'pos', 'stats', 'path' etc. 
+    // are replaced by managers instead of mutated in-place.
     const copy: GameState = {
       ...state,
-      // We must clone arrays of objects because they are mutated in place by the engine
-      units: state.units.map((u) => ({
-        ...u,
-        pos: { ...u.pos },
-        stats: { ...u.stats },
-        commandQueue: u.commandQueue.map((c) => ({ ...c })),
-        path: u.path ? u.path.map((p) => ({ ...p })) : undefined,
-        targetPos: u.targetPos ? { ...u.targetPos } : undefined,
-        visualJitter: u.visualJitter ? { ...u.visualJitter } : undefined,
-        channeling: u.channeling ? { ...u.channeling } : undefined,
-      })),
-      enemies: state.enemies.map((e) => ({
-        ...e,
-        pos: { ...e.pos },
-        path: e.path ? e.path.map((p) => ({ ...p })) : undefined,
-        targetPos: e.targetPos ? { ...e.targetPos } : undefined,
-      })),
-      loot: state.loot.map((l) => ({ ...l, pos: { ...l.pos } })),
-      mines: state.mines.map((m) => ({ ...m, pos: { ...m.pos } })),
-      turrets: state.turrets.map((t) => ({ ...t, pos: { ...t.pos } })),
+      units: state.units.map((u) => ({ ...u })),
+      enemies: state.enemies.map((e) => ({ ...e })),
+      loot: state.loot.map((l) => ({ ...l })),
+      mines: state.mines.map((m) => ({ ...m })),
+      turrets: state.turrets.map((t) => ({ ...t })),
       attackEvents: state.attackEvents
-        ? state.attackEvents.map((ae) => ({
-            ...ae,
-            attackerPos: { ...ae.attackerPos },
-            targetPos: { ...ae.targetPos },
-          }))
+        ? state.attackEvents.map((ae) => ({ ...ae }))
         : [],
-      objectives: state.objectives.map((o) => ({
-        ...o,
-        targetCell: o.targetCell ? { ...o.targetCell } : undefined,
-      })),
+      objectives: state.objectives.map((o) => ({ ...o })),
       visibleCells: [...state.visibleCells],
       discoveredCells: [...state.discoveredCells],
       gridState: state.gridState ? new Uint8Array(state.gridState) : undefined,
@@ -414,12 +394,9 @@ export class CoreEngine {
         spawnPoints: this.sentMap ? [] : state.map.spawnPoints,
         objectives: this.sentMap ? [] : state.map.objectives,
         // Doors are dynamic, always send them
-        doors: state.map.doors
-          ? state.map.doors.map((d) => ({
-              ...d,
-              segment: d.segment.map((p) => ({ ...p })),
-            }))
-          : [],
+        doors: Array.from(this.doorManager.getDoors().values()).map((d) => ({
+          ...d,
+        })),
       },
     };
 
@@ -601,38 +578,53 @@ export class CoreEngine {
     );
 
     // 8. Cleanup Death (Must be after both Unit and Enemy updates)
-    this.state.units.forEach((unit) => {
-      
-          
+    let statsChanged = false;
+    let newCasualties = this.state.stats.casualties;
+
+    this.state.units = this.state.units.map((unit) => {
       if (unit.hp <= 0 && unit.state !== UnitState.Dead) {
-        unit.state = UnitState.Dead;
-        this.state.stats.casualties++;
+        statsChanged = true;
+        newCasualties++;
+
+        const updatedUnit = { ...unit, state: UnitState.Dead };
 
         if (unit.carriedObjectiveId) {
-          const obj = this.state.objectives.find(
-            (o) => o.id === unit.carriedObjectiveId,
-          );
-          if (obj) {
-            obj.state = "Pending";
-            obj.targetCell = {
-              x: Math.floor(unit.pos.x),
-              y: Math.floor(unit.pos.y),
-            };
+          const objectiveId = unit.carriedObjectiveId;
+          this.state.objectives = this.state.objectives.map((o) => {
+            if (o.id === objectiveId) {
+              const updatedObj = {
+                ...o,
+                state: "Pending" as const,
+                targetCell: {
+                  x: Math.floor(unit.pos.x),
+                  y: Math.floor(unit.pos.y),
+                },
+              };
 
-            if (unit.carriedObjectiveId.startsWith("artifact")) {
-              this.lootManager.spawnLoot(
-                this.state,
-                "artifact_heavy",
-                unit.pos,
-                obj.id,
-              );
+              if (objectiveId.startsWith("artifact")) {
+                this.lootManager.spawnLoot(
+                  this.state,
+                  "artifact_heavy",
+                  unit.pos,
+                  o.id,
+                );
+              }
+              return updatedObj;
             }
-          }
-          unit.carriedObjectiveId = undefined;
-          this.unitManager.recalculateStats(unit);
+            return o;
+          });
         }
+        return updatedUnit;
       }
+      return unit;
     });
+
+    if (statsChanged) {
+      this.state.stats = {
+        ...this.state.stats,
+        casualties: newCasualties,
+      };
+    }
 
     // 8. Win/Loss
     this.missionManager.checkWinLoss(this.state);

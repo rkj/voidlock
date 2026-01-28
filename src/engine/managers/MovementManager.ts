@@ -7,8 +7,8 @@ const EPSILON = 0.05;
 export class MovementManager {
   constructor(private gameGrid: GameGrid) {}
 
-  public handleMovement(unit: Unit, dt: number, doors: Map<string, Door>) {
-    if (!unit.targetPos || !unit.path) return;
+  public handleMovement(unit: Unit, dt: number, doors: Map<string, Door>): Unit {
+    if (!unit.targetPos || !unit.path) return unit;
 
     const dx = unit.targetPos.x - unit.pos.x;
     const dy = unit.targetPos.y - unit.pos.y;
@@ -37,28 +37,42 @@ export class MovementManager {
         false,
       )
     ) {
-      unit.state = UnitState.WaitingForDoor;
+      if (unit.state === UnitState.WaitingForDoor) return unit;
+      return { ...unit, state: UnitState.WaitingForDoor };
     } else if (dist <= moveDist + EPSILON) {
-      unit.pos = { ...unit.targetPos };
-      unit.path.shift();
-
-      if (unit.path.length === 0) {
-        unit.path = undefined;
-        unit.targetPos = undefined;
-        unit.state = UnitState.Idle;
-        if (unit.activeCommand?.type === CommandType.MOVE_TO) {
-          unit.activeCommand = undefined;
-        }
+      const nextPath = unit.path.slice(1);
+      if (nextPath.length === 0) {
+        return {
+          ...unit,
+          pos: { ...unit.targetPos },
+          path: undefined,
+          targetPos: undefined,
+          state: UnitState.Idle,
+          activeCommand:
+            unit.activeCommand?.type === CommandType.MOVE_TO
+              ? undefined
+              : unit.activeCommand,
+        };
       } else {
-        unit.targetPos = {
-          x: unit.path[0].x + 0.5 + (unit.visualJitter?.x || 0),
-          y: unit.path[0].y + 0.5 + (unit.visualJitter?.y || 0),
+        return {
+          ...unit,
+          pos: { ...unit.targetPos },
+          path: nextPath,
+          targetPos: {
+            x: nextPath[0].x + 0.5 + (unit.visualJitter?.x || 0),
+            y: nextPath[0].y + 0.5 + (unit.visualJitter?.y || 0),
+          },
         };
       }
     } else {
-      unit.pos.x += (dx / dist) * moveDist;
-      unit.pos.y += (dy / dist) * moveDist;
-      unit.state = UnitState.Moving;
+      return {
+        ...unit,
+        pos: {
+          x: unit.pos.x + (dx / dist) * moveDist,
+          y: unit.pos.y + (dy / dist) * moveDist,
+        },
+        state: UnitState.Moving,
+      };
     }
   }
 }

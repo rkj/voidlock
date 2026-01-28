@@ -150,7 +150,7 @@ export class EnemyManager {
 
           if (dist <= moveDist + EPSILON) {
             enemy.pos = { ...enemy.targetPos };
-            enemy.path.shift();
+            enemy.path = enemy.path.slice(1);
             if (enemy.path.length > 0) {
               enemy.targetPos = {
                 x: enemy.path[0].x + 0.5,
@@ -160,8 +160,10 @@ export class EnemyManager {
               enemy.targetPos = undefined;
             }
           } else {
-            enemy.pos.x += ((enemy.targetPos.x - enemy.pos.x) / dist) * moveDist;
-            enemy.pos.y += ((enemy.targetPos.y - enemy.pos.y) / dist) * moveDist;
+            enemy.pos = {
+              x: enemy.pos.x + ((enemy.targetPos.x - enemy.pos.x) / dist) * moveDist,
+              y: enemy.pos.y + ((enemy.targetPos.y - enemy.pos.y) / dist) * moveDist,
+            };
           }
         }
       }

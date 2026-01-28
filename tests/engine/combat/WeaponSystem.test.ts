@@ -130,9 +130,10 @@ describe("Weapon System", () => {
 
     unitManager.update(state, 100, new Map(), prng, lootManager);
 
-    expect(unit.activeWeaponId).toBe("combat_knife");
-    expect(unit.stats.damage).toBe(15); // Knife damage
-    expect(unit.stats.attackRange).toBe(1); // Knife range
+    const updatedUnit = state.units[0];
+    expect(updatedUnit.activeWeaponId).toBe("combat_knife");
+    expect(updatedUnit.stats.damage).toBe(15); // Knife damage
+    expect(updatedUnit.stats.attackRange).toBe(1); // Knife range
   });
 
   it("should switch to ranged weapon when enemy is at distance", () => {
@@ -190,8 +191,9 @@ describe("Weapon System", () => {
 
     unitManager.update(state, 100, new Map(), prng, lootManager);
 
-    expect(unit.activeWeaponId).toBe("pulse_rifle");
-    expect(unit.stats.damage).toBe(20); // Pulse Rifle damage
-    expect(unit.stats.attackRange).toBe(10); // Pulse Rifle range
+    const updatedUnit = state.units[0];
+    expect(updatedUnit.activeWeaponId).toBe("pulse_rifle");
+    expect(updatedUnit.stats.damage).toBe(20); // Pulse Rifle damage
+    expect(updatedUnit.stats.attackRange).toBe(10); // Pulse Rifle range
   });
 });

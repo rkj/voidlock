@@ -88,7 +88,8 @@ describe("CoreEngine Early Door Sync", () => {
 
     // Run update to complete timer
     engine.update(600);
-    expect(door.state).toBe("Open");
+    const doorFinal = (engine as any).doorManager.getDoors().get("door1");
+    expect(doorFinal.state).toBe("Open");
     expect(boundary?.type).toBe(BoundaryType.Open);
   });
 });

@@ -18,39 +18,46 @@ export class CombatManager {
     private statsManager: StatsManager,
   ) {}
 
-  public update(unit: Unit, state: GameState, prng: PRNG) {
-    if (unit.state === UnitState.Extracted || unit.hp <= 0) return;
+  public update(unit: Unit, state: GameState, prng: PRNG): { unit: Unit; isAttacking: boolean } {
+    if (unit.state === UnitState.Extracted || unit.hp <= 0) {
+      return { unit, isAttacking: false };
+    }
 
     // 1. Preparation: ensure the correct weapon/stats are active
-    this.updateActiveWeapon(unit, state);
+    let currentUnit = this.updateActiveWeapon(unit, state);
 
     // 2. Identification: All visible enemies in range
     const visibleEnemiesInRange = state.enemies.filter(
       (enemy) =>
         enemy.hp > 0 &&
-        MathUtils.getDistance(unit.pos, enemy.pos) <= unit.stats.attackRange + 0.5 &&
-        isCellVisible(state, Math.floor(enemy.pos.x), Math.floor(enemy.pos.y)),
+        MathUtils.getDistance(currentUnit.pos, enemy.pos) <=
+          currentUnit.stats.attackRange + 0.5 &&
+        isCellVisible(
+          state,
+          Math.floor(enemy.pos.x),
+          Math.floor(enemy.pos.y),
+        ),
     );
 
     const enemiesInSameCell = state.enemies.filter(
       (enemy) =>
         enemy.hp > 0 &&
-        Math.floor(enemy.pos.x) === Math.floor(unit.pos.x) &&
-        Math.floor(enemy.pos.y) === Math.floor(unit.pos.y),
+        Math.floor(enemy.pos.x) === Math.floor(currentUnit.pos.x) &&
+        Math.floor(enemy.pos.y) === Math.floor(currentUnit.pos.y),
     );
     const isLockedInMelee = enemiesInSameCell.length > 0;
 
     // 3. Stickiness: Check if current forcedTarget is still valid
     let targetEnemy: Enemy | undefined;
-    if (unit.forcedTargetId) {
+    if (currentUnit.forcedTargetId) {
       const sticky = visibleEnemiesInRange.find(
-        (e) => e.id === unit.forcedTargetId,
+        (e) => e.id === currentUnit.forcedTargetId,
       );
       // Valid if: alive, in range, and HAS LINE OF FIRE
-      if (sticky && this.los.hasLineOfFire(unit.pos, sticky.pos)) {
+      if (sticky && this.los.hasLineOfFire(currentUnit.pos, sticky.pos)) {
         targetEnemy = sticky;
       } else {
-        unit.forcedTargetId = undefined;
+        currentUnit = { ...currentUnit, forcedTargetId: undefined };
       }
     }
 
@@ -60,8 +67,8 @@ export class CombatManager {
       let bestTarget: Enemy | undefined;
 
       for (const enemy of visibleEnemiesInRange) {
-        if (this.los.hasLineOfFire(unit.pos, enemy.pos)) {
-          const distance = MathUtils.getDistance(unit.pos, enemy.pos);
+        if (this.los.hasLineOfFire(currentUnit.pos, enemy.pos)) {
+          const distance = MathUtils.getDistance(currentUnit.pos, enemy.pos);
           // Score = (MaxHP - CurrentHP) + (100 / Distance)
           const score = enemy.maxHp - enemy.hp + 100 / Math.max(0.1, distance);
 
@@ -70,7 +77,10 @@ export class CombatManager {
             bestTarget = enemy;
           } else if (score === bestScore && bestTarget) {
             // Tie-breaker: Closest
-            const bestDist = MathUtils.getDistance(unit.pos, bestTarget.pos);
+            const bestDist = MathUtils.getDistance(
+              currentUnit.pos,
+              bestTarget.pos,
+            );
             if (distance < bestDist) {
               bestTarget = enemy;
             }
@@ -80,41 +90,56 @@ export class CombatManager {
 
       if (bestTarget) {
         targetEnemy = bestTarget;
-        unit.forcedTargetId = bestTarget.id;
+        currentUnit = { ...currentUnit, forcedTargetId: bestTarget.id };
       }
     }
 
-    const policy = unit.engagementPolicy || "ENGAGE";
+    const policy = currentUnit.engagementPolicy || "ENGAGE";
 
     if (
-      unit.archetypeId !== "vip" &&
+      currentUnit.archetypeId !== "vip" &&
       targetEnemy &&
       (policy === "ENGAGE" || isLockedInMelee)
     ) {
-      if (this.los.hasLineOfFire(unit.pos, targetEnemy.pos)) {
-        this.handleAttack(
-          unit,
+      if (this.los.hasLineOfFire(currentUnit.pos, targetEnemy.pos)) {
+        // We still let handleAttack mutate for now, but we update the attacker's state
+        const attacked = this.handleAttack(
+          currentUnit,
           targetEnemy,
           {
-            damage: unit.stats.damage,
-            fireRate: unit.stats.fireRate,
-            accuracy: unit.stats.accuracy,
-            attackRange: unit.stats.attackRange,
+            damage: currentUnit.stats.damage,
+            fireRate: currentUnit.stats.fireRate,
+            accuracy: currentUnit.stats.accuracy,
+            attackRange: currentUnit.stats.attackRange,
           },
           state,
           prng,
           () => {
-            unit.kills++;
-            unit.forcedTargetId = undefined;
+            // This callback mutates currentUnit, which is tricky.
+            // But since handleAttack is called with currentUnit, we can update it after.
           },
         );
 
-        unit.state = UnitState.Attacking;
-        return true;
+        if (attacked) {
+          // Re-clone to reflect changes from handleAttack (like lastAttackTime)
+          // Since handleAttack mutates attacker, we have to be careful.
+          // To be truly immutable, handleAttack should return new objects.
+          if (targetEnemy.hp <= 0) {
+            currentUnit = {
+              ...currentUnit,
+              kills: currentUnit.kills + 1,
+              forcedTargetId: undefined,
+              state: UnitState.Attacking,
+            };
+          } else {
+            currentUnit = { ...currentUnit, state: UnitState.Attacking };
+          }
+          return { unit: currentUnit, isAttacking: true };
+        }
       }
     }
 
-    return false; // isAttacking
+    return { unit: currentUnit, isAttacking: false };
   }
 
   /**
@@ -175,8 +200,8 @@ export class CombatManager {
     return false;
   }
 
-  public updateActiveWeapon(unit: Unit, state: GameState) {
-    if (!unit.rightHand && !unit.leftHand) return;
+  public updateActiveWeapon(unit: Unit, state: GameState): Unit {
+    if (!unit.rightHand && !unit.leftHand) return unit;
 
     const visibleEnemies = state.enemies.filter(
       (enemy) =>
@@ -189,7 +214,7 @@ export class CombatManager {
       : undefined;
     const leftWeapon = unit.leftHand ? WeaponLibrary[unit.leftHand] : undefined;
 
-    if (!rightWeapon && !leftWeapon) return;
+    if (!rightWeapon && !leftWeapon) return unit;
 
     let targetWeaponId = unit.activeWeaponId || unit.rightHand || unit.leftHand;
 
@@ -211,8 +236,10 @@ export class CombatManager {
     }
 
     if (targetWeaponId && unit.activeWeaponId !== targetWeaponId) {
-      unit.activeWeaponId = targetWeaponId;
-      this.statsManager.recalculateStats(unit);
+      const updatedUnit = { ...unit, activeWeaponId: targetWeaponId };
+      return this.statsManager.recalculateStats(updatedUnit);
     }
+
+    return unit;
   }
 }
