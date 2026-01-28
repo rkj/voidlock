@@ -39,7 +39,7 @@ export class CommandHandler {
           const unit = state.units.find((u) => u.id === id);
           if (unit) {
             if (cmd.queue) {
-              unit.commandQueue.push(cmd);
+              unit.commandQueue = unit.commandQueue.concat(cmd);
             } else {
               unit.commandQueue = [];
               this.unitManager.executeCommand(
@@ -57,19 +57,20 @@ export class CommandHandler {
     }
 
     if (cmd.type === CommandType.TOGGLE_DEBUG_OVERLAY) {
-      state.settings.debugOverlayEnabled = cmd.enabled;
+      state.settings = { ...state.settings, debugOverlayEnabled: cmd.enabled };
       return;
     }
 
     if (cmd.type === CommandType.TOGGLE_LOS_OVERLAY) {
-      state.settings.losOverlayEnabled = cmd.enabled;
+      state.settings = { ...state.settings, losOverlayEnabled: cmd.enabled };
       return;
     }
 
     if (cmd.type === CommandType.DEBUG_FORCE_WIN) {
-      for (const o of state.objectives) {
-        o.state = "Completed";
-      }
+      state.objectives = state.objectives.map((o) => ({
+        ...o,
+        state: "Completed" as const,
+      }));
       state.status = "Won";
       return;
     }
@@ -94,7 +95,7 @@ export class CommandHandler {
         const unit = state.units.find((u) => u.id === id);
         if (unit) {
           if (cmd.queue) {
-            unit.commandQueue.push(cmd);
+            unit.commandQueue = unit.commandQueue.concat(cmd);
           } else {
             unit.commandQueue = [];
             this.unitManager.executeCommand(

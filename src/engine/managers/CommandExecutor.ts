@@ -36,7 +36,7 @@ export class CommandExecutor {
         unit.aiEnabled &&
         (cmd.type === CommandType.PICKUP || cmd.type === CommandType.USE_ITEM)
       ) {
-        unit.commandQueue.push({
+        unit.commandQueue = unit.commandQueue.concat({
           type: CommandType.RESUME_AI,
           unitIds: [unit.id],
         });

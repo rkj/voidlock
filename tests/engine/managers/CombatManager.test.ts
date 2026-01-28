@@ -63,16 +63,17 @@ describe("CombatManager", () => {
 
     vi.mocked(mockLos.hasLineOfFire).mockReturnValue(true);
 
-    const isAttacking = combatManager.update(
+    const result = combatManager.update(
       unit,
       state,
       prng,
     );
 
-    expect(isAttacking).toBe(true);
-    expect(unit.state).toBe(UnitState.Attacking);
-    expect(unit.forcedTargetId).toBe("e1");
-    expect(unit.lastAttackTime).toBe(1000);
+    const updatedUnit = result.unit;
+    expect(result.isAttacking).toBe(true);
+    expect(updatedUnit.state).toBe(UnitState.Attacking);
+    expect(updatedUnit.forcedTargetId).toBe("e1");
+    expect(updatedUnit.lastAttackTime).toBe(1000);
   });
 
   it("should not attack if no LOF", () => {
@@ -87,24 +88,24 @@ describe("CombatManager", () => {
 
     vi.mocked(mockLos.hasLineOfFire).mockReturnValue(false);
 
-    const isAttacking = combatManager.update(
+    const result = combatManager.update(
       unit,
       state,
       prng,
     );
 
-    expect(isAttacking).toBe(false);
-    expect(unit.state).not.toBe(UnitState.Attacking);
-    expect(unit.forcedTargetId).toBeUndefined();
+    const updatedUnit = result.unit;
+    expect(result.isAttacking).toBe(false);
+    expect(updatedUnit.state).not.toBe(UnitState.Attacking);
+    expect(updatedUnit.forcedTargetId).toBeUndefined();
   });
 
   it("should respect weapon cooldown", () => {
     const unit = createMockUnit("u1", 1.5, 1.5);
     unit.lastAttackTime = 900;
-    unit.stats.fireRate = 500;
     const enemy = createMockEnemy("e1", 2.5, 1.5);
     const state: GameState = {
-      t: 1000, // only 100ms passed
+      t: 1000,
       units: [unit],
       enemies: [enemy],
       visibleCells: ["1,1", "2,1"],
@@ -112,13 +113,24 @@ describe("CombatManager", () => {
 
     vi.mocked(mockLos.hasLineOfFire).mockReturnValue(true);
 
-    const isAttacking = combatManager.update(
+    // Attack at t=1000 with 500ms cooldown (ok)
+    const result1 = combatManager.update(
       unit,
       state,
       prng,
     );
+    expect(result1.isAttacking).toBe(true);
+    expect(result1.unit.lastAttackTime).toBe(1000);
 
-    expect(isAttacking).toBe(true); // Still "attacking" (state-wise) but no damage/time update
-    expect(unit.lastAttackTime).toBe(900); // Should NOT have updated
+    // Attack again at t=1100 (too early)
+    const state2 = { ...state, t: 1100 };
+    const result2 = combatManager.update(
+      result1.unit,
+      state2,
+      prng,
+    );
+
+    expect(result2.isAttacking).toBe(true); // Still "attacking" (state-wise) but didn't fire
+    expect(result2.unit.lastAttackTime).toBe(1000); // Should NOT have updated
   });
 });

@@ -203,14 +203,18 @@ export class MissionManager {
   }
 
   public updateObjectives(state: GameState) {
-    state.objectives.forEach((obj) => {
-      if (!obj.visible && obj.targetCell) {
-        if (isCellDiscovered(state, obj.targetCell.x, obj.targetCell.y)) {
-          obj.visible = true;
+    state.objectives = state.objectives.map((obj) => {
+      let changed = false;
+      let newObj = { ...obj };
+
+      if (!newObj.visible && newObj.targetCell) {
+        if (isCellDiscovered(state, newObj.targetCell.x, newObj.targetCell.y)) {
+          newObj.visible = true;
+          changed = true;
         }
       }
-      if (obj.kind === "Kill" && obj.targetEnemyId) {
-        const enemy = state.enemies.find((e) => e.id === obj.targetEnemyId);
+      if (newObj.kind === "Kill" && newObj.targetEnemyId) {
+        const enemy = state.enemies.find((e) => e.id === newObj.targetEnemyId);
         if (
           enemy &&
           isCellVisible(
@@ -219,52 +223,59 @@ export class MissionManager {
             Math.floor(enemy.pos.y),
           )
         ) {
-          obj.visible = true;
+          newObj.visible = true;
+          changed = true;
         }
       }
 
       // Special handling for Escort objectives: completion depends on ALL VIPs reaching extraction
-      if (obj.kind === "Escort" || obj.id === "obj-escort") {
+      if (newObj.kind === "Escort" || newObj.id === "obj-escort") {
         const vips = state.units.filter((u) => u.archetypeId === "vip");
         const allVipsExtracted =
           vips.length > 0 && vips.every((v) => v.state === UnitState.Extracted);
         const anyVipDead = vips.some((v) => v.state === UnitState.Dead);
 
-        if (allVipsExtracted) {
-          obj.state = "Completed";
-        } else if (anyVipDead) {
-          obj.state = "Failed";
+        if (allVipsExtracted && newObj.state !== "Completed") {
+          newObj.state = "Completed";
+          changed = true;
+        } else if (anyVipDead && newObj.state !== "Failed") {
+          newObj.state = "Failed";
+          changed = true;
         }
-      } else if (obj.state !== "Completed") {
+      } else if (newObj.state !== "Completed") {
         // Handle Kill objective completion in MissionManager
-        if (obj.kind === "Kill" && obj.targetEnemyId) {
-          const enemy = state.enemies.find((e) => e.id === obj.targetEnemyId);
+        if (newObj.kind === "Kill" && newObj.targetEnemyId) {
+          const enemy = state.enemies.find((e) => e.id === newObj.targetEnemyId);
           if (!enemy || enemy.hp <= 0) {
-            obj.state = "Completed";
+            newObj.state = "Completed";
+            changed = true;
           }
         }
       }
 
       // Reward scrap for newly completed objectives
-      if (obj.state === "Completed" && !obj.scrapRewarded) {
+      if (newObj.state === "Completed" && !newObj.scrapRewarded) {
         const isBoss = state.nodeType === "Boss";
         const isElite = state.nodeType === "Elite";
         const multiplier = isBoss ? 3 : isElite ? 2 : 1;
 
         if (
-          obj.kind === "Kill" &&
-          (obj.targetEnemyId === "enemy-hive" ||
-            obj.targetEnemyId === "boss-hive" ||
-            obj.targetEnemyId === "elite-hive")
+          newObj.kind === "Kill" &&
+          (newObj.targetEnemyId === "enemy-hive" ||
+            newObj.targetEnemyId === "boss-hive" ||
+            newObj.targetEnemyId === "elite-hive")
         ) {
           state.stats.scrapGained += 75 * multiplier;
-        } else if (obj.kind === "Escort" || obj.id === "obj-escort") {
+        } else if (newObj.kind === "Escort" || newObj.id === "obj-escort") {
           state.stats.scrapGained += 50 * multiplier;
         } else {
           state.stats.scrapGained += 25 * multiplier;
         }
-        obj.scrapRewarded = true;
+        newObj.scrapRewarded = true;
+        changed = true;
       }
+
+      return changed ? newObj : obj;
     });
   }
 

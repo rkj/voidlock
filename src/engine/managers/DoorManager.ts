@@ -22,17 +22,28 @@ export class DoorManager {
   }
 
   public update(state: GameState, dt: number) {
-    for (const door of this.doors.values()) {
+    for (const [id, door] of this.doors.entries()) {
       if (door.state === "Destroyed") continue;
 
+      let newDoor = door;
+
       if (door.openTimer !== undefined && door.openTimer > 0) {
-        door.openTimer -= dt;
-        if (door.openTimer <= 0) {
-          door.state = door.targetState!;
-          this.updateDoorBoundary(door);
-          door.openTimer = undefined;
-          door.targetState = undefined;
+        const nextTimer = door.openTimer - dt;
+        if (nextTimer <= 0) {
+          newDoor = {
+            ...door,
+            state: door.targetState!,
+            openTimer: undefined,
+            targetState: undefined,
+          };
+          this.updateDoorBoundary(newDoor);
+        } else {
+          newDoor = {
+            ...door,
+            openTimer: nextTimer,
+          };
         }
+        this.doors.set(id, newDoor);
         continue;
       }
 
@@ -44,15 +55,23 @@ export class DoorManager {
           door.state === "Closed" ||
           (door.state === "Locked" && soldierAdjacent)
         ) {
-          door.targetState = "Open";
-          door.openTimer = door.openDuration * 1000;
-          this.updateDoorBoundary(door);
+          newDoor = {
+            ...door,
+            targetState: "Open",
+            openTimer: door.openDuration * 1000,
+          };
+          this.updateDoorBoundary(newDoor);
+          this.doors.set(id, newDoor);
         }
       } else {
         if (door.state === "Open") {
-          door.targetState = "Closed";
-          door.openTimer = door.openDuration * 1000;
-          this.updateDoorBoundary(door);
+          newDoor = {
+            ...door,
+            targetState: "Closed",
+            openTimer: door.openDuration * 1000,
+          };
+          this.updateDoorBoundary(newDoor);
+          this.doors.set(id, newDoor);
         }
       }
     }
@@ -69,6 +88,10 @@ export class DoorManager {
           door.state === "Open" ||
           door.state === "Destroyed" ||
           door.targetState === "Open";
+        
+        // We still mutate boundary.type here because Graph is a complex internal structure
+        // that isn't easily made immutable without a large refactor.
+        // But for structural sharing of GameState, we've improved Door objects.
         boundary.type = isPassable ? BoundaryType.Open : BoundaryType.Door;
       }
     }

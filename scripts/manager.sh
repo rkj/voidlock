@@ -1,8 +1,11 @@
 #!/bin/bash
 #
-gemini -p "@MANAGER.md"
-  --model gemini-3-flash-preview \
+gemini -p "@MANAGER.md" \
+  --output-format stream-json \
+  --model gemini-3-pro-preview \
   --allowed-tools "run_shell_command(bd)" \
+  --allowed-tools "run_shell_command(./scripts/dispatch_agent.sh)" \
+  --allowed-tools "run_shell_command(scripts/dispatch_agent.sh)" \
   --allowed-tools "run_shell_command(grep)" \
   --allowed-tools "run_shell_command(jj commit)" \
   --allowed-tools "run_shell_command(jj diff)" \

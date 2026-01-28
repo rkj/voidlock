@@ -7,9 +7,9 @@ import {
 import { SPEED_NORMALIZATION_CONST } from "../Constants";
 
 export class StatsManager {
-  public recalculateStats(unit: Unit) {
+  public recalculateStats(unit: Unit): Unit {
     const arch = ArchetypeLibrary[unit.archetypeId];
-    if (!arch) return;
+    if (!arch) return unit;
 
     let hpBonus = 0;
     let speedBonus = 0;
@@ -37,30 +37,48 @@ export class StatsManager {
       }
     }
 
-    unit.maxHp = arch.baseHp + hpBonus;
-    unit.stats.speed = arch.speed + speedBonus;
-    unit.stats.equipmentAccuracyBonus = equipmentAccuracyBonus;
+    const nextStats = {
+      ...unit.stats,
+      speed: arch.speed + speedBonus,
+      equipmentAccuracyBonus: equipmentAccuracyBonus,
+    };
 
     // Update weapon-dependent stats
     const weaponId = unit.activeWeaponId || unit.rightHand || "";
     const weapon = WeaponLibrary[weaponId];
     if (weapon) {
-      unit.stats.damage = weapon.damage;
-      unit.stats.attackRange = weapon.range;
-      unit.stats.accuracy =
-        unit.stats.soldierAim +
+      nextStats.damage = weapon.damage;
+      nextStats.attackRange = weapon.range;
+      nextStats.accuracy =
+        nextStats.soldierAim +
         (weapon.accuracy || 0) +
-        unit.stats.equipmentAccuracyBonus;
-      unit.stats.fireRate =
+        nextStats.equipmentAccuracyBonus;
+      nextStats.fireRate =
         weapon.fireRate *
-        (unit.stats.speed > 0
-          ? SPEED_NORMALIZATION_CONST / unit.stats.speed
+        (nextStats.speed > 0
+          ? SPEED_NORMALIZATION_CONST / nextStats.speed
           : 1);
     } else {
-      unit.stats.damage = arch.damage;
-      unit.stats.attackRange = arch.attackRange;
-      unit.stats.accuracy = unit.stats.soldierAim + equipmentAccuracyBonus;
-      unit.stats.fireRate = arch.fireRate;
+      nextStats.damage = arch.damage;
+      nextStats.attackRange = arch.attackRange;
+      nextStats.accuracy = nextStats.soldierAim + equipmentAccuracyBonus;
+      nextStats.fireRate = arch.fireRate;
     }
+
+    const nextMaxHp = arch.baseHp + hpBonus;
+
+    // Check if anything actually changed
+    if (
+      unit.maxHp === nextMaxHp &&
+      JSON.stringify(unit.stats) === JSON.stringify(nextStats)
+    ) {
+      return unit;
+    }
+
+    return {
+      ...unit,
+      maxHp: nextMaxHp,
+      stats: nextStats,
+    };
   }
 }

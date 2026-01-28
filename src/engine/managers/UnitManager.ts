@@ -48,8 +48,8 @@ export class UnitManager {
     this.commandExecutor = new CommandExecutor(pathfinder);
   }
 
-  public recalculateStats(unit: Unit) {
-    this.statsManager.recalculateStats(unit);
+  public recalculateStats(unit: Unit): Unit {
+    return this.statsManager.recalculateStats(unit);
   }
 
   public getCombatManager(): CombatManager {
@@ -85,7 +85,7 @@ export class UnitManager {
     // 3. Process escort groups
     const escortData = new Map<
       string,
-      { targetCell: Vector2; matchedSpeed?: number }
+      { targetCell: Vector2; matchedSpeed?: number; stopEscorting?: boolean }
     >();
     for (const [targetId, escorts] of escortGroups) {
       const targetUnit = state.units.find((u) => u.id === targetId);
@@ -97,8 +97,7 @@ export class UnitManager {
       ) {
         // Target is gone, stop escorting
         escorts.forEach((e) => {
-          e.activeCommand = undefined;
-          e.state = UnitState.Idle;
+          escortData.set(e.id, { targetCell: { x: 0, y: 0 }, stopEscorting: true });
         });
         continue;
       }
@@ -133,7 +132,7 @@ export class UnitManager {
       const perp = { x: -heading.y, y: heading.x };
 
       escorts.forEach((escort, index) => {
-        this.statsManager.recalculateStats(escort);
+        const updatedEscort = this.statsManager.recalculateStats(escort);
         let formationOffset = { x: 0, y: 0 };
         if (index === 0) {
           // Vanguard
@@ -176,15 +175,15 @@ export class UnitManager {
         }
 
         let matchedSpeed: number | undefined = undefined;
-        const distToSlot = MathUtils.getDistance(escort.pos, {
+        const distToSlot = MathUtils.getDistance(updatedEscort.pos, {
           x: targetCell.x + 0.5,
           y: targetCell.y + 0.5,
         });
         if (distToSlot <= 0.8) {
-          matchedSpeed = Math.min(escort.stats.speed, targetUnit.stats.speed);
+          matchedSpeed = Math.min(updatedEscort.stats.speed, targetUnit.stats.speed);
         }
 
-        escortData.set(escort.id, { targetCell, matchedSpeed });
+        escortData.set(updatedEscort.id, { targetCell, matchedSpeed });
       });
     }
 
@@ -308,87 +307,119 @@ export class UnitManager {
         this.commandExecutor.executeCommand(u, cmd, s, isManual, dir),
     };
 
-    state.units.forEach((unit) => {
+    state.units = state.units.map((unit) => {
       if (unit.state === UnitState.Extracted || unit.state === UnitState.Dead)
-        return;
+        return unit;
+
+      let currentUnit = unit;
 
       // Apply escort speed and target cell if applicable
-      const eData = escortData.get(unit.id);
+      const eData = escortData.get(currentUnit.id);
       if (eData) {
-        if (eData.matchedSpeed !== undefined) {
-          unit.stats.speed = eData.matchedSpeed;
-        }
+        if (eData.stopEscorting) {
+          currentUnit = {
+            ...currentUnit,
+            activeCommand: undefined,
+            state: UnitState.Idle,
+          };
+        } else {
+          if (eData.matchedSpeed !== undefined) {
+            currentUnit = {
+              ...currentUnit,
+              stats: { ...currentUnit.stats, speed: eData.matchedSpeed },
+            };
+          }
 
-        const targetCell = eData.targetCell;
-        const distToCenter = MathUtils.getDistance(unit.pos, {
-          x: targetCell.x + 0.5,
-          y: targetCell.y + 0.5,
-        });
+          const targetCell = eData.targetCell;
+          const distToCenter = MathUtils.getDistance(currentUnit.pos, {
+            x: targetCell.x + 0.5,
+            y: targetCell.y + 0.5,
+          });
 
-        // Update escort's movement if not at center of target cell
-        if (distToCenter > 0.1) {
-          if (
-            !unit.targetPos ||
-            Math.floor(unit.targetPos.x) !== targetCell.x ||
-            Math.floor(unit.targetPos.y) !== targetCell.y
-          ) {
-            const path = this.pathfinder.findPath(
-              { x: Math.floor(unit.pos.x), y: Math.floor(unit.pos.y) },
-              targetCell,
-              true,
-            );
-            if (path) {
-              if (path.length > 0) {
-                unit.path = path;
-                unit.targetPos = {
-                  x: path[0].x + 0.5 + (unit.visualJitter?.x || 0),
-                  y: path[0].y + 0.5 + (unit.visualJitter?.y || 0),
-                };
-              } else {
-                unit.path = undefined;
-                unit.targetPos = {
-                  x: targetCell.x + 0.5 + (unit.visualJitter?.x || 0),
-                  y: targetCell.y + 0.5 + (unit.visualJitter?.y || 0),
-                };
+          // Update escort's movement if not at center of target cell
+          if (distToCenter > 0.1) {
+            if (
+              !currentUnit.targetPos ||
+              Math.floor(currentUnit.targetPos.x) !== targetCell.x ||
+              Math.floor(currentUnit.targetPos.y) !== targetCell.y
+            ) {
+              const path = this.pathfinder.findPath(
+                {
+                  x: Math.floor(currentUnit.pos.x),
+                  y: Math.floor(currentUnit.pos.y),
+                },
+                targetCell,
+                true,
+              );
+              if (path) {
+                if (path.length > 0) {
+                  currentUnit = {
+                    ...currentUnit,
+                    path,
+                    targetPos: {
+                      x: path[0].x + 0.5 + (currentUnit.visualJitter?.x || 0),
+                      y: path[0].y + 0.5 + (currentUnit.visualJitter?.y || 0),
+                    },
+                    state: UnitState.Moving,
+                  };
+                } else {
+                  currentUnit = {
+                    ...currentUnit,
+                    path: undefined,
+                    targetPos: {
+                      x: targetCell.x + 0.5 + (currentUnit.visualJitter?.x || 0),
+                      y: targetCell.y + 0.5 + (currentUnit.visualJitter?.y || 0),
+                    },
+                    state: UnitState.Moving,
+                  };
+                }
               }
-              unit.state = UnitState.Moving;
             }
           }
         }
       }
 
-      if (unit.state === UnitState.Channeling && unit.channeling) {
-        unit.channeling.remaining -= realDt;
-        if (unit.channeling.remaining <= 0) {
-          if (unit.channeling.action === "Extract") {
-            unit.state = UnitState.Extracted;
-            unit.channeling = undefined;
-            return;
-          } else if (unit.channeling.action === "Collect") {
-            if (unit.channeling.targetId) {
+      if (currentUnit.state === UnitState.Channeling && currentUnit.channeling) {
+        const channeling = { ...currentUnit.channeling };
+        channeling.remaining -= realDt;
+        if (channeling.remaining <= 0) {
+          if (channeling.action === "Extract") {
+            return {
+              ...currentUnit,
+              state: UnitState.Extracted,
+              channeling: undefined,
+            };
+          } else if (channeling.action === "Collect") {
+            if (channeling.targetId) {
               const obj = state.objectives.find(
-                (o) => o.id === unit.channeling!.targetId,
+                (o) => o.id === channeling.targetId,
               );
               if (obj) {
                 obj.state = "Completed";
                 if (obj.id.startsWith("artifact")) {
-                  unit.carriedObjectiveId = obj.id;
-                  this.statsManager.recalculateStats(unit);
+                  currentUnit = {
+                    ...currentUnit,
+                    carriedObjectiveId: obj.id,
+                  };
+                  currentUnit = this.statsManager.recalculateStats(currentUnit);
                 }
               }
             }
-            unit.state = UnitState.Idle;
-            unit.channeling = undefined;
-            return;
-          } else if (unit.channeling.action === "Pickup") {
-            if (unit.channeling.targetId) {
-              const loot = state.loot?.find(
-                (l) => l.id === unit.channeling!.targetId,
-              );
+            return {
+              ...currentUnit,
+              state: UnitState.Idle,
+              channeling: undefined,
+            };
+          } else if (channeling.action === "Pickup") {
+            if (channeling.targetId) {
+              const loot = state.loot?.find((l) => l.id === channeling.targetId);
               if (loot) {
                 if (loot.objectiveId) {
-                  unit.carriedObjectiveId = loot.objectiveId;
-                  this.statsManager.recalculateStats(unit);
+                  currentUnit = {
+                    ...currentUnit,
+                    carriedObjectiveId: loot.objectiveId,
+                  };
+                  currentUnit = this.statsManager.recalculateStats(currentUnit);
                 } else {
                   // Regular item
                   const itemId = loot.itemId;
@@ -401,15 +432,17 @@ export class UnitManager {
                 lootManager.removeLoot(state, loot.id);
               }
             }
-            unit.state = UnitState.Idle;
-            unit.channeling = undefined;
-            return;
-          } else if (unit.channeling.action === "UseItem") {
+            return {
+              ...currentUnit,
+              state: UnitState.Idle,
+              channeling: undefined,
+            };
+          } else if (channeling.action === "UseItem") {
             if (
-              unit.activeCommand &&
-              unit.activeCommand.type === CommandType.USE_ITEM
+              currentUnit.activeCommand &&
+              currentUnit.activeCommand.type === CommandType.USE_ITEM
             ) {
-              const cmd = unit.activeCommand;
+              const cmd = currentUnit.activeCommand;
               const count = state.squadInventory[cmd.itemId] || 0;
               if (count > 0) {
                 state.squadInventory[cmd.itemId] = count - 1;
@@ -418,86 +451,115 @@ export class UnitManager {
                 }
               }
             }
-            unit.state = UnitState.Idle;
-            unit.channeling = undefined;
-            unit.activeCommand = undefined;
-            return;
+            return {
+              ...currentUnit,
+              state: UnitState.Idle,
+              channeling: undefined,
+              activeCommand: undefined,
+            };
           }
         } else {
-          return;
+          return { ...currentUnit, channeling };
         }
       }
 
-      this.unitAi.process(unit, state, dt, doors, prng, aiContext, director);
-
-      if (unit.state === UnitState.Channeling) {
-        return;
+      // Ensure we are working on a copy before passing to AI, which mutates
+      if (currentUnit === unit) {
+        currentUnit = { ...unit };
       }
 
-      if (unit.state === UnitState.Idle && unit.commandQueue.length > 0) {
-        const nextCmd = unit.commandQueue.shift();
+      this.unitAi.process(
+        currentUnit,
+        state,
+        dt,
+        doors,
+        prng,
+        aiContext,
+        director,
+      );
+
+      if (currentUnit.state === UnitState.Channeling) {
+        return currentUnit;
+      }
+
+      if (
+        currentUnit.state === UnitState.Idle &&
+        currentUnit.commandQueue.length > 0
+      ) {
+        const nextCmd = currentUnit.commandQueue[0];
+        const nextQueue = currentUnit.commandQueue.slice(1);
+        currentUnit = { ...currentUnit, commandQueue: nextQueue };
         if (nextCmd) {
           this.commandExecutor.executeCommand(
-            unit,
+            currentUnit,
             nextCmd,
             state,
             true,
             director,
           );
-          const stateAfterCommand = unit.state as UnitState;
-          if (stateAfterCommand === UnitState.Channeling) {
-            return;
+          if (currentUnit.state === UnitState.Channeling) {
+            return currentUnit;
           }
         }
       }
 
-      const isAttacking = this.combatManager.update(
-        unit,
-        state,
-        prng,
-      );
+      const combatResult = this.combatManager.update(currentUnit, state, prng);
+      currentUnit = combatResult.unit;
+      const isAttacking = combatResult.isAttacking;
 
-      const isMoving = (unit.path && unit.path.length > 0) || !!unit.targetPos;
+      const isMoving =
+        (currentUnit.path && currentUnit.path.length > 0) ||
+        !!currentUnit.targetPos;
       const enemiesInSameCell = state.enemies.filter(
         (enemy) =>
           enemy.hp > 0 &&
-          Math.floor(enemy.pos.x) === Math.floor(unit.pos.x) &&
-          Math.floor(enemy.pos.y) === Math.floor(unit.pos.y),
+          Math.floor(enemy.pos.x) === Math.floor(currentUnit.pos.x) &&
+          Math.floor(enemy.pos.y) === Math.floor(currentUnit.pos.y),
       );
       const isLockedInMelee = enemiesInSameCell.length > 0;
 
-      if (isMoving && unit.targetPos && unit.path) {
+      if (isMoving && currentUnit.targetPos && currentUnit.path) {
         if (isLockedInMelee) {
-          unit.state = UnitState.Attacking;
+          currentUnit = { ...currentUnit, state: UnitState.Attacking };
         } else if (!isAttacking) {
-          this.movementManager.handleMovement(unit, dt, doors);
+          currentUnit = this.movementManager.handleMovement(
+            currentUnit,
+            dt,
+            doors,
+          );
         } else {
           // If we are RUSHing or RETREATing, we SHOULD be allowed to move while attacking
           if (
-            unit.aiProfile === "RUSH" ||
-            unit.aiProfile === "RETREAT" ||
-            unit.activeCommand?.type === CommandType.ESCORT_UNIT
+            currentUnit.aiProfile === "RUSH" ||
+            currentUnit.aiProfile === "RETREAT" ||
+            currentUnit.activeCommand?.type === CommandType.ESCORT_UNIT
           ) {
-            this.movementManager.handleMovement(unit, dt, doors);
+            currentUnit = this.movementManager.handleMovement(
+              currentUnit,
+              dt,
+              doors,
+            );
             // Ensure state reflects attacking if we moved while attacking
-            if (unit.state === UnitState.Moving) {
-              unit.state = UnitState.Attacking;
+            if (currentUnit.state === UnitState.Moving) {
+              currentUnit = { ...currentUnit, state: UnitState.Attacking };
             }
           }
         }
       } else if (!isAttacking && !isMoving) {
-        unit.state = UnitState.Idle;
+        currentUnit = { ...currentUnit, state: UnitState.Idle };
         if (
-          unit.activeCommand?.type !== CommandType.PICKUP &&
-          unit.activeCommand?.type !== CommandType.ESCORT_UNIT &&
-          unit.activeCommand?.type !== CommandType.EXPLORE &&
-          unit.activeCommand?.type !== CommandType.OVERWATCH_POINT &&
-          unit.activeCommand?.type !== CommandType.USE_ITEM &&
-          unit.activeCommand?.type !== CommandType.EXTRACT
+          currentUnit.activeCommand?.type !== CommandType.PICKUP &&
+          currentUnit.activeCommand?.type !== CommandType.ESCORT_UNIT &&
+          currentUnit.activeCommand?.type !== CommandType.EXPLORE &&
+          currentUnit.activeCommand?.type !== CommandType.OVERWATCH_POINT &&
+          currentUnit.activeCommand?.type !== CommandType.USE_ITEM &&
+          currentUnit.activeCommand?.type !== CommandType.EXTRACT
         ) {
-          unit.activeCommand = undefined;
+          currentUnit = { ...currentUnit, activeCommand: undefined };
         }
       }
+
+      return currentUnit;
     });
   }
 
