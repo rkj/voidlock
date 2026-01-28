@@ -24,7 +24,7 @@ describe("Regression a7qk - New Accuracy Formula", () => {
 
   beforeEach(() => {
     const defaultSquad: SquadConfig = {
-      soldiers: [{ archetypeId: "assault" }],
+      soldiers: [{ archetypeId: "test" }],
       inventory: {},
     };
     // Use a fixed seed for deterministic results
@@ -54,7 +54,7 @@ describe("Regression a7qk - New Accuracy Formula", () => {
         speed: 20,
       },
       commandQueue: [],
-      archetypeId: "assault",
+      archetypeId: "test",
     } as any);
 
     engine.addEnemy({
@@ -112,7 +112,7 @@ describe("Regression a7qk - New Accuracy Formula", () => {
         equipmentAccuracyBonus: 0,
       },
       commandQueue: [],
-      archetypeId: "assault",
+      archetypeId: "test",
     } as any);
 
     engine.addEnemy({

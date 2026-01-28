@@ -66,13 +66,11 @@ export class InteractionBehavior implements Behavior {
             Math.floor(unit.pos.y) === obj.targetCell.y;
 
           const isClaimedByMe =
-            unit.activeCommand?.type === CommandType.PICKUP &&
-            (unit.activeCommand as PickupCommand).lootId === obj.id;
+            (unit.activeCommand?.type === CommandType.PICKUP &&
+              (unit.activeCommand as PickupCommand).lootId === obj.id) ||
+            context.claimedObjectives.get(obj.id) === unit.id;
 
-          if (
-            isAtTarget &&
-            (!context.claimedObjectives.has(obj.id) || isClaimedByMe)
-          ) {
+          if (isAtTarget && (!context.claimedObjectives.has(obj.id) || isClaimedByMe)) {
             const baseTime = 3000;
             const duration =
               baseTime * (SPEED_NORMALIZATION_CONST / unit.stats.speed);
@@ -83,7 +81,7 @@ export class InteractionBehavior implements Behavior {
               totalDuration: duration,
               targetId: obj.id,
             };
-            context.claimedObjectives.add(obj.id);
+            context.claimedObjectives.set(obj.id, unit.id);
             unit.path = undefined;
             unit.targetPos = undefined;
             unit.activeCommand = undefined;
@@ -96,24 +94,27 @@ export class InteractionBehavior implements Behavior {
     // 3. Extraction Interaction
     if (state.map.extraction) {
       const ext = state.map.extraction;
-      const allOtherObjectivesComplete = state.objectives
+      const allObjectivesReady = state.objectives
         .filter((o) => o.kind !== "Escort")
-        .every((o) => o.state === "Completed");
+        .every((o) => {
+          if (o.state === "Completed") return true;
+          if (o.kind === "Recover") {
+            return state.units.some((u) => u.carriedObjectiveId === o.id);
+          }
+          return false;
+        });
 
-      const isVipAtExtraction =
-        unit.archetypeId === "vip" &&
-        Math.floor(unit.pos.x) === ext.x &&
-        Math.floor(unit.pos.y) === ext.y;
+      const isAtExtraction =
+        Math.floor(unit.pos.x) === ext.x && Math.floor(unit.pos.y) === ext.y;
+
+      const isVipAtExtraction = unit.archetypeId === "vip" && isAtExtraction;
 
       const isExplicitExtract =
         unit.activeCommand?.type === CommandType.EXTRACT;
 
       if (
-        (allOtherObjectivesComplete ||
-          isVipAtExtraction ||
-          isExplicitExtract) &&
-        Math.floor(unit.pos.x) === ext.x &&
-        Math.floor(unit.pos.y) === ext.y
+        (allObjectivesReady || isVipAtExtraction || isExplicitExtract) &&
+        isAtExtraction
       ) {
         const baseTime = 5000;
         const duration =

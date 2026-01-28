@@ -19,6 +19,7 @@ import { MovementManager } from "./MovementManager";
 import { CombatManager } from "./CombatManager";
 import { UnitAI, AIContext } from "./UnitAI";
 import { CommandExecutor } from "./CommandExecutor";
+import { FormationManager } from "./FormationManager";
 import { isCellVisible } from "../../shared/VisibilityUtils";
 import { IDirector } from "../interfaces/IDirector";
 import { MathUtils } from "../../shared/utils/MathUtils";
@@ -28,6 +29,7 @@ export class UnitManager {
   private statsManager: StatsManager;
   private movementManager: MovementManager;
   private combatManager: CombatManager;
+  private formationManager: FormationManager;
   private unitAi: UnitAI;
   private commandExecutor: CommandExecutor;
 
@@ -44,6 +46,7 @@ export class UnitManager {
     this.statsManager = new StatsManager();
     this.movementManager = new MovementManager(gameGrid);
     this.combatManager = new CombatManager(los, this.statsManager);
+    this.formationManager = new FormationManager();
     this.unitAi = new UnitAI(gameGrid, los);
     this.commandExecutor = new CommandExecutor(pathfinder);
   }
@@ -65,7 +68,7 @@ export class UnitManager {
     director?: IDirector,
     realDt: number = dt,
   ) {
-    const claimedObjectives = new Set<string>();
+    const claimedObjectives = new Map<string, string>();
 
     // 2. Group escorts
     const escortGroups = new Map<string, Unit[]>();
@@ -102,108 +105,30 @@ export class UnitManager {
         continue;
       }
 
-      // Sort escorts by ID for stable role assignment
-      escorts.sort((a, b) => a.id.localeCompare(b.id));
-
-      // Determine target's heading
-      let heading = { x: 0, y: -1 }; // Default North
-      if (targetUnit.targetPos) {
-        const dist = MathUtils.getDistance(targetUnit.pos, targetUnit.targetPos);
-        if (dist > 0.1) {
-          heading = {
-            x: (targetUnit.targetPos.x - targetUnit.pos.x) / dist,
-            y: (targetUnit.targetPos.y - targetUnit.pos.y) / dist,
-          };
-        }
-      } else if (targetUnit.path && targetUnit.path.length > 0) {
-        const targetPoint = {
-          x: targetUnit.path[0].x + 0.5,
-          y: targetUnit.path[0].y + 0.5,
-        };
-        const dist = MathUtils.getDistance(targetUnit.pos, targetPoint);
-        if (dist > 0.1) {
-          heading = {
-            x: (targetPoint.x - targetUnit.pos.x) / dist,
-            y: (targetPoint.y - targetUnit.pos.y) / dist,
-          };
-        }
+      const roles = this.formationManager.assignEscortRoles(escorts, targetUnit, this.gameGrid);
+      for (const [unitId, slot] of roles) {
+        escortData.set(unitId, slot);
       }
-
-      const perp = { x: -heading.y, y: heading.x };
-
-      escorts.forEach((escort, index) => {
-        const updatedEscort = this.statsManager.recalculateStats(escort);
-        let formationOffset = { x: 0, y: 0 };
-        if (index === 0) {
-          // Vanguard
-          formationOffset = {
-            x: Math.round(heading.x),
-            y: Math.round(heading.y),
-          };
-        } else if (index === 1) {
-          // Rearguard
-          formationOffset = {
-            x: -Math.round(heading.x),
-            y: -Math.round(heading.y),
-          };
-        } else {
-          // Bodyguard
-          const side = (index - 2) % 2 === 0 ? 1 : -1;
-          const depth = Math.floor((index - 2) / 2);
-          // Stay adjacent (left or right)
-          formationOffset = {
-            x: Math.round(perp.x * side),
-            y: Math.round(perp.y * side),
-          };
-          if (depth > 0) {
-            // If many bodyguards, push them back slightly to spread out
-            formationOffset.x -= Math.round(heading.x * depth);
-            formationOffset.y -= Math.round(heading.y * depth);
-          }
-        }
-
-        const targetCell = {
-          x: Math.floor(targetUnit.pos.x) + formationOffset.x,
-          y: Math.floor(targetUnit.pos.y) + formationOffset.y,
-        };
-
-        // Validate target cell
-        if (!this.gameGrid.isWalkable(targetCell.x, targetCell.y)) {
-          // Fallback to target's cell if formation slot is blocked
-          targetCell.x = Math.floor(targetUnit.pos.x);
-          targetCell.y = Math.floor(targetUnit.pos.y);
-        }
-
-        let matchedSpeed: number | undefined = undefined;
-        const distToSlot = MathUtils.getDistance(updatedEscort.pos, {
-          x: targetCell.x + 0.5,
-          y: targetCell.y + 0.5,
-        });
-        if (distToSlot <= 0.8) {
-          matchedSpeed = Math.min(updatedEscort.stats.speed, targetUnit.stats.speed);
-        }
-
-        escortData.set(updatedEscort.id, { targetCell, matchedSpeed });
-      });
     }
+
 
     // Pre-populate claimed objectives from units already pursuing them
     state.units.forEach((u) => {
       if (u.state === UnitState.Dead || u.state === UnitState.Extracted) return;
       if (u.channeling?.targetId) {
-        claimedObjectives.add(u.channeling.targetId);
+        claimedObjectives.set(u.channeling.targetId, u.id);
       }
       // If unit has a forced target that is an objective
       if (u.forcedTargetId) {
         const obj = state.objectives?.find(
           (o) => o.targetEnemyId === u.forcedTargetId,
         );
-        if (obj) claimedObjectives.add(obj.id);
+        if (obj) claimedObjectives.set(obj.id, u.id);
       }
       // If unit has an active command targeting an objective
       if (u.activeCommand?.type === CommandType.PICKUP) {
         const cmd = u.activeCommand as PickupCommand;
-        claimedObjectives.add(cmd.lootId);
+        claimedObjectives.set(cmd.lootId, u.id);
       }
 
       // If unit has an active command targeting an objective
@@ -227,7 +152,7 @@ export class UnitManager {
           }
           return false;
         });
-        if (obj) claimedObjectives.add(obj.id);
+        if (obj) claimedObjectives.set(obj.id, u.id);
       }
     });
 
@@ -307,13 +232,42 @@ export class UnitManager {
         this.commandExecutor.executeCommand(u, cmd, s, isManual, dir),
     };
 
-    state.units = state.units.map((unit) => {
-      if (unit.state === UnitState.Extracted || unit.state === UnitState.Dead)
-        return unit;
+    for (let i = 0; i < state.units.length; i++) {
+      const unit = state.units[i];
+      if (unit.state === UnitState.Extracted || unit.hp <= 0) continue;
 
-      let currentUnit = unit;
+      // Ensure stats are up to date and array is synchronized early
+      state.units[i] = this.statsManager.recalculateStats(unit);
+      let currentUnit = state.units[i];
 
-      // Apply escort speed and target cell if applicable
+      // 1. COMMAND QUEUE (Execute next pending command)
+      // We do this FIRST so that movement can react to it in the same tick
+      // Only process if unit is truly idle (no active command, or just exploring)
+      if (
+        currentUnit.state === UnitState.Idle &&
+        (!currentUnit.activeCommand ||
+          currentUnit.activeCommand.type === CommandType.EXPLORE) &&
+        currentUnit.commandQueue.length > 0
+      ) {
+        const nextCmd = currentUnit.commandQueue[0];
+        const nextQueue = currentUnit.commandQueue.slice(1);
+        currentUnit = { ...currentUnit, commandQueue: nextQueue };
+        state.units[i] = currentUnit; // Keep array in sync
+        if (nextCmd) {
+          this.commandExecutor.executeCommand(
+            currentUnit,
+            nextCmd,
+            state,
+            true,
+            director,
+          );
+          // executeCommand mutates currentUnit in-place (usually), 
+          // but we re-fetch just in case it was replaced
+          currentUnit = state.units[i];
+        }
+      }
+
+      // 2. ESCORT DATA (Apply formation offsets and speed sync)
       const eData = escortData.get(currentUnit.id);
       if (eData) {
         if (eData.stopEscorting) {
@@ -322,12 +276,14 @@ export class UnitManager {
             activeCommand: undefined,
             state: UnitState.Idle,
           };
+          state.units[i] = currentUnit;
         } else {
           if (eData.matchedSpeed !== undefined) {
             currentUnit = {
               ...currentUnit,
               stats: { ...currentUnit.stats, speed: eData.matchedSpeed },
             };
+            state.units[i] = currentUnit;
           }
 
           const targetCell = eData.targetCell;
@@ -373,43 +329,56 @@ export class UnitManager {
                     state: UnitState.Moving,
                   };
                 }
+                state.units[i] = currentUnit;
               }
             }
           }
         }
       }
 
+      // 3. CHANNELING (Handle timed actions)
       if (currentUnit.state === UnitState.Channeling && currentUnit.channeling) {
         const channeling = { ...currentUnit.channeling };
         channeling.remaining -= realDt;
         if (channeling.remaining <= 0) {
           if (channeling.action === "Extract") {
-            return {
+            if (currentUnit.carriedObjectiveId) {
+              const obj = state.objectives.find(
+                (o) => o.id === currentUnit.carriedObjectiveId,
+              );
+              if (obj) {
+                obj.state = "Completed";
+              }
+            }
+            state.units[i] = {
               ...currentUnit,
               state: UnitState.Extracted,
               channeling: undefined,
             };
+            continue;
           } else if (channeling.action === "Collect") {
             if (channeling.targetId) {
               const obj = state.objectives.find(
                 (o) => o.id === channeling.targetId,
               );
               if (obj) {
-                obj.state = "Completed";
                 if (obj.id.startsWith("artifact")) {
                   currentUnit = {
                     ...currentUnit,
                     carriedObjectiveId: obj.id,
                   };
                   currentUnit = this.statsManager.recalculateStats(currentUnit);
+                } else {
+                  obj.state = "Completed";
                 }
               }
             }
-            return {
+            state.units[i] = {
               ...currentUnit,
               state: UnitState.Idle,
               channeling: undefined,
             };
+            continue;
           } else if (channeling.action === "Pickup") {
             if (channeling.targetId) {
               const loot = state.loot?.find((l) => l.id === channeling.targetId);
@@ -432,11 +401,12 @@ export class UnitManager {
                 lootManager.removeLoot(state, loot.id);
               }
             }
-            return {
+            state.units[i] = {
               ...currentUnit,
               state: UnitState.Idle,
               channeling: undefined,
             };
+            continue;
           } else if (channeling.action === "UseItem") {
             if (
               currentUnit.activeCommand &&
@@ -447,69 +417,36 @@ export class UnitManager {
               if (count > 0) {
                 state.squadInventory[cmd.itemId] = count - 1;
                 if (director) {
+                  // CRITICAL: Ensure state.units[i] is currentUnit so director can find and mutate it
+                  state.units[i] = currentUnit;
                   director.handleUseItem(state, cmd);
+                  // Refresh currentUnit from state in case of mutations
+                  currentUnit = state.units[i];
                 }
               }
             }
-            return {
+            state.units[i] = {
               ...currentUnit,
               state: UnitState.Idle,
               channeling: undefined,
               activeCommand: undefined,
             };
+            continue;
           }
         } else {
-          return { ...currentUnit, channeling };
+          state.units[i] = { ...currentUnit, channeling };
+          continue; // Still channeling, so we skip movement/AI
         }
       }
 
-      // Ensure we are working on a copy before passing to AI, which mutates
-      if (currentUnit === unit) {
-        currentUnit = { ...unit };
-      }
-
-      this.unitAi.process(
-        currentUnit,
-        state,
-        dt,
-        doors,
-        prng,
-        aiContext,
-        director,
-      );
-
-      if (currentUnit.state === UnitState.Channeling) {
-        return currentUnit;
-      }
-
-      if (
-        currentUnit.state === UnitState.Idle &&
-        currentUnit.commandQueue.length > 0
-      ) {
-        const nextCmd = currentUnit.commandQueue[0];
-        const nextQueue = currentUnit.commandQueue.slice(1);
-        currentUnit = { ...currentUnit, commandQueue: nextQueue };
-        if (nextCmd) {
-          this.commandExecutor.executeCommand(
-            currentUnit,
-            nextCmd,
-            state,
-            true,
-            director,
-          );
-          if (currentUnit.state === UnitState.Channeling) {
-            return currentUnit;
-          }
-        }
-      }
-
+      // 4. COMBAT (Unit's own attacks)
       const combatResult = this.combatManager.update(currentUnit, state, prng);
       currentUnit = combatResult.unit;
+      state.units[i] = currentUnit;
       const isAttacking = combatResult.isAttacking;
 
-      const isMoving =
-        (currentUnit.path && currentUnit.path.length > 0) ||
-        !!currentUnit.targetPos;
+      // 5. MOVEMENT (Execute current path)
+      const isMoving = !!currentUnit.targetPos;
       const enemiesInSameCell = state.enemies.filter(
         (enemy) =>
           enemy.hp > 0 &&
@@ -518,15 +455,17 @@ export class UnitManager {
       );
       const isLockedInMelee = enemiesInSameCell.length > 0;
 
-      if (isMoving && currentUnit.targetPos && currentUnit.path) {
+      if (isMoving && currentUnit.targetPos) {
         if (isLockedInMelee) {
           currentUnit = { ...currentUnit, state: UnitState.Attacking };
+          state.units[i] = currentUnit;
         } else if (!isAttacking) {
           currentUnit = this.movementManager.handleMovement(
             currentUnit,
             dt,
             doors,
           );
+          state.units[i] = currentUnit;
         } else {
           // If we are RUSHing or RETREATing, we SHOULD be allowed to move while attacking
           if (
@@ -543,10 +482,12 @@ export class UnitManager {
             if (currentUnit.state === UnitState.Moving) {
               currentUnit = { ...currentUnit, state: UnitState.Attacking };
             }
+            state.units[i] = currentUnit;
           }
         }
       } else if (!isAttacking && !isMoving) {
         currentUnit = { ...currentUnit, state: UnitState.Idle };
+        // Clear non-persistent active commands if Idle
         if (
           currentUnit.activeCommand?.type !== CommandType.PICKUP &&
           currentUnit.activeCommand?.type !== CommandType.ESCORT_UNIT &&
@@ -557,10 +498,23 @@ export class UnitManager {
         ) {
           currentUnit = { ...currentUnit, activeCommand: undefined };
         }
+        state.units[i] = currentUnit;
       }
 
-      return currentUnit;
-    });
+      // 6. AI PROCESS (React to new position/state)
+      currentUnit = this.unitAi.process(
+        currentUnit,
+        state,
+        dt,
+        doors,
+        prng,
+        aiContext,
+        director,
+      );
+
+      // Save final updated unit back to state
+      state.units[i] = currentUnit;
+    }
   }
 
   public executeCommand(

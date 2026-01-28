@@ -35,6 +35,7 @@ describe("Regression IHFP: Unit Kill Tracking", () => {
     const unit = createMockUnit({
       id: "u1",
       pos: { x: 0.5, y: 0.5 },
+      archetypeId: "test_archetype",
       stats: {
         damage: 100, // Insta-kill
         fireRate: 100,

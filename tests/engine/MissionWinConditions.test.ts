@@ -150,7 +150,7 @@ describe("Mission Win/Loss Conditions", () => {
       engine.update(100);
       expect(state.status).toBe("Playing");
 
-      // 3. Other unit extracts
+      // 3. Other unit extracts (must refetch from state.units as it was replaced)
       state.units[1].state = UnitState.Extracted;
       engine.update(100);
       expect(state.status).toBe("Won");
@@ -179,13 +179,13 @@ describe("Mission Win/Loss Conditions", () => {
 
       engine.update(100);
 
-      // 2. Unit 0 dies (drops artifact 0)
+      // 2. Unit 0 dies (drops artifact 0) - refetch from state.units
       state.units[0].hp = 0;
       engine.update(100); // CoreEngine handles death and resets objective to Pending
 
       expect(state.objectives[0].state).toBe("Pending");
 
-      // 3. Unit 1 extracts
+      // 3. Unit 1 extracts - refetch from state.units
       state.units[1].state = UnitState.Extracted;
       engine.update(100);
 
@@ -204,16 +204,13 @@ describe("Mission Win/Loss Conditions", () => {
       );
       const state = (engine as unknown as { state: GameState }).state;
 
-      const vip = state.units.find((u: Unit) => u.archetypeId === "vip")!;
-      const soldier = state.units.find((u: Unit) => u.archetypeId !== "vip")!;
-
       // Soldier dies
-      soldier.hp = 0;
+      state.units.find((u: Unit) => u.archetypeId !== "vip")!.hp = 0;
       engine.update(100);
       expect(state.status).toBe("Playing");
 
-      // VIP extracts
-      vip.state = UnitState.Extracted;
+      // VIP extracts - refetch from state.units
+      state.units.find((u: Unit) => u.archetypeId === "vip")!.state = UnitState.Extracted;
       engine.update(100);
       expect(state.status).toBe("Won");
     });
@@ -229,9 +226,7 @@ describe("Mission Win/Loss Conditions", () => {
       );
       const state = (engine as unknown as { state: GameState }).state;
 
-      const vip = state.units.find((u: Unit) => u.archetypeId === "vip")!;
-
-      vip.hp = 0;
+      state.units.find((u: Unit) => u.archetypeId === "vip")!.hp = 0;
       engine.update(100);
       expect(state.status).toBe("Lost");
     });

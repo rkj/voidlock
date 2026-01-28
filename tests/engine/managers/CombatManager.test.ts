@@ -102,7 +102,7 @@ describe("CombatManager", () => {
 
   it("should respect weapon cooldown", () => {
     const unit = createMockUnit("u1", 1.5, 1.5);
-    unit.lastAttackTime = 900;
+    unit.lastAttackTime = 400;
     const enemy = createMockEnemy("e1", 2.5, 1.5);
     const state: GameState = {
       t: 1000,

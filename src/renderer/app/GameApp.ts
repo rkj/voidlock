@@ -1,28 +1,12 @@
 import { AppContext } from "./AppContext";
 import { InputBinder } from "./InputBinder";
 import { GameClient } from "@src/engine/GameClient";
-import { Renderer } from "@src/renderer/Renderer";
-import { ScreenManager } from "@src/renderer/ScreenManager";
-import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
-import { ThemeManager } from "@src/renderer/ThemeManager";
-import { ConfigManager, GameConfig } from "@src/renderer/ConfigManager";
-import { MenuController } from "@src/renderer/MenuController";
-import { HUDManager } from "@src/renderer/ui/HUDManager";
-import { InputManager } from "@src/renderer/InputManager";
-import { BarracksScreen } from "@src/renderer/screens/BarracksScreen";
-import { CampaignScreen } from "@src/renderer/screens/CampaignScreen";
-import { EquipmentScreen } from "@src/renderer/screens/EquipmentScreen";
-import { DebriefScreen } from "@src/renderer/screens/DebriefScreen";
-import { CampaignSummaryScreen } from "@src/renderer/screens/CampaignSummaryScreen";
-import { StatisticsScreen } from "@src/renderer/screens/StatisticsScreen";
-import { MapFactory } from "@src/engine/map/MapFactory";
 import {
   GameState,
   MapGeneratorType,
   MissionType,
   SquadConfig,
   UnitStyle,
-  EngineMode,
   Unit,
   UnitState,
   MapDefinition,
@@ -30,17 +14,12 @@ import {
 } from "@src/shared/types";
 import {
   CampaignNode,
-  MissionReport,
-  calculateMapSize,
   calculateSpawnPoints,
 } from "@src/shared/campaign_types";
 import { DebugUtility } from "@src/renderer/DebugUtility";
 import { MapUtility } from "@src/renderer/MapUtility";
 import { TimeUtility } from "@src/renderer/TimeUtility";
-import { CampaignEvents } from "@src/content/CampaignEvents";
-import { EventModal, OutcomeModal } from "@src/renderer/ui/EventModal";
 import { ModalService } from "@src/renderer/ui/ModalService";
-import { PRNG } from "@src/shared/PRNG";
 import {
   CampaignShell,
   CampaignTabId,
@@ -48,6 +27,22 @@ import {
 } from "@src/renderer/ui/CampaignShell";
 import pkg from "../../../package.json";
 import { SquadBuilder } from "../components/SquadBuilder";
+import { MissionCoordinator } from "./MissionCoordinator";
+import { CampaignFlowCoordinator } from "./CampaignFlowCoordinator";
+import { CampaignScreen } from "../screens/CampaignScreen";
+import { BarracksScreen } from "../screens/BarracksScreen";
+import { DebriefScreen } from "../screens/DebriefScreen";
+import { EquipmentScreen } from "../screens/EquipmentScreen";
+import { CampaignSummaryScreen } from "../screens/CampaignSummaryScreen";
+import { StatisticsScreen } from "../screens/StatisticsScreen";
+import { ConfigManager, GameConfig } from "../ConfigManager";
+import { ThemeManager } from "../ThemeManager";
+import { CampaignManager } from "../campaign/CampaignManager";
+import { ScreenManager } from "../ScreenManager";
+import { MapFactory } from "@src/engine/map/MapFactory";
+import { MenuController } from "../MenuController";
+import { HUDManager } from "../ui/HUDManager";
+import { InputManager } from "../InputManager";
 
 const VERSION = pkg.version;
 
@@ -55,6 +50,8 @@ export class GameApp {
   private context: AppContext;
   private inputBinder: InputBinder;
   private squadBuilder!: SquadBuilder;
+  private missionCoordinator: MissionCoordinator;
+  private campaignFlowCoordinator: CampaignFlowCoordinator;
 
   // screens
   private campaignScreen!: CampaignScreen;
@@ -68,7 +65,6 @@ export class GameApp {
   private currentCampaignNode: CampaignNode | null = null;
   private selectedUnitId: string | null = null;
   private currentGameState: GameState | null = null;
-  private debriefShown = false;
 
   private fogOfWarEnabled = ConfigManager.getDefault().fogOfWarEnabled;
   private debugOverlayEnabled = ConfigManager.getDefault().debugOverlayEnabled;
@@ -92,6 +88,8 @@ export class GameApp {
   constructor() {
     this.context = new AppContext();
     this.inputBinder = new InputBinder(this.context);
+    this.missionCoordinator = new MissionCoordinator(this.context);
+    this.campaignFlowCoordinator = new CampaignFlowCoordinator(this.context);
   }
 
   public async initialize() {
@@ -194,7 +192,12 @@ export class GameApp {
       "screen-campaign",
       this.context.campaignManager,
       this.context.modalService,
-      (node) => this.onCampaignNodeSelected(node),
+      (node) =>
+        this.campaignFlowCoordinator.onCampaignNodeSelected(
+          node,
+          () => this.campaignScreen.show(),
+          (n, size, spawnPoints) => this.prepareMissionSetup(n, size, spawnPoints),
+        ),
       () => this.showMainMenu(),
       () => {
         this.applyCampaignTheme();
@@ -254,31 +257,13 @@ export class GameApp {
         this.context.screenManager.show("mission-setup");
       },
       onCampaignMenu: () => {
-        this.applyCampaignTheme();
-        const state = this.context.campaignManager.getState();
-        if (
-          state &&
-          (state.status === "Victory" || state.status === "Defeat")
-        ) {
-          this.campaignSummaryScreen.show(state);
-          this.context.screenManager.show("campaign-summary");
-          this.context.campaignShell.hide();
-        } else {
-          this.campaignScreen.show();
-          this.context.screenManager.show("campaign");
-          this.context.campaignShell.show("campaign", "sector-map");
-        }
+        this.campaignFlowCoordinator.onCampaignMenu(
+          () => this.applyCampaignTheme(),
+          (state) => this.campaignSummaryScreen.show(state),
+          () => this.campaignScreen.show(),
+        );
       },
-      onResetData: async () => {
-        if (
-          await this.context.modalService.confirm(
-            "Are you sure? This will wipe all campaign progress and settings.",
-          )
-        ) {
-          localStorage.clear();
-          window.location.reload();
-        }
-      },
+      onResetData: () => this.campaignFlowCoordinator.onResetData(),
       onShowEquipment: () => {
         this.equipmentScreen.updateConfig(this.currentSquad);
         this.context.screenManager.show("equipment");
@@ -547,60 +532,16 @@ export class GameApp {
     }
   }
 
-  private async onCampaignNodeSelected(node: CampaignNode) {
-    if (node.type === "Shop") {
-      await this.context.modalService.alert(
-        "Supply Depot reached. +100 Scrap granted for resupply.",
-      );
-      this.context.campaignManager.advanceCampaignWithoutMission(
-        node.id,
-        100,
-        0,
-      );
-      this.campaignScreen.show();
-      return;
-    }
-
-    if (node.type === "Event") {
-      const prng = new PRNG(node.mapSeed);
-      const event =
-        CampaignEvents[Math.floor(prng.next() * CampaignEvents.length)];
-
-      const modal = new EventModal(this.context.modalService, (choice) => {
-        const outcome = this.context.campaignManager.applyEventChoice(
-          node.id,
-          choice,
-          prng,
-        );
-
-        const outcomeModal = new OutcomeModal(this.context.modalService, () => {
-          if (outcome.ambush) {
-            // Ambush triggers a combat mission at this node
-            this.onCampaignNodeSelected(node);
-          } else {
-            this.campaignScreen.show();
-          }
-        });
-        outcomeModal.show(event.title, outcome.text);
-      });
-      modal.show(event);
-      return;
-    }
-
+  private prepareMissionSetup(node: CampaignNode, size: number, spawnPoints: number) {
     this.currentCampaignNode = node;
     this.currentSeed = node.mapSeed;
-
-    const state = this.context.campaignManager.getState();
-    const rules = state?.rules;
-    const growthRate = rules?.mapGrowthRate ?? 1.0;
-    const size = calculateMapSize(node.rank, growthRate);
 
     this.loadAndApplyConfig(true);
 
     this.currentSeed = node.mapSeed;
     this.currentMapWidth = size;
     this.currentMapHeight = size;
-    this.currentSpawnPointCount = calculateSpawnPoints(size);
+    this.currentSpawnPointCount = spawnPoints;
 
     const mapSeedInput = document.getElementById(
       "map-seed",
@@ -642,6 +583,7 @@ export class GameApp {
   }
 
   private updateUI(state: GameState) {
+    this.currentGameState = state;
     this.context.hudManager.update(state, this.selectedUnitId);
   }
 
@@ -747,97 +689,34 @@ export class GameApp {
     }
 
     const config = this.saveCurrentConfig();
-    const missionDepth = this.currentCampaignNode ? this.currentCampaignNode.rank : 0;
-
-    const tsSlider = document.getElementById(
-      "time-scale-slider",
-    ) as HTMLInputElement;
-    const initialTimeScale = tsSlider
-      ? TimeUtility.sliderToScale(parseFloat(tsSlider.value))
-      : 1.0;
-
-    this.context.campaignShell.hide();
-
-    this.context.gameClient.init(
-      this.currentSeed,
-      this.currentMapGeneratorType,
-      this.currentStaticMapData,
-      this.fogOfWarEnabled,
-      this.debugOverlayEnabled,
-      this.agentControlEnabled,
-      this.currentSquad,
-      this.currentMissionType,
-      this.currentMapWidth,
-      this.currentMapHeight,
-      this.currentSpawnPointCount,
-      this.losOverlayEnabled,
-      config.startingThreatLevel,
-      initialTimeScale,
-      false, // startPaused
-      this.allowTacticalPause,
-      EngineMode.Simulation,
-      [], // commandLog
-      this.currentCampaignNode?.id,
-      0, // targetTick
-      config.baseEnemyCount,
-      config.enemyGrowthPerMission,
-      missionDepth,
-      this.currentCampaignNode?.type,
-      this.currentCampaignNode?.bonusLootCount || 0,
-    );
-
-    this.syncSpeedUI();
-    this.setupGameClientCallbacks();
-    this.context.screenManager.show("mission");
-  }
-
-  private setupGameClientCallbacks() {
-    this.selectedUnitId = null;
-    this.debriefShown = false;
-    const rightPanel = document.getElementById("right-panel");
-    if (rightPanel) rightPanel.innerHTML = "";
-    this.context.menuController.reset();
-    this.context.menuController.clearDiscoveryOrder();
-
-    this.context.gameClient.onStateUpdate((state) => {
-      this.currentGameState = state;
-      if (!this.context.renderer) {
-        const canvas = document.getElementById(
-          "game-canvas",
-        ) as HTMLCanvasElement;
-        if (canvas) {
-          this.context.renderer = new Renderer(canvas);
-          this.context.renderer.setCellSize(128);
-        }
-      }
-      if (this.context.renderer) {
-        this.context.renderer.setUnitStyle(this.unitStyle);
-        this.context.renderer.setOverlay(
-          this.context.menuController.overlayOptions,
-        );
-        this.context.renderer.render(state);
-      }
-
-      if (
-        (state.status === "Won" || state.status === "Lost") &&
-        !this.debriefShown
-      ) {
-        this.debriefShown = true;
-        const report = this.generateMissionReport(
-          state,
-          this.currentCampaignNode,
-        );
+    this.missionCoordinator.launchMission(
+      {
+        seed: this.currentSeed,
+        mapGeneratorType: this.currentMapGeneratorType,
+        staticMapData: this.currentStaticMapData,
+        fogOfWarEnabled: this.fogOfWarEnabled,
+        debugOverlayEnabled: this.debugOverlayEnabled,
+        agentControlEnabled: this.agentControlEnabled,
+        squadConfig: this.currentSquad,
+        missionType: this.currentMissionType,
+        mapWidth: this.currentMapWidth,
+        mapHeight: this.currentMapHeight,
+        spawnPointCount: this.currentSpawnPointCount,
+        losOverlayEnabled: this.losOverlayEnabled,
+        startingThreatLevel: config.startingThreatLevel,
+        baseEnemyCount: config.baseEnemyCount,
+        enemyGrowthPerMission: config.enemyGrowthPerMission,
+        allowTacticalPause: this.allowTacticalPause,
+        unitStyle: this.unitStyle,
+        campaignNode: this.currentCampaignNode || undefined,
+      },
+      (report) => {
         this.context.campaignManager.processMissionResult(report);
-
-        const replayData = this.context.gameClient.getReplayData();
-        if (replayData) {
-          this.context.gameClient.loadReplay(replayData);
-          this.context.gameClient.setTimeScale(5.0);
-        }
         this.debriefScreen.show(report);
-      }
-      this.updateUI(state);
-    });
+      },
+      (state) => this.updateUI(state),
+      () => this.syncSpeedUI(),
+    );
   }
 
   private saveCurrentConfig() {
@@ -926,188 +805,41 @@ export class GameApp {
     return config;
   }
 
-  private generateMissionReport(
-    state: GameState,
-    node: CampaignNode | null,
-  ): MissionReport {
-    return {
-      nodeId: node ? node.id : "custom",
-      seed: this.currentSeed,
-      result: state.status === "Won" ? "Won" : "Lost",
-      aliensKilled: state.stats.aliensKilled,
-      scrapGained: state.stats.scrapGained,
-      intelGained: state.status === "Won" ? 5 : 0,
-      timeSpent: state.t,
-      soldierResults: state.units.map((u) => ({
-        soldierId: u.id,
-        xpBefore: 0,
-        xpGained: 0,
-        kills: u.kills,
-        promoted: false,
-        status:
-          u.state === UnitState.Dead
-            ? "Dead"
-            : u.hp < u.maxHp
-              ? "Wounded"
-              : "Healthy",
-        recoveryTime: 0,
-      })),
-    };
-  }
-
   private resumeMission() {
-    const configStr = localStorage.getItem("voidlock_mission_config");
-    const logStr = localStorage.getItem("voidlock_mission_log");
-    const tickStr = localStorage.getItem("voidlock_mission_tick");
-
-    if (!configStr) return;
-
-    try {
-      const config = JSON.parse(configStr);
-      const commandLog = logStr ? JSON.parse(logStr) : [];
-      const targetTick = tickStr ? parseInt(tickStr, 10) : 0;
-
-      if (config.campaignNodeId) {
-        this.context.campaignManager.load();
-        const campaignState = this.context.campaignManager.getState();
-        if (campaignState) {
-          this.currentCampaignNode =
-            campaignState.nodes.find((n) => n.id === config.campaignNodeId) ||
-            null;
-          this.applyCampaignTheme();
-        }
-      }
-
-      this.currentSeed = config.seed;
-      this.currentMapGeneratorType = config.mapGeneratorType;
-      this.currentStaticMapData = config.mapData;
-      this.fogOfWarEnabled = config.fogOfWarEnabled;
-      this.debugOverlayEnabled = config.debugOverlayEnabled;
-      this.agentControlEnabled = config.agentControlEnabled;
-      this.currentSquad = config.squadConfig;
-      this.currentMissionType = config.missionType;
-      this.currentMapWidth = config.width;
-      this.currentMapHeight = config.height;
-      this.currentSpawnPointCount = config.spawnPointCount;
-      this.losOverlayEnabled = config.losOverlayEnabled;
-      const startingThreatLevel = config.startingThreatLevel;
-      const initialTimeScale = config.initialTimeScale || 1.0;
-      const allowTacticalPause = config.allowTacticalPause ?? true;
-      const baseEnemyCount = config.baseEnemyCount ?? 3;
-      const enemyGrowthPerMission = config.enemyGrowthPerMission ?? 1;
-      const missionDepth = config.missionDepth ?? 0;
-
-      this.setupGameClientCallbacks();
-
-      this.context.gameClient.init(
-        this.currentSeed,
-        this.currentMapGeneratorType,
-        this.currentStaticMapData,
-        this.fogOfWarEnabled,
-        this.debugOverlayEnabled,
-        this.agentControlEnabled,
-        this.currentSquad,
-        this.currentMissionType,
-        this.currentMapWidth,
-        this.currentMapHeight,
-        this.currentSpawnPointCount,
-        this.losOverlayEnabled,
-        startingThreatLevel,
-        initialTimeScale,
-        false,
-        allowTacticalPause,
-        EngineMode.Simulation,
-        commandLog,
-        config.campaignNodeId,
-        targetTick,
-        baseEnemyCount,
-        enemyGrowthPerMission,
-        missionDepth,
-        config.nodeType,
-        config.bonusLootCount || 0,
-      );
-
-      this.syncSpeedUI();
-      this.context.screenManager.show("mission");
-    } catch (e) {
-      console.error("Failed to resume mission", e);
-      this.showMainMenu();
-    }
+    this.missionCoordinator.resumeMission(
+      (report) => {
+        this.context.campaignManager.processMissionResult(report);
+        this.debriefScreen.show(report);
+      },
+      (state) => this.updateUI(state),
+      () => this.syncSpeedUI(),
+      (node) => {
+        this.currentCampaignNode = node;
+        if (node) this.applyCampaignTheme();
+      },
+    );
   }
 
   private abortMission() {
-    if (this.currentCampaignNode) {
-      const report = this.generateAbortReport();
-      this.context.campaignManager.processMissionResult(report);
+    const handled = this.missionCoordinator.abortMission(
+      this.currentGameState,
+      this.currentCampaignNode,
+      this.currentSeed,
+      this.currentSquad,
+      (report) => {
+        this.context.campaignManager.processMissionResult(report);
+        this.debriefScreen.show(report);
+      },
+      () => this.showMainMenu(),
+    );
 
+    if (handled) {
+      this.context.gameClient.stop();
+      this.context.gameClient.onStateUpdate(null);
       const state = this.context.campaignManager.getState();
-      if (state && (state.status === "Victory" || state.status === "Defeat")) {
-        this.context.gameClient.stop();
-        this.context.gameClient.onStateUpdate(null);
-        this.campaignSummaryScreen.show(state);
-        this.context.screenManager.show("campaign-summary");
-        return;
-      }
+      if (state) this.campaignSummaryScreen.show(state);
+      this.context.screenManager.show("campaign-summary");
     }
-
-    this.context.gameClient.stop();
-    this.context.gameClient.onStateUpdate(null);
-
-    const tsSlider = document.getElementById(
-      "time-scale-slider",
-    ) as HTMLInputElement;
-    const tsValue = document.getElementById("time-scale-value");
-    if (tsSlider) {
-      tsSlider.value = "50";
-      if (tsValue) tsValue.textContent = "1.0";
-    }
-    this.showMainMenu();
-  }
-
-  private generateAbortReport(): MissionReport {
-    const state = this.currentGameState;
-    const node = this.currentCampaignNode;
-
-    if (state) {
-      return {
-        nodeId: node ? node.id : "custom",
-        seed: this.currentSeed,
-        result: "Lost",
-        aliensKilled: state.stats.aliensKilled,
-        scrapGained: state.stats.scrapGained,
-        intelGained: 0,
-        timeSpent: state.t,
-        soldierResults: state.units.map((u) => ({
-          soldierId: u.id,
-          xpBefore: 0,
-          xpGained: 0,
-          kills: u.kills,
-          promoted: false,
-          status: "Dead", // Abort = Squad Wipe
-          recoveryTime: 0,
-        })),
-      };
-    }
-
-    // Fallback if no game state
-    return {
-      nodeId: node ? node.id : "custom",
-      seed: this.currentSeed,
-      result: "Lost",
-      aliensKilled: 0,
-      scrapGained: 0,
-      intelGained: 0,
-      timeSpent: 0,
-      soldierResults: this.currentSquad.soldiers.map((s) => ({
-        soldierId: s.id!,
-        xpBefore: 0,
-        xpGained: 0,
-        kills: 0,
-        promoted: false,
-        status: "Dead",
-        recoveryTime: 0,
-      })),
-    };
   }
 
   private loadAndApplyConfig(isCampaign: boolean = false) {

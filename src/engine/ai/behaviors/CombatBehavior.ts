@@ -26,7 +26,12 @@ export class CombatBehavior implements Behavior {
     director?: IDirector,
   ): boolean {
     if (unit.archetypeId === "vip") return false;
-    if (unit.state !== UnitState.Idle && !unit.explorationTarget) return false;
+    if (
+      unit.state !== UnitState.Idle &&
+      unit.state !== UnitState.Attacking &&
+      !unit.explorationTarget
+    )
+      return false;
     if (unit.commandQueue.length > 0) return false;
     if (!context.agentControlEnabled || unit.aiEnabled === false) return false;
 

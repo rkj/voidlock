@@ -72,7 +72,7 @@ describe("Artifact Burden Regression", () => {
       false,
     );
 
-    let unit = engine.getState().units[0];
+    let unit = (engine as any).state.units[0];
     const initialSpeed = unit.stats.speed;
 
     // Teleport unit to objective
@@ -83,7 +83,7 @@ describe("Artifact Burden Regression", () => {
     engine.update(100);
     engine.update(8000);
 
-    unit = engine.getState().units[0];
+    unit = (engine as any).state.units[0];
     expect(unit.carriedObjectiveId).toBe("artifact-0");
     expect(unit.stats.speed).toBe(initialSpeed - 10);
 
@@ -91,7 +91,7 @@ describe("Artifact Burden Regression", () => {
     unit.hp = 0;
     engine.update(100);
 
-    unit = engine.getState().units[0];
+    unit = (engine as any).state.units[0];
     expect(unit.state).toBe(UnitState.Dead);
     expect(unit.carriedObjectiveId).toBeUndefined();
 
@@ -110,7 +110,7 @@ describe("Artifact Burden Regression", () => {
       MissionType.Default,
     );
 
-    let unit = engine.getState().units[0];
+    let unit = (engine as any).state.units[0];
 
     // Teleport unit to objective
     unit.pos = { x: 2.5, y: 2.5 };
@@ -119,13 +119,13 @@ describe("Artifact Burden Regression", () => {
     // Complete collection
     engine.update(100);
     engine.update(8000);
-    unit = engine.getState().units[0];
+    unit = (engine as any).state.units[0];
     expect(unit.carriedObjectiveId).toBe("artifact-0");
 
     // Teleport to extraction
     unit.pos = { x: 9.5, y: 9.5 };
     engine.update(100);
-    engine.update(8000);
+    engine.update(16000); // Increased from 8000 to account for artifact speed penalty (duration = 15000ms)
 
     expect(engine.getState().status).toBe("Won");
   });

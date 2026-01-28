@@ -102,7 +102,7 @@ describe("Renderer Regression: LTH3 Redundant Objective Marker", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     renderer = new Renderer(mockCanvas);
-    renderer.setUnitStyle(UnitStyle.Sprites);
+    renderer.setUnitStyle(UnitStyle.TacticalIcons);
     renderer.setCellSize(32);
   });
 

@@ -135,6 +135,10 @@ export class CombatManager {
             currentUnit = { ...currentUnit, state: UnitState.Attacking };
           }
           return { unit: currentUnit, isAttacking: true };
+        } else {
+          // Engaged but on cooldown - still counts as attacking to prevent stutter-step
+          currentUnit = { ...currentUnit, state: UnitState.Attacking };
+          return { unit: currentUnit, isAttacking: true };
         }
       }
     }

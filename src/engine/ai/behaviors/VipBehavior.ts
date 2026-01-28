@@ -26,12 +26,12 @@ export class VipBehavior implements Behavior {
 
     if (!unit.aiEnabled) {
       const rescueSoldier = state.units.find(
-        (u) =>
-          u.id !== unit.id &&
-          u.archetypeId !== "vip" &&
-          u.hp > 0 &&
-          (MathUtils.getDistance(unit.pos, u.pos) <= 1.5 ||
-            this.los.hasLineOfSight(u.pos, unit.pos)),
+        (u) => {
+          if (u.id === unit.id || u.archetypeId === "vip" || u.hp <= 0) return false;
+          const dist = MathUtils.getDistance(unit.pos, u.pos);
+          const hasLos = this.los.hasLineOfSight(u.pos, unit.pos);
+          return dist <= 1.5 || hasLos;
+        }
       );
       if (rescueSoldier) {
         unit.aiEnabled = true;

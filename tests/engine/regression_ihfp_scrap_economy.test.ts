@@ -83,9 +83,9 @@ describe("Scrap Economy Regression", () => {
     engine.update(100);
     expect(internalState.units[0].state).toBe(UnitState.Channeling);
 
-    // Wait for channeling (5 seconds default, adjusted by speed)
-    // unit speed is 20 (assault), so duration is 5000 * (10/20) = 2500ms
-    engine.update(2500);
+    // Wait for channeling (3 seconds base, adjusted by speed)
+    // unit speed is 20 (assault), so duration is 3000 * (30/20) = 4500ms
+    engine.update(4500);
     engine.update(100); // Let MissionManager process the completion
 
     const newState = engine.getState();
@@ -104,7 +104,7 @@ describe("Scrap Economy Regression", () => {
     // First update starts channeling
 
     engine.update(100); // Start channeling
-    engine.update(2500); // Complete channeling
+    engine.update(4500); // Complete channeling
     engine.update(100); // Process completion
 
     expect(engine.getState().stats.scrapGained).toBe(25);
@@ -112,7 +112,7 @@ describe("Scrap Economy Regression", () => {
     // Extract unit
     internalState.units[0].pos = { x: 4.5, y: 0.5 };
     engine.update(100); // Start extraction channeling
-    engine.update(2500); // Complete extraction
+    engine.update(7500); // Complete extraction
     engine.update(100); // Process win
 
     const finalState = engine.getState();

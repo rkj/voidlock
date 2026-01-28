@@ -17,7 +17,7 @@ export interface AIContext {
   agentControlEnabled: boolean;
   totalFloorCells: number;
   gridState?: Uint8Array;
-  claimedObjectives: Set<string>;
+  claimedObjectives: Map<string, string>; // objectiveId -> unitId
   itemAssignments: Map<string, string>;
   executeCommand: (
     unit: Unit,
@@ -57,9 +57,9 @@ export class UnitAI {
     prng: PRNG,
     context: AIContext,
     director?: IDirector,
-  ) {
+  ): Unit {
     if (unit.state === UnitState.Extracted || unit.state === UnitState.Dead)
-      return;
+      return unit;
 
     // 1. VIP Specific AI
     const vipHandled = this.vipBehavior.evaluate(
@@ -71,9 +71,9 @@ export class UnitAI {
       context,
       director,
     );
-    if (vipHandled && !unit.aiEnabled) return;
+    if (vipHandled && !unit.aiEnabled) return unit;
 
-    if (unit.state === UnitState.Channeling) return;
+    if (unit.state === UnitState.Channeling) return unit;
 
     // 2. Exploration target cleanup (Pre-processing)
     if (unit.explorationTarget) {
@@ -107,5 +107,7 @@ export class UnitAI {
       );
       if (handled) break;
     }
+
+    return unit;
   }
 }
