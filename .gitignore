@@ -27,4 +27,6 @@ coverage/
 *.sln
 *.sw?
 .beads/last-touched
+.trekker/
 logs/
+
