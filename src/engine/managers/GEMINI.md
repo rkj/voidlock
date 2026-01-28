@@ -4,14 +4,14 @@ This directory contains specialized managers that handle specific domains of the
 
 ## Files
 
-- `CampaignManager.ts`: Orchestrates the strategic layer, managing persistent state, squad roster, and sector map progression. Implemented as a singleton that uses a `StorageProvider` for persistence. Now serves as a facade delegating specialized logic to `RosterManager`, `MissionReconciler`, and `EventManager` in `src/engine/campaign/`. Handles overall campaign lifecycle, state validation, and persistence.
+- `CampaignManager.ts`: Deprecated. Re-exports `CampaignManager` from `src/engine/campaign/` for backward compatibility.
 - `CombatManager.ts`: Manages target selection, Line of Fire (LOF) checks, weapon selection, and cooldowns. Unifies attack logic for both units and enemies, emitting `AttackEvent`s for visual feedback. Applies damage to targets and updates unit kill counts.
 - `CommandExecutor.ts`: Translates `Command` objects (MOVE, STOP, etc.) into actionable unit states (pathfinding, state resets). Supports `targetUnitId` for `USE_ITEM` commands, handling movement towards targets before item activation. Now automatically appends a `RESUME_AI` command to the unit's queue for manual `PICKUP` and `USE_ITEM` orders if `aiEnabled` was true.
 - `CommandHandler.ts`: Processes and validates incoming commands from the player or bots. Handles global commander abilities (Heal, Grenade, Scanner) when `unitIds` is empty, ensuring single-decrement squad inventory logic. Also handles debug commands like `DEBUG_FORCE_WIN` (which also marks objectives as completed) and `DEBUG_FORCE_LOSE` for testing purposes.
 - `DoorManager.ts`: Manages the state (Open, Closed, Locked, Destroyed) and logic of doors.
 - `EnemyManager.ts`: Manages the lifecycle and state updates for all enemy units. Handles scrap rewards for elite kills and processes landmine explosions when enemies enter cells containing mines.
 - `LootManager.ts`: Manages spawning and despawning of dropped items (loot) on the map.
-- `MetaManager.ts`: Manages global statistics tracked across all campaigns (Total Kills, Campaigns Won/Lost, etc.). Implemented as a singleton that uses a `StorageProvider` for persistence. Now includes strict validation and default fallback logic for persisted stats (Spec 8.12).
+- `MetaManager.ts`: Deprecated. Re-exports `MetaManager` from `src/engine/campaign/` for backward compatibility.
 - `MissionManager.ts`: Handles mission-specific setup, objective tracking, scrap reward calculation, and win/loss conditions. Supports special logic for `Boss` nodes (3 objectives, 3x scrap) and `Elite` nodes (2 objectives, 2x scrap), including specialized Hive/Recover mix. Boss/Elite missions trigger instant win upon all objectives being completed. Uses `PlacementValidator` to ensure dynamic objectives do not overlap with existing map occupants.
 - `MovementManager.ts`: Translates path data into unit position updates. Handles door interactions and formation offsets.
 - `StatsManager.ts`: Calculates derived stats (Speed, HP, Accuracy) from base archetypes, equipment, and status effects.

@@ -18,6 +18,7 @@ import { GameGrid } from "./GameGrid";
 import { Pathfinder } from "./Pathfinder";
 import { LineOfSight } from "./LineOfSight";
 import { Director } from "./Director";
+import { IDirector } from "./interfaces/IDirector";
 import { MissionManager } from "./managers/MissionManager";
 import { DoorManager } from "./managers/DoorManager";
 import { VisibilityManager } from "./managers/VisibilityManager";
@@ -34,7 +35,7 @@ export class CoreEngine {
   private pathfinder: Pathfinder;
   private los: LineOfSight;
   private state: GameState;
-  private director: Director;
+  private director: IDirector;
 
   private missionManager: MissionManager;
   private doorManager: DoorManager;

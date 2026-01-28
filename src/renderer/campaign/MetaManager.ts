@@ -1,4 +1,4 @@
-import { MetaManager as EngineMetaManager } from "@src/engine/managers/MetaManager";
+import { MetaManager as EngineMetaManager } from "@src/engine/campaign/MetaManager";
 import { LocalStorageProvider } from "@src/engine/persistence/LocalStorageProvider";
 
 /**
