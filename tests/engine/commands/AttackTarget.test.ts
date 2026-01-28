@@ -51,7 +51,7 @@ describe("Autonomous Targeting Logic", () => {
       },
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
-      archetypeId: "assault",
+      archetypeId: "test_archetype",
       kills: 0,
       damageDealt: 0,
       objectivesCompleted: 0,

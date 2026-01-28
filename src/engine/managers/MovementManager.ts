@@ -8,7 +8,7 @@ export class MovementManager {
   constructor(private gameGrid: GameGrid) {}
 
   public handleMovement(unit: Unit, dt: number, doors: Map<string, Door>): Unit {
-    if (!unit.targetPos || !unit.path) return unit;
+    if (!unit.targetPos) return unit;
 
     const dx = unit.targetPos.x - unit.pos.x;
     const dy = unit.targetPos.y - unit.pos.y;
@@ -40,7 +40,7 @@ export class MovementManager {
       if (unit.state === UnitState.WaitingForDoor) return unit;
       return { ...unit, state: UnitState.WaitingForDoor };
     } else if (dist <= moveDist + EPSILON) {
-      const nextPath = unit.path.slice(1);
+      const nextPath = unit.path ? unit.path.slice(1) : [];
       if (nextPath.length === 0) {
         return {
           ...unit,

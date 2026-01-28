@@ -85,7 +85,7 @@ export class ObjectiveBehavior implements Behavior {
         )[0];
 
         if (closest.type === "objective") {
-          context.claimedObjectives.add(closest.id);
+          context.claimedObjectives.set(closest.id, unit.id);
         }
 
         context.executeCommand(
@@ -153,7 +153,7 @@ export class ObjectiveBehavior implements Behavior {
         }
 
         if (bestObj) {
-          context.claimedObjectives.add(bestObj.obj.id);
+          context.claimedObjectives.set(bestObj.obj.id, unit.id);
           let target = { x: 0, y: 0 };
           if (
             (bestObj.obj.kind === "Recover" || bestObj.obj.kind === "Escort") &&

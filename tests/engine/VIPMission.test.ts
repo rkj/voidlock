@@ -199,8 +199,12 @@ describe("VIP Mission Mechanics", () => {
     expect(vip.aiEnabled).toBe(false); // Blocked by wall
 
     // Move soldier to (1.5, 0.5) - now in same room area as VIP (1,0 and 2,0 are connected)
-    soldier.pos = { x: 1.5, y: 0.5 };
+    const internalStateAfter = (engine2 as any).state;
+    const soldierAfter = internalStateAfter.units.find((u: any) => u.archetypeId === "assault")!;
+    soldierAfter.pos = { x: 1.5, y: 0.5 };
     engine2.update(100);
-    expect(vip.aiEnabled).toBe(true);
+    
+    const updatedVip = (engine2 as any).state.units.find((u: any) => u.archetypeId === "vip")!;
+    expect(updatedVip.aiEnabled).toBe(true);
   });
 });

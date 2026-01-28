@@ -198,12 +198,12 @@ describe("Non-Combat Node Interactions", () => {
     const advanceSpy = vi.spyOn(manager, "advanceCampaignWithoutMission");
 
     // 3. Simulate clicking the shop node
-    // In GameApp, onCampaignNodeSelected is called by CampaignScreen
-    // We can call it directly for the test
-    (app as any).onCampaignNodeSelected(shopNode);
-
-    // Wait for async onCampaignNodeSelected
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    // In GameApp, onCampaignNodeSelected is now handled by campaignFlowCoordinator
+    await (app as any).campaignFlowCoordinator.onCampaignNodeSelected(
+      shopNode,
+      () => {},
+      () => {},
+    );
 
     // 4. Verify results
     expect(mockModalService.alert).toHaveBeenCalledWith(
@@ -235,7 +235,11 @@ describe("Non-Combat Node Interactions", () => {
 
     const applyChoiceSpy = vi.spyOn(manager, "applyEventChoice");
 
-    (app as any).onCampaignNodeSelected(eventNode);
+    await (app as any).campaignFlowCoordinator.onCampaignNodeSelected(
+      eventNode,
+      () => {},
+      () => {},
+    );
 
     // Verify EventModal was shown
     const { EventModal } = await import("@src/renderer/ui/EventModal");

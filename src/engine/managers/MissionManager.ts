@@ -283,6 +283,10 @@ export class MissionManager {
     const vips = state.units.filter((u) => u.archetypeId === "vip");
     const anyVipDead = vips.some((v) => v.state === UnitState.Dead);
 
+    if (state.missionType === MissionType.EscortVIP) {
+      // Win/loss logic for EscortVIP
+    }
+
     // Any VIP death is an immediate loss in any mission type
     if (anyVipDead) {
       state.status = "Lost";
@@ -299,6 +303,10 @@ export class MissionManager {
     const allObjectivesComplete = state.objectives.every(
       (o) => o.state === "Completed",
     );
+
+    if (state.status === "Playing" && activeUnits.length === 0) {
+      // Mission over logic
+    }
 
     const isBoss = state.nodeType === "Boss";
     const isElite = state.nodeType === "Elite";

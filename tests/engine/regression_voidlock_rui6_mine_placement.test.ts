@@ -149,8 +149,8 @@ describe("Regression voidlock-rui6: Landmine Placement & Scaling", () => {
     expect(Math.floor(engine.getState().units[0].pos.x)).toBe(2);
     expect(Math.floor(engine.getState().units[0].pos.y)).toBe(2);
 
-    // Wait for channel completion (3s base)
-    engine.update(3100);
+    // Wait for channel completion (3s base, speed 20 -> 4500ms)
+    engine.update(4500);
 
     // Should be Idle now
     expect(engine.getState().units[0].state).toBe(UnitState.Idle);

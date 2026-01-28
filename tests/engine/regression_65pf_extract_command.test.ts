@@ -29,7 +29,7 @@ describe("Regression 65pf: Extract Command", () => {
   } as any;
 
   const squadConfig = {
-    soldiers: [{ archetypeId: "assault", id: "u1" }],
+    soldiers: [{ archetypeId: "scout", id: "u1" }],
     inventory: {},
   };
 
@@ -89,6 +89,8 @@ describe("Regression 65pf: Extract Command", () => {
     // Access internal unit to teleport
     (engine as any).state.units[0].pos = { x: 4.5, y: 4.5 };
     (engine as any).state.units[0].state = UnitState.Idle;
+    (engine as any).state.units[0].path = undefined;
+    (engine as any).state.units[0].targetPos = undefined;
 
     // Update engine
     engine.update(100);
@@ -108,15 +110,17 @@ describe("Regression 65pf: Extract Command", () => {
 
     (engine as any).state.units[0].pos = { x: 4.5, y: 4.5 };
     (engine as any).state.units[0].state = UnitState.Idle;
+    (engine as any).state.units[0].path = undefined;
+    (engine as any).state.units[0].targetPos = undefined;
     (engine as any).state.units[0].stats.speed = 60;
 
     // Start channeling
     engine.update(100);
     expect(engine.getState().units[0].state).toBe(UnitState.Channeling);
 
-    // Extraction duration is 5000ms * (10/speed). Assault speed is 20.
-    // So 5000 * 0.5 = 2500ms.
-    engine.update(3000);
+    // Extraction duration is 5000ms * (30/speed). Scout speed is 30.
+    // So 5000 * 1.0 = 5000ms.
+    engine.update(6000);
 
     expect(engine.getState().units[0].state).toBe(UnitState.Extracted);
   });
