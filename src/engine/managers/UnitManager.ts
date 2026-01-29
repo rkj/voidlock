@@ -20,9 +20,9 @@ import { CombatManager } from "./CombatManager";
 import { UnitAI, AIContext } from "./UnitAI";
 import { CommandExecutor } from "./CommandExecutor";
 import { FormationManager } from "./FormationManager";
-import { isCellVisible } from "../../shared/VisibilityUtils";
 import { IDirector } from "../interfaces/IDirector";
 import { MathUtils } from "../../shared/utils/MathUtils";
+import { SpatialGrid } from "../../shared/utils/SpatialGrid";
 import { MOVEMENT } from "../config/GameConstants";
 
 export class UnitManager {
@@ -33,6 +33,15 @@ export class UnitManager {
   private formationManager: FormationManager;
   private unitAi: UnitAI;
   private commandExecutor: CommandExecutor;
+  private itemGrid: SpatialGrid<{
+    id: string;
+    pos: Vector2;
+    mustBeInLOS: boolean;
+    visible?: boolean;
+    type: "loot" | "objective";
+  }> = new SpatialGrid();
+  private lastLootArray?: any[];
+  private lastObjectivesArray?: any[];
 
   constructor(
     private gameGrid: GameGrid,
@@ -159,66 +168,121 @@ export class UnitManager {
 
     // Pre-pass for item competition (Opportunistic Pickups & General Objectives)
     const itemAssignments = new Map<string, string>(); // itemId -> unitId
-    const allVisibleItems = [
-      ...(state.loot || []).map((l) => ({
-        id: l.id,
-        pos: l.pos,
-        mustBeInLOS: true,
-      })),
-      ...(state.objectives || [])
-        .filter(
-          (o) =>
+
+    // Only rebuild the grid if the items have changed
+    if (
+      this.lastLootArray !== state.loot ||
+      this.lastObjectivesArray !== state.objectives
+    ) {
+      this.itemGrid.clear();
+      if (state.loot) {
+        for (const l of state.loot) {
+          this.itemGrid.insert(l.pos, {
+            id: l.id,
+            pos: l.pos,
+            mustBeInLOS: true,
+            type: "loot",
+          });
+        }
+      }
+
+      if (state.objectives) {
+        for (const o of state.objectives) {
+          if (
             o.state === "Pending" &&
-            (o.kind === "Recover" || o.kind === "Escort" || o.kind === "Kill"),
-        )
-        .map((o) => {
-          let pos: Vector2 = { x: MOVEMENT.CENTER_OFFSET, y: MOVEMENT.CENTER_OFFSET };
-          if (o.targetCell) {
-            pos = { x: o.targetCell.x + MOVEMENT.CENTER_OFFSET, y: o.targetCell.y + MOVEMENT.CENTER_OFFSET };
-          } else if (o.targetEnemyId) {
-            const enemy = state.enemies.find((e) => e.id === o.targetEnemyId);
-            if (enemy) pos = enemy.pos;
+            (o.kind === "Recover" || o.kind === "Escort" || o.kind === "Kill")
+          ) {
+            let pos: Vector2 = { x: MOVEMENT.CENTER_OFFSET, y: MOVEMENT.CENTER_OFFSET };
+            if (o.targetCell) {
+              pos = {
+                x: o.targetCell.x + MOVEMENT.CENTER_OFFSET,
+                y: o.targetCell.y + MOVEMENT.CENTER_OFFSET,
+              };
+            } else if (o.targetEnemyId) {
+              const enemy = state.enemies.find((e) => e.id === o.targetEnemyId);
+              if (enemy) pos = enemy.pos;
+            }
+            this.itemGrid.insert(pos, {
+              id: o.id,
+              pos,
+              mustBeInLOS: o.kind === "Recover",
+              visible: o.visible,
+              type: "objective",
+            });
           }
-          return {
-            id: o.id,
-            pos,
-            mustBeInLOS: o.kind === "Recover", // Recoveries are usually opportunistic if not known
-            visible: o.visible,
+        }
+      }
+      this.lastLootArray = state.loot;
+      this.lastObjectivesArray = state.objectives;
+    }
+
+    // Query items in visible cells
+    const visibleItemsFromGrid = this.itemGrid.queryByKeys(
+      state.visibleCells || [],
+    );
+
+    // Include objectives that are marked as visible even if not in a currently visible cell
+    const alwaysVisibleObjectives = (state.objectives || [])
+      .filter((o) => o.visible && o.state === "Pending" && (o.kind === "Recover" || o.kind === "Escort" || o.kind === "Kill"))
+      .map((o) => {
+        let pos: Vector2 = { x: MOVEMENT.CENTER_OFFSET, y: MOVEMENT.CENTER_OFFSET };
+        if (o.targetCell) {
+          pos = {
+            x: o.targetCell.x + MOVEMENT.CENTER_OFFSET,
+            y: o.targetCell.y + MOVEMENT.CENTER_OFFSET,
           };
-        }),
-    ].filter((item) => {
-      if ("visible" in item && item.visible) return true;
-      return isCellVisible(
-        state,
-        Math.floor(item.pos.x),
-        Math.floor(item.pos.y),
-      );
-    });
-
-    for (const item of allVisibleItems) {
-      const unitsSeeingItem = state.units.filter((u) => {
-        if (
-          u.hp <= 0 ||
-          u.state === UnitState.Dead ||
-          u.state === UnitState.Extracted
-        )
-          return false;
-
-        // Only consider units that can actually perform autonomous opportunistic pickups
-        if (u.archetypeId === "vip") return false;
-        if (u.aiEnabled === false) return false;
-        if (u.commandQueue.length > 0) return false;
-
-        return true;
+        } else if (o.targetEnemyId) {
+          const enemy = state.enemies.find((e) => e.id === o.targetEnemyId);
+          if (enemy) pos = enemy.pos;
+        }
+        return {
+          id: o.id,
+          pos,
+          mustBeInLOS: o.kind === "Recover",
+          visible: o.visible,
+        };
       });
 
-      if (unitsSeeingItem.length > 0) {
+    // Merge and deduplicate (though queryByKeys shouldn't overlap with alwaysVisible if they are in different cells)
+    // Actually, simple way is to use a Map to deduplicate by ID
+    const allVisibleItemsMap = new Map<string, any>();
+    for (const item of visibleItemsFromGrid) {
+      allVisibleItemsMap.set(item.id, item);
+    }
+    for (const item of alwaysVisibleObjectives) {
+      allVisibleItemsMap.set(item.id, item);
+    }
+
+    const allVisibleItems = Array.from(allVisibleItemsMap.values());
+
+    const capableUnits = state.units.filter((u) => {
+      if (
+        u.hp <= 0 ||
+        u.state === UnitState.Dead ||
+        u.state === UnitState.Extracted
+      )
+        return false;
+
+      // Only consider units that can actually perform autonomous opportunistic pickups
+      if (u.archetypeId === "vip") return false;
+      if (u.aiEnabled === false) return false;
+      if (u.commandQueue.length > 0) return false;
+
+      return true;
+    });
+
+    if (capableUnits.length > 0) {
+      for (const item of allVisibleItems) {
         // Find closest unit by Euclidean distance
-        const closestUnit = unitsSeeingItem.sort(
-          (a, b) =>
-            MathUtils.getDistance(a.pos, item.pos) -
-            MathUtils.getDistance(b.pos, item.pos),
-        )[0];
+        let closestUnit = capableUnits[0];
+        let minDist = MathUtils.getDistance(closestUnit.pos, item.pos);
+        for (let i = 1; i < capableUnits.length; i++) {
+          const d = MathUtils.getDistance(capableUnits[i].pos, item.pos);
+          if (d < minDist) {
+            minDist = d;
+            closestUnit = capableUnits[i];
+          }
+        }
         itemAssignments.set(item.id, closestUnit.id);
       }
     }
@@ -237,6 +301,7 @@ export class UnitManager {
       claimedObjectives,
       explorationClaims,
       itemAssignments,
+      itemGrid: this.itemGrid,
       executeCommand: (u, cmd, s, isManual, dir) =>
         this.commandExecutor.executeCommand(u, cmd, s, isManual, dir),
     };

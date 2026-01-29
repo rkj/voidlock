@@ -14,6 +14,7 @@ import { Behavior, BehaviorResult } from "./Behavior";
 import { isCellVisible, isCellDiscovered } from "../../../shared/VisibilityUtils";
 import { IDirector } from "../../interfaces/IDirector";
 import { MathUtils } from "../../../shared/utils/MathUtils";
+import { MOVEMENT } from "../../config/GameConstants";
 
 export class ObjectiveBehavior implements Behavior {
   public evaluate(
@@ -34,18 +35,71 @@ export class ObjectiveBehavior implements Behavior {
     let actionTaken = false;
 
     // 1. Opportunistic Loot & Objectives (In current LOS)
-    const visibleLoot = (state.loot || []).filter((l) =>
-      isCellVisible(state, Math.floor(l.pos.x), Math.floor(l.pos.y)),
-    );
+    let visibleItemsFromGrid: {
+      id: string;
+      pos: Vector2;
+      mustBeInLOS: boolean;
+      visible?: boolean;
+      type: "loot" | "objective";
+    }[] = [];
 
-    const visibleObjectives = (state.objectives || []).filter((o) => {
-      if (o.state !== "Pending" || context.claimedObjectives.has(o.id))
-        return false;
-      if (o.kind !== "Recover") return false;
-      if (o.targetCell) {
-        return isCellVisible(state, o.targetCell.x, o.targetCell.y);
-      }
-      return false;
+    if (context.itemGrid) {
+      visibleItemsFromGrid = context.itemGrid.queryByKeys(
+        state.visibleCells || [],
+      );
+    } else {
+      // Fallback if grid not available (shouldn't happen in production)
+      visibleItemsFromGrid = [
+        ...(state.loot || []).map((l) => ({
+          id: l.id,
+          pos: l.pos,
+          mustBeInLOS: true,
+          type: "loot" as const,
+        })),
+        ...(state.objectives || [])
+          .filter(
+            (o) =>
+              o.state === "Pending" &&
+              (o.kind === "Recover" || o.kind === "Escort" || o.kind === "Kill"),
+          )
+          .map((o) => {
+            let pos: Vector2 = {
+              x: MOVEMENT.CENTER_OFFSET,
+              y: MOVEMENT.CENTER_OFFSET,
+            };
+            if (o.targetCell) {
+              pos = {
+                x: o.targetCell.x + MOVEMENT.CENTER_OFFSET,
+                y: o.targetCell.y + MOVEMENT.CENTER_OFFSET,
+              };
+            } else if (o.targetEnemyId) {
+              const enemy = state.enemies.find((e) => e.id === o.targetEnemyId);
+              if (enemy) pos = enemy.pos;
+            }
+            return {
+              id: o.id,
+              pos,
+              mustBeInLOS: o.kind === "Recover",
+              visible: o.visible,
+              type: "objective" as const,
+            };
+          }),
+      ].filter((item) => {
+        if ("visible" in item && item.visible) return true;
+        return isCellVisible(
+          state,
+          Math.floor(item.pos.x),
+          Math.floor(item.pos.y),
+        );
+      }) as any;
+    }
+
+    const visibleLoot = visibleItemsFromGrid.filter((item) => item.type === "loot");
+    const visibleObjectives = visibleItemsFromGrid.filter((item) => {
+        if (item.type !== "objective") return false;
+        // The grid query already filtered by visibility/cell
+        // But we need to check if it's already claimed
+        return !context.claimedObjectives.has(item.id);
     });
 
     if (visibleLoot.length > 0 || visibleObjectives.length > 0) {
@@ -75,7 +129,7 @@ export class ObjectiveBehavior implements Behavior {
         })),
         ...availableObjectives.map((o) => ({
           id: o.id,
-          pos: { x: o.targetCell!.x + 0.5, y: o.targetCell!.y + 0.5 },
+          pos: o.pos,
           type: "objective" as const,
         })),
       ];
