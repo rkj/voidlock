@@ -19,15 +19,26 @@ bd list --all --json --limit 0 | jq -c '.[]' | while read -r task_json; do
         status="in_progress"
     fi
 
-    cmd="trekker task create -t '$title' -d '$desc' -p '$priority' -s '$status'"
+    # Safety: Kill any stuck bun/trekker processes from previous iterations
+    # pkill -f "trekker" 2>/dev/null || true
+    
+    cmd=$(printf "trekker task create -t %q -d %q -p %q -s %q" "$title" "$desc" "$priority" "$status")
+    
     echo "processing task $i: $cmd"
-    eval "$cmd"
-    echo "task $i done"
+    # Use timeout to prevent hangs if bun deadlocks
+    if timeout 2s bash -c "$cmd";  then
+        echo "task $i done"
+    else
+        echo "task $i TIMED OUT - skipping"
+    fi
+    
     ((i++))
     if (( i % 50 == 0 )); then
         echo "Progress: $i migrated..."
     fi
+    
+    # Slight breather for the runtime
+    sleep 0.1
 done
 
 echo "Migration complete! Total tasks processed: $i"
-

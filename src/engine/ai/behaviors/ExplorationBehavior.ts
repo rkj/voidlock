@@ -7,7 +7,7 @@ import {
 } from "../../../shared/types";
 import { AIContext } from "../../managers/UnitAI";
 import { PRNG } from "../../../shared/PRNG";
-import { Behavior } from "./Behavior";
+import { Behavior, BehaviorResult } from "./Behavior";
 import {
   isMapFullyDiscovered,
   findClosestUndiscoveredCell,
@@ -28,29 +28,30 @@ export class ExplorationBehavior implements Behavior {
     _prng: PRNG,
     context: AIContext,
     director?: IDirector,
-  ): boolean {
-    if (unit.state !== UnitState.Idle && !unit.explorationTarget) return false;
-    if (unit.commandQueue.length > 0) return false;
-    if (!context.agentControlEnabled || unit.aiEnabled === false) return false;
+  ): BehaviorResult {
+    let currentUnit = { ...unit };
+    if (currentUnit.state !== UnitState.Idle && !currentUnit.explorationTarget) return { unit: currentUnit, handled: false };
+    if (currentUnit.commandQueue.length > 0) return { unit: currentUnit, handled: false };
+    if (!context.agentControlEnabled || currentUnit.aiEnabled === false) return { unit: currentUnit, handled: false };
 
     if (!isMapFullyDiscovered(state, context.totalFloorCells, this.gameGrid)) {
-      let shouldReevaluate = !unit.explorationTarget;
+      let shouldReevaluate = !currentUnit.explorationTarget;
 
-      if (unit.explorationTarget) {
+      if (currentUnit.explorationTarget) {
         if (
           isCellDiscovered(
             state,
-            Math.floor(unit.explorationTarget.x),
-            Math.floor(unit.explorationTarget.y),
+            Math.floor(currentUnit.explorationTarget.x),
+            Math.floor(currentUnit.explorationTarget.y),
           )
         ) {
-          unit.explorationTarget = undefined;
+          currentUnit = { ...currentUnit, explorationTarget: undefined };
           shouldReevaluate = true;
         } else {
           const checkInterval = 1000;
           const lastCheck = Math.floor((state.t - dt) / checkInterval);
           const currentCheck = Math.floor(state.t / checkInterval);
-          if (currentCheck > lastCheck || unit.state === UnitState.Idle) {
+          if (currentCheck > lastCheck || currentUnit.state === UnitState.Idle) {
             shouldReevaluate = true;
           }
         }
@@ -58,27 +59,28 @@ export class ExplorationBehavior implements Behavior {
 
       if (shouldReevaluate) {
         const targetCell = findClosestUndiscoveredCell(
-          unit,
+          currentUnit,
           state,
           context.gridState,
           doors,
           this.gameGrid,
+          context.explorationClaims,
         );
         if (targetCell) {
           const newTarget = { x: targetCell.x, y: targetCell.y };
           const isDifferent =
-            !unit.explorationTarget ||
-            unit.explorationTarget.x !== newTarget.x ||
-            unit.explorationTarget.y !== newTarget.y;
+            !currentUnit.explorationTarget ||
+            currentUnit.explorationTarget.x !== newTarget.x ||
+            currentUnit.explorationTarget.y !== newTarget.y;
 
           if (isDifferent) {
-            let switchTarget = !unit.explorationTarget;
-            if (unit.explorationTarget) {
-              const oldDist = MathUtils.getDistance(unit.pos, {
-                x: unit.explorationTarget.x + 0.5,
-                y: unit.explorationTarget.y + 0.5,
+            let switchTarget = !currentUnit.explorationTarget;
+            if (currentUnit.explorationTarget) {
+              const oldDist = MathUtils.getDistance(currentUnit.pos, {
+                x: currentUnit.explorationTarget.x + 0.5,
+                y: currentUnit.explorationTarget.y + 0.5,
               });
-              const newDist = MathUtils.getDistance(unit.pos, {
+              const newDist = MathUtils.getDistance(currentUnit.pos, {
                 x: newTarget.x + 0.5,
                 y: newTarget.y + 0.5,
               });
@@ -88,12 +90,13 @@ export class ExplorationBehavior implements Behavior {
             }
 
             if (switchTarget) {
-              unit.explorationTarget = newTarget;
-              context.executeCommand(
-                unit,
+              currentUnit = { ...currentUnit, explorationTarget: newTarget };
+              context.explorationClaims.set(currentUnit.id, newTarget);
+              currentUnit = context.executeCommand(
+                currentUnit,
                 {
                   type: CommandType.MOVE_TO,
-                  unitIds: [unit.id],
+                  unitIds: [currentUnit.id],
                   target: targetCell,
                   label: "Exploring",
                 },
@@ -101,27 +104,28 @@ export class ExplorationBehavior implements Behavior {
                 false,
                 director,
               );
-              return true;
+              return { unit: currentUnit, handled: true };
             }
-          } else if (unit.state === UnitState.Idle) {
-            context.executeCommand(
-              unit,
+          } else if (currentUnit.state === UnitState.Idle) {
+            context.explorationClaims.set(currentUnit.id, currentUnit.explorationTarget!);
+            currentUnit = context.executeCommand(
+              currentUnit,
               {
                 type: CommandType.MOVE_TO,
-                unitIds: [unit.id],
-                target: unit.explorationTarget!,
+                unitIds: [currentUnit.id],
+                target: currentUnit.explorationTarget!,
                 label: "Exploring",
               },
               state,
               false,
               director,
             );
-            return true;
+            return { unit: currentUnit, handled: true };
           }
         }
       }
     }
 
-    return false;
+    return { unit: currentUnit, handled: false };
   }
 }

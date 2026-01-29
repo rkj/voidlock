@@ -8,7 +8,7 @@ import {
 } from "../../../shared/types";
 import { AIContext } from "../../managers/UnitAI";
 import { PRNG } from "../../../shared/PRNG";
-import { Behavior } from "./Behavior";
+import { Behavior, BehaviorResult } from "./Behavior";
 import { isCellVisible } from "../../../shared/VisibilityUtils";
 import { IDirector } from "../../interfaces/IDirector";
 import { MathUtils } from "../../../shared/utils/MathUtils";
@@ -22,8 +22,9 @@ export class SafetyBehavior implements Behavior {
     _prng: PRNG,
     context: AIContext,
     director?: IDirector,
-  ): boolean {
-    if (unit.archetypeId === "vip") return false;
+  ): BehaviorResult {
+    let currentUnit = { ...unit };
+    if (currentUnit.archetypeId === "vip") return { unit: currentUnit, handled: false };
 
     const visibleEnemies = state.enemies.filter(
       (enemy) =>
@@ -38,18 +39,18 @@ export class SafetyBehavior implements Behavior {
     const threats = visibleEnemies
       .map((enemy) => ({
         enemy,
-        distance: MathUtils.getDistance(unit.pos, enemy.pos),
+        distance: MathUtils.getDistance(currentUnit.pos, enemy.pos),
       }))
       .sort((a, b) => 1 / (b.distance + 1) - 1 / (a.distance + 1));
 
-    const isLowHP = unit.hp < unit.maxHp * 0.25;
+    const isLowHP = currentUnit.hp < currentUnit.maxHp * 0.25;
     const nearbyAllies = state.units.filter(
       (u) =>
-        u.id !== unit.id &&
+        u.id !== currentUnit.id &&
         u.hp > 0 &&
         u.state !== UnitState.Extracted &&
         u.state !== UnitState.Dead &&
-        MathUtils.getDistance(unit.pos, u.pos) <= 5,
+        MathUtils.getDistance(currentUnit.pos, u.pos) <= 5,
     );
     const isIsolated = nearbyAllies.length === 0 && threats.length > 0;
 
@@ -91,24 +92,27 @@ export class SafetyBehavior implements Behavior {
           .map((cell) => {
             return {
               ...cell,
-              dist: MathUtils.getDistance(unit.pos, { x: cell.x + 0.5, y: cell.y + 0.5 }),
+              dist: MathUtils.getDistance(currentUnit.pos, { x: cell.x + 0.5, y: cell.y + 0.5 }),
             };
           })
           .sort((a, b) => a.dist - b.dist)[0];
 
         if (
-          unit.state !== UnitState.Moving ||
-          !unit.targetPos ||
-          Math.floor(unit.targetPos.x) !== closestSafe.x ||
-          Math.floor(unit.targetPos.y) !== closestSafe.y
+          currentUnit.state !== UnitState.Moving ||
+          !currentUnit.targetPos ||
+          Math.floor(currentUnit.targetPos.x) !== closestSafe.x ||
+          Math.floor(currentUnit.targetPos.y) !== closestSafe.y
         ) {
-          unit.engagementPolicy = "IGNORE";
-          unit.engagementPolicySource = "Autonomous";
-          context.executeCommand(
-            unit,
+          currentUnit = {
+            ...currentUnit,
+            engagementPolicy: "IGNORE",
+            engagementPolicySource: "Autonomous",
+          };
+          currentUnit = context.executeCommand(
+            currentUnit,
             {
               type: CommandType.MOVE_TO,
-              unitIds: [unit.id],
+              unitIds: [currentUnit.id],
               target: { x: closestSafe.x, y: closestSafe.y },
               label: "Retreating",
             },
@@ -116,35 +120,38 @@ export class SafetyBehavior implements Behavior {
             false,
             director,
           );
-          return unit.state === UnitState.Moving;
+          return { unit: currentUnit, handled: currentUnit.state === UnitState.Moving };
         }
-        return unit.state === UnitState.Moving;
+        return { unit: currentUnit, handled: currentUnit.state === UnitState.Moving };
       }
     } else if (isIsolated) {
       const otherUnits = state.units.filter(
         (u) =>
-          u.id !== unit.id &&
+          u.id !== currentUnit.id &&
           u.hp > 0 &&
           u.state !== UnitState.Extracted &&
           u.state !== UnitState.Dead,
       );
       if (otherUnits.length > 0) {
         const closestAlly = otherUnits.sort(
-          (a, b) => MathUtils.getDistance(unit.pos, a.pos) - MathUtils.getDistance(unit.pos, b.pos),
+          (a, b) => MathUtils.getDistance(currentUnit.pos, a.pos) - MathUtils.getDistance(currentUnit.pos, b.pos),
         )[0];
         if (
-          unit.state !== UnitState.Moving ||
-          !unit.targetPos ||
-          Math.floor(unit.targetPos.x) !== Math.floor(closestAlly.pos.x) ||
-          Math.floor(unit.targetPos.y) !== Math.floor(closestAlly.pos.y)
+          currentUnit.state !== UnitState.Moving ||
+          !currentUnit.targetPos ||
+          Math.floor(currentUnit.targetPos.x) !== Math.floor(closestAlly.pos.x) ||
+          Math.floor(currentUnit.targetPos.y) !== Math.floor(closestAlly.pos.y)
         ) {
-          unit.engagementPolicy = "IGNORE";
-          unit.engagementPolicySource = "Autonomous";
-          context.executeCommand(
-            unit,
+          currentUnit = {
+            ...currentUnit,
+            engagementPolicy: "IGNORE",
+            engagementPolicySource: "Autonomous",
+          };
+          currentUnit = context.executeCommand(
+            currentUnit,
             {
               type: CommandType.MOVE_TO,
-              unitIds: [unit.id],
+              unitIds: [currentUnit.id],
               target: {
                 x: Math.floor(closestAlly.pos.x),
                 y: Math.floor(closestAlly.pos.y),
@@ -155,21 +162,24 @@ export class SafetyBehavior implements Behavior {
             false,
             director,
           );
-          return true;
+          return { unit: currentUnit, handled: true };
         }
-        return unit.state === UnitState.Moving;
+        return { unit: currentUnit, handled: currentUnit.state === UnitState.Moving };
       }
     } else {
       if (
-        unit.engagementPolicy === "IGNORE" &&
-        unit.engagementPolicySource === "Autonomous" &&
-        unit.state === UnitState.Idle &&
-        unit.commandQueue.length === 0
+        currentUnit.engagementPolicy === "IGNORE" &&
+        currentUnit.engagementPolicySource === "Autonomous" &&
+        currentUnit.state === UnitState.Idle &&
+        currentUnit.commandQueue.length === 0
       ) {
-        unit.engagementPolicy = "ENGAGE";
-        unit.engagementPolicySource = undefined;
+        currentUnit = {
+          ...currentUnit,
+          engagementPolicy: "ENGAGE",
+          engagementPolicySource: undefined,
+        };
       }
     }
-    return false;
+    return { unit: currentUnit, handled: false };
   }
 }

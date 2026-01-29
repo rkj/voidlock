@@ -7,7 +7,7 @@ import {
 } from "../../../shared/types";
 import { AIContext } from "../../managers/UnitAI";
 import { PRNG } from "../../../shared/PRNG";
-import { Behavior } from "./Behavior";
+import { Behavior, BehaviorResult } from "./Behavior";
 import { GameGrid } from "../../GameGrid";
 import { isCellVisible } from "../../../shared/VisibilityUtils";
 import { IDirector } from "../../interfaces/IDirector";
@@ -24,16 +24,17 @@ export class CombatBehavior implements Behavior {
     _prng: PRNG,
     context: AIContext,
     director?: IDirector,
-  ): boolean {
-    if (unit.archetypeId === "vip") return false;
+  ): BehaviorResult {
+    let currentUnit = { ...unit };
+    if (currentUnit.archetypeId === "vip") return { unit: currentUnit, handled: false };
     if (
-      unit.state !== UnitState.Idle &&
-      unit.state !== UnitState.Attacking &&
-      !unit.explorationTarget
+      currentUnit.state !== UnitState.Idle &&
+      currentUnit.state !== UnitState.Attacking &&
+      !currentUnit.explorationTarget
     )
-      return false;
-    if (unit.commandQueue.length > 0) return false;
-    if (!context.agentControlEnabled || unit.aiEnabled === false) return false;
+      return { unit: currentUnit, handled: false };
+    if (currentUnit.commandQueue.length > 0) return { unit: currentUnit, handled: false };
+    if (!context.agentControlEnabled || currentUnit.aiEnabled === false) return { unit: currentUnit, handled: false };
 
     const visibleEnemies = state.enemies.filter(
       (enemy) =>
@@ -48,24 +49,24 @@ export class CombatBehavior implements Behavior {
     const threats = visibleEnemies
       .map((enemy) => ({
         enemy,
-        distance: MathUtils.getDistance(unit.pos, enemy.pos),
+        distance: MathUtils.getDistance(currentUnit.pos, enemy.pos),
       }))
       .sort((a, b) => 1 / (b.distance + 1) - 1 / (a.distance + 1));
 
-    if (threats.length > 0 && unit.engagementPolicy !== "IGNORE") {
+    if (threats.length > 0 && currentUnit.engagementPolicy !== "IGNORE") {
       const primaryThreat = threats[0].enemy;
       const dist = threats[0].distance;
 
-      if (unit.aiProfile === "STAND_GROUND") {
+      if (currentUnit.aiProfile === "STAND_GROUND") {
         // Hold position
-        return false;
-      } else if (unit.aiProfile === "RUSH") {
+        return { unit: currentUnit, handled: false };
+      } else if (currentUnit.aiProfile === "RUSH") {
         if (dist > 1.5) {
-          context.executeCommand(
-            unit,
+          currentUnit = context.executeCommand(
+            currentUnit,
             {
               type: CommandType.MOVE_TO,
-              unitIds: [unit.id],
+              unitIds: [currentUnit.id],
               target: {
                 x: Math.floor(primaryThreat.pos.x),
                 y: Math.floor(primaryThreat.pos.y),
@@ -76,13 +77,13 @@ export class CombatBehavior implements Behavior {
             false,
             director,
           );
-          return true;
+          return { unit: currentUnit, handled: true };
         }
-      } else if (unit.aiProfile === "RETREAT") {
-        if (dist < unit.stats.attackRange * 0.8) {
+      } else if (currentUnit.aiProfile === "RETREAT") {
+        if (dist < currentUnit.stats.attackRange * 0.8) {
           const currentCell = {
-            x: Math.floor(unit.pos.x),
-            y: Math.floor(unit.pos.y),
+            x: Math.floor(currentUnit.pos.x),
+            y: Math.floor(currentUnit.pos.y),
           };
           const neighbors = [
             { x: currentCell.x + 1, y: currentCell.y },
@@ -113,11 +114,11 @@ export class CombatBehavior implements Behavior {
             .sort((a, b) => b.dist - a.dist)[0];
 
           if (bestRetreat && bestRetreat.dist > dist) {
-            context.executeCommand(
-              unit,
+            currentUnit = context.executeCommand(
+              currentUnit,
               {
                 type: CommandType.MOVE_TO,
-                unitIds: [unit.id],
+                unitIds: [currentUnit.id],
                 target: { x: bestRetreat.x, y: bestRetreat.y },
                 label: "Retreating",
               },
@@ -125,17 +126,17 @@ export class CombatBehavior implements Behavior {
               false,
               director,
             );
-            return true;
+            return { unit: currentUnit, handled: true };
           }
         }
       } else {
         // Default behavior
-        if (dist > unit.stats.attackRange) {
-          context.executeCommand(
-            unit,
+        if (dist > currentUnit.stats.attackRange) {
+          currentUnit = context.executeCommand(
+            currentUnit,
             {
               type: CommandType.MOVE_TO,
-              unitIds: [unit.id],
+              unitIds: [currentUnit.id],
               target: {
                 x: Math.floor(primaryThreat.pos.x),
                 y: Math.floor(primaryThreat.pos.y),
@@ -146,11 +147,11 @@ export class CombatBehavior implements Behavior {
             false,
             director,
           );
-          return true;
+          return { unit: currentUnit, handled: true };
         }
       }
     }
 
-    return false;
+    return { unit: currentUnit, handled: false };
   }
 }

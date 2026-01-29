@@ -8,7 +8,7 @@ import {
 } from "../../../shared/types";
 import { AIContext } from "../../managers/UnitAI";
 import { PRNG } from "../../../shared/PRNG";
-import { Behavior } from "./Behavior";
+import { Behavior, BehaviorResult } from "./Behavior";
 import { SPEED_NORMALIZATION_CONST, ITEMS } from "../../config/GameConstants";
 import { IDirector } from "../../interfaces/IDirector";
 
@@ -21,71 +21,78 @@ export class InteractionBehavior implements Behavior {
     _prng: PRNG,
     context: AIContext,
     _director?: IDirector,
-  ): boolean {
-    if (unit.state !== UnitState.Idle) {
-      return false;
+  ): BehaviorResult {
+    let currentUnit = { ...unit };
+    if (currentUnit.state !== UnitState.Idle) {
+      return { unit: currentUnit, handled: false };
     }
 
     // 1. Loot Interaction
     if (state.loot) {
       const loot = state.loot.find(
         (l) =>
-          Math.abs(unit.pos.x - l.pos.x) < ITEMS.INTERACTION_RADIUS &&
-          Math.abs(unit.pos.y - l.pos.y) < ITEMS.INTERACTION_RADIUS,
+          Math.abs(currentUnit.pos.x - l.pos.x) < ITEMS.INTERACTION_RADIUS &&
+          Math.abs(currentUnit.pos.y - l.pos.y) < ITEMS.INTERACTION_RADIUS,
       );
 
       if (
         loot &&
-        unit.activeCommand?.type === CommandType.PICKUP &&
-        (unit.activeCommand as PickupCommand).lootId === loot.id
+        currentUnit.activeCommand?.type === CommandType.PICKUP &&
+        (currentUnit.activeCommand as PickupCommand).lootId === loot.id
       ) {
         const baseTime = ITEMS.BASE_PICKUP_TIME;
         const duration =
-          baseTime * (SPEED_NORMALIZATION_CONST / unit.stats.speed);
-        unit.state = UnitState.Channeling;
-        unit.channeling = {
-          action: "Pickup",
-          remaining: duration,
-          totalDuration: duration,
-          targetId: loot.id,
+          baseTime * (SPEED_NORMALIZATION_CONST / currentUnit.stats.speed);
+        currentUnit = {
+          ...currentUnit,
+          state: UnitState.Channeling,
+          channeling: {
+            action: "Pickup",
+            remaining: duration,
+            totalDuration: duration,
+            targetId: loot.id,
+          },
+          path: undefined,
+          targetPos: undefined,
+          activeCommand: undefined,
         };
-        unit.path = undefined;
-        unit.targetPos = undefined;
-        unit.activeCommand = undefined;
-        return true;
+        return { unit: currentUnit, handled: true };
       }
     }
 
     // 2. Objective Interaction
-    if (unit.archetypeId !== "vip" && state.objectives) {
+    if (currentUnit.archetypeId !== "vip" && state.objectives) {
       for (const obj of state.objectives) {
         if (obj.state === "Pending") {
           const isAtTarget =
             obj.targetCell &&
-            Math.floor(unit.pos.x) === obj.targetCell.x &&
-            Math.floor(unit.pos.y) === obj.targetCell.y;
+            Math.floor(currentUnit.pos.x) === obj.targetCell.x &&
+            Math.floor(currentUnit.pos.y) === obj.targetCell.y;
 
           const isClaimedByMe =
-            (unit.activeCommand?.type === CommandType.PICKUP &&
-              (unit.activeCommand as PickupCommand).lootId === obj.id) ||
-            context.claimedObjectives.get(obj.id) === unit.id;
+            (currentUnit.activeCommand?.type === CommandType.PICKUP &&
+              (currentUnit.activeCommand as PickupCommand).lootId === obj.id) ||
+            context.claimedObjectives.get(obj.id) === currentUnit.id;
 
           if (isAtTarget && (!context.claimedObjectives.has(obj.id) || isClaimedByMe)) {
             const baseTime = ITEMS.BASE_COLLECT_TIME;
             const duration =
-              baseTime * (SPEED_NORMALIZATION_CONST / unit.stats.speed);
-            unit.state = UnitState.Channeling;
-            unit.channeling = {
-              action: "Collect",
-              remaining: duration,
-              totalDuration: duration,
-              targetId: obj.id,
+              baseTime * (SPEED_NORMALIZATION_CONST / currentUnit.stats.speed);
+            currentUnit = {
+              ...currentUnit,
+              state: UnitState.Channeling,
+              channeling: {
+                action: "Collect",
+                remaining: duration,
+                totalDuration: duration,
+                targetId: obj.id,
+              },
+              path: undefined,
+              targetPos: undefined,
+              activeCommand: undefined,
             };
-            context.claimedObjectives.set(obj.id, unit.id);
-            unit.path = undefined;
-            unit.targetPos = undefined;
-            unit.activeCommand = undefined;
-            return true;
+            context.claimedObjectives.set(obj.id, currentUnit.id);
+            return { unit: currentUnit, handled: true };
           }
         }
       }
@@ -105,12 +112,12 @@ export class InteractionBehavior implements Behavior {
         });
 
       const isAtExtraction =
-        Math.floor(unit.pos.x) === ext.x && Math.floor(unit.pos.y) === ext.y;
+        Math.floor(currentUnit.pos.x) === ext.x && Math.floor(currentUnit.pos.y) === ext.y;
 
-      const isVipAtExtraction = unit.archetypeId === "vip" && isAtExtraction;
+      const isVipAtExtraction = currentUnit.archetypeId === "vip" && isAtExtraction;
 
       const isExplicitExtract =
-        unit.activeCommand?.type === CommandType.EXTRACT;
+        currentUnit.activeCommand?.type === CommandType.EXTRACT;
 
       if (
         (allObjectivesReady || isVipAtExtraction || isExplicitExtract) &&
@@ -118,26 +125,29 @@ export class InteractionBehavior implements Behavior {
       ) {
         const baseTime = ITEMS.BASE_EXTRACT_TIME;
         const duration =
-          baseTime * (SPEED_NORMALIZATION_CONST / unit.stats.speed);
-        unit.state = UnitState.Channeling;
-        unit.channeling = {
-          action: "Extract",
-          remaining: duration,
-          totalDuration: duration,
+          baseTime * (SPEED_NORMALIZATION_CONST / currentUnit.stats.speed);
+        currentUnit = {
+          ...currentUnit,
+          state: UnitState.Channeling,
+          channeling: {
+            action: "Extract",
+            remaining: duration,
+            totalDuration: duration,
+          },
+          path: undefined,
+          targetPos: undefined,
+          activeCommand: undefined,
         };
-        unit.path = undefined;
-        unit.targetPos = undefined;
-        unit.activeCommand = undefined;
-        return true;
+        return { unit: currentUnit, handled: true };
       }
     }
 
     // 4. Use Item Interaction
-    if (unit.activeCommand?.type === CommandType.USE_ITEM) {
-      context.executeCommand(unit, unit.activeCommand, state, true, _director);
-      return true;
+    if (currentUnit.activeCommand?.type === CommandType.USE_ITEM) {
+      currentUnit = context.executeCommand(currentUnit, currentUnit.activeCommand, state, true, _director);
+      return { unit: currentUnit, handled: true };
     }
 
-    return false;
+    return { unit: currentUnit, handled: false };
   }
 }

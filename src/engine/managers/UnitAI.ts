@@ -1,4 +1,4 @@
-import { GameState, Unit, UnitState, Door, Command } from "../../shared/types";
+import { GameState, Unit, UnitState, Door, Command, Vector2 } from "../../shared/types";
 import { GameGrid } from "../GameGrid";
 import { LineOfSight } from "../LineOfSight";
 import { VipAI } from "../ai/VipAI";
@@ -18,6 +18,7 @@ export interface AIContext {
   totalFloorCells: number;
   gridState?: Uint8Array;
   claimedObjectives: Map<string, string>; // objectiveId -> unitId
+  explorationClaims: Map<string, Vector2>; // unitId -> targetCell
   itemAssignments: Map<string, string>;
   executeCommand: (
     unit: Unit,
@@ -25,7 +26,7 @@ export interface AIContext {
     state: GameState,
     isManual: boolean,
     director?: IDirector,
-  ) => void;
+  ) => Unit;
 }
 
 export class UnitAI {
@@ -61,9 +62,11 @@ export class UnitAI {
     if (unit.state === UnitState.Extracted || unit.state === UnitState.Dead)
       return unit;
 
+    let currentUnit = { ...unit };
+
     // 1. VIP Specific AI
-    const vipHandled = this.vipBehavior.evaluate(
-      unit,
+    const vipResult = this.vipBehavior.evaluate(
+      currentUnit,
       state,
       dt,
       doors,
@@ -71,33 +74,41 @@ export class UnitAI {
       context,
       director,
     );
-    if (vipHandled && !unit.aiEnabled) return unit;
+    currentUnit = vipResult.unit;
+    if (vipResult.handled && !currentUnit.aiEnabled) return currentUnit;
 
-    if (unit.state === UnitState.Channeling) return unit;
+    if (currentUnit.state === UnitState.Channeling) return currentUnit;
 
     // 2. Exploration target cleanup (Pre-processing)
-    if (unit.explorationTarget) {
+    // ... (rest of the code will be updated by another replace or I should include more)
+    if (currentUnit.explorationTarget) {
       if (
         isCellDiscovered(
           state,
-          Math.floor(unit.explorationTarget.x),
-          Math.floor(unit.explorationTarget.y),
+          Math.floor(currentUnit.explorationTarget.x),
+          Math.floor(currentUnit.explorationTarget.y),
         )
       ) {
-        unit.explorationTarget = undefined;
-        if (unit.state === UnitState.Moving) {
-          unit.path = undefined;
-          unit.targetPos = undefined;
-          unit.state = UnitState.Idle;
-          unit.activeCommand = undefined;
+        currentUnit = {
+          ...currentUnit,
+          explorationTarget: undefined,
+        };
+        if (currentUnit.state === UnitState.Moving) {
+          currentUnit = {
+            ...currentUnit,
+            path: undefined,
+            targetPos: undefined,
+            state: UnitState.Idle,
+            activeCommand: undefined,
+          };
         }
       }
     }
 
     // 3. Sequential behavior evaluation
     for (const behavior of this.behaviors) {
-      const handled = behavior.evaluate(
-        unit,
+      const result = behavior.evaluate(
+        currentUnit,
         state,
         dt,
         doors,
@@ -105,9 +116,10 @@ export class UnitAI {
         context,
         director,
       );
-      if (handled) break;
+      currentUnit = result.unit;
+      if (result.handled) break;
     }
 
-    return unit;
+    return currentUnit;
   }
 }

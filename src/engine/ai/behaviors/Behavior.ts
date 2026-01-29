@@ -3,6 +3,11 @@ import { AIContext } from "../../managers/UnitAI";
 import { PRNG } from "../../../shared/PRNG";
 import { IDirector } from "../../interfaces/IDirector";
 
+export interface BehaviorResult {
+  unit: Unit;
+  handled: boolean;
+}
+
 export interface Behavior {
   evaluate(
     unit: Unit,
@@ -12,5 +17,5 @@ export interface Behavior {
     prng: PRNG,
     context: AIContext,
     director?: IDirector,
-  ): boolean;
+  ): BehaviorResult;
 }

@@ -223,11 +223,19 @@ export class UnitManager {
       }
     }
 
+    const explorationClaims = new Map<string, Vector2>();
+    for (const u of state.units) {
+      if (u.explorationTarget) {
+        explorationClaims.set(u.id, u.explorationTarget);
+      }
+    }
+
     const aiContext: AIContext = {
       agentControlEnabled: this.agentControlEnabled,
       totalFloorCells: this.totalFloorCells,
       gridState: state.gridState, // Pass gridState instead of sets
       claimedObjectives,
+      explorationClaims,
       itemAssignments,
       executeCommand: (u, cmd, s, isManual, dir) =>
         this.commandExecutor.executeCommand(u, cmd, s, isManual, dir),
@@ -252,7 +260,7 @@ export class UnitManager {
         const nextQueue = currentUnit.commandQueue.slice(1);
         currentUnit = { ...currentUnit, commandQueue: nextQueue };
         if (nextCmd) {
-          this.commandExecutor.executeCommand(
+          currentUnit = this.commandExecutor.executeCommand(
             currentUnit,
             nextCmd,
             state,
@@ -335,12 +343,10 @@ export class UnitManager {
         if (channeling.remaining <= 0) {
           if (channeling.action === "Extract") {
             if (currentUnit.carriedObjectiveId) {
-              const obj = state.objectives.find(
-                (o) => o.id === currentUnit.carriedObjectiveId,
+              const objectiveId = currentUnit.carriedObjectiveId;
+              state.objectives = state.objectives.map((o) =>
+                o.id === objectiveId ? { ...o, state: "Completed" as const } : o,
               );
-              if (obj) {
-                obj.state = "Completed";
-              }
             }
             return {
               ...currentUnit,
@@ -349,9 +355,8 @@ export class UnitManager {
             };
           } else if (channeling.action === "Collect") {
             if (channeling.targetId) {
-              const obj = state.objectives.find(
-                (o) => o.id === channeling.targetId,
-              );
+              const targetId = channeling.targetId;
+              const obj = state.objectives.find((o) => o.id === targetId);
               if (obj) {
                 if (obj.id.startsWith("artifact")) {
                   currentUnit = {
@@ -360,7 +365,9 @@ export class UnitManager {
                   };
                   currentUnit = this.statsManager.recalculateStats(currentUnit);
                 } else {
-                  obj.state = "Completed";
+                  state.objectives = state.objectives.map((o) =>
+                    o.id === targetId ? { ...o, state: "Completed" as const } : o,
+                  );
                 }
               }
             }
@@ -407,6 +414,11 @@ export class UnitManager {
                 state.squadInventory[cmd.itemId] = count - 1;
                 if (director) {
                   director.handleUseItem(state, cmd);
+                  // Sync back hp in case of self-heal (director mutates state.units)
+                  const mutated = state.units.find((u) => u.id === currentUnit.id);
+                  if (mutated) {
+                    currentUnit = { ...currentUnit, hp: mutated.hp };
+                  }
                 }
               }
             }
@@ -503,7 +515,7 @@ export class UnitManager {
     state: GameState,
     isManual: boolean = true,
     director?: IDirector,
-  ) {
-    this.commandExecutor.executeCommand(unit, cmd, state, isManual, director);
+  ): Unit {
+    return this.commandExecutor.executeCommand(unit, cmd, state, isManual, director);
   }
 }
