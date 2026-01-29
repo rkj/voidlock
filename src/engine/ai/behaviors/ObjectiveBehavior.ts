@@ -173,7 +173,9 @@ export class ObjectiveBehavior implements Behavior {
         return !assignedUnitId || assignedUnitId === currentUnit.id;
       });
       if (pendingObjectives.length > 0) {
+        console.log(`ObjectiveBehavior: found ${pendingObjectives.length} pending objectives`);
         let bestObj: { obj: Objective; dist: number } | null = null;
+        // ...
 
         for (const obj of pendingObjectives) {
           let targetPos: Vector2 | null = null;

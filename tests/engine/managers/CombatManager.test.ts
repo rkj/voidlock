@@ -59,6 +59,7 @@ describe("CombatManager", () => {
       units: [unit],
       enemies: [enemy],
       visibleCells: ["1,1", "2,1"],
+      map: { width: 10, height: 10, cells: [] },
     } as unknown as GameState;
 
     vi.mocked(mockLos.hasLineOfFire).mockReturnValue(true);
@@ -84,6 +85,7 @@ describe("CombatManager", () => {
       units: [unit],
       enemies: [enemy],
       visibleCells: ["1,1", "2,1"],
+      map: { width: 10, height: 10, cells: [] },
     } as unknown as GameState;
 
     vi.mocked(mockLos.hasLineOfFire).mockReturnValue(false);
@@ -109,6 +111,7 @@ describe("CombatManager", () => {
       units: [unit],
       enemies: [enemy],
       visibleCells: ["1,1", "2,1"],
+      map: { width: 10, height: 10, cells: [] },
     } as unknown as GameState;
 
     vi.mocked(mockLos.hasLineOfFire).mockReturnValue(true);
