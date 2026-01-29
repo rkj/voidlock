@@ -25,6 +25,9 @@ export function isMapFullyDiscovered(
         }
       }
     }
+    if (discoveredFloors >= totalFloorCells) {
+       console.log(`isMapFullyDiscovered: true (discoveredFloors=${discoveredFloors}, totalFloorCells=${totalFloorCells})`);
+    }
     return discoveredFloors >= totalFloorCells;
   }
   const discoveredFloors = state.discoveredCells.filter((key) => {
@@ -80,6 +83,7 @@ export function findClosestUndiscoveredCell(
 
   let fallbackCell: Vector2 | null = null;
   let head = 0;
+  console.log(`findClosestUndiscoveredCell from ${startX},${startY}. Queue length: ${queue.length}`);
 
   while (head < queue.length) {
     const curr = queue[head++];
@@ -94,6 +98,7 @@ export function findClosestUndiscoveredCell(
       );
 
       if (!isClaimed && !tooCloseToUnit) {
+        console.log(`Found target: ${curr.x},${curr.y}`);
         return { x: curr.x, y: curr.y };
       }
 
@@ -118,13 +123,18 @@ export function findClosestUndiscoveredCell(
       ) {
         const nKey = `${n.x},${n.y}`;
         if (!visited.has(nKey) && gameGrid.isWalkable(n.x, n.y)) {
-          if (gameGrid.canMove(curr.x, curr.y, n.x, n.y, doors, true)) {
+          const canMove = gameGrid.canMove(curr.x, curr.y, n.x, n.y, doors, true);
+          if (canMove) {
             visited.add(nKey);
             queue.push({ x: n.x, y: n.y });
           }
         }
       }
     }
+  }
+
+  if (!fallbackCell) {
+    console.log("No undiscovered cell found.");
   }
 
   return fallbackCell;
