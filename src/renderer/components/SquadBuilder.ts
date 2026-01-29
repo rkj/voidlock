@@ -277,7 +277,7 @@ export class SquadBuilder {
           }),
         );
       }
-      card.innerHTML = `<strong>${soldier.name}</strong><div style="font-size:0.75em; color:var(--color-text-muted);">${arch?.name || soldier.archetypeId} Lvl ${soldier.level} | Status: ${soldier.status}</div>`;
+      card.innerHTML = `<strong>${soldier.name} (${soldier.tacticalNumber})</strong><div style="font-size:0.75em; color:var(--color-text-muted);">${arch?.name || soldier.archetypeId} Lvl ${soldier.level} | Status: ${soldier.status}</div>`;
 
       if (isDead && this.isCampaign) {
         const state = this.context.campaignManager.getState();
@@ -406,7 +406,7 @@ export class SquadBuilder {
         if (this.isCampaign && soldier.id) {
           const state = this.context.campaignManager.getState();
           const rs = state?.roster.find((r) => r.id === soldier.id);
-          if (rs) name = rs.name;
+          if (rs) name = `${rs.name} (${rs.tacticalNumber})`;
         }
         slot.innerHTML = `<strong style="color:var(--color-primary);">${name}</strong><div class="slot-remove" title="Remove">X</div>`;
         slot.querySelector(".slot-remove")?.addEventListener("click", (e) => {

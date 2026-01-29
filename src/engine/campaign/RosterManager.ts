@@ -1,6 +1,7 @@
 import { CampaignState, CampaignSoldier } from "../../shared/campaign_types";
 import { ArchetypeLibrary, EquipmentState } from "../../shared/types";
 import { DEFAULT_ARCHETYPES, CAMPAIGN_DEFAULTS } from "../config/CampaignDefaults";
+import { NameGenerator } from "../../shared/utils/NameGenerator";
 
 /**
  * Handles roster-related logic for the campaign.
@@ -18,7 +19,8 @@ export class RosterManager {
       const arch = ArchetypeLibrary[archId];
       roster.push({
         id: `soldier_${i}`,
-        name: `Recruit ${i + 1}`,
+        name: NameGenerator.generate(),
+        tacticalNumber: i + 1,
         archetypeId: archId,
         hp: arch ? arch.baseHp : 100,
         maxHp: arch ? arch.baseHp : 100,
@@ -46,7 +48,7 @@ export class RosterManager {
   public recruitSoldier(
     state: CampaignState,
     archetypeId: string,
-    name: string,
+    name?: string,
   ): string {
     const COST = 100;
     if (state.scrap < COST) {
@@ -58,9 +60,16 @@ export class RosterManager {
       throw new Error(`Invalid archetype ID: ${archetypeId}`);
     }
 
+    const maxTacticalNumber = state.roster.length > 0
+      ? Math.max(...state.roster.map((s) => s.tacticalNumber || 0))
+      : 0;
+    const tacticalNumber = maxTacticalNumber + 1;
+    const finalName = name || NameGenerator.generate();
+
     const newSoldier: CampaignSoldier = {
       id: `soldier_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
-      name,
+      name: finalName,
+      tacticalNumber,
       archetypeId,
       hp: arch.baseHp,
       maxHp: arch.baseHp,

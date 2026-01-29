@@ -61,6 +61,7 @@ export interface CampaignOverrides {
 export interface CampaignSoldier {
   id: string;
   name: string;
+  tacticalNumber: number;
   archetypeId: string;
   hp: number;
   maxHp: number;

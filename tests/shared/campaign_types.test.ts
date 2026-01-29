@@ -40,6 +40,7 @@ describe("Campaign Types", () => {
     const soldier: CampaignSoldier = {
       id: "s1",
       name: "John Doe",
+      tacticalNumber: 1,
       archetypeId: "assault",
       hp: 100,
       maxHp: 100,
