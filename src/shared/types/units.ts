@@ -170,16 +170,16 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
 };
 
 export enum EnemyType {
-  XenoMite = "Xeno-Mite",
-  WarriorDrone = "Warrior-Drone",
-  PraetorianGuard = "Praetorian-Guard",
-  SpitterAcid = "Spitter-Acid",
-  SwarmMelee = "SwarmMelee",
-  Hive = "Hive",
-  Boss = "Boss",
-  AlienScout = "alien_scout",
-  Grunt = "Grunt",
-  Melee = "Melee",
+  XenoMite = "xeno-mite",
+  WarriorDrone = "warrior-drone",
+  PraetorianGuard = "praetorian-guard",
+  SpitterAcid = "spitter-acid",
+  SwarmMelee = "swarm-melee",
+  Hive = "hive",
+  Boss = "boss",
+  AlienScout = "alien-scout",
+  Grunt = "grunt",
+  Melee = "melee",
 }
 
 export const EnemyArchetypeLibrary: {

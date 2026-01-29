@@ -62,7 +62,7 @@ describe("Regression a7qk - New Accuracy Formula", () => {
       pos: { x: 10.5, y: 0.5 }, // distance = 10.0
       hp: 10000,
       maxHp: 10000,
-      type: "Xeno-Mite" as any,
+      type: "xeno-mite" as any,
       damage: 0,
       fireRate: 1000,
       accuracy: 100,
@@ -120,7 +120,7 @@ describe("Regression a7qk - New Accuracy Formula", () => {
       pos: { x: 5.5, y: 0.5 }, // distance = 5.0
       hp: 10000,
       maxHp: 10000,
-      type: "Xeno-Mite" as any,
+      type: "xeno-mite" as any,
       damage: 0,
       fireRate: 1000,
       accuracy: 100,

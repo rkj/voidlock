@@ -150,7 +150,7 @@ describe("Shared Types", () => {
       difficulty: 1,
     };
     expect(enemy.id).toBe("z1");
-    expect(enemy.type).toBe("SwarmMelee");
+    expect(enemy.type).toBe("swarm-melee");
     expect(enemy.hp).toBe(30);
     expect(enemy.damage).toBe(5);
     expect(enemy.attackRange).toBe(1);

@@ -142,7 +142,7 @@ export class UnitLayer implements RenderLayer {
         }
       } else {
         ctx.beginPath();
-        if (enemy.type === "Hive") {
+        if (enemy.type === "hive") {
           const icon = this.assets.iconImages.Hive;
           if (icon && this.sharedState.unitStyle === UnitStyle.Sprites) {
             const hiveSize = cellSize * 0.8;
@@ -191,16 +191,16 @@ export class UnitLayer implements RenderLayer {
     size: number,
     type: string,
   ) {
-    if (type === "Xeno-Mite") {
+    if (type === "xeno-mite") {
       ctx.moveTo(x, y - size);
       ctx.lineTo(x + size, y + size);
       ctx.lineTo(x - size, y + size);
-    } else if (type === "Warrior-Drone") {
+    } else if (type === "warrior-drone") {
       ctx.moveTo(x, y - size * 1.2);
       ctx.lineTo(x + size * 1.2, y);
       ctx.lineTo(x, y + size * 1.2);
       ctx.lineTo(x - size * 1.2, y);
-    } else if (type === "Spitter-Acid") {
+    } else if (type === "spitter-acid") {
       for (let i = 0; i < 8; i++) {
         const angle = (i * Math.PI) / 4;
         const px = x + Math.cos(angle) * size * 1.1;
@@ -208,7 +208,7 @@ export class UnitLayer implements RenderLayer {
         if (i === 0) ctx.moveTo(px, py);
         else ctx.lineTo(px, py);
       }
-    } else if (type === "Praetorian-Guard") {
+    } else if (type === "praetorian-guard") {
       for (let i = 0; i < 6; i++) {
         const angle = (i * Math.PI) / 3;
         const px = x + Math.cos(angle) * size * 1.5;

@@ -109,7 +109,7 @@ describe("Weapon System", () => {
     } as Unit;
     const enemy = {
       id: "e1",
-      type: "Xeno-Mite",
+      type: "xeno-mite",
       pos: { x: 1.5, y: 1.5 }, // Same cell
       hp: 50,
       maxHp: 50,
@@ -170,7 +170,7 @@ describe("Weapon System", () => {
     } as Unit;
     const enemy = {
       id: "e1",
-      type: "Xeno-Mite",
+      type: "xeno-mite",
       pos: { x: 4.5, y: 1.5 }, // 3 tiles away
       hp: 50,
       maxHp: 50,
