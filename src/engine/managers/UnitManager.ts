@@ -61,14 +61,26 @@ export class UnitManager {
     this.commandExecutor = new CommandExecutor(pathfinder);
   }
 
+  /**
+   * Recalculates unit stats based on archetypes, equipment, and carried objectives.
+   * @param unit The unit to update
+   * @returns A new unit reference with updated stats
+   */
   public recalculateStats(unit: Unit): Unit {
     return this.statsManager.recalculateStats(unit);
   }
 
+  /**
+   * Returns the combat manager instance used by the unit manager.
+   */
   public getCombatManager(): CombatManager {
     return this.combatManager;
   }
 
+  /**
+   * Main update loop for all units. Handles AI, movement, combat, and command execution.
+   * Uses an immutable pattern to update the game state.
+   */
   public update(
     state: GameState,
     dt: number,
@@ -574,6 +586,15 @@ export class UnitManager {
 
   }
 
+  /**
+   * Executes a specific command for a unit, updating its state or path.
+   * @param unit The unit receiving the command
+   * @param cmd The command to execute
+   * @param state The current game state
+   * @param isManual Whether the command was issued by a player (disables AI)
+   * @param director Optional director for global ability effects
+   * @returns A new unit reference with the command applied
+   */
   public executeCommand(
     unit: Unit,
     cmd: Command,

@@ -25,10 +25,16 @@ export class EnemyManager {
     this.rangedAI = new RangedKiteAI();
   }
 
+  /**
+   * Adds a new enemy to the game state.
+   */
   public addEnemy(state: GameState, enemy: Enemy) {
     state.enemies.push(enemy);
   }
 
+  /**
+   * Main update loop for all enemies. Handles AI, movement, combat, and mine explosions.
+   */
   public update(
     state: GameState,
     dt: number,

@@ -136,6 +136,20 @@ export class SpaceshipGenerator {
     return map;
   }
 
+  /**
+   * Generates a spaceship-style map using a constructive spanning-tree algorithm.
+   *
+   * The generation process follows these high-level steps:
+   * 1. Grid Partitioning: Divide the map area into a grid of nodes (potential rooms).
+   * 2. Key Node Selection: Pick specific nodes for Squad Spawn, Extraction, and Objectives
+   *    in different quadrants to maximize exploration.
+   * 3. Spanning Tree Connectivity: Use Prim's algorithm with random weights to find a
+   *    spanning tree that guarantees all key nodes (and a set density of other nodes) are connected.
+   * 4. Cycle Injection: Randomly add additional edges between connected nodes to create
+   *    loops and tactical alternatives, reducing "bottleneck" corridors.
+   * 5. Room & Corridor Realization: Carve rooms out of nodes and connect them with 1-cell wide corridors.
+   * 6. Feature Placement: Assign mission entities (Spawn Points, Loot, etc.) to the carved-out rooms.
+   */
   private generateConstructive(spawnPointCount: number) {
     const nodeSize = 4;
     const cols = Math.floor(this.width / nodeSize);

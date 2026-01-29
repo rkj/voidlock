@@ -4,6 +4,10 @@ import { LineOfSight } from "../LineOfSight";
 export class VisibilityManager {
   constructor(private los: LineOfSight) {}
 
+  /**
+   * Updates the global visibility bitset (gridState) based on the positions of all active units.
+   * bit 0: currently visible, bit 1: discovered (persistent fog-of-war).
+   */
   public updateVisibility(state: GameState) {
     const width = state.map.width;
     const height = state.map.height;

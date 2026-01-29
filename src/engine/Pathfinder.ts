@@ -7,6 +7,21 @@ export class Pathfinder {
     private doors: Map<string, Door>,
   ) {}
 
+  /**
+   * Finds a path between two points on the grid using Breadth-First Search (BFS).
+   *
+   * The algorithm respects:
+   * 1. Cell type (must be Floor).
+   * 2. Boundaries (must not be a wall).
+   * 3. Doors:
+   *    - If allowClosedDoors is false: Only Open or Destroyed doors are traversable.
+   *    - If allowClosedDoors is true: Any non-Locked door is traversable (used for intent-based pathing).
+   *
+   * @param start Starting coordinates
+   * @param end Target coordinates
+   * @param allowClosedDoors Whether to consider closed (but unlocked) doors as walkable
+   * @returns Array of coordinates representing the path (excluding start), or null if no path exists.
+   */
   findPath(
     start: Vector2,
     end: Vector2,

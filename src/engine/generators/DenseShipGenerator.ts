@@ -53,6 +53,21 @@ export class DenseShipGenerator {
     return [p1, p2].sort().join("--");
   }
 
+  /**
+   * Generates a high-density "Dense-Ship" map layout designed for maximum floor coverage.
+   *
+   * The algorithm follows a two-stage approach:
+   * 1. Frame Generation (buildFrame): Create a primary "spine" of horizontal and vertical corridors
+   *    to establish the map's backbone and guarantee some connectivity.
+   * 2. Room Filling (fillPass): Iteratively scan the map and attempt to place rooms of various
+   *    shapes adjacent to existing floors (starting from the spine).
+   *
+   * Features:
+   * - Greedy Growth: Rooms expand until they hit an obstacle or the map edge.
+   * - High Connectivity: Every new room must connect to a parent floor cell via a door.
+   * - High Density: The algorithm continues filling passes until no more rooms can be placed.
+   * - Tactical Complexity: Results in a packed, complex layout with many rooms and short connections.
+   */
   public generate(
     spawnPointCount: number = 2,
     _bonusLootCount: number = 0,
