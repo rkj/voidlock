@@ -141,7 +141,7 @@ export class BarracksScreen {
 
       item.innerHTML = `
         <div style="display:flex; justify-content:space-between; align-items:center;">
-          <strong style="color:${this.selectedSoldierId === soldier.id ? "var(--color-accent)" : "var(--color-text)"};">${soldier.name}</strong>
+          <strong style="color:${this.selectedSoldierId === soldier.id ? "var(--color-accent)" : "var(--color-text)"};">${soldier.name} (${soldier.tacticalNumber})</strong>
           <span class="badge">LVL ${soldier.level}</span>
         </div>
         <div style="font-size:0.75em; color:var(--color-text-muted); margin-top:4px; display:flex; justify-content:space-between;">
@@ -201,7 +201,7 @@ export class BarracksScreen {
 
     const nameInfo = document.createElement("div");
     nameInfo.innerHTML = `
-      <h3 style="margin:0; font-size:1.5em; color:var(--color-accent);">${soldier.name}</h3>
+      <h3 style="margin:0; font-size:1.5em; color:var(--color-accent);">${soldier.name} (${soldier.tacticalNumber})</h3>
       <div style="color:var(--color-text-muted);">${ArchetypeLibrary[soldier.archetypeId]?.name} Rank ${soldier.level}</div>
     `;
     header.appendChild(nameInfo);

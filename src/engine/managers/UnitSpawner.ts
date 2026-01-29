@@ -65,6 +65,7 @@ export class UnitSpawner {
       units.push({
         id: soldierConfig.id || `${arch.id}-${unitCount++}`,
         name: soldierConfig.name || arch.name,
+        tacticalNumber: soldierConfig.tacticalNumber,
         archetypeId: arch.id,
         pos: {
           x: startX + (this.prng.next() - 0.5),

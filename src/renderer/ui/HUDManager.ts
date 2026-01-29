@@ -550,7 +550,10 @@ export class HUDManager {
       if (iconSpan.textContent !== policyIcon) iconSpan.textContent = policyIcon;
 
       const idSpan = el.querySelector(".u-id") as HTMLElement;
-      if (idSpan.textContent !== unit.id) idSpan.textContent = unit.id;
+      const displayName = unit.name && unit.tacticalNumber 
+        ? `${unit.name} (${unit.tacticalNumber})`
+        : unit.name || unit.id;
+      if (idSpan.textContent !== displayName) idSpan.textContent = displayName;
 
       const burdenSpan = el.querySelector(".u-burden") as HTMLElement;
       if (burdenSpan.textContent !== burdenIcon)

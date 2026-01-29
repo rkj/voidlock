@@ -947,6 +947,7 @@ export class GameApp {
           this.currentSquad.soldiers = healthy.map((s) => ({
             id: s.id,
             name: s.name,
+            tacticalNumber: s.tacticalNumber,
             archetypeId: s.archetypeId,
             hp: s.hp,
             maxHp: s.maxHp,

@@ -325,11 +325,12 @@ export class CampaignManager {
           return null;
         }
         const soldierCandidate = s as Record<string, unknown>;
-        const archetypeId = soldierCandidate.archetypeId as string;
+        const archetypeId = (soldierCandidate.archetypeId as string) || "assault";
         const arch = ArchetypeLibrary[archetypeId];
         return {
           id: (soldierCandidate.id as string) || `soldier_recovered_${index}`,
           name: (soldierCandidate.name as string) || `Recovered Recruit ${index + 1}`,
+          tacticalNumber: typeof soldierCandidate.tacticalNumber === "number" ? soldierCandidate.tacticalNumber : index + 1,
           archetypeId: archetypeId,
           hp: typeof soldierCandidate.hp === "number" ? soldierCandidate.hp : arch ? arch.baseHp : 100,
           maxHp:
