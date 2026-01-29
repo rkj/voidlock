@@ -12,6 +12,17 @@ export interface EscortSlot {
 }
 
 export class FormationManager {
+  /**
+   * Assigns escort roles and target slots to units following a target unit (e.g., a VIP).
+   *
+   * The formation is dynamic and rotates based on the target's current heading:
+   * 1. Vanguard (Index 0): Positioned directly in front of the target.
+   * 2. Rearguard (Index 1): Positioned directly behind the target.
+   * 3. Bodyguards (Index 2+): Positioned to the sides of the target, alternating left/right
+   *    and spreading out if multiple bodyguards are present.
+   *
+   * Escorts synchronize their speed with the target when they are close to their assigned slots.
+   */
   public assignEscortRoles(
     escorts: Unit[],
     targetUnit: Unit,

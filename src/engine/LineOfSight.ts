@@ -8,6 +8,10 @@ export class LineOfSight {
     private doors: Map<string, Door>,
   ) {}
 
+  /**
+   * Computes all visible cells from a given origin within an optional range.
+   * Uses geometric raycasting to determine visibility.
+   */
   public computeVisibleCells(origin: Vector2, range?: number): string[] {
     const visible: Set<string> = new Set();
     const originCellX = Math.floor(origin.x);
@@ -42,6 +46,10 @@ export class LineOfSight {
     return Array.from(visible);
   }
 
+  /**
+   * Updates the bitset gridState with visibility and discovery info from an origin.
+   * bit 0: visible, bit 1: discovered.
+   */
   public updateVisibleCells(
     origin: Vector2,
     gridState: Uint8Array,
@@ -76,6 +84,12 @@ export class LineOfSight {
     }
   }
 
+  /**
+   * Determines if there is a clear line of sight between two points.
+   * LOS uses "at least one ray" logic: if any ray from the sampled fat ray
+   * passes through, the target is visible.
+   * Blocks on walls and non-open doors. Also accounts for door struts (outer 1/3 of boundary).
+   */
   public hasLineOfSight(start: Vector2, end: Vector2): boolean {
     const rays = this.getSampledRays(start, end);
     return rays.some((ray) =>
@@ -103,6 +117,11 @@ export class LineOfSight {
     );
   }
 
+  /**
+   * Determines if there is a clear line of fire between two points.
+   * LOF uses "all rays" logic: every ray in the fat ray must be clear.
+   * Strictly requires doors to be fully Open or Destroyed.
+   */
   public hasLineOfFire(start: Vector2, end: Vector2): boolean {
     if (
       Math.floor(start.x) === Math.floor(end.x) &&
@@ -131,6 +150,10 @@ export class LineOfSight {
     );
   }
 
+  /**
+   * Samples a "fat ray" between two points using the UNIT_RADIUS.
+   * Returns three rays: center, and two parallel offset rays.
+   */
   private getSampledRays(
     start: Vector2,
     end: Vector2,
@@ -161,6 +184,10 @@ export class LineOfSight {
     ];
   }
 
+  /**
+   * Core raycasting implementation using Amanatides-Woo algorithm.
+   * Traverses the grid cell-by-cell along the ray.
+   */
   private raycast(
     start: Vector2,
     end: Vector2,

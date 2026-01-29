@@ -48,6 +48,20 @@ export class TreeShipGenerator {
     return [p1, p2].sort().join("--");
   }
 
+  /**
+   * Generates a "Tree-Ship" map layout characterized by a strict tree structure with no cycles.
+   *
+   * The algorithm proceeds as follows:
+   * 1. Skeleton Generation: Create a "spine" or "skeleton" of corridors (Fishbone or Cross pattern).
+   * 2. Growth Frontier: Initialize a frontier of potential room locations adjacent to the skeleton.
+   * 3. Recursive Growth: Iteratively pick locations from the frontier and attempt to place rooms.
+   *    Each room must not collide with existing floors or create cycles (ensured by checking
+   *    that it only connects back to its parent location).
+   * 4. Connectivity: Rooms are connected to their parent cells via doors, ensuring a fully
+   *    connected but loop-free layout (claustrophobic feel).
+   * 5. Feature Placement: Mission entities (Spawn Points, etc.) are distributed across the
+   *    leaf nodes (rooms) of the generated tree.
+   */
   public generate(
     spawnPointCount: number = 1,
     _bonusLootCount: number = 0,

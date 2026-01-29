@@ -4,6 +4,9 @@ import { SCRAP_REWARDS, MISSION_SCALING } from "../config/GameConstants";
 export class LootManager {
   private lootIdCounter: number = 0;
 
+  /**
+   * Spawns a loot item on the map at the given position.
+   */
   public spawnLoot(
     state: GameState,
     itemId: string,
@@ -22,11 +25,17 @@ export class LootManager {
     });
   }
 
+  /**
+   * Removes a loot item from the game state by its ID.
+   */
   public removeLoot(state: GameState, lootId: string) {
     if (!state.loot) return;
     state.loot = state.loot.filter((l) => l.id !== lootId);
   }
 
+  /**
+   * Awards scrap to the squad based on the item picked up.
+   */
   public awardScrap(state: GameState, itemId: string) {
     if (itemId === "scrap_crate") {
       const isBoss = state.nodeType === "Boss";

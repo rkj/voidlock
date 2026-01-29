@@ -7,6 +7,19 @@ import {
 import { SPEED_NORMALIZATION_CONST } from "../config/GameConstants";
 
 export class StatsManager {
+  /**
+   * Recalculates a unit's derived stats (Speed, HP, Accuracy, Fire Rate) based on its
+   * base archetype, equipped items, and carried objectives.
+   *
+   * Formula:
+   * - Speed = Base + Item Bonuses + Burden
+   * - Max HP = Base + Item Bonuses
+   * - Accuracy = Base Aim + Weapon Accuracy + Equipment Bonus
+   * - Fire Rate = Weapon Fire Rate * (Normalization / Speed)
+   *
+   * @param unit The unit to update
+   * @returns A new unit reference if stats changed, otherwise the original reference.
+   */
   public recalculateStats(unit: Unit): Unit {
     const arch = ArchetypeLibrary[unit.archetypeId];
     if (!arch) return unit;

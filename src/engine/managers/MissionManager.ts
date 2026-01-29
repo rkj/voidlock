@@ -90,11 +90,22 @@ export class MissionManager {
         );
       });
 
+      /**
+       * Shuffle candidate cells using the Fisher-Yates algorithm.
+       * This ensures an unbiased random selection of objective locations
+       * from the set of valid floor cells that are sufficiently far from extraction.
+       */
       for (let i = candidates.length - 1; i > 0; i--) {
         const j = this.prng.nextInt(0, i);
         [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
       }
 
+      /**
+       * Determine the number of objectives based on the mission/node type:
+       * - Boss nodes: MISSION_SCALING.OBJECTIVE_COUNT_BOSS (typically 3)
+       * - Elite nodes: MISSION_SCALING.OBJECTIVE_COUNT_ELITE (typically 2)
+       * - Normal/Other: MISSION_SCALING.OBJECTIVE_COUNT_DEFAULT (typically 3, or available candidates)
+       */
       const count =
         nodeType === "Boss"
           ? MISSION_SCALING.OBJECTIVE_COUNT_BOSS

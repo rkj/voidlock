@@ -19,6 +19,11 @@ export class CombatManager {
     private statsManager: StatsManager,
   ) {}
 
+  /**
+   * Updates combat logic for a single unit. Handles target selection,
+   * weapon switching, and attack execution.
+   * @returns An object containing the updated unit and whether it is currently attacking.
+   */
   public update(unit: Unit, state: GameState, prng: PRNG): { unit: Unit; isAttacking: boolean } {
     if (unit.state === UnitState.Extracted || unit.hp <= 0) {
       return { unit, isAttacking: false };
@@ -153,6 +158,7 @@ export class CombatManager {
   /**
    * Universal attack handler for both Units and Enemies.
    * Updates health, lastAttack fields and emits AttackEvents.
+   * @returns True if the attack was executed (cooldown and LOS check passed).
    */
   public handleAttack(
     attacker: Attacker,
@@ -213,6 +219,11 @@ export class CombatManager {
     return false;
   }
 
+  /**
+   * Automatically switches the unit's active weapon based on the distance to visible enemies.
+   * Prioritizes melee weapons for adjacent enemies and ranged weapons for others.
+   * @returns A new unit reference if the active weapon was changed, otherwise the original unit.
+   */
   public updateActiveWeapon(unit: Unit, state: GameState): Unit {
     if (!unit.rightHand && !unit.leftHand) return unit;
 
