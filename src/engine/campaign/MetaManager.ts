@@ -1,7 +1,8 @@
 import { MetaStats } from "../../shared/campaign_types";
 import { StorageProvider } from "../persistence/StorageProvider";
+import { CAMPAIGN_DEFAULTS } from "../config/CampaignDefaults";
 
-const STORAGE_KEY = "voidlock_meta_v1";
+const STORAGE_KEY = CAMPAIGN_DEFAULTS.META_STORAGE_KEY;
 
 /**
  * Manages global statistics tracked across all campaigns.

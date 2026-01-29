@@ -22,8 +22,9 @@ import {
 import { RosterManager } from "./RosterManager";
 import { MissionReconciler } from "./MissionReconciler";
 import { EventManager } from "./EventManager";
+import { CAMPAIGN_DEFAULTS } from "../config/CampaignDefaults";
 
-const STORAGE_KEY = "voidlock_campaign_v1";
+const STORAGE_KEY = CAMPAIGN_DEFAULTS.STORAGE_KEY;
 
 /**
  * Orchestrates the strategic layer of the game.
@@ -146,18 +147,18 @@ export class CampaignManager {
     const roster = this.rosterManager.generateInitialRoster();
 
     this.state = {
-      version: "0.106.17", // Current project version
+      version: CAMPAIGN_DEFAULTS.VERSION,
       seed: effectiveSeed,
       status: "Active",
       rules,
       scrap: rules.startingScrap,
-      intel: 0,
-      currentSector: 1,
+      intel: CAMPAIGN_DEFAULTS.STARTING_INTEL,
+      currentSector: CAMPAIGN_DEFAULTS.STARTING_SECTOR,
       currentNodeId: null,
       nodes,
       roster,
       history: [],
-      unlockedArchetypes: ["assault", "medic", "scout", "heavy"],
+      unlockedArchetypes: [...CAMPAIGN_DEFAULTS.UNLOCKED_ARCHETYPES],
     };
 
     MetaManager.getInstance(this.storage).recordCampaignStarted();

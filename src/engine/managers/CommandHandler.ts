@@ -35,15 +35,14 @@ export class CommandHandler {
 
       const count = state.squadInventory[cmd.itemId] || 0;
       if (count > 0) {
-        for (const id of cmd.unitIds) {
-          const unit = state.units.find((u) => u.id === id);
-          if (unit) {
+        state.units = state.units.map((unit) => {
+          if (cmd.unitIds.includes(unit.id)) {
             if (cmd.queue) {
-              unit.commandQueue = unit.commandQueue.concat(cmd);
+              return { ...unit, commandQueue: unit.commandQueue.concat(cmd) };
             } else {
-              unit.commandQueue = [];
-              this.unitManager.executeCommand(
-                unit,
+              const unitWithEmptyQueue = { ...unit, commandQueue: [] };
+              return this.unitManager.executeCommand(
+                unitWithEmptyQueue,
                 cmd,
                 state,
                 true,
@@ -51,7 +50,8 @@ export class CommandHandler {
               );
             }
           }
-        }
+          return unit;
+        });
       }
       return;
     }
@@ -91,15 +91,14 @@ export class CommandHandler {
       cmd.type === CommandType.ESCORT_UNIT ||
       cmd.type === CommandType.EXTRACT
     ) {
-      for (const id of cmd.unitIds) {
-        const unit = state.units.find((u) => u.id === id);
-        if (unit) {
+      state.units = state.units.map((unit) => {
+        if (cmd.unitIds.includes(unit.id)) {
           if (cmd.queue) {
-            unit.commandQueue = unit.commandQueue.concat(cmd);
+            return { ...unit, commandQueue: unit.commandQueue.concat(cmd) };
           } else {
-            unit.commandQueue = [];
-            this.unitManager.executeCommand(
-              unit,
+            const unitWithEmptyQueue = { ...unit, commandQueue: [] };
+            return this.unitManager.executeCommand(
+              unitWithEmptyQueue,
               cmd,
               state,
               true,
@@ -107,7 +106,8 @@ export class CommandHandler {
             );
           }
         }
-      }
+        return unit;
+      });
     }
   }
 }

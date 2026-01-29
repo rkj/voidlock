@@ -1,5 +1,6 @@
 import { CampaignState, CampaignSoldier } from "../../shared/campaign_types";
 import { ArchetypeLibrary, EquipmentState } from "../../shared/types";
+import { DEFAULT_ARCHETYPES, CAMPAIGN_DEFAULTS } from "../config/CampaignDefaults";
 
 /**
  * Handles roster-related logic for the campaign.
@@ -9,10 +10,10 @@ export class RosterManager {
    * Generates the initial roster of soldiers for a new campaign.
    */
   public generateInitialRoster(): CampaignSoldier[] {
-    const archetypes = ["assault", "medic", "scout", "heavy"];
+    const archetypes = [...DEFAULT_ARCHETYPES];
     const roster: CampaignSoldier[] = [];
 
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < CAMPAIGN_DEFAULTS.INITIAL_ROSTER_SIZE; i++) {
       const archId = archetypes[i % archetypes.length];
       const arch = ArchetypeLibrary[archId];
       roster.push({

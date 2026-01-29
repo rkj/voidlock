@@ -42,13 +42,23 @@ export function findClosestUndiscoveredCell(
   _gridState: Uint8Array | undefined,
   doors: Map<string, Door>,
   gameGrid: GameGrid,
+  explorationClaims?: Map<string, Vector2>,
 ): Vector2 | null {
   const startX = Math.floor(unit.pos.x);
   const startY = Math.floor(unit.pos.y);
 
-  const claimedTargets = state.units
-    .filter((u) => u.id !== unit.id && u.explorationTarget)
-    .map((u) => u.explorationTarget!);
+  const claimedTargets: Vector2[] = [];
+  if (explorationClaims) {
+    for (const [uid, target] of explorationClaims) {
+      if (uid !== unit.id) {
+        claimedTargets.push(target);
+      }
+    }
+  } else {
+    state.units
+      .filter((u) => u.id !== unit.id && u.explorationTarget)
+      .forEach((u) => claimedTargets.push(u.explorationTarget!));
+  }
 
   const otherUnitPositions = state.units
     .filter(

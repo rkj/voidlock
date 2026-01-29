@@ -10,7 +10,7 @@ import {
 } from "../../../shared/types";
 import { AIContext } from "../../managers/UnitAI";
 import { PRNG } from "../../../shared/PRNG";
-import { Behavior } from "./Behavior";
+import { Behavior, BehaviorResult } from "./Behavior";
 import { isCellVisible, isCellDiscovered } from "../../../shared/VisibilityUtils";
 import { IDirector } from "../../interfaces/IDirector";
 import { MathUtils } from "../../../shared/utils/MathUtils";
@@ -24,11 +24,12 @@ export class ObjectiveBehavior implements Behavior {
     _prng: PRNG,
     context: AIContext,
     director?: IDirector,
-  ): boolean {
-    if (unit.archetypeId === "vip") return false;
-    if (unit.state !== UnitState.Idle && !unit.explorationTarget) return false;
-    if (unit.commandQueue.length > 0) return false;
-    if (!context.agentControlEnabled || unit.aiEnabled === false) return false;
+  ): BehaviorResult {
+    let currentUnit = { ...unit };
+    if (currentUnit.archetypeId === "vip") return { unit: currentUnit, handled: false };
+    if (currentUnit.state !== UnitState.Idle && !currentUnit.explorationTarget) return { unit: currentUnit, handled: false };
+    if (currentUnit.commandQueue.length > 0) return { unit: currentUnit, handled: false };
+    if (!context.agentControlEnabled || currentUnit.aiEnabled === false) return { unit: currentUnit, handled: false };
 
     let actionTaken = false;
 
@@ -51,19 +52,19 @@ export class ObjectiveBehavior implements Behavior {
       const targetedIds = state.units
         .filter(
           (u) =>
-            u.id !== unit.id && u.activeCommand?.type === CommandType.PICKUP,
+            u.id !== currentUnit.id && u.activeCommand?.type === CommandType.PICKUP,
         )
         .map((u) => (u.activeCommand as PickupCommand).lootId);
 
       const availableLoot = visibleLoot.filter((l) => {
         if (targetedIds.includes(l.id)) return false;
         const assignedUnitId = context.itemAssignments.get(l.id);
-        return !assignedUnitId || assignedUnitId === unit.id;
+        return !assignedUnitId || assignedUnitId === currentUnit.id;
       });
       const availableObjectives = visibleObjectives.filter((o) => {
         if (targetedIds.includes(o.id)) return false;
         const assignedUnitId = context.itemAssignments.get(o.id);
-        return !assignedUnitId || assignedUnitId === unit.id;
+        return !assignedUnitId || assignedUnitId === currentUnit.id;
       });
 
       const items = [
@@ -81,18 +82,18 @@ export class ObjectiveBehavior implements Behavior {
 
       if (items.length > 0) {
         const closest = items.sort(
-          (a, b) => MathUtils.getDistance(unit.pos, a.pos) - MathUtils.getDistance(unit.pos, b.pos),
+          (a, b) => MathUtils.getDistance(currentUnit.pos, a.pos) - MathUtils.getDistance(currentUnit.pos, b.pos),
         )[0];
 
         if (closest.type === "objective") {
-          context.claimedObjectives.set(closest.id, unit.id);
+          context.claimedObjectives.set(closest.id, currentUnit.id);
         }
 
-        context.executeCommand(
-          unit,
+        currentUnit = context.executeCommand(
+          currentUnit,
           {
             type: CommandType.PICKUP,
-            unitIds: [unit.id],
+            unitIds: [currentUnit.id],
             lootId: closest.id,
             label: closest.type === "objective" ? "Recovering" : "Picking up",
           },
@@ -115,7 +116,7 @@ export class ObjectiveBehavior implements Behavior {
           return false;
 
         const assignedUnitId = context.itemAssignments.get(o.id);
-        return !assignedUnitId || assignedUnitId === unit.id;
+        return !assignedUnitId || assignedUnitId === currentUnit.id;
       });
       if (pendingObjectives.length > 0) {
         let bestObj: { obj: Objective; dist: number } | null = null;
@@ -145,7 +146,7 @@ export class ObjectiveBehavior implements Behavior {
           }
 
           if (targetPos) {
-            const dist = MathUtils.getDistance(unit.pos, targetPos);
+            const dist = MathUtils.getDistance(currentUnit.pos, targetPos);
             if (!bestObj || dist < bestObj.dist) {
               bestObj = { obj, dist };
             }
@@ -153,7 +154,7 @@ export class ObjectiveBehavior implements Behavior {
         }
 
         if (bestObj) {
-          context.claimedObjectives.set(bestObj.obj.id, unit.id);
+          context.claimedObjectives.set(bestObj.obj.id, currentUnit.id);
           let target = { x: 0, y: 0 };
           if (
             (bestObj.obj.kind === "Recover" || bestObj.obj.kind === "Escort") &&
@@ -168,8 +169,8 @@ export class ObjectiveBehavior implements Behavior {
           }
 
           if (
-            Math.floor(unit.pos.x) !== target.x ||
-            Math.floor(unit.pos.y) !== target.y
+            Math.floor(currentUnit.pos.x) !== target.x ||
+            Math.floor(currentUnit.pos.y) !== target.y
           ) {
             const label =
               bestObj.obj.kind === "Recover"
@@ -177,11 +178,11 @@ export class ObjectiveBehavior implements Behavior {
                 : bestObj.obj.kind === "Escort"
                   ? "Escorting"
                   : "Hunting";
-            context.executeCommand(
-              unit,
+            currentUnit = context.executeCommand(
+              currentUnit,
               {
                 type: CommandType.MOVE_TO,
-                unitIds: [unit.id],
+                unitIds: [currentUnit.id],
                 target,
                 label,
               },
@@ -205,17 +206,17 @@ export class ObjectiveBehavior implements Behavior {
 
       if (isExtDiscovered) {
         const unitCurrentCell = {
-          x: Math.floor(unit.pos.x),
-          y: Math.floor(unit.pos.y),
+          x: Math.floor(currentUnit.pos.x),
+          y: Math.floor(currentUnit.pos.y),
         };
 
         if (unitCurrentCell.x !== ext.x || unitCurrentCell.y !== ext.y) {
-          unit.explorationTarget = undefined;
-          context.executeCommand(
-            unit,
+          currentUnit = { ...currentUnit, explorationTarget: undefined };
+          currentUnit = context.executeCommand(
+            currentUnit,
             {
               type: CommandType.MOVE_TO,
-              unitIds: [unit.id],
+              unitIds: [currentUnit.id],
               target: ext,
               label: "Extracting",
             },
@@ -228,6 +229,6 @@ export class ObjectiveBehavior implements Behavior {
       }
     }
 
-    return actionTaken;
+    return { unit: currentUnit, handled: actionTaken };
   }
 }

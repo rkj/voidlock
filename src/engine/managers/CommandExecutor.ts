@@ -22,8 +22,8 @@ export class CommandExecutor {
     state: GameState,
     isManual: boolean = true,
     director?: IDirector,
-  ) {
-    unit.activeCommand = cmd;
+  ): Unit {
+    let currentUnit: Unit = { ...unit, activeCommand: cmd };
 
     if (
       isManual &&
@@ -33,85 +33,85 @@ export class CommandExecutor {
       // If we are issuing a manual PICKUP or USE_ITEM command while AI is enabled,
       // we want to resume AI after the action is complete.
       if (
-        unit.aiEnabled &&
+        currentUnit.aiEnabled &&
         (cmd.type === CommandType.PICKUP || cmd.type === CommandType.USE_ITEM)
       ) {
-        unit.commandQueue = unit.commandQueue.concat({
+        currentUnit.commandQueue = currentUnit.commandQueue.concat({
           type: CommandType.RESUME_AI,
-          unitIds: [unit.id],
+          unitIds: [currentUnit.id],
         });
       }
-      unit.aiEnabled = false;
+      currentUnit.aiEnabled = false;
     }
 
     if (cmd.type === CommandType.MOVE_TO) {
-      if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
-        unit.forcedTargetId = undefined;
+      if (currentUnit.state !== UnitState.Extracted && currentUnit.state !== UnitState.Dead) {
+        currentUnit.forcedTargetId = undefined;
         // Clear exploration target if this is a manual command OR an autonomous command that isn't exploration
         if (isManual || cmd.label !== "Exploring") {
-          unit.explorationTarget = undefined;
+          currentUnit.explorationTarget = undefined;
         }
 
-        if (unit.state === UnitState.Channeling) {
-          unit.channeling = undefined;
-          unit.state = UnitState.Idle;
+        if (currentUnit.state === UnitState.Channeling) {
+          currentUnit.channeling = undefined;
+          currentUnit.state = UnitState.Idle;
         }
 
         const path = this.pathfinder.findPath(
-          { x: Math.floor(unit.pos.x), y: Math.floor(unit.pos.y) },
+          { x: Math.floor(currentUnit.pos.x), y: Math.floor(currentUnit.pos.y) },
           cmd.target,
           true,
         );
         if (path && path.length > 0) {
-          unit.path = path;
-          unit.targetPos = {
-            x: path[0].x + MOVEMENT.CENTER_OFFSET + (unit.visualJitter?.x || 0),
-            y: path[0].y + MOVEMENT.CENTER_OFFSET + (unit.visualJitter?.y || 0),
+          currentUnit.path = path;
+          currentUnit.targetPos = {
+            x: path[0].x + MOVEMENT.CENTER_OFFSET + (currentUnit.visualJitter?.x || 0),
+            y: path[0].y + MOVEMENT.CENTER_OFFSET + (currentUnit.visualJitter?.y || 0),
           };
-          unit.state = UnitState.Moving;
+          currentUnit.state = UnitState.Moving;
         } else if (
           path &&
           path.length === 0 &&
-          Math.floor(unit.pos.x) === cmd.target.x &&
-          Math.floor(unit.pos.y) === cmd.target.y
+          Math.floor(currentUnit.pos.x) === cmd.target.x &&
+          Math.floor(currentUnit.pos.y) === cmd.target.y
         ) {
-          unit.pos = {
-            x: cmd.target.x + MOVEMENT.CENTER_OFFSET + (unit.visualJitter?.x || 0),
-            y: cmd.target.y + MOVEMENT.CENTER_OFFSET + (unit.visualJitter?.y || 0),
+          currentUnit.pos = {
+            x: cmd.target.x + MOVEMENT.CENTER_OFFSET + (currentUnit.visualJitter?.x || 0),
+            y: cmd.target.y + MOVEMENT.CENTER_OFFSET + (currentUnit.visualJitter?.y || 0),
           };
-          unit.path = undefined;
-          unit.targetPos = undefined;
-          unit.state = UnitState.Idle;
-          unit.activeCommand = undefined;
+          currentUnit.path = undefined;
+          currentUnit.targetPos = undefined;
+          currentUnit.state = UnitState.Idle;
+          currentUnit.activeCommand = undefined;
         } else {
-          unit.path = undefined;
-          unit.targetPos = undefined;
-          unit.state = UnitState.Idle;
-          unit.activeCommand = undefined;
+          currentUnit.path = undefined;
+          currentUnit.targetPos = undefined;
+          currentUnit.state = UnitState.Idle;
+          currentUnit.activeCommand = undefined;
         }
       }
     } else if (cmd.type === CommandType.ESCORT_UNIT) {
-      if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
-        unit.forcedTargetId = undefined;
-        unit.explorationTarget = undefined;
-        if (unit.state === UnitState.Channeling) {
-          unit.channeling = undefined;
-          unit.state = UnitState.Idle;
+      if (currentUnit.state !== UnitState.Extracted && currentUnit.state !== UnitState.Dead) {
+        currentUnit.forcedTargetId = undefined;
+        currentUnit.explorationTarget = undefined;
+        if (currentUnit.state === UnitState.Channeling) {
+          currentUnit.channeling = undefined;
+          currentUnit.state = UnitState.Idle;
         }
-        unit.path = undefined;
-        unit.targetPos = undefined;
-        unit.aiEnabled = false;
-        unit.activeCommand = cmd;
+        currentUnit.path = undefined;
+        currentUnit.targetPos = undefined;
+        currentUnit.aiEnabled = false;
+        currentUnit.activeCommand = cmd;
       }
     } else if (cmd.type === CommandType.OVERWATCH_POINT) {
-      if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
-        unit.aiEnabled = false;
-        unit.aiProfile = AIProfile.STAND_GROUND;
-        this.executeCommand(
-          unit,
+      if (currentUnit.state !== UnitState.Extracted && currentUnit.state !== UnitState.Dead) {
+        currentUnit.aiEnabled = false;
+        currentUnit.aiProfile = AIProfile.STAND_GROUND;
+        currentUnit = this.executeCommand(
+          currentUnit,
           {
             type: CommandType.MOVE_TO,
-            unitIds: [unit.id],
+            unitIds: [currentUnit.id],
             target: cmd.target,
             label: "Overwatching",
           },
@@ -119,43 +119,43 @@ export class CommandExecutor {
           isManual,
           director,
         );
-        unit.activeCommand = cmd;
+        currentUnit.activeCommand = cmd;
       }
     } else if (cmd.type === CommandType.EXPLORE) {
-      if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
-        unit.aiEnabled = true;
+      if (currentUnit.state !== UnitState.Extracted && currentUnit.state !== UnitState.Dead) {
+        currentUnit.aiEnabled = true;
         // Default exploration behavior will take over in update()
       }
     } else if (cmd.type === CommandType.SET_ENGAGEMENT) {
-      unit.engagementPolicy = cmd.mode;
-      unit.engagementPolicySource = "Manual";
-      unit.activeCommand = undefined;
+      currentUnit.engagementPolicy = cmd.mode;
+      currentUnit.engagementPolicySource = "Manual";
+      currentUnit.activeCommand = undefined;
     } else if (cmd.type === CommandType.STOP) {
-      unit.commandQueue = [];
-      unit.path = undefined;
-      unit.targetPos = undefined;
-      unit.forcedTargetId = undefined;
-      unit.explorationTarget = undefined;
-      unit.aiEnabled = false;
-      unit.activeCommand = undefined;
+      currentUnit.commandQueue = [];
+      currentUnit.path = undefined;
+      currentUnit.targetPos = undefined;
+      currentUnit.forcedTargetId = undefined;
+      currentUnit.explorationTarget = undefined;
+      currentUnit.aiEnabled = false;
+      currentUnit.activeCommand = undefined;
 
-      if (unit.state === UnitState.Channeling) {
-        unit.channeling = undefined;
+      if (currentUnit.state === UnitState.Channeling) {
+        currentUnit.channeling = undefined;
       }
-      unit.state = UnitState.Idle;
+      currentUnit.state = UnitState.Idle;
     } else if (cmd.type === CommandType.RESUME_AI) {
-      unit.aiEnabled = true;
-      unit.activeCommand = undefined;
+      currentUnit.aiEnabled = true;
+      currentUnit.activeCommand = undefined;
     } else if (cmd.type === CommandType.PICKUP) {
-      if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
+      if (currentUnit.state !== UnitState.Extracted && currentUnit.state !== UnitState.Dead) {
         const loot = state.loot?.find((l) => l.id === cmd.lootId);
         const objective = state.objectives?.find((o) => o.id === cmd.lootId);
         if (loot) {
-          this.executeCommand(
-            unit,
+          currentUnit = this.executeCommand(
+            currentUnit,
             {
               type: CommandType.MOVE_TO,
-              unitIds: [unit.id],
+              unitIds: [currentUnit.id],
               target: { x: Math.floor(loot.pos.x), y: Math.floor(loot.pos.y) },
               label: "Picking up",
             },
@@ -163,13 +163,13 @@ export class CommandExecutor {
             isManual,
             director,
           );
-          unit.activeCommand = cmd;
+          currentUnit.activeCommand = cmd;
         } else if (objective && objective.targetCell) {
-          this.executeCommand(
-            unit,
+          currentUnit = this.executeCommand(
+            currentUnit,
             {
               type: CommandType.MOVE_TO,
-              unitIds: [unit.id],
+              unitIds: [currentUnit.id],
               target: objective.targetCell,
               label: "Picking up",
             },
@@ -177,17 +177,17 @@ export class CommandExecutor {
             isManual,
             director,
           );
-          unit.activeCommand = cmd;
+          currentUnit.activeCommand = cmd;
         }
       }
     } else if (cmd.type === CommandType.EXTRACT) {
-      if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
+      if (currentUnit.state !== UnitState.Extracted && currentUnit.state !== UnitState.Dead) {
         if (state.map.extraction) {
-          this.executeCommand(
-            unit,
+          currentUnit = this.executeCommand(
+            currentUnit,
             {
               type: CommandType.MOVE_TO,
-              unitIds: [unit.id],
+              unitIds: [currentUnit.id],
               target: state.map.extraction,
               label: "Extracting",
             },
@@ -195,11 +195,11 @@ export class CommandExecutor {
             isManual,
             director,
           );
-          unit.activeCommand = cmd;
+          currentUnit.activeCommand = cmd;
         }
       }
     } else if (cmd.type === CommandType.USE_ITEM) {
-      if (unit.state !== UnitState.Extracted && unit.state !== UnitState.Dead) {
+      if (currentUnit.state !== UnitState.Extracted && currentUnit.state !== UnitState.Dead) {
         const item = ItemLibrary[cmd.itemId];
         if (item) {
           let targetLocation: Vector2 | undefined = cmd.target;
@@ -207,7 +207,7 @@ export class CommandExecutor {
 
           // Medkit is now strictly self-heal
           if (cmd.itemId === "medkit") {
-            targetUnitId = unit.id;
+            targetUnitId = currentUnit.id;
             targetLocation = undefined;
           }
 
@@ -224,22 +224,20 @@ export class CommandExecutor {
           }
 
           // If item has a target, move there first?
-          // For now, assume unit must be at target or it's a global effect.
-          // Medkit/Mine/Sentry usually require being at the target cell.
           if (
             targetLocation &&
             (item.action === "Heal" || item.action === "Mine" || item.action === "Sentry")
           ) {
-            const dist = MathUtils.getDistance(unit.pos, {
+            const dist = MathUtils.getDistance(currentUnit.pos, {
               x: targetLocation.x + MOVEMENT.CENTER_OFFSET,
               y: targetLocation.y + MOVEMENT.CENTER_OFFSET,
             });
             if (dist > ITEMS.USE_ITEM_RANGE_THRESHOLD) {
-              this.executeCommand(
-                unit,
+              currentUnit = this.executeCommand(
+                currentUnit,
                 {
                   type: CommandType.MOVE_TO,
-                  unitIds: [unit.id],
+                  unitIds: [currentUnit.id],
                   target: targetLocation,
                   label: "Moving to use item",
                 },
@@ -247,8 +245,8 @@ export class CommandExecutor {
                 isManual,
                 director,
               );
-              unit.activeCommand = cmd; // Re-set active command to USE_ITEM so it resumes after move
-              return;
+              currentUnit.activeCommand = cmd; // Re-set active command to USE_ITEM so it resumes after move
+              return currentUnit;
             }
           }
 
@@ -257,16 +255,16 @@ export class CommandExecutor {
           if (isTimedAction) {
             const baseTime = ITEMS.BASE_USE_ITEM_TIME;
             const scaledDuration =
-              baseTime * (SPEED_NORMALIZATION_CONST / unit.stats.speed);
+              baseTime * (SPEED_NORMALIZATION_CONST / currentUnit.stats.speed);
 
-            unit.state = UnitState.Channeling;
-            unit.channeling = {
+            currentUnit.state = UnitState.Channeling;
+            currentUnit.channeling = {
               action: "UseItem",
               remaining: scaledDuration,
               totalDuration: scaledDuration,
             };
-            unit.path = undefined;
-            unit.targetPos = undefined;
+            currentUnit.path = undefined;
+            currentUnit.targetPos = undefined;
           } else {
             // Instant use
             const count = state.squadInventory[cmd.itemId] || 0;
@@ -274,12 +272,18 @@ export class CommandExecutor {
               state.squadInventory[cmd.itemId] = count - 1;
               if (director) {
                 director.handleUseItem(state, cmd);
+                // Sync back hp in case of self-heal (director mutates state.units)
+                const mutated = state.units.find((u) => u.id === currentUnit.id);
+                if (mutated) {
+                  currentUnit.hp = mutated.hp;
+                }
               }
             }
-            unit.activeCommand = undefined;
+            currentUnit.activeCommand = undefined;
           }
         }
       }
     }
+    return currentUnit;
   }
 }
