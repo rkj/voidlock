@@ -194,12 +194,8 @@ export class MapEntityLayer implements RenderLayer {
           ctx.stroke();
         }
       } else {
-        // Standard Mode: Use Sprites
-        // 'scrap_crate' uses the Credits sprite (Loot)
-        // Others use the Crate sprite
-        const assetName =
-          loot.itemId === "scrap_crate" ? "Loot" : "Crate";
-        const icon = this.assets.iconImages[assetName];
+        // Standard Mode: Use Crate Sprite
+        const icon = this.assets.iconImages.Crate;
 
         if (icon) {
           const iconSize = cellSize * 0.5;
