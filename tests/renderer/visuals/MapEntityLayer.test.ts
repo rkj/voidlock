@@ -159,16 +159,13 @@ describe("MapEntityLayer", () => {
     expect(lootStarDraw).toBeDefined();
   });
 
-  it("should render Loot using Crate/Loot sprites when UnitStyle is Sprites", () => {
+  it("should render Loot using Crate sprite when UnitStyle is Sprites", () => {
     sharedState.unitStyle = UnitStyle.Sprites;
 
     const assetManager = AssetManager.getInstance();
     const mockCrate = new MockImage() as unknown as HTMLImageElement;
-    const mockLoot = new MockImage() as unknown as HTMLImageElement;
     (mockCrate as any).id = "Crate";
-    (mockLoot as any).id = "Loot";
     assetManager.iconImages.Crate = mockCrate;
-    assetManager.iconImages.Loot = mockLoot;
 
     const gameState: GameState = createMockGameState({
       map: {
@@ -190,15 +187,11 @@ describe("MapEntityLayer", () => {
     layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
 
     const drawImageCalls = mockContext.drawImage.mock.calls;
-    const crateDraw = drawImageCalls.find(
+    const crateDraws = drawImageCalls.filter(
       (args: unknown[]) => args[0] === mockCrate,
     );
-    const lootDraw = drawImageCalls.find(
-      (args: unknown[]) => args[0] === mockLoot,
-    );
 
-    expect(crateDraw).toBeDefined();
-    expect(lootDraw).toBeDefined();
+    expect(crateDraws.length).toBe(2);
   });
 
   it("should render Objective using Objective icon when UnitStyle is TacticalIcons", () => {
