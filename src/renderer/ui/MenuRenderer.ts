@@ -11,7 +11,16 @@ export class MenuRenderer {
   }
 
   public static renderMenu(state: RenderableMenuState): string {
-    let html = `<h3>${this.escapeHtml(state.title)}</h3>`;
+    let html = "";
+
+    if (state.breadcrumbs && state.breadcrumbs.length > 0) {
+      const breadcrumbsHtml = state.breadcrumbs
+        .map((b) => this.escapeHtml(b))
+        .join(" &gt; ");
+      html += `<div class="menu-breadcrumbs">${breadcrumbsHtml}</div>`;
+    }
+
+    html += `<h3>${this.escapeHtml(state.title)}</h3>`;
 
     if (state.error) {
       html += `<p style="color:var(--color-danger);">${this.escapeHtml(state.error)}</p>`;

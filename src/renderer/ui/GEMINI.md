@@ -28,7 +28,7 @@ This directory contains UI components and managers for the Voidlock renderer.
   - **Force Win/Lose**: Added "Force Win" and "Force Lose" buttons to the debug tools to trigger immediate mission completion or failure for testing end-of-mission flows.
 - **Objective HUD Cleanup**: Objectives list now hides coordinates by default (shown only in debug mode), removes explicit status text (Pending/Completed), and adds tooltips to status icons for better clarity.
 - **Enemy Intel**: New section in the right panel that displays icon-based stats for all currently visible enemies, grouped by type.
-- **Command Menu Rendering**: Generates clickable HTML for the tactical menu.
+- **Command Menu Rendering**: Generates clickable HTML for the tactical menu. Now includes a **Context Header (Breadcrumbs)** to indicate the current menu hierarchy (e.g., "Orders > Move").
 - **Soldier Inspector**: Shared component used in Barracks and Equipment screens.
   - Displays innate soldier attributes (HP, SPD, Base ACC) and aggregate weapon stats.
   - Features a "Paper Doll" layout for equipping items to specific slots.
