@@ -17,11 +17,11 @@ export class AssetManager {
   };
 
   private readonly ENEMY_SPRITE_MAP: Record<string, string> = {
-    "Xeno-Mite": "xeno_swarmer_1",
-    "Warrior-Drone": "xeno_drone_2",
-    "Praetorian-Guard": "xeno_guard_3",
-    "Spitter-Acid": "xeno_spitter",
-    Hive: "void",
+    "xeno-mite": "xeno_swarmer_1",
+    "warrior-drone": "xeno_drone_2",
+    "praetorian-guard": "xeno_guard_3",
+    "spitter-acid": "xeno_spitter",
+    hive: "void",
   };
 
   private constructor() {

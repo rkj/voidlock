@@ -141,7 +141,7 @@ describe("HUDManager Stats & Enemy Intel", () => {
     const intelDiv = document.querySelector(".enemy-intel");
     expect(intelDiv).not.toBeNull();
     expect(intelDiv?.innerHTML).toContain("Enemy Intel");
-    expect(intelDiv?.innerHTML).toContain("Xeno-Mite x1");
+    expect(intelDiv?.innerHTML).toContain("xeno-mite x1");
 
     // Check stats using titles
     expect(intelDiv?.innerHTML).toContain('title="Speed"');
@@ -171,6 +171,6 @@ describe("HUDManager Stats & Enemy Intel", () => {
     hud.update(multiState, null);
 
     const intelDiv = document.querySelector(".enemy-intel");
-    expect(intelDiv?.innerHTML).toContain("Xeno-Mite x2");
+    expect(intelDiv?.innerHTML).toContain("xeno-mite x2");
   });
 });

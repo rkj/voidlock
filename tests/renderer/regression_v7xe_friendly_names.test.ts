@@ -30,7 +30,7 @@ describe("Regression v7xe: Friendly Names in Command Menu", () => {
     enemies: [
       {
         id: "enemy_0",
-        type: "Xeno-Mite",
+        type: "xeno-mite",
         pos: { x: 5.5, y: 5.5 },
       } as any
     ],

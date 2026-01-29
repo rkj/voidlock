@@ -99,7 +99,7 @@ describe("Regression 7zx6 - Healing Flow", () => {
         pos: { x: 5.5, y: 5.5 },
         hp: 100,
         maxHp: 100,
-        type: "Warrior-Drone",
+        type: "warrior-drone",
       } as any,
     ];
     mockState.visibleCells = ["5,5"];
