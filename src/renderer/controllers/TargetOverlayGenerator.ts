@@ -3,8 +3,11 @@ import {
   BoundaryType,
   CellType,
   GameState,
+  ItemLibrary,
+  Objective,
   OverlayOption,
   UnitState,
+  WeaponLibrary,
 } from "@src/shared/types";
 import { RoomDiscoveryManager } from "./RoomDiscoveryManager";
 import { isCellVisible, isCellDiscovered } from "@src/shared/VisibilityUtils";
@@ -50,7 +53,7 @@ export class TargetOverlayGenerator {
         if (obj.state === "Pending" && obj.visible && obj.targetCell) {
           options.push({
             key: this.getRoomKey(itemCounter),
-            label: `Collect ${obj.kind}`,
+            label: `Collect ${this.getObjectiveLabel(obj)}`,
             pos: obj.targetCell,
             id: obj.id,
           });
@@ -67,9 +70,11 @@ export class TargetOverlayGenerator {
               Math.floor(loot.pos.y),
             )
           ) {
+            const item = ItemLibrary[loot.itemId] || WeaponLibrary[loot.itemId];
+            const itemName = item?.name || loot.itemId;
             options.push({
               key: this.getRoomKey(itemCounter),
-              label: `Pickup ${loot.itemId}`,
+              label: `Pickup ${itemName}`,
               pos: { x: Math.floor(loot.pos.x), y: Math.floor(loot.pos.y) },
               id: loot.id,
             });
@@ -79,11 +84,11 @@ export class TargetOverlayGenerator {
       }
     } else if (type === "FRIENDLY_UNIT") {
       let unitCounter = 0;
-      gameState.units.forEach((u) => {
+      gameState.units.forEach((u, idx) => {
         if (u.state !== UnitState.Dead && u.state !== UnitState.Extracted) {
           options.push({
             key: this.getRoomKey(unitCounter),
-            label: `${u.id}`,
+            label: `${u.id} (${idx + 1})`,
             pos: { x: Math.floor(u.pos.x), y: Math.floor(u.pos.y) },
             id: u.id,
           });
@@ -236,7 +241,7 @@ export class TargetOverlayGenerator {
 
           options.push({
             key: this.getRoomKey(poiCounter),
-            label: `Obj ${obj.id}`,
+            label: this.getObjectiveLabel(obj),
             pos: obj.targetCell,
           });
           poiCounter++;
@@ -245,6 +250,15 @@ export class TargetOverlayGenerator {
     }
 
     return options;
+  }
+
+  private static getObjectiveLabel(obj: Objective): string {
+    const id = obj.id.toLowerCase();
+    if (id.includes("artifact")) return "Artifact";
+    if (id.includes("intel")) return "Intel";
+    if (id.includes("hive")) return "Xeno Hive";
+    if (id.includes("escort")) return "Extraction";
+    return obj.kind === "Recover" ? "Objective" : obj.kind;
   }
 
   private static getRoomKey(index: number): string {

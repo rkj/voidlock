@@ -150,6 +150,7 @@ export class SquadBuilder {
                     if (s) {
                       this.squad.soldiers.push({
                         id: s.id,
+                        name: s.name,
                         archetypeId: s.archetypeId,
                         hp: s.hp,
                         maxHp: s.maxHp,
@@ -223,6 +224,7 @@ export class SquadBuilder {
         if (s) {
           this.squad.soldiers.push({
             id: s.id,
+            name: s.name,
             archetypeId: s.archetypeId,
             hp: s.hp,
             maxHp: s.maxHp,
