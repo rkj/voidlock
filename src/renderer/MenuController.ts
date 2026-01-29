@@ -579,25 +579,28 @@ export class MenuController {
       });
       result.footer = "(Click map or press 1-9, Q/ESC to Back)";
     } else if (this.stateMachine.state === "UNIT_SELECT") {
-      let counter = 1;
       const activeUnits = gameState.units.filter(
         (u) => u.state !== UnitState.Dead && u.state !== UnitState.Extracted,
       );
 
       result.options = [];
       activeUnits.forEach((u) => {
+        // Find the unit's tactical number (index in the original units array + 1)
+        const tacticalNumber = gameState.units.findIndex((origU) => origU.id === u.id) + 1;
+        const key = result.options.length + 1;
+
         result.options.push({
-          key: counter.toString(),
-          label: `${counter}. ${u.id}`,
-          dataAttributes: { index: counter.toString(), "unit-id": u.id },
+          key: key.toString(),
+          label: `${key}. ${u.id} (${tacticalNumber})`,
+          dataAttributes: { index: key.toString(), "unit-id": u.id },
         });
-        counter++;
       });
 
+      const allUnitsKey = result.options.length + 1;
       result.options.push({
-        key: counter.toString(),
-        label: `${counter}. All Units`,
-        dataAttributes: { index: counter.toString(), "unit-id": "ALL" },
+        key: allUnitsKey.toString(),
+        label: `${allUnitsKey}. All Units`,
+        dataAttributes: { index: allUnitsKey.toString(), "unit-id": "ALL" },
       });
 
       result.options.push({

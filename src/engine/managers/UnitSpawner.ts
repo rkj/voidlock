@@ -64,6 +64,7 @@ export class UnitSpawner {
 
       units.push({
         id: soldierConfig.id || `${arch.id}-${unitCount++}`,
+        name: soldierConfig.name || arch.name,
         archetypeId: arch.id,
         pos: {
           x: startX + (this.prng.next() - 0.5),
@@ -117,6 +118,7 @@ export class UnitSpawner {
     vipSpawnPositions.forEach((startPos, idx) => {
       units.push({
         id: `vip-${idx + 1}`,
+        name: vipArch.name,
         archetypeId: "vip",
         pos: {
           x: startPos.x + 0.5 + (this.prng.next() - 0.5) * 0.2,

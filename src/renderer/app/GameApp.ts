@@ -946,6 +946,7 @@ export class GameApp {
             .slice(0, 4);
           this.currentSquad.soldiers = healthy.map((s) => ({
             id: s.id,
+            name: s.name,
             archetypeId: s.archetypeId,
             hp: s.hp,
             maxHp: s.maxHp,
@@ -963,6 +964,7 @@ export class GameApp {
                 if (rs) {
                   if (rs.status === "Dead" || rs.status === "Wounded")
                     return false;
+                  s.name = rs.name;
                   s.hp = rs.hp;
                   s.maxHp = rs.maxHp;
                   s.soldierAim = rs.soldierAim;

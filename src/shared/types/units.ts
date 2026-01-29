@@ -51,6 +51,7 @@ export type UnitStats = {
 };
 
 export type Unit = Entity & {
+  name?: string;
   state: UnitState;
   stats: UnitStats;
   path?: Vector2[];
@@ -270,6 +271,7 @@ export type Enemy = Entity & {
 
 export type SquadSoldierConfig = {
   id?: string;
+  name?: string;
   archetypeId: string;
   rightHand?: string;
   leftHand?: string;
