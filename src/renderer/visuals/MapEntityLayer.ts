@@ -194,8 +194,11 @@ export class MapEntityLayer implements RenderLayer {
           ctx.stroke();
         }
       } else {
-        // Standard Mode: Use Crate Sprite
-        const icon = this.assets.iconImages.Crate;
+        // Standard Mode: Use Crate or Loot Sprite
+        const icon =
+          loot.itemId === "scrap_crate"
+            ? this.assets.iconImages.Loot
+            : this.assets.iconImages.Crate;
 
         if (icon) {
           const iconSize = cellSize * 0.5;

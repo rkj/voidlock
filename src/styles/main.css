@@ -346,6 +346,14 @@ label {
   cursor: not-allowed;
 }
 
+.menu-breadcrumbs {
+  font-size: 0.8em;
+  color: var(--color-text-dim);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
 .unit-commands {
   margin-top: auto;
   display: flex;

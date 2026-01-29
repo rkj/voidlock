@@ -7,6 +7,7 @@ import { MenuState } from "@src/renderer/MenuConfig";
 export class MenuStateMachine {
   private _state: MenuState = "ACTION_SELECT";
   private _stack: MenuState[] = [];
+  private _breadcrumbs: string[] = [];
 
   get state(): MenuState {
     return this._state;
@@ -24,15 +25,23 @@ export class MenuStateMachine {
     this._stack = value;
   }
 
-  public push(nextState: MenuState) {
+  get breadcrumbs(): string[] {
+    return this._breadcrumbs;
+  }
+
+  public push(nextState: MenuState, label?: string) {
     this._stack.push(this._state);
     this._state = nextState;
+    if (label) {
+      this._breadcrumbs.push(label);
+    }
   }
 
   public pop(): MenuState | null {
     const prevState = this._stack.pop();
     if (prevState) {
       this._state = prevState;
+      this._breadcrumbs.pop();
       return prevState;
     }
     return null;
@@ -41,5 +50,6 @@ export class MenuStateMachine {
   public reset() {
     this._state = "ACTION_SELECT";
     this._stack = [];
+    this._breadcrumbs = [];
   }
 }

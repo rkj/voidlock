@@ -35,6 +35,7 @@ export interface RenderableMenuState {
   options: RenderableMenuOption[];
   error?: string;
   footer?: string;
+  breadcrumbs?: string[];
 }
 
 export class MenuController {
@@ -119,8 +120,8 @@ export class MenuController {
     this.selection.reset();
   }
 
-  private transitionTo(nextState: MenuState) {
-    this.stateMachine.push(nextState);
+  private transitionTo(nextState: MenuState, label?: string) {
+    this.stateMachine.push(nextState, label);
   }
 
   public clearDiscoveryOrder() {
@@ -188,7 +189,7 @@ export class MenuController {
       ) {
         this.executePendingCommand(this.selection.pendingUnitIds);
       } else {
-        this.transitionTo("UNIT_SELECT");
+        this.transitionTo("UNIT_SELECT", "Target");
       }
     }
   }
@@ -227,7 +228,7 @@ export class MenuController {
     if (!option || this.isOptionDisabled(option, gameState)) return;
 
     if (option.type === "TRANSITION") {
-      this.transitionTo(option.nextState || "ACTION_SELECT");
+      this.transitionTo(option.nextState || "ACTION_SELECT", option.label);
       return;
     }
 
@@ -235,7 +236,7 @@ export class MenuController {
 
     if (option.commandType === CommandType.PICKUP) {
       this.selection.pendingLabel = "Picking up";
-      this.transitionTo("TARGET_SELECT");
+      this.transitionTo("TARGET_SELECT", option.label);
       this.selection.overlayOptions = TargetOverlayGenerator.generate(
         "ITEM",
         gameState,
@@ -243,13 +244,13 @@ export class MenuController {
       );
     } else if (option.commandType === CommandType.EXTRACT) {
       this.selection.pendingLabel = "Extracting";
-      this.transitionTo("UNIT_SELECT");
+      this.transitionTo("UNIT_SELECT", option.label);
     } else if (option.commandType === CommandType.SET_ENGAGEMENT) {
       this.selection.pendingLabel = "Policy Change";
-      this.transitionTo("MODE_SELECT");
+      this.transitionTo("MODE_SELECT", option.label);
     } else if (option.commandType === CommandType.USE_ITEM) {
       this.selection.pendingLabel = "Using Item";
-      this.transitionTo("ITEM_SELECT");
+      this.transitionTo("ITEM_SELECT", option.label);
     }
   }
 
@@ -262,7 +263,7 @@ export class MenuController {
 
     if (option.commandType === CommandType.MOVE_TO) {
       this.selection.pendingLabel = "Moving";
-      this.transitionTo("TARGET_SELECT");
+      this.transitionTo("TARGET_SELECT", option.label);
       this.selection.overlayOptions = TargetOverlayGenerator.generate(
         "CELL",
         gameState,
@@ -270,7 +271,7 @@ export class MenuController {
       );
     } else if (option.commandType === CommandType.OVERWATCH_POINT) {
       this.selection.pendingLabel = "Overwatching";
-      this.transitionTo("TARGET_SELECT");
+      this.transitionTo("TARGET_SELECT", option.label);
       this.selection.overlayOptions = TargetOverlayGenerator.generate(
         "INTERSECTION",
         gameState,
@@ -278,13 +279,13 @@ export class MenuController {
       );
     } else if (option.commandType === CommandType.EXPLORE) {
       this.selection.pendingLabel = "Exploring";
-      this.transitionTo("UNIT_SELECT");
+      this.transitionTo("UNIT_SELECT", option.label);
     } else if (option.commandType === CommandType.STOP) {
       this.selection.pendingLabel = "Holding";
-      this.transitionTo("UNIT_SELECT");
+      this.transitionTo("UNIT_SELECT", option.label);
     } else if (option.commandType === CommandType.ESCORT_UNIT) {
       this.selection.pendingLabel = "Escorting";
-      this.transitionTo("TARGET_SELECT");
+      this.transitionTo("TARGET_SELECT", option.label);
       this.selection.overlayOptions = TargetOverlayGenerator.generate(
         "FRIENDLY_UNIT",
         gameState,
@@ -315,10 +316,11 @@ export class MenuController {
       }
 
       this.selection.pendingItemId = itemId;
+      const label = item?.name || itemId;
       if (item?.action === "Mine" || item?.action === "Heal") {
-        this.transitionTo("UNIT_SELECT");
+        this.transitionTo("UNIT_SELECT", label);
       } else {
-        this.transitionTo("TARGET_SELECT");
+        this.transitionTo("TARGET_SELECT", label);
         if (item?.action === "Scanner") {
           this.selection.overlayOptions = TargetOverlayGenerator.generate(
             "FRIENDLY_UNIT",
@@ -341,7 +343,7 @@ export class MenuController {
     const option = config.options.find((o) => o.key.toString() === key);
     if (option && option.type === "MODE") {
       this.selection.pendingMode = option.modeValue || null;
-      this.transitionTo(option.nextState || "UNIT_SELECT");
+      this.transitionTo(option.nextState || "UNIT_SELECT", option.label);
     }
   }
 
@@ -368,7 +370,7 @@ export class MenuController {
       ) {
         this.executePendingCommand(this.selection.pendingUnitIds);
       } else {
-        this.transitionTo("UNIT_SELECT");
+        this.transitionTo("UNIT_SELECT", option.label);
       }
     }
   }
@@ -396,7 +398,8 @@ export class MenuController {
         !this.selection.pendingTargetLocation
       ) {
         this.selection.pendingUnitIds = selectedIds;
-        this.transitionTo("TARGET_SELECT");
+        const label = selectedIds.length === 1 ? selectedIds[0] : "Selected Units";
+        this.transitionTo("TARGET_SELECT", label);
         this.selection.overlayOptions = TargetOverlayGenerator.generate(
           "PLACEMENT_POINT",
           gameState,
@@ -433,6 +436,7 @@ export class MenuController {
     const result: RenderableMenuState = {
       title: config.title,
       options: [],
+      breadcrumbs: [...this.stateMachine.breadcrumbs],
     };
 
     // Live-update overlays if in Target Select
@@ -470,6 +474,12 @@ export class MenuController {
         } else if (item?.action === "Scanner") {
           this.selection.overlayOptions = TargetOverlayGenerator.generate(
             "FRIENDLY_UNIT",
+            gameState,
+            this.discovery,
+          );
+        } else if (item?.action === "Mine") {
+          this.selection.overlayOptions = TargetOverlayGenerator.generate(
+            "PLACEMENT_POINT",
             gameState,
             this.discovery,
           );
