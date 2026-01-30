@@ -333,7 +333,7 @@ describe("CampaignManager", () => {
     it("should throw error when spendScrap called with insufficient funds", () => {
       const state = manager.getState()!;
       state.scrap = 10;
-      expect(() => manager.spendScrap(20)).toThrow("Insufficient scrap.");
+      expect(() => manager.spendScrap(20)).toThrow("Insufficient scrap");
     });
   });
 });

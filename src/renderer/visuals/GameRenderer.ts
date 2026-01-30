@@ -23,7 +23,11 @@ export class GameRenderer {
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
-    this.ctx = canvas.getContext("2d")!;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) {
+      throw new Error("GameRenderer: Failed to get 2D context from canvas.");
+    }
+    this.ctx = ctx;
     this.lastTime = performance.now();
 
     // Default layer stack
