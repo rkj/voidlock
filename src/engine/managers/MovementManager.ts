@@ -1,6 +1,7 @@
 import { Unit, UnitState, CommandType, Door } from "../../shared/types";
 import { GameGrid } from "../GameGrid";
 import { SPEED_NORMALIZATION_CONST, MOVEMENT } from "../config/GameConstants";
+import { MathUtils } from "../../shared/utils/MathUtils";
 
 export class MovementManager {
   constructor(private gameGrid: GameGrid) {}
@@ -10,7 +11,7 @@ export class MovementManager {
 
     const dx = unit.targetPos.x - unit.pos.x;
     const dy = unit.targetPos.y - unit.pos.y;
-    const dist = Math.sqrt(dx * dx + dy * dy);
+    const dist = MathUtils.getDistance(unit.pos, unit.targetPos);
 
     const moveDist =
       ((unit.stats.speed / SPEED_NORMALIZATION_CONST) * dt) / 1000;

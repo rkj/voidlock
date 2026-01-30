@@ -14,6 +14,7 @@ import { PRNG } from "../../shared/PRNG";
 import { MapSanitizer } from "../map/MapSanitizer";
 import { Graph } from "../Graph";
 import { PlacementValidator, OccupantType } from "./PlacementValidator";
+import { MathUtils } from "../../shared/utils/MathUtils";
 
 type GenCellType = "Void" | "Corridor" | "Room";
 
@@ -368,7 +369,7 @@ export class DenseShipGenerator {
   }
 
   private isAdjacent(p1: Vector2, p2: Vector2): boolean {
-    return Math.abs(p1.x - p2.x) + Math.abs(p1.y - p2.y) === 1;
+    return MathUtils.getManhattanDistance(p1, p2) === 1;
   }
 
   private finalizeCells() {
@@ -481,9 +482,9 @@ export class DenseShipGenerator {
     if (quadrants[extQuadIdx].length === 0) {
       let maxDist = -1;
       nonEmptyQuads.forEach((o) => {
-        const dist =
-          Math.abs((o.i % 2) - (squadQuadIdx % 2)) +
-          Math.abs(Math.floor(o.i / 2) - Math.floor(squadQuadIdx / 2));
+        const p1 = { x: o.i % 2, y: Math.floor(o.i / 2) };
+        const p2 = { x: squadQuadIdx % 2, y: Math.floor(squadQuadIdx / 2) };
+        const dist = MathUtils.getManhattanDistance(p1, p2);
         if (dist > maxDist) {
           maxDist = dist;
           extQuadIdx = o.i;

@@ -11,6 +11,7 @@ import {
 import { PRNG } from "../shared/PRNG";
 import { IDirector } from "./interfaces/IDirector";
 import { DIRECTOR, ITEMS, SPEED_NORMALIZATION_CONST } from "./config/GameConstants";
+import { MathUtils } from "../shared/utils/MathUtils";
 
 export class Director implements IDirector {
   private turn: number = 0;
@@ -164,7 +165,7 @@ export class Director implements IDirector {
         const radiusSq = radius * radius;
         for (let dy = -radius; dy <= radius; dy++) {
           for (let dx = -radius; dx <= radius; dx++) {
-            if (dx * dx + dy * dy <= radiusSq) {
+            if (MathUtils.getDistanceSquared({ x: dx, y: dy }, { x: 0, y: 0 }) <= radiusSq) {
               const tx = Math.floor(targetPos.x + dx);
               const ty = Math.floor(targetPos.y + dy);
               if (

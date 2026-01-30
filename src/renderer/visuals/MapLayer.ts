@@ -2,6 +2,7 @@ import { RenderLayer } from "./RenderLayer";
 import { SharedRendererState } from "./SharedRendererState";
 import { GameState, CellType, BoundaryType, Door } from "@src/shared/types";
 import { ThemeManager } from "@src/renderer/ThemeManager";
+import { MathUtils } from "@src/shared/utils/MathUtils";
 
 export class MapLayer implements RenderLayer {
   private theme = ThemeManager.getInstance();
@@ -156,7 +157,7 @@ export class MapLayer implements RenderLayer {
       const cy = (startY + endY) / 2;
       const dx = endX - startX;
       const dy = endY - startY;
-      const len = Math.sqrt(dx * dx + dy * dy);
+      const len = MathUtils.getDistance({ x: startX, y: startY }, { x: endX, y: endY });
       const ux = dx / len;
       const uy = dy / len;
 

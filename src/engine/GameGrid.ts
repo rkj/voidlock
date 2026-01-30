@@ -6,6 +6,7 @@ import {
   BoundaryType,
 } from "../shared/types";
 import { Graph } from "./Graph";
+import { MathUtils } from "../shared/utils/MathUtils";
 
 export class GameGrid implements Grid {
   private graph: Graph;
@@ -46,9 +47,7 @@ export class GameGrid implements Grid {
     }
 
     // Must be adjacent
-    const dx = toX - fromX;
-    const dy = toY - fromY;
-    if (Math.abs(dx) + Math.abs(dy) !== 1) {
+    if (MathUtils.getManhattanDistance({ x: fromX, y: fromY }, { x: toX, y: toY }) !== 1) {
       return false;
     }
 
