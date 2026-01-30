@@ -120,7 +120,7 @@ describe("MenuConfig New Commands", () => {
 
     const renderState = controller.getRenderableState(mockState);
     const lootOption = renderState.options.find((o) =>
-      o.label.includes("Pickup medkit"),
+      o.label.includes("Pickup Medkit"),
     );
     expect(lootOption).toBeDefined();
   });
@@ -141,7 +141,7 @@ describe("MenuConfig New Commands", () => {
     // Find key for loot-1
     const renderState = controller.getRenderableState(mockState);
     const lootOption = renderState.options.find((o) =>
-      o.label.includes("Pickup medkit"),
+      o.label.includes("Pickup Medkit"),
     );
     const key = lootOption?.key || "1";
 

@@ -70,7 +70,7 @@ describe("Regression i864: Redundant Prefixes in Command Menu", () => {
       (o) => o.dataAttributes?.["unit-id"] === "soldier_0",
     );
 
-    expect(unitOption?.label).toBe("1. soldier_0");
+    expect(unitOption?.label).toBe("1. soldier_0 (1)");
     // Currently it is "1. Unit soldier_0"
   });
 
@@ -84,7 +84,7 @@ describe("Regression i864: Redundant Prefixes in Command Menu", () => {
       (o) => o.dataAttributes?.index === "1",
     );
 
-    expect(unitOption?.label).toBe("1. soldier_0");
+    expect(unitOption?.label).toBe("1. soldier_0 (1)");
     // Currently it is "1. Unit soldier_0"
   });
 
