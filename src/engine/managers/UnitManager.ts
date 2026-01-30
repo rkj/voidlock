@@ -8,6 +8,8 @@ import {
   EscortUnitCommand,
   PickupCommand,
   Door,
+  LootItem,
+  Objective,
 } from "../../shared/types";
 import { GameGrid } from "../GameGrid";
 import { Pathfinder } from "../Pathfinder";
@@ -17,7 +19,7 @@ import { LootManager } from "./LootManager";
 import { StatsManager } from "./StatsManager";
 import { MovementManager } from "./MovementManager";
 import { CombatManager } from "./CombatManager";
-import { UnitAI, AIContext } from "./UnitAI";
+import { UnitAI, AIContext, VisibleItem } from "./UnitAI";
 import { CommandExecutor } from "./CommandExecutor";
 import { FormationManager } from "./FormationManager";
 import { IDirector } from "../interfaces/IDirector";
@@ -33,15 +35,9 @@ export class UnitManager {
   private formationManager: FormationManager;
   private unitAi: UnitAI;
   private commandExecutor: CommandExecutor;
-  private itemGrid: SpatialGrid<{
-    id: string;
-    pos: Vector2;
-    mustBeInLOS: boolean;
-    visible?: boolean;
-    type: "loot" | "objective";
-  }> = new SpatialGrid();
-  private lastLootArray?: any[];
-  private lastObjectivesArray?: any[];
+  private itemGrid: SpatialGrid<VisibleItem> = new SpatialGrid();
+  private lastLootArray?: LootItem[];
+  private lastObjectivesArray?: Objective[];
 
   constructor(
     private gameGrid: GameGrid,
@@ -253,12 +249,13 @@ export class UnitManager {
           pos,
           mustBeInLOS: o.kind === "Recover",
           visible: o.visible,
+          type: "objective" as const,
         };
       });
 
     // Merge and deduplicate (though queryByKeys shouldn't overlap with alwaysVisible if they are in different cells)
     // Actually, simple way is to use a Map to deduplicate by ID
-    const allVisibleItemsMap = new Map<string, any>();
+    const allVisibleItemsMap = new Map<string, VisibleItem>();
     for (const item of visibleItemsFromGrid) {
       allVisibleItemsMap.set(item.id, item);
     }

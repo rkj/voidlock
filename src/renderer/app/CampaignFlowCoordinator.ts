@@ -1,5 +1,5 @@
 import { AppContext } from "./AppContext";
-import { CampaignNode, calculateMapSize, calculateSpawnPoints } from "@src/shared/campaign_types";
+import { CampaignNode, calculateMapSize, calculateSpawnPoints, CampaignState } from "@src/shared/campaign_types";
 import { PRNG } from "@src/shared/PRNG";
 import { CampaignEvents } from "@src/content/CampaignEvents";
 import { EventModal, OutcomeModal } from "@src/renderer/ui/EventModal";
@@ -9,7 +9,7 @@ export class CampaignFlowCoordinator {
 
   public async onCampaignMenu(
     applyCampaignTheme: () => void,
-    showCampaignSummary: (state: any) => void,
+    showCampaignSummary: (state: CampaignState) => void,
     showCampaignScreen: () => void,
   ) {
     applyCampaignTheme();
