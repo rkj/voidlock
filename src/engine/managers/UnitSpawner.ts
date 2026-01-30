@@ -10,6 +10,7 @@ import {
 } from "../../shared/types";
 import { PRNG } from "../../shared/PRNG";
 import { SPEED_NORMALIZATION_CONST } from "../config/GameConstants";
+import { MathUtils } from "../../shared/utils/MathUtils";
 
 export class UnitSpawner {
   constructor(private prng: PRNG) {}
@@ -197,11 +198,9 @@ export class UnitSpawner {
 
       // Prefer rooms in different quadrants
       if (qx !== squadQX || qy !== squadQY) {
-        const dx = center.x - squadPos.x;
-        const dy = center.y - squadPos.y;
         candidateRooms.push({
           roomId,
-          dist: Math.sqrt(dx * dx + dy * dy),
+          dist: MathUtils.getDistance(center, squadPos),
           qx,
           qy,
         });

@@ -1,6 +1,7 @@
 import { Vector2, Door, CellType, BoundaryType } from "../shared/types";
 import { Graph, Boundary } from "./Graph";
 import { UNIT_RADIUS } from "./config/GameConstants";
+import { MathUtils } from "../shared/utils/MathUtils";
 
 export class LineOfSight {
   constructor(
@@ -32,8 +33,7 @@ export class LineOfSight {
         // Check distance to cell center
         const cellCenterX = x + 0.5;
         const cellCenterY = y + 0.5;
-        const distSq =
-          (cellCenterX - origin.x) ** 2 + (cellCenterY - origin.y) ** 2;
+        const distSq = MathUtils.getDistanceSquared(origin, { x: cellCenterX, y: cellCenterY });
 
         if (distSq <= actualRange * actualRange) {
           if (this.hasLineOfSight(origin, { x: cellCenterX, y: cellCenterY })) {
@@ -72,8 +72,7 @@ export class LineOfSight {
       for (let x = minX; x <= maxX; x++) {
         const cellCenterX = x + 0.5;
         const cellCenterY = y + 0.5;
-        const distSq =
-          (cellCenterX - origin.x) ** 2 + (cellCenterY - origin.y) ** 2;
+        const distSq = MathUtils.getDistanceSquared(origin, { x: cellCenterX, y: cellCenterY });
 
         if (distSq <= actualRange * actualRange) {
           if (this.hasLineOfSight(origin, { x: cellCenterX, y: cellCenterY })) {
@@ -160,7 +159,7 @@ export class LineOfSight {
   ): { start: Vector2; end: Vector2 }[] {
     const dx = end.x - start.x;
     const dy = end.y - start.y;
-    const len = Math.sqrt(dx * dx + dy * dy);
+    const len = MathUtils.getDistance(start, end);
 
     if (len < 0.001) return [{ start, end }];
 
@@ -196,7 +195,7 @@ export class LineOfSight {
     // Add small epsilon to start position towards end to avoid boundary singularities
     const dxRaw = end.x - start.x;
     const dyRaw = end.y - start.y;
-    const len = Math.sqrt(dxRaw * dxRaw + dyRaw * dyRaw);
+    const len = MathUtils.getDistance(start, end);
 
     let curX = start.x;
     let curY = start.y;

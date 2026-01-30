@@ -10,6 +10,7 @@ import {
   CampaignNodeType,
 } from "../../shared/types";
 import { PRNG } from "../../shared/PRNG";
+import { MathUtils } from "../../shared/utils/MathUtils";
 import { EnemyManager } from "./EnemyManager";
 import { LootManager } from "./LootManager";
 import {
@@ -82,10 +83,8 @@ export class MissionManager {
       const extraction = map.extraction || { x: 0, y: 0 };
       const candidates = floors.filter((c) => {
         if (validator.isCellOccupied(c)) return false;
-        const dx = c.x - extraction.x;
-        const dy = c.y - extraction.y;
         return (
-          Math.sqrt(dx * dx + dy * dy) >
+          MathUtils.getDistance(c, extraction) >
           map.width * MISSION_SCALING.DISTANCE_EXTRACTION_FACTOR
         );
       });
@@ -143,10 +142,8 @@ export class MissionManager {
           const isRoom = c.roomId && c.roomId.startsWith("room-");
           if (!isRoom) return false;
 
-          const dx = c.x - extraction.x;
-          const dy = c.y - extraction.y;
           return (
-            Math.sqrt(dx * dx + dy * dy) >
+            MathUtils.getDistance(c, extraction) >
             map.width * MISSION_SCALING.DISTANCE_HIVE_FACTOR
           );
         });
@@ -194,10 +191,8 @@ export class MissionManager {
         const isRoom = c.roomId && c.roomId.startsWith("room-");
         if (!isRoom) return false;
 
-        const dx = c.x - extraction.x;
-        const dy = c.y - extraction.y;
         return (
-          Math.sqrt(dx * dx + dy * dy) >
+          MathUtils.getDistance(c, extraction) >
           map.width * MISSION_SCALING.DISTANCE_HIVE_FACTOR
         );
       });
