@@ -187,25 +187,31 @@ export class Director implements IDirector {
       }
     } else if (item.action === "Mine") {
       if (cmd.target) {
-        state.mines.push({
-          id: `mine-${state.t}`,
-          pos: { ...cmd.target },
-          damage: ITEMS.MINE_DAMAGE,
-          radius: ITEMS.MINE_RADIUS,
-          ownerId: cmd.unitIds[0] || "squad",
-        });
+        state.mines = [
+          ...state.mines,
+          {
+            id: `mine-${state.t}`,
+            pos: { ...cmd.target },
+            damage: ITEMS.MINE_DAMAGE,
+            radius: ITEMS.MINE_RADIUS,
+            ownerId: cmd.unitIds[0] || "squad",
+          },
+        ];
       }
     } else if (item.action === "Sentry") {
       if (cmd.target) {
-        state.turrets.push({
-          id: `turret-${state.t}`,
-          pos: { ...cmd.target },
-          damage: item.damage || ITEMS.SENTRY_DEFAULT_DAMAGE,
-          fireRate: item.fireRate || ITEMS.SENTRY_DEFAULT_FIRE_RATE,
-          accuracy: item.accuracy || ITEMS.SENTRY_DEFAULT_ACCURACY,
-          attackRange: item.range || ITEMS.SENTRY_DEFAULT_RANGE,
-          ownerId: cmd.unitIds[0] || "squad",
-        });
+        state.turrets = [
+          ...state.turrets,
+          {
+            id: `turret-${state.t}`,
+            pos: { ...cmd.target },
+            damage: item.damage || ITEMS.SENTRY_DEFAULT_DAMAGE,
+            fireRate: item.fireRate || ITEMS.SENTRY_DEFAULT_FIRE_RATE,
+            accuracy: item.accuracy || ITEMS.SENTRY_DEFAULT_ACCURACY,
+            attackRange: item.range || ITEMS.SENTRY_DEFAULT_RANGE,
+            ownerId: cmd.unitIds[0] || "squad",
+          },
+        ];
       }
     }
   }

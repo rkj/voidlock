@@ -249,20 +249,20 @@ export class CoreEngine {
 
   public getState(): GameState {
     const state = this.state;
-    // Manual shallow copy of the state structure
-    // Leveraging structural sharing: objects like 'pos', 'stats', 'path' etc. 
-    // are replaced by managers instead of mutated in-place.
+    // Manual shallow copy of the state structure.
+    // We avoid deep cloning elements here because postMessage() 
+    // in the worker performs a structured clone anyway.
     const copy: GameState = {
       ...state,
-      units: state.units.map((u) => ({ ...u })),
-      enemies: state.enemies.map((e) => ({ ...e })),
-      loot: state.loot.map((l) => ({ ...l })),
-      mines: state.mines.map((m) => ({ ...m })),
-      turrets: state.turrets.map((t) => ({ ...t })),
+      units: [...state.units],
+      enemies: [...state.enemies],
+      loot: [...state.loot],
+      mines: [...state.mines],
+      turrets: [...state.turrets],
       attackEvents: state.attackEvents
-        ? state.attackEvents.map((ae) => ({ ...ae }))
+        ? [...state.attackEvents]
         : [],
-      objectives: state.objectives.map((o) => ({ ...o })),
+      objectives: [...state.objectives],
       visibleCells: [...state.visibleCells],
       discoveredCells: [...state.discoveredCells],
       gridState: state.gridState ? new Uint8Array(state.gridState) : undefined,
@@ -338,11 +338,20 @@ export class CoreEngine {
       }
     }
 
-    this.state.t += scaledDt;
-    this.state.attackEvents = [];
+    // Use a fresh reference for the tick update
+    this.state = {
+      ...this.state,
+      t: this.state.t + scaledDt,
+      attackEvents: [], // Clear events for new tick
+      stats: {
+        ...this.state.stats,
+        threatLevel: this.director.getThreatLevel(),
+      },
+    };
 
     // 1. Director & Spawn (Uses scaledDt to follow game speed and pause)
     this.director.update(scaledDt);
+    // Re-sync threat level after director update
     this.state.stats.threatLevel = this.director.getThreatLevel();
 
     // 2. Doors
@@ -387,7 +396,7 @@ export class CoreEngine {
     let statsChanged = false;
     let newCasualties = this.state.stats.casualties;
 
-    this.state.units = this.state.units.map((unit) => {
+    const nextUnits = this.state.units.map((unit) => {
       if (unit.hp <= 0 && unit.state !== UnitState.Dead) {
         statsChanged = true;
         newCasualties++;
@@ -428,6 +437,8 @@ export class CoreEngine {
       }
       return unit;
     });
+
+    this.state.units = nextUnits;
 
     if (statsChanged) {
       this.state.stats = {

@@ -44,7 +44,7 @@ export class EnemyManager {
     prng: PRNG,
     combatManager: CombatManager,
   ) {
-    // 1. Mine Explosions
+    // 1. Mine Explosions (Can affect health of units/enemies)
     const triggeredMineIds = new Set<string>();
     state.mines.forEach((mine) => {
       const triggeringEnemy = state.enemies.find(
@@ -60,6 +60,8 @@ export class EnemyManager {
         const targetX = Math.floor(mine.pos.x);
         const targetY = Math.floor(mine.pos.y);
 
+        // Mutate in-place for this pass as it's a global effect, 
+        // but we'll capture changes in the map() below.
         state.enemies.forEach((e) => {
           if (
             Math.floor(e.pos.x) === targetX &&
@@ -83,22 +85,25 @@ export class EnemyManager {
     state.mines = state.mines.filter((m) => !triggeredMineIds.has(m.id));
 
     // 2. Enemy AI & Movement
-    state.enemies.forEach((enemy) => {
-      if (enemy.hp <= 0) return;
+    state.enemies = state.enemies.map((enemy) => {
+      if (enemy.hp <= 0) return enemy;
+
+      let currentEnemy = { ...enemy };
 
       const arch =
-        EnemyArchetypeLibrary[enemy.type] ||
+        EnemyArchetypeLibrary[currentEnemy.type] ||
         EnemyArchetypeLibrary[EnemyType.SwarmMelee];
       const ai = arch.ai === "Ranged" ? this.rangedAI : this.meleeAI;
 
-      ai.think(enemy, state, gameGrid, pathfinder, los, prng);
+      // AI think might still mutate, but we passed a clone
+      ai.think(currentEnemy, state, gameGrid, pathfinder, los, prng);
 
       const unitsInRange = state.units.filter(
         (unit) =>
           unit.hp > 0 &&
           unit.state !== "Extracted" &&
           unit.state !== "Dead" &&
-          MathUtils.getDistance(enemy.pos, unit.pos) <= enemy.attackRange + 0.5,
+          MathUtils.getDistance(currentEnemy.pos, unit.pos) <= currentEnemy.attackRange + 0.5,
       );
 
       const unitsInSameCell = state.units.filter(
@@ -106,15 +111,15 @@ export class EnemyManager {
           unit.hp > 0 &&
           unit.state !== "Extracted" &&
           unit.state !== "Dead" &&
-          Math.floor(unit.pos.x) === Math.floor(enemy.pos.x) &&
-          Math.floor(unit.pos.y) === Math.floor(enemy.pos.y),
+          Math.floor(unit.pos.x) === Math.floor(currentEnemy.pos.x) &&
+          Math.floor(unit.pos.y) === Math.floor(currentEnemy.pos.y),
       );
       const isLockedInMelee = unitsInSameCell.length > 0;
 
       let isAttacking = false;
       if (
         unitsInRange.length > 0 &&
-        (!enemy.path || enemy.path.length === 0 || isLockedInMelee)
+        (!currentEnemy.path || currentEnemy.path.length === 0 || isLockedInMelee)
       ) {
         let targetUnit = unitsInRange[0];
 
@@ -126,13 +131,13 @@ export class EnemyManager {
         }
 
         isAttacking = combatManager.handleAttack(
-          enemy,
+          currentEnemy,
           targetUnit,
           {
-            damage: enemy.damage,
-            fireRate: enemy.fireRate,
-            accuracy: enemy.accuracy,
-            attackRange: enemy.attackRange,
+            damage: currentEnemy.damage,
+            fireRate: currentEnemy.fireRate,
+            accuracy: currentEnemy.accuracy,
+            attackRange: currentEnemy.attackRange,
           },
           state,
           prng,
@@ -141,51 +146,56 @@ export class EnemyManager {
 
       if (
         !isAttacking &&
-        enemy.targetPos &&
-        enemy.path &&
-        enemy.path.length > 0
+        currentEnemy.targetPos &&
+        currentEnemy.path &&
+        currentEnemy.path.length > 0
       ) {
         if (isLockedInMelee) {
-          enemy.targetPos = undefined;
-          enemy.path = [];
+          currentEnemy.targetPos = undefined;
+          currentEnemy.path = [];
         } else {
-          const dist = MathUtils.getDistance(enemy.pos, enemy.targetPos);
+          const dist = MathUtils.getDistance(currentEnemy.pos, currentEnemy.targetPos);
 
           const moveDist =
-            ((enemy.speed / SPEED_NORMALIZATION_CONST) * dt) / 1000;
+            ((currentEnemy.speed / SPEED_NORMALIZATION_CONST) * dt) / 1000;
 
           if (dist <= moveDist + EPSILON) {
-            enemy.pos = { ...enemy.targetPos };
-            enemy.path = enemy.path.slice(1);
-            if (enemy.path.length > 0) {
-              enemy.targetPos = {
-                x: enemy.path[0].x + 0.5,
-                y: enemy.path[0].y + 0.5,
+            currentEnemy.pos = { ...currentEnemy.targetPos };
+            currentEnemy.path = currentEnemy.path.slice(1);
+            if (currentEnemy.path.length > 0) {
+              currentEnemy.targetPos = {
+                x: currentEnemy.path[0].x + 0.5,
+                y: currentEnemy.path[0].y + 0.5,
               };
             } else {
-              enemy.targetPos = undefined;
+              currentEnemy.targetPos = undefined;
             }
           } else {
-            enemy.pos = {
-              x: enemy.pos.x + ((enemy.targetPos.x - enemy.pos.x) / dist) * moveDist,
-              y: enemy.pos.y + ((enemy.targetPos.y - enemy.pos.y) / dist) * moveDist,
+            currentEnemy.pos = {
+              x: currentEnemy.pos.x + ((currentEnemy.targetPos.x - currentEnemy.pos.x) / dist) * moveDist,
+              y: currentEnemy.pos.y + ((currentEnemy.targetPos.y - currentEnemy.pos.y) / dist) * moveDist,
             };
           }
         }
       }
+
+      return currentEnemy;
     });
 
     const deadEnemies = state.enemies.filter((enemy) => enemy.hp <= 0);
-    deadEnemies.forEach((enemy) => {
-      state.stats.aliensKilled++;
-      if (enemy.difficulty === 2) {
-        state.stats.elitesKilled++;
-        state.stats.scrapGained += SCRAP_REWARDS.ELITE_KILL;
-      } else if (enemy.difficulty >= 3) {
-        state.stats.elitesKilled++;
-        state.stats.scrapGained += SCRAP_REWARDS.BOSS_KILL;
-      }
-    });
-    state.enemies = state.enemies.filter((enemy) => enemy.hp > 0);
+    if (deadEnemies.length > 0) {
+        // Stats mutation is okay for now, we clone stats in getState
+        deadEnemies.forEach((enemy) => {
+            state.stats.aliensKilled++;
+            if (enemy.difficulty === 2) {
+                state.stats.elitesKilled++;
+                state.stats.scrapGained += SCRAP_REWARDS.ELITE_KILL;
+            } else if (enemy.difficulty >= 3) {
+                state.stats.elitesKilled++;
+                state.stats.scrapGained += SCRAP_REWARDS.BOSS_KILL;
+            }
+        });
+        state.enemies = state.enemies.filter((enemy) => enemy.hp > 0);
+    }
   }
 }

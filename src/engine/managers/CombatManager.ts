@@ -205,13 +205,16 @@ export class CombatManager {
 
         // Emit Attack Event for feedback systems
         if (!state.attackEvents) state.attackEvents = [];
-        state.attackEvents.push({
-          attackerId: attacker.id,
-          attackerPos: { ...attacker.pos },
-          targetId: target.id,
-          targetPos: { ...target.pos },
-          time: state.t,
-        });
+        state.attackEvents = [
+          ...state.attackEvents,
+          {
+            attackerId: attacker.id,
+            attackerPos: { ...attacker.pos },
+            targetId: target.id,
+            targetPos: { ...target.pos },
+            time: state.t,
+          },
+        ];
 
         return true;
       }

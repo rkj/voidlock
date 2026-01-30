@@ -13,16 +13,16 @@ export class LootManager {
     pos: Vector2,
     objectiveId?: string,
   ) {
-    if (!state.loot) {
-      state.loot = [];
-    }
     const id = `loot-${this.lootIdCounter++}`;
-    state.loot.push({
-      id,
-      itemId,
-      pos: { ...pos },
-      objectiveId,
-    });
+    state.loot = [
+      ...(state.loot || []),
+      {
+        id,
+        itemId,
+        pos: { ...pos },
+        objectiveId,
+      },
+    ];
   }
 
   /**
@@ -47,7 +47,10 @@ export class LootManager {
           : MISSION_SCALING.NORMAL_MULTIPLIER;
 
       const scrapAmount = SCRAP_REWARDS.LOOT_CRATE * multiplier;
-      state.stats.scrapGained += scrapAmount;
+      state.stats = {
+        ...state.stats,
+        scrapGained: state.stats.scrapGained + scrapAmount,
+      };
     }
   }
 }
