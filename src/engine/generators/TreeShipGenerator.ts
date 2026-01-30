@@ -4,9 +4,10 @@ import {
   Cell,
   Door,
   SpawnPoint,
-  Objective,
+  ObjectiveDefinition,
   Vector2,
   WallDefinition,
+  Direction,
 } from "../../shared/types";
 import { PRNG } from "../../shared/PRNG";
 import { MapSanitizer } from "../map/MapSanitizer";
@@ -22,13 +23,13 @@ export class TreeShipGenerator {
   private spawnPoints: SpawnPoint[] = [];
   private squadSpawn?: { x: number; y: number };
   private squadSpawns?: { x: number; y: number }[];
-  private objectives: Objective[] = [];
+  private objectives: ObjectiveDefinition[] = [];
   private extraction?: { x: number; y: number };
   private placementValidator: PlacementValidator = new PlacementValidator();
   private frontier: {
     parentX: number;
     parentY: number;
-    dir: "n" | "s" | "e" | "w";
+    dir: Direction;
   }[] = [];
 
   constructor(seed: number, width: number, height: number) {
@@ -97,7 +98,7 @@ export class TreeShipGenerator {
       const checkAndAdd = (
         dx: number,
         dy: number,
-        dir: "n" | "s" | "e" | "w",
+        dir: Direction,
       ) => {
         const nx = cell.x + dx;
         const ny = cell.y + dy;
@@ -230,7 +231,7 @@ export class TreeShipGenerator {
     h: number,
     parentX: number,
     parentY: number,
-    dir: "n" | "e" | "s" | "w",
+    dir: Direction,
   ) {
     const roomId = `room-${rx}-${ry}`;
     for (let y = ry; y < ry + h; y++) {
@@ -296,7 +297,7 @@ export class TreeShipGenerator {
     return this.cells[y * this.width + x];
   }
 
-  private openWall(x: number, y: number, dir: "n" | "e" | "s" | "w") {
+  private openWall(x: number, y: number, dir: Direction) {
     let nx = x,
       ny = y;
     if (dir === "n") ny--;
@@ -306,7 +307,7 @@ export class TreeShipGenerator {
     this.walls.delete(this.getBoundaryKey(x, y, nx, ny));
   }
 
-  private placeDoor(x: number, y: number, dir: "n" | "e" | "s" | "w") {
+  private placeDoor(x: number, y: number, dir: Direction) {
     const doorId = `door-${this.doors.length}`;
     let segment: Vector2[];
     let orientation: "Horizontal" | "Vertical";
@@ -548,7 +549,6 @@ export class TreeShipGenerator {
         id: "obj-1",
         kind: "Recover",
         targetCell: { x: c.x, y: c.y },
-        state: "Pending",
       });
       this.placementValidator.occupy(c, OccupantType.Objective, rid);
     } else {
@@ -564,7 +564,6 @@ export class TreeShipGenerator {
           id: "obj-1",
           kind: "Recover",
           targetCell: { x: c.x, y: c.y },
-          state: "Pending",
         });
         this.placementValidator.occupy(c, OccupantType.Objective, rid);
       }

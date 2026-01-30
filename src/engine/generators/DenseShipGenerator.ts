@@ -7,6 +7,7 @@ import {
   ObjectiveDefinition,
   Vector2,
   WallDefinition,
+  Direction,
   BoundaryType,
 } from "../../shared/types";
 import { PRNG } from "../../shared/PRNG";
@@ -630,7 +631,7 @@ export class DenseShipGenerator {
     );
   }
 
-  private openWall(x: number, y: number, dir: "n" | "e" | "s" | "w") {
+  private openWall(x: number, y: number, dir: Direction) {
     let nx = x,
       ny = y;
     if (dir === "n") ny--;

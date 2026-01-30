@@ -1,11 +1,12 @@
 import {
   BoundaryType,
   CellType,
-  MapDefinition,
-  Vector2,
+  type Direction,
+  type MapDefinition,
+  type Vector2,
 } from "../shared/types";
 
-export type Direction = "n" | "e" | "s" | "w";
+export type { Direction };
 
 export class Boundary {
   public type: BoundaryType = BoundaryType.Open;
