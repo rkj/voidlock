@@ -5,8 +5,6 @@ import {
   CommandType,
   Vector2,
   Command,
-  EscortUnitCommand,
-  PickupCommand,
   Door,
   LootItem,
   Objective,
@@ -92,13 +90,14 @@ export class UnitManager {
     // 2. Group escorts
     const escortGroups = new Map<string, Unit[]>();
     for (const u of state.units) {
+      const activeCommand = u.activeCommand;
       if (
         u.hp > 0 &&
         u.state !== UnitState.Dead &&
         u.state !== UnitState.Extracted &&
-        u.activeCommand?.type === CommandType.ESCORT_UNIT
+        activeCommand?.type === CommandType.ESCORT_UNIT
       ) {
-        const cmd = u.activeCommand as EscortUnitCommand;
+        const cmd = activeCommand;
         if (!escortGroups.has(cmd.targetId)) escortGroups.set(cmd.targetId, []);
         escortGroups.get(cmd.targetId)!.push(u);
       }
@@ -134,6 +133,7 @@ export class UnitManager {
     // Pre-populate claimed objectives from units already pursuing them
     for (const u of state.units) {
       if (u.state === UnitState.Dead || u.state === UnitState.Extracted) continue;
+      const activeCommand = u.activeCommand;
       if (u.channeling?.targetId) {
         claimedObjectives.set(u.channeling.targetId, u.id);
       }
@@ -145,18 +145,18 @@ export class UnitManager {
         if (obj) claimedObjectives.set(obj.id, u.id);
       }
       // If unit has an active command targeting an objective
-      if (u.activeCommand?.type === CommandType.PICKUP) {
-        const cmd = u.activeCommand as PickupCommand;
+      if (activeCommand?.type === CommandType.PICKUP) {
+        const cmd = activeCommand;
         claimedObjectives.set(cmd.lootId, u.id);
       }
 
       // If unit has an active command targeting an objective
       if (
-        u.activeCommand?.type === CommandType.MOVE_TO &&
-        u.activeCommand.target &&
-        u.activeCommand.label !== "Exploring"
+        activeCommand?.type === CommandType.MOVE_TO &&
+        activeCommand.target &&
+        activeCommand.label !== "Exploring"
       ) {
-        const target = u.activeCommand.target;
+        const target = activeCommand.target;
         const obj = state.objectives?.find((o) => {
           if ((o.kind === "Recover" || o.kind === "Escort") && o.targetCell) {
             return o.targetCell.x === target.x && o.targetCell.y === target.y;
