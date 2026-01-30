@@ -417,7 +417,9 @@ export class CampaignManager {
    * @param report Detailed report of the mission outcome.
    */
   public processMissionResult(report: MissionReport): void {
-    if (!this.state) return;
+    if (!this.state) {
+      throw new Error("CampaignManager: No active campaign state to process mission result.");
+    }
 
     const previousStatus = this.state.status;
 
@@ -458,7 +460,9 @@ export class CampaignManager {
     scrapGained: number,
     intelGained: number,
   ): void {
-    if (!this.state) return;
+    if (!this.state) {
+      throw new Error("CampaignManager: No active campaign state to advance.");
+    }
 
     this.missionReconciler.advanceCampaignWithoutMission(
       this.state,
@@ -491,7 +495,7 @@ export class CampaignManager {
    * @param name The name of the new soldier.
    */
   public recruitSoldier(archetypeId: string, name: string): string {
-    if (!this.state) throw new Error("No active campaign.");
+    if (!this.state) throw new Error("CampaignManager: No active campaign.");
     const id = this.rosterManager.recruitSoldier(this.state, archetypeId, name);
     this.save();
     return id;
@@ -502,7 +506,9 @@ export class CampaignManager {
    * @param soldierId The ID of the soldier to heal.
    */
   public healSoldier(soldierId: string): void {
-    if (!this.state) return;
+    if (!this.state) {
+      throw new Error("CampaignManager: No active campaign state to heal soldier.");
+    }
     this.rosterManager.healSoldier(this.state, soldierId);
     this.save();
   }
@@ -512,7 +518,9 @@ export class CampaignManager {
    * @param soldierId The ID of the soldier to revive.
    */
   public reviveSoldier(soldierId: string): void {
-    if (!this.state) return;
+    if (!this.state) {
+      throw new Error("CampaignManager: No active campaign state to revive soldier.");
+    }
     this.rosterManager.reviveSoldier(this.state, soldierId);
     this.save();
   }
@@ -522,9 +530,13 @@ export class CampaignManager {
    * @param amount The amount of scrap to spend.
    */
   public spendScrap(amount: number): void {
-    if (!this.state) return;
+    if (!this.state) {
+      throw new Error("CampaignManager: Campaign not initialized.");
+    }
     if (this.state.scrap < amount) {
-      throw new Error("Insufficient scrap.");
+      throw new Error(
+        `CampaignManager: Insufficient scrap: need ${amount}, have ${this.state.scrap}`,
+      );
     }
     this.state.scrap -= amount;
     this.save();
@@ -536,7 +548,9 @@ export class CampaignManager {
    * @param equipment The new equipment state.
    */
   public assignEquipment(soldierId: string, equipment: EquipmentState): void {
-    if (!this.state) return;
+    if (!this.state) {
+      throw new Error("CampaignManager: No active campaign state to assign equipment.");
+    }
     this.rosterManager.assignEquipment(this.state, soldierId, equipment);
     this.save();
   }

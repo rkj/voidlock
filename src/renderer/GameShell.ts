@@ -7,10 +7,18 @@ export class GameShell {
   private footer: HTMLElement;
 
   constructor() {
-    this.headerTitle = document.getElementById("header-title")!;
-    this.headerControls = document.getElementById("header-controls")!;
-    this.mainContent = document.getElementById("main-content")!;
-    this.footer = document.getElementById("global-footer")!;
+    this.headerTitle = this.getRequiredElement("header-title");
+    this.headerControls = this.getRequiredElement("header-controls");
+    this.mainContent = this.getRequiredElement("main-content");
+    this.footer = this.getRequiredElement("global-footer");
+  }
+
+  private getRequiredElement(id: string): HTMLElement {
+    const element = document.getElementById(id);
+    if (!element) {
+      throw new Error(`Required DOM element not found: #${id}`);
+    }
+    return element;
   }
 
   /**
