@@ -18,6 +18,7 @@ import {
 } from "@src/shared/campaign_types";
 import { DebugUtility } from "@src/renderer/DebugUtility";
 import { MapUtility } from "@src/renderer/MapUtility";
+import { MapValidator } from "@src/shared/validation/MapValidator";
 import { TimeUtility } from "@src/renderer/TimeUtility";
 import { ModalService } from "@src/renderer/ui/ModalService";
 import {
@@ -275,26 +276,38 @@ export class GameApp {
       },
       onLoadStaticMap: async (json) => {
         try {
-          this.currentStaticMapData = MapUtility.transformMapData(
-            JSON.parse(json),
-          );
+          const parsed = JSON.parse(json);
+          if (!MapValidator.validateMapData(parsed)) {
+            await this.context.modalService.alert(
+              "Invalid map format. Please check the structure.",
+            );
+            return;
+          }
+          this.currentStaticMapData = MapUtility.transformMapData(parsed);
           await this.context.modalService.alert("Static Map Loaded.");
-        } catch (e) {
-          await this.context.modalService.alert("Invalid JSON.");
+        } catch (e: unknown) {
+          const message = e instanceof Error ? e.message : String(e);
+          await this.context.modalService.alert(`Error loading map: ${message}`);
         }
       },
       onUploadStaticMap: (file) => {
         const reader = new FileReader();
         reader.onload = async (ev) => {
           try {
-            this.currentStaticMapData = MapUtility.transformMapData(
-              JSON.parse(ev.target?.result as string),
-            );
+            const parsed = JSON.parse(ev.target?.result as string);
+            if (!MapValidator.validateMapData(parsed)) {
+              await this.context.modalService.alert(
+                "Invalid map format. Please check the structure.",
+              );
+              return;
+            }
+            this.currentStaticMapData = MapUtility.transformMapData(parsed);
             await this.context.modalService.alert(
               "Static Map Loaded from File.",
             );
-          } catch (err) {
-            await this.context.modalService.alert("Invalid file.");
+          } catch (err: unknown) {
+            const message = err instanceof Error ? err.message : String(err);
+            await this.context.modalService.alert(`Invalid file: ${message}`);
           }
         };
         reader.readAsText(file);
