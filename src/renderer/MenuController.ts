@@ -382,9 +382,11 @@ export class MenuController {
     let selectedIds: string[] = [];
 
     const num = parseInt(key);
+    const isPickup = this.selection.pendingAction === CommandType.PICKUP;
+
     if (!isNaN(num) && num > 0 && num <= activeUnits.length) {
       selectedIds = [activeUnits[num - 1].id];
-    } else if (!isNaN(num) && num === activeUnits.length + 1) {
+    } else if (!isNaN(num) && num === activeUnits.length + 1 && !isPickup) {
       selectedIds = activeUnits.map((u) => u.id);
     }
 
@@ -597,11 +599,15 @@ export class MenuController {
       });
 
       const allUnitsKey = result.options.length + 1;
-      result.options.push({
-        key: allUnitsKey.toString(),
-        label: `${allUnitsKey}. All Units`,
-        dataAttributes: { index: allUnitsKey.toString(), "unit-id": "ALL" },
-      });
+      const isPickup = this.selection.pendingAction === CommandType.PICKUP;
+      
+      if (!isPickup) {
+        result.options.push({
+          key: allUnitsKey.toString(),
+          label: `${allUnitsKey}. All Units`,
+          dataAttributes: { index: allUnitsKey.toString(), "unit-id": "ALL" },
+        });
+      }
 
       result.options.push({
         key: "0",
