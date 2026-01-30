@@ -15,6 +15,14 @@ import { IDirector } from "../interfaces/IDirector";
 
 import { SpatialGrid } from "../../shared/utils/SpatialGrid";
 
+export interface VisibleItem {
+  id: string;
+  pos: Vector2;
+  mustBeInLOS: boolean;
+  visible?: boolean;
+  type: "loot" | "objective";
+}
+
 export interface AIContext {
   agentControlEnabled: boolean;
   totalFloorCells: number;
@@ -22,13 +30,7 @@ export interface AIContext {
   claimedObjectives: Map<string, string>; // objectiveId -> unitId
   explorationClaims: Map<string, Vector2>; // unitId -> targetCell
   itemAssignments: Map<string, string>;
-  itemGrid?: SpatialGrid<{
-    id: string;
-    pos: Vector2;
-    mustBeInLOS: boolean;
-    visible?: boolean;
-    type: "loot" | "objective";
-  }>;
+  itemGrid?: SpatialGrid<VisibleItem>;
   executeCommand: (
     unit: Unit,
     cmd: Command,

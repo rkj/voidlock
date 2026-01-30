@@ -8,6 +8,7 @@ import {
   SquadConfig,
   MissionType,
   MapGeneratorType,
+  UnitStyle,
 } from "@src/shared/types";
 import {
   CampaignNode,
@@ -38,7 +39,7 @@ export class MissionCoordinator {
       baseEnemyCount: number;
       enemyGrowthPerMission: number;
       allowTacticalPause: boolean;
-      unitStyle: string;
+      unitStyle: UnitStyle;
       campaignNode?: CampaignNode;
     },
     setupCallbacks: (report: MissionReport) => void,
@@ -90,7 +91,7 @@ export class MissionCoordinator {
   }
 
   public setupGameClientCallbacks(
-    config: { unitStyle: string; campaignNode?: CampaignNode },
+    config: { unitStyle: UnitStyle; campaignNode?: CampaignNode },
     onMissionEnd: (report: MissionReport) => void,
     updateUI: (state: GameState) => void,
   ) {
@@ -111,7 +112,7 @@ export class MissionCoordinator {
         }
       }
       if (this.context.renderer) {
-        this.context.renderer.setUnitStyle(config.unitStyle as any);
+        this.context.renderer.setUnitStyle(config.unitStyle);
         this.context.renderer.setOverlay(
           this.context.menuController.overlayOptions,
         );
