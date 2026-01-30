@@ -7,6 +7,7 @@ import {
   ObjectiveDefinition,
   Vector2,
   WallDefinition,
+  Direction,
 } from "../../shared/types";
 import { PRNG } from "../../shared/PRNG";
 import { MapSanitizer } from "../map/MapSanitizer";
@@ -346,7 +347,7 @@ export class SpaceshipGenerator {
     while (currX !== targetX || currY !== targetY) {
       const prevX = currX;
       const prevY = currY;
-      let dir: "n" | "s" | "e" | "w";
+      let dir: Direction;
 
       if (this.prng.next() < 0.5) {
         if (currX !== targetX) {
@@ -580,7 +581,7 @@ export class SpaceshipGenerator {
     return this.cells[y * this.width + x];
   }
 
-  private openWall(x: number, y: number, dir: "n" | "e" | "s" | "w") {
+  private openWall(x: number, y: number, dir: Direction) {
     let x2 = x,
       y2 = y;
     if (dir === "n") y2--;
@@ -590,7 +591,7 @@ export class SpaceshipGenerator {
     this.walls.delete(this.getBoundaryKey(x, y, x2, y2));
   }
 
-  private placeDoor(x: number, y: number, dir: "n" | "e" | "s" | "w") {
+  private placeDoor(x: number, y: number, dir: Direction) {
     const doorId = `door-${this.doors.length}`;
     let segment: Vector2[];
     let orientation: "Horizontal" | "Vertical";

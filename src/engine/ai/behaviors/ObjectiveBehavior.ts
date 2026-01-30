@@ -35,21 +35,23 @@ export class ObjectiveBehavior implements Behavior {
     let actionTaken = false;
 
     // 1. Opportunistic Loot & Objectives (In current LOS)
-    let visibleItemsFromGrid: {
+    interface VisibleItem {
       id: string;
       pos: Vector2;
       mustBeInLOS: boolean;
       visible?: boolean;
       type: "loot" | "objective";
-    }[] = [];
+    }
+
+    let visibleItemsFromGrid: VisibleItem[] = [];
 
     if (context.itemGrid) {
       visibleItemsFromGrid = context.itemGrid.queryByKeys(
         state.visibleCells || [],
-      );
+      ) as VisibleItem[];
     } else {
       // Fallback if grid not available (shouldn't happen in production)
-      visibleItemsFromGrid = [
+      visibleItemsFromGrid = ([
         ...(state.loot || []).map((l) => ({
           id: l.id,
           pos: l.pos,
@@ -84,14 +86,14 @@ export class ObjectiveBehavior implements Behavior {
               type: "objective" as const,
             };
           }),
-      ].filter((item) => {
+      ] as VisibleItem[]).filter((item) => {
         if ("visible" in item && item.visible) return true;
         return isCellVisible(
           state,
           Math.floor(item.pos.x),
           Math.floor(item.pos.y),
         );
-      }) as any;
+      });
     }
 
     const visibleLoot = visibleItemsFromGrid.filter((item) => item.type === "loot");
