@@ -232,4 +232,27 @@ describe("EquipmentScreen", () => {
 
     expect(onBack).toHaveBeenCalled();
   });
+
+  it("should display soldier name in the list", () => {
+    const configWithNames: any = {
+      soldiers: [{ archetypeId: "assault", name: "Captain Kirk" }],
+      inventory: {},
+    };
+    const screen = new EquipmentScreen(
+      "screen-equipment",
+      mockManager,
+      configWithNames,
+      onSave,
+      onBack,
+      null as any,
+    );
+    screen.show();
+
+    const soldierNames = Array.from(container.querySelectorAll("div")).map(
+      (el) => el.textContent?.trim(),
+    );
+    expect(soldierNames.some((name) => name?.includes("Captain Kirk"))).toBe(true);
+    // Should also show class
+    expect(soldierNames.some((name) => name?.includes("Assault"))).toBe(true);
+  });
 });

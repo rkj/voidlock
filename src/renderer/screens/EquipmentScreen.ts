@@ -207,10 +207,10 @@ export class EquipmentScreen {
       const arch = ArchetypeLibrary[soldier.archetypeId];
       item.innerHTML = `
         <div style="font-weight:bold; color:${this.selectedSoldierIndex === index ? "var(--color-primary)" : "var(--color-text)"}; font-size: 0.9em;">
-          ${index + 1}. ${arch ? arch.name : soldier.archetypeId}
+          ${index + 1}. ${soldier.name || (arch ? arch.name : soldier.archetypeId)}
         </div>
         <div style="font-size:0.75em; color:var(--color-text-muted); margin-top:2px;">
-          ${this.getItemName(soldier.rightHand)} / ${this.getItemName(soldier.leftHand)}
+          ${arch ? arch.name : soldier.archetypeId} | ${this.getItemName(soldier.rightHand)} / ${this.getItemName(soldier.leftHand)}
         </div>
       `;
 
