@@ -34,7 +34,7 @@ export class UnitLayer implements RenderLayer {
         sprite.complete &&
         sprite.naturalWidth > 0
       ) {
-        const spriteSize = cellSize * 0.8;
+        const spriteSize = cellSize * 0.24;
         ctx.drawImage(
           sprite,
           x - spriteSize / 2,
@@ -121,7 +121,7 @@ export class UnitLayer implements RenderLayer {
         sprite.complete &&
         sprite.naturalWidth > 0
       ) {
-        const spriteSize = cellSize * 0.8;
+        const spriteSize = cellSize * 0.24;
         ctx.drawImage(
           sprite,
           x - spriteSize / 2,
@@ -145,7 +145,7 @@ export class UnitLayer implements RenderLayer {
         if (enemy.type === "hive") {
           const icon = this.assets.iconImages.Hive;
           if (icon && this.sharedState.unitStyle === UnitStyle.Sprites) {
-            const hiveSize = cellSize * 0.8;
+            const hiveSize = cellSize * 0.24;
             ctx.drawImage(
               icon,
               x - hiveSize / 2,
