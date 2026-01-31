@@ -4,6 +4,7 @@ import { CampaignSoldier } from "@src/shared/campaign_types";
 import { ArchetypeLibrary } from "@src/shared/types/units";
 import { StatDisplay } from "@src/renderer/ui/StatDisplay";
 import { Icons } from "@src/renderer/Icons";
+import { SoldierWidget } from "@src/renderer/ui/SoldierWidget";
 
 type DragData =
   | { type: "campaign"; id: string; archetypeId: string }
@@ -238,18 +239,11 @@ export class SquadBuilder {
       soldier: CampaignSoldier,
       isDeployed: boolean,
     ) => {
-      const arch = ArchetypeLibrary[soldier.archetypeId];
-      const card = document.createElement("div");
-
-      const isDead = soldier.status === "Dead";
-      const isWounded = soldier.status === "Wounded";
       const isHealthy = soldier.status === "Healthy";
-
-      card.className = "soldier-card";
-      if (isDead) card.classList.add("dead");
-      if (isWounded) card.classList.add("wounded");
-      if (isDeployed) card.classList.add("deployed");
-      if (!isHealthy) card.classList.add("disabled");
+      const card = SoldierWidget.render(soldier, {
+        context: "squad-builder",
+        isDeployed: isDeployed,
+      });
 
       if (isHealthy && !isDeployed) {
         card.draggable = true;
@@ -269,9 +263,8 @@ export class SquadBuilder {
           }),
         );
       }
-      card.innerHTML = `<strong>${soldier.name}</strong><div style="font-size:0.75em; color:var(--color-text-muted);">${arch?.name || soldier.archetypeId} Lvl ${soldier.level} | Status: ${soldier.status}</div>`;
 
-      if (isDead && this.isCampaign) {
+      if (soldier.status === "Dead" && this.isCampaign) {
         const state = this.context.campaignManager.getState();
         if (state?.rules.deathRule === "Clone") {
           const reviveBtn = document.createElement("button");

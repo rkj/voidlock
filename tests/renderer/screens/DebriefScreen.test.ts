@@ -27,6 +27,7 @@ describe("DebriefScreen", () => {
       soldierResults: [
         {
           soldierId: "soldier_1",
+          name: "Sgt. Slaughter",
           xpBefore: 20,
           xpGained: 70,
           kills: 5,
@@ -42,7 +43,7 @@ describe("DebriefScreen", () => {
     expect(container.innerHTML).toContain("Mission Success");
     expect(container.innerHTML).toContain("10"); // aliensKilled
     expect(container.innerHTML).toContain("+150"); // scrapGained
-    expect(container.innerHTML).toContain("soldier_1");
+    expect(container.innerHTML).toContain("Sgt. Slaughter");
     expect(container.innerHTML).toContain("XP: 20 (+70)");
   });
 

@@ -263,6 +263,8 @@ export class MissionCoordinator {
       timeSpent: state.t,
       soldierResults: state.units.map((u) => ({
         soldierId: u.id,
+        name: u.name,
+        tacticalNumber: u.tacticalNumber,
         xpBefore: 0,
         xpGained: 0,
         kills: u.kills,
@@ -295,6 +297,8 @@ export class MissionCoordinator {
         timeSpent: state.t,
         soldierResults: state.units.map((u) => ({
           soldierId: u.id,
+          name: u.name,
+          tacticalNumber: u.tacticalNumber,
           xpBefore: 0,
           xpGained: 0,
           kills: u.kills,
@@ -316,6 +320,8 @@ export class MissionCoordinator {
       timeSpent: 0,
       soldierResults: squadConfig.soldiers.map((s) => ({
         soldierId: s.id!,
+        name: s.name,
+        tacticalNumber: s.tacticalNumber,
         xpBefore: 0,
         xpGained: 0,
         kills: 0,

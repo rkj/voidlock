@@ -4,6 +4,7 @@ import {
 } from "@src/shared/types";
 import { SoldierInspector } from "@src/renderer/ui/SoldierInspector";
 import { ModalService } from "@src/renderer/ui/ModalService";
+import { SoldierWidget } from "@src/renderer/ui/SoldierWidget";
 
 export class BarracksScreen {
   private container: HTMLElement;
@@ -124,39 +125,14 @@ export class BarracksScreen {
     if (!state) return;
 
     state.roster.forEach((soldier) => {
-      const item = document.createElement("div");
-      item.className = `menu-item clickable ${this.selectedSoldierId === soldier.id ? "active" : ""}`;
-      item.style.marginBottom = "10px";
-      item.style.padding = "10px";
-      item.style.borderLeft = "4px solid transparent";
-
-      if (soldier.status === "Dead") {
-        item.style.opacity = "0.5";
-        item.style.borderLeftColor = "var(--color-danger)";
-      } else if (soldier.status === "Wounded") {
-        item.style.borderLeftColor = "var(--color-hive)";
-      } else {
-        item.style.borderLeftColor = "var(--color-primary)";
-      }
-
-      item.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-          <strong style="color:${this.selectedSoldierId === soldier.id ? "var(--color-accent)" : "var(--color-text)"};">${soldier.name}</strong>
-          <span class="badge">LVL ${soldier.level}</span>
-        </div>
-        <div style="font-size:0.75em; color:var(--color-text-muted); margin-top:4px; display:flex; justify-content:space-between;">
-          <span>${ArchetypeLibrary[soldier.archetypeId]?.name || soldier.archetypeId}</span>
-          <span style="color:${this.getStatusColor(soldier.status)};">${soldier.status}</span>
-        </div>
-        <div style="font-size:0.7em; color:var(--color-text-dim); margin-top:4px;">
-          HP: ${soldier.hp}/${soldier.maxHp} | XP: ${soldier.xp}
-        </div>
-      `;
-
-      item.onclick = () => {
-        this.selectedSoldierId = soldier.id;
-        this.render();
-      };
+      const item = SoldierWidget.render(soldier, {
+        context: "roster",
+        selected: this.selectedSoldierId === soldier.id,
+        onClick: () => {
+          this.selectedSoldierId = soldier.id;
+          this.render();
+        },
+      });
       panel.appendChild(item);
     });
 
