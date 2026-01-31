@@ -20,16 +20,4 @@ export class RosterUtils {
       
     return pool[index];
   }
-
-  /**
-   * Finds the next available tactical number (1-9) for a soldier.
-   */
-  public static getNextTacticalNumber(roster: CampaignSoldier[]): number {
-    const usedNumbers = new Set(roster.map((s) => s.tacticalNumber));
-    for (let i = 1; i <= 9; i++) {
-      if (!usedNumbers.has(i)) return i;
-    }
-    // Fallback: pick one that is least used or just random 1-9
-    return Math.floor(Math.random() * 9) + 1;
-  }
 }

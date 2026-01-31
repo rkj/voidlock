@@ -88,11 +88,9 @@ export class EventManager {
             archetypes[Math.floor(prng.next() * archetypes.length)];
           const arch = ArchetypeLibrary[archId];
           const name = RosterUtils.getRandomName(state.roster, prng);
-          const tacticalNumber = RosterUtils.getNextTacticalNumber(state.roster);
           const newSoldier: CampaignSoldier = {
             id: `soldier_${Date.now()}_${Math.floor(prng.next() * 1000)}`,
             name: name,
-            tacticalNumber: tacticalNumber,
             archetypeId: archId,
             hp: arch ? arch.baseHp : 100,
             maxHp: arch ? arch.baseHp : 100,
