@@ -600,7 +600,9 @@ export class GameApp {
         campaignNode: this.missionSetupManager.currentCampaignNode || undefined,
       },
       (report) => {
-        this.context.campaignManager.processMissionResult(report);
+        if (report.nodeId !== "custom") {
+          this.context.campaignManager.processMissionResult(report);
+        }
         this.debriefScreen.show(report);
       },
       (state) => this.updateUI(state),
@@ -611,7 +613,9 @@ export class GameApp {
   private resumeMission() {
     this.missionCoordinator.resumeMission(
       (report) => {
-        this.context.campaignManager.processMissionResult(report);
+        if (report.nodeId !== "custom") {
+          this.context.campaignManager.processMissionResult(report);
+        }
         this.debriefScreen.show(report);
       },
       (state) => this.updateUI(state),
@@ -630,7 +634,9 @@ export class GameApp {
       this.missionSetupManager.currentSeed,
       this.missionSetupManager.currentSquad,
       (report) => {
-        this.context.campaignManager.processMissionResult(report);
+        if (report.nodeId !== "custom") {
+          this.context.campaignManager.processMissionResult(report);
+        }
         this.debriefScreen.show(report);
       },
       () => this.showMainMenu(),
