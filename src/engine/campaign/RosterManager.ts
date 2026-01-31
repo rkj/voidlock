@@ -158,4 +158,24 @@ export class RosterManager {
 
     soldier.equipment = { ...equipment };
   }
+
+  /**
+   * Renames a soldier.
+   */
+  public renameSoldier(
+    state: CampaignState,
+    soldierId: string,
+    newName: string,
+  ): void {
+    const soldier = state.roster.find((s) => s.id === soldierId);
+    if (!soldier) {
+      throw new Error(`Soldier not found: ${soldierId}`);
+    }
+
+    if (!newName || newName.trim().length === 0) {
+      throw new Error("Invalid name.");
+    }
+
+    soldier.name = newName.trim();
+  }
 }
