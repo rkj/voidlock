@@ -390,11 +390,20 @@ export class MenuController {
   }
 
   private handleUnitSelect(key: string, gameState: GameState) {
-    const activeUnits = gameState.units.filter(
+    let activeUnits = gameState.units.filter(
       (u) => u.state !== UnitState.Dead && u.state !== UnitState.Extracted,
     );
-    let selectedIds: string[] = [];
 
+    if (
+      this.selection.pendingAction === CommandType.ESCORT_UNIT &&
+      this.selection.pendingTargetId
+    ) {
+      activeUnits = activeUnits.filter(
+        (u) => u.id !== this.selection.pendingTargetId,
+      );
+    }
+
+    let selectedIds: string[] = [];
     const num = parseInt(key);
     const isPickup = this.selection.pendingAction === CommandType.PICKUP;
 
@@ -606,9 +615,18 @@ export class MenuController {
       });
       result.footer = "(Click map or press 1-9, Q/ESC to Back)";
     } else if (this.stateMachine.state === "UNIT_SELECT") {
-      const activeUnits = gameState.units.filter(
+      let activeUnits = gameState.units.filter(
         (u) => u.state !== UnitState.Dead && u.state !== UnitState.Extracted,
       );
+
+      if (
+        this.selection.pendingAction === CommandType.ESCORT_UNIT &&
+        this.selection.pendingTargetId
+      ) {
+        activeUnits = activeUnits.filter(
+          (u) => u.id !== this.selection.pendingTargetId,
+        );
+      }
 
       result.options = [];
       activeUnits.forEach((u) => {
@@ -670,6 +688,14 @@ export class MenuController {
       );
       return availableItems.length === 0;
     }
+
+    if (option.commandType === CommandType.ESCORT_UNIT) {
+      const activeUnits = gameState.units.filter(
+        (u) => u.state !== UnitState.Dead && u.state !== UnitState.Extracted,
+      );
+      return activeUnits.length < 2;
+    }
+
     return false;
   }
 
