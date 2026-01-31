@@ -1,17 +1,10 @@
-import { GameState, UnitState, Unit, WeaponLibrary } from "@src/shared/types";
+import { GameState, UnitState, Unit } from "@src/shared/types";
 import { MenuController } from "@src/renderer/MenuController";
 import { MenuRenderer } from "@src/renderer/ui/MenuRenderer";
 import { Icons } from "@src/renderer/Icons";
 import { StatDisplay } from "@src/renderer/ui/StatDisplay";
 import { TimeUtility } from "@src/renderer/TimeUtility";
-
-interface WeaponHUDStats {
-  name: string;
-  damage: number;
-  range: number;
-  accuracy: number;
-  fireRate: string;
-}
+import { SoldierWidget } from "@src/renderer/ui/SoldierWidget";
 
 export class HUDManager {
   private lastMenuHtml = "";
@@ -30,29 +23,6 @@ export class HUDManager {
     this.updateTopBar(state);
     this.updateRightPanel(state);
     this.updateSoldierList(state, selectedUnitId);
-  }
-
-  private getWeaponStats(
-    unit: Unit,
-    weaponId?: string,
-  ): WeaponHUDStats | null {
-    if (!weaponId) return null;
-    const weapon = WeaponLibrary[weaponId];
-    if (!weapon) return null;
-
-    const fireRateVal =
-      weapon.fireRate * (unit.stats.speed > 0 ? 10 / unit.stats.speed : 1);
-
-    return {
-      name: weapon.name,
-      damage: weapon.damage,
-      range: weapon.range,
-      accuracy:
-        unit.stats.soldierAim +
-        (weapon.accuracy || 0) +
-        (unit.stats.equipmentAccuracyBonus || 0),
-      fireRate: fireRateVal > 0 ? (1000 / fireRateVal).toFixed(1) : "0",
-    };
   }
 
   private updateTopBar(state: GameState) {
@@ -490,149 +460,15 @@ export class HUDManager {
 
       if (!el) {
         el = document.createElement("div");
-        el.className = "soldier-item";
         el.dataset.unitId = unit.id;
-        el.addEventListener("click", (e) => this.onUnitClick(unit, e.shiftKey));
         listContainer.appendChild(el);
       }
 
-      const isSelected = unit.id === selectedUnitId;
-      el.classList.toggle("selected", isSelected);
-      el.classList.toggle("dead", unit.state === UnitState.Dead);
-      el.classList.toggle("extracted", unit.state === UnitState.Extracted);
-
-      let statusText: string = unit.state;
-      if (unit.activeCommand) {
-        const cmd = unit.activeCommand;
-        const cmdLabel = cmd.label || cmd.type;
-        statusText = `${cmdLabel} (${unit.state})`;
-      }
-      if (unit.commandQueue && unit.commandQueue.length > 0) {
-        statusText += ` (+${unit.commandQueue.length})`;
-      }
-
-      const hpPercent =
-        unit.state === UnitState.Dead ? 0 : (unit.hp / unit.maxHp) * 100;
-      const policyIcon = unit.engagementPolicy === "IGNORE" ? "🏃" : "⚔️";
-      const burdenIcon = unit.carriedObjectiveId ? " 📦" : "";
-
-      if (!el.hasChildNodes()) {
-        el.innerHTML = `
-          <div class="info-row" style="display:flex; justify-content:space-between; align-items:center;">
-            <div style="display:flex; align-items:center; gap:6px;">
-               <span class="u-icon" style="font-size:1.2em;"></span>
-               <strong class="u-id"></strong>
-               <span class="u-burden" style="color:var(--color-danger); font-size:1em;"></span>
-            </div>
-            <span class="u-hp" style="font-weight:bold;"></span>
-          </div>
-          <div class="base-stats-row" style="font-size:0.7em; display:flex; gap:8px; color:var(--color-text-muted); margin-top:2px;">
-             <span class="u-speed-box"></span>
-          </div>
-          <div class="weapon-stats-container" style="font-size:0.65em; margin-top:4px; display:flex; flex-direction:column; gap:2px; border-top:1px solid var(--color-surface-elevated); padding-top:2px;">
-             <div class="u-lh-row" style="display:flex; gap:6px; align-items:center; padding: 1px 2px;">
-                <span style="color:var(--color-text-dim); flex: 0 0 24px;">LH:</span>
-                <span class="u-lh-stats" style="display:flex; gap:8px;"></span>
-             </div>
-             <div class="u-rh-row" style="display:flex; gap:6px; align-items:center; padding: 1px 2px;">
-                <span style="color:var(--color-text-dim); flex: 0 0 24px;">RH:</span>
-                <span class="u-rh-stats" style="display:flex; gap:8px;"></span>
-             </div>
-          </div>
-          <div class="status-row" style="font-size:0.75em; color:var(--color-text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;">
-               <span class="u-status-text"></span>
-          </div>
-          <div class="hp-bar" style="margin-top:2px;"><div class="hp-fill"></div></div>
-        `;
-      }
-
-      const iconSpan = el.querySelector(".u-icon") as HTMLElement;
-      if (iconSpan.textContent !== policyIcon) iconSpan.textContent = policyIcon;
-
-      const idSpan = el.querySelector(".u-id") as HTMLElement;
-      const displayName = unit.name && unit.tacticalNumber 
-        ? `${unit.name} (${unit.tacticalNumber})`
-        : unit.name || unit.id;
-      if (idSpan.textContent !== displayName) idSpan.textContent = displayName;
-
-      const burdenSpan = el.querySelector(".u-burden") as HTMLElement;
-      if (burdenSpan.textContent !== burdenIcon)
-        burdenSpan.textContent = burdenIcon;
-
-      const statusSpan = el.querySelector(".u-status-text") as HTMLElement;
-      if (statusSpan.textContent !== statusText)
-        statusSpan.textContent = statusText;
-
-      const hpSpan = el.querySelector(".u-hp") as HTMLElement;
-      const hpStr = `${unit.hp}/${unit.maxHp}`;
-      if (hpSpan.textContent !== hpStr) hpSpan.textContent = hpStr;
-
-      const hpFill = el.querySelector(".hp-fill") as HTMLElement;
-      const hpWidth = `${hpPercent}%`;
-      if (hpFill.style.width !== hpWidth) hpFill.style.width = hpWidth;
-
-      const speedBox = el.querySelector(".u-speed-box") as HTMLElement;
-      if (!speedBox.hasChildNodes()) {
-        speedBox.innerHTML = StatDisplay.render(
-          Icons.Speed,
-          unit.stats.speed,
-          "Speed",
-        );
-      } else {
-        StatDisplay.update(speedBox, unit.stats.speed);
-      }
-
-      const lhStats = this.getWeaponStats(unit, unit.leftHand);
-      const rhStats = this.getWeaponStats(unit, unit.rightHand);
-
-      const updateWep = (
-        container: HTMLElement,
-        stats: WeaponHUDStats | null,
-      ) => {
-        if (!stats) {
-          const emptyHtml =
-            '<span style="color:var(--color-border-strong)">Empty</span>';
-          if (container.innerHTML !== emptyHtml) container.innerHTML = emptyHtml;
-          return;
-        }
-
-        if (
-          !container.querySelector(".stat-display") ||
-          container.textContent === "Empty"
-        ) {
-          container.innerHTML = `
-            ${StatDisplay.render(Icons.Damage, stats.damage, "Damage")}
-            ${StatDisplay.render(Icons.Accuracy, stats.accuracy, "Accuracy")}
-            ${StatDisplay.render(Icons.Rate, stats.fireRate, "Fire Rate")}
-            ${StatDisplay.render(Icons.Range, stats.range, "Range")}
-          `;
-        } else {
-          const statsEls = container.querySelectorAll(".stat-display");
-          if (statsEls.length === 4) {
-            StatDisplay.update(statsEls[0] as HTMLElement, stats.damage);
-            StatDisplay.update(statsEls[1] as HTMLElement, stats.accuracy);
-            StatDisplay.update(statsEls[2] as HTMLElement, stats.fireRate);
-            StatDisplay.update(statsEls[3] as HTMLElement, stats.range);
-          }
-        }
-      };
-
-      updateWep(el.querySelector(".u-lh-stats") as HTMLElement, lhStats);
-      updateWep(el.querySelector(".u-rh-stats") as HTMLElement, rhStats);
-
-      const lhRow = el.querySelector(".u-lh-row") as HTMLElement;
-      const rhRow = el.querySelector(".u-rh-row") as HTMLElement;
-
-      if (unit.activeWeaponId === unit.leftHand && unit.leftHand) {
-        lhRow.style.background = "var(--color-surface-elevated)";
-        rhRow.style.background = "transparent";
-      } else if (unit.activeWeaponId === unit.rightHand && unit.rightHand) {
-        rhRow.style.background = "var(--color-surface-elevated)";
-        lhRow.style.background = "transparent";
-      } else {
-        lhRow.style.background = "transparent";
-        rhRow.style.background = "transparent";
-      }
+      SoldierWidget.update(el, unit, {
+        context: "tactical",
+        selected: unit.id === selectedUnitId,
+        onClick: (e: MouseEvent) => this.onUnitClick(unit, e.shiftKey),
+      });
     });
 
     Array.from(listContainer.children).forEach((child) => {

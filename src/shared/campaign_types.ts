@@ -110,6 +110,8 @@ export interface CampaignNode {
  */
 export interface SoldierMissionResult {
   soldierId: string;
+  name?: string;
+  tacticalNumber?: number;
   xpBefore: number;
   xpGained: number;
   kills: number;
