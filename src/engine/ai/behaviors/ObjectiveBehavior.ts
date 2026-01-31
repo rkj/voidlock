@@ -96,7 +96,10 @@ export class ObjectiveBehavior implements Behavior {
       });
     }
 
-    const visibleLoot = visibleItemsFromGrid.filter((item) => item.type === "loot");
+    const visibleLoot = visibleItemsFromGrid.filter((item) => {
+        if (item.type !== "loot") return false;
+        return !context.claimedObjectives.has(item.id);
+    });
     const visibleObjectives = visibleItemsFromGrid.filter((item) => {
         if (item.type !== "objective") return false;
         // The grid query already filtered by visibility/cell

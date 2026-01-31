@@ -283,6 +283,9 @@ export class UnitManager {
 
     if (capableUnits.length > 0) {
       for (const item of allVisibleItems) {
+        // Skip items that are already being pursued or channeled by others
+        if (claimedObjectives.has(item.id)) continue;
+
         // Find closest unit by Euclidean distance
         let closestUnit = capableUnits[0];
         let minDist = MathUtils.getDistance(closestUnit.pos, item.pos);
@@ -413,10 +416,28 @@ export class UnitManager {
 
       // 3. CHANNELING (Handle timed actions)
       if (currentUnit.state === UnitState.Channeling && currentUnit.channeling) {
-        const channeling = { ...currentUnit.channeling };
-        channeling.remaining -= realDt;
-        if (channeling.remaining <= 0) {
-          if (channeling.action === "Extract") {
+        // If target disappeared, stop channeling
+        if (currentUnit.channeling.targetId) {
+          const targetId = currentUnit.channeling.targetId;
+          const isLoot = state.loot?.some((l) => l.id === targetId);
+          const isPendingObjective = state.objectives?.some(
+            (o) => o.id === targetId && o.state === "Pending",
+          );
+
+          if (!isLoot && !isPendingObjective) {
+            currentUnit = {
+              ...currentUnit,
+              state: UnitState.Idle,
+              channeling: undefined,
+            };
+          }
+        }
+
+        if (currentUnit.channeling) {
+          const channeling = { ...currentUnit.channeling };
+          channeling.remaining -= realDt;
+          if (channeling.remaining <= 0) {
+            if (channeling.action === "Extract") {
             if (currentUnit.carriedObjectiveId) {
               const objectiveId = currentUnit.carriedObjectiveId;
               state.objectives = state.objectives.map((o) =>
@@ -508,6 +529,7 @@ export class UnitManager {
           return { ...currentUnit, channeling };
         }
       }
+    }
 
       // 4. COMBAT (Unit's own attacks)
       const combatResult = this.combatManager.update(currentUnit, state, prng);
