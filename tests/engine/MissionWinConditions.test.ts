@@ -33,6 +33,8 @@ describe("Mission Win/Loss Conditions", () => {
     inventory: {},
   };
 
+  const getInternalState = (engine: CoreEngine): GameState => (engine as any).state;
+
   describe("Expendable Crew Missions (Intel/Hive)", () => {
     it("should win RecoverIntel as soon as all objectives are completed, even if squad is wiped later", () => {
       const intelMap: MapDefinition = {
@@ -49,20 +51,19 @@ describe("Mission Win/Loss Conditions", () => {
         false,
         MissionType.RecoverIntel,
       );
-      const state = (engine as unknown as { state: GameState }).state;
 
-      // Manually complete ALL objectives (RecoverIntel generates 3)
-      state.objectives.forEach((o: Objective) => (o.state = "Completed"));
+      // Manually complete ALL objectives
+      getInternalState(engine).objectives.forEach((o: Objective) => (o.state = "Completed"));
 
       engine.update(100);
-      expect(state.status).toBe("Won");
+      expect(engine.getState().status).toBe("Won");
 
       // Wipe squad
-      state.units.forEach((u: Unit) => (u.hp = 0));
+      getInternalState(engine).units.forEach((u: Unit) => (u.hp = 0));
       engine.update(100);
 
       // Should remain "Won"
-      expect(state.status).toBe("Won");
+      expect(engine.getState().status).toBe("Won");
     });
 
     it("should win DestroyHive as soon as Hive is killed, even if squad is wiped later", () => {
@@ -74,24 +75,23 @@ describe("Mission Win/Loss Conditions", () => {
         false,
         MissionType.DestroyHive,
       );
-      const state = (engine as unknown as { state: GameState }).state;
 
       // Find hive objective
-      const hiveObj = state.objectives.find((o: Objective) => o.kind === "Kill");
+      const hiveObj = getInternalState(engine).objectives.find((o: Objective) => o.kind === "Kill");
       expect(hiveObj).toBeDefined();
 
       // Manually complete objective (kill hive)
       if (hiveObj) hiveObj.state = "Completed";
 
       engine.update(100);
-      expect(state.status).toBe("Won");
+      expect(engine.getState().status).toBe("Won");
 
       // Wipe squad
-      state.units.forEach((u: Unit) => (u.hp = 0));
+      getInternalState(engine).units.forEach((u: Unit) => (u.hp = 0));
       engine.update(100);
 
       // Should remain "Won"
-      expect(state.status).toBe("Won");
+      expect(engine.getState().status).toBe("Won");
     });
 
     it("should lose if squad is wiped before objectives are completed", () => {
@@ -109,13 +109,12 @@ describe("Mission Win/Loss Conditions", () => {
         false,
         MissionType.RecoverIntel,
       );
-      const state = (engine as unknown as { state: GameState }).state;
 
       // Wipe squad
-      state.units.forEach((u: Unit) => (u.hp = 0));
+      getInternalState(engine).units.forEach((u: Unit) => (u.hp = 0));
       engine.update(100);
 
-      expect(state.status).toBe("Lost");
+      expect(engine.getState().status).toBe("Lost");
     });
   });
 
@@ -135,25 +134,24 @@ describe("Mission Win/Loss Conditions", () => {
         false,
         MissionType.ExtractArtifacts,
       );
-      const state = (engine as unknown as { state: GameState }).state;
 
-      // 1. Pickup ALL artifacts (ExtractArtifacts generates 3)
-      state.objectives.forEach((o: Objective) => (o.state = "Completed"));
-      state.units[0].carriedObjectiveId = state.objectives[0].id;
+      // 1. Pickup ALL artifacts
+      getInternalState(engine).objectives.forEach((o: Objective) => (o.state = "Completed"));
+      getInternalState(engine).units[0].carriedObjectiveId = getInternalState(engine).objectives[0].id;
 
       engine.update(100);
-      expect(state.status).toBe("Playing"); // Still playing, need to extract
+      expect(engine.getState().status).toBe("Playing"); // Still playing, need to extract
 
       // 2. One unit extracts
-      state.units[0].state = UnitState.Extracted;
+      getInternalState(engine).units[0].state = UnitState.Extracted;
       // Other unit still active
       engine.update(100);
-      expect(state.status).toBe("Playing");
+      expect(engine.getState().status).toBe("Playing");
 
-      // 3. Other unit extracts (must refetch from state.units as it was replaced)
-      state.units[1].state = UnitState.Extracted;
+      // 3. Other unit extracts
+      getInternalState(engine).units[1].state = UnitState.Extracted;
       engine.update(100);
-      expect(state.status).toBe("Won");
+      expect(engine.getState().status).toBe("Won");
     });
 
     it("should lose ExtractArtifacts if all units die, even if artifact was picked up", () => {
@@ -171,26 +169,25 @@ describe("Mission Win/Loss Conditions", () => {
         false,
         MissionType.ExtractArtifacts,
       );
-      const state = (engine as unknown as { state: GameState }).state;
 
       // 1. All objectives completed (Unit 0 picks up artifact 0)
-      state.objectives.forEach((o: Objective) => (o.state = "Completed"));
-      state.units[0].carriedObjectiveId = state.objectives[0].id;
+      getInternalState(engine).objectives.forEach((o: Objective) => (o.state = "Completed"));
+      getInternalState(engine).units[0].carriedObjectiveId = getInternalState(engine).objectives[0].id;
 
       engine.update(100);
 
-      // 2. Unit 0 dies (drops artifact 0) - refetch from state.units
-      state.units[0].hp = 0;
+      // 2. Unit 0 dies (drops artifact 0)
+      getInternalState(engine).units[0].hp = 0;
       engine.update(100); // CoreEngine handles death and resets objective to Pending
 
-      expect(state.objectives[0].state).toBe("Pending");
+      expect(getInternalState(engine).objectives[0].state).toBe("Pending");
 
-      // 3. Unit 1 extracts - refetch from state.units
-      state.units[1].state = UnitState.Extracted;
+      // 3. Unit 1 extracts
+      getInternalState(engine).units[1].state = UnitState.Extracted;
       engine.update(100);
 
       // Active units = 0, but artifact 0 is Pending -> Lost
-      expect(state.status).toBe("Lost");
+      expect(engine.getState().status).toBe("Lost");
     });
 
     it("should win EscortVIP if VIP extracts, regardless of other casualties", () => {
@@ -202,17 +199,16 @@ describe("Mission Win/Loss Conditions", () => {
         false,
         MissionType.EscortVIP,
       );
-      const state = (engine as unknown as { state: GameState }).state;
 
       // Soldier dies
-      state.units.find((u: Unit) => u.archetypeId !== "vip")!.hp = 0;
+      getInternalState(engine).units.find((u: Unit) => u.archetypeId !== "vip")!.hp = 0;
       engine.update(100);
-      expect(state.status).toBe("Playing");
+      expect(engine.getState().status).toBe("Playing");
 
-      // VIP extracts - refetch from state.units
-      state.units.find((u: Unit) => u.archetypeId === "vip")!.state = UnitState.Extracted;
+      // VIP extracts
+      getInternalState(engine).units.find((u: Unit) => u.archetypeId === "vip")!.state = UnitState.Extracted;
       engine.update(100);
-      expect(state.status).toBe("Won");
+      expect(engine.getState().status).toBe("Won");
     });
 
     it("should lose EscortVIP immediately if VIP dies", () => {
@@ -224,11 +220,10 @@ describe("Mission Win/Loss Conditions", () => {
         false,
         MissionType.EscortVIP,
       );
-      const state = (engine as unknown as { state: GameState }).state;
 
-      state.units.find((u: Unit) => u.archetypeId === "vip")!.hp = 0;
+      getInternalState(engine).units.find((u: Unit) => u.archetypeId === "vip")!.hp = 0;
       engine.update(100);
-      expect(state.status).toBe("Lost");
+      expect(engine.getState().status).toBe("Lost");
     });
 
     it("should lose EscortVIP if all combat units die even if VIP is still alive", () => {
@@ -240,15 +235,14 @@ describe("Mission Win/Loss Conditions", () => {
         false,
         MissionType.EscortVIP,
       );
-      const state = (engine as unknown as { state: GameState }).state;
 
-      const combatUnits = state.units.filter(
+      const combatUnits = getInternalState(engine).units.filter(
         (u: Unit) => u.archetypeId !== "vip",
       );
       combatUnits.forEach((u: Unit) => (u.hp = 0));
 
       engine.update(100);
-      expect(state.status).toBe("Lost");
+      expect(engine.getState().status).toBe("Lost");
     });
 
     it("should win Default mission if all units extract (no objectives)", () => {
@@ -260,14 +254,13 @@ describe("Mission Win/Loss Conditions", () => {
         false,
         MissionType.Default,
       );
-      const state = (engine as unknown as { state: GameState }).state;
 
       // No objectives in Default by default (unless map has them)
-      expect(state.objectives.length).toBe(0);
+      expect(engine.getState().objectives.length).toBe(0);
 
-      state.units.forEach((u: Unit) => (u.state = UnitState.Extracted));
+      getInternalState(engine).units.forEach((u: Unit) => (u.state = UnitState.Extracted));
       engine.update(100);
-      expect(state.status).toBe("Won");
+      expect(engine.getState().status).toBe("Won");
     });
 
     it("should lose Default mission if squad wiped without extraction", () => {
@@ -279,11 +272,10 @@ describe("Mission Win/Loss Conditions", () => {
         false,
         MissionType.Default,
       );
-      const state = (engine as unknown as { state: GameState }).state;
 
-      state.units.forEach((u: Unit) => (u.hp = 0));
+      getInternalState(engine).units.forEach((u: Unit) => (u.hp = 0));
       engine.update(100);
-      expect(state.status).toBe("Lost");
+      expect(engine.getState().status).toBe("Lost");
     });
   });
 });

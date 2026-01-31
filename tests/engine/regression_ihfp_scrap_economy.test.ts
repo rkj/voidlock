@@ -34,6 +34,8 @@ describe("Scrap Economy Regression", () => {
     inventory: {},
   };
 
+  const getInternalState = (engine: CoreEngine) => (engine as any).state;
+
   it("should reward scrap for killing elite enemies", () => {
     const engine = new CoreEngine(mockMap, 123, squadConfig, false, false);
 
@@ -56,8 +58,7 @@ describe("Scrap Economy Regression", () => {
     });
 
     // Kill it - must modify internal state
-    const internalState = (engine as any).state;
-    const elite = internalState.enemies.find((e: any) => e.id === "elite-1");
+    const elite = getInternalState(engine).enemies.find((e: any) => e.id === "elite-1");
     if (elite) elite.hp = 0;
 
     // Update engine to process death
@@ -73,15 +74,11 @@ describe("Scrap Economy Regression", () => {
     const engine = new CoreEngine(mockMap, 123, squadConfig, false, false);
 
     // Move unit to objective - must modify internal state
-    const internalState = (engine as any).state;
-    internalState.units[0].pos = { x: 2.5, y: 0.5 };
-    internalState.units[0].stats.speed = 60;
-
-    // First update starts channeling
+    getInternalState(engine).units[0].pos = { x: 2.5, y: 0.5 };
 
     // First update starts channeling
     engine.update(100);
-    expect(internalState.units[0].state).toBe(UnitState.Channeling);
+    expect(getInternalState(engine).units[0].state).toBe(UnitState.Channeling);
 
     // Wait for channeling (3 seconds base, adjusted by speed)
     // unit speed is 20 (assault), so duration is 3000 * (30/20) = 4500ms
@@ -97,11 +94,7 @@ describe("Scrap Economy Regression", () => {
     const engine = new CoreEngine(mockMap, 123, squadConfig, false, false);
 
     // Complete objective
-    const internalState = (engine as any).state;
-    internalState.units[0].pos = { x: 2.5, y: 0.5 };
-    internalState.units[0].stats.speed = 60;
-
-    // First update starts channeling
+    getInternalState(engine).units[0].pos = { x: 2.5, y: 0.5 };
 
     engine.update(100); // Start channeling
     engine.update(4500); // Complete channeling
@@ -110,8 +103,9 @@ describe("Scrap Economy Regression", () => {
     expect(engine.getState().stats.scrapGained).toBe(25);
 
     // Extract unit
-    internalState.units[0].pos = { x: 4.5, y: 0.5 };
+    getInternalState(engine).units[0].pos = { x: 4.5, y: 0.5 };
     engine.update(100); // Start extraction channeling
+    // Extraction base time is 5000ms. 5000 * (30/20) = 7500ms
     engine.update(7500); // Complete extraction
     engine.update(100); // Process win
 
@@ -125,8 +119,7 @@ describe("Scrap Economy Regression", () => {
     const engine = new CoreEngine(mockMap, 123, squadConfig, false, false);
 
     // Kill all units
-    const internalState = (engine as any).state;
-    internalState.units.forEach((u: any) => {
+    getInternalState(engine).units.forEach((u: any) => {
       u.hp = 0;
       // CoreEngine update will set state to Dead
     });

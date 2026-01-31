@@ -564,7 +564,7 @@ describe("E2E Campaign Failure Modes", () => {
       "#squad-builder .soldier-card",
     );
     const deadCard = Array.from(rosterCards).find((c) =>
-      c.querySelector("strong")?.textContent?.includes("Recruit 1"),
+      c.querySelector("strong")?.textContent?.includes(deadSoldier!.name),
     );
     expect(deadCard).toBeTruthy();
     expect(deadCard?.classList.contains("disabled")).toBe(true);
@@ -573,11 +573,11 @@ describe("E2E Campaign Failure Modes", () => {
     // Try to double click the dead card
     deadCard?.dispatchEvent(new Event("dblclick"));
 
-    // Check active squad again - should still not have Recruit 1
+    // Check active squad again - should still not have the dead soldier
     const activeSquadSlotsAfterClick = document.querySelectorAll(".squad-slot");
     const deadInSquadAfterClick = Array.from(activeSquadSlotsAfterClick).some(
       (slot) =>
-        slot.querySelector("strong")?.textContent?.includes("Recruit 1"),
+        slot.querySelector("strong")?.textContent?.includes(deadSoldier!.name),
     );
     expect(deadInSquadAfterClick).toBe(false);
   });

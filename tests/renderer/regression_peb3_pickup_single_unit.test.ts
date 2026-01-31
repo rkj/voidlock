@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { MenuController } from "@src/renderer/MenuController";
-import { CommandType, GameState, UnitState, CellType } from "@src/shared/types";
+import { GameState, UnitState, CellType } from "@src/shared/types";
 import { createMockGameState } from "@src/engine/tests/utils/MockFactory";
 
 describe("Regression voidlock-peb3: Restrict PICKUP to single unit", () => {
@@ -81,7 +81,6 @@ describe("Regression voidlock-peb3: Restrict PICKUP to single unit", () => {
 
     controller.handleMenuInput(targetKey, mockState); // Select target loot-1
     
-    const unitSelectState = controller.getRenderableState(mockState);
     const allUnitsKey = (mockState.units.length + 1).toString();
     
     // Attempt to select 'All Units'

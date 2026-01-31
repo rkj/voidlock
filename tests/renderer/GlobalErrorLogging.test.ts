@@ -20,7 +20,7 @@ describe("Global Error Logging (main.ts)", () => {
   it("should have window.onerror and window.onunhandledrejection set after importing main.ts", async () => {
     // We need to import main.ts but it has side effects (starts the app)
     // So we might need to mock GameApp
-    vi.mock("./app/GameApp", () => {
+    vi.mock("@src/renderer/app/GameApp", () => {
       return {
         GameApp: vi.fn().mockImplementation(() => {
           return {

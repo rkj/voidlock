@@ -70,17 +70,17 @@ describe("Roster Sorting Regression (voidlock-l7b8)", () => {
         prompt: vi.fn(),
       },
     };
-    (app as any).currentSquad = { soldiers: [] };
-    (app as any).currentMissionType = MissionType.Default;
+    (app as any).missionSetupManager.currentSquad = { soldiers: [] };
+    (app as any).missionSetupManager.currentMissionType = MissionType.Default;
 
-    (app as any).squadBuilder = new SquadBuilder(
+    (app as any).missionSetupManager.squadBuilder = new SquadBuilder(
       "squad-builder",
       (app as any).context,
-      (app as any).currentSquad,
-      (app as any).currentMissionType,
+      (app as any).missionSetupManager.currentSquad,
+      (app as any).missionSetupManager.currentMissionType,
       false,
       (squad) => {
-        (app as any).currentSquad = squad;
+        (app as any).missionSetupManager.currentSquad = squad;
       },
     );
   });
@@ -123,7 +123,7 @@ describe("Roster Sorting Regression (voidlock-l7b8)", () => {
     mockCampaignManager.getState.mockReturnValue(mockState);
 
     // Accessing private for testing
-    (app as any).renderSquadBuilder(true);
+    (app as any).missionSetupManager.renderSquadBuilder(true);
 
     const cards = document.querySelectorAll(".soldier-card");
     expect(cards.length).toBe(3);
@@ -164,11 +164,11 @@ describe("Roster Sorting Regression (voidlock-l7b8)", () => {
       ],
     };
     mockCampaignManager.getState.mockReturnValue(mockState);
-    (app as any).currentSquad = {
+    (app as any).missionSetupManager.currentSquad = {
       soldiers: [{ id: "1", archetypeId: "assault" }],
     };
 
-    (app as any).renderSquadBuilder(true);
+    (app as any).missionSetupManager.renderSquadBuilder(true);
 
     const cards = document.querySelectorAll(".soldier-card");
 
