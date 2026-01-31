@@ -156,7 +156,6 @@ export class GameApp {
     this.barracksScreen = new BarracksScreen(
       "screen-barracks",
       this.context.campaignManager,
-      this.context.modalService,
       () => {
         this.campaignScreen.show();
         this.context.screenManager.show("campaign");

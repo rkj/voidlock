@@ -3,12 +3,10 @@ import {
   ArchetypeLibrary,
 } from "@src/shared/types";
 import { SoldierInspector } from "@src/renderer/ui/SoldierInspector";
-import { ModalService } from "../ui/ModalService";
 
 export class BarracksScreen {
   private container: HTMLElement;
   private manager: CampaignManager;
-  private modalService: ModalService;
   private selectedSoldierId: string | null = null;
   private inspector: SoldierInspector;
   private activeTab: "Recruitment" | "Armory" = "Recruitment";
@@ -18,7 +16,6 @@ export class BarracksScreen {
   constructor(
     containerId: string,
     manager: CampaignManager,
-    modalService: ModalService,
     onBack?: () => void,
     onUpdate?: () => void,
   ) {
@@ -26,7 +23,6 @@ export class BarracksScreen {
     if (!el) throw new Error(`Container #${containerId} not found`);
     this.container = el;
     this.manager = manager;
-    this.modalService = modalService;
     this.onBack = onBack;
     this.onUpdate = onUpdate;
     this.inspector = new SoldierInspector({
@@ -347,16 +343,10 @@ export class BarracksScreen {
       recruitBtn.style.padding = "5px";
       recruitBtn.style.fontSize = "0.8em";
       recruitBtn.disabled = state.scrap < 100;
-      recruitBtn.onclick = async () => {
-        const name = await this.modalService.prompt(
-          "Enter soldier name:",
-          `Recruit ${Math.floor(Math.random() * 1000)}`,
-        );
-        if (name) {
-          this.manager.recruitSoldier(archId, name);
-          this.render();
-          if (this.onUpdate) this.onUpdate();
-        }
+      recruitBtn.onclick = () => {
+        this.manager.recruitSoldier(archId);
+        this.render();
+        if (this.onUpdate) this.onUpdate();
       };
       card.appendChild(recruitBtn);
 

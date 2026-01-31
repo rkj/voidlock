@@ -1,7 +1,7 @@
 import { CampaignState, CampaignSoldier } from "../../shared/campaign_types";
 import { ArchetypeLibrary, EquipmentState } from "../../shared/types";
 import { DEFAULT_ARCHETYPES, CAMPAIGN_DEFAULTS } from "../config/CampaignDefaults";
-import { NameGenerator } from "../../shared/utils/NameGenerator";
+import { RosterUtils } from "./RosterUtils";
 
 /**
  * Handles roster-related logic for the campaign.
@@ -19,7 +19,7 @@ export class RosterManager {
       const arch = ArchetypeLibrary[archId];
       roster.push({
         id: `soldier_${i}`,
-        name: NameGenerator.generate(),
+        name: RosterUtils.getRandomName(roster),
         tacticalNumber: i + 1,
         archetypeId: archId,
         hp: arch ? arch.baseHp : 100,
@@ -64,7 +64,7 @@ export class RosterManager {
       ? Math.max(...state.roster.map((s) => s.tacticalNumber || 0))
       : 0;
     const tacticalNumber = maxTacticalNumber + 1;
-    const finalName = name || NameGenerator.generate();
+    const finalName = name || RosterUtils.getRandomName(state.roster);
 
     const newSoldier: CampaignSoldier = {
       id: `soldier_${Date.now()}_${Math.floor(Math.random() * 1000)}`,

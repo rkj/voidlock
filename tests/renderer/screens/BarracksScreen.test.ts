@@ -31,7 +31,6 @@ describe("BarracksScreen", () => {
     const screen = new BarracksScreen(
       "screen-barracks",
       manager,
-      mockModalService,
       onBack,
     );
     screen.show();
@@ -51,7 +50,6 @@ describe("BarracksScreen", () => {
     const screen = new BarracksScreen(
       "screen-barracks",
       manager,
-      mockModalService,
       onBack,
     );
     screen.show();
@@ -69,7 +67,6 @@ describe("BarracksScreen", () => {
     const screen = new BarracksScreen(
       "screen-barracks",
       manager,
-      mockModalService,
       onBack,
     );
     screen.show();
@@ -97,7 +94,6 @@ describe("BarracksScreen", () => {
     const screen = new BarracksScreen(
       "screen-barracks",
       manager,
-      mockModalService,
       onBack,
     );
     screen.show();
@@ -126,7 +122,6 @@ describe("BarracksScreen", () => {
     const screen = new BarracksScreen(
       "screen-barracks",
       manager,
-      mockModalService,
       onBack,
     );
     screen.show();
@@ -142,15 +137,14 @@ describe("BarracksScreen", () => {
   });
 
   it("should allow recruiting a new soldier", async () => {
-    mockModalService.prompt.mockResolvedValue("Bob");
-
     const screen = new BarracksScreen(
       "screen-barracks",
       manager,
-      mockModalService,
       onBack,
     );
     screen.show();
+
+    const initialCount = manager.getState()?.roster.length || 0;
 
     const recruitBtns = Array.from(container.querySelectorAll("button")).filter(
       (btn) => btn.textContent === "Recruit",
@@ -158,11 +152,14 @@ describe("BarracksScreen", () => {
 
     recruitBtns[0].click();
 
-    // Wait for async ModalService.prompt
+    // Give it a moment for any async updates
     await new Promise((resolve) => setTimeout(resolve, 0));
 
-    expect(mockModalService.prompt).toHaveBeenCalled();
-    expect(manager.getState()?.roster.some((s) => s.name === "Bob")).toBe(true);
-    expect(container.textContent).toContain("Bob");
+    expect(mockModalService.prompt).not.toHaveBeenCalled();
+    const state = manager.getState()!;
+    expect(state.roster.length).toBe(initialCount + 1);
+    
+    const newSoldier = state.roster[state.roster.length - 1];
+    expect(container.textContent).toContain(newSoldier.name);
   });
 });
