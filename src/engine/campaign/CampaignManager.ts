@@ -556,6 +556,19 @@ export class CampaignManager {
   }
 
   /**
+   * Renames a soldier.
+   * @param soldierId The ID of the soldier.
+   * @param newName The new name for the soldier.
+   */
+  public renameSoldier(soldierId: string, newName: string): void {
+    if (!this.state) {
+      throw new Error("CampaignManager: No active campaign state to rename soldier.");
+    }
+    this.rosterManager.renameSoldier(this.state, soldierId, newName);
+    this.save();
+  }
+
+  /**
    * Applies the outcome of a narrative event choice.
    * @param nodeId The ID of the event node.
    * @param choice The choice made by the player.

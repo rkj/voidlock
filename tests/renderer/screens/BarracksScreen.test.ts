@@ -31,6 +31,7 @@ describe("BarracksScreen", () => {
     const screen = new BarracksScreen(
       "screen-barracks",
       manager,
+      mockModalService,
       onBack,
     );
     screen.show();
@@ -50,6 +51,7 @@ describe("BarracksScreen", () => {
     const screen = new BarracksScreen(
       "screen-barracks",
       manager,
+      mockModalService,
       onBack,
     );
     screen.show();
@@ -67,6 +69,7 @@ describe("BarracksScreen", () => {
     const screen = new BarracksScreen(
       "screen-barracks",
       manager,
+      mockModalService,
       onBack,
     );
     screen.show();
@@ -94,6 +97,7 @@ describe("BarracksScreen", () => {
     const screen = new BarracksScreen(
       "screen-barracks",
       manager,
+      mockModalService,
       onBack,
     );
     screen.show();
@@ -122,6 +126,7 @@ describe("BarracksScreen", () => {
     const screen = new BarracksScreen(
       "screen-barracks",
       manager,
+      mockModalService,
       onBack,
     );
     screen.show();
@@ -140,6 +145,7 @@ describe("BarracksScreen", () => {
     const screen = new BarracksScreen(
       "screen-barracks",
       manager,
+      mockModalService,
       onBack,
     );
     screen.show();
@@ -161,5 +167,46 @@ describe("BarracksScreen", () => {
     
     const newSoldier = state.roster[state.roster.length - 1];
     expect(container.textContent).toContain(newSoldier.name);
+  });
+
+  it("should allow renaming a soldier", async () => {
+    mockModalService.prompt = vi.fn().mockResolvedValue("Renamed Soldier");
+
+    const screen = new BarracksScreen(
+      "screen-barracks",
+      manager,
+      mockModalService,
+      onBack,
+    );
+    screen.show();
+
+    const state = manager.getState()!;
+    const originalName = state.roster[0].name;
+
+    // Select the first soldier
+    const soldierItem = Array.from(
+      container.querySelectorAll(".menu-item.clickable"),
+    ).find((el) => el.textContent?.includes(originalName)) as HTMLElement;
+    soldierItem.click();
+
+    // Find and click the rename button (pencil icon)
+    const renameBtn = Array.from(container.querySelectorAll("button")).find(
+      (btn) => btn.title === "Rename Soldier",
+    ) as HTMLButtonElement;
+    expect(renameBtn).toBeTruthy();
+
+    await renameBtn.click();
+
+    expect(mockModalService.prompt).toHaveBeenCalledWith(
+      expect.any(String),
+      originalName,
+      "RENAME SOLDIER",
+    );
+
+    // Give it a moment for any async updates
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(state.roster[0].name).toBe("Renamed Soldier");
+    expect(container.textContent).toContain("Renamed Soldier");
   });
 });

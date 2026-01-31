@@ -29,6 +29,7 @@ describe("Recruitment Auto-Generated Name", () => {
     const screen = new BarracksScreen(
       "screen-barracks",
       manager,
+      mockModalService,
       vi.fn(),
     );
     screen.show();

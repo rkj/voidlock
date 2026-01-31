@@ -3,10 +3,12 @@ import {
   ArchetypeLibrary,
 } from "@src/shared/types";
 import { SoldierInspector } from "@src/renderer/ui/SoldierInspector";
+import { ModalService } from "@src/renderer/ui/ModalService";
 
 export class BarracksScreen {
   private container: HTMLElement;
   private manager: CampaignManager;
+  private modalService: ModalService;
   private selectedSoldierId: string | null = null;
   private inspector: SoldierInspector;
   private activeTab: "Recruitment" | "Armory" = "Recruitment";
@@ -16,6 +18,7 @@ export class BarracksScreen {
   constructor(
     containerId: string,
     manager: CampaignManager,
+    modalService: ModalService,
     onBack?: () => void,
     onUpdate?: () => void,
   ) {
@@ -23,6 +26,7 @@ export class BarracksScreen {
     if (!el) throw new Error(`Container #${containerId} not found`);
     this.container = el;
     this.manager = manager;
+    this.modalService = modalService;
     this.onBack = onBack;
     this.onUpdate = onUpdate;
     this.inspector = new SoldierInspector({
@@ -196,10 +200,34 @@ export class BarracksScreen {
     header.style.marginBottom = "10px";
 
     const nameInfo = document.createElement("div");
+    nameInfo.className = "flex-row align-center gap-10";
     nameInfo.innerHTML = `
-      <h3 style="margin:0; font-size:1.5em; color:var(--color-accent);">${soldier.name} (${soldier.tacticalNumber})</h3>
-      <div style="color:var(--color-text-muted);">${ArchetypeLibrary[soldier.archetypeId]?.name} Rank ${soldier.level}</div>
+      <div class="flex-col">
+        <h3 style="margin:0; font-size:1.5em; color:var(--color-accent);">${soldier.name} (${soldier.tacticalNumber})</h3>
+        <div style="color:var(--color-text-muted);">${ArchetypeLibrary[soldier.archetypeId]?.name} Rank ${soldier.level}</div>
+      </div>
     `;
+
+    const renameBtn = document.createElement("button");
+    renameBtn.innerHTML = "✎"; // Pencil icon
+    renameBtn.title = "Rename Soldier";
+    renameBtn.style.padding = "4px 8px";
+    renameBtn.style.fontSize = "1.2em";
+    renameBtn.style.marginTop = "0";
+    renameBtn.onclick = async () => {
+      const newName = await this.modalService.prompt(
+        "Enter new name for this soldier:",
+        soldier.name,
+        "RENAME SOLDIER",
+      );
+      if (newName && newName.trim() !== "" && newName !== soldier.name) {
+        this.manager.renameSoldier(soldier.id, newName.trim());
+        this.render();
+        if (this.onUpdate) this.onUpdate();
+      }
+    };
+    nameInfo.appendChild(renameBtn);
+
     header.appendChild(nameInfo);
 
     const statusBadge = document.createElement("div");

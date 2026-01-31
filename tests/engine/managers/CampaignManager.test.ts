@@ -330,6 +330,30 @@ describe("CampaignManager", () => {
       expect(state.scrap).toBe(initialScrap - 50);
     });
 
+    it("should rename a soldier", () => {
+      const state = manager.getState()!;
+      const soldier = state.roster[0];
+      const oldName = soldier.name;
+      const newName = "Ghost Rider";
+
+      manager.renameSoldier(soldier.id, newName);
+
+      expect(soldier.name).toBe(newName);
+      expect(soldier.name).not.toBe(oldName);
+    });
+
+    it("should throw error when renaming with an invalid name", () => {
+      const state = manager.getState()!;
+      const soldier = state.roster[0];
+
+      expect(() => manager.renameSoldier(soldier.id, "")).toThrow(
+        "Invalid name.",
+      );
+      expect(() => manager.renameSoldier(soldier.id, "   ")).toThrow(
+        "Invalid name.",
+      );
+    });
+
     it("should throw error when spendScrap called with insufficient funds", () => {
       const state = manager.getState()!;
       state.scrap = 10;

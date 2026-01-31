@@ -74,6 +74,7 @@ export class GameApp {
     await ThemeManager.getInstance().init();
     this.context.themeManager = ThemeManager.getInstance();
     this.context.campaignManager = CampaignManager.getInstance();
+    this.context.campaignManager.load();
     this.context.modalService = new ModalService();
     this.context.screenManager = new ScreenManager();
 
@@ -156,6 +157,7 @@ export class GameApp {
     this.barracksScreen = new BarracksScreen(
       "screen-barracks",
       this.context.campaignManager,
+      this.context.modalService,
       () => {
         this.campaignScreen.show();
         this.context.screenManager.show("campaign");
