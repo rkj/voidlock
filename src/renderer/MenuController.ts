@@ -4,6 +4,7 @@ import {
   EngagementPolicy,
   GameState,
   ItemLibrary,
+  MapDefinition,
   OverlayOption,
   UnitState,
   Vector2,
@@ -42,6 +43,7 @@ export class MenuController {
   private stateMachine = new MenuStateMachine();
   private selection = new SelectionManager();
   private discovery = new RoomDiscoveryManager();
+  private lastFullMap: MapDefinition | null = null;
 
   public get menuState(): MenuState {
     return this.stateMachine.state;
@@ -126,6 +128,14 @@ export class MenuController {
 
   public clearDiscoveryOrder() {
     this.discovery.clear();
+    this.lastFullMap = null;
+  }
+
+  public update(gameState: GameState) {
+    if (gameState.map.cells && gameState.map.cells.length > 0) {
+      this.lastFullMap = gameState.map;
+    }
+    this.discovery.update(gameState);
   }
 
   public selectUnit(unitId: string) {
@@ -239,7 +249,7 @@ export class MenuController {
       this.transitionTo("TARGET_SELECT", option.label);
       this.selection.overlayOptions = TargetOverlayGenerator.generate(
         "ITEM",
-        gameState,
+        this.rehydrateState(gameState),
         this.discovery,
       );
     } else if (option.commandType === CommandType.EXTRACT) {
@@ -261,12 +271,14 @@ export class MenuController {
 
     this.selection.pendingAction = option.commandType || null;
 
+    const fullState = this.rehydrateState(gameState);
+
     if (option.commandType === CommandType.MOVE_TO) {
       this.selection.pendingLabel = "Moving";
       this.transitionTo("TARGET_SELECT", option.label);
       this.selection.overlayOptions = TargetOverlayGenerator.generate(
         "CELL",
-        gameState,
+        fullState,
         this.discovery,
       );
     } else if (option.commandType === CommandType.OVERWATCH_POINT) {
@@ -274,7 +286,7 @@ export class MenuController {
       this.transitionTo("TARGET_SELECT", option.label);
       this.selection.overlayOptions = TargetOverlayGenerator.generate(
         "INTERSECTION",
-        gameState,
+        fullState,
         this.discovery,
       );
     } else if (option.commandType === CommandType.EXPLORE) {
@@ -288,7 +300,7 @@ export class MenuController {
       this.transitionTo("TARGET_SELECT", option.label);
       this.selection.overlayOptions = TargetOverlayGenerator.generate(
         "FRIENDLY_UNIT",
-        gameState,
+        fullState,
         this.discovery,
       );
     }
@@ -317,6 +329,8 @@ export class MenuController {
 
       this.selection.pendingItemId = itemId;
       const label = item?.name || itemId;
+      const fullState = this.rehydrateState(gameState);
+
       if (item?.action === "Mine" || item?.action === "Heal") {
         this.transitionTo("UNIT_SELECT", label);
       } else {
@@ -324,13 +338,13 @@ export class MenuController {
         if (item?.action === "Scanner") {
           this.selection.overlayOptions = TargetOverlayGenerator.generate(
             "FRIENDLY_UNIT",
-            gameState,
+            fullState,
             this.discovery,
           );
         } else {
           this.selection.overlayOptions = TargetOverlayGenerator.generate(
             "CELL",
-            gameState,
+            fullState,
             this.discovery,
           );
         }
@@ -413,7 +427,7 @@ export class MenuController {
         this.transitionTo("TARGET_SELECT", label);
         this.selection.overlayOptions = TargetOverlayGenerator.generate(
           "PLACEMENT_POINT",
-          gameState,
+          this.rehydrateState(gameState),
           this.discovery,
         );
       } else {
@@ -450,26 +464,28 @@ export class MenuController {
       breadcrumbs: [...this.stateMachine.breadcrumbs],
     };
 
+    const fullState = this.rehydrateState(gameState);
+
     // Live-update overlays if in Target Select
     if (this.stateMachine.state === "TARGET_SELECT") {
       if (this.selection.pendingAction === CommandType.MOVE_TO) {
         if (this.selection.pendingLabel === "Collecting") {
           this.selection.overlayOptions = TargetOverlayGenerator.generate(
             "ITEM",
-            gameState,
+            fullState,
             this.discovery,
           );
         } else {
           this.selection.overlayOptions = TargetOverlayGenerator.generate(
             "CELL",
-            gameState,
+            fullState,
             this.discovery,
           );
         }
       } else if (this.selection.pendingAction === CommandType.OVERWATCH_POINT) {
         this.selection.overlayOptions = TargetOverlayGenerator.generate(
           "INTERSECTION",
-          gameState,
+          fullState,
           this.discovery,
         );
       } else if (this.selection.pendingAction === CommandType.USE_ITEM) {
@@ -479,38 +495,38 @@ export class MenuController {
         if (item?.action === "Grenade") {
           this.selection.overlayOptions = TargetOverlayGenerator.generate(
             "CELL",
-            gameState,
+            fullState,
             this.discovery,
           );
         } else if (item?.action === "Scanner") {
           this.selection.overlayOptions = TargetOverlayGenerator.generate(
             "FRIENDLY_UNIT",
-            gameState,
+            fullState,
             this.discovery,
           );
         } else if (item?.action === "Mine") {
           this.selection.overlayOptions = TargetOverlayGenerator.generate(
             "PLACEMENT_POINT",
-            gameState,
+            fullState,
             this.discovery,
           );
         } else {
           this.selection.overlayOptions = TargetOverlayGenerator.generate(
             "CELL",
-            gameState,
+            fullState,
             this.discovery,
           );
         }
       } else if (this.selection.pendingAction === CommandType.PICKUP) {
         this.selection.overlayOptions = TargetOverlayGenerator.generate(
           "ITEM",
-          gameState,
+          fullState,
           this.discovery,
         );
       } else if (this.selection.pendingAction === CommandType.ESCORT_UNIT) {
         this.selection.overlayOptions = TargetOverlayGenerator.generate(
           "FRIENDLY_UNIT",
-          gameState,
+          fullState,
           this.discovery,
         );
       }
@@ -676,5 +692,16 @@ export class MenuController {
     }
 
     this.reset();
+  }
+
+  private rehydrateState(state: GameState): GameState {
+    if (!this.lastFullMap) return state;
+    return {
+      ...state,
+      map: {
+        ...this.lastFullMap,
+        doors: state.map.doors || this.lastFullMap.doors, // Doors are dynamic
+      },
+    };
   }
 }

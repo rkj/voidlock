@@ -485,6 +485,7 @@ export class GameApp {
 
   private updateUI(state: GameState) {
     this.currentGameState = state;
+    this.context.menuController.update(state);
     this.context.hudManager.update(state, this.selectedUnitId);
   }
 
