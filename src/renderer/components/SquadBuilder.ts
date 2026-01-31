@@ -125,20 +125,14 @@ export class SquadBuilder {
             recruitBtn.textContent = "Recruit (100 Scrap)";
             recruitBtn.disabled = state.scrap < 100;
             recruitBtn.onclick = async () => {
-              const name = await this.context.modalService.prompt(
-                "Enter soldier name:",
-                `Recruit ${state.roster.length + 1}`,
-              );
-              if (name) {
-                try {
-                  const newId = this.context.campaignManager.recruitSoldier(
-                    state.unlockedArchetypes[
-                      Math.floor(
-                        Math.random() * state.unlockedArchetypes.length,
-                      )
-                    ],
-                    name,
-                  );
+              try {
+                const newId = this.context.campaignManager.recruitSoldier(
+                  state.unlockedArchetypes[
+                    Math.floor(
+                      Math.random() * state.unlockedArchetypes.length,
+                    )
+                  ],
+                );
 
                   // Auto-deploy if slot available
                   const totalNonVip = this.squad.soldiers.filter(
@@ -163,7 +157,6 @@ export class SquadBuilder {
                     }
                   }
 
-                  this.onSquadUpdated(this.squad);
                   if (this.context.campaignShell)
                     this.context.campaignShell.refresh();
                   updateCount();
@@ -172,7 +165,6 @@ export class SquadBuilder {
                     err instanceof Error ? err.message : String(err);
                   await this.context.modalService.alert(message);
                 }
-              }
             };
             rosterPanel.appendChild(recruitBtn);
           }

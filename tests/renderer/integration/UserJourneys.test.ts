@@ -157,9 +157,10 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
         healSoldier: vi.fn(),
         recruitSoldier: vi.fn((arch, name) => {
           if (!currentCampaignState) return "";
+          const finalName = name || `Recruit ${currentCampaignState.roster.length + 1}`;
           currentCampaignState.roster.push({
             id: "s2",
-            name: name,
+            name: finalName,
             tacticalNumber: currentCampaignState.roster.length + 1,
             archetypeId: arch,
             status: "Healthy",
@@ -323,10 +324,10 @@ describe("Comprehensive User Journeys", () => {
     ).filter((btn) => btn.textContent === "Recruit") as HTMLButtonElement[];
     recruitBtns[0].click();
 
-    // Wait for async ModalService.prompt
+    // Wait for any async updates
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    expect(mockModalService.prompt).toHaveBeenCalled();
+    expect(mockModalService.prompt).not.toHaveBeenCalled();
 
     // Verify roster increased (mocked)
     const rosterItems = document.querySelectorAll(

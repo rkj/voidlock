@@ -492,9 +492,9 @@ export class CampaignManager {
   /**
    * Recruits a new soldier of the given archetype.
    * @param archetypeId The ID of the archetype to recruit.
-   * @param name The name of the new soldier.
+   * @param name Optional name of the new soldier. If not provided, one will be generated.
    */
-  public recruitSoldier(archetypeId: string, name: string): string {
+  public recruitSoldier(archetypeId: string, name?: string): string {
     if (!this.state) throw new Error("CampaignManager: No active campaign.");
     const id = this.rosterManager.recruitSoldier(this.state, archetypeId, name);
     this.save();
