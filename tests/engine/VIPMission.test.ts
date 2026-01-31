@@ -29,6 +29,8 @@ describe("VIP Mission Mechanics", () => {
     extraction: { x: 2, y: 2 },
   };
 
+  const getInternalState = (engine: CoreEngine): GameState => (engine as any).state;
+
   it("should fail immediately if a VIP dies", () => {
     const engine = new CoreEngine(
       mockMap,
@@ -39,16 +41,11 @@ describe("VIP Mission Mechanics", () => {
       MissionType.EscortVIP,
     );
 
-    const state = engine.getState();
-    const vip = state.units.find((u) => u.archetypeId === "vip");
+    const vip = getInternalState(engine).units.find((u: any) => u.archetypeId === "vip");
     expect(vip).toBeDefined();
 
     // Kill the VIP
-    const internalState = (engine as unknown as { state: GameState }).state;
-    const internalVip = internalState.units.find(
-      (u: Unit) => u.archetypeId === "vip",
-    )!;
-    internalVip.hp = 0;
+    vip!.hp = 0;
 
     engine.update(100);
 
@@ -77,9 +74,7 @@ describe("VIP Mission Mechanics", () => {
     ).toBe(2);
 
     // Kill one of the VIPs
-    const internalState = (engine as unknown as { state: GameState }).state;
-    const internalVip2 = internalState.units.find((u: Unit) => u.id === "vip-2")!;
-    internalVip2.hp = 0;
+    getInternalState(engine).units.find((u: any) => u.id === "vip-2")!.hp = 0;
 
     engine.update(100);
 
@@ -105,16 +100,13 @@ describe("VIP Mission Mechanics", () => {
     engine.addUnit(vip2);
 
     // Extract first VIP
-    const internalState = (engine as unknown as { state: GameState }).state;
-    const internalVip1 = internalState.units.find((u: Unit) => u.id === "vip-1")!;
-    internalVip1.state = UnitState.Extracted;
+    getInternalState(engine).units.find((u: any) => u.id === "vip-1")!.state = UnitState.Extracted;
 
     engine.update(100);
     expect(engine.getState().status).toBe("Playing"); // Still one VIP left
 
     // Extract second VIP
-    const internalVip2 = internalState.units.find((u: Unit) => u.id === "vip-2")!;
-    internalVip2.state = UnitState.Extracted;
+    getInternalState(engine).units.find((u: any) => u.id === "vip-2")!.state = UnitState.Extracted;
 
     engine.update(100);
     expect(engine.getState().status).toBe("Won");
@@ -164,8 +156,6 @@ describe("VIP Mission Mechanics", () => {
   });
 
   it("should unlock VIP only when a soldier is nearby or in LOS", () => {
-    // Manually fix VIP position if fromAscii didn't place it (it uses 'S' for spawn, 'V' is not standard)
-    // Actually fromAscii doesn't support 'V'. Let's use 'O' for objective and place VIP there.
     const asciiMap2 = `
 +-+-+-+
 |P| |O|
@@ -184,9 +174,8 @@ describe("VIP Mission Mechanics", () => {
       MissionType.EscortVIP,
     );
 
-    const internalState = (engine2 as unknown as { state: GameState }).state;
-    const vip = internalState.units.find((u: Unit) => u.archetypeId === "vip")!;
-    const soldier = internalState.units.find(
+    const vip = getInternalState(engine2).units.find((u: Unit) => u.archetypeId === "vip")!;
+    const soldier = getInternalState(engine2).units.find(
       (u: Unit) => u.archetypeId === "assault",
     )!;
 
@@ -196,15 +185,13 @@ describe("VIP Mission Mechanics", () => {
     vip.aiEnabled = false;
 
     engine2.update(100);
-    expect(vip.aiEnabled).toBe(false); // Blocked by wall
+    expect(getInternalState(engine2).units.find((u: any) => u.archetypeId === "vip")!.aiEnabled).toBe(false); // Blocked by wall
 
     // Move soldier to (1.5, 0.5) - now in same room area as VIP (1,0 and 2,0 are connected)
-    const internalStateAfter = (engine2 as any).state;
-    const soldierAfter = internalStateAfter.units.find((u: any) => u.archetypeId === "assault")!;
-    soldierAfter.pos = { x: 1.5, y: 0.5 };
+    getInternalState(engine2).units.find((u: any) => u.archetypeId === "assault")!.pos = { x: 1.5, y: 0.5 };
     engine2.update(100);
     
-    const updatedVip = (engine2 as any).state.units.find((u: any) => u.archetypeId === "vip")!;
+    const updatedVip = getInternalState(engine2).units.find((u: any) => u.archetypeId === "vip")!;
     expect(updatedVip.aiEnabled).toBe(true);
   });
 });

@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, beforeEach } from "vitest";
 import { CoreEngine } from "../../src/engine/CoreEngine";
-import { MapDefinition, MissionType, SquadConfig, EngineMode } from "../../src/shared/types";
+import { MapDefinition, SquadConfig } from "../../src/shared/types";
 
 describe("CoreEngine getState Benchmark", () => {
   let map: MapDefinition;
