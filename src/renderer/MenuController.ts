@@ -400,7 +400,16 @@ export class MenuController {
         !this.selection.pendingTargetLocation
       ) {
         this.selection.pendingUnitIds = selectedIds;
-        const label = selectedIds.length === 1 ? selectedIds[0] : "Selected Units";
+        let label = "Selected Units";
+        if (selectedIds.length === 1) {
+          const unit = gameState.units.find((u) => u.id === selectedIds[0]);
+          if (unit) {
+            const tacticalNumber = unit.tacticalNumber || (gameState.units.findIndex((origU) => origU.id === unit.id) + 1);
+            label = `${unit.name || unit.id} (${tacticalNumber})`;
+          } else {
+            label = selectedIds[0];
+          }
+        }
         this.transitionTo("TARGET_SELECT", label);
         this.selection.overlayOptions = TargetOverlayGenerator.generate(
           "PLACEMENT_POINT",
@@ -588,12 +597,13 @@ export class MenuController {
       result.options = [];
       activeUnits.forEach((u) => {
         // Find the unit's tactical number (index in the original units array + 1)
-        const tacticalNumber = gameState.units.findIndex((origU) => origU.id === u.id) + 1;
+        const tacticalNumber = u.tacticalNumber || (gameState.units.findIndex((origU) => origU.id === u.id) + 1);
         const key = result.options.length + 1;
+        const displayName = u.name || u.id;
 
         result.options.push({
           key: key.toString(),
-          label: `${key}. ${u.id} (${tacticalNumber})`,
+          label: `${key}. ${displayName} (${tacticalNumber})`,
           dataAttributes: { index: key.toString(), "unit-id": u.id },
         });
       });
