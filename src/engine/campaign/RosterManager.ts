@@ -20,7 +20,6 @@ export class RosterManager {
       roster.push({
         id: `soldier_${i}`,
         name: RosterUtils.getRandomName(roster),
-        tacticalNumber: i + 1,
         archetypeId: archId,
         hp: arch ? arch.baseHp : 100,
         maxHp: arch ? arch.baseHp : 100,
@@ -60,16 +59,11 @@ export class RosterManager {
       throw new Error(`Invalid archetype ID: ${archetypeId}`);
     }
 
-    const maxTacticalNumber = state.roster.length > 0
-      ? Math.max(...state.roster.map((s) => s.tacticalNumber || 0))
-      : 0;
-    const tacticalNumber = maxTacticalNumber + 1;
     const finalName = name || RosterUtils.getRandomName(state.roster);
 
     const newSoldier: CampaignSoldier = {
       id: `soldier_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
       name: finalName,
-      tacticalNumber,
       archetypeId,
       hp: arch.baseHp,
       maxHp: arch.baseHp,

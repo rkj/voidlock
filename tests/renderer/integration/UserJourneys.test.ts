@@ -106,7 +106,6 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
               {
                 id: "s1",
                 name: "Soldier 1",
-                tacticalNumber: 1,
                 archetypeId: "scout",
                 status: "Healthy",
                 level: 1,
@@ -161,7 +160,6 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
           currentCampaignState.roster.push({
             id: "s2",
             name: finalName,
-            tacticalNumber: currentCampaignState.roster.length + 1,
             archetypeId: arch,
             status: "Healthy",
             level: 1,
