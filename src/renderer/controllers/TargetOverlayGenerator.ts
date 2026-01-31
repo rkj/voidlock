@@ -11,7 +11,6 @@ import {
 } from "@src/shared/types";
 import { RoomDiscoveryManager } from "./RoomDiscoveryManager";
 import { isCellVisible, isCellDiscovered } from "@src/shared/VisibilityUtils";
-import { MathUtils } from "@src/shared/utils/MathUtils";
 
 export type OverlayType =
   | "CELL"
@@ -191,29 +190,14 @@ export class TargetOverlayGenerator {
       discovery.update(gameState);
 
       discovery.roomOrder.forEach((roomId, index) => {
-        const cellsInRoom = gameState.map.cells.filter(
-          (c) => c.roomId === roomId,
-        );
-        if (cellsInRoom.length === 0) return;
-
-        // Find rough center
-        const avgX =
-          cellsInRoom.reduce((sum, c) => sum + c.x, 0) / cellsInRoom.length;
-        const avgY =
-          cellsInRoom.reduce((sum, c) => sum + c.y, 0) / cellsInRoom.length;
-        // Find cell closest to center
-        const centerCell = cellsInRoom.reduce((prev, curr) => {
-          const avgPos = { x: avgX, y: avgY };
-          const prevDist = MathUtils.getDistanceSquared(prev, avgPos);
-          const currDist = MathUtils.getDistanceSquared(curr, avgPos);
-          return currDist < prevDist ? curr : prev;
-        });
+        const center = discovery.getRoomCenter(roomId);
+        if (!center) return;
 
         const key = this.getRoomKey(index);
         options.push({
           key: key,
           label: `Room ${key}`,
-          pos: { x: centerCell.x, y: centerCell.y },
+          pos: center,
         });
       });
 
