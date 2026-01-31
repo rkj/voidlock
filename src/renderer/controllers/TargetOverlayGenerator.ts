@@ -87,9 +87,11 @@ export class TargetOverlayGenerator {
       let unitCounter = 0;
       gameState.units.forEach((u, idx) => {
         if (u.state !== UnitState.Dead && u.state !== UnitState.Extracted) {
+          const tacticalNumber = u.tacticalNumber || (idx + 1);
+          const displayName = u.name || u.id;
           options.push({
             key: this.getRoomKey(unitCounter),
-            label: `${u.id} (${idx + 1})`,
+            label: `${displayName} (${tacticalNumber})`,
             pos: { x: Math.floor(u.pos.x), y: Math.floor(u.pos.y) },
             id: u.id,
           });
