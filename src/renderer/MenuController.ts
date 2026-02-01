@@ -21,7 +21,7 @@ import { CommandBuilder } from "./controllers/CommandBuilder";
 import {
   TargetOverlayGenerator,
 } from "./controllers/TargetOverlayGenerator";
-import { isCellVisible } from "@src/shared/VisibilityUtils";
+import { isCellVisible, isCellDiscovered } from "@src/shared/VisibilityUtils";
 
 export interface RenderableMenuOption {
   key: string;
@@ -705,6 +705,15 @@ export class MenuController {
         (u) => u.state !== UnitState.Dead && u.state !== UnitState.Extracted,
       );
       return activeUnits.length < 2;
+    }
+
+    if (option.commandType === CommandType.EXTRACT) {
+      if (!gameState.map.extraction) return true;
+      return !isCellDiscovered(
+        gameState,
+        gameState.map.extraction.x,
+        gameState.map.extraction.y,
+      );
     }
 
     return false;
