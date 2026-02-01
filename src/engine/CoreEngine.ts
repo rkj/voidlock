@@ -317,7 +317,6 @@ export class CoreEngine {
   public update(scaledDt: number) {
     if (
       this.state.status !== "Playing" &&
-      this.state.settings.mode !== EngineMode.Replay &&
       !this.isCatchingUp
     )
       return;

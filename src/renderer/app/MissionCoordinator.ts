@@ -92,7 +92,7 @@ export class MissionCoordinator {
 
   public setupGameClientCallbacks(
     config: { unitStyle: UnitStyle; campaignNode?: CampaignNode },
-    onMissionEnd: (report: MissionReport) => void,
+    onMissionEnd: (report: MissionReport) => boolean | void,
     updateUI: (state: GameState) => void,
   ) {
     this.debriefShown = false;
@@ -125,12 +125,14 @@ export class MissionCoordinator {
       ) {
         this.debriefShown = true;
         const report = this.generateMissionReport(state, config.campaignNode || null, state.seed);
-        onMissionEnd(report);
+        const shouldStartReplay = onMissionEnd(report);
 
-        const replayData = this.context.gameClient.getReplayData();
-        if (replayData) {
-          this.context.gameClient.loadReplay(replayData);
-          this.context.gameClient.setTimeScale(5.0);
+        if (shouldStartReplay !== false) {
+          const replayData = this.context.gameClient.getReplayData();
+          if (replayData) {
+            this.context.gameClient.loadReplay(replayData);
+            this.context.gameClient.setTimeScale(5.0);
+          }
         }
       }
       updateUI(state);
