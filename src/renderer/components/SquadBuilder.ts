@@ -2,8 +2,6 @@ import { AppContext } from "../app/AppContext";
 import { SquadConfig, MissionType, Archetype } from "@src/shared/types";
 import { CampaignSoldier } from "@src/shared/campaign_types";
 import { ArchetypeLibrary } from "@src/shared/types/units";
-import { StatDisplay } from "@src/renderer/ui/StatDisplay";
-import { Icons } from "@src/renderer/Icons";
 import { SoldierWidget } from "@src/renderer/ui/SoldierWidget";
 
 type DragData =
@@ -321,8 +319,9 @@ export class SquadBuilder {
     };
 
     const createArchetypeCard = (arch: Archetype) => {
-      const card = document.createElement("div");
-      card.className = "soldier-card";
+      const card = SoldierWidget.render(arch, {
+        context: "squad-builder",
+      });
       card.draggable = true;
       card.addEventListener("dragstart", (e) => {
         const dragData: DragData = { type: "custom", archetypeId: arch.id };
@@ -331,11 +330,6 @@ export class SquadBuilder {
       card.addEventListener("dblclick", () =>
         addToSquad({ type: "custom", archetypeId: arch.id }),
       );
-      const scaledFireRate =
-        arch.fireRate * (arch.speed > 0 ? 10 / arch.speed : 1);
-      const fireRateVal =
-        scaledFireRate > 0 ? (1000 / scaledFireRate).toFixed(1) : "0";
-      card.innerHTML = `<strong style="color:var(--color-primary);">${arch.name}</strong><div style="font-size:0.75em; color:var(--color-text-muted); display:flex; gap:8px; flex-wrap:wrap;">${StatDisplay.render(Icons.Speed, arch.speed, "Speed")}${StatDisplay.render(Icons.Accuracy, arch.accuracy, "Accuracy")}${StatDisplay.render(Icons.Damage, arch.damage, "Damage")}${StatDisplay.render(Icons.Rate, fireRateVal, "Fire Rate")}${StatDisplay.render(Icons.Range, arch.attackRange, "Range")}</div>`;
       return card;
     };
 

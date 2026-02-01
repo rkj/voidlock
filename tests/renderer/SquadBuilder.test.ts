@@ -163,6 +163,24 @@ describe("SquadBuilder Component", () => {
     expect(onUpdate).toHaveBeenCalledWith(squad);
   });
 
+  it("should render stats in archetype cards", () => {
+    const builder = new SquadBuilder(
+      "squad-builder",
+      context,
+      squad,
+      MissionType.Default,
+      false,
+      () => {},
+    );
+    builder.render();
+
+    const assaultCard = container.querySelector(
+      ".roster-panel .soldier-card",
+    ) as HTMLElement;
+    const stats = assaultCard.querySelectorAll(".stat-display");
+    expect(stats.length).toBe(5); // Speed, Accuracy, Damage, Fire Rate, Range
+  });
+
   it("should allow removing from squad via click on X", () => {
     squad.soldiers = [{ archetypeId: "assault" }];
     const onUpdate = vi.fn();
