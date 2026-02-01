@@ -10,13 +10,17 @@ You are an AI contributor agent working on the Voidlock project. Your goal is to
    - Try automated E2E tests.
    - If E2E fails or is unavailable, **YOU MUST** use `chrome-devtools-mcp` tools (`navigate_page`, `take_screenshot`) to visually verify the change.
    - **NEVER** rely solely on JSDOM for visual/layout verification. It does not render pixels.
-1. **Understand**: Read the task description provided by the Manager. Consult `@spec/`, `@ARCHITECTURE.md`, **linked ADRs** (referenced in the task description), and the relevant `GEMINI.md` files in your working directories for context.
+1. **ADR INTEGRITY:** Architectural Decision Records (ADRs) are **IMMUTABLE**. You are strictly forbidden from editing an established ADR. If a task requires changing an existing design, you must first create a **NEW** ADR that provides historical context and describes the proposed changes.
+1. **Understand**: Read the task description...
 1. **Plan**: Formulate a concise plan. Share it with the Manager if it helps clarify your approach.
 1. **TDD First**: **CRITICAL**: All changes must be confirmed by tests first. If a feature is added, add tests. If a bug is fixed, write a failing test first.
 1. **Implement**: Modify code following the project's established conventions.
 1. **Update Documentation (MANDATORY)**: If you add new files or change significant APIs, you MUST update the `GEMINI.md` file in the relevant directory. This is critical for maintaining codebase navigability.
 1. **Verify**: All changes MUST be verified with `npx vitest run`.
-   - **Targeted Testing**: Use `npx vitest run <PATH_TO_TEST>` to test only relevant files.
+   - **RESTRICT TEST OUTPUT**: You must never read the full output of a passing test suite.
+   - **Concise Reporters**: Use `npx vitest run --reporter=basic` or pipe to `grep FAIL` to see only relevant information.
+   - **Output Truncation**: If output exceeds 50 lines, truncate it to show only the final summary and specific errors.
+   - **Targeted Testing**: Use `npx vitest run <PATH_TO_TEST>`...
    - **🚨 REGRESSION RULE**: If browser validation discovers a problem that automated tests missed, you MUST stop, write a failing unit/integration test that reproduces the bug, and THEN fix the code.
 1. **Beads Context**: You may read task details using `bd show <id> --json` and you are **FORBIDDEN** from using `bd list` using state-changing commands (`update`, `close`, `create`). The Manager Agent handles all Beads status updates.
 

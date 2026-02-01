@@ -46,6 +46,10 @@ The application is divided into distinct screens to reduce UI clutter and improv
 - **Command Set Updates:**
   - `ENGAGE/IGNORE Toggle`: Units can be toggled between 'ENGAGE' (Stop & Shoot) and 'IGNORE' (Run) policies. This toggle should be easily accessible in the command menu.
   - **Squad Configuration (Drag & Drop):**
+    - **Layout Constraints**:
+      - **Soldier Cards**: MUST have a fixed maximum height (e.g., 80px) and width. 
+      - **Content**: Text must use `text-overflow: ellipsis` if name is too long.
+      - **Scrollbars**: Individual cards MUST NOT have scrollbars. The Roster panel itself handles vertical scrolling.
     - **Interface**:
       - **Left Panel (Roster)**: Scrollable list of available soldiers/archetypes.
       - **Right Panel (Deployment)**: 4 fixed slots representing the squad.
@@ -255,18 +259,16 @@ The UI must be optimized for visibility and information density, utilizing the f
 - **Main Simulation Area:** Flex container containing the Game Canvas. Centered. Overlay numbers appear on the canvas during target/unit selection.
 
 ### 8.4.1 Debrief Screen (Post-Mission)
-- **Visibility**: Automatically shown after mission completion (Win or Loss).
-- **Content**:
-  - **Header**: "MISSION SUCCESS" or "MISSION FAILED".
-  - **Statistics**:
-    - Time Elapsed.
-    - Xenos Eliminated.
-    - Scrap Gained.
-  - **Squad Summary**:
-    - List of participating units using their **Names** (Tactical Numbers are hidden).
-    - XP progress bars showing current level and progress toward next level.
-    - Status indicators (e.g., "Wounded", "Level Up!").
-- **Background**: Time-accelerated mission replay plays silently behind the stats.
+- **Layout**: Split-pane layout (approx. 40/60 split).
+- **Left Pane (Information)**:
+  - **Mission Statistics**: Tally of kills, time, and scrap.
+  - **Squad Summary**: List of participating units with Names and XP bars.
+- **Right Pane (Replay Viewport)**:
+  - **Visuals**: Dedicated canvas rendering the mission replay.
+  - **Playback Controls**: A control bar positioned at the bottom of the viewport containing:
+    - **Play/Pause Button**.
+    - **Speed Selector**: [1x, 2x, 5x, 10x].
+- **Visibility**: Automatically shown after mission completion.
 
 ### 8.4.2 Asset Visual Scale
 - **Rule**: Game world sprites (Soldiers, Enemies, Objects) must be scaled to approximately **30%** of their raw asset size (approx. 38-40px on a 128px grid) to maintain tactical clarity and avoid overlapping with walls.
