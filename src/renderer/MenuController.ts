@@ -347,6 +347,12 @@ export class MenuController {
             fullState,
             this.discovery,
           );
+        } else if (item?.action === "Grenade") {
+          this.selection.overlayOptions = TargetOverlayGenerator.generate(
+            "HOSTILE_UNIT",
+            fullState,
+            this.discovery,
+          );
         } else {
           this.selection.overlayOptions = TargetOverlayGenerator.generate(
             "CELL",
@@ -514,7 +520,7 @@ export class MenuController {
           : null;
         if (item?.action === "Grenade") {
           this.selection.overlayOptions = TargetOverlayGenerator.generate(
-            "CELL",
+            "HOSTILE_UNIT",
             fullState,
             this.discovery,
           );
