@@ -68,7 +68,7 @@ describe("Regression awkp: Item Targeting Logic", () => {
     expect(grenadeOption?.disabled).toBe(false);
   });
 
-  it("Grenade: should target CELL (Rooms) when selected", () => {
+  it("Grenade: should target HOSTILE_UNIT when selected", () => {
     mockState.visibleCells = ["8,8"];
     // Mock a room for the enemy cell
     mockState.map.cells.push({
@@ -90,16 +90,16 @@ describe("Regression awkp: Item Targeting Logic", () => {
     expect(controller.menuState).toBe("TARGET_SELECT");
     const renderState = controller.getRenderableState(mockState);
 
-    // Should show Room as target, NOT specific enemy
-    const roomOption = renderState.options.find((o) =>
-      o.label.includes("Room"),
-    );
-    expect(roomOption).toBeDefined();
-
+    // Should show enemy as target, NOT Room
     const enemyOption = renderState.options.find((o) =>
       o.label.includes(EnemyType.XenoMite),
     );
-    expect(enemyOption).toBeUndefined();
+    expect(enemyOption).toBeDefined();
+
+    const roomOption = renderState.options.find((o) =>
+      o.label.includes("Room"),
+    );
+    expect(roomOption).toBeUndefined();
   });
 
   it("Medkit: should transition to UNIT_SELECT when selected", () => {
