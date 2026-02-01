@@ -11,6 +11,7 @@ gemini -p "@MANAGER.md" \
   --allowed-tools "run_shell_command(jj diff)" \
   --allowed-tools "run_shell_command(jj log)" \
   --allowed-tools "run_shell_command(jj status)" \
+  --allowed-tools "run_shell_command(jj show)" \
   --allowed-tools "run_shell_command(ls)" \
   --allowed-tools "run_shell_command(npm run build)" \
   --allowed-tools "run_shell_command(npm run lint)" \

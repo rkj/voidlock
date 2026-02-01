@@ -40,6 +40,7 @@ gemini --output-format stream-json \
   --allowed-tools "run_shell_command(bd show)" \
   --allowed-tools "run_shell_command(grep)" \
   --allowed-tools "run_shell_command(jj diff)" \
+  --allowed-tools "run_shell_command(jj show)" \
   --allowed-tools "run_shell_command(jj status)" \
   --allowed-tools "run_shell_command(ls)" \
   --allowed-tools "run_shell_command(npm run build)" \

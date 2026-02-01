@@ -32,9 +32,13 @@ Certain actions require the unit to remain stationary and focus for a duration.
   - All timed actions follow the global speed normalization rule.
   - `Actual Duration = Base Time * (SPEED_NORMALIZATION_CONST / Unit Speed)`
   - `SPEED_NORMALIZATION_CONST` = 30.
-- **Interruption:**
+- **Exclusivity:**
+  - Only one unit can channel the `PICKUP` or `USE_ITEM` (on object) action on a specific world entity at a time. 
+  - If multiple units are ordered to pick up the same item, only the first to arrive begins channeling; others will remain idle or follow their autonomous fallback.
+- **Interruption & Cancellation:**
   - **Voluntary:** Issuing a `STOP` or `MOVE` command cancels the action immediately.
   - **Involuntary:** Taking damage does **NOT** interrupt (unless unit dies).
+  - **Automatic Cancellation:** If the target item or objective disappears (e.g., picked up by another unit) while a unit is moving toward it or channeling, the command is automatically cancelled and the unit reverts to its previous or default state.
 
 ### 2.2 Standard Durations (Base Time)
 
@@ -46,7 +50,9 @@ Certain actions require the unit to remain stationary and focus for a duration.
 
 ### 3.1 Escort Command (`ESCORT_UNIT`)
 
-- **Target:** Friendly Unit (VIP or Artifact Carrier).
+- **Target:** High-Value Friendly Unit. Must be one of:
+  - **VIP**: Unit with the `vip` archetype.
+  - **Artifact Carrier**: Any unit currently carrying a mission objective (has a non-null `carriedObjectiveId`).
 - **Behavior:** Participating units form a protective screen around the target.
   - **Vanguard:** 1 Unit moves to the tile _ahead_ of the target.
   - **Rearguard:** 1 Unit moves to the tile _behind_.
