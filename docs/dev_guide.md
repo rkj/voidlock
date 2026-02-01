@@ -106,6 +106,13 @@ All code must be clean, well-factored, easy to read, and follow these best pract
 - **No Deep Cloning in Loops**: Avoid `JSON.parse(JSON.stringify(...))` in hot paths.
 - **Object Stability**: Minimize object creation in `render()` loops to reduce GC pressure.
 
+### 16.4 Layout & Responsive Design
+
+- **Avoid Fixed Pixel Sizing**: Use `flex`, `grid`, `rem`, or percentages. Fixed widths (`px`) for containers and fixed heights (`px`) for cards are forbidden unless explicitly specified in a Design Spec.
+- **Content-Driven Scaling**: Cards and panels should stretch to fit their content (`height: auto`) rather than clipping with `overflow: hidden`.
+- **Responsive Widths**: Use `max-width` with `width: 100%` for centralized layouts to ensure readability on wide screens while maintaining responsiveness on smaller ones (e.g., `max-width: 800px` for forms).
+- **Uniform Component Rendering**: Always use shared components (e.g., `SoldierWidget`) to ensure visual consistency across different UI screens.
+
 ---
 
 ## 17) Asset Pipeline

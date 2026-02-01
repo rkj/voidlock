@@ -2,31 +2,64 @@ import {
   MissionReport,
 } from "@src/shared/campaign_types";
 import { SoldierWidget } from "@src/renderer/ui/SoldierWidget";
+import { GameClient } from "@src/engine/GameClient";
+import { UnitStyle } from "@src/shared/types";
+import { ReplayController } from "@src/renderer/controllers/ReplayController";
 
 export class DebriefScreen {
   private container: HTMLElement;
+  private gameClient: GameClient;
   private onContinue: () => void;
   private report: MissionReport | null = null;
+  private replayController: ReplayController;
+  private canvas: HTMLCanvasElement | null = null;
+  private playbackBtn: HTMLButtonElement | null = null;
+  private progressFill: HTMLElement | null = null;
+  private unitStyle: UnitStyle = UnitStyle.TacticalIcons;
 
-  constructor(containerId: string, onContinue: () => void) {
+  constructor(containerId: string, gameClient: GameClient, onContinue: () => void) {
     const el = document.getElementById(containerId);
     if (!el) throw new Error(`Container #${containerId} not found`);
     this.container = el;
+    this.gameClient = gameClient;
     this.onContinue = onContinue;
+    this.replayController = new ReplayController(this.gameClient, (progress) => {
+      if (this.progressFill) {
+        this.progressFill.style.width = `${progress}%`;
+      }
+      this.updatePlaybackUI();
+    });
   }
 
-  public show(report: MissionReport) {
+  public show(report: MissionReport, unitStyle: UnitStyle = UnitStyle.TacticalIcons) {
     this.report = report;
+    this.unitStyle = unitStyle;
     this.container.style.display = "flex";
     this.render();
+    
+    if (this.canvas) {
+      this.replayController.setRenderer(this.canvas, this.unitStyle);
+    }
+    this.replayController.startReplay(this.report.timeSpent);
   }
 
   public hide() {
+    this.replayController.stopReplay();
     this.container.style.display = "none";
+    this.canvas = null;
+    this.playbackBtn = null;
+    this.progressFill = null;
   }
 
   public isVisible(): boolean {
     return this.container.style.display === "flex";
+  }
+
+  private updatePlaybackUI() {
+    if (this.playbackBtn) {
+      const isPaused = this.replayController.getIsPaused();
+      this.playbackBtn.textContent = isPaused ? "PLAY" : "PAUSE";
+    }
   }
 
   private render() {
@@ -36,9 +69,14 @@ export class DebriefScreen {
     this.container.className = "screen debrief-screen";
     this.container.style.display = "flex";
 
-    const inner = document.createElement("div");
-    inner.className = "debrief-inner";
-    this.container.appendChild(inner);
+    const debriefContainer = document.createElement("div");
+    debriefContainer.className = "debrief-container";
+    this.container.appendChild(debriefContainer);
+
+    // --- Left Pane: Summary ---
+    const summary = document.createElement("div");
+    summary.className = "debrief-summary";
+    debriefContainer.appendChild(summary);
 
     const isWon = this.report.result === "Won";
 
@@ -46,21 +84,16 @@ export class DebriefScreen {
     const header = document.createElement("h1");
     header.textContent = isWon ? "Mission Success" : "Mission Failed";
     header.className = `debrief-header ${isWon ? "success" : "failed"}`;
-    inner.appendChild(header);
+    summary.appendChild(header);
 
     const subHeader = document.createElement("div");
     subHeader.textContent = isWon
       ? "All objectives completed."
       : "Squad wiped or mission aborted.";
     subHeader.className = "debrief-subheader";
-    inner.appendChild(subHeader);
+    summary.appendChild(subHeader);
 
-    // Main Content Grid
-    const content = document.createElement("div");
-    content.className = "debrief-content";
-    inner.appendChild(content);
-
-    // Left Panel: Stats
+    // Stats
     const statsPanel = this.createPanel("Mission Statistics");
     statsPanel.innerHTML += `
       <div class="debrief-stat-row">
@@ -69,7 +102,7 @@ export class DebriefScreen {
       </div>
       <div class="debrief-stat-row">
         <span>Operation Time:</span>
-        <span style="color:var(--color-accent); font-weight:bold;">${(this.report.timeSpent / 60).toFixed(1)}s</span>
+        <span style="color:var(--color-accent); font-weight:bold;">${(this.report.timeSpent / 1000).toFixed(1)}s</span>
       </div>
       <div class="debrief-resource-section">
         <div class="debrief-resource-row">
@@ -82,15 +115,15 @@ export class DebriefScreen {
         </div>
       </div>
     `;
-    content.appendChild(statsPanel);
+    summary.appendChild(statsPanel);
 
-    // Right Panel: Squad
+    // Squad
     const squadPanel = this.createPanel("Squad After-Action Report");
     this.report.soldierResults.forEach((res) => {
       const soldierRow = SoldierWidget.render(res, { context: "debrief" });
       squadPanel.appendChild(soldierRow);
     });
-    content.appendChild(squadPanel);
+    summary.appendChild(squadPanel);
 
     // Footer
     const footer = document.createElement("div");
@@ -102,8 +135,60 @@ export class DebriefScreen {
 
     continueBtn.onclick = () => this.onContinue();
     footer.appendChild(continueBtn);
+    summary.appendChild(footer);
 
-    inner.appendChild(footer);
+    // --- Right Pane: Replay Viewport ---
+    const replayViewport = document.createElement("div");
+    replayViewport.className = "debrief-replay-viewport";
+    debriefContainer.appendChild(replayViewport);
+
+    const canvasContainer = document.createElement("div");
+    canvasContainer.className = "debrief-replay-canvas-container";
+    replayViewport.appendChild(canvasContainer);
+
+    this.canvas = document.createElement("canvas");
+    canvasContainer.appendChild(this.canvas);
+
+    // Playback Controls
+    const controls = document.createElement("div");
+    controls.className = "replay-controls";
+    replayViewport.appendChild(controls);
+
+    this.playbackBtn = document.createElement("button");
+    this.playbackBtn.className = "replay-btn";
+    this.updatePlaybackUI();
+    this.playbackBtn.onclick = () => {
+      this.replayController.togglePause();
+      this.updatePlaybackUI();
+    };
+    controls.appendChild(this.playbackBtn);
+
+    // Speed Selector
+    const speedGroup = document.createElement("div");
+    speedGroup.className = "replay-speed-group";
+    controls.appendChild(speedGroup);
+
+    [1, 2, 5, 10].forEach((speed) => {
+      const btn = document.createElement("button");
+      btn.className = "replay-speed-btn";
+      if (this.replayController.getTargetScale() === speed) btn.classList.add("active");
+      btn.textContent = `${speed}x`;
+      btn.onclick = () => {
+        this.replayController.setPlaybackSpeed(speed);
+        speedGroup.querySelectorAll(".replay-speed-btn").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+      };
+      speedGroup.appendChild(btn);
+    });
+
+    // Progress Bar
+    const progressContainer = document.createElement("div");
+    progressContainer.className = "replay-progress-container";
+    controls.appendChild(progressContainer);
+
+    this.progressFill = document.createElement("div");
+    this.progressFill.className = "replay-progress-fill";
+    progressContainer.appendChild(this.progressFill);
   }
 
   private createPanel(title: string): HTMLElement {

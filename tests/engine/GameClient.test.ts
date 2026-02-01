@@ -116,6 +116,16 @@ describe("GameClient", () => {
 
     // Advance time
     vi.advanceTimersByTime(100);
+    // Manually trigger a state update to advance the engine tick in the client
+    (client as any).worker.onmessage({
+      data: {
+        type: "STATE_UPDATE",
+        payload: {
+          t: 100,
+          settings: { mode: EngineMode.Simulation },
+        },
+      },
+    });
 
     const cmd: MoveCommand = {
       type: CommandType.MOVE_TO,
@@ -139,6 +149,7 @@ describe("GameClient", () => {
     // Setup replay data
     const replayData = {
       seed: 555,
+      missionType: MissionType.Default,
       map: mockMap,
       squadConfig: defaultSquad,
       commands: [

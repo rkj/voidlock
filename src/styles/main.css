@@ -693,142 +693,180 @@ label {
 
 /* Debrief Screen */
 .debrief-screen {
-  background-color: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(4px);
+  background-color: var(--color-bg);
   z-index: 1000;
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  overflow-y: auto;
-  padding: 50px 20px;
+  display: none;
   flex-direction: column;
-  align-items: center;
 }
 
-.debrief-inner {
-  margin: auto 0;
+.debrief-container {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Left Pane: Summary */
+.debrief-summary {
+  flex: 0 0 40%;
+  max-width: 40%;
+  border-right: 2px solid var(--color-border-strong);
   display: flex;
   flex-direction: column;
+  padding: 40px;
+  overflow-y: auto;
+  background: var(--color-surface);
+}
+
+/* Right Pane: Replay */
+.debrief-replay-viewport {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #000;
+  position: relative;
+}
+
+.debrief-replay-canvas-container {
+  flex: 1;
+  display: flex;
   align-items: center;
-  width: 100%;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.debrief-replay-canvas-container canvas {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+/* Playback Controls */
+.replay-controls {
+  height: 60px;
+  background: var(--color-surface-elevated);
+  border-top: 1px solid var(--color-border-strong);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 15px;
+}
+
+.replay-btn {
+  height: 32px;
+  padding: 0 15px;
+  font-size: 0.8em;
+  min-width: 80px;
+  margin: 0;
+}
+
+.replay-speed-group {
+  display: flex;
+  gap: 5px;
+  margin-left: 20px;
+}
+
+.replay-speed-btn {
+  height: 32px;
+  padding: 0 10px;
+  min-width: 45px;
+  margin: 0;
+  font-size: 0.75em;
+  opacity: 0.6;
+}
+
+.replay-speed-btn.active {
+  opacity: 1;
+  background: var(--color-primary);
+  color: #000;
+}
+
+.replay-progress-container {
+  flex: 1;
+  height: 4px;
+  background: #333;
+  margin: 0 20px;
+  position: relative;
+}
+
+.replay-progress-fill {
+  height: 100%;
+  background: var(--color-primary);
+  width: 0%;
 }
 
 .debrief-header {
-  font-size: 4em;
-  margin: 0 0 10px 0;
+  font-size: 2.5em;
+  margin: 0 0 5px 0;
+  text-transform: uppercase;
 }
 
 .debrief-header.success {
   color: var(--color-success);
-  text-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
 }
 
 .debrief-header.failed {
   color: var(--color-danger);
-  text-shadow: 0 0 20px rgba(255, 0, 0, 0.5);
-}
-
-.debrief-panel {
-  background: rgba(25, 25, 25, 0.9);
-  border: 1px solid var(--color-border-strong);
-  padding: 25px;
-  display: flex;
-  flex-direction: column;
-}
-
-.debrief-panel-title {
-  font-size: 1.2em;
-  border-bottom: 1px solid var(--color-border);
-  padding-bottom: 10px;
-  margin: 0 0 20px 0;
-}
-
-.debrief-item {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--color-border);
-  padding: 15px;
-  margin-bottom: 10px;
-  display: flex;
-  flex-direction: column;
 }
 
 .debrief-subheader {
   color: var(--color-text-muted);
-  margin-bottom: 40px;
-  font-size: 1.2em;
+  margin-bottom: 30px;
+  font-size: 1.1em;
 }
 
-.debrief-content {
-  display: grid;
-  grid-template-columns: 1fr 1.5fr;
-  gap: 30px;
-  max-width: 1000px;
-  width: 100%;
+.debrief-panel {
+  margin-bottom: 30px;
+}
+
+.debrief-panel-title {
+  font-size: 1em;
+  color: var(--color-accent);
+  text-transform: uppercase;
+  margin-bottom: 15px;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 5px;
 }
 
 .debrief-stat-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 15px;
-  font-size: 1.1em;
+  margin-bottom: 10px;
+  font-size: 1em;
 }
 
 .debrief-resource-section {
-  margin-top: 30px;
-  padding-top: 20px;
-  border-top: 1px solid var(--color-border);
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px dashed var(--color-border-strong);
 }
 
 .debrief-resource-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 10px;
-  font-size: 1.2em;
-}
-
-.debrief-xp-container {
-  margin-top: 10px;
-}
-
-.debrief-xp-bar {
-  height: 8px;
-  background: var(--color-surface-elevated);
-  border: 1px solid var(--color-border-strong);
-  position: relative;
-  overflow: hidden;
-}
-
-.debrief-xp-fill-before {
-  height: 100%;
-  background: var(--color-primary);
-  position: absolute;
-  left: 0;
-  top: 0;
-  z-index: 2;
-}
-
-.debrief-xp-fill-after {
-  height: 100%;
-  background: var(--color-accent);
-  position: absolute;
-  left: 0;
-  top: 0;
-  z-index: 1;
+  margin-bottom: 8px;
+  font-size: 1.1em;
 }
 
 .debrief-footer {
-  margin-top: 50px;
+  margin-top: auto;
+  padding-top: 40px;
 }
 
 .debrief-button {
-  padding: 20px 60px;
-  font-size: 1.4em;
+  width: 100%;
+  padding: 15px;
+  font-size: 1.2em;
+  text-transform: uppercase;
   letter-spacing: 2px;
-  background: var(--color-success-muted);
-  border-color: var(--color-primary);
 }
+
 
 /* Campaign Map */
 .campaign-map-viewport {

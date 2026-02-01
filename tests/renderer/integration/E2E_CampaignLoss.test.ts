@@ -33,10 +33,12 @@ const mockGameClient = {
   togglePause: vi.fn(),
   toggleDebugOverlay: vi.fn(),
   toggleLosOverlay: vi.fn(),
-  getReplayData: vi.fn().mockReturnValue({ seed: 123, commandLog: [] }),
+  getReplayData: vi.fn().mockReturnValue({ seed: 123, commands: [] }),
   forceWin: vi.fn(),
   forceLose: vi.fn(),
   loadReplay: vi.fn(),
+  addStateUpdateListener: vi.fn(),
+  removeStateUpdateListener: vi.fn(),
 };
 
 vi.mock("@src/engine/GameClient", () => ({
