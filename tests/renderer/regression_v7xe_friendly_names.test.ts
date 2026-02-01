@@ -124,6 +124,7 @@ describe("Regression v7xe: Friendly Names in Command Menu", () => {
 
   it("should use 'Name (N)' format for friendly units in TARGET_SELECT", () => {
     // Navigate to TARGET_SELECT (Orders -> Escort)
+    mockState.units[0].archetypeId = "vip";
     controller.handleMenuInput("1", mockState); // Orders
     controller.handleMenuInput("4", mockState); // Escort -> TARGET_SELECT
 
