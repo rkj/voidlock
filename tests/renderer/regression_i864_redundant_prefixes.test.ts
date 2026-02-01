@@ -76,6 +76,7 @@ describe("Regression i864: Redundant Prefixes in Command Menu", () => {
 
   it("should not have 'Unit' prefix in TARGET_SELECT labels for FRIENDLY_UNIT", () => {
     // Navigate to TARGET_SELECT (Orders -> Escort)
+    mockState.units[0].archetypeId = "vip";
     controller.handleMenuInput("1", mockState); // Orders
     controller.handleMenuInput("4", mockState); // Escort -> TARGET_SELECT
 
