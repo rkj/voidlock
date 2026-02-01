@@ -102,7 +102,7 @@ export class UnitLayer implements RenderLayer {
   private renderEnemies(ctx: CanvasRenderingContext2D, state: GameState) {
     const cellSize = this.sharedState.cellSize;
 
-    state.enemies.forEach((enemy) => {
+    state.enemies.forEach((enemy, index) => {
       if (enemy.hp <= 0) return;
 
       const ex = Math.floor(enemy.pos.x);
@@ -114,6 +114,9 @@ export class UnitLayer implements RenderLayer {
       const size = cellSize / 6;
 
       const sprite = this.assets.getEnemySprite(enemy.type);
+      const idMatch = enemy.id.match(/\d+/);
+      const idNum = idMatch ? parseInt(idMatch[0]) : index;
+      const indicator = String.fromCharCode(65 + (idNum % 26));
 
       if (
         this.sharedState.unitStyle === UnitStyle.Sprites &&
@@ -130,16 +133,14 @@ export class UnitLayer implements RenderLayer {
           spriteSize,
         );
 
-        if (enemy.difficulty) {
-          ctx.font = `bold ${Math.floor(cellSize / 10)}px monospace`;
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.strokeStyle = this.theme.getColor("--color-black");
-          ctx.lineWidth = 3;
-          ctx.strokeText(enemy.difficulty.toString(), x, y);
-          ctx.fillStyle = this.theme.getColor("--color-white");
-          ctx.fillText(enemy.difficulty.toString(), x, y);
-        }
+        ctx.font = `bold ${Math.floor(cellSize / 10)}px monospace`;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.strokeStyle = this.theme.getColor("--color-black");
+        ctx.lineWidth = 3;
+        ctx.strokeText(indicator, x, y);
+        ctx.fillStyle = this.theme.getColor("--color-white");
+        ctx.fillText(indicator, x, y);
       } else {
         ctx.beginPath();
         if (enemy.type === "hive") {
@@ -162,6 +163,12 @@ export class UnitLayer implements RenderLayer {
             ctx.lineWidth = 3;
             ctx.stroke();
           }
+          // Render indicator for Hive too
+          ctx.fillStyle = this.theme.getColor("--color-text");
+          ctx.font = `bold ${Math.floor(cellSize / 10)}px monospace`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(indicator, x, y);
         } else {
           this.drawEnemyShape(ctx, x, y, size, enemy.type);
           ctx.fillStyle = this.theme.getColor("--color-danger");
@@ -170,13 +177,11 @@ export class UnitLayer implements RenderLayer {
           ctx.lineWidth = 3;
           ctx.stroke();
 
-          if (enemy.difficulty) {
-            ctx.fillStyle = this.theme.getColor("--color-text");
-            ctx.font = `bold ${Math.floor(cellSize / 10)}px monospace`;
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.fillText(enemy.difficulty.toString(), x, y);
-          }
+          ctx.fillStyle = this.theme.getColor("--color-text");
+          ctx.font = `bold ${Math.floor(cellSize / 10)}px monospace`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.fillText(indicator, x, y);
         }
       }
 

@@ -10,7 +10,7 @@ This directory contains the layered rendering system for Voidlock (ADR 0018).
 - `AssetManager.ts`: A singleton responsible for loading and caching sprites and icons.
 - `MapLayer.ts`: Renders the static map geometry (floors, walls), doors (including animations), and fog of war.
 - `MapEntityLayer.ts`: Renders static map entities like spawn points, extraction zones, loot crates, and objectives. Uses icons/sprites for these entities in both `Standard` and `TacticalIcons` modes to ensure visual clarity.
-- `UnitLayer.ts`: Renders dynamic entities (soldiers, enemies), health bars, and movement paths.
+- `UnitLayer.ts`: Renders dynamic entities (soldiers, enemies), health bars, and movement paths. Enemies are identified by stable alphabetical indicators (A, B, C...).
 - `EffectLayer.ts`: Renders transient visual effects like event-based weapon tracers.
 - `OverlayLayer.ts`: Renders UI-related overlays like objectives, debug info, LOS visualizations, and tactical labels. Respects `renderOnBoard` property of `OverlayOption` to allow menu-only tactical labels.
 
