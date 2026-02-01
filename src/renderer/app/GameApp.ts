@@ -128,6 +128,7 @@ export class GameApp {
       "screen-campaign-summary",
       () => {
         this.campaignSummaryScreen.hide();
+        this.context.gameClient.stop();
         this.context.campaignManager.deleteSave();
         this.showMainMenu();
       },
@@ -579,33 +580,38 @@ export class GameApp {
   }
 
   private launchMission() {
+    this.setMissionHUDVisible(true);
     const config = this.missionSetupManager.saveCurrentConfig();
     this.missionCoordinator.launchMission(
       {
-        seed: this.missionSetupManager.currentSeed,
-        mapGeneratorType: this.missionSetupManager.currentMapGeneratorType,
+        ...config,
+        seed: config.lastSeed,
         staticMapData: this.missionSetupManager.currentStaticMapData,
-        fogOfWarEnabled: this.missionSetupManager.fogOfWarEnabled,
-        debugOverlayEnabled: this.missionSetupManager.debugOverlayEnabled,
-        agentControlEnabled: this.missionSetupManager.agentControlEnabled,
-        squadConfig: this.missionSetupManager.currentSquad,
-        missionType: this.missionSetupManager.currentMissionType,
-        mapWidth: this.missionSetupManager.currentMapWidth,
-        mapHeight: this.missionSetupManager.currentMapHeight,
-        spawnPointCount: this.missionSetupManager.currentSpawnPointCount,
-        losOverlayEnabled: this.missionSetupManager.losOverlayEnabled,
-        startingThreatLevel: config.startingThreatLevel,
-        baseEnemyCount: config.baseEnemyCount,
-        enemyGrowthPerMission: config.enemyGrowthPerMission,
-        allowTacticalPause: this.missionSetupManager.allowTacticalPause,
-        unitStyle: this.missionSetupManager.unitStyle,
         campaignNode: this.missionSetupManager.currentCampaignNode || undefined,
       },
       (report) => {
         if (report.nodeId !== "custom") {
           this.context.campaignManager.processMissionResult(report);
         }
+
+        const state = this.context.campaignManager.getState();
+        this.setMissionHUDVisible(false);
+
+        if (
+          state &&
+          state.rules.difficulty === "Ironman" &&
+          report.result === "Lost"
+        ) {
+          this.context.gameClient.stop();
+          this.context.gameClient.onStateUpdate(null);
+          this.campaignSummaryScreen.show(state);
+          this.context.screenManager.show("campaign-summary");
+          return false;
+        }
+
         this.debriefScreen.show(report);
+        this.context.screenManager.show("debrief");
+        return true;
       },
       (state) => this.updateUI(state),
       () => this.syncSpeedUI(),
@@ -613,12 +619,31 @@ export class GameApp {
   }
 
   private resumeMission() {
+    this.setMissionHUDVisible(true);
     this.missionCoordinator.resumeMission(
       (report) => {
         if (report.nodeId !== "custom") {
           this.context.campaignManager.processMissionResult(report);
         }
+
+        const state = this.context.campaignManager.getState();
+        this.setMissionHUDVisible(false);
+
+        if (
+          state &&
+          state.rules.difficulty === "Ironman" &&
+          report.result === "Lost"
+        ) {
+          this.context.gameClient.stop();
+          this.context.gameClient.onStateUpdate(null);
+          this.campaignSummaryScreen.show(state);
+          this.context.screenManager.show("campaign-summary");
+          return false;
+        }
+
         this.debriefScreen.show(report);
+        this.context.screenManager.show("debrief");
+        return true;
       },
       (state) => this.updateUI(state),
       () => this.syncSpeedUI(),
@@ -630,7 +655,7 @@ export class GameApp {
   }
 
   private abortMission() {
-    const handled = this.missionCoordinator.abortMission(
+    this.missionCoordinator.abortMission(
       this.currentGameState,
       this.missionSetupManager.currentCampaignNode,
       this.missionSetupManager.currentSeed,
@@ -639,17 +664,36 @@ export class GameApp {
         if (report.nodeId !== "custom") {
           this.context.campaignManager.processMissionResult(report);
         }
+
+        this.setMissionHUDVisible(false);
+        const state = this.context.campaignManager.getState();
+        if (
+          state &&
+          state.rules.difficulty === "Ironman" &&
+          report.result === "Lost"
+        ) {
+          this.context.gameClient.stop();
+          this.context.gameClient.onStateUpdate(null);
+          this.campaignSummaryScreen.show(state);
+          this.context.screenManager.show("campaign-summary");
+          return false;
+        }
+
         this.debriefScreen.show(report);
+        this.context.screenManager.show("debrief");
+        return true;
       },
       () => this.showMainMenu(),
     );
+  }
 
-    if (handled) {
-      this.context.gameClient.stop();
-      this.context.gameClient.onStateUpdate(null);
-      const state = this.context.campaignManager.getState();
-      if (state) this.campaignSummaryScreen.show(state);
-      this.context.screenManager.show("campaign-summary");
-    }
+  private setMissionHUDVisible(visible: boolean) {
+    const topBar = document.getElementById("top-bar");
+    const soldierPanel = document.getElementById("soldier-panel");
+    const rightPanel = document.getElementById("right-panel");
+    const display = visible ? "flex" : "none";
+    if (topBar) topBar.style.display = display;
+    if (soldierPanel) soldierPanel.style.display = display;
+    if (rightPanel) rightPanel.style.display = display;
   }
 }
