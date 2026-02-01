@@ -603,18 +603,6 @@ export class GameApp {
         const state = this.context.campaignManager.getState();
         this.setMissionHUDVisible(false);
 
-        if (
-          state &&
-          state.rules.difficulty === "Ironman" &&
-          report.result === "Lost"
-        ) {
-          this.context.gameClient.stop();
-          this.context.gameClient.onStateUpdate(null);
-          this.campaignSummaryScreen.show(state);
-          this.context.screenManager.show("campaign-summary");
-          return false;
-        }
-
         this.debriefScreen.show(report);
         this.context.screenManager.show("debrief");
         return true;
@@ -634,18 +622,6 @@ export class GameApp {
 
         const state = this.context.campaignManager.getState();
         this.setMissionHUDVisible(false);
-
-        if (
-          state &&
-          state.rules.difficulty === "Ironman" &&
-          report.result === "Lost"
-        ) {
-          this.context.gameClient.stop();
-          this.context.gameClient.onStateUpdate(null);
-          this.campaignSummaryScreen.show(state);
-          this.context.screenManager.show("campaign-summary");
-          return false;
-        }
 
         this.debriefScreen.show(report);
         this.context.screenManager.show("debrief");
@@ -672,19 +648,6 @@ export class GameApp {
         }
 
         this.setMissionHUDVisible(false);
-        const state = this.context.campaignManager.getState();
-        if (
-          state &&
-          state.rules.difficulty === "Ironman" &&
-          report.result === "Lost"
-        ) {
-          this.context.gameClient.stop();
-          this.context.gameClient.onStateUpdate(null);
-          this.campaignSummaryScreen.show(state);
-          this.context.screenManager.show("campaign-summary");
-          return false;
-        }
-
         this.debriefScreen.show(report);
         this.context.screenManager.show("debrief");
         return true;
