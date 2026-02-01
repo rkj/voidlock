@@ -1,9 +1,9 @@
 import { CampaignSoldier, SoldierMissionResult, calculateLevel, XP_THRESHOLDS } from "@src/shared/campaign_types";
-import { Unit, UnitState, ArchetypeLibrary, WeaponLibrary } from "@src/shared/types";
+import { Unit, UnitState, ArchetypeLibrary, WeaponLibrary, Archetype } from "@src/shared/types";
 import { Icons } from "@src/renderer/Icons";
 import { StatDisplay } from "@src/renderer/ui/StatDisplay";
 
-export type SoldierWidgetData = CampaignSoldier | Unit | SoldierMissionResult;
+export type SoldierWidgetData = CampaignSoldier | Unit | SoldierMissionResult | Archetype;
 
 export interface SoldierWidgetOptions {
   context: "tactical" | "debrief" | "roster" | "squad-builder";
@@ -310,18 +310,42 @@ export class SoldierWidget {
     `;
   }
 
-  private static renderSquadBuilder(container: HTMLElement, soldier: CampaignSoldier, options: SoldierWidgetOptions, displayName: string, level: number) {
-    const arch = ArchetypeLibrary[soldier.archetypeId];
+  private static renderSquadBuilder(container: HTMLElement, data: SoldierWidgetData, options: SoldierWidgetOptions, displayName: string, level: number) {
+    let arch: Archetype | undefined;
+    let status = "Healthy";
     
+    if ("archetypeId" in data) {
+       arch = ArchetypeLibrary[data.archetypeId];
+       if ("status" in data) status = data.status;
+    } else if ("id" in data && ArchetypeLibrary[(data as any).id]) {
+       arch = data as Archetype;
+    }
+
     container.classList.toggle("deployed", !!options.isDeployed);
     
-    const isHealthy = soldier.status === "Healthy";
+    const isHealthy = status === "Healthy";
     container.classList.toggle("disabled", !isHealthy);
+
+    const speed = arch?.speed ?? 0;
+    const accuracy = arch?.soldierAim ?? 0;
+    const damage = arch?.damage ?? 0;
+    const fireRate = arch?.fireRate ?? 0;
+    const range = arch?.attackRange ?? 0;
+    
+    const scaledFireRate = fireRate * (speed > 0 ? 10 / speed : 1);
+    const fireRateVal = scaledFireRate > 0 ? (1000 / scaledFireRate).toFixed(1) : "0";
 
     container.innerHTML = `
       <strong>${displayName}</strong>
-      <div style="font-size:0.75em; color:var(--color-text-muted);">
-        ${arch?.name || soldier.archetypeId} Lvl ${level} | Status: ${soldier.status}
+      <div style="font-size:0.75em; color:var(--color-text-muted); margin-bottom: 2px;">
+        ${arch?.name || "Unknown"} Lvl ${level} | Status: ${status}
+      </div>
+      <div style="font-size:0.75em; color:var(--color-text-muted); display:flex; gap:4px; flex-wrap:wrap;">
+        ${StatDisplay.render(Icons.Speed, speed, "Speed")}
+        ${StatDisplay.render(Icons.Accuracy, accuracy, "Accuracy")}
+        ${StatDisplay.render(Icons.Damage, damage, "Damage")}
+        ${StatDisplay.render(Icons.Rate, fireRateVal, "Fire Rate")}
+        ${StatDisplay.render(Icons.Range, range, "Range")}
       </div>
     `;
   }
