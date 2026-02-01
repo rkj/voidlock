@@ -31,6 +31,7 @@ This directory contains the automated test suite for the Voidlock renderer, usin
 - `regression_7twz_campaign_transition.test.ts`: Verifies that the transition from Campaign to Mission Setup is valid.
 - `regression_voidlock-1i9o_map_generator_export.test.ts`: Verifies that the map generator name is correctly included in the world state export.
 - `regression_voidlock_ntod_escort_single_unit.test.ts`: Verifies that the Escort command is disabled for single units and targets are filtered correctly.
+- `regression_voidlock_053u_escort_targets.test.ts`: Verifies that only VIPs and Artifact Carriers are valid targets for the Escort command and that the option is disabled when no valid targets are available.
 - `regression_rfw4_consumable_cap.test.ts`: Verifies that consumable items are limited to 2 per mission and UI feedback is provided.
 - `regression_i864_redundant_prefixes.test.ts`: Verifies removal of redundant 'Unit' prefixes and distinct room labeling in the command menu.
 - `integration/ScreenFlow.test.ts`: Verifies end-to-end screen transitions and game flow for both Campaign and Custom missions, including win/loss states and debriefing.

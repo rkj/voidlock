@@ -17,6 +17,7 @@ export type OverlayType =
   | "ITEM"
   | "INTERSECTION"
   | "FRIENDLY_UNIT"
+  | "ESCORT_TARGET"
   | "HOSTILE_UNIT"
   | "PLACEMENT_POINT";
 
@@ -82,10 +83,17 @@ export class TargetOverlayGenerator {
           }
         });
       }
-    } else if (type === "FRIENDLY_UNIT") {
+    } else if (type === "FRIENDLY_UNIT" || type === "ESCORT_TARGET") {
       let unitCounter = 0;
       gameState.units.forEach((u, idx) => {
         if (u.state !== UnitState.Dead && u.state !== UnitState.Extracted) {
+          // If ESCORT_TARGET, only show VIPs or Artifact Carriers
+          if (type === "ESCORT_TARGET") {
+            const isVip = u.archetypeId === "vip";
+            const isCarrier = !!u.carriedObjectiveId;
+            if (!isVip && !isCarrier) return;
+          }
+
           const tacticalNumber = u.tacticalNumber || (idx + 1);
           const displayName = u.name || u.id;
           options.push({
