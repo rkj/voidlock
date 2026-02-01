@@ -367,13 +367,26 @@ export class MissionManager {
         return;
       }
 
-      const combatUnits = activeUnits.filter((u) => u.archetypeId !== "vip");
-      if (combatUnits.length === 0) {
-        if (state.status !== "Lost") {
-          state.stats.scrapGained += SCRAP_REWARDS.MISSION_LOSS_CONSOLATION;
+      const combatUnitsOnMap = activeUnits.filter((u) => u.archetypeId !== "vip");
+      if (combatUnitsOnMap.length === 0) {
+        const deadCombatUnits = state.units.filter(
+          (u) => u.archetypeId !== "vip" && u.state === UnitState.Dead,
+        );
+        const totalCombatUnits = state.units.filter(
+          (u) => u.archetypeId !== "vip",
+        ).length;
+
+        // Only lose if ALL combat units are DEAD. If they extracted, it's not a wipe.
+        if (
+          totalCombatUnits > 0 &&
+          deadCombatUnits.length === totalCombatUnits
+        ) {
+          if (state.status !== "Lost") {
+            state.stats.scrapGained += SCRAP_REWARDS.MISSION_LOSS_CONSOLATION;
+          }
+          state.status = "Lost";
+          return;
         }
-        state.status = "Lost";
-        return;
       }
       return;
     }

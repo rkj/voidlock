@@ -112,13 +112,14 @@ export class TargetOverlayGenerator {
         );
 
         boundaries.forEach((b: BoundaryDefinition) => {
-          if (b.type === BoundaryType.Open) connections++;
+          if (b.type === BoundaryType.Open || b.type === BoundaryType.Door) connections++;
         });
 
-        if (connections >= 3) {
+        // Intersections (3-4) or Dead Ends (1)
+        if (connections === 1 || connections >= 3) {
           options.push({
             key: this.getRoomKey(intersectionCounter),
-            label: `Intersection`,
+            label: connections === 1 ? "Dead End" : `Intersection`,
             pos: { x: cell.x, y: cell.y },
           });
           intersectionCounter++;
