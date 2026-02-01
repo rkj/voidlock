@@ -600,7 +600,6 @@ export class GameApp {
           this.context.campaignManager.processMissionResult(report);
         }
 
-        const state = this.context.campaignManager.getState();
         this.setMissionHUDVisible(false);
 
         this.debriefScreen.show(report);
@@ -620,7 +619,6 @@ export class GameApp {
           this.context.campaignManager.processMissionResult(report);
         }
 
-        const state = this.context.campaignManager.getState();
         this.setMissionHUDVisible(false);
 
         this.debriefScreen.show(report);
