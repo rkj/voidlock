@@ -239,8 +239,11 @@ The UI must be optimized for visibility and information density, utilizing the f
     - **Reusable Stat Component**: The icon-based stat display used here MUST be extracted and reused in:
       - **Squad Selection Screen**: Replacing the text-based stats.
       - **Equipment Screen**: Replacing the mixed stat panel.
-    - **Soldier Card:** Optimized for 56px height. - **Soldier Info**: HP bar, Number, Name, Status.
-    - **Stat Visualization**: All labels (SPD, ACC, DMG, FR, ASP, Range) **MUST** be replaced with graphical icons to save space and improve scannability.
+        - **Soldier Card:** Optimized for 56px height.
+          - **Soldier Info**: HP bar, Name, Status. 
+          - **Tactical Number**: Displayed ONLY during active missions to correlate with the map. This number is mission-specific based on deployment order and MUST NOT appear in the Barracks, Equipment Screen, or Debrief Screen.
+        - **Stat Visualization**:
+     All labels (SPD, ACC, DMG, FR, ASP, Range) **MUST** be replaced with graphical icons to save space and improve scannability.
       - **Speed (SPD)**: MUST display the raw `speed` stat (e.g., "25"), NOT the derived tiles-per-second value.
     - **Tooltips**: Every stat icon must include a standard HTML `title` attribute providing the full name of the stat (e.g., `title="Attack Speed"`).
     - **Equipped Weapons**:
@@ -250,10 +253,24 @@ The UI must be optimized for visibility and information density, utilizing the f
 - **Command Panel (Right):** Fixed width (300px).
   - **Enemy Intel**: Displays grouped stats for visible enemies using the same **Icon + Tooltip** model as the Soldier Cards. (SPD, ACC, DMG, FR, Range).
 - **Main Simulation Area:** Flex container containing the Game Canvas. Centered. Overlay numbers appear on the canvas during target/unit selection.
-- **Game Over Summary:** Upon Win/Loss, a summary panel/popup must appear (or replace the Right Panel) showing:
-  - Result (Mission Accomplished / Squad Wiped).
-  - Statistics: Time Elapsed, Aliens Purged, Casualties.
-  - Action: "Back to Menu" button. This state must be fully cleared when a new mission starts.
+
+### 8.4.1 Debrief Screen (Post-Mission)
+- **Visibility**: Automatically shown after mission completion (Win or Loss).
+- **Content**:
+  - **Header**: "MISSION SUCCESS" or "MISSION FAILED".
+  - **Statistics**:
+    - Time Elapsed.
+    - Xenos Eliminated.
+    - Scrap Gained.
+  - **Squad Summary**:
+    - List of participating units using their **Names** (Tactical Numbers are hidden).
+    - XP progress bars showing current level and progress toward next level.
+    - Status indicators (e.g., "Wounded", "Level Up!").
+- **Background**: Time-accelerated mission replay plays silently behind the stats.
+
+### 8.4.2 Asset Visual Scale
+- **Rule**: Game world sprites (Soldiers, Enemies, Objects) must be scaled to approximately **30%** of their raw asset size (approx. 38-40px on a 128px grid) to maintain tactical clarity and avoid overlapping with walls.
+- **Consistency**: UI icons and tactical overlays must follow a consistent visual scale to ensure information density.
 
 ### 8.5 Mission Configuration
 

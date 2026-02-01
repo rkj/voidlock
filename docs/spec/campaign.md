@@ -118,7 +118,10 @@ The game supports four difficulty presets defining failure consequences.
 ### 3.2 Economy (Scrap) & Modes
 
 - **Earned:** Mission objectives, extraction, elite kills.
-- **Spent:** Recruitment, Healing/Revival, Equipment (Phase 2).
+- **Spent:**
+  - **Recruitment**: Hiring a new soldier costs Scrap. Recruits receive **auto-generated names** from a curated list of sci-fi/military flavors.
+  - **Healing/Revival**: Restoring wounded or dead (if allowed) soldiers costs Scrap.
+  - **Equipment**: Purchasing items (See Section 3.4).
 
 ### 3.3 Progression (XP)
 
@@ -140,6 +143,8 @@ The game supports four difficulty presets defining failure consequences.
   - Weapons and Armor assigned to a soldier are **persistent** across missions.
   - They remain equipped until manually removed or the soldier dies (unrecovered body = lost gear).
   - Changing equipment in Mission Setup immediately updates the Campaign Roster.
+- **Soldier Customization**:
+  - **Renaming**: The Soldier Inspector MUST allow the player to rename a soldier while in the Barracks.
 - **Costs:**
   - **Pay-to-Equip:** Purchasing/Equipping an item costs Scrap.
   - **Ownership:** Once equipped, the item belongs to that soldier.
