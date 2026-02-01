@@ -16,6 +16,7 @@ while true; do
     --allowed-tools "run_shell_command(jj status)" \
     --allowed-tools "run_shell_command(jj show)" \
     --allowed-tools "run_shell_command(ls)" \
+    --allowed-tools "run_shell_command(find)" \
     --allowed-tools "run_shell_command(npm run build)" \
     --allowed-tools "run_shell_command(npm run lint)" \
     --allowed-tools "run_shell_command(npm run process-assets)" \
