@@ -1,12 +1,11 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect } from "vitest";
 import { CoreEngine } from "@src/engine/CoreEngine";
 import {
   MissionType,
   UnitState,
-  EngineMode,
   CellType,
 } from "@src/shared/types";
-import { PRNG } from "@src/shared/PRNG";
+
 
 describe("Regression voidlock-9uzl: Escort mission failure when soldiers extract", () => {
   const map: any = {

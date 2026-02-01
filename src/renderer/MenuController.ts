@@ -237,6 +237,9 @@ export class MenuController {
     const option = config.options.find((o) => o.key.toString() === key);
     if (!option || this.isOptionDisabled(option, gameState)) return;
 
+    // Reset selection context before starting a new action flow
+    this.selection.reset();
+
     if (option.type === "TRANSITION") {
       this.transitionTo(option.nextState || "ACTION_SELECT", option.label);
       return;
@@ -269,6 +272,8 @@ export class MenuController {
     const option = config.options.find((o) => o.key.toString() === key);
     if (!option) return;
 
+    // Reset selection context before starting a new order flow
+    this.selection.reset();
     this.selection.pendingAction = option.commandType || null;
 
     const fullState = this.rehydrateState(gameState);
@@ -327,6 +332,7 @@ export class MenuController {
         if (!hasVisibleEnemies) return;
       }
 
+      this.selection.clearPendingData();
       this.selection.pendingItemId = itemId;
       const label = item?.name || itemId;
       const fullState = this.rehydrateState(gameState);
@@ -467,10 +473,15 @@ export class MenuController {
 
   public getRenderableState(gameState: GameState): RenderableMenuState {
     const config = MENU_CONFIG[this.stateMachine.state];
+    const breadcrumbs = [...this.stateMachine.breadcrumbs];
+    if (this.selection.isShiftHeld && breadcrumbs.length > 0) {
+      breadcrumbs[breadcrumbs.length - 1] += " (QUEUE)";
+    }
+
     const result: RenderableMenuState = {
       title: config.title,
       options: [],
-      breadcrumbs: [...this.stateMachine.breadcrumbs],
+      breadcrumbs,
     };
 
     const fullState = this.rehydrateState(gameState);
