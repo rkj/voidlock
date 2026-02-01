@@ -33,6 +33,15 @@ export class SoldierWidget {
     if (!container.classList.contains("soldier-item")) container.classList.add("soldier-item");
     if (!container.classList.contains(contextClass)) container.classList.add(contextClass);
     
+    // Add context-specific standard classes for styling and tests
+    if (options.context === "roster") {
+      if (!container.classList.contains("menu-item")) container.classList.add("menu-item");
+    } else if (options.context === "debrief") {
+      if (!container.classList.contains("debrief-item")) container.classList.add("debrief-item");
+    } else if (options.context === "squad-builder") {
+      if (!container.classList.contains("soldier-card")) container.classList.add("soldier-card");
+    }
+
     container.classList.toggle("selected", !!options.selected);
     container.classList.toggle("active", !!options.selected && options.context === "roster");
     
@@ -304,7 +313,6 @@ export class SoldierWidget {
   private static renderSquadBuilder(container: HTMLElement, soldier: CampaignSoldier, options: SoldierWidgetOptions, displayName: string, level: number) {
     const arch = ArchetypeLibrary[soldier.archetypeId];
     
-    if (!container.classList.contains("soldier-card")) container.classList.add("soldier-card");
     container.classList.toggle("deployed", !!options.isDeployed);
     
     const isHealthy = soldier.status === "Healthy";
