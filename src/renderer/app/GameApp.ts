@@ -548,6 +548,12 @@ export class GameApp {
       if (this.currentGameState) this.updateUI(this.currentGameState);
       return;
     }
+
+    // Selecting a new unit from HUD should cancel any previous pending action selection flow
+    if (this.context.menuController.menuState !== "ACTION_SELECT") {
+      this.context.menuController.reset();
+    }
+
     this.selectedUnitId = unit.id === this.selectedUnitId ? null : unit.id;
     if (this.currentGameState) this.updateUI(this.currentGameState);
   }

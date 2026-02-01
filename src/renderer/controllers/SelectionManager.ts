@@ -29,4 +29,17 @@ export class SelectionManager {
     this.pendingUnitIds = null;
     this.overlayOptions = [];
   }
+
+  /**
+   * Clears sub-selection data while keeping the main pendingAction.
+   * Useful when switching items or modes within the same action flow.
+   */
+  public clearPendingData() {
+    this.pendingItemId = null;
+    this.pendingTargetId = null;
+    this.pendingMode = null;
+    this.pendingTargetLocation = null;
+    this.pendingUnitIds = null;
+    this.overlayOptions = [];
+  }
 }
