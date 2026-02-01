@@ -21,6 +21,7 @@ export type RecordedCommand = {
 
 export type ReplayData = {
   seed: number;
+  missionType: MissionType;
   map: MapDefinition;
   squadConfig: SquadConfig;
   commands: RecordedCommand[];

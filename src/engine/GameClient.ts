@@ -47,7 +47,8 @@ interface MissionConfig {
 
 export class GameClient {
   private worker: Worker;
-  private onStateUpdateCb: ((state: GameState) => void) | null = null;
+  private mainListener: ((state: GameState) => void) | null = null;
+  private extraListeners: ((state: GameState) => void)[] = [];
   private mapGeneratorFactory: MapGeneratorFactory;
   private isStopped: boolean = false;
 
@@ -55,7 +56,9 @@ export class GameClient {
   private initialSeed: number = 0;
   private initialMap: MapDefinition | null = null;
   private initialSquadConfig: SquadConfig | null = null;
+  private initialMissionType: MissionType = MissionType.Default;
   private commandStream: RecordedCommand[] = [];
+  private currentEngineTick: number = 0;
   private startTime: number = 0;
 
   // Speed State
@@ -75,6 +78,8 @@ export class GameClient {
       if (this.isStopped) return;
       const msg = e.data;
       if (msg.type === "STATE_UPDATE") {
+        this.currentEngineTick = msg.payload.t;
+        
         if (
           typeof localStorage !== "undefined" &&
           msg.payload.settings.mode === EngineMode.Simulation
@@ -84,9 +89,11 @@ export class GameClient {
             Math.floor(msg.payload.t).toString(),
           );
         }
-        if (this.onStateUpdateCb) {
-          this.onStateUpdateCb(msg.payload);
+        
+        if (this.mainListener) {
+          this.mainListener(msg.payload);
         }
+        this.extraListeners.forEach((cb) => cb(msg.payload));
       }
     };
   }
@@ -121,6 +128,8 @@ export class GameClient {
     this.isStopped = false;
     this.initialSeed = seed;
     this.initialSquadConfig = squadConfig;
+    this.initialMissionType = missionType;
+    this.currentEngineTick = targetTick;
 
     const config: MapGenerationConfig = {
       seed,
@@ -259,7 +268,7 @@ export class GameClient {
       const logStr = localStorage.getItem("voidlock_mission_log") || "[]";
       const log: CommandLogEntry[] = JSON.parse(logStr);
       log.push({
-        tick: Date.now() - this.startTime,
+        tick: this.currentEngineTick,
         command: cmd,
       });
       localStorage.setItem("voidlock_mission_log", JSON.stringify(log));
@@ -277,8 +286,8 @@ export class GameClient {
   }
 
   public sendCommand(cmd: Command) {
-    // Record command
-    const t = Date.now() - this.startTime;
+    // Record command using engine ticks for determinism
+    const t = this.currentEngineTick;
     this.commandStream.push({ t, cmd });
 
     // Auto-save command
@@ -401,6 +410,7 @@ export class GameClient {
     if (!this.initialMap || !this.initialSquadConfig) return null;
     return {
       seed: this.initialSeed,
+      missionType: this.initialMissionType,
       map: this.initialMap,
       squadConfig: this.initialSquadConfig,
       commands: [...this.commandStream],
@@ -422,7 +432,7 @@ export class GameClient {
       false, // debug
       true, // agent
       data.squadConfig,
-      MissionType.Default, // missionType (should ideally be in ReplayData too)
+      data.missionType || MissionType.Default,
       data.map.width,
       data.map.height,
       0, // spawnPointCount (static map)
@@ -444,16 +454,31 @@ export class GameClient {
   }
 
   public onStateUpdate(cb: ((state: GameState) => void) | null) {
-    this.onStateUpdateCb = cb;
+    this.mainListener = cb;
+  }
+
+  public addStateUpdateListener(cb: (state: GameState) => void) {
+    this.extraListeners.push(cb);
+  }
+
+  public removeStateUpdateListener(cb: (state: GameState) => void) {
+    this.extraListeners = this.extraListeners.filter((l) => l !== cb);
   }
 
   public stop() {
     this.isStopped = true;
+    // We no longer clear state update listeners here to allow DebriefScreen
+    // to continue receiving updates for replay if stop() was called during mission end.
     this.clearMissionData();
     const msg: WorkerMessage = {
       type: "STOP",
     };
     this.worker.postMessage(msg);
+  }
+
+  public clearStateUpdateListeners() {
+    this.mainListener = null;
+    this.extraListeners = [];
   }
 
   public terminate() {

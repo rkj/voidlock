@@ -125,15 +125,7 @@ export class MissionCoordinator {
       ) {
         this.debriefShown = true;
         const report = this.generateMissionReport(state, config.campaignNode || null, state.seed);
-        const shouldStartReplay = onMissionEnd(report);
-
-        if (shouldStartReplay !== false) {
-          const replayData = this.context.gameClient.getReplayData();
-          if (replayData) {
-            this.context.gameClient.loadReplay(replayData);
-            this.context.gameClient.setTimeScale(5.0);
-          }
-        }
+        onMissionEnd(report);
       }
       updateUI(state);
     });

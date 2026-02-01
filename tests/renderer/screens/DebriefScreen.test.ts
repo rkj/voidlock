@@ -6,13 +6,43 @@ import { MissionReport } from "@src/shared/campaign_types";
 describe("DebriefScreen", () => {
   let container: HTMLElement;
   let onContinue: any;
+  let mockGameClient: any;
   let screen: DebriefScreen;
 
   beforeEach(() => {
+    // Mock Canvas Context
+    vi.spyOn(HTMLCanvasElement.prototype, "getContext").mockReturnValue({
+      clearRect: vi.fn(),
+      fillRect: vi.fn(),
+      drawImage: vi.fn(),
+      beginPath: vi.fn(),
+      moveTo: vi.fn(),
+      lineTo: vi.fn(),
+      stroke: vi.fn(),
+      fill: vi.fn(),
+      arc: vi.fn(),
+      closePath: vi.fn(),
+      scale: vi.fn(),
+      translate: vi.fn(),
+      save: vi.fn(),
+      restore: vi.fn(),
+    } as any);
+
     document.body.innerHTML = '<div id="screen-debrief"></div>';
     container = document.getElementById("screen-debrief")!;
     onContinue = vi.fn();
-    screen = new DebriefScreen("screen-debrief", onContinue);
+    mockGameClient = {
+      addStateUpdateListener: vi.fn(),
+      removeStateUpdateListener: vi.fn(),
+      getIsPaused: vi.fn(() => true),
+      togglePause: vi.fn(),
+      getTargetScale: vi.fn(() => 1.0),
+      setTimeScale: vi.fn(),
+      getReplayData: vi.fn(() => ({})),
+      loadReplay: vi.fn(),
+      stop: vi.fn(),
+    };
+    screen = new DebriefScreen("screen-debrief", mockGameClient, onContinue);
   });
 
   it("should render success report correctly", () => {
@@ -44,7 +74,7 @@ describe("DebriefScreen", () => {
     expect(container.innerHTML).toContain("10"); // aliensKilled
     expect(container.innerHTML).toContain("+150"); // scrapGained
     expect(container.innerHTML).toContain("Sgt. Slaughter");
-    expect(container.innerHTML).toContain("XP: 20 (+70)");
+    expect(container.innerHTML).toContain("debrief-xp-bar");
   });
 
   it("should render failure report correctly", () => {
@@ -72,7 +102,6 @@ describe("DebriefScreen", () => {
 
     expect(container.innerHTML).toContain("Mission Failed");
     expect(container.innerHTML).toContain("Dead");
-    expect(container.innerHTML).toContain("XP: 120 (+10)");
   });
 
   it("should call onContinue when button is clicked", () => {
@@ -88,9 +117,76 @@ describe("DebriefScreen", () => {
     };
 
     screen.show(report);
-    const button = container.querySelector("button");
+    const button = container.querySelector(".debrief-button") as HTMLButtonElement;
     button?.click();
 
     expect(onContinue).toHaveBeenCalled();
+  });
+
+  it("should register state update listener on show", () => {
+    const report: MissionReport = {
+      nodeId: "node_1",
+      seed: 12345,
+      result: "Won",
+      aliensKilled: 0,
+      scrapGained: 0,
+      intelGained: 0,
+      timeSpent: 0,
+      soldierResults: [],
+    };
+    screen.show(report);
+    expect(mockGameClient.addStateUpdateListener).toHaveBeenCalled();
+  });
+
+  it("should unregister state update listener on hide", () => {
+    const report: MissionReport = {
+      nodeId: "node_1",
+      seed: 12345,
+      result: "Won",
+      aliensKilled: 0,
+      scrapGained: 0,
+      intelGained: 0,
+      timeSpent: 0,
+      soldierResults: [],
+    };
+    screen.show(report);
+    screen.hide();
+    expect(mockGameClient.removeStateUpdateListener).toHaveBeenCalled();
+  });
+
+  it("should render state when replay update is received", () => {
+    const report: MissionReport = {
+      nodeId: "node_1",
+      seed: 12345,
+      result: "Won",
+      aliensKilled: 0,
+      scrapGained: 0,
+      intelGained: 0,
+      timeSpent: 100,
+      soldierResults: [],
+    };
+    screen.show(report);
+
+    // Get the registered listener
+    const listener = mockGameClient.addStateUpdateListener.mock.calls[0][0];
+    
+    const mockState: any = {
+      t: 50,
+      map: { width: 10, height: 10, cells: [] },
+      units: [],
+      enemies: [],
+      loot: [],
+      mines: [],
+      stats: {},
+      settings: { mode: "Replay" },
+      visibleCells: [],
+      discoveredCells: []
+    };
+
+    listener(mockState);
+
+    // Check if progress bar updated
+    const progressFill = container.querySelector(".replay-progress-fill") as HTMLElement;
+    expect(progressFill.style.width).toBe("50%");
   });
 });

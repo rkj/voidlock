@@ -131,7 +131,7 @@ export interface MissionReport {
   aliensKilled: number;
   scrapGained: number;
   intelGained: number;
-  timeSpent: number; // Duration in ticks
+  timeSpent: number; // Duration in milliseconds
   soldierResults: SoldierMissionResult[];
 }
 

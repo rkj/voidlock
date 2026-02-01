@@ -134,7 +134,7 @@ export class GameApp {
       },
     );
 
-    this.debriefScreen = new DebriefScreen("screen-debrief", () => {
+    this.debriefScreen = new DebriefScreen("screen-debrief", this.context.gameClient, () => {
       this.debriefScreen.hide();
       this.context.gameClient.stop();
 
@@ -602,7 +602,7 @@ export class GameApp {
 
         this.setMissionHUDVisible(false);
 
-        this.debriefScreen.show(report);
+        this.debriefScreen.show(report, this.missionSetupManager.unitStyle);
         this.context.screenManager.show("debrief");
         return true;
       },
@@ -621,7 +621,7 @@ export class GameApp {
 
         this.setMissionHUDVisible(false);
 
-        this.debriefScreen.show(report);
+        this.debriefScreen.show(report, this.missionSetupManager.unitStyle);
         this.context.screenManager.show("debrief");
         return true;
       },
@@ -646,7 +646,7 @@ export class GameApp {
         }
 
         this.setMissionHUDVisible(false);
-        this.debriefScreen.show(report);
+        this.debriefScreen.show(report, this.missionSetupManager.unitStyle);
         this.context.screenManager.show("debrief");
         return true;
       },
