@@ -304,7 +304,7 @@ export class MenuController {
       this.selection.pendingLabel = "Escorting";
       this.transitionTo("TARGET_SELECT", option.label);
       this.selection.overlayOptions = TargetOverlayGenerator.generate(
-        "FRIENDLY_UNIT",
+        "ESCORT_TARGET",
         fullState,
         this.discovery,
       );
@@ -551,7 +551,7 @@ export class MenuController {
         );
       } else if (this.selection.pendingAction === CommandType.ESCORT_UNIT) {
         this.selection.overlayOptions = TargetOverlayGenerator.generate(
-          "FRIENDLY_UNIT",
+          "ESCORT_TARGET",
           fullState,
           this.discovery,
         );
@@ -710,7 +710,12 @@ export class MenuController {
       const activeUnits = gameState.units.filter(
         (u) => u.state !== UnitState.Dead && u.state !== UnitState.Extracted,
       );
-      return activeUnits.length < 2;
+      if (activeUnits.length < 2) return true;
+
+      const validTargets = activeUnits.filter(
+        (u) => u.archetypeId === "vip" || !!u.carriedObjectiveId,
+      );
+      return validTargets.length === 0;
     }
 
     if (option.commandType === CommandType.EXTRACT) {

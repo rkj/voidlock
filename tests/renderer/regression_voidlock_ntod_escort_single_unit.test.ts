@@ -30,7 +30,7 @@ describe("Regression NTOD: Escort option for single unit", () => {
           pos: { x: 0.5, y: 0.5 },
           state: UnitState.Idle,
           stats: { speed: 20 },
-          archetype: "scout",
+          archetypeId: "scout",
         } as any,
       ],
       enemies: [],
@@ -60,7 +60,7 @@ describe("Regression NTOD: Escort option for single unit", () => {
       pos: { x: 0.5, y: 0.5 },
       state: UnitState.Idle,
       stats: { speed: 10 },
-      archetype: "vip",
+      archetypeId: "vip",
     } as any);
 
     controller.handleMenuInput("1", mockState); // Orders
@@ -79,7 +79,7 @@ describe("Regression NTOD: Escort option for single unit", () => {
       pos: { x: 0.5, y: 0.5 },
       state: UnitState.Idle,
       stats: { speed: 10 },
-      archetype: "vip",
+      archetypeId: "vip",
     } as any);
 
     controller.handleMenuInput("1", mockState); // Orders
@@ -103,30 +103,32 @@ describe("Regression NTOD: Escort option for single unit", () => {
     expect(soldierUnitOption).toBeDefined();
   });
 
-  it("should not allow a soldier to escort themselves when two soldiers are present", () => {
+  it("should not allow an artifact carrier to escort themselves", () => {
     mockState.units.push({
       id: "u2",
       name: "Soldier 2",
       pos: { x: 0.5, y: 0.5 },
       state: UnitState.Idle,
       stats: { speed: 20 },
-      archetype: "scout",
+      archetypeId: "scout",
+      carriedObjectiveId: "obj-1",
     } as any);
 
     controller.handleMenuInput("1", mockState); // Orders
     controller.handleMenuInput("4", mockState); // Escort
 
-    // Select Soldier 1 as target
+    // Select Soldier 2 (Carrier) as target
     let renderState = controller.getRenderableState(mockState);
-    const s1TargetOption = renderState.options.find(o => o.label.includes("Soldier 1"));
-    controller.handleMenuInput(s1TargetOption!.key, mockState);
+    const s2TargetOption = renderState.options.find(o => o.label.includes("Soldier 2"));
+    expect(s2TargetOption).toBeDefined();
+    controller.handleMenuInput(s2TargetOption!.key, mockState);
 
-    // Now in UNIT_SELECT, Soldier 1 should NOT be an option to escort themselves
+    // Now in UNIT_SELECT, Soldier 2 should NOT be an option to escort themselves
     renderState = controller.getRenderableState(mockState);
-    const s1UnitOption = renderState.options.find(o => o.label.includes("Soldier 1"));
-    expect(s1UnitOption).toBeUndefined();
-
     const s2UnitOption = renderState.options.find(o => o.label.includes("Soldier 2"));
-    expect(s2UnitOption).toBeDefined();
+    expect(s2UnitOption).toBeUndefined();
+
+    const s1UnitOption = renderState.options.find(o => o.label.includes("Soldier 1"));
+    expect(s1UnitOption).toBeDefined();
   });
 });

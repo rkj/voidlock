@@ -35,6 +35,7 @@ describe("MenuConfig New Commands", () => {
           id: "u2",
           pos: { x: 0.5, y: 0.5 },
           state: UnitState.Idle,
+          archetypeId: "vip",
           stats: { speed: 20 },
         } as any,
       ],
@@ -130,7 +131,7 @@ describe("MenuConfig New Commands", () => {
     controller.handleMenuInput("4", mockState); // Escort
 
     const renderState = controller.getRenderableState(mockState);
-    const unitOption = renderState.options.find((o) => o.label.includes("u1"));
+    const unitOption = renderState.options.find((o) => o.label.includes("u2"));
     expect(unitOption).toBeDefined();
   });
 
