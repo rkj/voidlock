@@ -20,6 +20,7 @@
       - The test must navigate to the specific state.
       - It must capture a screenshot (for manual review) OR assert layout metrics (scrollTop, coordinates) in the browser context.
       - **Do not accept JSDOM tests for CSS/Scroll issues.**
+11. **SINGLE TASK EXECUTION**: You MUST stop and wait for user instruction after completing the full lifecycle (Dispatch or Verification) of exactly ONE task. Do not automatically proceed to the next available task in the same turn.
 
 ## 1. Session Startup
 
@@ -107,6 +108,9 @@ run_shell_command("./scripts/dispatch_agent.sh <TASK_ID>")
 - **If Verified**:
   1. `jj commit -m "feat/fix: <description>"`
   1. `bd close <id> --reason "Implemented via sub-agent and verified."
+
+**After completion of any task lifecycle (Dispatch or Finalization), STOP and await user instructions.**
+
 - **If Failed**:
   **🚨 NEVER FIX CODE**: You are FORBIDDEN from making code changes.
   **🚨 NEVER CLOSE AS FAILED**: Beads does not support a "failed" state. Leave the task OPEN.
