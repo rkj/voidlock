@@ -335,10 +335,13 @@ export class SoldierWidget {
     const scaledFireRate = fireRate * (speed > 0 ? 10 / speed : 1);
     const fireRateVal = scaledFireRate > 0 ? (1000 / scaledFireRate).toFixed(1) : "0";
 
+    const name = this.getName(data);
+    const subTitle = arch?.name && arch.name !== name ? `${arch.name} ` : "";
+
     container.innerHTML = `
       <strong>${displayName}</strong>
       <div style="font-size:0.75em; color:var(--color-text-muted); margin-bottom: 2px;">
-        ${arch?.name || "Unknown"} Lvl ${level} | Status: ${status}
+        ${subTitle}Lvl ${level} | Status: ${status}
       </div>
       <div style="font-size:0.75em; color:var(--color-text-muted); display:flex; gap:4px; flex-wrap:wrap;">
         ${StatDisplay.render(Icons.Speed, speed, "Speed")}
