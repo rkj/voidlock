@@ -35,8 +35,8 @@ describe("InputBinder", () => {
         <input type="checkbox" id="toggle-los-overlay" />
         <input type="checkbox" id="toggle-agent-control" />
         <input type="checkbox" id="toggle-allow-tactical-pause" />
-        <input type="number" id="map-width" value="14" />
-        <input type="number" id="map-height" value="14" />
+        <input type="number" id="map-width" value="10" />
+        <input type="number" id="map-height" value="10" />
         <input type="range" id="map-spawn-points" value="1" />
         <div id="map-spawn-points-value"></div>
         <input type="range" id="game-speed" value="50" />
@@ -116,7 +116,7 @@ describe("InputBinder", () => {
     wInput.value = "16";
     wInput.dispatchEvent(new Event("input"));
     
-    expect(mockCallbacks.onMapSizeChange).toHaveBeenCalledWith(16, 14);
+    expect(mockCallbacks.onMapSizeChange).toHaveBeenCalledWith(16, 10);
   });
 
   it("should trigger onThemeChange when theme selector changes", () => {

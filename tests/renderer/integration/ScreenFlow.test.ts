@@ -176,8 +176,8 @@ describe("Screen Flow Integration", () => {
           </select>
           <input type="number" id="map-seed" />
           <div id="preset-map-controls">
-            <input type="number" id="map-width" value="14" />
-            <input type="number" id="map-height" value="14" />
+            <input type="number" id="map-width" value="10" />
+            <input type="number" id="map-height" value="10" />
             <input type="number" id="map-spawn-points" value="1" />
             <input type="range" id="map-starting-threat" value="0" />
             <span id="map-starting-threat-value">0</span>

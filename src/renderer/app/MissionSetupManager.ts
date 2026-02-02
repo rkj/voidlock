@@ -138,8 +138,8 @@ export class MissionSetupManager {
     ) as HTMLSelectElement;
 
     if (wInput && hInput) {
-      this.currentMapWidth = parseInt(wInput.value) || 14;
-      this.currentMapHeight = parseInt(hInput.value) || 14;
+      this.currentMapWidth = parseInt(wInput.value) || 10;
+      this.currentMapHeight = parseInt(hInput.value) || 10;
     }
     if (spInput) this.currentSpawnPointCount = parseInt(spInput.value) || 1;
     if (themeSelect) this.currentThemeId = themeSelect.value;
