@@ -65,4 +65,15 @@ describe("ConfigManager Isolation", () => {
     const loadedCampaign = ConfigManager.loadCampaign();
     expect(loadedCampaign).toBeNull();
   });
+
+  it("should clear campaign config when clearCampaign is called", () => {
+    const campaignConfig = createDummyConfig(999);
+    ConfigManager.saveCampaign(campaignConfig);
+
+    expect(ConfigManager.loadCampaign()).not.toBeNull();
+
+    ConfigManager.clearCampaign();
+
+    expect(ConfigManager.loadCampaign()).toBeNull();
+  });
 });

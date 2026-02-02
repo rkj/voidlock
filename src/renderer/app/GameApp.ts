@@ -21,6 +21,7 @@ import {
   CampaignShellMode,
 } from "@src/renderer/ui/CampaignShell";
 import pkg from "../../../package.json";
+import { ConfigManager } from "../ConfigManager";
 import { MissionCoordinator } from "./MissionCoordinator";
 import { CampaignFlowCoordinator } from "./CampaignFlowCoordinator";
 import { MissionSetupManager } from "./MissionSetupManager";
@@ -129,6 +130,7 @@ export class GameApp {
       () => {
         this.campaignSummaryScreen.hide();
         this.context.gameClient.stop();
+        ConfigManager.clearCampaign();
         this.context.campaignManager.deleteSave();
         this.showMainMenu();
       },
