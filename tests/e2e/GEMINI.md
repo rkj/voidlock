@@ -21,6 +21,7 @@ To verify visual fidelity and critical user journeys that cannot be fully tested
 - `EquipmentScreenFixes.test.ts`: Verifies Equipment Screen price alignment and scroll position preservation across re-renders.
 - `EquipmentScreenRepro.test.ts`: Repro test for layout clipping on the Equipment Screen at small viewports.
 - `ScrollbarClipping.test.ts`: Verifies that the Mission Setup screen remains accessible and scrollable on small viewports.
+- `RosterLayout.test.ts`: Verifies that the Roster panel utilizes the full container height and that the Recruit button is outside the scrollable area (sticky).
 
 ## Usage
 

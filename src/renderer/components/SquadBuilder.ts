@@ -68,6 +68,18 @@ export class SquadBuilder {
     rosterPanel.className = "roster-panel";
     mainWrapper.appendChild(rosterPanel);
 
+    const rosterTitle = document.createElement("h3");
+    rosterTitle.textContent = "Roster";
+    rosterPanel.appendChild(rosterTitle);
+
+    const rosterList = document.createElement("div");
+    rosterList.className = "roster-list";
+    rosterPanel.appendChild(rosterList);
+
+    const rosterActions = document.createElement("div");
+    rosterActions.className = "roster-actions";
+    rosterPanel.appendChild(rosterActions);
+
     const deploymentPanel = document.createElement("div");
     deploymentPanel.className = "deployment-panel";
     mainWrapper.appendChild(deploymentPanel);
@@ -92,7 +104,9 @@ export class SquadBuilder {
     };
 
     const renderRoster = () => {
-      rosterPanel.innerHTML = "<h3>Roster</h3>";
+      rosterList.innerHTML = "";
+      rosterActions.innerHTML = "";
+      
       if (this.isCampaign) {
         const state = this.context.campaignManager.getState();
         if (state) {
@@ -112,7 +126,7 @@ export class SquadBuilder {
             const isSelected = this.squad.soldiers.some(
               (s) => s.id === soldier.id,
             );
-            rosterPanel.appendChild(createCampaignCard(soldier, isSelected));
+            rosterList.appendChild(createCampaignCard(soldier, isSelected));
           });
 
           // Quick Action: Recruit
@@ -166,13 +180,13 @@ export class SquadBuilder {
                   await this.context.modalService.alert(message);
                 }
             };
-            rosterPanel.appendChild(recruitBtn);
+            rosterActions.appendChild(recruitBtn);
           }
         }
       } else {
         Object.values(ArchetypeLibrary).forEach((arch) => {
           if (arch.id === "vip" && isEscortMission) return;
-          rosterPanel.appendChild(createArchetypeCard(arch));
+          rosterList.appendChild(createArchetypeCard(arch));
         });
       }
     };
