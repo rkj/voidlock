@@ -1,11 +1,21 @@
 #!/bin/bash
 #
+MODEL="gemini-3-pro-preview"
+
 while true; do
+  # Check for remaining tasks
+  if [ -z "$(bd list 2>/dev/null)" ]; then
+    echo "No tasks remaining. Exiting manager loop."
+    exit 0
+  fi
+
   TMP_OUTPUT=$(mktemp)
+
+  echo "Running with model: $MODEL"
 
   gemini -p "@MANAGER.md" \
     --output-format stream-json \
-    --model gemini-3-pro-preview \
+    --model "$MODEL" \
     --allowed-tools "run_shell_command(bd)" \
     --allowed-tools "run_shell_command(./scripts/dispatch_agent.sh)" \
     --allowed-tools "run_shell_command(scripts/dispatch_agent.sh)" \
@@ -57,7 +67,7 @@ while true; do
   if [[ "$LAST_LINE" == *"You have exhausted your capacity on this model"* ]]; then
     TIME_STR=$(echo "$LAST_LINE" | sed -n 's/.*reset after \([0-9hms]\+\).*/\1/p')
     if [ -n "$TIME_STR" ]; then
-      echo "Quota exhausted. Reset in $TIME_STR."
+      echo "Quota exhausted for $MODEL. Reset in $TIME_STR."
       HOURS=$(echo "$TIME_STR" | grep -o '[0-9]\+h' | tr -d 'h' || echo 0)
       MINS=$(echo "$TIME_STR" | grep -o '[0-9]\+m' | tr -d 'm' || echo 0)
       SECS=$(echo "$TIME_STR" | grep -o '[0-9]\+s' | tr -d 's' || echo 0)
@@ -67,14 +77,28 @@ while true; do
       [ -z "$SECS" ] && SECS=0
       
       WAIT_TIME=$((HOURS * 3600 + MINS * 60 + SECS + 10))
-      echo "Sleeping for $WAIT_TIME seconds..."
-      sleep "$WAIT_TIME"
+      
+      if [ "$MODEL" == "gemini-3-pro-preview" ] && [ "$WAIT_TIME" -gt 3600 ]; then
+        echo "Wait time is > 1 hour. Switching to gemini-3-flash-preview."
+        MODEL="gemini-3-flash-preview"
+        continue
+      elif [ "$MODEL" == "gemini-3-flash-preview" ]; then
+        echo "Quota exhausted on Flash. Switching back to gemini-3-pro-preview and waiting."
+        MODEL="gemini-3-pro-preview"
+        echo "Sleeping for $WAIT_TIME seconds..."
+        sleep "$WAIT_TIME"
+      else
+        echo "Sleeping for $WAIT_TIME seconds..."
+        sleep "$WAIT_TIME"
+      fi
+
     else
       echo "Quota exhausted but couldn't parse time. Sleeping for 60s."
       sleep 60
     fi
   else
-    echo "Process finished. Sleeping for 60s..."
+    echo "Process finished. Resetting to gemini-3-pro-preview. Sleeping for 60s..."
+    MODEL="gemini-3-pro-preview"
     sleep 60
   fi
 done
