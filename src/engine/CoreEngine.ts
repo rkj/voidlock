@@ -75,8 +75,9 @@ export class CoreEngine {
     baseEnemyCount: number = 3,
     enemyGrowthPerMission: number = 1,
     missionDepth: number = 0,
-    nodeType?: CampaignNodeType,
+    nodeType: "Combat" | "Elite" | "Boss" | "Event" | "Shop" = "Combat",
     campaignNodeId?: string,
+    startingPoints?: number,
   ) {
     this.prng = new PRNG(seed);
     this.gameGrid = new GameGrid(map);
@@ -167,6 +168,8 @@ export class CoreEngine {
       baseEnemyCount,
       enemyGrowthPerMission,
       missionDepth,
+      map,
+      startingPoints,
     );
     this.director.preSpawn();
 
