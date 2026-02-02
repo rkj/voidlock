@@ -256,8 +256,8 @@ export class MapEntityLayer implements RenderLayer {
               iconSize,
             );
           } else {
-             ctx.fillStyle = this.theme.getColor("--color-objective-bg");
-             ctx.fillRect(x + 4, y + 4, cellSize - 8, cellSize - 8);
+            ctx.fillStyle = this.theme.getColor("--color-objective-bg");
+            ctx.fillRect(x + 4, y + 4, cellSize - 8, cellSize - 8);
           }
         } else {
           // Standard Mode: Use the Data Disk Sprite
@@ -272,9 +272,9 @@ export class MapEntityLayer implements RenderLayer {
               iconSize,
             );
           } else {
-             // Fallback
-             ctx.fillStyle = this.theme.getColor("--color-objective-bg");
-             ctx.fillRect(x + 4, y + 4, cellSize - 8, cellSize - 8);
+            // Fallback
+            ctx.fillStyle = this.theme.getColor("--color-objective-bg");
+            ctx.fillRect(x + 4, y + 4, cellSize - 8, cellSize - 8);
           }
         }
       }

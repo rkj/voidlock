@@ -26,7 +26,14 @@ describe("Regression umyc: Global Item Targeting", () => {
     handler = new CommandHandler(mockUnitManager, mockDirector);
     state = createMockGameState({
       squadInventory: { medkit: 1, frag_grenade: 1, scanner: 1 },
-      units: [{ id: "u1", hp: 50, maxHp: 100, pos: { x: 1, y: 1 } } as unknown as Unit],
+      units: [
+        {
+          id: "u1",
+          hp: 50,
+          maxHp: 100,
+          pos: { x: 1, y: 1 },
+        } as unknown as Unit,
+      ],
     });
   });
 

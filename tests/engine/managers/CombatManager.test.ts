@@ -3,12 +3,7 @@ import { CombatManager } from "../../../src/engine/managers/CombatManager";
 import { StatsManager } from "../../../src/engine/managers/StatsManager";
 import { LineOfSight } from "../../../src/engine/LineOfSight";
 import { PRNG } from "../../../src/shared/PRNG";
-import {
-  Unit,
-  GameState,
-  UnitState,
-  Enemy,
-} from "../../../src/shared/types";
+import { Unit, GameState, UnitState, Enemy } from "../../../src/shared/types";
 
 describe("CombatManager", () => {
   const mockLos = {
@@ -64,11 +59,7 @@ describe("CombatManager", () => {
 
     vi.mocked(mockLos.hasLineOfFire).mockReturnValue(true);
 
-    const result = combatManager.update(
-      unit,
-      state,
-      prng,
-    );
+    const result = combatManager.update(unit, state, prng);
 
     const updatedUnit = result.unit;
     expect(result.isAttacking).toBe(true);
@@ -90,11 +81,7 @@ describe("CombatManager", () => {
 
     vi.mocked(mockLos.hasLineOfFire).mockReturnValue(false);
 
-    const result = combatManager.update(
-      unit,
-      state,
-      prng,
-    );
+    const result = combatManager.update(unit, state, prng);
 
     const updatedUnit = result.unit;
     expect(result.isAttacking).toBe(false);
@@ -117,21 +104,13 @@ describe("CombatManager", () => {
     vi.mocked(mockLos.hasLineOfFire).mockReturnValue(true);
 
     // Attack at t=1000 with 500ms cooldown (ok)
-    const result1 = combatManager.update(
-      unit,
-      state,
-      prng,
-    );
+    const result1 = combatManager.update(unit, state, prng);
     expect(result1.isAttacking).toBe(true);
     expect(result1.unit.lastAttackTime).toBe(1000);
 
     // Attack again at t=1100 (too early)
     const state2 = { ...state, t: 1100 };
-    const result2 = combatManager.update(
-      result1.unit,
-      state2,
-      prng,
-    );
+    const result2 = combatManager.update(result1.unit, state2, prng);
 
     expect(result2.isAttacking).toBe(true); // Still "attacking" (state-wise) but didn't fire
     expect(result2.unit.lastAttackTime).toBe(1000); // Should NOT have updated

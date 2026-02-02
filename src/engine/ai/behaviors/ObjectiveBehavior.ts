@@ -11,7 +11,10 @@ import {
 import { AIContext } from "../../managers/UnitAI";
 import { PRNG } from "../../../shared/PRNG";
 import { Behavior, BehaviorResult } from "./Behavior";
-import { isCellVisible, isCellDiscovered } from "../../../shared/VisibilityUtils";
+import {
+  isCellVisible,
+  isCellDiscovered,
+} from "../../../shared/VisibilityUtils";
 import { IDirector } from "../../interfaces/IDirector";
 import { MathUtils } from "../../../shared/utils/MathUtils";
 import { MOVEMENT } from "../../config/GameConstants";
@@ -27,10 +30,14 @@ export class ObjectiveBehavior implements Behavior {
     director?: IDirector,
   ): BehaviorResult {
     let currentUnit = { ...unit };
-    if (currentUnit.archetypeId === "vip") return { unit: currentUnit, handled: false };
-    if (currentUnit.state !== UnitState.Idle && !currentUnit.explorationTarget) return { unit: currentUnit, handled: false };
-    if (currentUnit.commandQueue.length > 0) return { unit: currentUnit, handled: false };
-    if (!context.agentControlEnabled || currentUnit.aiEnabled === false) return { unit: currentUnit, handled: false };
+    if (currentUnit.archetypeId === "vip")
+      return { unit: currentUnit, handled: false };
+    if (currentUnit.state !== UnitState.Idle && !currentUnit.explorationTarget)
+      return { unit: currentUnit, handled: false };
+    if (currentUnit.commandQueue.length > 0)
+      return { unit: currentUnit, handled: false };
+    if (!context.agentControlEnabled || currentUnit.aiEnabled === false)
+      return { unit: currentUnit, handled: false };
 
     let actionTaken = false;
 
@@ -51,42 +58,48 @@ export class ObjectiveBehavior implements Behavior {
       ) as VisibleItem[];
     } else {
       // Fallback if grid not available (shouldn't happen in production)
-      visibleItemsFromGrid = ([
-        ...(state.loot || []).map((l) => ({
-          id: l.id,
-          pos: l.pos,
-          mustBeInLOS: true,
-          type: "loot" as const,
-        })),
-        ...(state.objectives || [])
-          .filter(
-            (o) =>
-              o.state === "Pending" &&
-              (o.kind === "Recover" || o.kind === "Escort" || o.kind === "Kill"),
-          )
-          .map((o) => {
-            let pos: Vector2 = {
-              x: MOVEMENT.CENTER_OFFSET,
-              y: MOVEMENT.CENTER_OFFSET,
-            };
-            if (o.targetCell) {
-              pos = {
-                x: o.targetCell.x + MOVEMENT.CENTER_OFFSET,
-                y: o.targetCell.y + MOVEMENT.CENTER_OFFSET,
+      visibleItemsFromGrid = (
+        [
+          ...(state.loot || []).map((l) => ({
+            id: l.id,
+            pos: l.pos,
+            mustBeInLOS: true,
+            type: "loot" as const,
+          })),
+          ...(state.objectives || [])
+            .filter(
+              (o) =>
+                o.state === "Pending" &&
+                (o.kind === "Recover" ||
+                  o.kind === "Escort" ||
+                  o.kind === "Kill"),
+            )
+            .map((o) => {
+              let pos: Vector2 = {
+                x: MOVEMENT.CENTER_OFFSET,
+                y: MOVEMENT.CENTER_OFFSET,
               };
-            } else if (o.targetEnemyId) {
-              const enemy = state.enemies.find((e) => e.id === o.targetEnemyId);
-              if (enemy) pos = enemy.pos;
-            }
-            return {
-              id: o.id,
-              pos,
-              mustBeInLOS: o.kind === "Recover",
-              visible: o.visible,
-              type: "objective" as const,
-            };
-          }),
-      ] as VisibleItem[]).filter((item) => {
+              if (o.targetCell) {
+                pos = {
+                  x: o.targetCell.x + MOVEMENT.CENTER_OFFSET,
+                  y: o.targetCell.y + MOVEMENT.CENTER_OFFSET,
+                };
+              } else if (o.targetEnemyId) {
+                const enemy = state.enemies.find(
+                  (e) => e.id === o.targetEnemyId,
+                );
+                if (enemy) pos = enemy.pos;
+              }
+              return {
+                id: o.id,
+                pos,
+                mustBeInLOS: o.kind === "Recover",
+                visible: o.visible,
+                type: "objective" as const,
+              };
+            }),
+        ] as VisibleItem[]
+      ).filter((item) => {
         if ("visible" in item && item.visible) return true;
         return isCellVisible(
           state,
@@ -97,21 +110,22 @@ export class ObjectiveBehavior implements Behavior {
     }
 
     const visibleLoot = visibleItemsFromGrid.filter((item) => {
-        if (item.type !== "loot") return false;
-        return !context.claimedObjectives.has(item.id);
+      if (item.type !== "loot") return false;
+      return !context.claimedObjectives.has(item.id);
     });
     const visibleObjectives = visibleItemsFromGrid.filter((item) => {
-        if (item.type !== "objective") return false;
-        // The grid query already filtered by visibility/cell
-        // But we need to check if it's already claimed
-        return !context.claimedObjectives.has(item.id);
+      if (item.type !== "objective") return false;
+      // The grid query already filtered by visibility/cell
+      // But we need to check if it's already claimed
+      return !context.claimedObjectives.has(item.id);
     });
 
     if (visibleLoot.length > 0 || visibleObjectives.length > 0) {
       const targetedIds = state.units
         .filter(
           (u) =>
-            u.id !== currentUnit.id && u.activeCommand?.type === CommandType.PICKUP,
+            u.id !== currentUnit.id &&
+            u.activeCommand?.type === CommandType.PICKUP,
         )
         .map((u) => (u.activeCommand as PickupCommand).lootId);
 
@@ -141,7 +155,9 @@ export class ObjectiveBehavior implements Behavior {
 
       if (items.length > 0) {
         const closest = items.sort(
-          (a, b) => MathUtils.getDistance(currentUnit.pos, a.pos) - MathUtils.getDistance(currentUnit.pos, b.pos),
+          (a, b) =>
+            MathUtils.getDistance(currentUnit.pos, a.pos) -
+            MathUtils.getDistance(currentUnit.pos, b.pos),
         )[0];
 
         if (closest.type === "objective") {
@@ -178,7 +194,9 @@ export class ObjectiveBehavior implements Behavior {
         return !assignedUnitId || assignedUnitId === currentUnit.id;
       });
       if (pendingObjectives.length > 0) {
-        console.log(`ObjectiveBehavior: found ${pendingObjectives.length} pending objectives`);
+        console.log(
+          `ObjectiveBehavior: found ${pendingObjectives.length} pending objectives`,
+        );
         let bestObj: { obj: Objective; dist: number } | null = null;
         // ...
 

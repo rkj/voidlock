@@ -33,7 +33,8 @@ describe("Mission Win/Loss Conditions", () => {
     inventory: {},
   };
 
-  const getInternalState = (engine: CoreEngine): GameState => (engine as any).state;
+  const getInternalState = (engine: CoreEngine): GameState =>
+    (engine as any).state;
 
   describe("Expendable Crew Missions (Intel/Hive)", () => {
     it("should win RecoverIntel as soon as all objectives are completed, even if squad is wiped later", () => {
@@ -53,7 +54,9 @@ describe("Mission Win/Loss Conditions", () => {
       );
 
       // Manually complete ALL objectives
-      getInternalState(engine).objectives.forEach((o: Objective) => (o.state = "Completed"));
+      getInternalState(engine).objectives.forEach(
+        (o: Objective) => (o.state = "Completed"),
+      );
 
       engine.update(100);
       expect(engine.getState().status).toBe("Won");
@@ -77,7 +80,9 @@ describe("Mission Win/Loss Conditions", () => {
       );
 
       // Find hive objective
-      const hiveObj = getInternalState(engine).objectives.find((o: Objective) => o.kind === "Kill");
+      const hiveObj = getInternalState(engine).objectives.find(
+        (o: Objective) => o.kind === "Kill",
+      );
       expect(hiveObj).toBeDefined();
 
       // Manually complete objective (kill hive)
@@ -136,8 +141,11 @@ describe("Mission Win/Loss Conditions", () => {
       );
 
       // 1. Pickup ALL artifacts
-      getInternalState(engine).objectives.forEach((o: Objective) => (o.state = "Completed"));
-      getInternalState(engine).units[0].carriedObjectiveId = getInternalState(engine).objectives[0].id;
+      getInternalState(engine).objectives.forEach(
+        (o: Objective) => (o.state = "Completed"),
+      );
+      getInternalState(engine).units[0].carriedObjectiveId =
+        getInternalState(engine).objectives[0].id;
 
       engine.update(100);
       expect(engine.getState().status).toBe("Playing"); // Still playing, need to extract
@@ -171,8 +179,11 @@ describe("Mission Win/Loss Conditions", () => {
       );
 
       // 1. All objectives completed (Unit 0 picks up artifact 0)
-      getInternalState(engine).objectives.forEach((o: Objective) => (o.state = "Completed"));
-      getInternalState(engine).units[0].carriedObjectiveId = getInternalState(engine).objectives[0].id;
+      getInternalState(engine).objectives.forEach(
+        (o: Objective) => (o.state = "Completed"),
+      );
+      getInternalState(engine).units[0].carriedObjectiveId =
+        getInternalState(engine).objectives[0].id;
 
       engine.update(100);
 
@@ -201,12 +212,16 @@ describe("Mission Win/Loss Conditions", () => {
       );
 
       // Soldier dies
-      getInternalState(engine).units.find((u: Unit) => u.archetypeId !== "vip")!.hp = 0;
+      getInternalState(engine).units.find(
+        (u: Unit) => u.archetypeId !== "vip",
+      )!.hp = 0;
       engine.update(100);
       expect(engine.getState().status).toBe("Playing");
 
       // VIP extracts
-      getInternalState(engine).units.find((u: Unit) => u.archetypeId === "vip")!.state = UnitState.Extracted;
+      getInternalState(engine).units.find(
+        (u: Unit) => u.archetypeId === "vip",
+      )!.state = UnitState.Extracted;
       engine.update(100);
       expect(engine.getState().status).toBe("Won");
     });
@@ -221,7 +236,9 @@ describe("Mission Win/Loss Conditions", () => {
         MissionType.EscortVIP,
       );
 
-      getInternalState(engine).units.find((u: Unit) => u.archetypeId === "vip")!.hp = 0;
+      getInternalState(engine).units.find(
+        (u: Unit) => u.archetypeId === "vip",
+      )!.hp = 0;
       engine.update(100);
       expect(engine.getState().status).toBe("Lost");
     });
@@ -258,7 +275,9 @@ describe("Mission Win/Loss Conditions", () => {
       // No objectives in Default by default (unless map has them)
       expect(engine.getState().objectives.length).toBe(0);
 
-      getInternalState(engine).units.forEach((u: Unit) => (u.state = UnitState.Extracted));
+      getInternalState(engine).units.forEach(
+        (u: Unit) => (u.state = UnitState.Extracted),
+      );
       engine.update(100);
       expect(engine.getState().status).toBe("Won");
     });

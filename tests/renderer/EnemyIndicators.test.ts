@@ -60,14 +60,29 @@ describe("Enemy Indicators", () => {
   const mockMap: MapDefinition = {
     width: 2,
     height: 2,
-    cells: [{ x: 0, y: 0, type: CellType.Floor }, { x: 1, y: 0, type: CellType.Floor }, { x: 0, y: 1, type: CellType.Floor }, { x: 1, y: 1, type: CellType.Floor }],
+    cells: [
+      { x: 0, y: 0, type: CellType.Floor },
+      { x: 1, y: 0, type: CellType.Floor },
+      { x: 0, y: 1, type: CellType.Floor },
+      { x: 1, y: 1, type: CellType.Floor },
+    ],
   };
 
   const mockGameState: GameState = createMockGameState({
     map: mockMap,
     enemies: [
-      createMockEnemy({ id: "enemy-0", pos: { x: 0.5, y: 0.5 }, difficulty: 1, type: EnemyType.XenoMite }),
-      createMockEnemy({ id: "enemy-1", pos: { x: 1.5, y: 0.5 }, difficulty: 2, type: EnemyType.WarriorDrone }),
+      createMockEnemy({
+        id: "enemy-0",
+        pos: { x: 0.5, y: 0.5 },
+        difficulty: 1,
+        type: EnemyType.XenoMite,
+      }),
+      createMockEnemy({
+        id: "enemy-1",
+        pos: { x: 1.5, y: 0.5 },
+        difficulty: 2,
+        type: EnemyType.WarriorDrone,
+      }),
     ],
     visibleCells: ["0,0", "1,0"],
   });

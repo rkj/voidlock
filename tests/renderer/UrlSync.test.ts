@@ -1,8 +1,8 @@
 /**
  * @vitest-environment jsdom
  */
-import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { ScreenManager, ScreenId } from "@src/renderer/ScreenManager";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { ScreenManager } from "@src/renderer/ScreenManager";
 
 describe("ScreenManager URL Sync", () => {
   let screenManager: ScreenManager;
@@ -24,7 +24,7 @@ describe("ScreenManager URL Sync", () => {
 
     // Clear hash
     window.location.hash = "";
-    
+
     onExternalChange = vi.fn();
     screenManager = new ScreenManager(onExternalChange);
   });
@@ -37,7 +37,7 @@ describe("ScreenManager URL Sync", () => {
   it("should handle empty hash as main-menu", () => {
     screenManager.show("campaign");
     expect(window.location.hash).toBe("#campaign");
-    
+
     screenManager.show("main-menu");
     expect(window.location.hash).toBe("");
   });
@@ -45,16 +45,16 @@ describe("ScreenManager URL Sync", () => {
   it("should sync screen when hash changes", async () => {
     // Initial state is main-menu
     expect(screenManager.getCurrentScreen()).toBe("main-menu");
-    
+
     // Simulate hash change
     window.location.hash = "barracks";
-    
+
     // Manually trigger sync because hashchange event is async in JSDOM sometimes or needs a tick
     // In real browser it would trigger, but here we can call syncWithUrl if we make it public or wait
-    
+
     // Let's use the event listener
     window.dispatchEvent(new HashChangeEvent("hashchange"));
-    
+
     expect(screenManager.getCurrentScreen()).toBe("barracks");
     expect(onExternalChange).toHaveBeenCalledWith("barracks");
   });
@@ -70,7 +70,7 @@ describe("ScreenManager URL Sync", () => {
   it("should update URL when goBack is called", () => {
     screenManager.show("statistics");
     expect(window.location.hash).toBe("#statistics");
-    
+
     screenManager.goBack();
     expect(window.location.hash).toBe("");
     expect(screenManager.getCurrentScreen()).toBe("main-menu");

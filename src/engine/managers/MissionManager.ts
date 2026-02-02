@@ -13,18 +13,9 @@ import { PRNG } from "../../shared/PRNG";
 import { MathUtils } from "../../shared/utils/MathUtils";
 import { EnemyManager } from "./EnemyManager";
 import { LootManager } from "./LootManager";
-import {
-  PlacementValidator,
-} from "../generators/PlacementValidator";
-import {
-  isCellVisible,
-  isCellDiscovered,
-} from "../../shared/VisibilityUtils";
-import {
-  HIVE,
-  SCRAP_REWARDS,
-  MISSION_SCALING,
-} from "../config/GameConstants";
+import { PlacementValidator } from "../generators/PlacementValidator";
+import { isCellVisible, isCellDiscovered } from "../../shared/VisibilityUtils";
+import { HIVE, SCRAP_REWARDS, MISSION_SCALING } from "../config/GameConstants";
 
 export class MissionManager {
   constructor(
@@ -110,7 +101,10 @@ export class MissionManager {
           ? MISSION_SCALING.OBJECTIVE_COUNT_BOSS
           : nodeType === "Elite"
             ? MISSION_SCALING.OBJECTIVE_COUNT_ELITE
-            : Math.min(MISSION_SCALING.OBJECTIVE_COUNT_DEFAULT, candidates.length);
+            : Math.min(
+                MISSION_SCALING.OBJECTIVE_COUNT_DEFAULT,
+                candidates.length,
+              );
       const idPrefix =
         this.missionType === MissionType.ExtractArtifacts
           ? "artifact"
@@ -123,8 +117,10 @@ export class MissionManager {
       // Boss Mix: 1x Hive, 2x Recover (if possible)
       // Elite Mix: 1x Hive, 1x Recover (if possible)
       let recoverCount = count;
-      if (nodeType === "Boss") recoverCount = MISSION_SCALING.RECOVER_COUNT_BOSS;
-      else if (nodeType === "Elite") recoverCount = MISSION_SCALING.RECOVER_COUNT_ELITE;
+      if (nodeType === "Boss")
+        recoverCount = MISSION_SCALING.RECOVER_COUNT_BOSS;
+      else if (nodeType === "Elite")
+        recoverCount = MISSION_SCALING.RECOVER_COUNT_ELITE;
 
       for (let i = 0; i < Math.min(recoverCount, candidates.length); i++) {
         objectives.push({
@@ -164,7 +160,10 @@ export class MissionManager {
             accuracy: 100,
             attackRange: 0,
             speed: 0,
-            difficulty: nodeType === "Boss" ? HIVE.BOSS_DIFFICULTY : HIVE.ELITE_DIFFICULTY,
+            difficulty:
+              nodeType === "Boss"
+                ? HIVE.BOSS_DIFFICULTY
+                : HIVE.ELITE_DIFFICULTY,
           });
 
           objectives.push({
@@ -240,11 +239,7 @@ export class MissionManager {
         const enemy = state.enemies.find((e) => e.id === newObj.targetEnemyId);
         if (
           enemy &&
-          isCellVisible(
-            state,
-            Math.floor(enemy.pos.x),
-            Math.floor(enemy.pos.y),
-          )
+          isCellVisible(state, Math.floor(enemy.pos.x), Math.floor(enemy.pos.y))
         ) {
           newObj.visible = true;
           changed = true;
@@ -268,7 +263,9 @@ export class MissionManager {
       } else if (newObj.state !== "Completed") {
         // Handle Kill objective completion in MissionManager
         if (newObj.kind === "Kill" && newObj.targetEnemyId) {
-          const enemy = state.enemies.find((e) => e.id === newObj.targetEnemyId);
+          const enemy = state.enemies.find(
+            (e) => e.id === newObj.targetEnemyId,
+          );
           if (!enemy || enemy.hp <= 0) {
             newObj.state = "Completed";
             changed = true;
@@ -296,7 +293,8 @@ export class MissionManager {
         } else if (newObj.kind === "Escort" || newObj.id === "obj-escort") {
           state.stats.scrapGained += SCRAP_REWARDS.ESCORT_COMPLETE * multiplier;
         } else {
-          state.stats.scrapGained += SCRAP_REWARDS.OBJECTIVE_COMPLETE * multiplier;
+          state.stats.scrapGained +=
+            SCRAP_REWARDS.OBJECTIVE_COMPLETE * multiplier;
         }
         newObj.scrapRewarded = true;
         changed = true;
@@ -367,7 +365,9 @@ export class MissionManager {
         return;
       }
 
-      const combatUnitsOnMap = activeUnits.filter((u) => u.archetypeId !== "vip");
+      const combatUnitsOnMap = activeUnits.filter(
+        (u) => u.archetypeId !== "vip",
+      );
       if (combatUnitsOnMap.length === 0) {
         const deadCombatUnits = state.units.filter(
           (u) => u.archetypeId !== "vip" && u.state === UnitState.Dead,

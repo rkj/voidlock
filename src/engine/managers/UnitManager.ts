@@ -118,21 +118,28 @@ export class UnitManager {
       ) {
         // Target is gone, stop escorting
         for (const e of escorts) {
-          escortData.set(e.id, { targetCell: { x: 0, y: 0 }, stopEscorting: true });
+          escortData.set(e.id, {
+            targetCell: { x: 0, y: 0 },
+            stopEscorting: true,
+          });
         }
         continue;
       }
 
-      const roles = this.formationManager.assignEscortRoles(escorts, targetUnit, this.gameGrid);
+      const roles = this.formationManager.assignEscortRoles(
+        escorts,
+        targetUnit,
+        this.gameGrid,
+      );
       for (const [unitId, slot] of roles) {
         escortData.set(unitId, slot);
       }
     }
 
-
     // Pre-populate claimed objectives from units already pursuing them
     for (const u of state.units) {
-      if (u.state === UnitState.Dead || u.state === UnitState.Extracted) continue;
+      if (u.state === UnitState.Dead || u.state === UnitState.Extracted)
+        continue;
       const activeCommand = u.activeCommand;
       if (u.channeling?.targetId) {
         claimedObjectives.set(u.channeling.targetId, u.id);
@@ -201,7 +208,10 @@ export class UnitManager {
             o.state === "Pending" &&
             (o.kind === "Recover" || o.kind === "Escort" || o.kind === "Kill")
           ) {
-            let pos: Vector2 = { x: MOVEMENT.CENTER_OFFSET, y: MOVEMENT.CENTER_OFFSET };
+            let pos: Vector2 = {
+              x: MOVEMENT.CENTER_OFFSET,
+              y: MOVEMENT.CENTER_OFFSET,
+            };
             if (o.targetCell) {
               pos = {
                 x: o.targetCell.x + MOVEMENT.CENTER_OFFSET,
@@ -232,9 +242,17 @@ export class UnitManager {
 
     // Include objectives that are marked as visible even if not in a currently visible cell
     const alwaysVisibleObjectives = (state.objectives || [])
-      .filter((o) => o.visible && o.state === "Pending" && (o.kind === "Recover" || o.kind === "Escort" || o.kind === "Kill"))
+      .filter(
+        (o) =>
+          o.visible &&
+          o.state === "Pending" &&
+          (o.kind === "Recover" || o.kind === "Escort" || o.kind === "Kill"),
+      )
       .map((o) => {
-        let pos: Vector2 = { x: MOVEMENT.CENTER_OFFSET, y: MOVEMENT.CENTER_OFFSET };
+        let pos: Vector2 = {
+          x: MOVEMENT.CENTER_OFFSET,
+          y: MOVEMENT.CENTER_OFFSET,
+        };
         if (o.targetCell) {
           pos = {
             x: o.targetCell.x + MOVEMENT.CENTER_OFFSET,
@@ -392,8 +410,14 @@ export class UnitManager {
                     ...currentUnit,
                     path,
                     targetPos: {
-                      x: path[0].x + MOVEMENT.CENTER_OFFSET + (currentUnit.visualJitter?.x || 0),
-                      y: path[0].y + MOVEMENT.CENTER_OFFSET + (currentUnit.visualJitter?.y || 0),
+                      x:
+                        path[0].x +
+                        MOVEMENT.CENTER_OFFSET +
+                        (currentUnit.visualJitter?.x || 0),
+                      y:
+                        path[0].y +
+                        MOVEMENT.CENTER_OFFSET +
+                        (currentUnit.visualJitter?.y || 0),
                     },
                     state: UnitState.Moving,
                   };
@@ -402,8 +426,14 @@ export class UnitManager {
                     ...currentUnit,
                     path: undefined,
                     targetPos: {
-                      x: targetCell.x + MOVEMENT.CENTER_OFFSET + (currentUnit.visualJitter?.x || 0),
-                      y: targetCell.y + MOVEMENT.CENTER_OFFSET + (currentUnit.visualJitter?.y || 0),
+                      x:
+                        targetCell.x +
+                        MOVEMENT.CENTER_OFFSET +
+                        (currentUnit.visualJitter?.x || 0),
+                      y:
+                        targetCell.y +
+                        MOVEMENT.CENTER_OFFSET +
+                        (currentUnit.visualJitter?.y || 0),
                     },
                     state: UnitState.Moving,
                   };
@@ -415,7 +445,10 @@ export class UnitManager {
       }
 
       // 3. CHANNELING (Handle timed actions)
-      if (currentUnit.state === UnitState.Channeling && currentUnit.channeling) {
+      if (
+        currentUnit.state === UnitState.Channeling &&
+        currentUnit.channeling
+      ) {
         // If target disappeared, stop channeling
         if (currentUnit.channeling.targetId) {
           const targetId = currentUnit.channeling.targetId;
@@ -438,98 +471,108 @@ export class UnitManager {
           channeling.remaining -= realDt;
           if (channeling.remaining <= 0) {
             if (channeling.action === "Extract") {
-            if (currentUnit.carriedObjectiveId) {
-              const objectiveId = currentUnit.carriedObjectiveId;
-              state.objectives = state.objectives.map((o) =>
-                o.id === objectiveId ? { ...o, state: "Completed" as const } : o,
-              );
-            }
-            return {
-              ...currentUnit,
-              state: UnitState.Extracted,
-              channeling: undefined,
-            };
-          } else if (channeling.action === "Collect") {
-            if (channeling.targetId) {
-              const targetId = channeling.targetId;
-              const obj = state.objectives.find((o) => o.id === targetId);
-              if (obj) {
-                if (obj.id.startsWith("artifact")) {
-                  currentUnit = {
-                    ...currentUnit,
-                    carriedObjectiveId: obj.id,
-                  };
-                  currentUnit = this.statsManager.recalculateStats(currentUnit);
-                } else {
-                  state.objectives = state.objectives.map((o) =>
-                    o.id === targetId ? { ...o, state: "Completed" as const } : o,
-                  );
-                }
+              if (currentUnit.carriedObjectiveId) {
+                const objectiveId = currentUnit.carriedObjectiveId;
+                state.objectives = state.objectives.map((o) =>
+                  o.id === objectiveId
+                    ? { ...o, state: "Completed" as const }
+                    : o,
+                );
               }
-            }
-            return {
-              ...currentUnit,
-              state: UnitState.Idle,
-              channeling: undefined,
-            };
-          } else if (channeling.action === "Pickup") {
-            if (channeling.targetId) {
-              const loot = state.loot?.find((l) => l.id === channeling.targetId);
-              if (loot) {
-                if (loot.objectiveId) {
-                  currentUnit = {
-                    ...currentUnit,
-                    carriedObjectiveId: loot.objectiveId,
-                  };
-                  currentUnit = this.statsManager.recalculateStats(currentUnit);
-                } else {
-                  // Regular item
-                  const itemId = loot.itemId;
-                  if (itemId !== "scrap_crate") {
-                    state.squadInventory[itemId] =
-                      (state.squadInventory[itemId] || 0) + 1;
-                  }
-                  lootManager.awardScrap(state, itemId);
-                }
-                lootManager.removeLoot(state, loot.id);
-              }
-            }
-            return {
-              ...currentUnit,
-              state: UnitState.Idle,
-              channeling: undefined,
-            };
-          } else if (channeling.action === "UseItem") {
-            if (
-              currentUnit.activeCommand &&
-              currentUnit.activeCommand.type === CommandType.USE_ITEM
-            ) {
-              const cmd = currentUnit.activeCommand;
-              const count = state.squadInventory[cmd.itemId] || 0;
-              if (count > 0) {
-                state.squadInventory[cmd.itemId] = count - 1;
-                if (director) {
-                  director.handleUseItem(state, cmd);
-                  // Sync back hp in case of self-heal (director mutates state.units)
-                  const mutated = state.units.find((u) => u.id === currentUnit.id);
-                  if (mutated) {
-                    currentUnit = { ...currentUnit, hp: mutated.hp };
+              return {
+                ...currentUnit,
+                state: UnitState.Extracted,
+                channeling: undefined,
+              };
+            } else if (channeling.action === "Collect") {
+              if (channeling.targetId) {
+                const targetId = channeling.targetId;
+                const obj = state.objectives.find((o) => o.id === targetId);
+                if (obj) {
+                  if (obj.id.startsWith("artifact")) {
+                    currentUnit = {
+                      ...currentUnit,
+                      carriedObjectiveId: obj.id,
+                    };
+                    currentUnit =
+                      this.statsManager.recalculateStats(currentUnit);
+                  } else {
+                    state.objectives = state.objectives.map((o) =>
+                      o.id === targetId
+                        ? { ...o, state: "Completed" as const }
+                        : o,
+                    );
                   }
                 }
               }
+              return {
+                ...currentUnit,
+                state: UnitState.Idle,
+                channeling: undefined,
+              };
+            } else if (channeling.action === "Pickup") {
+              if (channeling.targetId) {
+                const loot = state.loot?.find(
+                  (l) => l.id === channeling.targetId,
+                );
+                if (loot) {
+                  if (loot.objectiveId) {
+                    currentUnit = {
+                      ...currentUnit,
+                      carriedObjectiveId: loot.objectiveId,
+                    };
+                    currentUnit =
+                      this.statsManager.recalculateStats(currentUnit);
+                  } else {
+                    // Regular item
+                    const itemId = loot.itemId;
+                    if (itemId !== "scrap_crate") {
+                      state.squadInventory[itemId] =
+                        (state.squadInventory[itemId] || 0) + 1;
+                    }
+                    lootManager.awardScrap(state, itemId);
+                  }
+                  lootManager.removeLoot(state, loot.id);
+                }
+              }
+              return {
+                ...currentUnit,
+                state: UnitState.Idle,
+                channeling: undefined,
+              };
+            } else if (channeling.action === "UseItem") {
+              if (
+                currentUnit.activeCommand &&
+                currentUnit.activeCommand.type === CommandType.USE_ITEM
+              ) {
+                const cmd = currentUnit.activeCommand;
+                const count = state.squadInventory[cmd.itemId] || 0;
+                if (count > 0) {
+                  state.squadInventory[cmd.itemId] = count - 1;
+                  if (director) {
+                    director.handleUseItem(state, cmd);
+                    // Sync back hp in case of self-heal (director mutates state.units)
+                    const mutated = state.units.find(
+                      (u) => u.id === currentUnit.id,
+                    );
+                    if (mutated) {
+                      currentUnit = { ...currentUnit, hp: mutated.hp };
+                    }
+                  }
+                }
+              }
+              return {
+                ...currentUnit,
+                state: UnitState.Idle,
+                channeling: undefined,
+                activeCommand: undefined,
+              };
             }
-            return {
-              ...currentUnit,
-              state: UnitState.Idle,
-              channeling: undefined,
-              activeCommand: undefined,
-            };
+          } else {
+            return { ...currentUnit, channeling };
           }
-        } else {
-          return { ...currentUnit, channeling };
         }
       }
-    }
 
       // 4. COMBAT (Unit's own attacks)
       const combatResult = this.combatManager.update(currentUnit, state, prng);
@@ -603,7 +646,6 @@ export class UnitManager {
     });
 
     state.units = updatedUnits;
-
   }
 
   /**
@@ -622,6 +664,12 @@ export class UnitManager {
     isManual: boolean = true,
     director?: IDirector,
   ): Unit {
-    return this.commandExecutor.executeCommand(unit, cmd, state, isManual, director);
+    return this.commandExecutor.executeCommand(
+      unit,
+      cmd,
+      state,
+      isManual,
+      director,
+    );
   }
 }

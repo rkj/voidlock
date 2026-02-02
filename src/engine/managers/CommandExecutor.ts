@@ -9,7 +9,11 @@ import {
   Vector2,
 } from "../../shared/types";
 import { Pathfinder } from "../Pathfinder";
-import { SPEED_NORMALIZATION_CONST, MOVEMENT, ITEMS } from "../config/GameConstants";
+import {
+  SPEED_NORMALIZATION_CONST,
+  MOVEMENT,
+  ITEMS,
+} from "../config/GameConstants";
 import { IDirector } from "../interfaces/IDirector";
 import { MathUtils } from "../../shared/utils/MathUtils";
 
@@ -45,7 +49,10 @@ export class CommandExecutor {
     }
 
     if (cmd.type === CommandType.MOVE_TO) {
-      if (currentUnit.state !== UnitState.Extracted && currentUnit.state !== UnitState.Dead) {
+      if (
+        currentUnit.state !== UnitState.Extracted &&
+        currentUnit.state !== UnitState.Dead
+      ) {
         currentUnit.forcedTargetId = undefined;
         // Clear exploration target if this is a manual command OR an autonomous command that isn't exploration
         if (isManual || cmd.label !== "Exploring") {
@@ -58,15 +65,24 @@ export class CommandExecutor {
         }
 
         const path = this.pathfinder.findPath(
-          { x: Math.floor(currentUnit.pos.x), y: Math.floor(currentUnit.pos.y) },
+          {
+            x: Math.floor(currentUnit.pos.x),
+            y: Math.floor(currentUnit.pos.y),
+          },
           cmd.target,
           true,
         );
         if (path && path.length > 0) {
           currentUnit.path = path;
           currentUnit.targetPos = {
-            x: path[0].x + MOVEMENT.CENTER_OFFSET + (currentUnit.visualJitter?.x || 0),
-            y: path[0].y + MOVEMENT.CENTER_OFFSET + (currentUnit.visualJitter?.y || 0),
+            x:
+              path[0].x +
+              MOVEMENT.CENTER_OFFSET +
+              (currentUnit.visualJitter?.x || 0),
+            y:
+              path[0].y +
+              MOVEMENT.CENTER_OFFSET +
+              (currentUnit.visualJitter?.y || 0),
           };
           currentUnit.state = UnitState.Moving;
         } else if (
@@ -76,8 +92,14 @@ export class CommandExecutor {
           Math.floor(currentUnit.pos.y) === cmd.target.y
         ) {
           currentUnit.pos = {
-            x: cmd.target.x + MOVEMENT.CENTER_OFFSET + (currentUnit.visualJitter?.x || 0),
-            y: cmd.target.y + MOVEMENT.CENTER_OFFSET + (currentUnit.visualJitter?.y || 0),
+            x:
+              cmd.target.x +
+              MOVEMENT.CENTER_OFFSET +
+              (currentUnit.visualJitter?.x || 0),
+            y:
+              cmd.target.y +
+              MOVEMENT.CENTER_OFFSET +
+              (currentUnit.visualJitter?.y || 0),
           };
           currentUnit.path = undefined;
           currentUnit.targetPos = undefined;
@@ -91,7 +113,10 @@ export class CommandExecutor {
         }
       }
     } else if (cmd.type === CommandType.ESCORT_UNIT) {
-      if (currentUnit.state !== UnitState.Extracted && currentUnit.state !== UnitState.Dead) {
+      if (
+        currentUnit.state !== UnitState.Extracted &&
+        currentUnit.state !== UnitState.Dead
+      ) {
         currentUnit.forcedTargetId = undefined;
         currentUnit.explorationTarget = undefined;
         if (currentUnit.state === UnitState.Channeling) {
@@ -104,7 +129,10 @@ export class CommandExecutor {
         currentUnit.activeCommand = cmd;
       }
     } else if (cmd.type === CommandType.OVERWATCH_POINT) {
-      if (currentUnit.state !== UnitState.Extracted && currentUnit.state !== UnitState.Dead) {
+      if (
+        currentUnit.state !== UnitState.Extracted &&
+        currentUnit.state !== UnitState.Dead
+      ) {
         currentUnit.aiEnabled = false;
         currentUnit.aiProfile = AIProfile.STAND_GROUND;
         currentUnit = this.executeCommand(
@@ -122,7 +150,10 @@ export class CommandExecutor {
         currentUnit.activeCommand = cmd;
       }
     } else if (cmd.type === CommandType.EXPLORE) {
-      if (currentUnit.state !== UnitState.Extracted && currentUnit.state !== UnitState.Dead) {
+      if (
+        currentUnit.state !== UnitState.Extracted &&
+        currentUnit.state !== UnitState.Dead
+      ) {
         currentUnit.aiEnabled = true;
         // Default exploration behavior will take over in update()
       }
@@ -147,7 +178,10 @@ export class CommandExecutor {
       currentUnit.aiEnabled = true;
       currentUnit.activeCommand = undefined;
     } else if (cmd.type === CommandType.PICKUP) {
-      if (currentUnit.state !== UnitState.Extracted && currentUnit.state !== UnitState.Dead) {
+      if (
+        currentUnit.state !== UnitState.Extracted &&
+        currentUnit.state !== UnitState.Dead
+      ) {
         const loot = state.loot?.find((l) => l.id === cmd.lootId);
         const objective = state.objectives?.find((o) => o.id === cmd.lootId);
         if (loot) {
@@ -181,7 +215,10 @@ export class CommandExecutor {
         }
       }
     } else if (cmd.type === CommandType.EXTRACT) {
-      if (currentUnit.state !== UnitState.Extracted && currentUnit.state !== UnitState.Dead) {
+      if (
+        currentUnit.state !== UnitState.Extracted &&
+        currentUnit.state !== UnitState.Dead
+      ) {
         if (state.map.extraction) {
           currentUnit = this.executeCommand(
             currentUnit,
@@ -199,7 +236,10 @@ export class CommandExecutor {
         }
       }
     } else if (cmd.type === CommandType.USE_ITEM) {
-      if (currentUnit.state !== UnitState.Extracted && currentUnit.state !== UnitState.Dead) {
+      if (
+        currentUnit.state !== UnitState.Extracted &&
+        currentUnit.state !== UnitState.Dead
+      ) {
         const item = ItemLibrary[cmd.itemId];
         if (item) {
           let targetLocation: Vector2 | undefined = cmd.target;
@@ -226,7 +266,9 @@ export class CommandExecutor {
           // If item has a target, move there first?
           if (
             targetLocation &&
-            (item.action === "Heal" || item.action === "Mine" || item.action === "Sentry")
+            (item.action === "Heal" ||
+              item.action === "Mine" ||
+              item.action === "Sentry")
           ) {
             const dist = MathUtils.getDistance(currentUnit.pos, {
               x: targetLocation.x + MOVEMENT.CENTER_OFFSET,
@@ -251,7 +293,9 @@ export class CommandExecutor {
           }
 
           const isTimedAction =
-            cmd.itemId === "medkit" || cmd.itemId === "mine" || item.action === "Sentry";
+            cmd.itemId === "medkit" ||
+            cmd.itemId === "mine" ||
+            item.action === "Sentry";
           if (isTimedAction) {
             const baseTime = ITEMS.BASE_USE_ITEM_TIME;
             const scaledDuration =
@@ -273,7 +317,9 @@ export class CommandExecutor {
               if (director) {
                 director.handleUseItem(state, cmd);
                 // Sync back hp in case of self-heal (director mutates state.units)
-                const mutated = state.units.find((u) => u.id === currentUnit.id);
+                const mutated = state.units.find(
+                  (u) => u.id === currentUnit.id,
+                );
                 if (mutated) {
                   currentUnit.hp = mutated.hp;
                 }

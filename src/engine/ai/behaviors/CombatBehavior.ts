@@ -26,24 +26,23 @@ export class CombatBehavior implements Behavior {
     director?: IDirector,
   ): BehaviorResult {
     let currentUnit = { ...unit };
-    if (currentUnit.archetypeId === "vip") return { unit: currentUnit, handled: false };
+    if (currentUnit.archetypeId === "vip")
+      return { unit: currentUnit, handled: false };
     if (
       currentUnit.state !== UnitState.Idle &&
       currentUnit.state !== UnitState.Attacking &&
       !currentUnit.explorationTarget
     )
       return { unit: currentUnit, handled: false };
-    if (currentUnit.commandQueue.length > 0) return { unit: currentUnit, handled: false };
-    if (!context.agentControlEnabled || currentUnit.aiEnabled === false) return { unit: currentUnit, handled: false };
+    if (currentUnit.commandQueue.length > 0)
+      return { unit: currentUnit, handled: false };
+    if (!context.agentControlEnabled || currentUnit.aiEnabled === false)
+      return { unit: currentUnit, handled: false };
 
     const visibleEnemies = state.enemies.filter(
       (enemy) =>
         enemy.hp > 0 &&
-        isCellVisible(
-          state,
-          Math.floor(enemy.pos.x),
-          Math.floor(enemy.pos.y),
-        ),
+        isCellVisible(state, Math.floor(enemy.pos.x), Math.floor(enemy.pos.y)),
     );
 
     const threats = visibleEnemies

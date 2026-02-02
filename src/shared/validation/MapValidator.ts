@@ -27,13 +27,19 @@ export class MapValidator {
 
     // Optional fields
     if (map.walls !== undefined) {
-      if (!Array.isArray(map.walls) || !map.walls.every(w => this.isValidWall(w))) {
+      if (
+        !Array.isArray(map.walls) ||
+        !map.walls.every((w) => this.isValidWall(w))
+      ) {
         return false;
       }
     }
 
     if (map.spawnPoints !== undefined) {
-      if (!Array.isArray(map.spawnPoints) || !map.spawnPoints.every(s => this.isValidSpawnPoint(s))) {
+      if (
+        !Array.isArray(map.spawnPoints) ||
+        !map.spawnPoints.every((s) => this.isValidSpawnPoint(s))
+      ) {
         return false;
       }
     }
@@ -47,13 +53,19 @@ export class MapValidator {
     }
 
     if (map.objectives !== undefined) {
-      if (!Array.isArray(map.objectives) || !map.objectives.every(o => this.isValidObjective(o))) {
+      if (
+        !Array.isArray(map.objectives) ||
+        !map.objectives.every((o) => this.isValidObjective(o))
+      ) {
         return false;
       }
     }
 
     if (map.bonusLoot !== undefined) {
-      if (!Array.isArray(map.bonusLoot) || !map.bonusLoot.every(l => this.isValidVector2(l))) {
+      if (
+        !Array.isArray(map.bonusLoot) ||
+        !map.bonusLoot.every((l) => this.isValidVector2(l))
+      ) {
         return false;
       }
     }

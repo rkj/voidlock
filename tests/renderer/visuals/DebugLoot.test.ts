@@ -66,7 +66,6 @@ describe("DebugLoot Rendering", () => {
     expect(icon.src).toContain("loot_credits.webp");
   });
 
-
   it("should render loot when visible even if debug is OFF", () => {
     const gameState: GameState = createMockGameState({
       loot: [{ id: "loot-1", pos: { x: 2, y: 2 }, itemId: "scrap_crate" }],
@@ -148,4 +147,3 @@ describe("DebugLoot Rendering", () => {
     expect(icon.src).toContain("data_disk.webp");
   });
 });
-

@@ -1,9 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { CoreEngine } from "@src/engine/CoreEngine";
-import {
-  EngineMode,
-  MissionType,
-} from "@src/shared/types";
+import { EngineMode, MissionType } from "@src/shared/types";
 
 describe("CoreEngine Replay Termination", () => {
   it("should stop updating when mission status is no longer Playing, even in Replay mode", () => {
@@ -23,9 +20,17 @@ describe("CoreEngine Replay Termination", () => {
 
     const squadConfig = {
       soldiers: [
-        { id: "s1", name: "S1", archetypeId: "scout", tacticalNumber: 1, hp: 10, maxHp: 10, pos: { x: 1, y: 1 } }
+        {
+          id: "s1",
+          name: "S1",
+          archetypeId: "scout",
+          tacticalNumber: 1,
+          hp: 10,
+          maxHp: 10,
+          pos: { x: 1, y: 1 },
+        },
       ],
-      inventory: {}
+      inventory: {},
     } as any;
 
     // 1. Create a simulation and make it fail
@@ -40,13 +45,13 @@ describe("CoreEngine Replay Termination", () => {
       0, // threat
       1.0, // timescale
       false, // paused
-      EngineMode.Simulation
+      EngineMode.Simulation,
     );
 
     // Force failure by killing the only unit
     const state = engine.getState();
     state.units[0].hp = 0;
-    
+
     // Run one update to trigger loss check
     engine.update(16);
     expect(engine.getState().status).toBe("Lost");
@@ -64,21 +69,21 @@ describe("CoreEngine Replay Termination", () => {
       1.0,
       false,
       EngineMode.Replay,
-      engine.getState().commandLog
+      engine.getState().commandLog,
     );
 
     // Run until it hits Lost
     for (let i = 0; i < 1000; i++) {
-        replayEngine.update(16);
-        if (replayEngine.getState().status === "Lost") break;
+      replayEngine.update(16);
+      if (replayEngine.getState().status === "Lost") break;
     }
 
     expect(replayEngine.getState().status).toBe("Lost");
     const replayEndTick = replayEngine.getState().t;
-    
+
     // Now try to update again
     replayEngine.update(16);
-    
+
     // Time SHOULD have increased in Replay mode (new behavior for scrubbing support)
     expect(replayEngine.getState().t).toBeGreaterThan(replayEndTick);
   });

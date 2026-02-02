@@ -36,7 +36,9 @@ describe("Regression mqdp: VIP Death Mission Success", () => {
     );
 
     // Find the VIP
-    const vip = getInternalState(engine).units.find((u: any) => u.archetypeId === "vip");
+    const vip = getInternalState(engine).units.find(
+      (u: any) => u.archetypeId === "vip",
+    );
     expect(vip).toBeDefined();
 
     // Kill the VIP
@@ -63,8 +65,9 @@ describe("Regression mqdp: VIP Death Mission Success", () => {
     );
 
     // Complete the other objective
-    getInternalState(engine).objectives.find((o: any) => o.id === "obj-1").state =
-      "Completed";
+    getInternalState(engine).objectives.find(
+      (o: any) => o.id === "obj-1",
+    ).state = "Completed";
 
     // Kill the VIP
     const internalVip = getInternalState(engine).units.find(
@@ -92,7 +95,9 @@ describe("Regression mqdp: VIP Death Mission Success", () => {
     );
 
     expect(
-      getInternalState(engine2).objectives.some((o: Objective) => o.id === "obj-escort"),
+      getInternalState(engine2).objectives.some(
+        (o: Objective) => o.id === "obj-escort",
+      ),
     ).toBe(true);
 
     // Kill the VIP
@@ -130,7 +135,9 @@ describe("Regression mqdp: VIP Death Mission Success", () => {
 
     // In Default mission, setupMission adds obj-escort if hasVipInSquad is true.
     expect(
-      getInternalState(engine).objectives.some((o: Objective) => o.id === "obj-escort"),
+      getInternalState(engine).objectives.some(
+        (o: Objective) => o.id === "obj-escort",
+      ),
     ).toBe(true);
 
     // Kill the VIP

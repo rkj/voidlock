@@ -33,14 +33,14 @@ describe("Mission Setup Layout Verification", () => {
       return {
         maxHeight: style.maxHeight,
         height: style.height,
-        overflow: style.overflow
+        overflow: style.overflow,
       };
     });
 
     expect(cardStyles).not.toBeNull();
     expect(cardStyles?.maxHeight).toBe("none");
     // overflow: hidden is still fine to contain content if needed, but height should be flexible
-    
+
     // 4. Verify .squad-builder-container has flex: 1 or no fixed height
     const containerStyles = await page.evaluate(() => {
       const container = document.querySelector(".squad-builder-container");
@@ -49,7 +49,7 @@ describe("Mission Setup Layout Verification", () => {
       return {
         display: style.display,
         flex: style.flex,
-        height: style.height
+        height: style.height,
       };
     });
 

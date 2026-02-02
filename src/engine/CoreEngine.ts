@@ -210,7 +210,6 @@ export class CoreEngine {
       .filter((u) => u.archetypeId !== "vip")
       .map((u) => u.id);
 
-
     if (explorationUnitIds.length > 0 && this.commandLog.length === 0) {
       this.applyCommand({
         type: CommandType.EXPLORE,
@@ -255,7 +254,7 @@ export class CoreEngine {
   public getState(): GameState {
     const state = this.state;
     // Manual shallow copy of the state structure.
-    // We avoid deep cloning elements here because postMessage() 
+    // We avoid deep cloning elements here because postMessage()
     // in the worker performs a structured clone anyway.
     const copy: GameState = {
       ...state,
@@ -264,9 +263,7 @@ export class CoreEngine {
       loot: [...state.loot],
       mines: [...state.mines],
       turrets: [...state.turrets],
-      attackEvents: state.attackEvents
-        ? [...state.attackEvents]
-        : [],
+      attackEvents: state.attackEvents ? [...state.attackEvents] : [],
       objectives: [...state.objectives],
       visibleCells: [...state.visibleCells],
       discoveredCells: [...state.discoveredCells],

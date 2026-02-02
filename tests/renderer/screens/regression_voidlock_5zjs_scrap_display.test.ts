@@ -30,7 +30,6 @@ describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => 
     onBack = vi.fn();
   });
 
-
   it("should display Scrap and Intel balance when campaign is active", () => {
     mockManager = {
       getState: vi.fn().mockReturnValue({

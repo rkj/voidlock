@@ -26,7 +26,8 @@ describe("MenuController Room Discovery Repro", () => {
     discoveredCells: ["1,1"],
     objectives: [],
     loot: [],
-    mines: [], turrets: [],
+    mines: [],
+    turrets: [],
     stats: {
       threatLevel: 0,
       aliensKilled: 0,
@@ -54,7 +55,7 @@ describe("MenuController Room Discovery Repro", () => {
     map: {
       ...fullMapState.map,
       cells: [], // Optimized: cells are omitted after first send
-    }
+    },
   };
 
   beforeEach(() => {
@@ -67,11 +68,11 @@ describe("MenuController Room Discovery Repro", () => {
   it("should succeed to show rooms if cells are optimized away but update was called once", () => {
     // 1. First update HAS cells - simulate GameApp.updateUI
     controller.update(fullMapState);
-    
+
     // 2. Second update HAS NO cells
     controller.handleMenuInput("1", optimizedState); // Orders
     controller.handleMenuInput("1", optimizedState); // Move to Room
-    
+
     expect(controller.menuState).toBe("TARGET_SELECT");
 
     const renderState = controller.getRenderableState(optimizedState);
@@ -80,7 +81,7 @@ describe("MenuController Room Discovery Repro", () => {
     );
 
     // This should now PASS
-    expect(roomOptions.length).toBe(2); 
+    expect(roomOptions.length).toBe(2);
     expect(roomOptions[0].label).toBe("1. Room 1");
     expect(roomOptions[1].label).toBe("2. Room 2");
   });

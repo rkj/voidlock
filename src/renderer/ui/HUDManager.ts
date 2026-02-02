@@ -149,10 +149,14 @@ export class HUDManager {
     if (!objectivesDiv) {
       objectivesDiv = document.createElement("div");
       objectivesDiv.className = "objectives-status";
-      objectivesDiv.innerHTML = "<h3>Objectives</h3><div class='obj-list'></div>";
+      objectivesDiv.innerHTML =
+        "<h3>Objectives</h3><div class='obj-list'></div>";
       rightPanel.appendChild(objectivesDiv);
     }
-    this.updateObjectives(state, objectivesDiv.querySelector(".obj-list") as HTMLElement);
+    this.updateObjectives(
+      state,
+      objectivesDiv.querySelector(".obj-list") as HTMLElement,
+    );
 
     // Remove old extraction div if it exists (now handled by objectives)
     const extDiv = rightPanel.querySelector(".extraction-status");

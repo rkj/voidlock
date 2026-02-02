@@ -59,7 +59,7 @@ describe("Regression voidlock-peb3: Restrict PICKUP to single unit", () => {
     const key = lootOption?.key || "1";
 
     controller.handleMenuInput(key, mockState); // Select target loot-1
-    
+
     expect(controller.menuState).toBe("UNIT_SELECT");
 
     const renderState = controller.getRenderableState(mockState);
@@ -80,14 +80,14 @@ describe("Regression voidlock-peb3: Restrict PICKUP to single unit", () => {
     const targetKey = lootOption?.key || "1";
 
     controller.handleMenuInput(targetKey, mockState); // Select target loot-1
-    
+
     const allUnitsKey = (mockState.units.length + 1).toString();
-    
+
     // Attempt to select 'All Units'
     controller.handleMenuInput(allUnitsKey, mockState);
 
     expect(mockClient.sendCommand).not.toHaveBeenCalled();
-    // It should ideally stay in UNIT_SELECT or show an error, 
+    // It should ideally stay in UNIT_SELECT or show an error,
     // but the task is to disable/hide it.
   });
 });

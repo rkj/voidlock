@@ -24,13 +24,17 @@ export class RoomDiscoveryManager {
   }
 
   public update(gameState: GameState) {
-    if (this.cellToRoomId.size === 0 && gameState.map.cells && gameState.map.cells.length > 0) {
+    if (
+      this.cellToRoomId.size === 0 &&
+      gameState.map.cells &&
+      gameState.map.cells.length > 0
+    ) {
       const roomCells = new Map<string, { x: number; y: number }[]>();
 
       gameState.map.cells.forEach((cell) => {
         if (cell.roomId) {
           this.cellToRoomId.set(`${cell.x},${cell.y}`, cell.roomId);
-          
+
           if (!roomCells.has(cell.roomId)) {
             roomCells.set(cell.roomId, []);
           }

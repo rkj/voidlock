@@ -85,8 +85,8 @@ To prevent technical debt accumulation, all agents and contributors MUST adhere 
 - **Single Responsibility:** "Manager" classes must not exceed ~500 lines. If a class grows too large, decompose it (e.g., `UnitManager` -> `FormationManager`, `UnitSpawner`).
 - **DRY (Don't Repeat Yourself):** Do not duplicate utility logic (e.g., distance calculations). Create shared utilities in `src/shared/utils/`.
 - **No Circular Dependencies:**
-    - Engine must **never** import Renderer.
-    - Child components (e.g., `UnitManager`) should not import Parent components (`CoreEngine`). Use Interfaces (`IDirector`) or Dependency Injection.
+  - Engine must **never** import Renderer.
+  - Child components (e.g., `UnitManager`) should not import Parent components (`CoreEngine`). Use Interfaces (`IDirector`) or Dependency Injection.
 
 ### 4. Verification Protocol
 

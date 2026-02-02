@@ -1,9 +1,4 @@
-import {
-  GameState,
-  Door,
-  UnitState,
-  BoundaryType,
-} from "../../shared/types";
+import { GameState, Door, UnitState, BoundaryType } from "../../shared/types";
 import { GameGrid } from "../GameGrid";
 
 export class DoorManager {
@@ -88,7 +83,7 @@ export class DoorManager {
           door.state === "Open" ||
           door.state === "Destroyed" ||
           door.targetState === "Open";
-        
+
         // We still mutate boundary.type here because Graph is a complex internal structure
         // that isn't easily made immutable without a large refactor.
         // But for structural sharing of GameState, we've improved Door objects.

@@ -1,7 +1,4 @@
-import {
-  Unit,
-  Vector2,
-} from "../../shared/types";
+import { Unit, Vector2 } from "../../shared/types";
 import { GameGrid } from "../GameGrid";
 import { MathUtils } from "../../shared/utils/MathUtils";
 

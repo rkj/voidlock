@@ -1,10 +1,4 @@
-import {
-  GameState,
-  Enemy,
-  Unit,
-  UnitState,
-  Grid,
-} from "../../shared/types";
+import { GameState, Enemy, Unit, UnitState, Grid } from "../../shared/types";
 import { Pathfinder } from "../Pathfinder";
 import { PRNG } from "../../shared/PRNG";
 import { LineOfSight } from "../LineOfSight";

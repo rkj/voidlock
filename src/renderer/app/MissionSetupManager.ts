@@ -6,9 +6,7 @@ import {
   UnitStyle,
   MapDefinition,
 } from "@src/shared/types";
-import {
-  CampaignNode,
-} from "@src/shared/campaign_types";
+import { CampaignNode } from "@src/shared/campaign_types";
 import { ConfigManager, GameConfig } from "../ConfigManager";
 import { MapUtility } from "@src/renderer/MapUtility";
 import { MapValidator } from "@src/shared/validation/MapValidator";
@@ -16,6 +14,7 @@ import { MapFactory } from "@src/engine/map/MapFactory";
 import { SquadBuilder } from "../components/SquadBuilder";
 import { NameGenerator } from "@src/shared/utils/NameGenerator";
 import { ArchetypeLibrary } from "@src/shared/types/units";
+import { AssetManager } from "../visuals/AssetManager";
 
 export class MissionSetupManager {
   public fogOfWarEnabled = ConfigManager.getDefault().fogOfWarEnabled;
@@ -355,6 +354,7 @@ export class MissionSetupManager {
       });
     }
     this.renderSquadBuilder(isCampaign);
+    this.renderUnitStylePreview();
   }
 
   public updateSetupUIFromConfig(config: GameConfig | Partial<GameConfig>) {
@@ -440,6 +440,7 @@ export class MissionSetupManager {
     if (styleSelect) styleSelect.value = this.unitStyle;
 
     if (mapGenSelect) mapGenSelect.dispatchEvent(new Event("change"));
+    this.renderUnitStylePreview();
   }
 
   public renderSquadBuilder(isCampaign: boolean = false) {
@@ -448,6 +449,118 @@ export class MissionSetupManager {
       this.currentMissionType,
       isCampaign,
     );
+  }
+
+  public renderUnitStylePreview() {
+    const tacticalCanvas = document.getElementById(
+      "preview-canvas-tactical",
+    ) as HTMLCanvasElement;
+    const spritesCanvas = document.getElementById(
+      "preview-canvas-sprites",
+    ) as HTMLCanvasElement;
+
+    if (!tacticalCanvas || !spritesCanvas) return;
+
+    this.drawTacticalPreview(tacticalCanvas);
+    this.drawSpritesPreview(spritesCanvas);
+
+    // Update active state in UI
+    const items = document.querySelectorAll(".style-preview-item");
+    items.forEach((item) => {
+      const style = item.getAttribute("data-style");
+      if (style === this.unitStyle) {
+        item.classList.add("active");
+      } else {
+        item.classList.remove("active");
+      }
+    });
+  }
+
+  private drawTacticalPreview(canvas: HTMLCanvasElement) {
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const { width, height } = canvas;
+    const cellSize = width; // Use full width for preview
+    const x = width / 2;
+    const y = height / 2;
+
+    ctx.clearRect(0, 0, width, height);
+
+    // Draw background grid-like floor
+    ctx.fillStyle = this.context.themeManager.getColor("--color-floor");
+    ctx.fillRect(0, 0, width, height);
+    ctx.strokeStyle = this.context.themeManager.getColor("--color-grid");
+    ctx.lineWidth = 1;
+    ctx.strokeRect(0, 0, width, height);
+
+    // Draw Tactical Icon (matching UnitLayer logic)
+    ctx.beginPath();
+    ctx.arc(x, y, cellSize / 6, 0, Math.PI * 2);
+    ctx.fillStyle = this.context.themeManager.getColor("--color-primary");
+    ctx.fill();
+    ctx.strokeStyle = this.context.themeManager.getColor("--color-black");
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    ctx.fillStyle = this.context.themeManager.getColor("--color-black");
+    ctx.font = `bold ${Math.floor(cellSize / 8)}px monospace`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("1", x, y);
+  }
+
+  private drawSpritesPreview(canvas: HTMLCanvasElement) {
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const { width, height } = canvas;
+    const cellSize = width;
+    const x = width / 2;
+    const y = height / 2;
+
+    ctx.clearRect(0, 0, width, height);
+
+    // Draw background
+    ctx.fillStyle = this.context.themeManager.getColor("--color-floor");
+    ctx.fillRect(0, 0, width, height);
+    ctx.strokeStyle = this.context.themeManager.getColor("--color-grid");
+    ctx.lineWidth = 1;
+    ctx.strokeRect(0, 0, width, height);
+
+    // Draw Sprite (matching UnitLayer logic)
+    const assets = AssetManager.getInstance();
+    const sprite = assets.getUnitSprite("scout");
+
+    if (sprite && sprite.complete && sprite.naturalWidth > 0) {
+      const spriteSize = cellSize * 0.24;
+      ctx.drawImage(
+        sprite,
+        x - spriteSize / 2,
+        y - spriteSize / 2,
+        spriteSize,
+        spriteSize,
+      );
+
+      ctx.font = `bold ${Math.floor(cellSize / 6)}px monospace`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.strokeStyle = this.context.themeManager.getColor("--color-black");
+      ctx.lineWidth = 4;
+      ctx.strokeText("1", x, y);
+      ctx.fillStyle = this.context.themeManager.getColor("--color-white");
+      ctx.fillText("1", x, y);
+    } else {
+      // Fallback or wait for load
+      ctx.fillStyle = this.context.themeManager.getColor("--color-text-dim");
+      ctx.font = "10px monospace";
+      ctx.textAlign = "center";
+      ctx.fillText("Loading...", x, y);
+
+      if (sprite) {
+        sprite.onload = () => this.drawSpritesPreview(canvas);
+      }
+    }
   }
 
   public async loadStaticMap(json: string) {
@@ -479,9 +592,7 @@ export class MissionSetupManager {
           return;
         }
         this.currentStaticMapData = MapUtility.transformMapData(parsed);
-        await this.context.modalService.alert(
-          "Static Map Loaded from File.",
-        );
+        await this.context.modalService.alert("Static Map Loaded from File.");
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
         await this.context.modalService.alert(`Invalid file: ${message}`);

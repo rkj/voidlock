@@ -164,7 +164,7 @@ describe("BarracksScreen", () => {
     expect(mockModalService.prompt).not.toHaveBeenCalled();
     const state = manager.getState()!;
     expect(state.roster.length).toBe(initialCount + 1);
-    
+
     const newSoldier = state.roster[state.roster.length - 1];
     expect(container.textContent).toContain(newSoldier.name);
   });

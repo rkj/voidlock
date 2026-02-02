@@ -1,10 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { MapGenerator } from "@src/engine/MapGenerator";
-import {
-  MapDefinition,
-  CellType,
-  MapGeneratorType,
-} from "@src/shared/types";
+import { MapDefinition, CellType, MapGeneratorType } from "@src/shared/types";
 
 describe("MapGenerator.validate", () => {
   let generator: MapGenerator;

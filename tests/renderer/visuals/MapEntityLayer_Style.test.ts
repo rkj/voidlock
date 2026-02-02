@@ -28,8 +28,12 @@ describe("MapEntityLayer Visual Styles", () => {
   const mockCrate = new MockImage("Crate") as unknown as HTMLImageElement;
   const mockLoot = new MockImage("Loot") as unknown as HTMLImageElement;
   const mockLootStar = new MockImage("LootStar") as unknown as HTMLImageElement;
-  const mockObjective = new MockImage("Objective") as unknown as HTMLImageElement;
-  const mockObjectiveDisk = new MockImage("ObjectiveDisk") as unknown as HTMLImageElement;
+  const mockObjective = new MockImage(
+    "Objective",
+  ) as unknown as HTMLImageElement;
+  const mockObjectiveDisk = new MockImage(
+    "ObjectiveDisk",
+  ) as unknown as HTMLImageElement;
 
   beforeEach(() => {
     mockContext = {
@@ -57,9 +61,9 @@ describe("MapEntityLayer Visual Styles", () => {
     assetManager.iconImages.Objective = mockObjective;
     assetManager.iconImages.ObjectiveDisk = mockObjectiveDisk;
   });
-  
+
   afterEach(() => {
-     vi.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   describe("Standard Mode", () => {
@@ -77,8 +81,8 @@ describe("MapEntityLayer Visual Styles", () => {
       layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
 
       const calls = mockContext.drawImage.mock.calls;
-      const drawnImage = calls.find(args => (args[0] as any).id === "Loot");
-      const drawnCrate = calls.find(args => (args[0] as any).id === "Crate");
+      const drawnImage = calls.find((args) => (args[0] as any).id === "Loot");
+      const drawnCrate = calls.find((args) => (args[0] as any).id === "Crate");
 
       expect(drawnImage).toBeDefined();
       expect(drawnCrate).toBeUndefined();
@@ -94,8 +98,8 @@ describe("MapEntityLayer Visual Styles", () => {
       layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
 
       const calls = mockContext.drawImage.mock.calls;
-      const drawnCrate = calls.find(args => (args[0] as any).id === "Crate");
-      const drawnLoot = calls.find(args => (args[0] as any).id === "Loot");
+      const drawnCrate = calls.find((args) => (args[0] as any).id === "Crate");
+      const drawnLoot = calls.find((args) => (args[0] as any).id === "Loot");
 
       expect(drawnCrate).toBeDefined();
       expect(drawnLoot).toBeUndefined();
@@ -104,21 +108,27 @@ describe("MapEntityLayer Visual Styles", () => {
     it("should render Objectives using ObjectiveDisk asset", () => {
       const gameState = createMockGameState({
         map: { width: 10, height: 10, cells: [] },
-        objectives: [{ 
-            id: "obj1", 
-            targetCell: { x: 7, y: 7 }, 
-            state: "Pending", 
+        objectives: [
+          {
+            id: "obj1",
+            targetCell: { x: 7, y: 7 },
+            state: "Pending",
             visible: true,
-            kind: "Recover"
-        }],
+            kind: "Recover",
+          },
+        ],
         visibleCells: ["7,7"],
       });
 
       layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
 
       const calls = mockContext.drawImage.mock.calls;
-      const drawnDisk = calls.find(args => (args[0] as any).id === "ObjectiveDisk");
-      const drawnTactical = calls.find(args => (args[0] as any).id === "Objective");
+      const drawnDisk = calls.find(
+        (args) => (args[0] as any).id === "ObjectiveDisk",
+      );
+      const drawnTactical = calls.find(
+        (args) => (args[0] as any).id === "Objective",
+      );
 
       expect(drawnDisk).toBeDefined();
       expect(drawnTactical).toBeUndefined();
@@ -131,11 +141,11 @@ describe("MapEntityLayer Visual Styles", () => {
     });
 
     it("should render any loot using LootStar asset", () => {
-       const gameState = createMockGameState({
+      const gameState = createMockGameState({
         map: { width: 10, height: 10, cells: [] },
         loot: [
-            { id: "l1", pos: { x: 5, y: 5 }, itemId: "scrap_crate" },
-            { id: "l2", pos: { x: 6, y: 6 }, itemId: "medkit" }
+          { id: "l1", pos: { x: 5, y: 5 }, itemId: "scrap_crate" },
+          { id: "l2", pos: { x: 6, y: 6 }, itemId: "medkit" },
         ],
         visibleCells: ["5,5", "6,6"],
       });
@@ -144,13 +154,15 @@ describe("MapEntityLayer Visual Styles", () => {
 
       const calls = mockContext.drawImage.mock.calls;
       // Should be called twice with LootStar
-      const lootStarCalls = calls.filter(args => (args[0] as any).id === "LootStar");
-      
+      const lootStarCalls = calls.filter(
+        (args) => (args[0] as any).id === "LootStar",
+      );
+
       expect(lootStarCalls.length).toBe(2);
-      
+
       // Should NOT use standard assets
-      const drawnLoot = calls.find(args => (args[0] as any).id === "Loot");
-      const drawnCrate = calls.find(args => (args[0] as any).id === "Crate");
+      const drawnLoot = calls.find((args) => (args[0] as any).id === "Loot");
+      const drawnCrate = calls.find((args) => (args[0] as any).id === "Crate");
       expect(drawnLoot).toBeUndefined();
       expect(drawnCrate).toBeUndefined();
     });
@@ -158,22 +170,27 @@ describe("MapEntityLayer Visual Styles", () => {
     it("should render Objectives using Objective icon", () => {
       const gameState = createMockGameState({
         map: { width: 10, height: 10, cells: [] },
-        objectives: [{ 
-            id: "obj1", 
-            targetCell: { x: 7, y: 7 }, 
-            state: "Pending", 
+        objectives: [
+          {
+            id: "obj1",
+            targetCell: { x: 7, y: 7 },
+            state: "Pending",
             visible: true,
-            kind: "Recover"
-        }],
+            kind: "Recover",
+          },
+        ],
         visibleCells: ["7,7"],
       });
-
 
       layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
 
       const calls = mockContext.drawImage.mock.calls;
-      const drawnTactical = calls.find(args => (args[0] as any).id === "Objective");
-      const drawnDisk = calls.find(args => (args[0] as any).id === "ObjectiveDisk");
+      const drawnTactical = calls.find(
+        (args) => (args[0] as any).id === "Objective",
+      );
+      const drawnDisk = calls.find(
+        (args) => (args[0] as any).id === "ObjectiveDisk",
+      );
 
       expect(drawnTactical).toBeDefined();
       expect(drawnDisk).toBeUndefined();

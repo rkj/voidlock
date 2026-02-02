@@ -1,11 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { HUDManager } from "@src/renderer/ui/HUDManager";
-import {
-  GameState,
-  UnitState,
-  EnemyType,
-} from "@src/shared/types";
+import { GameState, UnitState, EnemyType } from "@src/shared/types";
 import {
   createMockGameState,
   createMockUnit,

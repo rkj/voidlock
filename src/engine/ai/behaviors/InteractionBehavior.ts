@@ -74,7 +74,10 @@ export class InteractionBehavior implements Behavior {
               (currentUnit.activeCommand as PickupCommand).lootId === obj.id) ||
             context.claimedObjectives.get(obj.id) === currentUnit.id;
 
-          if (isAtTarget && (!context.claimedObjectives.has(obj.id) || isClaimedByMe)) {
+          if (
+            isAtTarget &&
+            (!context.claimedObjectives.has(obj.id) || isClaimedByMe)
+          ) {
             const baseTime = ITEMS.BASE_COLLECT_TIME;
             const duration =
               baseTime * (SPEED_NORMALIZATION_CONST / currentUnit.stats.speed);
@@ -112,9 +115,11 @@ export class InteractionBehavior implements Behavior {
         });
 
       const isAtExtraction =
-        Math.floor(currentUnit.pos.x) === ext.x && Math.floor(currentUnit.pos.y) === ext.y;
+        Math.floor(currentUnit.pos.x) === ext.x &&
+        Math.floor(currentUnit.pos.y) === ext.y;
 
-      const isVipAtExtraction = currentUnit.archetypeId === "vip" && isAtExtraction;
+      const isVipAtExtraction =
+        currentUnit.archetypeId === "vip" && isAtExtraction;
 
       const isExplicitExtract =
         currentUnit.activeCommand?.type === CommandType.EXTRACT;
@@ -144,7 +149,13 @@ export class InteractionBehavior implements Behavior {
 
     // 4. Use Item Interaction
     if (currentUnit.activeCommand?.type === CommandType.USE_ITEM) {
-      currentUnit = context.executeCommand(currentUnit, currentUnit.activeCommand, state, true, _director);
+      currentUnit = context.executeCommand(
+        currentUnit,
+        currentUnit.activeCommand,
+        state,
+        true,
+        _director,
+      );
       return { unit: currentUnit, handled: true };
     }
 

@@ -28,7 +28,7 @@ describe("UnitManager Recalculate Stats Regression", () => {
   beforeEach(() => {
     const defaultSquad: SquadConfig = {
       soldiers: [{ archetypeId: "scout" }],
-      inventory: { "light_recon": 1 },
+      inventory: { light_recon: 1 },
     };
     engine = new CoreEngine(mockMap, 123, defaultSquad, false, false);
     engine.clearUnits();

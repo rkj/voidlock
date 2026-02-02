@@ -24,7 +24,10 @@ export class VisibilityManager {
       if (state.gridState[i] & 2) bitsetDiscoveredCount++;
     }
 
-    if (state.discoveredCells && state.discoveredCells.length > bitsetDiscoveredCount) {
+    if (
+      state.discoveredCells &&
+      state.discoveredCells.length > bitsetDiscoveredCount
+    ) {
       state.discoveredCells.forEach((key) => {
         const parts = key.split(",");
         const x = parseInt(parts[0]);

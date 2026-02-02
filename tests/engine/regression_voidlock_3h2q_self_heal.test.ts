@@ -1,10 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { CoreEngine } from "@src/engine/CoreEngine";
-import {
-  CommandType,
-  MapDefinition,
-  CellType,
-} from "@src/shared/types";
+import { CommandType, MapDefinition, CellType } from "@src/shared/types";
 
 describe("Medkit Restriction (voidlock-3h2q)", () => {
   const mockMap: MapDefinition = {

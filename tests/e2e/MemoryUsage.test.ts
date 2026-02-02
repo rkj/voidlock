@@ -17,8 +17,8 @@ describe("Memory Usage Regression", () => {
     // Helper to get heap size after GC
     const getHeapSize = async () => {
       await page.evaluate(() => {
-        if (typeof window.gc === 'function') {
-           window.gc();
+        if (typeof window.gc === "function") {
+          window.gc();
         }
       });
       const metrics = await page.metrics();
@@ -36,13 +36,15 @@ describe("Memory Usage Regression", () => {
       await page.click("#btn-goto-equipment");
 
       // 3. Confirm Squad -> Launch Mission
-      await page.waitForSelector(".equipment-screen .primary-button", { visible: true });
+      await page.waitForSelector(".equipment-screen .primary-button", {
+        visible: true,
+      });
       await page.click(".equipment-screen .primary-button");
 
       // 4. Wait for game to load
       await page.waitForSelector("#game-canvas", { visible: true });
       // Wait a bit for engine to start
-      await new Promise(r => setTimeout(r, 1000));
+      await new Promise((r) => setTimeout(r, 1000));
 
       // 5. Toggle Debug Mode via keyboard (Backquote key `~`)
       await page.keyboard.press("Backquote");
@@ -52,15 +54,19 @@ describe("Memory Usage Regression", () => {
       await page.click("#btn-force-win");
 
       // 7. Wait for Debrief Screen and click Continue
-      await page.waitForSelector(".debrief-screen .debrief-button", { visible: true });
-      await new Promise(r => setTimeout(r, 500)); // Allow UI to stabilize
+      await page.waitForSelector(".debrief-screen .debrief-button", {
+        visible: true,
+      });
+      await new Promise((r) => setTimeout(r, 500)); // Allow UI to stabilize
       await page.click(".debrief-screen .debrief-button");
 
       // 8. Wait for Main Menu
       await page.waitForSelector("#btn-menu-custom", { visible: true });
-      
+
       const heap = await getHeapSize();
-      console.log(`Cycle ${iteration} complete. Heap: ${(heap / 1024 / 1024).toFixed(2)} MB`);
+      console.log(
+        `Cycle ${iteration} complete. Heap: ${(heap / 1024 / 1024).toFixed(2)} MB`,
+      );
       return heap;
     };
 
@@ -78,14 +84,18 @@ describe("Memory Usage Regression", () => {
     const growth = finalHeap - initialHeap;
     const growthMB = growth / 1024 / 1024;
 
-    console.log(`Total growth after ${numCycles} cycles: ${growthMB.toFixed(2)} MB`);
+    console.log(
+      `Total growth after ${numCycles} cycles: ${growthMB.toFixed(2)} MB`,
+    );
 
     const midPoint = Math.floor(numCycles / 2);
     const midHeap = samples[midPoint - 1];
     const secondHalfGrowth = finalHeap - midHeap;
     const secondHalfGrowthMB = secondHalfGrowth / 1024 / 1024;
 
-    console.log(`Growth in second half (${numCycles - midPoint} cycles): ${secondHalfGrowthMB.toFixed(2)} MB`);
+    console.log(
+      `Growth in second half (${numCycles - midPoint} cycles): ${secondHalfGrowthMB.toFixed(2)} MB`,
+    );
 
     expect(secondHalfGrowthMB).toBeLessThan(10); // Slightly more lenient threshold for now
   }, 300000); // 5 minute timeout

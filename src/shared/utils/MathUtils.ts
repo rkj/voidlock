@@ -1,4 +1,4 @@
-import { Vector2 } from '../types/geometry';
+import { Vector2 } from "../types/geometry";
 
 export class MathUtils {
   /**

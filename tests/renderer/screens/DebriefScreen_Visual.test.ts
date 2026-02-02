@@ -72,19 +72,27 @@ describe("DebriefScreen Visual Audit", () => {
     expect(container.classList.contains("debrief-screen")).toBe(true);
 
     // Split Layout
-    const debriefContainer = container.querySelector(".debrief-container") as HTMLElement;
+    const debriefContainer = container.querySelector(
+      ".debrief-container",
+    ) as HTMLElement;
     expect(debriefContainer).not.toBeNull();
 
     // Left Pane
-    const summary = debriefContainer.querySelector(".debrief-summary") as HTMLElement;
+    const summary = debriefContainer.querySelector(
+      ".debrief-summary",
+    ) as HTMLElement;
     expect(summary).not.toBeNull();
 
     // Right Pane
-    const replayViewport = debriefContainer.querySelector(".debrief-replay-viewport") as HTMLElement;
+    const replayViewport = debriefContainer.querySelector(
+      ".debrief-replay-viewport",
+    ) as HTMLElement;
     expect(replayViewport).not.toBeNull();
 
     // Subheader
-    const subHeader = summary.querySelector(".debrief-subheader") as HTMLElement;
+    const subHeader = summary.querySelector(
+      ".debrief-subheader",
+    ) as HTMLElement;
     expect(subHeader).not.toBeNull();
 
     // Panels

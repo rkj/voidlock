@@ -88,18 +88,19 @@ All code must be clean, well-factored, easy to read, and follow these best pract
 - **Zero Tolerance for `any`**: Strictly forbidden. Use `unknown` with type guards.
 - **Avoid `as` Casting**: Prefer Type Guards (`isWeapon(item)`) over assertions (`item as Weapon`).
 - **Control Flow Narrowing**: When TypeScript control flow analysis incorrectly narrows a mutable property (causing 'overlap' errors), prefer capturing the property into a `const` variable before the check. This preserves the original property's type for future checks and improves readability, avoiding `as` casting hacks.
-    - *Example*:
-        ```typescript
-        // Bad
-        if (this.state.type === 'A') { ... } // TS narrows this.state
-        // ... later ...
-        if (this.state.type === 'B') { ... } // Error: Type 'B' is not overlapping with 'A'
+  - _Example_:
 
-        // Good
-        const state = this.state;
-        if (state.type === 'A') { ... }
-        if (state.type === 'B') { ... }
-        ```
+    ```typescript
+    // Bad
+    if (this.state.type === 'A') { ... } // TS narrows this.state
+    // ... later ...
+    if (this.state.type === 'B') { ... } // Error: Type 'B' is not overlapping with 'A'
+
+    // Good
+    const state = this.state;
+    if (state.type === 'A') { ... }
+    if (state.type === 'B') { ... }
+    ```
 
 ### 16.3 Performance Hygiene
 

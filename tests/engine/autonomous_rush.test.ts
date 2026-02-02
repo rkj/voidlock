@@ -62,35 +62,35 @@ describe("Autonomous RUSH Behavior", () => {
       objectivesCompleted: 0,
     });
 
-    // Add enemy out of range but visible. 
+    // Add enemy out of range but visible.
     // In many tests, we assume full visibility or we need to ensure it.
     // Let's move it to (2.5, 0.5) so distance is 2.0.
     // Unit attackRange is 2.0, so it should be just at the edge.
     // Let's move it to (3.5, 0.5) so distance is 3.0.
     engine.addEnemy({
-        id: "e1",
-        type: EnemyType.XenoMite,
-        pos: { x: 3.5, y: 0.5 },
-        hp: 100,
-        maxHp: 100,
-        damage: 10,
-        fireRate: 500,
-        accuracy: 1000,
-        attackRange: 2,
-        speed: 0,
-        difficulty: 1,
+      id: "e1",
+      type: EnemyType.XenoMite,
+      pos: { x: 3.5, y: 0.5 },
+      hp: 100,
+      maxHp: 100,
+      damage: 10,
+      fireRate: 500,
+      accuracy: 1000,
+      attackRange: 2,
+      speed: 0,
+      difficulty: 1,
     });
 
     // Update. UnitAI should see enemy and issue MOVE_TO command via CombatBehavior
     engine.update(100);
-    
+
     const state = engine.getState();
     const unit = state.units[0];
 
     // Debug visibility
     const enemyVisible = isCellVisible(state, 3, 0);
     expect(enemyVisible, "Enemy should be visible").toBe(true);
-    
+
     // If CombatBehavior worked, the unit should now have an activeCommand and be moving
     expect(unit.activeCommand?.type).toBe(CommandType.MOVE_TO);
     expect(unit.state).toBe(UnitState.Moving);

@@ -1,9 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { TreeShipGenerator } from "@src/engine/generators/TreeShipGenerator";
 import { MapGenerator } from "@src/engine/MapGenerator";
-import {
-  calculateFillRate,
-} from "@src/engine/tests/utils/GraphUtils";
+import { calculateFillRate } from "@src/engine/tests/utils/GraphUtils";
 
 describe("TreeShipGenerator 7x7", () => {
   it("should generate a 7x7 map (Seed 42) with sparse fill", async () => {

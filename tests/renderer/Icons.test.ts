@@ -12,7 +12,14 @@ test("Icons object contains all required icons", () => {
 });
 
 test("Icons are valid URLs", () => {
-  const svgKeys = ["Speed", "Accuracy", "Damage", "Rate", "Range", "LootStar"] as const;
+  const svgKeys = [
+    "Speed",
+    "Accuracy",
+    "Damage",
+    "Rate",
+    "Range",
+    "LootStar",
+  ] as const;
   svgKeys.forEach((key) => {
     expect(Icons[key]).toMatch(/assets\/icons\/.*\.svg$/);
   });

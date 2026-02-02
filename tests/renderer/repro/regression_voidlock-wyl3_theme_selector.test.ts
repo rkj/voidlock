@@ -97,27 +97,31 @@ describe("Theme Selector", () => {
 
     // Mock ThemeManager init to avoid fetch
     vi.spyOn(ThemeManager.prototype, "init").mockResolvedValue(undefined);
-    
+
     localStorage.clear();
     app = new GameApp();
     await app.initialize();
   });
 
   it("should initialize with default theme", () => {
-    const themeSelect = document.getElementById("map-theme") as HTMLSelectElement;
+    const themeSelect = document.getElementById(
+      "map-theme",
+    ) as HTMLSelectElement;
     expect(themeSelect.value).toBe("default");
     expect(document.body.classList.contains("theme-default")).toBe(true);
   });
 
   it("should apply and persist theme change", () => {
-    const themeSelect = document.getElementById("map-theme") as HTMLSelectElement;
-    
+    const themeSelect = document.getElementById(
+      "map-theme",
+    ) as HTMLSelectElement;
+
     // Change theme to industrial
     themeSelect.value = "industrial";
     themeSelect.dispatchEvent(new Event("change"));
 
     expect(document.body.classList.contains("theme-industrial")).toBe(true);
-    
+
     // Check if it's saved in ConfigManager
     const config = ConfigManager.loadCustom();
     expect(config?.themeId).toBe("industrial");
@@ -132,7 +136,9 @@ describe("Theme Selector", () => {
     const newApp = new GameApp();
     await newApp.initialize();
 
-    const themeSelect = document.getElementById("map-theme") as HTMLSelectElement;
+    const themeSelect = document.getElementById(
+      "map-theme",
+    ) as HTMLSelectElement;
     expect(themeSelect.value).toBe("hive");
     expect(document.body.classList.contains("theme-hive")).toBe(true);
   });

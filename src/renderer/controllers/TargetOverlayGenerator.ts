@@ -38,7 +38,9 @@ export class TargetOverlayGenerator {
     if (type === "HOSTILE_UNIT") {
       let enemyCounter = 0;
       gameState.enemies.forEach((e) => {
-        if (isCellVisible(gameState, Math.floor(e.pos.x), Math.floor(e.pos.y))) {
+        if (
+          isCellVisible(gameState, Math.floor(e.pos.x), Math.floor(e.pos.y))
+        ) {
           options.push({
             key: this.getRoomKey(enemyCounter),
             label: `${e.type}`,
@@ -94,7 +96,7 @@ export class TargetOverlayGenerator {
             if (!isVip && !isCarrier) return;
           }
 
-          const tacticalNumber = u.tacticalNumber || (idx + 1);
+          const tacticalNumber = u.tacticalNumber || idx + 1;
           const displayName = u.name || u.id;
           options.push({
             key: this.getRoomKey(unitCounter),
@@ -120,7 +122,8 @@ export class TargetOverlayGenerator {
         );
 
         boundaries.forEach((b: BoundaryDefinition) => {
-          if (b.type === BoundaryType.Open || b.type === BoundaryType.Door) connections++;
+          if (b.type === BoundaryType.Open || b.type === BoundaryType.Door)
+            connections++;
         });
 
         // Intersections (3-4) or Dead Ends (1)

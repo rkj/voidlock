@@ -1,8 +1,5 @@
 import { MapGeneratorType, MissionType, UnitStyle } from "@src/shared/types";
-import type {
-  SquadConfig,
-  SquadSoldierConfig,
-} from "@src/shared/types";
+import type { SquadConfig, SquadSoldierConfig } from "@src/shared/types";
 
 export interface GameConfig {
   mapWidth: number;
@@ -167,7 +164,9 @@ export class ConfigManager {
     ) {
       result.mapGeneratorType = loaded.mapGeneratorType as MapGeneratorType;
     }
-    if (Object.values(MissionType).includes(loaded.missionType as MissionType)) {
+    if (
+      Object.values(MissionType).includes(loaded.missionType as MissionType)
+    ) {
       result.missionType = loaded.missionType as MissionType;
     }
 

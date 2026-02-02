@@ -127,9 +127,7 @@ export class EquipmentScreen {
     centerPanel.style.padding = "10px";
     const centerBody = document.createElement("div");
     centerPanel.appendChild(centerBody);
-    this.inspector.setSoldier(
-      this.config.soldiers[this.selectedSoldierIndex],
-    );
+    this.inspector.setSoldier(this.config.soldiers[this.selectedSoldierIndex]);
     this.inspector.renderDetails(centerBody);
 
     // Right: Armory / Global Inventory

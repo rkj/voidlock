@@ -1,9 +1,26 @@
-import { CampaignSoldier, SoldierMissionResult, calculateLevel, XP_THRESHOLDS } from "@src/shared/campaign_types";
-import { Unit, UnitState, ArchetypeLibrary, WeaponLibrary, Archetype } from "@src/shared/types";
+import {
+  CampaignSoldier,
+  SoldierMissionResult,
+  calculateLevel,
+  XP_THRESHOLDS,
+} from "@src/shared/campaign_types";
+import {
+  Unit,
+  UnitState,
+  ArchetypeLibrary,
+  WeaponLibrary,
+  Archetype,
+  SquadSoldierConfig,
+} from "@src/shared/types";
 import { Icons } from "@src/renderer/Icons";
 import { StatDisplay } from "@src/renderer/ui/StatDisplay";
 
-export type SoldierWidgetData = CampaignSoldier | Unit | SoldierMissionResult | Archetype;
+export type SoldierWidgetData =
+  | CampaignSoldier
+  | Unit
+  | SoldierMissionResult
+  | Archetype
+  | SquadSoldierConfig;
 
 export interface SoldierWidgetOptions {
   context: "tactical" | "debrief" | "roster" | "squad-builder";
@@ -22,29 +39,44 @@ interface WeaponHUDStats {
 }
 
 export class SoldierWidget {
-  public static render(data: SoldierWidgetData, options: SoldierWidgetOptions): HTMLElement {
+  public static render(
+    data: SoldierWidgetData,
+    options: SoldierWidgetOptions,
+  ): HTMLElement {
     const container = document.createElement("div");
     this.update(container, data, options);
     return container;
   }
 
-  public static update(container: HTMLElement, data: SoldierWidgetData, options: SoldierWidgetOptions): void {
+  public static update(
+    container: HTMLElement,
+    data: SoldierWidgetData,
+    options: SoldierWidgetOptions,
+  ): void {
     const contextClass = `soldier-widget-${options.context}`;
-    if (!container.classList.contains("soldier-item")) container.classList.add("soldier-item");
-    if (!container.classList.contains(contextClass)) container.classList.add(contextClass);
-    
+    if (!container.classList.contains("soldier-item"))
+      container.classList.add("soldier-item");
+    if (!container.classList.contains(contextClass))
+      container.classList.add(contextClass);
+
     // Add context-specific standard classes for styling and tests
     if (options.context === "roster") {
-      if (!container.classList.contains("menu-item")) container.classList.add("menu-item");
+      if (!container.classList.contains("menu-item"))
+        container.classList.add("menu-item");
     } else if (options.context === "debrief") {
-      if (!container.classList.contains("debrief-item")) container.classList.add("debrief-item");
+      if (!container.classList.contains("debrief-item"))
+        container.classList.add("debrief-item");
     } else if (options.context === "squad-builder") {
-      if (!container.classList.contains("soldier-card")) container.classList.add("soldier-card");
+      if (!container.classList.contains("soldier-card"))
+        container.classList.add("soldier-card");
     }
 
     container.classList.toggle("selected", !!options.selected);
-    container.classList.toggle("active", !!options.selected && options.context === "roster");
-    
+    container.classList.toggle(
+      "active",
+      !!options.selected && options.context === "roster",
+    );
+
     const status = this.getStatus(data);
     container.classList.toggle("dead", status === "Dead");
     container.classList.toggle("wounded", status === "Wounded");
@@ -65,13 +97,31 @@ export class SoldierWidget {
         this.renderTactical(container, data as Unit, options, displayName);
         break;
       case "debrief":
-        this.renderDebrief(container, data as SoldierMissionResult, options, displayName, level);
+        this.renderDebrief(
+          container,
+          data as SoldierMissionResult,
+          options,
+          displayName,
+          level,
+        );
         break;
       case "roster":
-        this.renderRoster(container, data as CampaignSoldier, options, displayName, level);
+        this.renderRoster(
+          container,
+          data as CampaignSoldier,
+          options,
+          displayName,
+          level,
+        );
         break;
       case "squad-builder":
-        this.renderSquadBuilder(container, data as CampaignSoldier, options, displayName, level);
+        this.renderSquadBuilder(
+          container,
+          data as CampaignSoldier,
+          options,
+          displayName,
+          level,
+        );
         break;
     }
   }
@@ -79,11 +129,13 @@ export class SoldierWidget {
   private static getName(data: SoldierWidgetData): string {
     if ("name" in data && data.name) return data.name;
     if ("soldierId" in data) return data.soldierId;
-    if ("id" in data) return data.id;
+    if ("id" in data && data.id) return data.id;
     return "Unknown";
   }
 
-  private static getTacticalNumber(data: SoldierWidgetData): number | undefined {
+  private static getTacticalNumber(
+    data: SoldierWidgetData,
+  ): number | undefined {
     if ("tacticalNumber" in data) return data.tacticalNumber;
     return undefined;
   }
@@ -115,23 +167,35 @@ export class SoldierWidget {
     }
   }
 
-  private static getWeaponStats(unit: Unit, weaponId?: string): WeaponHUDStats | null {
+  private static getWeaponStats(
+    unit: Unit,
+    weaponId?: string,
+  ): WeaponHUDStats | null {
     if (!weaponId) return null;
     const weapon = WeaponLibrary[weaponId];
     if (!weapon) return null;
 
-    const fireRateVal = weapon.fireRate * (unit.stats.speed > 0 ? 10 / unit.stats.speed : 1);
+    const fireRateVal =
+      weapon.fireRate * (unit.stats.speed > 0 ? 10 / unit.stats.speed : 1);
 
     return {
       name: weapon.name,
       damage: weapon.damage,
       range: weapon.range,
-      accuracy: unit.stats.soldierAim + (weapon.accuracy || 0) + (unit.stats.equipmentAccuracyBonus || 0),
+      accuracy:
+        unit.stats.soldierAim +
+        (weapon.accuracy || 0) +
+        (unit.stats.equipmentAccuracyBonus || 0),
       fireRate: fireRateVal > 0 ? (1000 / fireRateVal).toFixed(1) : "0",
     };
   }
 
-  private static renderTactical(el: HTMLElement, unit: Unit, _options: SoldierWidgetOptions, displayName: string) {
+  private static renderTactical(
+    el: HTMLElement,
+    unit: Unit,
+    _options: SoldierWidgetOptions,
+    displayName: string,
+  ) {
     if (!el.hasChildNodes()) {
       el.innerHTML = `
         <div class="info-row" style="display:flex; justify-content:space-between; align-items:center;">
@@ -171,7 +235,8 @@ export class SoldierWidget {
 
     const burdenIcon = unit.carriedObjectiveId ? " 📦" : "";
     const burdenSpan = el.querySelector(".u-burden") as HTMLElement;
-    if (burdenSpan.textContent !== burdenIcon) burdenSpan.textContent = burdenIcon;
+    if (burdenSpan.textContent !== burdenIcon)
+      burdenSpan.textContent = burdenIcon;
 
     let statusText: string = unit.state;
     if (unit.activeCommand) {
@@ -183,20 +248,26 @@ export class SoldierWidget {
       statusText += ` (+${unit.commandQueue.length})`;
     }
     const statusSpan = el.querySelector(".u-status-text") as HTMLElement;
-    if (statusSpan.textContent !== statusText) statusSpan.textContent = statusText;
+    if (statusSpan.textContent !== statusText)
+      statusSpan.textContent = statusText;
 
     const hpSpan = el.querySelector(".u-hp") as HTMLElement;
     const hpStr = `${unit.hp}/${unit.maxHp}`;
     if (hpSpan.textContent !== hpStr) hpSpan.textContent = hpStr;
 
     const hpFill = el.querySelector(".hp-fill") as HTMLElement;
-    const hpPercent = unit.state === UnitState.Dead ? 0 : (unit.hp / unit.maxHp) * 100;
+    const hpPercent =
+      unit.state === UnitState.Dead ? 0 : (unit.hp / unit.maxHp) * 100;
     const hpWidth = `${hpPercent}%`;
     if (hpFill.style.width !== hpWidth) hpFill.style.width = hpWidth;
 
     const speedBox = el.querySelector(".u-speed-box") as HTMLElement;
     if (!speedBox.hasChildNodes()) {
-      speedBox.innerHTML = StatDisplay.render(Icons.Speed, unit.stats.speed, "Speed");
+      speedBox.innerHTML = StatDisplay.render(
+        Icons.Speed,
+        unit.stats.speed,
+        "Speed",
+      );
     } else {
       StatDisplay.update(speedBox, unit.stats.speed);
     }
@@ -204,14 +275,21 @@ export class SoldierWidget {
     const lhStats = this.getWeaponStats(unit, unit.leftHand);
     const rhStats = this.getWeaponStats(unit, unit.rightHand);
 
-    const updateWep = (container: HTMLElement, stats: WeaponHUDStats | null) => {
+    const updateWep = (
+      container: HTMLElement,
+      stats: WeaponHUDStats | null,
+    ) => {
       if (!stats) {
-        const emptyHtml = '<span style="color:var(--color-border-strong)">Empty</span>';
+        const emptyHtml =
+          '<span style="color:var(--color-border-strong)">Empty</span>';
         if (container.innerHTML !== emptyHtml) container.innerHTML = emptyHtml;
         return;
       }
 
-      if (!container.querySelector(".stat-display") || container.textContent === "Empty") {
+      if (
+        !container.querySelector(".stat-display") ||
+        container.textContent === "Empty"
+      ) {
         container.innerHTML = `
           ${StatDisplay.render(Icons.Damage, stats.damage, "Damage")}
           ${StatDisplay.render(Icons.Accuracy, stats.accuracy, "Accuracy")}
@@ -246,16 +324,24 @@ export class SoldierWidget {
     }
   }
 
-  private static renderDebrief(container: HTMLElement, res: SoldierMissionResult, _options: SoldierWidgetOptions, displayName: string, currentLevel: number) {
+  private static renderDebrief(
+    container: HTMLElement,
+    res: SoldierMissionResult,
+    _options: SoldierWidgetOptions,
+    displayName: string,
+    currentLevel: number,
+  ) {
     const statusColor = this.getStatusColor(res.status);
 
-    const nextLevelThreshold = XP_THRESHOLDS[currentLevel] || XP_THRESHOLDS[XP_THRESHOLDS.length - 1];
+    const nextLevelThreshold =
+      XP_THRESHOLDS[currentLevel] || XP_THRESHOLDS[XP_THRESHOLDS.length - 1];
     const prevLevelThreshold = XP_THRESHOLDS[currentLevel - 1] || 0;
 
     const xpInCurrentLevel = res.xpBefore - prevLevelThreshold;
     const xpNeededForNext = nextLevelThreshold - prevLevelThreshold;
     const xpAfter = res.xpBefore + res.xpGained;
-    const xpInCurrentLevelAfter = Math.min(xpAfter, nextLevelThreshold) - prevLevelThreshold;
+    const xpInCurrentLevelAfter =
+      Math.min(xpAfter, nextLevelThreshold) - prevLevelThreshold;
 
     const progressBefore = (xpInCurrentLevel / xpNeededForNext) * 100;
     const progressAfter = (xpInCurrentLevelAfter / xpNeededForNext) * 100;
@@ -287,9 +373,16 @@ export class SoldierWidget {
     `;
   }
 
-  private static renderRoster(container: HTMLElement, soldier: CampaignSoldier, options: SoldierWidgetOptions, displayName: string, level: number) {
+  private static renderRoster(
+    container: HTMLElement,
+    soldier: CampaignSoldier,
+    options: SoldierWidgetOptions,
+    displayName: string,
+    level: number,
+  ) {
     const statusColor = this.getStatusColor(soldier.status);
-    const archetype = ArchetypeLibrary[soldier.archetypeId]?.name || soldier.archetypeId;
+    const archetype =
+      ArchetypeLibrary[soldier.archetypeId]?.name || soldier.archetypeId;
 
     container.style.marginBottom = "10px";
     container.style.padding = "10px";
@@ -310,19 +403,25 @@ export class SoldierWidget {
     `;
   }
 
-  private static renderSquadBuilder(container: HTMLElement, data: SoldierWidgetData, options: SoldierWidgetOptions, displayName: string, level: number) {
+  private static renderSquadBuilder(
+    container: HTMLElement,
+    data: SoldierWidgetData,
+    options: SoldierWidgetOptions,
+    displayName: string,
+    level: number,
+  ) {
     let arch: Archetype | undefined;
     let status = "Healthy";
-    
+
     if ("archetypeId" in data) {
-       arch = ArchetypeLibrary[data.archetypeId];
-       if ("status" in data) status = data.status;
+      arch = ArchetypeLibrary[data.archetypeId];
+      if ("status" in data) status = data.status;
     } else if ("id" in data && ArchetypeLibrary[(data as any).id]) {
-       arch = data as Archetype;
+      arch = data as Archetype;
     }
 
     container.classList.toggle("deployed", !!options.isDeployed);
-    
+
     const isHealthy = status === "Healthy";
     container.classList.toggle("disabled", !isHealthy);
 
@@ -331,9 +430,10 @@ export class SoldierWidget {
     const damage = arch?.damage ?? 0;
     const fireRate = arch?.fireRate ?? 0;
     const range = arch?.attackRange ?? 0;
-    
+
     const scaledFireRate = fireRate * (speed > 0 ? 10 / speed : 1);
-    const fireRateVal = scaledFireRate > 0 ? (1000 / scaledFireRate).toFixed(1) : "0";
+    const fireRateVal =
+      scaledFireRate > 0 ? (1000 / scaledFireRate).toFixed(1) : "0";
 
     const name = this.getName(data);
     const subTitle = arch?.name && arch.name !== name ? `${arch.name} ` : "";
@@ -353,4 +453,3 @@ export class SoldierWidget {
     `;
   }
 }
-

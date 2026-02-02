@@ -90,7 +90,9 @@ export class MissionReconciler {
           res.promoted = false;
         } else {
           const missionXp =
-            report.result === "Won" ? XP_REWARDS.MISSION_WIN : XP_REWARDS.MISSION_LOSS;
+            report.result === "Won"
+              ? XP_REWARDS.MISSION_WIN
+              : XP_REWARDS.MISSION_LOSS;
           const survivalXp =
             res.status === "Healthy" || res.status === "Wounded"
               ? XP_REWARDS.SURVIVAL_BONUS

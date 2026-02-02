@@ -1,5 +1,10 @@
 import { AppContext } from "./AppContext";
-import { CampaignNode, calculateMapSize, calculateSpawnPoints, CampaignState } from "@src/shared/campaign_types";
+import {
+  CampaignNode,
+  calculateMapSize,
+  calculateSpawnPoints,
+  CampaignState,
+} from "@src/shared/campaign_types";
 import { PRNG } from "@src/shared/PRNG";
 import { CampaignEvents } from "@src/content/CampaignEvents";
 import { EventModal, OutcomeModal } from "@src/renderer/ui/EventModal";
@@ -28,7 +33,11 @@ export class CampaignFlowCoordinator {
   public async onCampaignNodeSelected(
     node: CampaignNode,
     showCampaignScreen: () => void,
-    prepareMissionSetup: (node: CampaignNode, size: number, spawnPoints: number) => void,
+    prepareMissionSetup: (
+      node: CampaignNode,
+      size: number,
+      spawnPoints: number,
+    ) => void,
   ) {
     if (node.type === "Shop") {
       await this.context.modalService.alert(
@@ -58,7 +67,11 @@ export class CampaignFlowCoordinator {
         const outcomeModal = new OutcomeModal(this.context.modalService, () => {
           if (outcome.ambush) {
             // Ambush triggers a combat mission at this node
-            this.onCampaignNodeSelected(node, showCampaignScreen, prepareMissionSetup);
+            this.onCampaignNodeSelected(
+              node,
+              showCampaignScreen,
+              prepareMissionSetup,
+            );
           } else {
             showCampaignScreen();
           }

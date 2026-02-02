@@ -68,25 +68,25 @@ describe("Stop and Shoot Behavior", () => {
 
     // 2. Add enemy in path (at x=2)
     engine.addEnemy({
-        id: "e1",
-        type: EnemyType.XenoMite,
-        pos: { x: 2.5, y: 0.5 },
-        hp: 100,
-        maxHp: 100,
-        damage: 10,
-        fireRate: 500,
-        accuracy: 1000,
-        attackRange: 2,
-        speed: 1,
-        difficulty: 1,
+      id: "e1",
+      type: EnemyType.XenoMite,
+      pos: { x: 2.5, y: 0.5 },
+      hp: 100,
+      maxHp: 100,
+      damage: 10,
+      fireRate: 500,
+      accuracy: 1000,
+      attackRange: 2,
+      speed: 1,
+      difficulty: 1,
     });
 
     // 3. Update until unit sees enemy
     for (let i = 0; i < 10; i++) {
-        engine.update(100);
-        const state = engine.getState();
-        const unit = state.units[0];
-        if (unit.state === UnitState.Attacking) break;
+      engine.update(100);
+      const state = engine.getState();
+      const unit = state.units[0];
+      if (unit.state === UnitState.Attacking) break;
     }
 
     const state = engine.getState();
@@ -98,7 +98,7 @@ describe("Stop and Shoot Behavior", () => {
     engine.update(100);
     const state2 = engine.getState();
     const unit2 = state2.units[0];
-    
+
     expect(unit2.state).toBe(UnitState.Attacking);
     expect(unit2.pos.x).toBe(posAfterSeeing);
   });
@@ -138,35 +138,35 @@ describe("Stop and Shoot Behavior", () => {
 
     // 2. Add enemy in path
     engine.addEnemy({
-        id: "e1",
-        type: EnemyType.XenoMite,
-        pos: { x: 5.5, y: 0.5 },
-        hp: 1000, 
-        maxHp: 1000,
-        damage: 10,
-        fireRate: 500,
-        accuracy: 1000,
-        attackRange: 2,
-        speed: 1,
-        difficulty: 1,
+      id: "e1",
+      type: EnemyType.XenoMite,
+      pos: { x: 5.5, y: 0.5 },
+      hp: 1000,
+      maxHp: 1000,
+      damage: 10,
+      fireRate: 500,
+      accuracy: 1000,
+      attackRange: 2,
+      speed: 1,
+      difficulty: 1,
     });
 
     // 3. Update until unit starts attacking
     let initialPosX = 0;
     for (let i = 0; i < 10; i++) {
-        engine.update(100);
-        const u = engine.getState().units[0];
-        if (u.state === UnitState.Attacking) {
-            initialPosX = u.pos.x;
-            break;
-        }
+      engine.update(100);
+      const u = engine.getState().units[0];
+      if (u.state === UnitState.Attacking) {
+        initialPosX = u.pos.x;
+        break;
+      }
     }
 
     expect(initialPosX).toBeGreaterThan(0.5);
 
     engine.update(100);
     const u2 = engine.getState().units[0];
-    
+
     expect(u2.pos.x).toBeGreaterThan(initialPosX);
     expect(u2.state).toBe(UnitState.Attacking);
   });

@@ -1,11 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { CoreEngine } from "@src/engine/CoreEngine";
-import {
-  MissionType,
-  UnitState,
-  CellType,
-} from "@src/shared/types";
-
+import { MissionType, UnitState, CellType } from "@src/shared/types";
 
 describe("Regression voidlock-9uzl: Escort mission failure when soldiers extract", () => {
   const map: any = {
@@ -25,7 +20,20 @@ describe("Regression voidlock-9uzl: Escort mission failure when soldiers extract
 
   const squadConfig: any = {
     soldiers: [
-      { id: "s1", name: "Soldier 1", archetypeId: "scout", tacticalNumber: 1, hp: 100, maxHp: 100, speed: 1, accuracy: 80, damage: 10, fireRate: 1000, attackRange: 5, visibilityRange: 10 },
+      {
+        id: "s1",
+        name: "Soldier 1",
+        archetypeId: "scout",
+        tacticalNumber: 1,
+        hp: 100,
+        maxHp: 100,
+        speed: 1,
+        accuracy: 80,
+        damage: 10,
+        fireRate: 1000,
+        attackRange: 5,
+        visibilityRange: 10,
+      },
     ],
   };
 
@@ -40,8 +48,8 @@ describe("Regression voidlock-9uzl: Escort mission failure when soldiers extract
     );
 
     const state = engine.getState();
-    const vips = state.units.filter(u => u.archetypeId === "vip");
-    const soldiers = state.units.filter(u => u.archetypeId !== "vip");
+    const vips = state.units.filter((u) => u.archetypeId === "vip");
+    const soldiers = state.units.filter((u) => u.archetypeId !== "vip");
 
     expect(vips.length).toBe(1);
     expect(soldiers.length).toBe(1);
@@ -68,8 +76,8 @@ describe("Regression voidlock-9uzl: Escort mission failure when soldiers extract
     );
 
     const state = engine.getState();
-    const vip = state.units.find(u => u.archetypeId === "vip")!;
-    
+    const vip = state.units.find((u) => u.archetypeId === "vip")!;
+
     vip.hp = 0;
     engine.update(16);
 

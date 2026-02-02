@@ -33,7 +33,7 @@ Certain actions require the unit to remain stationary and focus for a duration.
   - `Actual Duration = Base Time * (SPEED_NORMALIZATION_CONST / Unit Speed)`
   - `SPEED_NORMALIZATION_CONST` = 30.
 - **Exclusivity:**
-  - Only one unit can channel the `PICKUP` or `USE_ITEM` (on object) action on a specific world entity at a time. 
+  - Only one unit can channel the `PICKUP` or `USE_ITEM` (on object) action on a specific world entity at a time.
   - If multiple units are ordered to pick up the same item, only the first to arrive begins channeling; others will remain idle or follow their autonomous fallback.
 - **Interruption & Cancellation:**
   - **Voluntary:** Issuing a `STOP` or `MOVE` command cancels the action immediately.

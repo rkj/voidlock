@@ -18,9 +18,7 @@ import { MenuStateMachine } from "./controllers/MenuStateMachine";
 import { SelectionManager } from "./controllers/SelectionManager";
 import { RoomDiscoveryManager } from "./controllers/RoomDiscoveryManager";
 import { CommandBuilder } from "./controllers/CommandBuilder";
-import {
-  TargetOverlayGenerator,
-} from "./controllers/TargetOverlayGenerator";
+import { TargetOverlayGenerator } from "./controllers/TargetOverlayGenerator";
 import { isCellVisible, isCellDiscovered } from "@src/shared/VisibilityUtils";
 
 export interface RenderableMenuOption {
@@ -148,7 +146,10 @@ export class MenuController {
   }
 
   public handleCanvasClick(cell: Vector2, gameState: GameState): void {
-    if (this.stateMachine.state === "UNIT_SELECT" && this.selection.pendingAction) {
+    if (
+      this.stateMachine.state === "UNIT_SELECT" &&
+      this.selection.pendingAction
+    ) {
       const unitAtCell = gameState.units.find(
         (u) =>
           Math.floor(u.pos.x) === cell.x &&
@@ -187,9 +188,7 @@ export class MenuController {
         ? ItemLibrary[this.selection.pendingItemId]
         : null;
       const isGlobal =
-        item &&
-        (item.action === "Grenade" ||
-          item.action === "Scanner");
+        item && (item.action === "Grenade" || item.action === "Scanner");
 
       if (isGlobal) {
         this.executePendingCommand([]);
@@ -384,9 +383,7 @@ export class MenuController {
         ? ItemLibrary[this.selection.pendingItemId]
         : null;
       const isGlobal =
-        item &&
-        (item.action === "Grenade" ||
-          item.action === "Scanner");
+        item && (item.action === "Grenade" || item.action === "Scanner");
 
       if (isGlobal) {
         this.executePendingCommand([]);
@@ -439,7 +436,9 @@ export class MenuController {
         if (selectedIds.length === 1) {
           const unit = gameState.units.find((u) => u.id === selectedIds[0]);
           if (unit) {
-            const tacticalNumber = unit.tacticalNumber || (gameState.units.findIndex((origU) => origU.id === unit.id) + 1);
+            const tacticalNumber =
+              unit.tacticalNumber ||
+              gameState.units.findIndex((origU) => origU.id === unit.id) + 1;
             label = `${unit.name || unit.id} (${tacticalNumber})`;
           } else {
             label = selectedIds[0];
@@ -648,7 +647,9 @@ export class MenuController {
       result.options = [];
       activeUnits.forEach((u) => {
         // Find the unit's tactical number (index in the original units array + 1)
-        const tacticalNumber = u.tacticalNumber || (gameState.units.findIndex((origU) => origU.id === u.id) + 1);
+        const tacticalNumber =
+          u.tacticalNumber ||
+          gameState.units.findIndex((origU) => origU.id === u.id) + 1;
         const key = result.options.length + 1;
         const displayName = u.name || u.id;
 
@@ -661,7 +662,7 @@ export class MenuController {
 
       const allUnitsKey = result.options.length + 1;
       const isPickup = this.selection.pendingAction === CommandType.PICKUP;
-      
+
       if (!isPickup) {
         result.options.push({
           key: allUnitsKey.toString(),

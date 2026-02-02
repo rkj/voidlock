@@ -68,9 +68,7 @@ export class StatsManager {
         nextStats.equipmentAccuracyBonus;
       nextStats.fireRate =
         weapon.fireRate *
-        (nextStats.speed > 0
-          ? SPEED_NORMALIZATION_CONST / nextStats.speed
-          : 1);
+        (nextStats.speed > 0 ? SPEED_NORMALIZATION_CONST / nextStats.speed : 1);
     } else {
       nextStats.damage = arch.damage;
       nextStats.attackRange = arch.attackRange;

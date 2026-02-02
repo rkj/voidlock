@@ -54,14 +54,14 @@ describe("Regression voidlock-94kf: Custom Soldier Names", () => {
     const assaultCard = container.querySelector(
       ".roster-panel .soldier-card",
     ) as HTMLElement;
-    
+
     // Simulate double click to add to squad
     assaultCard.dispatchEvent(new MouseEvent("dblclick"));
 
     expect(squad.soldiers.length).toBe(1);
     const soldier = squad.soldiers[0];
     expect(soldier.archetypeId).toBe("assault");
-    
+
     // These are the assertions that should fail before implementation
     expect(soldier.name).toBeDefined();
     expect(typeof soldier.name).toBe("string");
@@ -78,8 +78,8 @@ describe("Regression voidlock-94kf: Custom Soldier Names", () => {
     vi.spyOn(ConfigManager, "loadCustom").mockReturnValue({
       squadConfig: {
         soldiers: [{ archetypeId: "assault" }, { archetypeId: "medic" }],
-        inventory: {}
-      }
+        inventory: {},
+      },
     } as any);
 
     const manager = new MissionSetupManager(context);
@@ -87,7 +87,7 @@ describe("Regression voidlock-94kf: Custom Soldier Names", () => {
 
     const squad = manager.currentSquad;
     expect(squad.soldiers.length).toBe(2);
-    
+
     squad.soldiers.forEach((s: any) => {
       expect(s.name).toBeDefined();
       expect(typeof s.name).toBe("string");
@@ -103,11 +103,11 @@ describe("Regression voidlock-94kf: Custom Soldier Names", () => {
       name: "Kyle Hicks",
       hp: 100,
       maxHp: 100,
-      soldierAim: 90
+      soldierAim: 90,
     };
 
     const container = SoldierWidget.render(customSoldier, {
-      context: "squad-builder"
+      context: "squad-builder",
     });
 
     const text = container.textContent || "";
@@ -115,20 +115,20 @@ describe("Regression voidlock-94kf: Custom Soldier Names", () => {
     expect(text).toContain("Kyle Hicks");
     // Should contain the archetype name
     expect(text).toContain("Assault");
-    
+
     // Now check an archetype template (no custom name)
     const templateContainer = SoldierWidget.render(arch, {
-      context: "squad-builder"
+      context: "squad-builder",
     });
-    
+
     const templateText = templateContainer.textContent || "";
     // It should contain "Assault" (from getName)
     expect(templateText).toContain("Assault");
-    
+
     // It should NOT contain "Assault" a second time in the subtitle area
     // In our implementation, we removed it from subTitle if it matches name.
     // The previous implementation would have "Assault" in displayName AND in the subtitle.
-    
+
     // Let's count occurrences of "Assault"
     const count = (templateText.match(/Assault/g) || []).length;
     expect(count).toBe(1);

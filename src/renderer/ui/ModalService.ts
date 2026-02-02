@@ -133,7 +133,10 @@ export class ModalService {
     this.renderModal(options, resolve);
   }
 
-  private renderModal(options: ModalOptions, resolve: (value: unknown) => void) {
+  private renderModal(
+    options: ModalOptions,
+    resolve: (value: unknown) => void,
+  ) {
     const backdrop = document.createElement("div");
     backdrop.className = "modal-backdrop";
     backdrop.style.position = "fixed";

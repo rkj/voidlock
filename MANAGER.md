@@ -10,10 +10,10 @@
 6. **DO NOT RESEARCH**: Do not "investigate" or "plan". The Sub-Agent will do that. Your only context comes from `bd ready` and `@docs/spec/`.
 7. **DELEGATE IMMEDIATELY**: As soon as you pick a task ID, run the `dispatch_agent.sh` command. Do not hesitate.
 8. **EFFICIENT QUERYING**: NEVER run `bd list` without a `--status` filter (e.g., `bd list --status in_progress`). Unfiltered lists are too large and wasteful.
-9. **ADR ENFORCEMENT**: Implementation details (class names, method signatures, patterns) belong in **ADRs** (`docs/adr/`), NOT in `docs/spec/` or Beads descriptions. 
-    - **ADR IMMUTABILITY**: Established and implemented ADRs are **IMMUTABLE** historical records. **NEVER** edit a previously accepted ADR. 
-    - If a task requires changing an existing design, a **NEW** ADR must be created that references the old decision and explains the current implementation and proposed changes.
-    - If a complex task lacks an ADR, create a dependency task to write one first.
+9. **ADR ENFORCEMENT**: Implementation details (class names, method signatures, patterns) belong in **ADRs** (`docs/adr/`), NOT in `docs/spec/` or Beads descriptions.
+   - **ADR IMMUTABILITY**: Established and implemented ADRs are **IMMUTABLE** historical records. **NEVER** edit a previously accepted ADR.
+   - If a task requires changing an existing design, a **NEW** ADR must be created that references the old decision and explains the current implementation and proposed changes.
+   - If a complex task lacks an ADR, create a dependency task to write one first.
 10. **TDD ENFORCEMENT**:
     - **Logic Bugs**: Must have a failing unit/integration test (JSDOM/Node).
     - **Visual/Layout Bugs**: MUST have a failing **E2E test** (`tests/e2e/`) using Puppeteer.
@@ -80,7 +80,7 @@ run_shell_command("./scripts/dispatch_agent.sh <TASK_ID>")
    - _Standards Check_: Verify adherence to **SOLID**, **TDD** (failing test exists?), and **Spec** compliance. Reject spaghetti code or "quick fixes".
    - _Documentation (MANDATORY)_: Ensure `GEMINI.md` files in modified directories were updated. If the high-level system design changed, ensure `@docs/ARCHITECTURE.md` is updated. If documentation is missing or outdated, you MUST fail verification and re-dispatch with instructions to update it.
 3. **Test**: Run `npx vitest run`.
-   - **Token Efficiency (CRITICAL)**: Agents must NEVER see the full output of a passing test suite. 
+   - **Token Efficiency (CRITICAL)**: Agents must NEVER see the full output of a passing test suite.
    - **Concise Reporting**: Use a reporter that outputs only failures or a summary (e.g., `vitest run --reporter=basic` or piping to `grep FAIL`).
    - **Truncation**: If test output exceeds 50 lines, it MUST be truncated to show only the summary and specific failed tests.
    - **Targeted Testing**: Run `npx vitest run <PATH_TO_TEST>`...

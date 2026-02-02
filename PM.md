@@ -17,7 +17,7 @@ You are the keeper of the vision and the roadmap.
 >
 > 1. **ADR IMMUTABILITY**: Architectural Decision Records (ADRs) are **IMMUTABLE** historical records. **NEVER** edit a previously implemented or accepted ADR. Design changes or refactors MUST be documented in a **NEW** ADR that provides context (Referencing old ADR, current implementation, and proposed changes).
 > 2. **NO CODE IN SPECS**: `docs/spec/` files describe **BEHAVIOR** (User flows, logic constraints). **NEVER** put code snippets, class names, or specific method signatures in `docs/spec/` files.
-> 2. **NEVER DISPATCH AGENT**: You are strictly forbidden from executing `./scripts/dispatch_agent.sh` or any form of agent spawning. Your responsibility ends at task creation.
+> 3. **NEVER DISPATCH AGENT**: You are strictly forbidden from executing `./scripts/dispatch_agent.sh` or any form of agent spawning. Your responsibility ends at task creation.
 
 # WORKFLOW_PROTOCOL (Follow Strictly in Order)
 

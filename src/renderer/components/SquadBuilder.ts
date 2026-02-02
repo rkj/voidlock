@@ -106,7 +106,7 @@ export class SquadBuilder {
     const renderRoster = () => {
       rosterList.innerHTML = "";
       rosterActions.innerHTML = "";
-      
+
       if (this.isCampaign) {
         const state = this.context.campaignManager.getState();
         if (state) {
@@ -142,43 +142,41 @@ export class SquadBuilder {
               try {
                 const newId = this.context.campaignManager.recruitSoldier(
                   state.unlockedArchetypes[
-                    Math.floor(
-                      Math.random() * state.unlockedArchetypes.length,
-                    )
+                    Math.floor(Math.random() * state.unlockedArchetypes.length)
                   ],
                 );
 
-                  // Auto-deploy if slot available
-                  const totalNonVip = this.squad.soldiers.filter(
-                    (s) => s.archetypeId !== "vip",
-                  ).length;
-                  if (totalNonVip < MAX_SQUAD_SIZE) {
-                    const newState = this.context.campaignManager.getState();
-                    const s = newState?.roster.find((r) => r.id === newId);
-                    if (s) {
-                      this.squad.soldiers.push({
-                        id: s.id,
-                        name: s.name,
-                        archetypeId: s.archetypeId,
-                        hp: s.hp,
-                        maxHp: s.maxHp,
-                        soldierAim: s.soldierAim,
-                        rightHand: s.equipment.rightHand,
-                        leftHand: s.equipment.leftHand,
-                        body: s.equipment.body,
-                        feet: s.equipment.feet,
-                      });
-                    }
+                // Auto-deploy if slot available
+                const totalNonVip = this.squad.soldiers.filter(
+                  (s) => s.archetypeId !== "vip",
+                ).length;
+                if (totalNonVip < MAX_SQUAD_SIZE) {
+                  const newState = this.context.campaignManager.getState();
+                  const s = newState?.roster.find((r) => r.id === newId);
+                  if (s) {
+                    this.squad.soldiers.push({
+                      id: s.id,
+                      name: s.name,
+                      archetypeId: s.archetypeId,
+                      hp: s.hp,
+                      maxHp: s.maxHp,
+                      soldierAim: s.soldierAim,
+                      rightHand: s.equipment.rightHand,
+                      leftHand: s.equipment.leftHand,
+                      body: s.equipment.body,
+                      feet: s.equipment.feet,
+                    });
                   }
-
-                  if (this.context.campaignShell)
-                    this.context.campaignShell.refresh();
-                  updateCount();
-                } catch (err: unknown) {
-                  const message =
-                    err instanceof Error ? err.message : String(err);
-                  await this.context.modalService.alert(message);
                 }
+
+                if (this.context.campaignShell)
+                  this.context.campaignShell.refresh();
+                updateCount();
+              } catch (err: unknown) {
+                const message =
+                  err instanceof Error ? err.message : String(err);
+                await this.context.modalService.alert(message);
+              }
             };
             rosterActions.appendChild(recruitBtn);
           }
@@ -379,11 +377,11 @@ export class SquadBuilder {
         } else if (vipInSquad) {
           slot.classList.add("occupied");
           slot.classList.add("vip-slot");
-          
+
           const card = SoldierWidget.render(vipInSquad, {
             context: "squad-builder",
           });
-          
+
           const removeBtn = document.createElement("div");
           removeBtn.className = "slot-remove";
           removeBtn.title = "Remove";

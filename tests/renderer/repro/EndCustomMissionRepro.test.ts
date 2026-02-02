@@ -2,11 +2,7 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import {
-  GameState,
-  EngineMode,
-  MissionType,
-} from "@src/shared/types";
+import { GameState, EngineMode, MissionType } from "@src/shared/types";
 import { CampaignManager } from "@src/engine/campaign/CampaignManager";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 
@@ -117,7 +113,10 @@ describe("End Custom Mission Repro", () => {
     expect(stateUpdateCallback).not.toBeNull();
 
     // Mock processMissionResult to verify it's NOT called
-    const processSpy = vi.spyOn(CampaignManager.getInstance(), "processMissionResult");
+    const processSpy = vi.spyOn(
+      CampaignManager.getInstance(),
+      "processMissionResult",
+    );
 
     // 3. Simulate Mission Win
     // This should trigger the callback in GameApp which calls campaignManager.processMissionResult
@@ -127,10 +126,24 @@ describe("End Custom Mission Repro", () => {
         t: 100,
         seed: 123,
         missionType: MissionType.Default,
-        stats: { aliensKilled: 5, scrapGained: 50, threatLevel: 0, elitesKilled: 0, casualties: 0 },
+        stats: {
+          aliensKilled: 5,
+          scrapGained: 50,
+          threatLevel: 0,
+          elitesKilled: 0,
+          casualties: 0,
+        },
         units: [],
         objectives: [],
-        settings: { debugOverlayEnabled: false, timeScale: 1, isPaused: false, mode: EngineMode.Simulation, losOverlayEnabled: false, isSlowMotion: false, allowTacticalPause: true },
+        settings: {
+          debugOverlayEnabled: false,
+          timeScale: 1,
+          isPaused: false,
+          mode: EngineMode.Simulation,
+          losOverlayEnabled: false,
+          isSlowMotion: false,
+          allowTacticalPause: true,
+        },
         map: { width: 10, height: 10, cells: [] },
         enemies: [],
         visibleCells: [],

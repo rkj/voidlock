@@ -38,7 +38,7 @@ describe("UnitManager Movement and Attacking Regression", () => {
     engine.state.enemies = [];
     // @ts-ignore
     engine.state.objectives = [];
-    
+
     // Add a unit at (0.5, 0.5)
     engine.addUnit({
       id: "u1",
@@ -98,7 +98,7 @@ describe("UnitManager Movement and Attacking Regression", () => {
     engine.update(100);
     state = engine.getState();
     unit = state.units[0];
-    
+
     // Unit should still be at the same position (or very close if it moved a tiny bit before target acquisition)
     // Actually, in UnitManager, Combat is processed BEFORE Movement in the loop.
     // So if it acquires target and starts attacking, it won't move in the same tick if it's STAND_GROUND.
@@ -110,7 +110,7 @@ describe("UnitManager Movement and Attacking Regression", () => {
     // Change profile to RUSH
     // @ts-ignore
     engine.state.units[0].aiProfile = AIProfile.RUSH;
-    
+
     // Give MOVE_TO command to (9.5, 0.5)
     engine.applyCommand({
       type: CommandType.MOVE_TO,
@@ -121,7 +121,7 @@ describe("UnitManager Movement and Attacking Regression", () => {
     engine.update(100);
     let state = engine.getState();
     let unit = state.units[0];
-    
+
     expect(unit.state).toBe(UnitState.Attacking);
     expect(unit.pos.x).toBeGreaterThan(0.5); // Should have moved
   });

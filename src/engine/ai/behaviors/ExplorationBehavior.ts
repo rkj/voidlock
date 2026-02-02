@@ -30,9 +30,12 @@ export class ExplorationBehavior implements Behavior {
     director?: IDirector,
   ): BehaviorResult {
     let currentUnit = { ...unit };
-    if (currentUnit.state !== UnitState.Idle && !currentUnit.explorationTarget) return { unit: currentUnit, handled: false };
-    if (currentUnit.commandQueue.length > 0) return { unit: currentUnit, handled: false };
-    if (!context.agentControlEnabled || currentUnit.aiEnabled === false) return { unit: currentUnit, handled: false };
+    if (currentUnit.state !== UnitState.Idle && !currentUnit.explorationTarget)
+      return { unit: currentUnit, handled: false };
+    if (currentUnit.commandQueue.length > 0)
+      return { unit: currentUnit, handled: false };
+    if (!context.agentControlEnabled || currentUnit.aiEnabled === false)
+      return { unit: currentUnit, handled: false };
 
     if (!isMapFullyDiscovered(state, context.totalFloorCells, this.gameGrid)) {
       let shouldReevaluate = !currentUnit.explorationTarget;
@@ -45,15 +48,22 @@ export class ExplorationBehavior implements Behavior {
             Math.floor(currentUnit.explorationTarget.y),
           )
         ) {
-          console.log(`ExplorationBehavior: target ${currentUnit.explorationTarget.x},${currentUnit.explorationTarget.y} discovered, clearing`);
+          console.log(
+            `ExplorationBehavior: target ${currentUnit.explorationTarget.x},${currentUnit.explorationTarget.y} discovered, clearing`,
+          );
           currentUnit = { ...currentUnit, explorationTarget: undefined };
           shouldReevaluate = true;
         } else {
           const checkInterval = 1000;
           const lastCheck = Math.floor((state.t - dt) / checkInterval);
           const currentCheck = Math.floor(state.t / checkInterval);
-          if (currentCheck > lastCheck || currentUnit.state === UnitState.Idle) {
-            console.log(`ExplorationBehavior: reevaluating target due to timer or idle (state=${currentUnit.state})`);
+          if (
+            currentCheck > lastCheck ||
+            currentUnit.state === UnitState.Idle
+          ) {
+            console.log(
+              `ExplorationBehavior: reevaluating target due to timer or idle (state=${currentUnit.state})`,
+            );
             shouldReevaluate = true;
           }
         }
@@ -69,7 +79,9 @@ export class ExplorationBehavior implements Behavior {
           context.explorationClaims,
         );
         if (targetCell) {
-          console.log(`ExplorationBehavior: found new target ${targetCell.x},${targetCell.y}`);
+          console.log(
+            `ExplorationBehavior: found new target ${targetCell.x},${targetCell.y}`,
+          );
           const newTarget = { x: targetCell.x, y: targetCell.y };
           const isDifferent =
             !currentUnit.explorationTarget ||
@@ -93,7 +105,9 @@ export class ExplorationBehavior implements Behavior {
             }
 
             if (switchTarget) {
-              console.log(`ExplorationBehavior: switching target to ${newTarget.x},${newTarget.y}`);
+              console.log(
+                `ExplorationBehavior: switching target to ${newTarget.x},${newTarget.y}`,
+              );
               currentUnit = { ...currentUnit, explorationTarget: newTarget };
               context.explorationClaims.set(currentUnit.id, newTarget);
               currentUnit = context.executeCommand(
@@ -111,8 +125,13 @@ export class ExplorationBehavior implements Behavior {
               return { unit: currentUnit, handled: true };
             }
           } else if (currentUnit.state === UnitState.Idle) {
-            console.log(`ExplorationBehavior: same target ${newTarget.x},${newTarget.y} but unit is idle, re-executing move`);
-            context.explorationClaims.set(currentUnit.id, currentUnit.explorationTarget!);
+            console.log(
+              `ExplorationBehavior: same target ${newTarget.x},${newTarget.y} but unit is idle, re-executing move`,
+            );
+            context.explorationClaims.set(
+              currentUnit.id,
+              currentUnit.explorationTarget!,
+            );
             currentUnit = context.executeCommand(
               currentUnit,
               {

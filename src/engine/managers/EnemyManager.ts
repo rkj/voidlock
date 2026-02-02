@@ -11,7 +11,10 @@ import { PRNG } from "../../shared/PRNG";
 import { IEnemyAI, SwarmMeleeAI } from "../ai/EnemyAI";
 import { RangedKiteAI } from "../ai/RangedKiteAI";
 import { CombatManager } from "./CombatManager";
-import { SPEED_NORMALIZATION_CONST, SCRAP_REWARDS } from "../config/GameConstants";
+import {
+  SPEED_NORMALIZATION_CONST,
+  SCRAP_REWARDS,
+} from "../config/GameConstants";
 import { MathUtils } from "../../shared/utils/MathUtils";
 
 const EPSILON = 0.05;
@@ -60,7 +63,7 @@ export class EnemyManager {
         const targetX = Math.floor(mine.pos.x);
         const targetY = Math.floor(mine.pos.y);
 
-        // Mutate in-place for this pass as it's a global effect, 
+        // Mutate in-place for this pass as it's a global effect,
         // but we'll capture changes in the map() below.
         state.enemies.forEach((e) => {
           if (
@@ -103,7 +106,8 @@ export class EnemyManager {
           unit.hp > 0 &&
           unit.state !== "Extracted" &&
           unit.state !== "Dead" &&
-          MathUtils.getDistance(currentEnemy.pos, unit.pos) <= currentEnemy.attackRange + 0.5,
+          MathUtils.getDistance(currentEnemy.pos, unit.pos) <=
+            currentEnemy.attackRange + 0.5,
       );
 
       const unitsInSameCell = state.units.filter(
@@ -119,7 +123,9 @@ export class EnemyManager {
       let isAttacking = false;
       if (
         unitsInRange.length > 0 &&
-        (!currentEnemy.path || currentEnemy.path.length === 0 || isLockedInMelee)
+        (!currentEnemy.path ||
+          currentEnemy.path.length === 0 ||
+          isLockedInMelee)
       ) {
         let targetUnit = unitsInRange[0];
 
@@ -154,7 +160,10 @@ export class EnemyManager {
           currentEnemy.targetPos = undefined;
           currentEnemy.path = [];
         } else {
-          const dist = MathUtils.getDistance(currentEnemy.pos, currentEnemy.targetPos);
+          const dist = MathUtils.getDistance(
+            currentEnemy.pos,
+            currentEnemy.targetPos,
+          );
 
           const moveDist =
             ((currentEnemy.speed / SPEED_NORMALIZATION_CONST) * dt) / 1000;
@@ -172,8 +181,14 @@ export class EnemyManager {
             }
           } else {
             currentEnemy.pos = {
-              x: currentEnemy.pos.x + ((currentEnemy.targetPos.x - currentEnemy.pos.x) / dist) * moveDist,
-              y: currentEnemy.pos.y + ((currentEnemy.targetPos.y - currentEnemy.pos.y) / dist) * moveDist,
+              x:
+                currentEnemy.pos.x +
+                ((currentEnemy.targetPos.x - currentEnemy.pos.x) / dist) *
+                  moveDist,
+              y:
+                currentEnemy.pos.y +
+                ((currentEnemy.targetPos.y - currentEnemy.pos.y) / dist) *
+                  moveDist,
             };
           }
         }
@@ -184,18 +199,18 @@ export class EnemyManager {
 
     const deadEnemies = state.enemies.filter((enemy) => enemy.hp <= 0);
     if (deadEnemies.length > 0) {
-        // Stats mutation is okay for now, we clone stats in getState
-        deadEnemies.forEach((enemy) => {
-            state.stats.aliensKilled++;
-            if (enemy.difficulty === 2) {
-                state.stats.elitesKilled++;
-                state.stats.scrapGained += SCRAP_REWARDS.ELITE_KILL;
-            } else if (enemy.difficulty >= 3) {
-                state.stats.elitesKilled++;
-                state.stats.scrapGained += SCRAP_REWARDS.BOSS_KILL;
-            }
-        });
-        state.enemies = state.enemies.filter((enemy) => enemy.hp > 0);
+      // Stats mutation is okay for now, we clone stats in getState
+      deadEnemies.forEach((enemy) => {
+        state.stats.aliensKilled++;
+        if (enemy.difficulty === 2) {
+          state.stats.elitesKilled++;
+          state.stats.scrapGained += SCRAP_REWARDS.ELITE_KILL;
+        } else if (enemy.difficulty >= 3) {
+          state.stats.elitesKilled++;
+          state.stats.scrapGained += SCRAP_REWARDS.BOSS_KILL;
+        }
+      });
+      state.enemies = state.enemies.filter((enemy) => enemy.hp > 0);
     }
   }
 }

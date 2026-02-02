@@ -24,12 +24,14 @@
 **Voidlock** is a deterministic Real-Time with Pause (RTwP) tactical squad combat game built with TypeScript and HTML5 Canvas. The architecture employs a worker-based client-server pattern to ensure deterministic simulation, enabling perfect replays and responsive UI.
 
 **Key Metrics:**
+
 - **Lines of Code:** ~20,759 TypeScript
 - **Files:** 559
 - **Test Coverage:** 276 test files
 - **Architecture Decisions:** 28 documented ADRs
 
 **Core Architectural Strengths:**
+
 - Deterministic simulation via Web Worker isolation
 - Edge-based map representation for efficient spatial queries
 - Manager pattern for clean domain separation
@@ -66,23 +68,23 @@ Debrief → Barracks/Equipment/Statistics → Next Mission → ... → Victory/D
 
 ### Core Technologies
 
-| Component | Technology | Version |
-|-----------|-----------|---------|
-| Language | TypeScript | 5.9.3 |
-| Build Tool | Vite | 7.2.4 |
-| Module System | ES Modules | ES2022 |
-| Rendering | HTML5 Canvas | 2D Context |
-| Concurrency | Web Workers | Native |
-| Storage | LocalStorage | Native |
+| Component     | Technology   | Version    |
+| ------------- | ------------ | ---------- |
+| Language      | TypeScript   | 5.9.3      |
+| Build Tool    | Vite         | 7.2.4      |
+| Module System | ES Modules   | ES2022     |
+| Rendering     | HTML5 Canvas | 2D Context |
+| Concurrency   | Web Workers  | Native     |
+| Storage       | LocalStorage | Native     |
 
 ### Development Dependencies
 
-| Purpose | Technology | Version |
-|---------|-----------|---------|
-| Test Framework | Vitest | 3.2.4 |
-| E2E Testing | Puppeteer | 24.1.1 |
-| Test Environment | jsdom | 27.0.1 |
-| Asset Processing | Sharp | 0.33.5 |
+| Purpose          | Technology | Version |
+| ---------------- | ---------- | ------- |
+| Test Framework   | Vitest     | 3.2.4   |
+| E2E Testing      | Puppeteer  | 24.1.1  |
+| Test Environment | jsdom      | 27.0.1  |
+| Asset Processing | Sharp      | 0.33.5  |
 
 ### Build Configuration
 
@@ -155,25 +157,25 @@ CoreEngine
 
 ```typescript
 interface IEnemyAI {
-  think(enemy, state, grid, pathfinder, los, prng): void
+  think(enemy, state, grid, pathfinder, los, prng): void;
 }
 
 // Implementations:
-- SwarmMeleeAI     // Charge nearest soldier
-- RangedKiteAI     // Maintain distance while firing
-- VipAI            // Non-combatant movement
+-SwarmMeleeAI - // Charge nearest soldier
+  RangedKiteAI - // Maintain distance while firing
+  VipAI; // Non-combatant movement
 ```
 
 Unit AI uses **behavior composition**:
 
 ```typescript
 behaviors = [
-  SafetyBehavior,       // Retreat when low HP
-  CombatBehavior,       // Opportunistic fire
-  ObjectiveBehavior,    // Complete mission tasks
-  InteractionBehavior,  // Open doors, pickup items
-  ExplorationBehavior   // Explore fog of war
-]
+  SafetyBehavior, // Retreat when low HP
+  CombatBehavior, // Opportunistic fire
+  ObjectiveBehavior, // Complete mission tasks
+  InteractionBehavior, // Open doors, pickup items
+  ExplorationBehavior, // Explore fog of war
+];
 ```
 
 #### Command Pattern
@@ -182,14 +184,15 @@ All game actions are represented as `Command` objects:
 
 ```typescript
 type Command =
-  | { type: CommandType.MOVE_TO, unitId: string, destination: Vector2 }
-  | { type: CommandType.OPEN_DOOR, unitId: string, doorId: string }
-  | { type: CommandType.SET_ENGAGEMENT, unitId: string, policy: string }
-  | { type: CommandType.PICKUP_LOOT, unitId: string, lootId: string }
-  // ...
+  | { type: CommandType.MOVE_TO; unitId: string; destination: Vector2 }
+  | { type: CommandType.OPEN_DOOR; unitId: string; doorId: string }
+  | { type: CommandType.SET_ENGAGEMENT; unitId: string; policy: string }
+  | { type: CommandType.PICKUP_LOOT; unitId: string; lootId: string };
+// ...
 ```
 
 This enables:
+
 - Replay recording/playback
 - Network synchronization (future)
 - Undo/redo capabilities (future)
@@ -213,6 +216,7 @@ The renderer uses a **layered rendering architecture**:
 ```
 
 Each layer:
+
 - Extends `RenderLayer` interface
 - Receives immutable `GameState`
 - Draws independently without side effects
@@ -340,6 +344,7 @@ Each layer:
 The authoritative game state controller running in a Web Worker.
 
 **Responsibilities:**
+
 - Maintains canonical `GameState`
 - Processes commands from main thread
 - Advances simulation at fixed 16ms tick rate (~60 FPS)
@@ -347,6 +352,7 @@ The authoritative game state controller running in a Web Worker.
 - Handles replay recording
 
 **Update Loop Order:**
+
 1. Director update (enemy spawning)
 2. Environmental logic (door timers)
 3. Visibility recalculation
@@ -384,12 +390,14 @@ class Boundary {
 ```
 
 **Benefits:**
+
 - Door state automatically consistent on both sides
 - Walls are thin (edge-based) not thick (cell-based)
 - Raycasting naturally handles partial occlusion
 - No duplicate door objects
 
 **Files:**
+
 - `src/engine/GameGrid.ts`
 - `src/engine/Graph.ts`
 
@@ -398,6 +406,7 @@ class Boundary {
 Breadth-First Search (BFS) pathfinding on the grid graph.
 
 **Features:**
+
 - Plans through closed doors (units can open them)
 - Respects door states (locked doors block)
 - Returns cell-centered waypoints
@@ -410,11 +419,13 @@ Breadth-First Search (BFS) pathfinding on the grid graph.
 Raycasting-based visibility using edge boundaries.
 
 **Algorithms:**
+
 - **Multi-ray sampling:** Casts multiple rays between entity bounds
 - **Fractional door occlusion:** Door struts (outer 1/3) block LOS
 - **Circle visibility query:** Returns all visible cells within radius
 
 **Two modes:**
+
 - `hasLineOfSight()` - At least one ray succeeds (detection)
 - `hasLineOfFire()` - All rays succeed (shooting)
 
@@ -423,6 +434,7 @@ Raycasting-based visibility using edge boundaries.
 ### 5. AI System
 
 **Enemy AI** (`ai/EnemyAI.ts`):
+
 - `SwarmMeleeAI` - Detects and charges nearest soldier
 - `RangedKiteAI` - Maintains distance while firing
 - `VipAI` - Non-combatant movement
@@ -432,17 +444,18 @@ Autonomous behaviors using modular components:
 
 ```typescript
 behaviors = [
-  SafetyBehavior,       // Retreat when low HP
-  CombatBehavior,       // Opportunistic fire
-  ObjectiveBehavior,    // Complete mission objectives
-  InteractionBehavior,  // Open doors, pickup items
-  ExplorationBehavior   // Explore fog of war
-]
+  SafetyBehavior, // Retreat when low HP
+  CombatBehavior, // Opportunistic fire
+  ObjectiveBehavior, // Complete mission objectives
+  InteractionBehavior, // Open doors, pickup items
+  ExplorationBehavior, // Explore fog of war
+];
 ```
 
 Each unit evaluates behaviors in priority order (see ADR-0006).
 
 **Files:**
+
 - `src/engine/ai/EnemyAI.ts`
 - `src/engine/ai/behaviors/*.ts`
 
@@ -451,6 +464,7 @@ Each unit evaluates behaviors in priority order (see ADR-0006).
 Dynamic enemy spawning based on **threat level**.
 
 **Mechanics:**
+
 - Threat increases 10% every 10 seconds
 - Each 10% threshold triggers a wave spawn
 - Wave size scales with campaign progression
@@ -464,6 +478,7 @@ Dynamic enemy spawning based on **threat level**.
 Persistent strategic layer management.
 
 **Features:**
+
 - Soldier roster with XP/leveling
 - Death rules (Iron/Clone/Simulation)
 - Sector map as a Directed Acyclic Graph (DAG)
@@ -472,6 +487,7 @@ Persistent strategic layer management.
 - Save/load via `StorageProvider` abstraction
 
 **Campaign Progression:**
+
 ```
 Start → Combat → Elite → Shop → Boss → Victory
           ↓       ↓       ↓       ↓
@@ -485,6 +501,7 @@ Start → Combat → Elite → Shop → Boss → Victory
 Layer-based Canvas rendering with no game logic.
 
 **Layer Stack (bottom to top):**
+
 1. **MapLayer** - Grid lines, floor, walls
 2. **MapEntityLayer** - Doors, objectives, loot
 3. **UnitLayer** - Units, enemies, health bars
@@ -492,6 +509,7 @@ Layer-based Canvas rendering with no game logic.
 5. **OverlayLayer** - Selection highlights, targeting reticles
 
 **State Management:**
+
 - Renderer receives immutable `GameState` snapshots
 - No direct game logic in renderer
 - Uses `SharedRendererState` for layer coordination
@@ -503,6 +521,7 @@ Layer-based Canvas rendering with no game logic.
 **Unified theming** across DOM and Canvas (see ADR-0012).
 
 **Features:**
+
 - CSS variables define colors
 - `ThemeManager.getColor()` resolves variables for Canvas
 - Asset manifest (`assets.json`) maps logical names to URLs
@@ -523,6 +542,7 @@ User Input → InputManager → MenuController → GameClient → Worker
 ```
 
 **Flow:**
+
 1. User clicks/keys → `InputManager`
 2. `InputManager` updates `SelectionManager`
 3. `MenuController` builds `Command` objects
@@ -530,6 +550,7 @@ User Input → InputManager → MenuController → GameClient → Worker
 5. Worker executes command in next tick
 
 **Files:**
+
 - `src/renderer/InputManager.ts`
 - `src/renderer/MenuController.ts`
 - `src/renderer/controllers/CommandBuilder.ts`
@@ -618,14 +639,17 @@ Updates roster, awards resources, saves state
 ### Data Serialization
 
 **Worker → Main:**
+
 - `GameState` serialized via `structuredClone` (implicit in postMessage)
 - Command log accumulated for replay
 
 **Main → Worker:**
+
 - Commands are plain objects (JSON-serializable)
 - `MapDefinition` passed once at init
 
 **Persistence:**
+
 ```
 CampaignState → JSON.stringify() → LocalStorage['voidlock_campaign_v1']
                                  ↓
@@ -644,24 +668,25 @@ CampaignState → JSON.stringify() → LocalStorage['voidlock_campaign_v1']
 
 ```typescript
 type GameState = {
-  t: number                    // Simulation time (ms)
-  seed: number                 // PRNG seed
-  map: MapDefinition           // Static map data
-  units: Unit[]                // Player soldiers
-  enemies: Enemy[]             // Hostile entities
-  loot: LootItem[]             // Collectible items
-  visibleCells: string[]       // FOW visible cells
-  discoveredCells: string[]    // FOW discovered cells
-  objectives: Objective[]      // Mission objectives
-  stats: MissionStats          // Kill count, scrap, etc.
-  status: GameStatus           // Playing/Won/Lost
-  settings: SimulationSettings // Debug flags, time scale
-  squadInventory: { [id: string]: number }
-  commandLog?: CommandLogEntry[]
-}
+  t: number; // Simulation time (ms)
+  seed: number; // PRNG seed
+  map: MapDefinition; // Static map data
+  units: Unit[]; // Player soldiers
+  enemies: Enemy[]; // Hostile entities
+  loot: LootItem[]; // Collectible items
+  visibleCells: string[]; // FOW visible cells
+  discoveredCells: string[]; // FOW discovered cells
+  objectives: Objective[]; // Mission objectives
+  stats: MissionStats; // Kill count, scrap, etc.
+  status: GameStatus; // Playing/Won/Lost
+  settings: SimulationSettings; // Debug flags, time scale
+  squadInventory: { [id: string]: number };
+  commandLog?: CommandLogEntry[];
+};
 ```
 
 **State Mutation Rules:**
+
 1. Only mutated via `CoreEngine.update()` or `applyCommand()`
 2. Managers receive mutable state reference
 3. State is cloned before sending to main thread
@@ -672,6 +697,7 @@ type GameState = {
 **Reactive:** Receives immutable state snapshots every 16ms.
 
 **UI State (not in GameState):**
+
 - Selected units
 - Camera position/zoom
 - Menu open/closed
@@ -682,24 +708,26 @@ type GameState = {
 ### Persistent State (LocalStorage)
 
 **Campaign State:**
+
 ```typescript
 type CampaignState = {
-  version: string
-  seed: number
-  status: 'Active' | 'Victory' | 'Defeat'
-  rules: GameRules
-  scrap: number
-  intel: number
-  currentSector: number
-  currentNodeId: string | null
-  nodes: CampaignNode[]
-  roster: CampaignSoldier[]
-  history: MissionReport[]
-  unlockedArchetypes: string[]
-}
+  version: string;
+  seed: number;
+  status: "Active" | "Victory" | "Defeat";
+  rules: GameRules;
+  scrap: number;
+  intel: number;
+  currentSector: number;
+  currentNodeId: string | null;
+  nodes: CampaignNode[];
+  roster: CampaignSoldier[];
+  history: MissionReport[];
+  unlockedArchetypes: string[];
+};
 ```
 
 **Storage Keys:**
+
 - `voidlock_campaign_v1` - Campaign save
 - `voidlock_config` - User settings
 - `voidlock_meta` - Global statistics
@@ -713,16 +741,18 @@ type CampaignState = {
 4. **No external state:** No `Date.now()`, `Math.random()`, network I/O
 
 **Replay System:**
+
 ```typescript
 type ReplayData = {
-  seed: number
-  map: MapDefinition
-  squadConfig: SquadConfig
-  commands: RecordedCommand[]  // { t: number, cmd: Command }[]
-}
+  seed: number;
+  map: MapDefinition;
+  squadConfig: SquadConfig;
+  commands: RecordedCommand[]; // { t: number, cmd: Command }[]
+};
 ```
 
 Replaying:
+
 1. Initialize `CoreEngine` with same seed/map/squad
 2. Inject commands at recorded tick times
 3. Result: Identical state sequence
@@ -772,6 +802,7 @@ npm run process-assets  # Process raw assets to web format
 ### Asset Pipeline
 
 **Process Assets Script** (`scripts/process_assets.ts`):
+
 ```
 Raw Assets (NanoBanana Assets/)
           ↓
@@ -784,6 +815,7 @@ Raw Assets (NanoBanana Assets/)
 ```
 
 **Manifest Format:**
+
 ```json
 {
   "soldier_assault": "assets/units/soldier_assault.png",
@@ -808,6 +840,7 @@ Raw Assets (NanoBanana Assets/)
 ### Test Configuration
 
 **Unit Tests** (`vitest.config.ts`):
+
 ```typescript
 {
   test: {
@@ -818,6 +851,7 @@ Raw Assets (NanoBanana Assets/)
 ```
 
 **E2E Tests** (`vitest.config.e2e.ts`):
+
 ```typescript
 {
   test: {
@@ -830,12 +864,14 @@ Raw Assets (NanoBanana Assets/)
 ### Code Quality
 
 **Linting:**
+
 - Strict TypeScript mode enabled
 - No implicit any
 - Strict null checks
 - Comprehensive type coverage
 
 **Architecture Decision Records:**
+
 - 28 documented decisions in `docs/adr/`
 - Key ADRs:
   - ADR-0001: Edge-based map representation
@@ -851,6 +887,7 @@ Raw Assets (NanoBanana Assets/)
 Voidlock demonstrates **professional software engineering practices**:
 
 **Architectural Strengths:**
+
 - ✅ Deterministic simulation enables perfect replays
 - ✅ Worker thread ensures responsive UI
 - ✅ Edge-based map representation is elegant and efficient
@@ -859,12 +896,14 @@ Voidlock demonstrates **professional software engineering practices**:
 - ✅ Campaign system provides meaningful progression
 
 **Technical Metrics:**
+
 - ~20,759 lines of TypeScript
 - 559 files organized by domain
 - 276 test files
 - 28 architecture decision records
 
 **Key Technologies:**
+
 - TypeScript 5.9.3 (strict mode)
 - Vite 7.2.4 (build + dev server)
 - Vitest 3.2.4 (testing)

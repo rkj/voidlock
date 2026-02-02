@@ -102,10 +102,16 @@ describe("Regression voidlock-v8kk: Multiple units picking up same item", () => 
       const u1 = currentState.units.find((u) => u.id === "u1")!;
       const u2 = currentState.units.find((u) => u.id === "u2")!;
 
-      if (u1.state === UnitState.Channeling && u1.channeling?.action === "Pickup") {
+      if (
+        u1.state === UnitState.Channeling &&
+        u1.channeling?.action === "Pickup"
+      ) {
         u1Channeling = true;
       }
-      if (u2.state === UnitState.Channeling && u2.channeling?.action === "Pickup") {
+      if (
+        u2.state === UnitState.Channeling &&
+        u2.channeling?.action === "Pickup"
+      ) {
         u2Channeling = true;
       }
 
@@ -127,7 +133,15 @@ describe("Regression voidlock-v8kk: Multiple units picking up same item", () => 
       hp: 100,
       maxHp: 100,
       state: UnitState.Idle,
-      stats: { speed: 20, damage: 10, fireRate: 100, accuracy: 1000, soldierAim: 90, equipmentAccuracyBonus: 0, attackRange: 5 },
+      stats: {
+        speed: 20,
+        damage: 10,
+        fireRate: 100,
+        accuracy: 1000,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 5,
+      },
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       kills: 0,
@@ -143,7 +157,15 @@ describe("Regression voidlock-v8kk: Multiple units picking up same item", () => 
       hp: 100,
       maxHp: 100,
       state: UnitState.Idle,
-      stats: { speed: 20, damage: 10, fireRate: 100, accuracy: 1000, soldierAim: 90, equipmentAccuracyBonus: 0, attackRange: 5 },
+      stats: {
+        speed: 20,
+        damage: 10,
+        fireRate: 100,
+        accuracy: 1000,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 5,
+      },
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       kills: 0,
@@ -154,17 +176,19 @@ describe("Regression voidlock-v8kk: Multiple units picking up same item", () => 
 
     const actualState = (engine as any).state;
     const lootId = "loot-1";
-    actualState.loot = [{
-      id: lootId,
-      itemId: "medkit",
-      pos: { x: 3.5, y: 0.5 }
-    }];
+    actualState.loot = [
+      {
+        id: lootId,
+        itemId: "medkit",
+        pos: { x: 3.5, y: 0.5 },
+      },
+    ];
 
     // Manually issue pickup command to u1
     engine.applyCommand({
       type: CommandType.PICKUP,
       unitIds: ["u1"],
-      lootId: lootId
+      lootId: lootId,
     });
 
     // Run a few ticks. u1 should start channeling and aiEnabled should be false.
@@ -174,7 +198,7 @@ describe("Regression voidlock-v8kk: Multiple units picking up same item", () => 
     }
 
     let state = engine.getState();
-    const u1 = state.units.find(u => u.id === "u1")!;
+    const u1 = state.units.find((u) => u.id === "u1")!;
     expect(u1.state).toBe(UnitState.Channeling);
     expect(u1.aiEnabled).toBe(false);
     expect(u1.commandQueue.length).toBe(1); // RESUME_AI
@@ -182,13 +206,16 @@ describe("Regression voidlock-v8kk: Multiple units picking up same item", () => 
 
     // Now u2 should NOT target the lootId, even though u1's activeCommand is undefined
     // because u1 is still channeling it.
-    
+
     let u2TargetingLoot = false;
     for (let i = 0; i < 10; i++) {
       engine.update(100);
       state = engine.getState();
-      const u2 = state.units.find(u => u.id === "u2")!;
-      if (u2.activeCommand?.type === CommandType.PICKUP && (u2.activeCommand as PickupCommand).lootId === lootId) {
+      const u2 = state.units.find((u) => u.id === "u2")!;
+      if (
+        u2.activeCommand?.type === CommandType.PICKUP &&
+        (u2.activeCommand as PickupCommand).lootId === lootId
+      ) {
         u2TargetingLoot = true;
         break;
       }
@@ -251,30 +278,32 @@ describe("Regression voidlock-v8kk: Multiple units picking up same item", () => 
 
     const actualState = (engine as any).state;
     const lootId = "loot-1";
-    actualState.loot = [{
-      id: lootId,
-      itemId: "medkit",
-      pos: { x: 3.5, y: 0.5 }
-    }];
+    actualState.loot = [
+      {
+        id: lootId,
+        itemId: "medkit",
+        pos: { x: 3.5, y: 0.5 },
+      },
+    ];
 
     // Manually issue pickup commands
     engine.applyCommand({
       type: CommandType.PICKUP,
       unitIds: ["u1"],
-      lootId: lootId
+      lootId: lootId,
     });
     engine.applyCommand({
       type: CommandType.PICKUP,
       unitIds: ["u2"],
-      lootId: lootId
+      lootId: lootId,
     });
 
     // Update once to start channeling for both
-    engine.update(10); 
-    
+    engine.update(10);
+
     let state = engine.getState();
-    const u1 = state.units.find(u => u.id === "u1")!;
-    const u2 = state.units.find(u => u.id === "u2")!;
+    const u1 = state.units.find((u) => u.id === "u1")!;
+    const u2 = state.units.find((u) => u.id === "u2")!;
 
     expect(u1.state).toBe(UnitState.Channeling);
     expect(u2.state).toBe(UnitState.Channeling);
@@ -287,8 +316,8 @@ describe("Regression voidlock-v8kk: Multiple units picking up same item", () => 
 
     state = engine.getState();
     expect(state.loot.length).toBe(0);
-    
-    const u2_after = state.units.find(u => u.id === "u2")!;
+
+    const u2_after = state.units.find((u) => u.id === "u2")!;
     // u2 should now be Idle, NOT Channeling anymore because item is gone
     expect(u2_after.state).toBe(UnitState.Idle);
     expect(u2_after.channeling).toBeUndefined();

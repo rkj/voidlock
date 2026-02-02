@@ -1,4 +1,11 @@
-import { GameState, Unit, UnitState, Door, Command, Vector2 } from "../../shared/types";
+import {
+  GameState,
+  Unit,
+  UnitState,
+  Door,
+  Command,
+  Vector2,
+} from "../../shared/types";
 import { GameGrid } from "../GameGrid";
 import { LineOfSight } from "../LineOfSight";
 import { VipAI } from "../ai/VipAI";
@@ -44,10 +51,7 @@ export class UnitAI {
   private behaviors: Behavior[] = [];
   private vipBehavior: VipBehavior;
 
-  constructor(
-    gameGrid: GameGrid,
-    los: LineOfSight,
-  ) {
+  constructor(gameGrid: GameGrid, los: LineOfSight) {
     const vipAi = new VipAI(gameGrid);
     this.vipBehavior = new VipBehavior(vipAi, los);
 

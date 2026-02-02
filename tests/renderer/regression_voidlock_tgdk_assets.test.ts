@@ -21,9 +21,11 @@ describe("voidlock-tgdk: Asset Registration", () => {
     const assetManager = AssetManager.getInstance();
     expect(assetManager.iconImages["LootStar"]).toBeDefined();
     expect(assetManager.iconImages["ObjectiveDisk"]).toBeDefined();
-    
+
     // Check if src is set correctly
     expect(assetManager.iconImages["LootStar"].src).toContain(Icons.LootStar);
-    expect(assetManager.iconImages["ObjectiveDisk"].src).toContain(Icons.ObjectiveDisk);
+    expect(assetManager.iconImages["ObjectiveDisk"].src).toContain(
+      Icons.ObjectiveDisk,
+    );
   });
 });

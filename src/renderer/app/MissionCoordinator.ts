@@ -10,10 +10,7 @@ import {
   MapGeneratorType,
   UnitStyle,
 } from "@src/shared/types";
-import {
-  CampaignNode,
-  MissionReport,
-} from "@src/shared/campaign_types";
+import { CampaignNode, MissionReport } from "@src/shared/campaign_types";
 import { TimeUtility } from "@src/renderer/TimeUtility";
 
 export class MissionCoordinator {
@@ -124,7 +121,11 @@ export class MissionCoordinator {
         !this.debriefShown
       ) {
         this.debriefShown = true;
-        const report = this.generateMissionReport(state, config.campaignNode || null, state.seed);
+        const report = this.generateMissionReport(
+          state,
+          config.campaignNode || null,
+          state.seed,
+        );
         onMissionEnd(report);
       }
       updateUI(state);
@@ -167,7 +168,10 @@ export class MissionCoordinator {
       const missionDepth = config.missionDepth ?? 0;
 
       this.setupGameClientCallbacks(
-        { unitStyle: config.unitStyle, campaignNode: campaignNode || undefined },
+        {
+          unitStyle: config.unitStyle,
+          campaignNode: campaignNode || undefined,
+        },
         setupCallbacks,
         updateUI,
       );
@@ -216,7 +220,12 @@ export class MissionCoordinator {
     showMainMenu: () => void,
   ) {
     if (currentCampaignNode) {
-      const report = this.generateAbortReport(currentGameState, currentCampaignNode, currentSeed, currentSquad);
+      const report = this.generateAbortReport(
+        currentGameState,
+        currentCampaignNode,
+        currentSeed,
+        currentSquad,
+      );
       onAbortResolved(report);
 
       const state = this.context.campaignManager.getState();
