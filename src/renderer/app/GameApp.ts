@@ -32,7 +32,7 @@ import { CampaignSummaryScreen } from "../screens/CampaignSummaryScreen";
 import { StatisticsScreen } from "../screens/StatisticsScreen";
 import { ThemeManager } from "../ThemeManager";
 import { CampaignManager } from "../campaign/CampaignManager";
-import { ScreenManager } from "../ScreenManager";
+import { ScreenManager, ScreenId } from "../ScreenManager";
 import { MapFactory } from "@src/engine/map/MapFactory";
 import { MenuController } from "../MenuController";
 import { HUDManager } from "../ui/HUDManager";
@@ -74,7 +74,9 @@ export class GameApp {
     this.context.campaignManager = CampaignManager.getInstance();
     this.context.campaignManager.load();
     this.context.modalService = new ModalService();
-    this.context.screenManager = new ScreenManager();
+    this.context.screenManager = new ScreenManager((id) =>
+      this.handleExternalScreenChange(id),
+    );
 
     this.context.campaignShell = new CampaignShell(
       "screen-campaign-shell",
@@ -396,14 +398,16 @@ export class GameApp {
 
   public start() {
     const persistedScreen = this.context.screenManager.loadPersistedState();
-    if (persistedScreen === "mission") {
-      this.context.campaignShell.hide();
-      this.resumeMission();
-    } else if (persistedScreen) {
-      if (
-        persistedScreen === "campaign" ||
-        persistedScreen === "campaign-summary"
-      ) {
+    if (persistedScreen) {
+      this.handleExternalScreenChange(persistedScreen);
+    } else {
+      this.showMainMenu();
+    }
+  }
+
+  private handleExternalScreenChange(id: ScreenId) {
+    switch (id) {
+      case "campaign": {
         this.applyCampaignTheme();
         const state = this.context.campaignManager.getState();
         if (
@@ -417,13 +421,29 @@ export class GameApp {
           this.campaignScreen.show();
           this.context.campaignShell.show("campaign", "sector-map");
         }
-      } else if (persistedScreen === "mission-setup") {
+        break;
+      }
+      case "campaign-summary": {
+        const state = this.context.campaignManager.getState();
+        if (state) {
+          this.campaignSummaryScreen.show(state);
+          this.context.screenManager.show("campaign-summary");
+          this.context.campaignShell.hide();
+        } else {
+          this.showMainMenu();
+        }
+        break;
+      }
+      case "mission-setup":
         if (this.missionSetupManager.currentCampaignNode) {
+          this.applyCampaignTheme();
           this.context.campaignShell.show("campaign", "sector-map", false);
         } else {
           this.context.campaignShell.show("custom");
         }
-      } else if (persistedScreen === "equipment") {
+        break;
+      case "equipment":
+        this.applyCampaignTheme();
         this.equipmentScreen.updateConfig(
           this.missionSetupManager.currentSquad,
         );
@@ -432,17 +452,27 @@ export class GameApp {
         } else {
           this.context.campaignShell.show("custom");
         }
-      } else if (persistedScreen === "barracks") {
+        break;
+      case "barracks":
+        this.applyCampaignTheme();
         this.barracksScreen.show();
         this.context.campaignShell.show("campaign", "barracks");
-      } else if (persistedScreen === "statistics") {
+        break;
+      case "statistics":
         this.statisticsScreen.show();
         this.context.campaignShell.show("statistics", "stats");
-      } else {
+        break;
+      case "mission":
         this.context.campaignShell.hide();
-      }
-    } else {
-      this.showMainMenu();
+        this.resumeMission();
+        break;
+      case "main-menu":
+        this.showMainMenu();
+        break;
+      case "debrief":
+        // Debrief requires a report which we don't have from URL
+        this.showMainMenu();
+        break;
     }
   }
 
