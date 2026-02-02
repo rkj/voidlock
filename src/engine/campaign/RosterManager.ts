@@ -1,6 +1,9 @@
 import { CampaignState, CampaignSoldier } from "../../shared/campaign_types";
 import { ArchetypeLibrary, EquipmentState } from "../../shared/types";
-import { DEFAULT_ARCHETYPES, CAMPAIGN_DEFAULTS } from "../config/CampaignDefaults";
+import {
+  DEFAULT_ARCHETYPES,
+  CAMPAIGN_DEFAULTS,
+} from "../config/CampaignDefaults";
 import { RosterUtils } from "./RosterUtils";
 
 /**

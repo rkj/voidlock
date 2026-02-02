@@ -1,11 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { CoreEngine } from "@src/engine/CoreEngine";
 import { MapGenerator } from "@src/engine/MapGenerator";
-import {
-  UnitState,
-  SquadConfig,
-  AIProfile,
-} from "@src/shared/types";
+import { UnitState, SquadConfig, AIProfile } from "@src/shared/types";
 
 describe("Exploration Efficiency Regression (ICWK)", () => {
   const seed = 123;

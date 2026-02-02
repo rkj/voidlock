@@ -1,6 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { CoreEngine } from "@src/engine/CoreEngine";
-import { EngineMode, MapDefinition, CellType, MissionType } from "@src/shared/types";
+import {
+  EngineMode,
+  MapDefinition,
+  CellType,
+  MissionType,
+} from "@src/shared/types";
 
 describe("CoreEngine Replay Seek", () => {
   const mockMap: MapDefinition = {
@@ -63,9 +68,9 @@ describe("CoreEngine Replay Seek", () => {
           command: {
             type: "MOVE",
             unitIds: ["s1"],
-            targetCell: { x: 1, y: 1 }
-          } as any
-        }
+            targetCell: { x: 1, y: 1 },
+          } as any,
+        },
       ],
       true, // allowPause
       160, // targetTick (10 updates of 16ms)
@@ -73,9 +78,9 @@ describe("CoreEngine Replay Seek", () => {
 
     const state = engine.getState();
     expect(state.t).toBe(160);
-    const unit = state.units.find(u => u.id === "s1")!;
+    const unit = state.units.find((u) => u.id === "s1")!;
     // In 160ms, the unit should have moved from (0,0) towards (1,1).
-    // Scout speed is usually around 50-60 units per second? 
+    // Scout speed is usually around 50-60 units per second?
     // Wait, let's check Constants.
     expect(unit.pos.x).toBeGreaterThan(0);
     expect(unit.pos.y).toBeGreaterThan(0);

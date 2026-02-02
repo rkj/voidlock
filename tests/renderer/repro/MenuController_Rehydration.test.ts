@@ -33,8 +33,15 @@ describe("MenuController Rehydration", () => {
       discoveredCells: ["0,0"],
       objectives: [],
       loot: [],
-      mines: [], turrets: [],
-      stats: { threatLevel: 0, aliensKilled: 0, elitesKilled: 0, casualties: 0, scrapGained: 0 },
+      mines: [],
+      turrets: [],
+      stats: {
+        threatLevel: 0,
+        aliensKilled: 0,
+        elitesKilled: 0,
+        casualties: 0,
+        scrapGained: 0,
+      },
       status: "Playing",
       settings: {} as any,
       squadInventory: {},
@@ -63,7 +70,9 @@ describe("MenuController Rehydration", () => {
     // It should have options because it rehydrated the map
     expect(renderState.options.length).toBeGreaterThan(1); // At least one option + Back
     // Option for 0,0 should exist
-    const roomOption = renderState.options.find(o => o.label.includes("Room 1"));
+    const roomOption = renderState.options.find((o) =>
+      o.label.includes("Room 1"),
+    );
     expect(roomOption).toBeDefined();
   });
 });

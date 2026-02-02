@@ -1,7 +1,4 @@
-import {
-  GameState,
-  Enemy,
-} from "../../shared/types";
+import { GameState, Enemy } from "../../shared/types";
 import { LineOfSight } from "../LineOfSight";
 import { PRNG } from "../../shared/PRNG";
 import { CombatManager } from "./CombatManager";
@@ -24,8 +21,9 @@ export class TurretManager {
       const visibleEnemiesInRange = state.enemies.filter(
         (enemy) =>
           enemy.hp > 0 &&
-          MathUtils.getDistance(turret.pos, enemy.pos) <= turret.attackRange + 0.5 &&
-          this.los.hasLineOfFire(turret.pos, enemy.pos)
+          MathUtils.getDistance(turret.pos, enemy.pos) <=
+            turret.attackRange + 0.5 &&
+          this.los.hasLineOfFire(turret.pos, enemy.pos),
       );
 
       let targetEnemy: Enemy | undefined;
@@ -52,7 +50,7 @@ export class TurretManager {
             attackRange: turret.attackRange,
           },
           state,
-          prng
+          prng,
         );
       }
     });

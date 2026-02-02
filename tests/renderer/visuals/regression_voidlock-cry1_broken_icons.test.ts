@@ -33,7 +33,7 @@ describe("MapEntityLayer Regression (voidlock-cry1)", () => {
     sharedState = new SharedRendererState();
     sharedState.cellSize = 32;
     layer = new MapEntityLayer(sharedState);
-    
+
     // Ensure AssetManager has icons
     const assetManager = AssetManager.getInstance();
     assetManager.iconImages.Exit = new Image();
@@ -94,7 +94,6 @@ describe("MapEntityLayer Regression (voidlock-cry1)", () => {
       visibleCells: ["5,5"],
       discoveredCells: [],
     });
-
 
     layer.draw(mockContext, gameState);
 

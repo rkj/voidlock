@@ -24,16 +24,13 @@ export class SafetyBehavior implements Behavior {
     director?: IDirector,
   ): BehaviorResult {
     let currentUnit = { ...unit };
-    if (currentUnit.archetypeId === "vip") return { unit: currentUnit, handled: false };
+    if (currentUnit.archetypeId === "vip")
+      return { unit: currentUnit, handled: false };
 
     const visibleEnemies = state.enemies.filter(
       (enemy) =>
         enemy.hp > 0 &&
-        isCellVisible(
-          state,
-          Math.floor(enemy.pos.x),
-          Math.floor(enemy.pos.y),
-        ),
+        isCellVisible(state, Math.floor(enemy.pos.x), Math.floor(enemy.pos.y)),
     );
 
     const threats = visibleEnemies
@@ -92,7 +89,10 @@ export class SafetyBehavior implements Behavior {
           .map((cell) => {
             return {
               ...cell,
-              dist: MathUtils.getDistance(currentUnit.pos, { x: cell.x + 0.5, y: cell.y + 0.5 }),
+              dist: MathUtils.getDistance(currentUnit.pos, {
+                x: cell.x + 0.5,
+                y: cell.y + 0.5,
+              }),
             };
           })
           .sort((a, b) => a.dist - b.dist)[0];
@@ -120,9 +120,15 @@ export class SafetyBehavior implements Behavior {
             false,
             director,
           );
-          return { unit: currentUnit, handled: currentUnit.state === UnitState.Moving };
+          return {
+            unit: currentUnit,
+            handled: currentUnit.state === UnitState.Moving,
+          };
         }
-        return { unit: currentUnit, handled: currentUnit.state === UnitState.Moving };
+        return {
+          unit: currentUnit,
+          handled: currentUnit.state === UnitState.Moving,
+        };
       }
     } else if (isIsolated) {
       const otherUnits = state.units.filter(
@@ -134,12 +140,15 @@ export class SafetyBehavior implements Behavior {
       );
       if (otherUnits.length > 0) {
         const closestAlly = otherUnits.sort(
-          (a, b) => MathUtils.getDistance(currentUnit.pos, a.pos) - MathUtils.getDistance(currentUnit.pos, b.pos),
+          (a, b) =>
+            MathUtils.getDistance(currentUnit.pos, a.pos) -
+            MathUtils.getDistance(currentUnit.pos, b.pos),
         )[0];
         if (
           currentUnit.state !== UnitState.Moving ||
           !currentUnit.targetPos ||
-          Math.floor(currentUnit.targetPos.x) !== Math.floor(closestAlly.pos.x) ||
+          Math.floor(currentUnit.targetPos.x) !==
+            Math.floor(closestAlly.pos.x) ||
           Math.floor(currentUnit.targetPos.y) !== Math.floor(closestAlly.pos.y)
         ) {
           currentUnit = {
@@ -164,7 +173,10 @@ export class SafetyBehavior implements Behavior {
           );
           return { unit: currentUnit, handled: true };
         }
-        return { unit: currentUnit, handled: currentUnit.state === UnitState.Moving };
+        return {
+          unit: currentUnit,
+          handled: currentUnit.state === UnitState.Moving,
+        };
       }
     } else {
       if (

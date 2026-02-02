@@ -1,6 +1,11 @@
 import { describe, it, expect } from "vitest";
 import { CoreEngine } from "@src/engine/CoreEngine";
-import { MapDefinition, SquadConfig, EngineMode, MissionType } from "@src/shared/types";
+import {
+  MapDefinition,
+  SquadConfig,
+  EngineMode,
+  MissionType,
+} from "@src/shared/types";
 
 describe("CoreEngine: allowTacticalPause Clamping", () => {
   const mockMap: MapDefinition = { width: 10, height: 10, cells: [] };

@@ -61,27 +61,27 @@ describe("Autonomous RUSH Behavior Regression", () => {
       objectivesCompleted: 0,
     });
 
-    // Add enemy out of range but visible. 
+    // Add enemy out of range but visible.
     engine.addEnemy({
-        id: "e1",
-        type: EnemyType.XenoMite,
-        pos: { x: 3.5, y: 0.5 },
-        hp: 100,
-        maxHp: 100,
-        damage: 10,
-        fireRate: 500,
-        accuracy: 1000,
-        attackRange: 2,
-        speed: 0,
-        difficulty: 1,
+      id: "e1",
+      type: EnemyType.XenoMite,
+      pos: { x: 3.5, y: 0.5 },
+      hp: 100,
+      maxHp: 100,
+      damage: 10,
+      fireRate: 500,
+      accuracy: 1000,
+      attackRange: 2,
+      speed: 0,
+      difficulty: 1,
     });
 
     // Update. UnitAI should see enemy and issue MOVE_TO command via CombatBehavior
     engine.update(100);
-    
+
     const state = engine.getState();
     const unit = state.units[0];
-    
+
     // If CombatBehavior worked, the unit should now have an activeCommand and be moving
     expect(unit.activeCommand?.type).toBe(CommandType.MOVE_TO);
     expect(unit.state).toBe(UnitState.Moving);

@@ -47,8 +47,15 @@ describe("MenuController Rehydration - Overwatch", () => {
       discoveredCells: ["1,1", "0,1", "2,1", "1,0", "1,2"],
       objectives: [],
       loot: [],
-      mines: [], turrets: [],
-      stats: { threatLevel: 0, aliensKilled: 0, elitesKilled: 0, casualties: 0, scrapGained: 0 },
+      mines: [],
+      turrets: [],
+      stats: {
+        threatLevel: 0,
+        aliensKilled: 0,
+        elitesKilled: 0,
+        casualties: 0,
+        scrapGained: 0,
+      },
       status: "Playing",
       settings: {} as any,
       squadInventory: {},
@@ -72,14 +79,16 @@ describe("MenuController Rehydration - Overwatch", () => {
     // Need to find key for Overwatch. Usually 2 or 3.
     // Let's assume it's there.
     const ordersState = controller.getRenderableState(strippedState);
-    const overwatchOption = ordersState.options.find(o => o.label.includes("Overwatch"));
+    const overwatchOption = ordersState.options.find((o) =>
+      o.label.includes("Overwatch"),
+    );
     expect(overwatchOption).toBeDefined();
-    
+
     controller.handleMenuInput(overwatchOption!.key, strippedState);
 
     // 4. Verify options
     const renderState = controller.getRenderableState(strippedState);
-    
+
     // Should have options (intersections)
     // If not rehydrated, map.cells is empty, so no intersections found.
     expect(renderState.error).toBeUndefined();

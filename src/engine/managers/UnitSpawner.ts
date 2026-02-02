@@ -15,10 +15,7 @@ import { MathUtils } from "../../shared/utils/MathUtils";
 export class UnitSpawner {
   constructor(private prng: PRNG) {}
 
-  public spawnSquad(
-    map: MapDefinition,
-    squadConfig: SquadConfig,
-  ): Unit[] {
+  public spawnSquad(map: MapDefinition, squadConfig: SquadConfig): Unit[] {
     const units: Unit[] = [];
     let unitCount = 1;
 
@@ -66,7 +63,7 @@ export class UnitSpawner {
       units.push({
         id: soldierConfig.id || `${arch.id}-${unitCount++}`,
         name: soldierConfig.name || arch.name,
-        tacticalNumber: soldierConfig.tacticalNumber || (units.length + 1),
+        tacticalNumber: soldierConfig.tacticalNumber || units.length + 1,
         archetypeId: arch.id,
         pos: {
           x: startX + (this.prng.next() - 0.5),
@@ -107,9 +104,7 @@ export class UnitSpawner {
     return units;
   }
 
-  public spawnVIPs(
-    map: MapDefinition,
-  ): Unit[] {
+  public spawnVIPs(map: MapDefinition): Unit[] {
     const units: Unit[] = [];
     const vipArch = ArchetypeLibrary["vip"];
 
@@ -137,9 +132,7 @@ export class UnitSpawner {
           damage: vipArch.damage,
           fireRate:
             vipArch.fireRate *
-            (vipArch.speed > 0
-              ? SPEED_NORMALIZATION_CONST / vipArch.speed
-              : 1),
+            (vipArch.speed > 0 ? SPEED_NORMALIZATION_CONST / vipArch.speed : 1),
           soldierAim: vipArch.soldierAim,
           equipmentAccuracyBonus: 0,
           accuracy: vipArch.soldierAim,

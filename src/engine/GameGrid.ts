@@ -47,7 +47,12 @@ export class GameGrid implements Grid {
     }
 
     // Must be adjacent
-    if (MathUtils.getManhattanDistance({ x: fromX, y: fromY }, { x: toX, y: toY }) !== 1) {
+    if (
+      MathUtils.getManhattanDistance(
+        { x: fromX, y: fromY },
+        { x: toX, y: toY },
+      ) !== 1
+    ) {
       return false;
     }
 

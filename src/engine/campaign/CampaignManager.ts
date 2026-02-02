@@ -108,7 +108,8 @@ export class CampaignManager {
     // Handle overrides
     const currentOverrides = overrides;
     if (typeof currentOverrides === "object" && currentOverrides !== null) {
-      if (currentOverrides.deathRule) rules.deathRule = currentOverrides.deathRule;
+      if (currentOverrides.deathRule)
+        rules.deathRule = currentOverrides.deathRule;
       if (currentOverrides.allowTacticalPause !== undefined)
         rules.allowTacticalPause = currentOverrides.allowTacticalPause;
       if (currentOverrides.mapGeneratorType)
@@ -125,9 +126,11 @@ export class CampaignManager {
         rules.baseEnemyCount = currentOverrides.baseEnemyCount;
       if (currentOverrides.enemyGrowthPerMission !== undefined)
         rules.enemyGrowthPerMission = currentOverrides.enemyGrowthPerMission;
-      if (currentOverrides.economyMode) rules.economyMode = currentOverrides.economyMode;
+      if (currentOverrides.economyMode)
+        rules.economyMode = currentOverrides.economyMode;
       if (currentOverrides.themeId) rules.themeId = currentOverrides.themeId;
-      if (currentOverrides.unitStyle) rules.unitStyle = currentOverrides.unitStyle;
+      if (currentOverrides.unitStyle)
+        rules.unitStyle = currentOverrides.unitStyle;
       if (currentOverrides.customSeed !== undefined) {
         rules.customSeed = currentOverrides.customSeed;
       }
@@ -325,15 +328,27 @@ export class CampaignManager {
           return null;
         }
         const soldierCandidate = s as Record<string, unknown>;
-        const archetypeId = (soldierCandidate.archetypeId as string) || "assault";
+        const archetypeId =
+          (soldierCandidate.archetypeId as string) || "assault";
         const arch = ArchetypeLibrary[archetypeId];
         return {
           id: (soldierCandidate.id as string) || `soldier_recovered_${index}`,
-          name: (soldierCandidate.name as string) || `Recovered Recruit ${index + 1}`,
+          name:
+            (soldierCandidate.name as string) ||
+            `Recovered Recruit ${index + 1}`,
           archetypeId: archetypeId,
-          hp: typeof soldierCandidate.hp === "number" ? soldierCandidate.hp : arch ? arch.baseHp : 100,
+          hp:
+            typeof soldierCandidate.hp === "number"
+              ? soldierCandidate.hp
+              : arch
+                ? arch.baseHp
+                : 100,
           maxHp:
-            typeof soldierCandidate.maxHp === "number" ? soldierCandidate.maxHp : arch ? arch.baseHp : 100,
+            typeof soldierCandidate.maxHp === "number"
+              ? soldierCandidate.maxHp
+              : arch
+                ? arch.baseHp
+                : 100,
           soldierAim:
             typeof soldierCandidate.soldierAim === "number"
               ? soldierCandidate.soldierAim
@@ -341,13 +356,27 @@ export class CampaignManager {
                 ? arch.soldierAim
                 : 80,
           xp: typeof soldierCandidate.xp === "number" ? soldierCandidate.xp : 0,
-          level: typeof soldierCandidate.level === "number" ? soldierCandidate.level : 1,
-          kills: typeof soldierCandidate.kills === "number" ? soldierCandidate.kills : 0,
-          missions: typeof soldierCandidate.missions === "number" ? soldierCandidate.missions : 0,
-          status: ["Healthy", "Wounded", "Dead"].includes(soldierCandidate.status as string)
+          level:
+            typeof soldierCandidate.level === "number"
+              ? soldierCandidate.level
+              : 1,
+          kills:
+            typeof soldierCandidate.kills === "number"
+              ? soldierCandidate.kills
+              : 0,
+          missions:
+            typeof soldierCandidate.missions === "number"
+              ? soldierCandidate.missions
+              : 0,
+          status: ["Healthy", "Wounded", "Dead"].includes(
+            soldierCandidate.status as string,
+          )
             ? (soldierCandidate.status as "Healthy" | "Wounded" | "Dead")
             : "Healthy",
-          recoveryTime: typeof soldierCandidate.recoveryTime === "number" ? soldierCandidate.recoveryTime : 0,
+          recoveryTime:
+            typeof soldierCandidate.recoveryTime === "number"
+              ? soldierCandidate.recoveryTime
+              : 0,
           equipment: (soldierCandidate.equipment as EquipmentState) || {
             rightHand: arch?.rightHand,
             leftHand: arch?.leftHand,
@@ -360,19 +389,25 @@ export class CampaignManager {
 
     // Validate Nodes
     if (!Array.isArray(candidate.nodes)) return null;
-    const nodeIds = new Set(candidate.nodes.map((n: unknown) => {
-      if (n && typeof n === "object" && "id" in n) {
-        return (n as Record<string, unknown>).id as string;
-      }
-      return "";
-    }).filter(id => id !== ""));
+    const nodeIds = new Set(
+      candidate.nodes
+        .map((n: unknown) => {
+          if (n && typeof n === "object" && "id" in n) {
+            return (n as Record<string, unknown>).id as string;
+          }
+          return "";
+        })
+        .filter((id) => id !== ""),
+    );
     const nodes = candidate.nodes
       .map((n: unknown) => {
         if (!n || typeof n !== "object" || !("id" in n)) return null;
         const nodeCandidate = n as Record<string, unknown>;
         return {
           ...nodeCandidate,
-          type: ["Combat", "Shop", "Event", "Boss", "Elite"].includes(nodeCandidate.type as string)
+          type: ["Combat", "Shop", "Event", "Boss", "Elite"].includes(
+            nodeCandidate.type as string,
+          )
             ? (nodeCandidate.type as CampaignNodeType)
             : "Combat",
           status: [
@@ -385,7 +420,9 @@ export class CampaignManager {
             ? (nodeCandidate.status as CampaignNodeStatus)
             : "Hidden",
           connections: Array.isArray(nodeCandidate.connections)
-            ? nodeCandidate.connections.filter((id: unknown) => typeof id === "string" && nodeIds.has(id))
+            ? nodeCandidate.connections.filter(
+                (id: unknown) => typeof id === "string" && nodeIds.has(id),
+              )
             : [],
         } as CampaignNode;
       })
@@ -417,7 +454,9 @@ export class CampaignManager {
    */
   public processMissionResult(report: MissionReport): void {
     if (!this.state) {
-      throw new Error("CampaignManager: No active campaign state to process mission result.");
+      throw new Error(
+        "CampaignManager: No active campaign state to process mission result.",
+      );
     }
 
     const previousStatus = this.state.status;
@@ -506,7 +545,9 @@ export class CampaignManager {
    */
   public healSoldier(soldierId: string): void {
     if (!this.state) {
-      throw new Error("CampaignManager: No active campaign state to heal soldier.");
+      throw new Error(
+        "CampaignManager: No active campaign state to heal soldier.",
+      );
     }
     this.rosterManager.healSoldier(this.state, soldierId);
     this.save();
@@ -518,7 +559,9 @@ export class CampaignManager {
    */
   public reviveSoldier(soldierId: string): void {
     if (!this.state) {
-      throw new Error("CampaignManager: No active campaign state to revive soldier.");
+      throw new Error(
+        "CampaignManager: No active campaign state to revive soldier.",
+      );
     }
     this.rosterManager.reviveSoldier(this.state, soldierId);
     this.save();
@@ -548,7 +591,9 @@ export class CampaignManager {
    */
   public assignEquipment(soldierId: string, equipment: EquipmentState): void {
     if (!this.state) {
-      throw new Error("CampaignManager: No active campaign state to assign equipment.");
+      throw new Error(
+        "CampaignManager: No active campaign state to assign equipment.",
+      );
     }
     this.rosterManager.assignEquipment(this.state, soldierId, equipment);
     this.save();
@@ -561,7 +606,9 @@ export class CampaignManager {
    */
   public renameSoldier(soldierId: string, newName: string): void {
     if (!this.state) {
-      throw new Error("CampaignManager: No active campaign state to rename soldier.");
+      throw new Error(
+        "CampaignManager: No active campaign state to rename soldier.",
+      );
     }
     this.rosterManager.renameSoldier(this.state, soldierId, newName);
     this.save();

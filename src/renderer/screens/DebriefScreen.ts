@@ -1,6 +1,4 @@
-import {
-  MissionReport,
-} from "@src/shared/campaign_types";
+import { MissionReport } from "@src/shared/campaign_types";
 import { SoldierWidget } from "@src/renderer/ui/SoldierWidget";
 import { GameClient } from "@src/engine/GameClient";
 import { UnitStyle } from "@src/shared/types";
@@ -18,29 +16,39 @@ export class DebriefScreen {
   private scrubber: HTMLInputElement | null = null;
   private unitStyle: UnitStyle = UnitStyle.TacticalIcons;
 
-  constructor(containerId: string, gameClient: GameClient, onContinue: () => void) {
+  constructor(
+    containerId: string,
+    gameClient: GameClient,
+    onContinue: () => void,
+  ) {
     const el = document.getElementById(containerId);
     if (!el) throw new Error(`Container #${containerId} not found`);
     this.container = el;
     this.gameClient = gameClient;
     this.onContinue = onContinue;
-    this.replayController = new ReplayController(this.gameClient, (progress) => {
-      if (this.progressFill) {
-        this.progressFill.style.width = `${progress}%`;
-      }
-      if (this.scrubber) {
-        this.scrubber.value = progress.toString();
-      }
-      this.updatePlaybackUI();
-    });
+    this.replayController = new ReplayController(
+      this.gameClient,
+      (progress) => {
+        if (this.progressFill) {
+          this.progressFill.style.width = `${progress}%`;
+        }
+        if (this.scrubber) {
+          this.scrubber.value = progress.toString();
+        }
+        this.updatePlaybackUI();
+      },
+    );
   }
 
-  public show(report: MissionReport, unitStyle: UnitStyle = UnitStyle.TacticalIcons) {
+  public show(
+    report: MissionReport,
+    unitStyle: UnitStyle = UnitStyle.TacticalIcons,
+  ) {
     this.report = report;
     this.unitStyle = unitStyle;
     this.container.style.display = "flex";
     this.render();
-    
+
     if (this.canvas) {
       this.replayController.setRenderer(this.canvas, this.unitStyle);
     }
@@ -185,11 +193,14 @@ export class DebriefScreen {
     [1, 2, 5, 10].forEach((speed) => {
       const btn = document.createElement("button");
       btn.className = "replay-speed-btn";
-      if (this.replayController.getTargetScale() === speed) btn.classList.add("active");
+      if (this.replayController.getTargetScale() === speed)
+        btn.classList.add("active");
       btn.textContent = `${speed}x`;
       btn.onclick = () => {
         this.replayController.setPlaybackSpeed(speed);
-        speedGroup.querySelectorAll(".replay-speed-btn").forEach((b) => b.classList.remove("active"));
+        speedGroup
+          .querySelectorAll(".replay-speed-btn")
+          .forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
       };
       speedGroup.appendChild(btn);

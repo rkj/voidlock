@@ -147,7 +147,9 @@ describe("Exploration Logic", () => {
     // Grunt speed is usually 2.5 tiles/sec?
     // Let's run 50 ticks (5 seconds).
 
-    const totalFloors = engine.getState().map.cells.filter(c => c.type === CellType.Floor).length;
+    const totalFloors = engine
+      .getState()
+      .map.cells.filter((c) => c.type === CellType.Floor).length;
     console.log(`Total Floor Cells: ${totalFloors}`);
 
     for (let i = 0; i < 100; i++) {
@@ -155,7 +157,9 @@ describe("Exploration Logic", () => {
       const s = engine.getState();
       const u = s.units[0];
       if (i % 10 === 0) {
-        console.log(`Tick ${i}: Pos (${u.pos.x.toFixed(2)}, ${u.pos.y.toFixed(2)}), State: ${u.state}, Target: ${u.explorationTarget ? `${u.explorationTarget.x},${u.explorationTarget.y}` : "none"}, Discovered: ${s.discoveredCells.length}`);
+        console.log(
+          `Tick ${i}: Pos (${u.pos.x.toFixed(2)}, ${u.pos.y.toFixed(2)}), State: ${u.state}, Target: ${u.explorationTarget ? `${u.explorationTarget.x},${u.explorationTarget.y}` : "none"}, Discovered: ${s.discoveredCells.length}`,
+        );
       }
     }
 

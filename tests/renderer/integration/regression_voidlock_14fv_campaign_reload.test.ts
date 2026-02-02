@@ -2,11 +2,7 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import {
-  MapGeneratorType,
-  MissionType,
-  UnitStyle,
-} from "@src/shared/types";
+import { MapGeneratorType } from "@src/shared/types";
 import { CampaignState } from "@src/shared/campaign_types";
 
 // Mock dependencies before importing main.ts
@@ -54,7 +50,6 @@ vi.mock("@src/renderer/ui/ModalService", () => ({
 }));
 
 // Mock CampaignManager
-import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 let currentCampaignState: CampaignState | null = null;
 
 vi.mock("@src/renderer/campaign/CampaignManager", () => {
@@ -64,7 +59,7 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
         getState: vi.fn(() => currentCampaignState),
         load: vi.fn(() => !!currentCampaignState),
         save: vi.fn(),
-        startNewCampaign: vi.fn((seed, diff, pause, theme) => {
+        startNewCampaign: vi.fn((seed, diff, _pause, theme) => {
           currentCampaignState = {
             status: "Active",
             seed: seed || 123,
@@ -124,7 +119,7 @@ describe("Regression voidlock-14fv: Campaign Mission Setup Reload", () => {
   beforeEach(async () => {
     currentCampaignState = null;
     localStorage.clear();
-    
+
     global.ResizeObserver = vi.fn().mockImplementation(() => ({
       observe: vi.fn(),
       unobserve: vi.fn(),
@@ -177,26 +172,36 @@ describe("Regression voidlock-14fv: Campaign Mission Setup Reload", () => {
   it("should restore campaign mission setup after reload", async () => {
     // 1. Start campaign
     document.getElementById("btn-menu-campaign")?.click();
-    const startBtn = document.querySelector(".campaign-setup-wizard .primary-button") as HTMLElement;
+    const startBtn = document.querySelector(
+      ".campaign-setup-wizard .primary-button",
+    ) as HTMLElement;
     startBtn.click();
 
     // 2. Select node
     const nodeEl = document.querySelector(".campaign-node") as HTMLElement;
     nodeEl.click();
 
-    expect(document.getElementById("screen-mission-setup")?.style.display).toBe("flex");
+    expect(document.getElementById("screen-mission-setup")?.style.display).toBe(
+      "flex",
+    );
     const contextHeader = document.getElementById("mission-setup-context");
     expect(contextHeader?.textContent).toContain("CAMPAIGN");
-    expect(document.getElementById("map-config-section")?.style.display).toBe("none");
+    expect(document.getElementById("map-config-section")?.style.display).toBe(
+      "none",
+    );
 
     // 3. Simulate reload
     // Session state should have isCampaign: true
-    const sessionState = JSON.parse(localStorage.getItem("voidlock_session_state")!);
+    const sessionState = JSON.parse(
+      localStorage.getItem("voidlock_session_state")!,
+    );
     expect(sessionState.screenId).toBe("mission-setup");
     expect(sessionState.isCampaign).toBe(true);
 
     // Campaign config should have campaignNodeId
-    const campaignConfig = JSON.parse(localStorage.getItem("voidlock_campaign_config")!);
+    const campaignConfig = JSON.parse(
+      localStorage.getItem("voidlock_campaign_config")!,
+    );
     expect(campaignConfig.campaignNodeId).toBe("node-1");
 
     // Reset modules and re-import to simulate reload
@@ -205,9 +210,13 @@ describe("Regression voidlock-14fv: Campaign Mission Setup Reload", () => {
     document.dispatchEvent(new Event("DOMContentLoaded"));
 
     // 4. Verify restoration
-    expect(document.getElementById("screen-mission-setup")?.style.display).toBe("flex");
+    expect(document.getElementById("screen-mission-setup")?.style.display).toBe(
+      "flex",
+    );
     const contextHeaderAfter = document.getElementById("mission-setup-context");
     expect(contextHeaderAfter?.textContent).toContain("CAMPAIGN");
-    expect(document.getElementById("map-config-section")?.style.display).toBe("none");
+    expect(document.getElementById("map-config-section")?.style.display).toBe(
+      "none",
+    );
   });
 });

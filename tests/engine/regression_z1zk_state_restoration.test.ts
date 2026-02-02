@@ -65,7 +65,10 @@ describe("Regression voidlock-z1zk: State Restoration after Manual Actions", () 
 
   it("should resume AI after a manual PICKUP command if it was enabled before", () => {
     // Add loot at (3, 0)
-    const engineInternal = engine as unknown as { state: GameState; lootManager: LootManager };
+    const engineInternal = engine as unknown as {
+      state: GameState;
+      lootManager: LootManager;
+    };
     const actualState = engineInternal.state;
     engineInternal.lootManager.spawnLoot(actualState, "medkit", {
       x: 3.5,

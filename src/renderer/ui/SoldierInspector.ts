@@ -37,9 +37,7 @@ export class SoldierInspector {
     this.onUpdate = options.onUpdate;
   }
 
-  public setSoldier(
-    soldier: CampaignSoldier | SquadSoldierConfig | null,
-  ) {
+  public setSoldier(soldier: CampaignSoldier | SquadSoldierConfig | null) {
     this.soldier = soldier;
   }
 
@@ -149,34 +147,26 @@ export class SoldierInspector {
     slotsGrid.style.border = "1px solid var(--color-border)";
 
     slotsGrid.appendChild(
-      this.createSlot(
-        "Right Hand",
-        equip.rightHand,
-        (id) => this.handleSlotChange("rightHand", id),
+      this.createSlot("Right Hand", equip.rightHand, (id) =>
+        this.handleSlotChange("rightHand", id),
       ),
     );
 
     slotsGrid.appendChild(
-      this.createSlot(
-        "Left Hand",
-        equip.leftHand,
-        (id) => this.handleSlotChange("leftHand", id),
+      this.createSlot("Left Hand", equip.leftHand, (id) =>
+        this.handleSlotChange("leftHand", id),
       ),
     );
 
     slotsGrid.appendChild(
-      this.createSlot(
-        "Body",
-        equip.body,
-        (id) => this.handleSlotChange("body", id),
+      this.createSlot("Body", equip.body, (id) =>
+        this.handleSlotChange("body", id),
       ),
     );
 
     slotsGrid.appendChild(
-      this.createSlot(
-        "Feet",
-        equip.feet,
-        (id) => this.handleSlotChange("feet", id),
+      this.createSlot("Feet", equip.feet, (id) =>
+        this.handleSlotChange("feet", id),
       ),
     );
 

@@ -1,9 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { CampaignManager } from "@src/engine/managers/CampaignManager";
-import {
-  MissionReport,
-  STAT_BOOSTS,
-} from "@src/shared/campaign_types";
+import { MissionReport, STAT_BOOSTS } from "@src/shared/campaign_types";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 
 describe("Campaign Progression (XP and Leveling)", () => {

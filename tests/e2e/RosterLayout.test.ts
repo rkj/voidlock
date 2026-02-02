@@ -42,7 +42,7 @@ describe("Roster Layout Regression Test", () => {
       const title = panel.querySelector("h3");
       const list = panel.querySelector(".roster-list");
       const actions = panel.querySelector(".roster-actions");
-      
+
       const panelStyle = window.getComputedStyle(panel);
       const listStyle = list ? window.getComputedStyle(list) : null;
       const actionsStyle = actions ? window.getComputedStyle(actions) : null;
@@ -56,7 +56,7 @@ describe("Roster Layout Regression Test", () => {
         panelOverflow: panelStyle.overflowY,
         listFlex: listStyle?.flex,
         listOverflow: listStyle?.overflowY,
-        actionsFlexShrink: actionsStyle?.flexShrink
+        actionsFlexShrink: actionsStyle?.flexShrink,
       };
     });
 
@@ -65,34 +65,36 @@ describe("Roster Layout Regression Test", () => {
     expect(rosterStructure?.hasActions).toBe(true);
     expect(rosterStructure?.panelDisplay).toBe("flex");
     expect(rosterStructure?.panelFlexDirection).toBe("column");
-    
+
     // The panel itself should NOT scroll (overflow hidden/visible, but not auto/scroll)
     expect(["auto", "scroll"]).not.toContain(rosterStructure?.panelOverflow);
-    
+
     // The list SHOULD be flex: 1 and scrollable
     expect(rosterStructure?.listFlex).toContain("1");
     expect(rosterStructure?.listOverflow).toBe("auto");
-    
+
     // The actions SHOULD NOT shrink
     expect(rosterStructure?.actionsFlexShrink).toBe("0");
 
     // 5. Verify Recruit button position (Sticky behavior)
     // Even if it's empty in Custom Mode, the container .roster-actions should be at the bottom of the .roster-panel
     const positions = await page.evaluate(() => {
-        const panel = document.querySelector(".roster-panel");
-        const list = panel?.querySelector(".roster-list");
-        const actions = panel?.querySelector(".roster-actions");
-        if (!panel || !list || !actions) return null;
+      const panel = document.querySelector(".roster-panel");
+      const list = panel?.querySelector(".roster-list");
+      const actions = panel?.querySelector(".roster-actions");
+      if (!panel || !list || !actions) return null;
 
-        const panelRect = panel.getBoundingClientRect();
-        const listRect = list.getBoundingClientRect();
-        const actionsRect = actions.getBoundingClientRect();
+      const panelRect = panel.getBoundingClientRect();
+      const listRect = list.getBoundingClientRect();
+      const actionsRect = actions.getBoundingClientRect();
 
-        return {
-            listInsidePanel: listRect.top >= panelRect.top && listRect.bottom <= actionsRect.top + 5,
-            actionsAtBottom: Math.abs(actionsRect.bottom - panelRect.bottom) < 10,
-            actionsVisible: actionsRect.height > 0 || true // It might have 0 height if empty, but it's still there
-        };
+      return {
+        listInsidePanel:
+          listRect.top >= panelRect.top &&
+          listRect.bottom <= actionsRect.top + 5,
+        actionsAtBottom: Math.abs(actionsRect.bottom - panelRect.bottom) < 10,
+        actionsVisible: actionsRect.height > 0 || true, // It might have 0 height if empty, but it's still there
+      };
     });
 
     expect(positions?.actionsAtBottom).toBe(true);

@@ -11,9 +11,7 @@ import { isCellVisible, isCellDiscovered } from "../../shared/VisibilityUtils";
 import { MathUtils } from "../../shared/utils/MathUtils";
 
 export class VipAI {
-  constructor(
-    private grid: Grid,
-  ) {}
+  constructor(private grid: Grid) {}
 
   public think(vip: Unit, state: GameState): Command | null {
     if (
@@ -37,7 +35,11 @@ export class VipAI {
       const dist = MathUtils.getDistance(vip.pos, closestEnemy.pos);
 
       if (dist < 5) {
-        const fleeTarget = this.findFleeTarget(vip.pos, closestEnemy.pos, state);
+        const fleeTarget = this.findFleeTarget(
+          vip.pos,
+          closestEnemy.pos,
+          state,
+        );
         if (fleeTarget) {
           return {
             type: CommandType.MOVE_TO,
@@ -53,7 +55,10 @@ export class VipAI {
     if (state.map.extraction) {
       const ext = state.map.extraction;
       if (isCellDiscovered(state, ext.x, ext.y)) {
-        if (Math.floor(vip.pos.x) !== ext.x || Math.floor(vip.pos.y) !== ext.y) {
+        if (
+          Math.floor(vip.pos.x) !== ext.x ||
+          Math.floor(vip.pos.y) !== ext.y
+        ) {
           return {
             type: CommandType.MOVE_TO,
             unitIds: [vip.id],
@@ -139,10 +144,7 @@ export class VipAI {
           ty >= 0 &&
           ty < state.map.height
         ) {
-          if (
-            this.grid.isWalkable(tx, ty) &&
-            isCellDiscovered(state, tx, ty)
-          ) {
+          if (this.grid.isWalkable(tx, ty) && isCellDiscovered(state, tx, ty)) {
             candidates.push({ x: tx, y: ty });
           }
         }

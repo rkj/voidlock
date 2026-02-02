@@ -84,7 +84,10 @@ describe("Hidden Objectives", () => {
 
     // Teleport unit close to objective (8,8)
     // Hack state for test speed
-    (engine as unknown as { state: GameState }).state.units[0].pos = { x: 8.5, y: 8.5 };
+    (engine as unknown as { state: GameState }).state.units[0].pos = {
+      x: 8.5,
+      y: 8.5,
+    };
 
     engine.update(100);
     state = engine.getState();

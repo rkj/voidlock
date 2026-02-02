@@ -23,17 +23,17 @@ export class VipBehavior implements Behavior {
     director?: IDirector,
   ): BehaviorResult {
     let currentUnit = { ...unit };
-    if (currentUnit.archetypeId !== "vip") return { unit: currentUnit, handled: false };
+    if (currentUnit.archetypeId !== "vip")
+      return { unit: currentUnit, handled: false };
 
     if (!currentUnit.aiEnabled) {
-      const rescueSoldier = state.units.find(
-        (u) => {
-          if (u.id === currentUnit.id || u.archetypeId === "vip" || u.hp <= 0) return false;
-          const dist = MathUtils.getDistance(currentUnit.pos, u.pos);
-          const hasLos = this.los.hasLineOfSight(u.pos, currentUnit.pos);
-          return dist <= 1.5 || hasLos;
-        }
-      );
+      const rescueSoldier = state.units.find((u) => {
+        if (u.id === currentUnit.id || u.archetypeId === "vip" || u.hp <= 0)
+          return false;
+        const dist = MathUtils.getDistance(currentUnit.pos, u.pos);
+        const hasLos = this.los.hasLineOfSight(u.pos, currentUnit.pos);
+        return dist <= 1.5 || hasLos;
+      });
       if (rescueSoldier) {
         currentUnit = { ...currentUnit, aiEnabled: true };
       }
@@ -46,7 +46,13 @@ export class VipBehavior implements Behavior {
     ) {
       const vipCommand = this.vipAi.think(currentUnit, state);
       if (vipCommand) {
-        currentUnit = context.executeCommand(currentUnit, vipCommand, state, false, director);
+        currentUnit = context.executeCommand(
+          currentUnit,
+          vipCommand,
+          state,
+          false,
+          director,
+        );
         return { unit: currentUnit, handled: true };
       }
     }

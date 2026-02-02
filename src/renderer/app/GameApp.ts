@@ -293,6 +293,7 @@ export class GameApp {
       onUnitStyleChange: (style: UnitStyle) => {
         this.missionSetupManager.unitStyle = style;
         this.missionSetupManager.saveCurrentConfig();
+        this.missionSetupManager.renderUnitStylePreview();
       },
       onThemeChange: (themeId: string) => {
         this.missionSetupManager.currentThemeId = themeId;
@@ -300,6 +301,7 @@ export class GameApp {
           this.missionSetupManager.currentThemeId,
         );
         this.missionSetupManager.saveCurrentConfig();
+        this.missionSetupManager.renderUnitStylePreview();
       },
       onMapGeneratorChange: (type: MapGeneratorType) => {
         if (this.missionSetupManager.currentMapGeneratorType === type) return;
@@ -406,7 +408,10 @@ export class GameApp {
     }
   }
 
-  private handleExternalScreenChange(id: ScreenId, isCampaign: boolean = false) {
+  private handleExternalScreenChange(
+    id: ScreenId,
+    isCampaign: boolean = false,
+  ) {
     switch (id) {
       case "campaign": {
         this.applyCampaignTheme();
@@ -436,7 +441,9 @@ export class GameApp {
         break;
       }
       case "mission-setup": {
-        const rehydrated = isCampaign ? this.missionSetupManager.rehydrateCampaignNode() : false;
+        const rehydrated = isCampaign
+          ? this.missionSetupManager.rehydrateCampaignNode()
+          : false;
         this.missionSetupManager.loadAndApplyConfig(rehydrated);
         if (rehydrated) {
           this.applyCampaignTheme();

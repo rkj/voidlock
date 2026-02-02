@@ -158,7 +158,8 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
         healSoldier: vi.fn(),
         recruitSoldier: vi.fn((arch, name) => {
           if (!currentCampaignState) return "";
-          const finalName = name || `Recruit ${currentCampaignState.roster.length + 1}`;
+          const finalName =
+            name || `Recruit ${currentCampaignState.roster.length + 1}`;
           currentCampaignState.roster.push({
             id: "s2",
             name: finalName,

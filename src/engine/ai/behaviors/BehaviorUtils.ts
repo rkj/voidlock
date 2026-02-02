@@ -20,13 +20,15 @@ export function isMapFullyDiscovered(
     const height = state.map.height;
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {
-        if ((state.gridState[y * width + x] & 2) && gameGrid.isWalkable(x, y)) {
+        if (state.gridState[y * width + x] & 2 && gameGrid.isWalkable(x, y)) {
           discoveredFloors++;
         }
       }
     }
     if (discoveredFloors >= totalFloorCells) {
-       console.log(`isMapFullyDiscovered: true (discoveredFloors=${discoveredFloors}, totalFloorCells=${totalFloorCells})`);
+      console.log(
+        `isMapFullyDiscovered: true (discoveredFloors=${discoveredFloors}, totalFloorCells=${totalFloorCells})`,
+      );
     }
     return discoveredFloors >= totalFloorCells;
   }
@@ -83,7 +85,9 @@ export function findClosestUndiscoveredCell(
 
   let fallbackCell: Vector2 | null = null;
   let head = 0;
-  console.log(`findClosestUndiscoveredCell from ${startX},${startY}. Queue length: ${queue.length}`);
+  console.log(
+    `findClosestUndiscoveredCell from ${startX},${startY}. Queue length: ${queue.length}`,
+  );
 
   while (head < queue.length) {
     const curr = queue[head++];
@@ -123,7 +127,14 @@ export function findClosestUndiscoveredCell(
       ) {
         const nKey = `${n.x},${n.y}`;
         if (!visited.has(nKey) && gameGrid.isWalkable(n.x, n.y)) {
-          const canMove = gameGrid.canMove(curr.x, curr.y, n.x, n.y, doors, true);
+          const canMove = gameGrid.canMove(
+            curr.x,
+            curr.y,
+            n.x,
+            n.y,
+            doors,
+            true,
+          );
           if (canMove) {
             visited.add(nKey);
             queue.push({ x: n.x, y: n.y });

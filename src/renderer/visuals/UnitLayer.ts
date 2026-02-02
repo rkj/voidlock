@@ -1,6 +1,12 @@
 import { RenderLayer } from "./RenderLayer";
 import { SharedRendererState } from "./SharedRendererState";
-import { GameState, UnitState, UnitStyle, Vector2, Unit } from "@src/shared/types";
+import {
+  GameState,
+  UnitState,
+  UnitStyle,
+  Vector2,
+  Unit,
+} from "@src/shared/types";
 import { ThemeManager } from "@src/renderer/ThemeManager";
 import { AssetManager } from "./AssetManager";
 import { isCellVisible } from "@src/shared/VisibilityUtils";

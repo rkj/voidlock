@@ -68,4 +68,3 @@ Agents and developers should consult the specific files below for implementation
 - **[Campaign & Meta](campaign.md)**
   - Sector Map Logic
   - Economy (Scrap) & Roster Management
-

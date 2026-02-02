@@ -1,10 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { MenuController } from "@src/renderer/MenuController";
-import {
-  GameState,
-  UnitState,
-  MissionType,
-} from "@src/shared/types";
+import { GameState, UnitState, MissionType } from "@src/shared/types";
 
 describe("Regression i864: Redundant Prefixes in Command Menu", () => {
   let controller: MenuController;
@@ -33,7 +29,8 @@ describe("Regression i864: Redundant Prefixes in Command Menu", () => {
     discoveredCells: ["0,0", "1,0"],
     objectives: [],
     loot: [],
-    mines: [], turrets: [],
+    mines: [],
+    turrets: [],
     stats: {
       threatLevel: 0,
       aliensKilled: 0,

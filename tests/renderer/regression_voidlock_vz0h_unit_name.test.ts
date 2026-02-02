@@ -16,11 +16,11 @@ describe("MenuController - Unit Selection Names", () => {
     missionType: MissionType.Default,
     map: { width: 10, height: 10, cells: [] },
     units: [
-      { 
-        id: "soldier_172342343_1", 
-        name: "Recruit 5", 
+      {
+        id: "soldier_172342343_1",
+        name: "Recruit 5",
         tacticalNumber: 1,
-        pos: { x: 0.5, y: 0.5 }, 
+        pos: { x: 0.5, y: 0.5 },
         state: UnitState.Idle,
         stats: { speed: 10 } as any,
         aiProfile: AIProfile.RUSH,
@@ -28,7 +28,7 @@ describe("MenuController - Unit Selection Names", () => {
         kills: 0,
         damageDealt: 0,
         objectivesCompleted: 0,
-        archetypeId: "assault"
+        archetypeId: "assault",
       } as any,
     ],
     enemies: [],
@@ -36,7 +36,8 @@ describe("MenuController - Unit Selection Names", () => {
     discoveredCells: [],
     objectives: [],
     loot: [],
-    mines: [], turrets: [],
+    mines: [],
+    turrets: [],
     stats: {
       threatLevel: 0,
       aliensKilled: 0,
@@ -68,12 +69,12 @@ describe("MenuController - Unit Selection Names", () => {
     // Navigate to UNIT_SELECT via Hold command
     controller.handleMenuInput("1", mockState); // Orders
     controller.handleMenuInput("5", mockState); // Hold
-    
+
     const state = controller.getRenderableState(mockState);
     // stateMachine.state is private, check title instead
     expect(state.title).toBe("Select Unit(s)");
-    
-    const unitOption = state.options.find(o => o.key === "1");
+
+    const unitOption = state.options.find((o) => o.key === "1");
     expect(unitOption).toBeDefined();
     // Currently it likely displays "1. soldier_172342343_1 (1)"
     // We want it to display "1. Recruit 5 (1)"

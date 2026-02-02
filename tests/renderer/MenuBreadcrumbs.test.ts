@@ -1,11 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { MenuController } from "@src/renderer/MenuController";
 import { MenuRenderer } from "@src/renderer/ui/MenuRenderer";
-import {
-  GameState,
-  UnitState,
-  MissionType,
-} from "@src/shared/types";
+import { GameState, UnitState, MissionType } from "@src/shared/types";
 
 describe("Menu Breadcrumbs", () => {
   let controller: MenuController;
@@ -23,7 +19,8 @@ describe("Menu Breadcrumbs", () => {
     discoveredCells: [],
     objectives: [],
     loot: [],
-    mines: [], turrets: [],
+    mines: [],
+    turrets: [],
     stats: {
       threatLevel: 0,
       aliensKilled: 0,
@@ -41,7 +38,7 @@ describe("Menu Breadcrumbs", () => {
       isSlowMotion: false,
       allowTacticalPause: true,
     },
-    squadInventory: { "medkit": 1 },
+    squadInventory: { medkit: 1 },
   };
 
   beforeEach(() => {
@@ -73,7 +70,10 @@ describe("Menu Breadcrumbs", () => {
     controller.handleMenuInput("2", mockState); // Engagement
     controller.handleMenuInput("1", mockState); // Engage
     const state = controller.getRenderableState(mockState);
-    expect(state.breadcrumbs).toEqual(["Engagement", "Engage (Stop and Shoot)"]);
+    expect(state.breadcrumbs).toEqual([
+      "Engagement",
+      "Engage (Stop and Shoot)",
+    ]);
   });
 
   it("should pop breadcrumbs when going back", () => {
@@ -92,7 +92,9 @@ describe("Menu Breadcrumbs", () => {
     controller.handleMenuInput("1", mockState); // Move to Room
     const state = controller.getRenderableState(mockState);
     const html = MenuRenderer.renderMenu(state);
-    expect(html).toContain('<div class="menu-breadcrumbs">Orders &gt; Move to Room</div>');
+    expect(html).toContain(
+      '<div class="menu-breadcrumbs">Orders &gt; Move to Room</div>',
+    );
   });
 
   it("should show item name in breadcrumbs for ITEM_SELECT", () => {

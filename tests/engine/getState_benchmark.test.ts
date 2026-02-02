@@ -34,7 +34,7 @@ describe("CoreEngine getState Benchmark", () => {
 
   it("should measure getState performance with many entities", () => {
     const engine = new CoreEngine(map, 123, squadConfig, false, false);
-    
+
     // Add many enemies
     for (let i = 0; i < 100; i++) {
       engine.addEnemy({
@@ -54,12 +54,12 @@ describe("CoreEngine getState Benchmark", () => {
 
     // Add many loot
     for (let i = 0; i < 100; i++) {
-        // @ts-ignore - access private state for testing
-        engine.state.loot.push({
-            id: `loot-${i}`,
-            itemId: "scrap_crate",
-            pos: { x: 5, y: 5 },
-        });
+      // @ts-ignore - access private state for testing
+      engine.state.loot.push({
+        id: `loot-${i}`,
+        itemId: "scrap_crate",
+        pos: { x: 5, y: 5 },
+      });
     }
 
     const start = performance.now();

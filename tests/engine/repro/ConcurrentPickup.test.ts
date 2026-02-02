@@ -31,13 +31,29 @@ describe("Concurrent Pickup Regression", () => {
       ],
     });
 
-    const engine = new CoreEngine(mockState.map, 123, { soldiers: [], inventory: {} }, false, false);
+    const engine = new CoreEngine(
+      mockState.map,
+      123,
+      { soldiers: [], inventory: {} },
+      false,
+      false,
+    );
     // @ts-ignore
     engine.state = mockState;
 
     // Issue PICKUP command to both units
-    const cmd1 = { type: CommandType.PICKUP, unitIds: ["u1"], lootId: "loot-1", label: "Pickup" };
-    const cmd2 = { type: CommandType.PICKUP, unitIds: ["u2"], lootId: "loot-1", label: "Pickup" };
+    const cmd1 = {
+      type: CommandType.PICKUP,
+      unitIds: ["u1"],
+      lootId: "loot-1",
+      label: "Pickup",
+    };
+    const cmd2 = {
+      type: CommandType.PICKUP,
+      unitIds: ["u2"],
+      lootId: "loot-1",
+      label: "Pickup",
+    };
 
     engine.applyCommand(cmd1 as any);
     engine.applyCommand(cmd2 as any);
@@ -65,10 +81,10 @@ describe("Concurrent Pickup Regression", () => {
     // The other should ALSO be Idle because item is gone.
     expect(state.loot.length).toBe(0);
     expect(u1After.state).toBe(UnitState.Idle);
-    
+
     // This is the failure condition: u2 might still be Channeling or have finished "successfully" (phantom pickup)
     expect(u2After.state).toBe(UnitState.Idle);
-    
+
     // Inventory should have 1 item, not 2
     expect(state.squadInventory["medkit"]).toBe(1);
   });

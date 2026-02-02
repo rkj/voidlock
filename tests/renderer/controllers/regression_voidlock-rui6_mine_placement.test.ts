@@ -51,7 +51,8 @@ describe("Regression voidlock-rui6: Landmine Placement Rules", () => {
     settings: {} as any,
     squadInventory: { mine: 2 },
     loot: [],
-    mines: [], turrets: [],
+    mines: [],
+    turrets: [],
   };
 
   const discovery = new RoomDiscoveryManager();

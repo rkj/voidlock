@@ -1,7 +1,5 @@
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
-import {
-  ArchetypeLibrary,
-} from "@src/shared/types";
+import { ArchetypeLibrary } from "@src/shared/types";
 import { SoldierInspector } from "@src/renderer/ui/SoldierInspector";
 import { ModalService } from "@src/renderer/ui/ModalService";
 import { SoldierWidget } from "@src/renderer/ui/SoldierWidget";

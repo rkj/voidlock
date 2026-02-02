@@ -96,11 +96,7 @@ export class TreeShipGenerator {
     // 3. Grow Room Trees
     this.frontier = [];
     spineCells.forEach((cell) => {
-      const checkAndAdd = (
-        dx: number,
-        dy: number,
-        dir: Direction,
-      ) => {
+      const checkAndAdd = (dx: number, dy: number, dir: Direction) => {
         const nx = cell.x + dx;
         const ny = cell.y + dy;
         if (

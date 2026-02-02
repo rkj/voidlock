@@ -6,7 +6,11 @@ import { MathUtils } from "../../shared/utils/MathUtils";
 export class MovementManager {
   constructor(private gameGrid: GameGrid) {}
 
-  public handleMovement(unit: Unit, dt: number, doors: Map<string, Door>): Unit {
+  public handleMovement(
+    unit: Unit,
+    dt: number,
+    doors: Map<string, Door>,
+  ): Unit {
     if (!unit.targetPos) return unit;
 
     const dx = unit.targetPos.x - unit.pos.x;
@@ -58,8 +62,14 @@ export class MovementManager {
           pos: { ...unit.targetPos },
           path: nextPath,
           targetPos: {
-            x: nextPath[0].x + MOVEMENT.CENTER_OFFSET + (unit.visualJitter?.x || 0),
-            y: nextPath[0].y + MOVEMENT.CENTER_OFFSET + (unit.visualJitter?.y || 0),
+            x:
+              nextPath[0].x +
+              MOVEMENT.CENTER_OFFSET +
+              (unit.visualJitter?.x || 0),
+            y:
+              nextPath[0].y +
+              MOVEMENT.CENTER_OFFSET +
+              (unit.visualJitter?.y || 0),
           },
         };
       }

@@ -1,10 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { MenuController } from "@src/renderer/MenuController";
-import {
-  GameState,
-  UnitState,
-  MissionType,
-} from "@src/shared/types";
+import { GameState, UnitState, MissionType } from "@src/shared/types";
 
 describe("Regression v7xe: Friendly Names in Command Menu", () => {
   let controller: MenuController;
@@ -16,9 +12,7 @@ describe("Regression v7xe: Friendly Names in Command Menu", () => {
     map: {
       width: 10,
       height: 10,
-      cells: [
-        { x: 0, y: 0, type: "Floor", roomId: "room_1" },
-      ] as any,
+      cells: [{ x: 0, y: 0, type: "Floor", roomId: "room_1" }] as any,
     },
     units: [
       {
@@ -32,7 +26,7 @@ describe("Regression v7xe: Friendly Names in Command Menu", () => {
         id: "enemy_0",
         type: "xeno-mite",
         pos: { x: 5.5, y: 5.5 },
-      } as any
+      } as any,
     ],
     visibleCells: ["0,0", "3,3", "5,5"],
     discoveredCells: ["0,0", "3,3", "5,5"],
@@ -42,17 +36,18 @@ describe("Regression v7xe: Friendly Names in Command Menu", () => {
         kind: "Recover",
         state: "Pending",
         visible: true,
-        targetCell: { x: 2, y: 2 }
-      } as any
+        targetCell: { x: 2, y: 2 },
+      } as any,
     ],
     loot: [
       {
         id: "loot_0",
         itemId: "scrap_crate",
-        pos: { x: 3, y: 3 }
-      } as any
+        pos: { x: 3, y: 3 },
+      } as any,
     ],
-    mines: [], turrets: [],
+    mines: [],
+    turrets: [],
     stats: {
       threatLevel: 0,
       aliensKilled: 0,
@@ -70,7 +65,7 @@ describe("Regression v7xe: Friendly Names in Command Menu", () => {
       isSlowMotion: false,
       allowTacticalPause: true,
     },
-    squadInventory: { "scrap_crate": 1 },
+    squadInventory: { scrap_crate: 1 },
   };
 
   beforeEach(() => {
@@ -84,15 +79,11 @@ describe("Regression v7xe: Friendly Names in Command Menu", () => {
     controller.handleMenuInput("4", mockState); // Pickup
 
     const state = controller.getRenderableState(mockState);
-    
-    const objOption = state.options.find(
-      (o) => o.key === "1"
-    );
+
+    const objOption = state.options.find((o) => o.key === "1");
     expect(objOption?.label).toBe("1. Collect Objective");
 
-    const lootOption = state.options.find(
-      (o) => o.key === "2"
-    );
+    const lootOption = state.options.find((o) => o.key === "2");
     expect(lootOption?.label).toBe("2. Pickup Scrap Crate");
   });
 
@@ -101,8 +92,8 @@ describe("Regression v7xe: Friendly Names in Command Menu", () => {
     controller.handleMenuInput("3", mockState); // Use Item
 
     const state = controller.getRenderableState(mockState);
-    const itemOption = state.options.find(
-      (o) => o.label.includes("Scrap Crate"),
+    const itemOption = state.options.find((o) =>
+      o.label.includes("Scrap Crate"),
     );
 
     // This one might already be correct as per my previous check, but let's be sure

@@ -1,9 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import {
-  ArchetypeLibrary,
-  MissionType,
-} from "@src/shared/types";
+import { ArchetypeLibrary, MissionType } from "@src/shared/types";
 
 describe("Regression voidlock-hs8n: VIP Availability in Custom Missions", () => {
   let currentSquad: { soldiers: { archetypeId: string; id?: string }[] } = {
@@ -72,7 +69,6 @@ describe("Regression voidlock-hs8n: VIP Availability in Custom Missions", () => 
         container.appendChild(row);
       });
     } else {
-
       Object.values(ArchetypeLibrary).forEach((arch) => {
         const isVip = arch.id === "vip";
         const isEscortMission = currentMissionType === MissionType.EscortVIP;

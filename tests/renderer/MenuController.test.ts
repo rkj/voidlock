@@ -24,7 +24,8 @@ describe("MenuController", () => {
     discoveredCells: [],
     objectives: [],
     loot: [],
-    mines: [], turrets: [],
+    mines: [],
+    turrets: [],
     stats: {
       threatLevel: 0,
       aliensKilled: 0,

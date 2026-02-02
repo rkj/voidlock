@@ -10,7 +10,11 @@ import {
 } from "../shared/types";
 import { PRNG } from "../shared/PRNG";
 import { IDirector } from "./interfaces/IDirector";
-import { DIRECTOR, ITEMS, SPEED_NORMALIZATION_CONST } from "./config/GameConstants";
+import {
+  DIRECTOR,
+  ITEMS,
+  SPEED_NORMALIZATION_CONST,
+} from "./config/GameConstants";
 import { MathUtils } from "../shared/utils/MathUtils";
 
 export class Director implements IDirector {
@@ -165,7 +169,10 @@ export class Director implements IDirector {
         const radiusSq = radius * radius;
         for (let dy = -radius; dy <= radius; dy++) {
           for (let dx = -radius; dx <= radius; dx++) {
-            if (MathUtils.getDistanceSquared({ x: dx, y: dy }, { x: 0, y: 0 }) <= radiusSq) {
+            if (
+              MathUtils.getDistanceSquared({ x: dx, y: dy }, { x: 0, y: 0 }) <=
+              radiusSq
+            ) {
               const tx = Math.floor(targetPos.x + dx);
               const ty = Math.floor(targetPos.y + dy);
               if (
@@ -237,8 +244,12 @@ export class Director implements IDirector {
     const spawnIndex = this.prng.nextInt(0, this.spawnPoints.length - 1);
     const spawnPoint = this.spawnPoints[spawnIndex];
 
-    const offsetX = this.prng.next() * DIRECTOR.SPAWN_OFFSET_RANGE - DIRECTOR.SPAWN_OFFSET_BASE;
-    const offsetY = this.prng.next() * DIRECTOR.SPAWN_OFFSET_RANGE - DIRECTOR.SPAWN_OFFSET_BASE;
+    const offsetX =
+      this.prng.next() * DIRECTOR.SPAWN_OFFSET_RANGE -
+      DIRECTOR.SPAWN_OFFSET_BASE;
+    const offsetY =
+      this.prng.next() * DIRECTOR.SPAWN_OFFSET_RANGE -
+      DIRECTOR.SPAWN_OFFSET_BASE;
 
     // Select Type based on Threat (capped at 100 for selection logic)
     const threat = Math.min(100, this.getThreatLevel());

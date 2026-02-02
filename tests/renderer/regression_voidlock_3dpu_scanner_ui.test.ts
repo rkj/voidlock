@@ -1,10 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { MenuController } from "@src/renderer/MenuController";
-import {
-  CommandType,
-  GameState,
-  UnitState,
-} from "@src/shared/types";
+import { CommandType, GameState, UnitState } from "@src/shared/types";
 import { createMockGameState } from "@src/engine/tests/utils/MockFactory";
 
 describe("Regression voidlock-3dpu: Scanner UI Targeting", () => {

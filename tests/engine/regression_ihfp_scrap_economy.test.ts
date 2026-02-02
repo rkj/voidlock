@@ -58,7 +58,9 @@ describe("Scrap Economy Regression", () => {
     });
 
     // Kill it - must modify internal state
-    const elite = getInternalState(engine).enemies.find((e: any) => e.id === "elite-1");
+    const elite = getInternalState(engine).enemies.find(
+      (e: any) => e.id === "elite-1",
+    );
     if (elite) elite.hp = 0;
 
     // Update engine to process death

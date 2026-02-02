@@ -117,7 +117,9 @@ describe("DebriefScreen", () => {
     };
 
     screen.show(report);
-    const button = container.querySelector(".debrief-button") as HTMLButtonElement;
+    const button = container.querySelector(
+      ".debrief-button",
+    ) as HTMLButtonElement;
     button?.click();
 
     expect(onContinue).toHaveBeenCalled();
@@ -169,7 +171,7 @@ describe("DebriefScreen", () => {
 
     // Get the registered listener
     const listener = mockGameClient.addStateUpdateListener.mock.calls[0][0];
-    
+
     const mockState: any = {
       t: 50,
       map: { width: 10, height: 10, cells: [] },
@@ -180,17 +182,21 @@ describe("DebriefScreen", () => {
       stats: {},
       settings: { mode: "Replay" },
       visibleCells: [],
-      discoveredCells: []
+      discoveredCells: [],
     };
 
     listener(mockState);
 
     // Check if progress bar updated
-    const progressFill = container.querySelector(".replay-progress-fill") as HTMLElement;
+    const progressFill = container.querySelector(
+      ".replay-progress-fill",
+    ) as HTMLElement;
     expect(progressFill.style.width).toBe("50%");
-    
+
     // Check if scrubber updated
-    const scrubber = container.querySelector(".replay-scrubber") as HTMLInputElement;
+    const scrubber = container.querySelector(
+      ".replay-scrubber",
+    ) as HTMLInputElement;
     expect(scrubber.value).toBe("50");
   });
 
@@ -208,7 +214,9 @@ describe("DebriefScreen", () => {
     };
     screen.show(report);
 
-    const scrubber = container.querySelector(".replay-scrubber") as HTMLInputElement;
+    const scrubber = container.querySelector(
+      ".replay-scrubber",
+    ) as HTMLInputElement;
     scrubber.value = "50";
     scrubber.dispatchEvent(new Event("input"));
 
@@ -229,14 +237,14 @@ describe("DebriefScreen", () => {
     screen.show(report);
 
     const loopBtn = Array.from(container.querySelectorAll(".replay-btn")).find(
-      btn => btn.textContent?.includes("LOOP")
+      (btn) => btn.textContent?.includes("LOOP"),
     ) as HTMLButtonElement;
-    
+
     expect(loopBtn.textContent).toBe("LOOP: OFF");
     loopBtn.click();
     expect(loopBtn.textContent).toBe("LOOP: ON");
     expect(loopBtn.classList.contains("active")).toBe(true);
-    
+
     loopBtn.click();
     expect(loopBtn.textContent).toBe("LOOP: OFF");
     expect(loopBtn.classList.contains("active")).toBe(false);

@@ -1,11 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { MenuController } from "@src/renderer/MenuController";
-import {
-  GameState,
-  UnitState,
-  MissionType,
-} from "@src/shared/types";
-
+import { GameState, UnitState, MissionType } from "@src/shared/types";
 
 describe("MenuController Grenade Targeting Regression (voidlock-o4u8)", () => {
   let controller: MenuController;
@@ -14,14 +9,14 @@ describe("MenuController Grenade Targeting Regression (voidlock-o4u8)", () => {
     t: 1000,
     seed: 12345,
     missionType: MissionType.Default,
-    map: { 
-        width: 10, 
-        height: 10, 
-        cells: [
-            { x: 0, y: 0, type: 1 } as any, // Floor
-            { x: 1, y: 1, type: 1 } as any, // Floor
-        ],
-        extraction: { x: 9, y: 9 }
+    map: {
+      width: 10,
+      height: 10,
+      cells: [
+        { x: 0, y: 0, type: 1 } as any, // Floor
+        { x: 1, y: 1, type: 1 } as any, // Floor
+      ],
+      extraction: { x: 9, y: 9 },
     },
     units: [
       { id: "u1", pos: { x: 0.5, y: 0.5 }, state: UnitState.Idle } as any,
@@ -34,7 +29,8 @@ describe("MenuController Grenade Targeting Regression (voidlock-o4u8)", () => {
     discoveredCells: ["0,0", "1,1", "2,2", "9,9"], // Extraction discovered
     objectives: [],
     loot: [],
-    mines: [], turrets: [],
+    mines: [],
+    turrets: [],
     stats: {
       threatLevel: 0,
       aliensKilled: 0,
@@ -53,7 +49,7 @@ describe("MenuController Grenade Targeting Regression (voidlock-o4u8)", () => {
       allowTacticalPause: true,
     },
     squadInventory: {
-      "frag_grenade": 1
+      frag_grenade: 1,
     },
   };
 
@@ -79,15 +75,26 @@ describe("MenuController Grenade Targeting Regression (voidlock-o4u8)", () => {
 
     // BUG: Currently it likely includes "Extraction" (as it uses "CELL" type)
     // and might NOT include the enemy if it's not a POI.
-    
-    const extractionOption = options.find(o => o.label.includes("Extraction"));
-    const enemyOption1 = options.find(o => o.label.includes("Drone"));
-    const enemyOption2 = options.find(o => o.label.includes("Guard"));
 
-    expect(extractionOption, "Extraction should NOT be a target for grenades").toBeUndefined();
-    expect(enemyOption1, "Enemy Drone SHOULD be a target for grenades").toBeDefined();
+    const extractionOption = options.find((o) =>
+      o.label.includes("Extraction"),
+    );
+    const enemyOption1 = options.find((o) => o.label.includes("Drone"));
+    const enemyOption2 = options.find((o) => o.label.includes("Guard"));
+
+    expect(
+      extractionOption,
+      "Extraction should NOT be a target for grenades",
+    ).toBeUndefined();
+    expect(
+      enemyOption1,
+      "Enemy Drone SHOULD be a target for grenades",
+    ).toBeDefined();
     expect(enemyOption1?.key).toBe("1");
-    expect(enemyOption2, "Enemy Guard SHOULD be a target for grenades").toBeDefined();
+    expect(
+      enemyOption2,
+      "Enemy Guard SHOULD be a target for grenades",
+    ).toBeDefined();
     expect(enemyOption2?.key).toBe("2");
   });
 });

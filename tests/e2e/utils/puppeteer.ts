@@ -7,7 +7,11 @@ export async function getBrowser(): Promise<Browser> {
   if (!browser) {
     browser = await puppeteer.launch({
       headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox", "--js-flags=--expose-gc"],
+      args: [
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--js-flags=--expose-gc",
+      ],
     });
   }
   return browser;

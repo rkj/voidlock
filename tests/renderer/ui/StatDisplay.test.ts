@@ -22,7 +22,7 @@ describe("StatDisplay", () => {
     expect(html).toContain("width:16px");
     expect(html).toContain("height:16px");
     expect(html).toContain('style="color:blue"');
-    expect(html).toContain('gap:5px');
+    expect(html).toContain("gap:5px");
   });
 
   it("should update existing element value", () => {

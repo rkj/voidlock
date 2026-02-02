@@ -1,10 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { CoreEngine } from "@src/engine/CoreEngine";
-import {
-  MapDefinition,
-  CellType,
-  SquadConfig,
-} from "@src/shared/types";
+import { MapDefinition, CellType, SquadConfig } from "@src/shared/types";
 
 describe("Squad Configuration in CoreEngine", () => {
   const mockMap: MapDefinition = {

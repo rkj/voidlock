@@ -13,15 +13,15 @@ This code review examines the Voidlock codebase (~20,759 lines across 559 files)
 
 ### Overall Assessment
 
-| Category | Score | Status |
-|----------|-------|--------|
-| Architecture | 8/10 | ✅ Strong |
-| Type Safety | 6/10 | ⚠️ Needs Work |
-| Code Quality | 7/10 | ✅ Good |
-| Performance | 7/10 | ✅ Good |
-| Maintainability | 7/10 | ✅ Good |
-| Testing | 8/10 | ✅ Strong |
-| **Overall** | **7/10** | ✅ Good |
+| Category        | Score    | Status        |
+| --------------- | -------- | ------------- |
+| Architecture    | 8/10     | ✅ Strong     |
+| Type Safety     | 6/10     | ⚠️ Needs Work |
+| Code Quality    | 7/10     | ✅ Good       |
+| Performance     | 7/10     | ✅ Good       |
+| Maintainability | 7/10     | ✅ Good       |
+| Testing         | 8/10     | ✅ Strong     |
+| **Overall**     | **7/10** | ✅ Good       |
 
 ### Key Findings
 
@@ -58,6 +58,7 @@ The codebase uses `any` type extensively, defeating TypeScript's type checking a
 #### Critical Locations
 
 ##### `src/shared/types/gamestate.ts:112`
+
 ```typescript
 | { type: "EVENT"; payload: any };
 ```
@@ -65,6 +66,7 @@ The codebase uses `any` type extensively, defeating TypeScript's type checking a
 **Problem:** Event payload is untyped, making event handling error-prone.
 
 **Recommended Fix:**
+
 ```typescript
 // Define specific event types
 type EventPayload =
@@ -78,6 +80,7 @@ type EventPayload =
 ```
 
 ##### `src/engine/GameClient.ts:158,207`
+
 ```typescript
 nodeType: nodeType as any,  // Line 158
 private saveMissionConfig(config: any) { // Line 207
@@ -86,6 +89,7 @@ private saveMissionConfig(config: any) { // Line 207
 **Problem:** Type assertions bypass type system; untyped configuration.
 
 **Recommended Fix:**
+
 ```typescript
 // Define proper types
 interface MissionConfig {
@@ -103,6 +107,7 @@ private saveMissionConfig(config: MissionConfig) {
 ```
 
 ##### `src/engine/managers/CampaignManager.ts:269,283,308,336,341`
+
 ```typescript
 const data = this.storage.load<any>(STORAGE_KEY);
 private validateState(data: any): CampaignState | null {
@@ -112,6 +117,7 @@ data.roster = data.roster.map((s: any, index: number) => {
 **Problem:** Validation logic uses `any` for deserialized data.
 
 **Recommended Fix:**
+
 ```typescript
 const data = this.storage.load<unknown>(STORAGE_KEY);
 
@@ -135,6 +141,7 @@ private isValidCampaignState(data: unknown): data is CampaignState {
 ```
 
 ##### `src/engine/managers/UnitManager.ts:63,255,487`
+
 ```typescript
 director?: any,
 ].filter((item: any) => {
@@ -144,6 +151,7 @@ private getDistance(pos1: Vector2, pos2: Vector2): number {
 **Problem:** Director parameter is untyped.
 
 **Recommended Fix:**
+
 ```typescript
 import { Director } from '../Director';
 
@@ -152,6 +160,7 @@ director?: Director,
 ```
 
 ##### `src/renderer/MenuController.ts:113`
+
 ```typescript
 constructor(private client: { sendCommand: (cmd: any) => void }) {}
 ```
@@ -159,6 +168,7 @@ constructor(private client: { sendCommand: (cmd: any) => void }) {}
 **Problem:** Command parameter untyped.
 
 **Recommended Fix:**
+
 ```typescript
 import { Command } from '@src/shared/types';
 
@@ -166,6 +176,7 @@ constructor(private client: { sendCommand: (cmd: Command) => void }) {}
 ```
 
 ##### `src/renderer/controllers/CommandBuilder.ts:17,30`
+
 ```typescript
 public static build(ctx: CommandContext, unitIds: string[]): any {
   const base: any = {
@@ -174,6 +185,7 @@ public static build(ctx: CommandContext, unitIds: string[]): any {
 **Problem:** Return type and intermediate object are `any`.
 
 **Recommended Fix:**
+
 ```typescript
 import { Command } from '@src/shared/types';
 
@@ -228,6 +240,7 @@ public getState(): GameState {
 #### Recommended Fix
 
 **Option 1: Structural Sharing (Preferred)**
+
 ```typescript
 import { produce } from 'immer';
 
@@ -249,6 +262,7 @@ public getState(): GameState {
 ```
 
 **Option 2: Shallow Clone + Immutable Updates**
+
 ```typescript
 public getState(): GameState {
   // Shallow clone with spread
@@ -264,6 +278,7 @@ public getState(): GameState {
 ```
 
 **Option 3: Dirty Tracking**
+
 ```typescript
 private stateCache: GameState | null = null;
 private stateDirty: boolean = true;
@@ -319,6 +334,7 @@ The `getDistance` utility function is duplicated across 9 files:
 9. `src/engine/ai/EnemyAI.ts`
 
 **Duplicated Code:**
+
 ```typescript
 private getDistance(pos1: Vector2, pos2: Vector2): number {
   const dx = pos1.x - pos2.x;
@@ -330,8 +346,9 @@ private getDistance(pos1: Vector2, pos2: Vector2): number {
 #### Recommended Fix
 
 **Create:** `src/shared/utils/MathUtils.ts`
+
 ```typescript
-import { Vector2 } from '../types/geometry';
+import { Vector2 } from "../types/geometry";
 
 export class MathUtils {
   /**
@@ -362,8 +379,9 @@ export class MathUtils {
 ```
 
 **Update all 9 files:**
+
 ```typescript
-import { MathUtils } from '@src/shared/utils/MathUtils';
+import { MathUtils } from "@src/shared/utils/MathUtils";
 
 // Replace all instances
 const distance = MathUtils.getDistance(pos1, pos2);
@@ -386,6 +404,7 @@ const distance = MathUtils.getDistance(pos1, pos2);
 **Severity:** 🟡 HIGH
 **Impact:** Maintainability, testability, single responsibility violation
 **Affected Files:**
+
 - `src/renderer/app/GameApp.ts` (1185 lines)
 - `src/engine/CoreEngine.ts` (552 lines)
 - `src/engine/managers/CampaignManager.ts` (524 lines)
@@ -398,6 +417,7 @@ Several manager classes have grown too large and violate the Single Responsibili
 ##### `GameApp.ts` - 1185 lines
 
 **Responsibilities:**
+
 - Screen management
 - Campaign flow coordination
 - Mission setup and teardown
@@ -408,12 +428,13 @@ Several manager classes have grown too large and violate the Single Responsibili
 **Recommended Refactoring:**
 
 **Extract:** `src/renderer/app/CampaignFlowCoordinator.ts`
+
 ```typescript
 export class CampaignFlowCoordinator {
   constructor(
     private campaignManager: CampaignManager,
     private screenManager: ScreenManager,
-    private modalService: ModalService
+    private modalService: ModalService,
   ) {}
 
   public async startCampaign(config: CampaignConfig): Promise<void> {
@@ -431,12 +452,13 @@ export class CampaignFlowCoordinator {
 ```
 
 **Extract:** `src/renderer/app/MissionCoordinator.ts`
+
 ```typescript
 export class MissionCoordinator {
   constructor(
     private gameClient: GameClient,
     private renderer: GameRenderer,
-    private inputManager: InputManager
+    private inputManager: InputManager,
   ) {}
 
   public async startMission(config: MissionConfig): Promise<void> {
@@ -456,24 +478,19 @@ export class MissionCoordinator {
 **Recommended Refactoring:**
 
 **Extract:** `src/engine/spawning/UnitSpawner.ts`
+
 ```typescript
 export class UnitSpawner {
   constructor(
     private grid: GameGrid,
-    private prng: PRNG
+    private prng: PRNG,
   ) {}
 
-  public spawnSquad(
-    squadConfig: SquadConfig,
-    spawnPoints: Vector2[]
-  ): Unit[] {
+  public spawnSquad(squadConfig: SquadConfig, spawnPoints: Vector2[]): Unit[] {
     // Extract soldier spawning logic
   }
 
-  public spawnVIP(
-    vipConfig: VIPConfig,
-    validCells: Vector2[]
-  ): VIP | null {
+  public spawnVIP(vipConfig: VIPConfig, validCells: Vector2[]): VIP | null {
     // Extract VIP spawning logic
   }
 }
@@ -486,6 +503,7 @@ export class UnitSpawner {
 **Recommended Refactoring:**
 
 **Extract:** `src/engine/formation/FormationManager.ts`
+
 ```typescript
 export class FormationManager {
   private readonly MAX_VANGUARD = 2;
@@ -513,6 +531,7 @@ export class FormationManager {
 **Recommended Refactoring:**
 
 **Extract:** `src/engine/campaign/DifficultyConfig.ts`
+
 ```typescript
 export interface GameRules {
   spawnTimerEnabled: boolean;
@@ -576,6 +595,7 @@ export const DIFFICULTY_CONFIGS: Record<string, GameRules> = {
 Director and UnitManager are tightly coupled, using `any` to break circular dependency.
 
 **`src/engine/managers/UnitManager.ts:63`**
+
 ```typescript
 director?: any,
 ```
@@ -585,6 +605,7 @@ director?: any,
 #### Recommended Fix
 
 **Option 1: Define Interface**
+
 ```typescript
 // src/engine/interfaces/IDirector.ts
 export interface IDirector {
@@ -600,6 +621,7 @@ director?: IDirector,
 ```
 
 **Option 2: Dependency Injection**
+
 ```typescript
 // Use constructor injection instead of property
 export class UnitManager {
@@ -611,16 +633,17 @@ export class UnitManager {
 ```
 
 **Option 3: Event-Based Communication**
+
 ```typescript
 // Use event emitter pattern
 export class Director extends EventEmitter {
   private onThreatChange(): void {
-    this.emit('threat-change', { level: this.threatLevel });
+    this.emit("threat-change", { level: this.threatLevel });
   }
 }
 
 // UnitManager subscribes to events
-director.on('threat-change', (event) => {
+director.on("threat-change", (event) => {
   // Handle threat change
 });
 ```
@@ -628,6 +651,7 @@ director.on('threat-change', (event) => {
 #### Renderer Importing Engine Code
 
 Found 8 renderer files importing from engine:
+
 - `src/renderer/app/GameApp.ts`
 - `src/renderer/app/InputBinder.ts`
 - `src/renderer/campaign/CampaignManager.ts`
@@ -674,6 +698,7 @@ export class CampaignFacade {
 #### Critical Examples
 
 **`src/engine/managers/MissionManager.ts:129,139,171,241,286`**
+
 ```typescript
 hp: nodeType === "Boss" ? 1000 : 500,
 maxHp: nodeType === "Boss" ? 1000 : 500,
@@ -682,6 +707,7 @@ state.stats.scrapGained += 100 * multiplier;
 ```
 
 **`src/engine/campaign/MissionReconciler.ts:85,88,202`**
+
 ```typescript
 const missionXp = report.result === "Won" ? 50 : 10;
 const killXp = res.kills * 10;
@@ -689,6 +715,7 @@ const canAffordRecruit = state.scrap >= 100;
 ```
 
 **`src/engine/Director.ts:18,76,154,184`**
+
 ```typescript
 private readonly turnDuration: number = 10000; // 10 seconds
 private readonly threatPerTurn: number = 10; // 10% per turn
@@ -699,6 +726,7 @@ const scalingTurn = Math.min(this.turn, 10);
 #### Recommended Fix
 
 **Create:** `src/engine/config/GameConstants.ts`
+
 ```typescript
 export const GAMEPLAY_CONSTANTS = {
   // Hive Health
@@ -733,8 +761,8 @@ export const GAMEPLAY_CONSTANTS = {
 
   // Director
   DIRECTOR: {
-    TURN_DURATION_MS: 10000,    // 10 seconds
-    THREAT_PER_TURN: 10,        // 10%
+    TURN_DURATION_MS: 10000, // 10 seconds
+    THREAT_PER_TURN: 10, // 10%
     SPAWN_RADIUS: 5,
     MAX_SCALING_TURNS: 10,
   },
@@ -743,8 +771,8 @@ export const GAMEPLAY_CONSTANTS = {
   COMBAT: {
     BASE_DAMAGE: 10,
     CRIT_MULTIPLIER: 2.0,
-    MIN_HIT_CHANCE: 0.05,       // 5%
-    MAX_HIT_CHANCE: 0.95,       // 95%
+    MIN_HIT_CHANCE: 0.05, // 5%
+    MAX_HIT_CHANCE: 0.95, // 95%
   },
 
   // Movement
@@ -763,13 +791,20 @@ export const XP_REWARDS = GAMEPLAY_CONSTANTS.XP_REWARDS;
 ```
 
 **Update usage:**
+
 ```typescript
-import { HIVE_HP, SCRAP_REWARDS, XP_REWARDS, DIRECTOR } from '@src/engine/config/GameConstants';
+import {
+  HIVE_HP,
+  SCRAP_REWARDS,
+  XP_REWARDS,
+  DIRECTOR,
+} from "@src/engine/config/GameConstants";
 
 // Replace magic numbers
-hp: nodeType === "Boss" ? HIVE_HP.BOSS : HIVE_HP.NORMAL,
-state.stats.scrapGained += SCRAP_REWARDS.HIVE_DESTROY * multiplier;
-const missionXp = report.result === "Won" ? XP_REWARDS.MISSION_WIN : XP_REWARDS.MISSION_LOSS;
+hp: (nodeType === "Boss" ? HIVE_HP.BOSS : HIVE_HP.NORMAL,
+  (state.stats.scrapGained += SCRAP_REWARDS.HIVE_DESTROY * multiplier));
+const missionXp =
+  report.result === "Won" ? XP_REWARDS.MISSION_WIN : XP_REWARDS.MISSION_LOSS;
 ```
 
 #### Action Items
@@ -806,11 +841,17 @@ this.state = {
 #### Recommended Fix
 
 **Update:** `src/engine/config/CampaignDefaults.ts`
-```typescript
-import pkg from '../../../package.json';
 
-export const DEFAULT_ARCHETYPES = ["assault", "medic", "scout", "heavy"] as const;
-export type DefaultArchetype = typeof DEFAULT_ARCHETYPES[number];
+```typescript
+import pkg from "../../../package.json";
+
+export const DEFAULT_ARCHETYPES = [
+  "assault",
+  "medic",
+  "scout",
+  "heavy",
+] as const;
+export type DefaultArchetype = (typeof DEFAULT_ARCHETYPES)[number];
 
 export const CAMPAIGN_DEFAULTS = {
   VERSION: pkg.version,
@@ -823,8 +864,9 @@ export const CAMPAIGN_DEFAULTS = {
 ```
 
 **Update CampaignManager:**
+
 ```typescript
-import { CAMPAIGN_DEFAULTS } from '../config/CampaignDefaults';
+import { CAMPAIGN_DEFAULTS } from "../config/CampaignDefaults";
 
 this.state = {
   version: CAMPAIGN_DEFAULTS.VERSION,
@@ -877,6 +919,7 @@ allVisibleItems.forEach((item) => {
 #### Recommended Fix
 
 **Option 1: Spatial Partitioning**
+
 ```typescript
 // Create spatial grid for items
 class SpatialGrid<T> {
@@ -891,7 +934,7 @@ class SpatialGrid<T> {
   }
 
   public query(cells: string[]): T[] {
-    return cells.flatMap(key => this.cells.get(key) || []);
+    return cells.flatMap((key) => this.cells.get(key) || []);
   }
 
   private getCellKey(pos: Vector2): string {
@@ -901,12 +944,13 @@ class SpatialGrid<T> {
 
 // Usage
 const itemGrid = new SpatialGrid<LootItem>();
-state.loot.forEach(item => itemGrid.insert(item, item.pos));
+state.loot.forEach((item) => itemGrid.insert(item, item.pos));
 
 const visibleItems = itemGrid.query(Array.from(newVisibleCellsSet));
 ```
 
 **Option 2: Cache Visible Items**
+
 ```typescript
 // Cache visible items per cell
 private visibleItemsCache: Map<string, Item[]> = new Map();
@@ -948,6 +992,7 @@ private rebuildVisibilityCache(state: GameState, visibleCells: Set<string>): voi
 Complex algorithms lack explanatory comments.
 
 **`src/engine/managers/MissionManager.ts:76-109`**
+
 ```typescript
 // No comment explaining Fisher-Yates shuffle
 for (let i = candidates.length - 1; i > 0; i--) {
@@ -956,10 +1001,16 @@ for (let i = candidates.length - 1; i > 0; i--) {
 }
 
 // Complex objective count logic with no explanation
-const count = nodeType === "Boss" ? 3 : nodeType === "Elite" ? 2 : Math.min(3, candidates.length);
+const count =
+  nodeType === "Boss"
+    ? 3
+    : nodeType === "Elite"
+      ? 2
+      : Math.min(3, candidates.length);
 ```
 
 **`src/engine/managers/UnitManager.ts:104-156`**
+
 ```typescript
 // 53 lines of escort formation logic with no high-level explanation
 ```
@@ -982,7 +1033,12 @@ for (let i = candidates.length - 1; i > 0; i--) {
  * - Elite missions: 2 objectives (moderate challenge)
  * - Normal missions: Up to 3 objectives (based on availability)
  */
-const count = nodeType === "Boss" ? 3 : nodeType === "Elite" ? 2 : Math.min(3, candidates.length);
+const count =
+  nodeType === "Boss"
+    ? 3
+    : nodeType === "Elite"
+      ? 2
+      : Math.min(3, candidates.length);
 ```
 
 ```typescript
@@ -1029,17 +1085,18 @@ private assignEscortFormation(units: Unit[], vip: VIP): EscortAssignments {
 
 ```typescript
 export enum EnemyType {
-  XenoMite = "Xeno-Mite",           // Hyphenated
-  WarriorDrone = "Warrior-Drone",   // Hyphenated
-  SwarmMelee = "SwarmMelee",        // CamelCase
-  AlienScout = "alien_scout",       // snake_case (!)
-  Hive = "Hive",                    // Single word
+  XenoMite = "Xeno-Mite", // Hyphenated
+  WarriorDrone = "Warrior-Drone", // Hyphenated
+  SwarmMelee = "SwarmMelee", // CamelCase
+  AlienScout = "alien_scout", // snake_case (!)
+  Hive = "Hive", // Single word
 }
 ```
 
 #### Recommended Fix
 
 **Standardize to hyphenated format:**
+
 ```typescript
 export enum EnemyType {
   XenoMite = "xeno-mite",
@@ -1076,6 +1133,7 @@ export enum EnemyType {
 #### Issue Description
 
 **`src/engine/managers/CampaignManager.ts:479-486`**
+
 ```typescript
 public spendScrap(amount: number): void {
   if (!this.state) return; // Silent return
@@ -1105,6 +1163,7 @@ public spendScrap(amount: number): void {
 ```
 
 **`src/renderer/GameShell.ts:10-13`**
+
 ```typescript
 constructor() {
   this.headerTitle = document.getElementById("header-title")!;
@@ -1171,20 +1230,21 @@ onLoadStaticMap: async (json) => {
 #### Recommended Fix
 
 **Create:** `src/shared/validation/MapValidator.ts`
+
 ```typescript
-import { MapDefinition } from '../types/map';
+import { MapDefinition } from "../types/map";
 
 export class MapValidator {
   public static validateMapData(data: unknown): data is MapDefinition {
-    if (typeof data !== 'object' || data === null) return false;
+    if (typeof data !== "object" || data === null) return false;
 
     const map = data as Record<string, unknown>;
 
     // Check required fields
-    if (typeof map.width !== 'number' || map.width < 10 || map.width > 100) {
+    if (typeof map.width !== "number" || map.width < 10 || map.width > 100) {
       return false;
     }
-    if (typeof map.height !== 'number' || map.height < 10 || map.height > 100) {
+    if (typeof map.height !== "number" || map.height < 10 || map.height > 100) {
       return false;
     }
     if (!Array.isArray(map.cells)) {
@@ -1209,6 +1269,7 @@ export class MapValidator {
 ```
 
 **Update GameApp:**
+
 ```typescript
 import { MapValidator } from '@src/shared/validation/MapValidator';
 
@@ -1248,6 +1309,7 @@ onLoadStaticMap: async (json) => {
 **Severity:** 🟢 LOW
 **Impact:** Type safety at boundaries
 **Locations:**
+
 - `src/engine/GameClient.ts:158`
 - `src/engine/generators/TreeShipGenerator.ts:328`
 - `src/engine/generators/SpaceshipGenerator.ts:476`
@@ -1255,8 +1317,8 @@ onLoadStaticMap: async (json) => {
 #### Issue Description
 
 ```typescript
-nodeType: nodeType as any,  // GameClient.ts:158
-this.openWall(x, y, dir as any);  // TreeShipGenerator.ts:328
+nodeType: (nodeType as any, // GameClient.ts:158
+  this.openWall(x, y, dir as any)); // TreeShipGenerator.ts:328
 ```
 
 #### Recommended Fix
@@ -1343,6 +1405,7 @@ if (this.isValidDirection(dir)) {
 ### 6.1 Campaign Manager Architecture
 
 **Current Structure:**
+
 ```
 /src/renderer/campaign/CampaignManager.ts
 /src/renderer/campaign/MetaManager.ts
@@ -1353,6 +1416,7 @@ if (this.isValidDirection(dir)) {
 **Problem:** Duplicate manager names in renderer and engine, causing confusion.
 
 **Recommended Structure:**
+
 ```
 /src/engine/campaign/
   ├── CampaignManager.ts       # Core campaign logic
@@ -1379,14 +1443,14 @@ export class FormationManager {
   public assignEscortRoles(
     units: Unit[],
     vip: VIP,
-    state: GameState
+    state: GameState,
   ): EscortAssignments {
     // Extract escort formation logic
   }
 
   public updateFormation(
     assignments: EscortAssignments,
-    state: GameState
+    state: GameState,
   ): void {
     // Update formation positions
   }
@@ -1396,6 +1460,7 @@ export class FormationManager {
 ### 6.3 Consolidate Constants
 
 **Create unified constants structure:**
+
 ```
 /src/engine/config/
   ├── GameConstants.ts         # Gameplay values
@@ -1425,6 +1490,7 @@ export class FormationManager {
 ### Phase 1: Critical Fixes (Week 1)
 
 **P0 Issues:**
+
 1. ✅ Fix JSON deep cloning performance (CoreEngine.ts)
    - Implement Immer.js for immutable updates
    - Benchmark performance improvements
@@ -1439,6 +1505,7 @@ export class FormationManager {
 ### Phase 2: High Priority (Week 2-3)
 
 **P1 Issues:**
+
 1. ✅ Extract `getDistance` to shared utility
    - Create MathUtils.ts
    - Update all 9 files
@@ -1459,6 +1526,7 @@ export class FormationManager {
 ### Phase 3: Medium Priority (Week 4-5)
 
 **P2 Issues:**
+
 1. ✅ Consolidate magic numbers
    - Create GameConstants.ts
    - Update all references
@@ -1477,6 +1545,7 @@ export class FormationManager {
 ### Phase 4: Low Priority (Week 6)
 
 **P3 Issues:**
+
 1. ✅ Standardize naming conventions
 2. ✅ Improve error handling
 3. ✅ Add input validation
@@ -1496,13 +1565,13 @@ export class FormationManager {
 
 ### Priority Distribution
 
-| Priority | Issues | Estimated Effort |
-|----------|--------|------------------|
-| P0 (Critical) | 2 | 3-5 days |
-| P1 (High) | 3 | 5-8 days |
-| P2 (Medium) | 4 | 3-4 days |
-| P3 (Low) | 4 | 1-2 days |
-| **Total** | **13** | **12-19 days** |
+| Priority      | Issues | Estimated Effort |
+| ------------- | ------ | ---------------- |
+| P0 (Critical) | 2      | 3-5 days         |
+| P1 (High)     | 3      | 5-8 days         |
+| P2 (Medium)   | 4      | 3-4 days         |
+| P3 (Low)      | 4      | 1-2 days         |
+| **Total**     | **13** | **12-19 days**   |
 
 ### Key Takeaways
 
@@ -1515,16 +1584,19 @@ export class FormationManager {
 ### Recommendations
 
 **Immediate Actions:**
+
 1. Fix performance bottleneck in state cloning
 2. Remove `any` from critical paths
 3. Extract duplicate utilities
 
 **Medium-Term:**
+
 1. Refactor large manager classes
 2. Consolidate constants
 3. Improve documentation
 
 **Long-Term:**
+
 1. Implement spatial optimization
 2. Standardize naming conventions
 3. Enhance error handling

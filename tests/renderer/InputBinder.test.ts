@@ -58,7 +58,7 @@ describe("InputBinder", () => {
     mockContext = {
       screenManager: { goBack: vi.fn() },
       modalService: { confirm: vi.fn(), alert: vi.fn() },
-      gameClient: { setTimeScale: vi.fn() }
+      gameClient: { setTimeScale: vi.fn() },
     };
 
     inputBinder = new InputBinder(mockContext as AppContext);
@@ -90,59 +90,77 @@ describe("InputBinder", () => {
 
   it("should trigger onUnitStyleChange when selector changes", () => {
     inputBinder.bindAll(mockCallbacks);
-    const select = document.getElementById("select-unit-style") as HTMLSelectElement;
+    const select = document.getElementById(
+      "select-unit-style",
+    ) as HTMLSelectElement;
     select.value = UnitStyle.Sprites;
     select.dispatchEvent(new Event("change"));
 
-    expect(mockCallbacks.onUnitStyleChange).toHaveBeenCalledWith(UnitStyle.Sprites);
+    expect(mockCallbacks.onUnitStyleChange).toHaveBeenCalledWith(
+      UnitStyle.Sprites,
+    );
   });
 
   it("should trigger toggle callbacks when checkboxes change", () => {
     inputBinder.bindAll(mockCallbacks);
-    const fogCheck = document.getElementById("toggle-fog-of-war") as HTMLInputElement;
+    const fogCheck = document.getElementById(
+      "toggle-fog-of-war",
+    ) as HTMLInputElement;
     fogCheck.checked = true;
     fogCheck.dispatchEvent(new Event("change"));
     expect(mockCallbacks.onToggleFog).toHaveBeenCalledWith(true);
 
-    const debugCheck = document.getElementById("toggle-debug-overlay") as HTMLInputElement;
+    const debugCheck = document.getElementById(
+      "toggle-debug-overlay",
+    ) as HTMLInputElement;
     debugCheck.checked = true;
     debugCheck.dispatchEvent(new Event("change"));
     expect(mockCallbacks.onToggleDebug).toHaveBeenCalledWith(true);
   });
-  
+
   it("should trigger onMapSizeChange when width changes", () => {
     inputBinder.bindAll(mockCallbacks);
     const wInput = document.getElementById("map-width") as HTMLInputElement;
     wInput.value = "16";
     wInput.dispatchEvent(new Event("input"));
-    
+
     expect(mockCallbacks.onMapSizeChange).toHaveBeenCalledWith(16, 10);
   });
 
   it("should trigger onThemeChange when theme selector changes", () => {
     inputBinder.bindAll(mockCallbacks);
-    const themeSelect = document.getElementById("map-theme") as HTMLSelectElement;
+    const themeSelect = document.getElementById(
+      "map-theme",
+    ) as HTMLSelectElement;
     themeSelect.value = "industrial";
     themeSelect.dispatchEvent(new Event("change"));
-    
+
     expect(mockCallbacks.onThemeChange).toHaveBeenCalledWith("industrial");
   });
 
   it("should trigger onMapGeneratorChange when generator selector changes", () => {
     inputBinder.bindAll(mockCallbacks);
-    const genSelect = document.getElementById("map-generator-type") as HTMLSelectElement;
+    const genSelect = document.getElementById(
+      "map-generator-type",
+    ) as HTMLSelectElement;
     genSelect.value = MapGeneratorType.TreeShip;
     genSelect.dispatchEvent(new Event("change"));
-    
-    expect(mockCallbacks.onMapGeneratorChange).toHaveBeenCalledWith(MapGeneratorType.TreeShip);
+
+    expect(mockCallbacks.onMapGeneratorChange).toHaveBeenCalledWith(
+      MapGeneratorType.TreeShip,
+    );
   });
 
   it("should trigger onMissionTypeChange when mission selector changes", () => {
     inputBinder.bindAll(mockCallbacks);
-    const missionSelect = document.getElementById("mission-type") as HTMLSelectElement;
+    const missionSelect = document.getElementById(
+      "mission-type",
+    ) as HTMLSelectElement;
     missionSelect.value = MissionType.ExtractArtifacts;
     missionSelect.dispatchEvent(new Event("change"));
-    
-    expect(mockCallbacks.onMissionTypeChange).toHaveBeenCalledWith(MissionType.ExtractArtifacts);
+
+    expect(mockCallbacks.onMissionTypeChange).toHaveBeenCalledWith(
+      MissionType.ExtractArtifacts,
+    );
   });
 });

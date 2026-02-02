@@ -24,7 +24,11 @@ export class CombatManager {
    * weapon switching, and attack execution.
    * @returns An object containing the updated unit and whether it is currently attacking.
    */
-  public update(unit: Unit, state: GameState, prng: PRNG): { unit: Unit; isAttacking: boolean } {
+  public update(
+    unit: Unit,
+    state: GameState,
+    prng: PRNG,
+  ): { unit: Unit; isAttacking: boolean } {
     if (unit.state === UnitState.Extracted || unit.hp <= 0) {
       return { unit, isAttacking: false };
     }
@@ -38,11 +42,7 @@ export class CombatManager {
         enemy.hp > 0 &&
         MathUtils.getDistance(currentUnit.pos, enemy.pos) <=
           currentUnit.stats.attackRange + COMBAT.RANGED_RANGE_BUFFER &&
-        isCellVisible(
-          state,
-          Math.floor(enemy.pos.x),
-          Math.floor(enemy.pos.y),
-        ),
+        isCellVisible(state, Math.floor(enemy.pos.x), Math.floor(enemy.pos.y)),
     );
 
     const enemiesInSameCell = state.enemies.filter(
@@ -79,7 +79,8 @@ export class CombatManager {
           const score =
             enemy.maxHp -
             enemy.hp +
-            COMBAT.STICKY_TARGET_SCORE_NORM / Math.max(COMBAT.MIN_DISTANCE, distance);
+            COMBAT.STICKY_TARGET_SCORE_NORM /
+              Math.max(COMBAT.MIN_DISTANCE, distance);
 
           if (score > bestScore) {
             bestScore = score;
@@ -247,7 +248,8 @@ export class CombatManager {
 
     const enemiesInMelee = visibleEnemies.filter((e) => {
       const meleeRange =
-        (leftWeapon?.type === "Melee" ? leftWeapon.range : 1) + COMBAT.MELEE_RANGE_BUFFER;
+        (leftWeapon?.type === "Melee" ? leftWeapon.range : 1) +
+        COMBAT.MELEE_RANGE_BUFFER;
       return MathUtils.getDistance(unit.pos, e.pos) <= meleeRange;
     });
 
@@ -255,7 +257,9 @@ export class CombatManager {
       targetWeaponId = unit.leftHand;
     } else if (rightWeapon) {
       const enemiesInRanged = visibleEnemies.filter(
-        (e) => MathUtils.getDistance(unit.pos, e.pos) <= rightWeapon.range + COMBAT.RANGED_RANGE_BUFFER,
+        (e) =>
+          MathUtils.getDistance(unit.pos, e.pos) <=
+          rightWeapon.range + COMBAT.RANGED_RANGE_BUFFER,
       );
       if (enemiesInRanged.length > 0) {
         targetWeaponId = unit.rightHand;

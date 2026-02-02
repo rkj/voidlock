@@ -12,7 +12,7 @@ export class ReplayController {
 
   constructor(
     gameClient: GameClient,
-    onProgressUpdate: (progress: number) => void
+    onProgressUpdate: (progress: number) => void,
   ) {
     this.gameClient = gameClient;
     this.onProgressUpdate = onProgressUpdate;
@@ -55,7 +55,7 @@ export class ReplayController {
       if (this.renderer) {
         this.renderer.render(state);
       }
-      
+
       if (this.totalTime > 0) {
         const progress = (state.t / this.totalTime) * 100;
         this.onProgressUpdate(Math.min(100, progress));

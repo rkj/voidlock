@@ -39,7 +39,7 @@ describe("Recruitment Auto-Generated Name", () => {
     ) as HTMLButtonElement[];
 
     expect(recruitBtns.length).toBeGreaterThan(0);
-    
+
     // Click the first recruit button
     recruitBtns[0].click();
 
@@ -47,44 +47,47 @@ describe("Recruitment Auto-Generated Name", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(mockModalService.prompt).not.toHaveBeenCalled();
-    
+
     // Verify a soldier was added (initial is 4)
     expect(manager.getState()?.roster.length).toBe(5);
   });
 
   it("should NOT call modalService.prompt when recruiting in SquadBuilder", async () => {
-    const { SquadBuilder } = await import("@src/renderer/components/SquadBuilder");
+    const { SquadBuilder } =
+      await import("@src/renderer/components/SquadBuilder");
     const { AppContext } = await import("@src/renderer/app/AppContext");
-    
+
     const context = new AppContext();
     context.campaignManager = manager;
     context.modalService = mockModalService;
 
     const squad = { soldiers: [] };
-    
+
     // Kill one soldier so availableCount < 4
     const state = manager.getState()!;
     state.roster[0].status = "Dead";
-    
+
     const screen = new SquadBuilder(
       "screen-barracks",
       context,
       squad as any,
       "DestroyHive" as any,
       true,
-      vi.fn()
+      vi.fn(),
     );
     screen.render();
 
-    const recruitBtn = container.querySelector(".btn-recruit") as HTMLButtonElement;
+    const recruitBtn = container.querySelector(
+      ".btn-recruit",
+    ) as HTMLButtonElement;
     expect(recruitBtn).toBeTruthy();
-    
+
     recruitBtn.click();
 
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(mockModalService.prompt).not.toHaveBeenCalled();
-    
+
     // Verify a soldier was added (initial is 4)
     expect(manager.getState()?.roster.length).toBe(5);
   });

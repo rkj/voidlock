@@ -13,11 +13,31 @@ describe("Turret (Auto Cannon)", () => {
     width: 5,
     height: 5,
     cells: [
-      { x: 0, y: 0, type: CellType.Floor }, { x: 1, y: 0, type: CellType.Floor }, { x: 2, y: 0, type: CellType.Floor }, { x: 3, y: 0, type: CellType.Floor }, { x: 4, y: 0, type: CellType.Floor },
-      { x: 0, y: 1, type: CellType.Floor }, { x: 1, y: 1, type: CellType.Floor }, { x: 2, y: 1, type: CellType.Floor }, { x: 3, y: 1, type: CellType.Floor }, { x: 4, y: 1, type: CellType.Floor },
-      { x: 0, y: 2, type: CellType.Floor }, { x: 1, y: 2, type: CellType.Floor }, { x: 2, y: 2, type: CellType.Floor }, { x: 3, y: 2, type: CellType.Floor }, { x: 4, y: 2, type: CellType.Floor },
-      { x: 0, y: 3, type: CellType.Floor }, { x: 1, y: 3, type: CellType.Floor }, { x: 2, y: 3, type: CellType.Floor }, { x: 3, y: 3, type: CellType.Floor }, { x: 4, y: 3, type: CellType.Floor },
-      { x: 0, y: 4, type: CellType.Floor }, { x: 1, y: 4, type: CellType.Floor }, { x: 2, y: 4, type: CellType.Floor }, { x: 3, y: 4, type: CellType.Floor }, { x: 4, y: 4, type: CellType.Floor },
+      { x: 0, y: 0, type: CellType.Floor },
+      { x: 1, y: 0, type: CellType.Floor },
+      { x: 2, y: 0, type: CellType.Floor },
+      { x: 3, y: 0, type: CellType.Floor },
+      { x: 4, y: 0, type: CellType.Floor },
+      { x: 0, y: 1, type: CellType.Floor },
+      { x: 1, y: 1, type: CellType.Floor },
+      { x: 2, y: 1, type: CellType.Floor },
+      { x: 3, y: 1, type: CellType.Floor },
+      { x: 4, y: 1, type: CellType.Floor },
+      { x: 0, y: 2, type: CellType.Floor },
+      { x: 1, y: 2, type: CellType.Floor },
+      { x: 2, y: 2, type: CellType.Floor },
+      { x: 3, y: 2, type: CellType.Floor },
+      { x: 4, y: 2, type: CellType.Floor },
+      { x: 0, y: 3, type: CellType.Floor },
+      { x: 1, y: 3, type: CellType.Floor },
+      { x: 2, y: 3, type: CellType.Floor },
+      { x: 3, y: 3, type: CellType.Floor },
+      { x: 4, y: 3, type: CellType.Floor },
+      { x: 0, y: 4, type: CellType.Floor },
+      { x: 1, y: 4, type: CellType.Floor },
+      { x: 2, y: 4, type: CellType.Floor },
+      { x: 3, y: 4, type: CellType.Floor },
+      { x: 4, y: 4, type: CellType.Floor },
     ],
     spawnPoints: [{ id: "spawn-1", pos: { x: 4, y: 4 }, radius: 1 }],
     squadSpawn: { x: 0, y: 0 },
@@ -50,8 +70,8 @@ describe("Turret (Auto Cannon)", () => {
     for (let i = 0; i < 200; i++) {
       engine.update(100);
       if (engine.getState().turrets.length > 0) {
-          deployed = true;
-          break;
+        deployed = true;
+        break;
       }
     }
     expect(deployed).toBe(true);
@@ -65,9 +85,9 @@ describe("Turret (Auto Cannon)", () => {
 
     // Disable unit shooting to ensure turret is the one shooting
     engine.applyCommand({
-        type: CommandType.SET_ENGAGEMENT,
-        unitIds: [unit.id],
-        mode: "IGNORE"
+      type: CommandType.SET_ENGAGEMENT,
+      unitIds: [unit.id],
+      mode: "IGNORE",
     });
 
     // Add an enemy at (3, 3)
@@ -93,7 +113,9 @@ describe("Turret (Auto Cannon)", () => {
     expect(finalState.enemies.length).toBe(1);
     expect(finalState.enemies[0].hp).toBeLessThan(100);
     expect(finalState.attackEvents?.length).toBeGreaterThan(0);
-    const turretEvent = finalState.attackEvents?.find(e => e.attackerId.startsWith("turret-"));
+    const turretEvent = finalState.attackEvents?.find((e) =>
+      e.attackerId.startsWith("turret-"),
+    );
     expect(turretEvent).toBeDefined();
   });
 });

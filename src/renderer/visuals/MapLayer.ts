@@ -157,7 +157,10 @@ export class MapLayer implements RenderLayer {
       const cy = (startY + endY) / 2;
       const dx = endX - startX;
       const dy = endY - startY;
-      const len = MathUtils.getDistance({ x: startX, y: startY }, { x: endX, y: endY });
+      const len = MathUtils.getDistance(
+        { x: startX, y: startY },
+        { x: endX, y: endY },
+      );
       const ux = dx / len;
       const uy = dy / len;
 

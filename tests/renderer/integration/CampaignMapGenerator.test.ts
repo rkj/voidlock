@@ -2,9 +2,7 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import {
-  MapGeneratorType,
-} from "@src/shared/types";
+import { MapGeneratorType } from "@src/shared/types";
 
 // Mock dependencies before importing main.ts
 vi.mock("@package.json", () => ({

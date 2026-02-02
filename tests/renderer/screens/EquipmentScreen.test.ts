@@ -1,9 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { EquipmentScreen } from "@src/renderer/screens/EquipmentScreen";
-import {
-  SquadConfig,
-} from "@src/shared/types";
+import { SquadConfig } from "@src/shared/types";
 
 describe("EquipmentScreen", () => {
   let container: HTMLElement;
@@ -251,7 +249,9 @@ describe("EquipmentScreen", () => {
     const soldierNames = Array.from(container.querySelectorAll("div")).map(
       (el) => el.textContent?.trim(),
     );
-    expect(soldierNames.some((name) => name?.includes("Captain Kirk"))).toBe(true);
+    expect(soldierNames.some((name) => name?.includes("Captain Kirk"))).toBe(
+      true,
+    );
     // Should also show class
     expect(soldierNames.some((name) => name?.includes("Assault"))).toBe(true);
   });

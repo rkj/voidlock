@@ -145,7 +145,12 @@ export type TileReference = {
 export type TileAssembly = {
   tiles: TileReference[];
   tileDoors?: { tileIndex: number; socketIndex: number; id: string }[];
-  doors?: { tileIndex: number; cellIndex: number; edge: Direction; id: string }[];
+  doors?: {
+    tileIndex: number;
+    cellIndex: number;
+    edge: Direction;
+    id: string;
+  }[];
   globalDoors?: {
     cell: Vector2;
     orientation: "Horizontal" | "Vertical";

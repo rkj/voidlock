@@ -245,10 +245,10 @@ The UI must be optimized for visibility and information density, utilizing the f
       - **Squad Selection Screen**: Replacing the text-based stats.
       - **Equipment Screen**: Replacing the mixed stat panel.
         - **Soldier Card:** Optimized for 56px height.
-          - **Soldier Info**: HP bar, Name, Status. 
+          - **Soldier Info**: HP bar, Name, Status.
           - **Tactical Number**: Displayed ONLY during active missions to correlate with the map. This number is mission-specific based on deployment order and MUST NOT appear in the Barracks, Equipment Screen, or Debrief Screen.
         - **Stat Visualization**:
-     All labels (SPD, ACC, DMG, FR, ASP, Range) **MUST** be replaced with graphical icons to save space and improve scannability.
+          All labels (SPD, ACC, DMG, FR, ASP, Range) **MUST** be replaced with graphical icons to save space and improve scannability.
       - **Speed (SPD)**: MUST display the raw `speed` stat (e.g., "25"), NOT the derived tiles-per-second value.
     - **Tooltips**: Every stat icon must include a standard HTML `title` attribute providing the full name of the stat (e.g., `title="Attack Speed"`).
     - **Equipped Weapons**:
@@ -260,6 +260,7 @@ The UI must be optimized for visibility and information density, utilizing the f
 - **Main Simulation Area:** Flex container containing the Game Canvas. Centered. Overlay numbers appear on the canvas during target/unit selection.
 
 ### 8.4.1 Debrief Screen (Post-Mission)
+
 - **Layout**: Split-pane layout (approx. 40/60 split).
 - **Left Pane (Information)**:
   - **Mission Statistics**: Tally of kills, time, and scrap.
@@ -272,6 +273,7 @@ The UI must be optimized for visibility and information density, utilizing the f
 - **Visibility**: Automatically shown after mission completion.
 
 ### 8.4.2 Asset Visual Scale
+
 - **Rule**: Game world sprites (Soldiers, Enemies, Objects) must be scaled to approximately **30%** of their raw asset size (approx. 38-40px on a 128px grid) to maintain tactical clarity and avoid overlapping with walls.
 - **Consistency**: UI icons and tactical overlays must follow a consistent visual scale to ensure information density.
 

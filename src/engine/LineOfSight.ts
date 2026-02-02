@@ -33,7 +33,10 @@ export class LineOfSight {
         // Check distance to cell center
         const cellCenterX = x + 0.5;
         const cellCenterY = y + 0.5;
-        const distSq = MathUtils.getDistanceSquared(origin, { x: cellCenterX, y: cellCenterY });
+        const distSq = MathUtils.getDistanceSquared(origin, {
+          x: cellCenterX,
+          y: cellCenterY,
+        });
 
         if (distSq <= actualRange * actualRange) {
           if (this.hasLineOfSight(origin, { x: cellCenterX, y: cellCenterY })) {
@@ -72,7 +75,10 @@ export class LineOfSight {
       for (let x = minX; x <= maxX; x++) {
         const cellCenterX = x + 0.5;
         const cellCenterY = y + 0.5;
-        const distSq = MathUtils.getDistanceSquared(origin, { x: cellCenterX, y: cellCenterY });
+        const distSq = MathUtils.getDistanceSquared(origin, {
+          x: cellCenterX,
+          y: cellCenterY,
+        });
 
         if (distSq <= actualRange * actualRange) {
           if (this.hasLineOfSight(origin, { x: cellCenterX, y: cellCenterY })) {

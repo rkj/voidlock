@@ -1,14 +1,43 @@
 import { PRNG } from "../PRNG";
 
 export const FIRST_NAMES = [
-  "Kyle", "Ellen", "Dwayne", "Jenette", "Ricco", "Mark", "Tim", "Cynthia",
-  "Colette", "Daniel", "Trevor", "William", "Leonard", "Sarah", "Michael"
+  "Kyle",
+  "Ellen",
+  "Dwayne",
+  "Jenette",
+  "Ricco",
+  "Mark",
+  "Tim",
+  "Cynthia",
+  "Colette",
+  "Daniel",
+  "Trevor",
+  "William",
+  "Leonard",
+  "Sarah",
+  "Michael",
 ];
 
 export const LAST_NAMES = [
-  "Hicks", "Vasquez", "Ripley", "Apone", "Hudson", "Drake", "Frost",
-  "Ferro", "Spunkmeyer", "Dietrich", "Crowe", "Wierzbowski", "Gorman",
-  "Bishop", "Burke", "Newt", "Connor", "Reese", "Sarah"
+  "Hicks",
+  "Vasquez",
+  "Ripley",
+  "Apone",
+  "Hudson",
+  "Drake",
+  "Frost",
+  "Ferro",
+  "Spunkmeyer",
+  "Dietrich",
+  "Crowe",
+  "Wierzbowski",
+  "Gorman",
+  "Bishop",
+  "Burke",
+  "Newt",
+  "Connor",
+  "Reese",
+  "Sarah",
 ];
 
 /**

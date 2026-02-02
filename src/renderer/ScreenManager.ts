@@ -51,7 +51,11 @@ export class ScreenManager {
     }
   }
 
-  public show(id: ScreenId, updateHash: boolean = true, isCampaign: boolean = false) {
+  public show(
+    id: ScreenId,
+    updateHash: boolean = true,
+    isCampaign: boolean = false,
+  ) {
     if (this.currentScreen === id) {
       // Even if it's the same screen, ensure hash is in sync
       if (updateHash && window.location.hash !== `#${id}`) {
@@ -79,7 +83,10 @@ export class ScreenManager {
 
     // Push to history if we are navigating deeper (not back to menu necessarily, but let's keep it simple)
     if (id !== "main-menu") {
-      this.history.push({ id: this.currentScreen, isCampaign: this.currentIsCampaign });
+      this.history.push({
+        id: this.currentScreen,
+        isCampaign: this.currentIsCampaign,
+      });
     } else {
       this.history = []; // Reset history on returning to menu
     }
@@ -101,12 +108,13 @@ export class ScreenManager {
   }
 
   private syncWithUrl() {
-    const hash = (window.location.hash.replace(/^#\/?/, "") || "main-menu") as ScreenId;
+    const hash = (window.location.hash.replace(/^#\/?/, "") ||
+      "main-menu") as ScreenId;
     if (this.isValidScreenId(hash) && hash !== this.currentScreen) {
       // Validate transition if it's not a direct navigation (like back button)
       // Actually, for back button/direct URL we might want to bypass validation or handle it gracefully
       // For now, let's use a "forceShow" like approach but with validation logging
-      
+
       const validNext = VALID_TRANSITIONS[this.currentScreen];
       if (validNext && validNext.includes(hash)) {
         this.show(hash, false, this.isCampaignMode(hash));
@@ -114,7 +122,9 @@ export class ScreenManager {
           this.onExternalChange(hash);
         }
       } else {
-        console.warn(`External navigation to ${hash} is not a standard transition from ${this.currentScreen}`);
+        console.warn(
+          `External navigation to ${hash} is not a standard transition from ${this.currentScreen}`,
+        );
         // Still show it because user explicitly changed URL or pressed back
         this.forceShow(hash, this.isCampaignMode(hash));
         if (this.onExternalChange) {
@@ -171,7 +181,10 @@ export class ScreenManager {
     return this.currentScreen;
   }
 
-  public loadPersistedState(): { screenId: ScreenId; isCampaign: boolean } | null {
+  public loadPersistedState(): {
+    screenId: ScreenId;
+    isCampaign: boolean;
+  } | null {
     const hash = window.location.hash.replace(/^#\/?/, "") as ScreenId;
     if (this.isValidScreenId(hash)) {
       const isCampaign = this.isCampaignMode(hash);

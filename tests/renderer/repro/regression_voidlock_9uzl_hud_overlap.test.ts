@@ -49,9 +49,15 @@ describe("Regression voidlock-9uzl: HUD visibility on mission end", () => {
     const mockStorage: Record<string, string> = {};
     global.localStorage = {
       getItem: vi.fn((key) => mockStorage[key] || null),
-      setItem: vi.fn((key, value) => { mockStorage[key] = value; }),
-      removeItem: vi.fn((key) => { delete mockStorage[key]; }),
-      clear: vi.fn(() => { for (const key in mockStorage) delete mockStorage[key]; }),
+      setItem: vi.fn((key, value) => {
+        mockStorage[key] = value;
+      }),
+      removeItem: vi.fn((key) => {
+        delete mockStorage[key];
+      }),
+      clear: vi.fn(() => {
+        for (const key in mockStorage) delete mockStorage[key];
+      }),
       length: 0,
       key: vi.fn(),
     };
@@ -63,11 +69,13 @@ describe("Regression voidlock-9uzl: HUD visibility on mission end", () => {
   it("should hide HUD elements when debrief screen is shown", () => {
     // Access private properties for testing
     const appAny = app as any;
-    
+
     // Simulate mission launch to setup coordination
     appAny.setMissionHUDVisible(true);
     expect(document.getElementById("top-bar")?.style.display).toBe("flex");
-    expect(document.getElementById("soldier-panel")?.style.display).toBe("flex");
+    expect(document.getElementById("soldier-panel")?.style.display).toBe(
+      "flex",
+    );
     expect(document.getElementById("right-panel")?.style.display).toBe("flex");
 
     // Simulate mission end report
@@ -78,7 +86,7 @@ describe("Regression voidlock-9uzl: HUD visibility on mission end", () => {
       scrapGained: 100,
       intelGained: 5,
       timeSpent: 120000,
-      soldierResults: []
+      soldierResults: [],
     };
 
     // Trigger debrief via the coordinator's callback logic or direct call
@@ -86,8 +94,12 @@ describe("Regression voidlock-9uzl: HUD visibility on mission end", () => {
     appAny.debriefScreen.show(mockReport);
 
     expect(document.getElementById("top-bar")?.style.display).toBe("none");
-    expect(document.getElementById("soldier-panel")?.style.display).toBe("none");
+    expect(document.getElementById("soldier-panel")?.style.display).toBe(
+      "none",
+    );
     expect(document.getElementById("right-panel")?.style.display).toBe("none");
-    expect(document.getElementById("screen-debrief")?.style.display).toBe("flex");
+    expect(document.getElementById("screen-debrief")?.style.display).toBe(
+      "flex",
+    );
   });
 });

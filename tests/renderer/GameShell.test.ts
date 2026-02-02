@@ -28,13 +28,17 @@ describe("GameShell", () => {
 
   it("should throw an error when a required element is missing", () => {
     document.getElementById("header-title")?.remove();
-    expect(() => new GameShell()).toThrow("Required DOM element not found: #header-title");
+    expect(() => new GameShell()).toThrow(
+      "Required DOM element not found: #header-title",
+    );
   });
 
   it("should correctly update title", () => {
     const shell = new GameShell();
     shell.updateConfig({ title: "Test Title" });
-    expect(document.getElementById("header-title")?.textContent).toBe("Test Title");
+    expect(document.getElementById("header-title")?.textContent).toBe(
+      "Test Title",
+    );
   });
 
   it("should clear content", () => {

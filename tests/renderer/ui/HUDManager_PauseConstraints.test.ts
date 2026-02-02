@@ -39,7 +39,8 @@ describe("HUDManager: Pause Constraints", () => {
     visibleCells: [],
     discoveredCells: [],
     loot: [],
-    mines: [], turrets: [],
+    mines: [],
+    turrets: [],
     objectives: [],
   };
 

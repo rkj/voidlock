@@ -1,6 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { MenuController } from "@src/renderer/MenuController";
-import { GameState, CommandType, UnitState, MissionType } from "@src/shared/types";
+import {
+  GameState,
+  CommandType,
+  UnitState,
+  MissionType,
+} from "@src/shared/types";
 
 describe("MenuController Repro voidlock-dibl", () => {
   let menuController: MenuController;
@@ -17,14 +22,37 @@ describe("MenuController Repro voidlock-dibl", () => {
       seed: 123,
       status: "Playing",
       units: [
-        { id: "unit1", pos: { x: 1, y: 1 }, hp: 10, maxHp: 10, stats: { speed: 100, soldierAim: 50 }, state: UnitState.Idle, commandQueue: [] },
-        { id: "unit2", pos: { x: 2, y: 2 }, hp: 10, maxHp: 10, stats: { speed: 100, soldierAim: 50 }, state: UnitState.Idle, commandQueue: [] },
+        {
+          id: "unit1",
+          pos: { x: 1, y: 1 },
+          hp: 10,
+          maxHp: 10,
+          stats: { speed: 100, soldierAim: 50 },
+          state: UnitState.Idle,
+          commandQueue: [],
+        },
+        {
+          id: "unit2",
+          pos: { x: 2, y: 2 },
+          hp: 10,
+          maxHp: 10,
+          stats: { speed: 100, soldierAim: 50 },
+          state: UnitState.Idle,
+          commandQueue: [],
+        },
       ],
       enemies: [],
       map: { width: 10, height: 10, cells: [] },
       squadInventory: {},
       stats: { aliensKilled: 0, casualties: 0 },
-      settings: { isPaused: false, timeScale: 1, allowTacticalPause: true, debugOverlayEnabled: false, losOverlayEnabled: false, agentControlEnabled: true },
+      settings: {
+        isPaused: false,
+        timeScale: 1,
+        allowTacticalPause: true,
+        debugOverlayEnabled: false,
+        losOverlayEnabled: false,
+        agentControlEnabled: true,
+      },
       objectives: [],
       missionType: MissionType.Default,
       visibleCells: [],
@@ -34,7 +62,7 @@ describe("MenuController Repro voidlock-dibl", () => {
     // Start a MOVE_TO flow
     menuController.handleMenuInput("1", gameState); // Orders
     menuController.handleMenuInput("1", gameState); // Move to Room
-    
+
     expect(menuController.menuState).toBe("TARGET_SELECT");
     expect(menuController.pendingAction).toBe(CommandType.MOVE_TO);
 
@@ -52,13 +80,28 @@ describe("MenuController Repro voidlock-dibl", () => {
       seed: 123,
       status: "Playing",
       units: [
-        { id: "unit1", pos: { x: 1, y: 1 }, hp: 10, maxHp: 10, stats: { speed: 100, soldierAim: 50 }, state: UnitState.Idle, commandQueue: [] },
+        {
+          id: "unit1",
+          pos: { x: 1, y: 1 },
+          hp: 10,
+          maxHp: 10,
+          stats: { speed: 100, soldierAim: 50 },
+          state: UnitState.Idle,
+          commandQueue: [],
+        },
       ],
       enemies: [],
       map: { width: 10, height: 10, cells: [] },
-      squadInventory: { "medkit": 1 },
+      squadInventory: { medkit: 1 },
       stats: { aliensKilled: 0, casualties: 0 },
-      settings: { isPaused: false, timeScale: 1, allowTacticalPause: true, debugOverlayEnabled: false, losOverlayEnabled: false, agentControlEnabled: true },
+      settings: {
+        isPaused: false,
+        timeScale: 1,
+        allowTacticalPause: true,
+        debugOverlayEnabled: false,
+        losOverlayEnabled: false,
+        agentControlEnabled: true,
+      },
       objectives: [],
       missionType: MissionType.Default,
       visibleCells: [],
@@ -88,13 +131,28 @@ describe("MenuController Repro voidlock-dibl", () => {
       seed: 123,
       status: "Playing",
       units: [
-        { id: "unit1", pos: { x: 1, y: 1 }, hp: 10, maxHp: 10, stats: { speed: 100, soldierAim: 50 }, state: UnitState.Idle, commandQueue: [] },
+        {
+          id: "unit1",
+          pos: { x: 1, y: 1 },
+          hp: 10,
+          maxHp: 10,
+          stats: { speed: 100, soldierAim: 50 },
+          state: UnitState.Idle,
+          commandQueue: [],
+        },
       ],
       enemies: [],
       map: { width: 10, height: 10, cells: [] },
       squadInventory: {},
       stats: { aliensKilled: 0, casualties: 0 },
-      settings: { isPaused: false, timeScale: 1, allowTacticalPause: true, debugOverlayEnabled: false, losOverlayEnabled: false, agentControlEnabled: true },
+      settings: {
+        isPaused: false,
+        timeScale: 1,
+        allowTacticalPause: true,
+        debugOverlayEnabled: false,
+        losOverlayEnabled: false,
+        agentControlEnabled: true,
+      },
       objectives: [],
       missionType: MissionType.Default,
       visibleCells: [],

@@ -53,7 +53,8 @@ describe("Regression voidlock-ilv8 - Landmine Flow", () => {
       discoveredCells: ["5,5", "8,8", "9,8"],
       objectives: [],
       loot: [],
-      mines: [], turrets: [],
+      mines: [],
+      turrets: [],
       stats: {
         threatLevel: 0,
         aliensKilled: 0,

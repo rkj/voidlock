@@ -1,13 +1,12 @@
-
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 const files = [
-  'tests/data/goldens/2026-01-08_6x6-dense-bad.json',
-  'tests/data/goldens/2026-01-13-7x7_item_in_corridor.json',
-  'tests/data/goldens/2026-01-17_line_of_sight.json',
-  'tests/data/weird_fight.json',
-  'debug_files/broken_map.json'
+  "tests/data/goldens/2026-01-08_6x6-dense-bad.json",
+  "tests/data/goldens/2026-01-13-7x7_item_in_corridor.json",
+  "tests/data/goldens/2026-01-17_line_of_sight.json",
+  "tests/data/weird_fight.json",
+  "debug_files/broken_map.json",
 ];
 
 const replacements = [
@@ -22,22 +21,22 @@ const replacements = [
   // Boss is skipped as discussed (ambiguous with CampaignNode)
 ];
 
-files.forEach(file => {
+files.forEach((file) => {
   const filePath = path.resolve(process.cwd(), file);
   if (!fs.existsSync(filePath)) {
     console.log(`Skipping ${file} (not found)`);
     return;
   }
-  
-  let content = fs.readFileSync(filePath, 'utf8');
+
+  let content = fs.readFileSync(filePath, "utf8");
   let original = content;
-  
-  replacements.forEach(rep => {
+
+  replacements.forEach((rep) => {
     // Global replace
-    const regex = new RegExp(rep.old, 'g');
+    const regex = new RegExp(rep.old, "g");
     content = content.replace(regex, rep.new);
   });
-  
+
   if (content !== original) {
     fs.writeFileSync(filePath, content);
     console.log(`Updated ${file}`);

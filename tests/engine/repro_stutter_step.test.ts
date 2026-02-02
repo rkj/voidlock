@@ -61,24 +61,24 @@ describe("Stutter Step Repro", () => {
   it("unit should stop and stay stopped while attacking", () => {
     // Enemy at distance 5 (well within range 10)
     engine.addEnemy({
-        id: "e1",
-        type: EnemyType.XenoMite,
-        pos: { x: 5.5, y: 0.5 },
-        hp: 1000,
-        maxHp: 1000,
-        damage: 1,
-        fireRate: 1000,
-        accuracy: 1000,
-        attackRange: 2,
-        speed: 0,
-        difficulty: 1,
+      id: "e1",
+      type: EnemyType.XenoMite,
+      pos: { x: 5.5, y: 0.5 },
+      hp: 1000,
+      maxHp: 1000,
+      damage: 1,
+      fireRate: 1000,
+      accuracy: 1000,
+      attackRange: 2,
+      speed: 0,
+      difficulty: 1,
     });
-    
+
     // Give MOVE command past the enemy
     engine.applyCommand({
-        type: CommandType.MOVE_TO,
-        unitIds: ["u1"],
-        target: { x: 15, y: 0 },
+      type: CommandType.MOVE_TO,
+      unitIds: ["u1"],
+      target: { x: 15, y: 0 },
     });
 
     // Update 1: Unit fires (Tick 0)
@@ -92,7 +92,7 @@ describe("Stutter Step Repro", () => {
     engine.update(100);
     state = engine.getState();
     u1 = state.units[0];
-    
+
     // If it stutter steps, it will have moved here because isAttacking will be false
     expect(u1.pos.x).toBe(posAfterFirstShot.x);
     expect(u1.state).toBe(UnitState.Attacking);

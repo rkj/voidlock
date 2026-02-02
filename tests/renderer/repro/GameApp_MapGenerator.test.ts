@@ -150,7 +150,9 @@ describe("GameApp Map Generator Selection Repro", () => {
   });
 
   it("should call ConfigManager.saveCustom when map generator type changes", () => {
-    const mapGenSelect = document.getElementById("map-generator-type") as HTMLSelectElement;
+    const mapGenSelect = document.getElementById(
+      "map-generator-type",
+    ) as HTMLSelectElement;
     expect(mapGenSelect).toBeTruthy();
 
     // Verify it adds the missing options as per GameApp.ts
@@ -164,7 +166,7 @@ describe("GameApp Map Generator Selection Repro", () => {
     // Verify ConfigManager.saveCustom was called
     // (This is expected to fail currently as there's no listener)
     expect(ConfigManager.saveCustom).toHaveBeenCalled();
-    
+
     // Check if the saved config has the correct generator type
     const lastCall = vi.mocked(ConfigManager.saveCustom).mock.calls[0][0];
     expect(lastCall.mapGeneratorType).toBe(MapGeneratorType.TreeShip);
