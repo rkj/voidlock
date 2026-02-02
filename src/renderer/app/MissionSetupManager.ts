@@ -137,6 +137,9 @@ export class MissionSetupManager {
     const themeSelect = document.getElementById(
       "map-theme",
     ) as HTMLSelectElement;
+    const styleSelect = document.getElementById(
+      "select-unit-style",
+    ) as HTMLSelectElement;
 
     if (wInput && hInput) {
       this.currentMapWidth = parseInt(wInput.value) || 10;
@@ -144,6 +147,7 @@ export class MissionSetupManager {
     }
     if (spInput) this.currentSpawnPointCount = parseInt(spInput.value) || 1;
     if (themeSelect) this.currentThemeId = themeSelect.value;
+    if (styleSelect) this.unitStyle = styleSelect.value as UnitStyle;
 
     let baseEnemyCount = 3;
     if (baseEnemiesInput)
@@ -160,9 +164,6 @@ export class MissionSetupManager {
         this.currentMapGeneratorType = campaignState.rules.mapGeneratorType;
         baseEnemyCount = campaignState.rules.baseEnemyCount;
         enemyGrowthPerMission = campaignState.rules.enemyGrowthPerMission;
-        if (campaignState.rules.unitStyle) {
-          this.unitStyle = campaignState.rules.unitStyle;
-        }
       }
     }
 
@@ -269,7 +270,7 @@ export class MissionSetupManager {
     if (isCampaign) {
       const state = this.context.campaignManager.getState();
       if (state) {
-        if (state.rules.unitStyle) {
+        if (!config && state.rules.unitStyle) {
           this.unitStyle = state.rules.unitStyle;
           const styleSelect = document.getElementById(
             "select-unit-style",
