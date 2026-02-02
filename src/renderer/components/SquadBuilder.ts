@@ -365,8 +365,16 @@ export class SquadBuilder {
         } else if (vipInSquad) {
           slot.classList.add("occupied");
           slot.classList.add("vip-slot");
-          slot.innerHTML = `<strong style="color:var(--color-accent);">VIP</strong><div class="slot-remove" title="Remove">X</div>`;
-          slot.querySelector(".slot-remove")?.addEventListener("click", (e) => {
+          
+          const card = SoldierWidget.render(vipInSquad, {
+            context: "squad-builder",
+          });
+          
+          const removeBtn = document.createElement("div");
+          removeBtn.className = "slot-remove";
+          removeBtn.title = "Remove";
+          removeBtn.textContent = "X";
+          removeBtn.addEventListener("click", (e) => {
             e.stopPropagation();
             const idx = this.squad.soldiers.findIndex(
               (s) => s.archetypeId === "vip",
@@ -375,6 +383,8 @@ export class SquadBuilder {
             this.onSquadUpdated(this.squad);
             updateCount();
           });
+          card.appendChild(removeBtn);
+          slot.appendChild(card);
           return slot;
         }
       }
@@ -392,22 +402,24 @@ export class SquadBuilder {
 
       if (soldier) {
         slot.classList.add("occupied");
-        const arch = ArchetypeLibrary[soldier.archetypeId];
-        let name = soldier.name || arch?.name || soldier.archetypeId;
-        if (this.isCampaign && soldier.id) {
-          const state = this.context.campaignManager.getState();
-          const rs = state?.roster.find((r) => r.id === soldier.id);
-          if (rs) name = rs.name;
-        }
-        slot.innerHTML = `<strong style="color:var(--color-primary);">${name}</strong><div class="slot-remove" title="Remove">X</div>`;
-        slot.querySelector(".slot-remove")?.addEventListener("click", (e) => {
+        const card = SoldierWidget.render(soldier, {
+          context: "squad-builder",
+        });
+
+        const removeBtn = document.createElement("div");
+        removeBtn.className = "slot-remove";
+        removeBtn.title = "Remove";
+        removeBtn.textContent = "X";
+        removeBtn.addEventListener("click", (e) => {
           e.stopPropagation();
-          // Find actual index in this.squad.soldiers
           const actualIdx = this.squad.soldiers.indexOf(soldier);
           if (actualIdx !== -1) this.squad.soldiers.splice(actualIdx, 1);
           this.onSquadUpdated(this.squad);
           updateCount();
         });
+        card.appendChild(removeBtn);
+        slot.appendChild(card);
+
         slot.addEventListener("dblclick", () => {
           const actualIdx = this.squad.soldiers.indexOf(soldier);
           if (actualIdx !== -1) this.squad.soldiers.splice(actualIdx, 1);

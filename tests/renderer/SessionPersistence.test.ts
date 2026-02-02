@@ -30,7 +30,7 @@ describe("Session Persistence", () => {
   it("SessionManager should save and load state", () => {
     const sessionManager = new SessionManager();
     sessionManager.saveState("campaign");
-    expect(sessionManager.loadState()).toBe("campaign");
+    expect(sessionManager.loadState()?.screenId).toBe("campaign");
 
     sessionManager.clearState();
     expect(sessionManager.loadState()).toBeNull();
@@ -41,7 +41,7 @@ describe("Session Persistence", () => {
     sm.show("campaign");
 
     const sessionManager = new SessionManager();
-    expect(sessionManager.loadState()).toBe("campaign");
+    expect(sessionManager.loadState()?.screenId).toBe("campaign");
   });
 
   it("ScreenManager should restore state via loadPersistedState()", () => {
@@ -51,7 +51,7 @@ describe("Session Persistence", () => {
     const sm = new ScreenManager();
     const restored = sm.loadPersistedState();
 
-    expect(restored).toBe("barracks");
+    expect(restored?.screenId).toBe("barracks");
     expect(sm.getCurrentScreen()).toBe("barracks");
     expect(document.getElementById("screen-barracks")?.style.display).toBe(
       "flex",
