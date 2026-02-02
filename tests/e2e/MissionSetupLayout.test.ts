@@ -38,26 +38,30 @@ describe("Mission Setup Layout Verification", () => {
     });
 
     expect(cardStyles).not.toBeNull();
-    expect(cardStyles?.maxHeight).toBe("80px");
-    expect(cardStyles?.overflow).toBe("hidden");
-
-    // 4. Verify .roster-panel scrollability
-    const rosterStyles = await page.evaluate(() => {
-      const panel = document.querySelector(".roster-panel");
-      if (!panel) return null;
-      const style = window.getComputedStyle(panel);
+    expect(cardStyles?.maxHeight).toBe("none");
+    // overflow: hidden is still fine to contain content if needed, but height should be flexible
+    
+    // 4. Verify .squad-builder-container has flex: 1 or no fixed height
+    const containerStyles = await page.evaluate(() => {
+      const container = document.querySelector(".squad-builder-container");
+      if (!container) return null;
+      const style = window.getComputedStyle(container);
       return {
-        overflowY: style.overflowY,
+        display: style.display,
+        flex: style.flex,
         height: style.height
       };
     });
 
-    expect(rosterStyles).not.toBeNull();
-    expect(rosterStyles?.overflowY).toBe("auto");
+    expect(containerStyles).not.toBeNull();
+    expect(containerStyles?.display).toBe("flex");
+    // height should be large enough to show full height
+    const heightVal = parseInt(containerStyles?.height || "0");
+    expect(heightVal).toBeGreaterThan(400);
 
     // 5. Take a screenshot for visual confirmation
     await page.screenshot({
-      path: "tests/e2e/__snapshots__/mission_setup_layout_verification.png",
+      path: "mission_setup_verification.png",
     });
   });
 });
