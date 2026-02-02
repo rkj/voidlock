@@ -11,9 +11,7 @@ import {
   UnitState,
   MapGenerationConfig,
 } from "@src/shared/types";
-import {
-  calculateSpawnPoints,
-} from "@src/shared/campaign_types";
+import { calculateSpawnPoints } from "@src/shared/campaign_types";
 import { DebugUtility } from "@src/renderer/DebugUtility";
 import { TimeUtility } from "@src/renderer/TimeUtility";
 import { ModalService } from "@src/renderer/ui/ModalService";
@@ -134,26 +132,33 @@ export class GameApp {
       },
     );
 
-    this.debriefScreen = new DebriefScreen("screen-debrief", this.context.gameClient, () => {
-      this.debriefScreen.hide();
-      this.context.gameClient.stop();
+    this.debriefScreen = new DebriefScreen(
+      "screen-debrief",
+      this.context.gameClient,
+      () => {
+        this.debriefScreen.hide();
+        this.context.gameClient.stop();
 
-      const state = this.context.campaignManager.getState();
-      if (state && (state.status === "Victory" || state.status === "Defeat")) {
-        this.campaignSummaryScreen.show(state);
-        this.context.screenManager.show("campaign-summary");
-        return;
-      }
+        const state = this.context.campaignManager.getState();
+        if (
+          state &&
+          (state.status === "Victory" || state.status === "Defeat")
+        ) {
+          this.campaignSummaryScreen.show(state);
+          this.context.screenManager.show("campaign-summary");
+          return;
+        }
 
-      if (this.missionSetupManager.currentCampaignNode) {
-        this.campaignScreen.show();
-        this.context.screenManager.show("campaign");
-        this.context.campaignShell.show("campaign", "sector-map");
-      } else {
-        this.context.campaignShell.hide();
-        this.showMainMenu();
-      }
-    });
+        if (this.missionSetupManager.currentCampaignNode) {
+          this.campaignScreen.show();
+          this.context.screenManager.show("campaign");
+          this.context.campaignShell.show("campaign", "sector-map");
+        } else {
+          this.context.campaignShell.hide();
+          this.showMainMenu();
+        }
+      },
+    );
 
     this.barracksScreen = new BarracksScreen(
       "screen-barracks",
@@ -205,7 +210,13 @@ export class GameApp {
           this.context.campaignShell.show("campaign", "sector-map");
         else if (screen === "barracks")
           this.context.campaignShell.show("campaign", "barracks");
-        else if (screen === "mission-setup") this.context.campaignShell.hide();
+        else if (screen === "mission-setup") {
+          if (this.missionSetupManager.currentCampaignNode) {
+            this.context.campaignShell.show("campaign", "sector-map");
+          } else {
+            this.context.campaignShell.show("custom");
+          }
+        }
       },
       () => this.context.campaignShell.refresh(),
     );
@@ -234,7 +245,9 @@ export class GameApp {
       },
       onResetData: () => this.campaignFlowCoordinator.onResetData(),
       onShowEquipment: () => {
-        this.equipmentScreen.updateConfig(this.missionSetupManager.currentSquad);
+        this.equipmentScreen.updateConfig(
+          this.missionSetupManager.currentSquad,
+        );
         this.context.screenManager.show("equipment");
         if (this.missionSetupManager.currentCampaignNode) {
           this.context.campaignShell.show("campaign", "sector-map");
@@ -243,7 +256,8 @@ export class GameApp {
         }
       },
       onLoadStaticMap: (json) => this.missionSetupManager.loadStaticMap(json),
-      onUploadStaticMap: (file) => this.missionSetupManager.uploadStaticMap(file),
+      onUploadStaticMap: (file) =>
+        this.missionSetupManager.uploadStaticMap(file),
       onConvertAscii: (ascii) => this.missionSetupManager.convertAscii(ascii),
       onExportReplay: () => {
         const replay = this.context.gameClient.getReplayData();
@@ -279,7 +293,9 @@ export class GameApp {
       },
       onThemeChange: (themeId: string) => {
         this.missionSetupManager.currentThemeId = themeId;
-        this.context.themeManager.setTheme(this.missionSetupManager.currentThemeId);
+        this.context.themeManager.setTheme(
+          this.missionSetupManager.currentThemeId,
+        );
         this.missionSetupManager.saveCurrentConfig();
       },
       onMapGeneratorChange: (type: MapGeneratorType) => {
@@ -289,12 +305,17 @@ export class GameApp {
       },
       onMissionTypeChange: (type: MissionType) => {
         this.missionSetupManager.currentMissionType = type;
-        if (this.missionSetupManager.currentMissionType === MissionType.EscortVIP) {
-          this.missionSetupManager.currentSquad.soldiers = this.missionSetupManager.currentSquad.soldiers.filter(
-            (s) => s.archetypeId !== "vip",
-          );
+        if (
+          this.missionSetupManager.currentMissionType === MissionType.EscortVIP
+        ) {
+          this.missionSetupManager.currentSquad.soldiers =
+            this.missionSetupManager.currentSquad.soldiers.filter(
+              (s) => s.archetypeId !== "vip",
+            );
         }
-        this.missionSetupManager.renderSquadBuilder(this.missionSetupManager.currentCampaignNode !== null);
+        this.missionSetupManager.renderSquadBuilder(
+          this.missionSetupManager.currentCampaignNode !== null,
+        );
         this.missionSetupManager.saveCurrentConfig();
       },
       onToggleFog: (enabled: boolean) => {
@@ -321,13 +342,15 @@ export class GameApp {
         if (this.missionSetupManager.currentCampaignNode) return;
         this.missionSetupManager.currentMapWidth = width;
         this.missionSetupManager.currentMapHeight = _height;
-        this.missionSetupManager.currentSpawnPointCount = calculateSpawnPoints(width);
+        this.missionSetupManager.currentSpawnPointCount =
+          calculateSpawnPoints(width);
         const spInput = document.getElementById(
           "map-spawn-points",
         ) as HTMLInputElement;
         const spValue = document.getElementById("map-spawn-points-value");
         if (spInput) {
-          spInput.value = this.missionSetupManager.currentSpawnPointCount.toString();
+          spInput.value =
+            this.missionSetupManager.currentSpawnPointCount.toString();
           if (spValue) spValue.textContent = spInput.value;
         }
         this.missionSetupManager.saveCurrentConfig();
@@ -401,7 +424,9 @@ export class GameApp {
           this.context.campaignShell.show("custom");
         }
       } else if (persistedScreen === "equipment") {
-        this.equipmentScreen.updateConfig(this.missionSetupManager.currentSquad);
+        this.equipmentScreen.updateConfig(
+          this.missionSetupManager.currentSquad,
+        );
         if (this.missionSetupManager.currentCampaignNode) {
           this.context.campaignShell.show("campaign", "sector-map");
         } else {

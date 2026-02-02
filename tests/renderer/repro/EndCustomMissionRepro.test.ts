@@ -41,6 +41,8 @@ const mockGameClient = {
   onStateUpdate: vi.fn((cb) => {
     stateUpdateCallback = cb;
   }),
+  addStateUpdateListener: vi.fn(),
+  removeStateUpdateListener: vi.fn(),
   stop: vi.fn(),
   getReplayData: vi.fn().mockReturnValue({ seed: 123, commandLog: [] }),
   loadReplay: vi.fn(),
