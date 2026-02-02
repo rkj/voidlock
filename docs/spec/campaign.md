@@ -92,10 +92,7 @@ The game supports four difficulty presets defining failure consequences.
   - The player chooses **exactly one** node per Rank.
   - Upon clearing a node, the campaign advances to the next Rank.
   - All other nodes in the previous Rank become inaccessible (Skipped).
-- **Node Types:**
-  - **Combat (Standard):** 1 Objective. Standard Scrap.
-  - **Elite (Hard):** 2 Objectives (e.g., Recover + Destroy). **Double Scrap Reward**. Marked with a Skull icon.
-  - **Boss:** Final Rank. **3 Objectives**. Triple Scrap.
+- **Node Types:** See `docs/spec/mission.md` for objective counts and reward scaling for **Combat**, **Elite**, and **Boss** nodes.
 - **Non-Combat Nodes:**
   - **Supply Depot (Shop):**
     - **Interaction:** Opens a dedicated **Shop Screen** (Safe Haven).
@@ -109,10 +106,9 @@ The game supports four difficulty presets defining failure consequences.
       - **Distress Signal:** 'Rescue' (Chance for Free Recruit vs Ambush) vs 'Ignore'.
       - **Black Market:** 'Trade' (Scrap for Intel/Items) vs 'Leave'.
     - **Exit:** Choice selection advances Rank.
-- **Bonus Loot (Scrap Crates):**
-  - Each mission contains **0-3** optional Scrap Crates (approx. 20% of mission value each).
-  - **Intel (Map Visibility):**
-    - **Simulation/Clone:** The number of crates is visible on the Sector Map (e.g., via "⭐" pips).
+- **Bonus Loot (Intel):**
+  - **Map Visibility:**
+    - **Simulation/Clone:** The number of Scrap Crates (see `docs/spec/mission.md`) is visible on the Sector Map (e.g., via "⭐" pips).
     - **Standard/Ironman:** Crate count is hidden (Fog of War).
 
 ### 3.2 Economy (Scrap) & Modes
