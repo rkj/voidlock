@@ -3,7 +3,6 @@ import {
   MapGeneratorType,
   MissionType,
   SquadConfig,
-  UnitStyle,
   MapDefinition,
 } from "@src/shared/types";
 import { CampaignNode } from "@src/shared/campaign_types";
@@ -15,7 +14,6 @@ import { SquadBuilder } from "../components/SquadBuilder";
 import { UnitStyleSelector } from "../components/UnitStyleSelector";
 import { NameGenerator } from "@src/shared/utils/NameGenerator";
 import { ArchetypeLibrary } from "@src/shared/types/units";
-import { AssetManager } from "../visuals/AssetManager";
 
 export class MissionSetupManager {
   public fogOfWarEnabled = ConfigManager.getDefault().fogOfWarEnabled;
@@ -23,12 +21,12 @@ export class MissionSetupManager {
   public losOverlayEnabled = false;
   public agentControlEnabled = ConfigManager.getDefault().agentControlEnabled;
   public allowTacticalPause = true;
-  public unitStyle = ConfigManager.getDefault().unitStyle;
+  public unitStyle = ConfigManager.loadGlobal().unitStyle;
 
   public currentMapWidth = ConfigManager.getDefault().mapWidth;
   public currentMapHeight = ConfigManager.getDefault().mapHeight;
   public currentSeed: number = ConfigManager.getDefault().lastSeed;
-  public currentThemeId: string = ConfigManager.getDefault().themeId;
+  public currentThemeId: string = ConfigManager.loadGlobal().themeId;
   public currentMapGeneratorType: MapGeneratorType =
     ConfigManager.getDefault().mapGeneratorType;
   public currentMissionType: MissionType =
@@ -179,7 +177,7 @@ export class MissionSetupManager {
       }
     }
 
-    const config = {
+    const config: GameConfig = {
       mapWidth: this.currentMapWidth,
       mapHeight: this.currentMapHeight,
       spawnPointCount: this.currentSpawnPointCount,
@@ -188,11 +186,9 @@ export class MissionSetupManager {
       losOverlayEnabled: this.losOverlayEnabled,
       agentControlEnabled: this.agentControlEnabled,
       allowTacticalPause: this.allowTacticalPause,
-      unitStyle: this.unitStyle,
       mapGeneratorType: this.currentMapGeneratorType,
       missionType: this.currentMissionType,
       lastSeed: this.currentSeed,
-      themeId: this.currentThemeId,
       squadConfig: this.currentSquad,
       startingThreatLevel,
       baseEnemyCount,
@@ -201,13 +197,18 @@ export class MissionSetupManager {
       bonusLootCount: this.currentCampaignNode?.bonusLootCount || 0,
     };
 
+    const global = {
+      unitStyle: this.unitStyle,
+      themeId: this.currentThemeId,
+    };
+
     if (this.currentCampaignNode) {
-      ConfigManager.saveCampaign(config);
+      ConfigManager.saveCampaign(config, global);
     } else {
-      ConfigManager.saveCustom(config);
+      ConfigManager.saveCustom(config, global);
     }
 
-    return config;
+    return { ...config, ...global };
   }
 
   public loadAndApplyConfig(isCampaign: boolean = false) {
@@ -233,6 +234,10 @@ export class MissionSetupManager {
     if (mapConfigSection)
       mapConfigSection.style.display = isCampaign ? "none" : "block";
 
+    const global = ConfigManager.loadGlobal();
+    this.unitStyle = global.unitStyle;
+    this.currentThemeId = global.themeId;
+
     if (config) {
       this.currentMapWidth = config.mapWidth;
       this.currentMapHeight = config.mapHeight;
@@ -245,11 +250,9 @@ export class MissionSetupManager {
         config.allowTacticalPause !== undefined
           ? config.allowTacticalPause
           : true;
-      this.unitStyle = config.unitStyle || UnitStyle.TacticalIcons;
       this.currentMapGeneratorType = config.mapGeneratorType;
       this.currentMissionType = config.missionType || MissionType.Default;
       this.currentSeed = config.lastSeed;
-      this.currentThemeId = config.themeId || "default";
       this.currentSquad = config.squadConfig;
 
       this.updateSetupUIFromConfig(config);
@@ -263,29 +266,19 @@ export class MissionSetupManager {
       this.losOverlayEnabled = defaults.losOverlayEnabled;
       this.agentControlEnabled = defaults.agentControlEnabled;
       this.allowTacticalPause = defaults.allowTacticalPause;
-      this.unitStyle = defaults.unitStyle;
       this.currentMapGeneratorType = defaults.mapGeneratorType;
       this.currentMissionType = defaults.missionType;
       this.currentSeed = defaults.lastSeed;
-      this.currentThemeId = defaults.themeId;
       this.currentSquad = JSON.parse(JSON.stringify(defaults.squadConfig));
 
       this.updateSetupUIFromConfig(defaults);
     }
 
-    if (isCampaign) {
-      this.applyCampaignTheme();
-    } else {
-      this.context.themeManager.setTheme(this.currentThemeId);
-    }
+    this.context.themeManager.setTheme(this.currentThemeId);
 
     if (isCampaign) {
       const state = this.context.campaignManager.getState();
       if (state) {
-        if (!config && state.rules.unitStyle) {
-          this.unitStyle = state.rules.unitStyle;
-          this.unitStyleSelector.setStyle(this.unitStyle);
-        }
         if (state.rules.mapGeneratorType) {
           this.currentMapGeneratorType = state.rules.mapGeneratorType;
           const mapGenSelect = document.getElementById(
@@ -509,15 +502,6 @@ export class MissionSetupManager {
       await this.context.modalService.alert("ASCII Map Converted.");
     } catch (e) {
       await this.context.modalService.alert("Invalid ASCII.");
-    }
-  }
-
-  private applyCampaignTheme() {
-    const state = this.context.campaignManager.getState();
-    if (state && state.rules.themeId) {
-      this.context.themeManager.setTheme(state.rules.themeId);
-    } else {
-      this.context.themeManager.setTheme("default");
     }
   }
 }

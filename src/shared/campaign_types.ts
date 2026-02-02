@@ -1,9 +1,8 @@
 import {
+  MapGeneratorType,
+  MissionType,
   EquipmentState,
   Vector2,
-  MissionType,
-  UnitStyle,
-  MapGeneratorType,
 } from "./types";
 
 /**
@@ -23,7 +22,6 @@ export interface GameRules {
   difficulty: CampaignDifficulty;
   deathRule: "Iron" | "Clone" | "Simulation";
   allowTacticalPause: boolean;
-  unitStyle?: UnitStyle;
   mapGeneratorType: MapGeneratorType;
   difficultyScaling: number; // Multiplier for enemy density/stats
   resourceScarcity: number; // Multiplier for scrap rewards
@@ -32,7 +30,6 @@ export interface GameRules {
   baseEnemyCount: number; // NEW: Starting wave size
   enemyGrowthPerMission: number; // NEW: Wave size growth per rank
   economyMode: "Open" | "Limited";
-  themeId?: string;
   customSeed?: number;
 }
 
@@ -50,8 +47,6 @@ export interface CampaignOverrides {
   baseEnemyCount?: number;
   enemyGrowthPerMission?: number;
   economyMode?: "Open" | "Limited";
-  themeId?: string;
-  unitStyle?: UnitStyle;
   customSeed?: number;
 }
 

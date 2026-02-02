@@ -36,7 +36,6 @@ describe("ConfigManager Validation", () => {
     expect(config).not.toBeNull();
     expect(config!.mapWidth).toBe(10);
     expect(config!.mapHeight).toBe(defaults.mapHeight);
-    expect(config!.unitStyle).toBe(defaults.unitStyle);
     expect(config!.squadConfig).toEqual(defaults.squadConfig);
   });
 
@@ -54,7 +53,6 @@ describe("ConfigManager Validation", () => {
     const config = ConfigManager.loadCustom();
     const defaults = ConfigManager.getDefault();
 
-    expect(config!.unitStyle).toBe(defaults.unitStyle);
     expect(config!.mapGeneratorType).toBe(defaults.mapGeneratorType);
   });
 

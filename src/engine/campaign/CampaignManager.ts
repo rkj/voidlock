@@ -16,7 +16,6 @@ import { MetaManager } from "./MetaManager";
 import {
   ArchetypeLibrary,
   EquipmentState,
-  UnitStyle,
   MapGeneratorType,
 } from "../../shared/types";
 import { RosterManager } from "./RosterManager";
@@ -98,8 +97,6 @@ export class CampaignManager {
     seed: number,
     difficulty: string,
     overrides?: CampaignOverrides | boolean, // Support legacy boolean for allowTacticalPause
-    themeId?: string,
-    unitStyle?: UnitStyle,
     mapGeneratorType?: MapGeneratorType,
     mapGrowthRate?: number,
   ): void {
@@ -128,22 +125,15 @@ export class CampaignManager {
         rules.enemyGrowthPerMission = currentOverrides.enemyGrowthPerMission;
       if (currentOverrides.economyMode)
         rules.economyMode = currentOverrides.economyMode;
-      if (currentOverrides.themeId) rules.themeId = currentOverrides.themeId;
-      if (currentOverrides.unitStyle)
-        rules.unitStyle = currentOverrides.unitStyle;
       if (currentOverrides.customSeed !== undefined) {
         rules.customSeed = currentOverrides.customSeed;
       }
-    } else {
-      // Legacy argument mapping
-      if (typeof currentOverrides === "boolean") {
-        rules.allowTacticalPause = currentOverrides;
-      }
-      if (themeId) rules.themeId = themeId;
-      if (unitStyle) rules.unitStyle = unitStyle;
-      if (mapGeneratorType) rules.mapGeneratorType = mapGeneratorType;
-      if (mapGrowthRate !== undefined) rules.mapGrowthRate = mapGrowthRate;
+    } else if (typeof currentOverrides === "boolean") {
+      rules.allowTacticalPause = currentOverrides;
     }
+
+    if (mapGeneratorType) rules.mapGeneratorType = mapGeneratorType;
+    if (mapGrowthRate !== undefined) rules.mapGrowthRate = mapGrowthRate;
 
     const effectiveSeed = rules.customSeed ?? seed;
     const nodes = this.sectorMapGenerator.generate(effectiveSeed, rules);

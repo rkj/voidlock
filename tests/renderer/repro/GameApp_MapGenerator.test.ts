@@ -47,6 +47,8 @@ vi.mock("@src/renderer/ConfigManager", () => ({
   ConfigManager: {
     saveCustom: vi.fn(),
     saveCampaign: vi.fn(),
+    saveGlobal: vi.fn(),
+    loadGlobal: vi.fn().mockReturnValue({ unitStyle: "TacticalIcons", themeId: "default" }),
     loadCustom: vi.fn().mockReturnValue({
       mapWidth: 14,
       mapHeight: 14,
@@ -56,7 +58,6 @@ vi.mock("@src/renderer/ConfigManager", () => ({
       losOverlayEnabled: false,
       agentControlEnabled: true,
       allowTacticalPause: true,
-      unitStyle: "TacticalIcons",
       mapGeneratorType: "Procedural",
       missionType: "Default",
       lastSeed: 12345,
@@ -72,7 +73,6 @@ vi.mock("@src/renderer/ConfigManager", () => ({
       losOverlayEnabled: false,
       agentControlEnabled: true,
       allowTacticalPause: true,
-      unitStyle: "TacticalIcons",
       mapGeneratorType: "Procedural",
       missionType: "Default",
       lastSeed: 12345,

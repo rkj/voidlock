@@ -3,38 +3,55 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { CampaignScreen } from "@src/renderer/screens/CampaignScreen";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 
+// Mock MetaManager
+vi.mock("@src/engine/campaign/MetaManager", () => ({
+  MetaManager: {
+    getInstance: vi.fn().mockReturnValue({
+      getStats: vi.fn().mockReturnValue({
+        totalKills: 1000,
+        totalCampaignsStarted: 5,
+        totalMissionsWon: 3,
+      }),
+    }),
+  },
+}));
+
+// Mock ConfigManager
+vi.mock("@src/renderer/ConfigManager", () => ({
+  ConfigManager: {
+    getDefault: vi.fn(() => ({
+      allowTacticalPause: true,
+    })),
+    loadGlobal: vi.fn(() => ({
+      unitStyle: "TacticalIcons",
+      themeId: "default",
+    })),
+  },
+}));
+
 describe("CampaignScreen Difficulty Cards", () => {
   let container: HTMLElement;
-  let manager: CampaignManager;
   let onNodeSelect: any;
-  let onBarracks: any;
   let onBack: any;
   let mockModalService: any;
+  let manager: any;
 
   beforeEach(() => {
-    document.body.innerHTML = '<div id="screen-campaign"></div>';
-    container = document.getElementById("screen-campaign")!;
-
-    // Mock ResizeObserver
-    global.ResizeObserver = vi.fn().mockImplementation(() => ({
-      observe: vi.fn(),
-      unobserve: vi.fn(),
-      disconnect: vi.fn(),
-    }));
-
+    vi.clearAllMocks();
+    document.body.innerHTML = "";
+    const storage = {
+      load: vi.fn().mockReturnValue(null),
+      save: vi.fn(),
+      delete: vi.fn(),
+    } as any;
     CampaignManager.resetInstance();
-    manager = CampaignManager.getInstance(
-      new (class {
-        save() {}
-        load() {
-          return null;
-        }
-        remove() {}
-        clear() {}
-      })(),
-    );
+    manager = CampaignManager.getInstance(storage);
+
+    container = document.createElement("div");
+    container.id = "screen-campaign";
+    document.body.appendChild(container);
+
     onNodeSelect = vi.fn();
-    onBarracks = vi.fn();
     onBack = vi.fn();
     mockModalService = {
       alert: vi.fn().mockResolvedValue(undefined),
@@ -83,9 +100,16 @@ describe("CampaignScreen Difficulty Cards", () => {
     );
     screen.show();
 
+    // Show Advanced Settings
+    const buttons = container.querySelectorAll("button");
+    const advancedToggle = Array.from(buttons).find(b => b.textContent?.includes("Advanced Settings"));
+    expect(advancedToggle).toBeTruthy();
+    advancedToggle?.click();
+
     const pauseCheck = container.querySelector(
       "#campaign-tactical-pause",
     ) as HTMLInputElement;
+    expect(pauseCheck).toBeTruthy();
     expect(pauseCheck.checked).toBe(true);
     expect(pauseCheck.disabled).toBe(false);
 

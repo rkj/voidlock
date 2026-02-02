@@ -98,4 +98,8 @@ export class AssetManager {
     const logicalName = this.MISC_SPRITE_MAP[key];
     return logicalName ? this.unitSprites[logicalName] : null;
   }
+
+  public getIcon(key: string): HTMLImageElement | null {
+    return this.iconImages[key] || null;
+  }
 }

@@ -1,6 +1,6 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { MissionManager } from "@src/engine/managers/MissionManager";
-import { GameState, MissionType, UnitState, EnemyType } from "@src/shared/types";
+import { GameState, MissionType, UnitState } from "@src/shared/types";
 import { PRNG } from "@src/shared/PRNG";
 
 describe("MissionManager Expendable Win Logic", () => {

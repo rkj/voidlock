@@ -5,6 +5,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import { GameApp } from "@src/renderer/app/GameApp";
 import { ConfigManager } from "@src/renderer/ConfigManager";
 import { ThemeManager } from "@src/renderer/ThemeManager";
+import { UnitStyle } from "@src/shared/types";
 
 // Mock Worker
 global.Worker = vi.fn().mockImplementation(() => ({
@@ -123,14 +124,15 @@ describe("Theme Selector", () => {
     expect(document.body.classList.contains("theme-industrial")).toBe(true);
 
     // Check if it's saved in ConfigManager
-    const config = ConfigManager.loadCustom();
-    expect(config?.themeId).toBe("industrial");
+    const global = ConfigManager.loadGlobal();
+    expect(global.themeId).toBe("industrial");
   });
 
   it("should load persisted theme on initialization", async () => {
     // Persist industrial theme
     const defaults = ConfigManager.getDefault();
-    ConfigManager.saveCustom({ ...defaults, themeId: "hive" });
+    ConfigManager.saveGlobal({ unitStyle: UnitStyle.TacticalIcons, themeId: "hive" });
+    ConfigManager.saveCustom(defaults);
 
     // Re-initialize app
     const newApp = new GameApp();

@@ -48,8 +48,10 @@ vi.mock("@src/renderer/ConfigManager", () => {
       getDefault: vi.fn().mockReturnValue(defaults),
       loadCustom: vi.fn().mockReturnValue(null),
       loadCampaign: vi.fn().mockReturnValue(null),
+      loadGlobal: vi.fn().mockReturnValue({ unitStyle: "TacticalIcons", themeId: "default" }),
       saveCustom: vi.fn(),
       saveCampaign: vi.fn(),
+      saveGlobal: vi.fn(),
     },
   };
 });
@@ -136,19 +138,35 @@ describe("MissionSetupManager - Visual Style Visibility (regression_ii5f)", () =
     spriteCard.click();
     
     expect(manager.unitStyle).toBe("Sprites");
-    expect(ConfigManager.saveCampaign).toHaveBeenCalledWith(expect.objectContaining({
-      unitStyle: "Sprites"
-    }));
+    expect(ConfigManager.saveCampaign).toHaveBeenCalledWith(
+      expect.objectContaining({ mapWidth: 10 }),
+      expect.objectContaining({ unitStyle: "Sprites" })
+    );
   });
 
   it("should respect saved preference over campaign rule on reload", () => {
-    // Mock saved config having Sprites
+    // Mock saved config
     (ConfigManager.loadCampaign as any).mockReturnValue({
-      unitStyle: "Sprites",
       mapWidth: 10,
       mapHeight: 10,
       lastSeed: 12345,
       squadConfig: { soldiers: [], inventory: {} }
+    });
+
+    // Mock loadGlobal to return Sprites
+    (ConfigManager.loadGlobal as any).mockReturnValue({
+      unitStyle: "Sprites",
+      themeId: "default"
+    });
+
+    // Mock campaign rule having TacticalIcons
+    (context.campaignManager.getState as any).mockReturnValue({
+      rules: { 
+        difficulty: "Standard" 
+      },
+      roster: [],
+      history: [],
+      currentSector: 1,
     });
 
     manager.loadAndApplyConfig(true);

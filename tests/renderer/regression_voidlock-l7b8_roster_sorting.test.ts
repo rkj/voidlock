@@ -20,7 +20,6 @@ vi.mock("@src/renderer/ConfigManager", () => ({
       fogOfWarEnabled: true,
       debugOverlayOverlayEnabled: false,
       agentControlEnabled: false,
-      unitStyle: "Sprites",
       mapWidth: 14,
       mapHeight: 14,
       lastSeed: 12345,
@@ -31,6 +30,8 @@ vi.mock("@src/renderer/ConfigManager", () => ({
     })),
     loadCustom: vi.fn(),
     loadCampaign: vi.fn(),
+    loadGlobal: vi.fn().mockReturnValue({ unitStyle: "Sprites", themeId: "default" }),
+    saveGlobal: vi.fn(),
   },
 }));
 

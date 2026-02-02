@@ -1,18 +1,17 @@
-import { describe, it, expect, vi } from "vitest";
-import { MapGenerator } from "@src/engine/MapGenerator";
+import { describe, it, expect } from "vitest";
 import { Director } from "@src/engine/Director";
 import { PRNG } from "@src/shared/PRNG";
-import { MapGeneratorType, CellType, EnemyType } from "@src/shared/types";
+import { CellType, MapGeneratorType } from "@src/shared/types";
+import { MapFactory } from "@src/engine/map/MapFactory";
 
 describe("Regression voidlock-ew59: Point-Based Spawning", () => {
   it("should verify multiple distinct 1x1 squad spawn points", () => {
-    const generator = new MapGenerator({
+    const map = MapFactory.generate({
       seed: 12345,
       width: 16,
       height: 16,
       type: MapGeneratorType.DenseShip,
     });
-    const map = generator.generate();
 
     expect(map.squadSpawns).toBeDefined();
     expect(map.squadSpawns!.length).toBeGreaterThanOrEqual(2);
@@ -34,13 +33,12 @@ describe("Regression voidlock-ew59: Point-Based Spawning", () => {
   it("should verify pre-spawning logic (Rooms only, Point Budget, Safety Quadrant)", () => {
     const width = 16;
     const height = 16;
-    const generator = new MapGenerator({
+    const map = MapFactory.generate({
       seed: 12345,
       width,
       height,
       type: MapGeneratorType.DenseShip,
     });
-    const map = generator.generate();
 
     const prng = new PRNG(12345);
     const spawnedEnemies: any[] = [];
@@ -49,13 +47,10 @@ describe("Regression voidlock-ew59: Point-Based Spawning", () => {
     const startingPoints = 20; 
     
     const director = new Director(
-        map.spawnPoints || [],
+        map.spawnPoints!,
         prng,
         onSpawn,
         0, // startingThreatLevel
-        3, // baseEnemyCount
-        1, // enemyGrowthPerMission
-        0, // missionDepth
         map,
         startingPoints
     );

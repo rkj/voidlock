@@ -30,9 +30,6 @@ export class Director implements IDirector {
   private enemyIdCounter: number = 0;
   private prng: PRNG;
   private startingThreatLevel: number;
-  private baseEnemyCount: number;
-  private enemyGrowthPerMission: number;
-  private missionDepth: number;
   private map?: MapDefinition;
   private startingPoints: number;
 
@@ -41,9 +38,6 @@ export class Director implements IDirector {
     prng: PRNG,
     onSpawn: (enemy: Enemy) => void,
     startingThreatLevel: number = 0,
-    baseEnemyCount: number = 3,
-    enemyGrowthPerMission: number = 1,
-    missionDepth: number = 0,
     map?: MapDefinition,
     startingPoints: number = DIRECTOR.STARTING_POINTS,
   ) {
@@ -51,9 +45,6 @@ export class Director implements IDirector {
     this.prng = prng;
     this.onSpawn = onSpawn;
     this.startingThreatLevel = startingThreatLevel;
-    this.baseEnemyCount = baseEnemyCount;
-    this.enemyGrowthPerMission = enemyGrowthPerMission;
-    this.missionDepth = missionDepth;
     this.map = map;
     this.startingPoints = startingPoints;
 
