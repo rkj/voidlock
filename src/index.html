@@ -152,26 +152,7 @@
                 <h1>Mission Configuration</h1>
                 <div id="mission-setup-context" style="margin-bottom: 20px; color: var(--color-primary); font-weight: bold; letter-spacing: 1px;"></div>
                 <div id="setup-content">
-                  <div id="map-config-section" style="width: 100%">
-                    <div class="control-group">
-                      <label for="map-generator-type">Generator Type:</label>
-                      <select id="map-generator-type">
-                        <option value="DenseShip">Dense Ship</option>
-                        <option value="TreeShip">Tree Ship</option>
-                        <option value="Procedural">Procedural</option>
-                        <option value="Static">Static Map</option>
-                      </select>
-                    </div>
-
-                    <div class="control-group">
-                      <label for="map-theme">Environment Theme:</label>
-                      <select id="map-theme">
-                        <option value="default">Default (Voidlock Green)</option>
-                        <option value="industrial">Industrial (Amber)</option>
-                        <option value="hive">Xeno Hive (Purple)</option>
-                      </select>
-                    </div>
-
+                  <div id="common-config-section" style="width: 100%">
                     <div class="control-group">
                       <label for="select-unit-style">Visual Style:</label>
                       <select id="select-unit-style">
@@ -192,6 +173,27 @@
                           <span class="style-preview-label">Sprites</span>
                         </div>
                       </div>
+                    </div>
+                  </div>
+
+                  <div id="map-config-section" style="width: 100%">
+                    <div class="control-group">
+                      <label for="map-generator-type">Generator Type:</label>
+                      <select id="map-generator-type">
+                        <option value="DenseShip">Dense Ship</option>
+                        <option value="TreeShip">Tree Ship</option>
+                        <option value="Procedural">Procedural</option>
+                        <option value="Static">Static Map</option>
+                      </select>
+                    </div>
+
+                    <div class="control-group">
+                      <label for="map-theme">Environment Theme:</label>
+                      <select id="map-theme">
+                        <option value="default">Default (Voidlock Green)</option>
+                        <option value="industrial">Industrial (Amber)</option>
+                        <option value="hive">Xeno Hive (Purple)</option>
+                      </select>
                     </div>
 
                     <div class="control-group">
