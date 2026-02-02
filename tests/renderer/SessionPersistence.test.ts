@@ -8,6 +8,7 @@ import { SessionManager } from "../../src/renderer/SessionManager";
 describe("Session Persistence", () => {
   beforeEach(() => {
     localStorage.clear();
+    window.location.hash = "";
     document.body.innerHTML = `
       <div id="screen-main-menu" class="screen"></div>
       <div id="screen-campaign-shell" class="screen flex-col" style="display:none">
