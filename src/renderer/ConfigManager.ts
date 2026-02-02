@@ -213,7 +213,7 @@ export class ConfigManager {
       agentControlEnabled: true,
       allowTacticalPause: true,
       unitStyle: UnitStyle.TacticalIcons,
-      mapGeneratorType: MapGeneratorType.TreeShip,
+      mapGeneratorType: MapGeneratorType.DenseShip,
       missionType: MissionType.Default,
       lastSeed: Date.now(),
       themeId: "default",

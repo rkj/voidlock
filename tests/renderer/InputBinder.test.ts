@@ -15,6 +15,7 @@ describe("InputBinder", () => {
         <select id="map-generator-type">
           <option value="Procedural">Procedural</option>
           <option value="TreeShip">Tree Ship</option>
+          <option value="DenseShip">Dense Ship</option>
           <option value="Static">Static Map</option>
         </select>
         <select id="mission-type">
