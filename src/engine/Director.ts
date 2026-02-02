@@ -7,6 +7,8 @@ import {
   GameState,
   ItemLibrary,
   UseItemCommand,
+  MapDefinition,
+  CellType,
 } from "../shared/types";
 import { PRNG } from "../shared/PRNG";
 import { IDirector } from "./interfaces/IDirector";
@@ -31,6 +33,8 @@ export class Director implements IDirector {
   private baseEnemyCount: number;
   private enemyGrowthPerMission: number;
   private missionDepth: number;
+  private map?: MapDefinition;
+  private startingPoints: number;
 
   constructor(
     spawnPoints: SpawnPoint[],
@@ -40,6 +44,8 @@ export class Director implements IDirector {
     baseEnemyCount: number = 3,
     enemyGrowthPerMission: number = 1,
     missionDepth: number = 0,
+    map?: MapDefinition,
+    startingPoints: number = DIRECTOR.STARTING_POINTS,
   ) {
     this.spawnPoints = spawnPoints;
     this.prng = prng;
@@ -48,6 +54,8 @@ export class Director implements IDirector {
     this.baseEnemyCount = baseEnemyCount;
     this.enemyGrowthPerMission = enemyGrowthPerMission;
     this.missionDepth = missionDepth;
+    this.map = map;
+    this.startingPoints = startingPoints;
 
     // Initialize turn and time based on starting threat level
     // Threat = (turn + progress) * 10
@@ -58,6 +66,13 @@ export class Director implements IDirector {
   }
 
   public preSpawn() {
+    // 1. Spend Starting Points Budget (Pre-spawning at mission start)
+    // Placement: Rooms only, NOT in player quadrant.
+    if (this.startingPoints > 0 && this.map) {
+      this.preSpawnFromPoints();
+    }
+
+    // 2. Legacy pre-spawning based on starting threat (if any)
     // If starting threat is > 10%, enemies are pre-spawned and autonomously roaming.
     // Each turn represents 10% threat.
     // We spawn waves for each completed 10% threat.
@@ -74,6 +89,94 @@ export class Director implements IDirector {
         this.spawnWave();
       }
       this.turn = actualTurn;
+    }
+  }
+
+  private preSpawnFromPoints() {
+    if (!this.map) return;
+
+    const midX = this.map.width / 2;
+    const midY = this.map.height / 2;
+
+    const getQuadrant = (pos: Vector2) => {
+      if (pos.x < midX && pos.y < midY) return 0;
+      if (pos.x >= midX && pos.y < midY) return 1;
+      if (pos.x < midX && pos.y >= midY) return 2;
+      return 3;
+    };
+
+    const playerQuads = new Set<number>();
+    if (this.map.squadSpawn) playerQuads.add(getQuadrant(this.map.squadSpawn));
+    if (this.map.squadSpawns) {
+      this.map.squadSpawns.forEach((ss) => playerQuads.add(getQuadrant(ss)));
+    }
+
+    // Identify valid rooms (not in player quadrants, not corridors)
+    const validRoomCells = this.map.cells.filter((c) => {
+      if (c.type !== CellType.Floor || !c.roomId) return false;
+      if (c.roomId.startsWith("corridor-")) return false;
+      const q = getQuadrant(c);
+      return !playerQuads.has(q);
+    });
+
+    if (validRoomCells.length === 0) return;
+
+    let budget = this.startingPoints;
+    const archs = [
+      { type: EnemyType.PraetorianGuard, cost: DIRECTOR.DIFFICULTY_HARD },
+      { type: EnemyType.SpitterAcid, cost: DIRECTOR.DIFFICULTY_MEDIUM },
+      { type: EnemyType.WarriorDrone, cost: DIRECTOR.DIFFICULTY_MEDIUM },
+      { type: EnemyType.XenoMite, cost: DIRECTOR.DIFFICULTY_EASY },
+    ];
+
+    while (budget > 0) {
+      // Filter archetypes we can afford
+      const affordable = archs.filter((a) => a.cost <= budget);
+      if (affordable.length === 0) break;
+
+      // Simple selection: pick based on threat level 0 (easy-leaning)
+      const typeRoll = this.prng.next();
+      let selected;
+      if (typeRoll < 0.6) {
+        selected = affordable[affordable.length - 1]; // XenoMite
+      } else if (typeRoll < 0.9) {
+        selected = affordable.find(
+          (a) => a.cost === DIRECTOR.DIFFICULTY_MEDIUM,
+        );
+      } else {
+        selected = affordable.find((a) => a.cost === DIRECTOR.DIFFICULTY_HARD);
+      }
+
+      if (!selected) selected = affordable[this.prng.nextInt(0, affordable.length - 1)];
+
+      const cell =
+        validRoomCells[this.prng.nextInt(0, validRoomCells.length - 1)];
+      
+      const offsetX = this.prng.next() * 0.4 - 0.2;
+      const offsetY = this.prng.next() * 0.4 - 0.2;
+
+      const arch = EnemyArchetypeLibrary[selected.type];
+      const enemy: Enemy = {
+        id: `enemy-pre-${this.enemyIdCounter++}`,
+        pos: {
+          x: cell.x + 0.5 + offsetX,
+          y: cell.y + 0.5 + offsetY,
+        },
+        hp: arch.hp,
+        maxHp: arch.hp,
+        type: arch.type,
+        damage: arch.damage,
+        fireRate:
+          arch.fireRate *
+          (arch.speed > 0 ? SPEED_NORMALIZATION_CONST / arch.speed : 1),
+        accuracy: arch.accuracy,
+        attackRange: arch.attackRange,
+        speed: arch.speed,
+        difficulty: selected.cost,
+      };
+
+      this.onSpawn(enemy);
+      budget -= selected.cost;
     }
   }
 

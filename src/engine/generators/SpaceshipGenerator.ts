@@ -185,26 +185,30 @@ export class SpaceshipGenerator {
     }
 
     // 3. Pick Key Nodes
-    const squadNode = this.pickNodeInQuad(nodes, cols, rows, 0, 0);
-    // For Dual Entrances, pick a second squad node in the SAME quadrant
-    const squadNode2 = this.pickNodeInQuad(nodes, cols, rows, 0, 0, [
-      squadNode,
-    ]);
+    const squadNodes: Node[] = [];
+    const maxSquadSpawns = 2;
+    
+    // Pick first squad node
+    const squadNode1 = this.pickNodeInQuad(nodes, cols, rows, 0, 0);
+    squadNodes.push(squadNode1);
+    
+    // Pick additional squad nodes in the SAME quadrant
+    for (let i = 1; i < maxSquadSpawns; i++) {
+        const node = this.pickNodeInQuad(nodes, cols, rows, 0, 0, squadNodes);
+        if (node && !squadNodes.some(n => n.id === node.id)) {
+            squadNodes.push(node);
+        }
+    }
 
-    const extractionNode = this.pickNodeInQuad(nodes, cols, rows, 1, 1, [
-      squadNode,
-      squadNode2,
-    ]);
+    const extractionNode = this.pickNodeInQuad(nodes, cols, rows, 1, 1, squadNodes);
     const objectiveNode = this.pickNodeInQuad(nodes, cols, rows, 0, 1, [
-      squadNode,
-      squadNode2,
+      ...squadNodes,
       extractionNode,
     ]);
 
     const enemySpawnNodes: Node[] = [];
     const avoidForEnemy = [
-      squadNode,
-      squadNode2,
+      ...squadNodes,
       extractionNode,
       objectiveNode,
     ];
@@ -217,15 +221,14 @@ export class SpaceshipGenerator {
     }
 
     const keyNodeIds = new Set<number>([
-      squadNode.id,
-      squadNode2.id,
+      ...squadNodes.map(n => n.id),
       extractionNode.id,
       objectiveNode.id,
       ...enemySpawnNodes.map((n) => n.id),
     ]);
 
     // 4. Generate Spanning Tree connecting all Key Nodes
-    const connectedNodeIds = new Set<number>([squadNode.id]);
+    const connectedNodeIds = new Set<number>([squadNodes[0].id]);
     const shipEdges: Edge[] = [];
 
     const getFrontier = () =>
@@ -285,8 +288,7 @@ export class SpaceshipGenerator {
 
     // 9. Place Features
     this.placeFeaturesInNodes(
-      squadNode,
-      squadNode2,
+      squadNodes,
       extractionNode,
       objectiveNode,
       enemySpawnNodes,
@@ -432,34 +434,26 @@ export class SpaceshipGenerator {
   }
 
   private placeFeaturesInNodes(
-    squadNode: Node,
-    squadNode2: Node,
+    squadNodes: Node[],
     extractionNode: Node,
     objectiveNode: Node,
     enemySpawnNodes: Node[],
   ) {
-    // 1. Squad Spawn
-    const sq1Cells = this.cells.filter((c) => c.roomId === squadNode.roomId);
-    const sq2Cells = this.cells.filter((c) => c.roomId === squadNode2.roomId);
-
-    if (sq1Cells.length > 0) {
-      this.squadSpawn = { x: sq1Cells[0].x, y: sq1Cells[0].y };
-      this.squadSpawns = [this.squadSpawn];
-      this.placementValidator.occupy(
-        sq1Cells[0],
-        OccupantType.SquadSpawn,
-        squadNode.roomId,
-      );
-    }
-    if (sq2Cells.length > 0) {
-      if (!this.squadSpawns) this.squadSpawns = [];
-      this.squadSpawns.push({ x: sq2Cells[0].x, y: sq2Cells[0].y });
-      this.placementValidator.occupy(
-        sq2Cells[0],
-        OccupantType.SquadSpawn,
-        squadNode2.roomId,
-      );
-    }
+    // 1. Squad Spawns
+    this.squadSpawns = [];
+    squadNodes.forEach((node, idx) => {
+        const cells = this.cells.filter((c) => c.roomId === node.roomId);
+        if (cells.length > 0) {
+            const pos = { x: cells[0].x, y: cells[0].y };
+            if (idx === 0) this.squadSpawn = pos;
+            this.squadSpawns?.push(pos);
+            this.placementValidator.occupy(
+                cells[0],
+                OccupantType.SquadSpawn,
+                node.roomId
+            );
+        }
+    });
 
     // 2. Extraction
     const extCells = this.cells.filter(
@@ -528,24 +522,24 @@ export class SpaceshipGenerator {
     }
     const floors = this.cells.filter((c) => c.type === CellType.Floor);
     if (floors.length >= 4) {
-      this.squadSpawn = { x: floors[0].x, y: floors[0].y };
-      this.squadSpawns = [floors[0], floors[1]];
-      this.placementValidator.occupy(
-        floors[0],
-        OccupantType.SquadSpawn,
-        floors[0].roomId,
-      );
-      this.placementValidator.occupy(
-        floors[1],
-        OccupantType.SquadSpawn,
-        floors[1].roomId,
-      );
+      this.squadSpawns = [];
+      for (let i = 0; i < Math.min(5, floors.length - 3); i++) {
+        if (i === 0) this.squadSpawn = { x: floors[i].x, y: floors[i].y };
+        this.squadSpawns.push({ x: floors[i].x, y: floors[i].y });
+        this.placementValidator.occupy(
+          floors[i],
+          OccupantType.SquadSpawn,
+          floors[i].roomId,
+        );
+      }
 
-      const ext = floors[floors.length - 1];
+      const extIdx = floors.length - 1;
+      const ext = floors[extIdx];
       this.extraction = { x: ext.x, y: ext.y };
       this.placementValidator.occupy(ext, OccupantType.Extraction, ext.roomId);
 
-      const objCell = floors[floors.length - 2];
+      const objIdx = floors.length - 2;
+      const objCell = floors[objIdx];
       this.objectives.push({
         id: "obj-1",
         kind: "Recover",
@@ -557,9 +551,10 @@ export class SpaceshipGenerator {
         objCell.roomId,
       );
 
+      const startEnemyIdx = this.squadSpawns.length;
       for (let i = 0; i < spawnPointCount; i++) {
-        const c = floors[2 + i];
-        if (c) {
+        const c = floors[startEnemyIdx + i];
+        if (c && !this.placementValidator.isCellOccupied(c)) {
           this.spawnPoints.push({
             id: `spawn-${i + 1}`,
             pos: { x: c.x, y: c.y },

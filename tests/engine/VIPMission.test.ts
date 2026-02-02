@@ -177,6 +177,20 @@ describe("VIP Mission Mechanics", () => {
       true,
       false,
       MissionType.EscortVIP,
+      false,
+      0,
+      1.0,
+      false,
+      undefined,
+      [],
+      true,
+      0,
+      3,
+      1,
+      0,
+      "Combat",
+      undefined,
+      0,
     );
 
     const vip = getInternalState(engine2).units.find(

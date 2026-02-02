@@ -447,32 +447,29 @@ export class DenseShipGenerator {
     const squadRoomIds = Array.from(roomsInSquadQuadMap.keys());
     this.prng.shuffle(squadRoomIds);
 
-    if (squadRoomIds.length >= 2) {
-      const c1 = roomsInSquadQuadMap.get(squadRoomIds[0])![0];
-      const c2 = roomsInSquadQuadMap.get(squadRoomIds[1])![0];
-      this.squadSpawn = c1;
-      this.squadSpawns = [c1, c2];
-      this.placementValidator.occupy(c1, OccupantType.SquadSpawn, c1.roomId);
-      this.placementValidator.occupy(c2, OccupantType.SquadSpawn, c2.roomId);
-    } else {
+    const maxSquadSpawns = 2;
+    this.squadSpawns = [];
+    
+    for (let i = 0; i < Math.min(maxSquadSpawns, squadRoomIds.length); i++) {
+        const c = roomsInSquadQuadMap.get(squadRoomIds[i])![0];
+        if (i === 0) this.squadSpawn = c;
+        this.squadSpawns.push(c);
+        this.placementValidator.occupy(c, OccupantType.SquadSpawn, c.roomId);
+    }
+
+    if (this.squadSpawns.length < maxSquadSpawns) {
       const available = squadQuad.filter(
         (c) => !this.placementValidator.isCellOccupied(c),
       );
       this.prng.shuffle(available);
-      const c1 = available.length > 0 ? available[0] : squadQuad[0];
-      const r1 = `room-forced-squad1-${c1.x}-${c1.y}`;
-      c1.roomId = r1;
-      this.squadSpawn = c1;
-      this.placementValidator.occupy(c1, OccupantType.SquadSpawn, r1);
-
-      if (available.length > 1) {
-        const c2 = available[1];
-        const r2 = `room-forced-squad2-${c2.x}-${c2.y}`;
-        c2.roomId = r2;
-        this.squadSpawns = [c1, c2];
-        this.placementValidator.occupy(c2, OccupantType.SquadSpawn, r2);
-      } else {
-        this.squadSpawns = [c1];
+      
+      while (this.squadSpawns.length < maxSquadSpawns && available.length > 0) {
+        const c = available.pop()!;
+        const rid = `room-forced-squad-${this.squadSpawns.length}-${c.x}-${c.y}`;
+        c.roomId = rid;
+        if (this.squadSpawns.length === 0) this.squadSpawn = c;
+        this.squadSpawns.push(c);
+        this.placementValidator.occupy(c, OccupantType.SquadSpawn, rid);
       }
     }
 

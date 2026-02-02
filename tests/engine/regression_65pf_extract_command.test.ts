@@ -41,6 +41,20 @@ describe("Regression 65pf: Extract Command", () => {
       false,
       true,
       MissionType.Default,
+      false,
+      0,
+      1.0,
+      false,
+      undefined,
+      [],
+      true,
+      0,
+      3,
+      1,
+      0,
+      "Combat",
+      undefined,
+      0,
     );
   });
 
