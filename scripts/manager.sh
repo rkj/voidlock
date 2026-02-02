@@ -9,7 +9,9 @@ while true; do
     exit 0
   fi
 
-  TMP_OUTPUT=$(mktemp)
+  mkdir -p logs/manager
+  LOG_FILE="logs/manager/manager_$(date +%Y-%m-%d_%H-%M-%S).log"
+  echo "Logging to: $LOG_FILE"
 
   echo "Running with model: $MODEL"
 
@@ -59,10 +61,9 @@ while true; do
     --allowed-tools take_screenshot \
     --allowed-tools take_snapshot \
     --allowed-tools wait_for \
-    --allowed-tools write_file | tee "$TMP_OUTPUT"
+    --allowed-tools write_file | tee "$LOG_FILE"
 
-  LAST_LINE=$(tail -n 1 "$TMP_OUTPUT")
-  rm "$TMP_OUTPUT"
+  LAST_LINE=$(tail -n 1 "$LOG_FILE")
 
   if [[ "$LAST_LINE" == *"You have exhausted your capacity on this model"* ]]; then
     TIME_STR=$(echo "$LAST_LINE" | sed -n 's/.*reset after \([0-9hms]\+\).*/\1/p')
