@@ -453,6 +453,44 @@ export class GameClient {
     );
   }
 
+  public seek(tick: number) {
+    const data = this.getReplayData();
+    if (!data) return;
+
+    const commandLog: CommandLogEntry[] = data.commands.map((rc) => ({
+      tick: rc.t,
+      command: rc.cmd,
+    }));
+
+    this.init(
+      data.seed,
+      MapGeneratorType.Static,
+      data.map,
+      true, // fog
+      false, // debug
+      true, // agent
+      data.squadConfig,
+      data.missionType || MissionType.Default,
+      data.map.width,
+      data.map.height,
+      0, // spawnPointCount (static map)
+      false, // los
+      0, // startingThreat
+      this.currentScale, // preserve current speed
+      this.isPaused, // preserve paused state
+      this.allowTacticalPause,
+      EngineMode.Replay,
+      commandLog,
+      undefined, // campaignNodeId
+      tick, // targetTick
+      3, // baseEnemyCount
+      1, // enemyGrowthPerMission
+      0, // missionDepth
+      undefined, // nodeType
+      0, // bonusLootCount
+    );
+  }
+
   public onStateUpdate(cb: ((state: GameState) => void) | null) {
     this.mainListener = cb;
   }

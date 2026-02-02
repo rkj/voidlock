@@ -8,6 +8,7 @@ export class ReplayController {
   private onProgressUpdate: (progress: number) => void;
   private isReplaying: boolean = false;
   private totalTime: number = 0;
+  private isLooping: boolean = false;
 
   constructor(
     gameClient: GameClient,
@@ -15,6 +16,10 @@ export class ReplayController {
   ) {
     this.gameClient = gameClient;
     this.onProgressUpdate = onProgressUpdate;
+  }
+
+  public setLooping(looping: boolean) {
+    this.isLooping = looping;
   }
 
   public setRenderer(canvas: HTMLCanvasElement, unitStyle: UnitStyle) {
@@ -52,14 +57,25 @@ export class ReplayController {
       }
       
       if (this.totalTime > 0) {
-        const progress = Math.min(100, (state.t / this.totalTime) * 100);
-        this.onProgressUpdate(progress);
+        const progress = (state.t / this.totalTime) * 100;
+        this.onProgressUpdate(Math.min(100, progress));
+
+        if (progress >= 100 && this.isLooping) {
+          this.seek(0);
+        }
       }
     }
   };
 
   public setPlaybackSpeed(speed: number) {
     this.gameClient.setTimeScale(speed);
+  }
+
+  public seek(progress: number) {
+    if (this.totalTime <= 0) return;
+    const targetTime = (progress / 100) * this.totalTime;
+    // Tick rate is 16ms
+    this.gameClient.seek(targetTime);
   }
 
   public togglePause() {

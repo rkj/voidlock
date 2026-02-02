@@ -188,5 +188,57 @@ describe("DebriefScreen", () => {
     // Check if progress bar updated
     const progressFill = container.querySelector(".replay-progress-fill") as HTMLElement;
     expect(progressFill.style.width).toBe("50%");
+    
+    // Check if scrubber updated
+    const scrubber = container.querySelector(".replay-scrubber") as HTMLInputElement;
+    expect(scrubber.value).toBe("50");
+  });
+
+  it("should call seek when scrubber is changed", () => {
+    mockGameClient.seek = vi.fn();
+    const report: MissionReport = {
+      nodeId: "node_1",
+      seed: 12345,
+      result: "Won",
+      aliensKilled: 0,
+      scrapGained: 0,
+      intelGained: 0,
+      timeSpent: 1000,
+      soldierResults: [],
+    };
+    screen.show(report);
+
+    const scrubber = container.querySelector(".replay-scrubber") as HTMLInputElement;
+    scrubber.value = "50";
+    scrubber.dispatchEvent(new Event("input"));
+
+    expect(mockGameClient.seek).toHaveBeenCalledWith(500); // 50% of 1000
+  });
+
+  it("should toggle looping when loop button is clicked", () => {
+    const report: MissionReport = {
+      nodeId: "node_1",
+      seed: 12345,
+      result: "Won",
+      aliensKilled: 0,
+      scrapGained: 0,
+      intelGained: 0,
+      timeSpent: 1000,
+      soldierResults: [],
+    };
+    screen.show(report);
+
+    const loopBtn = Array.from(container.querySelectorAll(".replay-btn")).find(
+      btn => btn.textContent?.includes("LOOP")
+    ) as HTMLButtonElement;
+    
+    expect(loopBtn.textContent).toBe("LOOP: OFF");
+    loopBtn.click();
+    expect(loopBtn.textContent).toBe("LOOP: ON");
+    expect(loopBtn.classList.contains("active")).toBe(true);
+    
+    loopBtn.click();
+    expect(loopBtn.textContent).toBe("LOOP: OFF");
+    expect(loopBtn.classList.contains("active")).toBe(false);
   });
 });

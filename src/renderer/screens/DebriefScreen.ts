@@ -15,6 +15,7 @@ export class DebriefScreen {
   private canvas: HTMLCanvasElement | null = null;
   private playbackBtn: HTMLButtonElement | null = null;
   private progressFill: HTMLElement | null = null;
+  private scrubber: HTMLInputElement | null = null;
   private unitStyle: UnitStyle = UnitStyle.TacticalIcons;
 
   constructor(containerId: string, gameClient: GameClient, onContinue: () => void) {
@@ -26,6 +27,9 @@ export class DebriefScreen {
     this.replayController = new ReplayController(this.gameClient, (progress) => {
       if (this.progressFill) {
         this.progressFill.style.width = `${progress}%`;
+      }
+      if (this.scrubber) {
+        this.scrubber.value = progress.toString();
       }
       this.updatePlaybackUI();
     });
@@ -163,6 +167,16 @@ export class DebriefScreen {
     };
     controls.appendChild(this.playbackBtn);
 
+    const loopBtn = document.createElement("button");
+    loopBtn.className = "replay-btn";
+    loopBtn.textContent = "LOOP: OFF";
+    loopBtn.onclick = () => {
+      const isLooping = loopBtn.classList.toggle("active");
+      this.replayController.setLooping(isLooping);
+      loopBtn.textContent = isLooping ? "LOOP: ON" : "LOOP: OFF";
+    };
+    controls.appendChild(loopBtn);
+
     // Speed Selector
     const speedGroup = document.createElement("div");
     speedGroup.className = "replay-speed-group";
@@ -186,9 +200,27 @@ export class DebriefScreen {
     progressContainer.className = "replay-progress-container";
     controls.appendChild(progressContainer);
 
+    const track = document.createElement("div");
+    track.className = "replay-progress-track";
+    progressContainer.appendChild(track);
+
     this.progressFill = document.createElement("div");
     this.progressFill.className = "replay-progress-fill";
     progressContainer.appendChild(this.progressFill);
+
+    this.scrubber = document.createElement("input");
+    this.scrubber.type = "range";
+    this.scrubber.className = "replay-scrubber";
+    this.scrubber.min = "0";
+    this.scrubber.max = "100";
+    this.scrubber.step = "0.1";
+    this.scrubber.value = "0";
+    this.scrubber.oninput = () => {
+      if (this.scrubber) {
+        this.replayController.seek(parseFloat(this.scrubber.value));
+      }
+    };
+    progressContainer.appendChild(this.scrubber);
   }
 
   private createPanel(title: string): HTMLElement {

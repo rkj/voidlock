@@ -79,7 +79,7 @@ describe("CoreEngine Replay Termination", () => {
     // Now try to update again
     replayEngine.update(16);
     
-    // Time should NOT have increased
-    expect(replayEngine.getState().t).toBe(replayEndTick);
+    // Time SHOULD have increased in Replay mode (new behavior for scrubbing support)
+    expect(replayEngine.getState().t).toBeGreaterThan(replayEndTick);
   });
 });

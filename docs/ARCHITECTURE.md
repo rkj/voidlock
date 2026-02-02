@@ -22,7 +22,7 @@ The heart of the game. It runs deterministically given a seed and a command stre
   - **`MissionManager`**: Handles mission-specific setup, objectives, and win/loss conditions.
   - **`UnitManager` / `EnemyManager`**: Manage lifecycles, state updates, and combat logic for their respective entities.
   - **`CommandExecutor`**: Translates abstract `Commands` into concrete unit actions.
-- **`GameClient`**: The bridge between the UI/Main Thread and the Engine Worker. It handles initializing the worker, sending commands, receiving state updates, and managing the Replay recording. It also handles session recovery (ADR 0019).
+- **`GameClient`**: The bridge between the UI/Main Thread and the Engine Worker. It handles initializing the worker, sending commands, receiving state updates, and managing the Replay recording. It also handles session recovery (ADR 0019) and deterministic scrubbing (ADR 0031).
 
 ### 2. Map Generation (`src/engine/map/`, `src/engine/generators/`)
 
