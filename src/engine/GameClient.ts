@@ -58,7 +58,6 @@ export class GameClient {
   private initialSquadConfig: SquadConfig | null = null;
   private initialMissionType: MissionType = MissionType.Default;
   private commandStream: RecordedCommand[] = [];
-  private currentEngineTick: number = 0;
   private startTime: number = 0;
 
   // Speed State
@@ -78,8 +77,14 @@ export class GameClient {
       if (this.isStopped) return;
       const msg = e.data;
       if (msg.type === "STATE_UPDATE") {
-        this.currentEngineTick = msg.payload.t;
-        
+        // Authoritative command sync from engine
+        if (msg.payload.commandLog) {
+          this.commandStream = msg.payload.commandLog.map((cl) => ({
+            t: cl.tick,
+            cmd: cl.command,
+          }));
+        }
+
         if (
           typeof localStorage !== "undefined" &&
           msg.payload.settings.mode === EngineMode.Simulation
@@ -88,8 +93,15 @@ export class GameClient {
             "voidlock_mission_tick",
             Math.floor(msg.payload.t).toString(),
           );
+
+          if (msg.payload.commandLog) {
+            localStorage.setItem(
+              "voidlock_mission_log",
+              JSON.stringify(msg.payload.commandLog),
+            );
+          }
         }
-        
+
         if (this.mainListener) {
           this.mainListener(msg.payload);
         }
@@ -129,7 +141,6 @@ export class GameClient {
     this.initialSeed = seed;
     this.initialSquadConfig = squadConfig;
     this.initialMissionType = missionType;
-    this.currentEngineTick = targetTick;
 
     const config: MapGenerationConfig = {
       seed,
@@ -262,21 +273,6 @@ export class GameClient {
     }
   }
 
-  private appendCommand(cmd: Command) {
-    if (typeof localStorage === "undefined") return;
-    try {
-      const logStr = localStorage.getItem("voidlock_mission_log") || "[]";
-      const log: CommandLogEntry[] = JSON.parse(logStr);
-      log.push({
-        tick: this.currentEngineTick,
-        command: cmd,
-      });
-      localStorage.setItem("voidlock_mission_log", JSON.stringify(log));
-    } catch (e) {
-      console.error("Failed to append command to persistent log", e);
-    }
-  }
-
   public clearMissionData() {
     if (typeof localStorage !== "undefined") {
       localStorage.removeItem("voidlock_mission_config");
@@ -287,11 +283,8 @@ export class GameClient {
 
   public sendCommand(cmd: Command) {
     // Record command using engine ticks for determinism
-    const t = this.currentEngineTick;
-    this.commandStream.push({ t, cmd });
-
-    // Auto-save command
-    this.appendCommand(cmd);
+    // Note: We no longer push to commandStream here manually.
+    // It will be synced from the authoritative engine state in the next update.
 
     const msg: WorkerMessage = {
       type: "COMMAND",

@@ -139,6 +139,18 @@ describe("GameClient", () => {
       payload: cmd,
     });
 
+    // Simulate authoritative update from engine
+    (client as any).worker.onmessage({
+      data: {
+        type: "STATE_UPDATE",
+        payload: {
+          t: 100,
+          settings: { mode: EngineMode.Simulation },
+          commandLog: [{ tick: 100, command: cmd }],
+        },
+      },
+    });
+
     const replay = client.getReplayData();
     expect(replay?.commands.length).toBe(1);
     expect(replay?.commands[0].cmd).toEqual(cmd);
