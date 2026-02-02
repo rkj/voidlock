@@ -5434,15 +5434,11 @@
   "squadSpawns": [
     {
       "x": 4,
-      "y": 6,
-      "type": "Floor",
-      "roomId": "room-4-6"
+      "y": 6
     },
     {
       "x": 2,
-      "y": 0,
-      "type": "Floor",
-      "roomId": "room-2-0"
+      "y": 0
     }
   ],
   "extraction": {
