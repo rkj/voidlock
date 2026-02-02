@@ -126,6 +126,7 @@ export class SquadBuilder {
             const isSelected = this.squad.soldiers.some(
               (s) => s.id === soldier.id,
             );
+            if (isSelected) return;
             rosterList.appendChild(createCampaignCard(soldier, isSelected));
           });
 
@@ -184,6 +185,10 @@ export class SquadBuilder {
       } else {
         Object.values(ArchetypeLibrary).forEach((arch) => {
           if (arch.id === "vip" && isEscortMission) return;
+          const isSelected = this.squad.soldiers.some(
+            (s) => s.archetypeId === arch.id,
+          );
+          if (isSelected) return;
           rosterList.appendChild(createArchetypeCard(arch));
         });
       }
@@ -314,6 +319,7 @@ export class SquadBuilder {
                 if (s) {
                   this.squad.soldiers.push({
                     id: s.id,
+                    name: s.name,
                     archetypeId: s.archetypeId,
                     hp: s.hp,
                     maxHp: s.maxHp,

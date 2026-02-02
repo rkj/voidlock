@@ -142,7 +142,7 @@ describe("Roster Sorting Regression (voidlock-l7b8)", () => {
     expect(cards[2].classList.contains("dead")).toBe(true);
   });
 
-  it("should add .deployed class to soldiers in squad", () => {
+  it("should remove soldier from roster list when assigned to squad", () => {
     const mockState = {
       roster: [
         {
@@ -165,21 +165,27 @@ describe("Roster Sorting Regression (voidlock-l7b8)", () => {
     };
     mockCampaignManager.getState.mockReturnValue(mockState);
     (app as any).missionSetupManager.currentSquad = {
-      soldiers: [{ id: "1", archetypeId: "assault" }],
+      soldiers: [{ id: "1", name: "In Squad", archetypeId: "assault" }],
     };
 
     (app as any).missionSetupManager.renderSquadBuilder(true);
 
-    const cards = document.querySelectorAll(".soldier-card");
+    // Only cards in roster list
+    const rosterCards = document.querySelectorAll(".roster-list .soldier-card");
 
-    const card1 = Array.from(cards).find((c) =>
+    const card1 = Array.from(rosterCards).find((c) =>
       c.textContent?.includes("In Squad"),
     );
-    const card2 = Array.from(cards).find((c) =>
+    const card2 = Array.from(rosterCards).find((c) =>
       c.textContent?.includes("Out of Squad"),
     );
 
-    expect(card1?.classList.contains("deployed")).toBe(true);
-    expect(card2?.classList.contains("deployed")).toBe(false);
+    expect(card1).toBeUndefined();
+    expect(card2).toBeDefined();
+
+    // Verify it is in deployment panel
+    const deploymentCards = document.querySelectorAll(".deployment-panel .soldier-card");
+    const deployedCard1 = Array.from(deploymentCards).find(c => c.textContent?.includes("In Squad"));
+    expect(deployedCard1).toBeDefined();
   });
 });

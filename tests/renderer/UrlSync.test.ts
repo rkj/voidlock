@@ -62,8 +62,8 @@ describe("ScreenManager URL Sync", () => {
   it("should load state from hash on initialization", () => {
     window.location.hash = "statistics";
     const sm = new ScreenManager();
-    const id = sm.loadPersistedState();
-    expect(id).toBe("statistics");
+    const state = sm.loadPersistedState();
+    expect(state?.screenId).toBe("statistics");
     expect(sm.getCurrentScreen()).toBe("statistics");
   });
 
