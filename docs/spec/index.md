@@ -42,9 +42,18 @@ Agents and developers should consult the specific files below for implementation
   - ASCII Map Representation
   - Map Viewer Utility
 
+- **[Missions](mission.md)**
+  - Mission Types & Win/Loss Conditions
+  - Success/Failure Criteria
+  - Objectives & Special Rules
+
 - **[Units & Combat](combat_units.md)**
   - Unit Stats (Speed, Health)
   - Weapon & Accuracy Model (Angular Dispersion)
+
+- **[Enemies](enemies.md)**
+  - Enemy Archetypes & Points
+  - Aggro & Roaming Logic
 
 - **[Command System & AI](commands.md)**
   - Command Protocol (MOVE, STOP, ATTACK)
