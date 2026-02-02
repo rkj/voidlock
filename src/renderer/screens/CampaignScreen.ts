@@ -1,5 +1,6 @@
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import { MetaManager } from "@src/renderer/campaign/MetaManager";
+import { ConfigManager } from "@src/renderer/ConfigManager";
 import { CampaignNode, CampaignState } from "@src/shared/campaign_types";
 import { ModalService } from "../ui/ModalService";
 import { NewCampaignWizard } from "./campaign/NewCampaignWizard";
@@ -116,6 +117,7 @@ export class CampaignScreen {
           "Are you sure you want to abandon the current campaign?",
         )
       ) {
+        ConfigManager.clearCampaign();
         this.manager.reset();
         this.onBack();
       }

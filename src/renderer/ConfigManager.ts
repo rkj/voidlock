@@ -37,6 +37,11 @@ export class ConfigManager {
     this.save(CAMPAIGN_STORAGE_KEY, config);
   }
 
+  public static clearCampaign() {
+    localStorage.removeItem(CAMPAIGN_STORAGE_KEY);
+    console.log(`Campaign configuration cleared from LocalStorage.`);
+  }
+
   private static save(key: string, config: GameConfig) {
     try {
       const json = JSON.stringify(config);

@@ -1,4 +1,5 @@
 import { MetaManager } from "@src/renderer/campaign/MetaManager";
+import { ConfigManager } from "@src/renderer/ConfigManager";
 import { CampaignOverrides } from "@src/shared/campaign_types";
 import { UnitStyle, MapGeneratorType } from "@src/shared/types";
 
@@ -396,6 +397,7 @@ export class NewCampaignWizard {
     startBtn.style.justifyContent = "center";
     startBtn.style.fontSize = "0.9em";
     startBtn.onclick = () => {
+      ConfigManager.clearCampaign();
       const overrides: CampaignOverrides = {
         allowTacticalPause: pauseCheck.checked,
         themeId: themeSelect.value,
