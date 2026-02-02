@@ -16,11 +16,11 @@ export class CampaignFlowCoordinator {
     const state = this.context.campaignManager.getState();
     if (state && (state.status === "Victory" || state.status === "Defeat")) {
       showCampaignSummary(state);
-      this.context.screenManager.show("campaign-summary");
+      this.context.screenManager.show("campaign-summary", true, true);
       this.context.campaignShell.hide();
     } else {
       showCampaignScreen();
-      this.context.screenManager.show("campaign");
+      this.context.screenManager.show("campaign", true, true);
       this.context.campaignShell.show("campaign", "sector-map");
     }
   }
