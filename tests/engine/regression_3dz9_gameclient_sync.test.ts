@@ -104,6 +104,18 @@ describe("Regression 3dz9: GameClient startTime Synchronization", () => {
     };
     client.sendCommand(cmd);
 
+    // Simulate authoritative update from engine
+    (client as any).worker.onmessage({
+      data: {
+        type: "STATE_UPDATE",
+        payload: {
+          t: 5200,
+          settings: { mode: EngineMode.Simulation },
+          commandLog: [...commandLog, { tick: 5200, command: cmd }],
+        },
+      },
+    });
+
     // If startTime was correctly synchronized, the new command's tick should be 5000 + 200 = 5200
     const replay = client.getReplayData();
     const lastCommand = replay?.commands[replay.commands.length - 1];
