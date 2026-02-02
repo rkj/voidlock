@@ -7,7 +7,7 @@ describe("Director", () => {
     const spawnPoints = [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }];
     const prng = new PRNG(123);
     const onSpawn = vi.fn();
-    const director = new Director(spawnPoints, prng, onSpawn, 0, 3, 1, 0, undefined, 0);
+    const director = new Director(spawnPoints, prng, onSpawn, 0, undefined, 0);
 
     // Initial state
     expect(onSpawn).not.toHaveBeenCalled();
@@ -31,7 +31,7 @@ describe("Director", () => {
     const spawnPoints = [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }];
     const prng = new PRNG(123);
     const onSpawn = vi.fn();
-    const director = new Director(spawnPoints, prng, onSpawn, 0, 3, 1, 0, undefined, 0);
+    const director = new Director(spawnPoints, prng, onSpawn, 0, undefined, 0);
 
     // Fast forward to turn 5
     // Turn 1: 1
@@ -53,7 +53,7 @@ describe("Director", () => {
     const spawnPoints = [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }];
     const prng = new PRNG(123);
     const onSpawn = vi.fn();
-    const director = new Director(spawnPoints, prng, onSpawn, 0, 3, 1, 0, undefined, 0);
+    const director = new Director(spawnPoints, prng, onSpawn, 0, undefined, 0);
 
     // 100 seconds
     director.update(100000);
@@ -67,7 +67,7 @@ describe("Director", () => {
     const spawnPoints = [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }];
     const prng = new PRNG(123);
     const onSpawn = vi.fn();
-    const director = new Director(spawnPoints, prng, onSpawn, 0, 3, 1, 0, undefined, 0);
+    const director = new Director(spawnPoints, prng, onSpawn, 0, undefined, 0);
 
     // 110 seconds = Turn 11
     director.update(110000);
@@ -89,7 +89,7 @@ describe("Director", () => {
     // Wave 1: 1
     // Wave 2: 2
     // Total pre-spawn = 0 + 1 + 2 = 3 points
-    const director = new Director(spawnPoints, prng, onSpawn, 30, 3, 1, 0, undefined, 0);
+    const director = new Director(spawnPoints, prng, onSpawn, 30, undefined, 0);
     director.preSpawn();
 
     expect(director.getThreatLevel()).toBe(30);
@@ -102,7 +102,7 @@ describe("Director", () => {
     const prng = new PRNG(123);
     const onSpawn = vi.fn();
 
-    const director = new Director(spawnPoints, prng, onSpawn, 10, 3, 1, 0, undefined, 0);
+    const director = new Director(spawnPoints, prng, onSpawn, 10, undefined, 0);
     director.preSpawn();
 
     expect(director.getThreatLevel()).toBe(10);

@@ -22,6 +22,8 @@ vi.mock("@src/renderer/campaign/MetaManager", () => ({
 vi.mock("@src/renderer/ConfigManager", () => ({
   ConfigManager: {
     clearCampaign: vi.fn(),
+    loadGlobal: vi.fn().mockReturnValue({ unitStyle: "TacticalIcons", themeId: "default" }),
+    saveGlobal: vi.fn(),
   },
 }));
 

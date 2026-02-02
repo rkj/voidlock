@@ -2,14 +2,13 @@ import { AppContext } from "./AppContext";
 import { InputBinder } from "./InputBinder";
 import { GameClient } from "@src/engine/GameClient";
 import {
-  GameState,
   MapGeneratorType,
   MissionType,
   SquadConfig,
-  UnitStyle,
-  Unit,
   UnitState,
   MapGenerationConfig,
+  GameState,
+  Unit,
 } from "@src/shared/types";
 import { calculateSpawnPoints, CampaignNode } from "@src/shared/campaign_types";
 import { DebugUtility } from "@src/renderer/DebugUtility";
@@ -280,6 +279,10 @@ export class GameApp {
         this.context.themeManager.setTheme(
           this.missionSetupManager.currentThemeId,
         );
+        ConfigManager.saveGlobal({
+          unitStyle: this.missionSetupManager.unitStyle,
+          themeId: this.missionSetupManager.currentThemeId,
+        });
         this.missionSetupManager.saveCurrentConfig();
         this.missionSetupManager.renderUnitStylePreview();
       },
@@ -548,12 +551,8 @@ export class GameApp {
   }
 
   private applyCampaignTheme() {
-    const state = this.context.campaignManager.getState();
-    if (state && state.rules.themeId) {
-      this.context.themeManager.setTheme(state.rules.themeId);
-    } else {
-      this.context.themeManager.setTheme("default");
-    }
+    const global = ConfigManager.loadGlobal();
+    this.context.themeManager.setTheme(global.themeId || "default");
   }
 
   private onCampaignNodeSelect(node: CampaignNode) {

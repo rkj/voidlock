@@ -20,7 +20,7 @@ export class NewCampaignWizard {
   private selectedDifficulty = "normal";
   private isAdvancedShown = false;
   private unitStyleSelector?: UnitStyleSelector;
-  private selectedUnitStyle: UnitStyle = UnitStyle.TacticalIcons;
+  private selectedUnitStyle: UnitStyle = ConfigManager.loadGlobal().unitStyle;
 
   constructor(
     container: HTMLElement,
@@ -33,7 +33,7 @@ export class NewCampaignWizard {
 
   public render() {
     this.container.innerHTML = "";
-    this.container.style.overflowY = "hidden";
+    this.container.className = "flex-col campaign-setup-wizard";
 
     const scrollContainer = document.createElement("div");
     scrollContainer.className = "flex-grow w-full h-full overflow-y-auto";
@@ -205,13 +205,15 @@ export class NewCampaignWizard {
     themeLabel.textContent = "Visual Theme";
     themeLabel.style.fontSize = "0.8em";
     themeLabel.style.color = "var(--color-text-dim)";
+    const global = ConfigManager.loadGlobal();
     const themeSelect = document.createElement("select");
     themeSelect.id = "campaign-theme";
     themeSelect.innerHTML = `
-      <option value="default" selected>Default (Voidlock Green)</option>
+      <option value="default">Default (Voidlock Green)</option>
       <option value="industrial">Industrial (Amber/Steel)</option>
       <option value="hive">Alien Hive (Purple/Biolume)</option>
     `;
+    themeSelect.value = global.themeId;
     themeGroup.appendChild(themeLabel);
     themeGroup.appendChild(themeSelect);
     form.appendChild(themeGroup);
@@ -416,10 +418,13 @@ export class NewCampaignWizard {
     startBtn.style.fontSize = "0.9em";
     startBtn.onclick = () => {
       ConfigManager.clearCampaign();
+      ConfigManager.saveGlobal({
+        unitStyle: this.selectedUnitStyle,
+        themeId: themeSelect.value,
+      });
+
       const overrides: CampaignOverrides = {
         allowTacticalPause: pauseCheck.checked,
-        themeId: themeSelect.value,
-        unitStyle: this.selectedUnitStyle,
         mapGrowthRate: parseFloat(lengthSelect.value),
         economyMode: (
           document.getElementById("campaign-economy-mode") as HTMLSelectElement

@@ -53,13 +53,13 @@ export class UnitStyleSelector {
       item.appendChild(label);
 
       item.onclick = () => {
-        this.currentStyle = style.id;
+        this.currentStyle = style.id as UnitStyle;
         this.updateActiveState();
         this.onChange(this.currentStyle);
       };
-
-      this.container.appendChild(item);
-      this.drawPreview(canvas, style.id);
+      if (this.container) {
+        this.container.appendChild(item);
+      }
     });
   }
 

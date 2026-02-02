@@ -30,13 +30,6 @@ describe("CampaignManager", () => {
     ).toBeGreaterThan(0);
   });
 
-  it("should start a new campaign with a specific theme", () => {
-    manager.startNewCampaign(12345, "Normal", true, "industrial");
-    const state = manager.getState();
-
-    expect(state?.rules.themeId).toBe("industrial");
-  });
-
   it("should have MapGeneratorType.DenseShip as default for all difficulties", () => {
     manager.startNewCampaign(1, "Easy");
     expect(manager.getState()?.rules.mapGeneratorType).toBe("DenseShip");
@@ -56,8 +49,6 @@ describe("CampaignManager", () => {
       12345,
       "Normal",
       true,
-      "default",
-      undefined,
       MapGeneratorType.TreeShip,
     );
     const state = manager.getState();

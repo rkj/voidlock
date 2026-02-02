@@ -7,34 +7,75 @@ export interface GameConfig {
   spawnPointCount: number;
   fogOfWarEnabled: boolean;
   debugOverlayEnabled: boolean;
-  losOverlayEnabled: boolean; // Added
+  losOverlayEnabled: boolean;
   agentControlEnabled: boolean;
   allowTacticalPause: boolean;
-  unitStyle: UnitStyle; // New
   mapGeneratorType: MapGeneratorType;
   missionType: MissionType;
   lastSeed: number;
-  themeId: string; // Added
   startingThreatLevel: number;
   baseEnemyCount: number;
   enemyGrowthPerMission: number;
   bonusLootCount: number;
-  campaignNodeId?: string; // Added
-  // staticMapData is tricky to serialize if large, but per spec we should probably try or just skip if it's user uploaded file that isn't persistent.
-  // For now, let's persist everything except maybe large static maps if they exceed limits, but let's try basic props first.
+  campaignNodeId?: string;
   squadConfig: SquadConfig;
+}
+
+export interface GlobalConfig {
+  unitStyle: UnitStyle;
+  themeId: string;
 }
 
 const CUSTOM_STORAGE_KEY = "voidlock_custom_config";
 const CAMPAIGN_STORAGE_KEY = "voidlock_campaign_config";
+const GLOBAL_STORAGE_KEY = "voidlock_global_config";
 
 export class ConfigManager {
-  public static saveCustom(config: GameConfig) {
+  public static saveCustom(config: GameConfig, global?: GlobalConfig) {
+    if (global) {
+      this.saveGlobal(global);
+    }
     this.save(CUSTOM_STORAGE_KEY, config);
   }
 
-  public static saveCampaign(config: GameConfig) {
+  public static saveCampaign(config: GameConfig, global?: GlobalConfig) {
+    if (global) {
+      this.saveGlobal(global);
+    }
     this.save(CAMPAIGN_STORAGE_KEY, config);
+  }
+
+  public static saveGlobal(config: GlobalConfig) {
+    try {
+      localStorage.setItem(GLOBAL_STORAGE_KEY, JSON.stringify(config));
+    } catch (e) {
+      console.warn("Failed to save global configuration:", e);
+    }
+  }
+
+  public static loadGlobal(): GlobalConfig {
+    const defaultGlobal: GlobalConfig = {
+      unitStyle: UnitStyle.TacticalIcons,
+      themeId: "default",
+    };
+
+    try {
+      const json = localStorage.getItem(GLOBAL_STORAGE_KEY);
+      if (!json) return defaultGlobal;
+      const loaded = JSON.parse(json);
+
+      return {
+        unitStyle: Object.values(UnitStyle).includes(loaded.unitStyle)
+          ? (loaded.unitStyle as UnitStyle)
+          : defaultGlobal.unitStyle,
+        themeId:
+          typeof loaded.themeId === "string"
+            ? loaded.themeId
+            : defaultGlobal.themeId,
+      };
+    } catch (e) {
+      return defaultGlobal;
+    }
   }
 
   public static clearCampaign() {
@@ -151,17 +192,11 @@ export class ConfigManager {
     }
 
     // String fields
-    if (typeof loaded.themeId === "string") {
-      result.themeId = loaded.themeId;
-    }
     if (typeof loaded.campaignNodeId === "string") {
       result.campaignNodeId = loaded.campaignNodeId;
     }
 
     // Enum fields
-    if (Object.values(UnitStyle).includes(loaded.unitStyle as UnitStyle)) {
-      result.unitStyle = loaded.unitStyle as UnitStyle;
-    }
     if (
       Object.values(MapGeneratorType).includes(
         loaded.mapGeneratorType as MapGeneratorType,
@@ -213,14 +248,12 @@ export class ConfigManager {
       spawnPointCount: 3,
       fogOfWarEnabled: true,
       debugOverlayEnabled: false,
-      losOverlayEnabled: false, // Added
+      losOverlayEnabled: false,
       agentControlEnabled: true,
       allowTacticalPause: true,
-      unitStyle: UnitStyle.TacticalIcons,
       mapGeneratorType: MapGeneratorType.DenseShip,
       missionType: MissionType.Default,
       lastSeed: Date.now(),
-      themeId: "default",
       startingThreatLevel: 0,
       baseEnemyCount: 3,
       enemyGrowthPerMission: 1,

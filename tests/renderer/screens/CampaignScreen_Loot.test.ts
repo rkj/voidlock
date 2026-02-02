@@ -7,7 +7,6 @@ describe("CampaignScreen Bonus Loot Pips", () => {
   let container: HTMLElement;
   let manager: CampaignManager;
   let onNodeSelect: any;
-  let onBarracks: any;
   let onBack: any;
   let mockModalService: any;
 
@@ -34,7 +33,6 @@ describe("CampaignScreen Bonus Loot Pips", () => {
       })(),
     );
     onNodeSelect = vi.fn();
-    onBarracks = vi.fn();
     onBack = vi.fn();
     mockModalService = {
       alert: vi.fn().mockResolvedValue(undefined),

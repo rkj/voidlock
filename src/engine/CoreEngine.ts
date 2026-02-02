@@ -11,8 +11,7 @@ import {
   EngineMode,
   CommandLogEntry,
   CommandType,
-  CampaignNodeType,
-} from "../shared/types";
+} from "@src/shared/types";
 import { PRNG } from "../shared/PRNG";
 import { GameGrid } from "./GameGrid";
 import { Pathfinder } from "./Pathfinder";
@@ -29,7 +28,7 @@ import { CommandHandler } from "./managers/CommandHandler";
 import { LootManager } from "./managers/LootManager";
 import { UnitSpawner } from "./managers/UnitSpawner";
 
-export class CoreEngine {
+export class CoreEngine implements IDirector {
   private prng: PRNG;
   private gameGrid: GameGrid;
   private pathfinder: Pathfinder;
@@ -165,9 +164,6 @@ export class CoreEngine {
       this.prng,
       (enemy) => this.enemyManager.addEnemy(this.state, enemy),
       startingThreatLevel,
-      baseEnemyCount,
-      enemyGrowthPerMission,
-      missionDepth,
       map,
       startingPoints,
     );
@@ -252,6 +248,18 @@ export class CoreEngine {
 
   public addEnemy(enemy: Enemy) {
     this.enemyManager.addEnemy(this.state, enemy);
+  }
+
+  public handleUseItem(state: GameState, cmd: any): void {
+    this.director.handleUseItem(state, cmd);
+  }
+
+  public getThreatLevel(): number {
+    return this.director.getThreatLevel();
+  }
+
+  public preSpawn(): void {
+    this.director.preSpawn();
   }
 
   public getState(): GameState {

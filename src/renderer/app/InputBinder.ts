@@ -1,6 +1,6 @@
 import { AppContext } from "./AppContext";
 import { TimeUtility } from "@src/renderer/TimeUtility";
-import { MapGeneratorType, UnitStyle, MissionType } from "@src/shared/types";
+import { MapGeneratorType, MissionType } from "@src/shared/types";
 
 /**
  * InputBinder is responsible for attaching and detaching DOM event listeners.

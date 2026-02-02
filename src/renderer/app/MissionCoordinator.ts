@@ -8,10 +8,11 @@ import {
   SquadConfig,
   MissionType,
   MapGeneratorType,
-  UnitStyle,
 } from "@src/shared/types";
 import { CampaignNode, MissionReport } from "@src/shared/campaign_types";
 import { TimeUtility } from "@src/renderer/TimeUtility";
+
+import { ConfigManager } from "../ConfigManager";
 
 export class MissionCoordinator {
   private debriefShown = false;
@@ -36,7 +37,6 @@ export class MissionCoordinator {
       baseEnemyCount: number;
       enemyGrowthPerMission: number;
       allowTacticalPause: boolean;
-      unitStyle: UnitStyle;
       campaignNode?: CampaignNode;
     },
     setupCallbacks: (report: MissionReport) => void,
@@ -88,7 +88,7 @@ export class MissionCoordinator {
   }
 
   public setupGameClientCallbacks(
-    config: { unitStyle: UnitStyle; campaignNode?: CampaignNode },
+    config: { campaignNode?: CampaignNode },
     onMissionEnd: (report: MissionReport) => boolean | void,
     updateUI: (state: GameState) => void,
   ) {
@@ -109,7 +109,7 @@ export class MissionCoordinator {
         }
       }
       if (this.context.renderer) {
-        this.context.renderer.setUnitStyle(config.unitStyle);
+        this.context.renderer.setUnitStyle(ConfigManager.loadGlobal().unitStyle);
         this.context.renderer.setOverlay(
           this.context.menuController.overlayOptions,
         );
@@ -169,7 +169,6 @@ export class MissionCoordinator {
 
       this.setupGameClientCallbacks(
         {
-          unitStyle: config.unitStyle,
           campaignNode: campaignNode || undefined,
         },
         setupCallbacks,

@@ -76,21 +76,18 @@ describe("CampaignManager Advanced Rules (voidlock-a6i8)", () => {
     expect(manager.getState()?.scrap).toBe(2000);
   });
 
-  it("should maintain backward compatibility with legacy arguments", () => {
-    // startNewCampaign(seed, difficulty, allowTacticalPause, themeId, unitStyle, mapGeneratorType, mapGrowthRate)
+  it("should maintain backward compatibility with legacy arguments (simplified)", () => {
+    // startNewCampaign(seed, difficulty, overrides, mapGeneratorType, mapGrowthRate)
     manager.startNewCampaign(
       12345,
       "Normal",
-      false,
-      "industrial",
-      undefined,
+      { allowTacticalPause: false },
       MapGeneratorType.TreeShip,
       0.8,
     );
 
     const rules = manager.getState()?.rules;
     expect(rules?.allowTacticalPause).toBe(false);
-    expect(rules?.themeId).toBe("industrial");
     expect(rules?.mapGeneratorType).toBe(MapGeneratorType.TreeShip);
     expect(rules?.mapGrowthRate).toBe(0.8);
   });
