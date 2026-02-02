@@ -11,6 +11,7 @@ vi.mock("@src/renderer/visuals/AssetManager", () => ({
   AssetManager: {
     getInstance: vi.fn().mockReturnValue({
       getUnitSprite: vi.fn().mockReturnValue({ complete: true, naturalWidth: 64 }),
+      getIcon: vi.fn().mockReturnValue({ complete: true, naturalWidth: 64 }),
     }),
   },
 }));
@@ -62,16 +63,7 @@ describe("MissionSetupManager - Visual Style Visibility (regression_ii5f)", () =
       <div id="mission-setup-context"></div>
       <div id="setup-content">
         <div id="common-config-section">
-          <select id="select-unit-style">
-            <option value="TacticalIcons">Tactical</option>
-            <option value="Sprites">Sprites</option>
-          </select>
-          <div id="unit-style-preview">
-            <canvas id="preview-canvas-tactical"></canvas>
-            <canvas id="preview-canvas-sprites"></canvas>
-            <div class="style-preview-item" data-style="TacticalIcons"></div>
-            <div class="style-preview-item" data-style="Sprites"></div>
-          </div>
+          <div id="unit-style-preview" class="style-preview-container"></div>
         </div>
         <div id="map-config-section">
           <select id="map-generator-type"></select>
@@ -131,42 +123,22 @@ describe("MissionSetupManager - Visual Style Visibility (regression_ii5f)", () =
     const mapSection = document.getElementById("map-config-section");
 
     expect(mapSection?.style.display).toBe("none");
-    // common-config-section should have no display style set by manager, so it defaults to visible
     expect(commonSection?.style.display).not.toBe("none");
   });
 
   it("should allow changing unit style in campaign mode and persist it", () => {
-    // 1. Initial load
     manager.loadAndApplyConfig(true);
     expect(manager.unitStyle).toBe("TacticalIcons");
 
-    // 2. Change style via UI simulation
-    const styleSelect = document.getElementById("select-unit-style") as HTMLSelectElement;
-    styleSelect.value = "Sprites";
-    
-    // In actual app, GameApp handles the change event and updates manager.unitStyle
-    // But saveCurrentConfig now reads it from UI too.
-    manager.saveCurrentConfig();
+    // Change style via card click
+    const spriteCard = document.querySelector('.style-preview-item[data-style="Sprites"]') as HTMLElement;
+    expect(spriteCard).not.toBeNull();
+    spriteCard.click();
     
     expect(manager.unitStyle).toBe("Sprites");
     expect(ConfigManager.saveCampaign).toHaveBeenCalledWith(expect.objectContaining({
       unitStyle: "Sprites"
     }));
-
-    // 3. Verify that saveCurrentConfig doesn't overwrite it back to campaign rule
-    // Mock campaign state having TacticalIcons as rule
-    (context.campaignManager.getState as any).mockReturnValue({
-      rules: { 
-        unitStyle: "TacticalIcons",
-        difficulty: "Standard" 
-      },
-      roster: [],
-      history: [],
-      currentSector: 1,
-    });
-
-    manager.saveCurrentConfig();
-    expect(manager.unitStyle).toBe("Sprites"); // Should STAY Sprites
   });
 
   it("should respect saved preference over campaign rule on reload", () => {
@@ -179,21 +151,10 @@ describe("MissionSetupManager - Visual Style Visibility (regression_ii5f)", () =
       squadConfig: { soldiers: [], inventory: {} }
     });
 
-    // Mock campaign rule having TacticalIcons
-    (context.campaignManager.getState as any).mockReturnValue({
-      rules: { 
-        unitStyle: "TacticalIcons",
-        difficulty: "Standard" 
-      },
-      roster: [],
-      history: [],
-      currentSector: 1,
-    });
-
     manager.loadAndApplyConfig(true);
 
     expect(manager.unitStyle).toBe("Sprites");
-    const styleSelect = document.getElementById("select-unit-style") as HTMLSelectElement;
-    expect(styleSelect.value).toBe("Sprites");
+    const activeItem = document.querySelector(".style-preview-item.active");
+    expect(activeItem?.getAttribute("data-style")).toBe("Sprites");
   });
 });

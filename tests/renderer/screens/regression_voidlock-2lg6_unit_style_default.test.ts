@@ -43,20 +43,22 @@ describe("CampaignScreen Unit Style Default Regression", () => {
   it("should have 'Tactical Icons' as the default selection for unit style in wizard", () => {
     const screen = new CampaignScreen(
       "screen-campaign",
-      manager,
-      mockModalService,
+      {
+        campaignManager: manager,
+        modalService: mockModalService,
+        themeManager: {
+          getColor: vi.fn().mockReturnValue("#000"),
+          setTheme: vi.fn(),
+        },
+      } as any,
       onNodeSelect,
       onBack,
     );
     screen.show();
 
-    const styleSelect = container.querySelector(
-      "#campaign-unit-style",
-    ) as HTMLSelectElement;
-    expect(styleSelect).not.toBeNull();
-    expect(styleSelect.value).toBe("TacticalIcons");
-    expect(styleSelect.options[styleSelect.selectedIndex].text).toContain(
-      "Tactical Icons",
-    );
+    const activeItem = container.querySelector(".style-preview-item.active");
+    expect(activeItem).not.toBeNull();
+    expect(activeItem?.getAttribute("data-style")).toBe("TacticalIcons");
+    expect(activeItem?.textContent).toContain("Tactical Icons");
   });
 });

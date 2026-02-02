@@ -27,7 +27,6 @@ export class InputBinder {
     onExportReplay: () => void;
     onShowStatistics: () => void;
     onSetupBack: () => void;
-    onUnitStyleChange: (style: UnitStyle) => void;
     onThemeChange: (themeId: string) => void;
     onMapGeneratorChange: (type: MapGeneratorType) => void;
     onMissionTypeChange: (type: MissionType) => void;
@@ -150,11 +149,6 @@ export class InputBinder {
     });
     this.addToggleListener("toggle-allow-tactical-pause", (checked) => {
       callbacks.onTogglePauseAllowed(checked);
-    });
-
-    this.addListener("select-unit-style", "change", (e: Event) => {
-      const target = e.target as HTMLSelectElement;
-      callbacks.onUnitStyleChange(target.value as UnitStyle);
     });
 
     const tsSlider = document.getElementById(

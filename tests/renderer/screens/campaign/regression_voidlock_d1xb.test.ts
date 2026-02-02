@@ -39,10 +39,18 @@ describe("regression_voidlock_d1xb: Clear cached squad on new campaign start", (
   });
 
   it("should call ConfigManager.clearCampaign() when 'Initialize Expedition' is clicked", () => {
-    const wizard = new NewCampaignWizard(container, {
-      onStartCampaign,
-      onBack,
-    });
+    const wizard = new NewCampaignWizard(
+      container,
+      {
+        themeManager: {
+          getColor: vi.fn().mockReturnValue("#000"),
+        },
+      } as any,
+      {
+        onStartCampaign,
+        onBack,
+      },
+    );
     wizard.render();
 
     const startBtn = container.querySelector(".primary-button") as HTMLElement;

@@ -57,13 +57,19 @@ vi.mock("@src/renderer/ThemeManager", () => ({
   },
 }));
 
+// Mock AssetManager
 vi.mock("@src/renderer/visuals/AssetManager", () => ({
   AssetManager: {
-    getInstance: vi.fn().mockReturnValue({
+    getInstance: () => ({
       getUnitSprite: vi.fn().mockReturnValue({
         complete: true,
-        naturalWidth: 100,
-        onload: null,
+        naturalWidth: 64,
+        addEventListener: vi.fn(),
+      }),
+      getIcon: vi.fn().mockReturnValue({
+        complete: true,
+        naturalWidth: 64,
+        addEventListener: vi.fn(),
       }),
     }),
   },
@@ -204,7 +210,7 @@ describe("Unit Style Preview Regression (voidlock-g72o)", () => {
     document.getElementById("btn-menu-custom")?.click();
 
     const tacticalCanvas = document.getElementById(
-      "preview-canvas-tactical",
+      "preview-canvas-tacticalicons",
     ) as HTMLCanvasElement;
     const spritesCanvas = document.getElementById(
       "preview-canvas-sprites",
@@ -235,27 +241,22 @@ describe("Unit Style Preview Regression (voidlock-g72o)", () => {
   it("should update active state when unit style selection changes", async () => {
     document.getElementById("btn-menu-custom")?.click();
 
-    const styleSelect = document.getElementById(
-      "select-unit-style",
-    ) as HTMLSelectElement;
     const tacticalItem = document.querySelector(
       ".style-preview-item[data-style='TacticalIcons']",
-    );
+    ) as HTMLElement;
     const spritesItem = document.querySelector(
       ".style-preview-item[data-style='Sprites']",
-    );
+    ) as HTMLElement;
 
-    // Default should be TacticalIcons (from config manager mock)
-    // Wait, in my test I didn't mock ConfigManager to return TacticalIcons specifically, but it defaults to it.
-
-    styleSelect.value = UnitStyle.Sprites;
-    styleSelect.dispatchEvent(new Event("change"));
+    // Default should be TacticalIcons
+    // Click Sprites
+    spritesItem.click();
 
     expect(spritesItem?.classList.contains("active")).toBe(true);
     expect(tacticalItem?.classList.contains("active")).toBe(false);
 
-    styleSelect.value = UnitStyle.TacticalIcons;
-    styleSelect.dispatchEvent(new Event("change"));
+    // Click Tactical
+    tacticalItem.click();
 
     expect(tacticalItem?.classList.contains("active")).toBe(true);
     expect(spritesItem?.classList.contains("active")).toBe(false);

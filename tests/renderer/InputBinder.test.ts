@@ -88,19 +88,6 @@ describe("InputBinder", () => {
     };
   });
 
-  it("should trigger onUnitStyleChange when selector changes", () => {
-    inputBinder.bindAll(mockCallbacks);
-    const select = document.getElementById(
-      "select-unit-style",
-    ) as HTMLSelectElement;
-    select.value = UnitStyle.Sprites;
-    select.dispatchEvent(new Event("change"));
-
-    expect(mockCallbacks.onUnitStyleChange).toHaveBeenCalledWith(
-      UnitStyle.Sprites,
-    );
-  });
-
   it("should trigger toggle callbacks when checkboxes change", () => {
     inputBinder.bindAll(mockCallbacks);
     const fogCheck = document.getElementById(
