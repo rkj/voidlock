@@ -68,12 +68,12 @@ describe("Renderer", () => {
       { x: 0, y: 1, type: CellType.Floor },
       { x: 1, y: 1, type: CellType.Floor },
     ],
-    extraction: { x: 1, y: 1 },
+    extraction: { x: 0, y: 1 },
     objectives: [
       {
         id: "o1",
         kind: "Recover",
-        targetCell: { x: 0, y: 1 },
+        targetCell: { x: 1, y: 1 },
       },
     ],
   };
