@@ -212,7 +212,7 @@ export class GameApp {
           this.context.campaignShell.show("campaign", "barracks");
         else if (screen === "mission-setup") {
           if (this.missionSetupManager.currentCampaignNode) {
-            this.context.campaignShell.show("campaign", "sector-map");
+            this.context.campaignShell.show("campaign", "sector-map", false);
           } else {
             this.context.campaignShell.show("custom");
           }
@@ -250,7 +250,7 @@ export class GameApp {
         );
         this.context.screenManager.show("equipment");
         if (this.missionSetupManager.currentCampaignNode) {
-          this.context.campaignShell.show("campaign", "sector-map");
+          this.context.campaignShell.show("campaign", "sector-map", false);
         } else {
           this.context.campaignShell.show("custom");
         }
@@ -419,7 +419,7 @@ export class GameApp {
         }
       } else if (persistedScreen === "mission-setup") {
         if (this.missionSetupManager.currentCampaignNode) {
-          this.context.campaignShell.show("campaign", "sector-map");
+          this.context.campaignShell.show("campaign", "sector-map", false);
         } else {
           this.context.campaignShell.show("custom");
         }
@@ -428,7 +428,7 @@ export class GameApp {
           this.missionSetupManager.currentSquad,
         );
         if (this.missionSetupManager.currentCampaignNode) {
-          this.context.campaignShell.show("campaign", "sector-map");
+          this.context.campaignShell.show("campaign", "sector-map", false);
         } else {
           this.context.campaignShell.show("custom");
         }

@@ -10,6 +10,7 @@ export class CampaignShell {
   private onMenu: () => void;
   private activeTabId: CampaignTabId = "sector-map";
   private mode: CampaignShellMode = "none";
+  private showTabs: boolean = true;
 
   constructor(
     containerId: string,
@@ -28,9 +29,11 @@ export class CampaignShell {
   public show(
     mode: CampaignShellMode,
     activeTabId: CampaignTabId = "sector-map",
+    showTabs: boolean = true,
   ) {
     this.mode = mode;
     this.activeTabId = activeTabId;
+    this.showTabs = showTabs;
     this.container.style.display = "flex";
     this.render();
   }
@@ -126,7 +129,7 @@ export class CampaignShell {
     const nav = document.createElement("div");
     nav.className = "flex-row gap-5";
 
-    if (this.mode === "campaign" && state) {
+    if (this.mode === "campaign" && state && this.showTabs) {
       const tabs: { id: CampaignTabId; label: string }[] = [
         { id: "sector-map", label: "Sector Map" },
         { id: "barracks", label: "Barracks" },

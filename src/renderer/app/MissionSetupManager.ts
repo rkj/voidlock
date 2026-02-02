@@ -89,7 +89,7 @@ export class MissionSetupManager {
       if (spVal) spVal.textContent = spInput.value;
     }
 
-    this.context.campaignShell.show("campaign", "sector-map");
+    this.context.campaignShell.show("campaign", "sector-map", false);
     this.context.screenManager.show("mission-setup");
   }
 
