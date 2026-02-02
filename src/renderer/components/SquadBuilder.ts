@@ -3,6 +3,7 @@ import { SquadConfig, MissionType, Archetype } from "@src/shared/types";
 import { CampaignSoldier } from "@src/shared/campaign_types";
 import { ArchetypeLibrary } from "@src/shared/types/units";
 import { SoldierWidget } from "@src/renderer/ui/SoldierWidget";
+import { NameGenerator } from "@src/shared/utils/NameGenerator";
 
 type DragData =
   | { type: "campaign"; id: string; archetypeId: string }
@@ -227,7 +228,18 @@ export class SquadBuilder {
           });
         }
       } else {
-        this.squad.soldiers.push({ archetypeId: data.archetypeId });
+        const arch = ArchetypeLibrary[data.archetypeId];
+        this.squad.soldiers.push({
+          archetypeId: data.archetypeId,
+          name: NameGenerator.generate(),
+          hp: arch.baseHp,
+          maxHp: arch.baseHp,
+          soldierAim: arch.soldierAim,
+          rightHand: arch.rightHand,
+          leftHand: arch.leftHand,
+          body: arch.body,
+          feet: arch.feet,
+        });
       }
       this.onSquadUpdated(this.squad);
       updateCount();
@@ -381,7 +393,7 @@ export class SquadBuilder {
       if (soldier) {
         slot.classList.add("occupied");
         const arch = ArchetypeLibrary[soldier.archetypeId];
-        let name = arch?.name || soldier.archetypeId;
+        let name = soldier.name || arch?.name || soldier.archetypeId;
         if (this.isCampaign && soldier.id) {
           const state = this.context.campaignManager.getState();
           const rs = state?.roster.find((r) => r.id === soldier.id);

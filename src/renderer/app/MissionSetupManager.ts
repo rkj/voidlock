@@ -14,6 +14,8 @@ import { MapUtility } from "@src/renderer/MapUtility";
 import { MapValidator } from "@src/shared/validation/MapValidator";
 import { MapFactory } from "@src/engine/map/MapFactory";
 import { SquadBuilder } from "../components/SquadBuilder";
+import { NameGenerator } from "@src/shared/utils/NameGenerator";
+import { ArchetypeLibrary } from "@src/shared/types/units";
 
 export class MissionSetupManager {
   public fogOfWarEnabled = ConfigManager.getDefault().fogOfWarEnabled;
@@ -334,6 +336,23 @@ export class MissionSetupManager {
           );
         }
       }
+    } else {
+      // Hydrate custom soldiers if they lack names/stats
+      this.currentSquad.soldiers.forEach((s) => {
+        if (!s.name) {
+          const arch = ArchetypeLibrary[s.archetypeId];
+          if (arch) {
+            s.name = NameGenerator.generate();
+            s.hp = arch.baseHp;
+            s.maxHp = arch.baseHp;
+            s.soldierAim = arch.soldierAim;
+            s.rightHand = s.rightHand || arch.rightHand;
+            s.leftHand = s.leftHand || arch.leftHand;
+            s.body = s.body || arch.body;
+            s.feet = s.feet || arch.feet;
+          }
+        }
+      });
     }
     this.renderSquadBuilder(isCampaign);
   }
