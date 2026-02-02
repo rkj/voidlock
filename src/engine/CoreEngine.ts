@@ -218,18 +218,23 @@ export class CoreEngine {
       });
     }
 
-    // Catch-up Phase: If in Simulation mode but have a command log or target tick, fast-forward
-    const lastCommandTick =
-      this.commandLog.length > 0
-        ? this.commandLog[this.commandLog.length - 1].tick
-        : 0;
-    const finalCatchupTick = Math.max(lastCommandTick, targetTick);
+    // Catch-up Phase: If in Simulation or Replay mode but have a target tick, fast-forward.
+    // In Simulation mode, we also ensure we catch up to at least the last command tick for session recovery.
+    let finalCatchupTick = targetTick;
+    if (mode === EngineMode.Simulation) {
+      const lastCommandTick =
+        this.commandLog.length > 0
+          ? this.commandLog[this.commandLog.length - 1].tick
+          : 0;
+      finalCatchupTick = Math.max(lastCommandTick, targetTick);
+    }
 
-    if (mode === EngineMode.Simulation && finalCatchupTick > 0) {
+    if (finalCatchupTick > 0) {
       this.isCatchingUp = true;
       while (this.state.t < finalCatchupTick) {
-        // We use a fixed 16ms step for deterministic catch-up
-        this.update(16);
+        // We use a fixed 16ms step for deterministic catch-up, but cap it at the target
+        const step = Math.min(16, finalCatchupTick - this.state.t);
+        this.update(step);
       }
       this.isCatchingUp = false;
     }
@@ -317,7 +322,8 @@ export class CoreEngine {
   public update(scaledDt: number) {
     if (
       this.state.status !== "Playing" &&
-      !this.isCatchingUp
+      !this.isCatchingUp &&
+      this.state.settings.mode !== EngineMode.Replay
     )
       return;
 
