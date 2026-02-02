@@ -99,9 +99,9 @@ describe("Mission Setup Context Header", () => {
             <select id="map-generator-type"><option value="Procedural">Procedural</option></select>
             <input type="number" id="map-seed" />
             <div id="preset-map-controls">
-               <input type="number" id="map-width" value="14" />
-               <input type="number" id="map-height" value="14" />
-               <input type="number" id="map-spawn-points" value="1" />
+               <input type="number" id="map-width" value="10" />
+               <input type="number" id="map-height" value="10" />
+               <input type="number" id="map-spawn-points" value="3" />
                <input type="range" id="map-starting-threat" value="0" />
                <span id="map-starting-threat-value">0</span>
                <input type="range" id="map-base-enemies" value="3" />

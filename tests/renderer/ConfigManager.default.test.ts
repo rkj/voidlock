@@ -7,5 +7,7 @@ describe("ConfigManager Defaults", () => {
   it("should have MapGeneratorType.DenseShip as default", () => {
     const defaults = ConfigManager.getDefault();
     expect(defaults.mapGeneratorType).toBe(MapGeneratorType.DenseShip);
+    expect(defaults.mapWidth).toBe(10);
+    expect(defaults.mapHeight).toBe(10);
   });
 });

@@ -204,9 +204,9 @@ export class ConfigManager {
 
   public static getDefault(): GameConfig {
     return {
-      mapWidth: 14,
-      mapHeight: 14,
-      spawnPointCount: 5,
+      mapWidth: 10,
+      mapHeight: 10,
+      spawnPointCount: 3,
       fogOfWarEnabled: true,
       debugOverlayEnabled: false,
       losOverlayEnabled: false, // Added
