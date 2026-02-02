@@ -541,13 +541,11 @@ describe("E2E Campaign Failure Modes", () => {
     expect(deadSoldier?.status).toBe("Dead");
 
     // 4. Mission 2: Verify dead soldier is NOT in squad selection
-    const node2 = cm
-      .getState()!
-      .nodes.find(
-        (n) =>
-          n.status === "Accessible" &&
-          (n.type === "Combat" || n.type === "Elite" || n.type === "Boss"),
-      )!;
+    const availableNodes = cm.getState()!.nodes.filter(n => n.status === "Accessible");
+    const node2 = availableNodes.find(
+        (n) => (n.type === "Combat" || n.type === "Elite" || n.type === "Boss"),
+    ) || availableNodes[0];
+    
     expect(node2).toBeTruthy();
     const node2El = document.querySelector(
       `.campaign-node[data-id="${node2.id}"]`,

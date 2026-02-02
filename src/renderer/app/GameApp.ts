@@ -11,7 +11,7 @@ import {
   UnitState,
   MapGenerationConfig,
 } from "@src/shared/types";
-import { calculateSpawnPoints } from "@src/shared/campaign_types";
+import { calculateSpawnPoints, CampaignNode } from "@src/shared/campaign_types";
 import { DebugUtility } from "@src/renderer/DebugUtility";
 import { TimeUtility } from "@src/renderer/TimeUtility";
 import { ModalService } from "@src/renderer/ui/ModalService";
@@ -178,28 +178,11 @@ export class GameApp {
 
     this.campaignScreen = new CampaignScreen(
       "screen-campaign",
-      this.context.campaignManager,
-      this.context.modalService,
-      (node) =>
-        this.campaignFlowCoordinator.onCampaignNodeSelected(
-          node,
-          () => this.campaignScreen.show(),
-          (n, size, spawnPoints) =>
-            this.missionSetupManager.prepareMissionSetup(n, size, spawnPoints),
-        ),
+      this.context,
+      (node) => this.onCampaignNodeSelect(node),
       () => this.showMainMenu(),
-      () => {
-        this.applyCampaignTheme();
-        this.context.campaignShell.show("campaign", "sector-map");
-      },
-      () => {
-        const state = this.context.campaignManager.getState();
-        if (state) {
-          this.campaignSummaryScreen.show(state);
-          this.context.screenManager.show("campaign-summary", true, true);
-          this.context.campaignShell.hide();
-        }
-      },
+      () => this.onCampaignStart(),
+      () => this.onShowSummary(),
     );
 
     this.equipmentScreen = new EquipmentScreen(
@@ -291,11 +274,6 @@ export class GameApp {
         } else {
           this.context.campaignShell.hide();
         }
-      },
-      onUnitStyleChange: (style: UnitStyle) => {
-        this.missionSetupManager.unitStyle = style;
-        this.missionSetupManager.saveCurrentConfig();
-        this.missionSetupManager.renderUnitStylePreview();
       },
       onThemeChange: (themeId: string) => {
         this.missionSetupManager.currentThemeId = themeId;
@@ -575,6 +553,29 @@ export class GameApp {
       this.context.themeManager.setTheme(state.rules.themeId);
     } else {
       this.context.themeManager.setTheme("default");
+    }
+  }
+
+  private onCampaignNodeSelect(node: CampaignNode) {
+    this.campaignFlowCoordinator.onCampaignNodeSelected(
+      node,
+      () => this.campaignScreen.show(),
+      (n, size, spawnPoints) =>
+        this.missionSetupManager.prepareMissionSetup(n, size, spawnPoints),
+    );
+  }
+
+  private onCampaignStart() {
+    this.applyCampaignTheme();
+    this.context.campaignShell.show("campaign", "sector-map");
+  }
+
+  private onShowSummary() {
+    const state = this.context.campaignManager.getState();
+    if (state) {
+      this.campaignSummaryScreen.show(state);
+      this.context.screenManager.show("campaign-summary", true, true);
+      this.context.campaignShell.hide();
     }
   }
 

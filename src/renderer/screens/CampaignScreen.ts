@@ -4,6 +4,7 @@ import { ConfigManager } from "@src/renderer/ConfigManager";
 import { CampaignNode, CampaignState } from "@src/shared/campaign_types";
 import { ModalService } from "../ui/ModalService";
 import { NewCampaignWizard } from "./campaign/NewCampaignWizard";
+import { AppContext } from "../app/AppContext";
 
 export class CampaignScreen {
   private container: HTMLElement;
@@ -17,8 +18,7 @@ export class CampaignScreen {
 
   constructor(
     containerId: string,
-    manager: CampaignManager,
-    modalService: ModalService,
+    private context: AppContext,
     onNodeSelect: (node: CampaignNode) => void,
     onBack: () => void,
     onCampaignStart?: () => void,
@@ -27,8 +27,8 @@ export class CampaignScreen {
     const el = document.getElementById(containerId);
     if (!el) throw new Error(`Container #${containerId} not found`);
     this.container = el;
-    this.manager = manager;
-    this.modalService = modalService;
+    this.manager = context.campaignManager;
+    this.modalService = context.modalService;
     this.onNodeSelect = onNodeSelect;
     this.onBack = onBack;
     this.onCampaignStart = onCampaignStart;
@@ -129,7 +129,7 @@ export class CampaignScreen {
 
   private renderNoCampaign() {
     if (!this.wizard) {
-      this.wizard = new NewCampaignWizard(this.container, {
+      this.wizard = new NewCampaignWizard(this.container, this.context, {
         onStartCampaign: (seed, difficulty, overrides) => {
           this.manager.startNewCampaign(seed, difficulty, overrides);
           if (this.onCampaignStart) this.onCampaignStart();

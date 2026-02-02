@@ -9,6 +9,7 @@
   --color-text-muted: #aaa;
   --color-text-dim: #666;
   --color-primary: #0f0; /* Voidlock Green */
+  --color-primary-rgb: 0, 255, 0;
   --color-accent: #0af;
   --color-danger: #f00;
   --color-error: var(--color-danger);
@@ -654,11 +655,21 @@ label {
   align-items: center;
   gap: 5px;
   flex: 1;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 10px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+}
+
+.style-preview-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--color-border-strong);
 }
 
 .style-preview-box {
-  width: 64px;
-  height: 64px;
+  width: 128px;
+  height: 128px;
   background: #000;
   border: 1px solid var(--color-border-strong);
   display: flex;
@@ -676,19 +687,26 @@ label {
 }
 
 .style-preview-label {
-  font-size: 0.7em;
+  font-size: 0.9em;
   color: var(--color-text-dim);
   text-transform: uppercase;
   letter-spacing: 1px;
+  margin-top: 5px;
+}
+
+.style-preview-item.active {
+  border-color: var(--color-primary);
+  background: rgba(var(--color-primary-rgb), 0.1);
+  box-shadow: 0 0 15px rgba(0, 255, 0, 0.1);
 }
 
 .style-preview-item.active .style-preview-box {
   border-color: var(--color-primary);
-  box-shadow: 0 0 10px rgba(0, 255, 0, 0.2);
 }
 
 .style-preview-item.active .style-preview-label {
   color: var(--color-primary);
+  font-weight: bold;
 }
 
 /* Equipment Slots */

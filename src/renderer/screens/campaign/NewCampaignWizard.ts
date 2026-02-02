@@ -2,6 +2,8 @@ import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { ConfigManager } from "@src/renderer/ConfigManager";
 import { CampaignOverrides } from "@src/shared/campaign_types";
 import { UnitStyle, MapGeneratorType } from "@src/shared/types";
+import { AppContext } from "../../app/AppContext";
+import { UnitStyleSelector } from "../../components/UnitStyleSelector";
 
 export interface NewCampaignWizardOptions {
   onStartCampaign: (
@@ -17,8 +19,14 @@ export class NewCampaignWizard {
   private options: NewCampaignWizardOptions;
   private selectedDifficulty = "normal";
   private isAdvancedShown = false;
+  private unitStyleSelector?: UnitStyleSelector;
+  private selectedUnitStyle: UnitStyle = UnitStyle.TacticalIcons;
 
-  constructor(container: HTMLElement, options: NewCampaignWizardOptions) {
+  constructor(
+    container: HTMLElement,
+    private context: AppContext,
+    options: NewCampaignWizardOptions,
+  ) {
     this.container = container;
     this.options = options;
   }
@@ -232,15 +240,25 @@ export class NewCampaignWizard {
     styleLabel.textContent = "Visual Style";
     styleLabel.style.fontSize = "0.8em";
     styleLabel.style.color = "var(--color-text-dim)";
-    const styleSelect = document.createElement("select");
-    styleSelect.id = "campaign-unit-style";
-    styleSelect.innerHTML = `
-      <option value="TacticalIcons" selected>Tactical Icons (Default)</option>
-      <option value="Sprites">Sprites</option>
-    `;
     styleGroup.appendChild(styleLabel);
-    styleGroup.appendChild(styleSelect);
+
+    const stylePreviewContainer = document.createElement("div");
+    stylePreviewContainer.id = "campaign-unit-style-preview";
+    styleGroup.appendChild(stylePreviewContainer);
+
     form.appendChild(styleGroup);
+
+    // We need to render the selector after appending to form so it finds the element
+    // Actually we pass the element directly now
+    this.unitStyleSelector = new UnitStyleSelector(
+      stylePreviewContainer,
+      this.context,
+      this.selectedUnitStyle,
+      (style) => {
+        this.selectedUnitStyle = style;
+      },
+    );
+    this.unitStyleSelector.render();
 
     // Advanced Options (Collapsible)
     const advancedWrapper = document.createElement("div");
@@ -401,7 +419,7 @@ export class NewCampaignWizard {
       const overrides: CampaignOverrides = {
         allowTacticalPause: pauseCheck.checked,
         themeId: themeSelect.value,
-        unitStyle: styleSelect.value as UnitStyle,
+        unitStyle: this.selectedUnitStyle,
         mapGrowthRate: parseFloat(lengthSelect.value),
         economyMode: (
           document.getElementById("campaign-economy-mode") as HTMLSelectElement

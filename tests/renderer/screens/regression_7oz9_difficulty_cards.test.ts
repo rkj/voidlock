@@ -45,10 +45,15 @@ describe("CampaignScreen Difficulty Cards", () => {
   it("should render 4 difficulty cards", () => {
     const screen = new CampaignScreen(
       "screen-campaign",
-      manager,
-      mockModalService,
+      {
+        campaignManager: manager,
+        modalService: mockModalService,
+        themeManager: {
+          getColor: vi.fn().mockReturnValue("#000"),
+          setTheme: vi.fn(),
+        },
+      } as any,
       onNodeSelect,
-      onBarracks,
       onBack,
     );
     screen.show();
@@ -65,10 +70,15 @@ describe("CampaignScreen Difficulty Cards", () => {
   it("should update selection and tactical pause checkbox when cards are clicked", () => {
     const screen = new CampaignScreen(
       "screen-campaign",
-      manager,
-      mockModalService,
+      {
+        campaignManager: manager,
+        modalService: mockModalService,
+        themeManager: {
+          getColor: vi.fn().mockReturnValue("#000"),
+          setTheme: vi.fn(),
+        },
+      } as any,
       onNodeSelect,
-      onBarracks,
       onBack,
     );
     screen.show();
