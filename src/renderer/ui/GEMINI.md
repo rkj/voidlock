@@ -5,7 +5,7 @@ This directory contains UI components and managers for the Voidlock renderer.
 ## Files
 
 - `HUDManager.ts`: Manages the Head-Up Display, including soldier list, stats, and top bar.
-- `CampaignShell.ts`: Persistent UI shell for Campaign mode, providing resource display and tab-based navigation. Features a standardized top-bar layout with navigation (Tabs) and Main Menu moved to the Top Right and uniform button heights (32px).
+- `CampaignShell.ts`: Persistent UI shell for Campaign mode, providing resource display and tab-based navigation. Features a standardized top-bar layout with navigation (Tabs) and Main Menu moved to the Top Right and uniform button heights (32px). Supports a `showTabs` flag to hide navigation when in transient states like Mission Setup.
 - `StatDisplay.ts`: Reusable component for rendering icon-based stat blocks with tooltips.
 - `SoldierWidget.ts`: Unified component for rendering soldier items across different UI contexts (Tactical, Roster, Debrief, Squad Builder).
 - `MenuRenderer.ts`: Renders the hierarchical command menu into HTML strings.

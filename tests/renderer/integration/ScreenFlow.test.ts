@@ -371,4 +371,49 @@ describe("Screen Flow Integration", () => {
       "flex",
     );
   });
+
+  it("should hide tabs in CampaignShell when in Mission Setup or Equipment screen", async () => {
+    // 1. Main Menu -> Campaign
+    const btnCampaign = document.getElementById("btn-menu-campaign");
+    btnCampaign?.click();
+    
+    // Check tabs are visible
+    expect(document.querySelector(".tab-button")).not.toBeNull();
+
+    // 2. Campaign -> Mission Setup
+    const nodes = document.querySelectorAll(".campaign-node");
+    expect(nodes.length).toBeGreaterThan(0);
+    (nodes[0] as HTMLElement).click();
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    expect(document.getElementById("screen-mission-setup")?.style.display).toBe("flex");
+    
+    // Check tabs are HIDDEN
+    expect(document.querySelector(".tab-button")).toBeNull();
+
+    // 3. Mission Setup -> Equipment
+    const btnGotoEquipment = document.getElementById("btn-goto-equipment") as HTMLButtonElement;
+    btnGotoEquipment.click();
+    
+    expect(document.getElementById("screen-equipment")?.style.display).toBe("flex");
+    
+    // Check tabs are still HIDDEN
+    expect(document.querySelector(".tab-button")).toBeNull();
+    
+    // 4. Equipment -> Back to Mission Setup
+    const backBtn = Array.from(document.querySelectorAll("#screen-equipment button"))
+      .find(b => b.textContent === "Back") as HTMLElement;
+    backBtn?.click();
+    
+    expect(document.getElementById("screen-mission-setup")?.style.display).toBe("flex");
+    expect(document.querySelector(".tab-button")).toBeNull();
+    
+    // 5. Mission Setup -> Back to Campaign Map
+    const setupBackBtn = document.getElementById("btn-setup-back") as HTMLButtonElement;
+    setupBackBtn?.click();
+    
+    expect(document.getElementById("screen-campaign")?.style.display).toBe("flex");
+    // Check tabs are visible again
+    expect(document.querySelector(".tab-button")).not.toBeNull();
+  });
 });
