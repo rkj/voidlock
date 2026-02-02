@@ -32,5 +32,4 @@ export const VALID_TRANSITIONS: Record<ScreenId, ScreenId[]> = {
   debrief: ["main-menu", "campaign", "campaign-summary"],
   "campaign-summary": ["main-menu"],
   statistics: ["main-menu", "campaign", "barracks"],
-  "campaign-shell": [],
 };

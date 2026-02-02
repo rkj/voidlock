@@ -10,8 +10,7 @@ export type ScreenId =
   | "barracks"
   | "debrief"
   | "campaign-summary"
-  | "statistics"
-  | "campaign-shell";
+  | "statistics";
 
 export class ScreenManager {
   private screens: Map<ScreenId, HTMLElement> = new Map();
@@ -22,7 +21,6 @@ export class ScreenManager {
   constructor() {
     this.sessionManager = new SessionManager();
     this.registerScreen("main-menu");
-    this.registerScreen("campaign-shell");
     this.registerScreen("campaign");
     this.registerScreen("mission-setup");
     this.registerScreen("equipment");
@@ -61,7 +59,9 @@ export class ScreenManager {
 
     // Hide current
     const currentEl = this.screens.get(this.currentScreen);
-    if (currentEl) currentEl.style.display = "none";
+    if (currentEl) {
+      currentEl.style.display = "none";
+    }
 
     // Push to history if we are navigating deeper (not back to menu necessarily, but let's keep it simple)
     if (id !== "main-menu") {
@@ -74,7 +74,11 @@ export class ScreenManager {
     this.currentScreen = id;
     this.sessionManager.saveState(id);
     const newEl = this.screens.get(id);
-    if (newEl) newEl.style.display = "flex"; // Assuming flex layout for screens
+    if (newEl) {
+      newEl.style.display = "flex"; // Assuming flex layout for screens
+    } else {
+      console.error(`[ScreenManager] Screen element for ${id} not found!`);
+    }
   }
 
   public goBack() {
@@ -83,12 +87,20 @@ export class ScreenManager {
       if (prev) {
         // Hide current
         const currentEl = this.screens.get(this.currentScreen);
-        if (currentEl) currentEl.style.display = "none";
+        if (currentEl) {
+          currentEl.style.display = "none";
+        }
 
         // Show prev
         this.currentScreen = prev;
         const prevEl = this.screens.get(prev);
-        if (prevEl) prevEl.style.display = "flex";
+        if (prevEl) {
+          prevEl.style.display = "flex";
+        } else {
+          console.error(
+            `[ScreenManager] Previous screen element for ${prev} not found!`,
+          );
+        }
       }
     } else {
       // Default fallback

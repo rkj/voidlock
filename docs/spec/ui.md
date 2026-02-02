@@ -46,13 +46,14 @@ The application is divided into distinct screens to reduce UI clutter and improv
 - **Command Set Updates:**
   - `ENGAGE/IGNORE Toggle`: Units can be toggled between 'ENGAGE' (Stop & Shoot) and 'IGNORE' (Run) policies. This toggle should be easily accessible in the command menu.
   - **Squad Configuration (Drag & Drop):**
-    - **Layout Constraints**:
-      - **Soldier Cards**: MUST have a fixed maximum height (e.g., 80px) and width. 
-      - **Content**: Text must use `text-overflow: ellipsis` if name is too long.
-      - **Scrollbars**: Individual cards MUST NOT have scrollbars. The Roster panel itself handles vertical scrolling.
     - **Interface**:
-      - **Left Panel (Roster)**: Scrollable list of available soldiers/archetypes.
+      - **Left Panel (Roster)**: A full-height panel consisting of:
+        - **Scrollable List**: Contains available soldiers/archetypes.
+        - **Sticky Actions**: A section containing Quick Actions (Recruit, Revive) that remains visible even when the list is scrolled.
       - **Right Panel (Deployment)**: 4 fixed slots representing the squad.
+    - **Layout Constraints**:
+      - **Full Height**: The Squad Builder container MUST expand to fill the available vertical space in the setup screen, utilizing the full height of the container rather than a fixed or partial height.
+      - **Soldier Cards**: MUST NOT use fixed pixel heights. They MUST stretch to fit their content (e.g., `height: auto`) to ensure all tactical information is visible without internal scrolling or clipping.
     - **Interaction**:
       - **Drag & Drop**: Drag a soldier card from the Roster to a Deployment Slot to assign.
       - **Removal**: Drag a soldier out of a slot or click a "Remove" (X) button to unassign.

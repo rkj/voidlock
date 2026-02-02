@@ -11,6 +11,8 @@ vi.mock("@package.json", () => ({
 const mockGameClient = {
   init: vi.fn(),
   onStateUpdate: vi.fn(),
+  addStateUpdateListener: vi.fn(),
+  removeStateUpdateListener: vi.fn(),
   stop: vi.fn(),
   getIsPaused: vi.fn().mockReturnValue(false),
   getTargetScale: vi.fn().mockReturnValue(1.0),
