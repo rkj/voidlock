@@ -24,6 +24,11 @@ export class AssetManager {
     hive: "void",
   };
 
+  private readonly MISC_SPRITE_MAP: Record<string, string> = {
+    spawn: "spawn_point",
+    waypoint: "waypoint",
+  };
+
   private constructor() {
     this.loadIcons();
     this.loadSprites();
@@ -66,6 +71,17 @@ export class AssetManager {
         this.enemySprites[logicalName] = img;
       }
     });
+
+    // Load Misc Sprites
+    Object.values(this.MISC_SPRITE_MAP).forEach((logicalName) => {
+      if (this.unitSprites[logicalName]) return;
+      const url = this.theme.getAssetUrl(logicalName);
+      if (url) {
+        const img = new Image();
+        img.src = url;
+        this.unitSprites[logicalName] = img;
+      }
+    });
   }
 
   public getUnitSprite(archetypeId: string): HTMLImageElement | null {
@@ -76,5 +92,10 @@ export class AssetManager {
   public getEnemySprite(type: string): HTMLImageElement | null {
     const logicalName = this.ENEMY_SPRITE_MAP[type];
     return logicalName ? this.enemySprites[logicalName] : null;
+  }
+
+  public getMiscSprite(key: string): HTMLImageElement | null {
+    const logicalName = this.MISC_SPRITE_MAP[key];
+    return logicalName ? this.unitSprites[logicalName] : null;
   }
 }
