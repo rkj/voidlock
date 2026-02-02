@@ -87,7 +87,7 @@ export class MissionCoordinator {
 
     syncSpeedUI();
     this.setupGameClientCallbacks(config, setupCallbacks, updateUI);
-    this.context.screenManager.show("mission");
+    this.context.screenManager.show("mission", true, !!config.campaignNode);
   }
 
   public setupGameClientCallbacks(
@@ -201,7 +201,7 @@ export class MissionCoordinator {
       );
 
       syncSpeedUI();
-      this.context.screenManager.show("mission");
+      this.context.screenManager.show("mission", true, !!campaignNode);
     } catch (e) {
       console.error("Failed to resume mission", e);
     }

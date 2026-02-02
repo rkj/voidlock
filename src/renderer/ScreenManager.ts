@@ -15,9 +15,10 @@ export type ScreenId =
 export class ScreenManager {
   private screens: Map<ScreenId, HTMLElement> = new Map();
   private currentScreen: ScreenId = "main-menu";
-  private history: ScreenId[] = [];
+  private history: { id: ScreenId; isCampaign: boolean }[] = [];
   private sessionManager: SessionManager;
   private onExternalChange?: (id: ScreenId) => void;
+  private currentIsCampaign: boolean = false;
 
   constructor(onExternalChange?: (id: ScreenId) => void) {
     this.sessionManager = new SessionManager();
@@ -34,6 +35,7 @@ export class ScreenManager {
 
     // Force show initial screen without transition validation
     this.currentScreen = "main-menu";
+    this.currentIsCampaign = false;
     const el = this.screens.get("main-menu");
     if (el) el.style.display = "flex";
 
@@ -49,12 +51,14 @@ export class ScreenManager {
     }
   }
 
-  public show(id: ScreenId, updateHash: boolean = true) {
+  public show(id: ScreenId, updateHash: boolean = true, isCampaign: boolean = false) {
     if (this.currentScreen === id) {
       // Even if it's the same screen, ensure hash is in sync
       if (updateHash && window.location.hash !== `#${id}`) {
         window.location.hash = id;
       }
+      this.currentIsCampaign = isCampaign;
+      this.sessionManager.saveState(id, isCampaign);
       return;
     }
 
@@ -75,14 +79,15 @@ export class ScreenManager {
 
     // Push to history if we are navigating deeper (not back to menu necessarily, but let's keep it simple)
     if (id !== "main-menu") {
-      this.history.push(this.currentScreen);
+      this.history.push({ id: this.currentScreen, isCampaign: this.currentIsCampaign });
     } else {
       this.history = []; // Reset history on returning to menu
     }
 
     // Show new
     this.currentScreen = id;
-    this.sessionManager.saveState(id);
+    this.currentIsCampaign = isCampaign;
+    this.sessionManager.saveState(id, isCampaign);
     const newEl = this.screens.get(id);
     if (newEl) {
       newEl.style.display = "flex"; // Assuming flex layout for screens
@@ -104,14 +109,14 @@ export class ScreenManager {
       
       const validNext = VALID_TRANSITIONS[this.currentScreen];
       if (validNext && validNext.includes(hash)) {
-        this.show(hash, false);
+        this.show(hash, false, this.isCampaignMode(hash));
         if (this.onExternalChange) {
           this.onExternalChange(hash);
         }
       } else {
         console.warn(`External navigation to ${hash} is not a standard transition from ${this.currentScreen}`);
         // Still show it because user explicitly changed URL or pressed back
-        this.forceShow(hash);
+        this.forceShow(hash, this.isCampaignMode(hash));
         if (this.onExternalChange) {
           this.onExternalChange(hash);
         }
@@ -119,14 +124,28 @@ export class ScreenManager {
     }
   }
 
-  private forceShow(id: ScreenId) {
-    if (this.currentScreen === id) return;
+  private isCampaignMode(id: ScreenId): boolean {
+    const state = this.sessionManager.loadState();
+    if (state && state.screenId === id) {
+      return state.isCampaign;
+    }
+    // Screens that are inherently campaign-related
+    return id === "campaign" || id === "barracks" || id === "campaign-summary";
+  }
+
+  private forceShow(id: ScreenId, isCampaign: boolean = false) {
+    if (this.currentScreen === id) {
+      this.currentIsCampaign = isCampaign;
+      this.sessionManager.saveState(id, isCampaign);
+      return;
+    }
 
     const currentEl = this.screens.get(this.currentScreen);
     if (currentEl) currentEl.style.display = "none";
 
     this.currentScreen = id;
-    this.sessionManager.saveState(id);
+    this.currentIsCampaign = isCampaign;
+    this.sessionManager.saveState(id, isCampaign);
     const newEl = this.screens.get(id);
     if (newEl) newEl.style.display = "flex";
   }
@@ -139,8 +158,8 @@ export class ScreenManager {
     if (this.history.length > 0) {
       const prev = this.history.pop();
       if (prev) {
-        this.forceShow(prev);
-        window.location.hash = prev === "main-menu" ? "" : prev;
+        this.forceShow(prev.id, prev.isCampaign);
+        window.location.hash = prev.id === "main-menu" ? "" : prev.id;
       }
     } else {
       // Default fallback
@@ -152,16 +171,17 @@ export class ScreenManager {
     return this.currentScreen;
   }
 
-  public loadPersistedState(): ScreenId | null {
+  public loadPersistedState(): { screenId: ScreenId; isCampaign: boolean } | null {
     const hash = window.location.hash.replace(/^#\/?/, "") as ScreenId;
     if (this.isValidScreenId(hash)) {
-      this.forceShow(hash);
-      return hash;
+      const isCampaign = this.isCampaignMode(hash);
+      this.forceShow(hash, isCampaign);
+      return { screenId: hash, isCampaign };
     }
 
     const persisted = this.sessionManager.loadState();
-    if (persisted && persisted !== this.currentScreen) {
-      this.forceShow(persisted);
+    if (persisted && persisted.screenId !== this.currentScreen) {
+      this.forceShow(persisted.screenId, persisted.isCampaign);
       return persisted;
     }
     return null;

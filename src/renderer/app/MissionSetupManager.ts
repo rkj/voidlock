@@ -51,6 +51,21 @@ export class MissionSetupManager {
     );
   }
 
+  public rehydrateCampaignNode(): boolean {
+    const config = ConfigManager.loadCampaign();
+    if (config && config.campaignNodeId) {
+      const state = this.context.campaignManager.getState();
+      if (state) {
+        const node = state.nodes.find((n) => n.id === config.campaignNodeId);
+        if (node) {
+          this.currentCampaignNode = node;
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   public getSquadBuilder(): SquadBuilder {
     return this.squadBuilder;
   }
@@ -89,8 +104,10 @@ export class MissionSetupManager {
       if (spVal) spVal.textContent = spInput.value;
     }
 
+    this.saveCurrentConfig();
+
     this.context.campaignShell.show("campaign", "sector-map", false);
-    this.context.screenManager.show("mission-setup");
+    this.context.screenManager.show("mission-setup", true, true);
   }
 
   public saveCurrentConfig() {
