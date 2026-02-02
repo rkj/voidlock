@@ -20,7 +20,7 @@ const config = {
   seed: 12345,
   width: 16,
   height: 16,
-  type: MapGeneratorType.Procedural,
+  type: MapGeneratorType.DenseShip,
   spawnPointCount: 3,
 };
 
