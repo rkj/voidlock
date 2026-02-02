@@ -33,7 +33,14 @@ The application is divided into distinct screens to reduce UI clutter and improv
        - Map Size (Width/Height).
        - Static Map Import (Text/File/ASCII).
        - **Visual Theme**: Dropdown to select the active UI/Map theme (e.g., "Default", "Matrix", "Retro").
-         - **Game Options**:
+       - **Unit Style Selection**:
+         - **Interface**: Direct selection cards (replaces dropdown).
+         - **Interaction**: The user clicks one of two interactive panels ("Tactical Icons" or "Sprites") to set the active style. The selected card is highlighted with a primary border and shadow.
+         - **Visual Preview (Micro-Diorama)**: Each card contains a live canvas rendering a representative game scene.
+           - **Content**: MUST display at least one of each: Friendly Soldier, Hostile Enemy, Mission Objective or Loot, and an Extraction/Exit segment.
+           - **Rendering**: The preview MUST reflect the currently selected Map Theme and the specific Visual Style of the card.
+         - **Visibility**: This component MUST remain visible and interactive in both Custom Simulation and Campaign Mode pre-mission setup.
+       - **Game Options**:
          - Fog of War, Debug Overlay, LOS Visualization toggles.
        - **Game Speed Control**:
          - **Slider Range**: 0.1x to 10.0x (Fast Forward). Default 1.0x.
@@ -47,12 +54,13 @@ The application is divided into distinct screens to reduce UI clutter and improv
   - `ENGAGE/IGNORE Toggle`: Units can be toggled between 'ENGAGE' (Stop & Shoot) and 'IGNORE' (Run) policies. This toggle should be easily accessible in the command menu.
   - **Squad Configuration (Drag & Drop):**
     - **Interface**:
-      - **Left Panel (Roster)**: A full-height panel consisting of:
-        - **Scrollable List**: Contains available soldiers/archetypes.
-        - **Sticky Actions**: A section containing Quick Actions (Recruit, Revive) that remains visible even when the list is scrolled.
+      - **Left Panel (Roster)**: A flex-column container consisting of:
+        - **Scrollable List**: Contains available soldiers/archetypes. **CRITICAL**: When a soldier is assigned to a Deployment Slot, they MUST be removed from this list (Move, not Copy).
+        - **Sticky Actions (Footer)**: A fixed-height container at the bottom of the Left Panel. It MUST remain visible at all times and never scroll off-screen.
       - **Right Panel (Deployment)**: 4 fixed slots representing the squad.
     - **Layout Constraints**:
-      - **Full Height**: The Squad Builder container MUST expand to fill the available vertical space in the setup screen, utilizing the full height of the container rather than a fixed or partial height.
+      - **Full Height**: The Squad Builder container MUST expand to fill the available vertical space.
+      - **Sticky Recruitment**: The "Recruit" button MUST be contained within the Sticky Actions footer. E2E tests must verify its fixed position relative to the roster scroll area.
       - **Soldier Cards**: MUST NOT use fixed pixel heights. They MUST stretch to fit their content (e.g., `height: auto`) to ensure all tactical information is visible without internal scrolling or clipping.
     - **Interaction**:
       - **Drag & Drop**: Drag a soldier card from the Roster to a Deployment Slot to assign.
@@ -320,11 +328,10 @@ To ensure economic clarity, all strategic and setup screens must follow a consis
 - **Theme Selection**:
   - Dropdown or palette selector below difficulty.
 - **Unit Style Selection**:
-  - **Option**: Dropdown or toggle (e.g., "Visual Style").
+  - **Interface**: Direct selection cards (See Section 8.1).
   - **Values**:
-    - **Tactical Icons (Default)**: Renders units as abstract geometric shapes (circles) with numbers, mimicking a tactical board.
-    - **Sprites**: Renders units as WebP images.
-      - **Overlay Requirement**: MUST strictly render the unit's tactical number (e.g., "1", "2") as a high-contrast overlay on top of the sprite to ensure readability.
+    - **Tactical Icons (Default)**: Abstract geometric shapes.
+    - **Sprites**: WebP images with high-contrast tactical number overlays.
 - **Advanced Options (Collapsible):**
   - **Toggle**: "Show Advanced Settings" (Default: Collapsed).
   - **Content**:
@@ -334,8 +341,11 @@ To ensure economic clarity, all strategic and setup screens must follow a consis
       - **Scaling**: Slider (50% - 200%). Affects enemy progression speed.
       - **Scarcity**: Slider (50% - 200%). Affects loot/scrap rewards.
       - **Death Rule**: Dropdown (Simulation, Clone, Iron). Decouples death consequences from the preset difficulty.
+- **Settings Persistence**:
+  - **Global Settings**: Visual Style (Section 8.1) and Environment Theme MUST be stored as global user preferences. They MUST NOT be tied to individual campaign saves and should persist across campaign resets.
+  - **Campaign Rules**: Difficulty, Death Rules, and Pause Constraints remain tied to the specific campaign save.
 - **Actions**:
-  - **Start Campaign**: Commits the configuration.
+  - **Start Campaign**: Commits the configuration. **CRITICAL**: Starting a new campaign MUST clear any cached deployment squad configurations from previous sessions to prevent "Soldier Not Found" errors.
   - **Back**: Returns to Main Menu.
 
 ### 8.7 Shared UI Components
@@ -363,10 +373,16 @@ To ensure visual clarity and correct occlusion, the renderer must adhere to a st
     - Floor Tiles
     - Wall Geometry (Base)
     - Static Map Details (Decals)
-2.  **Ground Decal Layer:**
-    - Zone Indicators (Extraction Zone, Deployment Zone)
-    - Static Mission Entities (Spawn Points, Loot Crates, Terminals)
-    - **Icon Distinction**:
+2.  **Ground Decal Layer**:
+    - **Zone Indicators**:
+      - **Extraction Zone**:
+        - **Standard Mode**: MUST render using an appropriate Sprite (e.g., `waypoint` or specific pad graphic).
+        - **Tactical Mode**: Render as a high-contrast geometric overlay (e.g., Green Grid).
+    - **Static Mission Entities**:
+      - **Enemy Spawn Points**:
+        - **Requirement**: MUST be visible on the map in both modes to allow tactical planning.
+        - **Standard Mode**: Render using the `spawn_point` WebP sprite.
+        - **Tactical Mode**: Render as a distinct abstract icon (e.g., Vent/Crosshair).
       - **Objectives**:
         - **Standard Mode**: Render as a Sprite (e.g., Data Disk).
         - **Tactical Mode**: Render as the `Objective` icon (Target/Flag).
