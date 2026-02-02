@@ -101,29 +101,58 @@ export class MapEntityLayer implements RenderLayer {
 
     if (!isKnown && !state.settings.debugOverlayEnabled) return;
 
-    ctx.fillStyle = this.theme.getColor("--color-extraction-bg");
-    ctx.fillRect(x, y, cellSize, cellSize);
-    ctx.strokeStyle = this.theme.getColor("--color-info");
-    ctx.lineWidth = 2;
-    ctx.setLineDash([10, 5]);
-    ctx.strokeRect(x + 5, y + 5, cellSize - 10, cellSize - 10);
-    ctx.setLineDash([]);
+    const isTactical = this.sharedState.unitStyle === "TacticalIcons";
 
-    const icon = this.assets.iconImages.Exit;
-    if (icon) {
-      const iconSize = cellSize * 0.6;
-      ctx.drawImage(
-        icon,
-        x + (cellSize - iconSize) / 2,
-        y + (cellSize - iconSize) / 2,
-        iconSize,
-        iconSize,
-      );
+    if (isTactical) {
+      // Tactical Mode: High-contrast geometric overlay (Green Grid)
+      ctx.fillStyle = "rgba(0, 255, 0, 0.2)";
+      ctx.fillRect(x, y, cellSize, cellSize);
+      ctx.strokeStyle = this.theme.getColor("--color-success");
+      ctx.lineWidth = 3;
+      ctx.strokeRect(x + 2, y + 2, cellSize - 4, cellSize - 4);
+
+      // Add a crosshair or grid pattern inside
+      ctx.beginPath();
+      ctx.moveTo(x + cellSize / 2, y + 5);
+      ctx.lineTo(x + cellSize / 2, y + cellSize - 5);
+      ctx.moveTo(x + 5, y + cellSize / 2);
+      ctx.lineTo(x + cellSize - 5, y + cellSize / 2);
+      ctx.stroke();
+
+      // Still draw the Exit icon for clarity if available
+      const icon = this.assets.iconImages.Exit;
+      if (icon) {
+        const iconSize = cellSize * 0.4;
+        ctx.drawImage(
+          icon,
+          x + (cellSize - iconSize) / 2,
+          y + (cellSize - iconSize) / 2,
+          iconSize,
+          iconSize,
+        );
+      }
+    } else {
+      // Standard Mode: Use Waypoint Sprite
+      ctx.fillStyle = this.theme.getColor("--color-extraction-bg");
+      ctx.fillRect(x, y, cellSize, cellSize);
+
+      const sprite = this.assets.getMiscSprite("waypoint");
+      if (sprite) {
+        ctx.drawImage(sprite, x, y, cellSize, cellSize);
+      } else {
+        // Fallback
+        ctx.strokeStyle = this.theme.getColor("--color-info");
+        ctx.lineWidth = 2;
+        ctx.setLineDash([10, 5]);
+        ctx.strokeRect(x + 5, y + 5, cellSize - 10, cellSize - 10);
+        ctx.setLineDash([]);
+      }
     }
   }
 
   private renderSpawnPoints(ctx: CanvasRenderingContext2D, state: GameState) {
     const cellSize = this.sharedState.cellSize;
+    const isTactical = this.sharedState.unitStyle === "TacticalIcons";
 
     state.map.spawnPoints?.forEach((sp) => {
       const x = sp.pos.x * cellSize;
@@ -134,19 +163,43 @@ export class MapEntityLayer implements RenderLayer {
 
       if (!isKnown && !state.settings.debugOverlayEnabled) return;
 
-      ctx.fillStyle = this.theme.getColor("--color-spawn-bg");
-      ctx.fillRect(x, y, cellSize, cellSize);
+      if (isTactical) {
+        // Tactical Mode: Distinct abstract icon (Vent/Crosshair)
+        ctx.fillStyle = this.theme.getColor("--color-spawn-bg");
+        ctx.fillRect(x, y, cellSize, cellSize);
 
-      const icon = this.assets.iconImages.Spawn;
-      if (icon) {
-        const iconSize = cellSize * 0.5;
-        ctx.drawImage(
-          icon,
-          x + (cellSize - iconSize) / 2,
-          y + (cellSize - iconSize) / 2,
-          iconSize,
-          iconSize,
-        );
+        const icon = this.assets.iconImages.Spawn;
+        if (icon) {
+          const iconSize = cellSize * 0.6;
+          ctx.drawImage(
+            icon,
+            x + (cellSize - iconSize) / 2,
+            y + (cellSize - iconSize) / 2,
+            iconSize,
+            iconSize,
+          );
+        } else {
+          // Fallback Crosshair
+          ctx.strokeStyle = this.theme.getColor("--color-danger");
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(x + cellSize / 2, y + cellSize / 2, cellSize * 0.3, 0, Math.PI * 2);
+          ctx.moveTo(x + cellSize * 0.2, y + cellSize / 2);
+          ctx.lineTo(x + cellSize * 0.8, y + cellSize / 2);
+          ctx.moveTo(x + cellSize / 2, y + cellSize * 0.2);
+          ctx.lineTo(x + cellSize / 2, y + cellSize * 0.8);
+          ctx.stroke();
+        }
+      } else {
+        // Standard Mode: Use spawn_point WebP sprite
+        const sprite = this.assets.getMiscSprite("spawn");
+        if (sprite) {
+          ctx.drawImage(sprite, x, y, cellSize, cellSize);
+        } else {
+          // Fallback
+          ctx.fillStyle = this.theme.getColor("--color-spawn-bg");
+          ctx.fillRect(x, y, cellSize, cellSize);
+        }
       }
     });
   }
