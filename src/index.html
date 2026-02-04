@@ -103,6 +103,7 @@
           <button id="btn-menu-campaign" class="menu-button">Campaign</button>
           <button id="btn-menu-custom" class="menu-button">Custom Mission</button>
           <button id="btn-menu-statistics" class="menu-button">Statistics</button>
+          <button id="btn-menu-settings" class="menu-button">Settings</button>
           
           <button
             id="btn-menu-reset"
@@ -147,16 +148,24 @@
                 <!-- Content will be injected by StatisticsScreen.ts -->
               </div>
 
-              <!-- 2e. Mission Setup Screen -->
+              <!-- 2e. Settings Screen -->
+              <div id="screen-settings" class="screen">
+                <!-- Content will be injected by SettingsScreen.ts -->
+              </div>
+
+              <!-- 2f. Mission Setup Screen -->
               <div id="screen-mission-setup" class="screen screen-centered">
                 <h1>Mission Configuration</h1>
                 <div id="mission-setup-context" style="margin-bottom: 20px; color: var(--color-primary); font-weight: bold; letter-spacing: 1px;"></div>
                 <div id="setup-content">
                   <div id="common-config-section" style="width: 100%">
                     <div class="control-group">
-                      <label>Visual Style:</label>
-                      <div id="unit-style-preview" class="style-preview-container">
-                        <!-- Injected by UnitStyleSelector -->
+                      <label>Visual Style & Theme:</label>
+                      <div style="display: flex; align-items: center; justify-content: space-between; background: var(--color-surface-elevated); padding: 8px 12px; border: 1px solid var(--color-border);">
+                        <div id="setup-global-status" style="font-size: 0.9em; color: var(--color-text-dim);">
+                          <!-- Injected by MissionSetupManager -->
+                        </div>
+                        <button id="btn-setup-to-settings" class="menu-button" style="width: auto; margin: 0; padding: 4px 12px; font-size: 0.7em;">Settings</button>
                       </div>
                     </div>
                   </div>
@@ -169,15 +178,6 @@
                         <option value="TreeShip">Tree Ship</option>
                         <option value="Procedural">Procedural</option>
                         <option value="Static">Static Map</option>
-                      </select>
-                    </div>
-
-                    <div class="control-group">
-                      <label for="map-theme">Environment Theme:</label>
-                      <select id="map-theme">
-                        <option value="default">Default (Voidlock Green)</option>
-                        <option value="industrial">Industrial (Amber)</option>
-                        <option value="hive">Xeno Hive (Purple)</option>
                       </select>
                     </div>
 

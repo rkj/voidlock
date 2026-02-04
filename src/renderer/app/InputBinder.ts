@@ -26,8 +26,8 @@ export class InputBinder {
     onConvertAscii: (ascii: string) => void;
     onExportReplay: () => void;
     onShowStatistics: () => void;
+    onSettingsMenu: () => void;
     onSetupBack: () => void;
-    onThemeChange: (themeId: string) => void;
     onMapGeneratorChange: (type: MapGeneratorType) => void;
     onMissionTypeChange: (type: MissionType) => void;
     onToggleFog: (enabled: boolean) => void;
@@ -48,11 +48,17 @@ export class InputBinder {
     this.addListener("btn-menu-statistics", "click", () =>
       callbacks.onShowStatistics(),
     );
+    this.addListener("btn-menu-settings", "click", () =>
+      callbacks.onSettingsMenu(),
+    );
     this.addListener("btn-menu-reset", "click", () => callbacks.onResetData());
 
     // Navigation Back
     this.addListener("btn-campaign-back", "click", () =>
       context.screenManager.goBack(),
+    );
+    this.addListener("btn-setup-to-settings", "click", () =>
+      callbacks.onSettingsMenu(),
     );
     this.addListener("btn-setup-back", "click", () => callbacks.onSetupBack());
     this.addListener("btn-give-up", "click", async () => {
@@ -127,11 +133,6 @@ export class InputBinder {
     this.addListener("mission-type", "change", (e: Event) => {
       const target = e.target as HTMLSelectElement;
       callbacks.onMissionTypeChange(target.value as MissionType);
-    });
-
-    this.addListener("map-theme", "change", (e: Event) => {
-      const target = e.target as HTMLSelectElement;
-      callbacks.onThemeChange(target.value);
     });
 
     // Toggles

@@ -66,6 +66,7 @@ describe("EquipmentScreen Economics", () => {
       mockManager,
       vi.fn(),
       vi.fn(),
+      vi.fn(),
     );
     shell.show("campaign");
   });

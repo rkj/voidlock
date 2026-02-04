@@ -11,7 +11,6 @@ import { MapUtility } from "@src/renderer/MapUtility";
 import { MapValidator } from "@src/shared/validation/MapValidator";
 import { MapFactory } from "@src/engine/map/MapFactory";
 import { SquadBuilder } from "../components/SquadBuilder";
-import { UnitStyleSelector } from "../components/UnitStyleSelector";
 import { NameGenerator } from "@src/shared/utils/NameGenerator";
 import { ArchetypeLibrary } from "@src/shared/types/units";
 
@@ -37,7 +36,6 @@ export class MissionSetupManager {
   public currentCampaignNode: CampaignNode | null = null;
 
   private squadBuilder: SquadBuilder;
-  private unitStyleSelector: UnitStyleSelector;
 
   constructor(private context: AppContext) {
     this.squadBuilder = new SquadBuilder(
@@ -50,20 +48,6 @@ export class MissionSetupManager {
         this.currentSquad = squad;
       },
     );
-
-    const selectorContainer = document.getElementById("unit-style-preview");
-    this.unitStyleSelector = new UnitStyleSelector(
-      selectorContainer!,
-      this.context,
-      this.unitStyle,
-      (style) => {
-        this.unitStyle = style;
-        this.saveCurrentConfig();
-      },
-    );
-    if (selectorContainer) {
-      this.unitStyleSelector.render();
-    }
   }
 
   public rehydrateCampaignNode(): boolean {
@@ -148,16 +132,12 @@ export class MissionSetupManager {
     const threatInput = document.getElementById(
       "map-starting-threat",
     ) as HTMLInputElement;
-    const themeSelect = document.getElementById(
-      "map-theme",
-    ) as HTMLSelectElement;
 
     if (wInput && hInput) {
       this.currentMapWidth = parseInt(wInput.value) || 10;
       this.currentMapHeight = parseInt(hInput.value) || 10;
     }
     if (spInput) this.currentSpawnPointCount = parseInt(spInput.value) || 1;
-    if (themeSelect) this.currentThemeId = themeSelect.value;
 
     let baseEnemyCount = 3;
     if (baseEnemiesInput)
@@ -275,6 +255,7 @@ export class MissionSetupManager {
     }
 
     this.context.themeManager.setTheme(this.currentThemeId);
+    this.renderGlobalStatus();
 
     if (isCampaign) {
       const state = this.context.campaignManager.getState();
@@ -373,10 +354,6 @@ export class MissionSetupManager {
       "map-generator-type",
     ) as HTMLSelectElement;
     if (mapGenSelect) mapGenSelect.value = this.currentMapGeneratorType;
-    const themeSelect = document.getElementById(
-      "map-theme",
-    ) as HTMLSelectElement;
-    if (themeSelect) themeSelect.value = this.currentThemeId;
 
     const wInput = document.getElementById("map-width") as HTMLInputElement;
     const hInput = document.getElementById("map-height") as HTMLInputElement;
@@ -438,10 +415,18 @@ export class MissionSetupManager {
     ) as HTMLInputElement;
     if (allowPauseCheck) allowPauseCheck.checked = this.allowTacticalPause;
 
-    this.unitStyleSelector.setStyle(this.unitStyle);
-    this.unitStyleSelector.render();
+    this.renderGlobalStatus();
 
     if (mapGenSelect) mapGenSelect.dispatchEvent(new Event("change"));
+  }
+
+  private renderGlobalStatus() {
+    const el = document.getElementById("setup-global-status");
+    if (!el) return;
+
+    const themeLabel =
+      this.currentThemeId.charAt(0).toUpperCase() + this.currentThemeId.slice(1);
+    el.textContent = `${this.unitStyle} | ${themeLabel}`;
   }
 
   public renderSquadBuilder(isCampaign: boolean = false) {
@@ -453,7 +438,7 @@ export class MissionSetupManager {
   }
 
   public renderUnitStylePreview() {
-    this.unitStyleSelector.renderPreviews();
+    this.renderGlobalStatus();
   }
 
   public async loadStaticMap(json: string) {

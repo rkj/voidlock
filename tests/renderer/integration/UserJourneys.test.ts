@@ -222,6 +222,7 @@ describe("Comprehensive User Journeys", () => {
               <div id="screen-barracks" class="screen" style="display:none"></div>
               <div id="screen-equipment" class="screen" style="display:none"></div>
               <div id="screen-statistics" class="screen" style="display:none"></div>
+              <div id="screen-settings" class="screen" style="display:none"></div>
           </div>
       </div>
 
