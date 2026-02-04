@@ -21,12 +21,12 @@ describe("Director", () => {
     // Update to reach turnDuration (10s)
     director.update(5000);
     expect(onSpawn).toHaveBeenCalled();
-    // At Turn 1, budget = 0 + (10/10 * 1) = 1
+    // At Turn 1, budget = 0 + (10/10 * 2) = 2
     const totalDifficulty = onSpawn.mock.calls.reduce(
       (sum, call) => sum + call[0].difficulty,
       0,
     );
-    expect(totalDifficulty).toBe(1);
+    expect(totalDifficulty).toBe(2);
     expect(director.getThreatLevel()).toBe(10);
   });
 
@@ -37,13 +37,13 @@ describe("Director", () => {
     const director = new Director(spawnPoints, prng, onSpawn, 0, undefined, 0);
 
     // Fast forward to turn 5 (50% threat)
-    // Turn 1: budget 1
-    // Turn 2: budget 2
-    // Turn 3: budget 3
-    // Turn 4: budget 4
-    // Turn 5: budget 5
-    // WAVE_CAP is 5, so none of these are clamped if we spawn 1pt enemies.
-    // Total points: 1+2+3+4+5 = 15
+    // Turn 1: budget 2
+    // Turn 2: budget 4
+    // Turn 3: budget 6
+    // Turn 4: budget 8
+    // Turn 5: budget 10
+    // WAVE_CAP is 4, but budget is spent if we spawn enemies.
+    // Total points: 2+4+6+8+10 = 30
     for (let i = 0; i < 5; i++) {
       director.update(10000);
     }
@@ -52,7 +52,7 @@ describe("Director", () => {
       (sum, call) => sum + call[0].difficulty,
       0,
     );
-    expect(totalDifficulty).toBe(15);
+    expect(totalDifficulty).toBe(30);
     expect(director.getThreatLevel()).toBe(50);
   });
 
@@ -95,10 +95,10 @@ describe("Director", () => {
 
     // 30% threat means we are at Turn 3.
     // We should pre-spawn waves for turn 1, 2, 3.
-    // Wave 1 (10%): budget 1
-    // Wave 2 (20%): budget 2
-    // Wave 3 (30%): budget 3
-    // Total points = 1 + 2 + 3 = 6
+    // Wave 1 (10%): budget 2
+    // Wave 2 (20%): budget 4
+    // Wave 3 (30%): budget 6
+    // Total points = 2 + 4 + 6 = 12
     const director = new Director(spawnPoints, prng, onSpawn, 30, undefined, 0);
     director.preSpawn();
 
@@ -107,7 +107,7 @@ describe("Director", () => {
       (sum, call) => sum + call[0].difficulty,
       0,
     );
-    expect(totalDifficulty).toBe(6);
+    expect(totalDifficulty).toBe(12);
   });
 
   it("should spawn 10% wave if threat is exactly 10", () => {

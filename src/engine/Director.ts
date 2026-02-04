@@ -301,11 +301,11 @@ export class Director implements IDirector {
 
     // Tier Locking:
 
-    // Threat < 30%: Only 1pt enemies (Xeno-Mites) allowed.
+    // Threat < THREAT_LOW: Only weak enemies allowed.
 
-    // Threat 30-60%: Up to 3pt enemies (Drones, Spitters, Praetorians) allowed.
+    // Threat THREAT_LOW to THREAT_HIGH: Up to medium enemies allowed.
 
-    // Threat > 60%: All archetypes allowed.
+    // Threat > THREAT_HIGH: All archetypes allowed.
 
     while (remainingBudget > 0 && spawnedInWave < DIRECTOR.WAVE_CAP) {
       const type = this.selectEnemyTypeForThreat(
@@ -336,14 +336,14 @@ export class Director implements IDirector {
 
     let availableTypes: { type: EnemyType; cost: number }[] = [];
 
-    if (threat < 30) {
-      // Tier 1: Only 1pt enemies
+    if (threat < DIRECTOR.THREAT_LOW) {
+      // Tier 1: Only weak enemies
 
       availableTypes = [
         { type: EnemyType.XenoMite, cost: DIRECTOR.DIFFICULTY_EASY },
       ];
-    } else if (threat < 60) {
-      // Tier 2: Up to 3pt enemies
+    } else if (threat < DIRECTOR.THREAT_HIGH) {
+      // Tier 2: Up to medium enemies
 
       availableTypes = [
         { type: EnemyType.XenoMite, cost: DIRECTOR.DIFFICULTY_EASY },
@@ -376,7 +376,7 @@ export class Director implements IDirector {
 
     // Pick a random type from affordable list
     // Use weighted selection similar to original intent but restricted to affordable
-    if (threat < 30) {
+    if (threat < DIRECTOR.THREAT_LOW) {
       return EnemyType.XenoMite;
     } else {
       // Weighted among affordable
