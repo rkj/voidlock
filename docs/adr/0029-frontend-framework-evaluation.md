@@ -41,26 +41,30 @@ We will **NOT** adopt a frontend framework at this time, but we acknowledge that
 
 ## Rationale
 
-1.  **Performance & Overhead:**
-    - The game loop dictates the render cycle. We need absolute control over when the DOM updates relative to the Canvas frame.
+1. **Performance & Overhead:**
 
-    - Frameworks often assume they "own" the page lifecycle. Integrating them with a custom game loop often leads to fighting the framework (e.g., "tearing" issues or unnecessary re-renders).
+   - The game loop dictates the render cycle. We need absolute control over when the DOM updates relative to the Canvas frame.
 
-    - Adding ~40KB+ (React+DOM) to the bundle is unnecessary for what is essentially 4-5 static screens and one HUD overlay.
+   - Frameworks often assume they "own" the page lifecycle. Integrating them with a custom game loop often leads to fighting the framework (e.g., "tearing" issues or unnecessary re-renders).
 
-    - **Correction:** The reported flickering is due to inefficient `innerHTML` replacement in the game loop (`HUDManager.ts`), not an inherent flaw in Vanilla JS. We can fix this by updating only changed text nodes (`textContent`) or attributes, rather than rebuilding sub-trees.
+   - Adding ~40KB+ (React+DOM) to the bundle is unnecessary for what is essentially 4-5 static screens and one HUD overlay.
 
-2.  **Architectural Simplicity:**
-    - The current codebase is uniform (all TypeScript classes). Introducing a framework bifurcates the mental model: "How does the GameClient talk to a React Component?" vs "How does it talk to the Canvas?".
-    - We avoid the complexity of a dual-state world (React State vs Engine State).
+   - **Correction:** The reported flickering is due to inefficient `innerHTML` replacement in the game loop (`HUDManager.ts`), not an inherent flaw in Vanilla JS. We can fix this by updating only changed text nodes (`textContent`) or attributes, rather than rebuilding sub-trees.
 
-3.  **Current Complexity is Manageable:**
-    - The most complex screens (`EquipmentScreen`, `SquadBuilder`) essentially follow a pattern of "State Change -> Clear Container -> Re-render". While crude, this is effective and bug-free for our current scale.
-    - We have successfully implemented a `ModalService` and Reusable Components (`StatDisplay`) without a framework.
+1. **Architectural Simplicity:**
 
-4.  **Error Prone Concerns:**
-    - Frameworks hide complexity. In a deterministic simulation environment, "hidden" behavior is a liability.
-    - Custom DOM code explicitly defines _exactly_ what happens on every user interaction, reducing the surface area for "magic" bugs.
+   - The current codebase is uniform (all TypeScript classes). Introducing a framework bifurcates the mental model: "How does the GameClient talk to a React Component?" vs "How does it talk to the Canvas?".
+   - We avoid the complexity of a dual-state world (React State vs Engine State).
+
+1. **Current Complexity is Manageable:**
+
+   - The most complex screens (`EquipmentScreen`, `SquadBuilder`) essentially follow a pattern of "State Change -> Clear Container -> Re-render". While crude, this is effective and bug-free for our current scale.
+   - We have successfully implemented a `ModalService` and Reusable Components (`StatDisplay`) without a framework.
+
+1. **Error Prone Concerns:**
+
+   - Frameworks hide complexity. In a deterministic simulation environment, "hidden" behavior is a liability.
+   - Custom DOM code explicitly defines _exactly_ what happens on every user interaction, reducing the surface area for "magic" bugs.
 
 ## Future Considerations
 

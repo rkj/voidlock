@@ -37,6 +37,7 @@ import { MapFactory } from "@src/engine/map/MapFactory";
 import { MenuController } from "../MenuController";
 import { HUDManager } from "../ui/HUDManager";
 import { InputManager } from "../InputManager";
+import { AssetManager } from "../visuals/AssetManager";
 
 const VERSION = pkg.version;
 
@@ -71,6 +72,8 @@ export class GameApp {
     // 1. Initialize core managers
     await ThemeManager.getInstance().init();
     this.context.themeManager = ThemeManager.getInstance();
+    // Ensure sprites are loaded now that the asset manifest is available
+    AssetManager.getInstance().loadSprites();
     this.context.campaignManager = CampaignManager.getInstance();
     this.context.campaignManager.load();
     this.context.modalService = new ModalService();

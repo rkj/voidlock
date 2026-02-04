@@ -6,9 +6,9 @@
 
 The current implementation of Line of Sight (LOS) and Line of Fire (LOF) in `LineOfSight.ts` uses a center-to-center raycast on a cell-by-cell basis (Amanatides-Woo algorithm). While this is efficient for grid traversal, it lacks the precision required for high-fidelity tactical combat as defined in `spec/ui.md#8.13`:
 
-1.  **Door Struts**: Doors only occupy the middle 1/3 of a cell boundary. The outer 1/3 segments (struts) MUST always block LOS/LOF, even when the door is open. The renderer (`MapLayer.ts`) already visualizes these struts, but the simulation ignores them.
-2.  **Unit Radius**: Units have a physical radius (approx. 0.3 cells). A single center-ray LOS check allows units to see through gaps smaller than themselves or shoot "impossible" shots that clip through wall corners.
-3.  **Corner Cutting**: Shots passing infinitesimally close to a convex wall corner should be blocked if they collide with the unit's physical bounds.
+1. **Door Struts**: Doors only occupy the middle 1/3 of a cell boundary. The outer 1/3 segments (struts) MUST always block LOS/LOF, even when the door is open. The renderer (`MapLayer.ts`) already visualizes these struts, but the simulation ignores them.
+1. **Unit Radius**: Units have a physical radius (approx. 0.3 cells). A single center-ray LOS check allows units to see through gaps smaller than themselves or shoot "impossible" shots that clip through wall corners.
+1. **Corner Cutting**: Shots passing infinitesimally close to a convex wall corner should be blocked if they collide with the unit's physical bounds.
 
 ## Decision
 
@@ -18,9 +18,9 @@ We will transition to a geometric ray-segment intersection model that accounts f
 
 The `raycast` algorithm will be updated to calculate the exact intersection point (fractional coordinate) on each boundary it crosses.
 
-- **Strut Detection**: When a ray hits a boundary containing a door, we calculate the intersection parameter $t \in [0, 1]$ along that boundary.
+- **Strut Detection**: When a ray hits a boundary containing a door, we calculate the intersection parameter $t \\in [0, 1]$ along that boundary.
   - If $t < 1/3$ or $t > 2/3$, the ray has hit a **Strut**. Struts are treated as `Wall` boundaries (always block LOS/LOF).
-  - If $1/3 \le t \le 2/3$, the ray has hit the **Door Leaf**. It blocks LOS/LOF based on the door's state (Closed/Locked blocks; Open/Destroyed passes).
+  - If $1/3 \\le t \\le 2/3$, the ray has hit the **Door Leaf**. It blocks LOS/LOF based on the door's state (Closed/Locked blocks; Open/Destroyed passes).
 
 ### 2. Multi-Ray LOF (Line of Fire)
 
@@ -42,7 +42,7 @@ To prevent corner cutting, the intersection check will include a small epsilon o
 
 ## Consequences
 
-- **Performance**: LOS/LOF checks become $3\times$ to $5\times$ more expensive due to multi-ray sampling. However, since the unit count is low (4 soldiers + $\approx 10-20$ enemies), this is acceptable for a Web Worker simulation.
+- **Performance**: LOS/LOF checks become $3\\times$ to $5\\times$ more expensive due to multi-ray sampling. However, since the unit count is low (4 soldiers + $\\approx 10-20$ enemies), this is acceptable for a Web Worker simulation.
 - **Determinism**: The geometric calculations must use consistent precision to maintain determinism across different browsers.
 - **Visual Feedback**: The `Renderer` (and specifically the `OverlayLayer`) must be updated to visualize these "fat" rays when LOS diagnostics are enabled, helping players understand why a shot is blocked.
 - **Complexity**: `LineOfSight.ts` will require a significant refactor to move beyond simple grid traversal into exact intersection math.

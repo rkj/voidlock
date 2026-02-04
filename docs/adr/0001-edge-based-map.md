@@ -49,15 +49,17 @@ interface Boundary {
 
 At runtime, the `GameGrid` hydrates the static data into a graph structure:
 
-1.  **`Cell` Object**:
-    - Coordinates: `x, y`.
-    - `edges`: `{ N: Boundary | null, E: ..., S: ..., W: ... }`.
-    - If `edges[dir]` is `null`, the path is open.
+1. **`Cell` Object**:
 
-2.  **`Boundary` Object**:
-    - **Shared Instance**: The boundary between `Cell(0,0)` and `Cell(1,0)` is a _single object_ referenced by `Cell(0,0).edges.E` and `Cell(1,0).edges.W`.
-    - Properties: `type` ('Wall', 'Door'), `state` (Open/Closed), `hp`.
-    - **Benefit**: Changing state on one side immediately affects the other.
+   - Coordinates: `x, y`.
+   - `edges`: `{ N: Boundary | null, E: ..., S: ..., W: ... }`.
+   - If `edges[dir]` is `null`, the path is open.
+
+1. **`Boundary` Object**:
+
+   - **Shared Instance**: The boundary between `Cell(0,0)` and `Cell(1,0)` is a _single object_ referenced by `Cell(0,0).edges.E` and `Cell(1,0).edges.W`.
+   - Properties: `type` ('Wall', 'Door'), `state` (Open/Closed), `hp`.
+   - **Benefit**: Changing state on one side immediately affects the other.
 
 ### Data persistence (`MapDefinition`)
 
@@ -71,6 +73,6 @@ The serialized JSON format remains simple but unambiguous:
 
 ### Implementation Plan
 
-1.  **Hydration**: `GameGrid` constructor iterates cells and creates `Boundary` objects, storing them in a `Map<EdgeKey, Boundary>` to ensure uniqueness/sharing.
-2.  **Pathfinding/LOS**: Updated to traverse the Graph. `canMove` becomes `!cell.edges[dir]?.blocking`.
-3.  **Generators**: Can eventually be updated to produce Edge Lists directly, but can currently produce the old format which `GameGrid` sanitizes during hydration.
+1. **Hydration**: `GameGrid` constructor iterates cells and creates `Boundary` objects, storing them in a `Map<EdgeKey, Boundary>` to ensure uniqueness/sharing.
+1. **Pathfinding/LOS**: Updated to traverse the Graph. `canMove` becomes `!cell.edges[dir]?.blocking`.
+1. **Generators**: Can eventually be updated to produce Edge Lists directly, but can currently produce the old format which `GameGrid` sanitizes during hydration.

@@ -4,11 +4,11 @@
 
 The `src/renderer/MenuController.ts` class has become a "God Class" for the tactical UI. It currently manages:
 
-1.  **UI State Machine:** Handling transitions between menus (Action -> Target -> Confirm).
-2.  **Input Interpretation:** Deciding what a click on a specific cell means based on the current state.
-3.  **Command Construction:** Building the JSON payload for the engine.
-4.  **Selection State:** Tracking which unit is selected and what potential targets are valid.
-5.  **Room Discovery:** Tracking the `discoveredRoomOrder`.
+1. **UI State Machine:** Handling transitions between menus (Action -> Target -> Confirm).
+1. **Input Interpretation:** Deciding what a click on a specific cell means based on the current state.
+1. **Command Construction:** Building the JSON payload for the engine.
+1. **Selection State:** Tracking which unit is selected and what potential targets are valid.
+1. **Room Discovery:** Tracking the `discoveredRoomOrder`.
 
 This coupling makes the UI logic brittle and hard to test.
 
@@ -18,21 +18,25 @@ We will refactor `MenuController` into a composite set of classes in `src/render
 
 ### Components
 
-1.  **`MenuStateMachine`:**
-    - Manages the stack of menu states (`MenuState[]`).
-    - Handles transitions (`push`, `pop`, `reset`).
-    - Pure logic, no knowledge of the renderer.
+1. **`MenuStateMachine`:**
 
-2.  **`SelectionManager`:**
-    - Tracks the "Current Context": `selectedUnitId`, `hoveredCell`, `potentialTargets`.
-    - Responsible for validating if a selection is legal.
+   - Manages the stack of menu states (`MenuState[]`).
+   - Handles transitions (`push`, `pop`, `reset`).
+   - Pure logic, no knowledge of the renderer.
 
-3.  **`CommandBuilder`:**
-    - Responsible for constructing the `Command` object.
-    - Accumulates parameters (`pendingAction`, `pendingTarget`) and emits the final command.
+1. **`SelectionManager`:**
 
-4.  **`RoomDiscoveryManager`:**
-    - Encapsulates the `cellToRoomId` and `discoveredRoomOrder` logic.
+   - Tracks the "Current Context": `selectedUnitId`, `hoveredCell`, `potentialTargets`.
+   - Responsible for validating if a selection is legal.
+
+1. **`CommandBuilder`:**
+
+   - Responsible for constructing the `Command` object.
+   - Accumulates parameters (`pendingAction`, `pendingTarget`) and emits the final command.
+
+1. **`RoomDiscoveryManager`:**
+
+   - Encapsulates the `cellToRoomId` and `discoveredRoomOrder` logic.
 
 ### Interaction
 

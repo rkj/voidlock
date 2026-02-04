@@ -15,6 +15,7 @@ The world is a grid of cells representing the interior of a derelict spaceship.
 - **Connectivity:** The map is a single connected graph. All playable areas (rooms, corridors) must be reachable from at least one Squad Spawn Point. Isolated "islands" are not permitted.
 
 ## 2. Entity Placements (Spatial Rules)
+
 - **Squad Spawn Points:** Multiple 1x1 points placed across the map (typically in different rooms).
   - **Deployment:** During the Mission Setup, the player assigns each soldier in the squad to a specific 1x1 spawn point.
 - **Extraction Zone:** The target area for mission completion (only required for Asset/VIP extraction).
@@ -39,14 +40,18 @@ The world is a grid of cells representing the interior of a derelict spaceship.
 ## 4. Specific Generators
 
 ### 4.1 TreeShipGenerator
+
 Produces sparse, claustrophobic layouts with a structured tree topology.
-- **Fill Rate:** sparse (<90% coverage).
+
+- **Fill Rate:** sparse (\<90% coverage).
 - **Corridors:** Strictly 1 tile wide, traversal-focused (no internal doors).
 - **Rooms:** Attached to corridors; maximum size 2x2.
 - **Acyclicity:** Strict tree structure; no cycles or back-links.
 
 ### 4.2 DenseShipGenerator
+
 Designed for high-density layouts and maximum exploration depth.
+
 - **Fill Rate:** >90% floor coverage.
 - **Frame:** Built from 1-tile wide corridors (minimum 50% map dimension length).
 - **Rooms:** Rectangular shapes strictly sized 1x1, 1x2, 2x1, or 2x2.
@@ -72,6 +77,7 @@ To facilitate debugging, the system supports an expanded grid where each charact
 ## 6. Content Packs & Interfaces
 
 ### 6.1 Content Pack Structure (`pack.json`)
+
 ```json
 {
   "id": "default-pack",
@@ -87,6 +93,7 @@ To facilitate debugging, the system supports an expanded grid where each charact
 ```
 
 ### 6.2 MapGenerator Interface
+
 - **Initialization:** Accepts a `MapGenerationConfig` object (seed, dimensions, strategy, spawn counts).
 - **Immutability:** A generator instance is immutable regarding its config; new parameters require a new instance.
 - **Validation:** Enforces placement rules and ensures single-component connectivity ("Correct by Construction").
@@ -94,4 +101,5 @@ To facilitate debugging, the system supports an expanded grid where each charact
 ## 7. Map Viewer App
 
 A standalone web utility dedicated to loading and displaying `MapDefinition` JSON.
+
 - **Features:** JSON upload/paste, accurate rendering of all geometry and entities, PNG/SVG export, and debug overlays (coordinate grids).

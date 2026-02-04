@@ -12,12 +12,12 @@ As a new player, I want to start a fresh Ironman campaign so that I can experien
 ## Action List
 
 1. Click "Reset Data" -> Modal appears confirming destruction.
-2. Click "Confirm" in Modal -> Application reloads to clean state.
-3. Click "Campaign" -> Sector Map screen opens.
-4. Click "New Campaign" (if prompt exists) -> New Campaign Wizard opens.
-5. Click the "Ironman" difficulty card -> Card is highlighted.
-6. Observe "Tactical Pause" checkbox -> Checkbox must be UNCHECKED and DISABLED.
-7. Click "Start Campaign" -> Transition to Sector Map (Bridge View).
+1. Click "Confirm" in Modal -> Application reloads to clean state.
+1. Click "Campaign" -> Sector Map screen opens.
+1. Click "New Campaign" (if prompt exists) -> New Campaign Wizard opens.
+1. Click the "Ironman" difficulty card -> Card is highlighted.
+1. Observe "Tactical Pause" checkbox -> Checkbox must be UNCHECKED and DISABLED.
+1. Click "Start Campaign" -> Transition to Sector Map (Bridge View).
 
 ## Visual Acceptance Criteria
 

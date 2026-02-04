@@ -7,17 +7,17 @@
 ## Table of Contents
 
 1. [Executive Summary](#executive-summary)
-2. [Project Overview](#project-overview)
-3. [Technology Stack](#technology-stack)
-4. [Architecture Pattern](#architecture-pattern)
-5. [Directory Structure](#directory-structure)
-6. [Core Systems](#core-systems)
-7. [Data Flow](#data-flow)
-8. [State Management](#state-management)
-9. [Build & Configuration](#build--configuration)
-10. [Testing Strategy](#testing-strategy)
+1. [Project Overview](#project-overview)
+1. [Technology Stack](#technology-stack)
+1. [Architecture Pattern](#architecture-pattern)
+1. [Directory Structure](#directory-structure)
+1. [Core Systems](#core-systems)
+1. [Data Flow](#data-flow)
+1. [State Management](#state-management)
+1. [Build & Configuration](#build--configuration)
+1. [Testing Strategy](#testing-strategy)
 
----
+______________________________________________________________________
 
 ## Executive Summary
 
@@ -38,7 +38,7 @@
 - Layer-based rendering for visual organization
 - Command pattern for replay support
 
----
+______________________________________________________________________
 
 ## Project Overview
 
@@ -62,29 +62,29 @@ Main Menu → Campaign Setup → Mission Briefing → Tactical Combat →
 Debrief → Barracks/Equipment/Statistics → Next Mission → ... → Victory/Defeat
 ```
 
----
+______________________________________________________________________
 
 ## Technology Stack
 
 ### Core Technologies
 
-| Component     | Technology   | Version    |
+| Component | Technology | Version |
 | ------------- | ------------ | ---------- |
-| Language      | TypeScript   | 5.9.3      |
-| Build Tool    | Vite         | 7.2.4      |
-| Module System | ES Modules   | ES2022     |
-| Rendering     | HTML5 Canvas | 2D Context |
-| Concurrency   | Web Workers  | Native     |
-| Storage       | LocalStorage | Native     |
+| Language | TypeScript | 5.9.3 |
+| Build Tool | Vite | 7.2.4 |
+| Module System | ES Modules | ES2022 |
+| Rendering | HTML5 Canvas | 2D Context |
+| Concurrency | Web Workers | Native |
+| Storage | LocalStorage | Native |
 
 ### Development Dependencies
 
-| Purpose          | Technology | Version |
+| Purpose | Technology | Version |
 | ---------------- | ---------- | ------- |
-| Test Framework   | Vitest     | 3.2.4   |
-| E2E Testing      | Puppeteer  | 24.1.1  |
-| Test Environment | jsdom      | 27.0.1  |
-| Asset Processing | Sharp      | 0.33.5  |
+| Test Framework | Vitest | 3.2.4 |
+| E2E Testing | Puppeteer | 24.1.1 |
+| Test Environment | jsdom | 27.0.1 |
+| Asset Processing | Sharp | 0.33.5 |
 
 ### Build Configuration
 
@@ -106,7 +106,7 @@ Debrief → Barracks/Equipment/Statistics → Next Mission → ... → Victory/D
 }
 ```
 
----
+______________________________________________________________________
 
 ## Architecture Pattern
 
@@ -129,9 +129,9 @@ Voidlock implements a strict separation between simulation (Worker thread) and p
 #### Benefits
 
 1. **Deterministic Execution:** Worker isolation prevents timing issues
-2. **Responsive UI:** Heavy computation doesn't block rendering
-3. **Perfect Replays:** Command log + seed = reproducible outcomes
-4. **Clean Separation:** Presentation logic cannot affect simulation
+1. **Responsive UI:** Heavy computation doesn't block rendering
+1. **Perfect Replays:** Command log + seed = reproducible outcomes
+1. **Clean Separation:** Presentation logic cannot affect simulation
 
 ### Secondary Patterns
 
@@ -222,7 +222,7 @@ Each layer:
 - Draws independently without side effects
 - Can be toggled for debugging
 
----
+______________________________________________________________________
 
 ## Directory Structure
 
@@ -335,7 +335,7 @@ Each layer:
 └── conductor/                    # AI agent configuration
 ```
 
----
+______________________________________________________________________
 
 ## Core Systems
 
@@ -354,13 +354,13 @@ The authoritative game state controller running in a Web Worker.
 **Update Loop Order:**
 
 1. Director update (enemy spawning)
-2. Environmental logic (door timers)
-3. Visibility recalculation
-4. Unit AI and behaviors
-5. Enemy AI
-6. Movement resolution
-7. Combat resolution
-8. Mission objective evaluation
+1. Environmental logic (door timers)
+1. Visibility recalculation
+1. Unit AI and behaviors
+1. Enemy AI
+1. Movement resolution
+1. Combat resolution
+1. Mission objective evaluation
 
 **File:** `src/engine/CoreEngine.ts:552` (552 lines)
 
@@ -503,10 +503,10 @@ Layer-based Canvas rendering with no game logic.
 **Layer Stack (bottom to top):**
 
 1. **MapLayer** - Grid lines, floor, walls
-2. **MapEntityLayer** - Doors, objectives, loot
-3. **UnitLayer** - Units, enemies, health bars
-4. **EffectLayer** - Tracers, explosions, damage numbers
-5. **OverlayLayer** - Selection highlights, targeting reticles
+1. **MapEntityLayer** - Doors, objectives, loot
+1. **UnitLayer** - Units, enemies, health bars
+1. **EffectLayer** - Tracers, explosions, damage numbers
+1. **OverlayLayer** - Selection highlights, targeting reticles
 
 **State Management:**
 
@@ -544,10 +544,10 @@ User Input → InputManager → MenuController → GameClient → Worker
 **Flow:**
 
 1. User clicks/keys → `InputManager`
-2. `InputManager` updates `SelectionManager`
-3. `MenuController` builds `Command` objects
-4. `GameClient` sends to worker via `postMessage`
-5. Worker executes command in next tick
+1. `InputManager` updates `SelectionManager`
+1. `MenuController` builds `Command` objects
+1. `GameClient` sends to worker via `postMessage`
+1. Worker executes command in next tick
 
 **Files:**
 
@@ -555,7 +555,7 @@ User Input → InputManager → MenuController → GameClient → Worker
 - `src/renderer/MenuController.ts`
 - `src/renderer/controllers/CommandBuilder.ts`
 
----
+______________________________________________________________________
 
 ## Data Flow
 
@@ -658,7 +658,7 @@ CampaignState → JSON.stringify() → LocalStorage['voidlock_campaign_v1']
                         JSON.parse() → CampaignState
 ```
 
----
+______________________________________________________________________
 
 ## State Management
 
@@ -688,9 +688,9 @@ type GameState = {
 **State Mutation Rules:**
 
 1. Only mutated via `CoreEngine.update()` or `applyCommand()`
-2. Managers receive mutable state reference
-3. State is cloned before sending to main thread
-4. **Deterministic:** Same seed + commands = Same state
+1. Managers receive mutable state reference
+1. State is cloned before sending to main thread
+1. **Deterministic:** Same seed + commands = Same state
 
 ### Main Thread (View/Presentation)
 
@@ -736,9 +736,9 @@ type CampaignState = {
 ### Determinism Guarantees
 
 1. **Fixed timestep:** 16ms per tick (not wall clock)
-2. **Seeded PRNG:** All randomness uses `PRNG(seed)`
-3. **Command ordering:** Commands applied in sequence
-4. **No external state:** No `Date.now()`, `Math.random()`, network I/O
+1. **Seeded PRNG:** All randomness uses `PRNG(seed)`
+1. **Command ordering:** Commands applied in sequence
+1. **No external state:** No `Date.now()`, `Math.random()`, network I/O
 
 **Replay System:**
 
@@ -754,10 +754,10 @@ type ReplayData = {
 Replaying:
 
 1. Initialize `CoreEngine` with same seed/map/squad
-2. Inject commands at recorded tick times
-3. Result: Identical state sequence
+1. Inject commands at recorded tick times
+1. Result: Identical state sequence
 
----
+______________________________________________________________________
 
 ## Build & Configuration
 
@@ -824,7 +824,7 @@ Raw Assets (NanoBanana Assets/)
 }
 ```
 
----
+______________________________________________________________________
 
 ## Testing Strategy
 
@@ -880,7 +880,7 @@ Raw Assets (NanoBanana Assets/)
   - ADR-0008: Renderer/UI separation
   - ADR-0012: Theming system
 
----
+______________________________________________________________________
 
 ## Summary
 
@@ -912,7 +912,7 @@ Voidlock demonstrates **professional software engineering practices**:
 
 This is a **production-quality codebase** with clear architectural vision, strong testing discipline, and excellent separation of concerns.
 
----
+______________________________________________________________________
 
 ## Related Documentation
 

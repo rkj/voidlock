@@ -23,10 +23,10 @@ Every unit is assigned an `AIProfile` that dictates its innate behavioral respon
 
 Units (primarily soldiers) follow a prioritized decision tree:
 
-1.  **Threat Evaluation**: Continuous scanning for visible enemies using Line of Sight (LOS).
-2.  **Objective Acquisition**: Coordinated claiming of pending objectives (e.g., retrieving artifacts). Units communicate to ensure multiple agents don't target the same objective.
-3.  **Exploration**: Autonomous pathfinding to the closest undiscovered floor cells.
-4.  **Extraction**: Once all objectives are complete, agents automatically navigate to the extraction zone.
+1. **Threat Evaluation**: Continuous scanning for visible enemies using Line of Sight (LOS).
+1. **Objective Acquisition**: Coordinated claiming of pending objectives (e.g., retrieving artifacts). Units communicate to ensure multiple agents don't target the same objective.
+1. **Exploration**: Autonomous pathfinding to the closest undiscovered floor cells.
+1. **Extraction**: Once all objectives are complete, agents automatically navigate to the extraction zone.
 
 ### 3. Enemy AI Archetypes
 

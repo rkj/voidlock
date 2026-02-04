@@ -73,7 +73,7 @@ The game supports four difficulty presets defining failure consequences.
 ### 2.4 Tactical Settings
 
 - **Tactical Assist (Time Dilation):**
-  - **Enabled (Default):** Player can use Active Pause (0x) and Slow Motion (<1.0x) to issue commands.
+  - **Enabled (Default):** Player can use Active Pause (0x) and Slow Motion (\<1.0x) to issue commands.
   - **Disabled (Real-time):** Minimum speed is 1.0x. Active Pause is disabled (System pause via ESC still works but blocks commands).
 
 ## 3. Systems Overview
@@ -231,9 +231,9 @@ Stored independently of individual save files (e.g., `voidlock_meta_v1`).
 
 - **New Campaign**: Opens a wizard:
   1. **Campaign Type**: Preset vs Custom.
-  2. **Difficulty**: Simulation, Clone Protocol, Standard, Ironman.
-  3. **Tactical Options**: Toggle "Enable Tactical Pause/Slowmo".
-  4. **Start**: Launches the campaign.
+  1. **Difficulty**: Simulation, Clone Protocol, Standard, Ironman.
+  1. **Tactical Options**: Toggle "Enable Tactical Pause/Slowmo".
+  1. **Start**: Launches the campaign.
 - **Continue**: Resumes the active campaign state (if any).
   - **Restart**: If a campaign is already active (or game over), the "New Campaign" flow must warn the user that the current save will be overwritten.
 

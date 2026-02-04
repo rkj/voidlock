@@ -14,14 +14,14 @@ We will decompose `UnitAI` using a Strategy or Behavior pattern.
 
 ### Changes
 
-1.  **Create `src/engine/ai/behaviors/`**:
-    - `SafetyBehavior.ts`: Retreat and grouping logic.
-    - `InteractionBehavior.ts`: Loot and objective pickup.
-    - `CombatBehavior.ts`: Engagement and attacking.
-    - `ExplorationBehavior.ts`: Map discovery.
-2.  **Update `UnitAI.ts`**:
-    - Orchestrate these behaviors.
-    - The `process` method should become a sequence of delegated calls: `safety.evaluate() || interaction.evaluate() || combat.evaluate() ...`.
+1. **Create `src/engine/ai/behaviors/`**:
+   - `SafetyBehavior.ts`: Retreat and grouping logic.
+   - `InteractionBehavior.ts`: Loot and objective pickup.
+   - `CombatBehavior.ts`: Engagement and attacking.
+   - `ExplorationBehavior.ts`: Map discovery.
+1. **Update `UnitAI.ts`**:
+   - Orchestrate these behaviors.
+   - The `process` method should become a sequence of delegated calls: `safety.evaluate() || interaction.evaluate() || combat.evaluate() ...`.
 
 ## Consequences
 

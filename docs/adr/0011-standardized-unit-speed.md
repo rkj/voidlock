@@ -15,9 +15,9 @@ This resulted in a pacing that felt "too fast" for tactical control (e.g., a uni
 
 We will standardize the simulation pacing by introducing a global constant: `SPEED_NORMALIZATION_CONST`.
 
-1.  **Constant Value**: Set to `30`.
-2.  **Definition**: A Unit with `Speed = 30` moves exactly **1 tile per second** (at 1.0x Time Scale).
-3.  **Refactoring**: Replace all instances of the magic number `10` in `UnitManager` (and other managers) with `Constants.SPEED_NORMALIZATION_CONST`.
+1. **Constant Value**: Set to `30`.
+1. **Definition**: A Unit with `Speed = 30` moves exactly **1 tile per second** (at 1.0x Time Scale).
+1. **Refactoring**: Replace all instances of the magic number `10` in `UnitManager` (and other managers) with `Constants.SPEED_NORMALIZATION_CONST`.
 
 ## Consequences
 

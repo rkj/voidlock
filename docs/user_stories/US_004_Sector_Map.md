@@ -12,9 +12,9 @@ As a Commander, I want to plan my route through the sector so that I can reach t
 ## Action List
 
 1. Observe the Sector Map -> Branching paths between ranks are visible.
-2. Observe connections -> Lines must NEVER cross (no 'X' shapes).
-3. Click an accessible node in the next Rank -> Node is highlighted, "Launch" becomes available.
-4. Observe node icons -> Elite nodes have Skulls, Boss node is unique.
+1. Observe connections -> Lines must NEVER cross (no 'X' shapes).
+1. Click an accessible node in the next Rank -> Node is highlighted, "Launch" becomes available.
+1. Observe node icons -> Elite nodes have Skulls, Boss node is unique.
 
 ## Visual Acceptance Criteria
 

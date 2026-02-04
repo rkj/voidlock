@@ -39,13 +39,13 @@ To support replays, the engine must record all non-deterministic inputs (user co
 ### 3. Replay Workflow
 
 1. **Recording:** During `Simulation` mode, every command passed to `applyCommand(cmd)` is pushed to the `commandLog` with the current engine time `state.t`.
-2. **Trigger:** Upon mission completion (`status` becomes `Won` or `Lost`), the Renderer displays the `Debrief` overlay.
-3. **Initialization:** To start a replay, the Renderer sends a new `INIT` message to the Worker.
-4. **Reset:** The Worker re-initializes the `CoreEngine` using the _same initial parameters_ (seed, map, squad config) but includes the `commandLog` and sets `mode` to `Replay`.
-5. **Playback:** In the `update()` loop:
+1. **Trigger:** Upon mission completion (`status` becomes `Won` or `Lost`), the Renderer displays the `Debrief` overlay.
+1. **Initialization:** To start a replay, the Renderer sends a new `INIT` message to the Worker.
+1. **Reset:** The Worker re-initializes the `CoreEngine` using the _same initial parameters_ (seed, map, squad config) but includes the `commandLog` and sets `mode` to `Replay`.
+1. **Playback:** In the `update()` loop:
    - If `mode === Replay`, the engine automatically applies commands from the `commandLog` when `state.t` reaches the recorded `tick`.
    - The simulation remains deterministic due to the fixed seed, ensuring the replay perfectly matches the original run.
-6. **Speed:** The UI sets a high `timeScale` (e.g., 5.0x) for the replay via `SET_TIME_SCALE`.
+1. **Speed:** The UI sets a high `timeScale` (e.g., 5.0x) for the replay via `SET_TIME_SCALE`.
 
 ### 4. UI/Renderer Interaction
 

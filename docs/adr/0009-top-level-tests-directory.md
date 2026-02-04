@@ -12,9 +12,9 @@ Currently, test files (`*.test.ts`) are located within the `src/` directory, eit
 
 This structure has several drawbacks:
 
-1.  **Clutter:** It mixes source code with test code, making it harder to navigate the codebase.
-2.  **Build Configuration:** It complicates build scripts, as they need to explicitly exclude test files to avoid bundling them.
-3.  **Separation of Concerns:** It violates the principle of separating application logic from verification logic.
+1. **Clutter:** It mixes source code with test code, making it harder to navigate the codebase.
+1. **Build Configuration:** It complicates build scripts, as they need to explicitly exclude test files to avoid bundling them.
+1. **Separation of Concerns:** It violates the principle of separating application logic from verification logic.
 
 ## Decision
 
@@ -41,11 +41,11 @@ Once imports are absolute (aliased), move the files to the `tests/` directory. T
 
 **Requirements:**
 
-1.  **Strict Separation:** The `src/` directory must contain **NO** `*.test.ts` files or `__snapshots__` directories.
-2.  **Path Aliases:** All tests must use `@src` for internal project imports.
-3.  **Configuration:**
-    - `tsconfig.json`: Must include `tests/` for type-checking.
-    - `vitest.config.ts`: Must be configured to find tests in the `tests/` directory.
+1. **Strict Separation:** The `src/` directory must contain **NO** `*.test.ts` files or `__snapshots__` directories.
+1. **Path Aliases:** All tests must use `@src` for internal project imports.
+1. **Configuration:**
+   - `tsconfig.json`: Must include `tests/` for type-checking.
+   - `vitest.config.ts`: Must be configured to find tests in the `tests/` directory.
 
 ## Consequences
 

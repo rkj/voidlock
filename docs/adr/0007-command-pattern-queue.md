@@ -35,9 +35,9 @@ Commands are not executed immediately upon receipt. Instead, they are stamped wi
 - **Tick-stamping**: When a command reaches the engine, it is queued to be processed at the start of the next simulation tick.
 - **Order of Operations**:
   1. Collect incoming commands from the message port.
-  2. Append/Replace unit queues based on command flags.
-  3. Update unit states based on the `activeCommand`.
-  4. Resolve simulation logic (Movement, Combat, LOS).
+  1. Append/Replace unit queues based on command flags.
+  1. Update unit states based on the `activeCommand`.
+  1. Resolve simulation logic (Movement, Combat, LOS).
 - **Replayability**: By recording the `(Tick, Command)` pairs, the exact state of the game can be reconstructed if the initial `Seed` and `MapDefinition` are known.
 
 ### 4. Shared Protocol Definition

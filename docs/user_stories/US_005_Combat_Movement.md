@@ -11,10 +11,10 @@ As a tactical player, I want to move my squad precisely and interact with the en
 ## Action List
 
 1. Select a unit (1-4).
-2. Right-Click a floor cell -> Unit moves to location.
-3. Observe movement path -> Line/Ghost appears indicating the path.
-4. Click a Closed Door -> Unit moves to interaction range and opens the door.
-5. Press `2` (Engagement) -> Press `2` (Ignore) -> Unit stops shooting at enemies.
+1. Right-Click a floor cell -> Unit moves to location.
+1. Observe movement path -> Line/Ghost appears indicating the path.
+1. Click a Closed Door -> Unit moves to interaction range and opens the door.
+1. Press `2` (Engagement) -> Press `2` (Ignore) -> Unit stops shooting at enemies.
 
 ## Visual Acceptance Criteria
 

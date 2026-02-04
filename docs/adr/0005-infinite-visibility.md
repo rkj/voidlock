@@ -11,9 +11,9 @@ This mechanic was deemed "ridiculous" and detrimental to the desired "Tactical S
 
 ## Decision
 
-1.  **Remove `sightRange` from the Data Model**: The `sightRange` property will be removed from the `UnitStats` interface entirely. It will no longer be a configurable or displayable value.
-2.  **Infinite Visibility Default**: The `LineOfSight` system will default to checking visibility for the entire map (or the effective map diagonal).
-3.  **Occlusion Only**: Visibility is now strictly a function of "Line of Sight" (geometry), not "Range" (distance).
+1. **Remove `sightRange` from the Data Model**: The `sightRange` property will be removed from the `UnitStats` interface entirely. It will no longer be a configurable or displayable value.
+1. **Infinite Visibility Default**: The `LineOfSight` system will default to checking visibility for the entire map (or the effective map diagonal).
+1. **Occlusion Only**: Visibility is now strictly a function of "Line of Sight" (geometry), not "Range" (distance).
 
 ## Technical Implementation
 

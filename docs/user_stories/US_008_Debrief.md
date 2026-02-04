@@ -11,9 +11,9 @@ As a Commander, I want to see how my squad performed and who leveled up so that 
 ## Action List
 
 1. Wait for mission end -> Debrief Screen opens automatically.
-2. Observe Stats -> Total Kills, Time, and Scrap are displayed.
-3. Observe Roster -> XP bars animate filling up.
-4. Click "Continue" -> Transition back to Sector Map.
+1. Observe Stats -> Total Kills, Time, and Scrap are displayed.
+1. Observe Roster -> XP bars animate filling up.
+1. Click "Continue" -> Transition back to Sector Map.
 
 ## Visual Acceptance Criteria
 

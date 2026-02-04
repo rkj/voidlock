@@ -14,12 +14,12 @@ We will extract the Squad Builder UI and Mission Logic.
 
 ### Changes
 
-1.  **Create `src/renderer/components/SquadBuilder.ts`**:
-    - Move `renderSquadBuilder` and its helper logic here.
-    - Manage the drag-and-drop logic internally.
-2.  **Update `GameApp.ts`**:
-    - Instantiate `SquadBuilder` and mount it to the DOM.
-    - Pass necessary callbacks for squad updates.
+1. **Create `src/renderer/components/SquadBuilder.ts`**:
+   - Move `renderSquadBuilder` and its helper logic here.
+   - Manage the drag-and-drop logic internally.
+1. **Update `GameApp.ts`**:
+   - Instantiate `SquadBuilder` and mount it to the DOM.
+   - Pass necessary callbacks for squad updates.
 
 ## Consequences
 

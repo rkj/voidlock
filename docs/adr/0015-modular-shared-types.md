@@ -6,9 +6,9 @@ The `src/shared/types.ts` file has grown to approximately 1000 lines. It current
 
 This monolithic structure presents several issues:
 
-1.  **Cognitive Load:** Developers must search through unrelated types to find specific definitions.
-2.  **Coupling:** It encourages implicit coupling between disparate domains (e.g., Map generation types and Combat types).
-3.  **Merge Conflicts:** Frequent changes to this single file cause unnecessary merge conflicts.
+1. **Cognitive Load:** Developers must search through unrelated types to find specific definitions.
+1. **Coupling:** It encourages implicit coupling between disparate domains (e.g., Map generation types and Combat types).
+1. **Merge Conflicts:** Frequent changes to this single file cause unnecessary merge conflicts.
 
 ## Decision
 

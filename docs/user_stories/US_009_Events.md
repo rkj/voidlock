@@ -12,10 +12,10 @@ As a Commander, I want to make choices during random encounters that help my cam
 ## Action List
 
 1. Click "Event" node -> Narrative dialog modal opens.
-2. Read the scenario text (e.g., "Derelict Lifeboat").
-3. Click a choice (e.g., "Search for survivors").
-4. Observe the outcome -> Dialog updates with result (e.g., "Found 200 Scrap").
-5. Click "Continue" -> Return to Sector Map, node is cleared.
+1. Read the scenario text (e.g., "Derelict Lifeboat").
+1. Click a choice (e.g., "Search for survivors").
+1. Observe the outcome -> Dialog updates with result (e.g., "Found 200 Scrap").
+1. Click "Continue" -> Return to Sector Map, node is cleared.
 
 ## Visual Acceptance Criteria
 

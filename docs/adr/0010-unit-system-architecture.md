@@ -21,25 +21,25 @@ Decompose the monolithic `UnitManager` into specialized, single-responsibility c
 
 ### 1. Component Architecture
 
-| Component             | Responsibility                                                                                              | Key Interactions                           |
+| Component | Responsibility | Key Interactions |
 | :-------------------- | :---------------------------------------------------------------------------------------------------------- | :----------------------------------------- |
-| **`StatsManager`**    | Calculates derived stats (Speed, HP, Accuracy) from base archetypes, equipment, and status effects.         | Updates `unit.stats`.                      |
-| **`MovementManager`** | Translates path data into unit position updates. Handles door interactions and formation offsets (escorts). | Modifies `unit.pos`, `unit.state`.         |
-| **`CombatManager`**   | Manages target selection, Line of Fire (LOF) checks, and weapon cooldowns. Applies damage to enemies.       | Reads `unit.stats`, modifies `enemy.hp`.   |
-| **`UnitAI`**          | Implements autonomous decision-making (VIP behaviors, exploration, retreat logic).                          | Issues commands or sets `unit.targetPos`.  |
-| **`CommandExecutor`** | Translates `Command` objects (MOVE, STOP, etc.) into actionable unit states (pathfinding, state resets).    | Updates `unit.path`, `unit.activeCommand`. |
+| **`StatsManager`** | Calculates derived stats (Speed, HP, Accuracy) from base archetypes, equipment, and status effects. | Updates `unit.stats`. |
+| **`MovementManager`** | Translates path data into unit position updates. Handles door interactions and formation offsets (escorts). | Modifies `unit.pos`, `unit.state`. |
+| **`CombatManager`** | Manages target selection, Line of Fire (LOF) checks, and weapon cooldowns. Applies damage to enemies. | Reads `unit.stats`, modifies `enemy.hp`. |
+| **`UnitAI`** | Implements autonomous decision-making (VIP behaviors, exploration, retreat logic). | Issues commands or sets `unit.targetPos`. |
+| **`CommandExecutor`** | Translates `Command` objects (MOVE, STOP, etc.) into actionable unit states (pathfinding, state resets). | Updates `unit.path`, `unit.activeCommand`. |
 
 ### 2. Update Cycle
 
 `UnitManager.update()` will drive the lifecycle of each unit by delegating to sub-components in a deterministic order:
 
-1.  **Preparation**: `StatsManager.updateActiveWeapon()` ensures the correct weapon/stats are active for the current context.
-2.  **Decision**:
-    - If `unit.aiEnabled`, `UnitAI.process()` determines the next action.
-    - `CommandExecutor` processes the next command if the unit is idle.
-3.  **Action**:
-    - `CombatManager.update()` searches for targets and executes attacks.
-    - `MovementManager.update()` updates positions if the unit is in a moving state and not locked in melee.
+1. **Preparation**: `StatsManager.updateActiveWeapon()` ensures the correct weapon/stats are active for the current context.
+1. **Decision**:
+   - If `unit.aiEnabled`, `UnitAI.process()` determines the next action.
+   - `CommandExecutor` processes the next command if the unit is idle.
+1. **Action**:
+   - `CombatManager.update()` searches for targets and executes attacks.
+   - `MovementManager.update()` updates positions if the unit is in a moving state and not locked in melee.
 
 ### 3. Interfaces
 
@@ -58,10 +58,10 @@ interface IUnitComponent {
 
 ## Implementation Plan
 
-1.  **Phase 1: Extraction**: Extract `StatsManager` and `MovementManager` as they have the fewest dependencies.
-2.  **Phase 2: Combat & AI**: Extract `CombatManager` and `UnitAI`, refactoring the complex targeting logic.
-3.  **Phase 3: Command Integration**: Extract `CommandExecutor` and integrate with the existing `CommandHandler`.
-4.  **Phase 4: Orchestration**: Refactor `UnitManager` to inject these components and reduce its `update` method to a series of delegated calls.
+1. **Phase 1: Extraction**: Extract `StatsManager` and `MovementManager` as they have the fewest dependencies.
+1. **Phase 2: Combat & AI**: Extract `CombatManager` and `UnitAI`, refactoring the complex targeting logic.
+1. **Phase 3: Command Integration**: Extract `CommandExecutor` and integrate with the existing `CommandHandler`.
+1. **Phase 4: Orchestration**: Refactor `UnitManager` to inject these components and reduce its `update` method to a series of delegated calls.
 
 ## Consequences
 
