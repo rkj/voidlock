@@ -449,12 +449,12 @@ export class DenseShipGenerator {
 
     const maxSquadSpawns = 2;
     this.squadSpawns = [];
-    
+
     for (let i = 0; i < Math.min(maxSquadSpawns, squadRoomIds.length); i++) {
-        const c = roomsInSquadQuadMap.get(squadRoomIds[i])![0];
-        if (i === 0) this.squadSpawn = c;
-        this.squadSpawns.push(c);
-        this.placementValidator.occupy(c, OccupantType.SquadSpawn, c.roomId);
+      const c = roomsInSquadQuadMap.get(squadRoomIds[i])![0];
+      if (i === 0) this.squadSpawn = c;
+      this.squadSpawns.push(c);
+      this.placementValidator.occupy(c, OccupantType.SquadSpawn, c.roomId);
     }
 
     if (this.squadSpawns.length < maxSquadSpawns) {
@@ -462,7 +462,7 @@ export class DenseShipGenerator {
         (c) => !this.placementValidator.isCellOccupied(c),
       );
       this.prng.shuffle(available);
-      
+
       while (this.squadSpawns.length < maxSquadSpawns && available.length > 0) {
         const c = available.pop()!;
         const rid = `room-forced-squad-${this.squadSpawns.length}-${c.x}-${c.y}`;

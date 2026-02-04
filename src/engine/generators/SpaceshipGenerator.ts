@@ -187,31 +187,34 @@ export class SpaceshipGenerator {
     // 3. Pick Key Nodes
     const squadNodes: Node[] = [];
     const maxSquadSpawns = 2;
-    
+
     // Pick first squad node
     const squadNode1 = this.pickNodeInQuad(nodes, cols, rows, 0, 0);
     squadNodes.push(squadNode1);
-    
+
     // Pick additional squad nodes in the SAME quadrant
     for (let i = 1; i < maxSquadSpawns; i++) {
-        const node = this.pickNodeInQuad(nodes, cols, rows, 0, 0, squadNodes);
-        if (node && !squadNodes.some(n => n.id === node.id)) {
-            squadNodes.push(node);
-        }
+      const node = this.pickNodeInQuad(nodes, cols, rows, 0, 0, squadNodes);
+      if (node && !squadNodes.some((n) => n.id === node.id)) {
+        squadNodes.push(node);
+      }
     }
 
-    const extractionNode = this.pickNodeInQuad(nodes, cols, rows, 1, 1, squadNodes);
+    const extractionNode = this.pickNodeInQuad(
+      nodes,
+      cols,
+      rows,
+      1,
+      1,
+      squadNodes,
+    );
     const objectiveNode = this.pickNodeInQuad(nodes, cols, rows, 0, 1, [
       ...squadNodes,
       extractionNode,
     ]);
 
     const enemySpawnNodes: Node[] = [];
-    const avoidForEnemy = [
-      ...squadNodes,
-      extractionNode,
-      objectiveNode,
-    ];
+    const avoidForEnemy = [...squadNodes, extractionNode, objectiveNode];
     for (let i = 0; i < spawnPointCount; i++) {
       const n = this.pickNodeInQuad(nodes, cols, rows, 1, 0, [
         ...avoidForEnemy,
@@ -221,7 +224,7 @@ export class SpaceshipGenerator {
     }
 
     const keyNodeIds = new Set<number>([
-      ...squadNodes.map(n => n.id),
+      ...squadNodes.map((n) => n.id),
       extractionNode.id,
       objectiveNode.id,
       ...enemySpawnNodes.map((n) => n.id),
@@ -442,17 +445,17 @@ export class SpaceshipGenerator {
     // 1. Squad Spawns
     this.squadSpawns = [];
     squadNodes.forEach((node, idx) => {
-        const cells = this.cells.filter((c) => c.roomId === node.roomId);
-        if (cells.length > 0) {
-            const pos = { x: cells[0].x, y: cells[0].y };
-            if (idx === 0) this.squadSpawn = pos;
-            this.squadSpawns?.push(pos);
-            this.placementValidator.occupy(
-                cells[0],
-                OccupantType.SquadSpawn,
-                node.roomId
-            );
-        }
+      const cells = this.cells.filter((c) => c.roomId === node.roomId);
+      if (cells.length > 0) {
+        const pos = { x: cells[0].x, y: cells[0].y };
+        if (idx === 0) this.squadSpawn = pos;
+        this.squadSpawns?.push(pos);
+        this.placementValidator.occupy(
+          cells[0],
+          OccupantType.SquadSpawn,
+          node.roomId,
+        );
+      }
     });
 
     // 2. Extraction

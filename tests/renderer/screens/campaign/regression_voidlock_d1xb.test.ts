@@ -22,7 +22,9 @@ vi.mock("@src/renderer/campaign/MetaManager", () => ({
 vi.mock("@src/renderer/ConfigManager", () => ({
   ConfigManager: {
     clearCampaign: vi.fn(),
-    loadGlobal: vi.fn().mockReturnValue({ unitStyle: "TacticalIcons", themeId: "default" }),
+    loadGlobal: vi
+      .fn()
+      .mockReturnValue({ unitStyle: "TacticalIcons", themeId: "default" }),
     saveGlobal: vi.fn(),
   },
 }));
@@ -57,13 +59,13 @@ describe("regression_voidlock_d1xb: Clear cached squad on new campaign start", (
 
     const startBtn = container.querySelector(".primary-button") as HTMLElement;
     expect(startBtn.textContent).toBe("Initialize Expedition");
-    
+
     // Trigger the click
     startBtn.click();
 
     // Verify ConfigManager.clearCampaign was called
     expect(ConfigManager.clearCampaign).toHaveBeenCalledTimes(1);
-    
+
     // Verify onStartCampaign was also called
     expect(onStartCampaign).toHaveBeenCalled();
   });

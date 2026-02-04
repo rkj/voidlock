@@ -35,7 +35,7 @@ describe("Regression TKZI - Sticky Recruitment Button", () => {
 
     // 3. In Mission Setup, recruit many soldiers to force scroll
     await page.waitForSelector("#screen-mission-setup");
-    
+
     // Check if Recruit button exists
     const recruitBtnSelector = ".btn-recruit";
     await page.waitForSelector(recruitBtnSelector);
@@ -44,7 +44,7 @@ describe("Regression TKZI - Sticky Recruitment Button", () => {
     for (let i = 0; i < 10; i++) {
       await page.click(recruitBtnSelector);
       // Wait for roster update
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
     // 4. Verify scrolling and stickiness
@@ -56,7 +56,7 @@ describe("Regression TKZI - Sticky Recruitment Button", () => {
 
       // Scroll to bottom
       list.scrollTop = list.scrollHeight;
-      
+
       const actionsRect = actions.getBoundingClientRect();
       const panelRect = panel.getBoundingClientRect();
       const listRect = list.getBoundingClientRect();
@@ -65,7 +65,7 @@ describe("Regression TKZI - Sticky Recruitment Button", () => {
         isListScrolled: list.scrollTop > 0,
         isActionsAtBottom: Math.abs(actionsRect.bottom - panelRect.bottom) < 10,
         isActionsVisible: actionsRect.top >= listRect.bottom - 10,
-        actionsHeight: actionsRect.height
+        actionsHeight: actionsRect.height,
       };
     });
 

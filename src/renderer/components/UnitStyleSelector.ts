@@ -93,7 +93,8 @@ export class UnitStyleSelector {
       "#preview-canvas-sprites",
     ) as HTMLCanvasElement;
 
-    if (tacticalCanvas) this.drawPreview(tacticalCanvas, UnitStyle.TacticalIcons);
+    if (tacticalCanvas)
+      this.drawPreview(tacticalCanvas, UnitStyle.TacticalIcons);
     if (spritesCanvas) this.drawPreview(spritesCanvas, UnitStyle.Sprites);
   }
 

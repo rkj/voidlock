@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { ConfigManager, GameConfig } from "@src/renderer/ConfigManager";
-import { MapGeneratorType, MissionType, UnitStyle } from "@src/shared/types";
+import { MapGeneratorType, MissionType } from "@src/shared/types";
 
 describe("ConfigManager Isolation", () => {
   beforeEach(() => {

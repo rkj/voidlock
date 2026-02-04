@@ -45,12 +45,7 @@ describe("CampaignManager", () => {
   });
 
   it("should allow overriding mapGeneratorType in startNewCampaign", () => {
-    manager.startNewCampaign(
-      12345,
-      "Normal",
-      true,
-      MapGeneratorType.TreeShip,
-    );
+    manager.startNewCampaign(12345, "Normal", true, MapGeneratorType.TreeShip);
     const state = manager.getState();
 
     expect(state?.rules.mapGeneratorType).toBe("TreeShip");

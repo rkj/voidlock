@@ -2,7 +2,6 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { UnitStyle } from "@src/shared/types";
 
 // Mock dependencies
 vi.mock("@package.json", () => ({

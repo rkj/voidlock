@@ -120,7 +120,9 @@ describe("CampaignScreen Difficulty Cards", () => {
 
     // Show Advanced Settings
     const buttons = container.querySelectorAll("button");
-    const advancedToggle = Array.from(buttons).find(b => b.textContent?.includes("Advanced Settings"));
+    const advancedToggle = Array.from(buttons).find((b) =>
+      b.textContent?.includes("Advanced Settings"),
+    );
     expect(advancedToggle).toBeTruthy();
     advancedToggle?.click();
 

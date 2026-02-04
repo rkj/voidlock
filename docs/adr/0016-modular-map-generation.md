@@ -17,18 +17,15 @@ We will split the responsibilities of `MapGenerator.ts` into a dedicated module 
 ### Components
 
 1. **`MapFactory` (formerly `MapGenerator`):**
-
    - Responsible _only_ for accepting a `MapGenerationConfig` and returning a `MapDefinition`.
    - Delegates the actual generation to specific strategies (e.g., `SpaceshipGenerator`).
    - Delegates post-processing to `MapSanitizer` and `MapValidator`.
 
 1. **`MapSanitizer`:**
-
    - Contains pure functions to clean up the map data.
    - Responsibilities: standardizing wall segments, culling unreachable cells (if any), ensuring consistent graph state.
 
 1. **`MapValidator`:**
-
    - Contains rules for map correctness.
    - Responsibilities: Verifying connectivity (Flood Fill), checking entity placement constraints (as per ADR 0014), ensuring minimum counts (Spawns, Objectives).
 

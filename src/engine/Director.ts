@@ -69,9 +69,9 @@ export class Director implements IDirector {
       this.startingThreatLevel / this.threatPerTurn,
     );
 
-    if (this.startingThreatLevel > 10 && completedTurns > 0) {
+    if (this.startingThreatLevel >= 10 && completedTurns > 0) {
       const actualTurn = this.turn;
-      for (let t = 0; t < completedTurns; t++) {
+      for (let t = 1; t <= completedTurns; t++) {
         this.turn = t;
         this.spawnWave();
       }
@@ -118,7 +118,7 @@ export class Director implements IDirector {
 
       const cell =
         validRoomCells[this.prng.nextInt(0, validRoomCells.length - 1)];
-      
+
       const offsetX = this.prng.next() * 0.4 - 0.2;
       const offsetY = this.prng.next() * 0.4 - 0.2;
 
@@ -127,7 +127,12 @@ export class Director implements IDirector {
         y: cell.y + 0.5 + offsetY,
       };
 
-      const enemy = this.createEnemy(`enemy-pre-${this.enemyIdCounter++}`, pos, type, difficulty);
+      const enemy = this.createEnemy(
+        `enemy-pre-${this.enemyIdCounter++}`,
+        pos,
+        type,
+        difficulty,
+      );
       this.onSpawn(enemy);
       budget -= difficulty;
     }
@@ -278,81 +283,111 @@ export class Director implements IDirector {
   }
 
   private spawnWave() {
-    if (this.spawnPoints.length === 0) return;
+    if (this.spawnPoints.length === 0 || this.turn === 0) return;
 
     // Formula: WaveBudget = floor(StartingPoints + (CurrentThreat/10 * PointGrowthRate))
+
     // Use turn-based threat to ensure discrete scaling at every 10% boundary
+
     const currentThreat = this.turn * this.threatPerTurn;
-        const budget = Math.floor(
-          this.startingPoints + (currentThreat / 10) * DIRECTOR.POINT_GROWTH_RATE,
-        );
-    
-        let remainingBudget = budget;
-    
-        // Tier Locking:
-        // Threat < 30%: Only 1pt enemies (Xeno-Mites) allowed.
-        // Threat 30-60%: Up to 3pt enemies (Drones, Spitters, Praetorians) allowed.
-        // Threat > 60%: All archetypes allowed.
-        while (remainingBudget > 0) {
-          const type = this.selectEnemyTypeForThreat(currentThreat, remainingBudget);
-          if (!type) break;
-    
-          const difficulty = this.getDifficultyForType(type);
-          if (difficulty > remainingBudget) break;
-    
-          this.spawnOneEnemyOfType(type, difficulty);
-          remainingBudget -= difficulty;
-        }
-      }
-    
-      private selectEnemyTypeForThreat(
-        threat: number,
-        budget: number,
-      ): EnemyType | null {
-        // Define available types based on threat tiers
-        let availableTypes: { type: EnemyType; cost: number }[] = [];
-    
-        if (threat < 30) {
-          // Tier 1: Only 1pt enemies
-          availableTypes = [
-            { type: EnemyType.XenoMite, cost: DIRECTOR.DIFFICULTY_EASY },
-          ];
-        } else if (threat < 60) {
-          // Tier 2: Up to 3pt enemies
-          availableTypes = [
-            { type: EnemyType.XenoMite, cost: DIRECTOR.DIFFICULTY_EASY },
-            { type: EnemyType.WarriorDrone, cost: DIRECTOR.DIFFICULTY_MEDIUM },
-            { type: EnemyType.SpitterAcid, cost: DIRECTOR.DIFFICULTY_MEDIUM },
-            { type: EnemyType.PraetorianGuard, cost: DIRECTOR.DIFFICULTY_HARD },
-          ];
-        } else {
-          // Tier 3: All archetypes
-          availableTypes = [
-            { type: EnemyType.XenoMite, cost: DIRECTOR.DIFFICULTY_EASY },
-            { type: EnemyType.WarriorDrone, cost: DIRECTOR.DIFFICULTY_MEDIUM },
-            { type: EnemyType.SpitterAcid, cost: DIRECTOR.DIFFICULTY_MEDIUM },
-            { type: EnemyType.PraetorianGuard, cost: DIRECTOR.DIFFICULTY_HARD },
-          ];
-        }
-    
-        // Filter by what we can afford
-        const affordable = availableTypes.filter((a) => a.cost <= budget);
-        if (affordable.length === 0) return null;
-    
-        // Pick a random type from affordable list
-        // Use weighted selection similar to original intent but restricted to affordable
-        if (threat < 30) {
-          return EnemyType.XenoMite;
-        } else {
-          // Weighted among affordable
-          if (affordable.length === 1) return affordable[0].type;
-    
-          // Simple uniform selection among affordable for now to guarantee spending budget,
-          // or we could implement a better weighted shuffle.
-          // Actually, let's just pick one randomly from affordable.
-          return affordable[this.prng.nextInt(0, affordable.length - 1)].type;
-        }
-      }
+
+    const budget = Math.floor(
+      this.startingPoints + (currentThreat / 10) * DIRECTOR.POINT_GROWTH_RATE,
+    );
+
+    let remainingBudget = budget;
+
+    let spawnedInWave = 0;
+
+    // Tier Locking:
+
+    // Threat < 30%: Only 1pt enemies (Xeno-Mites) allowed.
+
+    // Threat 30-60%: Up to 3pt enemies (Drones, Spitters, Praetorians) allowed.
+
+    // Threat > 60%: All archetypes allowed.
+
+    while (remainingBudget > 0 && spawnedInWave < DIRECTOR.WAVE_CAP) {
+      const type = this.selectEnemyTypeForThreat(
+        currentThreat,
+        remainingBudget,
+      );
+
+      if (!type) break;
+
+      const difficulty = this.getDifficultyForType(type);
+
+      if (difficulty > remainingBudget) break;
+
+      this.spawnOneEnemyOfType(type, difficulty);
+
+      remainingBudget -= difficulty;
+
+      spawnedInWave++;
+    }
+  }
+
+  private selectEnemyTypeForThreat(
+    threat: number,
+
+    budget: number,
+  ): EnemyType | null {
+    // Define available types based on threat tiers
+
+    let availableTypes: { type: EnemyType; cost: number }[] = [];
+
+    if (threat < 30) {
+      // Tier 1: Only 1pt enemies
+
+      availableTypes = [
+        { type: EnemyType.XenoMite, cost: DIRECTOR.DIFFICULTY_EASY },
+      ];
+    } else if (threat < 60) {
+      // Tier 2: Up to 3pt enemies
+
+      availableTypes = [
+        { type: EnemyType.XenoMite, cost: DIRECTOR.DIFFICULTY_EASY },
+
+        { type: EnemyType.WarriorDrone, cost: DIRECTOR.DIFFICULTY_MEDIUM },
+
+        { type: EnemyType.SpitterAcid, cost: DIRECTOR.DIFFICULTY_MEDIUM },
+
+        { type: EnemyType.PraetorianGuard, cost: DIRECTOR.DIFFICULTY_HARD },
+      ];
+    } else {
+      // Tier 3: All archetypes
+
+      availableTypes = [
+        { type: EnemyType.XenoMite, cost: DIRECTOR.DIFFICULTY_EASY },
+
+        { type: EnemyType.WarriorDrone, cost: DIRECTOR.DIFFICULTY_MEDIUM },
+
+        { type: EnemyType.SpitterAcid, cost: DIRECTOR.DIFFICULTY_MEDIUM },
+
+        { type: EnemyType.PraetorianGuard, cost: DIRECTOR.DIFFICULTY_HARD },
+
+        { type: EnemyType.SwarmMelee, cost: DIRECTOR.DIFFICULTY_EASY },
+      ];
+    }
+
+    // Filter by what we can afford
+    const affordable = availableTypes.filter((a) => a.cost <= budget);
+    if (affordable.length === 0) return null;
+
+    // Pick a random type from affordable list
+    // Use weighted selection similar to original intent but restricted to affordable
+    if (threat < 30) {
+      return EnemyType.XenoMite;
+    } else {
+      // Weighted among affordable
+      if (affordable.length === 1) return affordable[0].type;
+
+      // Simple uniform selection among affordable for now to guarantee spending budget,
+      // or we could implement a better weighted shuffle.
+      // Actually, let's just pick one randomly from affordable.
+      return affordable[this.prng.nextInt(0, affordable.length - 1)].type;
+    }
+  }
   private getDifficultyForType(type: EnemyType): number {
     if (type === EnemyType.WarriorDrone || type === EnemyType.SpitterAcid) {
       return DIRECTOR.DIFFICULTY_MEDIUM;
@@ -362,7 +397,12 @@ export class Director implements IDirector {
     return DIRECTOR.DIFFICULTY_EASY;
   }
 
-  private createEnemy(id: string, pos: Vector2, type: EnemyType, difficulty: number): Enemy {
+  private createEnemy(
+    id: string,
+    pos: Vector2,
+    type: EnemyType,
+    difficulty: number,
+  ): Enemy {
     const arch = EnemyArchetypeLibrary[type];
     return {
       id,
@@ -397,7 +437,12 @@ export class Director implements IDirector {
       y: spawnPoint.pos.y + 0.5 + offsetY,
     };
 
-    const enemy = this.createEnemy(`enemy-${this.enemyIdCounter++}`, pos, type, difficulty);
+    const enemy = this.createEnemy(
+      `enemy-${this.enemyIdCounter++}`,
+      pos,
+      type,
+      difficulty,
+    );
     this.onSpawn(enemy);
   }
 
@@ -406,7 +451,10 @@ export class Director implements IDirector {
    */
   public spawnOneEnemy() {
     const threat = this.getThreatLevel();
-    const type = this.selectEnemyTypeForThreat(threat, DIRECTOR.DIFFICULTY_HARD);
+    const type = this.selectEnemyTypeForThreat(
+      threat,
+      DIRECTOR.DIFFICULTY_HARD,
+    );
     if (type) {
       this.spawnOneEnemyOfType(type, this.getDifficultyForType(type));
     }

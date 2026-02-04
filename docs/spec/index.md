@@ -5,7 +5,7 @@
 
 This document serves as the **Game Design Document (GDD)** and the index for all detailed specifications.
 
-______________________________________________________________________
+---
 
 ## 1. Scope & Design Pillars
 
@@ -23,14 +23,13 @@ ______________________________________________________________________
 - Meta-progression (XP, Campaign map, Loot inventory).
 - Complex Frameworks (React/Vue) — strictly Vanilla TS + Vite.
 
-______________________________________________________________________
+---
 
 ## 2. Detailed Specifications
 
 Agents and developers should consult the specific files below for implementation details:
 
 - **[Simulation & Protocol](simulation.md)**
-
   - Game Loop Architecture (Tick-based)
   - Determinism & PRNG
   - Engine ↔ Client Protocol (JSON)
@@ -38,52 +37,43 @@ Agents and developers should consult the specific files below for implementation
   - Persistence
 
 - **[World Model & Map](map.md)**
-
   - The Grid (Shared Walls / Edges)
   - Map Generation & Content Packs
   - ASCII Map Representation
   - Map Viewer Utility
 
 - **[Missions](mission.md)**
-
   - Mission Types & Win/Loss Conditions
   - Success/Failure Criteria
   - Objectives & Special Rules
 
 - **[Units & Combat](combat_units.md)**
-
   - Unit Stats (Speed, Health)
   - Weapon & Accuracy Model (Angular Dispersion)
 
 - **[Enemies](enemies.md)**
-
   - Enemy Archetypes & Points
   - Aggro & Roaming Logic
 
 - **[Command System & AI](commands.md)**
-
   - Command Protocol (MOVE, STOP, ATTACK)
   - Specialized Behaviors (Escort, Overwatch)
 
 - **[AI & Game Logic](ai.md)**
-
   - Enemy AI Behaviors
   - Soldier Logic (Engagement, Self-preservation)
   - The Director (Spawning Algorithm)
 
 - **[Items & Abilities](items.md)**
-
   - Global Inventory (Pool)
   - Commander Abilities (Instant)
   - Tactical Actions (Timed/Unit-Driven)
 
 - **[User Interface](ui.md)**
-
   - Screen Flow & Layout
   - Control Scheme (Keyboard/Mouse)
   - Mission Configuration
 
 - **[Campaign & Meta](campaign.md)**
-
   - Sector Map Logic
   - Economy (Scrap) & Roster Management

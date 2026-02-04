@@ -48,7 +48,9 @@ vi.mock("@src/renderer/ConfigManager", () => ({
     saveCustom: vi.fn(),
     saveCampaign: vi.fn(),
     saveGlobal: vi.fn(),
-    loadGlobal: vi.fn().mockReturnValue({ unitStyle: "TacticalIcons", themeId: "default" }),
+    loadGlobal: vi
+      .fn()
+      .mockReturnValue({ unitStyle: "TacticalIcons", themeId: "default" }),
     loadCustom: vi.fn().mockReturnValue({
       mapWidth: 14,
       mapHeight: 14,

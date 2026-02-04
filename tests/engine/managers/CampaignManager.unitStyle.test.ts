@@ -13,11 +13,7 @@ describe("CampaignManager - unitStyle (Obsolete - Now Global)", () => {
   });
 
   it("should start a new campaign without unitStyle in rules", () => {
-    manager.startNewCampaign(
-      123,
-      "Standard",
-      true,
-    );
+    manager.startNewCampaign(123, "Standard", true);
     const state = manager.getState();
     expect(state).not.toBeNull();
     // @ts-ignore

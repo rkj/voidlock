@@ -35,40 +35,33 @@ The application is divided into distinct screens to reduce UI clutter and improv
 ### Mission Setup Screen (formerly Config Screen)
 
 - **Shell Integration**:
-
   - **Campaign Mode**: MUST be rendered _within_ the `CampaignShell` content area.
   - **Custom Mode**: Can use the standalone layout.
 
 - **Campaign Context Header**:
-
   - **Location**: Below the "Mission Configuration" title.
   - **Content**:
     - **Campaign Mode**: "Campaign: [Difficulty] | Mission [N] | Sector [N]"
     - **Custom Mode**: "Custom Simulation"
 
 - **Map Configuration**:
-
   - Generator Type (Procedural, TreeShip, Static).
   - Seed Input / Randomize.
   - Map Size (Width/Height).
   - Static Map Import (Text/File/ASCII).
 
 - **Global Settings Override (Optional)**:
-
   - Small text or icon indicating current Visual Style/Theme (read-only or quick link to Settings).
 
 - **Game Options**:
-
   - Fog of War, Debug Overlay, LOS Visualization toggles.
 
 - **Game Speed Control**:
-
   - **Slider Range**: 0.1x to 10.0x (Fast Forward). Default 1.0x.
   - **Active Pause**: Speed 0.05x acts as "Active Pause".
   - **Controls**: Spacebar toggles Active Pause.
 
 - **Command Set Updates:**
-
   - `ENGAGE/IGNORE Toggle`: Units can be toggled between 'ENGAGE' and 'IGNORE' policies.
   - **Squad Configuration (Drag & Drop):**
     - **Interface**:
@@ -91,7 +84,6 @@ The application is divided into distinct screens to reduce UI clutter and improv
       - **Quick Actions**: Revive (Cloning), Recruit.
 
 - **Actions**:
-
   - "Launch Mission" -> Starts Engine, switches to Mission Screen.
   - "Back" -> Main Menu.
 
@@ -117,7 +109,6 @@ The application is divided into distinct screens to reduce UI clutter and improv
   \- Allocate global items (e.g., "Take 3 Grenades") to the mission inventory pool.
 
 - **Asset Integration**:
-
   - Weapon names must use the user-visible `name` field from `WeaponLibrary` / `ItemLibrary` (e.g., "Pulse Rifle"), NOT the internal ID (e.g., `pulse_rifle_mk1`).
 
 3. **Mission Screen** (Active Gameplay)
@@ -161,7 +152,6 @@ Clicking "Copy World State" captures a comprehensive snapshot of the session.
 - **Format:** JSON
 
 - **Contents**:
-
   - `replayData`: Seed, Map Definition, Squad Config, and the full Command History.
   - `currentState`: The full `GameState` object from the engine.
   - `mapGenerator`: The name of the generator algorithm used (e.g., "TreeShipGenerator").
@@ -169,13 +159,11 @@ Clicking "Copy World State" captures a comprehensive snapshot of the session.
   - `timestamp`: System time of export.
 
 - **Destination:** System Clipboard (primary) and Console (fallback).
-
   - **Constraint:** Must check for `navigator.clipboard` availability. If unavailable (e.g., non-secure context), strictly fallback to `console.log` and alert the user.
 
 - **Usage:** This JSON can be attached to bug reports or used with "Load Replay" to reproduce exact states.
 
 - **Legacy Requirements:**
-
   - Navmesh/path display
   - Spawn intensity heatmaps
   - Deterministic replay import/export (ReplayData)
@@ -189,27 +177,27 @@ For detailed Command behaviors, see **[Command System & AI](commands.md)**.
 
 To ensure consistent navigation, the UI follows a strict state machine.
 
-| Current State | Input / Trigger | Next State | Action / Side Effect |
+| Current State            | Input / Trigger     | Next State        | Action / Side Effect                               |
 | :----------------------- | :------------------ | :---------------- | :------------------------------------------------- |
-| **Action Select** (Root) | `1` (Orders) | **Orders Select** | Show Order Submenu |
-| | `2` (Engage) | **Mode Select** | Show Mode Submenu |
-| | `3` (Use Item) | **Item Select** | Show Inventory List |
-| | `4` (Pickup) | **Target Select** | Filter: Loot Items |
-| | `5` (Extract) | **Unit Select** | Filter: All Units |
-| **Orders Select** | `1` (Move) | **Target Select** | Filter: Rooms |
-| | `2` (Overwatch) | **Target Select** | Filter: Intersections |
-| | `3` (Explore) | **Unit Select** | Filter: All Units |
-| | `4` (Escort) | **Target Select** | Filter: Friendly Units |
-| | `5` (Hold) | **Unit Select** | Filter: All Units |
-| | `Q` / `ESC` | **Action Select** | Clear Submenu |
-| **Item Select** | `1-9` (Select Item) | **Target Select** | Filter: Contextual (See below) |
-| | `Q` / `ESC` | **Action Select** | Clear Inventory |
-| **Mode Select** | `1-2` (Select Mode) | **Unit Select** | Set Pending Mode |
-| | `Q` / `ESC` | **Action Select** | Clear Submenu |
-| **Target Select** | `1-9` / Click | **Unit Select** | Set Pending Target |
-| | `Q` / `ESC` | _Previous State_ | **CRITICAL:** Return to parent (Order/Item/Action) |
-| **Unit Select** | `1-9` (Select Unit) | **Action Select** | **EXECUTE COMMAND** |
-| | `Q` / `ESC` | _Previous State_ | Return to Target/Mode selection |
+| **Action Select** (Root) | `1` (Orders)        | **Orders Select** | Show Order Submenu                                 |
+|                          | `2` (Engage)        | **Mode Select**   | Show Mode Submenu                                  |
+|                          | `3` (Use Item)      | **Item Select**   | Show Inventory List                                |
+|                          | `4` (Pickup)        | **Target Select** | Filter: Loot Items                                 |
+|                          | `5` (Extract)       | **Unit Select**   | Filter: All Units                                  |
+| **Orders Select**        | `1` (Move)          | **Target Select** | Filter: Rooms                                      |
+|                          | `2` (Overwatch)     | **Target Select** | Filter: Intersections                              |
+|                          | `3` (Explore)       | **Unit Select**   | Filter: All Units                                  |
+|                          | `4` (Escort)        | **Target Select** | Filter: Friendly Units                             |
+|                          | `5` (Hold)          | **Unit Select**   | Filter: All Units                                  |
+|                          | `Q` / `ESC`         | **Action Select** | Clear Submenu                                      |
+| **Item Select**          | `1-9` (Select Item) | **Target Select** | Filter: Contextual (See below)                     |
+|                          | `Q` / `ESC`         | **Action Select** | Clear Inventory                                    |
+| **Mode Select**          | `1-2` (Select Mode) | **Unit Select**   | Set Pending Mode                                   |
+|                          | `Q` / `ESC`         | **Action Select** | Clear Submenu                                      |
+| **Target Select**        | `1-9` / Click       | **Unit Select**   | Set Pending Target                                 |
+|                          | `Q` / `ESC`         | _Previous State_  | **CRITICAL:** Return to parent (Order/Item/Action) |
+| **Unit Select**          | `1-9` (Select Unit) | **Action Select** | **EXECUTE COMMAND**                                |
+|                          | `Q` / `ESC`         | _Previous State_  | Return to Target/Mode selection                    |
 
 **Item Targeting Context:**
 
@@ -378,7 +366,6 @@ To ensure economic clarity, all strategic and setup screens must follow a consis
 To ensure consistency between Campaign Management (Barracks) and Mission Preparation (Ready Room), the following components must be shared:
 
 - **Soldier Inspector (Loadout UI):**
-
   - **Usage:** Used in both **BarracksScreen** and **EquipmentScreen**.
   - **Layout:**
     - **Left:** Soldier Stats (Attributes).
