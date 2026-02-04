@@ -45,6 +45,14 @@ export class SoldierInspector {
     this.isShop = isShop;
   }
 
+  private isDead(): boolean {
+    if (!this.soldier || !("id" in this.soldier) || !this.soldier.id)
+      return false;
+    const state = this.manager.getState();
+    const rosterSoldier = state?.roster.find((s) => s.id === this.soldier!.id);
+    return rosterSoldier?.status === "Dead";
+  }
+
   public renderDetails(container: HTMLElement) {
     container.innerHTML = "";
     if (!this.soldier) {
@@ -64,6 +72,25 @@ export class SoldierInspector {
     content.className = "flex-col align-center gap-20";
     content.style.marginTop = "10px";
 
+    const sStats = this.calculateSoldierStats(this.soldier);
+
+    // Dead Warning
+    if (this.isDead()) {
+      const deadDiv = document.createElement("div");
+      deadDiv.className = "w-full stat-box";
+      deadDiv.style.maxWidth = "400px";
+      deadDiv.style.borderRadius = "2px";
+      deadDiv.style.border = "1px solid var(--color-danger)";
+      deadDiv.style.backgroundColor = "rgba(255,0,0,0.1)";
+      deadDiv.style.padding = "12px";
+      deadDiv.style.textAlign = "center";
+      deadDiv.style.color = "var(--color-danger)";
+      deadDiv.style.fontWeight = "bold";
+      deadDiv.style.letterSpacing = "1px";
+      deadDiv.textContent = "SOLDIER IS DECEASED - EQUIPMENT LOCKED";
+      content.appendChild(deadDiv);
+    }
+
     // Soldier Stats Panel
     const soldierStatsDiv = document.createElement("div");
     soldierStatsDiv.className = "w-full stat-box";
@@ -80,7 +107,6 @@ export class SoldierInspector {
     h3Soldier.style.color = "var(--color-accent)";
     soldierStatsDiv.appendChild(h3Soldier);
 
-    const sStats = this.calculateSoldierStats(this.soldier);
     const sGrid = document.createElement("div");
     sGrid.className = "flex-row gap-20";
     sGrid.innerHTML = `
@@ -225,6 +251,14 @@ export class SoldierInspector {
     const slot = document.createElement("div");
     slot.className = "paper-doll-slot" + (itemId ? " equipped" : "");
 
+    // Disable interactions for dead soldiers
+    if (this.isDead()) {
+      slot.classList.add("disabled");
+      slot.style.opacity = "0.5";
+      slot.style.cursor = "not-allowed";
+      slot.style.pointerEvents = "none";
+    }
+
     const title = document.createElement("div");
     title.textContent = label;
     title.style.fontSize = "0.65em";
@@ -292,6 +326,7 @@ export class SoldierInspector {
 
     const state = this.manager.getState();
     const equip = this.getEquipment(this.soldier!);
+    const isDead = this.isDead();
 
     items.forEach((item) => {
       const isCurrentlyEquipped = equip[slot] === item.id;
@@ -318,10 +353,15 @@ export class SoldierInspector {
 
       const btn = document.createElement("div");
       btn.className = `menu-item clickable ${isCurrentlyEquipped ? "active" : ""}`;
-      if (!isCurrentlyEquipped && !isOwned && !canAfford) {
+      
+      // Disable for dead soldiers OR if cannot afford
+      if (isDead || (!isCurrentlyEquipped && !isOwned && !canAfford)) {
         btn.classList.add("disabled");
         btn.style.opacity = "0.5";
         btn.style.pointerEvents = "none";
+        if (isDead) {
+          btn.style.cursor = "not-allowed";
+        }
       }
       btn.style.padding = "8px 12px";
       btn.style.marginBottom = "4px";
@@ -387,7 +427,9 @@ export class SoldierInspector {
                 </div>
             </div>
         `;
-      btn.onclick = () => onSelect(item);
+      btn.onclick = () => {
+        if (!isDead) onSelect(item);
+      };
       panel.appendChild(btn);
     });
   }
@@ -455,13 +497,13 @@ export class SoldierInspector {
     soldier: CampaignSoldier | SquadSoldierConfig,
   ): EquipmentState {
     if ("equipment" in soldier) {
-      return soldier.equipment;
+      return (soldier as CampaignSoldier).equipment;
     }
     return {
-      rightHand: soldier.rightHand,
-      leftHand: soldier.leftHand,
-      body: soldier.body,
-      feet: soldier.feet,
+      rightHand: (soldier as SquadSoldierConfig).rightHand,
+      leftHand: (soldier as SquadSoldierConfig).leftHand,
+      body: (soldier as SquadSoldierConfig).body,
+      feet: (soldier as SquadSoldierConfig).feet,
     };
   }
 
@@ -480,6 +522,10 @@ export class SoldierInspector {
 
   private handleSlotChange(slot: keyof EquipmentState, newItemId: string) {
     if (!this.soldier) return;
+
+    // Prevent changes for dead soldiers
+    if (this.isDead()) return;
+
     const equip = this.getEquipment(this.soldier);
     if (equip[slot] === newItemId) return;
 
