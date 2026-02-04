@@ -10,9 +10,9 @@ Accepted
 
 The Voidlock project currently relies on Unit Tests and "Integration" tests running in a JSDOM environment. While effective for logic, JSDOM has significant limitations:
 
-1.  **No Visual Rendering:** It cannot detect Z-Index layering issues (e.g., "Blank Screen" bug where one layer obscures another).
-2.  **No Layout Engine:** It cannot detect CSS overflow or scrollbar issues (e.g., "Missing Scrollbars" bug).
-3.  **No WebGL:** It cannot verify the game canvas is actually rendering.
+1. **No Visual Rendering:** It cannot detect Z-Index layering issues (e.g., "Blank Screen" bug where one layer obscures another).
+1. **No Layout Engine:** It cannot detect CSS overflow or scrollbar issues (e.g., "Missing Scrollbars" bug).
+1. **No WebGL:** It cannot verify the game canvas is actually rendering.
 
 As a result, critical visual and interaction bugs are slipping through into `main`.
 

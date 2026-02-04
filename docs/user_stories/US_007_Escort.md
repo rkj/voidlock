@@ -12,11 +12,11 @@ As a tactical commander, I want to use the Escort command to protect a vulnerabl
 ## Action List
 
 1. Select a Soldier (Press `1-4`).
-2. Press `1` (Orders) -> Orders menu opens.
-3. Press `4` (Escort) -> Target selection overlays appear on friendly units.
-4. Observe Target Options -> **ONLY** the VIP (or an artifact carrier) should have a selection number. Standard soldiers must NOT be targets.
-5. Press the number corresponding to the VIP -> Soldier enters "Escorting" state.
-6. Observe the Soldier -> Moves toward the VIP and adjusts speed to match.
+1. Press `1` (Orders) -> Orders menu opens.
+1. Press `4` (Escort) -> Target selection overlays appear on friendly units.
+1. Observe Target Options -> **ONLY** the VIP (or an artifact carrier) should have a selection number. Standard soldiers must NOT be targets.
+1. Press the number corresponding to the VIP -> Soldier enters "Escorting" state.
+1. Observe the Soldier -> Moves toward the VIP and adjusts speed to match.
 
 ## Visual Acceptance Criteria
 

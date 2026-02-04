@@ -7,9 +7,9 @@
 
 Voidlock is evolving from a single-mission tactical game into a persistent roguelite experience. This requires an architecture that supports:
 
-1.  **Persistent State:** Data that lives across multiple tactical missions (Squad roster, Scrap, Map progress).
-2.  **Strategic Layer:** New gameplay modes like the "Sector Map" (Bridge) and "Barracks" (Squad Management).
-3.  **Simulation Parity:** The ability to run full campaigns in a headless environment for balance testing.
+1. **Persistent State:** Data that lives across multiple tactical missions (Squad roster, Scrap, Map progress).
+1. **Strategic Layer:** New gameplay modes like the "Sector Map" (Bridge) and "Barracks" (Squad Management).
+1. **Simulation Parity:** The ability to run full campaigns in a headless environment for balance testing.
 
 ## Proposed Architecture
 
@@ -123,18 +123,18 @@ interface CampaignNode {
 
 ### 3. Workflow
 
-1.  **Initialization:** `CampaignManager.start(rules, seed)` generates the initial `CampaignState`.
-2.  **Navigation:** Player selects an "Accessible" node on the Bridge.
-3.  **Deployment:**
-    - Player selects soldiers from the `roster` in the Barracks.
-    - `CampaignManager` assembles `MissionParams`.
-    - `GameClient.init(MissionParams)` is called.
-4.  **Tactical Phase:** Standard `CoreEngine` loop runs.
-5.  **Reconciliation:**
-    - On mission end, `MissionResults` are sent to `CampaignManager.completeMission()`.
-    - Soldiers gain XP, casualties are marked as "Dead" or "Wounded" based on `GameRules`.
-    - `CampaignState` is updated and persisted.
-    - New nodes are set to "Accessible".
+1. **Initialization:** `CampaignManager.start(rules, seed)` generates the initial `CampaignState`.
+1. **Navigation:** Player selects an "Accessible" node on the Bridge.
+1. **Deployment:**
+   - Player selects soldiers from the `roster` in the Barracks.
+   - `CampaignManager` assembles `MissionParams`.
+   - `GameClient.init(MissionParams)` is called.
+1. **Tactical Phase:** Standard `CoreEngine` loop runs.
+1. **Reconciliation:**
+   - On mission end, `MissionResults` are sent to `CampaignManager.completeMission()`.
+   - Soldiers gain XP, casualties are marked as "Dead" or "Wounded" based on `GameRules`.
+   - `CampaignState` is updated and persisted.
+   - New nodes are set to "Accessible".
 
 ## Consequences
 

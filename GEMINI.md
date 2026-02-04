@@ -92,9 +92,9 @@ To prevent technical debt accumulation, all agents and contributors MUST adhere 
 
 After **EVERY** code modification, you MUST perform the following checks before marking a task complete:
 
-1.  **Type Check:** `npm run lint` (Ensures 0 TypeScript errors).
-2.  **Unit Tests:** `npm run test <FILE_PATH>` (Ensures logic correctness).
-3.  **Self-Correction:** If errors occur, fix them immediately. Do not leave "cleanup" for later.
+1. **Type Check:** `npm run lint` (Ensures 0 TypeScript errors).
+1. **Unit Tests:** `npm run test <FILE_PATH>` (Ensures logic correctness).
+1. **Self-Correction:** If errors occur, fix them immediately. Do not leave "cleanup" for later.
 
 ## Sub-Contexts
 

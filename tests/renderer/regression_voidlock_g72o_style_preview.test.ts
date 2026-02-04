@@ -61,7 +61,19 @@ vi.mock("@src/renderer/ThemeManager", () => ({
 vi.mock("@src/renderer/visuals/AssetManager", () => ({
   AssetManager: {
     getInstance: () => ({
+      loadSprites: vi.fn(),
+      loadIcons: vi.fn(),
       getUnitSprite: vi.fn().mockReturnValue({
+        complete: true,
+        naturalWidth: 64,
+        addEventListener: vi.fn(),
+      }),
+      getEnemySprite: vi.fn().mockReturnValue({
+        complete: true,
+        naturalWidth: 64,
+        addEventListener: vi.fn(),
+      }),
+      getMiscSprite: vi.fn().mockReturnValue({
         complete: true,
         naturalWidth: 64,
         addEventListener: vi.fn(),

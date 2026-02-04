@@ -8,24 +8,24 @@ To verify that the game's features are functional, the UI is aesthetically corre
 
 ## Workflow
 
-1.  **Initialize**: Navigate to the application at `http://localhost:5173` using `chrome-devtools`. The server is assumed to be already running.
-2.  **Load Story**: Select a user story from `docs/user_stories/`.
-3.  **Execute & Audit**:
-    - Perform each step in the "Action List" using `click`, `fill`, etc.
-    - **CRITICAL: Take a screenshot (`take_screenshot`) after EVERY significant UI transition or state change.**
-    - Compare the actual UI against the "Visual Acceptance Criteria" in the story.
-    - Inspect for:
-      - Element clipping (text going out of boxes).
-      - Overlapping elements.
-      - Missing information described in specs.
-      - Visual glitches (flickering, incorrect colors).
-4.  **Report & Remediate**:
-    - If any step fails or a visual glitch is found:
-      - **Create a Beads issue** (`bd create`) immediately.
-      - Title: `[VUI] Title of the issue` (VUI = Visual UI).
-      - Description: Implements `docs/user_stories/US_XXX.md`. Describe the mismatch/glitch. Mention the screenshot taken.
-      - Priority: P2 (Standard) or P1 (Blocking).
-5.  **Finalize**: Provide a summary of all stories tested and the status of any newly created issues.
+1. **Initialize**: Navigate to the application at `http://localhost:5173` using `chrome-devtools`. The server is assumed to be already running.
+1. **Load Story**: Select a user story from `docs/user_stories/`.
+1. **Execute & Audit**:
+   - Perform each step in the "Action List" using `click`, `fill`, etc.
+   - **CRITICAL: Take a screenshot (`take_screenshot`) after EVERY significant UI transition or state change.**
+   - Compare the actual UI against the "Visual Acceptance Criteria" in the story.
+   - Inspect for:
+     - Element clipping (text going out of boxes).
+     - Overlapping elements.
+     - Missing information described in specs.
+     - Visual glitches (flickering, incorrect colors).
+1. **Report & Remediate**:
+   - If any step fails or a visual glitch is found:
+     - **Create a Beads issue** (`bd create`) immediately.
+     - Title: `[VUI] Title of the issue` (VUI = Visual UI).
+     - Description: Implements `docs/user_stories/US_XXX.md`. Describe the mismatch/glitch. Mention the screenshot taken.
+     - Priority: P2 (Standard) or P1 (Blocking).
+1. **Finalize**: Provide a summary of all stories tested and the status of any newly created issues.
 
 ## Capabilities
 

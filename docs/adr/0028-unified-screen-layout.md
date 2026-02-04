@@ -12,10 +12,10 @@ The current UI architecture of Voidlock relies on a flat collection of `<div cla
 
 **Problems:**
 
-1.  **Inconsistent Layouts:** Some screens have headers, some don't. Some have footers, some have buttons floating in the content.
-2.  **Clipping & Scrolling Bugs:** On smaller viewports (e.g., 800x600), fixed-height headers and unconstrained content areas cause buttons (like "Confirm" or "Back") to be pushed off-screen and become inaccessible.
-3.  **DOM Pollution:** All screens exist in the DOM simultaneously, hidden via `display: none`. This leads to "zombie" nodes (e.g., the unused `#screen-campaign` placeholder) and potential ID conflicts or memory leaks.
-4.  **Ad-Hoc Fixes:** Fixing layout issues requires patching individual screen CSS, leading to fragmentation (e.g., the recent failed attempt to fix the Mission Setup screen).
+1. **Inconsistent Layouts:** Some screens have headers, some don't. Some have footers, some have buttons floating in the content.
+1. **Clipping & Scrolling Bugs:** On smaller viewports (e.g., 800x600), fixed-height headers and unconstrained content areas cause buttons (like "Confirm" or "Back") to be pushed off-screen and become inaccessible.
+1. **DOM Pollution:** All screens exist in the DOM simultaneously, hidden via `display: none`. This leads to "zombie" nodes (e.g., the unused `#screen-campaign` placeholder) and potential ID conflicts or memory leaks.
+1. **Ad-Hoc Fixes:** Fixing layout issues requires patching individual screen CSS, leading to fragmentation (e.g., the recent failed attempt to fix the Mission Setup screen).
 
 ## Decision
 
@@ -88,11 +88,11 @@ interface ScreenLayoutConfig {
 
 The `ScreenManager` will:
 
-1.  Clear `#main-content`.
-2.  Call `unmount()` on the previous screen.
-3.  Instantiate/Retrieve the new screen.
-4.  Call `getLayoutConfig()` and update `#global-header` and `#global-footer`.
-5.  Call `mount()` and append the result to `#main-content`.
+1. Clear `#main-content`.
+1. Call `unmount()` on the previous screen.
+1. Instantiate/Retrieve the new screen.
+1. Call `getLayoutConfig()` and update `#global-header` and `#global-footer`.
+1. Call `mount()` and append the result to `#main-content`.
 
 ## Consequences
 
@@ -110,8 +110,8 @@ The `ScreenManager` will:
 
 ## Implementation Strategy
 
-1.  **Phase 1 (Infrastructure):** Create `GameShell` class, updated `ScreenManager`, and `Screen` interface. Update `index.html` to the new skeleton.
-2.  **Phase 2 (Migration):** Port screens one by one.
-    - _Priority:_ `EquipmentScreen`, `MissionSetupScreen` (Fixes the immediate bugs).
-    - _Secondary:_ `MainMenu`, `CampaignScreen`.
-3.  **Phase 3 (Cleanup):** Remove old CSS and unused HTML from `index.html`.
+1. **Phase 1 (Infrastructure):** Create `GameShell` class, updated `ScreenManager`, and `Screen` interface. Update `index.html` to the new skeleton.
+1. **Phase 2 (Migration):** Port screens one by one.
+   - _Priority:_ `EquipmentScreen`, `MissionSetupScreen` (Fixes the immediate bugs).
+   - _Secondary:_ `MainMenu`, `CampaignScreen`.
+1. **Phase 3 (Cleanup):** Remove old CSS and unused HTML from `index.html`.

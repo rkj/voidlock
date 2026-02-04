@@ -27,6 +27,7 @@ This directory contains the automated test suite for the Voidlock renderer, usin
 - `MenuController.discovery.test.ts`: Verifies room discovery filtering and stable numbering in the command menu.
 - `regression_09cn_room_mapping.test.ts`: Verifies room mapping logic based on discovery order and stable key assignments.
 - `regression_voidlock-dp5x_quick_revive.test.ts`: Verifies Quick Revive and Quick Recruit buttons in the Mission Setup roster.
+- `regression_voidlock-txq8_visual_style_assets.test.ts`: Verifies the UnitStyleSelector micro-diorama rendering, specifically handling of asset loading states and missing asset placeholders.
 - `regression_voidlock-hs8n_vip_selection.test.ts`: Verifies VIP availability logic in Custom Missions and its exclusion from Campaign Mode.
 - `regression_7twz_campaign_transition.test.ts`: Verifies that the transition from Campaign to Mission Setup is valid.
 - `regression_voidlock-1i9o_map_generator_export.test.ts`: Verifies that the map generator name is correctly included in the world state export.

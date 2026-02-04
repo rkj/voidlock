@@ -14,12 +14,12 @@ We will extract the overlay generation logic into a dedicated helper or strategy
 
 ### Changes
 
-1.  **Create `src/renderer/controllers/TargetOverlayGenerator.ts`** (or similar):
-    - Move the `generateTargetOverlay` logic here.
-    - It should accept the `GameState` and the `CommandType` (or filter criteria) and return the list of `OverlayOption`s.
-2.  **Update `MenuController.ts`**:
-    - Delegate to `TargetOverlayGenerator`.
-    - Focus on input handling and state transitions.
+1. **Create `src/renderer/controllers/TargetOverlayGenerator.ts`** (or similar):
+   - Move the `generateTargetOverlay` logic here.
+   - It should accept the `GameState` and the `CommandType` (or filter criteria) and return the list of `OverlayOption`s.
+1. **Update `MenuController.ts`**:
+   - Delegate to `TargetOverlayGenerator`.
+   - Focus on input handling and state transitions.
 
 ## Consequences
 

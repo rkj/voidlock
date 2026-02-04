@@ -6,9 +6,9 @@ The `src/renderer/main.ts` file currently executes logic in the global scope. It
 
 Issues:
 
-1.  **Untestable:** You cannot import `main.ts` in a test environment without triggering the entire game startup (which fails due to missing DOM, etc.).
-2.  **Global State:** Singletons and global variables make it impossible to "reset" the game cleanly between integration tests.
-3.  **Initialization Order:** Dependencies are implicit based on import order.
+1. **Untestable:** You cannot import `main.ts` in a test environment without triggering the entire game startup (which fails due to missing DOM, etc.).
+1. **Global State:** Singletons and global variables make it impossible to "reset" the game cleanly between integration tests.
+1. **Initialization Order:** Dependencies are implicit based on import order.
 
 ## Decision
 
@@ -16,17 +16,20 @@ We will encapsulate the application bootstrapping logic into a dedicated `GameAp
 
 ### Components
 
-1.  **`GameApp`:**
-    - Methods: `initialize()`, `start()`, `stop()`.
-    - Holds references to `GameClient`, `Renderer`, `ScreenManager`.
+1. **`GameApp`:**
 
-2.  **`AppContext`:**
-    - A simple Dependency Injection (DI) container or Service Locator.
-    - Holds the singletons (`ConfigManager`, `ThemeManager`) to allow mocking in tests.
+   - Methods: `initialize()`, `start()`, `stop()`.
+   - Holds references to `GameClient`, `Renderer`, `ScreenManager`.
 
-3.  **`InputBinder`:**
-    - Separates the logic of _what_ to do (InputManager) from _how_ to listen (DOM Event Listeners).
-    - Allows attaching/detaching listeners cleanly.
+1. **`AppContext`:**
+
+   - A simple Dependency Injection (DI) container or Service Locator.
+   - Holds the singletons (`ConfigManager`, `ThemeManager`) to allow mocking in tests.
+
+1. **`InputBinder`:**
+
+   - Separates the logic of _what_ to do (InputManager) from _how_ to listen (DOM Event Listeners).
+   - Allows attaching/detaching listeners cleanly.
 
 ### Entry Point
 

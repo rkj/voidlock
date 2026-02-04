@@ -14,15 +14,15 @@ We will decompose the `CampaignManager` into smaller, focused domain managers, k
 
 ### Changes
 
-1.  **Create `src/engine/campaign/RosterManager.ts`**:
-    - Handle `recruitSoldier`, `healSoldier`, `reviveSoldier`, `assignEquipment`.
-2.  **Create `src/engine/campaign/MissionReconciler.ts`**:
-    - Handle `processMissionResult` logic (XP calculation, level ups, resource updates).
-3.  **Create `src/engine/campaign/EventManager.ts`**:
-    - Handle `applyEventChoice`.
-4.  **Update `CampaignManager.ts`**:
-    - Delegate these operations to the new sub-managers.
-    - Maintain the singleton instance and storage access.
+1. **Create `src/engine/campaign/RosterManager.ts`**:
+   - Handle `recruitSoldier`, `healSoldier`, `reviveSoldier`, `assignEquipment`.
+1. **Create `src/engine/campaign/MissionReconciler.ts`**:
+   - Handle `processMissionResult` logic (XP calculation, level ups, resource updates).
+1. **Create `src/engine/campaign/EventManager.ts`**:
+   - Handle `applyEventChoice`.
+1. **Update `CampaignManager.ts`**:
+   - Delegate these operations to the new sub-managers.
+   - Maintain the singleton instance and storage access.
 
 ## Consequences
 

@@ -19,7 +19,7 @@
 - **Base Time Standard:** 3.0 Seconds (Default for most tactical actions).
 - _Example:_ A fast Scout (Speed 30) performs a 3s action in exactly 3s. A Heavy (Speed 15) takes 6s.
 
----
+______________________________________________________________________
 
 ## 2. Commander Abilities
 
@@ -51,7 +51,7 @@ These are actions initiated by the player using the Global Inventory. They are i
 - **Usage:** Combat triage.
 - **Cost:** 1 Stimpack.
 
----
+______________________________________________________________________
 
 ## 3. Tactical Actions (Unit-Driven)
 
@@ -63,8 +63,8 @@ These require a specific soldier to perform an action. The unit cannot move or s
 - **Targeting:** **Friendly Soldier** (Self).
 - **Flow:**
   1. Select Medkit.
-  2. Select Soldier.
-  3. Soldier immediately begins the action.
+  1. Select Soldier.
+  1. Soldier immediately begins the action.
 - **Duration:** **Base Time: 3.0s** (Scaled by Speed).
 - **Effect:** Restores **50 HP** upon completion.
 - **Interruption:** Taking damage interrupts the action? (TBD). Moving cancels it.
@@ -75,16 +75,16 @@ These require a specific soldier to perform an action. The unit cannot move or s
 - **Type:** Unit Action (Placement).
 - **Flow:**
   1. Select Landmine.
-  2. **Select Soldier:** Choose which unit will carry/place the mine.
-  3. **Select Location:**
+  1. **Select Soldier:** Choose which unit will carry/place the mine.
+  1. **Select Location:**
      - Option A: **Current Position** (Instant start).
      - Option B: **Corridor Intersection** (Unit must pathfind to location).
      - _Constraint:_ Cannot place in open rooms or random floor tiles. Must be strategic chokepoints (Intersections) or Self.
 - **Behavior:**
   1. Soldier moves to target location.
-  2. Soldier begins action (e.g., "Placing Mine").
-  3. **Duration:** **Base Time: 3.0s** (Scaled by Speed).
-  4. Mine object spawns at location.
+  1. Soldier begins action (e.g., "Placing Mine").
+  1. **Duration:** **Base Time: 3.0s** (Scaled by Speed).
+  1. Mine object spawns at location.
 - **Trigger:** Explodes when an Enemy enters the cell.
 - **Effect:** 100 DMG AOE (Same as Grenade).
 - **Cost:** 1 Landmine.

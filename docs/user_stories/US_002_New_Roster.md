@@ -12,12 +12,12 @@ As a Commander, I want to expand my squad and personalize my soldiers so that I 
 ## Action List
 
 1. Click "Barracks" tab in Campaign Shell -> Barracks Screen opens.
-2. Click "Recruit (100 Scrap)" on an empty roster slot -> New soldier appears.
-3. Observe the new soldier's name -> Must be a sci-fi military name, not a generic ID.
-4. Click the "Inspect/Manage" button on a soldier -> Soldier Inspector opens.
-5. Click the "Rename" icon next to the soldier name -> Name becomes an editable text field.
-6. Enter "Sgt. Slaughter" and press Enter -> Name updates and persists.
-7. Observe Soldier Stats (HP, Speed, Aim) -> Displayed as icons with tooltips.
+1. Click "Recruit (100 Scrap)" on an empty roster slot -> New soldier appears.
+1. Observe the new soldier's name -> Must be a sci-fi military name, not a generic ID.
+1. Click the "Inspect/Manage" button on a soldier -> Soldier Inspector opens.
+1. Click the "Rename" icon next to the soldier name -> Name becomes an editable text field.
+1. Enter "Sgt. Slaughter" and press Enter -> Name updates and persists.
+1. Observe Soldier Stats (HP, Speed, Aim) -> Displayed as icons with tooltips.
 
 ## Visual Acceptance Criteria
 

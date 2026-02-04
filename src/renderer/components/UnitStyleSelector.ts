@@ -61,6 +61,8 @@ export class UnitStyleSelector {
         this.container.appendChild(item);
       }
     });
+
+    this.renderPreviews();
   }
 
   public setStyle(style: UnitStyle) {
@@ -233,60 +235,90 @@ export class UnitStyleSelector {
         sprite = assets.getUnitSprite("scout");
         break;
       case "enemy":
-        sprite = assets.getUnitSprite("xeno_drone");
+        sprite = assets.getEnemySprite("warrior-drone");
         break;
       case "objective":
-        sprite = assets.getIcon("data_disk");
+        sprite = assets.getIcon("ObjectiveDisk");
         break;
       case "extraction":
-        sprite = assets.getIcon("waypoint");
+        sprite = assets.getMiscSprite("waypoint");
         break;
     }
 
-    if (sprite && sprite.complete && sprite.naturalWidth > 0) {
-      ctx.drawImage(
-        sprite,
-        x - spriteSize / 2,
-        y - spriteSize / 2,
-        spriteSize,
-        spriteSize,
-      );
+    if (sprite) {
+      if (sprite.complete && sprite.naturalWidth > 0) {
+        ctx.drawImage(
+          sprite,
+          x - spriteSize / 2,
+          y - spriteSize / 2,
+          spriteSize,
+          spriteSize,
+        );
 
-      if (type === "soldier") {
-        ctx.font = `bold ${Math.floor(spriteSize * 0.5)}px monospace`;
+        if (type === "soldier") {
+          ctx.font = `bold ${Math.floor(spriteSize * 0.5)}px monospace`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.strokeStyle = this.getColor("--color-black", "#000");
+          ctx.lineWidth = 3;
+          ctx.strokeText("1", x, y);
+          ctx.fillStyle = this.getColor("--color-white", "#fff");
+          ctx.fillText("1", x, y);
+        } else if (type === "enemy") {
+          ctx.font = `bold ${Math.floor(spriteSize * 0.5)}px monospace`;
+          ctx.textAlign = "center";
+          ctx.textBaseline = "middle";
+          ctx.strokeStyle = this.getColor("--color-black", "#000");
+          ctx.lineWidth = 3;
+          ctx.strokeText("A", x, y);
+          ctx.fillStyle = this.getColor("--color-danger", "#f00");
+          ctx.fillText("A", x, y);
+        }
+      } else {
+        // Fallback while loading
+        ctx.fillStyle = this.getColor("--color-text-dim", "#888");
+        ctx.font = "12px monospace";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.strokeStyle = this.getColor("--color-black", "#000");
-        ctx.lineWidth = 3;
-        ctx.strokeText("1", x, y);
-        ctx.fillStyle = this.getColor("--color-white", "#fff");
-        ctx.fillText("1", x, y);
-      } else if (type === "enemy") {
-        ctx.font = `bold ${Math.floor(spriteSize * 0.5)}px monospace`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-        ctx.strokeStyle = this.getColor("--color-black", "#000");
-        ctx.lineWidth = 3;
-        ctx.strokeText("A", x, y);
-        ctx.fillStyle = this.getColor("--color-danger", "#f00");
-        ctx.fillText("A", x, y);
-      }
-    } else {
-      // Fallback while loading
-      ctx.fillStyle = this.getColor("--color-text-dim", "#666");
-      ctx.font = "8px monospace";
-      ctx.textAlign = "center";
-      ctx.fillText("...", x, y);
+        ctx.fillText("LOADING", x, y);
 
-      if (sprite) {
-        sprite.onload = () => {
+        // Use addEventListener to avoid overwriting other listeners on the same singleton sprite
+        const onAssetLoad = () => {
           const canvas = ctx.canvas;
           const style = canvas.id.includes("tactical")
             ? UnitStyle.TacticalIcons
             : UnitStyle.Sprites;
           this.drawPreview(canvas, style);
+          sprite?.removeEventListener("load", onAssetLoad);
         };
+        sprite.addEventListener("load", onAssetLoad);
       }
+    } else {
+      // Missing asset placeholder
+      this.drawMissingPlaceholder(ctx, x, y, spriteSize);
     }
+  }
+
+  private drawMissingPlaceholder(
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    size: number,
+  ) {
+    ctx.strokeStyle = "#f0f"; // Magenta for missing
+    ctx.lineWidth = 2;
+    ctx.strokeRect(x - size / 2, y - size / 2, size, size);
+    ctx.beginPath();
+    ctx.moveTo(x - size / 2, y - size / 2);
+    ctx.lineTo(x + size / 2, y + size / 2);
+    ctx.moveTo(x + size / 2, y - size / 2);
+    ctx.lineTo(x - size / 2, y + size / 2);
+    ctx.stroke();
+
+    ctx.fillStyle = "#f0f";
+    ctx.font = "bold 10px monospace";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText("?", x, y);
   }
 }

@@ -12,15 +12,15 @@ As a player, I want to see the final results of my campaign effort, whether in g
 ## Action List (Victory)
 
 1. Complete Boss Mission -> Debrief Screen finishes.
-2. Observe transition -> Victory Screen opens.
-3. Read final summary -> Total Kills, Missions, Roster status.
-4. Click "New Campaign" -> Return to Main Menu.
+1. Observe transition -> Victory Screen opens.
+1. Read final summary -> Total Kills, Missions, Roster status.
+1. Click "New Campaign" -> Return to Main Menu.
 
 ## Action List (Defeat)
 
 1. Lose Ironman Mission -> Defeat Screen opens immediately.
-2. Read cause of failure -> "Sector Lost - Ironman Failure".
-3. Click "Abandon" -> Return to Main Menu.
+1. Read cause of failure -> "Sector Lost - Ironman Failure".
+1. Click "Abandon" -> Return to Main Menu.
 
 ## Visual Acceptance Criteria
 

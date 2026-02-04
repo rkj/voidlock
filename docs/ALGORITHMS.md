@@ -11,27 +11,27 @@ Voidlock uses several procedural generation strategies to create diverse and tac
 Generates spaceship-like layouts using a constructive approach that guarantees connectivity.
 
 1. **Grid Partitioning**: Divides the map into a grid of potential room nodes.
-2. **Key Node Selection**: Picks nodes for spawn points, extraction, and objectives in different quadrants.
-3. **Prim's Algorithm**: Finds a spanning tree connecting all key nodes using random weights.
-4. **Cycle Injection**: Adds additional edges to create tactical loops and reduce bottlenecks.
-5. **Realization**: Carves rooms and 1-cell wide corridors.
+1. **Key Node Selection**: Picks nodes for spawn points, extraction, and objectives in different quadrants.
+1. **Prim's Algorithm**: Finds a spanning tree connecting all key nodes using random weights.
+1. **Cycle Injection**: Adds additional edges to create tactical loops and reduce bottlenecks.
+1. **Realization**: Carves rooms and 1-cell wide corridors.
 
 ### 1.2 Tree-Ship Generator (Recursive Growth)
 
 Generates maps with a strict tree structure (no cycles), creating a claustrophobic feel.
 
 1. **Skeleton**: Creates a central spine (Fishbone or Cross pattern) of corridors.
-2. **Growth Frontier**: Initializes potential room locations adjacent to the skeleton.
-3. **Recursive Placement**: Iteratively places rooms from the frontier, ensuring no cycles or collisions.
-4. **Connectivity**: Uses doors to connect rooms back to their parent cells.
+1. **Growth Frontier**: Initializes potential room locations adjacent to the skeleton.
+1. **Recursive Placement**: Iteratively places rooms from the frontier, ensuring no cycles or collisions.
+1. **Connectivity**: Uses doors to connect rooms back to their parent cells.
 
 ### 1.3 Dense-Ship Generator (Greedy Filling)
 
 Generates high-density layouts for maximum exploration depth.
 
 1. **Frame**: Builds a primary backbone of corridors.
-2. **Greedy Filling**: Iteratively places rooms of various shapes adjacent to existing floors until the map is packed.
-3. **High Connectivity**: Ensures every room connects to its parent via a door.
+1. **Greedy Filling**: Iteratively places rooms of various shapes adjacent to existing floors until the map is packed.
+1. **High Connectivity**: Ensures every room connects to its parent via a door.
 
 ## 2. Tactical Systems
 
