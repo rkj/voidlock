@@ -3,9 +3,7 @@
  */
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { ConfigManager } from "../../src/renderer/ConfigManager";
-import {
-  UnitStyle,
-} from "../../src/shared/types";
+import { UnitStyle } from "../../src/shared/types";
 
 describe("ConfigManager - unitStyle", () => {
   beforeEach(() => {
@@ -21,7 +19,7 @@ describe("ConfigManager - unitStyle", () => {
   it("should persist and load unitStyle via loadGlobal", () => {
     ConfigManager.saveGlobal({
       unitStyle: UnitStyle.Sprites,
-      themeId: "industrial"
+      themeId: "industrial",
     });
 
     const global = ConfigManager.loadGlobal();

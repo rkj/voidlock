@@ -2,7 +2,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { InputBinder } from "@src/renderer/app/InputBinder";
 import { AppContext } from "@src/renderer/app/AppContext";
-import { UnitStyle, MapGeneratorType, MissionType } from "@src/shared/types";
+import { MapGeneratorType, MissionType } from "@src/shared/types";
 
 describe("InputBinder", () => {
   let inputBinder: InputBinder;

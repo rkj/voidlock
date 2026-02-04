@@ -21,13 +21,13 @@ Decompose the monolithic `UnitManager` into specialized, single-responsibility c
 
 ### 1. Component Architecture
 
-| Component | Responsibility | Key Interactions |
+| Component             | Responsibility                                                                                              | Key Interactions                           |
 | :-------------------- | :---------------------------------------------------------------------------------------------------------- | :----------------------------------------- |
-| **`StatsManager`** | Calculates derived stats (Speed, HP, Accuracy) from base archetypes, equipment, and status effects. | Updates `unit.stats`. |
-| **`MovementManager`** | Translates path data into unit position updates. Handles door interactions and formation offsets (escorts). | Modifies `unit.pos`, `unit.state`. |
-| **`CombatManager`** | Manages target selection, Line of Fire (LOF) checks, and weapon cooldowns. Applies damage to enemies. | Reads `unit.stats`, modifies `enemy.hp`. |
-| **`UnitAI`** | Implements autonomous decision-making (VIP behaviors, exploration, retreat logic). | Issues commands or sets `unit.targetPos`. |
-| **`CommandExecutor`** | Translates `Command` objects (MOVE, STOP, etc.) into actionable unit states (pathfinding, state resets). | Updates `unit.path`, `unit.activeCommand`. |
+| **`StatsManager`**    | Calculates derived stats (Speed, HP, Accuracy) from base archetypes, equipment, and status effects.         | Updates `unit.stats`.                      |
+| **`MovementManager`** | Translates path data into unit position updates. Handles door interactions and formation offsets (escorts). | Modifies `unit.pos`, `unit.state`.         |
+| **`CombatManager`**   | Manages target selection, Line of Fire (LOF) checks, and weapon cooldowns. Applies damage to enemies.       | Reads `unit.stats`, modifies `enemy.hp`.   |
+| **`UnitAI`**          | Implements autonomous decision-making (VIP behaviors, exploration, retreat logic).                          | Issues commands or sets `unit.targetPos`.  |
+| **`CommandExecutor`** | Translates `Command` objects (MOVE, STOP, etc.) into actionable unit states (pathfinding, state resets).    | Updates `unit.path`, `unit.activeCommand`. |
 
 ### 2. Update Cycle
 

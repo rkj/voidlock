@@ -60,6 +60,7 @@ export const GAMEPLAY_CONSTANTS = {
     SPAWN_OFFSET_RANGE: 0.4,
     SPAWN_OFFSET_BASE: 0.2,
     POINT_GROWTH_RATE: 1.0,
+    WAVE_CAP: 5,
   },
 
   // Items

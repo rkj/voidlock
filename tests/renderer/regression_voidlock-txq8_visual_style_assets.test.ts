@@ -57,20 +57,38 @@ describe("UnitStyleSelector - Asset Loading & Missing Placeholders (voidlock-txq
   });
 
   it("should draw '...' when assets are loading", () => {
-    const loadingSprite = { complete: false, onload: null, addEventListener: vi.fn() };
+    const loadingSprite = {
+      complete: false,
+      onload: null,
+      addEventListener: vi.fn(),
+    };
     mockAssets.getUnitSprite.mockReturnValue(loadingSprite);
     mockAssets.getEnemySprite.mockReturnValue(loadingSprite);
     mockAssets.getIcon.mockReturnValue(loadingSprite);
     mockAssets.getMiscSprite.mockReturnValue(loadingSprite);
 
-    const selector = new UnitStyleSelector(container, context, UnitStyle.Sprites, () => {});
+    const selector = new UnitStyleSelector(
+      container,
+      context,
+      UnitStyle.Sprites,
+      () => {},
+    );
     selector.render();
 
-    const spritesCanvas = container.querySelector("#preview-canvas-sprites") as HTMLCanvasElement;
+    const spritesCanvas = container.querySelector(
+      "#preview-canvas-sprites",
+    ) as HTMLCanvasElement;
     const ctx = spritesCanvas.getContext("2d");
 
-    expect(ctx?.fillText).toHaveBeenCalledWith("LOADING", expect.any(Number), expect.any(Number));
-    expect(loadingSprite.addEventListener).toHaveBeenCalledWith("load", expect.any(Function));
+    expect(ctx?.fillText).toHaveBeenCalledWith(
+      "LOADING",
+      expect.any(Number),
+      expect.any(Number),
+    );
+    expect(loadingSprite.addEventListener).toHaveBeenCalledWith(
+      "load",
+      expect.any(Function),
+    );
   });
 
   it("should draw missing placeholder when assets are null", () => {
@@ -79,10 +97,17 @@ describe("UnitStyleSelector - Asset Loading & Missing Placeholders (voidlock-txq
     mockAssets.getIcon.mockReturnValue(null);
     mockAssets.getMiscSprite.mockReturnValue(null);
 
-    const selector = new UnitStyleSelector(container, context, UnitStyle.Sprites, () => {});
+    const selector = new UnitStyleSelector(
+      container,
+      context,
+      UnitStyle.Sprites,
+      () => {},
+    );
     selector.render();
 
-    const spritesCanvas = container.querySelector("#preview-canvas-sprites") as HTMLCanvasElement;
+    const spritesCanvas = container.querySelector(
+      "#preview-canvas-sprites",
+    ) as HTMLCanvasElement;
     const ctx = spritesCanvas.getContext("2d");
 
     // Missing placeholder uses strokeRect and moveTo/lineTo for the X
@@ -99,10 +124,17 @@ describe("UnitStyleSelector - Asset Loading & Missing Placeholders (voidlock-txq
     mockAssets.getIcon.mockReturnValue(completeSprite);
     mockAssets.getMiscSprite.mockReturnValue(completeSprite);
 
-    const selector = new UnitStyleSelector(container, context, UnitStyle.Sprites, () => {});
+    const selector = new UnitStyleSelector(
+      container,
+      context,
+      UnitStyle.Sprites,
+      () => {},
+    );
     selector.render();
 
-    const spritesCanvas = container.querySelector("#preview-canvas-sprites") as HTMLCanvasElement;
+    const spritesCanvas = container.querySelector(
+      "#preview-canvas-sprites",
+    ) as HTMLCanvasElement;
     const ctx = spritesCanvas.getContext("2d");
 
     expect(ctx?.drawImage).toHaveBeenCalledTimes(4);

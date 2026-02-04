@@ -131,7 +131,10 @@ describe("Theme Selector", () => {
   it("should load persisted theme on initialization", async () => {
     // Persist industrial theme
     const defaults = ConfigManager.getDefault();
-    ConfigManager.saveGlobal({ unitStyle: UnitStyle.TacticalIcons, themeId: "hive" });
+    ConfigManager.saveGlobal({
+      unitStyle: UnitStyle.TacticalIcons,
+      themeId: "hive",
+    });
     ConfigManager.saveCustom(defaults);
 
     // Re-initialize app

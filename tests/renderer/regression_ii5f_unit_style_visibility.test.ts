@@ -10,7 +10,9 @@ import { ConfigManager } from "@src/renderer/ConfigManager";
 vi.mock("@src/renderer/visuals/AssetManager", () => ({
   AssetManager: {
     getInstance: vi.fn().mockReturnValue({
-      getUnitSprite: vi.fn().mockReturnValue({ complete: true, naturalWidth: 64 }),
+      getUnitSprite: vi
+        .fn()
+        .mockReturnValue({ complete: true, naturalWidth: 64 }),
       getIcon: vi.fn().mockReturnValue({ complete: true, naturalWidth: 64 }),
     }),
   },
@@ -48,7 +50,9 @@ vi.mock("@src/renderer/ConfigManager", () => {
       getDefault: vi.fn().mockReturnValue(defaults),
       loadCustom: vi.fn().mockReturnValue(null),
       loadCampaign: vi.fn().mockReturnValue(null),
-      loadGlobal: vi.fn().mockReturnValue({ unitStyle: "TacticalIcons", themeId: "default" }),
+      loadGlobal: vi
+        .fn()
+        .mockReturnValue({ unitStyle: "TacticalIcons", themeId: "default" }),
       saveCustom: vi.fn(),
       saveCampaign: vi.fn(),
       saveGlobal: vi.fn(),
@@ -133,14 +137,16 @@ describe("MissionSetupManager - Visual Style Visibility (regression_ii5f)", () =
     expect(manager.unitStyle).toBe("TacticalIcons");
 
     // Change style via card click
-    const spriteCard = document.querySelector('.style-preview-item[data-style="Sprites"]') as HTMLElement;
+    const spriteCard = document.querySelector(
+      '.style-preview-item[data-style="Sprites"]',
+    ) as HTMLElement;
     expect(spriteCard).not.toBeNull();
     spriteCard.click();
-    
+
     expect(manager.unitStyle).toBe("Sprites");
     expect(ConfigManager.saveCampaign).toHaveBeenCalledWith(
       expect.objectContaining({ mapWidth: 10 }),
-      expect.objectContaining({ unitStyle: "Sprites" })
+      expect.objectContaining({ unitStyle: "Sprites" }),
     );
   });
 
@@ -150,19 +156,19 @@ describe("MissionSetupManager - Visual Style Visibility (regression_ii5f)", () =
       mapWidth: 10,
       mapHeight: 10,
       lastSeed: 12345,
-      squadConfig: { soldiers: [], inventory: {} }
+      squadConfig: { soldiers: [], inventory: {} },
     });
 
     // Mock loadGlobal to return Sprites
     (ConfigManager.loadGlobal as any).mockReturnValue({
       unitStyle: "Sprites",
-      themeId: "default"
+      themeId: "default",
     });
 
     // Mock campaign rule having TacticalIcons
     (context.campaignManager.getState as any).mockReturnValue({
-      rules: { 
-        difficulty: "Standard" 
+      rules: {
+        difficulty: "Standard",
       },
       roster: [],
       history: [],

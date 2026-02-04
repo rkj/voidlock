@@ -109,7 +109,9 @@ export class MissionCoordinator {
         }
       }
       if (this.context.renderer) {
-        this.context.renderer.setUnitStyle(ConfigManager.loadGlobal().unitStyle);
+        this.context.renderer.setUnitStyle(
+          ConfigManager.loadGlobal().unitStyle,
+        );
         this.context.renderer.setOverlay(
           this.context.menuController.overlayOptions,
         );

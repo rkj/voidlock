@@ -30,7 +30,9 @@ vi.mock("@src/renderer/ConfigManager", () => ({
     })),
     loadCustom: vi.fn(),
     loadCampaign: vi.fn(),
-    loadGlobal: vi.fn().mockReturnValue({ unitStyle: "Sprites", themeId: "default" }),
+    loadGlobal: vi
+      .fn()
+      .mockReturnValue({ unitStyle: "Sprites", themeId: "default" }),
     saveGlobal: vi.fn(),
   },
 }));
@@ -185,8 +187,12 @@ describe("Roster Sorting Regression (voidlock-l7b8)", () => {
     expect(card2).toBeDefined();
 
     // Verify it is in deployment panel
-    const deploymentCards = document.querySelectorAll(".deployment-panel .soldier-card");
-    const deployedCard1 = Array.from(deploymentCards).find(c => c.textContent?.includes("In Squad"));
+    const deploymentCards = document.querySelectorAll(
+      ".deployment-panel .soldier-card",
+    );
+    const deployedCard1 = Array.from(deploymentCards).find((c) =>
+      c.textContent?.includes("In Squad"),
+    );
     expect(deployedCard1).toBeDefined();
   });
 });

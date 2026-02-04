@@ -27,7 +27,7 @@ describe("Regression 39B1 - Map Entity Rendering", () => {
     await page.click("#btn-menu-custom");
 
     await page.waitForSelector("#screen-mission-setup");
-    
+
     // Set style
     await page.select("#select-unit-style", style);
 
@@ -45,9 +45,9 @@ describe("Regression 39B1 - Map Entity Rendering", () => {
 
     // Wait for tactical screen
     await page.waitForSelector("#game-canvas");
-    
+
     // Give it a moment to render
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await new Promise((resolve) => setTimeout(resolve, 3000));
   }
 
   it("should render spawn and extraction points in TacticalIcons mode", async () => {

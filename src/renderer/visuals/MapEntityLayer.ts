@@ -183,7 +183,13 @@ export class MapEntityLayer implements RenderLayer {
           ctx.strokeStyle = this.theme.getColor("--color-danger");
           ctx.lineWidth = 2;
           ctx.beginPath();
-          ctx.arc(x + cellSize / 2, y + cellSize / 2, cellSize * 0.3, 0, Math.PI * 2);
+          ctx.arc(
+            x + cellSize / 2,
+            y + cellSize / 2,
+            cellSize * 0.3,
+            0,
+            Math.PI * 2,
+          );
           ctx.moveTo(x + cellSize * 0.2, y + cellSize / 2);
           ctx.lineTo(x + cellSize * 0.8, y + cellSize / 2);
           ctx.moveTo(x + cellSize / 2, y + cellSize * 0.2);

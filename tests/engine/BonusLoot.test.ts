@@ -45,7 +45,28 @@ describe("Bonus Loot (Scrap Crates)", () => {
       bonusLoot: [{ x: 2, y: 0 }],
     };
 
-    const engine = new CoreEngine(map, 12345, squadConfig, false, false, MissionType.Default, false, 0, 1.0, false, undefined, [], true, 0, 3, 1, 0, "Combat", undefined, 0);
+    const engine = new CoreEngine(
+      map,
+      12345,
+      squadConfig,
+      false,
+      false,
+      MissionType.Default,
+      false,
+      0,
+      1.0,
+      false,
+      undefined,
+      [],
+      true,
+      0,
+      3,
+      1,
+      0,
+      "Combat",
+      undefined,
+      0,
+    );
     const state = engine.getState();
 
     expect(state.loot).toBeDefined();
@@ -73,7 +94,28 @@ describe("Bonus Loot (Scrap Crates)", () => {
       objectives: [{ id: "o1", kind: "Recover", targetCell: { x: 3, y: 0 } }],
     };
 
-    const engine = new CoreEngine(map, 12345, squadConfig, false, false, MissionType.Default, false, 0, 1.0, false, undefined, [], true, 0, 3, 1, 0, "Combat", undefined, 0);
+    const engine = new CoreEngine(
+      map,
+      12345,
+      squadConfig,
+      false,
+      false,
+      MissionType.Default,
+      false,
+      0,
+      1.0,
+      false,
+      undefined,
+      [],
+      true,
+      0,
+      3,
+      1,
+      0,
+      "Combat",
+      undefined,
+      0,
+    );
 
     // Initial scrap should be 0 (stats.scrapGained)
     expect(engine.getState().stats.scrapGained).toBe(0);
