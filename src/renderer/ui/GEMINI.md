@@ -34,6 +34,7 @@ This directory contains UI components and managers for the Voidlock renderer.
   - Displays innate soldier attributes (HP, SPD, Base ACC) and aggregate weapon stats.
   - Features a "Paper Doll" layout for equipping items to specific slots.
   - Integrates with the "Pay-to-Equip" economy, handling ownership checks and Scrap deduction.
+  - **Validation**: Automatically disables equipment changes and displays a warning if the selected soldier has "Dead" status.
 - **Modal System**: Custom themed replacement for native `alert`, `confirm`, and `prompt` dialogs.
   - Supports queuing multiple modals.
   - Promise-based asynchronous API.
