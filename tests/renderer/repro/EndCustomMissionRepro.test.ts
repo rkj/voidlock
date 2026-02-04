@@ -63,6 +63,7 @@ describe("End Custom Mission Repro", () => {
         <button id="btn-menu-custom">Custom Mission</button>
       </div>
       <div id="screen-mission-setup" class="screen" style="display:none">
+        <div id="unit-style-preview"></div>
         <div id="map-config-section">
            <select id="map-generator-type"><option value="DenseShip">DenseShip</option></select>
            <input type="number" id="map-seed" value="123" />
@@ -85,6 +86,7 @@ describe("End Custom Mission Repro", () => {
       <div id="screen-campaign" style="display:none"></div>
       <div id="screen-barracks" style="display:none"></div>
       <div id="screen-statistics" style="display:none"></div>
+      <div id="screen-settings" style="display:none"></div>
       <div id="screen-campaign-summary" style="display:none"></div>
       <div id="time-scale-slider"></div>
     `;

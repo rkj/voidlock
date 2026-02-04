@@ -61,7 +61,7 @@ describe("Regression 7zx6 - Healing Flow", () => {
       squadInventory: { medkit: 1 },
     };
     mockClient = {
-      sendCommand: vi.fn(),
+      applyCommand: vi.fn(),
     };
     controller = new MenuController(mockClient);
   });
@@ -80,7 +80,7 @@ describe("Regression 7zx6 - Healing Flow", () => {
     controller.handleMenuInput("1", mockState);
 
     // SHOULD EXECUTE
-    expect(mockClient.sendCommand).toHaveBeenCalledWith(
+    expect(mockClient.applyCommand).toHaveBeenCalledWith(
       expect.objectContaining({
         type: CommandType.USE_ITEM,
         itemId: "medkit",
@@ -125,7 +125,7 @@ describe("Regression 7zx6 - Healing Flow", () => {
     controller.handleMenuInput("1", mockState);
 
     // Should EXECUTE IMMEDIATELY for grenades now
-    expect(mockClient.sendCommand).toHaveBeenCalledWith(
+    expect(mockClient.applyCommand).toHaveBeenCalledWith(
       expect.objectContaining({
         type: CommandType.USE_ITEM,
         itemId: "frag_grenade",
@@ -147,7 +147,7 @@ describe("Regression 7zx6 - Healing Flow", () => {
     controller.handleCanvasClick({ x: 0, y: 0 }, mockState);
 
     // SHOULD EXECUTE
-    expect(mockClient.sendCommand).toHaveBeenCalledWith(
+    expect(mockClient.applyCommand).toHaveBeenCalledWith(
       expect.objectContaining({
         type: CommandType.USE_ITEM,
         itemId: "medkit",

@@ -10,7 +10,7 @@ describe("MenuConfig New Commands", () => {
 
   beforeEach(() => {
     mockClient = {
-      sendCommand: vi.fn(),
+      applyCommand: vi.fn(),
     };
     controller = new MenuController(mockClient);
     mockState = createMockGameState({
@@ -107,7 +107,7 @@ describe("MenuConfig New Commands", () => {
     controller.handleMenuInput("5", mockState); // Extract
     controller.handleMenuInput("1", mockState); // Unit u1
 
-    expect(mockClient.sendCommand).toHaveBeenCalledWith(
+    expect(mockClient.applyCommand).toHaveBeenCalledWith(
       expect.objectContaining({
         type: CommandType.EXTRACT,
         unitIds: ["u1"],
@@ -149,7 +149,7 @@ describe("MenuConfig New Commands", () => {
     controller.handleMenuInput(key, mockState); // Target loot-1
     controller.handleMenuInput("1", mockState); // Unit u1
 
-    expect(mockClient.sendCommand).toHaveBeenCalledWith(
+    expect(mockClient.applyCommand).toHaveBeenCalledWith(
       expect.objectContaining({
         type: CommandType.PICKUP,
         unitIds: ["u1"],
@@ -170,7 +170,7 @@ describe("MenuConfig New Commands", () => {
     controller.handleMenuInput(key, mockState); // Target u2
     controller.handleMenuInput("1", mockState); // Unit u1 (Escort)
 
-    expect(mockClient.sendCommand).toHaveBeenCalledWith(
+    expect(mockClient.applyCommand).toHaveBeenCalledWith(
       expect.objectContaining({
         type: CommandType.ESCORT_UNIT,
         unitIds: ["u1"],

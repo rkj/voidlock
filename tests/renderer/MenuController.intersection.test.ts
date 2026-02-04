@@ -61,7 +61,7 @@ describe("MenuController Intersection Discovery", () => {
   };
 
   beforeEach(() => {
-    mockClient = { sendCommand: vi.fn() };
+    mockClient = { applyCommand: vi.fn() };
     controller = new MenuController(mockClient);
   });
 

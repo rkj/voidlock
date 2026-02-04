@@ -13,10 +13,29 @@ export class MapEntityLayer implements RenderLayer {
   public draw(ctx: CanvasRenderingContext2D, state: GameState): void {
     this.renderExtraction(ctx, state);
     this.renderSpawnPoints(ctx, state);
+    this.renderSquadSpawns(ctx, state);
     this.renderLoot(ctx, state);
     this.renderObjectives(ctx, state);
     this.renderMines(ctx, state);
     this.renderTurrets(ctx, state);
+  }
+
+  private renderSquadSpawns(ctx: CanvasRenderingContext2D, state: GameState) {
+    if (state.status !== "Deployment") return;
+
+    const cellSize = this.sharedState.cellSize;
+    const spawns = state.map.squadSpawns || (state.map.squadSpawn ? [state.map.squadSpawn] : []);
+
+    spawns.forEach((sp) => {
+      const x = sp.x * cellSize;
+      const y = sp.y * cellSize;
+
+      ctx.fillStyle = "rgba(0, 255, 0, 0.3)";
+      ctx.fillRect(x, y, cellSize, cellSize);
+      ctx.strokeStyle = "rgba(0, 255, 0, 0.8)";
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x + 2, y + 2, cellSize - 4, cellSize - 4);
+    });
   }
 
   private renderTurrets(ctx: CanvasRenderingContext2D, state: GameState) {

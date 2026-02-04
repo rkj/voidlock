@@ -21,6 +21,7 @@ vi.mock("@src/renderer/ConfigManager", () => ({
   ConfigManager: {
     getDefault: vi.fn(() => ({
       allowTacticalPause: true,
+      manualDeployment: true,
     })),
     loadGlobal: vi.fn(() => ({
       unitStyle: "TacticalIcons",

@@ -15,9 +15,12 @@ describe("Regression: voidlock-3dz9 Screen Transitions", () => {
               <div id="screen-barracks" class="screen" style="display:none"></div>
               <div id="screen-equipment" class="screen" style="display:none"></div>
               <div id="screen-statistics" class="screen" style="display:none"></div>
+              <div id="screen-settings" class="screen" style="display:none"></div>
           </div>
       </div>
-      <div id="screen-mission-setup" class="screen" style="display:none"></div>
+      <div id="screen-mission-setup" class="screen" style="display:none">
+        <div id="unit-style-preview"></div>
+      </div>
       <div id="screen-equipment" class="screen" style="display:none"></div>
       <div id="screen-mission" class="screen" style="display:none"></div>
       <div id="screen-barracks" class="screen" style="display:none"></div>

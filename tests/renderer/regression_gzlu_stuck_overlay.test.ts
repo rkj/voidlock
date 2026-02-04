@@ -55,7 +55,7 @@ describe("Regression voidlock-gzlu - Stuck Overlay on Back", () => {
       },
     };
     mockClient = {
-      sendCommand: vi.fn(),
+      applyCommand: vi.fn(),
     };
     controller = new MenuController(mockClient);
   });

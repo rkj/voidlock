@@ -88,6 +88,9 @@ describe("GameClient", () => {
         baseEnemyCount: 3,
         enemyGrowthPerMission: 1,
         missionDepth: 0,
+        skipDeployment: true,
+        campaignNodeId: undefined,
+        nodeType: undefined,
       },
     });
 
@@ -132,7 +135,7 @@ describe("GameClient", () => {
       unitIds: ["u1"],
       target: { x: 1, y: 1 },
     };
-    client.sendCommand(cmd);
+    client.applyCommand(cmd);
 
     expect(postMessageMock).toHaveBeenLastCalledWith({
       type: "COMMAND",
@@ -211,6 +214,9 @@ describe("GameClient", () => {
         baseEnemyCount: 3,
         enemyGrowthPerMission: 1,
         missionDepth: 0,
+        skipDeployment: true,
+        campaignNodeId: undefined,
+        nodeType: undefined,
       },
     });
 
@@ -395,6 +401,7 @@ describe("GameClient", () => {
         missionDepth: 0,
         nodeType,
         campaignNodeId,
+        skipDeployment: true,
       },
     });
   });

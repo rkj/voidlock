@@ -34,6 +34,7 @@ describe("HUDManager Debug Info Regression (voidlock-6gl)", () => {
       vi.fn(),
       vi.fn(),
       vi.fn(),
+      vi.fn(),
     );
 
     mockState = {

@@ -25,6 +25,7 @@ describe("ConfigManager Isolation", () => {
     baseEnemyCount: 3,
     enemyGrowthPerMission: 1,
     bonusLootCount: 0,
+    manualDeployment: false,
     squadConfig: {
       soldiers: [{ archetypeId: "assault" }],
       inventory: {},

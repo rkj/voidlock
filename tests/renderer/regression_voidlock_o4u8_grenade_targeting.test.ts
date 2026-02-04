@@ -55,7 +55,7 @@ describe("MenuController Grenade Targeting Regression (voidlock-o4u8)", () => {
 
   beforeEach(() => {
     mockClient = {
-      sendCommand: vi.fn(),
+      applyCommand: vi.fn(),
     };
     controller = new MenuController(mockClient);
   });

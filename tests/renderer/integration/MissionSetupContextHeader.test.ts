@@ -88,6 +88,7 @@ describe("Mission Setup Context Header", () => {
               <div id="screen-barracks" class="screen" style="display:none"></div>
               <div id="screen-equipment" class="screen" style="display:none"></div>
               <div id="screen-statistics" class="screen" style="display:none"></div>
+              <div id="screen-settings" class="screen" style="display:none"></div>
           </div>
       </div>
 
@@ -108,13 +109,11 @@ describe("Mission Setup Context Header", () => {
                <input type="range" id="map-enemy-growth" value="1.0" />
             </div>
           </div>
+          <div id="unit-style-preview"></div>
           <div id="squad-builder"></div>
           <button id="btn-goto-equipment">Equipment</button>
         </div>
       </div>
-      <div id="screen-campaign" class="screen" style="display:none"></div>
-      <div id="screen-barracks" class="screen" style="display:none"></div>
-      <div id="screen-equipment" class="screen" style="display:none"></div>
       <div id="screen-mission" class="screen" style="display:none"></div>
       <div id="screen-debrief" class="screen" style="display:none"></div>
       <div id="screen-campaign-summary" class="screen" style="display:none"></div>

@@ -77,7 +77,7 @@ describe("Regression voidlock-ilv8 - Landmine Flow", () => {
       },
     };
     mockClient = {
-      sendCommand: vi.fn(),
+      applyCommand: vi.fn(),
     };
     controller = new MenuController(mockClient);
   });
@@ -99,7 +99,7 @@ describe("Regression voidlock-ilv8 - Landmine Flow", () => {
 
     // 4. Target Select -> Room 1 (1)
     controller.handleMenuInput("1", mockState);
-    expect(mockClient.sendCommand).toHaveBeenCalledWith(
+    expect(mockClient.applyCommand).toHaveBeenCalledWith(
       expect.objectContaining({
         type: CommandType.USE_ITEM,
         itemId: "mine",
@@ -124,7 +124,7 @@ describe("Regression voidlock-ilv8 - Landmine Flow", () => {
 
     // 4. Target Select -> Room 1 (1)
     controller.handleMenuInput("1", mockState);
-    expect(mockClient.sendCommand).toHaveBeenCalledWith(
+    expect(mockClient.applyCommand).toHaveBeenCalledWith(
       expect.objectContaining({
         type: CommandType.USE_ITEM,
         itemId: "mine",
@@ -147,7 +147,7 @@ describe("Regression voidlock-ilv8 - Landmine Flow", () => {
     // 4. Canvas Click on (5,5)
     controller.handleCanvasClick({ x: 5, y: 5 }, mockState);
 
-    expect(mockClient.sendCommand).toHaveBeenCalledWith(
+    expect(mockClient.applyCommand).toHaveBeenCalledWith(
       expect.objectContaining({
         type: CommandType.USE_ITEM,
         itemId: "mine",

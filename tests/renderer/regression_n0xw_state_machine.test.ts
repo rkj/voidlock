@@ -47,7 +47,7 @@ describe("MenuController State Machine Refactor (n0xw)", () => {
 
   beforeEach(() => {
     mockClient = {
-      sendCommand: vi.fn(),
+      applyCommand: vi.fn(),
     };
     controller = new MenuController(mockClient);
   });
@@ -107,7 +107,7 @@ describe("MenuController State Machine Refactor (n0xw)", () => {
     // Simulate clicking a unit in Unit Select
     controller.handleCanvasClick({ x: 0, y: 0 }, mockState);
 
-    expect(mockClient.sendCommand).toHaveBeenCalledWith(
+    expect(mockClient.applyCommand).toHaveBeenCalledWith(
       expect.objectContaining({
         type: CommandType.USE_ITEM,
         itemId: "medkit",

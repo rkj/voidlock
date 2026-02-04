@@ -52,7 +52,7 @@ describe("Regression i864: Redundant Prefixes in Command Menu", () => {
   };
 
   beforeEach(() => {
-    mockClient = { sendCommand: vi.fn() };
+    mockClient = { applyCommand: vi.fn() };
     controller = new MenuController(mockClient);
     controller.clearDiscoveryOrder();
   });

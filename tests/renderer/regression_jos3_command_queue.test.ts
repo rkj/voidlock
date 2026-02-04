@@ -45,7 +45,7 @@ describe("MenuController Shift Queueing", () => {
 
   beforeEach(() => {
     mockClient = {
-      sendCommand: vi.fn(),
+      applyCommand: vi.fn(),
     };
     controller = new MenuController(mockClient);
   });
@@ -58,7 +58,7 @@ describe("MenuController Shift Queueing", () => {
     controller.handleMenuInput("3", mockState); // EXPLORE
     controller.handleMenuInput("2", mockState); // ALL UNITS (u1=1, ALL=2)
 
-    expect(mockClient.sendCommand).toHaveBeenCalledWith(
+    expect(mockClient.applyCommand).toHaveBeenCalledWith(
       expect.objectContaining({
         type: CommandType.EXPLORE,
         queue: true,
@@ -74,7 +74,7 @@ describe("MenuController Shift Queueing", () => {
     controller.handleMenuInput("3", mockState); // EXPLORE
     controller.handleMenuInput("2", mockState); // ALL UNITS (u1=1, ALL=2)
 
-    const call = mockClient.sendCommand.mock.calls[0][0];
+    const call = mockClient.applyCommand.mock.calls[0][0];
     expect(call.queue).toBeFalsy();
   });
 });

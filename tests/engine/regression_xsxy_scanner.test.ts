@@ -13,6 +13,10 @@ describe("Scanner Item Regression", () => {
     height: 20,
     cells: [],
     squadSpawn: { x: 1, y: 1 },
+    walls: Array.from({ length: 20 }, (_, i) => ({
+      p1: { x: 5, y: i },
+      p2: { x: 5, y: i + 1 },
+    })),
   };
   for (let y = 0; y < 20; y++) {
     for (let x = 0; x < 20; x++) {

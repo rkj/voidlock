@@ -47,7 +47,7 @@ describe("MenuController Room Mapping Regression (09cn)", () => {
 
   beforeEach(() => {
     mockClient = {
-      sendCommand: vi.fn(),
+      applyCommand: vi.fn(),
     };
     controller = new MenuController(mockClient);
     // @ts-ignore - clearing discovery order if it existed

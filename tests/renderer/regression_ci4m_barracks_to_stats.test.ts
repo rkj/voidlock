@@ -11,7 +11,10 @@ describe("Regression voidlock-ci4m: Barracks to Statistics Transition", () => {
       <div id="screen-campaign" class="screen" style="display:none"></div>
       <div id="screen-barracks" class="screen" style="display:none"></div>
       <div id="screen-statistics" class="screen" style="display:none"></div>
-      <div id="screen-mission-setup" class="screen" style="display:none"></div>
+      <div id="screen-settings" class="screen" style="display:none"></div>
+      <div id="screen-mission-setup" class="screen" style="display:none">
+        <div id="unit-style-preview"></div>
+      </div>
       <div id="screen-equipment" class="screen" style="display:none"></div>
       <div id="screen-mission" class="screen" style="display:none"></div>
       <div id="screen-debrief" class="screen" style="display:none"></div>

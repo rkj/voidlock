@@ -77,6 +77,7 @@ export class CoreEngine implements IDirector {
     nodeType: "Combat" | "Elite" | "Boss" | "Event" | "Shop" = "Combat",
     campaignNodeId?: string,
     startingPoints?: number,
+    skipDeployment: boolean = true,
   ) {
     this.prng = new PRNG(seed);
     this.gameGrid = new GameGrid(map);
@@ -144,7 +145,7 @@ export class CoreEngine implements IDirector {
         scrapGained: 0,
         casualties: 0,
       },
-      status: "Playing",
+      status: skipDeployment ? "Playing" : "Deployment",
       settings: {
         mode: mode,
         debugOverlayEnabled: debugOverlayEnabled,
@@ -201,19 +202,48 @@ export class CoreEngine implements IDirector {
     }
 
     // Spawn units based on squadConfig
-    const squadUnits = this.unitSpawner.spawnSquad(map, squadConfig);
+    const squadUnits = this.unitSpawner.spawnSquad(map, squadConfig, skipDeployment);
     squadUnits.forEach((unit) => this.addUnit(unit));
 
-    // Default EXPLORE command for all non-VIP units
-    const explorationUnitIds = this.state.units
-      .filter((u) => u.archetypeId !== "vip")
-      .map((u) => u.id);
-
-    if (explorationUnitIds.length > 0 && this.commandLog.length === 0) {
-      this.applyCommand({
-        type: CommandType.EXPLORE,
-        unitIds: explorationUnitIds,
+    // Reveal spawn area and update initial visibility
+    if (map.squadSpawns) {
+      map.squadSpawns.forEach((sp) => {
+        const vx = Math.floor(sp.x);
+        const vy = Math.floor(sp.y);
+        const key = `${vx},${vy}`;
+        if (!this.state.discoveredCells.includes(key)) {
+          this.state.discoveredCells.push(key);
+          if (this.state.gridState) {
+            this.state.gridState[vy * map.width + vx] |= 2;
+          }
+        }
       });
+    } else if (map.squadSpawn) {
+      const vx = Math.floor(map.squadSpawn.x);
+      const vy = Math.floor(map.squadSpawn.y);
+      const key = `${vx},${vy}`;
+      if (!this.state.discoveredCells.includes(key)) {
+        this.state.discoveredCells.push(key);
+        if (this.state.gridState) {
+          this.state.gridState[vy * map.width + vx] |= 2;
+        }
+      }
+    }
+
+    this.visibilityManager.updateVisibility(this.state);
+
+    if (skipDeployment && mode !== EngineMode.Replay && this.commandLog.length === 0) {
+      // Auto-assign exploration if enabled (default behavior when skipping deployment)
+      const explorationUnitIds = this.state.units
+        .filter((u) => u.archetypeId !== "vip" && u.aiEnabled !== false)
+        .map((u) => u.id);
+
+      if (explorationUnitIds.length > 0) {
+        this.applyCommand({
+          type: CommandType.EXPLORE,
+          unitIds: explorationUnitIds,
+        });
+      }
     }
 
     // Catch-up Phase: If in Simulation or Replay mode but have a target tick, fast-forward.

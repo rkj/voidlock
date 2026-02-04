@@ -32,6 +32,7 @@ describe("HUDManager Threat Meter Snap Regression", () => {
       vi.fn(),
       vi.fn(),
       vi.fn(),
+      vi.fn(),
     );
 
     mockState = {

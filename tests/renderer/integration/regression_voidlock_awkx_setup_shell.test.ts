@@ -177,6 +177,7 @@ describe("Mission Setup Shell Visibility (voidlock-awkx)", () => {
               <div id="screen-barracks" class="screen" style="display:none"></div>
               <div id="screen-equipment" class="screen" style="display:none"></div>
               <div id="screen-statistics" class="screen" style="display:none"></div>
+              <div id="screen-settings" class="screen" style="display:none"></div>
               
               <!-- Mission Setup is INSIDE the shell in current architecture -->
               <div id="screen-mission-setup" class="screen" style="display:none">
@@ -196,6 +197,7 @@ describe("Mission Setup Shell Visibility (voidlock-awkx)", () => {
                     <input type="range" id="map-enemy-growth" value="1.0" />
                   </div>
                 </div>
+                <div id="unit-style-preview"></div>
                 <div id="squad-builder"></div>
                 <button id="btn-goto-equipment">Equipment</button>
                 <button id="btn-setup-back">Back</button>

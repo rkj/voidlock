@@ -10,7 +10,7 @@ describe("Regression voidlock-3dpu: Scanner UI Targeting", () => {
 
   beforeEach(() => {
     mockClient = {
-      sendCommand: vi.fn(),
+      applyCommand: vi.fn(),
     };
     controller = new MenuController(mockClient);
     mockState = createMockGameState({
@@ -62,7 +62,7 @@ describe("Regression voidlock-3dpu: Scanner UI Targeting", () => {
 
     controller.handleMenuInput(unit1Option.key, mockState);
 
-    expect(mockClient.sendCommand).toHaveBeenCalledWith(
+    expect(mockClient.applyCommand).toHaveBeenCalledWith(
       expect.objectContaining({
         type: CommandType.USE_ITEM,
         itemId: "scanner",
@@ -80,7 +80,7 @@ describe("Regression voidlock-3dpu: Scanner UI Targeting", () => {
     // Click on cell 2,2 where u2 is located
     controller.handleCanvasClick({ x: 2, y: 2 }, mockState);
 
-    expect(mockClient.sendCommand).toHaveBeenCalledWith(
+    expect(mockClient.applyCommand).toHaveBeenCalledWith(
       expect.objectContaining({
         type: CommandType.USE_ITEM,
         itemId: "scanner",

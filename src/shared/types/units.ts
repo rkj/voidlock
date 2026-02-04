@@ -308,6 +308,8 @@ export enum CommandType {
   TOGGLE_LOS_OVERLAY = "TOGGLE_LOS_OVERLAY",
   DEBUG_FORCE_WIN = "DEBUG_FORCE_WIN",
   DEBUG_FORCE_LOSE = "DEBUG_FORCE_LOSE",
+  START_MISSION = "START_MISSION",
+  DEPLOY_UNIT = "DEPLOY_UNIT",
 }
 
 export type MoveCommand = {
@@ -421,6 +423,18 @@ export type DebugForceLoseCommand = {
   label?: string;
 };
 
+export type DeployUnitCommand = {
+  type: CommandType.DEPLOY_UNIT;
+  unitId: string;
+  target: Vector2;
+  label?: string;
+};
+
+export type StartMissionCommand = {
+  type: CommandType.START_MISSION;
+  label?: string;
+};
+
 export type Command =
   | MoveCommand
   | OpenDoorCommand
@@ -437,7 +451,9 @@ export type Command =
   | ToggleDebugOverlayCommand
   | ToggleLosOverlayCommand
   | DebugForceWinCommand
-  | DebugForceLoseCommand;
+  | DebugForceLoseCommand
+  | DeployUnitCommand
+  | StartMissionCommand;
 
 export enum UnitStyle {
   Sprites = "Sprites",

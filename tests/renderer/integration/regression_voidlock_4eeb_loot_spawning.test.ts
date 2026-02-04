@@ -98,9 +98,11 @@ describe("regression_voidlock_4eeb_loot_spawning", () => {
           <div id="screen-barracks"></div>
           <div id="screen-equipment"></div>
           <div id="screen-statistics"></div>
+          <div id="screen-settings"></div>
           <div id="campaign-shell-top-bar"></div>
       </div>
       <div id="screen-mission-setup">
+        <div id="unit-style-preview"></div>
         <input id="map-seed" />
         <input id="map-width" />
         <input id="map-height" />

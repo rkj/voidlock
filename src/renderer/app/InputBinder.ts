@@ -30,10 +30,13 @@ export class InputBinder {
     onSetupBack: () => void;
     onMapGeneratorChange: (type: MapGeneratorType) => void;
     onMissionTypeChange: (type: MissionType) => void;
+    onThemeChange: (themeId: string) => void;
+    onUnitStyleChange: (style: string) => void;
     onToggleFog: (enabled: boolean) => void;
     onToggleDebug: (enabled: boolean) => void;
     onToggleLos: (enabled: boolean) => void;
     onToggleAi: (enabled: boolean) => void;
+    onToggleManualDeployment: (enabled: boolean) => void;
     onTogglePauseAllowed: (enabled: boolean) => void;
     onMapSizeChange: (width: number, height: number) => void;
   }) {
@@ -135,6 +138,16 @@ export class InputBinder {
       callbacks.onMissionTypeChange(target.value as MissionType);
     });
 
+    this.addListener("map-theme", "change", (e: Event) => {
+      const target = e.target as HTMLSelectElement;
+      callbacks.onThemeChange(target.value);
+    });
+
+    this.addListener("select-unit-style", "change", (e: Event) => {
+      const target = e.target as HTMLSelectElement;
+      callbacks.onUnitStyleChange(target.value);
+    });
+
     // Toggles
     this.addToggleListener("toggle-fog-of-war", (checked) => {
       callbacks.onToggleFog(checked);
@@ -147,6 +160,9 @@ export class InputBinder {
     });
     this.addToggleListener("toggle-agent-control", (checked) => {
       callbacks.onToggleAi(checked);
+    });
+    this.addToggleListener("toggle-manual-deployment", (checked) => {
+      callbacks.onToggleManualDeployment(checked);
     });
     this.addToggleListener("toggle-allow-tactical-pause", (checked) => {
       callbacks.onTogglePauseAllowed(checked);

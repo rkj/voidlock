@@ -20,6 +20,7 @@ describe("Regression MPLV: Objective Ignored During Exploration", () => {
       width: 10,
       height: 10,
       cells: [],
+      squadSpawn: { x: 0, y: 0 },
       spawnPoints: [{ id: "s1", pos: { x: 0, y: 0 }, radius: 1 }],
       extraction: { x: 9, y: 9 },
       objectives: [

@@ -12,7 +12,7 @@ export class BotHarness {
       // Basic rate limiting or logic could go here
       const cmd = this.bot.act(state);
       if (cmd) {
-        this.client.sendCommand(cmd);
+        this.client.applyCommand(cmd);
       }
     });
   }

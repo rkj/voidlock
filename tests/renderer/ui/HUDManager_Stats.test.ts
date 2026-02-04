@@ -99,6 +99,7 @@ describe("HUDManager Stats & Enemy Intel", () => {
       onCopyWorldState,
       vi.fn(),
       vi.fn(),
+      vi.fn(),
     );
   });
 

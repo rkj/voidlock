@@ -22,6 +22,8 @@ describe("Objective Prioritization AI", () => {
       width: 5,
       height: 5,
       cells: [],
+      squadSpawn: { x: 0, y: 0 },
+      squadSpawns: [{ x: 0, y: 0 }],
       spawnPoints: [{ id: "s1", pos: { x: 0, y: 0 }, radius: 1 }],
       extraction: { x: 4, y: 4 },
       objectives: [

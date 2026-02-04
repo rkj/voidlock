@@ -54,8 +54,11 @@ describe("Regression voidlock-9uzl: HUD visibility on mission end", () => {
       <div id="screen-equipment" style="display: none;"></div>
       <div id="screen-campaign" style="display: none;"></div>
       <div id="screen-main-menu" style="display: none;"></div>
-      <div id="screen-mission-setup" style="display: none;"></div>
+      <div id="screen-mission-setup" style="display: none;">
+        <div id="unit-style-preview"></div>
+      </div>
       <div id="screen-statistics" style="display: none;"></div>
+      <div id="screen-settings" class="screen" style="display:none"></div>
       <div id="squad-builder"></div>
       <div id="game-canvas-container">
         <canvas id="game-canvas"></canvas>

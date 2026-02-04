@@ -95,6 +95,7 @@ describe("HUDManager", () => {
       onCopyWorldState,
       onForceWin,
       onForceLose,
+      vi.fn(),
     );
   });
 

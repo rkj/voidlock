@@ -11,6 +11,7 @@ import { MapUtility } from "@src/renderer/MapUtility";
 import { MapValidator } from "@src/shared/validation/MapValidator";
 import { MapFactory } from "@src/engine/map/MapFactory";
 import { SquadBuilder } from "../components/SquadBuilder";
+import { UnitStyleSelector } from "../components/UnitStyleSelector";
 import { NameGenerator } from "@src/shared/utils/NameGenerator";
 import { ArchetypeLibrary } from "@src/shared/types/units";
 
@@ -19,6 +20,7 @@ export class MissionSetupManager {
   public debugOverlayEnabled = ConfigManager.getDefault().debugOverlayEnabled;
   public losOverlayEnabled = false;
   public agentControlEnabled = ConfigManager.getDefault().agentControlEnabled;
+  public manualDeployment = ConfigManager.getDefault().manualDeployment;
   public allowTacticalPause = true;
   public unitStyle = ConfigManager.loadGlobal().unitStyle;
 
@@ -36,6 +38,7 @@ export class MissionSetupManager {
   public currentCampaignNode: CampaignNode | null = null;
 
   private squadBuilder: SquadBuilder;
+  private unitStyleSelector?: UnitStyleSelector;
 
   constructor(private context: AppContext) {
     this.squadBuilder = new SquadBuilder(
@@ -165,6 +168,7 @@ export class MissionSetupManager {
       debugOverlayEnabled: this.debugOverlayEnabled,
       losOverlayEnabled: this.losOverlayEnabled,
       agentControlEnabled: this.agentControlEnabled,
+      manualDeployment: this.manualDeployment,
       allowTacticalPause: this.allowTacticalPause,
       mapGeneratorType: this.currentMapGeneratorType,
       missionType: this.currentMissionType,
@@ -226,6 +230,7 @@ export class MissionSetupManager {
       this.debugOverlayEnabled = config.debugOverlayEnabled;
       this.losOverlayEnabled = config.losOverlayEnabled || false;
       this.agentControlEnabled = config.agentControlEnabled;
+      this.manualDeployment = config.manualDeployment || false;
       this.allowTacticalPause =
         config.allowTacticalPause !== undefined
           ? config.allowTacticalPause
@@ -245,6 +250,7 @@ export class MissionSetupManager {
       this.debugOverlayEnabled = defaults.debugOverlayEnabled;
       this.losOverlayEnabled = defaults.losOverlayEnabled;
       this.agentControlEnabled = defaults.agentControlEnabled;
+      this.manualDeployment = defaults.manualDeployment;
       this.allowTacticalPause = defaults.allowTacticalPause;
       this.currentMapGeneratorType = defaults.mapGeneratorType;
       this.currentMissionType = defaults.missionType;
@@ -355,6 +361,11 @@ export class MissionSetupManager {
     ) as HTMLSelectElement;
     if (mapGenSelect) mapGenSelect.value = this.currentMapGeneratorType;
 
+    const themeSelect = document.getElementById(
+      "map-theme",
+    ) as HTMLSelectElement;
+    if (themeSelect) themeSelect.value = this.currentThemeId;
+
     const wInput = document.getElementById("map-width") as HTMLInputElement;
     const hInput = document.getElementById("map-height") as HTMLInputElement;
     const spInput = document.getElementById(
@@ -410,6 +421,10 @@ export class MissionSetupManager {
       "toggle-agent-control",
     ) as HTMLInputElement;
     if (agentCheck) agentCheck.checked = this.agentControlEnabled;
+    const deploymentCheck = document.getElementById(
+      "toggle-manual-deployment",
+    ) as HTMLInputElement;
+    if (deploymentCheck) deploymentCheck.checked = this.manualDeployment;
     const allowPauseCheck = document.getElementById(
       "toggle-allow-tactical-pause",
     ) as HTMLInputElement;
@@ -438,6 +453,21 @@ export class MissionSetupManager {
   }
 
   public renderUnitStylePreview() {
+    const container = document.getElementById("unit-style-preview");
+    if (!container) return;
+
+    if (!this.unitStyleSelector) {
+      this.unitStyleSelector = new UnitStyleSelector(
+        container,
+        this.context,
+        this.unitStyle,
+        (style) => {
+          this.unitStyle = style;
+          this.saveCurrentConfig();
+        },
+      );
+    }
+    this.unitStyleSelector.render();
     this.renderGlobalStatus();
   }
 

@@ -14,12 +14,15 @@ describe("ScreenManager URL Sync", () => {
       <div id="screen-main-menu" style="display: none;"></div>
       <div id="screen-campaign" style="display: none;"></div>
       <div id="screen-barracks" style="display: none;"></div>
-      <div id="screen-mission-setup" style="display: none;"></div>
+      <div id="screen-mission-setup" style="display: none;">
+        <div id="unit-style-preview"></div>
+      </div>
       <div id="screen-equipment" style="display: none;"></div>
       <div id="screen-mission" style="display: none;"></div>
       <div id="screen-debrief" style="display: none;"></div>
       <div id="screen-campaign-summary" style="display: none;"></div>
       <div id="screen-statistics" style="display: none;"></div>
+      <div id="screen-settings" style="display: none;"></div>
     `;
 
     // Clear hash

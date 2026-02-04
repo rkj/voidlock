@@ -55,6 +55,8 @@ describe("Q and ESC Key Navigation", () => {
       onToggleLos,
       currentGameState,
       () => false,
+      vi.fn(),
+      vi.fn(() => ({ x: 0, y: 0 })),
     );
     inputManager.init();
   });

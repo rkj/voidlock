@@ -38,6 +38,7 @@ export class MissionCoordinator {
       enemyGrowthPerMission: number;
       allowTacticalPause: boolean;
       campaignNode?: CampaignNode;
+      skipDeployment: boolean;
     },
     setupCallbacks: (report: MissionReport) => void,
     updateUI: (state: GameState) => void,
@@ -80,6 +81,7 @@ export class MissionCoordinator {
       missionDepth,
       config.campaignNode?.type,
       config.campaignNode?.bonusLootCount || 0,
+      config.skipDeployment,
     );
 
     syncSpeedUI();
@@ -203,6 +205,7 @@ export class MissionCoordinator {
         missionDepth,
         config.nodeType,
         config.bonusLootCount || 0,
+        config.skipDeployment !== undefined ? config.skipDeployment : true,
       );
 
       syncSpeedUI();

@@ -176,6 +176,7 @@ describe("Regression: Campaign Shell Visibility (voidlock-tbuh)", () => {
               <div id="screen-barracks" class="screen" style="display:none"></div>
               <div id="screen-equipment" class="screen" style="display:none"></div>
               <div id="screen-statistics" class="screen" style="display:none"></div>
+              <div id="screen-settings" class="screen" style="display:none"></div>
           </div>
       </div>
 
@@ -196,6 +197,7 @@ describe("Regression: Campaign Shell Visibility (voidlock-tbuh)", () => {
             <input type="range" id="map-enemy-growth" value="1.0" />
           </div>
         </div>
+        <div id="unit-style-preview"></div>
         <div id="squad-builder"></div>
         <button id="btn-goto-equipment">Equipment</button>
         <button id="btn-setup-back">Back</button>
@@ -216,7 +218,6 @@ describe("Regression: Campaign Shell Visibility (voidlock-tbuh)", () => {
       </div>
       <div id="screen-debrief" class="screen" style="display:none"></div>
       <div id="screen-campaign-summary" class="screen" style="display:none"></div>
-      <div id="screen-statistics" class="screen" style="display:none"></div>
       <div id="modal-container"></div>
     `;
 

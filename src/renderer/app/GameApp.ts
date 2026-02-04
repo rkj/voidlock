@@ -9,6 +9,7 @@ import {
   MapGenerationConfig,
   GameState,
   Unit,
+  CommandType,
 } from "@src/shared/types";
 import { calculateSpawnPoints, CampaignNode } from "@src/shared/campaign_types";
 import { DebugUtility } from "@src/renderer/DebugUtility";
@@ -111,6 +112,7 @@ export class GameApp {
       () => this.copyWorldState(),
       () => this.context.gameClient.forceWin(),
       () => this.context.gameClient.forceLose(),
+      () => this.context.gameClient.applyCommand({ type: CommandType.START_MISSION }),
     );
 
     this.context.inputManager = new InputManager(
@@ -130,6 +132,12 @@ export class GameApp {
       (enabled) => this.context.gameClient.toggleLosOverlay(enabled),
       () => this.currentGameState,
       () => this.debriefScreen.isVisible(),
+      (unitId, x, y) => this.context.gameClient.applyCommand({
+        type: CommandType.DEPLOY_UNIT,
+        unitId,
+        target: { x, y }
+      }),
+      (px, py) => this.context.renderer!.getCellCoordinates(px, py),
     );
 
     // 3. Initialize screens
@@ -337,6 +345,16 @@ export class GameApp {
         );
         this.missionSetupManager.saveCurrentConfig();
       },
+      onThemeChange: (themeId: string) => {
+        this.missionSetupManager.currentThemeId = themeId;
+        this.missionSetupManager.saveCurrentConfig();
+        this.context.themeManager.setTheme(themeId);
+      },
+      onUnitStyleChange: (style: string) => {
+        this.missionSetupManager.unitStyle = style as any;
+        this.missionSetupManager.renderUnitStylePreview();
+        this.missionSetupManager.saveCurrentConfig();
+      },
       onToggleFog: (enabled: boolean) => {
         this.missionSetupManager.fogOfWarEnabled = enabled;
         this.missionSetupManager.saveCurrentConfig();
@@ -351,6 +369,10 @@ export class GameApp {
       },
       onToggleAi: (enabled: boolean) => {
         this.missionSetupManager.agentControlEnabled = enabled;
+        this.missionSetupManager.saveCurrentConfig();
+      },
+      onToggleManualDeployment: (enabled: boolean) => {
+        this.missionSetupManager.manualDeployment = enabled;
         this.missionSetupManager.saveCurrentConfig();
       },
       onTogglePauseAllowed: (enabled: boolean) => {
@@ -701,6 +723,7 @@ export class GameApp {
         seed: config.lastSeed,
         staticMapData: this.missionSetupManager.currentStaticMapData,
         campaignNode: this.missionSetupManager.currentCampaignNode || undefined,
+        skipDeployment: !this.missionSetupManager.manualDeployment,
       },
       (report) => {
         if (report.nodeId !== "custom") {

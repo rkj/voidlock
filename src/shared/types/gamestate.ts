@@ -27,7 +27,7 @@ export type ReplayData = {
   commands: RecordedCommand[];
 };
 
-export type GameStatus = "Playing" | "Won" | "Lost";
+export type GameStatus = "Deployment" | "Playing" | "Won" | "Lost";
 
 export type AttackEvent = {
   attackerId: string;
@@ -113,6 +113,7 @@ export type WorkerMessage =
         commandLog?: CommandLogEntry[];
         targetTick?: number;
         campaignNodeId?: string;
+        skipDeployment?: boolean;
       };
     }
   | { type: "COMMAND"; payload: Command }
