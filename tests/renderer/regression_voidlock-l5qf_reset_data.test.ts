@@ -65,10 +65,12 @@ describe("Reset Data Button", () => {
               <div id="screen-barracks" class="screen" style="display:none"></div>
               <div id="screen-equipment" class="screen" style="display:none"></div>
               <div id="screen-statistics" class="screen" style="display:none"></div>
+              <div id="screen-settings" class="screen" style="display:none"></div>
           </div>
       </div>
 
       <div id="screen-mission-setup" class="screen" style="display:none">
+        <div id="unit-style-preview"></div>
         <div id="map-config-section"></div>
         <div id="preset-map-controls"></div>
         <div id="squad-builder"></div>

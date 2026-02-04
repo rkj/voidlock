@@ -176,6 +176,7 @@ describe("Equipment Back Bug Reproduction", () => {
               <div id="screen-barracks" class="screen" style="display:none"></div>
               <div id="screen-equipment" class="screen" style="display:none"></div>
               <div id="screen-statistics" class="screen" style="display:none"></div>
+              <div id="screen-settings" class="screen" style="display:none"></div>
               <div id="screen-mission-setup" class="screen" style="display:none">
                 <div id="mission-setup-context"></div>
                 <div id="map-config-section">
@@ -186,6 +187,7 @@ describe("Equipment Back Bug Reproduction", () => {
                   <input type="range" id="map-spawn-points" value="1" />
                   <input type="range" id="map-starting-threat" value="0" />
                 </div>
+                <div id="unit-style-preview"></div>
                 <div id="squad-builder"></div>
                 <button id="btn-goto-equipment">Equipment</button>
                 <button id="btn-setup-back">Back</button>

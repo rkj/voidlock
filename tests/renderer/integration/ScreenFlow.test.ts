@@ -166,6 +166,7 @@ describe("Screen Flow Integration", () => {
               <div id="screen-barracks" class="screen" style="display:none"></div>
               <div id="screen-equipment" class="screen" style="display:none"></div>
               <div id="screen-statistics" class="screen" style="display:none"></div>
+              <div id="screen-settings" class="screen" style="display:none"></div>
           </div>
       </div>
 
@@ -183,6 +184,7 @@ describe("Screen Flow Integration", () => {
             <span id="map-starting-threat-value">0</span>
           </div>
         </div>
+        <div id="unit-style-preview"></div>
         <div id="squad-builder"></div>
         <button id="btn-goto-equipment">Equipment</button>
         <button id="btn-setup-back">Back</button>

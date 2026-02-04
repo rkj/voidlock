@@ -5,6 +5,7 @@ import {
   MissionType,
   UnitState,
   MapDefinition,
+  CommandType,
 } from "@src/shared/types";
 
 const ITERATIONS = 100; // Final verification
@@ -44,6 +45,9 @@ async function runSimulation() {
       false,
       MissionType.Default,
     );
+
+    // Auto-start for simulator
+    engine.applyCommand({ type: CommandType.START_MISSION });
 
     let ticks = 0;
     // 5 minutes * 60 seconds * 1000 ms / DT

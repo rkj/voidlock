@@ -9,10 +9,10 @@ import {
 
 describe("MenuController Repro voidlock-dibl", () => {
   let menuController: MenuController;
-  let mockClient: { sendCommand: any };
+  let mockClient: { applyCommand: any };
 
   beforeEach(() => {
-    mockClient = { sendCommand: vi.fn() };
+    mockClient = { applyCommand: vi.fn() };
     menuController = new MenuController(mockClient);
   });
 

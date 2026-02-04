@@ -8,7 +8,7 @@ describe("MenuController Rehydration", () => {
 
   beforeEach(() => {
     mockClient = {
-      sendCommand: vi.fn(),
+      applyCommand: vi.fn(),
     };
     controller = new MenuController(mockClient);
   });

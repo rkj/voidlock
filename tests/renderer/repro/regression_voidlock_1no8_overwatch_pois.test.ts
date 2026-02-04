@@ -8,7 +8,7 @@ describe("Regression - Overwatch Intersections with Doors", () => {
 
   beforeEach(() => {
     mockClient = {
-      sendCommand: vi.fn(),
+      applyCommand: vi.fn(),
     };
     controller = new MenuController(mockClient);
   });

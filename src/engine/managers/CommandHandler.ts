@@ -14,7 +14,59 @@ export class CommandHandler {
   ) {}
 
   public applyCommand(state: GameState, cmd: Command) {
-    if (state.status !== "Playing") return;
+    if (state.status !== "Playing" && state.status !== "Deployment") return;
+
+    if (state.status === "Deployment") {
+      if (cmd.type === CommandType.DEPLOY_UNIT) {
+        const unit = state.units.find((u) => u.id === cmd.unitId);
+        if (unit && unit.archetypeId !== "vip") {
+          // Validate that the target is a valid spawn tile
+          const isValidSpawn =
+            state.map.squadSpawns?.some(
+              (s) => s.x === Math.floor(cmd.target.x) && s.y === Math.floor(cmd.target.y),
+            ) ||
+            (state.map.squadSpawn &&
+              state.map.squadSpawn.x === Math.floor(cmd.target.x) &&
+              state.map.squadSpawn.y === Math.floor(cmd.target.y));
+
+          if (!isValidSpawn) return;
+
+          // Check if target is occupied
+          const targetUnit = state.units.find(
+            (u) =>
+              Math.floor(u.pos.x) === Math.floor(cmd.target.x) &&
+              Math.floor(u.pos.y) === Math.floor(cmd.target.y),
+          );
+
+          state.units = state.units.map((u) => {
+            if (u.id === unit.id) {
+              return { ...u, pos: { x: cmd.target.x, y: cmd.target.y } };
+            }
+            if (targetUnit && u.id === targetUnit.id) {
+              return { ...u, pos: { ...unit.pos } };
+            }
+            return u;
+          });
+        }
+        return;
+      }
+
+      if (cmd.type === CommandType.START_MISSION) {
+        state.status = "Playing";
+        // Auto-assign exploration if enabled (default behavior)
+        const explorationUnitIds = state.units
+          .filter((u) => u.archetypeId !== "vip" && u.aiEnabled !== false)
+          .map((u) => u.id);
+
+        if (explorationUnitIds.length > 0) {
+          this.applyCommand(state, {
+            type: CommandType.EXPLORE,
+            unitIds: explorationUnitIds,
+          });
+        }
+        return;
+      }
+    }
 
     if (cmd.type === CommandType.USE_ITEM) {
       const item = ItemLibrary[cmd.itemId];

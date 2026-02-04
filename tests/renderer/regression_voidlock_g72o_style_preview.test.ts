@@ -207,6 +207,7 @@ describe("Unit Style Preview Regression (voidlock-g72o)", () => {
       <div id="screen-debrief" class="screen"></div>
       <div id="screen-campaign-summary" class="screen"></div>
       <div id="screen-statistics" class="screen"></div>
+      <div id="screen-settings" class="screen"></div>
       <div id="modal-container"></div>
       <input type="range" id="time-scale-slider" />
       <span id="time-scale-value"></span>

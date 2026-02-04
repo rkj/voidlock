@@ -15,19 +15,39 @@ import { MathUtils } from "../../shared/utils/MathUtils";
 export class UnitSpawner {
   constructor(private prng: PRNG) {}
 
-  public spawnSquad(map: MapDefinition, squadConfig: SquadConfig): Unit[] {
+  public spawnSquad(map: MapDefinition, squadConfig: SquadConfig, shuffle: boolean = true): Unit[] {
     const units: Unit[] = [];
     let unitCount = 1;
 
-    squadConfig.soldiers.forEach((soldierConfig) => {
+    // Collect available spawn positions
+    let availableSpawns = [...(map.squadSpawns || [])];
+    if (availableSpawns.length === 0) {
+      if (map.squadSpawn) {
+        availableSpawns = [map.squadSpawn];
+      } else if (map.extraction) {
+        availableSpawns = [map.extraction];
+      } else {
+        availableSpawns = [{ x: 0, y: 0 }];
+      }
+    }
+
+    // Shuffle spawns for variety
+    if (shuffle) {
+      for (let i = availableSpawns.length - 1; i > 0; i--) {
+        const j = this.prng.nextInt(0, i);
+        [availableSpawns[i], availableSpawns[j]] = [
+          availableSpawns[j],
+          availableSpawns[i],
+        ];
+      }
+    }
+
+    squadConfig.soldiers.forEach((soldierConfig, index) => {
       const arch = ArchetypeLibrary[soldierConfig.archetypeId];
       if (!arch) return;
 
-      let startPos = map.squadSpawn || map.extraction || { x: 0, y: 0 };
-      if (map.squadSpawns && map.squadSpawns.length > 0) {
-        startPos =
-          map.squadSpawns[this.prng.nextInt(0, map.squadSpawns.length - 1)];
-      }
+      // Rotate through available spawns if more units than tiles
+      const startPos = availableSpawns[index % availableSpawns.length];
 
       const startX = startPos.x + 0.5;
       const startY = startPos.y + 0.5;
@@ -94,7 +114,7 @@ export class UnitSpawner {
         engagementPolicy: "ENGAGE",
         engagementPolicySource: "Manual",
         commandQueue: [],
-        aiEnabled: false,
+        aiEnabled: arch.id !== "vip",
         kills: 0,
         damageDealt: 0,
         objectivesCompleted: 0,

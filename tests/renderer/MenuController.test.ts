@@ -48,7 +48,7 @@ describe("MenuController", () => {
 
   beforeEach(() => {
     mockClient = {
-      sendCommand: vi.fn(),
+      applyCommand: vi.fn(),
     };
     controller = new MenuController(mockClient);
   });
@@ -75,7 +75,7 @@ describe("MenuController", () => {
     controller.handleMenuInput("1", mockState); // Mode: Engage
     controller.handleMenuInput("3", mockState); // Units: All (1, 2, 3=All)
 
-    expect(mockClient.sendCommand).toHaveBeenCalledWith({
+    expect(mockClient.applyCommand).toHaveBeenCalledWith({
       type: CommandType.SET_ENGAGEMENT,
       unitIds: ["u1", "u2"],
       mode: "ENGAGE",
@@ -92,7 +92,7 @@ describe("MenuController", () => {
     controller.handleMenuInput("2", mockState); // Mode: Ignore
     controller.handleMenuInput("3", mockState); // All Units
 
-    expect(mockClient.sendCommand).toHaveBeenCalledWith({
+    expect(mockClient.applyCommand).toHaveBeenCalledWith({
       type: CommandType.SET_ENGAGEMENT,
       unitIds: ["u1", "u2"],
       mode: "IGNORE",

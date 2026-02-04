@@ -80,6 +80,7 @@ describe("HUDManager: Pause Constraints", () => {
       onCopyWorldState,
       vi.fn(),
       vi.fn(),
+      vi.fn(),
     );
   });
 

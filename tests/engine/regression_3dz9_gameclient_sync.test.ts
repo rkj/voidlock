@@ -102,7 +102,7 @@ describe("Regression 3dz9: GameClient startTime Synchronization", () => {
       unitIds: ["u1"],
       target: { x: 1, y: 1 },
     };
-    client.sendCommand(cmd);
+    client.applyCommand(cmd);
 
     // Simulate authoritative update from engine
     (client as any).worker.onmessage({

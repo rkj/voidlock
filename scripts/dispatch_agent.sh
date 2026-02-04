@@ -35,7 +35,8 @@ fi
 
 echo "Dispatching agent for task $TASK_ID. Output logged to $LOG_FILE"
 
-gemini --output-format stream-json \
+TERM=dumb gemini --yolo \
+  --output-format stream-json \
   --model gemini-3-flash-preview \
   --allowed-tools "run_shell_command(bd show)" \
   --allowed-tools "run_shell_command(grep)" \

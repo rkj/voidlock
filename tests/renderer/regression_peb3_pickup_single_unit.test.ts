@@ -10,7 +10,7 @@ describe("Regression voidlock-peb3: Restrict PICKUP to single unit", () => {
 
   beforeEach(() => {
     mockClient = {
-      sendCommand: vi.fn(),
+      applyCommand: vi.fn(),
     };
     controller = new MenuController(mockClient);
     mockState = createMockGameState({
@@ -86,7 +86,7 @@ describe("Regression voidlock-peb3: Restrict PICKUP to single unit", () => {
     // Attempt to select 'All Units'
     controller.handleMenuInput(allUnitsKey, mockState);
 
-    expect(mockClient.sendCommand).not.toHaveBeenCalled();
+    expect(mockClient.applyCommand).not.toHaveBeenCalled();
     // It should ideally stay in UNIT_SELECT or show an error,
     // but the task is to disable/hide it.
   });

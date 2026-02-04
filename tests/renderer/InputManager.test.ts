@@ -64,6 +64,8 @@ describe("InputManager", () => {
       onToggleLos,
       currentGameState,
       () => debriefingActive,
+      vi.fn(),
+      vi.fn(() => ({ x: 0, y: 0 })),
     );
     inputManager.init();
   });

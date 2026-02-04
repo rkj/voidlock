@@ -17,6 +17,7 @@ export interface GameConfig {
   baseEnemyCount: number;
   enemyGrowthPerMission: number;
   bonusLootCount: number;
+  manualDeployment: boolean;
   campaignNodeId?: string;
   squadConfig: SquadConfig;
 }
@@ -183,6 +184,7 @@ export class ConfigManager {
       "losOverlayEnabled",
       "agentControlEnabled",
       "allowTacticalPause",
+      "manualDeployment",
     ];
     for (const field of booleanFields) {
       const val = loaded[field];
@@ -258,6 +260,7 @@ export class ConfigManager {
       baseEnemyCount: 3,
       enemyGrowthPerMission: 1,
       bonusLootCount: 0,
+      manualDeployment: true,
       squadConfig: {
         soldiers: [{ archetypeId: "assault" }, { archetypeId: "medic" }],
         inventory: { medkit: 1, frag_grenade: 2 },

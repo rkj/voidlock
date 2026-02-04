@@ -43,6 +43,7 @@ interface MissionConfig {
   campaignNodeId?: string;
   nodeType?: CampaignNodeType;
   bonusLootCount: number;
+  skipDeployment: boolean;
 }
 
 export class GameClient {
@@ -136,6 +137,7 @@ export class GameClient {
     missionDepth: number = 0,
     nodeType?: CampaignNodeType,
     bonusLootCount: number = 0,
+    skipDeployment: boolean = true,
   ) {
     this.isStopped = false;
     this.initialSeed = seed;
@@ -212,6 +214,7 @@ export class GameClient {
         targetTick,
         nodeType,
         campaignNodeId,
+        skipDeployment,
       },
     };
     this.worker.postMessage(msg);
@@ -249,6 +252,7 @@ export class GameClient {
         campaignNodeId,
         nodeType,
         bonusLootCount,
+        skipDeployment,
       });
 
       // If we provided an initial command log, make sure it's also in the persistent log
@@ -281,7 +285,7 @@ export class GameClient {
     }
   }
 
-  public sendCommand(cmd: Command) {
+  public applyCommand(cmd: Command) {
     // Record command using engine ticks for determinism
     // Note: We no longer push to commandStream here manually.
     // It will be synced from the authoritative engine state in the next update.
@@ -294,27 +298,27 @@ export class GameClient {
   }
 
   public toggleDebugOverlay(enabled: boolean) {
-    this.sendCommand({
+    this.applyCommand({
       type: CommandType.TOGGLE_DEBUG_OVERLAY,
       enabled,
     });
   }
 
   public toggleLosOverlay(enabled: boolean) {
-    this.sendCommand({
+    this.applyCommand({
       type: CommandType.TOGGLE_LOS_OVERLAY,
       enabled,
     });
   }
 
   public forceWin() {
-    this.sendCommand({
+    this.applyCommand({
       type: CommandType.DEBUG_FORCE_WIN,
     });
   }
 
   public forceLose() {
-    this.sendCommand({
+    this.applyCommand({
       type: CommandType.DEBUG_FORCE_LOSE,
     });
   }
@@ -443,6 +447,7 @@ export class GameClient {
       0, // missionDepth
       undefined, // nodeType
       0, // bonusLootCount
+      true, // skipDeployment
     );
   }
 
@@ -481,6 +486,7 @@ export class GameClient {
       0, // missionDepth
       undefined, // nodeType
       0, // bonusLootCount
+      true, // skipDeployment
     );
   }
 

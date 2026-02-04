@@ -10,7 +10,7 @@ describe("Regression voidlock-053u: Escort Target Validity", () => {
 
   beforeEach(() => {
     mockClient = {
-      sendCommand: vi.fn(),
+      applyCommand: vi.fn(),
     };
     controller = new MenuController(mockClient);
     mockState = createMockGameState({

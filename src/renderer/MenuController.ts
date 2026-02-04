@@ -113,7 +113,7 @@ export class MenuController {
     this.selection.isShiftHeld = value;
   }
 
-  constructor(private client: { sendCommand: (cmd: Command) => void }) {}
+  constructor(private client: { applyCommand: (cmd: Command) => void }) {}
 
   public reset() {
     this.stateMachine.reset();
@@ -746,7 +746,7 @@ export class MenuController {
     );
 
     if (command) {
-      this.client.sendCommand(command);
+      this.client.applyCommand(command);
     }
 
     this.reset();

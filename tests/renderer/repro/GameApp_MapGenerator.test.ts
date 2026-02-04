@@ -63,6 +63,11 @@ vi.mock("@src/renderer/ConfigManager", () => ({
       mapGeneratorType: "Procedural",
       missionType: "Default",
       lastSeed: 12345,
+      startingThreatLevel: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      bonusLootCount: 0,
+      manualDeployment: true,
       squadConfig: { soldiers: [], inventory: {} },
     }),
     loadCampaign: vi.fn().mockReturnValue(null),
@@ -78,6 +83,11 @@ vi.mock("@src/renderer/ConfigManager", () => ({
       mapGeneratorType: "Procedural",
       missionType: "Default",
       lastSeed: 12345,
+      startingThreatLevel: 0,
+      baseEnemyCount: 3,
+      enemyGrowthPerMission: 1,
+      bonusLootCount: 0,
+      manualDeployment: true,
       squadConfig: { soldiers: [], inventory: {} },
     }),
   },
@@ -102,6 +112,7 @@ describe("GameApp Map Generator Selection Repro", () => {
               <div id="screen-barracks" class="screen"></div>
               <div id="screen-equipment" class="screen"></div>
               <div id="screen-statistics" class="screen"></div>
+              <div id="screen-settings" class="screen"></div>
           </div>
       </div>
 

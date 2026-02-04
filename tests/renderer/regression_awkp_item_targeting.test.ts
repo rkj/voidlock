@@ -15,7 +15,7 @@ describe("Regression awkp: Item Targeting Logic", () => {
 
   beforeEach(() => {
     mockClient = {
-      sendCommand: vi.fn(),
+      applyCommand: vi.fn(),
     };
     controller = new MenuController(mockClient);
     mockState = createMockGameState({
@@ -131,7 +131,7 @@ describe("Regression awkp: Item Targeting Logic", () => {
     controller.handleMenuInput(unit1Option.key, mockState);
 
     // It should now use selected unitIds for self-heal
-    expect(mockClient.sendCommand).toHaveBeenCalledWith(
+    expect(mockClient.applyCommand).toHaveBeenCalledWith(
       expect.objectContaining({
         type: CommandType.USE_ITEM,
         itemId: "medkit",

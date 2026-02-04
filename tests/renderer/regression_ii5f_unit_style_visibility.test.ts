@@ -13,6 +13,12 @@ vi.mock("@src/renderer/visuals/AssetManager", () => ({
       getUnitSprite: vi
         .fn()
         .mockReturnValue({ complete: true, naturalWidth: 64 }),
+      getEnemySprite: vi
+        .fn()
+        .mockReturnValue({ complete: true, naturalWidth: 64 }),
+      getMiscSprite: vi
+        .fn()
+        .mockReturnValue({ complete: true, naturalWidth: 64 }),
       getIcon: vi.fn().mockReturnValue({ complete: true, naturalWidth: 64 }),
     }),
   },
@@ -43,6 +49,11 @@ vi.mock("@src/renderer/ConfigManager", () => {
     missionType: "Default",
     lastSeed: 12345,
     themeId: "default",
+    startingThreatLevel: 0,
+    baseEnemyCount: 3,
+    enemyGrowthPerMission: 1,
+    bonusLootCount: 0,
+    manualDeployment: true,
     squadConfig: { soldiers: [], inventory: {} },
   };
   return {
@@ -120,6 +131,24 @@ describe("MissionSetupManager - Visual Style Visibility (regression_ii5f)", () =
     manager = new MissionSetupManager(context);
     // Set a campaign node so it uses campaign config path
     manager.currentCampaignNode = { id: "node-1" } as any;
+
+    // Mock HTMLCanvasElement.getContext
+    HTMLCanvasElement.prototype.getContext = vi.fn().mockReturnValue({
+      clearRect: vi.fn(),
+      fillRect: vi.fn(),
+      strokeRect: vi.fn(),
+      beginPath: vi.fn(),
+      arc: vi.fn(),
+      fill: vi.fn(),
+      stroke: vi.fn(),
+      fillText: vi.fn(),
+      strokeText: vi.fn(),
+      drawImage: vi.fn(),
+      moveTo: vi.fn(),
+      lineTo: vi.fn(),
+      closePath: vi.fn(),
+      setLineDash: vi.fn(),
+    });
   });
 
   it("should NOT hide common-config-section in campaign mode", () => {
@@ -151,10 +180,17 @@ describe("MissionSetupManager - Visual Style Visibility (regression_ii5f)", () =
   });
 
   it("should respect saved preference over campaign rule on reload", () => {
-    // Mock saved config
     (ConfigManager.loadCampaign as any).mockReturnValue({
       mapWidth: 10,
       mapHeight: 10,
+      spawnPointCount: 3,
+      fogOfWarEnabled: true,
+      debugOverlayEnabled: false,
+      losOverlayEnabled: false,
+      agentControlEnabled: true,
+      allowTacticalPause: true,
+      mapGeneratorType: "DenseShip",
+      missionType: "Default",
       lastSeed: 12345,
       squadConfig: { soldiers: [], inventory: {} },
     });

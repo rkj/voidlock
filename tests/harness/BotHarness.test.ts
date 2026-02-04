@@ -6,7 +6,7 @@ vi.mock("@src/engine/GameClient", () => {
     GameClient: vi.fn().mockImplementation((_mapGeneratorFactory: any) => ({
       // Add _mapGeneratorFactory to constructor
       onStateUpdate: vi.fn(),
-      sendCommand: vi.fn(),
+      applyCommand: vi.fn(),
     })),
   };
 });
@@ -41,6 +41,6 @@ describe("BotHarness", () => {
 
     // Verify bot acted and command sent
     expect(bot.act).toHaveBeenCalledWith(state);
-    expect(client.sendCommand).toHaveBeenCalled();
+    expect(client.applyCommand).toHaveBeenCalled();
   });
 });

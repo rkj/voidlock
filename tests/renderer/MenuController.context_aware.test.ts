@@ -10,7 +10,7 @@ describe("MenuController Context Awareness", () => {
 
   beforeEach(() => {
     mockClient = {
-      sendCommand: vi.fn(),
+      applyCommand: vi.fn(),
     };
     controller = new MenuController(mockClient);
     mockState = createMockGameState({

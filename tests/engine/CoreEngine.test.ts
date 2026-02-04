@@ -70,6 +70,7 @@ describe("CoreEngine with Objectives and Game Loop", () => {
       damageDealt: 0,
       objectivesCompleted: 0,
     });
+    engine.applyCommand({ type: CommandType.START_MISSION });
   });
 
   it("should complete objective when unit reaches target", () => {

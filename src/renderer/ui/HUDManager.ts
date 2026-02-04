@@ -17,6 +17,7 @@ export class HUDManager {
     private onCopyWorldState: () => void,
     private onForceWin: () => void,
     private onForceLose: () => void,
+    private onStartMission: () => void,
   ) {}
 
   public update(state: GameState, selectedUnitId: string | null) {
@@ -103,10 +104,22 @@ export class HUDManager {
     const rightPanel = document.getElementById("right-panel");
     if (!rightPanel) return;
 
+    if (state.status === "Deployment") {
+      this.updateDeployment(rightPanel, state);
+      return;
+    }
+
     if (state.status !== "Playing") {
       if (rightPanel.querySelector(".game-over-summary")) return;
       this.renderGameOver(rightPanel, state);
       return;
+    }
+
+    // Remove deployment or game over summary if they exist
+    const deploymentDiv = rightPanel.querySelector(".deployment-summary");
+    if (deploymentDiv) {
+      rightPanel.innerHTML = "";
+      this.lastMenuHtml = "";
     }
 
     if (rightPanel.querySelector(".game-over-summary")) {
@@ -208,6 +221,86 @@ export class HUDManager {
     }
 
     this.updateEnemyIntel(state, rightPanel);
+  }
+
+  private updateDeployment(rightPanel: HTMLElement, state: GameState) {
+    let deploymentDiv = rightPanel.querySelector(
+      ".deployment-summary",
+    ) as HTMLElement;
+
+    if (!deploymentDiv) {
+      rightPanel.innerHTML = "";
+      deploymentDiv = document.createElement("div");
+      deploymentDiv.className = "deployment-summary";
+      deploymentDiv.style.margin = "20px";
+      deploymentDiv.style.textAlign = "center";
+
+      const title = document.createElement("h2");
+      title.textContent = "Deployment Phase";
+      title.style.color = "var(--color-success)";
+      title.style.marginBottom = "10px";
+      deploymentDiv.appendChild(title);
+
+      const desc = document.createElement("p");
+      desc.textContent =
+        "Tactically place your squad members on highlighted tiles. Drag units to move them.";
+      desc.style.fontSize = "0.9em";
+      desc.style.color = "var(--color-text-muted)";
+      desc.style.marginBottom = "20px";
+      deploymentDiv.appendChild(desc);
+
+      const startBtn = document.createElement("button");
+      startBtn.id = "btn-start-mission";
+      startBtn.textContent = "START MISSION";
+      startBtn.style.width = "100%";
+      startBtn.style.padding = "15px";
+      startBtn.style.fontSize = "1.2em";
+      startBtn.style.fontWeight = "bold";
+      startBtn.style.backgroundColor = "var(--color-success)";
+      startBtn.style.color = "white";
+      startBtn.style.border = "none";
+      startBtn.style.cursor = "pointer";
+      startBtn.addEventListener("click", () => this.onStartMission());
+      deploymentDiv.appendChild(startBtn);
+
+      rightPanel.appendChild(deploymentDiv);
+    }
+
+    const startBtn = deploymentDiv.querySelector(
+      "#btn-start-mission",
+    ) as HTMLButtonElement;
+    if (startBtn) {
+      // Validate that all soldiers are on valid spawn tiles
+      const allOnValidTiles = state.units
+        .filter(
+          (u) =>
+            u.archetypeId !== "vip" &&
+            u.state !== UnitState.Extracted &&
+            u.hp > 0,
+        )
+        .every((u) => {
+          const x = Math.floor(u.pos.x);
+          const y = Math.floor(u.pos.y);
+          return (
+            state.map.squadSpawns?.some((s) => s.x === x && s.y === y) ||
+            (state.map.squadSpawn &&
+              state.map.squadSpawn.x === x &&
+              state.map.squadSpawn.y === y)
+          );
+        });
+
+      if (!allOnValidTiles) {
+        startBtn.disabled = true;
+        startBtn.style.opacity = "0.5";
+        startBtn.style.cursor = "not-allowed";
+        startBtn.title = "All squad members must be on valid spawn tiles.";
+      } else {
+        startBtn.disabled = false;
+        startBtn.style.opacity = "1.0";
+        startBtn.style.cursor = "pointer";
+        startBtn.title = "";
+      }
+    }
   }
 
   private getObjectivesData(state: GameState) {

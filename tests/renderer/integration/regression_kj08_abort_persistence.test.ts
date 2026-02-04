@@ -91,6 +91,7 @@ describe("Regression kj08: Abort Persistence", () => {
               <div id="screen-barracks" class="screen" style="display:none"></div>
               <div id="screen-equipment" class="screen" style="display:none"></div>
               <div id="screen-statistics" class="screen" style="display:none"></div>
+              <div id="screen-settings" class="screen" style="display:none"></div>
           </div>
       </div>
       <div id="screen-mission-setup" class="screen" style="display:none">
@@ -103,12 +104,10 @@ describe("Regression kj08: Abort Persistence", () => {
            <select id="map-generator-type"><option value="TreeShip">TreeShip</option></select>
            <select id="mission-type"><option value="Default">Default</option></select>
         </div>
+        <div id="unit-style-preview"></div>
         <div id="squad-builder"></div>
         <button id="btn-goto-equipment">Launch</button>
         <button id="btn-setup-back">Back</button>
-      </div>
-      <div id="screen-equipment" class="screen" style="display:none">
-         <button id="btn-equipment-confirm">Confirm</button>
       </div>
       <div id="screen-mission" class="screen" style="display:none">
         <button id="btn-give-up">Give Up</button>

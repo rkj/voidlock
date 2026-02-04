@@ -34,6 +34,8 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
         msg.payload.missionDepth,
         msg.payload.nodeType,
         msg.payload.campaignNodeId,
+        undefined,
+        msg.payload.skipDeployment ?? false,
       );
 
       // Start loop
@@ -55,6 +57,7 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
         // Stop loop if mission ended and NOT in Replay mode
         if (
           state.status !== "Playing" &&
+          state.status !== "Deployment" &&
           state.settings.mode !== EngineMode.Replay
         ) {
           if (loopId) {

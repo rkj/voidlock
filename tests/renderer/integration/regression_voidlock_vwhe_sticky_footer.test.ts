@@ -81,12 +81,24 @@ describe("Regression: Mission Setup Sticky Footer (voidlock-vwhe)", () => {
     // Load index.html content (simulated)
     // We strictly assume the structure modified in the previous step
     document.body.innerHTML = `
+      <div id="screen-main-menu" class="screen"></div>
+      <div id="screen-campaign-shell" class="screen flex-col" style="display:none">
+          <div id="campaign-shell-top-bar"></div>
+          <div id="campaign-shell-content">
+              <div id="screen-campaign" class="screen" style="display:none"></div>
+              <div id="screen-barracks" class="screen" style="display:none"></div>
+              <div id="screen-equipment" class="screen" style="display:none"></div>
+              <div id="screen-statistics" class="screen" style="display:none"></div>
+              <div id="screen-settings" class="screen" style="display:none"></div>
+          </div>
+      </div>
       <div id="screen-mission-setup" class="screen" style="display:none">
         <div id="mission-setup-context"></div>
         
         <!-- Scrollable Content Area -->
         <div id="setup-content">
            <div id="map-config-section"></div>
+           <div id="unit-style-preview"></div>
            <div id="squad-builder"></div>
         </div>
 
@@ -96,6 +108,9 @@ describe("Regression: Mission Setup Sticky Footer (voidlock-vwhe)", () => {
           <button id="btn-goto-equipment">Equipment & Supplies</button>
         </div>
       </div>
+      <div id="screen-mission" class="screen" style="display:none"></div>
+      <div id="screen-debrief" class="screen" style="display:none"></div>
+      <div id="screen-campaign-summary" class="screen" style="display:none"></div>
     `;
 
     // Reset modules and import main
