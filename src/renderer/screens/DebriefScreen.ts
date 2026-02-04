@@ -8,6 +8,7 @@ export class DebriefScreen {
   private container: HTMLElement;
   private gameClient: GameClient;
   private onContinue: () => void;
+  private onReplay?: () => void;
   private report: MissionReport | null = null;
   private replayController: ReplayController;
   private canvas: HTMLCanvasElement | null = null;
@@ -20,12 +21,14 @@ export class DebriefScreen {
     containerId: string,
     gameClient: GameClient,
     onContinue: () => void,
+    onReplay?: () => void,
   ) {
     const el = document.getElementById(containerId);
     if (!el) throw new Error(`Container #${containerId} not found`);
     this.container = el;
     this.gameClient = gameClient;
     this.onContinue = onContinue;
+    this.onReplay = onReplay;
     this.replayController = new ReplayController(
       this.gameClient,
       (progress) => {
@@ -147,6 +150,16 @@ export class DebriefScreen {
 
     continueBtn.onclick = () => this.onContinue();
     footer.appendChild(continueBtn);
+
+    if (this.report.nodeId === "custom" && this.onReplay) {
+      const replayBtn = document.createElement("button");
+      replayBtn.textContent = "Replay Mission";
+      replayBtn.className = "debrief-button";
+      replayBtn.style.marginLeft = "10px";
+      replayBtn.onclick = () => this.onReplay!();
+      footer.appendChild(replayBtn);
+    }
+
     summary.appendChild(footer);
 
     // --- Right Pane: Replay Viewport ---

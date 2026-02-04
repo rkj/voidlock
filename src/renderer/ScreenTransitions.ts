@@ -32,7 +32,7 @@ export const VALID_TRANSITIONS: Record<ScreenId, ScreenId[]> = {
   ],
   barracks: ["campaign", "main-menu", "statistics", "settings"],
   mission: ["main-menu", "campaign", "debrief", "campaign-summary"],
-  debrief: ["main-menu", "campaign", "campaign-summary"],
+  debrief: ["main-menu", "campaign", "campaign-summary", "mission"],
   "campaign-summary": ["main-menu"],
   statistics: ["main-menu", "campaign", "barracks", "settings"],
   settings: ["main-menu", "campaign", "barracks", "statistics", "mission-setup", "equipment"],

@@ -178,6 +178,11 @@ export class GameApp {
           this.showMainMenu();
         }
       },
+      () => {
+        this.debriefScreen.hide();
+        this.context.gameClient.stop();
+        this.launchMission();
+      },
     );
 
     this.barracksScreen = new BarracksScreen(
