@@ -30,6 +30,7 @@ import { DebriefScreen } from "../screens/DebriefScreen";
 import { EquipmentScreen } from "../screens/EquipmentScreen";
 import { CampaignSummaryScreen } from "../screens/CampaignSummaryScreen";
 import { StatisticsScreen } from "../screens/StatisticsScreen";
+import { SettingsScreen } from "../screens/SettingsScreen";
 import { ThemeManager } from "../ThemeManager";
 import { CampaignManager } from "../campaign/CampaignManager";
 import { ScreenManager, ScreenId } from "../ScreenManager";
@@ -55,6 +56,7 @@ export class GameApp {
   private equipmentScreen!: EquipmentScreen;
   private campaignSummaryScreen!: CampaignSummaryScreen;
   private statisticsScreen!: StatisticsScreen;
+  private settingsScreen!: SettingsScreen;
 
   // app state
   private selectedUnitId: string | null = null;
@@ -86,6 +88,10 @@ export class GameApp {
       this.context.campaignManager,
       (tabId) => this.onShellTabChange(tabId),
       () => this.showMainMenu(),
+      () => {
+        this.settingsScreen.show();
+        this.context.screenManager.show("settings", true, false);
+      },
     );
 
     const mapGeneratorFactory = (config: MapGenerationConfig): MapFactory => {
@@ -211,6 +217,29 @@ export class GameApp {
     );
 
     this.statisticsScreen = new StatisticsScreen("screen-statistics");
+    this.settingsScreen = new SettingsScreen(
+      "screen-settings",
+      this.context,
+      () => {
+        this.context.screenManager.goBack();
+        const screen = this.context.screenManager.getCurrentScreen();
+        if (screen === "main-menu") {
+          this.context.campaignShell.hide();
+        } else if (screen === "mission-setup") {
+          this.missionSetupManager.loadAndApplyConfig(
+            !!this.missionSetupManager.currentCampaignNode,
+          );
+        } else if (
+          screen === "campaign" ||
+          screen === "barracks" ||
+          screen === "statistics"
+        ) {
+          // Keep shell visible
+        } else {
+          this.context.campaignShell.hide();
+        }
+      },
+    );
 
     // Special bindings that were in main.ts
     this.setupAdditionalUIBindings();
@@ -268,6 +297,17 @@ export class GameApp {
         this.context.screenManager.show("statistics", true, false);
         this.context.campaignShell.show("statistics", "stats");
       },
+      onSettingsMenu: () => {
+        this.settingsScreen.show();
+        this.context.screenManager.show("settings", true, false);
+        // If we are in campaign, we might want to keep the shell
+        const isCampaign = !!this.context.campaignManager.getState();
+        if (isCampaign) {
+          this.context.campaignShell.show("campaign", "sector-map", false);
+        } else {
+          this.context.campaignShell.hide();
+        }
+      },
       onSetupBack: () => {
         this.context.screenManager.goBack();
         const screen = this.context.screenManager.getCurrentScreen();
@@ -276,18 +316,6 @@ export class GameApp {
         } else {
           this.context.campaignShell.hide();
         }
-      },
-      onThemeChange: (themeId: string) => {
-        this.missionSetupManager.currentThemeId = themeId;
-        this.context.themeManager.setTheme(
-          this.missionSetupManager.currentThemeId,
-        );
-        ConfigManager.saveGlobal({
-          unitStyle: this.missionSetupManager.unitStyle,
-          themeId: this.missionSetupManager.currentThemeId,
-        });
-        this.missionSetupManager.saveCurrentConfig();
-        this.missionSetupManager.renderUnitStylePreview();
       },
       onMapGeneratorChange: (type: MapGeneratorType) => {
         if (this.missionSetupManager.currentMapGeneratorType === type) return;
@@ -458,6 +486,14 @@ export class GameApp {
       case "statistics":
         this.statisticsScreen.show();
         this.context.campaignShell.show("statistics", "stats");
+        break;
+      case "settings":
+        this.settingsScreen.show();
+        if (isCampaign) {
+          this.context.campaignShell.show("campaign", "sector-map", false);
+        } else {
+          this.context.campaignShell.hide();
+        }
         break;
       case "mission":
         this.context.campaignShell.hide();

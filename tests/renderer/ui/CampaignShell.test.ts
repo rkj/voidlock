@@ -32,6 +32,7 @@ describe("CampaignShell", () => {
       manager as any,
       onTabChange,
       onMenu,
+      vi.fn(),
     );
   });
 

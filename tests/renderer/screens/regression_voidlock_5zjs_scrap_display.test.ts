@@ -44,6 +44,7 @@ describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => 
       mockManager,
       vi.fn(),
       vi.fn(),
+      vi.fn(),
     );
 
     const screen = new EquipmentScreen(
@@ -74,6 +75,7 @@ describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => 
     shell = new CampaignShell(
       "screen-campaign-shell",
       mockManager,
+      vi.fn(),
       vi.fn(),
       vi.fn(),
     );

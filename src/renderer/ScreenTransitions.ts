@@ -1,7 +1,7 @@
 import { ScreenId } from "@src/renderer/ScreenManager";
 
 export const VALID_TRANSITIONS: Record<ScreenId, ScreenId[]> = {
-  "main-menu": ["campaign", "mission-setup", "statistics", "mission"],
+  "main-menu": ["campaign", "mission-setup", "statistics", "mission", "settings"],
   campaign: [
     "main-menu",
     "barracks",
@@ -10,6 +10,7 @@ export const VALID_TRANSITIONS: Record<ScreenId, ScreenId[]> = {
     "mission-setup",
     "campaign-summary",
     "statistics",
+    "settings",
   ],
   "mission-setup": [
     "main-menu",
@@ -18,6 +19,7 @@ export const VALID_TRANSITIONS: Record<ScreenId, ScreenId[]> = {
     "campaign",
     "barracks",
     "statistics",
+    "settings",
   ],
   equipment: [
     "campaign",
@@ -26,10 +28,12 @@ export const VALID_TRANSITIONS: Record<ScreenId, ScreenId[]> = {
     "main-menu",
     "barracks",
     "statistics",
+    "settings",
   ],
-  barracks: ["campaign", "main-menu", "statistics"],
+  barracks: ["campaign", "main-menu", "statistics", "settings"],
   mission: ["main-menu", "campaign", "debrief", "campaign-summary"],
   debrief: ["main-menu", "campaign", "campaign-summary"],
   "campaign-summary": ["main-menu"],
-  statistics: ["main-menu", "campaign", "barracks"],
+  statistics: ["main-menu", "campaign", "barracks", "settings"],
+  settings: ["main-menu", "campaign", "barracks", "statistics", "mission-setup", "equipment"],
 };

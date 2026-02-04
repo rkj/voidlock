@@ -8,6 +8,7 @@ export class CampaignShell {
   private manager: CampaignManager;
   private onTabChange: (tabId: CampaignTabId) => void;
   private onMenu: () => void;
+  private onSettings: () => void;
   private activeTabId: CampaignTabId = "sector-map";
   private mode: CampaignShellMode = "none";
   private showTabs: boolean = true;
@@ -17,6 +18,7 @@ export class CampaignShell {
     manager: CampaignManager,
     onTabChange: (tabId: CampaignTabId) => void,
     onMenu: () => void,
+    onSettings: () => void,
   ) {
     const el = document.getElementById(containerId);
     if (!el) throw new Error(`Container #${containerId} not found`);
@@ -24,6 +26,7 @@ export class CampaignShell {
     this.manager = manager;
     this.onTabChange = onTabChange;
     this.onMenu = onMenu;
+    this.onSettings = onSettings;
   }
 
   public show(
@@ -154,6 +157,18 @@ export class CampaignShell {
       });
     }
     rightSide.appendChild(nav);
+
+    const settingsBtn = document.createElement("button");
+    settingsBtn.textContent = "Settings";
+    settingsBtn.className = "menu-button";
+    settingsBtn.style.margin = "0";
+    settingsBtn.style.padding = "5px 12px";
+    settingsBtn.style.height = "32px";
+    settingsBtn.style.fontSize = "0.85em";
+    settingsBtn.style.display = "flex";
+    settingsBtn.style.alignItems = "center";
+    settingsBtn.onclick = () => this.onSettings();
+    rightSide.appendChild(settingsBtn);
 
     const menuBtn = document.createElement("button");
     menuBtn.textContent = "Main Menu";
