@@ -202,7 +202,11 @@ export class CoreEngine implements IDirector {
     }
 
     // Spawn units based on squadConfig
-    const squadUnits = this.unitSpawner.spawnSquad(map, squadConfig, skipDeployment);
+    const squadUnits = this.unitSpawner.spawnSquad(
+      map,
+      squadConfig,
+      skipDeployment,
+    );
     squadUnits.forEach((unit) => this.addUnit(unit));
 
     // Reveal spawn area and update initial visibility
@@ -232,7 +236,11 @@ export class CoreEngine implements IDirector {
 
     this.visibilityManager.updateVisibility(this.state);
 
-    if (skipDeployment && mode !== EngineMode.Replay && this.commandLog.length === 0) {
+    if (
+      skipDeployment &&
+      mode !== EngineMode.Replay &&
+      this.commandLog.length === 0
+    ) {
       // Auto-assign exploration if enabled (default behavior when skipping deployment)
       const explorationUnitIds = this.state.units
         .filter((u) => u.archetypeId !== "vip" && u.aiEnabled !== false)
@@ -320,6 +328,10 @@ export class CoreEngine implements IDirector {
         boundaries: this.sentMap ? [] : state.map.boundaries,
         // Always include critical mission entities (ADR 0032)
         spawnPoints: state.map.spawnPoints || [],
+        extraction: state.map.extraction,
+        squadSpawns:
+          state.map.squadSpawns ||
+          (state.map.squadSpawn ? [state.map.squadSpawn] : []),
         objectives: state.map.objectives || [],
         // Doors are dynamic, always send them
         doors: Array.from(this.doorManager.getDoors().values()).map((d) => ({

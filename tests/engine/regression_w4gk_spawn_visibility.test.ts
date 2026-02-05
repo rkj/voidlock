@@ -28,6 +28,7 @@ describe("Regression voidlock-w4gk: Enemy Spawn Point Visibility", () => {
       ],
       spawnPoints: [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }],
       squadSpawn: { x: 0, y: 0 },
+      extraction: { x: 9, y: 9 },
     };
     const squadConfig: SquadConfig = {
       soldiers: [{ archetypeId: "assault" }],
@@ -40,6 +41,8 @@ describe("Regression voidlock-w4gk: Enemy Spawn Point Visibility", () => {
     expect(state.map.spawnPoints).toBeDefined();
     expect(state.map.spawnPoints!.length).toBe(1);
     expect(state.map.spawnPoints![0].id).toBe("sp1");
+    expect(state.map.extraction).toBeDefined();
+    expect(state.map.squadSpawns).toBeDefined();
     expect(state.map.cells.length).toBeGreaterThan(0); // First send includes cells
 
     // Advance one tick
@@ -48,6 +51,8 @@ describe("Regression voidlock-w4gk: Enemy Spawn Point Visibility", () => {
     expect(state.map.spawnPoints).toBeDefined();
     expect(state.map.spawnPoints!.length).toBe(1);
     expect(state.map.spawnPoints![0].id).toBe("sp1");
+    expect(state.map.extraction).toBeDefined();
+    expect(state.map.squadSpawns).toBeDefined();
     expect(state.map.cells.length).toBe(0); // Subsequent sends omit cells
 
     // Advance multiple ticks
@@ -56,9 +61,11 @@ describe("Regression voidlock-w4gk: Enemy Spawn Point Visibility", () => {
     expect(state.map.spawnPoints).toBeDefined();
     expect(state.map.spawnPoints!.length).toBe(1);
     expect(state.map.spawnPoints![0].id).toBe("sp1");
+    expect(state.map.extraction).toBeDefined();
+    expect(state.map.squadSpawns).toBeDefined();
   });
 
-  it("should render spawnPoints even if the cell is NOT discovered or visible", () => {
+  it("should NOT render spawnPoints if the cell is NOT discovered and NOT visible", () => {
     const sharedState = new SharedRendererState();
     sharedState.cellSize = 32;
     sharedState.unitStyle = UnitStyle.Sprites;
@@ -97,8 +104,66 @@ describe("Regression voidlock-w4gk: Enemy Spawn Point Visibility", () => {
 
     layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
 
-    // Check if anything was drawn at (5,5) -> (160, 160)
-    // In Sprites mode, it calls drawImage or fillRect (fallback)
+    const drewSomething =
+      mockContext.drawImage.mock.calls.length > 0 ||
+      mockContext.fillRect.mock.calls.some(
+        (call) => call[0] === 5 * 32 && call[1] === 5 * 32,
+      );
+
+    expect(drewSomething).toBe(false);
+
+    // Now mark it discovered
+    gameState.discoveredCells = ["5,5"];
+    layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
+
+    const drewSomethingAfterDiscovery =
+      mockContext.drawImage.mock.calls.length > 0 ||
+      mockContext.fillRect.mock.calls.some(
+        (call) => call[0] === 5 * 32 && call[1] === 5 * 32,
+      );
+
+    expect(drewSomethingAfterDiscovery).toBe(true);
+  });
+
+  it("should render spawnPoints if debug overlay is enabled even if NOT discovered", () => {
+    const sharedState = new SharedRendererState();
+    sharedState.cellSize = 32;
+    sharedState.unitStyle = UnitStyle.Sprites;
+    const layer = new MapEntityLayer(sharedState);
+
+    const mockContext = {
+      drawImage: vi.fn(),
+      fillRect: vi.fn(),
+      strokeRect: vi.fn(),
+      beginPath: vi.fn(),
+      arc: vi.fn(),
+      fill: vi.fn(),
+      stroke: vi.fn(),
+      moveTo: vi.fn(),
+      lineTo: vi.fn(),
+    };
+
+    const gameState = {
+      map: {
+        width: 10,
+        height: 10,
+        cells: [],
+        spawnPoints: [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }],
+      },
+      units: [],
+      enemies: [],
+      loot: [],
+      mines: [],
+      turrets: [],
+      visibleCells: [],
+      discoveredCells: [],
+      settings: {
+        debugOverlayEnabled: true,
+      },
+    } as any;
+
+    layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
+
     const drewSomething =
       mockContext.drawImage.mock.calls.length > 0 ||
       mockContext.fillRect.mock.calls.some(
