@@ -104,3 +104,4 @@ For deeper dives, refer to:
 - [Renderer Context](./src/renderer/GEMINI.md)
 - [Shared Types Context](./src/shared/GEMINI.md)
 - [Scripts Context](./scripts/GEMINI.md)
+- [Services Context](./src/services/GEMINI.md)
