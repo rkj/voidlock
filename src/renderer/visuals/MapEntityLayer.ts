@@ -24,7 +24,9 @@ export class MapEntityLayer implements RenderLayer {
     if (state.status !== "Deployment") return;
 
     const cellSize = this.sharedState.cellSize;
-    const spawns = state.map.squadSpawns || (state.map.squadSpawn ? [state.map.squadSpawn] : []);
+    const spawns =
+      state.map.squadSpawns ||
+      (state.map.squadSpawn ? [state.map.squadSpawn] : []);
 
     spawns.forEach((sp) => {
       const x = sp.x * cellSize;
@@ -176,6 +178,12 @@ export class MapEntityLayer implements RenderLayer {
     state.map.spawnPoints?.forEach((sp) => {
       const x = sp.pos.x * cellSize;
       const y = sp.pos.y * cellSize;
+
+      const key = `${Math.floor(sp.pos.x)},${Math.floor(sp.pos.y)}`;
+      const isKnown =
+        state.discoveredCells.includes(key) || state.visibleCells.includes(key);
+
+      if (!isKnown && !state.settings.debugOverlayEnabled) return;
 
       if (isTactical) {
         // Tactical Mode: Distinct abstract icon (Vent/Crosshair)
