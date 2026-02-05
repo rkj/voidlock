@@ -9,6 +9,7 @@ export class DebriefScreen {
   private gameClient: GameClient;
   private onContinue: () => void;
   private onReplay?: () => void;
+  private onExport?: () => void;
   private report: MissionReport | null = null;
   private replayController: ReplayController;
   private canvas: HTMLCanvasElement | null = null;
@@ -22,6 +23,7 @@ export class DebriefScreen {
     gameClient: GameClient,
     onContinue: () => void,
     onReplay?: () => void,
+    onExport?: () => void,
   ) {
     const el = document.getElementById(containerId);
     if (!el) throw new Error(`Container #${containerId} not found`);
@@ -29,6 +31,7 @@ export class DebriefScreen {
     this.gameClient = gameClient;
     this.onContinue = onContinue;
     this.onReplay = onReplay;
+    this.onExport = onExport;
     this.replayController = new ReplayController(
       this.gameClient,
       (progress) => {
@@ -155,9 +158,16 @@ export class DebriefScreen {
       const replayBtn = document.createElement("button");
       replayBtn.textContent = "Replay Mission";
       replayBtn.className = "debrief-button";
-      replayBtn.style.marginLeft = "10px";
       replayBtn.onclick = () => this.onReplay!();
       footer.appendChild(replayBtn);
+    }
+
+    if (this.onExport) {
+      const exportBtn = document.createElement("button");
+      exportBtn.textContent = "Export Recording";
+      exportBtn.className = "debrief-button secondary";
+      exportBtn.onclick = () => this.onExport!();
+      footer.appendChild(exportBtn);
     }
 
     summary.appendChild(footer);

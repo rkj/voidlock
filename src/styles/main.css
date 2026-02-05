@@ -993,14 +993,22 @@ label {
 .debrief-footer {
   margin-top: auto;
   padding-top: 40px;
+  display: flex;
+  gap: 10px;
 }
 
 .debrief-button {
-  width: 100%;
+  flex: 1;
   padding: 15px;
   font-size: 1.2em;
   text-transform: uppercase;
   letter-spacing: 2px;
+}
+
+.debrief-button.secondary {
+  background-color: var(--color-surface-elevated);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
 }
 
 /* Campaign Map */

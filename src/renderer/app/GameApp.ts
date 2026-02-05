@@ -187,6 +187,7 @@ export class GameApp {
         this.context.gameClient.stop();
         this.launchMission();
       },
+      () => this.exportReplay(),
     );
 
     this.barracksScreen = new BarracksScreen(
@@ -295,20 +296,7 @@ export class GameApp {
       onUploadStaticMap: (file) =>
         this.missionSetupManager.uploadStaticMap(file),
       onConvertAscii: (ascii) => this.missionSetupManager.convertAscii(ascii),
-      onExportReplay: () => {
-        const replay = this.context.gameClient.getReplayData();
-        if (replay) {
-          const blob = new Blob([JSON.stringify(replay, null, 2)], {
-            type: "application/json",
-          });
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          a.href = url;
-          a.download = `voidlock-replay-${replay.seed}.json`;
-          a.click();
-          URL.revokeObjectURL(a.href);
-        }
-      },
+      onExportReplay: () => this.exportReplay(),
       onShowStatistics: () => {
         this.statisticsScreen.show();
         this.context.screenManager.show("statistics", true, false);
@@ -617,6 +605,21 @@ export class GameApp {
         VERSION,
         this.context.modalService,
       );
+    }
+  }
+
+  private exportReplay() {
+    const replay = this.context.gameClient.getReplayData();
+    if (replay) {
+      const blob = new Blob([JSON.stringify(replay, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `voidlock-replay-${replay.seed}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
     }
   }
 
