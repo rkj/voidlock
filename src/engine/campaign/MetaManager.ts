@@ -1,6 +1,7 @@
 import { MetaStats } from "../../shared/campaign_types";
 import { StorageProvider } from "../persistence/StorageProvider";
 import { CAMPAIGN_DEFAULTS } from "../config/CampaignDefaults";
+import { MetaStatsSchema } from "../../shared/schemas";
 
 const STORAGE_KEY = CAMPAIGN_DEFAULTS.META_STORAGE_KEY;
 
@@ -45,52 +46,22 @@ export class MetaManager {
   }
 
   private loadInitialStats(): MetaStats {
-    const defaults: MetaStats = {
-      totalCampaignsStarted: 0,
-      campaignsWon: 0,
-      campaignsLost: 0,
-      totalKills: 0,
-      totalCasualties: 0,
-      totalMissionsPlayed: 0,
-      totalMissionsWon: 0,
-      totalScrapEarned: 0,
-    };
-
     try {
       const data = this.storage.load<unknown>(STORAGE_KEY);
-      if (data && typeof data === "object") {
-        return this.validateStats(data as Record<string, unknown>, defaults);
+      const result = MetaStatsSchema.safeParse(data || {});
+      if (result.success) {
+        return result.data as MetaStats;
+      } else {
+        console.warn(
+          "MetaManager: Validation failed, using defaults.",
+          result.error.format(),
+        );
+        return MetaStatsSchema.parse({});
       }
     } catch (e) {
       console.warn("MetaManager: Failed to load global statistics.", e);
+      return MetaStatsSchema.parse({});
     }
-    return defaults;
-  }
-
-  private validateStats(
-    data: Record<string, unknown>,
-    defaults: MetaStats,
-  ): MetaStats {
-    const result = { ...defaults };
-    const numericFields: (keyof MetaStats)[] = [
-      "totalCampaignsStarted",
-      "campaignsWon",
-      "campaignsLost",
-      "totalKills",
-      "totalCasualties",
-      "totalMissionsPlayed",
-      "totalMissionsWon",
-      "totalScrapEarned",
-    ];
-
-    for (const field of numericFields) {
-      const value = data[field];
-      if (typeof value === "number" && !isNaN(value)) {
-        result[field] = value;
-      }
-    }
-
-    return result;
   }
 
   /**

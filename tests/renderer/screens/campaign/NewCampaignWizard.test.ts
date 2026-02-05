@@ -48,13 +48,10 @@ describe("NewCampaignWizard", () => {
   });
 
   it("should render the wizard title and content", () => {
-    const wizard = new NewCampaignWizard(
-      container,
-      {
-        onStartCampaign,
-        onBack,
-      },
-    );
+    const wizard = new NewCampaignWizard(container, {
+      onStartCampaign,
+      onBack,
+    });
     wizard.render();
 
     expect(container.innerHTML).toContain("NEW EXPEDITION");
@@ -63,13 +60,10 @@ describe("NewCampaignWizard", () => {
   });
 
   it("should select a difficulty and call onStartCampaign with correct parameters", () => {
-    const wizard = new NewCampaignWizard(
-      container,
-      {
-        onStartCampaign,
-        onBack,
-      },
-    );
+    const wizard = new NewCampaignWizard(container, {
+      onStartCampaign,
+      onBack,
+    });
     wizard.render();
 
     const hardCard = Array.from(
@@ -93,13 +87,10 @@ describe("NewCampaignWizard", () => {
   });
 
   it("should disable tactical pause in Ironman mode", () => {
-    const wizard = new NewCampaignWizard(
-      container,
-      {
-        onStartCampaign,
-        onBack,
-      },
-    );
+    const wizard = new NewCampaignWizard(container, {
+      onStartCampaign,
+      onBack,
+    });
     wizard.render();
 
     const ironmanCard = Array.from(
@@ -118,13 +109,10 @@ describe("NewCampaignWizard", () => {
   });
 
   it("should toggle advanced options", () => {
-    const wizard = new NewCampaignWizard(
-      container,
-      {
-        onStartCampaign,
-        onBack,
-      },
-    );
+    const wizard = new NewCampaignWizard(container, {
+      onStartCampaign,
+      onBack,
+    });
     wizard.render();
 
     const advancedToggle = Array.from(
@@ -144,13 +132,10 @@ describe("NewCampaignWizard", () => {
   });
 
   it("should NOT render meta statistics in the footer (responsibility moved to shell)", () => {
-    const wizard = new NewCampaignWizard(
-      container,
-      {
-        onStartCampaign,
-        onBack,
-      },
-    );
+    const wizard = new NewCampaignWizard(container, {
+      onStartCampaign,
+      onBack,
+    });
     wizard.render();
 
     expect(container.innerHTML).not.toContain("Lifetime Xeno Purged:");

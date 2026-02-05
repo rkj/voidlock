@@ -1,6 +1,10 @@
 import { describe, it, expect } from "vitest";
 import { CoreEngine } from "../../src/engine/CoreEngine";
-import { MissionType, EngineMode, MapGeneratorType } from "../../src/shared/types";
+import {
+  MissionType,
+  EngineMode,
+  MapGeneratorType,
+} from "../../src/shared/types";
 import { MapFactory } from "../../src/engine/map/MapFactory";
 import { Director } from "../../src/engine/Director";
 import { PRNG } from "../../src/shared/PRNG";

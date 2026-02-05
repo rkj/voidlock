@@ -58,10 +58,10 @@ describe("CampaignShell", () => {
     expect(container.innerHTML).toContain("Service Record");
     expect(container.innerHTML).toContain("Global Statistics");
     expect(container.innerHTML).not.toContain("SCRAP:");
-    
+
     // Check for specific tabs
     const buttons = Array.from(container.querySelectorAll("button"));
-    const labels = buttons.map(b => b.textContent);
+    const labels = buttons.map((b) => b.textContent);
 
     expect(labels).toContain("Service Record");
     expect(labels).toContain("Main Menu");

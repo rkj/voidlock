@@ -2,7 +2,6 @@ import { describe, it, expect, vi } from "vitest";
 import { Director } from "@src/engine/Director";
 import { PRNG } from "@src/shared/PRNG";
 import { EnemyType } from "@src/shared/types";
-import { DIRECTOR } from "@src/engine/config/GameConstants";
 
 describe("Director Wave Budgeting & Tier Locking", () => {
   it("should spawn only 1pt enemies (Xeno-Mites) when threat < 30% and respect WAVE_CAP", () => {

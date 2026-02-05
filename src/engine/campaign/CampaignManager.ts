@@ -3,25 +3,20 @@ import {
   CampaignNode,
   GameRules,
   MissionReport,
-  CampaignSoldier,
   CampaignOverrides,
   EventChoice,
-  CampaignNodeType,
-  CampaignNodeStatus,
 } from "../../shared/campaign_types";
 import { PRNG } from "../../shared/PRNG";
 import { StorageProvider } from "../persistence/StorageProvider";
 import { SectorMapGenerator } from "../generators/SectorMapGenerator";
 import { MetaManager } from "./MetaManager";
-import {
-  ArchetypeLibrary,
-  EquipmentState,
-  MapGeneratorType,
-} from "../../shared/types";
+import { EquipmentState, MapGeneratorType } from "../../shared/types";
 import { RosterManager } from "./RosterManager";
 import { MissionReconciler } from "./MissionReconciler";
 import { EventManager } from "./EventManager";
 import { CAMPAIGN_DEFAULTS } from "../config/CampaignDefaults";
+
+import { CampaignStateSchema } from "../../shared/schemas";
 
 const STORAGE_KEY = CAMPAIGN_DEFAULTS.STORAGE_KEY;
 
@@ -258,10 +253,31 @@ export class CampaignManager {
     try {
       const data = this.storage.load<unknown>(STORAGE_KEY);
       if (data) {
-        const validated = this.validateState(data);
-        if (validated) {
-          this.state = validated;
+        // First try lenient parsing with defaults
+        const result = CampaignStateSchema.safeParse(data);
+        if (result.success) {
+          this.state = result.data as CampaignState;
+
+          // Additional custom repair logic that Zod can't easily do
+          if (typeof data === "object" && data !== null) {
+            this.customRepair(this.state, data as Record<string, any>);
+          }
+
           return true;
+        } else {
+          // If even with defaults it fails, try the full manual repair
+          console.warn(
+            "CampaignManager: Validation failed, attempting full recovery.",
+            result.error.format(),
+          );
+          if (typeof data === "object" && data !== null) {
+            this.state = this.validateAndRepair(
+              data as Record<string, unknown>,
+            );
+            if (this.state) {
+              return true;
+            }
+          }
         }
       }
     } catch (e) {
@@ -270,164 +286,122 @@ export class CampaignManager {
     return false;
   }
 
-  private validateState(data: unknown): CampaignState | null {
-    if (!data || typeof data !== "object") return null;
+  /**
+   * Performs custom repair logic that is too complex for Zod schemas.
+   */
+  private customRepair(state: CampaignState, _raw: Record<string, any>): void {
+    // 1. Repair node connections (ensure they point to existing nodes)
+    const allIds = new Set(state.nodes.map((n) => n.id));
+    state.nodes.forEach((node) => {
+      node.connections = node.connections.filter((id) => allIds.has(id));
+    });
+  }
 
-    const candidate = data as Record<string, unknown>;
+  private validateAndRepair(
+    data: Record<string, unknown>,
+  ): CampaignState | null {
+    // Basic structural checks - must have these top-level arrays
+    if (!Array.isArray(data.nodes) || !Array.isArray(data.roster)) {
+      return null;
+    }
 
-    // Required top-level fields
-    const requiredFields = [
-      "version",
-      "seed",
-      "status",
-      "rules",
-      "scrap",
-      "intel",
-      "nodes",
-      "roster",
-    ];
-    for (const field of requiredFields) {
-      if (candidate[field] === undefined) {
+    try {
+      const state: any = { ...data };
+
+      // 1. Repair basic fields
+      if (state.version === undefined)
+        state.version = CAMPAIGN_DEFAULTS.VERSION;
+      if (state.seed === undefined) state.seed = 0;
+      if (!["Active", "Victory", "Defeat"].includes(state.status))
+        state.status = "Active";
+      if (state.scrap === undefined) state.scrap = 0;
+      if (state.intel === undefined) state.intel = 0;
+      if (state.currentSector === undefined) state.currentSector = 1;
+      if (state.currentNodeId === undefined) state.currentNodeId = null;
+      if (!Array.isArray(state.history)) state.history = [];
+      if (!Array.isArray(state.unlockedArchetypes))
+        state.unlockedArchetypes = [...CAMPAIGN_DEFAULTS.UNLOCKED_ARCHETYPES];
+
+      // 2. Repair rules
+      const rules = { ...((data.rules as any) || {}) };
+      if (!rules.mode) rules.mode = "Custom";
+      if (!rules.difficulty) rules.difficulty = "Clone";
+      if (!rules.deathRule) rules.deathRule = "Clone";
+      if (rules.allowTacticalPause === undefined)
+        rules.allowTacticalPause = true;
+      if (!rules.mapGeneratorType)
+        rules.mapGeneratorType = MapGeneratorType.DenseShip;
+      if (rules.difficultyScaling === undefined) rules.difficultyScaling = 1.0;
+      if (rules.resourceScarcity === undefined) rules.resourceScarcity = 1.0;
+      if (rules.startingScrap === undefined) rules.startingScrap = 500;
+      if (rules.mapGrowthRate === undefined) rules.mapGrowthRate = 1.0;
+      if (rules.baseEnemyCount === undefined) rules.baseEnemyCount = 3;
+      if (rules.enemyGrowthPerMission === undefined)
+        rules.enemyGrowthPerMission = 1.0;
+      if (!rules.economyMode) rules.economyMode = "Open";
+      state.rules = rules;
+
+      // 3. Repair roster
+      state.roster = (data.roster as any[]).map((s) => {
+        const soldier = { ...s };
+        if (soldier.hp === undefined) soldier.hp = 100;
+        if (soldier.maxHp === undefined) soldier.maxHp = 100;
+        if (soldier.soldierAim === undefined) soldier.soldierAim = 60;
+        if (soldier.xp === undefined) soldier.xp = 0;
+        if (soldier.level === undefined) soldier.level = 1;
+        if (soldier.kills === undefined) soldier.kills = 0;
+        if (soldier.missions === undefined) soldier.missions = 0;
+        if (!["Healthy", "Wounded", "Dead"].includes(soldier.status))
+          soldier.status = "Healthy";
+        if (!soldier.equipment) soldier.equipment = {};
+        if (soldier.recoveryTime === undefined) soldier.recoveryTime = 0;
+        return soldier;
+      });
+
+      // 4. Repair nodes
+      const allIds = new Set((data.nodes as any[]).map((n) => n.id));
+      state.nodes = (data.nodes as any[]).map((n) => {
+        const node = { ...n };
+        if (!["Combat", "Elite", "Shop", "Event", "Boss"].includes(node.type)) {
+          node.type = "Combat";
+        }
+        if (
+          !["Hidden", "Revealed", "Accessible", "Cleared", "Skipped"].includes(
+            node.status,
+          )
+        ) {
+          node.status = "Hidden";
+        }
+        if (node.difficulty === undefined) node.difficulty = 1;
+        if (node.rank === undefined) node.rank = 0;
+        if (node.mapSeed === undefined) node.mapSeed = 0;
+        if (node.bonusLootCount === undefined) node.bonusLootCount = 0;
+        if (!node.position) node.position = { x: 0, y: 0 };
+        if (!Array.isArray(node.connections)) {
+          node.connections = [];
+        } else {
+          node.connections = node.connections.filter((id: string) =>
+            allIds.has(id),
+          );
+        }
+        return node;
+      });
+
+      // Final validation of repaired state
+      const finalResult = CampaignStateSchema.safeParse(state);
+      if (finalResult.success) {
+        return finalResult.data as CampaignState;
+      } else {
         console.warn(
-          `CampaignManager: Missing required field '${field}' in persisted state.`,
+          "CampaignManager: Repair failed:",
+          finalResult.error.format(),
         );
         return null;
       }
+    } catch (e) {
+      console.warn("CampaignManager: Error during repair:", e);
+      return null;
     }
-
-    // Validate Status
-    const validStatuses = ["Active", "Victory", "Defeat"];
-    let status = candidate.status as string;
-    if (!validStatuses.includes(status)) {
-      status = "Active";
-    }
-
-    // Validate Rules
-    if (!candidate.rules || typeof candidate.rules !== "object") return null;
-    const rulesCandidate = candidate.rules as Record<string, unknown>;
-    const defaultRules = this.getRulesForDifficulty(
-      (rulesCandidate.difficulty as string) || "Standard",
-    );
-    const rules = { ...defaultRules, ...candidate.rules };
-
-    // Validate Roster
-    if (!Array.isArray(candidate.roster)) return null;
-    const roster = candidate.roster
-      .map((s: unknown, index: number) => {
-        if (!s || typeof s !== "object" || !("archetypeId" in s)) {
-          return null;
-        }
-        const soldierCandidate = s as Record<string, unknown>;
-        const archetypeId =
-          (soldierCandidate.archetypeId as string) || "assault";
-        const arch = ArchetypeLibrary[archetypeId];
-        return {
-          id: (soldierCandidate.id as string) || `soldier_recovered_${index}`,
-          name:
-            (soldierCandidate.name as string) ||
-            `Recovered Recruit ${index + 1}`,
-          archetypeId: archetypeId,
-          hp:
-            typeof soldierCandidate.hp === "number"
-              ? soldierCandidate.hp
-              : arch
-                ? arch.baseHp
-                : 100,
-          maxHp:
-            typeof soldierCandidate.maxHp === "number"
-              ? soldierCandidate.maxHp
-              : arch
-                ? arch.baseHp
-                : 100,
-          soldierAim:
-            typeof soldierCandidate.soldierAim === "number"
-              ? soldierCandidate.soldierAim
-              : arch
-                ? arch.soldierAim
-                : 80,
-          xp: typeof soldierCandidate.xp === "number" ? soldierCandidate.xp : 0,
-          level:
-            typeof soldierCandidate.level === "number"
-              ? soldierCandidate.level
-              : 1,
-          kills:
-            typeof soldierCandidate.kills === "number"
-              ? soldierCandidate.kills
-              : 0,
-          missions:
-            typeof soldierCandidate.missions === "number"
-              ? soldierCandidate.missions
-              : 0,
-          status: ["Healthy", "Wounded", "Dead"].includes(
-            soldierCandidate.status as string,
-          )
-            ? (soldierCandidate.status as "Healthy" | "Wounded" | "Dead")
-            : "Healthy",
-          recoveryTime:
-            typeof soldierCandidate.recoveryTime === "number"
-              ? soldierCandidate.recoveryTime
-              : 0,
-          equipment: (soldierCandidate.equipment as EquipmentState) || {
-            rightHand: arch?.rightHand,
-            leftHand: arch?.leftHand,
-            body: arch?.body,
-            feet: arch?.feet,
-          },
-        };
-      })
-      .filter((s: CampaignSoldier | null): s is CampaignSoldier => s !== null);
-
-    // Validate Nodes
-    if (!Array.isArray(candidate.nodes)) return null;
-    const nodeIds = new Set(
-      candidate.nodes
-        .map((n: unknown) => {
-          if (n && typeof n === "object" && "id" in n) {
-            return (n as Record<string, unknown>).id as string;
-          }
-          return "";
-        })
-        .filter((id) => id !== ""),
-    );
-    const nodes = candidate.nodes
-      .map((n: unknown) => {
-        if (!n || typeof n !== "object" || !("id" in n)) return null;
-        const nodeCandidate = n as Record<string, unknown>;
-        return {
-          ...nodeCandidate,
-          type: ["Combat", "Shop", "Event", "Boss", "Elite"].includes(
-            nodeCandidate.type as string,
-          )
-            ? (nodeCandidate.type as CampaignNodeType)
-            : "Combat",
-          status: [
-            "Hidden",
-            "Revealed",
-            "Accessible",
-            "Cleared",
-            "Skipped",
-          ].includes(nodeCandidate.status as string)
-            ? (nodeCandidate.status as CampaignNodeStatus)
-            : "Hidden",
-          connections: Array.isArray(nodeCandidate.connections)
-            ? nodeCandidate.connections.filter(
-                (id: unknown) => typeof id === "string" && nodeIds.has(id),
-              )
-            : [],
-        } as CampaignNode;
-      })
-      .filter((n: CampaignNode | null): n is CampaignNode => n !== null);
-
-    // If nodes list became empty, the campaign is unplayable
-    if (nodes.length === 0) return null;
-
-    return {
-      ...candidate,
-      status,
-      rules,
-      roster,
-      nodes,
-    } as CampaignState;
   }
 
   /**

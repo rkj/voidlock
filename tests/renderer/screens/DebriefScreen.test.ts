@@ -274,7 +274,9 @@ describe("DebriefScreen", () => {
 
     const exportBtn = Array.from(
       container.querySelectorAll(".debrief-button"),
-    ).find((btn) => btn.textContent === "Export Recording") as HTMLButtonElement;
+    ).find(
+      (btn) => btn.textContent === "Export Recording",
+    ) as HTMLButtonElement;
 
     expect(exportBtn).toBeTruthy();
     exportBtn.click();
