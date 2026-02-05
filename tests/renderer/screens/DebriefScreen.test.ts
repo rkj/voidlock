@@ -249,4 +249,35 @@ describe("DebriefScreen", () => {
     expect(loopBtn.textContent).toBe("LOOP: OFF");
     expect(loopBtn.classList.contains("active")).toBe(false);
   });
+
+  it("should call onExport when export button is clicked", () => {
+    const onExport = vi.fn();
+    screen = new DebriefScreen(
+      "screen-debrief",
+      mockGameClient,
+      onContinue,
+      undefined,
+      onExport,
+    );
+
+    const report: MissionReport = {
+      nodeId: "node_1",
+      seed: 12345,
+      result: "Won",
+      aliensKilled: 0,
+      scrapGained: 0,
+      intelGained: 0,
+      timeSpent: 0,
+      soldierResults: [],
+    };
+    screen.show(report);
+
+    const exportBtn = Array.from(
+      container.querySelectorAll(".debrief-button"),
+    ).find((btn) => btn.textContent === "Export Recording") as HTMLButtonElement;
+
+    expect(exportBtn).toBeTruthy();
+    exportBtn.click();
+    expect(onExport).toHaveBeenCalled();
+  });
 });
