@@ -37,7 +37,7 @@ This directory contains the main thread rendering logic and user interface for V
 - **Fog of War**: Implements visual shroud and discovery states based on the simulation data.
 - **Reset Data**: Provides a way to wipe all campaign progress and settings via the Main Menu.
 - **URL Synchronization**: The current screen (Main Menu, Campaign, Barracks, Mission Setup, etc.) is synchronized with the URL hash, allowing for deep linking and browser back/forward navigation.
-- **Global Stats**: Displays cumulative statistics (Service Record) via a dedicated Statistics Screen, fetched via `MetaManager`.
+- **Global Stats**: Displays cumulative statistics (Service Record) via a dedicated Statistics Screen, now a top-level global component (ADR 0032).
 - **Visual Feedback**: Provides tactical information through tracers, health bars, and status overlays. Includes a high-precision threat bar in `index.html` with pixel-perfect divider alignment.
 
 ## Connections
@@ -53,3 +53,4 @@ This directory contains the main thread rendering logic and user interface for V
 - **ADR 0008**: Renderer & UI Separation (Hybrid Rendering)
 - **ADR 0012**: Theming System & Asset Pipeline
 - **ADR 0028**: Unified Screen Layout & Global Shell
+- **ADR 0032**: Global UI Persistence and Entity Visibility
