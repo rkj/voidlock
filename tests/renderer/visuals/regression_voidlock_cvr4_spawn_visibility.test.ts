@@ -55,12 +55,13 @@ describe("Regression voidlock-cvr4: Spawn Point Visibility", () => {
     // Check if anything was rendered at (5, 5)
     // In Standard mode it calls getMiscSprite("spawn") and then drawImage.
     // In Tactical mode it calls fillRect and then drawImage for the icon.
-    
+
     const fillRectCalls = mockContext.fillRect.mock.calls;
     const drawImageCalls = mockContext.drawImage.mock.calls;
-    
-    const wasRendered = fillRectCalls.some(args => args[0] === 5 * 32 && args[1] === 5 * 32) ||
-                        drawImageCalls.some(args => args[1] === 5 * 32 && args[2] === 5 * 32);
+
+    const wasRendered =
+      fillRectCalls.some((args) => args[0] === 5 * 32 && args[1] === 5 * 32) ||
+      drawImageCalls.some((args) => args[1] === 5 * 32 && args[2] === 5 * 32);
 
     expect(wasRendered).toBe(true);
   });

@@ -353,7 +353,7 @@ export class SoldierInspector {
 
       const btn = document.createElement("div");
       btn.className = `menu-item clickable ${isCurrentlyEquipped ? "active" : ""}`;
-      
+
       // Disable for dead soldiers OR if cannot afford
       if (isDead || (!isCurrentlyEquipped && !isOwned && !canAfford)) {
         btn.classList.add("disabled");

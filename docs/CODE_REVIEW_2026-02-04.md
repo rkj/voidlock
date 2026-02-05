@@ -13,15 +13,15 @@ This code review examines the Voidlock codebase (~27,101 lines across 145 source
 
 ### Overall Assessment
 
-| Category        | Previous | Current  | Change   | Status        |
-| --------------- | -------- | -------- | -------- | ------------- |
-| Architecture    | 8/10     | 9/10     | ↑ +1     | ✅ Strong     |
-| Type Safety     | 6/10     | 8/10     | ↑ +2     | ✅ Good       |
-| Code Quality    | 7/10     | 7.5/10   | ↑ +0.5   | ✅ Good       |
-| Performance     | 7/10     | 8/10     | ↑ +1     | ✅ Strong     |
-| Maintainability | 7/10     | 7/10     | →        | ✅ Good       |
-| Testing         | 8/10     | 8.5/10   | ↑ +0.5   | ✅ Strong     |
-| **Overall**     | **7/10** | **8/10** | ↑ +1     | ✅ Good       |
+| Category        | Previous | Current  | Change | Status    |
+| --------------- | -------- | -------- | ------ | --------- |
+| Architecture    | 8/10     | 9/10     | ↑ +1   | ✅ Strong |
+| Type Safety     | 6/10     | 8/10     | ↑ +2   | ✅ Good   |
+| Code Quality    | 7/10     | 7.5/10   | ↑ +0.5 | ✅ Good   |
+| Performance     | 7/10     | 8/10     | ↑ +1   | ✅ Strong |
+| Maintainability | 7/10     | 7/10     | →      | ✅ Good   |
+| Testing         | 8/10     | 8.5/10   | ↑ +0.5 | ✅ Strong |
+| **Overall**     | **7/10** | **8/10** | ↑ +1   | ✅ Good   |
 
 ### Key Findings
 
@@ -49,19 +49,22 @@ This code review examines the Voidlock codebase (~27,101 lines across 145 source
 ### ✅ RESOLVED Issues (8 of 13)
 
 #### 1.1 Type Safety - Excessive `any` Usage
+
 **Status:** ✅ SIGNIFICANTLY IMPROVED
 
-| Metric | Previous | Current | Change |
-|--------|----------|---------|--------|
-| Files with `any` | 187 | 9 | ↓ 95% |
-| Total occurrences | Unknown | 11 | ↓ Dramatic |
+| Metric            | Previous | Current | Change     |
+| ----------------- | -------- | ------- | ---------- |
+| Files with `any`  | 187      | 9       | ↓ 95%      |
+| Total occurrences | Unknown  | 11      | ↓ Dramatic |
 
 **Evidence:**
+
 - `any` reduced to 11 occurrences in 9 files
 - Proper types now used for events, commands, and state
 - `IDirector` interface created and used across 13 files
 
 **Remaining `any` Locations:**
+
 - `src/engine/Director.ts:1` (scanner callback)
 - `src/engine/map/MapValidator.ts:1` (validation input)
 - `src/renderer/app/GameApp.ts:2` (event handlers)
@@ -70,9 +73,11 @@ This code review examines the Voidlock codebase (~27,101 lines across 145 source
 ---
 
 #### 1.2 Performance Bottleneck - JSON Deep Cloning
+
 **Status:** ✅ RESOLVED
 
 **Previous Code:**
+
 ```typescript
 public getState(): GameState {
   return JSON.parse(JSON.stringify(this.state)); // Expensive
@@ -80,6 +85,7 @@ public getState(): GameState {
 ```
 
 **Current Code (CoreEngine.ts:295-336):**
+
 ```typescript
 public getState(): GameState {
   // Manual shallow copy of the state structure.
@@ -101,15 +107,17 @@ public getState(): GameState {
 ---
 
 #### 1.3 Code Duplication - `getDistance` Function
+
 **Status:** ✅ RESOLVED
 
 **Created:** `src/shared/utils/MathUtils.ts`
+
 ```typescript
 export class MathUtils {
-  public static getDistance(pos1: Vector2, pos2: Vector2): number
-  public static getManhattanDistance(pos1: Vector2, pos2: Vector2): number
-  public static getDistanceSquared(pos1: Vector2, pos2: Vector2): number
-  public static clamp(val: number, min: number, max: number): number
+  public static getDistance(pos1: Vector2, pos2: Vector2): number;
+  public static getManhattanDistance(pos1: Vector2, pos2: Vector2): number;
+  public static getDistanceSquared(pos1: Vector2, pos2: Vector2): number;
+  public static clamp(val: number, min: number, max: number): number;
 }
 ```
 
@@ -118,38 +126,41 @@ export class MathUtils {
 ---
 
 #### 1.4 Manager Classes Too Large - Extraction
+
 **Status:** ✅ PARTIALLY RESOLVED
 
 **Extracted Components:**
 
-| Component | Lines | Purpose |
-|-----------|-------|---------|
-| `CampaignFlowCoordinator.ts` | 104 | Campaign flow orchestration |
-| `MissionCoordinator.ts` | 341 | Mission lifecycle management |
-| `FormationManager.ts` | 115 | Escort formation logic |
-| `UnitSpawner.ts` | 249 | Unit spawning logic |
-| `RosterManager.ts` | 178 | Roster management |
-| `EventManager.ts` | 132 | Campaign event handling |
-| `MissionReconciler.ts` | 218 | Post-mission processing |
+| Component                    | Lines | Purpose                      |
+| ---------------------------- | ----- | ---------------------------- |
+| `CampaignFlowCoordinator.ts` | 104   | Campaign flow orchestration  |
+| `MissionCoordinator.ts`      | 341   | Mission lifecycle management |
+| `FormationManager.ts`        | 115   | Escort formation logic       |
+| `UnitSpawner.ts`             | 249   | Unit spawning logic          |
+| `RosterManager.ts`           | 178   | Roster management            |
+| `EventManager.ts`            | 132   | Campaign event handling      |
+| `MissionReconciler.ts`       | 218   | Post-mission processing      |
 
 **Size Reduction:**
 
-| File | Previous | Current | Change |
-|------|----------|---------|--------|
-| `GameApp.ts` | 1185 | 801 | ↓ 32% |
-| `CoreEngine.ts` | 552 | 496 | ↓ 10% |
-| `CampaignManager.ts` | 524 | 632* | ↑ (restructured) |
+| File                 | Previous | Current | Change           |
+| -------------------- | -------- | ------- | ---------------- |
+| `GameApp.ts`         | 1185     | 801     | ↓ 32%            |
+| `CoreEngine.ts`      | 552      | 496     | ↓ 10%            |
+| `CampaignManager.ts` | 524      | 632\*   | ↑ (restructured) |
 
-*CampaignManager moved to `/engine/campaign/` with better modularity.
+\*CampaignManager moved to `/engine/campaign/` with better modularity.
 
 **Remaining:** `UnitManager.ts` still at 675 lines (see Issue 2.2).
 
 ---
 
 #### 1.5 Tight Coupling - Circular Dependencies
+
 **Status:** ✅ RESOLVED
 
 **Created:** `src/engine/interfaces/IDirector.ts`
+
 ```typescript
 export interface IDirector {
   handleUseItem(state: GameState, cmd: UseItemCommand): void;
@@ -164,11 +175,13 @@ export interface IDirector {
 ---
 
 #### 1.6 Magic Numbers - Constants Consolidation
+
 **Status:** ✅ RESOLVED
 
 **Created:** `src/engine/config/GameConstants.ts` (136 lines)
 
 Covers:
+
 - `HIVE` - Health and difficulty values
 - `SCRAP_REWARDS` - Reward amounts
 - `XP_REWARDS` - Experience values
@@ -181,9 +194,11 @@ Covers:
 ---
 
 #### 1.7 Naming Conventions - EnemyType
+
 **Status:** ✅ RESOLVED
 
 **Previous:**
+
 ```typescript
 XenoMite = "Xeno-Mite",     // Inconsistent
 SwarmMelee = "SwarmMelee",  // CamelCase
@@ -191,6 +206,7 @@ AlienScout = "alien_scout", // snake_case
 ```
 
 **Current (units.ts:172-183):**
+
 ```typescript
 export enum EnemyType {
   XenoMite = "xeno-mite",
@@ -209,9 +225,11 @@ export enum EnemyType {
 ---
 
 #### 1.8 Campaign Manager Architecture
+
 **Status:** ✅ RESTRUCTURED
 
 **New Structure:**
+
 ```
 src/engine/campaign/
 ├── CampaignManager.ts    (632 lines - core logic)
@@ -229,16 +247,19 @@ Re-export maintained at `src/engine/managers/CampaignManager.ts` for compatibili
 ### ⏳ PARTIALLY ADDRESSED Issues (3 of 13)
 
 #### 1.9 Inefficient Item Visibility Algorithm
+
 **Status:** ⏳ PARTIAL
 
 `SpatialGrid` class exists but cell position flooring still scattered (131 occurrences).
 
 #### 1.10 Missing Documentation
+
 **Status:** ⏳ PARTIAL
 
 ADR count increased from 28 to 32. Algorithm documentation still sparse.
 
 #### 1.11 Error Handling Consistency
+
 **Status:** ⏳ PARTIAL
 
 Some improvements but silent returns still present in critical paths.
@@ -248,11 +269,13 @@ Some improvements but silent returns still present in critical paths.
 ### ❌ NOT ADDRESSED Issues (2 of 13)
 
 #### 1.12 Input Validation for Uploaded Maps
+
 **Status:** ❌ NOT ADDRESSED
 
 Still uses basic try/catch without schema validation.
 
 #### 1.13 Unsafe Type Coercions
+
 **Status:** ❌ MINIMAL PROGRESS
 
 Some `as any` replaced but pattern persists in generators.
@@ -271,12 +294,13 @@ Some `as any` replaced but pattern persists in generators.
 
 ```typescript
 // Appears 131 times in variations like:
-Math.floor(unit.pos.x) === Math.floor(other.pos.x)
+Math.floor(unit.pos.x) === Math.floor(other.pos.x);
 const cellX = Math.floor(enemy.pos.x);
-`${Math.floor(pos.x)},${Math.floor(pos.y)}`
+`${Math.floor(pos.x)},${Math.floor(pos.y)}`;
 ```
 
 **Files Most Affected:**
+
 - `EnemyManager.ts` - 10 occurrences
 - `ObjectiveBehavior.ts` - 9 occurrences
 - `SafetyBehavior.ts` - 9 occurrences
@@ -284,6 +308,7 @@ const cellX = Math.floor(enemy.pos.x);
 **Recommended Fix:**
 
 Add to `src/shared/utils/MathUtils.ts`:
+
 ```typescript
 export function toCellCoord(pos: Vector2): { x: number; y: number } {
   return { x: Math.floor(pos.x), y: Math.floor(pos.y) };
@@ -294,8 +319,10 @@ export function cellKey(pos: Vector2): string {
 }
 
 export function sameCellPosition(pos1: Vector2, pos2: Vector2): boolean {
-  return Math.floor(pos1.x) === Math.floor(pos2.x) &&
-         Math.floor(pos1.y) === Math.floor(pos2.y);
+  return (
+    Math.floor(pos1.x) === Math.floor(pos2.x) &&
+    Math.floor(pos1.y) === Math.floor(pos2.y)
+  );
 }
 ```
 
@@ -311,6 +338,7 @@ export function sameCellPosition(pos1: Vector2, pos2: Vector2): boolean {
 **Location:** `src/engine/managers/UnitManager.ts` (675 lines)
 
 **Current Responsibilities (7+):**
+
 1. Command queue processing
 2. Escort formation delegation
 3. Item assignment and spatial queries
@@ -325,6 +353,7 @@ export function sameCellPosition(pos1: Vector2, pos2: Vector2): boolean {
 **Recommended Refactoring:**
 
 Extract:
+
 - `UnitStateManager` - command queue & channeling state
 - `ItemDistributionService` - item assignments to units
 - Keep `UnitManager` as orchestration facade only
@@ -353,6 +382,7 @@ if (cmd.type === CommandType.TOGGLE_LOS_OVERLAY) { ... }
 **Recommended Fix:**
 
 Implement Command Handler pattern:
+
 ```typescript
 interface ICommandHandler {
   canHandle(cmd: Command): boolean;
@@ -379,6 +409,7 @@ class CommandRegistry {
 **Location:** `src/renderer/app/AppContext.ts`
 
 **Problem:**
+
 ```typescript
 export class AppContext {
   public gameClient!: GameClient;
@@ -396,6 +427,7 @@ constructor() {
 ```
 
 **Issues:**
+
 - Hidden dependencies (classes can access any service)
 - Hard to test (need to mock entire context)
 - No clear dependency graph
@@ -403,6 +435,7 @@ constructor() {
 **Recommended Fix:**
 
 Replace with explicit constructor injection:
+
 ```typescript
 class MissionCoordinator {
   constructor(
@@ -441,6 +474,7 @@ export interface AIContext {
 **Problem:** 8 unrelated properties; not all behaviors need all properties.
 
 **Recommended Fix:**
+
 ```typescript
 interface BehaviorContext {
   agentControlEnabled: boolean;
@@ -475,6 +509,7 @@ export interface IDirector {
 **Problem:** Mixes item handling with threat management concerns.
 
 **Recommended Fix:**
+
 ```typescript
 interface ItemEffectHandler {
   handleUseItem(state: GameState, cmd: UseItemCommand): void;
@@ -607,6 +642,7 @@ Still uses basic try/catch without schema validation for uploaded maps.
 **Current Decision (ADR-0029):** Stay with Vanilla TypeScript
 
 **Rationale Review:**
+
 - ✅ Bundle size minimal (~zero runtime deps)
 - ✅ Full control over render timing
 - ✅ No framework "magic" in deterministic simulation
@@ -630,26 +666,29 @@ Still uses basic try/catch without schema validation for uploaded maps.
 
 **Options Analysis:**
 
-| Option | Complexity | Benefit | Risk |
-|--------|------------|---------|------|
-| A. Cloud Save Sync | Medium | Progress backup, multi-device | Auth complexity |
-| B. Multiplayer Server | High | New gameplay modes | Major architecture change |
-| C. Leaderboards Only | Low | Competition, engagement | Limited value |
-| D. Keep Single-Player | None | Focus on core game | Limited engagement |
+| Option                | Complexity | Benefit                       | Risk                      |
+| --------------------- | ---------- | ----------------------------- | ------------------------- |
+| A. Cloud Save Sync    | Medium     | Progress backup, multi-device | Auth complexity           |
+| B. Multiplayer Server | High       | New gameplay modes            | Major architecture change |
+| C. Leaderboards Only  | Low        | Competition, engagement       | Limited value             |
+| D. Keep Single-Player | None       | Focus on core game            | Limited engagement        |
 
 **Recommendation:** **Phased approach**
 
 **Phase 1 (Near-term):**
+
 - Add optional cloud save sync via simple backend
 - Use anonymous tokens (no account required)
 - Technology: Firebase/Supabase for fast implementation
 
 **Phase 2 (If warranted):**
+
 - Optional user accounts for persistent stats
 - Cross-device campaign sync
 - Global leaderboards
 
 **Phase 3 (Long-term consideration):**
+
 - Async multiplayer (shared campaigns, challenges)
 - Requires determinism audit (currently good foundation)
 
@@ -658,16 +697,19 @@ Still uses basic try/catch without schema validation for uploaded maps.
 ### 6.3 Recommended Technical Improvements
 
 **Priority 1 - Quick Wins:**
+
 1. Extract cell position utilities (4-6 hours)
 2. Split IDirector interface (2 hours)
 3. Remove remaining JSON.parse/stringify (1 hour)
 
 **Priority 2 - Architecture:**
+
 1. Replace AppContext service locator with DI (2-3 days)
 2. Break up UnitManager (1-2 days)
 3. Implement Command Handler pattern (1 day)
 
 **Priority 3 - Future Foundation:**
+
 1. Add telemetry/analytics hooks for balance data
 2. Prepare persistence abstraction for cloud sync
 3. Document AI behavior system for content expansion
@@ -677,6 +719,7 @@ Still uses basic try/catch without schema validation for uploaded maps.
 ### 6.4 Technology Stack Recommendations
 
 **Keep:**
+
 - TypeScript 5.9 (excellent)
 - Vite 7.2 (excellent)
 - Vitest (excellent)
@@ -684,11 +727,13 @@ Still uses basic try/catch without schema validation for uploaded maps.
 - Web Workers for determinism
 
 **Consider Adding:**
+
 - `zod` - Runtime schema validation for saves and uploaded maps
 - `immer` - Immutable state updates (if state complexity grows)
 - `@tanstack/query` - If adding server sync (caching, retry logic)
 
 **Avoid:**
+
 - React/Vue for game UI (overhead not justified)
 - Heavy state management (Redux, MobX) - current approach sufficient
 
@@ -698,29 +743,29 @@ Still uses basic try/catch without schema validation for uploaded maps.
 
 ### Phase 1: Immediate (1 Week)
 
-| Task | Effort | Impact |
-|------|--------|--------|
-| Extract cell position utilities | 4-6h | High - DRY |
-| Remove JSON.parse/stringify x3 | 1h | Medium - Perf |
-| Split IDirector interface | 2h | Medium - ISP |
-| Add remaining `any` fixes | 2h | Medium - Type safety |
+| Task                            | Effort | Impact               |
+| ------------------------------- | ------ | -------------------- |
+| Extract cell position utilities | 4-6h   | High - DRY           |
+| Remove JSON.parse/stringify x3  | 1h     | Medium - Perf        |
+| Split IDirector interface       | 2h     | Medium - ISP         |
+| Add remaining `any` fixes       | 2h     | Medium - Type safety |
 
 ### Phase 2: Short-term (2-3 Weeks)
 
-| Task | Effort | Impact |
-|------|--------|--------|
-| Replace AppContext with DI | 2-3d | High - Testability |
-| Split UnitManager | 1-2d | High - SRP |
-| Implement Command Handler pattern | 1d | Medium - OCP |
-| Add map validation schema | 4h | Low - Robustness |
+| Task                              | Effort | Impact             |
+| --------------------------------- | ------ | ------------------ |
+| Replace AppContext with DI        | 2-3d   | High - Testability |
+| Split UnitManager                 | 1-2d   | High - SRP         |
+| Implement Command Handler pattern | 1d     | Medium - OCP       |
+| Add map validation schema         | 4h     | Low - Robustness   |
 
 ### Phase 3: Medium-term (1-2 Months)
 
-| Task | Effort | Impact |
-|------|--------|--------|
-| Cloud save sync (Phase 1) | 1w | Medium - UX |
-| Document AI behaviors | 2d | Medium - Extensibility |
-| Component library for DOM | 1w | Medium - DX |
+| Task                      | Effort | Impact                 |
+| ------------------------- | ------ | ---------------------- |
+| Cloud save sync (Phase 1) | 1w     | Medium - UX            |
+| Document AI behaviors     | 2d     | Medium - Extensibility |
+| Component library for DOM | 1w     | Medium - DX            |
 
 ---
 
@@ -728,11 +773,11 @@ Still uses basic try/catch without schema validation for uploaded maps.
 
 ### Technical Debt Score
 
-| Metric | Previous | Current |
-|--------|----------|---------|
-| Technical Debt | Medium | Low-Medium |
-| Risk Level | Low | Low |
-| Maintainability | 7/10 | 7/10 |
+| Metric          | Previous | Current    |
+| --------------- | -------- | ---------- |
+| Technical Debt  | Medium   | Low-Medium |
+| Risk Level      | Low      | Low        |
+| Maintainability | 7/10     | 7/10       |
 
 ### Key Takeaways
 
@@ -745,16 +790,19 @@ Still uses basic try/catch without schema validation for uploaded maps.
 ### Recommendations
 
 **Immediate Actions:**
+
 1. Add cell position utility functions
 2. Fix remaining 3 JSON deep clone locations
 3. Split broad interfaces (IDirector, AIContext)
 
 **Near-term:**
+
 1. Replace AppContext with explicit DI
 2. Break up UnitManager
 3. Consider cloud save sync for user retention
 
 **Long-term:**
+
 1. Evaluate framework only if adding complex non-game UI
 2. Maintain deterministic design as multiplayer foundation
 3. Document systems for content team expansion
@@ -763,12 +811,12 @@ Still uses basic try/catch without schema validation for uploaded maps.
 
 ## Appendix: Metrics
 
-| Metric | Value |
-|--------|-------|
-| Source Files | 145 |
-| Test Files | 375 |
-| Lines of Code | 27,101 |
-| ADRs | 32 |
-| External Dependencies | 1 (Gemini CLI - dev only) |
-| TypeScript Strict Mode | Enabled |
-| Test/Source Ratio | 2.6:1 |
+| Metric                 | Value                     |
+| ---------------------- | ------------------------- |
+| Source Files           | 145                       |
+| Test Files             | 375                       |
+| Lines of Code          | 27,101                    |
+| ADRs                   | 32                        |
+| External Dependencies  | 1 (Gemini CLI - dev only) |
+| TypeScript Strict Mode | Enabled                   |
+| Test/Source Ratio      | 2.6:1                     |

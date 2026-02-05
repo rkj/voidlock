@@ -1168,10 +1168,20 @@ label {
   border: 1px dashed var(--color-primary);
 }
 
-.soldier-card.deployed {
-  opacity: 0.6;
+.soldier-card.selected-for-deployment {
   border-color: var(--color-accent);
-  cursor: not-allowed;
+  box-shadow: 0 0 8px var(--color-accent);
+  background: rgba(var(--color-accent-rgb), 0.1);
+}
+
+.deployment-slot.ready-for-placement {
+  border-color: var(--color-primary);
+  background: rgba(var(--color-primary-rgb), 0.1);
+  cursor: pointer;
+}
+
+.deployment-slot.ready-for-placement:hover {
+  background: rgba(var(--color-primary-rgb), 0.2);
 }
 
 .deployment-slot {

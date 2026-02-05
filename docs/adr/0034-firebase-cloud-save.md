@@ -16,15 +16,15 @@ Players have requested cloud save functionality to protect their campaign progre
 
 ### Requirements
 
-| Requirement | Priority | Notes |
-|-------------|----------|-------|
-| Save campaign to cloud | P0 | Core feature |
-| Load campaign from cloud | P0 | Core feature |
-| Work without account | P1 | Anonymous auth, low friction |
-| Optional user accounts | P2 | For cross-device sync |
-| Offline-first | P1 | Game must work without internet |
-| Conflict resolution | P2 | Handle save conflicts gracefully |
-| Minimal latency impact | P0 | No blocking on game start |
+| Requirement              | Priority | Notes                            |
+| ------------------------ | -------- | -------------------------------- |
+| Save campaign to cloud   | P0       | Core feature                     |
+| Load campaign from cloud | P0       | Core feature                     |
+| Work without account     | P1       | Anonymous auth, low friction     |
+| Optional user accounts   | P2       | For cross-device sync            |
+| Offline-first            | P1       | Game must work without internet  |
+| Conflict resolution      | P2       | Handle save conflicts gracefully |
+| Minimal latency impact   | P0       | No blocking on game start        |
 
 ## Decision
 
@@ -32,14 +32,15 @@ We will integrate **Firebase** for cloud save functionality using a phased appro
 
 ### Why Firebase
 
-| Service | Setup Complexity | Free Tier | Offline Support | Auth Options |
-|---------|------------------|-----------|-----------------|--------------|
-| Firebase | Low | Generous | Excellent | Anonymous + OAuth |
-| Supabase | Medium | Good | Limited | OAuth only |
-| Custom Backend | High | N/A | Manual | Full control |
-| PlayFab | Medium | Good | Limited | Gaming-focused |
+| Service        | Setup Complexity | Free Tier | Offline Support | Auth Options      |
+| -------------- | ---------------- | --------- | --------------- | ----------------- |
+| Firebase       | Low              | Generous  | Excellent       | Anonymous + OAuth |
+| Supabase       | Medium           | Good      | Limited         | OAuth only        |
+| Custom Backend | High             | N/A       | Manual          | Full control      |
+| PlayFab        | Medium           | Good      | Limited         | Gaming-focused    |
 
 Firebase selected because:
+
 1. **Anonymous Auth**: Players can save without creating account
 2. **Offline Persistence**: Built-in offline cache with sync
 3. **Free Tier**: 1GB storage, 10GB/month transfer - sufficient for indie game
@@ -78,14 +79,14 @@ Firebase selected because:
 
 interface CloudCampaignDocument {
   // Metadata
-  userId: string;           // Firebase Auth UID (anonymous or signed in)
-  campaignId: string;       // Unique campaign identifier
+  userId: string; // Firebase Auth UID (anonymous or signed in)
+  campaignId: string; // Unique campaign identifier
   createdAt: Timestamp;
   updatedAt: Timestamp;
 
   // Versioning for conflict resolution
-  version: number;          // Incremented on each save
-  clientVersion: string;    // Game version that created save
+  version: number; // Incremented on each save
+  clientVersion: string; // Game version that created save
 
   // Campaign data (validated with Zod schemas from ADR-0033)
   data: CampaignState;
@@ -104,15 +105,16 @@ interface CloudCampaignDocument {
 #### Phase 1: Foundation (Week 1)
 
 **1.1 Firebase Setup**
+
 ```bash
 npm install firebase
 ```
 
 ```typescript
 // src/services/firebase.ts
-import { initializeApp } from 'firebase/app';
-import { getFirestore, enableIndexedDbPersistence } from 'firebase/firestore';
-import { getAuth, signInAnonymously } from 'firebase/auth';
+import { initializeApp } from "firebase/app";
+import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
+import { getAuth, signInAnonymously } from "firebase/auth";
 
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -128,17 +130,18 @@ export const auth = getAuth(app);
 
 // Enable offline persistence
 enableIndexedDbPersistence(db).catch((err) => {
-  console.warn('Firebase offline persistence unavailable:', err);
+  console.warn("Firebase offline persistence unavailable:", err);
 });
 ```
 
 **1.2 Cloud Sync Service**
+
 ```typescript
 // src/services/CloudSyncService.ts
-import { doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
-import { signInAnonymously, onAuthStateChanged } from 'firebase/auth';
-import { db, auth } from './firebase';
-import { CampaignStateSchema } from '@src/shared/schemas/campaign';
+import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
+import { signInAnonymously, onAuthStateChanged } from "firebase/auth";
+import { db, auth } from "./firebase";
+import { CampaignStateSchema } from "@src/shared/schemas/campaign";
 
 export class CloudSyncService {
   private userId: string | null = null;
@@ -164,21 +167,25 @@ export class CloudSyncService {
   async saveCampaign(campaignId: string, data: CampaignState): Promise<void> {
     if (!this.syncEnabled || !this.userId) return;
 
-    const docRef = doc(db, 'campaigns', `${this.userId}_${campaignId}`);
+    const docRef = doc(db, "campaigns", `${this.userId}_${campaignId}`);
 
-    await setDoc(docRef, {
-      userId: this.userId,
-      campaignId,
-      updatedAt: serverTimestamp(),
-      clientVersion: VERSION,
-      data,
-    }, { merge: true });
+    await setDoc(
+      docRef,
+      {
+        userId: this.userId,
+        campaignId,
+        updatedAt: serverTimestamp(),
+        clientVersion: VERSION,
+        data,
+      },
+      { merge: true },
+    );
   }
 
   async loadCampaign(campaignId: string): Promise<CampaignState | null> {
     if (!this.syncEnabled || !this.userId) return null;
 
-    const docRef = doc(db, 'campaigns', `${this.userId}_${campaignId}`);
+    const docRef = doc(db, "campaigns", `${this.userId}_${campaignId}`);
     const snapshot = await getDoc(docRef);
 
     if (!snapshot.exists()) return null;
@@ -187,7 +194,7 @@ export class CloudSyncService {
     const result = CampaignStateSchema.safeParse(doc.data);
 
     if (!result.success) {
-      console.error('Invalid cloud save data:', result.error);
+      console.error("Invalid cloud save data:", result.error);
       return null;
     }
 
@@ -203,6 +210,7 @@ export class CloudSyncService {
 #### Phase 2: Integration (Week 2)
 
 **2.1 SaveManager Wrapper**
+
 ```typescript
 // src/services/SaveManager.ts
 export class SaveManager {
@@ -222,9 +230,10 @@ export class SaveManager {
     // Async cloud sync (non-blocking)
     if (!this.syncInProgress) {
       this.syncInProgress = true;
-      this.cloudSync.saveCampaign(campaignId, data)
-        .catch(err => console.warn('Cloud sync failed:', err))
-        .finally(() => this.syncInProgress = false);
+      this.cloudSync
+        .saveCampaign(campaignId, data)
+        .catch((err) => console.warn("Cloud sync failed:", err))
+        .finally(() => (this.syncInProgress = false));
     }
   }
 
@@ -243,7 +252,10 @@ export class SaveManager {
     return this.resolveConflict(local, cloud);
   }
 
-  private resolveConflict(local: CampaignState, cloud: CampaignState): CampaignState {
+  private resolveConflict(
+    local: CampaignState,
+    cloud: CampaignState,
+  ): CampaignState {
     // Simple strategy: higher version wins
     // Could be enhanced with merge logic for specific fields
     return (cloud.version || 0) > (local.version || 0) ? cloud : local;
@@ -252,6 +264,7 @@ export class SaveManager {
 ```
 
 **2.2 UI Integration**
+
 ```typescript
 // Add to CampaignScreen
 private renderCloudStatus(): HTMLElement {
@@ -273,15 +286,18 @@ private renderCloudStatus(): HTMLElement {
 #### Phase 3: Enhanced Features (Week 3+)
 
 **3.1 Optional User Accounts**
+
 - Add "Sign In" button to settings
 - Support Google/GitHub OAuth
 - Link anonymous saves to account
 
 **3.2 Campaign Sharing (Future)**
+
 - Generate shareable campaign codes
 - Import friend's campaign start
 
 **3.3 Analytics Integration**
+
 - Track mission completion rates
 - Balance data collection (opt-in)
 
@@ -308,11 +324,13 @@ service cloud.firestore {
 ### Cost Estimation
 
 Firebase Free Tier (Spark Plan):
+
 - 1 GiB storage
 - 10 GiB/month network
 - 50K reads/day, 20K writes/day
 
 Estimated usage for 1000 DAU:
+
 - Campaign size: ~10KB
 - Saves per session: ~10
 - Daily writes: 10,000 (well under limit)
@@ -323,6 +341,7 @@ Estimated usage for 1000 DAU:
 ## Consequences
 
 ### Positive
+
 - **Data Safety**: Player progress backed up automatically
 - **Cross-Device**: Continue campaign on any device
 - **Low Friction**: Works without account creation
@@ -330,12 +349,14 @@ Estimated usage for 1000 DAU:
 - **Analytics Ready**: Foundation for balance data collection
 
 ### Negative
+
 - **Bundle Size**: +80KB for Firebase SDK
 - **Privacy Considerations**: Need privacy policy update
 - **Dependency**: Reliance on Google infrastructure
 - **Complexity**: Additional failure modes to handle
 
 ### Neutral
+
 - **Optional Feature**: Can be disabled entirely via config
 - **Gradual Migration**: Existing LocalStorage saves continue working
 

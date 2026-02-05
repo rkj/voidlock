@@ -18,8 +18,15 @@ export class InputManager {
     private onToggleLos: (enabled: boolean) => void,
     private currentGameState: () => GameState | null,
     private isDebriefing: () => boolean,
-    private onDeployUnit: (unitId: string, targetX: number, targetY: number) => void,
-    private getCellCoordinates: (pixelX: number, pixelY: number) => { x: number, y: number },
+    private onDeployUnit: (
+      unitId: string,
+      targetX: number,
+      targetY: number,
+    ) => void,
+    private getCellCoordinates: (
+      pixelX: number,
+      pixelY: number,
+    ) => { x: number; y: number },
   ) {
     this.boundHandleKeyDown = this.handleKeyDown.bind(this);
     this.boundHandleKeyUp = (e: KeyboardEvent) => {
@@ -39,7 +46,7 @@ export class InputManager {
 
       const cell = this.getCellCoordinates(e.clientX, e.clientY);
       const unit = state.units.find(
-        (u) => Math.floor(u.pos.x) === cell.x && Math.floor(u.pos.y) === cell.y
+        (u) => Math.floor(u.pos.x) === cell.x && Math.floor(u.pos.y) === cell.y,
       );
 
       if (unit && unit.archetypeId !== "vip") {
@@ -60,7 +67,8 @@ export class InputManager {
         if (state && state.status === "Deployment") {
           const cell = this.getCellCoordinates(e.clientX, e.clientY);
           const unit = state.units.find(
-            (u) => Math.floor(u.pos.x) === cell.x && Math.floor(u.pos.y) === cell.y
+            (u) =>
+              Math.floor(u.pos.x) === cell.x && Math.floor(u.pos.y) === cell.y,
           );
           const canvas = document.getElementById("game-canvas");
           if (canvas) {
@@ -78,11 +86,15 @@ export class InputManager {
       if (this.draggingUnitId) {
         const cell = this.getCellCoordinates(e.clientX, e.clientY);
         const state = this.currentGameState();
-        
+
         if (state && state.status === "Deployment") {
-          const isValidSpawn = state.map.squadSpawns?.some(s => s.x === cell.x && s.y === cell.y) || 
-                               (state.map.squadSpawn?.x === cell.x && state.map.squadSpawn?.y === cell.y);
-          
+          const isValidSpawn =
+            state.map.squadSpawns?.some(
+              (s) => s.x === cell.x && s.y === cell.y,
+            ) ||
+            (state.map.squadSpawn?.x === cell.x &&
+              state.map.squadSpawn?.y === cell.y);
+
           if (isValidSpawn) {
             this.onDeployUnit(this.draggingUnitId, cell.x + 0.5, cell.y + 0.5);
           }

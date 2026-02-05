@@ -1,10 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { CoreEngine } from "@src/engine/CoreEngine";
-import {
-  MapDefinition,
-  CellType,
-  SquadConfig,
-} from "@src/shared/types";
+import { MapDefinition, CellType, SquadConfig } from "@src/shared/types";
 
 describe("Manual Deployment Feature", () => {
   const mockMap: MapDefinition = {
@@ -108,9 +104,13 @@ describe("Manual Deployment Feature", () => {
       false,
     );
 
-    const pos1 = engine1.getState().units.map(u => ({ x: Math.floor(u.pos.x), y: Math.floor(u.pos.y) }));
-    const pos2 = engine2.getState().units.map(u => ({ x: Math.floor(u.pos.x), y: Math.floor(u.pos.y) }));
-    
+    const pos1 = engine1
+      .getState()
+      .units.map((u) => ({ x: Math.floor(u.pos.x), y: Math.floor(u.pos.y) }));
+    const pos2 = engine2
+      .getState()
+      .units.map((u) => ({ x: Math.floor(u.pos.x), y: Math.floor(u.pos.y) }));
+
     // They should be deterministic now because skipDeployment=false disables shuffle.
     expect(pos1).toEqual(pos2);
     // Specifically, they should match the order of squadSpawns: (1,1) then (2,1)

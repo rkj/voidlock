@@ -1,6 +1,12 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { CoreEngine } from "@src/engine/CoreEngine";
-import { MapDefinition, CommandType, MissionType, EngineMode, CellType } from "@src/shared/types";
+import {
+  MapDefinition,
+  CommandType,
+  MissionType,
+  EngineMode,
+  CellType,
+} from "@src/shared/types";
 
 describe("Manual Deployment Phase", () => {
   const mockMap: MapDefinition = {
@@ -76,14 +82,14 @@ describe("Manual Deployment Phase", () => {
     });
 
     const state = engine.getState();
-    const unit1 = state.units.find(u => u.id === "unit-1")!;
+    const unit1 = state.units.find((u) => u.id === "unit-1")!;
     expect(Math.floor(unit1.pos.x)).toBe(2);
     expect(Math.floor(unit1.pos.y)).toBe(0);
   });
 
   it("prevents moving a unit to an invalid tile", () => {
     const stateBefore = engine.getState();
-    const unit1Before = stateBefore.units.find(u => u.id === "unit-1")!;
+    const unit1Before = stateBefore.units.find((u) => u.id === "unit-1")!;
     const originalPos = { ...unit1Before.pos };
 
     engine.applyCommand({
@@ -93,7 +99,7 @@ describe("Manual Deployment Phase", () => {
     });
 
     const stateAfter = engine.getState();
-    const unit1After = stateAfter.units.find(u => u.id === "unit-1")!;
+    const unit1After = stateAfter.units.find((u) => u.id === "unit-1")!;
     expect(unit1After.pos.x).toBe(originalPos.x);
     expect(unit1After.pos.y).toBe(originalPos.y);
   });
@@ -118,8 +124,8 @@ describe("Manual Deployment Phase", () => {
     });
 
     const state = engine.getState();
-    const unit1 = state.units.find(u => u.id === "unit-1")!;
-    const unit2 = state.units.find(u => u.id === "unit-2")!;
+    const unit1 = state.units.find((u) => u.id === "unit-1")!;
+    const unit2 = state.units.find((u) => u.id === "unit-2")!;
 
     expect(Math.floor(unit1.pos.x)).toBe(1);
     expect(Math.floor(unit2.pos.x)).toBe(0);

@@ -7,7 +7,11 @@ export class SettingsScreen {
   private unitStyleSelector?: UnitStyleSelector;
   private onBack: () => void;
 
-  constructor(containerId: string, private context: AppContext, onBack: () => void) {
+  constructor(
+    containerId: string,
+    private context: AppContext,
+    onBack: () => void,
+  ) {
     const el = document.getElementById(containerId);
     if (!el) throw new Error(`Container #${containerId} not found`);
     this.container = el;
@@ -32,7 +36,7 @@ export class SettingsScreen {
 
     this.container.innerHTML = "";
     this.container.className = "screen screen-centered flex-col gap-20 p-20";
-    
+
     const h1 = document.createElement("h1");
     h1.textContent = "Global Settings";
     h1.style.letterSpacing = "4px";
@@ -66,10 +70,10 @@ export class SettingsScreen {
       (style) => {
         ConfigManager.saveGlobal({
           ...ConfigManager.loadGlobal(),
-          unitStyle: style
+          unitStyle: style,
         });
         this.unitStyleSelector?.renderPreviews();
-      }
+      },
     );
     this.unitStyleSelector.render();
 
@@ -89,7 +93,7 @@ export class SettingsScreen {
       { id: "industrial", label: "Industrial (Amber)" },
       { id: "hive", label: "Xeno Hive (Purple)" },
     ];
-    themes.forEach(t => {
+    themes.forEach((t) => {
       const opt = document.createElement("option");
       opt.value = t.id;
       opt.textContent = t.label;
@@ -102,7 +106,7 @@ export class SettingsScreen {
       this.context.themeManager.setTheme(themeId);
       ConfigManager.saveGlobal({
         ...ConfigManager.loadGlobal(),
-        themeId: themeId
+        themeId: themeId,
       });
       // Refresh previews when theme changes
       this.unitStyleSelector?.renderPreviews();
