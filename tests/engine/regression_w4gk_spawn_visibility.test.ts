@@ -65,7 +65,7 @@ describe("Regression voidlock-w4gk: Enemy Spawn Point Visibility", () => {
     expect(state.map.squadSpawns).toBeDefined();
   });
 
-  it("should NOT render spawnPoints if the cell is NOT discovered and NOT visible", () => {
+  it("should ALWAYS render spawnPoints even if the cell is NOT discovered and NOT visible (ADR 0032)", () => {
     const sharedState = new SharedRendererState();
     sharedState.cellSize = 32;
     sharedState.unitStyle = UnitStyle.Sprites;
@@ -110,19 +110,7 @@ describe("Regression voidlock-w4gk: Enemy Spawn Point Visibility", () => {
         (call) => call[0] === 5 * 32 && call[1] === 5 * 32,
       );
 
-    expect(drewSomething).toBe(false);
-
-    // Now mark it discovered
-    gameState.discoveredCells = ["5,5"];
-    layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
-
-    const drewSomethingAfterDiscovery =
-      mockContext.drawImage.mock.calls.length > 0 ||
-      mockContext.fillRect.mock.calls.some(
-        (call) => call[0] === 5 * 32 && call[1] === 5 * 32,
-      );
-
-    expect(drewSomethingAfterDiscovery).toBe(true);
+    expect(drewSomething).toBe(true);
   });
 
   it("should render spawnPoints if debug overlay is enabled even if NOT discovered", () => {

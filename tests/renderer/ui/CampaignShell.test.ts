@@ -58,7 +58,26 @@ describe("CampaignShell", () => {
     expect(container.innerHTML).toContain("Service Record");
     expect(container.innerHTML).toContain("Global Statistics");
     expect(container.innerHTML).not.toContain("SCRAP:");
-    expect(container.innerHTML).not.toContain("Sector Map");
+    
+    // Check for specific tabs
+    const buttons = Array.from(container.querySelectorAll("button"));
+    const labels = buttons.map(b => b.textContent);
+
+    expect(labels).toContain("Service Record");
+    expect(labels).toContain("Main Menu");
+    expect(labels).not.toContain("Sector Map");
+  });
+
+  it("should handle Main Menu tab click in statistics mode", () => {
+    shell.show("statistics", "stats");
+
+    const menuBtn = Array.from(container.querySelectorAll("button")).find(
+      (b) => b.textContent === "Main Menu",
+    );
+    expect(menuBtn).toBeDefined();
+
+    menuBtn?.click();
+    expect(onMenu).toHaveBeenCalled();
   });
 
   it("should render custom mission info in custom mode", () => {
