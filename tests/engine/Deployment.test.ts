@@ -163,8 +163,12 @@ describe("Deployment Phase", () => {
       target: { x: 2.5, y: 1.5 },
     });
 
-    const s1Pos = { ...engine.getState().units.find((u) => u.id === "s1")!.pos };
-    const s2Pos = { ...engine.getState().units.find((u) => u.id === "s2")!.pos };
+    const s1Pos = {
+      ...engine.getState().units.find((u) => u.id === "s1")!.pos,
+    };
+    const s2Pos = {
+      ...engine.getState().units.find((u) => u.id === "s2")!.pos,
+    };
 
     // Deploy s1 onto s2's position
     engine.applyCommand({

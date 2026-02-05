@@ -1,7 +1,13 @@
 import { ScreenId } from "@src/renderer/ScreenManager";
 
 export const VALID_TRANSITIONS: Record<ScreenId, ScreenId[]> = {
-  "main-menu": ["campaign", "mission-setup", "statistics", "mission", "settings"],
+  "main-menu": [
+    "campaign",
+    "mission-setup",
+    "statistics",
+    "mission",
+    "settings",
+  ],
   campaign: [
     "main-menu",
     "barracks",
@@ -35,5 +41,12 @@ export const VALID_TRANSITIONS: Record<ScreenId, ScreenId[]> = {
   debrief: ["main-menu", "campaign", "campaign-summary", "mission"],
   "campaign-summary": ["main-menu"],
   statistics: ["main-menu", "campaign", "barracks", "settings"],
-  settings: ["main-menu", "campaign", "barracks", "statistics", "mission-setup", "equipment"],
+  settings: [
+    "main-menu",
+    "campaign",
+    "barracks",
+    "statistics",
+    "mission-setup",
+    "equipment",
+  ],
 };

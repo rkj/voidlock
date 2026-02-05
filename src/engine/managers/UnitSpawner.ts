@@ -15,7 +15,11 @@ import { MathUtils } from "../../shared/utils/MathUtils";
 export class UnitSpawner {
   constructor(private prng: PRNG) {}
 
-  public spawnSquad(map: MapDefinition, squadConfig: SquadConfig, shuffle: boolean = true): Unit[] {
+  public spawnSquad(
+    map: MapDefinition,
+    squadConfig: SquadConfig,
+    shuffle: boolean = true,
+  ): Unit[] {
     const units: Unit[] = [];
     let unitCount = 1;
 

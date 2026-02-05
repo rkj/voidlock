@@ -44,7 +44,12 @@ describe("DebriefScreen Replay Button", () => {
       loadReplay: vi.fn(),
       stop: vi.fn(),
     };
-    screen = new DebriefScreen("screen-debrief", mockGameClient, onContinue, onReplay);
+    screen = new DebriefScreen(
+      "screen-debrief",
+      mockGameClient,
+      onContinue,
+      onReplay,
+    );
   });
 
   it("should show Replay button only for custom missions", () => {
@@ -61,7 +66,7 @@ describe("DebriefScreen Replay Button", () => {
 
     screen.show(customReport);
     const buttons = Array.from(container.querySelectorAll(".debrief-button"));
-    const replayBtn = buttons.find(b => b.textContent === "Replay Mission");
+    const replayBtn = buttons.find((b) => b.textContent === "Replay Mission");
     expect(replayBtn).toBeDefined();
 
     const campaignReport: MissionReport = {
@@ -77,7 +82,7 @@ describe("DebriefScreen Replay Button", () => {
 
     screen.show(campaignReport);
     const buttons2 = Array.from(container.querySelectorAll(".debrief-button"));
-    const replayBtn2 = buttons2.find(b => b.textContent === "Replay Mission");
+    const replayBtn2 = buttons2.find((b) => b.textContent === "Replay Mission");
     expect(replayBtn2).toBeUndefined();
   });
 
@@ -95,7 +100,9 @@ describe("DebriefScreen Replay Button", () => {
 
     screen.show(customReport);
     const buttons = Array.from(container.querySelectorAll(".debrief-button"));
-    const replayBtn = buttons.find(b => b.textContent === "Replay Mission") as HTMLButtonElement;
+    const replayBtn = buttons.find(
+      (b) => b.textContent === "Replay Mission",
+    ) as HTMLButtonElement;
     replayBtn.click();
 
     expect(onReplay).toHaveBeenCalled();

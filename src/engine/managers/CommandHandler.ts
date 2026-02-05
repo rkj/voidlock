@@ -23,7 +23,9 @@ export class CommandHandler {
           // Validate that the target is a valid spawn tile
           const isValidSpawn =
             state.map.squadSpawns?.some(
-              (s) => s.x === Math.floor(cmd.target.x) && s.y === Math.floor(cmd.target.y),
+              (s) =>
+                s.x === Math.floor(cmd.target.x) &&
+                s.y === Math.floor(cmd.target.y),
             ) ||
             (state.map.squadSpawn &&
               state.map.squadSpawn.x === Math.floor(cmd.target.x) &&

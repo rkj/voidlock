@@ -104,35 +104,46 @@ describe("Visual Verification - Dead Soldier Equipment", () => {
         };
 
         localStorage.clear();
-        localStorage.setItem("voidlock_campaign_v1", JSON.stringify(campaignState));
-        localStorage.setItem("voidlock_campaign_config", JSON.stringify(campaignConfig));
-        localStorage.setItem("voidlock_session_state", JSON.stringify({ screenId: "barracks", isCampaign: true }));
+        localStorage.setItem(
+          "voidlock_campaign_v1",
+          JSON.stringify(campaignState),
+        );
+        localStorage.setItem(
+          "voidlock_campaign_config",
+          JSON.stringify(campaignConfig),
+        );
+        localStorage.setItem(
+          "voidlock_session_state",
+          JSON.stringify({ screenId: "barracks", isCampaign: true }),
+        );
         window.location.hash = "#barracks";
         window.location.reload();
       });
 
       await page.waitForNavigation({ waitUntil: "networkidle2" });
-      await new Promise(r => setTimeout(r, 2000)); // Wait for render
+      await new Promise((r) => setTimeout(r, 2000)); // Wait for render
 
       // Select the dead soldier in the roster list (it's the only one)
       await page.click(".soldier-item.dead");
-      await new Promise(r => setTimeout(r, 500));
+      await new Promise((r) => setTimeout(r, 500));
 
       // Switch to Armory tab
       const buttons = await page.$$("button");
       for (const btn of buttons) {
-        const text = await page.evaluate(el => el.textContent, btn);
+        const text = await page.evaluate((el) => el.textContent, btn);
         if (text === "Armory") {
           await btn.click();
           break;
         }
       }
-      await new Promise(r => setTimeout(r, 500));
+      await new Promise((r) => setTimeout(r, 500));
 
       await page.screenshot({ path: "dead_soldier_barracks_verification.png" });
 
       const hasWarning = await page.evaluate(() => {
-        return document.body.innerText.includes("SOLDIER IS DECEASED - EQUIPMENT LOCKED");
+        return document.body.innerText.includes(
+          "SOLDIER IS DECEASED - EQUIPMENT LOCKED",
+        );
       });
       expect(hasWarning).toBe(true);
 
@@ -144,12 +155,12 @@ describe("Visual Verification - Dead Soldier Equipment", () => {
 
       const isArmoryDisabled = await page.evaluate(() => {
         // Armory items are menu-items but NOT soldier-items
-        const items = Array.from(document.querySelectorAll(".menu-item.clickable"))
-          .filter(el => !el.classList.contains("soldier-item"));
+        const items = Array.from(
+          document.querySelectorAll(".menu-item.clickable"),
+        ).filter((el) => !el.classList.contains("soldier-item"));
         return items[0]?.classList.contains("disabled");
       });
       expect(isArmoryDisabled).toBe(true);
-
     } finally {
       await browser.close();
     }

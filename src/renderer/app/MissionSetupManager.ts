@@ -440,7 +440,8 @@ export class MissionSetupManager {
     if (!el) return;
 
     const themeLabel =
-      this.currentThemeId.charAt(0).toUpperCase() + this.currentThemeId.slice(1);
+      this.currentThemeId.charAt(0).toUpperCase() +
+      this.currentThemeId.slice(1);
     el.textContent = `${this.unitStyle} | ${themeLabel}`;
   }
 

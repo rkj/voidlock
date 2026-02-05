@@ -101,22 +101,30 @@ async function verify() {
       },
     };
 
-    localStorage.setItem("voidlock_campaign_state", JSON.stringify(campaignState));
-    localStorage.setItem("voidlock_campaign_config", JSON.stringify(campaignConfig));
+    localStorage.setItem(
+      "voidlock_campaign_state",
+      JSON.stringify(campaignState),
+    );
+    localStorage.setItem(
+      "voidlock_campaign_config",
+      JSON.stringify(campaignConfig),
+    );
     window.location.hash = "#equipment";
     window.location.reload();
   });
 
   console.log("Waiting for Equipment Screen to load...");
   await page.waitForNavigation({ waitUntil: "networkidle2" });
-  await new Promise(r => setTimeout(r, 1000)); // Wait for render
+  await new Promise((r) => setTimeout(r, 1000)); // Wait for render
 
   console.log("Capturing screenshot...");
   await page.screenshot({ path: "dead_soldier_equipment_verification.png" });
 
   // Verification of visual elements
   const hasWarning = await page.evaluate(() => {
-    return document.body.innerText.includes("SOLDIER IS DECEASED - EQUIPMENT LOCKED");
+    return document.body.innerText.includes(
+      "SOLDIER IS DECEASED - EQUIPMENT LOCKED",
+    );
   });
   console.log("Has Deceased Warning:", hasWarning);
 

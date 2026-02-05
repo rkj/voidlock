@@ -17,7 +17,7 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
     initialConfig = {
       soldiers: [
         { id: "soldier-1", archetypeId: "assault", name: "Dead Soldier" },
-        { id: "soldier-2", archetypeId: "medic", name: "Healthy Soldier" }
+        { id: "soldier-2", archetypeId: "medic", name: "Healthy Soldier" },
       ],
       inventory: {},
     };
@@ -33,7 +33,7 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
             status: "Dead",
             equipment: { rightHand: "pulse_rifle", leftHand: "combat_knife" },
             maxHp: 100,
-            soldierAim: 90
+            soldierAim: 90,
           },
           {
             id: "soldier-2",
@@ -41,9 +41,9 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
             status: "Healthy",
             equipment: { rightHand: "pistol", leftHand: "combat_knife" },
             maxHp: 80,
-            soldierAim: 80
-          }
-        ]
+            soldierAim: 80,
+          },
+        ],
       }),
       spendScrap: vi.fn(),
       assignEquipment: vi.fn(),
@@ -65,12 +65,12 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
     screen.show();
 
     // 1. Select the dead soldier (already selected as index 0)
-    
+
     // 2. Try to change weapon from armory
     const shotgunBtn = Array.from(
-      container.querySelectorAll(".menu-item.clickable")
+      container.querySelectorAll(".menu-item.clickable"),
     ).find((el) => el.textContent?.includes("Shotgun")) as HTMLElement;
-    
+
     expect(shotgunBtn).toBeTruthy();
     shotgunBtn.click();
 
@@ -92,9 +92,13 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
 
     // 1. Find the remove button for Pulse Rifle in the paper doll
     const slots = Array.from(container.querySelectorAll(".paper-doll-slot"));
-    const primarySlot = slots.find(s => s.textContent?.includes("Right Hand"));
-    const removeBtn = primarySlot?.querySelector("div[style*='cursor: pointer']") as HTMLElement;
-    
+    const primarySlot = slots.find((s) =>
+      s.textContent?.includes("Right Hand"),
+    );
+    const removeBtn = primarySlot?.querySelector(
+      "div[style*='cursor: pointer']",
+    ) as HTMLElement;
+
     expect(removeBtn).toBeTruthy();
     removeBtn.click();
 
@@ -113,6 +117,8 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
     );
     screen.show();
 
-    expect(container.textContent).toContain("SOLDIER IS DECEASED - EQUIPMENT LOCKED");
+    expect(container.textContent).toContain(
+      "SOLDIER IS DECEASED - EQUIPMENT LOCKED",
+    );
   });
 });

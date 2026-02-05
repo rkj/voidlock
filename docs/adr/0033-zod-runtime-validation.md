@@ -26,6 +26,7 @@ private validateState(data: unknown): CampaignState | null {
 ```
 
 This pattern is:
+
 - **Verbose**: Each field requires manual checking
 - **Incomplete**: Easy to miss fields or nested validation
 - **Not Type-Safe**: Manual casting loses TypeScript guarantees
@@ -37,14 +38,15 @@ We will integrate **Zod** for runtime schema validation at system boundaries.
 
 ### Why Zod
 
-| Library | Bundle Size | TypeScript Integration | API Style |
-|---------|-------------|------------------------|-----------|
-| Zod | ~12KB | Excellent (infers types) | Declarative |
-| Yup | ~15KB | Good (separate types) | Declarative |
-| io-ts | ~8KB | Excellent | Functional |
-| ajv | ~30KB | Requires codegen | JSON Schema |
+| Library | Bundle Size | TypeScript Integration   | API Style   |
+| ------- | ----------- | ------------------------ | ----------- |
+| Zod     | ~12KB       | Excellent (infers types) | Declarative |
+| Yup     | ~15KB       | Good (separate types)    | Declarative |
+| io-ts   | ~8KB        | Excellent                | Functional  |
+| ajv     | ~30KB       | Requires codegen         | JSON Schema |
 
 Zod was selected because:
+
 1. **Type Inference**: Schema defines both runtime validation AND TypeScript type
 2. **Small Bundle**: ~12KB gzipped, acceptable for game project
 3. **Declarative API**: Readable, matches our codebase style
@@ -59,12 +61,12 @@ Create `src/shared/schemas/` directory:
 
 ```typescript
 // src/shared/schemas/campaign.ts
-import { z } from 'zod';
+import { z } from "zod";
 
 export const SoldierSchema = z.object({
   id: z.string(),
   name: z.string(),
-  archetype: z.enum(['assault', 'medic', 'scout', 'heavy']),
+  archetype: z.enum(["assault", "medic", "scout", "heavy"]),
   hp: z.number().min(0),
   maxHp: z.number().positive(),
   xp: z.number().min(0),
@@ -81,7 +83,7 @@ export const CampaignStateSchema = z.object({
   version: z.string(),
   seed: z.number(),
   name: z.string(),
-  difficulty: z.enum(['simulation', 'clone', 'iron', 'hardcore']),
+  difficulty: z.enum(["simulation", "clone", "iron", "hardcore"]),
   roster: z.array(SoldierSchema),
   scrap: z.number().min(0),
   intel: z.number().min(0),
@@ -96,7 +98,7 @@ export type CampaignState = z.infer<typeof CampaignStateSchema>;
 
 ```typescript
 // src/shared/schemas/map.ts
-import { z } from 'zod';
+import { z } from "zod";
 
 export const Vector2Schema = z.object({
   x: z.number(),
@@ -106,7 +108,7 @@ export const Vector2Schema = z.object({
 export const CellSchema = z.object({
   x: z.number().int(),
   y: z.number().int(),
-  type: z.enum(['floor', 'wall', 'void']),
+  type: z.enum(["floor", "wall", "void"]),
   room: z.string().optional(),
 });
 
@@ -115,16 +117,24 @@ export const MapDefinitionSchema = z.object({
   height: z.number().int().min(10).max(100),
   cells: z.array(CellSchema),
   spawnPoints: z.array(Vector2Schema),
-  objectives: z.array(z.object({
-    id: z.string(),
-    type: z.string(),
-    pos: Vector2Schema,
-  })).optional(),
-  doors: z.array(z.object({
-    id: z.string(),
-    pos: Vector2Schema,
-    state: z.enum(['open', 'closed', 'locked']),
-  })).optional(),
+  objectives: z
+    .array(
+      z.object({
+        id: z.string(),
+        type: z.string(),
+        pos: Vector2Schema,
+      }),
+    )
+    .optional(),
+  doors: z
+    .array(
+      z.object({
+        id: z.string(),
+        pos: Vector2Schema,
+        state: z.enum(["open", "closed", "locked"]),
+      }),
+    )
+    .optional(),
 });
 
 export type MapDefinition = z.infer<typeof MapDefinitionSchema>;
@@ -133,6 +143,7 @@ export type MapDefinition = z.infer<typeof MapDefinitionSchema>;
 #### Phase 2: Integration Points
 
 **Campaign Save/Load:**
+
 ```typescript
 // src/engine/campaign/CampaignManager.ts
 import { CampaignStateSchema } from '@src/shared/schemas/campaign';
@@ -151,9 +162,10 @@ public load(): CampaignState | null {
 ```
 
 **Map Upload:**
+
 ```typescript
 // src/renderer/app/GameApp.ts
-import { MapDefinitionSchema } from '@src/shared/schemas/map';
+import { MapDefinitionSchema } from "@src/shared/schemas/map";
 
 onLoadStaticMap: async (json: string) => {
   try {
@@ -161,17 +173,17 @@ onLoadStaticMap: async (json: string) => {
     const result = MapDefinitionSchema.safeParse(parsed);
 
     if (!result.success) {
-      const errors = result.error.issues.map(i => i.message).join(', ');
+      const errors = result.error.issues.map((i) => i.message).join(", ");
       await this.context.modalService.alert(`Invalid map: ${errors}`);
       return;
     }
 
     this.currentStaticMapData = MapUtility.transformMapData(result.data);
-    await this.context.modalService.alert('Static Map Loaded.');
+    await this.context.modalService.alert("Static Map Loaded.");
   } catch (e) {
-    await this.context.modalService.alert('Invalid JSON format.');
+    await this.context.modalService.alert("Invalid JSON format.");
   }
-}
+};
 ```
 
 #### Phase 3: Migration Strategy
@@ -189,6 +201,7 @@ onLoadStaticMap: async (json: string) => {
 - Renderer-to-renderer communication
 
 Validation should only occur at **system boundaries**:
+
 - LocalStorage load
 - User file uploads
 - Future: API responses from cloud sync
@@ -196,17 +209,20 @@ Validation should only occur at **system boundaries**:
 ## Consequences
 
 ### Positive
+
 - **Type Safety**: Single source of truth for types and validation
 - **Better Errors**: Zod provides detailed error messages with paths
 - **Maintainability**: Schema changes automatically update both types and validation
 - **Future-Proof**: Foundation for cloud sync validation
 
 ### Negative
+
 - **Bundle Size**: +12KB gzipped
 - **Learning Curve**: Team needs to learn Zod API
 - **Migration Effort**: Existing manual validators need replacement
 
 ### Neutral
+
 - **Performance**: Validation adds negligible overhead at boundaries (not in hot paths)
 
 ## Alternatives Considered

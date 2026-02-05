@@ -1,10 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { CoreEngine } from "@src/engine/CoreEngine";
-import {
-  MapDefinition,
-  CellType,
-  SquadConfig,
-} from "@src/shared/types";
+import { MapDefinition, CellType, SquadConfig } from "@src/shared/types";
 
 describe("Regression voidlock-aja3: Authoritative Entity Visibility", () => {
   it("should always include spawnPoints in state update even after initial map send", () => {

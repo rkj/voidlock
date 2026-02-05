@@ -16,6 +16,7 @@ export class SquadBuilder {
   private missionType: MissionType;
   private isCampaign: boolean;
   private onSquadUpdated: (squad: SquadConfig) => void;
+  private selectedId: string | null = null;
 
   constructor(
     containerId: string,
@@ -121,13 +122,41 @@ export class SquadBuilder {
             return weightA - weightB;
           });
 
+          const healthyAvailable = sortedRoster.filter(
+            (s) =>
+              s.status === "Healthy" &&
+              !this.squad.soldiers.some((deployed) => deployed.id === s.id) &&
+              s.archetypeId !== "vip",
+          );
+
+          // Auto-select if nothing valid selected
+          if (this.selectedId === null && healthyAvailable.length > 0) {
+            this.selectedId = healthyAvailable[0].id;
+          } else if (this.selectedId !== null) {
+            // Check if selected is still available
+            const isStillAvailable = healthyAvailable.some(
+              (s) => s.id === this.selectedId,
+            );
+            if (!isStillAvailable) {
+              if (healthyAvailable.length > 0) {
+                this.selectedId = healthyAvailable[0].id;
+              } else {
+                this.selectedId = null;
+              }
+            }
+          }
+
           sortedRoster.forEach((soldier) => {
             if (soldier.archetypeId === "vip") return;
             const isSelected = this.squad.soldiers.some(
               (s) => s.id === soldier.id,
             );
             if (isSelected) return;
-            rosterList.appendChild(createCampaignCard(soldier, isSelected));
+            const card = createCampaignCard(soldier, isSelected);
+            if (soldier.id === this.selectedId) {
+              card.classList.add("selected-for-deployment");
+            }
+            rosterList.appendChild(card);
           });
 
           // Quick Action: Recruit
@@ -183,13 +212,38 @@ export class SquadBuilder {
           }
         }
       } else {
+        const availableArchetypes = Object.values(ArchetypeLibrary).filter(
+          (arch) =>
+            arch.id !== "vip" &&
+            !this.squad.soldiers.some((s) => s.archetypeId === arch.id),
+        );
+
+        if (this.selectedId === null && availableArchetypes.length > 0) {
+          this.selectedId = availableArchetypes[0].id;
+        } else if (this.selectedId !== null) {
+          const isStillAvailable = availableArchetypes.some(
+            (arch) => arch.id === this.selectedId,
+          );
+          if (!isStillAvailable) {
+            if (availableArchetypes.length > 0) {
+              this.selectedId = availableArchetypes[0].id;
+            } else {
+              this.selectedId = null;
+            }
+          }
+        }
+
         Object.values(ArchetypeLibrary).forEach((arch) => {
           if (arch.id === "vip" && isEscortMission) return;
           const isSelected = this.squad.soldiers.some(
             (s) => s.archetypeId === arch.id,
           );
           if (isSelected) return;
-          rosterList.appendChild(createArchetypeCard(arch));
+          const card = createArchetypeCard(arch);
+          if (arch.id === this.selectedId) {
+            card.classList.add("selected-for-deployment");
+          }
+          rosterList.appendChild(card);
         });
       }
     };
@@ -282,6 +336,16 @@ export class SquadBuilder {
           };
           e.dataTransfer?.setData("text/plain", JSON.stringify(dragData));
         });
+
+        card.addEventListener("click", () => {
+          this.selectedId = soldier.id;
+          addToSquad({
+            type: "campaign",
+            id: soldier.id,
+            archetypeId: soldier.archetypeId,
+          });
+        });
+
         card.addEventListener("dblclick", () =>
           addToSquad({
             type: "campaign",
@@ -357,6 +421,12 @@ export class SquadBuilder {
         const dragData: DragData = { type: "custom", archetypeId: arch.id };
         e.dataTransfer?.setData("text/plain", JSON.stringify(dragData));
       });
+
+      card.addEventListener("click", () => {
+        this.selectedId = arch.id;
+        addToSquad({ type: "custom", archetypeId: arch.id });
+      });
+
       card.addEventListener("dblclick", () =>
         addToSquad({ type: "custom", archetypeId: arch.id }),
       );
@@ -446,6 +516,33 @@ export class SquadBuilder {
         });
       } else {
         slot.innerHTML = `<div style="color:var(--color-text-dim); font-size:0.8em;">(Empty)</div>`;
+
+        if (this.selectedId) {
+          slot.classList.add("ready-for-placement");
+          slot.addEventListener("click", () => {
+            if (this.selectedId) {
+              if (this.isCampaign) {
+                const state = this.context.campaignManager.getState();
+                const soldier = state?.roster.find(
+                  (r) => r.id === this.selectedId,
+                );
+                if (soldier) {
+                  addToSquad({
+                    type: "campaign",
+                    id: soldier.id,
+                    archetypeId: soldier.archetypeId,
+                  });
+                }
+              } else {
+                addToSquad({
+                  type: "custom",
+                  archetypeId: this.selectedId,
+                });
+              }
+            }
+          });
+        }
+
         slot.addEventListener("dragover", (e) => {
           e.preventDefault();
           slot.classList.add("drag-over");

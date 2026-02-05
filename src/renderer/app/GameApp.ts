@@ -112,7 +112,10 @@ export class GameApp {
       () => this.copyWorldState(),
       () => this.context.gameClient.forceWin(),
       () => this.context.gameClient.forceLose(),
-      () => this.context.gameClient.applyCommand({ type: CommandType.START_MISSION }),
+      () =>
+        this.context.gameClient.applyCommand({
+          type: CommandType.START_MISSION,
+        }),
     );
 
     this.context.inputManager = new InputManager(
@@ -132,11 +135,12 @@ export class GameApp {
       (enabled) => this.context.gameClient.toggleLosOverlay(enabled),
       () => this.currentGameState,
       () => this.debriefScreen.isVisible(),
-      (unitId, x, y) => this.context.gameClient.applyCommand({
-        type: CommandType.DEPLOY_UNIT,
-        unitId,
-        target: { x, y }
-      }),
+      (unitId, x, y) =>
+        this.context.gameClient.applyCommand({
+          type: CommandType.DEPLOY_UNIT,
+          unitId,
+          target: { x, y },
+        }),
       (px, py) => this.context.renderer!.getCellCoordinates(px, py),
     );
 
