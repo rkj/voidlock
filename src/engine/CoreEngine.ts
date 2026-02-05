@@ -314,12 +314,13 @@ export class CoreEngine implements IDirector {
       squadInventory: { ...state.squadInventory },
       map: {
         ...state.map,
-        // Omit static data after first send
+        // Omit large static data after first send
         cells: this.sentMap ? [] : state.map.cells,
         walls: this.sentMap ? [] : state.map.walls,
         boundaries: this.sentMap ? [] : state.map.boundaries,
-        spawnPoints: this.sentMap ? [] : state.map.spawnPoints,
-        objectives: this.sentMap ? [] : state.map.objectives,
+        // Always include critical mission entities (ADR 0032)
+        spawnPoints: state.map.spawnPoints || [],
+        objectives: state.map.objectives || [],
         // Doors are dynamic, always send them
         doors: Array.from(this.doorManager.getDoors().values()).map((d) => ({
           ...d,
