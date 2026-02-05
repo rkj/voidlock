@@ -31,22 +31,23 @@ describe("Director Spawning Logic (Regression 83pq)", () => {
     };
     const prng = new PRNG(123);
 
-    // Starting points 20, turn 1 (threat 10)
-    // Budget will be 20 + (10/10 * 1.0) = 21
-    // Without wave cap, it would spawn 21 enemies (if they cost 1pt each)
+    // Turn 10 (threat 100)
+    // Budget will be floor(10 * 1.0) = 10
+    // Without wave cap, it would spawn 10 enemies (if they cost 1pt each)
     const director = new Director(
       mockSpawnPoints,
       prng,
       onSpawn,
-      0,
+      100, // startingThreatLevel = 100
       mockMap,
       20,
     );
 
-    // Threat 0 -> 10 triggers spawnWave
+    // Advance 10 seconds to trigger turn 11 wave
     director.update(DIRECTOR.TURN_DURATION_MS);
 
-    expect(spawnCount).toBeLessThanOrEqual(5);
+    // Turn 11 budget = 11. Wave cap = 5.
+    expect(spawnCount).toBe(5);
   });
 
   it("should only spawn at 10% threat increments", () => {

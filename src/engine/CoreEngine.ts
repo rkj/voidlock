@@ -71,9 +71,9 @@ export class CoreEngine implements IDirector {
     initialCommandLog: CommandLogEntry[] = [],
     allowTacticalPause: boolean = true,
     targetTick: number = 0,
-    _baseEnemyCount: number = 3,
-    _enemyGrowthPerMission: number = 1,
-    _missionDepth: number = 0,
+    baseEnemyCount: number = 3,
+    enemyGrowthPerMission: number = 1,
+    missionDepth: number = 0,
     nodeType: "Combat" | "Elite" | "Boss" | "Event" | "Shop" = "Combat",
     campaignNodeId?: string,
     startingPoints?: number,
@@ -160,13 +160,16 @@ export class CoreEngine implements IDirector {
 
     // Initialize Director
     const spawnPoints = map.spawnPoints || [];
+    const effectiveStartingPoints =
+      startingPoints ?? baseEnemyCount + missionDepth * enemyGrowthPerMission;
+
     this.director = new Director(
       spawnPoints,
       this.prng,
       (enemy) => this.enemyManager.addEnemy(this.state, enemy),
       startingThreatLevel,
       map,
-      startingPoints,
+      effectiveStartingPoints,
     );
     this.director.preSpawn();
 
