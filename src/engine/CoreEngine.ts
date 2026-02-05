@@ -300,18 +300,60 @@ export class CoreEngine implements IDirector {
     this.director.preSpawn();
   }
 
-  public getState(): GameState {
+  public getState(pruneForObservation: boolean = false): GameState {
     const state = this.state;
+
+    const debugMode = state.settings.debugOverlayEnabled;
+    const shouldPrune = pruneForObservation && !debugMode;
+
+    // Prune entities based on visibility if shouldPrune is true
+    const enemies = !shouldPrune
+      ? [...state.enemies]
+      : state.enemies.filter((e) => {
+          const ex = Math.floor(e.pos.x);
+          const ey = Math.floor(e.pos.y);
+          const idx = ey * state.map.width + ex;
+          return state.gridState && (state.gridState[idx] & 1) !== 0;
+        });
+
+    const turrets = !shouldPrune
+      ? [...state.turrets]
+      : state.turrets.filter((t) => {
+          const tx = Math.floor(t.pos.x);
+          const ty = Math.floor(t.pos.y);
+          const idx = ty * state.map.width + tx;
+          return state.gridState && (state.gridState[idx] & 1) !== 0;
+        });
+
+    const mines = !shouldPrune
+      ? [...state.mines]
+      : state.mines.filter((m) => {
+          const mx = Math.floor(m.pos.x);
+          const my = Math.floor(m.pos.y);
+          const idx = my * state.map.width + mx;
+          return state.gridState && (state.gridState[idx] & 1) !== 0;
+        });
+
+    const loot = !shouldPrune
+      ? [...state.loot]
+      : state.loot.filter((l) => {
+          const lx = Math.floor(l.pos.x);
+          const ly = Math.floor(l.pos.y);
+          const idx = ly * state.map.width + lx;
+          // Loot is visible if cell is discovered (bit 1) or currently visible (bit 0)
+          return state.gridState && (state.gridState[idx] & 3) !== 0;
+        });
+
     // Manual shallow copy of the state structure.
     // We avoid deep cloning elements here because postMessage()
     // in the worker performs a structured clone anyway.
     const copy: GameState = {
       ...state,
       units: [...state.units],
-      enemies: [...state.enemies],
-      loot: [...state.loot],
-      mines: [...state.mines],
-      turrets: [...state.turrets],
+      enemies,
+      loot,
+      mines,
+      turrets,
       attackEvents: state.attackEvents ? [...state.attackEvents] : [],
       objectives: [...state.objectives],
       visibleCells: [...state.visibleCells],
