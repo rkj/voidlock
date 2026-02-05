@@ -46,11 +46,6 @@ describe("regression_voidlock_d1xb: Clear cached squad on new campaign start", (
     const wizard = new NewCampaignWizard(
       container,
       {
-        themeManager: {
-          getColor: vi.fn().mockReturnValue("#000"),
-        },
-      } as any,
-      {
         onStartCampaign,
         onBack,
       },

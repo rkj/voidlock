@@ -11,7 +11,6 @@ import { MapUtility } from "@src/renderer/MapUtility";
 import { MapValidator } from "@src/shared/validation/MapValidator";
 import { MapFactory } from "@src/engine/map/MapFactory";
 import { SquadBuilder } from "../components/SquadBuilder";
-import { UnitStyleSelector } from "../components/UnitStyleSelector";
 import { NameGenerator } from "@src/shared/utils/NameGenerator";
 import { ArchetypeLibrary } from "@src/shared/types/units";
 
@@ -38,7 +37,6 @@ export class MissionSetupManager {
   public currentCampaignNode: CampaignNode | null = null;
 
   private squadBuilder: SquadBuilder;
-  private unitStyleSelector?: UnitStyleSelector;
 
   constructor(private context: AppContext) {
     this.squadBuilder = new SquadBuilder(
@@ -344,7 +342,6 @@ export class MissionSetupManager {
       });
     }
     this.renderSquadBuilder(isCampaign);
-    this.renderUnitStylePreview();
   }
 
   public updateSetupUIFromConfig(config: GameConfig | Partial<GameConfig>) {
@@ -360,11 +357,6 @@ export class MissionSetupManager {
       "map-generator-type",
     ) as HTMLSelectElement;
     if (mapGenSelect) mapGenSelect.value = this.currentMapGeneratorType;
-
-    const themeSelect = document.getElementById(
-      "map-theme",
-    ) as HTMLSelectElement;
-    if (themeSelect) themeSelect.value = this.currentThemeId;
 
     const wInput = document.getElementById("map-width") as HTMLInputElement;
     const hInput = document.getElementById("map-height") as HTMLInputElement;
@@ -451,25 +443,6 @@ export class MissionSetupManager {
       this.currentMissionType,
       isCampaign,
     );
-  }
-
-  public renderUnitStylePreview() {
-    const container = document.getElementById("unit-style-preview");
-    if (!container) return;
-
-    if (!this.unitStyleSelector) {
-      this.unitStyleSelector = new UnitStyleSelector(
-        container,
-        this.context,
-        this.unitStyle,
-        (style) => {
-          this.unitStyle = style;
-          this.saveCurrentConfig();
-        },
-      );
-    }
-    this.unitStyleSelector.render();
-    this.renderGlobalStatus();
   }
 
   public async loadStaticMap(json: string) {

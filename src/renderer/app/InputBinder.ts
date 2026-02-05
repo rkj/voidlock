@@ -60,9 +60,6 @@ export class InputBinder {
     this.addListener("btn-campaign-back", "click", () =>
       context.screenManager.goBack(),
     );
-    this.addListener("btn-setup-to-settings", "click", () =>
-      callbacks.onSettingsMenu(),
-    );
     this.addListener("btn-setup-back", "click", () => callbacks.onSetupBack());
     this.addListener("btn-give-up", "click", async () => {
       if (
@@ -136,16 +133,6 @@ export class InputBinder {
     this.addListener("mission-type", "change", (e: Event) => {
       const target = e.target as HTMLSelectElement;
       callbacks.onMissionTypeChange(target.value as MissionType);
-    });
-
-    this.addListener("map-theme", "change", (e: Event) => {
-      const target = e.target as HTMLSelectElement;
-      callbacks.onThemeChange(target.value);
-    });
-
-    this.addListener("select-unit-style", "change", (e: Event) => {
-      const target = e.target as HTMLSelectElement;
-      callbacks.onUnitStyleChange(target.value);
     });
 
     // Toggles

@@ -67,6 +67,7 @@ describe("CampaignScreen", () => {
         themeManager: {
           getColor: vi.fn().mockReturnValue("#000"),
           setTheme: vi.fn(),
+          getCurrentThemeId: vi.fn().mockReturnValue("default"),
         },
       } as any,
       onNodeSelect,
@@ -89,6 +90,7 @@ describe("CampaignScreen", () => {
         themeManager: {
           getColor: vi.fn().mockReturnValue("#000"),
           setTheme: vi.fn(),
+          getCurrentThemeId: vi.fn().mockReturnValue("default"),
         },
       } as any,
       onNodeSelect,
@@ -114,6 +116,7 @@ describe("CampaignScreen", () => {
         themeManager: {
           getColor: vi.fn().mockReturnValue("#000"),
           setTheme: vi.fn(),
+          getCurrentThemeId: vi.fn().mockReturnValue("default"),
         },
       } as any,
       onNodeSelect,
@@ -145,6 +148,7 @@ describe("CampaignScreen", () => {
         themeManager: {
           getColor: vi.fn().mockReturnValue("#000"),
           setTheme: vi.fn(),
+          getCurrentThemeId: vi.fn().mockReturnValue("default"),
         },
       } as any,
       onNodeSelect,
@@ -159,7 +163,7 @@ describe("CampaignScreen", () => {
     expect(currentNode.innerHTML).toContain("▼"); // Using downward triangle as indicator
   });
 
-  it("should not render its own back button in wizard (handled by shell)", () => {
+  it("should render its own back button in wizard footer", () => {
     const screen = new CampaignScreen(
       "screen-campaign",
       {
@@ -168,6 +172,7 @@ describe("CampaignScreen", () => {
         themeManager: {
           getColor: vi.fn().mockReturnValue("#000"),
           setTheme: vi.fn(),
+          getCurrentThemeId: vi.fn().mockReturnValue("default"),
         },
       } as any,
       onNodeSelect,
@@ -178,7 +183,7 @@ describe("CampaignScreen", () => {
     const backBtn = Array.from(container.querySelectorAll("button")).find(
       (btn) => btn.textContent === "Back to Menu",
     );
-    expect(backBtn).toBeUndefined();
+    expect(backBtn).toBeDefined();
   });
 
   it("should render Defeat placeholder when campaign status is Defeat", () => {
@@ -194,6 +199,7 @@ describe("CampaignScreen", () => {
         themeManager: {
           getColor: vi.fn().mockReturnValue("#000"),
           setTheme: vi.fn(),
+          getCurrentThemeId: vi.fn().mockReturnValue("default"),
         },
       } as any,
       onNodeSelect,
@@ -218,6 +224,7 @@ describe("CampaignScreen", () => {
         themeManager: {
           getColor: vi.fn().mockReturnValue("#000"),
           setTheme: vi.fn(),
+          getCurrentThemeId: vi.fn().mockReturnValue("default"),
         },
       } as any,
       onNodeSelect,

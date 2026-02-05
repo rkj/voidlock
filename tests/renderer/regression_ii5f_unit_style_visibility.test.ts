@@ -80,6 +80,7 @@ describe("MissionSetupManager - Visual Style Visibility (regression_ii5f)", () =
       <div id="mission-setup-context"></div>
       <div id="setup-content">
         <div id="common-config-section">
+          <div id="setup-global-status"></div>
           <div id="unit-style-preview" class="style-preview-container"></div>
         </div>
         <div id="map-config-section">
@@ -161,24 +162,6 @@ describe("MissionSetupManager - Visual Style Visibility (regression_ii5f)", () =
     expect(commonSection?.style.display).not.toBe("none");
   });
 
-  it("should allow changing unit style in campaign mode and persist it", () => {
-    manager.loadAndApplyConfig(true);
-    expect(manager.unitStyle).toBe("TacticalIcons");
-
-    // Change style via card click
-    const spriteCard = document.querySelector(
-      '.style-preview-item[data-style="Sprites"]',
-    ) as HTMLElement;
-    expect(spriteCard).not.toBeNull();
-    spriteCard.click();
-
-    expect(manager.unitStyle).toBe("Sprites");
-    expect(ConfigManager.saveCampaign).toHaveBeenCalledWith(
-      expect.objectContaining({ mapWidth: 10 }),
-      expect.objectContaining({ unitStyle: "Sprites" }),
-    );
-  });
-
   it("should respect saved preference over campaign rule on reload", () => {
     (ConfigManager.loadCampaign as any).mockReturnValue({
       mapWidth: 10,
@@ -214,7 +197,7 @@ describe("MissionSetupManager - Visual Style Visibility (regression_ii5f)", () =
     manager.loadAndApplyConfig(true);
 
     expect(manager.unitStyle).toBe("Sprites");
-    const activeItem = document.querySelector(".style-preview-item.active");
-    expect(activeItem?.getAttribute("data-style")).toBe("Sprites");
+    const statusText = document.getElementById("setup-global-status");
+    expect(statusText?.textContent).toContain("Sprites");
   });
 });

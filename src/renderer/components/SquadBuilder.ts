@@ -66,10 +66,11 @@ export class SquadBuilder {
     this.container.appendChild(mainWrapper);
 
     const rosterPanel = document.createElement("div");
-    rosterPanel.className = "roster-panel";
+    rosterPanel.className = "panel roster-panel";
     mainWrapper.appendChild(rosterPanel);
 
-    const rosterTitle = document.createElement("h3");
+    const rosterTitle = document.createElement("h2");
+    rosterTitle.className = "panel-title";
     rosterTitle.textContent = "Roster";
     rosterPanel.appendChild(rosterTitle);
 
@@ -82,7 +83,7 @@ export class SquadBuilder {
     rosterPanel.appendChild(rosterActions);
 
     const deploymentPanel = document.createElement("div");
-    deploymentPanel.className = "deployment-panel";
+    deploymentPanel.className = "panel deployment-panel";
     mainWrapper.appendChild(deploymentPanel);
 
     const updateCount = () => {
@@ -249,7 +250,7 @@ export class SquadBuilder {
     };
 
     const renderSlots = () => {
-      deploymentPanel.innerHTML = "<h3>Deployment</h3>";
+      deploymentPanel.innerHTML = '<h2 class="panel-title">Deployment</h2>';
       const hasVip =
         isEscortMission ||
         this.squad.soldiers.some((s) => s.archetypeId === "vip");

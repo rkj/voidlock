@@ -1,5 +1,4 @@
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
-import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { ConfigManager } from "@src/renderer/ConfigManager";
 import { CampaignNode, CampaignState } from "@src/shared/campaign_types";
 import { ModalService } from "../ui/ModalService";
@@ -18,7 +17,7 @@ export class CampaignScreen {
 
   constructor(
     containerId: string,
-    private context: AppContext,
+    context: AppContext,
     onNodeSelect: (node: CampaignNode) => void,
     onBack: () => void,
     onCampaignStart?: () => void,
@@ -125,7 +124,7 @@ export class CampaignScreen {
 
   private renderNoCampaign() {
     if (!this.wizard) {
-      this.wizard = new NewCampaignWizard(this.container, this.context, {
+      this.wizard = new NewCampaignWizard(this.container, {
         onStartCampaign: (seed, difficulty, overrides) => {
           this.manager.startNewCampaign(seed, difficulty, overrides);
           if (this.onCampaignStart) this.onCampaignStart();

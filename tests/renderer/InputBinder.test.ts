@@ -114,17 +114,6 @@ describe("InputBinder", () => {
     expect(mockCallbacks.onMapSizeChange).toHaveBeenCalledWith(16, 10);
   });
 
-  it("should trigger onThemeChange when theme selector changes", () => {
-    inputBinder.bindAll(mockCallbacks);
-    const themeSelect = document.getElementById(
-      "map-theme",
-    ) as HTMLSelectElement;
-    themeSelect.value = "industrial";
-    themeSelect.dispatchEvent(new Event("change"));
-
-    expect(mockCallbacks.onThemeChange).toHaveBeenCalledWith("industrial");
-  });
-
   it("should trigger onMapGeneratorChange when generator selector changes", () => {
     inputBinder.bindAll(mockCallbacks);
     const genSelect = document.getElementById(
