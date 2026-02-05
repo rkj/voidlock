@@ -13,6 +13,7 @@ This is the main source directory for the Voidlock project.
 - `harness/`: Testing infrastructure and balance simulators.
 - `map-viewer/`: Standalone map visualization tool.
 - `renderer/`: Main thread rendering and UI logic.
+- `services/`: External service integrations (e.g., Firebase).
 - `shared/`: Types and utilities shared between engine and renderer.
 
 ## Architecture
