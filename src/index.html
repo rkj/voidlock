@@ -7,7 +7,7 @@
     <title>Voidlock</title>
     <link rel="stylesheet" href="/styles/main.css" />
     <script>
-      (function() {
+      (function () {
         /**
          * Panic UI Recovery (ADR-0019/Spec 8.12)
          * Forces the Main Menu to be visible if a catastrophic error occurs.
@@ -16,40 +16,56 @@
           if (window.__VOIDLOCK_PANIC__) return;
           window.__VOIDLOCK_PANIC__ = true;
 
-          console.error("PANIC: Unhandled exception detected. Forcing UI recovery.", error);
-          
+          console.error(
+            "PANIC: Unhandled exception detected. Forcing UI recovery.",
+            error,
+          );
+
           // Native browser dialog (Spec 8.12 / voidlock-fi6n)
-          if (confirm("CRITICAL ERROR:\n" + error + "\n\nWould you like to RESET ALL DATA and reload the page to recover from this broken state?")) {
+          if (
+            confirm(
+              "CRITICAL ERROR:\n" +
+                error +
+                "\n\nWould you like to RESET ALL DATA and reload the page to recover from this broken state?",
+            )
+          ) {
             localStorage.clear();
             window.location.reload();
             return;
           }
 
-          if (window.GameAppInstance && typeof window.GameAppInstance.stop === 'function') {
-            try { window.GameAppInstance.stop(); } catch(e) {}
+          if (
+            window.GameAppInstance &&
+            typeof window.GameAppInstance.stop === "function"
+          ) {
+            try {
+              window.GameAppInstance.stop();
+            } catch (e) {}
           }
 
-          const showPanicUI = function() {
-            const mainMenu = document.getElementById('screen-main-menu');
+          const showPanicUI = function () {
+            const mainMenu = document.getElementById("screen-main-menu");
             if (mainMenu) {
-              mainMenu.style.cssText = "display: flex !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; z-index: 99999 !important; background-color: #111 !important; align-items: center !important; justify-content: center !important; flex-direction: column !important;";
-              
-              const errorMsg = document.createElement('div');
-              errorMsg.style.cssText = "color: #ff4444; margin-top: 20px; padding: 10px; border: 1px solid #ff4444; max-width: 80%; font-size: 0.8em; background: rgba(255,0,0,0.1); font-family: monospace; text-align: left; overflow: auto; max-height: 200px;";
+              mainMenu.style.cssText =
+                "display: flex !important; position: fixed !important; top: 0 !important; left: 0 !important; width: 100% !important; height: 100% !important; z-index: 99999 !important; background-color: #111 !important; align-items: center !important; justify-content: center !important; flex-direction: column !important;";
+
+              const errorMsg = document.createElement("div");
+              errorMsg.style.cssText =
+                "color: #ff4444; margin-top: 20px; padding: 10px; border: 1px solid #ff4444; max-width: 80%; font-size: 0.8em; background: rgba(255,0,0,0.1); font-family: monospace; text-align: left; overflow: auto; max-height: 200px;";
               errorMsg.textContent = "CRITICAL ERROR: " + error;
               mainMenu.appendChild(errorMsg);
             }
-            
-            const screens = document.querySelectorAll('.screen');
+
+            const screens = document.querySelectorAll(".screen");
             for (let i = 0; i < screens.length; i++) {
-              if (screens[i].id !== 'screen-main-menu') {
-                screens[i].style.display = 'none';
+              if (screens[i].id !== "screen-main-menu") {
+                screens[i].style.display = "none";
               }
             }
           };
 
-          if (document.readyState === 'loading') {
-            window.addEventListener('DOMContentLoaded', showPanicUI);
+          if (document.readyState === "loading") {
+            window.addEventListener("DOMContentLoaded", showPanicUI);
           } else {
             showPanicUI();
           }
@@ -57,15 +73,22 @@
 
         window.__VOIDLOCK_PANIC_HANDLER__ = panic;
 
-        window.addEventListener('error', function(event) {
-          if (event.target && (event.target.src || event.target.href)) {
-             panic("Resource failed to load: " + (event.target.src || event.target.href));
-          } else {
-             panic(event.error || event.message);
-          }
-        }, true);
+        window.addEventListener(
+          "error",
+          function (event) {
+            if (event.target && (event.target.src || event.target.href)) {
+              panic(
+                "Resource failed to load: " +
+                  (event.target.src || event.target.href),
+              );
+            } else {
+              panic(event.error || event.message);
+            }
+          },
+          true,
+        );
 
-        window.addEventListener('unhandledrejection', function(event) {
+        window.addEventListener("unhandledrejection", function (event) {
           panic(event.reason);
         });
 
@@ -74,13 +97,18 @@
          * Provides an independent listener for the Reset Data button that works
          * even if the main application bundle fails to load or initialize.
          */
-        window.addEventListener('DOMContentLoaded', function() {
-          const resetBtn = document.getElementById('btn-menu-reset');
+        window.addEventListener("DOMContentLoaded", function () {
+          const resetBtn = document.getElementById("btn-menu-reset");
           if (resetBtn) {
-            resetBtn.addEventListener('click', function(e) {
-              const isAppHealthy = window.GameAppInstance && !window.__VOIDLOCK_PANIC__;
+            resetBtn.addEventListener("click", function (e) {
+              const isAppHealthy =
+                window.GameAppInstance && !window.__VOIDLOCK_PANIC__;
               if (!isAppHealthy) {
-                if (confirm("EMERGENCY RESET: This will wipe ALL local data and reload the page. Continue?")) {
+                if (
+                  confirm(
+                    "EMERGENCY RESET: This will wipe ALL local data and reload the page. Continue?",
+                  )
+                ) {
                   localStorage.clear();
                   window.location.reload();
                 }
@@ -97,14 +125,26 @@
       <!-- 1. Main Menu -->
       <div id="screen-main-menu" class="screen screen-centered">
         <h1>Voidlock</h1>
-        <p id="menu-version" style="color: var(--color-text-dim); font-size: 0.8em; margin-top: -15px; margin-bottom: 20px;"></p>
+        <p
+          id="menu-version"
+          style="
+            color: var(--color-text-dim);
+            font-size: 0.8em;
+            margin-top: -15px;
+            margin-bottom: 20px;
+          "
+        ></p>
 
         <div class="menu-button-container">
           <button id="btn-menu-campaign" class="menu-button">Campaign</button>
-          <button id="btn-menu-custom" class="menu-button">Custom Mission</button>
-          <button id="btn-menu-statistics" class="menu-button">Statistics</button>
+          <button id="btn-menu-custom" class="menu-button">
+            Custom Mission
+          </button>
+          <button id="btn-menu-statistics" class="menu-button">
+            Statistics
+          </button>
           <button id="btn-menu-settings" class="menu-button">Settings</button>
-          
+
           <button
             id="btn-menu-reset"
             class="menu-button back-button"
@@ -114,7 +154,9 @@
           </button>
 
           <div class="menu-import-section">
-            <label for="import-replay" class="menu-import-label">Load Replay JSON</label>
+            <label for="import-replay" class="menu-import-label"
+              >Load Replay JSON</label
+            >
             <input
               type="file"
               id="import-replay"
@@ -127,205 +169,303 @@
 
       <!-- 2. Campaign Shell wrapper -->
       <div id="screen-campaign-shell" class="screen flex-col">
-          <div id="campaign-shell-top-bar"></div>
-          <div id="campaign-shell-content" class="flex-grow relative overflow-hidden">
-              <!-- 2a. Campaign Screen -->
-              <div id="screen-campaign" class="screen screen-centered">
-              </div>
+        <div id="campaign-shell-top-bar"></div>
+        <div
+          id="campaign-shell-content"
+          class="flex-grow relative overflow-hidden"
+        >
+          <!-- 2a. Campaign Screen -->
+          <div id="screen-campaign" class="screen screen-centered"></div>
 
-              <!-- 2b. Equipment Screen -->
-              <div id="screen-equipment" class="screen">
-                <!-- Content will be injected by EquipmentScreen.ts -->
-              </div>
+          <!-- 2b. Equipment Screen -->
+          <div id="screen-equipment" class="screen">
+            <!-- Content will be injected by EquipmentScreen.ts -->
+          </div>
 
-              <!-- 2c. Barracks Screen -->
-              <div id="screen-barracks" class="screen">
-                <!-- Content will be injected by BarracksScreen.ts -->
-              </div>
+          <!-- 2c. Barracks Screen -->
+          <div id="screen-barracks" class="screen">
+            <!-- Content will be injected by BarracksScreen.ts -->
+          </div>
 
-              <!-- 2f. Mission Setup Screen -->
-              <div id="screen-mission-setup" class="screen screen-centered">
-                <h1>Mission Configuration</h1>
-                <div id="mission-setup-context" style="margin-bottom: 20px; color: var(--color-primary); font-weight: bold; letter-spacing: 1px;"></div>
-                <div id="setup-content">
-                  <div id="common-config-section" style="width: 100%">
-                    <div class="control-group">
-                      <label>Visual Style & Theme:</label>
-                      <div style="display: flex; align-items: center; justify-content: space-between; background: var(--color-surface-elevated); padding: 8px 12px; border: 1px solid var(--color-border);">
-                        <div id="setup-global-status" style="font-size: 0.9em; color: var(--color-text-dim);">
-                          <!-- Injected by MissionSetupManager -->
-                        </div>
-                        <button id="btn-setup-to-settings" class="menu-button" style="width: auto; margin: 0; padding: 4px 12px; font-size: 0.7em;">Settings</button>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div id="map-config-section" style="width: 100%">
-                    <div class="control-group">
-                      <label for="map-generator-type">Generator Type:</label>
-                      <select id="map-generator-type">
-                        <option value="DenseShip">Dense Ship</option>
-                        <option value="TreeShip">Tree Ship</option>
-                        <option value="Procedural">Procedural</option>
-                        <option value="Static">Static Map</option>
-                      </select>
-                    </div>
-
-                    <div class="control-group">
-                      <label>Game Options:</label>
-                      <div class="flex-row gap-10" style="flex-wrap: wrap; margin-top: 5px;">
-                        <label style="display: flex; align-items: center; gap: 5px; margin-top: 0; cursor: pointer; font-size: 0.8em;">
-                          <input type="checkbox" id="toggle-fog-of-war" checked /> Fog
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 5px; margin-top: 0; cursor: pointer; font-size: 0.8em;">
-                          <input type="checkbox" id="toggle-debug-overlay" /> Debug
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 5px; margin-top: 0; cursor: pointer; font-size: 0.8em;">
-                          <input type="checkbox" id="toggle-los-overlay" /> LOS
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 5px; margin-top: 0; cursor: pointer; font-size: 0.8em;">
-                          <input type="checkbox" id="toggle-agent-control" checked /> AI
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 5px; margin-top: 0; cursor: pointer; font-size: 0.8em;">
-                          <input type="checkbox" id="toggle-manual-deployment" /> Deployment
-                        </label>
-                        <label style="display: flex; align-items: center; gap: 5px; margin-top: 0; cursor: pointer; font-size: 0.8em;">
-                          <input type="checkbox" id="toggle-allow-tactical-pause" checked /> Pause
-                        </label>
-                      </div>
-                    </div>
-
-                    <div class="control-group">
-                      <div id="preset-map-controls">
-                        <label for="map-seed">Map Seed:</label>
-                        <input type="number" id="map-seed" placeholder="Random" />
-
-                        <div style="display: flex; gap: 10px">
-                          <div style="flex: 1">
-                            <label for="map-width">Width:</label>
-                            <input type="number" id="map-width" value="10" />
-                          </div>
-                          <div style="flex: 1">
-                            <label for="map-height">Height:</label>
-                            <input type="number" id="map-height" value="10" />
-                          </div>
-                        </div>
-
-                        <label for="map-spawn-points">Enemy Spawns: <span id="map-spawn-points-value">3</span></label>
-                        <input
-                          type="range"
-                          id="map-spawn-points"
-                          value="3"
-                          min="1"
-                          max="10"
-                          step="1"
-                        />
-
-                        <label for="map-starting-threat"
-                          >Starting Threat:
-                          <span id="map-starting-threat-value">0</span>%</label
-                        >
-                        <input
-                          type="range"
-                          id="map-starting-threat"
-                          min="0"
-                          max="100"
-                          step="5"
-                          value="0"
-                        />
-
-                        <label for="map-base-enemies">Base Wave Size: <span id="map-base-enemies-value">3</span></label>
-                        <input
-                          type="range"
-                          id="map-base-enemies"
-                          value="3"
-                          min="1"
-                          max="20"
-                          step="1"
-                        />
-
-                        <label for="map-enemy-growth">Wave Growth: <span id="map-enemy-growth-value">1.0</span></label>
-                        <input
-                          type="range"
-                          id="map-enemy-growth"
-                          value="1.0"
-                          min="0.1"
-                          max="5.0"
-                          step="0.1"
-                        />
-                      </div>
-
-                      <div id="static-map-controls" style="display: none">
-                        <h3>Static Map</h3>
-                        <textarea
-                          id="static-map-json"
-                          rows="5"
-                          placeholder="Paste JSON MapDefinition here..."
-                        ></textarea>
-                        <button id="load-static-map">Load JSON</button>
-                        <input type="file" id="upload-static-map" accept=".json" />
-
-                        <h3 style="margin-top: 15px">ASCII Map</h3>
-                        <textarea
-                          id="ascii-map-input"
-                          rows="5"
-                          placeholder="Paste ASCII map here..."
-                        ></textarea>
-                        <button id="convert-ascii-to-map">Convert ASCII</button>
-                      </div>
-                    </div>
-                  </div>
-
-                                    <div class="control-group squad-builder-group">
-                                      <h3>Squad Selection</h3>
-                                      <div id="squad-builder">
-                                        <!-- Injected by JS -->
-                                      </div>
-                                    </div>                </div>
-
-                <div
-                  style="
-                    margin-top: 10px;
-                    width: 100%;
-                    max-width: 600px;
-                    display: flex;
-                    justify-content: space-between;
-                    align-items: center;
-                    padding: 0 20px;
-                  "
-                >
-                  <button id="btn-setup-back" class="back-button">Back</button>
-                  <button
-                    id="btn-goto-equipment"
-                    class="primary-button"
-                    style="padding: 12px 24px"
+          <!-- 2f. Mission Setup Screen -->
+          <div id="screen-mission-setup" class="screen screen-centered">
+            <h1>Mission Configuration</h1>
+            <div
+              id="mission-setup-context"
+              style="
+                margin-bottom: 20px;
+                color: var(--color-primary);
+                font-weight: bold;
+                letter-spacing: 1px;
+              "
+            ></div>
+            <div id="setup-content">
+              <div id="common-config-section" style="width: 100%">
+                <div class="control-group">
+                  <label>Visual Style & Theme:</label>
+                  <div
+                    style="
+                      display: flex;
+                      align-items: center;
+                      justify-content: space-between;
+                      background: var(--color-surface-elevated);
+                      padding: 8px 12px;
+                      border: 1px solid var(--color-border);
+                    "
                   >
-                    Equipment & Supplies
-                  </button>
+                    <div
+                      id="setup-global-status"
+                      style="font-size: 0.9em; color: var(--color-text-dim)"
+                    >
+                      <!-- Injected by MissionSetupManager -->
+                    </div>
+                    <button
+                      id="btn-setup-to-settings"
+                      class="menu-button"
+                      style="
+                        width: auto;
+                        margin: 0;
+                        padding: 4px 12px;
+                        font-size: 0.7em;
+                      "
+                    >
+                      Settings
+                    </button>
+                  </div>
                 </div>
               </div>
+
+              <div id="map-config-section" style="width: 100%">
+                <div class="control-group">
+                  <label for="map-generator-type">Generator Type:</label>
+                  <select id="map-generator-type">
+                    <option value="DenseShip">Dense Ship</option>
+                    <option value="TreeShip">Tree Ship</option>
+                    <option value="Procedural">Procedural</option>
+                    <option value="Static">Static Map</option>
+                  </select>
+                </div>
+
+                <div class="control-group">
+                  <label>Game Options:</label>
+                  <div
+                    class="flex-row gap-10"
+                    style="flex-wrap: wrap; margin-top: 5px"
+                  >
+                    <label
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 5px;
+                        margin-top: 0;
+                        cursor: pointer;
+                        font-size: 0.8em;
+                      "
+                    >
+                      <input type="checkbox" id="toggle-fog-of-war" checked />
+                      Fog
+                    </label>
+                    <label
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 5px;
+                        margin-top: 0;
+                        cursor: pointer;
+                        font-size: 0.8em;
+                      "
+                    >
+                      <input type="checkbox" id="toggle-debug-overlay" /> Debug
+                    </label>
+                    <label
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 5px;
+                        margin-top: 0;
+                        cursor: pointer;
+                        font-size: 0.8em;
+                      "
+                    >
+                      <input type="checkbox" id="toggle-los-overlay" /> LOS
+                    </label>
+                    <label
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 5px;
+                        margin-top: 0;
+                        cursor: pointer;
+                        font-size: 0.8em;
+                      "
+                    >
+                      <input
+                        type="checkbox"
+                        id="toggle-agent-control"
+                        checked
+                      />
+                      AI
+                    </label>
+                    <label
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 5px;
+                        margin-top: 0;
+                        cursor: pointer;
+                        font-size: 0.8em;
+                      "
+                    >
+                      <input type="checkbox" id="toggle-manual-deployment" />
+                      Deployment
+                    </label>
+                    <label
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 5px;
+                        margin-top: 0;
+                        cursor: pointer;
+                        font-size: 0.8em;
+                      "
+                    >
+                      <input
+                        type="checkbox"
+                        id="toggle-allow-tactical-pause"
+                        checked
+                      />
+                      Pause
+                    </label>
+                  </div>
+                </div>
+
+                <div class="control-group">
+                  <div id="preset-map-controls">
+                    <label for="map-seed">Map Seed:</label>
+                    <input type="number" id="map-seed" placeholder="Random" />
+
+                    <div style="display: flex; gap: 10px">
+                      <div style="flex: 1">
+                        <label for="map-width">Width:</label>
+                        <input type="number" id="map-width" value="10" />
+                      </div>
+                      <div style="flex: 1">
+                        <label for="map-height">Height:</label>
+                        <input type="number" id="map-height" value="10" />
+                      </div>
+                    </div>
+
+                    <label for="map-spawn-points"
+                      >Enemy Spawns:
+                      <span id="map-spawn-points-value">3</span></label
+                    >
+                    <input
+                      type="range"
+                      id="map-spawn-points"
+                      value="3"
+                      min="1"
+                      max="10"
+                      step="1"
+                    />
+
+                    <label for="map-starting-threat"
+                      >Starting Threat:
+                      <span id="map-starting-threat-value">0</span>%</label
+                    >
+                    <input
+                      type="range"
+                      id="map-starting-threat"
+                      min="0"
+                      max="100"
+                      step="5"
+                      value="0"
+                    />
+
+                    <label for="map-base-enemies"
+                      >Base Wave Size:
+                      <span id="map-base-enemies-value">3</span></label
+                    >
+                    <input
+                      type="range"
+                      id="map-base-enemies"
+                      value="3"
+                      min="1"
+                      max="20"
+                      step="1"
+                    />
+
+                    <label for="map-enemy-growth"
+                      >Wave Growth:
+                      <span id="map-enemy-growth-value">1.0</span></label
+                    >
+                    <input
+                      type="range"
+                      id="map-enemy-growth"
+                      value="1.0"
+                      min="0.1"
+                      max="5.0"
+                      step="0.1"
+                    />
+                  </div>
+
+                  <div id="static-map-controls" style="display: none">
+                    <h3>Static Map</h3>
+                    <textarea
+                      id="static-map-json"
+                      rows="5"
+                      placeholder="Paste JSON MapDefinition here..."
+                    ></textarea>
+                    <button id="load-static-map">Load JSON</button>
+                    <input type="file" id="upload-static-map" accept=".json" />
+
+                    <h3 style="margin-top: 15px">ASCII Map</h3>
+                    <textarea
+                      id="ascii-map-input"
+                      rows="5"
+                      placeholder="Paste ASCII map here..."
+                    ></textarea>
+                    <button id="convert-ascii-to-map">Convert ASCII</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="control-group squad-builder-group">
+                <h3>Squad Selection</h3>
+                <div id="squad-builder">
+                  <!-- Injected by JS -->
+                </div>
+              </div>
+            </div>
+
+            <div
+              style="
+                margin-top: 10px;
+                width: 100%;
+                max-width: 600px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0 20px;
+              "
+            >
+              <button id="btn-setup-back" class="back-button">Back</button>
+              <button
+                id="btn-goto-equipment"
+                class="primary-button"
+                style="padding: 12px 24px"
+              >
+                Equipment & Supplies
+              </button>
+            </div>
           </div>
+        </div>
       </div>
-
-
-      <!-- 2d. Statistics Screen -->
-      <div id="screen-statistics" class="screen" style="z-index: 1050; position: absolute; top: 0; left: 0;">
-        <!-- Content will be injected by StatisticsScreen.ts -->
-      </div>
-
-      <!-- 2e. Settings Screen -->
-      <div id="screen-settings" class="screen" style="z-index: 1060; position: absolute; top: 0; left: 0;">
-        <!-- Content will be injected by SettingsScreen.ts -->
-      </div>
-
 
       <!-- 4. Mission Screen (Game Loop) -->
       <div id="screen-mission" class="screen">
         <!-- 1. Top Bar -->
         <div id="top-bar" class="top-bar">
-          <div id="game-status">
-            Time: 0.0s
-          </div>
+          <div id="game-status">Time: 0.0s</div>
           <div
             id="top-threat-container"
             style="
@@ -451,9 +591,7 @@
 
           <!-- Speed Control -->
           <div id="speed-control">
-            <button id="btn-pause-toggle">
-              || PAUSE
-            </button>
+            <button id="btn-pause-toggle">|| PAUSE</button>
             <label for="game-speed">SPEED</label>
             <input
               type="range"
@@ -462,7 +600,7 @@
               max="100"
               step="1"
               value="50"
-              style="width: 80px; margin: 0;"
+              style="width: 80px; margin: 0"
               title="Game Speed (0.1x to 10.0x)"
             />
             <span id="speed-value">1.0x</span>
@@ -539,6 +677,42 @@
       >
         <!-- Content will be injected by CampaignSummaryScreen.ts -->
       </div>
+
+      <!-- Global Overlay Screens -->
+      <!-- 2d. Statistics Screen -->
+      <div
+        id="screen-statistics"
+        class="screen"
+        style="
+          z-index: 1150;
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+        "
+      >
+        <!-- Content will be injected by StatisticsScreen.ts -->
+      </div>
+
+      <!-- 2e. Settings Screen -->
+      <div
+        id="screen-settings"
+        class="screen"
+        style="
+          z-index: 1200;
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+        "
+      >
+        <!-- Content will be injected by SettingsScreen.ts -->
+      </div>
+    </div>
+    <!-- End of #app -->
+
     <div id="modal-container"></div>
     <script type="module" src="/renderer/main.ts"></script>
   </body>
