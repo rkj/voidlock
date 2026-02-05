@@ -6,6 +6,8 @@
 
 The application is divided into distinct screens to reduce UI clutter and improve flow.
 
+- **Global Accessibility**: The **Settings Screen** and **Modal System** MUST be globally accessible from any game state. They must override any active screen (including shells) to ensure users can adjust preferences or respond to confirmations regardless of their current location in the application.
+
 ### Main Menu
 
 - **Title**: Voidlock
@@ -36,7 +38,11 @@ The application is divided into distinct screens to reduce UI clutter and improv
 
 - **Shell Integration**:
   - **Campaign Mode**: MUST be rendered _within_ the `CampaignShell` content area.
-  - **Custom Mode**: Can use the standalone layout.
+  - **Custom Mode**: MUST be rendered _within_ a consistent layout shell, even if not in a campaign, to ensure unified navigation.
+
+- **Layout & Accessibility**:
+  - **Scrollability**: The configuration area MUST have a vertical scrollbar if content exceeds the viewport height (especially when "Advanced Settings" are expanded). The "Initialize Expedition" or "Launch Mission" button MUST remain accessible.
+  - **Unification**: The "Visual Style & Theme" section within the configuration panel MUST be a simple status display or a link to the Global Settings. Redundant dropdowns/buttons that duplicate Global Settings MUST be removed to avoid confusion.
 
 - **Campaign Context Header**:
   - **Location**: Below the "Mission Configuration" title.
@@ -76,8 +82,13 @@ The application is divided into distinct screens to reduce UI clutter and improv
       - **Full Height**: The container MUST expand to fill vertical space.
       - **Sticky Recruitment**: The "Recruit" button MUST be in the sticky footer.
       - **Soldier Cards**: `height: auto`.
-    - **Interaction**: Drag & Drop, Double-Click.
-    - **Constraints**: Mission-Specific units auto-assigned. Max 4 slots.
+    - **Interaction**:
+      - **Primary (Select-then-Place)**:
+        1. Clicking a soldier in the Roster marks them as 'Selected for Deployment' (Visual highlight).
+        2. Clicking a green 'Deployment Slot' assigns the highlighted soldier to that specific slot.
+        3. The highlight automatically advances to the next available soldier in the roster to facilitate rapid deployment.
+      - **Removal**: Clicking an 'X' button or clicking an occupied slot removes the unit and returns them to the roster.
+    - **Constraints**: Mission-Specific units (e.g. VIPs) are auto-assigned to specific slots and cannot be moved or removed. Max 4 total soldier slots.
     - **Visuals**:
       - **Roster Sorting**: Healthy -> Wounded -> Dead.
       - **Deployed State**: Visual indication (dimmed/tag) for deployed units.
@@ -286,6 +297,7 @@ The UI must be optimized for visibility and information density, utilizing the f
   - **Actions**:
     - **Continue**: Return to Campaign Hub or Main Menu.
     - **Replay Mission** (Custom Mode ONLY): Immediately restarts the mission with the exact same Seed and Configuration.
+    - **Export Recording**: Downloads the full mission replay data as a JSON file for debugging or sharing.
 - **Right Pane (Replay Viewport)**:
   - **Visuals**: Dedicated canvas rendering the mission replay.
   - **Playback Controls**: A control bar positioned at the bottom of the viewport containing:
@@ -422,10 +434,12 @@ All campaign-related screens (Sector Map, Barracks, Engineering, Stats) MUST sha
 
 - **Structure:**
   - **Top Bar (Persistent):**
-    - **Left:** "Campaign Mode" Label / Current Date or Depth.
-    - **Center (Navigation):** Tab-like buttons to switch between views (Sector Map, Barracks, Engineering). This replaces ad-hoc "Back" buttons.
-    - **Right (Resources):** Persistent display of Scrap and Intel.
-    - **Far Right:** Main Menu / Pause button.
+    - **Left:** Mode Label (e.g. "Campaign Mode", "Service Record").
+    - **Center (Navigation):** Tab-like buttons to switch between views.
+      - **Campaign Mode**: [Sector Map], [Barracks], [Service Record].
+      - **Statistics Mode**: [Service Record], [Main Menu] (Back tab).
+    - **Right (Resources):** Persistent display of Scrap and Intel (Campaign only).
+    - **Far Right:** Global Settings, Main Menu.
   - **Content Area:** The active screen (Sector Map, Barracks, etc.) renders here.
 - **Benefits:**
   - Solves overlap issues where local UI elements cover global resources.
