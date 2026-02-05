@@ -47,7 +47,7 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
 
         engine.update(scaledDt);
 
-        const state = engine.getState();
+        const state = engine.getState(true);
         const updateMsg: MainMessage = {
           type: "STATE_UPDATE",
           payload: state,
@@ -101,7 +101,7 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
       if (engine) {
         const updateMsg: MainMessage = {
           type: "STATE_UPDATE",
-          payload: engine.getState(),
+          payload: engine.getState(true),
         };
         self.postMessage(updateMsg);
       }

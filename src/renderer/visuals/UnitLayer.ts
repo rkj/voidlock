@@ -113,7 +113,8 @@ export class UnitLayer implements RenderLayer {
 
       const ex = Math.floor(enemy.pos.x);
       const ey = Math.floor(enemy.pos.y);
-      if (!isCellVisible(state, ex, ey)) return;
+      if (!isCellVisible(state, ex, ey) && !state.settings.debugOverlayEnabled)
+        return;
 
       const x = enemy.pos.x * cellSize;
       const y = enemy.pos.y * cellSize;

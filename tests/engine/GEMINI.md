@@ -15,6 +15,7 @@ This directory contains the automated test suite for the game engine, using Vite
 - `regression_voidlock_5zjs_scrap_display.test.ts`: Regression test for verifying scrap display updates.
 - `regression_voidlock_iq1b_victory_trigger.test.ts`: Regression test for the campaign victory trigger.
 - `regression_83pq_director_burst.test.ts`: Regression test for Director burst spawning and wave cap enforcement.
+- `regression_2zq4_visibility_pruning.test.ts`: Regression test for unit and entity visibility pruning based on LOS and debug mode.
 - `LineOfSight_Precision.test.ts`: Verifies geometric precision for LOS/LOF, including door struts and unit radius (ADR 0026).
 
 ## Subdirectories
