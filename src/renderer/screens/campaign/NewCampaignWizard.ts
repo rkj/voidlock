@@ -1,9 +1,6 @@
-import { MetaManager } from "@src/renderer/campaign/MetaManager";
 import { ConfigManager } from "@src/renderer/ConfigManager";
 import { CampaignOverrides } from "@src/shared/campaign_types";
 import { UnitStyle, MapGeneratorType } from "@src/shared/types";
-import { AppContext } from "../../app/AppContext";
-import { UnitStyleSelector } from "../../components/UnitStyleSelector";
 
 export interface NewCampaignWizardOptions {
   onStartCampaign: (
@@ -19,12 +16,10 @@ export class NewCampaignWizard {
   private options: NewCampaignWizardOptions;
   private selectedDifficulty = "normal";
   private isAdvancedShown = false;
-  private unitStyleSelector?: UnitStyleSelector;
   private selectedUnitStyle: UnitStyle = ConfigManager.loadGlobal().unitStyle;
 
   constructor(
     container: HTMLElement,
-    private context: AppContext,
     options: NewCampaignWizardOptions,
   ) {
     this.container = container;
@@ -33,16 +28,13 @@ export class NewCampaignWizard {
 
   public render() {
     this.container.innerHTML = "";
-    this.container.className = "flex-col campaign-setup-wizard";
+    this.container.className = "flex-col campaign-setup-wizard h-full relative";
 
     const scrollContainer = document.createElement("div");
-    scrollContainer.className = "flex-grow w-full h-full overflow-y-auto";
-    scrollContainer.style.paddingBottom = "60px";
+    scrollContainer.className = "flex-grow w-full overflow-y-auto";
 
     const content = document.createElement("div");
-    content.className =
-      "flex-col align-center justify-center gap-20 campaign-setup-wizard";
-    content.style.minHeight = "100%";
+    content.className = "flex-col align-center gap-20";
     content.style.maxWidth = "800px";
     content.style.margin = "0 auto";
     content.style.padding = "40px 20px";
@@ -57,7 +49,38 @@ export class NewCampaignWizard {
     form.className = "flex-col gap-20 w-full p-20";
     form.style.background = "var(--color-surface-elevated)";
     form.style.border = "1px solid var(--color-border-strong)";
-    form.style.minWidth = "800px";
+    form.style.maxWidth = "800px";
+    form.style.boxSizing = "border-box";
+
+    // Global Status (Spec 8.1) - Settings button removed (redundant with Shell)
+    const globalStatusGroup = document.createElement("div");
+    globalStatusGroup.className = "flex-col gap-5";
+    const globalStatusLabel = document.createElement("label");
+    globalStatusLabel.textContent = "Visual Style & Theme";
+    globalStatusLabel.style.fontSize = "0.8em";
+    globalStatusLabel.style.color = "var(--color-text-dim)";
+    
+    const globalStatusContainer = document.createElement("div");
+    globalStatusContainer.style.display = "flex";
+    globalStatusContainer.style.alignItems = "center";
+    globalStatusContainer.style.justifyContent = "space-between";
+    globalStatusContainer.style.background = "rgba(0,0,0,0.2)";
+    globalStatusContainer.style.padding = "8px 12px";
+    globalStatusContainer.style.border = "1px solid var(--color-border)";
+    
+    const themeLabelStr = ConfigManager.loadGlobal().themeId || "default";
+    const themeName = themeLabelStr.charAt(0).toUpperCase() + themeLabelStr.slice(1);
+    
+    const statusText = document.createElement("div");
+    statusText.className = "global-status-text";
+    statusText.style.fontSize = "0.9em";
+    statusText.style.color = "var(--color-text-dim)";
+    statusText.textContent = `${this.selectedUnitStyle} | ${themeName}`;
+    
+    globalStatusContainer.appendChild(statusText);
+    globalStatusGroup.appendChild(globalStatusLabel);
+    globalStatusGroup.appendChild(globalStatusContainer);
+    form.appendChild(globalStatusGroup);
 
     // Difficulty Cards
     const diffLabel = document.createElement("label");
@@ -198,26 +221,6 @@ export class NewCampaignWizard {
       pauseLabel.style.opacity = "0.5";
     }
 
-    // Theme Selection
-    const themeGroup = document.createElement("div");
-    themeGroup.className = "flex-col gap-5";
-    const themeLabel = document.createElement("label");
-    themeLabel.textContent = "Visual Theme";
-    themeLabel.style.fontSize = "0.8em";
-    themeLabel.style.color = "var(--color-text-dim)";
-    const global = ConfigManager.loadGlobal();
-    const themeSelect = document.createElement("select");
-    themeSelect.id = "campaign-theme";
-    themeSelect.innerHTML = `
-      <option value="default">Default (Voidlock Green)</option>
-      <option value="industrial">Industrial (Amber/Steel)</option>
-      <option value="hive">Alien Hive (Purple/Biolume)</option>
-    `;
-    themeSelect.value = global.themeId;
-    themeGroup.appendChild(themeLabel);
-    themeGroup.appendChild(themeSelect);
-    form.appendChild(themeGroup);
-
     // Campaign Length Selection
     const lengthGroup = document.createElement("div");
     lengthGroup.className = "flex-col gap-5";
@@ -234,33 +237,6 @@ export class NewCampaignWizard {
     lengthGroup.appendChild(lengthLabel);
     lengthGroup.appendChild(lengthSelect);
     form.appendChild(lengthGroup);
-
-    // Unit Style Selection
-    const styleGroup = document.createElement("div");
-    styleGroup.className = "flex-col gap-5";
-    const styleLabel = document.createElement("label");
-    styleLabel.textContent = "Visual Style";
-    styleLabel.style.fontSize = "0.8em";
-    styleLabel.style.color = "var(--color-text-dim)";
-    styleGroup.appendChild(styleLabel);
-
-    const stylePreviewContainer = document.createElement("div");
-    stylePreviewContainer.id = "campaign-unit-style-preview";
-    styleGroup.appendChild(stylePreviewContainer);
-
-    form.appendChild(styleGroup);
-
-    // We need to render the selector after appending to form so it finds the element
-    // Actually we pass the element directly now
-    this.unitStyleSelector = new UnitStyleSelector(
-      stylePreviewContainer,
-      this.context,
-      this.selectedUnitStyle,
-      (style) => {
-        this.selectedUnitStyle = style;
-      },
-    );
-    this.unitStyleSelector.render();
 
     // Advanced Options (Collapsible)
     const advancedWrapper = document.createElement("div");
@@ -410,17 +386,12 @@ export class NewCampaignWizard {
 
     const startBtn = document.createElement("button");
     startBtn.textContent = "Initialize Expedition";
-    startBtn.className = "primary-button w-full";
-    startBtn.style.height = "32px";
-    startBtn.style.display = "flex";
-    startBtn.style.alignItems = "center";
-    startBtn.style.justifyContent = "center";
-    startBtn.style.fontSize = "0.9em";
     startBtn.onclick = () => {
       ConfigManager.clearCampaign();
+      const currentGlobal = ConfigManager.loadGlobal();
       ConfigManager.saveGlobal({
-        unitStyle: this.selectedUnitStyle,
-        themeId: themeSelect.value,
+        unitStyle: currentGlobal.unitStyle,
+        themeId: currentGlobal.themeId,
       });
 
       const overrides: CampaignOverrides = {
@@ -450,9 +421,37 @@ export class NewCampaignWizard {
         overrides,
       );
     };
-    content.appendChild(startBtn);
 
     scrollContainer.appendChild(content);
     this.container.appendChild(scrollContainer);
+
+    // Sticky Footer (Spec 8.1 / 8.6)
+    const footer = document.createElement("div");
+    footer.className = "flex-row justify-between align-center p-20 w-full";
+    footer.style.background = "var(--color-bg)";
+    footer.style.borderTop = "1px solid var(--color-border-strong)";
+    footer.style.flexShrink = "0";
+    footer.style.zIndex = "10";
+    footer.style.maxWidth = "800px";
+    footer.style.margin = "0 auto";
+    footer.style.boxSizing = "border-box";
+
+    const backBtn = document.createElement("button");
+    backBtn.textContent = "Back to Menu";
+    backBtn.className = "back-button";
+    backBtn.style.marginTop = "0";
+    backBtn.onclick = () => this.options.onBack();
+    footer.appendChild(backBtn);
+
+    startBtn.className = "primary-button";
+    startBtn.style.width = "auto";
+    startBtn.style.height = "32px";
+    startBtn.style.padding = "0 24px";
+    startBtn.style.display = "flex";
+    startBtn.style.alignItems = "center";
+    startBtn.style.justifyContent = "center";
+    footer.appendChild(startBtn);
+
+    this.container.appendChild(footer);
   }
 }

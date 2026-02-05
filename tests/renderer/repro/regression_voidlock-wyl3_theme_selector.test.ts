@@ -25,6 +25,7 @@ describe("Theme Selector", () => {
             <button id="btn-menu-campaign"></button>
             <button id="btn-menu-custom"></button>
             <button id="btn-menu-statistics"></button>
+            <button id="btn-menu-settings"></button>
             <button id="btn-menu-reset"></button>
             <input type="file" id="import-replay" />
             <div id="menu-version"></div>
@@ -107,16 +108,18 @@ describe("Theme Selector", () => {
   });
 
   it("should initialize with default theme", () => {
+    document.getElementById("btn-menu-settings")?.click();
     const themeSelect = document.getElementById(
-      "map-theme",
+      "settings-map-theme",
     ) as HTMLSelectElement;
     expect(themeSelect.value).toBe("default");
     expect(document.body.classList.contains("theme-default")).toBe(true);
   });
 
   it("should apply and persist theme change", () => {
+    document.getElementById("btn-menu-settings")?.click();
     const themeSelect = document.getElementById(
-      "map-theme",
+      "settings-map-theme",
     ) as HTMLSelectElement;
 
     // Change theme to industrial
@@ -143,8 +146,9 @@ describe("Theme Selector", () => {
     const newApp = new GameApp();
     await newApp.initialize();
 
+    document.getElementById("btn-menu-settings")?.click();
     const themeSelect = document.getElementById(
-      "map-theme",
+      "settings-map-theme",
     ) as HTMLSelectElement;
     expect(themeSelect.value).toBe("hive");
     expect(document.body.classList.contains("theme-hive")).toBe(true);

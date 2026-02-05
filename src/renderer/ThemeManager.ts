@@ -115,6 +115,13 @@ export class ThemeManager {
   }
 
   /**
+   * Returns the current theme ID.
+   */
+  public getCurrentThemeId(): string {
+    return document.body.className.replace("theme-", "") || "default";
+  }
+
+  /**
    * Programmatically applies a theme configuration by overriding CSS variables.
    */
   public applyTheme(config: ThemeConfig): void {

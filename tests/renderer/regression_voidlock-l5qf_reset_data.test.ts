@@ -27,6 +27,8 @@ vi.mock("@src/renderer/ThemeManager", () => ({
     getInstance: vi.fn().mockReturnValue({
       init: vi.fn().mockResolvedValue(undefined),
       setTheme: vi.fn(),
+      getAssetUrl: vi.fn().mockReturnValue(""),
+      getCurrentThemeId: vi.fn().mockReturnValue("default"),
     }),
   },
 }));
@@ -88,7 +90,12 @@ describe("Reset Data Button", () => {
     // Mock window.location.reload
     reloadMock = vi.fn();
     Object.defineProperty(window, "location", {
-      value: { reload: reloadMock },
+      value: {
+        ...window.location,
+        hash: window.location.hash || "",
+        reload: reloadMock,
+      },
+      configurable: true,
       writable: true,
     });
 

@@ -59,6 +59,8 @@ vi.mock("@src/renderer/ThemeManager", () => ({
     getInstance: vi.fn().mockReturnValue({
       init: vi.fn().mockResolvedValue(undefined),
       setTheme: vi.fn(),
+      getAssetUrl: vi.fn().mockReturnValue(""),
+      getCurrentThemeId: vi.fn().mockReturnValue("default"),
     }),
   },
 }));

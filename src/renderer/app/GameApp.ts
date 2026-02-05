@@ -349,7 +349,6 @@ export class GameApp {
       },
       onUnitStyleChange: (style: string) => {
         this.missionSetupManager.unitStyle = style as any;
-        this.missionSetupManager.renderUnitStylePreview();
         this.missionSetupManager.saveCurrentConfig();
       },
       onToggleFog: (enabled: boolean) => {

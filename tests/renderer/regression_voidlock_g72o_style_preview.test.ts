@@ -48,6 +48,7 @@ const mockThemeManager = {
     return fallbacks[varName] || "#000000";
   }),
   getAssetUrl: vi.fn().mockReturnValue("mock-url"),
+  getCurrentThemeId: vi.fn().mockReturnValue("default"),
 };
 
 vi.mock("@src/renderer/ThemeManager", () => ({
@@ -137,6 +138,7 @@ describe("Unit Style Preview Regression (voidlock-g72o)", () => {
     document.body.innerHTML = `
       <div id="screen-main-menu" class="screen">
         <button id="btn-menu-custom">Custom Mission</button>
+        <button id="btn-menu-settings">Settings</button>
       </div>
 
       <div id="screen-campaign-shell" class="screen flex-col">
@@ -153,25 +155,6 @@ describe("Unit Style Preview Regression (voidlock-g72o)", () => {
                 <div id="setup-content">
                   <div id="map-config-section">
                     <select id="map-generator-type"><option value="DenseShip">Dense Ship</option></select>
-                    <select id="map-theme"><option value="default">Default</option></select>
-                    <select id="select-unit-style">
-                        <option value="TacticalIcons">Tactical Icons</option>
-                        <option value="Sprites">Sprites</option>
-                    </select>
-                    <div id="unit-style-preview" class="style-preview-container">
-                        <div class="style-preview-item" data-style="TacticalIcons">
-                            <div class="style-preview-box">
-                                <canvas id="preview-canvas-tactical" width="64" height="64"></canvas>
-                            </div>
-                            <span class="style-preview-label">Tactical</span>
-                        </div>
-                        <div class="style-preview-item" data-style="Sprites">
-                            <div class="style-preview-box">
-                                <canvas id="preview-canvas-sprites" width="64" height="64"></canvas>
-                            </div>
-                            <span class="style-preview-label">Sprites</span>
-                        </div>
-                    </div>
                     <input type="number" id="map-seed" />
                     <div id="preset-map-controls">
                        <input type="number" id="map-width" value="10" />
@@ -192,6 +175,8 @@ describe("Unit Style Preview Regression (voidlock-g72o)", () => {
                   <button id="btn-goto-equipment">Equipment</button>
                 </div>
               </div>
+
+              <div id="screen-settings" class="screen"></div>
           </div>
       </div>
 
@@ -218,8 +203,8 @@ describe("Unit Style Preview Regression (voidlock-g72o)", () => {
     document.dispatchEvent(new Event("DOMContentLoaded"));
   });
 
-  it("should render both style previews when entering mission setup", async () => {
-    document.getElementById("btn-menu-custom")?.click();
+  it("should render both style previews when entering settings screen", async () => {
+    document.getElementById("btn-menu-settings")?.click();
 
     const tacticalCanvas = document.getElementById(
       "preview-canvas-tacticalicons",
@@ -251,7 +236,7 @@ describe("Unit Style Preview Regression (voidlock-g72o)", () => {
   });
 
   it("should update active state when unit style selection changes", async () => {
-    document.getElementById("btn-menu-custom")?.click();
+    document.getElementById("btn-menu-settings")?.click();
 
     const tacticalItem = document.querySelector(
       ".style-preview-item[data-style='TacticalIcons']",

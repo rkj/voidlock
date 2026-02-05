@@ -73,9 +73,8 @@ describe("CampaignScreen Unit Style Default Regression", () => {
     );
     screen.show();
 
-    const activeItem = container.querySelector(".style-preview-item.active");
-    expect(activeItem).not.toBeNull();
-    expect(activeItem?.getAttribute("data-style")).toBe("TacticalIcons");
-    expect(activeItem?.textContent).toContain("Tactical Icons");
+    const statusText = container.querySelector(".global-status-text");
+    expect(statusText).not.toBeNull();
+    expect(statusText?.textContent).toContain("TacticalIcons");
   });
 });
