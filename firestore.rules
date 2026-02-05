@@ -1,0 +1,23 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Campaign documents
+    // Path: campaigns/{userId}_{campaignId}
+    match /campaigns/{campaignDocId} {
+      
+      // Users can only read, update, or delete their own campaigns
+      allow read, update, delete: if request.auth != null && 
+                                   resource.data.userId == request.auth.uid;
+      
+      // Users can only create campaigns where they are set as the owner
+      allow create: if request.auth != null && 
+                      request.resource.data.userId == request.auth.uid;
+    }
+
+    // Default deny for all other collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

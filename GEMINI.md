@@ -34,6 +34,8 @@ Use these scripts from `package.json`:
 - `scripts/`: Build, maintenance, and asset processing scripts.
 - `docs/`: Documentation, ADRs, and Design Specs.
 - `public/`: Static assets (images, icons) served by Vite.
+- `firestore.rules`: Security rules for Firebase Cloud Storage.
+- `firebase.json`: Firebase project configuration.
 
 ### Key Source Directories (`src/`)
 
