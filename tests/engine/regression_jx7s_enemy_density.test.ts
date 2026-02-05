@@ -14,9 +14,8 @@ describe("Director - Point-Based Spawning (ew59/3sqa)", () => {
     // Fast forward to turn 1 (10s)
     director.update(10000);
 
-    // Wave budget = floor(20 + (10/10 * 1)) = 21
-    // BUT WAVE_CAP = 5
-    expect(onSpawn).toHaveBeenCalledTimes(DIRECTOR.WAVE_CAP);
+    // Wave budget = floor(10/10 * 1) = 1
+    expect(onSpawn).toHaveBeenCalledTimes(1);
   });
 
   it("should increase budget over time and respect WAVE_CAP", () => {
@@ -32,8 +31,7 @@ describe("Director - Point-Based Spawning (ew59/3sqa)", () => {
     // Fast forward to turn 2 (20s total)
     director.update(10000);
 
-    // Wave budget = floor(20 + (20/10 * 1)) = 22
-    // BUT WAVE_CAP = 5
-    expect(onSpawn).toHaveBeenCalledTimes(DIRECTOR.WAVE_CAP);
+    // Wave budget = floor(20/10 * 1) = 2
+    expect(onSpawn).toHaveBeenCalledTimes(2);
   });
 });

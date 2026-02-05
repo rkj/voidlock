@@ -285,14 +285,14 @@ export class Director implements IDirector {
   private spawnWave() {
     if (this.spawnPoints.length === 0 || this.turn === 0) return;
 
-    // Formula: WaveBudget = floor(StartingPoints + (CurrentThreat/10 * PointGrowthRate))
+    // Formula: WaveBudget = floor((CurrentThreat/10 * PointGrowthRate))
 
     // Use turn-based threat to ensure discrete scaling at every 10% boundary
 
     const currentThreat = this.turn * this.threatPerTurn;
 
     const budget = Math.floor(
-      this.startingPoints + (currentThreat / 10) * DIRECTOR.POINT_GROWTH_RATE,
+      (currentThreat / 10) * DIRECTOR.POINT_GROWTH_RATE,
     );
 
     let remainingBudget = budget;

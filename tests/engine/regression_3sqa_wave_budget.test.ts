@@ -17,10 +17,8 @@ describe("Director Wave Budgeting & Tier Locking", () => {
 
     expect(director.getThreatLevel()).toBe(10);
 
-    // Wave budget at turn 1 (threat 10): 20 + (10/10 * 1) = 21 points
-    // Since threat < 30, only 1pt XenoMites should spawn.
-    // BUT WAVE_CAP = 5
-    expect(onSpawn).toHaveBeenCalledTimes(DIRECTOR.WAVE_CAP);
+    // Wave budget at turn 1 (threat 10): floor(10/10 * 1.0) = 1 point
+    expect(onSpawn).toHaveBeenCalledTimes(1);
 
     const spawnedEnemies = onSpawn.mock.calls.map((call) => call[0]);
     spawnedEnemies.forEach((enemy) => {
@@ -42,18 +40,18 @@ describe("Director Wave Budgeting & Tier Locking", () => {
 
     expect(director.getThreatLevel()).toBe(40);
 
-    // Wave budget at turn 4 (threat 40): 20 + (40/10 * 1) = 24 points
-    // BUT WAVE_CAP = 5
+    // Wave budget at turn 4 (threat 40): floor(40/10 * 1.0) = 4 points
     const spawnedEnemies = onSpawn.mock.calls.map((call) => call[0]);
-    expect(spawnedEnemies.length).toBe(DIRECTOR.WAVE_CAP);
+    expect(spawnedEnemies.length).toBeGreaterThanOrEqual(2);
+    expect(spawnedEnemies.length).toBeLessThanOrEqual(4);
 
     const totalDifficulty = spawnedEnemies.reduce(
       (sum, e) => sum + e.difficulty,
       0,
     );
-    // Budget is 24, so it can definitely afford 5 enemies of any type (max 3pt each = 15 total)
-    expect(totalDifficulty).toBeGreaterThanOrEqual(5);
-    expect(totalDifficulty).toBeLessThanOrEqual(24);
+    // Budget is 4
+    expect(totalDifficulty).toBeGreaterThanOrEqual(1);
+    expect(totalDifficulty).toBeLessThanOrEqual(4);
 
     const hasHard = spawnedEnemies.some((e) => e.difficulty === 3);
     const hasMedium = spawnedEnemies.some((e) => e.difficulty === 2);
@@ -72,8 +70,7 @@ describe("Director Wave Budgeting & Tier Locking", () => {
 
     director.update(10000); // 10% threat
 
-    // Budget = 50 + (10/10 * 1) = 51
-    // BUT WAVE_CAP = 5
-    expect(onSpawn).toHaveBeenCalledTimes(DIRECTOR.WAVE_CAP);
+    // Budget = floor(10/10 * 1.0) = 1
+    expect(onSpawn).toHaveBeenCalledTimes(1);
   });
 });
