@@ -163,7 +163,7 @@ describe("NewCampaignWizard", () => {
     expect(advancedToggle.textContent).toContain("Hide Advanced Settings");
   });
 
-  it("should render meta statistics in the footer", () => {
+  it("should NOT render meta statistics in the footer (responsibility moved to shell)", () => {
     const wizard = new NewCampaignWizard(
       container,
       {
@@ -178,9 +178,7 @@ describe("NewCampaignWizard", () => {
     );
     wizard.render();
 
-    expect(container.innerHTML).toContain("Lifetime Xeno Purged:");
-    expect(container.innerHTML).toContain("1,000");
-    expect(container.innerHTML).toContain("Expeditions:");
-    expect(container.innerHTML).toContain("5");
+    expect(container.innerHTML).not.toContain("Lifetime Xeno Purged:");
+    expect(container.querySelector(".campaign-footer")).toBeNull();
   });
 });

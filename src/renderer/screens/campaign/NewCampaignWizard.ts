@@ -454,41 +454,5 @@ export class NewCampaignWizard {
 
     scrollContainer.appendChild(content);
     this.container.appendChild(scrollContainer);
-    this.renderMetaStats();
-  }
-
-  private renderMetaStats() {
-    const stats = MetaManager.getInstance().getStats();
-    const footer = document.createElement("div");
-    footer.className = "campaign-footer flex-row align-center p-10 gap-20";
-    footer.style.position = "absolute";
-    footer.style.bottom = "0";
-    footer.style.left = "0";
-    footer.style.width = "100%";
-    footer.style.background = "rgba(0, 0, 0, 0.6)";
-    footer.style.backdropFilter = "blur(4px)";
-    footer.style.borderTop = "1px solid var(--color-border)";
-    footer.style.zIndex = "100";
-    footer.style.fontSize = "0.7em";
-    footer.style.color = "var(--color-text-dim)";
-    footer.style.pointerEvents = "none";
-    footer.style.boxSizing = "border-box";
-    footer.style.height = "28px";
-
-    footer.innerHTML = `
-      <div class="flex-row gap-5" style="align-items: center;">
-        <span style="text-transform: uppercase; letter-spacing: 1px; opacity: 0.7;">Lifetime Xeno Purged:</span>
-        <span style="color: var(--color-primary); font-weight: bold;">${stats.totalKills.toLocaleString()}</span>
-      </div>
-      <div class="flex-row gap-5" style="align-items: center;">
-        <span style="text-transform: uppercase; letter-spacing: 1px; opacity: 0.7;">Expeditions:</span>
-        <span style="color: var(--color-primary); font-weight: bold;">${stats.totalCampaignsStarted.toLocaleString()}</span>
-      </div>
-      <div class="flex-row gap-5" style="align-items: center;">
-        <span style="text-transform: uppercase; letter-spacing: 1px; opacity: 0.7;">Missions Won:</span>
-        <span style="color: var(--color-primary); font-weight: bold;">${stats.totalMissionsWon.toLocaleString()}</span>
-      </div>
-    `;
-    this.container.appendChild(footer);
   }
 }

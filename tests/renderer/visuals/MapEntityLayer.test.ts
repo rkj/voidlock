@@ -39,7 +39,7 @@ describe("MapEntityLayer", () => {
     layer = new MapEntityLayer(sharedState);
   });
 
-  it("should NOT render extraction point when cell is NOT discovered and NOT visible", () => {
+  it("should ALWAYS render extraction point even if cell is NOT discovered and NOT visible (ADR 0032)", () => {
     const gameState: GameState = createMockGameState({
       map: {
         width: 10,
@@ -53,14 +53,15 @@ describe("MapEntityLayer", () => {
 
     layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
 
-    // Currently this will FAIL because it DOES render it.
-    // We expect 0 calls to fillRect at (5*32, 5*32)
+    // Now it SHOULD render. We check for either fillRect or drawImage at (5*32, 5*32)
     const fillRectCalls = mockContext.fillRect.mock.calls;
-    const extractionPointFill = fillRectCalls.find(
-      (args: unknown[]) => args[0] === 5 * 32 && args[1] === 5 * 32,
-    );
+    const drawImageCalls = mockContext.drawImage.mock.calls;
 
-    expect(extractionPointFill).toBeUndefined();
+    const drewSomething =
+      fillRectCalls.some((args: unknown[]) => args[0] === 5 * 32 && args[1] === 5 * 32) ||
+      drawImageCalls.some((args: unknown[]) => args[1] === 5 * 32 && args[2] === 5 * 32);
+
+    expect(drewSomething).toBe(true);
   });
 
   it("should render extraction point when cell IS discovered", () => {

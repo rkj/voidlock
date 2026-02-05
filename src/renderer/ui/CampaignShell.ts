@@ -1,6 +1,12 @@
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
 
-export type CampaignTabId = "sector-map" | "barracks" | "engineering" | "stats";
+export type CampaignTabId =
+  | "sector-map"
+  | "barracks"
+  | "engineering"
+  | "stats"
+  | "main-menu";
 export type CampaignShellMode = "campaign" | "statistics" | "custom" | "none";
 
 export class CampaignShell {
@@ -78,11 +84,11 @@ export class CampaignShell {
 
     topBar.className =
       "campaign-top-bar flex-row justify-between align-center p-10";
-    topBar.style.height = "52px"; // Increased from 50px to accommodate 32px buttons with p-10
+    topBar.style.height = "52px";
     topBar.style.boxSizing = "border-box";
     topBar.style.background = "var(--color-surface-elevated)";
     topBar.style.borderBottom = "1px solid var(--color-border-strong)";
-    topBar.style.flexShrink = "0"; // Ensure top bar doesn't shrink
+    topBar.style.flexShrink = "0";
     topBar.innerHTML = "";
 
     // Left: Label
@@ -132,12 +138,17 @@ export class CampaignShell {
     const nav = document.createElement("div");
     nav.className = "flex-row gap-5";
 
-    if (this.mode === "campaign" && state && this.showTabs) {
-      const tabs: { id: CampaignTabId; label: string }[] = [
-        { id: "sector-map", label: "Sector Map" },
-        { id: "barracks", label: "Barracks" },
-        { id: "stats", label: "Service Record" },
-      ];
+    if (this.showTabs) {
+      const tabs: { id: CampaignTabId; label: string }[] = [];
+
+      if (this.mode === "campaign" && state) {
+        tabs.push({ id: "sector-map", label: "Sector Map" });
+        tabs.push({ id: "barracks", label: "Barracks" });
+        tabs.push({ id: "stats", label: "Service Record" });
+      } else if (this.mode === "statistics") {
+        tabs.push({ id: "stats", label: "Service Record" });
+        tabs.push({ id: "main-menu", label: "Main Menu" }); // Spec: Back tab
+      }
 
       tabs.forEach((tab) => {
         const btn = document.createElement("button");
@@ -149,7 +160,9 @@ export class CampaignShell {
         btn.style.display = "flex";
         btn.style.alignItems = "center";
         btn.onclick = () => {
-          if (this.activeTabId !== tab.id) {
+          if (tab.id === "main-menu") {
+            this.onMenu();
+          } else if (this.activeTabId !== tab.id) {
             this.onTabChange(tab.id);
           }
         };
@@ -170,21 +183,23 @@ export class CampaignShell {
     settingsBtn.onclick = () => this.onSettings();
     rightSide.appendChild(settingsBtn);
 
-    const menuBtn = document.createElement("button");
-    menuBtn.textContent = "Main Menu";
-    menuBtn.className = "back-button";
-    menuBtn.style.margin = "0";
-    menuBtn.style.padding = "5px 12px";
-    menuBtn.style.height = "32px";
-    menuBtn.style.fontSize = "0.85em";
-    menuBtn.style.display = "flex";
-    menuBtn.style.alignItems = "center";
-    menuBtn.onclick = () => this.onMenu();
-    rightSide.appendChild(menuBtn);
+    if (this.mode !== "statistics") {
+      const menuBtn = document.createElement("button");
+      menuBtn.textContent = "Main Menu";
+      menuBtn.className = "back-button";
+      menuBtn.style.margin = "0";
+      menuBtn.style.padding = "5px 12px";
+      menuBtn.style.height = "32px";
+      menuBtn.style.fontSize = "0.85em";
+      menuBtn.style.display = "flex";
+      menuBtn.style.alignItems = "center";
+      menuBtn.onclick = () => this.onMenu();
+      rightSide.appendChild(menuBtn);
+    }
 
     topBar.appendChild(rightSide);
 
-    // Content Area (Ensuring it exists but NOT clearing it)
+    // Content Area
     let contentArea = this.container.querySelector(
       "#campaign-shell-content",
     ) as HTMLElement;
@@ -194,6 +209,56 @@ export class CampaignShell {
       this.container.appendChild(contentArea);
     }
     contentArea.className = "flex-grow relative overflow-hidden";
-    contentArea.style.minHeight = "0"; // ADR 0028: Crucial for flex child to be constrained
+    contentArea.style.minHeight = "0";
+
+    // Footer (Meta Stats)
+    let footer = this.container.querySelector(
+      "#campaign-shell-footer",
+    ) as HTMLElement;
+    if (!footer) {
+      footer = document.createElement("div");
+      footer.id = "campaign-shell-footer";
+      this.container.appendChild(footer);
+    }
+
+    // Only show footer on sector map (Campaign mode)
+    const shouldShowFooter =
+      this.mode === "campaign" && this.activeTabId === "sector-map";
+
+    if (shouldShowFooter) {
+      footer.style.display = "flex";
+      this.renderMetaStats(footer);
+    } else {
+      footer.style.display = "none";
+    }
+  }
+
+  private renderMetaStats(container: HTMLElement) {
+    const stats = MetaManager.getInstance().getStats();
+    container.className = "campaign-footer flex-row align-center p-10 gap-20";
+    container.style.background = "rgba(0, 0, 0, 0.6)";
+    container.style.backdropFilter = "blur(4px)";
+    container.style.borderTop = "1px solid var(--color-border)";
+    container.style.fontSize = "0.7em";
+    container.style.color = "var(--color-text-dim)";
+    container.style.pointerEvents = "none";
+    container.style.boxSizing = "border-box";
+    container.style.height = "28px";
+    container.style.flexShrink = "0";
+
+    container.innerHTML = `
+      <div class="flex-row gap-5" style="align-items: center;">
+        <span style="text-transform: uppercase; letter-spacing: 1px; opacity: 0.7;">Lifetime Xeno Purged:</span>
+        <span style="color: var(--color-primary); font-weight: bold;">${stats.totalKills.toLocaleString()}</span>
+      </div>
+      <div class="flex-row gap-5" style="align-items: center;">
+        <span style="text-transform: uppercase; letter-spacing: 1px; opacity: 0.7;">Expeditions:</span>
+        <span style="color: var(--color-primary); font-weight: bold;">${stats.totalCampaignsStarted.toLocaleString()}</span>
+      </div>
+      <div class="flex-row gap-5" style="align-items: center;">
+        <span style="text-transform: uppercase; letter-spacing: 1px; opacity: 0.7;">Missions Won:</span>
+        <span style="color: var(--color-primary); font-weight: bold;">${stats.totalMissionsWon.toLocaleString()}</span>
+      </div>
+    `;
   }
 }

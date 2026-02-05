@@ -71,22 +71,7 @@ describe("CampaignScreen - Global Stats", () => {
     );
   });
 
-  it("should render global stats in the setup wizard (no campaign)", () => {
-    vi.spyOn(manager, "getState").mockReturnValue(null);
-    screen.show();
-
-    const footer = container.querySelector(".campaign-footer");
-    expect(footer).not.toBeNull();
-    const text = footer?.textContent || "";
-    expect(text).toContain("Lifetime Xeno Purged:");
-    expect(text).toContain("10");
-    expect(text).toContain("Expeditions:");
-    expect(text).toContain("1");
-    expect(text).toContain("Missions Won:");
-    expect(text).toContain("1");
-  });
-
-  it("should render global stats in the campaign map", () => {
+  it("should NOT render global stats in the campaign map (responsibility moved to shell)", () => {
     vi.spyOn(manager, "getState").mockReturnValue({
       status: "Active",
       nodes: [],
@@ -97,13 +82,10 @@ describe("CampaignScreen - Global Stats", () => {
     screen.show();
 
     const footer = container.querySelector(".campaign-footer");
-    expect(footer).not.toBeNull();
-    const text = footer?.textContent || "";
-    expect(text).toContain("Lifetime Xeno Purged:");
-    expect(text).toContain("10");
+    expect(footer).toBeNull();
   });
 
-  it("should render global stats in the victory screen", () => {
+  it("should NOT render global stats in the victory screen (responsibility moved to shell)", () => {
     vi.spyOn(manager, "getState").mockReturnValue({
       status: "Victory",
       nodes: [],
@@ -114,9 +96,28 @@ describe("CampaignScreen - Global Stats", () => {
     screen.show();
 
     const footer = container.querySelector(".campaign-footer");
-    expect(footer).not.toBeNull();
-    const text = footer?.textContent || "";
-    expect(text).toContain("Lifetime Xeno Purged:");
-    expect(text).toContain("10");
+    expect(footer).toBeNull();
+  });
+
+  it("should NOT render global stats in the defeat screen (responsibility moved to shell)", () => {
+    vi.spyOn(manager, "getState").mockReturnValue({
+      status: "Defeat",
+      nodes: [],
+      rules: { difficulty: "normal" },
+      history: [],
+    } as any);
+
+    screen.show();
+
+    const footer = container.querySelector(".campaign-footer");
+    expect(footer).toBeNull();
+  });
+
+  it("should NOT render global stats when no campaign is active (responsibility moved to shell)", () => {
+    vi.spyOn(manager, "getState").mockReturnValue(null);
+    screen.show();
+
+    const footer = container.querySelector(".campaign-footer");
+    expect(footer).toBeNull();
   });
 });
