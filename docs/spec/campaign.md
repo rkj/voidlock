@@ -215,6 +215,23 @@ Stored independently of individual save files (e.g., `voidlock_meta_v1`).
   - **Profile Screen:** (Future Feature)
   - **Main Menu:** Simple tally (e.g., "Aliens Killed: 10,432") displayed in a corner.
 
+### 6.3 Engineering Bay (Meta-Progression)
+
+To provide long-term goals, **Intel** serves as a persistent Meta-Currency.
+
+- **Access:** Available from the **Main Menu** (button: "Engineering").
+- **Currency:** `MetaState.currentIntel` (Intel collected from all previous missions/campaigns).
+  - _Note:_ Unlike Scrap, Intel is **NOT lost** on Game Over. It is securely transmitted to the fleet.
+- **Unlocks (The Tech Tree):**
+  - **Archetypes:** Players start with only basic archetypes (e.g., *Rifleman*, *Medic*). Advanced archetypes (*Heavy*, *Sniper*, *Demolitionist*) must be unlocked by spending Intel.
+    - _Cost:_ e.g., 50 Intel for "Heavy Weapons License".
+  - **Equipment Licenses:** Advanced weaponry and gear are initially restricted.
+    - **Locked Items:** *Autocannon*, *Flamethrower*, *Stimpack*, *Scanner*, *Heavy Plate Armor*.
+    - **Effect:** Once unlocked, these items have a chance to appear in the **Black Market** and **Supply Depot** shops during a campaign.
+  - **Global Upgrades (Future):** e.g., "+10 Starting Scrap", "Scanner Range +1".
+- **Effect:** Unlocking an item in the Engineering Bay makes it available for **all future campaigns**.
+  - _Example:_ Unlocking the "Heavy" archetype adds it to the `unlockedArchetypes` pool used by the `CampaignManager` during recruitment generation.
+
 ## 4. User Experience (UX) Requirements
 
 ### 4.1 Debrief Screen

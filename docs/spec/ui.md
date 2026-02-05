@@ -16,8 +16,8 @@ The application is divided into distinct screens to reduce UI clutter and improv
   - **Campaign**: Enter Campaign Mode.
   - **Custom Mission**: Enter Mission Setup.
   - **Statistics**: Opens the Statistics Screen (Service Record).
+  - **Engineering**: Opens the Engineering Bay (Meta-Progression).
   - **Settings**: Opens the Global Settings Screen.
-  - **Reset Data**: Clear all local storage and reload (Destructive, with confirmation via Custom Modal).
 - **Import**: "Load Replay JSON" file picker.
 
 #### 8.1.1 Global Settings Screen
@@ -32,6 +32,12 @@ The application is divided into distinct screens to reduce UI clutter and improv
     - **Asset Loading**: The preview must ensure all assets are loaded before rendering. If an asset is missing, a specific placeholder (not black square) must be used.
     - **Rendering**: The preview MUST reflect the currently selected Map Theme and the specific Visual Style of the card.
 - **Environment Theme**: Dropdown or Palette to select the active UI/Map theme (e.g., "Default", "Matrix", "Retro").
+- **Developer Options**:
+  - **Log Level**: Dropdown (DEBUG, INFO, WARN, ERROR, NONE). Controls console output verbosity. Default: INFO (Dev) / ERROR (Prod).
+  - **Debug Snapshots**: Toggle. If enabled, the engine records full state snapshots every N ticks for high-fidelity replay debugging.
+  - **Debug Overlay**: Toggle. Enables visual debugging aids (coordinates, LOS rays, hidden entities) in-game. (Also toggleable via `~`).
+- **Data Management**:
+  - **Reset Data**: Clear all local storage and reload (Destructive, with confirmation via Custom Modal). Moved here to prevent accidental clicks.
 - **Actions**: "Save & Back".
 
 ### Mission Setup Screen (formerly Config Screen)
@@ -69,74 +75,65 @@ The application is divided into distinct screens to reduce UI clutter and improv
 
 - **Command Set Updates:**
   - `ENGAGE/IGNORE Toggle`: Units can be toggled between 'ENGAGE' and 'IGNORE' policies.
-  - **Squad Configuration (Drag & Drop):**
+  - **Unified Squad Selection & Deployment:**
+    - **Concept**: Selecting a soldier and placing them on the map are combined into a single workflow. A soldier on the map is "In the Squad". A soldier in the roster is "Benched".
     - **Interface**:
-      - **Left Panel (Roster)**: A flex-column container.
-        - **Scrollable List**: Available soldiers.
-        - **Sticky Actions (Footer)**: Fixed-height container at the bottom (Recruit button).
-      - **Right Panel (Deployment)**: 4 fixed slots representing the squad.
-    - **Layout Constraints**:
-      - **Responsive Sizing**: The Roster and Deployment panels should NOT be forced to 50% width each.
-        - **Roster**: Should flex to fill available space (`flex-grow: 1`).
-        - **Deployment**: Should fit its content (Slots) or have a max-width to prevent excessive whitespace (`flex-grow: 0` or capped).
-      - **Full Height**: The container MUST expand to fill vertical space.
-      - **Sticky Recruitment**: The "Recruit" button MUST be in the sticky footer.
-      - **Soldier Cards**: `height: auto`.
+      - **Center View (Map Preview)**: A large canvas rendering the generated mission map.
+        - **Highlight**: Squad Spawn Points are highlighted (e.g., Green Tiles).
+        - **Interaction**: Valid drop targets for soldiers.
+      - **Right Panel (Active Roster)**: A list of soldiers available for the mission.
+        - **Sticky Actions**: "Launch Mission" button at the bottom.
     - **Interaction**:
-      - **Primary (Select-then-Place)**:
-        1. Clicking a soldier in the Roster marks them as 'Selected for Deployment' (Visual highlight).
-        2. Clicking a green 'Deployment Slot' assigns the highlighted soldier to that specific slot.
-        3. The highlight automatically advances to the next available soldier in the roster to facilitate rapid deployment.
-      - **Removal**: Clicking an 'X' button or clicking an occupied slot removes the unit and returns them to the roster.
-    - **Constraints**: Mission-Specific units (e.g. VIPs) are auto-assigned to specific slots and cannot be moved or removed. Max 4 total soldier slots.
+      - **Manual (Tactical)**: Player drags a soldier from the Right Panel and drops them onto a specific **Squad Spawn Point** on the map.
+      - **Quick (Auto-Fill)**: Double-clicking a soldier in the Roster automatically assigns them to the next available Spawn Point.
+      - **Re-arrange**: Soldiers can be dragged from one spawn point to another.
+      - **Removal**: Dragging a soldier off the map returns them to the Roster.
+    - **Constraints**:
+      - One soldier per spawn point.
+      - Max squad size determined by available spawn points or roster limit (4).
     - **Visuals**:
-      - **Roster Sorting**: Healthy -> Wounded -> Dead.
-      - **Deployed State**: Visual indication (dimmed/tag) for deployed units.
-      - **Quick Actions**: Revive (Cloning), Recruit.
+      - **Deployed**: Soldiers on the map are rendered as their Tactical Icon/Sprite.
+      - **Roster**: Deployed soldiers are dimmed or marked "On Map".
 
 - **Actions**:
-  - "Launch Mission" -> Starts Engine, switches to Mission Screen.
+  - "Next: Squad & Gear" -> Proceed to Squad Management.
   - "Back" -> Main Menu.
 
-2b. **Squad Equipment Screen**
-\- **Access**: Available from "Mission Setup" (Custom) and "Campaign Hub" (Between missions).
-\- **Layout**:
-\- **Left Panel (Soldier List)**: Select a soldier.
-\- **Center Panel (Paper Doll)**: Slots for RH, LH, Body, Feet.
-
-- **Validation**: If the selected soldier has status **Dead**, this panel MUST be **Read-Only** (Disabled). The player cannot equip/unequip items on a corpse.
-  \- **Soldier Stats**: Innate stats.
-  \- **Weapon Stats**: Aggregate weapon stats.
-  \- **Right Panel (Armory)**: Tabbed list of equipment.
-
-- **Validation**: If the selected soldier is **Dead**, this panel is **Disabled** (cannot buy items for them).
-  \- **Item Display**: Each item in the list MUST display:
-  \- **Name** & **Price**.
-  \- **Key Stats**: Using the same icons as the Soldier Card (DMG, RNG, FR).
-  \- **Tooltips**: Hovering an item MUST display a detailed description (flavor text + full stats), especially for Global Supplies (e.g., "Scanner: Reveals map in 15 tile radius").
-  \- **Functionality**:
-  \- **Initialization**: When opening this screen, the slots MUST be pre-populated with the soldier's currently assigned equipment. It must NEVER default to empty hands unless the soldier is actually unarmed.
-  \- Assign weapons/armor to specific soldier slots.
-  \- Allocate global items (e.g., "Take 3 Grenades") to the mission inventory pool.
-
-- **Asset Integration**:
-  - Weapon names must use the user-visible `name` field from `WeaponLibrary` / `ItemLibrary` (e.g., "Pulse Rifle"), NOT the internal ID (e.g., `pulse_rifle_mk1`).
+2b. **Squad Management & Loadout**
+- **Purpose**: Unified screen for selecting the squad, managing the roster, and equipping gear.
+- **Access**: After "Mission Setup" or from "Campaign Hub".
+- **Layout**:
+  - **Left Panel (Active Squad)**: List of soldiers assigned to the current mission (Max 4).
+    - **Selection**: Click to edit loadout.
+    - **Remove**: Button to return soldier to Reserve Roster.
+    - **Add**: "Empty Slot" buttons open the Reserve Roster picker.
+  - **Center Panel (Inspector)**:
+    - **Soldier Stats**: Unified component (Name, Status, Attributes).
+    - **Paper Doll**: Slots for RH, LH, Body, Feet.
+    - **Recruit/Revive**: If an empty slot is selected, show options to Recruit (Scrap) or Revive (Clone).
+  - **Right Panel (Armory)**: Tabbed list of equipment (same as previous spec).
+- **Validation**:
+  - "Launch Mission" button disabled if squad is empty.
+  - "Dead" soldiers in roster cannot be equipped.
 
 3. **Mission Screen** (Active Gameplay)
-   - **Main View**: Canvas/WebGL rendering of the game world.
-   - **Left Panel**: Squad List (Health, Status) + Quick Commands.
-   - **Right Panel**:
-     - **Objectives List**: Current status of mission objectives.
-       - **Format**: Unified visual component for both active gameplay and Game Over summary.
-       - **Style**: `[Icon] [Objective Kind]`. (e.g. "✔ Recover Artifact").
-       - **Text Content**: Must NOT display status text like "(Pending)" or "(Completed)". The icon serves this purpose.
-       - **Icons**: '○' (Pending), '✔' (Completed), '✘' (Failed).
-       - **Accessibility**: Icons must include a standard HTML `title` attribute (tooltip) describing the state (e.g., "Pending", "Completed") for accessibility.
-       - **Coordinates**: The text `at (x,y)` MUST be hidden by default to prevent meta-gaming. It should be visible **ONLY** if the Debug Overlay is enabled.
-       - **Map Rendering**: Objectives at the Extraction Zone (e.g., "Extract Squad") must NOT render a separate "Objective" icon on the map, as the Extraction Zone itself is already visualized.
-     - **Extraction Status**: Location/Progress (Coordinates subject to the same visibility rules as objectives).
-     - **Threat Meter**: Visual indicator of Director intensity (can also be in Top Bar).
-   - **Bottom Panel**: Timeline/Event Log.
+   - **Phase: Deployment** (Initial State)
+     - **Top Bar**: "DEPLOYMENT PHASE".
+     - **Left Panel**: Hidden or displays Mission Briefing.
+     - **Center (Canvas)**: Renders the map with **Green Highlighted** Spawn Points.
+     - **Right Panel (Deployment Control)**:
+       - **Squad List**: Interactive list of all assigned soldiers.
+         - **Status**: Indicates "Deployed (on map)" or "Pending".
+         - **Interaction**: Draggable items.
+       - **Start Mission**: Button (Enabled only when all units are validly placed).
+     - **Interaction**:
+       - **Drag & Drop**: Drag soldier from **Right Panel** to a **Green Spawn Point** on map.
+       - **Re-position**: Drag soldier from one map tile to another.
+       - **Auto-Fill**: Button/Double-click to assign random valid spots.
+   - **Phase: Active** (After Start)
+     - **Main View**: Canvas/WebGL rendering of the game world.
+     - **Left Panel**: Squad List (Health, Status) + Quick Commands.
+     - **Right Panel**: Objectives, Extraction, Threat, Intel.
    - **Input**:
      - `ESC`: Opens **Pause Overlay** (Resume / Abort Mission).
 
@@ -401,11 +398,12 @@ To ensure visual clarity and correct occlusion, the renderer must adhere to a st
 1. **Ground Decal Layer**:
    - **Zone Indicators**:
      - **Extraction Zone**:
+       - **Visibility**: MUST respect Fog of War. Visible only if the cell is **Discovered** or **Visible**, or if Debug Overlay is enabled.
        - **Standard Mode**: MUST render using an appropriate Sprite (e.g., `waypoint` or specific pad graphic).
        - **Tactical Mode**: Render as a high-contrast geometric overlay (e.g., Green Grid).
    - **Static Mission Entities**:
      - **Enemy Spawn Points**:
-       - **Requirement**: MUST be visible on the map in both modes to allow tactical planning.
+       - **Requirement**: MUST respect Fog of War. Visible only if the cell is **Discovered** or **Visible**, or if Debug Overlay is enabled.
        - **Standard Mode**: Render using the `spawn_point` WebP sprite.
        - **Tactical Mode**: Render as a distinct abstract icon (e.g., Vent/Crosshair).
      - **Objectives**:
@@ -436,10 +434,10 @@ All campaign-related screens (Sector Map, Barracks, Engineering, Stats) MUST sha
   - **Top Bar (Persistent):**
     - **Left:** Mode Label (e.g. "Campaign Mode", "Service Record").
     - **Center (Navigation):** Tab-like buttons to switch between views.
-      - **Campaign Mode**: [Sector Map], [Barracks], [Service Record].
-      - **Statistics Mode**: [Service Record], [Main Menu] (Back tab).
+      - **Campaign Mode**: [Sector Map], [Barracks], [Service Record], [Settings].
+      - **Statistics Mode**: [Service Record].
     - **Right (Resources):** Persistent display of Scrap and Intel (Campaign only).
-    - **Far Right:** Global Settings, Main Menu.
+    - **Far Right:** Main Menu.
   - **Content Area:** The active screen (Sector Map, Barracks, etc.) renders here.
 - **Benefits:**
   - Solves overlap issues where local UI elements cover global resources.
@@ -493,3 +491,26 @@ To ensure consistency between the visual representation and the simulation logic
 - **Door Struts**: Doors only occupy the middle 1/3 of a cell boundary. The outer 1/3 segments (struts) MUST always block LOS and LOF, regardless of the door's state.
 - **Unit Precision**: LOS and LOF checks between units MUST account for the unit's physical radius. A single center-to-center ray is insufficient; the simulation should verify that a "fat" ray (or multiple sampled rays) can pass without hitting solid geometry.
 - **Corner Cutting**: Shots passing extremely close to wall corners MUST be blocked if any part of the unit's radius would collide with the corner.
+
+## 9. Accessibility & Input (Epic)
+
+The game must be fully playable without a mouse, catering to power users and accessibility needs.
+
+- **Keyboard First**: Every UI element (buttons, lists, map tiles) must be navigable and actionable via keyboard.
+  - **Focus Management**: A robust system to track and visually indicate the active element.
+  - **Shortcuts**: Standardized keys for common actions (e.g., `Space` to Pause, `Tab` to Cycle Units).
+- **Shortcut Reference**:
+  - **Toggle**: `?` (Shift + /).
+  - **Overlay**: A modal displaying all current context-relevant keyboard shortcuts.
+
+## 10. Mobile Responsiveness (Epic)
+
+The interface must adapt to small touch screens without losing functionality.
+
+- **Layout Adaptation**:
+  - **Compact Mode**: On screens < 768px, sidebars (Soldier List, Objectives) should collapse into drawers or toggleable overlays.
+  - **Hit Targets**: All interactive elements must differ to a minimum touch target size (44x44px).
+- **Touch Controls**:
+  - **Camera**: Pinch-to-zoom and two-finger pan.
+  - **Interaction**: Tap to Select, Drag to Deploy. Long-press for Context Menu (right-click equivalent).
+- **Scale**: UI scaling factor adjustment for high-DPI (Retina) mobile displays to ensure readability.
