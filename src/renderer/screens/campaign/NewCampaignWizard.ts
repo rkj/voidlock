@@ -18,10 +18,7 @@ export class NewCampaignWizard {
   private isAdvancedShown = false;
   private selectedUnitStyle: UnitStyle = ConfigManager.loadGlobal().unitStyle;
 
-  constructor(
-    container: HTMLElement,
-    options: NewCampaignWizardOptions,
-  ) {
+  constructor(container: HTMLElement, options: NewCampaignWizardOptions) {
     this.container = container;
     this.options = options;
   }
@@ -59,7 +56,7 @@ export class NewCampaignWizard {
     globalStatusLabel.textContent = "Visual Style & Theme";
     globalStatusLabel.style.fontSize = "0.8em";
     globalStatusLabel.style.color = "var(--color-text-dim)";
-    
+
     const globalStatusContainer = document.createElement("div");
     globalStatusContainer.style.display = "flex";
     globalStatusContainer.style.alignItems = "center";
@@ -67,16 +64,17 @@ export class NewCampaignWizard {
     globalStatusContainer.style.background = "rgba(0,0,0,0.2)";
     globalStatusContainer.style.padding = "8px 12px";
     globalStatusContainer.style.border = "1px solid var(--color-border)";
-    
+
     const themeLabelStr = ConfigManager.loadGlobal().themeId || "default";
-    const themeName = themeLabelStr.charAt(0).toUpperCase() + themeLabelStr.slice(1);
-    
+    const themeName =
+      themeLabelStr.charAt(0).toUpperCase() + themeLabelStr.slice(1);
+
     const statusText = document.createElement("div");
     statusText.className = "global-status-text";
     statusText.style.fontSize = "0.9em";
     statusText.style.color = "var(--color-text-dim)";
     statusText.textContent = `${this.selectedUnitStyle} | ${themeName}`;
-    
+
     globalStatusContainer.appendChild(statusText);
     globalStatusGroup.appendChild(globalStatusLabel);
     globalStatusGroup.appendChild(globalStatusContainer);

@@ -1,7 +1,7 @@
 {
   "name": "voidlock",
   "private": true,
-  "version": "0.124.2",
+  "version": "0.126.0",
   "description": "Tactical squad combat game.",
   "type": "module",
   "scripts": {
@@ -27,6 +27,7 @@
     "vitest": "^3.2.4"
   },
   "dependencies": {
-    "@google/gemini-cli": "github:google-gemini/gemini-cli"
+    "@google/gemini-cli": "github:google-gemini/gemini-cli",
+    "zod": "^4.3.6"
   }
 }

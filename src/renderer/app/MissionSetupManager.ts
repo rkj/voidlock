@@ -448,13 +448,16 @@ export class MissionSetupManager {
   public async loadStaticMap(json: string) {
     try {
       const parsed = JSON.parse(json);
-      if (!MapValidator.validateMapData(parsed)) {
+      const validation = MapValidator.validate(parsed);
+      if (!validation.success) {
         await this.context.modalService.alert(
-          "Invalid map format. Please check the structure.",
+          `Invalid map format: ${validation.error}`,
         );
         return;
       }
-      this.currentStaticMapData = MapUtility.transformMapData(parsed);
+      this.currentStaticMapData = MapUtility.transformMapData(
+        validation.data as MapDefinition,
+      );
       await this.context.modalService.alert("Static Map Loaded.");
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : String(e);
@@ -467,13 +470,16 @@ export class MissionSetupManager {
     reader.onload = async (ev) => {
       try {
         const parsed = JSON.parse(ev.target?.result as string);
-        if (!MapValidator.validateMapData(parsed)) {
+        const validation = MapValidator.validate(parsed);
+        if (!validation.success) {
           await this.context.modalService.alert(
-            "Invalid map format. Please check the structure.",
+            `Invalid map format: ${validation.error}`,
           );
           return;
         }
-        this.currentStaticMapData = MapUtility.transformMapData(parsed);
+        this.currentStaticMapData = MapUtility.transformMapData(
+          validation.data as MapDefinition,
+        );
         await this.context.modalService.alert("Static Map Loaded from File.");
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);

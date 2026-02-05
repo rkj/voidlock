@@ -1,5 +1,6 @@
 import { MapGeneratorType, MissionType, UnitStyle } from "@src/shared/types";
 import type { SquadConfig, SquadSoldierConfig } from "@src/shared/types";
+import { GameConfigSchema, GlobalConfigSchema } from "@src/shared/schemas";
 
 export interface GameConfig {
   mapWidth: number;
@@ -65,15 +66,11 @@ export class ConfigManager {
       if (!json) return defaultGlobal;
       const loaded = JSON.parse(json);
 
-      return {
-        unitStyle: Object.values(UnitStyle).includes(loaded.unitStyle)
-          ? (loaded.unitStyle as UnitStyle)
-          : defaultGlobal.unitStyle,
-        themeId:
-          typeof loaded.themeId === "string"
-            ? loaded.themeId
-            : defaultGlobal.themeId,
-      };
+      const result = GlobalConfigSchema.safeParse(loaded);
+      if (result.success) {
+        return result.data as GlobalConfig;
+      }
+      return defaultGlobal;
     } catch (e) {
       return defaultGlobal;
     }
@@ -128,22 +125,26 @@ export class ConfigManager {
     try {
       const json = localStorage.getItem(key);
       if (!json) return null;
-      const loaded = JSON.parse(json) as unknown;
+      const loaded = JSON.parse(json);
 
-      const defaults = this.getDefault();
-
-      // Ensure config is an object
-      if (typeof loaded !== "object" || loaded === null) {
-        return null;
+      const result = GameConfigSchema.safeParse(loaded);
+      if (result.success) {
+        return result.data as GameConfig;
       }
 
-      // Deep validate and merge with defaults
-      const config = this.validateAndMerge(
-        loaded as Record<string, unknown>,
-        defaults,
+      // If validation fails, we can still try to recover using the manual merger
+      // to avoid breaking user settings on minor schema changes.
+      console.warn(
+        `ConfigManager: Validation failed for ${key}, attempting recovery.`,
       );
-
-      return config;
+      const defaults = this.getDefault();
+      if (typeof loaded === "object" && loaded !== null) {
+        return this.validateAndMerge(
+          loaded as Record<string, unknown>,
+          defaults,
+        );
+      }
+      return null;
     } catch (e) {
       console.warn(
         `Failed to load configuration from LocalStorage (${key}):`,

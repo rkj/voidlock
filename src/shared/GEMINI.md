@@ -12,7 +12,8 @@ This directory contains types, constants, and utilities that are shared between 
 ## Subdirectories
 
 - `types/`: Modular directory-based type system (ADR 0015).
-- `validation/`: Schema validation for external data (e.g., uploaded maps).
+- `schemas/`: Zod schemas for runtime validation at system boundaries (ADR 0033).
+- `validation/`: Schema validation for external data (e.g., uploaded maps). Now uses Zod schemas internally.
 - `tests/`: Comprehensive test suite for shared components.
 
 ## Functionality

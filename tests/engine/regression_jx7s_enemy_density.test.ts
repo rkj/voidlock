@@ -1,7 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { Director } from "@src/engine/Director";
 import { PRNG } from "@src/shared/PRNG";
-import { DIRECTOR } from "@src/engine/config/GameConstants";
 
 describe("Director - Point-Based Spawning (ew59/3sqa)", () => {
   it("should calculate wave size based on startingPoints and turn and respect WAVE_CAP", () => {

@@ -58,8 +58,12 @@ describe("MapEntityLayer", () => {
     const drawImageCalls = mockContext.drawImage.mock.calls;
 
     const drewSomething =
-      fillRectCalls.some((args: unknown[]) => args[0] === 5 * 32 && args[1] === 5 * 32) ||
-      drawImageCalls.some((args: unknown[]) => args[1] === 5 * 32 && args[2] === 5 * 32);
+      fillRectCalls.some(
+        (args: unknown[]) => args[0] === 5 * 32 && args[1] === 5 * 32,
+      ) ||
+      drawImageCalls.some(
+        (args: unknown[]) => args[1] === 5 * 32 && args[2] === 5 * 32,
+      );
 
     expect(drewSomething).toBe(true);
   });
