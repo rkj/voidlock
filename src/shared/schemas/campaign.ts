@@ -134,6 +134,15 @@ export const CampaignStateSchema = z.object({
     .default(["assault", "medic", "scout", "heavy"]),
 });
 
+export const CampaignSummarySchema = z.object({
+  campaignId: z.string(),
+  updatedAt: z.number(),
+  sector: z.number(),
+  difficulty: CampaignDifficultySchema,
+  status: z.enum(["Active", "Victory", "Defeat"]),
+  soldierCount: z.number(),
+});
+
 export const MetaStatsSchema = z.object({
   totalCampaignsStarted: z.number().default(0),
   campaignsWon: z.number().default(0),

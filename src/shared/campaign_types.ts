@@ -149,6 +149,18 @@ export interface CampaignState {
 }
 
 /**
+ * A brief summary of a campaign for listing purposes.
+ */
+export interface CampaignSummary {
+  campaignId: string;
+  updatedAt: number; // Timestamp in milliseconds
+  sector: number;
+  difficulty: CampaignDifficulty;
+  status: "Active" | "Victory" | "Defeat";
+  soldierCount: number;
+}
+
+/**
  * Global statistics tracked across all campaigns.
  */
 export interface MetaStats {
