@@ -19,7 +19,7 @@ The world is a grid of cells representing the interior of a derelict spaceship.
 - **Squad Spawn Points:** Multiple 1x1 points placed across the map (typically in different rooms).
   - **Deployment:** During the Mission Setup, the player assigns each soldier in the squad to a specific 1x1 spawn point.
 - **Extraction Zone:** The target area for mission completion (only required for Asset/VIP extraction).
-- **Vents (SpawnPoints):** Locations used by the Director for active wave spawning.
+- **Vents (SpawnPoints):** Locations used by the Director for active wave spawning. These points MUST be persistently visible on the map to the player to allow for tactical positioning and overwatch.
 - **Room vs Corridor Placement:**
   - **Rooms Only:** Static entities (Objectives, Hives, Loot) and pre-spawned enemies must only be placed in Rooms.
   - **Corridor Ban:** All static entities are strictly forbidden in corridors.
