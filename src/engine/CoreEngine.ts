@@ -81,6 +81,8 @@ export class CoreEngine implements IDirector {
     startingPoints?: number,
     skipDeployment: boolean = true,
     debugSnapshots: boolean = false,
+    debugSnapshotInterval: number = 0,
+    initialSnapshots: GameState[] = [],
   ) {
     this.prng = new PRNG(seed);
     this.gameGrid = new GameGrid(map);
@@ -153,6 +155,7 @@ export class CoreEngine implements IDirector {
         mode: mode,
         debugOverlayEnabled: debugOverlayEnabled,
         debugSnapshots: debugSnapshots,
+        debugSnapshotInterval: debugSnapshotInterval,
         losOverlayEnabled: losOverlayEnabled,
         timeScale: initialTimeScale,
         isPaused: startPaused,
@@ -274,6 +277,20 @@ export class CoreEngine implements IDirector {
     }
 
     if (finalCatchupTick > 0) {
+      // Optimization: Jump to nearest snapshot if available
+      if (initialSnapshots && initialSnapshots.length > 0) {
+        const bestSnapshot = initialSnapshots
+          .filter((s) => s.t <= finalCatchupTick)
+          .reduce(
+            (prev, curr) => (curr.t > prev.t ? curr : prev),
+            initialSnapshots[0],
+          );
+
+        if (bestSnapshot && bestSnapshot.t > 0 && bestSnapshot.t <= finalCatchupTick) {
+          this.hydrateFromSnapshot(bestSnapshot);
+        }
+      }
+
       this.isCatchingUp = true;
       while (this.state.t < finalCatchupTick) {
         // We use a fixed 16ms step for deterministic catch-up, but cap it at the target
@@ -281,6 +298,42 @@ export class CoreEngine implements IDirector {
         this.update(step);
       }
       this.isCatchingUp = false;
+    }
+  }
+
+  private hydrateFromSnapshot(snapshot: GameState) {
+    this.state = {
+      ...snapshot,
+      units: snapshot.units.map((u) => ({ ...u })),
+      enemies: snapshot.enemies.map((e) => ({ ...e })),
+      loot: snapshot.loot.map((l) => ({ ...l })),
+      mines: snapshot.mines.map((m) => ({ ...m })),
+      turrets: snapshot.turrets.map((t) => ({ ...t })),
+      objectives: snapshot.objectives.map((o) => ({ ...o })),
+      visibleCells: [...snapshot.visibleCells],
+      discoveredCells: [...snapshot.discoveredCells],
+      gridState: snapshot.gridState ? new Uint8Array(snapshot.gridState) : undefined,
+    };
+
+    if (snapshot.rngState !== undefined) {
+      this.prng.setSeed(snapshot.rngState);
+    }
+    if (snapshot.directorState) {
+      this.director.setState(snapshot.directorState);
+    }
+
+    // Re-initialize dynamic managers with snapshot state
+    if (snapshot.map.doors) {
+      this.doorManager = new DoorManager(snapshot.map.doors, this.gameGrid);
+    }
+
+    // Advance replayIndex to the correct position for the snapshot time
+    this.replayIndex = 0;
+    while (
+      this.replayIndex < this.commandLog.length &&
+      this.commandLog[this.replayIndex].tick <= this.state.t
+    ) {
+      this.replayIndex++;
     }
   }
 
@@ -370,6 +423,8 @@ export class CoreEngine implements IDirector {
       visibleCells: [...state.visibleCells],
       discoveredCells: [...state.discoveredCells],
       gridState: state.gridState ? new Uint8Array(state.gridState) : undefined,
+      rngState: this.prng.getSeed(),
+      directorState: this.director.getState(),
       stats: { ...state.stats },
       settings: { ...state.settings },
       squadInventory: { ...state.squadInventory },
@@ -564,12 +619,15 @@ export class CoreEngine implements IDirector {
     // 8. Win/Loss
     this.missionManager.checkWinLoss(this.state);
 
-    // 9. Debug Snapshots (Every 100 ticks or ~1.6s of scaled time)
-    if (this.state.settings.debugSnapshots && !this.isCatchingUp) {
-      const snapshotInterval = 1600; // 100 ticks * 16ms
+    // 9. Debug Snapshots
+    const interval = this.state.settings.debugSnapshotInterval || 0;
+    const shouldSnapshot = (this.state.settings.debugSnapshots || interval > 0) && !this.isCatchingUp;
+    
+    if (shouldSnapshot) {
+      const snapshotIntervalMs = interval > 0 ? interval * 16 : 1600; // Default to 100 ticks if only boolean is set
       if (
         this.lastSnapshotTick === -1 ||
-        this.state.t >= this.lastSnapshotTick + snapshotInterval
+        this.state.t >= this.lastSnapshotTick + snapshotIntervalMs
       ) {
         this.snapshots.push(this.getState(false, false));
         this.lastSnapshotTick = this.state.t;

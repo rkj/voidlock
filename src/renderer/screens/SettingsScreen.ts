@@ -183,6 +183,30 @@ export class SettingsScreen {
     snapshotGroup.appendChild(snapshotToggle);
     settingsGrid.appendChild(snapshotGroup);
 
+    // Snapshot Interval
+    const intervalGroup = document.createElement("div");
+    intervalGroup.className =
+      "control-group flex-row justify-between align-center";
+    intervalGroup.style.width = "100%";
+    const intervalLabel = document.createElement("label");
+    intervalLabel.textContent = "Snapshot Interval (Ticks, 0=Default):";
+    intervalGroup.appendChild(intervalLabel);
+
+    const intervalInput = document.createElement("input");
+    intervalInput.type = "number";
+    intervalInput.min = "0";
+    intervalInput.max = "1000";
+    intervalInput.style.width = "60px";
+    intervalInput.value = global.debugSnapshotInterval.toString();
+    intervalInput.onchange = () => {
+      ConfigManager.saveGlobal({
+        ...ConfigManager.loadGlobal(),
+        debugSnapshotInterval: parseInt(intervalInput.value) || 0,
+      });
+    };
+    intervalGroup.appendChild(intervalInput);
+    settingsGrid.appendChild(intervalGroup);
+
     // Debug Overlay
     const overlayGroup = document.createElement("div");
     overlayGroup.className =

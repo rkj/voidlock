@@ -19,6 +19,7 @@ export class MissionSetupManager {
   public losOverlayEnabled = false;
   public agentControlEnabled = ConfigManager.getDefault().agentControlEnabled;
   public manualDeployment = ConfigManager.getDefault().manualDeployment;
+  public debugSnapshotInterval = ConfigManager.getDefault().debugSnapshotInterval;
   public allowTacticalPause = true;
   public unitStyle = ConfigManager.loadGlobal().unitStyle;
 
@@ -157,6 +158,7 @@ export class MissionSetupManager {
       startingThreatLevel,
       baseEnemyCount,
       enemyGrowthPerMission,
+      debugSnapshotInterval: this.debugSnapshotInterval,
       campaignNodeId: this.currentCampaignNode?.id,
       bonusLootCount: this.currentCampaignNode?.bonusLootCount || 0,
     };
@@ -212,6 +214,10 @@ export class MissionSetupManager {
       this.losOverlayEnabled = config.losOverlayEnabled || false;
       this.agentControlEnabled = config.agentControlEnabled;
       this.manualDeployment = config.manualDeployment || false;
+      this.debugSnapshotInterval =
+        config.debugSnapshotInterval !== undefined
+          ? config.debugSnapshotInterval
+          : global.debugSnapshotInterval;
       this.allowTacticalPause =
         config.allowTacticalPause !== undefined
           ? config.allowTacticalPause
@@ -232,6 +238,7 @@ export class MissionSetupManager {
       this.losOverlayEnabled = defaults.losOverlayEnabled;
       this.agentControlEnabled = defaults.agentControlEnabled;
       this.manualDeployment = defaults.manualDeployment;
+      this.debugSnapshotInterval = global.debugSnapshotInterval;
       this.allowTacticalPause = defaults.allowTacticalPause;
       this.currentMapGeneratorType = defaults.mapGeneratorType;
       this.currentMissionType = defaults.missionType;
