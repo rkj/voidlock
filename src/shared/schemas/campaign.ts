@@ -131,7 +131,7 @@ export const CampaignStateSchema = z.object({
   history: z.array(MissionReportSchema).default([]),
   unlockedArchetypes: z
     .array(z.string())
-    .default(["assault", "medic", "scout", "heavy"]),
+    .default(["assault", "medic", "scout"]),
   unlockedItems: z.array(z.string()).default([]),
 });
 

@@ -204,11 +204,31 @@ export class SoldierInspector {
     container.innerHTML = "";
     if (!this.soldier) return;
 
+    const state = this.manager.getState();
+    const unlockedItems = state?.unlockedItems || [];
+    const basicItems = [
+      "pistol",
+      "pulse_rifle",
+      "shotgun",
+      "combat_knife",
+      "power_sword",
+      "thunder_hammer",
+      "medkit",
+      "frag_grenade",
+      "combat_boots",
+      "light_recon",
+    ];
+
+    const isUnlocked = (id: string) =>
+      basicItems.includes(id) || unlockedItems.includes(id);
+
     // Primary Weapons
     this.renderArmoryCategory(
       container,
       "Primary Weapons",
-      Object.values(WeaponLibrary).filter((w) => w.type === "Ranged"),
+      Object.values(WeaponLibrary).filter(
+        (w) => w.type === "Ranged" && isUnlocked(w.id),
+      ),
       (w) => this.handleSlotChange("rightHand", w.id),
       "rightHand",
     );
@@ -217,7 +237,9 @@ export class SoldierInspector {
     this.renderArmoryCategory(
       container,
       "Secondary Weapons",
-      Object.values(WeaponLibrary).filter((w) => w.type === "Melee"),
+      Object.values(WeaponLibrary).filter(
+        (w) => w.type === "Melee" && isUnlocked(w.id),
+      ),
       (w) => this.handleSlotChange("leftHand", w.id),
       "leftHand",
     );
@@ -227,7 +249,8 @@ export class SoldierInspector {
       container,
       "Armor",
       Object.values(ItemLibrary).filter(
-        (i) => i.id.includes("recon") || i.id.includes("plate"),
+        (i) =>
+          (i.id.includes("recon") || i.id.includes("plate")) && isUnlocked(i.id),
       ),
       (i) => this.handleSlotChange("body", i.id),
       "body",
@@ -237,7 +260,9 @@ export class SoldierInspector {
     this.renderArmoryCategory(
       container,
       "Footwear",
-      Object.values(ItemLibrary).filter((i) => i.id.includes("boots")),
+      Object.values(ItemLibrary).filter(
+        (i) => i.id.includes("boots") && isUnlocked(i.id),
+      ),
       (i) => this.handleSlotChange("feet", i.id),
       "feet",
     );

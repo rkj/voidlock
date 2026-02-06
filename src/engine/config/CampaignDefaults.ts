@@ -4,7 +4,6 @@ export const DEFAULT_ARCHETYPES = [
   "assault",
   "medic",
   "scout",
-  "heavy",
 ] as const;
 export type DefaultArchetype = (typeof DEFAULT_ARCHETYPES)[number];
 

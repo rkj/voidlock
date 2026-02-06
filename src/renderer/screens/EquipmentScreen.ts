@@ -244,7 +244,16 @@ export class EquipmentScreen {
     suppliesTitle.style.letterSpacing = "1px";
     panel.appendChild(suppliesTitle);
 
-    const supplyItems = Object.values(ItemLibrary).filter((i) => i.action);
+    const state = this.manager.getState();
+    const unlockedItems = state?.unlockedItems || [];
+    const basicSupplies = ["frag_grenade", "medkit", "mine"];
+
+    const isUnlocked = (id: string) =>
+      basicSupplies.includes(id) || unlockedItems.includes(id);
+
+    const supplyItems = Object.values(ItemLibrary).filter(
+      (i) => i.action && isUnlocked(i.id),
+    );
     supplyItems.forEach((item) => {
       const row = document.createElement("div");
       row.className = "flex-row justify-between align-center card w-full";
