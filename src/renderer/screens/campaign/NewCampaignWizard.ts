@@ -388,8 +388,7 @@ export class NewCampaignWizard {
       ConfigManager.clearCampaign();
       const currentGlobal = ConfigManager.loadGlobal();
       ConfigManager.saveGlobal({
-        unitStyle: currentGlobal.unitStyle,
-        themeId: currentGlobal.themeId,
+        ...currentGlobal,
       });
 
       const overrides: CampaignOverrides = {

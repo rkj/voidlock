@@ -25,6 +25,7 @@ export type ReplayData = {
   map: MapDefinition;
   squadConfig: SquadConfig;
   commands: RecordedCommand[];
+  snapshots?: GameState[];
 };
 
 export type GameStatus = "Deployment" | "Playing" | "Won" | "Lost";
@@ -40,6 +41,7 @@ export type AttackEvent = {
 export type SimulationSettings = {
   mode: EngineMode;
   debugOverlayEnabled: boolean;
+  debugSnapshots: boolean;
   losOverlayEnabled: boolean;
   timeScale: number;
   isPaused: boolean;
@@ -85,6 +87,7 @@ export type GameState = {
   attackEvents?: AttackEvent[];
   mines: Mine[];
   turrets: Turret[];
+  snapshots?: GameState[];
 };
 
 // --- Protocol ---
@@ -97,6 +100,7 @@ export type WorkerMessage =
         map: MapDefinition;
         fogOfWarEnabled: boolean;
         debugOverlayEnabled: boolean;
+        debugSnapshots?: boolean;
         agentControlEnabled: boolean;
         squadConfig: SquadConfig;
         missionType?: MissionType;

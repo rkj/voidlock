@@ -40,6 +40,7 @@ import { MenuController } from "../MenuController";
 import { HUDManager } from "../ui/HUDManager";
 import { InputManager } from "../InputManager";
 import { AssetManager } from "../visuals/AssetManager";
+import { Logger, LogLevel } from "@src/shared/Logger";
 
 const VERSION = pkg.version;
 
@@ -73,6 +74,9 @@ export class GameApp {
 
   public async initialize() {
     // 1. Initialize core managers
+    const globalConfig = ConfigManager.loadGlobal();
+    Logger.setLevel(LogLevel[globalConfig.logLevel as keyof typeof LogLevel]);
+
     await ThemeManager.getInstance().init();
     this.context.themeManager = ThemeManager.getInstance();
     // Ensure sprites are loaded now that the asset manifest is available
