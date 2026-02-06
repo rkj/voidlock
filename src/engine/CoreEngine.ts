@@ -165,7 +165,8 @@ export class CoreEngine implements IDirector {
     // Initialize Director
     const spawnPoints = map.spawnPoints || [];
     const effectiveStartingPoints =
-      startingPoints ?? baseEnemyCount + missionDepth * enemyGrowthPerMission;
+      startingPoints ??
+      (missionDepth > 0 ? baseEnemyCount + missionDepth * enemyGrowthPerMission : 0);
 
     this.director = new Director(
       spawnPoints,
