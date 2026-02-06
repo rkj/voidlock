@@ -249,6 +249,14 @@ export class HUDManager {
       desc.style.marginBottom = "20px";
       deploymentDiv.appendChild(desc);
 
+      const squadList = document.createElement("div");
+      squadList.className = "deployment-squad-list";
+      squadList.style.marginBottom = "20px";
+      squadList.style.textAlign = "left";
+      squadList.style.maxHeight = "300px";
+      squadList.style.overflowY = "auto";
+      deploymentDiv.appendChild(squadList);
+
       const startBtn = document.createElement("button");
       startBtn.id = "btn-start-mission";
       startBtn.textContent = "START MISSION";
@@ -264,6 +272,61 @@ export class HUDManager {
       deploymentDiv.appendChild(startBtn);
 
       rightPanel.appendChild(deploymentDiv);
+    }
+
+    const squadList = deploymentDiv.querySelector(
+      ".deployment-squad-list",
+    ) as HTMLElement;
+    if (squadList) {
+      const units = state.units.filter((u) => u.archetypeId !== "vip");
+      const currentIds = new Set(units.map((u) => u.id));
+
+      // Remove units that are gone
+      Array.from(squadList.children).forEach((child) => {
+        const id = (child as HTMLElement).dataset.unitId;
+        if (id && !currentIds.has(id)) squadList.removeChild(child);
+      });
+
+      units.forEach((u) => {
+        let item = squadList.querySelector(
+          `[data-unit-id="${u.id}"]`,
+        ) as HTMLElement;
+        if (!item) {
+          item = document.createElement("div");
+          item.className = "deployment-unit-item";
+          item.dataset.unitId = u.id;
+          item.draggable = true;
+          item.style.padding = "8px";
+          item.style.marginBottom = "4px";
+          item.style.backgroundColor = "var(--color-surface-elevated)";
+          item.style.border = "1px solid var(--color-border)";
+          item.style.borderRadius = "4px";
+          item.style.cursor = "grab";
+          item.addEventListener("dragstart", (e) => {
+            if (e.dataTransfer) {
+              e.dataTransfer.setData("text/plain", u.id);
+              e.dataTransfer.effectAllowed = "move";
+            }
+          });
+          squadList.appendChild(item);
+        }
+
+        const isPlaced = u.isDeployed !== false;
+        const statusColor = isPlaced
+          ? "var(--color-success)"
+          : "var(--color-warning)";
+        const statusText = isPlaced ? "Deployed" : "Pending";
+
+        item.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:bold;">${u.name} (${u.tacticalNumber})</span>
+            <span style="font-size:0.8em; color:${statusColor};">${statusText}</span>
+          </div>
+          <div style="font-size:0.75em; color:var(--color-text-dim); margin-top:2px;">
+            ${u.archetypeId.toUpperCase()}
+          </div>
+        `;
+      });
     }
 
     const startBtn = deploymentDiv.querySelector(
