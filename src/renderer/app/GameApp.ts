@@ -336,9 +336,6 @@ export class GameApp {
               (s) => s.archetypeId !== "vip",
             );
         }
-        this.missionSetupManager.renderSquadBuilder(
-          this.missionSetupManager.currentCampaignNode !== null,
-        );
         this.missionSetupManager.saveCurrentConfig();
       },
       onThemeChange: (themeId: string) => {

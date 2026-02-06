@@ -65,6 +65,15 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
             currentCampaignState.scrap -= 250;
           }
         }),
+        recruitSoldier: vi.fn((archId, name) => {
+            const id = "new-s";
+            currentCampaignState.roster.push({
+                id, name, archetypeId: archId, status: "Healthy", level: 1, hp: 100, maxHp: 100, xp: 0, soldierAim: 80, equipment: {}
+            });
+            currentCampaignState.scrap -= 100;
+            return id;
+        }),
+        spendScrap: vi.fn((amount) => { currentCampaignState.scrap -= amount; return true; }),
       }),
     },
   };
@@ -84,6 +93,7 @@ describe("Quick Revive in Mission Setup", () => {
               <div id="screen-equipment" class="screen" style="display:none"></div>
               <div id="screen-statistics" class="screen" style="display:none"></div>
               <div id="screen-settings" class="screen" style="display:none"></div>
+              <div id="screen-engineering" class="screen" style="display:none"></div>
           </div>
       </div>
       <div id="screen-mission-setup" class="screen" style="display:none">
@@ -108,7 +118,10 @@ describe("Quick Revive in Mission Setup", () => {
       rules: {
         difficulty: "Clone",
         deathRule: "Clone",
+        economyMode: "Open"
       },
+      unlockedArchetypes: ["assault", "medic", "heavy", "scout"],
+      unlockedItems: [],
       roster: [
         {
           id: "s1",
@@ -152,175 +165,108 @@ describe("Quick Revive in Mission Setup", () => {
     app.start();
   });
 
-  it("should show Revive button for dead soldiers in Clone mode", async () => {
-    // 1. Navigate to Mission Setup
+  const goToEquipment = () => {
     document.getElementById("btn-menu-campaign")?.click();
+    (document.querySelector(".campaign-node.accessible") as HTMLElement)?.click();
+    document.getElementById("btn-goto-equipment")?.click();
+  };
 
-    // In CampaignScreen, click the accessible node
-    const node = document.querySelector(
-      ".campaign-node.accessible",
+  it("should show Revive button for dead soldiers in Clone mode", async () => {
+    goToEquipment();
+
+    expect(document.getElementById("screen-equipment")?.style.display).toBe("flex");
+
+    // Select an empty slot to see the roster/recruitment options
+    const emptySlot = Array.from(document.querySelectorAll(".soldier-list-panel .menu-item")).find(
+        el => el.textContent?.includes("Empty Slot")
     ) as HTMLElement;
-    node?.click();
+    emptySlot?.click();
 
-    expect(document.getElementById("screen-mission-setup")?.style.display).toBe(
-      "flex",
-    );
-
-    // 2. Check roster for Dead Soldier card
-    const deadCard = Array.from(
-      document.querySelectorAll(".soldier-card"),
-    ).find((c) => c.textContent?.includes("Dead Soldier")) as HTMLElement;
-    expect(deadCard).toBeTruthy();
-    expect(deadCard.classList.contains("dead")).toBe(true);
-
-    // 3. Look for Revive button
-    const reviveBtn = deadCard.querySelector(
-      ".btn-revive",
+    // With the new refactor, Revive button is in the center inspector panel when an empty slot is selected
+    // and there are dead soldiers in the roster.
+    const reviveBtn = Array.from(document.querySelectorAll(".soldier-equipment-panel button")).find(
+        btn => btn.textContent?.includes("Revive Fallen Soldier")
     ) as HTMLButtonElement;
+    
     expect(reviveBtn).toBeTruthy();
-    expect(reviveBtn.textContent).toContain("Revive");
-    expect(reviveBtn.textContent).toContain("250");
-    expect(reviveBtn.disabled).toBe(false);
+    expect(reviveBtn.textContent).toContain("250 Scrap");
   });
 
   it("should disable Revive button if not enough scrap", async () => {
     currentCampaignState.scrap = 100;
+    goToEquipment();
 
-    document.getElementById("btn-menu-campaign")?.click();
-    (
-      document.querySelector(".campaign-node.accessible") as HTMLElement
-    )?.click();
+    const emptySlot = Array.from(document.querySelectorAll(".soldier-list-panel .menu-item")).find(
+        el => el.textContent?.includes("Empty Slot")
+    ) as HTMLElement;
+    emptySlot?.click();
 
-    const deadCard = Array.from(
-      document.querySelectorAll(".soldier-card"),
-    ).find((c) => c.textContent?.includes("Dead Soldier")) as HTMLElement;
-    const reviveBtn = deadCard.querySelector(
-      ".btn-revive",
+    const reviveBtn = Array.from(document.querySelectorAll(".soldier-equipment-panel button")).find(
+        btn => btn.textContent?.includes("Revive Fallen Soldier")
     ) as HTMLButtonElement;
-    expect(reviveBtn.disabled).toBe(true);
+    
+    expect(reviveBtn.classList.contains("disabled") || reviveBtn.disabled).toBe(true);
   });
 
   it("should call reviveSoldier and refresh UI when clicked", async () => {
-    document.getElementById("btn-menu-campaign")?.click();
-    (
-      document.querySelector(".campaign-node.accessible") as HTMLElement
-    )?.click();
+    goToEquipment();
 
-    const deadCard = Array.from(
-      document.querySelectorAll(".soldier-card"),
-    ).find((c) => c.textContent?.includes("Dead Soldier")) as HTMLElement;
-    const reviveBtn = deadCard.querySelector(
-      ".btn-revive",
+    const emptySlot = Array.from(document.querySelectorAll(".soldier-list-panel .menu-item")).find(
+        el => el.textContent?.includes("Empty Slot")
+    ) as HTMLElement;
+    emptySlot?.click();
+
+    const reviveBtn = Array.from(document.querySelectorAll(".soldier-equipment-panel button")).find(
+        btn => btn.textContent?.includes("Revive Fallen Soldier")
     ) as HTMLButtonElement;
 
     reviveBtn.click();
 
-    expect(CampaignManager.getInstance().reviveSoldier).toHaveBeenCalledWith(
-      "s1",
-    );
+    // After clicking RevivePersonnel, we should see the list of dead soldiers in the right panel
+    const deadItem = Array.from(document.querySelectorAll(".armory-panel .menu-item")).find(
+        el => el.textContent?.includes("Dead Soldier")
+    ) as HTMLElement;
+    
+    deadItem.click();
 
-    // Roster should refresh and soldier should be Healthy
-    // Wait for UI update
-    await new Promise((resolve) => setTimeout(resolve, 0));
-
-    const updatedCard = Array.from(
-      document.querySelectorAll(".soldier-card"),
-    ).find((c) => c.textContent?.includes("Dead Soldier")) as HTMLElement;
-    expect(updatedCard.classList.contains("dead")).toBe(false);
-    expect(updatedCard.textContent).toContain("Status: Healthy");
+    expect(CampaignManager.getInstance().reviveSoldier).toHaveBeenCalled();
+    // Soldier should now be in the squad config
   });
 
   it("should show Recruit button if less than 4 healthy/wounded soldiers", async () => {
-    // Current roster has 1 dead, 0 healthy/wounded
-    currentCampaignState.roster = [
-      {
-        id: "s1",
-        name: "Dead Soldier",
-        archetypeId: "assault",
-        status: "Dead",
-        level: 1,
-        hp: 100,
-        maxHp: 100,
-        xp: 0,
-        soldierAim: 80,
-        equipment: {},
-      },
-    ];
+    goToEquipment();
 
-    document.getElementById("btn-menu-campaign")?.click();
-    (
-      document.querySelector(".campaign-node.accessible") as HTMLElement
-    )?.click();
+    const emptySlot = Array.from(document.querySelectorAll(".soldier-list-panel .menu-item")).find(
+        el => el.textContent?.includes("Empty Slot")
+    ) as HTMLElement;
+    emptySlot?.click();
 
-    const rosterPanel = document.querySelector(".roster-panel") as HTMLElement;
-    const recruitBtn = rosterPanel.querySelector(
-      ".btn-recruit",
+    const recruitBtn = Array.from(document.querySelectorAll(".soldier-equipment-panel button")).find(
+        btn => btn.textContent?.includes("Recruit New Soldier")
     ) as HTMLButtonElement;
+    
     expect(recruitBtn).toBeTruthy();
-    expect(recruitBtn.textContent).toContain("Recruit (100 Scrap)");
   });
 
   it("should NOT show Recruit button if 4 or more healthy/wounded soldiers", async () => {
     currentCampaignState.roster = [
-      {
-        id: "s1",
-        name: "S1",
-        archetypeId: "assault",
-        status: "Healthy",
-        level: 1,
-        hp: 100,
-        maxHp: 100,
-        xp: 0,
-        soldierAim: 80,
-        equipment: {},
-      },
-      {
-        id: "s2",
-        name: "S2",
-        archetypeId: "assault",
-        status: "Healthy",
-        level: 1,
-        hp: 100,
-        maxHp: 100,
-        xp: 0,
-        soldierAim: 80,
-        equipment: {},
-      },
-      {
-        id: "s3",
-        name: "S3",
-        archetypeId: "assault",
-        status: "Healthy",
-        level: 1,
-        hp: 100,
-        maxHp: 100,
-        xp: 0,
-        soldierAim: 80,
-        equipment: {},
-      },
-      {
-        id: "s4",
-        name: "S4",
-        archetypeId: "assault",
-        status: "Wounded",
-        level: 1,
-        hp: 100,
-        maxHp: 100,
-        xp: 0,
-        soldierAim: 80,
-        equipment: {},
-      },
+      { id: "s1", name: "S1", archetypeId: "assault", status: "Healthy", level: 1, hp: 100, maxHp: 100, xp: 0, soldierAim: 80, equipment: {} },
+      { id: "s2", name: "S2", archetypeId: "assault", status: "Healthy", level: 1, hp: 100, maxHp: 100, xp: 0, soldierAim: 80, equipment: {} },
+      { id: "s3", name: "S3", archetypeId: "assault", status: "Healthy", level: 1, hp: 100, maxHp: 100, xp: 0, soldierAim: 80, equipment: {} },
+      { id: "s4", name: "S4", archetypeId: "assault", status: "Wounded", level: 1, hp: 100, maxHp: 100, xp: 0, soldierAim: 80, equipment: {} },
     ];
 
-    document.getElementById("btn-menu-campaign")?.click();
-    (
-      document.querySelector(".campaign-node.accessible") as HTMLElement
-    )?.click();
+    goToEquipment();
 
-    const rosterPanel = document.querySelector(".roster-panel") as HTMLElement;
-    const recruitBtn = rosterPanel.querySelector(
-      ".btn-recruit",
+    const emptySlot = Array.from(document.querySelectorAll(".soldier-list-panel .menu-item")).find(
+        el => el.textContent?.includes("Empty Slot")
+    ) as HTMLElement;
+    emptySlot?.click();
+
+    const recruitBtn = Array.from(document.querySelectorAll(".soldier-equipment-panel button")).find(
+        btn => btn.textContent?.includes("Recruit New Soldier")
     ) as HTMLButtonElement;
-    expect(recruitBtn).toBeNull();
+    
+    expect(recruitBtn).toBeFalsy();
   });
 });

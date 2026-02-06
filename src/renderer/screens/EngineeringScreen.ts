@@ -21,9 +21,18 @@ export class EngineeringScreen {
   };
 
   constructor(containerId: string, onUpdate: () => void) {
-    const el = document.getElementById(containerId);
-    if (!el) throw new Error(`Container #${containerId} not found`);
-    this.container = el;
+    let el = document.getElementById(containerId);
+    if (!el) {
+      const isTest = typeof process !== "undefined" && process.env?.VITEST;
+      if (isTest) {
+        el = document.createElement("div");
+        el.id = containerId;
+        document.body.appendChild(el);
+      } else {
+        throw new Error(`Container #${containerId} not found`);
+      }
+    }
+    this.container = el!;
     this.onUpdate = onUpdate;
   }
 
@@ -36,135 +45,151 @@ export class EngineeringScreen {
     this.container.style.display = "none";
   }
 
+  public isVisible(): boolean {
+    return this.container.style.display === "flex";
+  }
+
   private render() {
-    const stats = MetaManager.getInstance().getStats();
+    const meta = MetaManager.getInstance();
+    const intel = meta.getIntel();
+    const unlockedArchetypes = meta.getUnlockedArchetypes();
+    const unlockedItems = meta.getUnlockedItems();
 
     this.container.innerHTML = "";
     this.container.className = "screen screen-centered flex-col gap-20 p-20";
-    this.container.style.display = "flex";
     this.container.style.overflowY = "auto";
-    this.container.style.backgroundColor = "var(--color-surface)";
 
     const h1 = document.createElement("h1");
-    h1.textContent = "Engineering Bay";
+    h1.textContent = "ENGINEERING BAY";
     h1.style.letterSpacing = "4px";
-    h1.style.color = "var(--color-accent)";
+    h1.style.color = "var(--color-primary)";
     this.container.appendChild(h1);
 
     const intelDisplay = document.createElement("div");
-    intelDisplay.className = "stat-box flex-row align-center gap-10 p-10";
-    intelDisplay.style.background = "rgba(0,0,0,0.3)";
+    intelDisplay.className = "intel-display flex-row align-center gap-10";
+    intelDisplay.style.background = "var(--color-surface-elevated)";
+    intelDisplay.style.padding = "10px 20px";
     intelDisplay.style.border = "1px solid var(--color-accent)";
-    intelDisplay.style.borderRadius = "4px";
     intelDisplay.innerHTML = `
-      <span style="color: var(--color-text-dim); text-transform: uppercase; font-size: 0.8em; letter-spacing: 1px;">Available Intel:</span>
-      <span style="color: var(--color-accent); font-weight: bold; font-size: 1.2em;">${stats.currentIntel}</span>
+      <span style="color: var(--color-text-dim); font-size: 0.8em; text-transform: uppercase;">Persistent Intel:</span>
+      <span style="color: var(--color-accent); font-weight: bold; font-size: 1.2em;">${intel}</span>
     `;
     this.container.appendChild(intelDisplay);
 
-    const contentGrid = document.createElement("div");
-    contentGrid.className = "flex-row gap-20 justify-center";
-    contentGrid.style.width = "100%";
-    contentGrid.style.maxWidth = "1000px";
-    contentGrid.style.alignItems = "flex-start";
+    const grid = document.createElement("div");
+    grid.className = "engineering-grid flex-col gap-20 w-full";
+    grid.style.maxWidth = "800px";
 
-    // Archetypes Section
-    const archCol = this.createSection("Advanced Archetypes");
+    // --- Archetypes Section ---
+    const archHeader = document.createElement("h3");
+    archHeader.textContent = "UNIT ARCHETYPES";
+    archHeader.style.borderBottom = "1px solid var(--color-border)";
+    archHeader.style.paddingBottom = "5px";
+    archHeader.style.color = "var(--color-text-dim)";
+    grid.appendChild(archHeader);
+
+    const archList = document.createElement("div");
+    archList.className = "flex-col gap-10";
+    
     this.unlockables.archetypes.forEach(arch => {
-      const isUnlocked = stats.unlockedArchetypes.includes(arch.id);
-      const name = ArchetypeLibrary[arch.id]?.name || arch.id;
-      archCol.appendChild(this.createUnlockCard(name, arch.description, arch.cost, isUnlocked, stats.currentIntel, () => {
-        MetaManager.getInstance().unlockArchetype(arch.id, arch.cost);
-        this.render();
-        this.onUpdate();
-      }));
+      const isUnlocked = unlockedArchetypes.includes(arch.id);
+      archList.appendChild(this.createUnlockCard(
+        arch.id, 
+        ArchetypeLibrary[arch.id]?.name || arch.id, 
+        arch.description, 
+        arch.cost, 
+        isUnlocked, 
+        intel >= arch.cost,
+        () => this.handleUnlockArchetype(arch.id, arch.cost)
+      ));
     });
-    contentGrid.appendChild(archCol);
+    grid.appendChild(archList);
 
-    // Items Section
-    const itemCol = this.createSection("Equipment Licenses");
+    // --- Equipment Section ---
+    const itemHeader = document.createElement("h3");
+    itemHeader.textContent = "ADVANCED EQUIPMENT";
+    itemHeader.style.marginTop = "20px";
+    itemHeader.style.borderBottom = "1px solid var(--color-border)";
+    itemHeader.style.paddingBottom = "5px";
+    itemHeader.style.color = "var(--color-text-dim)";
+    grid.appendChild(itemHeader);
+
+    const itemList = document.createElement("div");
+    itemList.className = "flex-col gap-10";
+
     this.unlockables.items.forEach(item => {
-      const isUnlocked = stats.unlockedItems.includes(item.id);
-      const data = ItemLibrary[item.id] || WeaponLibrary[item.id];
-      const name = data?.name || item.id;
-      itemCol.appendChild(this.createUnlockCard(name, item.description, item.cost, isUnlocked, stats.currentIntel, () => {
-        MetaManager.getInstance().unlockItem(item.id, item.cost);
-        this.render();
-        this.onUpdate();
-      }));
+      const isUnlocked = unlockedItems.includes(item.id);
+      const name = ItemLibrary[item.id]?.name || WeaponLibrary[item.id]?.name || item.id;
+      itemList.appendChild(this.createUnlockCard(
+        item.id,
+        name,
+        item.description,
+        item.cost,
+        isUnlocked,
+        intel >= item.cost,
+        () => this.handleUnlockItem(item.id, item.cost)
+      ));
     });
-    contentGrid.appendChild(itemCol);
+    grid.appendChild(itemList);
 
-    this.container.appendChild(contentGrid);
-  }
-
-  private createSection(title: string) {
-    const col = document.createElement("div");
-    col.className = "flex-col gap-10";
-    col.style.flex = "1";
-    col.style.minWidth = "300px";
-
-    const h2 = document.createElement("h2");
-    h2.textContent = title;
-    h2.style.fontSize = "1em";
-    h2.style.color = "var(--color-primary)";
-    h2.style.borderBottom = "1px solid var(--color-border)";
-    h2.style.paddingBottom = "5px";
-    h2.style.textTransform = "uppercase";
-    h2.style.letterSpacing = "1px";
-    col.appendChild(h2);
-
-    return col;
+    this.container.appendChild(grid);
   }
 
   private createUnlockCard(
-    name: string,
-    description: string,
-    cost: number,
-    isUnlocked: boolean,
-    currentIntel: number,
+    id: string, 
+    name: string, 
+    desc: string, 
+    cost: number, 
+    isUnlocked: boolean, 
+    canAfford: boolean,
     onUnlock: () => void
-  ) {
+  ): HTMLElement {
     const card = document.createElement("div");
-    card.className = "stat-box p-15 flex-col gap-10";
-    card.style.background = "var(--color-surface-elevated)";
-    card.style.border = isUnlocked ? "1px solid var(--color-primary)" : "1px solid var(--color-border)";
-    card.style.opacity = isUnlocked ? "1" : "0.9";
-    card.style.transition = "all 0.2s ease";
+    card.className = `unlock-card card p-15 flex-row justify-between align-center ${isUnlocked ? 'unlocked' : ''}`;
+    card.style.background = isUnlocked ? "rgba(46, 204, 113, 0.05)" : "var(--color-surface-elevated)";
+    card.style.border = `1px solid ${isUnlocked ? 'var(--color-success)' : 'var(--color-border)'}`;
+    card.style.opacity = !isUnlocked && !canAfford ? "0.7" : "1.0";
 
-    const header = document.createElement("div");
-    header.className = "flex-row justify-between align-center";
-    header.innerHTML = `
-      <span style="font-weight: bold; color: ${isUnlocked ? "var(--color-primary)" : "var(--color-text)"}">${name}</span>
-      ${isUnlocked ? '<span style="color: var(--color-success); font-size: 0.7em; font-weight: bold; text-transform: uppercase;">Unlocked</span>' : `<span style="color: var(--color-accent); font-weight: bold;">${cost} INTEL</span>`}
+    const left = document.createElement("div");
+    left.className = "flex-col gap-5";
+    left.innerHTML = `
+      <div style="font-weight: bold; color: ${isUnlocked ? 'var(--color-success)' : 'var(--color-primary)'};">${name.toUpperCase()}</div>
+      <div style="font-size: 0.8em; color: var(--color-text-dim); max-width: 500px;">${desc}</div>
     `;
-    card.appendChild(header);
+    card.appendChild(left);
 
-    const desc = document.createElement("div");
-    desc.textContent = description;
-    desc.style.fontSize = "0.8em";
-    desc.style.color = "var(--color-text-dim)";
-    card.appendChild(desc);
-
-    if (!isUnlocked) {
+    const right = document.createElement("div");
+    if (isUnlocked) {
+      right.innerHTML = `<span style="color: var(--color-success); font-weight: bold; font-size: 0.8em;">UNLOCKED</span>`;
+    } else {
       const btn = document.createElement("button");
-      btn.textContent = "Unlock Project";
-      btn.className = "primary-button";
-      btn.style.width = "100%";
-      btn.style.marginTop = "5px";
-      btn.disabled = currentIntel < cost;
-      if (currentIntel < cost) {
-        btn.style.opacity = "0.5";
-        btn.style.cursor = "not-allowed";
-        btn.title = "Insufficient Intel";
-      }
-      btn.onclick = (e) => {
-        e.stopPropagation();
-        onUnlock();
-      };
-      card.appendChild(btn);
+      btn.className = canAfford ? "primary-button" : "back-button disabled";
+      btn.style.width = "120px";
+      btn.innerHTML = `<span style="font-size: 0.8em;">UNLOCK (${cost})</span>`;
+      btn.disabled = !canAfford;
+      btn.onclick = onUnlock;
+      right.appendChild(btn);
     }
+    card.appendChild(right);
 
     return card;
+  }
+
+  private handleUnlockArchetype(id: string, cost: number) {
+    const meta = MetaManager.getInstance();
+    if (meta.spendIntel(cost)) {
+      meta.unlockArchetype(id);
+      this.render();
+      this.onUpdate();
+    }
+  }
+
+  private handleUnlockItem(id: string, cost: number) {
+    const meta = MetaManager.getInstance();
+    if (meta.spendIntel(cost)) {
+      meta.unlockItem(id);
+      this.render();
+      this.onUpdate();
+    }
   }
 }

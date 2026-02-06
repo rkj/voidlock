@@ -167,6 +167,7 @@ describe("Screen Flow Integration", () => {
               <div id="screen-equipment" class="screen" style="display:none"></div>
               <div id="screen-statistics" class="screen" style="display:none"></div>
               <div id="screen-settings" class="screen" style="display:none"></div>
+              <div id="screen-engineering" class="screen" style="display:none"></div>
           </div>
       </div>
 

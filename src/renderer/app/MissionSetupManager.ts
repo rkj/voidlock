@@ -10,7 +10,6 @@ import { ConfigManager, GameConfig } from "../ConfigManager";
 import { MapUtility } from "@src/renderer/MapUtility";
 import { MapValidator } from "@src/shared/validation/MapValidator";
 import { MapFactory } from "@src/engine/map/MapFactory";
-import { SquadBuilder } from "../components/SquadBuilder";
 import { NameGenerator } from "@src/shared/utils/NameGenerator";
 import { ArchetypeLibrary } from "@src/shared/types/units";
 
@@ -36,20 +35,7 @@ export class MissionSetupManager {
   public currentSpawnPointCount = ConfigManager.getDefault().spawnPointCount;
   public currentCampaignNode: CampaignNode | null = null;
 
-  private squadBuilder: SquadBuilder;
-
-  constructor(private context: AppContext) {
-    this.squadBuilder = new SquadBuilder(
-      "squad-builder",
-      this.context,
-      this.currentSquad,
-      this.currentMissionType,
-      false,
-      (squad) => {
-        this.currentSquad = squad;
-      },
-    );
-  }
+  constructor(private context: AppContext) {}
 
   public rehydrateCampaignNode(): boolean {
     const config = ConfigManager.loadCampaign();
@@ -64,10 +50,6 @@ export class MissionSetupManager {
       }
     }
     return false;
-  }
-
-  public getSquadBuilder(): SquadBuilder {
-    return this.squadBuilder;
   }
 
   public prepareMissionSetup(
@@ -342,7 +324,6 @@ export class MissionSetupManager {
         }
       });
     }
-    this.renderSquadBuilder(isCampaign);
   }
 
   public updateSetupUIFromConfig(config: GameConfig | Partial<GameConfig>) {
@@ -436,14 +417,6 @@ export class MissionSetupManager {
       this.currentThemeId.charAt(0).toUpperCase() +
       this.currentThemeId.slice(1);
     el.textContent = `${this.unitStyle} | ${themeLabel}`;
-  }
-
-  public renderSquadBuilder(isCampaign: boolean = false) {
-    this.squadBuilder.update(
-      this.currentSquad,
-      this.currentMissionType,
-      isCampaign,
-    );
   }
 
   public async loadStaticMap(json: string) {

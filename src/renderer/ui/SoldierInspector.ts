@@ -15,6 +15,8 @@ import { StatDisplay } from "@src/renderer/ui/StatDisplay";
 export interface SoldierInspectorOptions {
   manager: CampaignManager;
   onUpdate: () => void;
+  onRecruit?: (soldierId: string) => void;
+  onRevive?: (soldierId: string) => void;
 }
 
 interface WeaponStats {
@@ -28,6 +30,8 @@ interface WeaponStats {
 export class SoldierInspector {
   private manager: CampaignManager;
   private onUpdate: () => void;
+  private onRecruit?: (soldierId: string) => void;
+  private onRevive?: (soldierId: string) => void;
 
   private soldier: CampaignSoldier | SquadSoldierConfig | null = null;
   private isShop: boolean = false;
@@ -35,6 +39,8 @@ export class SoldierInspector {
   constructor(options: SoldierInspectorOptions) {
     this.manager = options.manager;
     this.onUpdate = options.onUpdate;
+    this.onRecruit = options.onRecruit;
+    this.onRevive = options.onRevive;
   }
 
   public setSoldier(soldier: CampaignSoldier | SquadSoldierConfig | null) {
@@ -53,18 +59,65 @@ export class SoldierInspector {
     return rosterSoldier?.status === "Dead";
   }
 
+  private handleRecruit() {
+    if (this.onRecruit) this.onRecruit("");
+  }
+
+  private handleRevive() {
+    if (this.onRevive) this.onRevive("");
+  }
+
   public renderDetails(container: HTMLElement) {
     container.innerHTML = "";
     if (!this.soldier) {
+      const wrapper = document.createElement("div");
+      wrapper.className = "flex-col gap-20 align-center h-full";
+      wrapper.style.padding = "20px";
+
       const placeholder = document.createElement("div");
-      placeholder.className = "flex-col align-center justify-center h-full";
+      placeholder.className = "flex-col align-center justify-center";
       placeholder.style.color = "var(--color-border-strong)";
-      placeholder.style.minHeight = "300px";
       placeholder.innerHTML = `
         <div style="font-size:3em; margin-bottom:10px;">👤</div>
-        <div>Select a soldier to view details</div>
+        <div>Select a slot to manage squad</div>
       `;
-      container.appendChild(placeholder);
+      wrapper.appendChild(placeholder);
+
+      // Recruit/Revive Options
+      const optionsDiv = document.createElement("div");
+      optionsDiv.className = "flex-col gap-10 w-full";
+      optionsDiv.style.maxWidth = "400px";
+      optionsDiv.style.marginTop = "20px";
+
+      const state = this.manager.getState();
+      const healthyWoundedCount = state ? state.roster.filter(s => s.status !== "Dead").length : 0;
+
+      if (healthyWoundedCount < 4) {
+        const recruitBtn = document.createElement("button");
+        recruitBtn.className = "menu-button w-full";
+        recruitBtn.style.padding = "15px";
+        recruitBtn.innerHTML = `
+          <div style="font-weight:bold;">Recruit New Soldier</div>
+          <div style="font-size:0.8em; color:var(--color-text-dim);">Cost: 100 Scrap</div>
+        `;
+        recruitBtn.onclick = () => this.handleRecruit();
+        optionsDiv.appendChild(recruitBtn);
+      }
+
+      const reviveBtn = document.createElement("button");
+      const canAffordRevive = state ? state.scrap >= 250 : true;
+      reviveBtn.className = `menu-button w-full ${!canAffordRevive ? 'disabled' : ''}`;
+      reviveBtn.style.padding = "15px";
+      reviveBtn.disabled = !canAffordRevive;
+      reviveBtn.innerHTML = `
+        <div style="font-weight:bold;">Revive Fallen Soldier</div>
+        <div style="font-size:0.8em; color:var(--color-text-dim);">Cost: 250 Scrap</div>
+      `;
+      reviveBtn.onclick = () => this.handleRevive();
+      optionsDiv.appendChild(reviveBtn);
+
+      wrapper.appendChild(optionsDiv);
+      container.appendChild(wrapper);
       return;
     }
 
@@ -404,7 +457,7 @@ export class SoldierInspector {
           ${StatDisplay.render(Icons.Range, item.range || 0, "Range")}
         `;
         const acc = item.accuracy || 0;
-        fullStats = `Damage: ${item.damage}\\nRange: ${item.range}\\nFire Rate: ${item.fireRate}ms\\nAccuracy: ${acc > 0 ? "+" : ""}${acc}%`;
+        fullStats = `Damage: ${item.damage}\nRange: ${item.range}\nFire Rate: ${item.fireRate}ms\nAccuracy: ${acc > 0 ? "+" : ""}${acc}%`;
       } else {
         const bonuses = [];
         if (item.hpBonus)
