@@ -39,7 +39,7 @@ describe("MapEntityLayer", () => {
     layer = new MapEntityLayer(sharedState);
   });
 
-  it("should ALWAYS render extraction point even if cell is NOT discovered and NOT visible (ADR 0032)", () => {
+  it("should NOT render extraction point if cell is NOT discovered and NOT visible", () => {
     const gameState: GameState = createMockGameState({
       map: {
         width: 10,
@@ -53,7 +53,7 @@ describe("MapEntityLayer", () => {
 
     layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
 
-    // Now it SHOULD render. We check for either fillRect or drawImage at (5*32, 5*32)
+    // Now it SHOULD NOT render. We check for either fillRect or drawImage at (5*32, 5*32)
     const fillRectCalls = mockContext.fillRect.mock.calls;
     const drawImageCalls = mockContext.drawImage.mock.calls;
 
@@ -65,7 +65,35 @@ describe("MapEntityLayer", () => {
         (args: unknown[]) => args[1] === 5 * 32 && args[2] === 5 * 32,
       );
 
-    expect(drewSomething).toBe(true);
+    expect(drewSomething).toBe(false);
+  });
+
+  it("should NOT render spawn point if cell is NOT discovered and NOT visible", () => {
+    const gameState: GameState = createMockGameState({
+      map: {
+        width: 10,
+        height: 10,
+        cells: [{ x: 5, y: 5, type: CellType.Floor }],
+        spawnPoints: [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }],
+      },
+      visibleCells: [],
+      discoveredCells: [],
+    });
+
+    layer.draw(mockContext as unknown as CanvasRenderingContext2D, gameState);
+
+    const fillRectCalls = mockContext.fillRect.mock.calls;
+    const drawImageCalls = mockContext.drawImage.mock.calls;
+
+    const drewSomething =
+      fillRectCalls.some(
+        (args: unknown[]) => args[0] === 5 * 32 && args[1] === 5 * 32,
+      ) ||
+      drawImageCalls.some(
+        (args: unknown[]) => args[1] === 5 * 32 && args[2] === 5 * 32,
+      );
+
+    expect(drewSomething).toBe(false);
   });
 
   it("should render extraction point when cell IS discovered", () => {
