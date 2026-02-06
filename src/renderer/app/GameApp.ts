@@ -31,6 +31,7 @@ import { DebriefScreen } from "../screens/DebriefScreen";
 import { EquipmentScreen } from "../screens/EquipmentScreen";
 import { CampaignSummaryScreen } from "../screens/CampaignSummaryScreen";
 import { StatisticsScreen } from "../screens/StatisticsScreen";
+import { EngineeringScreen } from "../screens/EngineeringScreen";
 import { SettingsScreen } from "../screens/SettingsScreen";
 import { ThemeManager } from "../ThemeManager";
 import { CampaignManager } from "../campaign/CampaignManager";
@@ -58,6 +59,7 @@ export class GameApp {
   private equipmentScreen!: EquipmentScreen;
   private campaignSummaryScreen!: CampaignSummaryScreen;
   private statisticsScreen!: StatisticsScreen;
+  private engineeringScreen!: EngineeringScreen;
   private settingsScreen!: SettingsScreen;
 
   // app state
@@ -228,6 +230,10 @@ export class GameApp {
     );
 
     this.statisticsScreen = new StatisticsScreen("screen-statistics");
+    this.engineeringScreen = new EngineeringScreen(
+      "screen-engineering",
+      () => this.context.campaignShell.refresh(),
+    );
     this.settingsScreen = new SettingsScreen(
       "screen-settings",
       this.context,
@@ -283,6 +289,17 @@ export class GameApp {
         this.statisticsScreen.show();
         this.context.screenManager.show("statistics", true, false);
         this.context.campaignShell.show("statistics", "stats");
+      },
+      onEngineeringMenu: () => {
+        this.engineeringScreen.show();
+        const state = this.context.campaignManager.getState();
+        if (state) {
+          this.context.screenManager.show("engineering", true, true);
+          this.context.campaignShell.show("campaign", "engineering");
+        } else {
+          this.context.screenManager.show("engineering", true, false);
+          this.context.campaignShell.show("statistics", "engineering");
+        }
       },
       onSettingsMenu: () => {
         this.settingsScreen.show();
@@ -400,7 +417,11 @@ export class GameApp {
         this.context.screenManager.show("barracks", true, true);
         break;
       case "engineering":
-        // Not implemented
+        this.engineeringScreen.show();
+        const mode = this.context.campaignManager.getState()
+          ? "campaign"
+          : "statistics";
+        this.context.screenManager.show("engineering", true, mode === "campaign");
         break;
       case "stats":
         this.statisticsScreen.show();
@@ -490,6 +511,14 @@ export class GameApp {
       case "statistics":
         this.statisticsScreen.show();
         this.context.campaignShell.show("statistics", "stats");
+        break;
+      case "engineering":
+        this.engineeringScreen.show();
+        if (isCampaign || this.context.campaignManager.getState()) {
+          this.context.campaignShell.show("campaign", "engineering");
+        } else {
+          this.context.campaignShell.show("statistics", "engineering");
+        }
         break;
       case "settings":
         this.settingsScreen.show();

@@ -12,6 +12,7 @@ export type ScreenId =
   | "debrief"
   | "campaign-summary"
   | "statistics"
+  | "engineering"
   | "settings";
 
 export class ScreenManager {
@@ -34,6 +35,7 @@ export class ScreenManager {
     this.registerScreen("debrief");
     this.registerScreen("campaign-summary");
     this.registerScreen("statistics");
+    this.registerScreen("engineering");
     this.registerScreen("settings");
 
     // Force show initial screen without transition validation

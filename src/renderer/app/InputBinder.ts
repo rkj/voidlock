@@ -27,6 +27,7 @@ export class InputBinder {
     onExportReplay: () => void;
     onShowStatistics: () => void;
     onSettingsMenu: () => void;
+    onEngineeringMenu: () => void;
     onSetupBack: () => void;
     onMapGeneratorChange: (type: MapGeneratorType) => void;
     onMissionTypeChange: (type: MissionType) => void;
@@ -50,6 +51,9 @@ export class InputBinder {
     );
     this.addListener("btn-menu-statistics", "click", () =>
       callbacks.onShowStatistics(),
+    );
+    this.addListener("btn-menu-engineering", "click", () =>
+      callbacks.onEngineeringMenu(),
     );
     this.addListener("btn-menu-settings", "click", () =>
       callbacks.onSettingsMenu(),

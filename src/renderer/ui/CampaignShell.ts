@@ -147,10 +147,12 @@ export class CampaignShell {
       if (this.mode === "campaign" && state) {
         tabs.push({ id: "sector-map", label: "Sector Map" });
         tabs.push({ id: "barracks", label: "Barracks" });
+        tabs.push({ id: "engineering", label: "Engineering" });
         tabs.push({ id: "stats", label: "Service Record" });
         tabs.push({ id: "settings", label: "Settings" });
       } else if (this.mode === "statistics") {
         tabs.push({ id: "stats", label: "Service Record" });
+        tabs.push({ id: "engineering", label: "Engineering" });
         tabs.push({ id: "main-menu", label: "Main Menu" }); // Spec: Back tab
       }
 
