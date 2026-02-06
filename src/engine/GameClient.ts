@@ -59,6 +59,7 @@ export class GameClient {
   private initialSquadConfig: SquadConfig | null = null;
   private initialMissionType: MissionType = MissionType.Default;
   private commandStream: RecordedCommand[] = [];
+  private snapshots: GameState[] = [];
   private startTime: number = 0;
 
   // Speed State
@@ -84,6 +85,10 @@ export class GameClient {
             t: cl.tick,
             cmd: cl.command,
           }));
+        }
+
+        if (msg.payload.snapshots) {
+          this.snapshots = msg.payload.snapshots;
         }
 
         if (
@@ -139,6 +144,7 @@ export class GameClient {
     bonusLootCount: number = 0,
     skipDeployment: boolean = true,
     debugSnapshots: boolean = false,
+    debugSnapshotInterval: number = 0,
   ) {
     this.isStopped = false;
     this.initialSeed = seed;
@@ -200,6 +206,7 @@ export class GameClient {
         fogOfWarEnabled,
         debugOverlayEnabled,
         debugSnapshots,
+        debugSnapshotInterval,
         agentControlEnabled,
         squadConfig: squadConfig,
         missionType,
@@ -413,6 +420,7 @@ export class GameClient {
       map: this.initialMap,
       squadConfig: this.initialSquadConfig,
       commands: [...this.commandStream],
+      snapshots: [...this.snapshots],
     };
   }
 

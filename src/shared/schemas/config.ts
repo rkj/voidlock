@@ -18,6 +18,7 @@ export const GameConfigSchema = z.object({
   baseEnemyCount: z.number(),
   enemyGrowthPerMission: z.number(),
   bonusLootCount: z.number(),
+  debugSnapshotInterval: z.number().int().min(0),
   manualDeployment: z.boolean(),
   campaignNodeId: z.string().optional(),
   squadConfig: SquadConfigSchema,
@@ -28,5 +29,6 @@ export const GlobalConfigSchema = z.object({
   themeId: z.string(),
   logLevel: z.enum(["DEBUG", "INFO", "WARN", "ERROR", "NONE"]),
   debugSnapshots: z.boolean(),
+  debugSnapshotInterval: z.number().int().min(0),
   debugOverlayEnabled: z.boolean(),
 });

@@ -42,6 +42,7 @@ export type SimulationSettings = {
   mode: EngineMode;
   debugOverlayEnabled: boolean;
   debugSnapshots: boolean;
+  debugSnapshotInterval?: number;
   losOverlayEnabled: boolean;
   timeScale: number;
   isPaused: boolean;
@@ -77,6 +78,12 @@ export type GameState = {
   visibleCells: string[];
   discoveredCells: string[];
   gridState?: Uint8Array; // Optimized bitset: bit 0 = visible, bit 1 = discovered
+  rngState?: number;
+  directorState?: {
+    turn: number;
+    timeInCurrentTurn: number;
+    enemyIdCounter: number;
+  };
   objectives: Objective[];
   stats: MissionStats;
   status: GameStatus;
@@ -101,6 +108,7 @@ export type WorkerMessage =
         fogOfWarEnabled: boolean;
         debugOverlayEnabled: boolean;
         debugSnapshots?: boolean;
+        debugSnapshotInterval?: number;
         agentControlEnabled: boolean;
         squadConfig: SquadConfig;
         missionType?: MissionType;

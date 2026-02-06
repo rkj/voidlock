@@ -19,6 +19,7 @@ export interface GameConfig {
   baseEnemyCount: number;
   enemyGrowthPerMission: number;
   bonusLootCount: number;
+  debugSnapshotInterval: number;
   manualDeployment: boolean;
   campaignNodeId?: string;
   squadConfig: SquadConfig;
@@ -29,6 +30,7 @@ export interface GlobalConfig {
   themeId: string;
   logLevel: "DEBUG" | "INFO" | "WARN" | "ERROR" | "NONE";
   debugSnapshots: boolean;
+  debugSnapshotInterval: number;
   debugOverlayEnabled: boolean;
 }
 
@@ -68,6 +70,7 @@ export class ConfigManager {
       themeId: "default",
       logLevel: isProd ? "ERROR" : "INFO",
       debugSnapshots: false,
+      debugSnapshotInterval: 0,
       debugOverlayEnabled: false,
     };
 
@@ -180,6 +183,7 @@ export class ConfigManager {
       "baseEnemyCount",
       "enemyGrowthPerMission",
       "bonusLootCount",
+      "debugSnapshotInterval",
     ];
     for (const field of numericFields) {
       const val = loaded[field];
@@ -271,6 +275,7 @@ export class ConfigManager {
       baseEnemyCount: 3,
       enemyGrowthPerMission: 1,
       bonusLootCount: 0,
+      debugSnapshotInterval: 0,
       manualDeployment: true,
       squadConfig: {
         soldiers: [{ archetypeId: "assault" }, { archetypeId: "medic" }],

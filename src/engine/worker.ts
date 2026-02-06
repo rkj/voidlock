@@ -36,6 +36,8 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
         msg.payload.campaignNodeId,
         undefined,
         msg.payload.skipDeployment ?? false,
+        msg.payload.debugSnapshots ?? false,
+        msg.payload.debugSnapshotInterval ?? 0,
       );
 
       // Start loop

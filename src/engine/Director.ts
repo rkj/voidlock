@@ -56,6 +56,24 @@ export class Director implements IDirector {
     this.timeInCurrentTurn = progress * this.turnDuration;
   }
 
+  public getState() {
+    return {
+      turn: this.turn,
+      timeInCurrentTurn: this.timeInCurrentTurn,
+      enemyIdCounter: this.enemyIdCounter,
+    };
+  }
+
+  public setState(state: {
+    turn: number;
+    timeInCurrentTurn: number;
+    enemyIdCounter: number;
+  }) {
+    this.turn = state.turn;
+    this.timeInCurrentTurn = state.timeInCurrentTurn;
+    this.enemyIdCounter = state.enemyIdCounter;
+  }
+
   public preSpawn() {
     // 1. Spend Starting Points Budget (Pre-spawning at mission start)
     // Placement: Rooms only, NOT in player quadrant.

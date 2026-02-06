@@ -40,6 +40,7 @@ export class MissionCoordinator {
       allowTacticalPause: boolean;
       campaignNode?: CampaignNode;
       skipDeployment: boolean;
+      debugSnapshotInterval: number;
     },
     setupCallbacks: (report: MissionReport) => void,
     updateUI: (state: GameState) => void,
@@ -85,6 +86,7 @@ export class MissionCoordinator {
       config.campaignNode?.bonusLootCount || 0,
       config.skipDeployment,
       globalConfig.debugSnapshots,
+      config.debugSnapshotInterval,
     );
 
     syncSpeedUI();
@@ -210,6 +212,7 @@ export class MissionCoordinator {
         config.bonusLootCount || 0,
         config.skipDeployment !== undefined ? config.skipDeployment : true,
         config.debugSnapshots,
+        config.debugSnapshotInterval || 0,
       );
 
       syncSpeedUI();
