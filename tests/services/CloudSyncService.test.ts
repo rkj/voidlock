@@ -44,11 +44,19 @@ vi.mock("firebase/firestore", () => ({
 
 const mockSignInAnonymously = vi.fn();
 const mockOnAuthStateChanged = vi.fn();
+const mockSignInWithPopup = vi.fn();
+const mockLinkWithPopup = vi.fn();
+const mockSignOut = vi.fn();
 
 vi.mock("firebase/auth", () => ({
   getAuth: vi.fn(() => ({})),
   signInAnonymously: (...args: any[]) => mockSignInAnonymously(...args),
   onAuthStateChanged: (auth: any, cb: any) => mockOnAuthStateChanged(auth, cb),
+  signInWithPopup: (...args: any[]) => mockSignInWithPopup(...args),
+  linkWithPopup: (...args: any[]) => mockLinkWithPopup(...args),
+  signOut: (...args: any[]) => mockSignOut(...args),
+  GoogleAuthProvider: class {},
+  GithubAuthProvider: class {},
 }));
 
 // Mock the firebase service to return our mocked db/auth
@@ -223,5 +231,62 @@ describe("CloudSyncService", () => {
     expect(list).toHaveLength(2);
     expect(list[0].campaignId).toBe("camp-2"); // Sorted by updatedAt desc
     expect(list[1].campaignId).toBe("camp-1");
+  });
+
+  it("should return anonymous status correctly", async () => {
+    mockOnAuthStateChanged.mockImplementation((_auth, cb) => {
+      cb({ uid: "anon-uid", isAnonymous: true });
+    });
+    await service.initialize();
+    expect(service.isAnonymous()).toBe(true);
+
+    mockOnAuthStateChanged.mockImplementation((_auth, cb) => {
+      cb({ uid: "real-uid", isAnonymous: false });
+    });
+    // Need a new service or to re-trigger internal state
+    const realService = new CloudSyncService();
+    await realService.initialize();
+    expect(realService.isAnonymous()).toBe(false);
+  });
+
+  it("should link anonymous user to google", async () => {
+    mockOnAuthStateChanged.mockImplementation((_auth, cb) => {
+      cb({ uid: "anon-uid", isAnonymous: true });
+    });
+    await service.initialize();
+
+    await service.signInWithGoogle();
+    expect(mockLinkWithPopup).toHaveBeenCalled();
+    expect(mockSignInWithPopup).not.toHaveBeenCalled();
+  });
+
+  it("should sign in with google if not anonymous", async () => {
+    mockOnAuthStateChanged.mockImplementation((_auth, cb) => {
+      cb({ uid: "real-uid", isAnonymous: false });
+    });
+    await service.initialize();
+
+    await service.signInWithGoogle();
+    expect(mockSignInWithPopup).toHaveBeenCalled();
+    expect(mockLinkWithPopup).not.toHaveBeenCalled();
+  });
+
+  it("should sign out", async () => {
+    await service.signOut();
+    expect(mockSignOut).toHaveBeenCalled();
+  });
+
+  it("should notify auth state change listeners", async () => {
+    let capturedUser: any = null;
+    service.onAuthStateChanged((user) => {
+      capturedUser = user;
+    });
+
+    mockOnAuthStateChanged.mockImplementation((_auth, cb) => {
+      cb({ uid: "notified-uid" });
+    });
+    await service.initialize();
+
+    expect(capturedUser).toEqual({ uid: "notified-uid" });
   });
 });

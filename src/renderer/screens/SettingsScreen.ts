@@ -7,6 +7,7 @@ export class SettingsScreen {
   private container: HTMLElement;
   private unitStyleSelector?: UnitStyleSelector;
   private onBack: () => void;
+  private authUnsubscribe?: () => void;
 
   constructor(
     containerId: string,
@@ -22,10 +23,23 @@ export class SettingsScreen {
   public show() {
     this.container.style.display = "flex";
     this.render();
+
+    // Subscribe to auth changes to refresh the account section
+    if (this.context.cloudSync) {
+      this.authUnsubscribe = this.context.cloudSync.onAuthStateChanged(() => {
+        if (this.isVisible()) {
+          this.render();
+        }
+      });
+    }
   }
 
   public hide() {
     this.container.style.display = "none";
+    if (this.authUnsubscribe) {
+      this.authUnsubscribe();
+      this.authUnsubscribe = undefined;
+    }
   }
 
   public isVisible(): boolean {
@@ -227,6 +241,114 @@ export class SettingsScreen {
     };
     overlayGroup.appendChild(overlayToggle);
     settingsGrid.appendChild(overlayGroup);
+
+    // Account & Cloud Sync Section
+    const accountHeader = document.createElement("h3");
+    accountHeader.textContent = "Account & Cloud Sync";
+    accountHeader.style.marginTop = "20px";
+    accountHeader.style.borderBottom = "1px solid var(--color-border)";
+    accountHeader.style.paddingBottom = "5px";
+    accountHeader.style.color = "var(--color-text-dim)";
+    settingsGrid.appendChild(accountHeader);
+
+    const accountGroup = document.createElement("div");
+    accountGroup.className = "control-group flex-col gap-10";
+    accountGroup.style.width = "100%";
+
+    if (this.context.cloudSync) {
+      const user = this.context.cloudSync.getUser();
+      const isAnonymous = this.context.cloudSync.isAnonymous();
+
+      if (user && !isAnonymous) {
+        // Signed in
+        const userInfo = document.createElement("div");
+        userInfo.className = "flex-row justify-between align-center";
+        userInfo.style.padding = "10px";
+        userInfo.style.background = "var(--color-surface)";
+        userInfo.style.border = "1px solid var(--color-border)";
+
+        const userDetails = document.createElement("div");
+        userDetails.className = "flex-col";
+        
+        const userName = document.createElement("div");
+        userName.textContent = user.displayName || user.email || "Authenticated User";
+        userName.style.fontWeight = "bold";
+        userDetails.appendChild(userName);
+
+        const userStatus = document.createElement("div");
+        userStatus.textContent = "✓ Cloud Sync Active";
+        userStatus.style.fontSize = "0.8em";
+        userStatus.style.color = "var(--color-primary)";
+        userDetails.appendChild(userStatus);
+
+        userInfo.appendChild(userDetails);
+
+        const signOutBtn = document.createElement("button");
+        signOutBtn.className = "menu-button";
+        signOutBtn.style.fontSize = "0.8em";
+        signOutBtn.style.padding = "5px 10px";
+        signOutBtn.textContent = "Sign Out";
+        signOutBtn.onclick = async () => {
+          await this.context.cloudSync.signOut();
+        };
+        userInfo.appendChild(signOutBtn);
+
+        accountGroup.appendChild(userInfo);
+      } else {
+        // Anonymous or Not signed in
+        const authDesc = document.createElement("div");
+        authDesc.textContent = "Sign in to enable cross-device synchronization and protect your saves.";
+        authDesc.style.fontSize = "0.8em";
+        authDesc.style.color = "var(--color-text-dim)";
+        accountGroup.appendChild(authDesc);
+
+        const authButtons = document.createElement("div");
+        authButtons.className = "flex-row gap-10";
+        authButtons.style.marginTop = "5px";
+
+        const googleBtn = document.createElement("button");
+        googleBtn.className = "menu-button";
+        googleBtn.style.flex = "1";
+        googleBtn.textContent = "Sign in with Google";
+        googleBtn.onclick = async () => {
+          try {
+            await this.context.cloudSync.signInWithGoogle();
+          } catch (err) {
+            this.context.modalService.show({
+              title: "SIGN IN FAILED",
+              message: "Could not connect to Google. Please try again later.",
+              buttons: [{ label: "OK", isPrimary: true, onClick: (m) => m.close() }]
+            });
+          }
+        };
+        authButtons.appendChild(googleBtn);
+
+        const githubBtn = document.createElement("button");
+        githubBtn.className = "menu-button";
+        githubBtn.style.flex = "1";
+        githubBtn.textContent = "Sign in with GitHub";
+        githubBtn.onclick = async () => {
+          try {
+            await this.context.cloudSync.signInWithGithub();
+          } catch (err) {
+            this.context.modalService.show({
+              title: "SIGN IN FAILED",
+              message: "Could not connect to GitHub. Please try again later.",
+              buttons: [{ label: "OK", isPrimary: true, onClick: (m) => m.close() }]
+            });
+          }
+        };
+        authButtons.appendChild(githubBtn);
+
+        accountGroup.appendChild(authButtons);
+      }
+    } else {
+      const errorMsg = document.createElement("div");
+      errorMsg.textContent = "Cloud Sync Service Unavailable";
+      errorMsg.style.color = "var(--color-error)";
+      accountGroup.appendChild(errorMsg);
+    }
+    settingsGrid.appendChild(accountGroup);
 
     // Data Management Section
     const dataHeader = document.createElement("h3");
