@@ -22,6 +22,7 @@ describe("CampaignShell", () => {
         currentSector: 2,
         status: "Active",
       }),
+      getSyncStatus: vi.fn().mockReturnValue("synced"),
     };
 
     onTabChange = vi.fn();

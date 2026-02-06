@@ -1512,3 +1512,41 @@ label {
   letter-spacing: 4px;
   text-transform: uppercase;
 }
+
+/* Cloud Sync UI */
+.sync-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.3);
+  font-size: 0.75em;
+  color: var(--color-text-dim);
+}
+
+.sync-status.synced {
+  color: var(--color-success);
+}
+
+.sync-status.syncing {
+  color: var(--color-accent);
+}
+
+.sync-status.local {
+  color: var(--color-warning);
+}
+
+.sync-icon {
+  width: 14px;
+  height: 14px;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.syncing .sync-icon {
+  animation: spin 2s linear infinite;
+}
