@@ -38,7 +38,7 @@ describe("Regression voidlock-cvr4: Spawn Point Visibility", () => {
     layer = new MapEntityLayer(sharedState);
   });
 
-  it("should render spawn points even if NOT discovered and NOT visible (tactical planning requirement)", () => {
+  it("should NOT render spawn points if NOT discovered and NOT visible (FOW enforcement)", () => {
     const gameState: GameState = createMockGameState({
       map: {
         width: 10,
@@ -63,6 +63,6 @@ describe("Regression voidlock-cvr4: Spawn Point Visibility", () => {
       fillRectCalls.some((args) => args[0] === 5 * 32 && args[1] === 5 * 32) ||
       drawImageCalls.some((args) => args[1] === 5 * 32 && args[2] === 5 * 32);
 
-    expect(wasRendered).toBe(true);
+    expect(wasRendered).toBe(false);
   });
 });

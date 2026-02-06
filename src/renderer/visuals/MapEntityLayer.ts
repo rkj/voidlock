@@ -115,6 +115,13 @@ export class MapEntityLayer implements RenderLayer {
     const ext = state.map.extraction;
     const x = ext.x * cellSize;
     const y = ext.y * cellSize;
+    const key = `${Math.floor(ext.x)},${Math.floor(ext.y)}`;
+
+    const isVisible = state.visibleCells.includes(key);
+    const isDiscovered = state.discoveredCells.includes(key);
+
+    if (!isVisible && !isDiscovered && !state.settings.debugOverlayEnabled)
+      return;
 
     const isTactical = this.sharedState.unitStyle === "TacticalIcons";
 
@@ -172,6 +179,13 @@ export class MapEntityLayer implements RenderLayer {
     state.map.spawnPoints?.forEach((sp) => {
       const x = sp.pos.x * cellSize;
       const y = sp.pos.y * cellSize;
+      const key = `${Math.floor(sp.pos.x)},${Math.floor(sp.pos.y)}`;
+
+      const isVisible = state.visibleCells.includes(key);
+      const isDiscovered = state.discoveredCells.includes(key);
+
+      if (!isVisible && !isDiscovered && !state.settings.debugOverlayEnabled)
+        return;
 
       if (isTactical) {
         // Tactical Mode: Distinct abstract icon (Vent/Crosshair)
