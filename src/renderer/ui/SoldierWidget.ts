@@ -25,6 +25,8 @@ export type SoldierWidgetData =
 export interface SoldierWidgetOptions {
   context: "tactical" | "debrief" | "roster" | "squad-builder";
   selected?: boolean;
+  prefix?: string;
+  price?: string;
   onClick?: (e: MouseEvent) => void;
   onRename?: () => void;
   isDeployed?: boolean; // for squad-builder
@@ -89,7 +91,10 @@ export class SoldierWidget {
 
     const name = this.getName(data);
     const tacticalNumber = this.getTacticalNumber(data);
-    const displayName = tacticalNumber ? `${name} (${tacticalNumber})` : name;
+    let displayName = tacticalNumber ? `${name} (${tacticalNumber})` : name;
+    if (options.prefix) {
+      displayName = `${options.prefix}${displayName}`;
+    }
     const level = this.getLevel(data);
 
     switch (options.context) {
@@ -151,6 +156,12 @@ export class SoldierWidget {
     if ("xp" in data) return calculateLevel((data as any).xp);
     if ("xpBefore" in data) return calculateLevel(data.xpBefore);
     return 1;
+  }
+
+  private static getItemName(id?: string): string {
+    if (!id) return "Empty";
+    const item = WeaponLibrary[id] || ItemLibrary[id];
+    return item ? item.name : id;
   }
 
   private static getStatusColor(status: string): string {
@@ -384,6 +395,11 @@ export class SoldierWidget {
     const archetype =
       ArchetypeLibrary[soldier.archetypeId]?.name || soldier.archetypeId;
 
+    const equipment = (soldier as any).equipment || (soldier as any);
+    const rh = this.getItemName(equipment.rightHand);
+    const lh = this.getItemName(equipment.leftHand);
+    const equipmentText = `${rh} / ${lh}`;
+
     container.style.marginBottom = "10px";
     container.style.padding = "10px";
     container.style.borderLeft = `4px solid ${statusColor}`;
@@ -391,10 +407,13 @@ export class SoldierWidget {
     container.innerHTML = `
       <div style="display:flex; justify-content:space-between; align-items:center;">
         <strong style="color:${options.selected ? "var(--color-accent)" : "var(--color-text)"};">${displayName}</strong>
-        <span class="badge">LVL ${level}</span>
+        <div style="display:flex; gap:10px; align-items:center;">
+          ${options.price ? `<span style="font-weight:bold; color:var(--color-text); font-size:0.9em;">${options.price}</span>` : ""}
+          <span class="badge">LVL ${level}</span>
+        </div>
       </div>
       <div style="font-size:0.75em; color:var(--color-text-muted); margin-top:4px; display:flex; justify-content:space-between;">
-        <span>${archetype}</span>
+        <span>${archetype} | ${equipmentText}</span>
         <span style="color:${statusColor};">${soldier.status}</span>
       </div>
       <div style="font-size:0.7em; color:var(--color-text-dim); margin-top:4px;">
@@ -439,7 +458,10 @@ export class SoldierWidget {
     const subTitle = arch?.name && arch.name !== name ? `${arch.name} ` : "";
 
     container.innerHTML = `
-      <strong>${displayName}</strong>
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <strong>${displayName}</strong>
+        ${options.price ? `<span style="font-weight:bold; color:var(--color-text); font-size:0.9em;">${options.price}</span>` : ""}
+      </div>
       <div style="font-size:0.75em; color:var(--color-text-muted); margin-bottom: 2px;">
         ${subTitle}Lvl ${level} | Status: ${status}
       </div>

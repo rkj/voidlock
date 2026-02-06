@@ -7,6 +7,7 @@ import {
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import { SoldierInspector } from "@src/renderer/ui/SoldierInspector";
 import { NameGenerator } from "@src/shared/utils/NameGenerator";
+import { SoldierWidget } from "@src/renderer/ui/SoldierWidget";
 
 export class EquipmentScreen {
   private container: HTMLElement;
@@ -226,33 +227,48 @@ export class EquipmentScreen {
   private renderSoldierList(panel: HTMLElement) {
     for (let i = 0; i < 4; i++) {
       const soldier = this.config.soldiers[i];
-      const item = document.createElement("div");
-      item.className = `menu-item clickable ${this.selectedSoldierIndex === i ? "active" : ""}`;
-      item.style.marginBottom = "8px";
-      item.style.padding = "8px 12px";
+      let item: HTMLElement;
 
       if (soldier) {
-        const arch = ArchetypeLibrary[soldier.archetypeId];
-        item.innerHTML = `
-          <div class="flex-row justify-between align-center" style="width:100%;">
-            <div class="flex-col">
-              <div style="font-weight:bold; color:${this.selectedSoldierIndex === i ? "var(--color-primary)" : "var(--color-text)"}; font-size: 0.9em;">
-                ${i + 1}. ${soldier.name || (arch ? arch.name : soldier.archetypeId)}
-              </div>
-              <div style="font-size:0.75em; color:var(--color-text-muted); margin-top:2px;">
-                ${arch ? arch.name : soldier.archetypeId} | ${this.getItemName(soldier.rightHand)} / ${this.getItemName(soldier.leftHand)}
-              </div>
-            </div>
-            <button class="remove-soldier-btn" style="background:transparent; border:none; color:var(--color-danger); cursor:pointer; font-size:1.2em; padding:0 5px;" title="Remove from Squad">×</button>
-          </div>
-        `;
-        const removeBtn = item.querySelector(".remove-soldier-btn") as HTMLElement;
+        item = SoldierWidget.render(soldier, {
+          context: "roster",
+          selected: this.selectedSoldierIndex === i,
+          prefix: `${i + 1}. `,
+          onClick: () => {
+            this.selectedSoldierIndex = i;
+            this.recruitMode = false;
+            this.reviveMode = false;
+            this.render();
+          },
+        });
+
+        // Add remove button
+        const removeBtn = document.createElement("button");
+        removeBtn.className = "remove-soldier-btn";
+        removeBtn.innerHTML = "×";
+        removeBtn.title = "Remove from Squad";
+        removeBtn.style.position = "absolute";
+        removeBtn.style.top = "5px";
+        removeBtn.style.right = "5px";
+        removeBtn.style.background = "transparent";
+        removeBtn.style.border = "none";
+        removeBtn.style.color = "var(--color-danger)";
+        removeBtn.style.cursor = "pointer";
+        removeBtn.style.fontSize = "1.2em";
+        removeBtn.style.padding = "0 5px";
+        removeBtn.style.zIndex = "10";
         removeBtn.onclick = (e) => {
           e.stopPropagation();
           this.config.soldiers.splice(i, 1);
           this.render();
         };
+        item.style.position = "relative";
+        item.appendChild(removeBtn);
       } else {
+        item = document.createElement("div");
+        item.className = `menu-item clickable ${this.selectedSoldierIndex === i ? "active" : ""}`;
+        item.style.marginBottom = "8px";
+        item.style.padding = "8px 12px";
         item.innerHTML = `
           <div style="font-weight:bold; color:${this.selectedSoldierIndex === i ? "var(--color-primary)" : "var(--color-text-dim)"}; font-size: 0.9em;">
             ${i + 1}. [Empty Slot]
@@ -261,14 +277,14 @@ export class EquipmentScreen {
             Click to add soldier
           </div>
         `;
+        item.onclick = () => {
+          this.selectedSoldierIndex = i;
+          this.recruitMode = false;
+          this.reviveMode = false;
+          this.render();
+        };
       }
 
-      item.onclick = () => {
-        this.selectedSoldierIndex = i;
-        this.recruitMode = false;
-        this.reviveMode = false;
-        this.render();
-      };
       panel.appendChild(item);
     }
   }
@@ -310,37 +326,24 @@ export class EquipmentScreen {
     }
 
     available.forEach((soldier) => {
-      const item = document.createElement("div");
-      item.className = "menu-item clickable card";
-      item.style.marginBottom = "8px";
-      item.style.padding = "10px";
-
-      const arch = ArchetypeLibrary[soldier.archetypeId];
-      item.innerHTML = `
-        <div class="flex-row justify-between" style="font-weight:bold; color:var(--color-primary);">
-          <span>${soldier.name}</span>
-          <span class="badge">LVL ${soldier.level || 1}</span>
-        </div>
-        <div style="font-size:0.8em; color:var(--color-text-muted); margin-top:4px;">
-          ${arch ? arch.name : soldier.archetypeId}
-        </div>
-      `;
-
-      item.onclick = () => {
-        this.config.soldiers[this.selectedSoldierIndex] = {
-          id: soldier.id,
-          name: soldier.name,
-          archetypeId: soldier.archetypeId,
-          hp: soldier.hp,
-          maxHp: soldier.maxHp,
-          soldierAim: soldier.soldierAim,
-          rightHand: soldier.equipment.rightHand,
-          leftHand: soldier.equipment.leftHand,
-          body: soldier.equipment.body,
-          feet: soldier.equipment.feet,
-        };
-        this.render();
-      };
+      const item = SoldierWidget.render(soldier, {
+        context: "roster",
+        onClick: () => {
+          this.config.soldiers[this.selectedSoldierIndex] = {
+            id: soldier.id,
+            name: soldier.name,
+            archetypeId: soldier.archetypeId,
+            hp: soldier.hp,
+            maxHp: soldier.maxHp,
+            soldierAim: soldier.soldierAim,
+            rightHand: soldier.equipment.rightHand,
+            leftHand: soldier.equipment.leftHand,
+            body: soldier.equipment.body,
+            feet: soldier.equipment.feet,
+          };
+          this.render();
+        },
+      });
       panel.appendChild(item);
     });
   }
@@ -356,49 +359,39 @@ export class EquipmentScreen {
       const arch = ArchetypeLibrary[archId];
       if (!arch) return;
 
-      const card = document.createElement("div");
-      card.className = "menu-item clickable card";
-      card.style.marginBottom = "8px";
-      card.style.padding = "10px";
-
-      card.innerHTML = `
-        <div class="flex-row justify-between align-center">
-          <strong style="color:var(--color-primary); font-size:1em;">${arch.name}</strong>
-          <span style="color:var(--color-text); font-weight:bold; font-size:0.9em;">${cost} CR</span>
-        </div>
-        <div style="font-size:0.75em; color:var(--color-text-muted); margin-top:4px;">
-          HP: ${arch.baseHp} | Aim: ${arch.soldierAim} | Spd: ${arch.speed}
-        </div>
-      `;
+      const item = SoldierWidget.render(arch, {
+        context: "squad-builder",
+        price: `${cost} CR`,
+        onClick: () => {
+          const id = this.manager.recruitSoldier(archId);
+          const newState = this.manager.getState();
+          const soldier = newState?.roster.find((s) => s.id === id);
+          if (soldier) {
+            this.config.soldiers[this.selectedSoldierIndex] = {
+              id: soldier.id,
+              name: soldier.name,
+              archetypeId: soldier.archetypeId,
+              hp: soldier.hp,
+              maxHp: soldier.maxHp,
+              soldierAim: soldier.soldierAim,
+              rightHand: soldier.equipment.rightHand,
+              leftHand: soldier.equipment.leftHand,
+              body: soldier.equipment.body,
+              feet: soldier.equipment.feet,
+            };
+            this.recruitMode = false;
+            this.render();
+          }
+        },
+      });
 
       if (state.scrap < cost) {
-        card.classList.add("disabled");
-        card.style.opacity = "0.5";
-        card.style.pointerEvents = "none";
+        item.classList.add("disabled");
+        item.style.opacity = "0.5";
+        item.style.pointerEvents = "none";
       }
 
-      card.onclick = () => {
-        const id = this.manager.recruitSoldier(archId);
-        const newState = this.manager.getState();
-        const soldier = newState?.roster.find((s) => s.id === id);
-        if (soldier) {
-          this.config.soldiers[this.selectedSoldierIndex] = {
-            id: soldier.id,
-            name: soldier.name,
-            archetypeId: soldier.archetypeId,
-            hp: soldier.hp,
-            maxHp: soldier.maxHp,
-            soldierAim: soldier.soldierAim,
-            rightHand: soldier.equipment.rightHand,
-            leftHand: soldier.equipment.leftHand,
-            body: soldier.equipment.body,
-            feet: soldier.equipment.feet,
-          };
-          this.recruitMode = false;
-          this.render();
-        }
-      };
-      panel.appendChild(card);
+      panel.appendChild(item);
     });
   }
 
@@ -416,49 +409,39 @@ export class EquipmentScreen {
     }
 
     deadSoldiers.forEach((soldier) => {
-      const card = document.createElement("div");
-      card.className = "menu-item clickable card";
-      card.style.marginBottom = "8px";
-      card.style.padding = "10px";
-
-      card.innerHTML = `
-        <div class="flex-row justify-between align-center">
-          <strong style="color:var(--color-danger); font-size:1em;">${soldier.name}</strong>
-          <span style="color:var(--color-text); font-weight:bold; font-size:0.9em;">${cost} CR</span>
-        </div>
-        <div style="font-size:0.75em; color:var(--color-text-muted); margin-top:4px;">
-          ${ArchetypeLibrary[soldier.archetypeId]?.name} Rank ${soldier.level}
-        </div>
-      `;
+      const item = SoldierWidget.render(soldier, {
+        context: "squad-builder",
+        price: `${cost} CR`,
+        onClick: () => {
+          this.manager.reviveSoldier(soldier.id);
+          const newState = this.manager.getState();
+          const revived = newState?.roster.find((s) => s.id === soldier.id);
+          if (revived) {
+            this.config.soldiers[this.selectedSoldierIndex] = {
+              id: revived.id,
+              name: revived.name,
+              archetypeId: revived.archetypeId,
+              hp: revived.hp,
+              maxHp: revived.maxHp,
+              soldierAim: revived.soldierAim,
+              rightHand: revived.equipment.rightHand,
+              leftHand: revived.equipment.leftHand,
+              body: revived.equipment.body,
+              feet: revived.equipment.feet,
+            };
+            this.reviveMode = false;
+            this.render();
+          }
+        },
+      });
 
       if (state.scrap < cost) {
-        card.classList.add("disabled");
-        card.style.opacity = "0.5";
-        card.style.pointerEvents = "none";
+        item.classList.add("disabled");
+        item.style.opacity = "0.5";
+        item.style.pointerEvents = "none";
       }
 
-      card.onclick = () => {
-        this.manager.reviveSoldier(soldier.id);
-        const newState = this.manager.getState();
-        const revived = newState?.roster.find((s) => s.id === soldier.id);
-        if (revived) {
-          this.config.soldiers[this.selectedSoldierIndex] = {
-            id: revived.id,
-            name: revived.name,
-            archetypeId: revived.archetypeId,
-            hp: revived.hp,
-            maxHp: revived.maxHp,
-            soldierAim: revived.soldierAim,
-            rightHand: revived.equipment.rightHand,
-            leftHand: revived.equipment.leftHand,
-            body: revived.equipment.body,
-            feet: revived.equipment.feet,
-          };
-          this.reviveMode = false;
-          this.render();
-        }
-      };
-      panel.appendChild(card);
+      panel.appendChild(item);
     });
   }
 
@@ -466,32 +449,24 @@ export class EquipmentScreen {
     Object.values(ArchetypeLibrary).forEach((arch) => {
       if (arch.id === "vip") return; // VIPs are handled separately or by nodes
 
-      const item = document.createElement("div");
-      item.className = "menu-item clickable card";
-      item.style.marginBottom = "8px";
-      item.style.padding = "10px";
+      const item = SoldierWidget.render(arch, {
+        context: "squad-builder",
+        onClick: () => {
+          this.config.soldiers[this.selectedSoldierIndex] = {
+            name: NameGenerator.generate(),
+            archetypeId: arch.id,
+            hp: arch.baseHp,
+            maxHp: arch.baseHp,
+            soldierAim: arch.soldierAim,
+            rightHand: arch.rightHand,
+            leftHand: arch.leftHand,
+            body: arch.body,
+            feet: arch.feet,
+          };
+          this.render();
+        },
+      });
 
-      item.innerHTML = `
-        <div style="font-weight:bold; color:var(--color-primary);">${arch.name}</div>
-        <div style="font-size:0.8em; color:var(--color-text-muted); margin-top:4px;">
-          Base HP: ${arch.baseHp} | Speed: ${arch.speed / 10}
-        </div>
-      `;
-
-      item.onclick = () => {
-        this.config.soldiers[this.selectedSoldierIndex] = {
-          name: NameGenerator.generate(),
-          archetypeId: arch.id,
-          hp: arch.baseHp,
-          maxHp: arch.baseHp,
-          soldierAim: arch.soldierAim,
-          rightHand: arch.rightHand,
-          leftHand: arch.leftHand,
-          body: arch.body,
-          feet: arch.feet,
-        };
-        this.render();
-      };
       panel.appendChild(item);
     });
   }

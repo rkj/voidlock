@@ -324,20 +324,10 @@ export class BarracksScreen {
       const arch = ArchetypeLibrary[archId];
       if (!arch) return;
 
-      const card = document.createElement("div");
-      card.className = "card";
-      card.style.padding = "10px";
-      card.style.marginBottom = "10px";
-
-      card.innerHTML = `
-        <div class="flex-row justify-between align-center">
-          <strong style="color:var(--color-primary); font-size:1em;">${arch.name}</strong>
-          <span style="color:var(--color-text); font-weight:bold; font-size:0.9em;">100 Scrap</span>
-        </div>
-        <div style="font-size:0.75em; color:var(--color-text-muted); margin-top:4px;">
-          HP: ${arch.baseHp} | Aim: ${arch.soldierAim} | Spd: ${arch.speed}
-        </div>
-      `;
+      const card = SoldierWidget.render(arch, {
+        context: "squad-builder",
+        price: "100 Scrap",
+      });
 
       const recruitBtn = document.createElement("button");
       recruitBtn.textContent = "Recruit";

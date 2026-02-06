@@ -223,7 +223,7 @@ describe("Quick Revive in Mission Setup", () => {
     reviveBtn.click();
 
     // After clicking RevivePersonnel, we should see the list of dead soldiers in the right panel
-    const deadItem = Array.from(document.querySelectorAll(".armory-panel .menu-item")).find(
+    const deadItem = Array.from(document.querySelectorAll(".armory-panel .soldier-card")).find(
         el => el.textContent?.includes("Dead Soldier")
     ) as HTMLElement;
     

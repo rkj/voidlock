@@ -293,14 +293,8 @@ export class HUDManager {
         ) as HTMLElement;
         if (!item) {
           item = document.createElement("div");
-          item.className = "deployment-unit-item";
           item.dataset.unitId = u.id;
           item.draggable = true;
-          item.style.padding = "8px";
-          item.style.marginBottom = "4px";
-          item.style.backgroundColor = "var(--color-surface-elevated)";
-          item.style.border = "1px solid var(--color-border)";
-          item.style.borderRadius = "4px";
           item.style.cursor = "grab";
           item.addEventListener("dragstart", (e) => {
             if (e.dataTransfer) {
@@ -312,20 +306,28 @@ export class HUDManager {
         }
 
         const isPlaced = u.isDeployed !== false;
-        const statusColor = isPlaced
-          ? "var(--color-success)"
-          : "var(--color-warning)";
         const statusText = isPlaced ? "Deployed" : "Pending";
 
-        item.innerHTML = `
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-weight:bold;">${u.name} (${u.tacticalNumber})</span>
-            <span style="font-size:0.8em; color:${statusColor};">${statusText}</span>
-          </div>
-          <div style="font-size:0.75em; color:var(--color-text-dim); margin-top:2px;">
-            ${u.archetypeId.toUpperCase()}
-          </div>
-        `;
+        SoldierWidget.update(item, u, {
+          context: "roster",
+        });
+
+        // The SoldierWidget.update might overwrite some styles, we need to ensure it's still draggable-looking
+        item.style.cursor = "grab";
+        item.style.marginBottom = "4px";
+
+        // We can override the status text to be more specific to deployment if we want,
+        // but SoldierWidget shows "Healthy" by default.
+        // For deployment, "Deployed" vs "Pending" is better.
+        const statusSpan = item.querySelector(
+          "span[style*='color']",
+        ) as HTMLElement;
+        if (statusSpan) {
+          statusSpan.textContent = statusText;
+          statusSpan.style.color = isPlaced
+            ? "var(--color-success)"
+            : "var(--color-warning)";
+        }
       });
     }
 
