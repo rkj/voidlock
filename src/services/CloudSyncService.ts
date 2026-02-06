@@ -9,7 +9,16 @@ import {
   serverTimestamp,
   Timestamp 
 } from "firebase/firestore";
-import { signInAnonymously, onAuthStateChanged } from "firebase/auth";
+import { 
+  signInAnonymously, 
+  onAuthStateChanged, 
+  GoogleAuthProvider, 
+  GithubAuthProvider, 
+  signInWithPopup, 
+  linkWithPopup,
+  signOut,
+  User
+} from "firebase/auth";
 import { db, auth } from "./firebase";
 import { CampaignStateSchema } from "@src/shared/schemas/campaign";
 import { CampaignState, CampaignSummary } from "@src/shared/campaign_types";
@@ -21,9 +30,11 @@ import pkg from "../../package.json";
  */
 export class CloudSyncService {
   private userId: string | null = null;
+  private user: User | null = null;
   private syncEnabled: boolean = false;
   private initialized: boolean = false;
   private initializationPromise: Promise<void> | null = null;
+  private onAuthStateChangedCallbacks: ((user: User | null) => void)[] = [];
 
   /**
    * Initializes the service, ensuring the user is authenticated (anonymously if needed).
@@ -35,16 +46,20 @@ export class CloudSyncService {
     this.initializationPromise = new Promise((resolve) => {
       onAuthStateChanged(auth, async (user) => {
         if (user) {
+          this.user = user;
           this.userId = user.uid;
           this.syncEnabled = true;
           this.initialized = true;
+          this.notifyAuthStateChanged(user);
           resolve();
         } else {
           try {
             const credential = await signInAnonymously(auth);
+            this.user = credential.user;
             this.userId = credential.user.uid;
             this.syncEnabled = true;
             this.initialized = true;
+            this.notifyAuthStateChanged(this.user);
             resolve();
           } catch (error) {
             Logger.error("Firebase anonymous sign-in failed:", error);
@@ -57,6 +72,73 @@ export class CloudSyncService {
     });
 
     return this.initializationPromise;
+  }
+
+  /**
+   * Signs in with Google.
+   */
+  async signInWithGoogle(): Promise<void> {
+    const provider = new GoogleAuthProvider();
+    try {
+      if (this.user?.isAnonymous) {
+        // Link anonymous account to Google
+        await linkWithPopup(this.user, provider);
+      } else {
+        await signInWithPopup(auth, provider);
+      }
+    } catch (error) {
+      Logger.error("Google sign-in/link failed:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Signs in with GitHub.
+   */
+  async signInWithGithub(): Promise<void> {
+    const provider = new GithubAuthProvider();
+    try {
+      if (this.user?.isAnonymous) {
+        // Link anonymous account to GitHub
+        await linkWithPopup(this.user, provider);
+      } else {
+        await signInWithPopup(auth, provider);
+      }
+    } catch (error) {
+      Logger.error("GitHub sign-in/link failed:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Signs out.
+   */
+  async signOut(): Promise<void> {
+    try {
+      await signOut(auth);
+      // After sign out, initialize will be called by onAuthStateChanged to sign in anonymously
+    } catch (error) {
+      Logger.error("Sign out failed:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Subscribes to auth state changes.
+   */
+  onAuthStateChanged(callback: (user: User | null) => void): () => void {
+    this.onAuthStateChangedCallbacks.push(callback);
+    // Immediately call with current state if initialized
+    if (this.initialized) {
+      callback(this.user);
+    }
+    return () => {
+      this.onAuthStateChangedCallbacks = this.onAuthStateChangedCallbacks.filter(c => c !== callback);
+    };
+  }
+
+  private notifyAuthStateChanged(user: User | null): void {
+    this.onAuthStateChangedCallbacks.forEach(callback => callback(user));
   }
 
   /**
@@ -153,6 +235,14 @@ export class CloudSyncService {
 
   getUserId(): string | null {
     return this.userId;
+  }
+
+  getUser(): User | null {
+    return this.user;
+  }
+
+  isAnonymous(): boolean {
+    return this.user?.isAnonymous ?? true;
   }
 
   isSyncEnabled(): boolean {

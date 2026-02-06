@@ -42,6 +42,10 @@ export class SaveManager implements StorageProvider {
     return SyncStatus.SYNCED;
   }
 
+  public getCloudSync(): CloudSyncService {
+    return this.cloudSync;
+  }
+
   /**
    * Save data to storage. Always saves locally first for speed, then syncs to cloud.
    * @param key Unique key for the data.

@@ -84,6 +84,16 @@ export class GameApp {
     // Ensure sprites are loaded now that the asset manifest is available
     AssetManager.getInstance().loadSprites();
     this.context.campaignManager = CampaignManager.getInstance();
+
+    // Initialize cloudSync from SaveManager
+    const storage = (this.context.campaignManager as any).getStorage
+      ? this.context.campaignManager.getStorage()
+      : null;
+    if (storage && "getCloudSync" in storage) {
+      this.context.cloudSync = (storage as any).getCloudSync();
+      await this.context.cloudSync.initialize();
+    }
+
     await this.context.campaignManager.load();
     this.context.modalService = new ModalService();
     this.context.screenManager = new ScreenManager((id) =>
