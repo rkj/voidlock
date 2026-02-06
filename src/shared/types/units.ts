@@ -79,6 +79,7 @@ export type Unit = Entity & {
   kills: number;
   damageDealt: number;
   objectivesCompleted: number;
+  isDeployed?: boolean;
 };
 
 export type Archetype = {

@@ -17,7 +17,28 @@ export class OverlayLayer implements RenderLayer {
     if (state.settings.losOverlayEnabled) {
       this.renderLOSOverlay(ctx, state);
     }
+    this.renderDeploymentPhase(ctx, state);
     this.renderOverlay(ctx);
+  }
+
+  private renderDeploymentPhase(
+    ctx: CanvasRenderingContext2D,
+    state: GameState,
+  ) {
+    if (state.status !== "Deployment") return;
+    const cellSize = this.sharedState.cellSize;
+    const map = state.map;
+
+    const spawns =
+      map.squadSpawns || (map.squadSpawn ? [map.squadSpawn] : []);
+
+    ctx.fillStyle = this.theme.getColor("--color-success") + "44";
+    spawns.forEach((s) => {
+      ctx.fillRect(s.x * cellSize, s.y * cellSize, cellSize, cellSize);
+      ctx.strokeStyle = this.theme.getColor("--color-success");
+      ctx.lineWidth = 2;
+      ctx.strokeRect(s.x * cellSize, s.y * cellSize, cellSize, cellSize);
+    });
   }
 
   private renderDebugOverlay(ctx: CanvasRenderingContext2D, state: GameState) {
