@@ -51,6 +51,12 @@ vi.mock("@src/engine/GameClient", () => ({
   GameClient: vi.fn().mockImplementation(() => mockGameClient),
 }));
 
+vi.mock("@src/services/firebase", () => ({
+  db: {},
+  auth: {},
+  app: {}
+}));
+
 describe("End Custom Mission Repro", () => {
   beforeEach(async () => {
     stateUpdateCallback = null;

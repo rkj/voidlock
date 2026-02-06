@@ -43,6 +43,12 @@ vi.mock("@src/renderer/ui/ModalService", () => ({
   ModalService: vi.fn().mockImplementation(() => mockModalService),
 }));
 
+vi.mock("@src/services/firebase", () => ({
+  db: {},
+  auth: {},
+  app: {}
+}));
+
 describe("Reset Data Button", () => {
   let reloadMock: any;
 

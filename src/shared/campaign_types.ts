@@ -135,6 +135,7 @@ export interface MissionReport {
  */
 export interface CampaignState {
   version: string;
+  saveVersion: number;
   seed: number;
   status: "Active" | "Victory" | "Defeat";
   rules: GameRules;

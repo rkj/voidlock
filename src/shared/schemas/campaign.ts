@@ -119,6 +119,7 @@ export const MissionReportSchema = z.object({
 
 export const CampaignStateSchema = z.object({
   version: z.string(),
+  saveVersion: z.number().default(1),
   seed: z.number(),
   status: z.enum(["Active", "Victory", "Defeat"]).default("Active"),
   rules: GameRulesSchema,

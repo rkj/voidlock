@@ -84,7 +84,7 @@ export class GameApp {
     // Ensure sprites are loaded now that the asset manifest is available
     AssetManager.getInstance().loadSprites();
     this.context.campaignManager = CampaignManager.getInstance();
-    this.context.campaignManager.load();
+    await this.context.campaignManager.load();
     this.context.modalService = new ModalService();
     this.context.screenManager = new ScreenManager((id) =>
       this.handleExternalScreenChange(id),

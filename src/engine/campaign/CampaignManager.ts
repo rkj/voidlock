@@ -148,6 +148,7 @@ export class CampaignManager {
 
     this.state = {
       version: CAMPAIGN_DEFAULTS.VERSION,
+      saveVersion: 1,
       seed: effectiveSeed,
       status: "Active",
       rules,
@@ -255,6 +256,7 @@ export class CampaignManager {
    */
   public save(): void {
     if (!this.state) return;
+    this.state.saveVersion = (this.state.saveVersion || 0) + 1;
     this.storage.save(STORAGE_KEY, this.state);
   }
 
@@ -262,9 +264,17 @@ export class CampaignManager {
    * Loads the campaign state from the storage provider.
    * @returns True if the state was successfully loaded and validated.
    */
-  public load(): boolean {
+  public async load(): Promise<boolean> {
     try {
-      const data = this.storage.load<unknown>(STORAGE_KEY);
+      let data: unknown;
+      
+      // If our storage is a SaveManager, we can use cloud sync
+      if ('loadWithSync' in this.storage) {
+        data = await (this.storage as any).loadWithSync(STORAGE_KEY);
+      } else {
+        data = this.storage.load<unknown>(STORAGE_KEY);
+      }
+
       if (data) {
         // First try lenient parsing with defaults
         const result = CampaignStateSchema.safeParse(data);
