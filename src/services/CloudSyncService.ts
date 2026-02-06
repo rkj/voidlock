@@ -13,6 +13,7 @@ import { signInAnonymously, onAuthStateChanged } from "firebase/auth";
 import { db, auth } from "./firebase";
 import { CampaignStateSchema } from "@src/shared/schemas/campaign";
 import { CampaignState, CampaignSummary } from "@src/shared/campaign_types";
+import { Logger } from "@src/shared/Logger";
 import pkg from "../../package.json";
 
 /**
@@ -46,7 +47,7 @@ export class CloudSyncService {
             this.initialized = true;
             resolve();
           } catch (error) {
-            console.error("Firebase anonymous sign-in failed:", error);
+            Logger.error("Firebase anonymous sign-in failed:", error);
             this.syncEnabled = false;
             this.initialized = true;
             resolve();
@@ -111,7 +112,7 @@ export class CloudSyncService {
     const result = CampaignStateSchema.safeParse(docData.data);
 
     if (!result.success) {
-      console.error("Invalid cloud save data:", result.error);
+      Logger.error("Invalid cloud save data:", result.error);
       return null;
     }
 

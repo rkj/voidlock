@@ -44,7 +44,7 @@ describe("HUDManager Debug Info Regression (voidlock-6gl)", () => {
       status: "Playing",
       settings: {
         mode: "Simulation" as any,
-        debugOverlayEnabled: true,
+        debugOverlayEnabled: true, debugSnapshots: false,
         losOverlayEnabled: false,
         timeScale: 1.0,
         isPaused: false,

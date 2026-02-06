@@ -1,5 +1,6 @@
 import { VALID_TRANSITIONS } from "@src/renderer/ScreenTransitions";
 import { SessionManager } from "@src/renderer/SessionManager";
+import { Logger } from "@src/shared/Logger";
 
 export type ScreenId =
   | "main-menu"
@@ -49,7 +50,7 @@ export class ScreenManager {
     if (el) {
       this.screens.set(id, el);
     } else {
-      console.error(`Screen element #screen-${id} not found!`);
+      Logger.error(`Screen element #screen-${id} not found!`);
     }
   }
 
@@ -71,7 +72,7 @@ export class ScreenManager {
     // Validate transition
     const validNext = VALID_TRANSITIONS[this.currentScreen];
     if (!validNext || !validNext.includes(id)) {
-      console.error(
+      Logger.error(
         `Invalid screen transition: ${this.currentScreen} -> ${id}`,
       );
       return;
@@ -101,7 +102,7 @@ export class ScreenManager {
     if (newEl) {
       newEl.style.display = "flex"; // Assuming flex layout for screens
     } else {
-      console.error(`[ScreenManager] Screen element for ${id} not found!`);
+      Logger.error(`[ScreenManager] Screen element for ${id} not found!`);
     }
 
     if (updateHash) {
@@ -124,7 +125,7 @@ export class ScreenManager {
           this.onExternalChange(hash);
         }
       } else {
-        console.warn(
+        Logger.warn(
           `External navigation to ${hash} is not a standard transition from ${this.currentScreen}`,
         );
         // Still show it because user explicitly changed URL or pressed back

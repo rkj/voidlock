@@ -138,7 +138,7 @@ describe("End Custom Mission Repro", () => {
         units: [],
         objectives: [],
         settings: {
-          debugOverlayEnabled: false,
+          debugOverlayEnabled: false, debugSnapshots: false,
           timeScale: 1,
           isPaused: false,
           mode: EngineMode.Simulation,

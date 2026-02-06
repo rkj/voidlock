@@ -203,7 +203,7 @@ describe("Replay Button Flow Integration", () => {
       stats: { aliensKilled: 5, scrapGained: 100, threatLevel: 0 },
       units: [],
       objectives: [],
-      settings: { debugOverlayEnabled: false, timeScale: 1.0, isPaused: false },
+      settings: { debugOverlayEnabled: false, debugSnapshots: false, timeScale: 1.0, isPaused: false },
       map: { width: 10, height: 10, cells: [] },
       enemies: [],
       visibleCells: [],

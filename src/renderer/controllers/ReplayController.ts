@@ -1,6 +1,7 @@
 import { GameClient } from "@src/engine/GameClient";
 import { GameState, EngineMode, UnitStyle } from "@src/shared/types";
 import { Renderer } from "@src/renderer/Renderer";
+import { Logger } from "@src/shared/Logger";
 
 export class ReplayController {
   private gameClient: GameClient;
@@ -31,7 +32,7 @@ export class ReplayController {
   public startReplay(totalTime: number) {
     const replayData = this.gameClient.getReplayData();
     if (!replayData) {
-      console.warn("ReplayController: No replay data available.");
+      Logger.warn("ReplayController: No replay data available.");
       return;
     }
 

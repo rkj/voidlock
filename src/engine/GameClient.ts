@@ -138,6 +138,7 @@ export class GameClient {
     nodeType?: CampaignNodeType,
     bonusLootCount: number = 0,
     skipDeployment: boolean = true,
+    debugSnapshots: boolean = false,
   ) {
     this.isStopped = false;
     this.initialSeed = seed;
@@ -198,6 +199,7 @@ export class GameClient {
         map,
         fogOfWarEnabled,
         debugOverlayEnabled,
+        debugSnapshots,
         agentControlEnabled,
         squadConfig: squadConfig,
         missionType,

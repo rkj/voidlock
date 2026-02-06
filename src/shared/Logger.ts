@@ -25,47 +25,87 @@ export class Logger {
     return this.level;
   }
 
+  private static useStyling(): boolean {
+    // Only use styling in browser and NOT in vitest environment
+    const isBrowser = typeof window !== "undefined";
+    const isVitest =
+      typeof process !== "undefined" &&
+      (process.env?.VITEST === "true" || !!process.env?.VITEST);
+    return isBrowser && !isVitest;
+  }
+
+  private static isVitest(): boolean {
+    return (
+      typeof process !== "undefined" &&
+      (process.env?.VITEST === "true" || !!process.env?.VITEST)
+    );
+  }
+
   public static debug(message: string, ...args: unknown[]): void {
     if (this.level <= LogLevel.DEBUG) {
-      console.debug(
-        `%c[DEBUG]%c ${message}`,
-        "color: #7f8c8d; font-weight: bold;",
-        "",
-        ...args,
-      );
+      if (this.useStyling()) {
+        console.debug(
+          `%c[DEBUG]%c ${message}`,
+          "color: #7f8c8d; font-weight: bold;",
+          "",
+          ...args,
+        );
+      } else if (this.isVitest()) {
+        console.debug(message, ...args);
+      } else {
+        console.debug(`[DEBUG] ${message}`, ...args);
+      }
     }
   }
 
   public static info(message: string, ...args: unknown[]): void {
     if (this.level <= LogLevel.INFO) {
-      console.info(
-        `%c[INFO]%c ${message}`,
-        "color: #2ecc71; font-weight: bold;",
-        "",
-        ...args,
-      );
+      if (this.useStyling()) {
+        console.info(
+          `%c[INFO]%c ${message}`,
+          "color: #2ecc71; font-weight: bold;",
+          "",
+          ...args,
+        );
+      } else if (this.isVitest()) {
+        console.info(message, ...args);
+      } else {
+        console.info(`[INFO] ${message}`, ...args);
+      }
     }
   }
 
   public static warn(message: string, ...args: unknown[]): void {
     if (this.level <= LogLevel.WARN) {
-      console.warn(
-        `%c[WARN]%c ${message}`,
-        "color: #f39c12; font-weight: bold;",
-        "",
-        ...args,
-      );
+      if (this.useStyling()) {
+        console.warn(
+          `%c[WARN]%c ${message}`,
+          "color: #f39c12; font-weight: bold;",
+          "",
+          ...args,
+        );
+      } else if (this.isVitest()) {
+        console.warn(message, ...args);
+      } else {
+        console.warn(`[WARN] ${message}`, ...args);
+      }
     }
   }
 
   public static error(message: string, ...args: unknown[]): void {
     if (this.level <= LogLevel.ERROR) {
-      console.error(
-        `%c[ERROR]%c ${message}`,
-        "color: #e74c3c; font-weight: bold;",
-        "",
-        ...args,
-      );
+      if (this.useStyling()) {
+        console.error(
+          `%c[ERROR]%c ${message}`,
+          "color: #e74c3c; font-weight: bold;",
+          "",
+          ...args,
+        );
+      } else if (this.isVitest()) {
+        console.error(message, ...args);
+      } else {
+        console.error(`[ERROR] ${message}`, ...args);
+      }
     }
   }
 }

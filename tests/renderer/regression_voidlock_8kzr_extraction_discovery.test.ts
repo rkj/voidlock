@@ -35,7 +35,7 @@ describe("MenuController - Extraction Discovery Regression", () => {
     status: "Playing",
     settings: {
       mode: "Simulation" as any,
-      debugOverlayEnabled: false,
+      debugOverlayEnabled: false, debugSnapshots: false,
       losOverlayEnabled: false,
       timeScale: 1.0,
       isPaused: false,

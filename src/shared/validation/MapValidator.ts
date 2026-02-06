@@ -1,5 +1,6 @@
 import { MapDefinition } from "../types/map";
 import { MapDefinitionSchema } from "../schemas/map";
+import { Logger } from "../Logger";
 
 export interface MapValidationResult {
   success: boolean;
@@ -19,7 +20,7 @@ export class MapValidator {
       const errorMsg = result.error.issues
         .map((issue) => `${issue.path.join(".")}: ${issue.message}`)
         .join("; ");
-      console.warn("MapValidator: Invalid map data:", errorMsg);
+      Logger.warn("MapValidator: Invalid map data:", errorMsg);
       return { success: false, error: errorMsg };
     }
     return { success: true, data: result.data as MapDefinition };

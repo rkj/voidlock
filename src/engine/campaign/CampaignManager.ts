@@ -15,6 +15,7 @@ import { RosterManager } from "./RosterManager";
 import { MissionReconciler } from "./MissionReconciler";
 import { EventManager } from "./EventManager";
 import { CAMPAIGN_DEFAULTS } from "../config/CampaignDefaults";
+import { Logger } from "../../shared/Logger";
 
 import { CampaignStateSchema } from "../../shared/schemas";
 
@@ -266,7 +267,7 @@ export class CampaignManager {
           return true;
         } else {
           // If even with defaults it fails, try the full manual repair
-          console.warn(
+          Logger.warn(
             "CampaignManager: Validation failed, attempting full recovery.",
             result.error.format(),
           );
@@ -281,7 +282,7 @@ export class CampaignManager {
         }
       }
     } catch (e) {
-      console.warn("CampaignManager: Failed to load campaign state.", e);
+      Logger.warn("CampaignManager: Failed to load campaign state.", e);
     }
     return false;
   }
@@ -392,14 +393,14 @@ export class CampaignManager {
       if (finalResult.success) {
         return finalResult.data as CampaignState;
       } else {
-        console.warn(
+        Logger.warn(
           "CampaignManager: Repair failed:",
           finalResult.error.format(),
         );
         return null;
       }
     } catch (e) {
-      console.warn("CampaignManager: Error during repair:", e);
+      Logger.warn("CampaignManager: Error during repair:", e);
       return null;
     }
   }
