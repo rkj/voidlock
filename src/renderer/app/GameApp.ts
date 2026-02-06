@@ -11,7 +11,11 @@ import {
   Unit,
   CommandType,
 } from "@src/shared/types";
-import { calculateSpawnPoints, CampaignNode } from "@src/shared/campaign_types";
+import {
+  calculateSpawnPoints,
+  CampaignNode,
+  MissionReport,
+} from "@src/shared/campaign_types";
 import { DebugUtility } from "@src/renderer/DebugUtility";
 import { TimeUtility } from "@src/renderer/TimeUtility";
 import { ModalService } from "@src/renderer/ui/ModalService";
@@ -397,6 +401,60 @@ export class GameApp {
           if (spValue) spValue.textContent = spInput.value;
         }
         this.missionSetupManager.saveCurrentConfig();
+      },
+      onLoadReplay: (file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const content = e.target?.result as string;
+          try {
+            const data = JSON.parse(content);
+            const replayData = data.replayData || data;
+            const currentState = data.currentState as GameState | undefined;
+
+            if (replayData && replayData.commands) {
+              this.context.gameClient.loadReplay(replayData);
+
+              // If we have current state, we can construct a report and show debrief
+              if (currentState) {
+                const report: MissionReport = {
+                  nodeId: "custom",
+                  seed: currentState.seed,
+                  result: currentState.status === "Won" ? "Won" : "Lost",
+                  aliensKilled: currentState.stats.aliensKilled,
+                  scrapGained: currentState.stats.scrapGained,
+                  intelGained: 0,
+                  timeSpent: currentState.t,
+                  soldierResults: currentState.units.map((u) => ({
+                    soldierId: u.id,
+                    name: u.name,
+                    tacticalNumber: u.tacticalNumber,
+                    xpBefore: 0, // Not available in GameState
+                    xpGained: 0,
+                    kills: u.kills,
+                    promoted: false,
+                    status: u.state === UnitState.Dead ? "Dead" : "Healthy",
+                  })),
+                };
+                this.debriefScreen.show(
+                  report,
+                  this.missionSetupManager.unitStyle,
+                );
+                this.context.screenManager.show("debrief");
+              } else {
+                // For now, loading a replay without currentState just loads it into the client
+                // We might want to switch to mission screen to play it.
+                this.context.modalService.alert(
+                  "Replay loaded. (Partial support: no summary state found)",
+                );
+              }
+            } else {
+              this.context.modalService.alert("Invalid replay file format.");
+            }
+          } catch (err) {
+            this.context.modalService.alert("Failed to parse replay file.");
+          }
+        };
+        reader.readAsText(file);
       },
     });
 
