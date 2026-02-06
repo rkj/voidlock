@@ -213,7 +213,7 @@ describe("Comprehensive User Journeys", () => {
         <button id="btn-menu-campaign">Campaign</button>
         <button id="btn-menu-custom">Custom Mission</button>
         <button id="btn-menu-statistics">Statistics</button>
-        <button id="btn-menu-reset">Reset Data</button>
+        <button id="btn-menu-settings">Settings</button>
         <p id="menu-version"></p>
       </div>
 
