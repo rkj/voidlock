@@ -61,8 +61,12 @@ export class ReplayController {
         const progress = (state.t / this.totalTime) * 100;
         this.onProgressUpdate(Math.min(100, progress));
 
-        if (progress >= 100 && this.isLooping) {
-          this.seek(0);
+        if (progress >= 100) {
+          if (this.isLooping) {
+            this.seek(0);
+          } else if (!this.gameClient.getIsPaused()) {
+            this.gameClient.pause();
+          }
         }
       }
     }
