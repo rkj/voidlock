@@ -5,6 +5,12 @@ import { CampaignState } from "@src/shared/campaign_types";
 import { Logger } from "@src/shared/Logger";
 import { CAMPAIGN_DEFAULTS } from "@src/engine/config/CampaignDefaults";
 
+export enum SyncStatus {
+  SYNCED = "synced",
+  SYNCING = "syncing",
+  LOCAL_ONLY = "local-only",
+}
+
 /**
  * Manages game saves by wrapping LocalStorage (primary) and CloudSyncService (backup).
  * Implements a local-first, async-cloud strategy with conflict resolution.
@@ -13,10 +19,27 @@ export class SaveManager implements StorageProvider {
   private localStorage: StorageProvider;
   private cloudSync: CloudSyncService;
   private syncInProgress: boolean = false;
+  private lastSyncFailed: boolean = false;
 
   constructor(localStorage?: StorageProvider, cloudSync?: CloudSyncService) {
     this.localStorage = localStorage || new LocalStorageProvider();
     this.cloudSync = cloudSync || new CloudSyncService();
+  }
+
+  /**
+   * Returns the current synchronization status.
+   */
+  public getSyncStatus(): SyncStatus {
+    if (!this.cloudSync.isSyncEnabled()) {
+      return SyncStatus.LOCAL_ONLY;
+    }
+    if (this.syncInProgress) {
+      return SyncStatus.SYNCING;
+    }
+    if (this.lastSyncFailed) {
+      return SyncStatus.LOCAL_ONLY;
+    }
+    return SyncStatus.SYNCED;
   }
 
   /**
@@ -106,8 +129,15 @@ export class SaveManager implements StorageProvider {
     if (this.syncInProgress) return;
 
     this.syncInProgress = true;
+    this.lastSyncFailed = false;
     this.cloudSync.saveCampaign(campaignId, data)
-      .catch((err) => Logger.warn("SaveManager: Cloud sync failed:", err))
+      .then(() => {
+        this.lastSyncFailed = false;
+      })
+      .catch((err) => {
+        Logger.warn("SaveManager: Cloud sync failed:", err);
+        this.lastSyncFailed = true;
+      })
       .finally(() => {
         this.syncInProgress = false;
       });

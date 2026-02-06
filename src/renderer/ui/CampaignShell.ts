@@ -253,6 +253,40 @@ export class CampaignShell {
         <span style="text-transform: uppercase; letter-spacing: 1px; opacity: 0.7;">Missions Won:</span>
         <span style="color: var(--color-primary); font-weight: bold;">${stats.totalMissionsWon.toLocaleString()}</span>
       </div>
+      
+      <div class="flex-grow"></div>
+
+      <div id="sync-status-indicator" class="sync-status">
+        <!-- Will be filled by updateSyncUI -->
+      </div>
     `;
+
+    this.updateSyncUI(container.querySelector("#sync-status-indicator") as HTMLElement);
+  }
+
+  private updateSyncUI(el: HTMLElement) {
+    const status = (this.manager as any).getSyncStatus
+      ? this.manager.getSyncStatus()
+      : "local-only";
+    let icon = "💾";
+    let text = "Local Only";
+    let className = "local";
+
+    if (status === "synced") {
+      icon = "☁️";
+      text = "Cloud Synced";
+      className = "synced";
+    } else if (status === "syncing") {
+      icon = "🔄";
+      text = "Syncing...";
+      className = "syncing";
+    }
+
+    el.className = `sync-status ${className}`;
+    el.innerHTML = `
+      <span class="sync-icon">${icon}</span>
+      <span>${text}</span>
+    `;
+    el.title = `Data Storage Status: ${text}`;
   }
 }

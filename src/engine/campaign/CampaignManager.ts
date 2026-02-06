@@ -64,6 +64,23 @@ export class CampaignManager {
   }
 
   /**
+   * Returns the storage provider being used by the manager.
+   */
+  public getStorage(): StorageProvider {
+    return this.storage;
+  }
+
+  /**
+   * Returns the current cloud synchronization status.
+   */
+  public getSyncStatus(): string {
+    if ((this.storage as any).getSyncStatus) {
+      return (this.storage as any).getSyncStatus();
+    }
+    return "local-only";
+  }
+
+  /**
    * Reset the singleton instance (useful for tests).
    */
   public static resetInstance(): void {
