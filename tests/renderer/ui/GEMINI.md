@@ -7,6 +7,7 @@ Tests for UI components and managers in the Voidlock renderer.
 - `HUDManager.test.ts`: Unit tests for HUD rendering and interaction, utilizing JSDOM.
 - `HUDManager_Stats.test.ts`: Tests for soldier stat rendering within the HUD.
 - `StatDisplay.test.ts`: Tests for the reusable icon-based stat display component.
+- `SoldierWidget.test.ts`: Tests for unified soldier item rendering across all contexts (Tactical, Roster, Debrief, Squad Builder).
 - `regression_kvi1_actions_visible_on_restart.test.ts`: Regression test for the bug where actions were not visible after restarting a mission.
 - `regression_pdxs_objective_hud.test.ts`: Regression test for Objective HUD cleanup (hiding coords, removing status text).
 - `regression_voidlock-470v_threat_meter_snap.test.ts`: Regression test for threat meter reset animation.
