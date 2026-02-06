@@ -1,16 +1,16 @@
 import { CampaignManager as EngineCampaignManager } from "@src/engine/campaign/CampaignManager";
-import { LocalStorageProvider } from "@src/engine/persistence/LocalStorageProvider";
+import { SaveManager } from "@src/services/SaveManager";
 
 /**
  * Re-export the Engine's CampaignManager.
- * In the renderer context, it is initialized with LocalStorageProvider.
+ * In the renderer context, it is initialized with SaveManager.
  */
 export { EngineCampaignManager as CampaignManager };
 
 // Initialize the singleton for the browser context
 if (typeof window !== "undefined") {
   try {
-    EngineCampaignManager.getInstance(new LocalStorageProvider());
+    EngineCampaignManager.getInstance(new SaveManager());
   } catch (e) {
     // Already initialized or failed
   }

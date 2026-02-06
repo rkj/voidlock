@@ -126,6 +126,7 @@ describe("CloudSyncService", () => {
       history: [],
       unlockedArchetypes: ["assault", "medic", "scout", "heavy"],
       unlockedItems: [],
+      saveVersion: 1,
     };
 
     await service.saveCampaign("camp-1", mockCampaign);
@@ -178,6 +179,7 @@ describe("CloudSyncService", () => {
       history: [],
       unlockedArchetypes: ["assault", "medic", "scout", "heavy"],
       unlockedItems: [],
+      saveVersion: 1,
     };
 
     mockGetDoc.mockResolvedValue({
