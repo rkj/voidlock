@@ -118,7 +118,7 @@ export class CampaignShell {
 
     // Right Side: Resources + Navigation + Menu
     const rightSide = document.createElement("div");
-    rightSide.className = "flex-row align-center gap-20";
+    rightSide.className = "shell-controls-right flex-row align-center gap-20";
 
     // Resources
     if (this.mode === "campaign" && state) {
@@ -139,7 +139,7 @@ export class CampaignShell {
 
     // Navigation Tabs
     const nav = document.createElement("div");
-    nav.className = "flex-row gap-5";
+    nav.className = "shell-tabs flex-row gap-5";
 
     if (this.showTabs) {
       const tabs: { id: CampaignTabId; label: string }[] = [];
@@ -153,7 +153,6 @@ export class CampaignShell {
       } else if (this.mode === "statistics") {
         tabs.push({ id: "stats", label: "Service Record" });
         tabs.push({ id: "engineering", label: "Engineering" });
-        tabs.push({ id: "main-menu", label: "Main Menu" }); // Spec: Back tab
       }
 
       tabs.forEach((tab) => {
@@ -177,21 +176,8 @@ export class CampaignShell {
     }
     rightSide.appendChild(nav);
 
-    if (this.mode !== "statistics" && this.mode !== "global") {
-      const menuBtn = document.createElement("button");
-      menuBtn.textContent = "Main Menu";
-      menuBtn.className = "back-button";
-      menuBtn.style.margin = "0";
-      menuBtn.style.padding = "5px 12px";
-      menuBtn.style.height = "32px";
-      menuBtn.style.fontSize = "0.85em";
-      menuBtn.style.display = "flex";
-      menuBtn.style.alignItems = "center";
-      menuBtn.onclick = () => this.onMenu();
-      rightSide.appendChild(menuBtn);
-    }
-
-    if (this.mode === "global") {
+    // Main Menu Button (Always on the far right)
+    if (this.mode !== "none") {
       const menuBtn = document.createElement("button");
       menuBtn.textContent = "Main Menu";
       menuBtn.className = "back-button";
