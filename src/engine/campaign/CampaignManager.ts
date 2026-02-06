@@ -133,7 +133,18 @@ export class CampaignManager {
 
     const effectiveSeed = rules.customSeed ?? seed;
     const nodes = this.sectorMapGenerator.generate(effectiveSeed, rules);
-    const roster = this.rosterManager.generateInitialRoster();
+
+    // Incorporate global meta-unlocks
+    const metaStats = MetaManager.getInstance(this.storage).getStats();
+    const unlockedArchetypes = Array.from(
+      new Set([
+        ...CAMPAIGN_DEFAULTS.UNLOCKED_ARCHETYPES,
+        ...metaStats.unlockedArchetypes,
+      ]),
+    );
+    const unlockedItems = [...metaStats.unlockedItems];
+    
+    const roster = this.rosterManager.generateInitialRoster(unlockedArchetypes);
 
     this.state = {
       version: CAMPAIGN_DEFAULTS.VERSION,
@@ -147,7 +158,8 @@ export class CampaignManager {
       nodes,
       roster,
       history: [],
-      unlockedArchetypes: [...CAMPAIGN_DEFAULTS.UNLOCKED_ARCHETYPES],
+      unlockedArchetypes,
+      unlockedItems,
     };
 
     MetaManager.getInstance(this.storage).recordCampaignStarted();
@@ -322,6 +334,8 @@ export class CampaignManager {
       if (!Array.isArray(state.history)) state.history = [];
       if (!Array.isArray(state.unlockedArchetypes))
         state.unlockedArchetypes = [...CAMPAIGN_DEFAULTS.UNLOCKED_ARCHETYPES];
+      if (!Array.isArray(state.unlockedItems))
+        state.unlockedItems = [];
 
       // 2. Repair rules
       const rules = { ...((data.rules as any) || {}) };
@@ -437,6 +451,7 @@ export class CampaignManager {
       casualties,
       report.result === "Won",
       report.scrapGained,
+      report.intelGained,
     );
 
     // 5. Check for campaign end
@@ -480,6 +495,7 @@ export class CampaignManager {
       0,
       true,
       scrapGained,
+      intelGained,
     );
 
     this.save();

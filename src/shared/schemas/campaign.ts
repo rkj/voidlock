@@ -132,6 +132,7 @@ export const CampaignStateSchema = z.object({
   unlockedArchetypes: z
     .array(z.string())
     .default(["assault", "medic", "scout", "heavy"]),
+  unlockedItems: z.array(z.string()).default([]),
 });
 
 export const CampaignSummarySchema = z.object({
@@ -152,6 +153,9 @@ export const MetaStatsSchema = z.object({
   totalMissionsPlayed: z.number().default(0),
   totalMissionsWon: z.number().default(0),
   totalScrapEarned: z.number().default(0),
+  currentIntel: z.number().default(0),
+  unlockedArchetypes: z.array(z.string()).default([]),
+  unlockedItems: z.array(z.string()).default([]),
 });
 
 export type CampaignState = z.infer<typeof CampaignStateSchema>;

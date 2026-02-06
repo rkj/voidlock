@@ -99,12 +99,14 @@ export class MetaManager {
    * @param casualties Number of soldiers killed in the mission.
    * @param won Whether the mission was won.
    * @param scrapGained Amount of scrap earned in the mission.
+   * @param intelGained Amount of intel earned in the mission.
    */
   public recordMissionResult(
     kills: number,
     casualties: number,
     won: boolean,
     scrapGained: number,
+    intelGained: number = 0,
   ): void {
     this.stats.totalKills += kills;
     this.stats.totalCasualties += casualties;
@@ -113,7 +115,62 @@ export class MetaManager {
       this.stats.totalMissionsWon++;
     }
     this.stats.totalScrapEarned += scrapGained;
+    this.stats.currentIntel += intelGained;
     this.save();
+  }
+
+  /**
+   * Spends the given amount of intel.
+   * @param amount The amount of intel to spend.
+   */
+  public spendIntel(amount: number): void {
+    if (this.stats.currentIntel < amount) {
+      throw new Error(
+        `MetaManager: Insufficient intel: need ${amount}, have ${this.stats.currentIntel}`,
+      );
+    }
+    this.stats.currentIntel -= amount;
+    this.save();
+  }
+
+  /**
+   * Unlocks a new archetype by spending intel.
+   * @param archetypeId The ID of the archetype to unlock.
+   * @param cost The cost in intel.
+   */
+  public unlockArchetype(archetypeId: string, cost: number): void {
+    if (this.isArchetypeUnlocked(archetypeId)) return;
+    this.spendIntel(cost);
+    this.stats.unlockedArchetypes.push(archetypeId);
+    this.save();
+  }
+
+  /**
+   * Unlocks a new item license by spending intel.
+   * @param itemId The ID of the item to unlock.
+   * @param cost The cost in intel.
+   */
+  public unlockItem(itemId: string, cost: number): void {
+    if (this.isItemUnlocked(itemId)) return;
+    this.spendIntel(cost);
+    this.stats.unlockedItems.push(itemId);
+    this.save();
+  }
+
+  /**
+   * Checks if an archetype is globally unlocked.
+   * @param archetypeId The ID of the archetype.
+   */
+  public isArchetypeUnlocked(archetypeId: string): boolean {
+    return this.stats.unlockedArchetypes.includes(archetypeId);
+  }
+
+  /**
+   * Checks if an item is globally unlocked.
+   * @param itemId The ID of the item.
+   */
+  public isItemUnlocked(itemId: string): boolean {
+    return this.stats.unlockedItems.includes(itemId);
   }
 
   /**
