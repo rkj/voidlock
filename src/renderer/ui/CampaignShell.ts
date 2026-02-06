@@ -6,15 +6,15 @@ export type CampaignTabId =
   | "barracks"
   | "engineering"
   | "stats"
+  | "settings"
   | "main-menu";
-export type CampaignShellMode = "campaign" | "statistics" | "custom" | "none";
+export type CampaignShellMode = "campaign" | "statistics" | "custom" | "global" | "none";
 
 export class CampaignShell {
   private container: HTMLElement;
   private manager: CampaignManager;
   private onTabChange: (tabId: CampaignTabId) => void;
   private onMenu: () => void;
-  private onSettings: () => void;
   private activeTabId: CampaignTabId = "sector-map";
   private mode: CampaignShellMode = "none";
   private showTabs: boolean = true;
@@ -24,7 +24,6 @@ export class CampaignShell {
     manager: CampaignManager,
     onTabChange: (tabId: CampaignTabId) => void,
     onMenu: () => void,
-    onSettings: () => void,
   ) {
     const el = document.getElementById(containerId);
     if (!el) throw new Error(`Container #${containerId} not found`);
@@ -32,7 +31,6 @@ export class CampaignShell {
     this.manager = manager;
     this.onTabChange = onTabChange;
     this.onMenu = onMenu;
-    this.onSettings = onSettings;
   }
 
   public show(
@@ -110,6 +108,11 @@ export class CampaignShell {
         <div style="font-size: 0.7em; color: var(--color-text-dim); text-transform: uppercase; letter-spacing: 1px;">Custom Mission</div>
         <div style="font-size: 0.9em; font-weight: bold; color: var(--color-primary);">Simulation Setup</div>
       `;
+    } else if (this.mode === "global") {
+      leftPart.innerHTML = `
+        <div style="font-size: 0.7em; color: var(--color-text-dim); text-transform: uppercase; letter-spacing: 1px;">Settings</div>
+        <div style="font-size: 0.9em; font-weight: bold; color: var(--color-primary);">Global Configuration</div>
+      `;
     }
     topBar.appendChild(leftPart);
 
@@ -145,6 +148,7 @@ export class CampaignShell {
         tabs.push({ id: "sector-map", label: "Sector Map" });
         tabs.push({ id: "barracks", label: "Barracks" });
         tabs.push({ id: "stats", label: "Service Record" });
+        tabs.push({ id: "settings", label: "Settings" });
       } else if (this.mode === "statistics") {
         tabs.push({ id: "stats", label: "Service Record" });
         tabs.push({ id: "main-menu", label: "Main Menu" }); // Spec: Back tab
@@ -171,19 +175,21 @@ export class CampaignShell {
     }
     rightSide.appendChild(nav);
 
-    const settingsBtn = document.createElement("button");
-    settingsBtn.textContent = "Settings";
-    settingsBtn.className = "menu-button";
-    settingsBtn.style.margin = "0";
-    settingsBtn.style.padding = "5px 12px";
-    settingsBtn.style.height = "32px";
-    settingsBtn.style.fontSize = "0.85em";
-    settingsBtn.style.display = "flex";
-    settingsBtn.style.alignItems = "center";
-    settingsBtn.onclick = () => this.onSettings();
-    rightSide.appendChild(settingsBtn);
+    if (this.mode !== "statistics" && this.mode !== "global") {
+      const menuBtn = document.createElement("button");
+      menuBtn.textContent = "Main Menu";
+      menuBtn.className = "back-button";
+      menuBtn.style.margin = "0";
+      menuBtn.style.padding = "5px 12px";
+      menuBtn.style.height = "32px";
+      menuBtn.style.fontSize = "0.85em";
+      menuBtn.style.display = "flex";
+      menuBtn.style.alignItems = "center";
+      menuBtn.onclick = () => this.onMenu();
+      rightSide.appendChild(menuBtn);
+    }
 
-    if (this.mode !== "statistics") {
+    if (this.mode === "global") {
       const menuBtn = document.createElement("button");
       menuBtn.textContent = "Main Menu";
       menuBtn.className = "back-button";

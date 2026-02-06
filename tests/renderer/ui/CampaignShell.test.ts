@@ -32,7 +32,6 @@ describe("CampaignShell", () => {
       manager as any,
       onTabChange,
       onMenu,
-      vi.fn(),
     );
   });
 
@@ -50,6 +49,7 @@ describe("CampaignShell", () => {
     expect(container.innerHTML).toContain("Sector Map");
     expect(container.innerHTML).toContain("Barracks");
     expect(container.innerHTML).toContain("Service Record");
+    expect(container.innerHTML).toContain("Settings");
   });
 
   it("should render statistics info in statistics mode", () => {
@@ -98,6 +98,18 @@ describe("CampaignShell", () => {
 
     barracksBtn?.click();
     expect(onTabChange).toHaveBeenCalledWith("barracks");
+  });
+
+  it("should call onTabChange when Settings tab is clicked", () => {
+    shell.show("campaign", "sector-map");
+
+    const settingsBtn = Array.from(container.querySelectorAll("button")).find(
+      (b) => b.textContent === "Settings",
+    );
+    expect(settingsBtn).toBeDefined();
+
+    settingsBtn?.click();
+    expect(onTabChange).toHaveBeenCalledWith("settings");
   });
 
   it("should call onMenu when Main Menu button is clicked", () => {

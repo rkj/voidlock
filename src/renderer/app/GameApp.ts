@@ -93,10 +93,6 @@ export class GameApp {
       this.context.campaignManager,
       (tabId) => this.onShellTabChange(tabId),
       () => this.showMainMenu(),
-      () => {
-        this.settingsScreen.show();
-        this.context.screenManager.show("settings", true, false);
-      },
     );
 
     const mapGeneratorFactory = (config: MapGenerationConfig): MapFactory => {
@@ -223,17 +219,10 @@ export class GameApp {
       () => {
         this.context.screenManager.goBack();
         const screen = this.context.screenManager.getCurrentScreen();
-        if (screen === "campaign")
-          this.context.campaignShell.show("campaign", "sector-map");
-        else if (screen === "barracks")
-          this.context.campaignShell.show("campaign", "barracks");
-        else if (screen === "mission-setup") {
-          if (this.missionSetupManager.currentCampaignNode) {
-            this.context.campaignShell.show("campaign", "sector-map", false);
-          } else {
-            this.context.campaignShell.show("custom");
-          }
-        }
+        this.handleExternalScreenChange(
+          screen,
+          !!this.context.campaignManager.getState(),
+        );
       },
       () => this.context.campaignShell.refresh(),
     );
@@ -245,21 +234,10 @@ export class GameApp {
       () => {
         this.context.screenManager.goBack();
         const screen = this.context.screenManager.getCurrentScreen();
-        if (screen === "main-menu") {
-          this.context.campaignShell.hide();
-        } else if (screen === "mission-setup") {
-          this.missionSetupManager.loadAndApplyConfig(
-            !!this.missionSetupManager.currentCampaignNode,
-          );
-        } else if (
-          screen === "campaign" ||
-          screen === "barracks" ||
-          screen === "statistics"
-        ) {
-          // Keep shell visible
-        } else {
-          this.context.campaignShell.hide();
-        }
+        this.handleExternalScreenChange(
+          screen,
+          !!this.context.campaignManager.getState(),
+        );
       },
     );
 
@@ -308,13 +286,13 @@ export class GameApp {
       },
       onSettingsMenu: () => {
         this.settingsScreen.show();
-        this.context.screenManager.show("settings", true, false);
-        // If we are in campaign, we might want to keep the shell
-        const isCampaign = !!this.context.campaignManager.getState();
-        if (isCampaign) {
-          this.context.campaignShell.show("campaign", "sector-map", false);
+        const state = this.context.campaignManager.getState();
+        if (state) {
+          this.context.screenManager.show("settings", true, true);
+          this.context.campaignShell.show("campaign", "settings");
         } else {
-          this.context.campaignShell.hide();
+          this.context.screenManager.show("settings", true, false);
+          this.context.campaignShell.show("global", "settings", false);
         }
       },
       onSetupBack: () => {
@@ -428,6 +406,10 @@ export class GameApp {
         this.statisticsScreen.show();
         this.context.screenManager.show("statistics", true, false);
         break;
+      case "settings":
+        this.settingsScreen.show();
+        this.context.screenManager.show("settings", true, true);
+        break;
     }
 
     const state = this.context.campaignManager.getState();
@@ -511,10 +493,11 @@ export class GameApp {
         break;
       case "settings":
         this.settingsScreen.show();
-        if (isCampaign) {
-          this.context.campaignShell.show("campaign", "sector-map", false);
+        const state = this.context.campaignManager.getState();
+        if (state) {
+          this.context.campaignShell.show("campaign", "settings");
         } else {
-          this.context.campaignShell.hide();
+          this.context.campaignShell.show("global", "settings", false);
         }
         break;
       case "mission":
