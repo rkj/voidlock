@@ -221,7 +221,7 @@ describe("E2E Campaign Happy Path", () => {
       status: "Playing",
       settings: {
         mode: EngineMode.Simulation,
-        debugOverlayEnabled: true,
+        debugOverlayEnabled: true, debugSnapshots: false,
         losOverlayEnabled: false,
         timeScale: 1.0,
         isPaused: false,

@@ -38,7 +38,7 @@ describe("DebugLoot Rendering", () => {
       visibleCells: [],
       discoveredCells: [],
       settings: {
-        debugOverlayEnabled: false,
+        debugOverlayEnabled: false, debugSnapshots: false,
       } as any,
     });
 
@@ -54,7 +54,7 @@ describe("DebugLoot Rendering", () => {
       visibleCells: [],
       discoveredCells: [],
       settings: {
-        debugOverlayEnabled: true,
+        debugOverlayEnabled: true, debugSnapshots: false,
       } as any,
     });
 
@@ -72,7 +72,7 @@ describe("DebugLoot Rendering", () => {
       visibleCells: ["2,2"],
       discoveredCells: [],
       settings: {
-        debugOverlayEnabled: false,
+        debugOverlayEnabled: false, debugSnapshots: false,
       } as any,
     });
 
@@ -90,7 +90,7 @@ describe("DebugLoot Rendering", () => {
       visibleCells: [],
       discoveredCells: ["2,2"],
       settings: {
-        debugOverlayEnabled: false,
+        debugOverlayEnabled: false, debugSnapshots: false,
       } as any,
     });
 
@@ -114,7 +114,7 @@ describe("DebugLoot Rendering", () => {
         } as any,
       ],
       settings: {
-        debugOverlayEnabled: false,
+        debugOverlayEnabled: false, debugSnapshots: false,
       } as any,
     });
 
@@ -136,7 +136,7 @@ describe("DebugLoot Rendering", () => {
         } as any,
       ],
       settings: {
-        debugOverlayEnabled: true,
+        debugOverlayEnabled: true, debugSnapshots: false,
       } as any,
     });
 

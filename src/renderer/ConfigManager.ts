@@ -1,6 +1,7 @@
 import { MapGeneratorType, MissionType, UnitStyle } from "@src/shared/types";
 import type { SquadConfig, SquadSoldierConfig } from "@src/shared/types";
 import { GameConfigSchema, GlobalConfigSchema } from "@src/shared/schemas";
+import { Logger } from "@src/shared/Logger";
 
 export interface GameConfig {
   mapWidth: number;
@@ -54,7 +55,7 @@ export class ConfigManager {
     try {
       localStorage.setItem(GLOBAL_STORAGE_KEY, JSON.stringify(config));
     } catch (e) {
-      console.warn("Failed to save global configuration:", e);
+      Logger.warn("Failed to save global configuration:", e);
     }
   }
 
@@ -87,16 +88,16 @@ export class ConfigManager {
 
   public static clearCampaign() {
     localStorage.removeItem(CAMPAIGN_STORAGE_KEY);
-    console.log(`Campaign configuration cleared from LocalStorage.`);
+    Logger.info(`Campaign configuration cleared from LocalStorage.`);
   }
 
   private static save(key: string, config: GameConfig) {
     try {
       const json = JSON.stringify(config);
       localStorage.setItem(key, json);
-      console.log(`Configuration saved to LocalStorage (${key}).`);
+      Logger.info(`Configuration saved to LocalStorage (${key}).`);
     } catch (e) {
-      console.warn(`Failed to save configuration to LocalStorage (${key}):`, e);
+      Logger.warn(`Failed to save configuration to LocalStorage (${key}):`, e);
     }
   }
 
@@ -143,7 +144,7 @@ export class ConfigManager {
 
       // If validation fails, we can still try to recover using the manual merger
       // to avoid breaking user settings on minor schema changes.
-      console.warn(
+      Logger.warn(
         `ConfigManager: Validation failed for ${key}, attempting recovery.`,
       );
       const defaults = this.getDefault();
@@ -155,7 +156,7 @@ export class ConfigManager {
       }
       return null;
     } catch (e) {
-      console.warn(
+      Logger.warn(
         `Failed to load configuration from LocalStorage (${key}):`,
         e,
       );

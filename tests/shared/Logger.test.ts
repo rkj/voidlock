@@ -15,11 +15,8 @@ describe("Logger", () => {
     Logger.info("test info");
 
     expect(debugSpy).not.toHaveBeenCalled();
-    expect(infoSpy).toHaveBeenCalledWith(
-      "%c[INFO]%c test info",
-      "color: #2ecc71; font-weight: bold;",
-      "",
-    );
+    // In Vitest environment, styling is disabled, so we expect the raw message
+    expect(infoSpy).toHaveBeenCalledWith("test info");
   });
 
   it("should log all levels when set to DEBUG", () => {
@@ -34,10 +31,10 @@ describe("Logger", () => {
     Logger.warn("w");
     Logger.error("e");
 
-    expect(debugSpy).toHaveBeenCalled();
-    expect(infoSpy).toHaveBeenCalled();
-    expect(warnSpy).toHaveBeenCalled();
-    expect(errorSpy).toHaveBeenCalled();
+    expect(debugSpy).toHaveBeenCalledWith("d");
+    expect(infoSpy).toHaveBeenCalledWith("i");
+    expect(warnSpy).toHaveBeenCalledWith("w");
+    expect(errorSpy).toHaveBeenCalledWith("e");
   });
 
   it("should log nothing when set to NONE", () => {

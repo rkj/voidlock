@@ -1,4 +1,5 @@
 import { GameApp } from "./app/GameApp";
+import { Logger } from "@src/shared/Logger";
 
 declare global {
   interface Window {
@@ -10,7 +11,7 @@ declare global {
 // Global Error Logging (Spec 8.12)
 window.addEventListener("error", (event) => {
   const { message, filename, lineno, colno, error } = event;
-  console.error("Global Error (main.ts):", {
+  Logger.error("Global Error (main.ts):", {
     message,
     filename,
     lineno,
@@ -23,7 +24,7 @@ window.addEventListener("error", (event) => {
 });
 
 window.addEventListener("unhandledrejection", (event) => {
-  console.error("Unhandled Promise Rejection (main.ts):", event.reason);
+  Logger.error("Unhandled Promise Rejection (main.ts):", event.reason);
   if (window.__VOIDLOCK_PANIC_HANDLER__) {
     window.__VOIDLOCK_PANIC_HANDLER__(event.reason);
   }
@@ -38,5 +39,5 @@ app
     app.start();
   })
   .catch((err) => {
-    console.error("Failed to initialize GameApp:", err);
+    Logger.error("Failed to initialize GameApp:", err);
   });

@@ -11,6 +11,7 @@ import {
 } from "@src/shared/types";
 import { CampaignNode, MissionReport } from "@src/shared/campaign_types";
 import { TimeUtility } from "@src/renderer/TimeUtility";
+import { Logger } from "@src/shared/Logger";
 
 import { ConfigManager } from "../ConfigManager";
 
@@ -52,6 +53,7 @@ export class MissionCoordinator {
       : 1.0;
 
     const missionDepth = config.campaignNode ? config.campaignNode.rank : 0;
+    const globalConfig = ConfigManager.loadGlobal();
 
     this.context.campaignShell.hide();
 
@@ -82,6 +84,7 @@ export class MissionCoordinator {
       config.campaignNode?.type,
       config.campaignNode?.bonusLootCount || 0,
       config.skipDeployment,
+      globalConfig.debugSnapshots,
     );
 
     syncSpeedUI();
@@ -206,12 +209,13 @@ export class MissionCoordinator {
         config.nodeType,
         config.bonusLootCount || 0,
         config.skipDeployment !== undefined ? config.skipDeployment : true,
+        config.debugSnapshots,
       );
 
       syncSpeedUI();
       this.context.screenManager.show("mission", true, !!campaignNode);
     } catch (e) {
-      console.error("Failed to resume mission", e);
+      Logger.error("Failed to resume mission", e);
     }
   }
 

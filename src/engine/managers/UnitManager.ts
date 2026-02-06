@@ -24,6 +24,7 @@ import { IDirector } from "../interfaces/IDirector";
 import { MathUtils } from "../../shared/utils/MathUtils";
 import { SpatialGrid } from "../../shared/utils/SpatialGrid";
 import { MOVEMENT } from "../config/GameConstants";
+import { Logger } from "../../shared/Logger";
 
 export class UnitManager {
   private totalFloorCells: number;
@@ -47,7 +48,7 @@ export class UnitManager {
       .getGraph()
       .cells.flat()
       .filter((c) => c.type === "Floor").length;
-    console.log(`UnitManager: totalFloorCells = ${this.totalFloorCells}`);
+    Logger.info(`UnitManager: totalFloorCells = ${this.totalFloorCells}`);
     this.statsManager = new StatsManager();
     this.movementManager = new MovementManager(gameGrid);
     this.combatManager = new CombatManager(los, this.statsManager);

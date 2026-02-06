@@ -1,4 +1,5 @@
 import { StorageProvider } from "./StorageProvider";
+import { Logger } from "../../shared/Logger";
 
 /**
  * StorageProvider implementation using browser's LocalStorage.
@@ -9,7 +10,7 @@ export class LocalStorageProvider implements StorageProvider {
       const json = JSON.stringify(data);
       localStorage.setItem(key, json);
     } catch (e) {
-      console.error(`LocalStorageProvider: Failed to save key "${key}"`, e);
+      Logger.error(`LocalStorageProvider: Failed to save key "${key}"`, e);
     }
   }
 
@@ -19,7 +20,7 @@ export class LocalStorageProvider implements StorageProvider {
       if (json === null) return null;
       return JSON.parse(json) as T;
     } catch (e) {
-      console.error(`LocalStorageProvider: Failed to load key "${key}"`, e);
+      Logger.error(`LocalStorageProvider: Failed to load key "${key}"`, e);
       return null;
     }
   }
@@ -28,7 +29,7 @@ export class LocalStorageProvider implements StorageProvider {
     try {
       localStorage.removeItem(key);
     } catch (e) {
-      console.error(`LocalStorageProvider: Failed to remove key "${key}"`, e);
+      Logger.error(`LocalStorageProvider: Failed to remove key "${key}"`, e);
     }
   }
 
@@ -36,7 +37,7 @@ export class LocalStorageProvider implements StorageProvider {
     try {
       localStorage.clear();
     } catch (e) {
-      console.error("LocalStorageProvider: Failed to clear", e);
+      Logger.error("LocalStorageProvider: Failed to clear", e);
     }
   }
 }

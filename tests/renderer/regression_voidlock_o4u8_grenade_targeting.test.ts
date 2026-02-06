@@ -41,7 +41,7 @@ describe("MenuController Grenade Targeting Regression (voidlock-o4u8)", () => {
     status: "Playing",
     settings: {
       mode: "Simulation" as any,
-      debugOverlayEnabled: false,
+      debugOverlayEnabled: false, debugSnapshots: false,
       losOverlayEnabled: false,
       timeScale: 1.0,
       isPaused: false,
