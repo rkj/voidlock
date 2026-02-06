@@ -180,6 +180,7 @@ export class MissionSetupManager {
     };
 
     const global = {
+      ...ConfigManager.loadGlobal(),
       unitStyle: this.unitStyle,
       themeId: this.currentThemeId,
     };

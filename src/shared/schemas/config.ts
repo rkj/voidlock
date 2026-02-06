@@ -26,4 +26,7 @@ export const GameConfigSchema = z.object({
 export const GlobalConfigSchema = z.object({
   unitStyle: z.enum(["Sprites", "TacticalIcons"]),
   themeId: z.string(),
+  logLevel: z.enum(["DEBUG", "INFO", "WARN", "ERROR", "NONE"]),
+  debugSnapshots: z.boolean(),
+  debugOverlayEnabled: z.boolean(),
 });

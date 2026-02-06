@@ -137,6 +137,7 @@ describe("Theme Selector", () => {
     // Persist industrial theme
     const defaults = ConfigManager.getDefault();
     ConfigManager.saveGlobal({
+      ...ConfigManager.loadGlobal(),
       unitStyle: UnitStyle.TacticalIcons,
       themeId: "hive",
     });

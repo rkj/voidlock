@@ -26,6 +26,9 @@ export interface GameConfig {
 export interface GlobalConfig {
   unitStyle: UnitStyle;
   themeId: string;
+  logLevel: "DEBUG" | "INFO" | "WARN" | "ERROR" | "NONE";
+  debugSnapshots: boolean;
+  debugOverlayEnabled: boolean;
 }
 
 const CUSTOM_STORAGE_KEY = "voidlock_custom_config";
@@ -56,9 +59,15 @@ export class ConfigManager {
   }
 
   public static loadGlobal(): GlobalConfig {
+    const isProd =
+      (typeof import.meta !== "undefined" && import.meta.env?.PROD) ||
+      (typeof process !== "undefined" && process.env?.NODE_ENV === "production");
     const defaultGlobal: GlobalConfig = {
       unitStyle: UnitStyle.TacticalIcons,
       themeId: "default",
+      logLevel: isProd ? "ERROR" : "INFO",
+      debugSnapshots: false,
+      debugOverlayEnabled: false,
     };
 
     try {

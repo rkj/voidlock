@@ -50,6 +50,8 @@ export class CoreEngine implements IDirector {
   private replayIndex: number = 0;
   private isCatchingUp: boolean = false;
   private sentMap: boolean = false;
+  private snapshots: GameState[] = [];
+  private lastSnapshotTick: number = -1;
 
   // For test compatibility
   public get doors(): Map<string, Door> {
@@ -78,6 +80,7 @@ export class CoreEngine implements IDirector {
     campaignNodeId?: string,
     startingPoints?: number,
     skipDeployment: boolean = true,
+    debugSnapshots: boolean = false,
   ) {
     this.prng = new PRNG(seed);
     this.gameGrid = new GameGrid(map);
@@ -149,6 +152,7 @@ export class CoreEngine implements IDirector {
       settings: {
         mode: mode,
         debugOverlayEnabled: debugOverlayEnabled,
+        debugSnapshots: debugSnapshots,
         losOverlayEnabled: losOverlayEnabled,
         timeScale: initialTimeScale,
         isPaused: startPaused,
@@ -303,7 +307,10 @@ export class CoreEngine implements IDirector {
     this.director.preSpawn();
   }
 
-  public getState(pruneForObservation: boolean = false): GameState {
+  public getState(
+    pruneForObservation: boolean = false,
+    includeSnapshots: boolean = false,
+  ): GameState {
     const state = this.state;
 
     const debugMode = state.settings.debugOverlayEnabled;
@@ -390,6 +397,11 @@ export class CoreEngine implements IDirector {
     }
 
     copy.commandLog = [...this.commandLog];
+
+    if (includeSnapshots && this.state.settings.debugSnapshots) {
+      copy.snapshots = [...this.snapshots];
+    }
+
     return copy;
   }
 
@@ -550,5 +562,17 @@ export class CoreEngine implements IDirector {
 
     // 8. Win/Loss
     this.missionManager.checkWinLoss(this.state);
+
+    // 9. Debug Snapshots (Every 100 ticks or ~1.6s of scaled time)
+    if (this.state.settings.debugSnapshots && !this.isCatchingUp) {
+      const snapshotInterval = 1600; // 100 ticks * 16ms
+      if (
+        this.lastSnapshotTick === -1 ||
+        this.state.t >= this.lastSnapshotTick + snapshotInterval
+      ) {
+        this.snapshots.push(this.getState(false, false));
+        this.lastSnapshotTick = this.state.t;
+      }
+    }
   }
 }

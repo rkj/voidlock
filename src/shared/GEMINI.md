@@ -8,6 +8,7 @@ This directory contains types, constants, and utilities that are shared between 
 - `campaign_types.ts`: Interfaces and types specifically for the persistent campaign mode.
 - `PRNG.ts`: A deterministic Pseudo-Random Number Generator implementation.
 - `VisibilityUtils.ts`: Optimized utilities for visibility and discovery checks using bitsets.
+- `Logger.ts`: Centralized logging utility with configurable levels (DEBUG, INFO, WARN, ERROR, NONE). Supports environment-based defaults and runtime adjustment. (ADR 0036)
 
 ## Subdirectories
 
