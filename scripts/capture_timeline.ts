@@ -16,6 +16,20 @@ type Manifest = {
   }>;
 };
 
+type NavigationMap = {
+  commits: Record<
+    string,
+    {
+      targets?: {
+        main_menu?: string[];
+        mission_setup?: string[];
+        equipment?: string[];
+        mission?: string[];
+      };
+    }
+  >;
+};
+
 const SCREEN_TARGETS: Array<{ screenName: string; ids: string[] }> = [
   { screenName: "main_menu", ids: ["screen-main-menu", "main-menu", "screen-menu"] },
   { screenName: "mission_setup", ids: ["screen-mission-setup", "mission-setup", "screen-setup"] },
@@ -138,6 +152,7 @@ async function captureScreensForCommit(
   isoDate: string,
   sha: string,
   outDir: string,
+  navMap: NavigationMap | null,
 ): Promise<void> {
   const browser = await puppeteer.launch({
     headless: true,
@@ -151,7 +166,13 @@ async function captureScreensForCommit(
     await sleep(1200);
     await assertHealthyPage(page);
 
-    for (const target of SCREEN_TARGETS) {
+    const hints = navMap?.commits?.[sha]?.targets;
+    const dynamicTargets = SCREEN_TARGETS.map((target) => {
+      const hinted = hints?.[target.screenName as keyof NonNullable<typeof hints>] || [];
+      return { screenName: target.screenName, ids: [...hinted, ...target.ids] };
+    });
+
+    for (const target of dynamicTargets) {
       const activated = await page.evaluate((ids) => {
         const screens = Array.from(document.querySelectorAll<HTMLElement>(".screen"));
         for (const screen of screens) {
@@ -188,7 +209,12 @@ async function captureScreensForCommit(
 
 async function captureMilestone(
   milestone: Manifest["milestones"][number],
-  opts: { basePort: number; worktreeBase: string; screenshotDir: string },
+  opts: {
+    basePort: number;
+    worktreeBase: string;
+    screenshotDir: string;
+    navMap: NavigationMap | null;
+  },
 ): Promise<{ usedSha?: string; reason?: string }> {
   const commit = milestone.sourceCommit;
   const port = opts.basePort;
@@ -203,6 +229,7 @@ async function captureMilestone(
       milestone.milestoneDate,
       commit,
       opts.screenshotDir,
+      opts.navMap,
     );
     await stopProcess(devServer);
     return { usedSha: commit };
@@ -220,10 +247,15 @@ async function runCli() {
   const screenshotDir = process.argv[3] || "screenshots";
   const basePort = Number(process.argv[4] || 5178);
   const maxCount = Number(process.argv[5] || 24);
+  const navigationPath = process.argv[6] || "timeline/navigation_map.json";
 
   fs.mkdirSync(screenshotDir, { recursive: true });
   fs.mkdirSync("timeline", { recursive: true });
   const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8")) as Manifest;
+  const navMap =
+    fs.existsSync(navigationPath) && fs.statSync(navigationPath).isFile()
+      ? (JSON.parse(fs.readFileSync(navigationPath, "utf-8")) as NavigationMap)
+      : null;
   const worktreeBase = path.resolve(".timeline/worktrees");
   fs.mkdirSync(worktreeBase, { recursive: true });
 
@@ -246,6 +278,7 @@ async function runCli() {
       basePort,
       worktreeBase,
       screenshotDir,
+      navMap,
     });
     if (result.usedSha) {
       milestone.actualCommitUsed = result.usedSha;
