@@ -3,3 +3,4 @@ export * from "./items";
 export * from "./map";
 export * from "./units";
 export * from "./gamestate";
+export * from "./input";

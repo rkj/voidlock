@@ -1,9 +1,14 @@
 import { ScreenManager } from "@src/renderer/ScreenManager";
 import { MenuController } from "@src/renderer/MenuController";
-import { GameState } from "@src/shared/types";
+import { GameState, InputContext, InputPriority, ShortcutInfo } from "@src/shared/types";
 import { ModalService } from "./ui/ModalService";
+import { InputDispatcher } from "./InputDispatcher";
 
-export class InputManager {
+export class InputManager implements InputContext {
+  public id = "TacticalInput";
+  public priority = InputPriority.Game;
+  public trapsFocus = false;
+
   constructor(
     private screenManager: ScreenManager,
     private menuController: MenuController,
@@ -28,7 +33,6 @@ export class InputManager {
       pixelY: number,
     ) => { x: number; y: number },
   ) {
-    this.boundHandleKeyDown = this.handleKeyDown.bind(this);
     this.boundHandleKeyUp = (e: KeyboardEvent) => {
       this.menuController.isShiftHeld = e.shiftKey;
     };
@@ -111,7 +115,6 @@ export class InputManager {
     };
   }
 
-  private boundHandleKeyDown: (e: KeyboardEvent) => void;
   private boundHandleKeyUp: (e: KeyboardEvent) => void;
   private boundHandleCanvasClick: (e: MouseEvent) => void;
   private boundHandleMouseDown: (e: MouseEvent) => void;
@@ -122,7 +125,7 @@ export class InputManager {
   private isDragging: boolean = false;
 
   public init() {
-    document.addEventListener("keydown", this.boundHandleKeyDown);
+    InputDispatcher.getInstance().pushContext(this);
     document.addEventListener("keyup", this.boundHandleKeyUp);
     const canvas = document.getElementById("game-canvas");
     canvas?.addEventListener("click", this.boundHandleCanvasClick);
@@ -132,7 +135,7 @@ export class InputManager {
   }
 
   public destroy() {
-    document.removeEventListener("keydown", this.boundHandleKeyDown);
+    InputDispatcher.getInstance().popContext(this.id);
     document.removeEventListener("keyup", this.boundHandleKeyUp);
     const canvas = document.getElementById("game-canvas");
     canvas?.removeEventListener("click", this.boundHandleCanvasClick);
@@ -141,14 +144,32 @@ export class InputManager {
     window.removeEventListener("mouseup", this.boundHandleMouseUp);
   }
 
-  private handleKeyDown(e: KeyboardEvent) {
-    if (this.isDebriefing()) return;
+  public getShortcuts(): ShortcutInfo[] {
+    const shortcuts: ShortcutInfo[] = [
+      { key: "Space", label: "Pause", description: "Toggle Game Pause", category: "General" },
+      { key: "~", label: "Debug", description: "Toggle Debug Overlay", category: "General" },
+      { key: "Shift+~", label: "LOS", description: "Toggle LOS Visualization", category: "General" },
+      { key: "Q / ESC", label: "Back", description: "Go back in menu or deselect", category: "Navigation" },
+    ];
+
+    if (this.screenManager.getCurrentScreen() === "mission") {
+      shortcuts.push(
+        { key: "1-9", label: "Menu", description: "Select Menu Option", category: "Menu" },
+        { key: "M", label: "Move", description: "Quick Move Command", category: "Tactical" }
+      );
+    }
+
+    return shortcuts;
+  }
+
+  public handleKeyDown(e: KeyboardEvent): boolean {
+    if (this.isDebriefing()) return false;
     this.menuController.isShiftHeld = e.shiftKey;
     if (
       (e.target as HTMLElement).tagName === "INPUT" ||
       (e.target as HTMLElement).tagName === "TEXTAREA"
     )
-      return;
+      return false;
 
     if (this.screenManager.getCurrentScreen() === "mission") {
       if (e.key === "Escape" || e.key === "q" || e.key === "Q") {
@@ -167,13 +188,12 @@ export class InputManager {
               });
           }
         }
-        return;
+        return true;
       }
 
       if (e.code === "Space") {
-        e.preventDefault();
         this.togglePause();
-        return;
+        return true;
       }
 
       if (e.code === "Backquote") {
@@ -185,24 +205,27 @@ export class InputManager {
             this.onToggleDebug(!state.settings.debugOverlayEnabled);
           }
         }
-        return;
+        return true;
       }
 
       if (e.key === "m" || e.key === "M") {
         if (this.menuController.menuState === "ACTION_SELECT") {
           this.handleMenuInput("1", e.shiftKey);
         }
-        return;
+        return true;
       }
 
       const key = e.key.toLowerCase();
       if (/^[0-9a-z]$/.test(key)) {
         this.handleMenuInput(key, e.shiftKey);
+        return true;
       }
     } else {
       if (e.key === "Escape" || e.key === "q" || e.key === "Q") {
         this.screenManager.goBack();
+        return true;
       }
     }
+    return false;
   }
 }
