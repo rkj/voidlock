@@ -9,8 +9,8 @@ lerna-debug.log*
 
 node_modules
 screenshots
-timeline
-.timeline
+/timeline/
+/.timeline/
 public/assets_test/
 dist
 dist-ssr
