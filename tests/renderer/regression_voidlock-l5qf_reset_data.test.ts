@@ -59,7 +59,7 @@ vi.mock("@src/services/firebase", () => ({
       return vi.fn();
     }),
   },
-  app: {}
+  app: {},
 }));
 
 describe("Reset Data Button", () => {
@@ -164,8 +164,8 @@ describe("Reset Data Button", () => {
 
     const settingsScreen = document.getElementById("screen-settings");
     const allButtons = settingsScreen?.querySelectorAll("button");
-    const resetBtn = Array.from(allButtons || []).find(btn => 
-      btn.textContent?.toLowerCase().includes("reset")
+    const resetBtn = Array.from(allButtons || []).find((btn) =>
+      btn.textContent?.toLowerCase().includes("reset"),
     );
     expect(resetBtn).toBeTruthy();
 
@@ -188,8 +188,8 @@ describe("Reset Data Button", () => {
 
     const settingsScreen = document.getElementById("screen-settings");
     const allButtons = settingsScreen?.querySelectorAll("button");
-    const resetBtn = Array.from(allButtons || []).find(btn => 
-      btn.textContent?.toLowerCase().includes("reset")
+    const resetBtn = Array.from(allButtons || []).find((btn) =>
+      btn.textContent?.toLowerCase().includes("reset"),
     );
     resetBtn?.click();
 

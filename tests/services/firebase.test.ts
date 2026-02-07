@@ -26,7 +26,8 @@ describe("Firebase Service", () => {
   });
 
   it("should export db and auth", async () => {
-    const { db, auth, isFirebaseConfigured } = await import("@src/services/firebase");
+    const { db, auth, isFirebaseConfigured } =
+      await import("@src/services/firebase");
     expect(isFirebaseConfigured).toBe(true);
     expect(db).toBeDefined();
     expect(auth).toBeDefined();

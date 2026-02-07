@@ -26,9 +26,9 @@ describe("MetaManager Progression", () => {
 
   it("should allow spending intel to unlock archetypes", () => {
     metaManager.recordMissionResult(0, 0, true, 0, 100);
-    
+
     metaManager.unlockArchetype("heavy", 50);
-    
+
     const stats = metaManager.getStats();
     expect(stats.currentIntel).toBe(50);
     expect(stats.unlockedArchetypes).toContain("heavy");
@@ -36,14 +36,16 @@ describe("MetaManager Progression", () => {
   });
 
   it("should throw error if insufficient intel to unlock archetype", () => {
-    expect(() => metaManager.unlockArchetype("heavy", 50)).toThrow(/Insufficient intel/);
+    expect(() => metaManager.unlockArchetype("heavy", 50)).toThrow(
+      /Insufficient intel/,
+    );
   });
 
   it("should allow spending intel to unlock items", () => {
     metaManager.recordMissionResult(0, 0, true, 0, 100);
-    
+
     metaManager.unlockItem("autocannon", 75);
-    
+
     const stats = metaManager.getStats();
     expect(stats.currentIntel).toBe(25);
     expect(stats.unlockedItems).toContain("autocannon");
@@ -53,10 +55,10 @@ describe("MetaManager Progression", () => {
   it("should persist unlocks across instances", () => {
     metaManager.recordMissionResult(0, 0, true, 0, 100);
     metaManager.unlockArchetype("heavy", 50);
-    
+
     MetaManager.resetInstance();
     const newMetaManager = MetaManager.getInstance(storage);
-    
+
     expect(newMetaManager.getStats().unlockedArchetypes).toContain("heavy");
     expect(newMetaManager.getStats().currentIntel).toBe(50);
   });

@@ -137,7 +137,9 @@ describe("Deployment Validation and Interaction", () => {
       false,
     );
 
-    const vip = escortEngine.getState().units.find((u) => u.archetypeId === "vip")!;
+    const vip = escortEngine
+      .getState()
+      .units.find((u) => u.archetypeId === "vip")!;
     const originalVipPos = { ...vip.pos };
 
     escortEngine.applyCommand({
@@ -146,7 +148,9 @@ describe("Deployment Validation and Interaction", () => {
       target: { x: 1.5, y: 1.5 },
     });
 
-    const vipAfter = escortEngine.getState().units.find((u) => u.id === vip.id)!;
+    const vipAfter = escortEngine
+      .getState()
+      .units.find((u) => u.id === vip.id)!;
     expect(vipAfter.pos.x).toBe(originalVipPos.x);
     expect(vipAfter.pos.y).toBe(originalVipPos.y);
   });
@@ -205,9 +209,9 @@ describe("Deployment Validation and Interaction", () => {
     });
 
     expect(engine.getState().status).toBe("Playing");
-    
+
     // Check if units have an active command (EXPLORE)
-    engine.getState().units.forEach(unit => {
+    engine.getState().units.forEach((unit) => {
       if (unit.archetypeId !== "vip" && unit.aiEnabled) {
         expect(unit.activeCommand).toBeDefined();
         expect(unit.activeCommand?.type).toBe(CommandType.EXPLORE);
@@ -217,7 +221,7 @@ describe("Deployment Validation and Interaction", () => {
 
   it("should ignore DEPLOY_UNIT if unitId is invalid", () => {
     const stateBefore = JSON.stringify(engine.getState().units);
-    
+
     engine.applyCommand({
       type: CommandType.DEPLOY_UNIT,
       unitId: "non-existent",

@@ -43,7 +43,8 @@ describe("Regression voidlock-gzlu - Stuck Overlay on Back", () => {
       status: "Playing",
       settings: {
         mode: "Simulation" as any,
-        debugOverlayEnabled: false, debugSnapshots: false,
+        debugOverlayEnabled: false,
+        debugSnapshots: false,
         losOverlayEnabled: false,
         timeScale: 1.0,
         isPaused: false,

@@ -41,7 +41,8 @@ describe("Regression i864: Redundant Prefixes in Command Menu", () => {
     status: "Playing",
     settings: {
       mode: "Simulation" as any,
-      debugOverlayEnabled: false, debugSnapshots: false,
+      debugOverlayEnabled: false,
+      debugSnapshots: false,
       losOverlayEnabled: false,
       timeScale: 1.0,
       isPaused: false,

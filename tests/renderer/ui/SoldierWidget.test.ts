@@ -1,8 +1,14 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi } from "vitest";
-import { SoldierWidget, SoldierWidgetOptions } from "@src/renderer/ui/SoldierWidget";
+import {
+  SoldierWidget,
+  SoldierWidgetOptions,
+} from "@src/renderer/ui/SoldierWidget";
 import { UnitState } from "@src/shared/types";
-import { CampaignSoldier, SoldierMissionResult } from "@src/shared/campaign_types";
+import {
+  CampaignSoldier,
+  SoldierMissionResult,
+} from "@src/shared/campaign_types";
 
 describe("SoldierWidget", () => {
   const mockUnit = {
@@ -77,7 +83,7 @@ describe("SoldierWidget", () => {
     // Pulse Rifle: dmg 20, acc 5, range 10, fireRate 600
     // Calculated Accuracy: 80 + 5 + 5 = 90
     // Calculated Fire Rate: fireRate * (10 / speed) = 600 * (10 / 20) = 300ms -> 1000/300 = 3.3
-    
+
     const lhStats = el.querySelector(".u-lh-stats");
     expect(lhStats?.textContent).toContain("20"); // Damage
     expect(lhStats?.textContent).toContain("90"); // Accuracy
@@ -126,7 +132,10 @@ describe("SoldierWidget", () => {
   });
 
   it("should reflect selected state", () => {
-    const options: SoldierWidgetOptions = { context: "tactical", selected: true };
+    const options: SoldierWidgetOptions = {
+      context: "tactical",
+      selected: true,
+    };
     const el = SoldierWidget.render(mockUnit, options);
 
     expect(el.classList.contains("selected")).toBe(true);
@@ -153,7 +162,11 @@ describe("SoldierWidget", () => {
   });
 
   it("should reflect extracted status visually", () => {
-    const extractedUnit = { ...mockUnit, state: "Extracted", status: "Extracted" };
+    const extractedUnit = {
+      ...mockUnit,
+      state: "Extracted",
+      status: "Extracted",
+    };
     const options: SoldierWidgetOptions = { context: "tactical" };
     const el = SoldierWidget.render(extractedUnit, options);
 
@@ -211,7 +224,10 @@ describe("SoldierWidget", () => {
   });
 
   it("should reflect deployed status in squad-builder", () => {
-    const options: SoldierWidgetOptions = { context: "squad-builder", isDeployed: true };
+    const options: SoldierWidgetOptions = {
+      context: "squad-builder",
+      isDeployed: true,
+    };
     const el = SoldierWidget.render(mockCampaignSoldier, options);
 
     expect(el.classList.contains("deployed")).toBe(true);

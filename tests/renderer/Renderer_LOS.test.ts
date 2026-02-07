@@ -120,7 +120,8 @@ describe("Renderer LOS", () => {
       settings: {
         losOverlayEnabled: true, // ENABLE OVERLAY
         mode: "Simulation" as any,
-        debugOverlayEnabled: false, debugSnapshots: false,
+        debugOverlayEnabled: false,
+        debugSnapshots: false,
         timeScale: 1.0,
         isPaused: false,
         isSlowMotion: false,

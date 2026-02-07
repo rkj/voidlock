@@ -19,7 +19,8 @@ export class MissionSetupManager {
   public losOverlayEnabled = false;
   public agentControlEnabled = ConfigManager.getDefault().agentControlEnabled;
   public manualDeployment = ConfigManager.getDefault().manualDeployment;
-  public debugSnapshotInterval = ConfigManager.getDefault().debugSnapshotInterval;
+  public debugSnapshotInterval =
+    ConfigManager.getDefault().debugSnapshotInterval;
   public allowTacticalPause = true;
   public unitStyle = ConfigManager.loadGlobal().unitStyle;
 

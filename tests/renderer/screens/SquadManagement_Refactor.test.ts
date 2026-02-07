@@ -22,14 +22,32 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
     mockManager = {
       getState: vi.fn().mockReturnValue({
         roster: [
-          { id: "s1", name: "Soldier 1", archetypeId: "assault", status: "Healthy", equipment: {} },
-          { id: "s2", name: "Soldier 2", archetypeId: "medic", status: "Healthy", equipment: {} },
-          { id: "s3", name: "Soldier 3", archetypeId: "scout", status: "Dead", equipment: {} },
+          {
+            id: "s1",
+            name: "Soldier 1",
+            archetypeId: "assault",
+            status: "Healthy",
+            equipment: {},
+          },
+          {
+            id: "s2",
+            name: "Soldier 2",
+            archetypeId: "medic",
+            status: "Healthy",
+            equipment: {},
+          },
+          {
+            id: "s3",
+            name: "Soldier 3",
+            archetypeId: "scout",
+            status: "Dead",
+            equipment: {},
+          },
         ],
         scrap: 100,
         unlockedArchetypes: ["assault", "medic", "heavy", "scout"],
         unlockedItems: [],
-        rules: { economyMode: "Open" }
+        rules: { economyMode: "Open" },
       }),
       spendScrap: vi.fn(),
       assignEquipment: vi.fn(),
@@ -60,13 +78,13 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
 
   it("should show Recruit/Revive options in the inspector when an empty slot is selected", () => {
     const screen = new EquipmentScreen(
-        "screen-equipment",
-        mockManager,
-        initialConfig,
-        onSave,
-        onBack,
-        null as any,
-      );
+      "screen-equipment",
+      mockManager,
+      initialConfig,
+      onSave,
+      onBack,
+      null as any,
+    );
     screen.show();
 
     // Select the second slot (empty)
@@ -80,13 +98,13 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
 
   it("should show available roster soldiers in the Right Panel when an empty slot is selected", () => {
     const screen = new EquipmentScreen(
-        "screen-equipment",
-        mockManager,
-        initialConfig,
-        onSave,
-        onBack,
-        null as any,
-      );
+      "screen-equipment",
+      mockManager,
+      initialConfig,
+      onSave,
+      onBack,
+      null as any,
+    );
     screen.show();
 
     // Select the second slot (empty)
@@ -97,7 +115,7 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
     expect(rightPanel?.textContent).toContain("Reserve Roster");
     expect(rightPanel?.textContent).toContain("Soldier 2");
     // Soldier 1 is already in squad, so it shouldn't be here or should be marked
-    // Soldier 3 is dead, so it should be in Revive section of inspector, not here? 
+    // Soldier 3 is dead, so it should be in Revive section of inspector, not here?
     // Actually spec says "Add: 'Empty Slot' buttons open the Reserve Roster picker."
   });
 
@@ -117,23 +135,25 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
     (slots[1] as HTMLElement).click();
 
     // Find Soldier 2 in roster picker and click it
-    const rosterItem = Array.from(container.querySelectorAll(".armory-panel .menu-item")).find(
-      el => el.textContent?.includes("Soldier 2")
-    ) as HTMLElement;
+    const rosterItem = Array.from(
+      container.querySelectorAll(".armory-panel .menu-item"),
+    ).find((el) => el.textContent?.includes("Soldier 2")) as HTMLElement;
     rosterItem.click();
 
     // Verify it's now in the squad config
     const confirmBtn = Array.from(container.querySelectorAll("button")).find(
-      btn => btn.textContent === "Confirm Squad"
+      (btn) => btn.textContent === "Confirm Squad",
     );
     confirmBtn?.click();
 
-    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({
-      soldiers: expect.arrayContaining([
-        expect.objectContaining({ id: "s1" }),
-        expect.objectContaining({ id: "s2" })
-      ])
-    }));
+    expect(onSave).toHaveBeenCalledWith(
+      expect.objectContaining({
+        soldiers: expect.arrayContaining([
+          expect.objectContaining({ id: "s1" }),
+          expect.objectContaining({ id: "s2" }),
+        ]),
+      }),
+    );
   });
 
   it("should allow removing a soldier from the squad", () => {
@@ -148,29 +168,33 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
     screen.show();
 
     // Click remove button on the first soldier
-    const removeBtn = container.querySelector(".remove-soldier-btn") as HTMLElement;
+    const removeBtn = container.querySelector(
+      ".remove-soldier-btn",
+    ) as HTMLElement;
     removeBtn.click();
 
     // Verify it's gone from squad config
     const confirmBtn = Array.from(container.querySelectorAll("button")).find(
-      btn => btn.textContent === "Confirm Squad"
+      (btn) => btn.textContent === "Confirm Squad",
     );
     confirmBtn?.click();
 
-    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({
-      soldiers: []
-    }));
+    expect(onSave).toHaveBeenCalledWith(
+      expect.objectContaining({
+        soldiers: [],
+      }),
+    );
   });
 
   it("should show available archetypes in recruitment picker", () => {
     const screen = new EquipmentScreen(
-        "screen-equipment",
-        mockManager,
-        initialConfig,
-        onSave,
-        onBack,
-        null as any,
-      );
+      "screen-equipment",
+      mockManager,
+      initialConfig,
+      onSave,
+      onBack,
+      null as any,
+    );
     screen.show();
 
     // Select the second slot (empty)
@@ -179,7 +203,7 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
 
     // Click Recruit New Soldier in inspector
     const recruitBtn = Array.from(container.querySelectorAll("button")).find(
-        btn => btn.textContent?.includes("Recruit New Soldier")
+      (btn) => btn.textContent?.includes("Recruit New Soldier"),
     );
     recruitBtn?.click();
 

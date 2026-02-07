@@ -113,7 +113,11 @@ describe("regression_voidlock_4eeb_loot_spawning", () => {
     const state = cm.getState()!;
 
     // Set bonusLootCount on the accessible node
-    const node = state.nodes.find(n => n.status === "Accessible" && (n.type === "Combat" || n.type === "Elite" || n.type === "Boss"))!;
+    const node = state.nodes.find(
+      (n) =>
+        n.status === "Accessible" &&
+        (n.type === "Combat" || n.type === "Elite" || n.type === "Boss"),
+    )!;
     node.bonusLootCount = 5;
     cm.save();
 
@@ -121,16 +125,18 @@ describe("regression_voidlock_4eeb_loot_spawning", () => {
     document.getElementById("btn-menu-campaign")?.click();
 
     // 2. Select the node
-    const nodeEl = document.querySelector(".campaign-node[data-id='" + node.id + "']") as HTMLElement;
+    const nodeEl = document.querySelector(
+      ".campaign-node[data-id='" + node.id + "']",
+    ) as HTMLElement;
     nodeEl.click();
 
     // 3. Go to Equipment
     document.getElementById("btn-goto-equipment")?.click();
 
     // 4. Confirm Squad and launch
-    const confirmBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(
-        btn => btn.textContent?.includes("Confirm")
-    ) as HTMLElement;
+    const confirmBtn = Array.from(
+      document.querySelectorAll("#screen-equipment button"),
+    ).find((btn) => btn.textContent?.includes("Confirm")) as HTMLElement;
     confirmBtn.click();
 
     // 5. Verify GameClient.init was called with bonusLootCount = 5

@@ -23,25 +23,28 @@ describe("Campaign Settings Tab E2E Verification", () => {
     await page.click("#btn-menu-campaign");
 
     // Give it time to transition
-    await new Promise(r => setTimeout(r, 1000));
+    await new Promise((r) => setTimeout(r, 1000));
 
     // Check if we are at the wizard or campaign screen
     const screenInfo = await page.evaluate(() => {
-        const wizard = document.querySelector("#screen-new-campaign-wizard");
-        const campaign = document.querySelector("#screen-campaign");
-        const shell = document.querySelector("#campaign-shell");
-        return {
-            wizardVisible: wizard && window.getComputedStyle(wizard).display === "flex",
-            campaignVisible: campaign && window.getComputedStyle(campaign).display === "flex",
-            shellVisible: shell && window.getComputedStyle(shell).display === "flex",
-            url: window.location.hash
-        };
+      const wizard = document.querySelector("#screen-new-campaign-wizard");
+      const campaign = document.querySelector("#screen-campaign");
+      const shell = document.querySelector("#campaign-shell");
+      return {
+        wizardVisible:
+          wizard && window.getComputedStyle(wizard).display === "flex",
+        campaignVisible:
+          campaign && window.getComputedStyle(campaign).display === "flex",
+        shellVisible:
+          shell && window.getComputedStyle(shell).display === "flex",
+        url: window.location.hash,
+      };
     });
 
     if (screenInfo.wizardVisible) {
-        await page.click(".difficulty-card:nth-child(1)"); 
-        await page.click("#btn-wizard-start");
-        await new Promise(r => setTimeout(r, 1000));
+      await page.click(".difficulty-card:nth-child(1)");
+      await page.click("#btn-wizard-start");
+      await new Promise((r) => setTimeout(r, 1000));
     }
 
     // 2. Wait for Shell tabs
@@ -49,15 +52,19 @@ describe("Campaign Settings Tab E2E Verification", () => {
 
     // 3. Verify presence of Settings tab
     const tabs = await page.evaluate(() => {
-      return Array.from(document.querySelectorAll(".tab-button")).map(t => t.textContent);
+      return Array.from(document.querySelectorAll(".tab-button")).map(
+        (t) => t.textContent,
+      );
     });
     expect(tabs).toContain("Settings");
 
     // 4. Click Settings tab
     await page.evaluate(() => {
-        const tabList = Array.from(document.querySelectorAll(".tab-button"));
-        const settingsTab = tabList.find(t => t.textContent === "Settings") as HTMLElement;
-        settingsTab.click();
+      const tabList = Array.from(document.querySelectorAll(".tab-button"));
+      const settingsTab = tabList.find(
+        (t) => t.textContent === "Settings",
+      ) as HTMLElement;
+      settingsTab.click();
     });
 
     // 5. Wait for Settings screen
@@ -65,8 +72,8 @@ describe("Campaign Settings Tab E2E Verification", () => {
 
     // 6. Verify Settings screen is visible
     const isVisible = await page.evaluate(() => {
-        const screen = document.querySelector("#screen-settings") as HTMLElement;
-        return screen && window.getComputedStyle(screen).display === "flex";
+      const screen = document.querySelector("#screen-settings") as HTMLElement;
+      return screen && window.getComputedStyle(screen).display === "flex";
     });
     expect(isVisible).toBe(true);
 

@@ -62,7 +62,7 @@ describe("ReplayController", () => {
 
   it("should throttle seek requests", () => {
     controller.startReplay(1000);
-    
+
     // First seek should go through
     controller.seek(10);
     expect(mockGameClient.seek).toHaveBeenCalledTimes(1);
@@ -77,11 +77,11 @@ describe("ReplayController", () => {
     // So we need to mock performance.now()
     const now = performance.now();
     vi.spyOn(performance, "now").mockReturnValue(now + 20);
-    
+
     controller.seek(30);
     expect(mockGameClient.seek).toHaveBeenCalledTimes(2);
     expect(mockGameClient.seek).toHaveBeenLastCalledWith(300);
-    
+
     vi.restoreAllMocks();
   });
 });

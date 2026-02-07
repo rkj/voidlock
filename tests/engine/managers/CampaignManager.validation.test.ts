@@ -31,25 +31,25 @@ describe("CampaignManager Validation", () => {
       intel: 0,
       currentSector: 1,
       saveVersion: 1,
-      rules: { 
-          difficulty: "Clone", 
-          deathRule: "Clone", 
-          allowTacticalPause: true, 
-          mapGeneratorType: "DenseShip", 
-          economyMode: "Open",
-          difficultyScaling: 1.0,
-          resourceScarcity: 1.0,
-          baseEnemyCount: 3,
-          enemyGrowthPerMission: 1.0,
-          mapGrowthRate: 1.0
+      rules: {
+        difficulty: "Clone",
+        deathRule: "Clone",
+        allowTacticalPause: true,
+        mapGeneratorType: "DenseShip",
+        economyMode: "Open",
+        difficultyScaling: 1.0,
+        resourceScarcity: 1.0,
+        baseEnemyCount: 3,
+        enemyGrowthPerMission: 1.0,
+        mapGrowthRate: 1.0,
       },
       nodes: [],
       roster: [
-        { id: "s1", name: "Broken", archetypeId: "assault" } // Missing status, hp, etc.
+        { id: "s1", name: "Broken", archetypeId: "assault" }, // Missing status, hp, etc.
       ],
       history: [],
       unlockedArchetypes: ["assault", "medic", "scout"],
-      unlockedItems: []
+      unlockedItems: [],
     };
     storage.save("voidlock_campaign_v1", corruptedState);
 
@@ -69,25 +69,32 @@ describe("CampaignManager Validation", () => {
       intel: 0,
       currentSector: 1,
       saveVersion: 1,
-      rules: { 
-          difficulty: "Clone", 
-          deathRule: "Clone", 
-          allowTacticalPause: true, 
-          mapGeneratorType: "DenseShip", 
-          economyMode: "Open",
-          difficultyScaling: 1.0,
-          resourceScarcity: 1.0,
-          baseEnemyCount: 3,
-          enemyGrowthPerMission: 1.0,
-          mapGrowthRate: 1.0
+      rules: {
+        difficulty: "Clone",
+        deathRule: "Clone",
+        allowTacticalPause: true,
+        mapGeneratorType: "DenseShip",
+        economyMode: "Open",
+        difficultyScaling: 1.0,
+        resourceScarcity: 1.0,
+        baseEnemyCount: 3,
+        enemyGrowthPerMission: 1.0,
+        mapGrowthRate: 1.0,
       },
       nodes: [
-        { id: "n1", type: "INVALID_TYPE", status: "Accessible", rank: 0, position: {x:0, y:0}, connections: [] }
+        {
+          id: "n1",
+          type: "INVALID_TYPE",
+          status: "Accessible",
+          rank: 0,
+          position: { x: 0, y: 0 },
+          connections: [],
+        },
       ],
       roster: [],
       history: [],
       unlockedArchetypes: ["assault", "medic", "scout"],
-      unlockedItems: []
+      unlockedItems: [],
     };
     storage.save("voidlock_campaign_v1", corruptedState);
 

@@ -481,7 +481,8 @@ describe("Comprehensive User Journeys", () => {
       ],
       objectives: [],
       settings: {
-        debugOverlayEnabled: false, debugSnapshots: false,
+        debugOverlayEnabled: false,
+        debugSnapshots: false,
         timeScale: 1.0,
         isPaused: false,
         mode: EngineMode.Simulation,

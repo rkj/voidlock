@@ -965,12 +965,7 @@
     {
       "t": 7056,
       "cmd": {
-        "unitIds": [
-          "soldier_0",
-          "soldier_1",
-          "soldier_2",
-          "soldier_3"
-        ],
+        "unitIds": ["soldier_0", "soldier_1", "soldier_2", "soldier_3"],
         "label": "Policy Change",
         "queue": false,
         "type": "SET_ENGAGEMENT",
@@ -980,11 +975,7 @@
     {
       "t": 12672,
       "cmd": {
-        "unitIds": [
-          "soldier_1",
-          "soldier_2",
-          "soldier_3"
-        ],
+        "unitIds": ["soldier_1", "soldier_2", "soldier_3"],
         "label": "Exploring",
         "queue": false,
         "type": "EXPLORE"

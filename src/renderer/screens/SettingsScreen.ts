@@ -299,9 +299,10 @@ export class SettingsScreen {
 
           const userDetails = document.createElement("div");
           userDetails.className = "flex-col";
-          
+
           const userName = document.createElement("div");
-          userName.textContent = user.displayName || user.email || "Authenticated User";
+          userName.textContent =
+            user.displayName || user.email || "Authenticated User";
           userName.style.fontWeight = "bold";
           userDetails.appendChild(userName);
 
@@ -327,7 +328,8 @@ export class SettingsScreen {
         } else {
           // Anonymous or Not signed in
           const authDesc = document.createElement("div");
-          authDesc.textContent = "Sign in to enable cross-device synchronization and protect your saves.";
+          authDesc.textContent =
+            "Sign in to enable cross-device synchronization and protect your saves.";
           authDesc.style.fontSize = "0.8em";
           authDesc.style.color = "var(--color-text-dim)";
           accountGroup.appendChild(authDesc);
@@ -347,7 +349,9 @@ export class SettingsScreen {
               this.context.modalService.show({
                 title: "SIGN IN FAILED",
                 message: "Could not connect to Google. Please try again later.",
-                buttons: [{ label: "OK", isPrimary: true, onClick: (m) => m.close() }]
+                buttons: [
+                  { label: "OK", isPrimary: true, onClick: (m) => m.close() },
+                ],
               });
             }
           };
@@ -364,7 +368,9 @@ export class SettingsScreen {
               this.context.modalService.show({
                 title: "SIGN IN FAILED",
                 message: "Could not connect to GitHub. Please try again later.",
-                buttons: [{ label: "OK", isPrimary: true, onClick: (m) => m.close() }]
+                buttons: [
+                  { label: "OK", isPrimary: true, onClick: (m) => m.close() },
+                ],
               });
             }
           };
@@ -374,14 +380,16 @@ export class SettingsScreen {
         }
       } else {
         const errorMsg = document.createElement("div");
-        errorMsg.textContent = "Cloud Sync Service Unavailable (Firebase not configured)";
+        errorMsg.textContent =
+          "Cloud Sync Service Unavailable (Firebase not configured)";
         errorMsg.style.color = "var(--color-error)";
         errorMsg.style.fontSize = "0.8em";
         accountGroup.appendChild(errorMsg);
       }
     } else if (this.context.cloudSync && !global.cloudSyncEnabled) {
       const infoMsg = document.createElement("div");
-      infoMsg.textContent = "Cloud Sync is disabled. Enable it above to use online saves.";
+      infoMsg.textContent =
+        "Cloud Sync is disabled. Enable it above to use online saves.";
       infoMsg.style.color = "var(--color-text-dim)";
       infoMsg.style.fontSize = "0.8em";
       accountGroup.appendChild(infoMsg);

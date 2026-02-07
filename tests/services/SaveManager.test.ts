@@ -61,48 +61,61 @@ describe("SaveManager", () => {
 
   it("should save locally immediately", () => {
     saveManager.save(CAMPAIGN_DEFAULTS.STORAGE_KEY, mockCampaign);
-    expect(mockLocalStorage.load(CAMPAIGN_DEFAULTS.STORAGE_KEY)).toEqual(mockCampaign);
+    expect(mockLocalStorage.load(CAMPAIGN_DEFAULTS.STORAGE_KEY)).toEqual(
+      mockCampaign,
+    );
   });
 
   it("should trigger cloud sync on save", async () => {
     saveManager.save(CAMPAIGN_DEFAULTS.STORAGE_KEY, mockCampaign);
     // Wait for async cloud sync (we can't easily await it as it's fire-and-forget in save())
     // but since we mocked it, we can check if it was called.
-    expect(mockCloudSync.saveCampaign).toHaveBeenCalledWith(CAMPAIGN_DEFAULTS.STORAGE_KEY, mockCampaign);
+    expect(mockCloudSync.saveCampaign).toHaveBeenCalledWith(
+      CAMPAIGN_DEFAULTS.STORAGE_KEY,
+      mockCampaign,
+    );
   });
 
   it("should load from local if cloud is missing", async () => {
     mockLocalStorage.save(CAMPAIGN_DEFAULTS.STORAGE_KEY, mockCampaign);
     mockCloudSync.loadCampaign.mockResolvedValue(null);
 
-    const result = await saveManager.loadWithSync(CAMPAIGN_DEFAULTS.STORAGE_KEY);
+    const result = await saveManager.loadWithSync(
+      CAMPAIGN_DEFAULTS.STORAGE_KEY,
+    );
     expect(result).toEqual(mockCampaign);
   });
 
   it("should resolve conflict by choosing newer version from cloud", async () => {
     const localCampaign = { ...mockCampaign, saveVersion: 1 };
     const cloudCampaign = { ...mockCampaign, saveVersion: 5, scrap: 999 };
-    
+
     mockLocalStorage.save(CAMPAIGN_DEFAULTS.STORAGE_KEY, localCampaign);
     mockCloudSync.loadCampaign.mockResolvedValue(cloudCampaign);
 
-    const result = await saveManager.loadWithSync(CAMPAIGN_DEFAULTS.STORAGE_KEY);
+    const result = await saveManager.loadWithSync(
+      CAMPAIGN_DEFAULTS.STORAGE_KEY,
+    );
     expect(result).toEqual(cloudCampaign);
     expect(result?.saveVersion).toBe(5);
     expect(result?.scrap).toBe(999);
-    
+
     // Should also update local storage
-    expect(mockLocalStorage.load(CAMPAIGN_DEFAULTS.STORAGE_KEY)).toEqual(cloudCampaign);
+    expect(mockLocalStorage.load(CAMPAIGN_DEFAULTS.STORAGE_KEY)).toEqual(
+      cloudCampaign,
+    );
   });
 
   it("should resolve conflict by choosing newer version from local", async () => {
     const localCampaign = { ...mockCampaign, saveVersion: 10, scrap: 777 };
     const cloudCampaign = { ...mockCampaign, saveVersion: 5, scrap: 999 };
-    
+
     mockLocalStorage.save(CAMPAIGN_DEFAULTS.STORAGE_KEY, localCampaign);
     mockCloudSync.loadCampaign.mockResolvedValue(cloudCampaign);
 
-    const result = await saveManager.loadWithSync(CAMPAIGN_DEFAULTS.STORAGE_KEY);
+    const result = await saveManager.loadWithSync(
+      CAMPAIGN_DEFAULTS.STORAGE_KEY,
+    );
     expect(result).toEqual(localCampaign);
     expect(result?.saveVersion).toBe(10);
     expect(result?.scrap).toBe(777);

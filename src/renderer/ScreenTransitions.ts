@@ -8,6 +8,7 @@ export const VALID_TRANSITIONS: Record<ScreenId, ScreenId[]> = {
     "engineering",
     "mission",
     "settings",
+    "debrief",
   ],
   campaign: [
     "main-menu",

@@ -21,9 +21,15 @@ const mockServerTimestamp = vi.fn(() => "server-timestamp");
 const { MockTimestamp } = vi.hoisted(() => {
   class InnerMockTimestamp {
     constructor(public ms: number) {}
-    toMillis() { return this.ms; }
-    static fromMillis(ms: number) { return new InnerMockTimestamp(ms); }
-    static now() { return new InnerMockTimestamp(Date.now()); }
+    toMillis() {
+      return this.ms;
+    }
+    static fromMillis(ms: number) {
+      return new InnerMockTimestamp(ms);
+    }
+    static now() {
+      return new InnerMockTimestamp(Date.now());
+    }
   }
   return { MockTimestamp: InnerMockTimestamp };
 });
@@ -39,7 +45,7 @@ vi.mock("firebase/firestore", () => ({
   query: (...args: any[]) => mockQuery(...args),
   where: (...args: any[]) => mockWhere(...args),
   serverTimestamp: () => mockServerTimestamp(),
-  Timestamp: MockTimestamp
+  Timestamp: MockTimestamp,
 }));
 
 const mockSignInAnonymously = vi.fn();
@@ -82,7 +88,7 @@ describe("CloudSyncService", () => {
     });
 
     mockSignInAnonymously.mockResolvedValue({
-      user: { uid: "test-uid" }
+      user: { uid: "test-uid" },
     });
 
     await service.initialize();
@@ -150,9 +156,9 @@ describe("CloudSyncService", () => {
         metadata: expect.objectContaining({
           sector: 1,
           difficulty: "Standard",
-        })
+        }),
       }),
-      { merge: true }
+      { merge: true },
     );
   });
 
@@ -193,7 +199,7 @@ describe("CloudSyncService", () => {
 
     mockGetDoc.mockResolvedValue({
       exists: () => true,
-      data: () => ({ data: mockCampaignData })
+      data: () => ({ data: mockCampaignData }),
     });
 
     const loaded = await service.loadCampaign("camp-1");
@@ -211,20 +217,30 @@ describe("CloudSyncService", () => {
         data: () => ({
           campaignId: "camp-1",
           updatedAt: new MockTimestamp(1000),
-          metadata: { sector: 1, difficulty: "Standard", status: "Active", soldierCount: 4 }
-        })
+          metadata: {
+            sector: 1,
+            difficulty: "Standard",
+            status: "Active",
+            soldierCount: 4,
+          },
+        }),
       },
       {
         data: () => ({
           campaignId: "camp-2",
           updatedAt: new MockTimestamp(2000),
-          metadata: { sector: 2, difficulty: "Ironman", status: "Active", soldierCount: 3 }
-        })
-      }
+          metadata: {
+            sector: 2,
+            difficulty: "Ironman",
+            status: "Active",
+            soldierCount: 3,
+          },
+        }),
+      },
     ];
 
     mockGetDocs.mockResolvedValue({
-      forEach: (cb: any) => mockDocs.forEach(cb)
+      forEach: (cb: any) => mockDocs.forEach(cb),
     });
 
     const list = await service.listCampaigns();

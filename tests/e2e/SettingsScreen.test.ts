@@ -28,7 +28,7 @@ describe("Settings Screen E2E Verification", () => {
     // 3. Verify presence of Developer Options header
     const hasDevHeader = await page.evaluate(() => {
       const headers = Array.from(document.querySelectorAll("h3"));
-      return headers.some(h => h.textContent === "Developer Options");
+      return headers.some((h) => h.textContent === "Developer Options");
     });
     expect(hasDevHeader).toBe(true);
 
@@ -41,14 +41,14 @@ describe("Settings Screen E2E Verification", () => {
     // 5. Verify presence of Data Management header
     const hasDataHeader = await page.evaluate(() => {
       const headers = Array.from(document.querySelectorAll("h3"));
-      return headers.some(h => h.textContent === "Data Management");
+      return headers.some((h) => h.textContent === "Data Management");
     });
     expect(hasDataHeader).toBe(true);
 
     // 6. Verify reset button exists
     const hasResetBtn = await page.evaluate(() => {
       const buttons = Array.from(document.querySelectorAll("button"));
-      return buttons.some(b => b.textContent === "Reset All Data");
+      return buttons.some((b) => b.textContent === "Reset All Data");
     });
     expect(hasResetBtn).toBe(true);
 

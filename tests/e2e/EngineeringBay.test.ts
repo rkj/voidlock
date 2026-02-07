@@ -23,14 +23,16 @@ describe("Engineering Bay E2E Verification", () => {
     await page.click("#btn-menu-campaign");
 
     // Give it time to transition
-    await new Promise(r => setTimeout(r, 1000));
+    await new Promise((r) => setTimeout(r, 1000));
 
     // Check if we are at the wizard or campaign screen
-    const isWizard = await page.evaluate(() => !!document.querySelector("#screen-new-campaign-wizard"));
+    const isWizard = await page.evaluate(
+      () => !!document.querySelector("#screen-new-campaign-wizard"),
+    );
     if (isWizard) {
-        await page.click(".difficulty-card:nth-child(1)"); 
-        await page.click("#btn-wizard-start");
-        await new Promise(r => setTimeout(r, 1000));
+      await page.click(".difficulty-card:nth-child(1)");
+      await page.click("#btn-wizard-start");
+      await new Promise((r) => setTimeout(r, 1000));
     }
 
     // 2. Wait for Shell tabs
@@ -39,15 +41,17 @@ describe("Engineering Bay E2E Verification", () => {
     // 3. Verify presence of Engineering tab
     const hasEngineeringTab = await page.evaluate(() => {
       const tabs = Array.from(document.querySelectorAll(".tab-button"));
-      return tabs.some(t => t.textContent === "Engineering");
+      return tabs.some((t) => t.textContent === "Engineering");
     });
     expect(hasEngineeringTab).toBe(true);
 
     // 4. Click Engineering tab
     await page.evaluate(() => {
-        const tabs = Array.from(document.querySelectorAll(".tab-button"));
-        const engTab = tabs.find(t => t.textContent === "Engineering") as HTMLElement;
-        engTab.click();
+      const tabs = Array.from(document.querySelectorAll(".tab-button"));
+      const engTab = tabs.find(
+        (t) => t.textContent === "Engineering",
+      ) as HTMLElement;
+      engTab.click();
     });
 
     // 5. Wait for Engineering screen
@@ -55,9 +59,15 @@ describe("Engineering Bay E2E Verification", () => {
 
     // 6. Verify Engineering screen content (e.g., headers)
     const headers = await page.evaluate(() => {
-        return Array.from(document.querySelectorAll("h3")).map(h => h.textContent);
+      return Array.from(document.querySelectorAll("h3")).map(
+        (h) => h.textContent,
+      );
     });
-    expect(headers.some(h => h?.includes("ARCHETYPES") || h?.includes("EQUIPMENT"))).toBe(true);
+    expect(
+      headers.some(
+        (h) => h?.includes("ARCHETYPES") || h?.includes("EQUIPMENT"),
+      ),
+    ).toBe(true);
 
     // 7. Take a screenshot for visual confirmation
     await page.screenshot({

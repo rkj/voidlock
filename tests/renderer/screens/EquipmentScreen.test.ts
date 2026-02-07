@@ -23,12 +23,22 @@ describe("EquipmentScreen", () => {
       getState: vi.fn().mockReturnValue({
         unlockedItems: ["heavy_plate"],
         roster: [
-            { id: "assault-id", archetypeId: "assault", status: "Healthy", equipment: {} },
-            { id: "medic-id", archetypeId: "medic", status: "Healthy", equipment: {} }
+          {
+            id: "assault-id",
+            archetypeId: "assault",
+            status: "Healthy",
+            equipment: {},
+          },
+          {
+            id: "medic-id",
+            archetypeId: "medic",
+            status: "Healthy",
+            equipment: {},
+          },
         ],
         scrap: 1000,
         rules: { economyMode: "Open" },
-        unlockedArchetypes: ["assault", "medic", "heavy", "scout"]
+        unlockedArchetypes: ["assault", "medic", "heavy", "scout"],
       }),
       spendScrap: vi.fn(),
       assignEquipment: vi.fn(),
@@ -49,9 +59,9 @@ describe("EquipmentScreen", () => {
     );
     screen.show();
 
-    const soldierNames = Array.from(container.querySelectorAll(".soldier-list-panel .menu-item")).map(
-      (el) => el.textContent?.trim(),
-    );
+    const soldierNames = Array.from(
+      container.querySelectorAll(".soldier-list-panel .menu-item"),
+    ).map((el) => el.textContent?.trim());
     expect(soldierNames.some((name) => name?.includes("Assault"))).toBe(true);
     expect(soldierNames.some((name) => name?.includes("Medic"))).toBe(true);
   });
@@ -96,7 +106,9 @@ describe("EquipmentScreen", () => {
 
     // Check soldier list display
     const soldierListTexts = Array.from(
-      container.querySelectorAll(".soldier-list-panel .menu-item.clickable div"),
+      container.querySelectorAll(
+        ".soldier-list-panel .menu-item.clickable div",
+      ),
     ).map((el) => el.textContent?.trim());
     expect(soldierListTexts.some((text) => text?.includes("Pulse Rifle"))).toBe(
       true,
@@ -106,7 +118,9 @@ describe("EquipmentScreen", () => {
     ).toBe(true);
 
     // Check paper doll slots in center panel
-    const slots = Array.from(container.querySelectorAll(".soldier-equipment-panel .paper-doll-slot"));
+    const slots = Array.from(
+      container.querySelectorAll(".soldier-equipment-panel .paper-doll-slot"),
+    );
     const rightHandSlot = slots.find((el) =>
       el.textContent?.includes("Right Hand"),
     );
@@ -130,9 +144,9 @@ describe("EquipmentScreen", () => {
     screen.show();
 
     // Find Frag Grenade row in armory panel (global supplies section)
-    const rows = Array.from(container.querySelectorAll(".armory-panel .card")).filter((el) =>
-      el.textContent?.includes("Frag Grenade"),
-    );
+    const rows = Array.from(
+      container.querySelectorAll(".armory-panel .card"),
+    ).filter((el) => el.textContent?.includes("Frag Grenade"));
     const row = rows[0] as HTMLElement;
     const plusBtn = Array.from(row.querySelectorAll("button")).find(
       (btn) => btn.textContent === "+",
@@ -254,9 +268,9 @@ describe("EquipmentScreen", () => {
     );
     screen.show();
 
-    const soldierNames = Array.from(container.querySelectorAll(".soldier-list-panel div")).map(
-      (el) => el.textContent?.trim(),
-    );
+    const soldierNames = Array.from(
+      container.querySelectorAll(".soldier-list-panel div"),
+    ).map((el) => el.textContent?.trim());
     expect(soldierNames.some((name) => name?.includes("Captain Kirk"))).toBe(
       true,
     );

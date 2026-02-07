@@ -14,7 +14,9 @@ export class RosterManager {
    * Generates the initial roster of soldiers for a new campaign.
    * @param unlockedArchetypes Optional list of available archetypes. Defaults to DEFAULT_ARCHETYPES.
    */
-  public generateInitialRoster(unlockedArchetypes?: string[]): CampaignSoldier[] {
+  public generateInitialRoster(
+    unlockedArchetypes?: string[],
+  ): CampaignSoldier[] {
     const archetypes = unlockedArchetypes || [...DEFAULT_ARCHETYPES];
     const roster: CampaignSoldier[] = [];
 

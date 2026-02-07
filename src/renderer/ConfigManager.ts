@@ -65,7 +65,8 @@ export class ConfigManager {
   public static loadGlobal(): GlobalConfig {
     const isProd =
       (typeof import.meta !== "undefined" && import.meta.env?.PROD) ||
-      (typeof process !== "undefined" && process.env?.NODE_ENV === "production");
+      (typeof process !== "undefined" &&
+        process.env?.NODE_ENV === "production");
     const defaultGlobal: GlobalConfig = {
       unitStyle: UnitStyle.TacticalIcons,
       themeId: "default",

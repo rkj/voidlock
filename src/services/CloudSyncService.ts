@@ -1,23 +1,23 @@
-import { 
-  doc, 
-  setDoc, 
-  getDoc, 
-  getDocs, 
-  collection, 
-  query, 
-  where, 
+import {
+  doc,
+  setDoc,
+  getDoc,
+  getDocs,
+  collection,
+  query,
+  where,
   serverTimestamp,
-  Timestamp 
+  Timestamp,
 } from "firebase/firestore";
-import { 
-  signInAnonymously, 
-  onAuthStateChanged, 
-  GoogleAuthProvider, 
-  GithubAuthProvider, 
-  signInWithPopup, 
+import {
+  signInAnonymously,
+  onAuthStateChanged,
+  GoogleAuthProvider,
+  GithubAuthProvider,
+  signInWithPopup,
   linkWithPopup,
   signOut,
-  User
+  User,
 } from "firebase/auth";
 import { db, auth, isFirebaseConfigured } from "./firebase";
 import { CampaignStateSchema } from "@src/shared/schemas/campaign";
@@ -157,12 +157,13 @@ export class CloudSyncService {
       callback(this.user);
     }
     return () => {
-      this.onAuthStateChangedCallbacks = this.onAuthStateChangedCallbacks.filter(c => c !== callback);
+      this.onAuthStateChangedCallbacks =
+        this.onAuthStateChangedCallbacks.filter((c) => c !== callback);
     };
   }
 
   private notifyAuthStateChanged(user: User | null): void {
-    this.onAuthStateChangedCallbacks.forEach(callback => callback(user));
+    this.onAuthStateChangedCallbacks.forEach((callback) => callback(user));
   }
 
   /**
@@ -191,9 +192,9 @@ export class CloudSyncService {
           difficulty: data.rules.difficulty,
           status: data.status,
           soldierCount: data.roster.length,
-        }
+        },
       },
-      { merge: true }
+      { merge: true },
     );
   }
 
@@ -213,7 +214,7 @@ export class CloudSyncService {
     if (!snapshot.exists()) return null;
 
     const docData = snapshot.data();
-    
+
     // Validate with Zod schema from ADR-0033
     const result = CampaignStateSchema.safeParse(docData.data);
 
@@ -241,8 +242,11 @@ export class CloudSyncService {
     const summaries: CampaignSummary[] = [];
     querySnapshot.forEach((doc) => {
       const data = doc.data();
-      const updatedAt = data.updatedAt instanceof Timestamp ? data.updatedAt.toMillis() : Date.now();
-      
+      const updatedAt =
+        data.updatedAt instanceof Timestamp
+          ? data.updatedAt.toMillis()
+          : Date.now();
+
       summaries.push({
         campaignId: data.campaignId,
         updatedAt,

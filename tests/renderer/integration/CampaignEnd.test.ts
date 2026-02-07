@@ -298,7 +298,12 @@ describe("Campaign End Integration", () => {
         },
       ],
       objectives: [],
-      settings: { debugOverlayEnabled: false, debugSnapshots: false, timeScale: 1.0, isPaused: false },
+      settings: {
+        debugOverlayEnabled: false,
+        debugSnapshots: false,
+        timeScale: 1.0,
+        isPaused: false,
+      },
       map: { width: 10, height: 10, cells: [] },
       enemies: [],
       visibleCells: [],

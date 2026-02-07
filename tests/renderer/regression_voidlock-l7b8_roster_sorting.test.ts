@@ -30,9 +30,30 @@ describe("Roster Sorting Regression (voidlock-l7b8)", () => {
   it("should sort roster by status: Healthy > Wounded > Dead", async () => {
     const mockState = {
       roster: [
-        { id: "1", name: "Dead Guy", status: "Dead", archetypeId: "assault", level: 1, equipment: {} },
-        { id: "2", name: "Healthy Guy", status: "Healthy", archetypeId: "medic", level: 2, equipment: {} },
-        { id: "3", name: "Wounded Guy", status: "Wounded", archetypeId: "heavy", level: 3, equipment: {} },
+        {
+          id: "1",
+          name: "Dead Guy",
+          status: "Dead",
+          archetypeId: "assault",
+          level: 1,
+          equipment: {},
+        },
+        {
+          id: "2",
+          name: "Healthy Guy",
+          status: "Healthy",
+          archetypeId: "medic",
+          level: 2,
+          equipment: {},
+        },
+        {
+          id: "3",
+          name: "Wounded Guy",
+          status: "Wounded",
+          archetypeId: "heavy",
+          level: 3,
+          equipment: {},
+        },
       ],
       rules: {
         difficulty: "Standard",
@@ -50,7 +71,7 @@ describe("Roster Sorting Regression (voidlock-l7b8)", () => {
       initialSquad,
       MissionType.Default,
       true, // isCampaign
-      vi.fn()
+      vi.fn(),
     );
 
     builder.render();
@@ -75,18 +96,32 @@ describe("Roster Sorting Regression (voidlock-l7b8)", () => {
   it("should remove soldier from roster list when assigned to squad", () => {
     const mockState = {
       roster: [
-        { id: "1", name: "In Squad", status: "Healthy", archetypeId: "assault", level: 1, equipment: {} },
-        { id: "2", name: "Out of Squad", status: "Healthy", archetypeId: "medic", level: 2, equipment: {} },
+        {
+          id: "1",
+          name: "In Squad",
+          status: "Healthy",
+          archetypeId: "assault",
+          level: 1,
+          equipment: {},
+        },
+        {
+          id: "2",
+          name: "Out of Squad",
+          status: "Healthy",
+          archetypeId: "medic",
+          level: 2,
+          equipment: {},
+        },
       ],
       rules: { difficulty: "Standard" },
       history: [],
       currentSector: 1,
     };
     mockCampaignManager.getState.mockReturnValue(mockState);
-    
+
     const initialSquad: SquadConfig = {
       soldiers: [{ id: "1", name: "In Squad", archetypeId: "assault" }],
-      inventory: {}
+      inventory: {},
     };
 
     const builder = new SquadBuilder(
@@ -95,7 +130,7 @@ describe("Roster Sorting Regression (voidlock-l7b8)", () => {
       initialSquad,
       MissionType.Default,
       true,
-      vi.fn()
+      vi.fn(),
     );
 
     builder.render();

@@ -156,4 +156,3 @@ export class ExplorationBehavior implements Behavior {
     return { unit: currentUnit, handled: false };
   }
 }
-

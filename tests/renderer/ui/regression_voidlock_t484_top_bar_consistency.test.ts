@@ -45,23 +45,36 @@ describe("CampaignShell Consistency", () => {
     expect(rightControls).toBeDefined();
 
     // Check tabs for Main Menu button
-    const mainMenuInTabs = Array.from(tabsContainer!.querySelectorAll("button"))
-      .find(btn => btn.textContent === "Main Menu");
-    
+    const mainMenuInTabs = Array.from(
+      tabsContainer!.querySelectorAll("button"),
+    ).find((btn) => btn.textContent === "Main Menu");
+
     // This is EXPECTED TO FAIL currently because it is in tabs
-    expect(mainMenuInTabs, "Main Menu should NOT be in the shell-tabs container").toBeUndefined();
+    expect(
+      mainMenuInTabs,
+      "Main Menu should NOT be in the shell-tabs container",
+    ).toBeUndefined();
 
     // Check right controls (excluding tabs) for Main Menu button
     // The button should be a direct child of rightControls or at least not in tabs
-    const allButtonsInRight = Array.from(rightControls!.querySelectorAll("button"));
-    const mainMenuInRight = allButtonsInRight.find(btn => btn.textContent === "Main Menu");
+    const allButtonsInRight = Array.from(
+      rightControls!.querySelectorAll("button"),
+    );
+    const mainMenuInRight = allButtonsInRight.find(
+      (btn) => btn.textContent === "Main Menu",
+    );
 
-    expect(mainMenuInRight, "Main Menu button should be present in the right controls").toBeDefined();
-    
+    expect(
+      mainMenuInRight,
+      "Main Menu button should be present in the right controls",
+    ).toBeDefined();
+
     // Verify it's not the one in tabs (already checked above, but to be explicit)
     if (mainMenuInRight) {
-        expect(mainMenuInRight.parentElement?.classList.contains("shell-tabs"), 
-            "Main Menu button should NOT be a child of shell-tabs").toBe(false);
+      expect(
+        mainMenuInRight.parentElement?.classList.contains("shell-tabs"),
+        "Main Menu button should NOT be a child of shell-tabs",
+      ).toBe(false);
     }
   });
 
@@ -72,13 +85,20 @@ describe("CampaignShell Consistency", () => {
     const rightControls = container.querySelector(".shell-controls-right");
 
     // In campaign mode, Main Menu is outside tabs
-    const mainMenuInTabs = Array.from(tabsContainer!.querySelectorAll("button"))
-      .find(btn => btn.textContent === "Main Menu");
+    const mainMenuInTabs = Array.from(
+      tabsContainer!.querySelectorAll("button"),
+    ).find((btn) => btn.textContent === "Main Menu");
     expect(mainMenuInTabs).toBeUndefined();
 
-    const allButtonsInRight = Array.from(rightControls!.querySelectorAll("button"));
-    const mainMenuInRight = allButtonsInRight.find(btn => btn.textContent === "Main Menu");
+    const allButtonsInRight = Array.from(
+      rightControls!.querySelectorAll("button"),
+    );
+    const mainMenuInRight = allButtonsInRight.find(
+      (btn) => btn.textContent === "Main Menu",
+    );
     expect(mainMenuInRight).toBeDefined();
-    expect(mainMenuInRight!.parentElement?.classList.contains("shell-tabs")).toBe(false);
+    expect(
+      mainMenuInRight!.parentElement?.classList.contains("shell-tabs"),
+    ).toBe(false);
   });
 });

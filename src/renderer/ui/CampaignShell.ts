@@ -8,7 +8,12 @@ export type CampaignTabId =
   | "stats"
   | "settings"
   | "main-menu";
-export type CampaignShellMode = "campaign" | "statistics" | "custom" | "global" | "none";
+export type CampaignShellMode =
+  | "campaign"
+  | "statistics"
+  | "custom"
+  | "global"
+  | "none";
 
 export class CampaignShell {
   private container: HTMLElement;
@@ -261,7 +266,9 @@ export class CampaignShell {
       </div>
     `;
 
-    this.updateSyncUI(container.querySelector("#sync-status-indicator") as HTMLElement);
+    this.updateSyncUI(
+      container.querySelector("#sync-status-indicator") as HTMLElement,
+    );
   }
 
   private updateSyncUI(el: HTMLElement) {
