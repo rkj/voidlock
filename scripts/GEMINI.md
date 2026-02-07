@@ -77,17 +77,41 @@ npm run timeline:capture
 
 Arguments:
 ```bash
-node --experimental-strip-types scripts/capture_timeline.ts [manifest_path] [screenshot_dir] [base_port] [max_count]
+node --experimental-strip-types scripts/capture_timeline.ts [manifest_path] [screenshot_dir] [base_port] [max_count] [navigation_map_path]
 ```
 
 - `manifest_path` (default: `timeline/manifest.json`)
 - `screenshot_dir` (default: `screenshots`)
 - `base_port` (default: `5178`)
 - `max_count` (default: `24`) number of manifest rows to process from the start
+- `navigation_map_path` (default: `timeline/navigation_map.json`) static per-commit screen/action hints
 
 Notes:
 - Safe to rerun: already-captured commits are skipped.
 - Commits that fail to boot/capture are marked as `skipped` in `manifest.json`.
+
+### `scripts/analyze_timeline_navigation.ts`
+
+Static analyzer for commit navigation hints (no browser render).
+It checks each commit in the manifest and extracts:
+- HTML ids
+- screen-like container ids
+- button/action ids from code
+- inferred per-screen candidate targets
+
+Usage:
+```bash
+npm run timeline:analyze
+```
+
+Arguments:
+```bash
+node --experimental-strip-types scripts/analyze_timeline_navigation.ts [manifest_path] [out_path] [max_count]
+```
+
+- `manifest_path` (default: `timeline/manifest.json`)
+- `out_path` (default: `timeline/navigation_map.json`)
+- `max_count` (default: `0`, meaning all manifest rows)
 
 ### `scripts/render_timeline.ts`
 
@@ -117,6 +141,7 @@ npm run timeline:all
 Manual full-history flow:
 ```bash
 npm run timeline:manifest -- timeline/manifest.json all 5000
+npm run timeline:analyze -- timeline/manifest.json timeline/navigation_map.json 900
 npm run timeline:capture -- timeline/manifest.json screenshots 5178 900
 npm run timeline:render -- timeline/manifest.json screenshots timeline/voidlock_timeline_full.mp4
 ```

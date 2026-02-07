@@ -14,9 +14,10 @@
     "balance-sim": "tsx src/harness/BalanceSimulator.ts",
     "process-assets": "tsx scripts/process_assets.ts",
     "timeline:manifest": "node --experimental-strip-types scripts/timeline_manifest.ts",
+    "timeline:analyze": "node --experimental-strip-types scripts/analyze_timeline_navigation.ts",
     "timeline:capture": "node --experimental-strip-types scripts/capture_timeline.ts",
     "timeline:render": "node --experimental-strip-types scripts/render_timeline.ts",
-    "timeline:all": "npm run timeline:manifest && npm run timeline:capture && npm run timeline:render"
+    "timeline:all": "npm run timeline:manifest && npm run timeline:analyze && npm run timeline:capture && npm run timeline:render"
   },
   "devDependencies": {
     "@types/node": "^25.0.3",
