@@ -26,7 +26,7 @@ export class StatDisplay {
     const imgStyle = options.iconSize ? `style="width:${options.iconSize}; height:${options.iconSize};"` : '';
 
     return `
-      <span class="stat-display" ${inlineStyle} title="${title}">
+      <span class="stat-display" ${inlineStyle} title="${title}" data-tooltip="${title}">
         <img src="${icon}" ${imgStyle} />
         <span class="stat-value">${value}</span>
       </span>

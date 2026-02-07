@@ -13,6 +13,7 @@ This directory contains UI components and managers for the Voidlock renderer.
 - `SoldierInspector.ts`: Unified component for viewing soldier attributes and managing equipment (Paper Doll and Armory).
 - `EventModal.ts`: Narrative event and outcome modals for the campaign mode.
 - `ModalService.ts`: Centralized service for themed UI notifications and confirmations, replacing native dialogs.
+- `TooltipManager.ts`: Manages "Tap-to-Inspect" informational tooltips for mobile devices.
 
 ## Subdirectories
 
@@ -41,6 +42,7 @@ This directory contains UI components and managers for the Voidlock renderer.
   - Promise-based asynchronous API.
   - Fully navigable via keyboard (Enter/ESC).
   - Handles custom content and button layouts.
+- **Tap-to-Inspect**: Implements a persistent popover system for informational tooltips on touch devices (ADR 0038).
 - **Component Responsiveness**: Uses CSS Container Queries to allow UI components (`SoldierWidget`, `StatDisplay`, `MenuRenderer`) to adapt their internal layout based on the width of their parent panel (ADR 0038).
 - Event Handling**: Manages clicks on soldier items and menu options.
 

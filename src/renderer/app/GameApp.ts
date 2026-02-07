@@ -49,6 +49,7 @@ import { InputManager } from "../InputManager";
 import { AssetManager } from "../visuals/AssetManager";
 import { Logger, LogLevel } from "@src/shared/Logger";
 import { GlobalShortcuts } from "../GlobalShortcuts";
+import { TooltipManager } from "../ui/TooltipManager";
 
 const VERSION = pkg.version;
 
@@ -513,6 +514,8 @@ export class GameApp {
       () => this.context.screenManager.goBack(),
     );
     globalShortcuts.init();
+
+    TooltipManager.getInstance();
 
     // Initial UI state
     this.missionSetupManager.loadAndApplyConfig(false);
