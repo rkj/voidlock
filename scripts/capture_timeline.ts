@@ -266,7 +266,7 @@ async function runCli() {
     readNamedArg(argv, ["--manifest"]) || argv[0] || "timeline/manifest.json";
   const screenshotDir =
     readNamedArg(argv, ["--screenshots"]) || argv[1] || "screenshots";
-  const basePort = Number(readNamedArg(argv, ["--port"]) || argv[2] || 6000);
+  const basePort = Number(readNamedArg(argv, ["--port"]) || argv[2] || 6080);
   const maxCount = Number(readNamedArg(argv, ["--max-count"]) || argv[3] || 0);
   const navigationPath =
     readNamedArg(argv, ["--navigation-map"]) || argv[4] || "timeline/navigation_map.json";
