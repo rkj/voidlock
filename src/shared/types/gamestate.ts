@@ -26,6 +26,12 @@ export type ReplayData = {
   squadConfig: SquadConfig;
   commands: RecordedCommand[];
   snapshots?: GameState[];
+  // Mission Scaling Parameters (ADR 0032)
+  nodeType?: CampaignNodeType;
+  missionDepth?: number;
+  baseEnemyCount?: number;
+  enemyGrowthPerMission?: number;
+  startingPoints?: number;
 };
 
 export type GameStatus = "Deployment" | "Playing" | "Won" | "Lost";
@@ -118,6 +124,7 @@ export type WorkerMessage =
         baseEnemyCount?: number;
         enemyGrowthPerMission?: number;
         missionDepth?: number;
+        startingPoints?: number;
         initialTimeScale?: number;
         startPaused?: boolean;
         allowTacticalPause?: boolean;
