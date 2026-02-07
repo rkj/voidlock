@@ -132,13 +132,13 @@ npm run timeline:render -- --frame-index timeline/frame_index.json --output time
 
 ### One-command Runner
 
-`scripts/timeline/run_timeline_pipeline.sh`
+`scripts/timeline/run.sh`
 
 Usage:
 ```bash
 npm run timeline:run
 # or
-./scripts/timeline/run_timeline_pipeline.sh 6080
+./scripts/timeline/run.sh
 ```
 
 Env overrides:
