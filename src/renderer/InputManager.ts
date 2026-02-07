@@ -146,10 +146,10 @@ export class InputManager implements InputContext {
 
   public getShortcuts(): ShortcutInfo[] {
     const shortcuts: ShortcutInfo[] = [
-      { key: "Space", label: "Pause", description: "Toggle Game Pause", category: "General" },
-      { key: "~", label: "Debug", description: "Toggle Debug Overlay", category: "General" },
-      { key: "Shift+~", label: "LOS", description: "Toggle LOS Visualization", category: "General" },
-      { key: "Q / ESC", label: "Back", description: "Go back in menu or deselect", category: "Navigation" },
+      { key: "Space", label: "Space", description: "Toggle Pause", category: "General" },
+      { key: "~", label: "~", description: "Toggle Debug Overlay", category: "General" },
+      { key: "Shift+~", label: "Shift+~", description: "Toggle LOS Visualization", category: "General" },
+      { key: "ESC / Q", label: "ESC / Q", description: "Back / Menu / Deselect", category: "Navigation" },
     ];
 
     if (this.screenManager.getCurrentScreen() === "mission") {
@@ -218,11 +218,6 @@ export class InputManager implements InputContext {
       const key = e.key.toLowerCase();
       if (/^[0-9a-z]$/.test(key)) {
         this.handleMenuInput(key, e.shiftKey);
-        return true;
-      }
-    } else {
-      if (e.key === "Escape" || e.key === "q" || e.key === "Q") {
-        this.screenManager.goBack();
         return true;
       }
     }

@@ -1,9 +1,12 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { InputManager } from "@src/renderer/InputManager";
+import { GlobalShortcuts } from "@src/renderer/GlobalShortcuts";
+import { InputDispatcher } from "@src/renderer/InputDispatcher";
 
 describe("Q and ESC Key Navigation", () => {
   let inputManager: InputManager;
+  let globalShortcuts: GlobalShortcuts;
   let mockScreenManager: any;
   let mockMenuController: any;
   let togglePause: any;
@@ -59,16 +62,20 @@ describe("Q and ESC Key Navigation", () => {
       vi.fn(() => ({ x: 0, y: 0 })),
     );
     inputManager.init();
+
+    globalShortcuts = new GlobalShortcuts(togglePause, () => mockScreenManager.goBack());
+    globalShortcuts.init();
   });
 
   afterEach(() => {
     inputManager.destroy();
+    InputDispatcher.getInstance().popContext("GlobalShortcuts");
   });
 
   it("should call menuController.goBack() when 'q' is pressed in mission submenu", () => {
     mockMenuController.menuState = "ORDERS_SELECT";
     const event = new KeyboardEvent("keydown", { key: "q" });
-    document.dispatchEvent(event);
+    window.dispatchEvent(event);
     expect(mockMenuController.goBack).toHaveBeenCalled();
   });
 
@@ -76,7 +83,7 @@ describe("Q and ESC Key Navigation", () => {
     mockMenuController.menuState = "ACTION_SELECT";
     getSelectedUnitId.mockReturnValue("u1");
     const event = new KeyboardEvent("keydown", { key: "q" });
-    document.dispatchEvent(event);
+    window.dispatchEvent(event);
     expect(onUnitDeselect).toHaveBeenCalled();
   });
 
@@ -85,7 +92,7 @@ describe("Q and ESC Key Navigation", () => {
     getSelectedUnitId.mockReturnValue(null);
     window.confirm = vi.fn(() => true);
     const event = new KeyboardEvent("keydown", { key: "q" });
-    document.dispatchEvent(event);
+    window.dispatchEvent(event);
     expect(abortMission).not.toHaveBeenCalled();
   });
 
@@ -93,7 +100,7 @@ describe("Q and ESC Key Navigation", () => {
     mockMenuController.menuState = "ACTION_SELECT";
     getSelectedUnitId.mockReturnValue(null);
     const event = new KeyboardEvent("keydown", { key: "Escape" });
-    document.dispatchEvent(event);
+    window.dispatchEvent(event);
 
     // Wait for the promise in InputManager
     await new Promise((resolve) => setTimeout(resolve, 0));
@@ -104,14 +111,14 @@ describe("Q and ESC Key Navigation", () => {
   it("should call screenManager.goBack() when 'q' is pressed in non-mission screen", () => {
     mockScreenManager.getCurrentScreen.mockReturnValue("mission-setup");
     const event = new KeyboardEvent("keydown", { key: "q" });
-    document.dispatchEvent(event);
+    window.dispatchEvent(event);
     expect(mockScreenManager.goBack).toHaveBeenCalled();
   });
 
   it("should call screenManager.goBack() when 'Escape' is pressed in non-mission screen", () => {
     mockScreenManager.getCurrentScreen.mockReturnValue("mission-setup");
     const event = new KeyboardEvent("keydown", { key: "Escape" });
-    document.dispatchEvent(event);
+    window.dispatchEvent(event);
     expect(mockScreenManager.goBack).toHaveBeenCalled();
   });
 });

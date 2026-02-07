@@ -46,6 +46,7 @@ import { HUDManager } from "../ui/HUDManager";
 import { InputManager } from "../InputManager";
 import { AssetManager } from "../visuals/AssetManager";
 import { Logger, LogLevel } from "@src/shared/Logger";
+import { GlobalShortcuts } from "../GlobalShortcuts";
 
 const VERSION = pkg.version;
 
@@ -480,6 +481,12 @@ export class GameApp {
     });
 
     this.context.inputManager.init();
+
+    const globalShortcuts = new GlobalShortcuts(
+      () => this.togglePause(),
+      () => this.context.screenManager.goBack(),
+    );
+    globalShortcuts.init();
 
     // Initial UI state
     this.missionSetupManager.loadAndApplyConfig(false);

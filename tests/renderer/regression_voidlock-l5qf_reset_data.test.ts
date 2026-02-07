@@ -60,6 +60,7 @@ vi.mock("@src/services/firebase", () => ({
     }),
   },
   app: {},
+  isFirebaseConfigured: false,
 }));
 
 describe("Reset Data Button", () => {
