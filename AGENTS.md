@@ -6,10 +6,10 @@ You are an AI contributor agent working on the Voidlock project. Your goal is to
 
 1. **DIRECT INTERVENTION (User Questions):** If the user asks a question, YOU MUST STOP ALL WORK. Answer the question immediately. Do not queue further tool calls or tasks. Do not say "I will now...". Just answer.
 1. **TOOL FAILURE PROTOCOL:** If a tool call fails due to **permissions** (e.g., "denied by policy") or **installation errors** (e.g., missing dependency that you cannot install), **STOP IMMEDIATELY**. Do not hallucinate a workaround. Report the blocker to the user and ask for instructions.
-1. **VISUAL VERIFICATION:** When a task involves UI layout, CSS, or scrolling:
-   - Try automated E2E tests.
-   - If E2E fails or is unavailable, **YOU MUST** use `chrome-devtools-mcp` tools (`navigate_page`, `take_screenshot`) to visually verify the change.
-   - **NEVER** rely solely on JSDOM for visual/layout verification. It does not render pixels.
+1. **VISUAL & INPUT VERIFICATION:** When a task involves UI layout, CSS, scrolling, or **Keyboard/Input Navigation**:
+   - **Primary**: Write and run an **E2E Test** (Puppeteer) in `tests/e2e/`. This is the only way to verify focus, z-index, and real input handling.
+   - **Secondary**: Use `chrome-devtools-mcp` tools (`navigate_page`, `press_key`, `take_screenshot`) to verify interactively.
+   - **FORBIDDEN**: **NEVER** rely solely on JSDOM unit tests (`dispatchEvent`) for verifying focus management, scroll behavior, or layout visibility. JSDOM is not a browser.
 1. **ADR INTEGRITY:** Architectural Decision Records (ADRs) are **IMMUTABLE**. You are strictly forbidden from editing an established ADR. If a task requires changing an existing design, you must first create a **NEW** ADR that provides historical context and describes the proposed changes.
 1. **Understand**: Read the task description...
 1. **Plan**: Formulate a concise plan. Share it with the Manager if it helps clarify your approach.

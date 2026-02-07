@@ -56,6 +56,7 @@ Only once Docs are updated, map work to `bd`.
 - **Types:** `feature`, `bug`, `chore`, `task`, `epic`. (Refactor is NOT a type, use chore).
 - **Title:** Concise, one-sentence summary (e.g., "Fix campaign victory trigger"). NEVER use the type (e.g., "bug") as the title.
 - **Spec Linkage:** Description MUST start with: "Implements `docs/spec/file.md#section`".
+- **Verification Mandate:** For UI/Input tasks, the description MUST explicitly require "Verification via E2E (Puppeteer)".
 - **ADR Linkage:** If applicable, add: "Ref: `docs/adr/00X-name.md`".
 - **No Backticks:** NEVER use backticks (`) in `--description\`. Use single quotes or plain text.
 
