@@ -2495,3 +2495,120 @@ label {
 .mobile-touch .stat-display {
   padding: 8px 6px;
 }
+
+/* Mobile Responsiveness (Spec 10 / ADR 0038) */
+@media (max-width: 767px) {
+  #screen-mission {
+    flex-direction: column;
+  }
+
+  .right-panel {
+    position: fixed !important;
+    top: 48px;
+    right: 0;
+    bottom: 0;
+    width: 280px !important;
+    z-index: 1000;
+    transform: translateX(100%);
+    transition: transform 0.3s ease-out;
+    box-shadow: -5px 0 15px rgba(0, 0, 0, 0.5);
+    border-left: 2px solid var(--color-primary);
+    background: var(--color-bg) !important;
+  }
+
+  .right-panel.active {
+    transform: translateX(0);
+  }
+
+  .soldier-panel {
+    position: fixed !important;
+    top: 48px;
+    left: 0;
+    bottom: 0;
+    width: 280px !important;
+    z-index: 1000;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-out;
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
+    border-right: 2px solid var(--color-primary);
+    padding: 10px !important;
+    overflow-y: auto !important;
+    background: var(--color-surface) !important;
+    height: auto !important;
+  }
+
+  .soldier-panel.active {
+    transform: translateX(0);
+  }
+
+  #soldier-list {
+    flex-direction: column !important;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    height: auto !important;
+    gap: 10px !important;
+  }
+
+  #soldier-list .soldier-item {
+    width: 100% !important;
+    min-width: 0 !important;
+    height: auto !important;
+    margin-bottom: 0 !important;
+  }
+
+  /* Adjust Top Bar for mobile */
+  .top-bar {
+    padding: 0 10px !important;
+    height: 48px !important;
+  }
+
+  #speed-control label,
+  #speed-value,
+  #btn-give-up,
+  .time-label {
+    display: none !important;
+  }
+
+  #top-threat-container {
+    margin: 0 5px !important;
+    max-width: none !important;
+  }
+
+  #top-threat-container span:first-child {
+    display: none !important; /* Hide "Threat" text */
+  }
+
+  #game-status {
+    min-width: 45px;
+  }
+
+  /* Drawer Toggles */
+  .drawer-toggle {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background: var(--color-surface-elevated);
+    border: 1px solid var(--color-primary);
+    color: var(--color-primary);
+    font-size: 0.7em;
+    font-weight: bold;
+    cursor: pointer;
+    flex-shrink: 0;
+    padding: 0;
+    margin: 0;
+  }
+
+  #btn-toggle-squad {
+    margin-right: 5px;
+  }
+
+  #btn-toggle-right {
+    margin-left: 5px;
+  }
+}
+
+.drawer-toggle {
+  display: none;
+}

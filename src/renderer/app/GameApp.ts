@@ -516,6 +516,40 @@ export class GameApp {
     this.missionSetupManager.loadAndApplyConfig(false);
     const mvEl = document.getElementById("menu-version");
     if (mvEl) mvEl.textContent = `v${VERSION}`;
+
+    this.setupResponsiveDrawers();
+  }
+
+  private setupResponsiveDrawers() {
+    const toggleSquad = document.getElementById("btn-toggle-squad");
+    const toggleRight = document.getElementById("btn-toggle-right");
+    const soldierPanel = document.getElementById("soldier-panel");
+    const rightPanel = document.getElementById("right-panel");
+
+    if (toggleSquad && soldierPanel) {
+      toggleSquad.addEventListener("click", () => {
+        soldierPanel.classList.toggle("active");
+        if (rightPanel) rightPanel.classList.remove("active");
+      });
+    }
+
+    if (toggleRight && rightPanel) {
+      toggleRight.addEventListener("click", () => {
+        rightPanel.classList.toggle("active");
+        if (soldierPanel) soldierPanel.classList.remove("active");
+      });
+    }
+
+    // Close drawers when clicking the game area
+    const gameContainer = document.getElementById("game-container");
+    if (gameContainer) {
+      gameContainer.addEventListener("click", () => {
+        if (window.innerWidth < 768) {
+          if (soldierPanel) soldierPanel.classList.remove("active");
+          if (rightPanel) rightPanel.classList.remove("active");
+        }
+      });
+    }
   }
 
   private showMainMenu() {
