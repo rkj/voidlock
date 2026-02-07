@@ -180,6 +180,8 @@ export class GameApp {
           target: { x, y },
         }),
       (px, py) => this.context.renderer!.getCellCoordinates(px, py),
+      (reverse) => this.cycleUnits(reverse),
+      (direction) => this.panMap(direction),
     );
 
     // 3. Initialize screens
@@ -822,6 +824,72 @@ export class GameApp {
       gameSpeedValue.textContent = TimeUtility.formatSpeed(lastSpeed, isPaused);
     if (gameSpeedSlider)
       gameSpeedSlider.value = TimeUtility.scaleToSlider(lastSpeed).toString();
+  }
+
+  private cycleUnits(reverse: boolean = false) {
+    if (!this.currentGameState) return;
+    const aliveUnits = this.currentGameState.units.filter(
+      (u) => u.state !== UnitState.Dead && u.state !== UnitState.Extracted,
+    );
+    if (aliveUnits.length === 0) return;
+
+    if (!this.selectedUnitId) {
+      this.selectedUnitId = aliveUnits[0].id;
+    } else {
+      const currentIndex = aliveUnits.findIndex(
+        (u) => u.id === this.selectedUnitId,
+      );
+      let nextIndex;
+      if (reverse) {
+        nextIndex = (currentIndex - 1 + aliveUnits.length) % aliveUnits.length;
+      } else {
+        nextIndex = (currentIndex + 1) % aliveUnits.length;
+      }
+      this.selectedUnitId = aliveUnits[nextIndex].id;
+    }
+    this.updateUI(this.currentGameState);
+    if (this.selectedUnitId) {
+      this.centerOnUnit(this.selectedUnitId);
+    }
+  }
+
+  private centerOnUnit(unitId: string) {
+    if (!this.currentGameState) return;
+    const unit = this.currentGameState.units.find((u) => u.id === unitId);
+    if (!unit) return;
+
+    const container = document.getElementById("game-container");
+    if (!container) return;
+
+    const cellSize = 128; // Standard cell size
+    const targetX = unit.pos.x * cellSize;
+    const targetY = unit.pos.y * cellSize;
+
+    container.scrollTo({
+      left: targetX - container.clientWidth / 2,
+      top: targetY - container.clientHeight / 2,
+      behavior: "smooth",
+    });
+  }
+
+  private panMap(direction: string) {
+    const container = document.getElementById("game-container");
+    if (!container) return;
+    const panAmount = 100;
+    switch (direction) {
+      case "ArrowUp":
+        container.scrollTop -= panAmount;
+        break;
+      case "ArrowDown":
+        container.scrollTop += panAmount;
+        break;
+      case "ArrowLeft":
+        container.scrollLeft -= panAmount;
+        break;
+      case "ArrowRight":
+        container.scrollLeft += panAmount;
+        break;
+    }
   }
 
   private onUnitClick(unit: Unit, shiftHeld: boolean = false) {

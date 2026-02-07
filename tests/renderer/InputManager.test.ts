@@ -67,6 +67,8 @@ describe("InputManager", () => {
       () => debriefingActive,
       vi.fn(),
       vi.fn(() => ({ x: 0, y: 0 })),
+      vi.fn(), // cycleUnits
+      vi.fn(), // panMap
     );
     inputManager.init();
   });
