@@ -155,9 +155,14 @@ function analyzeCommit(worktreeDir: string, sha: string): CommitNavigationHints 
 }
 
 async function runCli() {
-  const manifestPath = process.argv[2] || "timeline/manifest.json";
-  const outPath = process.argv[3] || "timeline/navigation_map.json";
-  const maxCount = Number(process.argv[4] || 0);
+  const argv = process.argv.slice(2);
+  const manifestPath =
+    readNamedArg(argv, ["--manifest"]) || argv[0] || "timeline/manifest.json";
+  const outPath =
+    readNamedArg(argv, ["--out", "--navigation-map"]) ||
+    argv[1] ||
+    "timeline/navigation_map.json";
+  const maxCount = Number(readNamedArg(argv, ["--max-count"]) || argv[2] || 0);
 
   const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8")) as Manifest;
   const milestones = maxCount > 0 ? manifest.milestones.slice(0, maxCount) : manifest.milestones;
@@ -190,6 +195,17 @@ async function runCli() {
   }
   // eslint-disable-next-line no-console
   console.log(`Wrote navigation hints for ${Object.keys(commits).length} commits to ${outPath}`);
+}
+
+function readNamedArg(argv: string[], names: string[]): string | undefined {
+  for (let i = 0; i < argv.length; i += 1) {
+    const token = argv[i];
+    for (const name of names) {
+      if (token === name) return argv[i + 1];
+      if (token.startsWith(`${name}=`)) return token.slice(name.length + 1);
+    }
+  }
+  return undefined;
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

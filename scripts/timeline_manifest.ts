@@ -216,10 +216,16 @@ export function buildManifest(
 }
 
 function runCli() {
-  const outPath = process.argv[2] || "timeline/manifest.json";
-  const mode = (process.argv[3] || "all").toLowerCase();
-  const maxCount = Number(process.argv[4] || 0);
-  const minHours = Number(process.argv[5] || 8);
+  const argv = process.argv.slice(2);
+  const outPath =
+    readNamedArg(argv, ["--manifest", "--out"]) || argv[0] || "timeline/manifest.json";
+  const mode = (
+    readNamedArg(argv, ["--mode"]) ||
+    argv[1] ||
+    "all"
+  ).toLowerCase();
+  const maxCount = Number(readNamedArg(argv, ["--max-count"]) || argv[2] || 0);
+  const minHours = Number(readNamedArg(argv, ["--min-hours"]) || argv[3] || 8);
   const commits = getGitCommits();
   const effectiveMax = maxCount > 0 ? maxCount : commits.length;
   const selectedCommits =
@@ -248,6 +254,17 @@ function runCli() {
   fs.writeFileSync(outPath, `${JSON.stringify(payload, null, 2)}\n`, "utf-8");
   // eslint-disable-next-line no-console
   console.log(`Wrote ${milestones.length} milestones to ${outPath}`);
+}
+
+function readNamedArg(argv: string[], names: string[]): string | undefined {
+  for (let i = 0; i < argv.length; i += 1) {
+    const token = argv[i];
+    for (const name of names) {
+      if (token === name) return argv[i + 1];
+      if (token.startsWith(`${name}=`)) return token.slice(name.length + 1);
+    }
+  }
+  return undefined;
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
