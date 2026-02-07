@@ -244,9 +244,8 @@ export class GameApp {
     );
 
     this.statisticsScreen = new StatisticsScreen("screen-statistics");
-    this.engineeringScreen = new EngineeringScreen(
-      "screen-engineering",
-      () => this.context.campaignShell.refresh(),
+    this.engineeringScreen = new EngineeringScreen("screen-engineering", () =>
+      this.context.campaignShell.refresh(),
     );
     this.settingsScreen = new SettingsScreen(
       "screen-settings",
@@ -414,9 +413,10 @@ export class GameApp {
             if (replayData && replayData.commands) {
               this.context.gameClient.loadReplay(replayData);
 
-              // If we have current state, we can construct a report and show debrief
+              let report: MissionReport;
+              // If we have current state, we can construct a detailed report
               if (currentState) {
-                const report: MissionReport = {
+                report = {
                   nodeId: "custom",
                   seed: currentState.seed,
                   result: currentState.status === "Won" ? "Won" : "Lost",
@@ -428,25 +428,46 @@ export class GameApp {
                     soldierId: u.id,
                     name: u.name,
                     tacticalNumber: u.tacticalNumber,
-                    xpBefore: 0, // Not available in GameState
+                    xpBefore: 0,
                     xpGained: 0,
                     kills: u.kills,
                     promoted: false,
                     status: u.state === UnitState.Dead ? "Dead" : "Healthy",
                   })),
                 };
-                this.debriefScreen.show(
-                  report,
-                  this.missionSetupManager.unitStyle,
-                );
-                this.context.screenManager.show("debrief");
               } else {
-                // For now, loading a replay without currentState just loads it into the client
-                // We might want to switch to mission screen to play it.
-                this.context.modalService.alert(
-                  "Replay loaded. (Partial support: no summary state found)",
-                );
+                // Fallback report for replay-only data (Spec 8.2 / voidlock-l9bv)
+                report = {
+                  nodeId: "custom",
+                  seed: replayData.seed || 0,
+                  result: "Won", // Default for visualization
+                  aliensKilled: 0,
+                  scrapGained: 0,
+                  intelGained: 0,
+                  timeSpent:
+                    replayData.commands.length > 0
+                      ? replayData.commands[replayData.commands.length - 1].t
+                      : 0,
+                  soldierResults: (replayData.squadConfig?.soldiers || []).map(
+                    (s: any, idx: number) => ({
+                      soldierId: s.id || `s-${idx}`,
+                      name: s.name || s.archetypeId || "Unknown",
+                      tacticalNumber: s.tacticalNumber || idx + 1,
+                      xpBefore: 0,
+                      xpGained: 0,
+                      kills: 0,
+                      promoted: false,
+                      status: "Healthy",
+                    }),
+                  ),
+                };
               }
+
+              this.debriefScreen.show(
+                report,
+                this.missionSetupManager.unitStyle,
+              );
+              this.context.screenManager.show("debrief");
             } else {
               this.context.modalService.alert("Invalid replay file format.");
             }
@@ -486,7 +507,11 @@ export class GameApp {
         const mode = this.context.campaignManager.getState()
           ? "campaign"
           : "statistics";
-        this.context.screenManager.show("engineering", true, mode === "campaign");
+        this.context.screenManager.show(
+          "engineering",
+          true,
+          mode === "campaign",
+        );
         break;
       case "stats":
         this.statisticsScreen.show();
@@ -612,6 +637,7 @@ export class GameApp {
     this.context.gameClient.stop();
     this.context.inputManager.destroy();
     this.inputBinder.unbindAll();
+    this.context.screenManager.destroy();
   }
 
   // --- Logic copied from main.ts ---

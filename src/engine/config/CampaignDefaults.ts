@@ -1,10 +1,6 @@
 import pkg from "../../../package.json";
 
-export const DEFAULT_ARCHETYPES = [
-  "assault",
-  "medic",
-  "scout",
-] as const;
+export const DEFAULT_ARCHETYPES = ["assault", "medic", "scout"] as const;
 export type DefaultArchetype = (typeof DEFAULT_ARCHETYPES)[number];
 
 export const CAMPAIGN_DEFAULTS = {

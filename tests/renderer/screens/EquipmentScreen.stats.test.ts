@@ -25,7 +25,7 @@ describe("EquipmentScreen Stats and Tooltips", () => {
         roster: [],
         scrap: 1000,
         rules: { economyMode: "Open" },
-        unlockedArchetypes: ["assault", "medic", "heavy", "scout"]
+        unlockedArchetypes: ["assault", "medic", "heavy", "scout"],
       }),
       spendScrap: vi.fn(),
       assignEquipment: vi.fn(),
@@ -127,9 +127,9 @@ describe("EquipmentScreen Stats and Tooltips", () => {
     screen.show();
 
     // Global supplies are in rows with class 'card' in .armory-panel
-    const supplyRows = Array.from(container.querySelectorAll(".armory-panel .card")).filter(
-      (el) => el.textContent?.includes("Medkit"),
-    ) as HTMLElement[];
+    const supplyRows = Array.from(
+      container.querySelectorAll(".armory-panel .card"),
+    ).filter((el) => el.textContent?.includes("Medkit")) as HTMLElement[];
 
     expect(supplyRows.length).toBeGreaterThan(0);
     const medkitRow = supplyRows[0];

@@ -60,7 +60,7 @@ vi.mock("@src/services/firebase", () => ({
       return vi.fn(); // Unsubscribe function
     }),
   },
-  app: {}
+  app: {},
 }));
 
 describe("Reset Data Location", () => {
@@ -156,14 +156,15 @@ describe("Reset Data Location", () => {
   it("should NOT have Reset Data button in the Main Menu", () => {
     const mainMenu = document.getElementById("screen-main-menu");
     expect(mainMenu).toBeTruthy();
-    
+
     // Check for any button or element containing "Reset"
     const allButtons = mainMenu?.querySelectorAll("button");
-    const resetBtn = Array.from(allButtons || []).find(btn => 
-      btn.textContent?.toLowerCase().includes("reset") || 
-      btn.id.includes("reset")
+    const resetBtn = Array.from(allButtons || []).find(
+      (btn) =>
+        btn.textContent?.toLowerCase().includes("reset") ||
+        btn.id.includes("reset"),
     );
-    
+
     expect(resetBtn).toBeFalsy();
   });
 
@@ -174,7 +175,7 @@ describe("Reset Data Location", () => {
     settingsBtn?.click();
 
     // Give some time for SettingsScreen to render
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
     const settingsScreen = document.getElementById("screen-settings");
     expect(settingsScreen).toBeTruthy();
@@ -182,8 +183,8 @@ describe("Reset Data Location", () => {
 
     // 2. Look for Reset button in settings
     const allButtons = settingsScreen?.querySelectorAll("button");
-    const resetBtn = Array.from(allButtons || []).find(btn => 
-      btn.textContent?.toLowerCase().includes("reset")
+    const resetBtn = Array.from(allButtons || []).find((btn) =>
+      btn.textContent?.toLowerCase().includes("reset"),
     );
 
     expect(resetBtn).toBeTruthy();
@@ -194,7 +195,7 @@ describe("Reset Data Location", () => {
     resetBtn?.click();
 
     // Wait for async ModalService.show
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
     expect(mockModalService.show).toHaveBeenCalled();
     expect(Storage.prototype.clear).toHaveBeenCalled();
@@ -204,20 +205,20 @@ describe("Reset Data Location", () => {
   it("should do nothing when Reset Data is clicked but cancelled", async () => {
     // 1. Navigate to Settings
     document.getElementById("btn-menu-settings")?.click();
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
     const settingsScreen = document.getElementById("screen-settings");
     const allButtons = settingsScreen?.querySelectorAll("button");
-    const resetBtn = Array.from(allButtons || []).find(btn => 
-      btn.textContent?.toLowerCase().includes("reset")
+    const resetBtn = Array.from(allButtons || []).find((btn) =>
+      btn.textContent?.toLowerCase().includes("reset"),
     );
-    
+
     // 2. Test reset logic (Cancel)
     mockModalService.show.mockResolvedValue(false);
     resetBtn?.click();
 
     // Wait for async ModalService.show
-    await new Promise(resolve => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
     expect(mockModalService.show).toHaveBeenCalled();
     expect(Storage.prototype.clear).not.toHaveBeenCalled();

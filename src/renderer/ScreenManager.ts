@@ -44,7 +44,15 @@ export class ScreenManager {
     const el = this.screens.get("main-menu");
     if (el) el.style.display = "flex";
 
-    window.addEventListener("hashchange", () => this.syncWithUrl());
+    this.hashHandler = () => this.syncWithUrl();
+    window.addEventListener("hashchange", this.hashHandler);
+  }
+
+  private hashHandler: () => void;
+
+  public destroy() {
+    window.removeEventListener("hashchange", this.hashHandler);
+    this.history = [];
   }
 
   private registerScreen(id: ScreenId) {
@@ -74,9 +82,7 @@ export class ScreenManager {
     // Validate transition
     const validNext = VALID_TRANSITIONS[this.currentScreen];
     if (!validNext || !validNext.includes(id)) {
-      Logger.error(
-        `Invalid screen transition: ${this.currentScreen} -> ${id}`,
-      );
+      Logger.error(`Invalid screen transition: ${this.currentScreen} -> ${id}`);
       return;
     }
 

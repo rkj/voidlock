@@ -151,7 +151,8 @@ describe("MapEntityLayer", () => {
       visibleCells: [],
       discoveredCells: [],
       settings: {
-        debugOverlayEnabled: true, debugSnapshots: false,
+        debugOverlayEnabled: true,
+        debugSnapshots: false,
       } as any,
     });
 

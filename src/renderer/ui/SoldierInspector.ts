@@ -90,7 +90,9 @@ export class SoldierInspector {
       optionsDiv.style.marginTop = "20px";
 
       const state = this.manager.getState();
-      const healthyWoundedCount = state ? state.roster.filter(s => s.status !== "Dead").length : 0;
+      const healthyWoundedCount = state
+        ? state.roster.filter((s) => s.status !== "Dead").length
+        : 0;
 
       if (healthyWoundedCount < 4) {
         const recruitBtn = document.createElement("button");
@@ -106,7 +108,7 @@ export class SoldierInspector {
 
       const reviveBtn = document.createElement("button");
       const canAffordRevive = state ? state.scrap >= 250 : true;
-      reviveBtn.className = `menu-button w-full ${!canAffordRevive ? 'disabled' : ''}`;
+      reviveBtn.className = `menu-button w-full ${!canAffordRevive ? "disabled" : ""}`;
       reviveBtn.style.padding = "15px";
       reviveBtn.disabled = !canAffordRevive;
       reviveBtn.innerHTML = `
@@ -303,7 +305,8 @@ export class SoldierInspector {
       "Armor",
       Object.values(ItemLibrary).filter(
         (i) =>
-          (i.id.includes("recon") || i.id.includes("plate")) && isUnlocked(i.id),
+          (i.id.includes("recon") || i.id.includes("plate")) &&
+          isUnlocked(i.id),
       ),
       (i) => this.handleSlotChange("body", i.id),
       "body",

@@ -28,8 +28,8 @@ describe("GameClient", () => {
     );
 
     const mockMapFactory = vi.fn().mockReturnValue({
-        generate: vi.fn().mockReturnValue({ width: 10, height: 10, cells: [] }),
-        load: vi.fn().mockReturnValue({ width: 10, height: 10, cells: [] })
+      generate: vi.fn().mockReturnValue({ width: 10, height: 10, cells: [] }),
+      load: vi.fn().mockReturnValue({ width: 10, height: 10, cells: [] }),
     });
     client = new GameClient(mockMapFactory);
   });
@@ -46,7 +46,7 @@ describe("GameClient", () => {
       MissionType.Default,
       10,
       10,
-    ); 
+    );
 
     expect(postMessageMock).toHaveBeenCalledWith({
       type: "INIT",
@@ -62,20 +62,39 @@ describe("GameClient", () => {
   });
 
   it("should record commands via STATE_UPDATE sync", () => {
-    client.init(123, MapGeneratorType.DenseShip, undefined, true, false, true, { soldiers: [], inventory: {} });
-    
+    client.init(123, MapGeneratorType.DenseShip, undefined, true, false, true, {
+      soldiers: [],
+      inventory: {},
+    });
+
     // Simulate worker sending back a state update with a command log
     const mockState = {
-        commandLog: [
-            { tick: 100, command: { type: CommandType.MOVE_TO, unitIds: ["u1"], target: { x: 1, y: 1 } } },
-            { tick: 500, command: { type: CommandType.MOVE_TO, unitIds: ["u2"], target: { x: 2, y: 2 } } }
-        ],
-        settings: { mode: EngineMode.Simulation },
-        map: { width: 10, height: 10 }
+      commandLog: [
+        {
+          tick: 100,
+          command: {
+            type: CommandType.MOVE_TO,
+            unitIds: ["u1"],
+            target: { x: 1, y: 1 },
+          },
+        },
+        {
+          tick: 500,
+          command: {
+            type: CommandType.MOVE_TO,
+            unitIds: ["u2"],
+            target: { x: 2, y: 2 },
+          },
+        },
+      ],
+      settings: { mode: EngineMode.Simulation },
+      map: { width: 10, height: 10 },
     };
 
     if (workerMock.onmessage) {
-        workerMock.onmessage({ data: { type: "STATE_UPDATE", payload: mockState } });
+      workerMock.onmessage({
+        data: { type: "STATE_UPDATE", payload: mockState },
+      });
     }
 
     const replayData = client.getReplayData();
@@ -146,8 +165,8 @@ describe("GameClient", () => {
     expect(postMessageMock).toHaveBeenCalledWith({
       type: "COMMAND",
       payload: {
-          type: "TOGGLE_DEBUG_OVERLAY",
-          enabled: true
+        type: "TOGGLE_DEBUG_OVERLAY",
+        enabled: true,
       },
     });
   });
@@ -157,8 +176,8 @@ describe("GameClient", () => {
     expect(postMessageMock).toHaveBeenCalledWith({
       type: "COMMAND",
       payload: {
-          type: "TOGGLE_LOS_OVERLAY",
-          enabled: true
+        type: "TOGGLE_LOS_OVERLAY",
+        enabled: true,
       },
     });
   });
@@ -192,7 +211,10 @@ describe("GameClient", () => {
       "test-node-123",
     );
 
-    expect(spy).toHaveBeenCalledWith("voidlock_mission_config", expect.any(String));
+    expect(spy).toHaveBeenCalledWith(
+      "voidlock_mission_config",
+      expect.any(String),
+    );
     spy.mockRestore();
   });
 
@@ -236,15 +258,23 @@ describe("GameClient", () => {
 
   it("should pass snapshots and disable tactical pause in Replay mode seek", () => {
     // 1. Setup snapshots in client
-    client.init(123, MapGeneratorType.DenseShip, undefined, true, false, true, { soldiers: [], inventory: {} });
+    client.init(123, MapGeneratorType.DenseShip, undefined, true, false, true, {
+      soldiers: [],
+      inventory: {},
+    });
     const mockSnapshots = [{ t: 100 } as any, { t: 200 } as any];
-    
+
     if (workerMock.onmessage) {
-      workerMock.onmessage({ data: { type: "STATE_UPDATE", payload: { 
-        snapshots: mockSnapshots,
-        settings: { mode: EngineMode.Simulation },
-        map: { width: 10, height: 10 }
-      } } });
+      workerMock.onmessage({
+        data: {
+          type: "STATE_UPDATE",
+          payload: {
+            snapshots: mockSnapshots,
+            settings: { mode: EngineMode.Simulation },
+            map: { width: 10, height: 10 },
+          },
+        },
+      });
     }
 
     // 2. Perform seek in Replay mode
@@ -254,7 +284,7 @@ describe("GameClient", () => {
       map: { width: 10, height: 10, cells: [] },
       squadConfig: { soldiers: [], inventory: {} },
       commands: [],
-      snapshots: mockSnapshots
+      snapshots: mockSnapshots,
     });
 
     client.pause();

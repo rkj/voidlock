@@ -13,7 +13,8 @@ export class Logger {
     // Determine default log level based on environment
     const isProd =
       (typeof import.meta !== "undefined" && import.meta.env?.PROD) ||
-      (typeof process !== "undefined" && process.env?.NODE_ENV === "production");
+      (typeof process !== "undefined" &&
+        process.env?.NODE_ENV === "production");
     this.level = isProd ? LogLevel.ERROR : LogLevel.INFO;
   }
 

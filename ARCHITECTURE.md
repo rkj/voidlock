@@ -14,7 +14,7 @@ This document describes the high-level module boundaries, state flow, and render
 - [User Interface](docs/spec/ui.md)
 - [Command System & AI](docs/spec/commands.md)
 
-______________________________________________________________________
+---
 
 ## 1. Module Boundaries
 
@@ -55,7 +55,7 @@ The codebase is organized into four primary modules, each with strict responsibi
 - Integration tests using micro-maps (2x2 grids)
 - Regression tests for bug fixes (`regression_<ticket_id>_<slug>.test.ts`)
 
-______________________________________________________________________
+---
 
 ### 1.2 `src/ui/`
 
@@ -112,7 +112,7 @@ ______________________________________________________________________
 - Integration tests for command menu state machine
 - E2E tests for full user flows (squad deployment, mission completion)
 
-______________________________________________________________________
+---
 
 ### 1.3 `src/content/`
 
@@ -155,7 +155,7 @@ ______________________________________________________________________
 - ASCII map parser tests (roundtrip: ASCII -> MapDefinition -> ASCII)
 - Content pack integrity tests (no duplicate IDs, valid references)
 
-______________________________________________________________________
+---
 
 ### 1.4 `src/shared/`
 
@@ -196,7 +196,7 @@ ______________________________________________________________________
 - Unit tests for all utility functions
 - Type-level tests (TypeScript compilation checks)
 
-______________________________________________________________________
+---
 
 ## 2. Web Worker Split
 
@@ -228,12 +228,17 @@ The simulation runs in a dedicated **Web Worker** to ensure:
 
 ```typescript
 type EngineMessage =
-  | { type: "INIT"; config: MissionConfig; contentPack: ContentPack; seed: number }
+  | {
+      type: "INIT";
+      config: MissionConfig;
+      contentPack: ContentPack;
+      seed: number;
+    }
   | { type: "COMMAND"; commands: Command[] }
   | { type: "QUERY_STATE" }
   | { type: "TOGGLE_DEBUG"; enabled: boolean }
   | { type: "SET_SPEED"; scale: number } // 0.1x - 10.0x, or 0 for pause
-  | { type: "RESET" }
+  | { type: "RESET" };
 ```
 
 **Worker → Main (UIMessage):**
@@ -241,9 +246,13 @@ type EngineMessage =
 ```typescript
 type UIMessage =
   | { type: "STATE_UPDATE"; state: WorldState; tick: number }
-  | { type: "MISSION_COMPLETE"; result: "VICTORY" | "DEFEAT"; stats: MissionStats }
+  | {
+      type: "MISSION_COMPLETE";
+      result: "VICTORY" | "DEFEAT";
+      stats: MissionStats;
+    }
   | { type: "ERROR"; message: string }
-  | { type: "DEBUG_INFO"; data: any } // For debug overlay
+  | { type: "DEBUG_INFO"; data: any }; // For debug overlay
 ```
 
 ### 2.3 State Synchronization
@@ -287,7 +296,7 @@ type UIMessage =
 - Main clears UI overlays (game over summary, pause overlay)
 - Replay background process stopped (if running)
 
-______________________________________________________________________
+---
 
 ## 3. State Flow
 
@@ -340,14 +349,14 @@ ______________________________________________________________________
 
 ### 3.2 State Ownership
 
-| State Type | Owner | Mutability | Sync Method |
-|----------------------------|------------|--------------------------------|--------------------|
-| **Game State** (canonical) | Worker | Mutable (via commands) | Push (every tick) |
-| **UI State** (snapshot) | Main | Read-only (replaced each tick) | Pull (on message) |
-| **Input State** | Main | Mutable (event handlers) | N/A (local only) |
-| **Config State** | Main | Mutable (settings, squad) | INIT message |
-| **Replay Log** | Worker | Append-only (command history) | Pull (on export) |
-| **Campaign Save** | Main | Mutable (LocalStorage) | N/A (local only) |
+| State Type                 | Owner  | Mutability                     | Sync Method       |
+| -------------------------- | ------ | ------------------------------ | ----------------- |
+| **Game State** (canonical) | Worker | Mutable (via commands)         | Push (every tick) |
+| **UI State** (snapshot)    | Main   | Read-only (replaced each tick) | Pull (on message) |
+| **Input State**            | Main   | Mutable (event handlers)       | N/A (local only)  |
+| **Config State**           | Main   | Mutable (settings, squad)      | INIT message      |
+| **Replay Log**             | Worker | Append-only (command history)  | Pull (on export)  |
+| **Campaign Save**          | Main   | Mutable (LocalStorage)         | N/A (local only)  |
 
 ### 3.3 Command Flow (User Input → Simulation)
 
@@ -393,7 +402,7 @@ ______________________________________________________________________
   - Director pacing (enemy spawning)
 - `realDt` (Real Time): Constant (Note: Most systems now use `scaledDt`)
 
-______________________________________________________________________
+---
 
 ## 4. Render Pipeline
 
@@ -402,14 +411,12 @@ ______________________________________________________________________
 The Canvas renderer draws layers from back to front:
 
 1. **Background Layer:**
-
    - Floor tiles (walkable cells)
    - Void cells (impassable space)
    - Wall geometry (edges between cells)
    - Static decals (stains, debris)
 
 1. **Ground Decal Layer:**
-
    - Extraction Zone (green grid overlay)
    - Enemy Spawn Points (vents/crosshairs)
    - Objectives (data disks, artifacts)
@@ -417,20 +424,17 @@ The Canvas renderer draws layers from back to front:
    - **Note:** Entities on this layer respect Fog of War (only visible if cell is Discovered)
 
 1. **Unit Layer (Dynamic):**
-
    - Soldiers (friendly units)
    - Enemies (hostile units)
    - Projectiles (bullets, grenades)
    - **Note:** Units obscure ground decals (e.g., soldier standing on spawn point hides the spawn icon)
 
 1. **Fog of War (Shroud):**
-
    - Black overlay for undiscovered cells
    - Semi-transparent "fog" for explored-but-not-visible cells (Classic mode)
    - **Note:** Hardcore mode returns cells to "unknown" state when out of LOS
 
 1. **Overlay Layer (UI):**
-
    - Selection rings (squad selection)
    - Health bars (HP, status icons)
    - Movement paths (ghost trail)
@@ -510,7 +514,7 @@ The game supports two visual styles (user-configurable in Global Settings):
 - **Bounds:** Camera clamped to map extents (no scrolling into void)
 - **Reset:** On mission start, camera centers on squad spawn zone
 
-______________________________________________________________________
+---
 
 ## 5. Determinism & Replay
 
@@ -577,7 +581,7 @@ Accessible via Debug Overlay (`~` key):
 - Copies JSON to clipboard (or console if clipboard unavailable)
 - Useful for bug reports, sharing tactical scenarios
 
-______________________________________________________________________
+---
 
 ## 6. Content Pack System
 
@@ -602,11 +606,21 @@ Content Packs decouple game data (units, weapons, maps) from game logic, enablin
     "fogOfWar": true,
     "lineOfSight": { "type": "gridRaycast", "maxRange": 10 }
   },
-  "soldierArchetypes": { /* ... */ },
-  "enemyArchetypes": { /* ... */ },
-  "weaponDefinitions": { /* ... */ },
-  "itemDefinitions": { /* ... */ },
-  "missionTemplates": { /* ... */ }
+  "soldierArchetypes": {
+    /* ... */
+  },
+  "enemyArchetypes": {
+    /* ... */
+  },
+  "weaponDefinitions": {
+    /* ... */
+  },
+  "itemDefinitions": {
+    /* ... */
+  },
+  "missionTemplates": {
+    /* ... */
+  }
 }
 ```
 
@@ -619,7 +633,7 @@ Content Packs decouple game data (units, weapons, maps) from game logic, enablin
   "baseStats": {
     "hp": 100,
     "speed": 30, // 1.0 tile/sec at 1x game speed
-    "aim": 75,   // Base accuracy (%)
+    "aim": 75, // Base accuracy (%)
     "armor": 10
   },
   "defaultLoadout": {
@@ -640,9 +654,9 @@ Content Packs decouple game data (units, weapons, maps) from game logic, enablin
   "type": "ranged",
   "damage": 25,
   "fireRate": 3.0, // rounds per second
-  "range": 8,      // tiles
+  "range": 8, // tiles
   "accuracy": 0.85, // base multiplier
-  "dispersion": 5   // angular dispersion (degrees)
+  "dispersion": 5 // angular dispersion (degrees)
 }
 ```
 
@@ -667,7 +681,7 @@ Content Packs decouple game data (units, weapons, maps) from game logic, enablin
 - Seed determines layout (deterministic)
 - Config specifies: dimensions, room count, corridor width, spawn points
 
-______________________________________________________________________
+---
 
 ## 7. Testing Strategy
 
@@ -684,8 +698,12 @@ ______________________________________________________________________
 describe("Pathfinding", () => {
   it("finds shortest path in 2x2 grid", () => {
     const map = createTestMap(/* 2x2 floor grid */);
-    const path = findPath(map, {x: 0, y: 0}, {x: 1, y: 1});
-    expect(path).toEqual([{x: 0, y: 0}, {x: 1, y: 0}, {x: 1, y: 1}]);
+    const path = findPath(map, { x: 0, y: 0 }, { x: 1, y: 1 });
+    expect(path).toEqual([
+      { x: 0, y: 0 },
+      { x: 1, y: 0 },
+      { x: 1, y: 1 },
+    ]);
   });
 });
 ```
@@ -721,7 +739,7 @@ test("soldier deploys to spawn point", async ({ page }) => {
 - **Replay Validation:** Record → Export → Import → Verify identical output
 - **Campaign Progression:** Start campaign → Complete mission → Check unlocks
 
-______________________________________________________________________
+---
 
 ## 8. File Structure
 
@@ -806,59 +824,51 @@ voidlock/
 └── README.md                 # Project overview (for humans)
 ```
 
-______________________________________________________________________
+---
 
 ## 9. Key Design Principles
 
 1. **Separation of Concerns:**
-
    - **Engine:** Pure simulation logic, no UI dependencies
    - **UI:** Pure presentation, no game rules
    - **Content:** Pure data, no logic
 
 1. **Determinism First:**
-
    - Worker owns PRNG, no `Math.random()`
    - All state transitions driven by commands
    - Replay log captures full session history
 
 1. **Single Source of Truth:**
-
    - Worker owns canonical `GameState`
    - Main thread receives read-only snapshots
    - UI never mutates state directly
 
 1. **Performance via Isolation:**
-
    - Web Worker offloads heavy computation (pathfinding, LOS)
    - UI thread focuses on rendering (60 FPS)
    - Tick rate decoupled from frame rate
 
 1. **Testability:**
-
    - Pure functions where possible
    - Dependency injection for mocking (PRNG, map generator)
    - Micro-maps for fast, focused tests
 
 1. **Modularity:**
-
    - Content Packs enable modding without code changes
    - Map generators swappable (TreeShip, DenseShip, Static)
    - Renderer supports multiple visual styles (Tactical, Sprites)
 
 1. **Accessibility:**
-
    - Fully keyboard-navigable
    - No reliance on mouse
    - Hierarchical command menu (Action → Orders → Target → Unit)
 
 1. **Resilience:**
-
    - Top-level error handler (graceful degradation)
    - Emergency reset button (wipes corrupted LocalStorage)
    - Schema validation for content packs
 
-______________________________________________________________________
+---
 
 ## 10. References
 
@@ -867,7 +877,7 @@ ______________________________________________________________________
 - **Agent Guidelines:** [`AGENTS.md`](AGENTS.md)
 - **Manager Guidelines:** [`MANAGER.md`](MANAGER.md)
 
-______________________________________________________________________
+---
 
 **Last Updated:** 2026-02-06
 **Version:** 1.0

@@ -160,7 +160,7 @@ export class CampaignManager {
       ]),
     );
     const unlockedItems = [...metaStats.unlockedItems];
-    
+
     const roster = this.rosterManager.generateInitialRoster(unlockedArchetypes);
 
     this.state = {
@@ -284,9 +284,9 @@ export class CampaignManager {
   public async load(): Promise<boolean> {
     try {
       let data: unknown;
-      
+
       // If our storage is a SaveManager, we can use cloud sync
-      if ('loadWithSync' in this.storage) {
+      if ("loadWithSync" in this.storage) {
         data = await (this.storage as any).loadWithSync(STORAGE_KEY);
       } else {
         data = this.storage.load<unknown>(STORAGE_KEY);
@@ -361,8 +361,7 @@ export class CampaignManager {
       if (!Array.isArray(state.history)) state.history = [];
       if (!Array.isArray(state.unlockedArchetypes))
         state.unlockedArchetypes = [...CAMPAIGN_DEFAULTS.UNLOCKED_ARCHETYPES];
-      if (!Array.isArray(state.unlockedItems))
-        state.unlockedItems = [];
+      if (!Array.isArray(state.unlockedItems)) state.unlockedItems = [];
 
       // 2. Repair rules
       const rules = { ...((data.rules as any) || {}) };

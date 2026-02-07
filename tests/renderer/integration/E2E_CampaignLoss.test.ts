@@ -181,7 +181,12 @@ describe("E2E Campaign Failure Modes", () => {
       stats: { aliensKilled: 0, scrapGained: 0, threatLevel: 100 },
       units: [],
       objectives: [],
-      settings: { debugOverlayEnabled: false, debugSnapshots: false, timeScale: 1.0, isPaused: false },
+      settings: {
+        debugOverlayEnabled: false,
+        debugSnapshots: false,
+        timeScale: 1.0,
+        isPaused: false,
+      },
       map: { width: 10, height: 10, cells: [] },
       enemies: [],
       visibleCells: [],
@@ -255,11 +260,16 @@ describe("E2E Campaign Failure Modes", () => {
           state: UnitState.Dead,
           archetypeId: "assault",
           stats: { hp: 100, speed: 20, accuracy: 80 },
-          equipment: { rightHand: "pulse_rifle", leftHand: "combat_knife" }
+          equipment: { rightHand: "pulse_rifle", leftHand: "combat_knife" },
         },
       ],
       objectives: [],
-      settings: { debugOverlayEnabled: false, debugSnapshots: false, timeScale: 1.0, isPaused: false },
+      settings: {
+        debugOverlayEnabled: false,
+        debugSnapshots: false,
+        timeScale: 1.0,
+        isPaused: false,
+      },
       map: { width: 10, height: 10, cells: [] },
       enemies: [],
       visibleCells: [],
@@ -269,14 +279,23 @@ describe("E2E Campaign Failure Modes", () => {
 
     // 4. Verify in Roster
     document.getElementById("btn-debrief-continue")?.click();
-    expect(cm.getState()?.roster.find((s) => s.id === deadSoldier.id)?.status).toBe("Dead");
+    expect(
+      cm.getState()?.roster.find((s) => s.id === deadSoldier.id)?.status,
+    ).toBe("Dead");
 
     // 5. Select next mission and verify dead soldier cannot be added to squad
-    const availableNodes = cm.getState()!.nodes.filter((n) => n.status === "Accessible");
-    const node2 = availableNodes.find((n) => n.type === "Combat" || n.type === "Elite" || n.type === "Boss") || availableNodes[0];
+    const availableNodes = cm
+      .getState()!
+      .nodes.filter((n) => n.status === "Accessible");
+    const node2 =
+      availableNodes.find(
+        (n) => n.type === "Combat" || n.type === "Elite" || n.type === "Boss",
+      ) || availableNodes[0];
 
     expect(node2).toBeTruthy();
-    const node2El = document.querySelector(`.campaign-node[data-id="${node2.id}"]`) as HTMLElement;
+    const node2El = document.querySelector(
+      `.campaign-node[data-id="${node2.id}"]`,
+    ) as HTMLElement;
     expect(node2El).toBeTruthy();
     node2El.click();
 
@@ -287,15 +306,19 @@ describe("E2E Campaign Failure Modes", () => {
 
     // In Equipment screen, check the roster picker for dead soldier
     // Select an empty slot
-    const emptySlot = Array.from(document.querySelectorAll(".soldier-list-panel .menu-item")).find(
-        el => el.textContent?.includes("Empty Slot")
-    ) as HTMLElement;
+    const emptySlot = Array.from(
+      document.querySelectorAll(".soldier-list-panel .menu-item"),
+    ).find((el) => el.textContent?.includes("Empty Slot")) as HTMLElement;
     emptySlot?.click();
 
     // Roster picker is in the right panel
-    const rosterItems = Array.from(document.querySelectorAll(".armory-panel .menu-item"));
-    const deadInRoster = rosterItems.find(el => el.textContent?.includes(deadSoldier.name));
-    
+    const rosterItems = Array.from(
+      document.querySelectorAll(".armory-panel .menu-item"),
+    );
+    const deadInRoster = rosterItems.find((el) =>
+      el.textContent?.includes(deadSoldier.name),
+    );
+
     // Dead soldiers are filtered out of the Reserve Roster picker (which shows healthy only)
     expect(deadInRoster).toBeFalsy();
   });

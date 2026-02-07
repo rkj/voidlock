@@ -98,7 +98,8 @@ describe("Regression voidlock-w4gk: Enemy Spawn Point Visibility", () => {
       visibleCells: [], // Nothing visible
       discoveredCells: [], // Nothing discovered
       settings: {
-        debugOverlayEnabled: false, debugSnapshots: false,
+        debugOverlayEnabled: false,
+        debugSnapshots: false,
       },
     } as any;
 
@@ -146,7 +147,8 @@ describe("Regression voidlock-w4gk: Enemy Spawn Point Visibility", () => {
       visibleCells: [],
       discoveredCells: [],
       settings: {
-        debugOverlayEnabled: true, debugSnapshots: false,
+        debugOverlayEnabled: true,
+        debugSnapshots: false,
       },
     } as any;
 

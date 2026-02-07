@@ -100,6 +100,7 @@ The application is divided into distinct screens to reduce UI clutter and improv
   - "Back" -> Main Menu.
 
 2b. **Squad Management & Loadout**
+
 - **Purpose**: Unified screen for selecting the squad, managing the roster, and equipping gear.
 - **Access**: After "Mission Setup" or from "Campaign Hub".
 - **Layout**:

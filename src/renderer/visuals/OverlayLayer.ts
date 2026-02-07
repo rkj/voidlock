@@ -29,8 +29,7 @@ export class OverlayLayer implements RenderLayer {
     const cellSize = this.sharedState.cellSize;
     const map = state.map;
 
-    const spawns =
-      map.squadSpawns || (map.squadSpawn ? [map.squadSpawn] : []);
+    const spawns = map.squadSpawns || (map.squadSpawn ? [map.squadSpawn] : []);
 
     ctx.fillStyle = this.theme.getColor("--color-success") + "44";
     spawns.forEach((s) => {

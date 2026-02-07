@@ -19,7 +19,8 @@ describe("InputManager", () => {
 
   const mockState = {
     settings: {
-      debugOverlayEnabled: false, debugSnapshots: false,
+      debugOverlayEnabled: false,
+      debugSnapshots: false,
       losOverlayEnabled: false,
     },
   };

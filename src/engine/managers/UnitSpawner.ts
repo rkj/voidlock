@@ -174,7 +174,6 @@ export class UnitSpawner {
       });
     });
 
-
     return units;
   }
 

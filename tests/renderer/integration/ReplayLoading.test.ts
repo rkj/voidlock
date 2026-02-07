@@ -170,6 +170,11 @@ describe("Replay Loading Integration", () => {
       <div id="modal-container"></div>
     `;
 
+    if (window.GameAppInstance) {
+      window.GameAppInstance.stop();
+      window.GameAppInstance = undefined;
+    }
+
     localStorage.clear();
 
     // Import main.ts
@@ -274,6 +279,68 @@ describe("Replay Loading Integration", () => {
       expect.objectContaining({
         seed: 456,
         missionType: MissionType.DestroyHive,
+      }),
+    );
+
+    vi.unstubAllGlobals();
+  });
+
+  it("should load a replay-only JSON (no currentState) and still transition to Debrief Screen", async () => {
+    const replayFileContent = JSON.stringify({
+      seed: 789,
+      missionType: MissionType.RecoverIntel,
+      map: { width: 8, height: 8, cells: [] },
+      squadConfig: {
+        soldiers: [{ archetypeId: "assault", name: "Sarge" }],
+        inventory: {},
+      },
+      commands: [{ t: 5000, cmd: { type: "STOP", unitIds: ["u1"] } }],
+    });
+
+    const file = new File([replayFileContent], "replay_only.json", {
+      type: "application/json",
+    });
+    const input = document.getElementById("import-replay") as HTMLInputElement;
+
+    // Mock FileReader globally
+    const mockReader = {
+      readAsText: vi.fn(),
+      onload: null as any,
+      result: null as any,
+    };
+    mockReader.readAsText.mockImplementation(() => {
+      mockReader.result = replayFileContent;
+      if (mockReader.onload) {
+        mockReader.onload({ target: { result: replayFileContent } });
+      }
+    });
+    vi.stubGlobal(
+      "FileReader",
+      vi.fn(() => mockReader),
+    );
+
+    // Trigger change event
+    Object.defineProperty(input, "files", {
+      value: [file],
+    });
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+
+    // Wait for async processing
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
+    // Verify transition to Debrief Screen
+    const debriefScreen = document.getElementById("screen-debrief");
+    expect(debriefScreen?.style.display).toBe("flex");
+
+    // Verify Mission Success (default)
+    expect(debriefScreen?.innerHTML).toContain("Mission Success");
+    expect(debriefScreen?.innerHTML).toContain("Sarge");
+
+    // Verify GameClient.loadReplay was called with correct data
+    expect(mockGameClient.loadReplay).toHaveBeenCalledWith(
+      expect.objectContaining({
+        seed: 789,
+        missionType: MissionType.RecoverIntel,
       }),
     );
 

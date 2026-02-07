@@ -45,11 +45,11 @@ describe("Regression: Recruit Speed Display (voidlock-95y7.5)", () => {
 
     // The raw speed for assault is 20.
     // SoldierWidget uses StatDisplay which puts values in .stat-value
-    const speedStat = Array.from(assaultCard.querySelectorAll(".stat-display")).find(
-        el => (el as HTMLElement).title === "Speed"
-    );
+    const speedStat = Array.from(
+      assaultCard.querySelectorAll(".stat-display"),
+    ).find((el) => (el as HTMLElement).title === "Speed");
     const speedValue = speedStat?.querySelector(".stat-value")?.textContent;
-    
+
     expect(speedValue).toBe(assaultArch.speed.toString());
   });
 
@@ -71,11 +71,11 @@ describe("Regression: Recruit Speed Display (voidlock-95y7.5)", () => {
     expect(scoutCard).toBeDefined();
 
     // The raw speed for scout is 30.
-    const speedStat = Array.from(scoutCard.querySelectorAll(".stat-display")).find(
-        el => (el as HTMLElement).title === "Speed"
-    );
+    const speedStat = Array.from(
+      scoutCard.querySelectorAll(".stat-display"),
+    ).find((el) => (el as HTMLElement).title === "Speed");
     const speedValue = speedStat?.querySelector(".stat-value")?.textContent;
-    
+
     expect(speedValue).toBe(scoutArch.speed.toString());
   });
 });
