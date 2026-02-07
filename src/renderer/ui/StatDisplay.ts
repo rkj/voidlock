@@ -17,15 +17,18 @@ export class StatDisplay {
       gap?: string;
     } = {},
   ): string {
-    const fontSize = options.fontSize || "inherit";
-    const iconSize = options.iconSize || "12px";
-    const color = options.color || "var(--color-text)";
-    const gap = options.gap || "2px";
+    const style = [];
+    if (options.fontSize) style.push(`font-size: ${options.fontSize}`);
+    if (options.color) style.push(`--stat-value-color: ${options.color}`);
+    if (options.gap) style.push(`gap: ${options.gap}`);
+    
+    const inlineStyle = style.length > 0 ? `style="${style.join('; ')}"` : '';
+    const imgStyle = options.iconSize ? `style="width:${options.iconSize}; height:${options.iconSize};"` : '';
 
     return `
-      <span class="stat-display" style="display:inline-flex; align-items:center; gap:${gap}; font-size:${fontSize};" title="${title}">
-        <img src="${icon}" style="width:${iconSize}; height:${iconSize};" />
-        <span class="stat-value" style="color:${color}">${value}</span>
+      <span class="stat-display" ${inlineStyle} title="${title}">
+        <img src="${icon}" ${imgStyle} />
+        <span class="stat-value">${value}</span>
       </span>
     `.trim();
   }

@@ -108,7 +108,7 @@ describe("HUDManager Objective Regression PDXS", () => {
     hud.update(mockState, null);
     const objectivesDiv = document.querySelector(".objectives-status");
     const icons = objectivesDiv?.querySelectorAll(
-      "span[style*='font-weight:bold']",
+      ".obj-icon",
     );
     expect(icons?.[0].getAttribute("title")).toBe("Pending");
     expect(icons?.[1].getAttribute("title")).toBe("Completed");

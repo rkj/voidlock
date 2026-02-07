@@ -52,7 +52,7 @@ describe("EquipmentScreen Regression: Price Formatting", () => {
 
     // The price container should have width: 100%
     const priceContainer = weaponBtn?.querySelector(
-      ".flex-row.justify-between",
+      ".armory-item-header",
     ) as HTMLElement;
     expect(priceContainer).not.toBeNull();
     expect(priceContainer.style.width).toBe("100%");
@@ -77,7 +77,7 @@ describe("EquipmentScreen Regression: Price Formatting", () => {
     expect(nameGroup).not.toBeNull();
 
     const priceContainer = nameGroup.querySelector(
-      ".flex-row.justify-between",
+      ".supply-item-header",
     ) as HTMLElement;
     expect(priceContainer).not.toBeNull();
     expect(priceContainer.style.width).toBe("100%");

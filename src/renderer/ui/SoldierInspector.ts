@@ -71,23 +71,19 @@ export class SoldierInspector {
     container.innerHTML = "";
     if (!this.soldier) {
       const wrapper = document.createElement("div");
-      wrapper.className = "flex-col gap-20 align-center h-full";
-      wrapper.style.padding = "20px";
+      wrapper.className = "inspector-empty-wrapper flex-col gap-20 align-center h-full";
 
       const placeholder = document.createElement("div");
-      placeholder.className = "flex-col align-center justify-center";
-      placeholder.style.color = "var(--color-border-strong)";
+      placeholder.className = "inspector-placeholder flex-col align-center justify-center";
       placeholder.innerHTML = `
-        <div style="font-size:3em; margin-bottom:10px;">👤</div>
+        <div class="placeholder-icon">👤</div>
         <div>Select a slot to manage squad</div>
       `;
       wrapper.appendChild(placeholder);
 
       // Recruit/Revive Options
       const optionsDiv = document.createElement("div");
-      optionsDiv.className = "flex-col gap-10 w-full";
-      optionsDiv.style.maxWidth = "400px";
-      optionsDiv.style.marginTop = "20px";
+      optionsDiv.className = "inspector-recruit-options flex-col gap-10 w-full";
 
       const state = this.manager.getState();
       const healthyWoundedCount = state
@@ -96,11 +92,10 @@ export class SoldierInspector {
 
       if (healthyWoundedCount < 4) {
         const recruitBtn = document.createElement("button");
-        recruitBtn.className = "menu-button w-full";
-        recruitBtn.style.padding = "15px";
+        recruitBtn.className = "menu-button w-full recruit-btn-large";
         recruitBtn.innerHTML = `
-          <div style="font-weight:bold;">Recruit New Soldier</div>
-          <div style="font-size:0.8em; color:var(--color-text-dim);">Cost: 100 Scrap</div>
+          <div class="btn-label">Recruit New Soldier</div>
+          <div class="btn-sub">Cost: 100 Scrap</div>
         `;
         recruitBtn.onclick = () => this.handleRecruit();
         optionsDiv.appendChild(recruitBtn);
@@ -108,12 +103,11 @@ export class SoldierInspector {
 
       const reviveBtn = document.createElement("button");
       const canAffordRevive = state ? state.scrap >= 250 : true;
-      reviveBtn.className = `menu-button w-full ${!canAffordRevive ? "disabled" : ""}`;
-      reviveBtn.style.padding = "15px";
+      reviveBtn.className = `menu-button w-full revive-btn-large ${!canAffordRevive ? "disabled" : ""}`;
       reviveBtn.disabled = !canAffordRevive;
       reviveBtn.innerHTML = `
-        <div style="font-weight:bold;">Revive Fallen Soldier</div>
-        <div style="font-size:0.8em; color:var(--color-text-dim);">Cost: 250 Scrap</div>
+        <div class="btn-label">Revive Fallen Soldier</div>
+        <div class="btn-sub">Cost: 250 Scrap</div>
       `;
       reviveBtn.onclick = () => this.handleRevive();
       optionsDiv.appendChild(reviveBtn);
@@ -124,46 +118,29 @@ export class SoldierInspector {
     }
 
     const content = document.createElement("div");
-    content.className = "flex-col align-center gap-20";
-    content.style.marginTop = "10px";
+    content.className = "inspector-details-content flex-col align-center gap-20";
 
     const sStats = this.calculateSoldierStats(this.soldier);
 
     // Dead Warning
     if (this.isDead()) {
       const deadDiv = document.createElement("div");
-      deadDiv.className = "w-full stat-box";
-      deadDiv.style.maxWidth = "400px";
-      deadDiv.style.borderRadius = "2px";
-      deadDiv.style.border = "1px solid var(--color-danger)";
-      deadDiv.style.backgroundColor = "rgba(255,0,0,0.1)";
-      deadDiv.style.padding = "12px";
-      deadDiv.style.textAlign = "center";
-      deadDiv.style.color = "var(--color-danger)";
-      deadDiv.style.fontWeight = "bold";
-      deadDiv.style.letterSpacing = "1px";
+      deadDiv.className = "w-full dead-warning";
       deadDiv.textContent = "SOLDIER IS DECEASED - EQUIPMENT LOCKED";
       content.appendChild(deadDiv);
     }
 
     // Soldier Stats Panel
     const soldierStatsDiv = document.createElement("div");
-    soldierStatsDiv.className = "w-full stat-box";
-    soldierStatsDiv.style.maxWidth = "400px";
-    soldierStatsDiv.style.borderRadius = "2px";
-    soldierStatsDiv.style.borderLeft = "3px solid var(--color-accent)";
-    soldierStatsDiv.style.padding = "12px";
+    soldierStatsDiv.className = "w-full stat-box soldier-attributes-panel";
 
     const h3Soldier = document.createElement("h3");
     h3Soldier.textContent = "Soldier Attributes";
-    h3Soldier.className = "stat-label";
-    h3Soldier.style.margin = "0 0 12px 0";
-    h3Soldier.style.letterSpacing = "1px";
-    h3Soldier.style.color = "var(--color-accent)";
+    h3Soldier.className = "stat-label inspector-panel-title";
     soldierStatsDiv.appendChild(h3Soldier);
 
     const sGrid = document.createElement("div");
-    sGrid.className = "flex-row gap-20";
+    sGrid.className = "flex-row gap-20 inspector-stats-grid";
     sGrid.innerHTML = `
       ${StatDisplay.render(Icons.Health, sStats.hp, "Max Health", { iconSize: "14px" })}
       ${StatDisplay.render(Icons.Speed, sStats.speed, "Movement Speed", { iconSize: "14px" })}
@@ -174,18 +151,11 @@ export class SoldierInspector {
 
     // Weapon Stats Panel
     const weaponStatsDiv = document.createElement("div");
-    weaponStatsDiv.className = "w-full stat-box";
-    weaponStatsDiv.style.maxWidth = "400px";
-    weaponStatsDiv.style.borderRadius = "2px";
-    weaponStatsDiv.style.borderLeft = "3px solid var(--color-primary)";
-    weaponStatsDiv.style.padding = "12px";
+    weaponStatsDiv.className = "w-full stat-box weapon-performance-panel";
 
     const h3Weapon = document.createElement("h3");
     h3Weapon.textContent = "Equipment Performance";
-    h3Weapon.className = "stat-label";
-    h3Weapon.style.margin = "0 0 12px 0";
-    h3Weapon.style.letterSpacing = "1px";
-    h3Weapon.style.color = "var(--color-primary)";
+    h3Weapon.className = "stat-label inspector-panel-title-alt";
     weaponStatsDiv.appendChild(h3Weapon);
 
     const equip = this.getEquipment(this.soldier);
@@ -194,11 +164,11 @@ export class SoldierInspector {
 
     const renderWepBlock = (w: WeaponStats | null, label: string) => {
       if (!w)
-        return `<div style="color:var(--color-text-dim); font-size:0.75em; margin-bottom:12px; font-style: italic;">${label}: [No Equipment]</div>`;
+        return `<div class="weapon-block-empty">${label}: [No Equipment]</div>`;
       return `
-            <div style="margin-bottom:16px; border-bottom:1px solid var(--color-surface-elevated); padding-bottom:12px;">
-                <div style="font-size:0.85em; font-weight:bold; color:var(--color-primary); margin-bottom:8px; text-transform: uppercase; letter-spacing: 0.5px;">${label}: ${w.name}</div>
-                <div style="display:flex; gap:16px; flex-wrap:wrap;">
+            <div class="weapon-block">
+                <div class="weapon-block-title">${label}: ${w.name}</div>
+                <div class="weapon-block-stats">
                     ${StatDisplay.render(Icons.Damage, w.damage, "Damage per hit")}
                     ${StatDisplay.render(Icons.Rate, w.fireRate, "Rounds per second")}
                     ${StatDisplay.render(Icons.Range, w.range, "Effective Range (m)")}
@@ -209,7 +179,7 @@ export class SoldierInspector {
     };
 
     const wContent = document.createElement("div");
-    wContent.style.width = "100%";
+    wContent.className = "w-full";
     wContent.innerHTML =
       renderWepBlock(rw, "Primary (RH)") + renderWepBlock(lw, "Secondary (LH)");
     weaponStatsDiv.appendChild(wContent);
@@ -217,15 +187,7 @@ export class SoldierInspector {
 
     // Slots
     const slotsGrid = document.createElement("div");
-    slotsGrid.style.display = "grid";
-    slotsGrid.style.gridTemplateColumns = "110px 110px";
-    slotsGrid.style.gridTemplateRows = "110px 110px";
-    slotsGrid.style.gap = "15px";
-    slotsGrid.style.marginTop = "10px";
-    slotsGrid.style.padding = "10px";
-    slotsGrid.style.background = "rgba(0,0,0,0.2)";
-    slotsGrid.style.borderRadius = "4px";
-    slotsGrid.style.border = "1px solid var(--color-border)";
+    slotsGrid.className = "inspector-slots-grid";
 
     slotsGrid.appendChild(
       this.createSlot("Right Hand", equip.rightHand, (id) =>
@@ -335,19 +297,11 @@ export class SoldierInspector {
     // Disable interactions for dead soldiers
     if (this.isDead()) {
       slot.classList.add("disabled");
-      slot.style.opacity = "0.5";
-      slot.style.cursor = "not-allowed";
-      slot.style.pointerEvents = "none";
     }
 
     const title = document.createElement("div");
     title.textContent = label;
-    title.style.fontSize = "0.65em";
-    title.style.color = "var(--color-text-dim)";
-    title.style.position = "absolute";
-    title.style.top = "5px";
-    title.style.textTransform = "uppercase";
-    title.style.letterSpacing = "0.5px";
+    title.className = "slot-title";
     slot.appendChild(title);
 
     if (itemId) {
@@ -355,21 +309,12 @@ export class SoldierInspector {
       if (item) {
         const name = document.createElement("div");
         name.textContent = item.name;
-        name.style.fontSize = "0.75em";
-        name.style.textAlign = "center";
-        name.style.fontWeight = "bold";
-        name.style.color = "var(--color-primary)";
-        name.style.padding = "0 5px";
+        name.className = "slot-item-name";
         slot.appendChild(name);
 
         const removeBtn = document.createElement("div");
         removeBtn.textContent = "×";
-        removeBtn.style.position = "absolute";
-        removeBtn.style.top = "2px";
-        removeBtn.style.right = "5px";
-        removeBtn.style.color = "var(--color-danger)";
-        removeBtn.style.cursor = "pointer";
-        removeBtn.style.fontSize = "1.2em";
+        removeBtn.className = "slot-remove-btn";
         removeBtn.onclick = (e) => {
           e.stopPropagation();
           onDrop("");
@@ -379,8 +324,7 @@ export class SoldierInspector {
     } else {
       const plus = document.createElement("div");
       plus.textContent = "+";
-      plus.style.fontSize = "1.5em";
-      plus.style.color = "var(--color-border-strong)";
+      plus.className = "slot-empty-plus";
       slot.appendChild(plus);
     }
 
@@ -396,13 +340,7 @@ export class SoldierInspector {
   ) {
     const h3 = document.createElement("h3");
     h3.textContent = title;
-    h3.style.fontSize = "0.9em";
-    h3.style.color = "var(--color-primary)";
-    h3.style.margin = "20px 0 10px 0";
-    h3.style.textTransform = "uppercase";
-    h3.style.letterSpacing = "1px";
-    h3.style.borderBottom = "1px solid var(--color-border)";
-    h3.style.paddingBottom = "5px";
+    h3.className = "armory-category-title";
     panel.appendChild(h3);
 
     const state = this.manager.getState();
@@ -433,21 +371,13 @@ export class SoldierInspector {
       const canAfford = !state || state.scrap >= cost;
 
       const btn = document.createElement("div");
-      btn.className = `menu-item clickable ${isCurrentlyEquipped ? "active" : ""}`;
+      btn.className = `menu-item clickable armory-item ${isCurrentlyEquipped ? "active" : ""}`;
 
       // Disable for dead soldiers OR if cannot afford
       if (isDead || (!isCurrentlyEquipped && !isOwned && !canAfford)) {
         btn.classList.add("disabled");
-        btn.style.opacity = "0.5";
-        btn.style.pointerEvents = "none";
-        if (isDead) {
-          btn.style.cursor = "not-allowed";
-        }
       }
-      btn.style.padding = "8px 12px";
-      btn.style.marginBottom = "4px";
-      btn.style.fontSize = "0.85em";
-
+      
       let statsHtml = "";
       let fullStats = "";
       if ("damage" in item) {
@@ -492,18 +422,15 @@ export class SoldierInspector {
       btn.title = `${item.name}\n${item.description || ""}${fullStats ? "\n\n" + fullStats : ""}`;
 
       const priceText = isOwned || isCurrentlyEquipped ? "Owned" : `${cost} CR`;
-      const priceColor =
-        isOwned || isCurrentlyEquipped
-          ? "var(--color-primary)"
-          : "var(--color-text-muted)";
+      const priceClass = isOwned || isCurrentlyEquipped ? "price-owned" : "price-cost";
 
       btn.innerHTML = `
-            <div class="flex-col" style="width: 100%;">
-                <div class="flex-row justify-between" style="font-weight:bold; font-size: 0.95em; width: 100%;">
+            <div class="armory-item-content" style="width: 100%;">
+                <div class="armory-item-header" style="width: 100%; display: flex; justify-content: space-between;">
                     <span>${item.name}</span>
-                    <span style="color:${priceColor};">${priceText}</span>
+                    <span class="${priceClass}">${priceText}</span>
                 </div>
-                <div style="font-size:0.8em; color:var(--color-text-muted); margin-top:4px; display:flex; gap:10px;">
+                <div class="armory-item-stats">
                     ${statsHtml}
                 </div>
             </div>
