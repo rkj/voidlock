@@ -6,187 +6,142 @@ This directory contains utility scripts for development and build processes.
 
 `scripts/process_assets.ts`
 
-This script processes raw assets from `NanoBanana Assets/` and prepares them for the game.
+Processes raw assets from `NanoBanana Assets/` and prepares them for the game.
 
-### Features
-
-- Trims transparency/crops to content.
-- Resizes to standard 128x128 dimensions.
-- Converts to WebP format.
-- Generates `public/assets/assets.json` manifest.
-
-### Usage
-
+Usage:
 ```bash
 npm run process-assets
 ```
 
-### Dependencies
+## Timeline Pipeline
 
-- **Sharp**: Required for cropping, resizing, and WebP conversion. If Sharp is not installed, the script falls back to a simple file copy and maintains PNG format in the manifest.
+Timeline automation now lives in `scripts/timeline/`.
 
-## Timeline Video Pipeline
+### 1) Manifest
 
-These scripts create a visual timeline from git history.
+`scripts/timeline/timeline_manifest.ts`
 
-### `scripts/timeline_manifest.ts`
-
-Builds `timeline/manifest.json` from commit history.
+Builds `timeline/manifest.json` from git commits.
 
 Usage:
 ```bash
-npm run timeline:manifest
+npm run timeline:manifest -- --manifest timeline/manifest.json --mode all --max-count 0
 ```
 
-Arguments:
-```bash
-node --experimental-strip-types scripts/timeline_manifest.ts [manifest_path] [mode] [max_count] [min_hours_between]
-node --experimental-strip-types scripts/timeline_manifest.ts --manifest <path> --mode <all|visual> --max-count <N> --min-hours <N>
-```
+Args:
+- `--manifest` output manifest path (default `timeline/manifest.json`)
+- `--mode` `all|visual` (default `all`)
+- `--max-count` `0` means all commits (default `0`)
+- `--min-hours` spacing for `visual` mode (default `8`)
 
-- `manifest_path` (default: `timeline/manifest.json`)
-- `mode`:
-  - `all`: include every commit (recommended for full project history video)
-  - `visual`: use visual-oriented milestone selection
-- `max_count` (default: `0` = all available commits)
-- `min_hours_between` (default: `8`, only used in `visual` mode)
+### 2) Navigation Analysis
 
-Examples:
-```bash
-# Full history (all commits)
-npm run timeline:manifest -- timeline/manifest.json all 5000
+`scripts/timeline/analyze_timeline_navigation.ts`
 
-# Visual milestones only
-npm run timeline:manifest -- timeline/manifest.json visual 200 12
-```
-
-### `scripts/capture_timeline.ts`
-
-Captures 4 screenshots per manifest commit:
-- `mission`
-- `main_menu`
-- `config`
-- `campaign` (optional, if available)
-
-It runs each commit in an isolated git worktree checkout and writes:
-`screenshots/<datetime>_<screen_name>_<sha>.png`
+Static scan per commit (no browser) to extract ids/screen/action hints.
 
 Usage:
 ```bash
-npm run timeline:capture
+npm run timeline:analyze -- --manifest timeline/manifest.json --navigation-map timeline/navigation_map.json --max-count 0
 ```
 
-Arguments:
+### 3) Screen Topology Changes
+
+`scripts/timeline/analyze_screen_topology_changes.ts`
+
+Detects where screen topology changes and outputs eras.
+
+Usage:
 ```bash
-node --experimental-strip-types scripts/capture_timeline.ts [manifest_path] [screenshot_dir] [base_port] [max_count] [navigation_map_path]
-node --experimental-strip-types scripts/capture_timeline.ts --manifest <path> --screenshots <dir> --port <N> --max-count <N> --navigation-map <path>
+npm run timeline:topology -- --manifest timeline/manifest.json --navigation-map timeline/navigation_map.json --topology timeline/screen_topology_changes.json
 ```
 
-- `manifest_path` (default: `timeline/manifest.json`)
-- `screenshot_dir` (default: `screenshots`)
-- `base_port` (default: `6080`)
-- `max_count` (default: `0` = all manifest rows) number of manifest rows to process from the start
-- `navigation_map_path` (default: `timeline/navigation_map.json`) static per-commit screen/action hints
+### 4) Playbook Planning
+
+`scripts/timeline/plan_navigation_playbooks.ts`
+
+Builds per-era navigation playbooks.
+
+Usage (heuristic):
+```bash
+npm run timeline:playbooks -- --topology timeline/screen_topology_changes.json --navigation-map timeline/navigation_map.json --playbooks timeline/navigation_playbooks.json --provider heuristic
+```
+
+Usage (LLM delegation):
+```bash
+npm run timeline:playbooks -- --topology timeline/screen_topology_changes.json --navigation-map timeline/navigation_map.json --playbooks timeline/navigation_playbooks.json --provider gemini --execute true --agent-cmd "<cmd-with-{PROMPT_FILE}-and-{OUTPUT_FILE}>"
+```
 
 Notes:
-- Safe to rerun: already-captured commits are skipped.
-- Commits that fail to boot/capture are marked as `skipped` in `manifest.json`.
-- Required screens are strict: `mission`, `main_menu`, and `config`.
-- Required screen is strict: `mission`.
-- `main_menu`, `config`, and `campaign` are optional.
+- When external execution is enabled, prompt files are written to `timeline/playbook_prompts/`.
+- If no external command is configured, prompts are generated and heuristic playbooks are used.
 
-### `scripts/analyze_timeline_navigation.ts`
+### 5) Capture
 
-Static analyzer for commit navigation hints (no browser render).
-It checks each commit in the manifest and extracts:
-- HTML ids
-- screen-like container ids
-- button/action ids from code
-- inferred per-screen candidate targets
+`scripts/timeline/capture_timeline.ts`
 
-Usage:
-```bash
-npm run timeline:analyze
-```
+Captures commit screenshots with worktree + Puppeteer.
 
-Arguments:
-```bash
-node --experimental-strip-types scripts/analyze_timeline_navigation.ts [manifest_path] [out_path] [max_count]
-node --experimental-strip-types scripts/analyze_timeline_navigation.ts --manifest <path> --navigation-map <path> --max-count <N>
-```
-
-- `manifest_path` (default: `timeline/manifest.json`)
-- `out_path` (default: `timeline/navigation_map.json`)
-- `max_count` (default: `0`, meaning all manifest rows)
-
-### `scripts/analyze_timeline_frames.ts`
-
-Pre-render analysis step that:
-- maps screenshots to canonical quadrants:
-  - `1`: mission
-  - `2`: main menu
-  - `3`: config
-  - `4`: campaign (placeholder if unavailable)
-- writes normalized quadrant files:
-  - `timeline/frames/quadrants/<datetime>_<sha>_<1|2|3|4>.png`
-- builds composite frames:
-  - `timeline/frames/composite/<datetime>_<sha>.png`
-- removes exact/near-duplicate frames
-- writes `timeline/frame_index.json`
+Canonical quadrants:
+- `1 mission` (required)
+- `2 main_menu` (optional)
+- `3 config` (optional)
+- `4 campaign` (optional)
 
 Usage:
 ```bash
-npm run timeline:analyze-frames
+npm run timeline:capture -- --manifest timeline/manifest.json --screenshots screenshots --port 6080 --max-count 0 --navigation-map timeline/navigation_map.json --playbooks timeline/navigation_playbooks.json
 ```
 
-Arguments:
-```bash
-node --experimental-strip-types scripts/analyze_timeline_frames.ts [manifest_path] [screenshot_dir] [frame_index_path]
-node --experimental-strip-types scripts/analyze_timeline_frames.ts --manifest <path> --screenshots <dir> --frame-index <path>
-```
+Args:
+- `--manifest`
+- `--screenshots`
+- `--port` default `6080` (safe for Chromium)
+- `--max-count` `0` means all rows in manifest
+- `--navigation-map`
+- `--playbooks`
 
-- `manifest_path` (default: `timeline/manifest.json`)
-- `screenshot_dir` (default: `screenshots`)
-- `frame_index_path` (default: `timeline/frame_index.json`)
+### 6) Frame Analysis (Pre-render)
 
-### `scripts/render_timeline.ts`
+`scripts/timeline/analyze_timeline_frames.ts`
 
-Render-only step. Reads `frame_index.json` and encodes MP4 via ffmpeg.
+Prepares normalized frame assets and dedupes before render.
+
+Outputs:
+- `timeline/frames/quadrants/<datetime>_<sha>_<1|2|3|4>.png`
+- `timeline/frames/composite/<datetime>_<sha>.png`
+- `timeline/frame_index.json`
+
+Missing optional quadrants are replaced with an "UNDER CONSTRUCTION" placeholder.
 
 Usage:
 ```bash
-npm run timeline:render
-```
-
-Arguments:
-```bash
-node --experimental-strip-types scripts/render_timeline.ts [frame_index_path] [output_video_path]
-node --experimental-strip-types scripts/render_timeline.ts --frame-index <path> --output <path>
-```
-
-- `frame_index_path` (default: `timeline/frame_index.json`)
-- `output_video_path` (default: `timeline/voidlock_timeline.mp4`)
-
-### End-to-end
-
-```bash
-npm run timeline:all
-```
-
-Manual full-history flow (named args):
-```bash
-npm run timeline:manifest -- timeline/manifest.json all
-npm run timeline:analyze -- timeline/manifest.json timeline/navigation_map.json
-npm run timeline:capture -- --manifest timeline/manifest.json --screenshots screenshots --port 6080 --max-count 0 --navigation-map timeline/navigation_map.json
 npm run timeline:analyze-frames -- --manifest timeline/manifest.json --screenshots screenshots --frame-index timeline/frame_index.json
+```
+
+### 7) Render
+
+`scripts/timeline/render_timeline.ts`
+
+Render-only step. Reads `frame_index.json`, outputs MP4.
+
+Usage:
+```bash
 npm run timeline:render -- --frame-index timeline/frame_index.json --output timeline/voidlock_timeline_full.mp4
 ```
 
-One-command runner:
+### One-command Runner
+
+`scripts/timeline/run_timeline_pipeline.sh`
+
+Usage:
 ```bash
 npm run timeline:run
+# or
+./scripts/timeline/run_timeline_pipeline.sh 6080
 ```
-or:
-```bash
-./scripts/run_timeline_pipeline.sh 6080
-```
+
+Env overrides:
+- `MANIFEST`, `NAV_MAP`, `TOPOLOGY`, `PLAYBOOKS`, `SCREENSHOTS`, `FRAME_INDEX`, `OUTPUT`
+- `PORT`, `MAX_COUNT`, `MODE`
+- `PLAYBOOK_PROVIDER`, `PLAYBOOK_EXECUTE`, `PLAYBOOK_AGENT_CMD`
