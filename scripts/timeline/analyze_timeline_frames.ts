@@ -30,6 +30,7 @@ const TILE_W = 960;
 const TILE_H = 540;
 const OUT_W = TILE_W * 2;
 const OUT_H = TILE_H * 2 + 120;
+const CANVAS_H = OUT_H - 120;
 
 function screenAliasList(quadrant: 1 | 2 | 3 | 4): string[] {
   if (quadrant === 1) return ["mission"];
@@ -177,6 +178,100 @@ async function writeComposite(
     .toFile(outPath);
 }
 
+export function chooseCompositeMode(availableScreenCount: number): 1 | 2 | 4 {
+  if (availableScreenCount <= 1) return 1;
+  if (availableScreenCount === 2) return 2;
+  return 4;
+}
+
+async function renderTile(
+  sourcePath: string | null,
+  width: number,
+  height: number,
+  label: string,
+): Promise<Buffer> {
+  if (sourcePath) {
+    return sharp(sourcePath).resize(width, height, { fit: "cover" }).png().toBuffer();
+  }
+  const bg = await sharp({
+    create: {
+      width,
+      height,
+      channels: 4,
+      background: { r: 20, g: 22, b: 28, alpha: 1 },
+    },
+  })
+    .png()
+    .toBuffer();
+  const safe = label.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  const svg = `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="45%" text-anchor="middle" fill="#cbd5e1" font-size="46" font-family="Arial, sans-serif">UNDER CONSTRUCTION</text><text x="50%" y="58%" text-anchor="middle" fill="#94a3b8" font-size="28" font-family="Arial, sans-serif">${safe}</text></svg>`;
+  return sharp(bg).composite([{ input: Buffer.from(svg), top: 0, left: 0 }]).png().toBuffer();
+}
+
+async function writeAdaptiveComposite(
+  sources: Array<{ sourcePath: string | null; label: string }>,
+  outPath: string,
+  label: string,
+): Promise<void> {
+  const availableCount = sources.filter((s) => !!s.sourcePath).length;
+  const mode = chooseCompositeMode(availableCount);
+  fs.mkdirSync(path.dirname(outPath), { recursive: true });
+
+  const base = sharp({
+    create: {
+      width: OUT_W,
+      height: OUT_H,
+      channels: 4,
+      background: { r: 10, g: 14, b: 20, alpha: 1 },
+    },
+  });
+
+  if (mode === 1) {
+    const primary = sources.find((s) => !!s.sourcePath) || sources[0];
+    const tile = await renderTile(primary.sourcePath, OUT_W, CANVAS_H, primary.label);
+    await base
+      .composite([
+        { input: tile, top: 120, left: 0 },
+        { input: svgOverlay(OUT_W, label), top: 0, left: 0 },
+      ])
+      .png()
+      .toFile(outPath);
+    return;
+  }
+
+  if (mode === 2) {
+    const present = sources.filter((s) => !!s.sourcePath).slice(0, 2);
+    const left = present[0] || sources[0];
+    const right = present[1] || sources[1] || sources[0];
+    const leftTile = await renderTile(left.sourcePath, OUT_W / 2, CANVAS_H, left.label);
+    const rightTile = await renderTile(right.sourcePath, OUT_W / 2, CANVAS_H, right.label);
+    await base
+      .composite([
+        { input: leftTile, top: 120, left: 0 },
+        { input: rightTile, top: 120, left: OUT_W / 2 },
+        { input: svgOverlay(OUT_W, label), top: 0, left: 0 },
+      ])
+      .png()
+      .toFile(outPath);
+    return;
+  }
+
+  const q1 = await renderTile(sources[0]?.sourcePath || null, TILE_W, TILE_H, sources[0]?.label || "Mission");
+  const q2 = await renderTile(sources[1]?.sourcePath || null, TILE_W, TILE_H, sources[1]?.label || "Main Menu");
+  const q3 = await renderTile(sources[2]?.sourcePath || null, TILE_W, TILE_H, sources[2]?.label || "Config");
+  const q4 = await renderTile(sources[3]?.sourcePath || null, TILE_W, TILE_H, sources[3]?.label || "Campaign");
+  await base
+    .composite([
+      { input: q1, top: 120, left: 0 },
+      { input: q2, top: 120, left: TILE_W },
+      { input: q3, top: 120 + TILE_H, left: 0 },
+      { input: q4, top: 120 + TILE_H, left: TILE_W },
+      { input: svgOverlay(OUT_W, label), top: 0, left: 0 },
+    ])
+    .png()
+    .toFile(outPath);
+}
+
 async function runCli() {
   const argv = process.argv.slice(2);
   const manifestPath =
@@ -207,8 +302,6 @@ async function runCli() {
     const q2Source = findQuadrantImage(screenshotMap, sha, stamp, 2);
     const q3Source = findQuadrantImage(screenshotMap, sha, stamp, 3);
     const q4Source = findQuadrantImage(screenshotMap, sha, stamp, 4);
-    if (!q1Source) continue;
-
     const q1Path = path.join(quadrantsDir, `${stamp}_${sha}_1.png`);
     const q2Path = path.join(quadrantsDir, `${stamp}_${sha}_2.png`);
     const q3Path = path.join(quadrantsDir, `${stamp}_${sha}_3.png`);
@@ -220,7 +313,16 @@ async function runCli() {
 
     const compositePath = path.join(compositeDir, `${stamp}_${sha}.png`);
     const label = `${date}   ${sha}   ${milestone.subject}`;
-    await writeComposite([q1Path, q2Path, q3Path, q4Path], compositePath, label);
+    await writeAdaptiveComposite(
+      [
+        { sourcePath: q1Source, label: "Mission" },
+        { sourcePath: q2Source, label: "Main Menu" },
+        { sourcePath: q3Source, label: "Config" },
+        { sourcePath: q4Source, label: "Campaign" },
+      ],
+      compositePath,
+      label,
+    );
 
     const exact = hashFile(compositePath);
     if (seenExact.has(exact)) {

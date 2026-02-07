@@ -31,6 +31,7 @@ type NavigationMap = {
   commits: Record<
     string,
     {
+      actionIds?: string[];
       targets?: {
         mission?: string[];
         main_menu?: string[];
@@ -41,13 +42,31 @@ type NavigationMap = {
   >;
 };
 
+type RootProbe = {
+  ok: boolean;
+  reason: string;
+  status?: number;
+  bodySnippet?: string;
+};
+
+type ProcessLogs = {
+  stdoutTail: string[];
+  stderrTail: string[];
+};
+
+type ServerState = {
+  proc: ChildProcess | null;
+  logs: ProcessLogs | null;
+  commitsServed: number;
+};
+
 const SCREEN_TARGETS: Array<{
   quadrant: 1 | 2 | 3 | 4;
   screenName: "mission" | "main_menu" | "config" | "campaign";
   required: boolean;
   ids: string[];
 }> = [
-  { quadrant: 1, screenName: "mission", required: true, ids: ["screen-mission", "mission-screen", "screen-game"] },
+  { quadrant: 1, screenName: "mission", required: false, ids: ["screen-mission", "mission-screen", "screen-game"] },
   { quadrant: 2, screenName: "main_menu", required: false, ids: ["screen-main-menu", "main-menu", "screen-menu"] },
   {
     quadrant: 3,
@@ -62,6 +81,72 @@ const SCREEN_TARGETS: Array<{
     ids: ["screen-campaign", "campaign-screen", "screen-campaign-shell"],
   },
 ];
+
+export function classifyRootResponse(status: number, bodyText: string): RootProbe {
+  const lower = bodyText.toLowerCase();
+  if (status !== 200) {
+    return {
+      ok: false,
+      reason: `Root probe failed with HTTP ${status}`,
+      status,
+      bodySnippet: bodyText.slice(0, 300),
+    };
+  }
+  const knownErrorPage =
+    lower.includes("404 not found") ||
+    lower.includes("internal server error") ||
+    lower.includes("failed to resolve import") ||
+    lower.includes("pre-transform error") ||
+    lower.includes("cannot find module");
+  if (knownErrorPage) {
+    return {
+      ok: false,
+      reason: "Root probe returned an error page",
+      status,
+      bodySnippet: bodyText.slice(0, 300),
+    };
+  }
+  const looksLikeHtml = lower.includes("<html") && lower.includes("<body");
+  if (!looksLikeHtml) {
+    return {
+      ok: false,
+      reason: "Root probe did not return HTML document",
+      status,
+      bodySnippet: bodyText.slice(0, 300),
+    };
+  }
+  return { ok: true, reason: "ok", status };
+}
+
+export function shouldAbortForConsecutiveFailures(
+  consecutiveFailures: number,
+  threshold: number,
+): boolean {
+  return consecutiveFailures >= threshold;
+}
+
+export function shouldRotateServer(commitsServed: number, restartEvery: number): boolean {
+  return restartEvery > 0 && commitsServed >= restartEvery;
+}
+
+export function buildBootstrapClickOrder(actionIds: string[] = []): string[] {
+  const preferred = [
+    "btn-menu-custom",
+    "btn-custom-mission",
+    "btn-menu-skirmish",
+    "btn-start-mission",
+    "btn-start",
+    "btn-begin",
+    "btn-deploy",
+    "btn-confirm-loadout",
+  ];
+  const actionSet = new Set(actionIds.map((id) => id.toLowerCase()));
+  const selected = preferred.filter((id) => actionSet.has(id.toLowerCase()));
+  for (const id of preferred) {
+    if (!selected.includes(id)) selected.push(id);
+  }
+  return selected;
+}
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -112,13 +197,63 @@ async function waitForPort(port: number, timeoutMs = 8_000): Promise<void> {
   throw new Error(`Timed out waiting for dev server on port ${port}`);
 }
 
+function isProcessAlive(proc: ChildProcess): boolean {
+  return proc.exitCode === null && !proc.killed;
+}
+
+async function probeRoot(port: number, timeoutMs = 4_000): Promise<RootProbe> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const response = await fetch(`http://127.0.0.1:${port}/`, {
+      signal: controller.signal,
+      redirect: "follow",
+    });
+    const bodyText = await response.text();
+    return classifyRootResponse(response.status, bodyText);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return {
+      ok: false,
+      reason: `Root probe request failed: ${message}`,
+      bodySnippet: "",
+    };
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function waitForHealthyRoot(
+  port: number,
+  proc: ChildProcess,
+  timeoutMs = 10_000,
+): Promise<RootProbe> {
+  const start = Date.now();
+  let lastProbe: RootProbe = { ok: false, reason: "not-started" };
+  while (Date.now() - start < timeoutMs) {
+    if (!isProcessAlive(proc)) {
+      return { ok: false, reason: "Dev server process exited before readiness" };
+    }
+    lastProbe = await probeRoot(port, 2_000);
+    if (lastProbe.ok) return lastProbe;
+    await sleep(300);
+  }
+  return {
+    ok: false,
+    reason: `Timed out waiting for healthy root: ${lastProbe.reason}`,
+    status: lastProbe.status,
+    bodySnippet: lastProbe.bodySnippet,
+  };
+}
+
 function startDevServer(worktreeDir: string, port: number): ChildProcess {
   return spawn(
     "npm",
-    ["run", "dev", "--", "--host", "127.0.0.1", "--port", String(port), "--strictPort"],
+    ["run", "dev", "--", "--host", "--port", String(port), "--strictPort"],
     {
       cwd: worktreeDir,
       stdio: "pipe",
+      detached: true,
       env: {
         ...process.env,
         CI: "1",
@@ -127,17 +262,45 @@ function startDevServer(worktreeDir: string, port: number): ChildProcess {
   );
 }
 
+function pidLabel(proc: ChildProcess | null | undefined): string {
+  if (!proc) return "unknown";
+  return proc.pid ? String(proc.pid) : "unknown";
+}
+
+function createProcessLogs(proc: ChildProcess, maxLines = 80): ProcessLogs {
+  const logs: ProcessLogs = { stdoutTail: [], stderrTail: [] };
+  proc.stdout?.on("data", (chunk: Buffer) => {
+    const lines = chunk.toString("utf-8").split("\n").map((l) => l.trim()).filter(Boolean);
+    logs.stdoutTail.push(...lines);
+    if (logs.stdoutTail.length > maxLines) logs.stdoutTail.splice(0, logs.stdoutTail.length - maxLines);
+  });
+  proc.stderr?.on("data", (chunk: Buffer) => {
+    const lines = chunk.toString("utf-8").split("\n").map((l) => l.trim()).filter(Boolean);
+    logs.stderrTail.push(...lines);
+    if (logs.stderrTail.length > maxLines) logs.stderrTail.splice(0, logs.stderrTail.length - maxLines);
+  });
+  return logs;
+}
+
 async function stopProcess(proc: ChildProcess): Promise<void> {
   if (!proc.pid) return;
-  if (proc.killed) return;
-  proc.kill("SIGTERM");
+  const groupPid = -proc.pid;
+  try {
+    process.kill(groupPid, "SIGTERM");
+  } catch {
+    if (!proc.killed) proc.kill("SIGTERM");
+  }
   try {
     await Promise.race([once(proc, "exit"), new Promise((r) => setTimeout(r, 2_000))]);
   } catch {
     // Ignore listener race errors and force kill below.
   }
-  if (!proc.killed) {
-    proc.kill("SIGKILL");
+  if (isProcessAlive(proc)) {
+    try {
+      process.kill(groupPid, "SIGKILL");
+    } catch {
+      if (!proc.killed) proc.kill("SIGKILL");
+    }
   }
 }
 
@@ -149,8 +312,8 @@ function screenshotPath(baseDir: string, iso: string, screen: string, sha: strin
   return path.join(baseDir, `${timestampFromIso(iso)}_${screen}_${sha.slice(0, 7)}.png`);
 }
 
-function hasRequiredScreenshots(baseDir: string, iso: string, sha: string): boolean {
-  return SCREEN_TARGETS.filter((target) => target.required).every((target) =>
+function hasExistingScreenshots(baseDir: string, iso: string, sha: string): boolean {
+  return SCREEN_TARGETS.some((target) =>
     fs.existsSync(screenshotPath(baseDir, iso, target.screenName, sha)),
   );
 }
@@ -180,7 +343,9 @@ async function captureScreensForCommit(
   outDir: string,
   navMap: NavigationMap | null,
   playbookActions: Record<string, string[]> | null,
-): Promise<void> {
+  postLoadWaitMs: number,
+  missionCaptureWaitMs: number,
+): Promise<number> {
   const browser = await puppeteer.launch({
     headless: true,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
@@ -194,6 +359,8 @@ async function captureScreensForCommit(
     await assertHealthyPage(page);
 
     const hints = navMap?.commits?.[sha]?.targets;
+    const hintActionIds = navMap?.commits?.[sha]?.actionIds || [];
+    await runBootstrapFlow(page, hintActionIds, postLoadWaitMs);
     const dynamicTargets = SCREEN_TARGETS.map((target) => {
       const hinted = hints?.[target.screenName as keyof NonNullable<typeof hints>] || [];
       return {
@@ -204,6 +371,7 @@ async function captureScreensForCommit(
       };
     });
 
+    let writtenCount = 0;
     for (const target of dynamicTargets) {
       let activated = "";
       const steps = playbookActions?.[target.screenName] || [];
@@ -221,11 +389,22 @@ async function captureScreensForCommit(
         console.log(`[screen-skip] optional ${target.screenName} missing for ${sha.slice(0, 7)}`);
         continue;
       }
-      await sleep(500);
+      const settleMs = target.screenName === "mission" ? missionCaptureWaitMs : 500;
+      await sleep(settleMs);
       await assertHealthyPage(page);
       const filePath = screenshotPath(outDir, isoDate, target.screenName, sha);
       await page.screenshot({ path: filePath });
+      writtenCount += 1;
     }
+    if (writtenCount === 0) {
+      await assertHealthyPage(page);
+      const fallbackPath = screenshotPath(outDir, isoDate, "mission", sha);
+      await page.screenshot({ path: fallbackPath });
+      // eslint-disable-next-line no-console
+      console.log(`[screen-fallback] captured full page as mission for ${sha.slice(0, 7)}`);
+      return 1;
+    }
+    return writtenCount;
   } finally {
     await browser.close();
   }
@@ -239,33 +418,96 @@ async function captureMilestone(
     screenshotDir: string;
     navMap: NavigationMap | null;
     playbookActions: Record<string, string[]> | null;
+    startupTimeoutMs: number;
+    restartEvery: number;
+    serverState: ServerState;
+    postLoadWaitMs: number;
+    missionCaptureWaitMs: number;
   },
-): Promise<{ usedSha?: string; reason?: string }> {
+): Promise<{ usedSha?: string; reason?: string; attempts: number; logs?: ProcessLogs }> {
   const commit = milestone.sourceCommit;
   const port = opts.basePort;
   const worktree = ensureWorktree(commit, opts.worktreeBase);
-  const devServer = startDevServer(worktree, port);
   // eslint-disable-next-line no-console
   console.log(`[candidate] ${commit.slice(0, 7)} on :${port}`);
-  try {
-    await waitForPort(port, 8_000);
-    await captureScreensForCommit(
-      `http://127.0.0.1:${port}/`,
-      milestone.milestoneDate,
-      commit,
-      opts.screenshotDir,
-      opts.navMap,
-      opts.playbookActions,
-    );
-    await stopProcess(devServer);
-    return { usedSha: commit };
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error);
-    // eslint-disable-next-line no-console
-    console.log(`[candidate-fail] ${commit.slice(0, 7)} ${message}`);
-    await stopProcess(devServer);
-    return { reason: message };
+
+  let lastReason = "Unknown capture failure.";
+  let lastLogs: ProcessLogs | undefined;
+  const maxAttempts = 2;
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    const mustRotate =
+      !opts.serverState.proc ||
+      !isProcessAlive(opts.serverState.proc) ||
+      (attempt === 1 && shouldRotateServer(opts.serverState.commitsServed, opts.restartEvery));
+    if (mustRotate) {
+      if (opts.serverState.proc) {
+        await stopProcess(opts.serverState.proc);
+        // eslint-disable-next-line no-console
+        console.log(
+          `[dev-stop] ${commit.slice(0, 7)} attempt ${attempt}/${maxAttempts} pid=${pidLabel(opts.serverState.proc)} status=rotate`,
+        );
+      }
+      const devServer = startDevServer(worktree, port);
+      // eslint-disable-next-line no-console
+      console.log(
+        `[dev-start] ${commit.slice(0, 7)} attempt ${attempt}/${maxAttempts} pid=${pidLabel(devServer)} port=${port}`,
+      );
+      opts.serverState.proc = devServer;
+      opts.serverState.logs = createProcessLogs(devServer);
+      opts.serverState.commitsServed = 0;
+    } else {
+      // eslint-disable-next-line no-console
+      console.log(
+        `[dev-reuse] ${commit.slice(0, 7)} attempt ${attempt}/${maxAttempts} pid=${pidLabel(opts.serverState.proc)} served=${opts.serverState.commitsServed}`,
+      );
+    }
+    try {
+      const devServer = opts.serverState.proc as ChildProcess;
+      const procLogs = opts.serverState.logs as ProcessLogs;
+      await waitForPort(port, opts.startupTimeoutMs);
+      const readiness = await waitForHealthyRoot(port, devServer, opts.startupTimeoutMs);
+      if (!readiness.ok) {
+        throw new Error(readiness.reason);
+      }
+      const captured = await captureScreensForCommit(
+        `http://127.0.0.1:${port}/`,
+        milestone.milestoneDate,
+        commit,
+        opts.screenshotDir,
+        opts.navMap,
+        opts.playbookActions,
+        opts.postLoadWaitMs,
+        opts.missionCaptureWaitMs,
+      );
+      if (captured === 0) {
+        throw new Error("No screenshots captured for this commit");
+      }
+      opts.serverState.commitsServed += 1;
+      return { usedSha: commit, attempts: attempt, logs: procLogs };
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      lastReason = message;
+      lastLogs = opts.serverState.logs || undefined;
+      if (opts.serverState.proc) {
+        await stopProcess(opts.serverState.proc);
+      }
+      // eslint-disable-next-line no-console
+      console.log(
+        `[dev-stop] ${commit.slice(0, 7)} attempt ${attempt}/${maxAttempts} pid=${pidLabel(opts.serverState.proc)} status=fail reason=${message}`,
+      );
+      opts.serverState.proc = null;
+      opts.serverState.logs = null;
+      opts.serverState.commitsServed = 0;
+      if (attempt < maxAttempts) {
+        // eslint-disable-next-line no-console
+        console.log(`[candidate-retry] ${commit.slice(0, 7)} attempt ${attempt + 1}/${maxAttempts}`);
+        continue;
+      }
+    }
   }
+  // eslint-disable-next-line no-console
+  console.log(`[candidate-fail] ${commit.slice(0, 7)} ${lastReason}`);
+  return { reason: lastReason, attempts: maxAttempts, logs: lastLogs };
 }
 
 async function runCli() {
@@ -280,6 +522,22 @@ async function runCli() {
     readNamedArg(argv, ["--navigation-map"]) || argv[4] || "timeline/navigation_map.json";
   const playbookPath =
     readNamedArg(argv, ["--playbooks"]) || argv[5] || "timeline/navigation_playbooks.json";
+  const worktreeBase = path.resolve(
+    readNamedArg(argv, ["--worktree-base"]) || ".timeline/worktrees",
+  );
+  const startupTimeoutMs = Number(
+    readNamedArg(argv, ["--startup-timeout-ms"]) || 12_000,
+  );
+  const maxConsecutiveFailures = Number(
+    readNamedArg(argv, ["--max-consecutive-failures"]) || 3,
+  );
+  const restartEvery = Number(readNamedArg(argv, ["--restart-every"]) || 100);
+  const postLoadWaitMs = Number(readNamedArg(argv, ["--post-load-wait-ms"]) || 3000);
+  const missionCaptureWaitMs = Number(
+    readNamedArg(argv, ["--mission-capture-wait-ms"]) || 3000,
+  );
+  const debugLogPath =
+    readNamedArg(argv, ["--debug-log"]) || "timeline/capture_debug.json";
 
   fs.mkdirSync(screenshotDir, { recursive: true });
   fs.mkdirSync("timeline", { recursive: true });
@@ -292,58 +550,194 @@ async function runCli() {
     fs.existsSync(playbookPath) && fs.statSync(playbookPath).isFile()
       ? (JSON.parse(fs.readFileSync(playbookPath, "utf-8")) as PlaybookDoc)
       : null;
-  const worktreeBase = path.resolve(".timeline/worktrees");
   fs.mkdirSync(worktreeBase, { recursive: true });
 
   const effectiveMax = maxCount > 0 ? maxCount : manifest.milestones.length;
   const selected = manifest.milestones.slice(0, effectiveMax);
   const commitIndex = new Map<string, number>();
   manifest.milestones.forEach((m, idx) => commitIndex.set(m.sourceCommit, idx));
+  const serverState: ServerState = { proc: null, logs: null, commitsServed: 0 };
+  let consecutiveFailures = 0;
+  const recentFailures: Array<{
+    commit: string;
+    date: string;
+    subject: string;
+    reason: string;
+    attempts: number;
+    stderrTail: string[];
+    stdoutTail: string[];
+  }> = [];
 
-  for (const milestone of selected) {
-    if (hasRequiredScreenshots(screenshotDir, milestone.milestoneDate, milestone.sourceCommit)) {
-      milestone.actualCommitUsed = milestone.sourceCommit;
-      milestone.captureStatus = "ok";
-      delete milestone.captureReason;
+  try {
+    for (const milestone of selected) {
+      if (hasExistingScreenshots(screenshotDir, milestone.milestoneDate, milestone.sourceCommit)) {
+        milestone.actualCommitUsed = milestone.sourceCommit;
+        milestone.captureStatus = "ok";
+        delete milestone.captureReason;
+        fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf-8");
+        // eslint-disable-next-line no-console
+        console.log(`[capture-skip] ${milestone.sourceCommit.slice(0, 7)} already captured`);
+        consecutiveFailures = 0;
+        continue;
+      }
+      // eslint-disable-next-line no-console
+      console.log(
+        `[milestone] ${milestone.milestoneDate.slice(0, 10)} ${milestone.sourceCommit.slice(0, 7)} ${milestone.subject}`,
+      );
+      const playbookActions = resolvePlaybookActions(
+        milestone.sourceCommit,
+        commitIndex,
+        playbooks,
+      );
+      const result = await captureMilestone(milestone, {
+        basePort,
+        worktreeBase,
+        screenshotDir,
+        navMap,
+        playbookActions,
+        startupTimeoutMs,
+        restartEvery,
+        serverState,
+        postLoadWaitMs,
+        missionCaptureWaitMs,
+      });
+      if (result.usedSha) {
+        milestone.actualCommitUsed = result.usedSha;
+        milestone.captureStatus = "ok";
+        delete milestone.captureReason;
+        consecutiveFailures = 0;
+      } else {
+        milestone.captureStatus = "skipped";
+        milestone.captureReason = result.reason || "Unknown capture error.";
+        consecutiveFailures += 1;
+        recentFailures.push({
+          commit: milestone.sourceCommit,
+          date: milestone.milestoneDate,
+          subject: milestone.subject,
+          reason: milestone.captureReason,
+          attempts: result.attempts,
+          stderrTail: result.logs?.stderrTail || [],
+          stdoutTail: result.logs?.stdoutTail || [],
+        });
+        if (recentFailures.length > maxConsecutiveFailures) recentFailures.shift();
+      }
       fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf-8");
       // eslint-disable-next-line no-console
-      console.log(`[capture-skip] ${milestone.sourceCommit.slice(0, 7)} already captured`);
-      continue;
+      console.log(
+        `[capture] ${milestone.sourceCommit.slice(0, 7)} -> ${milestone.captureStatus} ${milestone.actualCommitUsed ? milestone.actualCommitUsed.slice(0, 7) : ""}`,
+      );
+      if (shouldAbortForConsecutiveFailures(consecutiveFailures, maxConsecutiveFailures)) {
+        const debugPayload = {
+          generatedAt: new Date().toISOString(),
+          message: `Aborting after ${consecutiveFailures} consecutive capture failures.`,
+          threshold: maxConsecutiveFailures,
+          port: basePort,
+          failures: recentFailures,
+        };
+        fs.mkdirSync(path.dirname(debugLogPath), { recursive: true });
+        fs.writeFileSync(debugLogPath, `${JSON.stringify(debugPayload, null, 2)}\n`, "utf-8");
+        throw new Error(
+          `Aborting capture after ${consecutiveFailures} consecutive failures. See ${debugLogPath}`,
+        );
+      }
     }
-    // eslint-disable-next-line no-console
-    console.log(
-      `[milestone] ${milestone.milestoneDate.slice(0, 10)} ${milestone.sourceCommit.slice(0, 7)} ${milestone.subject}`,
-    );
-    const playbookActions = resolvePlaybookActions(
-      milestone.sourceCommit,
-      commitIndex,
-      playbooks,
-    );
-    const result = await captureMilestone(milestone, {
-      basePort,
-      worktreeBase,
-      screenshotDir,
-      navMap,
-      playbookActions,
-    });
-    if (result.usedSha) {
-      milestone.actualCommitUsed = result.usedSha;
-      milestone.captureStatus = "ok";
-      delete milestone.captureReason;
-    } else {
-      milestone.captureStatus = "skipped";
-      milestone.captureReason = result.reason || "Unknown capture error.";
+  } finally {
+    if (serverState.proc) {
+      await stopProcess(serverState.proc);
+      // eslint-disable-next-line no-console
+      console.log(`[dev-stop] final pid=${pidLabel(serverState.proc)} status=finalize`);
     }
-    fs.writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf-8");
-    // eslint-disable-next-line no-console
-    console.log(
-      `[capture] ${milestone.sourceCommit.slice(0, 7)} -> ${milestone.captureStatus} ${milestone.actualCommitUsed ? milestone.actualCommitUsed.slice(0, 7) : ""}`,
-    );
+    try {
+      freeWorktree(path.resolve(worktreeBase, "runner"));
+    } catch {
+      // ignore
+    }
   }
+}
+
+async function runBootstrapFlow(
+  page: import("puppeteer").Page,
+  actionIds: string[],
+  postLoadWaitMs: number,
+): Promise<void> {
+  if (postLoadWaitMs > 0) {
+    await sleep(postLoadWaitMs);
+  }
+  const orderedIds = buildBootstrapClickOrder(actionIds);
+  let clickedAny = false;
+  for (const id of orderedIds) {
+    const clicked = await clickIfPresent(page, `#${id}`);
+    if (clicked) {
+      clickedAny = true;
+      await sleep(450);
+    }
+  }
+  if (!clickedAny) {
+    const textSteps: string[][] = [
+      ["custom", "mission"],
+      ["skirmish"],
+      ["start", "mission"],
+      ["deploy"],
+      ["begin"],
+    ];
+    for (const terms of textSteps) {
+      const clicked = await clickByText(page, terms);
+      if (clicked) {
+        await sleep(550);
+      }
+    }
+  }
+}
+
+async function clickIfPresent(
+  page: import("puppeteer").Page,
+  selector: string,
+): Promise<boolean> {
   try {
-    freeWorktree(path.resolve(worktreeBase, "runner"));
+    const visible = await page.$eval(selector, (el) => {
+      const target = el as HTMLElement;
+      const style = window.getComputedStyle(target);
+      const rect = target.getBoundingClientRect();
+      return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
+    });
+    if (!visible) return false;
+    await page.click(selector, { delay: 30 });
+    return true;
   } catch {
-    // ignore
+    return false;
+  }
+}
+
+async function clickByText(
+  page: import("puppeteer").Page,
+  terms: string[],
+): Promise<boolean> {
+  try {
+    return await page.evaluate((needles) => {
+      const lowered = needles.map((n) => n.toLowerCase());
+      const candidates = Array.from(
+        document.querySelectorAll<HTMLElement>("button, [role='button'], a, .btn"),
+      );
+      for (const el of candidates) {
+        const text = (el.textContent || "").trim().toLowerCase();
+        if (!text) continue;
+        const style = window.getComputedStyle(el);
+        const rect = el.getBoundingClientRect();
+        const visible =
+          style.display !== "none" &&
+          style.visibility !== "hidden" &&
+          rect.width > 0 &&
+          rect.height > 0;
+        if (!visible) continue;
+        const match = lowered.every((needle) => text.includes(needle));
+        if (!match) continue;
+        el.click();
+        return true;
+      }
+      return false;
+    }, terms);
+  } catch {
+    return false;
   }
 }
 
