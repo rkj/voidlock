@@ -491,6 +491,9 @@ export class CoreEngine {
     this.state.settings.isPaused = paused;
   }
 
+  private accumulator: number = 0;
+  private readonly SIM_TICK_MS: number = 16;
+
   public update(scaledDt: number) {
     if (
       this.state.status !== "Playing" &&
@@ -501,6 +504,17 @@ export class CoreEngine {
 
     if (scaledDt === 0 && !this.isCatchingUp) return;
 
+    // Use an accumulator to ensure fixed simulation steps for determinism.
+    // This ensures that update(32) is identical to update(16) twice.
+    this.accumulator += scaledDt;
+
+    while (this.accumulator >= this.SIM_TICK_MS) {
+      this.simulationStep(this.SIM_TICK_MS);
+      this.accumulator -= this.SIM_TICK_MS;
+    }
+  }
+
+  private simulationStep(dt: number) {
     // Command Playback in Replay Mode or Catch-up Phase
     if (this.state.settings.mode === EngineMode.Replay || this.isCatchingUp) {
       while (
@@ -518,7 +532,7 @@ export class CoreEngine {
     // Use a fresh reference for the tick update
     this.state = {
       ...this.state,
-      t: this.state.t + scaledDt,
+      t: this.state.t + dt,
       attackEvents: [], // Clear events for new tick
       stats: {
         ...this.state.stats,
@@ -526,13 +540,13 @@ export class CoreEngine {
       },
     };
 
-    // 1. Director & Spawn (Uses scaledDt to follow game speed and pause)
-    this.director.update(scaledDt);
+    // 1. Director & Spawn (Uses dt to follow game speed and pause)
+    this.director.update(dt);
     // Re-sync threat level after director update
     this.state.stats.threatLevel = this.director.getThreatLevel();
 
     // 2. Doors
-    this.doorManager.update(this.state, scaledDt);
+    this.doorManager.update(this.state, dt);
 
     // 3. Visibility
     this.visibilityManager.updateVisibility(this.state);
@@ -540,10 +554,10 @@ export class CoreEngine {
     // 4. Mission (Objectives Visibility)
     this.missionManager.updateObjectives(this.state);
 
-    // 5. Units (Now uses scaledDt for all timers)
+    // 5. Units (Now uses dt for all timers)
     this.unitManager.update(
       this.state,
-      scaledDt,
+      dt,
       this.doorManager.getDoors(),
       this.prng,
       this.lootManager,
@@ -553,7 +567,7 @@ export class CoreEngine {
     // 6. Enemies
     this.enemyManager.update(
       this.state,
-      scaledDt,
+      dt,
       this.gameGrid,
       this.pathfinder,
       this.los,
@@ -564,7 +578,7 @@ export class CoreEngine {
     // 7. Turrets
     this.turretManager.update(
       this.state,
-      scaledDt,
+      dt,
       this.prng,
       this.unitManager.getCombatManager(),
     );
