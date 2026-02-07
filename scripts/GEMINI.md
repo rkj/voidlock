@@ -84,7 +84,7 @@ node --experimental-strip-types scripts/capture_timeline.ts --manifest <path> --
 
 - `manifest_path` (default: `timeline/manifest.json`)
 - `screenshot_dir` (default: `screenshots`)
-- `base_port` (default: `6000`)
+- `base_port` (default: `6080`)
 - `max_count` (default: `0` = all manifest rows) number of manifest rows to process from the start
 - `navigation_map_path` (default: `timeline/navigation_map.json`) static per-commit screen/action hints
 
@@ -177,7 +177,7 @@ Manual full-history flow (named args):
 ```bash
 npm run timeline:manifest -- timeline/manifest.json all
 npm run timeline:analyze -- timeline/manifest.json timeline/navigation_map.json
-npm run timeline:capture -- --manifest timeline/manifest.json --screenshots screenshots --port 6000 --max-count 0 --navigation-map timeline/navigation_map.json
+npm run timeline:capture -- --manifest timeline/manifest.json --screenshots screenshots --port 6080 --max-count 0 --navigation-map timeline/navigation_map.json
 npm run timeline:analyze-frames -- --manifest timeline/manifest.json --screenshots screenshots --frame-index timeline/frame_index.json
 npm run timeline:render -- --frame-index timeline/frame_index.json --output timeline/voidlock_timeline_full.mp4
 ```
@@ -188,5 +188,5 @@ npm run timeline:run
 ```
 or:
 ```bash
-./scripts/run_timeline_pipeline.sh 6000
+./scripts/run_timeline_pipeline.sh 6080
 ```
