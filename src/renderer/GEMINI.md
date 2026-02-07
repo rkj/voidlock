@@ -55,3 +55,4 @@ This directory contains the main thread rendering logic and user interface for V
 - **ADR 0012**: Theming System & Asset Pipeline
 - **ADR 0028**: Unified Screen Layout & Global Shell
 - **ADR 0032**: Global UI Persistence and Entity Visibility
+- **ADR 0037**: Centralized Input & Focus Management System
