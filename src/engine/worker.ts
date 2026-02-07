@@ -34,7 +34,7 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
         msg.payload.missionDepth,
         msg.payload.nodeType,
         msg.payload.campaignNodeId,
-        undefined,
+        msg.payload.startingPoints,
         msg.payload.skipDeployment ?? false,
         msg.payload.debugSnapshots ?? false,
         msg.payload.debugSnapshotInterval ?? 0,

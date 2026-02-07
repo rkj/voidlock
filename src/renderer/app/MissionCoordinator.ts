@@ -83,6 +83,7 @@ export class MissionCoordinator {
       config.enemyGrowthPerMission,
       missionDepth,
       config.campaignNode?.type,
+      undefined, // startingPoints
       config.campaignNode?.bonusLootCount || 0,
       config.skipDeployment,
       globalConfig.debugSnapshots,
@@ -209,6 +210,7 @@ export class MissionCoordinator {
         enemyGrowthPerMission,
         missionDepth,
         config.nodeType,
+        undefined, // startingPoints
         config.bonusLootCount || 0,
         config.skipDeployment !== undefined ? config.skipDeployment : true,
         config.debugSnapshots,
