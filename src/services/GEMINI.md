@@ -4,8 +4,8 @@ This directory contains external service integrations.
 
 ## Files
 
-- `firebase.ts`: Initializes the Firebase app, Firestore database, and Authentication. It uses environment variables for configuration and enables IndexedDB persistence for offline support.
-- `CloudSyncService.ts`: Provides methods for saving, loading, and listing campaigns in Firebase Firestore. Handles anonymous authentication and optional OAuth (Google, GitHub) for account linking and cross-device sync. Integrates with Zod schemas for data validation.
+- `firebase.ts`: Initializes the Firebase app, Firestore database, and Authentication. It uses environment variables for configuration and enables IndexedDB persistence for offline support. **Firebase is optional** and will be disabled if environment variables are missing (checked via `isFirebaseConfigured`).
+- `CloudSyncService.ts`: Provides methods for saving, loading, and listing campaigns in Firebase Firestore. Handles anonymous authentication and optional OAuth (Google, GitHub) for account linking and cross-device sync. Integrates with Zod schemas for data validation. **Respects user preference for cloud sync and Firebase availability.**
 - `SaveManager.ts`: Orchestrates game saves by wrapping `LocalStorageProvider` and `CloudSyncService`. Implements a local-first, async-cloud strategy to ensure responsiveness while providing cloud backups. Features version-based conflict resolution to handle data synchronization across sessions. Exposes `CloudSyncService` for authentication management.
 
 ## Environment Variables

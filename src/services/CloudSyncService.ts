@@ -19,7 +19,7 @@ import {
   signOut,
   User
 } from "firebase/auth";
-import { db, auth } from "./firebase";
+import { db, auth, isFirebaseConfigured } from "./firebase";
 import { CampaignStateSchema } from "@src/shared/schemas/campaign";
 import { CampaignState, CampaignSummary } from "@src/shared/campaign_types";
 import { Logger } from "@src/shared/Logger";
@@ -32,9 +32,20 @@ export class CloudSyncService {
   private userId: string | null = null;
   private user: User | null = null;
   private syncEnabled: boolean = false;
+  private userDesiredSync: boolean = true;
   private initialized: boolean = false;
   private initializationPromise: Promise<void> | null = null;
   private onAuthStateChangedCallbacks: ((user: User | null) => void)[] = [];
+
+  /**
+   * Sets whether the user desires to use cloud sync.
+   */
+  setEnabled(enabled: boolean): void {
+    this.userDesiredSync = enabled;
+    if (!enabled) {
+      this.syncEnabled = false;
+    }
+  }
 
   /**
    * Initializes the service, ensuring the user is authenticated (anonymously if needed).
@@ -42,6 +53,12 @@ export class CloudSyncService {
   async initialize(): Promise<void> {
     if (this.initialized) return;
     if (this.initializationPromise) return this.initializationPromise;
+
+    if (!isFirebaseConfigured || !this.userDesiredSync) {
+      this.syncEnabled = false;
+      this.initialized = true;
+      return Promise.resolve();
+    }
 
     this.initializationPromise = new Promise((resolve) => {
       onAuthStateChanged(auth, async (user) => {
@@ -78,6 +95,9 @@ export class CloudSyncService {
    * Signs in with Google.
    */
   async signInWithGoogle(): Promise<void> {
+    if (!isFirebaseConfigured) {
+      throw new Error("Firebase not configured");
+    }
     const provider = new GoogleAuthProvider();
     try {
       if (this.user?.isAnonymous) {
@@ -96,6 +116,9 @@ export class CloudSyncService {
    * Signs in with GitHub.
    */
   async signInWithGithub(): Promise<void> {
+    if (!isFirebaseConfigured) {
+      throw new Error("Firebase not configured");
+    }
     const provider = new GithubAuthProvider();
     try {
       if (this.user?.isAnonymous) {
@@ -114,6 +137,7 @@ export class CloudSyncService {
    * Signs out.
    */
   async signOut(): Promise<void> {
+    if (!isFirebaseConfigured) return;
     try {
       await signOut(auth);
       // After sign out, initialize will be called by onAuthStateChanged to sign in anonymously
@@ -247,5 +271,9 @@ export class CloudSyncService {
 
   isSyncEnabled(): boolean {
     return this.syncEnabled;
+  }
+
+  isConfigured(): boolean {
+    return isFirebaseConfigured;
   }
 }
