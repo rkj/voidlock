@@ -1,5 +1,6 @@
 import { CampaignManager as EngineCampaignManager } from "@src/engine/campaign/CampaignManager";
 import { SaveManager } from "@src/services/SaveManager";
+import { ConfigManager } from "../ConfigManager";
 
 /**
  * Re-export the Engine's CampaignManager.
@@ -10,7 +11,10 @@ export { EngineCampaignManager as CampaignManager };
 // Initialize the singleton for the browser context
 if (typeof window !== "undefined") {
   try {
-    EngineCampaignManager.getInstance(new SaveManager());
+    const globalConfig = ConfigManager.loadGlobal();
+    const saveManager = new SaveManager();
+    saveManager.getCloudSync().setEnabled(globalConfig.cloudSyncEnabled);
+    EngineCampaignManager.getInstance(saveManager);
   } catch (e) {
     // Already initialized or failed
   }

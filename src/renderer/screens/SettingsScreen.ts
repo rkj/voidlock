@@ -255,93 +255,136 @@ export class SettingsScreen {
     accountGroup.className = "control-group flex-col gap-10";
     accountGroup.style.width = "100%";
 
-    if (this.context.cloudSync) {
-      const user = this.context.cloudSync.getUser();
-      const isAnonymous = this.context.cloudSync.isAnonymous();
+    // Cloud Sync Toggle
+    const syncGroup = document.createElement("div");
+    syncGroup.className = "flex-row justify-between align-center";
+    syncGroup.style.width = "100%";
+    const syncLabel = document.createElement("label");
+    syncLabel.textContent = "Enable Cloud Sync:";
+    syncGroup.appendChild(syncLabel);
 
-      if (user && !isAnonymous) {
-        // Signed in
-        const userInfo = document.createElement("div");
-        userInfo.className = "flex-row justify-between align-center";
-        userInfo.style.padding = "10px";
-        userInfo.style.background = "var(--color-surface)";
-        userInfo.style.border = "1px solid var(--color-border)";
-
-        const userDetails = document.createElement("div");
-        userDetails.className = "flex-col";
-        
-        const userName = document.createElement("div");
-        userName.textContent = user.displayName || user.email || "Authenticated User";
-        userName.style.fontWeight = "bold";
-        userDetails.appendChild(userName);
-
-        const userStatus = document.createElement("div");
-        userStatus.textContent = "✓ Cloud Sync Active";
-        userStatus.style.fontSize = "0.8em";
-        userStatus.style.color = "var(--color-primary)";
-        userDetails.appendChild(userStatus);
-
-        userInfo.appendChild(userDetails);
-
-        const signOutBtn = document.createElement("button");
-        signOutBtn.className = "menu-button";
-        signOutBtn.style.fontSize = "0.8em";
-        signOutBtn.style.padding = "5px 10px";
-        signOutBtn.textContent = "Sign Out";
-        signOutBtn.onclick = async () => {
-          await this.context.cloudSync.signOut();
-        };
-        userInfo.appendChild(signOutBtn);
-
-        accountGroup.appendChild(userInfo);
-      } else {
-        // Anonymous or Not signed in
-        const authDesc = document.createElement("div");
-        authDesc.textContent = "Sign in to enable cross-device synchronization and protect your saves.";
-        authDesc.style.fontSize = "0.8em";
-        authDesc.style.color = "var(--color-text-dim)";
-        accountGroup.appendChild(authDesc);
-
-        const authButtons = document.createElement("div");
-        authButtons.className = "flex-row gap-10";
-        authButtons.style.marginTop = "5px";
-
-        const googleBtn = document.createElement("button");
-        googleBtn.className = "menu-button";
-        googleBtn.style.flex = "1";
-        googleBtn.textContent = "Sign in with Google";
-        googleBtn.onclick = async () => {
-          try {
-            await this.context.cloudSync.signInWithGoogle();
-          } catch (err) {
-            this.context.modalService.show({
-              title: "SIGN IN FAILED",
-              message: "Could not connect to Google. Please try again later.",
-              buttons: [{ label: "OK", isPrimary: true, onClick: (m) => m.close() }]
-            });
-          }
-        };
-        authButtons.appendChild(googleBtn);
-
-        const githubBtn = document.createElement("button");
-        githubBtn.className = "menu-button";
-        githubBtn.style.flex = "1";
-        githubBtn.textContent = "Sign in with GitHub";
-        githubBtn.onclick = async () => {
-          try {
-            await this.context.cloudSync.signInWithGithub();
-          } catch (err) {
-            this.context.modalService.show({
-              title: "SIGN IN FAILED",
-              message: "Could not connect to GitHub. Please try again later.",
-              buttons: [{ label: "OK", isPrimary: true, onClick: (m) => m.close() }]
-            });
-          }
-        };
-        authButtons.appendChild(githubBtn);
-
-        accountGroup.appendChild(authButtons);
+    const syncToggle = document.createElement("input");
+    syncToggle.type = "checkbox";
+    syncToggle.checked = global.cloudSyncEnabled;
+    syncToggle.onchange = () => {
+      const enabled = syncToggle.checked;
+      ConfigManager.saveGlobal({
+        ...ConfigManager.loadGlobal(),
+        cloudSyncEnabled: enabled,
+      });
+      if (this.context.cloudSync) {
+        this.context.cloudSync.setEnabled(enabled);
+        if (enabled) {
+          this.context.cloudSync.initialize().then(() => this.render());
+        } else {
+          this.render();
+        }
       }
+    };
+    syncGroup.appendChild(syncToggle);
+    accountGroup.appendChild(syncGroup);
+
+    if (this.context.cloudSync && global.cloudSyncEnabled) {
+      if (this.context.cloudSync.isConfigured()) {
+        const user = this.context.cloudSync.getUser();
+        const isAnonymous = this.context.cloudSync.isAnonymous();
+
+        if (user && !isAnonymous) {
+          // Signed in
+          const userInfo = document.createElement("div");
+          userInfo.className = "flex-row justify-between align-center";
+          userInfo.style.padding = "10px";
+          userInfo.style.background = "var(--color-surface)";
+          userInfo.style.border = "1px solid var(--color-border)";
+
+          const userDetails = document.createElement("div");
+          userDetails.className = "flex-col";
+          
+          const userName = document.createElement("div");
+          userName.textContent = user.displayName || user.email || "Authenticated User";
+          userName.style.fontWeight = "bold";
+          userDetails.appendChild(userName);
+
+          const userStatus = document.createElement("div");
+          userStatus.textContent = "✓ Cloud Sync Active";
+          userStatus.style.fontSize = "0.8em";
+          userStatus.style.color = "var(--color-primary)";
+          userDetails.appendChild(userStatus);
+
+          userInfo.appendChild(userDetails);
+
+          const signOutBtn = document.createElement("button");
+          signOutBtn.className = "menu-button";
+          signOutBtn.style.fontSize = "0.8em";
+          signOutBtn.style.padding = "5px 10px";
+          signOutBtn.textContent = "Sign Out";
+          signOutBtn.onclick = async () => {
+            await this.context.cloudSync.signOut();
+          };
+          userInfo.appendChild(signOutBtn);
+
+          accountGroup.appendChild(userInfo);
+        } else {
+          // Anonymous or Not signed in
+          const authDesc = document.createElement("div");
+          authDesc.textContent = "Sign in to enable cross-device synchronization and protect your saves.";
+          authDesc.style.fontSize = "0.8em";
+          authDesc.style.color = "var(--color-text-dim)";
+          accountGroup.appendChild(authDesc);
+
+          const authButtons = document.createElement("div");
+          authButtons.className = "flex-row gap-10";
+          authButtons.style.marginTop = "5px";
+
+          const googleBtn = document.createElement("button");
+          googleBtn.className = "menu-button";
+          googleBtn.style.flex = "1";
+          googleBtn.textContent = "Sign in with Google";
+          googleBtn.onclick = async () => {
+            try {
+              await this.context.cloudSync.signInWithGoogle();
+            } catch (err) {
+              this.context.modalService.show({
+                title: "SIGN IN FAILED",
+                message: "Could not connect to Google. Please try again later.",
+                buttons: [{ label: "OK", isPrimary: true, onClick: (m) => m.close() }]
+              });
+            }
+          };
+          authButtons.appendChild(googleBtn);
+
+          const githubBtn = document.createElement("button");
+          githubBtn.className = "menu-button";
+          githubBtn.style.flex = "1";
+          githubBtn.textContent = "Sign in with GitHub";
+          githubBtn.onclick = async () => {
+            try {
+              await this.context.cloudSync.signInWithGithub();
+            } catch (err) {
+              this.context.modalService.show({
+                title: "SIGN IN FAILED",
+                message: "Could not connect to GitHub. Please try again later.",
+                buttons: [{ label: "OK", isPrimary: true, onClick: (m) => m.close() }]
+              });
+            }
+          };
+          authButtons.appendChild(githubBtn);
+
+          accountGroup.appendChild(authButtons);
+        }
+      } else {
+        const errorMsg = document.createElement("div");
+        errorMsg.textContent = "Cloud Sync Service Unavailable (Firebase not configured)";
+        errorMsg.style.color = "var(--color-error)";
+        errorMsg.style.fontSize = "0.8em";
+        accountGroup.appendChild(errorMsg);
+      }
+    } else if (this.context.cloudSync && !global.cloudSyncEnabled) {
+      const infoMsg = document.createElement("div");
+      infoMsg.textContent = "Cloud Sync is disabled. Enable it above to use online saves.";
+      infoMsg.style.color = "var(--color-text-dim)";
+      infoMsg.style.fontSize = "0.8em";
+      accountGroup.appendChild(infoMsg);
     } else {
       const errorMsg = document.createElement("div");
       errorMsg.textContent = "Cloud Sync Service Unavailable";

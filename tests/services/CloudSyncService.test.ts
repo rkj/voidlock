@@ -63,6 +63,7 @@ vi.mock("firebase/auth", () => ({
 vi.mock("@src/services/firebase", () => ({
   db: {},
   auth: {},
+  isFirebaseConfigured: true,
 }));
 
 describe("CloudSyncService", () => {
