@@ -93,8 +93,8 @@ describe("SoldierWidget", () => {
     // Check highlighting
     const lhRow = el.querySelector(".u-lh-row") as HTMLElement;
     const rhRow = el.querySelector(".u-rh-row") as HTMLElement;
-    expect(lhRow.style.background).not.toBe("transparent");
-    expect(rhRow.style.background).toBe("transparent");
+    expect(lhRow.classList.contains("active-weapon")).toBe(true);
+    expect(rhRow.classList.contains("active-weapon")).toBe(false);
   });
 
   it("should render debrief context correctly", () => {

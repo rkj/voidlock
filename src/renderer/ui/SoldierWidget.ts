@@ -210,31 +210,31 @@ export class SoldierWidget {
   ) {
     if (!el.hasChildNodes()) {
       el.innerHTML = `
-        <div class="info-row" style="display:flex; justify-content:space-between; align-items:center;">
-          <div style="display:flex; align-items:center; gap:6px;">
-             <span class="u-icon" style="font-size:1.2em;"></span>
+        <div class="soldier-info-header">
+          <div class="soldier-identity">
+             <span class="u-icon"></span>
              <strong class="u-id"></strong>
-             <span class="u-burden" style="color:var(--color-danger); font-size:1em;"></span>
+             <span class="u-burden"></span>
           </div>
-          <span class="u-hp" style="font-weight:bold;"></span>
+          <span class="u-hp"></span>
         </div>
-        <div class="base-stats-row" style="font-size:0.7em; display:flex; gap:8px; color:var(--color-text-muted); margin-top:2px;">
+        <div class="soldier-base-stats">
            <span class="u-speed-box"></span>
         </div>
-        <div class="weapon-stats-container" style="font-size:0.65em; margin-top:4px; display:flex; flex-direction:column; gap:2px; border-top:1px solid var(--color-surface-elevated); padding-top:2px;">
-           <div class="u-lh-row" style="display:flex; gap:6px; align-items:center; padding: 1px 2px;">
-              <span style="color:var(--color-text-dim); flex: 0 0 24px;">LH:</span>
-              <span class="u-lh-stats" style="display:flex; gap:8px;"></span>
+        <div class="soldier-weapon-stats">
+           <div class="u-lh-row weapon-row">
+              <span class="weapon-label">LH:</span>
+              <span class="u-lh-stats weapon-stats-list"></span>
            </div>
-           <div class="u-rh-row" style="display:flex; gap:6px; align-items:center; padding: 1px 2px;">
-              <span style="color:var(--color-text-dim); flex: 0 0 24px;">RH:</span>
-              <span class="u-rh-stats" style="display:flex; gap:8px;"></span>
+           <div class="u-rh-row weapon-row">
+              <span class="weapon-label">RH:</span>
+              <span class="u-rh-stats weapon-stats-list"></span>
            </div>
         </div>
-        <div class="status-row" style="font-size:0.75em; color:var(--color-text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px;">
+        <div class="soldier-status-row">
              <span class="u-status-text"></span>
         </div>
-        <div class="hp-bar" style="margin-top:2px;"><div class="hp-fill"></div></div>
+        <div class="hp-bar"><div class="hp-fill"></div></div>
       `;
     }
 
@@ -293,7 +293,7 @@ export class SoldierWidget {
     ) => {
       if (!stats) {
         const emptyHtml =
-          '<span style="color:var(--color-border-strong)">Empty</span>';
+          '<span class="weapon-empty">Empty</span>';
         if (container.innerHTML !== emptyHtml) container.innerHTML = emptyHtml;
         return;
       }
@@ -324,16 +324,8 @@ export class SoldierWidget {
 
     const lhRow = el.querySelector(".u-lh-row") as HTMLElement;
     const rhRow = el.querySelector(".u-rh-row") as HTMLElement;
-    if (unit.activeWeaponId === unit.leftHand && unit.leftHand) {
-      lhRow.style.background = "var(--color-surface-elevated)";
-      rhRow.style.background = "transparent";
-    } else if (unit.activeWeaponId === unit.rightHand && unit.rightHand) {
-      rhRow.style.background = "var(--color-surface-elevated)";
-      lhRow.style.background = "transparent";
-    } else {
-      lhRow.style.background = "transparent";
-      rhRow.style.background = "transparent";
-    }
+    lhRow.classList.toggle("active-weapon", unit.activeWeaponId === unit.leftHand && !!unit.leftHand);
+    rhRow.classList.toggle("active-weapon", unit.activeWeaponId === unit.rightHand && !!unit.rightHand);
   }
 
   private static renderDebrief(
@@ -360,14 +352,14 @@ export class SoldierWidget {
 
     container.innerHTML = `
       <div class="flex-row justify-between align-center">
-        <span style="font-size: 1.1em; font-weight:bold;">${displayName} <span style="font-size: 0.7em; color: var(--color-text-muted); font-weight: normal;">LVL ${currentLevel}</span></span>
-        <span style="color:${statusColor}; font-weight:bold; border: 1px solid ${statusColor}; padding: 2px 8px; font-size: 0.8em; border-radius: 4px;">
+        <span class="soldier-name-lvl">${displayName} <span class="soldier-lvl">LVL ${currentLevel}</span></span>
+        <span class="soldier-status-badge" style="color:${statusColor}; border-color: ${statusColor};">
           ${res.status}
         </span>
       </div>
       
-      <div class="debrief-xp-container" style="margin-top: 8px;">
-        <div class="flex-row justify-between" style="font-size: 0.75em; color: var(--color-text-muted); margin-bottom: 4px;">
+      <div class="debrief-xp-container">
+        <div class="flex-row justify-between xp-text">
           <span>XP: ${res.xpBefore} (+${res.xpGained})</span>
           <span>${xpAfter} / ${nextLevelThreshold}</span>
         </div>
@@ -377,10 +369,10 @@ export class SoldierWidget {
         </div>
       </div>
 
-      <div class="flex-row gap-20" style="margin-top: 10px; font-size: 0.85em; color: var(--color-text-muted);">
-        <span>Kills: <span style="color:var(--color-text);">${res.kills}</span></span>
-        ${res.promoted ? `<span style="color:var(--color-accent); font-weight:bold;">Level Up! (LVL ${res.newLevel})</span>` : ""}
-        ${res.status === "Wounded" && res.recoveryTime ? `<span style="color:var(--color-warning);">Recovery: ${res.recoveryTime} Missions</span>` : ""}
+      <div class="flex-row gap-20 debrief-stats-summary">
+        <span>Kills: <span class="highlight-text">${res.kills}</span></span>
+        ${res.promoted ? `<span class="promo-text">Level Up! (LVL ${res.newLevel})</span>` : ""}
+        ${res.status === "Wounded" && res.recoveryTime ? `<span class="recovery-text">Recovery: ${res.recoveryTime} Missions</span>` : ""}
       </div>
     `;
   }
@@ -401,23 +393,21 @@ export class SoldierWidget {
     const lh = this.getItemName(equipment.leftHand);
     const equipmentText = `${rh} / ${lh}`;
 
-    container.style.marginBottom = "10px";
-    container.style.padding = "10px";
     container.style.borderLeft = `4px solid ${statusColor}`;
 
     container.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:center;">
-        <strong style="color:${options.selected ? "var(--color-accent)" : "var(--color-text)"};">${displayName}</strong>
-        <div style="display:flex; gap:10px; align-items:center;">
-          ${options.price ? `<span style="font-weight:bold; color:var(--color-text); font-size:0.9em;">${options.price}</span>` : ""}
+      <div class="roster-item-header">
+        <strong class="${options.selected ? "active-name" : ""}">${displayName}</strong>
+        <div class="roster-item-meta">
+          ${options.price ? `<span class="roster-price">${options.price}</span>` : ""}
           <span class="badge">LVL ${level}</span>
         </div>
       </div>
-      <div style="font-size:0.75em; color:var(--color-text-muted); margin-top:4px; display:flex; justify-content:space-between;">
+      <div class="roster-item-details">
         <span>${archetype} | ${equipmentText}</span>
         <span style="color:${statusColor};">${soldier.status}</span>
       </div>
-      <div style="font-size:0.7em; color:var(--color-text-dim); margin-top:4px;">
+      <div class="roster-item-stats">
         HP: ${soldier.hp}/${soldier.maxHp} | XP: ${soldier.xp}
       </div>
     `;
@@ -459,14 +449,14 @@ export class SoldierWidget {
     const subTitle = arch?.name && arch.name !== name ? `${arch.name} ` : "";
 
     container.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:center;">
+      <div class="squad-builder-card-header">
         <strong>${displayName}</strong>
-        ${options.price ? `<span style="font-weight:bold; color:var(--color-text); font-size:0.9em;">${options.price}</span>` : ""}
+        ${options.price ? `<span class="squad-builder-price">${options.price}</span>` : ""}
       </div>
-      <div style="font-size:0.75em; color:var(--color-text-muted); margin-bottom: 2px;">
+      <div class="squad-builder-card-subtitle">
         ${subTitle}Lvl ${level} | Status: ${status}
       </div>
-      <div style="font-size:0.75em; color:var(--color-text-muted); display:flex; gap:4px; flex-wrap:wrap;">
+      <div class="squad-builder-card-stats">
         ${StatDisplay.render(Icons.Speed, speed, "Speed")}
         ${StatDisplay.render(Icons.Accuracy, accuracy, "Accuracy")}
         ${StatDisplay.render(Icons.Damage, damage, "Damage")}

@@ -530,7 +530,7 @@ export class EquipmentScreen {
       nameGroup.className = "flex-col";
       nameGroup.style.flexGrow = "1";
       nameGroup.innerHTML = `
-        <div class="flex-row justify-between" style="font-weight:bold; font-size: 0.9em; width: 100%;">
+        <div class="supply-item-header" style="font-weight:bold; font-size: 0.9em; width: 100%; display: flex; justify-content: space-between;">
             <span>${item.name}</span>
             <span style="color:var(--color-primary);">${item.cost} CR</span>
         </div>

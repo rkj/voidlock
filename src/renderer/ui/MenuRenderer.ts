@@ -20,22 +20,20 @@ export class MenuRenderer {
       html += `<div class="menu-breadcrumbs">${breadcrumbsHtml}</div>`;
     }
 
-    html += `<h3>${this.escapeHtml(state.title)}</h3>`;
+    html += `<h3 class="menu-title">${this.escapeHtml(state.title)}</h3>`;
 
     if (state.error) {
-      html += `<p style="color:var(--color-danger);">${this.escapeHtml(state.error)}</p>`;
+      html += `<p class="menu-error">${this.escapeHtml(state.error)}</p>`;
     }
 
     state.options.forEach((opt) => {
-      let style = "";
       let cssClass = "menu-item";
-
       if (opt.disabled) {
-        style = 'style="color: var(--color-text-dim); cursor: not-allowed;"';
+        cssClass += " disabled";
       } else {
         cssClass += " clickable";
         if (opt.isBack) {
-          style = 'style="color: var(--color-warning); margin-top: 10px;"';
+          cssClass += " menu-item-back";
         }
       }
 
@@ -46,11 +44,11 @@ export class MenuRenderer {
         });
       }
 
-      html += `<div class="${cssClass}" ${dataAttrs} ${style}>${this.escapeHtml(opt.label)}</div>`;
+      html += `<div class="${cssClass}" ${dataAttrs}>${this.escapeHtml(opt.label)}</div>`;
     });
 
     if (state.footer) {
-      html += `<p style="color:var(--color-text-muted); font-size:0.8em; margin-top:10px;">${this.escapeHtml(state.footer)}</p>`;
+      html += `<p class="menu-footer-text">${this.escapeHtml(state.footer)}</p>`;
     }
 
     return html;

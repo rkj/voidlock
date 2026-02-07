@@ -1566,6 +1566,765 @@ label {
   animation: spin 2s linear infinite;
 }
 
+/* SoldierInspector Styles */
+.inspector-empty-wrapper {
+  padding: 20px;
+}
+
+.inspector-placeholder {
+  color: var(--color-border-strong);
+}
+
+.placeholder-icon {
+  font-size: 3em;
+  margin-bottom: 10px;
+}
+
+.inspector-recruit-options {
+  max-width: 400px;
+  margin-top: 20px;
+}
+
+.recruit-btn-large, .revive-btn-large {
+  padding: 15px;
+}
+
+.btn-label {
+  font-weight: bold;
+}
+
+.btn-sub {
+  font-size: 0.8em;
+  color: var(--color-text-dim);
+}
+
+.inspector-details-content {
+  margin-top: 10px;
+}
+
+.dead-warning {
+  max-width: 400px;
+  border-radius: 2px;
+  border: 1px solid var(--color-danger);
+  background-color: rgba(255, 0, 0, 0.1);
+  padding: 12px;
+  text-align: center;
+  color: var(--color-danger);
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.soldier-attributes-panel {
+  max-width: 400px;
+  border-radius: 2px;
+  border-left: 3px solid var(--color-accent);
+  padding: 12px;
+}
+
+.inspector-panel-title {
+  margin: 0 0 12px 0;
+  letter-spacing: 1px;
+  color: var(--color-accent);
+}
+
+.inspector-panel-title-alt {
+  margin: 0 0 12px 0;
+  letter-spacing: 1px;
+  color: var(--color-primary);
+}
+
+.inspector-stats-grid {
+  /* gap: 20px from flex-row */
+}
+
+.weapon-performance-panel {
+  max-width: 400px;
+  border-radius: 2px;
+  border-left: 3px solid var(--color-primary);
+  padding: 12px;
+}
+
+.weapon-block-empty {
+  color: var(--color-text-dim);
+  font-size: 0.75em;
+  margin-bottom: 12px;
+  font-style: italic;
+}
+
+.weapon-block {
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--color-surface-elevated);
+  padding-bottom: 12px;
+}
+
+.weapon-block-title {
+  font-size: 0.85em;
+  font-weight: bold;
+  color: var(--color-primary);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.weapon-block-stats {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.inspector-slots-grid {
+  display: grid;
+  grid-template-columns: 110px 110px;
+  grid-template-rows: 110px 110px;
+  gap: 15px;
+  margin-top: 10px;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  border: 1px solid var(--color-border);
+}
+
+.slot-title {
+  font-size: 0.65em;
+  color: var(--color-text-dim);
+  position: absolute;
+  top: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.slot-item-name {
+  font-size: 0.75em;
+  text-align: center;
+  font-weight: bold;
+  color: var(--color-primary);
+  padding: 0 5px;
+}
+
+.slot-remove-btn {
+  position: absolute;
+  top: 2px;
+  right: 5px;
+  color: var(--color-danger);
+  cursor: pointer;
+  font-size: 1.2em;
+}
+
+.slot-empty-plus {
+  font-size: 1.5em;
+  color: var(--color-border-strong);
+}
+
+.armory-category-title {
+  font-size: 0.9em;
+  color: var(--color-primary);
+  margin: 20px 0 10px 0;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 5px;
+}
+
+.armory-item {
+  padding: 8px 12px;
+  margin-bottom: 4px;
+  font-size: 0.85em;
+}
+
+.armory-item-content {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.armory-item-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: bold;
+  font-size: 0.95em;
+  width: 100%;
+}
+
+.price-owned {
+  color: var(--color-primary);
+}
+
+.price-cost {
+  color: var(--color-text-muted);
+}
+
+.armory-item-stats {
+  font-size: 0.8em;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+  display: flex;
+  gap: 10px;
+}
+
+/* Container Queries for Inspector */
+@container (max-width: 350px) {
+  .inspector-stats-grid {
+    flex-direction: column;
+    gap: 8px;
+  }
+  .inspector-slots-grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto;
+    width: 100%;
+  }
+  .paper-doll-slot {
+    width: 100%;
+    aspect-ratio: 1;
+  }
+}
+
+/* HUDManager Styles */
+.time-label {
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.8em;
+}
+
+.threat-fill.threat-success { background-color: var(--color-success); }
+.threat-fill.threat-warning { background-color: var(--color-warning); }
+.threat-fill.threat-danger { background-color: var(--color-danger); }
+
+.threat-value.threat-success { color: var(--color-success); }
+.threat-value.threat-warning { color: var(--color-warning); }
+.threat-value.threat-danger { color: var(--color-danger); }
+
+.command-menu {
+  border-bottom: 1px solid var(--color-border-strong);
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+
+.debug-controls {
+  margin-top: 10px;
+  border-top: 1px solid var(--color-border-strong);
+  padding-top: 10px;
+}
+
+.debug-info-grid {
+  font-size: 0.8em;
+  color: var(--color-text-muted);
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.debug-actions-row {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 4px;
+}
+
+.debug-btn-win, .debug-btn-lose, .debug-btn-copy {
+  flex: 1;
+  font-size: 0.8em;
+  padding: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.debug-btn-win { background-color: var(--color-success); color: white; }
+.debug-btn-lose { background-color: var(--color-danger); color: white; }
+.debug-btn-copy { width: 100%; }
+
+/* Deployment Phase */
+.deployment-summary {
+  margin: 20px;
+  text-align: center;
+}
+
+.deployment-title {
+  color: var(--color-success);
+  margin-bottom: 10px;
+}
+
+.deployment-desc {
+  font-size: 0.9em;
+  color: var(--color-text-muted);
+  margin-bottom: 20px;
+}
+
+.deployment-squad-list {
+  margin-bottom: 20px;
+  text-align: left;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.deployment-unit-item {
+  cursor: grab;
+  margin-bottom: 4px;
+}
+
+.btn-start-mission {
+  width: 100%;
+  padding: 15px;
+  font-size: 1.2em;
+  font-weight: bold;
+  background-color: var(--color-success);
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-start-mission.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Objectives */
+.obj-row {
+  margin: 5px 0;
+}
+
+.obj-icon {
+  margin-right: 8px;
+  font-weight: bold;
+}
+
+/* Enemy Intel */
+.enemy-intel {
+  margin-top: 10px;
+  border-top: 1px solid var(--color-border-strong);
+  padding-top: 10px;
+}
+
+.intel-empty {
+  color: var(--color-text-dim);
+  font-size: 0.8em;
+}
+
+.intel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.intel-title {
+  color: var(--color-danger);
+  font-size: 0.9em;
+}
+
+.intel-stats {
+  font-size: 0.7em;
+  color: var(--color-text-muted);
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+  flex-wrap: wrap;
+}
+
+/* Game Over */
+.game-over-summary {
+  margin: 20px;
+}
+
+.game-over-title {
+  /* color handled by state class */
+}
+
+.game-over-summary:not(.lost) .game-over-title { color: var(--color-success); }
+.game-over-summary.lost .game-over-title { color: var(--color-danger); }
+
+.game-over-objectives {
+  margin: 20px 0;
+  text-align: left;
+  border-bottom: 1px solid var(--color-border-strong);
+  padding-bottom: 10px;
+}
+
+.game-over-panel-title {
+  font-size: 0.9em;
+  color: var(--color-text-muted);
+  margin-top: 0;
+}
+
+.game-over-stats {
+  margin: 20px 0;
+  text-align: left;
+}
+
+.game-over-btn {
+  width: 100%;
+  padding: 15px;
+}
+
+/* Menu Styles */
+.menu-title {
+  color: var(--color-primary);
+  font-size: 1.1em;
+  margin: 10px 0;
+}
+
+.menu-error {
+  color: var(--color-danger);
+}
+
+.menu-item-back {
+  color: var(--color-warning);
+  margin-top: 10px;
+}
+
+.menu-footer-text {
+  color: var(--color-text-muted);
+  font-size: 0.8em;
+  margin-top: 10px;
+}
+
+/* Container Queries for Menu */
+@container (max-width: 200px) {
+  .menu-item {
+    font-size: 0.9em;
+    padding: 4px 8px;
+  }
+}
+
+/* SoldierWidget Styles */
+.soldier-info-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 20px;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.soldier-identity {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.soldier-identity .u-icon {
+  font-size: 1.2em;
+}
+
+.soldier-identity .u-burden {
+  color: var(--color-danger);
+  font-size: 1em;
+}
+
+.soldier-info-header .u-hp {
+  font-weight: bold;
+}
+
+.soldier-base-stats {
+  font-size: 0.7em;
+  display: flex;
+  gap: 8px;
+  color: var(--color-text-muted);
+  margin-top: 2px;
+}
+
+.soldier-weapon-stats {
+  font-size: 0.65em;
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-top: 1px solid var(--color-surface-elevated);
+  padding-top: 2px;
+}
+
+.weapon-row {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  padding: 1px 2px;
+}
+
+.weapon-row.active-weapon {
+  background: var(--color-surface-elevated);
+}
+
+.weapon-label {
+  color: var(--color-text-dim);
+  flex: 0 0 24px;
+}
+
+.weapon-stats-list {
+  display: flex;
+  gap: 8px;
+}
+
+.weapon-empty {
+  color: var(--color-border-strong);
+}
+
+.soldier-status-row {
+  font-size: 0.75em;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+/* Debrief Specific */
+.soldier-name-lvl {
+  font-size: 1.1em;
+  font-weight: bold;
+}
+
+.soldier-lvl {
+  font-size: 0.7em;
+  color: var(--color-text-muted);
+  font-weight: normal;
+}
+
+.soldier-status-badge {
+  font-weight: bold;
+  border: 1px solid;
+  padding: 2px 8px;
+  font-size: 0.8em;
+  border-radius: 4px;
+}
+
+.debrief-xp-container {
+  margin-top: 8px;
+}
+
+.debrief-xp-container .xp-text {
+  font-size: 0.75em;
+  color: var(--color-text-muted);
+  margin-bottom: 4px;
+}
+
+.debrief-stats-summary {
+  margin-top: 10px;
+  font-size: 0.85em;
+  color: var(--color-text-muted);
+}
+
+.highlight-text {
+  color: var(--color-text);
+}
+
+.promo-text {
+  color: var(--color-accent);
+  font-weight: bold;
+}
+
+.recovery-text {
+  color: var(--color-warning);
+}
+
+/* Roster Specific */
+.roster-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.active-name {
+  color: var(--color-accent);
+}
+
+.roster-item-meta {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.roster-price {
+  font-weight: bold;
+  color: var(--color-text);
+  font-size: 0.9em;
+}
+
+.roster-item-details {
+  font-size: 0.75em;
+  color: var(--color-text-muted);
+  margin-top: 4px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.roster-item-stats {
+  font-size: 0.7em;
+  color: var(--color-text-dim);
+  margin-top: 4px;
+}
+
+.soldier-widget-roster {
+  margin-bottom: 10px;
+  padding: 10px;
+}
+
+/* Squad Builder Specific */
+.squad-builder-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.squad-builder-price {
+  font-weight: bold;
+  color: var(--color-text);
+  font-size: 0.9em;
+}
+
+.squad-builder-card-subtitle {
+  font-size: 0.75em;
+  color: var(--color-text-muted);
+  margin-bottom: 2px;
+}
+
+.squad-builder-card-stats {
+  font-size: 0.75em;
+  color: var(--color-text-muted);
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+/* Container Queries for SoldierWidget */
+@container (max-width: 200px) {
+  .weapon-stats-list {
+    flex-wrap: wrap;
+    gap: 4px;
+  }
+  .squad-builder-card-stats {
+    flex-direction: column;
+    gap: 2px;
+  }
+}
+
+@container (max-width: 160px) {
+  .weapon-stats-list {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+  
+  .weapon-row {
+    align-items: flex-start;
+  }
+
+  .roster-item-header,
+  .roster-item-details {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .roster-item-meta {
+    margin-top: 2px;
+  }
+}
+
+@container (max-width: 150px) {
+  .soldier-identity strong {
+    font-size: 0.8em;
+  }
+  .weapon-label {
+    display: none;
+  }
+}
+
+/* Stat Display Component */
+.stat-display {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: inherit;
+  --stat-value-color: var(--color-text);
+}
+
+.stat-display img {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.stat-display .stat-value {
+  color: var(--stat-value-color);
+}
+
+/* Container query for stat-display responsiveness */
+@container (max-width: 150px) {
+  .stat-display {
+    flex-direction: column;
+    gap: 1px;
+    text-align: center;
+  }
+  .stat-display img {
+    width: 12px;
+    height: 12px;
+  }
+  .stat-display .stat-value {
+    font-size: 0.75em;
+  }
+}
+
+/* Container query for menu-item responsiveness */
+@container (max-width: 250px) {
+  .menu-item {
+    padding: 4px 8px;
+    font-size: 0.9em;
+  }
+}
+
+/* Container queries for soldier-item responsiveness */
+@container (max-width: 200px) {
+  .soldier-item {
+    padding: 2px 4px;
+  }
+  .soldier-info-header {
+    flex-direction: column;
+    height: auto;
+    align-items: flex-start;
+    gap: 2px;
+  }
+  .u-status-text {
+    font-size: 0.7em;
+  }
+  .weapon-stats-list {
+    flex-wrap: wrap;
+    gap: 2px;
+  }
+  .weapon-label {
+    display: none;
+  }
+}
+
+/* Container queries for soldier-card responsiveness (Squad Builder) */
+@container (max-width: 280px) {
+  .squad-builder-card-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+  }
+  .squad-builder-card-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .squad-builder-price {
+    font-size: 0.8em;
+  }
+}
+
+/* Layout Panels as Containers */
+.roster-panel,
+.deployment-panel,
+.right-panel,
+.soldier-panel,
+#setup-content,
+.debrief-summary,
+.summary-panel,
+.command-menu,
+.soldier-item,
+.soldier-card,
+.stat-box {
+  container-type: inline-size;
+}
+
 /* --- Mobile Responsiveness (ADR 0038) --- */
 
 /* Detection via pointer coarse (fallback for without class) */
