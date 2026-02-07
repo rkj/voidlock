@@ -21,7 +21,7 @@
     "timeline:all": "npm run timeline:manifest && npm run timeline:analyze && npm run timeline:topology && npm run timeline:playbooks && npm run timeline:capture && npm run timeline:analyze-frames && npm run timeline:render",
     "timeline:topology": "node --experimental-strip-types scripts/timeline/analyze_screen_topology_changes.ts",
     "timeline:playbooks": "node --experimental-strip-types scripts/timeline/plan_navigation_playbooks.ts",
-    "timeline:run": "./scripts/timeline/run_timeline_pipeline.sh"
+    "timeline:run": "./scripts/timeline/run.sh"
   },
   "devDependencies": {
     "@types/node": "^25.0.3",
