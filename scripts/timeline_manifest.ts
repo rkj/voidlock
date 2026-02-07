@@ -218,16 +218,17 @@ export function buildManifest(
 function runCli() {
   const outPath = process.argv[2] || "timeline/manifest.json";
   const mode = (process.argv[3] || "all").toLowerCase();
-  const maxCount = Number(process.argv[4] || 5000);
+  const maxCount = Number(process.argv[4] || 0);
   const minHours = Number(process.argv[5] || 8);
   const commits = getGitCommits();
+  const effectiveMax = maxCount > 0 ? maxCount : commits.length;
   const selectedCommits =
     mode === "visual"
       ? selectMilestoneCommits(filterVisualCommits(commits), {
           minHoursBetween: minHours,
-          maxCount,
+          maxCount: effectiveMax,
         })
-      : commits.slice(0, maxCount);
+      : commits.slice(0, effectiveMax);
   const milestones = selectedCommits.map((commit) => ({
     milestoneDate: new Date(parseTimestamp(commit.date)).toISOString(),
     sourceCommit: commit.sha,
@@ -238,7 +239,7 @@ function runCli() {
     generatedAt: new Date().toISOString(),
     mode,
     minHoursBetween: minHours,
-    maxCount,
+    maxCount: maxCount > 0 ? maxCount : 0,
     totalGitCommits: commits.length,
     milestones,
   };

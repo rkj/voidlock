@@ -31,14 +31,14 @@ describe("timeline navigation analyzer", () => {
     const targets = inferTargets([
       "screen-main-menu",
       "screen-mission-setup",
-      "screen-equipment",
       "screen-mission",
+      "screen-campaign",
       "btn-goto-equipment",
       "btn-start-mission",
     ]);
-    expect(targets.main_menu).toContain("screen-main-menu");
-    expect(targets.mission_setup).toContain("screen-mission-setup");
-    expect(targets.equipment).toContain("screen-equipment");
     expect(targets.mission).toContain("screen-mission");
+    expect(targets.main_menu).toContain("screen-main-menu");
+    expect(targets.config).toContain("screen-mission-setup");
+    expect(targets.campaign).toContain("screen-campaign");
   });
 });
