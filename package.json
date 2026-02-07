@@ -1,7 +1,7 @@
 {
   "name": "voidlock",
   "private": true,
-  "version": "0.128.2",
+  "version": "0.129.0",
   "description": "Tactical squad combat game.",
   "type": "module",
   "scripts": {
@@ -12,7 +12,11 @@
     "lint": "tsc --noEmit",
     "preview": "vite preview",
     "balance-sim": "tsx src/harness/BalanceSimulator.ts",
-    "process-assets": "tsx scripts/process_assets.ts"
+    "process-assets": "tsx scripts/process_assets.ts",
+    "timeline:manifest": "node --experimental-strip-types scripts/timeline_manifest.ts",
+    "timeline:capture": "node --experimental-strip-types scripts/capture_timeline.ts",
+    "timeline:render": "node --experimental-strip-types scripts/render_timeline.ts",
+    "timeline:all": "npm run timeline:manifest && npm run timeline:capture && npm run timeline:render"
   },
   "devDependencies": {
     "@types/node": "^25.0.3",
