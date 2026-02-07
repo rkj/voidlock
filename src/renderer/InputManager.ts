@@ -32,6 +32,8 @@ export class InputManager implements InputContext {
       pixelX: number,
       pixelY: number,
     ) => { x: number; y: number },
+    private cycleUnits: (reverse?: boolean) => void,
+    private panMap: (direction: string) => void,
   ) {
     this.boundHandleKeyUp = (e: KeyboardEvent) => {
       this.menuController.isShiftHeld = e.shiftKey;
@@ -150,6 +152,8 @@ export class InputManager implements InputContext {
       { key: "~", label: "~", description: "Toggle Debug Overlay", category: "General" },
       { key: "Shift+~", label: "Shift+~", description: "Toggle LOS Visualization", category: "General" },
       { key: "ESC / Q", label: "ESC / Q", description: "Back / Menu / Deselect", category: "Navigation" },
+      { key: "Arrows", label: "Arrows", description: "Pan Map", category: "Tactical" },
+      { key: "Tab", label: "Tab", description: "Cycle Units", category: "Tactical" },
     ];
 
     if (this.screenManager.getCurrentScreen() === "mission") {
@@ -193,6 +197,21 @@ export class InputManager implements InputContext {
 
       if (e.code === "Space") {
         this.togglePause();
+        return true;
+      }
+
+      if (e.key === "Tab") {
+        this.cycleUnits(e.shiftKey);
+        return true;
+      }
+
+      if (
+        e.key === "ArrowUp" ||
+        e.key === "ArrowDown" ||
+        e.key === "ArrowLeft" ||
+        e.key === "ArrowRight"
+      ) {
+        this.panMap(e.key);
         return true;
       }
 
