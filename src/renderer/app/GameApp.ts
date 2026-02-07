@@ -182,6 +182,8 @@ export class GameApp {
       (px, py) => this.context.renderer!.getCellCoordinates(px, py),
       (reverse) => this.cycleUnits(reverse),
       (direction) => this.panMap(direction),
+      (dx, dy) => this.panMapBy(dx, dy),
+      (ratio, cx, cy) => this.zoomMap(ratio, cx, cy),
     );
 
     // 3. Initialize screens
@@ -924,6 +926,46 @@ export class GameApp {
         container.scrollLeft += panAmount;
         break;
     }
+  }
+
+  private panMapBy(dx: number, dy: number) {
+    const container = document.getElementById("game-container");
+    if (!container) return;
+    container.scrollLeft += dx;
+    container.scrollTop += dy;
+  }
+
+  private zoomMap(ratio: number, centerX: number, centerY: number) {
+    if (!this.context.renderer) return;
+    const container = document.getElementById("game-container");
+    if (!container) return;
+
+    const oldCellSize = this.context.renderer.cellSize;
+    const newCellSize = Math.max(32, Math.min(512, oldCellSize * ratio));
+
+    if (newCellSize === oldCellSize) return;
+
+    // To keep the zoom centered, we need to adjust scroll position
+    // (scroll + center) / oldSize = (newScroll + center) / newSize
+    const rect = container.getBoundingClientRect();
+    const localCX = centerX - rect.left;
+    const localCY = centerY - rect.top;
+
+    const scrollX = container.scrollLeft;
+    const scrollY = container.scrollTop;
+
+    const actualRatio = newCellSize / oldCellSize;
+
+    this.context.renderer.setCellSize(newCellSize);
+    if (this.currentGameState) {
+      this.context.renderer.render(this.currentGameState);
+    }
+
+    // We must wait for the next frame or update immediately if renderer resizes canvas synchronously
+    // In our GameRenderer.render, it resizes canvas on next render call.
+    // However, for smooth zooming, we should probably force a resize or calculate expected size.
+    container.scrollLeft = (scrollX + localCX) * actualRatio - localCX;
+    container.scrollTop = (scrollY + localCY) * actualRatio - localCY;
   }
 
   private onUnitClick(unit: Unit, shiftHeld: boolean = false) {

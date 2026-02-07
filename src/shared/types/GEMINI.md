@@ -10,7 +10,7 @@ Modular shared type definitions for Voidlock (ADR 0015).
 - `units.ts`: Unit definitions and behaviors (`Unit`, `UnitState`, `Archetype`, `Enemy`, `Command`).
 - `items.ts`: Item and weapon definitions and libraries (`Item`, `Weapon`, `ItemLibrary`, `WeaponLibrary`).
 - `gamestate.ts`: Root state objects and communication protocol (`GameState`, `MissionStats`, `WorkerMessage`, `MainMessage`). Includes `OverlayOption` with support for `renderOnBoard` toggle and `AttackEvent` for tactical feedback.
-- `input.ts`: Shared types for the input management system, including `ShortcutInfo`, `InputContext`, and `InputPriority` (ADR 0037).
+- `input.ts`: Shared types for the input management system, including `ShortcutInfo`, `InputContext`, and `InputPriority` (ADR 0037). Now includes support for touch event handlers (ADR 0038).
 
 ## Guidelines
 
