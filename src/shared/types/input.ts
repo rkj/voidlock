@@ -12,6 +12,13 @@ export interface InputContext {
   trapsFocus: boolean; // If true, prevents focus from leaving the associated container
   container?: HTMLElement; // The container to trap focus within
   handleKeyDown(e: KeyboardEvent): boolean; // returns true if consumed
+  handleTouchStart?(e: TouchEvent): boolean;
+  handleTouchMove?(e: TouchEvent): boolean;
+  handleTouchEnd?(e: TouchEvent): boolean;
+  handleMouseDown?(e: MouseEvent): boolean;
+  handleMouseMove?(e: MouseEvent): boolean;
+  handleMouseUp?(e: MouseEvent): boolean;
+  handleWheel?(e: WheelEvent): boolean;
   getShortcuts(): ShortcutInfo[];
 }
 

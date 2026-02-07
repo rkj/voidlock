@@ -7,8 +7,9 @@ This directory contains the main thread rendering logic and user interface for V
 - `main.ts`: The minimal entry point for the main game application. It instantiates and starts the `GameApp`. Now includes global error logging and unhandled rejection tracking (Spec 8.12).
 - `GameShell.ts`: Manages the main application layout and top-level DOM elements. Now includes standardized runtime checks for required elements.
 - `ConfigManager.ts`: Manages persistent game configuration and defaults (Map size, Unit Style, Mission types) in LocalStorage. Now includes strict validation and default fallback logic (Spec 8.12). Default mission generator is now set to `DenseShip`.
-- `InputDispatcher.ts`: Centralized keyboard event dispatcher and focus manager. Supports priority-based event handling, focus trapping for modals/screens, and automatic focus restoration (ADR 0037).
+- `InputDispatcher.ts`: Centralized keyboard, mouse, and touch event dispatcher and focus manager. Supports priority-based event handling, focus trapping for modals/screens, and automatic focus restoration (ADR 0037). Now handles 1-finger panning and 2-finger pinch zooming for mobile devices (ADR 0038).
 - `GlobalShortcuts.ts`: Registry for global shortcuts (Space=Pause, ESC/Q=Back) that applies across all screens.
+- `InputManager.ts`: Manages tactical input context, including keyboard shortcuts and mouse/touch interactions. Implements 1-finger panning and 2-finger pinch zooming (ADR 0038).
 - `MenuController.ts`: Orchestrates the tactical command menu, handling state transitions, selection, and command construction. Now includes validation logic to disable the Escort command when fewer than 2 active units are present and filters out targets from the escorting unit selection.
 - `Renderer.ts`: The main entry point for the rendering system. Now refactored into a layered architecture (ADR 0018). It acts as a compositor for specialized layers.
 - `ScreenManager.ts`: Manages screen transitions, history, and URL hash synchronization. Now includes a `destroy()` method for clean shutdown.
@@ -60,3 +61,4 @@ This directory contains the main thread rendering logic and user interface for V
 - **ADR 0028**: Unified Screen Layout & Global Shell
 - **ADR 0032**: Global UI Persistence and Entity Visibility
 - **ADR 0037**: Centralized Input & Focus Management System
+- **ADR 0038**: Mobile Interaction Strategy (Touch & Responsiveness)

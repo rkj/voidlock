@@ -22,3 +22,4 @@ The system follows a compositor pattern. The `GameRenderer` maintains a stack of
 
 - [ADR 0018: Layered Renderer Architecture](../../docs/adr/0018-layered-renderer-architecture.md)
 - [ADR 0026: Geometric LOS and LOF Precision](../../docs/adr/0026-geometric-los-lof-precision.md)
+- [ADR 0038: Mobile Interaction Strategy](../../docs/adr/0038-mobile-interaction-strategy.md)
