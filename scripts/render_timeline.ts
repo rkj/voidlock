@@ -91,8 +91,11 @@ function toRenderFrames(frameIndex: FrameIndex): TimelineFrame[] {
 }
 
 async function runCli() {
-  const frameIndexPath = process.argv[2] || "timeline/frame_index.json";
-  const outputVideoPath = process.argv[3] || "timeline/voidlock_timeline.mp4";
+  const argv = process.argv.slice(2);
+  const frameIndexPath =
+    readNamedArg(argv, ["--frame-index"]) || argv[0] || "timeline/frame_index.json";
+  const outputVideoPath =
+    readNamedArg(argv, ["--output"]) || argv[1] || "timeline/voidlock_timeline.mp4";
 
   const frameIndex = JSON.parse(fs.readFileSync(frameIndexPath, "utf-8")) as FrameIndex;
   const frames = toRenderFrames(frameIndex);
@@ -127,6 +130,17 @@ async function runCli() {
   );
   // eslint-disable-next-line no-console
   console.log(`Rendered ${frames.length} frames to ${outputVideoPath}`);
+}
+
+function readNamedArg(argv: string[], names: string[]): string | undefined {
+  for (let i = 0; i < argv.length; i += 1) {
+    const token = argv[i];
+    for (const name of names) {
+      if (token === name) return argv[i + 1];
+      if (token.startsWith(`${name}=`)) return token.slice(name.length + 1);
+    }
+  }
+  return undefined;
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

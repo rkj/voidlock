@@ -37,11 +37,11 @@ const SCREEN_TARGETS: Array<{
   ids: string[];
 }> = [
   { quadrant: 1, screenName: "mission", required: true, ids: ["screen-mission", "mission-screen", "screen-game"] },
-  { quadrant: 2, screenName: "main_menu", required: true, ids: ["screen-main-menu", "main-menu", "screen-menu"] },
+  { quadrant: 2, screenName: "main_menu", required: false, ids: ["screen-main-menu", "main-menu", "screen-menu"] },
   {
     quadrant: 3,
     screenName: "config",
-    required: true,
+    required: false,
     ids: ["screen-mission-setup", "mission-setup", "screen-setup", "screen-equipment", "equipment-screen", "screen-loadout"],
   },
   {
@@ -261,11 +261,15 @@ async function captureMilestone(
 }
 
 async function runCli() {
-  const manifestPath = process.argv[2] || "timeline/manifest.json";
-  const screenshotDir = process.argv[3] || "screenshots";
-  const basePort = Number(process.argv[4] || 5178);
-  const maxCount = Number(process.argv[5] || 0);
-  const navigationPath = process.argv[6] || "timeline/navigation_map.json";
+  const argv = process.argv.slice(2);
+  const manifestPath =
+    readNamedArg(argv, ["--manifest"]) || argv[0] || "timeline/manifest.json";
+  const screenshotDir =
+    readNamedArg(argv, ["--screenshots"]) || argv[1] || "screenshots";
+  const basePort = Number(readNamedArg(argv, ["--port"]) || argv[2] || 6000);
+  const maxCount = Number(readNamedArg(argv, ["--max-count"]) || argv[3] || 0);
+  const navigationPath =
+    readNamedArg(argv, ["--navigation-map"]) || argv[4] || "timeline/navigation_map.json";
 
   fs.mkdirSync(screenshotDir, { recursive: true });
   fs.mkdirSync("timeline", { recursive: true });
@@ -318,6 +322,17 @@ async function runCli() {
   } catch {
     // ignore
   }
+}
+
+function readNamedArg(argv: string[], names: string[]): string | undefined {
+  for (let i = 0; i < argv.length; i += 1) {
+    const token = argv[i];
+    for (const name of names) {
+      if (token === name) return argv[i + 1];
+      if (token.startsWith(`${name}=`)) return token.slice(name.length + 1);
+    }
+  }
+  return undefined;
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

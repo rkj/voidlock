@@ -126,10 +126,11 @@ function svgOverlay(width: number, text: string): Buffer {
 async function writeQuadrantImage(
   sourcePath: string | null,
   outPath: string,
+  label?: string,
 ): Promise<void> {
   fs.mkdirSync(path.dirname(outPath), { recursive: true });
   if (!sourcePath) {
-    await sharp({
+    const bg = await sharp({
       create: {
         width: TILE_W,
         height: TILE_H,
@@ -138,7 +139,14 @@ async function writeQuadrantImage(
       },
     })
       .png()
-      .toFile(outPath);
+      .toBuffer();
+    if (!label) {
+      await sharp(bg).toFile(outPath);
+      return;
+    }
+    const safe = label.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+    const svg = `<svg width="${TILE_W}" height="${TILE_H}" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="45%" text-anchor="middle" fill="#cbd5e1" font-size="46" font-family="Arial, sans-serif">UNDER CONSTRUCTION</text><text x="50%" y="58%" text-anchor="middle" fill="#94a3b8" font-size="28" font-family="Arial, sans-serif">${safe}</text></svg>`;
+    await sharp(bg).composite([{ input: Buffer.from(svg), top: 0, left: 0 }]).png().toFile(outPath);
     return;
   }
   await sharp(sourcePath).resize(TILE_W, TILE_H, { fit: "cover" }).png().toFile(outPath);
@@ -170,9 +178,13 @@ async function writeComposite(
 }
 
 async function runCli() {
-  const manifestPath = process.argv[2] || "timeline/manifest.json";
-  const screenshotDir = process.argv[3] || "screenshots";
-  const outIndexPath = process.argv[4] || "timeline/frame_index.json";
+  const argv = process.argv.slice(2);
+  const manifestPath =
+    readNamedArg(argv, ["--manifest"]) || argv[0] || "timeline/manifest.json";
+  const screenshotDir =
+    readNamedArg(argv, ["--screenshots"]) || argv[1] || "screenshots";
+  const outIndexPath =
+    readNamedArg(argv, ["--out", "--frame-index"]) || argv[2] || "timeline/frame_index.json";
 
   const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8")) as TimelineManifest;
   const screenshotMap = buildScreenshotMap(screenshotDir);
@@ -195,16 +207,16 @@ async function runCli() {
     const q2Source = findQuadrantImage(screenshotMap, sha, stamp, 2);
     const q3Source = findQuadrantImage(screenshotMap, sha, stamp, 3);
     const q4Source = findQuadrantImage(screenshotMap, sha, stamp, 4);
-    if (!q1Source || !q2Source || !q3Source) continue;
+    if (!q1Source) continue;
 
     const q1Path = path.join(quadrantsDir, `${stamp}_${sha}_1.png`);
     const q2Path = path.join(quadrantsDir, `${stamp}_${sha}_2.png`);
     const q3Path = path.join(quadrantsDir, `${stamp}_${sha}_3.png`);
     const q4Path = path.join(quadrantsDir, `${stamp}_${sha}_4.png`);
-    await writeQuadrantImage(q1Source, q1Path);
-    await writeQuadrantImage(q2Source, q2Path);
-    await writeQuadrantImage(q3Source, q3Path);
-    await writeQuadrantImage(q4Source, q4Path);
+    await writeQuadrantImage(q1Source, q1Path, "Mission");
+    await writeQuadrantImage(q2Source, q2Path, "Main Menu");
+    await writeQuadrantImage(q3Source, q3Path, "Config");
+    await writeQuadrantImage(q4Source, q4Path, "Campaign");
 
     const compositePath = path.join(compositeDir, `${stamp}_${sha}.png`);
     const label = `${date}   ${sha}   ${milestone.subject}`;
@@ -243,6 +255,17 @@ async function runCli() {
   fs.writeFileSync(outIndexPath, `${JSON.stringify(payload, null, 2)}\n`, "utf-8");
   // eslint-disable-next-line no-console
   console.log(`Wrote frame index with ${keptFrames.length} kept frames to ${outIndexPath}`);
+}
+
+function readNamedArg(argv: string[], names: string[]): string | undefined {
+  for (let i = 0; i < argv.length; i += 1) {
+    const token = argv[i];
+    for (const name of names) {
+      if (token === name) return argv[i + 1];
+      if (token.startsWith(`${name}=`)) return token.slice(name.length + 1);
+    }
+  }
+  return undefined;
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

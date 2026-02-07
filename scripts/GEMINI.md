@@ -41,6 +41,7 @@ npm run timeline:manifest
 Arguments:
 ```bash
 node --experimental-strip-types scripts/timeline_manifest.ts [manifest_path] [mode] [max_count] [min_hours_between]
+node --experimental-strip-types scripts/timeline_manifest.ts --manifest <path> --mode <all|visual> --max-count <N> --min-hours <N>
 ```
 
 - `manifest_path` (default: `timeline/manifest.json`)
@@ -78,11 +79,12 @@ npm run timeline:capture
 Arguments:
 ```bash
 node --experimental-strip-types scripts/capture_timeline.ts [manifest_path] [screenshot_dir] [base_port] [max_count] [navigation_map_path]
+node --experimental-strip-types scripts/capture_timeline.ts --manifest <path> --screenshots <dir> --port <N> --max-count <N> --navigation-map <path>
 ```
 
 - `manifest_path` (default: `timeline/manifest.json`)
 - `screenshot_dir` (default: `screenshots`)
-- `base_port` (default: `5178`)
+- `base_port` (default: `6000`)
 - `max_count` (default: `0` = all manifest rows) number of manifest rows to process from the start
 - `navigation_map_path` (default: `timeline/navigation_map.json`) static per-commit screen/action hints
 
@@ -90,7 +92,8 @@ Notes:
 - Safe to rerun: already-captured commits are skipped.
 - Commits that fail to boot/capture are marked as `skipped` in `manifest.json`.
 - Required screens are strict: `mission`, `main_menu`, and `config`.
-- `campaign` is optional and skipped when unavailable.
+- Required screen is strict: `mission`.
+- `main_menu`, `config`, and `campaign` are optional.
 
 ### `scripts/analyze_timeline_navigation.ts`
 
@@ -109,6 +112,7 @@ npm run timeline:analyze
 Arguments:
 ```bash
 node --experimental-strip-types scripts/analyze_timeline_navigation.ts [manifest_path] [out_path] [max_count]
+node --experimental-strip-types scripts/analyze_timeline_navigation.ts --manifest <path> --navigation-map <path> --max-count <N>
 ```
 
 - `manifest_path` (default: `timeline/manifest.json`)
@@ -138,6 +142,7 @@ npm run timeline:analyze-frames
 Arguments:
 ```bash
 node --experimental-strip-types scripts/analyze_timeline_frames.ts [manifest_path] [screenshot_dir] [frame_index_path]
+node --experimental-strip-types scripts/analyze_timeline_frames.ts --manifest <path> --screenshots <dir> --frame-index <path>
 ```
 
 - `manifest_path` (default: `timeline/manifest.json`)
@@ -156,6 +161,7 @@ npm run timeline:render
 Arguments:
 ```bash
 node --experimental-strip-types scripts/render_timeline.ts [frame_index_path] [output_video_path]
+node --experimental-strip-types scripts/render_timeline.ts --frame-index <path> --output <path>
 ```
 
 - `frame_index_path` (default: `timeline/frame_index.json`)
@@ -167,11 +173,20 @@ node --experimental-strip-types scripts/render_timeline.ts [frame_index_path] [o
 npm run timeline:all
 ```
 
-Manual full-history flow:
+Manual full-history flow (named args):
 ```bash
 npm run timeline:manifest -- timeline/manifest.json all
 npm run timeline:analyze -- timeline/manifest.json timeline/navigation_map.json
-npm run timeline:capture -- timeline/manifest.json screenshots 5178 0 timeline/navigation_map.json
-npm run timeline:analyze-frames -- timeline/manifest.json screenshots timeline/frame_index.json
-npm run timeline:render -- timeline/frame_index.json timeline/voidlock_timeline_full.mp4
+npm run timeline:capture -- --manifest timeline/manifest.json --screenshots screenshots --port 6000 --max-count 0 --navigation-map timeline/navigation_map.json
+npm run timeline:analyze-frames -- --manifest timeline/manifest.json --screenshots screenshots --frame-index timeline/frame_index.json
+npm run timeline:render -- --frame-index timeline/frame_index.json --output timeline/voidlock_timeline_full.mp4
+```
+
+One-command runner:
+```bash
+npm run timeline:run
+```
+or:
+```bash
+./scripts/run_timeline_pipeline.sh 6000
 ```
