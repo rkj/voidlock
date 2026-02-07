@@ -21,20 +21,35 @@ type NavigationMap = {
     string,
     {
       targets?: {
-        main_menu?: string[];
-        mission_setup?: string[];
-        equipment?: string[];
         mission?: string[];
+        main_menu?: string[];
+        config?: string[];
+        campaign?: string[];
       };
     }
   >;
 };
 
-const SCREEN_TARGETS: Array<{ screenName: string; ids: string[] }> = [
-  { screenName: "main_menu", ids: ["screen-main-menu", "main-menu", "screen-menu"] },
-  { screenName: "mission_setup", ids: ["screen-mission-setup", "mission-setup", "screen-setup"] },
-  { screenName: "equipment", ids: ["screen-equipment", "equipment-screen", "screen-loadout"] },
-  { screenName: "mission", ids: ["screen-mission", "mission-screen", "screen-game"] },
+const SCREEN_TARGETS: Array<{
+  quadrant: 1 | 2 | 3 | 4;
+  screenName: "mission" | "main_menu" | "config" | "campaign";
+  required: boolean;
+  ids: string[];
+}> = [
+  { quadrant: 1, screenName: "mission", required: true, ids: ["screen-mission", "mission-screen", "screen-game"] },
+  { quadrant: 2, screenName: "main_menu", required: true, ids: ["screen-main-menu", "main-menu", "screen-menu"] },
+  {
+    quadrant: 3,
+    screenName: "config",
+    required: true,
+    ids: ["screen-mission-setup", "mission-setup", "screen-setup", "screen-equipment", "equipment-screen", "screen-loadout"],
+  },
+  {
+    quadrant: 4,
+    screenName: "campaign",
+    required: false,
+    ids: ["screen-campaign", "campaign-screen", "screen-campaign-shell"],
+  },
 ];
 
 function sleep(ms: number): Promise<void> {
@@ -123,8 +138,8 @@ function screenshotPath(baseDir: string, iso: string, screen: string, sha: strin
   return path.join(baseDir, `${timestampFromIso(iso)}_${screen}_${sha.slice(0, 7)}.png`);
 }
 
-function hasAllScreenshots(baseDir: string, iso: string, sha: string): boolean {
-  return SCREEN_TARGETS.every((target) =>
+function hasRequiredScreenshots(baseDir: string, iso: string, sha: string): boolean {
+  return SCREEN_TARGETS.filter((target) => target.required).every((target) =>
     fs.existsSync(screenshotPath(baseDir, iso, target.screenName, sha)),
   );
 }
@@ -193,9 +208,12 @@ async function captureScreensForCommit(
         return "";
       }, target.ids);
       if (!activated) {
-        // Keep current viewport and still emit a frame for timeline completeness.
+        if (target.required) {
+          throw new Error(`Required screen missing: ${target.screenName}`);
+        }
         // eslint-disable-next-line no-console
-        console.log(`[screen-fallback] missing ${target.screenName} for ${sha.slice(0, 7)}`);
+        console.log(`[screen-skip] optional ${target.screenName} missing for ${sha.slice(0, 7)}`);
+        continue;
       }
       await sleep(500);
       await assertHealthyPage(page);
@@ -246,7 +264,7 @@ async function runCli() {
   const manifestPath = process.argv[2] || "timeline/manifest.json";
   const screenshotDir = process.argv[3] || "screenshots";
   const basePort = Number(process.argv[4] || 5178);
-  const maxCount = Number(process.argv[5] || 24);
+  const maxCount = Number(process.argv[5] || 0);
   const navigationPath = process.argv[6] || "timeline/navigation_map.json";
 
   fs.mkdirSync(screenshotDir, { recursive: true });
@@ -259,9 +277,10 @@ async function runCli() {
   const worktreeBase = path.resolve(".timeline/worktrees");
   fs.mkdirSync(worktreeBase, { recursive: true });
 
-  const selected = manifest.milestones.slice(0, maxCount);
+  const effectiveMax = maxCount > 0 ? maxCount : manifest.milestones.length;
+  const selected = manifest.milestones.slice(0, effectiveMax);
   for (const milestone of selected) {
-    if (hasAllScreenshots(screenshotDir, milestone.milestoneDate, milestone.sourceCommit)) {
+    if (hasRequiredScreenshots(screenshotDir, milestone.milestoneDate, milestone.sourceCommit)) {
       milestone.actualCommitUsed = milestone.sourceCommit;
       milestone.captureStatus = "ok";
       delete milestone.captureReason;

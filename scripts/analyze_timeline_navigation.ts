@@ -17,10 +17,10 @@ type CommitNavigationHints = {
   screenIds: string[];
   actionIds: string[];
   targets: {
-    main_menu: string[];
-    mission_setup: string[];
-    equipment: string[];
     mission: string[];
+    main_menu: string[];
+    config: string[];
+    campaign: string[];
   };
 };
 
@@ -87,21 +87,21 @@ function pick(ids: string[], includesAny: string[]): string[] {
 export function inferTargets(allIds: string[]): CommitNavigationHints["targets"] {
   const screenish = allIds.filter((id) => id.startsWith("screen-") || id.includes("screen"));
   return {
+    mission: uniq([
+      ...pick(screenish, ["mission", "game"]),
+      ...pick(allIds, ["btn-start-mission", "btn-start"]),
+    ]),
     main_menu: uniq([
       ...pick(screenish, ["main-menu", "main_menu", "menu"]),
       ...pick(allIds, ["btn-menu", "btn-start"]),
     ]),
-    mission_setup: uniq([
-      ...pick(screenish, ["mission-setup", "setup"]),
-      ...pick(allIds, ["btn-menu-custom", "btn-setup"]),
-    ]),
-    equipment: uniq([
-      ...pick(screenish, ["equipment", "loadout"]),
+    config: uniq([
+      ...pick(screenish, ["mission-setup", "setup", "equipment", "loadout"]),
       ...pick(allIds, ["btn-goto-equipment"]),
     ]),
-    mission: uniq([
-      ...pick(screenish, ["mission", "game"]),
-      ...pick(allIds, ["btn-start-mission", "btn-start"]),
+    campaign: uniq([
+      ...pick(screenish, ["campaign"]),
+      ...pick(allIds, ["btn-menu-campaign"]),
     ]),
   };
 }

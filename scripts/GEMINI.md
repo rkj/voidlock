@@ -47,7 +47,7 @@ node --experimental-strip-types scripts/timeline_manifest.ts [manifest_path] [mo
 - `mode`:
   - `all`: include every commit (recommended for full project history video)
   - `visual`: use visual-oriented milestone selection
-- `max_count` (default: `5000`)
+- `max_count` (default: `0` = all available commits)
 - `min_hours_between` (default: `8`, only used in `visual` mode)
 
 Examples:
@@ -62,10 +62,10 @@ npm run timeline:manifest -- timeline/manifest.json visual 200 12
 ### `scripts/capture_timeline.ts`
 
 Captures 4 screenshots per manifest commit:
-- `main_menu`
-- `mission_setup`
-- `equipment`
 - `mission`
+- `main_menu`
+- `config`
+- `campaign` (optional, if available)
 
 It runs each commit in an isolated git worktree checkout and writes:
 `screenshots/<datetime>_<screen_name>_<sha>.png`
@@ -83,12 +83,14 @@ node --experimental-strip-types scripts/capture_timeline.ts [manifest_path] [scr
 - `manifest_path` (default: `timeline/manifest.json`)
 - `screenshot_dir` (default: `screenshots`)
 - `base_port` (default: `5178`)
-- `max_count` (default: `24`) number of manifest rows to process from the start
+- `max_count` (default: `0` = all manifest rows) number of manifest rows to process from the start
 - `navigation_map_path` (default: `timeline/navigation_map.json`) static per-commit screen/action hints
 
 Notes:
 - Safe to rerun: already-captured commits are skipped.
 - Commits that fail to boot/capture are marked as `skipped` in `manifest.json`.
+- Required screens are strict: `mission`, `main_menu`, and `config`.
+- `campaign` is optional and skipped when unavailable.
 
 ### `scripts/analyze_timeline_navigation.ts`
 
@@ -113,10 +115,38 @@ node --experimental-strip-types scripts/analyze_timeline_navigation.ts [manifest
 - `out_path` (default: `timeline/navigation_map.json`)
 - `max_count` (default: `0`, meaning all manifest rows)
 
+### `scripts/analyze_timeline_frames.ts`
+
+Pre-render analysis step that:
+- maps screenshots to canonical quadrants:
+  - `1`: mission
+  - `2`: main menu
+  - `3`: config
+  - `4`: campaign (placeholder if unavailable)
+- writes normalized quadrant files:
+  - `timeline/frames/quadrants/<datetime>_<sha>_<1|2|3|4>.png`
+- builds composite frames:
+  - `timeline/frames/composite/<datetime>_<sha>.png`
+- removes exact/near-duplicate frames
+- writes `timeline/frame_index.json`
+
+Usage:
+```bash
+npm run timeline:analyze-frames
+```
+
+Arguments:
+```bash
+node --experimental-strip-types scripts/analyze_timeline_frames.ts [manifest_path] [screenshot_dir] [frame_index_path]
+```
+
+- `manifest_path` (default: `timeline/manifest.json`)
+- `screenshot_dir` (default: `screenshots`)
+- `frame_index_path` (default: `timeline/frame_index.json`)
+
 ### `scripts/render_timeline.ts`
 
-Builds a 2x2 composite frame per commit and renders MP4 via ffmpeg.
-It deduplicates visually identical or near-identical frames before encoding.
+Render-only step. Reads `frame_index.json` and encodes MP4 via ffmpeg.
 
 Usage:
 ```bash
@@ -125,11 +155,10 @@ npm run timeline:render
 
 Arguments:
 ```bash
-node --experimental-strip-types scripts/render_timeline.ts [manifest_path] [screenshot_dir] [output_video_path]
+node --experimental-strip-types scripts/render_timeline.ts [frame_index_path] [output_video_path]
 ```
 
-- `manifest_path` (default: `timeline/manifest.json`)
-- `screenshot_dir` (default: `screenshots`)
+- `frame_index_path` (default: `timeline/frame_index.json`)
 - `output_video_path` (default: `timeline/voidlock_timeline.mp4`)
 
 ### End-to-end
@@ -140,8 +169,9 @@ npm run timeline:all
 
 Manual full-history flow:
 ```bash
-npm run timeline:manifest -- timeline/manifest.json all 5000
-npm run timeline:analyze -- timeline/manifest.json timeline/navigation_map.json 900
-npm run timeline:capture -- timeline/manifest.json screenshots 5178 900
-npm run timeline:render -- timeline/manifest.json screenshots timeline/voidlock_timeline_full.mp4
+npm run timeline:manifest -- timeline/manifest.json all
+npm run timeline:analyze -- timeline/manifest.json timeline/navigation_map.json
+npm run timeline:capture -- timeline/manifest.json screenshots 5178 0 timeline/navigation_map.json
+npm run timeline:analyze-frames -- timeline/manifest.json screenshots timeline/frame_index.json
+npm run timeline:render -- timeline/frame_index.json timeline/voidlock_timeline_full.mp4
 ```
