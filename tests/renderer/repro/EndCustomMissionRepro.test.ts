@@ -54,7 +54,8 @@ vi.mock("@src/engine/GameClient", () => ({
 vi.mock("@src/services/firebase", () => ({
   db: {},
   auth: {},
-  app: {}
+  app: {},
+  isFirebaseConfigured: false,
 }));
 
 describe("End Custom Mission Repro", () => {
@@ -144,7 +145,8 @@ describe("End Custom Mission Repro", () => {
         units: [],
         objectives: [],
         settings: {
-          debugOverlayEnabled: false, debugSnapshots: false,
+          debugOverlayEnabled: false,
+          debugSnapshots: false,
           timeScale: 1,
           isPaused: false,
           mode: EngineMode.Simulation,

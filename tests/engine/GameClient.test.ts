@@ -233,4 +233,44 @@ describe("GameClient", () => {
       }),
     });
   });
+
+  it("should pass snapshots and disable tactical pause in Replay mode seek", () => {
+    // 1. Setup snapshots in client
+    client.init(123, MapGeneratorType.DenseShip, undefined, true, false, true, { soldiers: [], inventory: {} });
+    const mockSnapshots = [{ t: 100 } as any, { t: 200 } as any];
+    
+    if (workerMock.onmessage) {
+      workerMock.onmessage({ data: { type: "STATE_UPDATE", payload: { 
+        snapshots: mockSnapshots,
+        settings: { mode: EngineMode.Simulation },
+        map: { width: 10, height: 10 }
+      } } });
+    }
+
+    // 2. Perform seek in Replay mode
+    client.loadReplay({
+      seed: 123,
+      missionType: MissionType.Default,
+      map: { width: 10, height: 10, cells: [] },
+      squadConfig: { soldiers: [], inventory: {} },
+      commands: [],
+      snapshots: mockSnapshots
+    });
+
+    client.pause();
+    postMessageMock.mockClear();
+    client.seek(150);
+
+    expect(postMessageMock).toHaveBeenCalledWith({
+      type: "INIT",
+      payload: expect.objectContaining({
+        mode: EngineMode.Replay,
+        initialSnapshots: mockSnapshots,
+        targetTick: 150,
+        allowTacticalPause: false, // Replay mode forces false
+        startPaused: true,
+        initialTimeScale: 0.0, // Because allowTacticalPause is false and isPaused is true
+      }),
+    });
+  });
 });

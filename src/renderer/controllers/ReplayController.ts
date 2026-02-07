@@ -76,8 +76,15 @@ export class ReplayController {
     this.gameClient.setTimeScale(speed);
   }
 
+  private lastSeekRequest: number = 0;
+
   public seek(progress: number) {
     if (this.totalTime <= 0) return;
+
+    const now = performance.now();
+    if (now - this.lastSeekRequest < 16) return; // Limit to ~60fps
+    this.lastSeekRequest = now;
+
     const targetTime = (progress / 100) * this.totalTime;
     // Tick rate is 16ms
     this.gameClient.seek(targetTime);

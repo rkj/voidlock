@@ -59,4 +59,29 @@ describe("ReplayController", () => {
     expect(mockGameClient.pause).toHaveBeenCalled();
     expect(onProgressUpdate).toHaveBeenCalledWith(100);
   });
+
+  it("should throttle seek requests", () => {
+    controller.startReplay(1000);
+    
+    // First seek should go through
+    controller.seek(10);
+    expect(mockGameClient.seek).toHaveBeenCalledTimes(1);
+
+    // Second seek immediately after should be throttled
+    controller.seek(20);
+    expect(mockGameClient.seek).toHaveBeenCalledTimes(1);
+
+    // After a delay, seek should work again
+    // We use vi.advanceTimersByTime or just wait?
+    // Actually our implementation uses performance.now() and returns early.
+    // So we need to mock performance.now()
+    const now = performance.now();
+    vi.spyOn(performance, "now").mockReturnValue(now + 20);
+    
+    controller.seek(30);
+    expect(mockGameClient.seek).toHaveBeenCalledTimes(2);
+    expect(mockGameClient.seek).toHaveBeenLastCalledWith(300);
+    
+    vi.restoreAllMocks();
+  });
 });

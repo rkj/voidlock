@@ -9,6 +9,7 @@ import {
   UnitState,
   ArchetypeLibrary,
   WeaponLibrary,
+  ItemLibrary,
   Archetype,
   SquadSoldierConfig,
 } from "@src/shared/types";
