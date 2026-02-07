@@ -1,5 +1,8 @@
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import { MetaManager } from "@src/renderer/campaign/MetaManager";
+import { InputDispatcher } from "../InputDispatcher";
+import { InputPriority } from "@src/shared/types";
+import { UIUtils } from "../utils/UIUtils";
 
 export type CampaignTabId =
   | "sector-map"
@@ -48,11 +51,37 @@ export class CampaignShell {
     this.showTabs = showTabs;
     this.container.style.display = "flex";
     this.render();
+    this.pushInputContext();
   }
 
   public hide() {
     this.mode = "none";
     this.container.style.display = "none";
+    InputDispatcher.getInstance().popContext("campaign-shell");
+  }
+
+  private pushInputContext() {
+    InputDispatcher.getInstance().pushContext({
+      id: "campaign-shell",
+      priority: InputPriority.UI - 1, // Slightly lower than active screen
+      trapsFocus: false, // Shell shouldn't trap focus because content area needs it
+      handleKeyDown: (e) => this.handleKeyDown(e),
+      getShortcuts: () => [],
+    });
+  }
+
+  private handleKeyDown(e: KeyboardEvent): boolean {
+    if (this.mode === "none") return false;
+
+    // Navigation between tabs via arrow keys if focus is on a tab
+    if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+      const topBar = this.container.querySelector("#campaign-shell-top-bar") as HTMLElement;
+      if (topBar && topBar.contains(document.activeElement)) {
+        return UIUtils.handleArrowNavigation(e, topBar);
+      }
+    }
+
+    return false;
   }
 
   public refresh() {

@@ -33,10 +33,12 @@ import { CampaignScreen } from "../screens/CampaignScreen";
 import { BarracksScreen } from "../screens/BarracksScreen";
 import { DebriefScreen } from "../screens/DebriefScreen";
 import { EquipmentScreen } from "../screens/EquipmentScreen";
+import { MissionSetupScreen } from "../screens/MissionSetupScreen";
 import { CampaignSummaryScreen } from "../screens/CampaignSummaryScreen";
 import { StatisticsScreen } from "../screens/StatisticsScreen";
 import { EngineeringScreen } from "../screens/EngineeringScreen";
 import { SettingsScreen } from "../screens/SettingsScreen";
+import { MainMenuScreen } from "../screens/MainMenuScreen";
 import { ThemeManager } from "../ThemeManager";
 import { CampaignManager } from "../campaign/CampaignManager";
 import { ScreenManager, ScreenId } from "../ScreenManager";
@@ -62,10 +64,12 @@ export class GameApp {
   private barracksScreen!: BarracksScreen;
   private debriefScreen!: DebriefScreen;
   private equipmentScreen!: EquipmentScreen;
+  private missionSetupScreen!: MissionSetupScreen;
   private campaignSummaryScreen!: CampaignSummaryScreen;
   private statisticsScreen!: StatisticsScreen;
   private engineeringScreen!: EngineeringScreen;
   private settingsScreen!: SettingsScreen;
+  private mainMenuScreen!: MainMenuScreen;
 
   // app state
   private selectedUnitId: string | null = null;
@@ -111,6 +115,23 @@ export class GameApp {
       (tabId) => this.onShellTabChange(tabId),
       () => this.showMainMenu(),
     );
+
+    this.mainMenuScreen = new MainMenuScreen("screen-main-menu");
+    this.context.mainMenuScreen = this.mainMenuScreen;
+    this.missionSetupScreen = new MissionSetupScreen(
+      "screen-mission-setup",
+      () => {
+        this.context.screenManager.goBack();
+        const screen = this.context.screenManager.getCurrentScreen();
+        if (screen === "campaign") {
+          this.context.campaignShell.show("campaign", "sector-map");
+        } else {
+          this.context.campaignShell.hide();
+          this.showMainMenu();
+        }
+      },
+    );
+    this.context.missionSetupScreen = this.missionSetupScreen;
 
     const mapGeneratorFactory = (config: MapGenerationConfig): MapFactory => {
       return new MapFactory(config);
@@ -272,6 +293,7 @@ export class GameApp {
         this.missionSetupManager.currentCampaignNode = null;
         this.missionSetupManager.loadAndApplyConfig(false);
         this.context.campaignShell.show("custom");
+        this.context.missionSetupScreen.show();
         this.context.screenManager.show("mission-setup");
       },
       onCampaignMenu: () => {
@@ -496,10 +518,12 @@ export class GameApp {
 
   private showMainMenu() {
     this.context.campaignShell.hide();
+    this.mainMenuScreen.show();
     this.context.screenManager.show("main-menu");
   }
 
   private onShellTabChange(tabId: CampaignTabId) {
+    this.mainMenuScreen.hide();
     switch (tabId) {
       case "sector-map":
         this.campaignScreen.show();
@@ -548,6 +572,10 @@ export class GameApp {
     id: ScreenId,
     isCampaign: boolean = false,
   ) {
+    if (id !== "main-menu") {
+      this.mainMenuScreen.hide();
+    }
+
     switch (id) {
       case "campaign": {
         this.applyCampaignTheme();
@@ -587,6 +615,7 @@ export class GameApp {
         } else {
           this.context.campaignShell.show("custom");
         }
+        this.missionSetupScreen.show();
         break;
       }
       case "equipment":

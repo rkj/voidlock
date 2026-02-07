@@ -9,6 +9,8 @@ UI screens for different game states.
 - `DebriefScreen.ts`: Post-mission after-action report. Features a 40/60 split-pane layout displaying mission statistics and squad results in the left pane, and an integrated mission replay with playback controls (Play/Pause, Speed Selector) in the right pane. Includes a 'Replay Mission' button for Custom Mode to restart with the same seed, and an 'Export Recording' button to download the replay JSON.
 - `EquipmentScreen.ts`: Squad management and equipment selection UI. Features a unified `StatDisplay` system and separates Soldier Attributes (HP, Speed, Aim) from Weaponry Stats (Damage, Fire Rate, Range) for better clarity. Includes an enhanced Armory with compact item stats and detailed tooltips.
 - `BarracksScreen.ts`: Managing the persistent roster of soldiers. Allows hiring new recruits, healing wounded soldiers, and viewing detailed stats. Uses `ModalService` for recruitment name prompts.
+- `MainMenuScreen.ts`: Encapsulates the main menu logic, including keyboard navigation and focus management.
+- `MissionSetupScreen.ts`: Encapsulates the mission setup/ready room logic, including map configuration, squad selection, and keyboard navigation.
 
 ## Subdirectories
 

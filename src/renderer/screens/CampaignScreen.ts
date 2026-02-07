@@ -4,6 +4,9 @@ import { CampaignNode, CampaignState } from "@src/shared/campaign_types";
 import { ModalService } from "../ui/ModalService";
 import { NewCampaignWizard } from "./campaign/NewCampaignWizard";
 import { AppContext } from "../app/AppContext";
+import { InputDispatcher } from "../InputDispatcher";
+import { InputPriority } from "@src/shared/types";
+import { UIUtils } from "../utils/UIUtils";
 
 export class CampaignScreen {
   private container: HTMLElement;
@@ -37,10 +40,33 @@ export class CampaignScreen {
   public show() {
     this.container.style.display = "flex";
     this.render();
+    this.pushInputContext();
   }
 
   public hide() {
     this.container.style.display = "none";
+    InputDispatcher.getInstance().popContext("campaign");
+  }
+
+  private pushInputContext() {
+    InputDispatcher.getInstance().pushContext({
+      id: "campaign",
+      priority: InputPriority.UI,
+      trapsFocus: true,
+      container: this.container,
+      handleKeyDown: (e) => this.handleKeyDown(e),
+      getShortcuts: () => [
+        { key: "Arrows", label: "Navigate", description: "Move selection", category: "Navigation" },
+        { key: "Enter", label: "Select", description: "Activate node/button", category: "Navigation" },
+      ],
+    });
+  }
+
+  private handleKeyDown(e: KeyboardEvent): boolean {
+    if (e.key === "ArrowDown" || e.key === "ArrowUp" || e.key === "ArrowLeft" || e.key === "ArrowRight") {
+      return UIUtils.handleArrowNavigation(e, this.container);
+    }
+    return false;
   }
 
   private render() {
@@ -156,6 +182,7 @@ export class CampaignScreen {
       nodeEl.style.position = "absolute";
       nodeEl.style.left = `${node.position.x + 100}px`;
       nodeEl.style.top = `${node.position.y + 100}px`;
+      nodeEl.tabIndex = 0; // Make focusable
 
       const statusText =
         node.status === "Revealed"
@@ -167,6 +194,13 @@ export class CampaignScreen {
 
       if (node.status === "Accessible") {
         nodeEl.onclick = () => this.onNodeSelect(node);
+        nodeEl.onkeydown = (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            this.onNodeSelect(node);
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        };
       }
 
       // Icon/Text
