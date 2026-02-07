@@ -1,3 +1,6 @@
+import { InputPriority } from "@src/shared/types";
+import { InputDispatcher } from "../InputDispatcher";
+
 export interface ModalOptions {
   title?: string;
   message?: string;
@@ -41,8 +44,6 @@ export class ModalService {
       document.body.appendChild(container);
     }
     this.container = container;
-
-    window.addEventListener("keydown", this.handleKeyDown.bind(this));
   }
 
   public async alert(message: string, title: string = "ALERT"): Promise<void> {
@@ -179,6 +180,7 @@ export class ModalService {
     const instance: ModalInstance = {
       close: (value?: unknown) => {
         if (this.activeModal && this.activeModal.element === modal) {
+          InputDispatcher.getInstance().popContext("ModalService");
           this.container.removeChild(backdrop);
           const currentResolve = this.activeModal.resolve;
           this.activeModal = null;
@@ -221,6 +223,18 @@ export class ModalService {
     this.container.appendChild(backdrop);
     this.activeModal = { options, element: modal, backdrop, resolve, instance };
 
+    InputDispatcher.getInstance().pushContext({
+      id: "ModalService",
+      priority: InputPriority.System,
+      trapsFocus: true,
+      container: modal,
+      handleKeyDown: (e) => this.handleKeyDown(e),
+      getShortcuts: () => [
+        { key: "Enter", label: "Confirm", description: "Trigger primary action", category: "Navigation" },
+        { key: "ESC", label: "Cancel", description: "Close modal", category: "Navigation" },
+      ],
+    });
+
     // Focus management
     const input = modal.querySelector("input") as HTMLElement;
     if (input) {
@@ -236,8 +250,8 @@ export class ModalService {
     }
   }
 
-  private handleKeyDown(e: KeyboardEvent) {
-    if (!this.activeModal) return;
+  private handleKeyDown(e: KeyboardEvent): boolean {
+    if (!this.activeModal) return false;
 
     const { options, instance } = this.activeModal;
 
@@ -248,13 +262,14 @@ export class ModalService {
       } else {
         instance.close();
       }
-      e.preventDefault();
+      return true;
     } else if (e.key === "Enter") {
       const primaryBtn = options.buttons?.find((b) => b.isPrimary);
       if (primaryBtn) {
         primaryBtn.onClick(instance);
-        e.preventDefault();
+        return true;
       }
     }
+    return false;
   }
 }
