@@ -145,11 +145,17 @@ export class GameClient {
     skipDeployment: boolean = true,
     debugSnapshots: boolean = false,
     debugSnapshotInterval: number = 0,
+    initialSnapshots: GameState[] = [],
   ) {
     this.isStopped = false;
     this.initialSeed = seed;
     this.initialSquadConfig = squadConfig;
     this.initialMissionType = missionType;
+
+    // In Replay mode, we force allowTacticalPause to false to ensure absolute pause (0.0 timescale)
+    // and disable redundant "Active Pause" logic.
+    const effectiveAllowTacticalPause =
+      mode === EngineMode.Replay ? false : allowTacticalPause;
 
     const config: MapGenerationConfig = {
       seed,
@@ -190,13 +196,19 @@ export class GameClient {
 
     // Reset speed state for new session
     this.isPaused = startPaused;
-    this.allowTacticalPause = allowTacticalPause;
+    this.allowTacticalPause = effectiveAllowTacticalPause;
 
     const minScale = this.allowTacticalPause ? 0.1 : 1.0;
     const clampedScale = Math.min(Math.max(initialTimeScale, minScale), 10.0);
 
     this.currentScale = clampedScale;
     this.lastNonPausedScale = clampedScale;
+
+    const effectiveTimeScale = this.isPaused
+      ? this.allowTacticalPause
+        ? 0.05
+        : 0.0
+      : this.currentScale;
 
     const msg: WorkerMessage = {
       type: "INIT",
@@ -215,11 +227,12 @@ export class GameClient {
         baseEnemyCount,
         enemyGrowthPerMission,
         missionDepth,
-        initialTimeScale: clampedScale,
-        startPaused,
-        allowTacticalPause,
+        initialTimeScale: effectiveTimeScale,
+        startPaused: this.isPaused,
+        allowTacticalPause: effectiveAllowTacticalPause,
         mode,
         commandLog,
+        initialSnapshots,
         targetTick,
         nodeType,
         campaignNodeId,
@@ -227,15 +240,6 @@ export class GameClient {
       },
     };
     this.worker.postMessage(msg);
-
-    // Sync current scale to new worker
-    this.sendTimeScaleToWorker(
-      this.isPaused
-        ? this.allowTacticalPause
-          ? 0.05
-          : 0.0
-        : this.currentScale,
-    );
 
     if (mode === EngineMode.Simulation && typeof localStorage !== "undefined") {
       this.saveMissionConfig({
@@ -431,6 +435,10 @@ export class GameClient {
       command: rc.cmd,
     }));
 
+    if (data.snapshots) {
+      this.snapshots = data.snapshots;
+    }
+
     this.init(
       data.seed,
       MapGeneratorType.Static,
@@ -458,6 +466,9 @@ export class GameClient {
       undefined, // nodeType
       0, // bonusLootCount
       true, // skipDeployment
+      true, // debugSnapshots
+      100, // debugSnapshotInterval (1.6s)
+      this.snapshots,
     );
   }
 
@@ -497,6 +508,9 @@ export class GameClient {
       undefined, // nodeType
       0, // bonusLootCount
       true, // skipDeployment
+      true, // debugSnapshots
+      100, // debugSnapshotInterval (1.6s)
+      this.snapshots,
     );
   }
 

@@ -123,6 +123,7 @@ export type WorkerMessage =
         allowTacticalPause?: boolean;
         mode?: EngineMode;
         commandLog?: CommandLogEntry[];
+        initialSnapshots?: GameState[];
         targetTick?: number;
         campaignNodeId?: string;
         skipDeployment?: boolean;

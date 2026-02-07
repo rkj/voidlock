@@ -38,6 +38,7 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
         msg.payload.skipDeployment ?? false,
         msg.payload.debugSnapshots ?? false,
         msg.payload.debugSnapshotInterval ?? 0,
+        msg.payload.initialSnapshots ?? [],
       );
 
       // Start loop

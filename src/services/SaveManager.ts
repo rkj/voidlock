@@ -88,15 +88,18 @@ export class SaveManager implements StorageProvider {
 
     try {
       // Check cloud for newer version
-      const cloud = await this.cloudSync.loadCampaign(key) as unknown as T;
+      const cloud = (await this.cloudSync.loadCampaign(key)) as unknown as T;
 
       if (!local && !cloud) return null;
       if (!cloud) return local;
       if (!local) return cloud;
 
       // Conflict resolution
-      const resolved = this.resolveConflict(local as CampaignState, cloud as CampaignState);
-      
+      const resolved = this.resolveConflict(
+        local as unknown as CampaignState,
+        cloud as unknown as CampaignState,
+      );
+
       // If cloud won, update local storage
       if (resolved === (cloud as unknown as CampaignState)) {
         this.localStorage.save(key, resolved);
@@ -115,7 +118,7 @@ export class SaveManager implements StorageProvider {
    */
   public remove(key: string): void {
     this.localStorage.remove(key);
-    // Note: Cloud deletion could be added here if needed, 
+    // Note: Cloud deletion could be added here if needed,
     // but usually we want to keep cloud backups even if local is cleared.
   }
 
@@ -134,7 +137,8 @@ export class SaveManager implements StorageProvider {
 
     this.syncInProgress = true;
     this.lastSyncFailed = false;
-    this.cloudSync.saveCampaign(campaignId, data)
+    this.cloudSync
+      .saveCampaign(campaignId, data)
       .then(() => {
         this.lastSyncFailed = false;
       })
@@ -158,12 +162,16 @@ export class SaveManager implements StorageProvider {
     const cloudVer = cloud.saveVersion || 0;
 
     if (cloudVer > localVer) {
-      Logger.info(`SaveManager: Cloud save is newer (v${cloudVer} > v${localVer}). Using cloud save.`);
+      Logger.info(
+        `SaveManager: Cloud save is newer (v${cloudVer} > v${localVer}). Using cloud save.`,
+      );
       return cloud;
     }
 
     if (localVer > cloudVer) {
-      Logger.info(`SaveManager: Local save is newer (v${localVer} > v${cloudVer}). Cloud will be updated on next save.`);
+      Logger.info(
+        `SaveManager: Local save is newer (v${localVer} > v${cloudVer}). Cloud will be updated on next save.`,
+      );
     }
 
     return local;

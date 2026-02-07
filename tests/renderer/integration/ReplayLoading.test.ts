@@ -2,11 +2,7 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import {
-  UnitState,
-  EngineMode,
-  MissionType,
-} from "@src/shared/types";
+import { UnitState, EngineMode, MissionType } from "@src/shared/types";
 
 // Mock dependencies before importing main.ts
 vi.mock("@package.json", () => ({
@@ -66,10 +62,10 @@ vi.mock("@src/renderer/ui/ModalService", () => ({
 vi.mock("firebase/auth", () => ({
   getAuth: vi.fn(),
   onAuthStateChanged: vi.fn((_auth, cb) => {
-    if (typeof cb === 'function') {
-        cb({ uid: "test-user" });
-    } else if (cb && typeof (cb as any).next === 'function') {
-        (cb as any).next({ uid: "test-user" });
+    if (typeof cb === "function") {
+      cb({ uid: "test-user" });
+    } else if (cb && typeof (cb as any).next === "function") {
+      (cb as any).next({ uid: "test-user" });
     }
     return () => {};
   }),
@@ -101,6 +97,7 @@ vi.mock("firebase/firestore", () => ({
 vi.mock("@src/services/firebase", () => ({
   auth: {},
   db: {},
+  isFirebaseConfigured: false,
 }));
 
 describe("Replay Loading Integration", () => {
@@ -178,10 +175,10 @@ describe("Replay Loading Integration", () => {
     // Import main.ts
     vi.resetModules();
     await import("@src/renderer/main");
-    
+
     // Wait for GameApp to initialize
-    await new Promise(resolve => setTimeout(resolve, 300));
-    
+    await new Promise((resolve) => setTimeout(resolve, 300));
+
     document.dispatchEvent(new Event("DOMContentLoaded"));
   });
 
@@ -192,7 +189,7 @@ describe("Replay Loading Integration", () => {
         missionType: MissionType.DestroyHive,
         map: { width: 10, height: 10, cells: [] },
         squadConfig: { soldiers: [], inventory: {} },
-        commands: []
+        commands: [],
       },
       currentState: {
         status: "Won",
@@ -204,10 +201,19 @@ describe("Replay Loading Integration", () => {
           scrapGained: 150,
           threatLevel: 10,
           elitesKilled: 2,
-          casualties: 0
+          casualties: 0,
         },
         units: [
-            { id: "u1", name: "Alpha", tacticalNumber: 1, hp: 100, maxHp: 100, kills: 10, state: UnitState.Idle, pos: {x:0, y:0}}
+          {
+            id: "u1",
+            name: "Alpha",
+            tacticalNumber: 1,
+            hp: 100,
+            maxHp: 100,
+            kills: 10,
+            state: UnitState.Idle,
+            pos: { x: 0, y: 0 },
+          },
         ],
         objectives: [],
         settings: { mode: EngineMode.Simulation },
@@ -218,51 +224,58 @@ describe("Replay Loading Integration", () => {
         loot: [],
         mines: [],
         turrets: [],
-        squadInventory: {}
+        squadInventory: {},
       },
-      version: "1.0.0"
+      version: "1.0.0",
     });
 
-    const file = new File([replayFileContent], "replay.json", { type: "application/json" });
+    const file = new File([replayFileContent], "replay.json", {
+      type: "application/json",
+    });
     const input = document.getElementById("import-replay") as HTMLInputElement;
 
     // Mock FileReader globally
     const mockReader = {
-        readAsText: vi.fn(),
-        onload: null as any,
-        result: null as any
+      readAsText: vi.fn(),
+      onload: null as any,
+      result: null as any,
     };
     mockReader.readAsText.mockImplementation(() => {
-        mockReader.result = replayFileContent;
-        if (mockReader.onload) {
-            mockReader.onload({ target: { result: replayFileContent } });
-        }
+      mockReader.result = replayFileContent;
+      if (mockReader.onload) {
+        mockReader.onload({ target: { result: replayFileContent } });
+      }
     });
-    vi.stubGlobal('FileReader', vi.fn(() => mockReader));
+    vi.stubGlobal(
+      "FileReader",
+      vi.fn(() => mockReader),
+    );
 
     // Trigger change event
-    Object.defineProperty(input, 'files', {
-        value: [file]
+    Object.defineProperty(input, "files", {
+      value: [file],
     });
-    input.dispatchEvent(new Event('change', { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
 
     // Wait for async processing
-    await new Promise(resolve => setTimeout(resolve, 300));
+    await new Promise((resolve) => setTimeout(resolve, 300));
 
     // Verify transition to Debrief Screen
     const debriefScreen = document.getElementById("screen-debrief");
     expect(debriefScreen?.style.display).toBe("flex");
-    
+
     // Verify Mission Stats on screen
     expect(debriefScreen?.innerHTML).toContain("Mission Success");
     expect(debriefScreen?.innerHTML).toContain("25"); // Aliens killed
     expect(debriefScreen?.innerHTML).toContain("150"); // Scrap
 
     // Verify GameClient.loadReplay was called with correct data
-    expect(mockGameClient.loadReplay).toHaveBeenCalledWith(expect.objectContaining({
+    expect(mockGameClient.loadReplay).toHaveBeenCalledWith(
+      expect.objectContaining({
         seed: 456,
-        missionType: MissionType.DestroyHive
-    }));
+        missionType: MissionType.DestroyHive,
+      }),
+    );
 
     vi.unstubAllGlobals();
   });

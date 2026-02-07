@@ -28,7 +28,7 @@ import { CommandHandler } from "./managers/CommandHandler";
 import { LootManager } from "./managers/LootManager";
 import { UnitSpawner } from "./managers/UnitSpawner";
 
-export class CoreEngine implements IDirector {
+export class CoreEngine {
   private prng: PRNG;
   private gameGrid: GameGrid;
   private pathfinder: Pathfinder;
@@ -169,7 +169,9 @@ export class CoreEngine implements IDirector {
     const spawnPoints = map.spawnPoints || [];
     const effectiveStartingPoints =
       startingPoints ??
-      (missionDepth > 0 ? baseEnemyCount + missionDepth * enemyGrowthPerMission : 0);
+      (missionDepth > 0
+        ? baseEnemyCount + missionDepth * enemyGrowthPerMission
+        : 0);
 
     this.director = new Director(
       spawnPoints,
@@ -286,7 +288,11 @@ export class CoreEngine implements IDirector {
             initialSnapshots[0],
           );
 
-        if (bestSnapshot && bestSnapshot.t > 0 && bestSnapshot.t <= finalCatchupTick) {
+        if (
+          bestSnapshot &&
+          bestSnapshot.t > 0 &&
+          bestSnapshot.t <= finalCatchupTick
+        ) {
           this.hydrateFromSnapshot(bestSnapshot);
         }
       }
@@ -312,7 +318,9 @@ export class CoreEngine implements IDirector {
       objectives: snapshot.objectives.map((o) => ({ ...o })),
       visibleCells: [...snapshot.visibleCells],
       discoveredCells: [...snapshot.discoveredCells],
-      gridState: snapshot.gridState ? new Uint8Array(snapshot.gridState) : undefined,
+      gridState: snapshot.gridState
+        ? new Uint8Array(snapshot.gridState)
+        : undefined,
     };
 
     if (snapshot.rngState !== undefined) {
@@ -621,8 +629,10 @@ export class CoreEngine implements IDirector {
 
     // 9. Debug Snapshots
     const interval = this.state.settings.debugSnapshotInterval || 0;
-    const shouldSnapshot = (this.state.settings.debugSnapshots || interval > 0) && !this.isCatchingUp;
-    
+    const shouldSnapshot =
+      (this.state.settings.debugSnapshots || interval > 0) &&
+      !this.isCatchingUp;
+
     if (shouldSnapshot) {
       const snapshotIntervalMs = interval > 0 ? interval * 16 : 1600; // Default to 100 ticks if only boolean is set
       if (

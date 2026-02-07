@@ -48,7 +48,7 @@ export class UnitManager {
       .getGraph()
       .cells.flat()
       .filter((c) => c.type === "Floor").length;
-    Logger.info(`UnitManager: totalFloorCells = ${this.totalFloorCells}`);
+    Logger.debug(`UnitManager: totalFloorCells = ${this.totalFloorCells}`);
     this.statsManager = new StatsManager();
     this.movementManager = new MovementManager(gameGrid);
     this.combatManager = new CombatManager(los, this.statsManager);

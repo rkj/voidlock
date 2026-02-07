@@ -1,9 +1,4 @@
-import {
-  SquadConfig,
-  ItemLibrary,
-  WeaponLibrary,
-  ArchetypeLibrary,
-} from "@src/shared/types";
+import { SquadConfig, ItemLibrary, ArchetypeLibrary } from "@src/shared/types";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import { SoldierInspector } from "@src/renderer/ui/SoldierInspector";
 import { NameGenerator } from "@src/shared/utils/NameGenerator";
@@ -287,12 +282,6 @@ export class EquipmentScreen {
 
       panel.appendChild(item);
     }
-  }
-
-  private getItemName(id?: string): string {
-    if (!id) return "Empty";
-    const item = WeaponLibrary[id] || ItemLibrary[id];
-    return item ? item.name : id;
   }
 
   private renderRosterPicker(panel: HTMLElement) {

@@ -63,13 +63,13 @@ export class SwarmMeleeAI implements IEnemyAI {
 
       let minDistance = Infinity;
 
-      visibleSoldiers.forEach((u) => {
+      for (const u of visibleSoldiers) {
         const dist = MathUtils.getDistance(enemy.pos, u.pos);
         if (dist < minDistance) {
           minDistance = dist;
           targetSoldier = u;
         }
-      });
+      }
 
       if (targetSoldier) {
         enemy.forcedTargetId = targetSoldier.id;

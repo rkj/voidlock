@@ -1,5 +1,9 @@
 import { MetaManager } from "@src/renderer/campaign/MetaManager";
-import { ArchetypeLibrary, ItemLibrary, WeaponLibrary } from "@src/shared/types";
+import {
+  ArchetypeLibrary,
+  ItemLibrary,
+  WeaponLibrary,
+} from "@src/shared/types";
 
 export class EngineeringScreen {
   private container: HTMLElement;
@@ -7,17 +11,55 @@ export class EngineeringScreen {
 
   private unlockables = {
     archetypes: [
-      { id: "heavy", cost: 50, description: "Slow, heavily armored unit with a shotgun and hammer." },
-      { id: "sniper", cost: 100, description: "Precision marksman with extreme range but slow fire rate." },
-      { id: "demolitionist", cost: 75, description: "Close-quarters specialist using a flamer and high-explosives." },
+      {
+        id: "heavy",
+        cost: 50,
+        description: "Slow, heavily armored unit with a shotgun and hammer.",
+      },
+      {
+        id: "sniper",
+        cost: 100,
+        description:
+          "Precision marksman with extreme range but slow fire rate.",
+      },
+      {
+        id: "demolitionist",
+        cost: 75,
+        description:
+          "Close-quarters specialist using a flamer and high-explosives.",
+      },
     ],
     items: [
-      { id: "autocannon", cost: 50, description: "Deployable sentry turret that provides automatic fire support." },
-      { id: "stimpack", cost: 25, description: "Instant, low-cost healing injectable for emergency use." },
-      { id: "scanner", cost: 40, description: "Handheld device to reveal enemies and objectives through fog." },
-      { id: "heavy_plate", cost: 60, description: "Heavy chest plating that grants significant HP at the cost of speed." },
-      { id: "flamer", cost: 50, description: "A liquid-fire projector for clearing hallways and groups of enemies." },
-    ]
+      {
+        id: "autocannon",
+        cost: 50,
+        description:
+          "Deployable sentry turret that provides automatic fire support.",
+      },
+      {
+        id: "stimpack",
+        cost: 25,
+        description: "Instant, low-cost healing injectable for emergency use.",
+      },
+      {
+        id: "scanner",
+        cost: 40,
+        description:
+          "Handheld device to reveal enemies and objectives through fog.",
+      },
+      {
+        id: "heavy_plate",
+        cost: 60,
+        description:
+          "Heavy chest plating that grants significant HP at the cost of speed.",
+      },
+      {
+        id: "flamer",
+        cost: 50,
+        description:
+          "A liquid-fire projector for clearing hallways and groups of enemies.",
+      },
+    ],
   };
 
   constructor(containerId: string, onUpdate: () => void) {
@@ -51,9 +93,10 @@ export class EngineeringScreen {
 
   private render() {
     const meta = MetaManager.getInstance();
-    const intel = meta.getIntel();
-    const unlockedArchetypes = meta.getUnlockedArchetypes();
-    const unlockedItems = meta.getUnlockedItems();
+    const stats = meta.getStats();
+    const intel = stats.currentIntel;
+    const unlockedArchetypes = stats.unlockedArchetypes;
+    const unlockedItems = stats.unlockedItems;
 
     this.container.innerHTML = "";
     this.container.className = "screen screen-centered flex-col gap-20 p-20";
@@ -90,18 +133,19 @@ export class EngineeringScreen {
 
     const archList = document.createElement("div");
     archList.className = "flex-col gap-10";
-    
-    this.unlockables.archetypes.forEach(arch => {
+
+    this.unlockables.archetypes.forEach((arch) => {
       const isUnlocked = unlockedArchetypes.includes(arch.id);
-      archList.appendChild(this.createUnlockCard(
-        arch.id, 
-        ArchetypeLibrary[arch.id]?.name || arch.id, 
-        arch.description, 
-        arch.cost, 
-        isUnlocked, 
-        intel >= arch.cost,
-        () => this.handleUnlockArchetype(arch.id, arch.cost)
-      ));
+      archList.appendChild(
+        this.createUnlockCard(
+          ArchetypeLibrary[arch.id]?.name || arch.id,
+          arch.description,
+          arch.cost,
+          isUnlocked,
+          intel >= arch.cost,
+          () => this.handleUnlockArchetype(arch.id, arch.cost),
+        ),
+      );
     });
     grid.appendChild(archList);
 
@@ -117,18 +161,20 @@ export class EngineeringScreen {
     const itemList = document.createElement("div");
     itemList.className = "flex-col gap-10";
 
-    this.unlockables.items.forEach(item => {
+    this.unlockables.items.forEach((item) => {
       const isUnlocked = unlockedItems.includes(item.id);
-      const name = ItemLibrary[item.id]?.name || WeaponLibrary[item.id]?.name || item.id;
-      itemList.appendChild(this.createUnlockCard(
-        item.id,
-        name,
-        item.description,
-        item.cost,
-        isUnlocked,
-        intel >= item.cost,
-        () => this.handleUnlockItem(item.id, item.cost)
-      ));
+      const name =
+        ItemLibrary[item.id]?.name || WeaponLibrary[item.id]?.name || item.id;
+      itemList.appendChild(
+        this.createUnlockCard(
+          name,
+          item.description,
+          item.cost,
+          isUnlocked,
+          intel >= item.cost,
+          () => this.handleUnlockItem(item.id, item.cost),
+        ),
+      );
     });
     grid.appendChild(itemList);
 
@@ -136,24 +182,25 @@ export class EngineeringScreen {
   }
 
   private createUnlockCard(
-    id: string, 
-    name: string, 
-    desc: string, 
-    cost: number, 
-    isUnlocked: boolean, 
+    name: string,
+    desc: string,
+    cost: number,
+    isUnlocked: boolean,
     canAfford: boolean,
-    onUnlock: () => void
+    onUnlock: () => void,
   ): HTMLElement {
     const card = document.createElement("div");
-    card.className = `unlock-card card p-15 flex-row justify-between align-center ${isUnlocked ? 'unlocked' : ''}`;
-    card.style.background = isUnlocked ? "rgba(46, 204, 113, 0.05)" : "var(--color-surface-elevated)";
-    card.style.border = `1px solid ${isUnlocked ? 'var(--color-success)' : 'var(--color-border)'}`;
+    card.className = `unlock-card card p-15 flex-row justify-between align-center ${isUnlocked ? "unlocked" : ""}`;
+    card.style.background = isUnlocked
+      ? "rgba(46, 204, 113, 0.05)"
+      : "var(--color-surface-elevated)";
+    card.style.border = `1px solid ${isUnlocked ? "var(--color-success)" : "var(--color-border)"}`;
     card.style.opacity = !isUnlocked && !canAfford ? "0.7" : "1.0";
 
     const left = document.createElement("div");
     left.className = "flex-col gap-5";
     left.innerHTML = `
-      <div style="font-weight: bold; color: ${isUnlocked ? 'var(--color-success)' : 'var(--color-primary)'};">${name.toUpperCase()}</div>
+      <div style="font-weight: bold; color: ${isUnlocked ? "var(--color-success)" : "var(--color-primary)"};">${name.toUpperCase()}</div>
       <div style="font-size: 0.8em; color: var(--color-text-dim); max-width: 500px;">${desc}</div>
     `;
     card.appendChild(left);
@@ -177,19 +224,23 @@ export class EngineeringScreen {
 
   private handleUnlockArchetype(id: string, cost: number) {
     const meta = MetaManager.getInstance();
-    if (meta.spendIntel(cost)) {
-      meta.unlockArchetype(id);
+    try {
+      meta.unlockArchetype(id, cost);
       this.render();
       this.onUpdate();
+    } catch (e) {
+      console.error(e);
     }
   }
 
   private handleUnlockItem(id: string, cost: number) {
     const meta = MetaManager.getInstance();
-    if (meta.spendIntel(cost)) {
-      meta.unlockItem(id);
+    try {
+      meta.unlockItem(id, cost);
       this.render();
       this.onUpdate();
+    } catch (e) {
+      console.error(e);
     }
   }
 }
