@@ -9,7 +9,7 @@ This directory contains the main thread rendering logic and user interface for V
 - `ConfigManager.ts`: Manages persistent game configuration and defaults (Map size, Unit Style, Mission types) in LocalStorage. Now includes strict validation and default fallback logic (Spec 8.12). Default mission generator is now set to `DenseShip`.
 - `InputDispatcher.ts`: Centralized keyboard, mouse, and touch event dispatcher and focus manager. Supports priority-based event handling, focus trapping for modals/screens, and automatic focus restoration (ADR 0037). Now handles 1-finger panning and 2-finger pinch zooming for mobile devices (ADR 0038).
 - `GlobalShortcuts.ts`: Registry for global shortcuts (Space=Pause, ESC/Q=Back) that applies across all screens.
-- `InputManager.ts`: Manages tactical input context, including keyboard shortcuts and mouse/touch interactions. Implements 1-finger panning and 2-finger pinch zooming (ADR 0038).
+- `InputManager.ts`: Manages tactical input context, including keyboard shortcuts and mouse/touch interactions. Implements 1-finger panning, 2-finger pinch zooming, and Tap-to-Move/Select (ADR 0038).
 - `MenuController.ts`: Orchestrates the tactical command menu, handling state transitions, selection, and command construction. Now includes validation logic to disable the Escort command when fewer than 2 active units are present and filters out targets from the escorting unit selection.
 - `Renderer.ts`: The main entry point for the rendering system. Now refactored into a layered architecture (ADR 0018). It acts as a compositor for specialized layers.
 - `ScreenManager.ts`: Manages screen transitions, history, and URL hash synchronization. Now includes a `destroy()` method for clean shutdown.

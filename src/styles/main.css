@@ -2610,3 +2610,37 @@ label {
 .drawer-toggle {
   display: none;
 }
+
+/* Inspect Popover (ADR 0038) */
+.inspect-popover {
+  position: fixed;
+  background: var(--color-surface-elevated);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 0.9em;
+  z-index: 3000;
+  pointer-events: none;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  animation: popover-fade-in 0.15s ease-out;
+  white-space: nowrap;
+}
+
+@keyframes popover-fade-in {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.stat-display[data-tooltip] {
+  cursor: help;
+}
+
+.mobile-touch .stat-display[data-tooltip] {
+  cursor: pointer;
+}
+
+.inspecting {
+  outline: 1px solid var(--color-primary);
+  background: rgba(var(--color-primary-rgb), 0.1) !important;
+}
