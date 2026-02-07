@@ -83,7 +83,7 @@ Notes:
 Captures commit screenshots with worktree + Puppeteer.
 
 Canonical quadrants:
-- `1 mission` (required)
+- `1 mission`
 - `2 main_menu` (optional)
 - `3 config` (optional)
 - `4 campaign` (optional)
@@ -100,6 +100,24 @@ Args:
 - `--max-count` `0` means all rows in manifest
 - `--navigation-map`
 - `--playbooks`
+- `--worktree-base` worktree directory root (default `.timeline/worktrees`)
+- `--startup-timeout-ms` startup/readiness timeout in ms (default `12000`)
+- `--max-consecutive-failures` abort threshold for unhealthy runs (default `3`)
+- `--restart-every` rotate dev server every N successful commits (default `100`, `0` disables cadence rotation)
+- `--post-load-wait-ms` wait before bootstrap and capture (default `3000`)
+- `--mission-capture-wait-ms` extra delay before mission screenshot (default `3000`)
+- `--debug-log` JSON diagnostic output path on abort (default `timeline/capture_debug.json`)
+
+Readiness protocol:
+- Start or reuse Vite for the checked-out commit.
+- Wait for port.
+- Probe `GET /` and require healthy HTML response.
+- Only then run Puppeteer capture from `/`.
+- Before target capture, wait and run bootstrap clicks to initialize mission flow when applicable.
+- Reuse server for speed; rotate by cadence (`--restart-every`) or on failure.
+- If commit fails, restart and retry once, then mark skipped.
+- If no target screen activates on a healthy page, fallback to a full-page `mission` screenshot.
+- Abort run after N consecutive commit failures and emit debug log.
 
 ### 6) Frame Analysis (Pre-render)
 

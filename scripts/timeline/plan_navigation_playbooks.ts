@@ -68,7 +68,7 @@ function buildPrompt(
   ].join("\n");
 }
 
-function heuristicPlaybook(
+export function heuristicPlaybook(
   eraIndex: number,
   era: TopologyReport["eras"][number],
   navEntry: NavigationMap["commits"][string] | undefined,
