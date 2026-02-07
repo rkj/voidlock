@@ -1,8 +1,10 @@
-import { SquadConfig, ItemLibrary, ArchetypeLibrary } from "@src/shared/types";
+import { SquadConfig, ItemLibrary, ArchetypeLibrary, InputPriority } from "@src/shared/types";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import { SoldierInspector } from "@src/renderer/ui/SoldierInspector";
 import { NameGenerator } from "@src/shared/utils/NameGenerator";
 import { SoldierWidget } from "@src/renderer/ui/SoldierWidget";
+import { InputDispatcher } from "../InputDispatcher";
+import { UIUtils } from "../utils/UIUtils";
 
 export class EquipmentScreen {
   private container: HTMLElement;
@@ -69,10 +71,38 @@ export class EquipmentScreen {
   public show() {
     this.container.style.display = "flex";
     this.render();
+    this.pushInputContext();
   }
 
   public hide() {
     this.container.style.display = "none";
+    InputDispatcher.getInstance().popContext("equipment");
+  }
+
+  private pushInputContext() {
+    InputDispatcher.getInstance().pushContext({
+      id: "equipment",
+      priority: InputPriority.UI,
+      trapsFocus: true,
+      container: this.container,
+      handleKeyDown: (e) => this.handleKeyDown(e),
+      getShortcuts: () => [
+        { key: "Arrows", label: "Navigate", description: "Move selection", category: "Navigation" },
+        { key: "Enter", label: "Select", description: "Activate button", category: "Navigation" },
+        { key: "ESC", label: "Back", description: "Return to previous screen", category: "Navigation" },
+      ],
+    });
+  }
+
+  private handleKeyDown(e: KeyboardEvent): boolean {
+    if (e.key === "ArrowDown" || e.key === "ArrowUp" || e.key === "ArrowLeft" || e.key === "ArrowRight") {
+      return UIUtils.handleArrowNavigation(e, this.container);
+    }
+    if (e.key === "Escape") {
+      this.onBack();
+      return true;
+    }
+    return false;
   }
 
   public updateConfig(config: SquadConfig) {

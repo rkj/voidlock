@@ -91,6 +91,7 @@ export class MissionSetupManager {
     this.saveCurrentConfig();
 
     this.context.campaignShell.show("campaign", "sector-map", false);
+    this.context.missionSetupScreen.show();
     this.context.screenManager.show("mission-setup", true, true);
   }
 

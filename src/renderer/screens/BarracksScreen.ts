@@ -1,8 +1,10 @@
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
-import { ArchetypeLibrary } from "@src/shared/types";
+import { ArchetypeLibrary, InputPriority } from "@src/shared/types";
 import { SoldierInspector } from "@src/renderer/ui/SoldierInspector";
 import { ModalService } from "@src/renderer/ui/ModalService";
 import { SoldierWidget } from "@src/renderer/ui/SoldierWidget";
+import { InputDispatcher } from "../InputDispatcher";
+import { UIUtils } from "../utils/UIUtils";
 
 export class BarracksScreen {
   private container: HTMLElement;
@@ -40,10 +42,40 @@ export class BarracksScreen {
   public show() {
     this.container.style.display = "flex";
     this.render();
+    this.pushInputContext();
   }
 
   public hide() {
     this.container.style.display = "none";
+    InputDispatcher.getInstance().popContext("barracks");
+  }
+
+  private pushInputContext() {
+    InputDispatcher.getInstance().pushContext({
+      id: "barracks",
+      priority: InputPriority.UI,
+      trapsFocus: true,
+      container: this.container,
+      handleKeyDown: (e) => this.handleKeyDown(e),
+      getShortcuts: () => [
+        { key: "Arrows", label: "Navigate", description: "Move selection", category: "Navigation" },
+        { key: "Enter", label: "Select", description: "Activate button", category: "Navigation" },
+        { key: "ESC", label: "Back", description: "Return to sector map", category: "Navigation" },
+      ],
+    });
+  }
+
+  private handleKeyDown(e: KeyboardEvent): boolean {
+    if (e.key === "ArrowDown" || e.key === "ArrowUp" || e.key === "ArrowLeft" || e.key === "ArrowRight") {
+      return UIUtils.handleArrowNavigation(e, this.container);
+    }
+    if (e.key === "Escape") {
+      if (this.onBack) {
+        this.onBack();
+        return true;
+      }
+    }
+    return false;
   }
 
   private render() {

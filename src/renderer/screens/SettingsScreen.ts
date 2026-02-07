@@ -2,6 +2,9 @@ import { AppContext } from "../app/AppContext";
 import { ConfigManager } from "../ConfigManager";
 import { UnitStyleSelector } from "../components/UnitStyleSelector";
 import { Logger, LogLevel } from "@src/shared/Logger";
+import { InputDispatcher } from "../InputDispatcher";
+import { InputPriority } from "@src/shared/types";
+import { UIUtils } from "../utils/UIUtils";
 
 export class SettingsScreen {
   private container: HTMLElement;
@@ -23,23 +26,42 @@ export class SettingsScreen {
   public show() {
     this.container.style.display = "flex";
     this.render();
-
-    // Subscribe to auth changes to refresh the account section
-    if (this.context.cloudSync) {
-      this.authUnsubscribe = this.context.cloudSync.onAuthStateChanged(() => {
-        if (this.isVisible()) {
-          this.render();
-        }
-      });
-    }
+    this.pushInputContext();
   }
 
   public hide() {
     this.container.style.display = "none";
+    InputDispatcher.getInstance().popContext("settings");
     if (this.authUnsubscribe) {
       this.authUnsubscribe();
       this.authUnsubscribe = undefined;
     }
+  }
+
+  private pushInputContext() {
+    InputDispatcher.getInstance().pushContext({
+      id: "settings",
+      priority: InputPriority.UI,
+      trapsFocus: true,
+      container: this.container,
+      handleKeyDown: (e) => this.handleKeyDown(e),
+      getShortcuts: () => [
+        { key: "Arrows", label: "Navigate", description: "Move selection", category: "Navigation" },
+        { key: "Enter", label: "Select", description: "Activate button", category: "Navigation" },
+        { key: "ESC", label: "Back", description: "Save and Return", category: "Navigation" },
+      ],
+    });
+  }
+
+  private handleKeyDown(e: KeyboardEvent): boolean {
+    if (e.key === "ArrowDown" || e.key === "ArrowUp" || e.key === "ArrowLeft" || e.key === "ArrowRight") {
+      return UIUtils.handleArrowNavigation(e, this.container);
+    }
+    if (e.key === "Escape") {
+      this.onBack();
+      return true;
+    }
+    return false;
   }
 
   public isVisible(): boolean {

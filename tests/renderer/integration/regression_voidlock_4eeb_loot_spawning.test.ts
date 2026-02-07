@@ -140,9 +140,9 @@ describe("regression_voidlock_4eeb_loot_spawning", () => {
     confirmBtn.click();
 
     // 5. Verify GameClient.init was called with bonusLootCount = 5
-    // index 24 is the 25th argument: bonusLootCount
+    // index 25 is the 26th argument: bonusLootCount
     expect(mockGameClient.init).toHaveBeenCalled();
     const lastCall = mockGameClient.init.mock.calls[0];
-    expect(lastCall[24]).toBe(5);
+    expect(lastCall[25]).toBe(5);
   });
 });

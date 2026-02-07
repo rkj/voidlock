@@ -86,13 +86,13 @@ export class InputDispatcher {
 
     if (e.shiftKey) {
       // Shift + Tab: focus previous
-      if (document.activeElement === firstElement) {
+      if (document.activeElement === firstElement || !container.contains(document.activeElement)) {
         lastElement.focus();
         e.preventDefault();
       }
     } else {
       // Tab: focus next
-      if (document.activeElement === lastElement) {
+      if (document.activeElement === lastElement || !container.contains(document.activeElement)) {
         firstElement.focus();
         e.preventDefault();
       }
