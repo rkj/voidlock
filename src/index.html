@@ -8,6 +8,14 @@
     <link rel="stylesheet" href="/styles/main.css" />
     <script>
       (function () {
+        // Mobile touch detection (ADR 0038)
+        if (window.matchMedia("(pointer: coarse)").matches) {
+          document.documentElement.classList.add("mobile-touch");
+          window.addEventListener("DOMContentLoaded", function () {
+            document.body.classList.add("mobile-touch");
+          });
+        }
+
         /**
          * Panic UI Recovery (ADR-0019/Spec 8.12)
          * Forces the Main Menu to be visible if a catastrophic error occurs.

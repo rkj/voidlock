@@ -1565,3 +1565,174 @@ label {
 .syncing .sync-icon {
   animation: spin 2s linear infinite;
 }
+
+/* --- Mobile Responsiveness (ADR 0038) --- */
+
+/* Detection via pointer coarse (fallback for without class) */
+@media (pointer: coarse) {
+  :root {
+    --hit-target-min: 44px;
+  }
+}
+
+/* Global hit target minimums when mobile-touch is detected */
+.mobile-touch button,
+.mobile-touch .tab-button,
+.mobile-touch .menu-item,
+.mobile-touch .soldier-item,
+.mobile-touch .soldier-card,
+.mobile-touch .deployment-slot,
+.mobile-touch .roster-item,
+.mobile-touch .stat-box,
+.mobile-touch .paper-doll-slot,
+.mobile-touch .equipment-slot,
+.mobile-touch .campaign-node,
+.mobile-touch select,
+.mobile-touch .btn-recruit,
+.mobile-touch .btn-revive,
+.mobile-touch .replay-btn,
+.mobile-touch .replay-speed-btn,
+.mobile-touch .summary-button,
+.mobile-touch .menu-button,
+.mobile-touch .menu-import-label,
+.mobile-touch .slot-remove,
+.mobile-touch .back-button,
+.mobile-touch .primary-button,
+.mobile-touch .danger-button,
+.mobile-touch .stat-display {
+  min-height: 44px;
+  min-width: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Specific overrides for dense UI components */
+
+.mobile-touch .top-bar {
+  height: 52px; 
+}
+
+.mobile-touch .top-bar button {
+  height: 44px !important;
+}
+
+.mobile-touch .campaign-top-bar {
+  height: 64px !important;
+}
+
+.mobile-touch .tab-button,
+.mobile-touch .campaign-top-bar .back-button {
+  height: 44px !important;
+  padding: 0 15px !important;
+}
+
+.mobile-touch .soldier-panel {
+  padding: 5px 10px;
+}
+
+.mobile-touch .soldier-item {
+  min-height: 52px; 
+}
+
+.mobile-touch .menu-item {
+  padding: 10px 15px;
+  margin-bottom: 8px;
+}
+
+.mobile-touch .menu-button {
+  padding: 12px 24px;
+  width: 100% !important;
+  max-width: 350px;
+}
+
+/* Roster / Squad Builder */
+.mobile-touch .soldier-card {
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.mobile-touch .deployment-slot {
+  min-height: 120px;
+}
+
+.mobile-touch .slot-remove {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Checkboxes and Labels */
+.mobile-touch input[type="checkbox"] {
+  width: 28px;
+  height: 28px;
+  margin-right: 12px;
+  flex-shrink: 0;
+}
+
+.mobile-touch label {
+  padding: 12px 0;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+/* Sliders */
+.mobile-touch input[type="range"] {
+  height: 44px;
+}
+
+#speed-control.mobile-touch input[type="range"],
+.mobile-touch #game-speed {
+  width: 120px;
+}
+
+/* Select boxes */
+.mobile-touch select {
+  height: 44px;
+  padding: 8px;
+}
+
+/* Paper Doll / Equipment */
+.mobile-touch .paper-doll-slot {
+  width: 110px;
+  height: 110px;
+}
+
+.mobile-touch .equipment-slot {
+  padding: 12px;
+}
+
+/* Replay controls */
+.mobile-touch .replay-controls {
+  height: 80px;
+}
+
+.mobile-touch .replay-btn,
+.mobile-touch .replay-speed-btn {
+  height: 44px;
+}
+
+.mobile-touch .replay-progress-container {
+  height: 50px;
+}
+
+.mobile-touch .replay-scrubber::-webkit-slider-thumb {
+  width: 20px;
+  height: 32px;
+}
+
+.mobile-touch .replay-scrubber::-moz-range-thumb {
+  width: 20px;
+  height: 32px;
+}
+
+.mobile-touch canvas {
+  touch-action: none;
+}
+
+.mobile-touch .stat-display {
+  padding: 8px 6px;
+}
