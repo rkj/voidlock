@@ -11,7 +11,11 @@ import {
   Unit,
   CommandType,
 } from "@src/shared/types";
-import { calculateSpawnPoints, CampaignNode } from "@src/shared/campaign_types";
+import {
+  calculateSpawnPoints,
+  CampaignNode,
+  MissionReport,
+} from "@src/shared/campaign_types";
 import { DebugUtility } from "@src/renderer/DebugUtility";
 import { TimeUtility } from "@src/renderer/TimeUtility";
 import { ModalService } from "@src/renderer/ui/ModalService";
@@ -29,9 +33,12 @@ import { CampaignScreen } from "../screens/CampaignScreen";
 import { BarracksScreen } from "../screens/BarracksScreen";
 import { DebriefScreen } from "../screens/DebriefScreen";
 import { EquipmentScreen } from "../screens/EquipmentScreen";
+import { MissionSetupScreen } from "../screens/MissionSetupScreen";
 import { CampaignSummaryScreen } from "../screens/CampaignSummaryScreen";
 import { StatisticsScreen } from "../screens/StatisticsScreen";
+import { EngineeringScreen } from "../screens/EngineeringScreen";
 import { SettingsScreen } from "../screens/SettingsScreen";
+import { MainMenuScreen } from "../screens/MainMenuScreen";
 import { ThemeManager } from "../ThemeManager";
 import { CampaignManager } from "../campaign/CampaignManager";
 import { ScreenManager, ScreenId } from "../ScreenManager";
@@ -40,6 +47,9 @@ import { MenuController } from "../MenuController";
 import { HUDManager } from "../ui/HUDManager";
 import { InputManager } from "../InputManager";
 import { AssetManager } from "../visuals/AssetManager";
+import { Logger, LogLevel } from "@src/shared/Logger";
+import { GlobalShortcuts } from "../GlobalShortcuts";
+import { TooltipManager } from "../ui/TooltipManager";
 
 const VERSION = pkg.version;
 
@@ -55,9 +65,12 @@ export class GameApp {
   private barracksScreen!: BarracksScreen;
   private debriefScreen!: DebriefScreen;
   private equipmentScreen!: EquipmentScreen;
+  private missionSetupScreen!: MissionSetupScreen;
   private campaignSummaryScreen!: CampaignSummaryScreen;
   private statisticsScreen!: StatisticsScreen;
+  private engineeringScreen!: EngineeringScreen;
   private settingsScreen!: SettingsScreen;
+  private mainMenuScreen!: MainMenuScreen;
 
   // app state
   private selectedUnitId: string | null = null;
@@ -73,12 +86,25 @@ export class GameApp {
 
   public async initialize() {
     // 1. Initialize core managers
+    const globalConfig = ConfigManager.loadGlobal();
+    Logger.setLevel(LogLevel[globalConfig.logLevel as keyof typeof LogLevel]);
+
     await ThemeManager.getInstance().init();
     this.context.themeManager = ThemeManager.getInstance();
     // Ensure sprites are loaded now that the asset manifest is available
     AssetManager.getInstance().loadSprites();
     this.context.campaignManager = CampaignManager.getInstance();
-    this.context.campaignManager.load();
+
+    // Initialize cloudSync from SaveManager
+    const storage = (this.context.campaignManager as any).getStorage
+      ? this.context.campaignManager.getStorage()
+      : null;
+    if (storage && "getCloudSync" in storage) {
+      this.context.cloudSync = (storage as any).getCloudSync();
+      await this.context.cloudSync.initialize();
+    }
+
+    await this.context.campaignManager.load();
     this.context.modalService = new ModalService();
     this.context.screenManager = new ScreenManager((id) =>
       this.handleExternalScreenChange(id),
@@ -89,11 +115,24 @@ export class GameApp {
       this.context.campaignManager,
       (tabId) => this.onShellTabChange(tabId),
       () => this.showMainMenu(),
+    );
+
+    this.mainMenuScreen = new MainMenuScreen("screen-main-menu");
+    this.context.mainMenuScreen = this.mainMenuScreen;
+    this.missionSetupScreen = new MissionSetupScreen(
+      "screen-mission-setup",
       () => {
-        this.settingsScreen.show();
-        this.context.screenManager.show("settings", true, false);
+        this.context.screenManager.goBack();
+        const screen = this.context.screenManager.getCurrentScreen();
+        if (screen === "campaign") {
+          this.context.campaignShell.show("campaign", "sector-map");
+        } else {
+          this.context.campaignShell.hide();
+          this.showMainMenu();
+        }
       },
     );
+    this.context.missionSetupScreen = this.missionSetupScreen;
 
     const mapGeneratorFactory = (config: MapGenerationConfig): MapFactory => {
       return new MapFactory(config);
@@ -142,6 +181,10 @@ export class GameApp {
           target: { x, y },
         }),
       (px, py) => this.context.renderer!.getCellCoordinates(px, py),
+      (reverse) => this.cycleUnits(reverse),
+      (direction) => this.panMap(direction),
+      (dx, dy) => this.panMapBy(dx, dy),
+      (ratio, cx, cy) => this.zoomMap(ratio, cx, cy),
     );
 
     // 3. Initialize screens
@@ -219,43 +262,28 @@ export class GameApp {
       () => {
         this.context.screenManager.goBack();
         const screen = this.context.screenManager.getCurrentScreen();
-        if (screen === "campaign")
-          this.context.campaignShell.show("campaign", "sector-map");
-        else if (screen === "barracks")
-          this.context.campaignShell.show("campaign", "barracks");
-        else if (screen === "mission-setup") {
-          if (this.missionSetupManager.currentCampaignNode) {
-            this.context.campaignShell.show("campaign", "sector-map", false);
-          } else {
-            this.context.campaignShell.show("custom");
-          }
-        }
+        this.handleExternalScreenChange(
+          screen,
+          !!this.context.campaignManager.getState(),
+        );
       },
       () => this.context.campaignShell.refresh(),
     );
 
     this.statisticsScreen = new StatisticsScreen("screen-statistics");
+    this.engineeringScreen = new EngineeringScreen("screen-engineering", () =>
+      this.context.campaignShell.refresh(),
+    );
     this.settingsScreen = new SettingsScreen(
       "screen-settings",
       this.context,
       () => {
         this.context.screenManager.goBack();
         const screen = this.context.screenManager.getCurrentScreen();
-        if (screen === "main-menu") {
-          this.context.campaignShell.hide();
-        } else if (screen === "mission-setup") {
-          this.missionSetupManager.loadAndApplyConfig(
-            !!this.missionSetupManager.currentCampaignNode,
-          );
-        } else if (
-          screen === "campaign" ||
-          screen === "barracks" ||
-          screen === "statistics"
-        ) {
-          // Keep shell visible
-        } else {
-          this.context.campaignShell.hide();
-        }
+        this.handleExternalScreenChange(
+          screen,
+          !!this.context.campaignManager.getState(),
+        );
       },
     );
 
@@ -269,7 +297,8 @@ export class GameApp {
       onCustomMission: () => {
         this.missionSetupManager.currentCampaignNode = null;
         this.missionSetupManager.loadAndApplyConfig(false);
-        this.context.campaignShell.show("custom");
+        this.context.campaignShell.show("custom", "setup");
+        this.context.missionSetupScreen.show();
         this.context.screenManager.show("mission-setup");
       },
       onCampaignMenu: () => {
@@ -302,15 +331,26 @@ export class GameApp {
         this.context.screenManager.show("statistics", true, false);
         this.context.campaignShell.show("statistics", "stats");
       },
+      onEngineeringMenu: () => {
+        this.engineeringScreen.show();
+        const state = this.context.campaignManager.getState();
+        if (state) {
+          this.context.screenManager.show("engineering", true, true);
+          this.context.campaignShell.show("campaign", "engineering");
+        } else {
+          this.context.screenManager.show("engineering", true, false);
+          this.context.campaignShell.show("statistics", "engineering");
+        }
+      },
       onSettingsMenu: () => {
         this.settingsScreen.show();
-        this.context.screenManager.show("settings", true, false);
-        // If we are in campaign, we might want to keep the shell
-        const isCampaign = !!this.context.campaignManager.getState();
-        if (isCampaign) {
-          this.context.campaignShell.show("campaign", "sector-map", false);
+        const state = this.context.campaignManager.getState();
+        if (state) {
+          this.context.screenManager.show("settings", true, true);
+          this.context.campaignShell.show("campaign", "settings");
         } else {
-          this.context.campaignShell.hide();
+          this.context.screenManager.show("settings", true, false);
+          this.context.campaignShell.show("global", "settings", false);
         }
       },
       onSetupBack: () => {
@@ -337,9 +377,6 @@ export class GameApp {
               (s) => s.archetypeId !== "vip",
             );
         }
-        this.missionSetupManager.renderSquadBuilder(
-          this.missionSetupManager.currentCampaignNode !== null,
-        );
         this.missionSetupManager.saveCurrentConfig();
       },
       onThemeChange: (themeId: string) => {
@@ -392,23 +429,152 @@ export class GameApp {
         }
         this.missionSetupManager.saveCurrentConfig();
       },
+      onLoadReplay: (file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const content = e.target?.result as string;
+          try {
+            const data = JSON.parse(content);
+            const replayData = data.replayData || data;
+            const currentState = data.currentState as GameState | undefined;
+
+            if (replayData && replayData.commands) {
+              this.context.gameClient.loadReplay(replayData);
+
+              let report: MissionReport;
+              // If we have current state, we can construct a detailed report
+              if (currentState) {
+                report = {
+                  nodeId: "custom",
+                  seed: currentState.seed,
+                  result: currentState.status === "Won" ? "Won" : "Lost",
+                  aliensKilled: currentState.stats.aliensKilled,
+                  scrapGained: currentState.stats.scrapGained,
+                  intelGained: 0,
+                  timeSpent: currentState.t,
+                  soldierResults: currentState.units.map((u) => ({
+                    soldierId: u.id,
+                    name: u.name,
+                    tacticalNumber: u.tacticalNumber,
+                    xpBefore: 0,
+                    xpGained: 0,
+                    kills: u.kills,
+                    promoted: false,
+                    status: u.state === UnitState.Dead ? "Dead" : "Healthy",
+                  })),
+                };
+              } else {
+                // Fallback report for replay-only data (Spec 8.2 / voidlock-l9bv)
+                report = {
+                  nodeId: "custom",
+                  seed: replayData.seed || 0,
+                  result: "Won", // Default for visualization
+                  aliensKilled: 0,
+                  scrapGained: 0,
+                  intelGained: 0,
+                  timeSpent:
+                    replayData.commands.length > 0
+                      ? replayData.commands[replayData.commands.length - 1].t
+                      : 0,
+                  soldierResults: (replayData.squadConfig?.soldiers || []).map(
+                    (s: any, idx: number) => ({
+                      soldierId: s.id || `s-${idx}`,
+                      name: s.name || s.archetypeId || "Unknown",
+                      tacticalNumber: s.tacticalNumber || idx + 1,
+                      xpBefore: 0,
+                      xpGained: 0,
+                      kills: 0,
+                      promoted: false,
+                      status: "Healthy",
+                    }),
+                  ),
+                };
+              }
+
+              this.debriefScreen.show(
+                report,
+                this.missionSetupManager.unitStyle,
+              );
+              this.context.screenManager.show("debrief");
+            } else {
+              this.context.modalService.alert("Invalid replay file format.");
+            }
+          } catch (err) {
+            this.context.modalService.alert("Failed to parse replay file.");
+          }
+        };
+        reader.readAsText(file);
+      },
     });
 
     this.context.inputManager.init();
+
+    const globalShortcuts = new GlobalShortcuts(
+      () => this.togglePause(),
+      () => this.context.screenManager.goBack(),
+    );
+    globalShortcuts.init();
+
+    TooltipManager.getInstance();
 
     // Initial UI state
     this.missionSetupManager.loadAndApplyConfig(false);
     const mvEl = document.getElementById("menu-version");
     if (mvEl) mvEl.textContent = `v${VERSION}`;
+
+    this.setupResponsiveDrawers();
+  }
+
+  private setupResponsiveDrawers() {
+    const toggleSquad = document.getElementById("btn-toggle-squad");
+    const toggleRight = document.getElementById("btn-toggle-right");
+    const soldierPanel = document.getElementById("soldier-panel");
+    const rightPanel = document.getElementById("right-panel");
+
+    if (toggleSquad && soldierPanel) {
+      toggleSquad.addEventListener("click", () => {
+        soldierPanel.classList.toggle("active");
+        if (rightPanel) rightPanel.classList.remove("active");
+      });
+    }
+
+    if (toggleRight && rightPanel) {
+      toggleRight.addEventListener("click", () => {
+        rightPanel.classList.toggle("active");
+        if (soldierPanel) soldierPanel.classList.remove("active");
+      });
+    }
+
+    // Close drawers when clicking the game area
+    const gameContainer = document.getElementById("game-container");
+    if (gameContainer) {
+      gameContainer.addEventListener("click", () => {
+        if (window.innerWidth < 768) {
+          if (soldierPanel) soldierPanel.classList.remove("active");
+          if (rightPanel) rightPanel.classList.remove("active");
+        }
+      });
+    }
   }
 
   private showMainMenu() {
     this.context.campaignShell.hide();
+    this.mainMenuScreen.show();
     this.context.screenManager.show("main-menu");
   }
 
   private onShellTabChange(tabId: CampaignTabId) {
+    this.mainMenuScreen.hide();
+
+    const hasCampaign = !!this.context.campaignManager.getState();
+    const isCustomFlow =
+      !hasCampaign && this.missionSetupManager.currentCampaignNode === null;
+
     switch (tabId) {
+      case "setup":
+        this.context.missionSetupScreen.show();
+        this.context.screenManager.show("mission-setup");
+        break;
       case "sector-map":
         this.campaignScreen.show();
         this.context.screenManager.show("campaign", true, true);
@@ -418,16 +584,31 @@ export class GameApp {
         this.context.screenManager.show("barracks", true, true);
         break;
       case "engineering":
-        // Not implemented
+        this.engineeringScreen.show();
+        this.context.screenManager.show("engineering", true, hasCampaign);
         break;
       case "stats":
         this.statisticsScreen.show();
         this.context.screenManager.show("statistics", true, false);
         break;
+      case "settings":
+        this.settingsScreen.show();
+        this.context.screenManager.show(
+          "settings",
+          true,
+          hasCampaign || isCustomFlow,
+        );
+        break;
     }
 
-    const state = this.context.campaignManager.getState();
-    const mode: CampaignShellMode = state ? "campaign" : "statistics";
+    let mode: CampaignShellMode = hasCampaign ? "campaign" : "statistics";
+    if (
+      isCustomFlow &&
+      (tabId === "setup" || tabId === "settings" || tabId === "stats")
+    ) {
+      mode = "custom";
+    }
+
     this.context.campaignShell.show(mode, tabId);
   }
 
@@ -444,6 +625,10 @@ export class GameApp {
     id: ScreenId,
     isCampaign: boolean = false,
   ) {
+    if (id !== "main-menu") {
+      this.mainMenuScreen.hide();
+    }
+
     switch (id) {
       case "campaign": {
         this.applyCampaignTheme();
@@ -476,13 +661,27 @@ export class GameApp {
         const rehydrated = isCampaign
           ? this.missionSetupManager.rehydrateCampaignNode()
           : false;
+
+        // If in campaign, redirect mission-setup to equipment
+        if (rehydrated && isCampaign) {
+          this.applyCampaignTheme();
+          this.missionSetupManager.loadAndApplyConfig(true);
+          this.equipmentScreen.updateConfig(
+            this.missionSetupManager.currentSquad,
+          );
+          this.context.screenManager.show("equipment", true, true);
+          this.context.campaignShell.show("campaign", "sector-map", false);
+          break;
+        }
+
         this.missionSetupManager.loadAndApplyConfig(rehydrated);
         if (rehydrated) {
           this.applyCampaignTheme();
           this.context.campaignShell.show("campaign", "sector-map", false);
         } else {
-          this.context.campaignShell.show("custom");
+          this.context.campaignShell.show("custom", "setup");
         }
+        this.missionSetupScreen.show();
         break;
       }
       case "equipment":
@@ -493,7 +692,7 @@ export class GameApp {
         if (isCampaign || this.missionSetupManager.currentCampaignNode) {
           this.context.campaignShell.show("campaign", "sector-map", false);
         } else {
-          this.context.campaignShell.show("custom");
+          this.context.campaignShell.show("custom", "setup");
         }
         break;
       case "barracks":
@@ -503,14 +702,36 @@ export class GameApp {
         break;
       case "statistics":
         this.statisticsScreen.show();
-        this.context.campaignShell.show("statistics", "stats");
+        if (
+          !isCampaign &&
+          this.missionSetupManager.currentCampaignNode === null &&
+          !this.context.campaignManager.getState()
+        ) {
+          this.context.campaignShell.show("custom", "stats");
+        } else {
+          this.context.campaignShell.show("statistics", "stats");
+        }
+        break;
+      case "engineering":
+        this.engineeringScreen.show();
+        if (isCampaign || this.context.campaignManager.getState()) {
+          this.context.campaignShell.show("campaign", "engineering");
+        } else {
+          this.context.campaignShell.show("statistics", "engineering");
+        }
         break;
       case "settings":
         this.settingsScreen.show();
-        if (isCampaign) {
-          this.context.campaignShell.show("campaign", "sector-map", false);
+        const state = this.context.campaignManager.getState();
+        if (state) {
+          this.context.campaignShell.show("campaign", "settings");
+        } else if (
+          !isCampaign &&
+          this.missionSetupManager.currentCampaignNode === null
+        ) {
+          this.context.campaignShell.show("custom", "settings");
         } else {
-          this.context.campaignShell.hide();
+          this.context.campaignShell.show("global", "settings", false);
         }
         break;
       case "mission":
@@ -531,6 +752,7 @@ export class GameApp {
     this.context.gameClient.stop();
     this.context.inputManager.destroy();
     this.inputBinder.unbindAll();
+    this.context.screenManager.destroy();
   }
 
   // --- Logic copied from main.ts ---
@@ -631,8 +853,14 @@ export class GameApp {
     this.campaignFlowCoordinator.onCampaignNodeSelected(
       node,
       () => this.campaignScreen.show(),
-      (n, size, spawnPoints) =>
-        this.missionSetupManager.prepareMissionSetup(n, size, spawnPoints),
+      (n, size, spawnPoints) => {
+        this.missionSetupManager.prepareMissionSetup(n, size, spawnPoints);
+        this.equipmentScreen.updateConfig(
+          this.missionSetupManager.currentSquad,
+        );
+        this.context.screenManager.show("equipment", true, true);
+        this.context.campaignShell.show("campaign", "sector-map", false);
+      },
     );
   }
 
@@ -679,6 +907,112 @@ export class GameApp {
       gameSpeedValue.textContent = TimeUtility.formatSpeed(lastSpeed, isPaused);
     if (gameSpeedSlider)
       gameSpeedSlider.value = TimeUtility.scaleToSlider(lastSpeed).toString();
+  }
+
+  private cycleUnits(reverse: boolean = false) {
+    if (!this.currentGameState) return;
+    const aliveUnits = this.currentGameState.units.filter(
+      (u) => u.state !== UnitState.Dead && u.state !== UnitState.Extracted,
+    );
+    if (aliveUnits.length === 0) return;
+
+    if (!this.selectedUnitId) {
+      this.selectedUnitId = aliveUnits[0].id;
+    } else {
+      const currentIndex = aliveUnits.findIndex(
+        (u) => u.id === this.selectedUnitId,
+      );
+      let nextIndex;
+      if (reverse) {
+        nextIndex = (currentIndex - 1 + aliveUnits.length) % aliveUnits.length;
+      } else {
+        nextIndex = (currentIndex + 1) % aliveUnits.length;
+      }
+      this.selectedUnitId = aliveUnits[nextIndex].id;
+    }
+    this.updateUI(this.currentGameState);
+    if (this.selectedUnitId) {
+      this.centerOnUnit(this.selectedUnitId);
+    }
+  }
+
+  private centerOnUnit(unitId: string) {
+    if (!this.currentGameState) return;
+    const unit = this.currentGameState.units.find((u) => u.id === unitId);
+    if (!unit) return;
+
+    const container = document.getElementById("game-container");
+    if (!container) return;
+
+    const cellSize = 128; // Standard cell size
+    const targetX = unit.pos.x * cellSize;
+    const targetY = unit.pos.y * cellSize;
+
+    container.scrollTo({
+      left: targetX - container.clientWidth / 2,
+      top: targetY - container.clientHeight / 2,
+      behavior: "smooth",
+    });
+  }
+
+  private panMap(direction: string) {
+    const container = document.getElementById("game-container");
+    if (!container) return;
+    const panAmount = 100;
+    switch (direction) {
+      case "ArrowUp":
+        container.scrollTop -= panAmount;
+        break;
+      case "ArrowDown":
+        container.scrollTop += panAmount;
+        break;
+      case "ArrowLeft":
+        container.scrollLeft -= panAmount;
+        break;
+      case "ArrowRight":
+        container.scrollLeft += panAmount;
+        break;
+    }
+  }
+
+  private panMapBy(dx: number, dy: number) {
+    const container = document.getElementById("game-container");
+    if (!container) return;
+    container.scrollLeft += dx;
+    container.scrollTop += dy;
+  }
+
+  private zoomMap(ratio: number, centerX: number, centerY: number) {
+    if (!this.context.renderer) return;
+    const container = document.getElementById("game-container");
+    if (!container) return;
+
+    const oldCellSize = this.context.renderer.cellSize;
+    const newCellSize = Math.max(32, Math.min(512, oldCellSize * ratio));
+
+    if (newCellSize === oldCellSize) return;
+
+    // To keep the zoom centered, we need to adjust scroll position
+    // (scroll + center) / oldSize = (newScroll + center) / newSize
+    const rect = container.getBoundingClientRect();
+    const localCX = centerX - rect.left;
+    const localCY = centerY - rect.top;
+
+    const scrollX = container.scrollLeft;
+    const scrollY = container.scrollTop;
+
+    const actualRatio = newCellSize / oldCellSize;
+
+    this.context.renderer.setCellSize(newCellSize);
+    if (this.currentGameState) {
+      this.context.renderer.render(this.currentGameState);
+    }
+
+    // We must wait for the next frame or update immediately if renderer resizes canvas synchronously
+    // In our GameRenderer.render, it resizes canvas on next render call.
+    // However, for smooth zooming, we should probably force a resize or calculate expected size.
+    container.scrollLeft = (scrollX + localCX) * actualRatio - localCX;
+    container.scrollTop = (scrollY + localCY) * actualRatio - localCY;
   }
 
   private onUnitClick(unit: Unit, shiftHeld: boolean = false) {

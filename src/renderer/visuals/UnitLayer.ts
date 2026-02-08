@@ -26,7 +26,11 @@ export class UnitLayer implements RenderLayer {
     const cellSize = this.sharedState.cellSize;
 
     state.units.forEach((unit, index) => {
-      if (unit.state === UnitState.Extracted || unit.state === UnitState.Dead)
+      if (
+        unit.state === UnitState.Extracted ||
+        unit.state === UnitState.Dead ||
+        unit.isDeployed === false
+      )
         return;
 
       const x = unit.pos.x * cellSize;

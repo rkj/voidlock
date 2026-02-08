@@ -139,7 +139,7 @@ describe("Manual Deployment Phase", () => {
     const state = engine.getState();
     expect(state.status).toBe("Playing");
 
-    engine.update(100);
-    expect(engine.getState().t).toBe(100);
+    engine.update(112);
+    expect(engine.getState().t).toBe(112);
   });
 });

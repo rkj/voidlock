@@ -21,6 +21,7 @@ describe("HUDManager", () => {
     settings: {
       mode: "Simulation" as any,
       debugOverlayEnabled: false,
+      debugSnapshots: false,
       losOverlayEnabled: false,
       timeScale: 1.0,
       isPaused: false,
@@ -206,9 +207,7 @@ describe("HUDManager", () => {
     expect(objectivesDiv?.innerHTML).not.toContain("(Completed)");
     expect(objectivesDiv?.innerHTML).not.toContain("at (5,5)");
 
-    const icons = objectivesDiv?.querySelectorAll(
-      "span[style*='font-weight:bold']",
-    );
+    const icons = objectivesDiv?.querySelectorAll(".obj-icon");
     expect(icons?.[0].getAttribute("title")).toBe("Pending");
     expect(icons?.[1].getAttribute("title")).toBe("Completed");
   });

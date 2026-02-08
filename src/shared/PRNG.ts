@@ -5,6 +5,14 @@ export class PRNG {
     this.seed = seed;
   }
 
+  public getSeed(): number {
+    return this.seed;
+  }
+
+  public setSeed(seed: number): void {
+    this.seed = seed;
+  }
+
   // Simple LCG
   public next(): number {
     this.seed = (this.seed * 1664525 + 1013904223) % 4294967296;

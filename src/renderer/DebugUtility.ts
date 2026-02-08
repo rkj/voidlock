@@ -1,5 +1,6 @@
 import { GameState, ReplayData } from "@src/shared/types";
 import { ModalService } from "./ui/ModalService";
+import { Logger } from "@src/shared/Logger";
 
 /**
  * Utility for debug-related actions.
@@ -55,9 +56,9 @@ export class DebugUtility {
     error: unknown,
     modalService: ModalService,
   ): Promise<void> {
-    console.error("Failed to copy state to clipboard:", error);
-    console.log("Full World State JSON:");
-    console.log(json);
+    Logger.error("Failed to copy state to clipboard:", error);
+    Logger.info("Full World State JSON:");
+    Logger.info(json);
     await modalService.alert(
       "Failed to copy to clipboard. See console for JSON.",
     );

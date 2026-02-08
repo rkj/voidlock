@@ -18,6 +18,7 @@ describe("ConfigManager - unitStyle", () => {
 
   it("should persist and load unitStyle via loadGlobal", () => {
     ConfigManager.saveGlobal({
+      ...ConfigManager.loadGlobal(),
       unitStyle: UnitStyle.Sprites,
       themeId: "industrial",
     });

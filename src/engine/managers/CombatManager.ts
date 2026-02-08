@@ -179,7 +179,7 @@ export class CombatManager {
     }
 
     if (
-      !attacker.lastAttackTime ||
+      attacker.lastAttackTime === undefined ||
       state.t - attacker.lastAttackTime >= stats.fireRate
     ) {
       if (this.los.hasLineOfFire(attacker.pos, target.pos)) {
@@ -201,7 +201,18 @@ export class CombatManager {
           }
         }
 
-        attacker.lastAttackTime = state.t;
+        // Maintain steady cadence by adding fireRate to lastAttackTime
+        // If it's the first shot, we set it such that next shot is due in fireRate ms
+        if (attacker.lastAttackTime === undefined) {
+          attacker.lastAttackTime = state.t;
+        } else {
+          attacker.lastAttackTime += stats.fireRate;
+          // Safeguard: if we are too far behind (e.g. after a long pause or lag),
+          // reset to current t to avoid "machine gun" catch-up.
+          if (state.t - attacker.lastAttackTime > stats.fireRate * 2) {
+            attacker.lastAttackTime = state.t;
+          }
+        }
         attacker.lastAttackTarget = { ...target.pos };
 
         // Emit Attack Event for feedback systems

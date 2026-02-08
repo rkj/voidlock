@@ -46,6 +46,11 @@ vi.mock("@src/renderer/ThemeManager", () => ({
     getInstance: vi.fn().mockReturnValue({
       init: vi.fn().mockResolvedValue(undefined),
       setTheme: vi.fn(),
+      getAssetUrl: vi.fn().mockReturnValue("mock-url"),
+      getColor: vi.fn().mockReturnValue("#000"),
+      getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
+      getCurrentThemeId: vi.fn().mockReturnValue("default"),
+      applyTheme: vi.fn(),
     }),
   },
 }));
@@ -172,6 +177,7 @@ describe("Equipment Back Bug Reproduction", () => {
       <div id="screen-campaign-shell" class="screen flex-col" style="display:none">
           <div id="campaign-shell-top-bar"></div>
           <div id="campaign-shell-content" class="flex-grow relative overflow-hidden">
+              <div id="screen-engineering" class="screen" style="display:none"></div>
               <div id="screen-campaign" class="screen" style="display:none"></div>
               <div id="screen-barracks" class="screen" style="display:none"></div>
               <div id="screen-equipment" class="screen" style="display:none"></div>
@@ -229,16 +235,7 @@ describe("Equipment Back Bug Reproduction", () => {
     if (!node) throw new Error("Node not found");
     node.click();
 
-    // Verify we are in mission setup and shell is visible
-    expect(document.getElementById("screen-mission-setup")?.style.display).toBe(
-      "flex",
-    );
-    expect(
-      document.getElementById("screen-campaign-shell")?.style.display,
-    ).toBe("flex");
-
-    // 4. Click Equipment & Supplies
-    document.getElementById("btn-goto-equipment")?.click();
+    // Verify we are in equipment and shell is visible (skipping Mission Setup)
     expect(document.getElementById("screen-equipment")?.style.display).toBe(
       "flex",
     );
@@ -246,15 +243,15 @@ describe("Equipment Back Bug Reproduction", () => {
       document.getElementById("screen-campaign-shell")?.style.display,
     ).toBe("flex");
 
-    // 5. Click Back in Equipment screen
-    const backBtn = document.querySelector(
-      "#screen-equipment .back-button",
-    ) as HTMLElement;
+    // 4. Click Back in Equipment screen
+    const backBtn = Array.from(
+      document.querySelectorAll("#screen-equipment button"),
+    ).find((b) => b.textContent === "Back") as HTMLElement;
     expect(backBtn).toBeTruthy();
     backBtn.click();
 
-    // Verify we are back in mission setup
-    expect(document.getElementById("screen-mission-setup")?.style.display).toBe(
+    // Verify we are back in campaign screen
+    expect(document.getElementById("screen-campaign")?.style.display).toBe(
       "flex",
     );
 

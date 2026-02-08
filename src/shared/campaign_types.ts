@@ -135,6 +135,7 @@ export interface MissionReport {
  */
 export interface CampaignState {
   version: string;
+  saveVersion: number;
   seed: number;
   status: "Active" | "Victory" | "Defeat";
   rules: GameRules;
@@ -146,6 +147,7 @@ export interface CampaignState {
   roster: CampaignSoldier[];
   history: MissionReport[];
   unlockedArchetypes: string[];
+  unlockedItems: string[];
 }
 
 /**
@@ -172,6 +174,9 @@ export interface MetaStats {
   totalMissionsPlayed: number;
   totalMissionsWon: number;
   totalScrapEarned: number;
+  currentIntel: number;
+  unlockedArchetypes: string[];
+  unlockedItems: string[];
 }
 
 /**

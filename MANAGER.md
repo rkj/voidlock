@@ -88,11 +88,11 @@ run_shell_command("./scripts/dispatch_agent.sh <TASK_ID>")
    - **Full Verification**: Redirect output: `npx vitest run > <temp_dir>/test.log 2>&1`.
    - **Check for failure**: `grep "FAIL" <temp_dir>/test.log`. If it exists, read only the failing parts.
    - _Check_: **CRITICAL**: All changes MUST be confirmed by tests first. Sub-agents are required to write/update tests before or alongside implementation.
-1. **Verify (Visual)**: If the task touched UI, CSS, or Layout:
-   - **YOU MUST** navigate to the **specific screen and state** modified. A screenshot of the Main Menu is **NOT** verification.
-   - **Interactive Validation**: Use `click`, `fill`, and `evaluate_script` to reach the feature. If fixing a bug, you must reproduce the state (e.g., scroll down, open modal) before capturing the screenshot.
-   - **DO NOT TRUST** JSDOM tests for layout/scrolling. Look at the image.
-   - _🚨 Regression Rule_: If browser validation discovers a problem that automated tests missed, the sub-agent MUST be re-dispatched with an instruction to FIRST write a failing test for the issue, then fix it.
+1. **Verify (Visual/E2E)**: If the task touched UI, CSS, Layout, or **Input/Navigation**:
+   - **MANDATORY E2E**: You **MUST** run or create a Puppeteer E2E test (`tests/e2e/`) that exercises the user flow (e.g., "Press Down Arrow -> Focus moves to button").
+   - **Browser Check**: If automated E2E is not possible, you **MUST** use the `navigate_page` tool to manually visit the page and inspect the state.
+   - **JSDOM BAN**: **Do NOT** accept JSDOM tests (`vitest` without puppeteer) for verification of layout, scrolling, focus trapping, or complex keyboard navigation. JSDOM does not render pixels or handle focus correctly.
+   - _🚨 Regression Rule_: If browser validation discovers a problem that automated tests missed, the sub-agent MUST be re-dispatched with an instruction to FIRST write a failing E2E test for the issue, then fix it.
 1. **Build**: Run `npm run build`.
    - _Check_: Ensure the project compiles without TypeScript errors.
 1. **Lint**: Run static analysis to check for errors.

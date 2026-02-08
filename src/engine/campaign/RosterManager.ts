@@ -12,9 +12,12 @@ import { RosterUtils } from "./RosterUtils";
 export class RosterManager {
   /**
    * Generates the initial roster of soldiers for a new campaign.
+   * @param unlockedArchetypes Optional list of available archetypes. Defaults to DEFAULT_ARCHETYPES.
    */
-  public generateInitialRoster(): CampaignSoldier[] {
-    const archetypes = [...DEFAULT_ARCHETYPES];
+  public generateInitialRoster(
+    unlockedArchetypes?: string[],
+  ): CampaignSoldier[] {
+    const archetypes = unlockedArchetypes || [...DEFAULT_ARCHETYPES];
     const roster: CampaignSoldier[] = [];
 
     for (let i = 0; i < CAMPAIGN_DEFAULTS.INITIAL_ROSTER_SIZE; i++) {
@@ -55,6 +58,10 @@ export class RosterManager {
     const COST = 100;
     if (state.scrap < COST) {
       throw new Error("Insufficient scrap to recruit soldier.");
+    }
+
+    if (!state.unlockedArchetypes.includes(archetypeId)) {
+      throw new Error(`Archetype ${archetypeId} is not unlocked.`);
     }
 
     const arch = ArchetypeLibrary[archetypeId];

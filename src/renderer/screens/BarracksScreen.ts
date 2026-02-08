@@ -1,8 +1,10 @@
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
-import { ArchetypeLibrary } from "@src/shared/types";
+import { ArchetypeLibrary, InputPriority } from "@src/shared/types";
 import { SoldierInspector } from "@src/renderer/ui/SoldierInspector";
 import { ModalService } from "@src/renderer/ui/ModalService";
 import { SoldierWidget } from "@src/renderer/ui/SoldierWidget";
+import { InputDispatcher } from "../InputDispatcher";
+import { UIUtils } from "../utils/UIUtils";
 
 export class BarracksScreen {
   private container: HTMLElement;
@@ -40,10 +42,60 @@ export class BarracksScreen {
   public show() {
     this.container.style.display = "flex";
     this.render();
+    this.pushInputContext();
   }
 
   public hide() {
     this.container.style.display = "none";
+    InputDispatcher.getInstance().popContext("barracks");
+  }
+
+  private pushInputContext() {
+    InputDispatcher.getInstance().pushContext({
+      id: "barracks",
+      priority: InputPriority.UI,
+      trapsFocus: true,
+      container: this.container,
+      handleKeyDown: (e) => this.handleKeyDown(e),
+      getShortcuts: () => [
+        {
+          key: "Arrows",
+          label: "Navigate",
+          description: "Move selection",
+          category: "Navigation",
+        },
+        {
+          key: "Enter",
+          label: "Select",
+          description: "Activate button",
+          category: "Navigation",
+        },
+        {
+          key: "ESC",
+          label: "Back",
+          description: "Return to sector map",
+          category: "Navigation",
+        },
+      ],
+    });
+  }
+
+  private handleKeyDown(e: KeyboardEvent): boolean {
+    if (
+      e.key === "ArrowDown" ||
+      e.key === "ArrowUp" ||
+      e.key === "ArrowLeft" ||
+      e.key === "ArrowRight"
+    ) {
+      return UIUtils.handleArrowNavigation(e, this.container);
+    }
+    if (e.key === "Escape") {
+      if (this.onBack) {
+        this.onBack();
+        return true;
+      }
+    }
+    return false;
   }
 
   private render() {
@@ -57,7 +109,8 @@ export class BarracksScreen {
 
     // Main Content Wrapper (Flex Row for panels)
     const contentWrapper = document.createElement("div");
-    contentWrapper.className = "flex-row flex-grow p-20 gap-20";
+    contentWrapper.className =
+      "flex-row flex-grow p-20 gap-20 barracks-main-content";
     contentWrapper.style.overflow = "hidden";
     contentWrapper.style.minHeight = "0"; // Crucial for nested flex scrolling
 
@@ -175,10 +228,14 @@ export class BarracksScreen {
 
     const nameInfo = document.createElement("div");
     nameInfo.className = "flex-row align-center gap-10";
+    const archName =
+      ArchetypeLibrary[soldier.archetypeId]?.name ||
+      soldier.archetypeId ||
+      "Unknown";
     nameInfo.innerHTML = `
       <div class="flex-col">
         <h3 style="margin:0; font-size:1.5em; color:var(--color-accent);">${soldier.name}</h3>
-        <div style="color:var(--color-text-muted);">${ArchetypeLibrary[soldier.archetypeId]?.name} Rank ${soldier.level}</div>
+        <div style="color:var(--color-text-muted);">${archName} Rank ${soldier.level}</div>
       </div>
     `;
 
@@ -324,20 +381,10 @@ export class BarracksScreen {
       const arch = ArchetypeLibrary[archId];
       if (!arch) return;
 
-      const card = document.createElement("div");
-      card.className = "card";
-      card.style.padding = "10px";
-      card.style.marginBottom = "10px";
-
-      card.innerHTML = `
-        <div class="flex-row justify-between align-center">
-          <strong style="color:var(--color-primary); font-size:1em;">${arch.name}</strong>
-          <span style="color:var(--color-text); font-weight:bold; font-size:0.9em;">100 Scrap</span>
-        </div>
-        <div style="font-size:0.75em; color:var(--color-text-muted); margin-top:4px;">
-          HP: ${arch.baseHp} | Aim: ${arch.soldierAim} | Spd: ${arch.speed}
-        </div>
-      `;
+      const card = SoldierWidget.render(arch, {
+        context: "squad-builder",
+        price: "100 Scrap",
+      });
 
       const recruitBtn = document.createElement("button");
       recruitBtn.textContent = "Recruit";

@@ -50,6 +50,7 @@ describe("HUDManager Threat Meter Snap Regression", () => {
         timeScale: 1,
         allowTacticalPause: true,
         debugOverlayEnabled: false,
+        debugSnapshots: false,
       },
       units: [],
       enemies: [],

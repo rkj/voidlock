@@ -18,6 +18,7 @@ import {
 import { IDirector } from "../../interfaces/IDirector";
 import { MathUtils } from "../../../shared/utils/MathUtils";
 import { MOVEMENT } from "../../config/GameConstants";
+import { Logger } from "../../../shared/Logger";
 
 export class ObjectiveBehavior implements Behavior {
   public evaluate(
@@ -194,7 +195,7 @@ export class ObjectiveBehavior implements Behavior {
         return !assignedUnitId || assignedUnitId === currentUnit.id;
       });
       if (pendingObjectives.length > 0) {
-        console.log(
+        Logger.debug(
           `ObjectiveBehavior: found ${pendingObjectives.length} pending objectives`,
         );
         let bestObj: { obj: Objective; dist: number } | null = null;

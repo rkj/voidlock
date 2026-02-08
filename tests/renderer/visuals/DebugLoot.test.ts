@@ -39,6 +39,7 @@ describe("DebugLoot Rendering", () => {
       discoveredCells: [],
       settings: {
         debugOverlayEnabled: false,
+        debugSnapshots: false,
       } as any,
     });
 
@@ -55,6 +56,7 @@ describe("DebugLoot Rendering", () => {
       discoveredCells: [],
       settings: {
         debugOverlayEnabled: true,
+        debugSnapshots: false,
       } as any,
     });
 
@@ -73,6 +75,7 @@ describe("DebugLoot Rendering", () => {
       discoveredCells: [],
       settings: {
         debugOverlayEnabled: false,
+        debugSnapshots: false,
       } as any,
     });
 
@@ -91,6 +94,7 @@ describe("DebugLoot Rendering", () => {
       discoveredCells: ["2,2"],
       settings: {
         debugOverlayEnabled: false,
+        debugSnapshots: false,
       } as any,
     });
 
@@ -115,6 +119,7 @@ describe("DebugLoot Rendering", () => {
       ],
       settings: {
         debugOverlayEnabled: false,
+        debugSnapshots: false,
       } as any,
     });
 
@@ -137,6 +142,7 @@ describe("DebugLoot Rendering", () => {
       ],
       settings: {
         debugOverlayEnabled: true,
+        debugSnapshots: false,
       } as any,
     });
 

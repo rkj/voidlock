@@ -78,13 +78,13 @@ describe("CoreEngine Door Sync", () => {
     });
 
     // Run update to trigger "Opening" logic (timer start)
-    engine.update(100);
+    engine.update(16);
     let door = (engine as any).doors.get("door1");
     expect(door.targetState).toBe("Open");
     expect(door.openTimer).toBe(500);
 
-    // Run update to complete timer
-    engine.update(600);
+    // Run update to complete timer (32 * 16 = 512ms)
+    engine.update(512);
     door = (engine as any).doors.get("door1");
     expect(door.state).toBe("Open");
 
@@ -138,13 +138,13 @@ describe("CoreEngine Door Sync", () => {
     expect(boundary?.type).toBe(BoundaryType.Open);
 
     // Update to trigger Close logic (starts timer)
-    engine.update(100);
+    engine.update(16);
     let door = (engine as any).doors.get("door1");
     expect(door.targetState).toBe("Closed");
     expect(door.openTimer).toBe(500);
 
-    // Update to complete timer
-    engine.update(600);
+    // Update to complete timer (32 * 16 = 512ms)
+    engine.update(512);
     door = (engine as any).doors.get("door1");
     expect(door.state).toBe("Closed");
 

@@ -79,16 +79,12 @@ describe("GameClient Regression zzjz (Pause/Speed Leak)", () => {
     expect(client.getTargetScale()).toBe(1.0);
 
     // 4. Verify messages sent to worker
-    // It should send INIT, and then ideally 1.0 scale
+    // It should send INIT with the correct initialTimeScale
     const initCall = postMessageMock.mock.calls.find(
       (c) => c[0].type === "INIT",
     );
-    const scaleCall = postMessageMock.mock.calls.find(
-      (c) => c[0].type === "SET_TIME_SCALE",
-    );
 
     expect(initCall).toBeDefined();
-    expect(scaleCall).toBeDefined();
-    expect(scaleCall![0].payload).toBe(1.0);
+    expect(initCall![0].payload.initialTimeScale).toBe(1.0);
   });
 });

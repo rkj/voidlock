@@ -51,6 +51,7 @@ describe("MenuController Intersection Discovery", () => {
     settings: {
       mode: "Simulation" as any,
       debugOverlayEnabled: false,
+      debugSnapshots: false,
       losOverlayEnabled: false,
       timeScale: 1,
       isPaused: false,

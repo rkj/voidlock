@@ -45,6 +45,11 @@ vi.mock("@src/renderer/ThemeManager", () => ({
     getInstance: vi.fn().mockReturnValue({
       init: vi.fn().mockResolvedValue(undefined),
       setTheme: vi.fn(),
+      getAssetUrl: vi.fn().mockReturnValue("mock-url"),
+      getColor: vi.fn().mockReturnValue("#000"),
+      getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
+      getCurrentThemeId: vi.fn().mockReturnValue("default"),
+      applyTheme: vi.fn(),
     }),
   },
 }));
@@ -173,6 +178,7 @@ describe("Mission Setup Shell Visibility (voidlock-awkx)", () => {
       <div id="screen-campaign-shell" class="screen flex-col" style="display:none">
           <div id="campaign-shell-top-bar"></div>
           <div id="campaign-shell-content" class="flex-grow relative overflow-hidden">
+              <div id="screen-engineering" class="screen" style="display:none"></div>
               <div id="screen-campaign" class="screen" style="display:none"></div>
               <div id="screen-barracks" class="screen" style="display:none"></div>
               <div id="screen-equipment" class="screen" style="display:none"></div>
@@ -257,8 +263,9 @@ describe("Mission Setup Shell Visibility (voidlock-awkx)", () => {
     if (!nodeEl) throw new Error("Accessible node not found");
     nodeEl.click();
 
-    // 4. Verify we are on Mission Setup
-    expect(missionSetup?.style.display).toBe("flex");
+    // 4. Verify we are on Equipment screen (skipping Mission Setup)
+    const equipment = document.getElementById("screen-equipment");
+    expect(equipment?.style.display).toBe("flex");
 
     // 5. Verify Shell is still visible
     expect(shell?.style.display).toBe("flex");

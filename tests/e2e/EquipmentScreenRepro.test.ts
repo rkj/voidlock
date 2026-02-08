@@ -31,6 +31,7 @@ describe("Equipment Screen Layout Clipping Repro", () => {
         spawnPointCount: 5,
         fogOfWarEnabled: true,
         debugOverlayEnabled: false,
+        debugSnapshots: false,
         losOverlayEnabled: false,
         agentControlEnabled: true,
         allowTacticalPause: true,

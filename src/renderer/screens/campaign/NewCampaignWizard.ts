@@ -142,6 +142,7 @@ export class NewCampaignWizard {
       card.style.background = "rgba(255, 255, 255, 0.05)";
       card.style.cursor = "pointer";
       card.style.transition = "all 0.2s ease";
+      card.tabIndex = 0; // Make focusable
 
       const title = document.createElement("h3");
       title.textContent = diff.name;
@@ -168,7 +169,7 @@ export class NewCampaignWizard {
         title.style.color = "var(--color-primary)";
       }
 
-      card.onclick = () => {
+      const selectCard = () => {
         this.selectedDifficulty = diff.id;
         cards.forEach((c) => {
           c.classList.remove("selected");
@@ -202,6 +203,15 @@ export class NewCampaignWizard {
           ) {
             pauseCheck.checked = true;
           }
+        }
+      };
+
+      card.onclick = selectCard;
+      card.onkeydown = (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          selectCard();
+          e.preventDefault();
+          e.stopPropagation();
         }
       };
 
@@ -247,6 +257,7 @@ export class NewCampaignWizard {
     advancedToggle.textContent = this.isAdvancedShown
       ? "Hide Advanced Settings ▲"
       : "Show Advanced Settings ▼";
+    advancedToggle.className = "text-button"; // Added class for easier styling if needed
     advancedToggle.style.background = "none";
     advancedToggle.style.border = "none";
     advancedToggle.style.color = "var(--color-text-dim)";
@@ -254,19 +265,29 @@ export class NewCampaignWizard {
     advancedToggle.style.cursor = "pointer";
     advancedToggle.style.textAlign = "left";
     advancedToggle.style.padding = "0";
+    advancedToggle.tabIndex = 0;
 
     const advancedContent = document.createElement("div");
     advancedContent.className = "flex-col gap-15";
     advancedContent.style.display = this.isAdvancedShown ? "flex" : "none";
     advancedContent.style.marginTop = "10px";
 
-    advancedToggle.onclick = () => {
+    const toggleAdvanced = () => {
       this.isAdvancedShown = !this.isAdvancedShown;
       const isHidden = !this.isAdvancedShown;
       advancedContent.style.display = isHidden ? "none" : "flex";
       advancedToggle.textContent = isHidden
         ? "Show Advanced Settings ▼"
         : "Hide Advanced Settings ▲";
+    };
+
+    advancedToggle.onclick = toggleAdvanced;
+    advancedToggle.onkeydown = (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        toggleAdvanced();
+        e.preventDefault();
+        e.stopPropagation();
+      }
     };
 
     // Custom Seed
@@ -388,8 +409,7 @@ export class NewCampaignWizard {
       ConfigManager.clearCampaign();
       const currentGlobal = ConfigManager.loadGlobal();
       ConfigManager.saveGlobal({
-        unitStyle: currentGlobal.unitStyle,
-        themeId: currentGlobal.themeId,
+        ...currentGlobal,
       });
 
       const overrides: CampaignOverrides = {

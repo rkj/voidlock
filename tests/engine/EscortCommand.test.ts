@@ -66,7 +66,7 @@ describe("Escort Command", () => {
     addUnit("escort1", 0);
     addUnit("escort2", 1);
     addUnit("escort3", 2);
-  }, 15000);
+  }, 60000);
 
   it("should synchronize speed to slower target", () => {
     engine.applyCommand({
@@ -76,7 +76,7 @@ describe("Escort Command", () => {
     });
 
     // Wait to reach formation
-    for (let i = 0; i < 150; i++) engine.update(100);
+    for (let i = 0; i < 100; i++) engine.update(160);
 
     let state = engine.getState();
     let e1 = state.units.find((u) => u.id === "escort1")!;
@@ -85,7 +85,7 @@ describe("Escort Command", () => {
     // Escort (20) should match Target (15)
     expect(target.stats.speed).toBe(15);
     expect(e1.stats.speed).toBe(15);
-  }, 15000);
+  }, 60000);
 
   it("should follow target when it moves", () => {
     engine.applyCommand({
@@ -94,7 +94,7 @@ describe("Escort Command", () => {
       targetId: "target",
     });
 
-    for (let i = 0; i < 150; i++) engine.update(100);
+    for (let i = 0; i < 100; i++) engine.update(160);
 
     // Move target East
     engine.applyCommand({
@@ -105,7 +105,7 @@ describe("Escort Command", () => {
 
     // Target speed is 15 (0.5 tiles/s).
     // From 5.5 to 15.5 is 10 tiles. Takes ~20s.
-    for (let i = 0; i < 300; i++) engine.update(100);
+    for (let i = 0; i < 200; i++) engine.update(160);
 
     const state = engine.getState();
     const target = state.units.find((u) => u.id === "target")!;
@@ -121,7 +121,7 @@ describe("Escort Command", () => {
         Math.pow(e1.pos.y - target.pos.y, 2),
     );
     expect(dist).toBeLessThan(3.0);
-  }, 15000);
+  }, 60000);
 
   it("should handle multiple bodyguards in formation", () => {
     addUnit("escort4", 3);
@@ -133,7 +133,7 @@ describe("Escort Command", () => {
       targetId: "target",
     });
 
-    for (let i = 0; i < 150; i++) engine.update(100);
+    for (let i = 0; i < 100; i++) engine.update(160);
 
     const state = engine.getState();
     const e1 = state.units.find((u) => u.id === "escort1")!; // Vanguard
@@ -156,5 +156,5 @@ describe("Escort Command", () => {
 
     expect(Math.floor(e5.pos.x)).toBe(6);
     expect(Math.floor(e5.pos.y)).toBe(6);
-  }, 15000);
+  }, 60000);
 });

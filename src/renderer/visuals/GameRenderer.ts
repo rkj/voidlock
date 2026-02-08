@@ -40,6 +40,10 @@ export class GameRenderer {
     ];
   }
 
+  public get cellSize(): number {
+    return this.sharedState.cellSize;
+  }
+
   public setCellSize(size: number) {
     this.sharedState.cellSize = size;
   }

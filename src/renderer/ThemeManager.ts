@@ -1,4 +1,5 @@
 import { ThemeConfig } from "@src/shared/types";
+import { Logger } from "@src/shared/Logger";
 
 export class ThemeManager {
   private static instance: ThemeManager;
@@ -29,7 +30,7 @@ export class ThemeManager {
       }
       this.assets = await response.json();
     } catch (error) {
-      console.error("ThemeManager: Failed to load assets.json", error);
+      Logger.error("ThemeManager: Failed to load assets.json", error);
     }
   }
 

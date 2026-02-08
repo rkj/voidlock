@@ -14,8 +14,6 @@ vi.mock("@package.json", () => ({
 const mockGameClient = {
   init: vi.fn(),
   onStateUpdate: vi.fn(),
-  addStateUpdateListener: vi.fn(),
-  removeStateUpdateListener: vi.fn(),
   stop: vi.fn(),
   getIsPaused: vi.fn().mockReturnValue(false),
   getTargetScale: vi.fn().mockReturnValue(1.0),
@@ -23,10 +21,8 @@ const mockGameClient = {
   togglePause: vi.fn(),
   toggleDebugOverlay: vi.fn(),
   toggleLosOverlay: vi.fn(),
-  getReplayData: vi.fn().mockReturnValue({ seed: 123, commandLog: [] }),
-  forceWin: vi.fn(),
-  forceLose: vi.fn(),
-  loadReplay: vi.fn(),
+  addStateUpdateListener: vi.fn(),
+  removeStateUpdateListener: vi.fn(),
 };
 
 vi.mock("@src/engine/GameClient", () => ({
@@ -43,33 +39,58 @@ vi.mock("@src/renderer/Renderer", () => ({
   })),
 }));
 
-vi.mock("@src/renderer/ThemeManager", () => ({
-  ThemeManager: {
-    getInstance: vi.fn().mockReturnValue({
-      init: vi.fn().mockResolvedValue(undefined),
-      setTheme: vi.fn(),
-    }),
-  },
-}));
-
-const mockModalService = {
-  alert: vi.fn().mockResolvedValue(undefined),
-  confirm: vi.fn().mockResolvedValue(true),
-  show: vi.fn().mockResolvedValue(undefined),
-};
-
-vi.mock("@src/renderer/ui/ModalService", () => ({
-  ModalService: vi.fn().mockImplementation(() => mockModalService),
-}));
-
 describe("regression_voidlock_4eeb_loot_spawning", () => {
-  let storage: MockStorageProvider;
   let app: GameApp;
 
   beforeEach(async () => {
-    storage = new MockStorageProvider();
-    CampaignManager.resetInstance();
-    CampaignManager.getInstance(storage);
+    // Reset CampaignManager singleton
+    (CampaignManager as any).instance = null;
+    CampaignManager.getInstance(new MockStorageProvider());
+
+    // Set up minimal DOM with all required screen containers
+    document.body.innerHTML = `
+      <div id="screen-main-menu">
+        <button id="btn-menu-campaign">Campaign</button>
+      </div>
+      <div id="screen-campaign-shell">
+          <div id="campaign-shell-top-bar"></div>
+          <div id="campaign-shell-content">
+              <div id="screen-campaign"></div>
+              <div id="screen-barracks"></div>
+              <div id="screen-equipment"></div>
+              <div id="screen-statistics"></div>
+              <div id="screen-settings"></div>
+              <div id="screen-engineering"></div>
+          </div>
+      </div>
+      <div id="screen-mission-setup">
+        <div id="unit-style-preview"></div>
+        <div id="mission-setup-context"></div>
+        <div id="map-config-section">
+            <input id="map-seed" />
+            <input id="map-width" />
+            <input id="map-height" />
+            <input id="map-spawn-points" />
+            <span id="map-spawn-points-value"></span>
+            <input id="map-base-enemies" />
+            <input id="map-enemy-growth" />
+            <input id="map-starting-threat" />
+        </div>
+        <div id="squad-builder"></div>
+        <button id="btn-goto-equipment">Equipment</button>
+      </div>
+      <div id="screen-equipment">
+        <button>Confirm Squad</button>
+      </div>
+      <div id="screen-mission">
+        <div id="top-bar"></div>
+        <div id="soldier-list"></div>
+        <canvas id="game-canvas"></canvas>
+        <div id="right-panel"></div>
+      </div>
+      <div id="screen-debrief"></div>
+      <div id="screen-campaign-summary"></div>
+    `;
 
     // Mock ResizeObserver
     global.ResizeObserver = vi.fn().mockImplementation(() => ({
@@ -77,52 +98,6 @@ describe("regression_voidlock_4eeb_loot_spawning", () => {
       unobserve: vi.fn(),
       disconnect: vi.fn(),
     }));
-
-    // Mock getContext for canvas
-    HTMLCanvasElement.prototype.getContext = vi.fn().mockReturnValue({
-      clearRect: vi.fn(),
-      beginPath: vi.fn(),
-      moveTo: vi.fn(),
-      lineTo: vi.fn(),
-      stroke: vi.fn(),
-      setLineDash: vi.fn(),
-    }) as any;
-
-    // Set up minimal DOM
-    document.body.innerHTML = `
-      <div id="screen-main-menu">
-        <button id="btn-menu-campaign">Campaign</button>
-      </div>
-      <div id="screen-campaign-shell">
-          <div id="screen-campaign"></div>
-          <div id="screen-barracks"></div>
-          <div id="screen-equipment"></div>
-          <div id="screen-statistics"></div>
-          <div id="screen-settings"></div>
-          <div id="campaign-shell-top-bar"></div>
-      </div>
-      <div id="screen-mission-setup">
-        <div id="unit-style-preview"></div>
-        <input id="map-seed" />
-        <input id="map-width" />
-        <input id="map-height" />
-        <input id="map-spawn-points" />
-        <span id="map-spawn-points-value"></span>
-        <input id="map-base-enemies" />
-        <input id="map-enemy-growth" />
-        <input id="map-starting-threat" />
-        <div id="squad-builder"></div>
-        <button id="btn-goto-equipment">Equipment</button>
-      </div>
-      <div id="screen-equipment">
-        <button>Confirm</button>
-      </div>
-      <div id="screen-mission">
-        <canvas id="game-canvas"></canvas>
-      </div>
-      <div id="screen-debrief"></div>
-      <div id="screen-campaign-summary"></div>
-    `;
 
     app = new GameApp();
     await app.initialize();
@@ -133,69 +108,41 @@ describe("regression_voidlock_4eeb_loot_spawning", () => {
   });
 
   it("should pass bonusLootCount to GameClient.init during campaign mission launch", async () => {
-    // 1. Start a campaign
     const cm = CampaignManager.getInstance();
     cm.startNewCampaign(123, "Simulation");
     const state = cm.getState()!;
 
-    // Force bonusLootCount on the first node
-    const accessibleNode = state.nodes.find((n) => n.status === "Accessible")!;
-    accessibleNode.bonusLootCount = 3;
+    // Set bonusLootCount on the accessible node
+    const node = state.nodes.find(
+      (n) =>
+        n.status === "Accessible" &&
+        (n.type === "Combat" || n.type === "Elite" || n.type === "Boss"),
+    )!;
+    node.bonusLootCount = 5;
     cm.save();
 
-    // 2. Launch mission
-    app.start();
+    // 1. Enter Campaign
     document.getElementById("btn-menu-campaign")?.click();
 
-    // Select the node
+    // 2. Select the node
     const nodeEl = document.querySelector(
-      `.campaign-node[data-id="${accessibleNode.id}"]`,
+      ".campaign-node[data-id='" + node.id + "']",
     ) as HTMLElement;
-    nodeEl?.click();
+    nodeEl.click();
 
-    // Wait for mission-setup screen
-    await new Promise((resolve) => {
-      const check = () => {
-        if (
-          document.getElementById("screen-mission-setup")?.style.display !==
-          "none"
-        ) {
-          resolve(true);
-        } else {
-          setTimeout(check, 10);
-        }
-      };
-      check();
-    });
-
-    // Click Equipment button in mission-setup
+    // 3. Go to Equipment
     document.getElementById("btn-goto-equipment")?.click();
 
-    // Wait for equipment screen
-    await new Promise((resolve) => {
-      const check = () => {
-        if (
-          document.getElementById("screen-equipment")?.style.display !== "none"
-        ) {
-          resolve(true);
-        } else {
-          setTimeout(check, 10);
-        }
-      };
-      check();
-    });
-
-    // Confirm equipment to launch
+    // 4. Confirm Squad and launch
     const confirmBtn = Array.from(
       document.querySelectorAll("#screen-equipment button"),
-    ).find((b) => b.textContent?.includes("Confirm")) as HTMLElement;
-    confirmBtn?.click();
+    ).find((btn) => btn.textContent?.includes("Confirm")) as HTMLElement;
+    confirmBtn.click();
 
-    // 3. Verify GameClient.init was called with bonusLootCount = 3
+    // 5. Verify GameClient.init was called with bonusLootCount = 5
+    // index 25 is the 26th argument: bonusLootCount
     expect(mockGameClient.init).toHaveBeenCalled();
     const lastCall = mockGameClient.init.mock.calls[0];
-
-    // bonusLootCount is the 25th argument (index 24)
-    expect(lastCall[24]).toBe(3);
+    expect(lastCall[25]).toBe(5);
   });
 });

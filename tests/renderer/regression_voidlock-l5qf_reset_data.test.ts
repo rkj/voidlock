@@ -27,8 +27,19 @@ vi.mock("@src/renderer/ThemeManager", () => ({
     getInstance: vi.fn().mockReturnValue({
       init: vi.fn().mockResolvedValue(undefined),
       setTheme: vi.fn(),
-      getAssetUrl: vi.fn().mockReturnValue(""),
+      getAssetUrl: vi.fn().mockReturnValue("mock-url"),
+      getColor: vi.fn().mockReturnValue("#000"),
+      getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
       getCurrentThemeId: vi.fn().mockReturnValue("default"),
+      applyTheme: vi.fn(),
+    }),
+  },
+}));
+
+vi.mock("@src/renderer/visuals/AssetManager", () => ({
+  AssetManager: {
+    getInstance: vi.fn().mockReturnValue({
+      loadSprites: vi.fn(),
     }),
   },
 }));
@@ -36,11 +47,23 @@ vi.mock("@src/renderer/ThemeManager", () => ({
 const mockModalService = {
   alert: vi.fn().mockResolvedValue(undefined),
   confirm: vi.fn().mockResolvedValue(true),
-  show: vi.fn().mockResolvedValue(undefined),
+  show: vi.fn().mockResolvedValue(true),
 };
 
 vi.mock("@src/renderer/ui/ModalService", () => ({
   ModalService: vi.fn().mockImplementation(() => mockModalService),
+}));
+
+vi.mock("@src/services/firebase", () => ({
+  db: {},
+  auth: {
+    onAuthStateChanged: vi.fn((cb) => {
+      setTimeout(() => cb(null), 0);
+      return vi.fn();
+    }),
+  },
+  app: {},
+  isFirebaseConfigured: false,
 }));
 
 describe("Reset Data Button", () => {
@@ -49,39 +72,67 @@ describe("Reset Data Button", () => {
   beforeEach(async () => {
     // Reset mocks
     vi.clearAllMocks();
-    mockModalService.confirm.mockResolvedValue(true);
+    mockModalService.show.mockResolvedValue(true);
 
     // Set up DOM
     document.body.innerHTML = `
-      <div id="screen-main-menu" class="screen">
-        <button id="btn-menu-campaign">Campaign</button>
-        <button id="btn-menu-custom">Custom Mission</button>
-        <button id="btn-menu-reset">Reset Data</button>
-        <p id="menu-version"></p>
-      </div>
+      <div id="app">
+        <div id="screen-main-menu" class="screen">
+          <button id="btn-menu-campaign">Campaign</button>
+          <button id="btn-menu-custom">Custom Mission</button>
+          <button id="btn-menu-settings">Settings</button>
+          <p id="menu-version"></p>
+        </div>
 
-      <div id="screen-campaign-shell" class="screen flex-col" style="display:none">
-          <div id="campaign-shell-top-bar"></div>
-          <div id="campaign-shell-content" class="flex-grow relative overflow-hidden">
-              <div id="screen-campaign" class="screen" style="display:none"></div>
-              <div id="screen-barracks" class="screen" style="display:none"></div>
-              <div id="screen-equipment" class="screen" style="display:none"></div>
-              <div id="screen-statistics" class="screen" style="display:none"></div>
-              <div id="screen-settings" class="screen" style="display:none"></div>
-          </div>
-      </div>
+        <div id="screen-campaign-shell" class="screen flex-col" style="display:none">
+            <div id="campaign-shell-top-bar"></div>
+            <div id="campaign-shell-content" class="flex-grow relative overflow-hidden">
+                <div id="screen-campaign" class="screen" style="display:none"></div>
+                <div id="screen-barracks" class="screen" style="display:none"></div>
+                <div id="screen-equipment" class="screen" style="display:none"></div>
+                <div id="screen-statistics" class="screen" style="display:none"></div>
+                <div id="screen-engineering" class="screen" style="display:none"></div>
+                <div id="screen-settings" class="screen" style="display:none"></div>
+                <div id="screen-campaign-summary" class="screen" style="display:none"></div>
+            </div>
+        </div>
 
-      <div id="screen-mission-setup" class="screen" style="display:none">
-        <div id="unit-style-preview"></div>
-        <div id="map-config-section"></div>
-        <div id="preset-map-controls"></div>
-        <div id="squad-builder"></div>
+        <div id="screen-mission-setup" class="screen" style="display:none">
+            <select id="map-generator-type"><option value="DenseShip">Dense Ship</option></select>
+            <input type="checkbox" id="toggle-fog-of-war" />
+            <input type="checkbox" id="toggle-debug-overlay" />
+            <input type="checkbox" id="toggle-los-overlay" />
+            <input type="checkbox" id="toggle-agent-control" />
+            <input type="checkbox" id="toggle-manual-deployment" />
+            <input type="checkbox" id="toggle-allow-tactical-pause" />
+            <input type="number" id="map-seed" />
+            <input type="number" id="map-width" />
+            <input type="number" id="map-height" />
+            <input type="range" id="map-spawn-points" />
+            <span id="map-spawn-points-value"></span>
+            <input type="range" id="map-starting-threat" />
+            <span id="map-starting-threat-value"></span>
+            <input type="range" id="map-base-enemies" />
+            <span id="map-base-enemies-value"></span>
+            <input type="range" id="map-enemy-growth" />
+            <span id="map-enemy-growth-value"></span>
+            <div id="setup-global-status"></div>
+            <div id="mission-setup-context"></div>
+        </div>
+        <div id="screen-mission" class="screen" style="display:none">
+          <canvas id="game-canvas"></canvas>
+          <div id="top-threat-fill"></div>
+          <div id="top-threat-value"></div>
+          <button id="btn-pause-toggle"></button>
+          <input type="range" id="game-speed" />
+          <span id="speed-value"></span>
+          <button id="btn-give-up"></button>
+          <div id="game-status"></div>
+          <div id="soldier-list"></div>
+        </div>
+        <div id="screen-debrief" class="screen" style="display:none"></div>
       </div>
-      <div id="screen-mission" class="screen" style="display:none">
-        <canvas id="game-canvas"></canvas>
-      </div>
-      <div id="screen-debrief" class="screen" style="display:none"></div>
-      <div id="screen-campaign-summary" class="screen" style="display:none"></div>
+      <div id="modal-container"></div>
     `;
 
     // Mock window.confirm
@@ -111,31 +162,45 @@ describe("Reset Data Button", () => {
   });
 
   it("should clear localStorage and reload page when Reset Data is clicked and confirmed", async () => {
-    const resetBtn = document.getElementById("btn-menu-reset");
+    // 1. Navigate to Settings
+    document.getElementById("btn-menu-settings")?.click();
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    const settingsScreen = document.getElementById("screen-settings");
+    const allButtons = settingsScreen?.querySelectorAll("button");
+    const resetBtn = Array.from(allButtons || []).find((btn) =>
+      btn.textContent?.toLowerCase().includes("reset"),
+    );
     expect(resetBtn).toBeTruthy();
 
     resetBtn?.click();
 
-    // Wait for async ModalService.confirm
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    // Wait for async ModalService.show
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
-    expect(mockModalService.confirm).toHaveBeenCalledWith(
-      "Are you sure? This will wipe all campaign progress and settings.",
-    );
+    expect(mockModalService.show).toHaveBeenCalled();
     expect(Storage.prototype.clear).toHaveBeenCalled();
     expect(reloadMock).toHaveBeenCalled();
   });
 
   it("should do nothing when Reset Data is clicked but cancelled", async () => {
-    mockModalService.confirm.mockResolvedValue(false);
+    mockModalService.show.mockResolvedValue(false);
 
-    const resetBtn = document.getElementById("btn-menu-reset");
+    // 1. Navigate to Settings
+    document.getElementById("btn-menu-settings")?.click();
+    await new Promise((resolve) => setTimeout(resolve, 50));
+
+    const settingsScreen = document.getElementById("screen-settings");
+    const allButtons = settingsScreen?.querySelectorAll("button");
+    const resetBtn = Array.from(allButtons || []).find((btn) =>
+      btn.textContent?.toLowerCase().includes("reset"),
+    );
     resetBtn?.click();
 
-    // Wait for async ModalService.confirm
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    // Wait for async ModalService.show
+    await new Promise((resolve) => setTimeout(resolve, 50));
 
-    expect(mockModalService.confirm).toHaveBeenCalled();
+    expect(mockModalService.show).toHaveBeenCalled();
     expect(Storage.prototype.clear).not.toHaveBeenCalled();
     expect(reloadMock).not.toHaveBeenCalled();
   });

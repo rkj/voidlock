@@ -33,16 +33,17 @@ describe("Mission Replay Regression", () => {
     );
 
     // 1. Simulation Phase
-    engineSim.update(100);
+    engineSim.update(112);
     const moveCmd = {
       type: CommandType.MOVE_TO as const,
       unitIds: [engineSim.getState().units[0].id],
       target: { x: 4, y: 4 },
     };
     engineSim.applyCommand(moveCmd);
-    engineSim.update(1000); // 1 second move
+    engineSim.update(1008); // ~1 second move
 
     const finalSimState = engineSim.getState();
+    console.log("FINAL SIM STATE T:", finalSimState.t);
     const commandLog = finalSimState.commandLog || [];
 
     expect(commandLog.length).toBe(2);
@@ -65,8 +66,8 @@ describe("Mission Replay Regression", () => {
       commandLog,
     );
 
-    engineReplay.update(100); // Should trigger no command yet
-    engineReplay.update(1000); // Should trigger command and move
+    engineReplay.update(112); // Should trigger no command yet
+    engineReplay.update(1008); // Should trigger command and move
 
     const finalReplayState = engineReplay.getState();
 

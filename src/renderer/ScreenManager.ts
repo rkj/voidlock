@@ -1,5 +1,6 @@
 import { VALID_TRANSITIONS } from "@src/renderer/ScreenTransitions";
 import { SessionManager } from "@src/renderer/SessionManager";
+import { Logger } from "@src/shared/Logger";
 
 export type ScreenId =
   | "main-menu"
@@ -11,6 +12,7 @@ export type ScreenId =
   | "debrief"
   | "campaign-summary"
   | "statistics"
+  | "engineering"
   | "settings";
 
 export class ScreenManager {
@@ -33,6 +35,7 @@ export class ScreenManager {
     this.registerScreen("debrief");
     this.registerScreen("campaign-summary");
     this.registerScreen("statistics");
+    this.registerScreen("engineering");
     this.registerScreen("settings");
 
     // Force show initial screen without transition validation
@@ -41,7 +44,15 @@ export class ScreenManager {
     const el = this.screens.get("main-menu");
     if (el) el.style.display = "flex";
 
-    window.addEventListener("hashchange", () => this.syncWithUrl());
+    this.hashHandler = () => this.syncWithUrl();
+    window.addEventListener("hashchange", this.hashHandler);
+  }
+
+  private hashHandler: () => void;
+
+  public destroy() {
+    window.removeEventListener("hashchange", this.hashHandler);
+    this.history = [];
   }
 
   private registerScreen(id: ScreenId) {
@@ -49,7 +60,7 @@ export class ScreenManager {
     if (el) {
       this.screens.set(id, el);
     } else {
-      console.error(`Screen element #screen-${id} not found!`);
+      Logger.error(`Screen element #screen-${id} not found!`);
     }
   }
 
@@ -71,9 +82,7 @@ export class ScreenManager {
     // Validate transition
     const validNext = VALID_TRANSITIONS[this.currentScreen];
     if (!validNext || !validNext.includes(id)) {
-      console.error(
-        `Invalid screen transition: ${this.currentScreen} -> ${id}`,
-      );
+      Logger.error(`Invalid screen transition: ${this.currentScreen} -> ${id}`);
       return;
     }
 
@@ -101,7 +110,7 @@ export class ScreenManager {
     if (newEl) {
       newEl.style.display = "flex"; // Assuming flex layout for screens
     } else {
-      console.error(`[ScreenManager] Screen element for ${id} not found!`);
+      Logger.error(`[ScreenManager] Screen element for ${id} not found!`);
     }
 
     if (updateHash) {
@@ -124,7 +133,7 @@ export class ScreenManager {
           this.onExternalChange(hash);
         }
       } else {
-        console.warn(
+        Logger.warn(
           `External navigation to ${hash} is not a standard transition from ${this.currentScreen}`,
         );
         // Still show it because user explicitly changed URL or pressed back

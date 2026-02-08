@@ -1,6 +1,7 @@
 import { MapGeneratorType, MissionType, UnitStyle } from "@src/shared/types";
 import type { SquadConfig, SquadSoldierConfig } from "@src/shared/types";
 import { GameConfigSchema, GlobalConfigSchema } from "@src/shared/schemas";
+import { Logger } from "@src/shared/Logger";
 
 export interface GameConfig {
   mapWidth: number;
@@ -18,6 +19,7 @@ export interface GameConfig {
   baseEnemyCount: number;
   enemyGrowthPerMission: number;
   bonusLootCount: number;
+  debugSnapshotInterval: number;
   manualDeployment: boolean;
   campaignNodeId?: string;
   squadConfig: SquadConfig;
@@ -26,6 +28,11 @@ export interface GameConfig {
 export interface GlobalConfig {
   unitStyle: UnitStyle;
   themeId: string;
+  logLevel: "DEBUG" | "INFO" | "WARN" | "ERROR" | "NONE";
+  debugSnapshots: boolean;
+  debugSnapshotInterval: number;
+  debugOverlayEnabled: boolean;
+  cloudSyncEnabled: boolean;
 }
 
 const CUSTOM_STORAGE_KEY = "voidlock_custom_config";
@@ -51,14 +58,23 @@ export class ConfigManager {
     try {
       localStorage.setItem(GLOBAL_STORAGE_KEY, JSON.stringify(config));
     } catch (e) {
-      console.warn("Failed to save global configuration:", e);
+      Logger.warn("Failed to save global configuration:", e);
     }
   }
 
   public static loadGlobal(): GlobalConfig {
+    const isProd =
+      (typeof import.meta !== "undefined" && import.meta.env?.PROD) ||
+      (typeof process !== "undefined" &&
+        process.env?.NODE_ENV === "production");
     const defaultGlobal: GlobalConfig = {
       unitStyle: UnitStyle.TacticalIcons,
       themeId: "default",
+      logLevel: isProd ? "ERROR" : "INFO",
+      debugSnapshots: false,
+      debugSnapshotInterval: 0,
+      debugOverlayEnabled: false,
+      cloudSyncEnabled: false,
     };
 
     try {
@@ -78,16 +94,16 @@ export class ConfigManager {
 
   public static clearCampaign() {
     localStorage.removeItem(CAMPAIGN_STORAGE_KEY);
-    console.log(`Campaign configuration cleared from LocalStorage.`);
+    Logger.info(`Campaign configuration cleared from LocalStorage.`);
   }
 
   private static save(key: string, config: GameConfig) {
     try {
       const json = JSON.stringify(config);
       localStorage.setItem(key, json);
-      console.log(`Configuration saved to LocalStorage (${key}).`);
+      Logger.info(`Configuration saved to LocalStorage (${key}).`);
     } catch (e) {
-      console.warn(`Failed to save configuration to LocalStorage (${key}):`, e);
+      Logger.warn(`Failed to save configuration to LocalStorage (${key}):`, e);
     }
   }
 
@@ -134,7 +150,7 @@ export class ConfigManager {
 
       // If validation fails, we can still try to recover using the manual merger
       // to avoid breaking user settings on minor schema changes.
-      console.warn(
+      Logger.warn(
         `ConfigManager: Validation failed for ${key}, attempting recovery.`,
       );
       const defaults = this.getDefault();
@@ -146,7 +162,7 @@ export class ConfigManager {
       }
       return null;
     } catch (e) {
-      console.warn(
+      Logger.warn(
         `Failed to load configuration from LocalStorage (${key}):`,
         e,
       );
@@ -170,6 +186,7 @@ export class ConfigManager {
       "baseEnemyCount",
       "enemyGrowthPerMission",
       "bonusLootCount",
+      "debugSnapshotInterval",
     ];
     for (const field of numericFields) {
       const val = loaded[field];
@@ -261,6 +278,7 @@ export class ConfigManager {
       baseEnemyCount: 3,
       enemyGrowthPerMission: 1,
       bonusLootCount: 0,
+      debugSnapshotInterval: 0,
       manualDeployment: true,
       squadConfig: {
         soldiers: [{ archetypeId: "assault" }, { archetypeId: "medic" }],

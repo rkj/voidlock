@@ -144,6 +144,7 @@ describe("Unit Style Preview Regression (voidlock-g72o)", () => {
       <div id="screen-campaign-shell" class="screen flex-col">
           <div id="campaign-shell-top-bar"></div>
           <div id="campaign-shell-content" class="flex-grow relative overflow-hidden">
+              <div id="screen-engineering" class="screen" style="display:none"></div>
               <div id="screen-campaign" class="screen"></div>
               <div id="screen-barracks" class="screen"></div>
               <div id="screen-equipment" class="screen"></div>

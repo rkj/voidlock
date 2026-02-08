@@ -9,6 +9,7 @@ This directory contains the automated test suite for the Voidlock renderer, usin
 
 ## Test Suites
 
+- `controllers/ReplayController.test.ts`: Verifies replay playback logic, including progress tracking, looping, and automatic pausing at 100%.
 - `SquadBuilder.test.ts`: Verifies squad selection logic and constraints.
 - `GlobalErrorLogging.test.ts`: Verifies that global error listeners are correctly registered in main.ts.
 - `screens/CampaignScreen.test.ts`: Verifies sector map rendering and node selection.

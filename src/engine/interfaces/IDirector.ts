@@ -5,4 +5,14 @@ export interface IDirector {
   getThreatLevel(): number;
   update(dt: number): void;
   preSpawn(): void;
+  getState(): {
+    turn: number;
+    timeInCurrentTurn: number;
+    enemyIdCounter: number;
+  };
+  setState(state: {
+    turn: number;
+    timeInCurrentTurn: number;
+    enemyIdCounter: number;
+  }): void;
 }

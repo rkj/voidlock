@@ -60,6 +60,11 @@ vi.mock("@src/renderer/ThemeManager", () => ({
     getInstance: vi.fn().mockReturnValue({
       init: vi.fn().mockResolvedValue(undefined),
       setTheme: vi.fn(),
+      getAssetUrl: vi.fn().mockReturnValue("mock-url"),
+      getColor: vi.fn().mockReturnValue("#000"),
+      getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
+      getCurrentThemeId: vi.fn().mockReturnValue("default"),
+      applyTheme: vi.fn(),
     }),
   },
 }));
@@ -132,6 +137,7 @@ describe("E2E Campaign Happy Path", () => {
               <div id="screen-equipment" class="screen" style="display:none"></div>
               <div id="screen-statistics" class="screen" style="display:none"></div>
               <div id="screen-settings" class="screen" style="display:none"></div>
+              <div id="screen-engineering" class="screen" style="display:none"></div>
           </div>
       </div>
 
@@ -222,6 +228,7 @@ describe("E2E Campaign Happy Path", () => {
       settings: {
         mode: EngineMode.Simulation,
         debugOverlayEnabled: true,
+        debugSnapshots: false,
         losOverlayEnabled: false,
         timeScale: 1.0,
         isPaused: false,
@@ -288,24 +295,7 @@ describe("E2E Campaign Happy Path", () => {
         continue;
       }
 
-      // 3. Handle Mission Setup
-      expect(
-        document.getElementById("screen-mission-setup")?.style.display,
-      ).toBe("flex");
-
-      // Ensure squad is selected
-      const soldierCards = document.querySelectorAll(".soldier-card");
-      soldierCards.forEach((card) => {
-        if (
-          !card.classList.contains("selected") &&
-          !card.classList.contains("disabled")
-        ) {
-          card.dispatchEvent(new Event("dblclick"));
-        }
-      });
-
-      // Launch to Equipment
-      document.getElementById("btn-goto-equipment")?.click();
+      // 3. Handle Equipment (skipping Mission Setup)
       expect(document.getElementById("screen-equipment")?.style.display).toBe(
         "flex",
       );

@@ -42,7 +42,11 @@ export class CommandHandler {
 
           state.units = state.units.map((u) => {
             if (u.id === unit.id) {
-              return { ...u, pos: { x: cmd.target.x, y: cmd.target.y } };
+              return {
+                ...u,
+                pos: { x: cmd.target.x, y: cmd.target.y },
+                isDeployed: true,
+              };
             }
             if (targetUnit && u.id === targetUnit.id) {
               return { ...u, pos: { ...unit.pos } };
@@ -55,6 +59,9 @@ export class CommandHandler {
 
       if (cmd.type === CommandType.START_MISSION) {
         state.status = "Playing";
+        // Ensure all units are marked as deployed
+        state.units = state.units.map((u) => ({ ...u, isDeployed: true }));
+
         // Auto-assign exploration if enabled (default behavior)
         const explorationUnitIds = state.units
           .filter((u) => u.archetypeId !== "vip" && u.aiEnabled !== false)

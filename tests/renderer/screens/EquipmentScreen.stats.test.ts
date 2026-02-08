@@ -20,7 +20,15 @@ describe("EquipmentScreen Stats and Tooltips", () => {
     };
 
     mockManager = {
-      getState: vi.fn().mockReturnValue(null),
+      getState: vi.fn().mockReturnValue({
+        unlockedItems: ["heavy_plate"],
+        roster: [],
+        scrap: 1000,
+        rules: { economyMode: "Open" },
+        unlockedArchetypes: ["assault", "medic", "heavy", "scout"],
+      }),
+      spendScrap: vi.fn(),
+      assignEquipment: vi.fn(),
     };
 
     onSave = vi.fn();
@@ -34,15 +42,13 @@ describe("EquipmentScreen Stats and Tooltips", () => {
       initialConfig,
       onSave,
       onBack,
+      null as any,
     );
     screen.show();
 
-    const armoryPanel = Array.from(container.querySelectorAll(".panel")).find(
-      (p) =>
-        p.querySelector(".panel-title")?.textContent === "Armory & Supplies",
-    ) as HTMLElement;
+    // With the refactor, armory items are in .armory-panel
     const armoryItems = Array.from(
-      armoryPanel.querySelectorAll(".menu-item.clickable"),
+      container.querySelectorAll(".armory-panel .menu-item.clickable"),
     );
     const pulseRifle = armoryItems.find((el) =>
       el.textContent?.includes("Pulse Rifle"),
@@ -64,15 +70,12 @@ describe("EquipmentScreen Stats and Tooltips", () => {
       initialConfig,
       onSave,
       onBack,
+      null as any,
     );
     screen.show();
 
-    const armoryPanel = Array.from(container.querySelectorAll(".panel")).find(
-      (p) =>
-        p.querySelector(".panel-title")?.textContent === "Armory & Supplies",
-    ) as HTMLElement;
     const armoryItems = Array.from(
-      armoryPanel.querySelectorAll(".menu-item.clickable"),
+      container.querySelectorAll(".armory-panel .menu-item.clickable"),
     );
     const heavyPlate = armoryItems.find((el) =>
       el.textContent?.includes("Heavy Plate Armor"),
@@ -93,16 +96,13 @@ describe("EquipmentScreen Stats and Tooltips", () => {
       initialConfig,
       onSave,
       onBack,
+      null as any,
     );
     screen.show();
 
-    const armoryPanel = Array.from(container.querySelectorAll(".panel")).find(
-      (p) =>
-        p.querySelector(".panel-title")?.textContent === "Armory & Supplies",
-    ) as HTMLElement;
     const armoryItems = Array.from(
-      armoryPanel.querySelectorAll(".menu-item.clickable"),
-    );
+      container.querySelectorAll(".armory-panel .menu-item.clickable"),
+    ) as HTMLElement[];
     const pulseRifle = armoryItems.find((el) =>
       el.textContent?.includes("Pulse Rifle"),
     ) as HTMLElement;
@@ -122,16 +122,17 @@ describe("EquipmentScreen Stats and Tooltips", () => {
       initialConfig,
       onSave,
       onBack,
+      null as any,
     );
     screen.show();
 
-    // Global supplies are in rows with class 'card'
-    const supplyRows = Array.from(container.querySelectorAll(".card")).filter(
-      (el) => el.textContent?.includes("Medkit"),
-    );
+    // Global supplies are in rows with class 'card' in .armory-panel
+    const supplyRows = Array.from(
+      container.querySelectorAll(".armory-panel .card"),
+    ).filter((el) => el.textContent?.includes("Medkit")) as HTMLElement[];
 
     expect(supplyRows.length).toBeGreaterThan(0);
-    const medkitRow = supplyRows[0] as HTMLElement;
+    const medkitRow = supplyRows[0];
     expect(medkitRow.title).toContain("Medkit");
     expect(medkitRow.title).toContain("Portable medical supplies");
   });

@@ -1,96 +1,30 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { GameApp } from "@src/renderer/app/GameApp";
-import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { AppContext } from "@src/renderer/app/AppContext";
 import { SquadBuilder } from "@src/renderer/components/SquadBuilder";
-import { MissionType } from "@src/shared/types";
-
-vi.mock("@src/renderer/campaign/CampaignManager", () => ({
-  CampaignManager: {
-    getInstance: vi.fn(() => ({
-      getState: vi.fn(),
-      load: vi.fn(),
-    })),
-  },
-}));
-
-vi.mock("@src/renderer/ConfigManager", () => ({
-  ConfigManager: {
-    getDefault: vi.fn(() => ({
-      fogOfWarEnabled: true,
-      debugOverlayOverlayEnabled: false,
-      agentControlEnabled: false,
-      mapWidth: 14,
-      mapHeight: 14,
-      lastSeed: 12345,
-      mapGeneratorType: "Procedural",
-      missionType: "Default",
-      startingThreatLevel: 0,
-      baseEnemyCount: 3,
-      enemyGrowthPerMission: 1,
-      bonusLootCount: 0,
-      manualDeployment: true,
-      allowTacticalPause: true,
-      squadConfig: { soldiers: [], inventory: {} },
-    })),
-    loadCustom: vi.fn(),
-    loadCampaign: vi.fn(),
-    loadGlobal: vi
-      .fn()
-      .mockReturnValue({ unitStyle: "Sprites", themeId: "default" }),
-    saveGlobal: vi.fn(),
-  },
-}));
+import { MissionType, SquadConfig } from "@src/shared/types";
 
 describe("Roster Sorting Regression (voidlock-l7b8)", () => {
-  let app: GameApp;
+  let context: AppContext;
   let mockCampaignManager: any;
+  let container: HTMLElement;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    document.body.innerHTML = `
-      <div id="squad-builder"></div>
-      <div id="mission-setup-context"></div>
-      <div id="map-config-section"></div>
-      <div id="map-seed"></div>
-      <div id="map-generator-type"></div>
-      <div id="map-width"></div>
-      <div id="map-height"></div>
-      <div id="map-spawn-points"></div>
-      <div id="map-spawn-points-value"></div>
-      <div id="toggle-fog-of-war"></div>
-      <div id="toggle-debug-overlay"></div>
-      <div id="toggle-los-overlay"></div>
-      <div id="toggle-agent-control"></div>
-      <div id="toggle-allow-tactical-pause"></div>
-      <div id="select-unit-style"></div>
-      <div id="mission-type"></div>
-      <button id="btn-goto-equipment"></button>
-    `;
+    document.body.innerHTML = '<div id="squad-builder"></div>';
+    container = document.getElementById("squad-builder")!;
 
-    mockCampaignManager = CampaignManager.getInstance();
-    app = new GameApp();
-    (app as any).context = {
-      campaignManager: mockCampaignManager,
-      modalService: {
-        alert: vi.fn(),
-        confirm: vi.fn(),
-        prompt: vi.fn(),
-      },
+    mockCampaignManager = {
+      getState: vi.fn(),
     };
-    (app as any).missionSetupManager.currentSquad = { soldiers: [] };
-    (app as any).missionSetupManager.currentMissionType = MissionType.Default;
 
-    (app as any).missionSetupManager.squadBuilder = new SquadBuilder(
-      "squad-builder",
-      (app as any).context,
-      (app as any).missionSetupManager.currentSquad,
-      (app as any).missionSetupManager.currentMissionType,
-      false,
-      (squad) => {
-        (app as any).missionSetupManager.currentSquad = squad;
-      },
-    );
+    context = new AppContext();
+    context.campaignManager = mockCampaignManager as any;
+    context.modalService = {
+      alert: vi.fn(),
+      confirm: vi.fn(),
+      prompt: vi.fn(),
+    } as any;
   });
 
   it("should sort roster by status: Healthy > Wounded > Dead", async () => {
@@ -130,13 +64,22 @@ describe("Roster Sorting Regression (voidlock-l7b8)", () => {
     };
     mockCampaignManager.getState.mockReturnValue(mockState);
 
-    // Accessing private for testing
-    (app as any).missionSetupManager.renderSquadBuilder(true);
+    const initialSquad: SquadConfig = { soldiers: [], inventory: {} };
+    const builder = new SquadBuilder(
+      "squad-builder",
+      context,
+      initialSquad,
+      MissionType.Default,
+      true, // isCampaign
+      vi.fn(),
+    );
+
+    builder.render();
 
     const cards = document.querySelectorAll(".soldier-card");
     expect(cards.length).toBe(3);
 
-    // Healthy should be first
+    // Healthy should be first (sorted by weight: Healthy=0, Wounded=1, Dead=2)
     expect(cards[0].textContent).toContain("Healthy Guy");
     expect(cards[0].classList.contains("dead")).toBe(false);
     expect(cards[0].classList.contains("wounded")).toBe(false);
@@ -170,15 +113,29 @@ describe("Roster Sorting Regression (voidlock-l7b8)", () => {
           equipment: {},
         },
       ],
+      rules: { difficulty: "Standard" },
+      history: [],
+      currentSector: 1,
     };
     mockCampaignManager.getState.mockReturnValue(mockState);
-    (app as any).missionSetupManager.currentSquad = {
+
+    const initialSquad: SquadConfig = {
       soldiers: [{ id: "1", name: "In Squad", archetypeId: "assault" }],
+      inventory: {},
     };
 
-    (app as any).missionSetupManager.renderSquadBuilder(true);
+    const builder = new SquadBuilder(
+      "squad-builder",
+      context,
+      initialSquad,
+      MissionType.Default,
+      true,
+      vi.fn(),
+    );
 
-    // Only cards in roster list
+    builder.render();
+
+    // Only cards in roster list (those NOT in squad)
     const rosterCards = document.querySelectorAll(".roster-list .soldier-card");
 
     const card1 = Array.from(rosterCards).find((c) =>

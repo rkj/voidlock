@@ -27,6 +27,7 @@ export class InputBinder {
     onExportReplay: () => void;
     onShowStatistics: () => void;
     onSettingsMenu: () => void;
+    onEngineeringMenu: () => void;
     onSetupBack: () => void;
     onMapGeneratorChange: (type: MapGeneratorType) => void;
     onMissionTypeChange: (type: MissionType) => void;
@@ -39,6 +40,7 @@ export class InputBinder {
     onToggleManualDeployment: (enabled: boolean) => void;
     onTogglePauseAllowed: (enabled: boolean) => void;
     onMapSizeChange: (width: number, height: number) => void;
+    onLoadReplay: (file: File) => void;
   }) {
     const { context } = this;
     // Main Menu
@@ -50,6 +52,9 @@ export class InputBinder {
     );
     this.addListener("btn-menu-statistics", "click", () =>
       callbacks.onShowStatistics(),
+    );
+    this.addListener("btn-menu-engineering", "click", () =>
+      callbacks.onEngineeringMenu(),
     );
     this.addListener("btn-menu-settings", "click", () =>
       callbacks.onSettingsMenu(),
@@ -189,6 +194,12 @@ export class InputBinder {
     this.addListener("export-replay", "click", () =>
       callbacks.onExportReplay(),
     );
+
+    this.addListener("import-replay", "change", (e: Event) => {
+      const target = e.target as HTMLInputElement;
+      const file = target.files?.[0];
+      if (file) callbacks.onLoadReplay(file);
+    });
   }
 
   private addListener(

@@ -70,10 +70,8 @@ describe("Regression a7qk - New Accuracy Formula", () => {
       speed: 0,
     } as any);
 
-    // Fire 100 shots
-    for (let i = 0; i < 100; i++) {
-      engine.update(100);
-    }
+    // Fire 100 shots (0 to 9900ms)
+    engine.update(9984);
 
     const state = engine.getState();
     const enemy = state.enemies[0];
@@ -128,10 +126,8 @@ describe("Regression a7qk - New Accuracy Formula", () => {
       speed: 0,
     } as any);
 
-    // Fire 100 shots
-    for (let i = 0; i < 100; i++) {
-      engine.update(100);
-    }
+    // Fire 100 shots (0 to 9900ms)
+    engine.update(9984);
 
     const state = engine.getState();
     const enemy = state.enemies[0];

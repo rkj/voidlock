@@ -11,6 +11,7 @@ import { PRNG } from "../../shared/PRNG";
 import { LineOfSight } from "../LineOfSight";
 import { IEnemyAI } from "./EnemyAI";
 import { MathUtils } from "../../shared/utils/MathUtils";
+import { AI } from "../config/GameConstants";
 
 export class RangedKiteAI implements IEnemyAI {
   think(
@@ -23,32 +24,64 @@ export class RangedKiteAI implements IEnemyAI {
   ): void {
     if (enemy.hp <= 0) return;
 
-    // 1. Detection
-    const visibleSoldiers = state.units.filter((u) => {
-      const d = MathUtils.getDistance(enemy.pos, u.pos);
-      const losCheck = los.hasLineOfSight(enemy.pos, u.pos);
-      return (
-        u.hp > 0 &&
-        u.state !== UnitState.Extracted &&
-        u.state !== UnitState.Dead &&
-        d <= 12 &&
-        losCheck
-      );
-    });
-
+    // 1. Stickiness: Check if current forcedTarget is still valid
     let targetSoldier: Unit | null = null;
-    let minDistance = Infinity;
+    if (
+      enemy.forcedTargetId &&
+      enemy.targetLockUntil &&
+      state.t < enemy.targetLockUntil
+    ) {
+      const sticky = state.units.find((u) => u.id === enemy.forcedTargetId);
+      if (
+        sticky &&
+        sticky.hp > 0 &&
+        sticky.state !== UnitState.Extracted &&
+        sticky.state !== UnitState.Dead
+      ) {
+        if (
+          MathUtils.getDistance(enemy.pos, sticky.pos) <= 15 &&
+          los.hasLineOfSight(enemy.pos, sticky.pos)
+        ) {
+          targetSoldier = sticky;
+        }
+      }
+    }
 
-    for (const u of visibleSoldiers) {
-      const dist = MathUtils.getDistance(enemy.pos, u.pos);
-      if (dist < minDistance) {
-        minDistance = dist;
-        targetSoldier = u;
+    // 2. Detection (if no sticky target)
+    if (!targetSoldier) {
+      const visibleSoldiers = state.units.filter((u) => {
+        const d = MathUtils.getDistance(enemy.pos, u.pos);
+        const losCheck = los.hasLineOfSight(enemy.pos, u.pos);
+        return (
+          u.hp > 0 &&
+          u.state !== UnitState.Extracted &&
+          u.state !== UnitState.Dead &&
+          d <= 12 &&
+          losCheck
+        );
+      });
+
+      let minDistance = Infinity;
+
+      for (const u of visibleSoldiers) {
+        const dist = MathUtils.getDistance(enemy.pos, u.pos);
+        if (dist < minDistance) {
+          minDistance = dist;
+          targetSoldier = u;
+        }
+      }
+
+      if (targetSoldier) {
+        enemy.forcedTargetId = targetSoldier.id;
+        enemy.targetLockUntil = state.t + AI.TARGET_LOCK_DURATION;
+      } else {
+        enemy.forcedTargetId = undefined;
+        enemy.targetLockUntil = undefined;
       }
     }
 
     if (targetSoldier) {
-      const dist = minDistance;
+      const dist = MathUtils.getDistance(enemy.pos, targetSoldier.pos);
       const optimalRange = enemy.attackRange - 1; // Try to stay at range-1
       const fleeThreshold = 3;
 
@@ -68,8 +101,6 @@ export class RangedKiteAI implements IEnemyAI {
         );
         if (fleeTarget) {
           enemy.targetPos = fleeTarget;
-          // Simple move, no path cache for fleeing to stay reactive?
-          // Or pathfind. Pathfind is safer.
           const path = pathfinder.findPath(
             { x: Math.floor(enemy.pos.x), y: Math.floor(enemy.pos.y) },
             { x: Math.floor(fleeTarget.x), y: Math.floor(fleeTarget.y) },
