@@ -93,11 +93,14 @@ describe("timeline playbook planner", () => {
           },
         ],
       },
+      {
+        allIds: ["btn-launch-mission"],
+      },
     );
     expect(normalized.actions[0].steps).toEqual(["click:#btn-launch-mission", "wait:1500ms"]);
   });
 
-  it("drops force-show object steps during normalization", () => {
+  it("canonicalizes main menu actions to root wait during normalization", () => {
     const normalized = normalizeExternalPlaybook(
       3,
       {
@@ -117,7 +120,34 @@ describe("timeline playbook planner", () => {
         ],
       },
     );
-    expect(normalized.actions[0].steps).toEqual(["noop"]);
+    expect(normalized.actions[0].steps).toEqual(["wait:500ms"]);
+  });
+
+  it("strips unknown click ids from external mission plans", () => {
+    const normalized = normalizeExternalPlaybook(
+      4,
+      {
+        startCommit: "e1",
+        endCommit: "e2",
+        screenSet: [],
+        commitCount: 2,
+      },
+      {
+        strategy: "hybrid",
+        notes: "x",
+        actions: [
+          {
+            target: "mission",
+            steps: ["click:#btn-made-up", "wait:1200ms"],
+          },
+        ],
+      },
+      {
+        allIds: ["btn-launch-mission"],
+        actionIds: ["btn-launch-mission"],
+      },
+    );
+    expect(normalized.actions[0].steps).toEqual(["wait:1200ms"]);
   });
 
   it("reuses playbook when actionable ids and targets are unchanged", () => {

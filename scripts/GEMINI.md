@@ -89,6 +89,10 @@ Notes:
 - When external execution is enabled, prompt files are written to `timeline/playbook_prompts/`.
 - If no external command is configured, prompts are generated and heuristic playbooks are used.
 - Heuristic playbooks are click-only and derived from extracted commit IDs.
+- External agent output is sanitized before use:
+- `main_menu` is canonicalized to `wait:500ms` (root capture, no click flow).
+- Unknown or risky click IDs are dropped.
+- Empty mission plans fall back to `wait:3000ms`.
 - `timeline/ui_elements.jsonl` records commit-level extracted UI elements for audit and manual tuning.
 - `timeline/commit_playbooks.jsonl` records deterministic `commit -> actions` entries consumed by capture.
 

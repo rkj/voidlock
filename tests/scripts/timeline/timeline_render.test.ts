@@ -3,6 +3,7 @@ import {
   buildFramePath,
   buildOverlayLabel,
   buildRenderCommand,
+  buildTitleDrawtextFilter,
   type TimelineFrame,
 } from "../../../scripts/timeline/render_timeline";
 
@@ -36,6 +37,16 @@ describe("timeline render helpers", () => {
     expect(cmd).toContain("ffmpeg");
     expect(cmd).toContain("-f concat");
     expect(cmd).toContain("drawtext");
+    expect(cmd).toContain("x=(w-tw)/2");
+    expect(cmd).toContain("y=h-th-30");
     expect(cmd).toContain("video/out.mp4");
+  });
+
+  it("builds bottom-centered title drawtext filter", () => {
+    const filter = buildTitleDrawtextFilter("Voidlock Development Timeline");
+    expect(filter).toContain("drawtext=text='Voidlock Development Timeline'");
+    expect(filter).toContain("x=(w-tw)/2");
+    expect(filter).toContain("y=h-th-30");
+    expect(filter).toContain("box=1");
   });
 });

@@ -46,6 +46,15 @@ function shellQuote(value: string): string {
   return `'${value.replace(/'/g, `'\\''`)}'`;
 }
 
+function escapeDrawtext(value: string): string {
+  return value.replace(/:/g, "\\:").replace(/'/g, "\\'");
+}
+
+export function buildTitleDrawtextFilter(title: string): string {
+  const escaped = escapeDrawtext(title);
+  return `drawtext=text='${escaped}':fontcolor=white:fontsize=28:x=(w-tw)/2:y=h-th-30:box=1:boxcolor=0x000000AA`;
+}
+
 function writeConcatFile(
   frames: TimelineFrame[],
   concatFilePath: string,
@@ -69,13 +78,13 @@ export function buildRenderCommand(
   opts: RenderOptions,
 ): string {
   const concatPath = "timeline/frames/frames.concat.txt";
+  const titleFilter = `${buildTitleDrawtextFilter("Voidlock Development Timeline")},format=yuv420p`;
   writeConcatFile(frames, concatPath, opts.secondsPerFrame);
-  const title = "Voidlock Development Timeline".replace(/:/g, "\\:");
   return [
     "ffmpeg -y",
     "-f concat -safe 0",
     `-i ${shellQuote(concatPath)}`,
-    `-vf "drawtext=text='${title}':fontcolor=white:fontsize=28:x=40:y=30:box=1:boxcolor=0x000000AA,format=yuv420p"`,
+    `-vf ${shellQuote(titleFilter)}`,
     `-r ${opts.fps}`,
     `-pix_fmt yuv420p ${shellQuote(outputVideoPath)}`,
   ].join(" ");
@@ -119,7 +128,7 @@ async function runCli() {
       "-i",
       "timeline/frames/frames.concat.txt",
       "-vf",
-      "drawtext=text='Voidlock Development Timeline':fontcolor=white:fontsize=28:x=40:y=30:box=1:boxcolor=0x000000AA,format=yuv420p",
+      `${buildTitleDrawtextFilter("Voidlock Development Timeline")},format=yuv420p`,
       "-r",
       "30",
       "-pix_fmt",

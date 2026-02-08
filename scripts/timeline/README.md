@@ -192,6 +192,11 @@ Heuristic mode:
 External agent mode:
 - Command must accept placeholders `{PROMPT_FILE}` and `{OUTPUT_FILE}`.
 - Expected output JSON keys: `strategy`, `notes`, `actions`.
+- External provider output is treated as a proposal and sanitized before use:
+- `main_menu` actions are canonicalized to `wait:500ms` (root capture, no click flow).
+- Unknown or risky click ids are dropped.
+- If mission actions collapse to empty, mission falls back to `wait:3000ms`.
+- The provider itself is not the browser executor; real correctness is enforced by capture-time browser checks.
 
 ### 5) `capture_timeline.ts`
 
