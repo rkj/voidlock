@@ -49,7 +49,7 @@ describe("Regression voidlock-rui6: Landmine Placement & Scaling", () => {
     });
 
     // It should be channeling now
-    engine30.update(100);
+    engine30.update(112);
     const state30 = engine30.getState().units[0];
     expect(state30.state).toBe(UnitState.Channeling);
     // 3000 * (30/30) = 3000
@@ -74,7 +74,7 @@ describe("Regression voidlock-rui6: Landmine Placement & Scaling", () => {
       target: { x: 2, y: 2 },
     });
 
-    engine15.update(100);
+    engine15.update(112);
     const state15 = engine15.getState().units[0];
     expect(state15.state).toBe(UnitState.Channeling);
     // 3000 * (30/15) = 6000
@@ -99,7 +99,7 @@ describe("Regression voidlock-rui6: Landmine Placement & Scaling", () => {
       target: { x: 2, y: 2 },
     });
 
-    engine60.update(100);
+    engine60.update(112);
     const state60 = engine60.getState().units[0];
     expect(state60.state).toBe(UnitState.Channeling);
     // 3000 * (30/60) = 1500
@@ -127,7 +127,7 @@ describe("Regression voidlock-rui6: Landmine Placement & Scaling", () => {
     });
 
     // Should be moving first
-    engine.update(100);
+    engine.update(112);
     expect(engine.getState().units[0].state).toBe(UnitState.Moving);
 
     // Wait until it reaches (2,2)
@@ -141,7 +141,7 @@ describe("Regression voidlock-rui6: Landmine Placement & Scaling", () => {
     // Wait, let's just update enough time.
     // We need multiple ticks because the path might have multiple steps
     for (let i = 0; i < 60; i++) {
-      engine.update(100);
+      engine.update(112);
     }
 
     // Now it should be channeling
@@ -150,7 +150,7 @@ describe("Regression voidlock-rui6: Landmine Placement & Scaling", () => {
     expect(Math.floor(engine.getState().units[0].pos.y)).toBe(2);
 
     // Wait for channel completion (3s base, speed 20 -> 4500ms)
-    engine.update(4500);
+    engine.update(4512);
 
     // Should be Idle now
     expect(engine.getState().units[0].state).toBe(UnitState.Idle);
@@ -178,7 +178,7 @@ describe("Regression voidlock-rui6: Landmine Placement & Scaling", () => {
     } as unknown as Enemy);
 
     // Update to trigger explosion
-    engine.update(100);
+    engine.update(112);
 
     const stateAfterExplosion = engine.getState();
     expect(stateAfterExplosion.mines.length).toBe(0);

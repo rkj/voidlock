@@ -22,6 +22,7 @@ describe("ScreenManager URL Sync", () => {
       <div id="screen-debrief" style="display: none;"></div>
       <div id="screen-campaign-summary" style="display: none;"></div>
       <div id="screen-statistics" style="display: none;"></div>
+      <div id="screen-engineering" style="display: none;"></div>
       <div id="screen-settings" style="display: none;"></div>
     `;
 

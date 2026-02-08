@@ -33,6 +33,7 @@ describe("Theme Selector", () => {
         <div id="screen-campaign-shell" class="screen">
             <div id="campaign-shell-top-bar"></div>
             <div id="campaign-shell-content">
+              <div id="screen-engineering" class="screen" style="display:none"></div>
                 <div id="screen-campaign" class="screen"></div>
                 <div id="screen-equipment" class="screen"></div>
                 <div id="screen-barracks" class="screen"></div>

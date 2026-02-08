@@ -298,10 +298,8 @@ export class CoreEngine {
       }
 
       this.isCatchingUp = true;
-      while (this.state.t < finalCatchupTick) {
-        // We use a fixed 16ms step for deterministic catch-up, but cap it at the target
-        const step = Math.min(16, finalCatchupTick - this.state.t);
-        this.update(step);
+      while (this.state.t + 16 <= finalCatchupTick) {
+        this.simulationStep(16);
       }
       this.isCatchingUp = false;
     }
@@ -504,6 +502,10 @@ export class CoreEngine {
 
     if (scaledDt === 0 && !this.isCatchingUp) return;
 
+    // Reset attack events at the start of each high-level update call.
+    // This allows events to accumulate if multiple simulation steps are run.
+    this.state.attackEvents = [];
+
     // Use an accumulator to ensure fixed simulation steps for determinism.
     // This ensures that update(32) is identical to update(16) twice.
     this.accumulator += scaledDt;
@@ -533,7 +535,6 @@ export class CoreEngine {
     this.state = {
       ...this.state,
       t: this.state.t + dt,
-      attackEvents: [], // Clear events for new tick
       stats: {
         ...this.state.stats,
         threatLevel: this.director.getThreatLevel(),
