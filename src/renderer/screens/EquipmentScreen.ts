@@ -538,7 +538,7 @@ export class EquipmentScreen {
     const basicSupplies = ["frag_grenade", "medkit", "mine"];
 
     const isUnlocked = (id: string) =>
-      basicSupplies.includes(id) || unlockedItems.includes(id);
+      !state || basicSupplies.includes(id) || unlockedItems.includes(id);
 
     const supplyItems = Object.values(ItemLibrary).filter(
       (i) => i.action && isUnlocked(i.id),
@@ -557,7 +557,7 @@ export class EquipmentScreen {
       nameGroup.innerHTML = `
         <div class="supply-item-header" style="font-weight:bold; font-size: 0.9em; width: 100%; display: flex; justify-content: space-between;">
             <span>${item.name}</span>
-            <span style="color:var(--color-primary);">${item.cost} CR</span>
+            <span style="color:var(--color-primary);">${state ? item.cost + " CR" : "FREE"}</span>
         </div>
       `;
 
