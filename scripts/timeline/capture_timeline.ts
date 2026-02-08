@@ -4,6 +4,7 @@ import net from "node:net";
 import { execFileSync, spawn, type ChildProcess } from "node:child_process";
 import { once } from "node:events";
 import puppeteer from "puppeteer";
+import sharp from "sharp";
 
 type Manifest = {
   milestones: Array<{
@@ -42,6 +43,8 @@ type NavigationMap = {
   >;
 };
 
+type CommitPlaybookActions = Record<string, string[]>;
+
 type RootProbe = {
   ok: boolean;
   reason: string;
@@ -52,6 +55,7 @@ type RootProbe = {
 type ProcessLogs = {
   stdoutTail: string[];
   stderrTail: string[];
+  readySeen: boolean;
 };
 
 type ServerState = {
@@ -129,11 +133,86 @@ export function shouldRotateServer(commitsServed: number, restartEvery: number):
   return restartEvery > 0 && commitsServed >= restartEvery;
 }
 
+export function isLikelyBlackFrame(meanRgb: number, stdevRgb: number): boolean {
+  return meanRgb <= 10 && stdevRgb <= 18;
+}
+
+export function isLikelyGameplayBlackFrame(meanRgb: number, stdevRgb: number): boolean {
+  return meanRgb <= 9 && stdevRgb <= 16;
+}
+
+export function shouldAcceptMissionCapture(ready: boolean, _dark: boolean): boolean {
+  return ready;
+}
+
+export function parseShaAllowlistContent(content: string): Set<string> {
+  return new Set(
+    content
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter((line) => line.length > 0 && !line.startsWith("#"))
+      .map((line) => line.toLowerCase()),
+  );
+}
+
+export function isAllowedByShaPrefix(sha: string, allowlist: Set<string>): boolean {
+  const lower = sha.toLowerCase();
+  for (const prefix of allowlist) {
+    if (lower.startsWith(prefix)) return true;
+  }
+  return false;
+}
+
+export function isRiskyNavigationId(id: string): boolean {
+  const lower = id.toLowerCase();
+  return (
+    lower.includes("give-up") ||
+    lower.includes("abort") ||
+    lower.includes("abandon") ||
+    lower.includes("surrender") ||
+    lower.includes("reset")
+  );
+}
+
+function shouldSkipClickStep(step: string): boolean {
+  if (!step.startsWith("click:#")) return false;
+  const id = step.slice("click:#".length);
+  return isRiskyNavigationId(id);
+}
+
+export function isMissionUiReady(signals: {
+  hasCanvas: boolean;
+  hasMissionTokens: boolean;
+  hasMissionUiStructure: boolean;
+  hasSetupTokens: boolean;
+  hasCampaignTokens: boolean;
+}): boolean {
+  // Mission is valid if gameplay canvas exists and either known mission tokens
+  // or mission-style HUD/command structure is visible.
+  // Campaign-shell tokens are a hard reject because campaign can also render canvas.
+  return (
+    signals.hasCanvas &&
+    !signals.hasCampaignTokens &&
+    (signals.hasMissionTokens || signals.hasMissionUiStructure)
+  );
+}
+
+function looksLikeMainMenuUi(signals: {
+  hasMainMenuTokens: boolean;
+  hasCanvas: boolean;
+  hasSetupTokens: boolean;
+}): boolean {
+  return signals.hasMainMenuTokens && !signals.hasCanvas && !signals.hasSetupTokens;
+}
+
 export function buildBootstrapClickOrder(actionIds: string[] = []): string[] {
   const preferred = [
     "btn-menu-custom",
+    "btn-goto-equipment",
     "btn-custom-mission",
     "btn-menu-skirmish",
+    "btn-launch-mission",
+    "btn-confirm-squad",
     "btn-start-mission",
     "btn-start",
     "btn-begin",
@@ -148,8 +227,34 @@ export function buildBootstrapClickOrder(actionIds: string[] = []): string[] {
   return selected;
 }
 
+function prioritizeTargetIds(
+  screenName: "mission" | "main_menu" | "config" | "campaign",
+  ids: string[],
+): string[] {
+  if (screenName !== "mission") return ids;
+  const exactMission = ids.filter(
+    (id) => id.toLowerCase().includes("screen-mission") && !id.toLowerCase().includes("setup"),
+  );
+  const missionLike = ids.filter(
+    (id) =>
+      id.toLowerCase().includes("mission") &&
+      !id.toLowerCase().includes("setup") &&
+      !exactMission.includes(id),
+  );
+  const rest = ids.filter((id) => !exactMission.includes(id) && !missionLike.includes(id));
+  return [...exactMission, ...missionLike, ...rest];
+}
+
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export function resolveOriginForStorage(url: string): string {
+  try {
+    return new URL(url).origin;
+  } catch {
+    return "";
+  }
 }
 
 function ensureWorktree(sha: string, baseDir: string): string {
@@ -195,6 +300,30 @@ async function waitForPort(port: number, timeoutMs = 8_000): Promise<void> {
     await new Promise((r) => setTimeout(r, 250));
   }
   throw new Error(`Timed out waiting for dev server on port ${port}`);
+}
+
+export function lineLooksReady(line: string): boolean {
+  const lower = line.toLowerCase();
+  return (
+    lower.includes("ready in") ||
+    lower.includes("local:") ||
+    lower.includes("listening on")
+  );
+}
+
+async function waitForReadySignal(
+  proc: ChildProcess,
+  logs: ProcessLogs,
+  timeoutMs = 12_000,
+): Promise<void> {
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    if (!isProcessAlive(proc)) {
+      throw new Error("Dev server process exited before readiness signal");
+    }
+    if (logs.readySeen) return;
+    await sleep(120);
+  }
 }
 
 function isProcessAlive(proc: ChildProcess): boolean {
@@ -268,15 +397,17 @@ function pidLabel(proc: ChildProcess | null | undefined): string {
 }
 
 function createProcessLogs(proc: ChildProcess, maxLines = 80): ProcessLogs {
-  const logs: ProcessLogs = { stdoutTail: [], stderrTail: [] };
+  const logs: ProcessLogs = { stdoutTail: [], stderrTail: [], readySeen: false };
   proc.stdout?.on("data", (chunk: Buffer) => {
     const lines = chunk.toString("utf-8").split("\n").map((l) => l.trim()).filter(Boolean);
     logs.stdoutTail.push(...lines);
+    if (lines.some((line) => lineLooksReady(line))) logs.readySeen = true;
     if (logs.stdoutTail.length > maxLines) logs.stdoutTail.splice(0, logs.stdoutTail.length - maxLines);
   });
   proc.stderr?.on("data", (chunk: Buffer) => {
     const lines = chunk.toString("utf-8").split("\n").map((l) => l.trim()).filter(Boolean);
     logs.stderrTail.push(...lines);
+    if (lines.some((line) => lineLooksReady(line))) logs.readySeen = true;
     if (logs.stderrTail.length > maxLines) logs.stderrTail.splice(0, logs.stderrTail.length - maxLines);
   });
   return logs;
@@ -345,6 +476,7 @@ async function captureScreensForCommit(
   playbookActions: Record<string, string[]> | null,
   postLoadWaitMs: number,
   missionCaptureWaitMs: number,
+  missionRequired: boolean,
 ): Promise<number> {
   const browser = await puppeteer.launch({
     headless: true,
@@ -353,61 +485,112 @@ async function captureScreensForCommit(
   try {
     const page = await browser.newPage();
     await page.setViewport({ width: 1920, height: 1080 });
-    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 12_000 });
-    await page.waitForSelector("body", { timeout: 4_000 });
-    await sleep(1200);
-    await assertHealthyPage(page);
-
-    const hints = navMap?.commits?.[sha]?.targets;
     const hintActionIds = navMap?.commits?.[sha]?.actionIds || [];
-    await runBootstrapFlow(page, hintActionIds, postLoadWaitMs);
-    const dynamicTargets = SCREEN_TARGETS.map((target) => {
-      const hinted = hints?.[target.screenName as keyof NonNullable<typeof hints>] || [];
-      return {
-        quadrant: target.quadrant,
-        screenName: target.screenName,
-        required: target.required,
-        ids: [...hinted, ...target.ids],
-      };
-    });
-
     let writtenCount = 0;
-    for (const target of dynamicTargets) {
-      let activated = "";
-      const steps = playbookActions?.[target.screenName] || [];
-      if (steps.length > 0) {
-        activated = await applyPlaybookSteps(page, steps);
-      }
-      if (!activated) {
-        activated = await forceShowByIds(page, target.ids);
-      }
-      if (!activated) {
-        if (target.required) {
-          throw new Error(`Required screen missing: ${target.screenName}`);
-        }
-        // eslint-disable-next-line no-console
-        console.log(`[screen-skip] optional ${target.screenName} missing for ${sha.slice(0, 7)}`);
-        continue;
-      }
-      const settleMs = target.screenName === "mission" ? missionCaptureWaitMs : 500;
-      await sleep(settleMs);
+
+    // Main menu checkpoint
+    await gotoRoot(page, url, postLoadWaitMs);
+    await captureViewport(page, screenshotPath(outDir, isoDate, "main_menu", sha));
+    writtenCount += 1;
+
+    // Config/custom mission checkpoint
+    await gotoRoot(page, url, postLoadWaitMs);
+    let configReached = await applyPlaybookTarget(
+      page,
+      playbookActions?.config || [],
+      postLoadWaitMs,
+    );
+    if (!configReached) {
+      configReached = await runTextClickFlow(page, [
+      ["custom", "mission"],
+      ["custom"],
+      ["mission", "setup"],
+      ["skirmish"],
+      ]);
+    }
+    if (configReached) {
+      await sleep(700);
       await assertHealthyPage(page);
-      const filePath = screenshotPath(outDir, isoDate, target.screenName, sha);
-      await page.screenshot({ path: filePath });
+      await captureViewport(page, screenshotPath(outDir, isoDate, "config", sha));
       writtenCount += 1;
+    } else {
+      // eslint-disable-next-line no-console
+      console.log(`[screen-skip] optional config missing for ${sha.slice(0, 7)}`);
+    }
+
+    // Campaign checkpoint
+    await gotoRoot(page, url, postLoadWaitMs);
+    let campaignReached = await applyPlaybookTarget(
+      page,
+      playbookActions?.campaign || [],
+      postLoadWaitMs,
+    );
+    if (!campaignReached) {
+      campaignReached = await runTextClickFlow(page, [["campaign"]]);
+    }
+    if (campaignReached) {
+      await sleep(700);
+      await assertHealthyPage(page);
+      await captureViewport(page, screenshotPath(outDir, isoDate, "campaign", sha));
+      writtenCount += 1;
+    } else {
+      // eslint-disable-next-line no-console
+      console.log(`[screen-skip] optional campaign missing for ${sha.slice(0, 7)}`);
+    }
+
+    // Mission checkpoint (must be initialized by click flow, not DOM force-show)
+    const missionPath = screenshotPath(outDir, isoDate, "mission", sha);
+    const missionReady = await captureMissionByClicks(
+      page,
+      url,
+      missionPath,
+      postLoadWaitMs,
+      missionCaptureWaitMs,
+      sha,
+      playbookActions?.mission || [],
+      hintActionIds,
+    );
+    if (missionReady) {
+      writtenCount += 1;
+    } else {
+      if (missionRequired) {
+        throw new Error(`Required mission capture missing for ${sha.slice(0, 7)}`);
+      }
+      // eslint-disable-next-line no-console
+      console.log(`[screen-skip] optional mission missing for ${sha.slice(0, 7)}`);
     }
     if (writtenCount === 0) {
-      await assertHealthyPage(page);
-      const fallbackPath = screenshotPath(outDir, isoDate, "mission", sha);
-      await page.screenshot({ path: fallbackPath });
+      await gotoRoot(page, url, postLoadWaitMs);
+      const fallbackPath = screenshotPath(outDir, isoDate, "main_menu", sha);
+      await captureViewport(page, fallbackPath);
       // eslint-disable-next-line no-console
-      console.log(`[screen-fallback] captured full page as mission for ${sha.slice(0, 7)}`);
+      console.log(`[screen-fallback] captured full page as main_menu for ${sha.slice(0, 7)}`);
       return 1;
     }
     return writtenCount;
   } finally {
     await browser.close();
   }
+}
+
+async function isScreenshotLikelyBlack(filePath: string): Promise<boolean> {
+  const image = sharp(filePath);
+  const metadata = await image.metadata();
+  const width = metadata.width || 0;
+  const height = metadata.height || 0;
+  const fullStats = await image.stats();
+  const fullMean = fullStats.channels.slice(0, 3).reduce((acc, ch) => acc + ch.mean, 0) / 3;
+  const fullStdev = fullStats.channels.slice(0, 3).reduce((acc, ch) => acc + ch.stdev, 0) / 3;
+  const fullBlack = isLikelyBlackFrame(fullMean, fullStdev);
+  if (width <= 0 || height <= 0) return fullBlack;
+  const gameplayWidth = Math.max(1, Math.floor(width * 0.72));
+  const gameplayStats = await sharp(filePath)
+    .extract({ left: 0, top: 0, width: gameplayWidth, height })
+    .stats();
+  const gameplayMean = gameplayStats.channels.slice(0, 3).reduce((acc, ch) => acc + ch.mean, 0) / 3;
+  const gameplayStdev = gameplayStats.channels.slice(0, 3).reduce((acc, ch) => acc + ch.stdev, 0) / 3;
+  const gameplayBlack = isLikelyGameplayBlackFrame(gameplayMean, gameplayStdev);
+  return fullBlack || gameplayBlack;
 }
 
 async function captureMilestone(
@@ -423,6 +606,7 @@ async function captureMilestone(
     serverState: ServerState;
     postLoadWaitMs: number;
     missionCaptureWaitMs: number;
+    missionRequired: boolean;
   },
 ): Promise<{ usedSha?: string; reason?: string; attempts: number; logs?: ProcessLogs }> {
   const commit = milestone.sourceCommit;
@@ -464,7 +648,10 @@ async function captureMilestone(
     try {
       const devServer = opts.serverState.proc as ChildProcess;
       const procLogs = opts.serverState.logs as ProcessLogs;
-      await waitForPort(port, opts.startupTimeoutMs);
+      await Promise.all([
+        waitForPort(port, opts.startupTimeoutMs),
+        waitForReadySignal(devServer, procLogs, opts.startupTimeoutMs),
+      ]);
       const readiness = await waitForHealthyRoot(port, devServer, opts.startupTimeoutMs);
       if (!readiness.ok) {
         throw new Error(readiness.reason);
@@ -478,6 +665,7 @@ async function captureMilestone(
         opts.playbookActions,
         opts.postLoadWaitMs,
         opts.missionCaptureWaitMs,
+        opts.missionRequired,
       );
       if (captured === 0) {
         throw new Error("No screenshots captured for this commit");
@@ -522,22 +710,28 @@ async function runCli() {
     readNamedArg(argv, ["--navigation-map"]) || argv[4] || "timeline/navigation_map.json";
   const playbookPath =
     readNamedArg(argv, ["--playbooks"]) || argv[5] || "timeline/navigation_playbooks.json";
+  const commitPlaybooksPath =
+    readNamedArg(argv, ["--commit-playbooks-jsonl"]) || "timeline/commit_playbooks.jsonl";
   const worktreeBase = path.resolve(
     readNamedArg(argv, ["--worktree-base"]) || ".timeline/worktrees",
   );
   const startupTimeoutMs = Number(
-    readNamedArg(argv, ["--startup-timeout-ms"]) || 12_000,
+    readNamedArg(argv, ["--startup-timeout-ms"]) || 30_000,
   );
   const maxConsecutiveFailures = Number(
     readNamedArg(argv, ["--max-consecutive-failures"]) || 3,
   );
-  const restartEvery = Number(readNamedArg(argv, ["--restart-every"]) || 100);
+  const restartEvery = Number(readNamedArg(argv, ["--restart-every"]) || 1);
   const postLoadWaitMs = Number(readNamedArg(argv, ["--post-load-wait-ms"]) || 3000);
   const missionCaptureWaitMs = Number(
     readNamedArg(argv, ["--mission-capture-wait-ms"]) || 3000,
   );
   const debugLogPath =
     readNamedArg(argv, ["--debug-log"]) || "timeline/capture_debug.json";
+  const missionAllowlistPath =
+    readNamedArg(argv, ["--mission-allowlist"]) || "timeline/mission_allowlist.txt";
+  const missionRequiredDefault =
+    (readNamedArg(argv, ["--mission-required"]) || "true").toLowerCase() !== "false";
 
   fs.mkdirSync(screenshotDir, { recursive: true });
   fs.mkdirSync("timeline", { recursive: true });
@@ -550,6 +744,14 @@ async function runCli() {
     fs.existsSync(playbookPath) && fs.statSync(playbookPath).isFile()
       ? (JSON.parse(fs.readFileSync(playbookPath, "utf-8")) as PlaybookDoc)
       : null;
+  const commitPlaybooks =
+    fs.existsSync(commitPlaybooksPath) && fs.statSync(commitPlaybooksPath).isFile()
+      ? parseCommitPlaybookJsonlContent(fs.readFileSync(commitPlaybooksPath, "utf-8"))
+      : new Map<string, CommitPlaybookActions>();
+  const missionAllowlist =
+    fs.existsSync(missionAllowlistPath) && fs.statSync(missionAllowlistPath).isFile()
+      ? parseShaAllowlistContent(fs.readFileSync(missionAllowlistPath, "utf-8"))
+      : new Set<string>();
   fs.mkdirSync(worktreeBase, { recursive: true });
 
   const effectiveMax = maxCount > 0 ? maxCount : manifest.milestones.length;
@@ -588,6 +790,7 @@ async function runCli() {
         milestone.sourceCommit,
         commitIndex,
         playbooks,
+        commitPlaybooks,
       );
       const result = await captureMilestone(milestone, {
         basePort,
@@ -600,6 +803,9 @@ async function runCli() {
         serverState,
         postLoadWaitMs,
         missionCaptureWaitMs,
+        missionRequired:
+          missionRequiredDefault &&
+          !isAllowedByShaPrefix(milestone.sourceCommit, missionAllowlist),
       });
       if (result.usedSha) {
         milestone.actualCommitUsed = result.usedSha;
@@ -689,6 +895,244 @@ async function runBootstrapFlow(
   }
 }
 
+async function gotoRoot(
+  page: import("puppeteer").Page,
+  url: string,
+  postLoadWaitMs: number,
+): Promise<void> {
+  await clearBrowserStateForUrl(page, url);
+  await page.goto(url, { waitUntil: "domcontentloaded", timeout: 12_000 });
+  await page.waitForSelector("body", { timeout: 4_000 });
+  await sleep(postLoadWaitMs > 0 ? postLoadWaitMs : 1000);
+  await assertHealthyPage(page);
+}
+
+async function clearBrowserStateForUrl(
+  page: import("puppeteer").Page,
+  url: string,
+): Promise<void> {
+  const origin = resolveOriginForStorage(url);
+  if (!origin) return;
+  try {
+    const client = await page.target().createCDPSession();
+    await client.send("Storage.clearDataForOrigin", {
+      origin,
+      storageTypes: "all",
+    });
+    await client.detach();
+  } catch {
+    // best-effort fallback for older Chromium/CDP variants
+    try {
+      await page.goto(url, { waitUntil: "domcontentloaded", timeout: 8_000 });
+      await page.evaluate(() => {
+        localStorage.clear();
+        sessionStorage.clear();
+      });
+    } catch {
+      // ignore; capture flow will validate readiness and fail loudly if state is bad
+    }
+  }
+}
+
+async function captureViewport(page: import("puppeteer").Page, filePath: string): Promise<void> {
+  await page.screenshot({ path: filePath });
+}
+
+async function runTextClickFlow(
+  page: import("puppeteer").Page,
+  steps: string[][],
+): Promise<boolean> {
+  let clickedAny = false;
+  for (const terms of steps) {
+    const clicked = await clickByText(page, terms);
+    if (clicked) {
+      clickedAny = true;
+      await sleep(550);
+    }
+  }
+  return clickedAny;
+}
+
+async function captureMissionByClicks(
+  page: import("puppeteer").Page,
+  url: string,
+  missionPath: string,
+  postLoadWaitMs: number,
+  missionCaptureWaitMs: number,
+  sha: string,
+  playbookMissionSteps: string[],
+  hintActionIds: string[],
+): Promise<boolean> {
+  const tempMissionPath = `${missionPath}.tmp`;
+  const publishMission = () => {
+    if (fs.existsSync(tempMissionPath)) fs.renameSync(tempMissionPath, missionPath);
+  };
+  const clearMissionArtifacts = () => {
+    if (fs.existsSync(tempMissionPath)) fs.unlinkSync(tempMissionPath);
+    if (fs.existsSync(missionPath)) fs.unlinkSync(missionPath);
+  };
+  if (playbookMissionSteps.length > 0) {
+    await gotoRoot(page, url, postLoadWaitMs);
+    const reached = await applyPlaybookTarget(page, playbookMissionSteps, postLoadWaitMs);
+    if (reached) {
+      await sleep(missionCaptureWaitMs);
+      await assertHealthyPage(page);
+      await captureViewport(page, tempMissionPath);
+      const dark = await isScreenshotLikelyBlack(tempMissionPath);
+      const ready = await detectMissionReadyUi(page);
+      if (shouldAcceptMissionCapture(ready, dark)) {
+        publishMission();
+        return true;
+      }
+      // eslint-disable-next-line no-console
+      console.log(`[mission-retry] ${sha.slice(0, 7)} mission not ready after playbook path`);
+    }
+  }
+
+  const missionFlows: string[][][] = [
+    [["custom", "mission"], ["equipment", "supplies"], ["confirm", "squad"]],
+    [["custom", "mission"], ["confirm", "squad"]],
+    [["custom", "mission"], ["equipment", "supplies"], ["launch", "mission"]],
+    [["custom", "mission"], ["equipment", "supplies"], ["start", "mission"]],
+    [["custom", "mission"], ["launch", "mission"]],
+    [["custom", "mission"], ["start", "mission"]],
+    [["custom"], ["launch", "mission"]],
+    [["custom"], ["deploy"]],
+    [["campaign"], ["launch", "mission"]],
+  ];
+  for (let attempt = 0; attempt < missionFlows.length; attempt += 1) {
+    await gotoRoot(page, url, postLoadWaitMs);
+    await runBootstrapFlow(page, hintActionIds, 200);
+    await runTextClickFlow(page, missionFlows[attempt]);
+    await sleep(missionCaptureWaitMs);
+    await assertHealthyPage(page);
+    await captureViewport(page, tempMissionPath);
+    const dark = await isScreenshotLikelyBlack(tempMissionPath);
+    const ready = await detectMissionReadyUi(page);
+    if (shouldAcceptMissionCapture(ready, dark)) {
+      publishMission();
+      return true;
+    }
+    // eslint-disable-next-line no-console
+    console.log(`[mission-retry] ${sha.slice(0, 7)} mission not ready (retry ${attempt + 1}/${missionFlows.length})`);
+  }
+  clearMissionArtifacts();
+  return false;
+}
+
+async function detectMissionReadyUi(page: import("puppeteer").Page): Promise<boolean> {
+  const signals = await page.evaluate(() => {
+    const visibleTextNodes = Array.from(document.querySelectorAll<HTMLElement>("body, h1, h2, h3, button, label, #game-status"))
+      .filter((el) => {
+        const style = window.getComputedStyle(el);
+        const rect = el.getBoundingClientRect();
+        return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
+      })
+      .map((el) => (el.textContent || "").toLowerCase())
+      .join("\n");
+    const hasCanvas = Array.from(document.querySelectorAll("canvas")).some((c) => {
+      const el = c as HTMLElement;
+      const style = window.getComputedStyle(el);
+      const rect = el.getBoundingClientRect();
+      return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
+    });
+    const missionTokens = [
+      "mission control",
+      "objectives",
+      "threat",
+      "give up",
+      "abort mission",
+      "time:",
+      "status:",
+      "commands",
+      "move (m)",
+    ];
+    const setupTokens = [
+      "mission configuration",
+      "squad selection",
+      "equipment & supplies",
+      "generator type",
+      "map seed",
+    ];
+    const campaignTokens = [
+      "sector map",
+      "scrap:",
+      "intel:",
+      "barracks",
+      "back to menu",
+    ];
+    const hasMissionUiStructure =
+      !!document.getElementById("right-panel") ||
+      !!document.getElementById("top-bar") ||
+      !!document.getElementById("mission-body") ||
+      !!document.getElementById("soldier-panel");
+
+    return {
+      hasCanvas,
+      hasMissionTokens: missionTokens.some((token) => visibleTextNodes.includes(token)),
+      hasMissionUiStructure,
+      hasSetupTokens: setupTokens.some((token) => visibleTextNodes.includes(token)),
+      hasCampaignTokens: campaignTokens.some((token) => visibleTextNodes.includes(token)),
+    };
+  });
+  return isMissionUiReady(signals);
+}
+
+async function detectMainMenuUi(page: import("puppeteer").Page): Promise<boolean> {
+  const signals = await page.evaluate(() => {
+    const visibleTextNodes = Array.from(
+      document.querySelectorAll<HTMLElement>("body, h1, h2, h3, button, label"),
+    )
+      .filter((el) => {
+        const style = window.getComputedStyle(el);
+        const rect = el.getBoundingClientRect();
+        return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
+      })
+      .map((el) => (el.textContent || "").toLowerCase())
+      .join("\n");
+    const hasCanvas = Array.from(document.querySelectorAll("canvas")).some((c) => {
+      const el = c as HTMLElement;
+      const style = window.getComputedStyle(el);
+      const rect = el.getBoundingClientRect();
+      return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
+    });
+    const mainMenuTokens = ["custom mission", "campaign", "load replay"];
+    const setupTokens = ["mission configuration", "generator type", "squad selection"];
+    return {
+      hasMainMenuTokens: mainMenuTokens.some((token) => visibleTextNodes.includes(token)),
+      hasCanvas,
+      hasSetupTokens: setupTokens.some((token) => visibleTextNodes.includes(token)),
+    };
+  });
+  return looksLikeMainMenuUi(signals);
+}
+
+async function applyPlaybookTarget(
+  page: import("puppeteer").Page,
+  steps: string[],
+  postLoadWaitMs: number,
+): Promise<boolean> {
+  if (steps.length === 0) return false;
+  let clicked = false;
+  for (const step of steps) {
+    if (typeof step !== "string") continue;
+    if (step === "noop") continue;
+    if (step.startsWith("wait:")) {
+      const n = Number(step.replace(/[^\d]/g, ""));
+      await sleep(Number.isFinite(n) && n > 0 ? n : postLoadWaitMs);
+      continue;
+    }
+    if (step.startsWith("click:#")) {
+      if (shouldSkipClickStep(step)) continue;
+      const selector = `#${step.slice("click:#".length)}`;
+      const ok = await clickIfPresent(page, selector);
+      if (ok) clicked = true;
+      continue;
+    }
+  }
+  return clicked;
+}
+
 async function clickIfPresent(
   page: import("puppeteer").Page,
   selector: string,
@@ -696,6 +1140,7 @@ async function clickIfPresent(
   try {
     const visible = await page.$eval(selector, (el) => {
       const target = el as HTMLElement;
+      target.scrollIntoView({ block: "center", inline: "center", behavior: "auto" });
       const style = window.getComputedStyle(target);
       const rect = target.getBoundingClientRect();
       return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
@@ -712,6 +1157,14 @@ async function clickByText(
   page: import("puppeteer").Page,
   terms: string[],
 ): Promise<boolean> {
+  const loweredTerms = terms.map((term) => term.toLowerCase());
+  if (
+    loweredTerms.some((term) =>
+      ["abort", "abandon", "give up", "surrender", "reset"].some((token) => term.includes(token)),
+    )
+  ) {
+    return false;
+  }
   try {
     return await page.evaluate((needles) => {
       const lowered = needles.map((n) => n.toLowerCase());
@@ -721,6 +1174,16 @@ async function clickByText(
       for (const el of candidates) {
         const text = (el.textContent || "").trim().toLowerCase();
         if (!text) continue;
+        if (
+          text.includes("abort") ||
+          text.includes("abandon") ||
+          text.includes("give up") ||
+          text.includes("surrender") ||
+          text.includes("reset")
+        ) {
+          continue;
+        }
+        el.scrollIntoView({ block: "center", inline: "center", behavior: "auto" });
         const style = window.getComputedStyle(el);
         const rect = el.getBoundingClientRect();
         const visible =
@@ -741,11 +1204,14 @@ async function clickByText(
   }
 }
 
-function resolvePlaybookActions(
+function resolvePlaybookActionsInternal(
   commit: string,
   commitIndex: Map<string, number>,
   playbooks: PlaybookDoc | null,
+  commitPlaybooks?: Map<string, CommitPlaybookActions>,
 ): Record<string, string[]> | null {
+  const exact = commitPlaybooks?.get(commit);
+  if (exact) return exact;
   if (!playbooks) return null;
   const idx = commitIndex.get(commit);
   if (idx === undefined) return null;
@@ -755,11 +1221,54 @@ function resolvePlaybookActions(
     if (start === undefined || end === undefined) continue;
     if (idx >= start && idx <= end) {
       const map: Record<string, string[]> = {};
-      for (const action of playbook.actions) map[action.target] = action.steps;
+      for (const action of playbook.actions) {
+        const steps = (action.steps || []).filter((step) => typeof step === "string");
+        map[action.target] = steps.length > 0 ? steps : ["noop"];
+      }
       return map;
     }
   }
   return null;
+}
+
+export function parseCommitPlaybookJsonlContent(
+  content: string,
+): Map<string, CommitPlaybookActions> {
+  const result = new Map<string, CommitPlaybookActions>();
+  const lines = content.split(/\r?\n/);
+  for (const line of lines) {
+    const trimmed = line.trim();
+    if (!trimmed) continue;
+    try {
+      const row = JSON.parse(trimmed) as {
+        commit?: string;
+        actions?: Record<string, unknown>;
+      };
+      if (!row.commit || typeof row.commit !== "string") continue;
+      if (!row.actions || typeof row.actions !== "object") continue;
+      const actions: CommitPlaybookActions = {};
+      for (const [key, value] of Object.entries(row.actions)) {
+        if (Array.isArray(value) && value.every((step) => typeof step === "string")) {
+          actions[key] = value;
+        }
+      }
+      if (Object.keys(actions).length > 0) {
+        result.set(row.commit, actions);
+      }
+    } catch {
+      continue;
+    }
+  }
+  return result;
+}
+
+export function resolvePlaybookActions(
+  commit: string,
+  commitIndex: Map<string, number>,
+  playbooks: PlaybookDoc | null,
+  commitPlaybooks?: Map<string, CommitPlaybookActions>,
+): Record<string, string[]> | null {
+  return resolvePlaybookActionsInternal(commit, commitIndex, playbooks, commitPlaybooks);
 }
 
 async function forceShowByIds(

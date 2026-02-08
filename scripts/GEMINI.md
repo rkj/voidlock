@@ -33,6 +33,8 @@ Args:
 - `--mode` `all|visual` (default `all`)
 - `--max-count` `0` means all commits (default `0`)
 - `--min-hours` spacing for `visual` mode (default `8`)
+- `--sample-every` keep every Nth selected commit (default `1`)
+- `--sample-offset` start index for stride sampling (default `0`)
 
 ### 2) Navigation Analysis
 
@@ -64,7 +66,7 @@ Builds per-era navigation playbooks.
 
 Usage (heuristic):
 ```bash
-npm run timeline:playbooks -- --topology timeline/screen_topology_changes.json --navigation-map timeline/navigation_map.json --playbooks timeline/navigation_playbooks.json --provider heuristic
+npm run timeline:playbooks -- --manifest timeline/manifest.json --topology timeline/screen_topology_changes.json --navigation-map timeline/navigation_map.json --playbooks timeline/navigation_playbooks.json --commit-playbooks-jsonl timeline/commit_playbooks.jsonl --ui-elements-jsonl timeline/ui_elements.jsonl --provider heuristic
 ```
 
 Usage (LLM delegation):
@@ -75,6 +77,9 @@ npm run timeline:playbooks -- --topology timeline/screen_topology_changes.json -
 Notes:
 - When external execution is enabled, prompt files are written to `timeline/playbook_prompts/`.
 - If no external command is configured, prompts are generated and heuristic playbooks are used.
+- Heuristic playbooks are click-only and derived from extracted commit IDs.
+- `timeline/ui_elements.jsonl` records commit-level extracted UI elements for audit and manual tuning.
+- `timeline/commit_playbooks.jsonl` records deterministic `commit -> actions` entries consumed by capture.
 
 ### 5) Capture
 
@@ -90,7 +95,7 @@ Canonical quadrants:
 
 Usage:
 ```bash
-npm run timeline:capture -- --manifest timeline/manifest.json --screenshots screenshots --port 6080 --max-count 0 --navigation-map timeline/navigation_map.json --playbooks timeline/navigation_playbooks.json
+npm run timeline:capture -- --manifest timeline/manifest.json --screenshots screenshots --port 6080 --max-count 0 --navigation-map timeline/navigation_map.json --playbooks timeline/navigation_playbooks.json --commit-playbooks-jsonl timeline/commit_playbooks.jsonl
 ```
 
 Args:
@@ -100,10 +105,11 @@ Args:
 - `--max-count` `0` means all rows in manifest
 - `--navigation-map`
 - `--playbooks`
+- `--commit-playbooks-jsonl`
 - `--worktree-base` worktree directory root (default `.timeline/worktrees`)
-- `--startup-timeout-ms` startup/readiness timeout in ms (default `12000`)
+- `--startup-timeout-ms` startup/readiness timeout in ms (default `30000`)
 - `--max-consecutive-failures` abort threshold for unhealthy runs (default `3`)
-- `--restart-every` rotate dev server every N successful commits (default `100`, `0` disables cadence rotation)
+- `--restart-every` rotate dev server every N successful commits (default `1`, `0` disables cadence rotation)
 - `--post-load-wait-ms` wait before bootstrap and capture (default `3000`)
 - `--mission-capture-wait-ms` extra delay before mission screenshot (default `3000`)
 - `--debug-log` JSON diagnostic output path on abort (default `timeline/capture_debug.json`)
@@ -111,10 +117,14 @@ Args:
 Readiness protocol:
 - Start or reuse Vite for the checked-out commit.
 - Wait for port.
+- Wait for dev-server readiness signals in logs (`ready in`, `Local:`, `listening on`).
 - Probe `GET /` and require healthy HTML response.
 - Only then run Puppeteer capture from `/`.
 - Before target capture, wait and run bootstrap clicks to initialize mission flow when applicable.
-- Reuse server for speed; rotate by cadence (`--restart-every`) or on failure.
+- Mission frame capture includes a black-frame heuristic check and retries bootstrap flow if mission appears uninitialized.
+- Playbook resolution is deterministic: exact `commit_playbooks.jsonl` entry first, era playbook fallback second.
+- Default is correctness-first (`--restart-every=1`).
+- You can reuse for speed by setting higher `--restart-every`, but stale captures can occur across commit checkouts.
 - If commit fails, restart and retry once, then mark skipped.
 - If no target screen activates on a healthy page, fallback to a full-page `mission` screenshot.
 - Abort run after N consecutive commit failures and emit debug log.
@@ -159,7 +169,27 @@ npm run timeline:run
 ./scripts/timeline/run.sh
 ```
 
+### Codex Runner
+
+`scripts/timeline/run_codex.sh`
+
+Runs the same pipeline but preconfigures Codex-backed playbook generation:
+- `PLAYBOOK_PROVIDER=codex`
+- `PLAYBOOK_EXECUTE=true`
+- `PLAYBOOK_AGENT_CMD='bash scripts/timeline/provider_codex.sh {PROMPT_FILE} {OUTPUT_FILE}'`
+
+Usage:
+```bash
+./scripts/timeline/run_codex.sh
+```
+
+Provider wrapper:
+- `scripts/timeline/provider_codex.sh <PROMPT_FILE> <OUTPUT_FILE>`
+- Override binary path via `CODEX_BIN` (default `/home/rkj/.npm-global/bin/codex`).
+- Provider executes Codex from a temporary `/tmp` working directory so playbook generation does not inspect repository source files.
+
 Env overrides:
 - `MANIFEST`, `NAV_MAP`, `TOPOLOGY`, `PLAYBOOKS`, `SCREENSHOTS`, `FRAME_INDEX`, `OUTPUT`
 - `PORT`, `MAX_COUNT`, `MODE`
+- `SAMPLE_EVERY`, `SAMPLE_OFFSET`
 - `PLAYBOOK_PROVIDER`, `PLAYBOOK_EXECUTE`, `PLAYBOOK_AGENT_CMD`
