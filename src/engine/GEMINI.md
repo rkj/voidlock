@@ -42,3 +42,4 @@ This directory contains the core simulation logic for Voidlock. It follows a det
 - [ADR 0008: Renderer & UI Separation](../docs/adr/0008-renderer-ui-separation.md)
 - [ADR 0011: Standardized Unit Speed](../docs/adr/0011-standardized-unit-speed.md)
 - [ADR 0026: Geometric LOS and LOF Precision](../docs/adr/0026-geometric-los-lof-precision.md)
+- [ADR 0039: State Separation and Versioning](../docs/adr/0039-separation-of-custom-and-campaign-state.md)

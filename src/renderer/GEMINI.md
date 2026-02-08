@@ -62,3 +62,4 @@ This directory contains the main thread rendering logic and user interface for V
 - **ADR 0032**: Global UI Persistence and Entity Visibility
 - **ADR 0037**: Centralized Input & Focus Management System
 - **ADR 0038**: Mobile Interaction Strategy (Touch & Responsiveness)
+- **ADR 0039**: State Separation and Versioning (Custom vs. Campaign)

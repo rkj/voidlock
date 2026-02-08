@@ -83,38 +83,41 @@ export class SoldierInspector {
       `;
       wrapper.appendChild(placeholder);
 
-      // Recruit/Revive Options
-      const optionsDiv = document.createElement("div");
-      optionsDiv.className = "inspector-recruit-options flex-col gap-10 w-full";
-
+      // Recruit/Revive Options (Campaign only)
       const state = this.manager.getState();
-      const healthyWoundedCount = state
-        ? state.roster.filter((s) => s.status !== "Dead").length
-        : 0;
+      if (state) {
+        const optionsDiv = document.createElement("div");
+        optionsDiv.className =
+          "inspector-recruit-options flex-col gap-10 w-full";
 
-      if (healthyWoundedCount < 4) {
-        const recruitBtn = document.createElement("button");
-        recruitBtn.className = "menu-button w-full recruit-btn-large";
-        recruitBtn.innerHTML = `
+        const healthyWoundedCount = state.roster.filter(
+          (s) => s.status !== "Dead",
+        ).length;
+
+        if (healthyWoundedCount < 4) {
+          const recruitBtn = document.createElement("button");
+          recruitBtn.className = "menu-button w-full recruit-btn-large";
+          recruitBtn.innerHTML = `
           <div class="btn-label">Recruit New Soldier</div>
           <div class="btn-sub">Cost: 100 Scrap</div>
         `;
-        recruitBtn.onclick = () => this.handleRecruit();
-        optionsDiv.appendChild(recruitBtn);
-      }
+          recruitBtn.onclick = () => this.handleRecruit();
+          optionsDiv.appendChild(recruitBtn);
+        }
 
-      const reviveBtn = document.createElement("button");
-      const canAffordRevive = state ? state.scrap >= 250 : true;
-      reviveBtn.className = `menu-button w-full revive-btn-large ${!canAffordRevive ? "disabled" : ""}`;
-      reviveBtn.disabled = !canAffordRevive;
-      reviveBtn.innerHTML = `
+        const reviveBtn = document.createElement("button");
+        const canAffordRevive = state.scrap >= 250;
+        reviveBtn.className = `menu-button w-full revive-btn-large ${!canAffordRevive ? "disabled" : ""}`;
+        reviveBtn.disabled = !canAffordRevive;
+        reviveBtn.innerHTML = `
         <div class="btn-label">Revive Fallen Soldier</div>
         <div class="btn-sub">Cost: 250 Scrap</div>
       `;
-      reviveBtn.onclick = () => this.handleRevive();
-      optionsDiv.appendChild(reviveBtn);
+        reviveBtn.onclick = () => this.handleRevive();
+        optionsDiv.appendChild(reviveBtn);
 
-      wrapper.appendChild(optionsDiv);
+        wrapper.appendChild(optionsDiv);
+      }
       container.appendChild(wrapper);
       return;
     }

@@ -320,6 +320,9 @@ export class MissionSetupManager {
     } else {
       // Hydrate custom soldiers if they lack names/stats
       this.currentSquad.soldiers.forEach((s) => {
+        // Ensure custom soldiers do not have campaign IDs to prevent state leakage (ADR 0039)
+        delete s.id;
+
         if (!s.name) {
           const arch = ArchetypeLibrary[s.archetypeId];
           if (arch) {
