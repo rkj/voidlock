@@ -306,6 +306,7 @@ export class CoreEngine {
   }
 
   private hydrateFromSnapshot(snapshot: GameState) {
+    const originalMap = this.state.map;
     this.state = {
       ...snapshot,
       units: snapshot.units.map((u) => ({ ...u })),
@@ -319,6 +320,22 @@ export class CoreEngine {
       gridState: snapshot.gridState
         ? new Uint8Array(snapshot.gridState)
         : undefined,
+      map: {
+        ...snapshot.map,
+        // Restore authoritative static data if snapshot omitted it (ADR 0032)
+        cells:
+          snapshot.map.cells && snapshot.map.cells.length > 0
+            ? snapshot.map.cells
+            : originalMap.cells,
+        walls:
+          snapshot.map.walls && snapshot.map.walls.length > 0
+            ? snapshot.map.walls
+            : originalMap.walls,
+        boundaries:
+          snapshot.map.boundaries && snapshot.map.boundaries.length > 0
+            ? snapshot.map.boundaries
+            : originalMap.boundaries,
+      },
     };
 
     if (snapshot.rngState !== undefined) {
