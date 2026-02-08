@@ -294,19 +294,9 @@ export class EquipmentScreen {
 
         // Add remove button
         const removeBtn = document.createElement("button");
-        removeBtn.className = "remove-soldier-btn";
+        removeBtn.className = "remove-soldier-btn slot-remove";
         removeBtn.innerHTML = "×";
         removeBtn.title = "Remove from Squad";
-        removeBtn.style.position = "absolute";
-        removeBtn.style.top = "5px";
-        removeBtn.style.right = "5px";
-        removeBtn.style.background = "transparent";
-        removeBtn.style.border = "none";
-        removeBtn.style.color = "var(--color-danger)";
-        removeBtn.style.cursor = "pointer";
-        removeBtn.style.fontSize = "1.2em";
-        removeBtn.style.padding = "0 5px";
-        removeBtn.style.zIndex = "10";
         removeBtn.onclick = (e) => {
           e.stopPropagation();
           this.config.soldiers.splice(i, 1);
