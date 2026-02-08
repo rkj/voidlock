@@ -65,7 +65,7 @@ describe("Regression voidlock-w4gk: Enemy Spawn Point Visibility", () => {
     expect(state.map.squadSpawns).toBeDefined();
   });
 
-  it("should ALWAYS render spawnPoints even if the cell is NOT discovered and NOT visible (ADR 0032)", () => {
+  it("should NOT render spawnPoints if the cell is NOT discovered and NOT visible (Enforced FOW)", () => {
     const sharedState = new SharedRendererState();
     sharedState.cellSize = 32;
     sharedState.unitStyle = UnitStyle.Sprites;
@@ -99,6 +99,7 @@ describe("Regression voidlock-w4gk: Enemy Spawn Point Visibility", () => {
       discoveredCells: [], // Nothing discovered
       settings: {
         debugOverlayEnabled: false,
+        debugSnapshots: false,
       },
     } as any;
 
@@ -110,7 +111,7 @@ describe("Regression voidlock-w4gk: Enemy Spawn Point Visibility", () => {
         (call) => call[0] === 5 * 32 && call[1] === 5 * 32,
       );
 
-    expect(drewSomething).toBe(true);
+    expect(drewSomething).toBe(false);
   });
 
   it("should render spawnPoints if debug overlay is enabled even if NOT discovered", () => {
@@ -147,6 +148,7 @@ describe("Regression voidlock-w4gk: Enemy Spawn Point Visibility", () => {
       discoveredCells: [],
       settings: {
         debugOverlayEnabled: true,
+        debugSnapshots: false,
       },
     } as any;
 

@@ -18,7 +18,7 @@ export class UnitSpawner {
   public spawnSquad(
     map: MapDefinition,
     squadConfig: SquadConfig,
-    shuffle: boolean = true,
+    skipDeployment: boolean = true,
   ): Unit[] {
     const units: Unit[] = [];
     let unitCount = 1;
@@ -36,7 +36,7 @@ export class UnitSpawner {
     }
 
     // Shuffle spawns for variety
-    if (shuffle) {
+    if (skipDeployment) {
       for (let i = availableSpawns.length - 1; i > 0; i--) {
         const j = this.prng.nextInt(0, i);
         [availableSpawns[i], availableSpawns[j]] = [
@@ -122,6 +122,7 @@ export class UnitSpawner {
         kills: 0,
         damageDealt: 0,
         objectivesCompleted: 0,
+        isDeployed: skipDeployment,
       });
     });
 
@@ -169,6 +170,7 @@ export class UnitSpawner {
         kills: 0,
         damageDealt: 0,
         objectivesCompleted: 0,
+        isDeployed: true,
       });
     });
 

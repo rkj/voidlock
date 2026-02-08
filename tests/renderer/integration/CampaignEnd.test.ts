@@ -51,6 +51,11 @@ vi.mock("@src/renderer/ThemeManager", () => ({
     getInstance: vi.fn().mockReturnValue({
       init: vi.fn().mockResolvedValue(undefined),
       setTheme: vi.fn(),
+      getAssetUrl: vi.fn().mockReturnValue("mock-url"),
+      getColor: vi.fn().mockReturnValue("#000"),
+      getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
+      getCurrentThemeId: vi.fn().mockReturnValue("default"),
+      applyTheme: vi.fn(),
     }),
   },
 }));
@@ -182,6 +187,7 @@ describe("Campaign End Integration", () => {
       <div id="screen-campaign-shell" class="screen flex-col" style="display:none">
           <div id="campaign-shell-top-bar"></div>
           <div id="campaign-shell-content" class="flex-grow relative overflow-hidden">
+              <div id="screen-engineering" class="screen" style="display:none"></div>
               <div id="screen-campaign" class="screen" style="display:none"></div>
               <div id="screen-barracks" class="screen" style="display:none"></div>
               <div id="screen-equipment" class="screen" style="display:none"></div>
@@ -261,15 +267,11 @@ describe("Campaign End Integration", () => {
     // Wait for async onCampaignNodeSelected
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    expect(document.getElementById("screen-mission-setup")?.style.display).toBe(
+    expect(document.getElementById("screen-equipment")?.style.display).toBe(
       "flex",
     );
 
     // 3. Launch Mission (skip Equipment for brevity, trigger CONFIRM directly if possible or just dblclick card)
-    const cards = document.querySelectorAll(".soldier-card");
-    cards.forEach((card) => card.dispatchEvent(new Event("dblclick")));
-
-    document.getElementById("btn-goto-equipment")?.click();
     const allButtons = document.querySelectorAll("#screen-equipment button");
     const equipmentLaunchBtn = Array.from(allButtons).find((b) =>
       b.textContent?.includes("Confirm"),
@@ -298,7 +300,12 @@ describe("Campaign End Integration", () => {
         },
       ],
       objectives: [],
-      settings: { debugOverlayEnabled: false, timeScale: 1.0, isPaused: false },
+      settings: {
+        debugOverlayEnabled: false,
+        debugSnapshots: false,
+        timeScale: 1.0,
+        isPaused: false,
+      },
       map: { width: 10, height: 10, cells: [] },
       enemies: [],
       visibleCells: [],

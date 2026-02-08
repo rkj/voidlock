@@ -16,6 +16,7 @@ import { GameGrid } from "../../GameGrid";
 import { isCellDiscovered } from "../../../shared/VisibilityUtils";
 import { IDirector } from "../../interfaces/IDirector";
 import { MathUtils } from "../../../shared/utils/MathUtils";
+import { Logger } from "../../../shared/Logger";
 
 export class ExplorationBehavior implements Behavior {
   constructor(private gameGrid: GameGrid) {}
@@ -48,7 +49,7 @@ export class ExplorationBehavior implements Behavior {
             Math.floor(currentUnit.explorationTarget.y),
           )
         ) {
-          console.log(
+          Logger.debug(
             `ExplorationBehavior: target ${currentUnit.explorationTarget.x},${currentUnit.explorationTarget.y} discovered, clearing`,
           );
           currentUnit = { ...currentUnit, explorationTarget: undefined };
@@ -61,7 +62,7 @@ export class ExplorationBehavior implements Behavior {
             currentCheck > lastCheck ||
             currentUnit.state === UnitState.Idle
           ) {
-            console.log(
+            Logger.debug(
               `ExplorationBehavior: reevaluating target due to timer or idle (state=${currentUnit.state})`,
             );
             shouldReevaluate = true;
@@ -79,7 +80,7 @@ export class ExplorationBehavior implements Behavior {
           context.explorationClaims,
         );
         if (targetCell) {
-          console.log(
+          Logger.debug(
             `ExplorationBehavior: found new target ${targetCell.x},${targetCell.y}`,
           );
           const newTarget = { x: targetCell.x, y: targetCell.y };
@@ -105,7 +106,7 @@ export class ExplorationBehavior implements Behavior {
             }
 
             if (switchTarget) {
-              console.log(
+              Logger.debug(
                 `ExplorationBehavior: switching target to ${newTarget.x},${newTarget.y}`,
               );
               currentUnit = { ...currentUnit, explorationTarget: newTarget };
@@ -125,7 +126,7 @@ export class ExplorationBehavior implements Behavior {
               return { unit: currentUnit, handled: true };
             }
           } else if (currentUnit.state === UnitState.Idle) {
-            console.log(
+            Logger.debug(
               `ExplorationBehavior: same target ${newTarget.x},${newTarget.y} but unit is idle, re-executing move`,
             );
             context.explorationClaims.set(
@@ -147,7 +148,7 @@ export class ExplorationBehavior implements Behavior {
             return { unit: currentUnit, handled: true };
           }
         } else {
-          console.log("ExplorationBehavior: no target found");
+          Logger.debug("ExplorationBehavior: no target found");
         }
       }
     }

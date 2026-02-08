@@ -15,6 +15,7 @@ describe("HUDManager Objective Regression PDXS", () => {
     settings: {
       mode: "Simulation" as any,
       debugOverlayEnabled: false,
+      debugSnapshots: false,
       losOverlayEnabled: false,
       timeScale: 1.0,
       isPaused: false,
@@ -106,9 +107,7 @@ describe("HUDManager Objective Regression PDXS", () => {
   it("should add title attribute to the icon span", () => {
     hud.update(mockState, null);
     const objectivesDiv = document.querySelector(".objectives-status");
-    const icons = objectivesDiv?.querySelectorAll(
-      "span[style*='font-weight:bold']",
-    );
+    const icons = objectivesDiv?.querySelectorAll(".obj-icon");
     expect(icons?.[0].getAttribute("title")).toBe("Pending");
     expect(icons?.[1].getAttribute("title")).toBe("Completed");
   });

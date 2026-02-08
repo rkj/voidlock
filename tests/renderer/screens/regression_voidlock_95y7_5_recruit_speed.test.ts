@@ -34,9 +34,9 @@ describe("Regression: Recruit Speed Display (voidlock-95y7.5)", () => {
     );
     screen.show();
 
-    // Find the Assault recruitment card
+    // Find the Assault recruitment card (using soldier-card class from SoldierWidget)
     const assaultArch = ArchetypeLibrary["assault"];
-    const cards = Array.from(container.querySelectorAll(".card"));
+    const cards = Array.from(container.querySelectorAll(".soldier-card"));
     const assaultCard = cards.find((card) =>
       card.textContent?.includes("Assault"),
     ) as HTMLElement;
@@ -44,10 +44,13 @@ describe("Regression: Recruit Speed Display (voidlock-95y7.5)", () => {
     expect(assaultCard).toBeDefined();
 
     // The raw speed for assault is 20.
-    // The current buggy code displays speed/10, which would be 2.
-    // We expect it to be 20.
-    expect(assaultCard.textContent).toContain(`Spd: ${assaultArch.speed}`);
-    expect(assaultCard.textContent).not.toMatch(/Spd:\s*[0-9](\s|$)/);
+    // SoldierWidget uses StatDisplay which puts values in .stat-value
+    const speedStat = Array.from(
+      assaultCard.querySelectorAll(".stat-display"),
+    ).find((el) => (el as HTMLElement).title === "Speed");
+    const speedValue = speedStat?.querySelector(".stat-value")?.textContent;
+
+    expect(speedValue).toBe(assaultArch.speed.toString());
   });
 
   it("should display the raw speed stat for Scout in the recruitment card", () => {
@@ -60,7 +63,7 @@ describe("Regression: Recruit Speed Display (voidlock-95y7.5)", () => {
 
     // Find the Scout recruitment card
     const scoutArch = ArchetypeLibrary["scout"];
-    const cards = Array.from(container.querySelectorAll(".card"));
+    const cards = Array.from(container.querySelectorAll(".soldier-card"));
     const scoutCard = cards.find((card) =>
       card.textContent?.includes("Scout"),
     ) as HTMLElement;
@@ -68,8 +71,11 @@ describe("Regression: Recruit Speed Display (voidlock-95y7.5)", () => {
     expect(scoutCard).toBeDefined();
 
     // The raw speed for scout is 30.
-    // The current buggy code displays speed/10, which would be 3.
-    expect(scoutCard.textContent).toContain(`Spd: ${scoutArch.speed}`);
-    expect(scoutCard.textContent).not.toMatch(/Spd:\s*[0-9](\s|$)/);
+    const speedStat = Array.from(
+      scoutCard.querySelectorAll(".stat-display"),
+    ).find((el) => (el as HTMLElement).title === "Speed");
+    const speedValue = speedStat?.querySelector(".stat-value")?.textContent;
+
+    expect(speedValue).toBe(scoutArch.speed.toString());
   });
 });

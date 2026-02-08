@@ -31,7 +31,7 @@ export class HUDManager {
     if (statusElement) {
       let timeVal = statusElement.querySelector(".time-value");
       if (!timeVal) {
-        statusElement.innerHTML = `<span style="color:var(--color-text-muted); text-transform:uppercase; letter-spacing:1px; font-size:0.8em;">Time</span> <span class="time-value"></span>s`;
+        statusElement.innerHTML = `<span class="time-label">Time</span> <span class="time-value"></span>s`;
         timeVal = statusElement.querySelector(".time-value");
       }
       if (timeVal) {
@@ -53,15 +53,15 @@ export class HUDManager {
         topThreatFill.classList.add("no-transition");
       }
 
-      let threatVar = "--color-success";
-      if (threatLevel > 30) threatVar = "--color-warning";
-      if (threatLevel > 70) threatVar = "--color-danger";
-      if (threatLevel > 90) threatVar = "--color-danger"; // Could add a darker red if needed
+      let threatClass = "threat-success";
+      if (threatLevel > 30) threatClass = "threat-warning";
+      if (threatLevel > 70) threatClass = "threat-danger";
+      if (threatLevel > 90) threatClass = "threat-danger";
 
       topThreatFill.style.width = `${Math.min(100, threatLevel)}%`;
-      topThreatFill.style.backgroundColor = `var(${threatVar})`;
+      topThreatFill.className = `threat-fill ${threatClass}`;
       topThreatValue.textContent = `${threatLevel.toFixed(0)}%`;
-      topThreatValue.style.color = `var(${threatVar})`;
+      topThreatValue.className = `threat-value ${threatClass}`;
 
       if (isInitial) {
         // Force a reflow to ensure the width is applied without transition
@@ -132,9 +132,6 @@ export class HUDManager {
     if (!menuDiv) {
       menuDiv = document.createElement("div");
       menuDiv.className = "command-menu";
-      menuDiv.style.borderBottom = "1px solid var(--color-border-strong)";
-      menuDiv.style.paddingBottom = "10px";
-      menuDiv.style.marginBottom = "10px";
       menuDiv.addEventListener("click", (e) => {
         const target = e.target as HTMLElement;
         const clickable = target.closest(".menu-item.clickable") as HTMLElement;
@@ -181,9 +178,6 @@ export class HUDManager {
       if (!debugDiv) {
         debugDiv = document.createElement("div");
         debugDiv.className = "debug-controls";
-        debugDiv.style.marginTop = "10px";
-        debugDiv.style.borderTop = "1px solid var(--color-border-strong)";
-        debugDiv.style.paddingTop = "10px";
         rightPanel.appendChild(debugDiv);
       }
       const generatorName = state.map.generatorName || "Unknown";
@@ -193,16 +187,16 @@ export class HUDManager {
 
       const debugHtml = `
         <h3>Debug Tools</h3>
-        <div style="font-size:0.8em; color:var(--color-text-muted); margin-bottom:10px; display:flex; flex-direction:column; gap:4px;">
+        <div class="debug-info-grid">
           <span><strong>Map:</strong> ${genDisplay} (${state.seed})</span>
           <span><strong>Size:</strong> ${state.map.width}x${state.map.height}</span>
           <span><strong>Mission:</strong> ${state.missionType}</span>
         </div>
-        <div style="display:flex; gap:4px; margin-bottom:4px;">
-          <button id="btn-force-win" style="flex:1; font-size:0.8em; padding:8px; background-color:var(--color-success); color:white; border:none; cursor:pointer;">Force Win</button>
-          <button id="btn-force-lose" style="flex:1; font-size:0.8em; padding:8px; background-color:var(--color-danger); color:white; border:none; cursor:pointer;">Force Lose</button>
+        <div class="debug-actions-row">
+          <button id="btn-force-win" class="debug-btn-win">Force Win</button>
+          <button id="btn-force-lose" class="debug-btn-lose">Force Lose</button>
         </div>
-        <button id="btn-copy-world-state" style="width:100%; font-size:0.8em; padding:8px;">Copy World State</button>
+        <button id="btn-copy-world-state" class="debug-btn-copy">Copy World State</button>
       `;
       if (debugDiv.innerHTML !== debugHtml) {
         debugDiv.innerHTML = debugHtml;
@@ -232,38 +226,80 @@ export class HUDManager {
       rightPanel.innerHTML = "";
       deploymentDiv = document.createElement("div");
       deploymentDiv.className = "deployment-summary";
-      deploymentDiv.style.margin = "20px";
-      deploymentDiv.style.textAlign = "center";
 
       const title = document.createElement("h2");
       title.textContent = "Deployment Phase";
-      title.style.color = "var(--color-success)";
-      title.style.marginBottom = "10px";
+      title.className = "deployment-title";
       deploymentDiv.appendChild(title);
 
       const desc = document.createElement("p");
       desc.textContent =
         "Tactically place your squad members on highlighted tiles. Drag units to move them.";
-      desc.style.fontSize = "0.9em";
-      desc.style.color = "var(--color-text-muted)";
-      desc.style.marginBottom = "20px";
+      desc.className = "deployment-desc";
       deploymentDiv.appendChild(desc);
+
+      const squadList = document.createElement("div");
+      squadList.className = "deployment-squad-list";
+      deploymentDiv.appendChild(squadList);
 
       const startBtn = document.createElement("button");
       startBtn.id = "btn-start-mission";
       startBtn.textContent = "START MISSION";
-      startBtn.style.width = "100%";
-      startBtn.style.padding = "15px";
-      startBtn.style.fontSize = "1.2em";
-      startBtn.style.fontWeight = "bold";
-      startBtn.style.backgroundColor = "var(--color-success)";
-      startBtn.style.color = "white";
-      startBtn.style.border = "none";
-      startBtn.style.cursor = "pointer";
+      startBtn.className = "btn-start-mission";
       startBtn.addEventListener("click", () => this.onStartMission());
       deploymentDiv.appendChild(startBtn);
 
       rightPanel.appendChild(deploymentDiv);
+    }
+
+    const squadList = deploymentDiv.querySelector(
+      ".deployment-squad-list",
+    ) as HTMLElement;
+    if (squadList) {
+      const units = state.units.filter((u) => u.archetypeId !== "vip");
+      const currentIds = new Set(units.map((u) => u.id));
+
+      // Remove units that are gone
+      Array.from(squadList.children).forEach((child) => {
+        const id = (child as HTMLElement).dataset.unitId;
+        if (id && !currentIds.has(id)) squadList.removeChild(child);
+      });
+
+      units.forEach((u) => {
+        let item = squadList.querySelector(
+          `[data-unit-id="${u.id}"]`,
+        ) as HTMLElement;
+        if (!item) {
+          item = document.createElement("div");
+          item.dataset.unitId = u.id;
+          item.draggable = true;
+          item.className = "deployment-unit-item";
+          item.addEventListener("dragstart", (e) => {
+            if (e.dataTransfer) {
+              e.dataTransfer.setData("text/plain", u.id);
+              e.dataTransfer.effectAllowed = "move";
+            }
+          });
+          squadList.appendChild(item);
+        }
+
+        const isPlaced = u.isDeployed !== false;
+        const statusText = isPlaced ? "Deployed" : "Pending";
+
+        SoldierWidget.update(item, u, {
+          context: "roster",
+        });
+
+        const statusSpan = item.querySelector(
+          ".roster-item-details span:last-child",
+        ) as HTMLElement;
+        if (statusSpan) {
+          statusSpan.textContent = statusText;
+          statusSpan.style.color = isPlaced
+            ? "var(--color-success)"
+            : "var(--color-warning)";
+        }
+      });
     }
 
     const startBtn = deploymentDiv.querySelector(
@@ -291,13 +327,11 @@ export class HUDManager {
 
       if (!allOnValidTiles) {
         startBtn.disabled = true;
-        startBtn.style.opacity = "0.5";
-        startBtn.style.cursor = "not-allowed";
+        startBtn.classList.add("disabled");
         startBtn.title = "All squad members must be on valid spawn tiles.";
       } else {
         startBtn.disabled = false;
-        startBtn.style.opacity = "1.0";
-        startBtn.style.cursor = "pointer";
+        startBtn.classList.remove("disabled");
         startBtn.title = "";
       }
     }
@@ -368,8 +402,8 @@ export class HUDManager {
       container.innerHTML = data
         .map(
           (d) => `
-        <p style="margin: 5px 0;" data-obj-id="${d.id}">
-          <span class="obj-icon" style="color:${d.color}; margin-right:8px; font-weight:bold;" title="${d.state}">${d.icon}</span>
+        <p class="obj-row" data-obj-id="${d.id}">
+          <span class="obj-icon" style="color:${d.color};" title="${d.state}">${d.icon}</span>
           <span class="obj-text">${d.text}</span>
         </p>
       `,
@@ -394,8 +428,8 @@ export class HUDManager {
     return data
       .map(
         (d) => `
-      <p style="margin: 5px 0;">
-        <span style="color:${d.color}; margin-right:8px; font-weight:bold;" title="${d.state}">${d.icon}</span>
+      <p class="obj-row">
+        <span class="obj-icon" style="color:${d.color};" title="${d.state}">${d.icon}</span>
         ${d.text}
       </p>
     `,
@@ -408,9 +442,6 @@ export class HUDManager {
     if (!intelDiv) {
       intelDiv = document.createElement("div");
       intelDiv.className = "enemy-intel";
-      intelDiv.style.marginTop = "10px";
-      intelDiv.style.borderTop = "1px solid var(--color-border-strong)";
-      intelDiv.style.paddingTop = "10px";
       rightPanel.appendChild(intelDiv);
     }
 
@@ -421,7 +452,7 @@ export class HUDManager {
 
     if (visibleEnemies.length === 0) {
       const emptyHtml =
-        "<h3>Enemy Intel</h3><p style='color:var(--color-text-dim); font-size:0.8em;'>No hostiles detected.</p>";
+        "<h3>Enemy Intel</h3><p class='intel-empty'>No hostiles detected.</p>";
       if (intelDiv.innerHTML !== emptyHtml) {
         intelDiv.innerHTML = emptyHtml;
       }
@@ -436,7 +467,7 @@ export class HUDManager {
     }
 
     // Remove "No hostiles detected" if it exists
-    const noHostiles = intelDiv.querySelector("p");
+    const noHostiles = intelDiv.querySelector(".intel-empty");
     if (noHostiles) noHostiles.remove();
 
     // Group by type
@@ -462,10 +493,10 @@ export class HUDManager {
         box.className = "intel-box";
         box.dataset.type = type;
         box.innerHTML = `
-          <div style="display:flex; justify-content:space-between; align-items:center;">
-            <strong class="intel-title" style="color:var(--color-danger); font-size:0.9em;"></strong>
+          <div class="intel-header">
+            <strong class="intel-title"></strong>
           </div>
-          <div class="intel-stats" style="font-size:0.7em; color:var(--color-text-muted); display:flex; gap:8px; margin-top:4px; flex-wrap:wrap;">
+          <div class="intel-stats">
             ${StatDisplay.render(Icons.Speed, e.speed, "Speed")}
             ${StatDisplay.render(Icons.Accuracy, e.accuracy, "Accuracy")}
             ${StatDisplay.render(Icons.Damage, e.damage, "Damage")}
@@ -505,28 +536,22 @@ export class HUDManager {
     const summaryDiv = document.createElement("div");
     summaryDiv.className =
       "game-over-summary" + (state.status === "Won" ? "" : " lost");
-    summaryDiv.style.margin = "20px";
 
     const title = document.createElement("h2");
     title.textContent =
       state.status === "Won" ? "Mission Accomplished" : "Squad Wiped";
-    title.style.color =
-      state.status === "Won" ? "var(--color-success)" : "var(--color-danger)";
+    title.className = "game-over-title";
     summaryDiv.appendChild(title);
 
     // Objectives List
     const objectivesDiv = document.createElement("div");
-    objectivesDiv.style.margin = "20px 0";
-    objectivesDiv.style.textAlign = "left";
-    objectivesDiv.style.borderBottom = "1px solid var(--color-border-strong)";
-    objectivesDiv.style.paddingBottom = "10px";
-    objectivesDiv.innerHTML = `<h3 style="font-size:0.9em; color:var(--color-text-muted); margin-top:0;">Objectives</h3>${this.renderObjectivesList(state)}`;
+    objectivesDiv.className = "game-over-objectives";
+    objectivesDiv.innerHTML = `<h3 class="game-over-panel-title">Objectives</h3>${this.renderObjectivesList(state)}`;
 
     summaryDiv.appendChild(objectivesDiv);
 
     const stats = document.createElement("div");
-    stats.style.margin = "20px 0";
-    stats.style.textAlign = "left";
+    stats.className = "game-over-stats";
     stats.innerHTML = `
       <p><strong>Time Elapsed:</strong> ${(state.t / 1000).toFixed(1)}s</p>
       <p><strong>Xenos Neutralized:</strong> ${state.stats.aliensKilled}</p>
@@ -536,8 +561,7 @@ export class HUDManager {
 
     const menuBtn = document.createElement("button");
     menuBtn.textContent = "Back to Menu";
-    menuBtn.style.width = "100%";
-    menuBtn.style.padding = "15px";
+    menuBtn.className = "game-over-btn";
     menuBtn.addEventListener("click", () => this.onAbortMission());
     summaryDiv.appendChild(menuBtn);
 

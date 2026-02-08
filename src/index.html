@@ -8,6 +8,14 @@
     <link rel="stylesheet" href="/styles/main.css" />
     <script>
       (function () {
+        // Mobile touch detection (ADR 0038)
+        if (window.matchMedia("(pointer: coarse)").matches) {
+          document.documentElement.classList.add("mobile-touch");
+          window.addEventListener("DOMContentLoaded", function () {
+            document.body.classList.add("mobile-touch");
+          });
+        }
+
         /**
          * Panic UI Recovery (ADR-0019/Spec 8.12)
          * Forces the Main Menu to be visible if a catastrophic error occurs.
@@ -140,18 +148,13 @@
           <button id="btn-menu-custom" class="menu-button">
             Custom Mission
           </button>
+          <button id="btn-menu-engineering" class="menu-button">
+            Engineering
+          </button>
           <button id="btn-menu-statistics" class="menu-button">
             Statistics
           </button>
           <button id="btn-menu-settings" class="menu-button">Settings</button>
-
-          <button
-            id="btn-menu-reset"
-            class="menu-button back-button"
-            style="font-size: 0.8em; width: 200px; margin-top: 20px"
-          >
-            Reset Data
-          </button>
 
           <div class="menu-import-section">
             <label for="import-replay" class="menu-import-label"
@@ -192,6 +195,16 @@
             <!-- Content will be injected by StatisticsScreen.ts -->
           </div>
 
+          <!-- 2e. Engineering Screen -->
+          <div id="screen-engineering" class="screen">
+            <!-- Content will be injected by EngineeringScreen.ts -->
+          </div>
+
+          <!-- 2f. Settings Screen -->
+          <div id="screen-settings" class="screen">
+            <!-- Content will be injected by SettingsScreen.ts -->
+          </div>
+
           <!-- 2f. Mission Setup Screen -->
           <div id="screen-mission-setup" class="screen screen-centered">
             <h1>Mission Configuration</h1>
@@ -206,7 +219,7 @@
             ></div>
             <div id="setup-content">
               <div id="common-config-section" style="width: 100%">
-                <div class="control-group">
+                <div class="control-group" id="setup-visual-style-group">
                   <label>Visual Style & Theme:</label>
                   <div
                     style="
@@ -422,33 +435,26 @@
                 </div>
               </div>
 
-              <div class="control-group squad-builder-group">
-                <h3>Squad Selection</h3>
-                <div id="squad-builder">
-                  <!-- Injected by JS -->
-                </div>
-              </div>
-            </div>
-
-            <div
-              style="
-                margin-top: 10px;
-                width: 100%;
-                max-width: 600px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                padding: 0 20px;
-              "
-            >
-              <button id="btn-setup-back" class="back-button">Back</button>
-              <button
-                id="btn-goto-equipment"
-                class="primary-button"
-                style="padding: 12px 24px"
+              <div
+                style="
+                  margin-top: 10px;
+                  width: 100%;
+                  max-width: 600px;
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  padding: 0 20px;
+                "
               >
-                Equipment & Supplies
-              </button>
+                <button id="btn-setup-back" class="back-button">Back</button>
+                <button
+                  id="btn-goto-equipment"
+                  class="primary-button"
+                  style="padding: 12px 24px"
+                >
+                  Equipment & Supplies
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -458,6 +464,7 @@
       <div id="screen-mission" class="screen">
         <!-- 1. Top Bar -->
         <div id="top-bar" class="top-bar">
+          <button id="btn-toggle-squad" class="drawer-toggle">SQD</button>
           <div id="game-status">Time: 0.0s</div>
           <div
             id="top-threat-container"
@@ -582,6 +589,8 @@
             >
           </div>
 
+          <button id="btn-toggle-right" class="drawer-toggle">OBJ</button>
+
           <!-- Speed Control -->
           <div id="speed-control">
             <button id="btn-pause-toggle">|| PAUSE</button>
@@ -672,21 +681,6 @@
       </div>
 
       <!-- Global Overlay Screens -->
-      <!-- 2e. Settings Screen -->
-      <div
-        id="screen-settings"
-        class="screen"
-        style="
-          z-index: 1200;
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-        "
-      >
-        <!-- Content will be injected by SettingsScreen.ts -->
-      </div>
     </div>
     <!-- End of #app -->
 

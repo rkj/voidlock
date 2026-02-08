@@ -20,6 +20,7 @@ describe("InputManager", () => {
   const mockState = {
     settings: {
       debugOverlayEnabled: false,
+      debugSnapshots: false,
       losOverlayEnabled: false,
     },
   };
@@ -66,6 +67,8 @@ describe("InputManager", () => {
       () => debriefingActive,
       vi.fn(),
       vi.fn(() => ({ x: 0, y: 0 })),
+      vi.fn(), // cycleUnits
+      vi.fn(), // panMap
     );
     inputManager.init();
   });

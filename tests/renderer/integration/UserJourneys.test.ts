@@ -59,8 +59,11 @@ vi.mock("@src/renderer/ThemeManager", () => ({
     getInstance: vi.fn().mockReturnValue({
       init: vi.fn().mockResolvedValue(undefined),
       setTheme: vi.fn(),
-      getAssetUrl: vi.fn().mockReturnValue(""),
+      getAssetUrl: vi.fn().mockReturnValue("mock-url"),
+      getColor: vi.fn().mockReturnValue("#000"),
+      getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
       getCurrentThemeId: vi.fn().mockReturnValue("default"),
+      applyTheme: vi.fn(),
     }),
   },
 }));
@@ -213,7 +216,7 @@ describe("Comprehensive User Journeys", () => {
         <button id="btn-menu-campaign">Campaign</button>
         <button id="btn-menu-custom">Custom Mission</button>
         <button id="btn-menu-statistics">Statistics</button>
-        <button id="btn-menu-reset">Reset Data</button>
+        <button id="btn-menu-settings">Settings</button>
         <p id="menu-version"></p>
       </div>
 
@@ -225,6 +228,7 @@ describe("Comprehensive User Journeys", () => {
               <div id="screen-equipment" class="screen" style="display:none"></div>
               <div id="screen-statistics" class="screen" style="display:none"></div>
               <div id="screen-settings" class="screen" style="display:none"></div>
+              <div id="screen-engineering" class="screen" style="display:none"></div>
           </div>
       </div>
 
@@ -481,6 +485,7 @@ describe("Comprehensive User Journeys", () => {
       objectives: [],
       settings: {
         debugOverlayEnabled: false,
+        debugSnapshots: false,
         timeScale: 1.0,
         isPaused: false,
         mode: EngineMode.Simulation,

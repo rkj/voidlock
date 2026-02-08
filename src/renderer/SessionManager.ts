@@ -1,4 +1,5 @@
 import { ScreenId } from "@src/renderer/ScreenManager";
+import { Logger } from "@src/shared/Logger";
 
 export class SessionManager {
   private static readonly STORAGE_KEY = "voidlock_session_state";
@@ -20,7 +21,7 @@ export class SessionManager {
         isCampaign: !!parsed.isCampaign,
       };
     } catch (e) {
-      console.error("Failed to parse session state", e);
+      Logger.error("Failed to parse session state", e);
       return null;
     }
   }

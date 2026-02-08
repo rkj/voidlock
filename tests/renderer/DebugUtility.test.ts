@@ -13,7 +13,7 @@ describe("DebugUtility", () => {
       alert: vi.fn().mockResolvedValue(undefined),
       confirm: vi.fn().mockResolvedValue(true),
     };
-    vi.spyOn(console, "log").mockImplementation(() => {});
+    vi.spyOn(console, "info").mockImplementation(() => {});
     vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
@@ -57,7 +57,7 @@ describe("DebugUtility", () => {
       "Failed to copy state to clipboard:",
       expect.any(Error),
     );
-    expect(console.log).toHaveBeenCalledWith("Full World State JSON:");
+    expect(console.info).toHaveBeenCalledWith("Full World State JSON:");
     expect(mockModalService.alert).toHaveBeenCalledWith(
       "Failed to copy to clipboard. See console for JSON.",
     );

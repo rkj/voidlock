@@ -8,7 +8,7 @@ describe("StatDisplay", () => {
     expect(html).toContain('title="Strength"');
     expect(html).toContain('src="icon.png"');
     expect(html).toContain(">10</span>");
-    expect(html).toContain("display:inline-flex");
+    expect(html).toContain("stat-display");
   });
 
   it("should apply custom options", () => {
@@ -18,11 +18,12 @@ describe("StatDisplay", () => {
       color: "blue",
       gap: "5px",
     });
-    expect(html).toContain("font-size:10px");
+    // Check for custom styles in the style attribute (note: formatting might vary slightly)
+    expect(html).toContain("font-size: 10px");
     expect(html).toContain("width:16px");
     expect(html).toContain("height:16px");
-    expect(html).toContain('style="color:blue"');
-    expect(html).toContain("gap:5px");
+    expect(html).toContain("--stat-value-color: blue");
+    expect(html).toContain("gap: 5px");
   });
 
   it("should update existing element value", () => {

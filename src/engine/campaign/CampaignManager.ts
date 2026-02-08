@@ -15,6 +15,7 @@ import { RosterManager } from "./RosterManager";
 import { MissionReconciler } from "./MissionReconciler";
 import { EventManager } from "./EventManager";
 import { CAMPAIGN_DEFAULTS } from "../config/CampaignDefaults";
+import { Logger } from "../../shared/Logger";
 
 import { CampaignStateSchema } from "../../shared/schemas";
 
@@ -60,6 +61,23 @@ export class CampaignManager {
       CampaignManager.instance = new CampaignManager(storage);
     }
     return CampaignManager.instance;
+  }
+
+  /**
+   * Returns the storage provider being used by the manager.
+   */
+  public getStorage(): StorageProvider {
+    return this.storage;
+  }
+
+  /**
+   * Returns the current cloud synchronization status.
+   */
+  public getSyncStatus(): string {
+    if ((this.storage as any).getSyncStatus) {
+      return (this.storage as any).getSyncStatus();
+    }
+    return "local-only";
   }
 
   /**
@@ -132,10 +150,22 @@ export class CampaignManager {
 
     const effectiveSeed = rules.customSeed ?? seed;
     const nodes = this.sectorMapGenerator.generate(effectiveSeed, rules);
-    const roster = this.rosterManager.generateInitialRoster();
+
+    // Incorporate global meta-unlocks
+    const metaStats = MetaManager.getInstance(this.storage).getStats();
+    const unlockedArchetypes = Array.from(
+      new Set([
+        ...CAMPAIGN_DEFAULTS.UNLOCKED_ARCHETYPES,
+        ...metaStats.unlockedArchetypes,
+      ]),
+    );
+    const unlockedItems = [...metaStats.unlockedItems];
+
+    const roster = this.rosterManager.generateInitialRoster(unlockedArchetypes);
 
     this.state = {
       version: CAMPAIGN_DEFAULTS.VERSION,
+      saveVersion: 1,
       seed: effectiveSeed,
       status: "Active",
       rules,
@@ -146,7 +176,8 @@ export class CampaignManager {
       nodes,
       roster,
       history: [],
-      unlockedArchetypes: [...CAMPAIGN_DEFAULTS.UNLOCKED_ARCHETYPES],
+      unlockedArchetypes,
+      unlockedItems,
     };
 
     MetaManager.getInstance(this.storage).recordCampaignStarted();
@@ -242,6 +273,7 @@ export class CampaignManager {
    */
   public save(): void {
     if (!this.state) return;
+    this.state.saveVersion = (this.state.saveVersion || 0) + 1;
     this.storage.save(STORAGE_KEY, this.state);
   }
 
@@ -249,9 +281,17 @@ export class CampaignManager {
    * Loads the campaign state from the storage provider.
    * @returns True if the state was successfully loaded and validated.
    */
-  public load(): boolean {
+  public async load(): Promise<boolean> {
     try {
-      const data = this.storage.load<unknown>(STORAGE_KEY);
+      let data: unknown;
+
+      // If our storage is a SaveManager, we can use cloud sync
+      if ("loadWithSync" in this.storage) {
+        data = await (this.storage as any).loadWithSync(STORAGE_KEY);
+      } else {
+        data = this.storage.load<unknown>(STORAGE_KEY);
+      }
+
       if (data) {
         // First try lenient parsing with defaults
         const result = CampaignStateSchema.safeParse(data);
@@ -266,7 +306,7 @@ export class CampaignManager {
           return true;
         } else {
           // If even with defaults it fails, try the full manual repair
-          console.warn(
+          Logger.warn(
             "CampaignManager: Validation failed, attempting full recovery.",
             result.error.format(),
           );
@@ -281,7 +321,7 @@ export class CampaignManager {
         }
       }
     } catch (e) {
-      console.warn("CampaignManager: Failed to load campaign state.", e);
+      Logger.warn("CampaignManager: Failed to load campaign state.", e);
     }
     return false;
   }
@@ -321,6 +361,7 @@ export class CampaignManager {
       if (!Array.isArray(state.history)) state.history = [];
       if (!Array.isArray(state.unlockedArchetypes))
         state.unlockedArchetypes = [...CAMPAIGN_DEFAULTS.UNLOCKED_ARCHETYPES];
+      if (!Array.isArray(state.unlockedItems)) state.unlockedItems = [];
 
       // 2. Repair rules
       const rules = { ...((data.rules as any) || {}) };
@@ -392,14 +433,14 @@ export class CampaignManager {
       if (finalResult.success) {
         return finalResult.data as CampaignState;
       } else {
-        console.warn(
+        Logger.warn(
           "CampaignManager: Repair failed:",
           finalResult.error.format(),
         );
         return null;
       }
     } catch (e) {
-      console.warn("CampaignManager: Error during repair:", e);
+      Logger.warn("CampaignManager: Error during repair:", e);
       return null;
     }
   }
@@ -436,6 +477,7 @@ export class CampaignManager {
       casualties,
       report.result === "Won",
       report.scrapGained,
+      report.intelGained,
     );
 
     // 5. Check for campaign end
@@ -479,6 +521,7 @@ export class CampaignManager {
       0,
       true,
       scrapGained,
+      intelGained,
     );
 
     this.save();

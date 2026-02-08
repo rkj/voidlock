@@ -113,6 +113,7 @@ All code must be clean, well-factored, easy to read, and follow these best pract
 - **Content-Driven Scaling**: Cards and panels should stretch to fit their content (`height: auto`) rather than clipping with `overflow: hidden`.
 - **Responsive Widths**: Use `max-width` with `width: 100%` for centralized layouts to ensure readability on wide screens while maintaining responsiveness on smaller ones (e.g., `max-width: 800px` for forms).
 - **Uniform Component Rendering**: Always use shared components (e.g., `SoldierWidget`) to ensure visual consistency across different UI screens.
+- **Mobile Interaction Strategy (ADR 0038)**: Adhere to the "Tap-to-Inspect" pattern for tooltips and use a hybrid Media Query / Container Query approach for layout shifts and component-level responsiveness. Minimum hit targets for mobile MUST be 44x44px.
 
 ---
 

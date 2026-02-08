@@ -40,11 +40,11 @@ describe("CoreEngine Replay Seek", () => {
       EngineMode.Replay,
       [], // commandLog
       true, // allowPause
-      100, // targetTick
+      112, // targetTick (7 updates of 16ms)
     );
 
-    // Initial state.t should be 100
-    expect(engine.getState().t).toBe(100);
+    // Initial state.t should be 112
+    expect(engine.getState().t).toBe(112);
   });
 
   it("should apply command log correctly during catch up", () => {

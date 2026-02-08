@@ -9,6 +9,9 @@ import { HUDManager } from "@src/renderer/ui/HUDManager";
 import { InputManager } from "@src/renderer/InputManager";
 import { ModalService } from "@src/renderer/ui/ModalService";
 import { CampaignShell } from "@src/renderer/ui/CampaignShell";
+import { CloudSyncService } from "@src/services/CloudSyncService";
+import type { MissionSetupScreen } from "../screens/MissionSetupScreen";
+import type { MainMenuScreen } from "../screens/MainMenuScreen";
 
 /**
  * AppContext serves as a simple Dependency Injection container or Service Locator.
@@ -26,4 +29,7 @@ export class AppContext {
   public modalService!: ModalService;
   public campaignShell!: CampaignShell;
   public configManager = ConfigManager; // Static class reference
+  public cloudSync!: CloudSyncService;
+  public missionSetupScreen!: MissionSetupScreen;
+  public mainMenuScreen!: MainMenuScreen;
 }

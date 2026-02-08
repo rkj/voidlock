@@ -8,6 +8,7 @@ This directory contains types, constants, and utilities that are shared between 
 - `campaign_types.ts`: Interfaces and types specifically for the persistent campaign mode.
 - `PRNG.ts`: A deterministic Pseudo-Random Number Generator implementation.
 - `VisibilityUtils.ts`: Optimized utilities for visibility and discovery checks using bitsets.
+- `Logger.ts`: Centralized logging utility with configurable levels (DEBUG, INFO, WARN, ERROR, NONE). Supports environment-based defaults and runtime adjustment. (ADR 0036)
 
 ## Subdirectories
 
@@ -19,6 +20,7 @@ This directory contains types, constants, and utilities that are shared between 
 ## Functionality
 
 - **Weapon & Item Systems**: Defines `WeaponLibrary` and `ItemLibrary`, supporting units with various equipment. Accuracy is handled via a percentage-based modifier model (`soldierAim + weapon.accuracy + equipmentAccuracyBonus`). Items can provide passive bonuses (HP, Speed, Accuracy) or active abilities (Heal, Grenade, Mine). Active items may require `channelTime` (e.g., Medkit, Mine), during which the unit enters a `Channeling` state.
+- **Meta-Progression**: `MetaStats` now includes `currentIntel`, `unlockedArchetypes`, and `unlockedItems` to support global, persistent progression across campaigns. Intel is earned in missions and spent in the Engineering Bay to unlock advanced archetypes and items.
 - **Type Safety**: Provides a common language for both threads to ensure data consistency.
 - **Protocol Definition**: The types here define the contract for the JSON observation/command protocol.
 - **Determinism**: The `PRNG` ensures that given the same seed, both the engine and any replays produce the same results.
@@ -32,3 +34,4 @@ This directory contains types, constants, and utilities that are shared between 
 
 - [ADR 0006: Autonomous Agent Architecture](../docs/adr/0006-autonomous-agent-architecture.md)
 - [ADR 0007: Command Pattern & Queue](../docs/adr/0007-command-pattern-queue.md)
+- [ADR 0038: Mobile Interaction Strategy](../docs/adr/0038-mobile-interaction-strategy.md)

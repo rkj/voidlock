@@ -126,6 +126,7 @@ describe("Enemy LOS Visibility", () => {
       losOverlayEnabled: true,
       mode: EngineMode.Simulation,
       debugOverlayEnabled: false,
+      debugSnapshots: false,
       timeScale: 1.0,
       isPaused: false,
       isSlowMotion: false,

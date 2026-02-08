@@ -83,6 +83,7 @@ describe("Renderer Stale Graph Regression (voidlock-weyd)", () => {
       settings: {
         mode: EngineMode.Simulation,
         debugOverlayEnabled: false,
+        debugSnapshots: false,
         losOverlayEnabled: false,
         timeScale: 1.0,
         isPaused: false,

@@ -10,7 +10,6 @@ import { ConfigManager, GameConfig } from "../ConfigManager";
 import { MapUtility } from "@src/renderer/MapUtility";
 import { MapValidator } from "@src/shared/validation/MapValidator";
 import { MapFactory } from "@src/engine/map/MapFactory";
-import { SquadBuilder } from "../components/SquadBuilder";
 import { NameGenerator } from "@src/shared/utils/NameGenerator";
 import { ArchetypeLibrary } from "@src/shared/types/units";
 
@@ -20,6 +19,8 @@ export class MissionSetupManager {
   public losOverlayEnabled = false;
   public agentControlEnabled = ConfigManager.getDefault().agentControlEnabled;
   public manualDeployment = ConfigManager.getDefault().manualDeployment;
+  public debugSnapshotInterval =
+    ConfigManager.getDefault().debugSnapshotInterval;
   public allowTacticalPause = true;
   public unitStyle = ConfigManager.loadGlobal().unitStyle;
 
@@ -36,20 +37,7 @@ export class MissionSetupManager {
   public currentSpawnPointCount = ConfigManager.getDefault().spawnPointCount;
   public currentCampaignNode: CampaignNode | null = null;
 
-  private squadBuilder: SquadBuilder;
-
-  constructor(private context: AppContext) {
-    this.squadBuilder = new SquadBuilder(
-      "squad-builder",
-      this.context,
-      this.currentSquad,
-      this.currentMissionType,
-      false,
-      (squad) => {
-        this.currentSquad = squad;
-      },
-    );
-  }
+  constructor(private context: AppContext) {}
 
   public rehydrateCampaignNode(): boolean {
     const config = ConfigManager.loadCampaign();
@@ -64,10 +52,6 @@ export class MissionSetupManager {
       }
     }
     return false;
-  }
-
-  public getSquadBuilder(): SquadBuilder {
-    return this.squadBuilder;
   }
 
   public prepareMissionSetup(
@@ -105,9 +89,6 @@ export class MissionSetupManager {
     }
 
     this.saveCurrentConfig();
-
-    this.context.campaignShell.show("campaign", "sector-map", false);
-    this.context.screenManager.show("mission-setup", true, true);
   }
 
   public saveCurrentConfig() {
@@ -175,11 +156,13 @@ export class MissionSetupManager {
       startingThreatLevel,
       baseEnemyCount,
       enemyGrowthPerMission,
+      debugSnapshotInterval: this.debugSnapshotInterval,
       campaignNodeId: this.currentCampaignNode?.id,
       bonusLootCount: this.currentCampaignNode?.bonusLootCount || 0,
     };
 
     const global = {
+      ...ConfigManager.loadGlobal(),
       unitStyle: this.unitStyle,
       themeId: this.currentThemeId,
     };
@@ -216,6 +199,12 @@ export class MissionSetupManager {
     if (mapConfigSection)
       mapConfigSection.style.display = isCampaign ? "none" : "block";
 
+    const visualStyleGroup = document.getElementById(
+      "setup-visual-style-group",
+    );
+    if (visualStyleGroup)
+      visualStyleGroup.style.display = isCampaign ? "block" : "none";
+
     const global = ConfigManager.loadGlobal();
     this.unitStyle = global.unitStyle;
     this.currentThemeId = global.themeId;
@@ -229,6 +218,10 @@ export class MissionSetupManager {
       this.losOverlayEnabled = config.losOverlayEnabled || false;
       this.agentControlEnabled = config.agentControlEnabled;
       this.manualDeployment = config.manualDeployment || false;
+      this.debugSnapshotInterval =
+        config.debugSnapshotInterval !== undefined
+          ? config.debugSnapshotInterval
+          : global.debugSnapshotInterval;
       this.allowTacticalPause =
         config.allowTacticalPause !== undefined
           ? config.allowTacticalPause
@@ -249,6 +242,7 @@ export class MissionSetupManager {
       this.losOverlayEnabled = defaults.losOverlayEnabled;
       this.agentControlEnabled = defaults.agentControlEnabled;
       this.manualDeployment = defaults.manualDeployment;
+      this.debugSnapshotInterval = global.debugSnapshotInterval;
       this.allowTacticalPause = defaults.allowTacticalPause;
       this.currentMapGeneratorType = defaults.mapGeneratorType;
       this.currentMissionType = defaults.missionType;
@@ -326,6 +320,9 @@ export class MissionSetupManager {
     } else {
       // Hydrate custom soldiers if they lack names/stats
       this.currentSquad.soldiers.forEach((s) => {
+        // Ensure custom soldiers do not have campaign IDs to prevent state leakage (ADR 0039)
+        delete s.id;
+
         if (!s.name) {
           const arch = ArchetypeLibrary[s.archetypeId];
           if (arch) {
@@ -341,7 +338,6 @@ export class MissionSetupManager {
         }
       });
     }
-    this.renderSquadBuilder(isCampaign);
   }
 
   public updateSetupUIFromConfig(config: GameConfig | Partial<GameConfig>) {
@@ -435,14 +431,6 @@ export class MissionSetupManager {
       this.currentThemeId.charAt(0).toUpperCase() +
       this.currentThemeId.slice(1);
     el.textContent = `${this.unitStyle} | ${themeLabel}`;
-  }
-
-  public renderSquadBuilder(isCampaign: boolean = false) {
-    this.squadBuilder.update(
-      this.currentSquad,
-      this.currentMissionType,
-      isCampaign,
-    );
   }
 
   public async loadStaticMap(json: string) {

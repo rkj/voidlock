@@ -58,7 +58,13 @@ export class GameClient {
   private initialMap: MapDefinition | null = null;
   private initialSquadConfig: SquadConfig | null = null;
   private initialMissionType: MissionType = MissionType.Default;
+  private initialNodeType?: CampaignNodeType;
+  private initialMissionDepth: number = 0;
+  private initialBaseEnemyCount: number = 3;
+  private initialEnemyGrowthPerMission: number = 1;
+  private initialStartingPoints?: number;
   private commandStream: RecordedCommand[] = [];
+  private snapshots: GameState[] = [];
   private startTime: number = 0;
 
   // Speed State
@@ -84,6 +90,10 @@ export class GameClient {
             t: cl.tick,
             cmd: cl.command,
           }));
+        }
+
+        if (msg.payload.snapshots) {
+          this.snapshots = msg.payload.snapshots;
         }
 
         if (
@@ -136,13 +146,27 @@ export class GameClient {
     enemyGrowthPerMission: number = 1,
     missionDepth: number = 0,
     nodeType?: CampaignNodeType,
+    startingPoints?: number,
     bonusLootCount: number = 0,
     skipDeployment: boolean = true,
+    debugSnapshots: boolean = false,
+    debugSnapshotInterval: number = 0,
+    initialSnapshots: GameState[] = [],
   ) {
     this.isStopped = false;
     this.initialSeed = seed;
     this.initialSquadConfig = squadConfig;
     this.initialMissionType = missionType;
+    this.initialNodeType = nodeType;
+    this.initialMissionDepth = missionDepth;
+    this.initialBaseEnemyCount = baseEnemyCount;
+    this.initialEnemyGrowthPerMission = enemyGrowthPerMission;
+    this.initialStartingPoints = startingPoints;
+
+    // In Replay mode, we force allowTacticalPause to false to ensure absolute pause (0.0 timescale)
+    // and disable redundant "Active Pause" logic.
+    const effectiveAllowTacticalPause =
+      mode === EngineMode.Replay ? false : allowTacticalPause;
 
     const config: MapGenerationConfig = {
       seed,
@@ -183,13 +207,19 @@ export class GameClient {
 
     // Reset speed state for new session
     this.isPaused = startPaused;
-    this.allowTacticalPause = allowTacticalPause;
+    this.allowTacticalPause = effectiveAllowTacticalPause;
 
     const minScale = this.allowTacticalPause ? 0.1 : 1.0;
     const clampedScale = Math.min(Math.max(initialTimeScale, minScale), 10.0);
 
     this.currentScale = clampedScale;
     this.lastNonPausedScale = clampedScale;
+
+    const effectiveTimeScale = this.isPaused
+      ? this.allowTacticalPause
+        ? 0.05
+        : 0.0
+      : this.currentScale;
 
     const msg: WorkerMessage = {
       type: "INIT",
@@ -198,6 +228,8 @@ export class GameClient {
         map,
         fogOfWarEnabled,
         debugOverlayEnabled,
+        debugSnapshots,
+        debugSnapshotInterval,
         agentControlEnabled,
         squadConfig: squadConfig,
         missionType,
@@ -206,11 +238,13 @@ export class GameClient {
         baseEnemyCount,
         enemyGrowthPerMission,
         missionDepth,
-        initialTimeScale: clampedScale,
-        startPaused,
-        allowTacticalPause,
+        startingPoints,
+        initialTimeScale: effectiveTimeScale,
+        startPaused: this.isPaused,
+        allowTacticalPause: effectiveAllowTacticalPause,
         mode,
         commandLog,
+        initialSnapshots,
         targetTick,
         nodeType,
         campaignNodeId,
@@ -218,15 +252,6 @@ export class GameClient {
       },
     };
     this.worker.postMessage(msg);
-
-    // Sync current scale to new worker
-    this.sendTimeScaleToWorker(
-      this.isPaused
-        ? this.allowTacticalPause
-          ? 0.05
-          : 0.0
-        : this.currentScale,
-    );
 
     if (mode === EngineMode.Simulation && typeof localStorage !== "undefined") {
       this.saveMissionConfig({
@@ -411,6 +436,12 @@ export class GameClient {
       map: this.initialMap,
       squadConfig: this.initialSquadConfig,
       commands: [...this.commandStream],
+      snapshots: [...this.snapshots],
+      nodeType: this.initialNodeType,
+      missionDepth: this.initialMissionDepth,
+      baseEnemyCount: this.initialBaseEnemyCount,
+      enemyGrowthPerMission: this.initialEnemyGrowthPerMission,
+      startingPoints: this.initialStartingPoints,
     };
   }
 
@@ -420,6 +451,10 @@ export class GameClient {
       tick: rc.t,
       command: rc.cmd,
     }));
+
+    if (data.snapshots) {
+      this.snapshots = data.snapshots;
+    }
 
     this.init(
       data.seed,
@@ -442,12 +477,16 @@ export class GameClient {
       commandLog,
       undefined, // campaignNodeId
       0, // targetTick
-      3, // baseEnemyCount
-      1, // enemyGrowthPerMission
-      0, // missionDepth
-      undefined, // nodeType
+      data.baseEnemyCount ?? 3,
+      data.enemyGrowthPerMission ?? 1,
+      data.missionDepth ?? 0,
+      data.nodeType,
+      data.startingPoints,
       0, // bonusLootCount
       true, // skipDeployment
+      true, // debugSnapshots
+      100, // debugSnapshotInterval (1.6s)
+      this.snapshots,
     );
   }
 
@@ -481,12 +520,16 @@ export class GameClient {
       commandLog,
       undefined, // campaignNodeId
       tick, // targetTick
-      3, // baseEnemyCount
-      1, // enemyGrowthPerMission
-      0, // missionDepth
-      undefined, // nodeType
+      this.initialBaseEnemyCount,
+      this.initialEnemyGrowthPerMission,
+      this.initialMissionDepth,
+      this.initialNodeType,
+      this.initialStartingPoints,
       0, // bonusLootCount
       true, // skipDeployment
+      true, // debugSnapshots
+      100, // debugSnapshotInterval (1.6s)
+      this.snapshots,
     );
   }
 

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { CampaignManager } from "@src/engine/managers/CampaignManager";
 import { MissionReport } from "@src/shared/campaign_types";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
@@ -51,16 +51,17 @@ describe("CampaignManager", () => {
     expect(state?.rules.mapGeneratorType).toBe("TreeShip");
   });
 
-  it("should save and load campaign state using StorageProvider", () => {
+  it("should save and load campaign state using StorageProvider", async () => {
     manager.startNewCampaign(12345, "Normal");
     const originalState = JSON.parse(JSON.stringify(manager.getState()));
 
     // Create a new instance with the same storage
     CampaignManager.resetInstance();
     const newManager = CampaignManager.getInstance(storage);
-    const success = newManager.load();
+    const success = await newManager.load();
 
     expect(success).toBe(true);
+    // Note: equal ignores saveVersion differences if they exist, but they should be equal here
     expect(newManager.getState()).toEqual(originalState);
   });
 

@@ -1,6 +1,7 @@
 import { GameClient } from "@src/engine/GameClient";
 import { GameState, EngineMode, UnitStyle } from "@src/shared/types";
 import { Renderer } from "@src/renderer/Renderer";
+import { Logger } from "@src/shared/Logger";
 
 export class ReplayController {
   private gameClient: GameClient;
@@ -31,7 +32,7 @@ export class ReplayController {
   public startReplay(totalTime: number) {
     const replayData = this.gameClient.getReplayData();
     if (!replayData) {
-      console.warn("ReplayController: No replay data available.");
+      Logger.warn("ReplayController: No replay data available.");
       return;
     }
 
@@ -60,8 +61,12 @@ export class ReplayController {
         const progress = (state.t / this.totalTime) * 100;
         this.onProgressUpdate(Math.min(100, progress));
 
-        if (progress >= 100 && this.isLooping) {
-          this.seek(0);
+        if (progress >= 100) {
+          if (this.isLooping) {
+            this.seek(0);
+          } else if (!this.gameClient.getIsPaused()) {
+            this.gameClient.pause();
+          }
         }
       }
     }
@@ -71,8 +76,15 @@ export class ReplayController {
     this.gameClient.setTimeScale(speed);
   }
 
+  private lastSeekRequest: number = 0;
+
   public seek(progress: number) {
     if (this.totalTime <= 0) return;
+
+    const now = performance.now();
+    if (now - this.lastSeekRequest < 16) return; // Limit to ~60fps
+    this.lastSeekRequest = now;
+
     const targetTime = (progress / 100) * this.totalTime;
     // Tick rate is 16ms
     this.gameClient.seek(targetTime);

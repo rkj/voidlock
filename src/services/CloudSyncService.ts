@@ -1,18 +1,28 @@
-import { 
-  doc, 
-  setDoc, 
-  getDoc, 
-  getDocs, 
-  collection, 
-  query, 
-  where, 
+import {
+  doc,
+  setDoc,
+  getDoc,
+  getDocs,
+  collection,
+  query,
+  where,
   serverTimestamp,
-  Timestamp 
+  Timestamp,
 } from "firebase/firestore";
-import { signInAnonymously, onAuthStateChanged } from "firebase/auth";
-import { db, auth } from "./firebase";
+import {
+  signInAnonymously,
+  onAuthStateChanged,
+  GoogleAuthProvider,
+  GithubAuthProvider,
+  signInWithPopup,
+  linkWithPopup,
+  signOut,
+  User,
+} from "firebase/auth";
+import { db, auth, isFirebaseConfigured } from "./firebase";
 import { CampaignStateSchema } from "@src/shared/schemas/campaign";
 import { CampaignState, CampaignSummary } from "@src/shared/campaign_types";
+import { Logger } from "@src/shared/Logger";
 import pkg from "../../package.json";
 
 /**
@@ -20,9 +30,22 @@ import pkg from "../../package.json";
  */
 export class CloudSyncService {
   private userId: string | null = null;
+  private user: User | null = null;
   private syncEnabled: boolean = false;
+  private userDesiredSync: boolean = true;
   private initialized: boolean = false;
   private initializationPromise: Promise<void> | null = null;
+  private onAuthStateChangedCallbacks: ((user: User | null) => void)[] = [];
+
+  /**
+   * Sets whether the user desires to use cloud sync.
+   */
+  setEnabled(enabled: boolean): void {
+    this.userDesiredSync = enabled;
+    if (!enabled) {
+      this.syncEnabled = false;
+    }
+  }
 
   /**
    * Initializes the service, ensuring the user is authenticated (anonymously if needed).
@@ -31,22 +54,32 @@ export class CloudSyncService {
     if (this.initialized) return;
     if (this.initializationPromise) return this.initializationPromise;
 
+    if (!isFirebaseConfigured || !this.userDesiredSync) {
+      this.syncEnabled = false;
+      this.initialized = true;
+      return Promise.resolve();
+    }
+
     this.initializationPromise = new Promise((resolve) => {
       onAuthStateChanged(auth, async (user) => {
         if (user) {
+          this.user = user;
           this.userId = user.uid;
           this.syncEnabled = true;
           this.initialized = true;
+          this.notifyAuthStateChanged(user);
           resolve();
         } else {
           try {
             const credential = await signInAnonymously(auth);
+            this.user = credential.user;
             this.userId = credential.user.uid;
             this.syncEnabled = true;
             this.initialized = true;
+            this.notifyAuthStateChanged(this.user);
             resolve();
           } catch (error) {
-            console.error("Firebase anonymous sign-in failed:", error);
+            Logger.error("Firebase anonymous sign-in failed:", error);
             this.syncEnabled = false;
             this.initialized = true;
             resolve();
@@ -56,6 +89,81 @@ export class CloudSyncService {
     });
 
     return this.initializationPromise;
+  }
+
+  /**
+   * Signs in with Google.
+   */
+  async signInWithGoogle(): Promise<void> {
+    if (!isFirebaseConfigured) {
+      throw new Error("Firebase not configured");
+    }
+    const provider = new GoogleAuthProvider();
+    try {
+      if (this.user?.isAnonymous) {
+        // Link anonymous account to Google
+        await linkWithPopup(this.user, provider);
+      } else {
+        await signInWithPopup(auth, provider);
+      }
+    } catch (error) {
+      Logger.error("Google sign-in/link failed:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Signs in with GitHub.
+   */
+  async signInWithGithub(): Promise<void> {
+    if (!isFirebaseConfigured) {
+      throw new Error("Firebase not configured");
+    }
+    const provider = new GithubAuthProvider();
+    try {
+      if (this.user?.isAnonymous) {
+        // Link anonymous account to GitHub
+        await linkWithPopup(this.user, provider);
+      } else {
+        await signInWithPopup(auth, provider);
+      }
+    } catch (error) {
+      Logger.error("GitHub sign-in/link failed:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Signs out.
+   */
+  async signOut(): Promise<void> {
+    if (!isFirebaseConfigured) return;
+    try {
+      await signOut(auth);
+      // After sign out, initialize will be called by onAuthStateChanged to sign in anonymously
+    } catch (error) {
+      Logger.error("Sign out failed:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Subscribes to auth state changes.
+   */
+  onAuthStateChanged(callback: (user: User | null) => void): () => void {
+    this.onAuthStateChangedCallbacks.push(callback);
+    // Immediately call with current state if initialized
+    if (this.initialized) {
+      callback(this.user);
+    }
+    return () => {
+      this.onAuthStateChangedCallbacks =
+        this.onAuthStateChangedCallbacks.filter((c) => c !== callback);
+    };
+  }
+
+  private notifyAuthStateChanged(user: User | null): void {
+    this.onAuthStateChangedCallbacks.forEach((callback) => callback(user));
   }
 
   /**
@@ -84,9 +192,9 @@ export class CloudSyncService {
           difficulty: data.rules.difficulty,
           status: data.status,
           soldierCount: data.roster.length,
-        }
+        },
       },
-      { merge: true }
+      { merge: true },
     );
   }
 
@@ -106,12 +214,12 @@ export class CloudSyncService {
     if (!snapshot.exists()) return null;
 
     const docData = snapshot.data();
-    
+
     // Validate with Zod schema from ADR-0033
     const result = CampaignStateSchema.safeParse(docData.data);
 
     if (!result.success) {
-      console.error("Invalid cloud save data:", result.error);
+      Logger.error("Invalid cloud save data:", result.error);
       return null;
     }
 
@@ -134,8 +242,11 @@ export class CloudSyncService {
     const summaries: CampaignSummary[] = [];
     querySnapshot.forEach((doc) => {
       const data = doc.data();
-      const updatedAt = data.updatedAt instanceof Timestamp ? data.updatedAt.toMillis() : Date.now();
-      
+      const updatedAt =
+        data.updatedAt instanceof Timestamp
+          ? data.updatedAt.toMillis()
+          : Date.now();
+
       summaries.push({
         campaignId: data.campaignId,
         updatedAt,
@@ -154,7 +265,19 @@ export class CloudSyncService {
     return this.userId;
   }
 
+  getUser(): User | null {
+    return this.user;
+  }
+
+  isAnonymous(): boolean {
+    return this.user?.isAnonymous ?? true;
+  }
+
   isSyncEnabled(): boolean {
     return this.syncEnabled;
+  }
+
+  isConfigured(): boolean {
+    return isFirebaseConfigured;
   }
 }

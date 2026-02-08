@@ -50,6 +50,11 @@ vi.mock("@src/renderer/ThemeManager", () => ({
     getInstance: vi.fn().mockReturnValue({
       init: vi.fn().mockResolvedValue(undefined),
       setTheme: vi.fn(),
+      getAssetUrl: vi.fn().mockReturnValue("mock-url"),
+      getColor: vi.fn().mockReturnValue("#000"),
+      getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
+      getCurrentThemeId: vi.fn().mockReturnValue("default"),
+      applyTheme: vi.fn(),
     }),
   },
 }));
@@ -167,6 +172,7 @@ describe("Screen Flow Integration", () => {
               <div id="screen-equipment" class="screen" style="display:none"></div>
               <div id="screen-statistics" class="screen" style="display:none"></div>
               <div id="screen-settings" class="screen" style="display:none"></div>
+              <div id="screen-engineering" class="screen" style="display:none"></div>
           </div>
       </div>
 
@@ -220,7 +226,7 @@ describe("Screen Flow Integration", () => {
       "flex",
     );
 
-    // 2. Campaign -> Mission Setup
+    // 2. Campaign -> Mission Setup (SKIPPED) -> Equipment
     // CampaignScreen renders nodes as .campaign-node
     const nodes = document.querySelectorAll(".campaign-node");
     expect(nodes.length).toBeGreaterThan(0);
@@ -229,28 +235,15 @@ describe("Screen Flow Integration", () => {
     // Wait for async onCampaignNodeSelected
     await new Promise((resolve) => setTimeout(resolve, 50));
 
+    // EXPECTATION: Mission Setup is skipped, goes straight to Equipment
     expect(document.getElementById("screen-mission-setup")?.style.display).toBe(
-      "flex",
+      "none",
     );
-
-    // 3. Mission Setup -> Equipment
-    const btnGotoEquipment = document.getElementById(
-      "btn-goto-equipment",
-    ) as HTMLButtonElement;
-    // In campaign mode, squad builder has soldier cards
-    const cards = document.querySelectorAll(".soldier-card");
-    cards.forEach((card) => {
-      if (!card.classList.contains("selected")) {
-        card.dispatchEvent(new Event("dblclick"));
-      }
-    });
-
-    btnGotoEquipment.click();
     expect(document.getElementById("screen-equipment")?.style.display).toBe(
       "flex",
     );
 
-    // 4. Equipment -> Mission
+    // 3. Equipment -> Mission
     const allButtons = document.querySelectorAll("#screen-equipment button");
     const equipmentLaunchBtn = Array.from(allButtons).find((b) =>
       b.textContent?.includes("Confirm"),
@@ -280,7 +273,12 @@ describe("Screen Flow Integration", () => {
         },
       ],
       objectives: [],
-      settings: { debugOverlayEnabled: false, timeScale: 1.0, isPaused: false },
+      settings: {
+        debugOverlayEnabled: false,
+        debugSnapshots: false,
+        timeScale: 1.0,
+        isPaused: false,
+      },
       map: { width: 10, height: 10, cells: [] },
       enemies: [],
       visibleCells: [],
@@ -351,7 +349,12 @@ describe("Screen Flow Integration", () => {
         },
       ], // Dead
       objectives: [],
-      settings: { debugOverlayEnabled: false, timeScale: 1.0, isPaused: false },
+      settings: {
+        debugOverlayEnabled: false,
+        debugSnapshots: false,
+        timeScale: 1.0,
+        isPaused: false,
+      },
       map: { width: 10, height: 10, cells: [] },
       enemies: [],
       visibleCells: [],
@@ -382,48 +385,27 @@ describe("Screen Flow Integration", () => {
     // Check tabs are visible
     expect(document.querySelector(".tab-button")).not.toBeNull();
 
-    // 2. Campaign -> Mission Setup
+    // 2. Campaign -> Mission Setup (SKIPPED) -> Equipment
     const nodes = document.querySelectorAll(".campaign-node");
     expect(nodes.length).toBeGreaterThan(0);
     (nodes[0] as HTMLElement).click();
     await new Promise((resolve) => setTimeout(resolve, 50));
 
     expect(document.getElementById("screen-mission-setup")?.style.display).toBe(
+      "none",
+    );
+    expect(document.getElementById("screen-equipment")?.style.display).toBe(
       "flex",
     );
 
     // Check tabs are HIDDEN
     expect(document.querySelector(".tab-button")).toBeNull();
 
-    // 3. Mission Setup -> Equipment
-    const btnGotoEquipment = document.getElementById(
-      "btn-goto-equipment",
-    ) as HTMLButtonElement;
-    btnGotoEquipment.click();
-
-    expect(document.getElementById("screen-equipment")?.style.display).toBe(
-      "flex",
-    );
-
-    // Check tabs are still HIDDEN
-    expect(document.querySelector(".tab-button")).toBeNull();
-
-    // 4. Equipment -> Back to Mission Setup
+    // 3. Equipment -> Back to Campaign Map
     const backBtn = Array.from(
       document.querySelectorAll("#screen-equipment button"),
     ).find((b) => b.textContent === "Back") as HTMLElement;
     backBtn?.click();
-
-    expect(document.getElementById("screen-mission-setup")?.style.display).toBe(
-      "flex",
-    );
-    expect(document.querySelector(".tab-button")).toBeNull();
-
-    // 5. Mission Setup -> Back to Campaign Map
-    const setupBackBtn = document.getElementById(
-      "btn-setup-back",
-    ) as HTMLButtonElement;
-    setupBackBtn?.click();
 
     expect(document.getElementById("screen-campaign")?.style.display).toBe(
       "flex",

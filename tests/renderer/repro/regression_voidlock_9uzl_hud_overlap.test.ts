@@ -4,6 +4,21 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { GameApp } from "@src/renderer/app/GameApp";
 
+// Mock ThemeManager
+vi.mock("@src/renderer/ThemeManager", () => ({
+  ThemeManager: {
+    getInstance: vi.fn().mockReturnValue({
+      init: vi.fn().mockResolvedValue(undefined),
+      setTheme: vi.fn(),
+      getAssetUrl: vi.fn().mockReturnValue("mock-url"),
+      getColor: vi.fn().mockReturnValue("#000"),
+      getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
+      getCurrentThemeId: vi.fn().mockReturnValue("default"),
+      applyTheme: vi.fn(),
+    }),
+  },
+}));
+
 // Mock Canvas
 HTMLCanvasElement.prototype.getContext = vi.fn(() => ({
   clearRect: vi.fn(),
@@ -58,6 +73,7 @@ describe("Regression voidlock-9uzl: HUD visibility on mission end", () => {
         <div id="unit-style-preview"></div>
       </div>
       <div id="screen-statistics" style="display: none;"></div>
+      <div id="screen-engineering" style="display: none;"></div>
       <div id="screen-settings" class="screen" style="display:none"></div>
       <div id="squad-builder"></div>
       <div id="game-canvas-container">

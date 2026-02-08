@@ -20,7 +20,28 @@ describe("EquipmentScreen", () => {
     };
 
     mockManager = {
-      getState: vi.fn().mockReturnValue(null),
+      getState: vi.fn().mockReturnValue({
+        unlockedItems: ["heavy_plate"],
+        roster: [
+          {
+            id: "assault-id",
+            archetypeId: "assault",
+            status: "Healthy",
+            equipment: {},
+          },
+          {
+            id: "medic-id",
+            archetypeId: "medic",
+            status: "Healthy",
+            equipment: {},
+          },
+        ],
+        scrap: 1000,
+        rules: { economyMode: "Open" },
+        unlockedArchetypes: ["assault", "medic", "heavy", "scout"],
+      }),
+      spendScrap: vi.fn(),
+      assignEquipment: vi.fn(),
     };
 
     onSave = vi.fn();
@@ -38,12 +59,9 @@ describe("EquipmentScreen", () => {
     );
     screen.show();
 
-    // Only looking at the left panel for now, it should have at least 2 items for 2 soldiers
-    // Actually, we render many items (armory also has clickable items).
-    // Let's be more specific.
-    const soldierNames = Array.from(container.querySelectorAll("div")).map(
-      (el) => el.textContent?.trim(),
-    );
+    const soldierNames = Array.from(
+      container.querySelectorAll(".soldier-list-panel .menu-item"),
+    ).map((el) => el.textContent?.trim());
     expect(soldierNames.some((name) => name?.includes("Assault"))).toBe(true);
     expect(soldierNames.some((name) => name?.includes("Medic"))).toBe(true);
   });
@@ -60,14 +78,14 @@ describe("EquipmentScreen", () => {
     screen.show();
 
     let soldierItems = Array.from(
-      container.querySelectorAll(".menu-item.clickable"),
+      container.querySelectorAll(".soldier-list-panel .menu-item.clickable"),
     ).filter((el) => el.textContent?.includes("Medic"));
     let medicItem = soldierItems[0] as HTMLElement;
     medicItem.click();
 
     // After clicking, it re-renders. We need to find the new element.
     soldierItems = Array.from(
-      container.querySelectorAll(".menu-item.clickable"),
+      container.querySelectorAll(".soldier-list-panel .menu-item.clickable"),
     ).filter((el) => el.textContent?.includes("Medic"));
     medicItem = soldierItems[0] as HTMLElement;
 
@@ -88,7 +106,9 @@ describe("EquipmentScreen", () => {
 
     // Check soldier list display
     const soldierListTexts = Array.from(
-      container.querySelectorAll(".menu-item.clickable div"),
+      container.querySelectorAll(
+        ".soldier-list-panel .menu-item.clickable div",
+      ),
     ).map((el) => el.textContent?.trim());
     expect(soldierListTexts.some((text) => text?.includes("Pulse Rifle"))).toBe(
       true,
@@ -97,8 +117,10 @@ describe("EquipmentScreen", () => {
       soldierListTexts.some((text) => text?.includes("Combat Knife")),
     ).toBe(true);
 
-    // Check paper doll slots
-    const slots = Array.from(container.querySelectorAll(".paper-doll-slot"));
+    // Check paper doll slots in center panel
+    const slots = Array.from(
+      container.querySelectorAll(".soldier-equipment-panel .paper-doll-slot"),
+    );
     const rightHandSlot = slots.find((el) =>
       el.textContent?.includes("Right Hand"),
     );
@@ -121,11 +143,11 @@ describe("EquipmentScreen", () => {
     );
     screen.show();
 
-    // Find Frag Grenade row in armory
-    const rows = Array.from(container.querySelectorAll("div")).filter((el) =>
-      el.textContent?.includes("Frag Grenade"),
-    );
-    const row = rows[0].parentElement!; // The row containing "Frag Grenade" and buttons
+    // Find Frag Grenade row in armory panel (global supplies section)
+    const rows = Array.from(
+      container.querySelectorAll(".armory-panel .card"),
+    ).filter((el) => el.textContent?.includes("Frag Grenade"));
+    const row = rows[0] as HTMLElement;
     const plusBtn = Array.from(row.querySelectorAll("button")).find(
       (btn) => btn.textContent === "+",
     );
@@ -159,9 +181,9 @@ describe("EquipmentScreen", () => {
     screen.show();
 
     // Selected soldier is Assault (index 0)
-    // Find "Pulse Rifle" in armory
+    // Find "Pulse Rifle" in armory panel
     const pulseRifleBtn = Array.from(
-      container.querySelectorAll(".menu-item.clickable"),
+      container.querySelectorAll(".armory-panel .menu-item.clickable"),
     ).find((el) => el.textContent?.includes("Pulse Rifle")) as HTMLElement;
     pulseRifleBtn?.click();
 
@@ -194,9 +216,9 @@ describe("EquipmentScreen", () => {
     screen.show();
 
     // Default Assault HP is 100
-    // Find Heavy Plate Armor in armory
+    // Find Heavy Plate Armor in armory panel
     const armorBtn = Array.from(
-      container.querySelectorAll(".menu-item.clickable"),
+      container.querySelectorAll(".armory-panel .menu-item.clickable"),
     ).find((el) =>
       el.textContent?.includes("Heavy Plate Armor"),
     ) as HTMLElement;
@@ -208,7 +230,7 @@ describe("EquipmentScreen", () => {
     )?.parentElement;
     expect(soldierStatsDiv?.textContent).toContain("250"); // 100 + 150
 
-    // Check Speed - should be raw 15 (20 - 5 penalty)
+    // Check Speed - should be 15 (20 - 5 penalty)
     expect(soldierStatsDiv?.textContent).toContain("15");
   });
 
@@ -246,9 +268,9 @@ describe("EquipmentScreen", () => {
     );
     screen.show();
 
-    const soldierNames = Array.from(container.querySelectorAll("div")).map(
-      (el) => el.textContent?.trim(),
-    );
+    const soldierNames = Array.from(
+      container.querySelectorAll(".soldier-list-panel div"),
+    ).map((el) => el.textContent?.trim());
     expect(soldierNames.some((name) => name?.includes("Captain Kirk"))).toBe(
       true,
     );

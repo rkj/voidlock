@@ -36,6 +36,7 @@ describe("MissionManager Expendable Win Logic", () => {
     settings: {
       mode: "Simulation" as any,
       debugOverlayEnabled: false,
+      debugSnapshots: false,
       losOverlayEnabled: false,
       timeScale: 1,
       isPaused: false,

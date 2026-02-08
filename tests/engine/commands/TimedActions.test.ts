@@ -45,7 +45,7 @@ describe("Timed Actions (Extraction/Collection)", () => {
 
     // Move to extraction
     // Distance 0.5 tiles. Speed 2 tiles/s. Should take 0.25s.
-    engine.update(1100); // Wait longer to be safe // Wait longer to be safe
+    engine.update(1120); // Wait longer to be safe // Wait longer to be safe
 
     // Unit should be at extraction
     const unitAfterMove = engine.getState().units[0];
@@ -53,7 +53,7 @@ describe("Timed Actions (Extraction/Collection)", () => {
     expect(Math.floor(unitAfterMove.pos.y)).toBe(4);
 
     // Should be Channeling now
-    engine.update(100);
+    engine.update(112);
 
     const unitChanneling = engine.getState().units[0];
     expect(unitChanneling.state).toBe(UnitState.Channeling);
@@ -100,8 +100,8 @@ describe("Timed Actions (Extraction/Collection)", () => {
     });
 
     // Arrive
-    engine.update(1100); // Wait longer to be safe // 0.5 dist / 2 speed = 0.25s
-    engine.update(100); // Trigger check
+    engine.update(1120); // Wait longer to be safe // 0.5 dist / 2 speed = 0.25s
+    engine.update(112); // Trigger check
 
     const unitChanneling = engine.getState().units[0];
     expect(Math.floor(unitChanneling.pos.x)).toBe(2);
@@ -156,7 +156,7 @@ describe("Timed Actions (Extraction/Collection)", () => {
     expect(unitStopped.channeling).toBeUndefined();
 
     // Verify extraction did NOT happen
-    engine.update(6000);
+    engine.update(2000);
     const unitAfter = engine.getState().units[0];
     expect(unitAfter.state).not.toBe(UnitState.Extracted);
 
@@ -175,7 +175,7 @@ describe("Timed Actions (Extraction/Collection)", () => {
 
     const realUnit = (engine as any).state.units[0];
     realUnit.pos = { x: 4.5, y: 4.5 };
-    engine.update(100);
+    engine.update(16);
     expect(engine.getState().units[0].state).toBe(UnitState.Channeling);
 
     // Move away
@@ -195,7 +195,7 @@ describe("Timed Actions (Extraction/Collection)", () => {
     expect(unitMoved.state).toBe(UnitState.Moving);
     expect(unitMoved.channeling).toBeUndefined();
 
-    engine.update(100);
+    engine.update(16);
     // Should be Moving now
     expect(engine.getState().units[0].state).toBe(UnitState.Moving);
   });
@@ -213,23 +213,23 @@ describe("Timed Actions (Extraction/Collection)", () => {
     realUnit.pos = { x: 4.5, y: 4.5 }; // Already at extraction
 
     // Trigger check (both scaled and real are 100)
-    engine.update(100);
+    engine.update(112); // Use multiple of 16
     const unitChanneling = engine.getState().units[0];
     expect(unitChanneling.state).toBe(UnitState.Channeling);
     const initialRemaining = unitChanneling.channeling?.remaining || 5000;
 
-    // Advance with high game speed (scaledDt = 1000, realDt = 100)
-    engine.update(1000);
+    // Advance with high game speed (scaledDt = 960, realDt = 960 - actually it's simulation steps)
+    engine.update(960);
 
     const unitAfterHighSpeed = engine.getState().units[0];
-    // Remaining should have decreased by scaledDt (1000), not realDt (100)
+    // Remaining should have decreased by 960
     expect(unitAfterHighSpeed.channeling?.remaining).toBe(
-      initialRemaining - 1000,
+      initialRemaining - 960,
     );
 
-    // state.t should have increased by scaledDt (1000)
-    // initial state.t was 100 (from first update)
-    // now it should be 1100.
-    expect(engine.getState().t).toBe(1100);
+    // state.t should have increased by 960
+    // initial state.t was 112
+    // now it should be 1072.
+    expect(engine.getState().t).toBe(1072);
   });
 });

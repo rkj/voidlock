@@ -96,7 +96,7 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
       s.textContent?.includes("Right Hand"),
     );
     const removeBtn = primarySlot?.querySelector(
-      "div[style*='cursor: pointer']",
+      ".slot-remove-btn",
     ) as HTMLElement;
 
     expect(removeBtn).toBeTruthy();

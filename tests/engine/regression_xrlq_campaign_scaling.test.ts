@@ -21,7 +21,7 @@ describe("Director & Campaign Scaling Regression (xrlq)", () => {
   const squadConfig = { soldiers: [], inventory: {} };
 
   it("CoreEngine: should calculate correct startingPoints for Director at rank 0", () => {
-    // Rank 0, base 3, growth 1.0 => startingPoints = 3 + 0*1 = 3
+    // Rank 0, base 3, growth 1.0 => startingPoints = 0 (Mission 1 safety)
     const engine = new CoreEngine(
       map,
       12345,
@@ -43,8 +43,8 @@ describe("Director & Campaign Scaling Regression (xrlq)", () => {
     );
 
     const state = engine.getState();
-    // 3 enemies should be pre-spawned
-    expect(state.enemies.length).toBe(3);
+    // 0 enemies should be pre-spawned for Mission 1
+    expect(state.enemies.length).toBe(0);
   });
 
   it("CoreEngine: should calculate correct startingPoints for Director at rank 5", () => {

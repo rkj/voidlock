@@ -1,20 +1,29 @@
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import { MetaManager } from "@src/renderer/campaign/MetaManager";
+import { InputDispatcher } from "../InputDispatcher";
+import { InputPriority } from "@src/shared/types";
+import { UIUtils } from "../utils/UIUtils";
 
 export type CampaignTabId =
   | "sector-map"
   | "barracks"
   | "engineering"
   | "stats"
+  | "settings"
+  | "setup"
   | "main-menu";
-export type CampaignShellMode = "campaign" | "statistics" | "custom" | "none";
+export type CampaignShellMode =
+  | "campaign"
+  | "statistics"
+  | "custom"
+  | "global"
+  | "none";
 
 export class CampaignShell {
   private container: HTMLElement;
   private manager: CampaignManager;
   private onTabChange: (tabId: CampaignTabId) => void;
   private onMenu: () => void;
-  private onSettings: () => void;
   private activeTabId: CampaignTabId = "sector-map";
   private mode: CampaignShellMode = "none";
   private showTabs: boolean = true;
@@ -24,7 +33,6 @@ export class CampaignShell {
     manager: CampaignManager,
     onTabChange: (tabId: CampaignTabId) => void,
     onMenu: () => void,
-    onSettings: () => void,
   ) {
     const el = document.getElementById(containerId);
     if (!el) throw new Error(`Container #${containerId} not found`);
@@ -32,7 +40,6 @@ export class CampaignShell {
     this.manager = manager;
     this.onTabChange = onTabChange;
     this.onMenu = onMenu;
-    this.onSettings = onSettings;
   }
 
   public show(
@@ -45,11 +52,39 @@ export class CampaignShell {
     this.showTabs = showTabs;
     this.container.style.display = "flex";
     this.render();
+    this.pushInputContext();
   }
 
   public hide() {
     this.mode = "none";
     this.container.style.display = "none";
+    InputDispatcher.getInstance().popContext("campaign-shell");
+  }
+
+  private pushInputContext() {
+    InputDispatcher.getInstance().pushContext({
+      id: "campaign-shell",
+      priority: InputPriority.UI - 1, // Slightly lower than active screen
+      trapsFocus: false, // Shell shouldn't trap focus because content area needs it
+      handleKeyDown: (e) => this.handleKeyDown(e),
+      getShortcuts: () => [],
+    });
+  }
+
+  private handleKeyDown(e: KeyboardEvent): boolean {
+    if (this.mode === "none") return false;
+
+    // Navigation between tabs via arrow keys if focus is on a tab
+    if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
+      const topBar = this.container.querySelector(
+        "#campaign-shell-top-bar",
+      ) as HTMLElement;
+      if (topBar && topBar.contains(document.activeElement)) {
+        return UIUtils.handleArrowNavigation(e, topBar);
+      }
+    }
+
+    return false;
   }
 
   public refresh() {
@@ -110,12 +145,17 @@ export class CampaignShell {
         <div style="font-size: 0.7em; color: var(--color-text-dim); text-transform: uppercase; letter-spacing: 1px;">Custom Mission</div>
         <div style="font-size: 0.9em; font-weight: bold; color: var(--color-primary);">Simulation Setup</div>
       `;
+    } else if (this.mode === "global") {
+      leftPart.innerHTML = `
+        <div style="font-size: 0.7em; color: var(--color-text-dim); text-transform: uppercase; letter-spacing: 1px;">Settings</div>
+        <div style="font-size: 0.9em; font-weight: bold; color: var(--color-primary);">Global Configuration</div>
+      `;
     }
     topBar.appendChild(leftPart);
 
     // Right Side: Resources + Navigation + Menu
     const rightSide = document.createElement("div");
-    rightSide.className = "flex-row align-center gap-20";
+    rightSide.className = "shell-controls-right flex-row align-center gap-20";
 
     // Resources
     if (this.mode === "campaign" && state) {
@@ -136,7 +176,7 @@ export class CampaignShell {
 
     // Navigation Tabs
     const nav = document.createElement("div");
-    nav.className = "flex-row gap-5";
+    nav.className = "shell-tabs flex-row gap-5";
 
     if (this.showTabs) {
       const tabs: { id: CampaignTabId; label: string }[] = [];
@@ -144,16 +184,23 @@ export class CampaignShell {
       if (this.mode === "campaign" && state) {
         tabs.push({ id: "sector-map", label: "Sector Map" });
         tabs.push({ id: "barracks", label: "Barracks" });
+        tabs.push({ id: "engineering", label: "Engineering" });
         tabs.push({ id: "stats", label: "Service Record" });
+        tabs.push({ id: "settings", label: "Settings" });
       } else if (this.mode === "statistics") {
         tabs.push({ id: "stats", label: "Service Record" });
-        tabs.push({ id: "main-menu", label: "Main Menu" }); // Spec: Back tab
+        tabs.push({ id: "engineering", label: "Engineering" });
+      } else if (this.mode === "custom") {
+        tabs.push({ id: "setup", label: "Setup" });
+        tabs.push({ id: "stats", label: "Service Record" });
+        tabs.push({ id: "settings", label: "Settings" });
       }
 
       tabs.forEach((tab) => {
         const btn = document.createElement("button");
         btn.textContent = tab.label;
-        btn.className = `tab-button ${this.activeTabId === tab.id ? "active" : ""}`;
+        btn.className = `tab-button shell-tab ${this.activeTabId === tab.id ? "active" : ""}`;
+        btn.setAttribute("data-id", tab.id);
         btn.style.padding = "5px 12px";
         btn.style.height = "32px";
         btn.style.fontSize = "0.85em";
@@ -171,19 +218,8 @@ export class CampaignShell {
     }
     rightSide.appendChild(nav);
 
-    const settingsBtn = document.createElement("button");
-    settingsBtn.textContent = "Settings";
-    settingsBtn.className = "menu-button";
-    settingsBtn.style.margin = "0";
-    settingsBtn.style.padding = "5px 12px";
-    settingsBtn.style.height = "32px";
-    settingsBtn.style.fontSize = "0.85em";
-    settingsBtn.style.display = "flex";
-    settingsBtn.style.alignItems = "center";
-    settingsBtn.onclick = () => this.onSettings();
-    rightSide.appendChild(settingsBtn);
-
-    if (this.mode !== "statistics") {
+    // Main Menu Button (Always on the far right)
+    if (this.mode !== "none") {
       const menuBtn = document.createElement("button");
       menuBtn.textContent = "Main Menu";
       menuBtn.className = "back-button";
@@ -259,6 +295,42 @@ export class CampaignShell {
         <span style="text-transform: uppercase; letter-spacing: 1px; opacity: 0.7;">Missions Won:</span>
         <span style="color: var(--color-primary); font-weight: bold;">${stats.totalMissionsWon.toLocaleString()}</span>
       </div>
+      
+      <div class="flex-grow"></div>
+
+      <div id="sync-status-indicator" class="sync-status">
+        <!-- Will be filled by updateSyncUI -->
+      </div>
     `;
+
+    this.updateSyncUI(
+      container.querySelector("#sync-status-indicator") as HTMLElement,
+    );
+  }
+
+  private updateSyncUI(el: HTMLElement) {
+    const status = (this.manager as any).getSyncStatus
+      ? this.manager.getSyncStatus()
+      : "local-only";
+    let icon = "💾";
+    let text = "Local Only";
+    let className = "local";
+
+    if (status === "synced") {
+      icon = "☁️";
+      text = "Cloud Synced";
+      className = "synced";
+    } else if (status === "syncing") {
+      icon = "🔄";
+      text = "Syncing...";
+      className = "syncing";
+    }
+
+    el.className = `sync-status ${className}`;
+    el.innerHTML = `
+      <span class="sync-icon">${icon}</span>
+      <span>${text}</span>
+    `;
+    el.title = `Data Storage Status: ${text}`;
   }
 }

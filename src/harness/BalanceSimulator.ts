@@ -1,5 +1,6 @@
 import { CoreEngine } from "@src/engine/CoreEngine";
 import { DenseShipGenerator } from "@src/engine/generators/DenseShipGenerator";
+import { Logger } from "@src/shared/Logger";
 import {
   SquadConfig,
   MissionType,
@@ -17,7 +18,7 @@ async function runSimulation() {
   let totalCasualties = 0;
   let winsWithCasualties = 0;
 
-  console.log(`Starting Balance Simulation (${ITERATIONS} iterations)...`);
+  Logger.info(`Starting Balance Simulation (${ITERATIONS} iterations)...`);
 
   for (let i = 0; i < ITERATIONS; i++) {
     const seed = Math.floor(Math.random() * 100000);
@@ -73,13 +74,13 @@ async function runSimulation() {
     if (i % 5 === 0) process.stdout.write(".");
   }
 
-  console.log("\n--- Results ---");
-  console.log(`Wins: ${wins} (${(wins / ITERATIONS) * 100}%)`);
-  console.log(`Losses: ${losses}`);
-  console.log(
+  Logger.info("\n--- Results ---");
+  Logger.info(`Wins: ${wins} (${(wins / ITERATIONS) * 100}%)`);
+  Logger.info(`Losses: ${losses}`);
+  Logger.info(
     `Avg Casualties (Wins): ${(wins > 0 ? totalCasualties / wins : 0).toFixed(2)}`,
   );
-  console.log(
+  Logger.info(
     `Wins with Casualties: ${winsWithCasualties} (${(wins > 0 ? (winsWithCasualties / wins) * 100 : 0).toFixed(1)}%)`,
   );
 }

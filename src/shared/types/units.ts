@@ -79,6 +79,7 @@ export type Unit = Entity & {
   kills: number;
   damageDealt: number;
   objectivesCompleted: number;
+  isDeployed?: boolean;
 };
 
 export type Archetype = {
@@ -154,6 +155,34 @@ export const ArchetypeLibrary: { [id: string]: Archetype } = {
     aiProfile: AIProfile.STAND_GROUND,
     leftHand: "thunder_hammer",
     rightHand: "shotgun",
+  },
+  sniper: {
+    id: "sniper",
+    name: "Sniper",
+    baseHp: 80,
+    damage: 60,
+    fireRate: 2000,
+    accuracy: 95,
+    soldierAim: 90,
+    attackRange: 15,
+    speed: 20,
+    aiProfile: AIProfile.STAND_GROUND,
+    leftHand: "combat_knife",
+    rightHand: "sniper_rifle",
+  },
+  demolitionist: {
+    id: "demolitionist",
+    name: "Demolitionist",
+    baseHp: 110,
+    damage: 25,
+    fireRate: 100,
+    accuracy: 75,
+    soldierAim: 70,
+    attackRange: 3,
+    speed: 18,
+    aiProfile: AIProfile.RUSH,
+    leftHand: "combat_knife",
+    rightHand: "flamer",
   },
   vip: {
     id: "vip",
@@ -268,6 +297,8 @@ export type Enemy = Entity & {
   targetPos?: Vector2;
   lastAttackTime?: number;
   lastAttackTarget?: Vector2;
+  forcedTargetId?: string;
+  targetLockUntil?: number;
 };
 
 export type SquadSoldierConfig = {

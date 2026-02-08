@@ -212,8 +212,8 @@ describe("Deployment Phase", () => {
     expect(engine.getState().status).toBe("Playing");
 
     // Time should now advance
-    engine.update(100);
-    expect(engine.getState().t).toBe(100);
+    engine.update(112);
+    expect(engine.getState().t).toBe(112);
   });
 
   it("should reveal spawn points during Deployment", () => {

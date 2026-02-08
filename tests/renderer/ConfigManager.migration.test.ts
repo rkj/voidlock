@@ -40,6 +40,7 @@ describe("ConfigManager Migration", () => {
       spawnPointCount: 3,
       fogOfWarEnabled: true,
       debugOverlayEnabled: false,
+      debugSnapshots: false,
       losOverlayEnabled: false,
       agentControlEnabled: true,
       mapGeneratorType: MapGeneratorType.TreeShip,

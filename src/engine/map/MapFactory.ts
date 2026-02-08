@@ -21,6 +21,7 @@ import { Graph, Direction } from "../Graph";
 import { MapSanitizer } from "./MapSanitizer";
 import { MapValidator } from "./MapValidator";
 import { PRNG } from "../../shared/PRNG";
+import { Logger } from "../../shared/Logger";
 import {
   PlacementValidator,
   OccupantType,
@@ -82,7 +83,7 @@ export class MapFactory {
     // Auto-validate after generation
     const validation = MapValidator.validate(map);
     if (!validation.isValid) {
-      console.warn("Generated map has validation issues:", validation.issues);
+      Logger.warn("Generated map has validation issues:", validation.issues);
     }
 
     return map;
