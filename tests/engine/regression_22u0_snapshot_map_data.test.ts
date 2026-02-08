@@ -30,7 +30,7 @@ describe("Snapshot Map Data Regression (voidlock-22u0)", () => {
     const engine = new CoreEngine(mockMap, 123, defaultSquad, false, false, undefined, false, 0, 1.0, false, undefined, [], true, 0, 3, 1, 0, "Combat", undefined, undefined, true, true, 16);
     
     // First getState should have cells
-    const firstState = engine.getState();
+    const firstState = engine.getState(true);
     expect(firstState.map.cells.length).toBeGreaterThan(0);
     expect(firstState.map.walls!.length).toBeGreaterThan(0);
 
@@ -38,7 +38,7 @@ describe("Snapshot Map Data Regression (voidlock-22u0)", () => {
     engine.update(16);
 
     // Second getState should NOT have cells (if sentMap worked as intended)
-    const secondState = engine.getState();
+    const secondState = engine.getState(true);
     expect(secondState.map.cells.length).toBe(0);
 
     // Check snapshots
