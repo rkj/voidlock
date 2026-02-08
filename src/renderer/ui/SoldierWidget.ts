@@ -292,8 +292,7 @@ export class SoldierWidget {
       stats: WeaponHUDStats | null,
     ) => {
       if (!stats) {
-        const emptyHtml =
-          '<span class="weapon-empty">Empty</span>';
+        const emptyHtml = '<span class="weapon-empty">Empty</span>';
         if (container.innerHTML !== emptyHtml) container.innerHTML = emptyHtml;
         return;
       }
@@ -324,8 +323,14 @@ export class SoldierWidget {
 
     const lhRow = el.querySelector(".u-lh-row") as HTMLElement;
     const rhRow = el.querySelector(".u-rh-row") as HTMLElement;
-    lhRow.classList.toggle("active-weapon", unit.activeWeaponId === unit.leftHand && !!unit.leftHand);
-    rhRow.classList.toggle("active-weapon", unit.activeWeaponId === unit.rightHand && !!unit.rightHand);
+    lhRow.classList.toggle(
+      "active-weapon",
+      unit.activeWeaponId === unit.leftHand && !!unit.leftHand,
+    );
+    rhRow.classList.toggle(
+      "active-weapon",
+      unit.activeWeaponId === unit.rightHand && !!unit.rightHand,
+    );
   }
 
   private static renderDebrief(

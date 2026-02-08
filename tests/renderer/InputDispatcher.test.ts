@@ -7,7 +7,7 @@ describe("InputDispatcher", () => {
   let dispatcher: InputDispatcher;
 
   beforeEach(() => {
-    // Reset singleton or state if necessary. 
+    // Reset singleton or state if necessary.
     // Since it's a singleton, we might need a way to clear contexts.
     dispatcher = InputDispatcher.getInstance();
     // @ts-ignore - access private for testing
@@ -66,17 +66,20 @@ describe("InputDispatcher", () => {
     expect(document.activeElement).toBe(btn2);
 
     // Tab on last element should focus first
-    const tabEvent = new KeyboardEvent("keydown", { key: "Tab", bubbles: true });
+    const tabEvent = new KeyboardEvent("keydown", {
+      key: "Tab",
+      bubbles: true,
+    });
     btn2.dispatchEvent(tabEvent);
-    // Note: Dispatching event doesn't actually move focus in JSDOM sometimes, 
+    // Note: Dispatching event doesn't actually move focus in JSDOM sometimes,
     // but handleTabCycle should be called and it calls .focus()
-    
+
     // We need to trigger it via the dispatcher's listener
     // @ts-ignore
     dispatcher.handleKeyDown(tabEvent);
 
     expect(document.activeElement).toBe(btn1);
-    
+
     document.body.removeChild(container);
   });
 

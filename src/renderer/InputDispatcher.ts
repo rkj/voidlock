@@ -159,9 +159,9 @@ export class InputDispatcher {
 
   private handleTabCycle(e: KeyboardEvent, container: HTMLElement) {
     const focusableElements = container.querySelectorAll<HTMLElement>(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
     );
-    
+
     if (focusableElements.length === 0) {
       e.preventDefault();
       return;
@@ -172,13 +172,19 @@ export class InputDispatcher {
 
     if (e.shiftKey) {
       // Shift + Tab: focus previous
-      if (document.activeElement === firstElement || !container.contains(document.activeElement)) {
+      if (
+        document.activeElement === firstElement ||
+        !container.contains(document.activeElement)
+      ) {
         lastElement.focus();
         e.preventDefault();
       }
     } else {
       // Tab: focus next
-      if (document.activeElement === lastElement || !container.contains(document.activeElement)) {
+      if (
+        document.activeElement === lastElement ||
+        !container.contains(document.activeElement)
+      ) {
         firstElement.focus();
         e.preventDefault();
       }

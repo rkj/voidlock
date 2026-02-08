@@ -107,9 +107,7 @@ describe("HUDManager Objective Regression PDXS", () => {
   it("should add title attribute to the icon span", () => {
     hud.update(mockState, null);
     const objectivesDiv = document.querySelector(".objectives-status");
-    const icons = objectivesDiv?.querySelectorAll(
-      ".obj-icon",
-    );
+    const icons = objectivesDiv?.querySelectorAll(".obj-icon");
     expect(icons?.[0].getAttribute("title")).toBe("Pending");
     expect(icons?.[1].getAttribute("title")).toBe("Completed");
   });

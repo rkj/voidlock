@@ -17,9 +17,11 @@ export class MissionSetupScreen {
   public show() {
     this.container.style.display = "flex";
     this.pushInputContext();
-    
+
     // Auto-focus first input or button
-    const firstInput = this.container.querySelector("input, select, button") as HTMLElement;
+    const firstInput = this.container.querySelector(
+      "input, select, button",
+    ) as HTMLElement;
     if (firstInput) firstInput.focus();
   }
 
@@ -36,34 +38,60 @@ export class MissionSetupScreen {
       container: this.container,
       handleKeyDown: (e) => this.handleKeyDown(e),
       getShortcuts: () => [
-        { key: "Arrows", label: "Navigate", description: "Move selection", category: "Navigation" },
-        { key: "Enter", label: "Select", description: "Activate button", category: "Navigation" },
-        { key: "ESC", label: "Back", description: "Return to previous screen", category: "Navigation" },
+        {
+          key: "Arrows",
+          label: "Navigate",
+          description: "Move selection",
+          category: "Navigation",
+        },
+        {
+          key: "Enter",
+          label: "Select",
+          description: "Activate button",
+          category: "Navigation",
+        },
+        {
+          key: "ESC",
+          label: "Back",
+          description: "Return to previous screen",
+          category: "Navigation",
+        },
       ],
     });
   }
 
   private handleKeyDown(e: KeyboardEvent): boolean {
-    if (e.key === "ArrowDown" || e.key === "ArrowUp" || e.key === "ArrowLeft" || e.key === "ArrowRight") {
+    if (
+      e.key === "ArrowDown" ||
+      e.key === "ArrowUp" ||
+      e.key === "ArrowLeft" ||
+      e.key === "ArrowRight"
+    ) {
       // Special handling: if we are in an input number or range, maybe we don't want to navigate?
       // But for Mission Setup, mostly we want to navigate.
       const active = document.activeElement;
-      if (active && (active.tagName === "INPUT" || active.tagName === "SELECT")) {
+      if (
+        active &&
+        (active.tagName === "INPUT" || active.tagName === "SELECT")
+      ) {
         // Only navigate if it's NOT a number/range input OR if it's Left/Right on a select
         // Actually, let's keep it simple for now and only navigate if it's NOT a number input
-        if ((active as HTMLInputElement).type === "number" || (active as HTMLInputElement).type === "range") {
-           // Allow up/down for number inputs
-           if (e.key === "ArrowUp" || e.key === "ArrowDown") return false;
+        if (
+          (active as HTMLInputElement).type === "number" ||
+          (active as HTMLInputElement).type === "range"
+        ) {
+          // Allow up/down for number inputs
+          if (e.key === "ArrowUp" || e.key === "ArrowDown") return false;
         }
       }
       return UIUtils.handleArrowNavigation(e, this.container);
     }
-    
+
     if (e.key === "Escape") {
       this.onBack();
       return true;
     }
-    
+
     return false;
   }
 }

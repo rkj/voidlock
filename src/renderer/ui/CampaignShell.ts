@@ -75,7 +75,9 @@ export class CampaignShell {
 
     // Navigation between tabs via arrow keys if focus is on a tab
     if (e.key === "ArrowLeft" || e.key === "ArrowRight") {
-      const topBar = this.container.querySelector("#campaign-shell-top-bar") as HTMLElement;
+      const topBar = this.container.querySelector(
+        "#campaign-shell-top-bar",
+      ) as HTMLElement;
       if (topBar && topBar.contains(document.activeElement)) {
         return UIUtils.handleArrowNavigation(e, topBar);
       }

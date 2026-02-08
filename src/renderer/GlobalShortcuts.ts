@@ -11,7 +11,7 @@ export class GlobalShortcuts implements InputContext {
 
   constructor(
     private togglePause: () => void,
-    private goBack: () => void
+    private goBack: () => void,
   ) {
     this.helpOverlay = new KeyboardHelpOverlay();
   }
@@ -50,8 +50,18 @@ export class GlobalShortcuts implements InputContext {
 
   public getShortcuts(): ShortcutInfo[] {
     return [
-      { key: "Space", label: "Space", description: "Toggle Pause", category: "General" },
-      { key: "ESC / Q", label: "ESC / Q", description: "Back / Menu", category: "Navigation" },
+      {
+        key: "Space",
+        label: "Space",
+        description: "Toggle Pause",
+        category: "General",
+      },
+      {
+        key: "ESC / Q",
+        label: "ESC / Q",
+        description: "Back / Menu",
+        category: "Navigation",
+      },
       { key: "?", label: "?", description: "Show Help", category: "General" },
     ];
   }

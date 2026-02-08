@@ -59,18 +59,23 @@ export class KeyboardHelpOverlay implements InputContext {
     this.container.appendChild(title);
 
     const shortcuts = InputDispatcher.getInstance().getActiveShortcuts();
-    
+
     // Group by category
     const grouped = new Map<string, ShortcutInfo[]>();
-    shortcuts.forEach(s => {
+    shortcuts.forEach((s) => {
       const list = grouped.get(s.category) || [];
       list.push(s);
       grouped.set(s.category, list);
     });
 
-    const categories: ShortcutInfo["category"][] = ["General", "Tactical", "Navigation", "Menu"];
+    const categories: ShortcutInfo["category"][] = [
+      "General",
+      "Tactical",
+      "Navigation",
+      "Menu",
+    ];
 
-    categories.forEach(category => {
+    categories.forEach((category) => {
       const list = grouped.get(category);
       if (list && list.length > 0) {
         const section = document.createElement("div");
@@ -84,7 +89,7 @@ export class KeyboardHelpOverlay implements InputContext {
         header.style.margin = "0 0 5px 0";
         section.appendChild(header);
 
-        list.forEach(s => {
+        list.forEach((s) => {
           const row = document.createElement("div");
           row.className = "help-row flex-row justify-between items-center";
           row.style.borderBottom = "1px solid rgba(255,255,255,0.05)";
@@ -136,8 +141,18 @@ export class KeyboardHelpOverlay implements InputContext {
 
   public getShortcuts(): ShortcutInfo[] {
     return [
-      { key: "ESC", label: "ESC", description: "Close Help Overlay", category: "Navigation" },
-      { key: "?", label: "?", description: "Close Help Overlay", category: "Navigation" },
+      {
+        key: "ESC",
+        label: "ESC",
+        description: "Close Help Overlay",
+        category: "Navigation",
+      },
+      {
+        key: "?",
+        label: "?",
+        description: "Close Help Overlay",
+        category: "Navigation",
+      },
     ];
   }
 }

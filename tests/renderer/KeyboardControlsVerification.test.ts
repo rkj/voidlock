@@ -10,7 +10,8 @@ describe("KeyboardControlsVerification", () => {
   let panMap: any;
 
   beforeEach(() => {
-    document.body.innerHTML = '<div id="game-container"><canvas id="game-canvas"></canvas></div>';
+    document.body.innerHTML =
+      '<div id="game-container"><canvas id="game-canvas"></canvas></div>';
     mockScreenManager = {
       getCurrentScreen: vi.fn(() => "mission"),
     };
@@ -37,7 +38,7 @@ describe("KeyboardControlsVerification", () => {
       vi.fn(), // onDeployUnit
       vi.fn(), // getCellCoordinates
       cycleUnits,
-      panMap
+      panMap,
     );
     inputManager.init();
   });
@@ -60,7 +61,7 @@ describe("KeyboardControlsVerification", () => {
 
   it("should call panMap on Arrow keys", () => {
     const keys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
-    keys.forEach(key => {
+    keys.forEach((key) => {
       const event = new KeyboardEvent("keydown", { key });
       document.dispatchEvent(event);
       expect(panMap).toHaveBeenCalledWith(key);

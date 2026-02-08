@@ -207,9 +207,7 @@ describe("HUDManager", () => {
     expect(objectivesDiv?.innerHTML).not.toContain("(Completed)");
     expect(objectivesDiv?.innerHTML).not.toContain("at (5,5)");
 
-    const icons = objectivesDiv?.querySelectorAll(
-      ".obj-icon",
-    );
+    const icons = objectivesDiv?.querySelectorAll(".obj-icon");
     expect(icons?.[0].getAttribute("title")).toBe("Pending");
     expect(icons?.[1].getAttribute("title")).toBe("Completed");
   });
