@@ -297,7 +297,7 @@ export class GameApp {
       onCustomMission: () => {
         this.missionSetupManager.currentCampaignNode = null;
         this.missionSetupManager.loadAndApplyConfig(false);
-        this.context.campaignShell.show("custom");
+        this.context.campaignShell.show("custom", "setup");
         this.context.missionSetupScreen.show();
         this.context.screenManager.show("mission-setup");
       },
@@ -565,7 +565,16 @@ export class GameApp {
 
   private onShellTabChange(tabId: CampaignTabId) {
     this.mainMenuScreen.hide();
+
+    const hasCampaign = !!this.context.campaignManager.getState();
+    const isCustomFlow =
+      !hasCampaign && this.missionSetupManager.currentCampaignNode === null;
+
     switch (tabId) {
+      case "setup":
+        this.context.missionSetupScreen.show();
+        this.context.screenManager.show("mission-setup");
+        break;
       case "sector-map":
         this.campaignScreen.show();
         this.context.screenManager.show("campaign", true, true);
@@ -576,14 +585,7 @@ export class GameApp {
         break;
       case "engineering":
         this.engineeringScreen.show();
-        const mode = this.context.campaignManager.getState()
-          ? "campaign"
-          : "statistics";
-        this.context.screenManager.show(
-          "engineering",
-          true,
-          mode === "campaign",
-        );
+        this.context.screenManager.show("engineering", true, hasCampaign);
         break;
       case "stats":
         this.statisticsScreen.show();
@@ -591,12 +593,22 @@ export class GameApp {
         break;
       case "settings":
         this.settingsScreen.show();
-        this.context.screenManager.show("settings", true, true);
+        this.context.screenManager.show(
+          "settings",
+          true,
+          hasCampaign || isCustomFlow,
+        );
         break;
     }
 
-    const state = this.context.campaignManager.getState();
-    const mode: CampaignShellMode = state ? "campaign" : "statistics";
+    let mode: CampaignShellMode = hasCampaign ? "campaign" : "statistics";
+    if (
+      isCustomFlow &&
+      (tabId === "setup" || tabId === "settings" || tabId === "stats")
+    ) {
+      mode = "custom";
+    }
+
     this.context.campaignShell.show(mode, tabId);
   }
 
@@ -667,7 +679,7 @@ export class GameApp {
           this.applyCampaignTheme();
           this.context.campaignShell.show("campaign", "sector-map", false);
         } else {
-          this.context.campaignShell.show("custom");
+          this.context.campaignShell.show("custom", "setup");
         }
         this.missionSetupScreen.show();
         break;
@@ -680,7 +692,7 @@ export class GameApp {
         if (isCampaign || this.missionSetupManager.currentCampaignNode) {
           this.context.campaignShell.show("campaign", "sector-map", false);
         } else {
-          this.context.campaignShell.show("custom");
+          this.context.campaignShell.show("custom", "setup");
         }
         break;
       case "barracks":
@@ -690,7 +702,15 @@ export class GameApp {
         break;
       case "statistics":
         this.statisticsScreen.show();
-        this.context.campaignShell.show("statistics", "stats");
+        if (
+          !isCampaign &&
+          this.missionSetupManager.currentCampaignNode === null &&
+          !this.context.campaignManager.getState()
+        ) {
+          this.context.campaignShell.show("custom", "stats");
+        } else {
+          this.context.campaignShell.show("statistics", "stats");
+        }
         break;
       case "engineering":
         this.engineeringScreen.show();
@@ -705,6 +725,11 @@ export class GameApp {
         const state = this.context.campaignManager.getState();
         if (state) {
           this.context.campaignShell.show("campaign", "settings");
+        } else if (
+          !isCampaign &&
+          this.missionSetupManager.currentCampaignNode === null
+        ) {
+          this.context.campaignShell.show("custom", "settings");
         } else {
           this.context.campaignShell.show("global", "settings", false);
         }

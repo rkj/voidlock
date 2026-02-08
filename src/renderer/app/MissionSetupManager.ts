@@ -199,7 +199,9 @@ export class MissionSetupManager {
     if (mapConfigSection)
       mapConfigSection.style.display = isCampaign ? "none" : "block";
 
-    const visualStyleGroup = document.getElementById("setup-visual-style-group");
+    const visualStyleGroup = document.getElementById(
+      "setup-visual-style-group",
+    );
     if (visualStyleGroup)
       visualStyleGroup.style.display = isCampaign ? "block" : "none";
 
