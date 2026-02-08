@@ -471,7 +471,7 @@ export class CoreEngine {
       },
     };
 
-    if (!this.sentMap) {
+    if (!this.sentMap && pruneForObservation) {
       this.sentMap = true;
     }
 

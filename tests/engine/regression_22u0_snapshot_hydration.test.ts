@@ -33,7 +33,7 @@ describe("Snapshot Hydration Regression (voidlock-22u0)", () => {
     const originalEngine = new CoreEngine(mockMap, 123, defaultSquad, false, false, undefined, false, 0, 1.0, false, undefined, [], true, 0, 3, 1, 0, "Combat", undefined, undefined, true, true, 16);
     
     // First getState should have cells, sets sentMap = true
-    const firstState = originalEngine.getState();
+    const firstState = originalEngine.getState(true);
     expect(firstState.map.cells.length).toBeGreaterThan(0);
 
     // Trigger snapshot - this will now have cells: [] because sentMap is true
