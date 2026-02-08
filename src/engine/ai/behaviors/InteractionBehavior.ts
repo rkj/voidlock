@@ -61,7 +61,11 @@ export class InteractionBehavior implements Behavior {
     }
 
     // 2. Objective Interaction
-    if (currentUnit.archetypeId !== "vip" && state.objectives) {
+    if (
+      currentUnit.archetypeId !== "vip" &&
+      !currentUnit.carriedObjectiveId &&
+      state.objectives
+    ) {
       for (const obj of state.objectives) {
         if (obj.state === "Pending") {
           const isAtTarget =

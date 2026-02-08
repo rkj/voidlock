@@ -97,7 +97,7 @@ describe("Regression voidlock-v8kk: Multiple units picking up same item", () => 
     let overlapDetected = false;
 
     for (let i = 0; i < 50; i++) {
-      engine.update(100);
+      engine.update(112);
       const currentState = engine.getState();
       const u1 = currentState.units.find((u) => u.id === "u1")!;
       const u2 = currentState.units.find((u) => u.id === "u2")!;
@@ -194,7 +194,7 @@ describe("Regression voidlock-v8kk: Multiple units picking up same item", () => 
     // Run a few ticks. u1 should start channeling and aiEnabled should be false.
     // u1 has commandQueue: [RESUME_AI], so it's NOT "capable" for item assignments.
     for (let i = 0; i < 5; i++) {
-      engine.update(100);
+      engine.update(112);
     }
 
     let state = engine.getState();
@@ -209,7 +209,7 @@ describe("Regression voidlock-v8kk: Multiple units picking up same item", () => 
 
     let u2TargetingLoot = false;
     for (let i = 0; i < 10; i++) {
-      engine.update(100);
+      engine.update(112);
       state = engine.getState();
       const u2 = state.units.find((u) => u.id === "u2")!;
       if (
@@ -299,7 +299,7 @@ describe("Regression voidlock-v8kk: Multiple units picking up same item", () => 
     });
 
     // Update once to start channeling for both
-    engine.update(10);
+    engine.update(16);
 
     let state = engine.getState();
     const u1 = state.units.find((u) => u.id === "u1")!;
@@ -312,7 +312,7 @@ describe("Regression voidlock-v8kk: Multiple units picking up same item", () => 
     (engine as any).state.units[0].channeling.remaining = 0.01;
 
     // Update again. u1 should finish and remove loot.
-    engine.update(50);
+    engine.update(64);
 
     state = engine.getState();
     expect(state.loot.length).toBe(0);

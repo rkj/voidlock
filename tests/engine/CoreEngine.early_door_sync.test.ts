@@ -78,7 +78,7 @@ describe("CoreEngine Early Door Sync", () => {
     });
 
     // Run update to trigger "Opening" logic (timer start)
-    engine.update(100);
+    engine.update(16);
     const door = (engine as any).doorManager.getDoors().get("door1");
     expect(door.targetState).toBe("Open");
     expect(door.openTimer).toBe(500);

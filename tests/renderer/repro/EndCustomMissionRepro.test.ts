@@ -25,6 +25,11 @@ vi.mock("@src/renderer/ThemeManager", () => ({
     getInstance: vi.fn().mockReturnValue({
       init: vi.fn().mockResolvedValue(undefined),
       setTheme: vi.fn(),
+      getAssetUrl: vi.fn().mockReturnValue("mock-url"),
+      getColor: vi.fn().mockReturnValue("#000"),
+      getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
+      getCurrentThemeId: vi.fn().mockReturnValue("default"),
+      applyTheme: vi.fn(),
     }),
   },
 }));
@@ -93,6 +98,7 @@ describe("End Custom Mission Repro", () => {
       <div id="screen-campaign" style="display:none"></div>
       <div id="screen-barracks" style="display:none"></div>
       <div id="screen-statistics" style="display:none"></div>
+      <div id="screen-engineering" style="display:none"></div>
       <div id="screen-settings" style="display:none"></div>
       <div id="screen-campaign-summary" style="display:none"></div>
       <div id="time-scale-slider"></div>
