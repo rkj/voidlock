@@ -10,6 +10,7 @@ export type CampaignTabId =
   | "engineering"
   | "stats"
   | "settings"
+  | "setup"
   | "main-menu";
 export type CampaignShellMode =
   | "campaign"
@@ -189,6 +190,10 @@ export class CampaignShell {
       } else if (this.mode === "statistics") {
         tabs.push({ id: "stats", label: "Service Record" });
         tabs.push({ id: "engineering", label: "Engineering" });
+      } else if (this.mode === "custom") {
+        tabs.push({ id: "setup", label: "Setup" });
+        tabs.push({ id: "stats", label: "Service Record" });
+        tabs.push({ id: "settings", label: "Settings" });
       }
 
       tabs.forEach((tab) => {
