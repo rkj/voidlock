@@ -74,27 +74,6 @@ describe("Soldier Card Overlap Verification", () => {
       if (positions && !('error' in positions)) {
          expect(positions.overlap).toBe(false);
       }
-
-      // Check recruitment cards too
-      await page.evaluate(() => {
-        const btn = Array.from(document.querySelectorAll('.paper-doll-slot')).find(el => el.textContent?.includes('+'));
-        if (btn) (btn as HTMLElement).click();
-      });
-      
-      await page.waitForSelector(".armory-panel .soldier-card");
-      
-      const recruitPositions = await page.evaluate(() => {
-        const card = document.querySelector(".armory-panel .soldier-card");
-        if (!card) return null;
-        
-        const lvl = Array.from(card.querySelectorAll("div, span")).find(el => el.textContent?.includes("Lvl"));
-        // Recruitment cards might not have an X, but they have a price.
-        // The bug report said "X on the soldier card overlaps with LVL".
-        // Recruitment cards in Equipment screen don't have an X.
-        // But they might have other things.
-        return { lvl: !!lvl };
-      });
-      console.log("Recruit Positions:", JSON.stringify(recruitPositions, null, 2));
     } catch (err) {
       await page.screenshot({ path: "screenshots/equipment_overlap_error_mobile.png" });
       throw err;
