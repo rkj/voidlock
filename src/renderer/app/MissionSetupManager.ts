@@ -199,6 +199,10 @@ export class MissionSetupManager {
     if (mapConfigSection)
       mapConfigSection.style.display = isCampaign ? "none" : "block";
 
+    const visualStyleGroup = document.getElementById("setup-visual-style-group");
+    if (visualStyleGroup)
+      visualStyleGroup.style.display = isCampaign ? "block" : "none";
+
     const global = ConfigManager.loadGlobal();
     this.unitStyle = global.unitStyle;
     this.currentThemeId = global.themeId;
