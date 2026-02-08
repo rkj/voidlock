@@ -47,7 +47,9 @@ describe("GlobalShortcuts & Help Overlay", () => {
     const event = new KeyboardEvent("keydown", { key: "?" });
     window.dispatchEvent(event);
 
-    const backdrop = document.querySelector(".help-overlay-backdrop") as HTMLElement;
+    const backdrop = document.querySelector(
+      ".help-overlay-backdrop",
+    ) as HTMLElement;
     expect(backdrop).toBeTruthy();
     expect(backdrop.style.display).toBe("flex");
 
@@ -59,9 +61,13 @@ describe("GlobalShortcuts & Help Overlay", () => {
     const event = new KeyboardEvent("keydown", { key: "?" });
     window.dispatchEvent(event);
 
-    const backdrop = document.querySelector(".help-overlay-backdrop") as HTMLElement;
-    const shortcutKeys = Array.from(backdrop.querySelectorAll(".shortcut-key")).map(el => el.textContent);
-    
+    const backdrop = document.querySelector(
+      ".help-overlay-backdrop",
+    ) as HTMLElement;
+    const shortcutKeys = Array.from(
+      backdrop.querySelectorAll(".shortcut-key"),
+    ).map((el) => el.textContent);
+
     expect(shortcutKeys).toContain("Space");
     expect(shortcutKeys).toContain("ESC / Q");
     expect(shortcutKeys).toContain("?");
@@ -70,7 +76,9 @@ describe("GlobalShortcuts & Help Overlay", () => {
   it("should hide Help Overlay on ESC", () => {
     // Show first
     window.dispatchEvent(new KeyboardEvent("keydown", { key: "?" }));
-    let backdrop = document.querySelector(".help-overlay-backdrop") as HTMLElement;
+    let backdrop = document.querySelector(
+      ".help-overlay-backdrop",
+    ) as HTMLElement;
     expect(backdrop.style.display).toBe("flex");
 
     // Hide with ESC
@@ -81,7 +89,9 @@ describe("GlobalShortcuts & Help Overlay", () => {
   it("should hide Help Overlay on '?'", () => {
     // Show first
     window.dispatchEvent(new KeyboardEvent("keydown", { key: "?" }));
-    let backdrop = document.querySelector(".help-overlay-backdrop") as HTMLElement;
+    let backdrop = document.querySelector(
+      ".help-overlay-backdrop",
+    ) as HTMLElement;
     expect(backdrop.style.display).toBe("flex");
 
     // Hide with '?'
@@ -96,16 +106,25 @@ describe("GlobalShortcuts & Help Overlay", () => {
       trapsFocus: false,
       handleKeyDown: vi.fn(() => false),
       getShortcuts: () => [
-        { key: "1-9", label: "1-9", description: "Select Option", category: "Tactical" as const }
-      ]
+        {
+          key: "1-9",
+          label: "1-9",
+          description: "Select Option",
+          category: "Tactical" as const,
+        },
+      ],
     };
     InputDispatcher.getInstance().pushContext(mockTacticalContext);
 
     window.dispatchEvent(new KeyboardEvent("keydown", { key: "?" }));
-    
-    const backdrop = document.querySelector(".help-overlay-backdrop") as HTMLElement;
-    const shortcutKeys = Array.from(backdrop.querySelectorAll(".shortcut-key")).map(el => el.textContent);
-    
+
+    const backdrop = document.querySelector(
+      ".help-overlay-backdrop",
+    ) as HTMLElement;
+    const shortcutKeys = Array.from(
+      backdrop.querySelectorAll(".shortcut-key"),
+    ).map((el) => el.textContent);
+
     expect(shortcutKeys).toContain("1-9");
   });
 });

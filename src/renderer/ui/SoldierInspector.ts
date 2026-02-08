@@ -71,10 +71,12 @@ export class SoldierInspector {
     container.innerHTML = "";
     if (!this.soldier) {
       const wrapper = document.createElement("div");
-      wrapper.className = "inspector-empty-wrapper flex-col gap-20 align-center h-full";
+      wrapper.className =
+        "inspector-empty-wrapper flex-col gap-20 align-center h-full";
 
       const placeholder = document.createElement("div");
-      placeholder.className = "inspector-placeholder flex-col align-center justify-center";
+      placeholder.className =
+        "inspector-placeholder flex-col align-center justify-center";
       placeholder.innerHTML = `
         <div class="placeholder-icon">👤</div>
         <div>Select a slot to manage squad</div>
@@ -118,7 +120,8 @@ export class SoldierInspector {
     }
 
     const content = document.createElement("div");
-    content.className = "inspector-details-content flex-col align-center gap-20";
+    content.className =
+      "inspector-details-content flex-col align-center gap-20";
 
     const sStats = this.calculateSoldierStats(this.soldier);
 
@@ -377,7 +380,7 @@ export class SoldierInspector {
       if (isDead || (!isCurrentlyEquipped && !isOwned && !canAfford)) {
         btn.classList.add("disabled");
       }
-      
+
       let statsHtml = "";
       let fullStats = "";
       if ("damage" in item) {
@@ -422,7 +425,8 @@ export class SoldierInspector {
       btn.title = `${item.name}\n${item.description || ""}${fullStats ? "\n\n" + fullStats : ""}`;
 
       const priceText = isOwned || isCurrentlyEquipped ? "Owned" : `${cost} CR`;
-      const priceClass = isOwned || isCurrentlyEquipped ? "price-owned" : "price-cost";
+      const priceClass =
+        isOwned || isCurrentlyEquipped ? "price-owned" : "price-cost";
 
       btn.innerHTML = `
             <div class="armory-item-content" style="width: 100%;">

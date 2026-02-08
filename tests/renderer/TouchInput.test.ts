@@ -36,7 +36,7 @@ describe("InputManager Touch Gestures", () => {
       vi.fn(),
       vi.fn(),
       panMapBy,
-      zoomMap
+      zoomMap,
     );
 
     // Mock document.getElementById for game-canvas

@@ -63,7 +63,9 @@ describe("Q and ESC Key Navigation", () => {
     );
     inputManager.init();
 
-    globalShortcuts = new GlobalShortcuts(togglePause, () => mockScreenManager.goBack());
+    globalShortcuts = new GlobalShortcuts(togglePause, () =>
+      mockScreenManager.goBack(),
+    );
     globalShortcuts.init();
   });
 

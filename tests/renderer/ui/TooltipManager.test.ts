@@ -10,10 +10,10 @@ describe("TooltipManager", () => {
   beforeEach(() => {
     document.body.innerHTML = "";
     document.body.classList.remove("mobile-touch");
-    
+
     // Reset singleton instance if possible or clear its state
     (TooltipManager as any).instance = undefined;
-    
+
     container = document.createElement("div");
     container.innerHTML = `
       <div id="target1" data-tooltip="Tooltip 1">Target 1</div>
@@ -27,9 +27,9 @@ describe("TooltipManager", () => {
     document.body.classList.add("mobile-touch");
     const manager = TooltipManager.getInstance();
     const target = document.getElementById("target1")!;
-    
+
     target.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    
+
     const popover = document.querySelector(".inspect-popover");
     expect(popover).not.toBeNull();
     expect(popover?.textContent).toBe("Tooltip 1");
@@ -39,9 +39,9 @@ describe("TooltipManager", () => {
   it("should not show tooltip on click if mobile-touch is not active", () => {
     const manager = TooltipManager.getInstance();
     const target = document.getElementById("target1")!;
-    
+
     target.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    
+
     const popover = document.querySelector(".inspect-popover");
     expect(popover).toBeNull();
   });
@@ -50,11 +50,11 @@ describe("TooltipManager", () => {
     document.body.classList.add("mobile-touch");
     const manager = TooltipManager.getInstance();
     const target = document.getElementById("target1")!;
-    
+
     // First click: show
     target.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(document.querySelector(".inspect-popover")).not.toBeNull();
-    
+
     // Second click: dismiss
     target.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(document.querySelector(".inspect-popover")).toBeNull();
@@ -65,12 +65,16 @@ describe("TooltipManager", () => {
     const manager = TooltipManager.getInstance();
     const target1 = document.getElementById("target1")!;
     const target2 = document.getElementById("target2")!;
-    
+
     target1.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    expect(document.querySelector(".inspect-popover")?.textContent).toBe("Tooltip 1");
-    
+    expect(document.querySelector(".inspect-popover")?.textContent).toBe(
+      "Tooltip 1",
+    );
+
     target2.dispatchEvent(new MouseEvent("click", { bubbles: true }));
-    expect(document.querySelector(".inspect-popover")?.textContent).toBe("Tooltip 2");
+    expect(document.querySelector(".inspect-popover")?.textContent).toBe(
+      "Tooltip 2",
+    );
     expect(target1.classList.contains("inspecting")).toBe(false);
     expect(target2.classList.contains("inspecting")).toBe(true);
   });
@@ -80,10 +84,10 @@ describe("TooltipManager", () => {
     const manager = TooltipManager.getInstance();
     const target = document.getElementById("target1")!;
     const outside = document.getElementById("no-tooltip")!;
-    
+
     target.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(document.querySelector(".inspect-popover")).not.toBeNull();
-    
+
     outside.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(document.querySelector(".inspect-popover")).toBeNull();
   });
@@ -91,9 +95,9 @@ describe("TooltipManager", () => {
   it("should handle touchstart events", () => {
     const manager = TooltipManager.getInstance();
     const target = document.getElementById("target1")!;
-    
+
     target.dispatchEvent(new TouchEvent("touchstart", { bubbles: true }));
-    
+
     const popover = document.querySelector(".inspect-popover");
     expect(popover).not.toBeNull();
     expect(popover?.textContent).toBe("Tooltip 1");

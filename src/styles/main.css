@@ -1583,7 +1583,8 @@ label {
   margin-top: 20px;
 }
 
-.recruit-btn-large, .revive-btn-large {
+.recruit-btn-large,
+.revive-btn-large {
   padding: 15px;
 }
 
@@ -1784,13 +1785,25 @@ label {
   font-size: 0.8em;
 }
 
-.threat-fill.threat-success { background-color: var(--color-success); }
-.threat-fill.threat-warning { background-color: var(--color-warning); }
-.threat-fill.threat-danger { background-color: var(--color-danger); }
+.threat-fill.threat-success {
+  background-color: var(--color-success);
+}
+.threat-fill.threat-warning {
+  background-color: var(--color-warning);
+}
+.threat-fill.threat-danger {
+  background-color: var(--color-danger);
+}
 
-.threat-value.threat-success { color: var(--color-success); }
-.threat-value.threat-warning { color: var(--color-warning); }
-.threat-value.threat-danger { color: var(--color-danger); }
+.threat-value.threat-success {
+  color: var(--color-success);
+}
+.threat-value.threat-warning {
+  color: var(--color-warning);
+}
+.threat-value.threat-danger {
+  color: var(--color-danger);
+}
 
 .command-menu {
   border-bottom: 1px solid var(--color-border-strong);
@@ -1819,7 +1832,9 @@ label {
   margin-bottom: 4px;
 }
 
-.debug-btn-win, .debug-btn-lose, .debug-btn-copy {
+.debug-btn-win,
+.debug-btn-lose,
+.debug-btn-copy {
   flex: 1;
   font-size: 0.8em;
   padding: 8px;
@@ -1827,9 +1842,17 @@ label {
   cursor: pointer;
 }
 
-.debug-btn-win { background-color: var(--color-success); color: white; }
-.debug-btn-lose { background-color: var(--color-danger); color: white; }
-.debug-btn-copy { width: 100%; }
+.debug-btn-win {
+  background-color: var(--color-success);
+  color: white;
+}
+.debug-btn-lose {
+  background-color: var(--color-danger);
+  color: white;
+}
+.debug-btn-copy {
+  width: 100%;
+}
 
 /* Deployment Phase */
 .deployment-summary {
@@ -1927,8 +1950,12 @@ label {
   /* color handled by state class */
 }
 
-.game-over-summary:not(.lost) .game-over-title { color: var(--color-success); }
-.game-over-summary.lost .game-over-title { color: var(--color-danger); }
+.game-over-summary:not(.lost) .game-over-title {
+  color: var(--color-success);
+}
+.game-over-summary.lost .game-over-title {
+  color: var(--color-danger);
+}
 
 .game-over-objectives {
   margin: 20px 0;
@@ -2200,7 +2227,7 @@ label {
     align-items: flex-start;
     gap: 2px;
   }
-  
+
   .weapon-row {
     align-items: flex-start;
   }
@@ -2367,7 +2394,7 @@ label {
 /* Specific overrides for dense UI components */
 
 .mobile-touch .top-bar {
-  height: 52px; 
+  height: 52px;
 }
 
 .mobile-touch .top-bar button {
@@ -2389,7 +2416,7 @@ label {
 }
 
 .mobile-touch .soldier-item {
-  min-height: 52px; 
+  min-height: 52px;
 }
 
 .mobile-touch .menu-item {
@@ -2628,8 +2655,14 @@ label {
 }
 
 @keyframes popover-fade-in {
-  from { opacity: 0; transform: translateY(5px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .stat-display[data-tooltip] {

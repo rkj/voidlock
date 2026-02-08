@@ -21,9 +21,11 @@ export class StatDisplay {
     if (options.fontSize) style.push(`font-size: ${options.fontSize}`);
     if (options.color) style.push(`--stat-value-color: ${options.color}`);
     if (options.gap) style.push(`gap: ${options.gap}`);
-    
-    const inlineStyle = style.length > 0 ? `style="${style.join('; ')}"` : '';
-    const imgStyle = options.iconSize ? `style="width:${options.iconSize}; height:${options.iconSize};"` : '';
+
+    const inlineStyle = style.length > 0 ? `style="${style.join("; ")}"` : "";
+    const imgStyle = options.iconSize
+      ? `style="width:${options.iconSize}; height:${options.iconSize};"`
+      : "";
 
     return `
       <span class="stat-display" ${inlineStyle} title="${title}" data-tooltip="${title}">

@@ -649,6 +649,19 @@ export class GameApp {
         const rehydrated = isCampaign
           ? this.missionSetupManager.rehydrateCampaignNode()
           : false;
+
+        // If in campaign, redirect mission-setup to equipment
+        if (rehydrated && isCampaign) {
+          this.applyCampaignTheme();
+          this.missionSetupManager.loadAndApplyConfig(true);
+          this.equipmentScreen.updateConfig(
+            this.missionSetupManager.currentSquad,
+          );
+          this.context.screenManager.show("equipment", true, true);
+          this.context.campaignShell.show("campaign", "sector-map", false);
+          break;
+        }
+
         this.missionSetupManager.loadAndApplyConfig(rehydrated);
         if (rehydrated) {
           this.applyCampaignTheme();
@@ -815,8 +828,14 @@ export class GameApp {
     this.campaignFlowCoordinator.onCampaignNodeSelected(
       node,
       () => this.campaignScreen.show(),
-      (n, size, spawnPoints) =>
-        this.missionSetupManager.prepareMissionSetup(n, size, spawnPoints),
+      (n, size, spawnPoints) => {
+        this.missionSetupManager.prepareMissionSetup(n, size, spawnPoints);
+        this.equipmentScreen.updateConfig(
+          this.missionSetupManager.currentSquad,
+        );
+        this.context.screenManager.show("equipment", true, true);
+        this.context.campaignShell.show("campaign", "sector-map", false);
+      },
     );
   }
 

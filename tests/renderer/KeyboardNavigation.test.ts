@@ -65,7 +65,7 @@ describe("Keyboard Navigation", () => {
       const b3 = document.getElementById("b3")!;
 
       b1.focus();
-      
+
       const downEvent = new KeyboardEvent("keydown", { key: "ArrowDown" });
       UIUtils.handleArrowNavigation(downEvent, container);
       expect(document.activeElement).toBe(b3);
@@ -94,9 +94,12 @@ describe("Keyboard Navigation", () => {
     });
 
     last.focus();
-    
+
     // Simulate Tab on last element
-    const tabEvent = new KeyboardEvent("keydown", { key: "Tab", bubbles: true });
+    const tabEvent = new KeyboardEvent("keydown", {
+      key: "Tab",
+      bubbles: true,
+    });
     // @ts-ignore
     dispatcher.handleKeyDown(tabEvent);
 
@@ -104,7 +107,11 @@ describe("Keyboard Navigation", () => {
 
     // Simulate Shift+Tab on first element
     first.focus();
-    const shiftTabEvent = new KeyboardEvent("keydown", { key: "Tab", shiftKey: true, bubbles: true });
+    const shiftTabEvent = new KeyboardEvent("keydown", {
+      key: "Tab",
+      shiftKey: true,
+      bubbles: true,
+    });
     // @ts-ignore
     dispatcher.handleKeyDown(shiftTabEvent);
 

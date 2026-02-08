@@ -18,12 +18,12 @@ describe("Mobile Responsive Drawers", () => {
     await page.click("#btn-menu-custom");
     await page.waitForSelector("#btn-goto-equipment");
     await page.click("#btn-goto-equipment");
-    
+
     // In Equipment Screen, click "Confirm Squad"
     await page.waitForSelector(".primary-button");
     const confirmBtn = await page.evaluateHandle(() => {
       const buttons = Array.from(document.querySelectorAll(".primary-button"));
-      return buttons.find(b => b.textContent === "Confirm Squad");
+      return buttons.find((b) => b.textContent === "Confirm Squad");
     });
     if (confirmBtn) {
       // @ts-ignore
@@ -41,13 +41,13 @@ describe("Mobile Responsive Drawers", () => {
       const squad = document.getElementById("soldier-panel");
       const right = document.getElementById("right-panel");
       if (!squad || !right) return null;
-      
+
       const squadStyle = window.getComputedStyle(squad);
       const rightStyle = window.getComputedStyle(right);
-      
+
       return {
         squadActive: squad.classList.contains("active"),
-        rightActive: right.classList.contains("active")
+        rightActive: right.classList.contains("active"),
       };
     });
 
@@ -73,7 +73,7 @@ describe("Mobile Responsive Drawers", () => {
       const right = document.getElementById("right-panel");
       return {
         squadActive: squad?.classList.contains("active"),
-        rightActive: right?.classList.contains("active")
+        rightActive: right?.classList.contains("active"),
       };
     });
     expect(drawersStateAfterRight.squadActive).toBe(false);
@@ -81,16 +81,16 @@ describe("Mobile Responsive Drawers", () => {
 
     // Click game container to close all drawers
     await page.click("#game-container");
-    
+
     // Wait for transition
-    await new Promise(r => setTimeout(r, 400));
+    await new Promise((r) => setTimeout(r, 400));
 
     const drawersStateFinal = await page.evaluate(() => {
       const squad = document.getElementById("soldier-panel");
       const right = document.getElementById("right-panel");
       return {
         squadActive: squad?.classList.contains("active"),
-        rightActive: right?.classList.contains("active")
+        rightActive: right?.classList.contains("active"),
       };
     });
     expect(drawersStateFinal.squadActive).toBe(false);

@@ -230,8 +230,18 @@ export class ModalService {
       container: modal,
       handleKeyDown: (e) => this.handleKeyDown(e),
       getShortcuts: () => [
-        { key: "Enter", label: "Confirm", description: "Trigger primary action", category: "Navigation" },
-        { key: "ESC", label: "Cancel", description: "Close modal", category: "Navigation" },
+        {
+          key: "Enter",
+          label: "Confirm",
+          description: "Trigger primary action",
+          category: "Navigation",
+        },
+        {
+          key: "ESC",
+          label: "Cancel",
+          description: "Close modal",
+          category: "Navigation",
+        },
       ],
     });
 

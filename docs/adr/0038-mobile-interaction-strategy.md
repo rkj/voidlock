@@ -49,8 +49,8 @@ We will adopt a hybrid CSS strategy to manage the transition from "Desktop/Table
   - The `Top Bar` will prioritize the Pause button and Threat Meter, moving the speed slider into a secondary menu if necessary.
 - **Container Queries**: Used for **Reusable Components** (e.g., `SoldierCard`, `StatDisplay`).
   - Components will adapt their internal layout based on the width of their immediate parent.
-  - *Example*: A `SoldierCard` will render horizontally (Label: Value) in a wide list, but switch to vertically stacked (Icon / Value) when squeezed into a mobile drawer.
-  - *Rule*: `container-type: inline-size` will be applied to all major layout panels.
+  - _Example_: A `SoldierCard` will render horizontally (Label: Value) in a wide list, but switch to vertically stacked (Icon / Value) when squeezed into a mobile drawer.
+  - _Rule_: `container-type: inline-size` will be applied to all major layout panels.
 
 ### 4. Touch Target Minimums
 

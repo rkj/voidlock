@@ -264,7 +264,9 @@ export class InputManager implements InputContext {
 
       if (state && state.status === "Deployment") {
         const isValidSpawn =
-          state.map.squadSpawns?.some((s) => s.x === cell.x && s.y === cell.y) ||
+          state.map.squadSpawns?.some(
+            (s) => s.x === cell.x && s.y === cell.y,
+          ) ||
           (state.map.squadSpawn?.x === cell.x &&
             state.map.squadSpawn?.y === cell.y);
 
@@ -390,7 +392,9 @@ export class InputManager implements InputContext {
 
       if (state && state.status === "Deployment") {
         const isValidSpawn =
-          state.map.squadSpawns?.some((s) => s.x === cell.x && s.y === cell.y) ||
+          state.map.squadSpawns?.some(
+            (s) => s.x === cell.x && s.y === cell.y,
+          ) ||
           (state.map.squadSpawn?.x === cell.x &&
             state.map.squadSpawn?.y === cell.y);
 
