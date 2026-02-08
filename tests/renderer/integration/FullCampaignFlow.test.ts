@@ -325,8 +325,12 @@ describe("Full Campaign Flow Integration", () => {
     );
 
     // In equipment screen, check that the dead soldier is not in the list
-    const selectedSoldiers = Array.from(document.querySelectorAll(".soldier-list-panel .soldier-item"));
-    const isDeadPresent = selectedSoldiers.some(s => s.textContent?.includes("Dead"));
+    const selectedSoldiers = Array.from(
+      document.querySelectorAll(".soldier-list-panel .soldier-item"),
+    );
+    const isDeadPresent = selectedSoldiers.some((s) =>
+      s.textContent?.includes("Dead"),
+    );
     expect(isDeadPresent).toBe(false);
 
     // 4. Verify Boss Win triggers Victory screen
@@ -336,7 +340,9 @@ describe("Full Campaign Flow Integration", () => {
     cm.save();
 
     // Force re-render of campaign screen by going back to menu and in again
-    const backBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent === "Back") as HTMLElement;
+    const backBtn = Array.from(
+      document.querySelectorAll("#screen-equipment button"),
+    ).find((b) => b.textContent === "Back") as HTMLElement;
     backBtn?.click();
     document.getElementById("btn-setup-back")?.click();
     document.getElementById("btn-menu-campaign")?.click();
@@ -350,7 +356,9 @@ describe("Full Campaign Flow Integration", () => {
     // Wait for async onCampaignNodeSelected
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    expect(document.getElementById("screen-equipment")?.style.display).toBe("flex");
+    expect(document.getElementById("screen-equipment")?.style.display).toBe(
+      "flex",
+    );
 
     (
       Array.from(document.querySelectorAll("#screen-equipment button")).find(
@@ -452,7 +460,9 @@ describe("Full Campaign Flow Integration", () => {
     // Wait for async onCampaignNodeSelected
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    expect(document.getElementById("screen-equipment")?.style.display).toBe("flex");
+    expect(document.getElementById("screen-equipment")?.style.display).toBe(
+      "flex",
+    );
 
     const confBtn = Array.from(
       document.querySelectorAll("#screen-equipment button"),

@@ -2,12 +2,29 @@ export class TooltipManager {
   private static instance: TooltipManager;
   private activeTooltip: HTMLElement | null = null;
   private activeTarget: HTMLElement | null = null;
+  private lastInteractionTime: number = 0;
 
   private constructor() {
-    document.addEventListener("click", (e) => this.handleInteraction(e));
-    document.addEventListener("touchstart", (e) => this.handleInteraction(e), {
+    this.handleClick = this.handleClick.bind(this);
+    this.handleTouchStart = this.handleTouchStart.bind(this);
+    document.addEventListener("click", this.handleClick);
+    document.addEventListener("touchstart", this.handleTouchStart, {
       passive: false,
     });
+  }
+
+  private handleClick(e: Event) {
+    this.handleInteraction(e);
+  }
+
+  private handleTouchStart(e: Event) {
+    this.handleInteraction(e);
+  }
+
+  public destroy() {
+    document.removeEventListener("click", this.handleClick);
+    document.removeEventListener("touchstart", this.handleTouchStart);
+    TooltipManager.instance = undefined as any;
   }
 
   public static getInstance(): TooltipManager {
@@ -18,6 +35,14 @@ export class TooltipManager {
   }
 
   private handleInteraction(e: Event) {
+    const now = Date.now();
+    // If we just handled a touchstart, ignore subsequent events for a short while
+    // to prevent double-triggering or immediate dismissal.
+    if (e.type === "click" && now - this.lastInteractionTime < 300) {
+      return;
+    }
+    this.lastInteractionTime = now;
+
     // Only handle if it's a touch device or we want to support click-to-inspect
     const isTouch =
       e.type === "touchstart" ||

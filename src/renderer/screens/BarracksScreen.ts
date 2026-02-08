@@ -109,7 +109,8 @@ export class BarracksScreen {
 
     // Main Content Wrapper (Flex Row for panels)
     const contentWrapper = document.createElement("div");
-    contentWrapper.className = "flex-row flex-grow p-20 gap-20";
+    contentWrapper.className =
+      "flex-row flex-grow p-20 gap-20 barracks-main-content";
     contentWrapper.style.overflow = "hidden";
     contentWrapper.style.minHeight = "0"; // Crucial for nested flex scrolling
 
@@ -227,7 +228,10 @@ export class BarracksScreen {
 
     const nameInfo = document.createElement("div");
     nameInfo.className = "flex-row align-center gap-10";
-    const archName = ArchetypeLibrary[soldier.archetypeId]?.name || soldier.archetypeId || "Unknown";
+    const archName =
+      ArchetypeLibrary[soldier.archetypeId]?.name ||
+      soldier.archetypeId ||
+      "Unknown";
     nameInfo.innerHTML = `
       <div class="flex-col">
         <h3 style="margin:0; font-size:1.5em; color:var(--color-accent);">${soldier.name}</h3>

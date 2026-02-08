@@ -1,59 +1,59 @@
-import puppeteer, { Browser, Page } from "puppeteer";
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
+/**
+ * @vitest-environment node
+ */
+import { describe, it, expect, beforeEach, afterEach } from "vitest";
+import { getNewPage, closeBrowser } from "./utils/puppeteer";
+import type { Page } from "puppeteer";
 import { E2E_URL } from "./config";
 
 describe("Tap-to-Inspect E2E", () => {
-  let browser: Browser;
   let page: Page;
 
-  beforeAll(async () => {
-    browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
-    page = await browser.newPage();
+  beforeEach(async () => {
+    page = await getNewPage();
     await page.setViewport({
       width: 375,
       height: 667,
       isMobile: true,
       hasTouch: true,
     });
-  });
+    // Ensure clean state
+    await page.goto(E2E_URL);
+    await page.evaluate(() => localStorage.clear());
+    await page.reload();
+  }, 30000);
 
-  afterAll(async () => {
-    await browser.close();
+  afterEach(async () => {
+    // We don't close browser between tests in this suite to save time
+    // but we can close page if needed.
+    // Actually our utils handle browser lifecycle.
   });
 
   it("should show popover on stat icon tap", async () => {
     await page.goto(E2E_URL);
 
-    // Set mobile-touch class manually to simulate mobile environment detection
-    await page.evaluate(() => {
-      document.body.classList.add("mobile-touch");
-    });
-
-    // Start a new campaign
+    // 1. Click "Campaign" on Main Menu
     await page.waitForSelector("#btn-menu-campaign");
     await page.click("#btn-menu-campaign");
-    await page.waitForSelector(".campaign-setup-wizard .primary-button");
-    await page.click(".campaign-setup-wizard .primary-button");
 
-    // Navigate to Barracks
-    await page.waitForSelector('.shell-tab[data-id="barracks"]');
-    await page.click('.shell-tab[data-id="barracks"]');
+    // 2. New Campaign Wizard should be visible. Click "Initialize Expedition"
+    const startBtnSelector = ".campaign-setup-wizard .primary-button";
+    await page.waitForSelector(startBtnSelector);
+    await page.click(startBtnSelector);
 
-    // Wait for stat icons to appear in recruitment
-    try {
-      await page.waitForSelector(".stat-display[data-tooltip]", {
-        timeout: 15000,
-      });
-    } catch (e) {
-      const html = await page.evaluate(() => document.body.innerHTML);
-      console.log("DEBUG BARRACKS HTML:", html.substring(0, 2000));
-      throw e;
-    }
+    // 3. Wait for the Sector Map
+    await page.waitForSelector(".campaign-screen");
+
+    // 4. Go to Barracks
+    await page.waitForSelector(".tab-button[data-id='barracks']");
+    await page.click(".tab-button[data-id='barracks']");
+
+    await page.waitForSelector(".barracks-screen");
+    await page.waitForSelector(".stat-display[data-tooltip]");
 
     const statIcon = await page.$(".stat-display[data-tooltip]");
+    await statIcon!.scrollIntoView();
+
     const iconBoundingBox = await statIcon!.boundingBox();
 
     // Tap on the icon
@@ -62,23 +62,30 @@ describe("Tap-to-Inspect E2E", () => {
       iconBoundingBox!.y + iconBoundingBox!.height / 2,
     );
 
-    await page.waitForSelector(".inspect-popover");
-    const popoverVisible = await page.evaluate(() => {
-      const popover = document.querySelector(".inspect-popover");
-      return (
-        popover !== null && window.getComputedStyle(popover).opacity !== "0"
-      );
+    // 5. Verify Popover
+    await page.waitForSelector(".inspect-popover", { timeout: 5000 });
+
+    const popoverData = await page.evaluate(() => {
+      const popover = document.querySelector(".inspect-popover") as HTMLElement;
+      if (!popover) return null;
+      const style = window.getComputedStyle(popover);
+      return {
+        exists: true,
+        opacity: style.opacity,
+        text: popover.textContent,
+      };
     });
 
-    expect(popoverVisible).toBe(true);
+    expect(popoverData).not.toBeNull();
+    expect(popoverData?.exists).toBe(true);
+    expect(popoverData?.text).toBe("Speed");
 
-    // Take screenshot for manual verification if needed
-    await page.screenshot({
-      path: "screenshots/tap_to_inspect_verification.png",
-    });
-
-    // Tap outside to dismiss
+    // 6. Tap outside to dismiss
     await page.touchscreen.tap(10, 10);
+    await page.waitForFunction(
+      () => !document.querySelector(".inspect-popover"),
+    );
+
     const popoverGone = await page.evaluate(
       () => document.querySelector(".inspect-popover") === null,
     );

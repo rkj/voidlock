@@ -199,7 +199,8 @@ export class CampaignShell {
       tabs.forEach((tab) => {
         const btn = document.createElement("button");
         btn.textContent = tab.label;
-        btn.className = `tab-button ${this.activeTabId === tab.id ? "active" : ""}`;
+        btn.className = `tab-button shell-tab ${this.activeTabId === tab.id ? "active" : ""}`;
+        btn.setAttribute("data-id", tab.id);
         btn.style.padding = "5px 12px";
         btn.style.height = "32px";
         btn.style.fontSize = "0.85em";

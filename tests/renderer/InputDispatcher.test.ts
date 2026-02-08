@@ -71,7 +71,7 @@ describe("InputDispatcher", () => {
     const tabEvent = new KeyboardEvent("keydown", {
       key: "Tab",
       bubbles: true,
-      cancelable: true
+      cancelable: true,
     });
     btn2.dispatchEvent(tabEvent);
     // The window listener in InputDispatcher will handle this

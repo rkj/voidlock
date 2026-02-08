@@ -244,7 +244,9 @@ describe("Equipment Back Bug Reproduction", () => {
     ).toBe("flex");
 
     // 4. Click Back in Equipment screen
-    const backBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent === "Back") as HTMLElement;
+    const backBtn = Array.from(
+      document.querySelectorAll("#screen-equipment button"),
+    ).find((b) => b.textContent === "Back") as HTMLElement;
     expect(backBtn).toBeTruthy();
     backBtn.click();
 
