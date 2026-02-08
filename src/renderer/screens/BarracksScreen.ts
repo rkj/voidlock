@@ -227,10 +227,11 @@ export class BarracksScreen {
 
     const nameInfo = document.createElement("div");
     nameInfo.className = "flex-row align-center gap-10";
+    const archName = ArchetypeLibrary[soldier.archetypeId]?.name || soldier.archetypeId || "Unknown";
     nameInfo.innerHTML = `
       <div class="flex-col">
         <h3 style="margin:0; font-size:1.5em; color:var(--color-accent);">${soldier.name}</h3>
-        <div style="color:var(--color-text-muted);">${ArchetypeLibrary[soldier.archetypeId]?.name} Rank ${soldier.level}</div>
+        <div style="color:var(--color-text-muted);">${archName} Rank ${soldier.level}</div>
       </div>
     `;
 
