@@ -46,7 +46,9 @@ describe("InputDispatcher", () => {
   it("should handle focus trapping", () => {
     const container = document.createElement("div");
     const btn1 = document.createElement("button");
+    btn1.id = "test-btn-1";
     const btn2 = document.createElement("button");
+    btn2.id = "test-btn-2";
     container.appendChild(btn1);
     container.appendChild(btn2);
     document.body.appendChild(container);
@@ -69,14 +71,10 @@ describe("InputDispatcher", () => {
     const tabEvent = new KeyboardEvent("keydown", {
       key: "Tab",
       bubbles: true,
+      cancelable: true
     });
     btn2.dispatchEvent(tabEvent);
-    // Note: Dispatching event doesn't actually move focus in JSDOM sometimes,
-    // but handleTabCycle should be called and it calls .focus()
-
-    // We need to trigger it via the dispatcher's listener
-    // @ts-ignore
-    dispatcher.handleKeyDown(tabEvent);
+    // The window listener in InputDispatcher will handle this
 
     expect(document.activeElement).toBe(btn1);
 

@@ -259,8 +259,9 @@ describe("Regression: Campaign Shell Visibility (voidlock-tbuh)", () => {
     expect(nodeEl).toBeTruthy();
     nodeEl.click();
 
-    // 4. Verify we are on Mission Setup
-    expect(missionSetup?.style.display).toBe("flex");
+    // 4. Verify we are on Equipment screen (skipping Mission Setup)
+    const equipment = document.getElementById("screen-equipment");
+    expect(equipment?.style.display).toBe("flex");
 
     // Spec 8.5: Campaign Mode MUST be rendered within the CampaignShell
     expect(shell?.style.display).toBe("flex");

@@ -160,11 +160,10 @@ describe("E2E Campaign Failure Modes", () => {
     // Wait for async onCampaignNodeSelected
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    expect(document.getElementById("screen-mission-setup")?.style.display).toBe(
+    expect(document.getElementById("screen-equipment")?.style.display).toBe(
       "flex",
     );
 
-    document.getElementById("btn-goto-equipment")?.click();
     const confBtn = Array.from(
       document.querySelectorAll("#screen-equipment button"),
     ).find((b) => b.textContent?.includes("Confirm")) as HTMLElement;
@@ -238,7 +237,10 @@ describe("E2E Campaign Failure Modes", () => {
     // Wait for async onCampaignNodeSelected
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    document.getElementById("btn-goto-equipment")?.click();
+    expect(document.getElementById("screen-equipment")?.style.display).toBe(
+      "flex",
+    );
+
     const confBtn = Array.from(
       document.querySelectorAll("#screen-equipment button"),
     ).find((b) => b.textContent?.includes("Confirm")) as HTMLElement;
