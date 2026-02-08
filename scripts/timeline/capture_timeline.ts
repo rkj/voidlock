@@ -186,14 +186,20 @@ export function isMissionUiReady(signals: {
   hasMissionUiStructure: boolean;
   hasSetupTokens: boolean;
   hasCampaignTokens: boolean;
+  hasMainMenuTokens: boolean;
 }): boolean {
-  // Mission is valid if gameplay canvas exists and either known mission tokens
-  // or mission-style HUD/command structure is visible.
-  // Campaign-shell tokens are a hard reject because campaign can also render canvas.
+  // Mission is valid if gameplay canvas exists, setup/config cues are absent,
+  // and mission HUD/tokens are present. Campaign shell can coexist with mission.
+  const missionCoreReady = signals.hasMissionTokens || signals.hasMissionUiStructure;
+  const setupOnly = signals.hasSetupTokens && !missionCoreReady;
+  const campaignOnly = signals.hasCampaignTokens && !missionCoreReady;
+  const mainMenuOnly = signals.hasMainMenuTokens && !missionCoreReady;
   return (
     signals.hasCanvas &&
-    !signals.hasCampaignTokens &&
-    (signals.hasMissionTokens || signals.hasMissionUiStructure)
+    !setupOnly &&
+    !campaignOnly &&
+    !mainMenuOnly &&
+    missionCoreReady
   );
 }
 
@@ -484,14 +490,20 @@ async function captureScreensForCommit(
   });
   try {
     const page = await browser.newPage();
-    await page.setViewport({ width: 1920, height: 1080 });
+    await page.setViewport({ width: 1440, height: 900 });
     const hintActionIds = navMap?.commits?.[sha]?.actionIds || [];
     let writtenCount = 0;
 
     // Main menu checkpoint
     await gotoRoot(page, url, postLoadWaitMs);
-    await captureViewport(page, screenshotPath(outDir, isoDate, "main_menu", sha));
-    writtenCount += 1;
+    const mainMenuPath = screenshotPath(outDir, isoDate, "main_menu", sha);
+    if (await detectMainMenuUi(page)) {
+      await captureViewport(page, mainMenuPath);
+      writtenCount += 1;
+    } else {
+      // eslint-disable-next-line no-console
+      console.log(`[screen-skip] optional main_menu missing for ${sha.slice(0, 7)}`);
+    }
 
     // Config/custom mission checkpoint
     await gotoRoot(page, url, postLoadWaitMs);
@@ -520,6 +532,7 @@ async function captureScreensForCommit(
 
     // Campaign checkpoint
     await gotoRoot(page, url, postLoadWaitMs);
+    const campaignPath = screenshotPath(outDir, isoDate, "campaign", sha);
     let campaignReached = await applyPlaybookTarget(
       page,
       playbookActions?.campaign || [],
@@ -531,7 +544,7 @@ async function captureScreensForCommit(
     if (campaignReached) {
       await sleep(700);
       await assertHealthyPage(page);
-      await captureViewport(page, screenshotPath(outDir, isoDate, "campaign", sha));
+      await captureViewport(page, campaignPath);
       writtenCount += 1;
     } else {
       // eslint-disable-next-line no-console
@@ -551,6 +564,12 @@ async function captureScreensForCommit(
       hintActionIds,
     );
     if (missionReady) {
+      if (fs.existsSync(campaignPath) && areFilesIdentical(missionPath, campaignPath)) {
+        fs.unlinkSync(missionPath);
+        throw new Error(
+          `Mission capture duplicated campaign frame for ${sha.slice(0, 7)}; likely wrong flow`,
+        );
+      }
       writtenCount += 1;
     } else {
       if (missionRequired) {
@@ -881,8 +900,11 @@ async function runBootstrapFlow(
   if (!clickedAny) {
     const textSteps: string[][] = [
       ["custom", "mission"],
+      ["equipment", "supplies"],
+      ["confirm", "squad"],
       ["skirmish"],
       ["start", "mission"],
+      ["launch", "mission"],
       ["deploy"],
       ["begin"],
     ];
@@ -893,6 +915,19 @@ async function runBootstrapFlow(
       }
     }
   }
+}
+
+async function waitForMissionUi(
+  page: import("puppeteer").Page,
+  timeoutMs: number,
+  pollMs = 350,
+): Promise<boolean> {
+  const startedAt = Date.now();
+  while (Date.now() - startedAt < timeoutMs) {
+    if (await detectMissionReadyUi(page)) return true;
+    await sleep(pollMs);
+  }
+  return false;
 }
 
 async function gotoRoot(
@@ -971,11 +1006,29 @@ async function captureMissionByClicks(
     if (fs.existsSync(tempMissionPath)) fs.unlinkSync(tempMissionPath);
     if (fs.existsSync(missionPath)) fs.unlinkSync(missionPath);
   };
-  if (playbookMissionSteps.length > 0) {
+
+  // Mission-first fast path for commits where "/" already renders mission.
+  await gotoRoot(page, url, postLoadWaitMs);
+  const directWaitMs = Math.max(missionCaptureWaitMs, 1200);
+  await waitForMissionUi(page, directWaitMs);
+  await assertHealthyPage(page);
+  await captureViewport(page, tempMissionPath);
+  {
+    const dark = await isScreenshotLikelyBlack(tempMissionPath);
+    const ready = await detectMissionReadyUi(page);
+    if (shouldAcceptMissionCapture(ready, dark)) {
+      publishMission();
+      return true;
+    }
+  }
+
+  const safeMissionSteps = filterUnsafeMissionSteps(playbookMissionSteps);
+  if (safeMissionSteps.length > 0) {
     await gotoRoot(page, url, postLoadWaitMs);
-    const reached = await applyPlaybookTarget(page, playbookMissionSteps, postLoadWaitMs);
+    const reached = await applyPlaybookTarget(page, safeMissionSteps, postLoadWaitMs);
     if (reached) {
-      await sleep(missionCaptureWaitMs);
+      const waitMs = Math.max(missionCaptureWaitMs, 1200) + 5000;
+      await waitForMissionUi(page, waitMs);
       await assertHealthyPage(page);
       await captureViewport(page, tempMissionPath);
       const dark = await isScreenshotLikelyBlack(tempMissionPath);
@@ -998,13 +1051,13 @@ async function captureMissionByClicks(
     [["custom", "mission"], ["start", "mission"]],
     [["custom"], ["launch", "mission"]],
     [["custom"], ["deploy"]],
-    [["campaign"], ["launch", "mission"]],
   ];
   for (let attempt = 0; attempt < missionFlows.length; attempt += 1) {
     await gotoRoot(page, url, postLoadWaitMs);
     await runBootstrapFlow(page, hintActionIds, 200);
     await runTextClickFlow(page, missionFlows[attempt]);
-    await sleep(missionCaptureWaitMs);
+    const waitMs = Math.max(missionCaptureWaitMs, 1200) + 5000;
+    await waitForMissionUi(page, waitMs);
     await assertHealthyPage(page);
     await captureViewport(page, tempMissionPath);
     const dark = await isScreenshotLikelyBlack(tempMissionPath);
@@ -1061,11 +1114,13 @@ async function detectMissionReadyUi(page: import("puppeteer").Page): Promise<boo
       "barracks",
       "back to menu",
     ];
+    const mainMenuTokens = ["custom mission", "campaign", "load replay"];
     const hasMissionUiStructure =
       !!document.getElementById("right-panel") ||
-      !!document.getElementById("top-bar") ||
       !!document.getElementById("mission-body") ||
-      !!document.getElementById("soldier-panel");
+      !!document.getElementById("soldier-panel") ||
+      !!document.getElementById("command-panel") ||
+      !!document.getElementById("unit-panel");
 
     return {
       hasCanvas,
@@ -1073,6 +1128,7 @@ async function detectMissionReadyUi(page: import("puppeteer").Page): Promise<boo
       hasMissionUiStructure,
       hasSetupTokens: setupTokens.some((token) => visibleTextNodes.includes(token)),
       hasCampaignTokens: campaignTokens.some((token) => visibleTextNodes.includes(token)),
+      hasMainMenuTokens: mainMenuTokens.some((token) => visibleTextNodes.includes(token)),
     };
   });
   return isMissionUiReady(signals);
@@ -1204,6 +1260,26 @@ async function clickByText(
   }
 }
 
+function filterUnsafeMissionSteps(steps: string[]): string[] {
+  return steps.filter((step) => {
+    if (typeof step !== "string") return false;
+    if (!step.startsWith("click:#")) return true;
+    const id = step.slice("click:#".length).toLowerCase();
+    if (isRiskyNavigationId(id)) return false;
+    return !id.includes("campaign");
+  });
+}
+
+function areFilesIdentical(aPath: string, bPath: string): boolean {
+  try {
+    const a = fs.readFileSync(aPath);
+    const b = fs.readFileSync(bPath);
+    return a.length === b.length && a.equals(b);
+  } catch {
+    return false;
+  }
+}
+
 function resolvePlaybookActionsInternal(
   commit: string,
   commitIndex: Map<string, number>,
@@ -1269,62 +1345,6 @@ export function resolvePlaybookActions(
   commitPlaybooks?: Map<string, CommitPlaybookActions>,
 ): Record<string, string[]> | null {
   return resolvePlaybookActionsInternal(commit, commitIndex, playbooks, commitPlaybooks);
-}
-
-async function forceShowByIds(
-  page: import("puppeteer").Page,
-  ids: string[],
-): Promise<string> {
-  return page.evaluate((targetIds) => {
-    const screens = Array.from(document.querySelectorAll<HTMLElement>(".screen"));
-    for (const screen of screens) {
-      screen.style.display = "none";
-      screen.style.visibility = "hidden";
-      screen.style.opacity = "0";
-    }
-    for (const id of targetIds) {
-      const el = document.getElementById(id) as HTMLElement | null;
-      if (!el) continue;
-      el.style.display = "flex";
-      el.style.visibility = "visible";
-      el.style.opacity = "1";
-      el.style.position = "absolute";
-      el.style.inset = "0";
-      return id;
-    }
-    return "";
-  }, ids);
-}
-
-async function applyPlaybookSteps(
-  page: import("puppeteer").Page,
-  steps: string[],
-): Promise<string> {
-  let activated = "";
-  for (const step of steps) {
-    if (step.startsWith("show:#")) {
-      const id = step.slice("show:#".length);
-      const shown = await forceShowByIds(page, [id]);
-      if (shown) activated = shown;
-      continue;
-    }
-    if (step.startsWith("click:#")) {
-      const selector = `#${step.slice("click:#".length)}`;
-      try {
-        await page.click(selector, { delay: 30 });
-        activated = selector.slice(1);
-      } catch {
-        // ignore and continue fallback flow
-      }
-      continue;
-    }
-    if (step.startsWith("wait:")) {
-      const n = Number(step.replace(/[^\d]/g, ""));
-      if (Number.isFinite(n) && n > 0) await sleep(n);
-      continue;
-    }
-  }
-  return activated;
 }
 
 function readNamedArg(argv: string[], names: string[]): string | undefined {

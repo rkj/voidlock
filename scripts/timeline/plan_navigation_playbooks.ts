@@ -47,6 +47,12 @@ type Manifest = {
   }>;
 };
 
+export type CommitPlaybookRow = {
+  commit: string;
+  eraIndex: number;
+  actions: Record<string, string[]>;
+};
+
 type EraFlowSignature = {
   actionIds: string[];
   buttonIds: string[];
@@ -217,7 +223,10 @@ function buildMissionSteps(configBtn: string, launchBtn: string): string[] {
   if (launchBtn) {
     return [`click:#${launchBtn}`, "wait:1500ms"];
   }
-  return ["noop"];
+  // Mission-first fallback: on older commits mission may be root/default
+  // with no stable button IDs. Keep a settle wait so capture can detect
+  // mission directly from "/" before trying click flows.
+  return ["wait:3000ms"];
 }
 
 function collectUiIds(navEntry: NavigationMap["commits"][string] | undefined): string[] {
@@ -330,33 +339,40 @@ function writeCommitPlaybooksJsonl(
   playbooks: Playbook[],
   outPath: string,
 ): void {
-  if (!manifest) return;
-  const playbookByIdx = playbooks.map((playbook, idx) => ({ idx, playbook }));
+  const rows = compileCommitPlaybookRows(manifest, playbooks);
+  if (rows.length === 0) return;
+  const lines = rows.map((row) => JSON.stringify(row));
+  fs.mkdirSync(path.dirname(outPath), { recursive: true });
+  fs.writeFileSync(outPath, `${lines.join("\n")}\n`, "utf-8");
+}
+
+export function compileCommitPlaybookRows(
+  manifest: Manifest | null,
+  playbooks: Playbook[],
+): CommitPlaybookRow[] {
+  if (!manifest) return [];
   const commitToIndex = new Map<string, number>();
   manifest.milestones.forEach((row, idx) => {
     commitToIndex.set(row.sourceCommit, idx);
   });
-  const lines: string[] = [];
+  const rows: CommitPlaybookRow[] = [];
   for (const row of manifest.milestones) {
     const commitIdx = commitToIndex.get(row.sourceCommit);
     if (commitIdx === undefined) continue;
-    const resolved = playbookByIdx.find(({ playbook }) => {
+    const resolved = playbooks.find((playbook) => {
       const start = commitToIndex.get(playbook.startCommit);
       const end = commitToIndex.get(playbook.endCommit);
       if (start === undefined || end === undefined) return false;
       return commitIdx >= start && commitIdx <= end;
     });
     if (!resolved) continue;
-    lines.push(
-      JSON.stringify({
-        commit: row.sourceCommit,
-        eraIndex: resolved.idx,
-        actions: resolveActionsMap(resolved.playbook),
-      }),
-    );
+    rows.push({
+      commit: row.sourceCommit,
+      eraIndex: resolved.eraIndex,
+      actions: resolveActionsMap(resolved),
+    });
   }
-  fs.mkdirSync(path.dirname(outPath), { recursive: true });
-  fs.writeFileSync(outPath, `${lines.join("\n")}\n`, "utf-8");
+  return rows;
 }
 
 async function runCli() {
