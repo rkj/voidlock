@@ -78,6 +78,7 @@ describe("capture timeline bootstrap click order", () => {
     expect(order).toContain("btn-menu-custom");
     expect(order).toContain("btn-start-mission");
     expect(order).toContain("btn-deploy");
+    expect(order).toContain("btn-confirm-squad");
   });
 });
 
@@ -125,6 +126,7 @@ describe("capture timeline mission readiness guard", () => {
         hasMissionUiStructure: false,
         hasSetupTokens: false,
         hasCampaignTokens: false,
+        hasMainMenuTokens: false,
       }),
     ).toBe(true);
   });
@@ -137,6 +139,7 @@ describe("capture timeline mission readiness guard", () => {
         hasMissionUiStructure: true,
         hasSetupTokens: false,
         hasCampaignTokens: false,
+        hasMainMenuTokens: false,
       }),
     ).toBe(true);
   });
@@ -149,18 +152,59 @@ describe("capture timeline mission readiness guard", () => {
         hasMissionUiStructure: false,
         hasSetupTokens: true,
         hasCampaignTokens: false,
+        hasMainMenuTokens: false,
       }),
     ).toBe(false);
   });
 
-  it("rejects campaign-shell ui even if canvas exists", () => {
+  it("accepts mission ui even when setup text is still present", () => {
+    expect(
+      isMissionUiReady({
+        hasCanvas: true,
+        hasMissionTokens: true,
+        hasMissionUiStructure: false,
+        hasSetupTokens: true,
+        hasCampaignTokens: false,
+        hasMainMenuTokens: false,
+      }),
+    ).toBe(true);
+  });
+
+  it("accepts mission ui even if campaign-shell tokens are also present", () => {
+    expect(
+      isMissionUiReady({
+        hasCanvas: true,
+        hasMissionTokens: true,
+        hasMissionUiStructure: false,
+        hasSetupTokens: false,
+        hasCampaignTokens: true,
+        hasMainMenuTokens: false,
+      }),
+    ).toBe(true);
+  });
+
+  it("rejects campaign-only ui", () => {
     expect(
       isMissionUiReady({
         hasCanvas: true,
         hasMissionTokens: false,
-        hasMissionUiStructure: true,
+        hasMissionUiStructure: false,
         hasSetupTokens: false,
         hasCampaignTokens: true,
+        hasMainMenuTokens: false,
+      }),
+    ).toBe(false);
+  });
+
+  it("rejects main-menu-only ui", () => {
+    expect(
+      isMissionUiReady({
+        hasCanvas: true,
+        hasMissionTokens: false,
+        hasMissionUiStructure: false,
+        hasSetupTokens: false,
+        hasCampaignTokens: false,
+        hasMainMenuTokens: true,
       }),
     ).toBe(false);
   });

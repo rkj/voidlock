@@ -17,6 +17,7 @@ SAMPLE_OFFSET="${SAMPLE_OFFSET:-0}"
 PLAYBOOK_PROVIDER="${PLAYBOOK_PROVIDER:-heuristic}"
 PLAYBOOK_EXECUTE="${PLAYBOOK_EXECUTE:-false}"
 PLAYBOOK_AGENT_CMD="${PLAYBOOK_AGENT_CMD:-}"
+REUSE_PLAYBOOKS="${REUSE_PLAYBOOKS:-false}"
 RESTART_EVERY="${RESTART_EVERY:-1}"
 POST_LOAD_WAIT_MS="${POST_LOAD_WAIT_MS:-3000}"
 MISSION_CAPTURE_WAIT_MS="${MISSION_CAPTURE_WAIT_MS:-3000}"
@@ -35,11 +36,16 @@ npm run timeline:analyze -- --manifest "$MANIFEST" --navigation-map "$NAV_MAP" -
 echo "[timeline] analyze topology changes"
 npm run timeline:topology -- --manifest "$MANIFEST" --navigation-map "$NAV_MAP" --topology "$TOPOLOGY"
 
-echo "[timeline] plan navigation playbooks"
-if [[ -n "$PLAYBOOK_AGENT_CMD" ]]; then
-  TIMELINE_AGENT_CMD="$PLAYBOOK_AGENT_CMD" npm run timeline:playbooks -- --manifest "$MANIFEST" --topology "$TOPOLOGY" --navigation-map "$NAV_MAP" --playbooks "$PLAYBOOKS" --commit-playbooks-jsonl "$COMMIT_PLAYBOOKS" --provider "$PLAYBOOK_PROVIDER" --execute "$PLAYBOOK_EXECUTE"
+if [[ "$REUSE_PLAYBOOKS" == "true" ]]; then
+  echo "[timeline] reuse existing playbooks and compile per-commit DB"
+  npm run timeline:compile-playbooks -- --manifest "$MANIFEST" --playbooks "$PLAYBOOKS" --commit-playbooks-jsonl "$COMMIT_PLAYBOOKS"
 else
-  npm run timeline:playbooks -- --manifest "$MANIFEST" --topology "$TOPOLOGY" --navigation-map "$NAV_MAP" --playbooks "$PLAYBOOKS" --commit-playbooks-jsonl "$COMMIT_PLAYBOOKS" --provider "$PLAYBOOK_PROVIDER" --execute "$PLAYBOOK_EXECUTE"
+  echo "[timeline] plan navigation playbooks"
+  if [[ -n "$PLAYBOOK_AGENT_CMD" ]]; then
+    TIMELINE_AGENT_CMD="$PLAYBOOK_AGENT_CMD" npm run timeline:playbooks -- --manifest "$MANIFEST" --topology "$TOPOLOGY" --navigation-map "$NAV_MAP" --playbooks "$PLAYBOOKS" --commit-playbooks-jsonl "$COMMIT_PLAYBOOKS" --provider "$PLAYBOOK_PROVIDER" --execute "$PLAYBOOK_EXECUTE"
+  else
+    npm run timeline:playbooks -- --manifest "$MANIFEST" --topology "$TOPOLOGY" --navigation-map "$NAV_MAP" --playbooks "$PLAYBOOKS" --commit-playbooks-jsonl "$COMMIT_PLAYBOOKS" --provider "$PLAYBOOK_PROVIDER" --execute "$PLAYBOOK_EXECUTE"
+  fi
 fi
 
 echo "[timeline] capture screenshots"

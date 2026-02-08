@@ -20,6 +20,22 @@ Design goal:
 
 ## Run Modes
 
+Recommended two-step flow:
+
+1. Epoch validation (agent planning + era checkpoint screenshots only):
+
+```bash
+./scripts/timeline/run_epoch_validation.sh
+```
+
+2. Full deterministic capture/render from saved playbooks (no agent):
+
+```bash
+./scripts/timeline/run_full_capture.sh
+```
+
+Both scripts accept optional port arg, e.g. `./scripts/timeline/run_epoch_validation.sh 6100`.
+
 Full pipeline:
 
 ```bash
@@ -52,6 +68,7 @@ npm run timeline:manifest -- --manifest timeline/manifest.json --mode all --max-
 npm run timeline:analyze -- --manifest timeline/manifest.json --navigation-map timeline/navigation_map.json --max-count 0
 npm run timeline:topology -- --manifest timeline/manifest.json --navigation-map timeline/navigation_map.json --topology timeline/screen_topology_changes.json
 npm run timeline:playbooks -- --manifest timeline/manifest.json --topology timeline/screen_topology_changes.json --navigation-map timeline/navigation_map.json --playbooks timeline/navigation_playbooks.json --commit-playbooks-jsonl timeline/commit_playbooks.jsonl --provider heuristic --execute false
+npm run timeline:compile-playbooks -- --manifest timeline/manifest.json --playbooks timeline/navigation_playbooks.json --commit-playbooks-jsonl timeline/commit_playbooks.jsonl
 npm run timeline:capture -- --manifest timeline/manifest.json --screenshots screenshots --port 6080 --max-count 0 --navigation-map timeline/navigation_map.json --playbooks timeline/navigation_playbooks.json --commit-playbooks-jsonl timeline/commit_playbooks.jsonl
 npm run timeline:analyze-frames -- --manifest timeline/manifest.json --screenshots screenshots --frame-index timeline/frame_index.json
 npm run timeline:render -- --frame-index timeline/frame_index.json --output timeline/voidlock_timeline_full.mp4
@@ -119,6 +136,25 @@ Arguments:
 - `--manifest` (default `timeline/manifest.json`)
 - `--navigation-map` (default `timeline/navigation_map.json`)
 - `--topology` or `--out` (default `timeline/screen_topology_changes.json`)
+
+### 3.5) `era_manifest.ts`
+
+Purpose:
+- Build a validation manifest from:
+- topology era starts
+- first and last commit of each calendar month (anchor commits)
+
+Inputs:
+- `timeline/manifest.json`
+- `timeline/screen_topology_changes.json`
+
+Outputs:
+- `/tmp/manifest_eras.json` (or custom path)
+
+Arguments:
+- `--manifest` (default `timeline/manifest.json`)
+- `--topology` (default `timeline/screen_topology_changes.json`)
+- `--out` (default `/tmp/manifest_eras.json`)
 
 ### 4) `plan_navigation_playbooks.ts`
 
@@ -190,6 +226,9 @@ Arguments:
 - `--mission-required` fail commit capture when mission screenshot is missing (default `true`)
 - `--mission-allowlist` text file of SHA prefixes allowed to miss mission (default `timeline/mission_allowlist.txt`)
 
+Viewport:
+- Fixed at `1440x900` for deterministic framing across commits.
+
 Capture targets and quadrants:
 - `1`: `mission`
 - `2`: `main_menu`
@@ -211,9 +250,27 @@ Health checks:
 - Mission captures are validated against a black-frame heuristic; dark/uninitialized mission frames trigger bootstrap retries before acceptance.
 - Click steps scroll targets into view before click attempts (helps with buttons inside scrollable panels).
 - Mission is required by default; missing mission fails capture unless commit SHA is allowlisted.
-- Mission captures must also pass a mission-ready UI check (not setup/config); if mission never becomes ready, `mission` screenshot is not written for that commit.
+- Mission captures must pass mission-ready UI checks (setup/config screens are rejected).
+- If mission and campaign screenshots are byte-identical for a commit, mission capture is treated as invalid flow.
 - Playbook selection order is deterministic: `commit_playbooks.jsonl` exact entry first, era playbook fallback second.
 - Aborts the run after N consecutive failures and writes JSON diagnostics to `--debug-log`.
+
+### 5.5) `compile_commit_playbooks.ts`
+
+Purpose:
+- Rebuild exact `commit -> actions` rows from an existing `navigation_playbooks.json` without regenerating plans.
+
+Inputs:
+- `timeline/manifest.json`
+- `timeline/navigation_playbooks.json`
+
+Outputs:
+- `timeline/commit_playbooks.jsonl`
+
+Arguments:
+- `--manifest` (default `timeline/manifest.json`)
+- `--playbooks` (default `timeline/navigation_playbooks.json`)
+- `--commit-playbooks-jsonl` (default `timeline/commit_playbooks.jsonl`)
 
 ### 6) `analyze_timeline_frames.ts`
 
@@ -283,6 +340,7 @@ Requirement:
 - `PLAYBOOK_PROVIDER` (default `heuristic`)
 - `PLAYBOOK_EXECUTE` (default `false`)
 - `PLAYBOOK_AGENT_CMD` (default empty)
+- `REUSE_PLAYBOOKS` (default `false`; when `true`, skips `timeline:playbooks` and only runs `timeline:compile-playbooks`)
 - `MISSION_REQUIRED` (default `true`)
 - `MISSION_ALLOWLIST` (default `timeline/mission_allowlist.txt`)
 
@@ -290,6 +348,7 @@ Requirement:
 
 `scripts/timeline/provider_codex.sh <PROMPT_FILE> <OUTPUT_FILE>`
 - Uses `CODEX_BIN` (default `/home/rkj/.npm-global/bin/codex`)
+- Uses `CODEX_MODEL` (default `gpt-5-mini`)
 - Calls: `codex exec "<prompt_text>" --output-last-message <output_file>`
 - Runs Codex from a temporary `/tmp` working directory to avoid repository source access during playbook generation.
 

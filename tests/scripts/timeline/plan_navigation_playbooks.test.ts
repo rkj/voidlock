@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  compileCommitPlaybookRows,
   heuristicPlaybook,
   normalizeExternalPlaybook,
   resolveAgentCommand,
@@ -29,7 +30,7 @@ describe("timeline playbook planner", () => {
     ]);
   });
 
-  it("falls back to noop when no mission launch id is discoverable", () => {
+  it("falls back to mission settle-wait when no mission launch id is discoverable", () => {
     const playbook = heuristicPlaybook(
       1,
       {
@@ -43,7 +44,7 @@ describe("timeline playbook planner", () => {
       },
     );
     expect(playbook.strategy).toBe("click_flow");
-    expect(playbook.actions.find((a) => a.target === "mission")?.steps[0]).toBe("noop");
+    expect(playbook.actions.find((a) => a.target === "mission")?.steps).toEqual(["wait:3000ms"]);
   });
 
   it("resolves agent command placeholders safely", () => {
@@ -145,5 +146,47 @@ describe("timeline playbook planner", () => {
       targets: { mission: ["screen-mission"] },
     };
     expect(shouldReuseEraPlaybook(previous, current)).toBe(false);
+  });
+
+  it("compiles checkpoint playbooks into deterministic per-commit rows", () => {
+    const rows = compileCommitPlaybookRows(
+      {
+        milestones: [
+          { sourceCommit: "a1" },
+          { sourceCommit: "a2" },
+          { sourceCommit: "a3" },
+          { sourceCommit: "a4" },
+        ],
+      },
+      [
+        {
+          eraIndex: 0,
+          startCommit: "a1",
+          endCommit: "a2",
+          strategy: "click_flow",
+          notes: "era0",
+          actions: [
+            { target: "mission", steps: ["click:#btn-a", "wait:700ms"] },
+            { target: "main_menu", steps: ["wait:500ms"] },
+          ],
+        },
+        {
+          eraIndex: 1,
+          startCommit: "a3",
+          endCommit: "a4",
+          strategy: "click_flow",
+          notes: "era1",
+          actions: [
+            { target: "mission", steps: ["click:#btn-b", "wait:700ms"] },
+          ],
+        },
+      ],
+    );
+
+    expect(rows.map((row) => row.commit)).toEqual(["a1", "a2", "a3", "a4"]);
+    expect(rows[0]?.eraIndex).toBe(0);
+    expect(rows[1]?.actions.mission).toEqual(["click:#btn-a", "wait:700ms"]);
+    expect(rows[2]?.eraIndex).toBe(1);
+    expect(rows[3]?.actions.mission).toEqual(["click:#btn-b", "wait:700ms"]);
   });
 });

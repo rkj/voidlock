@@ -58,6 +58,17 @@ Usage:
 npm run timeline:topology -- --manifest timeline/manifest.json --navigation-map timeline/navigation_map.json --topology timeline/screen_topology_changes.json
 ```
 
+### 3.5) Era Manifest (Checkpoint Validation)
+
+`scripts/timeline/era_manifest.ts`
+
+Builds a validation manifest from topology era starts plus first/last commit of each month.
+
+Usage:
+```bash
+npm run timeline:era-manifest -- --manifest timeline/manifest.json --topology timeline/screen_topology_changes.json --out /tmp/manifest_eras.json
+```
+
 ### 4) Playbook Planning
 
 `scripts/timeline/plan_navigation_playbooks.ts`
@@ -80,6 +91,17 @@ Notes:
 - Heuristic playbooks are click-only and derived from extracted commit IDs.
 - `timeline/ui_elements.jsonl` records commit-level extracted UI elements for audit and manual tuning.
 - `timeline/commit_playbooks.jsonl` records deterministic `commit -> actions` entries consumed by capture.
+
+### 4.5) Playbook Compilation (Reuse Mode)
+
+`scripts/timeline/compile_commit_playbooks.ts`
+
+Compiles exact `commit -> actions` rows from an existing `navigation_playbooks.json` without regenerating era plans.
+
+Usage:
+```bash
+npm run timeline:compile-playbooks -- --manifest timeline/manifest.json --playbooks timeline/navigation_playbooks.json --commit-playbooks-jsonl timeline/commit_playbooks.jsonl
+```
 
 ### 5) Capture
 
@@ -122,6 +144,8 @@ Readiness protocol:
 - Only then run Puppeteer capture from `/`.
 - Before target capture, wait and run bootstrap clicks to initialize mission flow when applicable.
 - Mission frame capture includes a black-frame heuristic check and retries bootstrap flow if mission appears uninitialized.
+- Mission frame is only accepted when mission UI is detected (setup/config screens are rejected).
+- Mission and campaign captures are validated for accidental duplication (byte-identical files are treated as wrong flow).
 - Playbook resolution is deterministic: exact `commit_playbooks.jsonl` entry first, era playbook fallback second.
 - Default is correctness-first (`--restart-every=1`).
 - You can reuse for speed by setting higher `--restart-every`, but stale captures can occur across commit checkouts.
@@ -169,6 +193,18 @@ npm run timeline:run
 ./scripts/timeline/run.sh
 ```
 
+### Two-script Operator Flow
+
+Epoch-only validation:
+```bash
+./scripts/timeline/run_epoch_validation.sh
+```
+
+Full deterministic run from saved playbooks (no agent):
+```bash
+./scripts/timeline/run_full_capture.sh
+```
+
 ### Codex Runner
 
 `scripts/timeline/run_codex.sh`
@@ -186,6 +222,7 @@ Usage:
 Provider wrapper:
 - `scripts/timeline/provider_codex.sh <PROMPT_FILE> <OUTPUT_FILE>`
 - Override binary path via `CODEX_BIN` (default `/home/rkj/.npm-global/bin/codex`).
+- Default model is `CODEX_MODEL=gpt-5-mini` (override if needed).
 - Provider executes Codex from a temporary `/tmp` working directory so playbook generation does not inspect repository source files.
 
 Env overrides:
@@ -193,3 +230,4 @@ Env overrides:
 - `PORT`, `MAX_COUNT`, `MODE`
 - `SAMPLE_EVERY`, `SAMPLE_OFFSET`
 - `PLAYBOOK_PROVIDER`, `PLAYBOOK_EXECUTE`, `PLAYBOOK_AGENT_CMD`
+- `REUSE_PLAYBOOKS` (`true` skips planning and only recompiles `commit_playbooks.jsonl` from existing playbooks)
