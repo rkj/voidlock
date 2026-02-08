@@ -9,6 +9,9 @@ lerna-debug.log*
 
 node_modules
 screenshots
+/timeline/
+/.timeline/
+public/assets_test/
 dist
 dist-ssr
 *.local
@@ -28,4 +31,3 @@ coverage/
 *.sw?
 .beads/last-touched
 .trekker/
-
