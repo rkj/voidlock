@@ -2,6 +2,17 @@ import { describe, expect, it } from "vitest";
 import {
   buildBootstrapClickOrder,
   classifyRootResponse,
+  isAllowedByShaPrefix,
+  isRiskyNavigationId,
+  isLikelyBlackFrame,
+  isLikelyGameplayBlackFrame,
+  isMissionUiReady,
+  lineLooksReady,
+  parseShaAllowlistContent,
+  parseCommitPlaybookJsonlContent,
+  resolveOriginForStorage,
+  resolvePlaybookActions,
+  shouldAcceptMissionCapture,
   shouldAbortForConsecutiveFailures,
   shouldRotateServer,
 } from "../../../scripts/timeline/capture_timeline";
@@ -67,5 +78,207 @@ describe("capture timeline bootstrap click order", () => {
     expect(order).toContain("btn-menu-custom");
     expect(order).toContain("btn-start-mission");
     expect(order).toContain("btn-deploy");
+  });
+});
+
+describe("capture timeline mission darkness detection", () => {
+  it("flags black-like frames", () => {
+    expect(isLikelyBlackFrame(6.0, 14.8)).toBe(true);
+    expect(isLikelyBlackFrame(9.9, 10)).toBe(true);
+  });
+
+  it("keeps non-black frames", () => {
+    expect(isLikelyBlackFrame(17.6, 17.6)).toBe(false);
+    expect(isLikelyBlackFrame(25, 30)).toBe(false);
+  });
+
+  it("flags gameplay-area black frames more aggressively", () => {
+    expect(isLikelyGameplayBlackFrame(8.5, 12)).toBe(true);
+    expect(isLikelyGameplayBlackFrame(15, 20)).toBe(false);
+  });
+
+  it("accepts mission capture when mission UI is ready even if dark", () => {
+    expect(shouldAcceptMissionCapture(true, true)).toBe(true);
+    expect(shouldAcceptMissionCapture(false, false)).toBe(false);
+  });
+});
+
+describe("capture timeline readiness watcher", () => {
+  it("detects vite ready lines", () => {
+    expect(lineLooksReady("VITE v7.2.4  ready in 312 ms")).toBe(true);
+    expect(lineLooksReady("Local:   http://127.0.0.1:6080/")).toBe(true);
+    expect(lineLooksReady("listening on http://0.0.0.0:5173")).toBe(true);
+  });
+
+  it("ignores unrelated lines", () => {
+    expect(lineLooksReady("building modules...")).toBe(false);
+    expect(lineLooksReady("error: cannot resolve import")).toBe(false);
+  });
+});
+
+describe("capture timeline mission readiness guard", () => {
+  it("accepts mission ui signals", () => {
+    expect(
+      isMissionUiReady({
+        hasCanvas: true,
+        hasMissionTokens: true,
+        hasMissionUiStructure: false,
+        hasSetupTokens: false,
+        hasCampaignTokens: false,
+      }),
+    ).toBe(true);
+  });
+
+  it("accepts mission HUD structure with canvas even without token match", () => {
+    expect(
+      isMissionUiReady({
+        hasCanvas: true,
+        hasMissionTokens: false,
+        hasMissionUiStructure: true,
+        hasSetupTokens: false,
+        hasCampaignTokens: false,
+      }),
+    ).toBe(true);
+  });
+
+  it("rejects setup/config ui", () => {
+    expect(
+      isMissionUiReady({
+        hasCanvas: true,
+        hasMissionTokens: false,
+        hasMissionUiStructure: false,
+        hasSetupTokens: true,
+        hasCampaignTokens: false,
+      }),
+    ).toBe(false);
+  });
+
+  it("rejects campaign-shell ui even if canvas exists", () => {
+    expect(
+      isMissionUiReady({
+        hasCanvas: true,
+        hasMissionTokens: false,
+        hasMissionUiStructure: true,
+        hasSetupTokens: false,
+        hasCampaignTokens: true,
+      }),
+    ).toBe(false);
+  });
+});
+
+describe("capture timeline risky navigation guard", () => {
+  it("flags give-up/abort style ids as risky", () => {
+    expect(isRiskyNavigationId("btn-give-up")).toBe(true);
+    expect(isRiskyNavigationId("btn-mission-abort")).toBe(true);
+    expect(isRiskyNavigationId("btn-abandon-run")).toBe(true);
+    expect(isRiskyNavigationId("btn-menu-reset")).toBe(true);
+  });
+
+  it("keeps normal navigation ids as safe", () => {
+    expect(isRiskyNavigationId("btn-menu-custom")).toBe(false);
+    expect(isRiskyNavigationId("btn-launch-mission")).toBe(false);
+  });
+});
+
+describe("capture timeline mission allowlist", () => {
+  it("parses sha allowlist with comments and blanks", () => {
+    const set = parseShaAllowlistContent(
+      ["# known broken commits", "65143e6", "", "c3020bf"].join("\n"),
+    );
+    expect(set.has("65143e6")).toBe(true);
+    expect(set.has("c3020bf")).toBe(true);
+    expect(set.has("# known broken commits")).toBe(false);
+  });
+
+  it("matches by sha prefix", () => {
+    const set = new Set(["65143e6", "c3020bf"]);
+    expect(isAllowedByShaPrefix("65143e63b506893990c80658fe65ea0fd01b9b81", set)).toBe(true);
+    expect(isAllowedByShaPrefix("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa", set)).toBe(false);
+  });
+});
+
+describe("capture timeline storage origin resolution", () => {
+  it("extracts origin for valid urls", () => {
+    expect(resolveOriginForStorage("http://127.0.0.1:6080/")).toBe("http://127.0.0.1:6080");
+    expect(resolveOriginForStorage("https://example.com/path")).toBe("https://example.com");
+  });
+
+  it("returns empty string for invalid urls", () => {
+    expect(resolveOriginForStorage("not-a-url")).toBe("");
+  });
+});
+
+describe("capture timeline playbook resolution", () => {
+  it("prefers exact commit playbook entries over era ranges", () => {
+    const commitIndex = new Map<string, number>([
+      ["a1", 0],
+      ["a2", 1],
+      ["a3", 2],
+    ]);
+    const actions = resolvePlaybookActions(
+      "a2",
+      commitIndex,
+      {
+        playbooks: [
+          {
+            startCommit: "a1",
+            endCommit: "a3",
+            actions: [{ target: "mission", steps: ["click:#btn-start"] }],
+          },
+        ],
+      },
+      new Map([
+        [
+          "a2",
+          {
+            mission: ["click:#btn-launch-mission"],
+            config: ["click:#btn-custom-mission"],
+          },
+        ],
+      ]),
+    );
+    expect(actions?.mission).toEqual(["click:#btn-launch-mission"]);
+    expect(actions?.config).toEqual(["click:#btn-custom-mission"]);
+  });
+
+  it("ignores non-string steps from era playbooks without crashing", () => {
+    const commitIndex = new Map<string, number>([
+      ["a1", 0],
+      ["a2", 1],
+    ]);
+    const actions = resolvePlaybookActions(
+      "a2",
+      commitIndex,
+      {
+        playbooks: [
+          {
+            startCommit: "a1",
+            endCommit: "a2",
+            actions: [
+              {
+                target: "mission",
+                steps: [{ op: "click", id: "btn-launch-mission" }] as unknown as string[],
+              },
+            ],
+          },
+        ],
+      },
+    );
+    expect(actions?.mission).toEqual(["noop"]);
+  });
+
+  it("parses commit playbook JSONL and ignores invalid rows", () => {
+    const parsed = parseCommitPlaybookJsonlContent(
+      [
+        JSON.stringify({
+          commit: "abc1234",
+          actions: { mission: ["click:#btn-start"] },
+        }),
+        "{bad json",
+        JSON.stringify({ commit: "def5678", actions: { main_menu: ["wait:500ms"] } }),
+      ].join("\n"),
+    );
+    expect(parsed.get("abc1234")?.mission).toEqual(["click:#btn-start"]);
+    expect(parsed.get("def5678")?.main_menu).toEqual(["wait:500ms"]);
   });
 });

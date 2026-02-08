@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   filterVisualCommits,
+  sampleByStride,
   selectMilestoneCommits,
   type TimelineCommit,
 } from "../../../scripts/timeline/timeline_manifest";
@@ -62,5 +63,37 @@ describe("timeline manifest commit selection", () => {
     expect(milestones).toHaveLength(5);
     expect(milestones[0].sha).toBe("s0");
     expect(milestones[4].sha).toBe("s19");
+  });
+
+  it("samples commits by fixed stride", () => {
+    const commits: TimelineCommit[] = [];
+    for (let i = 0; i < 10; i += 1) {
+      commits.push(
+        c(
+          `s${i}`,
+          `2025-01-${String(i + 1).padStart(2, "0")}T00:00:00Z`,
+          `commit ${i}`,
+          ["src/renderer/ui/MenuRenderer.ts"],
+        ),
+      );
+    }
+    const sampled = sampleByStride(commits, 3, 0);
+    expect(sampled.map((v) => v.sha)).toEqual(["s0", "s3", "s6", "s9"]);
+  });
+
+  it("supports stride offsets", () => {
+    const commits: TimelineCommit[] = [];
+    for (let i = 0; i < 10; i += 1) {
+      commits.push(
+        c(
+          `s${i}`,
+          `2025-01-${String(i + 1).padStart(2, "0")}T00:00:00Z`,
+          `commit ${i}`,
+          ["src/renderer/ui/MenuRenderer.ts"],
+        ),
+      );
+    }
+    const sampled = sampleByStride(commits, 3, 1);
+    expect(sampled.map((v) => v.sha)).toEqual(["s1", "s4", "s7"]);
   });
 });

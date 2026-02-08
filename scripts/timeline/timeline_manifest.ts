@@ -215,6 +215,17 @@ export function buildManifest(
   }));
 }
 
+export function sampleByStride<T>(items: T[], stride: number, offset = 0): T[] {
+  if (stride <= 1) return items;
+  if (items.length === 0) return items;
+  const out: T[] = [];
+  const start = Math.max(0, offset);
+  for (let i = start; i < items.length; i += stride) {
+    out.push(items[i]);
+  }
+  return out;
+}
+
 function runCli() {
   const argv = process.argv.slice(2);
   const outPath =
@@ -226,15 +237,18 @@ function runCli() {
   ).toLowerCase();
   const maxCount = Number(readNamedArg(argv, ["--max-count"]) || argv[2] || 0);
   const minHours = Number(readNamedArg(argv, ["--min-hours"]) || argv[3] || 8);
+  const sampleEvery = Number(readNamedArg(argv, ["--sample-every"]) || 1);
+  const sampleOffset = Number(readNamedArg(argv, ["--sample-offset"]) || 0);
   const commits = getGitCommits();
   const effectiveMax = maxCount > 0 ? maxCount : commits.length;
-  const selectedCommits =
+  const baseSelection =
     mode === "visual"
       ? selectMilestoneCommits(filterVisualCommits(commits), {
           minHoursBetween: minHours,
           maxCount: effectiveMax,
         })
       : commits.slice(0, effectiveMax);
+  const selectedCommits = sampleByStride(baseSelection, sampleEvery, sampleOffset);
   const milestones = selectedCommits.map((commit) => ({
     milestoneDate: new Date(parseTimestamp(commit.date)).toISOString(),
     sourceCommit: commit.sha,
@@ -246,6 +260,8 @@ function runCli() {
     mode,
     minHoursBetween: minHours,
     maxCount: maxCount > 0 ? maxCount : 0,
+    sampleEvery,
+    sampleOffset,
     totalGitCommits: commits.length,
     milestones,
   };
