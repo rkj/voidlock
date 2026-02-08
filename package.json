@@ -12,7 +12,18 @@
     "lint": "tsc --noEmit",
     "preview": "vite preview",
     "balance-sim": "tsx src/harness/BalanceSimulator.ts",
-    "process-assets": "tsx scripts/process_assets.ts"
+    "process-assets": "tsx scripts/process_assets.ts",
+    "timeline:manifest": "node --experimental-strip-types scripts/timeline/timeline_manifest.ts",
+    "timeline:analyze": "node --experimental-strip-types scripts/timeline/analyze_timeline_navigation.ts",
+    "timeline:capture": "node --experimental-strip-types scripts/timeline/capture_timeline.ts",
+    "timeline:analyze-frames": "node --experimental-strip-types scripts/timeline/analyze_timeline_frames.ts",
+    "timeline:render": "node --experimental-strip-types scripts/timeline/render_timeline.ts",
+    "timeline:era-manifest": "node --experimental-strip-types scripts/timeline/era_manifest.ts",
+    "timeline:all": "npm run timeline:manifest && npm run timeline:analyze && npm run timeline:topology && npm run timeline:playbooks && npm run timeline:capture && npm run timeline:analyze-frames && npm run timeline:render",
+    "timeline:topology": "node --experimental-strip-types scripts/timeline/analyze_screen_topology_changes.ts",
+    "timeline:playbooks": "node --experimental-strip-types scripts/timeline/plan_navigation_playbooks.ts",
+    "timeline:compile-playbooks": "node --experimental-strip-types scripts/timeline/compile_commit_playbooks.ts",
+    "timeline:run": "./scripts/timeline/run.sh"
   },
   "devDependencies": {
     "@types/node": "^25.0.3",

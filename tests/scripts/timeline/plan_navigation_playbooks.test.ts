@@ -1,0 +1,222 @@
+import { describe, expect, it } from "vitest";
+import {
+  compileCommitPlaybookRows,
+  heuristicPlaybook,
+  normalizeExternalPlaybook,
+  resolveAgentCommand,
+  shouldReuseEraPlaybook,
+} from "../../../scripts/timeline/plan_navigation_playbooks";
+
+describe("timeline playbook planner", () => {
+  it("builds click-flow mission steps from known config + launch ids", () => {
+    const playbook = heuristicPlaybook(
+      0,
+      {
+        startCommit: "a1",
+        endCommit: "a2",
+        screenSet: ["screen-main-menu", "screen-mission"],
+        commitCount: 2,
+      },
+      {
+        actionIds: ["btn-menu-custom", "btn-launch-mission"],
+      },
+    );
+    expect(playbook.strategy).toBe("click_flow");
+    expect(playbook.actions.find((a) => a.target === "mission")?.steps).toEqual([
+      "click:#btn-menu-custom",
+      "wait:700ms",
+      "click:#btn-launch-mission",
+      "wait:1500ms",
+    ]);
+  });
+
+  it("falls back to mission settle-wait when no mission launch id is discoverable", () => {
+    const playbook = heuristicPlaybook(
+      1,
+      {
+        startCommit: "b1",
+        endCommit: "b2",
+        screenSet: [],
+        commitCount: 2,
+      },
+      {
+        actionIds: ["btn-menu-custom"],
+      },
+    );
+    expect(playbook.strategy).toBe("click_flow");
+    expect(playbook.actions.find((a) => a.target === "mission")?.steps).toEqual(["wait:3000ms"]);
+  });
+
+  it("resolves agent command placeholders safely", () => {
+    const [bin, args] = resolveAgentCommand(
+      "bash scripts/timeline/provider_codex.sh {PROMPT_FILE} {OUTPUT_FILE}",
+      "/tmp/prompt.txt",
+      "/tmp/out.json",
+    );
+    expect(bin).toBe("bash");
+    expect(args).toEqual([
+      "scripts/timeline/provider_codex.sh",
+      "/tmp/prompt.txt",
+      "/tmp/out.json",
+    ]);
+  });
+
+  it("throws when placeholders are malformed or missing", () => {
+    expect(() =>
+      resolveAgentCommand(
+        "bash scripts/timeline/provider_codex.sh {PROMPT_FILE {OUTPUT_FILE}}",
+        "/tmp/prompt.txt",
+        "/tmp/out.json",
+      ),
+    ).toThrow(/placeholder/i);
+  });
+
+  it("normalizes object-style external steps into string steps", () => {
+    const normalized = normalizeExternalPlaybook(
+      2,
+      {
+        startCommit: "c1",
+        endCommit: "c2",
+        screenSet: [],
+        commitCount: 2,
+      },
+      {
+        strategy: "hybrid",
+        notes: "x",
+        actions: [
+          {
+            target: "mission",
+            steps: [
+              { op: "clickIfExists", id: "btn-launch-mission" },
+              { op: "wait", ms: 1500 },
+            ] as unknown as string[],
+          },
+        ],
+      },
+      {
+        allIds: ["btn-launch-mission"],
+      },
+    );
+    expect(normalized.actions[0].steps).toEqual(["click:#btn-launch-mission", "wait:1500ms"]);
+  });
+
+  it("canonicalizes main menu actions to root wait during normalization", () => {
+    const normalized = normalizeExternalPlaybook(
+      3,
+      {
+        startCommit: "d1",
+        endCommit: "d2",
+        screenSet: [],
+        commitCount: 2,
+      },
+      {
+        strategy: "hybrid",
+        notes: "x",
+        actions: [
+          {
+            target: "main_menu",
+            steps: [{ op: "force_show", screenId: "screen-main-menu" }] as unknown as string[],
+          },
+        ],
+      },
+    );
+    expect(normalized.actions[0].steps).toEqual(["wait:500ms"]);
+  });
+
+  it("strips unknown click ids from external mission plans", () => {
+    const normalized = normalizeExternalPlaybook(
+      4,
+      {
+        startCommit: "e1",
+        endCommit: "e2",
+        screenSet: [],
+        commitCount: 2,
+      },
+      {
+        strategy: "hybrid",
+        notes: "x",
+        actions: [
+          {
+            target: "mission",
+            steps: ["click:#btn-made-up", "wait:1200ms"],
+          },
+        ],
+      },
+      {
+        allIds: ["btn-launch-mission"],
+        actionIds: ["btn-launch-mission"],
+      },
+    );
+    expect(normalized.actions[0].steps).toEqual(["wait:1200ms"]);
+  });
+
+  it("reuses playbook when actionable ids and targets are unchanged", () => {
+    const previous = {
+      actionIds: ["btn-menu-custom", "btn-launch-mission"],
+      allIds: ["btn-menu-custom", "btn-launch-mission", "screen-main-menu"],
+      targets: { mission: ["screen-mission"] },
+    };
+    const current = {
+      actionIds: ["btn-launch-mission", "btn-menu-custom"],
+      allIds: ["screen-main-menu", "btn-menu-custom", "btn-launch-mission"],
+      targets: { mission: ["screen-mission"] },
+    };
+    expect(shouldReuseEraPlaybook(previous, current)).toBe(true);
+  });
+
+  it("does not reuse playbook when actionable ids change", () => {
+    const previous = {
+      actionIds: ["btn-menu-custom", "btn-launch-mission"],
+      allIds: ["btn-menu-custom", "btn-launch-mission"],
+      targets: { mission: ["screen-mission"] },
+    };
+    const current = {
+      actionIds: ["btn-menu-custom", "btn-start-mission"],
+      allIds: ["btn-menu-custom", "btn-start-mission"],
+      targets: { mission: ["screen-mission"] },
+    };
+    expect(shouldReuseEraPlaybook(previous, current)).toBe(false);
+  });
+
+  it("compiles checkpoint playbooks into deterministic per-commit rows", () => {
+    const rows = compileCommitPlaybookRows(
+      {
+        milestones: [
+          { sourceCommit: "a1" },
+          { sourceCommit: "a2" },
+          { sourceCommit: "a3" },
+          { sourceCommit: "a4" },
+        ],
+      },
+      [
+        {
+          eraIndex: 0,
+          startCommit: "a1",
+          endCommit: "a2",
+          strategy: "click_flow",
+          notes: "era0",
+          actions: [
+            { target: "mission", steps: ["click:#btn-a", "wait:700ms"] },
+            { target: "main_menu", steps: ["wait:500ms"] },
+          ],
+        },
+        {
+          eraIndex: 1,
+          startCommit: "a3",
+          endCommit: "a4",
+          strategy: "click_flow",
+          notes: "era1",
+          actions: [
+            { target: "mission", steps: ["click:#btn-b", "wait:700ms"] },
+          ],
+        },
+      ],
+    );
+
+    expect(rows.map((row) => row.commit)).toEqual(["a1", "a2", "a3", "a4"]);
+    expect(rows[0]?.eraIndex).toBe(0);
+    expect(rows[1]?.actions.mission).toEqual(["click:#btn-a", "wait:700ms"]);
+    expect(rows[2]?.eraIndex).toBe(1);
+    expect(rows[3]?.actions.mission).toEqual(["click:#btn-b", "wait:700ms"]);
+  });
+});
