@@ -1370,6 +1370,14 @@ label {
   color: white;
 }
 
+.remove-soldier-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.2em;
+  padding: 0 5px;
+  z-index: 10;
+}
+
 /* Campaign Shell */
 .campaign-shell {
   background-color: var(--color-bg);
@@ -2145,6 +2153,7 @@ label {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding-right: 25px;
 }
 
 .active-name {
@@ -2187,6 +2196,7 @@ label {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding-right: 25px;
 }
 
 .squad-builder-price {
@@ -2199,6 +2209,7 @@ label {
   font-size: 0.75em;
   color: var(--color-text-muted);
   margin-bottom: 2px;
+  padding-right: 25px;
 }
 
 .squad-builder-card-stats {
@@ -2446,6 +2457,12 @@ label {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.mobile-touch .roster-item-header,
+.mobile-touch .squad-builder-card-header,
+.mobile-touch .squad-builder-card-subtitle {
+  padding-right: 50px;
 }
 
 /* Checkboxes and Labels */
