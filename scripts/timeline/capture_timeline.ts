@@ -205,10 +205,10 @@ export function isMissionUiReady(signals: {
 
 function looksLikeMainMenuUi(signals: {
   hasMainMenuTokens: boolean;
-  hasCanvas: boolean;
   hasSetupTokens: boolean;
+  hasMissionTokens: boolean;
 }): boolean {
-  return signals.hasMainMenuTokens && !signals.hasCanvas && !signals.hasSetupTokens;
+  return signals.hasMainMenuTokens && !signals.hasSetupTokens && !signals.hasMissionTokens;
 }
 
 export function buildBootstrapClickOrder(actionIds: string[] = []): string[] {
@@ -1075,19 +1075,15 @@ async function captureMissionByClicks(
 
 async function detectMissionReadyUi(page: import("puppeteer").Page): Promise<boolean> {
   const signals = await page.evaluate(() => {
-    const visibleTextNodes = Array.from(document.querySelectorAll<HTMLElement>("body, h1, h2, h3, button, label, #game-status"))
-      .filter((el) => {
-        const style = window.getComputedStyle(el);
-        const rect = el.getBoundingClientRect();
-        return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
-      })
-      .map((el) => (el.textContent || "").toLowerCase())
-      .join("\n");
-    const hasCanvas = Array.from(document.querySelectorAll("canvas")).some((c) => {
-      const el = c as HTMLElement;
+    const isVisible = (el: Element | null): el is HTMLElement => {
+      if (!(el instanceof HTMLElement)) return false;
       const style = window.getComputedStyle(el);
       const rect = el.getBoundingClientRect();
       return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
+    };
+    const visibleText = (document.body?.innerText || "").toLowerCase();
+    const hasCanvas = Array.from(document.querySelectorAll("canvas")).some((c) => {
+      return isVisible(c);
     });
     const missionTokens = [
       "mission control",
@@ -1116,19 +1112,19 @@ async function detectMissionReadyUi(page: import("puppeteer").Page): Promise<boo
     ];
     const mainMenuTokens = ["custom mission", "campaign", "load replay"];
     const hasMissionUiStructure =
-      !!document.getElementById("right-panel") ||
-      !!document.getElementById("mission-body") ||
-      !!document.getElementById("soldier-panel") ||
-      !!document.getElementById("command-panel") ||
-      !!document.getElementById("unit-panel");
+      isVisible(document.getElementById("right-panel")) ||
+      isVisible(document.getElementById("mission-body")) ||
+      isVisible(document.getElementById("soldier-panel")) ||
+      isVisible(document.getElementById("command-panel")) ||
+      isVisible(document.getElementById("unit-panel"));
 
     return {
       hasCanvas,
-      hasMissionTokens: missionTokens.some((token) => visibleTextNodes.includes(token)),
+      hasMissionTokens: missionTokens.some((token) => visibleText.includes(token)),
       hasMissionUiStructure,
-      hasSetupTokens: setupTokens.some((token) => visibleTextNodes.includes(token)),
-      hasCampaignTokens: campaignTokens.some((token) => visibleTextNodes.includes(token)),
-      hasMainMenuTokens: mainMenuTokens.some((token) => visibleTextNodes.includes(token)),
+      hasSetupTokens: setupTokens.some((token) => visibleText.includes(token)),
+      hasCampaignTokens: campaignTokens.some((token) => visibleText.includes(token)),
+      hasMainMenuTokens: mainMenuTokens.some((token) => visibleText.includes(token)),
     };
   });
   return isMissionUiReady(signals);
@@ -1136,28 +1132,14 @@ async function detectMissionReadyUi(page: import("puppeteer").Page): Promise<boo
 
 async function detectMainMenuUi(page: import("puppeteer").Page): Promise<boolean> {
   const signals = await page.evaluate(() => {
-    const visibleTextNodes = Array.from(
-      document.querySelectorAll<HTMLElement>("body, h1, h2, h3, button, label"),
-    )
-      .filter((el) => {
-        const style = window.getComputedStyle(el);
-        const rect = el.getBoundingClientRect();
-        return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
-      })
-      .map((el) => (el.textContent || "").toLowerCase())
-      .join("\n");
-    const hasCanvas = Array.from(document.querySelectorAll("canvas")).some((c) => {
-      const el = c as HTMLElement;
-      const style = window.getComputedStyle(el);
-      const rect = el.getBoundingClientRect();
-      return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
-    });
+    const visibleText = (document.body?.innerText || "").toLowerCase();
     const mainMenuTokens = ["custom mission", "campaign", "load replay"];
     const setupTokens = ["mission configuration", "generator type", "squad selection"];
+    const missionTokens = ["mission control", "objectives", "abort mission", "threat meter"];
     return {
-      hasMainMenuTokens: mainMenuTokens.some((token) => visibleTextNodes.includes(token)),
-      hasCanvas,
-      hasSetupTokens: setupTokens.some((token) => visibleTextNodes.includes(token)),
+      hasMainMenuTokens: mainMenuTokens.some((token) => visibleText.includes(token)),
+      hasSetupTokens: setupTokens.some((token) => visibleText.includes(token)),
+      hasMissionTokens: missionTokens.some((token) => visibleText.includes(token)),
     };
   });
   return looksLikeMainMenuUi(signals);

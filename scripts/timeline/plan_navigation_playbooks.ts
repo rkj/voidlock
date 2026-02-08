@@ -30,10 +30,12 @@ type Playbook = {
   strategy: "dom_force" | "click_flow" | "hybrid";
   notes: string;
   actions: Array<{
-    target: "mission" | "main_menu" | "config" | "campaign";
+    target: ScreenTarget;
     steps: string[];
   }>;
 };
+
+type ScreenTarget = "mission" | "main_menu" | "config" | "campaign";
 
 type PlaybookDoc = {
   generatedAt: string;
@@ -118,6 +120,7 @@ function buildPrompt(
     `Era commits: ${era.startCommit}..${era.endCommit}`,
     `Known screen labels: ${(era.screenSet || []).join(", ")}`,
     "Preferred approach: click known menu/setup/start buttons and text-matching fallbacks.",
+    "main_menu is root capture; do not add click flow for main_menu.",
     "Allowed step patterns:",
     "- click:#<id>",
     "- wait:<N>ms",
@@ -155,6 +158,7 @@ export function heuristicPlaybook(
     "btn-begin",
   ]);
   const strategy: Playbook["strategy"] = "click_flow";
+  const allowedIds = collectUiIds(navEntry);
 
   return {
     eraIndex,
@@ -165,19 +169,27 @@ export function heuristicPlaybook(
     actions: [
       {
         target: "mission",
-        steps: buildMissionSteps(configBtn, missionLaunchBtn),
+        steps: sanitizeTargetSteps("mission", buildMissionSteps(configBtn, missionLaunchBtn), allowedIds),
       },
       {
         target: "main_menu",
-        steps: ["wait:500ms"],
+        steps: sanitizeTargetSteps("main_menu", ["wait:500ms"], allowedIds),
       },
       {
         target: "config",
-        steps: configBtn ? [`click:#${configBtn}`, "wait:900ms"] : ["noop"],
+        steps: sanitizeTargetSteps(
+          "config",
+          configBtn ? [`click:#${configBtn}`, "wait:900ms"] : ["noop"],
+          allowedIds,
+        ),
       },
       {
         target: "campaign",
-        steps: campaignBtn ? [`click:#${campaignBtn}`, "wait:900ms"] : ["noop"],
+        steps: sanitizeTargetSteps(
+          "campaign",
+          campaignBtn ? [`click:#${campaignBtn}`, "wait:900ms"] : ["noop"],
+          allowedIds,
+        ),
       },
     ],
   };
@@ -296,7 +308,7 @@ function mapObjectStepToString(step: Record<string, unknown>): string {
 }
 
 function normalizeSteps(rawSteps: unknown): string[] {
-  if (!Array.isArray(rawSteps)) return ["noop"];
+  if (!Array.isArray(rawSteps)) return [];
   const normalized = rawSteps
     .map((step) => {
       if (typeof step === "string") return step;
@@ -304,18 +316,66 @@ function normalizeSteps(rawSteps: unknown): string[] {
       return "";
     })
     .filter((step) => step.length > 0);
-  return normalized.length > 0 ? normalized : ["noop"];
+  return normalized;
+}
+
+function isRiskyActionId(id: string): boolean {
+  const lower = id.toLowerCase();
+  return (
+    lower.includes("abort") ||
+    lower.includes("abandon") ||
+    lower.includes("give-up") ||
+    lower.includes("surrender") ||
+    lower.includes("reset")
+  );
+}
+
+function sanitizeTargetSteps(
+  target: ScreenTarget,
+  rawSteps: string[],
+  allowedIds: string[],
+): string[] {
+  if (target === "main_menu") return ["wait:500ms"];
+  const allowed = new Set(allowedIds.map((id) => id.toLowerCase()));
+  const out: string[] = [];
+  for (const step of rawSteps) {
+    if (step === "noop") continue;
+    if (step.startsWith("wait:")) {
+      const n = Number(step.replace(/[^\d]/g, ""));
+      const ms = Number.isFinite(n) && n > 0 ? Math.round(n) : 700;
+      out.push(`wait:${ms}ms`);
+      continue;
+    }
+    if (!step.startsWith("click:#")) continue;
+    const id = step.slice("click:#".length).trim();
+    if (!id || isRiskyActionId(id)) continue;
+    if (allowed.size > 0 && !allowed.has(id.toLowerCase())) continue;
+    out.push(`click:#${id}`);
+  }
+  if (target === "mission") {
+    return out.length > 0 ? out : ["wait:3000ms"];
+  }
+  return out.length > 0 ? out : ["noop"];
 }
 
 export function normalizeExternalPlaybook(
   eraIndex: number,
   era: TopologyReport["eras"][number],
   parsed: Omit<Playbook, "eraIndex" | "startCommit" | "endCommit">,
+  navEntry?: NavigationMap["commits"][string],
 ): Playbook {
-  const actions: Playbook["actions"] = (parsed.actions || []).map((action) => ({
-    target: action.target,
-    steps: normalizeSteps((action as unknown as { steps?: unknown }).steps),
-  }));
+  const allowedIds = collectUiIds(navEntry);
+  const actions: Playbook["actions"] = (parsed.actions || []).map((action) => {
+    const target = action.target as ScreenTarget;
+    return {
+      target,
+      steps: sanitizeTargetSteps(
+        target,
+        normalizeSteps((action as unknown as { steps?: unknown }).steps),
+        allowedIds,
+      ),
+    };
+  });
   return {
     eraIndex,
     startCommit: era.startCommit,
@@ -436,7 +496,7 @@ async function runCli() {
       runExternalAgent(cmdTemplate, promptFile, outputFile);
       if (fs.existsSync(outputFile)) {
         const parsed = JSON.parse(fs.readFileSync(outputFile, "utf-8")) as Omit<Playbook, "eraIndex" | "startCommit" | "endCommit">;
-        playbooks.push(normalizeExternalPlaybook(idx, era, parsed));
+        playbooks.push(normalizeExternalPlaybook(idx, era, parsed, navEntry));
         previousSignature = signature;
         previousPlaybook = playbooks[playbooks.length - 1];
         return;
