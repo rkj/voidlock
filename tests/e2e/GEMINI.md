@@ -23,6 +23,7 @@ To verify visual fidelity and critical user journeys that cannot be fully tested
 - `ScrollbarClipping.test.ts`: Verifies that the Mission Setup screen remains accessible and scrollable on small viewports.
 - `RosterLayout.test.ts`: Verifies that the Roster panel utilizes the full container height and that the Recruit button is outside the scrollable area (sticky).
 - `SoldierCardOverlap.test.ts`: Verifies that the remove 'X' button does not overlap with the 'LVL' badge on soldier cards, especially in mobile touch mode.
+- `KeyboardCampaignStart.test.ts`: E2E reproduction test for keyboard navigation failure when starting a new campaign.
 
 ## Usage
 
