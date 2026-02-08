@@ -296,9 +296,9 @@ describe("E2E Campaign Happy Path", () => {
       }
 
       // 3. Handle Equipment (skipping Mission Setup)
-      expect(
-        document.getElementById("screen-equipment")?.style.display,
-      ).toBe("flex");
+      expect(document.getElementById("screen-equipment")?.style.display).toBe(
+        "flex",
+      );
 
       // Confirm and Launch mission
       const equipmentLaunchBtn = Array.from(

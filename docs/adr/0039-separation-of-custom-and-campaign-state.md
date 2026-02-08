@@ -8,7 +8,7 @@ Accepted
 
 ## Context
 
-Voidlock provides two primary ways to play: **Campaign Mode** (persistent progression, roster, and economy) and **Custom Simulation** (a sandbox mode for testing maps, squads, and mechanics). 
+Voidlock provides two primary ways to play: **Campaign Mode** (persistent progression, roster, and economy) and **Custom Simulation** (a sandbox mode for testing maps, squads, and mechanics).
 
 Previously, these states were not strictly isolated. Custom missions could inadvertently access or modify campaign soldiers. For example, a user could "revive" a dead campaign soldier by selecting them in a custom mission setup, or a custom mission's outcome could potentially leak into the campaign's persistent history. This violates the "sandbox" guarantee of custom missions and risks campaign state corruption.
 
@@ -44,8 +44,8 @@ Both Campaign and Custom states must support independent versioning:
 
 - **Independent Versioning**: `CampaignState` and `GameConfig` (Custom Setup) will maintain their own `version` fields.
 - **Mandatory Migration/Repair**:
-    - `CampaignManager.validateAndRepair()` is responsible for upgrading old campaign saves to the current schema.
-    - `ConfigManager.validateAndMerge()` is responsible for upgrading custom configurations.
+  - `CampaignManager.validateAndRepair()` is responsible for upgrading old campaign saves to the current schema.
+  - `ConfigManager.validateAndMerge()` is responsible for upgrading custom configurations.
 - **Zod Validation**: All state loading must pass through Zod schemas (`CampaignStateSchema`, `GameConfigSchema`) to ensure structural integrity at the storage boundary.
 
 ### 4. Persistence of "Last Used" Squads

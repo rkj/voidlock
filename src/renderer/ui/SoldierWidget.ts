@@ -112,22 +112,10 @@ export class SoldierWidget {
         );
         break;
       case "roster":
-        this.renderRoster(
-          container,
-          data,
-          options,
-          displayName,
-          level,
-        );
+        this.renderRoster(container, data, options, displayName, level);
         break;
       case "squad-builder":
-        this.renderSquadBuilder(
-          container,
-          data,
-          options,
-          displayName,
-          level,
-        );
+        this.renderSquadBuilder(container, data, options, displayName, level);
         break;
     }
   }
@@ -171,8 +159,10 @@ export class SoldierWidget {
 
   private static getLevel(data: SoldierWidgetData): number {
     if ("level" in data && typeof data.level === "number") return data.level;
-    if ("xp" in data && typeof data.xp === "number") return calculateLevel(data.xp);
-    if ("xpBefore" in data && typeof data.xpBefore === "number") return calculateLevel(data.xpBefore);
+    if ("xp" in data && typeof data.xp === "number")
+      return calculateLevel(data.xp);
+    if ("xpBefore" in data && typeof data.xpBefore === "number")
+      return calculateLevel(data.xpBefore);
     return 1;
   }
 
@@ -408,11 +398,14 @@ export class SoldierWidget {
   ) {
     const status = this.getStatus(data);
     const statusColor = this.getStatusColor(status);
-    
-    const archId = "archetypeId" in data && typeof data.archetypeId === "string" 
-      ? data.archetypeId 
-      : ("id" in data && typeof data.id === "string" ? data.id : undefined);
-    
+
+    const archId =
+      "archetypeId" in data && typeof data.archetypeId === "string"
+        ? data.archetypeId
+        : "id" in data && typeof data.id === "string"
+          ? data.id
+          : undefined;
+
     const archetype =
       (archId && ArchetypeLibrary[archId]?.name) || archId || "Unknown";
 
@@ -423,7 +416,8 @@ export class SoldierWidget {
 
     const xp = "xp" in data && typeof data.xp === "number" ? data.xp : 0;
     const hp = "hp" in data && typeof data.hp === "number" ? data.hp : 0;
-    const maxHp = "maxHp" in data && typeof data.maxHp === "number" ? data.maxHp : 0;
+    const maxHp =
+      "maxHp" in data && typeof data.maxHp === "number" ? data.maxHp : 0;
 
     container.style.borderLeft = `4px solid ${statusColor}`;
 
@@ -478,7 +472,7 @@ export class SoldierWidget {
       scaledFireRate > 0 ? (1000 / scaledFireRate).toFixed(1) : "0";
 
     const name = this.getName(data);
-    const subTitle = (arch?.name && arch.name !== name) ? `${arch.name} ` : "";
+    const subTitle = arch?.name && arch.name !== name ? `${arch.name} ` : "";
 
     container.innerHTML = `
       <div class="squad-builder-card-header">

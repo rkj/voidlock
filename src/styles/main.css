@@ -2433,13 +2433,30 @@ label {
 }
 
 .mobile-touch .campaign-top-bar {
-  height: 64px !important;
+  height: auto !important;
+  min-height: 52px;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.mobile-touch .shell-controls-right {
+  gap: 10px !important;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.mobile-touch .shell-tabs {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 4px 0;
 }
 
 .mobile-touch .tab-button,
 .mobile-touch .campaign-top-bar .back-button {
   height: 44px !important;
   padding: 0 15px !important;
+  flex-shrink: 0;
 }
 
 .mobile-touch .soldier-panel {
@@ -2670,12 +2687,14 @@ label {
     margin-left: 5px;
   }
 
-  .equipment-main-content {
+  .equipment-main-content,
+  .barracks-main-content {
     flex-direction: column !important;
     overflow-y: auto !important;
   }
 
-  .equipment-main-content .panel {
+  .equipment-main-content .panel,
+  .barracks-main-content .panel {
     width: 100% !important;
     min-width: 0 !important;
     max-width: none !important;

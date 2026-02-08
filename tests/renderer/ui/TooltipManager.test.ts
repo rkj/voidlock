@@ -1,18 +1,21 @@
 /**
  * @vitest-environment jsdom
  */
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { TooltipManager } from "@src/renderer/ui/TooltipManager";
 
 describe("TooltipManager", () => {
   let container: HTMLDivElement;
 
   beforeEach(() => {
+    vi.useFakeTimers();
     document.body.innerHTML = "";
     document.body.classList.remove("mobile-touch");
 
-    // Reset singleton instance if possible or clear its state
-    (TooltipManager as any).instance = undefined;
+    // Clear any existing instance
+    if ((TooltipManager as any).instance) {
+      (TooltipManager as any).instance.destroy();
+    }
 
     container = document.createElement("div");
     container.innerHTML = `
@@ -21,6 +24,10 @@ describe("TooltipManager", () => {
       <div id="no-tooltip">No Tooltip</div>
     `;
     document.body.appendChild(container);
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   it("should show tooltip on click if mobile-touch is active", () => {
@@ -55,6 +62,9 @@ describe("TooltipManager", () => {
     target.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(document.querySelector(".inspect-popover")).not.toBeNull();
 
+    // Advance time to bypass debounce
+    vi.advanceTimersByTime(301);
+
     // Second click: dismiss
     target.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(document.querySelector(".inspect-popover")).toBeNull();
@@ -70,6 +80,9 @@ describe("TooltipManager", () => {
     expect(document.querySelector(".inspect-popover")?.textContent).toBe(
       "Tooltip 1",
     );
+
+    // Advance time to bypass debounce
+    vi.advanceTimersByTime(301);
 
     target2.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(document.querySelector(".inspect-popover")?.textContent).toBe(
@@ -87,6 +100,9 @@ describe("TooltipManager", () => {
 
     target.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(document.querySelector(".inspect-popover")).not.toBeNull();
+
+    // Advance time to bypass debounce
+    vi.advanceTimersByTime(301);
 
     outside.dispatchEvent(new MouseEvent("click", { bubbles: true }));
     expect(document.querySelector(".inspect-popover")).toBeNull();

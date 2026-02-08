@@ -34,8 +34,10 @@ export class InputDispatcher {
 
   public pushContext(context: InputContext) {
     (context as any)._order = this.nextOrder++;
-    
-    const existingIndex = this.contextStack.findIndex((c) => c.id === context.id);
+
+    const existingIndex = this.contextStack.findIndex(
+      (c) => c.id === context.id,
+    );
     if (existingIndex !== -1) {
       this.contextStack.splice(existingIndex, 1);
     }

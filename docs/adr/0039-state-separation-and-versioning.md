@@ -35,15 +35,15 @@ Mission configuration will flow from a single source of truth: `GameConfig`.
 ```typescript
 interface GameConfig {
   gameMode: GameMode; // Campaign | Custom
-  version: number;    // Schema version
+  version: number; // Schema version
   // ... map and engine settings ...
   squadConfig: SquadConfig;
   context: {
     campaignNodeId?: string;
     allowRevive: boolean;
     allowRecruit: boolean;
-    economyMode: 'Open' | 'Limited' | 'Free';
-  }
+    economyMode: "Open" | "Limited" | "Free";
+  };
 }
 ```
 
@@ -61,6 +61,7 @@ To ensure maintainability and cloud-sync safety, all top-level state objects (Ca
 ### 4. Cloud Persistence Considerations
 
 Separation ensures that:
+
 - Saving a Custom Mission configuration does not trigger a Campaign save sync.
 - Malformed data in one mode does not corrupt the other.
 - Shared meta-progression (Intel, Unlocks) is handled via a third, independent `MetaManager` state.

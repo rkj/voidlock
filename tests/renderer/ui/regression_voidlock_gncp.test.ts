@@ -17,7 +17,7 @@ describe("Regression GNCP: 'undefined' in soldier card", () => {
       leftHand: "combat_knife",
     };
     const options: SoldierWidgetOptions = { context: "roster" };
-    
+
     // This used to throw "Cannot read properties of undefined (reading 'rightHand')"
     // because it expected data.equipment.rightHand
     const el = SoldierWidget.render(data, options);
