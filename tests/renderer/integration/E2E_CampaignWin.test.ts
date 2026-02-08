@@ -295,27 +295,10 @@ describe("E2E Campaign Happy Path", () => {
         continue;
       }
 
-      // 3. Handle Mission Setup
+      // 3. Handle Equipment (skipping Mission Setup)
       expect(
-        document.getElementById("screen-mission-setup")?.style.display,
+        document.getElementById("screen-equipment")?.style.display,
       ).toBe("flex");
-
-      // Ensure squad is selected
-      const soldierCards = document.querySelectorAll(".soldier-card");
-      soldierCards.forEach((card) => {
-        if (
-          !card.classList.contains("selected") &&
-          !card.classList.contains("disabled")
-        ) {
-          card.dispatchEvent(new Event("dblclick"));
-        }
-      });
-
-      // Launch to Equipment
-      document.getElementById("btn-goto-equipment")?.click();
-      expect(document.getElementById("screen-equipment")?.style.display).toBe(
-        "flex",
-      );
 
       // Confirm and Launch mission
       const equipmentLaunchBtn = Array.from(

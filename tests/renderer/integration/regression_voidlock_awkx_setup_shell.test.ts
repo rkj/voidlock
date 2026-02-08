@@ -263,8 +263,9 @@ describe("Mission Setup Shell Visibility (voidlock-awkx)", () => {
     if (!nodeEl) throw new Error("Accessible node not found");
     nodeEl.click();
 
-    // 4. Verify we are on Mission Setup
-    expect(missionSetup?.style.display).toBe("flex");
+    // 4. Verify we are on Equipment screen (skipping Mission Setup)
+    const equipment = document.getElementById("screen-equipment");
+    expect(equipment?.style.display).toBe("flex");
 
     // 5. Verify Shell is still visible
     expect(shell?.style.display).toBe("flex");

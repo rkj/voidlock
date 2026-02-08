@@ -218,18 +218,10 @@ describe("Full Campaign Flow Integration", () => {
     // Wait for async onCampaignNodeSelected
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    expect(document.getElementById("screen-mission-setup")?.style.display).toBe(
+    expect(document.getElementById("screen-equipment")?.style.display).toBe(
       "flex",
     );
 
-    const soldierCards = document.querySelectorAll(".soldier-card");
-    soldierCards.forEach((card) => {
-      if (!card.classList.contains("deployed")) {
-        card.dispatchEvent(new Event("dblclick"));
-      }
-    });
-
-    document.getElementById("btn-goto-equipment")?.click();
     const equipmentLaunchBtn = Array.from(
       document.querySelectorAll("#screen-equipment button"),
     ).find((b) => b.textContent?.includes("Confirm")) as HTMLElement;
@@ -328,15 +320,14 @@ describe("Full Campaign Flow Integration", () => {
     // Wait for async onCampaignNodeSelected
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    expect(document.getElementById("screen-mission-setup")?.style.display).toBe(
+    expect(document.getElementById("screen-equipment")?.style.display).toBe(
       "flex",
     );
 
-    const selectedCards = document.querySelectorAll(".soldier-card.deployed");
-    const isS0Selected = Array.from(selectedCards).some((c) =>
-      (c as HTMLElement).textContent?.includes("Recruit 1"),
-    );
-    expect(isS0Selected).toBe(false);
+    // In equipment screen, check that the dead soldier is not in the list
+    const selectedSoldiers = Array.from(document.querySelectorAll(".soldier-list-panel .soldier-item"));
+    const isDeadPresent = selectedSoldiers.some(s => s.textContent?.includes("Dead"));
+    expect(isDeadPresent).toBe(false);
 
     // 4. Verify Boss Win triggers Victory screen
     const bossState = cm.getState()!;
@@ -345,6 +336,8 @@ describe("Full Campaign Flow Integration", () => {
     cm.save();
 
     // Force re-render of campaign screen by going back to menu and in again
+    const backBtn = Array.from(document.querySelectorAll("#screen-equipment button")).find(b => b.textContent === "Back") as HTMLElement;
+    backBtn?.click();
     document.getElementById("btn-setup-back")?.click();
     document.getElementById("btn-menu-campaign")?.click();
 
@@ -357,16 +350,8 @@ describe("Full Campaign Flow Integration", () => {
     // Wait for async onCampaignNodeSelected
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    // Re-select squad
-    document.querySelectorAll(".soldier-card").forEach((card) => {
-      if (
-        !card.classList.contains("deployed") &&
-        !card.classList.contains("disabled")
-      ) {
-        card.dispatchEvent(new Event("dblclick"));
-      }
-    });
-    document.getElementById("btn-goto-equipment")?.click();
+    expect(document.getElementById("screen-equipment")?.style.display).toBe("flex");
+
     (
       Array.from(document.querySelectorAll("#screen-equipment button")).find(
         (b) => b.textContent?.includes("Confirm"),
@@ -467,7 +452,8 @@ describe("Full Campaign Flow Integration", () => {
     // Wait for async onCampaignNodeSelected
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    document.getElementById("btn-goto-equipment")?.click();
+    expect(document.getElementById("screen-equipment")?.style.display).toBe("flex");
+
     const confBtn = Array.from(
       document.querySelectorAll("#screen-equipment button"),
     ).find((b) => b.textContent?.includes("Confirm")) as HTMLElement;

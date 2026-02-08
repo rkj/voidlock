@@ -189,13 +189,8 @@ describe("Regression voidlock-14fv: Campaign Mission Setup Reload", () => {
     const nodeEl = document.querySelector(".campaign-node") as HTMLElement;
     nodeEl.click();
 
-    expect(document.getElementById("screen-mission-setup")?.style.display).toBe(
+    expect(document.getElementById("screen-equipment")?.style.display).toBe(
       "flex",
-    );
-    const contextHeader = document.getElementById("mission-setup-context");
-    expect(contextHeader?.textContent).toContain("CAMPAIGN");
-    expect(document.getElementById("map-config-section")?.style.display).toBe(
-      "none",
     );
 
     // 3. Simulate reload
@@ -203,7 +198,6 @@ describe("Regression voidlock-14fv: Campaign Mission Setup Reload", () => {
     const sessionState = JSON.parse(
       localStorage.getItem("voidlock_session_state")!,
     );
-    expect(sessionState.screenId).toBe("mission-setup");
     expect(sessionState.isCampaign).toBe(true);
 
     // Campaign config should have campaignNodeId
@@ -217,14 +211,9 @@ describe("Regression voidlock-14fv: Campaign Mission Setup Reload", () => {
     await import("@src/renderer/main");
     document.dispatchEvent(new Event("DOMContentLoaded"));
 
-    // 4. Verify restoration
-    expect(document.getElementById("screen-mission-setup")?.style.display).toBe(
+    // 4. Verify restoration (redirected to equipment)
+    expect(document.getElementById("screen-equipment")?.style.display).toBe(
       "flex",
-    );
-    const contextHeaderAfter = document.getElementById("mission-setup-context");
-    expect(contextHeaderAfter?.textContent).toContain("CAMPAIGN");
-    expect(document.getElementById("map-config-section")?.style.display).toBe(
-      "none",
     );
   });
 });

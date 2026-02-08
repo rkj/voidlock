@@ -267,15 +267,11 @@ describe("Campaign End Integration", () => {
     // Wait for async onCampaignNodeSelected
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    expect(document.getElementById("screen-mission-setup")?.style.display).toBe(
+    expect(document.getElementById("screen-equipment")?.style.display).toBe(
       "flex",
     );
 
     // 3. Launch Mission (skip Equipment for brevity, trigger CONFIRM directly if possible or just dblclick card)
-    const cards = document.querySelectorAll(".soldier-card");
-    cards.forEach((card) => card.dispatchEvent(new Event("dblclick")));
-
-    document.getElementById("btn-goto-equipment")?.click();
     const allButtons = document.querySelectorAll("#screen-equipment button");
     const equipmentLaunchBtn = Array.from(allButtons).find((b) =>
       b.textContent?.includes("Confirm"),

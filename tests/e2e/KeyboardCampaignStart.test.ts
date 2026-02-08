@@ -8,6 +8,7 @@ describe("Keyboard Navigation: Campaign Start Reproduction", () => {
 
   beforeAll(async () => {
     page = await getNewPage();
+    page.on('console', msg => console.log('BROWSER:', msg.text()));
     // Ensure clean state
     await page.goto(E2E_URL);
     await page.evaluate(() => localStorage.clear());

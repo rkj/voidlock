@@ -4,6 +4,7 @@ export class InputDispatcher {
   private static instance: InputDispatcher;
   private contextStack: InputContext[] = [];
   private focusStack: HTMLElement[] = [];
+  private nextOrder: number = 0;
 
   private constructor() {
     window.addEventListener("keydown", this.handleKeyDown.bind(this), true);
@@ -32,11 +33,26 @@ export class InputDispatcher {
   }
 
   public pushContext(context: InputContext) {
+    (context as any)._order = this.nextOrder++;
+    
+    const existingIndex = this.contextStack.findIndex((c) => c.id === context.id);
+    if (existingIndex !== -1) {
+      this.contextStack.splice(existingIndex, 1);
+    }
+
     this.contextStack.push(context);
-    this.contextStack.sort((a, b) => b.priority - a.priority);
+    this.contextStack.sort((a, b) => {
+      const pA = a.priority || 0;
+      const pB = b.priority || 0;
+      if (pB !== pA) return pB - pA;
+      return ((b as any)._order || 0) - ((a as any)._order || 0);
+    });
 
     if (context.trapsFocus) {
       this.focusStack.push(document.activeElement as HTMLElement);
+      if (context.container) {
+        this.focusFirstElement(context.container!);
+      }
     }
   }
 
@@ -57,7 +73,6 @@ export class InputDispatcher {
     const shortcuts: ShortcutInfo[] = [];
     const seen = new Set<string>();
 
-    // Iterate from top to bottom
     for (const context of this.contextStack) {
       for (const shortcut of context.getShortcuts()) {
         const key = `${shortcut.key}-${shortcut.code || ""}`;
@@ -71,12 +86,13 @@ export class InputDispatcher {
   }
 
   private handleKeyDown(e: KeyboardEvent) {
-    // Handle Focus Trapping for the top-most context that traps focus
     const topFocusTrap = this.contextStack.find(
       (c) => c.trapsFocus && c.container,
     );
+
     if (topFocusTrap && e.key === "Tab") {
       this.handleTabCycle(e, topFocusTrap.container!);
+      if (e.defaultPrevented) return;
     }
 
     for (const context of this.contextStack) {
@@ -111,8 +127,6 @@ export class InputDispatcher {
   private handleTouchEnd(e: TouchEvent) {
     for (const context of this.contextStack) {
       if (context.handleTouchEnd && context.handleTouchEnd(e)) {
-        // NOTE: Don't always preventDefault on touchend as it might block clicks
-        // But if context handled it, we should stop propagation.
         e.stopPropagation();
         return;
       }
@@ -122,7 +136,6 @@ export class InputDispatcher {
   private handleMouseDown(e: MouseEvent) {
     for (const context of this.contextStack) {
       if (context.handleMouseDown && context.handleMouseDown(e)) {
-        // e.preventDefault(); // Don't prevent default on mousedown by default
         e.stopPropagation();
         return;
       }
@@ -157,37 +170,75 @@ export class InputDispatcher {
     }
   }
 
+  private isVisible(el: HTMLElement): boolean {
+    if (!el.isConnected) return false;
+    const style = window.getComputedStyle(el);
+    if (style.display === "none" || style.visibility === "hidden") return false;
+
+    let parent = el.parentElement;
+    while (parent) {
+      const pStyle = window.getComputedStyle(parent);
+      if (pStyle.display === "none" || pStyle.visibility === "hidden")
+        return false;
+      parent = parent.parentElement;
+    }
+
+    return true;
+  }
+
+  private getFocusableElements(container: HTMLElement): HTMLElement[] {
+    return Array.from(
+      container.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+      ),
+    ).filter((el) => {
+      if (!(el as any).disabled && this.isVisible(el)) {
+        return true;
+      }
+      return false;
+    });
+  }
+
+  private focusFirstElement(container: HTMLElement) {
+    const focusable = this.getFocusableElements(container);
+    if (focusable.length > 0) {
+      focusable[0].focus();
+    }
+  }
+
   private handleTabCycle(e: KeyboardEvent, container: HTMLElement) {
-    const focusableElements = container.querySelectorAll<HTMLElement>(
-      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
-    );
+    const focusableElements = this.getFocusableElements(container);
 
     if (focusableElements.length === 0) {
       e.preventDefault();
       return;
     }
 
-    const firstElement = focusableElements[0];
-    const lastElement = focusableElements[focusableElements.length - 1];
+    let active = document.activeElement as HTMLElement;
+    let currentIndex = focusableElements.indexOf(active);
+
+    if (currentIndex === -1 && active) {
+      let parent = active.parentElement;
+      while (parent && parent !== container) {
+        currentIndex = focusableElements.indexOf(parent);
+        if (currentIndex !== -1) break;
+        parent = parent.parentElement;
+      }
+    }
+
+    e.preventDefault();
+    e.stopPropagation();
 
     if (e.shiftKey) {
-      // Shift + Tab: focus previous
-      if (
-        document.activeElement === firstElement ||
-        !container.contains(document.activeElement)
-      ) {
-        lastElement.focus();
-        e.preventDefault();
-      }
+      const prevIndex =
+        currentIndex <= 0 ? focusableElements.length - 1 : currentIndex - 1;
+      focusableElements[prevIndex].focus();
     } else {
-      // Tab: focus next
-      if (
-        document.activeElement === lastElement ||
-        !container.contains(document.activeElement)
-      ) {
-        firstElement.focus();
-        e.preventDefault();
-      }
+      const nextIndex =
+        currentIndex === -1 || currentIndex >= focusableElements.length - 1
+          ? 0
+          : currentIndex + 1;
+      focusableElements[nextIndex].focus();
     }
   }
 }
