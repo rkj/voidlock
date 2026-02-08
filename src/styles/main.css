@@ -2154,6 +2154,15 @@ label {
   justify-content: space-between;
   align-items: center;
   padding-right: 25px;
+  gap: 10px;
+}
+
+.roster-item-header strong {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
 }
 
 .active-name {
@@ -2164,6 +2173,7 @@ label {
   display: flex;
   gap: 10px;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .roster-price {
@@ -2197,12 +2207,22 @@ label {
   justify-content: space-between;
   align-items: center;
   padding-right: 25px;
+  gap: 10px;
+}
+
+.squad-builder-card-header strong {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex: 1;
+  min-width: 0;
 }
 
 .squad-builder-price {
   font-weight: bold;
   color: var(--color-text);
   font-size: 0.9em;
+  flex-shrink: 0;
 }
 
 .squad-builder-card-subtitle {
@@ -2648,6 +2668,21 @@ label {
 
   #btn-toggle-right {
     margin-left: 5px;
+  }
+
+  .equipment-main-content {
+    flex-direction: column !important;
+    overflow-y: auto !important;
+  }
+
+  .equipment-main-content .panel {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: none !important;
+    flex-shrink: 0 !important;
+    margin-bottom: 10px;
+    height: auto !important;
+    min-height: 200px;
   }
 }
 

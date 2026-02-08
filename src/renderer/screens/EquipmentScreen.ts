@@ -173,7 +173,7 @@ export class EquipmentScreen {
 
     // Main Content Wrapper (Flex Row for panels)
     const contentWrapper = document.createElement("div");
-    contentWrapper.className = "flex-row flex-grow p-10 gap-10";
+    contentWrapper.className = "flex-row flex-grow p-10 gap-10 equipment-main-content";
     contentWrapper.style.overflow = "hidden";
     contentWrapper.style.minHeight = "0"; // Crucial for nested flex scrolling
 
