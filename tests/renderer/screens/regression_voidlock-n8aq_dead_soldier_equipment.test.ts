@@ -61,6 +61,8 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
       onSave,
       onBack,
       null as any,
+      false,
+      true,
     );
     screen.show();
 
@@ -87,6 +89,8 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
       onSave,
       onBack,
       null as any,
+      false,
+      true,
     );
     screen.show();
 
@@ -114,6 +118,8 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
       onSave,
       onBack,
       null as any,
+      false,
+      true,
     );
     screen.show();
 

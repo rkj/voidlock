@@ -138,8 +138,17 @@ describe("Boss Mission Objectives and Rewards", () => {
 
     state = engine.getState();
     // Total: 300 + 75 = 375.
+    // Mission status remains 'Playing' until extraction for Default mission type.
+    expect(state.status).toBe("Playing");
+    expect(state.stats.scrapGained).toBe(initialScrap + 375);
+
+    // 4. Extract units to win
+    (engine as any).state.units.forEach((u: any) => (u.state = "Extracted"));
+    engine.update(16);
+
+    state = engine.getState();
     // PLUS mission win reward (100 * 3 = 300) since all objectives are now complete.
-    // Total: 675
+    // Total: 375 + 300 = 675
     expect(state.status).toBe("Won");
     expect(state.stats.scrapGained).toBe(initialScrap + 675);
   });
@@ -228,8 +237,17 @@ describe("Boss Mission Objectives and Rewards", () => {
 
     state = engine.getState();
     // Standard Hive is 75. Elite is 150.
+    // Total so far: 50 + 150 = 200.
+    expect(state.stats.scrapGained).toBe(initialScrap + 200);
+    expect(state.status).toBe("Playing");
+
+    // 3. Extract units to win
+    (engine as any).state.units.forEach((u: any) => (u.state = "Extracted"));
+    engine.update(16);
+
+    state = engine.getState();
     // Mission win reward: 100 * 2 = 200.
-    // Total: 50 + 150 + 200 = 400.
+    // Total: 200 + 200 = 400.
     expect(state.stats.scrapGained).toBe(initialScrap + 400);
     expect(state.status).toBe("Won");
   });

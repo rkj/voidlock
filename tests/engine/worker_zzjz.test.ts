@@ -7,7 +7,10 @@ vi.mock("@src/engine/CoreEngine", () => {
     CoreEngine: vi.fn().mockImplementation(() => {
       return {
         update: vi.fn(),
-        getState: vi.fn().mockReturnValue({ status: "Playing" }),
+        getState: vi.fn().mockReturnValue({
+          status: "Playing",
+          settings: { debugSnapshots: false },
+        }),
         applyCommand: vi.fn(),
       };
     }),
