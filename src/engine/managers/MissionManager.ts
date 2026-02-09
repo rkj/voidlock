@@ -336,12 +336,10 @@ export class MissionManager {
         ? MISSION_SCALING.ELITE_MULTIPLIER
         : MISSION_SCALING.NORMAL_MULTIPLIER;
 
-    // 1. Recover Intel, Destroy Hive, and Boss/Elite nodes: Instant win upon objective completion (Extraction optional)
+    // 1. Recover Intel and Destroy Hive nodes: Instant win upon objective completion (Extraction optional)
     if (
       this.missionType === MissionType.RecoverIntel ||
-      this.missionType === MissionType.DestroyHive ||
-      isBoss ||
-      isElite
+      this.missionType === MissionType.DestroyHive
     ) {
       if (allObjectivesComplete) {
         if (state.status !== "Won") {
