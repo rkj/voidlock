@@ -88,6 +88,13 @@ export class SoldierWidget {
     if (options.onClick) {
       container.classList.add("clickable");
       container.onclick = options.onClick;
+      container.tabIndex = 0;
+      container.onkeydown = (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          options.onClick!(e as any);
+          e.preventDefault();
+        }
+      };
     }
 
     const name = this.getName(data);

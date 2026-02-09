@@ -247,6 +247,10 @@ export class MissionCoordinator {
         this.context.gameClient.onStateUpdate(null);
         return true; // Indicates victory/defeat handled
       }
+
+      this.context.gameClient.stop();
+      this.context.gameClient.onStateUpdate(null);
+      return true; // Campaign mission abort handled by onAbortResolved
     }
 
     this.context.gameClient.stop();

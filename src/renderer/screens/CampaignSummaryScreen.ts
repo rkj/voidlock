@@ -1,4 +1,7 @@
 import { CampaignState, calculateLevel } from "@src/shared/campaign_types";
+import { InputDispatcher } from "../InputDispatcher";
+import { InputPriority } from "@src/shared/types";
+import { UIUtils } from "../utils/UIUtils";
 
 export class CampaignSummaryScreen {
   private container: HTMLElement;
@@ -16,10 +19,48 @@ export class CampaignSummaryScreen {
     this.state = state;
     this.container.style.display = "flex";
     this.render();
+    this.pushInputContext();
   }
 
   public hide() {
     this.container.style.display = "none";
+    InputDispatcher.getInstance().popContext("campaign-summary");
+  }
+
+  private pushInputContext() {
+    InputDispatcher.getInstance().pushContext({
+      id: "campaign-summary",
+      priority: InputPriority.UI,
+      trapsFocus: true,
+      container: this.container,
+      handleKeyDown: (e) => this.handleKeyDown(e),
+      getShortcuts: () => [
+        {
+          key: "Arrows",
+          label: "Navigate",
+          description: "Move selection",
+          category: "Navigation",
+        },
+        {
+          key: "Enter",
+          label: "Select",
+          description: "Activate button",
+          category: "Navigation",
+        },
+      ],
+    });
+  }
+
+  private handleKeyDown(e: KeyboardEvent): boolean {
+    if (
+      e.key === "ArrowDown" ||
+      e.key === "ArrowUp" ||
+      e.key === "ArrowLeft" ||
+      e.key === "ArrowRight"
+    ) {
+      return UIUtils.handleArrowNavigation(e, this.container);
+    }
+    return false;
   }
 
   private render() {

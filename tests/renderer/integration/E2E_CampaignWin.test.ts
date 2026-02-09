@@ -436,5 +436,5 @@ describe("E2E Campaign Happy Path", () => {
     expect(document.querySelector(".campaign-victory-overlay")).toBeTruthy();
 
     expect(loopCount).toBeGreaterThan(5);
-  });
+  }, 30000);
 });

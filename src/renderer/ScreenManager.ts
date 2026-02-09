@@ -22,6 +22,7 @@ export class ScreenManager {
   private sessionManager: SessionManager;
   private onExternalChange?: (id: ScreenId) => void;
   private currentIsCampaign: boolean = false;
+  private isInternalTransition: boolean = false;
 
   constructor(onExternalChange?: (id: ScreenId) => void) {
     this.sessionManager = new SessionManager();
@@ -71,8 +72,8 @@ export class ScreenManager {
   ) {
     if (this.currentScreen === id) {
       // Even if it's the same screen, ensure hash is in sync
-      if (updateHash && window.location.hash !== `#${id}`) {
-        window.location.hash = id;
+      if (updateHash) {
+        this.updateHash(id);
       }
       this.currentIsCampaign = isCampaign;
       this.sessionManager.saveState(id, isCampaign);
@@ -92,7 +93,7 @@ export class ScreenManager {
       currentEl.style.display = "none";
     }
 
-    // Push to history if we are navigating deeper (not back to menu necessarily, but let's keep it simple)
+    // Push to history if we are navigating deeper
     if (id !== "main-menu") {
       this.history.push({
         id: this.currentScreen,
@@ -108,24 +109,34 @@ export class ScreenManager {
     this.sessionManager.saveState(id, isCampaign);
     const newEl = this.screens.get(id);
     if (newEl) {
-      newEl.style.display = "flex"; // Assuming flex layout for screens
+      newEl.style.display = "flex";
     } else {
       Logger.error(`[ScreenManager] Screen element for ${id} not found!`);
     }
 
     if (updateHash) {
-      window.location.hash = id === "main-menu" ? "" : id;
+      this.updateHash(id);
+    }
+  }
+
+  private updateHash(id: ScreenId) {
+    const newHash = id === "main-menu" ? "" : id;
+    const currentHash = window.location.hash.replace(/^#/, "");
+    if (currentHash !== newHash) {
+      this.isInternalTransition = true;
+      window.location.hash = newHash;
     }
   }
 
   private syncWithUrl() {
+    if (this.isInternalTransition) {
+      this.isInternalTransition = false;
+      return;
+    }
+
     const hash = (window.location.hash.replace(/^#\/?/, "") ||
       "main-menu") as ScreenId;
     if (this.isValidScreenId(hash) && hash !== this.currentScreen) {
-      // Validate transition if it's not a direct navigation (like back button)
-      // Actually, for back button/direct URL we might want to bypass validation or handle it gracefully
-      // For now, let's use a "forceShow" like approach but with validation logging
-
       const validNext = VALID_TRANSITIONS[this.currentScreen];
       if (validNext && validNext.includes(hash)) {
         this.show(hash, false, this.isCampaignMode(hash));
@@ -136,7 +147,6 @@ export class ScreenManager {
         Logger.warn(
           `External navigation to ${hash} is not a standard transition from ${this.currentScreen}`,
         );
-        // Still show it because user explicitly changed URL or pressed back
         this.forceShow(hash, this.isCampaignMode(hash));
         if (this.onExternalChange) {
           this.onExternalChange(hash);
@@ -150,7 +160,6 @@ export class ScreenManager {
     if (state && state.screenId === id) {
       return state.isCampaign;
     }
-    // Screens that are inherently campaign-related
     return id === "campaign" || id === "barracks" || id === "campaign-summary";
   }
 
@@ -180,10 +189,9 @@ export class ScreenManager {
       const prev = this.history.pop();
       if (prev) {
         this.forceShow(prev.id, prev.isCampaign);
-        window.location.hash = prev.id === "main-menu" ? "" : prev.id;
+        this.updateHash(prev.id);
       }
     } else {
-      // Default fallback
       this.show("main-menu");
     }
   }

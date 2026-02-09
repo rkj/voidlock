@@ -196,12 +196,12 @@ describe("Regression kj08: Abort Persistence", () => {
     // Wait for async ModalService.confirm AND potentially in-flight worker messages
     await new Promise((resolve) => setTimeout(resolve, 200));
 
-    // Verify we are back to Main Menu
-    expect(document.getElementById("screen-main-menu")?.style.display).toBe(
+    // Verify we are on Debrief screen (per ADR 0004)
+    expect(document.getElementById("screen-debrief")?.style.display).toBe(
       "flex",
     );
     expect(localStorage.getItem("voidlock_session_state")).toContain(
-      "main-menu",
+      "debrief",
     );
 
     // Verify mission config is cleared

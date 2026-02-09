@@ -326,6 +326,7 @@ export class SquadBuilder {
       });
 
       if (isHealthy && !isDeployed) {
+        card.tabIndex = 0;
         card.draggable = true;
         card.addEventListener("dragstart", (e) => {
           const dragData: DragData = {
@@ -336,13 +337,22 @@ export class SquadBuilder {
           e.dataTransfer?.setData("text/plain", JSON.stringify(dragData));
         });
 
-        card.addEventListener("click", () => {
+        const handleSelect = () => {
           this.selectedId = soldier.id;
           addToSquad({
             type: "campaign",
             id: soldier.id,
             archetypeId: soldier.archetypeId,
           });
+        };
+
+        card.addEventListener("click", handleSelect);
+
+        card.addEventListener("keydown", (e: any) => {
+          if (e.key === "Enter" || e.key === " ") {
+            handleSelect();
+            e.preventDefault();
+          }
         });
 
         card.addEventListener("dblclick", () =>
@@ -415,15 +425,25 @@ export class SquadBuilder {
       const card = SoldierWidget.render(arch, {
         context: "squad-builder",
       });
+      card.tabIndex = 0;
       card.draggable = true;
       card.addEventListener("dragstart", (e) => {
         const dragData: DragData = { type: "custom", archetypeId: arch.id };
         e.dataTransfer?.setData("text/plain", JSON.stringify(dragData));
       });
 
-      card.addEventListener("click", () => {
+      const handleSelect = () => {
         this.selectedId = arch.id;
         addToSquad({ type: "custom", archetypeId: arch.id });
+      };
+
+      card.addEventListener("click", handleSelect);
+
+      card.addEventListener("keydown", (e: any) => {
+        if (e.key === "Enter" || e.key === " ") {
+          handleSelect();
+          e.preventDefault();
+        }
       });
 
       card.addEventListener("dblclick", () =>
@@ -517,8 +537,10 @@ export class SquadBuilder {
         slot.innerHTML = `<div style="color:var(--color-text-dim); font-size:0.8em;">(Empty)</div>`;
 
         if (this.selectedId) {
+          slot.tabIndex = 0;
           slot.classList.add("ready-for-placement");
-          slot.addEventListener("click", () => {
+
+          const handlePlace = () => {
             if (this.selectedId) {
               if (this.isCampaign) {
                 const state = this.context.campaignManager.getState();
@@ -538,6 +560,14 @@ export class SquadBuilder {
                   archetypeId: this.selectedId,
                 });
               }
+            }
+          };
+
+          slot.addEventListener("click", handlePlace);
+          slot.addEventListener("keydown", (e: any) => {
+            if (e.key === "Enter" || e.key === " ") {
+              handlePlace();
+              e.preventDefault();
             }
           });
         }
