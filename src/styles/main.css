@@ -2705,7 +2705,8 @@ label {
   }
 }
 
-.drawer-toggle {
+#btn-toggle-squad,
+#btn-toggle-right {
   display: none;
 }
 
