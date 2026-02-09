@@ -4,6 +4,7 @@ import { CampaignSoldier } from "@src/shared/campaign_types";
 import { ArchetypeLibrary } from "@src/shared/types/units";
 import { SoldierWidget } from "@src/renderer/ui/SoldierWidget";
 import { NameGenerator } from "@src/shared/utils/NameGenerator";
+import { CAMPAIGN_DEFAULTS } from "@src/engine/config/CampaignDefaults";
 
 type DragData =
   | { type: "campaign"; id: string; archetypeId: string }
@@ -161,10 +162,7 @@ export class SquadBuilder {
           });
 
           // Quick Action: Recruit
-          const availableCount = state.roster.filter(
-            (s) => s.status === "Healthy" || s.status === "Wounded",
-          ).length;
-          if (availableCount < 4) {
+          if (state.roster.length < CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE) {
             const recruitBtn = document.createElement("button");
             recruitBtn.className = "btn-recruit";
             recruitBtn.textContent = "Recruit (100 Scrap)";
