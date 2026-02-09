@@ -56,6 +56,8 @@ describe("EquipmentScreen", () => {
       onSave,
       onBack,
       null as any,
+      false,
+      true
     );
     screen.show();
 
@@ -74,6 +76,8 @@ describe("EquipmentScreen", () => {
       onSave,
       onBack,
       null as any,
+      false,
+      true
     );
     screen.show();
 
@@ -101,6 +105,8 @@ describe("EquipmentScreen", () => {
       onSave,
       onBack,
       null as any,
+      false,
+      true
     );
     screen.show();
 
@@ -140,6 +146,8 @@ describe("EquipmentScreen", () => {
       onSave,
       onBack,
       null as any,
+      false,
+      true
     );
     screen.show();
 
@@ -177,6 +185,8 @@ describe("EquipmentScreen", () => {
       onSave,
       onBack,
       null as any,
+      false,
+      true
     );
     screen.show();
 
@@ -212,6 +222,8 @@ describe("EquipmentScreen", () => {
       onSave,
       onBack,
       null as any,
+      false,
+      true
     );
     screen.show();
 
@@ -242,6 +254,8 @@ describe("EquipmentScreen", () => {
       onSave,
       onBack,
       null as any,
+      false,
+      true
     );
     screen.show();
 
@@ -265,6 +279,8 @@ describe("EquipmentScreen", () => {
       onSave,
       onBack,
       null as any,
+      false,
+      true
     );
     screen.show();
 

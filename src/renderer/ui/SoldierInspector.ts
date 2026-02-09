@@ -36,6 +36,7 @@ export class SoldierInspector {
 
   private soldier: CampaignSoldier | SquadSoldierConfig | null = null;
   private isShop: boolean = false;
+  private isCampaign: boolean = false;
 
   constructor(options: SoldierInspectorOptions) {
     this.manager = options.manager;
@@ -52,8 +53,12 @@ export class SoldierInspector {
     this.isShop = isShop;
   }
 
+  public setCampaign(isCampaign: boolean) {
+    this.isCampaign = isCampaign;
+  }
+
   private isDead(): boolean {
-    if (!this.soldier || !("id" in this.soldier) || !this.soldier.id)
+    if (!this.soldier || !("id" in this.soldier) || !this.soldier.id || !this.isCampaign)
       return false;
     const state = this.manager.getState();
     const rosterSoldier = state?.roster.find((s) => s.id === this.soldier!.id);
@@ -85,7 +90,7 @@ export class SoldierInspector {
       wrapper.appendChild(placeholder);
 
       // Recruit/Revive Options (Campaign only)
-      const state = this.manager.getState();
+      const state = this.isCampaign ? this.manager.getState() : null;
       if (state) {
         const optionsDiv = document.createElement("div");
         optionsDiv.className =
@@ -224,7 +229,7 @@ export class SoldierInspector {
     container.innerHTML = "";
     if (!this.soldier) return;
 
-    const state = this.manager.getState();
+    const state = this.isCampaign ? this.manager.getState() : null;
     const unlockedItems = state?.unlockedItems || [];
     const basicItems = [
       "pistol",
@@ -346,7 +351,7 @@ export class SoldierInspector {
     h3.className = "armory-category-title";
     panel.appendChild(h3);
 
-    const state = this.manager.getState();
+    const state = this.isCampaign ? this.manager.getState() : null;
     const equip = this.getEquipment(this.soldier!);
     const isDead = this.isDead();
 
@@ -455,7 +460,7 @@ export class SoldierInspector {
     let accuracy: number = arch.soldierAim;
 
     // Use current soldier values if they exist (for levels/campaign)
-    if ("id" in soldier && soldier.id) {
+    if ("id" in soldier && soldier.id && this.isCampaign) {
       const state = this.manager.getState();
       const rosterSoldier = state?.roster.find((s) => s.id === soldier.id);
       if (rosterSoldier) {
@@ -524,8 +529,8 @@ export class SoldierInspector {
     slot: keyof EquipmentState,
     itemId: string,
   ): boolean {
-    if (!soldierId) return false;
-    const state = this.manager.getState();
+    if (!soldierId || !this.isCampaign) return false;
+    const state = this.isCampaign ? this.manager.getState() : null;
     if (!state) return false;
     const soldier = state.roster.find((s) => s.id === soldierId);
     if (!soldier) return false;
@@ -545,7 +550,7 @@ export class SoldierInspector {
     const isOwned = this.isEquippedInRoster(this.soldier.id, slot, newItemId);
 
     if (newItemId !== "" && !isOwned) {
-      const state = this.manager.getState();
+      const state = this.isCampaign ? this.manager.getState() : null;
       const economyMode = state?.rules?.economyMode || "Open";
 
       // Limited mode: cannot buy outside of shop
@@ -577,7 +582,7 @@ export class SoldierInspector {
       const config = this.soldier as SquadSoldierConfig;
       config[slot] = newItemId || undefined;
       // Persistence: write back to CampaignManager if it's a roster soldier
-      if (this.soldier.id) {
+      if (this.soldier.id && this.isCampaign) {
         const state = this.manager.getState();
         const rosterSoldier = state?.roster.find(
           (s) => s.id === this.soldier!.id,
