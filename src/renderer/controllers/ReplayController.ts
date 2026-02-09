@@ -4,6 +4,7 @@ import { Renderer } from "@src/renderer/Renderer";
 import { Logger } from "@src/shared/Logger";
 
 export class ReplayController {
+  public static readonly INITIAL_SPEED = 5.0;
   private gameClient: GameClient;
   private renderer: Renderer | null = null;
   private onProgressUpdate: (progress: number) => void;
@@ -40,7 +41,7 @@ export class ReplayController {
     this.isReplaying = true;
     this.gameClient.addStateUpdateListener(this.handleStateUpdate);
     this.gameClient.loadReplay(replayData);
-    this.gameClient.setTimeScale(5.0);
+    this.gameClient.setTimeScale(ReplayController.INITIAL_SPEED);
   }
 
   public stopReplay() {

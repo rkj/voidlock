@@ -53,12 +53,14 @@ export class DebriefScreen {
     this.report = report;
     this.unitStyle = unitStyle;
     this.container.style.display = "flex";
+
+    // Start replay before rendering to ensure ReplayController speed is set
+    this.replayController.startReplay(this.report.timeSpent);
     this.render();
 
     if (this.canvas) {
       this.replayController.setRenderer(this.canvas, this.unitStyle);
     }
-    this.replayController.startReplay(this.report.timeSpent);
     this.updatePlaybackUI();
   }
 
