@@ -60,6 +60,12 @@ export class RosterManager {
       throw new Error("Insufficient scrap to recruit soldier.");
     }
 
+    if (state.roster.length >= CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE) {
+      throw new Error(
+        `Roster is full (max ${CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE} soldiers).`,
+      );
+    }
+
     if (!state.unlockedArchetypes.includes(archetypeId)) {
       throw new Error(`Archetype ${archetypeId} is not unlocked.`);
     }

@@ -279,64 +279,74 @@ describe("Quick Revive in Mission Setup", () => {
     expect(recruitBtn).toBeTruthy();
   });
 
-  it("should NOT show Recruit button if 4 or more healthy/wounded soldiers", async () => {
-    currentCampaignState.roster = [
-      {
-        id: "s1",
-        name: "S1",
-        archetypeId: "assault",
-        status: "Healthy",
-        level: 1,
-        hp: 100,
-        maxHp: 100,
-        xp: 0,
-        soldierAim: 80,
-        equipment: {},
-      },
-      {
-        id: "s2",
-        name: "S2",
-        archetypeId: "assault",
-        status: "Healthy",
-        level: 1,
-        hp: 100,
-        maxHp: 100,
-        xp: 0,
-        soldierAim: 80,
-        equipment: {},
-      },
-      {
-        id: "s3",
-        name: "S3",
-        archetypeId: "assault",
-        status: "Healthy",
-        level: 1,
-        hp: 100,
-        maxHp: 100,
-        xp: 0,
-        soldierAim: 80,
-        equipment: {},
-      },
-      {
-        id: "s4",
-        name: "S4",
-        archetypeId: "assault",
-        status: "Wounded",
-        level: 1,
-        hp: 100,
-        maxHp: 100,
-        xp: 0,
-        soldierAim: 80,
-        equipment: {},
-      },
-    ];
+  it("should show Recruit button if 4 or more healthy/wounded soldiers (up to 12)", async () => {
+    currentCampaignState.roster = Array(4).fill(null).map((_, i) => ({
+      id: `s${i}`,
+      name: `S${i}`,
+      archetypeId: "assault",
+      status: "Healthy",
+      level: 1,
+      hp: 100,
+      maxHp: 100,
+      xp: 0,
+      soldierAim: 80,
+      equipment: {},
+    }));
 
     goToEquipment();
 
+    // Remove one soldier from squad to create an empty slot
+    const firstSlot = document.querySelector(".soldier-list-panel .menu-item.selected") as HTMLElement;
+    if (firstSlot) {
+       const removeBtn = firstSlot.querySelector(".remove-soldier-btn") as HTMLButtonElement;
+       if (removeBtn) removeBtn.click();
+    }
+
     const emptySlot = Array.from(
       document.querySelectorAll(".soldier-list-panel .menu-item"),
-    ).find((el) => el.textContent?.includes("Empty Slot")) as HTMLElement;
-    emptySlot?.click();
+    ).find((el) => el.textContent?.includes("[Empty Slot]")) as HTMLElement;
+    if (emptySlot) {
+        emptySlot.click();
+    }
+
+    const recruitBtn = Array.from(
+      document.querySelectorAll(".soldier-equipment-panel button"),
+    ).find((btn) =>
+      btn.textContent?.includes("Recruit New Soldier"),
+    ) as HTMLButtonElement;
+
+    expect(recruitBtn).toBeTruthy();
+  });
+
+  it("should NOT show Recruit button if 12 or more soldiers", async () => {
+    currentCampaignState.roster = Array(12).fill(null).map((_, i) => ({
+      id: `s${i}`,
+      name: `S${i}`,
+      archetypeId: "assault",
+      status: "Healthy",
+      level: 1,
+      hp: 100,
+      maxHp: 100,
+      xp: 0,
+      soldierAim: 80,
+      equipment: {},
+    }));
+
+    goToEquipment();
+
+    // Remove one soldier from squad to create an empty slot
+    const firstSlot = document.querySelector(".soldier-list-panel .menu-item.selected") as HTMLElement;
+    if (firstSlot) {
+       const removeBtn = firstSlot.querySelector(".remove-soldier-btn") as HTMLButtonElement;
+       if (removeBtn) removeBtn.click();
+    }
+
+    const emptySlot = Array.from(
+      document.querySelectorAll(".soldier-list-panel .menu-item"),
+    ).find((el) => el.textContent?.includes("[Empty Slot]")) as HTMLElement;
+    if (emptySlot) {
+        emptySlot.click();
+    }
 
     const recruitBtn = Array.from(
       document.querySelectorAll(".soldier-equipment-panel button"),

@@ -11,6 +11,7 @@ import {
 } from "@src/shared/types";
 import { Icons } from "@src/renderer/Icons";
 import { StatDisplay } from "@src/renderer/ui/StatDisplay";
+import { CAMPAIGN_DEFAULTS } from "@src/engine/config/CampaignDefaults";
 
 export interface SoldierInspectorOptions {
   manager: CampaignManager;
@@ -90,11 +91,7 @@ export class SoldierInspector {
         optionsDiv.className =
           "inspector-recruit-options flex-col gap-10 w-full";
 
-        const healthyWoundedCount = state.roster.filter(
-          (s) => s.status !== "Dead",
-        ).length;
-
-        if (healthyWoundedCount < 4) {
+        if (state.roster.length < CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE) {
           const recruitBtn = document.createElement("button");
           recruitBtn.className = "menu-button w-full recruit-btn-large";
           recruitBtn.innerHTML = `

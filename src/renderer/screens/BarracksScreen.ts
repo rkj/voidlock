@@ -5,6 +5,7 @@ import { ModalService } from "@src/renderer/ui/ModalService";
 import { SoldierWidget } from "@src/renderer/ui/SoldierWidget";
 import { InputDispatcher } from "../InputDispatcher";
 import { UIUtils } from "../utils/UIUtils";
+import { CAMPAIGN_DEFAULTS } from "@src/engine/config/CampaignDefaults";
 
 export class BarracksScreen {
   private container: HTMLElement;
@@ -375,6 +376,18 @@ export class BarracksScreen {
     const state = this.manager.getState();
     if (!state) return;
 
+    const isFull = state.roster.length >= CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE;
+
+    if (isFull) {
+      const msg = document.createElement("div");
+      msg.textContent = `Roster is full (max ${CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE} soldiers).`;
+      msg.style.color = "var(--color-hive)";
+      msg.style.textAlign = "center";
+      msg.style.padding = "20px";
+      msg.style.fontWeight = "bold";
+      panel.appendChild(msg);
+    }
+
     const archetypes = state.unlockedArchetypes;
 
     archetypes.forEach((archId) => {
@@ -391,11 +404,15 @@ export class BarracksScreen {
       recruitBtn.className = "w-full";
       recruitBtn.style.padding = "5px";
       recruitBtn.style.fontSize = "0.8em";
-      recruitBtn.disabled = state.scrap < 100;
+      recruitBtn.disabled = state.scrap < 100 || isFull;
       recruitBtn.onclick = () => {
-        this.manager.recruitSoldier(archId);
-        this.render();
-        if (this.onUpdate) this.onUpdate();
+        try {
+          this.manager.recruitSoldier(archId);
+          this.render();
+          if (this.onUpdate) this.onUpdate();
+        } catch (err: any) {
+          this.modalService.alert(err.message);
+        }
       };
       card.appendChild(recruitBtn);
 
