@@ -203,7 +203,7 @@ export class MissionSetupManager {
       "setup-visual-style-group",
     );
     if (visualStyleGroup)
-      visualStyleGroup.style.display = isCampaign ? "block" : "none";
+      visualStyleGroup.style.display = isCampaign ? "none" : "block";
 
     const global = ConfigManager.loadGlobal();
     this.unitStyle = global.unitStyle;

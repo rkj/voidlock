@@ -79,21 +79,21 @@ describe("MissionSetupManager - Visual Style Visibility (regression_voidlock_qah
     manager = new MissionSetupManager(context);
   });
 
-  it("should HIDE visual style group in custom simulation mode", () => {
+  it("should SHOW visual style group in custom simulation mode", () => {
     manager.loadAndApplyConfig(false); // isCampaign = false
 
     const visualStyleGroup = document.getElementById(
       "setup-visual-style-group",
     );
-    expect(visualStyleGroup?.style.display).toBe("none");
+    expect(visualStyleGroup?.style.display).toBe("block");
   });
 
-  it("should SHOW visual style group in campaign mode", () => {
+  it("should HIDE visual style group in campaign mode", () => {
     manager.loadAndApplyConfig(true); // isCampaign = true
 
     const visualStyleGroup = document.getElementById(
       "setup-visual-style-group",
     );
-    expect(visualStyleGroup?.style.display).toBe("block");
+    expect(visualStyleGroup?.style.display).toBe("none");
   });
 });

@@ -1,0 +1,1305 @@
+{
+  "seed": 287090,
+  "missionType": "Default",
+  "map": {
+    "width": 7,
+    "height": 7,
+    "cells": [
+      {
+        "x": 0,
+        "y": 0,
+        "type": "Floor",
+        "roomId": "room-0-0"
+      },
+      {
+        "x": 1,
+        "y": 0,
+        "type": "Floor",
+        "roomId": "room-0-0"
+      },
+      {
+        "x": 2,
+        "y": 0,
+        "type": "Floor",
+        "roomId": "room-2-0"
+      },
+      {
+        "x": 3,
+        "y": 0,
+        "type": "Floor",
+        "roomId": "room-2-0"
+      },
+      {
+        "x": 4,
+        "y": 0,
+        "type": "Floor",
+        "roomId": "room-4-0"
+      },
+      {
+        "x": 5,
+        "y": 0,
+        "type": "Floor",
+        "roomId": "room-4-0"
+      },
+      {
+        "x": 6,
+        "y": 0,
+        "type": "Floor",
+        "roomId": "room-6-0"
+      },
+      {
+        "x": 0,
+        "y": 1,
+        "type": "Floor",
+        "roomId": "room-0-1"
+      },
+      {
+        "x": 1,
+        "y": 1,
+        "type": "Floor",
+        "roomId": "room-0-1"
+      },
+      {
+        "x": 2,
+        "y": 1,
+        "type": "Floor",
+        "roomId": "room-2-1"
+      },
+      {
+        "x": 3,
+        "y": 1,
+        "type": "Floor",
+        "roomId": "room-2-1"
+      },
+      {
+        "x": 4,
+        "y": 1,
+        "type": "Floor",
+        "roomId": "corridor-v-spine"
+      },
+      {
+        "x": 5,
+        "y": 1,
+        "type": "Floor",
+        "roomId": "room-5-1"
+      },
+      {
+        "x": 6,
+        "y": 1,
+        "type": "Floor",
+        "roomId": "room-5-1"
+      },
+      {
+        "x": 0,
+        "y": 2,
+        "type": "Floor",
+        "roomId": "room-0-1"
+      },
+      {
+        "x": 1,
+        "y": 2,
+        "type": "Floor",
+        "roomId": "room-0-1"
+      },
+      {
+        "x": 2,
+        "y": 2,
+        "type": "Floor",
+        "roomId": "room-2-1"
+      },
+      {
+        "x": 3,
+        "y": 2,
+        "type": "Floor",
+        "roomId": "room-2-1"
+      },
+      {
+        "x": 4,
+        "y": 2,
+        "type": "Floor",
+        "roomId": "corridor-v-spine"
+      },
+      {
+        "x": 5,
+        "y": 2,
+        "type": "Floor",
+        "roomId": "room-5-1"
+      },
+      {
+        "x": 6,
+        "y": 2,
+        "type": "Floor",
+        "roomId": "room-5-1"
+      },
+      {
+        "x": 0,
+        "y": 3,
+        "type": "Floor",
+        "roomId": "room-0-3"
+      },
+      {
+        "x": 1,
+        "y": 3,
+        "type": "Floor",
+        "roomId": "corridor-h-spine"
+      },
+      {
+        "x": 2,
+        "y": 3,
+        "type": "Floor",
+        "roomId": "corridor-h-spine"
+      },
+      {
+        "x": 3,
+        "y": 3,
+        "type": "Floor",
+        "roomId": "corridor-h-spine"
+      },
+      {
+        "x": 4,
+        "y": 3,
+        "type": "Floor",
+        "roomId": "corridor-v-spine"
+      },
+      {
+        "x": 5,
+        "y": 3,
+        "type": "Floor",
+        "roomId": "corridor-h-spine"
+      },
+      {
+        "x": 6,
+        "y": 3,
+        "type": "Floor",
+        "roomId": "corridor-h-spine"
+      },
+      {
+        "x": 0,
+        "y": 4,
+        "type": "Floor",
+        "roomId": "room-0-3"
+      },
+      {
+        "x": 1,
+        "y": 4,
+        "type": "Floor",
+        "roomId": "room-1-4"
+      },
+      {
+        "x": 2,
+        "y": 4,
+        "type": "Floor",
+        "roomId": "room-1-4"
+      },
+      {
+        "x": 3,
+        "y": 4,
+        "type": "Floor",
+        "roomId": "room-3-4"
+      },
+      {
+        "x": 4,
+        "y": 4,
+        "type": "Floor",
+        "roomId": "corridor-v-spine"
+      },
+      {
+        "x": 5,
+        "y": 4,
+        "type": "Floor",
+        "roomId": "room-5-4"
+      },
+      {
+        "x": 6,
+        "y": 4,
+        "type": "Floor",
+        "roomId": "room-5-4"
+      },
+      {
+        "x": 0,
+        "y": 5,
+        "type": "Floor",
+        "roomId": "room-0-5"
+      },
+      {
+        "x": 1,
+        "y": 5,
+        "type": "Floor",
+        "roomId": "room-0-5"
+      },
+      {
+        "x": 2,
+        "y": 5,
+        "type": "Floor",
+        "roomId": "room-2-5"
+      },
+      {
+        "x": 3,
+        "y": 5,
+        "type": "Floor",
+        "roomId": "room-2-5"
+      },
+      {
+        "x": 4,
+        "y": 5,
+        "type": "Floor",
+        "roomId": "corridor-v-spine"
+      },
+      {
+        "x": 5,
+        "y": 5,
+        "type": "Floor",
+        "roomId": "room-5-4"
+      },
+      {
+        "x": 6,
+        "y": 5,
+        "type": "Floor",
+        "roomId": "room-5-4"
+      },
+      {
+        "x": 0,
+        "y": 6,
+        "type": "Floor",
+        "roomId": "room-0-5"
+      },
+      {
+        "x": 1,
+        "y": 6,
+        "type": "Floor",
+        "roomId": "room-0-5"
+      },
+      {
+        "x": 2,
+        "y": 6,
+        "type": "Floor",
+        "roomId": "room-2-5"
+      },
+      {
+        "x": 3,
+        "y": 6,
+        "type": "Floor",
+        "roomId": "room-2-5"
+      },
+      {
+        "x": 4,
+        "y": 6,
+        "type": "Floor",
+        "roomId": "corridor-v-spine"
+      },
+      {
+        "x": 5,
+        "y": 6,
+        "type": "Floor",
+        "roomId": "room-5-6"
+      },
+      {
+        "x": 6,
+        "y": 6,
+        "type": "Floor",
+        "roomId": "room-5-6"
+      }
+    ],
+    "walls": [
+      {
+        "p1": {
+          "x": 0,
+          "y": 0
+        },
+        "p2": {
+          "x": 1,
+          "y": 0
+        }
+      },
+      {
+        "p1": {
+          "x": 0,
+          "y": 0
+        },
+        "p2": {
+          "x": 0,
+          "y": 1
+        }
+      },
+      {
+        "p1": {
+          "x": 1,
+          "y": 0
+        },
+        "p2": {
+          "x": 2,
+          "y": 0
+        }
+      },
+      {
+        "p1": {
+          "x": 2,
+          "y": 0
+        },
+        "p2": {
+          "x": 2,
+          "y": 1
+        }
+      },
+      {
+        "p1": {
+          "x": 1,
+          "y": 1
+        },
+        "p2": {
+          "x": 2,
+          "y": 1
+        }
+      },
+      {
+        "p1": {
+          "x": 2,
+          "y": 0
+        },
+        "p2": {
+          "x": 3,
+          "y": 0
+        }
+      },
+      {
+        "p1": {
+          "x": 2,
+          "y": 1
+        },
+        "p2": {
+          "x": 3,
+          "y": 1
+        }
+      },
+      {
+        "p1": {
+          "x": 3,
+          "y": 0
+        },
+        "p2": {
+          "x": 4,
+          "y": 0
+        }
+      },
+      {
+        "p1": {
+          "x": 4,
+          "y": 0
+        },
+        "p2": {
+          "x": 4,
+          "y": 1
+        }
+      },
+      {
+        "p1": {
+          "x": 4,
+          "y": 0
+        },
+        "p2": {
+          "x": 5,
+          "y": 0
+        }
+      },
+      {
+        "p1": {
+          "x": 4,
+          "y": 1
+        },
+        "p2": {
+          "x": 5,
+          "y": 1
+        }
+      },
+      {
+        "p1": {
+          "x": 5,
+          "y": 0
+        },
+        "p2": {
+          "x": 6,
+          "y": 0
+        }
+      },
+      {
+        "p1": {
+          "x": 6,
+          "y": 0
+        },
+        "p2": {
+          "x": 7,
+          "y": 0
+        }
+      },
+      {
+        "p1": {
+          "x": 7,
+          "y": 0
+        },
+        "p2": {
+          "x": 7,
+          "y": 1
+        }
+      },
+      {
+        "p1": {
+          "x": 6,
+          "y": 1
+        },
+        "p2": {
+          "x": 7,
+          "y": 1
+        }
+      },
+      {
+        "p1": {
+          "x": 0,
+          "y": 1
+        },
+        "p2": {
+          "x": 0,
+          "y": 2
+        }
+      },
+      {
+        "p1": {
+          "x": 2,
+          "y": 1
+        },
+        "p2": {
+          "x": 2,
+          "y": 2
+        }
+      },
+      {
+        "p1": {
+          "x": 4,
+          "y": 1
+        },
+        "p2": {
+          "x": 4,
+          "y": 2
+        }
+      },
+      {
+        "p1": {
+          "x": 5,
+          "y": 1
+        },
+        "p2": {
+          "x": 5,
+          "y": 2
+        }
+      },
+      {
+        "p1": {
+          "x": 7,
+          "y": 1
+        },
+        "p2": {
+          "x": 7,
+          "y": 2
+        }
+      },
+      {
+        "p1": {
+          "x": 0,
+          "y": 3
+        },
+        "p2": {
+          "x": 1,
+          "y": 3
+        }
+      },
+      {
+        "p1": {
+          "x": 0,
+          "y": 2
+        },
+        "p2": {
+          "x": 0,
+          "y": 3
+        }
+      },
+      {
+        "p1": {
+          "x": 2,
+          "y": 2
+        },
+        "p2": {
+          "x": 2,
+          "y": 3
+        }
+      },
+      {
+        "p1": {
+          "x": 2,
+          "y": 3
+        },
+        "p2": {
+          "x": 3,
+          "y": 3
+        }
+      },
+      {
+        "p1": {
+          "x": 4,
+          "y": 2
+        },
+        "p2": {
+          "x": 4,
+          "y": 3
+        }
+      },
+      {
+        "p1": {
+          "x": 5,
+          "y": 2
+        },
+        "p2": {
+          "x": 5,
+          "y": 3
+        }
+      },
+      {
+        "p1": {
+          "x": 7,
+          "y": 2
+        },
+        "p2": {
+          "x": 7,
+          "y": 3
+        }
+      },
+      {
+        "p1": {
+          "x": 6,
+          "y": 3
+        },
+        "p2": {
+          "x": 7,
+          "y": 3
+        }
+      },
+      {
+        "p1": {
+          "x": 0,
+          "y": 3
+        },
+        "p2": {
+          "x": 0,
+          "y": 4
+        }
+      },
+      {
+        "p1": {
+          "x": 2,
+          "y": 4
+        },
+        "p2": {
+          "x": 3,
+          "y": 4
+        }
+      },
+      {
+        "p1": {
+          "x": 3,
+          "y": 4
+        },
+        "p2": {
+          "x": 4,
+          "y": 4
+        }
+      },
+      {
+        "p1": {
+          "x": 7,
+          "y": 3
+        },
+        "p2": {
+          "x": 7,
+          "y": 4
+        }
+      },
+      {
+        "p1": {
+          "x": 6,
+          "y": 4
+        },
+        "p2": {
+          "x": 7,
+          "y": 4
+        }
+      },
+      {
+        "p1": {
+          "x": 1,
+          "y": 4
+        },
+        "p2": {
+          "x": 1,
+          "y": 5
+        }
+      },
+      {
+        "p1": {
+          "x": 0,
+          "y": 5
+        },
+        "p2": {
+          "x": 1,
+          "y": 5
+        }
+      },
+      {
+        "p1": {
+          "x": 0,
+          "y": 4
+        },
+        "p2": {
+          "x": 0,
+          "y": 5
+        }
+      },
+      {
+        "p1": {
+          "x": 1,
+          "y": 5
+        },
+        "p2": {
+          "x": 2,
+          "y": 5
+        }
+      },
+      {
+        "p1": {
+          "x": 2,
+          "y": 5
+        },
+        "p2": {
+          "x": 3,
+          "y": 5
+        }
+      },
+      {
+        "p1": {
+          "x": 4,
+          "y": 4
+        },
+        "p2": {
+          "x": 4,
+          "y": 5
+        }
+      },
+      {
+        "p1": {
+          "x": 3,
+          "y": 5
+        },
+        "p2": {
+          "x": 4,
+          "y": 5
+        }
+      },
+      {
+        "p1": {
+          "x": 5,
+          "y": 4
+        },
+        "p2": {
+          "x": 5,
+          "y": 5
+        }
+      },
+      {
+        "p1": {
+          "x": 7,
+          "y": 4
+        },
+        "p2": {
+          "x": 7,
+          "y": 5
+        }
+      },
+      {
+        "p1": {
+          "x": 0,
+          "y": 5
+        },
+        "p2": {
+          "x": 0,
+          "y": 6
+        }
+      },
+      {
+        "p1": {
+          "x": 4,
+          "y": 5
+        },
+        "p2": {
+          "x": 4,
+          "y": 6
+        }
+      },
+      {
+        "p1": {
+          "x": 5,
+          "y": 5
+        },
+        "p2": {
+          "x": 5,
+          "y": 6
+        }
+      },
+      {
+        "p1": {
+          "x": 5,
+          "y": 6
+        },
+        "p2": {
+          "x": 6,
+          "y": 6
+        }
+      },
+      {
+        "p1": {
+          "x": 7,
+          "y": 5
+        },
+        "p2": {
+          "x": 7,
+          "y": 6
+        }
+      },
+      {
+        "p1": {
+          "x": 0,
+          "y": 7
+        },
+        "p2": {
+          "x": 1,
+          "y": 7
+        }
+      },
+      {
+        "p1": {
+          "x": 0,
+          "y": 6
+        },
+        "p2": {
+          "x": 0,
+          "y": 7
+        }
+      },
+      {
+        "p1": {
+          "x": 2,
+          "y": 6
+        },
+        "p2": {
+          "x": 2,
+          "y": 7
+        }
+      },
+      {
+        "p1": {
+          "x": 1,
+          "y": 7
+        },
+        "p2": {
+          "x": 2,
+          "y": 7
+        }
+      },
+      {
+        "p1": {
+          "x": 2,
+          "y": 7
+        },
+        "p2": {
+          "x": 3,
+          "y": 7
+        }
+      },
+      {
+        "p1": {
+          "x": 3,
+          "y": 7
+        },
+        "p2": {
+          "x": 4,
+          "y": 7
+        }
+      },
+      {
+        "p1": {
+          "x": 5,
+          "y": 6
+        },
+        "p2": {
+          "x": 5,
+          "y": 7
+        }
+      },
+      {
+        "p1": {
+          "x": 4,
+          "y": 7
+        },
+        "p2": {
+          "x": 5,
+          "y": 7
+        }
+      },
+      {
+        "p1": {
+          "x": 5,
+          "y": 7
+        },
+        "p2": {
+          "x": 6,
+          "y": 7
+        }
+      },
+      {
+        "p1": {
+          "x": 7,
+          "y": 6
+        },
+        "p2": {
+          "x": 7,
+          "y": 7
+        }
+      },
+      {
+        "p1": {
+          "x": 6,
+          "y": 7
+        },
+        "p2": {
+          "x": 7,
+          "y": 7
+        }
+      }
+    ],
+    "doors": [
+      {
+        "id": "door-0",
+        "segment": [
+          {
+            "x": 1,
+            "y": 3
+          },
+          {
+            "x": 1,
+            "y": 2
+          }
+        ],
+        "orientation": "Horizontal",
+        "state": "Closed",
+        "hp": 50,
+        "maxHp": 50,
+        "openDuration": 1
+      },
+      {
+        "id": "door-1",
+        "segment": [
+          {
+            "x": 5,
+            "y": 3
+          },
+          {
+            "x": 5,
+            "y": 2
+          }
+        ],
+        "orientation": "Horizontal",
+        "state": "Closed",
+        "hp": 50,
+        "maxHp": 50,
+        "openDuration": 1
+      },
+      {
+        "id": "door-2",
+        "segment": [
+          {
+            "x": 5,
+            "y": 1
+          },
+          {
+            "x": 5,
+            "y": 0
+          }
+        ],
+        "orientation": "Horizontal",
+        "state": "Closed",
+        "hp": 50,
+        "maxHp": 50,
+        "openDuration": 1
+      },
+      {
+        "id": "door-3",
+        "segment": [
+          {
+            "x": 3,
+            "y": 3
+          },
+          {
+            "x": 3,
+            "y": 2
+          }
+        ],
+        "orientation": "Horizontal",
+        "state": "Closed",
+        "hp": 50,
+        "maxHp": 50,
+        "openDuration": 1
+      },
+      {
+        "id": "door-4",
+        "segment": [
+          {
+            "x": 0,
+            "y": 1
+          },
+          {
+            "x": 0,
+            "y": 0
+          }
+        ],
+        "orientation": "Horizontal",
+        "state": "Closed",
+        "hp": 50,
+        "maxHp": 50,
+        "openDuration": 1
+      },
+      {
+        "id": "door-5",
+        "segment": [
+          {
+            "x": 3,
+            "y": 1
+          },
+          {
+            "x": 3,
+            "y": 0
+          }
+        ],
+        "orientation": "Horizontal",
+        "state": "Closed",
+        "hp": 50,
+        "maxHp": 50,
+        "openDuration": 1
+      },
+      {
+        "id": "door-6",
+        "segment": [
+          {
+            "x": 4,
+            "y": 6
+          },
+          {
+            "x": 3,
+            "y": 6
+          }
+        ],
+        "orientation": "Vertical",
+        "state": "Closed",
+        "hp": 50,
+        "maxHp": 50,
+        "openDuration": 1
+      },
+      {
+        "id": "door-7",
+        "segment": [
+          {
+            "x": 5,
+            "y": 3
+          },
+          {
+            "x": 5,
+            "y": 4
+          }
+        ],
+        "orientation": "Horizontal",
+        "state": "Closed",
+        "hp": 50,
+        "maxHp": 50,
+        "openDuration": 1
+      },
+      {
+        "id": "door-8",
+        "segment": [
+          {
+            "x": 6,
+            "y": 5
+          },
+          {
+            "x": 6,
+            "y": 6
+          }
+        ],
+        "orientation": "Horizontal",
+        "state": "Closed",
+        "hp": 50,
+        "maxHp": 50,
+        "openDuration": 1
+      },
+      {
+        "id": "door-9",
+        "segment": [
+          {
+            "x": 2,
+            "y": 5
+          },
+          {
+            "x": 1,
+            "y": 5
+          }
+        ],
+        "orientation": "Vertical",
+        "state": "Closed",
+        "hp": 50,
+        "maxHp": 50,
+        "openDuration": 1
+      },
+      {
+        "id": "door-10",
+        "segment": [
+          {
+            "x": 5,
+            "y": 0
+          },
+          {
+            "x": 6,
+            "y": 0
+          }
+        ],
+        "orientation": "Vertical",
+        "state": "Closed",
+        "hp": 50,
+        "maxHp": 50,
+        "openDuration": 1
+      },
+      {
+        "id": "door-11",
+        "segment": [
+          {
+            "x": 1,
+            "y": 3
+          },
+          {
+            "x": 1,
+            "y": 4
+          }
+        ],
+        "orientation": "Horizontal",
+        "state": "Closed",
+        "hp": 50,
+        "maxHp": 50,
+        "openDuration": 1
+      },
+      {
+        "id": "door-12",
+        "segment": [
+          {
+            "x": 2,
+            "y": 4
+          },
+          {
+            "x": 3,
+            "y": 4
+          }
+        ],
+        "orientation": "Vertical",
+        "state": "Closed",
+        "hp": 50,
+        "maxHp": 50,
+        "openDuration": 1
+      },
+      {
+        "id": "door-13",
+        "segment": [
+          {
+            "x": 1,
+            "y": 3
+          },
+          {
+            "x": 0,
+            "y": 3
+          }
+        ],
+        "orientation": "Vertical",
+        "state": "Closed",
+        "hp": 50,
+        "maxHp": 50,
+        "openDuration": 1
+      }
+    ],
+    "spawnPoints": [
+      {
+        "id": "sp-enemy-0",
+        "pos": {
+          "x": 6,
+          "y": 0
+        },
+        "radius": 1
+      }
+    ],
+    "squadSpawn": {
+      "x": 2,
+      "y": 5,
+      "type": "Floor",
+      "roomId": "room-2-5"
+    },
+    "squadSpawns": [
+      {
+        "x": 2,
+        "y": 5,
+        "type": "Floor",
+        "roomId": "room-2-5"
+      },
+      {
+        "x": 1,
+        "y": 4,
+        "type": "Floor",
+        "roomId": "room-1-4"
+      }
+    ],
+    "extraction": {
+      "x": 4,
+      "y": 0,
+      "type": "Floor",
+      "roomId": "room-4-0"
+    },
+    "objectives": [
+      {
+        "id": "obj-0",
+        "kind": "Recover",
+        "targetCell": {
+          "x": 0,
+          "y": 3
+        }
+      },
+      {
+        "id": "obj-1",
+        "kind": "Recover",
+        "targetCell": {
+          "x": 0,
+          "y": 5
+        }
+      }
+    ],
+    "generatorName": "DenseShip",
+    "bonusLoot": [
+      {
+        "x": 6,
+        "y": 1
+      },
+      {
+        "x": 1,
+        "y": 1
+      }
+    ]
+  },
+  "squadConfig": {
+    "soldiers": [
+      {
+        "id": "soldier_1",
+        "name": "Ashford",
+        "archetypeId": "medic",
+        "rightHand": "pistol",
+        "leftHand": "combat_knife",
+        "hp": 80,
+        "maxHp": 80,
+        "soldierAim": 80
+      },
+      {
+        "id": "soldier_1770598123198_246",
+        "name": "Gaeta",
+        "archetypeId": "assault",
+        "hp": 100,
+        "maxHp": 100,
+        "soldierAim": 90,
+        "rightHand": "pulse_rifle",
+        "leftHand": "combat_knife"
+      },
+      {
+        "id": "soldier_3",
+        "name": "Archer",
+        "archetypeId": "assault",
+        "hp": 100,
+        "maxHp": 100,
+        "soldierAim": 90,
+        "rightHand": "pulse_rifle",
+        "leftHand": "combat_knife"
+      }
+    ],
+    "inventory": {
+      "medkit": 1,
+      "frag_grenade": 2
+    }
+  },
+  "commands": [
+    {
+      "t": 0,
+      "cmd": {
+        "type": "START_MISSION"
+      }
+    },
+    {
+      "t": 5472,
+      "cmd": {
+        "type": "TOGGLE_DEBUG_OVERLAY",
+        "enabled": true
+      }
+    },
+    {
+      "t": 8384,
+      "cmd": {
+        "unitIds": [
+          "soldier_1"
+        ],
+        "label": "Moving",
+        "queue": false,
+        "type": "MOVE_TO",
+        "target": {
+          "x": 1,
+          "y": 6
+        }
+      }
+    },
+    {
+      "t": 17952,
+      "cmd": {
+        "unitIds": [
+          "soldier_3"
+        ],
+        "label": "Moving",
+        "queue": false,
+        "type": "MOVE_TO",
+        "target": {
+          "x": 1,
+          "y": 2
+        }
+      }
+    },
+    {
+      "t": 25728,
+      "cmd": {
+        "unitIds": [
+          "soldier_3"
+        ],
+        "label": "Picking up",
+        "queue": false,
+        "type": "PICKUP",
+        "lootId": "loot-1"
+      }
+    }
+  ],
+  "snapshots": [],
+  "nodeType": "Elite",
+  "missionDepth": 1,
+  "baseEnemyCount": 3,
+  "enemyGrowthPerMission": 1
+}
