@@ -4,6 +4,8 @@ UI screens for different game states.
 
 ## Files
 
+All screens implement a standard interface including `show()` and `hide()` methods. The `hide()` method is critical for popping the screen's input context from the `InputDispatcher` stack to prevent input leaks.
+
 - `CampaignScreen.ts`: Visualizes the Sector Map (DAG) for the campaign mode, rendering within the `CampaignShell` content area. Allows navigation between nodes and mission selection. Uses `NewCampaignWizard` for initial setup if no active campaign exists. Uses `ModalService` for campaign reset confirmations. Displays global meta-statistics (Total Kills, etc.) in a fixed footer.
 - `CampaignSummaryScreen.ts`: Displays the final results of a campaign (Victory or Defeat). Shows statistics (Kills, Missions, Scrap) and the final roster status. Handles campaign termination and returns to the Main Menu.
 - `DebriefScreen.ts`: Post-mission after-action report. Features a 40/60 split-pane layout displaying mission statistics and squad results in the left pane, and an integrated mission replay with playback controls (Play/Pause, Speed Selector) in the right pane. Includes a 'Replay Mission' button for Custom Mode to restart with the same seed, and an 'Export Recording' button to download the replay JSON.

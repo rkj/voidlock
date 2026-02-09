@@ -12,12 +12,12 @@ This directory contains the main thread rendering logic and user interface for V
 - `InputManager.ts`: Manages tactical input context, including keyboard shortcuts and mouse/touch interactions. Implements 1-finger panning, 2-finger pinch zooming, and Tap-to-Move/Select (ADR 0038).
 - `MenuController.ts`: Orchestrates the tactical command menu, handling state transitions, selection, and command construction. Now includes validation logic to disable the Escort command when fewer than 2 active units are present and filters out targets from the escorting unit selection.
 - `Renderer.ts`: The main entry point for the rendering system. Now refactored into a layered architecture (ADR 0018). It acts as a compositor for specialized layers.
-- `ScreenManager.ts`: Manages screen transitions, history, and URL hash synchronization. Now includes a `destroy()` method for clean shutdown.
+- `ScreenManager.ts`: Manages screen transitions, history, and URL hash synchronization. Now includes a `destroy()` method for clean shutdown and uses an `isInternalTransition` flag to prevent redundant external change callbacks during programmatic transitions.
 
 ## Subdirectories
 
 - `app/`: Application lifecycle and bootstrapping logic (ADR 0019).
-  - `GameApp.ts`: Handles node selection in Campaign Mode, including non-combat dispatch for Shop and Event nodes.
+  - `GameApp.ts`: Central orchestrator that manages screen lifecycle via a centralized `switchScreen` method, ensuring proper hiding/showing and input context cleanup across all screens. Handles node selection in Campaign Mode, including non-combat dispatch for Shop and Event nodes.
 - `components/`: Reusable UI components (e.g., SquadBuilder).
 - `visuals/`: Layered rendering system (MapLayer, UnitLayer, EffectLayer, OverlayLayer).
 - `controllers/`: Decoupled logic managers for the tactical UI (StateMachine, Selection, CommandBuilder, RoomDiscovery, TargetOverlay).

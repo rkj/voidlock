@@ -317,6 +317,7 @@ export class EquipmentScreen {
       } else {
         item = document.createElement("div");
         item.className = `menu-item clickable ${this.selectedSoldierIndex === i ? "active" : ""}`;
+        item.tabIndex = 0;
         item.style.marginBottom = "8px";
         item.style.padding = "8px 12px";
         item.innerHTML = `
@@ -327,11 +328,19 @@ export class EquipmentScreen {
             Click to add soldier
           </div>
         `;
-        item.onclick = () => {
+
+        const handleSelect = () => {
           this.selectedSoldierIndex = i;
           this.recruitMode = false;
           this.reviveMode = false;
           this.render();
+        };
+        item.onclick = handleSelect;
+        item.onkeydown = (e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            handleSelect();
+            e.preventDefault();
+          }
         };
       }
 
