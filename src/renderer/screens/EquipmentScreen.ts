@@ -23,6 +23,7 @@ export class EquipmentScreen {
   private onUpdate?: () => void;
   private inspector: SoldierInspector;
   private isShop: boolean = false;
+  private isCampaign: boolean = false;
   private savedScrollTop: { left: number; center: number; right: number } = {
     left: 0,
     center: 0,
@@ -37,6 +38,7 @@ export class EquipmentScreen {
     onBack: () => void,
     onUpdate?: () => void,
     isShop: boolean = false,
+    isCampaign: boolean = false,
   ) {
     const el = document.getElementById(containerId);
     if (!el) throw new Error(`Container #${containerId} not found`);
@@ -48,6 +50,7 @@ export class EquipmentScreen {
     this.onBack = onBack;
     this.onUpdate = onUpdate;
     this.isShop = isShop;
+    this.isCampaign = isCampaign;
     this.inspector = new SoldierInspector({
       manager: this.manager,
       onUpdate: () => {
@@ -66,11 +69,17 @@ export class EquipmentScreen {
       },
     });
     this.inspector.setShop(this.isShop);
+    this.inspector.setCampaign(this.isCampaign);
   }
 
   public setShop(isShop: boolean) {
     this.isShop = isShop;
     this.inspector.setShop(isShop);
+  }
+
+  public setCampaign(isCampaign: boolean) {
+    this.isCampaign = isCampaign;
+    this.inspector.setCampaign(isCampaign);
   }
 
   public show() {
@@ -331,7 +340,7 @@ export class EquipmentScreen {
   }
 
   private renderRosterPicker(panel: HTMLElement) {
-    const state = this.manager.getState();
+    const state = this.isCampaign ? this.manager.getState() : null;
     if (!state) {
       // In Custom Mode, maybe we show archetypes?
       this.renderArchetypePicker(panel);
@@ -384,7 +393,7 @@ export class EquipmentScreen {
   }
 
   private renderRecruitmentPicker(panel: HTMLElement) {
-    const state = this.manager.getState();
+    const state = this.isCampaign ? this.manager.getState() : null;
     if (!state) return;
 
     const archetypes = state.unlockedArchetypes;
@@ -431,7 +440,7 @@ export class EquipmentScreen {
   }
 
   private renderRevivePicker(panel: HTMLElement) {
-    const state = this.manager.getState();
+    const state = this.isCampaign ? this.manager.getState() : null;
     if (!state) return;
 
     const deadSoldiers = state.roster.filter((s) => s.status === "Dead");
@@ -524,7 +533,7 @@ export class EquipmentScreen {
     suppliesTitle.style.letterSpacing = "1px";
     panel.appendChild(suppliesTitle);
 
-    const state = this.manager.getState();
+    const state = this.isCampaign ? this.manager.getState() : null;
     const unlockedItems = state?.unlockedItems || [];
     const basicSupplies = ["frag_grenade", "medkit", "mine"];
 
@@ -581,7 +590,7 @@ export class EquipmentScreen {
       }
       plus.onclick = () => {
         if (count < 2) {
-          const state = this.manager.getState();
+          const state = this.isCampaign ? this.manager.getState() : null;
           if (state && state.scrap < item.cost) return;
           if (state) this.manager.spendScrap(item.cost);
 

@@ -268,6 +268,8 @@ export class GameApp {
         );
       },
       () => this.context.campaignShell.refresh(),
+      false, // isShop
+      false, // isCampaign
     );
 
     this.statisticsScreen = new StatisticsScreen("screen-statistics");
@@ -310,10 +312,11 @@ export class GameApp {
       },
       onResetData: () => this.campaignFlowCoordinator.onResetData(),
       onShowEquipment: () => {
+        const isCampaign = !!this.missionSetupManager.currentCampaignNode;
+        this.equipmentScreen.setCampaign(isCampaign);
         this.equipmentScreen.updateConfig(
           this.missionSetupManager.currentSquad,
         );
-        const isCampaign = !!this.missionSetupManager.currentCampaignNode;
         this.context.screenManager.show("equipment", true, isCampaign);
         if (isCampaign) {
           this.context.campaignShell.show("campaign", "sector-map", false);
@@ -686,10 +689,12 @@ export class GameApp {
       }
       case "equipment":
         this.applyCampaignTheme();
+        const isCurrentlyCampaign = isCampaign || !!this.missionSetupManager.currentCampaignNode;
+        this.equipmentScreen.setCampaign(isCurrentlyCampaign);
         this.equipmentScreen.updateConfig(
           this.missionSetupManager.currentSquad,
         );
-        if (isCampaign || this.missionSetupManager.currentCampaignNode) {
+        if (isCurrentlyCampaign) {
           this.context.campaignShell.show("campaign", "sector-map", false);
         } else {
           this.context.campaignShell.show("custom", "setup");
@@ -855,6 +860,7 @@ export class GameApp {
       () => this.campaignScreen.show(),
       (n, size, spawnPoints) => {
         this.missionSetupManager.prepareMissionSetup(n, size, spawnPoints);
+        this.equipmentScreen.setCampaign(true);
         this.equipmentScreen.updateConfig(
           this.missionSetupManager.currentSquad,
         );
