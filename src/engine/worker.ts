@@ -42,6 +42,7 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
       );
 
       // Start loop
+      let lastSnapshotCount = 0;
       loopId = setInterval(() => {
         if (!engine) return;
 
@@ -50,7 +51,18 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
 
         engine.update(scaledDt);
 
-        const state = engine.getState(true);
+        const includeSnapshots = engine.getState(false).settings.debugSnapshots;
+        const state = engine.getState(true, includeSnapshots);
+
+        // Optimization: only send full snapshots array if it changed
+        if (includeSnapshots && state.snapshots) {
+          if (state.snapshots.length === lastSnapshotCount) {
+            delete state.snapshots;
+          } else {
+            lastSnapshotCount = state.snapshots.length;
+          }
+        }
+
         const updateMsg: MainMessage = {
           type: "STATE_UPDATE",
           payload: state,
@@ -102,9 +114,10 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
     }
     case "QUERY_STATE": {
       if (engine) {
+        const includeSnapshots = engine.getState(false).settings.debugSnapshots;
         const updateMsg: MainMessage = {
           type: "STATE_UPDATE",
-          payload: engine.getState(true),
+          payload: engine.getState(true, includeSnapshots),
         };
         self.postMessage(updateMsg);
       }
