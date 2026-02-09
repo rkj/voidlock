@@ -180,7 +180,7 @@ export class HUDManager {
         debugDiv.className = "debug-controls";
         rightPanel.appendChild(debugDiv);
       }
-      const generatorName = state.map.generatorName || "Unknown";
+      const generatorName = state.map?.generatorName || "Unknown";
       const genDisplay = generatorName.endsWith("Generator")
         ? generatorName
         : `${generatorName}Generator`;
@@ -189,7 +189,7 @@ export class HUDManager {
         <h3>Debug Tools</h3>
         <div class="debug-info-grid">
           <span><strong>Map:</strong> ${genDisplay} (${state.seed})</span>
-          <span><strong>Size:</strong> ${state.map.width}x${state.map.height}</span>
+          <span><strong>Size:</strong> ${state.map ? `${state.map.width}x${state.map.height}` : "Unknown"}</span>
           <span><strong>Mission:</strong> ${state.missionType}</span>
         </div>
         <div class="debug-actions-row">
@@ -318,8 +318,8 @@ export class HUDManager {
           const x = Math.floor(u.pos.x);
           const y = Math.floor(u.pos.y);
           return (
-            state.map.squadSpawns?.some((s) => s.x === x && s.y === y) ||
-            (state.map.squadSpawn &&
+            state.map?.squadSpawns?.some((s) => s.x === x && s.y === y) ||
+            (state.map?.squadSpawn &&
               state.map.squadSpawn.x === x &&
               state.map.squadSpawn.y === y)
           );
@@ -368,7 +368,7 @@ export class HUDManager {
 
     // Extraction Status (as an implicit objective if not already present)
     if (
-      state.map.extraction &&
+      state.map?.extraction &&
       !state.objectives.some((o) => o.kind === "Escort")
     ) {
       const extractedCount = state.units.filter(
@@ -380,7 +380,7 @@ export class HUDManager {
       const color =
         extractedCount > 0 ? "var(--color-success)" : "var(--color-text-muted)";
       const status = isCompleted ? "Completed" : "Pending";
-      const locStr = showCoords
+      const locStr = showCoords && state.map?.extraction
         ? ` at (${state.map.extraction.x},${state.map.extraction.y})`
         : "";
       data.push({
