@@ -30,13 +30,13 @@ describe("Regression voidlock-aja3: Authoritative Entity Visibility", () => {
     const engine = new CoreEngine(mockMap, 123, defaultSquad, false, false);
 
     // First call to getState() sets sentMap = true
-    const state1 = engine.getState();
+    const state1 = engine.getState(true);
     expect(state1.map.spawnPoints).toHaveLength(1);
     expect(state1.map.objectives).toHaveLength(1);
     expect(state1.map.cells).not.toHaveLength(0);
 
     // Second call to getState() should still include spawnPoints and objectives, but NOT cells
-    const state2 = engine.getState();
+    const state2 = engine.getState(true);
     expect(state2.map.spawnPoints).toHaveLength(1);
     expect(state2.map.objectives).toHaveLength(1);
     expect(state2.map.cells).toHaveLength(0);

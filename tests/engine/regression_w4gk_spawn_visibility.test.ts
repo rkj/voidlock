@@ -37,7 +37,7 @@ describe("Regression voidlock-w4gk: Enemy Spawn Point Visibility", () => {
     const engine = new CoreEngine(mockMap, 123, squadConfig, false, false);
 
     // Initial state (tick 0)
-    let state = engine.getState();
+    let state = engine.getState(true);
     expect(state.map.spawnPoints).toBeDefined();
     expect(state.map.spawnPoints!.length).toBe(1);
     expect(state.map.spawnPoints![0].id).toBe("sp1");
@@ -47,7 +47,7 @@ describe("Regression voidlock-w4gk: Enemy Spawn Point Visibility", () => {
 
     // Advance one tick
     engine.update(100);
-    state = engine.getState();
+    state = engine.getState(true);
     expect(state.map.spawnPoints).toBeDefined();
     expect(state.map.spawnPoints!.length).toBe(1);
     expect(state.map.spawnPoints![0].id).toBe("sp1");
@@ -57,7 +57,7 @@ describe("Regression voidlock-w4gk: Enemy Spawn Point Visibility", () => {
 
     // Advance multiple ticks
     for (let i = 0; i < 10; i++) engine.update(100);
-    state = engine.getState();
+    state = engine.getState(true);
     expect(state.map.spawnPoints).toBeDefined();
     expect(state.map.spawnPoints!.length).toBe(1);
     expect(state.map.spawnPoints![0].id).toBe("sp1");
