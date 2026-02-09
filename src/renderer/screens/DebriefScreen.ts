@@ -59,6 +59,7 @@ export class DebriefScreen {
       this.replayController.setRenderer(this.canvas, this.unitStyle);
     }
     this.replayController.startReplay(this.report.timeSpent);
+    this.updatePlaybackUI();
   }
 
   public hide() {
@@ -78,6 +79,16 @@ export class DebriefScreen {
       const isPaused = this.replayController.getIsPaused();
       this.playbackBtn.textContent = isPaused ? "PLAY" : "PAUSE";
     }
+
+    const currentSpeed = this.replayController.getTargetScale();
+    this.container.querySelectorAll(".replay-speed-btn").forEach((btn) => {
+      const speed = parseFloat(btn.textContent || "0");
+      if (speed === currentSpeed) {
+        btn.classList.add("active");
+      } else {
+        btn.classList.remove("active");
+      }
+    });
   }
 
   private render() {
