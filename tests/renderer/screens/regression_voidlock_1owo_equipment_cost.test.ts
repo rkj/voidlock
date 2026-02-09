@@ -78,6 +78,8 @@ describe("EquipmentScreen Economics", () => {
       onSave,
       onBack,
       () => shell.refresh(),
+      false,
+      true,
     );
     screen.show();
 
@@ -105,6 +107,8 @@ describe("EquipmentScreen Economics", () => {
       onSave,
       onBack,
       () => shell.refresh(),
+      false,
+      true,
     );
     screen.show();
 
@@ -133,6 +137,8 @@ describe("EquipmentScreen Economics", () => {
       onSave,
       onBack,
       () => shell.refresh(),
+      false,
+      true,
     );
     screen.show();
 
@@ -160,6 +166,8 @@ describe("EquipmentScreen Economics", () => {
       onSave,
       onBack,
       () => shell.refresh(),
+      false,
+      true,
     );
     screen.show();
 
@@ -193,6 +201,8 @@ describe("EquipmentScreen Economics", () => {
       onSave,
       onBack,
       () => shell.refresh(),
+      false,
+      true,
     );
     screen.show();
 
@@ -219,6 +229,8 @@ describe("EquipmentScreen Economics", () => {
       onSave,
       onBack,
       () => shell.refresh(),
+      false,
+      true,
     );
     screen.show();
 
@@ -255,6 +267,8 @@ describe("EquipmentScreen Economics", () => {
       onSave,
       onBack,
       () => shell.refresh(),
+      false,
+      true,
     );
     screen.show();
 

@@ -29,6 +29,9 @@ describe("Regression 6k8w: Supply Prices", () => {
       initialConfig,
       vi.fn(),
       vi.fn(),
+      undefined,
+      false,
+      true,
     );
     screen.show();
 
