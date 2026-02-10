@@ -386,6 +386,7 @@ export class InputManager implements InputContext {
       }
 
       this.lastTouchPos = { x: touch.clientX, y: touch.clientY };
+      return true;
     } else if (
       e.touches.length === 2 &&
       this.lastTouchDistance &&
@@ -404,12 +405,15 @@ export class InputManager implements InputContext {
 
       this.lastTouchDistance = currentDistance;
       this.lastTouchCenter = currentCenter;
+      return true;
     }
-    return true;
+    return false;
   }
 
   public handleTouchEnd(e: TouchEvent): boolean {
     if (this.isDebriefing()) return false;
+
+    const wasHandling = !!(this.lastTouchPos || this.lastTouchDistance || this.touchStartTime);
 
     if (this.draggingUnitId) {
       const touch = e.changedTouches[0];
@@ -451,7 +455,8 @@ export class InputManager implements InputContext {
     this.lastTouchDistance = null;
     this.lastTouchCenter = null;
     this.touchStartTime = null;
-    return true;
+
+    return wasHandling;
   }
 
   private handleDragOver(e: DragEvent) {
