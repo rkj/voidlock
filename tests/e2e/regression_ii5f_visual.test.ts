@@ -17,7 +17,7 @@ describe("Regression II5F - Unit Style Visibility in Campaign", () => {
     await closeBrowser();
   });
 
-  it("should show Visual Style selector in Campaign Mission Setup", async () => {
+  it("should NOT show Visual Style selector in Campaign Mission Setup", async () => {
     // 1. Click "Campaign" on Main Menu
     await page.waitForSelector("#btn-menu-campaign");
     await page.click("#btn-menu-campaign");
@@ -42,19 +42,17 @@ describe("Regression II5F - Unit Style Visibility in Campaign", () => {
     });
     expect(mapConfigVisible).toBe(false);
 
-    // Check if common-config-section is visible
-    const commonConfigVisible = await page.evaluate(() => {
-      const el = document.getElementById("common-config-section");
-      return el ? window.getComputedStyle(el).display !== "none" : false;
+    // Check if common-config-section is GONE
+    const commonConfigPresent = await page.evaluate(() => {
+      return !!document.getElementById("common-config-section");
     });
-    expect(commonConfigVisible).toBe(true);
+    expect(commonConfigPresent).toBe(false);
 
-    // Check if select-unit-style is visible and interactive
-    const styleSelectorVisible = await page.evaluate(() => {
-      const el = document.getElementById("select-unit-style");
-      return el ? window.getComputedStyle(el).display !== "none" : false;
+    // Check if select-unit-style is GONE
+    const styleSelectorPresent = await page.evaluate(() => {
+      return !!document.getElementById("select-unit-style");
     });
-    expect(styleSelectorVisible).toBe(true);
+    expect(styleSelectorPresent).toBe(false);
 
     // Capture screenshot
     await page.screenshot({

@@ -52,12 +52,6 @@ describe("MissionSetupManager - Visual Style Visibility (regression_voidlock_qah
     document.body.innerHTML = `
       <div id="mission-setup-context"></div>
       <div id="setup-content">
-        <div id="common-config-section">
-          <div class="control-group" id="setup-visual-style-group">
-            <label>Visual Style & Theme:</label>
-            <div id="setup-global-status"></div>
-          </div>
-        </div>
         <div id="map-config-section"></div>
       </div>
     `;
@@ -79,21 +73,21 @@ describe("MissionSetupManager - Visual Style Visibility (regression_voidlock_qah
     manager = new MissionSetupManager(context);
   });
 
-  it("should SHOW visual style group in custom simulation mode", () => {
+  it("should NOT have visual style group in the DOM in custom simulation mode", () => {
     manager.loadAndApplyConfig(false); // isCampaign = false
 
     const visualStyleGroup = document.getElementById(
       "setup-visual-style-group",
     );
-    expect(visualStyleGroup?.style.display).toBe("block");
+    expect(visualStyleGroup).toBeNull();
   });
 
-  it("should HIDE visual style group in campaign mode", () => {
+  it("should NOT have visual style group in the DOM in campaign mode", () => {
     manager.loadAndApplyConfig(true); // isCampaign = true
 
     const visualStyleGroup = document.getElementById(
       "setup-visual-style-group",
     );
-    expect(visualStyleGroup?.style.display).toBe("none");
+    expect(visualStyleGroup).toBeNull();
   });
 });
