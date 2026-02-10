@@ -65,6 +65,7 @@ export class InputManager implements InputContext {
     if (canvas) {
       canvas.addEventListener("dragover", this.boundDragOver);
       canvas.addEventListener("drop", this.boundDrop);
+      canvas.addEventListener("contextmenu", (e) => e.preventDefault());
     }
   }
 

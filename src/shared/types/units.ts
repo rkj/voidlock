@@ -341,6 +341,7 @@ export enum CommandType {
   DEBUG_FORCE_LOSE = "DEBUG_FORCE_LOSE",
   START_MISSION = "START_MISSION",
   DEPLOY_UNIT = "DEPLOY_UNIT",
+  UNDEPLOY_UNIT = "UNDEPLOY_UNIT",
 }
 
 export type MoveCommand = {
@@ -461,6 +462,12 @@ export type DeployUnitCommand = {
   label?: string;
 };
 
+export type UndeployUnitCommand = {
+  type: CommandType.UNDEPLOY_UNIT;
+  unitId: string;
+  label?: string;
+};
+
 export type StartMissionCommand = {
   type: CommandType.START_MISSION;
   label?: string;
@@ -484,6 +491,7 @@ export type Command =
   | DebugForceWinCommand
   | DebugForceLoseCommand
   | DeployUnitCommand
+  | UndeployUnitCommand
   | StartMissionCommand;
 
 export enum UnitStyle {

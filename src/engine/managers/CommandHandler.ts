@@ -49,11 +49,27 @@ export class CommandHandler {
               };
             }
             if (targetUnit && u.id === targetUnit.id) {
-              return { ...u, pos: { ...unit.pos } };
+              // If swapping with a pending unit, the target unit becomes pending
+              const wasDeployed = unit.isDeployed !== false;
+              return {
+                ...u,
+                pos: { ...unit.pos },
+                isDeployed: wasDeployed,
+              };
             }
             return u;
           });
         }
+        return;
+      }
+
+      if (cmd.type === CommandType.UNDEPLOY_UNIT) {
+        state.units = state.units.map((u) => {
+          if (u.id === cmd.unitId) {
+            return { ...u, isDeployed: false };
+          }
+          return u;
+        });
         return;
       }
 
