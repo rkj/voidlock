@@ -31,3 +31,5 @@ coverage/
 *.sw?
 .beads/last-touched
 .trekker/
+*.png
+
