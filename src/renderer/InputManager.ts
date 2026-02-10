@@ -24,6 +24,9 @@ export class InputManager implements InputContext {
   private touchStartTime: number | null = null;
   private hasMovedSignificantly: boolean = false;
 
+  private boundDragOver: (e: DragEvent) => void;
+  private boundDrop: (e: DragEvent) => void;
+
   constructor(
     private screenManager: ScreenManager,
     private menuController: MenuController,
@@ -51,14 +54,27 @@ export class InputManager implements InputContext {
     private panMap: (direction: string) => void,
     private panMapBy: (dx: number, dy: number) => void,
     private zoomMap: (ratio: number, cx: number, cy: number) => void,
-  ) {}
+  ) {
+    this.boundDragOver = this.handleDragOver.bind(this);
+    this.boundDrop = this.handleDrop.bind(this);
+  }
 
   public init() {
     InputDispatcher.getInstance().pushContext(this);
+    const canvas = document.getElementById("game-canvas");
+    if (canvas) {
+      canvas.addEventListener("dragover", this.boundDragOver);
+      canvas.addEventListener("drop", this.boundDrop);
+    }
   }
 
   public destroy() {
     InputDispatcher.getInstance().popContext(this.id);
+    const canvas = document.getElementById("game-canvas");
+    if (canvas) {
+      canvas.removeEventListener("dragover", this.boundDragOver);
+      canvas.removeEventListener("drop", this.boundDrop);
+    }
   }
 
   public getShortcuts(): ShortcutInfo[] {
@@ -435,6 +451,36 @@ export class InputManager implements InputContext {
     this.lastTouchCenter = null;
     this.touchStartTime = null;
     return true;
+  }
+
+  private handleDragOver(e: DragEvent) {
+    if (this.isDebriefing()) return;
+    const state = this.currentGameState();
+    if (!state || state.status !== "Deployment") return;
+
+    e.preventDefault(); // Allow drop
+    e.dataTransfer!.dropEffect = "move";
+  }
+
+  private handleDrop(e: DragEvent) {
+    if (this.isDebriefing()) return;
+    const state = this.currentGameState();
+    if (!state || state.status !== "Deployment") return;
+
+    e.preventDefault();
+    const unitId = e.dataTransfer?.getData("text/plain");
+    if (!unitId) return;
+
+    const cell = this.getCellCoordinates(e.clientX, e.clientY);
+    
+    // Validate spawn point
+    const isValidSpawn =
+      state.map.squadSpawns?.some((s) => s.x === cell.x && s.y === cell.y) ||
+      (state.map.squadSpawn?.x === cell.x && state.map.squadSpawn?.y === cell.y);
+
+    if (isValidSpawn) {
+      this.onDeployUnit(unitId, cell.x + 0.5, cell.y + 0.5);
+    }
   }
 
   private getTouchDistance(touches: TouchList): number {
