@@ -10,6 +10,7 @@ import { NameGenerator } from "@src/shared/utils/NameGenerator";
 import { SoldierWidget } from "@src/renderer/ui/SoldierWidget";
 import { InputDispatcher } from "../InputDispatcher";
 import { UIUtils } from "../utils/UIUtils";
+import { FocusManager } from "../utils/FocusManager";
 
 export class EquipmentScreen {
   private container: HTMLElement;
@@ -54,18 +55,30 @@ export class EquipmentScreen {
     this.inspector = new SoldierInspector({
       manager: this.manager,
       onUpdate: () => {
+        FocusManager.saveFocus();
         this.render();
+        FocusManager.restoreFocus(this.container);
         if (this.onUpdate) this.onUpdate();
       },
       onRecruit: () => {
         this.recruitMode = true;
         this.reviveMode = false;
         this.render();
+        // Focus first recruitment option
+        const first = this.container.querySelector(
+          ".armory-panel .clickable:not(.disabled)",
+        ) as HTMLElement;
+        if (first) first.focus();
       },
       onRevive: () => {
         this.reviveMode = true;
         this.recruitMode = false;
         this.render();
+        // Focus first revive option
+        const first = this.container.querySelector(
+          ".armory-panel .clickable:not(.disabled)",
+        ) as HTMLElement;
+        if (first) first.focus();
       },
     });
     this.inspector.setShop(this.isShop);
@@ -167,6 +180,9 @@ export class EquipmentScreen {
   }
 
   private render() {
+    // Save focus before clearing
+    FocusManager.saveFocus();
+
     // Save scroll positions before clearing
     const oldLeft = this.container.querySelector(".soldier-list-panel");
     const oldCenter = this.container.querySelector(".soldier-equipment-panel");
@@ -236,6 +252,9 @@ export class EquipmentScreen {
     centerPanel.scrollTop = this.savedScrollTop.center;
     rightPanel.scrollTop = this.savedScrollTop.right;
 
+    // Restore focus
+    FocusManager.restoreFocus(this.container);
+
     // Footer Buttons (Direct child of container)
     const footer = document.createElement("div");
     footer.className = "flex-row justify-end p-10 gap-10";
@@ -246,6 +265,7 @@ export class EquipmentScreen {
     const backBtn = document.createElement("button");
     backBtn.textContent = "Back";
     backBtn.className = "back-button";
+    backBtn.setAttribute("data-focus-id", "btn-back");
     backBtn.style.margin = "0";
     backBtn.style.height = "32px";
     backBtn.style.padding = "0 15px";
@@ -257,6 +277,7 @@ export class EquipmentScreen {
     const saveBtn = document.createElement("button");
     saveBtn.textContent = "Confirm Squad";
     saveBtn.className = "primary-button";
+    saveBtn.setAttribute("data-focus-id", "btn-confirm-squad");
     saveBtn.style.margin = "0";
     saveBtn.style.height = "32px";
     saveBtn.style.padding = "0 15px";
@@ -301,10 +322,12 @@ export class EquipmentScreen {
             this.render();
           },
         });
+        item.setAttribute("data-focus-id", `soldier-slot-${i}`);
 
         // Add remove button
         const removeBtn = document.createElement("button");
         removeBtn.className = "remove-soldier-btn slot-remove";
+        removeBtn.setAttribute("data-focus-id", `remove-soldier-${i}`);
         removeBtn.innerHTML = "×";
         removeBtn.title = "Remove from Squad";
         removeBtn.onclick = (e) => {
@@ -318,6 +341,7 @@ export class EquipmentScreen {
         item = document.createElement("div");
         item.className = `menu-item clickable ${this.selectedSoldierIndex === i ? "active" : ""}`;
         item.tabIndex = 0;
+        item.setAttribute("data-focus-id", `soldier-slot-${i}`);
         item.style.marginBottom = "8px";
         item.style.padding = "8px 12px";
         item.innerHTML = `
@@ -437,6 +461,7 @@ export class EquipmentScreen {
           }
         },
       });
+      item.setAttribute("data-focus-id", `recruit-${archId}`);
 
       if (state.scrap < cost) {
         item.classList.add("disabled");
@@ -487,6 +512,7 @@ export class EquipmentScreen {
           }
         },
       });
+      item.setAttribute("data-focus-id", `revive-${soldier.id}`);
 
       if (state.scrap < cost) {
         item.classList.add("disabled");
