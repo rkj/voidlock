@@ -14,6 +14,7 @@ export class HUDManager {
     private onUnitClick: (unit: Unit, shiftHeld?: boolean) => void,
     private onAbortMission: () => void,
     private onMenuInput: (key: string, shiftHeld?: boolean) => void,
+    private onSetTimeScale: (scale: number) => void,
     private onCopyWorldState: () => void,
     private onForceWin: () => void,
     private onForceLose: () => void,
@@ -126,6 +127,49 @@ export class HUDManager {
     if (rightPanel.querySelector(".game-over-summary")) {
       rightPanel.innerHTML = "";
       this.lastMenuHtml = "";
+    }
+
+    // Mission Controls (Speed Slider for mobile)
+    let controlsDiv = rightPanel.querySelector(".mission-controls") as HTMLElement;
+    if (!controlsDiv) {
+      controlsDiv = document.createElement("div");
+      controlsDiv.className = "mission-controls mobile-only";
+      controlsDiv.innerHTML = `
+        <h3 class="game-over-panel-title">Mission Controls</h3>
+        <div class="control-group" style="border:none; padding-top:0; display: flex; flex-direction: column; gap: 10px;">
+          <label style="margin-top:0;">Game Speed: <span class="mobile-speed-value">1.0x</span></label>
+          <input type="range" class="mobile-speed-slider" min="0" max="100" step="1" value="50">
+          <button class="mobile-abort-button back-button" style="width: 100%; margin: 10px 0 0 0;">Abort Mission</button>
+        </div>
+      `;
+      const slider = controlsDiv.querySelector(".mobile-speed-slider") as HTMLInputElement;
+      slider.addEventListener("input", (e) => {
+        const val = parseInt((e.target as HTMLInputElement).value);
+        const scale = TimeUtility.sliderToScale(val);
+        this.onSetTimeScale(scale);
+      });
+
+      const abortBtn = controlsDiv.querySelector(".mobile-abort-button") as HTMLButtonElement;
+      if (abortBtn) {
+        abortBtn.addEventListener("click", () => this.onAbortMission());
+      }
+
+      rightPanel.appendChild(controlsDiv);
+    }
+
+    const mobileSpeedValue = controlsDiv.querySelector(".mobile-speed-value");
+    const mobileSpeedSlider = controlsDiv.querySelector(".mobile-speed-slider") as HTMLInputElement;
+    if (mobileSpeedValue && mobileSpeedSlider) {
+      const isPaused = state.settings.isPaused;
+      const scale = isPaused
+        ? state.settings.allowTacticalPause
+          ? 0.1
+          : 0.0
+        : state.settings.timeScale;
+      mobileSpeedValue.textContent = TimeUtility.formatSpeed(scale, isPaused);
+      if (document.activeElement !== mobileSpeedSlider) {
+        mobileSpeedSlider.value = TimeUtility.scaleToSlider(state.settings.timeScale).toString();
+      }
     }
 
     // Command Menu
@@ -251,6 +295,49 @@ export class HUDManager {
       deploymentDiv.appendChild(startBtn);
 
       rightPanel.appendChild(deploymentDiv);
+    }
+
+    // Mission Controls (Speed Slider for mobile) during deployment
+    let controlsDiv = rightPanel.querySelector(".mission-controls") as HTMLElement;
+    if (!controlsDiv) {
+      controlsDiv = document.createElement("div");
+      controlsDiv.className = "mission-controls mobile-only";
+      controlsDiv.innerHTML = `
+        <h3 class="game-over-panel-title">Mission Controls</h3>
+        <div class="control-group" style="border:none; padding-top:0; display: flex; flex-direction: column; gap: 10px;">
+          <label style="margin-top:0;">Game Speed: <span class="mobile-speed-value">1.0x</span></label>
+          <input type="range" class="mobile-speed-slider" min="0" max="100" step="1" value="50">
+          <button class="mobile-abort-button back-button" style="width: 100%; margin: 10px 0 0 0;">Abort Mission</button>
+        </div>
+      `;
+      const slider = controlsDiv.querySelector(".mobile-speed-slider") as HTMLInputElement;
+      slider.addEventListener("input", (e) => {
+        const val = parseInt((e.target as HTMLInputElement).value);
+        const scale = TimeUtility.sliderToScale(val);
+        this.onSetTimeScale(scale);
+      });
+
+      const abortBtn = controlsDiv.querySelector(".mobile-abort-button") as HTMLButtonElement;
+      if (abortBtn) {
+        abortBtn.addEventListener("click", () => this.onAbortMission());
+      }
+
+      rightPanel.insertBefore(controlsDiv, deploymentDiv);
+    }
+
+    const mobileSpeedValue = controlsDiv.querySelector(".mobile-speed-value");
+    const mobileSpeedSlider = controlsDiv.querySelector(".mobile-speed-slider") as HTMLInputElement;
+    if (mobileSpeedValue && mobileSpeedSlider) {
+      const isPaused = state.settings.isPaused;
+      const scale = isPaused
+        ? state.settings.allowTacticalPause
+          ? 0.1
+          : 0.0
+        : state.settings.timeScale;
+      mobileSpeedValue.textContent = TimeUtility.formatSpeed(scale, isPaused);
+      if (document.activeElement !== mobileSpeedSlider) {
+        mobileSpeedSlider.value = TimeUtility.scaleToSlider(state.settings.timeScale).toString();
+      }
     }
 
     const squadList = deploymentDiv.querySelector(
