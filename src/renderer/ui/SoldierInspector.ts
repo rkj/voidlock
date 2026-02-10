@@ -99,6 +99,7 @@ export class SoldierInspector {
         if (state.roster.length < CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE) {
           const recruitBtn = document.createElement("button");
           recruitBtn.className = "menu-button w-full recruit-btn-large";
+          recruitBtn.setAttribute("data-focus-id", "recruit-btn-large");
           recruitBtn.innerHTML = `
           <div class="btn-label">Recruit New Soldier</div>
           <div class="btn-sub">Cost: 100 Scrap</div>
@@ -110,6 +111,7 @@ export class SoldierInspector {
         const reviveBtn = document.createElement("button");
         const canAffordRevive = state.scrap >= 250;
         reviveBtn.className = `menu-button w-full revive-btn-large ${!canAffordRevive ? "disabled" : ""}`;
+        reviveBtn.setAttribute("data-focus-id", "revive-btn-large");
         reviveBtn.disabled = !canAffordRevive;
         reviveBtn.innerHTML = `
         <div class="btn-label">Revive Fallen Soldier</div>
