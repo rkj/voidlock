@@ -80,10 +80,6 @@ describe("MissionSetupManager - Visual Style Visibility (regression_ii5f)", () =
     document.body.innerHTML = `
       <div id="mission-setup-context"></div>
       <div id="setup-content">
-        <div id="common-config-section">
-          <div id="setup-global-status"></div>
-          <div id="unit-style-preview" class="style-preview-container"></div>
-        </div>
         <div id="map-config-section">
           <select id="map-generator-type"></select>
           <select id="map-theme"></select>
@@ -153,17 +149,17 @@ describe("MissionSetupManager - Visual Style Visibility (regression_ii5f)", () =
     });
   });
 
-  it("should NOT hide common-config-section in campaign mode", () => {
+  it("should NOT have common-config-section in the DOM", () => {
     manager.loadAndApplyConfig(true); // isCampaign = true
 
     const commonSection = document.getElementById("common-config-section");
     const mapSection = document.getElementById("map-config-section");
 
     expect(mapSection?.style.display).toBe("none");
-    expect(commonSection?.style.display).not.toBe("none");
+    expect(commonSection).toBeNull();
   });
 
-  it("should respect saved preference over campaign rule on reload", () => {
+  it("should still load unit style from global config even if UI is gone", () => {
     (ConfigManager.loadCampaign as any).mockReturnValue({
       mapWidth: 10,
       mapHeight: 10,
@@ -186,20 +182,10 @@ describe("MissionSetupManager - Visual Style Visibility (regression_ii5f)", () =
       themeId: "default",
     });
 
-    // Mock campaign rule having TacticalIcons
-    (context.campaignManager.getState as any).mockReturnValue({
-      rules: {
-        difficulty: "Standard",
-      },
-      roster: [],
-      history: [],
-      currentSector: 1,
-    });
-
     manager.loadAndApplyConfig(true);
 
     expect(manager.unitStyle).toBe("Sprites");
     const statusText = document.getElementById("setup-global-status");
-    expect(statusText?.textContent).toContain("Sprites");
+    expect(statusText).toBeNull();
   });
 });

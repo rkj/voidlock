@@ -199,12 +199,6 @@ export class MissionSetupManager {
     if (mapConfigSection)
       mapConfigSection.style.display = isCampaign ? "none" : "block";
 
-    const visualStyleGroup = document.getElementById(
-      "setup-visual-style-group",
-    );
-    if (visualStyleGroup)
-      visualStyleGroup.style.display = isCampaign ? "none" : "block";
-
     const global = ConfigManager.loadGlobal();
     this.unitStyle = global.unitStyle;
     this.currentThemeId = global.themeId;
@@ -253,7 +247,6 @@ export class MissionSetupManager {
     }
 
     this.context.themeManager.setTheme(this.currentThemeId);
-    this.renderGlobalStatus();
 
     if (isCampaign) {
       const state = this.context.campaignManager.getState();
@@ -418,19 +411,7 @@ export class MissionSetupManager {
     ) as HTMLInputElement;
     if (allowPauseCheck) allowPauseCheck.checked = this.allowTacticalPause;
 
-    this.renderGlobalStatus();
-
     if (mapGenSelect) mapGenSelect.dispatchEvent(new Event("change"));
-  }
-
-  private renderGlobalStatus() {
-    const el = document.getElementById("setup-global-status");
-    if (!el) return;
-
-    const themeLabel =
-      this.currentThemeId.charAt(0).toUpperCase() +
-      this.currentThemeId.slice(1);
-    el.textContent = `${this.unitStyle} | ${themeLabel}`;
   }
 
   public async loadStaticMap(json: string) {
