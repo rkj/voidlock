@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   buildBootstrapClickOrder,
   classifyRootResponse,
+  normalizeMissionSettleMs,
   isAllowedByShaPrefix,
   isRiskyNavigationId,
   isLikelyBlackFrame,
@@ -101,6 +102,18 @@ describe("capture timeline mission darkness detection", () => {
   it("accepts mission capture when mission UI is ready even if dark", () => {
     expect(shouldAcceptMissionCapture(true, true)).toBe(true);
     expect(shouldAcceptMissionCapture(false, false)).toBe(false);
+  });
+});
+
+describe("capture timeline mission settle delay", () => {
+  it("normalizes invalid values to zero", () => {
+    expect(normalizeMissionSettleMs(Number.NaN)).toBe(0);
+    expect(normalizeMissionSettleMs(-100)).toBe(0);
+  });
+
+  it("keeps positive values as rounded milliseconds", () => {
+    expect(normalizeMissionSettleMs(10000)).toBe(10000);
+    expect(normalizeMissionSettleMs(2500.7)).toBe(2501);
   });
 });
 

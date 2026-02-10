@@ -145,6 +145,11 @@ export function shouldAcceptMissionCapture(ready: boolean, _dark: boolean): bool
   return ready;
 }
 
+export function normalizeMissionSettleMs(value: number): number {
+  if (!Number.isFinite(value) || value < 0) return 0;
+  return Math.round(value);
+}
+
 export function parseShaAllowlistContent(content: string): Set<string> {
   return new Set(
     content
@@ -482,6 +487,7 @@ async function captureScreensForCommit(
   playbookActions: Record<string, string[]> | null,
   postLoadWaitMs: number,
   missionCaptureWaitMs: number,
+  missionSettleMs: number,
   missionRequired: boolean,
 ): Promise<number> {
   const browser = await puppeteer.launch({
@@ -559,6 +565,7 @@ async function captureScreensForCommit(
       missionPath,
       postLoadWaitMs,
       missionCaptureWaitMs,
+      missionSettleMs,
       sha,
       playbookActions?.mission || [],
       hintActionIds,
@@ -625,6 +632,7 @@ async function captureMilestone(
     serverState: ServerState;
     postLoadWaitMs: number;
     missionCaptureWaitMs: number;
+    missionSettleMs: number;
     missionRequired: boolean;
   },
 ): Promise<{ usedSha?: string; reason?: string; attempts: number; logs?: ProcessLogs }> {
@@ -684,6 +692,7 @@ async function captureMilestone(
         opts.playbookActions,
         opts.postLoadWaitMs,
         opts.missionCaptureWaitMs,
+        opts.missionSettleMs,
         opts.missionRequired,
       );
       if (captured === 0) {
@@ -744,6 +753,9 @@ async function runCli() {
   const postLoadWaitMs = Number(readNamedArg(argv, ["--post-load-wait-ms"]) || 3000);
   const missionCaptureWaitMs = Number(
     readNamedArg(argv, ["--mission-capture-wait-ms"]) || 3000,
+  );
+  const missionSettleMs = normalizeMissionSettleMs(
+    Number(readNamedArg(argv, ["--mission-settle-ms"]) || 0),
   );
   const debugLogPath =
     readNamedArg(argv, ["--debug-log"]) || "timeline/capture_debug.json";
@@ -822,6 +834,7 @@ async function runCli() {
         serverState,
         postLoadWaitMs,
         missionCaptureWaitMs,
+        missionSettleMs,
         missionRequired:
           missionRequiredDefault &&
           !isAllowedByShaPrefix(milestone.sourceCommit, missionAllowlist),
@@ -994,6 +1007,7 @@ async function captureMissionByClicks(
   missionPath: string,
   postLoadWaitMs: number,
   missionCaptureWaitMs: number,
+  missionSettleMs: number,
   sha: string,
   playbookMissionSteps: string[],
   hintActionIds: string[],
@@ -1011,6 +1025,7 @@ async function captureMissionByClicks(
   await gotoRoot(page, url, postLoadWaitMs);
   const directWaitMs = Math.max(missionCaptureWaitMs, 1200);
   await waitForMissionUi(page, directWaitMs);
+  if (missionSettleMs > 0) await sleep(missionSettleMs);
   await assertHealthyPage(page);
   await captureViewport(page, tempMissionPath);
   {
@@ -1029,6 +1044,7 @@ async function captureMissionByClicks(
     if (reached) {
       const waitMs = Math.max(missionCaptureWaitMs, 1200) + 5000;
       await waitForMissionUi(page, waitMs);
+      if (missionSettleMs > 0) await sleep(missionSettleMs);
       await assertHealthyPage(page);
       await captureViewport(page, tempMissionPath);
       const dark = await isScreenshotLikelyBlack(tempMissionPath);
@@ -1058,6 +1074,7 @@ async function captureMissionByClicks(
     await runTextClickFlow(page, missionFlows[attempt]);
     const waitMs = Math.max(missionCaptureWaitMs, 1200) + 5000;
     await waitForMissionUi(page, waitMs);
+    if (missionSettleMs > 0) await sleep(missionSettleMs);
     await assertHealthyPage(page);
     await captureViewport(page, tempMissionPath);
     const dark = await isScreenshotLikelyBlack(tempMissionPath);

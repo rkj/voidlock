@@ -226,7 +226,8 @@ Arguments:
 - `--max-consecutive-failures` (default `3`)
 - `--restart-every` rotate server every N successful commits (default `1`, `0` disables cadence rotation)
 - `--post-load-wait-ms` delay before capture/bootstrap clicks (default `3000`)
-- `--mission-capture-wait-ms` extra settle delay before mission screenshot (default `3000`)
+- `--mission-capture-wait-ms` max wait for mission-ready signal (default `3000`)
+- `--mission-settle-ms` fixed delay after mission-ready before screenshot (default `0`)
 - `--debug-log` (default `timeline/capture_debug.json`)
 - `--mission-required` fail commit capture when mission screenshot is missing (default `true`)
 - `--mission-allowlist` text file of SHA prefixes allowed to miss mission (default `timeline/mission_allowlist.txt`)
@@ -348,6 +349,7 @@ Requirement:
 - `REUSE_PLAYBOOKS` (default `false`; when `true`, skips `timeline:playbooks` and only runs `timeline:compile-playbooks`)
 - `MISSION_REQUIRED` (default `true`)
 - `MISSION_ALLOWLIST` (default `timeline/mission_allowlist.txt`)
+- `MISSION_SETTLE_MS` (default `0`; fixed delay after mission-ready before screenshot)
 
 ## Codex Wrapper
 
