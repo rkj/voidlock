@@ -117,9 +117,9 @@ The application is divided into distinct screens to reduce UI clutter and improv
   - "Launch Mission" button disabled if squad is empty.
   - "Dead" soldiers in roster cannot be equipped.
 
-3. **Mission Screen** (Active Gameplay)
+### 3. Mission Screen (Active Gameplay)
    - **Phase: Deployment** (Initial State)
-     - **Top Bar**: "DEPLOYMENT PHASE".
+     - **Top Bar**: "Deployment Phase".
      - **Left Panel**: Hidden or displays Mission Briefing.
      - **Center (Canvas)**: Renders the map with **Green Highlighted** Spawn Points.
      - **Right Panel (Deployment Control)**:
@@ -263,7 +263,7 @@ The UI must be optimized for visibility and information density, utilizing the f
 
 - **Top Bar (Header):** Fixed height (40px).
   - **Content:**
-    - **Time**: "TIME: 12.4s"
+    - **Time**: "Time: 12.4s"
     - **Threat**: Visual Meter.
     - **Speed Control**: Play/Pause | Speed Slider (0.1x - 10x).
     - **Give Up**: Button.
@@ -284,7 +284,7 @@ The UI must be optimized for visibility and information density, utilizing the f
   - **Layout:** Horizontal layout. Stats must be extremely compact.
 - **Command Panel (Right):** Fixed width (300px).
   - **Enemy Intel**: Displays grouped stats for visible enemies using the same **Icon + Tooltip** model as the Soldier Cards. (SPD, ACC, DMG, FR, Range).
-- **Main Simulation Area:** Flex container containing the Game Canvas. Centered. Overlay numbers appear on the canvas during target/unit selection.
+- **Main Simulation Area:** Flex container containing the Game Canvas. Centered. Overlay navigation numbers appear on the canvas during target/unit selection.
 
 ### 8.4.1 Debrief Screen (Post-Mission)
 
@@ -293,7 +293,7 @@ The UI must be optimized for visibility and information density, utilizing the f
   - **Mission Statistics**: Tally of kills, time, and scrap.
   - **Squad Summary**: List of participating units with Names and XP bars.
   - **Actions**:
-    - **Continue**: Return to Campaign Hub or Main Menu.
+    - **Continue**: Return to Command Bridge.
     - **Replay Mission** (Custom Mode ONLY): Immediately restarts the mission with the exact same Seed and Configuration.
     - **Export Recording**: Downloads the full mission replay data as a JSON file for debugging or sharing.
 - **Right Pane (Replay Viewport)**:
