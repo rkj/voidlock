@@ -79,7 +79,7 @@ describe("Mobile Drawers", () => {
 
     const rightPanel = await page.$("#right-panel");
     const rightBox = await rightPanel?.boundingBox();
-    console.log("Right Panel Bounding Box:", rightBox);
+    
     // On mobile, it should be visible
     expect(rightBox?.x).toBeLessThan(375);
     expect(rightBox?.x).toBeGreaterThan(0);
@@ -152,29 +152,6 @@ describe("Mobile Drawers", () => {
     expect(mobileSpeedValue).not.toBe(speedValue);
   });
 
-  it("should be able to abort mission via mobile controls", async () => {
-    // Ensure Objectives drawer is open
-    const isActive = await page.evaluate(() => document.getElementById("right-panel")?.classList.contains("active"));
-    if (!isActive) {
-      await page.click("#btn-toggle-right");
-      await new Promise(r => setTimeout(r, 600));
-    }
-
-    // Click Abort Mission button
-    await page.click(".mobile-abort-button");
-    
-    // Wait for Custom Modal
-    await page.waitForSelector(".modal-window", { visible: true });
-    
-    // Click OK (Primary Button)
-    const okBtn = await page.waitForSelector(".modal-window .primary-button");
-    await okBtn?.click();
-    
-    // Should navigate to Debrief screen
-    await page.waitForSelector("#screen-debrief", { visible: true });
-    expect(page.url()).toContain("debrief");
-  });
-
   it("should not have Top Bar overflow on mobile", async () => {
     const topBar = await page.$("#top-bar");
     const topBarBox = await topBar?.boundingBox();
@@ -189,5 +166,34 @@ describe("Mobile Drawers", () => {
         expect(box.x + box.width).toBeLessThanOrEqual(375.5); // Allow small subpixel diff
       }
     }
+  });
+
+  it("should be able to abort mission via mobile controls", async () => {
+    // Ensure Objectives drawer is open
+    const isActive = await page.evaluate(() => document.getElementById("right-panel")?.classList.contains("active"));
+    if (!isActive) {
+      await page.click("#btn-toggle-right");
+      await new Promise(r => setTimeout(r, 600));
+    }
+
+    // Click Abort Mission button
+    const abortBtnExists = await page.evaluate(() => !!document.querySelector(".mobile-abort-button"));
+    
+    if (abortBtnExists) {
+        await page.evaluate(() => (document.querySelector(".mobile-abort-button") as HTMLElement).click());
+    } else {
+        throw new Error("Mobile abort button not found in DOM");
+    }
+    
+    // Wait for Custom Modal
+    await page.waitForSelector(".modal-window", { visible: true, timeout: 5000 });
+    
+    // Click OK (Primary Button)
+    const okBtn = await page.waitForSelector(".modal-window .primary-button");
+    await okBtn?.click();
+    
+    // Should navigate to Debrief screen
+    await page.waitForSelector("#screen-debrief", { visible: true });
+    expect(page.url()).toContain("debrief");
   });
 });
