@@ -40,20 +40,20 @@ export class MissionSetupScreen {
       getShortcuts: () => [
         {
           key: "Arrows",
-          label: "Navigate",
-          description: "Move selection",
+          label: "Arrows",
+          description: "Navigate UI",
           category: "Navigation",
         },
         {
           key: "Enter",
-          label: "Select",
-          description: "Activate button",
+          label: "Enter",
+          description: "Select / Activate",
           category: "Navigation",
         },
         {
           key: "ESC",
-          label: "Back",
-          description: "Return to previous screen",
+          label: "ESC",
+          description: "Back to Menu",
           category: "Navigation",
         },
       ],

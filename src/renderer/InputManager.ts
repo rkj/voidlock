@@ -105,13 +105,13 @@ export class InputManager implements InputContext {
       shortcuts.push(
         {
           key: "1-9",
-          label: "Menu",
+          label: "1-9",
           description: "Select Menu Option",
           category: "Menu",
         },
         {
           key: "M",
-          label: "Move",
+          label: "M",
           description: "Quick Move Command",
           category: "Tactical",
         },
@@ -156,6 +156,10 @@ export class InputManager implements InputContext {
       }
 
       if (e.key === "Tab") {
+        const state = this.currentGameState();
+        if (state && state.status === "Deployment") {
+          return false; // Allow Tab to navigate UI during deployment
+        }
         this.cycleUnits(e.shiftKey);
         return true;
       }
@@ -166,6 +170,11 @@ export class InputManager implements InputContext {
         e.key === "ArrowLeft" ||
         e.key === "ArrowRight"
       ) {
+        // Only pan if focus is on body or canvas
+        const active = document.activeElement;
+        if (active && active !== document.body && active.tagName !== "CANVAS") {
+          return false;
+        }
         this.panMap(e.key);
         return true;
       }
