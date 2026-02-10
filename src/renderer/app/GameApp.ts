@@ -1093,6 +1093,51 @@ export class GameApp {
       event.clientX,
       event.clientY,
     );
+
+    if (this.currentGameState.status === "Deployment") {
+      // Right Click: Undeploy
+      if (event.button === 2) {
+        const unit = this.currentGameState.units.find(
+          (u) =>
+            Math.floor(u.pos.x) === clickedCell.x &&
+            Math.floor(u.pos.y) === clickedCell.y &&
+            u.isDeployed !== false,
+        );
+        if (unit && unit.archetypeId !== "vip") {
+          this.context.gameClient.applyCommand({
+            type: CommandType.UNDEPLOY_UNIT,
+            unitId: unit.id,
+          });
+        }
+        return;
+      }
+
+      // Left Click: Deploy Selected
+      if (event.button === 0 && this.selectedUnitId) {
+        const unit = this.currentGameState.units.find(
+          (u) => u.id === this.selectedUnitId,
+        );
+        if (unit && unit.archetypeId !== "vip") {
+          const isValidSpawn =
+            this.currentGameState.map.squadSpawns?.some(
+              (s) => s.x === clickedCell.x && s.y === clickedCell.y,
+            ) ||
+            (this.currentGameState.map.squadSpawn &&
+              this.currentGameState.map.squadSpawn.x === clickedCell.x &&
+              this.currentGameState.map.squadSpawn.y === clickedCell.y);
+
+          if (isValidSpawn) {
+            this.context.gameClient.applyCommand({
+              type: CommandType.DEPLOY_UNIT,
+              unitId: unit.id,
+              target: { x: clickedCell.x + 0.5, y: clickedCell.y + 0.5 },
+            });
+            return;
+          }
+        }
+      }
+    }
+
     const prevState = this.context.menuController.menuState;
     this.context.menuController.handleCanvasClick(
       clickedCell,

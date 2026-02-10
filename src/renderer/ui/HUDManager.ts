@@ -295,9 +295,8 @@ export class HUDManager {
               if (spawn) {
                 this.onDeployUnit(u.id, spawn.x + 0.5, spawn.y + 0.5);
               }
-            } else {
-              this.onUnitClick(u);
             }
+            this.onUnitClick(u);
           },
         });
 
