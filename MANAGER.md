@@ -106,8 +106,8 @@ run_shell_command("./scripts/dispatch_agent.sh <TASK_ID>")
 **🚨 NEVER PUSH**: Do **NOT** run `jj git push`. The user will handle pushing.
 
 - **If Verified**:
-  1. `jj commit -m "feat/fix: <description>"`
-  1. \`bd close <id> --reason "Implemented via sub-agent and verified."
+  1. `jj commit -m "<bead-id>: <description>.\n\nDetailed description."`
+  1. `bd close <id> --reason "Implemented via sub-agent and verified."`
 
 **After completion of any task lifecycle (Dispatch or Finalization), STOP and await user instructions.**
 
