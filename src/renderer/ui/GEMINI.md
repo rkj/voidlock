@@ -21,6 +21,10 @@ This directory contains UI components and managers for the Voidlock renderer.
 
 ## Functionality
 
+- **Mobile Responsiveness**: Implemented a drawer-based layout for mobile devices (ADR 0038).
+  - **Drawers**: The Left Panel (Squad) and Right Panel (Objectives/Intel) collapse into toggleable sliding drawers on screens < 768px.
+  - **Action Panel**: Added a `mobile-action-panel` at the bottom of the screen for mission controls and the command menu, optimizing screen real estate for the game map.
+  - **Touch Interactions**: All interactive elements adhere to a 44x44px minimum hit area for touch compatibility.
 - **HUD Updates**: Synchronizes the DOM elements with the current `GameState`.
   - **Icon-Based Stats**: Replaced text labels (SPD, ACC, DMG, FR, RNG, VIS) with SVG icons for a cleaner tactical look. Added HTML `title` attributes for tooltips.
   - **Dual Weapon Stats**: Soldier cards now display separate stats for Left Hand (LH) and Right Hand (RH) weapons. The currently active weapon row is highlighted.

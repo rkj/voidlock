@@ -104,33 +104,48 @@ export class HUDManager {
 
   private updateRightPanel(state: GameState) {
     const rightPanel = document.getElementById("right-panel");
+    const mobileActionPanel = document.getElementById("mobile-action-panel");
     if (!rightPanel) return;
 
+    const isMobile = window.innerWidth < 768;
+    const actionContainer = isMobile && mobileActionPanel ? mobileActionPanel : rightPanel;
+    const secondaryContainer = isMobile && mobileActionPanel ? rightPanel : null;
+
     if (state.status === "Deployment") {
-      this.updateDeployment(rightPanel, state);
+      if (secondaryContainer) secondaryContainer.innerHTML = "";
+      this.updateDeployment(actionContainer, state);
       return;
     }
 
     if (state.status !== "Playing") {
-      if (rightPanel.querySelector(".game-over-summary")) return;
-      this.renderGameOver(rightPanel, state);
+      if (actionContainer.querySelector(".game-over-summary")) return;
+      if (secondaryContainer) secondaryContainer.innerHTML = "";
+      this.renderGameOver(actionContainer, state);
       return;
     }
 
-    // Remove deployment or game over summary if they exist
-    const deploymentDiv = rightPanel.querySelector(".deployment-summary");
+    // Clear secondary container on mobile (it only holds objectives/intel)
+    if (secondaryContainer) {
+      // Keep objectives and intel if they already exist, otherwise clear
+      if (!secondaryContainer.querySelector(".objectives-status")) {
+        secondaryContainer.innerHTML = "";
+      }
+    }
+
+    // Remove deployment or game over summary if they exist in action container
+    const deploymentDiv = actionContainer.querySelector(".deployment-summary");
     if (deploymentDiv) {
-      rightPanel.innerHTML = "";
+      actionContainer.innerHTML = "";
       this.lastMenuHtml = "";
     }
 
-    if (rightPanel.querySelector(".game-over-summary")) {
-      rightPanel.innerHTML = "";
+    if (actionContainer.querySelector(".game-over-summary")) {
+      actionContainer.innerHTML = "";
       this.lastMenuHtml = "";
     }
 
     // Mission Controls (Speed Slider for mobile)
-    let controlsDiv = rightPanel.querySelector(".mission-controls") as HTMLElement;
+    let controlsDiv = actionContainer.querySelector(".mission-controls") as HTMLElement;
     if (!controlsDiv) {
       controlsDiv = document.createElement("div");
       controlsDiv.className = "mission-controls mobile-only";
@@ -154,7 +169,7 @@ export class HUDManager {
         abortBtn.addEventListener("click", () => this.onAbortMission());
       }
 
-      rightPanel.appendChild(controlsDiv);
+      actionContainer.appendChild(controlsDiv);
     }
 
     const mobileSpeedValue = controlsDiv.querySelector(".mobile-speed-value");
@@ -173,7 +188,7 @@ export class HUDManager {
     }
 
     // Command Menu
-    let menuDiv = rightPanel.querySelector(".command-menu") as HTMLElement;
+    let menuDiv = actionContainer.querySelector(".command-menu") as HTMLElement;
     if (!menuDiv) {
       menuDiv = document.createElement("div");
       menuDiv.className = "command-menu";
@@ -185,7 +200,7 @@ export class HUDManager {
           if (idxStr !== undefined) this.onMenuInput(idxStr, e.shiftKey);
         }
       });
-      rightPanel.appendChild(menuDiv);
+      actionContainer.appendChild(menuDiv);
       this.lastMenuHtml = ""; // Force re-render if menuDiv was just created
     }
 
@@ -197,8 +212,9 @@ export class HUDManager {
       this.lastMenuHtml = menuHtml;
     }
 
-    // Objectives
-    let objectivesDiv = rightPanel.querySelector(
+    // Objectives (Always in Right Panel/Drawer)
+    const objectivesContainer = secondaryContainer || actionContainer;
+    let objectivesDiv = objectivesContainer.querySelector(
       ".objectives-status",
     ) as HTMLElement;
     if (!objectivesDiv) {
@@ -206,7 +222,7 @@ export class HUDManager {
       objectivesDiv.className = "objectives-status";
       objectivesDiv.innerHTML =
         "<h3>Objectives</h3><div class='obj-list'></div>";
-      rightPanel.appendChild(objectivesDiv);
+      objectivesContainer.appendChild(objectivesDiv);
     }
     this.updateObjectives(
       state,
@@ -214,16 +230,17 @@ export class HUDManager {
     );
 
     // Remove old extraction div if it exists (now handled by objectives)
-    const extDiv = rightPanel.querySelector(".extraction-status");
+    const extDiv = objectivesContainer.querySelector(".extraction-status");
     if (extDiv) extDiv.remove();
 
-    // Debug Buttons
-    let debugDiv = rightPanel.querySelector(".debug-controls") as HTMLElement;
+    // Debug Buttons (Always in Right Panel/Drawer)
+    const debugContainer = secondaryContainer || actionContainer;
+    let debugDiv = debugContainer.querySelector(".debug-controls") as HTMLElement;
     if (state.settings.debugOverlayEnabled) {
       if (!debugDiv) {
         debugDiv = document.createElement("div");
         debugDiv.className = "debug-controls";
-        rightPanel.appendChild(debugDiv);
+        debugContainer.appendChild(debugDiv);
       }
       const generatorName = state.map?.generatorName || "Unknown";
       const genDisplay = generatorName.endsWith("Generator")
@@ -259,16 +276,17 @@ export class HUDManager {
       debugDiv.remove();
     }
 
-    this.updateEnemyIntel(state, rightPanel);
+    // Enemy Intel (Always in Right Panel/Drawer)
+    this.updateEnemyIntel(state, secondaryContainer || actionContainer);
   }
 
-  private updateDeployment(rightPanel: HTMLElement, state: GameState) {
-    let deploymentDiv = rightPanel.querySelector(
+  private updateDeployment(container: HTMLElement, state: GameState) {
+    let deploymentDiv = container.querySelector(
       ".deployment-summary",
     ) as HTMLElement;
 
     if (!deploymentDiv) {
-      rightPanel.innerHTML = "";
+      container.innerHTML = "";
       deploymentDiv = document.createElement("div");
       deploymentDiv.className = "deployment-summary";
 
@@ -294,11 +312,11 @@ export class HUDManager {
       startBtn.addEventListener("click", () => this.onStartMission());
       deploymentDiv.appendChild(startBtn);
 
-      rightPanel.appendChild(deploymentDiv);
+      container.appendChild(deploymentDiv);
     }
 
     // Mission Controls (Speed Slider for mobile) during deployment
-    let controlsDiv = rightPanel.querySelector(".mission-controls") as HTMLElement;
+    let controlsDiv = container.querySelector(".mission-controls") as HTMLElement;
     if (!controlsDiv) {
       controlsDiv = document.createElement("div");
       controlsDiv.className = "mission-controls mobile-only";
@@ -322,7 +340,7 @@ export class HUDManager {
         abortBtn.addEventListener("click", () => this.onAbortMission());
       }
 
-      rightPanel.insertBefore(controlsDiv, deploymentDiv);
+      container.insertBefore(controlsDiv, deploymentDiv);
     }
 
     const mobileSpeedValue = controlsDiv.querySelector(".mobile-speed-value");
