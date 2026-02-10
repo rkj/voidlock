@@ -18,6 +18,7 @@ export class HUDManager {
     private onForceWin: () => void,
     private onForceLose: () => void,
     private onStartMission: () => void,
+    private onDeployUnit: (unitId: string, x: number, y: number) => void,
   ) {}
 
   public update(state: GameState, selectedUnitId: string | null) {
@@ -288,6 +289,16 @@ export class HUDManager {
 
         SoldierWidget.update(item, u, {
           context: "roster",
+          onClick: () => {
+            if (!isPlaced) {
+              const spawn = this.findNextEmptySpawn(state);
+              if (spawn) {
+                this.onDeployUnit(u.id, spawn.x + 0.5, spawn.y + 0.5);
+              }
+            } else {
+              this.onUnitClick(u);
+            }
+          },
         });
 
         const statusSpan = item.querySelector(
@@ -596,5 +607,21 @@ export class HUDManager {
       const id = (child as HTMLElement).dataset.unitId;
       if (id && !existingIds.has(id)) listContainer.removeChild(child);
     });
+  }
+
+  private findNextEmptySpawn(state: GameState): { x: number; y: number } | null {
+    if (!state.map) return null;
+    const spawns = state.map.squadSpawns || (state.map.squadSpawn ? [state.map.squadSpawn] : []);
+    
+    for (const spawn of spawns) {
+      const isOccupied = state.units.some(u => 
+        u.isDeployed !== false && 
+        Math.floor(u.pos.x) === spawn.x && 
+        Math.floor(u.pos.y) === spawn.y
+      );
+      if (!isOccupied) return spawn;
+    }
+    
+    return null;
   }
 }

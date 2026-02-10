@@ -116,20 +116,20 @@ export class EquipmentScreen {
       getShortcuts: () => [
         {
           key: "Arrows",
-          label: "Navigate",
-          description: "Move selection",
+          label: "Arrows",
+          description: "Navigate UI",
           category: "Navigation",
         },
         {
           key: "Enter",
-          label: "Select",
-          description: "Activate button",
+          label: "Enter",
+          description: "Select / Equip",
           category: "Navigation",
         },
         {
           key: "ESC",
-          label: "Back",
-          description: "Return to previous screen",
+          label: "ESC",
+          description: "Back to Setup",
           category: "Navigation",
         },
       ],

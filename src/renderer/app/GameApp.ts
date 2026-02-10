@@ -155,6 +155,12 @@ export class GameApp {
         this.context.gameClient.applyCommand({
           type: CommandType.START_MISSION,
         }),
+      (unitId, x, y) =>
+        this.context.gameClient.applyCommand({
+          type: CommandType.DEPLOY_UNIT,
+          unitId,
+          target: { x, y },
+        }),
     );
 
     this.context.inputManager = new InputManager(
