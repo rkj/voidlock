@@ -191,6 +191,9 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
 
 describe("Comprehensive User Journeys", () => {
   beforeEach(async () => {
+    if (window.GameAppInstance) {
+      window.GameAppInstance.stop();
+    }
     currentCampaignState = null;
 
     // Mock ResizeObserver
@@ -391,7 +394,20 @@ describe("Comprehensive User Journeys", () => {
     document.getElementById("btn-give-up")?.click();
 
     // Wait for async ModalService.confirm
-    await new Promise((resolve) => setTimeout(resolve, 50));
+    await new Promise((resolve) => setTimeout(resolve, 200));
+
+    expect(document.getElementById("screen-debrief")?.style.display).toBe(
+      "flex",
+    );
+
+    // 5. Debrief -> Main Menu
+    const returnBtn = Array.from(
+      document.querySelectorAll("#screen-debrief button"),
+    ).find((b) => b.textContent?.includes("Return")) as HTMLElement;
+    returnBtn?.click();
+
+    // Wait for async screen transition
+    await new Promise((resolve) => setTimeout(resolve, 200));
 
     expect(document.getElementById("screen-main-menu")?.style.display).toBe(
       "flex",

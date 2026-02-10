@@ -93,10 +93,12 @@ describe("HUDManager", () => {
       onUnitClick,
       onAbortMission,
       onMenuInput,
+      vi.fn(), // onSetTimeScale
       onCopyWorldState,
       onForceWin,
       onForceLose,
-      vi.fn(),
+      vi.fn(), // onStartMission
+      vi.fn(), // onDeployUnit
     );
   });
 
