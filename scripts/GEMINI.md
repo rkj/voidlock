@@ -137,7 +137,8 @@ Args:
 - `--max-consecutive-failures` abort threshold for unhealthy runs (default `3`)
 - `--restart-every` rotate dev server every N successful commits (default `1`, `0` disables cadence rotation)
 - `--post-load-wait-ms` wait before bootstrap and capture (default `3000`)
-- `--mission-capture-wait-ms` extra delay before mission screenshot (default `3000`)
+- `--mission-capture-wait-ms` max wait for mission-ready signal (default `3000`)
+- `--mission-settle-ms` fixed delay after mission-ready before screenshot (default `0`)
 - `--debug-log` JSON diagnostic output path on abort (default `timeline/capture_debug.json`)
 
 Readiness protocol:
@@ -235,3 +236,4 @@ Env overrides:
 - `SAMPLE_EVERY`, `SAMPLE_OFFSET`
 - `PLAYBOOK_PROVIDER`, `PLAYBOOK_EXECUTE`, `PLAYBOOK_AGENT_CMD`
 - `REUSE_PLAYBOOKS` (`true` skips planning and only recompiles `commit_playbooks.jsonl` from existing playbooks)
+- `MISSION_SETTLE_MS` (default `0`; fixed delay after mission-ready before mission screenshot)

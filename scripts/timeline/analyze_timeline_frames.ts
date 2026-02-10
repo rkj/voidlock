@@ -29,8 +29,31 @@ type FrameIndex = {
 const TILE_W = 960;
 const TILE_H = 540;
 const OUT_W = TILE_W * 2;
-const OUT_H = TILE_H * 2 + 120;
-const CANVAS_H = OUT_H - 120;
+const HEADER_H = 60;
+const HEADER_GAP = 20;
+const CONTENT_TOP = HEADER_H + HEADER_GAP;
+const OUT_H = TILE_H * 2 + CONTENT_TOP;
+const CANVAS_H = OUT_H - CONTENT_TOP;
+
+export function getFrameResizeFit(): "contain" {
+  return "contain";
+}
+
+export function getCompositeLayout(): {
+  headerHeight: number;
+  headerGap: number;
+  contentTop: number;
+  outputWidth: number;
+  outputHeight: number;
+} {
+  return {
+    headerHeight: HEADER_H,
+    headerGap: HEADER_GAP,
+    contentTop: CONTENT_TOP,
+    outputWidth: OUT_W,
+    outputHeight: OUT_H,
+  };
+}
 
 function screenAliasList(quadrant: 1 | 2 | 3 | 4): string[] {
   if (quadrant === 1) return ["mission"];
@@ -120,7 +143,7 @@ async function computePerceptualHash(imagePath: string): Promise<string> {
 
 function svgOverlay(width: number, text: string): Buffer {
   const safe = text.replace(/&/g, "&amp;").replace(/</g, "&lt;");
-  const svg = `<svg width="${width}" height="120" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#111827" fill-opacity="0.85"/><text x="24" y="44" fill="#f9fafb" font-size="22" font-family="Arial, sans-serif">${safe}</text></svg>`;
+  const svg = `<svg width="${width}" height="${HEADER_H}" xmlns="http://www.w3.org/2000/svg"><rect width="100%" height="100%" fill="#111827" fill-opacity="0.95"/><text x="24" y="44" fill="#f9fafb" font-size="22" font-family="Arial, sans-serif">${safe}</text></svg>`;
   return Buffer.from(svg);
 }
 
@@ -150,7 +173,13 @@ async function writeQuadrantImage(
     await sharp(bg).composite([{ input: Buffer.from(svg), top: 0, left: 0 }]).png().toFile(outPath);
     return;
   }
-  await sharp(sourcePath).resize(TILE_W, TILE_H, { fit: "cover" }).png().toFile(outPath);
+  await sharp(sourcePath)
+    .resize(TILE_W, TILE_H, {
+      fit: getFrameResizeFit(),
+      background: { r: 10, g: 14, b: 20, alpha: 1 },
+    })
+    .png()
+    .toFile(outPath);
 }
 
 async function writeComposite(
@@ -168,10 +197,10 @@ async function writeComposite(
     },
   })
     .composite([
-      { input: quadrants[0], top: 120, left: 0 },
-      { input: quadrants[1], top: 120, left: TILE_W },
-      { input: quadrants[2], top: 120 + TILE_H, left: 0 },
-      { input: quadrants[3], top: 120 + TILE_H, left: TILE_W },
+      { input: quadrants[0], top: CONTENT_TOP, left: 0 },
+      { input: quadrants[1], top: CONTENT_TOP, left: TILE_W },
+      { input: quadrants[2], top: CONTENT_TOP + TILE_H, left: 0 },
+      { input: quadrants[3], top: CONTENT_TOP + TILE_H, left: TILE_W },
       { input: svgOverlay(OUT_W, label), top: 0, left: 0 },
     ])
     .png()
@@ -191,7 +220,13 @@ async function renderTile(
   label: string,
 ): Promise<Buffer> {
   if (sourcePath) {
-    return sharp(sourcePath).resize(width, height, { fit: "cover" }).png().toBuffer();
+    return sharp(sourcePath)
+      .resize(width, height, {
+        fit: getFrameResizeFit(),
+        background: { r: 10, g: 14, b: 20, alpha: 1 },
+      })
+      .png()
+      .toBuffer();
   }
   const bg = await sharp({
     create: {
@@ -231,7 +266,7 @@ async function writeAdaptiveComposite(
     const tile = await renderTile(primary.sourcePath, OUT_W, CANVAS_H, primary.label);
     await base
       .composite([
-        { input: tile, top: 120, left: 0 },
+        { input: tile, top: CONTENT_TOP, left: 0 },
         { input: svgOverlay(OUT_W, label), top: 0, left: 0 },
       ])
       .png()
@@ -247,8 +282,8 @@ async function writeAdaptiveComposite(
     const rightTile = await renderTile(right.sourcePath, OUT_W / 2, CANVAS_H, right.label);
     await base
       .composite([
-        { input: leftTile, top: 120, left: 0 },
-        { input: rightTile, top: 120, left: OUT_W / 2 },
+        { input: leftTile, top: CONTENT_TOP, left: 0 },
+        { input: rightTile, top: CONTENT_TOP, left: OUT_W / 2 },
         { input: svgOverlay(OUT_W, label), top: 0, left: 0 },
       ])
       .png()
@@ -262,10 +297,10 @@ async function writeAdaptiveComposite(
   const q4 = await renderTile(sources[3]?.sourcePath || null, TILE_W, TILE_H, sources[3]?.label || "Campaign");
   await base
     .composite([
-      { input: q1, top: 120, left: 0 },
-      { input: q2, top: 120, left: TILE_W },
-      { input: q3, top: 120 + TILE_H, left: 0 },
-      { input: q4, top: 120 + TILE_H, left: TILE_W },
+      { input: q1, top: CONTENT_TOP, left: 0 },
+      { input: q2, top: CONTENT_TOP, left: TILE_W },
+      { input: q3, top: CONTENT_TOP + TILE_H, left: 0 },
+      { input: q4, top: CONTENT_TOP + TILE_H, left: TILE_W },
       { input: svgOverlay(OUT_W, label), top: 0, left: 0 },
     ])
     .png()

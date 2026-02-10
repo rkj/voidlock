@@ -21,6 +21,7 @@ REUSE_PLAYBOOKS="${REUSE_PLAYBOOKS:-false}"
 RESTART_EVERY="${RESTART_EVERY:-1}"
 POST_LOAD_WAIT_MS="${POST_LOAD_WAIT_MS:-3000}"
 MISSION_CAPTURE_WAIT_MS="${MISSION_CAPTURE_WAIT_MS:-3000}"
+MISSION_SETTLE_MS="${MISSION_SETTLE_MS:-0}"
 STARTUP_TIMEOUT_MS="${STARTUP_TIMEOUT_MS:-30000}"
 MAX_CONSECUTIVE_FAILURES="${MAX_CONSECUTIVE_FAILURES:-3}"
 CAPTURE_DEBUG_LOG="${CAPTURE_DEBUG_LOG:-timeline/capture_debug.json}"
@@ -49,7 +50,7 @@ else
 fi
 
 echo "[timeline] capture screenshots"
-npm run timeline:capture -- --manifest "$MANIFEST" --screenshots "$SCREENSHOTS" --port "$PORT" --max-count "$MAX_COUNT" --navigation-map "$NAV_MAP" --playbooks "$PLAYBOOKS" --commit-playbooks-jsonl "$COMMIT_PLAYBOOKS" --restart-every "$RESTART_EVERY" --post-load-wait-ms "$POST_LOAD_WAIT_MS" --mission-capture-wait-ms "$MISSION_CAPTURE_WAIT_MS" --startup-timeout-ms "$STARTUP_TIMEOUT_MS" --max-consecutive-failures "$MAX_CONSECUTIVE_FAILURES" --debug-log "$CAPTURE_DEBUG_LOG" --mission-allowlist "$MISSION_ALLOWLIST" --mission-required "$MISSION_REQUIRED"
+npm run timeline:capture -- --manifest "$MANIFEST" --screenshots "$SCREENSHOTS" --port "$PORT" --max-count "$MAX_COUNT" --navigation-map "$NAV_MAP" --playbooks "$PLAYBOOKS" --commit-playbooks-jsonl "$COMMIT_PLAYBOOKS" --restart-every "$RESTART_EVERY" --post-load-wait-ms "$POST_LOAD_WAIT_MS" --mission-capture-wait-ms "$MISSION_CAPTURE_WAIT_MS" --mission-settle-ms "$MISSION_SETTLE_MS" --startup-timeout-ms "$STARTUP_TIMEOUT_MS" --max-consecutive-failures "$MAX_CONSECUTIVE_FAILURES" --debug-log "$CAPTURE_DEBUG_LOG" --mission-allowlist "$MISSION_ALLOWLIST" --mission-required "$MISSION_REQUIRED"
 
 echo "[timeline] analyze frames"
 npm run timeline:analyze-frames -- --manifest "$MANIFEST" --screenshots "$SCREENSHOTS" --frame-index "$FRAME_INDEX"
