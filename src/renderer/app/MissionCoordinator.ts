@@ -230,17 +230,16 @@ export class MissionCoordinator {
     currentSeed: number,
     currentSquad: SquadConfig,
     onAbortResolved: (report: MissionReport) => void,
-    showMainMenu: () => void,
   ) {
-    if (currentCampaignNode) {
-      const report = this.generateAbortReport(
-        currentGameState,
-        currentCampaignNode,
-        currentSeed,
-        currentSquad,
-      );
-      onAbortResolved(report);
+    const report = this.generateAbortReport(
+      currentGameState,
+      currentCampaignNode,
+      currentSeed,
+      currentSquad,
+    );
+    onAbortResolved(report);
 
+    if (currentCampaignNode) {
       const state = this.context.campaignManager.getState();
       if (state && (state.status === "Victory" || state.status === "Defeat")) {
         this.context.gameClient.stop();
@@ -264,8 +263,9 @@ export class MissionCoordinator {
       tsSlider.value = "50";
       if (tsValue) tsValue.textContent = "1.0";
     }
-    showMainMenu();
-    return false;
+    // For custom missions, we now also call onAbortResolved which should show debrief
+    // so we don't call showMainMenu() here anymore.
+    return true;
   }
 
   public generateMissionReport(

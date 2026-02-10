@@ -66,13 +66,7 @@ export class InputBinder {
       context.screenManager.goBack(),
     );
     this.addListener("btn-setup-back", "click", () => callbacks.onSetupBack());
-    this.addListener("btn-give-up", "click", async () => {
-      if (
-        await context.modalService.confirm("Abort Mission and return to menu?")
-      ) {
-        callbacks.onAbortMission();
-      }
-    });
+    this.addListener("btn-give-up", "click", () => callbacks.onAbortMission());
 
     // Mission Setup -> Equipment
     this.addListener("btn-goto-equipment", "click", () =>

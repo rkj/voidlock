@@ -148,6 +148,10 @@ export class GameApp {
       (unit, shift) => this.onUnitClick(unit, shift),
       () => this.abortMission(),
       (key, shift) => this.handleMenuInput(key, shift),
+      (scale) => {
+        this.context.gameClient.setTimeScale(scale);
+        this.syncSpeedUI();
+      },
       () => this.copyWorldState(),
       () => this.context.gameClient.forceWin(),
       () => this.context.gameClient.forceLose(),
@@ -1223,7 +1227,12 @@ export class GameApp {
     );
   }
 
-  private abortMission() {
+  private async abortMission() {
+    const confirmed = await this.context.modalService.confirm(
+      "Abort Mission and return to menu?",
+    );
+    if (!confirmed) return;
+
     this.missionCoordinator.abortMission(
       this.currentGameState,
       this.missionSetupManager.currentCampaignNode,
@@ -1244,7 +1253,6 @@ export class GameApp {
         );
         return true;
       },
-      () => this.showMainMenu(),
     );
   }
 

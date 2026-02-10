@@ -2575,8 +2575,16 @@ label {
   padding: 8px 6px;
 }
 
+.mobile-only {
+  display: none !important;
+}
+
 /* Mobile Responsiveness (Spec 10 / ADR 0038) */
 @media (max-width: 767px) {
+  .mobile-only {
+    display: block !important;
+  }
+
   #screen-mission {
     flex-direction: column;
   }
@@ -2637,20 +2645,28 @@ label {
 
   /* Adjust Top Bar for mobile */
   .top-bar {
-    padding: 0 10px !important;
+    padding: 0 5px !important;
     height: 48px !important;
+    gap: 5px !important;
   }
 
   #speed-control label,
   #speed-value,
   #btn-give-up,
-  .time-label {
+  .time-label,
+  #speed-control input[type="range"] {
     display: none !important;
   }
 
+  #speed-control {
+    margin-left: 0 !important;
+    gap: 0 !important;
+  }
+
   #top-threat-container {
-    margin: 0 5px !important;
+    margin: 0 !important;
     max-width: none !important;
+    min-width: 50px;
   }
 
   #top-threat-container span:first-child {
@@ -2659,6 +2675,7 @@ label {
 
   #game-status {
     min-width: 45px;
+    font-size: 0.8em !important;
   }
 
   /* Drawer Toggles */
