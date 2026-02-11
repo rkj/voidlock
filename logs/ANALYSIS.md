@@ -2,7 +2,7 @@
 
 ## Instruction compliance (systematic failures)
 
-- **0/10** sessions read `@AGENTS.md` or `@docs/spec/index.md` (violates instruction #2 in every run).
+- **0/10** sessions read `@docs/AGENTS.md` or `@docs/spec/index.md` (violates instruction #2 in every run).
 - **10/10** sessions ended without the required `SUMMARY:` prefix.
 - **6/10** hit “Tool execution denied by policy” and **continued** with further tool calls (violates “STOP IMMEDIATELY on permission errors”).
 - **1/10** used forbidden `jj` (`voidlock-24pg.log`: `jj diff --git`).
@@ -46,7 +46,7 @@
 
 ## Recommendations (faster + fewer tokens + more correct)
 
-1. **Hard preflight checklist**: read `@AGENTS.md` + `@docs/spec/index.md` before any edits.
+1. **Hard preflight checklist**: read `@docs/AGENTS.md` + `@docs/spec/index.md` before any edits.
 2. **Stop on permission error**: immediately request escalation; do not continue.
 3. **Avoid full-suite runs during iteration**; use targeted test(s) until final `npx vitest run`.
 4. **Retest guard**: only re-run the same test if a file edit occurred since the last run.

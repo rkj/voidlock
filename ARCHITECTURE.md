@@ -819,8 +819,10 @@ voidlock/
 ├── vite.config.ts
 ├── vitest.config.ts
 ├── ARCHITECTURE.md           # THIS FILE
-├── AGENTS.md                 # Contributor guidelines (AI agents)
-├── MANAGER.md                # Manager agent instructions
+├── docs/
+│   ├── AGENTS.md             # Contributor guidelines (AI agents)
+│   ├── MANAGER.md            # Manager agent instructions
+│   └── ...
 └── README.md                 # Project overview (for humans)
 ```
 
@@ -874,8 +876,8 @@ voidlock/
 
 - **Specs:** [`docs/spec/index.md`](docs/spec/index.md)
 - **ADRs:** [`docs/adr/`](docs/adr/)
-- **Agent Guidelines:** [`AGENTS.md`](AGENTS.md)
-- **Manager Guidelines:** [`MANAGER.md`](MANAGER.md)
+- **Agent Guidelines:** [`docs/AGENTS.md`](docs/AGENTS.md)
+- **Manager Guidelines:** [`docs/MANAGER.md`](docs/MANAGER.md)
 
 ---
 

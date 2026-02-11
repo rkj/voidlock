@@ -15,7 +15,7 @@ while true; do
 
   echo "Running with model: $MODEL"
 
-  gemini -p "@MANAGER.md" \
+  gemini -p "@docs/MANAGER.md" \
     --output-format stream-json \
     --model "$MODEL" \
     --allowed-tools "run_shell_command(bd)" \

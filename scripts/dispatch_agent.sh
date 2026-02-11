@@ -16,7 +16,7 @@ PROMPT="You are a Sub-Agent. Your goal is to implement task $TASK_ID.
 
 Instructions:
 1. Run 'bd show $TASK_ID --json' to get the full task details.
-2. Read @docs/spec/index.md and @AGENTS.md.
+2. Read @docs/spec/index.md and @docs/AGENTS.md.
 3. Use the links in spec to find the specific spec file for your task (e.g. spec/ai.md for AI tasks).
 4. Implement the changes.
 5. Verify with tests.
