@@ -75,7 +75,9 @@ export class SettingsScreen {
       e.key === "ArrowLeft" ||
       e.key === "ArrowRight"
     ) {
-      return UIUtils.handleArrowNavigation(e, this.container);
+      return UIUtils.handleArrowNavigation(e, this.container, {
+        orientation: "both",
+      });
     }
     if (e.key === "Escape") {
       this.onBack();

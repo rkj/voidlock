@@ -80,7 +80,9 @@ export class CampaignShell {
         "#campaign-shell-top-bar",
       ) as HTMLElement;
       if (topBar && topBar.contains(document.activeElement)) {
-        return UIUtils.handleArrowNavigation(e, topBar);
+        return UIUtils.handleArrowNavigation(e, topBar, {
+          orientation: "horizontal",
+        });
       }
     }
 

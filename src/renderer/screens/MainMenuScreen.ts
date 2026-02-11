@@ -56,7 +56,9 @@ export class MainMenuScreen {
       e.key === "ArrowLeft" ||
       e.key === "ArrowRight"
     ) {
-      return UIUtils.handleArrowNavigation(e, this.container);
+      return UIUtils.handleArrowNavigation(e, this.container, {
+        orientation: "vertical",
+      });
     }
 
     return false;
