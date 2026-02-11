@@ -24,6 +24,7 @@ To verify visual fidelity and critical user journeys that cannot be fully tested
 - `RosterLayout.test.ts`: Verifies that the Roster panel utilizes the full container height and that the Recruit button is outside the scrollable area (sticky).
 - `SoldierCardOverlap.test.ts`: Verifies that the remove 'X' button does not overlap with the 'LVL' badge on soldier cards, especially in mobile touch mode.
 - `KeyboardCampaignStart.test.ts`: E2E reproduction test for keyboard navigation failure when starting a new campaign.
+- `KeyboardNavigationRepro.test.ts`: E2E reproduction test verifying redundant Arrow and Tab navigation.
 - `DrawerToggleVisibility.test.ts`: Verifies that OBJ and SQD drawer toggles are hidden on desktop even if mobile-touch is active.
 
 ## Usage
