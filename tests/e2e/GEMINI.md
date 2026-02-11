@@ -26,6 +26,7 @@ To verify visual fidelity and critical user journeys that cannot be fully tested
 - `KeyboardCampaignStart.test.ts`: E2E reproduction test for keyboard navigation failure when starting a new campaign.
 - `KeyboardNavigationRepro.test.ts`: E2E reproduction test verifying redundant Arrow and Tab navigation.
 - `DrawerToggleVisibility.test.ts`: Verifies that OBJ and SQD drawer toggles are hidden on desktop even if mobile-touch is active.
+- `DebriefButtonOverflow.test.ts`: Reproduction test for button overflow on the Debrief screen at 1024x768 resolution.
 
 ## Usage
 
