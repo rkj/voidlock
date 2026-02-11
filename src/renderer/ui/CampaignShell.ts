@@ -129,22 +129,22 @@ export class CampaignShell {
 
     if (this.mode === "campaign") {
       leftPart.innerHTML = `
-        <div style="font-size: 0.7em; color: var(--color-text-dim); text-transform: uppercase; letter-spacing: 1px;">Campaign Mode</div>
+        <div style="font-size: 0.7em; color: var(--color-text-dim); letter-spacing: 1px;">Campaign Mode</div>
         <div style="font-size: 0.9em; font-weight: bold; color: var(--color-primary);">${state ? `Sector ${currentSector}` : "New Expedition"}</div>
       `;
     } else if (this.mode === "statistics") {
       leftPart.innerHTML = `
-        <div style="font-size: 0.7em; color: var(--color-text-dim); text-transform: uppercase; letter-spacing: 1px;">Service Record</div>
+        <div style="font-size: 0.7em; color: var(--color-text-dim); letter-spacing: 1px;">Service Record</div>
         <div style="font-size: 0.9em; font-weight: bold; color: var(--color-primary);">Global Statistics</div>
       `;
     } else if (this.mode === "custom") {
       leftPart.innerHTML = `
-        <div style="font-size: 0.7em; color: var(--color-text-dim); text-transform: uppercase; letter-spacing: 1px;">Custom Mission</div>
+        <div style="font-size: 0.7em; color: var(--color-text-dim); letter-spacing: 1px;">Custom Mission</div>
         <div style="font-size: 0.9em; font-weight: bold; color: var(--color-primary);">Simulation Setup</div>
       `;
     } else if (this.mode === "global") {
       leftPart.innerHTML = `
-        <div style="font-size: 0.7em; color: var(--color-text-dim); text-transform: uppercase; letter-spacing: 1px;">Settings</div>
+        <div style="font-size: 0.7em; color: var(--color-text-dim); letter-spacing: 1px;">Settings</div>
         <div style="font-size: 0.9em; font-weight: bold; color: var(--color-primary);">Global Configuration</div>
       `;
     }
@@ -160,11 +160,11 @@ export class CampaignShell {
       resources.className = "shell-resources flex-row gap-15";
       resources.innerHTML = `
         <div class="resource-item" title="Scrap (Currency)">
-          <span style="color: var(--color-text-dim)">SCRAP:</span>
+          <span style="color: var(--color-text-dim)">Scrap:</span>
           <span style="color: var(--color-primary); font-weight: bold;">${scrap}</span>
         </div>
         <div class="resource-item" title="Intel (Tech/Unlock)">
-          <span style="color: var(--color-text-dim)">INTEL:</span>
+          <span style="color: var(--color-text-dim)">Intel:</span>
           <span style="color: var(--color-accent); font-weight: bold;">${intel}</span>
         </div>
       `;
@@ -281,15 +281,15 @@ export class CampaignShell {
 
     container.innerHTML = `
       <div class="flex-row gap-5" style="align-items: center;">
-        <span style="text-transform: uppercase; letter-spacing: 1px; opacity: 0.7;">Lifetime Xeno Purged:</span>
+        <span style="letter-spacing: 1px; opacity: 0.7;">Lifetime Xeno Purged:</span>
         <span style="color: var(--color-primary); font-weight: bold;">${stats.totalKills.toLocaleString()}</span>
       </div>
       <div class="flex-row gap-5" style="align-items: center;">
-        <span style="text-transform: uppercase; letter-spacing: 1px; opacity: 0.7;">Expeditions:</span>
+        <span style="letter-spacing: 1px; opacity: 0.7;">Expeditions:</span>
         <span style="color: var(--color-primary); font-weight: bold;">${stats.totalCampaignsStarted.toLocaleString()}</span>
       </div>
       <div class="flex-row gap-5" style="align-items: center;">
-        <span style="text-transform: uppercase; letter-spacing: 1px; opacity: 0.7;">Missions Won:</span>
+        <span style="letter-spacing: 1px; opacity: 0.7;">Missions Won:</span>
         <span style="color: var(--color-primary); font-weight: bold;">${stats.totalMissionsWon.toLocaleString()}</span>
       </div>
       

@@ -52,7 +52,7 @@ export class MissionSetupScreen {
         },
         {
           key: "ESC",
-          label: "ESC",
+          label: "Esc",
           description: "Back to Menu",
           category: "Navigation",
         },

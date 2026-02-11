@@ -52,7 +52,7 @@ export class EventModal {
 
           if (choice.cost && choice.cost.scrap) {
             const span = document.createElement("span");
-            span.textContent = `COST: ${choice.cost.scrap} SCRAP`;
+            span.textContent = `Cost: ${choice.cost.scrap} Scrap`;
             span.style.color = "var(--color-error)";
             details.appendChild(span);
           }
@@ -60,14 +60,14 @@ export class EventModal {
           if (choice.reward) {
             const rewards: string[] = [];
             if (choice.reward.scrap)
-              rewards.push(`${choice.reward.scrap} SCRAP`);
+              rewards.push(`${choice.reward.scrap} Scrap`);
             if (choice.reward.intel)
-              rewards.push(`${choice.reward.intel} INTEL`);
-            if (choice.reward.recruit) rewards.push(`NEW RECRUIT`);
+              rewards.push(`${choice.reward.intel} Intel`);
+            if (choice.reward.recruit) rewards.push(`New Recruit`);
 
             if (rewards.length > 0) {
               const span = document.createElement("span");
-              span.textContent = `REWARD: ${rewards.join(", ")}`;
+              span.textContent = `Reward: ${rewards.join(", ")}`;
               span.style.color = "var(--color-primary)";
               details.appendChild(span);
             }
@@ -75,7 +75,7 @@ export class EventModal {
 
           if (choice.risk) {
             const span = document.createElement("span");
-            span.textContent = `RISK: ${Math.floor(choice.risk.chance * 100)}% CHANCE OF DANGER`;
+            span.textContent = `Risk: ${Math.floor(choice.risk.chance * 100)}% Chance Of Danger`;
             span.style.color = "var(--color-warning)";
             details.appendChild(span);
           }
@@ -119,7 +119,7 @@ export class OutcomeModal {
       zIndex: 1100,
       buttons: [
         {
-          label: "CONTINUE",
+          label: "Continue",
           isPrimary: true,
           onClick: (modal) => {
             modal.close();

@@ -144,7 +144,7 @@ export class EngineeringScreen {
     this.container.style.overflowY = "auto";
 
     const h1 = document.createElement("h1");
-    h1.textContent = "ENGINEERING BAY";
+    h1.textContent = "Engineering Bay";
     h1.style.letterSpacing = "4px";
     h1.style.color = "var(--color-primary)";
     this.container.appendChild(h1);
@@ -155,7 +155,7 @@ export class EngineeringScreen {
     intelDisplay.style.padding = "10px 20px";
     intelDisplay.style.border = "1px solid var(--color-accent)";
     intelDisplay.innerHTML = `
-      <span style="color: var(--color-text-dim); font-size: 0.8em; text-transform: uppercase;">Persistent Intel:</span>
+      <span style="color: var(--color-text-dim); font-size: 0.8em;">Persistent Intel:</span>
       <span style="color: var(--color-accent); font-weight: bold; font-size: 1.2em;">${intel}</span>
     `;
     this.container.appendChild(intelDisplay);
@@ -166,7 +166,7 @@ export class EngineeringScreen {
 
     // --- Archetypes Section ---
     const archHeader = document.createElement("h3");
-    archHeader.textContent = "UNIT ARCHETYPES";
+    archHeader.textContent = "Unit Archetypes";
     archHeader.style.borderBottom = "1px solid var(--color-border)";
     archHeader.style.paddingBottom = "5px";
     archHeader.style.color = "var(--color-text-dim)";
@@ -192,7 +192,7 @@ export class EngineeringScreen {
 
     // --- Equipment Section ---
     const itemHeader = document.createElement("h3");
-    itemHeader.textContent = "ADVANCED EQUIPMENT";
+    itemHeader.textContent = "Advanced Equipment";
     itemHeader.style.marginTop = "20px";
     itemHeader.style.borderBottom = "1px solid var(--color-border)";
     itemHeader.style.paddingBottom = "5px";
@@ -241,19 +241,19 @@ export class EngineeringScreen {
     const left = document.createElement("div");
     left.className = "flex-col gap-5";
     left.innerHTML = `
-      <div style="font-weight: bold; color: ${isUnlocked ? "var(--color-success)" : "var(--color-primary)"};">${name.toUpperCase()}</div>
+      <div style="font-weight: bold; color: ${isUnlocked ? "var(--color-success)" : "var(--color-primary)"};">${name}</div>
       <div style="font-size: 0.8em; color: var(--color-text-dim); max-width: 500px;">${desc}</div>
     `;
     card.appendChild(left);
 
     const right = document.createElement("div");
     if (isUnlocked) {
-      right.innerHTML = `<span style="color: var(--color-success); font-weight: bold; font-size: 0.8em;">UNLOCKED</span>`;
+      right.innerHTML = `<span style="color: var(--color-success); font-weight: bold; font-size: 0.8em;">Unlocked</span>`;
     } else {
       const btn = document.createElement("button");
       btn.className = canAfford ? "primary-button" : "back-button disabled";
       btn.style.width = "120px";
-      btn.innerHTML = `<span style="font-size: 0.8em;">UNLOCK (${cost})</span>`;
+      btn.innerHTML = `<span style="font-size: 0.8em;">Unlock (${cost})</span>`;
       btn.disabled = !canAfford;
       btn.onclick = onUnlock;
       right.appendChild(btn);

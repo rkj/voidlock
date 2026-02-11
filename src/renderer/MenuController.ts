@@ -247,7 +247,7 @@ export class MenuController {
     this.selection.pendingAction = option.commandType || null;
 
     if (option.commandType === CommandType.PICKUP) {
-      this.selection.pendingLabel = "Picking up";
+      this.selection.pendingLabel = "Picking Up";
       this.transitionTo("TARGET_SELECT", option.label);
       this.selection.overlayOptions = TargetOverlayGenerator.generate(
         "ITEM",

@@ -128,7 +128,7 @@ export class EquipmentScreen {
         },
         {
           key: "ESC",
-          label: "ESC",
+          label: "Esc",
           description: "Back to Setup",
           category: "Navigation",
         },
@@ -577,7 +577,6 @@ export class EquipmentScreen {
     suppliesTitle.style.paddingBottom = "8px";
     suppliesTitle.style.margin = "20px 0 12px 0";
     suppliesTitle.style.fontSize = "1em";
-    suppliesTitle.style.textTransform = "uppercase";
     suppliesTitle.style.letterSpacing = "1px";
     panel.appendChild(suppliesTitle);
 

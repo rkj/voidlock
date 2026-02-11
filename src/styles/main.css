@@ -377,7 +377,7 @@ label {
   font-size: 0.8em;
   color: var(--color-text-dim);
   margin-bottom: 4px;
-  text-transform: uppercase;
+  
   letter-spacing: 1px;
 }
 
@@ -446,7 +446,7 @@ label {
   align-items: center;
   justify-content: center;
   font-size: 0.75em;
-  text-transform: uppercase;
+  
   letter-spacing: 1px;
   font-weight: bold;
 }
@@ -619,7 +619,7 @@ label {
   color: #000;
   font-weight: bold;
   border-radius: 3px;
-  text-transform: uppercase;
+  
 }
 
 .no-transition {
@@ -643,7 +643,7 @@ label {
   font-size: 0.7em;
   color: var(--color-text-muted);
   margin-bottom: 5px;
-  text-transform: uppercase;
+  
 }
 
 /* Style Preview */
@@ -698,7 +698,7 @@ label {
 .style-preview-label {
   font-size: 0.9em;
   color: var(--color-text-dim);
-  text-transform: uppercase;
+  
   letter-spacing: 1px;
   margin-top: 5px;
 }
@@ -949,7 +949,7 @@ label {
 .debrief-header {
   font-size: 2.5em;
   margin: 0 0 5px 0;
-  text-transform: uppercase;
+  
 }
 
 .debrief-header.success {
@@ -973,7 +973,7 @@ label {
 .debrief-panel-title {
   font-size: 1em;
   color: var(--color-accent);
-  text-transform: uppercase;
+  
   margin-bottom: 15px;
   border-bottom: 1px solid var(--color-border);
   padding-bottom: 5px;
@@ -1010,7 +1010,7 @@ label {
   flex: 1;
   padding: 15px;
   font-size: 1.2em;
-  text-transform: uppercase;
+  
   letter-spacing: 2px;
 }
 
@@ -1315,7 +1315,7 @@ label {
   color: var(--color-primary);
   padding: 8px;
   font-size: 0.8em;
-  text-transform: uppercase;
+  
   letter-spacing: 1px;
   transition: all 0.2s;
 }
@@ -1349,7 +1349,7 @@ label {
 .slot-label {
   color: var(--color-text-dim);
   font-size: 0.8em;
-  text-transform: uppercase;
+  
   pointer-events: none;
 }
 
@@ -1483,7 +1483,7 @@ label {
   font-size: 5em;
   letter-spacing: 12px;
   margin: 0 0 10px 0;
-  text-transform: uppercase;
+  
 }
 
 .campaign-victory-overlay .summary-header {
@@ -1501,7 +1501,7 @@ label {
   letter-spacing: 4px;
   margin: 0 0 40px 0;
   color: var(--color-text-dim);
-  text-transform: uppercase;
+  
 }
 
 .summary-content {
@@ -1528,7 +1528,7 @@ label {
   color: var(--color-text-dim);
   border-bottom: 1px solid var(--color-border);
   padding-bottom: 10px;
-  text-transform: uppercase;
+  
 }
 
 .summary-stat-row {
@@ -1563,7 +1563,7 @@ label {
   padding: 25px 80px;
   font-size: 1.8em;
   letter-spacing: 4px;
-  text-transform: uppercase;
+  
 }
 
 /* Cloud Sync UI */
@@ -1705,7 +1705,7 @@ label {
   font-weight: bold;
   color: var(--color-primary);
   margin-bottom: 8px;
-  text-transform: uppercase;
+  
   letter-spacing: 0.5px;
 }
 
@@ -1732,7 +1732,7 @@ label {
   color: var(--color-text-dim);
   position: absolute;
   top: 5px;
-  text-transform: uppercase;
+  
   letter-spacing: 0.5px;
 }
 
@@ -1762,7 +1762,7 @@ label {
   font-size: 0.9em;
   color: var(--color-primary);
   margin: 20px 0 10px 0;
-  text-transform: uppercase;
+  
   letter-spacing: 1px;
   border-bottom: 1px solid var(--color-border);
   padding-bottom: 5px;
@@ -1824,7 +1824,7 @@ label {
 /* HUDManager Styles */
 .time-label {
   color: var(--color-text-muted);
-  text-transform: uppercase;
+  
   letter-spacing: 1px;
   font-size: 0.8em;
 }

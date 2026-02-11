@@ -391,7 +391,7 @@ export class SettingsScreen {
               await this.context.cloudSync.signInWithGoogle();
             } catch (err) {
               this.context.modalService.show({
-                title: "SIGN IN FAILED",
+                title: "Sign In Failed",
                 message: "Could not connect to Google. Please try again later.",
                 buttons: [
                   { label: "OK", isPrimary: true, onClick: (m) => m.close() },
@@ -410,7 +410,7 @@ export class SettingsScreen {
               await this.context.cloudSync.signInWithGithub();
             } catch (err) {
               this.context.modalService.show({
-                title: "SIGN IN FAILED",
+                title: "Sign In Failed",
                 message: "Could not connect to GitHub. Please try again later.",
                 buttons: [
                   { label: "OK", isPrimary: true, onClick: (m) => m.close() },
@@ -472,17 +472,17 @@ export class SettingsScreen {
     resetBtn.textContent = "Reset All Data";
     resetBtn.onclick = async () => {
       const confirmed = await this.context.modalService.show<boolean>({
-        title: "RESET ALL DATA",
+        title: "Reset All Data",
         message:
           "This will permanently delete all your campaign progress, settings, and local storage. This action cannot be undone. Are you sure?",
         buttons: [
           {
-            label: "CANCEL",
+            label: "Cancel",
             isCancel: true,
             onClick: (modal) => modal.close(false),
           },
           {
-            label: "DELETE EVERYTHING",
+            label: "Delete Everything",
             isPrimary: true,
             className: "menu-button back-button",
             onClick: (modal) => modal.close(true),

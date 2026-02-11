@@ -88,7 +88,7 @@ export class UnitLayer implements RenderLayer {
       if (unit.carriedObjectiveId) {
         ctx.fillStyle = this.theme.getColor("--color-danger");
         ctx.font = `bold ${Math.floor(cellSize / 10)}px monospace`;
-        ctx.fillText("BURDENED", x, y - cellSize / 4);
+        ctx.fillText("Burdened", x, y - cellSize / 4);
       }
 
       this.renderHealthBar(ctx, x, y, unit.hp, unit.maxHp);

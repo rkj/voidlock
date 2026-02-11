@@ -46,13 +46,13 @@ export class ModalService {
     this.container = container;
   }
 
-  public async alert(message: string, title: string = "ALERT"): Promise<void> {
+  public async alert(message: string, title: string = "Alert"): Promise<void> {
     return this.show({
       title,
       message,
       buttons: [
         {
-          label: "OK",
+          label: "Ok",
           isPrimary: true,
           onClick: (modal) => modal.close(),
         },
@@ -62,19 +62,19 @@ export class ModalService {
 
   public async confirm(
     message: string,
-    title: string = "CONFIRM",
+    title: string = "Confirm",
   ): Promise<boolean> {
     return this.show({
       title,
       message,
       buttons: [
         {
-          label: "CANCEL",
+          label: "Cancel",
           isCancel: true,
           onClick: (modal) => modal.close(false),
         },
         {
-          label: "OK",
+          label: "Ok",
           isPrimary: true,
           onClick: (modal) => modal.close(true),
         },
@@ -85,7 +85,7 @@ export class ModalService {
   public async prompt(
     message: string,
     defaultValue: string = "",
-    title: string = "INPUT",
+    title: string = "Input",
   ): Promise<string | null> {
     const input = document.createElement("input");
     input.type = "text";
@@ -104,12 +104,12 @@ export class ModalService {
       content: input,
       buttons: [
         {
-          label: "CANCEL",
+          label: "Cancel",
           isCancel: true,
           onClick: (modal) => modal.close(null),
         },
         {
-          label: "OK",
+          label: "Ok",
           isPrimary: true,
           onClick: (modal) => modal.close(input.value),
         },
@@ -160,7 +160,7 @@ export class ModalService {
 
     if (options.title) {
       const titleElement = document.createElement("h2");
-      titleElement.textContent = options.title.toUpperCase();
+      titleElement.textContent = options.title;
       titleElement.style.margin = "0";
       titleElement.style.color = "var(--color-primary)";
       titleElement.style.letterSpacing = "2px";
