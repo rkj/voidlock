@@ -5,7 +5,7 @@ You are an AI contributor agent. Your goal is to implement features or fix bugs 
 ## 1. Core Workflow
 
 1. **USER INTERRUPT**: If the user asks a question, STOP. Answer. No chitchat.
-1. **REPRODUCTION FIRST (CRITICAL)**: For every `bug` task, you MUST start by writing a failing test (Unit or Puppeteer E2E) that reproduces the issue. You are not allowed to fix the code until you have "Negative Proof."
+1. **REPRODUCTION FIRST (CRITICAL)**: For every `bug` task, you MUST start by writing a failing test (Unit or Puppeteer E2E) that reproduces the issue. You are not allowed to fix the code until you have "Negative Proof." This is a hard mandate for ALL bug fixes.
 1. **VISUAL MANDATE**: When modifying UI, CSS, or Layout:
    - **Primary**: Write/run an **E2E Test** (Puppeteer) in `tests/e2e/`.
    - **Screenshot Proof**: You MUST take a screenshot of the fixed state using `take_screenshot` and include the path in your summary.
@@ -27,7 +27,7 @@ You are an AI contributor agent. Your goal is to implement features or fix bugs 
 
 ### G3) Visual Feedback
 - **URL**: `http://192.168.20.8:5173/`.
-- **Verification**: Summaries MUST end with a "Verification Proof" section listing screenshots and test paths.
+- **Verification**: Summaries MUST end with a "Verification Proof" section explicitly listing paths to the reproduction test and all validation screenshots.
 
 ### G4) Engineering Standards
 - **SOLID**: Adhere strictly to SOLID principles.
@@ -36,9 +36,9 @@ You are an AI contributor agent. Your goal is to implement features or fix bugs 
 
 ## 3. Completion Checklist
 
-1. **Red**: failing test exists.
+1. **Red**: failing reproduction test exists and is verified.
 1. **Green**: code fixed, tests pass.
-1. **Visual**: Screenshot taken at 1024x768 and 400x800 (for mobile UI).
+1. **Visual**: Screenshots taken at 1024x768 and 400x800 (for mobile UI).
 1. **Docs**: `GEMINI.md` updated.
 1. **Versioning**: Increment `package.json` (Minor for feature, Patch for bug).
-1. **Summary**: Provide a proof-heavy summary starting with `SUMMARY:`.
+1. **Summary**: Provide a proof-heavy summary starting with `SUMMARY:`. Include links to all proofs.
