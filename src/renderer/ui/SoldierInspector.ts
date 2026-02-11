@@ -136,7 +136,7 @@ export class SoldierInspector {
     if (this.isDead()) {
       const deadDiv = document.createElement("div");
       deadDiv.className = "w-full dead-warning";
-      deadDiv.textContent = "SOLDIER IS DECEASED - EQUIPMENT LOCKED";
+      deadDiv.textContent = "Soldier Is Deceased - Equipment Locked";
       content.appendChild(deadDiv);
     }
 

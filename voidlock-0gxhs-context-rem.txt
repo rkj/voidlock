@@ -1,0 +1,25 @@
+Finish standardizing UI casing to Capital Case as per docs/spec/ui.md#8. Some work was already done, but the following files still need updates:
+
+Remaining Tasks:
+1. Update src/renderer/ui/EventModal.ts:
+   - COST: -> Cost:
+   - SCRAP -> Scrap
+   - REWARD: -> Reward:
+   - INTEL -> Intel
+   - NEW RECRUIT -> New Recruit
+   - RISK: -> Risk:
+   - CHANCE OF DANGER -> Chance Of Danger
+   - CONTINUE -> Continue
+2. Update src/renderer/app/MissionSetupManager.ts:
+   - Remove .toUpperCase() from difficulty (L187)
+   - Change CAMPAIGN: -> Campaign: (L188)
+   - Change MISSION -> Mission (L188)
+   - Change SECTOR -> Sector (L188)
+   - Change CUSTOM SIMULATION -> Custom Simulation (L191)
+3. Update src/renderer/MenuController.ts:
+   - Change "Picking up" to "Picking Up" (L261, L441)
+4. Update src/engine/managers/CommandExecutor.ts:
+   - Change "Picking up" to "Picking Up" (L158, L173)
+5. Update src/renderer/ui/SoldierWidget.ts:
+   - Change "LVL" to "Lvl" (L211, L251)
+6. Verify all changes with E2E tests (tests/e2e/UICasingStandardization.test.ts).

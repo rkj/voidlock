@@ -1,0 +1,44 @@
+Standardize UI casing to Capital Case as per docs/spec/ui.md#8.
+
+Tasks:
+1. Update src/index.html:
+   - || PAUSE -> || Pause
+   - SPEED -> Speed
+   - SQD -> Squad
+   - OBJ -> Objectives
+2. Update src/renderer/ui/HUDManager.ts:
+   - btn.textContent = isPaused ? "▶ PLAY" : "|| PAUSE" -> isPaused ? "▶ Play" : "|| Pause"
+   - startBtn.textContent = "START MISSION" -> "Start Mission"
+3. Update src/renderer/screens/EquipmentScreen.ts:
+   - Remove suppliesTitle.style.textTransform = "uppercase"
+4. Update src/renderer/ui/SoldierInspector.ts:
+   - Change deadDiv.textContent to "Soldier Is Deceased - Equipment Locked"
+5. Update src/renderer/screens/DebriefScreen.ts:
+   - this.playbackBtn.textContent = isPaused ? "PLAY" : "PAUSE" -> isPaused ? "Play" : "Pause"
+   - loopBtn.textContent = "LOOP: OFF" -> "Loop: Off"
+   - loopBtn.textContent = isLooping ? "LOOP: ON" : "LOOP: OFF" -> isLooping ? "Loop: On" : "Loop: Off"
+6. Update src/renderer/screens/SettingsScreen.ts:
+   - Change all-caps titles and labels to Capital Case (Sign In Failed, Reset All Data, Cancel, Delete Everything).
+7. Update src/renderer/ui/ModalService.ts:
+   - Remove titleElement.textContent = options.title.toUpperCase()
+   - Change default titles (ALERT, CONFIRM, INPUT) to Capital Case.
+   - Change default labels (CANCEL) to Cancel.
+8. Update src/renderer/ui/CampaignShell.ts:
+   - Remove text-transform: uppercase styles.
+   - Update text content to Capital Case (Scrap:, Intel:, etc.).
+9. Update src/renderer/ui/KeyboardHelpOverlay.ts:
+   - Change title to "Keyboard Shortcuts" and remove .toUpperCase() from category headers.
+10. Update src/renderer/screens/CampaignSummaryScreen.ts:
+    - Remove text-transform: uppercase and .toUpperCase() from name/archetypeId.
+11. Update src/renderer/screens/EngineeringScreen.ts:
+    - Change headers and labels to Capital Case (Engineering Bay, Unit Archetypes, Advanced Equipment, Unlocked, Unlock).
+12. Update src/renderer/screens/BarracksScreen.ts:
+    - Change "RENAME SOLDIER" to "Rename Soldier".
+13. Update src/renderer/screens/campaign/NewCampaignWizard.ts:
+    - Change "NEW EXPEDITION" to "New Expedition".
+14. Update src/renderer/components/UnitStyleSelector.ts:
+    - Change "LOADING" to "Loading...".
+15. Update src/engine/managers/CommandExecutor.ts:
+    - Change "Moving to use item" to "Moving To Use Item".
+16. Update src/styles/main.css:
+    - Audit and remove text-transform: uppercase where it conflicts with Capital Case standard.

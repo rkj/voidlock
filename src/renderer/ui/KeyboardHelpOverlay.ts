@@ -50,7 +50,7 @@ export class KeyboardHelpOverlay implements InputContext {
     this.container.innerHTML = "";
 
     const title = document.createElement("h2");
-    title.textContent = "KEYBOARD SHORTCUTS";
+    title.textContent = "Keyboard Shortcuts";
     title.style.margin = "0";
     title.style.color = "var(--color-accent)";
     title.style.letterSpacing = "2px";
@@ -83,7 +83,7 @@ export class KeyboardHelpOverlay implements InputContext {
         section.style.marginTop = "20px";
 
         const header = document.createElement("h3");
-        header.textContent = category.toUpperCase();
+        header.textContent = category;
         header.style.color = "var(--color-text-dim)";
         header.style.fontSize = "0.9em";
         header.style.margin = "0 0 5px 0";
@@ -127,7 +127,7 @@ export class KeyboardHelpOverlay implements InputContext {
     footer.style.textAlign = "center";
     footer.style.color = "var(--color-text-dim)";
     footer.style.fontSize = "0.8em";
-    footer.textContent = "Press ESC or ? to close";
+    footer.textContent = "Press Esc or ? to close";
     this.container.appendChild(footer);
   }
 
@@ -143,7 +143,7 @@ export class KeyboardHelpOverlay implements InputContext {
     return [
       {
         key: "ESC",
-        label: "ESC",
+        label: "Esc",
         description: "Close Help Overlay",
         category: "Navigation",
       },

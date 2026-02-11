@@ -292,7 +292,7 @@ export class UnitStyleSelector {
         ctx.font = "12px monospace";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText("LOADING", x, y);
+        ctx.fillText("Loading...", x, y);
 
         // Use addEventListener to avoid overwriting other listeners on the same singleton sprite
         const onAssetLoad = () => {

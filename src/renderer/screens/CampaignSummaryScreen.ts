@@ -121,7 +121,7 @@ export class CampaignSummaryScreen {
           !isVictory
             ? `
           <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--color-border-strong);">
-            <div style="color: var(--color-text-dim); font-size: 0.9em; text-transform: uppercase; letter-spacing: 1px;">
+            <div style="color: var(--color-text-dim); font-size: 0.9em; letter-spacing: 1px;">
               Cause: <span style="color: var(--color-danger); font-weight: bold; letter-spacing: 2px;">${this.getCauseOfDeath()}</span>
             </div>
           </div>
@@ -152,10 +152,10 @@ export class CampaignSummaryScreen {
 
       row.innerHTML = `
         <div class="flex-col">
-          <div style="font-weight:bold; letter-spacing: 1px;">${s.name.toUpperCase()}</div>
-          <div style="font-size: 0.8em; color: var(--color-text-dim);">${s.archetypeId.toUpperCase()} - LVL ${calculateLevel(s.xp)}</div>
+          <div style="font-weight:bold; letter-spacing: 1px;">${s.name}</div>
+          <div style="font-size: 0.8em; color: var(--color-text-dim);">${s.archetypeId} - LVL ${calculateLevel(s.xp)}</div>
         </div>
-        <div style="color: ${statusColor}; font-weight: bold; font-size: 0.9em; border: 1px solid ${statusColor}; padding: 2px 10px; border-radius: 2px; text-transform: uppercase;">
+        <div style="color: ${statusColor}; font-weight: bold; font-size: 0.9em; border: 1px solid ${statusColor}; padding: 2px 10px; border-radius: 2px;">
           ${s.status}
         </div>
       `;

@@ -37,7 +37,7 @@ export class NewCampaignWizard {
     content.style.padding = "40px 20px";
 
     const h1 = document.createElement("h1");
-    h1.textContent = "NEW EXPEDITION";
+    h1.textContent = "New Expedition";
     h1.style.letterSpacing = "4px";
     h1.style.color = "var(--color-primary)";
     content.appendChild(h1);

@@ -250,7 +250,7 @@ export class BarracksScreen {
       const newName = await this.modalService.prompt(
         "Enter new name for this soldier:",
         soldier.name,
-        "RENAME SOLDIER",
+        "Rename Soldier",
       );
       if (newName && newName.trim() !== "" && newName !== soldier.name) {
         this.manager.renameSoldier(soldier.id, newName.trim());

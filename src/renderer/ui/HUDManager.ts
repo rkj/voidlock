@@ -98,7 +98,7 @@ export class HUDManager {
     ) as HTMLButtonElement;
     if (btn) {
       const isPaused = state.settings.isPaused;
-      btn.textContent = isPaused ? "▶ PLAY" : "|| PAUSE";
+      btn.textContent = isPaused ? "▶ Play" : "|| Pause";
     }
   }
 
@@ -307,7 +307,7 @@ export class HUDManager {
 
       const startBtn = document.createElement("button");
       startBtn.id = "btn-start-mission";
-      startBtn.textContent = "START MISSION";
+      startBtn.textContent = "Start Mission";
       startBtn.className = "btn-start-mission";
       startBtn.addEventListener("click", () => this.onStartMission());
       deploymentDiv.appendChild(startBtn);

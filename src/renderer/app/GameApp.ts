@@ -968,7 +968,7 @@ export class GameApp {
     ) as HTMLInputElement;
     const gameSpeedValue = document.getElementById("speed-value");
 
-    if (btn) btn.textContent = isPaused ? "▶ PLAY" : "|| PAUSE";
+    if (btn) btn.textContent = isPaused ? "▶ Play" : "|| Pause";
     if (gameSpeedValue)
       gameSpeedValue.textContent = TimeUtility.formatSpeed(lastSpeed, isPaused);
     if (gameSpeedSlider)
