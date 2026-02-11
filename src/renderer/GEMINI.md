@@ -27,7 +27,7 @@ This directory contains the main thread rendering logic and user interface for V
   - `CampaignScreen.ts`: Displays the Sector Map DAG.
   - `BarracksScreen.ts`: Interface for roster management, recruitment, and soldier healing/equipment.
   - `EquipmentScreen.ts`: Handles soldier loadouts and armory. Implements pay-to-equip economic logic where new equipment purchases deduct Scrap from the campaign balance while re-equipping owned items is free.
-  - `DebriefScreen.ts`: Displays mission results and plays accelerated replay in background.
+  - `DebriefScreen.ts`: Displays mission results and plays accelerated replay in background. **Optimization:** Summary panel layout (padding, font sizes) is adjusted to ensure it remains non-scrollable at 1024x768 resolution.
   - `CampaignSummaryScreen.ts`: Displays final victory or defeat reports for the campaign.
   - `StatisticsScreen.ts`: Displays cumulative global statistics (Service Record).
 - `tests/`: Automated test suite for the renderer.

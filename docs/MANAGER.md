@@ -53,7 +53,9 @@ At the start of every session, run:
 **🚨 NEVER PUSH**: User handles pushing.
 
 - **If Verified**:
-  1. `jj commit -m "<bead-id>: <description>.\n\nVerified visually at 1024x768 and 400x800 via manual audit."`
+  1. `jj commit -m "<bead-id>: <description>.
+    
+      <Details on what exactly was done>."`
   2. `bd close <id> --reason "Implemented via sub-agent and verified via manual visual audit and DevTools verification."`
 
 - **If Failed**:

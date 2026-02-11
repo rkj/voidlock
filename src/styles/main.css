@@ -814,7 +814,7 @@ label {
   border-right: 2px solid var(--color-border-strong);
   display: flex;
   flex-direction: column;
-  padding: 40px;
+  padding: 30px;
   overflow-y: auto;
   background: var(--color-surface);
 }
@@ -947,7 +947,7 @@ label {
 }
 
 .debrief-header {
-  font-size: 2.5em;
+  font-size: 2em;
   margin: 0 0 5px 0;
   
 }
@@ -962,12 +962,12 @@ label {
 
 .debrief-subheader {
   color: var(--color-text-muted);
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   font-size: 1.1em;
 }
 
 .debrief-panel {
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .debrief-panel-title {
@@ -1001,15 +1001,15 @@ label {
 
 .debrief-footer {
   margin-top: auto;
-  padding-top: 40px;
+  padding-top: 20px;
   display: flex;
   gap: 10px;
 }
 
 .debrief-button {
   flex: 1;
-  padding: 15px;
-  font-size: 1.2em;
+  padding: 12px;
+  font-size: 1.1em;
   
   letter-spacing: 2px;
 }
