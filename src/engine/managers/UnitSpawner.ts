@@ -90,8 +90,8 @@ export class UnitSpawner {
         tacticalNumber: soldierConfig.tacticalNumber || units.length + 1,
         archetypeId: arch.id,
         pos: {
-          x: startX + (this.prng.next() - 0.5),
-          y: startY + (this.prng.next() - 0.5),
+          x: startX + (this.prng.next() - 0.5) * 0.8,
+          y: startY + (this.prng.next() - 0.5) * 0.8,
         },
         visualJitter: {
           x: (this.prng.next() - 0.5) * 0.4,
