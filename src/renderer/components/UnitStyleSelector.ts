@@ -35,6 +35,7 @@ export class UnitStyleSelector {
         item.classList.add("active");
       }
       item.setAttribute("data-style", style.id);
+      item.tabIndex = 0;
 
       const box = document.createElement("div");
       box.className = "style-preview-box";
@@ -57,6 +58,16 @@ export class UnitStyleSelector {
         this.updateActiveState();
         this.onChange(this.currentStyle);
       };
+
+      item.onkeydown = (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          this.currentStyle = style.id as UnitStyle;
+          this.updateActiveState();
+          this.onChange(this.currentStyle);
+          e.preventDefault();
+        }
+      };
+
       if (this.container) {
         this.container.appendChild(item);
       }
