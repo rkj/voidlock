@@ -303,9 +303,11 @@ export class SoldierInspector {
   ): HTMLElement {
     const slot = document.createElement("div");
     slot.className = "paper-doll-slot" + (itemId ? " equipped" : "");
+    slot.tabIndex = 0;
 
     // Disable interactions for dead soldiers
-    if (this.isDead()) {
+    const isDead = this.isDead();
+    if (isDead) {
       slot.classList.add("disabled");
     }
 
@@ -337,6 +339,15 @@ export class SoldierInspector {
       plus.className = "slot-empty-plus";
       slot.appendChild(plus);
     }
+
+    slot.onkeydown = (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        if (!isDead && itemId) {
+          onDrop("");
+        }
+        e.preventDefault();
+      }
+    };
 
     return slot;
   }
@@ -446,8 +457,16 @@ export class SoldierInspector {
                 </div>
             </div>
         `;
-      btn.onclick = () => {
-        if (!isDead) onSelect(item);
+      btn.tabIndex = 0;
+      const handleSelect = () => {
+        if (!isDead && !btn.classList.contains("disabled")) onSelect(item);
+      };
+      btn.onclick = handleSelect;
+      btn.onkeydown = (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          handleSelect();
+          e.preventDefault();
+        }
       };
       panel.appendChild(btn);
     });
