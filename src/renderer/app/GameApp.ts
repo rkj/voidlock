@@ -869,7 +869,14 @@ export class GameApp {
     });
 
     this.missionSetupManager.currentSquad = config;
-    this.launchMission();
+    // Navigate back to Mission Setup instead of launching immediately
+    const isCampaign = !!this.missionSetupManager.currentCampaignNode;
+    this.switchScreen("mission-setup", isCampaign);
+    if (isCampaign) {
+      this.context.campaignShell.show("campaign", "sector-map", false);
+    } else {
+      this.context.campaignShell.show("custom", "setup");
+    }
   }
 
   private updateUI(state: GameState) {
