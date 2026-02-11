@@ -418,6 +418,7 @@ export class EquipmentScreen {
             body: soldier.equipment.body,
             feet: soldier.equipment.feet,
           };
+          this.autoAdvanceSlot();
           this.render();
         },
       });
@@ -457,6 +458,7 @@ export class EquipmentScreen {
               feet: soldier.equipment.feet,
             };
             this.recruitMode = false;
+            this.autoAdvanceSlot();
             this.render();
           }
         },
@@ -508,6 +510,7 @@ export class EquipmentScreen {
               feet: revived.equipment.feet,
             };
             this.reviveMode = false;
+            this.autoAdvanceSlot();
             this.render();
           }
         },
@@ -542,12 +545,22 @@ export class EquipmentScreen {
             body: arch.body,
             feet: arch.feet,
           };
+          this.autoAdvanceSlot();
           this.render();
         },
       });
 
       panel.appendChild(item);
     });
+  }
+
+  private autoAdvanceSlot() {
+    for (let i = this.selectedSoldierIndex + 1; i < 4; i++) {
+      if (!this.config.soldiers[i]) {
+        this.selectedSoldierIndex = i;
+        return;
+      }
+    }
   }
 
   private renderRightPanel(panel: HTMLElement) {
