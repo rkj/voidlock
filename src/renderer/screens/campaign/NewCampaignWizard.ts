@@ -89,8 +89,7 @@ export class NewCampaignWizard {
     form.appendChild(diffLabel);
 
     const cardsContainer = document.createElement("div");
-    cardsContainer.className = "flex-row gap-10 w-full";
-    cardsContainer.style.justifyContent = "space-between";
+    cardsContainer.className = "difficulty-cards-container flex-row gap-10 w-full";
 
     const DIFFICULTIES = [
       {
@@ -137,24 +136,16 @@ export class NewCampaignWizard {
 
     DIFFICULTIES.forEach((diff) => {
       const card = document.createElement("div");
-      card.className = "difficulty-card flex-col gap-10 p-15 flex-1";
-      card.style.border = "1px solid var(--color-border-strong)";
-      card.style.background = "rgba(255, 255, 255, 0.05)";
-      card.style.cursor = "pointer";
-      card.style.transition = "all 0.2s ease";
+      card.className = `difficulty-card flex-col gap-10 p-15 flex-1 ${diff.id === this.selectedDifficulty ? "selected" : ""}`;
       card.tabIndex = 0; // Make focusable
 
       const title = document.createElement("h3");
       title.textContent = diff.name;
       title.style.margin = "0";
-      title.style.color = "var(--color-text)";
       card.appendChild(title);
 
       const rulesList = document.createElement("ul");
-      rulesList.style.margin = "0";
-      rulesList.style.paddingLeft = "15px";
-      rulesList.style.fontSize = "0.8em";
-      rulesList.style.color = "var(--color-text-dim)";
+      rulesList.className = "difficulty-rules";
       diff.rules.forEach((rule) => {
         const li = document.createElement("li");
         li.textContent = rule;
@@ -162,26 +153,12 @@ export class NewCampaignWizard {
       });
       card.appendChild(rulesList);
 
-      if (diff.id === this.selectedDifficulty) {
-        card.classList.add("selected");
-        card.style.borderColor = "var(--color-primary)";
-        card.style.background = "rgba(var(--color-primary-rgb), 0.1)";
-        title.style.color = "var(--color-primary)";
-      }
-
       const selectCard = () => {
         this.selectedDifficulty = diff.id;
         cards.forEach((c) => {
           c.classList.remove("selected");
-          c.style.borderColor = "var(--color-border-strong)";
-          c.style.background = "rgba(255, 255, 255, 0.05)";
-          (c.querySelector("h3") as HTMLElement).style.color =
-            "var(--color-text)";
         });
         card.classList.add("selected");
-        card.style.borderColor = "var(--color-primary)";
-        card.style.background = "rgba(var(--color-primary-rgb), 0.1)";
-        title.style.color = "var(--color-primary)";
 
         // Ironman logic
         if (this.selectedDifficulty === "extreme") {
