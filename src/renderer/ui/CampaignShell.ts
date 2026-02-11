@@ -119,11 +119,6 @@ export class CampaignShell {
 
     topBar.className =
       "campaign-top-bar flex-row justify-between align-center p-10";
-    topBar.style.height = "52px";
-    topBar.style.boxSizing = "border-box";
-    topBar.style.background = "var(--color-surface-elevated)";
-    topBar.style.borderBottom = "1px solid var(--color-border-strong)";
-    topBar.style.flexShrink = "0";
     topBar.innerHTML = "";
 
     // Left: Label
@@ -160,7 +155,7 @@ export class CampaignShell {
     // Resources
     if (this.mode === "campaign" && state) {
       const resources = document.createElement("div");
-      resources.className = "flex-row gap-15";
+      resources.className = "shell-resources flex-row gap-15";
       resources.innerHTML = `
         <div class="resource-item" title="Scrap (Currency)">
           <span style="color: var(--color-text-dim)">SCRAP:</span>
