@@ -1,90 +1,90 @@
-import { describe, it, expect, afterAll, beforeAll } from "vitest";
-import { getNewPage, closeBrowser } from "./utils/puppeteer";
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import type { Page } from "puppeteer";
+import { getNewPage, closeBrowser } from "./utils/puppeteer";
+import { setup, teardown } from "./setup";
 import { E2E_URL } from "./config";
 
-describe("Debrief Screen Button Overflow Repro", () => {
+describe("Debrief Responsiveness", () => {
   let page: Page;
 
   beforeAll(async () => {
     page = await getNewPage();
-    await page.setViewport({ width: 1024, height: 768 });
-    await page.goto(E2E_URL);
-    await page.evaluate(() => localStorage.clear());
   });
 
   afterAll(async () => {
     await closeBrowser();
   });
 
-  it("should detect button overflow on Debrief Screen at 1024x768", async () => {
+  async function goToDebrief(page: Page) {
     await page.goto(E2E_URL);
-
-    // 1. Enter Custom Mission
     await page.waitForSelector("#btn-menu-custom");
+
+    // Start Custom Mission
     await page.click("#btn-menu-custom");
-
-    // 2. Launch Mission
-    await page.evaluate(() => {
-        console.log("GameAppInstance keys:", Object.keys(window.GameAppInstance || {}));
-        // @ts-ignore
-        if (window.GameAppInstance) {
-            // @ts-ignore
-            window.GameAppInstance.launchMission();
-        }
-    });
-
-    // 3. Force Win to get to Debrief screen
-    await page.evaluate(async () => {
-        // @ts-ignore
-        const app = window.GameAppInstance;
-        if (app && app.context && app.context.gameClient) {
-            app.context.gameClient.forceWin();
-        }
-    });
-
-    // 4. Wait for Debrief Screen
-    await page.waitForSelector("#screen-debrief", { visible: true });
     
-    // Give it a moment to render
-    await new Promise(r => setTimeout(r, 500));
-
-    // 5. Check for overflow in debrief-footer
-    const overflowInfo = await page.evaluate(() => {
-      const summary = document.querySelector(".debrief-summary");
-      const footer = document.querySelector(".debrief-footer");
-      if (!summary || !footer) return { error: "elements not found" };
-
-      const buttons = Array.from(footer.querySelectorAll("button"));
-      const buttonInfo = buttons.map(btn => ({
-        text: btn.textContent,
-        clientWidth: btn.clientWidth,
-        scrollWidth: btn.scrollWidth,
-        isOverflowing: btn.scrollWidth > btn.clientWidth
-      }));
-
-      return {
-        summaryWidth: summary.clientWidth,
-        summaryScrollWidth: summary.scrollWidth,
-        footerWidth: footer.clientWidth,
-        footerScrollWidth: footer.scrollWidth,
-        isSummaryOverflowing: summary.scrollWidth > summary.clientWidth,
-        isFooterOverflowing: footer.scrollWidth > footer.clientWidth,
-        buttonInfo
-      };
+    // Bypass broken UI flow and force win directly
+    await page.evaluate(async () => {
+      const app = (window as any).GameAppInstance;
+      if (app) {
+        app.missionSetupManager.debugOverlayEnabled = true;
+        app.missionSetupManager.saveCurrentConfig();
+        app.launchMission();
+        
+        // Wait a bit for engine to start then force win
+        setTimeout(() => {
+            if (app.context && app.context.gameClient) {
+                app.context.gameClient.forceWin();
+            }
+        }, 1000);
+      }
     });
 
-    // Capture screenshot for visual proof
-    await page.screenshot({
-      path: "tests/e2e/__snapshots__/debrief_button_overflow_repro_1024x768.png",
-      fullPage: true
+    // Wait for Debrief Screen
+    await page.waitForSelector(".debrief-screen", { visible: true, timeout: 15000 });
+  }
+
+  it("should fit debrief buttons without scrolling at 1024x768", async () => {
+    await page.setViewport({ width: 1024, height: 768 });
+    await goToDebrief(page);
+
+    // Check for scrolling in the summary panel
+    const isScrollable = await page.evaluate(() => {
+      const el = document.querySelector(".debrief-summary");
+      if (!el) return false;
+      return el.scrollHeight > el.clientHeight;
     });
 
-    console.log("Overflow Info:", JSON.stringify(overflowInfo, null, 2));
+    await page.screenshot({ path: "debrief_1024x768.png" });
 
-    // ASSERTION: Either summary or footer should be overflowing
-    const info = overflowInfo as any;
-    const hasOverflow = info.isSummaryOverflowing || info.isFooterOverflowing || info.buttonInfo.some((b: any) => b.isOverflowing);
-    expect(hasOverflow).toBe(true);
+    expect(isScrollable, "Debrief summary should not be scrollable at 1024x768").toBe(false);
+  });
+
+  it("should render debrief screen at 400x800 (mobile)", async () => {
+    // Emulate mobile with touch
+    await page.setViewport({
+        width: 400,
+        height: 800,
+        isMobile: true,
+        hasTouch: true,
+    });
+    
+    // We might need to reload to trigger the matchMedia check in index.html if it only runs once
+    // But since we are calling goToDebrief which calls goto(E2E_URL), it should be fine.
+    await goToDebrief(page);
+
+    // At 400x800, it MIGHT be scrollable due to extreme height constraint on mobile, 
+    // which is acceptable as long as it's functional.
+    // We primarily want the screenshot here as per instructions.
+    
+    await page.screenshot({ path: "debrief_400x800_mobile.png" });
+    
+    const hasMobileClass = await page.evaluate(() => {
+        return document.body.classList.contains("mobile-touch") || 
+               document.documentElement.classList.contains("mobile-touch");
+    });
+    
+    // Note: Puppeteer matches media might not work exactly as expected with matchMedia in some versions
+    // but usually setting hasTouch: true helps.
+    console.log("Mobile class detected:", hasMobileClass);
   });
 });
