@@ -38,6 +38,14 @@ The application is divided into distinct screens to reduce UI clutter and improv
   - **Debug Overlay**: Toggle. Enables visual debugging aids (coordinates, LOS rays, hidden entities) in-game. (Also toggleable via `~`).
 - **Data Management**:
   - **Reset Data**: Clear all local storage and reload (Destructive, with confirmation via Custom Modal). Moved here to prevent accidental clicks.
+- **Cloud Synchronization**:
+  - **Service Status**: Indicator (e.g., "Online", "Offline", "Error").
+  - **Actions**:
+    - **Sign In / Connect**: (If disconnected).
+    - **Sync Now**: Manually trigger a cloud save.
+  - **Error Handling**:
+    - If the service is unavailable (e.g., "Firebase not configured"), the "Cloud Sync" section MUST remain visible but show a clear "Service Unavailable" status.
+    - **Control Enablement**: Buttons (Sync/Sign In) must be disabled if the backend service is confirmed missing, BUT the UI must explain *why* (e.g., "API Key Missing"). It must NOT look like a broken button.
 - **Actions**: "Save & Back".
 
 ### Mission Setup Screen (formerly Config Screen)
@@ -487,31 +495,88 @@ The application must remain navigable even in the event of a catastrophic logic 
 
 ### 8.13 Geometric LOS/LOF Constraints
 
+
+
 To ensure consistency between the visual representation and the simulation logic:
 
+
+
 - **Door Struts**: Doors only occupy the middle 1/3 of a cell boundary. The outer 1/3 segments (struts) MUST always block LOS and LOF, regardless of the door's state.
+
 - **Unit Precision**: LOS and LOF checks between units MUST account for the unit's physical radius. A single center-to-center ray is insufficient; the simulation should verify that a "fat" ray (or multiple sampled rays) can pass without hitting solid geometry.
+
 - **Corner Cutting**: Shots passing extremely close to wall corners MUST be blocked if any part of the unit's radius would collide with the corner.
+
+
 
 ## 9. Accessibility & Input (Epic)
 
+
+
 The game must be fully playable without a mouse, catering to power users and accessibility needs.
 
+
+
 - **Keyboard First**: Every UI element (buttons, lists, map tiles) must be navigable and actionable via keyboard.
+
   - **Focus Management**: A robust system to track and visually indicate the active element.
+
+    - **Post-Action Focus**: When an interactive element is removed or replaced (e.g., purchasing an item, recruiting a soldier), focus MUST remain stable. It should move to the newly created element or the nearest logical sibling. It MUST NOT reset to the top of the page or the "Back" button.
+
+    - **Tab Traps**: Modal dialogs and complex panels (like the Armory) must "trap" focus, preventing Tabbing from escaping to the browser chrome or underlying layers.
+
+    - **Skip Inaccessible**: Navigation (Tab or Arrow Keys) MUST skip inactive, disabled, or strictly visual elements (like the "Remove X" on a mandatory weapon slot).
+
   - **Shortcuts**: Standardized keys for common actions (e.g., `Space` to Pause, `Tab` to Cycle Units).
+
 - **Shortcut Reference**:
+
   - **Toggle**: `?` (Shift + /).
+
   - **Overlay**: A modal displaying all current context-relevant keyboard shortcuts.
+
+
 
 ## 10. Mobile Responsiveness (Epic)
 
+
+
 The interface must adapt to small touch screens without losing functionality.
 
+
+
 - **Layout Adaptation**:
+
   - **Compact Mode**: On screens < 768px, sidebars (Soldier List, Objectives) should collapse into drawers or toggleable overlays.
+
   - **Hit Targets**: All interactive elements must differ to a minimum touch target size (44x44px).
+
 - **Touch Controls**:
+
   - **Camera**: Pinch-to-zoom and two-finger pan.
+
   - **Interaction**: Tap to Select, Drag to Deploy. Long-press for Context Menu (right-click equivalent).
+
 - **Scale**: UI scaling factor adjustment for high-DPI (Retina) mobile displays to ensure readability.
+
+
+
+## 11. Visual Polish & Typography
+
+
+
+### 11.1 Casing Standards
+
+- **Strict Title Case**: All UI buttons, headers, menu actions, and labels MUST use **Title Case** (e.g., "Deploy Squad", "Enter Shop").
+
+- **No All-Caps**: The use of ALL CAPS is strictly forbidden, except for specific, established acronyms (e.g., "HUD", "XP", "HP"). If a "shouting" effect is desired for narrative events, it must be achieved via font weight or color, not casing.
+
+
+
+### 11.2 Scrollbar Discipline
+
+- **No Global Scroll**: The main application window (`<body>`) MUST NEVER display a scrollbar. The game viewport must be fixed.
+
+- **Panel Scrolling**: Content that exceeds the available space (e.g., long lists in the Barracks or Shop) MUST scroll internally within its container.
+
+- **Scroll Visibility**: Scrollbars should be styled unobtrusively but remain visible to indicate overflow.

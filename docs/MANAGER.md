@@ -46,6 +46,13 @@ At the start of every session, run:
    - If the visual state is incorrect or inconsistent with requirements, **REJECT** the task.
 1. **Inspect**: Execute `jj diff --git`. Verify adherence to **SOLID** and **Spec** compliance.
 1. **Test**: Run `npx vitest run <PATH_TO_TEST>`. Use `--reporter=basic`.
+1. **Test Robustness Audit**:
+   - Inspect the test file code. Does it use mocks that bypass the bug? (e.g., manually firing an event instead of using the mouse).
+   - Does it verify the *negative* case? (e.g., "Element should NOT exist").
+   - **Happy Path Rejection**: If the test only checks the success scenario without verifying the failure mode or edge cases, **REJECT** the task.
+1. **Regression Audit**:
+   - Before closing, search closed beads for similar titles (`bd list --status closed | grep <keyword>`).
+   - If duplicates exist, verify the fix works where previous attempts failed.
 1. **Build & Lint**: Ensure `npm run build` and `npm run lint` pass without errors.
 
 ## 4. Finalization

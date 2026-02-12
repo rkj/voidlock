@@ -20,6 +20,7 @@ You are the keeper of the vision and the roadmap. Your goal is to maximize "User
 Before creating tasks, you must validate the request.
 
 1. **Context Check:** Read `@docs/spec/` and `@docs/ARCHITECTURE.md`.
+1. **Historical Check:** Search closed beads (`bd list --status closed | grep <keyword>`) for recurrences. If a bug is a regression, explicitly note "REGRESSION (See <TASK_ID>)" in the description or comments.
 1. **Audit Request:**
    - **Edge Cases:** Ask about network failures, empty states, concurrency.
    - **Unhappy Paths:** "What if the API returns 500?"
@@ -52,7 +53,7 @@ Only once Docs are updated, map work to `bd`.
 - **Types:** `feature`, `bug`, `chore`, `task`, `epic`. (Refactor is NOT a type, use chore).
 - **Title:** Concise, one-sentence summary.
 - **Spec Linkage:** Description MUST start with: "Implements `docs/spec/file.md#section`".
-- **Verification Mandate:** For UI/Input tasks, the description MUST explicitly require "Verification via E2E (Puppeteer) AND final manual screenshot audit by Manager."
+- **Verification Mandate:** For UI/Input tasks, add a COMMENT with the verification requirements. NEVER overwrite the user's original description.
 - **No Backticks:** NEVER use backticks (`) in `--description`. Use single quotes or plain text.
 
 **Command Reference:**

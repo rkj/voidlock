@@ -23,7 +23,11 @@ You are an AI contributor agent. Your goal is to implement features or fix bugs 
 ### G2) Testing Strategy
 - **Logic Protocol**: Add regression tests to `src/engine/tests/` with format `regression_<id>_<slug>.test.ts`.
 - **NEVER REMOVE TESTS**: catch regressions. Fix code, don't delete tests.
-- **JSDOM BAN**: Do not use JSDOM for layout, focus, or scrolling verification. Use Puppeteer.
+- **JSDOM BAN**: Do not use JSDOM for layout, focus, scrolling, or drag-and-drop verification. You MUST use Puppeteer E2E tests.
+- **Input Simulation**:
+  - **Drag & Drop**: Do NOT use high-level helpers like `dragAndDrop`. Use raw `page.mouse.down()`, `move()`, and `up()` sequences to verify real event handling.
+  - **Focus**: Verify `document.activeElement` explicitly after interactions.
+  - **Mobile**: Use `page.touchscreen` APIs for tap/swipe verification, not click events.
 
 ### G3) Visual Feedback
 - **URL**: `http://192.168.20.8:5173/`.

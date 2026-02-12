@@ -92,13 +92,16 @@ The game supports four difficulty presets defining failure consequences.
   - The player chooses **exactly one** node per Rank.
   - Upon clearing a node, the campaign advances to the next Rank.
   - All other nodes in the previous Rank become inaccessible (Skipped).
+- **Navigation (Input):**
+  - **Keyboard:** Arrow keys and Tab MUST strictly adhere to the graph topology.
+  - **Constraint:** Focus MUST NOT cycle through inaccessible nodes (e.g., nodes in previous ranks or unreachable lanes). It should only snap to valid "Next Nodes" or the currently active node.
 - **Node Types:** See `docs/spec/mission.md` for objective counts and reward scaling for **Combat**, **Elite**, and **Boss** nodes.
 - **Non-Combat Nodes:**
   - **Supply Depot (Shop):**
     - **Interaction:** Opens a dedicated **Shop Screen** (Safe Haven).
     - **Features:** Purchase equipment/recruits. No combat.
     - **Exit:** "Leave Depot" button (advances Rank).
-  - **Event (Signal):**
+    - **Event (Signal):**
     - **Interaction:** Opens a **Narrative Dialog**.
     - **Mechanic:** Text-based choices with Risk/Reward.
     - **Types:**
@@ -139,6 +142,9 @@ The game supports four difficulty presets defining failure consequences.
   - Weapons and Armor assigned to a soldier are **persistent** across missions.
   - They remain equipped until manually removed or the soldier dies (unrecovered body = lost gear).
   - Changing equipment in Mission Setup immediately updates the Campaign Roster.
+- **Mandatory Slots:**
+  - A soldier MUST always have a primary weapon.
+  - **UI Constraint:** The "Remove" (X) button MUST be disabled or hidden for mandatory slots if no replacement is selected. The player cannot strip a soldier naked; they must *swap* the weapon for another.
 - **Soldier Customization**:
   - **Renaming**: The Soldier Inspector MUST allow the player to rename a soldier while in the Barracks.
 - **Costs:**
