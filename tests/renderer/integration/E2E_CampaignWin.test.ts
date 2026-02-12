@@ -157,6 +157,7 @@ describe("E2E Campaign Happy Path", () => {
           </div>
         </div>
         <div id="squad-builder"></div>
+        <button id="btn-launch-mission" class="primary-button">Launch Mission</button>
         <button id="btn-goto-equipment">Equipment</button>
         <button id="btn-setup-back">Back</button>
       </div>
@@ -307,6 +308,9 @@ describe("E2E Campaign Happy Path", () => {
       expect(equipmentLaunchBtn).toBeTruthy();
       equipmentLaunchBtn?.click();
 
+      // Click Launch in mission-setup
+      document.getElementById("btn-launch-mission")?.click();
+
       // 4. Mission Screen
       expect(document.getElementById("screen-mission")?.style.display).toBe(
         "flex",
@@ -407,7 +411,7 @@ describe("E2E Campaign Happy Path", () => {
 
       const returnBtn = Array.from(
         document.querySelectorAll("#screen-debrief button"),
-      ).find((b) => b.textContent?.includes("Return")) as HTMLElement;
+      ).find((b) => b.textContent?.includes("RETURN")) as HTMLElement;
       expect(returnBtn).toBeTruthy();
       returnBtn?.click();
 

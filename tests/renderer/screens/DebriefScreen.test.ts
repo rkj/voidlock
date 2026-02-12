@@ -70,7 +70,7 @@ describe("DebriefScreen", () => {
     screen.show(report);
 
     expect(container.style.display).toBe("flex");
-    expect(container.innerHTML).toContain("Mission Success");
+    expect(container.innerHTML).toContain("MISSION SUCCESS");
     expect(container.innerHTML).toContain("10"); // aliensKilled
     expect(container.innerHTML).toContain("+150"); // scrapGained
     expect(container.innerHTML).toContain("Sgt. Slaughter");
@@ -100,7 +100,7 @@ describe("DebriefScreen", () => {
 
     screen.show(report);
 
-    expect(container.innerHTML).toContain("Mission Failed");
+    expect(container.innerHTML).toContain("MISSION FAILED");
     expect(container.innerHTML).toContain("Dead");
   });
 
@@ -275,7 +275,7 @@ describe("DebriefScreen", () => {
     const exportBtn = Array.from(
       container.querySelectorAll(".debrief-button"),
     ).find(
-      (btn) => btn.textContent === "Export Recording",
+      (btn) => btn.textContent === "EXPORT RECORDING",
     ) as HTMLButtonElement;
 
     expect(exportBtn).toBeTruthy();

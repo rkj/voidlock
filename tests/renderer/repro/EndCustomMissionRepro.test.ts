@@ -87,6 +87,7 @@ describe("End Custom Mission Repro", () => {
            </div>
         </div>
         <div id="squad-builder"></div>
+        <button id="btn-launch-mission">Launch Mission</button>
         <button id="btn-goto-equipment">Equipment</button>
       </div>
       <div id="screen-equipment" class="screen" style="display:none"></div>
@@ -124,6 +125,9 @@ describe("End Custom Mission Repro", () => {
       document.querySelectorAll("#screen-equipment button"),
     ).find((b) => b.textContent?.includes("Confirm")) as HTMLElement;
     equipmentLaunchBtn?.click();
+
+    // Now in mission-setup, click Launch Mission
+    document.getElementById("btn-launch-mission")?.click();
 
     expect(stateUpdateCallback).not.toBeNull();
 

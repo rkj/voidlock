@@ -198,6 +198,7 @@ describe("Campaign Map Generator Integration", () => {
         </div>
         <div id="unit-style-preview"></div>
         <div id="squad-builder"></div>
+        <button id="btn-launch-mission" class="primary-button">Launch Mission</button>
         <button id="btn-goto-equipment">Equipment</button>
         <button id="btn-setup-back">Back</button>
       </div>
@@ -316,6 +317,9 @@ describe("Campaign Map Generator Integration", () => {
     ).find((b) => b.textContent?.includes("Confirm")) as HTMLElement;
     expect(equipmentLaunchBtn).toBeTruthy();
     equipmentLaunchBtn.click();
+
+    // Now in mission-setup, click Launch
+    document.getElementById("btn-launch-mission")?.click();
 
     // 7. Verify GameClient.init was called with DenseShip
     expect(mockGameClient.init).toHaveBeenCalled();

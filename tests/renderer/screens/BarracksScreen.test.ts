@@ -36,9 +36,9 @@ describe("BarracksScreen", () => {
     );
     screen.show();
 
-    expect(container.textContent).toContain("Roster");
-    expect(container.textContent).toContain("Recruitment");
-    expect(container.textContent).toContain("Soldier Details");
+    expect(container.textContent).toContain("ROSTER");
+    expect(container.textContent).toContain("Recruitment"); // Tab name is still mixed case
+    expect(container.textContent).toContain("SOLDIER DETAILS");
 
     // Initial roster has 4 soldiers
     const state = manager.getState()!;
@@ -83,9 +83,9 @@ describe("BarracksScreen", () => {
 
     soldierItem.click();
 
-    expect(container.textContent).toContain("Soldier Details");
-    expect(container.textContent).toContain("Soldier Attributes");
-    expect(container.textContent).toContain("Equipment");
+    expect(container.textContent).toContain("SOLDIER DETAILS");
+    expect(container.textContent).toContain("SOLDIER ATTRIBUTES");
+    expect(container.textContent).toContain("EQUIPMENT PERFORMANCE");
     expect(container.textContent).toContain(firstSoldierName);
   });
 
@@ -191,7 +191,7 @@ describe("BarracksScreen", () => {
 
     // Find and click the rename button (pencil icon)
     const renameBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.title === "Rename Soldier",
+      (btn) => btn.title === "RENAME SOLDIER",
     ) as HTMLButtonElement;
     expect(renameBtn).toBeTruthy();
 

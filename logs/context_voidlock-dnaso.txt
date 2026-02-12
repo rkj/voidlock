@@ -1,0 +1,19 @@
+Tests Failed: ~30 (Integration tests failing due to missing Launch button)
+
+Status:
+- Tests updated: `E2E_CampaignLoss`, `E2E_CampaignWin`, `CampaignMapGenerator`, `EquipmentPersistence`, `ReplayButtonFlow`, `regression_kj08_abort_persistence`, `ScreenFlow`, `regression_voidlock_4eeb_loot_spawning`, `CampaignEnd`.
+- `InputBinder.ts` ALREADY has `btn-launch-mission` binding.
+- `src/index.html` IS MISSING `btn-launch-mission`.
+
+Remaining Tasks:
+1.  **Modify `src/index.html`**: Add the button.
+    ```html
+    <!-- Inside screen-mission-setup, next to btn-goto-equipment -->
+    <button id="btn-launch-mission" class="primary-button">Launch Mission</button>
+    ```
+2.  **Verify Tests**: Run the integration tests to ensure they pass.
+    -   `npm run test tests/renderer/integration/`
+3.  **Fix any remaining failures**: Check if `stateUpdateCallback` issue persists after fixing the flow.
+
+Execute `npm run test` on the integration folder to verify.
+If successful, exit.

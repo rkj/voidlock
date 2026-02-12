@@ -78,12 +78,12 @@ export class CampaignSummaryScreen {
     // Header
     const header = document.createElement("h1");
     header.className = "summary-header";
-    header.textContent = isVictory ? "Sector Secured" : "Mission Failed";
+    header.textContent = isVictory ? "SECTOR SECURED" : "MISSION FAILED";
     this.container.appendChild(header);
 
     const subHeader = document.createElement("h2");
     subHeader.className = "summary-subheader";
-    subHeader.textContent = isVictory ? "Victory" : "Sector Lost";
+    subHeader.textContent = isVictory ? "VICTORY" : "SECTOR LOST";
     this.container.appendChild(subHeader);
 
     // Main Content
@@ -92,7 +92,7 @@ export class CampaignSummaryScreen {
     this.container.appendChild(content);
 
     // Left: Stats
-    const statsPanel = this.createPanel("Campaign Statistics");
+    const statsPanel = this.createPanel("CAMPAIGN STATISTICS");
     const totalKills = this.state.history.reduce(
       (sum, r) => sum + r.aliensKilled,
       0,
@@ -134,7 +134,7 @@ export class CampaignSummaryScreen {
 
     // Right: Survivors (if Victory) or Roster Status
     const rosterPanel = this.createPanel(
-      isVictory ? "Surviving Squad" : "Final Roster Status",
+      isVictory ? "SURVIVING SQUAD" : "FINAL ROSTER STATUS",
     );
     const rosterList = document.createElement("div");
     rosterList.className = "summary-roster-list";
@@ -169,7 +169,7 @@ export class CampaignSummaryScreen {
     footer.className = "summary-footer";
 
     const btn = document.createElement("button");
-    btn.textContent = isVictory ? "Retire to Main Menu" : "Abandon Expedition";
+    btn.textContent = isVictory ? "RETIRE TO MAIN MENU" : "ABANDON EXPEDITION";
     btn.className = `summary-button ${isVictory ? "primary-button" : "danger-button"}`;
 
     btn.onclick = () => this.onMainMenu();

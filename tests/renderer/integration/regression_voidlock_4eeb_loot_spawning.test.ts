@@ -78,6 +78,7 @@ describe("regression_voidlock_4eeb_loot_spawning", () => {
         </div>
         <div id="squad-builder"></div>
         <button id="btn-goto-equipment">Equipment</button>
+        <button id="btn-launch-mission">Launch Mission</button>
       </div>
       <div id="screen-equipment">
         <button>Confirm Squad</button>
@@ -138,6 +139,9 @@ describe("regression_voidlock_4eeb_loot_spawning", () => {
       document.querySelectorAll("#screen-equipment button"),
     ).find((btn) => btn.textContent?.includes("Confirm")) as HTMLElement;
     confirmBtn.click();
+
+    // Now in mission-setup, click Launch
+    document.getElementById("btn-launch-mission")?.click();
 
     // 5. Verify GameClient.init was called with bonusLootCount = 5
     // index 25 is the 26th argument: bonusLootCount

@@ -29,6 +29,7 @@ export class InputBinder {
     onSettingsMenu: () => void;
     onEngineeringMenu: () => void;
     onSetupBack: () => void;
+    onLaunchMission: () => void;
     onMapGeneratorChange: (type: MapGeneratorType) => void;
     onMissionTypeChange: (type: MissionType) => void;
     onThemeChange: (themeId: string) => void;
@@ -66,6 +67,9 @@ export class InputBinder {
       context.screenManager.goBack(),
     );
     this.addListener("btn-setup-back", "click", () => callbacks.onSetupBack());
+    this.addListener("btn-launch-mission", "click", () =>
+      callbacks.onLaunchMission(),
+    );
     this.addListener("btn-give-up", "click", () => callbacks.onAbortMission());
 
     // Mission Setup -> Equipment

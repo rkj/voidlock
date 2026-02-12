@@ -119,7 +119,7 @@ export class DebriefScreen {
   private updatePlaybackUI() {
     if (this.playbackBtn) {
       const isPaused = this.replayController.getIsPaused();
-      this.playbackBtn.textContent = isPaused ? "Play" : "Pause";
+      this.playbackBtn.textContent = isPaused ? "PLAY" : "PAUSE";
     }
 
     const currentSpeed = this.replayController.getTargetScale();
@@ -153,7 +153,7 @@ export class DebriefScreen {
 
     // Header
     const header = document.createElement("h1");
-    header.textContent = isWon ? "Mission Success" : "Mission Failed";
+    header.textContent = isWon ? "MISSION SUCCESS" : "MISSION FAILED";
     header.className = `debrief-header ${isWon ? "success" : "failed"}`;
     summary.appendChild(header);
 
@@ -165,7 +165,7 @@ export class DebriefScreen {
     summary.appendChild(subHeader);
 
     // Stats
-    const statsPanel = this.createPanel("Mission Statistics");
+    const statsPanel = this.createPanel("MISSION STATISTICS");
     statsPanel.innerHTML += `
       <div class="debrief-stat-row">
         <span>Xenos Neutralized:</span>
@@ -189,7 +189,7 @@ export class DebriefScreen {
     summary.appendChild(statsPanel);
 
     // Squad
-    const squadPanel = this.createPanel("Squad After-Action Report");
+    const squadPanel = this.createPanel("SQUAD AFTER-ACTION REPORT");
     this.report.soldierResults.forEach((res) => {
       const soldierRow = SoldierWidget.render(res, { context: "debrief" });
       squadPanel.appendChild(soldierRow);
@@ -201,7 +201,7 @@ export class DebriefScreen {
     footer.className = "debrief-footer";
 
     const continueBtn = document.createElement("button");
-    continueBtn.textContent = "Return to Command Bridge";
+    continueBtn.textContent = "RETURN TO COMMAND BRIDGE";
     continueBtn.className = "debrief-button";
 
     continueBtn.onclick = () => this.onContinue();
@@ -209,7 +209,7 @@ export class DebriefScreen {
 
     if (this.report.nodeId === "custom" && this.onReplay) {
       const replayBtn = document.createElement("button");
-      replayBtn.textContent = "Replay Mission";
+      replayBtn.textContent = "REPLAY MISSION";
       replayBtn.className = "debrief-button";
       replayBtn.onclick = () => this.onReplay!();
       footer.appendChild(replayBtn);
@@ -217,7 +217,7 @@ export class DebriefScreen {
 
     if (this.onExport) {
       const exportBtn = document.createElement("button");
-      exportBtn.textContent = "Export Recording";
+      exportBtn.textContent = "EXPORT RECORDING";
       exportBtn.className = "debrief-button secondary";
       exportBtn.onclick = () => this.onExport!();
       footer.appendChild(exportBtn);
@@ -253,11 +253,11 @@ export class DebriefScreen {
 
     const loopBtn = document.createElement("button");
     loopBtn.className = "replay-btn";
-    loopBtn.textContent = "Loop: Off";
+    loopBtn.textContent = "LOOP: OFF";
     loopBtn.onclick = () => {
       const isLooping = loopBtn.classList.toggle("active");
       this.replayController.setLooping(isLooping);
-      loopBtn.textContent = isLooping ? "Loop: On" : "Loop: Off";
+      loopBtn.textContent = isLooping ? "LOOP: ON" : "LOOP: OFF";
     };
     controls.appendChild(loopBtn);
 

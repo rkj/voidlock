@@ -74,6 +74,7 @@ describe("E2E Campaign Failure Modes", () => {
               <div id="screen-statistics" class="screen" style="display:none"></div>
               <div id="screen-settings" class="screen" style="display:none"></div>
               <div id="screen-engineering" class="screen" style="display:none"></div>
+              <div id="screen-campaign-summary" class="screen" style="display:none"></div>
           </div>
       </div>
 
@@ -88,6 +89,7 @@ describe("E2E Campaign Failure Modes", () => {
           <span id="map-starting-threat-value">0</span>
         </div>
         <div id="squad-builder"></div>
+        <button id="btn-launch-mission" class="primary-button">Launch Mission</button>
         <button id="btn-goto-equipment">Equipment</button>
         <button id="btn-setup-back">Back</button>
       </div>
@@ -169,6 +171,9 @@ describe("E2E Campaign Failure Modes", () => {
     ).find((b) => b.textContent?.includes("Confirm")) as HTMLElement;
     confBtn?.click();
 
+    // Now in mission-setup, click Launch
+    document.getElementById("btn-launch-mission")?.click();
+
     expect(document.getElementById("screen-mission")?.style.display).toBe(
       "flex",
     );
@@ -197,7 +202,7 @@ describe("E2E Campaign Failure Modes", () => {
 
     const returnBtn = Array.from(
       document.querySelectorAll("#screen-debrief button"),
-    ).find((b) => b.textContent?.includes("Return")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("RETURN")) as HTMLElement;
     returnBtn?.click();
 
     expect(
@@ -245,6 +250,9 @@ describe("E2E Campaign Failure Modes", () => {
       document.querySelectorAll("#screen-equipment button"),
     ).find((b) => b.textContent?.includes("Confirm")) as HTMLElement;
     confBtn?.click();
+
+    // Now in mission-setup, click Launch
+    document.getElementById("btn-launch-mission")?.click();
 
     // 3. Kill a soldier
     const deadSoldier = state.roster[0];

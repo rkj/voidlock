@@ -144,6 +144,7 @@ describe("Replay Button Flow Integration", () => {
         </div>
         <div id="unit-style-preview"></div>
         <div id="squad-builder"></div>
+        <button id="btn-launch-mission" class="primary-button">Launch Mission</button>
         <button id="btn-goto-equipment">Equipment</button>
         <button id="btn-setup-back">Back</button>
       </div>
@@ -195,6 +196,9 @@ describe("Replay Button Flow Integration", () => {
     ) as HTMLElement;
     equipmentLaunchBtn?.click();
 
+    // Now in mission-setup, click Launch
+    document.getElementById("btn-launch-mission")?.click();
+
     expect(document.getElementById("screen-mission")?.style.display).toBe(
       "flex",
     );
@@ -230,7 +234,7 @@ describe("Replay Button Flow Integration", () => {
     // 4. Verify Replay Mission button exists
     const replayBtn = Array.from(
       document.querySelectorAll("#screen-debrief button"),
-    ).find((b) => b.textContent === "Replay Mission") as HTMLElement;
+    ).find((b) => b.textContent === "REPLAY MISSION") as HTMLElement;
     expect(replayBtn).toBeDefined();
 
     // 5. Click Replay Mission

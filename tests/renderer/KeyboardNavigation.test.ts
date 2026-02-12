@@ -29,6 +29,39 @@ describe("Keyboard Navigation", () => {
       const b2 = document.getElementById("b2")!;
       const b3 = document.getElementById("b3")!;
 
+      // Mock positions for geometric navigation
+      // b1 at (0,0), b2 at (0, 50), b3 at (50, 50)
+      vi.spyOn(b1, "getBoundingClientRect").mockReturnValue({
+        top: 0,
+        left: 0,
+        width: 100,
+        height: 40,
+        bottom: 40,
+        right: 100,
+        x: 0,
+        y: 0,
+      } as DOMRect);
+      vi.spyOn(b2, "getBoundingClientRect").mockReturnValue({
+        top: 50,
+        left: 0,
+        width: 100,
+        height: 40,
+        bottom: 90,
+        right: 100,
+        x: 0,
+        y: 50,
+      } as DOMRect);
+      vi.spyOn(b3, "getBoundingClientRect").mockReturnValue({
+        top: 50,
+        left: 110,
+        width: 100,
+        height: 40,
+        bottom: 90,
+        right: 210,
+        x: 110,
+        y: 50,
+      } as DOMRect);
+
       b1.focus();
       expect(document.activeElement).toBe(b1);
 
@@ -62,7 +95,13 @@ describe("Keyboard Navigation", () => {
       document.body.appendChild(container);
 
       const b1 = document.getElementById("b1")!;
+      const b2 = document.getElementById("b2")!;
       const b3 = document.getElementById("b3")!;
+
+      // Mock positions: b1(0,0), b2(0,50), b3(0,100)
+      vi.spyOn(b1, "getBoundingClientRect").mockReturnValue({ top: 0, left: 0, width: 100, height: 40 } as any);
+      vi.spyOn(b2, "getBoundingClientRect").mockReturnValue({ top: 50, left: 0, width: 100, height: 40 } as any);
+      vi.spyOn(b3, "getBoundingClientRect").mockReturnValue({ top: 100, left: 0, width: 100, height: 40 } as any);
 
       b1.focus();
 

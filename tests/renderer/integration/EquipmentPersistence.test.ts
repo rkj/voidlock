@@ -181,6 +181,7 @@ describe("Equipment Persistence Integration", () => {
       <div id="screen-mission-setup" class="screen" style="display:none">
         <div id="unit-style-preview"></div>
         <div id="squad-builder"></div>
+        <button id="btn-launch-mission" class="primary-button">Launch Mission</button>
         <button id="btn-goto-equipment">Equipment</button>
       </div>
       <div id="screen-equipment" class="screen" style="display:none"></div>

@@ -136,7 +136,7 @@ export class SoldierInspector {
     if (this.isDead()) {
       const deadDiv = document.createElement("div");
       deadDiv.className = "w-full dead-warning";
-      deadDiv.textContent = "Soldier Is Deceased - Equipment Locked";
+      deadDiv.textContent = "SOLDIER IS DECEASED - EQUIPMENT LOCKED";
       content.appendChild(deadDiv);
     }
 
@@ -145,7 +145,7 @@ export class SoldierInspector {
     soldierStatsDiv.className = "w-full stat-box soldier-attributes-panel";
 
     const h3Soldier = document.createElement("h3");
-    h3Soldier.textContent = "Soldier Attributes";
+    h3Soldier.textContent = "SOLDIER ATTRIBUTES";
     h3Soldier.className = "stat-label inspector-panel-title";
     soldierStatsDiv.appendChild(h3Soldier);
 
@@ -164,7 +164,7 @@ export class SoldierInspector {
     weaponStatsDiv.className = "w-full stat-box weapon-performance-panel";
 
     const h3Weapon = document.createElement("h3");
-    h3Weapon.textContent = "Equipment Performance";
+    h3Weapon.textContent = "EQUIPMENT PERFORMANCE";
     h3Weapon.className = "stat-label inspector-panel-title-alt";
     weaponStatsDiv.appendChild(h3Weapon);
 
@@ -252,7 +252,7 @@ export class SoldierInspector {
     // Primary Weapons
     this.renderArmoryCategory(
       container,
-      "Primary Weapons",
+      "PRIMARY WEAPONS",
       Object.values(WeaponLibrary).filter(
         (w) => w.type === "Ranged" && isUnlocked(w.id),
       ),
@@ -263,7 +263,7 @@ export class SoldierInspector {
     // Secondary Weapons
     this.renderArmoryCategory(
       container,
-      "Secondary Weapons",
+      "SECONDARY WEAPONS",
       Object.values(WeaponLibrary).filter(
         (w) => w.type === "Melee" && isUnlocked(w.id),
       ),
@@ -274,7 +274,7 @@ export class SoldierInspector {
     // Armor
     this.renderArmoryCategory(
       container,
-      "Armor",
+      "ARMOR",
       Object.values(ItemLibrary).filter(
         (i) =>
           (i.id.includes("recon") || i.id.includes("plate")) &&
@@ -287,7 +287,7 @@ export class SoldierInspector {
     // Footwear
     this.renderArmoryCategory(
       container,
-      "Footwear",
+      "FOOTWEAR",
       Object.values(ItemLibrary).filter(
         (i) => i.id.includes("boots") && isUnlocked(i.id),
       ),

@@ -117,6 +117,7 @@ describe("Full Campaign Flow Integration", () => {
               <div id="screen-statistics" class="screen" style="display:none"></div>
               <div id="screen-settings" class="screen" style="display:none"></div>
               <div id="screen-engineering" class="screen" style="display:none"></div>
+              <div id="screen-campaign-summary" class="screen" style="display:none"></div>
           </div>
       </div>
 
@@ -136,6 +137,7 @@ describe("Full Campaign Flow Integration", () => {
           </div>
         </div>
         <div id="squad-builder"></div>
+        <button id="btn-launch-mission" class="primary-button">Launch Mission</button>
         <button id="btn-goto-equipment">Equipment</button>
         <button id="btn-setup-back">Back</button>
       </div>
@@ -227,6 +229,14 @@ describe("Full Campaign Flow Integration", () => {
     ).find((b) => b.textContent?.includes("Confirm")) as HTMLElement;
     equipmentLaunchBtn?.click();
 
+    // Now it should be in mission-setup
+    expect(document.getElementById("screen-mission-setup")?.style.display).toBe(
+      "flex",
+    );
+
+    // Click Launch
+    document.getElementById("btn-launch-mission")?.click();
+
     expect(document.getElementById("screen-mission")?.style.display).toBe(
       "flex",
     );
@@ -298,7 +308,7 @@ describe("Full Campaign Flow Integration", () => {
     // 3. Verify Dead soldiers are NOT in the next Mission Setup squad
     const returnBtn = Array.from(
       document.querySelectorAll("#screen-debrief button"),
-    ).find((b) => b.textContent?.includes("Return")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("RETURN")) as HTMLElement;
     returnBtn?.click();
 
     expect(document.getElementById("screen-campaign")?.style.display).toBe(
@@ -366,6 +376,9 @@ describe("Full Campaign Flow Integration", () => {
       ) as HTMLElement
     ).click();
 
+    // Click Launch in mission-setup
+    document.getElementById("btn-launch-mission")?.click();
+
     stateUpdateCallback!({
       status: "Won",
       t: 200,
@@ -398,7 +411,7 @@ describe("Full Campaign Flow Integration", () => {
     expect(cm.getState()?.status).toBe("Victory");
     const returnFromBossBtn = Array.from(
       document.querySelectorAll("#screen-debrief button"),
-    ).find((b) => b.textContent?.includes("Return")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("RETURN")) as HTMLElement;
     returnFromBossBtn?.click();
 
     expect(
@@ -411,7 +424,7 @@ describe("Full Campaign Flow Integration", () => {
       document.querySelectorAll(".campaign-summary-screen button"),
     ).find(
       (b) =>
-        b.textContent?.includes("Retire") || b.textContent?.includes("Abandon"),
+        b.textContent?.includes("RETIRE") || b.textContent?.includes("ABANDON"),
     ) as HTMLElement;
     expect(summaryBtn).toBeTruthy();
     summaryBtn?.click();
@@ -469,6 +482,9 @@ describe("Full Campaign Flow Integration", () => {
     ).find((b) => b.textContent?.includes("Confirm")) as HTMLElement;
     confBtn?.click();
 
+    // Click Launch in mission-setup
+    document.getElementById("btn-launch-mission")?.click();
+
     expect(document.getElementById("screen-mission")?.style.display).toBe(
       "flex",
     );
@@ -495,7 +511,7 @@ describe("Full Campaign Flow Integration", () => {
     expect(cm.getState()?.status).toBe("Defeat");
     const returnFromDefeatBtn = Array.from(
       document.querySelectorAll("#screen-debrief button"),
-    ).find((b) => b.textContent?.includes("Return")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("RETURN")) as HTMLElement;
     returnFromDefeatBtn?.click();
 
     expect(

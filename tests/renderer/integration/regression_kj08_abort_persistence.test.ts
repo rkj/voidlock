@@ -112,6 +112,7 @@ describe("Regression kj08: Abort Persistence", () => {
         </div>
         <div id="unit-style-preview"></div>
         <div id="squad-builder"></div>
+        <button id="btn-launch-mission" class="primary-button">Launch Mission</button>
         <button id="btn-goto-equipment">Launch</button>
         <button id="btn-setup-back">Back</button>
       </div>
@@ -180,6 +181,9 @@ describe("Regression kj08: Abort Persistence", () => {
       document.querySelectorAll("#screen-equipment button"),
     ).find((b) => b.textContent?.includes("Confirm Squad")) as HTMLElement;
     confirmBtn?.click();
+
+    // Click Launch in mission-setup
+    document.getElementById("btn-launch-mission")?.click();
 
     expect(document.getElementById("screen-mission")?.style.display).toBe(
       "flex",

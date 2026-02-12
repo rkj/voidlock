@@ -81,7 +81,7 @@ describe("UnitStyleSelector - Asset Loading & Missing Placeholders (voidlock-txq
     const ctx = spritesCanvas.getContext("2d");
 
     expect(ctx?.fillText).toHaveBeenCalledWith(
-      "LOADING",
+      "Loading...",
       expect.any(Number),
       expect.any(Number),
     );
