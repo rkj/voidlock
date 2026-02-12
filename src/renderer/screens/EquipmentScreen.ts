@@ -204,14 +204,14 @@ export class EquipmentScreen {
     contentWrapper.style.minHeight = "0"; // Crucial for nested flex scrolling
 
     // Left: Soldier List
-    const leftPanel = this.createPanel("SOLDIER LIST", "250px");
+    const leftPanel = this.createPanel("Soldier List", "250px");
     leftPanel.classList.add("soldier-list-panel");
     leftPanel.style.overflowY = "auto";
     leftPanel.style.padding = "10px";
     this.renderSoldierList(leftPanel);
 
     // Center: Paper Doll / Slots
-    const centerPanel = this.createPanel("SOLDIER EQUIPMENT", "1fr");
+    const centerPanel = this.createPanel("Soldier Equipment", "1fr");
     centerPanel.classList.add("soldier-equipment-panel");
     centerPanel.style.overflowY = "auto";
     centerPanel.style.padding = "10px";
@@ -222,10 +222,10 @@ export class EquipmentScreen {
 
     // Right: Armory / Global Inventory OR Roster Picker OR Recruitment OR Revive
     const isSlotEmpty = !this.config.soldiers[this.selectedSoldierIndex];
-    let rightPanelTitle = "ARMORY & SUPPLIES";
-    if (this.recruitMode) rightPanelTitle = "RECRUITMENT";
-    else if (this.reviveMode) rightPanelTitle = "REVIVE PERSONNEL";
-    else if (isSlotEmpty) rightPanelTitle = "RESERVE ROSTER";
+    let rightPanelTitle = "Armory & Supplies";
+    if (this.recruitMode) rightPanelTitle = "Recruitment";
+    else if (this.reviveMode) rightPanelTitle = "Revive Personnel";
+    else if (isSlotEmpty) rightPanelTitle = "Reserve Roster";
 
     const rightPanel = this.createPanel(rightPanelTitle, "400px");
     rightPanel.classList.add("armory-panel");
@@ -263,7 +263,7 @@ export class EquipmentScreen {
     footer.style.backgroundColor = "var(--color-surface-elevated)";
 
     const backBtn = document.createElement("button");
-    backBtn.textContent = "BACK";
+    backBtn.textContent = "Back";
     backBtn.className = "back-button";
     backBtn.setAttribute("data-focus-id", "btn-back");
     backBtn.style.margin = "0";
@@ -275,7 +275,7 @@ export class EquipmentScreen {
     backBtn.onclick = () => this.onBack();
 
     const saveBtn = document.createElement("button");
-    saveBtn.textContent = "CONFIRM SQUAD";
+    saveBtn.textContent = "Confirm Squad";
     saveBtn.className = "primary-button";
     saveBtn.setAttribute("data-focus-id", "btn-confirm-squad");
     saveBtn.style.margin = "0";
@@ -299,7 +299,7 @@ export class EquipmentScreen {
 
     const h2 = document.createElement("h2");
     h2.className = "panel-title";
-    h2.textContent = title.toUpperCase();
+    h2.textContent = title;
     panel.appendChild(h2);
 
     return panel;
@@ -603,8 +603,8 @@ export class EquipmentScreen {
       nameGroup.style.flexGrow = "1";
       nameGroup.innerHTML = `
         <div class="supply-item-header" style="font-weight:bold; font-size: 0.9em; width: 100%; display: flex; justify-content: space-between;">
-            <span>${item.name.toUpperCase()}</span>
-            <span style="color:var(--color-primary);">${state ? item.cost + " CR" : "FREE"}</span>
+            <span>${item.name}</span>
+            <span style="color:var(--color-primary);">${state ? item.cost + " CR" : "Free"}</span>
         </div>
       `;
 

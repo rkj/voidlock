@@ -116,12 +116,12 @@ export class BarracksScreen {
     contentWrapper.style.minHeight = "0"; // Crucial for nested flex scrolling
 
     // Left: Roster List
-    const leftPanel = this.createPanel("ROSTER", "300px");
+    const leftPanel = this.createPanel("Roster", "300px");
     leftPanel.style.overflowY = "auto";
     this.renderRoster(leftPanel);
 
     // Center: Soldier Details & Equipment
-    const centerPanel = this.createPanel("SOLDIER DETAILS", "1fr");
+    const centerPanel = this.createPanel("Soldier Details", "1fr");
     centerPanel.style.overflowY = "auto";
     const centerBody = document.createElement("div");
     centerPanel.appendChild(centerBody);
@@ -165,7 +165,7 @@ export class BarracksScreen {
     if (title) {
       const h2 = document.createElement("h2");
       h2.className = "panel-title";
-      h2.textContent = title.toUpperCase();
+      h2.textContent = title;
       panel.appendChild(h2);
     }
 
@@ -248,9 +248,9 @@ export class BarracksScreen {
     renameBtn.style.marginTop = "0";
     renameBtn.onclick = async () => {
       const newName = await this.modalService.prompt(
-        "ENTER NEW NAME FOR THIS SOLDIER:",
+        "Enter new name for this soldier:",
         soldier.name,
-        "RENAME SOLDIER",
+        "Rename Soldier",
       );
       if (newName && newName.trim() !== "" && newName !== soldier.name) {
         this.manager.renameSoldier(soldier.id, newName.trim());
@@ -264,7 +264,7 @@ export class BarracksScreen {
 
     const statusBadge = document.createElement("div");
     statusBadge.className = "status-badge";
-    statusBadge.textContent = soldier.status.toUpperCase();
+    statusBadge.textContent = soldier.status;
     statusBadge.style.background = this.getStatusColor(soldier.status);
     header.appendChild(statusBadge);
 
@@ -280,7 +280,7 @@ export class BarracksScreen {
 
     if (soldier.status === "Wounded") {
       const healBtn = document.createElement("button");
-      healBtn.textContent = "HEAL (50 SCRAP)";
+      healBtn.textContent = `Heal (50 Scrap)`;
       healBtn.disabled = state.scrap < 50;
       healBtn.onclick = () => {
         this.manager.healSoldier(soldier.id);
@@ -328,7 +328,7 @@ export class BarracksScreen {
     tabs.style.marginBottom = "15px";
 
     const recruitTab = document.createElement("button");
-    recruitTab.textContent = "RECRUITMENT";
+    recruitTab.textContent = "Recruitment";
     recruitTab.className = this.activeTab === "Recruitment" ? "active" : "";
     recruitTab.style.flex = "1";
     recruitTab.style.marginTop = "0";
@@ -338,7 +338,7 @@ export class BarracksScreen {
     };
 
     const armoryTab = document.createElement("button");
-    armoryTab.textContent = "ARMORY";
+    armoryTab.textContent = "Armory";
     armoryTab.className = this.activeTab === "Armory" ? "active" : "";
     armoryTab.style.flex = "1";
     armoryTab.style.marginTop = "0";
@@ -366,7 +366,7 @@ export class BarracksScreen {
         placeholder.style.textAlign = "center";
         placeholder.style.color = "var(--color-text-dim)";
         placeholder.style.marginTop = "40px";
-        placeholder.textContent = "SELECT A SOLDIER TO ACCESS ARMORY";
+        placeholder.textContent = "Select a Soldier to Access Armory";
         body.appendChild(placeholder);
       }
     }
@@ -380,7 +380,7 @@ export class BarracksScreen {
 
     if (isFull) {
       const msg = document.createElement("div");
-      msg.textContent = `ROSTER IS FULL (MAX ${CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE} SOLDIERS).`;
+      msg.textContent = `Roster is Full (Max ${CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE} Soldiers).`;
       msg.style.color = "var(--color-hive)";
       msg.style.textAlign = "center";
       msg.style.padding = "20px";
@@ -396,11 +396,11 @@ export class BarracksScreen {
 
       const card = SoldierWidget.render(arch, {
         context: "squad-builder",
-        price: "100 SCRAP",
+        price: "100 Scrap",
       });
 
       const recruitBtn = document.createElement("button");
-      recruitBtn.textContent = "RECRUIT";
+      recruitBtn.textContent = "Recruit";
       recruitBtn.className = "w-full";
       recruitBtn.style.padding = "5px";
       recruitBtn.style.fontSize = "0.8em";

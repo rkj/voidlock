@@ -85,7 +85,7 @@ export class SoldierInspector {
         "inspector-placeholder flex-col align-center justify-center";
       placeholder.innerHTML = `
         <div class="placeholder-icon">👤</div>
-        <div>SELECT A SLOT TO MANAGE SQUAD</div>
+        <div>Select a Slot to Manage Squad</div>
       `;
       wrapper.appendChild(placeholder);
 
@@ -101,8 +101,8 @@ export class SoldierInspector {
           recruitBtn.className = "menu-button w-full recruit-btn-large";
           recruitBtn.setAttribute("data-focus-id", "recruit-btn-large");
           recruitBtn.innerHTML = `
-          <div class="btn-label">RECRUIT NEW SOLDIER</div>
-          <div class="btn-sub">COST: 100 SCRAP</div>
+          <div class="btn-label">Recruit New Soldier</div>
+          <div class="btn-sub">Cost: 100 Scrap</div>
         `;
           recruitBtn.onclick = () => this.handleRecruit();
           optionsDiv.appendChild(recruitBtn);
@@ -114,8 +114,8 @@ export class SoldierInspector {
         reviveBtn.setAttribute("data-focus-id", "revive-btn-large");
         reviveBtn.disabled = !canAffordRevive;
         reviveBtn.innerHTML = `
-        <div class="btn-label">REVIVE FALLEN SOLDIER</div>
-        <div class="btn-sub">COST: 250 SCRAP</div>
+        <div class="btn-label">Revive Fallen Soldier</div>
+        <div class="btn-sub">Cost: 250 Scrap</div>
       `;
         reviveBtn.onclick = () => this.handleRevive();
         optionsDiv.appendChild(reviveBtn);
@@ -136,7 +136,7 @@ export class SoldierInspector {
     if (this.isDead()) {
       const deadDiv = document.createElement("div");
       deadDiv.className = "w-full dead-warning";
-      deadDiv.textContent = "SOLDIER IS DECEASED - EQUIPMENT LOCKED";
+      deadDiv.textContent = "Soldier is Deceased - Equipment Locked";
       content.appendChild(deadDiv);
     }
 
@@ -145,7 +145,7 @@ export class SoldierInspector {
     soldierStatsDiv.className = "w-full stat-box soldier-attributes-panel";
 
     const h3Soldier = document.createElement("h3");
-    h3Soldier.textContent = "SOLDIER ATTRIBUTES";
+    h3Soldier.textContent = "Soldier Attributes";
     h3Soldier.className = "stat-label inspector-panel-title";
     soldierStatsDiv.appendChild(h3Soldier);
 
@@ -164,7 +164,7 @@ export class SoldierInspector {
     weaponStatsDiv.className = "w-full stat-box weapon-performance-panel";
 
     const h3Weapon = document.createElement("h3");
-    h3Weapon.textContent = "EQUIPMENT PERFORMANCE";
+    h3Weapon.textContent = "Equipment Performance";
     h3Weapon.className = "stat-label inspector-panel-title-alt";
     weaponStatsDiv.appendChild(h3Weapon);
 
@@ -174,10 +174,10 @@ export class SoldierInspector {
 
     const renderWepBlock = (w: WeaponStats | null, label: string) => {
       if (!w)
-        return `<div class="weapon-block-empty">${label}: [NO EQUIPMENT]</div>`;
+        return `<div class="weapon-block-empty">${label}: [No Equipment]</div>`;
       return `
             <div class="weapon-block">
-                <div class="weapon-block-title">${label}: ${w.name.toUpperCase()}</div>
+                <div class="weapon-block-title">${label}: ${w.name}</div>
                 <div class="weapon-block-stats">
                     ${StatDisplay.render(Icons.Damage, w.damage, "Damage per hit")}
                     ${StatDisplay.render(Icons.Rate, w.fireRate, "Rounds per second")}
@@ -191,7 +191,7 @@ export class SoldierInspector {
     const wContent = document.createElement("div");
     wContent.className = "w-full";
     wContent.innerHTML =
-      renderWepBlock(rw, "PRIMARY (RH)") + renderWepBlock(lw, "SECONDARY (LH)");
+      renderWepBlock(rw, "Primary (RH)") + renderWepBlock(lw, "Secondary (LH)");
     weaponStatsDiv.appendChild(wContent);
     content.appendChild(weaponStatsDiv);
 
@@ -200,25 +200,25 @@ export class SoldierInspector {
     slotsGrid.className = "inspector-slots-grid";
 
     slotsGrid.appendChild(
-      this.createSlot("RIGHT HAND", equip.rightHand, (id) =>
+      this.createSlot("Right Hand", equip.rightHand, (id) =>
         this.handleSlotChange("rightHand", id),
       ),
     );
 
     slotsGrid.appendChild(
-      this.createSlot("LEFT HAND", equip.leftHand, (id) =>
+      this.createSlot("Left Hand", equip.leftHand, (id) =>
         this.handleSlotChange("leftHand", id),
       ),
     );
 
     slotsGrid.appendChild(
-      this.createSlot("BODY", equip.body, (id) =>
+      this.createSlot("Body", equip.body, (id) =>
         this.handleSlotChange("body", id),
       ),
     );
 
     slotsGrid.appendChild(
-      this.createSlot("FEET", equip.feet, (id) =>
+      this.createSlot("Feet", equip.feet, (id) =>
         this.handleSlotChange("feet", id),
       ),
     );
@@ -252,7 +252,7 @@ export class SoldierInspector {
     // Primary Weapons
     this.renderArmoryCategory(
       container,
-      "PRIMARY WEAPONS",
+      "Primary Weapons",
       Object.values(WeaponLibrary).filter(
         (w) => w.type === "Ranged" && isUnlocked(w.id),
       ),
@@ -263,7 +263,7 @@ export class SoldierInspector {
     // Secondary Weapons
     this.renderArmoryCategory(
       container,
-      "SECONDARY WEAPONS",
+      "Secondary Weapons",
       Object.values(WeaponLibrary).filter(
         (w) => w.type === "Melee" && isUnlocked(w.id),
       ),
@@ -274,7 +274,7 @@ export class SoldierInspector {
     // Armor
     this.renderArmoryCategory(
       container,
-      "ARMOR",
+      "Armor",
       Object.values(ItemLibrary).filter(
         (i) =>
           (i.id.includes("recon") || i.id.includes("plate")) &&
@@ -287,7 +287,7 @@ export class SoldierInspector {
     // Footwear
     this.renderArmoryCategory(
       container,
-      "FOOTWEAR",
+      "Footwear",
       Object.values(ItemLibrary).filter(
         (i) => i.id.includes("boots") && isUnlocked(i.id),
       ),
@@ -320,7 +320,7 @@ export class SoldierInspector {
       const item = WeaponLibrary[itemId] || ItemLibrary[itemId];
       if (item) {
         const name = document.createElement("div");
-        name.textContent = item.name.toUpperCase();
+        name.textContent = item.name;
         name.className = "slot-item-name";
         slot.appendChild(name);
 
@@ -442,15 +442,15 @@ export class SoldierInspector {
 
       btn.title = `${item.name}\n${item.description || ""}${fullStats ? "\n\n" + fullStats : ""}`;
 
-      const priceText = isOwned || isCurrentlyEquipped ? "Owned" : `${cost} CR`;
+      const priceText = isOwned || isCurrentlyEquipped ? "Owned" : `${cost} Scrap`;
       const priceClass =
         isOwned || isCurrentlyEquipped ? "price-owned" : "price-cost";
 
       btn.innerHTML = `
             <div class="armory-item-content" style="width: 100%;">
                 <div class="armory-item-header" style="width: 100%; display: flex; justify-content: space-between;">
-                    <span>${item.name.toUpperCase()}</span>
-                    <span class="${priceClass}">${priceText.toUpperCase()}</span>
+                    <span>${item.name}</span>
+                    <span class="${priceClass}">${priceText}</span>
                 </div>
                 <div class="armory-item-stats">
                     ${statsHtml}

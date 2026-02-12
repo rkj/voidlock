@@ -174,9 +174,9 @@ export class SoldierWidget {
   }
 
   private static getItemName(id?: string): string {
-    if (!id) return "EMPTY";
+    if (!id) return "Empty";
     const item = WeaponLibrary[id] || ItemLibrary[id];
-    return item ? item.name.toUpperCase() : id.toUpperCase();
+    return item ? item.name : id;
   }
 
   private static getStatusColor(status: string): string {
@@ -205,7 +205,7 @@ export class SoldierWidget {
       weapon.fireRate * (unit.stats.speed > 0 ? 10 / unit.stats.speed : 1);
 
     return {
-      name: weapon.name.toUpperCase(),
+      name: weapon.name,
       damage: weapon.damage,
       range: weapon.range,
       accuracy:
@@ -257,18 +257,18 @@ export class SoldierWidget {
     if (iconSpan.textContent !== policyIcon) iconSpan.textContent = policyIcon;
 
     const idSpan = el.querySelector(".u-id") as HTMLElement;
-    if (idSpan.textContent !== displayName.toUpperCase()) idSpan.textContent = displayName.toUpperCase();
+    if (idSpan.textContent !== displayName) idSpan.textContent = displayName;
 
     const burdenIcon = unit.carriedObjectiveId ? " 📦" : "";
     const burdenSpan = el.querySelector(".u-burden") as HTMLElement;
     if (burdenSpan.textContent !== burdenIcon)
       burdenSpan.textContent = burdenIcon;
 
-    let statusText: string = unit.state.toUpperCase();
+    let statusText: string = unit.state;
     if (unit.activeCommand) {
       const cmd = unit.activeCommand;
-      const cmdLabel = (cmd.label || cmd.type).toUpperCase();
-      statusText = `${cmdLabel} (${unit.state.toUpperCase()})`;
+      const cmdLabel = cmd.label || cmd.type;
+      statusText = `${cmdLabel} (${unit.state})`;
     }
     if (unit.commandQueue && unit.commandQueue.length > 0) {
       statusText += ` (+${unit.commandQueue.length})`;
@@ -306,14 +306,14 @@ export class SoldierWidget {
       stats: WeaponHUDStats | null,
     ) => {
       if (!stats) {
-        const emptyHtml = '<span class="weapon-empty">EMPTY</span>';
+        const emptyHtml = '<span class="weapon-empty">Empty</span>';
         if (container.innerHTML !== emptyHtml) container.innerHTML = emptyHtml;
         return;
       }
 
       if (
         !container.querySelector(".stat-display") ||
-        container.textContent === "EMPTY"
+        container.textContent === "Empty"
       ) {
         container.innerHTML = `
           ${StatDisplay.render(Icons.Damage, stats.damage, "Damage")}
@@ -371,9 +371,9 @@ export class SoldierWidget {
 
     container.innerHTML = `
       <div class="flex-row justify-between align-center">
-        <span class="soldier-name-lvl">${displayName.toUpperCase()} <span class="soldier-lvl">LVL ${currentLevel}</span></span>
+        <span class="soldier-name-lvl">${displayName} <span class="soldier-lvl">Lvl ${currentLevel}</span></span>
         <span class="soldier-status-badge" style="color:${statusColor}; border-color: ${statusColor};">
-          ${res.status.toUpperCase()}
+          ${res.status}
         </span>
       </div>
       
@@ -389,9 +389,9 @@ export class SoldierWidget {
       </div>
 
       <div class="flex-row gap-20 debrief-stats-summary">
-        <span>KILLS: <span class="highlight-text">${res.kills}</span></span>
-        ${res.promoted ? `<span class="promo-text">LEVEL UP! (LVL ${res.newLevel})</span>` : ""}
-        ${res.status === "Wounded" && res.recoveryTime ? `<span class="recovery-text">RECOVERY: ${res.recoveryTime} MISSIONS</span>` : ""}
+        <span>Kills: <span class="highlight-text">${res.kills}</span></span>
+        ${res.promoted ? `<span class="promo-text">Level Up! (Lvl ${res.newLevel})</span>` : ""}
+        ${res.status === "Wounded" && res.recoveryTime ? `<span class="recovery-text">Recovery: ${res.recoveryTime} Missions</span>` : ""}
       </div>
     `;
   }
@@ -430,15 +430,15 @@ export class SoldierWidget {
 
     container.innerHTML = `
       <div class="roster-item-header">
-        <strong class="${options.selected ? "active-name" : ""}">${displayName.toUpperCase()}</strong>
+        <strong class="${options.selected ? "active-name" : ""}">${displayName}</strong>
         <div class="roster-item-meta">
-          ${options.price ? `<span class="roster-price">${options.price.toUpperCase()}</span>` : ""}
-          <span class="badge">LVL ${level}</span>
+          ${options.price ? `<span class="roster-price">${options.price}</span>` : ""}
+          <span class="badge">Lvl ${level}</span>
         </div>
       </div>
       <div class="roster-item-details">
-        <span>${archetype.toUpperCase()} | ${equipmentText.toUpperCase()}</span>
-        <span style="color:${statusColor};">${status.toUpperCase()}</span>
+        <span>${archetype} | ${equipmentText}</span>
+        <span style="color:${statusColor};">${status}</span>
       </div>
       <div class="roster-item-stats">
         HP: ${hp}/${maxHp} | XP: ${xp}
@@ -479,15 +479,15 @@ export class SoldierWidget {
       scaledFireRate > 0 ? (1000 / scaledFireRate).toFixed(1) : "0";
 
     const name = this.getName(data);
-    const subTitle = arch?.name && arch.name !== name ? `${arch.name.toUpperCase()} ` : "";
+    const subTitle = arch?.name && arch.name !== name ? `${arch.name} ` : "";
 
     container.innerHTML = `
       <div class="squad-builder-card-header">
-        <strong>${displayName.toUpperCase()}</strong>
-        ${options.price ? `<span class="squad-builder-price">${options.price.toUpperCase()}</span>` : ""}
+        <strong>${displayName}</strong>
+        ${options.price ? `<span class="squad-builder-price">${options.price}</span>` : ""}
       </div>
       <div class="squad-builder-card-subtitle">
-        ${subTitle}LVL ${level} | STATUS: ${status.toUpperCase()}
+        ${subTitle}Lvl ${level} | Status: ${status}
       </div>
       <div class="squad-builder-card-stats">
         ${StatDisplay.render(Icons.Speed, speed, "Speed")}

@@ -94,27 +94,27 @@ export class NewCampaignWizard {
     const DIFFICULTIES = [
       {
         id: "easy",
-        name: "SIMULATION",
-        rules: ["PERMADEATH: OFF", "SAVE: MANUAL", "PAUSE: ALLOWED"],
+        name: "Simulation",
+        rules: ["Permadeath: Off", "Save: Manual", "Pause: Allowed"],
       },
       {
         id: "normal",
-        name: "CLONE",
+        name: "Clone",
         rules: [
-          "PERMADEATH: PARTIAL (CLONEABLE)",
-          "SAVE: MANUAL",
-          "PAUSE: ALLOWED",
+          "Permadeath: Partial (Cloneable)",
+          "Save: Manual",
+          "Pause: Allowed",
         ],
       },
       {
         id: "hard",
-        name: "STANDARD",
-        rules: ["PERMADEATH: ON", "SAVE: MANUAL", "PAUSE: ALLOWED"],
+        name: "Standard",
+        rules: ["Permadeath: On", "Save: Manual", "Pause: Allowed"],
       },
       {
         id: "extreme",
-        name: "IRONMAN",
-        rules: ["PERMADEATH: ON", "SAVE: AUTO-DELETE", "PAUSE: DISABLED"],
+        name: "Ironman",
+        rules: ["Permadeath: On", "Save: Auto-Delete", "Pause: Disabled"],
       },
     ];
 
@@ -129,7 +129,7 @@ export class NewCampaignWizard {
     pauseCheck.checked = true;
     const pauseLabel = document.createElement("label");
     pauseLabel.htmlFor = "campaign-tactical-pause";
-    pauseLabel.textContent = "ALLOW TACTICAL PAUSE (0.05X)";
+    pauseLabel.textContent = "Allow Tactical Pause (0.05x)";
     pauseLabel.style.fontSize = "0.9em";
     pauseGroup.appendChild(pauseCheck);
     pauseGroup.appendChild(pauseLabel);
@@ -164,7 +164,7 @@ export class NewCampaignWizard {
         if (this.selectedDifficulty === "extreme") {
           pauseCheck.checked = false;
           pauseCheck.disabled = true;
-          const tooltip = "TACTICAL PAUSE IS DISABLED IN IRONMAN MODE.";
+          const tooltip = "Tactical Pause is disabled in Ironman mode.";
           pauseCheck.title = tooltip;
           pauseLabel.title = tooltip;
           pauseLabel.style.opacity = "0.5";
