@@ -66,7 +66,7 @@ describe("DebriefScreen Replay Button", () => {
 
     screen.show(customReport);
     const buttons = Array.from(container.querySelectorAll(".debrief-button"));
-    const replayBtn = buttons.find((b) => b.textContent === "Replay Mission");
+    const replayBtn = buttons.find((b) => b.textContent === "REPLAY MISSION");
     expect(replayBtn).toBeDefined();
 
     const campaignReport: MissionReport = {
@@ -82,7 +82,7 @@ describe("DebriefScreen Replay Button", () => {
 
     screen.show(campaignReport);
     const buttons2 = Array.from(container.querySelectorAll(".debrief-button"));
-    const replayBtn2 = buttons2.find((b) => b.textContent === "Replay Mission");
+    const replayBtn2 = buttons2.find((b) => b.textContent === "REPLAY MISSION");
     expect(replayBtn2).toBeUndefined();
   });
 
@@ -101,7 +101,7 @@ describe("DebriefScreen Replay Button", () => {
     screen.show(customReport);
     const buttons = Array.from(container.querySelectorAll(".debrief-button"));
     const replayBtn = buttons.find(
-      (b) => b.textContent === "Replay Mission",
+      (b) => b.textContent === "REPLAY MISSION",
     ) as HTMLButtonElement;
     replayBtn.click();
 

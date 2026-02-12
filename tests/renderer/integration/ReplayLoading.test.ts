@@ -274,7 +274,7 @@ describe("Replay Loading Integration", () => {
     expect(debriefScreen?.style.display).toBe("flex");
 
     // Verify Mission Stats on screen
-    expect(debriefScreen?.innerHTML).toContain("Mission Success");
+    expect(debriefScreen?.innerHTML).toContain("MISSION SUCCESS");
     expect(debriefScreen?.innerHTML).toContain("25"); // Aliens killed
     expect(debriefScreen?.innerHTML).toContain("150"); // Scrap
 
@@ -336,8 +336,8 @@ describe("Replay Loading Integration", () => {
     const debriefScreen = document.getElementById("screen-debrief");
     expect(debriefScreen?.style.display).toBe("flex");
 
-    // Verify Mission Success (default)
-    expect(debriefScreen?.innerHTML).toContain("Mission Success");
+    // Verify MISSION SUCCESS (default)
+    expect(debriefScreen?.innerHTML).toContain("MISSION SUCCESS");
     expect(debriefScreen?.innerHTML).toContain("Sarge");
 
     // Verify GameClient.loadReplay was called with correct data

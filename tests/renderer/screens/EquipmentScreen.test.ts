@@ -238,7 +238,7 @@ describe("EquipmentScreen", () => {
 
     // Heavy Plate gives +150 HP
     const soldierStatsDiv = Array.from(container.querySelectorAll("h3")).find(
-      (el) => el.textContent === "Soldier Attributes",
+      (el) => el.textContent === "SOLDIER ATTRIBUTES",
     )?.parentElement;
     expect(soldierStatsDiv?.textContent).toContain("250"); // 100 + 150
 

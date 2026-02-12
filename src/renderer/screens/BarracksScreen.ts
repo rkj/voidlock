@@ -116,12 +116,12 @@ export class BarracksScreen {
     contentWrapper.style.minHeight = "0"; // Crucial for nested flex scrolling
 
     // Left: Roster List
-    const leftPanel = this.createPanel("Roster", "300px");
+    const leftPanel = this.createPanel("ROSTER", "300px");
     leftPanel.style.overflowY = "auto";
     this.renderRoster(leftPanel);
 
     // Center: Soldier Details & Equipment
-    const centerPanel = this.createPanel("Soldier Details", "1fr");
+    const centerPanel = this.createPanel("SOLDIER DETAILS", "1fr");
     centerPanel.style.overflowY = "auto";
     const centerBody = document.createElement("div");
     centerPanel.appendChild(centerBody);
@@ -242,7 +242,7 @@ export class BarracksScreen {
 
     const renameBtn = document.createElement("button");
     renameBtn.innerHTML = "✎"; // Pencil icon
-    renameBtn.title = "Rename Soldier";
+    renameBtn.title = "RENAME SOLDIER";
     renameBtn.style.padding = "4px 8px";
     renameBtn.style.fontSize = "1.2em";
     renameBtn.style.marginTop = "0";
@@ -250,7 +250,7 @@ export class BarracksScreen {
       const newName = await this.modalService.prompt(
         "Enter new name for this soldier:",
         soldier.name,
-        "Rename Soldier",
+        "RENAME SOLDIER",
       );
       if (newName && newName.trim() !== "" && newName !== soldier.name) {
         this.manager.renameSoldier(soldier.id, newName.trim());

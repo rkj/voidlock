@@ -212,6 +212,7 @@ describe("Campaign End Integration", () => {
         </div>
         <div id="unit-style-preview"></div>
         <div id="squad-builder"></div>
+        <button id="btn-launch-mission" class="primary-button">Launch Mission</button>
         <button id="btn-goto-equipment">Equipment</button>
         <button id="btn-setup-back">Back</button>
       </div>
@@ -278,6 +279,9 @@ describe("Campaign End Integration", () => {
     ) as HTMLElement;
     equipmentLaunchBtn?.click();
 
+    // Now in mission-setup, click Launch Mission
+    document.getElementById("btn-launch-mission")?.click();
+
     expect(document.getElementById("screen-mission")?.style.display).toBe(
       "flex",
     );
@@ -321,7 +325,7 @@ describe("Campaign End Integration", () => {
     // 5. Return to Campaign Screen (now summary if Victory)
     const continueBtn = Array.from(
       document.querySelectorAll("#screen-debrief button"),
-    ).find((b) => b.textContent?.includes("Return")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("RETURN")) as HTMLElement;
     continueBtn?.click();
 
     expect(
@@ -331,7 +335,7 @@ describe("Campaign End Integration", () => {
     // 6. Verify Victory Report is displayed
     const victoryOverlay = document.querySelector(".campaign-victory-overlay");
     expect(victoryOverlay).not.toBeNull();
-    expect(victoryOverlay?.textContent).toContain("Sector Secured");
+    expect(victoryOverlay?.textContent).toContain("SECTOR SECURED");
     expect(victoryOverlay?.textContent).toMatch(/Aliens Killed:\s*42/);
     expect(victoryOverlay?.textContent).toMatch(/Missions:\s*1/);
 
@@ -339,7 +343,7 @@ describe("Campaign End Integration", () => {
     const menuBtn = Array.from(
       document.querySelectorAll(".campaign-summary-screen button"),
     ).find((b) =>
-      b.textContent?.includes("Retire to Main Menu"),
+      b.textContent?.includes("RETIRE TO MAIN MENU"),
     ) as HTMLElement;
     expect(menuBtn).toBeDefined();
     menuBtn.click();

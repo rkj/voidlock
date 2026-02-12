@@ -366,6 +366,7 @@ export class GameApp {
           this.context.campaignShell.hide();
         }
       },
+      onLaunchMission: () => this.launchMission(),
       onMapGeneratorChange: (type: MapGeneratorType) => {
         if (this.missionSetupManager.currentMapGeneratorType === type) return;
         this.missionSetupManager.currentMapGeneratorType = type;

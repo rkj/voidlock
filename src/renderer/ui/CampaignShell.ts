@@ -168,11 +168,11 @@ export class CampaignShell {
       }
       resources.innerHTML = `
         <div class="resource-item" title="Scrap (Currency)">
-          <span style="color: var(--color-text-dim)">Scrap:</span>
+          <span style="color: var(--color-text-dim)">SCRAP:</span>
           <span style="color: var(--color-primary); font-weight: bold;">${scrap}</span>
         </div>
         <div class="resource-item" title="Intel (Tech/Unlock)">
-          <span style="color: var(--color-text-dim)">Intel:</span>
+          <span style="color: var(--color-text-dim)">INTEL:</span>
           <span style="color: var(--color-accent); font-weight: bold;">${intel}</span>
         </div>
       `;

@@ -192,6 +192,7 @@ describe("Screen Flow Integration", () => {
         </div>
         <div id="unit-style-preview"></div>
         <div id="squad-builder"></div>
+        <button id="btn-launch-mission" class="primary-button">Launch Mission</button>
         <button id="btn-goto-equipment">Equipment</button>
         <button id="btn-setup-back">Back</button>
       </div>
@@ -251,6 +252,9 @@ describe("Screen Flow Integration", () => {
     expect(equipmentLaunchBtn).toBeDefined();
     equipmentLaunchBtn?.click();
 
+    // Now in mission-setup, click Launch
+    document.getElementById("btn-launch-mission")?.click();
+
     expect(document.getElementById("screen-mission")?.style.display).toBe(
       "flex",
     );
@@ -293,7 +297,7 @@ describe("Screen Flow Integration", () => {
     // 6. Debrief -> Campaign
     const continueBtn = Array.from(
       document.querySelectorAll("#screen-debrief button"),
-    ).find((b) => b.textContent?.includes("Return")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("RETURN")) as HTMLElement;
     continueBtn?.click();
 
     expect(document.getElementById("screen-campaign")?.style.display).toBe(
@@ -326,6 +330,9 @@ describe("Screen Flow Integration", () => {
       b.textContent?.includes("Confirm"),
     ) as HTMLElement;
     equipmentLaunchBtn?.click();
+
+    // Now in mission-setup, click Launch
+    document.getElementById("btn-launch-mission")?.click();
 
     expect(document.getElementById("screen-mission")?.style.display).toBe(
       "flex",
@@ -369,7 +376,7 @@ describe("Screen Flow Integration", () => {
     // 4. Debrief -> Main Menu
     const continueBtn = Array.from(
       document.querySelectorAll("#screen-debrief button"),
-    ).find((b) => b.textContent?.includes("Return")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("RETURN")) as HTMLElement;
     continueBtn?.click();
 
     expect(document.getElementById("screen-main-menu")?.style.display).toBe(

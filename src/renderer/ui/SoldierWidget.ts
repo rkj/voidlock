@@ -371,7 +371,7 @@ export class SoldierWidget {
 
     container.innerHTML = `
       <div class="flex-row justify-between align-center">
-        <span class="soldier-name-lvl">${displayName} <span class="soldier-lvl">Lvl ${currentLevel}</span></span>
+        <span class="soldier-name-lvl">${displayName} <span class="soldier-lvl">LVL ${currentLevel}</span></span>
         <span class="soldier-status-badge" style="color:${statusColor}; border-color: ${statusColor};">
           ${res.status}
         </span>
@@ -390,7 +390,7 @@ export class SoldierWidget {
 
       <div class="flex-row gap-20 debrief-stats-summary">
         <span>Kills: <span class="highlight-text">${res.kills}</span></span>
-        ${res.promoted ? `<span class="promo-text">Level Up! (Lvl ${res.newLevel})</span>` : ""}
+        ${res.promoted ? `<span class="promo-text">Level Up! (LVL ${res.newLevel})</span>` : ""}
         ${res.status === "Wounded" && res.recoveryTime ? `<span class="recovery-text">Recovery: ${res.recoveryTime} Missions</span>` : ""}
       </div>
     `;
@@ -433,7 +433,7 @@ export class SoldierWidget {
         <strong class="${options.selected ? "active-name" : ""}">${displayName}</strong>
         <div class="roster-item-meta">
           ${options.price ? `<span class="roster-price">${options.price}</span>` : ""}
-          <span class="badge">Lvl ${level}</span>
+          <span class="badge">LVL ${level}</span>
         </div>
       </div>
       <div class="roster-item-details">
@@ -487,7 +487,7 @@ export class SoldierWidget {
         ${options.price ? `<span class="squad-builder-price">${options.price}</span>` : ""}
       </div>
       <div class="squad-builder-card-subtitle">
-        ${subTitle}Lvl ${level} | Status: ${status}
+        ${subTitle}LVL ${level} | Status: ${status}
       </div>
       <div class="squad-builder-card-stats">
         ${StatDisplay.render(Icons.Speed, speed, "Speed")}

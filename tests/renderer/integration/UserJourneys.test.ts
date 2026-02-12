@@ -250,6 +250,7 @@ describe("Comprehensive User Journeys", () => {
           </div>
         </div>
         <div id="squad-builder"></div>
+        <button id="btn-launch-mission" class="primary-button">Launch Mission</button>
         <button id="btn-goto-equipment">Equipment</button>
         <button id="btn-setup-back">Back</button>
       </div>
@@ -374,6 +375,9 @@ describe("Comprehensive User Journeys", () => {
     ).find((b) => b.textContent?.includes("Confirm")) as HTMLElement;
     equipmentLaunchBtn.click();
 
+    // Now it should be in mission-setup, click Launch
+    document.getElementById("btn-launch-mission")?.click();
+
     expect(document.getElementById("screen-mission")?.style.display).toBe(
       "flex",
     );
@@ -403,7 +407,7 @@ describe("Comprehensive User Journeys", () => {
     // 5. Debrief -> Main Menu
     const returnBtn = Array.from(
       document.querySelectorAll("#screen-debrief button"),
-    ).find((b) => b.textContent?.includes("Return")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("RETURN")) as HTMLElement;
     returnBtn?.click();
 
     // Wait for async screen transition
@@ -446,6 +450,9 @@ describe("Comprehensive User Journeys", () => {
       document.querySelectorAll("#screen-equipment button"),
     ).find((b) => b.textContent?.includes("Confirm")) as HTMLElement;
     equipmentLaunchBtn.click();
+
+    // Now it should be in mission-setup, click Launch
+    document.getElementById("btn-launch-mission")?.click();
 
     // 1. Mission -> Lose
     expect(stateUpdateCallback).not.toBeNull();
@@ -526,7 +533,7 @@ describe("Comprehensive User Journeys", () => {
     // 2. Debrief -> Campaign Summary (Game Over)
     const returnBtn = Array.from(
       document.querySelectorAll("#screen-debrief button"),
-    ).find((b) => b.textContent?.includes("Return")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("RETURN")) as HTMLElement;
     returnBtn.click();
 
     expect(
@@ -537,7 +544,7 @@ describe("Comprehensive User Journeys", () => {
     // 3. Abandon Campaign
     const abandonBtn = Array.from(
       document.querySelectorAll("#screen-campaign-summary button"),
-    ).find((b) => b.textContent?.includes("Abandon")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("ABANDON")) as HTMLElement;
     abandonBtn.click();
 
     expect(document.getElementById("screen-main-menu")?.style.display).toBe(

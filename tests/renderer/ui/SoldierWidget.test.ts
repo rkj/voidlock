@@ -127,7 +127,7 @@ describe("SoldierWidget", () => {
     expect(el.classList.contains("soldier-widget-squad-builder")).toBe(true);
     expect(el.classList.contains("soldier-card")).toBe(true);
     expect(el.textContent).toContain("John Doe");
-    expect(el.textContent).toContain("Lvl 1");
+    expect(el.textContent).toContain("LVL 1");
     expect(el.textContent).toContain("Status: Healthy");
   });
 

@@ -19,35 +19,27 @@ describe("Reproduction: All-caps labels in UI (voidlock-8ai79)", () => {
     await browser.close();
   });
 
-  const findAllCapsElements = async (selector: string, context: string) => {
-    return await page.evaluate((sel, ctx) => {
-      const elements = Array.from(document.querySelectorAll(sel));
-      const failures: string[] = [];
-      const exceptions = ["XP", "HP", "LOS", "LOF", "ID", "POIS", "RH", "LH", "SQD", "OBJ", "VITE", "VOD", "DAG", "CR", "X"];
-      
-      elements.forEach(el => {
-        const text = el.textContent || "";
-        const trimmed = text.trim();
-        if (trimmed.length > 2) {
-          const alphaOnly = trimmed.replace(/[^a-zA-Z]/g, "");
-          if (alphaOnly.length > 2 && alphaOnly === alphaOnly.toUpperCase()) {
-            if (!exceptions.includes(alphaOnly)) {
-              failures.push(`[${ctx}] All-caps text: "${trimmed}" (Selector: ${sel})`);
-            }
-          }
-          
-          const style = window.getComputedStyle(el);
-          if (style.textTransform === "uppercase") {
-            failures.push(`[${ctx}] text-transform uppercase: "${trimmed}" (Selector: ${sel})`);
-          }
+  const checkIsAllCaps = async (selector: string, expectedText: string) => {
+    const text = await page.evaluate((sel) => {
+        const el = document.querySelector(sel);
+        if (!el) return null;
+        // Check both textContent and CSS text-transform
+        const style = window.getComputedStyle(el);
+        if (style.textTransform === "uppercase") {
+            return el.textContent?.toUpperCase();
         }
-      });
-      return failures;
-    }, selector, context);
+        return el.textContent;
+    }, selector);
+    
+    if (text === null) {
+        throw new Error(`Element ${selector} not found`);
+    }
+    
+    // We expect it to be ALL CAPS
+    expect(text).toBe(expectedText.toUpperCase());
   };
 
-  test("Specific labels should not be all-caps", async () => {
-    const allFailures: string[] = [];
+  test("Labels MISSION FAILED, RETURN TO COMMAND BRIDGE, and SOLDIER ATTRIBUTES should be all-caps", async () => {
     await page.goto(E2E_URL, { waitUntil: "networkidle0" });
     await page.evaluate(() => localStorage.clear());
     await page.goto(E2E_URL, { waitUntil: "networkidle0" });
@@ -60,16 +52,16 @@ describe("Reproduction: All-caps labels in UI (voidlock-8ai79)", () => {
     await page.click("#btn-goto-equipment");
     
     await page.waitForSelector("#screen-equipment", { visible: true });
-    allFailures.push(...await findAllCapsElements("#screen-equipment h2", "Equipment Headers"));
-    allFailures.push(...await findAllCapsElements("#screen-equipment h3", "Equipment Subheaders"));
+    await new Promise(r => setTimeout(r, 1000));
+    
+    // The selector for "Soldier Attributes" in SoldierInspector
+    await checkIsAllCaps("#screen-equipment h3", "SOLDIER ATTRIBUTES");
 
     // 2. Check Debrief Screen labels (MISSION FAILED / RETURN TO COMMAND BRIDGE)
-    // Add a soldier so we can start mission
     await page.click("[data-focus-id='soldier-slot-0']");
     await page.waitForSelector(".armory-panel .menu-item.clickable", { visible: true });
     await page.click(".armory-panel .menu-item.clickable");
     
-    // Launch mission using GameAppInstance directly
     await page.evaluate(() => {
         const anyWindow = window as any;
         if (anyWindow.GameAppInstance) {
@@ -80,14 +72,12 @@ describe("Reproduction: All-caps labels in UI (voidlock-8ai79)", () => {
     await page.waitForSelector("#screen-mission", { visible: true });
     await new Promise(r => setTimeout(r, 2000));
 
-    // Click "Start Mission" if it exists (Deployment phase)
     const startBtn = await page.$("#btn-start-mission");
     if (startBtn) {
         await startBtn.click();
         await new Promise(r => setTimeout(r, 1000));
     }
     
-    // Enable debug tools to force lose
     await page.evaluate(() => {
         const anyWindow = window as any;
         if (anyWindow.GameAppInstance && anyWindow.GameAppInstance.context && anyWindow.GameAppInstance.context.gameClient) {
@@ -95,22 +85,16 @@ describe("Reproduction: All-caps labels in UI (voidlock-8ai79)", () => {
         }
     });
     
-    await new Promise(r => setTimeout(r, 2000));
     await page.waitForSelector("#btn-force-lose", { visible: true });
     await page.click("#btn-force-lose");
     
     await page.waitForSelector("#screen-debrief", { visible: true });
+    await new Promise(r => setTimeout(r, 1000));
     
-    allFailures.push(...await findAllCapsElements("#screen-debrief h1", "Debrief Header"));
-    allFailures.push(...await findAllCapsElements("#screen-debrief button", "Debrief Buttons"));
-    allFailures.push(...await findAllCapsElements("#screen-debrief h2", "Debrief Subheaders"));
-
-    if (allFailures.length > 0) {
-        console.log("Reproduction Failures:\n" + allFailures.join("\n"));
-        // We expect failures to be found if the bug exists
-        expect(allFailures.length).toBeGreaterThan(0);
-    } else {
-        throw new Error("No all-caps labels found - bug not reproduced!");
-    }
+    // Debrief Header
+    await checkIsAllCaps("#screen-debrief h1", "MISSION FAILED");
+    
+    // Return to Command Bridge button
+    await checkIsAllCaps(".debrief-footer .debrief-button", "RETURN TO COMMAND BRIDGE");
   });
 });
