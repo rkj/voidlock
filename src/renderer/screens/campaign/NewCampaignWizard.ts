@@ -25,7 +25,7 @@ export class NewCampaignWizard {
 
   public render() {
     this.container.innerHTML = "";
-    this.container.className = "flex-col campaign-setup-wizard h-full relative";
+    this.container.className = "screen campaign-screen flex-col campaign-setup-wizard h-full relative";
 
     const scrollContainer = document.createElement("div");
     scrollContainer.className = "flex-grow w-full overflow-y-auto";
