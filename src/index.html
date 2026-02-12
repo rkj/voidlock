@@ -144,21 +144,21 @@
         ></p>
 
         <div class="menu-button-container">
-          <button id="btn-menu-campaign" class="menu-button">Campaign</button>
+          <button id="btn-menu-campaign" class="menu-button">CAMPAIGN</button>
           <button id="btn-menu-custom" class="menu-button">
-            Custom Mission
+            CUSTOM MISSION
           </button>
           <button id="btn-menu-engineering" class="menu-button">
-            Engineering
+            ENGINEERING
           </button>
           <button id="btn-menu-statistics" class="menu-button">
-            Statistics
+            STATISTICS
           </button>
-          <button id="btn-menu-settings" class="menu-button">Settings</button>
+          <button id="btn-menu-settings" class="menu-button">SETTINGS</button>
 
           <div class="menu-import-section">
             <label for="import-replay" class="menu-import-label"
-              >Load Replay JSON</label
+              >LOAD REPLAY JSON</label
             >
             <input
               type="file"
@@ -207,7 +207,7 @@
 
           <!-- 2f. Mission Setup Screen -->
           <div id="screen-mission-setup" class="screen screen-centered">
-            <h1>Mission Configuration</h1>
+            <h1>MISSION CONFIGURATION</h1>
             <div
               id="mission-setup-context"
               style="
@@ -220,17 +220,17 @@
             <div id="setup-content">
               <div id="map-config-section" style="width: 100%">
                 <div class="control-group">
-                  <label for="map-generator-type">Generator Type:</label>
+                  <label for="map-generator-type">GENERATOR TYPE:</label>
                   <select id="map-generator-type">
-                    <option value="DenseShip">Dense Ship</option>
-                    <option value="TreeShip">Tree Ship</option>
-                    <option value="Procedural">Procedural</option>
-                    <option value="Static">Static Map</option>
+                    <option value="DenseShip">DENSE SHIP</option>
+                    <option value="TreeShip">TREE SHIP</option>
+                    <option value="Procedural">PROCEDURAL</option>
+                    <option value="Static">STATIC MAP</option>
                   </select>
                 </div>
 
                 <div class="control-group">
-                  <label>Game Options:</label>
+                  <label>GAME OPTIONS:</label>
                   <div
                     class="flex-row gap-10"
                     style="flex-wrap: wrap; margin-top: 5px"
@@ -246,7 +246,7 @@
                       "
                     >
                       <input type="checkbox" id="toggle-fog-of-war" checked />
-                      Fog
+                      FOG
                     </label>
                     <label
                       style="
@@ -258,7 +258,7 @@
                         font-size: 0.8em;
                       "
                     >
-                      <input type="checkbox" id="toggle-debug-overlay" /> Debug
+                      <input type="checkbox" id="toggle-debug-overlay" /> DEBUG
                     </label>
                     <label
                       style="
@@ -270,7 +270,7 @@
                         font-size: 0.8em;
                       "
                     >
-                      <input type="checkbox" id="toggle-los-overlay" /> Line Of Sight
+                      <input type="checkbox" id="toggle-los-overlay" /> LINE OF SIGHT
                     </label>
                     <label
                       style="
@@ -300,7 +300,7 @@
                       "
                     >
                       <input type="checkbox" id="toggle-manual-deployment" />
-                      Deployment
+                      DEPLOYMENT
                     </label>
                     <label
                       style="
@@ -317,29 +317,29 @@
                         id="toggle-allow-tactical-pause"
                         checked
                       />
-                      Pause
+                      PAUSE
                     </label>
                   </div>
                 </div>
 
                 <div class="control-group">
                   <div id="preset-map-controls">
-                    <label for="map-seed">Map Seed:</label>
-                    <input type="number" id="map-seed" placeholder="Random" />
+                    <label for="map-seed">MAP SEED:</label>
+                    <input type="number" id="map-seed" placeholder="RANDOM" />
 
                     <div style="display: flex; gap: 10px">
                       <div style="flex: 1">
-                        <label for="map-width">Width:</label>
+                        <label for="map-width">WIDTH:</label>
                         <input type="number" id="map-width" value="10" />
                       </div>
                       <div style="flex: 1">
-                        <label for="map-height">Height:</label>
+                        <label for="map-height">HEIGHT:</label>
                         <input type="number" id="map-height" value="10" />
                       </div>
                     </div>
 
                     <label for="map-spawn-points"
-                      >Enemy Spawns:
+                      >ENEMY SPAWNS:
                       <span id="map-spawn-points-value">3</span></label
                     >
                     <input
@@ -352,7 +352,7 @@
                     />
 
                     <label for="map-starting-threat"
-                      >Starting Threat:
+                      >STARTING THREAT:
                       <span id="map-starting-threat-value">0</span>%</label
                     >
                     <input
@@ -365,7 +365,7 @@
                     />
 
                     <label for="map-base-enemies"
-                      >Base Wave Size:
+                      >BASE WAVE SIZE:
                       <span id="map-base-enemies-value">3</span></label
                     >
                     <input
@@ -378,7 +378,7 @@
                     />
 
                     <label for="map-enemy-growth"
-                      >Wave Growth:
+                      >WAVE GROWTH:
                       <span id="map-enemy-growth-value">1.0</span></label
                     >
                     <input
@@ -392,22 +392,22 @@
                   </div>
 
                   <div id="static-map-controls" style="display: none">
-                    <h3>Static Map</h3>
+                    <h3>STATIC MAP</h3>
                     <textarea
                       id="static-map-json"
                       rows="5"
                       placeholder="Paste JSON MapDefinition here..."
                     ></textarea>
-                    <button id="load-static-map">Load JSON</button>
+                    <button id="load-static-map">LOAD JSON</button>
                     <input type="file" id="upload-static-map" accept=".json" />
 
-                    <h3 style="margin-top: 15px">ASCII Map</h3>
+                    <h3 style="margin-top: 15px">ASCII MAP</h3>
                     <textarea
                       id="ascii-map-input"
                       rows="5"
                       placeholder="Paste ASCII map here..."
                     ></textarea>
-                    <button id="convert-ascii-to-map">Convert ASCII</button>
+                    <button id="convert-ascii-to-map">CONVERT ASCII</button>
                   </div>
                 </div>
               </div>
@@ -423,20 +423,20 @@
                   padding: 0 20px;
                 "
               >
-                <button id="btn-setup-back" class="back-button">Back</button>
+                <button id="btn-setup-back" class="back-button">BACK</button>
                 <button
                   id="btn-launch-mission"
                   class="primary-button"
                   style="padding: 12px 24px"
                 >
-                  Launch Mission
+                  LAUNCH MISSION
                 </button>
                 <button
                   id="btn-goto-equipment"
                   class="primary-button"
                   style="padding: 12px 24px"
                 >
-                  Equipment & Supplies
+                  EQUIPMENT & SUPPLIES
                 </button>
               </div>
             </div>
@@ -448,8 +448,8 @@
       <div id="screen-mission" class="screen">
         <!-- 1. Top Bar -->
         <div id="top-bar" class="top-bar">
-          <button id="btn-toggle-squad" class="drawer-toggle">Squad</button>
-          <div id="game-status">Time: 0.0s</div>
+          <button id="btn-toggle-squad" class="drawer-toggle">SQUAD</button>
+          <div id="game-status">TIME: 0.0s</div>
           <div
             id="top-threat-container"
             style="
@@ -469,7 +469,7 @@
                 white-space: nowrap;
                 letter-spacing: 1px;
               "
-              >Threat</span
+              >THREAT</span
             >
             <div id="top-threat-bar" class="threat-bar">
               <!-- Robust Flex-based Dividers every 10% -->
@@ -572,12 +572,12 @@
             >
           </div>
 
-          <button id="btn-toggle-right" class="drawer-toggle">Objectives</button>
+          <button id="btn-toggle-right" class="drawer-toggle">OBJECTIVES</button>
 
           <!-- Speed Control -->
           <div id="speed-control">
-            <button id="btn-pause-toggle">|| Pause</button>
-            <label for="game-speed">Speed</label>
+            <button id="btn-pause-toggle">|| PAUSE</button>
+            <label for="game-speed">SPEED</label>
             <input
               type="range"
               id="game-speed"
@@ -586,7 +586,7 @@
               step="1"
               value="50"
               style="width: 80px; margin: 0"
-              title="Game Speed (0.1x to 10.0x)"
+              title="GAME SPEED (0.1X TO 10.0X)"
             />
             <span id="speed-value">1.0x</span>
           </div>
@@ -600,7 +600,7 @@
               margin-left: 10px;
             "
           >
-            Give Up
+            GIVE UP
           </button>
         </div>
 

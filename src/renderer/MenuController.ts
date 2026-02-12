@@ -422,7 +422,9 @@ export class MenuController {
       selectedIds = activeUnits.map((u) => u.id);
     }
 
-    if (selectedIds.length > 0 && this.selection.pendingAction) {
+    if (selectedIds.length === 0) return;
+
+    if (this.selection.pendingAction) {
       const item = this.selection.pendingItemId
         ? ItemLibrary[this.selection.pendingItemId]
         : null;
@@ -432,16 +434,16 @@ export class MenuController {
         !this.selection.pendingTargetLocation
       ) {
         this.selection.pendingUnitIds = selectedIds;
-        let label = "Selected Units";
+        let label = "SELECTED UNITS";
         if (selectedIds.length === 1) {
           const unit = gameState.units.find((u) => u.id === selectedIds[0]);
           if (unit) {
             const tacticalNumber =
               unit.tacticalNumber ||
               gameState.units.findIndex((origU) => origU.id === unit.id) + 1;
-            label = `${unit.name || unit.id} (${tacticalNumber})`;
+            label = `${(unit.name || unit.id).toUpperCase()} (${tacticalNumber})`;
           } else {
-            label = selectedIds[0];
+            label = selectedIds[0].toUpperCase();
           }
         }
         this.transitionTo("TARGET_SELECT", label);
@@ -484,9 +486,9 @@ export class MenuController {
     }
 
     const result: RenderableMenuState = {
-      title: config.title,
+      title: config.title.toUpperCase(),
       options: [],
-      breadcrumbs,
+      breadcrumbs: breadcrumbs.map(b => b.toUpperCase()),
     };
 
     const fullState = this.rehydrateState(gameState);
@@ -564,18 +566,18 @@ export class MenuController {
     ) {
       result.options = config.options.map((opt) => ({
         key: opt.key.toString(),
-        label: opt.key === 0 ? "Back" : `${opt.key}. ${opt.label}`,
+        label: opt.key === 0 ? "0. BACK" : `${opt.key}. ${opt.label.toUpperCase()}`,
         isBack: opt.key === 0,
         disabled: this.isOptionDisabled(opt, gameState),
         dataAttributes: { index: opt.key.toString() },
       }));
 
       if (this.stateMachine.state === "ACTION_SELECT") {
-        result.footer = "(Select Action)";
+        result.footer = "(SELECT ACTION)";
       } else if (this.stateMachine.state === "ORDERS_SELECT") {
-        result.footer = "(Select Order)";
+        result.footer = "(SELECT ORDER)";
       } else {
-        result.footer = "(Q/ESC to Go Back)";
+        result.footer = "(Q/ESC TO GO BACK)";
       }
     } else if (this.stateMachine.state === "ITEM_SELECT") {
       const items = Object.entries(gameState.squadInventory).filter(
@@ -597,39 +599,39 @@ export class MenuController {
 
         return {
           key: (idx + 1).toString(),
-          label: `${idx + 1}. ${item?.name || itemId} (${count})`,
+          label: `${idx + 1}. ${(item?.name || itemId).toUpperCase()} (${count})`,
           disabled,
           dataAttributes: { index: (idx + 1).toString(), "item-id": itemId },
         };
       });
       result.options.push({
         key: "0",
-        label: "0. Back",
+        label: "0. BACK",
         isBack: true,
         dataAttributes: { index: "0" },
       });
-      result.footer = "(Select Item, Q/ESC to Back)";
+      result.footer = "(SELECT ITEM, Q/ESC TO BACK)";
     } else if (this.stateMachine.state === "TARGET_SELECT") {
       if (
         this.selection.overlayOptions.length === 0 &&
         this.selection.pendingAction !== CommandType.MOVE_TO &&
         this.selection.pendingAction !== CommandType.USE_ITEM
       ) {
-        result.error = "No POIs available.";
+        result.error = "NO POIS AVAILABLE.";
       } else {
         result.options = this.selection.overlayOptions.map((opt) => ({
           key: opt.key,
-          label: `${opt.key}. ${opt.label}`,
+          label: `${opt.key}. ${opt.label.toUpperCase()}`,
           dataAttributes: { index: opt.key, key: opt.key },
         }));
       }
       result.options.push({
         key: "0",
-        label: "0. Back",
+        label: "0. BACK",
         isBack: true,
         dataAttributes: { index: "0" },
       });
-      result.footer = "(Click map or press 1-9, Q/ESC to Back)";
+      result.footer = "(CLICK MAP OR PRESS 1-9, Q/ESC TO BACK)";
     } else if (this.stateMachine.state === "UNIT_SELECT") {
       let activeUnits = gameState.units.filter(
         (u) => u.state !== UnitState.Dead && u.state !== UnitState.Extracted,
@@ -651,7 +653,7 @@ export class MenuController {
           u.tacticalNumber ||
           gameState.units.findIndex((origU) => origU.id === u.id) + 1;
         const key = result.options.length + 1;
-        const displayName = u.name || u.id;
+        const displayName = (u.name || u.id).toUpperCase();
 
         result.options.push({
           key: key.toString(),
@@ -666,18 +668,18 @@ export class MenuController {
       if (!isPickup) {
         result.options.push({
           key: allUnitsKey.toString(),
-          label: `${allUnitsKey}. All Units`,
+          label: `${allUnitsKey}. ALL UNITS`,
           dataAttributes: { index: allUnitsKey.toString(), "unit-id": "ALL" },
         });
       }
 
       result.options.push({
         key: "0",
-        label: "0. Back",
+        label: "0. BACK",
         isBack: true,
         dataAttributes: { index: "0" },
       });
-      result.footer = "(Press 1-9 or Q/ESC)";
+      result.footer = "(PRESS 1-9 OR Q/ESC)";
     }
 
     return result;

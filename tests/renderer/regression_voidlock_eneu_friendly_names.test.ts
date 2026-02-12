@@ -46,12 +46,12 @@ describe("Regression: voidlock-eneu - Friendly Weapon Names in Soldier List", ()
       soldierListTexts.some((text) => text === "pulse_rifle / combat_knife"),
     ).toBe(false);
 
-    // It SHOULD contain 'Pulse Rifle' and 'Combat Knife'
-    expect(soldierListTexts.some((text) => text?.includes("Pulse Rifle"))).toBe(
+    // It SHOULD contain 'PULSE RIFLE' and 'COMBAT KNIFE'
+    expect(soldierListTexts.some((text) => text?.includes("PULSE RIFLE"))).toBe(
       true,
     );
     expect(
-      soldierListTexts.some((text) => text?.includes("Combat Knife")),
+      soldierListTexts.some((text) => text?.includes("COMBAT KNIFE")),
     ).toBe(true);
   });
 });

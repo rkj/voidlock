@@ -181,7 +181,7 @@ describe("CampaignScreen", () => {
     screen.show();
 
     const backBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.textContent === "Back to Menu",
+      (btn) => btn.textContent === "BACK TO MENU",
     );
     expect(backBtn).toBeDefined();
   });
@@ -207,7 +207,7 @@ describe("CampaignScreen", () => {
     );
     screen.show();
 
-    expect(container.textContent).toContain("Campaign Defeat");
+    expect(container.textContent).toContain("CAMPAIGN DEFEAT");
     expect(container.querySelector("#btn-defeat-summary")).not.toBeNull();
   });
 
@@ -232,7 +232,7 @@ describe("CampaignScreen", () => {
     );
     screen.show();
 
-    expect(container.textContent).toContain("Campaign Victory");
+    expect(container.textContent).toContain("CAMPAIGN VICTORY");
     expect(container.querySelector("#btn-victory-summary")).not.toBeNull();
   });
 });

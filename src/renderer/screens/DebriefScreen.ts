@@ -168,20 +168,20 @@ export class DebriefScreen {
     const statsPanel = this.createPanel("MISSION STATISTICS");
     statsPanel.innerHTML += `
       <div class="debrief-stat-row">
-        <span>Xenos Neutralized:</span>
+        <span>XENOS NEUTRALIZED:</span>
         <span style="color:var(--color-hive); font-weight:bold;">${this.report.aliensKilled}</span>
       </div>
       <div class="debrief-stat-row">
-        <span>Operation Time:</span>
+        <span>OPERATION TIME:</span>
         <span style="color:var(--color-accent); font-weight:bold;">${(this.report.timeSpent / 1000).toFixed(1)}s</span>
       </div>
       <div class="debrief-resource-section">
         <div class="debrief-resource-row">
-          <span>Scrap Recovered:</span>
+          <span>SCRAP RECOVERED:</span>
           <span style="color:var(--color-primary); font-weight:bold;">+${this.report.scrapGained}</span>
         </div>
         <div class="debrief-resource-row">
-          <span>Intel Gathered:</span>
+          <span>INTEL GATHERED:</span>
           <span style="color:var(--color-accent); font-weight:bold;">+${this.report.intelGained}</span>
         </div>
       </div>

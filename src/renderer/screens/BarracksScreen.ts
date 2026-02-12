@@ -146,7 +146,7 @@ export class BarracksScreen {
 
     if (this.onBack) {
       const backBtn = document.createElement("button");
-      backBtn.textContent = "Back to Sector Map";
+      backBtn.textContent = "BACK TO SECTOR MAP";
       backBtn.className = "back-button";
       backBtn.style.marginTop = "0";
       backBtn.onclick = () => this.onBack?.();
@@ -165,7 +165,7 @@ export class BarracksScreen {
     if (title) {
       const h2 = document.createElement("h2");
       h2.className = "panel-title";
-      h2.textContent = title;
+      h2.textContent = title.toUpperCase();
       panel.appendChild(h2);
     }
 
@@ -190,7 +190,7 @@ export class BarracksScreen {
 
     if (state.roster.length === 0) {
       const empty = document.createElement("div");
-      empty.textContent = "No soldiers in roster.";
+      empty.textContent = "NO SOLDIERS IN ROSTER.";
       empty.style.color = "var(--color-text-dim)";
       empty.style.textAlign = "center";
       empty.style.marginTop = "20px";
@@ -235,8 +235,8 @@ export class BarracksScreen {
       "Unknown";
     nameInfo.innerHTML = `
       <div class="flex-col">
-        <h3 style="margin:0; font-size:1.5em; color:var(--color-accent);">${soldier.name}</h3>
-        <div style="color:var(--color-text-muted);">${archName} Rank ${soldier.level}</div>
+        <h3 style="margin:0; font-size:1.5em; color:var(--color-accent);">${soldier.name.toUpperCase()}</h3>
+        <div style="color:var(--color-text-muted);">${archName.toUpperCase()} RANK ${soldier.level}</div>
       </div>
     `;
 
@@ -248,7 +248,7 @@ export class BarracksScreen {
     renameBtn.style.marginTop = "0";
     renameBtn.onclick = async () => {
       const newName = await this.modalService.prompt(
-        "Enter new name for this soldier:",
+        "ENTER NEW NAME FOR THIS SOLDIER:",
         soldier.name,
         "RENAME SOLDIER",
       );
@@ -264,7 +264,7 @@ export class BarracksScreen {
 
     const statusBadge = document.createElement("div");
     statusBadge.className = "status-badge";
-    statusBadge.textContent = soldier.status;
+    statusBadge.textContent = soldier.status.toUpperCase();
     statusBadge.style.background = this.getStatusColor(soldier.status);
     header.appendChild(statusBadge);
 
@@ -280,7 +280,7 @@ export class BarracksScreen {
 
     if (soldier.status === "Wounded") {
       const healBtn = document.createElement("button");
-      healBtn.textContent = "Heal (50 Scrap)";
+      healBtn.textContent = "HEAL (50 SCRAP)";
       healBtn.disabled = state.scrap < 50;
       healBtn.onclick = () => {
         this.manager.healSoldier(soldier.id);
@@ -290,7 +290,7 @@ export class BarracksScreen {
       actions.appendChild(healBtn);
     } else if (soldier.status === "Dead" && state.rules.deathRule === "Clone") {
       const reviveBtn = document.createElement("button");
-      reviveBtn.textContent = "Revive (250 Scrap)";
+      reviveBtn.textContent = "REVIVE (250 SCRAP)";
       reviveBtn.disabled = state.scrap < 250;
       reviveBtn.onclick = () => {
         this.manager.reviveSoldier(soldier.id);
@@ -300,13 +300,13 @@ export class BarracksScreen {
       actions.appendChild(reviveBtn);
     } else if (soldier.status === "Dead") {
       const deadText = document.createElement("div");
-      deadText.textContent = "Deceased - Cannot be recovered";
+      deadText.textContent = "DECEASED - CANNOT BE RECOVERED";
       deadText.style.color = "var(--color-danger)";
       deadText.style.fontWeight = "bold";
       actions.appendChild(deadText);
     } else {
       const healthyText = document.createElement("div");
-      healthyText.textContent = "Soldier is fit for combat";
+      healthyText.textContent = "SOLDIER IS FIT FOR COMBAT";
       healthyText.style.color = "var(--color-primary)";
       actions.appendChild(healthyText);
     }
@@ -328,7 +328,7 @@ export class BarracksScreen {
     tabs.style.marginBottom = "15px";
 
     const recruitTab = document.createElement("button");
-    recruitTab.textContent = "Recruitment";
+    recruitTab.textContent = "RECRUITMENT";
     recruitTab.className = this.activeTab === "Recruitment" ? "active" : "";
     recruitTab.style.flex = "1";
     recruitTab.style.marginTop = "0";
@@ -338,7 +338,7 @@ export class BarracksScreen {
     };
 
     const armoryTab = document.createElement("button");
-    armoryTab.textContent = "Armory";
+    armoryTab.textContent = "ARMORY";
     armoryTab.className = this.activeTab === "Armory" ? "active" : "";
     armoryTab.style.flex = "1";
     armoryTab.style.marginTop = "0";
@@ -366,7 +366,7 @@ export class BarracksScreen {
         placeholder.style.textAlign = "center";
         placeholder.style.color = "var(--color-text-dim)";
         placeholder.style.marginTop = "40px";
-        placeholder.textContent = "Select a soldier to access Armory";
+        placeholder.textContent = "SELECT A SOLDIER TO ACCESS ARMORY";
         body.appendChild(placeholder);
       }
     }
@@ -380,7 +380,7 @@ export class BarracksScreen {
 
     if (isFull) {
       const msg = document.createElement("div");
-      msg.textContent = `Roster is full (max ${CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE} soldiers).`;
+      msg.textContent = `ROSTER IS FULL (MAX ${CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE} SOLDIERS).`;
       msg.style.color = "var(--color-hive)";
       msg.style.textAlign = "center";
       msg.style.padding = "20px";
@@ -396,11 +396,11 @@ export class BarracksScreen {
 
       const card = SoldierWidget.render(arch, {
         context: "squad-builder",
-        price: "100 Scrap",
+        price: "100 SCRAP",
       });
 
       const recruitBtn = document.createElement("button");
-      recruitBtn.textContent = "Recruit";
+      recruitBtn.textContent = "RECRUIT";
       recruitBtn.className = "w-full";
       recruitBtn.style.padding = "5px";
       recruitBtn.style.fontSize = "0.8em";

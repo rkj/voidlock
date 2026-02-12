@@ -106,15 +106,15 @@ export class CampaignSummaryScreen {
     statsPanel.innerHTML += `
       <div class="flex-col gap-20">
         <div class="summary-stat-row">
-          <span>Aliens Killed:</span>
+          <span>ALIENS KILLED:</span>
           <span style="color:var(--color-primary); font-weight:bold;">${totalKills}</span>
         </div>
         <div class="summary-stat-row">
-          <span>Missions:</span>
+          <span>MISSIONS:</span>
           <span style="color:var(--color-accent); font-weight:bold;">${totalMissions}</span>
         </div>
         <div class="summary-stat-row">
-          <span>Total Scrap:</span>
+          <span>TOTAL SCRAP:</span>
           <span style="color:var(--color-warning); font-weight:bold;">${totalScrap}</span>
         </div>
         ${
@@ -122,7 +122,7 @@ export class CampaignSummaryScreen {
             ? `
           <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--color-border-strong);">
             <div style="color: var(--color-text-dim); font-size: 0.9em; letter-spacing: 1px;">
-              Cause: <span style="color: var(--color-danger); font-weight: bold; letter-spacing: 2px;">${this.getCauseOfDeath()}</span>
+              CAUSE: <span style="color: var(--color-danger); font-weight: bold; letter-spacing: 2px;">${this.getCauseOfDeath().toUpperCase()}</span>
             </div>
           </div>
         `

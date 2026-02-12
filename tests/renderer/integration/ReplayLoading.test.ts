@@ -338,7 +338,7 @@ describe("Replay Loading Integration", () => {
 
     // Verify MISSION SUCCESS (default)
     expect(debriefScreen?.innerHTML).toContain("MISSION SUCCESS");
-    expect(debriefScreen?.innerHTML).toContain("Sarge");
+    expect(debriefScreen?.innerHTML).toContain("SARGE");
 
     // Verify GameClient.loadReplay was called with correct data
     expect(mockGameClient.loadReplay).toHaveBeenCalledWith(

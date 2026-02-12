@@ -71,7 +71,7 @@ describe("MenuController Rehydration", () => {
     expect(renderState.options.length).toBeGreaterThan(1); // At least one option + Back
     // Option for 0,0 should exist
     const roomOption = renderState.options.find((o) =>
-      o.label.includes("Room 1"),
+      o.label.includes("ROOM 1"),
     );
     expect(roomOption).toBeDefined();
   });

@@ -68,7 +68,7 @@ export class StatisticsScreen {
     this.container.style.overflowY = "auto";
 
     const h1 = document.createElement("h1");
-    h1.textContent = "Service Record";
+    h1.textContent = "SERVICE RECORD";
     h1.style.letterSpacing = "4px";
     h1.style.color = "var(--color-primary)";
     this.container.appendChild(h1);
@@ -88,7 +88,7 @@ export class StatisticsScreen {
       row.className = "flex-row justify-between w-full gap-20";
 
       const labelSpan = document.createElement("span");
-      labelSpan.textContent = label;
+      labelSpan.textContent = label.toUpperCase();
       labelSpan.style.color = "var(--color-text-dim)";
 
       const valueSpan = document.createElement("span");
@@ -101,20 +101,20 @@ export class StatisticsScreen {
     };
 
     // Campaigns
-    statsGrid.appendChild(this.createHeader("Campaigns"));
+    statsGrid.appendChild(this.createHeader("CAMPAIGNS"));
     statsGrid.appendChild(
-      createStatRow("Total Started", stats.totalCampaignsStarted),
+      createStatRow("TOTAL STARTED", stats.totalCampaignsStarted),
     );
     statsGrid.appendChild(
       createStatRow(
-        "Campaigns Won",
+        "CAMPAIGNS WON",
         stats.campaignsWon,
         "var(--color-primary)",
       ),
     );
     statsGrid.appendChild(
       createStatRow(
-        "Campaigns Lost",
+        "CAMPAIGNS LOST",
         stats.campaignsLost,
         "var(--color-error)",
       ),
@@ -123,27 +123,27 @@ export class StatisticsScreen {
     statsGrid.appendChild(document.createElement("br"));
 
     // Combat
-    statsGrid.appendChild(this.createHeader("Combat"));
+    statsGrid.appendChild(this.createHeader("COMBAT"));
     statsGrid.appendChild(
       createStatRow(
-        "Total Xeno Kills",
+        "TOTAL XENO KILLS",
         stats.totalKills,
         "var(--color-warning)",
       ),
     );
     statsGrid.appendChild(
       createStatRow(
-        "Total Casualties",
+        "TOTAL CASUALTIES",
         stats.totalCasualties,
         "var(--color-error)",
       ),
     );
     statsGrid.appendChild(
-      createStatRow("Missions Played", stats.totalMissionsPlayed),
+      createStatRow("MISSIONS PLAYED", stats.totalMissionsPlayed),
     );
     statsGrid.appendChild(
       createStatRow(
-        "Missions Won",
+        "MISSIONS WON",
         stats.totalMissionsWon,
         "var(--color-primary)",
       ),
@@ -152,10 +152,10 @@ export class StatisticsScreen {
     statsGrid.appendChild(document.createElement("br"));
 
     // Economy
-    statsGrid.appendChild(this.createHeader("Economy"));
+    statsGrid.appendChild(this.createHeader("ECONOMY"));
     statsGrid.appendChild(
       createStatRow(
-        "Total Scrap Earned",
+        "TOTAL SCRAP EARNED",
         stats.totalScrapEarned.toLocaleString(),
         "var(--color-primary)",
       ),
@@ -166,7 +166,7 @@ export class StatisticsScreen {
 
   private createHeader(text: string) {
     const header = document.createElement("div");
-    header.textContent = text;
+    header.textContent = text.toUpperCase();
     header.style.fontSize = "0.8em";
     header.style.color = "var(--color-accent)";
     header.style.borderBottom = "1px solid var(--color-border)";

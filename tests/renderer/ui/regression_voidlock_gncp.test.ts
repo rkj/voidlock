@@ -23,9 +23,9 @@ describe("Regression GNCP: 'undefined' in soldier card", () => {
     const el = SoldierWidget.render(data, options);
 
     expect(el.innerHTML).not.toContain("undefined");
-    expect(el.textContent).toContain("Test Scout");
-    expect(el.textContent).toContain("Scout");
-    expect(el.textContent).toContain("Pistol");
-    expect(el.textContent).toContain("Combat Knife");
+    expect(el.textContent).toContain("TEST SCOUT");
+    expect(el.textContent).toContain("SCOUT");
+    expect(el.textContent).toContain("PISTOL");
+    expect(el.textContent).toContain("COMBAT KNIFE");
   });
 });

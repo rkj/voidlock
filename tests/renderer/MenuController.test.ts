@@ -112,19 +112,19 @@ describe("MenuController", () => {
 
   it("should return correct renderable state for ACTION_SELECT", () => {
     const state = controller.getRenderableState(mockState);
-    expect(state.title).toBe("Actions");
+    expect(state.title).toBe("ACTIONS");
     expect(state.options.length).toBeGreaterThan(0);
-    expect(state.options[0].label).toContain("Orders");
+    expect(state.options[0].label).toContain("ORDERS");
   });
 
   it("should return correct renderable state for UNIT_SELECT", () => {
     controller.handleMenuInput("1", mockState); // Orders -> ORDERS_SELECT
     controller.handleMenuInput("5", mockState); // Hold -> UNIT_SELECT
     const state = controller.getRenderableState(mockState);
-    expect(state.title).toBe("Select Unit(s)");
+    expect(state.title).toBe("SELECT UNIT(S)");
     // u1, u2, ALL, BACK = 4 options
     expect(state.options.length).toBe(4);
-    expect(state.options[2].label).toContain("All Units");
+    expect(state.options[2].label).toContain("ALL UNITS");
     expect(state.options[3].isBack).toBe(true);
   });
 });

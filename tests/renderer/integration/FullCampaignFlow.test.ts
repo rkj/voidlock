@@ -103,8 +103,8 @@ describe("Full Campaign Flow Integration", () => {
     // Set up DOM
     document.body.innerHTML = `
       <div id="screen-main-menu" class="screen">
-        <button id="btn-menu-campaign">Campaign</button>
-        <button id="btn-menu-custom">Custom Mission</button>
+        <button id="btn-menu-campaign">CAMPAIGN</button>
+        <button id="btn-menu-custom">CUSTOM MISSION</button>
         <p id="menu-version"></p>
       </div>
 
@@ -122,10 +122,11 @@ describe("Full Campaign Flow Integration", () => {
       </div>
 
       <div id="screen-mission-setup" class="screen" style="display:none">
+        <h1>MISSION CONFIGURATION</h1>
         <div id="unit-style-preview"></div>
         <div id="map-config-section">
           <select id="map-generator-type">
-            <option value="Procedural">Procedural</option>
+            <option value="Procedural">PROCEDURAL</option>
           </select>
           <input type="number" id="map-seed" />
           <div id="preset-map-controls">
@@ -137,9 +138,9 @@ describe("Full Campaign Flow Integration", () => {
           </div>
         </div>
         <div id="squad-builder"></div>
-        <button id="btn-launch-mission" class="primary-button">Launch Mission</button>
-        <button id="btn-goto-equipment">Equipment</button>
-        <button id="btn-setup-back">Back</button>
+        <button id="btn-launch-mission" class="primary-button">LAUNCH MISSION</button>
+        <button id="btn-goto-equipment">EQUIPMENT</button>
+        <button id="btn-setup-back">BACK</button>
       </div>
 
       <div id="screen-mission" class="screen" style="display:none">
@@ -147,10 +148,10 @@ describe("Full Campaign Flow Integration", () => {
           <div id="game-status"></div>
           <div id="top-threat-fill"></div>
           <div id="top-threat-value">0%</div>
-          <button id="btn-pause-toggle">Pause</button>
+          <button id="btn-pause-toggle">PAUSE</button>
           <input type="range" id="game-speed" />
           <span id="speed-value">1.0x</span>
-          <button id="btn-give-up">Give Up</button>
+          <button id="btn-give-up">GIVE UP</button>
         </div>
         <div id="soldier-list"></div>
         <canvas id="game-canvas"></canvas>
@@ -189,7 +190,7 @@ describe("Full Campaign Flow Integration", () => {
 
     const standardCard = Array.from(
       document.querySelectorAll(".difficulty-card"),
-    ).find((c) => c.textContent?.includes("Standard")) as HTMLElement;
+    ).find((c) => c.textContent?.includes("STANDARD")) as HTMLElement;
     expect(standardCard).toBeTruthy();
     standardCard?.click();
 
@@ -226,7 +227,7 @@ describe("Full Campaign Flow Integration", () => {
 
     const equipmentLaunchBtn = Array.from(
       document.querySelectorAll("#screen-equipment button"),
-    ).find((b) => b.textContent?.includes("Confirm")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("CONFIRM")) as HTMLElement;
     equipmentLaunchBtn?.click();
 
     // Now it should be in mission-setup
@@ -339,7 +340,7 @@ describe("Full Campaign Flow Integration", () => {
       document.querySelectorAll(".soldier-list-panel .soldier-item"),
     );
     const isDeadPresent = selectedSoldiers.some((s) =>
-      s.textContent?.includes("Dead"),
+      s.textContent?.includes("DEAD"),
     );
     expect(isDeadPresent).toBe(false);
 
@@ -352,7 +353,7 @@ describe("Full Campaign Flow Integration", () => {
     // Force re-render of campaign screen by going back to menu and in again
     const backBtn = Array.from(
       document.querySelectorAll("#screen-equipment button"),
-    ).find((b) => b.textContent === "Back") as HTMLElement;
+    ).find((b) => b.textContent === "BACK") as HTMLElement;
     backBtn?.click();
     document.getElementById("btn-setup-back")?.click();
     document.getElementById("btn-menu-campaign")?.click();
@@ -372,7 +373,7 @@ describe("Full Campaign Flow Integration", () => {
 
     (
       Array.from(document.querySelectorAll("#screen-equipment button")).find(
-        (b) => b.textContent?.includes("Confirm"),
+        (b) => b.textContent?.includes("CONFIRM"),
       ) as HTMLElement
     ).click();
 
@@ -440,7 +441,7 @@ describe("Full Campaign Flow Integration", () => {
     // Choose Standard again
     const standardCard2 = Array.from(
       document.querySelectorAll(".difficulty-card"),
-    ).find((c) => c.textContent?.includes("Standard")) as HTMLElement;
+    ).find((c) => c.textContent?.includes("STANDARD")) as HTMLElement;
     expect(standardCard2).toBeTruthy();
     standardCard2?.click();
 
@@ -479,7 +480,7 @@ describe("Full Campaign Flow Integration", () => {
 
     const confBtn = Array.from(
       document.querySelectorAll("#screen-equipment button"),
-    ).find((b) => b.textContent?.includes("Confirm")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("CONFIRM")) as HTMLElement;
     confBtn?.click();
 
     // Click Launch in mission-setup

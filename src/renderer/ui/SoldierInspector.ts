@@ -85,7 +85,7 @@ export class SoldierInspector {
         "inspector-placeholder flex-col align-center justify-center";
       placeholder.innerHTML = `
         <div class="placeholder-icon">👤</div>
-        <div>Select a slot to manage squad</div>
+        <div>SELECT A SLOT TO MANAGE SQUAD</div>
       `;
       wrapper.appendChild(placeholder);
 
@@ -101,8 +101,8 @@ export class SoldierInspector {
           recruitBtn.className = "menu-button w-full recruit-btn-large";
           recruitBtn.setAttribute("data-focus-id", "recruit-btn-large");
           recruitBtn.innerHTML = `
-          <div class="btn-label">Recruit New Soldier</div>
-          <div class="btn-sub">Cost: 100 Scrap</div>
+          <div class="btn-label">RECRUIT NEW SOLDIER</div>
+          <div class="btn-sub">COST: 100 SCRAP</div>
         `;
           recruitBtn.onclick = () => this.handleRecruit();
           optionsDiv.appendChild(recruitBtn);
@@ -114,8 +114,8 @@ export class SoldierInspector {
         reviveBtn.setAttribute("data-focus-id", "revive-btn-large");
         reviveBtn.disabled = !canAffordRevive;
         reviveBtn.innerHTML = `
-        <div class="btn-label">Revive Fallen Soldier</div>
-        <div class="btn-sub">Cost: 250 Scrap</div>
+        <div class="btn-label">REVIVE FALLEN SOLDIER</div>
+        <div class="btn-sub">COST: 250 SCRAP</div>
       `;
         reviveBtn.onclick = () => this.handleRevive();
         optionsDiv.appendChild(reviveBtn);
@@ -174,10 +174,10 @@ export class SoldierInspector {
 
     const renderWepBlock = (w: WeaponStats | null, label: string) => {
       if (!w)
-        return `<div class="weapon-block-empty">${label}: [No Equipment]</div>`;
+        return `<div class="weapon-block-empty">${label}: [NO EQUIPMENT]</div>`;
       return `
             <div class="weapon-block">
-                <div class="weapon-block-title">${label}: ${w.name}</div>
+                <div class="weapon-block-title">${label}: ${w.name.toUpperCase()}</div>
                 <div class="weapon-block-stats">
                     ${StatDisplay.render(Icons.Damage, w.damage, "Damage per hit")}
                     ${StatDisplay.render(Icons.Rate, w.fireRate, "Rounds per second")}
@@ -191,7 +191,7 @@ export class SoldierInspector {
     const wContent = document.createElement("div");
     wContent.className = "w-full";
     wContent.innerHTML =
-      renderWepBlock(rw, "Primary (RH)") + renderWepBlock(lw, "Secondary (LH)");
+      renderWepBlock(rw, "PRIMARY (RH)") + renderWepBlock(lw, "SECONDARY (LH)");
     weaponStatsDiv.appendChild(wContent);
     content.appendChild(weaponStatsDiv);
 
@@ -200,25 +200,25 @@ export class SoldierInspector {
     slotsGrid.className = "inspector-slots-grid";
 
     slotsGrid.appendChild(
-      this.createSlot("Right Hand", equip.rightHand, (id) =>
+      this.createSlot("RIGHT HAND", equip.rightHand, (id) =>
         this.handleSlotChange("rightHand", id),
       ),
     );
 
     slotsGrid.appendChild(
-      this.createSlot("Left Hand", equip.leftHand, (id) =>
+      this.createSlot("LEFT HAND", equip.leftHand, (id) =>
         this.handleSlotChange("leftHand", id),
       ),
     );
 
     slotsGrid.appendChild(
-      this.createSlot("Body", equip.body, (id) =>
+      this.createSlot("BODY", equip.body, (id) =>
         this.handleSlotChange("body", id),
       ),
     );
 
     slotsGrid.appendChild(
-      this.createSlot("Feet", equip.feet, (id) =>
+      this.createSlot("FEET", equip.feet, (id) =>
         this.handleSlotChange("feet", id),
       ),
     );
@@ -320,7 +320,7 @@ export class SoldierInspector {
       const item = WeaponLibrary[itemId] || ItemLibrary[itemId];
       if (item) {
         const name = document.createElement("div");
-        name.textContent = item.name;
+        name.textContent = item.name.toUpperCase();
         name.className = "slot-item-name";
         slot.appendChild(name);
 
@@ -449,8 +449,8 @@ export class SoldierInspector {
       btn.innerHTML = `
             <div class="armory-item-content" style="width: 100%;">
                 <div class="armory-item-header" style="width: 100%; display: flex; justify-content: space-between;">
-                    <span>${item.name}</span>
-                    <span class="${priceClass}">${priceText}</span>
+                    <span>${item.name.toUpperCase()}</span>
+                    <span class="${priceClass}">${priceText.toUpperCase()}</span>
                 </div>
                 <div class="armory-item-stats">
                     ${statsHtml}

@@ -71,7 +71,7 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
     // 2. Try to change weapon from armory
     const shotgunBtn = Array.from(
       container.querySelectorAll(".menu-item.clickable"),
-    ).find((el) => el.textContent?.includes("Shotgun")) as HTMLElement;
+    ).find((el) => el.textContent?.includes("SHOTGUN")) as HTMLElement;
 
     expect(shotgunBtn).toBeTruthy();
     shotgunBtn.click();
@@ -97,7 +97,7 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
     // 1. Find the remove button for Pulse Rifle in the paper doll
     const slots = Array.from(container.querySelectorAll(".paper-doll-slot"));
     const primarySlot = slots.find((s) =>
-      s.textContent?.includes("Right Hand"),
+      s.textContent?.includes("RIGHT HAND"),
     );
     const removeBtn = primarySlot?.querySelector(
       ".slot-remove-btn",

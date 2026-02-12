@@ -106,7 +106,7 @@ describe("HUDManager", () => {
     hud.update(mockState, null);
 
     const statusEl = document.getElementById("game-status");
-    expect(statusEl?.innerHTML).toContain("Time</span>");
+    expect(statusEl?.innerHTML).toContain("TIME</span>");
     expect(statusEl?.innerHTML).toContain("1.0</span>s");
     expect(statusEl?.innerHTML).not.toContain("STATUS:");
 
@@ -120,7 +120,7 @@ describe("HUDManager", () => {
     const list = document.getElementById("soldier-list");
     const items = list?.querySelectorAll(".soldier-item");
     expect(items?.length).toBe(1);
-    expect(items?.[0].querySelector(".u-id")?.textContent).toBe("s1");
+    expect(items?.[0].querySelector(".u-id")?.textContent).toBe("S1");
     expect(items?.[0].querySelector(".u-hp")?.textContent).toBe("100/100");
   });
 
@@ -288,7 +288,7 @@ describe("HUDManager", () => {
 
     const summary = document.querySelector(".game-over-summary");
     expect(summary).not.toBeNull();
-    expect(summary?.textContent).toContain("Mission Accomplished");
+    expect(summary?.textContent).toContain("MISSION ACCOMPLISHED");
     expect(summary?.innerHTML).toContain("Recover");
     expect(summary?.innerHTML).toContain("✔");
   });

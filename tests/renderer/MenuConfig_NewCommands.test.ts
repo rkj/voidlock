@@ -52,7 +52,7 @@ describe("MenuConfig New Commands", () => {
   it("should have PICKUP in ACTION_SELECT", () => {
     const renderState = controller.getRenderableState(mockState);
     const pickupOption = renderState.options.find((o) =>
-      o.label.includes("Pickup"),
+      o.label.includes("PICKUP"),
     );
     expect(pickupOption).toBeDefined();
     expect(pickupOption?.key).toBe("4");
@@ -61,7 +61,7 @@ describe("MenuConfig New Commands", () => {
   it("should have EXTRACT in ACTION_SELECT", () => {
     const renderState = controller.getRenderableState(mockState);
     const extractOption = renderState.options.find((o) =>
-      o.label.includes("Extract"),
+      o.label.includes("EXTRACT"),
     );
     expect(extractOption).toBeDefined();
     expect(extractOption?.key).toBe("5");
@@ -71,7 +71,7 @@ describe("MenuConfig New Commands", () => {
     controller.handleMenuInput("1", mockState); // Orders
     const renderState = controller.getRenderableState(mockState);
     const escortOption = renderState.options.find((o) =>
-      o.label.includes("Escort"),
+      o.label.includes("ESCORT"),
     );
     expect(escortOption).toBeDefined();
     expect(escortOption?.key).toBe("4");
@@ -81,7 +81,7 @@ describe("MenuConfig New Commands", () => {
     controller.handleMenuInput("1", mockState); // Orders
     const renderState = controller.getRenderableState(mockState);
     const holdOption = renderState.options.find((o) =>
-      o.label.includes("Hold"),
+      o.label.includes("HOLD"),
     );
     expect(holdOption).toBeDefined();
     expect(holdOption?.key).toBe("5");
@@ -121,7 +121,7 @@ describe("MenuConfig New Commands", () => {
 
     const renderState = controller.getRenderableState(mockState);
     const lootOption = renderState.options.find((o) =>
-      o.label.includes("Pickup Medkit"),
+      o.label.includes("PICKUP MEDKIT"),
     );
     expect(lootOption).toBeDefined();
   });
@@ -131,7 +131,7 @@ describe("MenuConfig New Commands", () => {
     controller.handleMenuInput("4", mockState); // Escort
 
     const renderState = controller.getRenderableState(mockState);
-    const unitOption = renderState.options.find((o) => o.label.includes("u2"));
+    const unitOption = renderState.options.find((o) => o.label.includes("U2"));
     expect(unitOption).toBeDefined();
   });
 
@@ -142,7 +142,7 @@ describe("MenuConfig New Commands", () => {
     // Find key for loot-1
     const renderState = controller.getRenderableState(mockState);
     const lootOption = renderState.options.find((o) =>
-      o.label.includes("Pickup Medkit"),
+      o.label.includes("PICKUP MEDKIT"),
     );
     const key = lootOption?.key || "1";
 
@@ -164,7 +164,7 @@ describe("MenuConfig New Commands", () => {
 
     // Find key for Unit u2
     const renderState = controller.getRenderableState(mockState);
-    const unitOption = renderState.options.find((o) => o.label.includes("u2"));
+    const unitOption = renderState.options.find((o) => o.label.includes("U2"));
     const key = unitOption?.key || "2";
 
     controller.handleMenuInput(key, mockState); // Target u2

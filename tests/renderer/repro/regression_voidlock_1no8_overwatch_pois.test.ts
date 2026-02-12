@@ -62,7 +62,7 @@ describe("Regression - Overwatch Intersections with Doors", () => {
     controller.handleMenuInput("1", fullState); // Orders
     const ordersState = controller.getRenderableState(fullState);
     const overwatchOption = ordersState.options.find((o) =>
-      o.label.includes("Overwatch"),
+      o.label.includes("OVERWATCH"),
     );
     expect(overwatchOption).toBeDefined();
 
@@ -118,7 +118,7 @@ describe("Regression - Overwatch Intersections with Doors", () => {
     controller.handleMenuInput("1", fullState); // Orders
     const ordersState = controller.getRenderableState(fullState);
     const overwatchOption = ordersState.options.find((o) =>
-      o.label.includes("Overwatch"),
+      o.label.includes("OVERWATCH"),
     );
     controller.handleMenuInput(overwatchOption!.key, fullState);
 

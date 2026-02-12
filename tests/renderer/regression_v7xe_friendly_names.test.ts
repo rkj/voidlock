@@ -82,10 +82,10 @@ describe("Regression v7xe: Friendly Names in Command Menu", () => {
     const state = controller.getRenderableState(mockState);
 
     const objOption = state.options.find((o) => o.key === "1");
-    expect(objOption?.label).toBe("1. Collect Objective");
+    expect(objOption?.label).toBe("1. COLLECT OBJECTIVE");
 
     const lootOption = state.options.find((o) => o.key === "2");
-    expect(lootOption?.label).toBe("2. Pickup Scrap Crate");
+    expect(lootOption?.label).toBe("2. PICKUP SCRAP CRATE");
   });
 
   it("should use friendly name for inventory items in ITEM_SELECT", () => {
@@ -94,11 +94,11 @@ describe("Regression v7xe: Friendly Names in Command Menu", () => {
 
     const state = controller.getRenderableState(mockState);
     const itemOption = state.options.find((o) =>
-      o.label.includes("Scrap Crate"),
+      o.label.includes("SCRAP CRATE"),
     );
 
     // This one might already be correct as per my previous check, but let's be sure
-    expect(itemOption?.label).toBe("1. Scrap Crate (1)");
+    expect(itemOption?.label).toBe("1. SCRAP CRATE (1)");
   });
 
   it("should use 'Name (N)' format for units in UNIT_SELECT", () => {
@@ -111,7 +111,7 @@ describe("Regression v7xe: Friendly Names in Command Menu", () => {
       (o) => o.dataAttributes?.["unit-id"] === "soldier_0",
     );
 
-    expect(unitOption?.label).toBe("1. soldier_0 (1)");
+    expect(unitOption?.label).toBe("1. SOLDIER_0 (1)");
   });
 
   it("should use 'Name (N)' format for friendly units in TARGET_SELECT", () => {
@@ -125,6 +125,6 @@ describe("Regression v7xe: Friendly Names in Command Menu", () => {
       (o) => o.dataAttributes?.index === "1",
     );
 
-    expect(unitOption?.label).toBe("1. soldier_0 (1)");
+    expect(unitOption?.label).toBe("1. SOLDIER_0 (1)");
   });
 });

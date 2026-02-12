@@ -112,9 +112,9 @@ describe("Regression voidlock-94kf: Custom Soldier Names", () => {
 
     const text = container.textContent || "";
     // Should contain the name
-    expect(text).toContain("Kyle Hicks");
+    expect(text).toContain("KYLE HICKS");
     // Should contain the archetype name
-    expect(text).toContain("Assault");
+    expect(text).toContain("ASSAULT");
 
     // Now check an archetype template (no custom name)
     const templateContainer = SoldierWidget.render(arch, {
@@ -123,14 +123,14 @@ describe("Regression voidlock-94kf: Custom Soldier Names", () => {
 
     const templateText = templateContainer.textContent || "";
     // It should contain "Assault" (from getName)
-    expect(templateText).toContain("Assault");
+    expect(templateText).toContain("ASSAULT");
 
     // It should NOT contain "Assault" a second time in the subtitle area
     // In our implementation, we removed it from subTitle if it matches name.
     // The previous implementation would have "Assault" in displayName AND in the subtitle.
 
     // Let's count occurrences of "Assault"
-    const count = (templateText.match(/Assault/g) || []).length;
+    const count = (templateText.match(/ASSAULT/g) || []).length;
     expect(count).toBe(1);
   });
 });

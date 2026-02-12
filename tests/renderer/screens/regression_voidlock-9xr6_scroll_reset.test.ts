@@ -47,7 +47,7 @@ describe("EquipmentScreen Regression: Scroll Reset", () => {
 
     // Trigger a re-render by adding an item
     const rows = Array.from(container.querySelectorAll("div")).filter((el) =>
-      el.textContent?.includes("Frag Grenade"),
+      el.textContent?.includes("FRAG GRENADE"),
     );
     const row = rows[0].parentElement!;
     const plusBtn = Array.from(row.querySelectorAll("button")).find(

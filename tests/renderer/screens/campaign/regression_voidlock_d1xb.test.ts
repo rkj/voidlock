@@ -50,7 +50,7 @@ describe("regression_voidlock_d1xb: Clear cached squad on new campaign start", (
     wizard.render();
 
     const startBtn = container.querySelector(".primary-button") as HTMLElement;
-    expect(startBtn.textContent).toBe("Initialize Expedition");
+    expect(startBtn.textContent).toBe("INITIALIZE EXPEDITION");
 
     // Trigger the click
     startBtn.click();

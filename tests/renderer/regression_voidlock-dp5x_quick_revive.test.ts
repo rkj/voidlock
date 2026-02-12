@@ -100,7 +100,7 @@ describe("Quick Revive in Mission Setup", () => {
   beforeEach(async () => {
     document.body.innerHTML = `
       <div id="screen-main-menu" class="screen">
-        <button id="btn-menu-campaign">Campaign</button>
+        <button id="btn-menu-campaign">CAMPAIGN</button>
       </div>
       <div id="screen-campaign-shell" class="screen flex-col" style="display:none">
           <div id="campaign-shell-top-bar"></div>
@@ -116,8 +116,8 @@ describe("Quick Revive in Mission Setup", () => {
       <div id="screen-mission-setup" class="screen" style="display:none">
         <div id="unit-style-preview"></div>
         <div id="squad-builder"></div>
-        <button id="btn-goto-equipment">Equipment</button>
-        <button id="btn-setup-back">Back</button>
+        <button id="btn-goto-equipment">EQUIPMENT</button>
+        <button id="btn-setup-back">BACK</button>
       </div>
       <div id="screen-mission" class="screen" style="display:none">
         <div id="top-bar"></div>
@@ -200,7 +200,7 @@ describe("Quick Revive in Mission Setup", () => {
     // Select an empty slot to see the roster/recruitment options
     const emptySlot = Array.from(
       document.querySelectorAll(".soldier-list-panel .menu-item"),
-    ).find((el) => el.textContent?.includes("Empty Slot")) as HTMLElement;
+    ).find((el) => el.textContent?.includes("EMPTY SLOT")) as HTMLElement;
     emptySlot?.click();
 
     // With the new refactor, Revive button is in the center inspector panel when an empty slot is selected
@@ -208,11 +208,11 @@ describe("Quick Revive in Mission Setup", () => {
     const reviveBtn = Array.from(
       document.querySelectorAll(".soldier-equipment-panel button"),
     ).find((btn) =>
-      btn.textContent?.includes("Revive Fallen Soldier"),
+      btn.textContent?.includes("REVIVE FALLEN SOLDIER"),
     ) as HTMLButtonElement;
 
     expect(reviveBtn).toBeTruthy();
-    expect(reviveBtn.textContent).toContain("250 Scrap");
+    expect(reviveBtn.textContent).toContain("250 SCRAP");
   });
 
   it("should disable Revive button if not enough scrap", async () => {
@@ -221,13 +221,13 @@ describe("Quick Revive in Mission Setup", () => {
 
     const emptySlot = Array.from(
       document.querySelectorAll(".soldier-list-panel .menu-item"),
-    ).find((el) => el.textContent?.includes("Empty Slot")) as HTMLElement;
+    ).find((el) => el.textContent?.includes("EMPTY SLOT")) as HTMLElement;
     emptySlot?.click();
 
     const reviveBtn = Array.from(
       document.querySelectorAll(".soldier-equipment-panel button"),
     ).find((btn) =>
-      btn.textContent?.includes("Revive Fallen Soldier"),
+      btn.textContent?.includes("REVIVE FALLEN SOLDIER"),
     ) as HTMLButtonElement;
 
     expect(reviveBtn.classList.contains("disabled") || reviveBtn.disabled).toBe(
@@ -240,13 +240,13 @@ describe("Quick Revive in Mission Setup", () => {
 
     const emptySlot = Array.from(
       document.querySelectorAll(".soldier-list-panel .menu-item"),
-    ).find((el) => el.textContent?.includes("Empty Slot")) as HTMLElement;
+    ).find((el) => el.textContent?.includes("EMPTY SLOT")) as HTMLElement;
     emptySlot?.click();
 
     const reviveBtn = Array.from(
       document.querySelectorAll(".soldier-equipment-panel button"),
     ).find((btn) =>
-      btn.textContent?.includes("Revive Fallen Soldier"),
+      btn.textContent?.includes("REVIVE FALLEN SOLDIER"),
     ) as HTMLButtonElement;
 
     reviveBtn.click();
@@ -254,7 +254,7 @@ describe("Quick Revive in Mission Setup", () => {
     // After clicking RevivePersonnel, we should see the list of dead soldiers in the right panel
     const deadItem = Array.from(
       document.querySelectorAll(".armory-panel .soldier-card"),
-    ).find((el) => el.textContent?.includes("Dead Soldier")) as HTMLElement;
+    ).find((el) => el.textContent?.includes("DEAD SOLDIER")) as HTMLElement;
 
     deadItem.click();
 
@@ -267,13 +267,13 @@ describe("Quick Revive in Mission Setup", () => {
 
     const emptySlot = Array.from(
       document.querySelectorAll(".soldier-list-panel .menu-item"),
-    ).find((el) => el.textContent?.includes("Empty Slot")) as HTMLElement;
+    ).find((el) => el.textContent?.includes("EMPTY SLOT")) as HTMLElement;
     emptySlot?.click();
 
     const recruitBtn = Array.from(
       document.querySelectorAll(".soldier-equipment-panel button"),
     ).find((btn) =>
-      btn.textContent?.includes("Recruit New Soldier"),
+      btn.textContent?.includes("RECRUIT NEW SOLDIER"),
     ) as HTMLButtonElement;
 
     expect(recruitBtn).toBeTruthy();
@@ -304,7 +304,7 @@ describe("Quick Revive in Mission Setup", () => {
 
     const emptySlot = Array.from(
       document.querySelectorAll(".soldier-list-panel .menu-item"),
-    ).find((el) => el.textContent?.includes("[Empty Slot]")) as HTMLElement;
+    ).find((el) => el.textContent?.includes("[EMPTY SLOT]")) as HTMLElement;
     if (emptySlot) {
         emptySlot.click();
     }
@@ -312,7 +312,7 @@ describe("Quick Revive in Mission Setup", () => {
     const recruitBtn = Array.from(
       document.querySelectorAll(".soldier-equipment-panel button"),
     ).find((btn) =>
-      btn.textContent?.includes("Recruit New Soldier"),
+      btn.textContent?.includes("RECRUIT NEW SOLDIER"),
     ) as HTMLButtonElement;
 
     expect(recruitBtn).toBeTruthy();
@@ -343,7 +343,7 @@ describe("Quick Revive in Mission Setup", () => {
 
     const emptySlot = Array.from(
       document.querySelectorAll(".soldier-list-panel .menu-item"),
-    ).find((el) => el.textContent?.includes("[Empty Slot]")) as HTMLElement;
+    ).find((el) => el.textContent?.includes("[EMPTY SLOT]")) as HTMLElement;
     if (emptySlot) {
         emptySlot.click();
     }
@@ -351,7 +351,7 @@ describe("Quick Revive in Mission Setup", () => {
     const recruitBtn = Array.from(
       document.querySelectorAll(".soldier-equipment-panel button"),
     ).find((btn) =>
-      btn.textContent?.includes("Recruit New Soldier"),
+      btn.textContent?.includes("RECRUIT NEW SOLDIER"),
     ) as HTMLButtonElement;
 
     expect(recruitBtn).toBeFalsy();

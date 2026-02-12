@@ -47,7 +47,7 @@ describe("EquipmentScreen Regression: Price Formatting", () => {
     const armoryPanel = container.querySelector(".armory-panel")!;
     const weaponBtn = Array.from(
       armoryPanel.querySelectorAll(".menu-item.clickable"),
-    ).find((el) => el.textContent?.includes("Pulse Rifle"));
+    ).find((el) => el.textContent?.includes("PULSE RIFLE"));
     expect(weaponBtn).not.toBeNull();
 
     // The price container should have width: 100%
@@ -71,7 +71,7 @@ describe("EquipmentScreen Regression: Price Formatting", () => {
 
     // Find Frag Grenade row
     const rows = Array.from(container.querySelectorAll("div")).filter((el) =>
-      el.textContent?.includes("Frag Grenade"),
+      el.textContent?.includes("FRAG GRENADE"),
     );
     const nameGroup = rows[0].closest(".flex-col") as HTMLElement;
     expect(nameGroup).not.toBeNull();

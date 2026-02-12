@@ -47,12 +47,12 @@ describe("CampaignShell Consistency", () => {
     // Check tabs for Main Menu button
     const mainMenuInTabs = Array.from(
       tabsContainer!.querySelectorAll("button"),
-    ).find((btn) => btn.textContent === "Main Menu");
+    ).find((btn) => btn.textContent === "MAIN MENU");
 
     // This is EXPECTED TO FAIL currently because it is in tabs
     expect(
       mainMenuInTabs,
-      "Main Menu should NOT be in the shell-tabs container",
+      "MAIN MENU should NOT be in the shell-tabs container",
     ).toBeUndefined();
 
     // Check right controls (excluding tabs) for Main Menu button
@@ -61,19 +61,19 @@ describe("CampaignShell Consistency", () => {
       rightControls!.querySelectorAll("button"),
     );
     const mainMenuInRight = allButtonsInRight.find(
-      (btn) => btn.textContent === "Main Menu",
+      (btn) => btn.textContent === "MAIN MENU",
     );
 
     expect(
       mainMenuInRight,
-      "Main Menu button should be present in the right controls",
+      "MAIN MENU button should be present in the right controls",
     ).toBeDefined();
 
     // Verify it's not the one in tabs (already checked above, but to be explicit)
     if (mainMenuInRight) {
       expect(
         mainMenuInRight.parentElement?.classList.contains("shell-tabs"),
-        "Main Menu button should NOT be a child of shell-tabs",
+        "MAIN MENU button should NOT be a child of shell-tabs",
       ).toBe(false);
     }
   });
@@ -87,14 +87,14 @@ describe("CampaignShell Consistency", () => {
     // In campaign mode, Main Menu is outside tabs
     const mainMenuInTabs = Array.from(
       tabsContainer!.querySelectorAll("button"),
-    ).find((btn) => btn.textContent === "Main Menu");
+    ).find((btn) => btn.textContent === "MAIN MENU");
     expect(mainMenuInTabs).toBeUndefined();
 
     const allButtonsInRight = Array.from(
       rightControls!.querySelectorAll("button"),
     );
     const mainMenuInRight = allButtonsInRight.find(
-      (btn) => btn.textContent === "Main Menu",
+      (btn) => btn.textContent === "MAIN MENU",
     );
     expect(mainMenuInRight).toBeDefined();
     expect(
