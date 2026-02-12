@@ -153,11 +153,19 @@ export class CampaignShell {
     // Right Side: Resources + Navigation + Menu
     const rightSide = document.createElement("div");
     rightSide.className = "shell-controls-right flex-row align-center gap-20";
+    rightSide.style.flexShrink = "1";
+    rightSide.style.minWidth = "0";
+    rightSide.style.overflow = "hidden";
+    rightSide.style.maxWidth = "100%"; // Ensure it doesn't exceed parent width
 
     // Resources
     if (this.mode === "campaign" && state) {
       const resources = document.createElement("div");
       resources.className = "shell-resources flex-row gap-15";
+      // Hide resources on small screens to save space
+      if (window.innerWidth < 600) {
+        resources.style.display = "none";
+      }
       resources.innerHTML = `
         <div class="resource-item" title="Scrap (Currency)">
           <span style="color: var(--color-text-dim)">Scrap:</span>
@@ -174,6 +182,11 @@ export class CampaignShell {
     // Navigation Tabs
     const nav = document.createElement("div");
     nav.className = "shell-tabs flex-row gap-5";
+    nav.style.overflowX = "auto";
+    nav.style.flexShrink = "1";
+    nav.style.minWidth = "0";
+    nav.style.maxWidth = "100%";
+    nav.style.scrollbarWidth = "none"; // Hide scrollbar for cleaner look
 
     if (this.showTabs) {
       const tabs: { id: CampaignTabId; label: string }[] = [];
@@ -226,6 +239,7 @@ export class CampaignShell {
       menuBtn.style.fontSize = "0.85em";
       menuBtn.style.display = "flex";
       menuBtn.style.alignItems = "center";
+      menuBtn.style.flexShrink = "0"; // Ensure button doesn't shrink
       menuBtn.onclick = () => this.onMenu();
       rightSide.appendChild(menuBtn);
     }

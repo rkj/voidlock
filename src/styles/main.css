@@ -571,20 +571,62 @@ label {
 .align-center {
   align-items: center;
 }
+.align-start {
+  align-items: flex-start;
+}
+.items-center {
+  align-items: center;
+}
 .justify-center {
   justify-content: center;
 }
 .justify-between {
   justify-content: space-between;
 }
+.justify-end {
+  justify-content: flex-end;
+}
 .text-center {
   text-align: center;
+}
+.gap-5 {
+  gap: 5px;
+}
+.gap-10 {
+  gap: 10px;
+}
+.gap-15 {
+  gap: 15px;
+}
+.gap-20 {
+  gap: 20px;
+}
+.p-5 {
+  padding: 5px;
+}
+.p-10 {
+  padding: 10px;
+}
+.p-15 {
+  padding: 15px;
+}
+.p-20 {
+  padding: 20px;
+}
+.p-40 {
+  padding: 40px;
 }
 .w-full {
   width: 100%;
 }
 .h-full {
   height: 100%;
+}
+.overflow-y-auto {
+  overflow-y: auto;
+}
+.overflow-hidden {
+  overflow: hidden;
 }
 
 /* Panel Styles */
