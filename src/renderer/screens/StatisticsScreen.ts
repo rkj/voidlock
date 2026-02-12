@@ -101,20 +101,20 @@ export class StatisticsScreen {
     };
 
     // Campaigns
-    statsGrid.appendChild(this.createHeader("CAMPAIGNS"));
+    statsGrid.appendChild(this.createHeader("Campaigns"));
     statsGrid.appendChild(
-      createStatRow("TOTAL STARTED", stats.totalCampaignsStarted),
+      createStatRow("Total Started", stats.totalCampaignsStarted),
     );
     statsGrid.appendChild(
       createStatRow(
-        "CAMPAIGNS WON",
+        "Expeditions Won",
         stats.campaignsWon,
         "var(--color-primary)",
       ),
     );
     statsGrid.appendChild(
       createStatRow(
-        "CAMPAIGNS LOST",
+        "Expeditions Lost",
         stats.campaignsLost,
         "var(--color-error)",
       ),
@@ -123,27 +123,27 @@ export class StatisticsScreen {
     statsGrid.appendChild(document.createElement("br"));
 
     // Combat
-    statsGrid.appendChild(this.createHeader("COMBAT"));
+    statsGrid.appendChild(this.createHeader("Combat"));
     statsGrid.appendChild(
       createStatRow(
-        "TOTAL XENO KILLS",
+        "Total Xeno Purged",
         stats.totalKills,
         "var(--color-warning)",
       ),
     );
     statsGrid.appendChild(
       createStatRow(
-        "TOTAL CASUALTIES",
+        "Total Casualties",
         stats.totalCasualties,
         "var(--color-error)",
       ),
     );
     statsGrid.appendChild(
-      createStatRow("MISSIONS PLAYED", stats.totalMissionsPlayed),
+      createStatRow("Missions Played", stats.totalMissionsPlayed),
     );
     statsGrid.appendChild(
       createStatRow(
-        "MISSIONS WON",
+        "Missions Won",
         stats.totalMissionsWon,
         "var(--color-primary)",
       ),
@@ -152,10 +152,10 @@ export class StatisticsScreen {
     statsGrid.appendChild(document.createElement("br"));
 
     // Economy
-    statsGrid.appendChild(this.createHeader("ECONOMY"));
+    statsGrid.appendChild(this.createHeader("Economy"));
     statsGrid.appendChild(
       createStatRow(
-        "TOTAL SCRAP EARNED",
+        "Total Scrap Earned",
         stats.totalScrapEarned.toLocaleString(),
         "var(--color-primary)",
       ),
@@ -166,7 +166,7 @@ export class StatisticsScreen {
 
   private createHeader(text: string) {
     const header = document.createElement("div");
-    header.textContent = text.toUpperCase();
+    header.textContent = text;
     header.style.fontSize = "0.8em";
     header.style.color = "var(--color-accent)";
     header.style.borderBottom = "1px solid var(--color-border)";

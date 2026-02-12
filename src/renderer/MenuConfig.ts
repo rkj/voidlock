@@ -27,38 +27,38 @@ export interface MenuStateDefinition {
 
 export const MENU_CONFIG: Record<MenuState, MenuStateDefinition> = {
   ACTION_SELECT: {
-    title: "ACTIONS",
+    title: "Actions",
     options: [
       {
         key: 1,
-        label: "ORDERS",
+        label: "Orders",
         type: "TRANSITION",
         nextState: "ORDERS_SELECT",
       },
       {
         key: 2,
-        label: "ENGAGEMENT",
+        label: "Engagement",
         type: "ACTION",
         commandType: CommandType.SET_ENGAGEMENT,
         nextState: "MODE_SELECT",
       },
       {
         key: 3,
-        label: "USE ITEM",
+        label: "Use Item",
         type: "ACTION",
         commandType: CommandType.USE_ITEM,
         nextState: "ITEM_SELECT",
       },
       {
         key: 4,
-        label: "PICKUP",
+        label: "Pickup",
         type: "ACTION",
         commandType: CommandType.PICKUP,
         nextState: "TARGET_SELECT",
       },
       {
         key: 5,
-        label: "EXTRACT",
+        label: "Extract",
         type: "ACTION",
         commandType: CommandType.EXTRACT,
         nextState: "UNIT_SELECT",
@@ -66,79 +66,79 @@ export const MENU_CONFIG: Record<MenuState, MenuStateDefinition> = {
     ],
   },
   ORDERS_SELECT: {
-    title: "ORDERS",
+    title: "Orders",
     options: [
       {
         key: 1,
-        label: "MOVE TO ROOM",
+        label: "Move To Room",
         type: "ACTION",
         commandType: CommandType.MOVE_TO,
         nextState: "TARGET_SELECT",
       },
       {
         key: 2,
-        label: "OVERWATCH INTERSECTION",
+        label: "Overwatch Intersection",
         type: "ACTION",
         commandType: CommandType.OVERWATCH_POINT,
         nextState: "TARGET_SELECT",
       },
       {
         key: 3,
-        label: "EXPLORE",
+        label: "Explore",
         type: "ACTION",
         commandType: CommandType.EXPLORE,
         nextState: "UNIT_SELECT",
       },
       {
         key: 4,
-        label: "ESCORT",
+        label: "Escort",
         type: "ACTION",
         commandType: CommandType.ESCORT_UNIT,
         nextState: "TARGET_SELECT",
       },
       {
         key: 5,
-        label: "HOLD",
+        label: "Hold",
         type: "ACTION",
         commandType: CommandType.STOP,
         nextState: "UNIT_SELECT",
       },
-      { key: 0, label: "BACK", type: "BACK" },
+      { key: 0, label: "Back", type: "BACK" },
     ],
   },
   MODE_SELECT: {
-    title: "SELECT MODE",
+    title: "Select Mode",
     options: [
       {
         key: 1,
-        label: "ENGAGE (STOP AND SHOOT)",
+        label: "Engage (Stop And Shoot)",
         type: "MODE",
         modeValue: "ENGAGE",
         nextState: "UNIT_SELECT",
       },
       {
         key: 2,
-        label: "IGNORE (RUN)",
+        label: "Ignore (Run)",
         type: "MODE",
         modeValue: "IGNORE",
         nextState: "UNIT_SELECT",
       },
-      { key: 0, label: "BACK", type: "BACK" },
+      { key: 0, label: "Back", type: "BACK" },
     ],
   },
   ITEM_SELECT: {
-    title: "SELECT ITEM",
-    options: [{ key: 0, label: "BACK", type: "BACK" }],
+    title: "Select Item",
+    options: [{ key: 0, label: "Back", type: "BACK" }],
     dynamic: true,
   },
   TARGET_SELECT: {
-    title: "SELECT TARGET",
-    options: [{ key: 0, label: "BACK", type: "BACK" }],
+    title: "Select Target",
+    options: [{ key: 0, label: "Back", type: "BACK" }],
     dynamic: true, // Controller populates POIs
   },
   UNIT_SELECT: {
-    title: "SELECT UNIT(S)",
-    options: [{ key: 0, label: "BACK", type: "BACK" }],
+    title: "Select Unit(s)",
+    options: [{ key: 0, label: "Back", type: "BACK" }],
     dynamic: true, // Controller populates Units
   },
 };
