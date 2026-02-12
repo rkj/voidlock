@@ -38,7 +38,7 @@ describe("Regression: Recruit Speed Display (voidlock-95y7.5)", () => {
     const assaultArch = ArchetypeLibrary["assault"];
     const cards = Array.from(container.querySelectorAll(".soldier-card"));
     const assaultCard = cards.find((card) =>
-      card.textContent?.includes("Assault"),
+      card.textContent?.includes("ASSAULT"),
     ) as HTMLElement;
 
     expect(assaultCard).toBeDefined();
@@ -65,7 +65,7 @@ describe("Regression: Recruit Speed Display (voidlock-95y7.5)", () => {
     const scoutArch = ArchetypeLibrary["scout"];
     const cards = Array.from(container.querySelectorAll(".soldier-card"));
     const scoutCard = cards.find((card) =>
-      card.textContent?.includes("Scout"),
+      card.textContent?.includes("SCOUT"),
     ) as HTMLElement;
 
     expect(scoutCard).toBeDefined();

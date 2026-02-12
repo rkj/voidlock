@@ -75,6 +75,6 @@ describe("CampaignScreen Unit Style Default Regression", () => {
 
     const statusText = container.querySelector(".global-status-text");
     expect(statusText).not.toBeNull();
-    expect(statusText?.textContent).toContain("TacticalIcons");
+    expect(statusText?.textContent).toContain("TACTICALICONS");
   });
 });

@@ -57,14 +57,14 @@ describe("Menu Breadcrumbs", () => {
   it("should have 'Orders' breadcrumb in ORDERS_SELECT", () => {
     controller.handleMenuInput("1", mockState); // Select Orders
     const state = controller.getRenderableState(mockState);
-    expect(state.breadcrumbs).toEqual(["Orders"]);
+    expect(state.breadcrumbs).toEqual(["ORDERS"]);
   });
 
   it("should have 'Orders > Move to Room' breadcrumb in TARGET_SELECT", () => {
     controller.handleMenuInput("1", mockState); // Orders
     controller.handleMenuInput("1", mockState); // Move to Room
     const state = controller.getRenderableState(mockState);
-    expect(state.breadcrumbs).toEqual(["Orders", "Move to Room"]);
+    expect(state.breadcrumbs).toEqual(["ORDERS", "MOVE TO ROOM"]);
   });
 
   it("should have 'Engagement > Engage (Stop and Shoot)' breadcrumb in UNIT_SELECT", () => {
@@ -72,8 +72,8 @@ describe("Menu Breadcrumbs", () => {
     controller.handleMenuInput("1", mockState); // Engage
     const state = controller.getRenderableState(mockState);
     expect(state.breadcrumbs).toEqual([
-      "Engagement",
-      "Engage (Stop and Shoot)",
+      "ENGAGEMENT",
+      "ENGAGE (STOP AND SHOOT)",
     ]);
   });
 
@@ -82,7 +82,7 @@ describe("Menu Breadcrumbs", () => {
     controller.handleMenuInput("1", mockState); // Move to Room
     controller.goBack();
     const state = controller.getRenderableState(mockState);
-    expect(state.breadcrumbs).toEqual(["Orders"]);
+    expect(state.breadcrumbs).toEqual(["ORDERS"]);
     controller.goBack();
     const state2 = controller.getRenderableState(mockState);
     expect(state2.breadcrumbs).toEqual([]);
@@ -94,7 +94,7 @@ describe("Menu Breadcrumbs", () => {
     const state = controller.getRenderableState(mockState);
     const html = MenuRenderer.renderMenu(state);
     expect(html).toContain(
-      '<div class="menu-breadcrumbs">Orders &gt; Move to Room</div>',
+      '<div class="menu-breadcrumbs">ORDERS &gt; MOVE TO ROOM</div>',
     );
   });
 
@@ -102,6 +102,6 @@ describe("Menu Breadcrumbs", () => {
     controller.handleMenuInput("3", mockState); // Use Item
     controller.handleMenuInput("1", mockState); // Medkit
     const state = controller.getRenderableState(mockState);
-    expect(state.breadcrumbs).toEqual(["Use Item", "Medkit"]);
+    expect(state.breadcrumbs).toEqual(["USE ITEM", "MEDKIT"]);
   });
 });

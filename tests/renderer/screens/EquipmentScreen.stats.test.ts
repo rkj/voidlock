@@ -53,7 +53,7 @@ describe("EquipmentScreen Stats and Tooltips", () => {
       container.querySelectorAll(".armory-panel .menu-item.clickable"),
     );
     const pulseRifle = armoryItems.find((el) =>
-      el.textContent?.includes("Pulse Rifle"),
+      el.textContent?.includes("PULSE RIFLE"),
     );
 
     expect(pulseRifle).toBeDefined();
@@ -82,7 +82,7 @@ describe("EquipmentScreen Stats and Tooltips", () => {
       container.querySelectorAll(".armory-panel .menu-item.clickable"),
     );
     const heavyPlate = armoryItems.find((el) =>
-      el.textContent?.includes("Heavy Plate Armor"),
+      el.textContent?.includes("HEAVY PLATE ARMOR"),
     );
 
     expect(heavyPlate).toBeDefined();
@@ -110,7 +110,7 @@ describe("EquipmentScreen Stats and Tooltips", () => {
       container.querySelectorAll(".armory-panel .menu-item.clickable"),
     ) as HTMLElement[];
     const pulseRifle = armoryItems.find((el) =>
-      el.textContent?.includes("Pulse Rifle"),
+      el.textContent?.includes("PULSE RIFLE"),
     ) as HTMLElement;
 
     expect(pulseRifle).toBeDefined();
@@ -137,7 +137,7 @@ describe("EquipmentScreen Stats and Tooltips", () => {
     // Global supplies are in rows with class 'card' in .armory-panel
     const supplyRows = Array.from(
       container.querySelectorAll(".armory-panel .card"),
-    ).filter((el) => el.textContent?.includes("Medkit")) as HTMLElement[];
+    ).filter((el) => el.textContent?.includes("MEDKIT")) as HTMLElement[];
 
     expect(supplyRows.length).toBeGreaterThan(0);
     const medkitRow = supplyRows[0];

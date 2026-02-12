@@ -99,8 +99,8 @@ export class CampaignScreen {
 
     if (state.status === "Victory") {
       this.container.innerHTML = `<div class="flex-col align-center justify-center h-full">
-        <h1 style="color:var(--color-primary)">Campaign Victory</h1>
-        <button class="primary-button" id="btn-victory-summary" style="height: 32px; padding: 0 30px; display: flex; align-items: center; font-size: 0.9em;">View Summary</button>
+        <h1 style="color:var(--color-primary)">CAMPAIGN VICTORY</h1>
+        <button class="primary-button" id="btn-victory-summary" style="height: 32px; padding: 0 30px; display: flex; align-items: center; font-size: 0.9em;">VIEW SUMMARY</button>
       </div>`;
       const btn = this.container.querySelector("#btn-victory-summary");
       if (btn)
@@ -112,8 +112,8 @@ export class CampaignScreen {
 
     if (state.status === "Defeat") {
       this.container.innerHTML = `<div class="flex-col align-center justify-center h-full">
-        <h1 style="color:var(--color-error)">Campaign Defeat</h1>
-        <button class="primary-button" style="background-color:var(--color-error); height: 32px; padding: 0 30px; display: flex; align-items: center; font-size: 0.9em;" id="btn-defeat-summary">View Summary</button>
+        <h1 style="color:var(--color-error)">CAMPAIGN DEFEAT</h1>
+        <button class="primary-button" style="background-color:var(--color-error); height: 32px; padding: 0 30px; display: flex; align-items: center; font-size: 0.9em;" id="btn-defeat-summary">VIEW SUMMARY</button>
       </div>`;
       const btn = this.container.querySelector("#btn-defeat-summary");
       if (btn)
@@ -137,7 +137,7 @@ export class CampaignScreen {
 
     // Abandon Campaign button (Subtle, in the corner)
     const abandonBtn = document.createElement("button");
-    abandonBtn.textContent = "Abandon Campaign";
+    abandonBtn.textContent = "ABANDON CAMPAIGN";
     abandonBtn.className = "back-button";
     abandonBtn.style.position = "absolute";
     abandonBtn.style.bottom = "40px"; // Moved up to avoid meta-stats footer

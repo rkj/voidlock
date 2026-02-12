@@ -2,6 +2,16 @@
  * @vitest-environment jsdom
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import {
+  GameState,
+  MapGeneratorType,
+  UnitState,
+  AIProfile,
+  EngineMode,
+  MissionType,
+} from "@src/shared/types";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { GameApp } from "@src/renderer/app/GameApp";
 
 // Mock dependencies before importing main.ts
 vi.mock("@package.json", () => ({
@@ -70,17 +80,19 @@ vi.mock("@src/renderer/ui/ModalService", () => ({
 }));
 
 // Mock CampaignManager
-const mockCampaignState = {
+const mockCampaignState: any = {
   status: "Active",
   nodes: [
     {
       id: "node-1",
       type: "Combat",
       status: "Accessible",
+      rank: 0,
       difficulty: 1,
       mapSeed: 123,
       connections: [],
       position: { x: 0, y: 0 },
+      bonusLootCount: 0,
     },
   ],
   roster: [
@@ -93,30 +105,38 @@ const mockCampaignState = {
       hp: 100,
       maxHp: 100,
       xp: 0,
+      kills: 0,
+      missions: 0,
+      recoveryTime: 0,
       soldierAim: 80,
       equipment: {
         rightHand: "pulse_rifle",
-        leftHand: null,
+        leftHand: undefined,
         body: "basic_armor",
-        feet: null,
+        feet: undefined,
       },
     },
   ],
-  scrap: 0,
+  scrap: 100,
   intel: 0,
   currentSector: 1,
   currentNodeId: null,
   history: [],
   unlockedArchetypes: ["scout", "heavy", "medic", "demolition"],
   rules: {
-    allowTacticalPause: true,
-    themeId: "default",
     mode: "Preset",
     difficulty: "Standard",
     deathRule: "Simulation",
-    mapGeneratorType: "DenseShip",
+    allowTacticalPause: true,
+    mapGeneratorType: MapGeneratorType.DenseShip,
     difficultyScaling: 1,
     resourceScarcity: 1,
+    startingScrap: 100,
+    mapGrowthRate: 1,
+    baseEnemyCount: 3,
+    enemyGrowthPerMission: 1,
+    economyMode: "Open",
+    themeId: "default",
   },
 };
 
@@ -138,7 +158,13 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
 });
 
 describe("Screen Flow Integration", () => {
+  let app: GameApp;
+
   beforeEach(async () => {
+    // Reset state
+    mockCampaignState.status = "Active";
+    mockCampaignState.history = [];
+
     // Mock ResizeObserver
     global.ResizeObserver = vi.fn().mockImplementation(() => ({
       observe: vi.fn(),
@@ -159,8 +185,8 @@ describe("Screen Flow Integration", () => {
     // Set up DOM
     document.body.innerHTML = `
       <div id="screen-main-menu" class="screen">
-        <button id="btn-menu-campaign">Campaign</button>
-        <button id="btn-menu-custom">Custom Mission</button>
+        <button id="btn-menu-campaign">CAMPAIGN</button>
+        <button id="btn-menu-custom">CUSTOM MISSION</button>
         <p id="menu-version"></p>
       </div>
 
@@ -176,10 +202,11 @@ describe("Screen Flow Integration", () => {
           </div>
       </div>
 
-      <div id="screen-mission-setup" class="screen" style="display:none">
+      <div id="screen-mission-setup" class="screen screen-centered" style="display:none">
+        <h1>MISSION CONFIGURATION</h1>
         <div id="map-config-section">
           <select id="map-generator-type">
-            <option value="Procedural">Procedural</option>
+            <option value="Procedural">PROCEDURAL</option>
           </select>
           <input type="number" id="map-seed" />
           <div id="preset-map-controls">
@@ -192,9 +219,9 @@ describe("Screen Flow Integration", () => {
         </div>
         <div id="unit-style-preview"></div>
         <div id="squad-builder"></div>
-        <button id="btn-launch-mission" class="primary-button">Launch Mission</button>
-        <button id="btn-goto-equipment">Equipment</button>
-        <button id="btn-setup-back">Back</button>
+        <button id="btn-launch-mission" class="primary-button">LAUNCH MISSION</button>
+        <button id="btn-goto-equipment">EQUIPMENT</button>
+        <button id="btn-setup-back">BACK</button>
       </div>
       <div id="screen-equipment" class="screen" style="display:none"></div>
       <div id="screen-barracks" class="screen" style="display:none"></div>
@@ -247,7 +274,7 @@ describe("Screen Flow Integration", () => {
     // 3. Equipment -> Mission
     const allButtons = document.querySelectorAll("#screen-equipment button");
     const equipmentLaunchBtn = Array.from(allButtons).find((b) =>
-      b.textContent?.includes("Confirm"),
+      b.textContent?.includes("CONFIRM"),
     ) as HTMLElement;
     expect(equipmentLaunchBtn).toBeDefined();
     equipmentLaunchBtn?.click();
@@ -317,7 +344,7 @@ describe("Screen Flow Integration", () => {
     // Select a soldier (scout)
     const scoutCard = Array.from(
       document.querySelectorAll(".soldier-card"),
-    ).find((c) => c.textContent?.includes("Scout")) as HTMLElement;
+    ).find((c) => c.textContent?.includes("SCOUT")) as HTMLElement;
     scoutCard?.dispatchEvent(new Event("dblclick"));
 
     const btnGotoEquipment = document.getElementById(
@@ -327,9 +354,9 @@ describe("Screen Flow Integration", () => {
 
     const allButtons = document.querySelectorAll("#screen-equipment button");
     const equipmentLaunchBtn = Array.from(allButtons).find((b) =>
-      b.textContent?.includes("Confirm"),
+      b.textContent?.includes("CONFIRM"),
     ) as HTMLElement;
-    equipmentLaunchBtn?.click();
+    equipmentLaunchBtn.click();
 
     // Now in mission-setup, click Launch
     document.getElementById("btn-launch-mission")?.click();
@@ -411,7 +438,7 @@ describe("Screen Flow Integration", () => {
     // 3. Equipment -> Back to Campaign Map
     const backBtn = Array.from(
       document.querySelectorAll("#screen-equipment button"),
-    ).find((b) => b.textContent === "Back") as HTMLElement;
+    ).find((b) => b.textContent === "BACK") as HTMLElement;
     backBtn?.click();
 
     expect(document.getElementById("screen-campaign")?.style.display).toBe(

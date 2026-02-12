@@ -85,13 +85,13 @@ describe("EquipmentScreen Economics", () => {
 
     const armoryPanel = Array.from(container.querySelectorAll(".panel")).find(
       (p) =>
-        p.querySelector(".panel-title")?.textContent === "Armory & Supplies",
+        p.querySelector(".panel-title")?.textContent === "ARMORY & SUPPLIES",
     ) as HTMLElement;
 
     // Re-select Pulse Rifle (already equipped and in roster)
     const pulseRifleBtn = Array.from(
       armoryPanel.querySelectorAll(".menu-item.clickable"),
-    ).find((el) => el.textContent?.includes("Pulse Rifle")) as HTMLElement;
+    ).find((el) => el.textContent?.includes("PULSE RIFLE")) as HTMLElement;
 
     pulseRifleBtn?.click();
 
@@ -114,13 +114,13 @@ describe("EquipmentScreen Economics", () => {
 
     const armoryPanel = Array.from(container.querySelectorAll(".panel")).find(
       (p) =>
-        p.querySelector(".panel-title")?.textContent === "Armory & Supplies",
+        p.querySelector(".panel-title")?.textContent === "ARMORY & SUPPLIES",
     ) as HTMLElement;
 
     // Select Pistol (cost 10)
     const pistolBtn = Array.from(
       armoryPanel.querySelectorAll(".menu-item.clickable"),
-    ).find((el) => el.textContent?.includes("Pistol")) as HTMLElement;
+    ).find((el) => el.textContent?.includes("PISTOL")) as HTMLElement;
 
     pistolBtn?.click();
 
@@ -144,12 +144,12 @@ describe("EquipmentScreen Economics", () => {
 
     const armoryPanel = Array.from(container.querySelectorAll(".panel")).find(
       (p) =>
-        p.querySelector(".panel-title")?.textContent === "Armory & Supplies",
+        p.querySelector(".panel-title")?.textContent === "ARMORY & SUPPLIES",
     ) as HTMLElement;
 
     const pistolBtn = Array.from(
       armoryPanel.querySelectorAll(".menu-item.clickable"),
-    ).find((el) => el.textContent?.includes("Pistol")) as HTMLElement;
+    ).find((el) => el.textContent?.includes("PISTOL")) as HTMLElement;
 
     // Check it's disabled or at least doesn't trigger spendScrap
     pistolBtn?.click();
@@ -173,7 +173,7 @@ describe("EquipmentScreen Economics", () => {
 
     const armoryPanel = Array.from(container.querySelectorAll(".panel")).find(
       (p) =>
-        p.querySelector(".panel-title")?.textContent === "Armory & Supplies",
+        p.querySelector(".panel-title")?.textContent === "ARMORY & SUPPLIES",
     ) as HTMLElement;
 
     const getScrapText = () => {
@@ -186,7 +186,7 @@ describe("EquipmentScreen Economics", () => {
 
     const pistolBtn = Array.from(
       armoryPanel.querySelectorAll(".menu-item.clickable"),
-    ).find((el) => el.textContent?.includes("Pistol")) as HTMLElement;
+    ).find((el) => el.textContent?.includes("PISTOL")) as HTMLElement;
     pistolBtn?.click();
 
     expect(getScrapText()).toContain("SCRAP:");
@@ -209,10 +209,10 @@ describe("EquipmentScreen Economics", () => {
     // Find the Right Hand slot remove button
     const slots = Array.from(container.querySelectorAll(".paper-doll-slot"));
     const rhSlot = slots.find((s) =>
-      s.textContent?.includes("Right Hand"),
+      s.textContent?.includes("RIGHT HAND"),
     ) as HTMLElement;
     const removeBtn = rhSlot.querySelector(
-      "div[style*='color: var(--color-danger)']",
+      ".slot-remove-btn",
     ) as HTMLElement;
 
     removeBtn?.click();
@@ -236,13 +236,13 @@ describe("EquipmentScreen Economics", () => {
 
     const armoryPanel = Array.from(container.querySelectorAll(".panel")).find(
       (p) =>
-        p.querySelector(".panel-title")?.textContent === "Armory & Supplies",
+        p.querySelector(".panel-title")?.textContent === "ARMORY & SUPPLIES",
     ) as HTMLElement;
 
     // 1. Unequip Pulse Rifle
     const slots = Array.from(container.querySelectorAll(".paper-doll-slot"));
     const rhSlot = slots.find((s) =>
-      s.textContent?.includes("Right Hand"),
+      s.textContent?.includes("RIGHT HAND"),
     ) as HTMLElement;
     const removeBtn = rhSlot.querySelector(
       "div[style*='color: var(--color-danger)']",
@@ -252,7 +252,7 @@ describe("EquipmentScreen Economics", () => {
     // 2. Re-equip Pulse Rifle from armory
     const pulseRifleBtn = Array.from(
       armoryPanel.querySelectorAll(".menu-item.clickable"),
-    ).find((el) => el.textContent?.includes("Pulse Rifle")) as HTMLElement;
+    ).find((el) => el.textContent?.includes("PULSE RIFLE")) as HTMLElement;
     pulseRifleBtn?.click();
 
     expect(mockManager.spendScrap).not.toHaveBeenCalled();
@@ -276,13 +276,13 @@ describe("EquipmentScreen Economics", () => {
     const panels = Array.from(container.querySelectorAll(".panel"));
     const armoryPanel = panels.find(
       (p) =>
-        p.querySelector(".panel-title")?.textContent === "Armory & Supplies",
+        p.querySelector(".panel-title")?.textContent === "ARMORY & SUPPLIES",
     ) as HTMLElement;
 
     const pulseRifleBtn = Array.from(
       armoryPanel.querySelectorAll(".menu-item.clickable"),
-    ).find((el) => el.textContent?.includes("Pulse Rifle")) as HTMLElement;
+    ).find((el) => el.textContent?.includes("PULSE RIFLE")) as HTMLElement;
 
-    expect(pulseRifleBtn.textContent).toContain("Owned");
+    expect(pulseRifleBtn.textContent).toContain("OWNED");
   });
 });

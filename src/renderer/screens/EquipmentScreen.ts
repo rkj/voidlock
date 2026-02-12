@@ -204,14 +204,14 @@ export class EquipmentScreen {
     contentWrapper.style.minHeight = "0"; // Crucial for nested flex scrolling
 
     // Left: Soldier List
-    const leftPanel = this.createPanel("Soldier List", "250px");
+    const leftPanel = this.createPanel("SOLDIER LIST", "250px");
     leftPanel.classList.add("soldier-list-panel");
     leftPanel.style.overflowY = "auto";
     leftPanel.style.padding = "10px";
     this.renderSoldierList(leftPanel);
 
     // Center: Paper Doll / Slots
-    const centerPanel = this.createPanel("Soldier Equipment", "1fr");
+    const centerPanel = this.createPanel("SOLDIER EQUIPMENT", "1fr");
     centerPanel.classList.add("soldier-equipment-panel");
     centerPanel.style.overflowY = "auto";
     centerPanel.style.padding = "10px";
@@ -222,10 +222,10 @@ export class EquipmentScreen {
 
     // Right: Armory / Global Inventory OR Roster Picker OR Recruitment OR Revive
     const isSlotEmpty = !this.config.soldiers[this.selectedSoldierIndex];
-    let rightPanelTitle = "Armory & Supplies";
-    if (this.recruitMode) rightPanelTitle = "Recruitment";
-    else if (this.reviveMode) rightPanelTitle = "Revive Personnel";
-    else if (isSlotEmpty) rightPanelTitle = "Reserve Roster";
+    let rightPanelTitle = "ARMORY & SUPPLIES";
+    if (this.recruitMode) rightPanelTitle = "RECRUITMENT";
+    else if (this.reviveMode) rightPanelTitle = "REVIVE PERSONNEL";
+    else if (isSlotEmpty) rightPanelTitle = "RESERVE ROSTER";
 
     const rightPanel = this.createPanel(rightPanelTitle, "400px");
     rightPanel.classList.add("armory-panel");
@@ -263,7 +263,7 @@ export class EquipmentScreen {
     footer.style.backgroundColor = "var(--color-surface-elevated)";
 
     const backBtn = document.createElement("button");
-    backBtn.textContent = "Back";
+    backBtn.textContent = "BACK";
     backBtn.className = "back-button";
     backBtn.setAttribute("data-focus-id", "btn-back");
     backBtn.style.margin = "0";
@@ -275,7 +275,7 @@ export class EquipmentScreen {
     backBtn.onclick = () => this.onBack();
 
     const saveBtn = document.createElement("button");
-    saveBtn.textContent = "Confirm Squad";
+    saveBtn.textContent = "CONFIRM SQUAD";
     saveBtn.className = "primary-button";
     saveBtn.setAttribute("data-focus-id", "btn-confirm-squad");
     saveBtn.style.margin = "0";
@@ -299,7 +299,7 @@ export class EquipmentScreen {
 
     const h2 = document.createElement("h2");
     h2.className = "panel-title";
-    h2.textContent = title;
+    h2.textContent = title.toUpperCase();
     panel.appendChild(h2);
 
     return panel;
@@ -329,7 +329,7 @@ export class EquipmentScreen {
         removeBtn.className = "remove-soldier-btn slot-remove";
         removeBtn.setAttribute("data-focus-id", `remove-soldier-${i}`);
         removeBtn.innerHTML = "×";
-        removeBtn.title = "Remove from Squad";
+        removeBtn.title = "REMOVE FROM SQUAD";
         removeBtn.onclick = (e) => {
           e.stopPropagation();
           this.config.soldiers.splice(i, 1);
@@ -346,10 +346,10 @@ export class EquipmentScreen {
         item.style.padding = "8px 12px";
         item.innerHTML = `
           <div style="font-weight:bold; color:${this.selectedSoldierIndex === i ? "var(--color-primary)" : "var(--color-text-dim)"}; font-size: 0.9em;">
-            ${i + 1}. [Empty Slot]
+            ${i + 1}. [EMPTY SLOT]
           </div>
           <div style="font-size:0.75em; color:var(--color-text-muted); margin-top:2px;">
-            Click to add soldier
+            CLICK TO ADD SOLDIER
           </div>
         `;
 
@@ -395,8 +395,8 @@ export class EquipmentScreen {
       msg.style.textAlign = "center";
       msg.innerHTML = `
         <div style="font-size:2em; margin-bottom:10px;">📋</div>
-        <div>No healthy soldiers available in roster.</div>
-        <div style="font-size:0.8em; margin-top:10px;">Recruit a new soldier in the center panel.</div>
+        <div>NO HEALTHY SOLDIERS AVAILABLE IN ROSTER.</div>
+        <div style="font-size:0.8em; margin-top:10px;">RECRUIT A NEW SOLDIER IN THE CENTER PANEL.</div>
       `;
       panel.appendChild(msg);
       return;
@@ -484,7 +484,7 @@ export class EquipmentScreen {
 
     if (deadSoldiers.length === 0) {
       panel.innerHTML =
-        '<div style="text-align:center; color:var(--color-text-dim); margin-top:20px;">No deceased personnel available for revival.</div>';
+        '<div style="text-align:center; color:var(--color-text-dim); margin-top:20px;">NO DECEASED PERSONNEL AVAILABLE FOR REVIVAL.</div>';
       return;
     }
 
@@ -571,7 +571,7 @@ export class EquipmentScreen {
 
     // Global Supplies
     const suppliesTitle = document.createElement("h3");
-    suppliesTitle.textContent = "Global Supplies";
+    suppliesTitle.textContent = "GLOBAL SUPPLIES";
     suppliesTitle.style.color = "var(--color-primary)";
     suppliesTitle.style.borderBottom = "1px solid var(--color-border)";
     suppliesTitle.style.paddingBottom = "8px";
@@ -603,7 +603,7 @@ export class EquipmentScreen {
       nameGroup.style.flexGrow = "1";
       nameGroup.innerHTML = `
         <div class="supply-item-header" style="font-weight:bold; font-size: 0.9em; width: 100%; display: flex; justify-content: space-between;">
-            <span>${item.name}</span>
+            <span>${item.name.toUpperCase()}</span>
             <span style="color:var(--color-primary);">${state ? item.cost + " CR" : "FREE"}</span>
         </div>
       `;

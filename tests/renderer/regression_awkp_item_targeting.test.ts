@@ -50,7 +50,7 @@ describe("Regression awkp: Item Targeting Logic", () => {
 
     const renderState = controller.getRenderableState(mockState);
     const grenadeOption = renderState.options.find((o) =>
-      o.label.includes("Frag Grenade"),
+      o.label.includes("FRAG GRENADE"),
     );
     expect(grenadeOption?.disabled).toBe(true);
   });
@@ -63,7 +63,7 @@ describe("Regression awkp: Item Targeting Logic", () => {
 
     const renderState = controller.getRenderableState(mockState);
     const grenadeOption = renderState.options.find((o) =>
-      o.label.includes("Frag Grenade"),
+      o.label.includes("FRAG GRENADE"),
     );
     expect(grenadeOption?.disabled).toBe(false);
   });
@@ -92,12 +92,12 @@ describe("Regression awkp: Item Targeting Logic", () => {
 
     // Should show enemy as target, NOT Room
     const enemyOption = renderState.options.find((o) =>
-      o.label.includes(EnemyType.XenoMite),
+      o.label.includes("XENO-MITE"),
     );
     expect(enemyOption).toBeDefined();
 
     const roomOption = renderState.options.find((o) =>
-      o.label.includes("Room"),
+      o.label.includes("ROOM"),
     );
     expect(roomOption).toBeUndefined();
   });
@@ -125,7 +125,7 @@ describe("Regression awkp: Item Targeting Logic", () => {
     expect(controller.menuState).toBe("UNIT_SELECT");
     const renderState = controller.getRenderableState(mockState);
     const unit1Option = renderState.options.find((o) =>
-      o.label.includes("u1"),
+      o.label.includes("U1"),
     )!;
 
     controller.handleMenuInput(unit1Option.key, mockState);

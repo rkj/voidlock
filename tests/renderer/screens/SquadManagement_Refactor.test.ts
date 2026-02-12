@@ -72,10 +72,10 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
 
     const slots = container.querySelectorAll(".soldier-list-panel .menu-item");
     expect(slots.length).toBe(4);
-    expect(slots[0].textContent).toContain("Soldier 1");
-    expect(slots[1].textContent).toContain("Empty Slot");
-    expect(slots[2].textContent).toContain("Empty Slot");
-    expect(slots[3].textContent).toContain("Empty Slot");
+    expect(slots[0].textContent).toContain("SOLDIER 1");
+    expect(slots[1].textContent).toContain("EMPTY SLOT");
+    expect(slots[2].textContent).toContain("EMPTY SLOT");
+    expect(slots[3].textContent).toContain("EMPTY SLOT");
   });
 
   it("should show Recruit/Revive options in the inspector when an empty slot is selected", () => {
@@ -96,8 +96,8 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
     (slots[1] as HTMLElement).click();
 
     const inspector = container.querySelector(".soldier-equipment-panel");
-    expect(inspector?.textContent).toContain("Recruit New Soldier");
-    expect(inspector?.textContent).toContain("Revive Fallen Soldier");
+    expect(inspector?.textContent).toContain("RECRUIT NEW SOLDIER");
+    expect(inspector?.textContent).toContain("REVIVE FALLEN SOLDIER");
   });
 
   it("should show available roster soldiers in the Right Panel when an empty slot is selected", () => {
@@ -118,8 +118,8 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
     (slots[1] as HTMLElement).click();
 
     const rightPanel = container.querySelector(".armory-panel");
-    expect(rightPanel?.textContent).toContain("Reserve Roster");
-    expect(rightPanel?.textContent).toContain("Soldier 2");
+    expect(rightPanel?.textContent).toContain("RESERVE ROSTER");
+    expect(rightPanel?.textContent).toContain("SOLDIER 2");
     // Soldier 1 is already in squad, so it shouldn't be here or should be marked
     // Soldier 3 is dead, so it should be in Revive section of inspector, not here?
     // Actually spec says "Add: 'Empty Slot' buttons open the Reserve Roster picker."
@@ -145,12 +145,12 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
     // Find Soldier 2 in roster picker and click it
     const rosterItem = Array.from(
       container.querySelectorAll(".armory-panel .menu-item"),
-    ).find((el) => el.textContent?.includes("Soldier 2")) as HTMLElement;
+    ).find((el) => el.textContent?.includes("SOLDIER 2")) as HTMLElement;
     rosterItem.click();
 
     // Verify it's now in the squad config
     const confirmBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.textContent === "Confirm Squad",
+      (btn) => btn.textContent === "CONFIRM SQUAD",
     );
     confirmBtn?.click();
 
@@ -185,7 +185,7 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
 
     // Verify it's gone from squad config
     const confirmBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.textContent === "Confirm Squad",
+      (btn) => btn.textContent === "CONFIRM SQUAD",
     );
     confirmBtn?.click();
 
@@ -215,13 +215,13 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
 
     // Click Recruit New Soldier in inspector
     const recruitBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.textContent?.includes("Recruit New Soldier"),
+      (btn) => btn.textContent?.includes("RECRUIT NEW SOLDIER"),
     );
     recruitBtn?.click();
 
     const rightPanel = container.querySelector(".armory-panel");
-    expect(rightPanel?.textContent).toContain("Recruitment");
-    expect(rightPanel?.textContent).toContain("Assault");
-    expect(rightPanel?.textContent).toContain("Medic");
+    expect(rightPanel?.textContent).toContain("RECRUITMENT");
+    expect(rightPanel?.textContent).toContain("ASSAULT");
+    expect(rightPanel?.textContent).toContain("MEDIC");
   });
 });

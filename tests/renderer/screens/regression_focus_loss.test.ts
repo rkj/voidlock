@@ -68,6 +68,6 @@ describe("EquipmentScreen Focus Regression", () => {
     
     // Check if we are now in recruitment mode
     const title = container.querySelector(".armory-panel .panel-title");
-    expect(title?.textContent).toBe("Recruitment");
+    expect(title?.textContent).toBe("RECRUITMENT");
   });
 });

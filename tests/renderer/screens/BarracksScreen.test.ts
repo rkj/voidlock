@@ -37,13 +37,13 @@ describe("BarracksScreen", () => {
     screen.show();
 
     expect(container.textContent).toContain("ROSTER");
-    expect(container.textContent).toContain("Recruitment"); // Tab name is still mixed case
+    expect(container.textContent).toContain("RECRUITMENT");
     expect(container.textContent).toContain("SOLDIER DETAILS");
 
     // Initial roster has 4 soldiers
     const state = manager.getState()!;
     state.roster.forEach((s) => {
-      expect(container.textContent).toContain(s.name);
+      expect(container.textContent).toContain(s.name.toUpperCase());
     });
   });
 
@@ -79,14 +79,14 @@ describe("BarracksScreen", () => {
 
     const soldierItem = Array.from(
       container.querySelectorAll(".menu-item.clickable"),
-    ).find((el) => el.textContent?.includes(firstSoldierName)) as HTMLElement;
+    ).find((el) => el.textContent?.includes(firstSoldierName.toUpperCase())) as HTMLElement;
 
     soldierItem.click();
 
     expect(container.textContent).toContain("SOLDIER DETAILS");
     expect(container.textContent).toContain("SOLDIER ATTRIBUTES");
     expect(container.textContent).toContain("EQUIPMENT PERFORMANCE");
-    expect(container.textContent).toContain(firstSoldierName);
+    expect(container.textContent).toContain(firstSoldierName.toUpperCase());
   });
 
   it("should show HEAL button for wounded soldiers", () => {
@@ -105,13 +105,13 @@ describe("BarracksScreen", () => {
     const soldierItem = Array.from(
       container.querySelectorAll(".menu-item.clickable"),
     ).find((el) =>
-      el.textContent?.includes(state.roster[0].name),
+      el.textContent?.includes(state.roster[0].name.toUpperCase()),
     ) as HTMLElement;
     soldierItem.click();
 
-    expect(container.textContent).toContain("Heal (50 Scrap)");
+    expect(container.textContent).toContain("HEAL (50 SCRAP)");
     const healBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.textContent?.includes("Heal"),
+      (btn) => btn.textContent?.includes("HEAL"),
     ) as HTMLButtonElement;
 
     expect(healBtn.disabled).toBe(false);
@@ -134,11 +134,11 @@ describe("BarracksScreen", () => {
     const soldierItem = Array.from(
       container.querySelectorAll(".menu-item.clickable"),
     ).find((el) =>
-      el.textContent?.includes(state.roster[0].name),
+      el.textContent?.includes(state.roster[0].name.toUpperCase()),
     ) as HTMLElement;
     soldierItem.click();
 
-    expect(container.textContent).toContain("Revive (250 Scrap)");
+    expect(container.textContent).toContain("REVIVE (250 SCRAP)");
   });
 
   it("should allow recruiting a new soldier", async () => {
@@ -153,7 +153,7 @@ describe("BarracksScreen", () => {
     const initialCount = manager.getState()?.roster.length || 0;
 
     const recruitBtns = Array.from(container.querySelectorAll("button")).filter(
-      (btn) => btn.textContent === "Recruit",
+      (btn) => btn.textContent === "RECRUIT",
     ) as HTMLButtonElement[];
 
     recruitBtns[0].click();
@@ -166,7 +166,7 @@ describe("BarracksScreen", () => {
     expect(state.roster.length).toBe(initialCount + 1);
 
     const newSoldier = state.roster[state.roster.length - 1];
-    expect(container.textContent).toContain(newSoldier.name);
+    expect(container.textContent).toContain(newSoldier.name.toUpperCase());
   });
 
   it("should allow renaming a soldier", async () => {
@@ -186,7 +186,7 @@ describe("BarracksScreen", () => {
     // Select the first soldier
     const soldierItem = Array.from(
       container.querySelectorAll(".menu-item.clickable"),
-    ).find((el) => el.textContent?.includes(originalName)) as HTMLElement;
+    ).find((el) => el.textContent?.includes(originalName.toUpperCase())) as HTMLElement;
     soldierItem.click();
 
     // Find and click the rename button (pencil icon)
@@ -207,6 +207,6 @@ describe("BarracksScreen", () => {
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(state.roster[0].name).toBe("Renamed Soldier");
-    expect(container.textContent).toContain("Renamed Soldier");
+    expect(container.textContent).toContain("RENAMED SOLDIER");
   });
 });

@@ -129,23 +129,23 @@ export class CampaignShell {
 
     if (this.mode === "campaign") {
       leftPart.innerHTML = `
-        <div style="font-size: 0.7em; color: var(--color-text-dim); letter-spacing: 1px;">Campaign Mode</div>
-        <div style="font-size: 0.9em; font-weight: bold; color: var(--color-primary);">${state ? `Sector ${currentSector}` : "New Expedition"}</div>
+        <div style="font-size: 0.7em; color: var(--color-text-dim); letter-spacing: 1px;">CAMPAIGN MODE</div>
+        <div style="font-size: 0.9em; font-weight: bold; color: var(--color-primary);">${state ? `SECTOR ${currentSector}` : "NEW EXPEDITION"}</div>
       `;
     } else if (this.mode === "statistics") {
       leftPart.innerHTML = `
-        <div style="font-size: 0.7em; color: var(--color-text-dim); letter-spacing: 1px;">Service Record</div>
-        <div style="font-size: 0.9em; font-weight: bold; color: var(--color-primary);">Global Statistics</div>
+        <div style="font-size: 0.7em; color: var(--color-text-dim); letter-spacing: 1px;">SERVICE RECORD</div>
+        <div style="font-size: 0.9em; font-weight: bold; color: var(--color-primary);">GLOBAL STATISTICS</div>
       `;
     } else if (this.mode === "custom") {
       leftPart.innerHTML = `
-        <div style="font-size: 0.7em; color: var(--color-text-dim); letter-spacing: 1px;">Custom Mission</div>
-        <div style="font-size: 0.9em; font-weight: bold; color: var(--color-primary);">Simulation Setup</div>
+        <div style="font-size: 0.7em; color: var(--color-text-dim); letter-spacing: 1px;">CUSTOM MISSION</div>
+        <div style="font-size: 0.9em; font-weight: bold; color: var(--color-primary);">SIMULATION SETUP</div>
       `;
     } else if (this.mode === "global") {
       leftPart.innerHTML = `
-        <div style="font-size: 0.7em; color: var(--color-text-dim); letter-spacing: 1px;">Settings</div>
-        <div style="font-size: 0.9em; font-weight: bold; color: var(--color-primary);">Global Configuration</div>
+        <div style="font-size: 0.7em; color: var(--color-text-dim); letter-spacing: 1px;">SETTINGS</div>
+        <div style="font-size: 0.9em; font-weight: bold; color: var(--color-primary);">GLOBAL CONFIGURATION</div>
       `;
     }
     topBar.appendChild(leftPart);
@@ -192,18 +192,18 @@ export class CampaignShell {
       const tabs: { id: CampaignTabId; label: string }[] = [];
 
       if (this.mode === "campaign" && state) {
-        tabs.push({ id: "sector-map", label: "Sector Map" });
-        tabs.push({ id: "barracks", label: "Barracks" });
-        tabs.push({ id: "engineering", label: "Engineering" });
-        tabs.push({ id: "stats", label: "Service Record" });
-        tabs.push({ id: "settings", label: "Settings" });
+        tabs.push({ id: "sector-map", label: "SECTOR MAP" });
+        tabs.push({ id: "barracks", label: "BARRACKS" });
+        tabs.push({ id: "engineering", label: "ENGINEERING" });
+        tabs.push({ id: "stats", label: "SERVICE RECORD" });
+        tabs.push({ id: "settings", label: "SETTINGS" });
       } else if (this.mode === "statistics") {
-        tabs.push({ id: "stats", label: "Service Record" });
-        tabs.push({ id: "engineering", label: "Engineering" });
+        tabs.push({ id: "stats", label: "SERVICE RECORD" });
+        tabs.push({ id: "engineering", label: "ENGINEERING" });
       } else if (this.mode === "custom") {
-        tabs.push({ id: "setup", label: "Setup" });
-        tabs.push({ id: "stats", label: "Service Record" });
-        tabs.push({ id: "settings", label: "Settings" });
+        tabs.push({ id: "setup", label: "SETUP" });
+        tabs.push({ id: "stats", label: "SERVICE RECORD" });
+        tabs.push({ id: "settings", label: "SETTINGS" });
       }
 
       tabs.forEach((tab) => {
@@ -231,7 +231,7 @@ export class CampaignShell {
     // Main Menu Button (Always on the far right)
     if (this.mode !== "none") {
       const menuBtn = document.createElement("button");
-      menuBtn.textContent = "Main Menu";
+      menuBtn.textContent = "MAIN MENU";
       menuBtn.className = "back-button";
       menuBtn.style.margin = "0";
       menuBtn.style.padding = "5px 12px";
@@ -295,15 +295,15 @@ export class CampaignShell {
 
     container.innerHTML = `
       <div class="flex-row gap-5" style="align-items: center;">
-        <span style="letter-spacing: 1px; opacity: 0.7;">Lifetime Xeno Purged:</span>
+        <span style="letter-spacing: 1px; opacity: 0.7;">LIFETIME XENO PURGED:</span>
         <span style="color: var(--color-primary); font-weight: bold;">${stats.totalKills.toLocaleString()}</span>
       </div>
       <div class="flex-row gap-5" style="align-items: center;">
-        <span style="letter-spacing: 1px; opacity: 0.7;">Expeditions:</span>
+        <span style="letter-spacing: 1px; opacity: 0.7;">EXPEDITIONS:</span>
         <span style="color: var(--color-primary); font-weight: bold;">${stats.totalCampaignsStarted.toLocaleString()}</span>
       </div>
       <div class="flex-row gap-5" style="align-items: center;">
-        <span style="letter-spacing: 1px; opacity: 0.7;">Missions Won:</span>
+        <span style="letter-spacing: 1px; opacity: 0.7;">MISSIONS WON:</span>
         <span style="color: var(--color-primary); font-weight: bold;">${stats.totalMissionsWon.toLocaleString()}</span>
       </div>
       
@@ -324,16 +324,16 @@ export class CampaignShell {
       ? this.manager.getSyncStatus()
       : "local-only";
     let icon = "💾";
-    let text = "Local Only";
+    let text = "LOCAL ONLY";
     let className = "local";
 
     if (status === "synced") {
       icon = "☁️";
-      text = "Cloud Synced";
+      text = "CLOUD SYNCED";
       className = "synced";
     } else if (status === "syncing") {
       icon = "🔄";
-      text = "Syncing...";
+      text = "SYNCING...";
       className = "syncing";
     }
 

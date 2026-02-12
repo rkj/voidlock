@@ -179,8 +179,8 @@ describe("Campaign End Integration", () => {
     // Set up DOM
     document.body.innerHTML = `
       <div id="screen-main-menu" class="screen">
-        <button id="btn-menu-campaign">Campaign</button>
-        <button id="btn-menu-custom">Custom Mission</button>
+        <button id="btn-menu-campaign">CAMPAIGN</button>
+        <button id="btn-menu-custom">CUSTOM MISSION</button>
         <p id="menu-version"></p>
       </div>
 
@@ -197,9 +197,10 @@ describe("Campaign End Integration", () => {
       </div>
 
       <div id="screen-mission-setup" class="screen" style="display:none">
+        <h1>MISSION CONFIGURATION</h1>
         <div id="map-config-section">
           <select id="map-generator-type">
-            <option value="Procedural">Procedural</option>
+            <option value="Procedural">PROCEDURAL</option>
           </select>
           <input type="number" id="map-seed" />
           <div id="preset-map-controls">
@@ -212,9 +213,9 @@ describe("Campaign End Integration", () => {
         </div>
         <div id="unit-style-preview"></div>
         <div id="squad-builder"></div>
-        <button id="btn-launch-mission" class="primary-button">Launch Mission</button>
-        <button id="btn-goto-equipment">Equipment</button>
-        <button id="btn-setup-back">Back</button>
+        <button id="btn-launch-mission" class="primary-button">LAUNCH MISSION</button>
+        <button id="btn-goto-equipment">EQUIPMENT</button>
+        <button id="btn-setup-back">BACK</button>
       </div>
       <div id="screen-equipment" class="screen" style="display:none"></div>
       <div id="screen-barracks" class="screen" style="display:none"></div>
@@ -223,10 +224,10 @@ describe("Campaign End Integration", () => {
           <div id="game-status"></div>
           <div id="top-threat-fill"></div>
           <div id="top-threat-value">0%</div>
-          <button id="btn-pause-toggle">Pause</button>
+          <button id="btn-pause-toggle">PAUSE</button>
           <input type="range" id="game-speed" />
           <span id="speed-value">1.0x</span>
-          <button id="btn-give-up">Give Up</button>
+          <button id="btn-give-up">GIVE UP</button>
         </div>
         <div id="soldier-list"></div>
         <canvas id="game-canvas"></canvas>
@@ -275,7 +276,7 @@ describe("Campaign End Integration", () => {
     // 3. Launch Mission (skip Equipment for brevity, trigger CONFIRM directly if possible or just dblclick card)
     const allButtons = document.querySelectorAll("#screen-equipment button");
     const equipmentLaunchBtn = Array.from(allButtons).find((b) =>
-      b.textContent?.includes("Confirm"),
+      b.textContent?.includes("CONFIRM"),
     ) as HTMLElement;
     equipmentLaunchBtn?.click();
 
@@ -336,8 +337,8 @@ describe("Campaign End Integration", () => {
     const victoryOverlay = document.querySelector(".campaign-victory-overlay");
     expect(victoryOverlay).not.toBeNull();
     expect(victoryOverlay?.textContent).toContain("SECTOR SECURED");
-    expect(victoryOverlay?.textContent).toMatch(/Aliens Killed:\s*42/);
-    expect(victoryOverlay?.textContent).toMatch(/Missions:\s*1/);
+    expect(victoryOverlay?.textContent).toMatch(/ALIENS KILLED:\s*42/);
+    expect(victoryOverlay?.textContent).toMatch(/MISSIONS:\s*1/);
 
     // 7. Verify Return to Main Menu works
     const menuBtn = Array.from(

@@ -74,27 +74,27 @@ describe("MenuController Grenade Targeting Regression (voidlock-o4u8)", () => {
     const renderableState = controller.getRenderableState(mockState);
     const options = renderableState.options;
 
-    // BUG: Currently it likely includes "Extraction" (as it uses "CELL" type)
+    // BUG: Currently it likely includes "EXTRACTION" (as it uses "CELL" type)
     // and might NOT include the enemy if it's not a POI.
 
     const extractionOption = options.find((o) =>
-      o.label.includes("Extraction"),
+      o.label.includes("EXTRACTION"),
     );
-    const enemyOption1 = options.find((o) => o.label.includes("Drone"));
-    const enemyOption2 = options.find((o) => o.label.includes("Guard"));
+    const enemyOption1 = options.find((o) => o.label.includes("DRONE"));
+    const enemyOption2 = options.find((o) => o.label.includes("GUARD"));
 
     expect(
       extractionOption,
-      "Extraction should NOT be a target for grenades",
+      "EXTRACTION should NOT be a target for grenades",
     ).toBeUndefined();
     expect(
       enemyOption1,
-      "Enemy Drone SHOULD be a target for grenades",
+      "Enemy DRONE SHOULD be a target for grenades",
     ).toBeDefined();
     expect(enemyOption1?.key).toBe("1");
     expect(
       enemyOption2,
-      "Enemy Guard SHOULD be a target for grenades",
+      "Enemy GUARD SHOULD be a target for grenades",
     ).toBeDefined();
     expect(enemyOption2?.key).toBe("2");
   });

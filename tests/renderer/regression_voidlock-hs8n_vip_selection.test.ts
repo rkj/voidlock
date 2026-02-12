@@ -52,7 +52,7 @@ describe("Regression voidlock-hs8n: VIP Availability in Custom Missions", () => 
       let total = currentSquad.soldiers.filter(
         (s) => s.archetypeId !== "vip",
       ).length;
-      totalDiv.textContent = `Total Soldiers: ${total}/${MAX_SQUAD_SIZE}`;
+      totalDiv.textContent = `TOTAL SOLDIERS: ${total}/${MAX_SQUAD_SIZE}`;
       const launchBtn = document.getElementById(
         "btn-goto-equipment",
       ) as HTMLButtonElement;
@@ -65,7 +65,7 @@ describe("Regression voidlock-hs8n: VIP Availability in Custom Missions", () => 
         if (soldier.archetypeId === "vip") return;
         const row = document.createElement("div");
         row.dataset.soldierId = soldier.id;
-        row.textContent = soldier.name;
+        row.textContent = soldier.name.toUpperCase();
         container.appendChild(row);
       });
     } else {
@@ -77,12 +77,12 @@ describe("Regression voidlock-hs8n: VIP Availability in Custom Missions", () => 
         row.dataset.archId = arch.id;
 
         const info = document.createElement("div");
-        info.innerHTML = `<strong>${arch.name}</strong>`;
+        info.innerHTML = `<strong>${arch.name.toUpperCase()}</strong>`;
 
         if (isVip && isEscortMission) {
           const note = document.createElement("div");
           note.className = "vip-note";
-          note.textContent = "(Auto-assigned)";
+          note.textContent = "(AUTO-ASSIGNED)";
           info.appendChild(note);
         }
 
@@ -155,7 +155,7 @@ describe("Regression voidlock-hs8n: VIP Availability in Custom Missions", () => 
     expect(input.disabled).toBe(true);
     expect(input.value).toBe("0");
     const note = vipRow?.querySelector(".vip-note");
-    expect(note?.textContent).toBe("(Auto-assigned)");
+    expect(note?.textContent).toBe("(AUTO-ASSIGNED)");
   });
 
   it("should not count VIP towards squad size limit", () => {
@@ -172,7 +172,7 @@ describe("Regression voidlock-hs8n: VIP Availability in Custom Missions", () => 
     renderSquadBuilder(false);
 
     expect(document.getElementById("squad-total-count")?.textContent).toBe(
-      "Total Soldiers: 4/4",
+      "TOTAL SOLDIERS: 4/4",
     );
 
     // Add a VIP
@@ -185,7 +185,7 @@ describe("Regression voidlock-hs8n: VIP Availability in Custom Missions", () => 
       currentSquad.soldiers.filter((s) => s.archetypeId === "vip").length,
     ).toBe(1);
     expect(document.getElementById("squad-total-count")?.textContent).toBe(
-      "Total Soldiers: 4/4",
+      "TOTAL SOLDIERS: 4/4",
     );
     expect(mockModalService.alert).not.toHaveBeenCalled();
   });

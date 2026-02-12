@@ -38,7 +38,7 @@ describe("Regression 6k8w: Supply Prices", () => {
     // Find Frag Grenade row
     const supplyItems = Array.from(container.querySelectorAll(".card"));
     const grenadeRow = supplyItems.find((el) =>
-      el.textContent?.includes("Frag Grenade"),
+      el.textContent?.includes("FRAG GRENADE"),
     ) as HTMLElement;
 
     expect(grenadeRow).toBeDefined();

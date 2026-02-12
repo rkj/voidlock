@@ -36,7 +36,7 @@ describe("MenuController Context Awareness", () => {
     mockState.squadInventory = {};
     const renderState = controller.getRenderableState(mockState);
     const useItemOption = renderState.options.find((o) =>
-      o.label.includes("Use Item"),
+      o.label.includes("USE ITEM"),
     );
     expect(useItemOption?.disabled).toBe(true);
   });
@@ -45,7 +45,7 @@ describe("MenuController Context Awareness", () => {
     mockState.squadInventory = { medkit: 1 };
     const renderState = controller.getRenderableState(mockState);
     const useItemOption = renderState.options.find((o) =>
-      o.label.includes("Use Item"),
+      o.label.includes("USE ITEM"),
     );
     expect(useItemOption?.disabled).toBeFalsy();
   });
@@ -61,7 +61,7 @@ describe("MenuController Context Awareness", () => {
     expect(controller.menuState).toBe("TARGET_SELECT");
     const renderState = controller.getRenderableState(mockState);
     const extractOption = renderState.options.find((o) =>
-      o.label.includes("Extraction"),
+      o.label.includes("EXTRACTION"),
     );
     expect(extractOption).toBeDefined();
   });
@@ -76,7 +76,7 @@ describe("MenuController Context Awareness", () => {
 
     const renderState = controller.getRenderableState(mockState);
     const extractOption = renderState.options.find((o) =>
-      o.label.includes("Extraction"),
+      o.label.includes("EXTRACTION"),
     );
     expect(extractOption).toBeUndefined();
   });

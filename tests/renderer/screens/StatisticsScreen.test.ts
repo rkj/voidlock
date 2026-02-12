@@ -28,12 +28,12 @@ describe("StatisticsScreen", () => {
     const screen = new StatisticsScreen("screen-statistics");
     screen.show();
 
-    expect(container.textContent).toContain("Service Record");
-    expect(container.textContent).toContain("Campaigns");
-    expect(container.textContent).toContain("Combat");
-    expect(container.textContent).toContain("Economy");
+    expect(container.textContent).toContain("SERVICE RECORD");
+    expect(container.textContent).toContain("CAMPAIGNS");
+    expect(container.textContent).toContain("COMBAT");
+    expect(container.textContent).toContain("ECONOMY");
 
-    expect(container.textContent).toContain("Total Xeno Kills");
+    expect(container.textContent).toContain("TOTAL XENO KILLS");
     expect(container.textContent).toContain("0"); // Default value
   });
 
@@ -46,13 +46,13 @@ describe("StatisticsScreen", () => {
     const screen = new StatisticsScreen("screen-statistics");
     screen.show();
 
-    expect(container.textContent).toContain("Total Xeno Kills");
+    expect(container.textContent).toContain("TOTAL XENO KILLS");
     expect(container.textContent).toContain("10");
-    expect(container.textContent).toContain("Total Casualties");
+    expect(container.textContent).toContain("TOTAL CASUALTIES");
     expect(container.textContent).toContain("2");
-    expect(container.textContent).toContain("Campaigns Won");
+    expect(container.textContent).toContain("CAMPAIGNS WON");
     expect(container.textContent).toContain("1");
-    expect(container.textContent).toContain("Total Scrap Earned");
+    expect(container.textContent).toContain("TOTAL SCRAP EARNED");
     expect(container.textContent).toContain("500");
   });
 });

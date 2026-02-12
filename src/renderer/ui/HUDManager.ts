@@ -33,7 +33,7 @@ export class HUDManager {
     if (statusElement) {
       let timeVal = statusElement.querySelector(".time-value");
       if (!timeVal) {
-        statusElement.innerHTML = `<span class="time-label">Time</span> <span class="time-value"></span>s`;
+        statusElement.innerHTML = `<span class="time-label">TIME</span> <span class="time-value"></span>s`;
         timeVal = statusElement.querySelector(".time-value");
       }
       if (timeVal) {
@@ -98,7 +98,7 @@ export class HUDManager {
     ) as HTMLButtonElement;
     if (btn) {
       const isPaused = state.settings.isPaused;
-      btn.textContent = isPaused ? "▶ Play" : "|| Pause";
+      btn.textContent = isPaused ? "▶ PLAY" : "|| PAUSE";
     }
   }
 
@@ -152,9 +152,9 @@ export class HUDManager {
       controlsDiv.innerHTML = `
         <h3 class="game-over-panel-title">MISSION CONTROLS</h3>
         <div class="control-group" style="border:none; padding-top:0; display: flex; flex-direction: column; gap: 10px;">
-          <label style="margin-top:0;">Game Speed: <span class="mobile-speed-value">1.0x</span></label>
+          <label style="margin-top:0;">GAME SPEED: <span class="mobile-speed-value">1.0x</span></label>
           <input type="range" class="mobile-speed-slider" min="0" max="100" step="1" value="50">
-          <button class="mobile-abort-button back-button" style="width: 100%; margin: 10px 0 0 0;">Abort Mission</button>
+          <button class="mobile-abort-button back-button" style="width: 100%; margin: 10px 0 0 0;">ABORT MISSION</button>
         </div>
       `;
       const slider = controlsDiv.querySelector(".mobile-speed-slider") as HTMLInputElement;
@@ -291,7 +291,7 @@ export class HUDManager {
       deploymentDiv.className = "deployment-summary";
 
       const title = document.createElement("h2");
-      title.textContent = "Deployment Phase";
+      title.textContent = "DEPLOYMENT PHASE";
       title.className = "deployment-title";
       deploymentDiv.appendChild(title);
 
@@ -307,7 +307,7 @@ export class HUDManager {
 
       const startBtn = document.createElement("button");
       startBtn.id = "btn-start-mission";
-      startBtn.textContent = "Start Mission";
+      startBtn.textContent = "START MISSION";
       startBtn.className = "btn-start-mission";
       startBtn.addEventListener("click", () => this.onStartMission());
       deploymentDiv.appendChild(startBtn);
@@ -321,11 +321,11 @@ export class HUDManager {
       controlsDiv = document.createElement("div");
       controlsDiv.className = "mission-controls mobile-only";
       controlsDiv.innerHTML = `
-        <h3 class="game-over-panel-title">Mission Controls</h3>
+        <h3 class="game-over-panel-title">MISSION CONTROLS</h3>
         <div class="control-group" style="border:none; padding-top:0; display: flex; flex-direction: column; gap: 10px;">
-          <label style="margin-top:0;">Game Speed: <span class="mobile-speed-value">1.0x</span></label>
+          <label style="margin-top:0;">GAME SPEED: <span class="mobile-speed-value">1.0x</span></label>
           <input type="range" class="mobile-speed-slider" min="0" max="100" step="1" value="50">
-          <button class="mobile-abort-button back-button" style="width: 100%; margin: 10px 0 0 0;">Abort Mission</button>
+          <button class="mobile-abort-button back-button" style="width: 100%; margin: 10px 0 0 0;">ABORT MISSION</button>
         </div>
       `;
       const slider = controlsDiv.querySelector(".mobile-speed-slider") as HTMLInputElement;
@@ -390,7 +390,7 @@ export class HUDManager {
         }
 
         const isPlaced = u.isDeployed !== false;
-        const statusText = isPlaced ? "Deployed" : "Pending";
+        const statusText = isPlaced ? "DEPLOYED" : "PENDING";
 
         SoldierWidget.update(item, u, {
           context: "roster",
@@ -502,7 +502,7 @@ export class HUDManager {
         id: "extraction",
         icon,
         color,
-        text: `Extraction (${extractedCount}/${totalUnits})${locStr}`,
+        text: `EXTRACTION (${extractedCount}/${totalUnits})${locStr}`,
         state: status,
       });
     }
@@ -567,7 +567,7 @@ export class HUDManager {
 
     if (visibleEnemies.length === 0) {
       const emptyHtml =
-        "<h3>Enemy Intel</h3><p class='intel-empty'>No hostiles detected.</p>";
+        "<h3>ENEMY INTEL</h3><p class='intel-empty'>NO HOSTILES DETECTED.</p>";
       if (intelDiv.innerHTML !== emptyHtml) {
         intelDiv.innerHTML = emptyHtml;
       }
@@ -577,7 +577,7 @@ export class HUDManager {
     // Ensure header exists
     let header = intelDiv.querySelector("h3");
     if (!header) {
-      intelDiv.innerHTML = "<h3>Enemy Intel</h3>";
+      intelDiv.innerHTML = "<h3>ENEMY INTEL</h3>";
       header = intelDiv.querySelector("h3");
     }
 
@@ -654,28 +654,28 @@ export class HUDManager {
 
     const title = document.createElement("h2");
     title.textContent =
-      state.status === "Won" ? "Mission Accomplished" : "Squad Wiped";
+      state.status === "Won" ? "MISSION ACCOMPLISHED" : "SQUAD WIPED";
     title.className = "game-over-title";
     summaryDiv.appendChild(title);
 
     // Objectives List
     const objectivesDiv = document.createElement("div");
     objectivesDiv.className = "game-over-objectives";
-    objectivesDiv.innerHTML = `<h3 class="game-over-panel-title">Objectives</h3>${this.renderObjectivesList(state)}`;
+    objectivesDiv.innerHTML = `<h3 class="game-over-panel-title">OBJECTIVES</h3>${this.renderObjectivesList(state)}`;
 
     summaryDiv.appendChild(objectivesDiv);
 
     const stats = document.createElement("div");
     stats.className = "game-over-stats";
     stats.innerHTML = `
-      <p><strong>Time Elapsed:</strong> ${(state.t / 1000).toFixed(1)}s</p>
-      <p><strong>Xenos Neutralized:</strong> ${state.stats.aliensKilled}</p>
-      <p><strong>Casualties:</strong> ${state.stats.casualties}</p>
+      <p><strong>TIME ELAPSED:</strong> ${(state.t / 1000).toFixed(1)}s</p>
+      <p><strong>XENOS NEUTRALIZED:</strong> ${state.stats.aliensKilled}</p>
+      <p><strong>CASUALTIES:</strong> ${state.stats.casualties}</p>
     `;
     summaryDiv.appendChild(stats);
 
     const menuBtn = document.createElement("button");
-    menuBtn.textContent = "Back to Menu";
+    menuBtn.textContent = "BACK TO MENU";
     menuBtn.className = "game-over-btn";
     menuBtn.addEventListener("click", () => this.onAbortMission());
     summaryDiv.appendChild(menuBtn);

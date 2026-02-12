@@ -73,7 +73,7 @@ describe("DebriefScreen", () => {
     expect(container.innerHTML).toContain("MISSION SUCCESS");
     expect(container.innerHTML).toContain("10"); // aliensKilled
     expect(container.innerHTML).toContain("+150"); // scrapGained
-    expect(container.innerHTML).toContain("Sgt. Slaughter");
+    expect(container.innerHTML).toContain("SGT. SLAUGHTER");
     expect(container.innerHTML).toContain("debrief-xp-bar");
   });
 
@@ -101,7 +101,7 @@ describe("DebriefScreen", () => {
     screen.show(report);
 
     expect(container.innerHTML).toContain("MISSION FAILED");
-    expect(container.innerHTML).toContain("Dead");
+    expect(container.innerHTML).toContain("DEAD");
   });
 
   it("should call onContinue when button is clicked", () => {

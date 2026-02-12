@@ -80,7 +80,7 @@ describe("MenuController Rehydration - Overwatch", () => {
     // Let's assume it's there.
     const ordersState = controller.getRenderableState(strippedState);
     const overwatchOption = ordersState.options.find((o) =>
-      o.label.includes("Overwatch"),
+      o.label.includes("OVERWATCH"),
     );
     expect(overwatchOption).toBeDefined();
 

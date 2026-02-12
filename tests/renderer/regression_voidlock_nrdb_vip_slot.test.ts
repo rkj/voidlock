@@ -52,7 +52,7 @@ describe("SquadBuilder VIP Slot Logic (voidlock-nrdb)", () => {
     const cards = container.querySelectorAll(".roster-panel .soldier-card");
     let assaultCard: HTMLElement | null = null;
     cards.forEach((card) => {
-      if (card.textContent?.includes("Assault")) {
+      if (card.textContent?.includes("ASSAULT")) {
         assaultCard = card as HTMLElement;
       }
     });
@@ -81,7 +81,7 @@ describe("SquadBuilder VIP Slot Logic (voidlock-nrdb)", () => {
     let assaultCard: HTMLElement | null = null;
     let vipCard: HTMLElement | null = null;
     cards.forEach((card) => {
-      if (card.textContent?.includes("Assault"))
+      if (card.textContent?.includes("ASSAULT"))
         assaultCard = card as HTMLElement;
       if (card.textContent?.includes("VIP")) vipCard = card as HTMLElement;
     });

@@ -66,15 +66,15 @@ describe("Regression voidlock-053u: Escort Target Validity", () => {
 
     // Valid targets
     const vipOption = renderState.options.find((o) =>
-      o.label.includes("The VIP"),
+      o.label.includes("THE VIP"),
     );
     const carrierOption = renderState.options.find((o) =>
-      o.label.includes("Artifact Carrier"),
+      o.label.includes("ARTIFACT CARRIER"),
     );
 
     // Invalid target
     const soldierOption = renderState.options.find((o) =>
-      o.label.includes("Soldier 1"),
+      o.label.includes("SOLDIER 1"),
     );
 
     expect(vipOption).toBeDefined();
@@ -108,7 +108,7 @@ describe("Regression voidlock-053u: Escort Target Validity", () => {
 
     const renderState = controller.getRenderableState(mockState);
     const escortOption = renderState.options.find((o) =>
-      o.label.includes("Escort"),
+      o.label.includes("ESCORT"),
     );
 
     expect(escortOption).toBeDefined();
@@ -129,13 +129,13 @@ describe("Regression voidlock-053u: Escort Target Validity", () => {
 
     // Should show all 3 units from the original mockState setup in beforeEach
     const soldierOption = renderState.options.find((o) =>
-      o.label.includes("Soldier 1"),
+      o.label.includes("SOLDIER 1"),
     );
     const vipOption = renderState.options.find((o) =>
-      o.label.includes("The VIP"),
+      o.label.includes("THE VIP"),
     );
     const carrierOption = renderState.options.find((o) =>
-      o.label.includes("Artifact Carrier"),
+      o.label.includes("ARTIFACT CARRIER"),
     );
 
     expect(soldierOption).toBeDefined();

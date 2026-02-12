@@ -148,8 +148,8 @@ describe("StatisticsScreen Integration", () => {
 
     const screen = document.getElementById("screen-statistics");
     expect(screen?.style.display).toBe("flex");
-    expect(screen?.textContent).toContain("Service Record");
-    expect(screen?.textContent).toContain("Total Xeno Kills");
+    expect(screen?.textContent).toContain("SERVICE RECORD");
+    expect(screen?.textContent).toContain("TOTAL XENO KILLS");
     expect(screen?.textContent).toContain("150");
   });
 
@@ -162,7 +162,7 @@ describe("StatisticsScreen Integration", () => {
     // Click Main Menu button in the shell
     const backBtn = Array.from(
       document.querySelectorAll("#campaign-shell-top-bar button"),
-    ).find((b) => b.textContent === "Main Menu") as HTMLElement;
+    ).find((b) => b.textContent === "MAIN MENU") as HTMLElement;
     expect(backBtn).toBeTruthy();
     backBtn?.click();
 

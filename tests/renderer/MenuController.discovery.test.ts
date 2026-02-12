@@ -64,13 +64,13 @@ describe("MenuController Room Discovery", () => {
 
     const renderState = controller.getRenderableState(mockState);
     const roomOptions = renderState.options.filter((o) =>
-      o.label.includes("Room"),
+      o.label.includes("ROOM"),
     );
 
     // Should find Room 1 (mapped to Key 1) but not Room 2
     expect(roomOptions.length).toBe(1);
     expect(roomOptions[0].key).toBe("1");
-    expect(roomOptions[0].label).toBe("1. Room 1");
+    expect(roomOptions[0].label).toBe("1. ROOM 1");
   });
 
   it("should show discovered room as '1. Room' even if it wasn't the first room in map data", () => {
@@ -83,12 +83,12 @@ describe("MenuController Room Discovery", () => {
     controller.handleMenuInput("1", stateOnlyRoom2Discovered);
     const renderState = controller.getRenderableState(stateOnlyRoom2Discovered);
     const roomOptions = renderState.options.filter((o) =>
-      o.label.includes("Room"),
+      o.label.includes("ROOM"),
     );
 
     expect(roomOptions.length).toBe(1);
     expect(roomOptions[0].key).toBe("1");
-    expect(roomOptions[0].label).toBe("1. Room 1");
+    expect(roomOptions[0].label).toBe("1. ROOM 1");
   });
 
   it("should not list corridors as rooms", () => {
@@ -109,12 +109,12 @@ describe("MenuController Room Discovery", () => {
     controller.handleMenuInput("1", stateWithCorridor);
     const renderState = controller.getRenderableState(stateWithCorridor);
     const roomOptions = renderState.options.filter((o) =>
-      o.label.includes("Room"),
+      o.label.includes("ROOM"),
     );
 
     // Should still only have 2 rooms
     expect(roomOptions.length).toBe(2);
-    expect(roomOptions.some((o) => o.label.includes("corridor"))).toBe(false);
+    expect(roomOptions.some((o) => o.label.includes("CORRIDOR"))).toBe(false);
   });
 
   it("should show both rooms if both are discovered, in discovery order", () => {
@@ -127,13 +127,13 @@ describe("MenuController Room Discovery", () => {
     controller.handleMenuInput("1", stateWithBothDiscovered);
     const renderState = controller.getRenderableState(stateWithBothDiscovered);
     const roomOptions = renderState.options.filter((o) =>
-      o.label.includes("Room"),
+      o.label.includes("ROOM"),
     );
 
     expect(roomOptions.length).toBe(2);
     expect(roomOptions[0].key).toBe("1");
-    expect(roomOptions[0].label).toBe("1. Room 1");
+    expect(roomOptions[0].label).toBe("1. ROOM 1");
     expect(roomOptions[1].key).toBe("2");
-    expect(roomOptions[1].label).toBe("2. Room 2");
+    expect(roomOptions[1].label).toBe("2. ROOM 2");
   });
 });
