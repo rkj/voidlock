@@ -327,6 +327,7 @@ export class SoldierInspector {
         const removeBtn = document.createElement("div");
         removeBtn.textContent = "×";
         removeBtn.className = "slot-remove-btn";
+        removeBtn.tabIndex = -1;
         removeBtn.onclick = (e) => {
           e.stopPropagation();
           onDrop("");

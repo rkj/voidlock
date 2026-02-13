@@ -481,6 +481,7 @@ export class SquadBuilder {
           removeBtn.className = "slot-remove";
           removeBtn.title = "Remove";
           removeBtn.textContent = "X";
+          removeBtn.tabIndex = -1;
           removeBtn.addEventListener("click", (e) => {
             e.stopPropagation();
             const idx = this.squad.soldiers.findIndex(
@@ -517,6 +518,7 @@ export class SquadBuilder {
         removeBtn.className = "slot-remove";
         removeBtn.title = "Remove";
         removeBtn.textContent = "X";
+        removeBtn.tabIndex = -1;
         removeBtn.addEventListener("click", (e) => {
           e.stopPropagation();
           const actualIdx = this.squad.soldiers.indexOf(soldier);
