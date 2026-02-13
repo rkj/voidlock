@@ -50,7 +50,7 @@ export class KeyboardHelpOverlay implements InputContext {
     this.container.innerHTML = "";
 
     const title = document.createElement("h2");
-    title.textContent = "KEYBOARD SHORTCUTS";
+    title.textContent = "Keyboard Shortcuts";
     title.style.margin = "0";
     title.style.color = "var(--color-accent)";
     title.style.letterSpacing = "2px";
