@@ -216,10 +216,10 @@ describe("Comprehensive User Journeys", () => {
     // Set up DOM
     document.body.innerHTML = `
       <div id="screen-main-menu" class="screen">
-        <button id="btn-menu-campaign">CAMPAIGN</button>
-        <button id="btn-menu-custom">CUSTOM MISSION</button>
-        <button id="btn-menu-statistics">STATISTICS</button>
-        <button id="btn-menu-settings">SETTINGS</button>
+        <button id="btn-menu-campaign">Campaign</button>
+        <button id="btn-menu-custom">Custom Mission</button>
+        <button id="btn-menu-statistics">Statistics</button>
+        <button id="btn-menu-settings">Settings</button>
         <p id="menu-version"></p>
       </div>
 
@@ -235,10 +235,10 @@ describe("Comprehensive User Journeys", () => {
           </div>
       </div>
 
-      <div id="screen-mission-setup" class="screen" style="display:none">
+      <div id="screen-mission-setup" class="screen screen-centered" style="display:none">
         <div id="map-config-section">
           <select id="map-generator-type">
-            <option value="Procedural">PROCEDURAL</option>
+            <option value="Procedural">Procedural</option>
           </select>
           <input type="number" id="map-seed" />
           <div id="preset-map-controls">
@@ -250,9 +250,9 @@ describe("Comprehensive User Journeys", () => {
           </div>
         </div>
         <div id="squad-builder"></div>
-        <button id="btn-launch-mission" class="primary-button">LAUNCH MISSION</button>
-        <button id="btn-goto-equipment">EQUIPMENT</button>
-        <button id="btn-setup-back">BACK</button>
+        <button id="btn-launch-mission" class="primary-button">Launch Mission</button>
+        <button id="btn-goto-equipment">Equipment</button>
+        <button id="btn-setup-back">Back</button>
       </div>
       <div id="screen-equipment" class="screen" style="display:none"></div>
       <div id="screen-mission" class="screen" style="display:none">
@@ -260,10 +260,10 @@ describe("Comprehensive User Journeys", () => {
           <div id="game-status"></div>
           <div id="top-threat-fill"></div>
           <div id="top-threat-value">0%</div>
-          <button id="btn-pause-toggle">PAUSE</button>
+          <button id="btn-pause-toggle">Pause</button>
           <input type="range" id="game-speed" />
           <span id="speed-value">1.0x</span>
-          <button id="btn-give-up">GIVE UP</button>
+          <button id="btn-give-up">Give Up</button>
         </div>
         <div id="soldier-list"></div>
         <canvas id="game-canvas"></canvas>
@@ -304,7 +304,7 @@ describe("Comprehensive User Journeys", () => {
     const startBtn = document.querySelector(
       ".campaign-setup-wizard .primary-button",
     ) as HTMLElement;
-    expect(startBtn.textContent).toContain("INITIALIZE EXPEDITION");
+    expect(startBtn.textContent).toContain("Initialize Expedition");
     startBtn.click();
 
     // 3. Should now show the map
@@ -324,7 +324,7 @@ describe("Comprehensive User Journeys", () => {
     // 1. Map -> Barracks
     const barracksTab = Array.from(
       document.querySelectorAll("#campaign-shell-top-bar button"),
-    ).find((b) => b.textContent?.includes("BARRACKS")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("Barracks")) as HTMLElement;
     barracksTab.click();
     expect(document.getElementById("screen-barracks")?.style.display).toBe(
       "flex",
@@ -333,7 +333,7 @@ describe("Comprehensive User Journeys", () => {
     // 2. Recruit a soldier
     const recruitBtns = Array.from(
       document.querySelectorAll("#screen-barracks button"),
-    ).filter((btn) => btn.textContent === "RECRUIT") as HTMLButtonElement[];
+    ).filter((btn) => btn.textContent === "Recruit") as HTMLButtonElement[];
     recruitBtns[0].click();
 
     // Wait for any async updates
@@ -350,7 +350,7 @@ describe("Comprehensive User Journeys", () => {
     // 3. Back to Map
     const mapTab = Array.from(
       document.querySelectorAll("#campaign-shell-top-bar button"),
-    ).find((b) => b.textContent?.includes("SECTOR MAP")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("Sector Map")) as HTMLElement;
     mapTab.click();
     expect(document.getElementById("screen-campaign")?.style.display).toBe(
       "flex",
@@ -365,14 +365,14 @@ describe("Comprehensive User Journeys", () => {
     // Choose squad (2 assaults)
     const assaultCard = Array.from(
       document.querySelectorAll(".soldier-card"),
-    ).find((c) => c.textContent?.includes("ASSAULT")) as HTMLElement;
+    ).find((c) => c.textContent?.includes("Assault")) as HTMLElement;
     assaultCard?.dispatchEvent(new Event("dblclick"));
     assaultCard?.dispatchEvent(new Event("dblclick"));
 
     document.getElementById("btn-goto-equipment")?.click();
     const equipmentLaunchBtn = Array.from(
       document.querySelectorAll("#screen-equipment button"),
-    ).find((b) => b.textContent?.includes("CONFIRM")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("Confirm")) as HTMLElement;
     equipmentLaunchBtn.click();
 
     // Now it should be in mission-setup, click Launch
@@ -407,7 +407,7 @@ describe("Comprehensive User Journeys", () => {
     // 5. Debrief -> Main Menu
     const returnBtn = Array.from(
       document.querySelectorAll("#screen-debrief button"),
-    ).find((b) => b.textContent?.includes("RETURN")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("Return")) as HTMLElement;
     returnBtn?.click();
 
     // Wait for async screen transition
@@ -441,14 +441,14 @@ describe("Comprehensive User Journeys", () => {
     ).click();
     const soldierCard = Array.from(
       document.querySelectorAll(".soldier-card"),
-    ).find((c) => c.textContent?.includes("SOLDIER 1")) as HTMLElement;
+    ).find((c) => c.textContent?.includes("Soldier 1")) as HTMLElement;
     if (soldierCard && !soldierCard.classList.contains("selected")) {
       soldierCard.dispatchEvent(new Event("dblclick"));
     }
     document.getElementById("btn-goto-equipment")?.click();
     const equipmentLaunchBtn = Array.from(
       document.querySelectorAll("#screen-equipment button"),
-    ).find((b) => b.textContent?.includes("CONFIRM")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("Confirm")) as HTMLElement;
     equipmentLaunchBtn.click();
 
     // Now it should be in mission-setup, click Launch
@@ -533,7 +533,7 @@ describe("Comprehensive User Journeys", () => {
     // 2. Debrief -> Campaign Summary (Game Over)
     const returnBtn = Array.from(
       document.querySelectorAll("#screen-debrief button"),
-    ).find((b) => b.textContent?.includes("RETURN")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("Return")) as HTMLElement;
     returnBtn.click();
 
     expect(
@@ -544,7 +544,7 @@ describe("Comprehensive User Journeys", () => {
     // 3. Abandon Campaign
     const abandonBtn = Array.from(
       document.querySelectorAll("#screen-campaign-summary button"),
-    ).find((b) => b.textContent?.includes("ABANDON")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("Abandon")) as HTMLElement;
     abandonBtn.click();
 
     expect(document.getElementById("screen-main-menu")?.style.display).toBe(

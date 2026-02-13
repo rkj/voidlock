@@ -177,12 +177,12 @@ describe("Campaign Flow: Remove Redundant Setup Screen", () => {
     document.body.innerHTML = `
       <div id="app">
         <div id="screen-main-menu" class="screen">
-          <button id="btn-menu-campaign">CAMPAIGN</button>
-          <button id="btn-menu-custom">CUSTOM MISSION</button>
-          <button id="btn-menu-statistics">STATISTICS</button>
-          <button id="btn-menu-engineering">ENGINEERING</button>
-          <button id="btn-menu-settings">SETTINGS</button>
-          <button id="btn-menu-reset">RESET</button>
+          <button id="btn-menu-campaign">Campaign</button>
+          <button id="btn-menu-custom">Custom Mission</button>
+          <button id="btn-menu-statistics">Statistics</button>
+          <button id="btn-menu-engineering">Engineering</button>
+          <button id="btn-menu-settings">Settings</button>
+          <button id="btn-menu-reset">Reset</button>
           <p id="menu-version"></p>
         </div>
 
@@ -197,7 +197,7 @@ describe("Campaign Flow: Remove Redundant Setup Screen", () => {
             <div id="screen-engineering" class="screen" style="display:none"></div>
             <div id="screen-campaign-summary" class="screen" style="display:none"></div>
             <div id="screen-mission-setup" class="screen screen-centered" style="display:none">
-               <h1>MISSION CONFIGURATION</h1>
+               <h1>Mission Configuration</h1>
                <div id="mission-setup-context"></div>
                <div id="setup-global-status"></div>
                <div id="map-config-section">
@@ -216,8 +216,8 @@ describe("Campaign Flow: Remove Redundant Setup Screen", () => {
                   <input type="checkbox" id="toggle-manual-deployment" />
                   <input type="checkbox" id="toggle-allow-tactical-pause" />
                </div>
-               <button id="btn-goto-equipment">NEXT</button>
-               <button id="btn-setup-back">BACK</button>
+               <button id="btn-goto-equipment">Next</button>
+               <button id="btn-setup-back">Back</button>
             </div>
           </div>
         </div>
@@ -249,7 +249,7 @@ describe("Campaign Flow: Remove Redundant Setup Screen", () => {
     const startBtn = document.querySelector(
       ".campaign-setup-wizard .primary-button",
     ) as HTMLElement;
-    expect(startBtn.textContent).toContain("INITIALIZE EXPEDITION");
+    expect(startBtn.textContent).toContain("Initialize Expedition");
     startBtn.click();
 
     // 2. Click a combat node
@@ -274,7 +274,7 @@ describe("Campaign Flow: Remove Redundant Setup Screen", () => {
     const startBtn = document.querySelector(
       ".campaign-setup-wizard .primary-button",
     ) as HTMLElement;
-    expect(startBtn.textContent).toContain("INITIALIZE EXPEDITION");
+    expect(startBtn.textContent).toContain("Initialize Expedition");
     startBtn.click();
 
     // 2. Click a combat node
@@ -292,7 +292,7 @@ describe("Campaign Flow: Remove Redundant Setup Screen", () => {
     // 3. Click Back on Equipment screen
     const backBtn = Array.from(
       document.querySelectorAll("#screen-equipment button"),
-    ).find((b) => b.textContent === "BACK") as HTMLElement;
+    ).find((b) => b.textContent === "Back") as HTMLElement;
     backBtn.click();
 
     // 4. EXPECTATION: Campaign screen is VISIBLE, Equipment screen is HIDDEN
@@ -310,7 +310,7 @@ describe("Campaign Flow: Remove Redundant Setup Screen", () => {
     const startBtn = document.querySelector(
       ".campaign-setup-wizard .primary-button",
     ) as HTMLElement;
-    expect(startBtn.textContent).toContain("INITIALIZE EXPEDITION");
+    expect(startBtn.textContent).toContain("Initialize Expedition");
     startBtn.click();
 
     // 2. Click a combat node

@@ -97,10 +97,10 @@ describe("CampaignScreen Difficulty Cards", () => {
     const cards = container.querySelectorAll(".difficulty-card");
     expect(cards.length).toBe(4);
 
-    expect(container.textContent).toContain("SIMULATION");
-    expect(container.textContent).toContain("CLONE");
-    expect(container.textContent).toContain("STANDARD");
-    expect(container.textContent).toContain("IRONMAN");
+    expect(container.textContent).toContain("Simulation");
+    expect(container.textContent).toContain("Clone");
+    expect(container.textContent).toContain("Standard");
+    expect(container.textContent).toContain("Ironman");
   });
 
   it("should update selection and tactical pause checkbox when cards are clicked", () => {
@@ -122,7 +122,7 @@ describe("CampaignScreen Difficulty Cards", () => {
     // Show Advanced Settings
     const buttons = container.querySelectorAll("button");
     const advancedToggle = Array.from(buttons).find((b) =>
-      b.textContent?.includes("ADVANCED SETTINGS"),
+      b.textContent?.includes("Show Advanced Settings"),
     );
     expect(advancedToggle).toBeTruthy();
     advancedToggle?.click();
@@ -136,10 +136,10 @@ describe("CampaignScreen Difficulty Cards", () => {
 
     const cards = container.querySelectorAll(".difficulty-card");
     const ironmanCard = Array.from(cards).find((card) =>
-      card.textContent?.includes("IRONMAN"),
+      card.textContent?.includes("Ironman"),
     ) as HTMLElement;
     const simulationCard = Array.from(cards).find((card) =>
-      card.textContent?.includes("SIMULATION"),
+      card.textContent?.includes("Simulation"),
     ) as HTMLElement;
 
     // Click Ironman

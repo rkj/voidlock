@@ -185,8 +185,8 @@ describe("Screen Flow Integration", () => {
     // Set up DOM
     document.body.innerHTML = `
       <div id="screen-main-menu" class="screen">
-        <button id="btn-menu-campaign">CAMPAIGN</button>
-        <button id="btn-menu-custom">CUSTOM MISSION</button>
+        <button id="btn-menu-campaign">Campaign</button>
+        <button id="btn-menu-custom">Custom Mission</button>
         <p id="menu-version"></p>
       </div>
 
@@ -203,10 +203,10 @@ describe("Screen Flow Integration", () => {
       </div>
 
       <div id="screen-mission-setup" class="screen screen-centered" style="display:none">
-        <h1>MISSION CONFIGURATION</h1>
+        <h1>Mission Configuration</h1>
         <div id="map-config-section">
           <select id="map-generator-type">
-            <option value="Procedural">PROCEDURAL</option>
+            <option value="Procedural">Procedural</option>
           </select>
           <input type="number" id="map-seed" />
           <div id="preset-map-controls">
@@ -219,9 +219,9 @@ describe("Screen Flow Integration", () => {
         </div>
         <div id="unit-style-preview"></div>
         <div id="squad-builder"></div>
-        <button id="btn-launch-mission" class="primary-button">LAUNCH MISSION</button>
-        <button id="btn-goto-equipment">EQUIPMENT</button>
-        <button id="btn-setup-back">BACK</button>
+        <button id="btn-launch-mission" class="primary-button">Launch Mission</button>
+        <button id="btn-goto-equipment">Equipment</button>
+        <button id="btn-setup-back">Back</button>
       </div>
       <div id="screen-equipment" class="screen" style="display:none"></div>
       <div id="screen-barracks" class="screen" style="display:none"></div>
@@ -274,7 +274,7 @@ describe("Screen Flow Integration", () => {
     // 3. Equipment -> Mission
     const allButtons = document.querySelectorAll("#screen-equipment button");
     const equipmentLaunchBtn = Array.from(allButtons).find((b) =>
-      b.textContent?.includes("CONFIRM"),
+      b.textContent?.includes("Confirm"),
     ) as HTMLElement;
     expect(equipmentLaunchBtn).toBeDefined();
     equipmentLaunchBtn?.click();
@@ -324,7 +324,7 @@ describe("Screen Flow Integration", () => {
     // 6. Debrief -> Campaign
     const continueBtn = Array.from(
       document.querySelectorAll("#screen-debrief button"),
-    ).find((b) => b.textContent?.includes("RETURN")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("Return")) as HTMLElement;
     continueBtn?.click();
 
     expect(document.getElementById("screen-campaign")?.style.display).toBe(
@@ -344,7 +344,7 @@ describe("Screen Flow Integration", () => {
     // Select a soldier (scout)
     const scoutCard = Array.from(
       document.querySelectorAll(".soldier-card"),
-    ).find((c) => c.textContent?.includes("SCOUT")) as HTMLElement;
+    ).find((c) => c.textContent?.includes("Scout")) as HTMLElement;
     scoutCard?.dispatchEvent(new Event("dblclick"));
 
     const btnGotoEquipment = document.getElementById(
@@ -354,7 +354,7 @@ describe("Screen Flow Integration", () => {
 
     const allButtons = document.querySelectorAll("#screen-equipment button");
     const equipmentLaunchBtn = Array.from(allButtons).find((b) =>
-      b.textContent?.includes("CONFIRM"),
+      b.textContent?.includes("Confirm"),
     ) as HTMLElement;
     equipmentLaunchBtn.click();
 
@@ -403,7 +403,7 @@ describe("Screen Flow Integration", () => {
     // 4. Debrief -> Main Menu
     const continueBtn = Array.from(
       document.querySelectorAll("#screen-debrief button"),
-    ).find((b) => b.textContent?.includes("RETURN")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("Return")) as HTMLElement;
     continueBtn?.click();
 
     expect(document.getElementById("screen-main-menu")?.style.display).toBe(
@@ -438,7 +438,7 @@ describe("Screen Flow Integration", () => {
     // 3. Equipment -> Back to Campaign Map
     const backBtn = Array.from(
       document.querySelectorAll("#screen-equipment button"),
-    ).find((b) => b.textContent === "BACK") as HTMLElement;
+    ).find((b) => b.textContent === "Back") as HTMLElement;
     backBtn?.click();
 
     expect(document.getElementById("screen-campaign")?.style.display).toBe(

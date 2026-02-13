@@ -59,9 +59,9 @@ describe("SoldierWidget", () => {
     const el = SoldierWidget.render(mockUnit, options);
 
     expect(el.classList.contains("soldier-widget-tactical")).toBe(true);
-    expect(el.querySelector(".u-id")?.textContent).toBe("JOHN DOE (1)");
+    expect(el.querySelector(".u-id")?.textContent).toBe("John Doe (1)");
     expect(el.querySelector(".u-hp")?.textContent).toBe("100/100");
-    expect(el.querySelector(".u-status-text")?.textContent).toBe("IDLE");
+    expect(el.querySelector(".u-status-text")?.textContent).toBe("Idle");
   });
 
   it("should render weapon stats in tactical context", () => {
@@ -103,10 +103,10 @@ describe("SoldierWidget", () => {
 
     expect(el.classList.contains("soldier-widget-debrief")).toBe(true);
     expect(el.classList.contains("debrief-item")).toBe(true);
-    expect(el.textContent).toContain("JOHN DOE");
-    expect(el.textContent).toContain("LVL 1");
-    expect(el.textContent).toContain("KILLS: 5");
-    expect(el.textContent).toContain("LEVEL UP!");
+    expect(el.textContent).toContain("John Doe");
+    expect(el.textContent).toContain("Lvl 1");
+    expect(el.textContent).toContain("Kills: 5");
+    expect(el.textContent).toContain("Level Up!");
   });
 
   it("should render roster context correctly", () => {
@@ -115,9 +115,9 @@ describe("SoldierWidget", () => {
 
     expect(el.classList.contains("soldier-widget-roster")).toBe(true);
     expect(el.classList.contains("menu-item")).toBe(true);
-    expect(el.textContent).toContain("JOHN DOE");
-    expect(el.textContent).toContain("LVL 1");
-    expect(el.textContent).toContain("HEALTHY");
+    expect(el.textContent).toContain("John Doe");
+    expect(el.textContent).toContain("Lvl 1");
+    expect(el.textContent).toContain("Healthy");
   });
 
   it("should render squad-builder context correctly", () => {
@@ -126,9 +126,9 @@ describe("SoldierWidget", () => {
 
     expect(el.classList.contains("soldier-widget-squad-builder")).toBe(true);
     expect(el.classList.contains("soldier-card")).toBe(true);
-    expect(el.textContent).toContain("JOHN DOE");
-    expect(el.textContent).toContain("LVL 1");
-    expect(el.textContent).toContain("STATUS: HEALTHY");
+    expect(el.textContent).toContain("John Doe");
+    expect(el.textContent).toContain("Lvl 1");
+    expect(el.textContent).toContain("Status: Healthy");
   });
 
   it("should reflect selected state", () => {
@@ -182,7 +182,7 @@ describe("SoldierWidget", () => {
     const options: SoldierWidgetOptions = { context: "debrief" };
     const el = SoldierWidget.render(woundedResult, options);
 
-    expect(el.textContent).toContain("RECOVERY: 3 MISSIONS");
+    expect(el.textContent).toContain("Recovery: 3 Missions");
     expect(el.classList.contains("wounded")).toBe(true);
   });
 
@@ -195,14 +195,14 @@ describe("SoldierWidget", () => {
     const options: SoldierWidgetOptions = { context: "debrief" };
     const el = SoldierWidget.render(promotedResult, options);
 
-    expect(el.textContent).toContain("LEVEL UP! (LVL 3)");
+    expect(el.textContent).toContain("Level Up! (Lvl 3)");
   });
 
   it("should render archetype name in roster context", () => {
     const options: SoldierWidgetOptions = { context: "roster" };
     const el = SoldierWidget.render(mockCampaignSoldier, options);
 
-    expect(el.textContent).toContain("SCOUT");
+    expect(el.textContent).toContain("Scout");
   });
 
   it("should render stats in squad-builder context", () => {

@@ -1,359 +1,214 @@
-/**
- * @vitest-environment jsdom
- */
+// @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
-
-// Mock dependencies
-vi.mock("@package.json", () => ({
-  default: { version: "1.0.0" },
-}));
-
-const mockGameClient = {
-  init: vi.fn(),
-  onStateUpdate: vi.fn(),
-  addStateUpdateListener: vi.fn(),
-  removeStateUpdateListener: vi.fn(),
-  stop: vi.fn(),
-};
-
-vi.mock("@src/engine/GameClient", () => ({
-  GameClient: vi.fn().mockImplementation(() => mockGameClient),
-}));
-
-vi.mock("@src/renderer/Renderer", () => ({
-  Renderer: vi.fn().mockImplementation(() => ({
-    render: vi.fn(),
-    setCellSize: vi.fn(),
-    setUnitStyle: vi.fn(),
-    setOverlay: vi.fn(),
-  })),
-}));
-
-vi.mock("@src/renderer/ThemeManager", () => ({
-  ThemeManager: {
-    getInstance: vi.fn().mockReturnValue({
-      init: vi.fn().mockResolvedValue(undefined),
-      setTheme: vi.fn(),
-      getAssetUrl: vi.fn().mockReturnValue("mock-url"),
-      getColor: vi.fn().mockReturnValue("#000"),
-      getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
-      getCurrentThemeId: vi.fn().mockReturnValue("default"),
-      applyTheme: vi.fn(),
-    }),
-  },
-}));
-
-const mockModalService = {
-  alert: vi.fn().mockResolvedValue(undefined),
-  confirm: vi.fn().mockResolvedValue(true),
-  prompt: vi.fn().mockResolvedValue("New Recruit"),
-  show: vi.fn().mockResolvedValue(undefined),
-};
-
-vi.mock("@src/renderer/ui/ModalService", () => ({
-  ModalService: vi.fn().mockImplementation(() => mockModalService),
-}));
-
-import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
-let currentCampaignState: any = null;
-
-vi.mock("@src/renderer/campaign/CampaignManager", () => {
-  return {
-    CampaignManager: {
-      getInstance: vi.fn().mockReturnValue({
-        getState: vi.fn(() => currentCampaignState),
-        load: vi.fn().mockReturnValue(true),
-        reviveSoldier: vi.fn((id) => {
-          const s = currentCampaignState.roster.find((r: any) => r.id === id);
-          if (s) {
-            s.status = "Healthy";
-            currentCampaignState.scrap -= 250;
-          }
-        }),
-        recruitSoldier: vi.fn((archId, name) => {
-          const id = "new-s";
-          currentCampaignState.roster.push({
-            id,
-            name,
-            archetypeId: archId,
-            status: "Healthy",
-            level: 1,
-            hp: 100,
-            maxHp: 100,
-            xp: 0,
-            soldierAim: 80,
-            equipment: {},
-          });
-          currentCampaignState.scrap -= 100;
-          return id;
-        }),
-        spendScrap: vi.fn((amount) => {
-          currentCampaignState.scrap -= amount;
-          return true;
-        }),
-      }),
-    },
-  };
-});
+import { SquadBuilder } from "@src/renderer/components/SquadBuilder";
+import { AppContext } from "@src/renderer/app/AppContext";
+import { MissionType, SquadConfig, MapGeneratorType } from "@src/shared/types";
 
 describe("Quick Revive in Mission Setup", () => {
-  beforeEach(async () => {
-    document.body.innerHTML = `
-      <div id="screen-main-menu" class="screen">
-        <button id="btn-menu-campaign">CAMPAIGN</button>
-      </div>
-      <div id="screen-campaign-shell" class="screen flex-col" style="display:none">
-          <div id="campaign-shell-top-bar"></div>
-          <div id="campaign-shell-content" class="flex-grow relative overflow-hidden">
-              <div id="screen-campaign" class="screen" style="display:none"></div>
-              <div id="screen-barracks" class="screen" style="display:none"></div>
-              <div id="screen-equipment" class="screen" style="display:none"></div>
-              <div id="screen-statistics" class="screen" style="display:none"></div>
-              <div id="screen-settings" class="screen" style="display:none"></div>
-              <div id="screen-engineering" class="screen" style="display:none"></div>
-          </div>
-      </div>
-      <div id="screen-mission-setup" class="screen" style="display:none">
-        <div id="unit-style-preview"></div>
-        <div id="squad-builder"></div>
-        <button id="btn-goto-equipment">EQUIPMENT</button>
-        <button id="btn-setup-back">BACK</button>
-      </div>
-      <div id="screen-mission" class="screen" style="display:none">
-        <div id="top-bar"></div>
-        <div id="soldier-list"></div>
-        <canvas id="game-canvas"></canvas>
-        <div id="right-panel"></div>
-      </div>
-      <div id="screen-debrief" class="screen" style="display:none"></div>
-      <div id="screen-campaign-summary" class="screen" style="display:none"></div>
-    `;
+  let context: AppContext;
+  let container: HTMLElement;
+  let squad: SquadConfig;
 
-    currentCampaignState = {
-      status: "Active",
-      scrap: 500,
-      rules: {
-        difficulty: "Clone",
-        deathRule: "Clone",
-        economyMode: "Open",
-      },
-      unlockedArchetypes: ["assault", "medic", "heavy", "scout"],
-      unlockedItems: [],
-      roster: [
-        {
-          id: "s1",
-          name: "Dead Soldier",
-          archetypeId: "assault",
-          status: "Dead",
-          level: 1,
-          hp: 100,
-          maxHp: 100,
-          xp: 0,
-          soldierAim: 80,
-          equipment: {},
-        },
-      ],
-      nodes: [
-        {
-          id: "node-1",
-          type: "Combat",
-          status: "Accessible",
-          rank: 0,
-          connections: [],
-          position: { x: 0, y: 0 },
-          mapSeed: 123,
-          difficulty: 1,
-        },
-      ],
+  beforeEach(() => {
+    document.body.innerHTML =
+      '<div id="squad-builder"></div><button id="btn-goto-equipment"></button>';
+    container = document.getElementById("squad-builder")!;
+
+    squad = {
+      soldiers: [],
+      inventory: {},
     };
 
-    // Mock ResizeObserver
-    global.ResizeObserver = vi.fn().mockImplementation(() => ({
-      observe: vi.fn(),
-      unobserve: vi.fn(),
-      disconnect: vi.fn(),
-    }));
-
-    // Import GameApp and initialize
-    vi.resetModules();
-    const { GameApp } = await import("@src/renderer/app/GameApp");
-    const app = new GameApp();
-    await app.initialize();
-    app.start();
+    context = {
+      campaignManager: {
+        getState: vi.fn().mockReturnValue({
+          roster: [
+            {
+              id: "s1",
+              name: "Dead Guy",
+              archetypeId: "assault",
+              status: "Dead",
+              equipment: {},
+            },
+            {
+              id: "s2",
+              name: "Healthy Guy",
+              archetypeId: "medic",
+              status: "Healthy",
+              equipment: {},
+            },
+          ],
+          scrap: 1000,
+          rules: {
+            deathRule: "Clone",
+            mode: "Preset",
+            difficulty: "Standard",
+            allowTacticalPause: true,
+            mapGeneratorType: MapGeneratorType.DenseShip,
+            difficultyScaling: 1,
+            resourceScarcity: 1,
+            startingScrap: 100,
+            mapGrowthRate: 1,
+            baseEnemyCount: 3,
+            enemyGrowthPerMission: 1,
+            economyMode: "Open",
+            themeId: "default",
+          },
+          unlockedArchetypes: ["assault", "medic"],
+        }),
+        reviveSoldier: vi.fn(),
+        recruitSoldier: vi.fn().mockReturnValue("new-id"),
+      },
+      modalService: {
+        alert: vi.fn().mockResolvedValue(undefined),
+      },
+      campaignShell: {
+        refresh: vi.fn(),
+      },
+    } as any;
   });
 
-  const goToEquipment = () => {
-    document.getElementById("btn-menu-campaign")?.click();
-    (
-      document.querySelector(".campaign-node.accessible") as HTMLElement
-    )?.click();
-    document.getElementById("btn-goto-equipment")?.click();
-  };
-
-  it("should show Revive button for dead soldiers in Clone mode", async () => {
-    goToEquipment();
-
-    expect(document.getElementById("screen-equipment")?.style.display).toBe(
-      "flex",
+  it("should show Revive button for dead soldiers in Clone mode", () => {
+    const builder = new SquadBuilder(
+      "squad-builder",
+      context,
+      squad,
+      MissionType.Default,
+      true, // isCampaign
+      () => {},
     );
+    builder.render();
 
-    // Select an empty slot to see the roster/recruitment options
-    const emptySlot = Array.from(
-      document.querySelectorAll(".soldier-list-panel .menu-item"),
-    ).find((el) => el.textContent?.includes("EMPTY SLOT")) as HTMLElement;
-    emptySlot?.click();
+    // Dead soldier card should have a Revive button
+    const cards = container.querySelectorAll(".soldier-card");
+    const deadCard = Array.from(cards).find((c) =>
+      c.textContent?.includes("Dead Guy"),
+    );
+    expect(deadCard).toBeDefined();
 
-    // With the new refactor, Revive button is in the center inspector panel when an empty slot is selected
-    // and there are dead soldiers in the roster.
-    const reviveBtn = Array.from(
-      document.querySelectorAll(".soldier-equipment-panel button"),
-    ).find((btn) =>
-      btn.textContent?.includes("REVIVE FALLEN SOLDIER"),
-    ) as HTMLButtonElement;
-
+    const reviveBtn = deadCard?.querySelector(".btn-revive") as HTMLButtonElement;
     expect(reviveBtn).toBeTruthy();
-    expect(reviveBtn.textContent).toContain("250 SCRAP");
+    expect(reviveBtn.textContent).toContain("250 Scrap");
   });
 
-  it("should disable Revive button if not enough scrap", async () => {
-    currentCampaignState.scrap = 100;
-    goToEquipment();
+  it("should disable Revive button if not enough scrap", () => {
+    // Set scrap low
+    (context.campaignManager.getState as any).mockReturnValue({
+      ...context.campaignManager.getState(),
+      scrap: 50,
+    });
 
-    const emptySlot = Array.from(
-      document.querySelectorAll(".soldier-list-panel .menu-item"),
-    ).find((el) => el.textContent?.includes("EMPTY SLOT")) as HTMLElement;
-    emptySlot?.click();
-
-    const reviveBtn = Array.from(
-      document.querySelectorAll(".soldier-equipment-panel button"),
-    ).find((btn) =>
-      btn.textContent?.includes("REVIVE FALLEN SOLDIER"),
-    ) as HTMLButtonElement;
-
-    expect(reviveBtn.classList.contains("disabled") || reviveBtn.disabled).toBe(
+    const builder = new SquadBuilder(
+      "squad-builder",
+      context,
+      squad,
+      MissionType.Default,
       true,
+      () => {},
     );
+    builder.render();
+
+    const reviveBtn = container.querySelector(".btn-revive") as HTMLButtonElement;
+    expect(reviveBtn.disabled).toBe(true);
   });
 
   it("should call reviveSoldier and refresh UI when clicked", async () => {
-    goToEquipment();
+    const builder = new SquadBuilder(
+      "squad-builder",
+      context,
+      squad,
+      MissionType.Default,
+      true,
+      () => {},
+    );
+    builder.render();
 
-    const emptySlot = Array.from(
-      document.querySelectorAll(".soldier-list-panel .menu-item"),
-    ).find((el) => el.textContent?.includes("EMPTY SLOT")) as HTMLElement;
-    emptySlot?.click();
-
-    const reviveBtn = Array.from(
-      document.querySelectorAll(".soldier-equipment-panel button"),
-    ).find((btn) =>
-      btn.textContent?.includes("REVIVE FALLEN SOLDIER"),
-    ) as HTMLButtonElement;
-
+    const reviveBtn = container.querySelector(".btn-revive") as HTMLButtonElement;
     reviveBtn.click();
 
-    // After clicking RevivePersonnel, we should see the list of dead soldiers in the right panel
-    const deadItem = Array.from(
-      document.querySelectorAll(".armory-panel .soldier-card"),
-    ).find((el) => el.textContent?.includes("DEAD SOLDIER")) as HTMLElement;
-
-    deadItem.click();
-
-    expect(CampaignManager.getInstance().reviveSoldier).toHaveBeenCalled();
-    // Soldier should now be in the squad config
+    // After clicking RevivePersonnel, we should see the list of dead available for revival
+    expect(context.campaignManager.reviveSoldier).toHaveBeenCalledWith("s1");
+    expect(context.campaignShell?.refresh).toHaveBeenCalled();
   });
 
-  it("should show Recruit button if less than 4 healthy/wounded soldiers", async () => {
-    goToEquipment();
+  it("should show Recruit button if less than 4 healthy/wounded soldiers", () => {
+    const builder = new SquadBuilder(
+      "squad-builder",
+      context,
+      squad,
+      MissionType.Default,
+      true,
+      () => {},
+    );
+    builder.render();
 
-    const emptySlot = Array.from(
-      document.querySelectorAll(".soldier-list-panel .menu-item"),
-    ).find((el) => el.textContent?.includes("EMPTY SLOT")) as HTMLElement;
-    emptySlot?.click();
+    // Roster has 1 healthy, 1 dead. Healthy is 1 < 4, so show Recruit.
+    const recruitBtn = container.querySelector(".btn-recruit") as HTMLButtonElement;
+    expect(recruitBtn).toBeTruthy();
+    expect(recruitBtn.textContent).toContain("Recruit (100 Scrap)");
+  });
 
-    const recruitBtn = Array.from(
-      document.querySelectorAll(".soldier-equipment-panel button"),
-    ).find((btn) =>
-      btn.textContent?.includes("RECRUIT NEW SOLDIER"),
-    ) as HTMLButtonElement;
+  it("should show Recruit button if 4 or more healthy/wounded soldiers (up to 12)", () => {
+    // Mock 4 healthy soldiers
+    const roster = [];
+    for (let i = 0; i < 4; i++) {
+      roster.push({
+        id: `s${i}`,
+        name: `Soldier ${i}`,
+        status: "Healthy",
+        archetypeId: "assault",
+        equipment: {},
+      });
+    }
 
+    (context.campaignManager.getState as any).mockReturnValue({
+      ...context.campaignManager.getState(),
+      roster,
+    });
+
+    const builder = new SquadBuilder(
+      "squad-builder",
+      context,
+      squad,
+      MissionType.Default,
+      true,
+      () => {},
+    );
+    builder.render();
+
+    const recruitBtn = container.querySelector(".btn-recruit") as HTMLButtonElement;
     expect(recruitBtn).toBeTruthy();
   });
 
-  it("should show Recruit button if 4 or more healthy/wounded soldiers (up to 12)", async () => {
-    currentCampaignState.roster = Array(4).fill(null).map((_, i) => ({
-      id: `s${i}`,
-      name: `S${i}`,
-      archetypeId: "assault",
-      status: "Healthy",
-      level: 1,
-      hp: 100,
-      maxHp: 100,
-      xp: 0,
-      soldierAim: 80,
-      equipment: {},
-    }));
-
-    goToEquipment();
-
-    // Remove one soldier from squad to create an empty slot
-    const firstSlot = document.querySelector(".soldier-list-panel .menu-item.selected") as HTMLElement;
-    if (firstSlot) {
-       const removeBtn = firstSlot.querySelector(".remove-soldier-btn") as HTMLButtonElement;
-       if (removeBtn) removeBtn.click();
+  it("should NOT show Recruit button if 12 or more soldiers", () => {
+    // Mock 12 healthy soldiers
+    const roster = [];
+    for (let i = 0; i < 12; i++) {
+      roster.push({
+        id: `s${i}`,
+        name: `Soldier ${i}`,
+        status: "Healthy",
+        archetypeId: "assault",
+        equipment: {},
+      });
     }
 
-    const emptySlot = Array.from(
-      document.querySelectorAll(".soldier-list-panel .menu-item"),
-    ).find((el) => el.textContent?.includes("[EMPTY SLOT]")) as HTMLElement;
-    if (emptySlot) {
-        emptySlot.click();
-    }
+    (context.campaignManager.getState as any).mockReturnValue({
+      ...context.campaignManager.getState(),
+      roster,
+    });
 
-    const recruitBtn = Array.from(
-      document.querySelectorAll(".soldier-equipment-panel button"),
-    ).find((btn) =>
-      btn.textContent?.includes("RECRUIT NEW SOLDIER"),
-    ) as HTMLButtonElement;
+    const builder = new SquadBuilder(
+      "squad-builder",
+      context,
+      squad,
+      MissionType.Default,
+      true,
+      () => {},
+    );
+    builder.render();
 
-    expect(recruitBtn).toBeTruthy();
-  });
-
-  it("should NOT show Recruit button if 12 or more soldiers", async () => {
-    currentCampaignState.roster = Array(12).fill(null).map((_, i) => ({
-      id: `s${i}`,
-      name: `S${i}`,
-      archetypeId: "assault",
-      status: "Healthy",
-      level: 1,
-      hp: 100,
-      maxHp: 100,
-      xp: 0,
-      soldierAim: 80,
-      equipment: {},
-    }));
-
-    goToEquipment();
-
-    // Remove one soldier from squad to create an empty slot
-    const firstSlot = document.querySelector(".soldier-list-panel .menu-item.selected") as HTMLElement;
-    if (firstSlot) {
-       const removeBtn = firstSlot.querySelector(".remove-soldier-btn") as HTMLButtonElement;
-       if (removeBtn) removeBtn.click();
-    }
-
-    const emptySlot = Array.from(
-      document.querySelectorAll(".soldier-list-panel .menu-item"),
-    ).find((el) => el.textContent?.includes("[EMPTY SLOT]")) as HTMLElement;
-    if (emptySlot) {
-        emptySlot.click();
-    }
-
-    const recruitBtn = Array.from(
-      document.querySelectorAll(".soldier-equipment-panel button"),
-    ).find((btn) =>
-      btn.textContent?.includes("RECRUIT NEW SOLDIER"),
-    ) as HTMLButtonElement;
-
-    expect(recruitBtn).toBeFalsy();
+    const recruitBtn = container.querySelector(".btn-recruit") as HTMLButtonElement;
+    expect(recruitBtn).toBeNull();
   });
 });

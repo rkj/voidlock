@@ -123,6 +123,7 @@ const mockCampaignState: any = {
     mapGrowthRate: 1.0,
     baseEnemyCount: 4,
     enemyGrowthPerMission: 1.5,
+    economyMode: "Open",
   },
 };
 
@@ -179,8 +180,8 @@ describe("Campaign End Integration", () => {
     // Set up DOM
     document.body.innerHTML = `
       <div id="screen-main-menu" class="screen">
-        <button id="btn-menu-campaign">CAMPAIGN</button>
-        <button id="btn-menu-custom">CUSTOM MISSION</button>
+        <button id="btn-menu-campaign">Campaign</button>
+        <button id="btn-menu-custom">Custom Mission</button>
         <p id="menu-version"></p>
       </div>
 
@@ -196,11 +197,11 @@ describe("Campaign End Integration", () => {
           </div>
       </div>
 
-      <div id="screen-mission-setup" class="screen" style="display:none">
-        <h1>MISSION CONFIGURATION</h1>
+      <div id="screen-mission-setup" class="screen screen-centered" style="display:none">
+        <h1>Mission Configuration</h1>
         <div id="map-config-section">
           <select id="map-generator-type">
-            <option value="Procedural">PROCEDURAL</option>
+            <option value="Procedural">Procedural</option>
           </select>
           <input type="number" id="map-seed" />
           <div id="preset-map-controls">
@@ -213,9 +214,9 @@ describe("Campaign End Integration", () => {
         </div>
         <div id="unit-style-preview"></div>
         <div id="squad-builder"></div>
-        <button id="btn-launch-mission" class="primary-button">LAUNCH MISSION</button>
-        <button id="btn-goto-equipment">EQUIPMENT</button>
-        <button id="btn-setup-back">BACK</button>
+        <button id="btn-launch-mission" class="primary-button">Launch Mission</button>
+        <button id="btn-goto-equipment">Equipment</button>
+        <button id="btn-setup-back">Back</button>
       </div>
       <div id="screen-equipment" class="screen" style="display:none"></div>
       <div id="screen-barracks" class="screen" style="display:none"></div>
@@ -224,10 +225,10 @@ describe("Campaign End Integration", () => {
           <div id="game-status"></div>
           <div id="top-threat-fill"></div>
           <div id="top-threat-value">0%</div>
-          <button id="btn-pause-toggle">PAUSE</button>
+          <button id="btn-pause-toggle">Pause</button>
           <input type="range" id="game-speed" />
           <span id="speed-value">1.0x</span>
-          <button id="btn-give-up">GIVE UP</button>
+          <button id="btn-give-up">Give Up</button>
         </div>
         <div id="soldier-list"></div>
         <canvas id="game-canvas"></canvas>
@@ -273,10 +274,10 @@ describe("Campaign End Integration", () => {
       "flex",
     );
 
-    // 3. Launch Mission (skip Equipment for brevity, trigger CONFIRM directly if possible or just dblclick card)
+    // 3. Launch Mission (skip Equipment for brevity, trigger Confirm directly if possible or just dblclick card)
     const allButtons = document.querySelectorAll("#screen-equipment button");
     const equipmentLaunchBtn = Array.from(allButtons).find((b) =>
-      b.textContent?.includes("CONFIRM"),
+      b.textContent?.includes("Confirm"),
     ) as HTMLElement;
     equipmentLaunchBtn?.click();
 
@@ -326,7 +327,7 @@ describe("Campaign End Integration", () => {
     // 5. Return to Campaign Screen (now summary if Victory)
     const continueBtn = Array.from(
       document.querySelectorAll("#screen-debrief button"),
-    ).find((b) => b.textContent?.includes("RETURN")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("Return")) as HTMLElement;
     continueBtn?.click();
 
     expect(
@@ -336,15 +337,15 @@ describe("Campaign End Integration", () => {
     // 6. Verify Victory Report is displayed
     const victoryOverlay = document.querySelector(".campaign-victory-overlay");
     expect(victoryOverlay).not.toBeNull();
-    expect(victoryOverlay?.textContent).toContain("SECTOR SECURED");
-    expect(victoryOverlay?.textContent).toMatch(/ALIENS KILLED:\s*42/);
-    expect(victoryOverlay?.textContent).toMatch(/MISSIONS:\s*1/);
+    expect(victoryOverlay?.textContent).toContain("Sector Secured");
+    expect(victoryOverlay?.textContent).toMatch(/Aliens Purged:\s*42/);
+    expect(victoryOverlay?.textContent).toMatch(/Missions:\s*1/);
 
     // 7. Verify Return to Main Menu works
     const menuBtn = Array.from(
       document.querySelectorAll(".campaign-summary-screen button"),
     ).find((b) =>
-      b.textContent?.includes("RETIRE TO MAIN MENU"),
+      b.textContent?.includes("Retire to Main Menu"),
     ) as HTMLElement;
     expect(menuBtn).toBeDefined();
     menuBtn.click();

@@ -62,7 +62,7 @@ describe("E2E Campaign Failure Modes", () => {
     // Set up minimal DOM
     document.body.innerHTML = `
       <div id="screen-main-menu" class="screen">
-        <button id="btn-menu-campaign">CAMPAIGN</button>
+        <button id="btn-menu-campaign">Campaign</button>
       </div>
 
       <div id="screen-campaign-shell" class="screen flex-col" style="display:none">
@@ -78,8 +78,8 @@ describe("E2E Campaign Failure Modes", () => {
           </div>
       </div>
 
-      <div id="screen-mission-setup" class="screen" style="display:none">
-        <h1>MISSION CONFIGURATION</h1>
+      <div id="screen-mission-setup" class="screen screen-centered" style="display:none">
+        <h1>Mission Configuration</h1>
         <div id="unit-style-preview"></div>
         <div id="map-config-section">
           <input type="number" id="map-seed" />
@@ -90,9 +90,9 @@ describe("E2E Campaign Failure Modes", () => {
           <span id="map-starting-threat-value">0</span>
         </div>
         <div id="squad-builder"></div>
-        <button id="btn-launch-mission" class="primary-button">LAUNCH MISSION</button>
-        <button id="btn-goto-equipment">EQUIPMENT</button>
-        <button id="btn-setup-back">BACK</button>
+        <button id="btn-launch-mission" class="primary-button">Launch Mission</button>
+        <button id="btn-goto-equipment">Equipment</button>
+        <button id="btn-setup-back">Back</button>
       </div>
 
       <div id="screen-mission" class="screen" style="display:none">
@@ -100,9 +100,9 @@ describe("E2E Campaign Failure Modes", () => {
           <div id="game-status"></div>
           <div id="top-threat-fill"></div>
           <div id="top-threat-value">0%</div>
-          <button id="btn-pause-toggle">PAUSE</button>
+          <button id="btn-pause-toggle">Pause</button>
           <input type="range" id="game-speed" />
-          <button id="btn-give-up">GIVE UP</button>
+          <button id="btn-give-up">Give Up</button>
         </div>
         <div id="soldier-list"></div>
         <canvas id="game-canvas"></canvas>
@@ -110,7 +110,7 @@ describe("E2E Campaign Failure Modes", () => {
       </div>
 
       <div id="screen-debrief" class="screen" style="display:none">
-          <button id="btn-debrief-continue">CONTINUE</button>
+          <button id="btn-debrief-continue">Continue</button>
       </div>
 
       <div id="screen-campaign-summary" class="screen" style="display:none"></div>
@@ -138,7 +138,7 @@ describe("E2E Campaign Failure Modes", () => {
 
     const ironmanCard = Array.from(
       document.querySelectorAll(".difficulty-card"),
-    ).find((c) => c.textContent?.includes("IRONMAN")) as HTMLElement;
+    ).find((c) => c.textContent?.includes("Ironman")) as HTMLElement;
     expect(ironmanCard).toBeTruthy();
     ironmanCard?.click();
 
@@ -169,7 +169,7 @@ describe("E2E Campaign Failure Modes", () => {
 
     const confBtn = Array.from(
       document.querySelectorAll("#screen-equipment button"),
-    ).find((b) => b.textContent?.includes("CONFIRM")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("Confirm")) as HTMLElement;
     confBtn?.click();
 
     // Now in mission-setup, click Launch
@@ -203,7 +203,7 @@ describe("E2E Campaign Failure Modes", () => {
 
     const returnBtn = Array.from(
       document.querySelectorAll("#screen-debrief button"),
-    ).find((b) => b.textContent?.includes("RETURN")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("Return")) as HTMLElement;
     returnBtn?.click();
 
     expect(
@@ -218,7 +218,7 @@ describe("E2E Campaign Failure Modes", () => {
 
     const standardCard = Array.from(
       document.querySelectorAll(".difficulty-card"),
-    ).find((c) => c.textContent?.includes("STANDARD")) as HTMLElement;
+    ).find((c) => c.textContent?.includes("Standard")) as HTMLElement;
     standardCard?.click();
 
     (
@@ -249,7 +249,7 @@ describe("E2E Campaign Failure Modes", () => {
 
     const confBtn = Array.from(
       document.querySelectorAll("#screen-equipment button"),
-    ).find((b) => b.textContent?.includes("CONFIRM")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("Confirm")) as HTMLElement;
     confBtn?.click();
 
     // Now in mission-setup, click Launch
@@ -319,7 +319,7 @@ describe("E2E Campaign Failure Modes", () => {
     // Select an empty slot
     const emptySlot = Array.from(
       document.querySelectorAll(".soldier-list-panel .menu-item"),
-    ).find((el) => el.textContent?.includes("EMPTY SLOT")) as HTMLElement;
+    ).find((el) => el.textContent?.includes("[Empty Slot]")) as HTMLElement;
     emptySlot?.click();
 
     // Roster picker is in the right panel

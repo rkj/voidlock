@@ -36,14 +36,14 @@ describe("BarracksScreen", () => {
     );
     screen.show();
 
-    expect(container.textContent).toContain("ROSTER");
-    expect(container.textContent).toContain("RECRUITMENT");
-    expect(container.textContent).toContain("SOLDIER DETAILS");
+    expect(container.textContent).toContain("Roster");
+    expect(container.textContent).toContain("Recruitment");
+    expect(container.textContent).toContain("Soldier Details");
 
     // Initial roster has 4 soldiers
     const state = manager.getState()!;
     state.roster.forEach((s) => {
-      expect(container.textContent).toContain(s.name.toUpperCase());
+      expect(container.textContent).toContain(s.name);
     });
   });
 
@@ -79,14 +79,14 @@ describe("BarracksScreen", () => {
 
     const soldierItem = Array.from(
       container.querySelectorAll(".menu-item.clickable"),
-    ).find((el) => el.textContent?.includes(firstSoldierName.toUpperCase())) as HTMLElement;
+    ).find((el) => el.textContent?.includes(firstSoldierName)) as HTMLElement;
 
     soldierItem.click();
 
-    expect(container.textContent).toContain("SOLDIER DETAILS");
-    expect(container.textContent).toContain("SOLDIER ATTRIBUTES");
-    expect(container.textContent).toContain("EQUIPMENT PERFORMANCE");
-    expect(container.textContent).toContain(firstSoldierName.toUpperCase());
+    expect(container.textContent).toContain("Soldier Details");
+    expect(container.textContent).toContain("Soldier Attributes");
+    expect(container.textContent).toContain("Equipment Performance");
+    expect(container.textContent).toContain(firstSoldierName);
   });
 
   it("should show HEAL button for wounded soldiers", () => {
@@ -105,13 +105,13 @@ describe("BarracksScreen", () => {
     const soldierItem = Array.from(
       container.querySelectorAll(".menu-item.clickable"),
     ).find((el) =>
-      el.textContent?.includes(state.roster[0].name.toUpperCase()),
+      el.textContent?.includes(state.roster[0].name),
     ) as HTMLElement;
     soldierItem.click();
 
-    expect(container.textContent).toContain("HEAL (50 SCRAP)");
+    expect(container.textContent).toContain("Heal (50 Scrap)");
     const healBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.textContent?.includes("HEAL"),
+      (btn) => btn.textContent?.includes("Heal"),
     ) as HTMLButtonElement;
 
     expect(healBtn.disabled).toBe(false);
@@ -134,11 +134,11 @@ describe("BarracksScreen", () => {
     const soldierItem = Array.from(
       container.querySelectorAll(".menu-item.clickable"),
     ).find((el) =>
-      el.textContent?.includes(state.roster[0].name.toUpperCase()),
+      el.textContent?.includes(state.roster[0].name),
     ) as HTMLElement;
     soldierItem.click();
 
-    expect(container.textContent).toContain("REVIVE (250 SCRAP)");
+    expect(container.textContent).toContain("Revive (250 Scrap)");
   });
 
   it("should allow recruiting a new soldier", async () => {
@@ -153,7 +153,7 @@ describe("BarracksScreen", () => {
     const initialCount = manager.getState()?.roster.length || 0;
 
     const recruitBtns = Array.from(container.querySelectorAll("button")).filter(
-      (btn) => btn.textContent === "RECRUIT",
+      (btn) => btn.textContent === "Recruit",
     ) as HTMLButtonElement[];
 
     recruitBtns[0].click();
@@ -166,7 +166,7 @@ describe("BarracksScreen", () => {
     expect(state.roster.length).toBe(initialCount + 1);
 
     const newSoldier = state.roster[state.roster.length - 1];
-    expect(container.textContent).toContain(newSoldier.name.toUpperCase());
+    expect(container.textContent).toContain(newSoldier.name);
   });
 
   it("should allow renaming a soldier", async () => {
@@ -186,12 +186,12 @@ describe("BarracksScreen", () => {
     // Select the first soldier
     const soldierItem = Array.from(
       container.querySelectorAll(".menu-item.clickable"),
-    ).find((el) => el.textContent?.includes(originalName.toUpperCase())) as HTMLElement;
+    ).find((el) => el.textContent?.includes(originalName)) as HTMLElement;
     soldierItem.click();
 
     // Find and click the rename button (pencil icon)
     const renameBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.title === "RENAME SOLDIER",
+      (btn) => btn.title === "Rename Soldier",
     ) as HTMLButtonElement;
     expect(renameBtn).toBeTruthy();
 
@@ -200,13 +200,13 @@ describe("BarracksScreen", () => {
     expect(mockModalService.prompt).toHaveBeenCalledWith(
       expect.any(String),
       originalName,
-      "RENAME SOLDIER",
+      "Rename Soldier",
     );
 
     // Give it a moment for any async updates
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     expect(state.roster[0].name).toBe("Renamed Soldier");
-    expect(container.textContent).toContain("RENAMED SOLDIER");
+    expect(container.textContent).toContain("Renamed Soldier");
   });
 });

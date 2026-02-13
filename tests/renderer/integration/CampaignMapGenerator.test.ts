@@ -165,8 +165,8 @@ describe("Campaign Map Generator Integration", () => {
     // Set up DOM
     document.body.innerHTML = `
       <div id="screen-main-menu" class="screen">
-        <button id="btn-menu-campaign">CAMPAIGN</button>
-        <button id="btn-menu-custom">CUSTOM MISSION</button>
+        <button id="btn-menu-campaign">Campaign</button>
+        <button id="btn-menu-custom">Custom Mission</button>
         <p id="menu-version"></p>
       </div>
 
@@ -183,10 +183,10 @@ describe("Campaign Map Generator Integration", () => {
       </div>
 
       <div id="screen-mission-setup" class="screen screen-centered" style="display:none">
-        <h1>MISSION CONFIGURATION</h1>
+        <h1>Mission Configuration</h1>
         <div id="map-config-section">
           <select id="map-generator-type">
-            <option value="Procedural">PROCEDURAL</option>
+            <option value="Procedural">Procedural</option>
           </select>
           <input type="number" id="map-seed" />
           <div id="preset-map-controls">
@@ -199,9 +199,9 @@ describe("Campaign Map Generator Integration", () => {
         </div>
         <div id="unit-style-preview"></div>
         <div id="squad-builder"></div>
-        <button id="btn-launch-mission" class="primary-button">LAUNCH MISSION</button>
-        <button id="btn-goto-equipment">EQUIPMENT</button>
-        <button id="btn-setup-back">BACK</button>
+        <button id="btn-launch-mission" class="primary-button">Launch Mission</button>
+        <button id="btn-goto-equipment">Equipment</button>
+        <button id="btn-setup-back">Back</button>
       </div>
       <div id="screen-equipment" class="screen" style="display:none"></div>
       <div id="screen-mission" class="screen" style="display:none">
@@ -209,10 +209,10 @@ describe("Campaign Map Generator Integration", () => {
           <div id="game-status"></div>
           <div id="top-threat-fill"></div>
           <div id="top-threat-value">0%</div>
-          <button id="btn-pause-toggle">PAUSE</button>
+          <button id="btn-pause-toggle">Pause</button>
           <input type="range" id="game-speed" />
           <span id="speed-value">1.0x</span>
-          <button id="btn-give-up">GIVE UP</button>
+          <button id="btn-give-up">Give Up</button>
         </div>
         <div id="soldier-list"></div>
         <canvas id="game-canvas"></canvas>
@@ -315,7 +315,7 @@ describe("Campaign Map Generator Integration", () => {
     // 6. Confirm and Launch Mission
     const equipmentLaunchBtn = Array.from(
       document.querySelectorAll("#screen-equipment button"),
-    ).find((b) => b.textContent?.includes("CONFIRM")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("Confirm")) as HTMLElement;
     expect(equipmentLaunchBtn).toBeTruthy();
     equipmentLaunchBtn.click();
 

@@ -78,12 +78,12 @@ export class CampaignSummaryScreen {
     // Header
     const header = document.createElement("h1");
     header.className = "summary-header";
-    header.textContent = isVictory ? "SECTOR SECURED" : "MISSION FAILED";
+    header.textContent = isVictory ? "Sector Secured" : "Mission Failed";
     this.container.appendChild(header);
 
     const subHeader = document.createElement("h2");
     subHeader.className = "summary-subheader";
-    subHeader.textContent = isVictory ? "VICTORY" : "SECTOR LOST";
+    subHeader.textContent = isVictory ? "Victory" : "Sector Lost";
     this.container.appendChild(subHeader);
 
     // Main Content
@@ -92,7 +92,7 @@ export class CampaignSummaryScreen {
     this.container.appendChild(content);
 
     // Left: Stats
-    const statsPanel = this.createPanel("CAMPAIGN STATISTICS");
+    const statsPanel = this.createPanel("Campaign Statistics");
     const totalKills = this.state.history.reduce(
       (sum, r) => sum + r.aliensKilled,
       0,
@@ -106,15 +106,15 @@ export class CampaignSummaryScreen {
     statsPanel.innerHTML += `
       <div class="flex-col gap-20">
         <div class="summary-stat-row">
-          <span>ALIENS KILLED:</span>
+          <span>Aliens Purged:</span>
           <span style="color:var(--color-primary); font-weight:bold;">${totalKills}</span>
         </div>
         <div class="summary-stat-row">
-          <span>MISSIONS:</span>
+          <span>Missions:</span>
           <span style="color:var(--color-accent); font-weight:bold;">${totalMissions}</span>
         </div>
         <div class="summary-stat-row">
-          <span>TOTAL SCRAP:</span>
+          <span>Total Scrap:</span>
           <span style="color:var(--color-warning); font-weight:bold;">${totalScrap}</span>
         </div>
         ${
@@ -122,7 +122,7 @@ export class CampaignSummaryScreen {
             ? `
           <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--color-border-strong);">
             <div style="color: var(--color-text-dim); font-size: 0.9em; letter-spacing: 1px;">
-              CAUSE: <span style="color: var(--color-danger); font-weight: bold; letter-spacing: 2px;">${this.getCauseOfDeath().toUpperCase()}</span>
+              Cause: <span style="color: var(--color-danger); font-weight: bold; letter-spacing: 2px;">${this.getCauseOfDeath()}</span>
             </div>
           </div>
         `
@@ -134,7 +134,7 @@ export class CampaignSummaryScreen {
 
     // Right: Survivors (if Victory) or Roster Status
     const rosterPanel = this.createPanel(
-      isVictory ? "SURVIVING SQUAD" : "FINAL ROSTER STATUS",
+      isVictory ? "Surviving Squad" : "Final Roster Status",
     );
     const rosterList = document.createElement("div");
     rosterList.className = "summary-roster-list";
@@ -153,7 +153,7 @@ export class CampaignSummaryScreen {
       row.innerHTML = `
         <div class="flex-col">
           <div style="font-weight:bold; letter-spacing: 1px;">${s.name}</div>
-          <div style="font-size: 0.8em; color: var(--color-text-dim);">${s.archetypeId} - LVL ${calculateLevel(s.xp)}</div>
+          <div style="font-size: 0.8em; color: var(--color-text-dim);">${s.archetypeId} - Lvl ${calculateLevel(s.xp)}</div>
         </div>
         <div style="color: ${statusColor}; font-weight: bold; font-size: 0.9em; border: 1px solid ${statusColor}; padding: 2px 10px; border-radius: 2px;">
           ${s.status}
@@ -169,7 +169,7 @@ export class CampaignSummaryScreen {
     footer.className = "summary-footer";
 
     const btn = document.createElement("button");
-    btn.textContent = isVictory ? "RETIRE TO MAIN MENU" : "ABANDON EXPEDITION";
+    btn.textContent = isVictory ? "Retire to Main Menu" : "Abandon Expedition";
     btn.className = `summary-button ${isVictory ? "primary-button" : "danger-button"}`;
 
     btn.onclick = () => this.onMainMenu();

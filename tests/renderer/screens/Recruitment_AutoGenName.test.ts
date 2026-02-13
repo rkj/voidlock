@@ -35,7 +35,7 @@ describe("Recruitment Auto-Generated Name", () => {
     screen.show();
 
     const recruitBtns = Array.from(container.querySelectorAll("button")).filter(
-      (btn) => btn.textContent === "RECRUIT",
+      (btn) => btn.textContent === "Recruit",
     ) as HTMLButtonElement[];
 
     expect(recruitBtns.length).toBeGreaterThan(0);

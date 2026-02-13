@@ -66,7 +66,7 @@ describe("HUDManager Objective Regression PDXS", () => {
     `;
 
     mockMenuController = {
-      getRenderableState: vi.fn(() => ({ title: "ACTIONS", options: [] })),
+      getRenderableState: vi.fn(() => ({ title: "Actions", options: [] })),
     };
 
     hud = new HUDManager(
@@ -122,7 +122,7 @@ describe("HUDManager Objective Regression PDXS", () => {
     // Default: no coords
     hud.update(stateWithExtraction, null);
     let objectivesDiv = document.querySelector(".objectives-status");
-    expect(objectivesDiv?.innerHTML).toContain("EXTRACTION");
+    expect(objectivesDiv?.innerHTML).toContain("Extraction");
     expect(objectivesDiv?.innerHTML).not.toContain("at (8,8)");
 
     // Debug: show coords

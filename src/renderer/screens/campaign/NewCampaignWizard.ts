@@ -37,7 +37,7 @@ export class NewCampaignWizard {
     content.style.padding = "40px 20px";
 
     const h1 = document.createElement("h1");
-    h1.textContent = "NEW EXPEDITION";
+    h1.textContent = "New Expedition";
     h1.style.letterSpacing = "4px";
     h1.style.color = "var(--color-primary)";
     content.appendChild(h1);
@@ -53,7 +53,7 @@ export class NewCampaignWizard {
     const globalStatusGroup = document.createElement("div");
     globalStatusGroup.className = "flex-col gap-5";
     const globalStatusLabel = document.createElement("label");
-    globalStatusLabel.textContent = "VISUAL STYLE & THEME";
+    globalStatusLabel.textContent = "Visual Style & Theme";
     globalStatusLabel.style.fontSize = "0.8em";
     globalStatusLabel.style.color = "var(--color-text-dim)";
 
@@ -67,13 +67,13 @@ export class NewCampaignWizard {
 
     const themeLabelStr = ConfigManager.loadGlobal().themeId || "default";
     const themeName =
-      themeLabelStr.toUpperCase();
+      themeLabelStr.charAt(0).toUpperCase() + themeLabelStr.slice(1);
 
     const statusText = document.createElement("div");
     statusText.className = "global-status-text";
     statusText.style.fontSize = "0.9em";
     statusText.style.color = "var(--color-text-dim)";
-    statusText.textContent = `${this.selectedUnitStyle.toUpperCase()} | ${themeName}`;
+    statusText.textContent = `${this.selectedUnitStyle} | ${themeName}`;
 
     globalStatusContainer.appendChild(statusText);
     globalStatusGroup.appendChild(globalStatusLabel);
@@ -82,7 +82,7 @@ export class NewCampaignWizard {
 
     // Difficulty Cards
     const diffLabel = document.createElement("label");
-    diffLabel.textContent = "SELECT DIFFICULTY";
+    diffLabel.textContent = "Select Difficulty";
     diffLabel.style.fontSize = "0.8em";
     diffLabel.style.color = "var(--color-text-dim)";
     diffLabel.style.marginBottom = "-10px";
@@ -210,14 +210,14 @@ export class NewCampaignWizard {
     const lengthGroup = document.createElement("div");
     lengthGroup.className = "flex-col gap-5";
     const lengthLabel = document.createElement("label");
-    lengthLabel.textContent = "CAMPAIGN LENGTH";
+    lengthLabel.textContent = "Campaign Length";
     lengthLabel.style.fontSize = "0.8em";
     lengthLabel.style.color = "var(--color-text-dim)";
     const lengthSelect = document.createElement("select");
     lengthSelect.id = "campaign-length";
     lengthSelect.innerHTML = `
-      <option value="1.0" selected>STANDARD (SHORT, ~6-8 MISSIONS)</option>
-      <option value="0.5">EXTENDED (LONG, ~12-16 MISSIONS)</option>
+      <option value="1.0" selected>Standard (Short, ~6-8 Missions)</option>
+      <option value="0.5">Extended (Long, ~12-16 Missions)</option>
     `;
     lengthGroup.appendChild(lengthLabel);
     lengthGroup.appendChild(lengthSelect);
@@ -232,8 +232,8 @@ export class NewCampaignWizard {
 
     const advancedToggle = document.createElement("button");
     advancedToggle.textContent = this.isAdvancedShown
-      ? "HIDE ADVANCED SETTINGS ▲"
-      : "SHOW ADVANCED SETTINGS ▼";
+      ? "Hide Advanced Settings ▲"
+      : "Show Advanced Settings ▼";
     advancedToggle.className = "text-button"; // Added class for easier styling if needed
     advancedToggle.style.background = "none";
     advancedToggle.style.border = "none";
@@ -254,8 +254,8 @@ export class NewCampaignWizard {
       const isHidden = !this.isAdvancedShown;
       advancedContent.style.display = isHidden ? "none" : "flex";
       advancedToggle.textContent = isHidden
-        ? "SHOW ADVANCED SETTINGS ▼"
-        : "HIDE ADVANCED SETTINGS ▲";
+        ? "Show Advanced Settings ▼"
+        : "Hide Advanced Settings ▲";
     };
 
     advancedToggle.onclick = toggleAdvanced;
@@ -271,12 +271,12 @@ export class NewCampaignWizard {
     const seedGroup = document.createElement("div");
     seedGroup.className = "flex-col gap-5";
     const seedLabel = document.createElement("label");
-    seedLabel.textContent = "CUSTOM SEED (OPTIONAL)";
+    seedLabel.textContent = "Custom Seed (Optional)";
     seedLabel.style.fontSize = "0.7em";
     seedLabel.style.color = "var(--color-text-dim)";
     const seedInput = document.createElement("input");
     seedInput.type = "number";
-    seedInput.placeholder = "ENTER SEED...";
+    seedInput.placeholder = "Enter seed...";
     seedGroup.appendChild(seedLabel);
     seedGroup.appendChild(seedInput);
     advancedContent.appendChild(seedGroup);
@@ -285,15 +285,15 @@ export class NewCampaignWizard {
     const genGroup = document.createElement("div");
     genGroup.className = "flex-col gap-5";
     const genLabel = document.createElement("label");
-    genLabel.textContent = "FORCE MAP GENERATOR";
+    genLabel.textContent = "Force Map Generator";
     genLabel.style.fontSize = "0.7em";
     genLabel.style.color = "var(--color-text-dim)";
     const genSelect = document.createElement("select");
     genSelect.innerHTML = `
-      <option value="">(DEFAULT FOR MISSION)</option>
-      <option value="DenseShip">DENSE SHIP (>90% FILL)</option>
-      <option value="TreeShip">TREE SHIP (NO LOOPS)</option>
-      <option value="Procedural">SPACESHIP (BALANCED)</option>
+      <option value="">(Default for mission)</option>
+      <option value="DenseShip">Dense Ship (>90% fill)</option>
+      <option value="TreeShip">Tree Ship (No Loops)</option>
+      <option value="Procedural">Spaceship (Balanced)</option>
     `;
     genGroup.appendChild(genLabel);
     genGroup.appendChild(genSelect);
@@ -303,7 +303,7 @@ export class NewCampaignWizard {
     const scalingGroup = document.createElement("div");
     scalingGroup.className = "flex-col gap-5";
     const scalingLabel = document.createElement("label");
-    scalingLabel.innerHTML = `DIFFICULTY SCALING: <span id="scaling-val">100</span>%`;
+    scalingLabel.innerHTML = `Difficulty Scaling: <span id="scaling-val">100</span>%`;
     scalingLabel.style.fontSize = "0.7em";
     scalingLabel.style.color = "var(--color-text-dim)";
     const scalingSlider = document.createElement("input");
@@ -323,7 +323,7 @@ export class NewCampaignWizard {
     const scarcityGroup = document.createElement("div");
     scarcityGroup.className = "flex-col gap-5";
     const scarcityLabel = document.createElement("label");
-    scarcityLabel.innerHTML = `RESOURCE SCARCITY: <span id="scarcity-val">100</span>%`;
+    scarcityLabel.innerHTML = `Resource Scarcity: <span id="scarcity-val">100</span>%`;
     scarcityLabel.style.fontSize = "0.7em";
     scarcityLabel.style.color = "var(--color-text-dim)";
     const scarcitySlider = document.createElement("input");
@@ -343,15 +343,15 @@ export class NewCampaignWizard {
     const deathGroup = document.createElement("div");
     deathGroup.className = "flex-col gap-5";
     const deathLabel = document.createElement("label");
-    deathLabel.textContent = "DEATH RULE";
+    deathLabel.textContent = "Death Rule";
     deathLabel.style.fontSize = "0.7em";
     deathLabel.style.color = "var(--color-text-dim)";
     const deathSelect = document.createElement("select");
     deathSelect.innerHTML = `
-      <option value="">(PRESET DEFAULT)</option>
-      <option value="Simulation">SIMULATION (NO DEATH)</option>
-      <option value="Clone">CLONE (PAY TO REVIVE)</option>
-      <option value="Iron">IRON (PERMANENT)</option>
+      <option value="">(Preset Default)</option>
+      <option value="Simulation">Simulation (No Death)</option>
+      <option value="Clone">Clone (Pay to revive)</option>
+      <option value="Iron">Iron (Permanent)</option>
     `;
     deathGroup.appendChild(deathLabel);
     deathGroup.appendChild(deathSelect);
@@ -361,14 +361,14 @@ export class NewCampaignWizard {
     const economyGroup = document.createElement("div");
     economyGroup.className = "flex-col gap-5";
     const economyLabel = document.createElement("label");
-    economyLabel.textContent = "ECONOMY MODE";
+    economyLabel.textContent = "Economy Mode";
     economyLabel.style.fontSize = "0.7em";
     economyLabel.style.color = "var(--color-text-dim)";
     const economySelect = document.createElement("select");
     economySelect.id = "campaign-economy-mode";
     economySelect.innerHTML = `
-      <option value="Open" selected>OPEN (BUY ANYWHERE, SHOP DISCOUNT)</option>
-      <option value="Limited">LIMITED (BUY ONLY AT SUPPLY DEPOTS)</option>
+      <option value="Open" selected>Open (Buy anywhere, shop discount)</option>
+      <option value="Limited">Limited (Buy only at Supply Depots)</option>
     `;
     economyGroup.appendChild(economyLabel);
     economyGroup.appendChild(economySelect);
@@ -381,7 +381,7 @@ export class NewCampaignWizard {
     content.appendChild(form);
 
     const startBtn = document.createElement("button");
-    startBtn.textContent = "INITIALIZE EXPEDITION";
+    startBtn.textContent = "Initialize Expedition";
     startBtn.onclick = () => {
       ConfigManager.clearCampaign();
       const currentGlobal = ConfigManager.loadGlobal();
@@ -432,7 +432,7 @@ export class NewCampaignWizard {
     footer.style.boxSizing = "border-box";
 
     const backBtn = document.createElement("button");
-    backBtn.textContent = "BACK TO MENU";
+    backBtn.textContent = "Back to Menu";
     backBtn.className = "back-button";
     backBtn.style.marginTop = "0";
     backBtn.onclick = () => this.options.onBack();

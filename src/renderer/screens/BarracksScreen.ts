@@ -146,7 +146,7 @@ export class BarracksScreen {
 
     if (this.onBack) {
       const backBtn = document.createElement("button");
-      backBtn.textContent = "BACK TO SECTOR MAP";
+      backBtn.textContent = "Back to Sector Map";
       backBtn.className = "back-button";
       backBtn.style.marginTop = "0";
       backBtn.onclick = () => this.onBack?.();
@@ -190,7 +190,7 @@ export class BarracksScreen {
 
     if (state.roster.length === 0) {
       const empty = document.createElement("div");
-      empty.textContent = "NO SOLDIERS IN ROSTER.";
+      empty.textContent = "No soldiers in roster.";
       empty.style.color = "var(--color-text-dim)";
       empty.style.textAlign = "center";
       empty.style.marginTop = "20px";
@@ -235,14 +235,14 @@ export class BarracksScreen {
       "Unknown";
     nameInfo.innerHTML = `
       <div class="flex-col">
-        <h3 style="margin:0; font-size:1.5em; color:var(--color-accent);">${soldier.name.toUpperCase()}</h3>
-        <div style="color:var(--color-text-muted);">${archName.toUpperCase()} RANK ${soldier.level}</div>
+        <h3 style="margin:0; font-size:1.5em; color:var(--color-accent);">${soldier.name}</h3>
+        <div style="color:var(--color-text-muted);">${archName} Rank ${soldier.level}</div>
       </div>
     `;
 
     const renameBtn = document.createElement("button");
     renameBtn.innerHTML = "✎"; // Pencil icon
-    renameBtn.title = "RENAME SOLDIER";
+    renameBtn.title = "Rename Soldier";
     renameBtn.style.padding = "4px 8px";
     renameBtn.style.fontSize = "1.2em";
     renameBtn.style.marginTop = "0";
@@ -290,7 +290,7 @@ export class BarracksScreen {
       actions.appendChild(healBtn);
     } else if (soldier.status === "Dead" && state.rules.deathRule === "Clone") {
       const reviveBtn = document.createElement("button");
-      reviveBtn.textContent = "REVIVE (250 SCRAP)";
+      reviveBtn.textContent = "Revive (250 Scrap)";
       reviveBtn.disabled = state.scrap < 250;
       reviveBtn.onclick = () => {
         this.manager.reviveSoldier(soldier.id);
@@ -300,13 +300,13 @@ export class BarracksScreen {
       actions.appendChild(reviveBtn);
     } else if (soldier.status === "Dead") {
       const deadText = document.createElement("div");
-      deadText.textContent = "DECEASED - CANNOT BE RECOVERED";
+      deadText.textContent = "Deceased - Cannot be recovered";
       deadText.style.color = "var(--color-danger)";
       deadText.style.fontWeight = "bold";
       actions.appendChild(deadText);
     } else {
       const healthyText = document.createElement("div");
-      healthyText.textContent = "SOLDIER IS FIT FOR COMBAT";
+      healthyText.textContent = "Soldier is fit for combat";
       healthyText.style.color = "var(--color-primary)";
       actions.appendChild(healthyText);
     }

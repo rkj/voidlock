@@ -253,11 +253,11 @@ export class DebriefScreen {
 
     const loopBtn = document.createElement("button");
     loopBtn.className = "replay-btn";
-    loopBtn.textContent = "LOOP: OFF";
+    loopBtn.textContent = "Loop: Off";
     loopBtn.onclick = () => {
       const isLooping = loopBtn.classList.toggle("active");
       this.replayController.setLooping(isLooping);
-      loopBtn.textContent = isLooping ? "LOOP: ON" : "LOOP: OFF";
+      loopBtn.textContent = isLooping ? "Loop: On" : "Loop: Off";
     };
     controls.appendChild(loopBtn);
 

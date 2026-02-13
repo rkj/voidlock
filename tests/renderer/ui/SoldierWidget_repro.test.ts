@@ -72,6 +72,6 @@ describe("SoldierWidget Repro", () => {
 
     expect(el.innerHTML).not.toContain("undefined");
     // If it fails to find the archetype, it should show 0s or defaults, not undefined
-    expect(el.textContent).toContain("LVL 1");
+    expect(el.textContent).toContain("Lvl 1");
   });
 });

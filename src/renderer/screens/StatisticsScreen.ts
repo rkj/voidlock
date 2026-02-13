@@ -63,12 +63,12 @@ export class StatisticsScreen {
     const stats = MetaManager.getInstance().getStats();
 
     this.container.innerHTML = "";
-    this.container.className = "screen screen-centered flex-col gap-20 p-20";
+    this.container.className = "screen screen-centered flex-col align-center gap-20 p-20";
     this.container.style.display = "flex";
     this.container.style.overflowY = "auto";
 
     const h1 = document.createElement("h1");
-    h1.textContent = "SERVICE RECORD";
+    h1.textContent = "Service Record";
     h1.style.letterSpacing = "4px";
     h1.style.color = "var(--color-primary)";
     this.container.appendChild(h1);
@@ -88,7 +88,7 @@ export class StatisticsScreen {
       row.className = "flex-row justify-between w-full gap-20";
 
       const labelSpan = document.createElement("span");
-      labelSpan.textContent = label.toUpperCase();
+      labelSpan.textContent = label + ":";
       labelSpan.style.color = "var(--color-text-dim)";
 
       const valueSpan = document.createElement("span");
