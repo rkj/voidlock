@@ -39,16 +39,19 @@ TERM=dumb gemini --yolo \
   --output-format stream-json \
   --model gemini-3-flash-preview \
   --allowed-tools "run_shell_command(bd show)" \
+  --allowed-tools "run_shell_command(cat)" \
+  --allowed-tools "run_shell_command(find)" \
+  --allowed-tools "run_shell_command(find)" \
   --allowed-tools "run_shell_command(grep)" \
   --allowed-tools "run_shell_command(jj diff)" \
   --allowed-tools "run_shell_command(jj show)" \
   --allowed-tools "run_shell_command(jj status)" \
   --allowed-tools "run_shell_command(ls)" \
-  --allowed-tools "run_shell_command(find)" \
   --allowed-tools "run_shell_command(npm run build)" \
   --allowed-tools "run_shell_command(npm run lint)" \
   --allowed-tools "run_shell_command(npm run process-assets)" \
   --allowed-tools "run_shell_command(npm run test)" \
+  --allowed-tools "run_shell_command(npx eslint)" \
   --allowed-tools "run_shell_command(npx madge)" \
   --allowed-tools "run_shell_command(npx prettier)" \
   --allowed-tools "run_shell_command(npx tsc)" \
@@ -57,6 +60,8 @@ TERM=dumb gemini --yolo \
   --allowed-tools "run_shell_command(rm tests/)" \
   --allowed-tools "run_shell_command(tail)" \
   --allowed-tools "run_shell_command(tree)" \
+  --allowed-tools "run_shell_command(rm)" \
+  --allowed-tools "run_shell_command(wc)" \
   --allowed-tools click \
   --allowed-tools close_page \
   --allowed-tools drag \
