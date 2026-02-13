@@ -168,6 +168,18 @@ button:hover {
   background-color: var(--color-primary);
   color: var(--color-border);
 }
+
+.btn-secondary {
+  background-color: var(--color-surface-elevated);
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-accent);
+  color: var(--color-black);
+}
+
 button.active {
   background-color: var(--color-primary);
   color: var(--color-border);

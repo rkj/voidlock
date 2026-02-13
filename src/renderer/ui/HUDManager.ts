@@ -310,7 +310,29 @@ export class HUDManager {
       startBtn.textContent = "Start Mission";
       startBtn.className = "btn-start-mission";
       startBtn.addEventListener("click", () => this.onStartMission());
-      deploymentDiv.appendChild(startBtn);
+      const autoFillBtn = document.createElement("button");
+      autoFillBtn.id = "btn-autofill-deployment";
+      autoFillBtn.textContent = "Auto-Fill Spawns";
+      autoFillBtn.className = "btn-secondary";
+      autoFillBtn.style.width = "100%";
+      autoFillBtn.style.marginBottom = "10px";
+      autoFillBtn.addEventListener("click", () => {
+        const pending = state.units.filter((u) => u.archetypeId !== "vip" && u.isDeployed === false);
+        const currentOccupiedSpawns = state.units
+          .filter((u) => u.isDeployed !== false)
+          .map((u) => ({ x: Math.floor(u.pos.x), y: Math.floor(u.pos.y) }));
+        
+        const allSpawns = state.map.squadSpawns || (state.map.squadSpawn ? [state.map.squadSpawn] : []);
+        
+        pending.forEach((u) => {
+           const spawn = allSpawns.find((s) => !currentOccupiedSpawns.some((os) => os.x === s.x && os.y === s.y));
+           if (spawn) {
+             this.onDeployUnit(u.id, spawn.x + 0.5, spawn.y + 0.5);
+             currentOccupiedSpawns.push(spawn);
+           }
+        });
+      });
+      deploymentDiv.insertBefore(autoFillBtn, startBtn);
 
       container.appendChild(deploymentDiv);
     }
@@ -395,13 +417,15 @@ export class HUDManager {
         SoldierWidget.update(item, u, {
           context: "roster",
           onClick: () => {
+            this.onUnitClick(u);
+          },
+          onDoubleClick: () => {
             if (!isPlaced) {
               const spawn = this.findNextEmptySpawn(state);
               if (spawn) {
                 this.onDeployUnit(u.id, spawn.x + 0.5, spawn.y + 0.5);
               }
             }
-            this.onUnitClick(u);
           },
         });
 
@@ -421,29 +445,45 @@ export class HUDManager {
       "#btn-start-mission",
     ) as HTMLButtonElement;
     if (startBtn) {
-      // Validate that all soldiers are on valid spawn tiles
-      const allOnValidTiles = state.units
-        .filter(
-          (u) =>
-            u.archetypeId !== "vip" &&
-            u.state !== UnitState.Extracted &&
-            u.hp > 0,
-        )
-        .every((u) => {
-          const x = Math.floor(u.pos.x);
-          const y = Math.floor(u.pos.y);
-          return (
-            state.map?.squadSpawns?.some((s) => s.x === x && s.y === y) ||
-            (state.map?.squadSpawn &&
-              state.map.squadSpawn.x === x &&
-              state.map.squadSpawn.y === y)
-          );
-        });
+      // Validate that all soldiers are on valid spawn tiles AND are marked as deployed
+      const aliveUnits = state.units.filter(
+        (u) =>
+          u.archetypeId !== "vip" &&
+          u.state !== UnitState.Extracted &&
+          u.hp > 0,
+      );
 
-      if (!allOnValidTiles) {
+      const deployedUnits = aliveUnits.filter((u) => u.isDeployed !== false);
+      const allDeployed = deployedUnits.length === aliveUnits.length;
+
+      const positions = new Set<string>();
+      let hasOverlap = false;
+
+      const allOnValidTiles = deployedUnits.every((u) => {
+        const x = Math.floor(u.pos.x);
+        const y = Math.floor(u.pos.y);
+        const key = `${x},${y}`;
+        if (positions.has(key)) hasOverlap = true;
+        positions.add(key);
+
+        return (
+          state.map?.squadSpawns?.some((s) => s.x === x && s.y === y) ||
+          (state.map?.squadSpawn &&
+            state.map.squadSpawn.x === x &&
+            state.map.squadSpawn.y === y)
+        );
+      });
+
+      if (!allDeployed || !allOnValidTiles || hasOverlap) {
         startBtn.disabled = true;
         startBtn.classList.add("disabled");
-        startBtn.title = "All squad members must be on valid spawn tiles.";
+        if (!allDeployed) {
+          startBtn.title = "All squad members must be deployed.";
+        } else if (hasOverlap) {
+          startBtn.title = "Each spawn point can only hold one unit.";
+        } else {
+          startBtn.title = "All squad members must be on valid spawn tiles.";
+        }
       } else {
         startBtn.disabled = false;
         startBtn.classList.remove("disabled");

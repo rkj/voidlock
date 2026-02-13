@@ -46,6 +46,7 @@ export class InputManager implements InputContext {
       targetX: number,
       targetY: number,
     ) => void,
+    private onUndeployUnit: (unitId: string) => void,
     private getCellCoordinates: (
       pixelX: number,
       pixelY: number,
@@ -238,7 +239,7 @@ export class InputManager implements InputContext {
 
     const cell = this.getCellCoordinates(e.clientX, e.clientY);
     const unit = state.units.find(
-      (u) => Math.floor(u.pos.x) === cell.x && Math.floor(u.pos.y) === cell.y,
+      (u) => Math.floor(u.pos.x) === cell.x && Math.floor(u.pos.y) === cell.y && u.isDeployed !== false,
     );
 
     if (unit && unit.archetypeId !== "vip") {
@@ -266,7 +267,9 @@ export class InputManager implements InputContext {
         const cell = this.getCellCoordinates(e.clientX, e.clientY);
         const unit = state.units.find(
           (u) =>
-            Math.floor(u.pos.x) === cell.x && Math.floor(u.pos.y) === cell.y,
+            Math.floor(u.pos.x) === cell.x &&
+            Math.floor(u.pos.y) === cell.y &&
+            u.isDeployed !== false,
         );
         const canvas = document.getElementById("game-canvas");
         if (canvas) {
@@ -298,6 +301,8 @@ export class InputManager implements InputContext {
 
         if (isValidSpawn) {
           this.onDeployUnit(this.draggingUnitId, cell.x + 0.5, cell.y + 0.5);
+        } else {
+          this.onUndeployUnit(this.draggingUnitId);
         }
       }
 
@@ -352,7 +357,9 @@ export class InputManager implements InputContext {
         const cell = this.getCellCoordinates(touch.clientX, touch.clientY);
         const unit = state.units.find(
           (u) =>
-            Math.floor(u.pos.x) === cell.x && Math.floor(u.pos.y) === cell.y,
+            Math.floor(u.pos.x) === cell.x &&
+            Math.floor(u.pos.y) === cell.y &&
+            u.isDeployed !== false,
         );
         if (unit && unit.archetypeId !== "vip") {
           this.draggingUnitId = unit.id;
@@ -430,6 +437,8 @@ export class InputManager implements InputContext {
 
         if (isValidSpawn) {
           this.onDeployUnit(this.draggingUnitId, cell.x + 0.5, cell.y + 0.5);
+        } else {
+          this.onUndeployUnit(this.draggingUnitId);
         }
       }
 

@@ -49,9 +49,13 @@ This directory contains UI components and managers for the Voidlock renderer.
   - Handles custom content and button layouts.
 - **UI Casing Standardization**: All UI labels, buttons, and headers are standardized to Title Case (instead of ALL CAPS) for better readability and professional look, especially on mobile devices (Spec 11.1).
 - **Tap-to-Inspect**: Implements a persistent popover system for informational tooltips on touch devices (ADR 0038). Includes a 300ms debounce to prevent immediate dismissal from rapid touch/click event sequences.
-- **UI Casing Standardization**: All UI labels, buttons, and headers are standardized to Capital Case (instead of ALL CAPS) for better readability and professional look, especially on mobile devices.
 - **Component Responsiveness**: Uses CSS Container Queries to allow UI components (`SoldierWidget`, `StatDisplay`, `MenuRenderer`) to adapt their internal layout based on the width of their parent panel (ADR 0038).
-- Event Handling\*\*: Manages clicks on soldier items and menu options.
+- **Deployment Phase**: Implemented a dedicated deployment phase before the mission starts.
+  - **Manual Deployment**: Drag and drop soldiers from the roster to highlighted spawn points on the map.
+  - **Auto-Fill**: Button ("Auto-Fill Spawns") to automatically assign all rostered units to available spawn points.
+  - **Interaction**: Support for double-clicking units in the roster to deploy them to the next available spot.
+  - **Validation**: "Start Mission" button is enabled only when all selected units are validly placed on unique spawn points on the map.
+- **Event Handling**: Manages clicks on soldier items and menu options.
 
 ## Related ADRs
 

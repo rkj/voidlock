@@ -190,6 +190,11 @@ export class GameApp {
           unitId,
           target: { x, y },
         }),
+      (unitId) =>
+        this.context.gameClient.applyCommand({
+          type: CommandType.UNDEPLOY_UNIT,
+          unitId,
+        }),
       (px, py) => this.context.renderer!.getCellCoordinates(px, py),
       (reverse) => this.cycleUnits(reverse),
       (direction) => this.panMap(direction),
@@ -1170,7 +1175,8 @@ export class GameApp {
         Math.floor(unit.pos.x) === clickedCell.x &&
         Math.floor(unit.pos.y) === clickedCell.y &&
         unit.state !== UnitState.Dead &&
-        unit.state !== UnitState.Extracted,
+        unit.state !== UnitState.Extracted &&
+        unit.isDeployed !== false,
     );
     if (unitAtClick) this.onUnitClick(unitAtClick);
   }

@@ -99,7 +99,7 @@ export class SquadBuilder {
             ? "var(--color-primary)"
             : "var(--color-text-muted)";
       const launchBtn = document.getElementById(
-        "btn-goto-equipment",
+        "btn-launch-mission",
       ) as HTMLButtonElement;
       if (launchBtn) launchBtn.disabled = total === 0 || total > MAX_SQUAD_SIZE;
       renderRoster();

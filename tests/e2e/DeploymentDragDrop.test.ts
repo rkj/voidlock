@@ -56,6 +56,10 @@ describe("Mission Deployment Drag and Drop", () => {
 
     // Confirm
     await page.click("button.primary-button"); // Confirm Squad
+    
+    // Now back at Mission Setup, need to click Launch Mission
+    await page.waitForSelector("#btn-launch-mission");
+    await page.click("#btn-launch-mission");
 
     // Wait for Deployment Phase
     await page.waitForSelector(".deployment-summary");
