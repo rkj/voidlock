@@ -66,6 +66,7 @@ describe("CampaignScreen Unit Style Default Regression", () => {
         themeManager: {
           getColor: vi.fn().mockReturnValue("#000"),
           setTheme: vi.fn(),
+          getCurrentThemeId: vi.fn().mockReturnValue("default"),
         },
       } as any,
       onNodeSelect,
@@ -75,6 +76,6 @@ describe("CampaignScreen Unit Style Default Regression", () => {
 
     const statusText = container.querySelector(".global-status-text");
     expect(statusText).not.toBeNull();
-    expect(statusText?.textContent).toContain("TACTICALICONS");
+    expect(statusText?.textContent).toContain("TacticalIcons");
   });
 });

@@ -171,7 +171,7 @@ describe("Equipment Back Bug Reproduction", () => {
     // Set up DOM
     document.body.innerHTML = `
       <div id="screen-main-menu" class="screen">
-        <button id="btn-menu-campaign">CAMPAIGN</button>
+        <button id="btn-menu-campaign">Campaign</button>
       </div>
 
       <div id="screen-campaign-shell" class="screen flex-col" style="display:none">
@@ -184,10 +184,10 @@ describe("Equipment Back Bug Reproduction", () => {
               <div id="screen-statistics" class="screen" style="display:none"></div>
               <div id="screen-settings" class="screen" style="display:none"></div>
               <div id="screen-mission-setup" class="screen screen-centered" style="display:none">
-                <h1>MISSION CONFIGURATION</h1>
+                <h1>Mission Configuration</h1>
                 <div id="mission-setup-context"></div>
                 <div id="map-config-section">
-                  <select id="map-generator-type"><option value="Procedural">PROCEDURAL</option></select>
+                  <select id="map-generator-type"><option value="Procedural">Procedural</option></select>
                   <input type="number" id="map-seed" />
                   <input type="number" id="map-width" value="14" />
                   <input type="number" id="map-height" value="14" />
@@ -196,8 +196,9 @@ describe("Equipment Back Bug Reproduction", () => {
                 </div>
                 <div id="unit-style-preview"></div>
                 <div id="squad-builder"></div>
-                <button id="btn-goto-equipment">EQUIPMENT</button>
-                <button id="btn-setup-back">BACK</button>
+                <button id="btn-launch-mission" class="primary-button">Launch Mission</button>
+                <button id="btn-goto-equipment">Equipment</button>
+                <button id="btn-setup-back">Back</button>
               </div>
           </div>
       </div>
@@ -247,7 +248,7 @@ describe("Equipment Back Bug Reproduction", () => {
     // 4. Click Back in Equipment screen
     const backBtn = Array.from(
       document.querySelectorAll("#screen-equipment button"),
-    ).find((b) => b.textContent === "BACK") as HTMLElement;
+    ).find((b) => b.textContent === "Back") as HTMLElement;
     expect(backBtn).toBeTruthy();
     backBtn.click();
 

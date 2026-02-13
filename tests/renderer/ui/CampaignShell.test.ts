@@ -39,41 +39,41 @@ describe("CampaignShell", () => {
   it("should render campaign info in campaign mode", () => {
     shell.show("campaign", "sector-map");
 
-    expect(container.innerHTML).toContain("CAMPAIGN MODE");
-    expect(container.innerHTML).toContain("SECTOR 2");
-    expect(container.innerHTML).toContain("SCRAP:");
+    expect(container.innerHTML).toContain("Campaign Mode");
+    expect(container.innerHTML).toContain("Sector 2");
+    expect(container.innerHTML).toContain("Scrap:");
     expect(container.innerHTML).toContain("500");
-    expect(container.innerHTML).toContain("INTEL:");
+    expect(container.innerHTML).toContain("Intel:");
     expect(container.innerHTML).toContain("10");
 
     // Check tabs
-    expect(container.innerHTML).toContain("SECTOR MAP");
-    expect(container.innerHTML).toContain("BARRACKS");
-    expect(container.innerHTML).toContain("SERVICE RECORD");
-    expect(container.innerHTML).toContain("SETTINGS");
+    expect(container.innerHTML).toContain("Sector Map");
+    expect(container.innerHTML).toContain("Barracks");
+    expect(container.innerHTML).toContain("Service Record");
+    expect(container.innerHTML).toContain("Settings");
   });
 
   it("should render statistics info in statistics mode", () => {
     shell.show("statistics", "stats");
 
-    expect(container.innerHTML).toContain("SERVICE RECORD");
-    expect(container.innerHTML).toContain("GLOBAL STATISTICS");
-    expect(container.innerHTML).not.toContain("SCRAP:");
+    expect(container.innerHTML).toContain("Service Record");
+    expect(container.innerHTML).toContain("Global Statistics");
+    expect(container.innerHTML).not.toContain("Scrap:");
 
     // Check for specific tabs
     const buttons = Array.from(container.querySelectorAll("button"));
     const labels = buttons.map((b) => b.textContent);
 
-    expect(labels).toContain("SERVICE RECORD");
-    expect(labels).toContain("MAIN MENU");
-    expect(labels).not.toContain("SECTOR MAP");
+    expect(labels).toContain("Service Record");
+    expect(labels).toContain("Main Menu");
+    expect(labels).not.toContain("Sector Map");
   });
 
   it("should handle Main Menu tab click in statistics mode", () => {
     shell.show("statistics", "stats");
 
     const menuBtn = Array.from(container.querySelectorAll("button")).find(
-      (b) => b.textContent === "MAIN MENU",
+      (b) => b.textContent === "Main Menu",
     );
     expect(menuBtn).toBeDefined();
 
@@ -84,16 +84,16 @@ describe("CampaignShell", () => {
   it("should render custom mission info in custom mode", () => {
     shell.show("custom");
 
-    expect(container.innerHTML).toContain("CUSTOM MISSION");
-    expect(container.innerHTML).toContain("SIMULATION SETUP");
-    expect(container.innerHTML).not.toContain("SCRAP:");
+    expect(container.innerHTML).toContain("Custom Mission");
+    expect(container.innerHTML).toContain("Simulation Setup");
+    expect(container.innerHTML).not.toContain("Scrap:");
   });
 
   it("should call onTabChange when a tab is clicked", () => {
     shell.show("campaign", "sector-map");
 
     const barracksBtn = Array.from(container.querySelectorAll("button")).find(
-      (b) => b.textContent === "BARRACKS",
+      (b) => b.textContent === "Barracks",
     );
     expect(barracksBtn).toBeDefined();
 
@@ -105,7 +105,7 @@ describe("CampaignShell", () => {
     shell.show("campaign", "sector-map");
 
     const settingsBtn = Array.from(container.querySelectorAll("button")).find(
-      (b) => b.textContent === "SETTINGS",
+      (b) => b.textContent === "Settings",
     );
     expect(settingsBtn).toBeDefined();
 
@@ -117,7 +117,7 @@ describe("CampaignShell", () => {
     shell.show("campaign");
 
     const menuBtn = Array.from(container.querySelectorAll("button")).find(
-      (b) => b.textContent === "MAIN MENU",
+      (b) => b.textContent === "Main Menu",
     );
     expect(menuBtn).toBeDefined();
 

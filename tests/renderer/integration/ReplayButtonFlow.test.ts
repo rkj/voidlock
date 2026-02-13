@@ -234,7 +234,7 @@ describe("Replay Button Flow Integration", () => {
     // 4. Verify Replay Mission button exists
     const replayBtn = Array.from(
       document.querySelectorAll("#screen-debrief button"),
-    ).find((b) => b.textContent === "REPLAY MISSION") as HTMLElement;
+    ).find((b) => b.textContent === "Replay Mission") as HTMLElement;
     expect(replayBtn).toBeDefined();
 
     // 5. Click Replay Mission

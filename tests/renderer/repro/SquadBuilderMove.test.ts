@@ -82,8 +82,8 @@ describe("SquadBuilder Move Logic", () => {
       ".roster-list .soldier-card",
     );
     expect(rosterCards.length).toBe(1);
-    expect(rosterCards[0].textContent).toContain("SOLDIER 2");
-    expect(rosterCards[0].textContent).not.toContain("SOLDIER 1");
+    expect(rosterCards[0].textContent).toContain("Soldier 2");
+    expect(rosterCards[0].textContent).not.toContain("Soldier 1");
   });
 
   it("should return soldier to roster list when removed from squad (Campaign)", () => {
@@ -108,7 +108,7 @@ describe("SquadBuilder Move Logic", () => {
     ).toBe(1);
     expect(
       container.querySelector(".roster-list .soldier-card")?.textContent,
-    ).toContain("SOLDIER 2");
+    ).toContain("Soldier 2");
 
     // Remove s1 from squad
     squad.soldiers = [];
@@ -149,6 +149,6 @@ describe("SquadBuilder Move Logic", () => {
     expect(newCount).toBe(initialCount - 1);
     expect(
       container.querySelector(".roster-list .soldier-card")?.textContent,
-    ).not.toContain("ASSAULT");
+    ).not.toContain("Assault");
   });
 });

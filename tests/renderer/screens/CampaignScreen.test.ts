@@ -75,7 +75,7 @@ describe("CampaignScreen", () => {
     );
     screen.show();
 
-    expect(container.textContent).toContain("NEW EXPEDITION");
+    expect(container.textContent).toContain("New Expedition");
     expect(container.querySelectorAll(".difficulty-card").length).toBe(4);
     expect(container.querySelector("#campaign-tactical-pause")).not.toBeNull();
   });
@@ -181,7 +181,7 @@ describe("CampaignScreen", () => {
     screen.show();
 
     const backBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.textContent === "BACK TO MENU",
+      (btn) => btn.textContent === "Back to Menu",
     );
     expect(backBtn).toBeDefined();
   });
@@ -207,7 +207,7 @@ describe("CampaignScreen", () => {
     );
     screen.show();
 
-    expect(container.textContent).toContain("CAMPAIGN DEFEAT");
+    expect(container.textContent).toContain("Campaign Defeat");
     expect(container.querySelector("#btn-defeat-summary")).not.toBeNull();
   });
 
@@ -232,7 +232,7 @@ describe("CampaignScreen", () => {
     );
     screen.show();
 
-    expect(container.textContent).toContain("CAMPAIGN VICTORY");
+    expect(container.textContent).toContain("Campaign Victory");
     expect(container.querySelector("#btn-victory-summary")).not.toBeNull();
   });
 });

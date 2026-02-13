@@ -70,10 +70,10 @@ describe("DebriefScreen", () => {
     screen.show(report);
 
     expect(container.style.display).toBe("flex");
-    expect(container.innerHTML).toContain("MISSION SUCCESS");
+    expect(container.innerHTML).toContain("Mission Success");
     expect(container.innerHTML).toContain("10"); // aliensKilled
     expect(container.innerHTML).toContain("+150"); // scrapGained
-    expect(container.innerHTML).toContain("SGT. SLAUGHTER");
+    expect(container.innerHTML).toContain("Sgt. Slaughter");
     expect(container.innerHTML).toContain("debrief-xp-bar");
   });
 
@@ -100,8 +100,8 @@ describe("DebriefScreen", () => {
 
     screen.show(report);
 
-    expect(container.innerHTML).toContain("MISSION FAILED");
-    expect(container.innerHTML).toContain("DEAD");
+    expect(container.innerHTML).toContain("Mission Failed");
+    expect(container.innerHTML).toContain("Dead");
   });
 
   it("should call onContinue when button is clicked", () => {
@@ -237,16 +237,16 @@ describe("DebriefScreen", () => {
     screen.show(report);
 
     const loopBtn = Array.from(container.querySelectorAll(".replay-btn")).find(
-      (btn) => btn.textContent?.includes("LOOP"),
+      (btn) => btn.textContent?.includes("Loop"),
     ) as HTMLButtonElement;
 
-    expect(loopBtn.textContent).toBe("LOOP: OFF");
+    expect(loopBtn.textContent).toBe("Loop: Off");
     loopBtn.click();
-    expect(loopBtn.textContent).toBe("LOOP: ON");
+    expect(loopBtn.textContent).toBe("Loop: On");
     expect(loopBtn.classList.contains("active")).toBe(true);
 
     loopBtn.click();
-    expect(loopBtn.textContent).toBe("LOOP: OFF");
+    expect(loopBtn.textContent).toBe("Loop: Off");
     expect(loopBtn.classList.contains("active")).toBe(false);
   });
 
@@ -275,7 +275,7 @@ describe("DebriefScreen", () => {
     const exportBtn = Array.from(
       container.querySelectorAll(".debrief-button"),
     ).find(
-      (btn) => btn.textContent === "EXPORT RECORDING",
+      (btn) => btn.textContent === "Export Recording",
     ) as HTMLButtonElement;
 
     expect(exportBtn).toBeTruthy();

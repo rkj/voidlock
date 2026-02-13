@@ -80,16 +80,16 @@ describe("Roster Sorting Regression (voidlock-l7b8)", () => {
     expect(cards.length).toBe(3);
 
     // Healthy should be first (sorted by weight: Healthy=0, Wounded=1, Dead=2)
-    expect(cards[0].textContent).toContain("HEALTHY GUY");
+    expect(cards[0].textContent).toContain("Healthy Guy");
     expect(cards[0].classList.contains("dead")).toBe(false);
     expect(cards[0].classList.contains("wounded")).toBe(false);
 
     // Wounded should be second
-    expect(cards[1].textContent).toContain("WOUNDED GUY");
+    expect(cards[1].textContent).toContain("Wounded Guy");
     expect(cards[1].classList.contains("wounded")).toBe(true);
 
     // Dead should be last
-    expect(cards[2].textContent).toContain("DEAD GUY");
+    expect(cards[2].textContent).toContain("Dead Guy");
     expect(cards[2].classList.contains("dead")).toBe(true);
   });
 
@@ -139,10 +139,10 @@ describe("Roster Sorting Regression (voidlock-l7b8)", () => {
     const rosterCards = document.querySelectorAll(".roster-list .soldier-card");
 
     const card1 = Array.from(rosterCards).find((c) =>
-      c.textContent?.includes("IN SQUAD"),
+      c.textContent?.includes("In Squad"),
     );
     const card2 = Array.from(rosterCards).find((c) =>
-      c.textContent?.includes("OUT OF SQUAD"),
+      c.textContent?.includes("Out of Squad"),
     );
 
     expect(card1).toBeUndefined();
@@ -153,7 +153,7 @@ describe("Roster Sorting Regression (voidlock-l7b8)", () => {
       ".deployment-panel .soldier-card",
     );
     const deployedCard1 = Array.from(deploymentCards).find((c) =>
-      c.textContent?.includes("IN SQUAD"),
+      c.textContent?.includes("In Squad"),
     );
     expect(deployedCard1).toBeDefined();
   });

@@ -103,9 +103,9 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
                 soldierAim: 80,
                 equipment: {
                   rightHand: "pulse_rifle",
-                  leftHand: null,
+                  leftHand: undefined,
                   body: "basic_armor",
-                  feet: null,
+                  feet: undefined,
                 },
               },
             ],
@@ -161,8 +161,8 @@ describe("Equipment Persistence Integration", () => {
 
     document.body.innerHTML = `
       <div id="screen-main-menu" class="screen">
-        <button id="btn-menu-campaign">CAMPAIGN</button>
-        <button id="btn-menu-custom">CUSTOM MISSION</button>
+        <button id="btn-menu-campaign">Campaign</button>
+        <button id="btn-menu-custom">Custom Mission</button>
         <p id="menu-version"></p>
       </div>
 
@@ -179,11 +179,11 @@ describe("Equipment Persistence Integration", () => {
       </div>
 
       <div id="screen-mission-setup" class="screen screen-centered" style="display:none">
-        <h1>MISSION CONFIGURATION</h1>
+        <h1>Mission Configuration</h1>
         <div id="unit-style-preview"></div>
         <div id="squad-builder"></div>
-        <button id="btn-launch-mission" class="primary-button">LAUNCH MISSION</button>
-        <button id="btn-goto-equipment">EQUIPMENT</button>
+        <button id="btn-launch-mission" class="primary-button">Launch Mission</button>
+        <button id="btn-goto-equipment">Equipment</button>
       </div>
       <div id="screen-equipment" class="screen" style="display:none"></div>
       <div id="screen-mission" class="screen" style="display:none">
@@ -236,10 +236,10 @@ describe("Equipment Persistence Integration", () => {
       "flex",
     );
 
-    // 4. Find the 'CONFIRM SQUAD' button and click it
+    // 4. Find the 'Confirm Squad' button and click it
     // Note: The EquipmentScreen renders its own UI.
     const confirmBtn = Array.from(document.querySelectorAll("button")).find(
-      (b) => b.textContent === "CONFIRM SQUAD",
+      (b) => b.textContent === "Confirm Squad",
     );
     expect(confirmBtn).toBeTruthy();
 

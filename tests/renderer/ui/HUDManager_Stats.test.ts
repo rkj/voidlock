@@ -82,7 +82,7 @@ describe("HUDManager Stats & Enemy Intel", () => {
 
     mockMenuController = {
       getRenderableState: vi.fn(() => ({
-        title: "ACTIONS",
+        title: "Actions",
         options: [],
       })),
     };
@@ -137,7 +137,7 @@ describe("HUDManager Stats & Enemy Intel", () => {
 
     const intelDiv = document.querySelector(".enemy-intel");
     expect(intelDiv).not.toBeNull();
-    expect(intelDiv?.innerHTML).toContain("ENEMY INTEL");
+    expect(intelDiv?.innerHTML).toContain("Enemy Intel");
     expect(intelDiv?.innerHTML).toContain("xeno-mite x1");
 
     // Check stats using titles
@@ -156,7 +156,7 @@ describe("HUDManager Stats & Enemy Intel", () => {
     hud.update(blindState, null);
 
     const intelDiv = document.querySelector(".enemy-intel");
-    expect(intelDiv?.innerHTML).toContain("NO HOSTILES DETECTED.");
+    expect(intelDiv?.innerHTML).toContain("No Hostiles Detected.");
   });
 
   it("should update enemy count when multiple of same type are visible", () => {

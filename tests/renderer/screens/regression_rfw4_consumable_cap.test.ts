@@ -42,7 +42,7 @@ describe("EquipmentScreen Consumable Cap Regression (rfw4)", () => {
     const getPlusBtn = () => {
       const allCards = Array.from(container.querySelectorAll(".card"));
       const row = allCards.find((c) =>
-        c.textContent?.includes("FRAG GRENADE"),
+        c.textContent?.includes("Frag Grenade"),
       ) as HTMLElement;
       return Array.from(row.querySelectorAll("button")).find(
         (btn) => btn.textContent === "+",
@@ -52,7 +52,7 @@ describe("EquipmentScreen Consumable Cap Regression (rfw4)", () => {
     const getCount = () => {
       const allCards = Array.from(container.querySelectorAll(".card"));
       const row = allCards.find((c) =>
-        c.textContent?.includes("FRAG GRENADE"),
+        c.textContent?.includes("Frag Grenade"),
       ) as HTMLElement;
       const controls = row.querySelector(".gap-10") as HTMLElement;
       const countDisplay = controls.querySelector("span") as HTMLElement;
@@ -93,7 +93,7 @@ describe("EquipmentScreen Consumable Cap Regression (rfw4)", () => {
     screen.show();
 
     const rows = Array.from(container.querySelectorAll("div")).filter((el) =>
-      el.textContent?.includes("FRAG GRENADE"),
+      el.textContent?.includes("Frag Grenade"),
     );
     const row = rows[0].parentElement!;
     const plusBtn = Array.from(row.querySelectorAll("button")).find(

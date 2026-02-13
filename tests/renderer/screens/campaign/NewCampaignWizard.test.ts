@@ -54,8 +54,8 @@ describe("NewCampaignWizard", () => {
     });
     wizard.render();
 
-    expect(container.innerHTML).toContain("NEW EXPEDITION");
-    expect(container.innerHTML).toContain("SELECT DIFFICULTY");
+    expect(container.innerHTML).toContain("New Expedition");
+    expect(container.innerHTML).toContain("Select Difficulty");
     expect(container.querySelectorAll(".difficulty-card").length).toBe(4);
   });
 
@@ -69,14 +69,14 @@ describe("NewCampaignWizard", () => {
     const hardCard = Array.from(
       container.querySelectorAll(".difficulty-card"),
     ).find(
-      (c) => c.querySelector("h3")?.textContent === "STANDARD",
+      (c) => c.querySelector("h3")?.textContent === "Standard",
     ) as HTMLElement;
 
     expect(hardCard).toBeDefined();
     hardCard.click();
 
     const startBtn = container.querySelector(".primary-button") as HTMLElement;
-    expect(startBtn.textContent).toBe("INITIALIZE EXPEDITION");
+    expect(startBtn.textContent).toBe("Initialize Expedition");
     startBtn.click();
 
     expect(onStartCampaign).toHaveBeenCalled();
@@ -96,7 +96,7 @@ describe("NewCampaignWizard", () => {
     const ironmanCard = Array.from(
       container.querySelectorAll(".difficulty-card"),
     ).find(
-      (c) => c.querySelector("h3")?.textContent === "IRONMAN",
+      (c) => c.querySelector("h3")?.textContent === "Ironman",
     ) as HTMLElement;
 
     ironmanCard.click();
@@ -118,7 +118,7 @@ describe("NewCampaignWizard", () => {
     const advancedToggle = Array.from(
       container.querySelectorAll("button"),
     ).find((b) =>
-      b.textContent?.includes("SHOW ADVANCED SETTINGS"),
+      b.textContent?.includes("Show Advanced Settings"),
     ) as HTMLElement;
 
     const advancedContent = container.querySelector(
@@ -128,7 +128,7 @@ describe("NewCampaignWizard", () => {
 
     advancedToggle.click();
     expect(advancedContent.style.display).toBe("flex");
-    expect(advancedToggle.textContent).toContain("HIDE ADVANCED SETTINGS");
+    expect(advancedToggle.textContent).toContain("Hide Advanced Settings");
   });
 
   it("should NOT render meta statistics in the footer (responsibility moved to shell)", () => {
@@ -138,7 +138,7 @@ describe("NewCampaignWizard", () => {
     });
     wizard.render();
 
-    expect(container.innerHTML).not.toContain("LIFETIME XENO PURGED:");
+    expect(container.innerHTML).not.toContain("Lifetime Xeno Purged:");
     expect(container.querySelector(".campaign-footer")).toBeNull();
   });
 });

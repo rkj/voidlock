@@ -329,7 +329,7 @@ export class EquipmentScreen {
         removeBtn.className = "remove-soldier-btn slot-remove";
         removeBtn.setAttribute("data-focus-id", `remove-soldier-${i}`);
         removeBtn.innerHTML = "×";
-        removeBtn.title = "REMOVE FROM SQUAD";
+        removeBtn.title = "Remove from Squad";
         removeBtn.onclick = (e) => {
           e.stopPropagation();
           this.config.soldiers.splice(i, 1);
@@ -346,10 +346,10 @@ export class EquipmentScreen {
         item.style.padding = "8px 12px";
         item.innerHTML = `
           <div style="font-weight:bold; color:${this.selectedSoldierIndex === i ? "var(--color-primary)" : "var(--color-text-dim)"}; font-size: 0.9em;">
-            ${i + 1}. [EMPTY SLOT]
+            ${i + 1}. [Empty Slot]
           </div>
           <div style="font-size:0.75em; color:var(--color-text-muted); margin-top:2px;">
-            CLICK TO ADD SOLDIER
+            Click to Add Soldier
           </div>
         `;
 
@@ -395,8 +395,8 @@ export class EquipmentScreen {
       msg.style.textAlign = "center";
       msg.innerHTML = `
         <div style="font-size:2em; margin-bottom:10px;">📋</div>
-        <div>NO HEALTHY SOLDIERS AVAILABLE IN ROSTER.</div>
-        <div style="font-size:0.8em; margin-top:10px;">RECRUIT A NEW SOLDIER IN THE CENTER PANEL.</div>
+        <div>No healthy soldiers available in roster.</div>
+        <div style="font-size:0.8em; margin-top:10px;">Recruit a new soldier in the center panel.</div>
       `;
       panel.appendChild(msg);
       return;
@@ -484,7 +484,7 @@ export class EquipmentScreen {
 
     if (deadSoldiers.length === 0) {
       panel.innerHTML =
-        '<div style="text-align:center; color:var(--color-text-dim); margin-top:20px;">NO DECEASED PERSONNEL AVAILABLE FOR REVIVAL.</div>';
+        '<div style="text-align:center; color:var(--color-text-dim); margin-top:20px;">No deceased personnel available for revival.</div>';
       return;
     }
 
@@ -571,7 +571,7 @@ export class EquipmentScreen {
 
     // Global Supplies
     const suppliesTitle = document.createElement("h3");
-    suppliesTitle.textContent = "GLOBAL SUPPLIES";
+    suppliesTitle.textContent = "Global Supplies";
     suppliesTitle.style.color = "var(--color-primary)";
     suppliesTitle.style.borderBottom = "1px solid var(--color-border)";
     suppliesTitle.style.paddingBottom = "8px";

@@ -36,9 +36,9 @@ describe("CampaignShell Custom Mode Tabs", () => {
     const buttons = Array.from(container.querySelectorAll("button"));
     const labels = buttons.map((b) => b.textContent);
 
-    expect(labels).toContain("SETUP");
-    expect(labels).toContain("SETTINGS");
-    expect(labels).toContain("SERVICE RECORD");
-    expect(labels).toContain("MAIN MENU");
+    expect(labels).toContain("Setup");
+    expect(labels).toContain("Settings");
+    expect(labels).toContain("Service Record");
+    expect(labels).toContain("Main Menu");
   });
 });
