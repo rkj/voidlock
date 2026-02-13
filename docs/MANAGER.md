@@ -29,8 +29,9 @@ At the start of every session, run:
 **Rules**:
 
 1. **Context Validation**: Ensure the Beads task description links to **ADRs** and **Specs**.
+1. **Mark In Progress**: Absolute first step is to run `bd update <TASK_ID> --status in_progress`.
 1. **Adding Context**: Use `bd comments add <TASK_ID> "<NEW_INFO>"` to provide error logs or visual audit screenshots from the PM phase.
-1. **Verification of Claim**: After dispatching, wait 2-3 minutes. If `bd show <ID>` still shows status as `open`, the agent has likely crashed or failed to start. **REJECT** and retry.
+1. **Execution**: Run the `dispatch_agent.sh` command.
 1. **No Backticks**: NEVER use backticks (`) in command arguments.
 
 ## 3. Verification & Quality Control (The Audit)
@@ -39,6 +40,8 @@ At the start of every session, run:
 
 **Manager Actions:**
 
+1. **Audit Beads**:
+   - **Comment Check**: Run `bd show <TASK_ID> --json` and check for any new comments from the agent. If they added a "BLOCKER" comment, **ESCALATE** immediately.
 1. **Audit Logs**:
    - **Crash Check**: Scan the agent's output for "Loop detected", "TimeoutError", or "Operation Cancelled". If found, **REJECT** the task immediately.
    - **Tool Failure**: Did `npm install` fail? Did the agent bypass a tool failure? **FAIL** immediately.
