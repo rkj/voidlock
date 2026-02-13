@@ -37,6 +37,31 @@ export class BarracksScreen {
         this.render();
         if (this.onUpdate) this.onUpdate();
       },
+      onRecruit: () => {
+        this.activeTab = "Recruitment";
+        this.render();
+        // Move focus to the first recruitment option in the right panel (Spec 9)
+        const rightBody = this.container.querySelector(
+          ".barracks-main-content .panel:last-child .scroll-content",
+        );
+        if (rightBody) {
+          const first = rightBody.querySelector(".clickable") as HTMLElement;
+          if (first) first.focus();
+        }
+      },
+      onRevive: () => {
+        // In Barracks, reviving might just stay on the same soldier,
+        // but we follow the "move focus to right" pattern.
+        this.activeTab = "Armory";
+        this.render();
+        const rightBody = this.container.querySelector(
+          ".barracks-main-content .panel:last-child .scroll-content",
+        );
+        if (rightBody) {
+          const first = rightBody.querySelector(".clickable") as HTMLElement;
+          if (first) first.focus();
+        }
+      },
     });
   }
 
