@@ -11,7 +11,7 @@ describe("SquadBuilder Component", () => {
 
   beforeEach(() => {
     document.body.innerHTML =
-      '<div id="squad-builder"></div><button id="btn-goto-equipment"></button>';
+      '<div id="squad-builder"></div><button id="btn-launch-mission"></button>';
     container = document.getElementById("squad-builder")!;
 
     squad = {
@@ -82,7 +82,7 @@ describe("SquadBuilder Component", () => {
     builder.render();
 
     const launchBtn = document.getElementById(
-      "btn-goto-equipment",
+      "btn-launch-mission",
     ) as HTMLButtonElement;
     expect(launchBtn.disabled).toBe(true);
   });
@@ -100,7 +100,7 @@ describe("SquadBuilder Component", () => {
     builder.render();
 
     const launchBtn = document.getElementById(
-      "btn-goto-equipment",
+      "btn-launch-mission",
     ) as HTMLButtonElement;
     expect(launchBtn.disabled).toBe(false);
   });

@@ -165,6 +165,7 @@ export class SquadBuilder {
           if (state.roster.length < CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE) {
             const recruitBtn = document.createElement("button");
             recruitBtn.className = "btn-recruit";
+            recruitBtn.setAttribute("data-focus-id", "btn-recruit-squad-builder");
             recruitBtn.textContent = "Recruit (100 Scrap)";
             recruitBtn.disabled = state.scrap < 100;
             recruitBtn.onclick = async () => {
@@ -201,6 +202,12 @@ export class SquadBuilder {
                 if (this.context.campaignShell)
                   this.context.campaignShell.refresh();
                 updateCount();
+
+                // Move focus to the first deployment slot (Spec 9)
+                const firstSlot = this.container.querySelector(
+                  ".deployment-slot:not(.locked)",
+                ) as HTMLElement;
+                if (firstSlot) firstSlot.focus();
               } catch (err: unknown) {
                 const message =
                   err instanceof Error ? err.message : String(err);
@@ -369,6 +376,7 @@ export class SquadBuilder {
         if (state?.rules.deathRule === "Clone") {
           const reviveBtn = document.createElement("button");
           reviveBtn.className = "btn-revive";
+          reviveBtn.setAttribute("data-focus-id", `revive-squad-builder-${soldier.id}`);
           reviveBtn.textContent = "Revive (250 Scrap)";
 
           const canAfford = state.scrap >= 250;
@@ -409,6 +417,12 @@ export class SquadBuilder {
               if (this.context.campaignShell)
                 this.context.campaignShell.refresh();
               updateCount();
+
+              // Move focus to the first deployment slot (Spec 9)
+              const firstSlot = this.container.querySelector(
+                ".deployment-slot:not(.locked)",
+              ) as HTMLElement;
+              if (firstSlot) firstSlot.focus();
             } catch (err: unknown) {
               const message = err instanceof Error ? err.message : String(err);
               await this.context.modalService.alert(message);

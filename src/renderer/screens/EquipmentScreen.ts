@@ -359,6 +359,20 @@ export class EquipmentScreen {
           this.recruitMode = false;
           this.reviveMode = false;
           this.render();
+
+          // Focus the recruit button if it exists (Spec 9)
+          const recruitBtn = this.container.querySelector(
+            '[data-focus-id="recruit-btn-large"]',
+          ) as HTMLElement;
+          if (recruitBtn) {
+            recruitBtn.focus();
+          } else {
+            // If no recruit button (e.g. custom mode or roster full), focus first option in right panel
+            const firstRight = this.container.querySelector(
+              ".armory-panel .clickable:not(.disabled)",
+            ) as HTMLElement;
+            if (firstRight) firstRight.focus();
+          }
         };
         item.onclick = handleSelect;
         item.onkeydown = (e) => {

@@ -434,11 +434,13 @@ export class NewCampaignWizard {
     const backBtn = document.createElement("button");
     backBtn.textContent = "Back to Menu";
     backBtn.className = "back-button";
+    backBtn.setAttribute("data-focus-id", "btn-back-to-menu");
     backBtn.style.marginTop = "0";
     backBtn.onclick = () => this.options.onBack();
     footer.appendChild(backBtn);
 
     startBtn.className = "primary-button";
+    startBtn.setAttribute("data-focus-id", "btn-start-campaign");
     startBtn.style.width = "auto";
     startBtn.style.height = "32px";
     startBtn.style.padding = "0 24px";
