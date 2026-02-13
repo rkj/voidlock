@@ -4,7 +4,14 @@ You are an AI contributor agent. Your goal is to implement features or fix bugs 
 
 ## 1. Core Workflow
 
-1. **USER INTERRUPT**: If the user asks a question, STOP. Answer. No chitchat.
+1. **AMBIGUITY / BLOCKER**: If you cannot proceed without human input (e.g., missing design, ambiguous spec):
+   - **Log**: Comment with the specific question or blocker.
+   - **Escalate**: Run `bd update <ID> --parent voidlock-xyoaw --status blocked`.
+   - **Exit**: Terminate execution.
+1. **INHERITANCE CHECK**: Run `jj diff --git`. If the working copy is not clean, you are inheriting a failed attempt.
+   - **Analyze**: Read the changes. Are they salvageable?
+   - **Salvage**: If yes, continue from where they left off.
+   - **Discard**: If garbage, run `jj restore .` to start fresh.
 1. **REPRODUCTION FIRST (CRITICAL)**: For every `bug` task, you MUST start by writing a failing test (Unit or Puppeteer E2E) that reproduces the issue. You are not allowed to fix the code until you have "Negative Proof." This is a hard mandate for ALL bug fixes.
 1. **VISUAL MANDATE**: When modifying UI, CSS, or Layout:
    - **Primary**: Write/run an **E2E Test** (Puppeteer) in `tests/e2e/`.

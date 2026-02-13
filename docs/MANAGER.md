@@ -38,12 +38,26 @@ At the start of every session, run:
 
 **Manager Actions:**
 
-1. **Audit Logs**: Did the agent bypass a tool failure? Did they comment out tests? **FAIL** immediately.
+1. **Audit Logs**:
+   - **Crash Check**: Scan the agent's output for "Loop detected", "TimeoutError", or "Operation Cancelled". If found, **REJECT** the task immediately.
+   - **Tool Failure**: Did `npm install` fail? Did the agent bypass a tool failure? **FAIL** immediately.
 1. **Visual Audit (MANDATORY for UI/CSS/Layout)**:
    - Use `navigate_page` to visit the affected screen.
    - Use `take_screenshot` at **1024x768** and **400x800**.
    - Compare screenshots against the **Product Spec** and the "Negative Proof" screenshots from the planning phase.
    - If the visual state is incorrect or inconsistent with requirements, **REJECT** the task.
+
+### Definition of REJECT / FAIL
+If a task is Rejected or Failed:
+1. **Preserve State**: Do **NOT** revert the changes (unless they are actively harmful/malicious). Leave the working copy "dirty" so the next agent can inspect and potentially salvage the work.
+2. **Log Reason**: Run `bd comments add <ID> "REJECTED: <Reason for rejection>"` (e.g., "Agent crashed", "Visuals do not match spec").
+3. **Re-Dispatch**: Run `dispatch_agent.sh` to try again with the same task ID.
+4. **Escalate**: If it fails twice or requires human decision:
+   - **Reparent**: Run `bd update <ID> --parent voidlock-xyoaw` (HUMAN INPUT Epic).
+   - **Block**: Run `bd update <ID> --status blocked`.
+   - **Log**: Run `bd comments add <ID> "ESCALATED: <Reason>"` (e.g., "Ambiguous spec", "Persistent crash").
+   - **Continue**: Pick the next available task.
+
 1. **Inspect**: Execute `jj diff --git`. Verify adherence to **SOLID** and **Spec** compliance.
 1. **Test**: Run `npx vitest run <PATH_TO_TEST>`. Use `--reporter=basic`.
 1. **Test Robustness Audit**:

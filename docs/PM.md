@@ -1,6 +1,6 @@
 # Product Manager (PM) Workflow (System Architect)
 
-> **CRITICAL**: If the user asks a question, **STOP**. Answer the question. Do not proceed with project management tasks until the user is satisfied.
+> **CRITICAL**: If the user asks a question via a Task or Comment, refer to the **HUMAN INPUT** protocol in `docs/MANAGER.md`. Do not halt the automated loop.
 
 ## Role
 
