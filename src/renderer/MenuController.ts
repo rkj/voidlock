@@ -434,16 +434,16 @@ export class MenuController {
         !this.selection.pendingTargetLocation
       ) {
         this.selection.pendingUnitIds = selectedIds;
-        let label = "SELECTED UNITS";
+        let label = "Selected Units";
         if (selectedIds.length === 1) {
           const unit = gameState.units.find((u) => u.id === selectedIds[0]);
           if (unit) {
             const tacticalNumber =
               unit.tacticalNumber ||
               gameState.units.findIndex((origU) => origU.id === unit.id) + 1;
-            label = `${(unit.name || unit.id).toUpperCase()} (${tacticalNumber})`;
+            label = `${unit.name || unit.id} (${tacticalNumber})`;
           } else {
-            label = selectedIds[0].toUpperCase();
+            label = selectedIds[0];
           }
         }
         this.transitionTo("TARGET_SELECT", label);
@@ -486,9 +486,9 @@ export class MenuController {
     }
 
     const result: RenderableMenuState = {
-      title: config.title.toUpperCase(),
+      title: config.title,
       options: [],
-      breadcrumbs: breadcrumbs.map(b => b.toUpperCase()),
+      breadcrumbs: breadcrumbs,
     };
 
     const fullState = this.rehydrateState(gameState);
@@ -566,18 +566,18 @@ export class MenuController {
     ) {
       result.options = config.options.map((opt) => ({
         key: opt.key.toString(),
-        label: opt.key === 0 ? "0. BACK" : `${opt.key}. ${opt.label.toUpperCase()}`,
+        label: opt.key === 0 ? "0. Back" : `${opt.key}. ${opt.label}`,
         isBack: opt.key === 0,
         disabled: this.isOptionDisabled(opt, gameState),
         dataAttributes: { index: opt.key.toString() },
       }));
 
       if (this.stateMachine.state === "ACTION_SELECT") {
-        result.footer = "(SELECT ACTION)";
+        result.footer = "(Select Action)";
       } else if (this.stateMachine.state === "ORDERS_SELECT") {
-        result.footer = "(SELECT ORDER)";
+        result.footer = "(Select Order)";
       } else {
-        result.footer = "(Q/ESC TO GO BACK)";
+        result.footer = "(Q/ESC to Go Back)";
       }
     } else if (this.stateMachine.state === "ITEM_SELECT") {
       const items = Object.entries(gameState.squadInventory).filter(
@@ -599,39 +599,39 @@ export class MenuController {
 
         return {
           key: (idx + 1).toString(),
-          label: `${idx + 1}. ${(item?.name || itemId).toUpperCase()} (${count})`,
+          label: `${idx + 1}. ${item?.name || itemId} (${count})`,
           disabled,
           dataAttributes: { index: (idx + 1).toString(), "item-id": itemId },
         };
       });
       result.options.push({
         key: "0",
-        label: "0. BACK",
+        label: "0. Back",
         isBack: true,
         dataAttributes: { index: "0" },
       });
-      result.footer = "(SELECT ITEM, Q/ESC TO BACK)";
+      result.footer = "(Select Item, Q/ESC to Back)";
     } else if (this.stateMachine.state === "TARGET_SELECT") {
       if (
         this.selection.overlayOptions.length === 0 &&
         this.selection.pendingAction !== CommandType.MOVE_TO &&
         this.selection.pendingAction !== CommandType.USE_ITEM
       ) {
-        result.error = "NO POIS AVAILABLE.";
+        result.error = "No POIs Available.";
       } else {
         result.options = this.selection.overlayOptions.map((opt) => ({
           key: opt.key,
-          label: `${opt.key}. ${opt.label.toUpperCase()}`,
+          label: `${opt.key}. ${opt.label}`,
           dataAttributes: { index: opt.key, key: opt.key },
         }));
       }
       result.options.push({
         key: "0",
-        label: "0. BACK",
+        label: "0. Back",
         isBack: true,
         dataAttributes: { index: "0" },
       });
-      result.footer = "(CLICK MAP OR PRESS 1-9, Q/ESC TO BACK)";
+      result.footer = "(Click Map or Press 1-9, Q/ESC to Back)";
     } else if (this.stateMachine.state === "UNIT_SELECT") {
       let activeUnits = gameState.units.filter(
         (u) => u.state !== UnitState.Dead && u.state !== UnitState.Extracted,
@@ -653,7 +653,7 @@ export class MenuController {
           u.tacticalNumber ||
           gameState.units.findIndex((origU) => origU.id === u.id) + 1;
         const key = result.options.length + 1;
-        const displayName = (u.name || u.id).toUpperCase();
+        const displayName = u.name || u.id;
 
         result.options.push({
           key: key.toString(),
@@ -668,18 +668,18 @@ export class MenuController {
       if (!isPickup) {
         result.options.push({
           key: allUnitsKey.toString(),
-          label: `${allUnitsKey}. ALL UNITS`,
+          label: `${allUnitsKey}. All Units`,
           dataAttributes: { index: allUnitsKey.toString(), "unit-id": "ALL" },
         });
       }
 
       result.options.push({
         key: "0",
-        label: "0. BACK",
+        label: "0. Back",
         isBack: true,
         dataAttributes: { index: "0" },
       });
-      result.footer = "(PRESS 1-9 OR Q/ESC)";
+      result.footer = "(Press 1-9 or Q/ESC)";
     }
 
     return result;

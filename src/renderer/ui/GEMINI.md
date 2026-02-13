@@ -47,6 +47,7 @@ This directory contains UI components and managers for the Voidlock renderer.
   - Promise-based asynchronous API.
   - Fully navigable via keyboard (Enter/ESC).
   - Handles custom content and button layouts.
+- **UI Casing Standardization**: All UI labels, buttons, and headers are standardized to Title Case (instead of ALL CAPS) for better readability and professional look, especially on mobile devices (Spec 11.1).
 - **Tap-to-Inspect**: Implements a persistent popover system for informational tooltips on touch devices (ADR 0038). Includes a 300ms debounce to prevent immediate dismissal from rapid touch/click event sequences.
 - **UI Casing Standardization**: All UI labels, buttons, and headers are standardized to Capital Case (instead of ALL CAPS) for better readability and professional look, especially on mobile devices.
 - **Component Responsiveness**: Uses CSS Container Queries to allow UI components (`SoldierWidget`, `StatDisplay`, `MenuRenderer`) to adapt their internal layout based on the width of their parent panel (ADR 0038).

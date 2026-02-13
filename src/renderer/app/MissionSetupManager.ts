@@ -185,10 +185,11 @@ export class MissionSetupManager {
           const missionNum = state.history.length + 1;
           const sectorNum = state.currentSector;
           const difficulty = state.rules.difficulty;
-          contextHeader.textContent = `CAMPAIGN: ${difficulty.toUpperCase()} | MISSION ${missionNum} | SECTOR ${sectorNum}`;
+          const difficultyCased = difficulty.charAt(0).toUpperCase() + difficulty.slice(1);
+          contextHeader.textContent = `Campaign: ${difficultyCased} | Mission ${missionNum} | Sector ${sectorNum}`;
         }
       } else {
-        contextHeader.textContent = "CUSTOM SIMULATION";
+        contextHeader.textContent = "Custom Simulation";
       }
     }
 

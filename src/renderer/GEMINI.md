@@ -43,6 +43,7 @@ This directory contains the main thread rendering logic and user interface for V
 - **Reset Data**: Provides a way to wipe all campaign progress and settings via the Global Settings Screen (moved from Main Menu for safety).
 - **URL Synchronization**: The current screen (Main Menu, Campaign, Barracks, Mission Setup, etc.) is synchronized with the URL hash, allowing for deep linking and browser back/forward navigation.
 - **Global Stats**: Displays cumulative statistics (Service Record) via a dedicated Statistics Screen, now a top-level global component (ADR 0032).
+- **UI Casing Standardization**: All UI labels, buttons, and headers are standardized to Title Case (instead of ALL CAPS) for better readability and professional look, especially on mobile devices (Spec 11.1).
 - **Visual Feedback**: Provides tactical information through tracers, health bars, and status overlays. Includes a high-precision threat bar in `index.html` with pixel-perfect divider alignment.
 - **Component Responsiveness**: Uses CSS Container Queries (`@container`) to allow reusable UI components like `SoldierCard`, `StatDisplay`, and `Menu` to adapt their internal layout based on the width of their parent container, ensuring a consistent experience across different device sizes and layout panels (ADR 0038).
 
