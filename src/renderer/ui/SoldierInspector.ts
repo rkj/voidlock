@@ -202,12 +202,14 @@ export class SoldierInspector {
     slotsGrid.appendChild(
       this.createSlot("Right Hand", equip.rightHand, (id) =>
         this.handleSlotChange("rightHand", id),
+        false, // Mandatory Primary (RH)
       ),
     );
 
     slotsGrid.appendChild(
       this.createSlot("Left Hand", equip.leftHand, (id) =>
         this.handleSlotChange("leftHand", id),
+        false, // Mandatory Secondary (LH)
       ),
     );
 
@@ -300,6 +302,7 @@ export class SoldierInspector {
     label: string,
     itemId: string | undefined,
     onDrop: (id: string) => void,
+    allowRemove: boolean = true,
   ): HTMLElement {
     const slot = document.createElement("div");
     slot.className = "paper-doll-slot" + (itemId ? " equipped" : "");
@@ -324,15 +327,17 @@ export class SoldierInspector {
         name.className = "slot-item-name";
         slot.appendChild(name);
 
-        const removeBtn = document.createElement("div");
-        removeBtn.textContent = "×";
-        removeBtn.className = "slot-remove-btn";
-        removeBtn.tabIndex = -1;
-        removeBtn.onclick = (e) => {
-          e.stopPropagation();
-          onDrop("");
-        };
-        slot.appendChild(removeBtn);
+        if (allowRemove) {
+          const removeBtn = document.createElement("div");
+          removeBtn.textContent = "×";
+          removeBtn.className = "slot-remove-btn";
+          removeBtn.tabIndex = -1;
+          removeBtn.onclick = (e) => {
+            e.stopPropagation();
+            onDrop("");
+          };
+          slot.appendChild(removeBtn);
+        }
       }
     } else {
       const plus = document.createElement("div");
@@ -343,7 +348,7 @@ export class SoldierInspector {
 
     slot.onkeydown = (e) => {
       if (e.key === "Enter" || e.key === " ") {
-        if (!isDead && itemId) {
+        if (!isDead && itemId && allowRemove) {
           onDrop("");
         }
         e.preventDefault();
