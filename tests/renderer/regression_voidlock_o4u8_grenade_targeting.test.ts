@@ -78,10 +78,10 @@ describe("MenuController Grenade Targeting Regression (voidlock-o4u8)", () => {
     // and might NOT include the enemy if it's not a POI.
 
     const extractionOption = options.find((o) =>
-      o.label.includes("EXTRACTION"),
+      o.label.includes("Extraction"),
     );
-    const enemyOption1 = options.find((o) => o.label.includes("DRONE"));
-    const enemyOption2 = options.find((o) => o.label.includes("GUARD"));
+    const enemyOption1 = options.find((o) => o.label.includes("Drone"));
+    const enemyOption2 = options.find((o) => o.label.includes("Guard"));
 
     expect(
       extractionOption,

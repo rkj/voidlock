@@ -38,33 +38,48 @@ describe("EquipmentScreen Regression: Scroll Reset", () => {
     );
     screen.show();
 
-    // Find the right panel (Armory)
-    const rightPanel = container.querySelector(".armory-panel") as HTMLElement;
-    expect(rightPanel).not.toBeNull();
+    // Find the right panel body (scroll content)
+    const rightPanelBody = container.querySelector(
+      ".armory-panel .scroll-content",
+    ) as HTMLElement;
+    expect(rightPanelBody).not.toBeNull();
 
-    // Set scroll position manually (JSDOM doesn't do layout, but we can set this)
-    rightPanel.scrollTop = 150;
+    // Set scroll position manually
+    rightPanelBody.scrollTop = 150;
 
     // Trigger a re-render by adding an item
-    const rows = Array.from(container.querySelectorAll("div")).filter((el) =>
-      el.textContent?.includes("Frag Grenade"),
-    );
-    const row = rows[0].parentElement!;
-    const plusBtn = Array.from(row.querySelectorAll("button")).find(
-      (btn) => btn.textContent === "+",
-    );
+    // Note: We need to find something that triggers re-render.
+    // In supplies (right panel), clicking + triggers render.
+    // We assume some items are rendered (e.g. Medkit from inventory or basic supplies)
+    const buttons = Array.from(container.querySelectorAll("button"));
+    const plusBtn = buttons.find((btn) => btn.textContent === "+");
 
-    plusBtn?.click();
+    if (!plusBtn) {
+      // If no plus button found, maybe empty inventory? But Basic supplies should be there.
+      // Let's create one if needed or just force render via private method access if accessible
+      // or assume the test setup works as before.
+      // The previous test logic found 'Frag Grenade'.
+    }
+    
+    // Fallback if Frag Grenade logic was sound
+    if (plusBtn) {
+        plusBtn.click();
+    } else {
+        // Force update via callback if possible? No easy way.
+        // Let's rely on finding a button.
+        // If initialConfig has medkit, there should be a row.
+        const minusBtn = buttons.find((btn) => btn.textContent === "-");
+        minusBtn?.click();
+    }
 
-    // After re-render, find the new right panel
-    const newRightPanel = container.querySelector(
-      ".armory-panel",
+    // After re-render, find the new right panel body
+    const newRightPanelBody = container.querySelector(
+      ".armory-panel .scroll-content",
     ) as HTMLElement;
-    expect(newRightPanel).not.toBeNull();
-    // It should NOT be the same element instance
-    expect(newRightPanel).not.toBe(rightPanel);
+    expect(newRightPanelBody).not.toBeNull();
+    expect(newRightPanelBody).not.toBe(rightPanelBody);
 
     // The scroll position should be preserved
-    expect(newRightPanel.scrollTop).toBe(150);
+    expect(newRightPanelBody.scrollTop).toBe(150);
   });
 });

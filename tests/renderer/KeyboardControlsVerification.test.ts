@@ -36,9 +36,12 @@ describe("KeyboardControlsVerification", () => {
       vi.fn(), // currentGameState
       () => false, // isDebriefing
       vi.fn(), // onDeployUnit
+      vi.fn(), // onUndeployUnit
       vi.fn(), // getCellCoordinates
       cycleUnits,
       panMap,
+      vi.fn(), // panMapBy
+      vi.fn(), // zoomMap
     );
     inputManager.init();
   });

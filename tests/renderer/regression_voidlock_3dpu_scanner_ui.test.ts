@@ -39,8 +39,8 @@ describe("Regression voidlock-3dpu: Scanner UI Targeting", () => {
     const renderState = controller.getRenderableState(mockState);
 
     // Should show friendly units as targets (u1, u2)
-    const unit1Option = renderState.options.find((o) => o.label.includes("U1"));
-    const unit2Option = renderState.options.find((o) => o.label.includes("U2"));
+    const unit1Option = renderState.options.find((o) => o.label.includes("u1"));
+    const unit2Option = renderState.options.find((o) => o.label.includes("u2"));
     expect(unit1Option).toBeDefined();
     expect(unit2Option).toBeDefined();
 
@@ -57,7 +57,7 @@ describe("Regression voidlock-3dpu: Scanner UI Targeting", () => {
 
     const renderState = controller.getRenderableState(mockState);
     const unit1Option = renderState.options.find((o) =>
-      o.label.includes("U1"),
+      o.label.includes("u1"),
     )!;
 
     controller.handleMenuInput(unit1Option.key, mockState);

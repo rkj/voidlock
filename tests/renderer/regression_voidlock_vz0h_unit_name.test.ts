@@ -72,13 +72,10 @@ describe("MenuController - Unit Selection Names", () => {
     controller.handleMenuInput("5", mockState); // Hold
 
     const state = controller.getRenderableState(mockState);
-    // stateMachine.state is private, check title instead
-    expect(state.title).toBe("SELECT UNIT(S)");
+    expect(state.title).toBe("Select Unit(s)");
 
     const unitOption = state.options.find((o) => o.key === "1");
     expect(unitOption).toBeDefined();
-    // Currently it likely displays "1. soldier_172342343_1 (1)"
-    // We want it to display "1. Recruit 5 (1)"
-    expect(unitOption?.label).toBe("1. RECRUIT 5 (1)");
+    expect(unitOption?.label).toBe("1. Recruit 5 (1)");
   });
 });

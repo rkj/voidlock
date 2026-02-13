@@ -53,7 +53,10 @@ Only once Docs are updated, map work to `bd`.
 - **Types:** `feature`, `bug`, `chore`, `task`, `epic`. (Refactor is NOT a type, use chore).
 - **Title:** Concise, one-sentence summary.
 - **Spec Linkage:** Description MUST start with: "Implements `docs/spec/file.md#section`".
-- **Verification Mandate:** For UI/Input tasks, add a COMMENT with the verification requirements. NEVER overwrite the user's original description.
+- **Verification Mandate:** For UI/Input tasks, add a COMMENT with the verification requirements:
+  - **Focus Stability**: "Verify focus is preserved/moved correctly after action."
+  - **Scroll Stability**: "Verify scroll position is maintained after updates."
+  - **Casing**: "Verify text follows Title Case standard (No ALL CAPS)."
 - **No Backticks:** NEVER use backticks (`) in `--description`. Use single quotes or plain text.
 
 **Command Reference:**

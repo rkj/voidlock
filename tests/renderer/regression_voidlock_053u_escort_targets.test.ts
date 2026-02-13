@@ -19,6 +19,7 @@ describe("Regression voidlock-053u: Escort Target Validity", () => {
         width: 10,
         height: 10,
         cells: [{ x: 0, y: 0, type: CellType.Floor, roomId: "room-1" }],
+        extraction: { x: 5, y: 5 },
       },
       units: [
         {
@@ -60,21 +61,21 @@ describe("Regression voidlock-053u: Escort Target Validity", () => {
   it("should only show VIPs and Artifact Carriers in TARGET_SELECT for ESCORT", () => {
     // Navigate to Orders -> Escort
     controller.handleMenuInput("1", mockState); // Orders
-    controller.handleMenuInput("4", mockState); // Escort (assuming key 4 as per existing tests)
+    controller.handleMenuInput("4", mockState); // Escort
 
     const renderState = controller.getRenderableState(mockState);
 
     // Valid targets
     const vipOption = renderState.options.find((o) =>
-      o.label.includes("THE VIP"),
+      o.label.includes("The VIP"),
     );
     const carrierOption = renderState.options.find((o) =>
-      o.label.includes("ARTIFACT CARRIER"),
+      o.label.includes("Artifact Carrier"),
     );
 
     // Invalid target
     const soldierOption = renderState.options.find((o) =>
-      o.label.includes("SOLDIER 1"),
+      o.label.includes("Soldier 1"),
     );
 
     expect(vipOption).toBeDefined();
@@ -108,7 +109,7 @@ describe("Regression voidlock-053u: Escort Target Validity", () => {
 
     const renderState = controller.getRenderableState(mockState);
     const escortOption = renderState.options.find((o) =>
-      o.label.includes("ESCORT"),
+      o.label.includes("Escort"),
     );
 
     expect(escortOption).toBeDefined();
@@ -121,21 +122,21 @@ describe("Regression voidlock-053u: Escort Target Validity", () => {
 
     // Navigate to Use Item -> Scanner
     controller.handleMenuInput("3", mockState); // Use Item
-    controller.handleMenuInput("1", mockState); // Select Scanner (assuming it's first)
+    controller.handleMenuInput("1", mockState); // Select Scanner
 
     expect(controller.menuState).toBe("TARGET_SELECT");
 
     const renderState = controller.getRenderableState(mockState);
 
-    // Should show all 3 units from the original mockState setup in beforeEach
+    // Should show all 3 units
     const soldierOption = renderState.options.find((o) =>
-      o.label.includes("SOLDIER 1"),
+      o.label.includes("Soldier 1"),
     );
     const vipOption = renderState.options.find((o) =>
-      o.label.includes("THE VIP"),
+      o.label.includes("The VIP"),
     );
     const carrierOption = renderState.options.find((o) =>
-      o.label.includes("ARTIFACT CARRIER"),
+      o.label.includes("Artifact Carrier"),
     );
 
     expect(soldierOption).toBeDefined();

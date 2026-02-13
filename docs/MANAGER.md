@@ -66,8 +66,13 @@ If a task is Rejected or Failed:
 1. **Test**: Run `npx vitest run <PATH_TO_TEST>`. Use `--reporter=basic`.
 1. **Test Robustness Audit**:
    - Inspect the test file code. Does it use mocks that bypass the bug? (e.g., manually firing an event instead of using the mouse).
+   - **Mock Integrity**: Check if the agent modified class signatures (e.g. constructors). If so, verify that they updated ALL manual mocks in test files. "Function not found" errors are often lazy refactors.
    - Does it verify the *negative* case? (e.g., "Element should NOT exist").
    - **Happy Path Rejection**: If the test only checks the success scenario without verifying the failure mode or edge cases, **REJECT** the task.
+1. **UI State Audit**: For tasks involving UI re-renders or updates:
+   - **Focus Check**: Does the code explicitly save/restore focus? (Search for `FocusManager`).
+   - **Scroll Check**: Does the code explicitly save/restore `scrollTop`?
+   - If missing, **REJECT** with instruction to implement state preservation.
 1. **Regression Audit**:
    - Before closing, search closed beads for similar titles (`bd list --status closed | grep <keyword>`).
    - If duplicates exist, verify the fix works where previous attempts failed.

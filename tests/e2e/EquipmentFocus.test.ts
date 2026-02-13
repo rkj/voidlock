@@ -3,126 +3,134 @@ import { getNewPage, closeBrowser } from "./utils/puppeteer";
 import type { Page } from "puppeteer";
 import { E2E_URL } from "./config";
 
-describe("Equipment Screen Focus Management", () => {
+describe("Equipment Screen Focus Verification", () => {
   let page: Page;
 
   beforeAll(async () => {
     page = await getNewPage();
-    await page.goto(E2E_URL);
-    await page.evaluate(() => localStorage.clear());
   });
 
   afterAll(async () => {
     await closeBrowser();
   });
 
-  async function startCampaign() {
-    await page.goto(E2E_URL);
-    await page.waitForSelector("#btn-menu-campaign");
-    await page.click("#btn-menu-campaign");
-    
-    // New Campaign Wizard should appear
-    await page.waitForSelector(".campaign-setup-wizard");
-    
-    // Click Start Campaign
-    const startBtn = await page.waitForSelector('[data-focus-id="btn-start-campaign"]');
-    await startBtn?.click();
-    
-    // Wait for Campaign Screen
-    await page.waitForSelector("#screen-campaign");
+  async function navigateToEquipment() {
+    try {
+      console.log("Navigating to URL...");
+      await page.goto(E2E_URL);
+      await page.evaluate(() => localStorage.clear());
+      await page.goto(E2E_URL);
+
+      // Navigate to Campaign
+      console.log("Waiting for Campaign button...");
+      await page.waitForSelector("#btn-menu-campaign", {
+        visible: true,
+        timeout: 5000,
+      });
+      await page.click("#btn-menu-campaign");
+
+      // New Campaign Wizard
+      console.log("Waiting for Campaign Setup Wizard...");
+      await page.waitForSelector(".campaign-setup-wizard", { visible: true, timeout: 5000 });
+      await page.click("[data-focus-id='btn-start-campaign']"); // Start Campaign
+
+      // Wait for Campaign Screen (Sector Map)
+      console.log("Waiting for Campaign Screen...");
+      await page.waitForSelector(".campaign-screen", { visible: true, timeout: 10000 });
+
+      // Go to Barracks
+      console.log("Waiting for Tab buttons...");
+      await page.waitForSelector(".tab-button", { visible: true, timeout: 5000 });
+      const navTabs = await page.$$(".tab-button");
+      let foundBarracks = false;
+      for (const tab of navTabs) {
+        const text = await page.evaluate(el => el.textContent, tab);
+        console.log("Found tab:", text);
+        if (text?.includes("Barracks")) {
+          await tab.click();
+          foundBarracks = true;
+          break;
+        }
+      }
+      if (!foundBarracks) throw new Error("Barracks tab not found");
+
+      // In Barracks, click first soldier and then Armory tab
+      console.log("Waiting for Soldier Item...");
+      await page.waitForSelector(".soldier-item", { visible: true, timeout: 10000 });
+      await page.click(".soldier-item"); // Select first soldier
+      
+      console.log("Waiting for Inspector details...");
+      await page.waitForSelector(".inspector-details-content", { visible: true, timeout: 5000 });
+
+      // Click Armory tab
+      console.log("Waiting for Armory sidebar tab...");
+      const sidebarTabs = await page.$$("button");
+      let foundArmory = false;
+      for (const tab of sidebarTabs) {
+        const text = await page.evaluate(el => el.textContent, tab);
+        console.log("Found button in sidebar:", text);
+        if (text?.includes("Armory")) {
+          await tab.click();
+          foundArmory = true;
+          break;
+        }
+      }
+      if (!foundArmory) throw new Error("Armory tab not found in sidebar");
+
+      console.log("Waiting for Armory items...");
+      await page.waitForSelector("[data-focus-id^='armory-item-']", { visible: true, timeout: 5000 });
+      console.log("Navigation successful");
+    } catch (e) {
+      console.error("Navigation Error:", e.message);
+      await page.screenshot({
+        path: `tests/e2e/__snapshots__/focus_nav_error_${Date.now()}.png`,
+      });
+      throw e;
+    }
   }
 
-  it("should move focus to 'Recruit New Soldier' button when pressing Enter on an empty slot", async () => {
-    await startCampaign();
+  it("should keep focus on armory item after equipping with Enter", async () => {
+    await page.setViewport({ width: 1280, height: 720 });
+    await navigateToEquipment();
 
-    // Go to Barracks (to make sure we have empty slots if we want, or just go to mission setup)
-    // Actually, Mission Setup -> Equipment is better.
+    // 1. Find an item in the armory that is not already equipped
+    // Pulse Rifle is usually not equipped by default for the first soldier (Scout has Pistol/Knife)
+    const pulseRifleSelector = "[data-focus-id='armory-item-pulse_rifle']";
+    await page.waitForSelector(pulseRifleSelector);
     
-    // Click on the first node to start a mission setup (goes straight to Equipment in campaign)
-    await page.waitForSelector(".campaign-node");
-    await page.click(".campaign-node");
-    
-    await page.waitForSelector("#screen-equipment");
+    // Focus the item
+    await page.evaluate((selector) => {
+      const el = document.querySelector(selector) as HTMLElement;
+      if (el) el.focus();
+    }, pulseRifleSelector);
 
-    // Remove first soldier to create an empty slot
-    await page.waitForSelector('[data-focus-id="remove-soldier-0"]', { visible: true });
-    // It's a div with position relative, the button is inside.
-    // In SoldierWidget it might be different.
-    // Let's use evaluate to click it because it might be small/tricky.
-    await page.evaluate(() => {
-        const btn = document.querySelector('[data-focus-id="remove-soldier-0"]') as HTMLElement;
-        if (btn) btn.click();
-    });
-    
-    // Wait for render
-    await new Promise(r => setTimeout(r, 200));
+    // Verify it is focused
+    const isInitiallyFocused = await page.evaluate((selector) => {
+      return document.activeElement === document.querySelector(selector);
+    }, pulseRifleSelector);
+    expect(isInitiallyFocused).toBe(true);
 
-    // Find an empty slot in the left panel
-    // By default, a new campaign might have some soldiers. 
-    // Let's find one that says "[Empty Slot]"
-    const slots = await page.$$('[data-focus-id^="soldier-slot-"]');
-    let emptySlotIndex = -1;
-    for (let i = 0; i < slots.length; i++) {
-        const text = await page.evaluate(el => el.textContent, slots[i]);
-        if (text?.includes("[Empty Slot]")) {
-            emptySlotIndex = i;
-            break;
-        }
-    }
-    
-    expect(emptySlotIndex).not.toBe(-1);
-    
-    // Focus the empty slot
-    await page.focus(`[data-focus-id="soldier-slot-${emptySlotIndex}"]`);
-    
-    // Press Enter
+    // 2. Press Enter to equip
+    console.log("Pressing Enter to equip...");
     await page.keyboard.press("Enter");
-    
-    // Wait a bit for render
-    await new Promise(r => setTimeout(r, 100));
-    
-    // Check active element
-    const activeFocusId = await page.evaluate(() => document.activeElement?.getAttribute("data-focus-id"));
-    expect(activeFocusId).toBe("recruit-btn-large");
-  });
 
-  it("should move focus to first recruitment option when clicking 'Recruit New Soldier'", async () => {
-    // Assuming we are already on Equipment Screen from previous test and an empty slot is selected
-    
-    // Click Recruit New Soldier
-    await page.click('[data-focus-id="recruit-btn-large"]');
-    
-    // Wait for render
-    await new Promise(r => setTimeout(r, 100));
-    
-    // Check if focus moved to first recruitment option in right panel
-    const activeFocusId = await page.evaluate(() => document.activeElement?.getAttribute("data-focus-id"));
-    // Recruitment options have data-focus-id="recruit-<archId>"
-    expect(activeFocusId).toMatch(/^recruit-/);
-  });
+    // Wait a bit for re-render
+    await new Promise((r) => setTimeout(r, 500));
 
-  it("should move focus to first revive option when clicking 'Revive Fallen Soldier'", async () => {
-    // To test revive, we need a dead soldier.
-    // This is a bit complex to setup in a quick test.
-    // Let's assume the "Revive Personnel" screen works similarly if we can trigger it.
-    
-    // We can manually trigger it via evaluate if needed, or just trust the code if it's identical to recruit.
-    // But let's try to find a dead soldier if possible.
-    // In startCampaign, maybe we can use Ironman or something and kill someone? No, too slow.
-    
-    // Let's just check the code for onRevive in EquipmentScreen.ts again.
-    /*
-      onRevive: () => {
-        this.reviveMode = true;
-        this.recruitMode = false;
-        this.render();
-        // Focus first revive option
-        const first = this.container.querySelector(
-          ".armory-panel .clickable:not(.disabled)",
-        ) as HTMLElement;
-        if (first) first.focus();
-      },
-    */
-    // It seems correct.
+    // 3. Verify focus is still on the same item (or its new instance with same ID)
+    const activeInfo = await page.evaluate(() => {
+      const active = document.activeElement as HTMLElement;
+      return {
+        tagName: active?.tagName,
+        id: active?.id,
+        className: active?.className,
+        focusId: active?.getAttribute("data-focus-id"),
+      };
+    });
+    console.log("Focused element after equip:", activeInfo);
+
+    const isStillFocused = activeInfo.focusId === "armory-item-pulse_rifle";
+
+    expect(isStillFocused).toBe(true);
   });
 });

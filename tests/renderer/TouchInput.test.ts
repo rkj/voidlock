@@ -31,10 +31,11 @@ describe("InputManager Touch Gestures", () => {
       vi.fn(),
       () => null,
       () => false,
-      vi.fn(),
-      () => ({ x: 0, y: 0 }),
-      vi.fn(),
-      vi.fn(),
+      vi.fn(), // onDeployUnit
+      vi.fn(), // onUndeployUnit
+      () => ({ x: 0, y: 0 }), // getCellCoordinates
+      vi.fn(), // cycleUnits
+      vi.fn(), // panMap
       panMapBy,
       zoomMap,
     );

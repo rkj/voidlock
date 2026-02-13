@@ -16,7 +16,7 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
 
     initialConfig = {
       soldiers: [
-        { id: "soldier-1", archetypeId: "assault", name: "Dead Soldier" },
+        { id: "soldier-1", archetypeId: "assault", name: "Dead Soldier", body: "light_recon" },
         { id: "soldier-2", archetypeId: "medic", name: "Healthy Soldier" },
       ],
       inventory: {},
@@ -31,7 +31,7 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
             id: "soldier-1",
             name: "Dead Soldier",
             status: "Dead",
-            equipment: { rightHand: "pulse_rifle", leftHand: "combat_knife" },
+            equipment: { rightHand: "pulse_rifle", leftHand: "combat_knife", body: "light_recon" },
             maxHp: 100,
             soldierAim: 90,
           },
@@ -69,9 +69,8 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
     // 1. Select the dead soldier (already selected as index 0)
 
     // 2. Try to change weapon from armory
-    const shotgunBtn = Array.from(
-      container.querySelectorAll(".menu-item.clickable"),
-    ).find((el) => el.textContent?.includes("Shotgun")) as HTMLElement;
+    const buttons = Array.from(container.querySelectorAll(".armory-item"));
+    const shotgunBtn = buttons.find((el) => el.textContent?.includes("Shotgun")) as HTMLElement;
 
     expect(shotgunBtn).toBeTruthy();
     shotgunBtn.click();
@@ -94,16 +93,20 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
     );
     screen.show();
 
-    // 1. Find the remove button for Pulse Rifle in the paper doll
+    // 1. Find the remove button for Body in the paper doll (optional slot)
     const slots = Array.from(container.querySelectorAll(".paper-doll-slot"));
-    const primarySlot = slots.find((s) =>
-      s.textContent?.includes("Right Hand"),
+    const secondarySlot = slots.find((s) =>
+      s.textContent?.includes("Body"),
     );
-    const removeBtn = primarySlot?.querySelector(
+    
+    // With body set in initialConfig, it should be rendered
+    const removeBtn = secondarySlot?.querySelector(
       ".slot-remove-btn",
     ) as HTMLElement;
 
     expect(removeBtn).toBeTruthy();
+    
+    // Try clicking it
     removeBtn.click();
 
     // 2. Verify assignEquipment was NOT called
