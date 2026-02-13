@@ -5,9 +5,8 @@ You are an AI contributor agent. Your goal is to implement features or fix bugs 
 ## 1. Core Workflow
 
 1. **AMBIGUITY / BLOCKER**: If you cannot proceed without human input (e.g., missing design, ambiguous spec):
-   - **Log**: Comment with the specific question or blocker.
-   - **Escalate**: Run `bd update <ID> --parent voidlock-xyoaw --status blocked`.
-   - **Exit**: Terminate execution.
+   - **Log**: Summarize the specific question or blocker in your final output.
+   - **Exit**: Terminate execution. The Manager will handle the escalation.
 1. **INHERITANCE CHECK**: Run `jj diff --git`. If the working copy is not clean, you are inheriting a failed attempt.
    - **Analyze**: Read the changes. Are they salvageable?
    - **Salvage**: If yes, continue from where they left off.

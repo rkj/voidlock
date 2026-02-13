@@ -30,6 +30,7 @@ At the start of every session, run:
 
 1. **Context Validation**: Ensure the Beads task description links to **ADRs** and **Specs**.
 1. **Adding Context**: Use `bd comments add <TASK_ID> "<NEW_INFO>"` to provide error logs or visual audit screenshots from the PM phase.
+1. **Verification of Claim**: After dispatching, wait 2-3 minutes. If `bd show <ID>` still shows status as `open`, the agent has likely crashed or failed to start. **REJECT** and retry.
 1. **No Backticks**: NEVER use backticks (`) in command arguments.
 
 ## 3. Verification & Quality Control (The Audit)

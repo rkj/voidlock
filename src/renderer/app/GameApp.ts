@@ -741,6 +741,9 @@ export class GameApp {
         break;
       }
       case "equipment": {
+        if (isCampaign && !this.missionSetupManager.currentCampaignNode) {
+          this.missionSetupManager.rehydrateCampaignNode();
+        }
         this.applyCampaignTheme();
         const isCurrentlyCampaign =
           isCampaign || !!this.missionSetupManager.currentCampaignNode;
@@ -872,6 +875,7 @@ export class GameApp {
     this.missionSetupManager.currentSquad = config;
     // Navigate back to Mission Setup instead of launching immediately
     const isCampaign = !!this.missionSetupManager.currentCampaignNode;
+    this.missionSetupManager.loadAndApplyConfig(isCampaign);
     this.switchScreen("mission-setup", isCampaign);
     if (isCampaign) {
       this.context.campaignShell.show("campaign", "sector-map", false);
