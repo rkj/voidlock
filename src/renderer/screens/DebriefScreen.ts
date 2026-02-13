@@ -136,6 +136,8 @@ export class DebriefScreen {
   private render() {
     if (!this.report) return;
 
+    const isWon = this.report.result === "Won";
+
     this.container.innerHTML = "";
     this.container.className = "screen debrief-screen";
     this.container.style.display = "flex";

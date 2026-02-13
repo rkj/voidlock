@@ -187,9 +187,21 @@ export class CampaignScreen {
     canvas.style.pointerEvents = "none";
     container.appendChild(canvas);
 
+    const currentId = state.currentNodeId;
+    const currentNode = currentId ? nodes.find((n) => n.id === currentId) : null;
+
     // Nodes
     nodes.forEach((node) => {
-      const isCurrent = state.currentNodeId === node.id;
+      const isCurrent = currentId === node.id;
+
+      // Focus restriction: Only the current node and its direct connections are focusable
+      // (as per docs/spec/campaign.md#3-1-the-sector-map)
+      const isNextNode = currentNode
+        ? currentNode.connections.includes(node.id) &&
+          node.status === "Accessible"
+        : node.status === "Accessible";
+      const isFocusable = isCurrent || isNextNode;
+
       const nodeEl = document.createElement("div");
       nodeEl.className = `campaign-node ${node.status.toLowerCase()}`;
       if (isCurrent) nodeEl.className += " current";
@@ -197,7 +209,7 @@ export class CampaignScreen {
       nodeEl.style.position = "absolute";
       nodeEl.style.left = `${node.position.x + 100}px`;
       nodeEl.style.top = `${node.position.y + 100}px`;
-      nodeEl.tabIndex = 0; // Make focusable
+      nodeEl.tabIndex = isFocusable ? 0 : -1;
 
       const statusText =
         node.status === "Revealed"
