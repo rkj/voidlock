@@ -4,10 +4,12 @@ You are an AI contributor agent. Your goal is to implement features or fix bugs 
 
 ## 1. Core Workflow
 
-1. **AMBIGUITY / BLOCKER**: If you cannot proceed without human input (e.g., missing design, ambiguous spec):
-   - **Log**: Summarize the specific question or blocker in your final output.
+1. **INITIALIZE**: Run `bd show <TASK_ID> --json` to retrieve the full task details, description, and comments. This is your source of truth.
+2. **BEADS CONSTRAINT**: You are allowed to use `bd show` and `bd comments add`. You are strictly forbidden from using `bd update`, `bd create`, or `bd close`.
+3. **AMBIGUITY / BLOCKER**: If you cannot proceed without human input (e.g., missing design, ambiguous spec):
+   - **Signal**: Use `bd comments add <ID> "BLOCKER: <Describe the issue>"` to notify the team.
    - **Exit**: Terminate execution. The Manager will handle the escalation.
-1. **INHERITANCE CHECK**: Run `jj diff --git`. If the working copy is not clean, you are inheriting a failed attempt.
+4. **INHERITANCE CHECK**: Run `jj diff --git`. If the working copy is not clean, you are inheriting a failed attempt.
    - **Analyze**: Read the changes. Are they salvageable?
    - **Salvage**: If yes, continue from where they left off.
    - **Discard**: If garbage, run `jj restore .` to start fresh.
