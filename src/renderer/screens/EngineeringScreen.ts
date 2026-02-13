@@ -140,13 +140,15 @@ export class EngineeringScreen {
     const unlockedItems = stats.unlockedItems;
 
     this.container.innerHTML = "";
-    this.container.className = "screen screen-centered flex-col gap-20 p-20";
-    this.container.style.overflowY = "auto";
+    this.container.className = "screen screen-centered flex-col p-20";
+    this.container.style.overflowY = "hidden";
 
     const h1 = document.createElement("h1");
     h1.textContent = "Engineering Bay";
     h1.style.letterSpacing = "4px";
     h1.style.color = "var(--color-primary)";
+    h1.style.flexShrink = "0";
+    h1.style.marginBottom = "20px";
     this.container.appendChild(h1);
 
     const intelDisplay = document.createElement("div");
@@ -154,15 +156,22 @@ export class EngineeringScreen {
     intelDisplay.style.background = "var(--color-surface-elevated)";
     intelDisplay.style.padding = "10px 20px";
     intelDisplay.style.border = "1px solid var(--color-accent)";
+    intelDisplay.style.flexShrink = "0";
+    intelDisplay.style.marginBottom = "20px";
     intelDisplay.innerHTML = `
       <span style="color: var(--color-text-dim); font-size: 0.8em;">Persistent Intel:</span>
       <span style="color: var(--color-accent); font-weight: bold; font-size: 1.2em;">${intel}</span>
     `;
     this.container.appendChild(intelDisplay);
 
+    const scrollContainer = document.createElement("div");
+    scrollContainer.className = "scroll-content w-full flex-col align-center";
+    this.container.appendChild(scrollContainer);
+
     const grid = document.createElement("div");
     grid.className = "engineering-grid flex-col gap-20 w-full";
     grid.style.maxWidth = "800px";
+    scrollContainer.appendChild(grid);
 
     // --- Archetypes Section ---
     const archHeader = document.createElement("h3");
@@ -218,8 +227,6 @@ export class EngineeringScreen {
       );
     });
     grid.appendChild(itemList);
-
-    this.container.appendChild(grid);
   }
 
   private createUnlockCard(

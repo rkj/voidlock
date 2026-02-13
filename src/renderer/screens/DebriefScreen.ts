@@ -149,20 +149,27 @@ export class DebriefScreen {
     summary.className = "debrief-summary";
     debriefContainer.appendChild(summary);
 
-    const isWon = this.report.result === "Won";
-
-    // Header
+    // Header (Fixed)
+    const headerSection = document.createElement("div");
+    headerSection.className = "flex-col flex-shrink-0";
+    
     const header = document.createElement("h1");
     header.textContent = isWon ? "Mission Success" : "Mission Failed";
     header.className = `debrief-header ${isWon ? "success" : "failed"}`;
-    summary.appendChild(header);
+    headerSection.appendChild(header);
 
     const subHeader = document.createElement("div");
     subHeader.textContent = isWon
       ? "All objectives completed."
       : "Squad wiped or mission aborted.";
     subHeader.className = "debrief-subheader";
-    summary.appendChild(subHeader);
+    headerSection.appendChild(subHeader);
+    summary.appendChild(headerSection);
+
+    // Scrollable Content
+    const scrollContent = document.createElement("div");
+    scrollContent.className = "scroll-content";
+    summary.appendChild(scrollContent);
 
     // Stats
     const statsPanel = this.createPanel("Mission Statistics");
@@ -186,7 +193,7 @@ export class DebriefScreen {
         </div>
       </div>
     `;
-    summary.appendChild(statsPanel);
+    scrollContent.appendChild(statsPanel);
 
     // Squad
     const squadPanel = this.createPanel("Squad After-Action Report");
@@ -194,11 +201,11 @@ export class DebriefScreen {
       const soldierRow = SoldierWidget.render(res, { context: "debrief" });
       squadPanel.appendChild(soldierRow);
     });
-    summary.appendChild(squadPanel);
+    scrollContent.appendChild(squadPanel);
 
-    // Footer
+    // Footer (Fixed)
     const footer = document.createElement("div");
-    footer.className = "debrief-footer";
+    footer.className = "debrief-footer flex-shrink-0";
 
     const continueBtn = document.createElement("button");
     continueBtn.textContent = "Return to Command Bridge";

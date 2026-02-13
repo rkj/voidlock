@@ -184,9 +184,9 @@ export class EquipmentScreen {
     FocusManager.saveFocus();
 
     // Save scroll positions before clearing
-    const oldLeft = this.container.querySelector(".soldier-list-panel");
-    const oldCenter = this.container.querySelector(".soldier-equipment-panel");
-    const oldRight = this.container.querySelector(".armory-panel");
+    const oldLeft = this.container.querySelector(".soldier-list-panel .scroll-content");
+    const oldCenter = this.container.querySelector(".soldier-equipment-panel .scroll-content");
+    const oldRight = this.container.querySelector(".armory-panel .scroll-content");
     if (oldLeft) this.savedScrollTop.left = oldLeft.scrollTop;
     if (oldCenter) this.savedScrollTop.center = oldCenter.scrollTop;
     if (oldRight) this.savedScrollTop.right = oldRight.scrollTop;
@@ -204,19 +204,15 @@ export class EquipmentScreen {
     contentWrapper.style.minHeight = "0"; // Crucial for nested flex scrolling
 
     // Left: Soldier List
-    const leftPanel = this.createPanel("Soldier List", "250px");
+    const { panel: leftPanel, body: leftBody } = this.createPanel("Soldier List", "250px");
     leftPanel.classList.add("soldier-list-panel");
-    leftPanel.style.overflowY = "auto";
-    leftPanel.style.padding = "10px";
-    this.renderSoldierList(leftPanel);
+    leftBody.style.padding = "10px";
+    this.renderSoldierList(leftBody);
 
     // Center: Paper Doll / Slots
-    const centerPanel = this.createPanel("Soldier Equipment", "1fr");
+    const { panel: centerPanel, body: centerBody } = this.createPanel("Soldier Equipment", "1fr");
     centerPanel.classList.add("soldier-equipment-panel");
-    centerPanel.style.overflowY = "auto";
-    centerPanel.style.padding = "10px";
-    const centerBody = document.createElement("div");
-    centerPanel.appendChild(centerBody);
+    centerBody.style.padding = "10px";
     this.inspector.setSoldier(this.config.soldiers[this.selectedSoldierIndex]);
     this.inspector.renderDetails(centerBody);
 
@@ -227,19 +223,18 @@ export class EquipmentScreen {
     else if (this.reviveMode) rightPanelTitle = "Revive Personnel";
     else if (isSlotEmpty) rightPanelTitle = "Reserve Roster";
 
-    const rightPanel = this.createPanel(rightPanelTitle, "400px");
+    const { panel: rightPanel, body: rightBody } = this.createPanel(rightPanelTitle, "400px");
     rightPanel.classList.add("armory-panel");
-    rightPanel.style.overflowY = "auto";
-    rightPanel.style.padding = "10px";
+    rightBody.style.padding = "10px";
 
     if (this.recruitMode) {
-      this.renderRecruitmentPicker(rightPanel);
+      this.renderRecruitmentPicker(rightBody);
     } else if (this.reviveMode) {
-      this.renderRevivePicker(rightPanel);
+      this.renderRevivePicker(rightBody);
     } else if (isSlotEmpty) {
-      this.renderRosterPicker(rightPanel);
+      this.renderRosterPicker(rightBody);
     } else {
-      this.renderRightPanel(rightPanel);
+      this.renderRightPanel(rightBody);
     }
 
     contentWrapper.appendChild(leftPanel);
@@ -248,9 +243,9 @@ export class EquipmentScreen {
     this.container.appendChild(contentWrapper);
 
     // Restore scroll positions
-    leftPanel.scrollTop = this.savedScrollTop.left;
-    centerPanel.scrollTop = this.savedScrollTop.center;
-    rightPanel.scrollTop = this.savedScrollTop.right;
+    leftBody.scrollTop = this.savedScrollTop.left;
+    centerBody.scrollTop = this.savedScrollTop.center;
+    rightBody.scrollTop = this.savedScrollTop.right;
 
     // Restore focus
     FocusManager.restoreFocus(this.container);
@@ -291,7 +286,7 @@ export class EquipmentScreen {
     this.container.appendChild(footer);
   }
 
-  private createPanel(title: string, width: string): HTMLElement {
+  private createPanel(title: string, width: string): { panel: HTMLElement, body: HTMLElement } {
     const panel = document.createElement("div");
     panel.className = "panel";
     panel.style.width = width === "1fr" ? "auto" : width;
@@ -300,9 +295,14 @@ export class EquipmentScreen {
     const h2 = document.createElement("h2");
     h2.className = "panel-title";
     h2.textContent = title;
+    h2.style.flexShrink = "0";
     panel.appendChild(h2);
 
-    return panel;
+    const body = document.createElement("div");
+    body.className = "scroll-content";
+    panel.appendChild(body);
+
+    return { panel, body };
   }
 
   private renderSoldierList(panel: HTMLElement) {
