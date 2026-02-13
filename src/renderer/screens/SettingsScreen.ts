@@ -94,20 +94,31 @@ export class SettingsScreen {
     const global = ConfigManager.loadGlobal();
 
     this.container.innerHTML = "";
-    this.container.className = "screen screen-centered flex-col gap-20 p-20";
-    this.container.style.overflowY = "auto";
+    this.container.className = "screen screen-centered flex-col p-20";
+    this.container.style.overflowY = "hidden"; // Enforce internal scroll only
 
     const h1 = document.createElement("h1");
     h1.textContent = "Global Settings";
     h1.style.letterSpacing = "4px";
     h1.style.color = "var(--color-primary)";
+    h1.style.marginBottom = "20px";
+    h1.style.flexShrink = "0";
     this.container.appendChild(h1);
+
+    // Internal Scroll Container
+    const scrollContainer = document.createElement("div");
+    scrollContainer.className = "settings-content flex-col gap-20 p-20 flex-grow w-full";
+    scrollContainer.style.overflowY = "auto";
+    scrollContainer.style.minHeight = "0"; // Critical for flex-grow + overflow
+    scrollContainer.style.maxWidth = "800px"; // Better readability
+    scrollContainer.style.margin = "0 auto";
+    this.container.appendChild(scrollContainer);
 
     const settingsGrid = document.createElement("div");
     settingsGrid.className = "flex-col gap-20 p-20";
     settingsGrid.style.background = "var(--color-surface-elevated)";
     settingsGrid.style.border = "1px solid var(--color-border-strong)";
-    settingsGrid.style.minWidth = "500px";
+    settingsGrid.style.width = "100%";
 
     // Visual Style Section
     const styleGroup = document.createElement("div");
@@ -505,12 +516,13 @@ export class SettingsScreen {
     resetGroup.appendChild(resetBtn);
     settingsGrid.appendChild(resetGroup);
 
-    this.container.appendChild(settingsGrid);
+    scrollContainer.appendChild(settingsGrid);
 
     // Actions
     const actions = document.createElement("div");
     actions.className = "flex-row justify-center w-full p-20";
     actions.style.maxWidth = "540px";
+    actions.style.flexShrink = "0";
 
     const backBtn = document.createElement("button");
     backBtn.className = "menu-button back-button";

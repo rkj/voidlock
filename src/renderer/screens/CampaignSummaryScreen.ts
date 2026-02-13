@@ -68,28 +68,41 @@ export class CampaignSummaryScreen {
 
     const isVictory = this.state.status === "Victory";
     this.container.innerHTML = "";
-    this.container.className = `screen campaign-summary-screen ${isVictory ? "campaign-victory-overlay" : "campaign-game-over"}`;
+    this.container.className = `screen campaign-summary-screen flex-col h-full ${isVictory ? "campaign-victory-overlay" : "campaign-game-over"}`;
+    this.container.style.display = "flex";
+    this.container.style.overflow = "hidden";
 
     // Scanline effect
     const scanline = document.createElement("div");
     scanline.className = "scanline";
     this.container.appendChild(scanline);
 
-    // Header
+    // Header container
+    const headerContainer = document.createElement("div");
+    headerContainer.className = "flex-col align-center p-20";
+    headerContainer.style.flexShrink = "0";
+
     const header = document.createElement("h1");
     header.className = "summary-header";
+    header.style.margin = "0";
     header.textContent = isVictory ? "Sector Secured" : "Mission Failed";
-    this.container.appendChild(header);
+    headerContainer.appendChild(header);
 
     const subHeader = document.createElement("h2");
     subHeader.className = "summary-subheader";
+    subHeader.style.margin = "0";
     subHeader.textContent = isVictory ? "Victory" : "Sector Lost";
-    this.container.appendChild(subHeader);
+    headerContainer.appendChild(subHeader);
+    
+    this.container.appendChild(headerContainer);
 
-    // Main Content
+    // Scrollable Content
+    const scrollContent = document.createElement("div");
+    scrollContent.className = "scroll-content flex-col align-center w-full p-20";
+    
     const content = document.createElement("div");
     content.className = "summary-content";
-    this.container.appendChild(content);
+    scrollContent.appendChild(content);
 
     // Left: Stats
     const statsPanel = this.createPanel("Campaign Statistics");
@@ -164,13 +177,20 @@ export class CampaignSummaryScreen {
     rosterPanel.appendChild(rosterList);
     content.appendChild(rosterPanel);
 
+    this.container.appendChild(scrollContent);
+
     // Footer
     const footer = document.createElement("div");
-    footer.className = "summary-footer";
+    footer.className = "summary-footer flex-row justify-center p-20 w-full";
+    footer.style.flexShrink = "0";
+    footer.style.borderTop = "1px solid var(--color-border-strong)";
+    footer.style.backgroundColor = "rgba(0,0,0,0.5)";
+    footer.style.marginTop = "0"; // Override CSS margin-top
 
     const btn = document.createElement("button");
     btn.textContent = isVictory ? "Retire to Main Menu" : "Abandon Expedition";
     btn.className = `summary-button ${isVictory ? "primary-button" : "danger-button"}`;
+    btn.style.margin = "0";
 
     btn.onclick = () => this.onMainMenu();
     footer.appendChild(btn);

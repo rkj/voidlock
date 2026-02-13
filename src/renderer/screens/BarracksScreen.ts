@@ -116,21 +116,16 @@ export class BarracksScreen {
     contentWrapper.style.minHeight = "0"; // Crucial for nested flex scrolling
 
     // Left: Roster List
-    const leftPanel = this.createPanel("Roster", "300px");
-    leftPanel.style.overflowY = "auto";
-    this.renderRoster(leftPanel);
+    const { panel: leftPanel, body: leftBody } = this.createPanel("Roster", "300px");
+    this.renderRoster(leftBody);
 
     // Center: Soldier Details & Equipment
-    const centerPanel = this.createPanel("Soldier Details", "1fr");
-    centerPanel.style.overflowY = "auto";
-    const centerBody = document.createElement("div");
-    centerPanel.appendChild(centerBody);
+    const { panel: centerPanel, body: centerBody } = this.createPanel("Soldier Details", "1fr");
     this.renderSoldierDetails(centerBody);
 
     // Right: Recruitment & Store
-    const rightPanel = this.createPanel("", "400px");
-    rightPanel.style.overflowY = "auto";
-    this.renderRightSidebar(rightPanel);
+    const { panel: rightPanel, body: rightBody } = this.createPanel("", "400px");
+    this.renderRightSidebar(rightBody);
 
     contentWrapper.appendChild(leftPanel);
     contentWrapper.appendChild(centerPanel);
@@ -156,7 +151,7 @@ export class BarracksScreen {
     this.container.appendChild(footer);
   }
 
-  private createPanel(title: string, width: string): HTMLElement {
+  private createPanel(title: string, width: string): { panel: HTMLElement, body: HTMLElement } {
     const panel = document.createElement("div");
     panel.className = "panel";
     panel.style.width = width === "1fr" ? "auto" : width;
@@ -166,10 +161,15 @@ export class BarracksScreen {
       const h2 = document.createElement("h2");
       h2.className = "panel-title";
       h2.textContent = title;
+      h2.style.flexShrink = "0";
       panel.appendChild(h2);
     }
 
-    return panel;
+    const body = document.createElement("div");
+    body.className = "scroll-content";
+    panel.appendChild(body);
+
+    return { panel, body };
   }
 
   private renderRoster(panel: HTMLElement) {

@@ -63,12 +63,15 @@ body.theme-hive {
   --color-floor: #050008;
 }
 
+html,
 body {
   margin: 0;
   overflow: hidden;
   background-color: var(--color-bg);
   color: var(--color-text);
   font-family: "Courier New", Courier, monospace;
+  width: 100vw;
+  height: 100vh;
 }
 
 /* Focus Management (ADR 0037) */
@@ -629,6 +632,32 @@ label {
   overflow: hidden;
 }
 
+/* Scrollbar Discipline (Spec 11.2) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-dim);
+}
+
+.scroll-content {
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex-grow: 1;
+  min-height: 0;
+}
+
 /* Panel Styles */
 .panel {
   display: flex;
@@ -636,8 +665,8 @@ label {
   border: 1px solid var(--color-border-strong);
   background: var(--color-bg);
   padding: 15px;
-  overflow-y: auto;
   position: relative;
+  overflow: hidden; /* Default to hidden, let children scroll */
 }
 
 .panel-title {

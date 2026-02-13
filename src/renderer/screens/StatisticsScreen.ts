@@ -63,21 +63,28 @@ export class StatisticsScreen {
     const stats = MetaManager.getInstance().getStats();
 
     this.container.innerHTML = "";
-    this.container.className = "screen screen-centered flex-col align-center gap-20 p-20";
+    this.container.className = "screen screen-centered flex-col align-center p-20";
     this.container.style.display = "flex";
-    this.container.style.overflowY = "auto";
+    this.container.style.overflowY = "hidden";
 
     const h1 = document.createElement("h1");
     h1.textContent = "Service Record";
     h1.style.letterSpacing = "4px";
     h1.style.color = "var(--color-primary)";
+    h1.style.flexShrink = "0";
+    h1.style.marginBottom = "20px";
     this.container.appendChild(h1);
+
+    const scrollContainer = document.createElement("div");
+    scrollContainer.className = "scroll-content w-full flex-col align-center";
+    this.container.appendChild(scrollContainer);
 
     const statsGrid = document.createElement("div");
     statsGrid.className = "flex-col gap-10 p-20";
     statsGrid.style.background = "var(--color-surface-elevated)";
     statsGrid.style.border = "1px solid var(--color-border-strong)";
     statsGrid.style.minWidth = "400px";
+    scrollContainer.appendChild(statsGrid);
 
     const createStatRow = (
       label: string,
