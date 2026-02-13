@@ -328,6 +328,7 @@ export class EquipmentScreen {
         const removeBtn = document.createElement("button");
         removeBtn.className = "remove-soldier-btn slot-remove";
         removeBtn.setAttribute("data-focus-id", `remove-soldier-${i}`);
+        removeBtn.tabIndex = -1;
         removeBtn.innerHTML = "×";
         removeBtn.title = "Remove from Squad";
         removeBtn.onclick = (e) => {
