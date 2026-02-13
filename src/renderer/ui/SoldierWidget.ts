@@ -29,6 +29,7 @@ export interface SoldierWidgetOptions {
   prefix?: string;
   price?: string;
   onClick?: (e: MouseEvent) => void;
+  onDoubleClick?: (e: MouseEvent) => void;
   onRename?: () => void;
   isDeployed?: boolean; // for squad-builder
 }
@@ -88,6 +89,9 @@ export class SoldierWidget {
     if (options.onClick) {
       container.classList.add("clickable");
       container.onclick = options.onClick;
+      if (options.onDoubleClick) {
+        container.ondblclick = options.onDoubleClick;
+      }
       container.tabIndex = 0;
       container.onkeydown = (e) => {
         if (e.key === "Enter" || e.key === " ") {

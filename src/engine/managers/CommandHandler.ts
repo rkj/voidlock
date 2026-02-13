@@ -33,9 +33,10 @@ export class CommandHandler {
 
           if (!isValidSpawn) return;
 
-          // Check if target is occupied
+          // Check if target is occupied by an already deployed unit
           const targetUnit = state.units.find(
             (u) =>
+              u.isDeployed !== false &&
               Math.floor(u.pos.x) === Math.floor(cmd.target.x) &&
               Math.floor(u.pos.y) === Math.floor(cmd.target.y),
           );
