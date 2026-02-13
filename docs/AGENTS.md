@@ -45,6 +45,12 @@ You are an AI contributor agent. Your goal is to implement features or fix bugs 
 - **SOLID**: Adhere strictly to SOLID principles.
 - **File Length**: cross 500 lines? Refactor. 1000 lines? MANDATORY decomposition.
 - **Spec-Driven**: Match `docs/spec/` exactly. Do not invent.
+- **UI State Preservation**: When refactoring UI that uses `innerHTML` replacement or re-renders, you **MUST** implement explicit state preservation for:
+  - **Focus**: Use `FocusManager.saveFocus()` and `restoreFocus()`.
+  - **Scroll Position**: Capture `scrollTop` of scrollable containers before render and restore it after.
+- **Test Stability**:
+  - **Selectors**: Prefer `data-testid`, `data-focus-id`, or stable logical IDs over visible text. Visual text changes (e.g. Casing) should not break logic tests.
+  - **Signature Sync**: If you change a class constructor or method signature, you **MUST** search the codebase (specifically `tests/`) for manual mocks or instantiations and update them immediately.
 
 ## 3. Completion Checklist
 

@@ -135,7 +135,7 @@ describe("Mission Setup Context Header", () => {
     customBtn?.click();
 
     const contextHeader = document.getElementById("mission-setup-context");
-    expect(contextHeader?.textContent).toBe("CUSTOM SIMULATION");
+    expect(contextHeader?.textContent).toBe("Custom Simulation");
   });
 
   it("should show campaign info when entering campaign mission", async () => {
@@ -207,7 +207,7 @@ describe("Mission Setup Context Header", () => {
       const contextHeader = document.getElementById("mission-setup-context");
       // Mission 3 because history has 2 items. Sector 3 from state.
       expect(contextHeader?.textContent).toBe(
-        "CAMPAIGN: STANDARD | MISSION 3 | SECTOR 3",
+        "Campaign: Standard | Mission 3 | Sector 3",
       );
     }
   });

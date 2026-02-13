@@ -452,6 +452,7 @@ export class SoldierInspector {
       const priceClass =
         isOwned || isCurrentlyEquipped ? "price-owned" : "price-cost";
 
+      btn.setAttribute("data-focus-id", `armory-item-${item.id}`);
       btn.innerHTML = `
             <div class="armory-item-content" style="width: 100%;">
                 <div class="armory-item-header" style="width: 100%; display: flex; justify-content: space-between;">

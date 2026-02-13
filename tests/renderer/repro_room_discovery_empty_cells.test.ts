@@ -78,12 +78,12 @@ describe("MenuController Room Discovery Repro", () => {
 
     const renderState = controller.getRenderableState(optimizedState);
     const roomOptions = renderState.options.filter((o) =>
-      o.label.includes("ROOM"),
+      o.label.includes("Room"),
     );
 
     // This should now PASS
     expect(roomOptions.length).toBe(2);
-    expect(roomOptions[0].label).toBe("1. ROOM 1");
-    expect(roomOptions[1].label).toBe("2. ROOM 2");
+    expect(roomOptions[0].label).toBe("1. Room 1");
+    expect(roomOptions[1].label).toBe("2. Room 2");
   });
 });

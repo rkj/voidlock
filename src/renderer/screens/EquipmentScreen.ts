@@ -437,6 +437,7 @@ export class EquipmentScreen {
           this.render();
         },
       });
+      item.setAttribute("data-focus-id", `roster-${soldier.id}`);
       panel.appendChild(item);
     });
   }
@@ -560,13 +561,13 @@ export class EquipmentScreen {
             body: arch.body,
             feet: arch.feet,
           };
-          this.autoAdvanceSlot();
-          this.render();
-        },
-      });
-
-      panel.appendChild(item);
-    });
+                    this.autoAdvanceSlot();
+                    this.render();
+                  },
+                });
+                item.setAttribute("data-focus-id", `archetype-${arch.id}`);
+                panel.appendChild(item);
+              });
   }
 
   private autoAdvanceSlot() {
@@ -630,6 +631,7 @@ export class EquipmentScreen {
 
       const minus = document.createElement("button");
       minus.textContent = "-";
+      minus.setAttribute("data-focus-id", `supply-minus-${item.id}`);
       minus.style.padding = "2px 8px";
       minus.onclick = () => {
         if (count > 0) {
@@ -645,6 +647,7 @@ export class EquipmentScreen {
 
       const plus = document.createElement("button");
       plus.textContent = "+";
+      plus.setAttribute("data-focus-id", `supply-plus-${item.id}`);
       plus.style.padding = "2px 8px";
       if (count >= 2) {
         plus.disabled = true;

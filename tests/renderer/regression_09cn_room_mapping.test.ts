@@ -65,12 +65,12 @@ describe("MenuController Room Mapping Regression (09cn)", () => {
     controller.handleMenuInput("1", state1); // Select MOVE TO ROOM
     let renderState = controller.getRenderableState(state1);
     let roomOptions = renderState.options.filter((o) =>
-      o.label.includes("ROOM"),
+      o.label.includes("Room"),
     );
 
     expect(roomOptions.length).toBe(1);
     expect(roomOptions[0].key).toBe("1");
-    expect(roomOptions[0].label).toBe("1. ROOM 1");
+    expect(roomOptions[0].label).toBe("1. Room 1");
 
     const state2 = {
       ...state1,
@@ -79,13 +79,13 @@ describe("MenuController Room Mapping Regression (09cn)", () => {
 
     // Live update check
     renderState = controller.getRenderableState(state2);
-    roomOptions = renderState.options.filter((o) => o.label.includes("ROOM"));
+    roomOptions = renderState.options.filter((o) => o.label.includes("Room"));
 
     expect(roomOptions.length).toBe(2);
     expect(roomOptions[0].key).toBe("1");
-    expect(roomOptions[0].label).toBe("1. ROOM 1");
+    expect(roomOptions[0].label).toBe("1. Room 1");
     expect(roomOptions[1].key).toBe("2");
-    expect(roomOptions[1].label).toBe("2. ROOM 2");
+    expect(roomOptions[1].label).toBe("2. Room 2");
   });
 
   it("should use A-Z after 1-9", () => {
@@ -113,7 +113,7 @@ describe("MenuController Room Mapping Regression (09cn)", () => {
     controller.handleMenuInput("1", manyRoomsState); // Select MOVE TO ROOM
     const renderState = controller.getRenderableState(manyRoomsState);
     const roomOptions = renderState.options.filter((o) =>
-      o.label.includes("ROOM"),
+      o.label.includes("Room"),
     );
 
     expect(roomOptions.length).toBe(15);

@@ -54,7 +54,7 @@ describe("GlobalShortcuts & Help Overlay", () => {
     expect(backdrop.style.display).toBe("flex");
 
     const title = backdrop.querySelector("h2");
-    expect(title?.textContent).toBe("KEYBOARD SHORTCUTS");
+    expect(title?.textContent).toBe("Keyboard Shortcuts");
   });
 
   it("should display active shortcuts in Help Overlay", () => {

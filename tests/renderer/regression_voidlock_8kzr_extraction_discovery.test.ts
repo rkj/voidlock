@@ -57,7 +57,7 @@ describe("MenuController - Extraction Discovery Regression", () => {
     // Extraction point is at (5, 5), and discoveredCells is empty
     const state = controller.getRenderableState(mockState);
     const extractOption = state.options.find((o) =>
-      o.label.includes("EXTRACT"),
+      o.label.includes("Extract"),
     );
 
     expect(extractOption).toBeDefined();
@@ -72,7 +72,7 @@ describe("MenuController - Extraction Discovery Regression", () => {
     };
     const state = controller.getRenderableState(discoveredState);
     const extractOption = state.options.find((o) =>
-      o.label.includes("EXTRACT"),
+      o.label.includes("Extract"),
     );
 
     expect(extractOption).toBeDefined();
@@ -90,7 +90,7 @@ describe("MenuController - Extraction Discovery Regression", () => {
     };
     const state = controller.getRenderableState(bitsetState);
     const extractOption = state.options.find((o) =>
-      o.label.includes("EXTRACT"),
+      o.label.includes("Extract"),
     );
 
     expect(extractOption).toBeDefined();
@@ -108,7 +108,7 @@ describe("MenuController - Extraction Discovery Regression", () => {
     };
     const state = controller.getRenderableState(noExtractionState);
     const extractOption = state.options.find((o) =>
-      o.label.includes("EXTRACT"),
+      o.label.includes("Extract"),
     );
 
     expect(extractOption).toBeDefined();
