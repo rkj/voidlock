@@ -33,7 +33,7 @@ export class InputDispatcher {
   }
 
   public pushContext(context: InputContext) {
-    (context as any)._order = this.nextOrder++;
+    context._order = this.nextOrder++;
 
     const existingIndex = this.contextStack.findIndex(
       (c) => c.id === context.id,
@@ -47,7 +47,7 @@ export class InputDispatcher {
       const pA = a.priority || 0;
       const pB = b.priority || 0;
       if (pB !== pA) return pB - pA;
-      return ((b as any)._order || 0) - ((a as any)._order || 0);
+      return (b._order || 0) - (a._order || 0);
     });
 
     if (context.trapsFocus) {
@@ -194,7 +194,8 @@ export class InputDispatcher {
         'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
       ),
     ).filter((el) => {
-      if (!(el as any).disabled && this.isVisible(el)) {
+      const control = el as unknown as { disabled?: boolean };
+      if (!control.disabled && this.isVisible(el)) {
         return true;
       }
       return false;

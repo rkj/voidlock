@@ -435,8 +435,9 @@ export class BarracksScreen {
           this.manager.recruitSoldier(archId);
           this.render();
           if (this.onUpdate) this.onUpdate();
-        } catch (err: any) {
-          this.modalService.alert(err.message);
+        } catch (err: unknown) {
+          const message = err instanceof Error ? err.message : String(err);
+          this.modalService.alert(message);
         }
       };
       card.appendChild(recruitBtn);

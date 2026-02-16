@@ -11,6 +11,7 @@ import {
   EngineMode,
   CommandLogEntry,
   CommandType,
+  UseItemCommand,
 } from "@src/shared/types";
 import { PRNG } from "../shared/PRNG";
 import { MathUtils } from "../shared/utils/MathUtils";
@@ -370,7 +371,7 @@ export class CoreEngine {
     this.enemyManager.addEnemy(this.state, enemy);
   }
 
-  public handleUseItem(state: GameState, cmd: any): void {
+  public handleUseItem(state: GameState, cmd: UseItemCommand): void {
     this.director.handleUseItem(state, cmd);
   }
 

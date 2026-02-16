@@ -27,4 +27,20 @@ export interface StorageProvider {
    * Clear all data from storage.
    */
   clear(): void;
+
+  /**
+   * Optional: Returns the current synchronization status.
+   */
+  getSyncStatus?(): string;
+
+  /**
+   * Optional: Loads data from storage and optionally performs a cloud sync check.
+   * @param key Unique key for the data.
+   */
+  loadWithSync?<T>(key: string): Promise<T | null>;
+
+  /**
+   * Optional: Returns the cloud sync service associated with this provider.
+   */
+  getCloudSync?(): unknown;
 }

@@ -323,9 +323,7 @@ export class CampaignShell {
   }
 
   private updateSyncUI(el: HTMLElement) {
-    const status = (this.manager as any).getSyncStatus
-      ? this.manager.getSyncStatus()
-      : "local-only";
+    const status = this.manager.getSyncStatus();
     let icon = "💾";
     let text = "Local Only";
     let className = "local";

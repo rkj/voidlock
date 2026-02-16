@@ -28,10 +28,11 @@ export class UIUtils {
       ),
     ).filter((el) => {
       const style = window.getComputedStyle(el);
+      const control = el as unknown as { disabled?: boolean };
       return (
         style.display !== "none" &&
         style.visibility !== "hidden" &&
-        !(el as any).disabled
+        !control.disabled
       );
     });
 
