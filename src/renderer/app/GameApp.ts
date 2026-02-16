@@ -106,8 +106,8 @@ export class GameApp {
 
     await this.context.campaignManager.load();
     this.context.modalService = new ModalService();
-    this.context.screenManager = new ScreenManager((id) =>
-      this.handleExternalScreenChange(id),
+    this.context.screenManager = new ScreenManager((id, isCampaign) =>
+      this.handleExternalScreenChange(id, isCampaign),
     );
 
     this.context.campaignShell = new CampaignShell(
@@ -123,13 +123,6 @@ export class GameApp {
       "screen-mission-setup",
       () => {
         this.context.screenManager.goBack();
-        const screen = this.context.screenManager.getCurrentScreen();
-        if (screen === "campaign") {
-          this.context.campaignShell.show("campaign", "sector-map");
-        } else {
-          this.context.campaignShell.hide();
-          this.showMainMenu();
-        }
       },
     );
     this.context.missionSetupScreen = this.missionSetupScreen;
@@ -364,12 +357,6 @@ export class GameApp {
       },
       onSetupBack: () => {
         this.context.screenManager.goBack();
-        const screen = this.context.screenManager.getCurrentScreen();
-        if (screen === "campaign") {
-          this.context.campaignShell.show("campaign", "sector-map");
-        } else {
-          this.context.campaignShell.hide();
-        }
       },
       onLaunchMission: () => this.launchMission(),
       onMapGeneratorChange: (type: MapGeneratorType) => {

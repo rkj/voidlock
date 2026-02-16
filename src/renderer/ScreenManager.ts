@@ -20,11 +20,11 @@ export class ScreenManager {
   private currentScreen: ScreenId = "main-menu";
   private history: { id: ScreenId; isCampaign: boolean }[] = [];
   private sessionManager: SessionManager;
-  private onExternalChange?: (id: ScreenId) => void;
+  private onExternalChange?: (id: ScreenId, isCampaign: boolean) => void;
   private currentIsCampaign: boolean = false;
   private isInternalTransition: boolean = false;
 
-  constructor(onExternalChange?: (id: ScreenId) => void) {
+  constructor(onExternalChange?: (id: ScreenId, isCampaign: boolean) => void) {
     this.sessionManager = new SessionManager();
     this.onExternalChange = onExternalChange;
     this.registerScreen("main-menu");
@@ -141,7 +141,7 @@ export class ScreenManager {
       if (validNext && validNext.includes(hash)) {
         this.show(hash, false, this.isCampaignMode(hash));
         if (this.onExternalChange) {
-          this.onExternalChange(hash);
+          this.onExternalChange(hash, this.isCampaignMode(hash));
         }
       } else {
         Logger.warn(
@@ -149,7 +149,7 @@ export class ScreenManager {
         );
         this.forceShow(hash, this.isCampaignMode(hash));
         if (this.onExternalChange) {
-          this.onExternalChange(hash);
+          this.onExternalChange(hash, this.isCampaignMode(hash));
         }
       }
     }
@@ -190,6 +190,9 @@ export class ScreenManager {
       if (prev) {
         this.forceShow(prev.id, prev.isCampaign);
         this.updateHash(prev.id);
+        if (this.onExternalChange) {
+          this.onExternalChange(prev.id, prev.isCampaign);
+        }
       }
     } else {
       this.show("main-menu");
