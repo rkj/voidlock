@@ -51,37 +51,45 @@ The application is divided into distinct screens to reduce UI clutter and improv
 ### Mission Setup Screen (formerly Config Screen)
 
 - **Shell Integration**:
+
   - **Campaign Mode**: MUST be rendered _within_ the `CampaignShell` content area.
   - **Custom Mode**: MUST be rendered _within_ a consistent layout shell, even if not in a campaign, to ensure unified navigation.
 
 - **Layout & Accessibility**:
+
   - **Scrollability**: The configuration area MUST have a vertical scrollbar if content exceeds the viewport height (especially when "Advanced Settings" are expanded). The "Initialize Expedition" or "Launch Mission" button MUST remain accessible.
   - **Unification**: The "Visual Style & Theme" section within the configuration panel MUST be a simple status display or a link to the Global Settings. Redundant dropdowns/buttons that duplicate Global Settings MUST be removed to avoid confusion.
 
 - **Campaign Context Header**:
+
   - **Location**: Below the "Mission Configuration" title.
   - **Content**:
     - **Campaign Mode**: "Campaign: [Difficulty] | Mission [N] | Sector [N]"
     - **Custom Mode**: "Custom Simulation"
 
 - **Map Configuration**:
+
   - Generator Type (Procedural, TreeShip, Static).
   - Seed Input / Randomize.
   - Map Size (Width/Height).
   - Static Map Import (Text/File/ASCII).
 
 - **Global Settings Override (Optional)**:
+
   - Small text or icon indicating current Visual Style/Theme (read-only or quick link to Settings).
 
 - **Game Options**:
+
   - Fog of War, Debug Overlay, LOS Visualization toggles.
 
 - **Game Speed Control**:
+
   - **Slider Range**: 0.1x to 10.0x (Fast Forward). Default 1.0x.
   - **Active Pause**: Speed 0.05x acts as "Active Pause".
   - **Controls**: Spacebar toggles Active Pause.
 
 - **Command Set Updates:**
+
   - `ENGAGE/IGNORE Toggle`: Units can be toggled between 'ENGAGE' and 'IGNORE' policies.
   - **Unified Squad Selection & Deployment:**
     - **Concept**: Selecting a soldier and placing them on the map are combined into a single workflow. A soldier on the map is "In the Squad". A soldier in the roster is "Benched".
@@ -104,6 +112,7 @@ The application is divided into distinct screens to reduce UI clutter and improv
       - **Roster**: Deployed soldiers are dimmed or marked "On Map".
 
 - **Actions**:
+
   - "Next: Squad & Gear" -> Proceed to Squad Management.
   - "Back" -> Main Menu.
 
@@ -126,25 +135,26 @@ The application is divided into distinct screens to reduce UI clutter and improv
   - "Dead" soldiers in roster cannot be equipped.
 
 ### 3. Mission Screen (Active Gameplay)
-   - **Phase: Deployment** (Initial State)
-     - **Top Bar**: "Deployment Phase".
-     - **Left Panel**: Hidden or displays Mission Briefing.
-     - **Center (Canvas)**: Renders the map with **Green Highlighted** Spawn Points.
-     - **Right Panel (Deployment Control)**:
-       - **Squad List**: Interactive list of all assigned soldiers.
-         - **Status**: Indicates "Deployed (on map)" or "Pending".
-         - **Interaction**: Draggable items.
-       - **Start Mission**: Button (Enabled only when all units are validly placed).
-     - **Interaction**:
-       - **Drag & Drop**: Drag soldier from **Right Panel** to a **Green Spawn Point** on map.
-       - **Re-position**: Drag soldier from one map tile to another.
-       - **Auto-Fill**: Button/Double-click to assign random valid spots.
-   - **Phase: Active** (After Start)
-     - **Main View**: Canvas/WebGL rendering of the game world.
-     - **Left Panel**: Squad List (Health, Status) + Quick Commands.
-     - **Right Panel**: Objectives, Extraction, Threat, Intel.
-   - **Input**:
-     - `ESC`: Opens **Pause Overlay** (Resume / Abort Mission).
+
+- **Phase: Deployment** (Initial State)
+  - **Top Bar**: "Deployment Phase".
+  - **Left Panel**: Hidden or displays Mission Briefing.
+  - **Center (Canvas)**: Renders the map with **Green Highlighted** Spawn Points.
+  - **Right Panel (Deployment Control)**:
+    - **Squad List**: Interactive list of all assigned soldiers.
+      - **Status**: Indicates "Deployed (on map)" or "Pending".
+      - **Interaction**: Draggable items.
+    - **Start Mission**: Button (Enabled only when all units are validly placed).
+  - **Interaction**:
+    - **Drag & Drop**: Drag soldier from **Right Panel** to a **Green Spawn Point** on map.
+    - **Re-position**: Drag soldier from one map tile to another.
+    - **Auto-Fill**: Button/Double-click to assign random valid spots.
+- **Phase: Active** (After Start)
+  - **Main View**: Canvas/WebGL rendering of the game world.
+  - **Left Panel**: Squad List (Health, Status) + Quick Commands.
+  - **Right Panel**: Objectives, Extraction, Threat, Intel.
+- **Input**:
+  - `ESC`: Opens **Pause Overlay** (Resume / Abort Mission).
 
 ### 8.2 Debug affordances (non-negotiable for balancing)
 
@@ -169,6 +179,7 @@ Clicking "Copy World State" captures a comprehensive snapshot of the session.
 - **Format:** JSON
 
 - **Contents**:
+
   - `replayData`: Seed, Map Definition, Squad Config, and the full Command History.
   - `currentState`: The full `GameState` object from the engine.
   - `mapGenerator`: The name of the generator algorithm used (e.g., "TreeShipGenerator").
@@ -176,11 +187,13 @@ Clicking "Copy World State" captures a comprehensive snapshot of the session.
   - `timestamp`: System time of export.
 
 - **Destination:** System Clipboard (primary) and Console (fallback).
+
   - **Constraint:** Must check for `navigator.clipboard` availability. If unavailable (e.g., non-secure context), strictly fallback to `console.log` and alert the user.
 
 - **Usage:** This JSON can be attached to bug reports or used with "Load Replay" to reproduce exact states.
 
 - **Legacy Requirements:**
+
   - Navmesh/path display
   - Spawn intensity heatmaps
   - Deterministic replay import/export (ReplayData)
@@ -194,27 +207,27 @@ For detailed Command behaviors, see **[Command System & AI](commands.md)**.
 
 To ensure consistent navigation, the UI follows a strict state machine.
 
-| Current State            | Input / Trigger     | Next State        | Action / Side Effect                               |
+| Current State | Input / Trigger | Next State | Action / Side Effect |
 | :----------------------- | :------------------ | :---------------- | :------------------------------------------------- |
-| **Action Select** (Root) | `1` (Orders)        | **Orders Select** | Show Order Submenu                                 |
-|                          | `2` (Engage)        | **Mode Select**   | Show Mode Submenu                                  |
-|                          | `3` (Use Item)      | **Item Select**   | Show Inventory List                                |
-|                          | `4` (Pickup)        | **Target Select** | Filter: Loot Items                                 |
-|                          | `5` (Extract)       | **Unit Select**   | Filter: All Units                                  |
-| **Orders Select**        | `1` (Move)          | **Target Select** | Filter: Rooms                                      |
-|                          | `2` (Overwatch)     | **Target Select** | Filter: Intersections                              |
-|                          | `3` (Explore)       | **Unit Select**   | Filter: All Units                                  |
-|                          | `4` (Escort)        | **Target Select** | Filter: Friendly Units                             |
-|                          | `5` (Hold)          | **Unit Select**   | Filter: All Units                                  |
-|                          | `Q` / `ESC`         | **Action Select** | Clear Submenu                                      |
-| **Item Select**          | `1-9` (Select Item) | **Target Select** | Filter: Contextual (See below)                     |
-|                          | `Q` / `ESC`         | **Action Select** | Clear Inventory                                    |
-| **Mode Select**          | `1-2` (Select Mode) | **Unit Select**   | Set Pending Mode                                   |
-|                          | `Q` / `ESC`         | **Action Select** | Clear Submenu                                      |
-| **Target Select**        | `1-9` / Click       | **Unit Select**   | Set Pending Target                                 |
-|                          | `Q` / `ESC`         | _Previous State_  | **CRITICAL:** Return to parent (Order/Item/Action) |
-| **Unit Select**          | `1-9` (Select Unit) | **Action Select** | **EXECUTE COMMAND**                                |
-|                          | `Q` / `ESC`         | _Previous State_  | Return to Target/Mode selection                    |
+| **Action Select** (Root) | `1` (Orders) | **Orders Select** | Show Order Submenu |
+| | `2` (Engage) | **Mode Select** | Show Mode Submenu |
+| | `3` (Use Item) | **Item Select** | Show Inventory List |
+| | `4` (Pickup) | **Target Select** | Filter: Loot Items |
+| | `5` (Extract) | **Unit Select** | Filter: All Units |
+| **Orders Select** | `1` (Move) | **Target Select** | Filter: Rooms |
+| | `2` (Overwatch) | **Target Select** | Filter: Intersections |
+| | `3` (Explore) | **Unit Select** | Filter: All Units |
+| | `4` (Escort) | **Target Select** | Filter: Friendly Units |
+| | `5` (Hold) | **Unit Select** | Filter: All Units |
+| | `Q` / `ESC` | **Action Select** | Clear Submenu |
+| **Item Select** | `1-9` (Select Item) | **Target Select** | Filter: Contextual (See below) |
+| | `Q` / `ESC` | **Action Select** | Clear Inventory |
+| **Mode Select** | `1-2` (Select Mode) | **Unit Select** | Set Pending Mode |
+| | `Q` / `ESC` | **Action Select** | Clear Submenu |
+| **Target Select** | `1-9` / Click | **Unit Select** | Set Pending Target |
+| | `Q` / `ESC` | _Previous State_ | **CRITICAL:** Return to parent (Order/Item/Action) |
+| **Unit Select** | `1-9` (Select Unit) | **Action Select** | **EXECUTE COMMAND** |
+| | `Q` / `ESC` | _Previous State_ | Return to Target/Mode selection |
 
 **Item Targeting Context:**
 
@@ -384,6 +397,7 @@ To ensure economic clarity, all strategic and setup screens must follow a consis
 To ensure consistency between Campaign Management (Barracks) and Mission Preparation (Ready Room), the following components must be shared:
 
 - **Soldier Inspector (Loadout UI):**
+
   - **Usage:** Used in both **BarracksScreen** and **EquipmentScreen**.
   - **Layout:**
     - **Left:** Soldier Stats (Attributes).
@@ -495,11 +509,7 @@ The application must remain navigable even in the event of a catastrophic logic 
 
 ### 8.13 Geometric LOS/LOF Constraints
 
-
-
 To ensure consistency between the visual representation and the simulation logic:
-
-
 
 - **Door Struts**: Doors only occupy the middle 1/3 of a cell boundary. The outer 1/3 segments (struts) MUST always block LOS and LOF, regardless of the door's state.
 
@@ -507,15 +517,9 @@ To ensure consistency between the visual representation and the simulation logic
 
 - **Corner Cutting**: Shots passing extremely close to wall corners MUST be blocked if any part of the unit's radius would collide with the corner.
 
-
-
 ## 9. Accessibility & Input (Epic)
 
-
-
 The game must be fully playable without a mouse, catering to power users and accessibility needs.
-
-
 
 - **Keyboard First**: Every UI element (buttons, lists, map tiles) must be navigable and actionable via keyboard.
 
@@ -535,15 +539,9 @@ The game must be fully playable without a mouse, catering to power users and acc
 
   - **Overlay**: A modal displaying all current context-relevant keyboard shortcuts.
 
-
-
 ## 10. Mobile Responsiveness (Epic)
 
-
-
 The interface must adapt to small touch screens without losing functionality.
-
-
 
 - **Layout Adaptation**:
 
@@ -559,19 +557,13 @@ The interface must adapt to small touch screens without losing functionality.
 
 - **Scale**: UI scaling factor adjustment for high-DPI (Retina) mobile displays to ensure readability.
 
-
-
 ## 11. Visual Polish & Typography
-
-
 
 ### 11.1 Casing Standards
 
 - **Strict Title Case**: All UI buttons, headers, menu actions, and labels MUST use **Title Case** (e.g., "Deploy Squad", "Enter Shop").
 
 - **No All-Caps**: The use of ALL CAPS is strictly forbidden, except for specific, established acronyms (e.g., "HUD", "XP", "HP"). If a "shouting" effect is desired for narrative events, it must be achieved via font weight or color, not casing.
-
-
 
 ### 11.2 Scrollbar Discipline
 

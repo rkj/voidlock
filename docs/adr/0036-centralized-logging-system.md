@@ -8,9 +8,9 @@ Accepted
 
 Currently, the application relies on raw `console.log`, `console.warn`, and `console.error` calls scattered throughout the codebase. This leads to several issues:
 
-1.  **Noise**: High-frequency logs (e.g., from AI behaviors or replay ticking) spam the console, making it difficult to spot critical errors.
-2.  **Production Safety**: Debug logs often leak into production builds, potentially exposing internal logic or impacting performance.
-3.  **Inconsistency**: There is no standard format or filtering mechanism for logs.
+1. **Noise**: High-frequency logs (e.g., from AI behaviors or replay ticking) spam the console, making it difficult to spot critical errors.
+1. **Production Safety**: Debug logs often leak into production builds, potentially exposing internal logic or impacting performance.
+1. **Inconsistency**: There is no standard format or filtering mechanism for logs.
 
 ## Decision
 

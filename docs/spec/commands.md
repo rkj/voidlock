@@ -6,18 +6,18 @@ All interactions with units are mediated through the `Command` object structure.
 
 ### 1.1 Command Types
 
-| Command           | Payload                                                       | Description                                                                   |
+| Command | Payload | Description |
 | :---------------- | :------------------------------------------------------------ | :---------------------------------------------------------------------------- |
-| `MOVE_TO`         | `target: Vector2`                                             | Move to a specific cell. Pathfinding handles obstacles.                       |
-| `STOP`            | -                                                             | Clear command queue and halt immediately.                                     |
-| `SET_ENGAGEMENT`  | `mode: "ENGAGE" \| "IGNORE"`                                  | **ENGAGE**: Auto-attack visible enemies. **IGNORE**: Hold fire (Stealth/Run). |
-| `OPEN_DOOR`       | `doorId: string`                                              | Interact with a door. Unit moves to interaction range first.                  |
-| `USE_ITEM`        | `itemId: string`, `target?: Vector2`, `targetUnitId?: string` | Use an inventory item. May require channeling (e.g., Medkit).                 |
-| `OVERWATCH_POINT` | `target: Vector2`                                             | Move to a strategic point (Intersection/Dead End) and hold angle.             |
-| `EXPLORE`         | -                                                             | Autonomous behavior: Move to nearest unexplored Fog of War.                   |
-| `ESCORT_UNIT`     | `targetId: string`                                            | Form a protective formation around a target unit.                             |
-| `PICKUP`          | `targetId: string`                                            | Move to and pick up a World Item (Loot).                                      |
-| `EXTRACT`         | -                                                             | Attempt to extract at the Extraction Zone.                                    |
+| `MOVE_TO` | `target: Vector2` | Move to a specific cell. Pathfinding handles obstacles. |
+| `STOP` | - | Clear command queue and halt immediately. |
+| `SET_ENGAGEMENT` | `mode: "ENGAGE" \| "IGNORE"` | **ENGAGE**: Auto-attack visible enemies. **IGNORE**: Hold fire (Stealth/Run). |
+| `OPEN_DOOR` | `doorId: string` | Interact with a door. Unit moves to interaction range first. |
+| `USE_ITEM` | `itemId: string`, `target?: Vector2`, `targetUnitId?: string` | Use an inventory item. May require channeling (e.g., Medkit). |
+| `OVERWATCH_POINT` | `target: Vector2` | Move to a strategic point (Intersection/Dead End) and hold angle. |
+| `EXPLORE` | - | Autonomous behavior: Move to nearest unexplored Fog of War. |
+| `ESCORT_UNIT` | `targetId: string` | Form a protective formation around a target unit. |
+| `PICKUP` | `targetId: string` | Move to and pick up a World Item (Loot). |
+| `EXTRACT` | - | Attempt to extract at the Extraction Zone. |
 
 > **Note:** `ATTACK_TARGET` has been removed. Soldiers autonomously prioritize targets based on logic (See Section 3).
 
@@ -109,12 +109,12 @@ Soldiers decide _who_ to shoot based on a priority heuristic, removing the need 
 
 These commands facilitate testing, balancing, and state reproduction.
 
-| Type                   | Direction      | Payload                | Description                                            |
+| Type | Direction | Payload | Description |
 | :--------------------- | :------------- | :--------------------- | :----------------------------------------------------- |
-| `TOGGLE_DEBUG_OVERLAY` | Main -> Worker | `{ enabled: boolean }` | Toggles debug visualizations (Coordinates, Raycasts).  |
-| `TOGGLE_LOS_OVERLAY`   | Main -> Worker | `{ enabled: boolean }` | Toggles Line-of-Sight polygons (Gradients).            |
-| `QUERY_STATE`          | Main -> Worker | `null`                 | Requests an immediate state snapshot.                  |
-| `STATE_UPDATE`         | Worker -> Main | `GameState`            | The serialized world state, including command history. |
+| `TOGGLE_DEBUG_OVERLAY` | Main -> Worker | `{ enabled: boolean }` | Toggles debug visualizations (Coordinates, Raycasts). |
+| `TOGGLE_LOS_OVERLAY` | Main -> Worker | `{ enabled: boolean }` | Toggles Line-of-Sight polygons (Gradients). |
+| `QUERY_STATE` | Main -> Worker | `null` | Requests an immediate state snapshot. |
+| `STATE_UPDATE` | Worker -> Main | `GameState` | The serialized world state, including command history. |
 
 ## 7. UI Interaction & Menu Flow
 
@@ -123,6 +123,7 @@ These commands facilitate testing, balancing, and state reproduction.
 **Navigation:** `Q` or `ESC` to Go Back.
 
 1. **Top Level (Action Select)**
+
    - `1. ORDERS` -> Transitions to **Orders Select**.
    - `2. ENGAGEMENT` -> Transitions to **Mode Select**.
    - `3. USE ITEM` -> Transitions to **Item Select**.
@@ -130,6 +131,7 @@ These commands facilitate testing, balancing, and state reproduction.
    - `5. EXTRACT` -> Immediate action (if in zone) or Move Command.
 
 1. **Orders Select**
+
    - `1. MOVE TO ROOM` -> **Target Select** (Room IDs).
    - `2. OVERWATCH INTERSECTION` -> **Target Select** (Intersections 1-9).
    - `3. ESCORT` -> **Unit Select** (Friendly Units).
@@ -137,8 +139,10 @@ These commands facilitate testing, balancing, and state reproduction.
    - `5. HOLD` -> **Unit Select**.
 
 1. **Target Select**
+
    - Displays overlays on map.
    - Selection sets the `target` Vector2 for the command.
 
 1. **Unit Select**
+
    - Selects which units receive the command (`u1`, `u2`, `ALL`).

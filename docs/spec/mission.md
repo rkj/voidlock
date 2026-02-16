@@ -8,12 +8,12 @@
 
 ## 2. Primary Objectives
 
-| Type                  | Goal             | Survival/Extraction Requirement                                             |
+| Type | Goal | Survival/Extraction Requirement |
 | :-------------------- | :--------------- | :-------------------------------------------------------------------------- |
-| **Search & Recover**  | Secure Artifact  | The **Artifact** must be carried and reach the Extraction Zone.             |
+| **Search & Recover** | Secure Artifact | The **Artifact** must be carried and reach the Extraction Zone. |
 | **Data Exfiltration** | Upload Data Disk | The **Data Disk** is uploaded after a 3s interaction. No extraction needed. |
-| **Extermination**     | Destroy Hives    | None. Mission succeeds once all Hives are destroyed.                        |
-| **Escort VIP**        | Extract VIP      | The **VIP** must reach the Extraction Zone alive.                           |
+| **Extermination** | Destroy Hives | None. Mission succeeds once all Hives are destroyed. |
+| **Escort VIP** | Extract VIP | The **VIP** must reach the Extraction Zone alive. |
 
 ## 3. Success & Failure Conditions
 

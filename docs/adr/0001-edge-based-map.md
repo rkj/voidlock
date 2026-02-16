@@ -50,11 +50,13 @@ interface Boundary {
 At runtime, the `GameGrid` hydrates the static data into a graph structure:
 
 1. **`Cell` Object**:
+
    - Coordinates: `x, y`.
    - `edges`: `{ N: Boundary | null, E: ..., S: ..., W: ... }`.
    - If `edges[dir]` is `null`, the path is open.
 
 1. **`Boundary` Object**:
+
    - **Shared Instance**: The boundary between `Cell(0,0)` and `Cell(1,0)` is a _single object_ referenced by `Cell(0,0).edges.E` and `Cell(1,0).edges.W`.
    - Properties: `type` ('Wall', 'Door'), `state` (Open/Closed), `hp`.
    - **Benefit**: Changing state on one side immediately affects the other.

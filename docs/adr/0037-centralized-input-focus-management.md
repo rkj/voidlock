@@ -55,13 +55,13 @@ When a keyboard event occurs, the `InputDispatcher`:
 
 We define standard priority tiers:
 
-| Tier        | Priority | Typical Contexts                               |
+| Tier | Priority | Typical Contexts |
 | :---------- | :------- | :--------------------------------------------- |
-| **System**  | 1000     | `ModalContext`, `AlertContext`                 |
-| **Overlay** | 500      | `HelpOverlayContext`, `DebugConsoleContext`    |
-| **UI**      | 100      | `ScreenContext` (Main Menu, Setup, Equipment)  |
-| **Game**    | 50       | `TacticalContext` (Game Engine & Command Menu) |
-| **Global**  | 0        | `GlobalShortcuts` (Pause, Debug Toggle)        |
+| **System** | 1000 | `ModalContext`, `AlertContext` |
+| **Overlay** | 500 | `HelpOverlayContext`, `DebugConsoleContext` |
+| **UI** | 100 | `ScreenContext` (Main Menu, Setup, Equipment) |
+| **Game** | 50 | `TacticalContext` (Game Engine & Command Menu) |
+| **Global** | 0 | `GlobalShortcuts` (Pause, Debug Toggle) |
 
 ### 4. Focus Management
 

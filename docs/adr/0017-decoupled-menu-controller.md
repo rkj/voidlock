@@ -19,19 +19,23 @@ We will refactor `MenuController` into a composite set of classes in `src/render
 ### Components
 
 1. **`MenuStateMachine`:**
+
    - Manages the stack of menu states (`MenuState[]`).
    - Handles transitions (`push`, `pop`, `reset`).
    - Pure logic, no knowledge of the renderer.
 
 1. **`SelectionManager`:**
+
    - Tracks the "Current Context": `selectedUnitId`, `hoveredCell`, `potentialTargets`.
    - Responsible for validating if a selection is legal.
 
 1. **`CommandBuilder`:**
+
    - Responsible for constructing the `Command` object.
    - Accumulates parameters (`pendingAction`, `pendingTarget`) and emits the final command.
 
 1. **`RoomDiscoveryManager`:**
+
    - Encapsulates the `cellToRoomId` and `discoveredRoomOrder` logic.
 
 ### Interaction

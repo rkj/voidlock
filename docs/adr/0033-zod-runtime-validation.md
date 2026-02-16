@@ -8,9 +8,9 @@
 The codebase currently has several locations where external data is parsed without proper schema validation:
 
 1. **Campaign Save/Load** (`CampaignManager.ts`) - LocalStorage data parsed with basic type checks
-2. **Uploaded Maps** (`GameApp.ts`) - User-provided JSON parsed with only try/catch
-3. **Mission Config** - Configuration objects passed between modules without validation
-4. **Future Cloud Sync** - Will require robust validation of server responses
+1. **Uploaded Maps** (`GameApp.ts`) - User-provided JSON parsed with only try/catch
+1. **Mission Config** - Configuration objects passed between modules without validation
+1. **Future Cloud Sync** - Will require robust validation of server responses
 
 Current approach uses manual type guards and `any`/`unknown` with ad-hoc validation:
 
@@ -38,20 +38,20 @@ We will integrate **Zod** for runtime schema validation at system boundaries.
 
 ### Why Zod
 
-| Library | Bundle Size | TypeScript Integration   | API Style   |
+| Library | Bundle Size | TypeScript Integration | API Style |
 | ------- | ----------- | ------------------------ | ----------- |
-| Zod     | ~12KB       | Excellent (infers types) | Declarative |
-| Yup     | ~15KB       | Good (separate types)    | Declarative |
-| io-ts   | ~8KB        | Excellent                | Functional  |
-| ajv     | ~30KB       | Requires codegen         | JSON Schema |
+| Zod | ~12KB | Excellent (infers types) | Declarative |
+| Yup | ~15KB | Good (separate types) | Declarative |
+| io-ts | ~8KB | Excellent | Functional |
+| ajv | ~30KB | Requires codegen | JSON Schema |
 
 Zod was selected because:
 
 1. **Type Inference**: Schema defines both runtime validation AND TypeScript type
-2. **Small Bundle**: ~12KB gzipped, acceptable for game project
-3. **Declarative API**: Readable, matches our codebase style
-4. **No Codegen**: Works at runtime without build step
-5. **Ecosystem**: Well-maintained, good documentation
+1. **Small Bundle**: ~12KB gzipped, acceptable for game project
+1. **Declarative API**: Readable, matches our codebase style
+1. **No Codegen**: Works at runtime without build step
+1. **Ecosystem**: Well-maintained, good documentation
 
 ### Implementation Plan
 
@@ -189,10 +189,10 @@ onLoadStaticMap: async (json: string) => {
 #### Phase 3: Migration Strategy
 
 1. **Add Zod dependency**: `npm install zod`
-2. **Create schemas** alongside existing types (don't replace yet)
-3. **Add validation** at boundaries (load/save, user input)
-4. **Gradually migrate** types to be inferred from schemas
-5. **Remove manual validation** code as schemas cover those cases
+1. **Create schemas** alongside existing types (don't replace yet)
+1. **Add validation** at boundaries (load/save, user input)
+1. **Gradually migrate** types to be inferred from schemas
+1. **Remove manual validation** code as schemas cover those cases
 
 ### What NOT to Validate
 
@@ -228,9 +228,9 @@ Validation should only occur at **system boundaries**:
 ## Alternatives Considered
 
 1. **Keep Manual Validation**: Rejected - too verbose, error-prone
-2. **JSON Schema + ajv**: Rejected - larger bundle, requires separate type definitions
-3. **io-ts**: Rejected - functional style doesn't match codebase conventions
-4. **TypeScript-only (compile time)**: Insufficient - doesn't validate runtime data
+1. **JSON Schema + ajv**: Rejected - larger bundle, requires separate type definitions
+1. **io-ts**: Rejected - functional style doesn't match codebase conventions
+1. **TypeScript-only (compile time)**: Insufficient - doesn't validate runtime data
 
 ## References
 

@@ -8,23 +8,23 @@
 Voidlock currently stores all campaign data in browser LocalStorage. This has limitations:
 
 1. **Data Loss Risk**: Clearing browser data loses progress
-2. **Single Device**: No way to continue campaign on different device
-3. **No Backup**: No recovery if save becomes corrupted
-4. **Limited Analytics**: No visibility into player progression for balance tuning
+1. **Single Device**: No way to continue campaign on different device
+1. **No Backup**: No recovery if save becomes corrupted
+1. **Limited Analytics**: No visibility into player progression for balance tuning
 
 Players have requested cloud save functionality to protect their campaign progress.
 
 ### Requirements
 
-| Requirement              | Priority | Notes                            |
+| Requirement | Priority | Notes |
 | ------------------------ | -------- | -------------------------------- |
-| Save campaign to cloud   | P0       | Core feature                     |
-| Load campaign from cloud | P0       | Core feature                     |
-| Work without account     | P1       | Anonymous auth, low friction     |
-| Optional user accounts   | P2       | For cross-device sync            |
-| Offline-first            | P1       | Game must work without internet  |
-| Conflict resolution      | P2       | Handle save conflicts gracefully |
-| Minimal latency impact   | P0       | No blocking on game start        |
+| Save campaign to cloud | P0 | Core feature |
+| Load campaign from cloud | P0 | Core feature |
+| Work without account | P1 | Anonymous auth, low friction |
+| Optional user accounts | P2 | For cross-device sync |
+| Offline-first | P1 | Game must work without internet |
+| Conflict resolution | P2 | Handle save conflicts gracefully |
+| Minimal latency impact | P0 | No blocking on game start |
 
 ## Decision
 
@@ -32,20 +32,20 @@ We will integrate **Firebase** for cloud save functionality using a phased appro
 
 ### Why Firebase
 
-| Service        | Setup Complexity | Free Tier | Offline Support | Auth Options      |
+| Service | Setup Complexity | Free Tier | Offline Support | Auth Options |
 | -------------- | ---------------- | --------- | --------------- | ----------------- |
-| Firebase       | Low              | Generous  | Excellent       | Anonymous + OAuth |
-| Supabase       | Medium           | Good      | Limited         | OAuth only        |
-| Custom Backend | High             | N/A       | Manual          | Full control      |
-| PlayFab        | Medium           | Good      | Limited         | Gaming-focused    |
+| Firebase | Low | Generous | Excellent | Anonymous + OAuth |
+| Supabase | Medium | Good | Limited | OAuth only |
+| Custom Backend | High | N/A | Manual | Full control |
+| PlayFab | Medium | Good | Limited | Gaming-focused |
 
 Firebase selected because:
 
 1. **Anonymous Auth**: Players can save without creating account
-2. **Offline Persistence**: Built-in offline cache with sync
-3. **Free Tier**: 1GB storage, 10GB/month transfer - sufficient for indie game
-4. **Quick Setup**: Can be integrated in days, not weeks
-5. **Firestore**: Document-based storage matches our campaign data structure
+1. **Offline Persistence**: Built-in offline cache with sync
+1. **Free Tier**: 1GB storage, 10GB/month transfer - sufficient for indie game
+1. **Quick Setup**: Can be integrated in days, not weeks
+1. **Firestore**: Document-based storage matches our campaign data structure
 
 ### Architecture
 
@@ -363,16 +363,16 @@ Estimated usage for 1000 DAU:
 ## Alternatives Considered
 
 1. **Supabase**: Good option but less mature offline support
-2. **Custom Backend**: Too much effort for current team size
-3. **PlayFab**: Gaming-focused but more complex setup
-4. **No Cloud Save**: Rejected - player demand is clear
+1. **Custom Backend**: Too much effort for current team size
+1. **PlayFab**: Gaming-focused but more complex setup
+1. **No Cloud Save**: Rejected - player demand is clear
 
 ## Migration Path
 
 1. **v0.124**: Add Firebase SDK, anonymous auth only
-2. **v0.125**: Enable cloud sync (opt-in via settings)
-3. **v0.126**: Add sync status UI indicators
-4. **v0.127+**: Optional user accounts, campaign sharing
+1. **v0.125**: Enable cloud sync (opt-in via settings)
+1. **v0.126**: Add sync status UI indicators
+1. **v0.127+**: Optional user accounts, campaign sharing
 
 ## References
 

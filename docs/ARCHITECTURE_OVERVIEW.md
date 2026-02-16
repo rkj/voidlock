@@ -17,7 +17,7 @@
 1. [Build & Configuration](#build--configuration)
 1. [Testing Strategy](#testing-strategy)
 
----
+______________________________________________________________________
 
 ## Executive Summary
 
@@ -38,7 +38,7 @@
 - Layer-based rendering for visual organization
 - Command pattern for replay support
 
----
+______________________________________________________________________
 
 ## Project Overview
 
@@ -62,29 +62,29 @@ Main Menu → Campaign Setup → Mission Briefing → Tactical Combat →
 Debrief → Barracks/Equipment/Statistics → Next Mission → ... → Victory/Defeat
 ```
 
----
+______________________________________________________________________
 
 ## Technology Stack
 
 ### Core Technologies
 
-| Component     | Technology   | Version    |
+| Component | Technology | Version |
 | ------------- | ------------ | ---------- |
-| Language      | TypeScript   | 5.9.3      |
-| Build Tool    | Vite         | 7.2.4      |
-| Module System | ES Modules   | ES2022     |
-| Rendering     | HTML5 Canvas | 2D Context |
-| Concurrency   | Web Workers  | Native     |
-| Storage       | LocalStorage | Native     |
+| Language | TypeScript | 5.9.3 |
+| Build Tool | Vite | 7.2.4 |
+| Module System | ES Modules | ES2022 |
+| Rendering | HTML5 Canvas | 2D Context |
+| Concurrency | Web Workers | Native |
+| Storage | LocalStorage | Native |
 
 ### Development Dependencies
 
-| Purpose          | Technology | Version |
+| Purpose | Technology | Version |
 | ---------------- | ---------- | ------- |
-| Test Framework   | Vitest     | 3.2.4   |
-| E2E Testing      | Puppeteer  | 24.1.1  |
-| Test Environment | jsdom      | 27.0.1  |
-| Asset Processing | Sharp      | 0.33.5  |
+| Test Framework | Vitest | 3.2.4 |
+| E2E Testing | Puppeteer | 24.1.1 |
+| Test Environment | jsdom | 27.0.1 |
+| Asset Processing | Sharp | 0.33.5 |
 
 ### Build Configuration
 
@@ -106,7 +106,7 @@ Debrief → Barracks/Equipment/Statistics → Next Mission → ... → Victory/D
 }
 ```
 
----
+______________________________________________________________________
 
 ## Architecture Pattern
 
@@ -222,7 +222,7 @@ Each layer:
 - Draws independently without side effects
 - Can be toggled for debugging
 
----
+______________________________________________________________________
 
 ## Directory Structure
 
@@ -335,7 +335,7 @@ Each layer:
 └── conductor/                    # AI agent configuration
 ```
 
----
+______________________________________________________________________
 
 ## Core Systems
 
@@ -555,7 +555,7 @@ User Input → InputManager → MenuController → GameClient → Worker
 - `src/renderer/MenuController.ts`
 - `src/renderer/controllers/CommandBuilder.ts`
 
----
+______________________________________________________________________
 
 ## Data Flow
 
@@ -658,7 +658,7 @@ CampaignState → JSON.stringify() → LocalStorage['voidlock_campaign_v1']
                         JSON.parse() → CampaignState
 ```
 
----
+______________________________________________________________________
 
 ## State Management
 
@@ -757,7 +757,7 @@ Replaying:
 1. Inject commands at recorded tick times
 1. Result: Identical state sequence
 
----
+______________________________________________________________________
 
 ## Build & Configuration
 
@@ -824,7 +824,7 @@ Raw Assets (NanoBanana Assets/)
 }
 ```
 
----
+______________________________________________________________________
 
 ## Testing Strategy
 
@@ -880,7 +880,7 @@ Raw Assets (NanoBanana Assets/)
   - ADR-0008: Renderer/UI separation
   - ADR-0012: Theming system
 
----
+______________________________________________________________________
 
 ## Summary
 
@@ -912,7 +912,7 @@ Voidlock demonstrates **professional software engineering practices**:
 
 This is a **production-quality codebase** with clear architectural vision, strong testing discipline, and excellent separation of concerns.
 
----
+______________________________________________________________________
 
 ## Related Documentation
 

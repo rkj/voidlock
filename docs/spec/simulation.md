@@ -119,6 +119,7 @@ See **[Command System & AI Behaviors](commands.md)** for details on `ESCORT_UNIT
 ### Mission Types
 
 1. **Recover Intel:**
+
    - **Goal:** Locate and secure distributed data terminals.
    - **Setup:** Spawns multiple (default: 3) objectives spread across the map.
    - **Win Condition:** All Intel objectives are `Completed`.
@@ -126,6 +127,7 @@ See **[Command System & AI Behaviors](commands.md)** for details on `ESCORT_UNIT
    - **Extraction:** Optional. Mission is a Victory if all Intel is secured, even if the squad is subsequently lost.
 
 1. **Extract Artifact:**
+
    - **Goal:** Locate the Artifact, pick it up, and Extract with it.
    - **Mechanics:**
      - The Artifact is an item (`artifact_heavy`) added to the soldier's inventory upon objective completion.
@@ -134,11 +136,13 @@ See **[Command System & AI Behaviors](commands.md)** for details on `ESCORT_UNIT
    - **Failure:** Squad wiped, or the Artifact is not extracted.
 
 1. **Destroy Hive:**
+
    - **Goal:** Eliminate the central Hive structure.
    - **Win Condition:** Hive entity killed.
    - **Extraction:** Optional (Expendable Crew).
 
 1. **Escort VIP:**
+
    - **Goal:** Escort the VIP to the Extraction zone.
    - **Win Condition:** VIP Extracts.
    - **Failure:** VIP dies.

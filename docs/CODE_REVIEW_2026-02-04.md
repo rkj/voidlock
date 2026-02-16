@@ -5,7 +5,7 @@
 **Reviewer:** Automated Code Analysis
 **Review Type:** In-Depth Technical Analysis
 
----
+______________________________________________________________________
 
 ## Executive Summary
 
@@ -13,15 +13,15 @@ This code review examines the Voidlock codebase (~27,101 lines across 145 source
 
 ### Overall Assessment
 
-| Category        | Previous | Current  | Change | Status    |
+| Category | Previous | Current | Change | Status |
 | --------------- | -------- | -------- | ------ | --------- |
-| Architecture    | 8/10     | 9/10     | ↑ +1   | ✅ Strong |
-| Type Safety     | 6/10     | 8/10     | ↑ +2   | ✅ Good   |
-| Code Quality    | 7/10     | 7.5/10   | ↑ +0.5 | ✅ Good   |
-| Performance     | 7/10     | 8/10     | ↑ +1   | ✅ Strong |
-| Maintainability | 7/10     | 7/10     | →      | ✅ Good   |
-| Testing         | 8/10     | 8.5/10   | ↑ +0.5 | ✅ Strong |
-| **Overall**     | **7/10** | **8/10** | ↑ +1   | ✅ Good   |
+| Architecture | 8/10 | 9/10 | ↑ +1 | ✅ Strong |
+| Type Safety | 6/10 | 8/10 | ↑ +2 | ✅ Good |
+| Code Quality | 7/10 | 7.5/10 | ↑ +0.5 | ✅ Good |
+| Performance | 7/10 | 8/10 | ↑ +1 | ✅ Strong |
+| Maintainability | 7/10 | 7/10 | → | ✅ Good |
+| Testing | 8/10 | 8.5/10 | ↑ +0.5 | ✅ Strong |
+| **Overall** | **7/10** | **8/10** | ↑ +1 | ✅ Good |
 
 ### Key Findings
 
@@ -30,19 +30,19 @@ This code review examines the Voidlock codebase (~27,101 lines across 145 source
 - ⚠️ **Remaining Issues:** Cell position pattern duplication (131 occurrences), UnitManager complexity
 - 📈 **Opportunities:** Interface segregation, DI improvements, utility extraction
 
----
+______________________________________________________________________
 
 ## Table of Contents
 
 1. [Previous Review Status](#1-previous-review-status)
-2. [Current Issues - High Priority](#2-current-issues---high-priority)
-3. [Current Issues - Medium Priority](#3-current-issues---medium-priority)
-4. [Current Issues - Low Priority](#4-current-issues---low-priority)
-5. [Positive Observations](#5-positive-observations)
-6. [Future Technical Direction](#6-future-technical-direction)
-7. [Action Plan](#7-action-plan)
+1. [Current Issues - High Priority](#2-current-issues---high-priority)
+1. [Current Issues - Medium Priority](#3-current-issues---medium-priority)
+1. [Current Issues - Low Priority](#4-current-issues---low-priority)
+1. [Positive Observations](#5-positive-observations)
+1. [Future Technical Direction](#6-future-technical-direction)
+1. [Action Plan](#7-action-plan)
 
----
+______________________________________________________________________
 
 ## 1. Previous Review Status
 
@@ -52,10 +52,10 @@ This code review examines the Voidlock codebase (~27,101 lines across 145 source
 
 **Status:** ✅ SIGNIFICANTLY IMPROVED
 
-| Metric            | Previous | Current | Change     |
+| Metric | Previous | Current | Change |
 | ----------------- | -------- | ------- | ---------- |
-| Files with `any`  | 187      | 9       | ↓ 95%      |
-| Total occurrences | Unknown  | 11      | ↓ Dramatic |
+| Files with `any` | 187 | 9 | ↓ 95% |
+| Total occurrences | Unknown | 11 | ↓ Dramatic |
 
 **Evidence:**
 
@@ -70,7 +70,7 @@ This code review examines the Voidlock codebase (~27,101 lines across 145 source
 - `src/renderer/app/GameApp.ts:2` (event handlers)
 - `src/renderer/ui/SoldierWidget.ts:2` (DOM events)
 
----
+______________________________________________________________________
 
 #### 1.2 Performance Bottleneck - JSON Deep Cloning
 
@@ -104,7 +104,7 @@ public getState(): GameState {
 
 **Improvement:** Eliminated redundant JSON serialization.
 
----
+______________________________________________________________________
 
 #### 1.3 Code Duplication - `getDistance` Function
 
@@ -123,7 +123,7 @@ export class MathUtils {
 
 **Note:** Still 23 files import `getDistance`, some may have local duplicates remaining (see Issue 2.1).
 
----
+______________________________________________________________________
 
 #### 1.4 Manager Classes Too Large - Extraction
 
@@ -131,29 +131,29 @@ export class MathUtils {
 
 **Extracted Components:**
 
-| Component                    | Lines | Purpose                      |
+| Component | Lines | Purpose |
 | ---------------------------- | ----- | ---------------------------- |
-| `CampaignFlowCoordinator.ts` | 104   | Campaign flow orchestration  |
-| `MissionCoordinator.ts`      | 341   | Mission lifecycle management |
-| `FormationManager.ts`        | 115   | Escort formation logic       |
-| `UnitSpawner.ts`             | 249   | Unit spawning logic          |
-| `RosterManager.ts`           | 178   | Roster management            |
-| `EventManager.ts`            | 132   | Campaign event handling      |
-| `MissionReconciler.ts`       | 218   | Post-mission processing      |
+| `CampaignFlowCoordinator.ts` | 104 | Campaign flow orchestration |
+| `MissionCoordinator.ts` | 341 | Mission lifecycle management |
+| `FormationManager.ts` | 115 | Escort formation logic |
+| `UnitSpawner.ts` | 249 | Unit spawning logic |
+| `RosterManager.ts` | 178 | Roster management |
+| `EventManager.ts` | 132 | Campaign event handling |
+| `MissionReconciler.ts` | 218 | Post-mission processing |
 
 **Size Reduction:**
 
-| File                 | Previous | Current | Change           |
+| File | Previous | Current | Change |
 | -------------------- | -------- | ------- | ---------------- |
-| `GameApp.ts`         | 1185     | 801     | ↓ 32%            |
-| `CoreEngine.ts`      | 552      | 496     | ↓ 10%            |
-| `CampaignManager.ts` | 524      | 632\*   | ↑ (restructured) |
+| `GameApp.ts` | 1185 | 801 | ↓ 32% |
+| `CoreEngine.ts` | 552 | 496 | ↓ 10% |
+| `CampaignManager.ts` | 524 | 632\* | ↑ (restructured) |
 
 \*CampaignManager moved to `/engine/campaign/` with better modularity.
 
 **Remaining:** `UnitManager.ts` still at 675 lines (see Issue 2.2).
 
----
+______________________________________________________________________
 
 #### 1.5 Tight Coupling - Circular Dependencies
 
@@ -172,7 +172,7 @@ export interface IDirector {
 
 **Usage:** 13 files now import `IDirector` instead of concrete `Director`.
 
----
+______________________________________________________________________
 
 #### 1.6 Magic Numbers - Constants Consolidation
 
@@ -191,7 +191,7 @@ Covers:
 - `AI` - AI thresholds
 - `MOVEMENT` - Movement parameters
 
----
+______________________________________________________________________
 
 #### 1.7 Naming Conventions - EnemyType
 
@@ -222,7 +222,7 @@ export enum EnemyType {
 }
 ```
 
----
+______________________________________________________________________
 
 #### 1.8 Campaign Manager Architecture
 
@@ -242,7 +242,7 @@ src/engine/campaign/
 
 Re-export maintained at `src/engine/managers/CampaignManager.ts` for compatibility.
 
----
+______________________________________________________________________
 
 ### ⏳ PARTIALLY ADDRESSED Issues (3 of 13)
 
@@ -264,7 +264,7 @@ ADR count increased from 28 to 32. Algorithm documentation still sparse.
 
 Some improvements but silent returns still present in critical paths.
 
----
+______________________________________________________________________
 
 ### ❌ NOT ADDRESSED Issues (2 of 13)
 
@@ -280,7 +280,7 @@ Still uses basic try/catch without schema validation.
 
 Some `as any` replaced but pattern persists in generators.
 
----
+______________________________________________________________________
 
 ## 2. Current Issues - High Priority
 
@@ -329,7 +329,7 @@ export function sameCellPosition(pos1: Vector2, pos2: Vector2): boolean {
 **Estimated Effort:** 4-6 hours
 **Priority:** P1
 
----
+______________________________________________________________________
 
 ### 2.2 SRP Violation - UnitManager God Object
 
@@ -340,13 +340,13 @@ export function sameCellPosition(pos1: Vector2, pos2: Vector2): boolean {
 **Current Responsibilities (7+):**
 
 1. Command queue processing
-2. Escort formation delegation
-3. Item assignment and spatial queries
-4. Stats recalculation
-5. Movement coordination
-6. Combat delegation
-7. AI behavior orchestration
-8. Visibility management
+1. Escort formation delegation
+1. Item assignment and spatial queries
+1. Stats recalculation
+1. Movement coordination
+1. Combat delegation
+1. AI behavior orchestration
+1. Visibility management
 
 **Problem:** The `update()` method is 88 lines mixing multiple concerns.
 
@@ -361,7 +361,7 @@ Extract:
 **Estimated Effort:** 1-2 days
 **Priority:** P1
 
----
+______________________________________________________________________
 
 ### 2.3 Command Type Handling - OCP Violation
 
@@ -400,7 +400,7 @@ class CommandRegistry {
 **Estimated Effort:** 1 day
 **Priority:** P1
 
----
+______________________________________________________________________
 
 ### 2.4 Service Locator Anti-Pattern - AppContext
 
@@ -449,7 +449,7 @@ class MissionCoordinator {
 **Estimated Effort:** 2-3 days
 **Priority:** P1
 
----
+______________________________________________________________________
 
 ## 3. Current Issues - Medium Priority
 
@@ -490,7 +490,7 @@ interface ObjectiveContext {
 **Estimated Effort:** 4 hours
 **Priority:** P2
 
----
+______________________________________________________________________
 
 ### 3.2 Interface Segregation - IDirector Too Broad
 
@@ -525,7 +525,7 @@ interface ThreatDirector {
 **Estimated Effort:** 2 hours
 **Priority:** P2
 
----
+______________________________________________________________________
 
 ### 3.3 Remaining JSON Deep Clone Locations
 
@@ -545,7 +545,7 @@ this.config = JSON.parse(JSON.stringify(initialConfig));
 **Estimated Effort:** 1 hour
 **Priority:** P2
 
----
+______________________________________________________________________
 
 ### 3.4 Direct Instantiation in Constructors
 
@@ -564,7 +564,7 @@ constructor() {
 **Estimated Effort:** 2 hours
 **Priority:** P2
 
----
+______________________________________________________________________
 
 ## 4. Current Issues - Low Priority
 
@@ -582,7 +582,7 @@ if (!this.container) return;
 
 **Recommendation:** Add error logging or convert to assertions in development.
 
----
+______________________________________________________________________
 
 ### 4.2 Map Validation Still Missing
 
@@ -591,7 +591,7 @@ if (!this.container) return;
 
 Still uses basic try/catch without schema validation for uploaded maps.
 
----
+______________________________________________________________________
 
 ## 5. Positive Observations
 
@@ -633,7 +633,7 @@ Still uses basic try/catch without schema validation for uploaded maps.
 - ✅ Command logging for replays
 - ✅ Fixed timestep simulation
 
----
+______________________________________________________________________
 
 ## 6. Future Technical Direction
 
@@ -651,14 +651,16 @@ Still uses basic try/catch without schema validation for uploaded maps.
 **Recommendation:** **Maintain current approach** with these caveats:
 
 1. **If adding complex nested UI** (Codex, social features, node editor):
+
    - Evaluate **SolidJS** or **Svelte** (no VDOM overhead)
    - Create hybrid: Canvas for game, framework for menus
 
-2. **Near-term improvements:**
+1. **Near-term improvements:**
+
    - Extract reusable DOM helpers (like StatDisplay, ModalService pattern)
    - Create component library for common patterns
 
----
+______________________________________________________________________
 
 ### 6.2 Server Persistence & Users
 
@@ -666,12 +668,12 @@ Still uses basic try/catch without schema validation for uploaded maps.
 
 **Options Analysis:**
 
-| Option                | Complexity | Benefit                       | Risk                      |
+| Option | Complexity | Benefit | Risk |
 | --------------------- | ---------- | ----------------------------- | ------------------------- |
-| A. Cloud Save Sync    | Medium     | Progress backup, multi-device | Auth complexity           |
-| B. Multiplayer Server | High       | New gameplay modes            | Major architecture change |
-| C. Leaderboards Only  | Low        | Competition, engagement       | Limited value             |
-| D. Keep Single-Player | None       | Focus on core game            | Limited engagement        |
+| A. Cloud Save Sync | Medium | Progress backup, multi-device | Auth complexity |
+| B. Multiplayer Server | High | New gameplay modes | Major architecture change |
+| C. Leaderboards Only | Low | Competition, engagement | Limited value |
+| D. Keep Single-Player | None | Focus on core game | Limited engagement |
 
 **Recommendation:** **Phased approach**
 
@@ -692,29 +694,29 @@ Still uses basic try/catch without schema validation for uploaded maps.
 - Async multiplayer (shared campaigns, challenges)
 - Requires determinism audit (currently good foundation)
 
----
+______________________________________________________________________
 
 ### 6.3 Recommended Technical Improvements
 
 **Priority 1 - Quick Wins:**
 
 1. Extract cell position utilities (4-6 hours)
-2. Split IDirector interface (2 hours)
-3. Remove remaining JSON.parse/stringify (1 hour)
+1. Split IDirector interface (2 hours)
+1. Remove remaining JSON.parse/stringify (1 hour)
 
 **Priority 2 - Architecture:**
 
 1. Replace AppContext service locator with DI (2-3 days)
-2. Break up UnitManager (1-2 days)
-3. Implement Command Handler pattern (1 day)
+1. Break up UnitManager (1-2 days)
+1. Implement Command Handler pattern (1 day)
 
 **Priority 3 - Future Foundation:**
 
 1. Add telemetry/analytics hooks for balance data
-2. Prepare persistence abstraction for cloud sync
-3. Document AI behavior system for content expansion
+1. Prepare persistence abstraction for cloud sync
+1. Document AI behavior system for content expansion
 
----
+______________________________________________________________________
 
 ### 6.4 Technology Stack Recommendations
 
@@ -737,86 +739,86 @@ Still uses basic try/catch without schema validation for uploaded maps.
 - React/Vue for game UI (overhead not justified)
 - Heavy state management (Redux, MobX) - current approach sufficient
 
----
+______________________________________________________________________
 
 ## 7. Action Plan
 
 ### Phase 1: Immediate (1 Week)
 
-| Task                            | Effort | Impact               |
+| Task | Effort | Impact |
 | ------------------------------- | ------ | -------------------- |
-| Extract cell position utilities | 4-6h   | High - DRY           |
-| Remove JSON.parse/stringify x3  | 1h     | Medium - Perf        |
-| Split IDirector interface       | 2h     | Medium - ISP         |
-| Add remaining `any` fixes       | 2h     | Medium - Type safety |
+| Extract cell position utilities | 4-6h | High - DRY |
+| Remove JSON.parse/stringify x3 | 1h | Medium - Perf |
+| Split IDirector interface | 2h | Medium - ISP |
+| Add remaining `any` fixes | 2h | Medium - Type safety |
 
 ### Phase 2: Short-term (2-3 Weeks)
 
-| Task                              | Effort | Impact             |
+| Task | Effort | Impact |
 | --------------------------------- | ------ | ------------------ |
-| Replace AppContext with DI        | 2-3d   | High - Testability |
-| Split UnitManager                 | 1-2d   | High - SRP         |
-| Implement Command Handler pattern | 1d     | Medium - OCP       |
-| Add map validation schema         | 4h     | Low - Robustness   |
+| Replace AppContext with DI | 2-3d | High - Testability |
+| Split UnitManager | 1-2d | High - SRP |
+| Implement Command Handler pattern | 1d | Medium - OCP |
+| Add map validation schema | 4h | Low - Robustness |
 
 ### Phase 3: Medium-term (1-2 Months)
 
-| Task                      | Effort | Impact                 |
+| Task | Effort | Impact |
 | ------------------------- | ------ | ---------------------- |
-| Cloud save sync (Phase 1) | 1w     | Medium - UX            |
-| Document AI behaviors     | 2d     | Medium - Extensibility |
-| Component library for DOM | 1w     | Medium - DX            |
+| Cloud save sync (Phase 1) | 1w | Medium - UX |
+| Document AI behaviors | 2d | Medium - Extensibility |
+| Component library for DOM | 1w | Medium - DX |
 
----
+______________________________________________________________________
 
 ## Summary
 
 ### Technical Debt Score
 
-| Metric          | Previous | Current    |
+| Metric | Previous | Current |
 | --------------- | -------- | ---------- |
-| Technical Debt  | Medium   | Low-Medium |
-| Risk Level      | Low      | Low        |
-| Maintainability | 7/10     | 7/10       |
+| Technical Debt | Medium | Low-Medium |
+| Risk Level | Low | Low |
+| Maintainability | 7/10 | 7/10 |
 
 ### Key Takeaways
 
 1. **Significant Progress:** 8 of 13 major issues from January review resolved
-2. **Type Safety Improved:** `any` usage reduced by 95%
-3. **Architecture Matured:** Good extraction of coordinators and managers
-4. **Main Remaining Issue:** Cell position pattern duplication (131 occurrences)
-5. **DI Pattern Needed:** AppContext service locator should be replaced
+1. **Type Safety Improved:** `any` usage reduced by 95%
+1. **Architecture Matured:** Good extraction of coordinators and managers
+1. **Main Remaining Issue:** Cell position pattern duplication (131 occurrences)
+1. **DI Pattern Needed:** AppContext service locator should be replaced
 
 ### Recommendations
 
 **Immediate Actions:**
 
 1. Add cell position utility functions
-2. Fix remaining 3 JSON deep clone locations
-3. Split broad interfaces (IDirector, AIContext)
+1. Fix remaining 3 JSON deep clone locations
+1. Split broad interfaces (IDirector, AIContext)
 
 **Near-term:**
 
 1. Replace AppContext with explicit DI
-2. Break up UnitManager
-3. Consider cloud save sync for user retention
+1. Break up UnitManager
+1. Consider cloud save sync for user retention
 
 **Long-term:**
 
 1. Evaluate framework only if adding complex non-game UI
-2. Maintain deterministic design as multiplayer foundation
-3. Document systems for content team expansion
+1. Maintain deterministic design as multiplayer foundation
+1. Document systems for content team expansion
 
----
+______________________________________________________________________
 
 ## Appendix: Metrics
 
-| Metric                 | Value                     |
+| Metric | Value |
 | ---------------------- | ------------------------- |
-| Source Files           | 145                       |
-| Test Files             | 375                       |
-| Lines of Code          | 27,101                    |
-| ADRs                   | 32                        |
-| External Dependencies  | 1 (Gemini CLI - dev only) |
-| TypeScript Strict Mode | Enabled                   |
-| Test/Source Ratio      | 2.6:1                     |
+| Source Files | 145 |
+| Test Files | 375 |
+| Lines of Code | 27,101 |
+| ADRs | 32 |
+| External Dependencies | 1 (Gemini CLI - dev only) |
+| TypeScript Strict Mode | Enabled |
+| Test/Source Ratio | 2.6:1 |

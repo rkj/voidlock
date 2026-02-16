@@ -11,9 +11,9 @@ As we move towards cloud persistence (ADR 0034) and more complex meta-progressio
 
 ### Current Issues
 
-1.  **State Leakage**: UI components (e.g., `SoldierInspector`, `EquipmentScreen`) directly query `CampaignManager` even when in Custom mode.
-2.  **Implicit Data Flow**: Configuration for missions is scattered across `ConfigManager`, `MissionSetupManager`, and mode-specific singletons.
-3.  **No Versioning**: Persistent data lacks explicit versioning, making migrations risky and breaking changes hard to manage.
+1. **State Leakage**: UI components (e.g., `SoldierInspector`, `EquipmentScreen`) directly query `CampaignManager` even when in Custom mode.
+1. **Implicit Data Flow**: Configuration for missions is scattered across `ConfigManager`, `MissionSetupManager`, and mode-specific singletons.
+1. **No Versioning**: Persistent data lacks explicit versioning, making migrations risky and breaking changes hard to manage.
 
 ## Decision
 
