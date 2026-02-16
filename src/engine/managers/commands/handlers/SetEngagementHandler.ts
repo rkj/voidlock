@@ -5,7 +5,7 @@ import {
   CommandType,
   SetEngagementCommand,
 } from "@src/shared/types";
-import { IDirector } from "@src/engine/interfaces/IDirector";
+import { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
 import { IUnitCommandHandler } from "../IUnitCommandHandler";
 import { UnitCommandRegistry } from "../UnitCommandRegistry";
 
@@ -18,7 +18,7 @@ export class SetEngagementHandler implements IUnitCommandHandler {
     _state: GameState,
     _isManual: boolean,
     _registry: UnitCommandRegistry,
-    _director?: IDirector,
+    _director?: ItemEffectHandler,
   ): Unit {
     const engagementCmd = cmd as SetEngagementCommand;
     let currentUnit = { ...unit };

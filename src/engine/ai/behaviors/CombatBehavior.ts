@@ -5,15 +5,15 @@ import {
   CommandType,
   Door,
 } from "../../../shared/types";
-import { AIContext } from "../../managers/UnitAI";
+import { BehaviorContext } from "../../interfaces/AIContext";
 import { PRNG } from "../../../shared/PRNG";
 import { Behavior, BehaviorResult } from "./Behavior";
 import { GameGrid } from "../../GameGrid";
 import { isCellVisible } from "../../../shared/VisibilityUtils";
-import { IDirector } from "../../interfaces/IDirector";
+import { ItemEffectHandler } from "../../interfaces/IDirector";
 import { MathUtils } from "../../../shared/utils/MathUtils";
 
-export class CombatBehavior implements Behavior {
+export class CombatBehavior implements Behavior<BehaviorContext> {
   constructor(private gameGrid: GameGrid) {}
 
   public evaluate(
@@ -22,8 +22,8 @@ export class CombatBehavior implements Behavior {
     _dt: number,
     doors: Map<string, Door>,
     _prng: PRNG,
-    context: AIContext,
-    director?: IDirector,
+    context: BehaviorContext,
+    director?: ItemEffectHandler,
   ): BehaviorResult {
     let currentUnit = { ...unit };
     if (currentUnit.archetypeId === "vip")

@@ -5,7 +5,7 @@ import {
   CommandType,
   Door,
 } from "../../../shared/types";
-import { AIContext } from "../../managers/UnitAI";
+import { BehaviorContext, ExplorationContext } from "../../interfaces/AIContext";
 import { PRNG } from "../../../shared/PRNG";
 import { Behavior, BehaviorResult } from "./Behavior";
 import {
@@ -14,11 +14,11 @@ import {
 } from "./BehaviorUtils";
 import { GameGrid } from "../../GameGrid";
 import { isCellDiscovered } from "../../../shared/VisibilityUtils";
-import { IDirector } from "../../interfaces/IDirector";
+import { ItemEffectHandler } from "../../interfaces/IDirector";
 import { MathUtils } from "../../../shared/utils/MathUtils";
 import { Logger } from "../../../shared/Logger";
 
-export class ExplorationBehavior implements Behavior {
+export class ExplorationBehavior implements Behavior<BehaviorContext & ExplorationContext> {
   constructor(private gameGrid: GameGrid) {}
 
   public evaluate(
@@ -27,8 +27,8 @@ export class ExplorationBehavior implements Behavior {
     dt: number,
     doors: Map<string, Door>,
     _prng: PRNG,
-    context: AIContext,
-    director?: IDirector,
+    context: BehaviorContext & ExplorationContext,
+    director?: ItemEffectHandler,
   ): BehaviorResult {
     let currentUnit = { ...unit };
     if (currentUnit.state !== UnitState.Idle && !currentUnit.explorationTarget)

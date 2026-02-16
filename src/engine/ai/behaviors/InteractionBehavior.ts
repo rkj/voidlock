@@ -6,22 +6,22 @@ import {
   PickupCommand,
   Door,
 } from "../../../shared/types";
-import { AIContext } from "../../managers/UnitAI";
+import { BehaviorContext, ObjectiveContext } from "../../interfaces/AIContext";
 import { PRNG } from "../../../shared/PRNG";
 import { MathUtils } from "../../../shared/utils/MathUtils";
 import { Behavior, BehaviorResult } from "./Behavior";
 import { SPEED_NORMALIZATION_CONST, ITEMS } from "../../config/GameConstants";
-import { IDirector } from "../../interfaces/IDirector";
+import { ItemEffectHandler } from "../../interfaces/IDirector";
 
-export class InteractionBehavior implements Behavior {
+export class InteractionBehavior implements Behavior<BehaviorContext & ObjectiveContext> {
   public evaluate(
     unit: Unit,
     state: GameState,
     _dt: number,
     _doors: Map<string, Door>,
     _prng: PRNG,
-    context: AIContext,
-    _director?: IDirector,
+    context: BehaviorContext & ObjectiveContext,
+    _director?: ItemEffectHandler,
   ): BehaviorResult {
     let currentUnit = { ...unit };
     if (currentUnit.state !== UnitState.Idle) {

@@ -1,5 +1,5 @@
 import { Unit, Command, GameState, CommandType } from "@src/shared/types";
-import { IDirector } from "@src/engine/interfaces/IDirector";
+import { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
 import { IUnitCommandHandler } from "../IUnitCommandHandler";
 import { UnitCommandRegistry } from "../UnitCommandRegistry";
 
@@ -12,7 +12,7 @@ export class ResumeAiHandler implements IUnitCommandHandler {
     _state: GameState,
     _isManual: boolean,
     _registry: UnitCommandRegistry,
-    _director?: IDirector,
+    _director?: ItemEffectHandler,
   ): Unit {
     let currentUnit = { ...unit };
 

@@ -1,21 +1,21 @@
 import { GameState, Unit, Door } from "../../../shared/types";
-import { AIContext } from "../../managers/UnitAI";
+import { BehaviorContext } from "../../interfaces/AIContext";
 import { PRNG } from "../../../shared/PRNG";
-import { IDirector } from "../../interfaces/IDirector";
+import { ItemEffectHandler } from "../../interfaces/IDirector";
 
 export interface BehaviorResult {
   unit: Unit;
   handled: boolean;
 }
 
-export interface Behavior {
+export interface Behavior<TContext extends BehaviorContext = BehaviorContext> {
   evaluate(
     unit: Unit,
     state: GameState,
     dt: number,
     doors: Map<string, Door>,
     prng: PRNG,
-    context: AIContext,
-    director?: IDirector,
+    context: TContext,
+    director?: ItemEffectHandler,
   ): BehaviorResult;
 }

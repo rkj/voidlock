@@ -3,8 +3,6 @@ import {
   Unit,
   UnitState,
   Door,
-  Command,
-  Vector2,
 } from "../../shared/types";
 import { GameGrid } from "../GameGrid";
 import { LineOfSight } from "../LineOfSight";
@@ -18,37 +16,11 @@ import { CombatBehavior } from "../ai/behaviors/CombatBehavior";
 import { ObjectiveBehavior } from "../ai/behaviors/ObjectiveBehavior";
 import { ExplorationBehavior } from "../ai/behaviors/ExplorationBehavior";
 import { isCellDiscovered } from "../../shared/VisibilityUtils";
-import { IDirector } from "../interfaces/IDirector";
-
-import { SpatialGrid } from "../../shared/utils/SpatialGrid";
-
-export interface VisibleItem {
-  id: string;
-  pos: Vector2;
-  mustBeInLOS: boolean;
-  visible?: boolean;
-  type: "loot" | "objective";
-}
-
-export interface AIContext {
-  agentControlEnabled: boolean;
-  totalFloorCells: number;
-  gridState?: Uint8Array;
-  claimedObjectives: Map<string, string>; // objectiveId -> unitId
-  explorationClaims: Map<string, Vector2>; // unitId -> targetCell
-  itemAssignments: Map<string, string>;
-  itemGrid?: SpatialGrid<VisibleItem>;
-  executeCommand: (
-    unit: Unit,
-    cmd: Command,
-    state: GameState,
-    isManual: boolean,
-    director?: IDirector,
-  ) => Unit;
-}
+import { ItemEffectHandler } from "../interfaces/IDirector";
+import { AIContext } from "../interfaces/AIContext";
 
 export class UnitAI {
-  private behaviors: Behavior[] = [];
+  private behaviors: Behavior<AIContext>[] = [];
   private vipBehavior: VipBehavior;
 
   constructor(gameGrid: GameGrid, los: LineOfSight) {
@@ -62,7 +34,7 @@ export class UnitAI {
       new CombatBehavior(gameGrid),
       new ObjectiveBehavior(),
       new ExplorationBehavior(gameGrid),
-    ];
+    ] as Behavior<AIContext>[];
   }
 
   public process(
@@ -72,7 +44,7 @@ export class UnitAI {
     doors: Map<string, Door>,
     prng: PRNG,
     context: AIContext,
-    director?: IDirector,
+    director?: ItemEffectHandler,
   ): Unit {
     if (unit.state === UnitState.Extracted || unit.state === UnitState.Dead)
       return unit;
@@ -95,7 +67,6 @@ export class UnitAI {
     if (currentUnit.state === UnitState.Channeling) return currentUnit;
 
     // 2. Exploration target cleanup (Pre-processing)
-    // ... (rest of the code will be updated by another replace or I should include more)
     if (currentUnit.explorationTarget) {
       if (
         isCellDiscovered(

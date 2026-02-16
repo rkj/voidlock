@@ -5,7 +5,7 @@ import {
   CommandType,
   UnitState,
 } from "@src/shared/types";
-import { IDirector } from "@src/engine/interfaces/IDirector";
+import { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
 import { IUnitCommandHandler } from "../IUnitCommandHandler";
 import { UnitCommandRegistry } from "../UnitCommandRegistry";
 
@@ -18,7 +18,7 @@ export class ExtractHandler implements IUnitCommandHandler {
     state: GameState,
     isManual: boolean,
     registry: UnitCommandRegistry,
-    director?: IDirector,
+    director?: ItemEffectHandler,
   ): Unit {
     let currentUnit = { ...unit };
 

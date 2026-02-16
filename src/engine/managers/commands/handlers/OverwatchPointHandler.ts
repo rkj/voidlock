@@ -7,7 +7,7 @@ import {
   AIProfile,
   OverwatchPointCommand,
 } from "@src/shared/types";
-import { IDirector } from "@src/engine/interfaces/IDirector";
+import { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
 import { IUnitCommandHandler } from "../IUnitCommandHandler";
 import { UnitCommandRegistry } from "../UnitCommandRegistry";
 
@@ -20,7 +20,7 @@ export class OverwatchPointHandler implements IUnitCommandHandler {
     state: GameState,
     isManual: boolean,
     registry: UnitCommandRegistry,
-    director?: IDirector,
+    director?: ItemEffectHandler,
   ): Unit {
     const overwatchCmd = cmd as OverwatchPointCommand;
     let currentUnit = { ...unit };

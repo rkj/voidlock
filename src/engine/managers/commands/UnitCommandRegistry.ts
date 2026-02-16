@@ -1,5 +1,5 @@
 import { CommandType, Unit, Command, GameState } from "@src/shared/types";
-import { IDirector } from "@src/engine/interfaces/IDirector";
+import { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
 import { IUnitCommandHandler } from "./IUnitCommandHandler";
 
 export class UnitCommandRegistry {
@@ -14,7 +14,7 @@ export class UnitCommandRegistry {
     cmd: Command,
     state: GameState,
     isManual: boolean,
-    director?: IDirector,
+    director?: ItemEffectHandler,
   ): Unit {
     const handler = this.handlers.get(cmd.type);
     if (handler) {

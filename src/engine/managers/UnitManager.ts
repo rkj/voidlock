@@ -15,12 +15,13 @@ import { LootManager } from "./LootManager";
 import { StatsManager } from "./StatsManager";
 import { MovementManager } from "./MovementManager";
 import { CombatManager } from "./CombatManager";
-import { UnitAI, AIContext } from "./UnitAI";
+import { UnitAI } from "./UnitAI";
 import { CommandExecutor } from "./CommandExecutor";
 import { FormationManager } from "./FormationManager";
 import { ItemDistributionService } from "./ItemDistributionService";
 import { UnitStateManager } from "./UnitStateManager";
-import { IDirector } from "../interfaces/IDirector";
+import { ItemEffectHandler } from "../interfaces/IDirector";
+import { AIContext } from "../interfaces/AIContext";
 import { MathUtils } from "../../shared/utils/MathUtils";
 import { MOVEMENT } from "../config/GameConstants";
 import { Logger } from "../../shared/Logger";
@@ -86,7 +87,7 @@ export class UnitManager {
     doors: Map<string, Door>,
     prng: PRNG,
     lootManager: LootManager,
-    director?: IDirector,
+    director?: ItemEffectHandler,
     realDt: number = dt,
   ) {
     // 1. Calculate currently claimed objectives (by units already pursuing them)
@@ -438,7 +439,7 @@ export class UnitManager {
     cmd: Command,
     state: GameState,
     isManual: boolean = true,
-    director?: IDirector,
+    director?: ItemEffectHandler,
   ): Unit {
     return this.commandExecutor.executeCommand(
       unit,

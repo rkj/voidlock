@@ -8,27 +8,27 @@ import {
   Door,
   Objective,
 } from "../../../shared/types";
-import { AIContext } from "../../managers/UnitAI";
+import { BehaviorContext, ObjectiveContext, VisibleItem } from "../../interfaces/AIContext";
 import { PRNG } from "../../../shared/PRNG";
 import { Behavior, BehaviorResult } from "./Behavior";
 import {
   isCellVisible,
   isCellDiscovered,
 } from "../../../shared/VisibilityUtils";
-import { IDirector } from "../../interfaces/IDirector";
+import { ItemEffectHandler } from "../../interfaces/IDirector";
 import { MathUtils } from "../../../shared/utils/MathUtils";
 import { MOVEMENT } from "../../config/GameConstants";
 import { Logger } from "../../../shared/Logger";
 
-export class ObjectiveBehavior implements Behavior {
+export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveContext> {
   public evaluate(
     unit: Unit,
     state: GameState,
     _dt: number,
     _doors: Map<string, Door>,
     _prng: PRNG,
-    context: AIContext,
-    director?: IDirector,
+    context: BehaviorContext & ObjectiveContext,
+    director?: ItemEffectHandler,
   ): BehaviorResult {
     let currentUnit = { ...unit };
     if (currentUnit.archetypeId === "vip")
@@ -43,14 +43,6 @@ export class ObjectiveBehavior implements Behavior {
     let actionTaken = false;
 
     // 1. Opportunistic Loot & Objectives (In current LOS)
-    interface VisibleItem {
-      id: string;
-      pos: Vector2;
-      mustBeInLOS: boolean;
-      visible?: boolean;
-      type: "loot" | "objective";
-    }
-
     let visibleItemsFromGrid: VisibleItem[] = [];
 
     if (context.itemGrid) {

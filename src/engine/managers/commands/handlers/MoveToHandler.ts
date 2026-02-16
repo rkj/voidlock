@@ -6,7 +6,7 @@ import {
   UnitState,
   MoveCommand,
 } from "@src/shared/types";
-import { IDirector } from "@src/engine/interfaces/IDirector";
+import { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
 import { IUnitCommandHandler } from "../IUnitCommandHandler";
 import { Pathfinder } from "@src/engine/Pathfinder";
 import { MathUtils } from "@src/shared/utils/MathUtils";
@@ -24,7 +24,7 @@ export class MoveToHandler implements IUnitCommandHandler {
     _state: GameState,
     isManual: boolean,
     _registry: UnitCommandRegistry,
-    _director?: IDirector,
+    _director?: ItemEffectHandler,
   ): Unit {
     const moveCmd = cmd as MoveCommand;
     let currentUnit = { ...unit };
