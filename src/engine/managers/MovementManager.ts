@@ -20,14 +20,8 @@ export class MovementManager {
     const moveDist =
       ((unit.stats.speed / SPEED_NORMALIZATION_CONST) * dt) / 1000;
 
-    const currentCell = {
-      x: Math.floor(unit.pos.x),
-      y: Math.floor(unit.pos.y),
-    };
-    const nextCell = {
-      x: Math.floor(unit.targetPos.x),
-      y: Math.floor(unit.targetPos.y),
-    };
+    const currentCell = MathUtils.toCellCoord(unit.pos);
+    const nextCell = MathUtils.toCellCoord(unit.targetPos);
 
     if (
       (currentCell.x !== nextCell.x || currentCell.y !== nextCell.y) &&

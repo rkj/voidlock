@@ -5,6 +5,7 @@ import { Icons } from "@src/renderer/Icons";
 import { StatDisplay } from "@src/renderer/ui/StatDisplay";
 import { TimeUtility } from "@src/renderer/TimeUtility";
 import { SoldierWidget } from "@src/renderer/ui/SoldierWidget";
+import { MathUtils } from "@src/shared/utils/MathUtils";
 
 export class HUDManager {
   private lastMenuHtml = "";
@@ -320,7 +321,7 @@ export class HUDManager {
         const pending = state.units.filter((u) => u.archetypeId !== "vip" && u.isDeployed === false);
         const currentOccupiedSpawns = state.units
           .filter((u) => u.isDeployed !== false)
-          .map((u) => ({ x: Math.floor(u.pos.x), y: Math.floor(u.pos.y) }));
+          .map((u) => MathUtils.toCellCoord(u.pos));
         
         const allSpawns = state.map.squadSpawns || (state.map.squadSpawn ? [state.map.squadSpawn] : []);
         
@@ -461,17 +462,17 @@ export class HUDManager {
       let hasOverlap = false;
 
       const allOnValidTiles = deployedUnits.every((u) => {
-        const x = Math.floor(u.pos.x);
-        const y = Math.floor(u.pos.y);
-        const key = `${x},${y}`;
+        const cell = MathUtils.toCellCoord(u.pos);
+        const key = MathUtils.cellKey(u.pos);
         if (positions.has(key)) hasOverlap = true;
         positions.add(key);
 
         return (
-          state.map?.squadSpawns?.some((s) => s.x === x && s.y === y) ||
+          state.map?.squadSpawns?.some((s) =>
+            MathUtils.sameCellPosition(s, cell),
+          ) ||
           (state.map?.squadSpawn &&
-            state.map.squadSpawn.x === x &&
-            state.map.squadSpawn.y === y)
+            MathUtils.sameCellPosition(state.map.squadSpawn, cell))
         );
       });
 
@@ -602,7 +603,7 @@ export class HUDManager {
     }
 
     const visibleEnemies = state.enemies.filter((e) => {
-      const cellKey = `${Math.floor(e.pos.x)},${Math.floor(e.pos.y)}`;
+      const cellKey = MathUtils.cellKey(e.pos);
       return state.visibleCells.includes(cellKey);
     });
 
@@ -759,10 +760,9 @@ export class HUDManager {
     const spawns = state.map.squadSpawns || (state.map.squadSpawn ? [state.map.squadSpawn] : []);
     
     for (const spawn of spawns) {
-      const isOccupied = state.units.some(u => 
-        u.isDeployed !== false && 
-        Math.floor(u.pos.x) === spawn.x && 
-        Math.floor(u.pos.y) === spawn.y
+      const isOccupied = state.units.some(
+        (u) =>
+          u.isDeployed !== false && MathUtils.sameCellPosition(u.pos, spawn),
       );
       if (!isOccupied) return spawn;
     }

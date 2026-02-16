@@ -11,6 +11,7 @@ import {
 } from "@src/shared/types";
 import { RoomDiscoveryManager } from "./RoomDiscoveryManager";
 import { isCellVisible, isCellDiscovered } from "@src/shared/VisibilityUtils";
+import { MathUtils } from "@src/shared/utils/MathUtils";
 
 export type OverlayType =
   | "CELL"
@@ -38,13 +39,12 @@ export class TargetOverlayGenerator {
     if (type === "HOSTILE_UNIT") {
       let enemyCounter = 0;
       gameState.enemies.forEach((e) => {
-        if (
-          isCellVisible(gameState, Math.floor(e.pos.x), Math.floor(e.pos.y))
-        ) {
+        const cell = MathUtils.toCellCoord(e.pos);
+        if (isCellVisible(gameState, cell.x, cell.y)) {
           options.push({
             key: this.getRoomKey(enemyCounter),
             label: `${e.type}`,
-            pos: { x: Math.floor(e.pos.x), y: Math.floor(e.pos.y) },
+            pos: cell,
             id: e.id,
           });
           enemyCounter++;
@@ -66,19 +66,14 @@ export class TargetOverlayGenerator {
 
       if (gameState.loot) {
         gameState.loot.forEach((loot) => {
-          if (
-            isCellVisible(
-              gameState,
-              Math.floor(loot.pos.x),
-              Math.floor(loot.pos.y),
-            )
-          ) {
+          const cell = MathUtils.toCellCoord(loot.pos);
+          if (isCellVisible(gameState, cell.x, cell.y)) {
             const item = ItemLibrary[loot.itemId] || WeaponLibrary[loot.itemId];
             const itemName = item?.name || loot.itemId;
             options.push({
               key: this.getRoomKey(itemCounter),
               label: `Pickup ${itemName}`,
-              pos: { x: Math.floor(loot.pos.x), y: Math.floor(loot.pos.y) },
+              pos: cell,
               id: loot.id,
             });
             itemCounter++;
@@ -101,7 +96,7 @@ export class TargetOverlayGenerator {
           options.push({
             key: this.getRoomKey(unitCounter),
             label: `${displayName} (${tacticalNumber})`,
-            pos: { x: Math.floor(u.pos.x), y: Math.floor(u.pos.y) },
+            pos: MathUtils.toCellCoord(u.pos),
             id: u.id,
           });
           unitCounter++;
@@ -145,9 +140,7 @@ export class TargetOverlayGenerator {
       // 1. Current Soldier Position
       gameState.units.forEach((u) => {
         if (u.state !== UnitState.Dead && u.state !== UnitState.Extracted) {
-          const ux = Math.floor(u.pos.x);
-          const uy = Math.floor(u.pos.y);
-          placementPositions.add(`${ux},${uy}`);
+          placementPositions.add(MathUtils.cellKey(u.pos));
         }
       });
 

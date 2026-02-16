@@ -37,19 +37,17 @@ export class CombatManager {
     let currentUnit = this.updateActiveWeapon(unit, state);
 
     // 2. Identification: All visible enemies in range
-    const visibleEnemiesInRange = state.enemies.filter(
-      (enemy) =>
-        enemy.hp > 0 &&
-        MathUtils.getDistance(currentUnit.pos, enemy.pos) <=
-          currentUnit.stats.attackRange + COMBAT.RANGED_RANGE_BUFFER &&
-        isCellVisible(state, Math.floor(enemy.pos.x), Math.floor(enemy.pos.y)),
-    );
+    const visibleEnemiesInRange = state.enemies.filter((enemy) => {
+      if (enemy.hp <= 0) return false;
+      const distance = MathUtils.getDistance(currentUnit.pos, enemy.pos);
+      if (distance > currentUnit.stats.attackRange + COMBAT.RANGED_RANGE_BUFFER)
+        return false;
+      const cell = MathUtils.toCellCoord(enemy.pos);
+      return isCellVisible(state, cell.x, cell.y);
+    });
 
     const enemiesInSameCell = state.enemies.filter(
-      (enemy) =>
-        enemy.hp > 0 &&
-        Math.floor(enemy.pos.x) === Math.floor(currentUnit.pos.x) &&
-        Math.floor(enemy.pos.y) === Math.floor(currentUnit.pos.y),
+      (enemy) => enemy.hp > 0 && MathUtils.sameCellPosition(enemy.pos, currentUnit.pos),
     );
     const isLockedInMelee = enemiesInSameCell.length > 0;
 
@@ -132,7 +130,7 @@ export class CombatManager {
 
         if (attacked) {
           // Re-clone to reflect changes from handleAttack (like lastAttackTime)
-          // Since handleAttack mutates attacker, we have to be careful.
+          // Since handleAttack is called with currentUnit, we have to be careful.
           // To be truly immutable, handleAttack should return new objects.
           if (targetEnemy.hp <= 0) {
             currentUnit = {
@@ -242,11 +240,11 @@ export class CombatManager {
   public updateActiveWeapon(unit: Unit, state: GameState): Unit {
     if (!unit.rightHand && !unit.leftHand) return unit;
 
-    const visibleEnemies = state.enemies.filter(
-      (enemy) =>
-        enemy.hp > 0 &&
-        isCellVisible(state, Math.floor(enemy.pos.x), Math.floor(enemy.pos.y)),
-    );
+    const visibleEnemies = state.enemies.filter((enemy) => {
+      if (enemy.hp <= 0) return false;
+      const cell = MathUtils.toCellCoord(enemy.pos);
+      return isCellVisible(state, cell.x, cell.y);
+    });
 
     const rightWeapon = unit.rightHand
       ? WeaponLibrary[unit.rightHand]

@@ -198,31 +198,19 @@ export class Director implements IDirector {
           (e) => e.id === cmd.targetUnitId,
         );
         if (targetEnemy) {
-          targetPos = {
-            x: Math.floor(targetEnemy.pos.x),
-            y: Math.floor(targetEnemy.pos.y),
-          };
+          targetPos = MathUtils.toCellCoord(targetEnemy.pos);
         }
       }
 
       if (targetPos) {
-        const targetX = Math.floor(targetPos.x);
-        const targetY = Math.floor(targetPos.y);
-
         state.enemies.forEach((e) => {
-          if (
-            Math.floor(e.pos.x) === targetX &&
-            Math.floor(e.pos.y) === targetY
-          ) {
+          if (MathUtils.sameCellPosition(e.pos, targetPos!)) {
             e.hp -= ITEMS.GRENADE_DAMAGE;
           }
         });
 
         state.units.forEach((u) => {
-          if (
-            Math.floor(u.pos.x) === targetX &&
-            Math.floor(u.pos.y) === targetY
-          ) {
+          if (MathUtils.sameCellPosition(u.pos, targetPos!)) {
             u.hp -= ITEMS.GRENADE_DAMAGE;
           }
         });
@@ -233,10 +221,7 @@ export class Director implements IDirector {
       if (cmd.targetUnitId) {
         const targetUnit = state.units.find((u) => u.id === cmd.targetUnitId);
         if (targetUnit) {
-          targetPos = {
-            x: Math.floor(targetUnit.pos.x),
-            y: Math.floor(targetUnit.pos.y),
-          };
+          targetPos = MathUtils.toCellCoord(targetUnit.pos);
         }
       }
 
@@ -260,7 +245,7 @@ export class Director implements IDirector {
                 if (state.gridState) {
                   state.gridState[ty * state.map.width + tx] |= 2;
                 }
-                const key = `${tx},${ty}`;
+                const key = MathUtils.cellKey({ x: tx, y: ty });
                 if (!state.discoveredCells.includes(key)) {
                   state.discoveredCells.push(key);
                 }

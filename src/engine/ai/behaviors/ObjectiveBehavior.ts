@@ -102,11 +102,8 @@ export class ObjectiveBehavior implements Behavior {
         ] as VisibleItem[]
       ).filter((item) => {
         if ("visible" in item && item.visible) return true;
-        return isCellVisible(
-          state,
-          Math.floor(item.pos.x),
-          Math.floor(item.pos.y),
-        );
+        const cell = MathUtils.toCellCoord(item.pos);
+        return isCellVisible(state, cell.x, cell.y);
       });
     }
 
@@ -213,15 +210,11 @@ export class ObjectiveBehavior implements Behavior {
             };
           } else if (obj.kind === "Kill" && obj.targetEnemyId) {
             const enemy = state.enemies.find((e) => e.id === obj.targetEnemyId);
-            if (
-              enemy &&
-              isCellVisible(
-                state,
-                Math.floor(enemy.pos.x),
-                Math.floor(enemy.pos.y),
-              )
-            ) {
-              targetPos = enemy.pos;
+            if (enemy) {
+              const enemyCell = MathUtils.toCellCoord(enemy.pos);
+              if (isCellVisible(state, enemyCell.x, enemyCell.y)) {
+                targetPos = enemy.pos;
+              }
             }
           }
 
@@ -245,13 +238,10 @@ export class ObjectiveBehavior implements Behavior {
             const e = state.enemies.find(
               (en) => en.id === bestObj.obj.targetEnemyId,
             );
-            if (e) target = { x: Math.floor(e.pos.x), y: Math.floor(e.pos.y) };
+            if (e) target = MathUtils.toCellCoord(e.pos);
           }
 
-          if (
-            Math.floor(currentUnit.pos.x) !== target.x ||
-            Math.floor(currentUnit.pos.y) !== target.y
-          ) {
+          if (!MathUtils.sameCellPosition(currentUnit.pos, target)) {
             const label =
               bestObj.obj.kind === "Recover"
                 ? "Recovering"
@@ -285,12 +275,7 @@ export class ObjectiveBehavior implements Behavior {
       const isExtDiscovered = isCellDiscovered(state, ext.x, ext.y);
 
       if (isExtDiscovered) {
-        const unitCurrentCell = {
-          x: Math.floor(currentUnit.pos.x),
-          y: Math.floor(currentUnit.pos.y),
-        };
-
-        if (unitCurrentCell.x !== ext.x || unitCurrentCell.y !== ext.y) {
+        if (!MathUtils.sameCellPosition(currentUnit.pos, ext)) {
           currentUnit = { ...currentUnit, explorationTarget: undefined };
           currentUnit = context.executeCommand(
             currentUnit,

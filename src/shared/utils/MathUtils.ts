@@ -32,4 +32,28 @@ export class MathUtils {
   public static clamp(val: number, min: number, max: number): number {
     return Math.min(Math.max(val, min), max);
   }
+
+  /**
+   * Convert a continuous position to integer cell coordinates
+   */
+  public static toCellCoord(pos: Vector2): Vector2 {
+    return { x: Math.floor(pos.x), y: Math.floor(pos.y) };
+  }
+
+  /**
+   * Generate a stable string key for a cell position "x,y"
+   */
+  public static cellKey(pos: Vector2): string {
+    return `${Math.floor(pos.x)},${Math.floor(pos.y)}`;
+  }
+
+  /**
+   * Check if two positions are in the same 1x1 cell
+   */
+  public static sameCellPosition(pos1: Vector2, pos2: Vector2): boolean {
+    return (
+      Math.floor(pos1.x) === Math.floor(pos2.x) &&
+      Math.floor(pos1.y) === Math.floor(pos2.y)
+    );
+  }
 }

@@ -13,6 +13,7 @@ import {
   CommandType,
 } from "@src/shared/types";
 import { PRNG } from "../shared/PRNG";
+import { MathUtils } from "../shared/utils/MathUtils";
 import { GameGrid } from "./GameGrid";
 import { Pathfinder } from "./Pathfinder";
 import { LineOfSight } from "./LineOfSight";
@@ -202,13 +203,12 @@ export class CoreEngine {
         this.addUnit(vip);
 
         // Reveal VIP position
-        const vx = Math.floor(vip.pos.x);
-        const vy = Math.floor(vip.pos.y);
-        const vipCellKey = `${vx},${vy}`;
+        const cell = MathUtils.toCellCoord(vip.pos);
+        const vipCellKey = MathUtils.cellKey(vip.pos);
         if (!this.state.discoveredCells.includes(vipCellKey)) {
           this.state.discoveredCells.push(vipCellKey);
           if (this.state.gridState) {
-            this.state.gridState[vy * map.width + vx] |= 2;
+            this.state.gridState[cell.y * map.width + cell.x] |= 2;
           }
         }
       });
@@ -225,24 +225,22 @@ export class CoreEngine {
     // Reveal spawn area and update initial visibility
     if (map.squadSpawns) {
       map.squadSpawns.forEach((sp) => {
-        const vx = Math.floor(sp.x);
-        const vy = Math.floor(sp.y);
-        const key = `${vx},${vy}`;
+        const cell = MathUtils.toCellCoord(sp);
+        const key = MathUtils.cellKey(sp);
         if (!this.state.discoveredCells.includes(key)) {
           this.state.discoveredCells.push(key);
           if (this.state.gridState) {
-            this.state.gridState[vy * map.width + vx] |= 2;
+            this.state.gridState[cell.y * map.width + cell.x] |= 2;
           }
         }
       });
     } else if (map.squadSpawn) {
-      const vx = Math.floor(map.squadSpawn.x);
-      const vy = Math.floor(map.squadSpawn.y);
-      const key = `${vx},${vy}`;
+      const cell = MathUtils.toCellCoord(map.squadSpawn);
+      const key = MathUtils.cellKey(map.squadSpawn);
       if (!this.state.discoveredCells.includes(key)) {
         this.state.discoveredCells.push(key);
         if (this.state.gridState) {
-          this.state.gridState[vy * map.width + vx] |= 2;
+          this.state.gridState[cell.y * map.width + cell.x] |= 2;
         }
       }
     }
@@ -397,36 +395,32 @@ export class CoreEngine {
     const enemies = !shouldPrune
       ? [...state.enemies]
       : state.enemies.filter((e) => {
-          const ex = Math.floor(e.pos.x);
-          const ey = Math.floor(e.pos.y);
-          const idx = ey * state.map.width + ex;
+          const cell = MathUtils.toCellCoord(e.pos);
+          const idx = cell.y * state.map.width + cell.x;
           return state.gridState && (state.gridState[idx] & 1) !== 0;
         });
 
     const turrets = !shouldPrune
       ? [...state.turrets]
       : state.turrets.filter((t) => {
-          const tx = Math.floor(t.pos.x);
-          const ty = Math.floor(t.pos.y);
-          const idx = ty * state.map.width + tx;
+          const cell = MathUtils.toCellCoord(t.pos);
+          const idx = cell.y * state.map.width + cell.x;
           return state.gridState && (state.gridState[idx] & 1) !== 0;
         });
 
     const mines = !shouldPrune
       ? [...state.mines]
       : state.mines.filter((m) => {
-          const mx = Math.floor(m.pos.x);
-          const my = Math.floor(m.pos.y);
-          const idx = my * state.map.width + mx;
+          const cell = MathUtils.toCellCoord(m.pos);
+          const idx = cell.y * state.map.width + cell.x;
           return state.gridState && (state.gridState[idx] & 1) !== 0;
         });
 
     const loot = !shouldPrune
       ? [...state.loot]
       : state.loot.filter((l) => {
-          const lx = Math.floor(l.pos.x);
-          const ly = Math.floor(l.pos.y);
-          const idx = ly * state.map.width + lx;
+          const cell = MathUtils.toCellCoord(l.pos);
+          const idx = cell.y * state.map.width + cell.x;
           // Loot is visible if cell is discovered (bit 1) or currently visible (bit 0)
           return state.gridState && (state.gridState[idx] & 3) !== 0;
         });
@@ -623,10 +617,7 @@ export class CoreEngine {
               const updatedObj = {
                 ...o,
                 state: "Pending" as const,
-                targetCell: {
-                  x: Math.floor(unit.pos.x),
-                  y: Math.floor(unit.pos.y),
-                },
+                targetCell: MathUtils.toCellCoord(unit.pos),
               };
 
               if (objectiveId.startsWith("artifact")) {

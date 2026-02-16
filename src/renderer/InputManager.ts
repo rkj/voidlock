@@ -8,6 +8,7 @@ import {
 } from "@src/shared/types";
 import { ModalService } from "./ui/ModalService";
 import { InputDispatcher } from "./InputDispatcher";
+import { MathUtils } from "@src/shared/utils/MathUtils";
 
 export class InputManager implements InputContext {
   public id = "TacticalInput";
@@ -239,7 +240,7 @@ export class InputManager implements InputContext {
 
     const cell = this.getCellCoordinates(e.clientX, e.clientY);
     const unit = state.units.find(
-      (u) => Math.floor(u.pos.x) === cell.x && Math.floor(u.pos.y) === cell.y && u.isDeployed !== false,
+      (u) => MathUtils.sameCellPosition(u.pos, cell) && u.isDeployed !== false,
     );
 
     if (unit && unit.archetypeId !== "vip") {
@@ -267,9 +268,7 @@ export class InputManager implements InputContext {
         const cell = this.getCellCoordinates(e.clientX, e.clientY);
         const unit = state.units.find(
           (u) =>
-            Math.floor(u.pos.x) === cell.x &&
-            Math.floor(u.pos.y) === cell.y &&
-            u.isDeployed !== false,
+            MathUtils.sameCellPosition(u.pos, cell) && u.isDeployed !== false,
         );
         const canvas = document.getElementById("game-canvas");
         if (canvas) {
@@ -357,9 +356,7 @@ export class InputManager implements InputContext {
         const cell = this.getCellCoordinates(touch.clientX, touch.clientY);
         const unit = state.units.find(
           (u) =>
-            Math.floor(u.pos.x) === cell.x &&
-            Math.floor(u.pos.y) === cell.y &&
-            u.isDeployed !== false,
+            MathUtils.sameCellPosition(u.pos, cell) && u.isDeployed !== false,
         );
         if (unit && unit.archetypeId !== "vip") {
           this.draggingUnitId = unit.id;

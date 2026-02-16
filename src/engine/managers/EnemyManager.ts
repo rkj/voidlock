@@ -51,34 +51,22 @@ export class EnemyManager {
     const triggeredMineIds = new Set<string>();
     state.mines.forEach((mine) => {
       const triggeringEnemy = state.enemies.find(
-        (e) =>
-          e.hp > 0 &&
-          Math.floor(e.pos.x) === Math.floor(mine.pos.x) &&
-          Math.floor(e.pos.y) === Math.floor(mine.pos.y),
+        (e) => e.hp > 0 && MathUtils.sameCellPosition(e.pos, mine.pos),
       );
 
       if (triggeringEnemy) {
         triggeredMineIds.add(mine.id);
 
-        const targetX = Math.floor(mine.pos.x);
-        const targetY = Math.floor(mine.pos.y);
-
         // Mutate in-place for this pass as it's a global effect,
         // but we'll capture changes in the map() below.
         state.enemies.forEach((e) => {
-          if (
-            Math.floor(e.pos.x) === targetX &&
-            Math.floor(e.pos.y) === targetY
-          ) {
+          if (MathUtils.sameCellPosition(e.pos, mine.pos)) {
             e.hp -= mine.damage;
           }
         });
 
         state.units.forEach((u) => {
-          if (
-            Math.floor(u.pos.x) === targetX &&
-            Math.floor(u.pos.y) === targetY
-          ) {
+          if (MathUtils.sameCellPosition(u.pos, mine.pos)) {
             u.hp -= mine.damage;
           }
         });
@@ -115,8 +103,7 @@ export class EnemyManager {
           unit.hp > 0 &&
           unit.state !== "Extracted" &&
           unit.state !== "Dead" &&
-          Math.floor(unit.pos.x) === Math.floor(currentEnemy.pos.x) &&
-          Math.floor(unit.pos.y) === Math.floor(currentEnemy.pos.y),
+          MathUtils.sameCellPosition(unit.pos, currentEnemy.pos),
       );
       const isLockedInMelee = unitsInSameCell.length > 0;
 

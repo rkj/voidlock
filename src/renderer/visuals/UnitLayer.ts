@@ -10,6 +10,7 @@ import {
 import { ThemeManager } from "@src/renderer/ThemeManager";
 import { AssetManager } from "./AssetManager";
 import { isCellVisible } from "@src/shared/VisibilityUtils";
+import { MathUtils } from "@src/shared/utils/MathUtils";
 
 export class UnitLayer implements RenderLayer {
   private theme = ThemeManager.getInstance();
@@ -115,9 +116,11 @@ export class UnitLayer implements RenderLayer {
     state.enemies.forEach((enemy, index) => {
       if (enemy.hp <= 0) return;
 
-      const ex = Math.floor(enemy.pos.x);
-      const ey = Math.floor(enemy.pos.y);
-      if (!isCellVisible(state, ex, ey) && !state.settings.debugOverlayEnabled)
+      const cell = MathUtils.toCellCoord(enemy.pos);
+      if (
+        !isCellVisible(state, cell.x, cell.y) &&
+        !state.settings.debugOverlayEnabled
+      )
         return;
 
       const x = enemy.pos.x * cellSize;

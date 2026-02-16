@@ -8,6 +8,7 @@ import {
 } from "../../../shared/types";
 import { AIContext } from "../../managers/UnitAI";
 import { PRNG } from "../../../shared/PRNG";
+import { MathUtils } from "../../../shared/utils/MathUtils";
 import { Behavior, BehaviorResult } from "./Behavior";
 import { SPEED_NORMALIZATION_CONST, ITEMS } from "../../config/GameConstants";
 import { IDirector } from "../../interfaces/IDirector";
@@ -70,8 +71,7 @@ export class InteractionBehavior implements Behavior {
         if (obj.state === "Pending") {
           const isAtTarget =
             obj.targetCell &&
-            Math.floor(currentUnit.pos.x) === obj.targetCell.x &&
-            Math.floor(currentUnit.pos.y) === obj.targetCell.y;
+            MathUtils.sameCellPosition(currentUnit.pos, obj.targetCell);
 
           const isClaimedByMe =
             (currentUnit.activeCommand?.type === CommandType.PICKUP &&
@@ -118,9 +118,7 @@ export class InteractionBehavior implements Behavior {
           return false;
         });
 
-      const isAtExtraction =
-        Math.floor(currentUnit.pos.x) === ext.x &&
-        Math.floor(currentUnit.pos.y) === ext.y;
+      const isAtExtraction = MathUtils.sameCellPosition(currentUnit.pos, ext);
 
       const isVipAtExtraction =
         currentUnit.archetypeId === "vip" && isAtExtraction;
