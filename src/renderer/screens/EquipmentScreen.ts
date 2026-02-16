@@ -45,7 +45,7 @@ export class EquipmentScreen {
     if (!el) throw new Error(`Container #${containerId} not found`);
     this.container = el;
     this.manager = manager;
-    this.config = JSON.parse(JSON.stringify(initialConfig)); // Deep copy
+    this.config = structuredClone(initialConfig); // Deep copy
     this.applyDefaults();
     this.onSave = onSave;
     this.onBack = onBack;
@@ -153,7 +153,7 @@ export class EquipmentScreen {
   }
 
   public updateConfig(config: SquadConfig) {
-    this.config = JSON.parse(JSON.stringify(config));
+    this.config = structuredClone(config);
     this.applyDefaults();
     this.selectedSoldierIndex = 0;
     this.render();
