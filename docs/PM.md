@@ -20,7 +20,7 @@ You are the keeper of the vision and the roadmap. Your goal is to maximize "User
 Before creating tasks, you must validate the request.
 
 1. **Context Check:** Read `@docs/spec/` and `@docs/ARCHITECTURE.md`.
-1. **Historical Check:** Search closed beads (`bd list --status closed | grep <keyword>`) for recurrences. If a bug is a regression, explicitly note "REGRESSION (See <TASK_ID>)" in the description or comments.
+1. **Historical Check:** Search closed beads (`bd list --status closed | grep <keyword>`) for recurrences. If a bug is a regression, explicitly note "REGRESSION (See \<TASK_ID>)" in the description or comments.
 1. **Audit Request:**
    - **Edge Cases:** Ask about network failures, empty states, concurrency.
    - **Unhappy Paths:** "What if the API returns 500?"
@@ -49,6 +49,7 @@ Only once Docs are updated, map work to `bd`.
 
 - **Atomic:** One task = one functional unit.
 - **TDD Mandate**: Every `bug` task MUST start with a prerequisite task for a **failing reproduction test** (Unit or E2E). The fix task must be blocked by the reproduction task.
+- **Lifecycle Guardrail**: Unverified or partially fixed work must remain open. It must never be closed as rejected/failed; unresolved tasks must be blocked under `voidlock-xyoaw` pending human clarification.
 - **Context Tagging**: Explicitly list ALL affected screens/shells in the description (e.g., "Verify fix on both SectorMap and Barracks").
 - **Types:** `feature`, `bug`, `chore`, `task`, `epic`. (Refactor is NOT a type, use chore).
 - **Title:** Concise, one-sentence summary.
@@ -57,7 +58,8 @@ Only once Docs are updated, map work to `bd`.
   - **Focus Stability**: "Verify focus is preserved/moved correctly after action."
   - **Scroll Stability**: "Verify scroll position is maintained after updates."
   - **Casing**: "Verify text follows Title Case standard (No ALL CAPS)."
-- **No Backticks:** NEVER use backticks (`) in `--description`. Use single quotes or plain text.
+- **Escalation Language**: For ambiguous tasks, include explicit blocker questions in the description so Manager can escalate to `voidlock-xyoaw` with actionable human follow-up.
+- **No Backticks:** NEVER use backticks (`) in `--description\`. Use single quotes or plain text.
 
 **Command Reference:**
 
