@@ -10,6 +10,7 @@ import {
   MissionType,
   EngineMode,
   AIProfile,
+  CommandType,
 } from "@src/shared/types";
 import { GameApp } from "@src/renderer/app/GameApp";
 
@@ -29,11 +30,19 @@ const mockGameClient = {
   stop: vi.fn(),
   getIsPaused: vi.fn().mockReturnValue(false),
   getTargetScale: vi.fn().mockReturnValue(1.0),
+  getTimeScale: vi.fn().mockReturnValue(1.0),
   setTimeScale: vi.fn(),
   togglePause: vi.fn(),
   toggleDebugOverlay: vi.fn(),
   toggleLosOverlay: vi.fn(),
   getReplayData: vi.fn().mockReturnValue({ seed: 123, commands: [] }),
+  applyCommand: vi.fn(),
+  seek: vi.fn(),
+  pause: vi.fn(),
+  resume: vi.fn(),
+  queryState: vi.fn(),
+  getFullState: vi.fn(),
+  setTickRate: vi.fn(),
   forceWin: vi.fn(),
   forceLose: vi.fn(),
   loadReplay: vi.fn(),
@@ -358,7 +367,9 @@ describe("E2E Campaign Happy Path", () => {
       expect(debugWinBtn).toBeTruthy();
       debugWinBtn?.click();
 
-      expect(mockGameClient.forceWin).toHaveBeenCalled();
+      expect(mockGameClient.applyCommand).toHaveBeenCalledWith({
+        type: CommandType.DEBUG_FORCE_WIN,
+      });
 
       // Mock the engine response for winning
       stateUpdateCallback!(

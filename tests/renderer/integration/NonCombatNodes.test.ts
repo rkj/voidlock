@@ -18,6 +18,8 @@ const mockGameClient = {
   stop: vi.fn(),
   getIsPaused: vi.fn().mockReturnValue(false),
   getTargetScale: vi.fn().mockReturnValue(1.0),
+  setTimeScale: vi.fn(),
+  getTimeScale: vi.fn().mockReturnValue(1.0),
   togglePause: vi.fn(),
   toggleDebugOverlay: vi.fn(),
   toggleLosOverlay: vi.fn(),

@@ -22,6 +22,8 @@ describe("CampaignShell Consistency", () => {
         currentSector: 2,
         status: "Active",
       }),
+      getSyncStatus: vi.fn().mockReturnValue("local-only"),
+      getStorage: vi.fn(),
     };
 
     onTabChange = vi.fn();

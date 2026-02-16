@@ -713,19 +713,6 @@ export class GameApp {
           ? this.missionSetupManager.rehydrateCampaignNode()
           : false;
 
-        // If in campaign, redirect mission-setup to equipment
-        if (rehydrated && isCampaign) {
-          this.applyCampaignTheme();
-          this.missionSetupManager.loadAndApplyConfig(true);
-          this.equipmentScreen.setCampaign(true);
-          this.equipmentScreen.updateConfig(
-            this.missionSetupManager.currentSquad,
-          );
-          this.switchScreen("equipment", true);
-          this.campaignShell.show("campaign", "sector-map", false);
-          break;
-        }
-
         this.missionSetupManager.loadAndApplyConfig(rehydrated);
         if (rehydrated) {
           this.applyCampaignTheme();
@@ -827,6 +814,7 @@ export class GameApp {
   public stop() {
     this.gameClient.stop();
     this.inputManager.destroy();
+    this.screenManager.destroy();
     InputDispatcher.getInstance().popContext("tactical");
   }
 
@@ -886,10 +874,18 @@ export class GameApp {
       });
       this.missionSetupManager.currentSquad = config;
       this.missionSetupManager.saveCurrentConfig();
+
+      // After equipment confirmed in campaign, go to mission-setup for final launch
+      this.switchScreen("mission-setup", true);
+      this.campaignShell.show("campaign", "sector-map", false);
     } else {
       // In custom, just update the setup manager
       this.missionSetupManager.currentSquad = config;
       this.missionSetupManager.saveCurrentConfig();
+      
+      // Also return to mission-setup in custom flow
+      this.switchScreen("mission-setup", false);
+      this.campaignShell.show("custom", "setup");
     }
   }
 
@@ -960,13 +956,21 @@ export class GameApp {
       }
     }
 
-    // 5. Navigate to setup screen
-    this.onShellTabChange("setup");
+    // 5. Navigate to equipment screen (skipping mission-setup)
+    this.applyCampaignTheme();
+    this.missionSetupManager.loadAndApplyConfig(true);
+    this.equipmentScreen.setCampaign(true);
+    this.equipmentScreen.updateConfig(
+      this.missionSetupManager.currentSquad,
+    );
+    this.switchScreen("equipment", true);
+    this.campaignShell.show("campaign", "sector-map", false);
   }
 
   private onCampaignStart() {
-    // Launch the mission with campaign parameters
-    this.launchMission();
+    // Show the campaign shell and the campaign screen (sector map)
+    this.campaignShell.show("campaign", "sector-map");
+    this.switchScreen("campaign", true);
   }
 
   private handleMenuInput(key: string, shiftHeld: boolean = false) {

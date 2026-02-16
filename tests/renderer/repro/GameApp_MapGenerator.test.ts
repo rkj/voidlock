@@ -18,6 +18,8 @@ vi.mock("@src/engine/GameClient", () => ({
     stop: vi.fn(),
     getIsPaused: vi.fn().mockReturnValue(false),
     getTargetScale: vi.fn().mockReturnValue(1.0),
+  setTimeScale: vi.fn(),
+  getTimeScale: vi.fn().mockReturnValue(1.0),
     togglePause: vi.fn(),
     toggleDebugOverlay: vi.fn(),
     toggleLosOverlay: vi.fn(),
@@ -126,7 +128,10 @@ describe("GameApp Map Generator Selection Repro", () => {
         <div id="mission-setup-context"></div>
         <div id="map-config-section">
            <select id="map-generator-type">
+             <option value="DenseShip">Dense Ship</option>
+             <option value="TreeShip">Tree Ship</option>
              <option value="Procedural">Procedural</option>
+             <option value="Static">Static Map</option>
            </select>
            <input id="map-seed" />
            <input id="map-width" />

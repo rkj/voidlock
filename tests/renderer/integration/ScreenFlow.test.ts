@@ -19,7 +19,7 @@ vi.mock("@package.json", () => ({
 }));
 
 // We need a way to trigger the GameClient callbacks
-let stateUpdateCallback: ((state: any) => void) | null = null;
+let stateUpdateCallback: ((state: GameState) => void) | null = null;
 
 const mockGameClient = {
   init: vi.fn(),
@@ -32,6 +32,7 @@ const mockGameClient = {
   getIsPaused: vi.fn().mockReturnValue(false),
   getTargetScale: vi.fn().mockReturnValue(1.0),
   setTimeScale: vi.fn(),
+  getTimeScale: vi.fn().mockReturnValue(1.0),
   togglePause: vi.fn(),
   toggleDebugOverlay: vi.fn(),
   toggleLosOverlay: vi.fn(),
@@ -152,6 +153,8 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
         reset: vi.fn(),
         deleteSave: vi.fn(),
         assignEquipment: vi.fn(),
+        getStorage: vi.fn(),
+        getSyncStatus: vi.fn().mockReturnValue("local-only"),
       }),
     },
   };

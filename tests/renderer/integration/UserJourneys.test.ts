@@ -30,6 +30,7 @@ const mockGameClient = {
   stop: vi.fn(),
   getIsPaused: vi.fn().mockReturnValue(false),
   getTargetScale: vi.fn().mockReturnValue(1.0),
+  getTimeScale: vi.fn().mockReturnValue(1.0),
   setTimeScale: vi.fn(),
   togglePause: vi.fn(),
   toggleDebugOverlay: vi.fn(),
@@ -88,6 +89,8 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
     CampaignManager: {
       getInstance: vi.fn().mockReturnValue({
         getState: vi.fn(() => currentCampaignState),
+        getStorage: vi.fn(),
+        getSyncStatus: vi.fn().mockReturnValue("local-only"),
         load: vi.fn(),
         processMissionResult: vi.fn(),
         save: vi.fn(),
@@ -238,7 +241,10 @@ describe("Comprehensive User Journeys", () => {
       <div id="screen-mission-setup" class="screen screen-centered" style="display:none">
         <div id="map-config-section">
           <select id="map-generator-type">
+            <option value="DenseShip">Dense Ship</option>
+            <option value="TreeShip">Tree Ship</option>
             <option value="Procedural">Procedural</option>
+            <option value="Static">Static Map</option>
           </select>
           <input type="number" id="map-seed" />
           <div id="preset-map-controls">
@@ -254,7 +260,6 @@ describe("Comprehensive User Journeys", () => {
         <button id="btn-goto-equipment">Equipment</button>
         <button id="btn-setup-back">Back</button>
       </div>
-      <div id="screen-equipment" class="screen" style="display:none"></div>
       <div id="screen-mission" class="screen" style="display:none">
         <div id="top-bar">
           <div id="game-status"></div>
