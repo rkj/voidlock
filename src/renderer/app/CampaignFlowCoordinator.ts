@@ -1,4 +1,3 @@
-import { AppContext } from "./AppContext";
 import {
   CampaignNode,
   calculateMapSize,
@@ -8,9 +7,18 @@ import {
 import { PRNG } from "@src/shared/PRNG";
 import { CampaignEvents } from "@src/content/CampaignEvents";
 import { EventModal, OutcomeModal } from "@src/renderer/ui/EventModal";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { ScreenManager } from "@src/renderer/ScreenManager";
+import { CampaignShell } from "@src/renderer/ui/CampaignShell";
+import { ModalService } from "@src/renderer/ui/ModalService";
 
 export class CampaignFlowCoordinator {
-  constructor(private context: AppContext) {}
+  constructor(
+    private campaignManager: CampaignManager,
+    private screenManager: ScreenManager,
+    private campaignShell: CampaignShell,
+    private modalService: ModalService,
+  ) {}
 
   public async onCampaignMenu(
     applyCampaignTheme: () => void,
@@ -18,15 +26,15 @@ export class CampaignFlowCoordinator {
     showCampaignScreen: () => void,
   ) {
     applyCampaignTheme();
-    const state = this.context.campaignManager.getState();
+    const state = this.campaignManager.getState();
     if (state && (state.status === "Victory" || state.status === "Defeat")) {
       showCampaignSummary(state);
-      this.context.screenManager.show("campaign-summary", true, true);
-      this.context.campaignShell.hide();
+      this.screenManager.show("campaign-summary", true, true);
+      this.campaignShell.hide();
     } else {
       showCampaignScreen();
-      this.context.screenManager.show("campaign", true, true);
-      this.context.campaignShell.show("campaign", "sector-map");
+      this.screenManager.show("campaign", true, true);
+      this.campaignShell.show("campaign", "sector-map");
     }
   }
 
@@ -40,10 +48,10 @@ export class CampaignFlowCoordinator {
     ) => void,
   ) {
     if (node.type === "Shop") {
-      await this.context.modalService.alert(
+      await this.modalService.alert(
         "Supply Depot reached. +100 Scrap granted for resupply.",
       );
-      this.context.campaignManager.advanceCampaignWithoutMission(
+      this.campaignManager.advanceCampaignWithoutMission(
         node.id,
         100,
         0,
@@ -57,14 +65,14 @@ export class CampaignFlowCoordinator {
       const event =
         CampaignEvents[Math.floor(prng.next() * CampaignEvents.length)];
 
-      const modal = new EventModal(this.context.modalService, (choice) => {
-        const outcome = this.context.campaignManager.applyEventChoice(
+      const modal = new EventModal(this.modalService, (choice) => {
+        const outcome = this.campaignManager.applyEventChoice(
           node.id,
           choice,
           prng,
         );
 
-        const outcomeModal = new OutcomeModal(this.context.modalService, () => {
+        const outcomeModal = new OutcomeModal(this.modalService, () => {
           if (outcome.ambush) {
             // Ambush triggers a combat mission at this node
             this.onCampaignNodeSelected(
@@ -82,7 +90,7 @@ export class CampaignFlowCoordinator {
       return;
     }
 
-    const state = this.context.campaignManager.getState();
+    const state = this.campaignManager.getState();
     const rules = state?.rules;
     const growthRate = rules?.mapGrowthRate ?? 1.0;
     const size = calculateMapSize(node.rank, growthRate);
@@ -93,7 +101,7 @@ export class CampaignFlowCoordinator {
 
   public async onResetData() {
     if (
-      await this.context.modalService.confirm(
+      await this.modalService.confirm(
         "Are you sure? This will wipe all campaign progress and settings.",
       )
     ) {

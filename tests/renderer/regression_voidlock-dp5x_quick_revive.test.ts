@@ -1,11 +1,10 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { SquadBuilder } from "@src/renderer/components/SquadBuilder";
-import { AppContext } from "@src/renderer/app/AppContext";
 import { MissionType, SquadConfig, MapGeneratorType } from "@src/shared/types";
 
 describe("Quick Revive in Mission Setup", () => {
-  let context: AppContext;
+  let context: any;
   let container: HTMLElement;
   let squad: SquadConfig;
 
@@ -71,7 +70,9 @@ describe("Quick Revive in Mission Setup", () => {
   it("should show Revive button for dead soldiers in Clone mode", () => {
     const builder = new SquadBuilder(
       "squad-builder",
-      context,
+      context.campaignManager as any,
+      context.campaignShell as any,
+      context.modalService as any,
       squad,
       MissionType.Default,
       true, // isCampaign
@@ -100,7 +101,9 @@ describe("Quick Revive in Mission Setup", () => {
 
     const builder = new SquadBuilder(
       "squad-builder",
-      context,
+      context.campaignManager as any,
+      context.campaignShell as any,
+      context.modalService as any,
       squad,
       MissionType.Default,
       true,
@@ -115,7 +118,9 @@ describe("Quick Revive in Mission Setup", () => {
   it("should call reviveSoldier and refresh UI when clicked", async () => {
     const builder = new SquadBuilder(
       "squad-builder",
-      context,
+      context.campaignManager as any,
+      context.campaignShell as any,
+      context.modalService as any,
       squad,
       MissionType.Default,
       true,
@@ -134,7 +139,9 @@ describe("Quick Revive in Mission Setup", () => {
   it("should show Recruit button if less than 4 healthy/wounded soldiers", () => {
     const builder = new SquadBuilder(
       "squad-builder",
-      context,
+      context.campaignManager as any,
+      context.campaignShell as any,
+      context.modalService as any,
       squad,
       MissionType.Default,
       true,
@@ -168,7 +175,9 @@ describe("Quick Revive in Mission Setup", () => {
 
     const builder = new SquadBuilder(
       "squad-builder",
-      context,
+      context.campaignManager as any,
+      context.campaignShell as any,
+      context.modalService as any,
       squad,
       MissionType.Default,
       true,
@@ -200,7 +209,9 @@ describe("Quick Revive in Mission Setup", () => {
 
     const builder = new SquadBuilder(
       "squad-builder",
-      context,
+      context.campaignManager as any,
+      context.campaignShell as any,
+      context.modalService as any,
       squad,
       MissionType.Default,
       true,

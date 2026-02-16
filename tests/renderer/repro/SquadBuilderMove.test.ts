@@ -1,11 +1,10 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { SquadBuilder } from "@src/renderer/components/SquadBuilder";
-import { AppContext } from "@src/renderer/app/AppContext";
 import { MissionType, SquadConfig } from "@src/shared/types";
 
 describe("SquadBuilder Move Logic", () => {
-  let context: AppContext;
+  let context: any;
   let container: HTMLElement;
   let squad: SquadConfig;
 
@@ -56,7 +55,9 @@ describe("SquadBuilder Move Logic", () => {
   it("should remove soldier from roster list when assigned to squad (Campaign)", () => {
     const builder = new SquadBuilder(
       "squad-builder",
-      context,
+      context.campaignManager as any,
+      {} as any, // mock campaignShell
+      context.modalService as any,
       squad,
       MissionType.Default,
       true, // isCampaign
@@ -94,7 +95,9 @@ describe("SquadBuilder Move Logic", () => {
     });
     const builder = new SquadBuilder(
       "squad-builder",
-      context,
+      context.campaignManager as any,
+      {} as any, // mock campaignShell
+      context.modalService as any,
       squad,
       MissionType.Default,
       true,
@@ -123,7 +126,9 @@ describe("SquadBuilder Move Logic", () => {
   it("should remove archetype from roster list when assigned to squad (Custom)", () => {
     const builder = new SquadBuilder(
       "squad-builder",
-      context,
+      context.campaignManager as any,
+      {} as any, // mock campaignShell
+      context.modalService as any,
       squad,
       MissionType.Default,
       false, // isCampaign

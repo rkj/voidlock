@@ -61,9 +61,18 @@ describe("EquipmentScreen Economics", () => {
     onSave = vi.fn();
     onBack = vi.fn();
 
+    const mockMetaManager = {
+      getStats: vi.fn().mockReturnValue({
+        totalKills: 100,
+        totalCampaignsStarted: 5,
+        totalMissionsWon: 20,
+      }),
+    };
+
     shell = new CampaignShell(
       "screen-campaign-shell",
       mockManager,
+      mockMetaManager as any,
       vi.fn(),
       vi.fn(),
     );

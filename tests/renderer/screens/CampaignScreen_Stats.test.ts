@@ -58,14 +58,8 @@ describe("CampaignScreen - Global Stats", () => {
 
     screen = new CampaignScreen(
       "screen-campaign",
-      {
-        campaignManager: manager,
-        modalService: modalService,
-        themeManager: {
-          getColor: vi.fn().mockReturnValue("#000"),
-          setTheme: vi.fn(),
-        },
-      } as any,
+      manager,
+      modalService,
       vi.fn(),
       vi.fn(),
     );

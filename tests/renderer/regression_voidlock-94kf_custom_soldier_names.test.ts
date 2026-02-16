@@ -1,7 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { SquadBuilder } from "@src/renderer/components/SquadBuilder";
-import { AppContext } from "@src/renderer/app/AppContext";
 import { MissionType, SquadConfig } from "@src/shared/types";
 import { MissionSetupManager } from "@src/renderer/app/MissionSetupManager";
 import { ConfigManager } from "@src/renderer/ConfigManager";
@@ -9,7 +8,7 @@ import { SoldierWidget } from "@src/renderer/ui/SoldierWidget";
 import { ArchetypeLibrary } from "@src/shared/types/units";
 
 describe("Regression voidlock-94kf: Custom Soldier Names", () => {
-  let context: AppContext;
+  let context: any;
   let container: HTMLElement;
   let squad: SquadConfig;
 
@@ -43,7 +42,9 @@ describe("Regression voidlock-94kf: Custom Soldier Names", () => {
   it("should generate a name and stats when adding an archetype to custom squad", () => {
     const builder = new SquadBuilder(
       "squad-builder",
-      context,
+      context.campaignManager as any,
+      {} as any, // mock campaignShell
+      context.modalService as any,
       squad,
       MissionType.Default,
       false, // isCampaign = false
@@ -82,7 +83,11 @@ describe("Regression voidlock-94kf: Custom Soldier Names", () => {
       },
     } as any);
 
-    const manager = new MissionSetupManager(context);
+    const manager = new MissionSetupManager(
+      context.campaignManager,
+      context.themeManager,
+      context.modalService,
+    );
     manager.loadAndApplyConfig(false); // isCampaign = false
 
     const squad = manager.currentSquad;

@@ -39,9 +39,18 @@ describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => 
       }),
     };
 
+    const mockMetaManager = {
+      getStats: vi.fn().mockReturnValue({
+        totalKills: 100,
+        totalCampaignsStarted: 5,
+        totalMissionsWon: 20,
+      }),
+    };
+
     shell = new CampaignShell(
       "screen-campaign-shell",
       mockManager,
+      mockMetaManager as any,
       vi.fn(),
       vi.fn(),
     );
@@ -71,9 +80,18 @@ describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => 
       getState: vi.fn().mockReturnValue(null),
     };
 
+    const mockMetaManager = {
+      getStats: vi.fn().mockReturnValue({
+        totalKills: 100,
+        totalCampaignsStarted: 5,
+        totalMissionsWon: 20,
+      }),
+    };
+
     shell = new CampaignShell(
       "screen-campaign-shell",
       mockManager,
+      mockMetaManager as any,
       vi.fn(),
       vi.fn(),
     );

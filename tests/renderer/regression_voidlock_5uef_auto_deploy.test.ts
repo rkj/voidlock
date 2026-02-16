@@ -1,11 +1,10 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { SquadBuilder } from "@src/renderer/components/SquadBuilder";
-import { AppContext } from "@src/renderer/app/AppContext";
 import { MissionType, SquadConfig } from "@src/shared/types";
 
 describe("SquadBuilder Auto-Deploy Regression", () => {
-  let context: AppContext;
+  let context: any;
   let container: HTMLElement;
   let squad: SquadConfig;
 
@@ -52,7 +51,9 @@ describe("SquadBuilder Auto-Deploy Regression", () => {
     const onUpdate = vi.fn();
     const builder = new SquadBuilder(
       "squad-builder",
-      context,
+      context.campaignManager as any,
+      context.campaignShell as any,
+      context.modalService as any,
       squad,
       MissionType.Default,
       true,
@@ -112,7 +113,9 @@ describe("SquadBuilder Auto-Deploy Regression", () => {
     const onUpdate = vi.fn();
     const builder = new SquadBuilder(
       "squad-builder",
-      context,
+      context.campaignManager as any,
+      context.campaignShell as any,
+      context.modalService as any,
       squad,
       MissionType.Default,
       true,

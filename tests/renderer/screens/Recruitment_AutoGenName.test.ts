@@ -55,11 +55,6 @@ describe("Recruitment Auto-Generated Name", () => {
   it("should NOT call modalService.prompt when recruiting in SquadBuilder", async () => {
     const { SquadBuilder } =
       await import("@src/renderer/components/SquadBuilder");
-    const { AppContext } = await import("@src/renderer/app/AppContext");
-
-    const context = new AppContext();
-    context.campaignManager = manager;
-    context.modalService = mockModalService;
 
     const squad = { soldiers: [] };
 
@@ -69,7 +64,9 @@ describe("Recruitment Auto-Generated Name", () => {
 
     const screen = new SquadBuilder(
       "screen-barracks",
-      context,
+      manager,
+      {} as any, // campaignShell mock
+      mockModalService,
       squad as any,
       "DestroyHive" as any,
       true,

@@ -1,11 +1,10 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { SquadBuilder } from "@src/renderer/components/SquadBuilder";
-import { AppContext } from "@src/renderer/app/AppContext";
 import { MissionType, SquadConfig } from "@src/shared/types";
 
 describe("SquadBuilder VIP Slot Logic (voidlock-nrdb)", () => {
-  let context: AppContext;
+  let context: any;
   let container: HTMLElement;
   let squad: SquadConfig;
 
@@ -36,7 +35,9 @@ describe("SquadBuilder VIP Slot Logic (voidlock-nrdb)", () => {
   it("should allow 4 soldiers IN ADDITION to the VIP in Escort VIP missions", () => {
     const builder = new SquadBuilder(
       "squad-builder",
-      context,
+      context.campaignManager as any,
+      {} as any, // mock campaignShell
+      context.modalService as any,
       squad,
       MissionType.EscortVIP,
       false,
@@ -68,7 +69,9 @@ describe("SquadBuilder VIP Slot Logic (voidlock-nrdb)", () => {
   it("should not count manually added VIP towards the 4-soldier limit in Default missions", () => {
     const builder = new SquadBuilder(
       "squad-builder",
-      context,
+      context.campaignManager as any,
+      {} as any, // mock campaignShell
+      context.modalService as any,
       squad,
       MissionType.Default,
       false,

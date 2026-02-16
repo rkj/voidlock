@@ -22,6 +22,7 @@ export type CampaignShellMode =
 export class CampaignShell {
   private container: HTMLElement;
   private manager: CampaignManager;
+  private metaManager: MetaManager;
   private onTabChange: (tabId: CampaignTabId) => void;
   private onMenu: () => void;
   private activeTabId: CampaignTabId = "sector-map";
@@ -31,6 +32,7 @@ export class CampaignShell {
   constructor(
     containerId: string,
     manager: CampaignManager,
+    metaManager: MetaManager,
     onTabChange: (tabId: CampaignTabId) => void,
     onMenu: () => void,
   ) {
@@ -38,6 +40,7 @@ export class CampaignShell {
     if (!el) throw new Error(`Container #${containerId} not found`);
     this.container = el;
     this.manager = manager;
+    this.metaManager = metaManager;
     this.onTabChange = onTabChange;
     this.onMenu = onMenu;
   }
@@ -281,7 +284,7 @@ export class CampaignShell {
   }
 
   private renderMetaStats(container: HTMLElement) {
-    const stats = MetaManager.getInstance().getStats();
+    const stats = this.metaManager.getStats();
     container.className = "campaign-footer flex-row align-center p-10 gap-20";
     container.style.background = "rgba(0, 0, 0, 0.6)";
     container.style.backdropFilter = "blur(4px)";

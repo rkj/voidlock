@@ -104,7 +104,7 @@ describe("Custom Flow Tabs Integration", () => {
     ).not.toBe("none");
 
     // Click Settings tab
-    const shell = (app as any).context.campaignShell;
+    const shell = (app as any).campaignShell;
     shell.onTabChange("settings");
 
     // Verify we are on settings screen
@@ -133,7 +133,7 @@ describe("Custom Flow Tabs Integration", () => {
     customBtn?.click();
 
     // Click Service Record tab
-    const shell = (app as any).context.campaignShell;
+    const shell = (app as any).campaignShell;
     shell.onTabChange("stats");
 
     // Verify we are on statistics screen

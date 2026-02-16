@@ -7,6 +7,7 @@ import { CampaignShell } from "@src/renderer/ui/CampaignShell";
 describe("CampaignShell", () => {
   let container: HTMLElement;
   let manager: any;
+  let metaManager: any;
   let onTabChange: any;
   let onMenu: any;
   let shell: CampaignShell;
@@ -25,12 +26,21 @@ describe("CampaignShell", () => {
       getSyncStatus: vi.fn().mockReturnValue("synced"),
     };
 
+    metaManager = {
+      getStats: vi.fn().mockReturnValue({
+        totalKills: 100,
+        totalCampaignsStarted: 5,
+        totalMissionsWon: 20,
+      }),
+    };
+
     onTabChange = vi.fn();
     onMenu = vi.fn();
 
     shell = new CampaignShell(
       "screen-campaign-shell",
       manager as any,
+      metaManager as any,
       onTabChange,
       onMenu,
     );

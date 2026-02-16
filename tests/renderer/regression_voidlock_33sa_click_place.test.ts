@@ -1,11 +1,10 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { SquadBuilder } from "@src/renderer/components/SquadBuilder";
-import { AppContext } from "@src/renderer/app/AppContext";
 import { MissionType, SquadConfig } from "@src/shared/types";
 
 describe("SquadBuilder Click-to-Place", () => {
-  let context: AppContext;
+  let context: any;
   let container: HTMLElement;
   let squad: SquadConfig;
 
@@ -63,7 +62,9 @@ describe("SquadBuilder Click-to-Place", () => {
     const onUpdate = vi.fn();
     const builder = new SquadBuilder(
       "squad-builder",
-      context,
+      context.campaignManager as any,
+      {} as any, // mock campaignShell
+      context.modalService as any,
       squad,
       MissionType.Default,
       true, // isCampaign
@@ -86,7 +87,9 @@ describe("SquadBuilder Click-to-Place", () => {
   it("should highlight the next available soldier after assignment", () => {
     const builder = new SquadBuilder(
       "squad-builder",
-      context,
+      context.campaignManager as any,
+      {} as any, // mock campaignShell
+      context.modalService as any,
       squad,
       MissionType.Default,
       true,
@@ -120,7 +123,9 @@ describe("SquadBuilder Click-to-Place", () => {
   it("should allow assigning highlighted soldier by clicking an empty slot", () => {
     const builder = new SquadBuilder(
       "squad-builder",
-      context,
+      context.campaignManager as any,
+      {} as any, // mock campaignShell
+      context.modalService as any,
       squad,
       MissionType.Default,
       true,
@@ -161,7 +166,9 @@ describe("SquadBuilder Click-to-Place", () => {
 
     const builder = new SquadBuilder(
       "squad-builder",
-      context,
+      context.campaignManager as any,
+      {} as any, // mock campaignShell
+      context.modalService as any,
       squad,
       MissionType.Default,
       true,

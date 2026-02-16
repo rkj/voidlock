@@ -1,4 +1,3 @@
-import { AppContext } from "./AppContext";
 import { Renderer } from "@src/renderer/Renderer";
 import {
   GameState,
@@ -12,13 +11,26 @@ import {
 import { CampaignNode, MissionReport } from "@src/shared/campaign_types";
 import { TimeUtility } from "@src/renderer/TimeUtility";
 import { Logger } from "@src/shared/Logger";
+import { CampaignShell } from "@src/renderer/ui/CampaignShell";
+import { GameClient } from "@src/engine/GameClient";
+import { ScreenManager } from "@src/renderer/ScreenManager";
+import { MenuController } from "@src/renderer/MenuController";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 
 import { ConfigManager } from "../ConfigManager";
 
 export class MissionCoordinator {
   private debriefShown = false;
+  private renderer: Renderer | null = null;
 
-  constructor(private context: AppContext) {}
+  constructor(
+    private campaignShell: CampaignShell,
+    private gameClient: GameClient,
+    private screenManager: ScreenManager,
+    private menuController: MenuController,
+    private campaignManager: CampaignManager,
+    private onRendererCreated: (renderer: Renderer) => void,
+  ) {}
 
   public launchMission(
     config: {
@@ -56,9 +68,9 @@ export class MissionCoordinator {
     const missionDepth = config.campaignNode ? config.campaignNode.rank : 0;
     const globalConfig = ConfigManager.loadGlobal();
 
-    this.context.campaignShell.hide();
+    this.campaignShell.hide();
 
-    this.context.gameClient.init(
+    this.gameClient.init(
       config.seed,
       config.mapGeneratorType,
       config.staticMapData,
@@ -92,7 +104,7 @@ export class MissionCoordinator {
 
     syncSpeedUI();
     this.setupGameClientCallbacks(config, setupCallbacks, updateUI);
-    this.context.screenManager.show("mission", true, !!config.campaignNode);
+    this.screenManager.show("mission", true, !!config.campaignNode);
   }
 
   public setupGameClientCallbacks(
@@ -103,27 +115,28 @@ export class MissionCoordinator {
     this.debriefShown = false;
     const rightPanel = document.getElementById("right-panel");
     if (rightPanel) rightPanel.innerHTML = "";
-    this.context.menuController.reset();
-    this.context.menuController.clearDiscoveryOrder();
+    this.menuController.reset();
+    this.menuController.clearDiscoveryOrder();
 
-    this.context.gameClient.onStateUpdate((state) => {
-      if (!this.context.renderer) {
+    this.gameClient.onStateUpdate((state) => {
+      if (!this.renderer) {
         const canvas = document.getElementById(
           "game-canvas",
         ) as HTMLCanvasElement;
         if (canvas) {
-          this.context.renderer = new Renderer(canvas);
-          this.context.renderer.setCellSize(128);
+          this.renderer = new Renderer(canvas);
+          this.renderer.setCellSize(128);
+          this.onRendererCreated(this.renderer);
         }
       }
-      if (this.context.renderer) {
-        this.context.renderer.setUnitStyle(
+      if (this.renderer) {
+        this.renderer.setUnitStyle(
           ConfigManager.loadGlobal().unitStyle,
         );
-        this.context.renderer.setOverlay(
-          this.context.menuController.overlayOptions,
+        this.renderer.setOverlay(
+          this.menuController.overlayOptions,
         );
-        this.context.renderer.render(state);
+        this.renderer.render(state);
       }
 
       if (
@@ -161,8 +174,8 @@ export class MissionCoordinator {
 
       let campaignNode: CampaignNode | null = null;
       if (config.campaignNodeId) {
-        this.context.campaignManager.load();
-        const campaignState = this.context.campaignManager.getState();
+        this.campaignManager.load();
+        const campaignState = this.campaignManager.getState();
         if (campaignState) {
           campaignNode =
             campaignState.nodes.find((n) => n.id === config.campaignNodeId) ||
@@ -185,7 +198,7 @@ export class MissionCoordinator {
         updateUI,
       );
 
-      this.context.gameClient.init(
+      this.gameClient.init(
         config.seed,
         config.mapGeneratorType,
         config.mapData,
@@ -218,7 +231,7 @@ export class MissionCoordinator {
       );
 
       syncSpeedUI();
-      this.context.screenManager.show("mission", true, !!campaignNode);
+      this.screenManager.show("mission", true, !!campaignNode);
     } catch (e) {
       Logger.error("Failed to resume mission", e);
     }
@@ -240,20 +253,20 @@ export class MissionCoordinator {
     onAbortResolved(report);
 
     if (currentCampaignNode) {
-      const state = this.context.campaignManager.getState();
+      const state = this.campaignManager.getState();
       if (state && (state.status === "Victory" || state.status === "Defeat")) {
-        this.context.gameClient.stop();
-        this.context.gameClient.onStateUpdate(null);
+        this.gameClient.stop();
+        this.gameClient.onStateUpdate(null);
         return true; // Indicates victory/defeat handled
       }
 
-      this.context.gameClient.stop();
-      this.context.gameClient.onStateUpdate(null);
+      this.gameClient.stop();
+      this.gameClient.onStateUpdate(null);
       return true; // Campaign mission abort handled by onAbortResolved
     }
 
-    this.context.gameClient.stop();
-    this.context.gameClient.onStateUpdate(null);
+    this.gameClient.stop();
+    this.gameClient.onStateUpdate(null);
 
     const tsSlider = document.getElementById(
       "time-scale-slider",

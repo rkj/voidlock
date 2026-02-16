@@ -6,7 +6,10 @@ import { UIUtils } from "../utils/UIUtils";
 export class StatisticsScreen {
   private container: HTMLElement;
 
-  constructor(containerId: string) {
+  constructor(
+    containerId: string,
+    private metaManager: MetaManager,
+  ) {
     const el = document.getElementById(containerId);
     if (!el) throw new Error(`Container #${containerId} not found`);
     this.container = el;
@@ -60,7 +63,7 @@ export class StatisticsScreen {
   }
 
   private render() {
-    const stats = MetaManager.getInstance().getStats();
+    const stats = this.metaManager.getStats();
 
     this.container.innerHTML = "";
     this.container.className = "screen screen-centered flex-col align-center p-20";

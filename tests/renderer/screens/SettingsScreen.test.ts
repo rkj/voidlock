@@ -58,7 +58,13 @@ describe("SettingsScreen", () => {
       cloudSyncEnabled: true, // Enabled but not configured
     });
 
-    screen = new SettingsScreen("screen-settings", context, vi.fn());
+    screen = new SettingsScreen(
+      "screen-settings",
+      context.themeManager,
+      context.cloudSync,
+      context.modalService,
+      vi.fn(),
+    );
   });
 
   it("should show error message and have toggle enabled when cloudSyncEnabled is true but not configured", () => {

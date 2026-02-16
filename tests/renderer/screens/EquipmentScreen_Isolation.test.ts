@@ -4,7 +4,6 @@ import { EquipmentScreen } from "@src/renderer/screens/EquipmentScreen";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 import { MapGeneratorType, MissionType } from "@src/shared/types";
-import { AppContext } from "@src/renderer/app/AppContext";
 import { ModalService } from "@src/renderer/ui/ModalService";
 import { InputDispatcher } from "@src/renderer/InputDispatcher";
 

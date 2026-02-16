@@ -66,14 +66,8 @@ describe("CampaignScreen Bonus Loot Pips", () => {
 
     const screen = new CampaignScreen(
       "screen-campaign",
-      {
-        campaignManager: manager,
-        modalService: mockModalService,
-        themeManager: {
-          getColor: vi.fn().mockReturnValue("#000"),
-          setTheme: vi.fn(),
-        },
-      } as any,
+      manager,
+      mockModalService,
       onNodeSelect,
       onBack,
     );
@@ -95,14 +89,8 @@ describe("CampaignScreen Bonus Loot Pips", () => {
 
     const screen = new CampaignScreen(
       "screen-campaign",
-      {
-        campaignManager: manager,
-        modalService: mockModalService,
-        themeManager: {
-          getColor: vi.fn().mockReturnValue("#000"),
-          setTheme: vi.fn(),
-        },
-      } as any,
+      manager,
+      mockModalService,
       onNodeSelect,
       onBack,
     );
@@ -120,14 +108,8 @@ describe("CampaignScreen Bonus Loot Pips", () => {
 
     const screen = new CampaignScreen(
       "screen-campaign",
-      {
-        campaignManager: manager,
-        modalService: mockModalService,
-        themeManager: {
-          getColor: vi.fn().mockReturnValue("#000"),
-          setTheme: vi.fn(),
-        },
-      } as any,
+      manager,
+      mockModalService,
       onNodeSelect,
       onBack,
     );
@@ -145,14 +127,8 @@ describe("CampaignScreen Bonus Loot Pips", () => {
 
     const screen = new CampaignScreen(
       "screen-campaign",
-      {
-        campaignManager: manager,
-        modalService: mockModalService,
-        themeManager: {
-          getColor: vi.fn().mockReturnValue("#000"),
-          setTheme: vi.fn(),
-        },
-      } as any,
+      manager,
+      mockModalService,
       onNodeSelect,
       onBack,
     );

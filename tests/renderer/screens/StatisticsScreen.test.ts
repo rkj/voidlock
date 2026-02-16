@@ -25,7 +25,7 @@ describe("StatisticsScreen", () => {
   });
 
   it("should render correctly with default stats", () => {
-    const screen = new StatisticsScreen("screen-statistics");
+    const screen = new StatisticsScreen("screen-statistics", MetaManager.getInstance());
     screen.show();
 
     expect(container.textContent).toContain("Service Record");
@@ -43,7 +43,7 @@ describe("StatisticsScreen", () => {
     meta.recordMissionResult(10, 2, true, 500);
     meta.recordCampaignResult(true);
 
-    const screen = new StatisticsScreen("screen-statistics");
+    const screen = new StatisticsScreen("screen-statistics", MetaManager.getInstance());
     screen.show();
 
     expect(container.textContent).toContain("Total Xeno Purged:");

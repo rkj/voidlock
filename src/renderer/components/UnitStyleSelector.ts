@@ -1,6 +1,6 @@
 import { UnitStyle } from "@src/shared/types";
 import { AssetManager } from "../visuals/AssetManager";
-import { AppContext } from "../app/AppContext";
+import { ThemeManager } from "../ThemeManager";
 
 export class UnitStyleSelector {
   private container: HTMLElement | null;
@@ -9,7 +9,7 @@ export class UnitStyleSelector {
 
   constructor(
     container: HTMLElement | null,
-    private context: AppContext,
+    private themeManager: ThemeManager,
     initialStyle: UnitStyle,
     onChange: (style: UnitStyle) => void,
   ) {
@@ -110,8 +110,8 @@ export class UnitStyleSelector {
   }
 
   private getColor(key: string, fallback: string): string {
-    if (this.context.themeManager?.getColor) {
-      return this.context.themeManager.getColor(key);
+    if (this.themeManager?.getColor) {
+      return this.themeManager.getColor(key);
     }
     return fallback;
   }

@@ -1,7 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { SquadBuilder } from "@src/renderer/components/SquadBuilder";
-import { AppContext } from "@src/renderer/app/AppContext";
 import { MissionType, SquadConfig } from "@src/shared/types";
 
 describe("SquadBuilder Component", () => {
@@ -40,7 +39,9 @@ describe("SquadBuilder Component", () => {
   it("should render roster and deployment panels", () => {
     const builder = new SquadBuilder(
       "squad-builder",
-      context,
+      context.campaignManager as any,
+      context.campaignShell as any,
+      context.modalService as any,
       squad,
       MissionType.Default,
       false,
@@ -58,7 +59,9 @@ describe("SquadBuilder Component", () => {
     squad.soldiers = [{ archetypeId: "assault" }];
     const builder = new SquadBuilder(
       "squad-builder",
-      context,
+      context.campaignManager as any,
+      context.campaignShell as any,
+      context.modalService as any,
       squad,
       MissionType.Default,
       false,
@@ -73,7 +76,9 @@ describe("SquadBuilder Component", () => {
   it("should disable launch button if squad is empty", () => {
     const builder = new SquadBuilder(
       "squad-builder",
-      context,
+      context.campaignManager as any,
+      context.campaignShell as any,
+      context.modalService as any,
       squad,
       MissionType.Default,
       false,
@@ -91,7 +96,9 @@ describe("SquadBuilder Component", () => {
     squad.soldiers = [{ archetypeId: "assault" }];
     const builder = new SquadBuilder(
       "squad-builder",
-      context,
+      context.campaignManager as any,
+      context.campaignShell as any,
+      context.modalService as any,
       squad,
       MissionType.Default,
       false,
@@ -108,7 +115,9 @@ describe("SquadBuilder Component", () => {
   it("should lock first slot for Escort VIP mission", () => {
     const builder = new SquadBuilder(
       "squad-builder",
-      context,
+      context.campaignManager as any,
+      context.campaignShell as any,
+      context.modalService as any,
       squad,
       MissionType.EscortVIP,
       false,
@@ -126,7 +135,9 @@ describe("SquadBuilder Component", () => {
   it("should not have visible slot labels but have aria-labels", () => {
     const builder = new SquadBuilder(
       "squad-builder",
-      context,
+      context.campaignManager as any,
+      context.campaignShell as any,
+      context.modalService as any,
       squad,
       MissionType.Default,
       false,
@@ -145,7 +156,9 @@ describe("SquadBuilder Component", () => {
     const onUpdate = vi.fn();
     const builder = new SquadBuilder(
       "squad-builder",
-      context,
+      context.campaignManager as any,
+      context.campaignShell as any,
+      context.modalService as any,
       squad,
       MissionType.Default,
       false,
@@ -166,7 +179,9 @@ describe("SquadBuilder Component", () => {
   it("should render stats in archetype cards", () => {
     const builder = new SquadBuilder(
       "squad-builder",
-      context,
+      context.campaignManager as any,
+      context.campaignShell as any,
+      context.modalService as any,
       squad,
       MissionType.Default,
       false,
@@ -186,7 +201,9 @@ describe("SquadBuilder Component", () => {
     const onUpdate = vi.fn();
     const builder = new SquadBuilder(
       "squad-builder",
-      context,
+      context.campaignManager as any,
+      context.campaignShell as any,
+      context.modalService as any,
       squad,
       MissionType.Default,
       false,
