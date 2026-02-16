@@ -258,7 +258,7 @@ export class MissionSetupManager {
       this.currentMapGeneratorType = defaults.mapGeneratorType;
       this.currentMissionType = defaults.missionType;
       this.currentSeed = defaults.lastSeed;
-      this.currentSquad = JSON.parse(JSON.stringify(defaults.squadConfig));
+      this.currentSquad = structuredClone(defaults.squadConfig);
 
       this.updateSetupUIFromConfig(defaults);
     }
