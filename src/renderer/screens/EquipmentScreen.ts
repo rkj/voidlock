@@ -181,6 +181,7 @@ export class EquipmentScreen {
 
   private render() {
     // Save focus before clearing
+    const lastFocusId = document.activeElement?.getAttribute("data-focus-id");
     FocusManager.saveFocus();
 
     // Save scroll positions before clearing
@@ -248,7 +249,17 @@ export class EquipmentScreen {
     rightBody.scrollTop = this.savedScrollTop.right;
 
     // Restore focus
-    FocusManager.restoreFocus(this.container);
+    if (!FocusManager.restoreFocus(this.container)) {
+      // Fallback for disabled supply buttons (e.g. maxed out)
+      if (lastFocusId && lastFocusId.startsWith("supply-plus-")) {
+        // Fallback to the minus button if the plus button became disabled
+        const minusId = lastFocusId.replace("plus", "minus");
+        const minusBtn = this.container.querySelector(`[data-focus-id="${minusId}"]`) as HTMLElement;
+        if (minusBtn) {
+          minusBtn.focus();
+        }
+      }
+    }
 
     // Footer Buttons (Direct child of container)
     const footer = document.createElement("div");
