@@ -31,14 +31,20 @@ export class FocusManager {
 
   /**
    * Restores focus to the saved element within the given container.
+   * @returns true if focus was successfully restored to the saved element.
    */
-  public static restoreFocus(container: HTMLElement) {
-    if (!this.savedSelector) return;
+  public static restoreFocus(container: HTMLElement): boolean {
+    if (!this.savedSelector) return false;
 
     const el = container.querySelector(this.savedSelector) as HTMLElement;
     if (el) {
       el.focus();
+      // Verify focus was actually accepted (elements like disabled buttons reject focus)
+      const success = document.activeElement === el;
+      this.savedSelector = null;
+      return success;
     }
     this.savedSelector = null;
+    return false;
   }
 }
