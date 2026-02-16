@@ -9,7 +9,7 @@
 - UI supports keyboard-driven gameplay and provides clear tactical feedback (soldier list, tracers).
 - Map resembles a tight spaceship interior with edge-based walls.
 
----
+______________________________________________________________________
 
 ## 13) Agent Debugging & Visual Feedback
 
@@ -22,7 +22,7 @@
 - **Console Output**: Debug logs in the browser console remain critical for understanding runtime state and should be provided when requested.
 - **Agent Browser Environment**: The agent's internal browser operates in a headless environment. If a headful browser is attempted, an X server must be present. When reporting issues, assume the agent is using a headless browser.
 
----
+______________________________________________________________________
 
 ## 14) Testing and Debugging Strategy
 
@@ -45,13 +45,13 @@
 - **Test Execution**: Run tests using `npx vitest run` to ensure non-interactive execution, especially in automated environments. Avoid `npx vitest` without `run` as it defaults to interactive watch mode.
   - **Commit Frequency**: The agent must commit changes after the completion of _every_ Beads task.
 
----
+______________________________________________________________________
 
 ### Critical Runtime Errors
 
 - **"Maximum call stack size exceeded"**: Observed in browser console logs during live gameplay. This is a critical error likely indicating infinite recursion. Despite passing unit tests for core mechanics, this runtime error persists and must be addressed immediately, as it will impact core game logic (pathfinding, LOS, door states, unit actions). A full stack trace from the browser console is required for debugging.
 
----
+______________________________________________________________________
 
 ## 15) Deployment
 
@@ -70,7 +70,7 @@ The project uses GitHub Actions to automatically build and deploy to GitHub Page
 - **Configuration**:
   - **Vite Base Path**: The `base` property in `vite.config.ts` is conditionally set to `'/voidlock/'` during production builds to ensure assets load correctly on GitHub Pages.
 
----
+______________________________________________________________________
 
 ## 16) Code Quality & Best Practices
 
@@ -115,7 +115,7 @@ All code must be clean, well-factored, easy to read, and follow these best pract
 - **Uniform Component Rendering**: Always use shared components (e.g., `SoldierWidget`) to ensure visual consistency across different UI screens.
 - **Mobile Interaction Strategy (ADR 0038)**: Adhere to the "Tap-to-Inspect" pattern for tooltips and use a hybrid Media Query / Container Query approach for layout shifts and component-level responsiveness. Minimum hit targets for mobile MUST be 44x44px.
 
----
+______________________________________________________________________
 
 ## 17) Asset Pipeline
 

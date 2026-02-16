@@ -19,7 +19,7 @@
 - **Base Time Standard:** 3.0 Seconds (Default for most tactical actions).
 - _Example:_ A fast Scout (Speed 30) performs a 3s action in exactly 3s. A Heavy (Speed 15) takes 6s.
 
----
+______________________________________________________________________
 
 ## 2. Commander Abilities
 
@@ -51,7 +51,7 @@ These are actions initiated by the player using the Global Inventory. They are i
 - **Usage:** Combat triage.
 - **Cost:** 1 Stimpack.
 
----
+______________________________________________________________________
 
 ## 3. Tactical Actions (Unit-Driven)
 

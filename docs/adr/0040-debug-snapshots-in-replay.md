@@ -40,10 +40,10 @@ A `DebugSnapshot` can contain arbitrary JSON-serializable data relevant to the d
 Since the `snapshots` array can grow large, sending it with every tick (60Hz) is inefficient. We implement a **Delta-like Optimization** in the Web Worker loop:
 
 1. The Worker tracks the `lastSnapshotCount`.
-2. When preparing the `STATE_UPDATE` message:
+1. When preparing the `STATE_UPDATE` message:
    - If `state.snapshots.length === lastSnapshotCount`, the `snapshots` field is removed (`deleted`) from the payload before sending.
    - If the length has changed (i.e., new snapshots were added), the **entire** array is sent.
-3. The `GameClient` (Main Thread) checks for the presence of `msg.payload.snapshots`.
+1. The `GameClient` (Main Thread) checks for the presence of `msg.payload.snapshots`.
    - If present, it updates its local cache: `this.snapshots = msg.payload.snapshots`.
    - If absent, it retains the previous cache.
 

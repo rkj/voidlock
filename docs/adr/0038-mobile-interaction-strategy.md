@@ -10,9 +10,9 @@ Proposed
 
 Voidlock is currently designed for Desktop with keyboard-first navigation and mouse-driven tactical selection. To support mobile devices (**[Spec 10]**), we need a clear strategy for handling touch-specific constraints:
 
-1.  **Hover State**: How to expose "Hover" information (Tooltips, Stat details) without a mouse.
-2.  **Movement Control**: Deciding between Virtual Joysticks (Action-oriented) vs. Tap-to-Move (Tactical-oriented).
-3.  **Responsive Layout**: Choosing the CSS strategy for "Compact Mode" layout shifts.
+1. **Hover State**: How to expose "Hover" information (Tooltips, Stat details) without a mouse.
+1. **Movement Control**: Deciding between Virtual Joysticks (Action-oriented) vs. Tap-to-Move (Tactical-oriented).
+1. **Responsive Layout**: Choosing the CSS strategy for "Compact Mode" layout shifts.
 
 ## Decision
 

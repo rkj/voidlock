@@ -4,12 +4,12 @@
 
 Enemies are defined by their stats and their **Point Value**, which the Director uses for wave budgeting.
 
-| Type   | Name             | Points | HP  | Speed | Damage | Accuracy | Range        |
+| Type | Name | Points | HP | Speed | Damage | Accuracy | Range |
 | :----- | :--------------- | :----- | :-- | :---- | :----- | :------- | :----------- |
-| Easy   | Xeno-Mite        | 1      | 10  | 35    | 5      | 80%      | 1.0 (Melee)  |
-| Medium | Warrior-Drone    | 2      | 25  | 25    | 15     | 85%      | 1.0 (Melee)  |
-| Ranged | Spitter-Acid     | 3      | 20  | 25    | 10     | 70%      | 8.0 (Ranged) |
-| Hard   | Praetorian-Guard | 5      | 100 | 15    | 40     | 90%      | 1.5 (Melee)  |
+| Easy | Xeno-Mite | 1 | 10 | 35 | 5 | 80% | 1.0 (Melee) |
+| Medium | Warrior-Drone | 2 | 25 | 25 | 15 | 85% | 1.0 (Melee) |
+| Ranged | Spitter-Acid | 3 | 20 | 25 | 10 | 70% | 8.0 (Ranged) |
+| Hard | Praetorian-Guard | 5 | 100 | 15 | 40 | 90% | 1.5 (Melee) |
 
 ## 2. Properties & Logic
 

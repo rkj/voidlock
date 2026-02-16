@@ -17,14 +17,17 @@ We will encapsulate the application bootstrapping logic into a dedicated `GameAp
 ### Components
 
 1. **`GameApp`:**
+
    - Methods: `initialize()`, `start()`, `stop()`.
    - Holds references to `GameClient`, `Renderer`, `ScreenManager`.
 
 1. **`AppContext`:**
+
    - A simple Dependency Injection (DI) container or Service Locator.
    - Holds the singletons (`ConfigManager`, `ThemeManager`) to allow mocking in tests.
 
 1. **`InputBinder`:**
+
    - Separates the logic of _what_ to do (InputManager) from _how_ to listen (DOM Event Listeners).
    - Allows attaching/detaching listeners cleanly.
 
