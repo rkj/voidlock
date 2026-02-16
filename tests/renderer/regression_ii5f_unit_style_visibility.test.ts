@@ -3,7 +3,6 @@
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { MissionSetupManager } from "@src/renderer/app/MissionSetupManager";
-import { AppContext } from "@src/renderer/app/AppContext";
 import { ConfigManager } from "@src/renderer/ConfigManager";
 
 // Mock dependencies
@@ -73,7 +72,7 @@ vi.mock("@src/renderer/ConfigManager", () => {
 });
 
 describe("MissionSetupManager - Visual Style Visibility (regression_ii5f)", () => {
-  let context: AppContext;
+  let context: any;
   let manager: MissionSetupManager;
 
   beforeEach(() => {
@@ -118,6 +117,9 @@ describe("MissionSetupManager - Visual Style Visibility (regression_ii5f)", () =
         setTheme: vi.fn(),
         getColor: vi.fn().mockReturnValue("#000"),
       },
+      modalService: {
+        alert: vi.fn(),
+      },
       screenManager: {
         show: vi.fn(),
       },
@@ -126,7 +128,11 @@ describe("MissionSetupManager - Visual Style Visibility (regression_ii5f)", () =
       },
     } as any;
 
-    manager = new MissionSetupManager(context);
+    manager = new MissionSetupManager(
+      context.campaignManager,
+      context.themeManager,
+      context.modalService,
+    );
     // Set a campaign node so it uses campaign config path
     manager.currentCampaignNode = { id: "node-1" } as any;
 

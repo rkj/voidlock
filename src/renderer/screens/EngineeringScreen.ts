@@ -65,7 +65,11 @@ export class EngineeringScreen {
     ],
   };
 
-  constructor(containerId: string, onUpdate: () => void) {
+  constructor(
+    containerId: string,
+    private metaManager: MetaManager,
+    onUpdate: () => void,
+  ) {
     let el = document.getElementById(containerId);
     if (!el) {
       const isTest = typeof process !== "undefined" && process.env?.VITEST;
@@ -133,8 +137,7 @@ export class EngineeringScreen {
   }
 
   private render() {
-    const meta = MetaManager.getInstance();
-    const stats = meta.getStats();
+    const stats = this.metaManager.getStats();
     const intel = stats.currentIntel;
     const unlockedArchetypes = stats.unlockedArchetypes;
     const unlockedItems = stats.unlockedItems;
@@ -271,9 +274,8 @@ export class EngineeringScreen {
   }
 
   private handleUnlockArchetype(id: string, cost: number) {
-    const meta = MetaManager.getInstance();
     try {
-      meta.unlockArchetype(id, cost);
+      this.metaManager.unlockArchetype(id, cost);
       this.render();
       this.onUpdate();
     } catch (e) {
@@ -282,9 +284,8 @@ export class EngineeringScreen {
   }
 
   private handleUnlockItem(id: string, cost: number) {
-    const meta = MetaManager.getInstance();
     try {
-      meta.unlockItem(id, cost);
+      this.metaManager.unlockItem(id, cost);
       this.render();
       this.onUpdate();
     } catch (e) {

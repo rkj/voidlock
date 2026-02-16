@@ -61,15 +61,8 @@ describe("CampaignScreen", () => {
   it("should render 'New Campaign' wizard when state is null", () => {
     const screen = new CampaignScreen(
       "screen-campaign",
-      {
-        campaignManager: manager,
-        modalService: mockModalService,
-        themeManager: {
-          getColor: vi.fn().mockReturnValue("#000"),
-          setTheme: vi.fn(),
-          getCurrentThemeId: vi.fn().mockReturnValue("default"),
-        },
-      } as any,
+      manager,
+      mockModalService,
       onNodeSelect,
       onBack,
     );
@@ -84,15 +77,8 @@ describe("CampaignScreen", () => {
     manager.startNewCampaign(12345, "normal");
     const screen = new CampaignScreen(
       "screen-campaign",
-      {
-        campaignManager: manager,
-        modalService: mockModalService,
-        themeManager: {
-          getColor: vi.fn().mockReturnValue("#000"),
-          setTheme: vi.fn(),
-          getCurrentThemeId: vi.fn().mockReturnValue("default"),
-        },
-      } as any,
+      manager,
+      mockModalService,
       onNodeSelect,
       onBack,
     );
@@ -110,15 +96,8 @@ describe("CampaignScreen", () => {
     manager.startNewCampaign(12345, "normal");
     const screen = new CampaignScreen(
       "screen-campaign",
-      {
-        campaignManager: manager,
-        modalService: mockModalService,
-        themeManager: {
-          getColor: vi.fn().mockReturnValue("#000"),
-          setTheme: vi.fn(),
-          getCurrentThemeId: vi.fn().mockReturnValue("default"),
-        },
-      } as any,
+      manager,
+      mockModalService,
       onNodeSelect,
       onBack,
     );
@@ -142,15 +121,8 @@ describe("CampaignScreen", () => {
 
     const screen = new CampaignScreen(
       "screen-campaign",
-      {
-        campaignManager: manager,
-        modalService: mockModalService,
-        themeManager: {
-          getColor: vi.fn().mockReturnValue("#000"),
-          setTheme: vi.fn(),
-          getCurrentThemeId: vi.fn().mockReturnValue("default"),
-        },
-      } as any,
+      manager,
+      mockModalService,
       onNodeSelect,
       onBack,
     );
@@ -166,15 +138,8 @@ describe("CampaignScreen", () => {
   it("should render its own back button in wizard footer", () => {
     const screen = new CampaignScreen(
       "screen-campaign",
-      {
-        campaignManager: manager,
-        modalService: mockModalService,
-        themeManager: {
-          getColor: vi.fn().mockReturnValue("#000"),
-          setTheme: vi.fn(),
-          getCurrentThemeId: vi.fn().mockReturnValue("default"),
-        },
-      } as any,
+      manager,
+      mockModalService,
       onNodeSelect,
       onBack,
     );
@@ -193,15 +158,8 @@ describe("CampaignScreen", () => {
 
     const screen = new CampaignScreen(
       "screen-campaign",
-      {
-        campaignManager: manager,
-        modalService: mockModalService,
-        themeManager: {
-          getColor: vi.fn().mockReturnValue("#000"),
-          setTheme: vi.fn(),
-          getCurrentThemeId: vi.fn().mockReturnValue("default"),
-        },
-      } as any,
+      manager,
+      mockModalService,
       onNodeSelect,
       onBack,
     );
@@ -218,15 +176,8 @@ describe("CampaignScreen", () => {
 
     const screen = new CampaignScreen(
       "screen-campaign",
-      {
-        campaignManager: manager,
-        modalService: mockModalService,
-        themeManager: {
-          getColor: vi.fn().mockReturnValue("#000"),
-          setTheme: vi.fn(),
-          getCurrentThemeId: vi.fn().mockReturnValue("default"),
-        },
-      } as any,
+      manager,
+      mockModalService,
       onNodeSelect,
       onBack,
     );

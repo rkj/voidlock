@@ -1,12 +1,12 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { AppContext } from "@src/renderer/app/AppContext";
 import { SquadBuilder } from "@src/renderer/components/SquadBuilder";
 import { MissionType, SquadConfig } from "@src/shared/types";
 
 describe("Roster Sorting Regression (voidlock-l7b8)", () => {
-  let context: AppContext;
   let mockCampaignManager: any;
+  let mockCampaignShell: any;
+  let mockModalService: any;
   let container: HTMLElement;
 
   beforeEach(() => {
@@ -16,15 +16,19 @@ describe("Roster Sorting Regression (voidlock-l7b8)", () => {
 
     mockCampaignManager = {
       getState: vi.fn(),
+      recruitSoldier: vi.fn(),
+      reviveSoldier: vi.fn(),
     };
 
-    context = new AppContext();
-    context.campaignManager = mockCampaignManager as any;
-    context.modalService = {
+    mockCampaignShell = {
+      refresh: vi.fn(),
+    };
+
+    mockModalService = {
       alert: vi.fn(),
       confirm: vi.fn(),
       prompt: vi.fn(),
-    } as any;
+    };
   });
 
   it("should sort roster by status: Healthy > Wounded > Dead", async () => {
@@ -67,7 +71,9 @@ describe("Roster Sorting Regression (voidlock-l7b8)", () => {
     const initialSquad: SquadConfig = { soldiers: [], inventory: {} };
     const builder = new SquadBuilder(
       "squad-builder",
-      context,
+      mockCampaignManager as any,
+      mockCampaignShell as any,
+      mockModalService as any,
       initialSquad,
       MissionType.Default,
       true, // isCampaign
@@ -126,7 +132,9 @@ describe("Roster Sorting Regression (voidlock-l7b8)", () => {
 
     const builder = new SquadBuilder(
       "squad-builder",
-      context,
+      mockCampaignManager as any,
+      mockCampaignShell as any,
+      mockModalService as any,
       initialSquad,
       MissionType.Default,
       true,

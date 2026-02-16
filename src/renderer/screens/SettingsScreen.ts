@@ -1,10 +1,12 @@
-import { AppContext } from "../app/AppContext";
 import { ConfigManager } from "../ConfigManager";
 import { UnitStyleSelector } from "../components/UnitStyleSelector";
 import { Logger, LogLevel } from "@src/shared/Logger";
 import { InputDispatcher } from "../InputDispatcher";
 import { InputPriority } from "@src/shared/types";
 import { UIUtils } from "../utils/UIUtils";
+import { ThemeManager } from "../ThemeManager";
+import { CloudSyncService } from "@src/services/CloudSyncService";
+import { ModalService } from "../ui/ModalService";
 
 export class SettingsScreen {
   private container: HTMLElement;
@@ -14,7 +16,9 @@ export class SettingsScreen {
 
   constructor(
     containerId: string,
-    private context: AppContext,
+    private themeManager: ThemeManager,
+    private cloudSync: CloudSyncService,
+    private modalService: ModalService,
     onBack: () => void,
   ) {
     const el = document.getElementById(containerId);
@@ -136,7 +140,7 @@ export class SettingsScreen {
 
     this.unitStyleSelector = new UnitStyleSelector(
       stylePreview,
-      this.context,
+      this.themeManager,
       global.unitStyle,
       (style) => {
         ConfigManager.saveGlobal({
@@ -174,7 +178,7 @@ export class SettingsScreen {
 
     themeSelect.onchange = () => {
       const themeId = themeSelect.value;
-      this.context.themeManager.setTheme(themeId);
+      this.themeManager.setTheme(themeId);
       ConfigManager.saveGlobal({
         ...ConfigManager.loadGlobal(),
         themeId: themeId,
@@ -314,7 +318,7 @@ export class SettingsScreen {
     const syncGroup = document.createElement("div");
     syncGroup.className = "flex-row justify-between align-center";
     syncGroup.style.width = "100%";
-    const isConfigured = this.context.cloudSync?.isConfigured() ?? false;
+    const isConfigured = this.cloudSync?.isConfigured() ?? false;
     const syncLabel = document.createElement("label");
     syncLabel.textContent = "Enable Cloud Sync:";
     if (!isConfigured) {
@@ -333,10 +337,10 @@ export class SettingsScreen {
         ...ConfigManager.loadGlobal(),
         cloudSyncEnabled: enabled,
       });
-      if (this.context.cloudSync) {
-        this.context.cloudSync.setEnabled(enabled);
+      if (this.cloudSync) {
+        this.cloudSync.setEnabled(enabled);
         if (enabled) {
-          this.context.cloudSync.initialize().then(() => this.render());
+          this.cloudSync.initialize().then(() => this.render());
         } else {
           this.render();
         }
@@ -345,17 +349,17 @@ export class SettingsScreen {
     syncGroup.appendChild(syncToggle);
     accountGroup.appendChild(syncGroup);
 
-    if (!this.context.cloudSync || !isConfigured) {
+    if (!this.cloudSync || !isConfigured) {
       const errorMsg = document.createElement("div");
-      errorMsg.textContent = !this.context.cloudSync
+      errorMsg.textContent = !this.cloudSync
         ? "Cloud Sync Service Unavailable"
         : "Cloud Sync Service Unavailable (Firebase not configured)";
       errorMsg.style.color = "var(--color-error)";
       errorMsg.style.fontSize = "0.8em";
       accountGroup.appendChild(errorMsg);
     } else if (global.cloudSyncEnabled) {
-      const user = this.context.cloudSync.getUser();
-      const isAnonymous = this.context.cloudSync.isAnonymous();
+      const user = this.cloudSync.getUser();
+      const isAnonymous = this.cloudSync.isAnonymous();
 
       if (user && !isAnonymous) {
         // Signed in
@@ -388,8 +392,8 @@ export class SettingsScreen {
         signOutBtn.style.padding = "5px 10px";
         signOutBtn.textContent = "Sign Out";
         signOutBtn.onclick = async () => {
-          if (this.context.cloudSync) {
-            await this.context.cloudSync.signOut();
+          if (this.cloudSync) {
+            await this.cloudSync.signOut();
             this.render();
           }
         };
@@ -414,12 +418,12 @@ export class SettingsScreen {
         googleBtn.style.flex = "1";
         googleBtn.textContent = "Sign in with Google";
         googleBtn.onclick = async () => {
-          if (!this.context.cloudSync) return;
+          if (!this.cloudSync) return;
           try {
-            await this.context.cloudSync.signInWithGoogle();
+            await this.cloudSync.signInWithGoogle();
             this.render();
           } catch (err) {
-            this.context.modalService.show({
+            this.modalService.show({
               title: "Sign In Failed",
               message: "Could not connect to Google. Please try again later.",
               buttons: [
@@ -435,12 +439,12 @@ export class SettingsScreen {
         githubBtn.style.flex = "1";
         githubBtn.textContent = "Sign in with GitHub";
         githubBtn.onclick = async () => {
-          if (!this.context.cloudSync) return;
+          if (!this.cloudSync) return;
           try {
-            await this.context.cloudSync.signInWithGithub();
+            await this.cloudSync.signInWithGithub();
             this.render();
           } catch (err) {
-            this.context.modalService.show({
+            this.modalService.show({
               title: "Sign In Failed",
               message: "Could not connect to GitHub. Please try again later.",
               buttons: [
@@ -489,7 +493,7 @@ export class SettingsScreen {
     resetBtn.style.marginTop = "10px";
     resetBtn.textContent = "Reset All Data";
     resetBtn.onclick = async () => {
-      const confirmed = await this.context.modalService.show<boolean>({
+      const confirmed = await this.modalService.show<boolean>({
         title: "Reset All Data",
         message:
           "This will permanently delete all your campaign progress, settings, and local storage. This action cannot be undone. Are you sure?",

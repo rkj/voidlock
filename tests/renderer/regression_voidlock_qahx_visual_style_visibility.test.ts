@@ -3,7 +3,6 @@
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { MissionSetupManager } from "@src/renderer/app/MissionSetupManager";
-import { AppContext } from "@src/renderer/app/AppContext";
 import { ConfigManager } from "@src/renderer/ConfigManager";
 
 vi.mock("@src/renderer/ConfigManager", () => {
@@ -45,7 +44,7 @@ vi.mock("@src/renderer/ConfigManager", () => {
 });
 
 describe("MissionSetupManager - Visual Style Visibility (regression_voidlock_qahx)", () => {
-  let context: AppContext;
+  let context: any;
   let manager: MissionSetupManager;
 
   beforeEach(() => {
@@ -68,9 +67,16 @@ describe("MissionSetupManager - Visual Style Visibility (regression_voidlock_qah
       themeManager: {
         setTheme: vi.fn(),
       },
+      modalService: {
+        alert: vi.fn(),
+      },
     } as any;
 
-    manager = new MissionSetupManager(context);
+    manager = new MissionSetupManager(
+      context.campaignManager,
+      context.themeManager,
+      context.modalService,
+    );
   });
 
   it("should NOT have visual style group in the DOM in custom simulation mode", () => {

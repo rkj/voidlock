@@ -60,15 +60,8 @@ describe("CampaignScreen Unit Style Default Regression", () => {
   it("should have 'Tactical Icons' as the default selection for unit style in wizard", () => {
     const screen = new CampaignScreen(
       "screen-campaign",
-      {
-        campaignManager: manager,
-        modalService: mockModalService,
-        themeManager: {
-          getColor: vi.fn().mockReturnValue("#000"),
-          setTheme: vi.fn(),
-          getCurrentThemeId: vi.fn().mockReturnValue("default"),
-        },
-      } as any,
+      manager,
+      mockModalService,
       onNodeSelect,
       onBack,
     );

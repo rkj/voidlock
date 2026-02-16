@@ -1,4 +1,3 @@
-import { AppContext } from "./AppContext";
 import {
   MapGeneratorType,
   MissionType,
@@ -12,6 +11,9 @@ import { MapValidator } from "@src/shared/validation/MapValidator";
 import { MapFactory } from "@src/engine/map/MapFactory";
 import { NameGenerator } from "@src/shared/utils/NameGenerator";
 import { ArchetypeLibrary } from "@src/shared/types/units";
+import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
+import { ThemeManager } from "@src/renderer/ThemeManager";
+import { ModalService } from "@src/renderer/ui/ModalService";
 
 export class MissionSetupManager {
   public fogOfWarEnabled = ConfigManager.getDefault().fogOfWarEnabled;
@@ -37,12 +39,16 @@ export class MissionSetupManager {
   public currentSpawnPointCount = ConfigManager.getDefault().spawnPointCount;
   public currentCampaignNode: CampaignNode | null = null;
 
-  constructor(private context: AppContext) {}
+  constructor(
+    private campaignManager: CampaignManager,
+    private themeManager: ThemeManager,
+    private modalService: ModalService,
+  ) {}
 
   public rehydrateCampaignNode(): boolean {
     const config = ConfigManager.loadCampaign();
     if (config && config.campaignNodeId) {
-      const state = this.context.campaignManager.getState();
+      const state = this.campaignManager.getState();
       if (state) {
         const node = state.nodes.find((n) => n.id === config.campaignNodeId);
         if (node) {
@@ -130,7 +136,7 @@ export class MissionSetupManager {
     if (threatInput) startingThreatLevel = parseInt(threatInput.value) || 0;
 
     if (this.currentCampaignNode) {
-      const campaignState = this.context.campaignManager.getState();
+      const campaignState = this.campaignManager.getState();
       if (campaignState) {
         this.allowTacticalPause = campaignState.rules.allowTacticalPause;
         this.currentMapGeneratorType = campaignState.rules.mapGeneratorType;
@@ -180,7 +186,7 @@ export class MissionSetupManager {
     const contextHeader = document.getElementById("mission-setup-context");
     if (contextHeader) {
       if (isCampaign) {
-        const state = this.context.campaignManager.getState();
+        const state = this.campaignManager.getState();
         if (state) {
           const missionNum = state.history.length + 1;
           const sectorNum = state.currentSector;
@@ -257,10 +263,10 @@ export class MissionSetupManager {
       this.updateSetupUIFromConfig(defaults);
     }
 
-    this.context.themeManager.setTheme(this.currentThemeId);
+    this.themeManager.setTheme(this.currentThemeId);
 
     if (isCampaign) {
-      const state = this.context.campaignManager.getState();
+      const state = this.campaignManager.getState();
       if (state) {
         if (state.rules.mapGeneratorType) {
           this.currentMapGeneratorType = state.rules.mapGeneratorType;
@@ -430,7 +436,7 @@ export class MissionSetupManager {
       const parsed = JSON.parse(json);
       const validation = MapValidator.validate(parsed);
       if (!validation.success) {
-        await this.context.modalService.alert(
+        await this.modalService.alert(
           `Invalid map format: ${validation.error}`,
         );
         return;
@@ -438,10 +444,10 @@ export class MissionSetupManager {
       this.currentStaticMapData = MapUtility.transformMapData(
         validation.data as MapDefinition,
       );
-      await this.context.modalService.alert("Static Map Loaded.");
+      await this.modalService.alert("Static Map Loaded.");
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : String(e);
-      await this.context.modalService.alert(`Error loading map: ${message}`);
+      await this.modalService.alert(`Error loading map: ${message}`);
     }
   }
 
@@ -452,7 +458,7 @@ export class MissionSetupManager {
         const parsed = JSON.parse(ev.target?.result as string);
         const validation = MapValidator.validate(parsed);
         if (!validation.success) {
-          await this.context.modalService.alert(
+          await this.modalService.alert(
             `Invalid map format: ${validation.error}`,
           );
           return;
@@ -460,10 +466,10 @@ export class MissionSetupManager {
         this.currentStaticMapData = MapUtility.transformMapData(
           validation.data as MapDefinition,
         );
-        await this.context.modalService.alert("Static Map Loaded from File.");
+        await this.modalService.alert("Static Map Loaded from File.");
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : String(err);
-        await this.context.modalService.alert(`Invalid file: ${message}`);
+        await this.modalService.alert(`Invalid file: ${message}`);
       }
     };
     reader.readAsText(file);
@@ -474,9 +480,9 @@ export class MissionSetupManager {
       if (ascii) {
         this.currentStaticMapData = MapFactory.fromAscii(ascii);
       }
-      await this.context.modalService.alert("ASCII Map Converted.");
+      await this.modalService.alert("ASCII Map Converted.");
     } catch (e) {
-      await this.context.modalService.alert("Invalid ASCII.");
+      await this.modalService.alert("Invalid ASCII.");
     }
   }
 }

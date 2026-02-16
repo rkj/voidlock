@@ -65,7 +65,13 @@ describe("SettingsScreen Cloud Sync", () => {
     // GIVEN Firebase is not configured
     context.cloudSync.isConfigured.mockReturnValue(false);
     
-    screen = new SettingsScreen("screen-settings", context, vi.fn());
+    screen = new SettingsScreen(
+      "screen-settings",
+      context?.themeManager,
+      context?.cloudSync,
+      context?.modalService,
+      vi.fn(),
+    );
     screen.show();
     
     const body = document.body.innerHTML;
@@ -89,7 +95,13 @@ describe("SettingsScreen Cloud Sync", () => {
     // GIVEN cloudSync service is missing
     context.cloudSync = null;
     
-    screen = new SettingsScreen("screen-settings", context, vi.fn());
+    screen = new SettingsScreen(
+      "screen-settings",
+      context?.themeManager,
+      context?.cloudSync,
+      context?.modalService,
+      vi.fn(),
+    );
     screen.show();
     
     const body = document.body.innerHTML;
@@ -108,7 +120,13 @@ describe("SettingsScreen Cloud Sync", () => {
       cloudSyncEnabled: false,
     });
     
-    screen = new SettingsScreen("screen-settings", context, vi.fn());
+    screen = new SettingsScreen(
+      "screen-settings",
+      context?.themeManager,
+      context?.cloudSync,
+      context?.modalService,
+      vi.fn(),
+    );
     screen.show();
     
     const syncToggle = getSyncToggle();

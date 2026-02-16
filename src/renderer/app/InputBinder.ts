@@ -1,6 +1,7 @@
-import { AppContext } from "./AppContext";
 import { TimeUtility } from "@src/renderer/TimeUtility";
 import { MapGeneratorType, MissionType } from "@src/shared/types";
+import { ScreenManager } from "../ScreenManager";
+import { GameClient } from "@src/engine/GameClient";
 
 /**
  * InputBinder is responsible for attaching and detaching DOM event listeners.
@@ -12,7 +13,10 @@ export class InputBinder {
     { type: string; handler: (e: Event) => void }[]
   > = new Map();
 
-  constructor(private context: AppContext) {}
+  constructor(
+    private screenManager: ScreenManager,
+    private gameClient: GameClient,
+  ) {}
 
   public bindAll(callbacks: {
     onTogglePause: () => void;
@@ -43,7 +47,6 @@ export class InputBinder {
     onMapSizeChange: (width: number, height: number) => void;
     onLoadReplay: (file: File) => void;
   }) {
-    const { context } = this;
     // Main Menu
     this.addListener("btn-menu-custom", "click", () =>
       callbacks.onCustomMission(),
@@ -64,7 +67,7 @@ export class InputBinder {
 
     // Navigation Back
     this.addListener("btn-campaign-back", "click", () =>
-      context.screenManager.goBack(),
+      this.screenManager.goBack(),
     );
     this.addListener("btn-setup-back", "click", () => callbacks.onSetupBack());
     this.addListener("btn-launch-mission", "click", () =>
@@ -89,7 +92,7 @@ export class InputBinder {
       const scale = TimeUtility.sliderToScale(
         parseFloat(gameSpeedSlider.value),
       );
-      context.gameClient.setTimeScale(scale);
+      this.gameClient.setTimeScale(scale);
       // NOTE: main.ts calls syncSpeedUI() here indirectly or directly.
       // We might need to expose syncSpeedUI or pass it in.
     });
@@ -165,7 +168,7 @@ export class InputBinder {
     this.addListener(tsSlider, "input", () => {
       const scale = TimeUtility.sliderToScale(parseFloat(tsSlider.value));
       if (tsValue) tsValue.textContent = scale.toFixed(1);
-      context.gameClient.setTimeScale(scale);
+      this.gameClient.setTimeScale(scale);
     });
 
     // Static Map & Replay

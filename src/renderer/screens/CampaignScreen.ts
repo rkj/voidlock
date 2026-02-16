@@ -3,7 +3,6 @@ import { ConfigManager } from "@src/renderer/ConfigManager";
 import { CampaignNode, CampaignState } from "@src/shared/campaign_types";
 import { ModalService } from "../ui/ModalService";
 import { NewCampaignWizard } from "./campaign/NewCampaignWizard";
-import { AppContext } from "../app/AppContext";
 import { InputDispatcher } from "../InputDispatcher";
 import { InputPriority } from "@src/shared/types";
 import { UIUtils } from "../utils/UIUtils";
@@ -20,7 +19,8 @@ export class CampaignScreen {
 
   constructor(
     containerId: string,
-    context: AppContext,
+    campaignManager: CampaignManager,
+    modalService: ModalService,
     onNodeSelect: (node: CampaignNode) => void,
     onBack: () => void,
     onCampaignStart?: () => void,
@@ -29,8 +29,8 @@ export class CampaignScreen {
     const el = document.getElementById(containerId);
     if (!el) throw new Error(`Container #${containerId} not found`);
     this.container = el;
-    this.manager = context.campaignManager;
-    this.modalService = context.modalService;
+    this.manager = campaignManager;
+    this.modalService = modalService;
     this.onNodeSelect = onNodeSelect;
     this.onBack = onBack;
     this.onCampaignStart = onCampaignStart;

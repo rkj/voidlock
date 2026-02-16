@@ -1,7 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { InputBinder } from "@src/renderer/app/InputBinder";
-import { AppContext } from "@src/renderer/app/AppContext";
 import { MapGeneratorType, MissionType } from "@src/shared/types";
 
 describe("InputBinder", () => {
@@ -61,7 +60,10 @@ describe("InputBinder", () => {
       gameClient: { setTimeScale: vi.fn() },
     };
 
-    inputBinder = new InputBinder(mockContext as AppContext);
+    inputBinder = new InputBinder(
+      mockContext.screenManager as any,
+      mockContext.gameClient as any,
+    );
     mockCallbacks = {
       onTogglePause: vi.fn(),
       onAbortMission: vi.fn(),

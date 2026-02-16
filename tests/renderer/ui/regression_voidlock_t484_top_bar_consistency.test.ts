@@ -27,9 +27,18 @@ describe("CampaignShell Consistency", () => {
     onTabChange = vi.fn();
     onMenu = vi.fn();
 
+    const mockMetaManager = {
+      getStats: vi.fn().mockReturnValue({
+        totalKills: 100,
+        totalCampaignsStarted: 5,
+        totalMissionsWon: 20,
+      }),
+    };
+
     shell = new CampaignShell(
       "screen-campaign-shell",
       manager as any,
+      mockMetaManager as any,
       onTabChange,
       onMenu,
     );

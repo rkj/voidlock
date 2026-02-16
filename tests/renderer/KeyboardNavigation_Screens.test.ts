@@ -6,7 +6,6 @@ import { EquipmentScreen } from "@src/renderer/screens/EquipmentScreen";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
 import { InputDispatcher } from "@src/renderer/InputDispatcher";
-import { AppContext } from "@src/renderer/app/AppContext";
 import { SquadConfig } from "@src/shared/types";
 import { MainMenuScreen } from "@src/renderer/screens/MainMenuScreen";
 import { MissionSetupScreen } from "@src/renderer/screens/MissionSetupScreen";
@@ -101,11 +100,16 @@ describe("Screen Keyboard Navigation Integration", () => {
     const manager = CampaignManager.getInstance(new MockStorageProvider());
     manager.startNewCampaign(12345, "normal");
 
-    const context = new AppContext();
-    context.campaignManager = manager;
     const onNodeSelect = vi.fn();
+    const mockModalService = {} as any;
 
-    const screen = new CampaignScreen("screen-campaign", context, onNodeSelect);
+    const screen = new CampaignScreen(
+      "screen-campaign",
+      manager,
+      mockModalService,
+      onNodeSelect,
+      () => {},
+    );
 
     // @ts-ignore
     expect(dispatcher.contextStack.length).toBe(0);

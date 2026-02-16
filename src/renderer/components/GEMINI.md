@@ -10,5 +10,5 @@ This directory contains reusable UI components for the Voidlock renderer.
 ## Guidelines
 
 - **Encapsulation**: Components should manage their own internal state and DOM elements where possible.
-- **Context Injection**: Use `AppContext` to provide access to global managers and services.
+- **Dependency Injection**: Accept explicit dependencies in constructors to improve testability and decouple from global state.
 - **Event Callbacks**: Use callback props for communicating state changes back to parent containers (like `GameApp`).

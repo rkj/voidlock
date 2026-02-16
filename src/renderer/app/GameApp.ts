@@ -1,4 +1,3 @@
-import { AppContext } from "./AppContext";
 import { InputBinder } from "./InputBinder";
 import { GameClient } from "@src/engine/GameClient";
 import {
@@ -41,6 +40,7 @@ import { SettingsScreen } from "../screens/SettingsScreen";
 import { MainMenuScreen } from "../screens/MainMenuScreen";
 import { ThemeManager } from "../ThemeManager";
 import { CampaignManager } from "../campaign/CampaignManager";
+import { MetaManager } from "../campaign/MetaManager";
 import { ScreenManager, ScreenId } from "../ScreenManager";
 import { MapFactory } from "@src/engine/map/MapFactory";
 import { MenuController } from "../MenuController";
@@ -51,15 +51,31 @@ import { Logger, LogLevel } from "@src/shared/Logger";
 import { GlobalShortcuts } from "../GlobalShortcuts";
 import { TooltipManager } from "../ui/TooltipManager";
 import { MathUtils } from "@src/shared/utils/MathUtils";
+import { CloudSyncService } from "@src/services/CloudSyncService";
+import { Renderer } from "../Renderer";
 
 const VERSION = pkg.version;
 
 export class GameApp {
-  private context: AppContext;
-  private inputBinder: InputBinder;
-  private missionCoordinator: MissionCoordinator;
-  private campaignFlowCoordinator: CampaignFlowCoordinator;
-  private missionSetupManager: MissionSetupManager;
+  // Services
+  private gameClient!: GameClient;
+  private renderer: Renderer | null = null;
+  private screenManager!: ScreenManager;
+  private campaignManager!: CampaignManager;
+  private metaManager!: MetaManager;
+  private themeManager!: ThemeManager;
+  private menuController!: MenuController;
+  private hudManager!: HUDManager;
+  private inputManager!: InputManager;
+  private modalService!: ModalService;
+  private campaignShell!: CampaignShell;
+  private cloudSync!: CloudSyncService;
+
+  // Coordinators
+  private inputBinder!: InputBinder;
+  private missionCoordinator!: MissionCoordinator;
+  private campaignFlowCoordinator!: CampaignFlowCoordinator;
+  private missionSetupManager!: MissionSetupManager;
 
   // screens
   private campaignScreen!: CampaignScreen;
@@ -78,11 +94,7 @@ export class GameApp {
   private currentGameState: GameState | null = null;
 
   constructor() {
-    this.context = new AppContext();
-    this.inputBinder = new InputBinder(this.context);
-    this.missionCoordinator = new MissionCoordinator(this.context);
-    this.campaignFlowCoordinator = new CampaignFlowCoordinator(this.context);
-    this.missionSetupManager = new MissionSetupManager(this.context);
+    // We will initialize services in initialize()
   }
 
   public async initialize() {
@@ -90,81 +102,105 @@ export class GameApp {
     const globalConfig = ConfigManager.loadGlobal();
     Logger.setLevel(LogLevel[globalConfig.logLevel as keyof typeof LogLevel]);
 
-    await ThemeManager.getInstance().init();
-    this.context.themeManager = ThemeManager.getInstance();
+    this.themeManager = ThemeManager.getInstance();
+    await this.themeManager.init();
+    
     // Ensure sprites are loaded now that the asset manifest is available
     AssetManager.getInstance().loadSprites();
-    this.context.campaignManager = CampaignManager.getInstance();
+    
+    this.campaignManager = CampaignManager.getInstance();
+    this.metaManager = MetaManager.getInstance();
 
     // Initialize cloudSync from SaveManager
-    const storage = (this.context.campaignManager as any).getStorage
-      ? this.context.campaignManager.getStorage()
+    const storage = (this.campaignManager as any).getStorage
+      ? this.campaignManager.getStorage()
       : null;
     if (storage && "getCloudSync" in storage) {
-      this.context.cloudSync = (storage as any).getCloudSync();
-      await this.context.cloudSync.initialize();
+      this.cloudSync = (storage as any).getCloudSync();
+      await this.cloudSync.initialize();
     }
 
-    await this.context.campaignManager.load();
-    this.context.modalService = new ModalService();
-    this.context.screenManager = new ScreenManager((id, isCampaign) =>
+    await this.campaignManager.load();
+    this.modalService = new ModalService();
+    this.screenManager = new ScreenManager((id, isCampaign) =>
       this.handleExternalScreenChange(id, isCampaign),
     );
 
-    this.context.campaignShell = new CampaignShell(
+    this.campaignShell = new CampaignShell(
       "screen-campaign-shell",
-      this.context.campaignManager,
+      this.campaignManager,
+      this.metaManager,
       (tabId) => this.onShellTabChange(tabId),
       () => this.showMainMenu(),
     );
 
     this.mainMenuScreen = new MainMenuScreen("screen-main-menu");
-    this.context.mainMenuScreen = this.mainMenuScreen;
     this.missionSetupScreen = new MissionSetupScreen(
       "screen-mission-setup",
       () => {
-        this.context.screenManager.goBack();
+        this.screenManager.goBack();
       },
     );
-    this.context.missionSetupScreen = this.missionSetupScreen;
 
     const mapGeneratorFactory = (config: MapGenerationConfig): MapFactory => {
       return new MapFactory(config);
     };
-    this.context.gameClient = new GameClient((config) =>
+    this.gameClient = new GameClient((config) =>
       mapGeneratorFactory(config),
     );
-    this.context.menuController = new MenuController(this.context.gameClient);
+    this.menuController = new MenuController(this.gameClient);
+
+    // Initialize Coordinators
+    this.inputBinder = new InputBinder(this.screenManager, this.gameClient);
+    this.missionCoordinator = new MissionCoordinator(
+      this.campaignShell,
+      this.gameClient,
+      this.screenManager,
+      this.menuController,
+      this.campaignManager,
+      (renderer) => { this.renderer = renderer; },
+    );
+    this.campaignFlowCoordinator = new CampaignFlowCoordinator(
+      this.campaignManager,
+      this.screenManager,
+      this.campaignShell,
+      this.modalService,
+    );
+    this.missionSetupManager = new MissionSetupManager(
+      this.campaignManager,
+      this.themeManager,
+      this.modalService,
+    );
 
     // 2. Initialize UI managers
-    this.context.hudManager = new HUDManager(
-      this.context.menuController,
+    this.hudManager = new HUDManager(
+      this.menuController,
       (unit, shift) => this.onUnitClick(unit, shift),
       () => this.abortMission(),
       (key, shift) => this.handleMenuInput(key, shift),
       (scale) => {
-        this.context.gameClient.setTimeScale(scale);
+        this.gameClient.setTimeScale(scale);
         this.syncSpeedUI();
       },
       () => this.copyWorldState(),
-      () => this.context.gameClient.forceWin(),
-      () => this.context.gameClient.forceLose(),
+      () => this.gameClient.forceWin(),
+      () => this.gameClient.forceLose(),
       () =>
-        this.context.gameClient.applyCommand({
+        this.gameClient.applyCommand({
           type: CommandType.START_MISSION,
         }),
       (unitId, x, y) =>
-        this.context.gameClient.applyCommand({
+        this.gameClient.applyCommand({
           type: CommandType.DEPLOY_UNIT,
           unitId,
           target: { x, y },
         }),
     );
 
-    this.context.inputManager = new InputManager(
-      this.context.screenManager,
-      this.context.menuController,
-      this.context.modalService,
+    this.inputManager = new InputManager(
+      this.screenManager,
+      this.menuController,
+      this.modalService,
       () => this.togglePause(),
       (key, shift) => this.handleMenuInput(key, shift),
       () => this.abortMission(),
@@ -174,22 +210,22 @@ export class GameApp {
       },
       () => this.selectedUnitId,
       (e) => this.handleCanvasClick(e),
-      (enabled) => this.context.gameClient.toggleDebugOverlay(enabled),
-      (enabled) => this.context.gameClient.toggleLosOverlay(enabled),
+      (enabled) => this.gameClient.toggleDebugOverlay(enabled),
+      (enabled) => this.gameClient.toggleLosOverlay(enabled),
       () => this.currentGameState,
       () => this.debriefScreen.isVisible(),
       (unitId, x, y) =>
-        this.context.gameClient.applyCommand({
+        this.gameClient.applyCommand({
           type: CommandType.DEPLOY_UNIT,
           unitId,
           target: { x, y },
         }),
       (unitId) =>
-        this.context.gameClient.applyCommand({
+        this.gameClient.applyCommand({
           type: CommandType.UNDEPLOY_UNIT,
           unitId,
         }),
-      (px, py) => this.context.renderer!.getCellCoordinates(px, py),
+      (px, py) => this.renderer!.getCellCoordinates(px, py),
       (reverse) => this.cycleUnits(reverse),
       (direction) => this.panMap(direction),
       (dx, dy) => this.panMapBy(dx, dy),
@@ -201,21 +237,21 @@ export class GameApp {
       "screen-campaign-summary",
       () => {
         this.campaignSummaryScreen.hide();
-        this.context.gameClient.stop();
+        this.gameClient.stop();
         ConfigManager.clearCampaign();
-        this.context.campaignManager.deleteSave();
+        this.campaignManager.deleteSave();
         this.showMainMenu();
       },
     );
 
     this.debriefScreen = new DebriefScreen(
       "screen-debrief",
-      this.context.gameClient,
+      this.gameClient,
       () => {
         this.debriefScreen.hide();
-        this.context.gameClient.stop();
+        this.gameClient.stop();
 
-        const state = this.context.campaignManager.getState();
+        const state = this.campaignManager.getState();
         if (
           state &&
           (state.status === "Victory" || state.status === "Defeat")
@@ -226,15 +262,15 @@ export class GameApp {
 
         if (this.missionSetupManager.currentCampaignNode) {
           this.switchScreen("campaign", true);
-          this.context.campaignShell.show("campaign", "sector-map");
+          this.campaignShell.show("campaign", "sector-map");
         } else {
-          this.context.campaignShell.hide();
+          this.campaignShell.hide();
           this.showMainMenu();
         }
       },
       () => {
         this.debriefScreen.hide();
-        this.context.gameClient.stop();
+        this.gameClient.stop();
         this.launchMission();
       },
       () => this.exportReplay(),
@@ -242,18 +278,19 @@ export class GameApp {
 
     this.barracksScreen = new BarracksScreen(
       "screen-barracks",
-      this.context.campaignManager,
-      this.context.modalService,
+      this.campaignManager,
+      this.modalService,
       () => {
         this.switchScreen("campaign", true);
-        this.context.campaignShell.show("campaign", "sector-map");
+        this.campaignShell.show("campaign", "sector-map");
       },
-      () => this.context.campaignShell.refresh(),
+      () => this.campaignShell.refresh(),
     );
 
     this.campaignScreen = new CampaignScreen(
       "screen-campaign",
-      this.context,
+      this.campaignManager,
+      this.modalService,
       (node) => this.onCampaignNodeSelect(node),
       () => this.showMainMenu(),
       () => this.onCampaignStart(),
@@ -262,35 +299,37 @@ export class GameApp {
 
     this.equipmentScreen = new EquipmentScreen(
       "screen-equipment",
-      this.context.campaignManager,
+      this.campaignManager,
       this.missionSetupManager.currentSquad,
       (config) => this.onEquipmentConfirmed(config),
       () => {
-        this.context.screenManager.goBack();
-        const screen = this.context.screenManager.getCurrentScreen();
+        this.screenManager.goBack();
+        const screen = this.screenManager.getCurrentScreen();
         this.handleExternalScreenChange(
           screen,
-          !!this.context.campaignManager.getState(),
+          !!this.campaignManager.getState(),
         );
       },
-      () => this.context.campaignShell.refresh(),
+      () => this.campaignShell.refresh(),
       false, // isShop
       false, // isCampaign
     );
 
-    this.statisticsScreen = new StatisticsScreen("screen-statistics");
-    this.engineeringScreen = new EngineeringScreen("screen-engineering", () =>
-      this.context.campaignShell.refresh(),
+    this.statisticsScreen = new StatisticsScreen("screen-statistics", this.metaManager);
+    this.engineeringScreen = new EngineeringScreen("screen-engineering", this.metaManager, () =>
+      this.campaignShell.refresh(),
     );
     this.settingsScreen = new SettingsScreen(
       "screen-settings",
-      this.context,
+      this.themeManager,
+      this.cloudSync,
+      this.modalService,
       () => {
-        this.context.screenManager.goBack();
-        const screen = this.context.screenManager.getCurrentScreen();
+        this.screenManager.goBack();
+        const screen = this.screenManager.getCurrentScreen();
         this.handleExternalScreenChange(
           screen,
-          !!this.context.campaignManager.getState(),
+          !!this.campaignManager.getState(),
         );
       },
     );
@@ -305,7 +344,7 @@ export class GameApp {
       onCustomMission: () => {
         this.missionSetupManager.currentCampaignNode = null;
         this.missionSetupManager.loadAndApplyConfig(false);
-        this.context.campaignShell.show("custom", "setup");
+        this.campaignShell.show("custom", "setup");
         this.switchScreen("mission-setup", false);
       },
       onCampaignMenu: () => {
@@ -324,9 +363,9 @@ export class GameApp {
         );
         this.switchScreen("equipment", isCampaign);
         if (isCampaign) {
-          this.context.campaignShell.show("campaign", "sector-map", false);
+          this.campaignShell.show("campaign", "sector-map", false);
         } else {
-          this.context.campaignShell.show("custom");
+          this.campaignShell.show("custom");
         }
       },
       onLoadStaticMap: (json) => this.missionSetupManager.loadStaticMap(json),
@@ -336,28 +375,28 @@ export class GameApp {
       onExportReplay: () => this.exportReplay(),
       onShowStatistics: () => {
         this.switchScreen("statistics", false);
-        this.context.campaignShell.show("statistics", "stats");
+        this.campaignShell.show("statistics", "stats");
       },
       onEngineeringMenu: () => {
-        const state = this.context.campaignManager.getState();
+        const state = this.campaignManager.getState();
         this.switchScreen("engineering", !!state);
         if (state) {
-          this.context.campaignShell.show("campaign", "engineering");
+          this.campaignShell.show("campaign", "engineering");
         } else {
-          this.context.campaignShell.show("statistics", "engineering");
+          this.campaignShell.show("statistics", "engineering");
         }
       },
       onSettingsMenu: () => {
-        const state = this.context.campaignManager.getState();
+        const state = this.campaignManager.getState();
         this.switchScreen("settings", !!state);
         if (state) {
-          this.context.campaignShell.show("campaign", "settings");
+          this.campaignShell.show("campaign", "settings");
         } else {
-          this.context.campaignShell.show("global", "settings", false);
+          this.campaignShell.show("global", "settings", false);
         }
       },
       onSetupBack: () => {
-        this.context.screenManager.goBack();
+        this.screenManager.goBack();
       },
       onLaunchMission: () => this.launchMission(),
       onMapGeneratorChange: (type: MapGeneratorType) => {
@@ -380,7 +419,7 @@ export class GameApp {
       onThemeChange: (themeId: string) => {
         this.missionSetupManager.currentThemeId = themeId;
         this.missionSetupManager.saveCurrentConfig();
-        this.context.themeManager.setTheme(themeId);
+        this.themeManager.setTheme(themeId);
       },
       onUnitStyleChange: (style: string) => {
         this.missionSetupManager.unitStyle = style as any;
@@ -437,7 +476,7 @@ export class GameApp {
             const currentState = data.currentState as GameState | undefined;
 
             if (replayData && replayData.commands) {
-              this.context.gameClient.loadReplay(replayData);
+              this.gameClient.loadReplay(replayData);
 
               let report: MissionReport;
               // If we have current state, we can construct a detailed report
@@ -497,21 +536,21 @@ export class GameApp {
                 this.missionSetupManager.unitStyle,
               );
             } else {
-              this.context.modalService.alert("Invalid replay file format.");
+              this.modalService.alert("Invalid replay file format.");
             }
           } catch (err) {
-            this.context.modalService.alert("Failed to parse replay file.");
+            this.modalService.alert("Failed to parse replay file.");
           }
         };
         reader.readAsText(file);
       },
     });
 
-    this.context.inputManager.init();
+    this.inputManager.init();
 
     const globalShortcuts = new GlobalShortcuts(
       () => this.togglePause(),
-      () => this.context.screenManager.goBack(),
+      () => this.screenManager.goBack(),
     );
     globalShortcuts.init();
 
@@ -576,7 +615,7 @@ export class GameApp {
 
     // 2. Hide CampaignShell for non-campaign screens (Main Menu, Mission, etc.)
     if (id === "main-menu" || id === "mission") {
-      this.context.campaignShell.hide();
+      this.campaignShell.hide();
     }
 
     // 3. Show target screen object
@@ -586,7 +625,7 @@ export class GameApp {
     }
 
     // 4. Update ScreenManager (DOM display and Hash)
-    this.context.screenManager.show(id, updateHash, isCampaign);
+    this.screenManager.show(id, updateHash, isCampaign);
   }
 
   private get allScreens(): { hide: () => void }[] {
@@ -632,7 +671,7 @@ export class GameApp {
   }
 
   private onShellTabChange(tabId: CampaignTabId) {
-    const hasCampaign = !!this.context.campaignManager.getState();
+    const hasCampaign = !!this.campaignManager.getState();
     const isCustomFlow =
       !hasCampaign && this.missionSetupManager.currentCampaignNode === null;
 
@@ -665,11 +704,11 @@ export class GameApp {
         break;
     }
 
-    this.context.campaignShell.show(mode, tabId);
+    this.campaignShell.show(mode, tabId);
   }
 
   public start() {
-    const persisted = this.context.screenManager.loadPersistedState();
+    const persisted = this.screenManager.loadPersistedState();
     if (persisted) {
       this.handleExternalScreenChange(persisted.screenId, persisted.isCampaign);
     } else {
@@ -684,7 +723,7 @@ export class GameApp {
     switch (id) {
       case "campaign": {
         this.applyCampaignTheme();
-        const state = this.context.campaignManager.getState();
+        const state = this.campaignManager.getState();
         if (
           state &&
           (state.status === "Victory" || state.status === "Defeat")
@@ -692,12 +731,12 @@ export class GameApp {
           this.switchScreen("campaign-summary", true, true, state);
         } else {
           this.switchScreen("campaign", true);
-          this.context.campaignShell.show("campaign", "sector-map");
+          this.campaignShell.show("campaign", "sector-map");
         }
         break;
       }
       case "campaign-summary": {
-        const state = this.context.campaignManager.getState();
+        const state = this.campaignManager.getState();
         if (state) {
           this.switchScreen("campaign-summary", true, true, state);
         } else {
@@ -719,16 +758,16 @@ export class GameApp {
             this.missionSetupManager.currentSquad,
           );
           this.switchScreen("equipment", true);
-          this.context.campaignShell.show("campaign", "sector-map", false);
+          this.campaignShell.show("campaign", "sector-map", false);
           break;
         }
 
         this.missionSetupManager.loadAndApplyConfig(rehydrated);
         if (rehydrated) {
           this.applyCampaignTheme();
-          this.context.campaignShell.show("campaign", "sector-map", false);
+          this.campaignShell.show("campaign", "sector-map", false);
         } else {
-          this.context.campaignShell.show("custom", "setup");
+          this.campaignShell.show("custom", "setup");
         }
         this.switchScreen("mission-setup", rehydrated);
         break;
@@ -746,53 +785,53 @@ export class GameApp {
         );
         this.switchScreen("equipment", isCurrentlyCampaign);
         if (isCurrentlyCampaign) {
-          this.context.campaignShell.show("campaign", "sector-map", false);
+          this.campaignShell.show("campaign", "sector-map", false);
         } else {
-          this.context.campaignShell.show("custom", "setup");
+          this.campaignShell.show("custom", "setup");
         }
         break;
       }
       case "barracks":
         this.applyCampaignTheme();
         this.switchScreen("barracks", true);
-        this.context.campaignShell.show("campaign", "barracks");
+        this.campaignShell.show("campaign", "barracks");
         break;
       case "statistics":
         this.switchScreen("statistics", false);
         if (
           !isCampaign &&
           this.missionSetupManager.currentCampaignNode === null &&
-          !this.context.campaignManager.getState()
+          !this.campaignManager.getState()
         ) {
-          this.context.campaignShell.show("custom", "stats");
+          this.campaignShell.show("custom", "stats");
         } else {
-          this.context.campaignShell.show("statistics", "stats");
+          this.campaignShell.show("statistics", "stats");
         }
         break;
       case "engineering":
-        this.switchScreen("engineering", isCampaign || !!this.context.campaignManager.getState());
-        if (isCampaign || this.context.campaignManager.getState()) {
-          this.context.campaignShell.show("campaign", "engineering");
+        this.switchScreen("engineering", isCampaign || !!this.campaignManager.getState());
+        if (isCampaign || this.campaignManager.getState()) {
+          this.campaignShell.show("campaign", "engineering");
         } else {
-          this.context.campaignShell.show("statistics", "engineering");
+          this.campaignShell.show("statistics", "engineering");
         }
         break;
       case "settings": {
-        const state = this.context.campaignManager.getState();
+        const state = this.campaignManager.getState();
         const isCustomFlow =
           !isCampaign && this.missionSetupManager.currentCampaignNode === null;
         this.switchScreen("settings", isCampaign || !!state || isCustomFlow);
         if (state) {
-          this.context.campaignShell.show("campaign", "settings");
+          this.campaignShell.show("campaign", "settings");
         } else if (isCustomFlow) {
-          this.context.campaignShell.show("custom", "settings");
+          this.campaignShell.show("custom", "settings");
         } else {
-          this.context.campaignShell.show("global", "settings", false);
+          this.campaignShell.show("global", "settings", false);
         }
         break;
       }
       case "mission":
-        this.context.campaignShell.hide();
+        this.campaignShell.hide();
         this.resumeMission();
         break;
       case "main-menu":
@@ -806,10 +845,10 @@ export class GameApp {
   }
 
   public stop() {
-    this.context.gameClient.stop();
-    this.context.inputManager.destroy();
+    this.gameClient.stop();
+    this.inputManager.destroy();
     this.inputBinder.unbindAll();
-    this.context.screenManager.destroy();
+    this.screenManager.destroy();
   }
 
   // --- Logic copied from main.ts ---
@@ -856,7 +895,7 @@ export class GameApp {
   private onEquipmentConfirmed(config: SquadConfig) {
     config.soldiers.forEach((soldier) => {
       if (soldier.id) {
-        this.context.campaignManager.assignEquipment(soldier.id, {
+        this.campaignManager.assignEquipment(soldier.id, {
           rightHand: soldier.rightHand,
           leftHand: soldier.leftHand,
           body: soldier.body,
@@ -871,31 +910,31 @@ export class GameApp {
     this.missionSetupManager.loadAndApplyConfig(isCampaign);
     this.switchScreen("mission-setup", isCampaign);
     if (isCampaign) {
-      this.context.campaignShell.show("campaign", "sector-map", false);
+      this.campaignShell.show("campaign", "sector-map", false);
     } else {
-      this.context.campaignShell.show("custom", "setup");
+      this.campaignShell.show("custom", "setup");
     }
   }
 
   private updateUI(state: GameState) {
     this.currentGameState = state;
-    this.context.menuController.update(state);
-    this.context.hudManager.update(state, this.selectedUnitId);
+    this.menuController.update(state);
+    this.hudManager.update(state, this.selectedUnitId);
   }
 
   private async copyWorldState() {
     if (this.currentGameState) {
       await DebugUtility.copyWorldState(
         this.currentGameState,
-        this.context.gameClient.getReplayData(),
+        this.gameClient.getReplayData(),
         VERSION,
-        this.context.modalService,
+        this.modalService,
       );
     }
   }
 
   private exportReplay() {
-    const replay = this.context.gameClient.getReplayData();
+    const replay = this.gameClient.getReplayData();
     if (replay) {
       const blob = new Blob([JSON.stringify(replay, null, 2)], {
         type: "application/json",
@@ -911,7 +950,7 @@ export class GameApp {
 
   private applyCampaignTheme() {
     const global = ConfigManager.loadGlobal();
-    this.context.themeManager.setTheme(global.themeId || "default");
+    this.themeManager.setTheme(global.themeId || "default");
   }
 
   private onCampaignNodeSelect(node: CampaignNode) {
@@ -925,18 +964,18 @@ export class GameApp {
           this.missionSetupManager.currentSquad,
         );
         this.switchScreen("equipment", true);
-        this.context.campaignShell.show("campaign", "sector-map", false);
+        this.campaignShell.show("campaign", "sector-map", false);
       },
     );
   }
 
   private onCampaignStart() {
     this.applyCampaignTheme();
-    this.context.campaignShell.show("campaign", "sector-map");
+    this.campaignShell.show("campaign", "sector-map");
   }
 
   private onShowSummary() {
-    const state = this.context.campaignManager.getState();
+    const state = this.campaignManager.getState();
     if (state) {
       this.switchScreen("campaign-summary", true, true, state);
     }
@@ -944,19 +983,19 @@ export class GameApp {
 
   private handleMenuInput(key: string, shiftHeld: boolean = false) {
     if (!this.currentGameState) return;
-    this.context.menuController.isShiftHeld = shiftHeld;
-    this.context.menuController.handleMenuInput(key, this.currentGameState);
+    this.menuController.isShiftHeld = shiftHeld;
+    this.menuController.handleMenuInput(key, this.currentGameState);
     this.updateUI(this.currentGameState);
   }
 
   private togglePause() {
-    this.context.gameClient.togglePause();
+    this.gameClient.togglePause();
     this.syncSpeedUI();
   }
 
   private syncSpeedUI() {
-    const isPaused = this.context.gameClient.getIsPaused();
-    const lastSpeed = this.context.gameClient.getTargetScale();
+    const isPaused = this.gameClient.getIsPaused();
+    const lastSpeed = this.gameClient.getTargetScale();
 
     const btn = document.getElementById(
       "btn-pause-toggle",
@@ -1047,11 +1086,11 @@ export class GameApp {
   }
 
   private zoomMap(ratio: number, centerX: number, centerY: number) {
-    if (!this.context.renderer) return;
+    if (!this.renderer) return;
     const container = document.getElementById("game-container");
     if (!container) return;
 
-    const oldCellSize = this.context.renderer.cellSize;
+    const oldCellSize = this.renderer.cellSize;
     const newCellSize = Math.max(32, Math.min(512, oldCellSize * ratio));
 
     if (newCellSize === oldCellSize) return;
@@ -1067,9 +1106,9 @@ export class GameApp {
 
     const actualRatio = newCellSize / oldCellSize;
 
-    this.context.renderer.setCellSize(newCellSize);
+    this.renderer.setCellSize(newCellSize);
     if (this.currentGameState) {
-      this.context.renderer.render(this.currentGameState);
+      this.renderer.render(this.currentGameState);
     }
 
     // We must wait for the next frame or update immediately if renderer resizes canvas synchronously
@@ -1080,16 +1119,16 @@ export class GameApp {
   }
 
   private onUnitClick(unit: Unit, shiftHeld: boolean = false) {
-    if (this.context.menuController.menuState === "UNIT_SELECT") {
-      this.context.menuController.isShiftHeld = shiftHeld;
-      this.context.menuController.selectUnit(unit.id);
+    if (this.menuController.menuState === "UNIT_SELECT") {
+      this.menuController.isShiftHeld = shiftHeld;
+      this.menuController.selectUnit(unit.id);
       if (this.currentGameState) this.updateUI(this.currentGameState);
       return;
     }
 
     // Selecting a new unit from HUD should cancel any previous pending action selection flow
-    if (this.context.menuController.menuState !== "ACTION_SELECT") {
-      this.context.menuController.reset();
+    if (this.menuController.menuState !== "ACTION_SELECT") {
+      this.menuController.reset();
     }
 
     this.selectedUnitId = unit.id === this.selectedUnitId ? null : unit.id;
@@ -1097,8 +1136,8 @@ export class GameApp {
   }
 
   private handleCanvasClick(event: MouseEvent) {
-    if (!this.context.renderer || !this.currentGameState) return;
-    const clickedCell = this.context.renderer.getCellCoordinates(
+    if (!this.renderer || !this.currentGameState) return;
+    const clickedCell = this.renderer.getCellCoordinates(
       event.clientX,
       event.clientY,
     );
@@ -1112,7 +1151,7 @@ export class GameApp {
             u.isDeployed !== false,
         );
         if (unit && unit.archetypeId !== "vip") {
-          this.context.gameClient.applyCommand({
+          this.gameClient.applyCommand({
             type: CommandType.UNDEPLOY_UNIT,
             unitId: unit.id,
           });
@@ -1135,7 +1174,7 @@ export class GameApp {
               this.currentGameState.map.squadSpawn.y === clickedCell.y);
 
           if (isValidSpawn) {
-            this.context.gameClient.applyCommand({
+            this.gameClient.applyCommand({
               type: CommandType.DEPLOY_UNIT,
               unitId: unit.id,
               target: { x: clickedCell.x + 0.5, y: clickedCell.y + 0.5 },
@@ -1146,13 +1185,13 @@ export class GameApp {
       }
     }
 
-    const prevState = this.context.menuController.menuState;
-    this.context.menuController.handleCanvasClick(
+    const prevState = this.menuController.menuState;
+    this.menuController.handleCanvasClick(
       clickedCell,
       this.currentGameState,
     );
 
-    if (this.context.menuController.menuState !== prevState) {
+    if (this.menuController.menuState !== prevState) {
       this.updateUI(this.currentGameState);
       return;
     }
@@ -1182,7 +1221,7 @@ export class GameApp {
       },
       (report) => {
         if (report.nodeId !== "custom") {
-          this.context.campaignManager.processMissionResult(report);
+          this.campaignManager.processMissionResult(report);
         }
 
         this.setMissionHUDVisible(false);
@@ -1208,7 +1247,7 @@ export class GameApp {
     this.missionCoordinator.resumeMission(
       (report) => {
         if (report.nodeId !== "custom") {
-          this.context.campaignManager.processMissionResult(report);
+          this.campaignManager.processMissionResult(report);
         }
 
         this.setMissionHUDVisible(false);
@@ -1232,7 +1271,7 @@ export class GameApp {
   }
 
   private async abortMission() {
-    const confirmed = await this.context.modalService.confirm(
+    const confirmed = await this.modalService.confirm(
       "Abort Mission and return to menu?",
     );
     if (!confirmed) return;
@@ -1244,7 +1283,7 @@ export class GameApp {
       this.missionSetupManager.currentSquad,
       (report) => {
         if (report.nodeId !== "custom") {
-          this.context.campaignManager.processMissionResult(report);
+          this.campaignManager.processMissionResult(report);
         }
 
         this.setMissionHUDVisible(false);
