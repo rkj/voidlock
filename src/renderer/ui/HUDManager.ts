@@ -332,7 +332,8 @@ export class HUDManager {
            }
         });
       });
-      deploymentDiv.insertBefore(autoFillBtn, startBtn);
+      deploymentDiv.appendChild(autoFillBtn);
+      deploymentDiv.appendChild(startBtn);
 
       container.appendChild(deploymentDiv);
     }

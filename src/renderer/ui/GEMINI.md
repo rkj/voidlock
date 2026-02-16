@@ -55,6 +55,7 @@ This directory contains UI components and managers for the Voidlock renderer.
   - **Auto-Fill**: Button ("Auto-Fill Spawns") to automatically assign all rostered units to available spawn points.
   - **Interaction**: Support for double-clicking units in the roster to deploy them to the next available spot.
   - **Validation**: "Start Mission" button is enabled only when all selected units are validly placed on unique spawn points on the map.
+  - **Stability Fix**: Resolved a critical `NotFoundError` in `HUDManager.ts` that occurred during deployment setup due to invalid `insertBefore` reference nodes.
 - **Event Handling**: Manages clicks on soldier items and menu options.
 
 ## Related ADRs
