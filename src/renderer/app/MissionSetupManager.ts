@@ -200,6 +200,16 @@ export class MissionSetupManager {
     if (mapConfigSection)
       mapConfigSection.style.display = isCampaign ? "none" : "block";
 
+    const setupTitle = document.getElementById("mission-setup-title");
+    if (setupTitle) {
+      setupTitle.textContent = isCampaign ? "Mission Briefing" : "Mission Configuration";
+    }
+
+    const equipmentBtn = document.getElementById("btn-goto-equipment");
+    if (equipmentBtn) {
+      equipmentBtn.style.display = isCampaign ? "none" : "block";
+    }
+
     const global = ConfigManager.loadGlobal();
     this.unitStyle = global.unitStyle;
     this.currentThemeId = global.themeId;
