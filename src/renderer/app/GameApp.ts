@@ -9,14 +9,14 @@ import {
   GameState,
   Unit,
   CommandType,
+  UnitStyle,
+  SquadSoldierConfig,
 } from "@src/shared/types";
 import {
   calculateSpawnPoints,
   CampaignNode,
   MissionReport,
 } from "@src/shared/campaign_types";
-import { DebugUtility } from "@src/renderer/DebugUtility";
-import { TimeUtility } from "@src/renderer/TimeUtility";
 import { ModalService } from "@src/renderer/ui/ModalService";
 import {
   CampaignShell,
@@ -52,6 +52,8 @@ import { GlobalShortcuts } from "../GlobalShortcuts";
 import { TooltipManager } from "../ui/TooltipManager";
 import { MathUtils } from "@src/shared/utils/MathUtils";
 import { CloudSyncService } from "@src/services/CloudSyncService";
+import { SaveManager } from "@src/services/SaveManager";
+import { InputDispatcher } from "../InputDispatcher";
 import { Renderer } from "../Renderer";
 
 const VERSION = pkg.version;
@@ -112,11 +114,9 @@ export class GameApp {
     this.metaManager = MetaManager.getInstance();
 
     // Initialize cloudSync from SaveManager
-    const storage = (this.campaignManager as any).getStorage
-      ? this.campaignManager.getStorage()
-      : null;
-    if (storage && "getCloudSync" in storage) {
-      this.cloudSync = (storage as any).getCloudSync();
+    const storage = this.campaignManager.getStorage();
+    if (storage instanceof SaveManager) {
+      this.cloudSync = storage.getCloudSync();
       await this.cloudSync.initialize();
     }
 
@@ -151,7 +151,6 @@ export class GameApp {
     this.menuController = new MenuController(this.gameClient);
 
     // Initialize Coordinators
-    this.inputBinder = new InputBinder(this.screenManager, this.gameClient);
     this.missionCoordinator = new MissionCoordinator(
       this.campaignShell,
       this.gameClient,
@@ -183,8 +182,8 @@ export class GameApp {
         this.syncSpeedUI();
       },
       () => this.copyWorldState(),
-      () => this.gameClient.forceWin(),
-      () => this.gameClient.forceLose(),
+      () => this.gameClient.applyCommand({ type: CommandType.DEBUG_FORCE_WIN }),
+      () => this.gameClient.applyCommand({ type: CommandType.DEBUG_FORCE_LOSE }),
       () =>
         this.gameClient.applyCommand({
           type: CommandType.START_MISSION,
@@ -233,15 +232,25 @@ export class GameApp {
     );
 
     // 3. Initialize screens
-    this.campaignSummaryScreen = new CampaignSummaryScreen(
-      "screen-campaign-summary",
+    this.campaignScreen = new CampaignScreen(
+      "screen-campaign",
+      this.campaignManager,
+      this.modalService,
+      (node) => this.onCampaignNodeSelect(node),
+      () => this.showMainMenu(),
+      () => this.onCampaignStart(),
+      () => this.onShowSummary(),
+    );
+
+    this.barracksScreen = new BarracksScreen(
+      "screen-barracks",
+      this.campaignManager,
+      this.modalService,
       () => {
-        this.campaignSummaryScreen.hide();
-        this.gameClient.stop();
-        ConfigManager.clearCampaign();
-        this.campaignManager.deleteSave();
-        this.showMainMenu();
+        this.switchScreen("campaign", true);
+        this.campaignShell.show("campaign", "sector-map");
       },
+      () => this.campaignShell.refresh(),
     );
 
     this.debriefScreen = new DebriefScreen(
@@ -276,27 +285,6 @@ export class GameApp {
       () => this.exportReplay(),
     );
 
-    this.barracksScreen = new BarracksScreen(
-      "screen-barracks",
-      this.campaignManager,
-      this.modalService,
-      () => {
-        this.switchScreen("campaign", true);
-        this.campaignShell.show("campaign", "sector-map");
-      },
-      () => this.campaignShell.refresh(),
-    );
-
-    this.campaignScreen = new CampaignScreen(
-      "screen-campaign",
-      this.campaignManager,
-      this.modalService,
-      (node) => this.onCampaignNodeSelect(node),
-      () => this.showMainMenu(),
-      () => this.onCampaignStart(),
-      () => this.onShowSummary(),
-    );
-
     this.equipmentScreen = new EquipmentScreen(
       "screen-equipment",
       this.campaignManager,
@@ -319,6 +307,7 @@ export class GameApp {
     this.engineeringScreen = new EngineeringScreen("screen-engineering", this.metaManager, () =>
       this.campaignShell.refresh(),
     );
+
     this.settingsScreen = new SettingsScreen(
       "screen-settings",
       this.themeManager,
@@ -334,10 +323,22 @@ export class GameApp {
       },
     );
 
-    // Special bindings that were in main.ts
+    this.campaignSummaryScreen = new CampaignSummaryScreen(
+      "screen-campaign-summary",
+      () => {
+        this.campaignSummaryScreen.hide();
+        this.gameClient.stop();
+        ConfigManager.clearCampaign();
+        this.campaignManager.deleteSave();
+        this.showMainMenu();
+      },
+    );
+
+    // 4. Setup global UI and shortcuts
     this.setupAdditionalUIBindings();
 
-    // 4. Bind events
+    // 5. Bind events
+    this.inputBinder = new InputBinder(this.screenManager, this.gameClient);
     this.inputBinder.bindAll({
       onTogglePause: () => this.togglePause(),
       onAbortMission: () => this.abortMission(),
@@ -422,7 +423,7 @@ export class GameApp {
         this.themeManager.setTheme(themeId);
       },
       onUnitStyleChange: (style: string) => {
-        this.missionSetupManager.unitStyle = style as any;
+        this.missionSetupManager.unitStyle = style as UnitStyle;
         this.missionSetupManager.saveCurrentConfig();
       },
       onToggleFog: (enabled: boolean) => {
@@ -514,7 +515,7 @@ export class GameApp {
                       ? replayData.commands[replayData.commands.length - 1].t
                       : 0,
                   soldierResults: (replayData.squadConfig?.soldiers || []).map(
-                    (s: any, idx: number) => ({
+                    (s: SquadSoldierConfig, idx: number) => ({
                       soldierId: s.id || `s-${idx}`,
                       name: s.name || s.archetypeId || "Unknown",
                       tacticalNumber: s.tacticalNumber || idx + 1,
@@ -546,8 +547,6 @@ export class GameApp {
       },
     });
 
-    this.inputManager.init();
-
     const globalShortcuts = new GlobalShortcuts(
       () => this.togglePause(),
       () => this.screenManager.goBack(),
@@ -564,42 +563,6 @@ export class GameApp {
     this.setupResponsiveDrawers();
   }
 
-  private setupResponsiveDrawers() {
-    const toggleSquad = document.getElementById("btn-toggle-squad");
-    const toggleRight = document.getElementById("btn-toggle-right");
-    const soldierPanel = document.getElementById("soldier-panel");
-    const rightPanel = document.getElementById("right-panel");
-
-    if (toggleSquad && soldierPanel) {
-      toggleSquad.addEventListener("click", () => {
-        soldierPanel.classList.toggle("active");
-        if (rightPanel) rightPanel.classList.remove("active");
-      });
-    }
-
-    if (toggleRight && rightPanel) {
-      toggleRight.addEventListener("click", () => {
-        rightPanel.classList.toggle("active");
-        if (soldierPanel) soldierPanel.classList.remove("active");
-      });
-    }
-
-    // Close drawers when clicking the game area
-    const gameContainer = document.getElementById("game-container");
-    if (gameContainer) {
-      gameContainer.addEventListener("click", () => {
-        if (window.innerWidth < 768) {
-          if (soldierPanel) soldierPanel.classList.remove("active");
-          if (rightPanel) rightPanel.classList.remove("active");
-        }
-      });
-    }
-  }
-
-  private showMainMenu() {
-    this.switchScreen("main-menu");
-  }
-
   /**
    * Centralized screen switcher that ensures all other screens are hidden
    * (and their input contexts popped) before showing the target screen.
@@ -608,7 +571,7 @@ export class GameApp {
     id: ScreenId,
     isCampaign: boolean = false,
     updateHash: boolean = true,
-    ...showArgs: any[]
+    ...showArgs: unknown[]
   ) {
     // 1. Hide ALL screens to clear input contexts and DOM
     this.allScreens.forEach((s) => s.hide());
@@ -621,7 +584,8 @@ export class GameApp {
     // 3. Show target screen object
     const screenObj = this.getScreenObject(id);
     if (screenObj) {
-      (screenObj.show as any)(...showArgs);
+      // We use Function.apply here because screens have different show() signatures
+      (screenObj.show as Function).apply(screenObj, showArgs);
     }
 
     // 4. Update ScreenManager (DOM display and Hash)
@@ -643,7 +607,7 @@ export class GameApp {
     ].filter((s) => !!s);
   }
 
-  private getScreenObject(id: ScreenId): any {
+  private getScreenObject(id: ScreenId): { show: Function; hide: Function } | null {
     switch (id) {
       case "main-menu":
         return this.mainMenuScreen;
@@ -844,134 +808,89 @@ export class GameApp {
     }
   }
 
+  private showMainMenu() {
+    this.switchScreen("main-menu");
+  }
+
+  private onMissionComplete(report: MissionReport) {
+    Logger.info("Mission Complete!", report);
+
+    // Update campaign state via manager
+    if (report.nodeId !== "custom") {
+      this.campaignManager.processMissionResult(report);
+    }
+
+    // Show debrief screen
+    this.switchScreen("debrief", false, true, report);
+  }
+
   public stop() {
     this.gameClient.stop();
     this.inputManager.destroy();
-    this.inputBinder.unbindAll();
-    this.screenManager.destroy();
+    InputDispatcher.getInstance().popContext("tactical");
   }
 
-  // --- Logic copied from main.ts ---
-
   private setupAdditionalUIBindings() {
-    // Add options to map generator select if they don't exist
-    const mapGenSelect = document.getElementById(
-      "map-generator-type",
-    ) as HTMLSelectElement;
-    if (mapGenSelect) {
-      if (mapGenSelect.options.length < 3) {
-        const treeOpt = document.createElement("option");
-        treeOpt.value = "TreeShip";
-        treeOpt.textContent = "Tree Ship (No Loops)";
-        mapGenSelect.appendChild(treeOpt);
-        const denseOpt = document.createElement("option");
-        denseOpt.value = "DenseShip";
-        denseOpt.textContent = "Dense Ship (>90% fill)";
-        mapGenSelect.appendChild(denseOpt);
-      }
+    // Top bar buttons
+    const btnAbort = document.getElementById("btn-abort");
+    if (btnAbort) btnAbort.onclick = () => this.abortMission();
+
+    const btnRetry = document.getElementById("btn-retry");
+    if (btnRetry) btnRetry.onclick = () => this.launchMission();
+
+    const btnExport = document.getElementById("btn-export");
+    if (btnExport) btnExport.onclick = () => this.exportReplay();
+
+    // Speed controls
+    const speedSlider = document.getElementById(
+      "speed-slider",
+    ) as HTMLInputElement;
+    if (speedSlider) {
+      speedSlider.oninput = () => {
+        this.gameClient.setTimeScale(parseFloat(speedSlider.value));
+        this.syncSpeedUI();
+      };
     }
 
-    // Injection of mission type select if not present
-    if (mapGenSelect && !document.getElementById("mission-type")) {
-      const mapGenGroup = mapGenSelect.closest(".control-group");
-      if (mapGenGroup) {
-        const missionDiv = document.createElement("div");
-        missionDiv.style.marginBottom = "10px";
-        missionDiv.id = "mission-type-container";
-        missionDiv.innerHTML = `
-                <label for="mission-type">Mission Type:</label>
-                <select id="mission-type">
-                            <option value="${MissionType.Default}">Default (Single Objective)</option>
-                            <option value="${MissionType.ExtractArtifacts}">Extract Artifacts</option>
-                            <option value="${MissionType.DestroyHive}">Destroy Hive</option>
-                            <option value="${MissionType.EscortVIP}">Escort VIP</option>
-                            <option value="${MissionType.RecoverIntel}">Recover Intel</option>        </select>
-              `;
-        mapGenGroup.insertBefore(missionDiv, mapGenGroup.firstChild);
-      }
+    const btnPause = document.getElementById("btn-pause");
+    if (btnPause) btnPause.onclick = () => this.togglePause();
+
+    // Debug tools
+    const btnForceWin = document.getElementById("btn-debug-win");
+    if (btnForceWin) {
+      btnForceWin.onclick = () => {
+        this.gameClient.applyCommand({ type: CommandType.DEBUG_FORCE_WIN });
+      };
+    }
+
+    const btnForceLose = document.getElementById("btn-debug-lose");
+    if (btnForceLose) {
+      btnForceLose.onclick = () => {
+        this.gameClient.applyCommand({ type: CommandType.DEBUG_FORCE_LOSE });
+      };
     }
   }
 
   private onEquipmentConfirmed(config: SquadConfig) {
-    config.soldiers.forEach((soldier) => {
-      if (soldier.id) {
-        this.campaignManager.assignEquipment(soldier.id, {
-          rightHand: soldier.rightHand,
-          leftHand: soldier.leftHand,
-          body: soldier.body,
-          feet: soldier.feet,
-        });
-      }
-    });
-
-    this.missionSetupManager.currentSquad = config;
-    // Navigate back to Mission Setup instead of launching immediately
-    const isCampaign = !!this.missionSetupManager.currentCampaignNode;
-    this.missionSetupManager.loadAndApplyConfig(isCampaign);
-    this.switchScreen("mission-setup", isCampaign);
-    if (isCampaign) {
-      this.campaignShell.show("campaign", "sector-map", false);
-    } else {
-      this.campaignShell.show("custom", "setup");
-    }
-  }
-
-  private updateUI(state: GameState) {
-    this.currentGameState = state;
-    this.menuController.update(state);
-    this.hudManager.update(state, this.selectedUnitId);
-  }
-
-  private async copyWorldState() {
-    if (this.currentGameState) {
-      await DebugUtility.copyWorldState(
-        this.currentGameState,
-        this.gameClient.getReplayData(),
-        VERSION,
-        this.modalService,
-      );
-    }
-  }
-
-  private exportReplay() {
-    const replay = this.gameClient.getReplayData();
-    if (replay) {
-      const blob = new Blob([JSON.stringify(replay, null, 2)], {
-        type: "application/json",
+    if (this.missionSetupManager.currentCampaignNode) {
+      // In campaign, update the roster with the new equipment
+      config.soldiers.forEach((soldier) => {
+        if (soldier.id) {
+          this.campaignManager.assignEquipment(soldier.id, {
+            rightHand: soldier.rightHand,
+            leftHand: soldier.leftHand,
+            body: soldier.body,
+            feet: soldier.feet,
+          });
+        }
       });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `voidlock-replay-${replay.seed}.json`;
-      a.click();
-      URL.revokeObjectURL(a.href);
+      this.missionSetupManager.currentSquad = config;
+      this.missionSetupManager.saveCurrentConfig();
+    } else {
+      // In custom, just update the setup manager
+      this.missionSetupManager.currentSquad = config;
+      this.missionSetupManager.saveCurrentConfig();
     }
-  }
-
-  private applyCampaignTheme() {
-    const global = ConfigManager.loadGlobal();
-    this.themeManager.setTheme(global.themeId || "default");
-  }
-
-  private onCampaignNodeSelect(node: CampaignNode) {
-    this.campaignFlowCoordinator.onCampaignNodeSelected(
-      node,
-      () => this.switchScreen("campaign", true),
-      (n, size, spawnPoints) => {
-        this.missionSetupManager.prepareMissionSetup(n, size, spawnPoints);
-        this.equipmentScreen.setCampaign(true);
-        this.equipmentScreen.updateConfig(
-          this.missionSetupManager.currentSquad,
-        );
-        this.switchScreen("equipment", true);
-        this.campaignShell.show("campaign", "sector-map", false);
-      },
-    );
-  }
-
-  private onCampaignStart() {
-    this.applyCampaignTheme();
-    this.campaignShell.show("campaign", "sector-map");
   }
 
   private onShowSummary() {
@@ -979,6 +898,75 @@ export class GameApp {
     if (state) {
       this.switchScreen("campaign-summary", true, true, state);
     }
+  }
+
+  private updateUI(state: GameState) {
+    this.currentGameState = state;
+    this.hudManager.update(state, this.selectedUnitId);
+    this.menuController.update(state);
+  }
+
+  private async copyWorldState() {
+    if (!this.currentGameState) return;
+    try {
+      await navigator.clipboard.writeText(
+        JSON.stringify(this.currentGameState, null, 2),
+      );
+      this.modalService.alert("World state copied to clipboard!");
+    } catch (err) {
+      Logger.error("Failed to copy world state:", err);
+    }
+  }
+
+  private exportReplay() {
+    const replay = this.gameClient.getReplayData();
+    const blob = new Blob([JSON.stringify(replay, null, 2)], {
+      type: "application/json",
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `voidlock-replay-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
+  private applyCampaignTheme() {
+    const themeId = this.missionSetupManager.currentThemeId;
+    this.themeManager.setTheme(themeId);
+  }
+
+  private onCampaignNodeSelect(node: CampaignNode) {
+    // 1. Set the node in setup manager
+    this.missionSetupManager.currentCampaignNode = node;
+
+    // 2. Set mission parameters from node
+    this.missionSetupManager.currentSeed = node.mapSeed;
+    this.missionSetupManager.currentMissionType =
+      node.missionType || MissionType.RecoverIntel;
+
+    // 3. Clear any manually loaded map data
+    this.missionSetupManager.currentStaticMapData = undefined;
+
+    // 4. Update squad (VIP auto-add for Escort)
+    if (node.missionType === MissionType.EscortVIP) {
+      // Ensure VIP is in the squad
+      const hasVip = this.missionSetupManager.currentSquad.soldiers.some(
+        (s) => s.archetypeId === "vip",
+      );
+      if (!hasVip) {
+        // VIP slot is handled by SquadBuilder/MissionManager, 
+        // but we ensure it's not blocked by 4-soldier cap
+      }
+    }
+
+    // 5. Navigate to setup screen
+    this.onShellTabChange("setup");
+  }
+
+  private onCampaignStart() {
+    // Launch the mission with campaign parameters
+    this.launchMission();
   }
 
   private handleMenuInput(key: string, shiftHeld: boolean = false) {
@@ -989,73 +977,59 @@ export class GameApp {
   }
 
   private togglePause() {
-    this.gameClient.togglePause();
+    const isPaused = this.gameClient.getIsPaused();
+    this.gameClient.setTimeScale(isPaused ? 1.0 : 0.0);
     this.syncSpeedUI();
   }
 
   private syncSpeedUI() {
     const isPaused = this.gameClient.getIsPaused();
-    const lastSpeed = this.gameClient.getTargetScale();
+    const timeScale = this.gameClient.getTimeScale();
 
-    const btn = document.getElementById(
-      "btn-pause-toggle",
-    ) as HTMLButtonElement;
-    const gameSpeedSlider = document.getElementById(
-      "game-speed",
+    const speedSlider = document.getElementById(
+      "speed-slider",
     ) as HTMLInputElement;
-    const gameSpeedValue = document.getElementById("speed-value");
+    if (speedSlider) {
+      speedSlider.value = timeScale.toString();
+    }
 
-    if (btn) btn.textContent = isPaused ? "▶ Play" : "|| Pause";
-    if (gameSpeedValue)
-      gameSpeedValue.textContent = TimeUtility.formatSpeed(lastSpeed, isPaused);
-    if (gameSpeedSlider)
-      gameSpeedSlider.value = TimeUtility.scaleToSlider(lastSpeed).toString();
+    const btnPause = document.getElementById("btn-pause");
+    if (btnPause) {
+      btnPause.textContent = isPaused ? "▶" : "⏸";
+      btnPause.title = isPaused ? "Resume" : "Pause";
+    }
   }
 
   private cycleUnits(reverse: boolean = false) {
     if (!this.currentGameState) return;
-    const aliveUnits = this.currentGameState.units.filter(
-      (u) => u.state !== UnitState.Dead && u.state !== UnitState.Extracted,
-    );
-    if (aliveUnits.length === 0) return;
+    const units = this.currentGameState.units;
+    if (units.length === 0) return;
 
-    if (!this.selectedUnitId) {
-      this.selectedUnitId = aliveUnits[0].id;
+    let index = units.findIndex((u) => u.id === this.selectedUnitId);
+    if (reverse) {
+      index = index <= 0 ? units.length - 1 : index - 1;
     } else {
-      const currentIndex = aliveUnits.findIndex(
-        (u) => u.id === this.selectedUnitId,
-      );
-      let nextIndex;
-      if (reverse) {
-        nextIndex = (currentIndex - 1 + aliveUnits.length) % aliveUnits.length;
-      } else {
-        nextIndex = (currentIndex + 1) % aliveUnits.length;
-      }
-      this.selectedUnitId = aliveUnits[nextIndex].id;
+      index = index === -1 || index >= units.length - 1 ? 0 : index + 1;
     }
-    this.updateUI(this.currentGameState);
-    if (this.selectedUnitId) {
-      this.centerOnUnit(this.selectedUnitId);
-    }
+
+    this.selectedUnitId = units[index].id;
+    this.centerOnUnit(this.selectedUnitId);
   }
 
   private centerOnUnit(unitId: string) {
-    if (!this.currentGameState) return;
+    if (!this.currentGameState || !this.renderer) return;
     const unit = this.currentGameState.units.find((u) => u.id === unitId);
-    if (!unit) return;
-
-    const container = document.getElementById("game-container");
-    if (!container) return;
-
-    const cellSize = 128; // Standard cell size
-    const targetX = unit.pos.x * cellSize;
-    const targetY = unit.pos.y * cellSize;
-
-    container.scrollTo({
-      left: targetX - container.clientWidth / 2,
-      top: targetY - container.clientHeight / 2,
-      behavior: "smooth",
-    });
+    if (unit) {
+      const cellSize = this.renderer.cellSize;
+      const container = document.getElementById("game-container");
+      if (container) {
+        container.scrollTo({
+          left: unit.pos.x * cellSize - container.clientWidth / 2,
+          top: unit.pos.y * cellSize - container.clientHeight / 2,
+          behavior: "smooth",
+        });
+      }
+    }
   }
 
   private panMap(direction: string) {
@@ -1063,16 +1037,16 @@ export class GameApp {
     if (!container) return;
     const panAmount = 100;
     switch (direction) {
-      case "ArrowUp":
+      case "up":
         container.scrollTop -= panAmount;
         break;
-      case "ArrowDown":
+      case "down":
         container.scrollTop += panAmount;
         break;
-      case "ArrowLeft":
+      case "left":
         container.scrollLeft -= panAmount;
         break;
-      case "ArrowRight":
+      case "right":
         container.scrollLeft += panAmount;
         break;
     }
@@ -1095,8 +1069,6 @@ export class GameApp {
 
     if (newCellSize === oldCellSize) return;
 
-    // To keep the zoom centered, we need to adjust scroll position
-    // (scroll + center) / oldSize = (newScroll + center) / newSize
     const rect = container.getBoundingClientRect();
     const localCX = centerX - rect.left;
     const localCY = centerY - rect.top;
@@ -1111,28 +1083,26 @@ export class GameApp {
       this.renderer.render(this.currentGameState);
     }
 
-    // We must wait for the next frame or update immediately if renderer resizes canvas synchronously
-    // In our GameRenderer.render, it resizes canvas on next render call.
-    // However, for smooth zooming, we should probably force a resize or calculate expected size.
     container.scrollLeft = (scrollX + localCX) * actualRatio - localCX;
     container.scrollTop = (scrollY + localCY) * actualRatio - localCY;
   }
 
   private onUnitClick(unit: Unit, shiftHeld: boolean = false) {
     if (this.menuController.menuState === "UNIT_SELECT") {
-      this.menuController.isShiftHeld = shiftHeld;
       this.menuController.selectUnit(unit.id);
       if (this.currentGameState) this.updateUI(this.currentGameState);
       return;
     }
 
     // Selecting a new unit from HUD should cancel any previous pending action selection flow
-    if (this.menuController.menuState !== "ACTION_SELECT") {
+    if (this.selectedUnitId !== unit.id) {
       this.menuController.reset();
     }
 
-    this.selectedUnitId = unit.id === this.selectedUnitId ? null : unit.id;
-    if (this.currentGameState) this.updateUI(this.currentGameState);
+    this.selectedUnitId = unit.id;
+    if (!shiftHeld) {
+      this.centerOnUnit(unit.id);
+    }
   }
 
   private handleCanvasClick(event: MouseEvent) {
@@ -1220,19 +1190,7 @@ export class GameApp {
         skipDeployment: !this.missionSetupManager.manualDeployment,
       },
       (report) => {
-        if (report.nodeId !== "custom") {
-          this.campaignManager.processMissionResult(report);
-        }
-
-        this.setMissionHUDVisible(false);
-
-        this.switchScreen(
-          "debrief",
-          false,
-          true,
-          report,
-          this.missionSetupManager.unitStyle,
-        );
+        this.onMissionComplete(report);
         return true;
       },
       (state) => this.updateUI(state),
@@ -1246,19 +1204,7 @@ export class GameApp {
 
     this.missionCoordinator.resumeMission(
       (report) => {
-        if (report.nodeId !== "custom") {
-          this.campaignManager.processMissionResult(report);
-        }
-
-        this.setMissionHUDVisible(false);
-
-        this.switchScreen(
-          "debrief",
-          false,
-          true,
-          report,
-          this.missionSetupManager.unitStyle,
-        );
+        this.onMissionComplete(report);
         return true;
       },
       (state) => this.updateUI(state),
@@ -1282,19 +1228,7 @@ export class GameApp {
       this.missionSetupManager.currentSeed,
       this.missionSetupManager.currentSquad,
       (report) => {
-        if (report.nodeId !== "custom") {
-          this.campaignManager.processMissionResult(report);
-        }
-
-        this.setMissionHUDVisible(false);
-        this.switchScreen(
-          "debrief",
-          false,
-          true,
-          report,
-          this.missionSetupManager.unitStyle,
-        );
-        return true;
+        this.onMissionComplete(report);
       },
     );
   }
@@ -1307,5 +1241,37 @@ export class GameApp {
     if (topBar) topBar.style.display = display;
     if (soldierPanel) soldierPanel.style.display = display;
     if (rightPanel) rightPanel.style.display = display;
+  }
+
+  private setupResponsiveDrawers() {
+    const toggleSquad = document.getElementById("btn-toggle-squad");
+    const toggleRight = document.getElementById("btn-toggle-right");
+    const soldierPanel = document.getElementById("soldier-panel");
+    const rightPanel = document.getElementById("right-panel");
+
+    if (toggleSquad && soldierPanel) {
+      toggleSquad.addEventListener("click", () => {
+        soldierPanel.classList.toggle("active");
+        if (rightPanel) rightPanel.classList.remove("active");
+      });
+    }
+
+    if (toggleRight && rightPanel) {
+      toggleRight.addEventListener("click", () => {
+        rightPanel.classList.toggle("active");
+        if (soldierPanel) soldierPanel.classList.remove("active");
+      });
+    }
+
+    // Close drawers when clicking the game area
+    const gameContainer = document.getElementById("game-container");
+    if (gameContainer) {
+      gameContainer.addEventListener("click", () => {
+        if (window.innerWidth < 768) {
+          if (soldierPanel) soldierPanel.classList.remove("active");
+          if (rightPanel) rightPanel.classList.remove("active");
+        }
+      });
+    }
   }
 }

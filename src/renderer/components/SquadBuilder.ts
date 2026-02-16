@@ -357,7 +357,7 @@ export class SquadBuilder {
 
         card.addEventListener("click", handleSelect);
 
-        card.addEventListener("keydown", (e: any) => {
+        card.addEventListener("keydown", (e: KeyboardEvent) => {
           if (e.key === "Enter" || e.key === " ") {
             handleSelect();
             e.preventDefault();
@@ -455,7 +455,7 @@ export class SquadBuilder {
 
       card.addEventListener("click", handleSelect);
 
-      card.addEventListener("keydown", (e: any) => {
+      card.addEventListener("keydown", (e: KeyboardEvent) => {
         if (e.key === "Enter" || e.key === " ") {
           handleSelect();
           e.preventDefault();
@@ -582,7 +582,7 @@ export class SquadBuilder {
           };
 
           slot.addEventListener("click", handlePlace);
-          slot.addEventListener("keydown", (e: any) => {
+          slot.addEventListener("keydown", (e: KeyboardEvent) => {
             if (e.key === "Enter" || e.key === " ") {
               handlePlace();
               e.preventDefault();

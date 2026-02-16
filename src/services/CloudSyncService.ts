@@ -18,6 +18,7 @@ import {
   linkWithPopup,
   signOut,
   User,
+  Auth,
 } from "firebase/auth";
 import { db, auth, isFirebaseConfigured } from "./firebase";
 import { CampaignStateSchema } from "@src/shared/schemas/campaign";
@@ -61,6 +62,12 @@ export class CloudSyncService {
     }
 
     this.initializationPromise = new Promise((resolve) => {
+      if (!auth) {
+        this.syncEnabled = false;
+        this.initialized = true;
+        resolve();
+        return;
+      }
       onAuthStateChanged(auth, async (user) => {
         if (user) {
           this.user = user;
@@ -71,7 +78,8 @@ export class CloudSyncService {
           resolve();
         } else {
           try {
-            const credential = await signInAnonymously(auth);
+            if (!auth) throw new Error("Firebase Auth not initialized");
+            const credential = await signInAnonymously(auth as Auth);
             this.user = credential.user;
             this.userId = credential.user.uid;
             this.syncEnabled = true;
@@ -104,6 +112,7 @@ export class CloudSyncService {
         // Link anonymous account to Google
         await linkWithPopup(this.user, provider);
       } else {
+        if (!auth) throw new Error("Firebase Auth not initialized");
         await signInWithPopup(auth, provider);
       }
     } catch (error) {
@@ -125,6 +134,7 @@ export class CloudSyncService {
         // Link anonymous account to GitHub
         await linkWithPopup(this.user, provider);
       } else {
+        if (!auth) throw new Error("Firebase Auth not initialized");
         await signInWithPopup(auth, provider);
       }
     } catch (error) {
@@ -137,7 +147,7 @@ export class CloudSyncService {
    * Signs out.
    */
   async signOut(): Promise<void> {
-    if (!isFirebaseConfigured) return;
+    if (!isFirebaseConfigured || !auth) return;
     try {
       await signOut(auth);
       // After sign out, initialize will be called by onAuthStateChanged to sign in anonymously
@@ -176,6 +186,7 @@ export class CloudSyncService {
     }
 
     const docId = `${this.userId}_${campaignId}`;
+    if (!db) throw new Error("Firebase Firestore not initialized");
     const docRef = doc(db, "campaigns", docId);
 
     // Metadata helps with listing without downloading the full campaign state
@@ -208,6 +219,7 @@ export class CloudSyncService {
     }
 
     const docId = `${this.userId}_${campaignId}`;
+    if (!db) throw new Error("Firebase Firestore not initialized");
     const docRef = doc(db, "campaigns", docId);
     const snapshot = await getDoc(docRef);
 
@@ -235,6 +247,7 @@ export class CloudSyncService {
       if (!this.syncEnabled || !this.userId) return [];
     }
 
+    if (!db) throw new Error("Firebase Firestore not initialized");
     const campaignsRef = collection(db, "campaigns");
     const q = query(campaignsRef, where("userId", "==", this.userId));
     const querySnapshot = await getDocs(q);

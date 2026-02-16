@@ -11,6 +11,7 @@ export interface InputContext {
   priority: number; // Higher numbers handle events first
   trapsFocus: boolean; // If true, prevents focus from leaving the associated container
   container?: HTMLElement; // The container to trap focus within
+  _order?: number; // Internal: Tracking the order in which contexts were pushed
   handleKeyDown(e: KeyboardEvent): boolean; // returns true if consumed
   handleTouchStart?(e: TouchEvent): boolean;
   handleTouchMove?(e: TouchEvent): boolean;

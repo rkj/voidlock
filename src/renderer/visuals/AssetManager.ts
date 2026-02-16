@@ -52,7 +52,7 @@ export class AssetManager {
 
   public loadSprites() {
     // Ensure ThemeManager is ready and has the required method (resilience for tests)
-    if (typeof (this.theme as any).getAssetUrl !== "function") {
+    if (typeof this.theme.getAssetUrl !== "function") {
       Logger.warn(
         "AssetManager: ThemeManager.getAssetUrl is not a function. Manifest not loaded yet or mocked?",
       );

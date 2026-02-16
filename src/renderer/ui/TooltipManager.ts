@@ -1,5 +1,5 @@
 export class TooltipManager {
-  private static instance: TooltipManager;
+  private static instance: TooltipManager | undefined;
   private activeTooltip: HTMLElement | null = null;
   private activeTarget: HTMLElement | null = null;
   private lastInteractionTime: number = 0;
@@ -24,7 +24,7 @@ export class TooltipManager {
   public destroy() {
     document.removeEventListener("click", this.handleClick);
     document.removeEventListener("touchstart", this.handleTouchStart);
-    TooltipManager.instance = undefined as any;
+    TooltipManager.instance = undefined;
   }
 
   public static getInstance(): TooltipManager {

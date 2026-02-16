@@ -1,6 +1,7 @@
 import {
   CampaignState,
   CampaignNode,
+  CampaignSoldier,
   GameRules,
   MissionReport,
   CampaignOverrides,
@@ -74,8 +75,8 @@ export class CampaignManager {
    * Returns the current cloud synchronization status.
    */
   public getSyncStatus(): string {
-    if ((this.storage as any).getSyncStatus) {
-      return (this.storage as any).getSyncStatus();
+    if (this.storage.getSyncStatus) {
+      return this.storage.getSyncStatus();
     }
     return "local-only";
   }
@@ -286,8 +287,8 @@ export class CampaignManager {
       let data: unknown;
 
       // If our storage is a SaveManager, we can use cloud sync
-      if ("loadWithSync" in this.storage) {
-        data = await (this.storage as any).loadWithSync(STORAGE_KEY);
+      if (this.storage.loadWithSync) {
+        data = await this.storage.loadWithSync(STORAGE_KEY);
       } else {
         data = this.storage.load<unknown>(STORAGE_KEY);
       }
@@ -300,7 +301,7 @@ export class CampaignManager {
 
           // Additional custom repair logic that Zod can't easily do
           if (typeof data === "object" && data !== null) {
-            this.customRepair(this.state, data as Record<string, any>);
+            this.customRepair(this.state, data as Record<string, unknown>);
           }
 
           return true;
@@ -329,7 +330,7 @@ export class CampaignManager {
   /**
    * Performs custom repair logic that is too complex for Zod schemas.
    */
-  private customRepair(state: CampaignState, _raw: Record<string, any>): void {
+  private customRepair(state: CampaignState, _raw: Record<string, unknown>): void {
     // 1. Repair node connections (ensure they point to existing nodes)
     const allIds = new Set(state.nodes.map((n) => n.id));
     state.nodes.forEach((node) => {
@@ -346,25 +347,29 @@ export class CampaignManager {
     }
 
     try {
-      const state: any = { ...data };
+      const state = { ...data } as unknown as CampaignState;
 
       // 1. Repair basic fields
       if (state.version === undefined)
-        state.version = CAMPAIGN_DEFAULTS.VERSION;
-      if (state.seed === undefined) state.seed = 0;
+        state.version = (data.version as string) || CAMPAIGN_DEFAULTS.VERSION;
+      if (state.seed === undefined) state.seed = (data.seed as number) || 0;
       if (!["Active", "Victory", "Defeat"].includes(state.status))
         state.status = "Active";
-      if (state.scrap === undefined) state.scrap = 0;
-      if (state.intel === undefined) state.intel = 0;
-      if (state.currentSector === undefined) state.currentSector = 1;
-      if (state.currentNodeId === undefined) state.currentNodeId = null;
+      if (state.scrap === undefined) state.scrap = (data.scrap as number) || 0;
+      if (state.intel === undefined) state.intel = (data.intel as number) || 0;
+      if (state.currentSector === undefined)
+        state.currentSector = (data.currentSector as number) || 1;
+      if (state.currentNodeId === undefined)
+        state.currentNodeId = (data.currentNodeId as string) || null;
       if (!Array.isArray(state.history)) state.history = [];
       if (!Array.isArray(state.unlockedArchetypes))
         state.unlockedArchetypes = [...CAMPAIGN_DEFAULTS.UNLOCKED_ARCHETYPES];
       if (!Array.isArray(state.unlockedItems)) state.unlockedItems = [];
 
       // 2. Repair rules
-      const rules = { ...((data.rules as any) || {}) };
+      const rules = {
+        ...((data.rules as Record<string, unknown>) || {}),
+      } as unknown as GameRules;
       if (!rules.mode) rules.mode = "Custom";
       if (!rules.difficulty) rules.difficulty = "Clone";
       if (!rules.deathRule) rules.deathRule = "Clone";
@@ -383,8 +388,10 @@ export class CampaignManager {
       state.rules = rules;
 
       // 3. Repair roster
-      state.roster = (data.roster as any[]).map((s) => {
-        const soldier = { ...s };
+      state.roster = ((data.roster as unknown[]) || []).map((s) => {
+        const soldier = {
+          ...(s as Record<string, unknown>),
+        } as unknown as CampaignSoldier;
         if (soldier.hp === undefined) soldier.hp = 100;
         if (soldier.maxHp === undefined) soldier.maxHp = 100;
         if (soldier.soldierAim === undefined) soldier.soldierAim = 60;
@@ -400,9 +407,15 @@ export class CampaignManager {
       });
 
       // 4. Repair nodes
-      const allIds = new Set((data.nodes as any[]).map((n) => n.id));
-      state.nodes = (data.nodes as any[]).map((n) => {
-        const node = { ...n };
+      const allIds = new Set(
+        ((data.nodes as unknown[]) || []).map(
+          (n) => (n as Record<string, unknown>).id as string,
+        ),
+      );
+      state.nodes = ((data.nodes as unknown[]) || []).map((n) => {
+        const node = {
+          ...(n as Record<string, unknown>),
+        } as unknown as CampaignNode;
         if (!["Combat", "Elite", "Shop", "Event", "Boss"].includes(node.type)) {
           node.type = "Combat";
         }

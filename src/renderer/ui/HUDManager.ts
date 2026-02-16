@@ -745,7 +745,9 @@ export class HUDManager {
       SoldierWidget.update(el, unit, {
         context: "tactical",
         selected: unit.id === selectedUnitId,
-        onClick: (e: MouseEvent) => this.onUnitClick(unit, e.shiftKey),
+        onClick: (e: Event) => {
+          this.onUnitClick(unit, (e as MouseEvent).shiftKey);
+        },
       });
     });
 

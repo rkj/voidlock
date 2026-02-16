@@ -1,6 +1,6 @@
-import { initializeApp } from "firebase/app";
-import { getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
-import { getAuth } from "firebase/auth";
+import { initializeApp, FirebaseApp } from "firebase/app";
+import { Firestore, getFirestore, enableIndexedDbPersistence } from "firebase/firestore";
+import { Auth, getAuth } from "firebase/auth";
 import { Logger } from "../shared/Logger";
 
 const firebaseConfig = {
@@ -19,9 +19,9 @@ export const isFirebaseConfigured = !!(
   firebaseConfig.appId
 );
 
-let app;
-let db: any;
-let auth: any;
+let app: FirebaseApp | undefined;
+let db: Firestore | undefined;
+let auth: Auth | undefined;
 
 if (isFirebaseConfigured) {
   try {
@@ -30,7 +30,7 @@ if (isFirebaseConfigured) {
     auth = getAuth(app);
 
     // Enable offline persistence
-    if (typeof window !== "undefined") {
+    if (typeof window !== "undefined" && db) {
       enableIndexedDbPersistence(db).catch((err) => {
         if (err.code === "failed-precondition") {
           // Multiple tabs open, persistence can only be enabled in one tab at a time.
