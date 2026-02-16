@@ -37,6 +37,8 @@ describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => 
         intel: 120,
         currentSector: 1,
       }),
+      getSyncStatus: vi.fn().mockReturnValue("local-only"),
+      getStorage: vi.fn(),
     };
 
     const mockMetaManager = {
@@ -78,6 +80,8 @@ describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => 
   it("should not display stats overlay when campaign is NOT active", () => {
     mockManager = {
       getState: vi.fn().mockReturnValue(null),
+        getStorage: vi.fn(),
+        getSyncStatus: vi.fn().mockReturnValue("local-only"),
     };
 
     const mockMetaManager = {

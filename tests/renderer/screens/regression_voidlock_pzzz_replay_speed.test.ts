@@ -36,7 +36,8 @@ describe("Regression: Replay speed UI mismatch (voidlock-pzzz)", () => {
       removeStateUpdateListener: vi.fn(),
       getIsPaused: vi.fn(() => true),
       togglePause: vi.fn(),
-      getTargetScale: vi.fn(() => 1.0), // Initial scale in GameClient
+      getTargetScale: vi.fn(() => 1.0),
+  getTimeScale: vi.fn().mockReturnValue(1.0), // Initial scale in GameClient
       setTimeScale: vi.fn((speed: number) => {
         // Mock setTimeScale updating the target scale
         mockGameClient.getTargetScale = vi.fn(() => speed);

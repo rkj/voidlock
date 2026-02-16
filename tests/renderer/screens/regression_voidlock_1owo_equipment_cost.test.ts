@@ -52,6 +52,8 @@ describe("EquipmentScreen Economics", () => {
 
     mockManager = {
       getState: vi.fn(() => mockState),
+        getStorage: vi.fn(),
+        getSyncStatus: vi.fn().mockReturnValue("local-only"),
       spendScrap: vi.fn((amount) => {
         mockState.scrap -= amount;
       }),

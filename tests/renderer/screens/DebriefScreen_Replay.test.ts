@@ -39,6 +39,7 @@ describe("DebriefScreen Replay Button", () => {
       getIsPaused: vi.fn(() => true),
       togglePause: vi.fn(),
       getTargetScale: vi.fn(() => 1.0),
+  getTimeScale: vi.fn().mockReturnValue(1.0),
       setTimeScale: vi.fn(),
       getReplayData: vi.fn(() => ({})),
       loadReplay: vi.fn(),

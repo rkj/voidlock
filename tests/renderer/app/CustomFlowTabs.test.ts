@@ -37,6 +37,7 @@ vi.mock("@src/engine/GameClient", () => ({
     stop: vi.fn(),
     getIsPaused: vi.fn().mockReturnValue(false),
     getTargetScale: vi.fn().mockReturnValue(1.0),
+  getTimeScale: vi.fn().mockReturnValue(1.0),
     getReplayData: vi.fn().mockReturnValue({ seed: 123, commandLog: [] }),
     toggleDebugOverlay: vi.fn(),
     toggleLosOverlay: vi.fn(),

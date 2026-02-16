@@ -17,6 +17,8 @@ vi.mock("@src/engine/GameClient", () => ({
     stop: vi.fn(),
     getIsPaused: vi.fn().mockReturnValue(false),
     getTargetScale: vi.fn().mockReturnValue(1.0),
+  setTimeScale: vi.fn(),
+  getTimeScale: vi.fn().mockReturnValue(1.0),
     toggleDebugOverlay: vi.fn(),
     toggleLosOverlay: vi.fn(),
   })),
@@ -62,6 +64,8 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
     CampaignManager: {
       getInstance: vi.fn().mockReturnValue({
         getState: vi.fn(() => currentCampaignState),
+        getStorage: vi.fn(),
+        getSyncStatus: vi.fn().mockReturnValue("local-only"),
         load: vi.fn(() => !!currentCampaignState),
         save: vi.fn(),
         startNewCampaign: vi.fn((seed, diff, _pause, theme) => {

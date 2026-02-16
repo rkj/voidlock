@@ -156,7 +156,7 @@ describe("Regression kj08: Abort Persistence", () => {
 
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    cm.load(); // Sync with what wizard did
+    await cm.load(); // Sync with what wizard did
     const state = cm.getState();
     const combatNode = state!.nodes.find((n) => n.status === "Accessible")!;
     expect(combatNode).toBeDefined();
@@ -212,7 +212,7 @@ describe("Regression kj08: Abort Persistence", () => {
     expect(localStorage.getItem("voidlock_mission_config")).toBeNull();
 
     // BUG 1: Mission node should be treated as LOST in CampaignManager
-    cm.load();
+    await cm.load();
     const updatedState = cm.getState()!;
     const abortedNode = updatedState.nodes.find((n) => n.id === combatNode.id)!;
 

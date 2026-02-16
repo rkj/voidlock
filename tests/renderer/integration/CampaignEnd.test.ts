@@ -20,6 +20,7 @@ const mockGameClient = {
   stop: vi.fn(),
   getIsPaused: vi.fn().mockReturnValue(false),
   getTargetScale: vi.fn().mockReturnValue(1.0),
+  getTimeScale: vi.fn().mockReturnValue(1.0),
   setTimeScale: vi.fn(),
   togglePause: vi.fn(),
   toggleDebugOverlay: vi.fn(),
@@ -132,6 +133,8 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
     CampaignManager: {
       getInstance: vi.fn().mockReturnValue({
         getState: vi.fn(() => mockCampaignState),
+        getStorage: vi.fn(),
+        getSyncStatus: vi.fn().mockReturnValue("local-only"),
         load: vi.fn(),
         processMissionResult: vi.fn((report) => {
           if (report.result === "Won") {
