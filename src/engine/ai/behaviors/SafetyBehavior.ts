@@ -6,22 +6,22 @@ import {
   Vector2,
   Door,
 } from "../../../shared/types";
-import { AIContext } from "../../managers/UnitAI";
+import { BehaviorContext } from "../../interfaces/AIContext";
 import { PRNG } from "../../../shared/PRNG";
 import { Behavior, BehaviorResult } from "./Behavior";
 import { isCellVisible } from "../../../shared/VisibilityUtils";
-import { IDirector } from "../../interfaces/IDirector";
+import { ItemEffectHandler } from "../../interfaces/IDirector";
 import { MathUtils } from "../../../shared/utils/MathUtils";
 
-export class SafetyBehavior implements Behavior {
+export class SafetyBehavior implements Behavior<BehaviorContext> {
   public evaluate(
     unit: Unit,
     state: GameState,
     _dt: number,
     _doors: Map<string, Door>,
     _prng: PRNG,
-    context: AIContext,
-    director?: IDirector,
+    context: BehaviorContext,
+    director?: ItemEffectHandler,
   ): BehaviorResult {
     let currentUnit = { ...unit };
     if (currentUnit.archetypeId === "vip")

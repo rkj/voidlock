@@ -1,10 +1,16 @@
 import { GameState, UseItemCommand } from "../../shared/types";
 
-export interface IDirector {
+export interface ItemEffectHandler {
   handleUseItem(state: GameState, cmd: UseItemCommand): void;
+}
+
+export interface ThreatDirector {
   getThreatLevel(): number;
-  update(dt: number): void;
   preSpawn(): void;
+  update(dt: number): void;
+}
+
+export interface IDirector extends ItemEffectHandler, ThreatDirector {
   getState(): {
     turn: number;
     timeInCurrentTurn: number;

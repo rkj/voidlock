@@ -7,7 +7,7 @@ import {
 import { CommandExecutor } from "./CommandExecutor";
 import { StatsManager } from "./StatsManager";
 import { LootManager } from "./LootManager";
-import { IDirector } from "../interfaces/IDirector";
+import { ItemEffectHandler } from "../interfaces/IDirector";
 
 /**
  * Handles unit state transitions, command queue processing, and channeling state.
@@ -25,7 +25,7 @@ export class UnitStateManager {
   public processCommandQueue(
     unit: Unit,
     state: GameState,
-    director?: IDirector,
+    director?: ItemEffectHandler,
   ): Unit {
     if (
       unit.state === UnitState.Idle &&
@@ -57,7 +57,7 @@ export class UnitStateManager {
     state: GameState,
     realDt: number,
     lootManager: LootManager,
-    director?: IDirector,
+    director?: ItemEffectHandler,
   ): Unit {
     if (unit.state !== UnitState.Channeling || !unit.channeling) {
       return unit;
@@ -105,7 +105,7 @@ export class UnitStateManager {
     unit: Unit,
     state: GameState,
     lootManager: LootManager,
-    director?: IDirector,
+    director?: ItemEffectHandler,
   ): Unit {
     const channeling = unit.channeling!;
     let currentUnit = unit;

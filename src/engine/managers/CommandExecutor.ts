@@ -5,7 +5,7 @@ import {
   GameState,
 } from "../../shared/types";
 import { Pathfinder } from "../Pathfinder";
-import { IDirector } from "../interfaces/IDirector";
+import { ItemEffectHandler } from "../interfaces/IDirector";
 import { UnitCommandRegistry } from "./commands/UnitCommandRegistry";
 import { MoveToHandler } from "./commands/handlers/MoveToHandler";
 import { EscortUnitHandler } from "./commands/handlers/EscortUnitHandler";
@@ -40,7 +40,7 @@ export class CommandExecutor {
     cmd: Command,
     state: GameState,
     isManual: boolean = true,
-    director?: IDirector,
+    director?: ItemEffectHandler,
   ): Unit {
     let currentUnit: Unit = { ...unit, activeCommand: cmd };
 

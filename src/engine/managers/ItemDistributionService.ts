@@ -8,7 +8,7 @@ import {
 import { SpatialGrid } from "../../shared/utils/SpatialGrid";
 import { MathUtils } from "../../shared/utils/MathUtils";
 import { MOVEMENT } from "../config/GameConstants";
-import { VisibleItem } from "./UnitAI";
+import { VisibleItem } from "../interfaces/AIContext";
 
 /**
  * Handles opportunistic pickup logic and item assignments to units.

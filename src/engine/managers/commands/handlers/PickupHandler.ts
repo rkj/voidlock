@@ -6,7 +6,7 @@ import {
   UnitState,
   PickupCommand,
 } from "@src/shared/types";
-import { IDirector } from "@src/engine/interfaces/IDirector";
+import { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
 import { IUnitCommandHandler } from "../IUnitCommandHandler";
 import { UnitCommandRegistry } from "../UnitCommandRegistry";
 import { MathUtils } from "@src/shared/utils/MathUtils";
@@ -20,7 +20,7 @@ export class PickupHandler implements IUnitCommandHandler {
     state: GameState,
     isManual: boolean,
     registry: UnitCommandRegistry,
-    director?: IDirector,
+    director?: ItemEffectHandler,
   ): Unit {
     const pickupCmd = cmd as PickupCommand;
     let currentUnit = { ...unit };

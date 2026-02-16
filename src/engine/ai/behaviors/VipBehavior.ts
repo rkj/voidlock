@@ -1,13 +1,13 @@
 import { GameState, Unit, UnitState, Door } from "../../../shared/types";
-import { AIContext } from "../../managers/UnitAI";
+import { AIContext } from "../../interfaces/AIContext";
 import { PRNG } from "../../../shared/PRNG";
 import { Behavior, BehaviorResult } from "./Behavior";
 import { LineOfSight } from "../../LineOfSight";
 import { VipAI } from "../VipAI";
-import { IDirector } from "../../interfaces/IDirector";
+import { ItemEffectHandler } from "../../interfaces/IDirector";
 import { MathUtils } from "../../../shared/utils/MathUtils";
 
-export class VipBehavior implements Behavior {
+export class VipBehavior implements Behavior<AIContext> {
   constructor(
     private vipAi: VipAI,
     private los: LineOfSight,
@@ -20,7 +20,7 @@ export class VipBehavior implements Behavior {
     _doors: Map<string, Door>,
     _prng: PRNG,
     context: AIContext,
-    director?: IDirector,
+    director?: ItemEffectHandler,
   ): BehaviorResult {
     let currentUnit = { ...unit };
     if (currentUnit.archetypeId !== "vip")
