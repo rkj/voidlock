@@ -4,6 +4,7 @@ import { GameState, UnitState } from "@src/shared/types";
 import { ThemeManager } from "@src/renderer/ThemeManager";
 import { VisibilityPolygon } from "@src/renderer/VisibilityPolygon";
 import { isCellVisible } from "@src/shared/VisibilityUtils";
+import { MathUtils } from "@src/shared/utils/MathUtils";
 
 export class OverlayLayer implements RenderLayer {
   private theme = ThemeManager.getInstance();
@@ -143,9 +144,8 @@ export class OverlayLayer implements RenderLayer {
 
     state.enemies.forEach((e) => {
       if (e.hp > 0) {
-        const ex = Math.floor(e.pos.x);
-        const ey = Math.floor(e.pos.y);
-        if (!isCellVisible(state, ex, ey)) return;
+        const cell = MathUtils.toCellCoord(e.pos);
+        if (!isCellVisible(state, cell.x, cell.y)) return;
 
         const radius = (state.map.width + state.map.height) * cellSize;
         const polygon = VisibilityPolygon.compute(

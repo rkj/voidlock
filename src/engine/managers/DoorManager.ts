@@ -1,5 +1,6 @@
 import { GameState, Door, UnitState, BoundaryType } from "../../shared/types";
 import { GameGrid } from "../GameGrid";
+import { MathUtils } from "../../shared/utils/MathUtils";
 
 export class DoorManager {
   private doors: Map<string, Door>;
@@ -100,8 +101,7 @@ export class DoorManager {
           (unit) =>
             unit.state !== UnitState.Dead &&
             unit.state !== UnitState.Extracted &&
-            Math.floor(unit.pos.x) === adjCell.x &&
-            Math.floor(unit.pos.y) === adjCell.y,
+            MathUtils.sameCellPosition(unit.pos, adjCell),
         )
       ) {
         return true;
@@ -109,9 +109,7 @@ export class DoorManager {
       if (
         state.enemies.some(
           (enemy) =>
-            enemy.hp > 0 &&
-            Math.floor(enemy.pos.x) === adjCell.x &&
-            Math.floor(enemy.pos.y) === adjCell.y,
+            enemy.hp > 0 && MathUtils.sameCellPosition(enemy.pos, adjCell),
         )
       ) {
         return true;
@@ -128,8 +126,7 @@ export class DoorManager {
           (unit) =>
             unit.state !== UnitState.Dead &&
             unit.state !== UnitState.Extracted &&
-            Math.floor(unit.pos.x) === adjCell.x &&
-            Math.floor(unit.pos.y) === adjCell.y,
+            MathUtils.sameCellPosition(unit.pos, adjCell),
         )
       ) {
         return true;

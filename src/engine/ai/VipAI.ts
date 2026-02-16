@@ -23,10 +23,9 @@ export class VipAI {
     }
 
     const visibleEnemies = state.enemies.filter((e) => {
-      return (
-        e.hp > 0 &&
-        isCellVisible(state, Math.floor(e.pos.x), Math.floor(e.pos.y))
-      );
+      if (e.hp <= 0) return false;
+      const cell = MathUtils.toCellCoord(e.pos);
+      return isCellVisible(state, cell.x, cell.y);
     });
 
     // 1. Danger Avoidance: Flee from closest enemy if too close
@@ -55,10 +54,7 @@ export class VipAI {
     if (state.map.extraction) {
       const ext = state.map.extraction;
       if (isCellDiscovered(state, ext.x, ext.y)) {
-        if (
-          Math.floor(vip.pos.x) !== ext.x ||
-          Math.floor(vip.pos.y) !== ext.y
-        ) {
+        if (!MathUtils.sameCellPosition(vip.pos, ext)) {
           return {
             type: CommandType.MOVE_TO,
             unitIds: [vip.id],
@@ -81,8 +77,7 @@ export class VipAI {
 
     const isAtExtraction =
       state.map.extraction &&
-      Math.floor(vip.pos.x) === state.map.extraction.x &&
-      Math.floor(vip.pos.y) === state.map.extraction.y;
+      MathUtils.sameCellPosition(vip.pos, state.map.extraction);
 
     if (allies.length > 0 && !isAtExtraction) {
       const closestAlly = this.getClosest(vip.pos, allies);
@@ -93,10 +88,7 @@ export class VipAI {
         return {
           type: CommandType.MOVE_TO,
           unitIds: [vip.id],
-          target: {
-            x: Math.floor(closestAlly.pos.x),
-            y: Math.floor(closestAlly.pos.y),
-          },
+          target: MathUtils.toCellCoord(closestAlly.pos),
           label: "Following",
         };
       }

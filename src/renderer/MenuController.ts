@@ -20,6 +20,7 @@ import { RoomDiscoveryManager } from "./controllers/RoomDiscoveryManager";
 import { CommandBuilder } from "./controllers/CommandBuilder";
 import { TargetOverlayGenerator } from "./controllers/TargetOverlayGenerator";
 import { isCellVisible, isCellDiscovered } from "@src/shared/VisibilityUtils";
+import { MathUtils } from "@src/shared/utils/MathUtils";
 
 export interface RenderableMenuOption {
   key: string;
@@ -152,8 +153,7 @@ export class MenuController {
     ) {
       const unitAtCell = gameState.units.find(
         (u) =>
-          Math.floor(u.pos.x) === cell.x &&
-          Math.floor(u.pos.y) === cell.y &&
+          MathUtils.sameCellPosition(u.pos, cell) &&
           u.state !== UnitState.Dead &&
           u.state !== UnitState.Extracted,
       );
@@ -174,8 +174,7 @@ export class MenuController {
       // If clicking on a unit, set pendingTargetId
       const unitAtCell = gameState.units.find(
         (u) =>
-          Math.floor(u.pos.x) === cell.x &&
-          Math.floor(u.pos.y) === cell.y &&
+          MathUtils.sameCellPosition(u.pos, cell) &&
           u.state !== UnitState.Dead &&
           u.state !== UnitState.Extracted,
       );
@@ -322,11 +321,8 @@ export class MenuController {
       const item = ItemLibrary[itemId];
       if (item?.action === "Grenade") {
         const hasVisibleEnemies = gameState.enemies.some((e) => {
-          return isCellVisible(
-            gameState,
-            Math.floor(e.pos.x),
-            Math.floor(e.pos.y),
-          );
+          const cell = MathUtils.toCellCoord(e.pos);
+          return isCellVisible(gameState, cell.x, cell.y);
         });
         if (!hasVisibleEnemies) return;
       }
@@ -588,11 +584,8 @@ export class MenuController {
         let disabled = false;
         if (item?.action === "Grenade") {
           const hasVisibleEnemies = gameState.enemies.some((e) => {
-            return isCellVisible(
-              gameState,
-              Math.floor(e.pos.x),
-              Math.floor(e.pos.y),
-            );
+            const cell = MathUtils.toCellCoord(e.pos);
+            return isCellVisible(gameState, cell.x, cell.y);
           });
           disabled = !hasVisibleEnemies;
         }
@@ -696,11 +689,8 @@ export class MenuController {
           const item = ItemLibrary[itemId];
           if (item?.action === "Grenade") {
             return gameState.enemies.some((e) => {
-              return isCellVisible(
-                gameState,
-                Math.floor(e.pos.x),
-                Math.floor(e.pos.y),
-              );
+              const cell = MathUtils.toCellCoord(e.pos);
+              return isCellVisible(gameState, cell.x, cell.y);
             });
           }
           return true;

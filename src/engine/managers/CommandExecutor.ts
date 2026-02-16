@@ -65,10 +65,7 @@ export class CommandExecutor {
         }
 
         const path = this.pathfinder.findPath(
-          {
-            x: Math.floor(currentUnit.pos.x),
-            y: Math.floor(currentUnit.pos.y),
-          },
+          MathUtils.toCellCoord(currentUnit.pos),
           cmd.target,
           true,
         );
@@ -88,8 +85,7 @@ export class CommandExecutor {
         } else if (
           path &&
           path.length === 0 &&
-          Math.floor(currentUnit.pos.x) === cmd.target.x &&
-          Math.floor(currentUnit.pos.y) === cmd.target.y
+          MathUtils.sameCellPosition(currentUnit.pos, cmd.target)
         ) {
           currentUnit.pos = {
             x:
@@ -190,7 +186,7 @@ export class CommandExecutor {
             {
               type: CommandType.MOVE_TO,
               unitIds: [currentUnit.id],
-              target: { x: Math.floor(loot.pos.x), y: Math.floor(loot.pos.y) },
+              target: MathUtils.toCellCoord(loot.pos),
               label: "Picking Up",
             },
             state,
@@ -256,10 +252,7 @@ export class CommandExecutor {
               state.units.find((u) => u.id === targetUnitId) ||
               state.enemies.find((e) => e.id === targetUnitId);
             if (targetUnit) {
-              targetLocation = {
-                x: Math.floor(targetUnit.pos.x),
-                y: Math.floor(targetUnit.pos.y),
-              };
+              targetLocation = MathUtils.toCellCoord(targetUnit.pos);
             }
           }
 

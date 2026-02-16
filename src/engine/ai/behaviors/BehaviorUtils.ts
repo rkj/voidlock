@@ -50,8 +50,7 @@ export function findClosestUndiscoveredCell(
   gameGrid: GameGrid,
   explorationClaims?: Map<string, Vector2>,
 ): Vector2 | null {
-  const startX = Math.floor(unit.pos.x);
-  const startY = Math.floor(unit.pos.y);
+  const startCell = MathUtils.toCellCoord(unit.pos);
 
   const claimedTargets: Vector2[] = [];
   if (explorationClaims) {
@@ -80,14 +79,14 @@ export function findClosestUndiscoveredCell(
   const avoidRadius = Math.max(3.0, Math.min(5, mapDim / 4));
   const unitAvoidRadius = Math.max(1.5, Math.min(3, mapDim / 6));
 
-  const queue: { x: number; y: number }[] = [{ x: startX, y: startY }];
+  const queue: { x: number; y: number }[] = [startCell];
   const visited = new Set<string>();
-  visited.add(`${startX},${startY}`);
+  visited.add(MathUtils.cellKey(unit.pos));
 
   let fallbackCell: Vector2 | null = null;
   let head = 0;
   Logger.debug(
-    `findClosestUndiscoveredCell from ${startX},${startY}. Queue length: ${queue.length}`,
+    `findClosestUndiscoveredCell from ${startCell.x},${startCell.y}. Queue length: ${queue.length}`,
   );
 
   while (head < queue.length) {

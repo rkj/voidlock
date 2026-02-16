@@ -2,6 +2,7 @@ import { RenderLayer } from "./RenderLayer";
 import { SharedRendererState } from "./SharedRendererState";
 import { GameState } from "@src/shared/types";
 import { isCellVisible, isCellDiscovered } from "@src/shared/VisibilityUtils";
+import { MathUtils } from "@src/shared/utils/MathUtils";
 import { ThemeManager } from "@src/renderer/ThemeManager";
 import { AssetManager } from "./AssetManager";
 
@@ -47,9 +48,8 @@ export class MapEntityLayer implements RenderLayer {
     state.turrets?.forEach((turret) => {
       const x = turret.pos.x * cellSize;
       const y = turret.pos.y * cellSize;
-      const tx = Math.floor(turret.pos.x);
-      const ty = Math.floor(turret.pos.y);
-      const isVisible = isCellVisible(state, tx, ty);
+      const cell = MathUtils.toCellCoord(turret.pos);
+      const isVisible = isCellVisible(state, cell.x, cell.y);
 
       if (!isVisible && !state.settings.debugOverlayEnabled) return;
 
@@ -82,9 +82,8 @@ export class MapEntityLayer implements RenderLayer {
     state.mines?.forEach((mine) => {
       const x = mine.pos.x * cellSize;
       const y = mine.pos.y * cellSize;
-      const mx = Math.floor(mine.pos.x);
-      const my = Math.floor(mine.pos.y);
-      const isVisible = isCellVisible(state, mx, my);
+      const cell = MathUtils.toCellCoord(mine.pos);
+      const isVisible = isCellVisible(state, cell.x, cell.y);
 
       if (!isVisible && !state.settings.debugOverlayEnabled) return;
 
@@ -118,11 +117,10 @@ export class MapEntityLayer implements RenderLayer {
     const ext = state.map.extraction;
     const x = ext.x * cellSize;
     const y = ext.y * cellSize;
-    const ex = Math.floor(ext.x);
-    const ey = Math.floor(ext.y);
+    const cell = MathUtils.toCellCoord(ext);
 
-    const isVisible = isCellVisible(state, ex, ey);
-    const isDiscovered = isCellDiscovered(state, ex, ey);
+    const isVisible = isCellVisible(state, cell.x, cell.y);
+    const isDiscovered = isCellDiscovered(state, cell.x, cell.y);
 
     if (!isVisible && !isDiscovered && !state.settings.debugOverlayEnabled)
       return;
@@ -183,11 +181,10 @@ export class MapEntityLayer implements RenderLayer {
     state.map.spawnPoints?.forEach((sp) => {
       const x = sp.pos.x * cellSize;
       const y = sp.pos.y * cellSize;
-      const sx = Math.floor(sp.pos.x);
-      const sy = Math.floor(sp.pos.y);
+      const cell = MathUtils.toCellCoord(sp.pos);
 
-      const isVisible = isCellVisible(state, sx, sy);
-      const isDiscovered = isCellDiscovered(state, sx, sy);
+      const isVisible = isCellVisible(state, cell.x, cell.y);
+      const isDiscovered = isCellDiscovered(state, cell.x, cell.y);
 
       if (!isVisible && !isDiscovered && !state.settings.debugOverlayEnabled)
         return;
@@ -246,10 +243,9 @@ export class MapEntityLayer implements RenderLayer {
     state.loot?.forEach((loot) => {
       const x = loot.pos.x * cellSize;
       const y = loot.pos.y * cellSize;
-      const lx = Math.floor(loot.pos.x);
-      const ly = Math.floor(loot.pos.y);
-      const isVisible = isCellVisible(state, lx, ly);
-      const isDiscovered = isCellDiscovered(state, lx, ly);
+      const cell = MathUtils.toCellCoord(loot.pos);
+      const isVisible = isCellVisible(state, cell.x, cell.y);
+      const isDiscovered = isCellDiscovered(state, cell.x, cell.y);
 
       if (!isVisible && !isDiscovered && !state.settings.debugOverlayEnabled)
         return;

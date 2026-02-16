@@ -50,6 +50,7 @@ import { AssetManager } from "../visuals/AssetManager";
 import { Logger, LogLevel } from "@src/shared/Logger";
 import { GlobalShortcuts } from "../GlobalShortcuts";
 import { TooltipManager } from "../ui/TooltipManager";
+import { MathUtils } from "@src/shared/utils/MathUtils";
 
 const VERSION = pkg.version;
 
@@ -1107,8 +1108,7 @@ export class GameApp {
       if (event.button === 2) {
         const unit = this.currentGameState.units.find(
           (u) =>
-            Math.floor(u.pos.x) === clickedCell.x &&
-            Math.floor(u.pos.y) === clickedCell.y &&
+            MathUtils.sameCellPosition(u.pos, clickedCell) &&
             u.isDeployed !== false,
         );
         if (unit && unit.archetypeId !== "vip") {
@@ -1159,8 +1159,7 @@ export class GameApp {
 
     const unitAtClick = this.currentGameState.units.find(
       (unit) =>
-        Math.floor(unit.pos.x) === clickedCell.x &&
-        Math.floor(unit.pos.y) === clickedCell.y &&
+        MathUtils.sameCellPosition(unit.pos, clickedCell) &&
         unit.state !== UnitState.Dead &&
         unit.state !== UnitState.Extracted &&
         unit.isDeployed !== false,

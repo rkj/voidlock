@@ -27,11 +27,11 @@ export class SafetyBehavior implements Behavior {
     if (currentUnit.archetypeId === "vip")
       return { unit: currentUnit, handled: false };
 
-    const visibleEnemies = state.enemies.filter(
-      (enemy) =>
-        enemy.hp > 0 &&
-        isCellVisible(state, Math.floor(enemy.pos.x), Math.floor(enemy.pos.y)),
-    );
+    const visibleEnemies = state.enemies.filter((enemy) => {
+      if (enemy.hp <= 0) return false;
+      const cell = MathUtils.toCellCoord(enemy.pos);
+      return isCellVisible(state, cell.x, cell.y);
+    });
 
     const threats = visibleEnemies
       .map((enemy) => ({
@@ -60,26 +60,24 @@ export class SafetyBehavior implements Behavior {
           if (state.gridState[i] & 2) {
             const cx = i % width;
             const cy = Math.floor(i / width);
-            const isThreatened = threats.some(
-              (t) =>
-                Math.floor(t.enemy.pos.x) === cx &&
-                Math.floor(t.enemy.pos.y) === cy,
+            const cell = { x: cx, y: cy };
+            const isThreatened = threats.some((t) =>
+              MathUtils.sameCellPosition(t.enemy.pos, cell),
             );
             if (!isThreatened) {
-              safeCells.push({ x: cx, y: cy });
+              safeCells.push(cell);
             }
           }
         }
       } else {
         state.discoveredCells.forEach((cellKey) => {
           const [cx, cy] = cellKey.split(",").map(Number);
-          const isThreatened = threats.some(
-            (t) =>
-              Math.floor(t.enemy.pos.x) === cx &&
-              Math.floor(t.enemy.pos.y) === cy,
+          const cell = { x: cx, y: cy };
+          const isThreatened = threats.some((t) =>
+            MathUtils.sameCellPosition(t.enemy.pos, cell),
           );
           if (!isThreatened) {
-            safeCells.push({ x: cx, y: cy });
+            safeCells.push(cell);
           }
         });
       }
@@ -100,8 +98,7 @@ export class SafetyBehavior implements Behavior {
         if (
           currentUnit.state !== UnitState.Moving ||
           !currentUnit.targetPos ||
-          Math.floor(currentUnit.targetPos.x) !== closestSafe.x ||
-          Math.floor(currentUnit.targetPos.y) !== closestSafe.y
+          !MathUtils.sameCellPosition(currentUnit.targetPos, closestSafe)
         ) {
           currentUnit = {
             ...currentUnit,
@@ -147,9 +144,7 @@ export class SafetyBehavior implements Behavior {
         if (
           currentUnit.state !== UnitState.Moving ||
           !currentUnit.targetPos ||
-          Math.floor(currentUnit.targetPos.x) !==
-            Math.floor(closestAlly.pos.x) ||
-          Math.floor(currentUnit.targetPos.y) !== Math.floor(closestAlly.pos.y)
+          !MathUtils.sameCellPosition(currentUnit.targetPos, closestAlly.pos)
         ) {
           currentUnit = {
             ...currentUnit,
@@ -161,10 +156,7 @@ export class SafetyBehavior implements Behavior {
             {
               type: CommandType.MOVE_TO,
               unitIds: [currentUnit.id],
-              target: {
-                x: Math.floor(closestAlly.pos.x),
-                y: Math.floor(closestAlly.pos.y),
-              },
+              target: MathUtils.toCellCoord(closestAlly.pos),
               label: "Grouping Up",
             },
             state,

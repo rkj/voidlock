@@ -167,15 +167,11 @@ export class UnitManager {
         const target = activeCommand.target;
         const obj = state.objectives?.find((o) => {
           if ((o.kind === "Recover" || o.kind === "Escort") && o.targetCell) {
-            return o.targetCell.x === target.x && o.targetCell.y === target.y;
+            return MathUtils.sameCellPosition(o.targetCell, target);
           }
           if (o.kind === "Kill" && o.targetEnemyId) {
             const enemy = state.enemies.find((e) => e.id === o.targetEnemyId);
-            return (
-              enemy &&
-              Math.floor(enemy.pos.x) === target.x &&
-              Math.floor(enemy.pos.y) === target.y
-            );
+            return enemy && MathUtils.sameCellPosition(enemy.pos, target);
           }
           return false;
         });
@@ -394,8 +390,7 @@ export class UnitManager {
           if (distToCenter > MOVEMENT.ARRIVAL_THRESHOLD * 2) {
             if (
               !currentUnit.targetPos ||
-              Math.floor(currentUnit.targetPos.x) !== targetCell.x ||
-              Math.floor(currentUnit.targetPos.y) !== targetCell.y
+              !MathUtils.sameCellPosition(currentUnit.targetPos, targetCell)
             ) {
               const path = this.pathfinder.findPath(
                 {
@@ -584,9 +579,7 @@ export class UnitManager {
       const isMoving = !!currentUnit.targetPos;
       const enemiesInSameCell = state.enemies.filter(
         (enemy) =>
-          enemy.hp > 0 &&
-          Math.floor(enemy.pos.x) === Math.floor(currentUnit.pos.x) &&
-          Math.floor(enemy.pos.y) === Math.floor(currentUnit.pos.y),
+          enemy.hp > 0 && MathUtils.sameCellPosition(enemy.pos, currentUnit.pos),
       );
       const isLockedInMelee = enemiesInSameCell.length > 0;
 

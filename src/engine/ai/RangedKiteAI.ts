@@ -102,8 +102,8 @@ export class RangedKiteAI implements IEnemyAI {
         if (fleeTarget) {
           enemy.targetPos = fleeTarget;
           const path = pathfinder.findPath(
-            { x: Math.floor(enemy.pos.x), y: Math.floor(enemy.pos.y) },
-            { x: Math.floor(fleeTarget.x), y: Math.floor(fleeTarget.y) },
+            MathUtils.toCellCoord(enemy.pos),
+            MathUtils.toCellCoord(fleeTarget),
           );
           if (path && path.length > 0) {
             enemy.path = path;
@@ -114,8 +114,8 @@ export class RangedKiteAI implements IEnemyAI {
         // Chase
         const targetPos = targetSoldier.pos;
         const path = pathfinder.findPath(
-          { x: Math.floor(enemy.pos.x), y: Math.floor(enemy.pos.y) },
-          { x: Math.floor(targetPos.x), y: Math.floor(targetPos.y) },
+          MathUtils.toCellCoord(enemy.pos),
+          MathUtils.toCellCoord(targetPos),
         );
         if (path && path.length > 0) {
           enemy.path = path;
@@ -134,26 +134,25 @@ export class RangedKiteAI implements IEnemyAI {
 
   private roam(enemy: Enemy, grid: Grid, pathfinder: Pathfinder, prng: PRNG) {
     if ((!enemy.path || enemy.path.length === 0) && !enemy.targetPos) {
-      const currentX = Math.floor(enemy.pos.x);
-      const currentY = Math.floor(enemy.pos.y);
+      const currentCell = MathUtils.toCellCoord(enemy.pos);
       const roamRadius = 10;
 
       let attempts = 0;
       while (attempts < 5) {
         const tx = prng.nextInt(
-          Math.max(0, currentX - roamRadius),
-          Math.min(grid.width - 1, currentX + roamRadius),
+          Math.max(0, currentCell.x - roamRadius),
+          Math.min(grid.width - 1, currentCell.x + roamRadius),
         );
         const ty = prng.nextInt(
-          Math.max(0, currentY - roamRadius),
-          Math.min(grid.height - 1, currentY + roamRadius),
+          Math.max(0, currentCell.y - roamRadius),
+          Math.min(grid.height - 1, currentCell.y + roamRadius),
         );
 
-        if (grid.isWalkable(tx, ty) && (tx !== currentX || ty !== currentY)) {
-          const path = pathfinder.findPath(
-            { x: currentX, y: currentY },
-            { x: tx, y: ty },
-          );
+        if (
+          grid.isWalkable(tx, ty) &&
+          (tx !== currentCell.x || ty !== currentCell.y)
+        ) {
+          const path = pathfinder.findPath(currentCell, { x: tx, y: ty });
           if (path && path.length > 0) {
             enemy.path = path;
             enemy.targetPos = { x: path[0].x + 0.5, y: path[0].y + 0.5 };
@@ -185,19 +184,15 @@ export class RangedKiteAI implements IEnemyAI {
     let maxDist = MathUtils.getDistance(start, threat);
 
     for (const c of candidates) {
-      const cx = Math.floor(c.x);
-      const cy = Math.floor(c.y);
-      if (grid.isWalkable(cx, cy)) {
+      const cell = MathUtils.toCellCoord(c);
+      if (grid.isWalkable(cell.x, cell.y)) {
         const dist = MathUtils.getDistance(c, threat);
         if (dist > maxDist) {
           // Ensure reachable
-          const path = pathfinder.findPath(
-            { x: Math.floor(start.x), y: Math.floor(start.y) },
-            { x: cx, y: cy },
-          );
+          const path = pathfinder.findPath(MathUtils.toCellCoord(start), cell);
           if (path) {
             maxDist = dist;
-            best = { x: cx + 0.5, y: cy + 0.5 };
+            best = { x: cell.x + 0.5, y: cell.y + 0.5 };
           }
         }
       }

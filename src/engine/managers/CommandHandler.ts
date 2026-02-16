@@ -6,6 +6,7 @@ import {
 } from "../../shared/types";
 import { UnitManager } from "./UnitManager";
 import { IDirector } from "../interfaces/IDirector";
+import { MathUtils } from "../../shared/utils/MathUtils";
 
 export class CommandHandler {
   constructor(
@@ -22,22 +23,17 @@ export class CommandHandler {
         if (unit && unit.archetypeId !== "vip") {
           // Validate that the target is a valid spawn tile
           const isValidSpawn =
-            state.map.squadSpawns?.some(
-              (s) =>
-                s.x === Math.floor(cmd.target.x) &&
-                s.y === Math.floor(cmd.target.y),
+            state.map.squadSpawns?.some((s) =>
+              MathUtils.sameCellPosition(s, cmd.target),
             ) ||
             (state.map.squadSpawn &&
-              state.map.squadSpawn.x === Math.floor(cmd.target.x) &&
-              state.map.squadSpawn.y === Math.floor(cmd.target.y));
+              MathUtils.sameCellPosition(state.map.squadSpawn, cmd.target));
 
           if (!isValidSpawn) return;
 
           // Check if target is occupied by an already deployed unit
-          const targetUnit = state.units.find(
-            (u) =>
-              Math.floor(u.pos.x) === Math.floor(cmd.target.x) &&
-              Math.floor(u.pos.y) === Math.floor(cmd.target.y),
+          const targetUnit = state.units.find((u) =>
+            MathUtils.sameCellPosition(u.pos, cmd.target),
           );
 
           state.units = state.units.map((u) => {
