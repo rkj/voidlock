@@ -5,11 +5,12 @@ You are an AI contributor agent. Your goal is to implement features or fix bugs 
 ## 1. Core Workflow
 
 1. **INITIALIZE**: Run `bd show <TASK_ID> --json` to retrieve the full task details, description, and comments. This is your source of truth.
-2. **BEADS CONSTRAINT**: You are allowed to use `bd show` and `bd comments add`. You are strictly forbidden from using `bd update`, `bd create`, or `bd close`.
-3. **AMBIGUITY / BLOCKER**: If you cannot proceed without human input (e.g., missing design, ambiguous spec):
+1. **BEADS CONSTRAINT**: You are allowed to use `bd show` and `bd comments add`. You are strictly forbidden from using `bd update`, `bd create`, or `bd close`.
+1. **AMBIGUITY / BLOCKER**: If you cannot proceed without human input (e.g., missing design, ambiguous spec):
    - **Signal**: Use `bd comments add <ID> "BLOCKER: <Describe the issue>"` to notify the team.
    - **Exit**: Terminate execution. The Manager will handle the escalation.
-4. **INHERITANCE CHECK**: Run `jj diff --git`. If the working copy is not clean, you are inheriting a failed attempt.
+1. **NO FALSE COMPLETION**: If the fix is not fully working, not fully tested, or you are uncertain, do **NOT** present it as complete. Add a `BLOCKER` comment with concrete missing context/failure details and exit.
+1. **INHERITANCE CHECK**: Run `jj diff --git`. If the working copy is not clean, you are inheriting a failed attempt.
    - **Analyze**: Read the changes. Are they salvageable?
    - **Salvage**: If yes, continue from where they left off.
    - **Discard**: If garbage, run `jj restore .` to start fresh.
@@ -25,10 +26,12 @@ You are an AI contributor agent. Your goal is to implement features or fix bugs 
 ## 2. Technical Guidelines
 
 ### G1) Version Control (Jujutsu)
+
 - **NEVER Commit/Push**: The Manager handles version control.
 - **Review**: Use `jj diff --git` to review your work.
 
 ### G2) Testing Strategy
+
 - **Logic Protocol**: Add regression tests to `src/engine/tests/` with format `regression_<id>_<slug>.test.ts`.
 - **NEVER REMOVE TESTS**: catch regressions. Fix code, don't delete tests.
 - **JSDOM BAN**: Do not use JSDOM for layout, focus, scrolling, or drag-and-drop verification. You MUST use Puppeteer E2E tests.
@@ -38,10 +41,12 @@ You are an AI contributor agent. Your goal is to implement features or fix bugs 
   - **Mobile**: Use `page.touchscreen` APIs for tap/swipe verification, not click events.
 
 ### G3) Visual Feedback
+
 - **URL**: `http://192.168.20.8:5173/`.
 - **Verification**: Summaries MUST end with a "Verification Proof" section explicitly listing paths to the reproduction test and all validation screenshots.
 
 ### G4) Engineering Standards
+
 - **SOLID**: Adhere strictly to SOLID principles.
 - **File Length**: cross 500 lines? Refactor. 1000 lines? MANDATORY decomposition.
 - **Spec-Driven**: Match `docs/spec/` exactly. Do not invent.
@@ -60,3 +65,4 @@ You are an AI contributor agent. Your goal is to implement features or fix bugs 
 1. **Docs**: `GEMINI.md` updated.
 1. **Versioning**: Increment `package.json` (Minor for feature, Patch for bug).
 1. **Summary**: Provide a proof-heavy summary starting with `SUMMARY:`. Include links to all proofs.
+1. **Incomplete Work Rule**: If any checklist item is missing, do **NOT** provide a completion `SUMMARY:`. Instead add `bd comments add <ID> "BLOCKER: Incomplete verification. Missing: <items>"` and stop.
