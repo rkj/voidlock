@@ -60,7 +60,7 @@ describe("ScreenManager URL Sync", () => {
     window.dispatchEvent(new HashChangeEvent("hashchange"));
 
     expect(screenManager.getCurrentScreen()).toBe("barracks");
-    expect(onExternalChange).toHaveBeenCalledWith("barracks");
+    expect(onExternalChange).toHaveBeenCalledWith("barracks", true);
   });
 
   it("should load state from hash on initialization", () => {
