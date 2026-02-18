@@ -34,4 +34,5 @@ coverage/
 .beads/last-touched
 .trekker/
 *.png
+tests/e2e/__snapshots__
 
