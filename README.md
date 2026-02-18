@@ -46,6 +46,14 @@ npm run dev
 npx vitest run
 ```
 
+### Metrics
+
+To check the lines of code in the project:
+
+```bash
+npm run sloc
+```
+
 ## Documentation
 
 - [Architecture](./ARCHITECTURE.md) - Deep dive into the engine, communication protocol, and simulation logic.
