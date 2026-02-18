@@ -1,48 +1,47 @@
-import puppeteer, { Browser, Page } from "puppeteer";
-import { afterAll, beforeAll, describe, expect, test } from "vitest";
+import { describe, expect, test, beforeAll, afterAll } from "vitest";
+import { getNewPage, closeBrowser } from "./utils/puppeteer";
+import type { Page } from "puppeteer";
 import { E2E_URL } from "./config";
 
-describe("Reproduction: All-caps labels in UI (voidlock-8ai79)", () => {
-  let browser: Browser;
+describe("Reproduction: Title Case labels in UI (voidlock-8ai79)", () => {
   let page: Page;
 
   beforeAll(async () => {
-    browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
-    page = await browser.newPage();
+    page = await getNewPage();
     await page.setViewport({ width: 1024, height: 768 });
   });
 
   afterAll(async () => {
-    await browser.close();
+    await closeBrowser();
   });
 
-  const checkIsAllCaps = async (selector: string, expectedText: string) => {
+  const checkIsTitleCase = async (selector: string, expectedText: string) => {
     const text = await page.evaluate((sel) => {
         const el = document.querySelector(sel);
         if (!el) return null;
-        // Check both textContent and CSS text-transform
-        const style = window.getComputedStyle(el);
-        if (style.textTransform === "uppercase") {
-            return el.textContent?.toUpperCase();
-        }
-        return el.textContent;
+        return el.textContent?.trim();
     }, selector);
     
     if (text === null) {
         throw new Error(`Element ${selector} not found`);
     }
     
-    // We expect it to be ALL CAPS
-    expect(text).toBe(expectedText.toUpperCase());
+    expect(text).toBe(expectedText);
+
+    // Verify it's NOT forced to uppercase by CSS
+    const isUppercaseCSS = await page.evaluate((sel) => {
+        const el = document.querySelector(sel);
+        if (!el) return false;
+        return window.getComputedStyle(el).textTransform === "uppercase";
+    }, selector);
+    
+    expect(isUppercaseCSS).toBe(false);
   };
 
-  test("Labels MISSION FAILED, RETURN TO COMMAND BRIDGE, and SOLDIER ATTRIBUTES should be all-caps", async () => {
-    await page.goto(E2E_URL, { waitUntil: "networkidle0" });
+  test("Labels Mission Failed, Return to Command Bridge, and Soldier Attributes should be Title Case", async () => {
+    await page.goto(E2E_URL);
     await page.evaluate(() => localStorage.clear());
-    await page.goto(E2E_URL, { waitUntil: "networkidle0" });
+    await page.reload();
 
     // 1. Check Soldier Attributes in Equipment Screen
     await page.waitForSelector("#btn-menu-custom", { visible: true });
@@ -55,46 +54,57 @@ describe("Reproduction: All-caps labels in UI (voidlock-8ai79)", () => {
     await new Promise(r => setTimeout(r, 1000));
     
     // The selector for "Soldier Attributes" in SoldierInspector
-    await checkIsAllCaps("#screen-equipment h3", "SOLDIER ATTRIBUTES");
+    await checkIsTitleCase("#screen-equipment h3", "Soldier Attributes");
 
-    // 2. Check Debrief Screen labels (MISSION FAILED / RETURN TO COMMAND BRIDGE)
-    await page.click("[data-focus-id='soldier-slot-0']");
-    await page.waitForSelector(".armory-panel .menu-item.clickable", { visible: true });
-    await page.click(".armory-panel .menu-item.clickable");
+    // 2. Check Debrief Screen labels (Mission Failed / Return to Command Bridge)
+    // Add soldier to squad
+    await page.waitForSelector(".soldier-widget-roster.clickable", { visible: true });
+    await page.click(".soldier-widget-roster.clickable");
     
-    await page.evaluate(() => {
-        const anyWindow = window as any;
-        if (anyWindow.GameAppInstance) {
-            anyWindow.GameAppInstance.launchMission();
-        }
-    });
+    // Confirm Squad
+    const confirmBtn = await page.waitForSelector("::-p-text(Confirm Squad)");
+    if (!confirmBtn) throw new Error("Confirm Squad button not found");
+    await confirmBtn.click();
+
+    // Launch Mission
+    await page.waitForSelector("#btn-launch-mission", { visible: true });
+    await page.click("#btn-launch-mission");
     
     await page.waitForSelector("#screen-mission", { visible: true });
     await new Promise(r => setTimeout(r, 2000));
 
-    const startBtn = await page.$("#btn-start-mission");
+    // Autofill deployment to enable Start Mission
+    await page.waitForSelector("#btn-autofill-deployment", { visible: true });
+    await page.click("#btn-autofill-deployment");
+
+    const startBtn = await page.waitForSelector("#btn-start-mission:not([disabled])", { visible: true });
     if (startBtn) {
         await startBtn.click();
         await new Promise(r => setTimeout(r, 1000));
     }
     
+    // Toggle debug overlay via keyboard
+    await page.keyboard.press("`"); // Some systems use backtick/~
+    await page.keyboard.press("~"); 
+    
+    // Alternative: use evaluate if keyboard fails in headless
     await page.evaluate(() => {
-        const anyWindow = window as any;
-        if (anyWindow.GameAppInstance && anyWindow.GameAppInstance.context && anyWindow.GameAppInstance.context.gameClient) {
-            anyWindow.GameAppInstance.context.gameClient.toggleDebugOverlay(true);
+        const anyWin = window as any;
+        if (anyWin.GameAppInstance && anyWin.GameAppInstance.context && anyWin.GameAppInstance.context.gameClient) {
+            anyWin.GameAppInstance.context.gameClient.toggleDebugOverlay(true);
         }
     });
-    
-    await page.waitForSelector("#btn-force-lose", { visible: true });
+
+    await page.waitForSelector("#btn-force-lose", { visible: true, timeout: 5000 });
     await page.click("#btn-force-lose");
     
     await page.waitForSelector("#screen-debrief", { visible: true });
     await new Promise(r => setTimeout(r, 1000));
     
     // Debrief Header
-    await checkIsAllCaps("#screen-debrief h1", "MISSION FAILED");
+    await checkIsTitleCase("#screen-debrief h1", "Mission Failed");
     
     // Return to Command Bridge button
-    await checkIsAllCaps(".debrief-footer .debrief-button", "RETURN TO COMMAND BRIDGE");
+    await checkIsTitleCase(".debrief-footer .debrief-button", "Return to Command Bridge");
   });
 });

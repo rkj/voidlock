@@ -1,27 +1,25 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import puppeteer, { Browser, Page } from "puppeteer";
+import { getNewPage, closeBrowser } from "./utils/puppeteer";
+import type { Page } from "puppeteer";
 import { E2E_URL } from "./config";
 
 describe("Deployment Validation", () => {
-  let browser: Browser;
   let page: Page;
 
   beforeAll(async () => {
-    browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
-    page = await browser.newPage();
+    page = await getNewPage();
     await page.setViewport({ width: 1024, height: 768 });
   });
 
   afterAll(async () => {
-    await browser.close();
+    await closeBrowser();
   });
 
   it("should allow drag-and-drop deployment and enable Start Mission", async () => {
     console.log("Navigating to", E2E_URL);
     await page.goto(E2E_URL);
+    await page.evaluate(() => localStorage.clear());
+    await page.reload();
     
     console.log("Waiting for #btn-menu-custom");
     await page.waitForSelector("#btn-menu-custom");
@@ -39,8 +37,22 @@ describe("Deployment Validation", () => {
       await page.click("#toggle-manual-deployment");
     }
 
+    // Go to Equipment to add units
+    console.log("Navigating to Equipment Screen...");
+    await page.click("#btn-goto-equipment");
+    await page.waitForSelector(".equipment-screen", { visible: true });
+
+    // Ensure we have 2 soldiers selected (defaults)
+    await page.waitForSelector(".soldier-widget-roster.clickable", { visible: true });
+    
+    // Confirm Squad
+    console.log("Confirming squad...");
+    await page.waitForSelector("[data-focus-id='btn-confirm-squad']", { visible: true });
+    await page.click("[data-focus-id='btn-confirm-squad']");
+
     // Launch to Deployment Phase
     console.log("Clicking #btn-launch-mission");
+    await page.waitForSelector("#btn-launch-mission", { visible: true });
     await page.click("#btn-launch-mission");
     
     console.log("Waiting for .deployment-summary");

@@ -15,8 +15,10 @@ describe("SquadBuilder Missing Reproduction", () => {
     await closeBrowser();
   });
 
-  it("should verify that .squad-builder-container is missing during Mission Setup", async () => {
+  it("should verify that .squad-builder-container is present during Mission Setup", async () => {
     await page.goto(E2E_URL);
+    await page.evaluate(() => localStorage.clear());
+    await page.reload();
 
     // 1. Navigate to Custom Mission
     await page.waitForSelector("#btn-menu-custom");
@@ -49,13 +51,12 @@ describe("SquadBuilder Missing Reproduction", () => {
 
   it("should verify that .squad-builder-container is present in Campaign Mission Briefing", async () => {
     await page.goto(E2E_URL);
+    await page.evaluate(() => localStorage.clear());
+    await page.reload();
 
     // 1. Start a new campaign
     await page.waitForSelector("#btn-menu-campaign");
-    await page.evaluate(() => {
-        const btn = document.getElementById("btn-menu-campaign");
-        if (btn) btn.click();
-    });
+    await page.click("#btn-menu-campaign");
 
     // 2. Click "New Campaign" or select difficulty if Wizard is shown
     await new Promise(r => setTimeout(r, 1000)); // Wait for potential screen transition
@@ -71,8 +72,6 @@ describe("SquadBuilder Missing Reproduction", () => {
             const startBtn = document.getElementById("btn-wizard-start");
             if (startBtn) startBtn.click();
         });
-    } else {
-        console.log("Wizard NOT shown, assuming campaign already started or selector changed.");
     }
 
     await page.screenshot({
@@ -81,17 +80,11 @@ describe("SquadBuilder Missing Reproduction", () => {
 
     // 3. Select the first node (Start Node)
     await page.waitForSelector(".campaign-node.accessible");
-    await page.evaluate(() => {
-        const node = document.querySelector(".campaign-node.accessible") as HTMLElement;
-        if (node) node.click();
-    });
+    await page.click(".campaign-node.accessible");
 
-    // 4. Equipment screen should show up. Click "Confirm" to go to Mission Setup
-    await page.waitForSelector("#btn-confirm-equipment");
-    await page.evaluate(() => {
-        const btn = document.getElementById("btn-confirm-equipment");
-        if (btn) btn.click();
-    });
+    // 4. Equipment screen should show up. Click "Confirm Squad" to go to Mission Setup
+    await page.waitForSelector("[data-focus-id='btn-confirm-squad']", { visible: true });
+    await page.click("[data-focus-id='btn-confirm-squad']");
 
     // 5. Wait for Mission Setup (Briefing)
     await page.waitForSelector("#screen-mission-setup");

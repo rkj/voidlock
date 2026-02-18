@@ -112,32 +112,28 @@ describe("Mobile Scrolling Regression Test", () => {
     });
     await page.click("[data-focus-id='btn-confirm-squad']");
 
+    // NEW: We are back at Mission Setup, MUST click Launch Mission
+    console.log("Launching Mission...");
+    await page.waitForSelector("#btn-launch-mission", { visible: true });
+    await page.click("#btn-launch-mission");
+
     // 2. Wait for mission to start
     await page.waitForSelector("#screen-mission", { visible: true });
 
     // Ensure we are in "Playing" state
-    const startMissionBtn = await page.waitForSelector("#btn-start-mission", {
-      visible: true,
-      timeout: 10000,
-    });
-
-    // Deploy units
     await page.waitForSelector(".deployment-unit-item", {
       visible: true,
       timeout: 10000,
     });
-    const units = await page.$$(".deployment-unit-item");
-    for (const unit of units) {
-      await unit.click();
-      await new Promise((r) => setTimeout(r, 500));
-    }
 
-    // Wait for button to be enabled
-    await page.waitForFunction(
-      (el) => !(el as HTMLButtonElement).disabled,
-      { timeout: 10000 },
-      startMissionBtn,
-    );
+    // Autofill deployment
+    await page.waitForSelector("#btn-autofill-deployment", { visible: true });
+    await page.click("#btn-autofill-deployment");
+
+    const startMissionBtn = await page.waitForSelector("#btn-start-mission:not([disabled])", {
+      visible: true,
+      timeout: 10000,
+    });
 
     await startMissionBtn?.click();
     await page.waitForSelector(".command-menu", {

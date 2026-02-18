@@ -51,15 +51,20 @@ describe("Mobile Full Campaign Flow", () => {
       throw new Error("Confirm Squad button not found");
     }
 
+    // 5. Mission Setup Screen (Campaign Briefing)
+    await page.waitForSelector("#screen-mission-setup");
+    await page.waitForSelector("#btn-launch-mission", { visible: true });
+    await page.click("#btn-launch-mission");
+
     // 6. Deployment Phase
-    await page.waitForSelector("#screen-mission");
+    await page.waitForSelector("#screen-mission", { visible: true });
     await page.waitForSelector(".deployment-unit-item");
 
     // Deploy all units
     const units = await page.$$(".deployment-unit-item");
     for (const unit of units) {
-      await unit.click();
-      await new Promise((r) => setTimeout(r, 100));
+      await unit.click({ clickCount: 2 });
+      await new Promise((r) => setTimeout(r, 500));
     }
 
     const startMissionBtn = await page.waitForSelector("#btn-start-mission");

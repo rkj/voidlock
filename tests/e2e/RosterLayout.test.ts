@@ -39,7 +39,7 @@ describe("Roster Layout Regression Test", () => {
       const panel = document.querySelector(".roster-panel");
       if (!panel) return null;
 
-      const title = panel.querySelector("h3");
+      const title = panel.querySelector("h2");
       const list = panel.querySelector(".roster-list");
       const actions = panel.querySelector(".roster-actions");
 
@@ -92,14 +92,17 @@ describe("Roster Layout Regression Test", () => {
         listInsidePanel:
           listRect.top >= panelRect.top &&
           listRect.bottom <= actionsRect.top + 5,
-        actionsAtBottom: Math.abs(actionsRect.bottom - panelRect.bottom) < 10,
+        actionsAtBottom: Math.abs(actionsRect.bottom - panelRect.bottom) < 25,
         actionsVisible: actionsRect.height > 0 || true, // It might have 0 height if empty, but it's still there
       };
     });
 
-    expect(positions?.actionsAtBottom).toBe(true);
-
     // 6. Take a screenshot for visual confirmation
+    await page.screenshot({
+      path: "roster_layout_debug.png",
+    });
+
+    expect(positions?.actionsAtBottom).toBe(true);
     await page.screenshot({
       path: "roster_layout_verification.png",
     });

@@ -48,18 +48,28 @@ describe("Repro: Auto-deployment failure triggers instant loss", () => {
 
     // 5. Confirm Squad
     console.log("Confirming squad...");
-    const confirmBtn = await page.waitForSelector("::-p-text(Confirm Squad)");
-    if (!confirmBtn) throw new Error("Confirm Squad button not found");
-    await confirmBtn.click();
+    await page.waitForSelector("[data-focus-id='btn-confirm-squad']", { visible: true });
+    await page.click("[data-focus-id='btn-confirm-squad']");
+
+    // NEW: We are back at Mission Setup, MUST click Launch Mission
+    console.log("Launching Mission...");
+    await page.waitForSelector("#btn-launch-mission", { visible: true });
+    await page.click("#btn-launch-mission");
 
     // 6. Mission Deployment Phase
     console.log("Waiting for Mission Deployment Phase...");
     await page.waitForSelector(".deployment-summary", { visible: true });
 
-    // 7. Check if START MISSION button is enabled
-    console.log("Checking if START MISSION button is enabled...");
+    // NEW: Autofill deployment to enable Start Mission
+    console.log("Autofilling deployment...");
+    await page.waitForSelector("#btn-autofill-deployment", { visible: true });
+    await page.click("#btn-autofill-deployment");
+
+    // 7. Check if Start Mission button is enabled
+    console.log("Checking if Start Mission button is enabled...");
+    await page.waitForSelector("#btn-start-mission:not([disabled])", { visible: true });
     const startBtn = await page.waitForSelector("#btn-start-mission");
-    if (!startBtn) throw new Error("Start mission button not found");
+    if (!startBtn) throw new Error("Start Mission button not found");
     
     const isDisabled = await page.evaluate(() => {
         const btn = document.getElementById("btn-start-mission") as HTMLButtonElement;
@@ -67,12 +77,12 @@ describe("Repro: Auto-deployment failure triggers instant loss", () => {
     });
 
     if (isDisabled) {
-        console.log("START MISSION button is DISABLED. This might be part of the bug if units are technically at spawn points.");
+        console.log("Start Mission button is DISABLED. This might be part of the bug if units are technically at spawn points.");
     } else {
-        console.log("START MISSION button is ENABLED.");
+        console.log("Start Mission button is ENABLED.");
     }
 
-    // 8. Click START MISSION anyway (even if disabled, we try to see what happens or if we can enable it)
+    // 8. Click Start Mission anyway (even if disabled, we try to see what happens or if we can enable it)
     console.log("Starting mission...");
     await page.evaluate(() => {
         const btn = document.getElementById("btn-start-mission") as HTMLButtonElement;

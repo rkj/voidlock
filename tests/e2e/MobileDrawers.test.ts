@@ -1,27 +1,25 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import puppeteer, { Browser, Page } from "puppeteer";
+import { getNewPage, closeBrowser } from "./utils/puppeteer";
+import type { Page } from "puppeteer";
 import { E2E_URL } from "./config";
 
 describe("Mobile Drawers", () => {
-  let browser: Browser;
   let page: Page;
 
   beforeAll(async () => {
-    browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
-    page = await browser.newPage();
+    page = await getNewPage();
     // Set mobile viewport
     await page.setViewport({ width: 375, height: 667, isMobile: true });
   });
 
   afterAll(async () => {
-    await browser.close();
+    await closeBrowser();
   });
 
   it("should show drawer toggles and hide panels by default on mobile", async () => {
     await page.goto(`${E2E_URL}/#main-menu`);
+    await page.evaluate(() => localStorage.clear());
+    await page.reload();
     
     // Go to a custom mission to see the HUD
     await page.click("#btn-menu-custom");
@@ -31,6 +29,11 @@ describe("Mobile Drawers", () => {
     // Wait for the Confirm Squad button in Equipment Screen
     await page.waitForSelector("[data-focus-id='btn-confirm-squad']");
     await page.click("[data-focus-id='btn-confirm-squad']");
+
+    // NEW: We are back at Mission Setup, MUST click Launch Mission
+    console.log("Launching Mission...");
+    await page.waitForSelector("#btn-launch-mission", { visible: true });
+    await page.click("#btn-launch-mission");
     
     // Launch mission (Transition to Playing)
     await page.waitForSelector("#screen-mission", { visible: true });

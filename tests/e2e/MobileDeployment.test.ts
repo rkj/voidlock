@@ -64,20 +64,17 @@ describe("Mobile Deployment Flow", () => {
     // 6. Start Mission
     // Need to deploy ALL units if they are required for start mission button to enable
     const units = await page.$$(".deployment-unit-item");
-    for (let i = 1; i < units.length; i++) {
-        await units[i].click();
-        await new Promise(r => setTimeout(r, 100));
+    for (const unit of units) {
+        await unit.click({ clickCount: 2 });
+        await new Promise(r => setTimeout(r, 500));
     }
 
-    const startBtn = await page.waitForSelector("#btn-start-mission");
-    if (!startBtn) throw new Error("Start mission button not found");
+    const startBtn = await page.waitForSelector("#btn-start-mission:not([disabled])", { visible: true });
+    if (!startBtn) throw new Error("Start mission button not found or remains disabled");
     
-    const isDisabled = await startBtn.evaluate(el => (el as HTMLButtonElement).disabled);
-    if (!isDisabled) {
-        await startBtn.click();
+    await startBtn.click();
         
-        // 7. Verify we are in Playing state
-        await page.waitForSelector(".command-menu");
-    }
+    // 7. Verify we are in Playing state
+    await page.waitForSelector(".command-menu");
   });
 });

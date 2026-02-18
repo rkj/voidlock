@@ -44,12 +44,34 @@ describe("voidlock-49x66: Deployment Bug Repro", () => {
     // Select Dense Ship for predictable spawns
     await page.select("#map-generator-type", "DenseShip");
 
+    // Increase map size to ensure enough spawns (12x12 gives 4 spawns)
+    console.log("Increasing map size to 12x12...");
+    await page.evaluate(() => {
+        const wInput = document.getElementById("map-width") as HTMLInputElement;
+        const hInput = document.getElementById("map-height") as HTMLInputElement;
+        if (wInput) {
+            wInput.value = "12";
+            wInput.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+        if (hInput) {
+            hInput.value = "12";
+            hInput.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+        
+        const slider = document.getElementById("map-spawn-points") as HTMLInputElement;
+        if (slider) {
+            slider.value = "6";
+            slider.dispatchEvent(new Event("input", { bubbles: true }));
+            slider.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+    });
+
     console.log("Going to equipment screen...");
     await page.click("#btn-goto-equipment");
     await page.waitForSelector("#screen-equipment", { visible: true });
     
     // Add units to squad
-    for (let i = 0; i < 2; i++) {
+    for (let i = 2; i < 4; i++) {
         console.log(`Checking slot ${i}...`);
         const slotSelector = `.soldier-list-panel div[data-focus-id="soldier-slot-${i}"]`;
         await page.waitForSelector(slotSelector);
@@ -70,8 +92,8 @@ describe("voidlock-49x66: Deployment Bug Repro", () => {
 
     // Confirm Squad
     console.log("Confirming squad...");
-    await page.waitForSelector("button.primary-button");
-    await page.click("button.primary-button");
+    await page.waitForSelector("[data-focus-id='btn-confirm-squad']", { visible: true });
+    await page.click("[data-focus-id='btn-confirm-squad']");
     
     // Back at Mission Setup
     console.log("Waiting for #btn-launch-mission");
@@ -105,6 +127,9 @@ describe("voidlock-49x66: Deployment Bug Repro", () => {
     }
     await page.waitForSelector("#game-canvas");
 
+    // Wait for renderer to be ready
+    await new Promise(r => setTimeout(r, 2000));
+
     // Check if Start Mission is disabled initially
     const isStartDisabled = await page.evaluate(() => {
         const btn = document.getElementById("btn-start-mission") as HTMLButtonElement;
@@ -134,10 +159,12 @@ describe("voidlock-49x66: Deployment Bug Repro", () => {
     const spawnPoints = await page.evaluate(() => {
         // @ts-ignore
         const app = window.GameAppInstance;
+        if (!app || !app.renderer) return null;
+
         const state = app.currentGameState;
         const spawns = state.map.squadSpawns || (state.map.squadSpawn ? [state.map.squadSpawn] : []);
         // @ts-ignore
-        const cellSize = app.context.renderer.cellSize;
+        const cellSize = app.renderer.cellSize;
         const canvas = document.getElementById("game-canvas");
         const rect = canvas?.getBoundingClientRect();
         return spawns.map(s => ({
@@ -147,6 +174,11 @@ describe("voidlock-49x66: Deployment Bug Repro", () => {
             pixelY: rect!.top + (s.y + 0.5) * cellSize
         }));
     });
+
+    if (!spawnPoints) {
+        console.log("Spawn points or renderer not available");
+        throw new Error("Spawn points or renderer not available");
+    }
 
     console.log(`Found ${spawnPoints.length} spawn points`);
 

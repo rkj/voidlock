@@ -9,8 +9,6 @@ describe("voidlock-49x66: Deployment Overlap Bug", () => {
   beforeAll(async () => {
     page = await getNewPage();
     await page.setViewport({ width: 1600, height: 1200 });
-    await page.goto(E2E_URL);
-    await page.evaluate(() => localStorage.clear());
   }, 30000);
 
   afterAll(async () => {
@@ -19,6 +17,9 @@ describe("voidlock-49x66: Deployment Overlap Bug", () => {
 
   it("should NOT allow multiple units to be deployed on the same spawn point", async () => {
     await page.goto(E2E_URL);
+    await page.evaluate(() => localStorage.clear());
+    await page.reload();
+
     await page.waitForSelector("#btn-menu-custom");
     await page.click("#btn-menu-custom");
     
@@ -29,48 +30,54 @@ describe("voidlock-49x66: Deployment Overlap Bug", () => {
         return el.checked;
     });
     if (!isChecked) {
-        await page.evaluate(() => {
-            const el = document.getElementById("toggle-manual-deployment") as HTMLInputElement;
-            el.click();
-        });
+        await page.click("#toggle-manual-deployment");
     }
 
     // Select Dense Ship for predictable spawns
     await page.select("#map-generator-type", "DenseShip");
 
     // Go to equipment screen to add soldiers
+    await page.waitForSelector("#btn-goto-equipment", { visible: true });
     await page.click("#btn-goto-equipment");
-    await page.waitForSelector(".equipment-screen");
+    await page.waitForSelector(".equipment-screen", { visible: true });
     
-    // Add 2 soldiers
-    const emptySlots = await page.$$(".soldier-list-panel .menu-item");
-    for (let i = 0; i < 2; i++) {
-        await emptySlots[i].click();
+    // Add 2 more soldiers by clicking empty slots (2, 3)
+    // Default squad already has 2 soldiers in slots 0, 1
+    for (let i = 2; i < 4; i++) {
+        const slotSelector = `.soldier-list-panel div[data-focus-id="soldier-slot-${i}"]`;
+        await page.waitForSelector(slotSelector);
+        await page.click(slotSelector);
+        
         await page.waitForSelector(".armory-panel .soldier-card", { visible: true });
-        const cards = await page.$$(".armory-panel .soldier-card");
-        await cards[0].click();
-        await new Promise(r => setTimeout(r, 100));
+        await page.click(".armory-panel .soldier-card");
+        await new Promise(r => setTimeout(r, 500)); // Wait for re-render
     }
 
     // Confirm Squad
-    await page.click("button.primary-button");
+    await page.waitForSelector("[data-focus-id='btn-confirm-squad']", { visible: true });
+    await page.click("[data-focus-id='btn-confirm-squad']");
     
     // Launch Mission
-    await page.waitForSelector("#btn-launch-mission");
+    await page.waitForSelector("#btn-launch-mission", { visible: true });
     await page.click("#btn-launch-mission");
 
     // Wait for Deployment Phase
-    await page.waitForSelector(".deployment-summary");
-    await page.waitForSelector("#game-canvas");
+    await page.waitForSelector(".deployment-summary", { visible: true });
+    await page.waitForSelector("#game-canvas", { visible: true });
+
+    // Wait for renderer to be ready
+    await new Promise(r => setTimeout(r, 2000));
 
     // Get spawn point 0 coordinates
     const spawnPoint = await page.evaluate(() => {
         // @ts-ignore
         const app = window.GameAppInstance;
+        if (!app || !app.renderer) return null;
+        
         const state = app.currentGameState;
         const s = state.map.squadSpawns[0];
         // @ts-ignore
-        const cellSize = app.context.renderer.cellSize;
+        const cellSize = app.renderer.cellSize;
         const canvas = document.getElementById("game-canvas");
         const rect = canvas?.getBoundingClientRect();
         return {
@@ -81,44 +88,30 @@ describe("voidlock-49x66: Deployment Overlap Bug", () => {
         };
     });
 
+    if (!spawnPoint) throw new Error("Could not find spawn point or renderer not ready");
+
     const units = await page.$$(".deployment-unit-item");
+    expect(units.length).toBeGreaterThanOrEqual(2);
     
     // Drag first unit to spawn point
     const rect0 = await units[0].boundingBox();
-    await page.mouse.move(rect0!.x + rect0!.width / 2, rect0!.y + rect0!.height / 2);
+    if (!rect0) throw new Error("Unit 0 bounding box not found");
+    await page.mouse.move(rect0.x + rect0.width / 2, rect0.y + rect0.height / 2);
     await page.mouse.down();
     await page.mouse.move(spawnPoint.pixelX, spawnPoint.pixelY, { steps: 5 });
     await page.mouse.up();
-    await new Promise(r => setTimeout(r, 200));
+    await new Promise(r => setTimeout(r, 500));
 
     // Drag second unit to SAME spawn point
     const rect1 = await units[1].boundingBox();
-    await page.mouse.move(rect1!.x + rect1!.width / 2, rect1!.y + rect1!.height / 2);
+    if (!rect1) throw new Error("Unit 1 bounding box not found");
+    await page.mouse.move(rect1.x + rect1.width / 2, rect1.y + rect1.height / 2);
     await page.mouse.down();
     await page.mouse.move(spawnPoint.pixelX, spawnPoint.pixelY, { steps: 5 });
     await page.mouse.up();
-    await new Promise(r => setTimeout(r, 200));
+    await new Promise(r => setTimeout(r, 500));
 
-    // Both should NOT be deployed at the same time if we want to fix this
-    // Currently, it's expected that they CAN be (the bug)
-    
-    const deployedUnitsCount = await page.evaluate(() => {
-        const items = document.querySelectorAll(".deployment-unit-item");
-        return Array.from(items).filter(item => {
-            const span = item.querySelector(".roster-item-details span:last-child") as HTMLElement;
-            return span && span.textContent === "Deployed";
-        }).length;
-    });
-
-    console.log("Deployed units count:", deployedUnitsCount);
-    
-    // If it's broken, both will be deployed
-    // We expect it to NOT allow both to stay on the same tile
-    // Actually, CommandHandler SWAPS them, so only ONE should be deployed at that spot, 
-    // and the other should be moved to where the first one was.
-    // BUT if the first one was pending, where does the second one go?
-    
-    // Let's check unit positions
+    // Check for overlaps in the game state
     const unitPositions = await page.evaluate(() => {
          // @ts-ignore
          const state = window.GameAppInstance.currentGameState;
@@ -133,6 +126,7 @@ describe("voidlock-49x66: Deployment Overlap Bug", () => {
         unitPositions.some((u2: any, j: number) => i !== j && u2.isDeployed !== false && u1.x === u2.x && u1.y === u2.y)
     );
     
+    // We expect 0 overlaps if the fix is working
     expect(overlaps.length).toBe(0);
   });
 });

@@ -1,26 +1,23 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import puppeteer, { Browser, Page } from "puppeteer";
+import { getNewPage, closeBrowser } from "./utils/puppeteer";
+import type { Page } from "puppeteer";
+import { E2E_URL } from "./config";
 
 describe("Campaign Statistics E2E", () => {
-  let browser: Browser;
   let page: Page;
 
   beforeAll(async () => {
-    browser = await puppeteer.launch({
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-      headless: true, // Use headless for CI/Verification
-    });
-    page = await browser.newPage();
+    page = await getNewPage();
     await page.setViewport({ width: 1280, height: 800 });
   });
 
   afterAll(async () => {
-    await browser.close();
+    await closeBrowser();
   });
 
   it("should display Statistics screen with correct shell tabs and footer layout", async () => {
     // Navigate to the app
-    await page.goto("http://localhost:5173");
+    await page.goto(E2E_URL);
     await page.waitForSelector("#app");
 
     // We need to trigger the Statistics mode.
