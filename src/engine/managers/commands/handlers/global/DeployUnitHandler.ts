@@ -24,26 +24,12 @@ export class DeployUnitHandler implements IGlobalCommandHandler {
 
       if (!isValidSpawn) return;
 
-      // Check if target is occupied by an already deployed unit
-      const targetUnit = state.units.find((u) =>
-        MathUtils.sameCellPosition(u.pos, deployCmd.target),
-      );
-
       state.units = state.units.map((u) => {
         if (u.id === unit.id) {
           return {
             ...u,
             pos: { x: deployCmd.target.x, y: deployCmd.target.y },
             isDeployed: true,
-          };
-        }
-        if (targetUnit && u.id === targetUnit.id) {
-          // If swapping with a pending unit, the target unit becomes pending
-          const wasDeployed = unit.isDeployed !== false;
-          return {
-            ...u,
-            pos: { ...unit.pos },
-            isDeployed: wasDeployed,
           };
         }
         return u;

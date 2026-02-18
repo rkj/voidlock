@@ -319,18 +319,13 @@ export class HUDManager {
       autoFillBtn.style.marginBottom = "10px";
       autoFillBtn.addEventListener("click", () => {
         const pending = state.units.filter((u) => u.archetypeId !== "vip" && u.isDeployed === false);
-        const currentOccupiedSpawns = state.units
-          .filter((u) => u.isDeployed !== false)
-          .map((u) => MathUtils.toCellCoord(u.pos));
-        
         const allSpawns = state.map.squadSpawns || (state.map.squadSpawn ? [state.map.squadSpawn] : []);
         
-        pending.forEach((u) => {
-           const spawn = allSpawns.find((s) => !currentOccupiedSpawns.some((os) => os.x === s.x && os.y === s.y));
-           if (spawn) {
-             this.onDeployUnit(u.id, spawn.x + 0.5, spawn.y + 0.5);
-             currentOccupiedSpawns.push(spawn);
-           }
+        if (allSpawns.length === 0) return;
+
+        pending.forEach((u, idx) => {
+           const spawn = allSpawns[idx % allSpawns.length];
+           this.onDeployUnit(u.id, spawn.x + 0.5, spawn.y + 0.5);
         });
       });
       deploymentDiv.appendChild(autoFillBtn);
@@ -463,10 +458,6 @@ export class HUDManager {
 
       const allOnValidTiles = deployedUnits.every((u) => {
         const cell = MathUtils.toCellCoord(u.pos);
-        const key = MathUtils.cellKey(u.pos);
-        if (positions.has(key)) hasOverlap = true;
-        positions.add(key);
-
         return (
           state.map?.squadSpawns?.some((s) =>
             MathUtils.sameCellPosition(s, cell),
@@ -476,13 +467,11 @@ export class HUDManager {
         );
       });
 
-      if (!allDeployed || !allOnValidTiles || hasOverlap) {
+      if (!allDeployed || !allOnValidTiles) {
         startBtn.disabled = true;
         startBtn.classList.add("disabled");
         if (!allDeployed) {
           startBtn.title = "All squad members must be deployed.";
-        } else if (hasOverlap) {
-          startBtn.title = "Each spawn point can only hold one unit.";
         } else {
           startBtn.title = "All squad members must be on valid spawn tiles.";
         }
@@ -769,6 +758,7 @@ export class HUDManager {
       if (!isOccupied) return spawn;
     }
     
-    return null;
+    // If no empty spawn, return the first one to allow overlaps
+    return spawns.length > 0 ? spawns[0] : null;
   }
 }
