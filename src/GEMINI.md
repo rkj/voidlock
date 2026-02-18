@@ -4,7 +4,7 @@ This is the main source directory for the Voidlock project.
 
 ## Core Files
 
-- `index.html`: Main application entry point. Contains an inline resilience script for global error handling and emergency data reset (Spec 8.12).
+- `index.html`: Main application entry point. Contains an inline resilience script for global error handling and emergency data reset (Spec 8.12). Optimized for full-height mission screen layout without scrollbars (voidlock-6wf9q).
 
 ## Subdirectories
 
