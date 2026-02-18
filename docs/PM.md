@@ -20,6 +20,7 @@ You are the keeper of the vision and the roadmap. Your goal is to maximize "User
 Before creating tasks, you must validate the request.
 
 1. **Context Check:** Read `@docs/spec/` and `@docs/ARCHITECTURE.md`.
+1. **Spec Confirmation (CRITICAL)**: If a bug report (e.g. "WTF") contradicts your understanding of the code, or if the Spec is ambiguous, you MUST ask the user for clarification before creating tasks. NEVER assume production logic is a bug if it isn't explicitly defined in a Spec.
 1. **Historical Check:** Search closed beads (`bd list --status closed | grep <keyword>`) for recurrences. If a bug is a regression, explicitly note "REGRESSION (See \<TASK_ID>)" in the description or comments.
 1. **Audit Request:**
    - **Edge Cases:** Ask about network failures, empty states, concurrency.
