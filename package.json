@@ -23,6 +23,7 @@
     "timeline:topology": "node --experimental-strip-types scripts/timeline/analyze_screen_topology_changes.ts",
     "timeline:playbooks": "node --experimental-strip-types scripts/timeline/plan_navigation_playbooks.ts",
     "timeline:compile-playbooks": "node --experimental-strip-types scripts/timeline/compile_commit_playbooks.ts",
+    "sloc": "echo '--- SRC ---' && npx sloc src && echo '--- TESTS ---' && npx sloc tests && echo '--- SCRIPTS ---' && npx sloc scripts",
     "timeline:run": "./scripts/timeline/run.sh"
   },
   "devDependencies": {
