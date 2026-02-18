@@ -488,6 +488,7 @@ export class SquadBuilder {
         } else if (vipInSquad) {
           slot.classList.add("occupied");
           slot.classList.add("vip-slot");
+          slot.tabIndex = 0;
 
           const card = SoldierWidget.render(vipInSquad, {
             context: "squad-builder",
@@ -526,6 +527,7 @@ export class SquadBuilder {
 
       if (soldier) {
         slot.classList.add("occupied");
+        slot.tabIndex = 0;
         const card = SoldierWidget.render(soldier, {
           context: "squad-builder",
         });

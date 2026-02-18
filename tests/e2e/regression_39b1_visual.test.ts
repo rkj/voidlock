@@ -23,13 +23,25 @@ describe("Regression 39B1 - Map Entity Rendering", () => {
 
   async function setupCustomMission(style: "TacticalIcons" | "Sprites") {
     // Ensure we are at main menu
+    await page.waitForSelector("#btn-menu-settings");
+    await page.click("#btn-menu-settings");
+
+    await page.waitForSelector("#screen-settings");
+
+    // Click on the style preview item
+    await page.waitForSelector(`.style-preview-item[data-style="${style}"]`);
+    await page.click(`.style-preview-item[data-style="${style}"]`);
+
+    // Back to menu
+    const backBtn = await page.waitForSelector("::-p-text(Save & Back)");
+    if (!backBtn) throw new Error("Save & Back button not found");
+    await backBtn.click();
+
+    // Now go to Custom Mission
     await page.waitForSelector("#btn-menu-custom");
     await page.click("#btn-menu-custom");
 
     await page.waitForSelector("#screen-mission-setup");
-
-    // Set style
-    await page.select("#select-unit-style", style);
 
     // Assign a soldier (double click to add to squad)
     await page.waitForSelector(".roster-list .soldier-card");
@@ -42,6 +54,10 @@ describe("Regression 39B1 - Map Entity Rendering", () => {
     // Click "Confirm Squad" on Equipment screen to launch mission
     await page.waitForSelector(".equipment-screen .primary-button");
     await page.click(".equipment-screen .primary-button");
+
+    // Launch Mission (Deployment Phase)
+    await page.waitForSelector("#btn-launch-mission", { visible: true });
+    await page.click("#btn-launch-mission");
 
     // Wait for tactical screen
     await page.waitForSelector("#game-canvas");

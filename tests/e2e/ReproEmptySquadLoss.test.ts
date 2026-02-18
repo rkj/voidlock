@@ -51,9 +51,13 @@ describe("Repro: Empty squad triggers instant loss", () => {
 
     // 5. Confirm Squad
     console.log("Confirming empty squad...");
-    const confirmBtn = await page.waitForSelector("::-p-text(Confirm Squad)");
-    if (!confirmBtn) throw new Error("Confirm Squad button not found");
-    await confirmBtn.click();
+    await page.waitForSelector("[data-focus-id='btn-confirm-squad']", { visible: true });
+    await page.click("[data-focus-id='btn-confirm-squad']");
+
+    // NEW: We are back at Mission Setup, MUST click Launch Mission
+    console.log("Launching Mission...");
+    await page.waitForSelector("#btn-launch-mission", { visible: true });
+    await page.click("#btn-launch-mission");
 
     // 6. It should go to tactical and fail immediately because skipDeployment is true
     console.log("Waiting for mission to settle...");

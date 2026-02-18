@@ -62,7 +62,7 @@ const VERSION = pkg.version;
 export class GameApp {
   // Services
   private gameClient!: GameClient;
-  private renderer: Renderer | null = null;
+  public renderer: Renderer | null = null;
   private screenManager!: ScreenManager;
   private campaignManager!: CampaignManager;
   private metaManager!: MetaManager;

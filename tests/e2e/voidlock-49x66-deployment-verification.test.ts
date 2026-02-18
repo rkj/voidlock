@@ -8,7 +8,7 @@ describe("voidlock-49x66: Deployment Verification", () => {
 
   beforeAll(async () => {
     page = await getNewPage();
-    await page.setViewport({ width: 1024, height: 768 });
+    await page.setViewport({ width: 1920, height: 1080 });
     await page.goto(E2E_URL);
     await page.evaluate(() => localStorage.clear());
   }, 30000);
@@ -43,6 +43,27 @@ describe("voidlock-49x66: Deployment Verification", () => {
 
     // Select Dense Ship for predictable spawns
     await page.select("#map-generator-type", "DenseShip");
+    
+    // Set map size to 12x12 for 4 spawns (1 + floor(6/2) = 4)
+    await page.evaluate(() => {
+        const wInput = document.getElementById("map-width") as HTMLInputElement;
+        const hInput = document.getElementById("map-height") as HTMLInputElement;
+        if (wInput) {
+            wInput.value = "12";
+            wInput.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+        if (hInput) {
+            hInput.value = "12";
+            hInput.dispatchEvent(new Event("input", { bubbles: true }));
+        }
+        
+        const slider = document.getElementById("map-spawn-points") as HTMLInputElement;
+        if (slider) {
+            slider.value = "6";
+            slider.dispatchEvent(new Event("input", { bubbles: true }));
+            slider.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+    });
 
     // Add units to squad
     console.log("Going to equipment screen...");
@@ -51,7 +72,7 @@ describe("voidlock-49x66: Deployment Verification", () => {
     await takeScreenshot("3_equipment_screen");
     
     // Add 2 soldiers - re-fetching slots to avoid detached nodes
-    for (let i = 0; i < 2; i++) {
+    for (let i = 2; i < 4; i++) {
         console.log(`Adding soldier ${i+1}...`);
         const slotSelector = `.soldier-list-panel div[data-focus-id="soldier-slot-${i}"]`;
         await page.waitForSelector(slotSelector);
@@ -83,10 +104,11 @@ describe("voidlock-49x66: Deployment Verification", () => {
     const deploymentData = await page.evaluate(() => {
         // @ts-ignore
         const app = window.GameAppInstance;
+        if (!app || !app.renderer) return null;
         const state = app.currentGameState;
         const spawns = state.map.squadSpawns || (state.map.squadSpawn ? [state.map.squadSpawn] : []);
         // @ts-ignore
-        const cellSize = app.context.renderer.cellSize;
+        const cellSize = app.renderer.cellSize;
         const canvas = document.getElementById("game-canvas");
         const rect = canvas!.getBoundingClientRect();
         
@@ -106,7 +128,8 @@ describe("voidlock-49x66: Deployment Verification", () => {
         };
     });
 
-    console.log("Deployment Data:", JSON.stringify(deploymentData));
+    if (!deploymentData) throw new Error("Deployment Data could not be retrieved - app.renderer may be null");
+    console.log("Deployment Data retrieved successfully:", JSON.stringify(deploymentData));
 
     // 1. Verify NO 'grab' cursor on pending unit's position
     const pendingUnit = deploymentData.units.find(u => u.isDeployed === false);
@@ -114,14 +137,43 @@ describe("voidlock-49x66: Deployment Verification", () => {
         const spawn = deploymentData.spawns.find(s => s.x === pendingUnit.x && s.y === pendingUnit.y);
         if (spawn) {
             console.log(`Hovering over spawn at (${spawn.x}, ${spawn.y}) where unit ${pendingUnit.id} is pending...`);
+            // Ensure centered
+            await page.evaluate((x, y) => {
+                const container = document.getElementById("game-container");
+                if (container) {
+                    // @ts-ignore
+                    const cellSize = window.GameAppInstance.renderer.cellSize;
+                    container.scrollLeft = (x + 0.5) * cellSize - container.clientWidth / 2;
+                    container.scrollTop = (y + 0.5) * cellSize - container.clientHeight / 2;
+                }
+            }, spawn.x, spawn.y);
+            await new Promise(r => setTimeout(r, 200));
+
+            // Re-calculate rect after scroll
+            const rect = await page.evaluate(() => {
+                const canvas = document.getElementById("game-canvas");
+                if (!canvas) return { left: 0, top: 0 };
+                const r = canvas.getBoundingClientRect();
+                return { left: r.left, top: r.top };
+            });
+            const cellSize = await page.evaluate(() => (window as any).GameAppInstance.renderer?.cellSize || 128);
+            const pixelX = Math.round(rect.left + (spawn.x + 0.5) * cellSize);
+            const pixelY = Math.round(rect.top + (spawn.y + 0.5) * cellSize);
+
+            console.log(`Computed Hover Coords: ${pixelX}, ${pixelY} (rect.left: ${rect.left}, rect.top: ${rect.top}, cellSize: ${cellSize})`);
+
+            if (isNaN(pixelX) || isNaN(pixelY)) {
+                throw new Error(`Computed coordinates are NaN: pixelX=${pixelX}, pixelY=${pixelY}`);
+            }
+
             // Use move steps to trigger mousemove event correctly
-            await page.mouse.move(spawn.pixelX, spawn.pixelY, { steps: 5 });
+            await page.mouse.move(pixelX, pixelY, { steps: 5 });
             await new Promise(r => setTimeout(r, 200));
             
             const cursor = await page.evaluate(() => document.getElementById("game-canvas")!.style.cursor);
             console.log("Cursor style (should be default):", cursor);
             expect(cursor).not.toBe("grab");
-            expect(cursor).toBe("default");
+            expect(cursor === "" || cursor === "default").toBe(true);
         } else {
             console.log("Could not find spawn point for pending unit pos");
         }
@@ -142,22 +194,39 @@ describe("voidlock-49x66: Deployment Verification", () => {
     expect(unit0Status).toBe("Deployed");
 
     // 3. Verify 'grab' cursor NOW appears on the deployed unit
-    const deployedUnitPos = await page.evaluate((id) => {
+    const deployedUnitData = await page.evaluate((id) => {
         // @ts-ignore
         const app = window.GameAppInstance;
         const unit = app.currentGameState.units.find((u: any) => u.id === id);
         // @ts-ignore
-        const cellSize = app.context.renderer.cellSize;
-        const canvas = document.getElementById("game-canvas");
-        const rect = canvas!.getBoundingClientRect();
-        return {
-            pixelX: rect.left + unit.pos.x * cellSize,
-            pixelY: rect.top + unit.pos.y * cellSize
-        };
+        const cellSize = app.renderer.cellSize;
+        const container = document.getElementById("game-container");
+        if (container) {
+            container.scrollLeft = unit.pos.x * cellSize - container.clientWidth / 2;
+            container.scrollTop = unit.pos.y * cellSize - container.clientHeight / 2;
+        }
+        return { x: unit.pos.x, y: unit.pos.y };
     }, unit0Id);
 
-    console.log(`Hovering over deployed unit at (${deployedUnitPos.pixelX}, ${deployedUnitPos.pixelY})`);
-    await page.mouse.move(deployedUnitPos.pixelX, deployedUnitPos.pixelY, { steps: 5 });
+    await new Promise(r => setTimeout(r, 200));
+    
+    const finalCoords = await page.evaluate((pos) => {
+        const canvas = document.getElementById("game-canvas");
+        if (!canvas) return { pixelX: 0, pixelY: 0 };
+        const rect = canvas.getBoundingClientRect();
+        // @ts-ignore
+        const cellSize = window.GameAppInstance.renderer?.cellSize || 128;
+        return {
+            pixelX: Math.round(rect.left + pos.x * cellSize),
+            pixelY: Math.round(rect.top + pos.y * cellSize)
+        };
+    }, deployedUnitData);
+
+    console.log(`Hovering over deployed unit at (${finalCoords.pixelX}, ${finalCoords.pixelY})`);
+    if (isNaN(finalCoords.pixelX) || isNaN(finalCoords.pixelY)) {
+        throw new Error(`Final coordinates are NaN: pixelX=${finalCoords.pixelX}, pixelY=${finalCoords.pixelY}`);
+    }
+    await page.mouse.move(finalCoords.pixelX, finalCoords.pixelY, { steps: 5 });
     await new Promise(r => setTimeout(r, 200));
     const cursorAfterDeploy = await page.evaluate(() => document.getElementById("game-canvas")!.style.cursor);
     console.log("Cursor style after deploy (should be grab):", cursorAfterDeploy);

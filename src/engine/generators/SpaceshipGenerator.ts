@@ -186,7 +186,7 @@ export class SpaceshipGenerator {
 
     // 3. Pick Key Nodes
     const squadNodes: Node[] = [];
-    const maxSquadSpawns = 2;
+    const maxSquadSpawns = 4;
 
     // Pick first squad node
     const squadNode1 = this.pickNodeInQuad(nodes, cols, rows, 0, 0);

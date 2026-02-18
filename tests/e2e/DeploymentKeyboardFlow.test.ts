@@ -135,6 +135,22 @@ describe("Mission Deployment Keyboard Flow", () => {
     }
     expect(foundConfirmBtn, "Failed to find 'Confirm Squad' button").toBe(true);
     await pressEnter();
+    await page.waitForSelector("#screen-mission-setup", { visible: true });
+
+    // 5.5 Launch Mission
+    console.log("Launching Mission...");
+    let foundLaunchBtn = false;
+    for (let i = 0; i < 50; i++) {
+        const active = await getActiveElementInfo();
+        console.log(`Setup Tab ${i}: <${active?.tagName}> id="${active?.id}" class="${active?.className}" text="${active?.textContent}"`);
+        if (active?.id === "btn-launch-mission") {
+            foundLaunchBtn = true;
+            break;
+        }
+        await pressTab();
+    }
+    expect(foundLaunchBtn, "Failed to find 'Launch Mission' button").toBe(true);
+    await pressEnter();
 
     // 6. Mission Deployment Phase
     console.log("Waiting for Mission Deployment Phase...");
@@ -154,29 +170,39 @@ describe("Mission Deployment Keyboard Flow", () => {
     }
     expect(foundDeploymentItem, "Failed to reach deployment unit item via Tab").toBe(true);
 
-    // 8. Auto-deploy unit using Enter
-    console.log("Deploying unit via keyboard...");
+    // 8. Auto-deploy all units using Auto-Fill Spawns button
+    console.log("Deploying all units via Auto-Fill Spawns...");
+    let foundAutoFillBtn = false;
+    for (let i = 0; i < 20; i++) {
+        const active = await getActiveElementInfo();
+        if (active?.id === "btn-autofill-deployment") {
+            foundAutoFillBtn = true;
+            break;
+        }
+        await pressTab();
+    }
+    expect(foundAutoFillBtn, "Failed to find 'Auto-Fill Spawns' button").toBe(true);
     await pressEnter();
-    // Wait a bit for state update
-    await new Promise(r => setTimeout(r, 500));
+    await new Promise(r => setTimeout(r, 1000));
 
-    // 9. Reach START MISSION button
-    console.log("Tabbing to 'START MISSION' button...");
+    // 9. Reach Start Mission button
+    console.log("Tabbing to 'Start Mission' button...");
     let foundStartBtn = false;
     for (let i = 0; i < 10; i++) {
       const active = await getActiveElementInfo();
       console.log(`StartBtn Tab ${i}: <${active?.tagName}> id="${active?.id}" class="${active?.className}" text="${active?.textContent}"`);
       if (active?.id === "btn-start-mission") {
-        if (await page.evaluate(() => !(document.getElementById("btn-start-mission") as any).disabled)) {
+        const isDisabled = await page.evaluate(() => (document.getElementById("btn-start-mission") as any).disabled);
+        if (!isDisabled) {
             foundStartBtn = true;
             break;
         } else {
-            console.log("START MISSION button found but still disabled...");
+            console.log("Start Mission button found but still disabled...");
         }
       }
       await pressTab();
     }
-    expect(foundStartBtn, "Failed to find ENABLED 'START MISSION' button").toBe(true);
+    expect(foundStartBtn, "Failed to find ENABLED 'Start Mission' button").toBe(true);
 
     // 10. Start Mission
     console.log("Starting mission...");

@@ -1,29 +1,36 @@
-import { expect, test } from "vitest";
-import puppeteer from "puppeteer";
+import { describe, expect, test, beforeAll, afterAll } from "vitest";
+import { getNewPage, closeBrowser } from "./utils/puppeteer";
+import type { Page } from "puppeteer";
 import { E2E_URL } from "./config";
 
-test("UI labels are rendered in all-caps", async () => {
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ["--no-sandbox", "--disable-setuid-sandbox"],
-  });
-  const page = await browser.newPage();
+describe("UI labels are rendered in Title Case", () => {
+  let page: Page;
 
-  try {
-    await page.goto(E2E_URL);
+  beforeAll(async () => {
+    page = await getNewPage();
     await page.setViewport({ width: 1024, height: 768 });
+  });
 
+  afterAll(async () => {
+    await closeBrowser();
+  });
+
+  test("UI labels are rendered in Title Case", async () => {
     // Helper to get text content
     const getText = async (selector: string) => {
       try {
         await page.waitForSelector(selector, { timeout: 10000 });
         const el = await page.$(selector);
         if (!el) return null;
-        return await page.evaluate((e) => e.textContent, el);
+        return await page.evaluate((e) => e.textContent?.trim(), el);
       } catch (e) {
         return null;
       }
     };
+
+    await page.goto(E2E_URL);
+    await page.evaluate(() => localStorage.clear());
+    await page.reload();
 
     // 1. Navigate to Custom Mission -> Mission Setup
     console.log("Navigating to Custom Mission...");
@@ -35,24 +42,10 @@ test("UI labels are rendered in all-caps", async () => {
     // Wait for App to initialize and render SquadBuilder
     await new Promise(r => setTimeout(r, 2000));
 
-    // Log the whole body HTML for debugging
-    const bodyHtml = await page.evaluate(() => document.body.innerHTML);
-    // console.log("Body HTML:", bodyHtml);
-    console.log("Body length:", bodyHtml.length);
-
     // 2. Add first soldier to squad
     console.log("Waiting for soldier card...");
-    const cards = await page.$$(".soldier-card, .soldier-item");
-    console.log("Found cards count:", cards.length);
-
-    if (cards.length === 0) {
-        // Try to find ANY button in the squad builder
-        const buttons = await page.evaluate(() => Array.from(document.querySelectorAll("button")).map(b => b.textContent));
-        console.log("All buttons:", buttons);
-    }
-
-    await page.waitForSelector(".soldier-card, .soldier-item", { timeout: 15000 });
-    await page.click(".soldier-card, .soldier-item");
+    await page.waitForSelector(".roster-list .soldier-card, .roster-list .soldier-item", { timeout: 15000 });
+    await page.click(".roster-list .soldier-card, .roster-list .soldier-item");
     console.log("Clicked soldier card");
     
     // 3. Equipment screen check
@@ -62,62 +55,69 @@ test("UI labels are rendered in all-caps", async () => {
     console.log("In Equipment screen");
 
     const soldierAttributesText = await page.evaluate(() => {
-        const h3s = Array.from(document.querySelectorAll("h3"));
-        return h3s.map(h => h.textContent);
+        const h3s = Array.from(document.querySelectorAll("#screen-equipment h3"));
+        return h3s.map(h => h.textContent?.trim());
     });
     console.log("H3s in Equipment screen:", soldierAttributesText);
-    // expect(soldierAttributesText).toContain("SOLDIER ATTRIBUTES");
+    expect(soldierAttributesText).toContain("Soldier Attributes");
 
-    // 4. Launch Mission to get to Deployment Phase
+    // 4. Confirm Squad to go back to Setup
+    await page.click("[data-focus-id='btn-confirm-squad']");
+    await page.waitForSelector("#screen-mission-setup");
+
+    // Launch Mission to get to Deployment Phase
     await page.click("#btn-launch-mission");
     console.log("Clicked Launch Mission");
     await page.waitForSelector("#screen-mission");
     console.log("In Mission screen");
 
-    // DEPLOYMENT PHASE
+    // Deployment Phase
     const deploymentPhaseText = await getText(".deployment-title");
     console.log("Deployment Phase text:", deploymentPhaseText);
-    expect(deploymentPhaseText).toBe("DEPLOYMENT PHASE");
+    expect(deploymentPhaseText).toBe("Deployment Phase");
 
-    // START MISSION
+    // Autofill deployment to enable Start Mission
+    await page.waitForSelector("#btn-autofill-deployment", { visible: true });
+    await page.click("#btn-autofill-deployment");
+    
+    // Start Mission
+    await page.waitForSelector("#btn-start-mission:not([disabled])", { visible: true });
     const startMissionText = await getText("#btn-start-mission");
     console.log("Start Mission text:", startMissionText);
-    expect(startMissionText).toBe("START MISSION");
+    expect(startMissionText).toBe("Start Mission");
 
-    // 5. OBJECTIVES (HUDManager.ts)
+    // 5. Objectives (HUDManager.ts)
     // Start mission to get out of deployment
     await page.click("#btn-start-mission"); 
     console.log("Clicked Start Mission");
     
     // Wait for "Objectives" to appear in right panel
+    await page.waitForSelector(".objectives-status h3", { visible: true });
     const objectivesTitle = await page.evaluate(() => {
         const h3s = Array.from(document.querySelectorAll(".objectives-status h3"));
-        return h3s[0]?.textContent;
+        return h3s[0]?.textContent?.trim();
     });
     console.log("Objectives title:", objectivesTitle);
-    expect(objectivesTitle).toBe("OBJECTIVES");
+    expect(objectivesTitle).toBe("Objectives");
 
-    // 6. OBJECTIVES TOGGLE (index.html)
+    // 6. Objectives toggle (index.html)
     const objectivesToggle = await getText("#btn-toggle-right");
     console.log("Objectives toggle text:", objectivesToggle);
-    expect(objectivesToggle).toBe("OBJECTIVES");
+    expect(objectivesToggle).toBe("Objectives");
 
-    // 7. MISSION SUCCESS / FAILED & RETURN TO COMMAND BRIDGE (DebriefScreen.ts)
+    // 7. Mission Success / Failed & Return to Command Bridge (DebriefScreen.ts)
     // Force win
     await page.keyboard.press("~"); // Toggle debug overlay
     await page.waitForSelector("#btn-force-win");
     await page.click("#btn-force-win");
-    await page.waitForSelector(".debrief-screen");
+    await page.waitForSelector("#screen-debrief", { visible: true });
 
-    const debriefHeader = await getText(".debrief-header h1");
+    const debriefHeader = await getText("#screen-debrief .debrief-header");
     console.log("Debrief header text:", debriefHeader);
-    expect(debriefHeader).toBe("MISSION SUCCESS");
+    expect(debriefHeader).toBe("Mission Success");
 
-    const returnBtn = await getText(".debrief-actions .primary-button");
+    const returnBtn = await getText(".debrief-footer .debrief-button");
     console.log("Return button text:", returnBtn);
-    expect(returnBtn).toBe("RETURN TO COMMAND BRIDGE");
-
-  } finally {
-    await browser.close();
-  }
-}, 60000);
+    expect(returnBtn).toBe("Return to Command Bridge");
+  }, 60000);
+});

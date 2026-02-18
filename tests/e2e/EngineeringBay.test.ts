@@ -65,7 +65,7 @@ describe("Engineering Bay E2E Verification", () => {
     });
     expect(
       headers.some(
-        (h) => h?.includes("ARCHETYPES") || h?.includes("EQUIPMENT"),
+        (h) => h?.includes("Archetypes") || h?.includes("Equipment"),
       ),
     ).toBe(true);
 

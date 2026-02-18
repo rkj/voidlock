@@ -447,7 +447,7 @@ export class DenseShipGenerator {
     const squadRoomIds = Array.from(roomsInSquadQuadMap.keys());
     this.prng.shuffle(squadRoomIds);
 
-    const maxSquadSpawns = 2;
+    const maxSquadSpawns = 4;
     this.squadSpawns = [];
 
     for (let i = 0; i < Math.min(maxSquadSpawns, squadRoomIds.length); i++) {

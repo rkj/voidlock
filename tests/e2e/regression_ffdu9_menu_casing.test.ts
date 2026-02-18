@@ -1,22 +1,18 @@
-import puppeteer, { Browser, Page } from "puppeteer";
-import { afterAll, beforeAll, describe, expect, test } from "vitest";
+import { describe, expect, test, beforeAll, afterAll } from "vitest";
+import { getNewPage, closeBrowser } from "./utils/puppeteer";
+import type { Page } from "puppeteer";
 import { E2E_URL } from "./config";
 
 describe("Command Menu Casing Repro (voidlock-ffdu9)", () => {
-  let browser: Browser;
   let page: Page;
 
   beforeAll(async () => {
-    browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
-    page = await browser.newPage();
+    page = await getNewPage();
     await page.setViewport({ width: 1024, height: 768 });
   });
 
   afterAll(async () => {
-    await browser.close();
+    await closeBrowser();
   });
 
   test("Command menu buttons should NOT be all-caps and should NOT have text-transform: uppercase", async () => {
@@ -49,7 +45,10 @@ describe("Command Menu Casing Repro (voidlock-ffdu9)", () => {
     
     // In Deployment phase, we need to click Start Mission
     console.log("Finishing Deployment...");
-    await page.waitForSelector("#btn-start-mission", { visible: true });
+    await page.waitForSelector("#btn-autofill-deployment", { visible: true });
+    await page.click("#btn-autofill-deployment");
+
+    await page.waitForSelector("#btn-start-mission:not([disabled])", { visible: true });
     await page.click("#btn-start-mission");
 
     // Wait for the command menu to be populated (now in Playing phase)

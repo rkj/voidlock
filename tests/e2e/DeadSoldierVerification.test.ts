@@ -1,23 +1,30 @@
 // @vitest-environment node
-import { describe, it, expect } from "vitest";
-import puppeteer from "puppeteer";
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { getNewPage, closeBrowser } from "./utils/puppeteer";
+import type { Page } from "puppeteer";
 import { E2E_URL } from "./config";
+import pkg from "../../package.json";
 
 describe("Visual Verification - Dead Soldier Equipment", () => {
-  it("should show disabled equipment for dead soldiers", async () => {
-    const browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
-    const page = await browser.newPage();
-    await page.setViewport({ width: 1280, height: 800 });
+  let page: Page;
 
+  beforeAll(async () => {
+    page = await getNewPage();
+    await page.setViewport({ width: 1280, height: 800 });
+  });
+
+  afterAll(async () => {
+    await closeBrowser();
+  });
+
+  it("should show disabled equipment for dead soldiers", async () => {
     try {
       await page.goto(E2E_URL, { waitUntil: "networkidle2" });
 
-      await page.evaluate(() => {
+      await page.evaluate((version) => {
         const campaignState = {
-          version: "0.122.1",
+          version: version,
+          saveVersion: 1,
           seed: 12345,
           status: "Active",
           rules: {
@@ -65,10 +72,12 @@ describe("Visual Verification - Dead Soldier Equipment", () => {
               missions: 1,
               status: "Dead",
               equipment: { rightHand: "pulse_rifle", leftHand: "combat_knife" },
+              recoveryTime: 0
             },
           ],
           history: [],
           unlockedArchetypes: ["assault", "medic", "scout", "heavy"],
+          unlockedItems: []
         };
 
         const campaignConfig = {
@@ -119,12 +128,13 @@ describe("Visual Verification - Dead Soldier Equipment", () => {
         );
         window.location.hash = "#barracks";
         window.location.reload();
-      });
+      }, pkg.version);
 
       await page.waitForNavigation({ waitUntil: "networkidle2" });
       await new Promise((r) => setTimeout(r, 2000)); // Wait for render
 
       // Select the dead soldier in the roster list (it's the only one)
+      await page.waitForSelector(".soldier-item.dead", { visible: true });
       await page.click(".soldier-item.dead");
       await new Promise((r) => setTimeout(r, 500));
 
@@ -139,12 +149,10 @@ describe("Visual Verification - Dead Soldier Equipment", () => {
       }
       await new Promise((r) => setTimeout(r, 500));
 
-      await page.screenshot({ path: "dead_soldier_barracks_verification.png" });
-
       const hasWarning = await page.evaluate(() => {
-        return document.body.innerText.includes(
-          "SOLDIER IS DECEASED - EQUIPMENT LOCKED",
-        );
+        // We now expect Title Case
+        const warningText = "Soldier is Deceased - Equipment Locked";
+        return document.body.innerText.includes(warningText);
       });
       expect(hasWarning).toBe(true);
 
@@ -162,8 +170,9 @@ describe("Visual Verification - Dead Soldier Equipment", () => {
         return items[0]?.classList.contains("disabled");
       });
       expect(isArmoryDisabled).toBe(true);
-    } finally {
-      await browser.close();
+    } catch (e) {
+        console.error("Test failed with error:", e);
+        throw e;
     }
   }, 30000);
 });
