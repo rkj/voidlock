@@ -730,6 +730,7 @@ export class GameApp {
         this.applyCampaignTheme();
         const isCurrentlyCampaign =
           isCampaign || !!this.missionSetupManager.currentCampaignNode;
+        this.missionSetupManager.loadAndApplyConfig(isCurrentlyCampaign);
         this.equipmentScreen.setCampaign(isCurrentlyCampaign);
         this.equipmentScreen.updateConfig(
           this.missionSetupManager.currentSquad,
@@ -876,14 +877,16 @@ export class GameApp {
       this.missionSetupManager.saveCurrentConfig();
 
       // After equipment confirmed in campaign, go to mission-setup for final launch
+      this.missionSetupManager.loadAndApplyConfig(true);
       this.switchScreen("mission-setup", true);
       this.campaignShell.show("campaign", "sector-map", false);
     } else {
       // In custom, just update the setup manager
       this.missionSetupManager.currentSquad = config;
       this.missionSetupManager.saveCurrentConfig();
-      
+
       // Also return to mission-setup in custom flow
+      this.missionSetupManager.loadAndApplyConfig(false);
       this.switchScreen("mission-setup", false);
       this.campaignShell.show("custom", "setup");
     }
@@ -959,6 +962,7 @@ export class GameApp {
     // 5. Navigate to equipment screen (skipping mission-setup)
     this.applyCampaignTheme();
     this.missionSetupManager.loadAndApplyConfig(true);
+    this.missionSetupManager.saveCurrentConfig();
     this.equipmentScreen.setCampaign(true);
     this.equipmentScreen.updateConfig(
       this.missionSetupManager.currentSquad,
