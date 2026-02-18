@@ -4,8 +4,9 @@ MODEL="gemini-3-pro-preview"
 
 while true; do
   # Check for remaining tasks
-  if [ -z "$(bd list 2>/dev/null)" ]; then
-    echo "No tasks remaining. Exiting manager loop."
+  TASKS=$(bd list 2>/dev/null)
+  if [ -z "$TASKS" ] || ! echo "$TASKS" | grep -v "voidlock-xyoaw" | grep -q "."; then
+    echo "No relevant tasks remaining. Exiting manager loop."
     exit 0
   fi
 
