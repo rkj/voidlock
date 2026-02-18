@@ -38,6 +38,10 @@ describe("Mobile Deployment Flow", () => {
       throw new Error("Confirm Squad button not found");
     }
 
+    // Launch
+    await page.waitForSelector("#btn-launch-mission");
+    await page.click("#btn-launch-mission");
+
     // 4. Deployment Phase
     await page.waitForSelector("#screen-mission");
     await page.waitForSelector("#mobile-action-panel");
@@ -47,11 +51,11 @@ describe("Mobile Deployment Flow", () => {
     const firstUnitText = await page.$eval(".deployment-unit-item", el => el.textContent);
     expect(firstUnitText).toContain("Pending");
 
-    // 5. Tap first unit to deploy
-    await page.click(".deployment-unit-item");
+    // 5. Tap first unit to deploy (Double click required)
+    await page.click(".deployment-unit-item", { clickCount: 2 });
     
     // Wait for state update
-    await new Promise(r => setTimeout(r, 500));
+    await new Promise(r => setTimeout(r, 1000));
 
     // Verify unit is now "Deployed"
     const firstUnitTextAfter = await page.$eval(".deployment-unit-item", el => el.textContent);

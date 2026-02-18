@@ -403,6 +403,36 @@ export class HUDManager {
             if (e.dataTransfer) {
               e.dataTransfer.setData("text/plain", u.id);
               e.dataTransfer.effectAllowed = "move";
+              
+              // Create a custom drag image (a circle)
+              const dragImg = document.createElement("canvas");
+              dragImg.width = 40;
+              dragImg.height = 40;
+              const ctx = dragImg.getContext("2d");
+              if (ctx) {
+                ctx.beginPath();
+                ctx.arc(20, 20, 18, 0, Math.PI * 2);
+                ctx.fillStyle = "rgba(46, 204, 113, 0.5)"; // Success color, semi-transparent
+                ctx.fill();
+                ctx.strokeStyle = "#2ecc71";
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // Add tactical number
+                ctx.fillStyle = "white";
+                ctx.font = "bold 14px sans-serif";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                const tacNum = u.tacticalNumber !== undefined ? u.tacticalNumber.toString() : "";
+                ctx.fillText(tacNum, 20, 20);
+                
+                // Need to append to body temporarily or it might not work in some browsers
+                dragImg.style.position = "absolute";
+                dragImg.style.top = "-1000px";
+                document.body.appendChild(dragImg);
+                e.dataTransfer.setDragImage(dragImg, 20, 20);
+                setTimeout(() => document.body.removeChild(dragImg), 0);
+              }
             }
           });
           squadList.appendChild(item);
@@ -452,9 +482,6 @@ export class HUDManager {
 
       const deployedUnits = aliveUnits.filter((u) => u.isDeployed !== false);
       const allDeployed = deployedUnits.length === aliveUnits.length;
-
-      const positions = new Set<string>();
-      let hasOverlap = false;
 
       const allOnValidTiles = deployedUnits.every((u) => {
         const cell = MathUtils.toCellCoord(u.pos);

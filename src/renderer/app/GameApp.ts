@@ -248,6 +248,7 @@ export class GameApp {
       (dx, dy) => this.panMapBy(dx, dy),
       (ratio, cx, cy) => this.zoomMap(ratio, cx, cy),
     );
+    this.inputManager.init();
 
     // 3. Initialize screens
     this.campaignScreen = new CampaignScreen(
