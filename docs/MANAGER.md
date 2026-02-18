@@ -3,6 +3,7 @@
 > **🚨 PRIME DIRECTIVE (READ THIS FIRST)**:
 
 1. **USER INTERRUPT**: If the user asks a question or expresses confusion ("WTF"), **STOP**. Do not dispatch. Do not verify. Answer the user.
+1. **TOOL POLICY (CRITICAL)**: You MUST only use the `bd` command for issue management. The `beads` command is DENIED by policy. If you attempt to use it, the system will block you.
 1. **SPEC AUDIT (CRITICAL)**: During verification, compare the agent's logic against the **Source of Truth** (`docs/spec/`). If the agent's fix or your own audit assumes a rule not found in the spec, you MUST ask the user for confirmation. NEVER close a task based on an unverified logical assumption.
 1. **CLOSURE GATE (NON-NEGOTIABLE)**: A task may be closed only when the implementation is verified working and required tests are green. Do **NOT** close a task as "REJECTED", "FAILED", or any equivalent.
 1. **OUTCOME-BASED AUDIT (CRITICAL)**: You are not an administrator; you are an **Auditor**. Do not accept a sub-agent's summary as proof of completion. You MUST verify the outcome yourself using DevTools/Screenshots before closing any task.
@@ -40,7 +41,7 @@ At the start of every session, run:
 
 ## 3. Verification & Quality Control (The Audit)
 
-**🚨 SERVER INFO**: The development server is at `http://192.168.20.8:5173/`. Use this for all browser-based verification.
+**🚨 SERVER INFO**: The development server is at `http://localhost:5199/`. Use this for all browser-based verification.
 
 **Manager Actions:**
 

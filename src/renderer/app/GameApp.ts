@@ -38,6 +38,7 @@ import { StatisticsScreen } from "../screens/StatisticsScreen";
 import { EngineeringScreen } from "../screens/EngineeringScreen";
 import { SettingsScreen } from "../screens/SettingsScreen";
 import { MainMenuScreen } from "../screens/MainMenuScreen";
+import { SquadBuilder } from "../components/SquadBuilder";
 import { ThemeManager } from "../ThemeManager";
 import { CampaignManager } from "../campaign/CampaignManager";
 import { MetaManager } from "../campaign/MetaManager";
@@ -78,6 +79,9 @@ export class GameApp {
   private missionCoordinator!: MissionCoordinator;
   private campaignFlowCoordinator!: CampaignFlowCoordinator;
   private missionSetupManager!: MissionSetupManager;
+
+  // Components
+  private squadBuilder!: SquadBuilder;
 
   // screens
   private campaignScreen!: CampaignScreen;
@@ -169,6 +173,20 @@ export class GameApp {
       this.campaignManager,
       this.themeManager,
       this.modalService,
+    );
+
+    this.squadBuilder = new SquadBuilder(
+      "squad-builder",
+      this.campaignManager,
+      this.campaignShell,
+      this.modalService,
+      this.missionSetupManager.currentSquad,
+      this.missionSetupManager.currentMissionType,
+      !!this.missionSetupManager.currentCampaignNode,
+      (squad) => {
+        this.missionSetupManager.currentSquad = squad;
+        this.missionSetupManager.saveCurrentConfig();
+      },
     );
 
     // 2. Initialize UI managers
@@ -346,6 +364,11 @@ export class GameApp {
         this.missionSetupManager.currentCampaignNode = null;
         this.missionSetupManager.loadAndApplyConfig(false);
         this.campaignShell.show("custom", "setup");
+        this.squadBuilder.update(
+          this.missionSetupManager.currentSquad,
+          this.missionSetupManager.currentMissionType,
+          false,
+        );
         this.switchScreen("mission-setup", false);
       },
       onCampaignMenu: () => {
@@ -416,6 +439,11 @@ export class GameApp {
             );
         }
         this.missionSetupManager.saveCurrentConfig();
+        this.squadBuilder.update(
+          this.missionSetupManager.currentSquad,
+          this.missionSetupManager.currentMissionType,
+          !!this.missionSetupManager.currentCampaignNode,
+        );
       },
       onThemeChange: (themeId: string) => {
         this.missionSetupManager.currentThemeId = themeId;
@@ -649,6 +677,11 @@ export class GameApp {
 
     switch (tabId) {
       case "setup":
+        this.squadBuilder.update(
+          this.missionSetupManager.currentSquad,
+          this.missionSetupManager.currentMissionType,
+          isCustomFlow ? false : hasCampaign,
+        );
         this.switchScreen("mission-setup", isCustomFlow ? false : hasCampaign);
         break;
       case "sector-map":
@@ -720,6 +753,11 @@ export class GameApp {
         } else {
           this.campaignShell.show("custom", "setup");
         }
+        this.squadBuilder.update(
+          this.missionSetupManager.currentSquad,
+          this.missionSetupManager.currentMissionType,
+          rehydrated,
+        );
         this.switchScreen("mission-setup", rehydrated);
         break;
       }
@@ -878,6 +916,11 @@ export class GameApp {
 
       // After equipment confirmed in campaign, go to mission-setup for final launch
       this.missionSetupManager.loadAndApplyConfig(true);
+      this.squadBuilder.update(
+        this.missionSetupManager.currentSquad,
+        this.missionSetupManager.currentMissionType,
+        true,
+      );
       this.switchScreen("mission-setup", true);
       this.campaignShell.show("campaign", "sector-map", false);
     } else {
@@ -887,6 +930,11 @@ export class GameApp {
 
       // Also return to mission-setup in custom flow
       this.missionSetupManager.loadAndApplyConfig(false);
+      this.squadBuilder.update(
+        this.missionSetupManager.currentSquad,
+        this.missionSetupManager.currentMissionType,
+        false,
+      );
       this.switchScreen("mission-setup", false);
       this.campaignShell.show("custom", "setup");
     }
