@@ -53,6 +53,10 @@ describe("Mission Deployment Click Interactions", () => {
     }
 
     await page.click("button.primary-button"); // Confirm Squad
+    
+    await page.waitForSelector("#btn-launch-mission");
+    await page.click("#btn-launch-mission");
+
     await page.waitForSelector(".deployment-summary");
     await page.waitForSelector("#game-canvas");
 
@@ -66,13 +70,12 @@ describe("Mission Deployment Click Interactions", () => {
     // New units usually (0,0) so NOT placed.
     // So initially "Pending".
     
-    // 3. Deploy Unit 1 via Click
+    // 3. Deploy Unit 1 via Double Click
     const rosterItem = await page.waitForSelector(".deployment-unit-item");
-    if (!rosterItem) throw new Error("No roster item");
-    
-    // Click roster item -> Auto-deploys to first slot + Selects
-    await rosterItem.click();
-    await new Promise(r => setTimeout(r, 500));
+    if (rosterItem) {
+        await rosterItem.click({ clickCount: 2 });
+        await new Promise(r => setTimeout(r, 1000)); // Wait for animation/state
+    }
     
     let text = await rosterItem.evaluate(el => el.textContent);
     expect(text).toContain("Deployed");
