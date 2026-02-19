@@ -152,7 +152,8 @@ describe("Visual Verification - Dead Soldier Equipment", () => {
       const hasWarning = await page.evaluate(() => {
         // We now expect Title Case
         const warningText = "Soldier is Deceased - Equipment Locked";
-        return document.body.innerText.includes(warningText);
+        const bodyText = document.body.innerText;
+        return bodyText.includes(warningText);
       });
       expect(hasWarning).toBe(true);
 

@@ -71,6 +71,6 @@ describe("Repro: Empty squad triggers instant loss", () => {
 
     console.log("Mission status after start:", status);
     
-    expect(status).toBe("Squad Wiped");
+    expect(status).toBe("Playing");
   }, 120000);
 });

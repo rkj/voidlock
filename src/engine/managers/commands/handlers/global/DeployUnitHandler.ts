@@ -24,16 +24,6 @@ export class DeployUnitHandler implements IGlobalCommandHandler {
 
       if (!isValidSpawn) return;
 
-      // Check if this spawn is already occupied by another DEPLOYED unit
-      const isOccupied = state.units.some(
-        (u) =>
-          u.id !== unit.id &&
-          u.isDeployed !== false &&
-          MathUtils.sameCellPosition(u.pos, deployCmd.target),
-      );
-
-      if (isOccupied) return;
-
       state.units = state.units.map((u) => {
         if (u.id === unit.id) {
           return {
