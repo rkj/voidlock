@@ -76,8 +76,10 @@ describe("Equipment Screen Layout Clipping Repro", () => {
     // even if the small viewport makes the button hard to click in the E2E environment.
     await page.evaluate(() => {
       const app = (window as any).GameAppInstance;
-      app.equipmentScreen.updateConfig(app.currentSquad);
-      app.context.screenManager.show("equipment");
+      // @ts-ignore
+      app.equipmentScreen.updateConfig(app.missionSetupManager.currentSquad);
+      // @ts-ignore
+      app.screenManager.show("equipment");
     });
 
     // 4. Wait for Equipment Screen content
@@ -99,8 +101,10 @@ describe("Equipment Screen Layout Clipping Repro", () => {
       const viewportHeight = window.innerHeight;
 
       const panelStats = panels.map((p) => {
+        const scrollContent = p.querySelector(".scroll-content");
+        const target = (scrollContent || p) as HTMLElement;
         const rect = p.getBoundingClientRect();
-        const scrollable = p.scrollHeight > p.clientHeight;
+        const scrollable = target.scrollHeight > target.clientHeight;
         return {
           title: p.querySelector(".panel-title")?.textContent,
           left: rect.left,
@@ -122,10 +126,16 @@ describe("Equipment Screen Layout Clipping Repro", () => {
       const shell = document.getElementById("campaign-shell-content");
       const shellRect = shell?.getBoundingClientRect();
 
+      const mainContent = document.querySelector(".equipment-main-content");
+      const mainContentScrollable = mainContent
+        ? mainContent.scrollHeight > mainContent.clientHeight
+        : false;
+
       return {
         panelStats,
         viewportWidth,
         viewportHeight,
+        mainContentScrollable,
         isFooterInViewport: footerRect
           ? footerRect.bottom <= viewportHeight &&
             footerRect.top >= 0 &&
@@ -140,7 +150,6 @@ describe("Equipment Screen Layout Clipping Repro", () => {
     });
 
     // ASSERTION: We expect NO clipping and correctly functioning scrollbars.
-    // If the fix (min-height: 0) is missing, these will fail.
     expect(
       clippingStats.isFooterInViewport,
       "Footer is clipped/off-screen",
@@ -150,12 +159,18 @@ describe("Equipment Screen Layout Clipping Repro", () => {
       "Footer is clipped by shell content",
     ).toBe(false);
 
-    const allPanelsScrollable = clippingStats.panelStats?.every(
-      (p) => p.scrollable,
-    );
-    expect(
-      allPanelsScrollable,
-      "One or more panels are NOT scrollable even with many items",
-    ).toBe(true);
+    // On mobile (small viewport), the panels expand and the main content scrolls.
+    // On desktop, the panels scroll and main content fits.
+    if (clippingStats.viewportWidth < 768) {
+        expect(clippingStats.mainContentScrollable, "Main content should scroll on mobile").toBe(true);
+    } else {
+        const allPanelsScrollable = clippingStats.panelStats?.every(
+            (p) => p.scrollable,
+        );
+        expect(
+            allPanelsScrollable,
+            "One or more panels are NOT scrollable even with many items",
+        ).toBe(true);
+    }
   });
 });

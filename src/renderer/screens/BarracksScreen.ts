@@ -63,6 +63,7 @@ export class BarracksScreen {
         }
       },
     });
+    this.inspector.setCampaign(true);
   }
 
   public show() {
