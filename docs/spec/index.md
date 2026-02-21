@@ -74,7 +74,7 @@ Agents and developers should consult the specific files below for implementation
 
 - **[Command System & AI](commands.md)**
 
-  - Command Protocol (MOVE, STOP, ATTACK)
+  - Command Protocol (MOVE, STOP, HOLD, EXTRACT)
   - Specialized Behaviors (Escort, Overwatch)
 
 - **[AI & Game Logic](ai.md)**
