@@ -14,7 +14,6 @@ describe("ScreenManager", () => {
           <div id="campaign-shell-content" class="flex-grow relative overflow-hidden">
               <div id="screen-engineering" class="screen" style="display:none"></div>
               <div id="screen-campaign" class="screen" style="display:none"></div>
-              <div id="screen-barracks" class="screen" style="display:none"></div>
               <div id="screen-equipment" class="screen" style="display:none"></div>
               <div id="screen-statistics" class="screen" style="display:none"></div>
               <div id="screen-settings" class="screen" style="display:none"></div>
@@ -51,11 +50,11 @@ describe("ScreenManager", () => {
       "none",
     );
 
-    // campaign -> barracks
-    sm.show("barracks");
-    expect(sm.getCurrentScreen()).toBe("barracks");
+    // campaign -> equipment
+    sm.show("equipment");
+    expect(sm.getCurrentScreen()).toBe("equipment");
 
-    // barracks -> campaign
+    // equipment -> campaign
     sm.show("campaign");
     expect(sm.getCurrentScreen()).toBe("campaign");
   });
@@ -64,11 +63,11 @@ describe("ScreenManager", () => {
     const sm = new ScreenManager();
     const errorSpy = vi.spyOn(console, "error");
 
-    // main-menu -> barracks (invalid)
-    sm.show("barracks");
+    // main-menu -> equipment (invalid)
+    sm.show("equipment");
     expect(sm.getCurrentScreen()).toBe("main-menu");
     expect(errorSpy).toHaveBeenCalledWith(
-      "Invalid screen transition: main-menu -> barracks",
+      "Invalid screen transition: main-menu -> equipment",
     );
 
     // main-menu -> campaign (valid)
@@ -80,8 +79,8 @@ describe("ScreenManager", () => {
     const sm = new ScreenManager();
 
     sm.show("campaign");
-    sm.show("barracks");
-    expect(sm.getCurrentScreen()).toBe("barracks");
+    sm.show("equipment");
+    expect(sm.getCurrentScreen()).toBe("equipment");
 
     sm.goBack();
     expect(sm.getCurrentScreen()).toBe("campaign");

@@ -12,7 +12,7 @@ Input handling in Voidlock is currently fragmented across multiple components:
 
 - `InputManager` handles tactical gameplay keys and some global shortcuts.
 - `ModalService` implements its own global `keydown` listener to handle `Escape`/`Enter`.
-- UI Screens (e.g., `EquipmentScreen`, `BarracksScreen`) lack standardized keyboard navigation and focus management.
+- UI Screens (e.g., `EquipmentScreen`, `CampaignScreen`) lack standardized keyboard navigation and focus management.
 - There is no mechanism to prevent "input bleeding" (e.g., pressing `Space` while a modal is open might still toggle the game pause).
 - **[Spec 9]** requires a "Shortcut Help Overlay" that displays context-relevant shortcuts, but there is no central registry to query for this information.
 

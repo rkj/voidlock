@@ -6,7 +6,7 @@ import { UIUtils } from "../utils/UIUtils";
 
 export type CampaignTabId =
   | "sector-map"
-  | "barracks"
+  | "ready-room"
   | "engineering"
   | "stats"
   | "settings"
@@ -196,7 +196,7 @@ export class CampaignShell {
 
       if (this.mode === "campaign" && state) {
         tabs.push({ id: "sector-map", label: "Sector Map" });
-        tabs.push({ id: "barracks", label: "Barracks" });
+        tabs.push({ id: "ready-room", label: "Ready Room" });
         tabs.push({ id: "engineering", label: "Engineering" });
         tabs.push({ id: "stats", label: "Service Record" });
         tabs.push({ id: "settings", label: "Settings" });

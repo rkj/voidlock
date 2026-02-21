@@ -317,7 +317,7 @@ describe("Comprehensive User Journeys", () => {
     expect(document.querySelector(".campaign-node.accessible")).toBeTruthy();
   });
 
-  it("Journey 2: Barracks & Back", async () => {
+  it("Journey 2: Ready Room & Back", async () => {
     // Start campaign first
     document.getElementById("btn-menu-campaign")?.click();
     (
@@ -326,20 +326,31 @@ describe("Comprehensive User Journeys", () => {
       ) as HTMLElement
     ).click();
 
-    // 1. Map -> Barracks
-    const barracksTab = Array.from(
+    // 1. Map -> Ready Room
+    const readyRoomTab = Array.from(
       document.querySelectorAll("#campaign-shell-top-bar button"),
-    ).find((b) => b.textContent?.includes("Barracks")) as HTMLElement;
-    barracksTab.click();
-    expect(document.getElementById("screen-barracks")?.style.display).toBe(
+    ).find((b) => b.textContent?.includes("Ready Room")) as HTMLElement;
+    readyRoomTab.click();
+    expect(document.getElementById("screen-equipment")?.style.display).toBe(
       "flex",
     );
 
     // 2. Recruit a soldier
-    const recruitBtns = Array.from(
-      document.querySelectorAll("#screen-barracks button"),
-    ).filter((btn) => btn.textContent === "Recruit") as HTMLButtonElement[];
-    recruitBtns[0].click();
+    // Select an empty slot (usually 2nd or 3rd)
+    const emptySlot = Array.from(
+      document.querySelectorAll(".equipment-screen .soldier-list-panel .clickable"),
+    ).find((el) => el.textContent?.includes("[Empty Slot]")) as HTMLElement;
+    emptySlot.click();
+
+    const recruitBtn = document.querySelector(
+      '.recruit-btn-large',
+    ) as HTMLElement;
+    recruitBtn.click();
+
+    const recruitOptions = Array.from(
+      document.querySelectorAll(".armory-panel .soldier-card"),
+    ).filter((btn) => btn.textContent?.includes("CR")) as HTMLButtonElement[];
+    recruitOptions[0].click();
 
     // Wait for any async updates
     await new Promise((resolve) => setTimeout(resolve, 50));
@@ -347,10 +358,10 @@ describe("Comprehensive User Journeys", () => {
     expect(mockModalService.prompt).not.toHaveBeenCalled();
 
     // Verify roster increased (mocked)
-    const rosterItems = document.querySelectorAll(
-      "#screen-barracks .panel:first-child .menu-item",
+    const squadItems = document.querySelectorAll(
+      ".equipment-screen .soldier-list-panel .soldier-widget",
     );
-    expect(rosterItems.length).toBe(2);
+    expect(squadItems.length).toBe(2);
 
     // 3. Back to Map
     const mapTab = Array.from(

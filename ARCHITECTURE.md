@@ -75,7 +75,7 @@ The codebase is organized into four primary modules, each with strict responsibi
   - Squad Management & Loadout
   - Mission Screen (Active Gameplay)
   - Debrief Screen (Post-Mission)
-  - Campaign Shell (Sector Map, Barracks, Statistics)
+  - Campaign Shell (Sector Map, Ready Room, Statistics)
   - Settings Screen (Global)
 - **Input Handler:** Keyboard/mouse event processing
   - Command menu navigation (hierarchical state machine)

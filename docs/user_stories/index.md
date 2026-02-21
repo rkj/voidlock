@@ -5,7 +5,7 @@ This directory contains persona-driven use cases for the Voidlock game. These st
 ## Strategic Layer (Campaign)
 
 - [US_001: The New Commander](./US_001_New_Campaign.md) - Starting a campaign and selecting difficulty.
-- [US_002: Building the Roster](./US_002_New_Roster.md) - Recruitment, renaming, and health monitoring in the Barracks.
+- [US_002: Building the Roster](./US_002_New_Roster.md) - Recruitment, renaming, and health monitoring in the Ready Room.
 - [US_003: Armory Readiness](./US_003_Equipment.md) - Purchasing and equipping items in the Ready Room.
 - [US_004: Strategic Navigation](./US_004_Sector_Map.md) - Navigating the branching Sector Map.
 - [US_009: Narrative Encounters](./US_009_Events.md) - Resolving narrative event nodes.

@@ -58,6 +58,8 @@ export class SoldierWidget {
     options: SoldierWidgetOptions,
   ): void {
     const contextClass = `soldier-widget-${options.context}`;
+    if (!container.classList.contains("soldier-widget"))
+      container.classList.add("soldier-widget");
     if (!container.classList.contains("soldier-item"))
       container.classList.add("soldier-item");
     if (!container.classList.contains(contextClass))
