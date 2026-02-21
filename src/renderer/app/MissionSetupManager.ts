@@ -4,7 +4,11 @@ import {
   SquadConfig,
   MapDefinition,
 } from "@src/shared/types";
-import { CampaignNode } from "@src/shared/campaign_types";
+import {
+  CampaignNode,
+  calculateMapSize,
+  calculateSpawnPoints,
+} from "@src/shared/campaign_types";
 import { ConfigManager, GameConfig } from "../ConfigManager";
 import { MapUtility } from "@src/renderer/MapUtility";
 import { MapValidator } from "@src/shared/validation/MapValidator";
@@ -239,7 +243,9 @@ export class MissionSetupManager {
           : true;
       this.currentMapGeneratorType = config.mapGeneratorType;
       this.currentMissionType = config.missionType || MissionType.Default;
-      this.currentSeed = config.lastSeed;
+      this.currentSeed = (isCampaign && this.currentCampaignNode)
+        ? this.currentCampaignNode.mapSeed
+        : config.lastSeed;
       this.currentSquad = config.squadConfig;
 
       this.updateSetupUIFromConfig(config);
@@ -257,7 +263,9 @@ export class MissionSetupManager {
       this.allowTacticalPause = defaults.allowTacticalPause;
       this.currentMapGeneratorType = defaults.mapGeneratorType;
       this.currentMissionType = defaults.missionType;
-      this.currentSeed = defaults.lastSeed;
+      this.currentSeed = (isCampaign && this.currentCampaignNode)
+        ? this.currentCampaignNode.mapSeed
+        : defaults.lastSeed;
       this.currentSquad = structuredClone(defaults.squadConfig);
 
       this.updateSetupUIFromConfig(defaults);
@@ -282,6 +290,32 @@ export class MissionSetupManager {
           ) as HTMLInputElement;
           if (allowPauseCheck)
             allowPauseCheck.checked = this.allowTacticalPause;
+        }
+
+        if (this.currentCampaignNode) {
+          const rules = state.rules;
+          const growthRate = rules?.mapGrowthRate ?? 1.0;
+          this.currentMapWidth = calculateMapSize(this.currentCampaignNode.rank, growthRate);
+          this.currentMapHeight = this.currentMapWidth;
+          this.currentSpawnPointCount = calculateSpawnPoints(this.currentMapWidth);
+          this.currentSeed = this.currentCampaignNode.mapSeed;
+          this.currentMissionType = this.currentCampaignNode.missionType || MissionType.Default;
+
+          // Update UI for these authoritative campaign values
+          const seedInput = document.getElementById("map-seed") as HTMLInputElement;
+          if (seedInput) seedInput.value = this.currentSeed.toString();
+          const wInput = document.getElementById("map-width") as HTMLInputElement;
+          if (wInput) wInput.value = this.currentMapWidth.toString();
+          const hInput = document.getElementById("map-height") as HTMLInputElement;
+          if (hInput) hInput.value = this.currentMapHeight.toString();
+          const spInput = document.getElementById("map-spawn-points") as HTMLInputElement;
+          if (spInput) {
+            spInput.value = this.currentSpawnPointCount.toString();
+            const spVal = document.getElementById("map-spawn-points-value");
+            if (spVal) spVal.textContent = spInput.value;
+          }
+          const missionSelect = document.getElementById("mission-type") as HTMLSelectElement;
+          if (missionSelect) missionSelect.value = this.currentMissionType;
         }
 
         const hasNonCampaignSoldiers = this.currentSquad.soldiers.some(
