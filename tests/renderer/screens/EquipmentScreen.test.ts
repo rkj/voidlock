@@ -9,6 +9,7 @@ describe("EquipmentScreen", () => {
   let onSave: any;
   let onBack: any;
   let mockManager: any;
+  let mockModalService: any;
 
   beforeEach(() => {
     document.body.innerHTML = '<div id="screen-equipment"></div>';
@@ -17,6 +18,12 @@ describe("EquipmentScreen", () => {
     initialConfig = {
       soldiers: [{ archetypeId: "assault" }, { archetypeId: "medic" }],
       inventory: { medkit: 1 },
+    };
+
+    mockModalService = {
+      alert: vi.fn().mockResolvedValue(undefined),
+      confirm: vi.fn().mockResolvedValue(true),
+      show: vi.fn().mockResolvedValue(undefined),
     };
 
     mockManager = {
@@ -52,12 +59,14 @@ describe("EquipmentScreen", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
+      mockModalService as any,
       initialConfig,
       onSave,
       onBack,
       null as any,
-      false,
-      true
+      undefined, // onLaunch
+      false, // isShop
+      true // isCampaign
     );
     screen.show();
 
@@ -72,12 +81,14 @@ describe("EquipmentScreen", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
+      mockModalService as any,
       initialConfig,
       onSave,
       onBack,
       null as any,
-      false,
-      true
+      undefined, // onLaunch
+      false, // isShop
+      true // isCampaign
     );
     screen.show();
 
@@ -101,6 +112,7 @@ describe("EquipmentScreen", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
+      mockModalService as any,
       initialConfig, // assault has pulse_rifle and combat_knife in ArchetypeLibrary
       onSave,
       onBack,
@@ -142,12 +154,14 @@ describe("EquipmentScreen", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
+      mockModalService as any,
       initialConfig,
       onSave,
       onBack,
       null as any,
-      false,
-      true
+      undefined, // onLaunch
+      false, // isShop
+      true // isCampaign
     );
     screen.show();
 
@@ -181,12 +195,14 @@ describe("EquipmentScreen", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
+      mockModalService as any,
       initialConfig,
       onSave,
       onBack,
       null as any,
-      false,
-      true
+      undefined, // onLaunch
+      false, // isShop
+      true // isCampaign
     );
     screen.show();
 
@@ -218,29 +234,28 @@ describe("EquipmentScreen", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
+      mockModalService as any,
       initialConfig,
       onSave,
       onBack,
       null as any,
-      false,
-      true
+      undefined, // onLaunch
+      false, // isShop
+      true // isCampaign
     );
     screen.show();
 
     // Default Assault HP is 100
     // Find Heavy Plate Armor in armory panel
-    const armorBtn = Array.from(
-      container.querySelectorAll(".armory-panel .menu-item.clickable"),
-    ).find((el) =>
-      el.textContent?.includes("Heavy Plate Armor"),
-    ) as HTMLElement;
+    const armorBtn = container.querySelector('[data-focus-id="armory-item-heavy_plate"]') as HTMLElement;
+    expect(armorBtn).toBeDefined();
     armorBtn?.click();
 
     // Heavy Plate gives +150 HP
     const soldierStatsDiv = Array.from(container.querySelectorAll("h3")).find(
       (el) => el.textContent === "Soldier Attributes",
     )?.parentElement;
-    expect(soldierStatsDiv?.textContent).toContain("250"); // 100 + 150
+    expect(soldierStatsDiv?.textContent).toContain("200"); // 100 + 100
 
     // Check Speed - should be 15 (20 - 5 penalty)
     expect(soldierStatsDiv?.textContent).toContain("15");
@@ -250,12 +265,14 @@ describe("EquipmentScreen", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
+      mockModalService as any,
       initialConfig,
       onSave,
       onBack,
       null as any,
-      false,
-      true
+      undefined, // onLaunch
+      false, // isShop
+      true // isCampaign
     );
     screen.show();
 
@@ -275,12 +292,14 @@ describe("EquipmentScreen", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
+      mockModalService as any,
       configWithNames,
       onSave,
       onBack,
       null as any,
-      false,
-      true
+      undefined, // onLaunch
+      false, // isShop
+      true // isCampaign
     );
     screen.show();
 

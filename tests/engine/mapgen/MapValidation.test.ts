@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { MapGenerator } from "@src/engine/MapGenerator";
-import { MapDefinition, CellType, MapGeneratorType } from "@src/shared/types";
+import { MapDefinition, CellType, MapGeneratorType, BoundaryType } from "@src/shared/types";
 
 describe("MapGenerator.validate", () => {
   let generator: MapGenerator;
@@ -64,7 +64,9 @@ describe("MapGenerator.validate", () => {
   it("should invalidate map with an open boundary between Floor and Void", () => {
     const map = createBaseMap();
     map.cells[1].type = CellType.Void;
-    // Boundary between (0,0) and (1,0) is open by default (walls: [])
+    // Explicitly set boundary between (0,0) and (1,0) to Open to override auto-fix
+    map.boundaries = [{ x1: 0, y1: 0, x2: 1, y2: 0, type: BoundaryType.Open }];
+    
     const result = generator.validate(map);
     expect(result.isValid).toBe(false);
     expect(result.issues).toContain(

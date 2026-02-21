@@ -23,15 +23,23 @@ describe("Regression 6k8w: Supply Prices", () => {
   });
 
   it("should show supply prices in the UI row, not just in title", () => {
+    const mockModalService = {
+      alert: vi.fn().mockResolvedValue(undefined),
+      confirm: vi.fn().mockResolvedValue(true),
+      show: vi.fn().mockResolvedValue(undefined),
+    };
+
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
+      mockModalService as any,
       initialConfig,
       vi.fn(),
       vi.fn(),
       undefined,
-      false,
-      true,
+      undefined, // onLaunch
+      false, // isShop
+      true, // isCampaign
     );
     screen.show();
 

@@ -9,7 +9,7 @@ describe("Regression voidlock-ci4m: Barracks to Statistics Transition", () => {
     document.body.innerHTML = `
       <div id="screen-main-menu" class="screen"></div>
       <div id="screen-campaign" class="screen" style="display:none"></div>
-      <div id="screen-barracks" class="screen" style="display:none"></div>
+      <div id="screen-equipment" class="screen" style="display:none"></div>
       <div id="screen-statistics" class="screen" style="display:none"></div>
       <div id="screen-settings" class="screen" style="display:none"></div>
       <div id="screen-mission-setup" class="screen" style="display:none">
@@ -23,7 +23,7 @@ describe("Regression voidlock-ci4m: Barracks to Statistics Transition", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
-  it("should allow transition from barracks to statistics", () => {
+  it("should allow transition from equipment to statistics", () => {
     const sm = new ScreenManager();
     const errorSpy = vi.spyOn(console, "error");
 
@@ -31,9 +31,9 @@ describe("Regression voidlock-ci4m: Barracks to Statistics Transition", () => {
     sm.show("campaign");
     expect(sm.getCurrentScreen()).toBe("campaign");
 
-    // Navigate to barracks
-    sm.show("barracks");
-    expect(sm.getCurrentScreen()).toBe("barracks");
+    // Navigate to equipment
+    sm.show("equipment");
+    expect(sm.getCurrentScreen()).toBe("equipment");
 
     // Attempt navigate to statistics
     sm.show("statistics");
@@ -76,9 +76,7 @@ describe("Regression voidlock-ci4m: Barracks to Statistics Transition", () => {
     const sm = new ScreenManager();
     const errorSpy = vi.spyOn(console, "error");
 
-    // Navigate to campaign first
-    sm.show("campaign");
-    // Then to mission-setup
+    // Navigate to mission-setup (from main-menu)
     sm.show("mission-setup");
     expect(sm.getCurrentScreen()).toBe("mission-setup");
 

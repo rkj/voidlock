@@ -9,6 +9,7 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
   let onSave: any;
   let onBack: any;
   let mockManager: any;
+  let mockModalService: any;
 
   beforeEach(() => {
     document.body.innerHTML = '<div id="screen-equipment"></div>';
@@ -20,6 +21,12 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
         { id: "soldier-2", archetypeId: "medic", name: "Healthy Soldier" },
       ],
       inventory: {},
+    };
+
+    mockModalService = {
+      alert: vi.fn().mockResolvedValue(undefined),
+      confirm: vi.fn().mockResolvedValue(true),
+      show: vi.fn().mockResolvedValue(undefined),
     };
 
     mockManager = {
@@ -57,12 +64,14 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
+      mockModalService as any,
       initialConfig,
       onSave,
       onBack,
       null as any,
-      false,
-      true,
+      undefined, // onLaunch
+      false, // isShop
+      true // isCampaign
     );
     screen.show();
 
@@ -84,12 +93,14 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
+      mockModalService as any,
       initialConfig,
       onSave,
       onBack,
       null as any,
-      false,
-      true,
+      undefined, // onLaunch
+      false, // isShop
+      true // isCampaign
     );
     screen.show();
 
@@ -117,12 +128,14 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
+      mockModalService as any,
       initialConfig,
       onSave,
       onBack,
       null as any,
-      false,
-      true,
+      undefined, // onLaunch
+      false, // isShop
+      true // isCampaign
     );
     screen.show();
 

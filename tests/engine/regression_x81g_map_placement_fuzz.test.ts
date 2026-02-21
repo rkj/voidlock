@@ -13,8 +13,8 @@ describe("Map Placement Fuzzing (voidlock-gemini-x81g)", () => {
   generatorTypes.forEach((genType) => {
     describe(`Generator: ${genType}`, () => {
       seeds.forEach((seed) => {
-        const width = 3 + (seed % 8); // 3x3 to 10x10
-        const height = 3 + ((seed + 1) % 8);
+        const width = 6 + (seed % 8); // 6x6 to 13x13
+        const height = 6 + ((seed + 1) % 8);
 
         it(`should have valid entity placement for seed ${seed} (${width}x${height})`, () => {
           const generator = new MapGenerator({

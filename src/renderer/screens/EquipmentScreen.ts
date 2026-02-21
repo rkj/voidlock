@@ -53,7 +53,7 @@ export class EquipmentScreen {
     this.container = el;
     this.manager = manager;
     this.modalService = modalService;
-    this.config = structuredClone(initialConfig); // Deep copy
+    this.config = JSON.parse(JSON.stringify(initialConfig)); // Deep copy (Vitest mock safe)
     this.applyDefaults();
     this.onSave = onSave;
     this.onBack = onBack;
@@ -653,18 +653,18 @@ export class EquipmentScreen {
     supplyItems.forEach((item) => {
       const row = document.createElement("div");
       row.className = "flex-row justify-between align-center card w-full";
-      row.style.marginBottom = "8px";
-      row.style.padding = "8px 12px";
-      row.style.gap = "10px";
+      row.style.marginBottom = "4px"; // Reduced from 8px
+      row.style.padding = "6px 10px"; // Slightly tighter padding
+      row.style.gap = "8px";
       row.title = `${item.name}\n${item.description || ""}`;
 
       const nameGroup = document.createElement("div");
       nameGroup.className = "flex-col";
       nameGroup.style.flexGrow = "1";
       nameGroup.innerHTML = `
-        <div class="supply-item-header" style="font-weight:bold; font-size: 0.9em; width: 100%; display: flex; justify-content: space-between;">
+        <div class="supply-item-header" style="font-weight:bold; font-size: 0.85em; width: 100%; display: flex; justify-content: space-between; align-items: baseline;">
             <span>${item.name}</span>
-            <span style="color:var(--color-primary);">${state ? item.cost + " CR" : "Free"}</span>
+            <span style="color:var(--color-primary); font-size: 0.8em; opacity: 0.8;">${state ? item.cost + " CR" : "Free"}</span>
         </div>
       `;
 

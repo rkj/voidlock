@@ -57,7 +57,8 @@ export class UnitSpawner {
       const startY = startPos.y + 0.5;
 
       let hp = soldierConfig.hp ?? arch.baseHp;
-      let maxHp = soldierConfig.maxHp ?? soldierConfig.hp ?? arch.baseHp;
+      let innateMaxHp = soldierConfig.maxHp ?? soldierConfig.hp ?? arch.baseHp;
+      let maxHp = innateMaxHp;
       const soldierAim = soldierConfig.soldierAim ?? arch.soldierAim;
       let speed = arch.speed;
       let equipmentAccuracyBonus = 0;
@@ -98,6 +99,7 @@ export class UnitSpawner {
         },
         visualJitter: jitter,
         hp: hp,
+        innateMaxHp: innateMaxHp,
         maxHp: maxHp,
         state: UnitState.Idle,
         stats: {
@@ -150,6 +152,7 @@ export class UnitSpawner {
         },
         visualJitter: jitter,
         hp: Math.floor(vipArch.baseHp * 0.5),
+        innateMaxHp: vipArch.baseHp,
         maxHp: vipArch.baseHp,
         state: UnitState.Idle,
         stats: {

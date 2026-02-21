@@ -16,7 +16,7 @@ describe("Session Persistence", () => {
           <div id="campaign-shell-content" class="flex-grow relative overflow-hidden">
               <div id="screen-engineering" class="screen" style="display:none"></div>
               <div id="screen-campaign" class="screen" style="display:none"></div>
-              <div id="screen-barracks" class="screen" style="display:none"></div>
+              <div id="screen-equipment" class="screen" style="display:none"></div>
               <div id="screen-equipment" class="screen" style="display:none"></div>
               <div id="screen-statistics" class="screen" style="display:none"></div>
               <div id="screen-settings" class="screen" style="display:none"></div>
@@ -50,14 +50,14 @@ describe("Session Persistence", () => {
 
   it("ScreenManager should restore state via loadPersistedState()", () => {
     const sessionManager = new SessionManager();
-    sessionManager.saveState("barracks");
+    sessionManager.saveState("equipment");
 
     const sm = new ScreenManager();
     const restored = sm.loadPersistedState();
 
-    expect(restored?.screenId).toBe("barracks");
-    expect(sm.getCurrentScreen()).toBe("barracks");
-    expect(document.getElementById("screen-barracks")?.style.display).toBe(
+    expect(restored?.screenId).toBe("equipment");
+    expect(sm.getCurrentScreen()).toBe("equipment");
+    expect(document.getElementById("screen-equipment")?.style.display).toBe(
       "flex",
     );
     expect(document.getElementById("screen-main-menu")?.style.display).toBe(

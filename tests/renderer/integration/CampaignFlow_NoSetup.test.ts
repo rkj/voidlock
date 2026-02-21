@@ -200,6 +200,7 @@ describe("Campaign Flow: Remove Redundant Setup Screen", () => {
             <div id="screen-engineering" class="screen" style="display:none"></div>
             <div id="screen-campaign-summary" class="screen" style="display:none"></div>
             <div id="screen-mission-setup" class="screen screen-centered" style="display:none">
+               <div id="squad-builder"></div>
                <h1>Mission Configuration</h1>
                <div id="mission-setup-context"></div>
                <div id="setup-global-status"></div>

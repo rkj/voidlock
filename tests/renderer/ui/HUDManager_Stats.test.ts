@@ -109,9 +109,9 @@ describe("HUDManager Stats & Enemy Intel", () => {
     const soldierItem = document.querySelector(".soldier-item");
     // Check for Fire Rate in LH or RH stats
     const lhStats = soldierItem?.querySelector(".u-lh-stats");
-    expect(lhStats?.innerHTML).toContain('title="Fire Rate"');
-    // combat_knife fireRate: 400. 1000 / (400 * (10/20)) = 1000 / 200 = 5.0
-    expect(lhStats?.innerHTML).toContain("5.0");
+    expect(lhStats?.innerHTML).toContain('title="Shots per Second"');
+    // combat_knife fireRate: 400. 1000 / (400 * (30/20)) = 1000 / 600 = 1.66 -> 1.7
+    expect(lhStats?.innerHTML).toContain("1.7");
   });
 
   it("should display all requested soldier stats", () => {
@@ -147,7 +147,7 @@ describe("HUDManager Stats & Enemy Intel", () => {
     expect(intelDiv?.innerHTML).toContain("50");
     expect(intelDiv?.innerHTML).toContain('title="Damage"');
     expect(intelDiv?.innerHTML).toContain("15");
-    expect(intelDiv?.innerHTML).toContain('title="Fire Rate"');
+    expect(intelDiv?.innerHTML).toContain('title="Rate of Fire (Shots/sec)"');
     expect(intelDiv?.innerHTML).toContain("1.3"); // 1000/800 = 1.25 -> 1.3
   });
 

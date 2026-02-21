@@ -37,15 +37,23 @@ describe("EquipmentScreen Focus Regression", () => {
   });
 
   it("should PRESERVE focus when clicking 'Recruit New Soldier' because of re-render", () => {
+    const mockModalService = {
+      alert: vi.fn().mockResolvedValue(undefined),
+      confirm: vi.fn().mockResolvedValue(true),
+      show: vi.fn().mockResolvedValue(undefined),
+    };
+
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
+      mockModalService as any,
       initialConfig,
       onSave,
       onBack,
       null as any,
-      false,
-      true
+      undefined, // onLaunch
+      false, // isShop
+      true // isCampaign
     );
     screen.show();
 

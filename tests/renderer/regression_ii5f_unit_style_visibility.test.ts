@@ -134,7 +134,7 @@ describe("MissionSetupManager - Visual Style Visibility (regression_ii5f)", () =
       context.modalService,
     );
     // Set a campaign node so it uses campaign config path
-    manager.currentCampaignNode = { id: "node-1" } as any;
+    manager.currentCampaignNode = { id: "node-1", mapSeed: 12345, rank: 1 } as any;
 
     // Mock HTMLCanvasElement.getContext
     HTMLCanvasElement.prototype.getContext = vi.fn().mockReturnValue({

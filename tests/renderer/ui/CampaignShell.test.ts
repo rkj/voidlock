@@ -58,7 +58,7 @@ describe("CampaignShell", () => {
 
     // Check tabs
     expect(container.innerHTML).toContain("Sector Map");
-    expect(container.innerHTML).toContain("Barracks");
+    expect(container.innerHTML).toContain("Ready Room");
     expect(container.innerHTML).toContain("Service Record");
     expect(container.innerHTML).toContain("Settings");
   });
@@ -102,13 +102,13 @@ describe("CampaignShell", () => {
   it("should call onTabChange when a tab is clicked", () => {
     shell.show("campaign", "sector-map");
 
-    const barracksBtn = Array.from(container.querySelectorAll("button")).find(
-      (b) => b.textContent === "Barracks",
+    const readyRoomBtn = Array.from(container.querySelectorAll("button")).find(
+      (b) => b.textContent === "Ready Room",
     );
-    expect(barracksBtn).toBeDefined();
+    expect(readyRoomBtn).toBeDefined();
 
-    barracksBtn?.click();
-    expect(onTabChange).toHaveBeenCalledWith("barracks");
+    readyRoomBtn?.click();
+    expect(onTabChange).toHaveBeenCalledWith("ready-room");
   });
 
   it("should call onTabChange when Settings tab is clicked", () => {

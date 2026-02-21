@@ -5,6 +5,8 @@ import {
   MapGeneratorType,
   SquadConfig,
   MapGenerationConfig,
+  UnitStyle,
+  MissionType,
 } from "@src/shared/types";
 import { MapGenerator } from "@src/engine/MapGenerator";
 
@@ -55,18 +57,20 @@ describe("Regression: Voidlock-8hwf Time Clamping", () => {
       12345,
       MapGeneratorType.Procedural,
       mockMap,
-      true,
-      false,
-      true,
+      true, // fog
+      false, // debug
+      true, // agent
+      UnitStyle.TacticalIcons, // unitStyle
+      "default", // themeId
       defaultSquad,
-      "Default" as any,
+      MissionType.Default,
       16,
       16,
       3,
-      false,
-      0,
-      1.0,
-      false,
+      false, // los
+      0, // threat
+      1.0, // scale
+      false, // paused
       true, // allowTacticalPause = true
     );
 
@@ -86,8 +90,10 @@ describe("Regression: Voidlock-8hwf Time Clamping", () => {
       true,
       false,
       true,
+      UnitStyle.TacticalIcons,
+      "default",
       defaultSquad,
-      "Default" as any,
+      MissionType.Default,
       16,
       16,
       3,
@@ -114,8 +120,10 @@ describe("Regression: Voidlock-8hwf Time Clamping", () => {
       true,
       false,
       true,
+      UnitStyle.TacticalIcons,
+      "default",
       defaultSquad,
-      "Default" as any,
+      MissionType.Default,
       16,
       16,
       3,
@@ -142,8 +150,10 @@ describe("Regression: Voidlock-8hwf Time Clamping", () => {
       true,
       false,
       true,
+      UnitStyle.TacticalIcons,
+      "default",
       defaultSquad,
-      "Default" as any,
+      MissionType.Default,
       16,
       16,
       3,

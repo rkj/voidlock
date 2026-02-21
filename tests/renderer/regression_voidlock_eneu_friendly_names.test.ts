@@ -28,9 +28,16 @@ describe("Regression: voidlock-eneu - Friendly Weapon Names in Soldier List", ()
   });
 
   it("should show 'Pulse Rifle' instead of 'pulse_rifle' in the soldier list", () => {
+    const mockModalService = {
+      alert: vi.fn().mockResolvedValue(undefined),
+      confirm: vi.fn().mockResolvedValue(true),
+      show: vi.fn().mockResolvedValue(undefined),
+    };
+
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
+      mockModalService as any,
       initialConfig,
       onSave,
       onBack,

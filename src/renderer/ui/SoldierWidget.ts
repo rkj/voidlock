@@ -15,6 +15,8 @@ import {
 } from "@src/shared/types";
 import { Icons } from "@src/renderer/Icons";
 import { StatDisplay } from "@src/renderer/ui/StatDisplay";
+import { UnitUtils } from "@src/shared/utils/UnitUtils";
+import { SPEED_NORMALIZATION_CONST } from "@src/shared/constants";
 
 export type SoldierWidgetData =
   | CampaignSoldier
@@ -125,10 +127,10 @@ export class SoldierWidget {
         );
         break;
       case "roster":
-        this.renderRoster(container, data, options, displayName, level);
+        this.renderRoster(container, data as (CampaignSoldier | SquadSoldierConfig), options, displayName, level);
         break;
       case "squad-builder":
-        this.renderSquadBuilder(container, data, options, displayName, level);
+        this.renderSquadBuilder(container, data as (Archetype | SquadSoldierConfig), options, displayName, level);
         break;
     }
   }
@@ -208,7 +210,7 @@ export class SoldierWidget {
     if (!weapon) return null;
 
     const fireRateVal =
-      weapon.fireRate * (unit.stats.speed > 0 ? 10 / unit.stats.speed : 1);
+      weapon.fireRate * (unit.stats.speed > 0 ? SPEED_NORMALIZATION_CONST / unit.stats.speed : 1);
 
     return {
       name: weapon.name,
@@ -324,7 +326,7 @@ export class SoldierWidget {
         container.innerHTML = `
           ${StatDisplay.render(Icons.Damage, stats.damage, "Damage")}
           ${StatDisplay.render(Icons.Accuracy, stats.accuracy, "Accuracy")}
-          ${StatDisplay.render(Icons.Rate, stats.fireRate, "Fire Rate")}
+          ${StatDisplay.render(Icons.Rate, stats.fireRate, "Shots per Second")}
           ${StatDisplay.render(Icons.Range, stats.range, "Range")}
         `;
       } else {
@@ -404,7 +406,7 @@ export class SoldierWidget {
 
   private static renderRoster(
     container: HTMLElement,
-    data: SoldierWidgetData,
+    data: CampaignSoldier | SquadSoldierConfig,
     options: SoldierWidgetOptions,
     displayName: string,
     level: number,
@@ -429,8 +431,10 @@ export class SoldierWidget {
 
     const xp = "xp" in data && typeof data.xp === "number" ? data.xp : 0;
     const hp = "hp" in data && typeof data.hp === "number" ? data.hp : 0;
-    const maxHp =
-      "maxHp" in data && typeof data.maxHp === "number" ? data.maxHp : 0;
+    
+    // Calculate effective maxHp including equipment bonuses
+    const stats = UnitUtils.calculateEffectiveStats(data);
+    const maxHp = stats.maxHp;
 
     container.style.borderLeft = `4px solid ${statusColor}`;
 
@@ -454,7 +458,7 @@ export class SoldierWidget {
 
   private static renderSquadBuilder(
     container: HTMLElement,
-    data: SoldierWidgetData,
+    data: Archetype | SquadSoldierConfig,
     options: SoldierWidgetOptions,
     displayName: string,
     level: number,
@@ -464,7 +468,7 @@ export class SoldierWidget {
 
     if ("archetypeId" in data && data.archetypeId) {
       arch = ArchetypeLibrary[data.archetypeId];
-      if ("status" in data && data.status) status = data.status;
+      if ("status" in data && typeof data.status === "string") status = data.status;
     } else if ("id" in data && data.id && ArchetypeLibrary[data.id]) {
       arch = ArchetypeLibrary[data.id];
     }
@@ -474,15 +478,8 @@ export class SoldierWidget {
     const isHealthy = status === "Healthy";
     container.classList.toggle("disabled", !isHealthy);
 
-    const speed = arch?.speed ?? 0;
-    const accuracy = arch?.soldierAim ?? 0;
-    const damage = arch?.damage ?? 0;
-    const fireRate = arch?.fireRate ?? 0;
-    const range = arch?.attackRange ?? 0;
-
-    const scaledFireRate = fireRate * (speed > 0 ? 10 / speed : 1);
-    const fireRateVal =
-      scaledFireRate > 0 ? (1000 / scaledFireRate).toFixed(1) : "0";
+    // Calculate effective stats including equipment bonuses
+    const effectiveStats = UnitUtils.calculateEffectiveStats(data as any);
 
     const name = this.getName(data);
     const subTitle = arch?.name && arch.name !== name ? `${arch.name} ` : "";
@@ -496,11 +493,11 @@ export class SoldierWidget {
         ${subTitle}Lvl ${level} | Status: ${status}
       </div>
       <div class="squad-builder-card-stats">
-        ${StatDisplay.render(Icons.Speed, speed, "Speed")}
-        ${StatDisplay.render(Icons.Accuracy, accuracy, "Accuracy")}
-        ${StatDisplay.render(Icons.Damage, damage, "Damage")}
-        ${StatDisplay.render(Icons.Rate, fireRateVal, "Fire Rate")}
-        ${StatDisplay.render(Icons.Range, range, "Range")}
+        ${StatDisplay.render(Icons.Speed, effectiveStats.speed, "Speed")}
+        ${StatDisplay.render(Icons.Accuracy, effectiveStats.accuracy, "Accuracy")}
+        ${StatDisplay.render(Icons.Damage, effectiveStats.damage, "Damage")}
+        ${StatDisplay.render(Icons.Rate, effectiveStats.fireRateDisplay, "Shots per Second")}
+        ${StatDisplay.render(Icons.Range, effectiveStats.attackRange, "Range")}
       </div>
     `;
   }

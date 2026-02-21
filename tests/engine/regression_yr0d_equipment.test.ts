@@ -34,9 +34,9 @@ describe("Equipment System - Passive Buffs", () => {
     const engine = new CoreEngine(mockMap, 1, squadConfig, false, false);
     const unit = engine.getState().units[0];
 
-    // Assault base HP is 100. Heavy Plate gives +150.
-    expect(unit.hp).toBe(250);
-    expect(unit.maxHp).toBe(250);
+    // Assault base HP is 100. Heavy Plate gives +100.
+    expect(unit.hp).toBe(200);
+    expect(unit.maxHp).toBe(200);
   });
 
   it("should apply Speed and Accuracy debuffs from Heavy Plate Armor", () => {

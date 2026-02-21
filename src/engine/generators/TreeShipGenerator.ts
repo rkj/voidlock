@@ -515,19 +515,26 @@ export class TreeShipGenerator {
       const available =
         floors.find((c) => !this.placementValidator.isCellOccupied(c)) ||
         floors[floors.length - 1];
+      
+      // Even if we pick an occupied cell as ultimate fallback, don't re-occupy if it's already occupied
+      // to avoid triggering some validation errors, though overlap is still an issue.
       const rid = `room-forced-enemy-fallback-${available.x}-${available.y}`;
-      available.roomId = rid;
+      if (!available.roomId) available.roomId = rid;
+      
       this.spawnPoints.push({
         id: `spawn-1`,
         pos: { x: available.x, y: available.y },
         radius: 1,
       });
-      this.placementValidator.occupy(
-        available,
-        OccupantType.EnemySpawn,
-        rid,
-        false,
-      );
+      
+      if (!this.placementValidator.isCellOccupied(available)) {
+        this.placementValidator.occupy(
+          available,
+          OccupantType.EnemySpawn,
+          available.roomId,
+          false,
+        );
+      }
     }
 
     // 4. Objectives

@@ -49,10 +49,12 @@ describe("EquipmentScreen Isolation", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
       manager,
+      new ModalService(),
       squadConfig,
       () => {},
       () => {},
       undefined,
+      undefined, // onLaunch
       false, // isShop
       true  // isCampaign
     );
@@ -90,10 +92,12 @@ describe("EquipmentScreen Isolation", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
       manager,
+      new ModalService(),
       squadConfig,
       () => {},
       () => {},
       undefined,
+      undefined, // onLaunch
       false, // isShop
       false // isCampaign
     );
@@ -120,9 +124,11 @@ describe("EquipmentScreen Isolation", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
       manager,
+      new ModalService(),
       squadConfig,
       () => {},
       () => {},
+      undefined,
       undefined,
       false
     );

@@ -144,6 +144,7 @@ describe("Replay Loading Integration", () => {
             <div id="screen-engineering" class="screen"></div>
             <div id="screen-settings" class="screen"></div>
             <div id="screen-mission-setup" class="screen">
+                <div id="squad-builder"></div>
                 <select id="map-generator-type"></select>
                 <input type="number" id="map-seed" />
                 <input type="number" id="map-width" />

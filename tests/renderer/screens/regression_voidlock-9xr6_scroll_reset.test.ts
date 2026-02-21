@@ -28,9 +28,16 @@ describe("EquipmentScreen Regression: Scroll Reset", () => {
   });
 
   it("should preserve scroll position of panels after re-rendering", () => {
+    const mockModalService = {
+      alert: vi.fn().mockResolvedValue(undefined),
+      confirm: vi.fn().mockResolvedValue(true),
+      show: vi.fn().mockResolvedValue(undefined),
+    };
+
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
+      mockModalService as any,
       initialConfig,
       onSave,
       onBack,

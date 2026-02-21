@@ -227,19 +227,13 @@ describe("Full Campaign Flow Integration", () => {
       "flex",
     );
 
-    const equipmentLaunchBtn = Array.from(
+    const launchBtn = Array.from(
       document.querySelectorAll("#screen-equipment button"),
-    ).find((b) => b.textContent?.includes("Confirm")) as HTMLElement;
-    equipmentLaunchBtn?.click();
+    ).find((b) => b.textContent?.includes("Launch Mission")) as HTMLElement;
+    expect(launchBtn).toBeTruthy();
+    launchBtn.click();
 
-    // Now it should be in mission-setup
-    expect(document.getElementById("screen-mission-setup")?.style.display).toBe(
-      "flex",
-    );
-
-    // Click Launch
-    document.getElementById("btn-launch-mission")?.click();
-
+    // Now it should be in mission
     expect(document.getElementById("screen-mission")?.style.display).toBe(
       "flex",
     );

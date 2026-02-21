@@ -62,7 +62,9 @@ describe("Custom Flow Tabs Integration", () => {
       <div id="btn-menu-custom"></div>
       <div id="screen-campaign-shell"></div>
       <div id="screen-main-menu"></div>
-      <div id="screen-mission-setup"></div>
+      <div id="screen-mission-setup">
+        <div id="squad-builder"></div>
+      </div>
       <div id="screen-settings"></div>
       <div id="screen-statistics"></div>
       <div id="screen-campaign"></div>

@@ -76,7 +76,7 @@ export class StatsManager {
       nextStats.fireRate = arch.fireRate;
     }
 
-    const nextMaxHp = arch.baseHp + hpBonus;
+    const nextMaxHp = (unit.innateMaxHp || arch.baseHp) + hpBonus;
 
     // Check if anything actually changed
     if (
