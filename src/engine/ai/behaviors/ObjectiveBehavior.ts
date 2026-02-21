@@ -40,6 +40,13 @@ export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveCo
     if (!context.agentControlEnabled || currentUnit.aiEnabled === false)
       return { unit: currentUnit, handled: false };
 
+    if (
+      currentUnit.activeCommand?.type === CommandType.EXTRACT ||
+      currentUnit.activeCommand?.label === "Extracting"
+    ) {
+      return { unit: currentUnit, handled: false };
+    }
+
     let actionTaken = false;
 
     // 1. Opportunistic Loot & Objectives (In current LOS)
@@ -172,7 +179,6 @@ export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveCo
       }
     }
 
-    // 2. Objectives
     if (!actionTaken && state.objectives) {
       const pendingObjectives = state.objectives.filter((o) => {
         const assignedUnitId = context.itemAssignments.get(o.id);
@@ -182,11 +188,12 @@ export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveCo
         if (
           o.state !== "Pending" ||
           isClaimedByOther ||
-          !o.visible
+          !o.visible ||
+          (!assignedUnitId || assignedUnitId === currentUnit.id) === false
         )
           return false;
 
-        return !assignedUnitId || assignedUnitId === currentUnit.id;
+        return true;
       });
       if (pendingObjectives.length > 0) {
         Logger.debug(
@@ -258,6 +265,23 @@ export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveCo
               director,
             );
             actionTaken = true;
+          } else {
+            // At target, issue pickup if it's a recovery objective
+            if (bestObj.obj.kind === "Recover") {
+              currentUnit = context.executeCommand(
+                currentUnit,
+                {
+                  type: CommandType.PICKUP,
+                  unitIds: [currentUnit.id],
+                  lootId: bestObj.obj.id,
+                  label: "Recovering",
+                },
+                state,
+                false,
+                director,
+              );
+              actionTaken = true;
+            }
           }
         }
       }

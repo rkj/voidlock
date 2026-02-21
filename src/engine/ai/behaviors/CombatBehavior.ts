@@ -39,6 +39,11 @@ export class CombatBehavior implements Behavior<BehaviorContext> {
     if (!context.agentControlEnabled || currentUnit.aiEnabled === false)
       return { unit: currentUnit, handled: false };
 
+    if (currentUnit.activeCommand?.type === CommandType.EXTRACT || 
+        currentUnit.activeCommand?.label === "Extracting") {
+      return { unit: currentUnit, handled: false };
+    }
+
     const visibleEnemies = state.enemies.filter(
       (enemy) =>
         enemy.hp > 0 &&

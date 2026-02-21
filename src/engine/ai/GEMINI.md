@@ -7,10 +7,10 @@ This directory contains autonomous behavior logic for both enemies and soldiers.
 The `UnitAI` manager has been decomposed into modular behavior classes located in `src/engine/ai/behaviors/`:
 
 - `SafetyBehavior.ts`: Handles retreat (Low HP) and grouping up (Isolated) logic.
-- `InteractionBehavior.ts`: Handles active interactions (Loot Pickup, Objective Collection, Extraction) when at target.
-- `CombatBehavior.ts`: Handles engagement policies and tactical movement (Rush, Retreat, Stand Ground) during combat.
-- `ObjectiveBehavior.ts`: Handles opportunistic and long-range pathfinding to loot, objectives, and extraction points.
-- `ExplorationBehavior.ts`: Handles autonomous map discovery when no other tasks are prioritized.
+- `InteractionBehavior.ts`: Handles active interactions (Loot Pickup, Objective Collection, Extraction) when at target. Now enforces extraction priority by only auto-extracting autonomous units if the map is fully discovered or if an explicit EXTRACT command is given.
+- `CombatBehavior.ts`: Handles engagement policies and tactical movement (Rush, Retreat, Stand Ground) during combat. Skips processing if unit is currently extracting.
+- `ObjectiveBehavior.ts`: Handles opportunistic and long-range pathfinding to loot, objectives, and extraction points. Now automatically issues a PICKUP command when at an objective target to prevent exploration distraction. Skips processing if unit is currently extracting.
+- `ExplorationBehavior.ts`: Handles autonomous map discovery when no other tasks are prioritized. Skips processing if unit is currently extracting.
 - `VipBehavior.ts`: Specialized AI for VIP units (Rescue and Escort/Flee logic).
 - `Behavior.ts`: Common interface for all behavior classes.
 - `BehaviorUtils.ts`: Shared utility functions for behaviors (distance calculations, exploration helpers).

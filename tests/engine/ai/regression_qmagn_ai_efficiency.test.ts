@@ -69,6 +69,7 @@ describe("AI Efficiency (Step Count)", () => {
     const state = engine.getState();
     const discoveredCount = state.discoveredCells.length;
     const ratio = discoveredCount / totalSteps;
+    console.log(`Actual Efficiency Ratio: ${ratio.toFixed(2)}`);
     
     // ADR 0041: "Ratio must remain above a defined threshold (e.g., > 0.8 for open maps)"
     // In a 5x5 map, 25 cells. If we move 25 units of distance, ratio is 1.0.
