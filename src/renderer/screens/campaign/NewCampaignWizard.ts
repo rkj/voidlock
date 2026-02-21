@@ -206,23 +206,6 @@ export class NewCampaignWizard {
       pauseLabel.style.opacity = "0.5";
     }
 
-    // Campaign Length Selection
-    const lengthGroup = document.createElement("div");
-    lengthGroup.className = "flex-col gap-5";
-    const lengthLabel = document.createElement("label");
-    lengthLabel.textContent = "Campaign Length";
-    lengthLabel.style.fontSize = "0.8em";
-    lengthLabel.style.color = "var(--color-text-dim)";
-    const lengthSelect = document.createElement("select");
-    lengthSelect.id = "campaign-length";
-    lengthSelect.innerHTML = `
-      <option value="1.0" selected>Standard (Short, ~6-8 Missions)</option>
-      <option value="0.5">Extended (Long, ~12-16 Missions)</option>
-    `;
-    lengthGroup.appendChild(lengthLabel);
-    lengthGroup.appendChild(lengthSelect);
-    form.appendChild(lengthGroup);
-
     // Advanced Options (Collapsible)
     const advancedWrapper = document.createElement("div");
     advancedWrapper.className = "flex-col gap-10";
@@ -391,7 +374,7 @@ export class NewCampaignWizard {
 
       const overrides: CampaignOverrides = {
         allowTacticalPause: pauseCheck.checked,
-        mapGrowthRate: parseFloat(lengthSelect.value),
+        mapGrowthRate: 0.5,
         economyMode: (
           document.getElementById("campaign-economy-mode") as HTMLSelectElement
         ).value as "Open" | "Limited",
