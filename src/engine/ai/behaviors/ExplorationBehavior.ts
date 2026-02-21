@@ -38,6 +38,13 @@ export class ExplorationBehavior implements Behavior<BehaviorContext & Explorati
     if (!context.agentControlEnabled || currentUnit.aiEnabled === false)
       return { unit: currentUnit, handled: false };
 
+    if (
+      currentUnit.activeCommand?.type === CommandType.EXTRACT ||
+      currentUnit.activeCommand?.label === "Extracting"
+    ) {
+      return { unit: currentUnit, handled: false };
+    }
+
     if (!isMapFullyDiscovered(state, context.totalFloorCells, this.gameGrid)) {
       let shouldReevaluate = !currentUnit.explorationTarget;
 
@@ -81,7 +88,7 @@ export class ExplorationBehavior implements Behavior<BehaviorContext & Explorati
         );
         if (targetCell) {
           Logger.debug(
-            `ExplorationBehavior: found new target ${targetCell.x},${targetCell.y}`,
+            `ExplorationBehavior: unit ${currentUnit.id} found new target ${targetCell.x},${targetCell.y}`,
           );
           const newTarget = { x: targetCell.x, y: targetCell.y };
           const isDifferent =
@@ -107,7 +114,7 @@ export class ExplorationBehavior implements Behavior<BehaviorContext & Explorati
 
             if (switchTarget) {
               Logger.debug(
-                `ExplorationBehavior: switching target to ${newTarget.x},${newTarget.y}`,
+                `ExplorationBehavior: unit ${currentUnit.id} switching target to ${newTarget.x},${newTarget.y}`,
               );
               currentUnit = { ...currentUnit, explorationTarget: newTarget };
               context.explorationClaims.set(currentUnit.id, newTarget);
@@ -127,7 +134,7 @@ export class ExplorationBehavior implements Behavior<BehaviorContext & Explorati
             }
           } else if (currentUnit.state === UnitState.Idle) {
             Logger.debug(
-              `ExplorationBehavior: same target ${newTarget.x},${newTarget.y} but unit is idle, re-executing move`,
+              `ExplorationBehavior: unit ${currentUnit.id} same target ${newTarget.x},${newTarget.y} but unit is idle, re-executing move`,
             );
             context.explorationClaims.set(
               currentUnit.id,
@@ -148,7 +155,7 @@ export class ExplorationBehavior implements Behavior<BehaviorContext & Explorati
             return { unit: currentUnit, handled: true };
           }
         } else {
-          Logger.debug("ExplorationBehavior: no target found");
+          Logger.debug(`ExplorationBehavior: unit ${currentUnit.id} no target found`);
         }
       }
     }

@@ -97,8 +97,8 @@ export class Graph {
           const boundary = this.getOrCreateBoundary(x, y, nx, ny);
           this.cells[y][x].edges[dir] = boundary;
 
-          // If neighbor is outside map bounds, it's a boundary to the void (default to wall)
-          if (!this.isValid(nx, ny)) {
+          // If neighbor is outside map bounds or is a Void cell, it's a boundary to the void (default to wall)
+          if (!this.isValid(nx, ny) || (this.cells[y][x].type === CellType.Floor && (!this.isValid(nx, ny) || this.cells[ny][nx].type === CellType.Void))) {
             boundary.type = BoundaryType.Wall;
           }
         }

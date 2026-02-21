@@ -2,6 +2,7 @@ import {
   GameState,
   Unit,
   UnitState,
+  CommandType,
   Enemy,
   WeaponLibrary,
   Attacker,
@@ -104,9 +105,13 @@ export class CombatManager {
 
     const policy = currentUnit.engagementPolicy || "ENGAGE";
 
+    const isExtracting = currentUnit.activeCommand?.type === CommandType.EXTRACT || 
+                        currentUnit.activeCommand?.label === "Extracting";
+
     if (
       currentUnit.archetypeId !== "vip" &&
       targetEnemy &&
+      !isExtracting &&
       (policy === "ENGAGE" || isLockedInMelee)
     ) {
       if (this.los.hasLineOfFire(currentUnit.pos, targetEnemy.pos)) {

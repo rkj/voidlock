@@ -6,21 +6,25 @@ import {
   PickupCommand,
   Door,
 } from "../../../shared/types";
-import { BehaviorContext, ObjectiveContext } from "../../interfaces/AIContext";
+import { BehaviorContext, ObjectiveContext, ExplorationContext } from "../../interfaces/AIContext";
 import { PRNG } from "../../../shared/PRNG";
 import { MathUtils } from "../../../shared/utils/MathUtils";
 import { Behavior, BehaviorResult } from "./Behavior";
 import { SPEED_NORMALIZATION_CONST, ITEMS } from "../../config/GameConstants";
 import { ItemEffectHandler } from "../../interfaces/IDirector";
+import { GameGrid } from "../../GameGrid";
+import { isMapFullyDiscovered } from "./BehaviorUtils";
 
-export class InteractionBehavior implements Behavior<BehaviorContext & ObjectiveContext> {
+export class InteractionBehavior implements Behavior<BehaviorContext & ObjectiveContext & ExplorationContext> {
+  constructor(private gameGrid: GameGrid) {}
+
   public evaluate(
     unit: Unit,
     state: GameState,
     _dt: number,
     _doors: Map<string, Door>,
     _prng: PRNG,
-    context: BehaviorContext & ObjectiveContext,
+    context: BehaviorContext & ObjectiveContext & ExplorationContext,
     _director?: ItemEffectHandler,
   ): BehaviorResult {
     let currentUnit = { ...unit };
@@ -126,9 +130,14 @@ export class InteractionBehavior implements Behavior<BehaviorContext & Objective
       const isExplicitExtract =
         currentUnit.activeCommand?.type === CommandType.EXTRACT;
 
+      const isExploring = currentUnit.activeCommand?.type === CommandType.EXPLORE || 
+                          currentUnit.activeCommand?.label === "Exploring";
+      const isMapFinished = isMapFullyDiscovered(state, context.totalFloorCells, this.gameGrid);
+
       if (
         (allObjectivesReady || isVipAtExtraction || isExplicitExtract) &&
-        isAtExtraction
+        isAtExtraction &&
+        (isExplicitExtract || !currentUnit.aiEnabled || isMapFinished)
       ) {
         const baseTime = ITEMS.BASE_EXTRACT_TIME;
         const duration =
