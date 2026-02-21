@@ -30,9 +30,16 @@ describe("EquipmentScreen Consumable Cap Regression (rfw4)", () => {
   });
 
   it("should limit consumable items to a maximum of 2", () => {
+    const mockModalService = {
+      alert: vi.fn().mockResolvedValue(undefined),
+      confirm: vi.fn().mockResolvedValue(true),
+      show: vi.fn().mockResolvedValue(undefined),
+    };
+
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
+      mockModalService as any,
       initialConfig,
       onSave,
       onBack,
@@ -83,9 +90,16 @@ describe("EquipmentScreen Consumable Cap Regression (rfw4)", () => {
 
   it("should disable plus button if initial config already has 2 items", () => {
     initialConfig.inventory = { frag_grenade: 2 };
+    const mockModalService = {
+      alert: vi.fn().mockResolvedValue(undefined),
+      confirm: vi.fn().mockResolvedValue(true),
+      show: vi.fn().mockResolvedValue(undefined),
+    };
+
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
+      mockModalService as any,
       initialConfig,
       onSave,
       onBack,

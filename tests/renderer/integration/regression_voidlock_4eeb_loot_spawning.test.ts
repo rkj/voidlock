@@ -40,6 +40,20 @@ vi.mock("@src/renderer/Renderer", () => ({
   })),
 }));
 
+vi.mock("@src/renderer/ThemeManager", () => ({
+  ThemeManager: {
+    getInstance: vi.fn().mockReturnValue({
+      init: vi.fn().mockResolvedValue(undefined),
+      setTheme: vi.fn(),
+      getAssetUrl: vi.fn().mockReturnValue("mock-url"),
+      getColor: vi.fn().mockReturnValue("#000"),
+      getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
+      getCurrentThemeId: vi.fn().mockReturnValue("default"),
+      applyTheme: vi.fn(),
+    }),
+  },
+}));
+
 describe("regression_voidlock_4eeb_loot_spawning", () => {
   let app: GameApp;
 
@@ -148,6 +162,6 @@ describe("regression_voidlock_4eeb_loot_spawning", () => {
     // index 25 is the 26th argument: bonusLootCount
     expect(mockGameClient.init).toHaveBeenCalled();
     const lastCall = mockGameClient.init.mock.calls[0];
-    expect(lastCall[25]).toBe(5);
+    expect(lastCall[27]).toBe(5);
   });
 });

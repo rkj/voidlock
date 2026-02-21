@@ -13,7 +13,7 @@ describe("ScreenManager URL Sync", () => {
     document.body.innerHTML = `
       <div id="screen-main-menu" style="display: none;"></div>
       <div id="screen-campaign" style="display: none;"></div>
-      <div id="screen-barracks" style="display: none;"></div>
+      <div id="screen-equipment" style="display: none;"></div>
       <div id="screen-mission-setup" style="display: none;">
         <div id="unit-style-preview"></div>
       </div>
@@ -51,7 +51,7 @@ describe("ScreenManager URL Sync", () => {
     expect(screenManager.getCurrentScreen()).toBe("main-menu");
 
     // Simulate hash change
-    window.location.hash = "barracks";
+    window.location.hash = "equipment";
 
     // Manually trigger sync because hashchange event is async in JSDOM sometimes or needs a tick
     // In real browser it would trigger, but here we can call syncWithUrl if we make it public or wait
@@ -59,8 +59,8 @@ describe("ScreenManager URL Sync", () => {
     // Let's use the event listener
     window.dispatchEvent(new HashChangeEvent("hashchange"));
 
-    expect(screenManager.getCurrentScreen()).toBe("barracks");
-    expect(onExternalChange).toHaveBeenCalledWith("barracks", true);
+    expect(screenManager.getCurrentScreen()).toBe("equipment");
+    expect(onExternalChange).toHaveBeenCalledWith("equipment", false);
   });
 
   it("should load state from hash on initialization", () => {

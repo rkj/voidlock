@@ -82,12 +82,12 @@ describe("SoldierWidget", () => {
 
     // Pulse Rifle: dmg 20, acc 5, range 10, fireRate 600
     // Calculated Accuracy: 80 + 5 + 5 = 90
-    // Calculated Fire Rate: fireRate * (10 / speed) = 600 * (10 / 20) = 300ms -> 1000/300 = 3.3
+    // Calculated Fire Rate: fireRate * (30 / speed) = 600 * (30 / 20) = 900ms -> 1000/900 = 1.1
 
     const lhStats = el.querySelector(".u-lh-stats");
     expect(lhStats?.textContent).toContain("20"); // Damage
     expect(lhStats?.textContent).toContain("90"); // Accuracy
-    expect(lhStats?.textContent).toContain("3.3"); // Fire Rate
+    expect(lhStats?.textContent).toContain("1.1"); // Fire Rate
     expect(lhStats?.textContent).toContain("10"); // Range
 
     // Check highlighting

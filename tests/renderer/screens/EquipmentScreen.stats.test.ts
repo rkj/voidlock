@@ -9,6 +9,7 @@ describe("EquipmentScreen Stats and Tooltips", () => {
   let onSave: any;
   let onBack: any;
   let mockManager: any;
+  let mockModalService: any;
 
   beforeEach(() => {
     document.body.innerHTML = '<div id="screen-equipment"></div>';
@@ -17,6 +18,12 @@ describe("EquipmentScreen Stats and Tooltips", () => {
     initialConfig = {
       soldiers: [{ archetypeId: "assault" }],
       inventory: {},
+    };
+
+    mockModalService = {
+      alert: vi.fn().mockResolvedValue(undefined),
+      confirm: vi.fn().mockResolvedValue(true),
+      show: vi.fn().mockResolvedValue(undefined),
     };
 
     mockManager = {
@@ -39,12 +46,14 @@ describe("EquipmentScreen Stats and Tooltips", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
+      mockModalService as any,
       initialConfig,
       onSave,
       onBack,
       null as any,
-      false,
-      true,
+      undefined, // onLaunch
+      false, // isShop
+      true // isCampaign
     );
     screen.show();
 
@@ -59,7 +68,7 @@ describe("EquipmentScreen Stats and Tooltips", () => {
     expect(pulseRifle).toBeDefined();
     // Pulse Rifle stats: damage 20, range 10, fireRate 600
     // Now using StatDisplay (Icons + Values). TextContent will contain values.
-    // 1000/600 = 1.7 RPS
+    // Armory shows base fire rate: 1000/600 = 1.7 RPS
     expect(pulseRifle?.textContent).toContain("20");
     expect(pulseRifle?.textContent).toContain("1.7");
     expect(pulseRifle?.textContent).toContain("10");
@@ -69,12 +78,14 @@ describe("EquipmentScreen Stats and Tooltips", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
+      mockModalService as any,
       initialConfig,
       onSave,
       onBack,
       null as any,
-      false,
-      true,
+      undefined, // onLaunch
+      false, // isShop
+      true // isCampaign
     );
     screen.show();
 
@@ -86,9 +97,9 @@ describe("EquipmentScreen Stats and Tooltips", () => {
     );
 
     expect(heavyPlate).toBeDefined();
-    // Heavy Plate: hpBonus 150, speedBonus -5, accuracyBonus -10
+    // Heavy Plate: hpBonus 100, speedBonus -5, accuracyBonus -10
     // Speed bonus is now shown as raw value
-    expect(heavyPlate?.textContent).toContain("150");
+    expect(heavyPlate?.textContent).toContain("100");
     expect(heavyPlate?.textContent).toContain("-5");
     expect(heavyPlate?.textContent).toContain("-10");
   });
@@ -97,12 +108,14 @@ describe("EquipmentScreen Stats and Tooltips", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
+      mockModalService as any,
       initialConfig,
       onSave,
       onBack,
       null as any,
-      false,
-      true,
+      undefined, // onLaunch
+      false, // isShop
+      true // isCampaign
     );
     screen.show();
 
@@ -118,19 +131,21 @@ describe("EquipmentScreen Stats and Tooltips", () => {
     expect(pulseRifle.title).toContain("Versatile assault rifle");
     expect(pulseRifle.title).toContain("Damage: 20");
     expect(pulseRifle.title).toContain("Range: 10");
-    expect(pulseRifle.title).toContain("Fire Rate: 600ms");
+    expect(pulseRifle.title).toContain("Cooldown: 600ms");
   });
 
   it("should have tooltips for global supply items", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
+      mockModalService as any,
       initialConfig,
       onSave,
       onBack,
       null as any,
-      false,
-      true,
+      undefined, // onLaunch
+      false, // isShop
+      true // isCampaign
     );
     screen.show();
 

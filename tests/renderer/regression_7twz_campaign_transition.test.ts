@@ -36,16 +36,16 @@ describe("Regression: voidlock-7twz Campaign Transition", () => {
     vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
-  it("should allow campaign -> mission-setup transition", () => {
+  it("should allow campaign -> equipment transition", () => {
     const sm = new ScreenManager();
     const errorSpy = vi.spyOn(console, "error");
 
-    // Transition path: main-menu -> campaign -> mission-setup
+    // Transition path: main-menu -> campaign -> equipment
     sm.show("campaign");
     expect(sm.getCurrentScreen()).toBe("campaign");
 
-    sm.show("mission-setup");
-    expect(sm.getCurrentScreen()).toBe("mission-setup");
+    sm.show("equipment");
+    expect(sm.getCurrentScreen()).toBe("equipment");
     expect(errorSpy).not.toHaveBeenCalled();
   });
 });

@@ -673,7 +673,7 @@ export class HUDManager {
             ${StatDisplay.render(Icons.Speed, e.speed, "Speed")}
             ${StatDisplay.render(Icons.Accuracy, e.accuracy, "Accuracy")}
             ${StatDisplay.render(Icons.Damage, e.damage, "Damage")}
-            ${StatDisplay.render(Icons.Rate, fireRateVal, "Fire Rate")}
+            ${StatDisplay.render(Icons.Rate, fireRateVal, "Rate of Fire (Shots/sec)")}
             ${StatDisplay.render(Icons.Range, e.attackRange, "Range")}
           </div>
         `;

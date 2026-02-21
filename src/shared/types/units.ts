@@ -75,6 +75,7 @@ export type Unit = Entity & {
   activeCommand?: Command;
   channeling?: ChannelingState;
   archetypeId: string;
+  innateMaxHp: number; // Max HP including level bonuses, excluding equipment
   carriedObjectiveId?: string;
   kills: number;
   damageDealt: number;
@@ -235,7 +236,7 @@ export const EnemyArchetypeLibrary: {
   },
   [EnemyType.WarriorDrone]: {
     type: EnemyType.WarriorDrone,
-    hp: 150,
+    hp: 100,
     damage: 35,
     fireRate: 800,
     accuracy: 75,

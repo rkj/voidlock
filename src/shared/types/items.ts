@@ -156,7 +156,7 @@ export const ItemLibrary: { [id: string]: Item } = {
     type: "Passive",
     description: "Standard issue tactical footwear.",
     speedBonus: 5, // +0.5 tiles/s
-    cost: 0,
+    cost: 20,
   },
   mag_lev_boots: {
     id: "mag_lev_boots",
@@ -165,7 +165,7 @@ export const ItemLibrary: { [id: string]: Item } = {
     description:
       "Advanced boots that reduce friction, significantly increasing movement speed.",
     speedBonus: 10, // +1.0 tiles/s
-    cost: 30,
+    cost: 50,
   },
   light_recon: {
     id: "light_recon",
@@ -183,7 +183,7 @@ export const ItemLibrary: { [id: string]: Item } = {
     type: "Passive",
     description:
       "Thick ceramic plating. Provides massive HP but slows the user and slightly impairs aim.",
-    hpBonus: 150,
+    hpBonus: 100,
     speedBonus: -5,
     accuracyBonus: -10,
     cost: 50,

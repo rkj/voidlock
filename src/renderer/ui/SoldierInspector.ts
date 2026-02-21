@@ -12,6 +12,7 @@ import {
 import { Icons } from "@src/renderer/Icons";
 import { StatDisplay } from "@src/renderer/ui/StatDisplay";
 import { CAMPAIGN_DEFAULTS } from "@src/engine/config/CampaignDefaults";
+import { SPEED_NORMALIZATION_CONST } from "@src/shared/constants";
 
 import { ModalService } from "@src/renderer/ui/ModalService";
 
@@ -256,7 +257,7 @@ export class SoldierInspector {
                 <div class="weapon-block-title">${label}: ${w.name}</div>
                 <div class="weapon-block-stats">
                     ${StatDisplay.render(Icons.Damage, w.damage, "Damage per hit")}
-                    ${StatDisplay.render(Icons.Rate, w.fireRate, "Rounds per second")}
+                    ${StatDisplay.render(Icons.Rate, w.fireRate, "Rate of Fire (Shots/sec)")}
                     ${StatDisplay.render(Icons.Range, w.range, "Effective Range (m)")}
                     ${StatDisplay.render(Icons.Accuracy, (w.accuracy >= 0 ? "+" : "") + w.accuracy, "Weapon Accuracy Modifier")}
                 </div>
@@ -489,11 +490,11 @@ export class SoldierInspector {
           fireRateVal > 0 ? (1000 / fireRateVal).toFixed(1) : "0";
         statsHtml = `
           ${StatDisplay.render(Icons.Damage, item.damage || 0, "Damage")}
-          ${StatDisplay.render(Icons.Rate, fireRateStr, "Fire Rate")}
+          ${StatDisplay.render(Icons.Rate, fireRateStr, "Rate of Fire (Shots/sec)")}
           ${StatDisplay.render(Icons.Range, item.range || 0, "Range")}
         `;
         const acc = item.accuracy || 0;
-        fullStats = `Damage: ${item.damage}\nRange: ${item.range}\nFire Rate: ${item.fireRate}ms\nAccuracy: ${acc > 0 ? "+" : ""}${acc}%`;
+        fullStats = `Damage: ${item.damage}\nRange: ${item.range}\nCooldown: ${item.fireRate}ms\nAccuracy: ${acc > 0 ? "+" : ""}${acc}%`;
       } else {
         const bonuses = [];
         if (item.hpBonus)
@@ -601,7 +602,7 @@ export class SoldierInspector {
     if (!weapon) return null;
 
     const scaledFireRate =
-      weapon.fireRate * (soldierSpeed > 0 ? 10 / soldierSpeed : 1);
+      weapon.fireRate * (soldierSpeed > 0 ? SPEED_NORMALIZATION_CONST / soldierSpeed : 1);
     const fireRateVal =
       scaledFireRate > 0 ? (1000 / scaledFireRate).toFixed(1) : "0";
 

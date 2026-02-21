@@ -100,6 +100,7 @@ describe("Reset Data Button", () => {
         </div>
 
         <div id="screen-mission-setup" class="screen" style="display:none">
+            <div id="squad-builder"></div>
             <select id="map-generator-type"><option value="DenseShip">Dense Ship</option></select>
             <input type="checkbox" id="toggle-fog-of-war" />
             <input type="checkbox" id="toggle-debug-overlay" />

@@ -13,6 +13,7 @@ describe("EquipmentScreen Economics", () => {
   let onBack: any;
   let mockManager: any;
   let mockState: any;
+  let mockModalService: any;
   let shell: CampaignShell;
 
   beforeEach(() => {
@@ -63,6 +64,12 @@ describe("EquipmentScreen Economics", () => {
     onSave = vi.fn();
     onBack = vi.fn();
 
+    mockModalService = {
+      alert: vi.fn().mockResolvedValue(undefined),
+      confirm: vi.fn().mockResolvedValue(true),
+      show: vi.fn().mockResolvedValue(undefined),
+    };
+
     const mockMetaManager = {
       getStats: vi.fn().mockReturnValue({
         totalKills: 100,
@@ -85,12 +92,14 @@ describe("EquipmentScreen Economics", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
+      mockModalService as any,
       initialConfig,
       onSave,
       onBack,
       () => shell.refresh(),
-      false,
-      true,
+      undefined, // onLaunch
+      false, // isShop
+      true, // isCampaign
     );
     screen.show();
 
@@ -114,12 +123,14 @@ describe("EquipmentScreen Economics", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
+      mockModalService as any,
       initialConfig,
       onSave,
       onBack,
       () => shell.refresh(),
-      false,
-      true,
+      undefined, // onLaunch
+      false, // isShop
+      true, // isCampaign
     );
     screen.show();
 
@@ -129,10 +140,7 @@ describe("EquipmentScreen Economics", () => {
     ) as HTMLElement;
 
     // Select Pistol (cost 10)
-    const pistolBtn = Array.from(
-      armoryPanel.querySelectorAll(".menu-item.clickable"),
-    ).find((el) => el.textContent?.includes("Pistol")) as HTMLElement;
-
+    const pistolBtn = armoryPanel.querySelector('[data-focus-id="armory-item-pistol"]') as HTMLElement;
     pistolBtn?.click();
 
     expect(mockManager.spendScrap).toHaveBeenCalledWith(10);
@@ -144,12 +152,14 @@ describe("EquipmentScreen Economics", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
+      mockModalService as any,
       initialConfig,
       onSave,
       onBack,
       () => shell.refresh(),
-      false,
-      true,
+      undefined, // onLaunch
+      false, // isShop
+      true, // isCampaign
     );
     screen.show();
 
@@ -158,9 +168,7 @@ describe("EquipmentScreen Economics", () => {
         p.querySelector(".panel-title")?.textContent === "Armory & Supplies",
     ) as HTMLElement;
 
-    const pistolBtn = Array.from(
-      armoryPanel.querySelectorAll(".menu-item.clickable"),
-    ).find((el) => el.textContent?.includes("Pistol")) as HTMLElement;
+    const pistolBtn = armoryPanel.querySelector('[data-focus-id="armory-item-pistol"]') as HTMLElement;
 
     // Check it's disabled or at least doesn't trigger spendScrap
     pistolBtn?.click();
@@ -173,12 +181,14 @@ describe("EquipmentScreen Economics", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
+      mockModalService as any,
       initialConfig,
       onSave,
       onBack,
       () => shell.refresh(),
-      false,
-      true,
+      undefined, // onLaunch
+      false, // isShop
+      true, // isCampaign
     );
     screen.show();
 
@@ -195,9 +205,7 @@ describe("EquipmentScreen Economics", () => {
     expect(getScrapText()).toContain("Scrap:");
     expect(getScrapText()).toContain("100");
 
-    const pistolBtn = Array.from(
-      armoryPanel.querySelectorAll(".menu-item.clickable"),
-    ).find((el) => el.textContent?.includes("Pistol")) as HTMLElement;
+    const pistolBtn = armoryPanel.querySelector('[data-focus-id="armory-item-pistol"]') as HTMLElement;
     pistolBtn?.click();
 
     expect(getScrapText()).toContain("Scrap:");
@@ -208,12 +216,14 @@ describe("EquipmentScreen Economics", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
+      mockModalService as any,
       initialConfig,
       onSave,
       onBack,
       () => shell.refresh(),
-      false,
-      true,
+      undefined, // onLaunch
+      false, // isShop
+      true, // isCampaign
     );
     screen.show();
 
@@ -236,12 +246,14 @@ describe("EquipmentScreen Economics", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
+      mockModalService as any,
       initialConfig,
       onSave,
       onBack,
       () => shell.refresh(),
-      false,
-      true,
+      undefined, // onLaunch
+      false, // isShop
+      true, // isCampaign
     );
     screen.show();
 
@@ -274,12 +286,14 @@ describe("EquipmentScreen Economics", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
+      mockModalService as any,
       initialConfig,
       onSave,
       onBack,
       () => shell.refresh(),
-      false,
-      true,
+      undefined, // onLaunch
+      false, // isShop
+      true, // isCampaign
     );
     screen.show();
 

@@ -57,9 +57,16 @@ describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => 
       vi.fn(),
     );
 
+    const mockModalService = {
+      alert: vi.fn().mockResolvedValue(undefined),
+      confirm: vi.fn().mockResolvedValue(true),
+      show: vi.fn().mockResolvedValue(undefined),
+    };
+
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
+      mockModalService as any,
       initialConfig,
       onSave,
       onBack,
@@ -100,9 +107,16 @@ describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => 
       vi.fn(),
     );
 
+    const mockModalService = {
+      alert: vi.fn().mockResolvedValue(undefined),
+      confirm: vi.fn().mockResolvedValue(true),
+      show: vi.fn().mockResolvedValue(undefined),
+    };
+
     const screen = new EquipmentScreen(
       "screen-equipment",
       mockManager,
+      mockModalService as any,
       initialConfig,
       onSave,
       onBack,
