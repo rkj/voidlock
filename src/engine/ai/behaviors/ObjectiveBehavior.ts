@@ -101,13 +101,15 @@ export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveCo
 
     const visibleLoot = visibleItemsFromGrid.filter((item) => {
       if (item.type !== "loot") return false;
-      return !context.claimedObjectives.has(item.id);
+      const claimer = context.claimedObjectives.get(item.id);
+      return !claimer || claimer === currentUnit.id;
     });
     const visibleObjectives = visibleItemsFromGrid.filter((item) => {
       if (item.type !== "objective") return false;
       // The grid query already filtered by visibility/cell
       // But we need to check if it's already claimed
-      return !context.claimedObjectives.has(item.id);
+      const claimer = context.claimedObjectives.get(item.id);
+      return !claimer || claimer === currentUnit.id;
     });
 
     if (visibleLoot.length > 0 || visibleObjectives.length > 0) {
@@ -173,14 +175,17 @@ export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveCo
     // 2. Objectives
     if (!actionTaken && state.objectives) {
       const pendingObjectives = state.objectives.filter((o) => {
+        const assignedUnitId = context.itemAssignments.get(o.id);
+        const claimer = context.claimedObjectives.get(o.id);
+        const isClaimedByOther = claimer && claimer !== currentUnit.id;
+
         if (
           o.state !== "Pending" ||
-          context.claimedObjectives.has(o.id) ||
+          isClaimedByOther ||
           !o.visible
         )
           return false;
 
-        const assignedUnitId = context.itemAssignments.get(o.id);
         return !assignedUnitId || assignedUnitId === currentUnit.id;
       });
       if (pendingObjectives.length > 0) {

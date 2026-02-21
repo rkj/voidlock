@@ -24,7 +24,6 @@ import { ItemEffectHandler } from "../interfaces/IDirector";
 import { AIContext } from "../interfaces/AIContext";
 import { MathUtils } from "../../shared/utils/MathUtils";
 import { MOVEMENT } from "../config/GameConstants";
-import { Logger } from "../../shared/Logger";
 
 export class UnitManager {
   private totalFloorCells: number;
@@ -47,7 +46,6 @@ export class UnitManager {
       .getGraph()
       .cells.flat()
       .filter((c) => c.type === "Floor").length;
-    Logger.debug(`UnitManager: totalFloorCells = ${this.totalFloorCells}`);
     this.statsManager = new StatsManager();
     this.movementManager = new MovementManager(gameGrid);
     this.combatManager = new CombatManager(los, this.statsManager);
@@ -388,11 +386,13 @@ export class UnitManager {
         return this.movementManager.handleMovement(unit, dt, doors);
       }
 
-      // If we are RUSHing or RETREATing, we SHOULD be allowed to move while attacking
+      // If we are RUSHing, RETREATing, or EXTRACTing, we SHOULD be allowed to move while attacking
       if (
         unit.aiProfile === "RUSH" ||
         unit.aiProfile === "RETREAT" ||
-        unit.activeCommand?.type === CommandType.ESCORT_UNIT
+        unit.activeCommand?.type === CommandType.ESCORT_UNIT ||
+        unit.activeCommand?.type === CommandType.EXTRACT ||
+        unit.activeCommand?.label === "Extracting"
       ) {
         let movedUnit = this.movementManager.handleMovement(unit, dt, doors);
         if (movedUnit.state === UnitState.Moving) {

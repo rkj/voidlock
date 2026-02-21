@@ -8,7 +8,6 @@ import {
 import { GameGrid } from "../../GameGrid";
 import { isCellDiscovered } from "../../../shared/VisibilityUtils";
 import { MathUtils } from "../../../shared/utils/MathUtils";
-import { Logger } from "../../../shared/Logger";
 
 export function isMapFullyDiscovered(
   state: GameState,
@@ -25,11 +24,6 @@ export function isMapFullyDiscovered(
           discoveredFloors++;
         }
       }
-    }
-    if (discoveredFloors >= totalFloorCells) {
-      Logger.debug(
-        `isMapFullyDiscovered: true (discoveredFloors=${discoveredFloors}, totalFloorCells=${totalFloorCells})`,
-      );
     }
     return discoveredFloors >= totalFloorCells;
   }
@@ -76,8 +70,8 @@ export function findClosestUndiscoveredCell(
     .map((u) => u.pos);
 
   const mapDim = Math.max(state.map.width, state.map.height);
-  const avoidRadius = Math.max(3.0, Math.min(5, mapDim / 4));
-  const unitAvoidRadius = Math.max(1.5, Math.min(3, mapDim / 6));
+  const avoidRadius = Math.max(0.5, Math.min(1.5, mapDim / 4));
+  const unitAvoidRadius = Math.max(0.5, Math.min(1.5, mapDim / 6));
 
   const queue: { x: number; y: number }[] = [startCell];
   const visited = new Set<string>();
@@ -85,9 +79,6 @@ export function findClosestUndiscoveredCell(
 
   let fallbackCell: Vector2 | null = null;
   let head = 0;
-  Logger.debug(
-    `findClosestUndiscoveredCell from ${startCell.x},${startCell.y}. Queue length: ${queue.length}`,
-  );
 
   while (head < queue.length) {
     const curr = queue[head++];
@@ -102,7 +93,6 @@ export function findClosestUndiscoveredCell(
       );
 
       if (!isClaimed && !tooCloseToUnit) {
-        Logger.debug(`Found target: ${curr.x},${curr.y}`);
         return { x: curr.x, y: curr.y };
       }
 
@@ -142,10 +132,6 @@ export function findClosestUndiscoveredCell(
         }
       }
     }
-  }
-
-  if (!fallbackCell) {
-    Logger.debug("No undiscovered cell found.");
   }
 
   return fallbackCell;
