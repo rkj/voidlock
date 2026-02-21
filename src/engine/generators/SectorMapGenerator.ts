@@ -2,7 +2,8 @@ import {
   CampaignNode,
   CampaignNodeType,
   GameRules,
-} from "../../shared/campaign_types";
+  MissionType,
+} from "../../shared/types";
 import { PRNG } from "../../shared/PRNG";
 
 export interface SectorMapOptions {
@@ -93,6 +94,7 @@ export class SectorMapGenerator {
           difficulty: 1 + r * rules.difficultyScaling,
           rank: r,
           mapSeed: prng.nextInt(0, 1000000),
+          missionType: this.getNodeMissionType(type, prng),
           connections: [],
           position: {
             x: layerX,
@@ -248,6 +250,24 @@ export class SectorMapGenerator {
     }
 
     return nodes;
+  }
+
+  private getNodeMissionType(
+    nodeType: CampaignNodeType,
+    prng: PRNG,
+  ): MissionType | undefined {
+    if (nodeType === "Shop" || nodeType === "Event") {
+      return undefined;
+    }
+
+    const types = [
+      MissionType.RecoverIntel,
+      MissionType.ExtractArtifacts,
+      MissionType.DestroyHive,
+      MissionType.EscortVIP,
+    ];
+
+    return types[prng.nextInt(0, types.length - 1)];
   }
 
   private getNodeType(
