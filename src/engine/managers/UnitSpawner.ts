@@ -84,19 +84,19 @@ export class UnitSpawner {
       const activeWeapon = WeaponLibrary[activeWeaponId];
       const weaponAccuracy = activeWeapon ? activeWeapon.accuracy : 0;
 
+      const tacticalNumber = soldierConfig.tacticalNumber || units.length + 1;
+      const jitter = MathUtils.getDeterministicJitter(tacticalNumber - 1); // 0-indexed for jitter
+
       units.push({
         id: soldierConfig.id || `${arch.id}-${unitCount++}`,
         name: soldierConfig.name || arch.name,
-        tacticalNumber: soldierConfig.tacticalNumber || units.length + 1,
+        tacticalNumber: tacticalNumber,
         archetypeId: arch.id,
         pos: {
-          x: startX + (this.prng.next() - 0.5) * 0.8,
-          y: startY + (this.prng.next() - 0.5) * 0.8,
+          x: startX + jitter.x,
+          y: startY + jitter.y,
         },
-        visualJitter: {
-          x: (this.prng.next() - 0.5) * 0.4,
-          y: (this.prng.next() - 0.5) * 0.4,
-        },
+        visualJitter: jitter,
         hp: hp,
         maxHp: maxHp,
         state: UnitState.Idle,
@@ -138,18 +138,17 @@ export class UnitSpawner {
     const vipSpawnPositions = this.findVipStartPositions(map, squadPos, 1);
 
     vipSpawnPositions.forEach((startPos, idx) => {
+      const jitter = MathUtils.getDeterministicJitter(4 + idx); // Offset to avoid overlapping with soldiers (1-4)
+
       units.push({
         id: `vip-${idx + 1}`,
         name: vipArch.name,
         archetypeId: "vip",
         pos: {
-          x: startPos.x + 0.5 + (this.prng.next() - 0.5) * 0.2,
-          y: startPos.y + 0.5 + (this.prng.next() - 0.5) * 0.2,
+          x: startPos.x + 0.5 + jitter.x,
+          y: startPos.y + 0.5 + jitter.y,
         },
-        visualJitter: {
-          x: (this.prng.next() - 0.5) * 0.4,
-          y: (this.prng.next() - 0.5) * 0.4,
-        },
+        visualJitter: jitter,
         hp: Math.floor(vipArch.baseHp * 0.5),
         maxHp: vipArch.baseHp,
         state: UnitState.Idle,

@@ -90,7 +90,7 @@ export class SwarmMeleeAI implements IEnemyAI {
 
       if (path && path.length > 0) {
         enemy.path = path;
-        enemy.targetPos = { x: path[0].x + 0.5, y: path[0].y + 0.5 };
+        enemy.targetPos = MathUtils.getCellCenter(path[0], enemy.visualJitter);
       }
     } else {
       // 4. Roam Mode: If idle and no target, pick a random distant cell
@@ -118,7 +118,7 @@ export class SwarmMeleeAI implements IEnemyAI {
             );
             if (path && path.length > 0) {
               enemy.path = path;
-              enemy.targetPos = { x: path[0].x + 0.5, y: path[0].y + 0.5 };
+              enemy.targetPos = MathUtils.getCellCenter(path[0], enemy.visualJitter);
               break;
             }
           }

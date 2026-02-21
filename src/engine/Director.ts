@@ -137,12 +137,11 @@ export class Director implements IDirector {
       const cell =
         validRoomCells[this.prng.nextInt(0, validRoomCells.length - 1)];
 
-      const offsetX = this.prng.next() * 0.4 - 0.2;
-      const offsetY = this.prng.next() * 0.4 - 0.2;
+      const jitter = MathUtils.getDeterministicJitter(this.enemyIdCounter);
 
       const pos = {
-        x: cell.x + 0.5 + offsetX,
-        y: cell.y + 0.5 + offsetY,
+        x: cell.x + 0.5 + jitter.x,
+        y: cell.y + 0.5 + jitter.y,
       };
 
       const enemy = this.createEnemy(
@@ -407,9 +406,11 @@ export class Director implements IDirector {
     difficulty: number,
   ): Enemy {
     const arch = EnemyArchetypeLibrary[type];
+    const jitter = MathUtils.getDeterministicJitter(this.enemyIdCounter);
     return {
       id,
       pos,
+      visualJitter: jitter,
       hp: arch.hp,
       maxHp: arch.hp,
       type: arch.type,
@@ -428,16 +429,11 @@ export class Director implements IDirector {
     const spawnIndex = this.prng.nextInt(0, this.spawnPoints.length - 1);
     const spawnPoint = this.spawnPoints[spawnIndex];
 
-    const offsetX =
-      this.prng.next() * DIRECTOR.SPAWN_OFFSET_RANGE -
-      DIRECTOR.SPAWN_OFFSET_BASE;
-    const offsetY =
-      this.prng.next() * DIRECTOR.SPAWN_OFFSET_RANGE -
-      DIRECTOR.SPAWN_OFFSET_BASE;
+    const jitter = MathUtils.getDeterministicJitter(this.enemyIdCounter);
 
     const pos = {
-      x: spawnPoint.pos.x + 0.5 + offsetX,
-      y: spawnPoint.pos.y + 0.5 + offsetY,
+      x: spawnPoint.pos.x + 0.5 + jitter.x,
+      y: spawnPoint.pos.y + 0.5 + jitter.y,
     };
 
     const enemy = this.createEnemy(

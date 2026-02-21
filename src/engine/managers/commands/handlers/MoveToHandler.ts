@@ -10,7 +10,6 @@ import { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
 import { IUnitCommandHandler } from "../IUnitCommandHandler";
 import { Pathfinder } from "@src/engine/Pathfinder";
 import { MathUtils } from "@src/shared/utils/MathUtils";
-import { MOVEMENT } from "@src/engine/config/GameConstants";
 import { UnitCommandRegistry } from "../UnitCommandRegistry";
 
 export class MoveToHandler implements IUnitCommandHandler {
@@ -51,32 +50,14 @@ export class MoveToHandler implements IUnitCommandHandler {
       );
       if (path && path.length > 0) {
         currentUnit.path = path;
-        currentUnit.targetPos = {
-          x:
-            path[0].x +
-            MOVEMENT.CENTER_OFFSET +
-            (currentUnit.visualJitter?.x || 0),
-          y:
-            path[0].y +
-            MOVEMENT.CENTER_OFFSET +
-            (currentUnit.visualJitter?.y || 0),
-        };
+        currentUnit.targetPos = MathUtils.getCellCenter(path[0], currentUnit.visualJitter);
         currentUnit.state = UnitState.Moving;
       } else if (
         path &&
         path.length === 0 &&
         MathUtils.sameCellPosition(currentUnit.pos, moveCmd.target)
       ) {
-        currentUnit.pos = {
-          x:
-            moveCmd.target.x +
-            MOVEMENT.CENTER_OFFSET +
-            (currentUnit.visualJitter?.x || 0),
-          y:
-            moveCmd.target.y +
-            MOVEMENT.CENTER_OFFSET +
-            (currentUnit.visualJitter?.y || 0),
-        };
+        currentUnit.pos = MathUtils.getCellCenter(moveCmd.target, currentUnit.visualJitter);
         currentUnit.path = undefined;
         currentUnit.targetPos = undefined;
         currentUnit.state = UnitState.Idle;

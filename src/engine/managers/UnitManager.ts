@@ -313,10 +313,10 @@ export class UnitManager {
     }
 
     const targetCell = eData.targetCell;
-    const distToCenter = MathUtils.getDistance(updatedUnit.pos, {
-      x: targetCell.x + MOVEMENT.CENTER_OFFSET,
-      y: targetCell.y + MOVEMENT.CENTER_OFFSET,
-    });
+    const distToCenter = MathUtils.getDistance(
+      updatedUnit.pos,
+      MathUtils.getCellCenter(targetCell, updatedUnit.visualJitter),
+    );
 
     if (distToCenter > MOVEMENT.ARRIVAL_THRESHOLD * 2) {
       if (
@@ -332,25 +332,18 @@ export class UnitManager {
           true,
         );
         if (path) {
-          const jitter = updatedUnit.visualJitter || { x: 0, y: 0 };
           if (path.length > 0) {
             updatedUnit = {
               ...updatedUnit,
               path,
-              targetPos: {
-                x: path[0].x + MOVEMENT.CENTER_OFFSET + jitter.x,
-                y: path[0].y + MOVEMENT.CENTER_OFFSET + jitter.y,
-              },
+              targetPos: MathUtils.getCellCenter(path[0], updatedUnit.visualJitter),
               state: UnitState.Moving,
             };
           } else {
             updatedUnit = {
               ...updatedUnit,
               path: undefined,
-              targetPos: {
-                x: targetCell.x + MOVEMENT.CENTER_OFFSET + jitter.x,
-                y: targetCell.y + MOVEMENT.CENTER_OFFSET + jitter.y,
-              },
+              targetPos: MathUtils.getCellCenter(targetCell, updatedUnit.visualJitter),
               state: UnitState.Moving,
             };
           }

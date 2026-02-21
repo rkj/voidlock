@@ -70,8 +70,9 @@ describe("Deployment Validation and Interaction", () => {
     });
 
     const unit = engine.getState().units.find((u) => u.id === "s1")!;
-    expect(unit.pos.x).toBe(3.5);
-    expect(unit.pos.y).toBe(1.5);
+    // s1 (Tactical 1, jitter -0.2, -0.2) at cell (3,1) -> (3.3, 1.3)
+    expect(unit.pos.x).toBe(3.3);
+    expect(unit.pos.y).toBe(1.3);
   });
 
   it("should block deploying a unit to a non-spawn floor cell", () => {
@@ -90,12 +91,19 @@ describe("Deployment Validation and Interaction", () => {
   });
 
   it("should swap positions when deploying to an occupied spawn point", () => {
-    // Initial positions: s1 at (1.5, 1.5), s2 at (2.5, 1.5) due to deterministic spawn
+    // Initial positions: s1 at (1.3, 1.3), s2 at (2.3, 1.3) -- wait, let's re-verify
+    // UnitSpawner uses jitter: Tactical 1 -> (-0.2,-0.2), Tactical 2 -> (0.2,-0.2)
+    // spawns[0] is (1,1) -> s1 pos (1.3, 1.3)
+    // spawns[1] is (2,1) -> s2 pos (2.7, 1.3)
     const s1 = engine.getState().units.find((u) => u.id === "s1")!;
     const s2 = engine.getState().units.find((u) => u.id === "s2")!;
     const s1PosBefore = { ...s1.pos };
     const s2PosBefore = { ...s2.pos };
 
+    expect(s1PosBefore).toEqual({ x: 1.3, y: 1.3 });
+    expect(s2PosBefore).toEqual({ x: 2.7, y: 1.3 });
+
+    // Deploy s1 onto s2's position
     engine.applyCommand({
       type: CommandType.DEPLOY_UNIT,
       unitId: "s1",
@@ -105,10 +113,10 @@ describe("Deployment Validation and Interaction", () => {
     const s1After = engine.getState().units.find((u) => u.id === "s1")!;
     const s2After = engine.getState().units.find((u) => u.id === "s2")!;
 
-    expect(s1After.pos.x).toBe(s2PosBefore.x);
-    expect(s1After.pos.y).toBe(s2PosBefore.y);
-    expect(s2After.pos.x).toBe(s1PosBefore.x);
-    expect(s2After.pos.y).toBe(s1PosBefore.y);
+    // s1 after move to cell (2,1) -> (2.3, 1.3)
+    // s2 after swap to cell (1,1) -> (1.7, 1.3)
+    expect(s1After.pos).toEqual({ x: 2.3, y: 1.3 });
+    expect(s2After.pos).toEqual({ x: 1.7, y: 1.3 });
   });
 
   it("should ignore deployment commands for VIP units", () => {
@@ -199,8 +207,9 @@ describe("Deployment Validation and Interaction", () => {
     });
 
     const unit = singularEngine.getState().units.find((u) => u.id === "s1")!;
-    expect(unit.pos.x).toBe(4.5);
-    expect(unit.pos.y).toBe(4.5);
+    // s1 (Tactical 1, jitter -0.2, -0.2) at cell (4,4) -> (4.3, 4.3)
+    expect(unit.pos.x).toBe(4.3);
+    expect(unit.pos.y).toBe(4.3);
   });
 
   it("should trigger auto-exploration on START_MISSION for AI enabled units", () => {
