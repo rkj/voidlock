@@ -47,7 +47,8 @@ export class VisibilityManager {
       if (
         unit.hp > 0 &&
         unit.state !== UnitState.Extracted &&
-        unit.state !== UnitState.Dead
+        unit.state !== UnitState.Dead &&
+        unit.isDeployed !== false
       ) {
         this.los.updateVisibleCells(
           unit.pos,
