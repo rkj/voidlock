@@ -33,29 +33,34 @@ When starting a new campaign, the player configures the following:
 
 ### 2.2 Game Rules (Fixed)
 
-The campaign follows these fixed progression rules:
+The campaign follows these fixed progression rules based on **Rank** (the column depth in the Sector Map):
 
 - **Map Generator:** Defaults to **DenseShip** for consistent, high-density layouts.
 - **Map Size Scaling:**
-  - **Start:** 6x6 (Rank 1).
-  - **Growth:** +2 Width/Height per Rank.
+  - **Start:** 6x6 (at Rank 1).
+  - **Growth:** +1 Width/Height every **2 Ranks**.
+  - **Formula:** `Size = 6 + floor((Rank - 1) / 2)`.
   - **Cap:** 12x12.
 - **Spawn Point Scaling:**
   - **Formula:** `1 + floor((MapSize - 6) / 2)`.
   - **Result:**
-    - 6x6: 1 Enemy Spawn Point
-    - 8x8: 2 Enemy Spawn Points
-    - 10x10: 3 Enemy Spawn Points
-    - 12x12: 4 Enemy Spawn Points
+    - 6x6 (Ranks 1-2): 1 Enemy Spawn Point
+    - 8x8 (Ranks 5-6): 2 Enemy Spawn Points
+    - 10x10 (Ranks 9-10): 3 Enemy Spawn Points
+    - 12x12 (Rank 13+): 4 Enemy Spawn Points
 - **Enemy Scaling (Director):**
-  - **Base Intensity:** ~3 enemies per wave (Mission 1).
-  - **Growth:** +1 Enemy per wave per Mission Depth.
+  - **Base Intensity:** ~3 enemies per wave (at Rank 1).
+  - **Growth:** +1 Enemy per wave per Rank.
 
 ## 3. Gameplay Systems
 
 ### 3.1 The Sector Map
 
 - **Structure:** A Directed Acyclic Graph (DAG) flowing from Start to Boss.
+- **Rank (Depth):** Represents the progression stage.
+  - **Rank 1:** The starting nodes.
+  - **Rank N:** The final Boss node.
+  - Completing a node advances the campaign to the next Rank.
 - **Topology:** Lane-based with no crossing paths. Nodes connect only to the next Rank.
 - **Navigation:** Keyboard arrow keys must snap to valid nodes in the graph topology.
 - **Node Types:**
