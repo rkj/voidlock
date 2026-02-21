@@ -205,11 +205,18 @@ export class ScreenManager {
     screenId: ScreenId;
     isCampaign: boolean;
   } | null {
-    const hash = window.location.hash.replace(/^#\/?/, "") as ScreenId;
+    const hashStr = window.location.hash.replace(/^#\/?/, "");
+    const hash = hashStr as ScreenId;
+
     if (this.isValidScreenId(hash)) {
       const isCampaign = this.isCampaignMode(hash);
       this.forceShow(hash, isCampaign);
       return { screenId: hash, isCampaign };
+    }
+
+    // If the hash is explicitly empty, we go to main menu (returning null triggers showMainMenu in GameApp)
+    if (hashStr === "") {
+      return null;
     }
 
     const persisted = this.sessionManager.loadState();

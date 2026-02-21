@@ -381,9 +381,9 @@ export class GameApp {
         );
         this.switchScreen("equipment", isCampaign);
         if (isCampaign) {
-          this.campaignShell.show("campaign", "sector-map", false);
+          this.campaignShell.show("campaign", "ready-room", true);
         } else {
-          this.campaignShell.show("custom");
+          this.campaignShell.show("custom", "setup");
         }
       },
       onLoadStaticMap: (json) => this.missionSetupManager.loadStaticMap(json),
@@ -670,6 +670,8 @@ export class GameApp {
       mode = "custom";
     }
 
+    let actualTabId = tabId;
+
     switch (tabId) {
       case "setup":
         if (hasCampaign || !isCustomFlow) {
@@ -681,6 +683,7 @@ export class GameApp {
             this.missionSetupManager.currentSquad,
           );
           this.switchScreen("equipment", true);
+          actualTabId = "ready-room";
         } else {
           this.squadBuilder.update(
             this.missionSetupManager.currentSquad,
@@ -715,7 +718,7 @@ export class GameApp {
         break;
     }
 
-    this.campaignShell.show(mode, tabId);
+    this.campaignShell.show(mode, actualTabId);
   }
 
   public start() {
@@ -770,7 +773,7 @@ export class GameApp {
             this.missionSetupManager.currentSquad,
           );
           this.switchScreen("equipment", true);
-          this.campaignShell.show("campaign", "sector-map", false);
+          this.campaignShell.show("campaign", "ready-room", true);
         } else {
           this.missionSetupManager.loadAndApplyConfig(false);
           this.campaignShell.show("custom", "setup");
@@ -797,7 +800,7 @@ export class GameApp {
         );
         this.switchScreen("equipment", isCurrentlyCampaign);
         if (isCurrentlyCampaign) {
-          this.campaignShell.show("campaign", "sector-map", false);
+          this.campaignShell.show("campaign", "ready-room", true);
         } else {
           this.campaignShell.show("custom", "setup");
         }
@@ -1037,7 +1040,7 @@ export class GameApp {
       this.missionSetupManager.currentSquad,
     );
     this.switchScreen("equipment", true);
-    this.campaignShell.show("campaign", "sector-map", false);
+    this.campaignShell.show("campaign", "ready-room", true);
   }
 
   private onCampaignStart() {

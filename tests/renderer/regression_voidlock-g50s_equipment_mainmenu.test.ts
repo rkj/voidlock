@@ -51,6 +51,7 @@ describe("Regression: voidlock-g50s - Equipment to Main Menu Transition", () => 
       "voidlock_session_state",
       JSON.stringify({ screenId: "equipment" }),
     );
+    window.location.hash = "equipment";
     sm.loadPersistedState();
     expect(sm.getCurrentScreen()).toBe("equipment");
     // History should be empty now.

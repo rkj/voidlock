@@ -488,7 +488,7 @@ export class SettingsScreen {
     resetGroup.appendChild(resetDesc);
 
     const resetBtn = document.createElement("button");
-    resetBtn.className = "menu-button back-button";
+    resetBtn.className = "menu-button danger-button";
     resetBtn.style.width = "100%";
     resetBtn.style.marginTop = "10px";
     resetBtn.textContent = "Reset All Data";
@@ -506,7 +506,7 @@ export class SettingsScreen {
           {
             label: "Delete Everything",
             isPrimary: true,
-            className: "menu-button back-button",
+            className: "menu-button danger-button",
             onClick: (modal) => modal.close(true),
           },
         ],
@@ -530,6 +530,7 @@ export class SettingsScreen {
 
     const backBtn = document.createElement("button");
     backBtn.className = "menu-button back-button";
+    backBtn.setAttribute("data-focus-id", "btn-settings-back");
     backBtn.textContent = "Save & Back";
     backBtn.onclick = () => {
       this.onBack();
