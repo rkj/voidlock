@@ -27,6 +27,9 @@ export class ExploreHandler implements IUnitCommandHandler {
       currentUnit.state !== UnitState.Dead
     ) {
       currentUnit.aiEnabled = true;
+      currentUnit.state = UnitState.Idle;
+      currentUnit.path = undefined;
+      currentUnit.targetPos = undefined;
       // Default exploration behavior will take over in update()
     }
 
