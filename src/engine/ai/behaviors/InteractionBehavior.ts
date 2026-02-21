@@ -130,8 +130,6 @@ export class InteractionBehavior implements Behavior<BehaviorContext & Objective
       const isExplicitExtract =
         currentUnit.activeCommand?.type === CommandType.EXTRACT;
 
-      const isExploring = currentUnit.activeCommand?.type === CommandType.EXPLORE || 
-                          currentUnit.activeCommand?.label === "Exploring";
       const isMapFinished = isMapFullyDiscovered(state, context.totalFloorCells, this.gameGrid);
 
       if (
