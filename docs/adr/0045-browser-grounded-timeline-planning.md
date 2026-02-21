@@ -10,7 +10,7 @@ Proposed
 
 ## Supersedes
 
-This ADR supersedes `docs/adr/0038-progress-video-capture-pipeline.md`.
+This ADR supersedes `docs/adr/0044-progress-video-capture-pipeline.md`.
 
 ## Problem Statement
 

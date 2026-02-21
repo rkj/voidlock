@@ -48,7 +48,7 @@ Use these scripts from `package.json`:
 ## Development Guidelines
 
 **CRITICAL:** Read @docs/dev_guide.md before making any code edits.
-For timeline capture/navigation architecture decisions, read `docs/adr/0038-progress-video-capture-pipeline.md`.
+For timeline capture/navigation architecture decisions, read `docs/adr/0044-progress-video-capture-pipeline.md`.
 
 ### 1. Architecture Restrictions
 
