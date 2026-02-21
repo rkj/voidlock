@@ -67,7 +67,7 @@ These require a specific soldier to perform an action. The unit cannot move or s
   1. Soldier immediately begins the action.
 - **Duration:** **Base Time: 3.0s** (Scaled by Speed).
 - **Effect:** Restores **50 HP** upon completion.
-- **Interruption:** Taking damage interrupts the action? (TBD). Moving cancels it.
+- **Interruption:** Taking damage does **NOT** interrupt the action (unless the unit dies). Moving cancels it.
 - **Cost:** 1 Medkit.
 
 ### 3.2 Landmine

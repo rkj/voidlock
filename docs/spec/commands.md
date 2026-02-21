@@ -10,14 +10,15 @@ All interactions with units are mediated through the `Command` object structure.
 | :---------------- | :------------------------------------------------------------ | :---------------------------------------------------------------------------- |
 | `MOVE_TO` | `target: Vector2` | Move to a specific cell. Pathfinding handles obstacles. |
 | `STOP` | - | Clear command queue and halt immediately. |
-| `SET_ENGAGEMENT` | `mode: "ENGAGE" \| "IGNORE"` | **ENGAGE**: Auto-attack visible enemies. **IGNORE**: Hold fire (Stealth/Run). |
+| `HOLD` | - | Enter stationary mode. Unit does not move; firing behavior follows current engagement policy. |
+| `SET_ENGAGEMENT` | `mode: "ENGAGE" \| "IGNORE"` | **ENGAGE**: Auto-attack visible enemies. **IGNORE**: Hold fire (Stealth/Run), except while `OVERWATCH_POINT` is active. |
 | `OPEN_DOOR` | `doorId: string` | Interact with a door. Unit moves to interaction range first. |
 | `USE_ITEM` | `itemId: string`, `target?: Vector2`, `targetUnitId?: string` | Use an inventory item. May require channeling (e.g., Medkit). |
-| `OVERWATCH_POINT` | `target: Vector2` | Move to a strategic point (Intersection/Dead End) and hold angle. |
+| `OVERWATCH_POINT` | `target: Vector2` | Move to a strategic point (Intersection/Dead End) and hold angle. While active, always auto-fire visible enemies. |
 | `EXPLORE` | - | Autonomous behavior: Move to nearest unexplored Fog of War. |
 | `ESCORT_UNIT` | `targetId: string` | Form a protective formation around a target unit. |
 | `PICKUP` | `targetId: string` | Move to and pick up a World Item (Loot). |
-| `EXTRACT` | - | Attempt to extract at the Extraction Zone. |
+| `EXTRACT` | - | After Unit Select confirmation, immediately issue an extraction order: move to the Extraction Zone, then channel extraction on arrival. |
 
 > **Note:** `ATTACK_TARGET` has been removed. Soldiers autonomously prioritize targets based on logic (See Section 3).
 
@@ -67,6 +68,7 @@ Certain actions require the unit to remain stationary and focus for a duration.
   1. Unit moves to the specified point.
   1. Upon arrival, unit faces the `target` direction.
   1. Unit enters `Stationary` state, gaining accuracy bonuses.
+  1. **Engagement Override:** Overwatch ignores `ENGAGE/IGNORE` and always auto-fires visible enemies.
   1. **AI Override:** Disables autonomous wandering.
 
 ### 3.3 Use Item (`USE_ITEM`)
@@ -77,7 +79,13 @@ Certain actions require the unit to remain stationary and focus for a duration.
 ### 3.4 Pickup & Extract
 
 - **PICKUP:** Moves to a World Item. Upon arrival, performs Timed Action (3.0s). Adds item to inventory.
-- **EXTRACT:** Moves to Extraction Zone. Upon arrival, performs Timed Action (5.0s). Unit is removed from map (Saved).
+- **EXTRACT:** Command executes immediately. Unit starts moving to the Extraction Zone at once; on arrival, it performs the Timed Action (5.0s). Unit is then removed from map (Saved).
+
+### 3.5 Hold Position (`HOLD`)
+
+- **Movement:** Unit enters a stationary state and does not pathfind.
+- **Combat:** Hold respects engagement policy. In `ENGAGE`, the unit auto-fires visible enemies. In `IGNORE`, the unit holds fire.
+- **Override Scope:** Hold only blocks movement/exploration; issuing a new move/order exits Hold.
 
 ## 4. AI Behavior & Targeting
 
@@ -118,6 +126,12 @@ These commands facilitate testing, balancing, and state reproduction.
 
 ## 7. UI Interaction & Menu Flow
 
+### 7.0 Unit Selection Model
+
+- There is **no** persistent "currently selected soldier" state on the map.
+- Any command that applies to one or more units must pass through **Unit Select** before execution.
+- `EXTRACT` does **not** use Target Select.
+
 ### 7.1 Menu Hierarchy
 
 **Navigation:** `Q` or `ESC` to Go Back.
@@ -128,7 +142,7 @@ These commands facilitate testing, balancing, and state reproduction.
    - `2. ENGAGEMENT` -> Transitions to **Mode Select**.
    - `3. USE ITEM` -> Transitions to **Item Select**.
    - `4. PICKUP` -> **Target Select** (Visible Items).
-   - `5. EXTRACT` -> Immediate action (if in zone) or Move Command.
+   - `5. EXTRACT` -> **Unit Select** (no target selection). Executes immediately after unit confirmation.
 
 1. **Orders Select**
 

@@ -126,7 +126,7 @@ See **[Command System & AI Behaviors](commands.md)** for details on `ESCORT_UNIT
    - **Failure:** Squad wiped before all Intel is secured.
    - **Extraction:** Optional. Mission is a Victory if all Intel is secured, even if the squad is subsequently lost.
 
-1. **Extract Artifact:**
+1. **Search & Recover:**
 
    - **Goal:** Locate the Artifact, pick it up, and Extract with it.
    - **Mechanics:**
@@ -151,9 +151,9 @@ See **[Command System & AI Behaviors](commands.md)** for details on `ESCORT_UNIT
 
 - **Victory:**
   - **Recover Intel / Destroy Hive:** Objectives Complete (regardless of Squad Status).
-  - **Extract Artifact:** Objectives Complete AND >0 Units Extracted.
+  - **Search & Recover:** Objectives Complete AND >0 Units Extracted.
   - **Escort VIP:** VIP Extracted.
 - **Defeat:**
   - Squad Wiped (Active Units = 0) AND Objectives Incomplete.
   - VIP Dead (in Escort missions).
-  - Artifact Lost (Squad wiped in Extract Artifact).
+  - Artifact Lost (Squad wiped in Search & Recover).

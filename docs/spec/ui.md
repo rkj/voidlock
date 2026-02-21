@@ -203,6 +203,12 @@ Clicking "Copy World State" captures a comprehensive snapshot of the session.
 The game must be fully playable via keyboard using a strict hierarchical command menu.
 For detailed Command behaviors, see **[Command System & AI](commands.md)**.
 
+#### 8.3.0 Unit Selection Model
+
+- There is **no** persistent "currently selected soldier" on the map.
+- Commands that apply to units always require explicit **Unit Select** confirmation.
+- `EXTRACT` skips target selection and executes immediately after Unit Select confirmation.
+
 #### 8.3.1 Menu State Machine
 
 To ensure consistent navigation, the UI follows a strict state machine.
@@ -213,7 +219,7 @@ To ensure consistent navigation, the UI follows a strict state machine.
 | | `2` (Engage) | **Mode Select** | Show Mode Submenu |
 | | `3` (Use Item) | **Item Select** | Show Inventory List |
 | | `4` (Pickup) | **Target Select** | Filter: Loot Items |
-| | `5` (Extract) | **Unit Select** | Filter: All Units |
+| | `5` (Extract) | **Unit Select** | No target selection. Execute extract order immediately after unit confirmation |
 | **Orders Select** | `1` (Move) | **Target Select** | Filter: Rooms |
 | | `2` (Overwatch) | **Target Select** | Filter: Intersections |
 | | `3` (Explore) | **Unit Select** | Filter: All Units |
@@ -234,7 +240,7 @@ To ensure consistent navigation, the UI follows a strict state machine.
 - **Grenades:** `TARGET_SELECT` filter = **Visible Enemies** (If none, disable option).
 - **Medkits/Stimpacks:** `TARGET_SELECT` filter = **Friendly Units**.
 - **Mines:** `TARGET_SELECT` filter = **Placement Points** (Intersections/Exits).
-- **Scanners:** `TARGET_SELECT` filter = **Grid Cells** (Anywhere in FOW).
+- **Scanners:** `TARGET_SELECT` filter = **Friendly Units**.
 
 #### 8.3.2 Menu Hierarchy (Visual)
 
