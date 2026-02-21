@@ -198,7 +198,7 @@ export class CampaignManager {
           difficultyScaling: 0.8,
           resourceScarcity: 1.2,
           startingScrap: 1000,
-          mapGrowthRate: 1.0,
+          mapGrowthRate: 0.5,
           baseEnemyCount: 2,
           enemyGrowthPerMission: 0.5,
           economyMode: "Open",
@@ -214,7 +214,7 @@ export class CampaignManager {
           difficultyScaling: 1.0,
           resourceScarcity: 1.0,
           startingScrap: 500,
-          mapGrowthRate: 1.0,
+          mapGrowthRate: 0.5,
           baseEnemyCount: 3,
           enemyGrowthPerMission: 1.0,
           economyMode: "Open",
@@ -230,7 +230,7 @@ export class CampaignManager {
           difficultyScaling: 1.5,
           resourceScarcity: 0.7,
           startingScrap: 300,
-          mapGrowthRate: 1.0,
+          mapGrowthRate: 0.5,
           baseEnemyCount: 4,
           enemyGrowthPerMission: 1.5,
           economyMode: "Open",
@@ -246,7 +246,7 @@ export class CampaignManager {
           difficultyScaling: 2.0,
           resourceScarcity: 0.5,
           startingScrap: 150,
-          mapGrowthRate: 1.0,
+          mapGrowthRate: 0.5,
           baseEnemyCount: 5,
           enemyGrowthPerMission: 2.0,
           economyMode: "Open",
@@ -261,7 +261,7 @@ export class CampaignManager {
           difficultyScaling: 1.0,
           resourceScarcity: 1.0,
           startingScrap: 500,
-          mapGrowthRate: 1.0,
+          mapGrowthRate: 0.5,
           baseEnemyCount: 3,
           enemyGrowthPerMission: 1.0,
           economyMode: "Open",
@@ -380,7 +380,7 @@ export class CampaignManager {
       if (rules.difficultyScaling === undefined) rules.difficultyScaling = 1.0;
       if (rules.resourceScarcity === undefined) rules.resourceScarcity = 1.0;
       if (rules.startingScrap === undefined) rules.startingScrap = 500;
-      if (rules.mapGrowthRate === undefined) rules.mapGrowthRate = 1.0;
+      if (rules.mapGrowthRate === undefined) rules.mapGrowthRate = 0.5;
       if (rules.baseEnemyCount === undefined) rules.baseEnemyCount = 3;
       if (rules.enemyGrowthPerMission === undefined)
         rules.enemyGrowthPerMission = 1.0;

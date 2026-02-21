@@ -24,7 +24,7 @@ export const GameRulesSchema = z.object({
   difficultyScaling: z.number().default(1.0),
   resourceScarcity: z.number().default(1.0),
   startingScrap: z.number().default(500),
-  mapGrowthRate: z.number().default(1.0),
+  mapGrowthRate: z.number().default(0.5),
   baseEnemyCount: z.number().default(3),
   enemyGrowthPerMission: z.number().default(1.0),
   economyMode: z.enum(["Open", "Limited"]).default("Open"),
