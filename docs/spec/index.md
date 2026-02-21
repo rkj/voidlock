@@ -1,6 +1,6 @@
 # Voidlock Specifications
 
-**Version:** 1.2
+**Version:** 1.3
 **Core Concept:** Single-player, Real-Time with Pause (RTwP) tactical squad combat in a claustrophobic spaceship environment.
 
 This document serves as the **Game Design Document (GDD)** and the index for all detailed specifications.
@@ -14,14 +14,15 @@ ______________________________________________________________________
 - **Engine:** Deterministic, tick-based simulation running in a Web Worker.
 - **Visuals:** 2D Top-down, Grid-based, "Shared Wall" rendering via HTML5 Canvas.
 - **Loop:** Configure Squad -> Load Map -> Real-Time Tactical Combat -> Extract or Die.
+- **Campaign:** Roguelite progression, Sector Map, Economy (Scrap), and Roster Management.
 - **Modding:** "Content Packs" (JSON) strictly define stats, maps, and logic parameters.
 - **AI Support:** First-class support for bot players via a JSON observation/command protocol.
 
 ### 1.2 Out of Scope
 
 - Multiplayer networking (Local only).
-- Meta-progression (XP, Campaign map, Loot inventory).
 - Complex Frameworks (React/Vue) — strictly Vanilla TS + Vite.
+- 3D Physics.
 
 ______________________________________________________________________
 
