@@ -226,12 +226,9 @@ describe("Screen Flow Integration", () => {
         <button id="btn-goto-equipment">Equipment</button>
         <button id="btn-setup-back">Back</button>
       </div>
-      <div id="screen-equipment" class="screen" style="display:none"></div>
-      <div id="screen-barracks" class="screen" style="display:none"></div>
       <div id="screen-mission" class="screen" style="display:none"></div>
       <div id="screen-debrief" class="screen" style="display:none"></div>
       <div id="screen-campaign-summary" class="screen" style="display:none"></div>
-      <div id="screen-statistics" class="screen" style="display:none"></div>
     `;
 
     // Mock window.confirm
@@ -414,7 +411,7 @@ describe("Screen Flow Integration", () => {
     );
   });
 
-  it("should hide tabs in CampaignShell when in Mission Setup or Equipment screen", async () => {
+  it("should show tabs in CampaignShell when in Equipment screen to allow accessing Settings/Stats", async () => {
     // 1. Main Menu -> Campaign
     const btnCampaign = document.getElementById("btn-menu-campaign");
     btnCampaign?.click();
@@ -435,10 +432,28 @@ describe("Screen Flow Integration", () => {
       "flex",
     );
 
-    // Check tabs are HIDDEN
-    expect(document.querySelector(".tab-button")).toBeNull();
+    // Check tabs are VISIBLE (Spec: allow accessing Settings/Stats from Ready Room)
+    expect(document.querySelector(".tab-button")).not.toBeNull();
 
-    // 3. Equipment -> Back to Campaign Map
+    // 3. Equipment -> Settings (via tab)
+    const settingsTab = Array.from(document.querySelectorAll(".tab-button")).find(
+      (b) => b.textContent === "Settings",
+    ) as HTMLElement;
+    expect(settingsTab).toBeDefined();
+    settingsTab.click();
+
+    expect(document.getElementById("screen-settings")?.style.display).toBe("flex");
+
+    // 4. Settings -> Back to Equipment
+    // SettingsScreen renders a button with data-focus-id="btn-settings-back"
+    const settingsBackBtn = document.querySelector(
+      '#screen-settings [data-focus-id="btn-settings-back"]',
+    ) as HTMLElement;
+    settingsBackBtn?.click();
+
+    expect(document.getElementById("screen-equipment")?.style.display).toBe("flex");
+
+    // 5. Equipment -> Back to Campaign Map
     const backBtn = Array.from(
       document.querySelectorAll("#screen-equipment button"),
     ).find((b) => b.textContent === "Back") as HTMLElement;

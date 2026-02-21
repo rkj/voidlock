@@ -52,6 +52,9 @@ describe("Session Persistence", () => {
     const sessionManager = new SessionManager();
     sessionManager.saveState("equipment");
 
+    // Set hash to match persisted state, otherwise loadPersistedState returns null for empty hash
+    window.location.hash = "equipment";
+
     const sm = new ScreenManager();
     const restored = sm.loadPersistedState();
 
