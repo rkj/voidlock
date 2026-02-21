@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { SectorMapGenerator } from "@src/engine/generators/SectorMapGenerator";
 import { GameRules } from "@src/shared/campaign_types";
-import { MapGeneratorType } from "@src/shared/types";
+import { MapGeneratorType, MissionType } from "@src/shared/types";
 
 describe("SectorMapGenerator", () => {
   const defaultRules: GameRules = {
@@ -100,5 +100,29 @@ describe("SectorMapGenerator", () => {
     nodes.forEach((node) => {
       expect(validTypes).toContain(node.type);
     });
+  });
+
+  it("should assign a mix of mission types to combat nodes", () => {
+    const generator = new SectorMapGenerator();
+    const seed = 12345;
+    const nodes = generator.generate(seed, defaultRules, { layers: 20 });
+
+    const combatNodes = nodes.filter(
+      (n) => n.type === "Combat" || n.type === "Elite" || n.type === "Boss",
+    );
+
+    const missionTypes = combatNodes.map((n) => n.missionType);
+    const distinctMissionTypes = new Set(
+      missionTypes.filter((t) => t !== undefined),
+    );
+
+    // Ensure we have multiple distinct mission types
+    expect(distinctMissionTypes.size).toBeGreaterThan(1);
+
+    // Verify presence of all standard mission types in a large map
+    expect(distinctMissionTypes.has(MissionType.RecoverIntel)).toBe(true);
+    expect(distinctMissionTypes.has(MissionType.ExtractArtifacts)).toBe(true);
+    expect(distinctMissionTypes.has(MissionType.DestroyHive)).toBe(true);
+    expect(distinctMissionTypes.has(MissionType.EscortVIP)).toBe(true);
   });
 });

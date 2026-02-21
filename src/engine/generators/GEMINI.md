@@ -7,7 +7,7 @@ This directory contains specific implementations of map generation strategies.
 - `SpaceshipGenerator.ts`: A generator that builds spaceship-like layouts using a constructive spanning-tree algorithm to guarantee connectivity (ADR 0014).
 - `TreeShipGenerator.ts`: Generates maps with a strict tree structure (no cycles) starting from corridors, aiming for a claustrophobic feel.
 - `DenseShipGenerator.ts`: A high-density generator designed for maximum floor coverage and exploration depth.
-- `SectorMapGenerator.ts`: Generates the campaign sector map (DAG) with varying node types and connectivity. Now supports dynamic length (ranks) based on the campaign's `mapGrowthRate` to ensure players reach the 12x12 map size cap.
+- `SectorMapGenerator.ts`: Generates the campaign sector map (DAG) with varying node types and connectivity. Now supports dynamic length (ranks) based on the campaign's `mapGrowthRate` to ensure players reach the 12x12 map size cap. It also randomly assigns mission types (ExtractArtifacts, DestroyHive, EscortVIP, RecoverIntel) to combat nodes for variety.
 - `PlacementValidator.ts`: Utility for tracking occupied cells and enforcing entity placement exclusivity (Squad Spawn, Enemy Spawn, Extraction, Objectives, Loot). Enforces the Corridor Ban, preventing placement of any static entities in corridors. Supports `fromMap()` for easy re-population from existing map definitions.
 
 ## Functionality
