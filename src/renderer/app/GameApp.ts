@@ -558,12 +558,16 @@ export class GameApp {
                 };
               }
 
+              if (replayData.themeId) {
+                this.themeManager.setTheme(replayData.themeId);
+              }
+
               this.switchScreen(
                 "debrief",
                 false,
                 true,
                 report,
-                this.missionSetupManager.unitStyle,
+                replayData.unitStyle || this.missionSetupManager.unitStyle,
               );
             } else {
               this.modalService.alert("Invalid replay file format.");
@@ -847,8 +851,16 @@ export class GameApp {
       this.campaignManager.processMissionResult(report);
     }
 
+    const replayData = this.gameClient.getReplayData();
+
     // Show debrief screen
-    this.switchScreen("debrief", false, true, report);
+    this.switchScreen(
+      "debrief",
+      false,
+      true,
+      report,
+      replayData?.unitStyle || this.missionSetupManager.unitStyle,
+    );
   }
 
   public stop() {

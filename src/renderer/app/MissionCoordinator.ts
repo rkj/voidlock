@@ -77,6 +77,8 @@ export class MissionCoordinator {
       config.fogOfWarEnabled,
       config.debugOverlayEnabled,
       config.agentControlEnabled,
+      globalConfig.unitStyle,
+      globalConfig.themeId,
       config.squadConfig,
       config.missionType,
       config.mapWidth,
@@ -189,6 +191,7 @@ export class MissionCoordinator {
       const baseEnemyCount = config.baseEnemyCount ?? 3;
       const enemyGrowthPerMission = config.enemyGrowthPerMission ?? 1;
       const missionDepth = config.missionDepth ?? 0;
+      const globalConfig = ConfigManager.loadGlobal();
 
       this.setupGameClientCallbacks(
         {
@@ -205,6 +208,8 @@ export class MissionCoordinator {
         config.fogOfWarEnabled,
         config.debugOverlayEnabled,
         config.agentControlEnabled,
+        globalConfig.unitStyle,
+        globalConfig.themeId,
         config.squadConfig,
         config.missionType,
         config.width,

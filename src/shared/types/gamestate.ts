@@ -1,7 +1,7 @@
 import { Vector2 } from "./geometry";
 import { LootItem, Mine, Turret } from "./items";
 import { MapDefinition, Objective } from "./map";
-import { Command, Enemy, SquadConfig, Unit } from "./units";
+import { Command, Enemy, SquadConfig, Unit, UnitStyle } from "./units";
 import { CampaignNodeType } from "../campaign_types";
 
 export enum EngineMode {
@@ -32,6 +32,14 @@ export type ReplayData = {
   baseEnemyCount?: number;
   enemyGrowthPerMission?: number;
   startingPoints?: number;
+  startingThreatLevel?: number;
+  // Mission configuration (ADR 0046)
+  skipDeployment?: boolean;
+  allowTacticalPause?: boolean;
+  bonusLootCount?: number;
+  agentControlEnabled?: boolean;
+  unitStyle?: UnitStyle;
+  themeId?: string;
 };
 
 export type GameStatus = "Deployment" | "Playing" | "Won" | "Lost";
@@ -116,6 +124,8 @@ export type WorkerMessage =
         debugSnapshots?: boolean;
         debugSnapshotInterval?: number;
         agentControlEnabled: boolean;
+        unitStyle?: UnitStyle;
+        themeId?: string;
         squadConfig: SquadConfig;
         missionType?: MissionType;
         nodeType?: CampaignNodeType;

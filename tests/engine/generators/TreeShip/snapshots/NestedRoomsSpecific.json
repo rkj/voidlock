@@ -84,7 +84,7 @@
       "x": 2,
       "y": 4,
       "type": "Floor",
-      "roomId": "corridor-aorta-h"
+      "roomId": "room-forced-squad-2-2-4"
     },
     {
       "x": 3,
@@ -138,7 +138,7 @@
       "x": 3,
       "y": 6,
       "type": "Floor",
-      "roomId": "corridor-artery-down-3"
+      "roomId": "room-forced-squad-3-3-6"
     },
     {
       "x": 5,
@@ -1487,8 +1487,8 @@
     {
       "id": "spawn-1",
       "pos": {
-        "x": 4,
-        "y": 7
+        "x": 7,
+        "y": 4
       },
       "radius": 1
     }
@@ -1507,6 +1507,14 @@
     {
       "x": 2,
       "y": 7
+    },
+    {
+      "x": 2,
+      "y": 4
+    },
+    {
+      "x": 3,
+      "y": 6
     }
   ],
   "extraction": {

@@ -7,6 +7,7 @@ import {
   ReplayData,
   RecordedCommand,
   MapGeneratorType,
+  UnitStyle,
   SquadConfig,
   MissionType,
   CommandType,
@@ -63,6 +64,13 @@ export class GameClient {
   private initialBaseEnemyCount: number = 3;
   private initialEnemyGrowthPerMission: number = 1;
   private initialStartingPoints?: number;
+  private initialStartingThreatLevel: number = 0;
+  private initialSkipDeployment: boolean = true;
+  private initialAllowTacticalPause: boolean = true;
+  private initialBonusLootCount: number = 0;
+  private initialAgentControlEnabled: boolean = true;
+  private initialUnitStyle: UnitStyle = UnitStyle.TacticalIcons;
+  private initialThemeId: string = "default";
   private commandStream: RecordedCommand[] = [];
   private snapshots: GameState[] = [];
   private startTime: number = 0;
@@ -128,6 +136,8 @@ export class GameClient {
     fogOfWarEnabled: boolean = true,
     debugOverlayEnabled: boolean = false,
     agentControlEnabled: boolean = true,
+    unitStyle: UnitStyle = UnitStyle.TacticalIcons,
+    themeId: string = "default",
     squadConfig: SquadConfig = { soldiers: [], inventory: {} }, // Default to empty squad if not provided
     missionType: MissionType = MissionType.Default,
     width: number = 16,
@@ -162,6 +172,13 @@ export class GameClient {
     this.initialBaseEnemyCount = baseEnemyCount;
     this.initialEnemyGrowthPerMission = enemyGrowthPerMission;
     this.initialStartingPoints = startingPoints;
+    this.initialStartingThreatLevel = startingThreatLevel;
+    this.initialSkipDeployment = skipDeployment;
+    this.initialAllowTacticalPause = allowTacticalPause;
+    this.initialBonusLootCount = bonusLootCount;
+    this.initialAgentControlEnabled = agentControlEnabled;
+    this.initialUnitStyle = unitStyle;
+    this.initialThemeId = themeId;
 
     // In Replay mode, we force allowTacticalPause to false to ensure absolute pause (0.0 timescale)
     // and disable redundant "Active Pause" logic.
@@ -231,6 +248,8 @@ export class GameClient {
         debugSnapshots,
         debugSnapshotInterval,
         agentControlEnabled,
+        unitStyle,
+        themeId,
         squadConfig: squadConfig,
         missionType,
         losOverlayEnabled,
@@ -442,6 +461,13 @@ export class GameClient {
       baseEnemyCount: this.initialBaseEnemyCount,
       enemyGrowthPerMission: this.initialEnemyGrowthPerMission,
       startingPoints: this.initialStartingPoints,
+      startingThreatLevel: this.initialStartingThreatLevel,
+      skipDeployment: this.initialSkipDeployment,
+      allowTacticalPause: this.initialAllowTacticalPause,
+      bonusLootCount: this.initialBonusLootCount,
+      agentControlEnabled: this.initialAgentControlEnabled,
+      unitStyle: this.initialUnitStyle,
+      themeId: this.initialThemeId,
     };
   }
 
@@ -462,17 +488,19 @@ export class GameClient {
       data.map,
       true, // fog
       false, // debug
-      true, // agent
+      data.agentControlEnabled ?? true,
+      data.unitStyle ?? UnitStyle.TacticalIcons,
+      data.themeId ?? "default",
       data.squadConfig,
       data.missionType || MissionType.Default,
       data.map.width,
       data.map.height,
       0, // spawnPointCount (static map)
       false, // los
-      0, // startingThreat
+      data.startingThreatLevel ?? 0,
       1.0, // initialTimeScale
       false, // startPaused
-      true, // allowTacticalPause
+      data.allowTacticalPause ?? true,
       EngineMode.Replay,
       commandLog,
       undefined, // campaignNodeId
@@ -482,8 +510,8 @@ export class GameClient {
       data.missionDepth ?? 0,
       data.nodeType,
       data.startingPoints,
-      0, // bonusLootCount
-      true, // skipDeployment
+      data.bonusLootCount ?? 0,
+      data.skipDeployment ?? true,
       true, // debugSnapshots
       100, // debugSnapshotInterval (1.6s)
       this.snapshots,
@@ -505,28 +533,30 @@ export class GameClient {
       data.map,
       true, // fog
       false, // debug
-      true, // agent
+      data.agentControlEnabled ?? true,
+      data.unitStyle ?? UnitStyle.TacticalIcons,
+      data.themeId ?? "default",
       data.squadConfig,
       data.missionType || MissionType.Default,
       data.map.width,
       data.map.height,
       0, // spawnPointCount (static map)
       false, // los
-      0, // startingThreat
+      data.startingThreatLevel ?? 0,
       this.currentScale, // preserve current speed
       this.isPaused, // preserve paused state
-      this.allowTacticalPause,
+      data.allowTacticalPause ?? true,
       EngineMode.Replay,
       commandLog,
       undefined, // campaignNodeId
       tick, // targetTick
-      this.initialBaseEnemyCount,
-      this.initialEnemyGrowthPerMission,
-      this.initialMissionDepth,
-      this.initialNodeType,
-      this.initialStartingPoints,
-      0, // bonusLootCount
-      true, // skipDeployment
+      data.baseEnemyCount ?? 3,
+      data.enemyGrowthPerMission ?? 1,
+      data.missionDepth ?? 0,
+      data.nodeType,
+      data.startingPoints,
+      data.bonusLootCount ?? 0,
+      data.skipDeployment ?? true,
       true, // debugSnapshots
       100, // debugSnapshotInterval (1.6s)
       this.snapshots,

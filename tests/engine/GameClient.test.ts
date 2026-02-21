@@ -6,6 +6,7 @@ import {
   MissionType,
   EngineMode,
   CommandType,
+  UnitStyle,
 } from "@src/shared/types";
 
 describe("GameClient", () => {
@@ -42,6 +43,8 @@ describe("GameClient", () => {
       true,
       false,
       true,
+      UnitStyle.TacticalIcons,
+      "default",
       { soldiers: [{ archetypeId: "assault" } as any], inventory: {} },
       MissionType.Default,
       10,
@@ -62,10 +65,20 @@ describe("GameClient", () => {
   });
 
   it("should record commands via STATE_UPDATE sync", () => {
-    client.init(123, MapGeneratorType.DenseShip, undefined, true, false, true, {
-      soldiers: [],
-      inventory: {},
-    });
+    client.init(
+      123,
+      MapGeneratorType.DenseShip,
+      undefined,
+      true,
+      false,
+      true,
+      UnitStyle.TacticalIcons,
+      "default",
+      {
+        soldiers: [],
+        inventory: {},
+      },
+    );
 
     // Simulate worker sending back a state update with a command log
     const mockState = {
@@ -130,6 +143,8 @@ describe("GameClient", () => {
       true,
       false,
       true,
+      UnitStyle.TacticalIcons,
+      "default",
       { soldiers: [{ archetypeId: "assault" } as any], inventory: {} },
       MissionType.Default,
       10,
@@ -196,6 +211,8 @@ describe("GameClient", () => {
       true,
       false,
       true,
+      UnitStyle.TacticalIcons,
+      "default",
       { soldiers: [], inventory: {} },
       MissionType.Default,
       16,
@@ -226,6 +243,8 @@ describe("GameClient", () => {
       true,
       false,
       true,
+      UnitStyle.TacticalIcons,
+      "default",
       { soldiers: [{ archetypeId: "assault" } as any], inventory: {} },
       MissionType.Default,
       10,
@@ -258,10 +277,20 @@ describe("GameClient", () => {
 
   it("should pass snapshots and disable tactical pause in Replay mode seek", () => {
     // 1. Setup snapshots in client
-    client.init(123, MapGeneratorType.DenseShip, undefined, true, false, true, {
-      soldiers: [],
-      inventory: {},
-    });
+    client.init(
+      123,
+      MapGeneratorType.DenseShip,
+      undefined,
+      true,
+      false,
+      true,
+      UnitStyle.TacticalIcons,
+      "default",
+      {
+        soldiers: [],
+        inventory: {},
+      },
+    );
     const mockSnapshots = [{ t: 100 } as any, { t: 200 } as any];
 
     if (workerMock.onmessage) {
@@ -285,6 +314,8 @@ describe("GameClient", () => {
       squadConfig: { soldiers: [], inventory: {} },
       commands: [],
       snapshots: mockSnapshots,
+      unitStyle: UnitStyle.TacticalIcons,
+      themeId: "default",
     });
 
     client.pause();
@@ -300,6 +331,32 @@ describe("GameClient", () => {
         allowTacticalPause: false, // Replay mode forces false
         startPaused: true,
         initialTimeScale: 0.0, // Because allowTacticalPause is false and isPaused is true
+      }),
+    });
+  });
+
+  it("should restore unitStyle and themeId in loadReplay", () => {
+    const replayData: any = {
+      seed: 123,
+      missionType: MissionType.Default,
+      map: { width: 10, height: 10, cells: [] },
+      squadConfig: { soldiers: [], inventory: {} },
+      commands: [],
+      unitStyle: UnitStyle.Sprites,
+      themeId: "industrial",
+    };
+
+    client.loadReplay(replayData);
+
+    const capturedData = client.getReplayData();
+    expect(capturedData?.unitStyle).toBe(UnitStyle.Sprites);
+    expect(capturedData?.themeId).toBe("industrial");
+
+    expect(postMessageMock).toHaveBeenCalledWith({
+      type: "INIT",
+      payload: expect.objectContaining({
+        unitStyle: UnitStyle.Sprites,
+        themeId: "industrial",
       }),
     });
   });
