@@ -224,8 +224,39 @@ export class CoreEngine {
     squadUnits.forEach((unit) => this.addUnit(unit));
 
     // Reveal spawn area and update initial visibility
+    const spawnRoomIds = new Set<string>();
     if (map.squadSpawns) {
       map.squadSpawns.forEach((sp) => {
+        const cell = map.cells.find(
+          (c) => c.x === Math.floor(sp.x) && c.y === Math.floor(sp.y),
+        );
+        if (cell?.roomId) spawnRoomIds.add(cell.roomId);
+      });
+    } else if (map.squadSpawn) {
+      const cell = map.cells.find(
+        (c) =>
+          c.x === Math.floor(map.squadSpawn!.x) &&
+          c.y === Math.floor(map.squadSpawn!.y),
+      );
+      if (cell?.roomId) spawnRoomIds.add(cell.roomId);
+    }
+
+    if (spawnRoomIds.size > 0) {
+      map.cells.forEach((cell) => {
+        if (cell.roomId && spawnRoomIds.has(cell.roomId)) {
+          const key = `${cell.x},${cell.y}`;
+          if (!this.state.discoveredCells.includes(key)) {
+            this.state.discoveredCells.push(key);
+            if (this.state.gridState) {
+              this.state.gridState[cell.y * map.width + cell.x] |= 2;
+            }
+          }
+        }
+      });
+    } else {
+      // Fallback: just reveal the specific spawn points if no rooms
+      const spawns = map.squadSpawns || (map.squadSpawn ? [map.squadSpawn] : []);
+      spawns.forEach((sp) => {
         const cell = MathUtils.toCellCoord(sp);
         const key = MathUtils.cellKey(sp);
         if (!this.state.discoveredCells.includes(key)) {
@@ -235,15 +266,6 @@ export class CoreEngine {
           }
         }
       });
-    } else if (map.squadSpawn) {
-      const cell = MathUtils.toCellCoord(map.squadSpawn);
-      const key = MathUtils.cellKey(map.squadSpawn);
-      if (!this.state.discoveredCells.includes(key)) {
-        this.state.discoveredCells.push(key);
-        if (this.state.gridState) {
-          this.state.gridState[cell.y * map.width + cell.x] |= 2;
-        }
-      }
     }
 
     this.visibilityManager.updateVisibility(this.state);

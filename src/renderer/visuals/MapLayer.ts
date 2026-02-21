@@ -14,6 +14,22 @@ export class MapLayer implements RenderLayer {
     this.renderFog(ctx, state);
   }
 
+  private isCellDiscovered(state: GameState, x: number, y: number): boolean {
+    if (state.settings.debugOverlayEnabled) return true;
+    if (state.gridState) {
+      if (
+        x < 0 ||
+        y < 0 ||
+        x >= state.map.width ||
+        y >= state.map.height
+      )
+        return false;
+      return (state.gridState[y * state.map.width + x] & 2) !== 0;
+    }
+    const key = `${x},${y}`;
+    return state.discoveredCells.includes(key);
+  }
+
   private renderMap(ctx: CanvasRenderingContext2D, state: GameState) {
     const map = state.map;
     const cellSize = this.sharedState.cellSize;
@@ -23,6 +39,8 @@ export class MapLayer implements RenderLayer {
     // Floor
     cells.forEach((cell) => {
       if (cell.type === CellType.Floor) {
+        if (!this.isCellDiscovered(state, cell.x, cell.y)) return;
+
         ctx.fillStyle = this.theme.getColor("--color-floor");
         ctx.fillRect(cell.x * cellSize, cell.y * cellSize, cellSize, cellSize);
 
@@ -50,6 +68,13 @@ export class MapLayer implements RenderLayer {
 
     this.sharedState.graph.getAllBoundaries().forEach((boundary) => {
       if (boundary.type === BoundaryType.Wall) {
+        if (
+          !this.isCellDiscovered(state, boundary.x1, boundary.y1) &&
+          !this.isCellDiscovered(state, boundary.x2, boundary.y2)
+        ) {
+          return;
+        }
+
         const seg = boundary.getVisualSegment();
         ctx.moveTo(seg.p1.x * cellSize, seg.p1.y * cellSize);
         ctx.lineTo(seg.p2.x * cellSize, seg.p2.y * cellSize);
@@ -58,7 +83,17 @@ export class MapLayer implements RenderLayer {
     ctx.stroke();
 
     // Render Doors
-    state.map.doors?.forEach((door) => this.renderDoor(ctx, door));
+    state.map.doors?.forEach((door) => {
+      if (door.segment.length === 2) {
+        if (
+          !this.isCellDiscovered(state, door.segment[0].x, door.segment[0].y) &&
+          !this.isCellDiscovered(state, door.segment[1].x, door.segment[1].y)
+        ) {
+          return;
+        }
+      }
+      this.renderDoor(ctx, door);
+    });
   }
 
   private renderDoor(ctx: CanvasRenderingContext2D, door: Door) {
