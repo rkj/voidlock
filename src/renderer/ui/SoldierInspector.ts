@@ -13,11 +13,14 @@ import { Icons } from "@src/renderer/Icons";
 import { StatDisplay } from "@src/renderer/ui/StatDisplay";
 import { CAMPAIGN_DEFAULTS } from "@src/engine/config/CampaignDefaults";
 
+import { ModalService } from "@src/renderer/ui/ModalService";
+
 export interface SoldierInspectorOptions {
   manager: CampaignManager;
   onUpdate: () => void;
   onRecruit?: (soldierId: string) => void;
   onRevive?: (soldierId: string) => void;
+  modalService: ModalService;
 }
 
 interface WeaponStats {
@@ -33,6 +36,7 @@ export class SoldierInspector {
   private onUpdate: () => void;
   private onRecruit?: (soldierId: string) => void;
   private onRevive?: (soldierId: string) => void;
+  private modalService: ModalService;
 
   private soldier: CampaignSoldier | SquadSoldierConfig | null = null;
   private isShop: boolean = false;
@@ -43,6 +47,7 @@ export class SoldierInspector {
     this.onUpdate = options.onUpdate;
     this.onRecruit = options.onRecruit;
     this.onRevive = options.onRevive;
+    this.modalService = options.modalService;
   }
 
   public setSoldier(soldier: CampaignSoldier | SquadSoldierConfig | null) {
@@ -138,6 +143,77 @@ export class SoldierInspector {
       deadDiv.className = "w-full dead-warning";
       deadDiv.textContent = "Soldier is Deceased - Equipment Locked";
       content.appendChild(deadDiv);
+    }
+
+    // Header with Rename (Campaign Only)
+    if (this.isCampaign && "id" in this.soldier && this.soldier.id) {
+      const state = this.manager.getState();
+      const rosterSoldier = state?.roster.find((s) => s.id === (this.soldier as any).id);
+      if (rosterSoldier) {
+        const header = document.createElement("div");
+        header.className = "flex-row justify-between align-center w-full p-10 card";
+        header.style.background = "var(--color-surface-elevated)";
+
+        const nameInfo = document.createElement("div");
+        nameInfo.className = "flex-row align-center gap-10";
+        nameInfo.innerHTML = `
+          <div class="flex-col">
+            <h3 style="margin:0; font-size:1.2em; color:var(--color-accent);">${rosterSoldier.name}</h3>
+            <div style="font-size:0.8em; color:var(--color-text-muted);">Rank ${rosterSoldier.level} ${ArchetypeLibrary[rosterSoldier.archetypeId]?.name || ""}</div>
+          </div>
+        `;
+
+        const renameBtn = document.createElement("button");
+        renameBtn.innerHTML = "✎";
+        renameBtn.title = "Rename Soldier";
+        renameBtn.className = "icon-button";
+        renameBtn.style.padding = "4px 8px";
+        renameBtn.style.fontSize = "1em";
+        renameBtn.style.margin = "0";
+        renameBtn.onclick = async () => {
+          const newName = await this.modalService.prompt(
+            "Enter new name for this soldier:",
+            rosterSoldier.name,
+            "Rename Soldier",
+          );
+          if (newName && newName.trim() !== "" && newName !== rosterSoldier.name) {
+            this.manager.renameSoldier(rosterSoldier.id, newName.trim());
+            this.onUpdate();
+          }
+        };
+        nameInfo.appendChild(renameBtn);
+        header.appendChild(nameInfo);
+
+        const statusBadge = document.createElement("div");
+        statusBadge.className = "status-badge";
+        statusBadge.textContent = rosterSoldier.status;
+        statusBadge.style.fontSize = "0.7em";
+        statusBadge.style.padding = "2px 6px";
+        statusBadge.style.borderRadius = "4px";
+        statusBadge.style.background = rosterSoldier.status === "Healthy" ? "var(--color-primary)" : (rosterSoldier.status === "Dead" ? "var(--color-danger)" : "var(--color-hive)");
+        header.appendChild(statusBadge);
+
+        content.appendChild(header);
+
+        // Quick Actions (Heal)
+        if (rosterSoldier.status === "Wounded") {
+          const actions = document.createElement("div");
+          actions.className = "flex-row gap-10 w-full";
+          const healBtn = document.createElement("button");
+          healBtn.className = "menu-button w-full";
+          healBtn.disabled = !state || state.scrap < 50;
+          healBtn.innerHTML = `
+            <div class="btn-label">Heal Unit</div>
+            <div class="btn-sub">Cost: 50 Scrap</div>
+          `;
+          healBtn.onclick = () => {
+            this.manager.healSoldier(rosterSoldier.id);
+            this.onUpdate();
+          };
+          actions.appendChild(healBtn);
+          content.appendChild(actions);
+        }
+      }
     }
 
     // Soldier Stats Panel

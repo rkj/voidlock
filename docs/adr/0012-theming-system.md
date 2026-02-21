@@ -9,7 +9,7 @@
 Voidlock currently uses hardcoded colors, SVG icons, and visual styles scattered across multiple layers of the application:
 
 - **Canvas Renderer**: Colors for walls, floors, doors, LOS, and units are hardcoded as strings (e.g., `"#00FFFF"`) in `Renderer.ts`.
-- **DOM UI**: Styles and colors are hardcoded in `index.html`, `HUDManager.ts`, and individual screen classes (e.g., `BarracksScreen.ts`).
+- **DOM UI**: Styles and colors are hardcoded in `index.html`, `HUDManager.ts`, and individual screen classes (e.g., `EquipmentScreen.ts`).
 - **Tactical Icons**: SVGs are hardcoded as Base64 data strings in `Icons.ts`.
 - **Assets**: Raw PNG assets exist in `NanoBanana Assets/` but are not integrated into a build pipeline.
 

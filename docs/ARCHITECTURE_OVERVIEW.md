@@ -59,7 +59,7 @@ Voidlock is a single-player tactical combat game where players control a squad o
 
 ```
 Main Menu → Campaign Setup → Mission Briefing → Tactical Combat →
-Debrief → Barracks/Equipment/Statistics → Next Mission → ... → Victory/Defeat
+Debrief → Ready Room (Equipment)/Statistics → Next Mission → ... → Victory/Defeat
 ```
 
 ______________________________________________________________________
@@ -289,9 +289,9 @@ ______________________________________________________________________
 │   │   │   ├── RoomDiscoveryManager.ts
 │   │   │   └── MenuStateMachine.ts
 │   │   ├── screens/              # Screen implementations
-│   │   │   ├── BarracksScreen.ts
 │   │   │   ├── CampaignScreen.ts
 │   │   │   ├── DebriefScreen.ts
+│   │   │   ├── EquipmentScreen.ts
 │   │   │   └── StatisticsScreen.ts
 │   │   ├── ui/                   # UI component library
 │   │   │   ├── HUDManager.ts

@@ -8,7 +8,6 @@ export type ScreenId =
   | "mission-setup"
   | "equipment"
   | "mission"
-  | "barracks"
   | "debrief"
   | "campaign-summary"
   | "statistics"
@@ -32,7 +31,6 @@ export class ScreenManager {
     this.registerScreen("mission-setup");
     this.registerScreen("equipment");
     this.registerScreen("mission");
-    this.registerScreen("barracks");
     this.registerScreen("debrief");
     this.registerScreen("campaign-summary");
     this.registerScreen("statistics");
@@ -160,7 +158,7 @@ export class ScreenManager {
     if (state && state.screenId === id) {
       return state.isCampaign;
     }
-    return id === "campaign" || id === "barracks" || id === "campaign-summary";
+    return id === "campaign" || id === "campaign-summary";
   }
 
   private forceShow(id: ScreenId, isCampaign: boolean = false) {

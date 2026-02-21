@@ -300,7 +300,7 @@ The UI must be optimized for visibility and information density, utilizing the f
       - **Equipment Screen**: Replacing the mixed stat panel.
         - **Soldier Card:** Optimized for 56px height.
           - **Soldier Info**: HP bar, Name, Status.
-          - **Tactical Number**: Displayed ONLY during active missions to correlate with the map. This number is mission-specific based on deployment order and MUST NOT appear in the Barracks, Equipment Screen, or Debrief Screen.
+          - **Tactical Number**: Displayed ONLY during active missions to correlate with the map. This number is mission-specific based on deployment order and MUST NOT appear in the Equipment Screen or Debrief Screen.
         - **Stat Visualization**:
           All labels (SPD, ACC, DMG, FR, ASP, Range) **MUST** be replaced with graphical icons to save space and improve scannability.
       - **Speed (SPD)**: MUST display the raw `speed` stat (e.g., "25"), NOT the derived tiles-per-second value.
@@ -349,11 +349,11 @@ The UI must be optimized for visibility and information density, utilizing the f
 To ensure economic clarity, all strategic and setup screens must follow a consistent resource display.
 
 - **Global Resource Header**:
-  - **Visibility**: MUST be visible on the Sector Map, Barracks, and Equipment (Ready Room) screens.
+  - **Visibility**: MUST be visible on the Sector Map and Equipment (Ready Room) screens.
   - **Content**:
     - **Scrap**: Displayed in `var(--color-primary)` (Green).
     - **Intel**: Displayed in `var(--color-accent)` (Blue).
-  - **Style**: Floating overlay in the top-right or integrated into the top bar, consistent with the `BarracksScreen` implementation.
+  - **Style**: Floating overlay in the top-right or integrated into the top bar, consistent with the `EquipmentScreen` implementation.
 - **Meta Stats Display**:
   - **Location**: Visible on the Campaign Screen (e.g., in the footer or a compact header panel).
   - **Content**: Summary of key global metrics (e.g., "Total Kills").
@@ -400,11 +400,11 @@ To ensure economic clarity, all strategic and setup screens must follow a consis
 
 ### 8.7 Shared UI Components
 
-To ensure consistency between Campaign Management (Barracks) and Mission Preparation (Ready Room), the following components must be shared:
+To ensure consistency between the Campaign Screen (Bridge) and Mission Preparation (Ready Room), the following components must be shared:
 
 - **Soldier Inspector (Loadout UI):**
 
-  - **Usage:** Used in both **BarracksScreen** and **EquipmentScreen**.
+  - **Usage:** Used in `EquipmentScreen`.
   - **Layout:**
     - **Left:** Soldier Stats (Attributes).
     - **Center:** Paper Doll (Visual slots for Right Hand, Left Hand, Body, Feet).
@@ -457,17 +457,17 @@ To ensure visual clarity and correct occlusion, the renderer must adhere to a st
 
 ### 8.9 Campaign Shell Architecture
 
-All campaign-related screens (Sector Map, Barracks, Engineering, Stats) MUST share a common parent layout ("The Campaign Shell") to ensure UI consistency and prevent layout shifts.
+All campaign-related screens (Sector Map, Ready Room, Engineering, Stats) MUST share a common parent layout ("The Campaign Shell") to ensure UI consistency and prevent layout shifts.
 
 - **Structure:**
   - **Top Bar (Persistent):**
     - **Left:** Mode Label (e.g. "Campaign Mode", "Service Record").
     - **Center (Navigation):** Tab-like buttons to switch between views.
-      - **Campaign Mode**: [Sector Map], [Barracks], [Service Record], [Settings].
+      - **Campaign Mode**: [Sector Map], [Ready Room], [Service Record], [Settings].
       - **Statistics Mode**: [Service Record].
     - **Right (Resources):** Persistent display of Scrap and Intel (Campaign only).
     - **Far Right:** Main Menu.
-  - **Content Area:** The active screen (Sector Map, Barracks, etc.) renders here.
+  - **Content Area:** The active screen (Sector Map, Ready Room, etc.) renders here.
 - **Benefits:**
   - Solves overlap issues where local UI elements cover global resources.
   - Provides a consistent anchor for navigation.
@@ -575,6 +575,6 @@ The interface must adapt to small touch screens without losing functionality.
 
 - **No Global Scroll**: The main application window (`<body>`) MUST NEVER display a scrollbar. The game viewport must be fixed.
 
-- **Panel Scrolling**: Content that exceeds the available space (e.g., long lists in the Barracks or Shop) MUST scroll internally within its container.
+- **Panel Scrolling**: Content that exceeds the available space (e.g., long lists in the Ready Room or Shop) MUST scroll internally within its container.
 
 - **Scroll Visibility**: Scrollbars should be styled unobtrusively but remain visible to indicate overflow.

@@ -1,6 +1,5 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { BarracksScreen } from "@src/renderer/screens/BarracksScreen";
 import { CampaignScreen } from "@src/renderer/screens/CampaignScreen";
 import { EquipmentScreen } from "@src/renderer/screens/EquipmentScreen";
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
@@ -22,7 +21,6 @@ describe("Screen Keyboard Navigation Integration", () => {
 
   beforeEach(() => {
     document.body.innerHTML = `
-      <div id="screen-barracks"></div>
       <div id="screen-campaign"></div>
       <div id="screen-equipment"></div>
       <div id="screen-main-menu"></div>
@@ -62,33 +60,6 @@ describe("Screen Keyboard Navigation Integration", () => {
     expect(dispatcher.contextStack.length).toBe(1);
     // @ts-ignore
     expect(dispatcher.contextStack[0].id).toBe("mission-setup");
-
-    screen.hide();
-    // @ts-ignore
-    expect(dispatcher.contextStack.length).toBe(0);
-  });
-
-  it("BarracksScreen should push and pop input context", () => {
-    CampaignManager.resetInstance();
-    const manager = CampaignManager.getInstance(new MockStorageProvider());
-    const mockModalService = {} as any;
-    const onBack = vi.fn();
-
-    const screen = new BarracksScreen(
-      "screen-barracks",
-      manager,
-      mockModalService,
-      onBack,
-    );
-
-    // @ts-ignore
-    expect(dispatcher.contextStack.length).toBe(0);
-
-    screen.show();
-    // @ts-ignore
-    expect(dispatcher.contextStack.length).toBe(1);
-    // @ts-ignore
-    expect(dispatcher.contextStack[0].id).toBe("barracks");
 
     screen.hide();
     // @ts-ignore
@@ -141,6 +112,7 @@ describe("Screen Keyboard Navigation Integration", () => {
     const screen = new EquipmentScreen(
       "screen-equipment",
       manager,
+      {} as any, // modalService
       mockConfig,
       onSave,
       onBack,

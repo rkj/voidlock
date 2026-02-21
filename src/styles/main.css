@@ -2908,14 +2908,12 @@ label {
     flex-shrink: 0 !important;
   }
 
-  .equipment-main-content,
-  .barracks-main-content {
+  .equipment-main-content {
     flex-direction: column !important;
     overflow-y: auto !important;
   }
 
-  .equipment-main-content .panel,
-  .barracks-main-content .panel {
+  .equipment-main-content .panel {
     width: 100% !important;
     min-width: 0 !important;
     max-width: none !important;

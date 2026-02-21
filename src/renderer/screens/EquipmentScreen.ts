@@ -12,19 +12,24 @@ import { InputDispatcher } from "../InputDispatcher";
 import { UIUtils } from "../utils/UIUtils";
 import { FocusManager } from "../utils/FocusManager";
 
+import { ModalService } from "@src/renderer/ui/ModalService";
+
 export class EquipmentScreen {
   private container: HTMLElement;
   private manager: CampaignManager;
+  private modalService: ModalService;
   private config: SquadConfig;
   private selectedSoldierIndex: number = 0;
   private recruitMode: boolean = false;
   private reviveMode: boolean = false;
   private onSave: (config: SquadConfig) => void;
+  private onLaunch?: (config: SquadConfig) => void;
   private onBack: () => void;
   private onUpdate?: () => void;
   private inspector: SoldierInspector;
   private isShop: boolean = false;
   private isCampaign: boolean = false;
+  private hasNodeSelected: boolean = false;
   private savedScrollTop: { left: number; center: number; right: number } = {
     left: 0,
     center: 0,
@@ -34,10 +39,12 @@ export class EquipmentScreen {
   constructor(
     containerId: string,
     manager: CampaignManager,
+    modalService: ModalService,
     initialConfig: SquadConfig,
     onSave: (config: SquadConfig) => void,
     onBack: () => void,
     onUpdate?: () => void,
+    onLaunch?: (config: SquadConfig) => void,
     isShop: boolean = false,
     isCampaign: boolean = false,
   ) {
@@ -45,15 +52,18 @@ export class EquipmentScreen {
     if (!el) throw new Error(`Container #${containerId} not found`);
     this.container = el;
     this.manager = manager;
+    this.modalService = modalService;
     this.config = structuredClone(initialConfig); // Deep copy
     this.applyDefaults();
     this.onSave = onSave;
     this.onBack = onBack;
     this.onUpdate = onUpdate;
+    this.onLaunch = onLaunch;
     this.isShop = isShop;
     this.isCampaign = isCampaign;
     this.inspector = new SoldierInspector({
       manager: this.manager,
+      modalService: this.modalService,
       onUpdate: () => {
         FocusManager.saveFocus();
         this.render();
@@ -93,6 +103,10 @@ export class EquipmentScreen {
   public setCampaign(isCampaign: boolean) {
     this.isCampaign = isCampaign;
     this.inspector.setCampaign(isCampaign);
+  }
+
+  public setHasNodeSelected(hasNodeSelected: boolean) {
+    this.hasNodeSelected = hasNodeSelected;
   }
 
   public show() {
@@ -294,6 +308,25 @@ export class EquipmentScreen {
 
     footer.appendChild(backBtn);
     footer.appendChild(saveBtn);
+
+    // Launch Mission Button (Campaign flow only)
+    if (this.isCampaign && this.hasNodeSelected && this.onLaunch) {
+      const launchBtn = document.createElement("button");
+      launchBtn.textContent = "Launch Mission";
+      launchBtn.className = "primary-button";
+      launchBtn.style.background = "var(--color-hive)"; // More prominent
+      launchBtn.style.borderColor = "var(--color-hive)";
+      launchBtn.setAttribute("data-focus-id", "btn-launch-mission");
+      launchBtn.style.margin = "0";
+      launchBtn.style.height = "32px";
+      launchBtn.style.padding = "0 15px";
+      launchBtn.style.fontSize = "0.9em";
+      launchBtn.style.display = "flex";
+      launchBtn.style.alignItems = "center";
+      launchBtn.onclick = () => this.onLaunch!(this.config);
+      footer.appendChild(launchBtn);
+    }
+
     this.container.appendChild(footer);
   }
 

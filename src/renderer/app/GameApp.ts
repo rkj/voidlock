@@ -29,7 +29,6 @@ import { MissionCoordinator } from "./MissionCoordinator";
 import { CampaignFlowCoordinator } from "./CampaignFlowCoordinator";
 import { MissionSetupManager } from "./MissionSetupManager";
 import { CampaignScreen } from "../screens/CampaignScreen";
-import { BarracksScreen } from "../screens/BarracksScreen";
 import { DebriefScreen } from "../screens/DebriefScreen";
 import { EquipmentScreen } from "../screens/EquipmentScreen";
 import { MissionSetupScreen } from "../screens/MissionSetupScreen";
@@ -85,7 +84,6 @@ export class GameApp {
 
   // screens
   private campaignScreen!: CampaignScreen;
-  private barracksScreen!: BarracksScreen;
   private debriefScreen!: DebriefScreen;
   private equipmentScreen!: EquipmentScreen;
   private missionSetupScreen!: MissionSetupScreen;
@@ -261,17 +259,6 @@ export class GameApp {
       () => this.onShowSummary(),
     );
 
-    this.barracksScreen = new BarracksScreen(
-      "screen-barracks",
-      this.campaignManager,
-      this.modalService,
-      () => {
-        this.switchScreen("campaign", true);
-        this.campaignShell.show("campaign", "sector-map");
-      },
-      () => this.campaignShell.refresh(),
-    );
-
     this.debriefScreen = new DebriefScreen(
       "screen-debrief",
       this.gameClient,
@@ -307,6 +294,7 @@ export class GameApp {
     this.equipmentScreen = new EquipmentScreen(
       "screen-equipment",
       this.campaignManager,
+      this.modalService,
       this.missionSetupManager.currentSquad,
       (config) => this.onEquipmentConfirmed(config),
       () => {
@@ -318,6 +306,11 @@ export class GameApp {
         );
       },
       () => this.campaignShell.refresh(),
+      (config) => {
+        this.missionSetupManager.currentSquad = config;
+        this.missionSetupManager.saveCurrentConfig();
+        this.launchMission();
+      },
       false, // isShop
       false, // isCampaign
     );
@@ -629,7 +622,6 @@ export class GameApp {
     return [
       this.mainMenuScreen,
       this.campaignScreen,
-      this.barracksScreen,
       this.debriefScreen,
       this.equipmentScreen,
       this.missionSetupScreen,
@@ -650,8 +642,6 @@ export class GameApp {
         return this.missionSetupScreen;
       case "equipment":
         return this.equipmentScreen;
-      case "barracks":
-        return this.barracksScreen;
       case "debrief":
         return this.debriefScreen;
       case "campaign-summary":
@@ -682,19 +672,38 @@ export class GameApp {
 
     switch (tabId) {
       case "setup":
-        this.squadBuilder.update(
-          this.missionSetupManager.currentSquad,
-          this.missionSetupManager.currentMissionType,
-          isCustomFlow ? false : hasCampaign,
-        );
-        this.switchScreen("mission-setup", isCustomFlow ? false : hasCampaign);
+        if (hasCampaign || !isCustomFlow) {
+          // If we somehow get here in campaign, go to ready-room
+          this.missionSetupManager.loadAndApplyConfig(true);
+          this.equipmentScreen.setCampaign(true);
+          this.equipmentScreen.setHasNodeSelected(!!this.missionSetupManager.currentCampaignNode);
+          this.equipmentScreen.updateConfig(
+            this.missionSetupManager.currentSquad,
+          );
+          this.switchScreen("equipment", true);
+        } else {
+          this.squadBuilder.update(
+            this.missionSetupManager.currentSquad,
+            this.missionSetupManager.currentMissionType,
+            false,
+          );
+          this.switchScreen("mission-setup", false);
+        }
         break;
       case "sector-map":
         this.switchScreen("campaign", true);
         break;
-      case "barracks":
-        this.switchScreen("barracks", true);
+      case "ready-room": {
+        const hasCampaign = !!this.campaignManager.getState();
+        this.missionSetupManager.loadAndApplyConfig(hasCampaign);
+        this.equipmentScreen.setCampaign(hasCampaign);
+        this.equipmentScreen.setHasNodeSelected(!!this.missionSetupManager.currentCampaignNode);
+        this.equipmentScreen.updateConfig(
+          this.missionSetupManager.currentSquad,
+        );
+        this.switchScreen("equipment", hasCampaign);
         break;
+      }
       case "engineering":
         this.switchScreen("engineering", hasCampaign);
         break;
@@ -751,19 +760,27 @@ export class GameApp {
           ? this.missionSetupManager.rehydrateCampaignNode()
           : false;
 
-        this.missionSetupManager.loadAndApplyConfig(rehydrated);
         if (rehydrated) {
+          // Redirect to equipment screen (Spec: Sector -> Equipment -> Launch)
           this.applyCampaignTheme();
+          this.missionSetupManager.loadAndApplyConfig(true);
+          this.equipmentScreen.setCampaign(true);
+          this.equipmentScreen.setHasNodeSelected(true);
+          this.equipmentScreen.updateConfig(
+            this.missionSetupManager.currentSquad,
+          );
+          this.switchScreen("equipment", true);
           this.campaignShell.show("campaign", "sector-map", false);
         } else {
+          this.missionSetupManager.loadAndApplyConfig(false);
           this.campaignShell.show("custom", "setup");
+          this.squadBuilder.update(
+            this.missionSetupManager.currentSquad,
+            this.missionSetupManager.currentMissionType,
+            false,
+          );
+          this.switchScreen("mission-setup", false);
         }
-        this.squadBuilder.update(
-          this.missionSetupManager.currentSquad,
-          this.missionSetupManager.currentMissionType,
-          rehydrated,
-        );
-        this.switchScreen("mission-setup", rehydrated);
         break;
       }
       case "equipment": {
@@ -786,11 +803,6 @@ export class GameApp {
         }
         break;
       }
-      case "barracks":
-        this.applyCampaignTheme();
-        this.switchScreen("barracks", true);
-        this.campaignShell.show("campaign", "barracks");
-        break;
       case "statistics":
         this.switchScreen("statistics", false);
         if (
@@ -927,15 +939,10 @@ export class GameApp {
       this.missionSetupManager.currentSquad = config;
       this.missionSetupManager.saveCurrentConfig();
 
-      // After equipment confirmed in campaign, go to mission-setup for final launch
-      this.missionSetupManager.loadAndApplyConfig(true);
-      this.squadBuilder.update(
-        this.missionSetupManager.currentSquad,
-        this.missionSetupManager.currentMissionType,
-        true,
-      );
-      this.switchScreen("mission-setup", true);
-      this.campaignShell.show("campaign", "sector-map", false);
+      // Return to sector map (Spec: flow is Sector -> Equipment -> Launch)
+      // Confirm Squad just saves it and goes back
+      this.switchScreen("campaign", true);
+      this.campaignShell.show("campaign", "sector-map");
     } else {
       // In custom, just update the setup manager
       this.missionSetupManager.currentSquad = config;
@@ -1025,6 +1032,7 @@ export class GameApp {
     this.missionSetupManager.loadAndApplyConfig(true);
     this.missionSetupManager.saveCurrentConfig();
     this.equipmentScreen.setCampaign(true);
+    this.equipmentScreen.setHasNodeSelected(true);
     this.equipmentScreen.updateConfig(
       this.missionSetupManager.currentSquad,
     );

@@ -36,7 +36,7 @@ This directory contains UI components and managers for the Voidlock renderer.
 - **Objective HUD Cleanup**: Objectives list now hides coordinates by default (shown only in debug mode), removes explicit status text (Pending/Completed), and adds tooltips to status icons for better clarity.
 - **Enemy Intel**: New section in the right panel that displays icon-based stats for all currently visible enemies, grouped by type.
 - **Command Menu Rendering**: Generates clickable HTML for the tactical menu. Now includes a **Context Header (Breadcrumbs)** to indicate the current menu hierarchy (e.g., "Orders > Move").
-- **Soldier Inspector**: Shared component used in Barracks and Equipment screens.
+- **Soldier Inspector**: Shared component used in the Equipment Screen (Ready Room).
   - Displays innate soldier attributes (HP, SPD, Base ACC) and aggregate weapon stats.
   - Features a "Paper Doll" layout for equipping items to specific slots.
   - Supports full keyboard navigation and interaction for equipment management (Paper Doll and Armory).

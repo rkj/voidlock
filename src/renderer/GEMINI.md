@@ -25,7 +25,6 @@ This directory contains the main thread rendering logic and user interface for V
 - `ui/`: Specific UI components like the HUD and menu renderers.
 - `screens/`: Individual screen components for the Strategic and Tactical layers.
   - `CampaignScreen.ts`: Displays the Sector Map DAG.
-  - `BarracksScreen.ts`: Interface for roster management, recruitment, and soldier healing/equipment.
   - `EquipmentScreen.ts`: Handles soldier loadouts and armory. Implements pay-to-equip economic logic where new equipment purchases deduct Scrap from the campaign balance while re-equipping owned items is free.
   - `DebriefScreen.ts`: Displays mission results and plays accelerated replay in background. **Optimization:** Summary panel layout (padding, font sizes) is adjusted to ensure it remains non-scrollable at 1024x768 resolution.
   - `CampaignSummaryScreen.ts`: Displays final victory or defeat reports for the campaign.
@@ -41,7 +40,7 @@ This directory contains the main thread rendering logic and user interface for V
 - **Mission Setup**: Allows configuring map parameters for custom missions. Automatically calculates the recommended number of enemy spawn points based on map size (`1 + floor((size - 6) / 2)`), while allowing manual overrides. Features a Campaign Context Header displaying difficulty, mission number, and sector when in campaign mode. Now supports **Environment Theme selection** (Default, Industrial, Hive) for custom missions, which persists in local configuration. Includes a **Visual Style Preview** that demonstrates the difference between "Tactical Icons" and "Sprites" rendering modes. Now integrated into `CampaignShell` for both Campaign and Custom modes to ensure consistent navigation.
 - **Fog of War**: Implements visual shroud and discovery states based on the simulation data.
 - **Reset Data**: Provides a way to wipe all campaign progress and settings via the Global Settings Screen (moved from Main Menu for safety).
-- **URL Synchronization**: The current screen (Main Menu, Campaign, Barracks, Mission Setup, etc.) is synchronized with the URL hash, allowing for deep linking and browser back/forward navigation.
+- **URL Synchronization**: The current screen (Main Menu, Campaign, Mission Setup, etc.) is synchronized with the URL hash, allowing for deep linking and browser back/forward navigation.
 - **Global Stats**: Displays cumulative statistics (Service Record) via a dedicated Statistics Screen, now a top-level global component (ADR 0032).
 - **UI Casing Standardization**: All UI labels, buttons, and headers are standardized to Title Case (instead of ALL CAPS) for better readability and professional look, especially on mobile devices (Spec 11.1).
 - **Visual Feedback**: Provides tactical information through tracers, health bars, and status overlays. Includes a high-precision threat bar in `index.html` with pixel-perfect divider alignment.

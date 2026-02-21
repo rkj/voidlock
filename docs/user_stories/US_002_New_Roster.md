@@ -11,7 +11,7 @@ As a Commander, I want to expand my squad and personalize my soldiers so that I 
 
 ## Action List
 
-1. Click "Barracks" tab in Campaign Shell -> Barracks Screen opens.
+1. Click "Ready Room" tab in Campaign Shell -> Equipment Screen opens.
 1. Click "Recruit (100 Scrap)" on an empty roster slot -> New soldier appears.
 1. Observe the new soldier's name -> Must be a sci-fi military name, not a generic ID.
 1. Click the "Inspect/Manage" button on a soldier -> Soldier Inspector opens.
