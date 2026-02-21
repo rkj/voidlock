@@ -55,16 +55,7 @@ export class MovementManager {
           ...unit,
           pos: { ...unit.targetPos },
           path: nextPath,
-          targetPos: {
-            x:
-              nextPath[0].x +
-              MOVEMENT.CENTER_OFFSET +
-              (unit.visualJitter?.x || 0),
-            y:
-              nextPath[0].y +
-              MOVEMENT.CENTER_OFFSET +
-              (unit.visualJitter?.y || 0),
-          },
+          targetPos: MathUtils.getCellCenter(nextPath[0], unit.visualJitter),
         };
       }
     } else {

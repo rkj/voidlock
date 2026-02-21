@@ -94,7 +94,7 @@ export class RangedKiteAI implements IEnemyAI {
       if (dist < fleeThreshold) {
         // Flee: Find a cell further away
         const fleeTarget = this.findFleeTarget(
-          enemy.pos,
+          enemy,
           targetSoldier.pos,
           grid,
           pathfinder,
@@ -107,7 +107,7 @@ export class RangedKiteAI implements IEnemyAI {
           );
           if (path && path.length > 0) {
             enemy.path = path;
-            enemy.targetPos = { x: path[0].x + 0.5, y: path[0].y + 0.5 };
+            enemy.targetPos = MathUtils.getCellCenter(path[0], enemy.visualJitter);
           }
         }
       } else if (dist > optimalRange) {
@@ -119,7 +119,7 @@ export class RangedKiteAI implements IEnemyAI {
         );
         if (path && path.length > 0) {
           enemy.path = path;
-          enemy.targetPos = { x: path[0].x + 0.5, y: path[0].y + 0.5 };
+          enemy.targetPos = MathUtils.getCellCenter(path[0], enemy.visualJitter);
         }
       } else {
         // In range. Hold position to fire.
@@ -155,7 +155,7 @@ export class RangedKiteAI implements IEnemyAI {
           const path = pathfinder.findPath(currentCell, { x: tx, y: ty });
           if (path && path.length > 0) {
             enemy.path = path;
-            enemy.targetPos = { x: path[0].x + 0.5, y: path[0].y + 0.5 };
+            enemy.targetPos = MathUtils.getCellCenter(path[0], enemy.visualJitter);
             break;
           }
         }
@@ -165,12 +165,13 @@ export class RangedKiteAI implements IEnemyAI {
   }
 
   private findFleeTarget(
-    start: Vector2,
+    enemy: Enemy,
     threat: Vector2,
     grid: Grid,
     pathfinder: Pathfinder,
   ): Vector2 | null {
     // Try random directions away from threat
+    const start = enemy.pos;
     const candidates = [
       { x: start.x + 2, y: start.y },
       { x: start.x - 2, y: start.y },
@@ -192,7 +193,7 @@ export class RangedKiteAI implements IEnemyAI {
           const path = pathfinder.findPath(MathUtils.toCellCoord(start), cell);
           if (path) {
             maxDist = dist;
-            best = { x: cell.x + 0.5, y: cell.y + 0.5 };
+            best = MathUtils.getCellCenter(cell, enemy.visualJitter);
           }
         }
       }

@@ -159,10 +159,10 @@ export class EnemyManager {
             currentEnemy.pos = { ...currentEnemy.targetPos };
             currentEnemy.path = currentEnemy.path.slice(1);
             if (currentEnemy.path.length > 0) {
-              currentEnemy.targetPos = {
-                x: currentEnemy.path[0].x + 0.5,
-                y: currentEnemy.path[0].y + 0.5,
-              };
+              currentEnemy.targetPos = MathUtils.getCellCenter(
+                currentEnemy.path[0],
+                currentEnemy.visualJitter,
+              );
             } else {
               currentEnemy.targetPos = undefined;
             }

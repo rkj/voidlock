@@ -30,6 +30,7 @@ export type Entity = {
   pos: Vector2;
   hp: number;
   maxHp: number;
+  visualJitter?: Vector2;
 };
 
 export type Attacker = {
@@ -57,7 +58,6 @@ export type Unit = Entity & {
   stats: UnitStats;
   path?: Vector2[];
   targetPos?: Vector2;
-  visualJitter?: Vector2;
   rightHand?: string;
   leftHand?: string;
   body?: string;

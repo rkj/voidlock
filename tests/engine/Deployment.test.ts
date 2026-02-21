@@ -121,8 +121,8 @@ describe("Deployment Phase", () => {
     });
 
     const unit1After = engine.getState().units.find((u) => u.id === "s1")!;
-    expect(unit1After.pos.x).toBe(2.5);
-    expect(unit1After.pos.y).toBe(1.5);
+    expect(unit1After.pos.x).toBe(2.3);
+    expect(unit1After.pos.y).toBe(1.3);
     expect(unit1After.pos).not.toEqual(originalPos);
   });
 
@@ -151,7 +151,7 @@ describe("Deployment Phase", () => {
       false,
     );
 
-    // Manually place s1 at (1.5, 1.5) and s2 at (2.5, 1.5)
+    // Manually place s1 at cell (1, 1) and s2 at cell (2, 1)
     engine.applyCommand({
       type: CommandType.DEPLOY_UNIT,
       unitId: "s1",
@@ -163,14 +163,15 @@ describe("Deployment Phase", () => {
       target: { x: 2.5, y: 1.5 },
     });
 
-    const s1Pos = {
-      ...engine.getState().units.find((u) => u.id === "s1")!.pos,
-    };
-    const s2Pos = {
-      ...engine.getState().units.find((u) => u.id === "s2")!.pos,
-    };
+    // s1 (Tactical 1, jitter -0.2, -0.2) at (1,1) -> (1.3, 1.3)
+    // s2 (Tactical 2, jitter 0.2, -0.2) at (2,1) -> (2.7, 1.3)
+    const s1Pos = { x: 1.3, y: 1.3 };
+    const s2Pos = { x: 2.7, y: 1.3 };
 
-    // Deploy s1 onto s2's position
+    expect(engine.getState().units.find((u) => u.id === "s1")!.pos).toEqual(s1Pos);
+    expect(engine.getState().units.find((u) => u.id === "s2")!.pos).toEqual(s2Pos);
+
+    // Deploy s1 onto s2's position (cell 2,1)
     engine.applyCommand({
       type: CommandType.DEPLOY_UNIT,
       unitId: "s1",
@@ -180,8 +181,10 @@ describe("Deployment Phase", () => {
     const s1After = engine.getState().units.find((u) => u.id === "s1")!;
     const s2After = engine.getState().units.find((u) => u.id === "s2")!;
 
-    expect(s1After.pos).toEqual(s2Pos);
-    expect(s2After.pos).toEqual(s1Pos);
+    // s1 after move to cell (2,1) -> (2.3, 1.3)
+    // s2 after swap to cell (1,1) -> (1.7, 1.3)
+    expect(s1After.pos).toEqual({ x: 2.3, y: 1.3 });
+    expect(s2After.pos).toEqual({ x: 1.7, y: 1.3 });
   });
 
   it("should transition to Playing on START_MISSION", () => {
