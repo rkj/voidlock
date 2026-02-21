@@ -10,7 +10,7 @@ Proposed
 
 ## Supersedes
 
-This ADR supersedes `docs/adr/0037-timeline-capture-navigation-architecture.md`.
+This ADR supersedes `docs/adr/0043-timeline-capture-navigation-architecture.md`.
 
 ## Problem Statement
 
