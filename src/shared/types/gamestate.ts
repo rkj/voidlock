@@ -78,6 +78,7 @@ export enum MissionType {
   DestroyHive = "DestroyHive",
   EscortVIP = "EscortVIP",
   RecoverIntel = "RecoverIntel",
+  Prologue = "Prologue",
 }
 
 export type GameState = {

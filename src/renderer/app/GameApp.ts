@@ -55,6 +55,7 @@ import { CloudSyncService } from "@src/services/CloudSyncService";
 import { SaveManager } from "@src/services/SaveManager";
 import { InputDispatcher } from "../InputDispatcher";
 import { Renderer } from "../Renderer";
+import { TutorialManager } from "../controllers/TutorialManager";
 
 const VERSION = pkg.version;
 
@@ -72,6 +73,7 @@ export class GameApp {
   private modalService!: ModalService;
   private campaignShell!: CampaignShell;
   private cloudSync!: CloudSyncService;
+  private tutorialManager!: TutorialManager;
 
   // Coordinators
   private inputBinder!: InputBinder;
@@ -151,6 +153,14 @@ export class GameApp {
       mapGeneratorFactory(config),
     );
     this.menuController = new MenuController(this.gameClient);
+    
+    this.tutorialManager = new TutorialManager(this.gameClient, (msg) => {
+        Logger.info("Advisor:", msg);
+        if (msg.blocking) {
+            this.modalService.alert(msg.text); // Temporary simple UI
+        }
+    });
+    this.tutorialManager.enable();
 
     // Initialize Coordinators
     this.missionCoordinator = new MissionCoordinator(
