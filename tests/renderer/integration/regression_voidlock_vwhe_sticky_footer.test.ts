@@ -68,8 +68,10 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => ({
   CampaignManager: {
     getInstance: vi.fn().mockReturnValue({
       getState: vi.fn(() => null),
-        getStorage: vi.fn(),
-        getSyncStatus: vi.fn().mockReturnValue("local-only"),
+      getStorage: vi.fn(),
+      getSyncStatus: vi.fn().mockReturnValue("local-only"),
+      addChangeListener: vi.fn(),
+      removeChangeListener: vi.fn(),
       load: vi.fn(),
       save: vi.fn(),
     }),

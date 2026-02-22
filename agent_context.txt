@@ -1,0 +1,30 @@
+CRITICAL: Many test files mock @src/renderer/campaign/CampaignManager but are missing addChangeListener and removeChangeListener methods. You MUST update these mocks to include both as vi.fn(). Example broken mock:
+vi.mock("@src/renderer/campaign/CampaignManager", () => ({
+  CampaignManager: {
+    getInstance: vi.fn().mockReturnValue({
+      getState: vi.fn(() => null),
+      getStorage: vi.fn(),
+      getSyncStatus: vi.fn().mockReturnValue("local-only"),
+      load: vi.fn(),
+      save: vi.fn(),
+    }),
+  },
+}));
+
+Fix it to:
+vi.mock("@src/renderer/campaign/CampaignManager", () => ({
+  CampaignManager: {
+    getInstance: vi.fn().mockReturnValue({
+      getState: vi.fn(() => null),
+      getStorage: vi.fn(),
+      getSyncStatus: vi.fn().mockReturnValue("local-only"),
+      addChangeListener: vi.fn(),
+      removeChangeListener: vi.fn(),
+      load: vi.fn(),
+      save: vi.fn(),
+    }),
+  },
+}));
+
+Use 'grep -rl "vi.mock.*CampaignManager" tests' to find files. Use 'replace' tool. DO NOT rely on 'read_file' if it returns empty string (use grep/sed if needed, but 'replace' is preferred).
+Also check for other variations like getInstance: vi.fn().mockReturnValue({ ... }) missing these methods.
