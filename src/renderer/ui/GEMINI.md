@@ -13,6 +13,7 @@ This directory contains UI components and managers for the Voidlock renderer.
 - `SoldierInspector.ts`: Unified component for viewing soldier attributes and managing equipment (Paper Doll and Armory). Now excludes equipment slot 'Remove' buttons from keyboard navigation.
 - `EventModal.ts`: Narrative event and outcome modals for the campaign mode.
 - `ModalService.ts`: Centralized service for themed UI notifications and confirmations, replacing native dialogs.
+- `AdvisorOverlay.ts`: UI component for the Advisor ("Mother"), supporting non-blocking toasts and blocking modals with character portraits and text. Features a green monochrome CRT aesthetic.
 - `TooltipManager.ts`: Manages "Tap-to-Inspect" informational tooltips for mobile devices.
 
 ## Subdirectories

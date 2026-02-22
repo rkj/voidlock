@@ -56,6 +56,7 @@ import { SaveManager } from "@src/services/SaveManager";
 import { InputDispatcher } from "../InputDispatcher";
 import { Renderer } from "../Renderer";
 import { TutorialManager } from "../controllers/TutorialManager";
+import { AdvisorOverlay } from "../ui/AdvisorOverlay";
 
 const VERSION = pkg.version;
 
@@ -74,6 +75,11 @@ export class GameApp {
   private campaignShell!: CampaignShell;
   private cloudSync!: CloudSyncService;
   private tutorialManager!: TutorialManager;
+  private advisorOverlay!: AdvisorOverlay;
+
+  public get AdvisorOverlay(): AdvisorOverlay {
+    return this.advisorOverlay;
+  }
 
   // Coordinators
   private inputBinder!: InputBinder;
@@ -154,11 +160,9 @@ export class GameApp {
     );
     this.menuController = new MenuController(this.gameClient);
     
+    this.advisorOverlay = new AdvisorOverlay(this.gameClient);
     this.tutorialManager = new TutorialManager(this.gameClient, (msg) => {
-        Logger.info("Advisor:", msg);
-        if (msg.blocking) {
-            this.modalService.alert(msg.text); // Temporary simple UI
-        }
+        this.advisorOverlay.showMessage(msg);
     });
     this.tutorialManager.enable();
 
