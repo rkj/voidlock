@@ -28,7 +28,7 @@ export class InteractionBehavior implements Behavior<BehaviorContext & Objective
     _director?: ItemEffectHandler,
   ): BehaviorResult {
     let currentUnit = { ...unit };
-    if (currentUnit.state !== UnitState.Idle) {
+    if (currentUnit.state !== UnitState.Idle && currentUnit.state !== UnitState.Attacking) {
       return { unit: currentUnit, handled: false };
     }
 
