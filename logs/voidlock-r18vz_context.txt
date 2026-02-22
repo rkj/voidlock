@@ -1,0 +1,22 @@
+The tests/services/CloudSyncService.test.ts is failing with the following error:
+
+AssertionError: expected { version: '0.1.0', …(13) } to deeply equal { version: '0.1.0', seed: 123, …(12) }
+
+- Expected
++ Received
+
+@@ -15,10 +15,11 @@
+      "enemyGrowthPerMission": 1,
+      "mapGeneratorType": "DenseShip",
+      "mapGrowthRate": 1,
+      "mode": "Preset",
+      "resourceScarcity": 1,
++     "skipPrologue": false,
+      "startingScrap": 500,
+    },
+    "saveVersion": 1,
+    "scrap": 100,
+    "seed": 123,
+
+This is due to the recent integration of the Prologue system which added skipPrologue to CampaignConfig.
+Update the mockCampaignData or the expected object in the test to include skipPrologue: false.
