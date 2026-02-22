@@ -27,6 +27,8 @@ describe("EquipmentScreen Focus Regression", () => {
         rules: { economyMode: "Open" },
         unlockedArchetypes: ["assault"],
       }),
+      addChangeListener: vi.fn(),
+      removeChangeListener: vi.fn(),
       spendScrap: vi.fn(),
       assignEquipment: vi.fn(),
       recruitSoldier: vi.fn().mockReturnValue("new-id"),

@@ -135,6 +135,8 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
         getState: vi.fn(() => mockCampaignState),
         getStorage: vi.fn(),
         getSyncStatus: vi.fn().mockReturnValue("local-only"),
+        addChangeListener: vi.fn(),
+        removeChangeListener: vi.fn(),
         load: vi.fn(),
         processMissionResult: vi.fn((report) => {
           if (report.result === "Won") {

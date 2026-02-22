@@ -34,6 +34,8 @@ describe("EquipmentScreen Stats and Tooltips", () => {
         rules: { economyMode: "Open" },
         unlockedArchetypes: ["assault", "medic", "heavy", "scout"],
       }),
+      addChangeListener: vi.fn(),
+      removeChangeListener: vi.fn(),
       spendScrap: vi.fn(),
       assignEquipment: vi.fn(),
     };
@@ -131,7 +133,7 @@ describe("EquipmentScreen Stats and Tooltips", () => {
     expect(pulseRifle.title).toContain("Versatile assault rifle");
     expect(pulseRifle.title).toContain("Damage: 20");
     expect(pulseRifle.title).toContain("Range: 10");
-    expect(pulseRifle.title).toContain("Cooldown: 600ms");
+    expect(pulseRifle.title).toContain("Rate of Fire: 1.7/s");
   });
 
   it("should have tooltips for global supply items", () => {

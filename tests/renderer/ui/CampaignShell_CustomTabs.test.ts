@@ -17,6 +17,8 @@ describe("CampaignShell Custom Mode Tabs", () => {
 
     manager = {
       getState: vi.fn().mockReturnValue(null), // No campaign state in custom mode
+      addChangeListener: vi.fn(),
+      removeChangeListener: vi.fn(),
     };
 
     onTabChange = vi.fn();

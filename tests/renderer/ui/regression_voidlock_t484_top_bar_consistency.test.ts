@@ -22,6 +22,8 @@ describe("CampaignShell Consistency", () => {
         currentSector: 2,
         status: "Active",
       }),
+      addChangeListener: vi.fn(),
+      removeChangeListener: vi.fn(),
       getSyncStatus: vi.fn().mockReturnValue("local-only"),
       getStorage: vi.fn(),
     };

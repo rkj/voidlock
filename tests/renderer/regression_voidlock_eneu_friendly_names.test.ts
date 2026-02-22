@@ -21,6 +21,8 @@ describe("Regression: voidlock-eneu - Friendly Weapon Names in Soldier List", ()
 
     mockManager = {
       getState: vi.fn().mockReturnValue(null),
+      addChangeListener: vi.fn(),
+      removeChangeListener: vi.fn(),
     };
 
     onSave = vi.fn();

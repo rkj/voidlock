@@ -52,6 +52,8 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
           },
         ],
       }),
+      addChangeListener: vi.fn(),
+      removeChangeListener: vi.fn(),
       spendScrap: vi.fn(),
       assignEquipment: vi.fn(),
     };

@@ -36,6 +36,8 @@ export class CampaignManager {
   private missionReconciler: MissionReconciler;
   private eventManager: EventManager;
 
+  private listeners: Set<() => void> = new Set();
+
   /**
    * Private constructor to enforce singleton pattern.
    * @param storage The storage provider to use for persistence.
@@ -69,6 +71,27 @@ export class CampaignManager {
    */
   public getStorage(): StorageProvider {
     return this.storage;
+  }
+
+  /**
+   * Adds a listener for campaign state changes.
+   */
+  public addChangeListener(listener: () => void): void {
+    this.listeners.add(listener);
+  }
+
+  /**
+   * Removes a listener for campaign state changes.
+   */
+  public removeChangeListener(listener: () => void): void {
+    this.listeners.delete(listener);
+  }
+
+  /**
+   * Notifies all listeners of a campaign state change.
+   */
+  private notifyListeners(): void {
+    this.listeners.forEach((listener) => listener());
   }
 
   /**
@@ -276,6 +299,7 @@ export class CampaignManager {
     if (!this.state) return;
     this.state.saveVersion = (this.state.saveVersion || 0) + 1;
     this.storage.save(STORAGE_KEY, this.state);
+    this.notifyListeners();
   }
 
   /**

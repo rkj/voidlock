@@ -25,6 +25,8 @@ describe("EquipmentScreen Regression: Price Formatting", () => {
         scrap: 1000,
         roster: [],
       }),
+      addChangeListener: vi.fn(),
+      removeChangeListener: vi.fn(),
       spendScrap: vi.fn(),
     };
 

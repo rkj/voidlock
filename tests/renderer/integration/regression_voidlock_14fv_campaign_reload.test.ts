@@ -68,6 +68,8 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
         getState: vi.fn(() => currentCampaignState),
         getStorage: vi.fn(),
         getSyncStatus: vi.fn().mockReturnValue("local-only"),
+        addChangeListener: vi.fn(),
+        removeChangeListener: vi.fn(),
         load: vi.fn(() => !!currentCampaignState),
         save: vi.fn(),
         startNewCampaign: vi.fn((seed, diff, _pause, theme) => {

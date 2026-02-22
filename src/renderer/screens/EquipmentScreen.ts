@@ -35,6 +35,7 @@ export class EquipmentScreen {
     center: 0,
     right: 0,
   };
+  private changeListener: () => void;
 
   constructor(
     containerId: string,
@@ -61,14 +62,21 @@ export class EquipmentScreen {
     this.onLaunch = onLaunch;
     this.isShop = isShop;
     this.isCampaign = isCampaign;
+
+    this.changeListener = () => {
+      if (this.container.style.display !== "none") {
+        this.render();
+      }
+    };
+    this.manager.addChangeListener(this.changeListener);
+
     this.inspector = new SoldierInspector({
       manager: this.manager,
       modalService: this.modalService,
       onUpdate: () => {
-        FocusManager.saveFocus();
-        this.render();
-        FocusManager.restoreFocus(this.container);
-        if (this.onUpdate) this.onUpdate();
+        // Redundant with changeListener now, but doesn't hurt.
+        // Or we can remove it.
+        this.onUpdateInternal();
       },
       onRecruit: () => {
         this.recruitMode = true;
@@ -93,6 +101,13 @@ export class EquipmentScreen {
     });
     this.inspector.setShop(this.isShop);
     this.inspector.setCampaign(this.isCampaign);
+  }
+
+  private onUpdateInternal() {
+    FocusManager.saveFocus();
+    this.render();
+    FocusManager.restoreFocus(this.container);
+    if (this.onUpdate) this.onUpdate();
   }
 
   public setShop(isShop: boolean) {
