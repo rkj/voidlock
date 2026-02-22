@@ -167,7 +167,8 @@ export class EquipmentScreen {
   }
 
   public updateConfig(config: SquadConfig) {
-    this.config = structuredClone(config);
+    // structuredClone can fail in some test environments or with proxies
+    this.config = JSON.parse(JSON.stringify(config));
     this.applyDefaults();
     this.selectedSoldierIndex = 0;
     this.render();

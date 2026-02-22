@@ -173,6 +173,14 @@ export class GameApp {
       this.modalService,
     );
 
+    // Ensure squad-builder element exists (resilience for tests)
+    if (!document.getElementById("squad-builder")) {
+      const sb = document.createElement("div");
+      sb.id = "squad-builder";
+      sb.style.display = "none";
+      document.body.appendChild(sb);
+    }
+
     this.squadBuilder = new SquadBuilder(
       "squad-builder",
       this.campaignManager,
