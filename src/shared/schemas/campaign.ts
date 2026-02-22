@@ -28,6 +28,7 @@ export const GameRulesSchema = z.object({
   baseEnemyCount: z.number().default(3),
   enemyGrowthPerMission: z.number().default(1.0),
   economyMode: z.enum(["Open", "Limited"]).default("Open"),
+  skipPrologue: z.boolean().default(false),
   customSeed: z.number().optional(),
 });
 
@@ -78,6 +79,7 @@ export const MissionTypeSchema = z.enum([
   "DestroyHive",
   "EscortVIP",
   "RecoverIntel",
+  "Prologue",
 ]);
 
 export const CampaignNodeSchema = z.object({
@@ -157,6 +159,7 @@ export const MetaStatsSchema = z.object({
   currentIntel: z.number().default(0),
   unlockedArchetypes: z.array(z.string()).default([]),
   unlockedItems: z.array(z.string()).default([]),
+  prologueCompleted: z.boolean().default(false),
 });
 
 export type CampaignState = z.infer<typeof CampaignStateSchema>;

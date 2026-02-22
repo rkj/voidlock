@@ -57,6 +57,7 @@ import { InputDispatcher } from "../InputDispatcher";
 import { Renderer } from "../Renderer";
 import { TutorialManager } from "../controllers/TutorialManager";
 import { AdvisorOverlay } from "../ui/AdvisorOverlay";
+import prologueMap from "@src/content/maps/prologue.json";
 
 const VERSION = pkg.version;
 
@@ -1283,13 +1284,20 @@ export class GameApp {
     this.switchScreen("mission", false, false);
 
     const config = this.missionSetupManager.saveCurrentConfig();
+
+    // Handle Prologue Map (ADR 0042)
+    let staticMapData = this.missionSetupManager.currentStaticMapData;
+    if (config.missionType === MissionType.Prologue) {
+      staticMapData = prologueMap as any;
+    }
+
     this.missionCoordinator.launchMission(
       {
         ...config,
         seed: config.lastSeed,
-        staticMapData: this.missionSetupManager.currentStaticMapData,
+        staticMapData,
         campaignNode: this.missionSetupManager.currentCampaignNode || undefined,
-        skipDeployment: !this.missionSetupManager.manualDeployment,
+        skipDeployment: !this.missionSetupManager.manualDeployment || config.missionType === MissionType.Prologue,
       },
       (report) => {
         this.onMissionComplete(report);

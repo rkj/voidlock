@@ -47,6 +47,11 @@ export class MissionManager {
     const hasVipInSquad =
       squadConfig?.soldiers?.some((s) => s.archetypeId === "vip") ?? false;
 
+    if (this.missionType === MissionType.Prologue) {
+      state.objectives = objectives;
+      return;
+    }
+
     // Add Escort objective if it's an Escort mission OR if a VIP is present in the squad
     if (this.missionType === MissionType.EscortVIP || hasVipInSquad) {
       if (!objectives.some((o) => o.kind === "Escort")) {

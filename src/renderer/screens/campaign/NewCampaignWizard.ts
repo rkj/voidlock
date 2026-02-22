@@ -1,6 +1,7 @@
 import { ConfigManager } from "@src/renderer/ConfigManager";
 import { CampaignOverrides } from "@src/shared/campaign_types";
 import { UnitStyle, MapGeneratorType } from "@src/shared/types";
+import { MetaManager } from "@src/renderer/campaign/MetaManager";
 
 export interface NewCampaignWizardOptions {
   onStartCampaign: (
@@ -199,6 +200,22 @@ export class NewCampaignWizard {
     form.appendChild(cardsContainer);
     form.appendChild(pauseGroup);
 
+    // Skip Prologue
+    const skipPrologueGroup = document.createElement("div");
+    skipPrologueGroup.className = "flex-row align-center gap-10";
+    const skipPrologueCheck = document.createElement("input");
+    skipPrologueCheck.type = "checkbox";
+    skipPrologueCheck.id = "campaign-skip-prologue";
+    const metaStats = MetaManager.getInstance().getStats();
+    skipPrologueCheck.checked = metaStats.prologueCompleted;
+    const skipPrologueLabel = document.createElement("label");
+    skipPrologueLabel.htmlFor = "campaign-skip-prologue";
+    skipPrologueLabel.textContent = "Skip Tutorial Prologue";
+    skipPrologueLabel.style.fontSize = "0.9em";
+    skipPrologueGroup.appendChild(skipPrologueCheck);
+    skipPrologueGroup.appendChild(skipPrologueLabel);
+    form.appendChild(skipPrologueGroup);
+
     // Initial Ironman check (if selectedDifficulty was Ironman from previous render)
     if (this.selectedDifficulty === "extreme") {
       pauseCheck.checked = false;
@@ -374,6 +391,7 @@ export class NewCampaignWizard {
 
       const overrides: CampaignOverrides = {
         allowTacticalPause: pauseCheck.checked,
+        skipPrologue: skipPrologueCheck.checked,
         mapGrowthRate: 0.5,
         economyMode: (
           document.getElementById("campaign-economy-mode") as HTMLSelectElement
