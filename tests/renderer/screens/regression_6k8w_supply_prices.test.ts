@@ -19,6 +19,8 @@ describe("Regression 6k8w: Supply Prices", () => {
 
     mockManager = {
       getState: vi.fn().mockReturnValue({ scrap: 1000, intel: 0 }),
+      addChangeListener: vi.fn(),
+      removeChangeListener: vi.fn(),
     };
   });
 

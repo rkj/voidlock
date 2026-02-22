@@ -56,6 +56,8 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
         unlockedItems: [],
         rules: { economyMode: "Open" },
       }),
+      addChangeListener: vi.fn(),
+      removeChangeListener: vi.fn(),
       spendScrap: vi.fn(),
       assignEquipment: vi.fn(),
     };

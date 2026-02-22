@@ -147,6 +147,8 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
       getInstance: vi.fn().mockReturnValue({
         getState: vi.fn(() => mockCampaignState),
         load: vi.fn(),
+        addChangeListener: vi.fn(),
+        removeChangeListener: vi.fn(),
         processMissionResult: vi.fn(),
         save: vi.fn(),
         startNewCampaign: vi.fn(),

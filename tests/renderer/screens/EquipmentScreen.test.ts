@@ -47,6 +47,8 @@ describe("EquipmentScreen", () => {
         rules: { economyMode: "Open" },
         unlockedArchetypes: ["assault", "medic", "heavy", "scout"],
       }),
+      addChangeListener: vi.fn(),
+      removeChangeListener: vi.fn(),
       spendScrap: vi.fn(),
       assignEquipment: vi.fn(),
     };

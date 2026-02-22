@@ -21,6 +21,8 @@ describe("EquipmentScreen Regression: Scroll Reset", () => {
 
     mockManager = {
       getState: vi.fn().mockReturnValue(null),
+      addChangeListener: vi.fn(),
+      removeChangeListener: vi.fn(),
     };
 
     onSave = vi.fn();

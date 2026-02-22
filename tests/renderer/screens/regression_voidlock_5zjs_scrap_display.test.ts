@@ -37,6 +37,8 @@ describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => 
         intel: 120,
         currentSector: 1,
       }),
+      addChangeListener: vi.fn(),
+      removeChangeListener: vi.fn(),
       getSyncStatus: vi.fn().mockReturnValue("local-only"),
       getStorage: vi.fn(),
     };
@@ -88,6 +90,8 @@ describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => 
     mockManager = {
       getState: vi.fn().mockReturnValue(null),
         getStorage: vi.fn(),
+        addChangeListener: vi.fn(),
+        removeChangeListener: vi.fn(),
         getSyncStatus: vi.fn().mockReturnValue("local-only"),
     };
 

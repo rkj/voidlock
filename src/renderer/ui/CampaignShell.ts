@@ -28,6 +28,7 @@ export class CampaignShell {
   private activeTabId: CampaignTabId = "sector-map";
   private mode: CampaignShellMode = "none";
   private showTabs: boolean = true;
+  private changeListener: () => void;
 
   constructor(
     containerId: string,
@@ -43,6 +44,9 @@ export class CampaignShell {
     this.metaManager = metaManager;
     this.onTabChange = onTabChange;
     this.onMenu = onMenu;
+
+    this.changeListener = () => this.refresh();
+    this.manager.addChangeListener(this.changeListener);
   }
 
   public show(
