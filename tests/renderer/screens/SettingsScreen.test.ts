@@ -41,6 +41,8 @@ describe("SettingsScreen", () => {
       },
       campaignManager: {
         getState: vi.fn().mockReturnValue(null),
+        addChangeListener: vi.fn(),
+        removeChangeListener: vi.fn(),
       },
       modalService: {
         confirm: vi.fn(),

@@ -45,6 +45,8 @@ describe("SettingsScreen Cloud Sync", () => {
       },
       campaignManager: {
         getState: vi.fn().mockReturnValue(null),
+        addChangeListener: vi.fn(),
+        removeChangeListener: vi.fn(),
       },
       modalService: {
         confirm: vi.fn(),
