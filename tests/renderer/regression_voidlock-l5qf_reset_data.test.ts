@@ -11,6 +11,8 @@ vi.mock("../../package.json", () => ({
 vi.mock("@src/engine/GameClient", () => ({
   GameClient: vi.fn().mockImplementation(() => ({
     onStateUpdate: vi.fn(),
+    addStateUpdateListener: vi.fn(),
+    removeStateUpdateListener: vi.fn(),
     init: vi.fn(),
     stop: vi.fn(),
     getIsPaused: vi.fn().mockReturnValue(false),
