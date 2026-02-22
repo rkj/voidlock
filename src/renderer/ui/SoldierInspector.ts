@@ -494,7 +494,8 @@ export class SoldierInspector {
           ${StatDisplay.render(Icons.Range, item.range || 0, "Range")}
         `;
         const acc = item.accuracy || 0;
-        const fireRateDisplay = item.fireRate > 0 ? (1000 / item.fireRate).toFixed(1) : "0";
+        const fireRate = item.fireRate || 0;
+        const fireRateDisplay = fireRate > 0 ? (1000 / fireRate).toFixed(1) : "0";
         fullStats = `Damage: ${item.damage}\nRange: ${item.range}\nRate of Fire: ${fireRateDisplay}/s\nAccuracy: ${acc > 0 ? "+" : ""}${acc}%`;
       } else {
         const bonuses = [];
