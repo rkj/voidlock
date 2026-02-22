@@ -30,6 +30,7 @@ export interface GameRules {
   baseEnemyCount: number; // NEW: Starting wave size
   enemyGrowthPerMission: number; // NEW: Wave size growth per rank
   economyMode: "Open" | "Limited";
+  skipPrologue: boolean;
   customSeed?: number;
 }
 
@@ -47,6 +48,7 @@ export interface CampaignOverrides {
   baseEnemyCount?: number;
   enemyGrowthPerMission?: number;
   economyMode?: "Open" | "Limited";
+  skipPrologue?: boolean;
   customSeed?: number;
 }
 
@@ -177,6 +179,7 @@ export interface MetaStats {
   currentIntel: number;
   unlockedArchetypes: string[];
   unlockedItems: string[];
+  prologueCompleted: boolean;
 }
 
 /**

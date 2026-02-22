@@ -139,6 +139,12 @@ export class CampaignManager {
   ): void {
     const rules = this.getRulesForDifficulty(difficulty);
 
+    // Incorporate global meta-unlocks
+    const metaStats = MetaManager.getInstance(this.storage).getStats();
+    
+    // Default skipPrologue from metaStats
+    rules.skipPrologue = metaStats.prologueCompleted;
+
     // Handle overrides
     const currentOverrides = overrides;
     if (typeof currentOverrides === "object" && currentOverrides !== null) {
@@ -162,6 +168,8 @@ export class CampaignManager {
         rules.enemyGrowthPerMission = currentOverrides.enemyGrowthPerMission;
       if (currentOverrides.economyMode)
         rules.economyMode = currentOverrides.economyMode;
+      if (currentOverrides.skipPrologue !== undefined)
+        rules.skipPrologue = currentOverrides.skipPrologue;
       if (currentOverrides.customSeed !== undefined) {
         rules.customSeed = currentOverrides.customSeed;
       }
@@ -175,8 +183,6 @@ export class CampaignManager {
     const effectiveSeed = rules.customSeed ?? seed;
     const nodes = this.sectorMapGenerator.generate(effectiveSeed, rules);
 
-    // Incorporate global meta-unlocks
-    const metaStats = MetaManager.getInstance(this.storage).getStats();
     const unlockedArchetypes = Array.from(
       new Set([
         ...CAMPAIGN_DEFAULTS.UNLOCKED_ARCHETYPES,
@@ -225,6 +231,7 @@ export class CampaignManager {
           baseEnemyCount: 2,
           enemyGrowthPerMission: 0.5,
           economyMode: "Open",
+          skipPrologue: false,
         };
       case "clone":
       case "normal":
@@ -241,6 +248,7 @@ export class CampaignManager {
           baseEnemyCount: 3,
           enemyGrowthPerMission: 1.0,
           economyMode: "Open",
+          skipPrologue: false,
         };
       case "standard":
       case "hard":
@@ -257,6 +265,7 @@ export class CampaignManager {
           baseEnemyCount: 4,
           enemyGrowthPerMission: 1.5,
           economyMode: "Open",
+          skipPrologue: false,
         };
       case "ironman":
       case "extreme":
@@ -273,6 +282,7 @@ export class CampaignManager {
           baseEnemyCount: 5,
           enemyGrowthPerMission: 2.0,
           economyMode: "Open",
+          skipPrologue: false,
         };
       default:
         return {
@@ -288,6 +298,7 @@ export class CampaignManager {
           baseEnemyCount: 3,
           enemyGrowthPerMission: 1.0,
           economyMode: "Open",
+          skipPrologue: false,
         };
     }
   }
@@ -502,6 +513,16 @@ export class CampaignManager {
     }
 
     const previousStatus = this.state.status;
+
+    // 4.1 Record Prologue completion
+    const node = this.state.nodes.find((n) => n.id === report.nodeId);
+    if (
+      node &&
+      node.missionType === "Prologue" &&
+      report.result === "Won"
+    ) {
+      MetaManager.getInstance(this.storage).recordPrologueCompleted();
+    }
 
     this.missionReconciler.processMissionResult(this.state, report);
 

@@ -94,7 +94,10 @@ export class SectorMapGenerator {
           difficulty: 1 + r * rules.difficultyScaling,
           rank: r,
           mapSeed: prng.nextInt(0, 1000000),
-          missionType: this.getNodeMissionType(type, prng),
+          missionType:
+            r === 0 && !rules.skipPrologue
+              ? MissionType.Prologue
+              : this.getNodeMissionType(type, prng),
           connections: [],
           position: {
             x: layerX,

@@ -94,6 +94,14 @@ export class MetaManager {
   }
 
   /**
+   * Records that the prologue mission has been completed.
+   */
+  public recordPrologueCompleted(): void {
+    this.stats.prologueCompleted = true;
+    this.save();
+  }
+
+  /**
    * Updates combat and economy statistics from a mission.
    * @param kills Number of enemies killed in the mission.
    * @param casualties Number of soldiers killed in the mission.
