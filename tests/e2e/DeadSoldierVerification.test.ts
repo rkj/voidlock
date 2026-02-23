@@ -10,6 +10,7 @@ describe("Visual Verification - Dead Soldier Equipment", () => {
 
   beforeAll(async () => {
     page = await getNewPage();
+    page.on("console", msg => console.log("BROWSER:", msg.text()));
     await page.setViewport({ width: 1280, height: 800 });
   });
 
@@ -28,7 +29,7 @@ describe("Visual Verification - Dead Soldier Equipment", () => {
           seed: 12345,
           status: "Active",
           rules: {
-            mode: "Preset",
+            mode: "Custom",
             difficulty: "Standard",
             deathRule: "Iron",
             allowTacticalPause: true,
@@ -40,6 +41,7 @@ describe("Visual Verification - Dead Soldier Equipment", () => {
             baseEnemyCount: 3,
             enemyGrowthPerMission: 1,
             economyMode: "Open",
+            skipPrologue: true
           },
           scrap: 1000,
           intel: 100,
@@ -97,6 +99,7 @@ describe("Visual Verification - Dead Soldier Equipment", () => {
           baseEnemyCount: 3,
           enemyGrowthPerMission: 1,
           bonusLootCount: 0,
+          debugSnapshotInterval: 0,
           manualDeployment: true,
           campaignNodeId: "node_0_1",
           squadConfig: {
@@ -113,6 +116,16 @@ describe("Visual Verification - Dead Soldier Equipment", () => {
           },
         };
 
+        const globalConfig = {
+          unitStyle: "TacticalIcons",
+          themeId: "default",
+          logLevel: "INFO",
+          debugSnapshots: false,
+          debugSnapshotInterval: 0,
+          debugOverlayEnabled: false,
+          cloudSyncEnabled: false
+        };
+
         localStorage.clear();
         localStorage.setItem(
           "voidlock_campaign_v1",
@@ -123,10 +136,14 @@ describe("Visual Verification - Dead Soldier Equipment", () => {
           JSON.stringify(campaignConfig),
         );
         localStorage.setItem(
-          "voidlock_session_state",
-          JSON.stringify({ screenId: "barracks", isCampaign: true }),
+          "voidlock_global_config",
+          JSON.stringify(globalConfig),
         );
-        window.location.hash = "#barracks";
+        localStorage.setItem(
+          "voidlock_session_state",
+          JSON.stringify({ screenId: "equipment", isCampaign: true }),
+        );
+        window.location.hash = "#equipment";
         window.location.reload();
       }, pkg.version);
 
@@ -134,20 +151,10 @@ describe("Visual Verification - Dead Soldier Equipment", () => {
       await new Promise((r) => setTimeout(r, 2000)); // Wait for render
 
       // Select the dead soldier in the roster list (it's the only one)
+      // Note: In Equipment screen, they are in the left panel
       await page.waitForSelector(".soldier-item.dead", { visible: true });
       await page.click(".soldier-item.dead");
-      await new Promise((r) => setTimeout(r, 500));
-
-      // Switch to Armory tab
-      const buttons = await page.$$("button");
-      for (const btn of buttons) {
-        const text = await page.evaluate((el) => el.textContent, btn);
-        if (text === "Armory") {
-          await btn.click();
-          break;
-        }
-      }
-      await new Promise((r) => setTimeout(r, 500));
+      await new Promise((r) => setTimeout(r, 1000));
 
       const hasWarning = await page.evaluate(() => {
         // We now expect Title Case
@@ -164,10 +171,21 @@ describe("Visual Verification - Dead Soldier Equipment", () => {
       expect(isSlotDisabled).toBe(true);
 
       const isArmoryDisabled = await page.evaluate(() => {
-        // Armory items are menu-items but NOT soldier-items
+        const app = (window as any).GameAppInstance;
+        const inspector = app.equipmentScreen.inspector;
+        console.log("Inspector isCampaign:", inspector.isCampaign);
+        console.log("Inspector soldier:", inspector.soldier);
+        console.log("IsDead():", inspector.isDead());
+
+        // Armory items are menu-items with armory-item class
         const items = Array.from(
-          document.querySelectorAll(".menu-item.clickable"),
-        ).filter((el) => !el.classList.contains("soldier-item"));
+          document.querySelectorAll(".menu-item.clickable.armory-item"),
+        );
+        console.log("Armory items found:", items.length);
+        if (items.length > 0) {
+            console.log("First armory item classes:", items[0].className);
+            console.log("First armory item HTML:", items[0].outerHTML);
+        }
         return items[0]?.classList.contains("disabled");
       });
       expect(isArmoryDisabled).toBe(true);

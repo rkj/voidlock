@@ -25,8 +25,11 @@ describe("Settings Cloud Sync Repro", () => {
     // Mock missing Firebase config in AppContext
     await page.evaluate(() => {
       const app = (window as any).GameAppInstance;
-      if (app && app.context && app.context.cloudSync) {
-        app.context.cloudSync.isConfigured = () => false;
+      if (app && app.registry && app.registry.cloudSync) {
+        app.registry.cloudSync.isConfigured = () => false;
+      }
+      if (app && app.settingsScreen && (app.settingsScreen as any).cloudSync) {
+        (app.settingsScreen as any).cloudSync.isConfigured = () => false;
       }
     });
 
@@ -76,8 +79,11 @@ describe("Settings Cloud Sync Repro", () => {
     // Mock missing cloudSync service entirely
     await page.evaluate(() => {
       const app = (window as any).GameAppInstance;
-      if (app && app.context) {
-        app.context.cloudSync = null;
+      if (app && app.registry) {
+        app.registry.cloudSync = null;
+      }
+      if (app && app.settingsScreen) {
+        (app.settingsScreen as any).cloudSync = null;
       }
     });
 

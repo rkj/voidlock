@@ -10,6 +10,7 @@ describe("Mobile Full Campaign Flow", () => {
 
   it("should go through a full mission flow on mobile", async () => {
     const page = await getNewPage();
+    page.on("console", msg => console.log("BROWSER:", msg.text()));
     await page.emulate(KnownDevices["iPhone 12"]);
     await page.goto(E2E_URL);
     await page.evaluate(() => localStorage.clear());
@@ -26,12 +27,12 @@ describe("Mobile Full Campaign Flow", () => {
     // 2. We should be on Sector Map. Check if tabs are visible.
     await page.waitForSelector(".campaign-node.accessible");
 
-    // Check for Barracks tab
-    const barracksTab = await page.evaluateHandle(() => {
+    // Check for Ready Room tab (formerly Barracks)
+    const readyRoomTab = await page.evaluateHandle(() => {
       const tabs = Array.from(document.querySelectorAll(".tab-button"));
-      return tabs.find((t) => t.textContent?.includes("Barracks"));
+      return tabs.find((t) => t.textContent?.includes("Ready Room"));
     });
-    expect(barracksTab).toBeTruthy();
+    expect(readyRoomTab).toBeTruthy();
 
     // 3. Select first node
     await page.click(".campaign-node.accessible");
@@ -39,36 +40,41 @@ describe("Mobile Full Campaign Flow", () => {
     // 4. Equipment Screen
     await page.waitForSelector("#screen-equipment");
 
-    // Confirm Squad
-    const confirmBtn = await page.evaluateHandle(() => {
-      const buttons = Array.from(document.querySelectorAll(".primary-button"));
-      return buttons.find((b) => b.textContent === "Confirm Squad");
-    });
-    if (confirmBtn) {
-      // @ts-ignore
-      await confirmBtn.click();
-    } else {
-      throw new Error("Confirm Squad button not found");
-    }
+    // Launch Mission directly from Equipment screen in Campaign
+    const launchBtn = await page.waitForSelector('[data-focus-id="btn-launch-mission"]', { visible: true });
+    await launchBtn?.click();
 
-    // 5. Mission Setup Screen (Campaign Briefing)
-    await page.waitForSelector("#screen-mission-setup");
-    await page.waitForSelector("#btn-launch-mission", { visible: true });
-    await page.click("#btn-launch-mission");
-
-    // 6. Deployment Phase
+    // 6. Deployment Phase OR Playing Phase (if Prologue)
     await page.waitForSelector("#screen-mission", { visible: true });
-    await page.waitForSelector(".deployment-unit-item");
+    
+    // Check if we are in deployment or already playing
+    const isDeployment = await page.evaluate(() => {
+        const el = document.querySelector(".deployment-summary");
+        return el && window.getComputedStyle(el).display !== "none";
+    });
 
-    // Deploy all units
-    const units = await page.$$(".deployment-unit-item");
-    for (const unit of units) {
-      await unit.click({ clickCount: 2 });
-      await new Promise((r) => setTimeout(r, 500));
+    if (isDeployment) {
+        console.log("In Deployment Phase, deploying units...");
+        await page.waitForSelector(".deployment-unit-item");
+
+        // Deploy all units
+        const units = await page.$$(".deployment-unit-item");
+        for (const unit of units) {
+          await unit.click({ clickCount: 2 });
+          await new Promise((r) => setTimeout(r, 500));
+        }
+
+        const startMissionBtn = await page.waitForSelector("#btn-start-mission");
+        await startMissionBtn?.click();
+    } else {
+        console.log("Not in Deployment Phase (likely Prologue), skipping deployment steps.");
+        // If advisor is showing blocking message, click Continue
+        const advisorBtn = await page.$(".advisor-btn");
+        if (advisorBtn) {
+            await advisorBtn.click();
+            await new Promise(r => setTimeout(r, 500));
+        }
     }
-
-    const startMissionBtn = await page.waitForSelector("#btn-start-mission");
-    await startMissionBtn?.click();
 
     // 7. Playing state
     await page.waitForSelector(".command-menu");

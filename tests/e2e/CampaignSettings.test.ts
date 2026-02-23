@@ -8,6 +8,7 @@ describe("Campaign Settings Tab E2E Verification", () => {
 
   beforeAll(async () => {
     page = await getNewPage();
+    page.on("console", msg => console.log("BROWSER:", msg.text()));
     await page.setViewport({ width: 1024, height: 768 });
   });
 
@@ -27,12 +28,12 @@ describe("Campaign Settings Tab E2E Verification", () => {
 
     // Check if we are at the wizard or campaign screen
     const screenInfo = await page.evaluate(() => {
-      const wizard = document.querySelector("#screen-new-campaign-wizard");
+      const wizard = document.querySelector(".campaign-setup-wizard");
       const campaign = document.querySelector("#screen-campaign");
       const shell = document.querySelector("#campaign-shell");
       return {
         wizardVisible:
-          wizard && window.getComputedStyle(wizard).display === "flex",
+          wizard && window.getComputedStyle(wizard).display !== "none",
         campaignVisible:
           campaign && window.getComputedStyle(campaign).display === "flex",
         shellVisible:
@@ -43,7 +44,7 @@ describe("Campaign Settings Tab E2E Verification", () => {
 
     if (screenInfo.wizardVisible) {
       await page.click(".difficulty-card:nth-child(1)");
-      await page.click("#btn-wizard-start");
+      await page.click('[data-focus-id="btn-start-campaign"]');
       await new Promise((r) => setTimeout(r, 1000));
     }
 

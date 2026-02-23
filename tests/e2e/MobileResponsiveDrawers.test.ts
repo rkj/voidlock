@@ -20,7 +20,7 @@ describe("Mobile Responsive Drawers", () => {
     await page.click("#btn-goto-equipment");
 
     // In Equipment Screen, click "Confirm Squad"
-    await page.waitForSelector(".primary-button");
+    await page.waitForSelector(".equipment-screen");
     const confirmBtn = await page.evaluateHandle(() => {
       const buttons = Array.from(document.querySelectorAll(".primary-button"));
       return buttons.find((b) => b.textContent === "Confirm Squad");
@@ -32,9 +32,18 @@ describe("Mobile Responsive Drawers", () => {
       throw new Error("Confirm Squad button not found");
     }
 
+    // 2.5 Click Launch Mission on Setup screen
+    await page.waitForSelector("#btn-launch-mission");
+    await page.click("#btn-launch-mission");
+
+    // 2.6 Handle Deployment
+    await page.waitForSelector("#btn-autofill-deployment");
+    await page.click("#btn-autofill-deployment");
+    await page.click("#btn-start-mission");
+
     // Wait for mission screen
     await page.waitForSelector("#screen-mission");
-    await page.waitForSelector("#top-bar");
+    await page.waitForSelector("#top-bar", { visible: true });
 
     // Verify drawers are initially hidden (translated off-screen)
     const drawersStateInitial = await page.evaluate(() => {

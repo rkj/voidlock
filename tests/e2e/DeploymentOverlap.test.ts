@@ -71,10 +71,10 @@ describe("voidlock-49x66: Deployment Overlap Bug", () => {
     // Get spawn point 0 coordinates
     const spawnPoint = await page.evaluate(() => {
         // @ts-ignore
-        const app = window.GameAppInstance;
+        const app = (window as any).GameAppInstance;
         if (!app || !app.renderer) return null;
         
-        const state = app.currentGameState;
+        const state = app.registry.missionRunner.getCurrentGameState();
         const s = state.map.squadSpawns[0];
         // @ts-ignore
         const cellSize = app.renderer.cellSize;
@@ -114,7 +114,7 @@ describe("voidlock-49x66: Deployment Overlap Bug", () => {
     // Check for overlaps in the game state
     const unitPositions = await page.evaluate(() => {
          // @ts-ignore
-         const state = window.GameAppInstance.currentGameState;
+         const state = (window as any).GameAppInstance.registry.missionRunner.getCurrentGameState();
          return state.units.map((u: any) => ({ id: u.id, x: Math.floor(u.pos.x), y: Math.floor(u.pos.y), isDeployed: u.isDeployed }));
     });
     

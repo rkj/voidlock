@@ -1,0 +1,3893 @@
+
+> voidlock@0.139.6 test:e2e
+> vitest run --config vitest.config.e2e.ts
+
+
+ RUN  v3.2.4 /home/rkj/voidlock
+
+Vite dev server started at http://localhost:5199
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough
+BROWSER: [vite] connecting...
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough
+BROWSER: [vite] connected.
+
+stdout | tests/e2e/MemoryUsage.test.ts > Memory Usage Regression > should not leak significant memory over multiple mission cycles
+Baseline Heap: 7.28 MB
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+BROWSER: %c[INFO]%c TutorialManager enabled color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/ReproSquadBuilderMissing.test.ts > SquadBuilder Missing Reproduction > should verify that .squad-builder-container is present during Mission Setup
+SquadBuilder exists: true
+
+stdout | tests/e2e/ReproSquadBuilderMissing.test.ts > SquadBuilder Missing Reproduction > should verify that .squad-builder-container is present during Mission Setup
+Unit items in SquadBuilder: 7
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+BROWSER: [vite] connecting...
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+BROWSER: [vite] connected.
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+BROWSER: %c[INFO]%c TutorialManager enabled color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Entering Campaign Mode...
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Setting up new campaign...
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+BROWSER: %c[INFO]%c Campaign configuration cleared from LocalStorage. color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Selecting node on Sector Map...
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+BROWSER: %c[INFO]%c Configuration saved to LocalStorage (voidlock_campaign_config). color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Mission Setup / Equipment Screen...
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Equipment Tab 0: <DIV> id="" class="soldier-widget soldier-item soldier-widget-roster menu-item selected active clickable" text="1. Johnson
+        
+          
+          Lvl 1
+        
+      
+      
+        Assault | Pulse Rifle / Combat Knife
+        Healthy
+      
+      
+        HP: 100/100 | XP: 0
+      
+    ×"
+Adding soldier to squad...
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Confirm Tab 0: <DIV> id="" class="soldier-widget soldier-item soldier-widget-roster menu-item selected active clickable" text="1. Johnson
+        
+          
+          Lvl 1
+        
+      
+      
+        Assault | Pulse Rifle / Combat Knife
+        Healthy
+      
+      
+        HP: 100/100 | XP: 0
+      
+    ×"
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Confirm Tab 1: <BUTTON> id="" class="remove-soldier-btn slot-remove" text="×"
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Confirm Tab 2: <DIV> id="" class="soldier-widget soldier-item soldier-widget-roster menu-item clickable" text="2. Zhora
+        
+          
+          Lvl 1
+        
+      
+      
+        Medic | Pistol / Combat Knife
+        Healthy
+      
+      
+        HP: 80/80 | XP: 0
+      
+    ×"
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Confirm Tab 3: <BUTTON> id="" class="remove-soldier-btn slot-remove" text="×"
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Confirm Tab 4: <DIV> id="" class="soldier-widget soldier-item soldier-widget-roster menu-item clickable" text="3. Tyrol
+        
+          
+          Lvl 1
+        
+      
+      
+        Scout | Pistol / Combat Knife
+        Healthy
+      
+      
+        HP: 80/80 | XP: 0
+      
+    ×"
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Confirm Tab 5: <BUTTON> id="" class="remove-soldier-btn slot-remove" text="×"
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Confirm Tab 6: <DIV> id="" class="soldier-widget soldier-item soldier-widget-roster menu-item clickable" text="4. Pike
+        
+          
+          Lvl 1
+        
+      
+      
+        Assault | Pulse Rifle / Combat Knife
+        Healthy
+      
+      
+        HP: 100/100 | XP: 0
+      
+    ×"
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Confirm Tab 7: <BUTTON> id="" class="remove-soldier-btn slot-remove" text="×"
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Confirm Tab 8: <BUTTON> id="" class="icon-button" text="✎"
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Confirm Tab 9: <DIV> id="" class="paper-doll-slot equipped" text="Right HandPulse Rifle"
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Confirm Tab 10: <DIV> id="" class="paper-doll-slot equipped" text="Left HandCombat Knife"
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Confirm Tab 11: <DIV> id="" class="paper-doll-slot" text="Body+"
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Confirm Tab 12: <DIV> id="" class="paper-doll-slot" text="Feet+"
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Confirm Tab 13: <DIV> id="" class="menu-item clickable armory-item " text="Pistol
+                    10 Scrap
+                
+                
+                    
+          
+        
+        15
+      
+          
+        
+        2.0
+      
+          
+        
+        6"
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Confirm Tab 14: <DIV> id="" class="menu-item clickable armory-item active" text="Pulse Rifle
+                    Owned
+                
+                
+                    
+          
+        
+        20
+      
+          
+        
+        1.7
+      
+          
+        
+        10"
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Confirm Tab 15: <DIV> id="" class="menu-item clickable armory-item " text="Shotgun
+                    25 Scrap
+                
+                
+                    
+          
+        
+        40
+      
+          
+        
+        1.0
+      
+          
+        
+        4"
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Confirm Tab 16: <DIV> id="" class="menu-item clickable armory-item active" text="Combat Knife
+                    Owned
+                
+                
+                    
+          
+        
+        15
+      
+          
+        
+        2.5
+      
+          
+        
+        1"
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Confirm Tab 17: <DIV> id="" class="menu-item clickable armory-item " text="Power Sword
+                    25 Scrap
+                
+                
+                    
+          
+        
+        35
+      
+          
+        
+        1.3
+      
+          
+        
+        1"
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Confirm Tab 18: <DIV> id="" class="menu-item clickable armory-item " text="Thunder Hammer
+                    40 Scrap
+                
+                
+                    
+          
+        
+        80
+      
+          
+        
+        0.7
+      
+          
+        
+        1"
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Confirm Tab 19: <DIV> id="" class="menu-item clickable armory-item " text="Light Recon Armor
+                    20 Scrap
+                
+                
+                    
+        
+        50
+       
+        
+        2"
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Confirm Tab 20: <DIV> id="" class="menu-item clickable armory-item " text="Combat Boots
+                    20 Scrap
+                
+                
+                    
+        
+        5"
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Confirm Tab 21: <BUTTON> id="" class="" text="-"
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Confirm Tab 22: <BUTTON> id="" class="" text="-"
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Confirm Tab 23: <BUTTON> id="" class="" text="+"
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Confirm Tab 24: <BUTTON> id="" class="" text="-"
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Confirm Tab 25: <BUTTON> id="" class="" text="+"
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Confirm Tab 26: <BUTTON> id="" class="back-button" text="Back"
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Confirm Tab 27: <BUTTON> id="" class="primary-button" text="Confirm Squad"
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+BROWSER: %c[INFO]%c Configuration saved to LocalStorage (voidlock_campaign_config). color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Active Mission...
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Performing in-mission actions...
+
+stdout | tests/e2e/ReproSquadBuilderMissing.test.ts > SquadBuilder Missing Reproduction > should verify that .squad-builder-container is present in Campaign Mission Briefing
+Wizard shown, clicking difficulty and start...
+
+stdout | tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+Aborting mission to return to campaign...
+
+stderr | tests/e2e/DeadSoldierVerification.test.ts > Visual Verification - Dead Soldier Equipment
+Test failed with error: Error: Waiting for selector `.soldier-item.dead` failed
+    at Function.waitFor [90m(file:///home/rkj/voidlock/[39mnode_modules/[4mpuppeteer-core[24m/src/common/QueryHandler.ts:213:36[90m)[39m
+    at CdpFrame.waitForSelector [90m(file:///home/rkj/voidlock/[39mnode_modules/[4mpuppeteer-core[24m/src/api/Frame.ts:741:13[90m)[39m
+[90m    ... 2 lines matching cause stack trace ...[39m
+    at [90mfile:///home/rkj/voidlock/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:20 {
+  cause: Error: Waiting failed
+      at WaitTask.<instance_members_initializer> [90m(file:///home/rkj/voidlock/[39mnode_modules/[4mpuppeteer-core[24m/src/common/WaitTask.ts:41:19[90m)[39m
+      at new WaitTask [90m(file:///home/rkj/voidlock/[39mnode_modules/[4mpuppeteer-core[24m/src/common/WaitTask.ts:50:3[90m)[39m
+      at IsolatedWorld.waitForFunction [90m(file:///home/rkj/voidlock/[39mnode_modules/[4mpuppeteer-core[24m/src/api/Realm.ts:74:22[90m)[39m
+      at Function.waitFor [90m(file:///home/rkj/voidlock/[39mnode_modules/[4mpuppeteer-core[24m/src/common/QueryHandler.ts:171:50[90m)[39m
+      at CdpFrame.waitForSelector [90m(file:///home/rkj/voidlock/[39mnode_modules/[4mpuppeteer-core[24m/src/api/Frame.ts:741:13[90m)[39m
+      at CdpPage.waitForSelector [90m(file:///home/rkj/voidlock/[39mnode_modules/[4mpuppeteer-core[24m/src/api/Page.ts:3067:12[90m)[39m
+      at [90m/home/rkj/voidlock/[39mtests/e2e/DeadSoldierVerification.test.ts:137:7
+      at [90mfile:///home/rkj/voidlock/[39mnode_modules/[4m@vitest[24m/runner/dist/chunk-hooks.js:752:20 {
+    cause: TargetCloseError: Protocol error (Runtime.callFunctionOn): Target closed
+        at CallbackRegistry.clear [90m(file:///home/rkj/voidlock/[39mnode_modules/[4mpuppeteer-core[24m/src/common/CallbackRegistry.ts:103:30[90m)[39m
+        at CdpCDPSession.onClosed [90m(file:///home/rkj/voidlock/[39mnode_modules/[4mpuppeteer-core[24m/src/cdp/CdpSession.ts:163:21[90m)[39m
+        at Connection.onMessage [90m(file:///home/rkj/voidlock/[39mnode_modules/[4mpuppeteer-core[24m/src/cdp/Connection.ts:198:17[90m)[39m
+        at WebSocket.<anonymous> [90m(file:///home/rkj/voidlock/[39mnode_modules/[4mpuppeteer-core[24m/src/node/NodeWebSocketTransport.ts:46:24[90m)[39m
+        at callListener [90m(/home/rkj/voidlock/[39mnode_modules/[4mws[24m/lib/event-target.js:290:14[90m)[39m
+        at WebSocket.onMessage [90m(/home/rkj/voidlock/[39mnode_modules/[4mws[24m/lib/event-target.js:209:9[90m)[39m
+    [90m    at WebSocket.emit (node:events:507:28)[39m
+        at Receiver.receiverOnMessage [90m(/home/rkj/voidlock/[39mnode_modules/[4mws[24m/lib/websocket.js:1225:20[90m)[39m
+    [90m    at Receiver.emit (node:events:507:28)[39m
+        at Immediate.<anonymous> [90m(/home/rkj/voidlock/[39mnode_modules/[4mws[24m/lib/receiver.js:601:16[90m)[39m {
+      cause: ProtocolError: 
+          at Callback.<instance_members_initializer> [90m(file:///home/rkj/voidlock/[39mnode_modules/[4mpuppeteer-core[24m/src/common/CallbackRegistry.ts:129:12[90m)[39m
+          at new Callback [90m(file:///home/rkj/voidlock/[39mnode_modules/[4mpuppeteer-core[24m/src/common/CallbackRegistry.ts:134:3[90m)[39m
+          at CallbackRegistry.create [90m(file:///home/rkj/voidlock/[39mnode_modules/[4mpuppeteer-core[24m/src/common/CallbackRegistry.ts:32:22[90m)[39m
+          at Connection._rawSend [90m(file:///home/rkj/voidlock/[39mnode_modules/[4mpuppeteer-core[24m/src/cdp/Connection.ts:150:22[90m)[39m
+          at CdpCDPSession.send [90m(file:///home/rkj/voidlock/[39mnode_modules/[4mpuppeteer-core[24m/src/cdp/CdpSession.ts:104:29[90m)[39m
+          at ExecutionContext.#evaluate [90m(file:///home/rkj/voidlock/[39mnode_modules/[4mpuppeteer-core[24m/src/cdp/ExecutionContext.ts:424:44[90m)[39m
+          at ExecutionContext.evaluateHandle [90m(file:///home/rkj/voidlock/[39mnode_modules/[4mpuppeteer-core[24m/src/cdp/ExecutionContext.ts:352:32[90m)[39m
+          at IsolatedWorld.evaluateHandle [90m(file:///home/rkj/voidlock/[39mnode_modules/[4mpuppeteer-core[24m/src/cdp/IsolatedWorld.ts:175:26[90m)[39m
+          at CdpJSHandle.evaluateHandle [90m(file:///home/rkj/voidlock/[39mnode_modules/[4mpuppeteer-core[24m/src/api/JSHandle.ts:94:29[90m)[39m
+          at WaitTask.rerun [90m(file:///home/rkj/voidlock/[39mnode_modules/[4mpuppeteer-core[24m/src/common/WaitTask.ts:154:41[90m)[39m
+    }
+  }
+}
+
+ ❯ tests/e2e/DeadSoldierVerification.test.ts (1 test | 1 failed) 30620ms
+   × Visual Verification - Dead Soldier Equipment > should show disabled equipment for dead soldiers 30010ms
+     → Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/e2e/MemoryUsage.test.ts (1 test | 1 failed) 32353ms
+   × Memory Usage Regression > should not leak significant memory over multiple mission cycles 32283ms
+     → Waiting for selector `#game-canvas` failed
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro
+[BROWSER]: [vite] connecting...
+
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro
+[BROWSER]: [vite] connected.
+
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro
+[BROWSER]: %c[INFO]%c TutorialManager enabled color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro
+[BROWSER]: [vite] connecting...
+
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro
+[BROWSER]: [vite] connected.
+
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro > should handle deployment correctly: drag-and-drop, auto-fill, and double-click
+[BROWSER]: %c[INFO]%c TutorialManager enabled color: #2ecc71; font-weight: bold; 
+
+ ❯ tests/e2e/MobileCampaignFullFlow.test.ts (1 test | 1 failed) 36703ms
+   × Mobile Full Campaign Flow > should go through a full mission flow on mobile 36589ms
+     → Waiting for selector `#btn-launch-mission` failed
+stdout | tests/e2e/EquipmentPurchaseFocus.test.ts > Equipment Purchase Focus Management > should keep focus on the plus button after adding a supply item via keyboard
+Focused before Enter: [33mtrue[39m
+
+ ❯ tests/e2e/regression_tkzi_sticky_recruit.test.ts (1 test | 1 failed) 37375ms
+   × Regression TKZI - Sticky Recruitment Button > should keep Recruit button in viewport when roster is scrolled 36762ms
+     → Waiting for selector `.btn-recruit` failed
+stdout | tests/e2e/EquipmentPurchaseFocus.test.ts > Equipment Purchase Focus Management > should keep focus on the plus button after adding a supply item via keyboard
+Focus check result: {
+  isFocused: [33mtrue[39m,
+  activeFocusId: [32m'supply-plus-mine'[39m,
+  activeTag: [32m'BUTTON'[39m,
+  buttonExists: [33mtrue[39m,
+  buttonDisabled: [33mfalse[39m,
+  count: [32m'1'[39m
+}
+
+ ✓ tests/e2e/EquipmentPurchaseFocus.test.ts (2 tests) 7203ms
+   ✓ Equipment Purchase Focus Management > should keep focus on the armory item after purchasing it via keyboard  3248ms
+   ✓ Equipment Purchase Focus Management > should keep focus on the plus button after adding a supply item via keyboard  3566ms
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro > should handle deployment correctly: drag-and-drop, auto-fill, and double-click
+[BROWSER]: [vite] connecting...
+
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro > should handle deployment correctly: drag-and-drop, auto-fill, and double-click
+[BROWSER]: [vite] connected.
+
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro > should handle deployment correctly: drag-and-drop, auto-fill, and double-click
+[BROWSER]: %c[INFO]%c TutorialManager enabled color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro > should handle deployment correctly: drag-and-drop, auto-fill, and double-click
+Waiting for #toggle-manual-deployment
+
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro > should handle deployment correctly: drag-and-drop, auto-fill, and double-click
+Increasing map size to 12x12...
+
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro > should handle deployment correctly: drag-and-drop, auto-fill, and double-click
+[BROWSER]: %c[INFO]%c Configuration saved to LocalStorage (voidlock_custom_config). color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro > should handle deployment correctly: drag-and-drop, auto-fill, and double-click
+[BROWSER]: %c[INFO]%c Configuration saved to LocalStorage (voidlock_custom_config). color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro > should handle deployment correctly: drag-and-drop, auto-fill, and double-click
+Going to equipment screen...
+
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro > should handle deployment correctly: drag-and-drop, auto-fill, and double-click
+Checking slot 2...
+
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro > should handle deployment correctly: drag-and-drop, auto-fill, and double-click
+Slot 2 is empty, adding soldier...
+
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro > should handle deployment correctly: drag-and-drop, auto-fill, and double-click
+Checking slot 3...
+
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro > should handle deployment correctly: drag-and-drop, auto-fill, and double-click
+Slot 3 is empty, adding soldier...
+
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro > should handle deployment correctly: drag-and-drop, auto-fill, and double-click
+Confirming squad...
+
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro > should handle deployment correctly: drag-and-drop, auto-fill, and double-click
+[BROWSER]: %c[INFO]%c Configuration saved to LocalStorage (voidlock_custom_config). color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro > should handle deployment correctly: drag-and-drop, auto-fill, and double-click
+Waiting for #btn-launch-mission
+
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro > should handle deployment correctly: drag-and-drop, auto-fill, and double-click
+Launch Mission disabled: [33mfalse[39m
+Launching mission...
+
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro > should handle deployment correctly: drag-and-drop, auto-fill, and double-click
+[BROWSER]: %c[INFO]%c Configuration saved to LocalStorage (voidlock_custom_config). color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro > should handle deployment correctly: drag-and-drop, auto-fill, and double-click
+Waiting for deployment phase...
+
+ ❯ tests/e2e/TapToInspect.test.ts (1 test | 1 failed) 41090ms
+   × Tap-to-Inspect E2E > should show popover on stat icon tap 41089ms
+     → Waiting for selector `.tab-button[data-id='barracks']` failed
+ ❯ tests/e2e/ReproSquadBuilderMissing.test.ts (2 tests | 1 failed) 41247ms
+   ✓ SquadBuilder Missing Reproduction > should verify that .squad-builder-container is present during Mission Setup  4935ms
+   × SquadBuilder Missing Reproduction > should verify that .squad-builder-container is present in Campaign Mission Briefing 35874ms
+     → Waiting for selector `.campaign-node.accessible` failed
+ ❯ tests/e2e/FullKeyboardFlow.test.ts (1 test | 1 failed) 41845ms
+   × Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard 39801ms
+     → Waiting for selector `.modal-window` failed
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro > should handle deployment correctly: drag-and-drop, auto-fill, and double-click
+Start Mission disabled initially: [33mtrue[39m
+Testing double-click to deploy
+
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro > should handle deployment correctly: drag-and-drop, auto-fill, and double-click
+Unit 0 status after double-click: Deployed
+Testing drag and drop to move
+
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro > should handle deployment correctly: drag-and-drop, auto-fill, and double-click
+Found 4 spawn points
+Dragging from (6, 2) to (11, 4)
+
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro > should handle deployment correctly: drag-and-drop, auto-fill, and double-click
+Testing undeploy by dragging off-map
+
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro > should handle deployment correctly: drag-and-drop, auto-fill, and double-click
+Unit 0 status after dragging off-map: Pending
+Testing Auto-Fill button
+
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro > should handle deployment correctly: drag-and-drop, auto-fill, and double-click
+All units deployed after auto-fill: [33mtrue[39m
+
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro > should handle deployment correctly: drag-and-drop, auto-fill, and double-click
+Start Mission enabled after auto-fill: [33mtrue[39m
+
+stdout | tests/e2e/voidlock-49x66-repro.test.ts > voidlock-49x66: Deployment Bug Repro > should handle deployment correctly: drag-and-drop, auto-fill, and double-click
+Verification screenshot saved to deployment_fixed.png
+
+ ✓ tests/e2e/voidlock-49x66-repro.test.ts (1 test) 12530ms
+   ✓ voidlock-49x66: Deployment Bug Repro > should handle deployment correctly: drag-and-drop, auto-fill, and double-click  9414ms
+ ❯ tests/e2e/CampaignSettings.test.ts (1 test | 1 failed) 11994ms
+   × Campaign Settings Tab E2E Verification > should display Settings tab in Campaign shell and render SettingsScreen 11527ms
+     → Waiting for selector `.tab-button` failed
+ ❯ tests/e2e/EngineeringBay.test.ts (1 test | 1 failed) 12070ms
+   × Engineering Bay E2E Verification > should display Engineering Bay tab and render content 11599ms
+     → Waiting for selector `.tab-button` failed
+ ❯ tests/e2e/MissionSetupCampaign.test.ts (2 tests | 1 failed) 16574ms
+   × Mission Setup Campaign Mode Visibility > should hide map configuration when entering from campaign 14052ms
+     → Node is either not clickable or not an Element
+   ✓ Mission Setup Campaign Mode Visibility > should show full configuration when entering from custom mission  608ms
+ ❯ tests/e2e/DebriefReplay.test.ts (1 test | 1 failed) 12249ms
+   × Debrief Replay E2E > should play a replay on the debrief screen 11033ms
+     → Waiting for selector `#btn-force-win` failed
+ ❯ tests/e2e/KeyboardNavigationRepro.test.ts (3 tests | 3 skipped) 10989ms
+   ↓ Keyboard Navigation Differentiation > verifies that ArrowDown navigates while ArrowRight is ignored on vertical Main Menu
+   ↓ Keyboard Navigation Differentiation > verifies horizontal navigation for Shell Tabs
+   ↓ Keyboard Navigation Differentiation > verifies geometric 2D navigation in New Campaign Wizard
+stdout | tests/e2e/EquipmentScreenFixes.test.ts > Equipment Screen Fixes Verification > should have right-aligned prices in the Armory panel
+Price Alignment (Armory): { error: [32m'No item with price found in Armory'[39m }
+
+stdout | tests/e2e/voidlock-49x66-deployment-verification.test.ts > voidlock-49x66: Deployment Verification > should verify deployment fixes and features
+Screenshot saved: tests/e2e/screenshots/1_main_menu.png
+
+stdout | tests/e2e/voidlock-49x66-deployment-verification.test.ts > voidlock-49x66: Deployment Verification > should verify deployment fixes and features
+Screenshot saved: tests/e2e/screenshots/2_mission_setup.png
+
+stdout | tests/e2e/voidlock-49x66-deployment-verification.test.ts > voidlock-49x66: Deployment Verification > should verify deployment fixes and features
+Going to equipment screen...
+
+stdout | tests/e2e/voidlock-49x66-deployment-verification.test.ts > voidlock-49x66: Deployment Verification > should verify deployment fixes and features
+Screenshot saved: tests/e2e/screenshots/3_equipment_screen.png
+
+stdout | tests/e2e/voidlock-49x66-deployment-verification.test.ts > voidlock-49x66: Deployment Verification > should verify deployment fixes and features
+Adding soldier 3...
+
+stdout | tests/e2e/voidlock-49x66-deployment-verification.test.ts > voidlock-49x66: Deployment Verification > should verify deployment fixes and features
+Adding soldier 4...
+
+stdout | tests/e2e/voidlock-49x66-deployment-verification.test.ts > voidlock-49x66: Deployment Verification > should verify deployment fixes and features
+Screenshot saved: tests/e2e/screenshots/4_squad_confirmed.png
+
+stdout | tests/e2e/voidlock-49x66-deployment-verification.test.ts > voidlock-49x66: Deployment Verification > should verify deployment fixes and features
+Back at mission setup, launching mission...
+
+stdout | tests/e2e/voidlock-49x66-deployment-verification.test.ts > voidlock-49x66: Deployment Verification > should verify deployment fixes and features
+Screenshot saved: tests/e2e/screenshots/5_back_at_setup.png
+
+stdout | tests/e2e/DeploymentFOWRepro.test.ts > Deployment Fog of War Repro > should respect FOW during deployment
+Screenshot saved to deployment_fow_check.png
+
+stdout | tests/e2e/voidlock-49x66-deployment-verification.test.ts > voidlock-49x66: Deployment Verification > should verify deployment fixes and features
+Waiting for deployment phase...
+
+stdout | tests/e2e/voidlock-49x66-deployment-verification.test.ts > voidlock-49x66: Deployment Verification > should verify deployment fixes and features
+Screenshot saved: tests/e2e/screenshots/6_deployment_phase.png
+
+stdout | tests/e2e/voidlock-49x66-deployment-verification.test.ts > voidlock-49x66: Deployment Verification > should verify deployment fixes and features
+Deployment Data retrieved successfully: {"spawns":[{"x":11,"y":9,"pixelX":1514,"pixelY":1371},{"x":8,"y":8,"pixelX":1130,"pixelY":1243},{"x":8,"y":10,"pixelX":1130,"pixelY":1499},{"x":10,"y":10,"pixelX":1386,"pixelY":1499}],"units":[{"id":"assault-1","isDeployed":false,"x":11,"y":9},{"id":"medic-2","isDeployed":false,"x":8,"y":8},{"id":"assault-3","isDeployed":false,"x":8,"y":10},{"id":"assault-4","isDeployed":false,"x":10,"y":10}]}
+Hovering over spawn at (11, 9) where unit assault-1 is pending...
+
+ ❯ tests/e2e/DeploymentFOWRepro.test.ts (1 test | 1 failed) 11945ms
+   × Deployment Fog of War Repro > should respect FOW during deployment 11405ms
+     → expected null not to be null
+stdout | tests/e2e/voidlock-49x66-deployment-verification.test.ts > voidlock-49x66: Deployment Verification > should verify deployment fixes and features
+Computed Hover Coords: 1514, 760 (rect.left: 42, rect.top: -456, cellSize: 128)
+
+stdout | tests/e2e/voidlock-49x66-deployment-verification.test.ts > voidlock-49x66: Deployment Verification > should verify deployment fixes and features
+Cursor style (should be default): default
+Testing double-click to deploy...
+
+stdout | tests/e2e/voidlock-49x66-deployment-verification.test.ts > voidlock-49x66: Deployment Verification > should verify deployment fixes and features
+Double-clicking unit assault-1
+
+stdout | tests/e2e/voidlock-49x66-deployment-verification.test.ts > voidlock-49x66: Deployment Verification > should verify deployment fixes and features
+Unit 0 status: Deployed
+
+stdout | tests/e2e/voidlock-49x66-deployment-verification.test.ts > voidlock-49x66: Deployment Verification > should verify deployment fixes and features
+Hovering over deployed unit at (1488, 734)
+
+stdout | tests/e2e/voidlock-49x66-deployment-verification.test.ts > voidlock-49x66: Deployment Verification > should verify deployment fixes and features
+Cursor style after deploy (should be grab): grab
+Testing Auto-Fill...
+
+ ❯ tests/e2e/DeploymentOverlap.test.ts (1 test | 1 failed) 16390ms
+   × voidlock-49x66: Deployment Overlap Bug > should NOT allow multiple units to be deployed on the same spawn point 15817ms
+     → Cannot read properties of undefined (reading 'map')
+stdout | tests/e2e/ReproAutoFillOverlap.test.ts > voidlock-1yb5o: Auto-Fill Overlap Repro > should deploy all 4 units using Auto-Fill even if there are fewer spawn points
+Initial Unit States: [{"id":"assault-1","archetypeId":"assault","isDeployed":false},{"id":"medic-2","archetypeId":"medic","isDeployed":false},{"id":"scout-3","archetypeId":"scout","isDeployed":false},{"id":"heavy-4","archetypeId":"heavy","isDeployed":false}]
+
+stdout | tests/e2e/voidlock-49x66-deployment-verification.test.ts > voidlock-49x66: Deployment Verification > should verify deployment fixes and features
+Screenshot saved: tests/e2e/screenshots/7_final_state.png
+
+stdout | tests/e2e/UnitOverlapVisual.test.ts > voidlock-19uqe: Unit Overlap Visual Verification > should deploy 4 units to the same cell and verify they are visually distinct
+Spawns: [{"x":0,"y":0}]
+Unit Positions: [
+  {
+    "id": "assault-1",
+    "tacticalNumber": 1,
+    "pos": {
+      "x": 0.3,
+      "y": 0.3
+    },
+    "cell": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "id": "medic-2",
+    "tacticalNumber": 2,
+    "pos": {
+      "x": 0.7,
+      "y": 0.3
+    },
+    "cell": {
+      "x": 0,
+      "y": 0
+    }
+  },
+  {
+    "id": "scout-3",
+    "tacticalNumber": 3,
+    "pos": {
+      "x": 0.3,
+      "y": 1.7
+    },
+    "cell": {
+      "x": 0,
+      "y": 1
+    }
+  },
+  {
+    "id": "heavy-4",
+    "tacticalNumber": 4,
+    "pos": {
+      "x": 0.7,
+      "y": 0.7
+    },
+    "cell": {
+      "x": 0,
+      "y": 0
+    }
+  }
+]
+Cell Counts: {"0,0":3,"0,1":1}
+Minimum distance between units in cell 0,0: 0.39999999999999997
+
+ ✓ tests/e2e/voidlock-49x66-deployment-verification.test.ts (1 test) 18575ms
+   ✓ voidlock-49x66: Deployment Verification > should verify deployment fixes and features  14316ms
+ ✓ tests/e2e/ReproAutoFillOverlap.test.ts (1 test) 30412ms
+   ✓ voidlock-1yb5o: Auto-Fill Overlap Repro > should deploy all 4 units using Auto-Fill even if there are fewer spawn points  27418ms
+ ❯ tests/e2e/MobileResponsiveDrawers.test.ts (1 test | 1 failed) 3583ms
+   × Mobile Responsive Drawers > should toggle drawers on mobile viewport 1872ms
+     → Node is either not clickable or not an Element
+ ✓ tests/e2e/UnitOverlapVisual.test.ts (1 test) 31219ms
+   ✓ voidlock-19uqe: Unit Overlap Visual Verification > should deploy 4 units to the same cell and verify they are visually distinct  29323ms
+stdout | tests/e2e/KeyboardCampaignStart.test.ts > Keyboard Navigation: Campaign Start Reproduction
+BROWSER: [vite] connecting...
+
+stdout | tests/e2e/KeyboardCampaignStart.test.ts > Keyboard Navigation: Campaign Start Reproduction
+BROWSER: [vite] connected.
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow
+BROWSER: [vite] connecting...
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow
+BROWSER: [vite] connected.
+
+stdout | tests/e2e/KeyboardCampaignStart.test.ts > Keyboard Navigation: Campaign Start Reproduction > should navigate from Main Menu to Sector Map using ONLY keyboard
+BROWSER: %c[INFO]%c TutorialManager enabled color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+BROWSER: %c[INFO]%c TutorialManager enabled color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/EquipmentScreenFixes.test.ts > Equipment Screen Fixes Verification > should preserve scroll position in the Armory panel after re-render
+Scroll Results: {
+  initialScroll: [33m0[39m,
+  finalScroll: [33m0[39m,
+  isNewPanel: [33mtrue[39m,
+  countChanged: [33mtrue[39m,
+  initialCount: [32m'2'[39m,
+  finalCount: [32m'1'[39m
+}
+
+ ❯ tests/e2e/SettingsCloudSyncRepro.test.ts (2 tests | 1 failed) 28895ms
+   ✓ Settings Cloud Sync Repro > should show 'Service Unavailable' when Firebase is not configured  14640ms
+   × Settings Cloud Sync Repro > should show 'Service Unavailable' when cloudSync service is missing entirely 13560ms
+     → expected null to be 'Cloud Sync Service Unavailable' // Object.is equality
+ ❯ tests/e2e/EquipmentScreenFixes.test.ts (2 tests | 2 failed) 29631ms
+   × Equipment Screen Fixes Verification > should have right-aligned prices in the Armory panel 14853ms
+     → expected 'No item with price found in Armory' to be undefined
+   × Equipment Screen Fixes Verification > should preserve scroll position in the Armory panel after re-render 13942ms
+     → expected 0 to be greater than 0
+stdout | tests/e2e/SquadBuilderAccessibility.test.ts > Squad Builder Accessibility > Remove button is skipped in tab order
+Active element class after Tab from squad slot: deployment-slot occupied
+
+ ✓ tests/e2e/SquadBuilderAccessibility.test.ts (1 test) 11913ms
+   ✓ Squad Builder Accessibility > Remove button is skipped in tab order  11303ms
+stdout | tests/e2e/KeyboardCampaignStart.test.ts > Keyboard Navigation: Campaign Start Reproduction > should navigate from Main Menu to Sector Map using ONLY keyboard
+BROWSER: [vite] connecting...
+
+stdout | tests/e2e/KeyboardCampaignStart.test.ts > Keyboard Navigation: Campaign Start Reproduction > should navigate from Main Menu to Sector Map using ONLY keyboard
+BROWSER: [vite] connected.
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+BROWSER: [vite] connecting...
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+BROWSER: [vite] connected.
+
+stdout | tests/e2e/ReproReadyRoomScroll.test.ts > Ready Room Scroll Repro > capture ready room screen scrollability
+Scroll Metrics: {
+  scrollHeight: [33m1203[39m,
+  clientHeight: [33m364[39m,
+  initialScrollTop: [33m0[39m,
+  afterScrollTop: [33m100[39m,
+  isScrollable: [33mtrue[39m
+}
+
+stdout | tests/e2e/KeyboardCampaignStart.test.ts > Keyboard Navigation: Campaign Start Reproduction > should navigate from Main Menu to Sector Map using ONLY keyboard
+BROWSER: %c[INFO]%c TutorialManager enabled color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/DrawerToggleVisibility.test.ts > Drawer Toggle Visibility Regression (voidlock-5k8f) > should hide OBJ and SQD buttons on desktop even if mobile-touch class is present
+Button displays with mobile-touch on desktop: { sqdDisplay: [32m'none'[39m, objDisplay: [32m'none'[39m }
+
+stdout | tests/e2e/KeyboardCampaignStart.test.ts > Keyboard Navigation: Campaign Start Reproduction > should navigate from Main Menu to Sector Map using ONLY keyboard
+Active ID after entering Campaign: 
+
+stdout | tests/e2e/KeyboardCampaignStart.test.ts > Keyboard Navigation: Campaign Start Reproduction > should navigate from Main Menu to Sector Map using ONLY keyboard
+Tab 0: <DIV> id="" text="SimulationPermadeath: OffSave: ManualPause: Allowed"
+
+stdout | tests/e2e/KeyboardCampaignStart.test.ts > Keyboard Navigation: Campaign Start Reproduction > should navigate from Main Menu to Sector Map using ONLY keyboard
+Tab 1: <DIV> id="" text="ClonePermadeath: Partial (Cloneable)Save: ManualPause: Allowed"
+
+stdout | tests/e2e/KeyboardCampaignStart.test.ts > Keyboard Navigation: Campaign Start Reproduction > should navigate from Main Menu to Sector Map using ONLY keyboard
+Tab 2: <DIV> id="" text="StandardPermadeath: OnSave: ManualPause: Allowed"
+
+stdout | tests/e2e/KeyboardCampaignStart.test.ts > Keyboard Navigation: Campaign Start Reproduction > should navigate from Main Menu to Sector Map using ONLY keyboard
+Tab 3: <DIV> id="" text="IronmanPermadeath: OnSave: Auto-DeletePause: Disabled"
+
+stdout | tests/e2e/KeyboardCampaignStart.test.ts > Keyboard Navigation: Campaign Start Reproduction > should navigate from Main Menu to Sector Map using ONLY keyboard
+Tab 4: <INPUT> id="campaign-tactical-pause" text=""
+
+stdout | tests/e2e/KeyboardCampaignStart.test.ts > Keyboard Navigation: Campaign Start Reproduction > should navigate from Main Menu to Sector Map using ONLY keyboard
+Tab 5: <INPUT> id="campaign-skip-prologue" text=""
+
+stdout | tests/e2e/KeyboardCampaignStart.test.ts > Keyboard Navigation: Campaign Start Reproduction > should navigate from Main Menu to Sector Map using ONLY keyboard
+Tab 6: <BUTTON> id="" text="Show Advanced Settings ▼"
+
+stdout | tests/e2e/KeyboardCampaignStart.test.ts > Keyboard Navigation: Campaign Start Reproduction > should navigate from Main Menu to Sector Map using ONLY keyboard
+Tab 7: <BUTTON> id="" text="Back to Menu"
+
+stdout | tests/e2e/KeyboardCampaignStart.test.ts > Keyboard Navigation: Campaign Start Reproduction > should navigate from Main Menu to Sector Map using ONLY keyboard
+Tab 8: <BUTTON> id="" text="Initialize Expedition"
+
+stdout | tests/e2e/KeyboardCampaignStart.test.ts > Keyboard Navigation: Campaign Start Reproduction > should navigate from Main Menu to Sector Map using ONLY keyboard
+BROWSER: %c[INFO]%c Campaign configuration cleared from LocalStorage. color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+BROWSER: %c[INFO]%c TutorialManager enabled color: #2ecc71; font-weight: bold; 
+
+ ✓ tests/e2e/ReproReadyRoomScroll.test.ts (1 test) 10515ms
+   ✓ Ready Room Scroll Repro > capture ready room screen scrollability  9655ms
+stdout | tests/e2e/KeyboardCampaignStart.test.ts > Keyboard Navigation: Campaign Start Reproduction > should navigate from Main Menu to Sector Map using ONLY keyboard
+Active ID on Sector Map: 
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Entering Custom Mission Setup...
+
+ ✓ tests/e2e/KeyboardCampaignStart.test.ts (1 test) 10796ms
+   ✓ Keyboard Navigation: Campaign Start Reproduction > should navigate from Main Menu to Sector Map using ONLY keyboard  8752ms
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Enabling Manual Deployment...
+
+stdout | tests/e2e/voidlock-n34wo-repro.test.ts > voidlock-n34wo: Focus stay when buying equipment > should keep focus on armory item after buying it in Campaign Mode
+BROWSER CONSOLE: [vite] connecting...
+
+stdout | tests/e2e/voidlock-n34wo-repro.test.ts > voidlock-n34wo: Focus stay when buying equipment > should keep focus on armory item after buying it in Campaign Mode
+BROWSER CONSOLE: [vite] connected.
+
+stdout | tests/e2e/voidlock-n34wo-repro.test.ts > voidlock-n34wo: Focus stay when buying equipment > should keep focus on armory item after buying it in Campaign Mode
+BROWSER CONSOLE: %c[INFO]%c TutorialManager enabled color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Manual Deployment already enabled.
+Navigating to Equipment Screen...
+
+stdout | tests/e2e/voidlock-7sa9u-fixed-repro.test.ts > voidlock-7sa9u fixed repro: X button focus in Equipment > should ensure the 'Remove' X button is not focusable via arrow navigation
+PAGE LOG: [vite] connecting...
+
+stdout | tests/e2e/voidlock-7sa9u-fixed-repro.test.ts > voidlock-7sa9u fixed repro: X button focus in Equipment > should ensure the 'Remove' X button is not focusable via arrow navigation
+PAGE LOG: [vite] connected.
+
+stdout | tests/e2e/voidlock-7sa9u-fixed-repro.test.ts > voidlock-7sa9u fixed repro: X button focus in Equipment > should ensure the 'Remove' X button is not focusable via arrow navigation
+Navigating to #equipment...
+
+stdout | tests/e2e/voidlock-7sa9u-fixed-repro.test.ts > voidlock-7sa9u fixed repro: X button focus in Equipment > should ensure the 'Remove' X button is not focusable via arrow navigation
+PAGE LOG: %c[INFO]%c TutorialManager enabled color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/voidlock-7sa9u-fixed-repro.test.ts > voidlock-7sa9u fixed repro: X button focus in Equipment > should ensure the 'Remove' X button is not focusable via arrow navigation
+PAGE LOG: %c[WARN]%c External navigation to equipment is not a standard transition from main-menu color: #f39c12; font-weight: bold; 
+
+stdout | tests/e2e/ReproAutoDeploymentDefeat.test.ts > Repro: Auto-deployment failure triggers instant loss > should start mission and NOT result in instant loss when starting without manual deployment
+BROWSER: [vite] connecting...
+
+stdout | tests/e2e/ReproAutoDeploymentDefeat.test.ts > Repro: Auto-deployment failure triggers instant loss > should start mission and NOT result in instant loss when starting without manual deployment
+BROWSER: [vite] connected.
+
+stdout | tests/e2e/ReproAutoDeploymentDefeat.test.ts > Repro: Auto-deployment failure triggers instant loss > should start mission and NOT result in instant loss when starting without manual deployment
+BROWSER: %c[INFO]%c TutorialManager enabled color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Adding soldier to squad...
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Confirming squad...
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 0: <DIV> id="" class="soldier-widget soldier-item soldier-widget-roster menu-item selected active clickable" text="1. Daniel Drake
+        
+          
+          Lvl 1
+        
+      
+      
+        Assault | Pulse Rifle / Combat Knife
+        Healthy
+      
+      
+        HP: 100/100 | XP: 0
+      
+    ×"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 1: <BUTTON> id="" class="remove-soldier-btn slot-remove" text="×"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 2: <DIV> id="" class="soldier-widget soldier-item soldier-widget-roster menu-item clickable" text="2. Colette Ripley
+        
+          
+          Lvl 1
+        
+      
+      
+        Medic | Pistol / Combat Knife
+        Healthy
+      
+      
+        HP: 80/80 | XP: 0
+      
+    ×"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 3: <BUTTON> id="" class="remove-soldier-btn slot-remove" text="×"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 4: <DIV> id="" class="menu-item clickable " text="3. [Empty Slot]
+          
+          
+            Click to Add Soldier"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 5: <DIV> id="" class="menu-item clickable " text="4. [Empty Slot]
+          
+          
+            Click to Add Soldier"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 6: <DIV> id="" class="paper-doll-slot equipped" text="Right HandPulse Rifle"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 7: <DIV> id="" class="paper-doll-slot equipped" text="Left HandCombat Knife"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 8: <DIV> id="" class="paper-doll-slot" text="Body+"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 9: <DIV> id="" class="paper-doll-slot" text="Feet+"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 10: <DIV> id="" class="menu-item clickable armory-item " text="Pistol
+                    10 Scrap
+                
+                
+                    
+          
+        
+        15
+      
+          
+        
+        2.0
+      
+          
+        
+        6"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 11: <DIV> id="" class="menu-item clickable armory-item active" text="Pulse Rifle
+                    Owned
+                
+                
+                    
+          
+        
+        20
+      
+          
+        
+        1.7
+      
+          
+        
+        10"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 12: <DIV> id="" class="menu-item clickable armory-item " text="Shotgun
+                    25 Scrap
+                
+                
+                    
+          
+        
+        40
+      
+          
+        
+        1.0
+      
+          
+        
+        4"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 13: <DIV> id="" class="menu-item clickable armory-item active" text="Combat Knife
+                    Owned
+                
+                
+                    
+          
+        
+        15
+      
+          
+        
+        2.5
+      
+          
+        
+        1"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 14: <DIV> id="" class="menu-item clickable armory-item " text="Power Sword
+                    25 Scrap
+                
+                
+                    
+          
+        
+        35
+      
+          
+        
+        1.3
+      
+          
+        
+        1"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 15: <DIV> id="" class="menu-item clickable armory-item " text="Thunder Hammer
+                    40 Scrap
+                
+                
+                    
+          
+        
+        80
+      
+          
+        
+        0.7
+      
+          
+        
+        1"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 16: <DIV> id="" class="menu-item clickable armory-item " text="Light Recon Armor
+                    20 Scrap
+                
+                
+                    
+        
+        50
+       
+        
+        2"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 17: <DIV> id="" class="menu-item clickable armory-item " text="Combat Boots
+                    20 Scrap
+                
+                
+                    
+        
+        5"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 18: <BUTTON> id="" class="" text="-"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 19: <BUTTON> id="" class="" text="-"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 20: <BUTTON> id="" class="" text="+"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 21: <BUTTON> id="" class="" text="-"
+
+stdout | tests/e2e/ReproScroll.test.ts > Mobile Scroll Repro > capture new expedition screen
+Scroll Metrics: {
+  scrollHeight: [33m1387[39m,
+  clientHeight: [33m589[39m,
+  initialScrollTop: [33m0[39m,
+  afterScrollTop: [33m100[39m,
+  isScrollable: [33mtrue[39m
+}
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 22: <BUTTON> id="" class="" text="+"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 23: <BUTTON> id="" class="" text="-"
+
+ ✓ tests/e2e/regression_voidlock-6wf9q_mission_layout.test.ts (2 tests) 10261ms
+   ✓ Mission Screen Layout > should not have scrollbars on the mission screen and #game-container should not have overflow: auto (1024x768)  1441ms
+   ✓ Mission Screen Layout > should not have scrollbars on mobile viewport (400x800)  8079ms
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 24: <BUTTON> id="" class="" text="+"
+
+ ✓ tests/e2e/ReproScroll.test.ts (1 test) 10455ms
+   ✓ Mobile Scroll Repro > capture new expedition screen  9822ms
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 25: <BUTTON> id="" class="" text="-"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 26: <BUTTON> id="" class="" text="+"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 27: <BUTTON> id="" class="" text="-"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 28: <BUTTON> id="" class="" text="+"
+
+stdout | tests/e2e/DeploymentValidation.test.ts > Deployment Validation > should allow drag-and-drop deployment and enable Start Mission
+Navigating to http://localhost:5199
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 29: <BUTTON> id="" class="" text="-"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 30: <BUTTON> id="" class="" text="+"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 31: <BUTTON> id="" class="" text="-"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 32: <BUTTON> id="" class="" text="+"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 33: <BUTTON> id="" class="" text="-"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 34: <BUTTON> id="" class="" text="+"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 35: <BUTTON> id="" class="back-button" text="Back"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Equipment Tab 36: <BUTTON> id="" class="primary-button" text="Confirm Squad"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+BROWSER: %c[INFO]%c Configuration saved to LocalStorage (voidlock_custom_config). color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Launching Mission...
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Setup Tab 0: <SELECT> id="map-generator-type" class="" text="Dense Ship
+                    Tree Ship
+                    Procedural
+                    Static Map"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Setup Tab 1: <INPUT> id="toggle-fog-of-war" class="" text=""
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Setup Tab 2: <INPUT> id="toggle-debug-overlay" class="" text=""
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Setup Tab 3: <INPUT> id="toggle-los-overlay" class="" text=""
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Setup Tab 4: <INPUT> id="toggle-agent-control" class="" text=""
+
+stdout | tests/e2e/voidlock-n34wo-repro.test.ts > voidlock-n34wo: Focus stay when buying equipment > should keep focus on armory item after buying it in Campaign Mode
+BROWSER CONSOLE: [vite] connecting...
+
+stdout | tests/e2e/voidlock-n34wo-repro.test.ts > voidlock-n34wo: Focus stay when buying equipment > should keep focus on armory item after buying it in Campaign Mode
+BROWSER CONSOLE: [vite] connected.
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Setup Tab 5: <INPUT> id="toggle-manual-deployment" class="" text=""
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Setup Tab 6: <INPUT> id="toggle-allow-tactical-pause" class="" text=""
+
+stdout | tests/e2e/voidlock-n34wo-repro.test.ts > voidlock-n34wo: Focus stay when buying equipment > should keep focus on armory item after buying it in Campaign Mode
+BROWSER CONSOLE: %c[INFO]%c TutorialManager enabled color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Setup Tab 7: <INPUT> id="map-seed" class="" text=""
+
+stdout | tests/e2e/voidlock-7sa9u-fixed-repro.test.ts > voidlock-7sa9u fixed repro: X button focus in Equipment > should ensure the 'Remove' X button is not focusable via arrow navigation
+PAGE LOG: [vite] connecting...
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Setup Tab 8: <INPUT> id="map-width" class="" text=""
+
+stdout | tests/e2e/voidlock-7sa9u-fixed-repro.test.ts > voidlock-7sa9u fixed repro: X button focus in Equipment > should ensure the 'Remove' X button is not focusable via arrow navigation
+PAGE LOG: [vite] connected.
+
+stdout | tests/e2e/voidlock-n34wo-repro.test.ts > voidlock-n34wo: Focus stay when buying equipment > should keep focus on armory item after buying it in Campaign Mode
+BROWSER CONSOLE: %c[INFO]%c Campaign configuration cleared from LocalStorage. color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Setup Tab 9: <INPUT> id="map-height" class="" text=""
+
+stdout | tests/e2e/ReproAutoDeploymentDefeat.test.ts > Repro: Auto-deployment failure triggers instant loss > should start mission and NOT result in instant loss when starting without manual deployment
+BROWSER: [vite] connecting...
+
+stdout | tests/e2e/ReproAutoDeploymentDefeat.test.ts > Repro: Auto-deployment failure triggers instant loss > should start mission and NOT result in instant loss when starting without manual deployment
+BROWSER: [vite] connected.
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Setup Tab 10: <INPUT> id="map-spawn-points" class="" text=""
+
+stdout | tests/e2e/voidlock-7sa9u-fixed-repro.test.ts > voidlock-7sa9u fixed repro: X button focus in Equipment > should ensure the 'Remove' X button is not focusable via arrow navigation
+PAGE LOG: %c[INFO]%c TutorialManager enabled color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/voidlock-7sa9u-fixed-repro.test.ts > voidlock-7sa9u fixed repro: X button focus in Equipment > should ensure the 'Remove' X button is not focusable via arrow navigation
+Focusable Data: {
+  isRemoveFocusable: [33mfalse[39m,
+  removeBtnTag: [32m'BUTTON'[39m,
+  removeBtnClassName: [32m'remove-soldier-btn slot-remove'[39m,
+  firstCardTabIndex: [33m0[39m
+}
+Testing ArrowRight from first card...
+
+stdout | tests/e2e/voidlock-7sa9u-fixed-repro.test.ts > voidlock-7sa9u fixed repro: X button focus in Equipment > should ensure the 'Remove' X button is not focusable via arrow navigation
+Arrow Result: {
+  focusedTag: [32m'DIV'[39m,
+  focusedClassName: [32m'menu-item clickable armory-item '[39m,
+  isRemoveFocused: [33mfalse[39m
+}
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Setup Tab 11: <INPUT> id="map-starting-threat" class="" text=""
+
+stdout | tests/e2e/ReproAutoDeploymentDefeat.test.ts > Repro: Auto-deployment failure triggers instant loss > should start mission and NOT result in instant loss when starting without manual deployment
+BROWSER: %c[INFO]%c TutorialManager enabled color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/ReproAutoDeploymentDefeat.test.ts > Repro: Auto-deployment failure triggers instant loss > should start mission and NOT result in instant loss when starting without manual deployment
+Entering Custom Mission Setup...
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Setup Tab 12: <INPUT> id="map-base-enemies" class="" text=""
+
+stdout | tests/e2e/ReproAutoDeploymentDefeat.test.ts > Repro: Auto-deployment failure triggers instant loss > should start mission and NOT result in instant loss when starting without manual deployment
+Ensuring Manual Deployment is enabled...
+
+stdout | tests/e2e/ReproAutoDeploymentDefeat.test.ts > Repro: Auto-deployment failure triggers instant loss > should start mission and NOT result in instant loss when starting without manual deployment
+Navigating to Equipment Screen...
+
+stdout | tests/e2e/ReproAutoDeploymentDefeat.test.ts > Repro: Auto-deployment failure triggers instant loss > should start mission and NOT result in instant loss when starting without manual deployment
+Adding soldier to squad...
+
+stdout | tests/e2e/ReproAutoDeploymentDefeat.test.ts > Repro: Auto-deployment failure triggers instant loss > should start mission and NOT result in instant loss when starting without manual deployment
+Confirming squad...
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Setup Tab 13: <INPUT> id="map-enemy-growth" class="" text=""
+
+stdout | tests/e2e/ReproAutoDeploymentDefeat.test.ts > Repro: Auto-deployment failure triggers instant loss > should start mission and NOT result in instant loss when starting without manual deployment
+BROWSER: %c[INFO]%c Configuration saved to LocalStorage (voidlock_custom_config). color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/ReproAutoDeploymentDefeat.test.ts > Repro: Auto-deployment failure triggers instant loss > should start mission and NOT result in instant loss when starting without manual deployment
+Launching Mission...
+
+stdout | tests/e2e/ReproAutoDeploymentDefeat.test.ts > Repro: Auto-deployment failure triggers instant loss > should start mission and NOT result in instant loss when starting without manual deployment
+BROWSER: %c[INFO]%c Configuration saved to LocalStorage (voidlock_custom_config). color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/ReproAutoDeploymentDefeat.test.ts > Repro: Auto-deployment failure triggers instant loss > should start mission and NOT result in instant loss when starting without manual deployment
+Waiting for Mission Deployment Phase...
+
+ ✓ tests/e2e/voidlock-7sa9u-fixed-repro.test.ts (1 test) 9618ms
+   ✓ voidlock-7sa9u fixed repro: X button focus in Equipment > should ensure the 'Remove' X button is not focusable via arrow navigation  9054ms
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Setup Tab 14: <DIV> id="" class="soldier-widget soldier-item soldier-widget-squad-builder soldier-card selected-for-deployment" text="Scout
+        
+      
+      
+        Lvl 1 | Status: Healthy
+      
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+        
+        
+        0"
+
+stdout | tests/e2e/ReproAutoDeploymentDefeat.test.ts > Repro: Auto-deployment failure triggers instant loss > should start mission and NOT result in instant loss when starting without manual deployment
+Autofilling deployment...
+
+stdout | tests/e2e/ReproAutoDeploymentDefeat.test.ts > Repro: Auto-deployment failure triggers instant loss > should start mission and NOT result in instant loss when starting without manual deployment
+Checking if Start Mission button is enabled...
+
+stdout | tests/e2e/ReproAutoDeploymentDefeat.test.ts > Repro: Auto-deployment failure triggers instant loss > should start mission and NOT result in instant loss when starting without manual deployment
+Start Mission button is ENABLED.
+Starting mission...
+
+stdout | tests/e2e/ReproAutoDeploymentDefeat.test.ts > Repro: Auto-deployment failure triggers instant loss > should start mission and NOT result in instant loss when starting without manual deployment
+Waiting for mission to settle...
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Setup Tab 15: <DIV> id="" class="soldier-widget soldier-item soldier-widget-squad-builder soldier-card" text="Heavy
+        
+      
+      
+        Lvl 1 | Status: Healthy
+      
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+        
+        
+        0"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Setup Tab 16: <DIV> id="" class="soldier-widget soldier-item soldier-widget-squad-builder soldier-card" text="Sniper
+        
+      
+      
+        Lvl 1 | Status: Healthy
+      
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+        
+        
+        0"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Setup Tab 17: <DIV> id="" class="soldier-widget soldier-item soldier-widget-squad-builder soldier-card" text="Demolitionist
+        
+      
+      
+        Lvl 1 | Status: Healthy
+      
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+        
+        
+        0"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Setup Tab 18: <DIV> id="" class="soldier-widget soldier-item soldier-widget-squad-builder soldier-card" text="VIP
+        
+      
+      
+        Lvl 1 | Status: Healthy
+      
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+        
+        
+        0"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Setup Tab 19: <DIV> id="" class="deployment-slot occupied" text="Daniel Drake
+        
+      
+      
+        Assault Lvl 1 | Status: Healthy
+      
+      
+        
+        
+        20
+      
+        
+        
+        95
+      
+        
+        
+        20
+      
+        
+        
+        1.1
+      
+        
+        
+        10
+      
+      
+    X"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Setup Tab 20: <DIV> id="" class="deployment-slot occupied" text="Colette Ripley
+        
+      
+      
+        Medic Lvl 1 | Status: Healthy
+      
+      
+        
+        
+        25
+      
+        
+        
+        80
+      
+        
+        
+        15
+      
+        
+        
+        1.7
+      
+        
+        
+        6
+      
+      
+    X"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Setup Tab 21: <DIV> id="" class="deployment-slot ready-for-placement" text="(Empty)"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Setup Tab 22: <DIV> id="" class="deployment-slot ready-for-placement" text="(Empty)"
+
+stdout | tests/e2e/DrawerToggleVisibility.test.ts > Drawer Toggle Visibility Regression (voidlock-5k8f) > should show OBJ and SQD buttons on mobile viewport
+Button displays on mobile viewport: { sqdDisplay: [32m'flex'[39m, objDisplay: [32m'flex'[39m }
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Setup Tab 23: <BUTTON> id="btn-setup-back" class="back-button" text="Back"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Setup Tab 24: <BUTTON> id="btn-goto-equipment" class="primary-button" text="Equipment & Supplies"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Setup Tab 25: <BUTTON> id="btn-launch-mission" class="primary-button" text="Launch Mission"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+BROWSER: %c[INFO]%c Configuration saved to LocalStorage (voidlock_custom_config). color: #2ecc71; font-weight: bold; 
+
+ ✓ tests/e2e/DrawerToggleVisibility.test.ts (2 tests) 21511ms
+   ✓ Drawer Toggle Visibility Regression (voidlock-5k8f) > should hide OBJ and SQD buttons on desktop even if mobile-touch class is present  9708ms
+   ✓ Drawer Toggle Visibility Regression (voidlock-5k8f) > should show OBJ and SQD buttons on mobile viewport  11040ms
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Waiting for Mission Deployment Phase...
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Tabbing to deployment list...
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Deployment Tab 0: <BODY> class="theme-default" text="Voidlock
+        v0.139.6
+
+        
+          Campaign
+          
+            Custom Mission
+          
+          
+            Engineering
+          
+          
+            Statistics
+          
+          Settings
+
+          
+            Load Replay JSON
+            
+          
+        
+      
+
+      
+      
+        
+        Custom Mission
+        Simulation Setup
+      SetupService RecordSettingsMain Menu
+        
+          
+          
+
+          
+          Soldier List
+      
+        1. Daniel Drake
+        
+          
+          Lvl 1
+        
+      
+      
+        Assault | Pulse Rifle / Combat Knife
+        Healthy
+      
+      
+        HP: 100/100 | XP: 0
+      
+    ×
+      
+        2. Colette Ripley
+        
+          
+          Lvl 1
+        
+      
+      
+        Medic | Pistol / Combat Knife
+        Healthy
+      
+      
+        HP: 80/80 | XP: 0
+      
+    ×
+          
+            3. [Empty Slot]
+          
+          
+            Click to Add Soldier
+          
+        
+          
+            4. [Empty Slot]
+          
+          
+            Click to Add Soldier
+          
+        Soldier EquipmentSoldier Attributes
+      
+        
+        100
+      
+      
+        
+        20
+      
+      
+        
+        90
+      
+    Equipment Performance
+            
+                Primary (RH): Pulse Rifle
+                
+                    
+        
+        20
+      
+                    
+        
+        1.1
+      
+                    
+        
+        10
+      
+                    
+        
+        +5
+      
+                
+            
+        
+            
+                Secondary (LH): Combat Knife
+                
+                    
+        
+        15
+      
+                    
+        
+        1.7
+      
+                    
+        
+        1
+      
+                    
+        
+        +10
+      
+                
+            
+        Right HandPulse RifleLeft HandCombat KnifeBody+Feet+Armory & SuppliesPrimary Weapons
+            
+                
+                    Pistol
+                    10 Scrap
+                
+                
+                    
+          
+        
+        15
+      
+          
+        
+        2.0
+      
+          
+        
+        6
+      
+        
+                
+            
+        
+            
+                
+                    Pulse Rifle
+                    Owned
+                
+                
+                    
+          
+        
+        20
+      
+          
+        
+        1.7
+      
+          
+        
+        10
+      
+        
+                
+            
+        
+            
+                
+                    Shotgun
+                    25 Scrap
+                
+                
+                    
+          
+        
+        40
+      
+          
+        
+        1.0
+      
+          
+        
+        4
+      
+        
+                
+            
+        Secondary Weapons
+            
+                
+                    Combat Knife
+                    Owned
+                
+                
+                    
+          
+        
+        15
+      
+          
+        
+        2.5
+      
+          
+        
+        1
+      
+        
+                
+            
+        
+            
+                
+                    Power Sword
+                    25 Scrap
+                
+                
+                    
+          
+        
+        35
+      
+          
+        
+        1.3
+      
+          
+        
+        1
+      
+        
+                
+            
+        
+            
+                
+                    Thunder Hammer
+                    40 Scrap
+                
+                
+                    
+          
+        
+        80
+      
+          
+        
+        0.7
+      
+          
+        
+        1
+      
+        
+                
+            
+        Armor
+            
+                
+                    Light Recon Armor
+                    20 Scrap
+                
+                
+                    
+        
+        50
+       
+        
+        2
+      
+                
+            
+        Footwear
+            
+                
+                    Combat Boots
+                    20 Scrap
+                
+                
+                    
+        
+        5
+      
+                
+            
+        Global Supplies
+        
+            Frag Grenade
+            Free
+        
+      -2+
+        
+            Medkit
+            Free
+        
+      -1+
+        
+            Stimpack
+            Free
+        
+      -0+
+        
+            Landmine
+            Free
+        
+      -0+
+        
+            Scanner
+            Free
+        
+      -0+
+        
+            Auto Cannon
+            Free
+        
+      -0+
+        
+            Auto Cannon Mk1
+            Free
+        
+      -0+
+        
+            Auto Cannon Mk2
+            Free
+        
+      -0+
+        
+            Heavy Auto Cannon
+            Free
+        
+      -0+BackConfirm Squad
+
+          
+          
+            
+          
+
+          
+          
+            
+          
+
+          
+          
+            
+          
+
+          
+          
+            Mission Configuration
+            Custom Simulation
+            
+              
+                
+                  Generator Type:
+                  
+                    Dense Ship
+                    Tree Ship
+                    Procedural
+                    Static Map
+                  
+                
+
+                
+                  Game Options:
+                  
+                    
+                      
+                      Fog
+                    
+                    
+                       Debug
+                    
+                    
+                       Line of Sight
+                    
+                    
+                      
+                      AI
+                    
+                    
+                      
+                      Deployment
+                    
+                    
+                      
+                      Pause
+                    
+                  
+                
+
+                
+                  
+                    Map Seed:
+                    
+
+                    
+                      
+                        Width:
+                        
+                      
+                      
+                        Height:
+                        
+                      
+                    
+
+                    Enemy Spawns:
+                      3
+                    
+
+                    Starting Threat:
+                      0%
+                    
+
+                    Base Wave Size:
+                      3
+                    
+
+                    Wave Growth:
+                      1
+                    
+                  
+
+                  
+                    Static Map
+                    
+                    Load JSON
+                    
+
+                    ASCII Map
+                    
+                    Convert ASCII
+                  
+                
+              
+
+              
+                Total Soldiers: 2/4Roster
+      
+        Scout
+        
+      
+      
+        Lvl 1 | Status: Healthy
+      
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+      
+    
+      
+        Heavy
+        
+      
+      
+        Lvl 1 | Status: Healthy
+      
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+      
+    
+      
+        Sniper
+        
+      
+      
+        Lvl 1 | Status: Healthy
+      
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+      
+    
+      
+        Demolitionist
+        
+      
+      
+        Lvl 1 | Status: Healthy
+      
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+      
+    
+      
+        VIP
+        
+      
+      
+        Lvl 1 | Status: Healthy
+      
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+        
+        
+        0
+      
+      
+    Deployment
+      
+        Daniel Drake
+        
+      
+      
+        Assault Lvl 1 | Status: Healthy
+      
+      
+        
+        
+        20
+      
+        
+        
+        95
+      
+        
+        
+        20
+      
+        
+        
+        1.1
+      
+        
+        
+        10
+      
+      
+    X
+      
+        Colette Ripley
+        
+      
+      
+        Medic Lvl 1 | Status: Healthy
+      
+      
+        
+        
+        25
+      
+        
+        
+        80
+      
+        
+        
+        15
+      
+        
+        
+        1.7
+      
+        
+        
+        6
+      
+      
+    X(Empty)(Empty)
+              
+            
+
+            
+              Back
+              
+                
+                  Equipment & Supplies
+                
+                
+                  Launch Mission
+                
+              
+            
+          
+        
+      
+
+      
+      
+        
+        
+          Squad
+          Time 0.0s
+          
+            Threat
+            
+              
+              
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+              
+              
+            
+            0%
+          
+
+          Objectives
+
+          
+          
+            || Pause
+            Speed
+            
+            1.0x
+          
+
+          
+            Give Up
+          
+        
+
+        
+        
+          
+            
+          
+        
+          
+             ⚔️
+             Daniel Drake (1)
+             
+          
+          100/100
+        
+        
+           
+        
+        20
+      
+        
+        
+           
+              LH:
+              
+          
+        
+        15
+      
+          
+        
+        100
+      
+          
+        
+        1.7
+      
+          
+        
+        1
+      
+        
+           
+           
+              RH:
+              
+          
+        
+        20
+      
+          
+        
+        95
+      
+          
+        
+        1.1
+      
+          
+        
+        10
+      
+        
+           
+        
+        
+             Idle
+        
+        
+      
+        
+          
+             ⚔️
+             Colette Ripley (2)
+             
+          
+          80/80
+        
+        
+           
+        
+        25
+      
+        
+        
+           
+              LH:
+              
+          
+        
+        15
+      
+          
+        
+        90
+      
+          
+        
+        2.1
+      
+          
+        
+        1
+      
+        
+           
+           
+              RH:
+              
+          
+        
+        15
+      
+          
+        
+        80
+      
+          
+        
+        1.7
+      
+          
+        
+        6
+      
+        
+           
+        
+        
+             Idle
+        
+        
+      
+        
+
+        
+        
+          
+            
+          
+
+          
+        Mission Controls
+        
+          Game Speed: 1.0x
+          
+          Abort Mission
+        
+      Deployment PhaseTactically place your squad members on highlighted tiles. Drag units to move them.
+      
+        Daniel Drake (1)
+        
+          
+          Lvl 1
+        
+      
+      
+        Assault | Pulse Rifle / Combat Knife
+        Pending
+      
+      
+        HP: 100/100 | XP: 0
+      
+    
+      
+        Colette Ripley (2)
+        
+          
+          Lvl 1
+        
+      
+      
+        Medic | Pistol / Combat Knife
+        Pending
+      
+      
+        HP: 80/80 | XP: 0
+      
+    Auto-Fill SpawnsStart Mission"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Deployment Tab 1: <BUTTON> class="" text="|| Pause"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Deployment Tab 2: <INPUT> class="" text=""
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Deployment Tab 3: <BUTTON> class="" text="Give Up"
+
+stdout | tests/e2e/ReproAutoDeploymentDefeat.test.ts > Repro: Auto-deployment failure triggers instant loss > should start mission and NOT result in instant loss when starting without manual deployment
+Mission status after start: Playing
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Deployment Tab 4: <DIV> class="soldier-widget soldier-item soldier-widget-tactical clickable" text="⚔️
+             Daniel Drake (1)
+             
+          
+          100/100
+        
+        
+           
+        
+        20
+      
+        
+        
+           
+              LH:
+              
+          
+        
+        15
+      
+          
+        
+        100
+      
+          
+        
+        1.7
+      
+          
+        
+        1
+      
+        
+           
+           
+              RH:
+              
+          
+        
+        20
+      
+          
+        
+        95
+      
+          
+        
+        1.1
+      
+          
+        
+        10
+      
+        
+           
+        
+        
+             Idle"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Deployment Tab 5: <DIV> class="soldier-widget soldier-item soldier-widget-tactical clickable" text="⚔️
+             Colette Ripley (2)
+             
+          
+          80/80
+        
+        
+           
+        
+        25
+      
+        
+        
+           
+              LH:
+              
+          
+        
+        15
+      
+          
+        
+        90
+      
+          
+        
+        2.1
+      
+          
+        
+        1
+      
+        
+           
+           
+              RH:
+              
+          
+        
+        15
+      
+          
+        
+        80
+      
+          
+        
+        1.7
+      
+          
+        
+        6
+      
+        
+           
+        
+        
+             Idle"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Deployment Tab 6: <DIV> class="deployment-unit-item soldier-widget soldier-item soldier-widget-roster menu-item clickable" text="Daniel Drake (1)
+        
+          
+          Lvl 1
+        
+      
+      
+        Assault | Pulse Rifle / Combat Knife
+        Pending
+      
+      
+        HP: 100/100 | XP: 0"
+Deploying all units via Auto-Fill Spawns...
+
+ ✓ tests/e2e/ReproAutoDeploymentDefeat.test.ts (1 test) 11576ms
+   ✓ Repro: Auto-deployment failure triggers instant loss > should start mission and NOT result in instant loss when starting without manual deployment  11049ms
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Tabbing to 'Start Mission' button...
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+StartBtn Tab 0: <BUTTON> id="btn-autofill-deployment" class="btn-secondary" text="Auto-Fill Spawns"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+StartBtn Tab 1: <BUTTON> id="btn-start-mission" class="btn-start-mission" text="Start Mission"
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Starting mission...
+
+stdout | tests/e2e/DeploymentKeyboardFlow.test.ts > Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard
+Mission started successfully via keyboard!
+
+ ✓ tests/e2e/DeploymentKeyboardFlow.test.ts (1 test) 25383ms
+   ✓ Mission Deployment Keyboard Flow > should deploy units and start mission using only keyboard  23300ms
+stdout | tests/e2e/voidlock-7sa9u-repro.test.ts > voidlock-7sa9u repro: X button focus > should ensure the 'Remove' X button is not focusable via keyboard navigation
+PAGE LOG: [vite] connecting...
+
+stdout | tests/e2e/voidlock-7sa9u-repro.test.ts > voidlock-7sa9u repro: X button focus > should ensure the 'Remove' X button is not focusable via keyboard navigation
+PAGE LOG: [vite] connected.
+
+stdout | tests/e2e/voidlock-7sa9u-repro.test.ts > voidlock-7sa9u repro: X button focus > should ensure the 'Remove' X button is not focusable via keyboard navigation
+PAGE LOG: %c[INFO]%c TutorialManager enabled color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/voidlock-7sa9u-repro.test.ts > voidlock-7sa9u repro: X button focus > should ensure the 'Remove' X button is not focusable via keyboard navigation
+Navigating to #mission-setup...
+
+stdout | tests/e2e/DeploymentValidation.test.ts > Deployment Validation > should allow drag-and-drop deployment and enable Start Mission
+Waiting for #btn-menu-custom
+
+stdout | tests/e2e/DeploymentValidation.test.ts > Deployment Validation > should allow drag-and-drop deployment and enable Start Mission
+Clicking #btn-menu-custom
+
+stdout | tests/e2e/DeploymentValidation.test.ts > Deployment Validation > should allow drag-and-drop deployment and enable Start Mission
+Waiting for #toggle-manual-deployment
+
+stdout | tests/e2e/DeploymentValidation.test.ts > Deployment Validation > should allow drag-and-drop deployment and enable Start Mission
+Manual Deployment checked: [33mtrue[39m
+Navigating to Equipment Screen...
+
+stdout | tests/e2e/DeploymentValidation.test.ts > Deployment Validation > should allow drag-and-drop deployment and enable Start Mission
+Confirming squad...
+
+stdout | tests/e2e/DeploymentValidation.test.ts > Deployment Validation > should allow drag-and-drop deployment and enable Start Mission
+Clicking #btn-launch-mission
+
+stdout | tests/e2e/DeploymentValidation.test.ts > Deployment Validation > should allow drag-and-drop deployment and enable Start Mission
+Waiting for .deployment-summary
+
+stdout | tests/e2e/DeploymentValidation.test.ts > Deployment Validation > should allow drag-and-drop deployment and enable Start Mission
+Checking if Start Mission is disabled
+
+stdout | tests/e2e/DeploymentValidation.test.ts > Deployment Validation > should allow drag-and-drop deployment and enable Start Mission
+Waiting for .deployment-unit-item
+
+stdout | tests/e2e/DeploymentValidation.test.ts > Deployment Validation > should allow drag-and-drop deployment and enable Start Mission
+Dragging unit to canvas
+
+stdout | tests/e2e/DeploymentValidation.test.ts > Deployment Validation > should allow drag-and-drop deployment and enable Start Mission
+Unit status after drag: Pending
+Clicking #btn-autofill-deployment
+
+stdout | tests/e2e/DeploymentValidation.test.ts > Deployment Validation > should allow drag-and-drop deployment and enable Start Mission
+Unit status after auto-fill: Deployed
+
+stdout | tests/e2e/DeploymentValidation.test.ts > Deployment Validation > should allow drag-and-drop deployment and enable Start Mission
+Start Mission disabled after auto-fill: [33mfalse[39m
+
+ ✓ tests/e2e/DeploymentValidation.test.ts (1 test) 12558ms
+   ✓ Deployment Validation > should allow drag-and-drop deployment and enable Start Mission  12015ms
+stdout | tests/e2e/EquipmentFocus.test.ts > Equipment Focus Verification > should maintain focus after buying equipment using keyboard in Custom Mission
+Targeting custom item: armory-item-pistol
+
+stdout | tests/e2e/voidlock-n34wo-repro.test.ts > voidlock-n34wo: Focus stay when buying equipment > should keep focus on armory item after buying it in Campaign Mode
+BROWSER CONSOLE: [vite] connecting...
+
+stdout | tests/e2e/voidlock-n34wo-repro.test.ts > voidlock-n34wo: Focus stay when buying equipment > should keep focus on armory item after buying it in Campaign Mode
+BROWSER CONSOLE: [vite] connected.
+
+stdout | tests/e2e/voidlock-n34wo-repro.test.ts > voidlock-n34wo: Focus stay when buying equipment > should keep focus on armory item after buying it in Campaign Mode
+BROWSER CONSOLE: %c[INFO]%c TutorialManager enabled color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/voidlock-n34wo-repro.test.ts > voidlock-n34wo: Focus stay when buying equipment > should keep focus on armory item after buying it in Campaign Mode
+BROWSER CONSOLE: %c[INFO]%c Configuration saved to LocalStorage (voidlock_campaign_config). color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/voidlock-n34wo-repro.test.ts > voidlock-n34wo: Focus stay when buying equipment > should keep focus on armory item after buying it in Campaign Mode
+Price text before buy: 25 Scrap
+
+stdout | tests/e2e/voidlock-n34wo-repro.test.ts > voidlock-n34wo: Focus stay when buying equipment > should keep focus on armory item after buying it in Campaign Mode
+Price text after buy: Owned
+
+stdout | tests/e2e/voidlock-n34wo-repro.test.ts > voidlock-n34wo: Focus stay when buying equipment > should keep focus on armory item after buying it in Campaign Mode
+Active element after buy: {
+  tagName: [32m'DIV'[39m,
+  focusId: [32m'armory-item-shotgun'[39m,
+  text: [32m'\n            \n                \n                   '[39m
+}
+
+stdout | tests/e2e/SettingsCloudSync.test.ts > Settings Cloud Sync Visual Verification > should show settings screen and verify cloud sync status
+Sync Info: {
+  found: [33mtrue[39m,
+  label: [32m'Enable Cloud Sync: (Not Configured)'[39m,
+  disabled: [33mtrue[39m,
+  checked: [33mfalse[39m
+}
+
+ ✓ tests/e2e/SettingsCloudSync.test.ts (1 test) 10164ms
+   ✓ Settings Cloud Sync Visual Verification > should show settings screen and verify cloud sync status  8539ms
+stdout | tests/e2e/voidlock-7sa9u-repro.test.ts > voidlock-7sa9u repro: X button focus > should ensure the 'Remove' X button is not focusable via keyboard navigation
+PAGE LOG: [vite] connecting...
+
+stdout | tests/e2e/voidlock-7sa9u-repro.test.ts > voidlock-7sa9u repro: X button focus > should ensure the 'Remove' X button is not focusable via keyboard navigation
+PAGE LOG: [vite] connected.
+
+stdout | tests/e2e/voidlock-7sa9u-repro.test.ts > voidlock-7sa9u repro: X button focus > should ensure the 'Remove' X button is not focusable via keyboard navigation
+PAGE LOG: %c[INFO]%c TutorialManager enabled color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/voidlock-7sa9u-repro.test.ts > voidlock-7sa9u repro: X button focus > should ensure the 'Remove' X button is not focusable via keyboard navigation
+PAGE LOG: %c[INFO]%c Configuration saved to LocalStorage (voidlock_custom_config). color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/voidlock-7sa9u-repro.test.ts > voidlock-7sa9u repro: X button focus > should ensure the 'Remove' X button is not focusable via keyboard navigation
+PAGE LOG: %c[INFO]%c Configuration saved to LocalStorage (voidlock_custom_config). color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/voidlock-7sa9u-repro.test.ts > voidlock-7sa9u repro: X button focus > should ensure the 'Remove' X button is not focusable via keyboard navigation
+Is Remove Button Focusable: [33mfalse[39m
+
+ ✓ tests/e2e/voidlock-7sa9u-repro.test.ts (1 test) 9554ms
+   ✓ voidlock-7sa9u repro: X button focus > should ensure the 'Remove' X button is not focusable via keyboard navigation  8961ms
+stdout | tests/e2e/voidlock-n34wo-repro.test.ts > voidlock-n34wo: Focus stay when buying equipment > should keep focus on supply plus button after buying a grenade
+BROWSER CONSOLE: [vite] connecting...
+
+stdout | tests/e2e/voidlock-n34wo-repro.test.ts > voidlock-n34wo: Focus stay when buying equipment > should keep focus on supply plus button after buying a grenade
+BROWSER CONSOLE: [vite] connected.
+
+stdout | tests/e2e/voidlock-n34wo-repro.test.ts > voidlock-n34wo: Focus stay when buying equipment > should keep focus on supply plus button after buying a grenade
+BROWSER CONSOLE: %c[INFO]%c TutorialManager enabled color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/voidlock-n34wo-repro.test.ts > voidlock-n34wo: Focus stay when buying equipment > should keep focus on supply plus button after buying a grenade
+BROWSER CONSOLE: [vite] connecting...
+
+stdout | tests/e2e/voidlock-n34wo-repro.test.ts > voidlock-n34wo: Focus stay when buying equipment > should keep focus on supply plus button after buying a grenade
+BROWSER CONSOLE: [vite] connected.
+
+stdout | tests/e2e/voidlock-n34wo-repro.test.ts > voidlock-n34wo: Focus stay when buying equipment > should keep focus on supply plus button after buying a grenade
+BROWSER CONSOLE: %c[INFO]%c TutorialManager enabled color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/voidlock-n34wo-repro.test.ts > voidlock-n34wo: Focus stay when buying equipment > should keep focus on supply plus button after buying a grenade
+BROWSER CONSOLE: %c[INFO]%c Campaign configuration cleared from LocalStorage. color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/voidlock-n34wo-repro.test.ts > voidlock-n34wo: Focus stay when buying equipment > should keep focus on supply plus button after buying a grenade
+BROWSER CONSOLE: [vite] connecting...
+
+stdout | tests/e2e/voidlock-n34wo-repro.test.ts > voidlock-n34wo: Focus stay when buying equipment > should keep focus on supply plus button after buying a grenade
+BROWSER CONSOLE: [vite] connected.
+
+stdout | tests/e2e/voidlock-n34wo-repro.test.ts > voidlock-n34wo: Focus stay when buying equipment > should keep focus on supply plus button after buying a grenade
+BROWSER CONSOLE: %c[INFO]%c TutorialManager enabled color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/voidlock-n34wo-repro.test.ts > voidlock-n34wo: Focus stay when buying equipment > should keep focus on supply plus button after buying a grenade
+BROWSER CONSOLE: %c[INFO]%c Configuration saved to LocalStorage (voidlock_campaign_config). color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/voidlock-n34wo-repro.test.ts > voidlock-n34wo: Focus stay when buying equipment > should keep focus on supply plus button after buying a grenade
+Plus button focus state before: {
+  isMatch: [33mtrue[39m,
+  activeTag: [32m'BUTTON'[39m,
+  activeId: [32m''[39m,
+  activeFocusId: [32m'supply-plus-mine'[39m,
+  targetFocusId: [32m'supply-plus-mine'[39m,
+  targetVisible: [33mtrue[39m,
+  targetDisabled: [33mfalse[39m
+}
+
+stdout | tests/e2e/voidlock-n34wo-repro.test.ts > voidlock-n34wo: Focus stay when buying equipment > should keep focus on supply plus button after buying a grenade
+Active element after plus: { tagName: [32m'BUTTON'[39m, focusId: [32m'supply-plus-mine'[39m, disabled: [33mfalse[39m }
+
+ ✓ tests/e2e/voidlock-n34wo-repro.test.ts (2 tests) 26818ms
+   ✓ voidlock-n34wo: Focus stay when buying equipment > should keep focus on armory item after buying it in Campaign Mode  21161ms
+   ✓ voidlock-n34wo: Focus stay when buying equipment > should keep focus on supply plus button after buying a grenade  5010ms
+ ✓ tests/e2e/EquipmentNavigation.test.ts (1 test) 9438ms
+   ✓ Equipment Screen Navigation > should navigate back to Mission Setup after confirming squad  8060ms
+ ✓ tests/e2e/regression_39b1_visual.test.ts (2 tests) 24315ms
+   ✓ Regression 39B1 - Map Entity Rendering > should render spawn and extraction points in TacticalIcons mode  13009ms
+   ✓ Regression 39B1 - Map Entity Rendering > should render spawn and extraction points in Sprites mode  10642ms
+ ✓ tests/e2e/MobileDeployment.test.ts (1 test) 4080ms
+   ✓ Mobile Deployment Flow > should deploy units via tapping in mobile-action-panel  3612ms
+stdout | tests/e2e/GlobalScrollDiscipline.test.ts > Global Scroll Discipline > Mission Setup should have internal scrolling and fixed footer
+Mission Setup Metrics: {
+  scrollHeight: [33m1174[39m,
+  clientHeight: [33m105[39m,
+  isScrollable: [33mtrue[39m,
+  overflowY: [32m'auto'[39m,
+  footerVisible: [33mtrue[39m,
+  footerIsFixed: [33mtrue[39m
+}
+
+stdout | tests/e2e/GlobalScrollDiscipline.test.ts > Global Scroll Discipline > Campaign Summary should have internal scrolling and fixed footer
+Mocking version: 0.138.3
+
+stdout | tests/e2e/GlobalScrollDiscipline.test.ts > Global Scroll Discipline > Campaign Summary should have internal scrolling and fixed footer
+LocalStorage value length: [33m6065[39m
+Navigating to #campaign-summary
+
+stdout | tests/e2e/GlobalScrollDiscipline.test.ts > Global Scroll Discipline > Campaign Summary should have internal scrolling and fixed footer
+Campaign Summary Metrics: {
+  scrollHeight: [33m555[39m,
+  clientHeight: [33m40[39m,
+  isScrollable: [33mtrue[39m,
+  overflowY: [32m'auto'[39m,
+  footerVisible: [33mtrue[39m,
+  footerIsFixed: [33mtrue[39m
+}
+
+ ✓ tests/e2e/GlobalScrollDiscipline.test.ts (4 tests) 22440ms
+   ✓ Global Scroll Discipline > should not allow scrolling the main window  9282ms
+   ✓ Global Scroll Discipline > Settings menu should have internal scrolling if content overflows  11649ms
+   ✓ Global Scroll Discipline > Mission Setup should have internal scrolling and fixed footer  455ms
+   ✓ Global Scroll Discipline > Campaign Summary should have internal scrolling and fixed footer  323ms
+stdout | tests/e2e/regression_ffdu9_menu_casing.test.ts > Command Menu Casing Repro (voidlock-ffdu9) > Command menu buttons should NOT be all-caps and should NOT have text-transform: uppercase
+Navigating to Custom Mission...
+
+stdout | tests/e2e/regression_ffdu9_menu_casing.test.ts > Command Menu Casing Repro (voidlock-ffdu9) > Command menu buttons should NOT be all-caps and should NOT have text-transform: uppercase
+Adding soldier to squad...
+
+stdout | tests/e2e/regression_ffdu9_menu_casing.test.ts > Command Menu Casing Repro (voidlock-ffdu9) > Command menu buttons should NOT be all-caps and should NOT have text-transform: uppercase
+Launching Mission...
+
+stdout | tests/e2e/regression_ffdu9_menu_casing.test.ts > Command Menu Casing Repro (voidlock-ffdu9) > Command menu buttons should NOT be all-caps and should NOT have text-transform: uppercase
+Finishing Deployment...
+
+stdout | tests/e2e/regression_ffdu9_menu_casing.test.ts > Command Menu Casing Repro (voidlock-ffdu9) > Command menu buttons should NOT be all-caps and should NOT have text-transform: uppercase
+Waiting for Command Menu...
+
+ ✓ tests/e2e/EquipmentFocus.test.ts (2 tests) 28875ms
+   ✓ Equipment Focus Verification > should maintain focus after buying equipment using keyboard in Custom Mission  10308ms
+   ✓ Equipment Focus Verification > should handle focus fallback when supply item becomes disabled (maxed out) in Campaign Mode  17898ms
+stdout | tests/e2e/MobileDrawers.test.ts > Mobile Drawers > should show drawer toggles and hide panels by default on mobile
+Launching Mission...
+
+stdout | tests/e2e/regression_ffdu9_menu_casing.test.ts > Command Menu Casing Repro (voidlock-ffdu9) > Command menu buttons should NOT be all-caps and should NOT have text-transform: uppercase
+Menu Item: "1. Orders", text-transform: none
+
+stdout | tests/e2e/regression_ffdu9_menu_casing.test.ts > Command Menu Casing Repro (voidlock-ffdu9) > Command menu buttons should NOT be all-caps and should NOT have text-transform: uppercase
+Menu Item: "2. Engagement", text-transform: none
+
+stdout | tests/e2e/regression_ffdu9_menu_casing.test.ts > Command Menu Casing Repro (voidlock-ffdu9) > Command menu buttons should NOT be all-caps and should NOT have text-transform: uppercase
+Menu Item: "3. Use Item", text-transform: none
+
+stdout | tests/e2e/regression_ffdu9_menu_casing.test.ts > Command Menu Casing Repro (voidlock-ffdu9) > Command menu buttons should NOT be all-caps and should NOT have text-transform: uppercase
+Menu Item: "4. Pickup", text-transform: none
+
+stdout | tests/e2e/regression_ffdu9_menu_casing.test.ts > Command Menu Casing Repro (voidlock-ffdu9) > Command menu buttons should NOT be all-caps and should NOT have text-transform: uppercase
+Menu Item: "5. Extract", text-transform: none
+
+stdout | tests/e2e/regression_ffdu9_menu_casing.test.ts > Command Menu Casing Repro (voidlock-ffdu9) > Command menu buttons should NOT be all-caps and should NOT have text-transform: uppercase
+Menu Title: "Actions"
+
+ ✓ tests/e2e/regression_ffdu9_menu_casing.test.ts (1 test) 4804ms
+   ✓ Command Menu Casing Repro (voidlock-ffdu9) > Command menu buttons should NOT be all-caps and should NOT have text-transform: uppercase  4215ms
+ ✓ tests/e2e/MobileDrawers.test.ts (8 tests) 18349ms
+   ✓ Mobile Drawers > should show drawer toggles and hide panels by default on mobile  13350ms
+   ✓ Mobile Drawers > should toggle Squad drawer  920ms
+   ✓ Mobile Drawers > should toggle Objectives drawer  848ms
+   ✓ Mobile Drawers > should close one drawer when opening another  838ms
+   ✓ Mobile Drawers > should close drawers when clicking game area  836ms
+   ✓ Mobile Drawers > should be able to change speed via mobile mission controls  874ms
+stdout | tests/e2e/ReproKeyboardEquipment.test.ts > Keyboard Equipment Accessibility > should focus equipment slots and armory items via keyboard
+Entering Custom Mission Setup...
+
+stdout | tests/e2e/ReproKeyboardEquipment.test.ts > Keyboard Equipment Accessibility > should focus equipment slots and armory items via keyboard
+Navigating to Equipment Screen...
+
+stdout | tests/e2e/ReproKeyboardEquipment.test.ts > Keyboard Equipment Accessibility > should focus equipment slots and armory items via keyboard
+Waiting for Equipment Screen to render...
+
+stdout | tests/e2e/ReproKeyboardEquipment.test.ts > Keyboard Equipment Accessibility > should focus equipment slots and armory items via keyboard
+Attempting to focus equipment elements via Tab...
+
+stdout | tests/e2e/ReproKeyboardEquipment.test.ts > Keyboard Equipment Accessibility > should focus equipment slots and armory items via keyboard
+Focused [0]: BUTTON class="remove-soldier-btn slot-remove" text="×..."
+
+stdout | tests/e2e/ReproKeyboardEquipment.test.ts > Keyboard Equipment Accessibility > should focus equipment slots and armory items via keyboard
+Focused [1]: DIV class="soldier-widget soldier-item soldier-widget-roster menu-item clickable" text="2. Sarah Drake
+     ..."
+
+stdout | tests/e2e/ReproKeyboardEquipment.test.ts > Keyboard Equipment Accessibility > should focus equipment slots and armory items via keyboard
+Focused [2]: DIV class="menu-item clickable " text="3. [Empty Slot]
+    ..."
+
+stdout | tests/e2e/ReproKeyboardEquipment.test.ts > Keyboard Equipment Accessibility > should focus equipment slots and armory items via keyboard
+Focused [3]: DIV class="menu-item clickable " text="4. [Empty Slot]
+    ..."
+
+stdout | tests/e2e/ReproKeyboardEquipment.test.ts > Keyboard Equipment Accessibility > should focus equipment slots and armory items via keyboard
+Focused [4]: DIV class="paper-doll-slot equipped" text="Right HandPulse Rifl..."
+
+stdout | tests/e2e/ReproKeyboardEquipment.test.ts > Keyboard Equipment Accessibility > should focus equipment slots and armory items via keyboard
+Focused [5]: DIV class="paper-doll-slot equipped" text="Left HandCombat Knif..."
+
+stdout | tests/e2e/ReproKeyboardEquipment.test.ts > Keyboard Equipment Accessibility > should focus equipment slots and armory items via keyboard
+Focused [6]: DIV class="paper-doll-slot" text="Body+..."
+
+stdout | tests/e2e/ReproKeyboardEquipment.test.ts > Keyboard Equipment Accessibility > should focus equipment slots and armory items via keyboard
+Focused [7]: DIV class="paper-doll-slot" text="Feet+..."
+
+stdout | tests/e2e/ReproKeyboardEquipment.test.ts > Keyboard Equipment Accessibility > should focus equipment slots and armory items via keyboard
+Focused [8]: DIV class="menu-item clickable armory-item " text="Pistol
+             ..."
+
+stdout | tests/e2e/ReproKeyboardEquipment.test.ts > Keyboard Equipment Accessibility > should focus equipment slots and armory items via keyboard
+Focused [9]: DIV class="menu-item clickable armory-item active" text="Pulse Rifle
+        ..."
+
+stdout | tests/e2e/ReproKeyboardEquipment.test.ts > Keyboard Equipment Accessibility > should focus equipment slots and armory items via keyboard
+Focused [10]: DIV class="menu-item clickable armory-item " text="Shotgun
+            ..."
+
+stdout | tests/e2e/ReproKeyboardEquipment.test.ts > Keyboard Equipment Accessibility > should focus equipment slots and armory items via keyboard
+Focused [11]: DIV class="menu-item clickable armory-item active" text="Combat Knife
+       ..."
+
+stdout | tests/e2e/ReproKeyboardEquipment.test.ts > Keyboard Equipment Accessibility > should focus equipment slots and armory items via keyboard
+Focused [12]: DIV class="menu-item clickable armory-item " text="Power Sword
+        ..."
+
+stdout | tests/e2e/ReproKeyboardEquipment.test.ts > Keyboard Equipment Accessibility > should focus equipment slots and armory items via keyboard
+Focused [13]: DIV class="menu-item clickable armory-item " text="Thunder Hammer
+     ..."
+
+stdout | tests/e2e/ReproKeyboardEquipment.test.ts > Keyboard Equipment Accessibility > should focus equipment slots and armory items via keyboard
+Focused [14]: DIV class="menu-item clickable armory-item " text="Light Recon Armor
+  ..."
+
+stdout | tests/e2e/DebriefButtonOverflow.test.ts > Debrief Responsiveness > should render debrief screen at 400x800 (mobile)
+Mobile class detected: [33mtrue[39m
+
+stdout | tests/e2e/ReproKeyboardEquipment.test.ts > Keyboard Equipment Accessibility > should focus equipment slots and armory items via keyboard
+Focused [15]: DIV class="menu-item clickable armory-item " text="Combat Boots
+       ..."
+
+stdout | tests/e2e/ReproKeyboardEquipment.test.ts > Keyboard Equipment Accessibility > should focus equipment slots and armory items via keyboard
+Focused [16]: BUTTON class="" text="-..."
+
+stdout | tests/e2e/ReproKeyboardEquipment.test.ts > Keyboard Equipment Accessibility > should focus equipment slots and armory items via keyboard
+Focused [17]: BUTTON class="" text="+..."
+
+ ✓ tests/e2e/DebriefButtonOverflow.test.ts (2 tests) 27168ms
+   ✓ Debrief Responsiveness > should fit debrief buttons without scrolling at 1024x768  2085ms
+   ✓ Debrief Responsiveness > should render debrief screen at 400x800 (mobile)  24242ms
+stdout | tests/e2e/ReproKeyboardEquipment.test.ts > Keyboard Equipment Accessibility > should focus equipment slots and armory items via keyboard
+Focused [18]: BUTTON class="back-button" text="Back..."
+
+stdout | tests/e2e/ReproKeyboardEquipment.test.ts > Keyboard Equipment Accessibility > should focus equipment slots and armory items via keyboard
+Focused [19]: BUTTON class="primary-button" text="Confirm Squad..."
+
+stdout | tests/e2e/ReproKeyboardEquipment.test.ts > Keyboard Equipment Accessibility > should focus equipment slots and armory items via keyboard
+Focused [20]: DIV class="soldier-widget soldier-item soldier-widget-roster menu-item selected active clickable" text="1. Ricco Vasquez
+   ..."
+
+stdout | tests/e2e/ReproKeyboardEquipment.test.ts > Keyboard Equipment Accessibility > should focus equipment slots and armory items via keyboard
+Focused Slot: true
+Focused Armory Item: true
+Attempting to equip 'Light Recon Armor' via keyboard...
+
+ ✓ tests/e2e/ReproAllCapsLabels.test.ts (1 test) 19356ms
+   ✓ Reproduction: Title Case labels in UI (voidlock-8ai79) > Labels Mission Failed, Return to Command Bridge, and Soldier Attributes should be Title Case  18828ms
+ ✓ tests/e2e/ReproKeyboardEquipment.test.ts (1 test) 18677ms
+   ✓ Keyboard Equipment Accessibility > should focus equipment slots and armory items via keyboard  15919ms
+stdout | tests/e2e/voidlock-7sa9u-final-repro.test.ts > voidlock-7sa9u repro: X button focus in Mission Setup > should ensure the 'Remove' X button is not focusable via arrow navigation
+PAGE LOG: [vite] connecting...
+
+stdout | tests/e2e/voidlock-7sa9u-final-repro.test.ts > voidlock-7sa9u repro: X button focus in Mission Setup > should ensure the 'Remove' X button is not focusable via arrow navigation
+PAGE LOG: [vite] connected.
+
+stdout | tests/e2e/voidlock-7sa9u-final-repro.test.ts > voidlock-7sa9u repro: X button focus in Mission Setup > should ensure the 'Remove' X button is not focusable via arrow navigation
+Navigating to #mission-setup...
+
+stdout | tests/e2e/voidlock-7sa9u-final-repro.test.ts > voidlock-7sa9u repro: X button focus in Mission Setup > should ensure the 'Remove' X button is not focusable via arrow navigation
+PAGE LOG: %c[INFO]%c TutorialManager enabled color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/AllCapsLabelsRepro.test.ts > UI labels are rendered in Title Case > UI labels are rendered in Title Case
+Navigating to Custom Mission...
+
+stdout | tests/e2e/AllCapsLabelsRepro.test.ts > UI labels are rendered in Title Case > UI labels are rendered in Title Case
+In Mission Setup
+
+stdout | tests/e2e/ReproEmptySquadLoss.test.ts > Repro: Empty squad triggers instant loss > should start mission with empty squad and result in instant loss after clicking START
+Entering Custom Mission Setup...
+
+stdout | tests/e2e/ReproEmptySquadLoss.test.ts > Repro: Empty squad triggers instant loss > should start mission with empty squad and result in instant loss after clicking START
+Disabling Manual Deployment...
+
+stdout | tests/e2e/ReproEmptySquadLoss.test.ts > Repro: Empty squad triggers instant loss > should start mission with empty squad and result in instant loss after clicking START
+Navigating to Equipment Screen...
+
+stdout | tests/e2e/ReproEmptySquadLoss.test.ts > Repro: Empty squad triggers instant loss > should start mission with empty squad and result in instant loss after clicking START
+Removing default soldiers...
+
+ ✓ tests/e2e/NavigationRoutingRepro.test.ts (3 tests) 32268ms
+   ✓ Navigation & Routing Reproduction > should go to Main Menu when URL fragment is removed  10475ms
+   ✓ Navigation & Routing Reproduction > should go to Main Menu on page REFRESH if URL fragment is missing  19976ms
+   ✓ Navigation & Routing Reproduction > should handle back navigation from settings to equipment  494ms
+stdout | tests/e2e/ReproEmptySquadLoss.test.ts > Repro: Empty squad triggers instant loss > should start mission with empty squad and result in instant loss after clicking START
+Confirming empty squad...
+
+stdout | tests/e2e/ReproEmptySquadLoss.test.ts > Repro: Empty squad triggers instant loss > should start mission with empty squad and result in instant loss after clicking START
+Launching Mission...
+
+stdout | tests/e2e/ReproEmptySquadLoss.test.ts > Repro: Empty squad triggers instant loss > should start mission with empty squad and result in instant loss after clicking START
+Waiting for mission to settle...
+
+stdout | tests/e2e/AllCapsLabelsRepro.test.ts > UI labels are rendered in Title Case > UI labels are rendered in Title Case
+Waiting for soldier card...
+
+stdout | tests/e2e/AllCapsLabelsRepro.test.ts > UI labels are rendered in Title Case > UI labels are rendered in Title Case
+Clicked soldier card
+
+stdout | tests/e2e/AllCapsLabelsRepro.test.ts > UI labels are rendered in Title Case > UI labels are rendered in Title Case
+Clicked Equipment & Supplies
+
+stdout | tests/e2e/AllCapsLabelsRepro.test.ts > UI labels are rendered in Title Case > UI labels are rendered in Title Case
+In Equipment screen
+
+stdout | tests/e2e/AllCapsLabelsRepro.test.ts > UI labels are rendered in Title Case > UI labels are rendered in Title Case
+H3s in Equipment screen: [
+  [32m'Soldier Attributes'[39m,
+  [32m'Equipment Performance'[39m,
+  [32m'Primary Weapons'[39m,
+  [32m'Secondary Weapons'[39m,
+  [32m'Armor'[39m,
+  [32m'Footwear'[39m,
+  [32m'Global Supplies'[39m
+]
+
+stdout | tests/e2e/AllCapsLabelsRepro.test.ts > UI labels are rendered in Title Case > UI labels are rendered in Title Case
+Clicked Launch Mission
+
+stdout | tests/e2e/AllCapsLabelsRepro.test.ts > UI labels are rendered in Title Case > UI labels are rendered in Title Case
+In Mission screen
+
+stdout | tests/e2e/AllCapsLabelsRepro.test.ts > UI labels are rendered in Title Case > UI labels are rendered in Title Case
+Deployment Phase text: Deployment Phase
+
+stdout | tests/e2e/AllCapsLabelsRepro.test.ts > UI labels are rendered in Title Case > UI labels are rendered in Title Case
+Start Mission text: Start Mission
+
+stdout | tests/e2e/AllCapsLabelsRepro.test.ts > UI labels are rendered in Title Case > UI labels are rendered in Title Case
+Clicked Start Mission
+
+stdout | tests/e2e/AllCapsLabelsRepro.test.ts > UI labels are rendered in Title Case > UI labels are rendered in Title Case
+Objectives title: Objectives
+
+stdout | tests/e2e/AllCapsLabelsRepro.test.ts > UI labels are rendered in Title Case > UI labels are rendered in Title Case
+Objectives toggle text: Objectives
+
+stdout | tests/e2e/AllCapsLabelsRepro.test.ts > UI labels are rendered in Title Case > UI labels are rendered in Title Case
+Debrief header text: Mission Success
+
+stdout | tests/e2e/AllCapsLabelsRepro.test.ts > UI labels are rendered in Title Case > UI labels are rendered in Title Case
+Return button text: Return to Command Bridge
+
+ ✓ tests/e2e/AllCapsLabelsRepro.test.ts (1 test) 19963ms
+   ✓ UI labels are rendered in Title Case > UI labels are rendered in Title Case  19512ms
+stdout | tests/e2e/ReproEmptySquadLoss.test.ts > Repro: Empty squad triggers instant loss > should start mission with empty squad and result in instant loss after clicking START
+Mission status after start: Playing
+
+ ✓ tests/e2e/ReproEmptySquadLoss.test.ts (1 test) 19201ms
+   ✓ Repro: Empty squad triggers instant loss > should start mission with empty squad and result in instant loss after clicking START  18683ms
+stdout | tests/e2e/WeaponRemoval.test.ts > Weapon Removal Verification > should not have a remove button for the primary weapon (Right Hand)
+Remove Button Status (RH): { found: [33mfalse[39m }
+
+stdout | tests/e2e/WeaponRemoval.test.ts > Weapon Removal Verification > should not have a remove button for the primary weapon (Right Hand)
+Remove Button Status (LH): { found: [33mfalse[39m }
+
+stdout | tests/e2e/WeaponRemoval.test.ts > Weapon Removal Verification > should not have a remove button for the primary weapon (Right Hand)
+Remove Button Status (Body): { found: [33mtrue[39m, isVisible: [33mtrue[39m, className: [32m'slot-remove-btn'[39m }
+
+ ✓ tests/e2e/WeaponRemoval.test.ts (1 test) 16365ms
+   ✓ Weapon Removal Verification > should not have a remove button for the primary weapon (Right Hand)  15898ms
+stdout | tests/e2e/ReproMobileCampaign.test.ts > Mobile Campaign Screen Repro > should display the Campaign Screen correctly on mobile (400x800)
+Top Bar HTML: <div class="flex-col">
+        <div style="font-size: 0.7em; color: var(--color-text-dim); letter-spacing: 1px;">Campaign Mode</div>
+        <div style="font-size: 0.9em; font-weight: bold; color: var(--color-primary);">Sector 1</div>
+      </div><div class="shell-controls-right flex-row align-center gap-20" style="flex-shrink: 1; min-width: 0px; overflow: hidden; max-width: 100%;"><div class="shell-resources flex-row gap-15" style="display: none;">
+        <div class="resource-item" title="Scrap (Currency)">
+          <span style="color: var(--color-text-dim)">Scrap:</span>
+          <span style="color: var(--color-primary); font-weight: bold;">500</span>
+        </div>
+        <div class="resource-item" title="Intel (Tech/Unlock)">
+          <span style="color: var(--color-text-dim)">Intel:</span>
+          <span style="color: var(--color-accent); font-weight: bold;">0</span>
+        </div>
+      </div><div class="shell-tabs flex-row gap-5" style="overflow-x: auto; flex-shrink: 1; min-width: 0px; max-width: 100%; scrollbar-width: none;"><button class="tab-button shell-tab active" data-id="sector-map" style="padding: 5px 12px; height: 32px; font-size: 0.85em; display: flex; align-items: center;">Sector Map</button><button class="tab-button shell-tab " data-id="ready-room" style="padding: 5px 12px; height: 32px; font-size: 0.85em; display: flex; align-items: center;">Ready Room</button><button class="tab-button shell-tab " data-id="engineering" style="padding: 5px 12px; height: 32px; font-size: 0.85em; display: flex; align-items: center;">Engineering</button><button class="tab-button shell-tab " data-id="stats" style="padding: 5px 12px; height: 32px; font-size: 0.85em; display: flex; align-items: center;">Service Record</button><button class="tab-button shell-tab " data-id="settings" style="padding: 5px 12px; height: 32px; font-size: 0.85em; display: flex; align-items: center;">Settings</button></div><button class="back-button" style="margin: 0px; padding: 5px 12px; height: 32px; font-size: 0.85em; display: flex; align-items: center; flex-shrink: 0;">Main Menu</button></div>
+
+stdout | tests/e2e/ReproMobileCampaign.test.ts > Mobile Campaign Screen Repro > should display the Campaign Screen correctly on mobile (400x800)
+Found 1 accessible nodes
+
+stdout | tests/e2e/ReproMobileCampaign.test.ts > Mobile Campaign Screen Repro > should display the Campaign Screen correctly on mobile (400x800)
+Found 5 tabs
+
+ ✓ tests/e2e/ReproMobileCampaign.test.ts (1 test) 14403ms
+   ✓ Mobile Campaign Screen Repro > should display the Campaign Screen correctly on mobile (400x800)  14168ms
+stdout | tests/e2e/voidlock-7sa9u-final-repro.test.ts > voidlock-7sa9u repro: X button focus in Mission Setup > should ensure the 'Remove' X button is not focusable via arrow navigation
+PAGE LOG: [vite] connecting...
+
+stdout | tests/e2e/voidlock-7sa9u-final-repro.test.ts > voidlock-7sa9u repro: X button focus in Mission Setup > should ensure the 'Remove' X button is not focusable via arrow navigation
+PAGE LOG: [vite] connected.
+
+stdout | tests/e2e/voidlock-7sa9u-final-repro.test.ts > voidlock-7sa9u repro: X button focus in Mission Setup > should ensure the 'Remove' X button is not focusable via arrow navigation
+PAGE LOG: %c[INFO]%c TutorialManager enabled color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/voidlock-7sa9u-final-repro.test.ts > voidlock-7sa9u repro: X button focus in Mission Setup > should ensure the 'Remove' X button is not focusable via arrow navigation
+PAGE LOG: %c[INFO]%c Configuration saved to LocalStorage (voidlock_custom_config). color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/voidlock-7sa9u-final-repro.test.ts > voidlock-7sa9u repro: X button focus in Mission Setup > should ensure the 'Remove' X button is not focusable via arrow navigation
+PAGE LOG: %c[INFO]%c Configuration saved to LocalStorage (voidlock_custom_config). color: #2ecc71; font-weight: bold; 
+
+stdout | tests/e2e/voidlock-7sa9u-final-repro.test.ts > voidlock-7sa9u repro: X button focus in Mission Setup > should ensure the 'Remove' X button is not focusable via arrow navigation
+Focusable Data: {
+  isRemoveFocusable: [33mfalse[39m,
+  removeBtnTag: [32m'DIV'[39m,
+  removeBtnTabIndex: [32m'-1'[39m,
+  focusableCount: [33m29[39m
+}
+
+ ✓ tests/e2e/UICasingStandardization.test.ts (1 test) 2716ms
+   ✓ UI Casing Standardization (voidlock-0gxhs) > All screens should not have all-caps labels  2108ms
+ ✓ tests/e2e/voidlock-7sa9u-final-repro.test.ts (1 test) 13693ms
+   ✓ voidlock-7sa9u repro: X button focus in Mission Setup > should ensure the 'Remove' X button is not focusable via arrow navigation  13203ms
+stdout | tests/e2e/HUDVisualAudit.test.ts > HUD Visual Audit > should capture a screenshot of the tactical HUD
+Screenshot saved to tests/e2e/__snapshots__/hud_audit.png
+
+ ✓ tests/e2e/HUDVisualAudit.test.ts (1 test) 14697ms
+   ✓ HUD Visual Audit > should capture a screenshot of the tactical HUD  10837ms
+stdout | tests/e2e/DeploymentClicks.test.ts > Mission Deployment Click Interactions > should undeploy via right click and deploy via left click
+Unit Status after Right Click: 
+      
+        Kyle Hicks (1)
+        
+          
+          Lvl 1
+        
+      
+      
+        Assault | Pulse Rifle / Combat Knife
+        Deployed
+      
+      
+        HP: 100/100 | XP: 0
+      
+    
+
+ ✓ tests/e2e/DeploymentClicks.test.ts (1 test) 11914ms
+   ✓ Mission Deployment Click Interactions > should undeploy via right click and deploy via left click  10426ms
+stdout | tests/e2e/DeploymentDragDrop.test.ts > Mission Deployment Drag and Drop > should deploy unit via drag and drop
+Unit Status Text: 
+      
+        Daniel Drake (1)
+        
+          
+          Lvl 1
+        
+      
+      
+        Assault | Pulse Rifle / Combat Knife
+        Pending
+      
+      
+        HP: 100/100 | XP: 0
+      
+    
+
+ ✓ tests/e2e/DeploymentDragDrop.test.ts (1 test) 11277ms
+   ✓ Mission Deployment Drag and Drop > should deploy unit via drag and drop  9707ms
+ ✓ tests/e2e/MobileScrolling.test.ts (2 tests | 1 skipped) 11334ms
+   ✓ Mobile Scrolling Regression Test > should allow scrolling in UI panels on mobile  10809ms
+stdout | tests/e2e/VerifyAutoDeploy.test.ts > Verify Auto-Deploy > should auto-deploy soldiers when manual deployment is disabled
+Entering Custom Mission Setup...
+
+stdout | tests/e2e/VerifyAutoDeploy.test.ts > Verify Auto-Deploy > should auto-deploy soldiers when manual deployment is disabled
+Disabling Manual Deployment...
+
+stdout | tests/e2e/VerifyAutoDeploy.test.ts > Verify Auto-Deploy > should auto-deploy soldiers when manual deployment is disabled
+Confirming squad...
+
+stdout | tests/e2e/VerifyAutoDeploy.test.ts > Verify Auto-Deploy > should auto-deploy soldiers when manual deployment is disabled
+Waiting for mission to settle...
+
+stdout | tests/e2e/regression_voidlock_w7jyt_deployment_crash.test.ts > Repro insertBefore Error > should catch the insertBefore NotFoundError when reaching deployment
+Console Errors found: []
+
+ ✓ tests/e2e/regression_voidlock_w7jyt_deployment_crash.test.ts (1 test) 3593ms
+   ✓ Repro insertBefore Error > should catch the insertBefore NotFoundError when reaching deployment  3020ms
+stdout | tests/e2e/VerifyAutoDeploy.test.ts > Verify Auto-Deploy > should auto-deploy soldiers when manual deployment is disabled
+Mission status: Playing
+NO BUG: Game is playing.
+
+ ✓ tests/e2e/VerifyAutoDeploy.test.ts (1 test) 12330ms
+   ✓ Verify Auto-Deploy > should auto-deploy soldiers when manual deployment is disabled  11769ms
+stdout | tests/e2e/EquipmentFocusBuy.test.ts > Equipment Screen Focus Buy Reproduction > should maintain focus after buying equipment in campaign mode
+Waiting for Campaign menu button...
+
+ ✓ tests/e2e/ReproHUDAllCaps.test.ts (1 test) 11461ms
+   ✓ Reproduction: HUD All-caps labels (voidlock-8ai79) > HUD labels like Deployment Phase, Start Mission, and Objectives should be Title Case  10972ms
+stdout | tests/e2e/EquipmentFocusBuy.test.ts > Equipment Screen Focus Buy Reproduction > should maintain focus after buying equipment in campaign mode
+Waiting for Campaign Wizard (Initialize Expedition button)...
+
+stdout | tests/e2e/ReproTouchScroll.test.ts > Mobile Touch Scroll Repro > should allow touch scrolling on New Expedition screen
+Initial: 0, Final: 1254
+
+stdout | tests/e2e/EquipmentFocusBuy.test.ts > Equipment Screen Focus Buy Reproduction > should maintain focus after buying equipment in campaign mode
+Waiting for Sector Map...
+
+stdout | tests/e2e/EquipmentFocusBuy.test.ts > Equipment Screen Focus Buy Reproduction > should maintain focus after buying equipment in campaign mode
+Clicking a combat node...
+
+stdout | tests/e2e/EquipmentFocusBuy.test.ts > Equipment Screen Focus Buy Reproduction > should maintain focus after buying equipment in campaign mode
+Waiting for Equipment Screen...
+
+stdout | tests/e2e/EquipmentFocusBuy.test.ts > Equipment Screen Focus Buy Reproduction > should maintain focus after buying equipment in campaign mode
+Target Item Focus ID: armory-item-pistol
+
+ ✓ tests/e2e/ReproTouchScroll.test.ts (1 test) 11703ms
+   ✓ Mobile Touch Scroll Repro > should allow touch scrolling on New Expedition screen  11132ms
+stdout | tests/e2e/EquipmentFocusBuy.test.ts > Equipment Screen Focus Buy Reproduction > should maintain focus after buying equipment in campaign mode
+Focused ID after buy: armory-item-pistol
+
+stdout | tests/e2e/EquipmentFocusBuy.test.ts > Equipment Screen Focus Buy Reproduction > should maintain focus after buying equipment in campaign mode
+Testing Supply Item Focus (Standard)...
+
+stdout | tests/e2e/GlobalErrorAlert.test.ts > Global Error Alert & Reset E2E > should show confirm dialog on global error and reset data on OK
+[PAGE error] PANIC: Unhandled exception detected. Forcing UI recovery. JSHandle@error
+
+stdout | tests/e2e/GlobalErrorAlert.test.ts > Global Error Alert & Reset E2E > should show confirm dialog on global error and reset data on OK
+[PAGE error] %c[ERROR]%c Global Error (main.ts): color: #e74c3c; font-weight: bold;  JSHandle@object
+
+stdout | tests/e2e/EquipmentFocusBuy.test.ts > Equipment Screen Focus Buy Reproduction > should maintain focus after buying equipment in campaign mode
+Focused ID after first mine buy: supply-plus-mine
+Testing Supply Item Focus (Maxing Out)...
+
+stdout | tests/e2e/ReproSectorMapScroll.test.ts > Mobile Sector Map Scroll Repro > should allow touch scrolling on Sector Map
+Initial ScrollTop: 0
+
+stdout | tests/e2e/EquipmentFocusBuy.test.ts > Equipment Screen Focus Buy Reproduction > should maintain focus after buying equipment in campaign mode
+Focused ID after second mine buy (Maxed): supply-minus-mine
+
+ ✓ tests/e2e/EquipmentFocusBuy.test.ts (1 test) 11193ms
+   ✓ Equipment Screen Focus Buy Reproduction > should maintain focus after buying equipment in campaign mode  10720ms
+stdout | tests/e2e/regression_ffdu9_setup_casing.test.ts > Mission Setup Casing Repro (voidlock-ffdu9) > Mission setup context header should be Title Case
+Navigating to Custom Mission Setup...
+
+stdout | tests/e2e/SparseSquadRepro.test.ts > SquadBuilder Sparse Array Reproduction > should handle sparse squad arrays without crashing
+Total Text: Total Soldiers: 2/4
+
+stdout | tests/e2e/regression_ffdu9_setup_casing.test.ts > Mission Setup Casing Repro (voidlock-ffdu9) > Mission setup context header should be Title Case
+Context Header: "Custom Simulation"
+
+ ✓ tests/e2e/SparseSquadRepro.test.ts (1 test) 9760ms
+   ✓ SquadBuilder Sparse Array Reproduction > should handle sparse squad arrays without crashing  8394ms
+ ✓ tests/e2e/regression_ffdu9_setup_casing.test.ts (1 test) 2641ms
+   ✓ Mission Setup Casing Repro (voidlock-ffdu9) > Mission setup context header should be Title Case  2173ms
+stdout | tests/e2e/ReproSectorMapScroll.test.ts > Mobile Sector Map Scroll Repro > should allow touch scrolling on Sector Map
+Final ScrollTop: 89
+
+ ✓ tests/e2e/ReproSectorMapScroll.test.ts (1 test) 8679ms
+   ✓ Mobile Sector Map Scroll Repro > should allow touch scrolling on Sector Map  8273ms
+ ✓ tests/e2e/MissionConfigVisibility.test.ts (1 test) 6101ms
+   ✓ Mission Configuration Visibility > should hide map configuration when launching from Campaign  5162ms
+ ✓ tests/e2e/RosterLayout.test.ts (1 test) 1451ms
+   ✓ Roster Layout Regression Test > should have a full-height roster panel and sticky actions  933ms
+stdout | tests/e2e/GlobalErrorAlert.test.ts > Global Error Alert & Reset E2E > should show panic UI if confirm is cancelled
+[PAGE error] PANIC: Unhandled exception detected. Forcing UI recovery. JSHandle@error
+
+stdout | tests/e2e/GlobalErrorAlert.test.ts > Global Error Alert & Reset E2E > should show panic UI if confirm is cancelled
+[PAGE error] %c[ERROR]%c Global Error (main.ts): color: #e74c3c; font-weight: bold;  JSHandle@object
+
+stdout | tests/e2e/ReproSquadBuilderLimit.test.ts > SquadBuilder Reproduction: Deployment Limit > should fill subsequent slots when adding soldiers via Equipment Screen
+Initial soldier count: [33m2[39m
+
+stdout | tests/e2e/ReproSquadBuilderLimit.test.ts > SquadBuilder Reproduction: Deployment Limit > should fill subsequent slots when adding soldiers via Equipment Screen
+Soldier count after removal: [33m1[39m
+
+stdout | tests/e2e/ReproSquadBuilderLimit.test.ts > SquadBuilder Reproduction: Deployment Limit > should fill subsequent slots when adding soldiers via Equipment Screen
+Soldier count after removal: [33m0[39m
+
+ ✓ tests/e2e/MobileTouchTargets.test.ts (1 test) 2887ms
+   ✓ Mobile Touch Targets (voidlock-txasb) > Mobile interactive elements should meet 44x44px requirement  2188ms
+stdout | tests/e2e/GlobalErrorAlert.test.ts > Global Error Alert & Reset E2E > should show confirm dialog on unhandled promise rejection
+[PAGE error] PANIC: Unhandled exception detected. Forcing UI recovery. JSHandle@error
+
+stdout | tests/e2e/GlobalErrorAlert.test.ts > Global Error Alert & Reset E2E > should show confirm dialog on unhandled promise rejection
+[PAGE error] %c[ERROR]%c Unhandled Promise Rejection (main.ts): color: #e74c3c; font-weight: bold;  JSHandle@error
+
+ ✓ tests/e2e/ReproSquadBuilderLimit.test.ts (1 test) 6243ms
+   ✓ SquadBuilder Reproduction: Deployment Limit > should fill subsequent slots when adding soldiers via Equipment Screen  5069ms
+ ✓ tests/e2e/GlobalErrorAlert.test.ts (3 tests) 6856ms
+   ✓ Global Error Alert & Reset E2E > should show confirm dialog on global error and reset data on OK  5258ms
+   ✓ Global Error Alert & Reset E2E > should show panic UI if confirm is cancelled  631ms
+   ✓ Global Error Alert & Reset E2E > should show confirm dialog on unhandled promise rejection  819ms
+stdout | tests/e2e/ScrollbarClipping.test.ts > Custom Mission Scrollbar Clipping Repro > should ensure the 'Confirm' button is reachable on small viewports
+Button in viewport: true
+Container is scrollable: true
+
+ ✓ tests/e2e/ScrollbarClipping.test.ts (1 test) 1462ms
+   ✓ Custom Mission Scrollbar Clipping Repro > should ensure the 'Confirm' button is reachable on small viewports  988ms
+ ✓ tests/e2e/regression_voidlock_xen4y_dragdrop.test.ts (1 test) 6122ms
+   ✓ voidlock-xen4y Regression: Drag and drop during deployment > should verify that native drag and drop is handled by preventing default on dragover  5516ms
+ ✓ tests/e2e/AdvisorOverlay.test.ts (3 tests) 2548ms
+stdout | tests/e2e/SquadRemoveFocus.test.ts > Soldier 'X' button should be skipped by keyboard navigation
+Waiting for .squad-builder-container...
+
+stdout | tests/e2e/SquadRemoveFocus.test.ts > Soldier 'X' button should be skipped by keyboard navigation
+.squad-builder-container found.
+Clicking soldier card...
+
+stdout | tests/e2e/SquadRemoveFocus.test.ts > Soldier 'X' button should be skipped by keyboard navigation
+Soldier added to squad.
+
+ ✓ tests/e2e/SquadRemoveFocus.test.ts (1 test) 1375ms
+   ✓ Soldier 'X' button should be skipped by keyboard navigation  1196ms
+stdout | tests/e2e/regression_ffdu9_help_casing.test.ts > Keyboard Help Casing Repro (voidlock-ffdu9) > Keyboard help title should be Title Case
+Opening Keyboard Help...
+
+stdout | tests/e2e/regression_ffdu9_help_casing.test.ts > Keyboard Help Casing Repro (voidlock-ffdu9) > Keyboard help title should be Title Case
+Help Title: "Keyboard Shortcuts"
+
+ ✓ tests/e2e/regression_ffdu9_help_casing.test.ts (1 test) 1876ms
+   ✓ Keyboard Help Casing Repro (voidlock-ffdu9) > Keyboard help title should be Title Case  1326ms
+ ✓ tests/e2e/CampaignLaunch.test.ts (1 test) 6472ms
+   ✓ Campaign Mission Launch Visual Regression > should show campaign shell when entering mission setup (nested architecture)  4921ms
+ ✓ tests/e2e/regression_ii5f_visual.test.ts (1 test) 6360ms
+   ✓ Regression II5F - Unit Style Visibility in Campaign > should NOT show Visual Style selector in Campaign Mission Setup  479ms
+stdout | tests/e2e/MobileCampaignNavigation.test.ts > Mobile Campaign Navigation > should display Main Menu button within viewport on mobile
+Nav box: x=8, y=98, w=384, h=53
+
+stdout | tests/e2e/MobileCampaignNavigation.test.ts > Mobile Campaign Navigation > should display Main Menu button within viewport on mobile
+Main Menu Button box: x=8, y=44, w=99.25, h=44
+
+ ✓ tests/e2e/MissionSetupLayout.test.ts (1 test) 1708ms
+   ✓ Mission Setup Layout Verification > should have correctly sized soldier cards and scrollable roster  1032ms
+stdout | tests/e2e/regression_voidlock-lds73_mission_scrollbars.test.ts > Mission screen should fill full height and have no scrollbars
+Overflowing Elements: [
+  {
+    id: [32m''[39m,
+    className: [32m'shell-tabs flex-row gap-5'[39m,
+    tagName: [32m'DIV'[39m,
+    overflow: [32m'auto'[39m,
+    overflowX: [32m'auto'[39m,
+    overflowY: [32m'auto'[39m,
+    scrollHeight: [33m0[39m,
+    clientHeight: [33m0[39m
+  },
+  {
+    id: [32m'setup-content'[39m,
+    className: [32m''[39m,
+    tagName: [32m'DIV'[39m,
+    overflow: [32m'auto'[39m,
+    overflowX: [32m'auto'[39m,
+    overflowY: [32m'auto'[39m,
+    scrollHeight: [33m0[39m,
+    clientHeight: [33m0[39m
+  },
+  {
+    id: [32m'static-map-json'[39m,
+    className: [32m''[39m,
+    tagName: [32m'TEXTAREA'[39m,
+    overflow: [32m'auto'[39m,
+    overflowX: [32m'auto'[39m,
+    overflowY: [32m'auto'[39m,
+    scrollHeight: [33m0[39m,
+    clientHeight: [33m0[39m
+  },
+  {
+    id: [32m'ascii-map-input'[39m,
+    className: [32m''[39m,
+    tagName: [32m'TEXTAREA'[39m,
+    overflow: [32m'auto'[39m,
+    overflowX: [32m'auto'[39m,
+    overflowY: [32m'auto'[39m,
+    scrollHeight: [33m0[39m,
+    clientHeight: [33m0[39m
+  },
+  {
+    id: [32m''[39m,
+    className: [32m'roster-list'[39m,
+    tagName: [32m'DIV'[39m,
+    overflow: [32m'hidden auto'[39m,
+    overflowX: [32m'hidden'[39m,
+    overflowY: [32m'auto'[39m,
+    scrollHeight: [33m0[39m,
+    clientHeight: [33m0[39m
+  },
+  {
+    id: [32m'soldier-list'[39m,
+    className: [32m''[39m,
+    tagName: [32m'DIV'[39m,
+    overflow: [32m'auto'[39m,
+    overflowX: [32m'auto'[39m,
+    overflowY: [32m'auto'[39m,
+    scrollHeight: [33m110[39m,
+    clientHeight: [33m110[39m
+  },
+  {
+    id: [32m'right-panel'[39m,
+    className: [32m'right-panel'[39m,
+    tagName: [32m'DIV'[39m,
+    overflow: [32m'auto'[39m,
+    overflowX: [32m'auto'[39m,
+    overflowY: [32m'auto'[39m,
+    scrollHeight: [33m541[39m,
+    clientHeight: [33m445[39m
+  },
+  {
+    id: [32m''[39m,
+    className: [32m'deployment-squad-list'[39m,
+    tagName: [32m'DIV'[39m,
+    overflow: [32m'auto'[39m,
+    overflowX: [32m'auto'[39m,
+    overflowY: [32m'auto'[39m,
+    scrollHeight: [33m198[39m,
+    clientHeight: [33m198[39m
+  },
+  {
+    id: [32m''[39m,
+    className: [32m'help-overlay-window flex-col gap-20 p-40'[39m,
+    tagName: [32m'DIV'[39m,
+    overflow: [32m'auto'[39m,
+    overflowX: [32m'auto'[39m,
+    overflowY: [32m'auto'[39m,
+    scrollHeight: [33m0[39m,
+    clientHeight: [33m0[39m
+  }
+]
+
+ ✓ tests/e2e/MobileCampaignNavigation.test.ts (2 tests) 6135ms
+   ✓ Mobile Campaign Navigation > should display Main Menu button within viewport on mobile  5411ms
+stdout | tests/e2e/regression_voidlock-lds73_mission_scrollbars.test.ts > Mission screen should fill full height and have no scrollbars
+Screen Mission Rect: {
+  top: [33m0[39m,
+  left: [33m0[39m,
+  width: [33m767[39m,
+  height: [33m800[39m,
+  viewportWidth: [33m767[39m,
+  viewportHeight: [33m800[39m
+}
+Has Scrollbars: [33mfalse[39m
+
+ ✓ tests/e2e/regression_voidlock-lds73_mission_scrollbars.test.ts (1 test) 2820ms
+   ✓ Mission screen should fill full height and have no scrollbars  2819ms
+stdout | tests/e2e/SoldierCardOverlap.test.ts > Soldier Card Overlap Verification > should verify that the remove 'X' does not overlap with 'LVL' on soldier cards in Equipment Screen (Mobile)
+Equipment Positions (Mobile): {
+  "itemWidth": 303,
+  "overlap": false,
+  "lvl": {
+    "top": 255,
+    "bottom": 274,
+    "left": 201.40625,
+    "right": 251.8125
+  },
+  "x": {
+    "top": 255,
+    "bottom": 299,
+    "left": 289,
+    "right": 333
+  }
+}
+
+ ✓ tests/e2e/SoldierCardOverlap.test.ts (1 test) 1535ms
+   ✓ Soldier Card Overlap Verification > should verify that the remove 'X' does not overlap with 'LVL' on soldier cards in Equipment Screen (Mobile)  833ms
+ ✓ tests/e2e/MobileCampaignSetup.test.ts (1 test) 2137ms
+   ✓ Mobile Campaign Setup Scrollability > should ensure the 'Initialize Expedition' button is reachable on mobile  1434ms
+ ✓ tests/e2e/SettingsScreen.test.ts (1 test) 2120ms
+   ✓ Settings Screen E2E Verification > should display Developer Options and Data Management in Settings screen  1453ms
+stdout | tests/e2e/SoldierCardAccessibility.test.ts > Soldier Card Accessibility > X button in soldier card is skipped when tabbing
+Initially focused: theme-default
+
+stdout | tests/e2e/SoldierCardAccessibility.test.ts > Soldier Card Accessibility > X button in soldier card is skipped when tabbing
+Focused after 1st Tab: 
+
+ ✓ tests/e2e/SoldierCardAccessibility.test.ts (1 test) 1947ms
+   ✓ Soldier Card Accessibility > X button in soldier card is skipped when tabbing  1159ms
+ ✓ tests/e2e/CampaignStatistics.test.ts (1 test) 2041ms
+   ✓ Campaign Statistics E2E > should display Statistics screen with correct shell tabs and footer layout  1252ms
+ ✓ tests/e2e/MainMenuDebug.test.ts (1 test) 1519ms
+   ✓ Main Menu Debug > should capture main menu  867ms
+ ✓ tests/e2e/PuppeteerCheck.test.ts (1 test) 1418ms
+   ✓ Puppeteer Setup Verification > should load the page and check the title  1225ms
+ ✓ tests/e2e/SetupCheck.test.ts (1 test) 50ms
+ ✓ tests/e2e/TooltipMinimal.test.ts (1 test) 853ms
+ ✓ tests/e2e/regression_voidlock_fh858_mission_config_hidden.test.ts (2 tests) 14616ms
+   ✓ Regression voidlock-fh858: Mission Configuration Hidden in Campaign (New Flow) > should skip mission setup and launch directly from equipment in campaign  6136ms
+   ✓ Regression voidlock-fh858: Mission Configuration Hidden in Campaign (New Flow) > should maintain equipment screen state after reload in campaign  7911ms
+stdout | tests/e2e/MobileTouch.test.ts > Mobile Touch Targets > should have 44x44px hit targets on mobile
+Main Menu Buttons: [
+  { id: [32m'btn-menu-campaign'[39m, text: [32m'Campaign'[39m, w: [33m186.484375[39m, h: [33m48[39m },
+  {
+    id: [32m'btn-menu-custom'[39m,
+    text: [32m'Custom Mission'[39m,
+    w: [33m186.484375[39m,
+    h: [33m48[39m
+  },
+  {
+    id: [32m'btn-menu-engineering'[39m,
+    text: [32m'Engineering'[39m,
+    w: [33m186.484375[39m,
+    h: [33m48[39m
+  },
+  {
+    id: [32m'btn-menu-statistics'[39m,
+    text: [32m'Statistics'[39m,
+    w: [33m186.484375[39m,
+    h: [33m48[39m
+  },
+  { id: [32m'btn-menu-settings'[39m, text: [32m'Settings'[39m, w: [33m186.484375[39m, h: [33m48[39m }
+]
+
+ ✓ tests/e2e/CampaignNavigation.test.ts (1 test) 2004ms
+   ✓ Campaign Sector Map Keyboard Navigation > should only allow focus on accessible and current nodes  1388ms
+stdout | tests/e2e/MobileTouch.test.ts > Mobile Touch Targets > should have 44x44px hit targets on mobile
+Setup Elements: [
+  { id: [32m'map-generator-type'[39m, type: [32m'SELECT'[39m, w: [33m328.5[39m, h: [33m44[39m },
+  { id: [32m'toggle-fog-of-war'[39m, type: [32m'INPUT'[39m, w: [33m28[39m, h: [33m28[39m },
+  { id: [32m'toggle-debug-overlay'[39m, type: [32m'INPUT'[39m, w: [33m28[39m, h: [33m28[39m },
+  { id: [32m'toggle-los-overlay'[39m, type: [32m'INPUT'[39m, w: [33m28[39m, h: [33m28[39m },
+  { id: [32m'toggle-agent-control'[39m, type: [32m'INPUT'[39m, w: [33m28[39m, h: [33m28[39m },
+  { id: [32m'toggle-manual-deployment'[39m, type: [32m'INPUT'[39m, w: [33m28[39m, h: [33m28[39m },
+  { id: [32m'toggle-allow-tactical-pause'[39m, type: [32m'INPUT'[39m, w: [33m28[39m, h: [33m28[39m },
+  { id: [32m'load-static-map'[39m, type: [32m'BUTTON'[39m, w: [33m0[39m, h: [33m0[39m },
+  { id: [32m'convert-ascii-to-map'[39m, type: [32m'BUTTON'[39m, w: [33m0[39m, h: [33m0[39m },
+  { id: [32m'btn-setup-back'[39m, type: [32m'BUTTON'[39m, w: [33m67.109375[39m, h: [33m44[39m },
+  { id: [32m'btn-goto-equipment'[39m, type: [32m'BUTTON'[39m, w: [33m150.984375[39m, h: [33m62[39m },
+  { id: [32m'btn-launch-mission'[39m, type: [32m'BUTTON'[39m, w: [33m121.90625[39m, h: [33m62[39m }
+]
+
+stdout | tests/e2e/MobileTouch.test.ts > Mobile Touch Targets > should have 44x44px hit targets on mobile
+Equipment Elements: [
+  { id: [32m''[39m, className: [32m'remove-soldier-btn slot-remove'[39m, w: [33m44[39m, h: [33m44[39m },
+  { id: [32m''[39m, className: [32m'remove-soldier-btn slot-remove'[39m, w: [33m44[39m, h: [33m44[39m },
+  { id: [32m''[39m, className: [32m'paper-doll-slot equipped'[39m, w: [33m110[39m, h: [33m110[39m },
+  { id: [32m''[39m, className: [32m'paper-doll-slot equipped'[39m, w: [33m110[39m, h: [33m110[39m },
+  { id: [32m''[39m, className: [32m'paper-doll-slot'[39m, w: [33m110[39m, h: [33m110[39m },
+  { id: [32m''[39m, className: [32m'paper-doll-slot'[39m, w: [33m110[39m, h: [33m110[39m },
+  { id: [32m''[39m, className: [32m''[39m, w: [33m44[39m, h: [33m44[39m },
+  { id: [32m''[39m, className: [32m''[39m, w: [33m44[39m, h: [33m44[39m },
+  { id: [32m''[39m, className: [32m''[39m, w: [33m44[39m, h: [33m44[39m },
+  { id: [32m''[39m, className: [32m''[39m, w: [33m44[39m, h: [33m44[39m },
+  { id: [32m''[39m, className: [32m''[39m, w: [33m44[39m, h: [33m44[39m },
+  { id: [32m''[39m, className: [32m''[39m, w: [33m44[39m, h: [33m44[39m },
+  { id: [32m''[39m, className: [32m''[39m, w: [33m44[39m, h: [33m44[39m },
+  { id: [32m''[39m, className: [32m''[39m, w: [33m44[39m, h: [33m44[39m },
+  { id: [32m''[39m, className: [32m''[39m, w: [33m44[39m, h: [33m44[39m },
+  { id: [32m''[39m, className: [32m''[39m, w: [33m44[39m, h: [33m44[39m },
+  { id: [32m''[39m, className: [32m''[39m, w: [33m44[39m, h: [33m44[39m },
+  { id: [32m''[39m, className: [32m''[39m, w: [33m44[39m, h: [33m44[39m },
+  { id: [32m''[39m, className: [32m''[39m, w: [33m44[39m, h: [33m44[39m },
+  { id: [32m''[39m, className: [32m''[39m, w: [33m44[39m, h: [33m44[39m },
+  { id: [32m''[39m, className: [32m''[39m, w: [33m44[39m, h: [33m44[39m },
+  { id: [32m''[39m, className: [32m''[39m, w: [33m44[39m, h: [33m44[39m },
+  { id: [32m''[39m, className: [32m''[39m, w: [33m44[39m, h: [33m44[39m },
+  { id: [32m''[39m, className: [32m''[39m, w: [33m44[39m, h: [33m44[39m },
+  { id: [32m''[39m, className: [32m'back-button'[39m, w: [33m64[39m, h: [33m44[39m },
+  { id: [32m''[39m, className: [32m'primary-button'[39m, w: [33m135.140625[39m, h: [33m44[39m },
+  {
+    id: [32m''[39m,
+    className: [32m'soldier-widget soldier-item soldier-widget-squad-builder soldier-card selected-for-deployment'[39m,
+    w: [33m0[39m,
+    h: [33m0[39m
+  },
+  {
+    id: [32m''[39m,
+    className: [32m'soldier-widget soldier-item soldier-widget-squad-builder soldier-card'[39m,
+    w: [33m0[39m,
+    h: [33m0[39m
+  },
+  {
+    id: [32m''[39m,
+    className: [32m'soldier-widget soldier-item soldier-widget-squad-builder soldier-card'[39m,
+    w: [33m0[39m,
+    h: [33m0[39m
+  },
+  {
+    id: [32m''[39m,
+    className: [32m'soldier-widget soldier-item soldier-widget-squad-builder soldier-card'[39m,
+    w: [33m0[39m,
+    h: [33m0[39m
+  },
+  {
+    id: [32m''[39m,
+    className: [32m'soldier-widget soldier-item soldier-widget-squad-builder soldier-card'[39m,
+    w: [33m0[39m,
+    h: [33m0[39m
+  },
+  {
+    id: [32m''[39m,
+    className: [32m'soldier-widget soldier-item soldier-widget-squad-builder soldier-card'[39m,
+    w: [33m0[39m,
+    h: [33m0[39m
+  },
+  {
+    id: [32m''[39m,
+    className: [32m'soldier-widget soldier-item soldier-widget-squad-builder soldier-card'[39m,
+    w: [33m0[39m,
+    h: [33m0[39m
+  }
+]
+
+ ✓ tests/e2e/MobileTouch.test.ts (1 test) 1311ms
+   ✓ Mobile Touch Targets > should have 44x44px hit targets on mobile  1196ms
+ ✓ tests/e2e/EquipmentScreenRepro.test.ts (1 test) 4135ms
+   ✓ Equipment Screen Layout Clipping Repro > should reproduce layout clipping on the Equipment Screen at small viewports  3465ms
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/e2e/CustomMissionIsolation.test.ts [ tests/e2e/CustomMissionIsolation.test.ts ]
+Error: No test suite found in file /home/rkj/voidlock/tests/e2e/CustomMissionIsolation.test.ts
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/19]⎯
+
+ FAIL  tests/e2e/KeyboardNavigationRepro.test.ts > Keyboard Navigation Differentiation
+Error: Hook timed out in 10000ms.
+If this is a long-running hook, pass a timeout value as the last argument or configure it globally with "hookTimeout".
+ ❯ tests/e2e/KeyboardNavigationRepro.test.ts:9:3
+      7|   let page: Page;
+      8| 
+      9|   beforeAll(async () => {
+       |   ^
+     10|     browser = await puppeteer.launch({
+     11|       headless: true,
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/19]⎯
+
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 17 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/e2e/CampaignSettings.test.ts > Campaign Settings Tab E2E Verification > should display Settings tab in Campaign shell and render SettingsScreen
+TimeoutError: Waiting for selector `.tab-button` failed
+ ❯ Function.waitFor node_modules/puppeteer-core/src/common/QueryHandler.ts:213:36
+ ❯ CdpFrame.waitForSelector node_modules/puppeteer-core/src/api/Frame.ts:741:13
+ ❯ CdpPage.waitForSelector node_modules/puppeteer-core/src/api/Page.ts:3067:12
+ ❯ tests/e2e/CampaignSettings.test.ts:51:5
+     49| 
+     50|     // 2. Wait for Shell tabs
+     51|     await page.waitForSelector(".tab-button", { timeout: 10000 });
+       |     ^
+     52| 
+     53|     // 3. Verify presence of Settings tab
+
+Caused by: TimeoutError: Waiting failed: 10000ms exceeded
+ ❯ new WaitTask node_modules/puppeteer-core/src/common/WaitTask.ts:77:28
+ ❯ IsolatedWorld.waitForFunction node_modules/puppeteer-core/src/api/Realm.ts:74:22
+ ❯ Function.waitFor node_modules/puppeteer-core/src/common/QueryHandler.ts:171:50
+ ❯ CdpFrame.waitForSelector node_modules/puppeteer-core/src/api/Frame.ts:741:13
+ ❯ CdpPage.waitForSelector node_modules/puppeteer-core/src/api/Page.ts:3067:12
+ ❯ tests/e2e/CampaignSettings.test.ts:51:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/19]⎯
+
+ FAIL  tests/e2e/DeadSoldierVerification.test.ts > Visual Verification - Dead Soldier Equipment > should show disabled equipment for dead soldiers
+Error: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/e2e/DeadSoldierVerification.test.ts:20:3
+     18|   });
+     19| 
+     20|   it("should show disabled equipment for dead soldiers", async () => {
+       |   ^
+     21|     try {
+     22|       await page.goto(E2E_URL, { waitUntil: "networkidle2" });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/19]⎯
+
+ FAIL  tests/e2e/DebriefReplay.test.ts > Debrief Replay E2E > should play a replay on the debrief screen
+TimeoutError: Waiting for selector `#btn-force-win` failed
+ ❯ Function.waitFor node_modules/puppeteer-core/src/common/QueryHandler.ts:213:36
+ ❯ CdpFrame.waitForSelector node_modules/puppeteer-core/src/api/Frame.ts:741:13
+ ❯ CdpPage.waitForSelector node_modules/puppeteer-core/src/api/Page.ts:3067:12
+ ❯ tests/e2e/DebriefReplay.test.ts:39:5
+     37| 
+     38|     // 4. Force Win via Debug
+     39|     await page.waitForSelector("#btn-force-win", { timeout: 10000 });
+       |     ^
+     40|     await page.click("#btn-force-win");
+     41| 
+
+Caused by: TimeoutError: Waiting failed: 10000ms exceeded
+ ❯ new WaitTask node_modules/puppeteer-core/src/common/WaitTask.ts:77:28
+ ❯ IsolatedWorld.waitForFunction node_modules/puppeteer-core/src/api/Realm.ts:74:22
+ ❯ Function.waitFor node_modules/puppeteer-core/src/common/QueryHandler.ts:171:50
+ ❯ CdpFrame.waitForSelector node_modules/puppeteer-core/src/api/Frame.ts:741:13
+ ❯ CdpPage.waitForSelector node_modules/puppeteer-core/src/api/Page.ts:3067:12
+ ❯ tests/e2e/DebriefReplay.test.ts:39:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/19]⎯
+
+ FAIL  tests/e2e/DeploymentFOWRepro.test.ts > Deployment Fog of War Repro > should respect FOW during deployment
+AssertionError: expected null not to be null
+ ❯ tests/e2e/DeploymentFOWRepro.test.ts:81:32
+     79|     });
+     80| 
+     81|     expect(visibilityInfo).not.toBeNull();
+       |                                ^
+     82|     console.log("Visibility Info during Deployment:", visibilityInfo);
+     83| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/19]⎯
+
+ FAIL  tests/e2e/DeploymentOverlap.test.ts > voidlock-49x66: Deployment Overlap Bug > should NOT allow multiple units to be deployed on the same spawn point
+TypeError: Cannot read properties of undefined (reading 'map')
+ ❯ evaluate evaluate at /home/rkj/voidlock/tests/e2e/DeploymentOverlap.test.ts:49:35, <anonymous>:4:22
+ ❯ ExecutionContext.#evaluate node_modules/puppeteer-core/src/cdp/ExecutionContext.ts:456:13
+ ❯ ExecutionContext.evaluate node_modules/puppeteer-core/src/cdp/ExecutionContext.ts:293:12
+ ❯ IsolatedWorld.evaluate node_modules/puppeteer-core/src/cdp/IsolatedWorld.ts:196:12
+ ❯ CdpFrame.evaluate node_modules/puppeteer-core/src/api/Frame.ts:488:12
+ ❯ CdpPage.evaluate node_modules/puppeteer-core/src/api/Page.ts:2341:12
+ ❯ tests/e2e/DeploymentOverlap.test.ts:72:24
+     70| 
+     71|     // Get spawn point 0 coordinates
+     72|     const spawnPoint = await page.evaluate(() => {
+       |                        ^
+     73|         // @ts-ignore
+     74|         const app = window.GameAppInstance;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/19]⎯
+
+ FAIL  tests/e2e/EngineeringBay.test.ts > Engineering Bay E2E Verification > should display Engineering Bay tab and render content
+TimeoutError: Waiting for selector `.tab-button` failed
+ ❯ Function.waitFor node_modules/puppeteer-core/src/common/QueryHandler.ts:213:36
+ ❯ CdpFrame.waitForSelector node_modules/puppeteer-core/src/api/Frame.ts:741:13
+ ❯ CdpPage.waitForSelector node_modules/puppeteer-core/src/api/Page.ts:3067:12
+ ❯ tests/e2e/EngineeringBay.test.ts:39:5
+     37| 
+     38|     // 2. Wait for Shell tabs
+     39|     await page.waitForSelector(".tab-button", { timeout: 10000 });
+       |     ^
+     40| 
+     41|     // 3. Verify presence of Engineering tab
+
+Caused by: TimeoutError: Waiting failed: 10000ms exceeded
+ ❯ new WaitTask node_modules/puppeteer-core/src/common/WaitTask.ts:77:28
+ ❯ IsolatedWorld.waitForFunction node_modules/puppeteer-core/src/api/Realm.ts:74:22
+ ❯ Function.waitFor node_modules/puppeteer-core/src/common/QueryHandler.ts:171:50
+ ❯ CdpFrame.waitForSelector node_modules/puppeteer-core/src/api/Frame.ts:741:13
+ ❯ CdpPage.waitForSelector node_modules/puppeteer-core/src/api/Page.ts:3067:12
+ ❯ tests/e2e/EngineeringBay.test.ts:39:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/19]⎯
+
+ FAIL  tests/e2e/EquipmentScreenFixes.test.ts > Equipment Screen Fixes Verification > should have right-aligned prices in the Armory panel
+AssertionError: expected 'No item with price found in Armory' to be undefined
+
+[32m- Expected:[39m 
+undefined
+
+[31m+ Received:[39m 
+"No item with price found in Armory"
+
+ ❯ tests/e2e/EquipmentScreenFixes.test.ts:87:34
+     85| 
+     86|     console.log("Price Alignment (Armory):", priceAlignment);
+     87|     expect(priceAlignment.error).toBeUndefined();
+       |                                  ^
+     88|     expect(priceAlignment.justifyBetween).toBe(true);
+     89|     expect(priceAlignment.width100).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/19]⎯
+
+ FAIL  tests/e2e/EquipmentScreenFixes.test.ts > Equipment Screen Fixes Verification > should preserve scroll position in the Armory panel after re-render
+AssertionError: expected 0 to be greater than 0
+ ❯ tests/e2e/EquipmentScreenFixes.test.ts:195:41
+    193|     console.log("Scroll Results:", scrollResults);
+    194|     expect(scrollResults.error).toBeUndefined();
+    195|     expect(scrollResults.initialScroll).toBeGreaterThan(0);
+       |                                         ^
+    196|     expect(scrollResults.finalScroll).toBe(scrollResults.initialScroll…
+    197|     expect(scrollResults.isNewPanel).toBe(true);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/19]⎯
+
+ FAIL  tests/e2e/FullKeyboardFlow.test.ts > Full Keyboard-Only Campaign Walkthrough > should complete a full campaign flow using only keyboard
+TimeoutError: Waiting for selector `.modal-window` failed
+ ❯ Function.waitFor node_modules/puppeteer-core/src/common/QueryHandler.ts:213:36
+ ❯ CdpFrame.waitForSelector node_modules/puppeteer-core/src/api/Frame.ts:741:13
+ ❯ CdpPage.waitForSelector node_modules/puppeteer-core/src/api/Page.ts:3067:12
+ ❯ tests/e2e/FullKeyboardFlow.test.ts:164:5
+    162|     await new Promise(r => setTimeout(r, 200));
+    163|     await page.keyboard.press("Escape"); // Now it should open abort m…
+    164|     await page.waitForSelector(".modal-window");
+       |     ^
+    165|     
+    166|     // Modal buttons are also focusable. Find "Yes" or "Confirm".
+
+Caused by: TimeoutError: Waiting failed: 30000ms exceeded
+ ❯ new WaitTask node_modules/puppeteer-core/src/common/WaitTask.ts:77:28
+ ❯ IsolatedWorld.waitForFunction node_modules/puppeteer-core/src/api/Realm.ts:74:22
+ ❯ Function.waitFor node_modules/puppeteer-core/src/common/QueryHandler.ts:171:50
+ ❯ CdpFrame.waitForSelector node_modules/puppeteer-core/src/api/Frame.ts:741:13
+ ❯ CdpPage.waitForSelector node_modules/puppeteer-core/src/api/Page.ts:3067:12
+ ❯ tests/e2e/FullKeyboardFlow.test.ts:164:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/19]⎯
+
+ FAIL  tests/e2e/MemoryUsage.test.ts > Memory Usage Regression > should not leak significant memory over multiple mission cycles
+TimeoutError: Waiting for selector `#game-canvas` failed
+ ❯ Function.waitFor node_modules/puppeteer-core/src/common/QueryHandler.ts:213:36
+ ❯ CdpFrame.waitForSelector node_modules/puppeteer-core/src/api/Frame.ts:741:13
+ ❯ CdpPage.waitForSelector node_modules/puppeteer-core/src/api/Page.ts:3067:12
+ ❯ runMissionCycle tests/e2e/MemoryUsage.test.ts:45:7
+     43| 
+     44|       // 4. Wait for game to load
+     45|       await page.waitForSelector("#game-canvas", { visible: true });
+       |       ^
+     46|       // Wait a bit for engine to start
+     47|       await new Promise((r) => setTimeout(r, 1000));
+ ❯ tests/e2e/MemoryUsage.test.ts:80:20
+
+Caused by: TimeoutError: Waiting failed: 30000ms exceeded
+ ❯ new WaitTask node_modules/puppeteer-core/src/common/WaitTask.ts:77:28
+ ❯ IsolatedWorld.waitForFunction node_modules/puppeteer-core/src/api/Realm.ts:74:22
+ ❯ Function.waitFor node_modules/puppeteer-core/src/common/QueryHandler.ts:171:50
+ ❯ CdpFrame.waitForSelector node_modules/puppeteer-core/src/api/Frame.ts:741:13
+ ❯ CdpPage.waitForSelector node_modules/puppeteer-core/src/api/Page.ts:3067:12
+ ❯ runMissionCycle tests/e2e/MemoryUsage.test.ts:45:7
+ ❯ tests/e2e/MemoryUsage.test.ts:80:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/19]⎯
+
+ FAIL  tests/e2e/MissionSetupCampaign.test.ts > Mission Setup Campaign Mode Visibility > should hide map configuration when entering from campaign
+Error: Node is either not clickable or not an Element
+ ❯ CdpElementHandle.clickablePoint node_modules/puppeteer-core/src/api/ElementHandle.ts:734:13
+ ❯ CdpElementHandle.<anonymous> node_modules/puppeteer-core/src/api/ElementHandle.ts:139:14
+ ❯ CdpElementHandle.click node_modules/puppeteer-core/src/api/ElementHandle.ts:773:20
+ ❯ CdpElementHandle.<anonymous> node_modules/puppeteer-core/src/api/ElementHandle.ts:149:20
+ ❯ CdpFrame.click node_modules/puppeteer-core/src/api/Frame.ts:1064:5
+ ❯ tests/e2e/MissionSetupCampaign.test.ts:83:5
+     81| 
+     82|     // 6. Test Back Button
+     83|     await page.click("#btn-setup-back");
+       |     ^
+     84|     
+     85|     // 7. Should be back in Equipment screen
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/19]⎯
+
+ FAIL  tests/e2e/MobileCampaignFullFlow.test.ts > Mobile Full Campaign Flow > should go through a full mission flow on mobile
+TimeoutError: Waiting for selector `#btn-launch-mission` failed
+ ❯ Function.waitFor node_modules/puppeteer-core/src/common/QueryHandler.ts:213:36
+ ❯ CdpFrame.waitForSelector node_modules/puppeteer-core/src/api/Frame.ts:741:13
+ ❯ CdpPage.waitForSelector node_modules/puppeteer-core/src/api/Page.ts:3067:12
+ ❯ tests/e2e/MobileCampaignFullFlow.test.ts:56:5
+     54|     // 5. Mission Setup Screen (Campaign Briefing)
+     55|     await page.waitForSelector("#screen-mission-setup");
+     56|     await page.waitForSelector("#btn-launch-mission", { visible: true …
+       |     ^
+     57|     await page.click("#btn-launch-mission");
+     58| 
+
+Caused by: TimeoutError: Waiting failed: 30000ms exceeded
+ ❯ new WaitTask node_modules/puppeteer-core/src/common/WaitTask.ts:77:28
+ ❯ IsolatedWorld.waitForFunction node_modules/puppeteer-core/src/api/Realm.ts:74:22
+ ❯ Function.waitFor node_modules/puppeteer-core/src/common/QueryHandler.ts:171:50
+ ❯ CdpFrame.waitForSelector node_modules/puppeteer-core/src/api/Frame.ts:741:13
+ ❯ CdpPage.waitForSelector node_modules/puppeteer-core/src/api/Page.ts:3067:12
+ ❯ tests/e2e/MobileCampaignFullFlow.test.ts:56:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[14/19]⎯
+
+ FAIL  tests/e2e/MobileResponsiveDrawers.test.ts > Mobile Responsive Drawers > should toggle drawers on mobile viewport
+Error: Node is either not clickable or not an Element
+ ❯ CdpElementHandle.clickablePoint node_modules/puppeteer-core/src/api/ElementHandle.ts:734:13
+ ❯ CdpElementHandle.<anonymous> node_modules/puppeteer-core/src/api/ElementHandle.ts:139:14
+ ❯ CdpElementHandle.click node_modules/puppeteer-core/src/api/ElementHandle.ts:773:20
+ ❯ CdpElementHandle.<anonymous> node_modules/puppeteer-core/src/api/ElementHandle.ts:149:20
+ ❯ CdpFrame.click node_modules/puppeteer-core/src/api/Frame.ts:1064:5
+ ❯ tests/e2e/MobileResponsiveDrawers.test.ts:58:5
+     56| 
+     57|     // Toggle Squad Drawer
+     58|     await page.click("#btn-toggle-squad");
+       |     ^
+     59|     await page.waitForSelector("#soldier-panel.active");
+     60| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[15/19]⎯
+
+ FAIL  tests/e2e/ReproSquadBuilderMissing.test.ts > SquadBuilder Missing Reproduction > should verify that .squad-builder-container is present in Campaign Mission Briefing
+TimeoutError: Waiting for selector `.campaign-node.accessible` failed
+ ❯ Function.waitFor node_modules/puppeteer-core/src/common/QueryHandler.ts:213:36
+ ❯ CdpFrame.waitForSelector node_modules/puppeteer-core/src/api/Frame.ts:741:13
+ ❯ CdpPage.waitForSelector node_modules/puppeteer-core/src/api/Page.ts:3067:12
+ ❯ tests/e2e/ReproSquadBuilderMissing.test.ts:82:5
+     80| 
+     81|     // 3. Select the first node (Start Node)
+     82|     await page.waitForSelector(".campaign-node.accessible");
+       |     ^
+     83|     await page.click(".campaign-node.accessible");
+     84| 
+
+Caused by: TimeoutError: Waiting failed: 30000ms exceeded
+ ❯ new WaitTask node_modules/puppeteer-core/src/common/WaitTask.ts:77:28
+ ❯ IsolatedWorld.waitForFunction node_modules/puppeteer-core/src/api/Realm.ts:74:22
+ ❯ Function.waitFor node_modules/puppeteer-core/src/common/QueryHandler.ts:171:50
+ ❯ CdpFrame.waitForSelector node_modules/puppeteer-core/src/api/Frame.ts:741:13
+ ❯ CdpPage.waitForSelector node_modules/puppeteer-core/src/api/Page.ts:3067:12
+ ❯ tests/e2e/ReproSquadBuilderMissing.test.ts:82:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[16/19]⎯
+
+ FAIL  tests/e2e/SettingsCloudSyncRepro.test.ts > Settings Cloud Sync Repro > should show 'Service Unavailable' when cloudSync service is missing entirely
+AssertionError: expected null to be 'Cloud Sync Service Unavailable' // Object.is equality
+
+[32m- Expected:[39m 
+"Cloud Sync Service Unavailable"
+
+[31m+ Received:[39m 
+null
+
+ ❯ tests/e2e/SettingsCloudSyncRepro.test.ts:97:23
+     95|     });
+     96| 
+     97|     expect(errorText).toBe("Cloud Sync Service Unavailable");
+       |                       ^
+     98|     
+     99|     // Take screenshot for visual proof
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[17/19]⎯
+
+ FAIL  tests/e2e/TapToInspect.test.ts > Tap-to-Inspect E2E > should show popover on stat icon tap
+TimeoutError: Waiting for selector `.tab-button[data-id='barracks']` failed
+ ❯ Function.waitFor node_modules/puppeteer-core/src/common/QueryHandler.ts:213:36
+ ❯ CdpFrame.waitForSelector node_modules/puppeteer-core/src/api/Frame.ts:741:13
+ ❯ CdpPage.waitForSelector node_modules/puppeteer-core/src/api/Page.ts:3067:12
+ ❯ tests/e2e/TapToInspect.test.ts:48:5
+     46| 
+     47|     // 4. Go to Barracks
+     48|     await page.waitForSelector(".tab-button[data-id='barracks']");
+       |     ^
+     49|     await page.click(".tab-button[data-id='barracks']");
+     50| 
+
+Caused by: TimeoutError: Waiting failed: 30000ms exceeded
+ ❯ new WaitTask node_modules/puppeteer-core/src/common/WaitTask.ts:77:28
+ ❯ IsolatedWorld.waitForFunction node_modules/puppeteer-core/src/api/Realm.ts:74:22
+ ❯ Function.waitFor node_modules/puppeteer-core/src/common/QueryHandler.ts:171:50
+ ❯ CdpFrame.waitForSelector node_modules/puppeteer-core/src/api/Frame.ts:741:13
+ ❯ CdpPage.waitForSelector node_modules/puppeteer-core/src/api/Page.ts:3067:12
+ ❯ tests/e2e/TapToInspect.test.ts:48:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[18/19]⎯
+
+ FAIL  tests/e2e/regression_tkzi_sticky_recruit.test.ts > Regression TKZI - Sticky Recruitment Button > should keep Recruit button in viewport when roster is scrolled
+TimeoutError: Waiting for selector `.btn-recruit` failed
+ ❯ Function.waitFor node_modules/puppeteer-core/src/common/QueryHandler.ts:213:36
+ ❯ CdpFrame.waitForSelector node_modules/puppeteer-core/src/api/Frame.ts:741:13
+ ❯ CdpPage.waitForSelector node_modules/puppeteer-core/src/api/Page.ts:3067:12
+ ❯ tests/e2e/regression_tkzi_sticky_recruit.test.ts:41:5
+     39|     // Check if Recruit button exists
+     40|     const recruitBtnSelector = ".btn-recruit";
+     41|     await page.waitForSelector(recruitBtnSelector);
+       |     ^
+     42| 
+     43|     // Recruit 10 soldiers
+
+Caused by: TimeoutError: Waiting failed: 30000ms exceeded
+ ❯ new WaitTask node_modules/puppeteer-core/src/common/WaitTask.ts:77:28
+ ❯ IsolatedWorld.waitForFunction node_modules/puppeteer-core/src/api/Realm.ts:74:22
+ ❯ Function.waitFor node_modules/puppeteer-core/src/common/QueryHandler.ts:171:50
+ ❯ CdpFrame.waitForSelector node_modules/puppeteer-core/src/api/Frame.ts:741:13
+ ❯ CdpPage.waitForSelector node_modules/puppeteer-core/src/api/Page.ts:3067:12
+ ❯ tests/e2e/regression_tkzi_sticky_recruit.test.ts:41:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[19/19]⎯
+
+
+ Test Files  18 failed | 75 passed (93)
+      Tests  17 failed | 103 passed | 4 skipped (124)
+   Start at  12:43:04
+   Duration  180.08s (transform 670ms, setup 0ms, collect 16.55s, tests 1209.40s, environment 16ms, prepare 6.71s)
+
+Vite dev server stopped

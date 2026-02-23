@@ -44,11 +44,11 @@ describe("Tap-to-Inspect E2E", () => {
     // 3. Wait for the Sector Map
     await page.waitForSelector(".campaign-screen");
 
-    // 4. Go to Barracks
-    await page.waitForSelector(".tab-button[data-id='barracks']");
-    await page.click(".tab-button[data-id='barracks']");
+    // 4. Go to Ready Room (formerly Barracks)
+    await page.waitForSelector(".tab-button[data-id='ready-room']");
+    await page.click(".tab-button[data-id='ready-room']");
 
-    await page.waitForSelector(".barracks-screen");
+    await page.waitForSelector(".equipment-screen");
     await page.waitForSelector(".stat-display[data-tooltip]");
 
     const statIcon = await page.$(".stat-display[data-tooltip]");
@@ -78,7 +78,7 @@ describe("Tap-to-Inspect E2E", () => {
 
     expect(popoverData).not.toBeNull();
     expect(popoverData?.exists).toBe(true);
-    expect(popoverData?.text).toBe("Speed");
+    expect(popoverData?.text).toBe("Max Health");
 
     // 6. Tap outside to dismiss
     await page.touchscreen.tap(10, 10);

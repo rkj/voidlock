@@ -8,6 +8,7 @@ describe("Campaign Sector Map Keyboard Navigation", () => {
 
   beforeAll(async () => {
     page = await getNewPage();
+    page.on("console", msg => console.log("BROWSER:", msg.text()));
   });
 
   afterAll(async () => {
@@ -19,7 +20,7 @@ describe("Campaign Sector Map Keyboard Navigation", () => {
     
     // Mock Campaign State
     const mockState = {
-      version: "0.138.4",
+      version: "0.139.6",
       saveVersion: 1,
       seed: 123,
       status: "Active",
@@ -35,7 +36,8 @@ describe("Campaign Sector Map Keyboard Navigation", () => {
         mapGrowthRate: 1,
         baseEnemyCount: 3,
         enemyGrowthPerMission: 1,
-        economyMode: "Open"
+        economyMode: "Open",
+        skipPrologue: true
       },
       scrap: 500,
       intel: 0,
@@ -50,7 +52,8 @@ describe("Campaign Sector Map Keyboard Navigation", () => {
           rank: 0,
           mapSeed: 123,
           connections: ["node-1", "node-2"],
-          position: { x: 0, y: 0 }
+          position: { x: 0, y: 0 },
+          bonusLootCount: 0
         },
         {
           id: "node-1",
@@ -60,7 +63,8 @@ describe("Campaign Sector Map Keyboard Navigation", () => {
           rank: 1,
           mapSeed: 124,
           connections: ["node-3"],
-          position: { x: 100, y: -50 }
+          position: { x: 100, y: -50 },
+          bonusLootCount: 0
         },
         {
           id: "node-2",
@@ -70,7 +74,8 @@ describe("Campaign Sector Map Keyboard Navigation", () => {
           rank: 1,
           mapSeed: 125,
           connections: ["node-3"],
-          position: { x: 100, y: 50 }
+          position: { x: 100, y: 50 },
+          bonusLootCount: 0
         },
         {
           id: "node-3",
@@ -80,7 +85,8 @@ describe("Campaign Sector Map Keyboard Navigation", () => {
           rank: 2,
           mapSeed: 126,
           connections: [],
-          position: { x: 200, y: 0 }
+          position: { x: 200, y: 0 },
+          bonusLootCount: 0
         }
       ],
       roster: [],
@@ -100,10 +106,11 @@ describe("Campaign Sector Map Keyboard Navigation", () => {
         debugOverlayEnabled: false,
         cloudSyncEnabled: false
       }));
+      window.location.hash = "#campaign";
     }, mockState);
 
-    await page.goto(E2E_URL + "#campaign");
-    await page.waitForSelector(".campaign-node");
+    await page.reload({ waitUntil: "networkidle0" });
+    await page.waitForSelector(".campaign-node", { visible: true, timeout: 15000 });
 
     // 1. Verify tabIndices
     const tabIndices = await page.evaluate(() => {

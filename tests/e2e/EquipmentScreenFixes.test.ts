@@ -58,16 +58,16 @@ describe("Equipment Screen Fixes Verification", () => {
 
       // Find first weapon/item with a price in Armory
       const items = Array.from(
-        armoryPanel.querySelectorAll(".menu-item.clickable"),
+        armoryPanel.querySelectorAll(".armory-item"),
       );
       const itemWithPrice = items.find((el) =>
-        el.querySelector(".flex-row.justify-between"),
+        el.querySelector(".armory-item-header"),
       );
       if (!itemWithPrice)
         return { error: "No item with price found in Armory" };
 
       const container = itemWithPrice.querySelector(
-        ".flex-row.justify-between",
+        ".armory-item-header",
       ) as HTMLElement;
       const price = container.children[1] as HTMLElement;
 
@@ -95,22 +95,13 @@ describe("Equipment Screen Fixes Verification", () => {
       const armoryPanel = document.querySelector(".armory-panel");
       if (!armoryPanel) return { error: "Armory panel not found" };
 
-      // Supplies are in card class with flex-row justify-between
+      // Supplies are in card class with supply-item-header
       const supplyItems = Array.from(
-        armoryPanel.querySelectorAll(".card.flex-row.justify-between"),
+        armoryPanel.querySelectorAll(".supply-item-header"),
       );
       if (supplyItems.length === 0) return { error: "No supply items found" };
 
-      const supplyItem = supplyItems[0] as HTMLElement;
-      const nameGroup = supplyItem.querySelector(".flex-col") as HTMLElement;
-      if (!nameGroup) return { error: "Name group not found in supply item" };
-
-      const priceContainer = nameGroup.querySelector(
-        ".flex-row.justify-between",
-      ) as HTMLElement;
-      if (!priceContainer)
-        return { error: "Price container not found in supply item" };
-
+      const priceContainer = supplyItems[0] as HTMLElement;
       const price = priceContainer.children[1] as HTMLElement;
 
       const containerRect = priceContainer.getBoundingClientRect();
@@ -139,17 +130,17 @@ describe("Equipment Screen Fixes Verification", () => {
     await navigateToEquipment();
 
     const scrollResults = await page.evaluate(async () => {
-      const armoryPanel = document.querySelector(
-        ".armory-panel",
+      const scrollContainer = document.querySelector(
+        ".armory-panel .scroll-content",
       ) as HTMLElement;
-      if (!armoryPanel) return { error: "Armory panel not found" };
+      if (!scrollContainer) return { error: "Armory scroll container not found" };
 
       // Mark the current panel to detect re-render
-      armoryPanel.dataset.isOld = "true";
+      scrollContainer.dataset.isOld = "true";
 
       // 1. Scroll down
-      armoryPanel.scrollTop = 150;
-      const initialScroll = armoryPanel.scrollTop;
+      scrollContainer.scrollTop = 150;
+      const initialScroll = scrollContainer.scrollTop;
 
       // Find initial count
       const supplyRow = document.querySelector(
@@ -172,8 +163,8 @@ describe("Equipment Screen Fixes Verification", () => {
       // Wait a bit for re-render
       await new Promise((r) => setTimeout(r, 200));
 
-      const newArmoryPanel = document.querySelector(
-        ".armory-panel",
+      const newScrollContainer = document.querySelector(
+        ".armory-panel .scroll-content",
       ) as HTMLElement;
       const newSupplyRow = document.querySelector(
         ".card.flex-row.justify-between",
@@ -182,8 +173,8 @@ describe("Equipment Screen Fixes Verification", () => {
 
       return {
         initialScroll,
-        finalScroll: newArmoryPanel?.scrollTop,
-        isNewPanel: newArmoryPanel && newArmoryPanel.dataset.isOld !== "true",
+        finalScroll: newScrollContainer?.scrollTop,
+        isNewPanel: newScrollContainer && newScrollContainer.dataset.isOld !== "true",
         countChanged: initialCount !== finalCount,
         initialCount,
         finalCount,

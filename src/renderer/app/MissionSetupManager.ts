@@ -343,9 +343,8 @@ export class MissionSetupManager {
               if (s.id) {
                 const rs = state.roster.find((r) => r.id === s.id);
                 if (rs) {
-                  if (rs.status === "Dead" || rs.status === "Wounded")
-                    return false;
                   s.name = rs.name;
+                  s.status = rs.status;
                   s.hp = rs.hp;
                   s.maxHp = rs.maxHp;
                   s.soldierAim = rs.soldierAim;

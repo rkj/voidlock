@@ -61,8 +61,9 @@ describe("Deployment Fog of War Repro", () => {
     // Check GameState visibility
     const visibilityInfo = await page.evaluate(() => {
       const app = (window as any).GameAppInstance;
-      if (!app || !app.currentGameState) return null;
-      const state = app.currentGameState;
+      if (!app || !app.registry || !app.registry.missionRunner) return null;
+      const state = app.registry.missionRunner.getCurrentGameState();
+      if (!state) return null;
       
       // Get floor cells from renderer's shared state since it's omitted in GameState message
       const floorCells = app.renderer.sharedState.cells.filter((c: any) => c.type === 'Floor');
@@ -134,8 +135,9 @@ describe("Deployment Fog of War Repro", () => {
     // Check GameState visibility again
     const postStartVisibility = await page.evaluate(() => {
       const app = (window as any).GameAppInstance;
-      if (!app || !app.currentGameState) return null;
-      const state = app.currentGameState;
+      if (!app || !app.registry || !app.registry.missionRunner) return null;
+      const state = app.registry.missionRunner.getCurrentGameState();
+      if (!state) return null;
       return {
         discoveredCount: state.discoveredCells.length,
         status: state.status,

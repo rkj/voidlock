@@ -41,64 +41,25 @@ describe("Mission Setup Campaign Mode Visibility", () => {
     await page.waitForSelector("#screen-equipment");
 
     // 4. Click Confirm Squad
-    // We need to find the button with text "Confirm Squad"
     await page.evaluate(() => {
         const buttons = Array.from(document.querySelectorAll("#screen-equipment button"));
         const confirmBtn = buttons.find(b => b.textContent?.includes("Confirm Squad")) as HTMLButtonElement;
         if (confirmBtn) confirmBtn.click();
     });
 
-    // 5. Now we should be in Mission Setup
-    await page.waitForSelector("#screen-mission-setup");
+    // 5. Verify we are back in Sector Map (Campaign Screen)
+    await page.waitForSelector("#screen-campaign", { visible: true });
 
-    // REPRODUCTION ASSERTIONS:
-    // These are expected to FAIL based on the bug report
-
-    // A. Check if the title is "Mission Briefing"
-    const titleText = await page.evaluate(() => {
-        const h1 = document.getElementById("mission-setup-title");
-        return h1 ? h1.textContent : "not found";
+    // Verify Mission Setup is NOT visible
+    const missionSetupVisible = await page.evaluate(() => {
+        const el = document.getElementById("screen-mission-setup");
+        return el && window.getComputedStyle(el).display !== "none";
     });
-    expect(titleText).toBe("Mission Briefing");
+    expect(missionSetupVisible).toBe(false);
 
-    // B. Check if map-config-section is visible (it should NOT be)
-    const configVisible = await page.evaluate(() => {
-        const section = document.getElementById("map-config-section");
-        if (!section) return false;
-        const style = window.getComputedStyle(section);
-        return style.display !== "none" && style.visibility !== "hidden";
-    });
-    expect(configVisible).toBe(false);
-
-    // C. Check if "Equipment & Supplies" button is visible in Mission Setup (it should NOT be)
-    const equipmentBtnVisible = await page.evaluate(() => {
-        const btn = document.getElementById("btn-goto-equipment");
-        if (!btn) return false;
-        const style = window.getComputedStyle(btn);
-        return style.display !== "none" && style.visibility !== "hidden";
-    });
-    expect(equipmentBtnVisible).toBe(false);
-
-    // 6. Test Back Button
-    await page.click("#btn-setup-back");
-    
-    // 7. Should be back in Equipment screen
-    await page.waitForSelector("#screen-equipment");
-
-    // Verify Equipment screen is visible and NOT empty (black screen check)
-    const equipmentVisible = await page.evaluate(() => {
-        const screen = document.getElementById("screen-equipment");
-        if (!screen) return false;
-        const style = window.getComputedStyle(screen);
-        // It should have content
-        const hasContent = screen.children.length > 0;
-        return style.display === "flex" && hasContent;
-    });
-    expect(equipmentVisible).toBe(true);
-
-    // Take screenshot for proof of back navigation
+    // Take screenshot for proof
     await page.screenshot({
-      path: "tests/e2e/__snapshots__/mission_setup_campaign_back_navigation.png",
+      path: "tests/e2e/__snapshots__/mission_setup_skipped_campaign.png",
     });
   });
 

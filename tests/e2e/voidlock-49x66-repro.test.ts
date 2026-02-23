@@ -161,7 +161,7 @@ describe("voidlock-49x66: Deployment Bug Repro", () => {
         const app = window.GameAppInstance;
         if (!app || !app.renderer) return null;
 
-        const state = app.currentGameState;
+        const state = app.registry.missionRunner.getCurrentGameState();
         const spawns = state.map.squadSpawns || (state.map.squadSpawn ? [state.map.squadSpawn] : []);
         // @ts-ignore
         const cellSize = app.renderer.cellSize;
@@ -197,7 +197,8 @@ describe("voidlock-49x66: Deployment Bug Repro", () => {
     const currentSpawn = spawnPoints.length > 1 ? spawnPoints[1] : spawnPoints[0];
     await page.mouse.move(currentSpawn.pixelX, currentSpawn.pixelY);
     await page.mouse.down();
-    await page.mouse.move(0, 0, { steps: 10 });
+    // Drag far away from canvas
+    await page.mouse.move(-100, -100, { steps: 10 });
     await page.mouse.up();
     await new Promise(r => setTimeout(r, 500));
 
