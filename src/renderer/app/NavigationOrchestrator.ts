@@ -241,6 +241,7 @@ export class NavigationOrchestrator {
           isCampaign || !!this.missionSetupManager.currentCampaignNode;
         this.missionSetupManager.loadAndApplyConfig(isCurrentlyCampaign);
         this.screens.equipment.setCampaign(isCurrentlyCampaign);
+        this.screens.equipment.setHasNodeSelected(!!this.missionSetupManager.currentCampaignNode);
         this.screens.equipment.updateConfig(
           this.missionSetupManager.currentSquad,
         );

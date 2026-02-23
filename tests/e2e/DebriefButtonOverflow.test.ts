@@ -25,15 +25,15 @@ describe("Debrief Responsiveness", () => {
     // Bypass broken UI flow and force win directly
     await page.evaluate(async () => {
       const app = (window as any).GameAppInstance;
-      if (app) {
-        app.missionSetupManager.debugOverlayEnabled = true;
-        app.missionSetupManager.saveCurrentConfig();
-        app.launchMission();
+      if (app && app.registry) {
+        app.registry.missionSetupManager.debugOverlayEnabled = true;
+        app.registry.missionSetupManager.saveCurrentConfig();
+        app.registry.missionRunner.launchMission();
         
         // Wait a bit for engine to start then force win
         setTimeout(() => {
-            if (app.context && app.context.gameClient) {
-                app.context.gameClient.forceWin();
+            if (app.registry.gameClient) {
+                app.registry.gameClient.forceWin();
             }
         }, 1000);
       }
