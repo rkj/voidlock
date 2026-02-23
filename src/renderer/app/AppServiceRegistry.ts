@@ -21,6 +21,7 @@ import { Renderer as IRenderer } from "../Renderer";
 import { MissionSetupManager } from "./MissionSetupManager";
 import { MissionCoordinator } from "./MissionCoordinator";
 import { MissionRunner } from "./MissionRunner";
+import { InputOrchestrator } from "./InputOrchestrator";
 import { NavigationOrchestrator, NavigationScreens } from "./NavigationOrchestrator";
 import { SquadBuilder } from "../components/SquadBuilder";
 
@@ -51,6 +52,7 @@ export interface AppServiceRegistryConfig {
   panMap: (direction: string) => void;
   panMapBy: (dx: number, dy: number) => void;
   zoomMap: (ratio: number, cx: number, cy: number) => void;
+  getRenderer: () => IRenderer | null;
 }
 
 export class AppServiceRegistry {
@@ -70,6 +72,7 @@ export class AppServiceRegistry {
   public missionSetupManager!: MissionSetupManager;
   public missionCoordinator!: MissionCoordinator;
   public missionRunner!: MissionRunner;
+  public inputOrchestrator!: InputOrchestrator;
   public navigationOrchestrator!: NavigationOrchestrator;
 
   public async initialize(config: AppServiceRegistryConfig) {
@@ -148,27 +151,45 @@ export class AppServiceRegistry {
       config.onDeployUnit,
     );
 
+    this.missionRunner = new MissionRunner({
+      missionCoordinator: this.missionCoordinator,
+      missionSetupManager: this.missionSetupManager,
+      gameClient: this.gameClient,
+      campaignManager: this.campaignManager,
+      hudManager: this.hudManager,
+      menuController: this.menuController,
+      modalService: this.modalService,
+    });
+
+    this.inputOrchestrator = new InputOrchestrator({
+      gameClient: this.gameClient,
+      menuController: this.menuController,
+      hudManager: this.hudManager,
+      missionRunner: this.missionRunner,
+      getRenderer: config.getRenderer,
+    });
+
     this.inputManager = new InputManager(
       this.screenManager,
       this.menuController,
       this.modalService,
       config.onTogglePause,
-      config.onMenuInput,
+      (key, shift) => this.inputOrchestrator.handleMenuInput(key, shift),
       config.onAbortMission,
-      () => config.onUnitClick(null, false),
-      config.getSelectedUnitId,
-      config.onCanvasClick,
+      () => this.inputOrchestrator.onUnitClick(null, false),
+      () => this.missionRunner.getSelectedUnitId(),
+      (e) => this.inputOrchestrator.handleCanvasClick(e),
       config.onToggleDebug,
       config.onToggleLos,
-      config.getCurrentGameState,
+      () => this.missionRunner.getCurrentGameState(),
       config.isDebriefVisible,
       config.onDeployUnit,
       config.onUndeployUnit,
       config.getCellCoordinates,
-      config.cycleUnits,
-      config.panMap,
-      config.panMapBy,
-      config.zoomMap,
+      (reverse) => this.inputOrchestrator.cycleUnits(reverse),
+      (direction) => this.inputOrchestrator.panMap(direction),
+      (dx, dy) => this.inputOrchestrator.panMapBy(dx, dy),
+      (ratio, cx, cy) => this.inputOrchestrator.zoomMap(ratio, cx, cy),
     );
     this.inputManager.init();
   }
@@ -180,16 +201,6 @@ export class AppServiceRegistry {
       showMainMenu: () => void;
     }
   ) {
-    this.missionRunner = new MissionRunner({
-      missionCoordinator: this.missionCoordinator,
-      missionSetupManager: this.missionSetupManager,
-      gameClient: this.gameClient,
-      campaignManager: this.campaignManager,
-      hudManager: this.hudManager,
-      menuController: this.menuController,
-      modalService: this.modalService,
-    });
-
     this.navigationOrchestrator = new NavigationOrchestrator(
       this.screenManager,
       this.campaignShell,

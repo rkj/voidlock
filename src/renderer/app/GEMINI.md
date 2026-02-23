@@ -16,6 +16,7 @@ This directory contains the application lifecycle and bootstrapping logic for th
 - `NavigationOrchestrator.ts`: Wraps `ScreenManager` and `CampaignShell` to handle complex screen transitions (ADR 0047). It owns the authoritative `switchScreen` method, ensuring proper input context cleanup and shell synchronization across tactical and strategic layers.
 - `AppServiceRegistry.ts`: A central hub responsible for the instantiation and lifecycle management of core services (GameClient, Managers, ThemeManager). It removes initialization boilerplate from `GameApp`.
 - `MissionRunner.ts`: Manages the mission lifecycle by wrapping `MissionCoordinator`. It handles launch, resume, and abort logic, and manages mission-related callbacks (onComplete, updateUI).
+- `InputOrchestrator.ts`: Consolidates tactical input handling (pan/zoom/unit selection). It coordinates between the InputManager, GameClient, and MissionRunner to handle tactical interactions.
 - `MissionSetupManager.ts`: Manages the mission configuration state, persistence, and UI synchronization for both Campaign and Custom Simulation modes.
 - `InputBinder.ts`: Responsible for attaching and detaching DOM event listeners, separating event handling from application logic. It uses a callback-based approach to notify `GameApp` of UI changes (Mission Setup toggles, selectors, etc.).
 
