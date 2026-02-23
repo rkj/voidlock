@@ -1,11 +1,9 @@
 import { InputBinder } from "./InputBinder";
-import { GameClient } from "@src/engine/GameClient";
 import {
   MapGeneratorType,
   MissionType,
   SquadConfig,
   UnitState,
-  MapGenerationConfig,
   GameState,
   Unit,
   CommandType,
@@ -17,9 +15,7 @@ import {
   CampaignNode,
   MissionReport,
 } from "@src/shared/campaign_types";
-import { ModalService } from "@src/renderer/ui/ModalService";
 import {
-  CampaignShell,
   CampaignTabId,
   CampaignShellMode,
 } from "@src/renderer/ui/CampaignShell";
@@ -38,24 +34,14 @@ import { EngineeringScreen } from "../screens/EngineeringScreen";
 import { SettingsScreen } from "../screens/SettingsScreen";
 import { MainMenuScreen } from "../screens/MainMenuScreen";
 import { SquadBuilder } from "../components/SquadBuilder";
-import { ThemeManager } from "../ThemeManager";
-import { CampaignManager } from "../campaign/CampaignManager";
-import { MetaManager } from "../campaign/MetaManager";
-import { ScreenManager, ScreenId } from "../ScreenManager";
-import { MapFactory } from "@src/engine/map/MapFactory";
-import { MenuController } from "../MenuController";
-import { HUDManager } from "../ui/HUDManager";
-import { InputManager } from "../InputManager";
-import { AssetManager } from "../visuals/AssetManager";
-import { Logger, LogLevel } from "@src/shared/Logger";
+import { ScreenId } from "../ScreenManager";
+import { Logger } from "@src/shared/Logger";
 import { GlobalShortcuts } from "../GlobalShortcuts";
 import { TooltipManager } from "../ui/TooltipManager";
 import { MathUtils } from "@src/shared/utils/MathUtils";
-import { CloudSyncService } from "@src/services/CloudSyncService";
-import { SaveManager } from "@src/services/SaveManager";
 import { InputDispatcher } from "../InputDispatcher";
+import { AppServiceRegistry } from "./AppServiceRegistry";
 import { Renderer } from "../Renderer";
-import { TutorialManager } from "../controllers/TutorialManager";
 import { AdvisorOverlay } from "../ui/AdvisorOverlay";
 import prologueMap from "@src/content/maps/prologue.json";
 
@@ -63,23 +49,24 @@ const VERSION = pkg.version;
 
 export class GameApp {
   // Services
-  private gameClient!: GameClient;
+  private registry: AppServiceRegistry;
+  
+  private get gameClient() { return this.registry.gameClient; }
+  private get screenManager() { return this.registry.screenManager; }
+  private get campaignManager() { return this.registry.campaignManager; }
+  private get metaManager() { return this.registry.metaManager; }
+  private get themeManager() { return this.registry.themeManager; }
+  private get menuController() { return this.registry.menuController; }
+  private get hudManager() { return this.registry.hudManager; }
+  private get inputManager() { return this.registry.inputManager; }
+  private get modalService() { return this.registry.modalService; }
+  private get campaignShell() { return this.registry.campaignShell; }
+  private get cloudSync() { return this.registry.cloudSync; }
+
   public renderer: Renderer | null = null;
-  private screenManager!: ScreenManager;
-  private campaignManager!: CampaignManager;
-  private metaManager!: MetaManager;
-  private themeManager!: ThemeManager;
-  private menuController!: MenuController;
-  private hudManager!: HUDManager;
-  private inputManager!: InputManager;
-  private modalService!: ModalService;
-  private campaignShell!: CampaignShell;
-  private cloudSync!: CloudSyncService;
-  private tutorialManager!: TutorialManager;
-  private advisorOverlay!: AdvisorOverlay;
 
   public get AdvisorOverlay(): AdvisorOverlay {
-    return this.advisorOverlay;
+    return this.registry.advisorOverlay;
   }
 
   // Coordinators
@@ -107,43 +94,55 @@ export class GameApp {
   private currentGameState: GameState | null = null;
 
   constructor() {
-    // We will initialize services in initialize()
+    this.registry = new AppServiceRegistry();
   }
 
   public async initialize() {
-    // 1. Initialize core managers
-    const globalConfig = ConfigManager.loadGlobal();
-    Logger.setLevel(LogLevel[globalConfig.logLevel as keyof typeof LogLevel]);
-
-    this.themeManager = ThemeManager.getInstance();
-    await this.themeManager.init();
-    
-    // Ensure sprites are loaded now that the asset manifest is available
-    AssetManager.getInstance().loadSprites();
-    
-    this.campaignManager = CampaignManager.getInstance();
-    this.metaManager = MetaManager.getInstance();
-
-    // Initialize cloudSync from SaveManager
-    const storage = this.campaignManager.getStorage();
-    if (storage instanceof SaveManager) {
-      this.cloudSync = storage.getCloudSync();
-      await this.cloudSync.initialize();
-    }
-
-    await this.campaignManager.load();
-    this.modalService = new ModalService();
-    this.screenManager = new ScreenManager((id, isCampaign) =>
-      this.handleExternalScreenChange(id, isCampaign),
-    );
-
-    this.campaignShell = new CampaignShell(
-      "screen-campaign-shell",
-      this.campaignManager,
-      this.metaManager,
-      (tabId) => this.onShellTabChange(tabId),
-      () => this.showMainMenu(),
-    );
+    await this.registry.initialize({
+      onScreenChange: (id, isCampaign) =>
+        this.handleExternalScreenChange(id, isCampaign),
+      onShellTabChange: (tabId) => this.onShellTabChange(tabId),
+      onShellMainMenu: () => this.showMainMenu(),
+      onUnitClick: (unit, shift) => this.onUnitClick(unit, shift),
+      onAbortMission: () => this.abortMission(),
+      onMenuInput: (key, shift) => this.handleMenuInput(key, shift),
+      onTimeScaleChange: (scale) => {
+        this.gameClient.setTimeScale(scale);
+        this.syncSpeedUI();
+      },
+      onCopyWorldState: () => this.copyWorldState(),
+      onDebugForceWin: () =>
+        this.gameClient.applyCommand({ type: CommandType.DEBUG_FORCE_WIN }),
+      onDebugForceLose: () =>
+        this.gameClient.applyCommand({ type: CommandType.DEBUG_FORCE_LOSE }),
+      onStartMission: () =>
+        this.gameClient.applyCommand({
+          type: CommandType.START_MISSION,
+        }),
+      onDeployUnit: (unitId, x, y) =>
+        this.gameClient.applyCommand({
+          type: CommandType.DEPLOY_UNIT,
+          unitId,
+          target: { x, y },
+        }),
+      onUndeployUnit: (unitId) =>
+        this.gameClient.applyCommand({
+          type: CommandType.UNDEPLOY_UNIT,
+          unitId,
+        }),
+      onTogglePause: () => this.togglePause(),
+      onToggleDebug: (enabled) => this.gameClient.toggleDebugOverlay(enabled),
+      onToggleLos: (enabled) => this.gameClient.toggleLosOverlay(enabled),
+      onCanvasClick: (e) => this.handleCanvasClick(e),
+      getCurrentGameState: () => this.currentGameState,
+      isDebriefVisible: () => this.debriefScreen.isVisible(),
+      getSelectedUnitId: () => this.selectedUnitId,
+      getCellCoordinates: (px, py) => this.renderer!.getCellCoordinates(px, py),
+      cycleUnits: (reverse) => this.cycleUnits(reverse),
+      panMap: (direction) => this.panMap(direction),
+      panMapBy: (dx, dy) => this.panMapBy(dx, dy),
+      zoomMap: (ratio, cx, cy) => this.zoomMap(ratio, cx, cy),
+    });
 
     this.mainMenuScreen = new MainMenuScreen("screen-main-menu");
     this.missionSetupScreen = new MissionSetupScreen(
@@ -153,20 +152,6 @@ export class GameApp {
       },
     );
 
-    const mapGeneratorFactory = (config: MapGenerationConfig): MapFactory => {
-      return new MapFactory(config);
-    };
-    this.gameClient = new GameClient((config) =>
-      mapGeneratorFactory(config),
-    );
-    this.menuController = new MenuController(this.gameClient);
-    
-    this.advisorOverlay = new AdvisorOverlay(this.gameClient);
-    this.tutorialManager = new TutorialManager(this.gameClient, (msg) => {
-        this.advisorOverlay.showMessage(msg);
-    });
-    this.tutorialManager.enable();
-
     // Initialize Coordinators
     this.missionCoordinator = new MissionCoordinator(
       this.campaignShell,
@@ -174,7 +159,9 @@ export class GameApp {
       this.screenManager,
       this.menuController,
       this.campaignManager,
-      (renderer) => { this.renderer = renderer; },
+      (renderer) => {
+        this.renderer = renderer;
+      },
     );
     this.campaignFlowCoordinator = new CampaignFlowCoordinator(
       this.campaignManager,
@@ -209,67 +196,6 @@ export class GameApp {
         this.missionSetupManager.saveCurrentConfig();
       },
     );
-
-    // 2. Initialize UI managers
-    this.hudManager = new HUDManager(
-      this.menuController,
-      (unit, shift) => this.onUnitClick(unit, shift),
-      () => this.abortMission(),
-      (key, shift) => this.handleMenuInput(key, shift),
-      (scale) => {
-        this.gameClient.setTimeScale(scale);
-        this.syncSpeedUI();
-      },
-      () => this.copyWorldState(),
-      () => this.gameClient.applyCommand({ type: CommandType.DEBUG_FORCE_WIN }),
-      () => this.gameClient.applyCommand({ type: CommandType.DEBUG_FORCE_LOSE }),
-      () =>
-        this.gameClient.applyCommand({
-          type: CommandType.START_MISSION,
-        }),
-      (unitId, x, y) =>
-        this.gameClient.applyCommand({
-          type: CommandType.DEPLOY_UNIT,
-          unitId,
-          target: { x, y },
-        }),
-    );
-
-    this.inputManager = new InputManager(
-      this.screenManager,
-      this.menuController,
-      this.modalService,
-      () => this.togglePause(),
-      (key, shift) => this.handleMenuInput(key, shift),
-      () => this.abortMission(),
-      () => {
-        this.selectedUnitId = null;
-        if (this.currentGameState) this.updateUI(this.currentGameState);
-      },
-      () => this.selectedUnitId,
-      (e) => this.handleCanvasClick(e),
-      (enabled) => this.gameClient.toggleDebugOverlay(enabled),
-      (enabled) => this.gameClient.toggleLosOverlay(enabled),
-      () => this.currentGameState,
-      () => this.debriefScreen.isVisible(),
-      (unitId, x, y) =>
-        this.gameClient.applyCommand({
-          type: CommandType.DEPLOY_UNIT,
-          unitId,
-          target: { x, y },
-        }),
-      (unitId) =>
-        this.gameClient.applyCommand({
-          type: CommandType.UNDEPLOY_UNIT,
-          unitId,
-        }),
-      (px, py) => this.renderer!.getCellCoordinates(px, py),
-      (reverse) => this.cycleUnits(reverse),
-      (direction) => this.panMap(direction),
-      (dx, dy) => this.panMapBy(dx, dy),
-      (ratio, cx, cy) => this.zoomMap(ratio, cx, cy),
-    );
-    this.inputManager.init();
 
     // 3. Initialize screens
     this.campaignScreen = new CampaignScreen(
@@ -1190,7 +1116,13 @@ export class GameApp {
     container.scrollTop = (scrollY + localCY) * actualRatio - localCY;
   }
 
-  private onUnitClick(unit: Unit, shiftHeld: boolean = false) {
+  private onUnitClick(unit: Unit | null, shiftHeld: boolean = false) {
+    if (!unit) {
+      this.selectedUnitId = null;
+      if (this.currentGameState) this.updateUI(this.currentGameState);
+      return;
+    }
+
     if (this.menuController.menuState === "UNIT_SELECT") {
       this.menuController.selectUnit(unit.id);
       if (this.currentGameState) this.updateUI(this.currentGameState);
