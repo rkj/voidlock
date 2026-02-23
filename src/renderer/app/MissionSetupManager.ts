@@ -342,7 +342,7 @@ export class MissionSetupManager {
             (s) => {
               if (s.id) {
                 const rs = state.roster.find((r) => r.id === s.id);
-                if (rs) {
+                if (rs && rs.status === "Healthy") {
                   s.name = rs.name;
                   s.status = rs.status;
                   s.hp = rs.hp;
@@ -354,6 +354,7 @@ export class MissionSetupManager {
                   s.feet = rs.equipment.feet;
                   return true;
                 }
+                return false;
               }
               return true;
             },
