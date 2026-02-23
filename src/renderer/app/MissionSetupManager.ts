@@ -336,13 +336,14 @@ export class MissionSetupManager {
             leftHand: s.equipment.leftHand,
             body: s.equipment.body,
             feet: s.equipment.feet,
+            status: s.status,
           }));
         } else {
           this.currentSquad.soldiers = this.currentSquad.soldiers.filter(
             (s) => {
               if (s.id) {
                 const rs = state.roster.find((r) => r.id === s.id);
-                if (rs && rs.status === "Healthy") {
+                if (rs && (rs.status === "Healthy" || rs.status === "Wounded" || rs.status === "Dead")) {
                   s.name = rs.name;
                   s.status = rs.status;
                   s.hp = rs.hp;

@@ -11,12 +11,13 @@ describe("Mobile Responsive Drawers", () => {
   it("should toggle drawers on mobile viewport", async () => {
     const page = await getNewPage();
     await page.emulate(KnownDevices["iPhone 12"]);
-    await page.goto(E2E_URL);
+    await page.goto(E2E_URL, { waitUntil: "load" });
 
     // Navigate to mission
-    await page.waitForSelector("#btn-menu-custom");
+    await page.waitForSelector("#btn-menu-custom", { visible: true });
+    await new Promise((r) => setTimeout(r, 500)); // Stabilize
     await page.click("#btn-menu-custom");
-    await page.waitForSelector("#btn-goto-equipment");
+    await page.waitForSelector("#btn-goto-equipment", { visible: true });
     await page.click("#btn-goto-equipment");
 
     // In Equipment Screen, click "Confirm Squad"

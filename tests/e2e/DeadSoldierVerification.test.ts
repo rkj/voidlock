@@ -20,7 +20,7 @@ describe("Visual Verification - Dead Soldier Equipment", () => {
 
   it("should show disabled equipment for dead soldiers", async () => {
     try {
-      await page.goto(E2E_URL, { waitUntil: "networkidle2" });
+      await page.goto(E2E_URL, { waitUntil: "load" });
 
       await page.evaluate((version) => {
         const campaignState = {
@@ -108,6 +108,7 @@ describe("Visual Verification - Dead Soldier Equipment", () => {
                 id: "dead-1",
                 name: "Corpse McDead",
                 archetypeId: "assault",
+                status: "Dead",
                 rightHand: "pulse_rifle",
                 leftHand: "combat_knife",
               },
@@ -147,12 +148,12 @@ describe("Visual Verification - Dead Soldier Equipment", () => {
         window.location.reload();
       }, pkg.version);
 
-      await page.waitForNavigation({ waitUntil: "networkidle2" });
+      await page.waitForNavigation({ waitUntil: "load" });
       await new Promise((r) => setTimeout(r, 2000)); // Wait for render
 
       // Select the dead soldier in the roster list (it's the only one)
       // Note: In Equipment screen, they are in the left panel
-      await page.waitForSelector(".soldier-item.dead", { visible: true });
+      await page.waitForSelector(".soldier-item.dead", { visible: true, timeout: 5000 });
       await page.click(".soldier-item.dead");
       await new Promise((r) => setTimeout(r, 1000));
 
@@ -173,19 +174,11 @@ describe("Visual Verification - Dead Soldier Equipment", () => {
       const isArmoryDisabled = await page.evaluate(() => {
         const app = (window as any).GameAppInstance;
         const inspector = app.equipmentScreen.inspector;
-        console.log("Inspector isCampaign:", inspector.isCampaign);
-        console.log("Inspector soldier:", inspector.soldier);
-        console.log("IsDead():", inspector.isDead());
 
         // Armory items are menu-items with armory-item class
         const items = Array.from(
           document.querySelectorAll(".menu-item.clickable.armory-item"),
         );
-        console.log("Armory items found:", items.length);
-        if (items.length > 0) {
-            console.log("First armory item classes:", items[0].className);
-            console.log("First armory item HTML:", items[0].outerHTML);
-        }
         return items[0]?.classList.contains("disabled");
       });
       expect(isArmoryDisabled).toBe(true);
