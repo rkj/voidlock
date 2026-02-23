@@ -3,6 +3,7 @@ import { MissionReport } from "@src/shared/campaign_types";
 import { MissionCoordinator } from "./MissionCoordinator";
 import { MissionSetupManager } from "./MissionSetupManager";
 import { NavigationOrchestrator } from "./NavigationOrchestrator";
+import { UIOrchestrator } from "./UIOrchestrator";
 import { GameClient } from "@src/engine/GameClient";
 import { CampaignManager } from "../campaign/CampaignManager";
 import { HUDManager } from "../ui/HUDManager";
@@ -15,6 +16,7 @@ export interface MissionRunnerDependencies {
   missionCoordinator: MissionCoordinator;
   missionSetupManager: MissionSetupManager;
   navigationOrchestrator?: NavigationOrchestrator;
+  uiOrchestrator?: UIOrchestrator;
   gameClient: GameClient;
   campaignManager: CampaignManager;
   hudManager: HUDManager;
@@ -26,15 +28,23 @@ export class MissionRunner {
   private currentGameState: GameState | null = null;
   private selectedUnitId: string | null = null;
   private navigationOrchestrator!: NavigationOrchestrator;
+  private uiOrchestrator!: UIOrchestrator;
 
   constructor(private deps: MissionRunnerDependencies) {
     if (deps.navigationOrchestrator) {
       this.navigationOrchestrator = deps.navigationOrchestrator;
     }
+    if (deps.uiOrchestrator) {
+      this.uiOrchestrator = deps.uiOrchestrator;
+    }
   }
 
   public setNavigationOrchestrator(nav: NavigationOrchestrator) {
     this.navigationOrchestrator = nav;
+  }
+
+  public setUIOrchestrator(ui: UIOrchestrator) {
+    this.uiOrchestrator = ui;
   }
 
   public getSelectedUnitId(): string | null {
@@ -50,7 +60,7 @@ export class MissionRunner {
   }
 
   public launchMission() {
-    this.setMissionHUDVisible(true);
+    this.uiOrchestrator.setMissionHUDVisible(true);
     this.navigationOrchestrator.switchScreen("mission", false, false);
 
     const config = this.deps.missionSetupManager.saveCurrentConfig();
@@ -80,7 +90,7 @@ export class MissionRunner {
   }
 
   public resumeMission() {
-    this.setMissionHUDVisible(true);
+    this.uiOrchestrator.setMissionHUDVisible(true);
     this.navigationOrchestrator.switchScreen("mission", false, false);
 
     this.deps.missionCoordinator.resumeMission(
@@ -141,30 +151,10 @@ export class MissionRunner {
   }
 
   public syncSpeedUI() {
-    const isPaused = this.deps.gameClient.getIsPaused();
-    const timeScale = this.deps.gameClient.getTimeScale();
-
-    const speedSlider = document.getElementById(
-      "speed-slider",
-    ) as HTMLInputElement;
-    if (speedSlider) {
-      speedSlider.value = timeScale.toString();
-    }
-
-    const btnPause = document.getElementById("btn-pause");
-    if (btnPause) {
-      btnPause.textContent = isPaused ? "▶" : "⏸";
-      btnPause.title = isPaused ? "Resume" : "Pause";
-    }
+    this.uiOrchestrator.syncSpeedUI();
   }
 
   public setMissionHUDVisible(visible: boolean) {
-    const topBar = document.getElementById("top-bar");
-    const soldierPanel = document.getElementById("soldier-panel");
-    const rightPanel = document.getElementById("right-panel");
-    const display = visible ? "flex" : "none";
-    if (topBar) topBar.style.display = display;
-    if (soldierPanel) soldierPanel.style.display = display;
-    if (rightPanel) rightPanel.style.display = display;
+    this.uiOrchestrator.setMissionHUDVisible(visible);
   }
 }

@@ -24,6 +24,7 @@ import { MissionRunner } from "./MissionRunner";
 import { InputOrchestrator } from "./InputOrchestrator";
 import { NavigationOrchestrator, NavigationScreens } from "./NavigationOrchestrator";
 import { SquadBuilder } from "../components/SquadBuilder";
+import { UIOrchestrator } from "./UIOrchestrator";
 
 export interface AppServiceRegistryConfig {
   onScreenChange: (id: ScreenId, isCampaign: boolean) => void;
@@ -74,6 +75,7 @@ export class AppServiceRegistry {
   public missionRunner!: MissionRunner;
   public inputOrchestrator!: InputOrchestrator;
   public navigationOrchestrator!: NavigationOrchestrator;
+  public uiOrchestrator!: UIOrchestrator;
 
   public async initialize(config: AppServiceRegistryConfig) {
     // 1. Initialize core managers
@@ -151,6 +153,12 @@ export class AppServiceRegistry {
       config.onDeployUnit,
     );
 
+    this.uiOrchestrator = new UIOrchestrator({
+      gameClient: this.gameClient,
+      modalService: this.modalService,
+      getCurrentGameState: () => config.getCurrentGameState(),
+    });
+
     this.missionRunner = new MissionRunner({
       missionCoordinator: this.missionCoordinator,
       missionSetupManager: this.missionSetupManager,
@@ -159,6 +167,7 @@ export class AppServiceRegistry {
       hudManager: this.hudManager,
       menuController: this.menuController,
       modalService: this.modalService,
+      uiOrchestrator: this.uiOrchestrator,
     });
 
     this.inputOrchestrator = new InputOrchestrator({

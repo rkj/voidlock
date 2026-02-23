@@ -4,6 +4,8 @@ import { CampaignManager } from "../campaign/CampaignManager";
 import { ThemeManager } from "../ThemeManager";
 import { MissionSetupManager } from "./MissionSetupManager";
 import { SquadBuilder } from "../components/SquadBuilder";
+import { CampaignNode } from "@src/shared/campaign_types";
+import { MissionType, SquadConfig } from "@src/shared/types";
 import { MainMenuScreen } from "../screens/MainMenuScreen";
 import { CampaignScreen } from "../screens/CampaignScreen";
 import { DebriefScreen } from "../screens/DebriefScreen";
@@ -297,5 +299,58 @@ export class NavigationOrchestrator {
   public applyCampaignTheme() {
     const themeId = this.missionSetupManager.currentThemeId;
     this.themeManager.setTheme(themeId);
+  }
+
+  public onCampaignNodeSelect(node: CampaignNode) {
+    this.missionSetupManager.currentCampaignNode = node;
+    this.missionSetupManager.currentSeed = node.mapSeed;
+    this.missionSetupManager.currentMissionType = node.missionType || MissionType.RecoverIntel;
+    this.missionSetupManager.currentStaticMapData = undefined;
+
+    this.applyCampaignTheme();
+    this.missionSetupManager.loadAndApplyConfig(true);
+    this.missionSetupManager.saveCurrentConfig();
+    this.screens.equipment.setCampaign(true);
+    this.screens.equipment.setHasNodeSelected(true);
+    this.screens.equipment.updateConfig(this.missionSetupManager.currentSquad);
+    this.switchScreen("equipment", true);
+    this.campaignShell.show("campaign", "ready-room", true);
+  }
+
+  public onEquipmentConfirmed(config: SquadConfig) {
+    if (this.missionSetupManager.currentCampaignNode) {
+      config.soldiers.forEach((soldier) => {
+        if (soldier.id) {
+          this.campaignManager.assignEquipment(soldier.id, {
+            rightHand: soldier.rightHand,
+            leftHand: soldier.leftHand,
+            body: soldier.body,
+            feet: soldier.feet,
+          });
+        }
+      });
+      this.missionSetupManager.currentSquad = config;
+      this.missionSetupManager.saveCurrentConfig();
+      this.switchScreen("campaign", true);
+      this.campaignShell.show("campaign", "sector-map");
+    } else {
+      this.missionSetupManager.currentSquad = config;
+      this.missionSetupManager.saveCurrentConfig();
+      this.missionSetupManager.loadAndApplyConfig(false);
+      this.squadBuilder.update(
+        this.missionSetupManager.currentSquad,
+        this.missionSetupManager.currentMissionType,
+        false,
+      );
+      this.switchScreen("mission-setup", false);
+      this.campaignShell.show("custom", "setup");
+    }
+  }
+
+  public onShowSummary() {
+    const state = this.campaignManager.getState();
+    if (state) {
+      this.switchScreen("campaign-summary", true, true, state);
+    }
   }
 }
