@@ -15,10 +15,6 @@ import {
   CampaignNode,
   MissionReport,
 } from "@src/shared/campaign_types";
-import {
-  CampaignTabId,
-  CampaignShellMode,
-} from "@src/renderer/ui/CampaignShell";
 import pkg from "../../../package.json";
 import { ConfigManager } from "../ConfigManager";
 import { MissionCoordinator } from "./MissionCoordinator";
@@ -34,7 +30,7 @@ import { EngineeringScreen } from "../screens/EngineeringScreen";
 import { SettingsScreen } from "../screens/SettingsScreen";
 import { MainMenuScreen } from "../screens/MainMenuScreen";
 import { SquadBuilder } from "../components/SquadBuilder";
-import { ScreenId } from "../ScreenManager";
+import { NavigationOrchestrator } from "./NavigationOrchestrator";
 import { Logger } from "@src/shared/Logger";
 import { GlobalShortcuts } from "../GlobalShortcuts";
 import { TooltipManager } from "../ui/TooltipManager";
@@ -74,6 +70,7 @@ export class GameApp {
   private missionCoordinator!: MissionCoordinator;
   private campaignFlowCoordinator!: CampaignFlowCoordinator;
   private missionSetupManager!: MissionSetupManager;
+  private navigationOrchestrator!: NavigationOrchestrator;
 
   // Components
   private squadBuilder!: SquadBuilder;
@@ -100,8 +97,8 @@ export class GameApp {
   public async initialize() {
     await this.registry.initialize({
       onScreenChange: (id, isCampaign) =>
-        this.handleExternalScreenChange(id, isCampaign),
-      onShellTabChange: (tabId) => this.onShellTabChange(tabId),
+        this.navigationOrchestrator.handleExternalScreenChange(id, isCampaign),
+      onShellTabChange: (tabId) => this.navigationOrchestrator.onShellTabChange(tabId),
       onShellMainMenu: () => this.showMainMenu(),
       onUnitClick: (unit, shift) => this.onUnitClick(unit, shift),
       onAbortMission: () => this.abortMission(),
@@ -220,12 +217,12 @@ export class GameApp {
           state &&
           (state.status === "Victory" || state.status === "Defeat")
         ) {
-          this.switchScreen("campaign-summary", true, true, state);
+          this.navigationOrchestrator.switchScreen("campaign-summary", true, true, state);
           return;
         }
 
         if (this.missionSetupManager.currentCampaignNode) {
-          this.switchScreen("campaign", true);
+          this.navigationOrchestrator.switchScreen("campaign", true);
           this.campaignShell.show("campaign", "sector-map");
         } else {
           this.campaignShell.hide();
@@ -249,7 +246,7 @@ export class GameApp {
       () => {
         this.screenManager.goBack();
         const screen = this.screenManager.getCurrentScreen();
-        this.handleExternalScreenChange(
+        this.navigationOrchestrator.handleExternalScreenChange(
           screen,
           !!this.campaignManager.getState(),
         );
@@ -277,7 +274,7 @@ export class GameApp {
       () => {
         this.screenManager.goBack();
         const screen = this.screenManager.getCurrentScreen();
-        this.handleExternalScreenChange(
+        this.navigationOrchestrator.handleExternalScreenChange(
           screen,
           !!this.campaignManager.getState(),
         );
@@ -293,6 +290,31 @@ export class GameApp {
         this.campaignManager.deleteSave();
         this.showMainMenu();
       },
+    );
+
+    this.navigationOrchestrator = new NavigationOrchestrator(
+      this.screenManager,
+      this.campaignShell,
+      this.campaignManager,
+      this.themeManager,
+      this.missionSetupManager,
+      this.squadBuilder,
+      {
+        mainMenu: this.mainMenuScreen,
+        campaign: this.campaignScreen,
+        debrief: this.debriefScreen,
+        equipment: this.equipmentScreen,
+        missionSetup: this.missionSetupScreen,
+        campaignSummary: this.campaignSummaryScreen,
+        statistics: this.statisticsScreen,
+        engineering: this.engineeringScreen,
+        settings: this.settingsScreen,
+      },
+      {
+        showMainMenu: () => this.showMainMenu(),
+        launchMission: () => this.launchMission(),
+        resumeMission: () => this.resumeMission(),
+      }
     );
 
     // 4. Setup global UI and shortcuts
@@ -312,13 +334,13 @@ export class GameApp {
           this.missionSetupManager.currentMissionType,
           false,
         );
-        this.switchScreen("mission-setup", false);
+        this.navigationOrchestrator.switchScreen("mission-setup", false);
       },
       onCampaignMenu: () => {
         this.campaignFlowCoordinator.onCampaignMenu(
-          () => this.applyCampaignTheme(),
-          (state) => this.switchScreen("campaign-summary", true, true, state),
-          () => this.switchScreen("campaign", true),
+          () => this.navigationOrchestrator.applyCampaignTheme(),
+          (state) => this.navigationOrchestrator.switchScreen("campaign-summary", true, true, state),
+          () => this.navigationOrchestrator.switchScreen("campaign", true),
         );
       },
       onResetData: () => this.campaignFlowCoordinator.onResetData(),
@@ -328,7 +350,7 @@ export class GameApp {
         this.equipmentScreen.updateConfig(
           this.missionSetupManager.currentSquad,
         );
-        this.switchScreen("equipment", isCampaign);
+        this.navigationOrchestrator.switchScreen("equipment", isCampaign);
         if (isCampaign) {
           this.campaignShell.show("campaign", "ready-room", true);
         } else {
@@ -341,12 +363,12 @@ export class GameApp {
       onConvertAscii: (ascii) => this.missionSetupManager.convertAscii(ascii),
       onExportReplay: () => this.exportReplay(),
       onShowStatistics: () => {
-        this.switchScreen("statistics", false);
+        this.navigationOrchestrator.switchScreen("statistics", false);
         this.campaignShell.show("statistics", "stats");
       },
       onEngineeringMenu: () => {
         const state = this.campaignManager.getState();
-        this.switchScreen("engineering", !!state);
+        this.navigationOrchestrator.switchScreen("engineering", !!state);
         if (state) {
           this.campaignShell.show("campaign", "engineering");
         } else {
@@ -355,7 +377,7 @@ export class GameApp {
       },
       onSettingsMenu: () => {
         const state = this.campaignManager.getState();
-        this.switchScreen("settings", !!state);
+        this.navigationOrchestrator.switchScreen("settings", !!state);
         if (state) {
           this.campaignShell.show("campaign", "settings");
         } else {
@@ -504,7 +526,7 @@ export class GameApp {
                 this.themeManager.setTheme(replayData.themeId);
               }
 
-              this.switchScreen(
+              this.navigationOrchestrator.switchScreen(
                 "debrief",
                 false,
                 true,
@@ -538,273 +560,23 @@ export class GameApp {
     this.setupResponsiveDrawers();
   }
 
-  /**
-   * Centralized screen switcher that ensures all other screens are hidden
-   * (and their input contexts popped) before showing the target screen.
-   */
-  private switchScreen(
-    id: ScreenId,
-    isCampaign: boolean = false,
-    updateHash: boolean = true,
-    ...showArgs: unknown[]
-  ) {
-    // 1. Hide ALL screens to clear input contexts and DOM
-    this.allScreens.forEach((s) => s.hide());
 
-    // 2. Hide CampaignShell for non-campaign screens (Main Menu, Mission, etc.)
-    if (id === "main-menu" || id === "mission") {
-      this.campaignShell.hide();
-    }
 
-    // 3. Show target screen object
-    const screenObj = this.getScreenObject(id);
-    if (screenObj) {
-      // We use Function.apply here because screens have different show() signatures
-      (screenObj.show as Function).apply(screenObj, showArgs);
-    }
 
-    // 4. Update ScreenManager (DOM display and Hash)
-    this.screenManager.show(id, updateHash, isCampaign);
-  }
-
-  private get allScreens(): { hide: () => void }[] {
-    return [
-      this.mainMenuScreen,
-      this.campaignScreen,
-      this.debriefScreen,
-      this.equipmentScreen,
-      this.missionSetupScreen,
-      this.campaignSummaryScreen,
-      this.statisticsScreen,
-      this.engineeringScreen,
-      this.settingsScreen,
-    ].filter((s) => !!s);
-  }
-
-  private getScreenObject(id: ScreenId): { show: Function; hide: Function } | null {
-    switch (id) {
-      case "main-menu":
-        return this.mainMenuScreen;
-      case "campaign":
-        return this.campaignScreen;
-      case "mission-setup":
-        return this.missionSetupScreen;
-      case "equipment":
-        return this.equipmentScreen;
-      case "debrief":
-        return this.debriefScreen;
-      case "campaign-summary":
-        return this.campaignSummaryScreen;
-      case "statistics":
-        return this.statisticsScreen;
-      case "engineering":
-        return this.engineeringScreen;
-      case "settings":
-        return this.settingsScreen;
-      default:
-        return null;
-    }
-  }
-
-  private onShellTabChange(tabId: CampaignTabId) {
-    const hasCampaign = !!this.campaignManager.getState();
-    const isCustomFlow =
-      !hasCampaign && this.missionSetupManager.currentCampaignNode === null;
-
-    let mode: CampaignShellMode = hasCampaign ? "campaign" : "statistics";
-    if (
-      isCustomFlow &&
-      (tabId === "setup" || tabId === "settings" || tabId === "stats")
-    ) {
-      mode = "custom";
-    }
-
-    let actualTabId = tabId;
-
-    switch (tabId) {
-      case "setup":
-        if (hasCampaign || !isCustomFlow) {
-          // If we somehow get here in campaign, go to ready-room
-          this.missionSetupManager.loadAndApplyConfig(true);
-          this.equipmentScreen.setCampaign(true);
-          this.equipmentScreen.setHasNodeSelected(!!this.missionSetupManager.currentCampaignNode);
-          this.equipmentScreen.updateConfig(
-            this.missionSetupManager.currentSquad,
-          );
-          this.switchScreen("equipment", true);
-          actualTabId = "ready-room";
-        } else {
-          this.squadBuilder.update(
-            this.missionSetupManager.currentSquad,
-            this.missionSetupManager.currentMissionType,
-            false,
-          );
-          this.switchScreen("mission-setup", false);
-        }
-        break;
-      case "sector-map":
-        this.switchScreen("campaign", true);
-        break;
-      case "ready-room": {
-        const hasCampaign = !!this.campaignManager.getState();
-        this.missionSetupManager.loadAndApplyConfig(hasCampaign);
-        this.equipmentScreen.setCampaign(hasCampaign);
-        this.equipmentScreen.setHasNodeSelected(!!this.missionSetupManager.currentCampaignNode);
-        this.equipmentScreen.updateConfig(
-          this.missionSetupManager.currentSquad,
-        );
-        this.switchScreen("equipment", hasCampaign);
-        break;
-      }
-      case "engineering":
-        this.switchScreen("engineering", hasCampaign);
-        break;
-      case "stats":
-        this.switchScreen("statistics", false);
-        break;
-      case "settings":
-        this.switchScreen("settings", hasCampaign || isCustomFlow);
-        break;
-    }
-
-    this.campaignShell.show(mode, actualTabId);
-  }
 
   public start() {
     const persisted = this.screenManager.loadPersistedState();
     if (persisted) {
-      this.handleExternalScreenChange(persisted.screenId, persisted.isCampaign);
+      this.navigationOrchestrator.handleExternalScreenChange(persisted.screenId, persisted.isCampaign);
     } else {
       this.showMainMenu();
     }
   }
 
-  private handleExternalScreenChange(
-    id: ScreenId,
-    isCampaign: boolean = false,
-  ) {
-    switch (id) {
-      case "campaign": {
-        this.applyCampaignTheme();
-        const state = this.campaignManager.getState();
-        if (
-          state &&
-          (state.status === "Victory" || state.status === "Defeat")
-        ) {
-          this.switchScreen("campaign-summary", true, true, state);
-        } else {
-          this.switchScreen("campaign", true);
-          this.campaignShell.show("campaign", "sector-map");
-        }
-        break;
-      }
-      case "campaign-summary": {
-        const state = this.campaignManager.getState();
-        if (state) {
-          this.switchScreen("campaign-summary", true, true, state);
-        } else {
-          this.showMainMenu();
-        }
-        break;
-      }
-      case "mission-setup": {
-        const rehydrated = isCampaign
-          ? this.missionSetupManager.rehydrateCampaignNode()
-          : false;
 
-        if (rehydrated) {
-          // Redirect to equipment screen (Spec: Sector -> Equipment -> Launch)
-          this.applyCampaignTheme();
-          this.missionSetupManager.loadAndApplyConfig(true);
-          this.equipmentScreen.setCampaign(true);
-          this.equipmentScreen.setHasNodeSelected(true);
-          this.equipmentScreen.updateConfig(
-            this.missionSetupManager.currentSquad,
-          );
-          this.switchScreen("equipment", true);
-          this.campaignShell.show("campaign", "ready-room", true);
-        } else {
-          this.missionSetupManager.loadAndApplyConfig(false);
-          this.campaignShell.show("custom", "setup");
-          this.squadBuilder.update(
-            this.missionSetupManager.currentSquad,
-            this.missionSetupManager.currentMissionType,
-            false,
-          );
-          this.switchScreen("mission-setup", false);
-        }
-        break;
-      }
-      case "equipment": {
-        if (isCampaign && !this.missionSetupManager.currentCampaignNode) {
-          this.missionSetupManager.rehydrateCampaignNode();
-        }
-        this.applyCampaignTheme();
-        const isCurrentlyCampaign =
-          isCampaign || !!this.missionSetupManager.currentCampaignNode;
-        this.missionSetupManager.loadAndApplyConfig(isCurrentlyCampaign);
-        this.equipmentScreen.setCampaign(isCurrentlyCampaign);
-        this.equipmentScreen.updateConfig(
-          this.missionSetupManager.currentSquad,
-        );
-        this.switchScreen("equipment", isCurrentlyCampaign);
-        if (isCurrentlyCampaign) {
-          this.campaignShell.show("campaign", "ready-room", true);
-        } else {
-          this.campaignShell.show("custom", "setup");
-        }
-        break;
-      }
-      case "statistics":
-        this.switchScreen("statistics", false);
-        if (
-          !isCampaign &&
-          this.missionSetupManager.currentCampaignNode === null &&
-          !this.campaignManager.getState()
-        ) {
-          this.campaignShell.show("custom", "stats");
-        } else {
-          this.campaignShell.show("statistics", "stats");
-        }
-        break;
-      case "engineering":
-        this.switchScreen("engineering", isCampaign || !!this.campaignManager.getState());
-        if (isCampaign || this.campaignManager.getState()) {
-          this.campaignShell.show("campaign", "engineering");
-        } else {
-          this.campaignShell.show("statistics", "engineering");
-        }
-        break;
-      case "settings": {
-        const state = this.campaignManager.getState();
-        const isCustomFlow =
-          !isCampaign && this.missionSetupManager.currentCampaignNode === null;
-        this.switchScreen("settings", isCampaign || !!state || isCustomFlow);
-        if (state) {
-          this.campaignShell.show("campaign", "settings");
-        } else if (isCustomFlow) {
-          this.campaignShell.show("custom", "settings");
-        } else {
-          this.campaignShell.show("global", "settings", false);
-        }
-        break;
-      }
-      case "mission":
-        this.campaignShell.hide();
-        this.resumeMission();
-        break;
-      case "main-menu":
-        this.showMainMenu();
-        break;
-      case "debrief":
-        // Debrief requires a report which we don't have from URL
-        this.showMainMenu();
-        break;
-    }
-  }
 
   private showMainMenu() {
-    this.switchScreen("main-menu");
+    this.navigationOrchestrator.switchScreen("main-menu");
   }
 
   private onMissionComplete(report: MissionReport) {
@@ -818,7 +590,7 @@ export class GameApp {
     const replayData = this.gameClient.getReplayData();
 
     // Show debrief screen
-    this.switchScreen(
+    this.navigationOrchestrator.switchScreen(
       "debrief",
       false,
       true,
@@ -893,7 +665,7 @@ export class GameApp {
 
       // Return to sector map (Spec: flow is Sector -> Equipment -> Launch)
       // Confirm Squad just saves it and goes back
-      this.switchScreen("campaign", true);
+      this.navigationOrchestrator.switchScreen("campaign", true);
       this.campaignShell.show("campaign", "sector-map");
     } else {
       // In custom, just update the setup manager
@@ -907,7 +679,7 @@ export class GameApp {
         this.missionSetupManager.currentMissionType,
         false,
       );
-      this.switchScreen("mission-setup", false);
+      this.navigationOrchestrator.switchScreen("mission-setup", false);
       this.campaignShell.show("custom", "setup");
     }
   }
@@ -915,7 +687,7 @@ export class GameApp {
   private onShowSummary() {
     const state = this.campaignManager.getState();
     if (state) {
-      this.switchScreen("campaign-summary", true, true, state);
+      this.navigationOrchestrator.switchScreen("campaign-summary", true, true, state);
     }
   }
 
@@ -950,10 +722,7 @@ export class GameApp {
     URL.revokeObjectURL(url);
   }
 
-  private applyCampaignTheme() {
-    const themeId = this.missionSetupManager.currentThemeId;
-    this.themeManager.setTheme(themeId);
-  }
+
 
   private onCampaignNodeSelect(node: CampaignNode) {
     // 1. Set the node in setup manager
@@ -980,7 +749,7 @@ export class GameApp {
     }
 
     // 5. Navigate to equipment screen (skipping mission-setup)
-    this.applyCampaignTheme();
+    this.navigationOrchestrator.applyCampaignTheme();
     this.missionSetupManager.loadAndApplyConfig(true);
     this.missionSetupManager.saveCurrentConfig();
     this.equipmentScreen.setCampaign(true);
@@ -988,14 +757,14 @@ export class GameApp {
     this.equipmentScreen.updateConfig(
       this.missionSetupManager.currentSquad,
     );
-    this.switchScreen("equipment", true);
+    this.navigationOrchestrator.switchScreen("equipment", true);
     this.campaignShell.show("campaign", "ready-room", true);
   }
 
   private onCampaignStart() {
     // Show the campaign shell and the campaign screen (sector map)
     this.campaignShell.show("campaign", "sector-map");
-    this.switchScreen("campaign", true);
+    this.navigationOrchestrator.switchScreen("campaign", true);
   }
 
   private handleMenuInput(key: string, shiftHeld: boolean = false) {
@@ -1213,7 +982,7 @@ export class GameApp {
 
   private launchMission() {
     this.setMissionHUDVisible(true);
-    this.switchScreen("mission", false, false);
+    this.navigationOrchestrator.switchScreen("mission", false, false);
 
     const config = this.missionSetupManager.saveCurrentConfig();
 
@@ -1242,7 +1011,7 @@ export class GameApp {
 
   private resumeMission() {
     this.setMissionHUDVisible(true);
-    this.switchScreen("mission", false, false);
+    this.navigationOrchestrator.switchScreen("mission", false, false);
 
     this.missionCoordinator.resumeMission(
       (report) => {
@@ -1253,7 +1022,7 @@ export class GameApp {
       () => this.syncSpeedUI(),
       (node) => {
         this.missionSetupManager.currentCampaignNode = node;
-        if (node) this.applyCampaignTheme();
+        if (node) this.navigationOrchestrator.applyCampaignTheme();
       },
     );
   }
