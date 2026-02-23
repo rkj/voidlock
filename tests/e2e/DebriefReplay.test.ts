@@ -9,6 +9,7 @@ describe("Debrief Replay E2E", () => {
 
   beforeAll(async () => {
     page = await getNewPage();
+    page.on("console", msg => console.log("BROWSER:", msg.text()));
     await page.setViewport({ width: 1280, height: 720 });
   });
 
@@ -23,17 +24,53 @@ describe("Debrief Replay E2E", () => {
     // 1. Start Custom Mission
     await page.click("#btn-menu-custom");
     await page.waitForSelector("#toggle-debug-overlay");
-    await page.click("#toggle-debug-overlay");
+    
+    // Explicitly enable debug overlay via evaluate to ensure state is updated
+    await page.evaluate(() => {
+        const checkbox = document.getElementById("toggle-debug-overlay") as HTMLInputElement;
+        if (checkbox) {
+            checkbox.checked = true;
+            checkbox.dispatchEvent(new Event("change"));
+        }
+        // Also ensure it is saved in MissionSetupManager
+        const app = (window as any).GameAppInstance;
+        if (app && app.registry && app.registry.missionSetupManager) {
+            app.registry.missionSetupManager.debugOverlayEnabled = true;
+            app.registry.missionSetupManager.saveCurrentConfig();
+        }
+    });
+
     await page.waitForSelector("#btn-goto-equipment");
     await page.click("#btn-goto-equipment");
 
     // 2. Confirm Squad and Launch
     await page.waitForSelector(".equipment-screen");
-    const [confirmBtn] = await page.$$("button.primary-button");
+    const [confirmBtn] = await page.$$('button[data-focus-id="btn-confirm-squad"]');
     await confirmBtn.evaluate((b) => (b as HTMLElement).click());
 
-    // 3. Wait for game to start
+    // 2.5 Click Launch Mission on Setup screen
+    await page.waitForSelector("#btn-launch-mission");
+    await page.click("#btn-launch-mission");
+
+    // 3. Wait for game to start (Deployment Phase)
     await page.waitForSelector("#game-canvas");
+    
+    // 3.5 Handle Deployment
+    await page.waitForSelector("#btn-autofill-deployment");
+    await page.click("#btn-autofill-deployment");
+    await page.click("#btn-start-mission");
+
+    // Explicitly enable debug overlay via GameClient once mission is playing
+    await page.evaluate(() => {
+        const app = (window as any).GameAppInstance;
+        if (app && app.registry && app.registry.gameClient) {
+            app.registry.gameClient.toggleDebugOverlay(true);
+        }
+    });
+
+    // Wait for mission to actually start playing
+    await new Promise(r => setTimeout(r, 2000));
+    await page.screenshot({ path: "tests/e2e/__snapshots__/debug_tactical_pre_win.png" });
 
     // 4. Force Win via Debug
     await page.waitForSelector("#btn-force-win", { timeout: 10000 });

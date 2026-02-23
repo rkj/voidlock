@@ -1,17 +1,13 @@
-import puppeteer, { Browser, Page } from "puppeteer";
 import { describe, it, beforeAll, afterAll, expect } from "vitest";
+import { getNewPage, closeBrowser } from "./utils/puppeteer";
+import type { Page } from "puppeteer";
 import { E2E_URL } from "./config";
 
 describe("Keyboard Navigation Differentiation", () => {
-  let browser: Browser;
   let page: Page;
 
   beforeAll(async () => {
-    browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
-    page = await browser.newPage();
+    page = await getNewPage();
     await page.setViewport({ width: 1024, height: 768 });
     await page.goto(E2E_URL);
     await page.evaluate(() => localStorage.clear());
@@ -20,7 +16,7 @@ describe("Keyboard Navigation Differentiation", () => {
   });
 
   afterAll(async () => {
-    await browser.close();
+    await closeBrowser();
   });
 
   it("verifies that ArrowDown navigates while ArrowRight is ignored on vertical Main Menu", async () => {

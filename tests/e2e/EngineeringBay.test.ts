@@ -27,11 +27,11 @@ describe("Engineering Bay E2E Verification", () => {
 
     // Check if we are at the wizard or campaign screen
     const isWizard = await page.evaluate(
-      () => !!document.querySelector("#screen-new-campaign-wizard"),
+      () => !!document.querySelector(".campaign-setup-wizard"),
     );
     if (isWizard) {
       await page.click(".difficulty-card:nth-child(1)");
-      await page.click("#btn-wizard-start");
+      await page.click('[data-focus-id="btn-start-campaign"]');
       await new Promise((r) => setTimeout(r, 1000));
     }
 

@@ -68,7 +68,8 @@ describe("voidlock-1yb5o: Auto-Fill Overlap Repro", () => {
     // Verify we have 4 units pending
     const unitStates = await page.evaluate(() => {
         // @ts-ignore
-        const state = window.GameAppInstance.currentGameState;
+        const app = window.GameAppInstance;
+        const state = app.registry.missionRunner.getCurrentGameState();
         return state.units.map((u: any) => ({ id: u.id, archetypeId: u.archetypeId, isDeployed: u.isDeployed }));
     });
     console.log("Initial Unit States:", JSON.stringify(unitStates));

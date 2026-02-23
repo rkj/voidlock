@@ -28,5 +28,6 @@ export async function closeBrowser(): Promise<void> {
 
 export async function getNewPage(): Promise<Page> {
   const browser = await getBrowser();
-  return await browser.newPage();
+  const context = await browser.createBrowserContext();
+  return await context.newPage();
 }

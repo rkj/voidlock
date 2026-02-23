@@ -35,11 +35,20 @@ describe("Memory Usage Regression", () => {
       await page.waitForSelector("#btn-goto-equipment", { visible: true });
       await page.click("#btn-goto-equipment");
 
-      // 3. Confirm Squad -> Launch Mission
+      // 3. Confirm Squad
       await page.waitForSelector(".equipment-screen .primary-button", {
         visible: true,
       });
       await page.click(".equipment-screen .primary-button");
+
+      // 3.5 Launch Mission from Setup
+      await page.waitForSelector("#btn-launch-mission", { visible: true });
+      await page.click("#btn-launch-mission");
+
+      // 3.6 Handle Deployment
+      await page.waitForSelector("#btn-autofill-deployment");
+      await page.click("#btn-autofill-deployment");
+      await page.click("#btn-start-mission");
 
       // 4. Wait for game to load
       await page.waitForSelector("#game-canvas", { visible: true });

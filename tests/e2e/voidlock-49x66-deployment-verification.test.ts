@@ -105,7 +105,7 @@ describe("voidlock-49x66: Deployment Verification", () => {
         // @ts-ignore
         const app = window.GameAppInstance;
         if (!app || !app.renderer) return null;
-        const state = app.currentGameState;
+        const state = app.registry.missionRunner.getCurrentGameState();
         const spawns = state.map.squadSpawns || (state.map.squadSpawn ? [state.map.squadSpawn] : []);
         // @ts-ignore
         const cellSize = app.renderer.cellSize;
@@ -197,7 +197,8 @@ describe("voidlock-49x66: Deployment Verification", () => {
     const deployedUnitData = await page.evaluate((id) => {
         // @ts-ignore
         const app = window.GameAppInstance;
-        const unit = app.currentGameState.units.find((u: any) => u.id === id);
+        const state = app.registry.missionRunner.getCurrentGameState();
+        const unit = state.units.find((u: any) => u.id === id);
         // @ts-ignore
         const cellSize = app.renderer.cellSize;
         const container = document.getElementById("game-container");

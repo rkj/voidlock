@@ -56,7 +56,8 @@ describe("voidlock-19uqe: Unit Overlap Visual Verification", () => {
     // Check unit positions in GameState
     const data = await page.evaluate(() => {
         // @ts-ignore
-        const state = window.GameAppInstance.currentGameState;
+        const app = window.GameAppInstance;
+        const state = app.registry.missionRunner.getCurrentGameState();
         return {
             units: state.units.map((u: any) => ({
                 id: u.id,
