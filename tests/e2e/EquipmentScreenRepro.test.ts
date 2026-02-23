@@ -77,9 +77,9 @@ describe("Equipment Screen Layout Clipping Repro", () => {
     await page.evaluate(() => {
       const app = (window as any).GameAppInstance;
       // @ts-ignore
-      app.equipmentScreen.updateConfig(app.missionSetupManager.currentSquad);
+      app.equipmentScreen.updateConfig(app.registry.missionSetupManager.currentSquad);
       // @ts-ignore
-      app.screenManager.show("equipment");
+      app.registry.screenManager.show("equipment");
     });
 
     // 4. Wait for Equipment Screen content

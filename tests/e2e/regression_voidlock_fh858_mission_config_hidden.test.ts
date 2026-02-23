@@ -3,7 +3,7 @@ import { getNewPage, closeBrowser } from "./utils/puppeteer";
 import type { Page } from "puppeteer";
 import { E2E_URL } from "./config";
 
-describe("Regression voidlock-fh858: Mission Configuration Hidden in Campaign", () => {
+describe("Regression voidlock-fh858: Mission Configuration Hidden in Campaign (New Flow)", () => {
   let page: Page;
 
   beforeAll(async () => {
@@ -21,7 +21,7 @@ describe("Regression voidlock-fh858: Mission Configuration Hidden in Campaign", 
     await page.waitForSelector("#btn-menu-campaign");
   }
 
-  it("should hide map configuration section when launching from campaign", async () => {
+  it("should skip mission setup and launch directly from equipment in campaign", async () => {
     await resetToMainMenu();
 
     // 1. Start Campaign
@@ -39,109 +39,52 @@ describe("Regression voidlock-fh858: Mission Configuration Hidden in Campaign", 
     await page.waitForSelector(nodeSelector, { visible: true });
     await page.click(nodeSelector);
 
-    // 4. We should be in Equipment Screen first (as per GameApp.onCampaignNodeSelect)
+    // 4. We should be in Equipment Screen (New Flow: Sector -> Equipment)
     await page.waitForSelector("#screen-equipment", { visible: true });
     
-    // 5. Click "Confirm Squad" to go to Mission Setup
+    // 5. Verify "Launch Mission" button exists and "Confirm Squad" exists
+    const launchBtnSelector = '[data-focus-id="btn-launch-mission"]';
+    await page.waitForSelector(launchBtnSelector, { visible: true });
+    
     const confirmBtnSelector = '[data-focus-id="btn-confirm-squad"]';
     await page.waitForSelector(confirmBtnSelector, { visible: true });
-    await page.click(confirmBtnSelector);
 
-    // 6. Now we are in Mission Setup
-    await page.waitForSelector("#screen-mission-setup", { visible: true });
-
-    // Check if #map-config-section is hidden
-    const configVisible = await page.evaluate(() => {
-      const el = document.getElementById("map-config-section");
-      if (!el) return false;
-      const style = window.getComputedStyle(el);
-      return style.display !== "none" && style.visibility !== "hidden" && style.opacity !== "0";
-    });
-
-    expect(configVisible).toBe(false);
-
-    // Explicitly check btn-goto-equipment
-    const equipmentBtnVisible = await page.evaluate(() => {
-      const el = document.getElementById("btn-goto-equipment");
-      if (!el) return false;
-      const style = window.getComputedStyle(el);
-      return style.display !== "none" && style.visibility !== "hidden" && style.opacity !== "0";
-    });
-
-    expect(equipmentBtnVisible).toBe(false);
-
-    // Capture screenshot for debugging
-    await page.screenshot({
-      path: "tests/e2e/__snapshots__/fh858_config_visibility.png",
-    });
-
-    // 7. Test the "Back" button (User says it goes to black screen)
-    const backBtnSelector = "#btn-setup-back";
+    // 6. Test the "Back" button (Should go to Sector Map)
+    const backBtnSelector = '[data-focus-id="btn-back"]';
     await page.waitForSelector(backBtnSelector, { visible: true });
     await page.click(backBtnSelector);
 
-    // Should be back in Equipment screen
+    // Should be back in Sector Map (Campaign Screen)
+    await page.waitForSelector("#screen-campaign", { visible: true });
+
+    // 7. Click node again
+    await page.click(nodeSelector);
     await page.waitForSelector("#screen-equipment", { visible: true });
 
-    // 8. Go forward again
-    await page.waitForSelector(confirmBtnSelector, { visible: true });
+    // 8. Test "Confirm Squad" (Should go back to Sector Map)
     await page.click(confirmBtnSelector);
+    await page.waitForSelector("#screen-campaign", { visible: true });
 
-    // Should be back in Mission Setup
-    await page.waitForSelector("#screen-mission-setup", { visible: true });
+    // 9. Click node again
+    await page.click(nodeSelector);
+    await page.waitForSelector("#screen-equipment", { visible: true });
 
-    // Check visibility again
-    const configVisibleAgain = await page.evaluate(() => {
-      const el = document.getElementById("map-config-section");
-      if (!el) return false;
-      return window.getComputedStyle(el).display !== "none";
+    // 10. Launch Mission
+    await page.click(launchBtnSelector);
+
+    // 11. Verify we go to tactical mission screen, bypassing mission setup
+    // We check that mission setup screen is NOT visible
+    const missionSetupVisible = await page.evaluate(() => {
+      const el = document.getElementById("screen-mission-setup");
+      return el && window.getComputedStyle(el).display !== "none";
     });
+    expect(missionSetupVisible).toBe(false);
 
-    expect(configVisibleAgain).toBe(false);
-    
-    const equipmentBtnVisibleAgain = await page.evaluate(() => {
-      const el = document.getElementById("btn-goto-equipment");
-      if (!el) return false;
-      return window.getComputedStyle(el).display !== "none";
-    });
-    expect(equipmentBtnVisibleAgain).toBe(false);
-
-    // 9. Reload page
-    await page.reload();
-    await page.waitForSelector("#screen-mission-setup", { visible: true });
-
-    // Check visibility after reload
-    const configVisibleAfterReload = await page.evaluate(() => {
-      const el = document.getElementById("map-config-section");
-      if (!el) return false;
-      return window.getComputedStyle(el).display !== "none";
-    });
-
-    expect(configVisibleAfterReload).toBe(false);
-
-    const equipmentBtnVisibleAfterReload = await page.evaluate(() => {
-      const el = document.getElementById("btn-goto-equipment");
-      if (!el) return false;
-      return window.getComputedStyle(el).display !== "none";
-    });
-    expect(equipmentBtnVisibleAfterReload).toBe(false);
-
-    // 10. Test "Back" after reload (history is lost, should go to main menu or previous state)
-    // According to ScreenManager.goBack, if history is empty it goes to main-menu
-    await page.click("#btn-setup-back");
-    await page.waitForSelector("#screen-main-menu", { visible: true });
-
-    // Verify main menu is visible and not a black screen
-    const mainMenuVisible = await page.evaluate(() => {
-      const el = document.getElementById("screen-main-menu");
-      if (!el) return false;
-      const style = window.getComputedStyle(el);
-      return style.display === "flex" && style.visibility !== "hidden";
-    });
-    expect(mainMenuVisible).toBe(true);
+    // Verify HUD or some mission element
+    await page.waitForSelector("#top-bar", { visible: true, timeout: 15000 });
   });
 
-  it("should hide map configuration section when reloading on Equipment screen and then confirming squad", async () => {
+  it("should maintain equipment screen state after reload in campaign", async () => {
     await resetToMainMenu();
 
     // 1. Start Campaign
@@ -164,41 +107,23 @@ describe("Regression voidlock-fh858: Mission Configuration Hidden in Campaign", 
 
     // 5. RELOAD page while on Equipment screen
     await page.reload();
+    
+    // 6. Verify we are back on Equipment screen and NOT Sector Map or Mission Setup
     await page.waitForSelector("#screen-equipment", { visible: true });
-
-    // 6. Click "Confirm Squad" to go to Mission Setup
-    const confirmBtnSelector = '[data-focus-id="btn-confirm-squad"]';
-    await page.waitForSelector(confirmBtnSelector, { visible: true });
-    await page.click(confirmBtnSelector);
-
-    // 7. Now we are in Mission Setup
-    await page.waitForSelector("#screen-mission-setup", { visible: true });
-
-    // Check if #map-config-section is hidden
-    const configVisible = await page.evaluate(() => {
-      const el = document.getElementById("map-config-section");
-      if (!el) return false;
-      const style = window.getComputedStyle(el);
-      return (
-        style.display !== "none" &&
-        style.visibility !== "hidden" &&
-        style.opacity !== "0"
-      );
+    
+    const campaignVisible = await page.evaluate(() => {
+      const el = document.getElementById("screen-campaign");
+      return el && window.getComputedStyle(el).display !== "none";
     });
+    expect(campaignVisible).toBe(false);
 
-    expect(configVisible).toBe(false);
-
-    const equipmentBtnVisible = await page.evaluate(() => {
-      const el = document.getElementById("btn-goto-equipment");
-      if (!el) return false;
-      const style = window.getComputedStyle(el);
-      return (
-        style.display !== "none" &&
-        style.visibility !== "hidden" &&
-        style.opacity !== "0"
-      );
+    const missionSetupVisible = await page.evaluate(() => {
+      const el = document.getElementById("screen-mission-setup");
+      return el && window.getComputedStyle(el).display !== "none";
     });
+    expect(missionSetupVisible).toBe(false);
 
-    expect(equipmentBtnVisible).toBe(false);
+    // 7. Verify "Launch Mission" button still exists
+    await page.waitForSelector('[data-focus-id="btn-launch-mission"]', { visible: true });
   });
 });

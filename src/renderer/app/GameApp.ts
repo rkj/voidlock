@@ -35,7 +35,7 @@ const VERSION = pkg.version;
 
 export class GameApp {
   // Services
-  private registry: AppServiceRegistry;
+  public registry: AppServiceRegistry;
   
   private get gameClient() { return this.registry.gameClient; }
   private get inputManager() { return this.registry.inputManager; }
@@ -55,15 +55,15 @@ export class GameApp {
   private squadBuilder!: SquadBuilder;
 
   // screens
-  private campaignScreen!: CampaignScreen;
-  private debriefScreen!: DebriefScreen;
-  private equipmentScreen!: EquipmentScreen;
-  private missionSetupScreen!: MissionSetupScreen;
-  private campaignSummaryScreen!: CampaignSummaryScreen;
-  private statisticsScreen!: StatisticsScreen;
-  private engineeringScreen!: EngineeringScreen;
-  private settingsScreen!: SettingsScreen;
-  private mainMenuScreen!: MainMenuScreen;
+  public campaignScreen!: CampaignScreen;
+  public debriefScreen!: DebriefScreen;
+  public equipmentScreen!: EquipmentScreen;
+  public missionSetupScreen!: MissionSetupScreen;
+  public campaignSummaryScreen!: CampaignSummaryScreen;
+  public statisticsScreen!: StatisticsScreen;
+  public engineeringScreen!: EngineeringScreen;
+  public settingsScreen!: SettingsScreen;
+  public mainMenuScreen!: MainMenuScreen;
 
   constructor() {
     this.registry = new AppServiceRegistry();
