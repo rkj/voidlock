@@ -12,6 +12,7 @@ export const SquadSoldierConfigSchema = z.object({
   hp: z.number().optional(),
   maxHp: z.number().optional(),
   soldierAim: z.number().optional(),
+  status: z.enum(["Healthy", "Wounded", "Dead"]).optional(),
 });
 
 export const SquadConfigSchema = z.object({
