@@ -167,9 +167,7 @@ export class SoldierWidget {
   }
 
   private static getStatus(data: SoldierWidgetData): string {
-    if ("status" in data && data.status) return data.status;
-    if ("state" in data && data.state) return data.state;
-    return "Healthy";
+    return ("status" in data && data.status) ? data.status : ("state" in data && data.state) ? data.state : "Healthy";
   }
 
   private static getLevel(data: SoldierWidgetData): number {

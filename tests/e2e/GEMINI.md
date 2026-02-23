@@ -43,6 +43,11 @@ npm run test:e2e
 
 This will automatically start the Vite dev server before running tests and stop it afterwards.
 
+## Best Practices
+
+- **Wait Strategies**: Prefer `waitUntil: "load"` over `networkidle2` for page loads and navigations. Persistent network noise from Firebase can cause `networkidle2` to timeout.
+- **Click Stability**: When clicking buttons that trigger transitions or layout shifts, ensure the element is visible (`{ visible: true }`) and consider a small stabilization delay (e.g., 500ms) to avoid "not clickable" errors in emulated environments.
+
 ## Related ADRs
 
 - [ADR 0027: Integration & End-to-End Testing Strategy](../../docs/adr/0027-integration-testing-strategy.md)
