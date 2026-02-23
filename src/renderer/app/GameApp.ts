@@ -2,15 +2,13 @@ import { InputBinder } from "./InputBinder";
 import {
   MapGeneratorType,
   MissionType,
-  SquadConfig,
-  UnitState,
   CommandType,
   UnitStyle,
   SquadSoldierConfig,
+  UnitState,
 } from "@src/shared/types";
 import {
   calculateSpawnPoints,
-  CampaignNode,
   MissionReport,
 } from "@src/shared/campaign_types";
 import pkg from "../../../package.json";
@@ -26,7 +24,6 @@ import { EngineeringScreen } from "../screens/EngineeringScreen";
 import { SettingsScreen } from "../screens/SettingsScreen";
 import { MainMenuScreen } from "../screens/MainMenuScreen";
 import { SquadBuilder } from "../components/SquadBuilder";
-import { Logger } from "@src/shared/Logger";
 import { GlobalShortcuts } from "../GlobalShortcuts";
 import { TooltipManager } from "../ui/TooltipManager";
 import { InputDispatcher } from "../InputDispatcher";
@@ -83,9 +80,9 @@ export class GameApp {
       onMenuInput: (key, shift) => this.registry.inputOrchestrator.handleMenuInput(key, shift),
       onTimeScaleChange: (scale) => {
         this.gameClient.setTimeScale(scale);
-        this.registry.missionRunner.syncSpeedUI();
+        this.registry.uiOrchestrator.syncSpeedUI();
       },
-      onCopyWorldState: () => this.copyWorldState(),
+      onCopyWorldState: () => this.registry.uiOrchestrator.copyWorldState(),
       onDebugForceWin: () =>
         this.gameClient.applyCommand({ type: CommandType.DEBUG_FORCE_WIN }),
       onDebugForceLose: () =>
@@ -105,7 +102,7 @@ export class GameApp {
           type: CommandType.UNDEPLOY_UNIT,
           unitId,
         }),
-      onTogglePause: () => this.togglePause(),
+      onTogglePause: () => this.registry.uiOrchestrator.togglePause(),
       onToggleDebug: (enabled) => this.gameClient.toggleDebugOverlay(enabled),
       onToggleLos: (enabled) => this.gameClient.toggleLosOverlay(enabled),
       onCanvasClick: (e) => this.registry.inputOrchestrator.handleCanvasClick(e),
@@ -121,13 +118,7 @@ export class GameApp {
       getRenderer: () => this.renderer,
     });
 
-    this.mainMenuScreen = new MainMenuScreen("screen-main-menu");
-    this.missionSetupScreen = new MissionSetupScreen(
-      "screen-mission-setup",
-      () => {
-        this.registry.screenManager.goBack();
-      },
-    );
+    this.initializeScreens();
 
     // Initialize remaining Coordinators that are not in registry yet (if any)
     this.campaignFlowCoordinator = new CampaignFlowCoordinator(
@@ -159,15 +150,69 @@ export class GameApp {
       },
     );
 
-    // 3. Initialize screens
+    this.registry.finalizeNavigation(
+      {
+        mainMenu: this.mainMenuScreen,
+        campaign: this.campaignScreen,
+        debrief: this.debriefScreen,
+        equipment: this.equipmentScreen,
+        missionSetup: this.missionSetupScreen,
+        campaignSummary: this.campaignSummaryScreen,
+        statistics: this.statisticsScreen,
+        engineering: this.engineeringScreen,
+        settings: this.settingsScreen,
+      },
+      this.squadBuilder,
+      {
+        showMainMenu: () => this.showMainMenu(),
+      }
+    );
+
+    // 4. Setup global UI and shortcuts
+    this.registry.uiOrchestrator.setupAdditionalUIBindings({
+      onAbortMission: () => this.registry.missionRunner.abortMission(),
+      onRetryMission: () => this.registry.missionRunner.launchMission(),
+      onForceWin: () =>
+        this.gameClient.applyCommand({ type: CommandType.DEBUG_FORCE_WIN }),
+      onForceLose: () =>
+        this.gameClient.applyCommand({ type: CommandType.DEBUG_FORCE_LOSE }),
+    });
+
+    // 5. Bind events
+    this.setupInputBindings();
+
+    const globalShortcuts = new GlobalShortcuts(
+      () => this.registry.uiOrchestrator.togglePause(),
+      () => this.registry.screenManager.goBack(),
+    );
+    globalShortcuts.init();
+
+    TooltipManager.getInstance();
+
+    this.registry.missionSetupManager.loadAndApplyConfig(false);
+    const mvEl = document.getElementById("menu-version");
+    if (mvEl) mvEl.textContent = `v${VERSION}`;
+
+    this.registry.uiOrchestrator.setupResponsiveDrawers();
+  }
+
+  private initializeScreens() {
+    this.mainMenuScreen = new MainMenuScreen("screen-main-menu");
+    this.missionSetupScreen = new MissionSetupScreen(
+      "screen-mission-setup",
+      () => {
+        this.registry.screenManager.goBack();
+      },
+    );
+
     this.campaignScreen = new CampaignScreen(
       "screen-campaign",
       this.registry.campaignManager,
       this.registry.modalService,
-      (node) => this.onCampaignNodeSelect(node),
+      (node) => this.registry.navigationOrchestrator.onCampaignNodeSelect(node),
       () => this.showMainMenu(),
       () => this.onCampaignStart(),
-      () => this.onShowSummary(),
+      () => this.registry.navigationOrchestrator.onShowSummary(),
     );
 
     this.debriefScreen = new DebriefScreen(
@@ -199,7 +244,7 @@ export class GameApp {
         this.gameClient.stop();
         this.registry.missionRunner.launchMission();
       },
-      () => this.exportReplay(),
+      () => this.registry.uiOrchestrator.exportReplay(),
     );
 
     this.equipmentScreen = new EquipmentScreen(
@@ -207,7 +252,7 @@ export class GameApp {
       this.registry.campaignManager,
       this.registry.modalService,
       this.registry.missionSetupManager.currentSquad,
-      (config) => this.onEquipmentConfirmed(config),
+      (config) => this.registry.navigationOrchestrator.onEquipmentConfirmed(config),
       () => {
         this.registry.screenManager.goBack();
         const screen = this.registry.screenManager.getCurrentScreen();
@@ -256,32 +301,12 @@ export class GameApp {
         this.showMainMenu();
       },
     );
+  }
 
-    this.registry.finalizeNavigation(
-      {
-        mainMenu: this.mainMenuScreen,
-        campaign: this.campaignScreen,
-        debrief: this.debriefScreen,
-        equipment: this.equipmentScreen,
-        missionSetup: this.missionSetupScreen,
-        campaignSummary: this.campaignSummaryScreen,
-        statistics: this.statisticsScreen,
-        engineering: this.engineeringScreen,
-        settings: this.settingsScreen,
-      },
-      this.squadBuilder,
-      {
-        showMainMenu: () => this.showMainMenu(),
-      }
-    );
-
-    // 4. Setup global UI and shortcuts
-    this.setupAdditionalUIBindings();
-
-    // 5. Bind events
+  private setupInputBindings() {
     this.inputBinder = new InputBinder(this.registry.screenManager, this.gameClient);
     this.inputBinder.bindAll({
-      onTogglePause: () => this.togglePause(),
+      onTogglePause: () => this.registry.uiOrchestrator.togglePause(),
       onAbortMission: () => this.registry.missionRunner.abortMission(),
       onCustomMission: () => {
         this.registry.missionSetupManager.currentCampaignNode = null;
@@ -319,7 +344,7 @@ export class GameApp {
       onUploadStaticMap: (file) =>
         this.registry.missionSetupManager.uploadStaticMap(file),
       onConvertAscii: (ascii) => this.registry.missionSetupManager.convertAscii(ascii),
-      onExportReplay: () => this.exportReplay(),
+      onExportReplay: () => this.registry.uiOrchestrator.exportReplay(),
       onShowStatistics: () => {
         this.registry.navigationOrchestrator.switchScreen("statistics", false);
         this.registry.campaignShell.show("statistics", "stats");
@@ -494,20 +519,6 @@ export class GameApp {
         reader.readAsText(file);
       },
     });
-
-    const globalShortcuts = new GlobalShortcuts(
-      () => this.togglePause(),
-      () => this.registry.screenManager.goBack(),
-    );
-    globalShortcuts.init();
-
-    TooltipManager.getInstance();
-
-    this.registry.missionSetupManager.loadAndApplyConfig(false);
-    const mvEl = document.getElementById("menu-version");
-    if (mvEl) mvEl.textContent = `v${VERSION}`;
-
-    this.setupResponsiveDrawers();
   }
 
   public start() {
@@ -530,148 +541,8 @@ export class GameApp {
     this.registry.navigationOrchestrator.switchScreen("main-menu");
   }
 
-  private setupAdditionalUIBindings() {
-    const btnAbort = document.getElementById("btn-abort");
-    if (btnAbort) btnAbort.onclick = () => this.registry.missionRunner.abortMission();
-
-    const btnRetry = document.getElementById("btn-retry");
-    if (btnRetry) btnRetry.onclick = () => this.registry.missionRunner.launchMission();
-
-    const btnExport = document.getElementById("btn-export");
-    if (btnExport) btnExport.onclick = () => this.exportReplay();
-
-    const speedSlider = document.getElementById("speed-slider") as HTMLInputElement;
-    if (speedSlider) {
-      speedSlider.oninput = () => {
-        this.gameClient.setTimeScale(parseFloat(speedSlider.value));
-        this.registry.missionRunner.syncSpeedUI();
-      };
-    }
-
-    const btnPause = document.getElementById("btn-pause");
-    if (btnPause) btnPause.onclick = () => this.togglePause();
-
-    const btnForceWin = document.getElementById("btn-debug-win");
-    if (btnForceWin) btnForceWin.onclick = () => this.gameClient.applyCommand({ type: CommandType.DEBUG_FORCE_WIN });
-
-    const btnForceLose = document.getElementById("btn-debug-lose");
-    if (btnForceLose) btnForceLose.onclick = () => this.gameClient.applyCommand({ type: CommandType.DEBUG_FORCE_LOSE });
-  }
-
-  private onEquipmentConfirmed(config: SquadConfig) {
-    if (this.registry.missionSetupManager.currentCampaignNode) {
-      config.soldiers.forEach((soldier) => {
-        if (soldier.id) {
-          this.registry.campaignManager.assignEquipment(soldier.id, {
-            rightHand: soldier.rightHand,
-            leftHand: soldier.leftHand,
-            body: soldier.body,
-            feet: soldier.feet,
-          });
-        }
-      });
-      this.registry.missionSetupManager.currentSquad = config;
-      this.registry.missionSetupManager.saveCurrentConfig();
-      this.registry.navigationOrchestrator.switchScreen("campaign", true);
-      this.registry.campaignShell.show("campaign", "sector-map");
-    } else {
-      this.registry.missionSetupManager.currentSquad = config;
-      this.registry.missionSetupManager.saveCurrentConfig();
-      this.registry.missionSetupManager.loadAndApplyConfig(false);
-      this.squadBuilder.update(
-        this.registry.missionSetupManager.currentSquad,
-        this.registry.missionSetupManager.currentMissionType,
-        false,
-      );
-      this.registry.navigationOrchestrator.switchScreen("mission-setup", false);
-      this.registry.campaignShell.show("custom", "setup");
-    }
-  }
-
-  private onShowSummary() {
-    const state = this.registry.campaignManager.getState();
-    if (state) {
-      this.registry.navigationOrchestrator.switchScreen("campaign-summary", true, true, state);
-    }
-  }
-
-  private async copyWorldState() {
-    const state = this.registry.missionRunner.getCurrentGameState();
-    if (!state) return;
-    try {
-      await navigator.clipboard.writeText(JSON.stringify(state, null, 2));
-      this.modalService.alert("World state copied to clipboard!");
-    } catch (err) {
-      Logger.error("Failed to copy world state:", err);
-    }
-  }
-
-  private exportReplay() {
-    const replay = this.gameClient.getReplayData();
-    const blob = new Blob([JSON.stringify(replay, null, 2)], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `voidlock-replay-${Date.now()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  private onCampaignNodeSelect(node: CampaignNode) {
-    this.registry.missionSetupManager.currentCampaignNode = node;
-    this.registry.missionSetupManager.currentSeed = node.mapSeed;
-    this.registry.missionSetupManager.currentMissionType = node.missionType || MissionType.RecoverIntel;
-    this.registry.missionSetupManager.currentStaticMapData = undefined;
-
-    this.registry.navigationOrchestrator.applyCampaignTheme();
-    this.registry.missionSetupManager.loadAndApplyConfig(true);
-    this.registry.missionSetupManager.saveCurrentConfig();
-    this.equipmentScreen.setCampaign(true);
-    this.equipmentScreen.setHasNodeSelected(true);
-    this.equipmentScreen.updateConfig(this.registry.missionSetupManager.currentSquad);
-    this.registry.navigationOrchestrator.switchScreen("equipment", true);
-    this.registry.campaignShell.show("campaign", "ready-room", true);
-  }
-
   private onCampaignStart() {
     this.registry.campaignShell.show("campaign", "sector-map");
     this.registry.navigationOrchestrator.switchScreen("campaign", true);
-  }
-
-  private togglePause() {
-    const isPaused = this.gameClient.getIsPaused();
-    this.gameClient.setTimeScale(isPaused ? 1.0 : 0.0);
-    this.registry.missionRunner.syncSpeedUI();
-  }
-
-  private setupResponsiveDrawers() {
-    const toggleSquad = document.getElementById("btn-toggle-squad");
-    const toggleRight = document.getElementById("btn-toggle-right");
-    const soldierPanel = document.getElementById("soldier-panel");
-    const rightPanel = document.getElementById("right-panel");
-
-    if (toggleSquad && soldierPanel) {
-      toggleSquad.addEventListener("click", () => {
-        soldierPanel.classList.toggle("active");
-        if (rightPanel) rightPanel.classList.remove("active");
-      });
-    }
-
-    if (toggleRight && rightPanel) {
-      toggleRight.addEventListener("click", () => {
-        rightPanel.classList.toggle("active");
-        if (soldierPanel) soldierPanel.classList.remove("active");
-      });
-    }
-
-    const gameContainer = document.getElementById("game-container");
-    if (gameContainer) {
-      gameContainer.addEventListener("click", () => {
-        if (window.innerWidth < 768) {
-          if (soldierPanel) soldierPanel.classList.remove("active");
-          if (rightPanel) rightPanel.classList.remove("active");
-        }
-      });
-    }
   }
 }
