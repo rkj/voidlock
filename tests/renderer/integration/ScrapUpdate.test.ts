@@ -210,7 +210,7 @@ describe("Scrap Update Integration", () => {
     expect(manager.getState()?.scrap).toBe(1000);
     
     // 3. Force GameApp to enter campaign mode
-    (app as any).handleExternalScreenChange("campaign", true);
+    (app as any).registry.navigationOrchestrator.handleExternalScreenChange("campaign", true);
     
     // 4. Verify initial render of CampaignShell
     const shell = document.getElementById("screen-campaign-shell");

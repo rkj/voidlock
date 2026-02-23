@@ -4,7 +4,6 @@ import {
   MissionType,
   SquadConfig,
   UnitState,
-  GameState,
   Unit,
   CommandType,
   UnitStyle,
@@ -17,9 +16,7 @@ import {
 } from "@src/shared/campaign_types";
 import pkg from "../../../package.json";
 import { ConfigManager } from "../ConfigManager";
-import { MissionCoordinator } from "./MissionCoordinator";
 import { CampaignFlowCoordinator } from "./CampaignFlowCoordinator";
-import { MissionSetupManager } from "./MissionSetupManager";
 import { CampaignScreen } from "../screens/CampaignScreen";
 import { DebriefScreen } from "../screens/DebriefScreen";
 import { EquipmentScreen } from "../screens/EquipmentScreen";
@@ -30,7 +27,6 @@ import { EngineeringScreen } from "../screens/EngineeringScreen";
 import { SettingsScreen } from "../screens/SettingsScreen";
 import { MainMenuScreen } from "../screens/MainMenuScreen";
 import { SquadBuilder } from "../components/SquadBuilder";
-import { NavigationOrchestrator } from "./NavigationOrchestrator";
 import { Logger } from "@src/shared/Logger";
 import { GlobalShortcuts } from "../GlobalShortcuts";
 import { TooltipManager } from "../ui/TooltipManager";
@@ -39,7 +35,6 @@ import { InputDispatcher } from "../InputDispatcher";
 import { AppServiceRegistry } from "./AppServiceRegistry";
 import { Renderer } from "../Renderer";
 import { AdvisorOverlay } from "../ui/AdvisorOverlay";
-import prologueMap from "@src/content/maps/prologue.json";
 
 const VERSION = pkg.version;
 
@@ -48,16 +43,10 @@ export class GameApp {
   private registry: AppServiceRegistry;
   
   private get gameClient() { return this.registry.gameClient; }
-  private get screenManager() { return this.registry.screenManager; }
-  private get campaignManager() { return this.registry.campaignManager; }
-  private get metaManager() { return this.registry.metaManager; }
-  private get themeManager() { return this.registry.themeManager; }
   private get menuController() { return this.registry.menuController; }
   private get hudManager() { return this.registry.hudManager; }
   private get inputManager() { return this.registry.inputManager; }
   private get modalService() { return this.registry.modalService; }
-  private get campaignShell() { return this.registry.campaignShell; }
-  private get cloudSync() { return this.registry.cloudSync; }
 
   public renderer: Renderer | null = null;
 
@@ -67,10 +56,7 @@ export class GameApp {
 
   // Coordinators
   private inputBinder!: InputBinder;
-  private missionCoordinator!: MissionCoordinator;
   private campaignFlowCoordinator!: CampaignFlowCoordinator;
-  private missionSetupManager!: MissionSetupManager;
-  private navigationOrchestrator!: NavigationOrchestrator;
 
   // Components
   private squadBuilder!: SquadBuilder;
@@ -86,10 +72,6 @@ export class GameApp {
   private settingsScreen!: SettingsScreen;
   private mainMenuScreen!: MainMenuScreen;
 
-  // app state
-  private selectedUnitId: string | null = null;
-  private currentGameState: GameState | null = null;
-
   constructor() {
     this.registry = new AppServiceRegistry();
   }
@@ -97,15 +79,15 @@ export class GameApp {
   public async initialize() {
     await this.registry.initialize({
       onScreenChange: (id, isCampaign) =>
-        this.navigationOrchestrator.handleExternalScreenChange(id, isCampaign),
-      onShellTabChange: (tabId) => this.navigationOrchestrator.onShellTabChange(tabId),
+        this.registry.navigationOrchestrator.handleExternalScreenChange(id, isCampaign),
+      onShellTabChange: (tabId) => this.registry.navigationOrchestrator.onShellTabChange(tabId),
       onShellMainMenu: () => this.showMainMenu(),
       onUnitClick: (unit, shift) => this.onUnitClick(unit, shift),
-      onAbortMission: () => this.abortMission(),
+      onAbortMission: () => this.registry.missionRunner.abortMission(),
       onMenuInput: (key, shift) => this.handleMenuInput(key, shift),
       onTimeScaleChange: (scale) => {
         this.gameClient.setTimeScale(scale);
-        this.syncSpeedUI();
+        this.registry.missionRunner.syncSpeedUI();
       },
       onCopyWorldState: () => this.copyWorldState(),
       onDebugForceWin: () =>
@@ -131,9 +113,10 @@ export class GameApp {
       onToggleDebug: (enabled) => this.gameClient.toggleDebugOverlay(enabled),
       onToggleLos: (enabled) => this.gameClient.toggleLosOverlay(enabled),
       onCanvasClick: (e) => this.handleCanvasClick(e),
-      getCurrentGameState: () => this.currentGameState,
+      onRendererCreated: (renderer) => { this.renderer = renderer; },
+      getCurrentGameState: () => this.registry.missionRunner.getCurrentGameState(),
       isDebriefVisible: () => this.debriefScreen.isVisible(),
-      getSelectedUnitId: () => this.selectedUnitId,
+      getSelectedUnitId: () => this.registry.missionRunner.getSelectedUnitId(),
       getCellCoordinates: (px, py) => this.renderer!.getCellCoordinates(px, py),
       cycleUnits: (reverse) => this.cycleUnits(reverse),
       panMap: (direction) => this.panMap(direction),
@@ -145,31 +128,16 @@ export class GameApp {
     this.missionSetupScreen = new MissionSetupScreen(
       "screen-mission-setup",
       () => {
-        this.screenManager.goBack();
+        this.registry.screenManager.goBack();
       },
     );
 
-    // Initialize Coordinators
-    this.missionCoordinator = new MissionCoordinator(
-      this.campaignShell,
-      this.gameClient,
-      this.screenManager,
-      this.menuController,
-      this.campaignManager,
-      (renderer) => {
-        this.renderer = renderer;
-      },
-    );
+    // Initialize remaining Coordinators that are not in registry yet (if any)
     this.campaignFlowCoordinator = new CampaignFlowCoordinator(
-      this.campaignManager,
-      this.screenManager,
-      this.campaignShell,
-      this.modalService,
-    );
-    this.missionSetupManager = new MissionSetupManager(
-      this.campaignManager,
-      this.themeManager,
-      this.modalService,
+      this.registry.campaignManager,
+      this.registry.screenManager,
+      this.registry.campaignShell,
+      this.registry.modalService,
     );
 
     // Ensure squad-builder element exists (resilience for tests)
@@ -182,23 +150,23 @@ export class GameApp {
 
     this.squadBuilder = new SquadBuilder(
       "squad-builder",
-      this.campaignManager,
-      this.campaignShell,
-      this.modalService,
-      this.missionSetupManager.currentSquad,
-      this.missionSetupManager.currentMissionType,
-      !!this.missionSetupManager.currentCampaignNode,
+      this.registry.campaignManager,
+      this.registry.campaignShell,
+      this.registry.modalService,
+      this.registry.missionSetupManager.currentSquad,
+      this.registry.missionSetupManager.currentMissionType,
+      !!this.registry.missionSetupManager.currentCampaignNode,
       (squad) => {
-        this.missionSetupManager.currentSquad = squad;
-        this.missionSetupManager.saveCurrentConfig();
+        this.registry.missionSetupManager.currentSquad = squad;
+        this.registry.missionSetupManager.saveCurrentConfig();
       },
     );
 
     // 3. Initialize screens
     this.campaignScreen = new CampaignScreen(
       "screen-campaign",
-      this.campaignManager,
-      this.modalService,
+      this.registry.campaignManager,
+      this.registry.modalService,
       (node) => this.onCampaignNodeSelect(node),
       () => this.showMainMenu(),
       () => this.onCampaignStart(),
@@ -212,71 +180,71 @@ export class GameApp {
         this.debriefScreen.hide();
         this.gameClient.stop();
 
-        const state = this.campaignManager.getState();
+        const state = this.registry.campaignManager.getState();
         if (
           state &&
           (state.status === "Victory" || state.status === "Defeat")
         ) {
-          this.navigationOrchestrator.switchScreen("campaign-summary", true, true, state);
+          this.registry.navigationOrchestrator.switchScreen("campaign-summary", true, true, state);
           return;
         }
 
-        if (this.missionSetupManager.currentCampaignNode) {
-          this.navigationOrchestrator.switchScreen("campaign", true);
-          this.campaignShell.show("campaign", "sector-map");
+        if (this.registry.missionSetupManager.currentCampaignNode) {
+          this.registry.navigationOrchestrator.switchScreen("campaign", true);
+          this.registry.campaignShell.show("campaign", "sector-map");
         } else {
-          this.campaignShell.hide();
+          this.registry.campaignShell.hide();
           this.showMainMenu();
         }
       },
       () => {
         this.debriefScreen.hide();
         this.gameClient.stop();
-        this.launchMission();
+        this.registry.missionRunner.launchMission();
       },
       () => this.exportReplay(),
     );
 
     this.equipmentScreen = new EquipmentScreen(
       "screen-equipment",
-      this.campaignManager,
-      this.modalService,
-      this.missionSetupManager.currentSquad,
+      this.registry.campaignManager,
+      this.registry.modalService,
+      this.registry.missionSetupManager.currentSquad,
       (config) => this.onEquipmentConfirmed(config),
       () => {
-        this.screenManager.goBack();
-        const screen = this.screenManager.getCurrentScreen();
-        this.navigationOrchestrator.handleExternalScreenChange(
+        this.registry.screenManager.goBack();
+        const screen = this.registry.screenManager.getCurrentScreen();
+        this.registry.navigationOrchestrator.handleExternalScreenChange(
           screen,
-          !!this.campaignManager.getState(),
+          !!this.registry.campaignManager.getState(),
         );
       },
-      () => this.campaignShell.refresh(),
+      () => this.registry.campaignShell.refresh(),
       (config) => {
-        this.missionSetupManager.currentSquad = config;
-        this.missionSetupManager.saveCurrentConfig();
-        this.launchMission();
+        this.registry.missionSetupManager.currentSquad = config;
+        this.registry.missionSetupManager.saveCurrentConfig();
+        this.registry.missionRunner.launchMission();
       },
       false, // isShop
       false, // isCampaign
     );
 
-    this.statisticsScreen = new StatisticsScreen("screen-statistics", this.metaManager);
-    this.engineeringScreen = new EngineeringScreen("screen-engineering", this.metaManager, () =>
-      this.campaignShell.refresh(),
+    this.statisticsScreen = new StatisticsScreen("screen-statistics", this.registry.metaManager);
+    this.engineeringScreen = new EngineeringScreen("screen-engineering", this.registry.metaManager, () =>
+      this.registry.campaignShell.refresh(),
     );
 
     this.settingsScreen = new SettingsScreen(
       "screen-settings",
-      this.themeManager,
-      this.cloudSync,
-      this.modalService,
+      this.registry.themeManager,
+      this.registry.cloudSync,
+      this.registry.modalService,
       () => {
-        this.screenManager.goBack();
-        const screen = this.screenManager.getCurrentScreen();
-        this.navigationOrchestrator.handleExternalScreenChange(
+        this.registry.screenManager.goBack();
+        const screen = this.registry.screenManager.getCurrentScreen();
+        this.registry.navigationOrchestrator.handleExternalScreenChange(
           screen,
-          !!this.campaignManager.getState(),
+          !!this.registry.campaignManager.getState(),
         );
       },
     );
@@ -287,18 +255,12 @@ export class GameApp {
         this.campaignSummaryScreen.hide();
         this.gameClient.stop();
         ConfigManager.clearCampaign();
-        this.campaignManager.deleteSave();
+        this.registry.campaignManager.deleteSave();
         this.showMainMenu();
       },
     );
 
-    this.navigationOrchestrator = new NavigationOrchestrator(
-      this.screenManager,
-      this.campaignShell,
-      this.campaignManager,
-      this.themeManager,
-      this.missionSetupManager,
-      this.squadBuilder,
+    this.registry.finalizeNavigation(
       {
         mainMenu: this.mainMenuScreen,
         campaign: this.campaignScreen,
@@ -310,10 +272,9 @@ export class GameApp {
         engineering: this.engineeringScreen,
         settings: this.settingsScreen,
       },
+      this.squadBuilder,
       {
         showMainMenu: () => this.showMainMenu(),
-        launchMission: () => this.launchMission(),
-        resumeMission: () => this.resumeMission(),
       }
     );
 
@@ -321,133 +282,133 @@ export class GameApp {
     this.setupAdditionalUIBindings();
 
     // 5. Bind events
-    this.inputBinder = new InputBinder(this.screenManager, this.gameClient);
+    this.inputBinder = new InputBinder(this.registry.screenManager, this.gameClient);
     this.inputBinder.bindAll({
       onTogglePause: () => this.togglePause(),
-      onAbortMission: () => this.abortMission(),
+      onAbortMission: () => this.registry.missionRunner.abortMission(),
       onCustomMission: () => {
-        this.missionSetupManager.currentCampaignNode = null;
-        this.missionSetupManager.loadAndApplyConfig(false);
-        this.campaignShell.show("custom", "setup");
+        this.registry.missionSetupManager.currentCampaignNode = null;
+        this.registry.missionSetupManager.loadAndApplyConfig(false);
+        this.registry.campaignShell.show("custom", "setup");
         this.squadBuilder.update(
-          this.missionSetupManager.currentSquad,
-          this.missionSetupManager.currentMissionType,
+          this.registry.missionSetupManager.currentSquad,
+          this.registry.missionSetupManager.currentMissionType,
           false,
         );
-        this.navigationOrchestrator.switchScreen("mission-setup", false);
+        this.registry.navigationOrchestrator.switchScreen("mission-setup", false);
       },
       onCampaignMenu: () => {
         this.campaignFlowCoordinator.onCampaignMenu(
-          () => this.navigationOrchestrator.applyCampaignTheme(),
-          (state) => this.navigationOrchestrator.switchScreen("campaign-summary", true, true, state),
-          () => this.navigationOrchestrator.switchScreen("campaign", true),
+          () => this.registry.navigationOrchestrator.applyCampaignTheme(),
+          (state) => this.registry.navigationOrchestrator.switchScreen("campaign-summary", true, true, state),
+          () => this.registry.navigationOrchestrator.switchScreen("campaign", true),
         );
       },
       onResetData: () => this.campaignFlowCoordinator.onResetData(),
       onShowEquipment: () => {
-        const isCampaign = !!this.missionSetupManager.currentCampaignNode;
+        const isCampaign = !!this.registry.missionSetupManager.currentCampaignNode;
         this.equipmentScreen.setCampaign(isCampaign);
         this.equipmentScreen.updateConfig(
-          this.missionSetupManager.currentSquad,
+          this.registry.missionSetupManager.currentSquad,
         );
-        this.navigationOrchestrator.switchScreen("equipment", isCampaign);
+        this.registry.navigationOrchestrator.switchScreen("equipment", isCampaign);
         if (isCampaign) {
-          this.campaignShell.show("campaign", "ready-room", true);
+          this.registry.campaignShell.show("campaign", "ready-room", true);
         } else {
-          this.campaignShell.show("custom", "setup");
+          this.registry.campaignShell.show("custom", "setup");
         }
       },
-      onLoadStaticMap: (json) => this.missionSetupManager.loadStaticMap(json),
+      onLoadStaticMap: (json) => this.registry.missionSetupManager.loadStaticMap(json),
       onUploadStaticMap: (file) =>
-        this.missionSetupManager.uploadStaticMap(file),
-      onConvertAscii: (ascii) => this.missionSetupManager.convertAscii(ascii),
+        this.registry.missionSetupManager.uploadStaticMap(file),
+      onConvertAscii: (ascii) => this.registry.missionSetupManager.convertAscii(ascii),
       onExportReplay: () => this.exportReplay(),
       onShowStatistics: () => {
-        this.navigationOrchestrator.switchScreen("statistics", false);
-        this.campaignShell.show("statistics", "stats");
+        this.registry.navigationOrchestrator.switchScreen("statistics", false);
+        this.registry.campaignShell.show("statistics", "stats");
       },
       onEngineeringMenu: () => {
-        const state = this.campaignManager.getState();
-        this.navigationOrchestrator.switchScreen("engineering", !!state);
+        const state = this.registry.campaignManager.getState();
+        this.registry.navigationOrchestrator.switchScreen("engineering", !!state);
         if (state) {
-          this.campaignShell.show("campaign", "engineering");
+          this.registry.campaignShell.show("campaign", "engineering");
         } else {
-          this.campaignShell.show("statistics", "engineering");
+          this.registry.campaignShell.show("statistics", "engineering");
         }
       },
       onSettingsMenu: () => {
-        const state = this.campaignManager.getState();
-        this.navigationOrchestrator.switchScreen("settings", !!state);
+        const state = this.registry.campaignManager.getState();
+        this.registry.navigationOrchestrator.switchScreen("settings", !!state);
         if (state) {
-          this.campaignShell.show("campaign", "settings");
+          this.registry.campaignShell.show("campaign", "settings");
         } else {
-          this.campaignShell.show("global", "settings", false);
+          this.registry.campaignShell.show("global", "settings", false);
         }
       },
       onSetupBack: () => {
-        this.screenManager.goBack();
+        this.registry.screenManager.goBack();
       },
-      onLaunchMission: () => this.launchMission(),
+      onLaunchMission: () => this.registry.missionRunner.launchMission(),
       onMapGeneratorChange: (type: MapGeneratorType) => {
-        if (this.missionSetupManager.currentMapGeneratorType === type) return;
-        this.missionSetupManager.currentMapGeneratorType = type;
-        this.missionSetupManager.saveCurrentConfig();
+        if (this.registry.missionSetupManager.currentMapGeneratorType === type) return;
+        this.registry.missionSetupManager.currentMapGeneratorType = type;
+        this.registry.missionSetupManager.saveCurrentConfig();
       },
       onMissionTypeChange: (type: MissionType) => {
-        this.missionSetupManager.currentMissionType = type;
+        this.registry.missionSetupManager.currentMissionType = type;
         if (
-          this.missionSetupManager.currentMissionType === MissionType.EscortVIP
+          this.registry.missionSetupManager.currentMissionType === MissionType.EscortVIP
         ) {
-          this.missionSetupManager.currentSquad.soldiers =
-            this.missionSetupManager.currentSquad.soldiers.filter(
+          this.registry.missionSetupManager.currentSquad.soldiers =
+            this.registry.missionSetupManager.currentSquad.soldiers.filter(
               (s) => s.archetypeId !== "vip",
             );
         }
-        this.missionSetupManager.saveCurrentConfig();
+        this.registry.missionSetupManager.saveCurrentConfig();
         this.squadBuilder.update(
-          this.missionSetupManager.currentSquad,
-          this.missionSetupManager.currentMissionType,
-          !!this.missionSetupManager.currentCampaignNode,
+          this.registry.missionSetupManager.currentSquad,
+          this.registry.missionSetupManager.currentMissionType,
+          !!this.registry.missionSetupManager.currentCampaignNode,
         );
       },
       onThemeChange: (themeId: string) => {
-        this.missionSetupManager.currentThemeId = themeId;
-        this.missionSetupManager.saveCurrentConfig();
-        this.themeManager.setTheme(themeId);
+        this.registry.missionSetupManager.currentThemeId = themeId;
+        this.registry.missionSetupManager.saveCurrentConfig();
+        this.registry.themeManager.setTheme(themeId);
       },
       onUnitStyleChange: (style: string) => {
-        this.missionSetupManager.unitStyle = style as UnitStyle;
-        this.missionSetupManager.saveCurrentConfig();
+        this.registry.missionSetupManager.unitStyle = style as UnitStyle;
+        this.registry.missionSetupManager.saveCurrentConfig();
       },
       onToggleFog: (enabled: boolean) => {
-        this.missionSetupManager.fogOfWarEnabled = enabled;
-        this.missionSetupManager.saveCurrentConfig();
+        this.registry.missionSetupManager.fogOfWarEnabled = enabled;
+        this.registry.missionSetupManager.saveCurrentConfig();
       },
       onToggleDebug: (enabled: boolean) => {
-        this.missionSetupManager.debugOverlayEnabled = enabled;
-        this.missionSetupManager.saveCurrentConfig();
+        this.registry.missionSetupManager.debugOverlayEnabled = enabled;
+        this.registry.missionSetupManager.saveCurrentConfig();
       },
       onToggleLos: (enabled: boolean) => {
-        this.missionSetupManager.losOverlayEnabled = enabled;
-        this.missionSetupManager.saveCurrentConfig();
+        this.registry.missionSetupManager.losOverlayEnabled = enabled;
+        this.registry.missionSetupManager.saveCurrentConfig();
       },
       onToggleAi: (enabled: boolean) => {
-        this.missionSetupManager.agentControlEnabled = enabled;
-        this.missionSetupManager.saveCurrentConfig();
+        this.registry.missionSetupManager.agentControlEnabled = enabled;
+        this.registry.missionSetupManager.saveCurrentConfig();
       },
       onToggleManualDeployment: (enabled: boolean) => {
-        this.missionSetupManager.manualDeployment = enabled;
-        this.missionSetupManager.saveCurrentConfig();
+        this.registry.missionSetupManager.manualDeployment = enabled;
+        this.registry.missionSetupManager.saveCurrentConfig();
       },
       onTogglePauseAllowed: (enabled: boolean) => {
-        this.missionSetupManager.allowTacticalPause = enabled;
-        this.missionSetupManager.saveCurrentConfig();
+        this.registry.missionSetupManager.allowTacticalPause = enabled;
+        this.registry.missionSetupManager.saveCurrentConfig();
       },
       onMapSizeChange: (width: number, _height: number) => {
-        if (this.missionSetupManager.currentCampaignNode) return;
-        this.missionSetupManager.currentMapWidth = width;
-        this.missionSetupManager.currentMapHeight = _height;
-        this.missionSetupManager.currentSpawnPointCount =
+        if (this.registry.missionSetupManager.currentCampaignNode) return;
+        this.registry.missionSetupManager.currentMapWidth = width;
+        this.registry.missionSetupManager.currentMapHeight = _height;
+        this.registry.missionSetupManager.currentSpawnPointCount =
           calculateSpawnPoints(width);
         const spInput = document.getElementById(
           "map-spawn-points",
@@ -455,10 +416,10 @@ export class GameApp {
         const spValue = document.getElementById("map-spawn-points-value");
         if (spInput) {
           spInput.value =
-            this.missionSetupManager.currentSpawnPointCount.toString();
+            this.registry.missionSetupManager.currentSpawnPointCount.toString();
           if (spValue) spValue.textContent = spInput.value;
         }
-        this.missionSetupManager.saveCurrentConfig();
+        this.registry.missionSetupManager.saveCurrentConfig();
       },
       onLoadReplay: (file) => {
         const reader = new FileReader();
@@ -467,13 +428,12 @@ export class GameApp {
           try {
             const data = JSON.parse(content);
             const replayData = data.replayData || data;
-            const currentState = data.currentState as GameState | undefined;
+            const currentState = data.currentState as any;
 
             if (replayData && replayData.commands) {
               this.gameClient.loadReplay(replayData);
 
               let report: MissionReport;
-              // If we have current state, we can construct a detailed report
               if (currentState) {
                 report = {
                   nodeId: "custom",
@@ -483,7 +443,7 @@ export class GameApp {
                   scrapGained: currentState.stats.scrapGained,
                   intelGained: 0,
                   timeSpent: currentState.t,
-                  soldierResults: currentState.units.map((u) => ({
+                  soldierResults: currentState.units.map((u: any) => ({
                     soldierId: u.id,
                     name: u.name,
                     tacticalNumber: u.tacticalNumber,
@@ -495,43 +455,37 @@ export class GameApp {
                   })),
                 };
               } else {
-                // Fallback report for replay-only data (Spec 8.2 / voidlock-l9bv)
                 report = {
                   nodeId: "custom",
                   seed: replayData.seed || 0,
-                  result: "Won", // Default for visualization
+                  result: "Won",
                   aliensKilled: 0,
                   scrapGained: 0,
                   intelGained: 0,
-                  timeSpent:
-                    replayData.commands.length > 0
-                      ? replayData.commands[replayData.commands.length - 1].t
-                      : 0,
-                  soldierResults: (replayData.squadConfig?.soldiers || []).map(
-                    (s: SquadSoldierConfig, idx: number) => ({
-                      soldierId: s.id || `s-${idx}`,
-                      name: s.name || s.archetypeId || "Unknown",
-                      tacticalNumber: s.tacticalNumber || idx + 1,
-                      xpBefore: 0,
-                      xpGained: 0,
-                      kills: 0,
-                      promoted: false,
-                      status: "Healthy",
-                    }),
-                  ),
+                  timeSpent: replayData.commands.length > 0 ? replayData.commands[replayData.commands.length - 1].t : 0,
+                  soldierResults: (replayData.squadConfig?.soldiers || []).map((s: SquadSoldierConfig, idx: number) => ({
+                    soldierId: s.id || `s-${idx}`,
+                    name: s.name || s.archetypeId || "Unknown",
+                    tacticalNumber: s.tacticalNumber || idx + 1,
+                    xpBefore: 0,
+                    xpGained: 0,
+                    kills: 0,
+                    promoted: false,
+                    status: "Healthy",
+                  })),
                 };
               }
 
               if (replayData.themeId) {
-                this.themeManager.setTheme(replayData.themeId);
+                this.registry.themeManager.setTheme(replayData.themeId);
               }
 
-              this.navigationOrchestrator.switchScreen(
+              this.registry.navigationOrchestrator.switchScreen(
                 "debrief",
                 false,
                 true,
                 report,
-                replayData.unitStyle || this.missionSetupManager.unitStyle,
+                replayData.unitStyle || this.registry.missionSetupManager.unitStyle,
               );
             } else {
               this.modalService.alert("Invalid replay file format.");
@@ -546,113 +500,72 @@ export class GameApp {
 
     const globalShortcuts = new GlobalShortcuts(
       () => this.togglePause(),
-      () => this.screenManager.goBack(),
+      () => this.registry.screenManager.goBack(),
     );
     globalShortcuts.init();
 
     TooltipManager.getInstance();
 
-    // Initial UI state
-    this.missionSetupManager.loadAndApplyConfig(false);
+    this.registry.missionSetupManager.loadAndApplyConfig(false);
     const mvEl = document.getElementById("menu-version");
     if (mvEl) mvEl.textContent = `v${VERSION}`;
 
     this.setupResponsiveDrawers();
   }
 
-
-
-
-
   public start() {
-    const persisted = this.screenManager.loadPersistedState();
+    const persisted = this.registry.screenManager.loadPersistedState();
     if (persisted) {
-      this.navigationOrchestrator.handleExternalScreenChange(persisted.screenId, persisted.isCampaign);
+      this.registry.navigationOrchestrator.handleExternalScreenChange(persisted.screenId, persisted.isCampaign);
     } else {
       this.showMainMenu();
     }
   }
 
-
-
-  private showMainMenu() {
-    this.navigationOrchestrator.switchScreen("main-menu");
-  }
-
-  private onMissionComplete(report: MissionReport) {
-    Logger.info("Mission Complete!", report);
-
-    // Update campaign state via manager
-    if (report.nodeId !== "custom") {
-      this.campaignManager.processMissionResult(report);
-    }
-
-    const replayData = this.gameClient.getReplayData();
-
-    // Show debrief screen
-    this.navigationOrchestrator.switchScreen(
-      "debrief",
-      false,
-      true,
-      report,
-      replayData?.unitStyle || this.missionSetupManager.unitStyle,
-    );
-  }
-
   public stop() {
     this.gameClient.stop();
     this.inputManager.destroy();
-    this.screenManager.destroy();
+    this.registry.screenManager.destroy();
     InputDispatcher.getInstance().popContext("tactical");
   }
 
+  private showMainMenu() {
+    this.registry.navigationOrchestrator.switchScreen("main-menu");
+  }
+
   private setupAdditionalUIBindings() {
-    // Top bar buttons
     const btnAbort = document.getElementById("btn-abort");
-    if (btnAbort) btnAbort.onclick = () => this.abortMission();
+    if (btnAbort) btnAbort.onclick = () => this.registry.missionRunner.abortMission();
 
     const btnRetry = document.getElementById("btn-retry");
-    if (btnRetry) btnRetry.onclick = () => this.launchMission();
+    if (btnRetry) btnRetry.onclick = () => this.registry.missionRunner.launchMission();
 
     const btnExport = document.getElementById("btn-export");
     if (btnExport) btnExport.onclick = () => this.exportReplay();
 
-    // Speed controls
-    const speedSlider = document.getElementById(
-      "speed-slider",
-    ) as HTMLInputElement;
+    const speedSlider = document.getElementById("speed-slider") as HTMLInputElement;
     if (speedSlider) {
       speedSlider.oninput = () => {
         this.gameClient.setTimeScale(parseFloat(speedSlider.value));
-        this.syncSpeedUI();
+        this.registry.missionRunner.syncSpeedUI();
       };
     }
 
     const btnPause = document.getElementById("btn-pause");
     if (btnPause) btnPause.onclick = () => this.togglePause();
 
-    // Debug tools
     const btnForceWin = document.getElementById("btn-debug-win");
-    if (btnForceWin) {
-      btnForceWin.onclick = () => {
-        this.gameClient.applyCommand({ type: CommandType.DEBUG_FORCE_WIN });
-      };
-    }
+    if (btnForceWin) btnForceWin.onclick = () => this.gameClient.applyCommand({ type: CommandType.DEBUG_FORCE_WIN });
 
     const btnForceLose = document.getElementById("btn-debug-lose");
-    if (btnForceLose) {
-      btnForceLose.onclick = () => {
-        this.gameClient.applyCommand({ type: CommandType.DEBUG_FORCE_LOSE });
-      };
-    }
+    if (btnForceLose) btnForceLose.onclick = () => this.gameClient.applyCommand({ type: CommandType.DEBUG_FORCE_LOSE });
   }
 
   private onEquipmentConfirmed(config: SquadConfig) {
-    if (this.missionSetupManager.currentCampaignNode) {
-      // In campaign, update the roster with the new equipment
+    if (this.registry.missionSetupManager.currentCampaignNode) {
       config.soldiers.forEach((soldier) => {
         if (soldier.id) {
-          this.campaignManager.assignEquipment(soldier.id, {
+          this.registry.campaignManager.assignEquipment(soldier.id, {
             rightHand: soldier.rightHand,
             leftHand: soldier.leftHand,
             body: soldier.body,
@@ -660,49 +573,36 @@ export class GameApp {
           });
         }
       });
-      this.missionSetupManager.currentSquad = config;
-      this.missionSetupManager.saveCurrentConfig();
-
-      // Return to sector map (Spec: flow is Sector -> Equipment -> Launch)
-      // Confirm Squad just saves it and goes back
-      this.navigationOrchestrator.switchScreen("campaign", true);
-      this.campaignShell.show("campaign", "sector-map");
+      this.registry.missionSetupManager.currentSquad = config;
+      this.registry.missionSetupManager.saveCurrentConfig();
+      this.registry.navigationOrchestrator.switchScreen("campaign", true);
+      this.registry.campaignShell.show("campaign", "sector-map");
     } else {
-      // In custom, just update the setup manager
-      this.missionSetupManager.currentSquad = config;
-      this.missionSetupManager.saveCurrentConfig();
-
-      // Also return to mission-setup in custom flow
-      this.missionSetupManager.loadAndApplyConfig(false);
+      this.registry.missionSetupManager.currentSquad = config;
+      this.registry.missionSetupManager.saveCurrentConfig();
+      this.registry.missionSetupManager.loadAndApplyConfig(false);
       this.squadBuilder.update(
-        this.missionSetupManager.currentSquad,
-        this.missionSetupManager.currentMissionType,
+        this.registry.missionSetupManager.currentSquad,
+        this.registry.missionSetupManager.currentMissionType,
         false,
       );
-      this.navigationOrchestrator.switchScreen("mission-setup", false);
-      this.campaignShell.show("custom", "setup");
+      this.registry.navigationOrchestrator.switchScreen("mission-setup", false);
+      this.registry.campaignShell.show("custom", "setup");
     }
   }
 
   private onShowSummary() {
-    const state = this.campaignManager.getState();
+    const state = this.registry.campaignManager.getState();
     if (state) {
-      this.navigationOrchestrator.switchScreen("campaign-summary", true, true, state);
+      this.registry.navigationOrchestrator.switchScreen("campaign-summary", true, true, state);
     }
   }
 
-  private updateUI(state: GameState) {
-    this.currentGameState = state;
-    this.hudManager.update(state, this.selectedUnitId);
-    this.menuController.update(state);
-  }
-
   private async copyWorldState() {
-    if (!this.currentGameState) return;
+    const state = this.registry.missionRunner.getCurrentGameState();
+    if (!state) return;
     try {
-      await navigator.clipboard.writeText(
-        JSON.stringify(this.currentGameState, null, 2),
-      );
+      await navigator.clipboard.writeText(JSON.stringify(state, null, 2));
       this.modalService.alert("World state copied to clipboard!");
     } catch (err) {
       Logger.error("Failed to copy world state:", err);
@@ -711,9 +611,7 @@ export class GameApp {
 
   private exportReplay() {
     const replay = this.gameClient.getReplayData();
-    const blob = new Blob([JSON.stringify(replay, null, 2)], {
-      type: "application/json",
-    });
+    const blob = new Blob([JSON.stringify(replay, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -722,101 +620,63 @@ export class GameApp {
     URL.revokeObjectURL(url);
   }
 
-
-
   private onCampaignNodeSelect(node: CampaignNode) {
-    // 1. Set the node in setup manager
-    this.missionSetupManager.currentCampaignNode = node;
+    this.registry.missionSetupManager.currentCampaignNode = node;
+    this.registry.missionSetupManager.currentSeed = node.mapSeed;
+    this.registry.missionSetupManager.currentMissionType = node.missionType || MissionType.RecoverIntel;
+    this.registry.missionSetupManager.currentStaticMapData = undefined;
 
-    // 2. Set mission parameters from node
-    this.missionSetupManager.currentSeed = node.mapSeed;
-    this.missionSetupManager.currentMissionType =
-      node.missionType || MissionType.RecoverIntel;
-
-    // 3. Clear any manually loaded map data
-    this.missionSetupManager.currentStaticMapData = undefined;
-
-    // 4. Update squad (VIP auto-add for Escort)
-    if (node.missionType === MissionType.EscortVIP) {
-      // Ensure VIP is in the squad
-      const hasVip = this.missionSetupManager.currentSquad.soldiers.some(
-        (s) => s.archetypeId === "vip",
-      );
-      if (!hasVip) {
-        // VIP slot is handled by SquadBuilder/MissionManager, 
-        // but we ensure it's not blocked by 4-soldier cap
-      }
-    }
-
-    // 5. Navigate to equipment screen (skipping mission-setup)
-    this.navigationOrchestrator.applyCampaignTheme();
-    this.missionSetupManager.loadAndApplyConfig(true);
-    this.missionSetupManager.saveCurrentConfig();
+    this.registry.navigationOrchestrator.applyCampaignTheme();
+    this.registry.missionSetupManager.loadAndApplyConfig(true);
+    this.registry.missionSetupManager.saveCurrentConfig();
     this.equipmentScreen.setCampaign(true);
     this.equipmentScreen.setHasNodeSelected(true);
-    this.equipmentScreen.updateConfig(
-      this.missionSetupManager.currentSquad,
-    );
-    this.navigationOrchestrator.switchScreen("equipment", true);
-    this.campaignShell.show("campaign", "ready-room", true);
+    this.equipmentScreen.updateConfig(this.registry.missionSetupManager.currentSquad);
+    this.registry.navigationOrchestrator.switchScreen("equipment", true);
+    this.registry.campaignShell.show("campaign", "ready-room", true);
   }
 
   private onCampaignStart() {
-    // Show the campaign shell and the campaign screen (sector map)
-    this.campaignShell.show("campaign", "sector-map");
-    this.navigationOrchestrator.switchScreen("campaign", true);
+    this.registry.campaignShell.show("campaign", "sector-map");
+    this.registry.navigationOrchestrator.switchScreen("campaign", true);
   }
 
   private handleMenuInput(key: string, shiftHeld: boolean = false) {
-    if (!this.currentGameState) return;
+    const state = this.registry.missionRunner.getCurrentGameState();
+    if (!state) return;
     this.menuController.isShiftHeld = shiftHeld;
-    this.menuController.handleMenuInput(key, this.currentGameState);
-    this.updateUI(this.currentGameState);
+    this.menuController.handleMenuInput(key, state);
+    this.registry.missionRunner.updateUI(state);
   }
 
   private togglePause() {
     const isPaused = this.gameClient.getIsPaused();
     this.gameClient.setTimeScale(isPaused ? 1.0 : 0.0);
-    this.syncSpeedUI();
-  }
-
-  private syncSpeedUI() {
-    const isPaused = this.gameClient.getIsPaused();
-    const timeScale = this.gameClient.getTimeScale();
-
-    const speedSlider = document.getElementById(
-      "speed-slider",
-    ) as HTMLInputElement;
-    if (speedSlider) {
-      speedSlider.value = timeScale.toString();
-    }
-
-    const btnPause = document.getElementById("btn-pause");
-    if (btnPause) {
-      btnPause.textContent = isPaused ? "▶" : "⏸";
-      btnPause.title = isPaused ? "Resume" : "Pause";
-    }
+    this.registry.missionRunner.syncSpeedUI();
   }
 
   private cycleUnits(reverse: boolean = false) {
-    if (!this.currentGameState) return;
-    const units = this.currentGameState.units;
+    const state = this.registry.missionRunner.getCurrentGameState();
+    if (!state) return;
+    const units = state.units;
     if (units.length === 0) return;
 
-    let index = units.findIndex((u) => u.id === this.selectedUnitId);
+    let index = units.findIndex((u) => u.id === this.registry.missionRunner.getSelectedUnitId());
     if (reverse) {
       index = index <= 0 ? units.length - 1 : index - 1;
     } else {
       index = index === -1 || index >= units.length - 1 ? 0 : index + 1;
     }
 
-    this.selectedUnitId = units[index].id;
-    this.centerOnUnit(this.selectedUnitId);
+    const unitId = units[index].id;
+    this.registry.missionRunner.setSelectedUnitId(unitId);
+    this.centerOnUnit(unitId);
   }
 
   private centerOnUnit(unitId: string) {
-    if (!this.currentGameState || !this.renderer) return;
-    const unit = this.currentGameState.units.find((u) => u.id === unitId);
+    const state = this.registry.missionRunner.getCurrentGameState();
+    if (!state || !this.renderer) return;
+    const unit = state.units.find((u) => u.id === unitId);
     if (unit) {
       const cellSize = this.renderer.cellSize;
       const container = document.getElementById("game-container");
@@ -835,18 +695,10 @@ export class GameApp {
     if (!container) return;
     const panAmount = 100;
     switch (direction) {
-      case "up":
-        container.scrollTop -= panAmount;
-        break;
-      case "down":
-        container.scrollTop += panAmount;
-        break;
-      case "left":
-        container.scrollLeft -= panAmount;
-        break;
-      case "right":
-        container.scrollLeft += panAmount;
-        break;
+      case "up": container.scrollTop -= panAmount; break;
+      case "down": container.scrollTop += panAmount; break;
+      case "left": container.scrollLeft -= panAmount; break;
+      case "right": container.scrollLeft += panAmount; break;
     }
   }
 
@@ -864,21 +716,19 @@ export class GameApp {
 
     const oldCellSize = this.renderer.cellSize;
     const newCellSize = Math.max(32, Math.min(512, oldCellSize * ratio));
-
     if (newCellSize === oldCellSize) return;
 
     const rect = container.getBoundingClientRect();
     const localCX = centerX - rect.left;
     const localCY = centerY - rect.top;
-
     const scrollX = container.scrollLeft;
     const scrollY = container.scrollTop;
-
     const actualRatio = newCellSize / oldCellSize;
 
     this.renderer.setCellSize(newCellSize);
-    if (this.currentGameState) {
-      this.renderer.render(this.currentGameState);
+    const state = this.registry.missionRunner.getCurrentGameState();
+    if (state) {
+      this.renderer.render(state);
     }
 
     container.scrollLeft = (scrollX + localCX) * actualRatio - localCX;
@@ -887,65 +737,50 @@ export class GameApp {
 
   private onUnitClick(unit: Unit | null, shiftHeld: boolean = false) {
     if (!unit) {
-      this.selectedUnitId = null;
-      if (this.currentGameState) this.updateUI(this.currentGameState);
+      this.registry.missionRunner.setSelectedUnitId(null);
+      const state = this.registry.missionRunner.getCurrentGameState();
+      if (state) this.hudManager.update(state, null);
       return;
     }
 
     if (this.menuController.menuState === "UNIT_SELECT") {
       this.menuController.selectUnit(unit.id);
-      if (this.currentGameState) this.updateUI(this.currentGameState);
+      const state = this.registry.missionRunner.getCurrentGameState();
+      if (state) this.hudManager.update(state, this.registry.missionRunner.getSelectedUnitId());
       return;
     }
 
-    // Selecting a new unit from HUD should cancel any previous pending action selection flow
-    if (this.selectedUnitId !== unit.id) {
+    if (this.registry.missionRunner.getSelectedUnitId() !== unit.id) {
       this.menuController.reset();
     }
 
-    this.selectedUnitId = unit.id;
+    this.registry.missionRunner.setSelectedUnitId(unit.id);
     if (!shiftHeld) {
       this.centerOnUnit(unit.id);
     }
   }
 
   private handleCanvasClick(event: MouseEvent) {
-    if (!this.renderer || !this.currentGameState) return;
-    const clickedCell = this.renderer.getCellCoordinates(
-      event.clientX,
-      event.clientY,
-    );
+    if (!this.renderer) return;
+    const state = this.registry.missionRunner.getCurrentGameState();
+    if (!state) return;
 
-    if (this.currentGameState.status === "Deployment") {
-      // Right Click: Undeploy
+    const clickedCell = this.renderer.getCellCoordinates(event.clientX, event.clientY);
+
+    if (state.status === "Deployment") {
       if (event.button === 2) {
-        const unit = this.currentGameState.units.find(
-          (u) =>
-            MathUtils.sameCellPosition(u.pos, clickedCell) &&
-            u.isDeployed !== false,
-        );
+        const unit = state.units.find((u) => MathUtils.sameCellPosition(u.pos, clickedCell) && u.isDeployed !== false);
         if (unit && unit.archetypeId !== "vip") {
-          this.gameClient.applyCommand({
-            type: CommandType.UNDEPLOY_UNIT,
-            unitId: unit.id,
-          });
+          this.gameClient.applyCommand({ type: CommandType.UNDEPLOY_UNIT, unitId: unit.id });
         }
         return;
       }
 
-      // Left Click: Deploy Selected
-      if (event.button === 0 && this.selectedUnitId) {
-        const unit = this.currentGameState.units.find(
-          (u) => u.id === this.selectedUnitId,
-        );
+      if (event.button === 0 && this.registry.missionRunner.getSelectedUnitId()) {
+        const unit = state.units.find((u) => u.id === this.registry.missionRunner.getSelectedUnitId());
         if (unit && unit.archetypeId !== "vip") {
-          const isValidSpawn =
-            this.currentGameState.map.squadSpawns?.some(
-              (s) => s.x === clickedCell.x && s.y === clickedCell.y,
-            ) ||
-            (this.currentGameState.map.squadSpawn &&
-              this.currentGameState.map.squadSpawn.x === clickedCell.x &&
-              this.currentGameState.map.squadSpawn.y === clickedCell.y);
+          const isValidSpawn = state.map.squadSpawns?.some((s) => s.x === clickedCell.x && s.y === clickedCell.y) ||
+            (state.map.squadSpawn && state.map.squadSpawn.x === clickedCell.x && state.map.squadSpawn.y === clickedCell.y);
 
           if (isValidSpawn) {
             this.gameClient.applyCommand({
@@ -960,98 +795,20 @@ export class GameApp {
     }
 
     const prevState = this.menuController.menuState;
-    this.menuController.handleCanvasClick(
-      clickedCell,
-      this.currentGameState,
-    );
+    this.menuController.handleCanvasClick(clickedCell, state);
 
     if (this.menuController.menuState !== prevState) {
-      this.updateUI(this.currentGameState);
+      this.registry.missionRunner.updateUI(state);
       return;
     }
 
-    const unitAtClick = this.currentGameState.units.find(
-      (unit) =>
-        MathUtils.sameCellPosition(unit.pos, clickedCell) &&
-        unit.state !== UnitState.Dead &&
-        unit.state !== UnitState.Extracted &&
-        unit.isDeployed !== false,
+    const unitAtClick = state.units.find((u) => 
+      MathUtils.sameCellPosition(u.pos, clickedCell) && 
+      u.state !== UnitState.Dead && 
+      u.state !== UnitState.Extracted && 
+      u.isDeployed !== false
     );
     if (unitAtClick) this.onUnitClick(unitAtClick);
-  }
-
-  private launchMission() {
-    this.setMissionHUDVisible(true);
-    this.navigationOrchestrator.switchScreen("mission", false, false);
-
-    const config = this.missionSetupManager.saveCurrentConfig();
-
-    // Handle Prologue Map (ADR 0042)
-    let staticMapData = this.missionSetupManager.currentStaticMapData;
-    if (config.missionType === MissionType.Prologue) {
-      staticMapData = prologueMap as any;
-    }
-
-    this.missionCoordinator.launchMission(
-      {
-        ...config,
-        seed: config.lastSeed,
-        staticMapData,
-        campaignNode: this.missionSetupManager.currentCampaignNode || undefined,
-        skipDeployment: !this.missionSetupManager.manualDeployment || config.missionType === MissionType.Prologue,
-      },
-      (report) => {
-        this.onMissionComplete(report);
-        return true;
-      },
-      (state) => this.updateUI(state),
-      () => this.syncSpeedUI(),
-    );
-  }
-
-  private resumeMission() {
-    this.setMissionHUDVisible(true);
-    this.navigationOrchestrator.switchScreen("mission", false, false);
-
-    this.missionCoordinator.resumeMission(
-      (report) => {
-        this.onMissionComplete(report);
-        return true;
-      },
-      (state) => this.updateUI(state),
-      () => this.syncSpeedUI(),
-      (node) => {
-        this.missionSetupManager.currentCampaignNode = node;
-        if (node) this.navigationOrchestrator.applyCampaignTheme();
-      },
-    );
-  }
-
-  private async abortMission() {
-    const confirmed = await this.modalService.confirm(
-      "Abort Mission and return to menu?",
-    );
-    if (!confirmed) return;
-
-    this.missionCoordinator.abortMission(
-      this.currentGameState,
-      this.missionSetupManager.currentCampaignNode,
-      this.missionSetupManager.currentSeed,
-      this.missionSetupManager.currentSquad,
-      (report) => {
-        this.onMissionComplete(report);
-      },
-    );
-  }
-
-  private setMissionHUDVisible(visible: boolean) {
-    const topBar = document.getElementById("top-bar");
-    const soldierPanel = document.getElementById("soldier-panel");
-    const rightPanel = document.getElementById("right-panel");
-    const display = visible ? "flex" : "none";
-    if (topBar) topBar.style.display = display;
-    if (soldierPanel) soldierPanel.style.display = display;
-    if (rightPanel) rightPanel.style.display = display;
   }
 
   private setupResponsiveDrawers() {
@@ -1074,7 +831,6 @@ export class GameApp {
       });
     }
 
-    // Close drawers when clicking the game area
     const gameContainer = document.getElementById("game-container");
     if (gameContainer) {
       gameContainer.addEventListener("click", () => {
