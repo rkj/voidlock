@@ -4,7 +4,6 @@ import {
   MissionType,
   SquadConfig,
   UnitState,
-  Unit,
   CommandType,
   UnitStyle,
   SquadSoldierConfig,
@@ -30,7 +29,6 @@ import { SquadBuilder } from "../components/SquadBuilder";
 import { Logger } from "@src/shared/Logger";
 import { GlobalShortcuts } from "../GlobalShortcuts";
 import { TooltipManager } from "../ui/TooltipManager";
-import { MathUtils } from "@src/shared/utils/MathUtils";
 import { InputDispatcher } from "../InputDispatcher";
 import { AppServiceRegistry } from "./AppServiceRegistry";
 import { Renderer } from "../Renderer";
@@ -43,8 +41,6 @@ export class GameApp {
   private registry: AppServiceRegistry;
   
   private get gameClient() { return this.registry.gameClient; }
-  private get menuController() { return this.registry.menuController; }
-  private get hudManager() { return this.registry.hudManager; }
   private get inputManager() { return this.registry.inputManager; }
   private get modalService() { return this.registry.modalService; }
 
@@ -82,9 +78,9 @@ export class GameApp {
         this.registry.navigationOrchestrator.handleExternalScreenChange(id, isCampaign),
       onShellTabChange: (tabId) => this.registry.navigationOrchestrator.onShellTabChange(tabId),
       onShellMainMenu: () => this.showMainMenu(),
-      onUnitClick: (unit, shift) => this.onUnitClick(unit, shift),
+      onUnitClick: (unit, shift) => this.registry.inputOrchestrator.onUnitClick(unit, shift),
       onAbortMission: () => this.registry.missionRunner.abortMission(),
-      onMenuInput: (key, shift) => this.handleMenuInput(key, shift),
+      onMenuInput: (key, shift) => this.registry.inputOrchestrator.handleMenuInput(key, shift),
       onTimeScaleChange: (scale) => {
         this.gameClient.setTimeScale(scale);
         this.registry.missionRunner.syncSpeedUI();
@@ -112,16 +108,17 @@ export class GameApp {
       onTogglePause: () => this.togglePause(),
       onToggleDebug: (enabled) => this.gameClient.toggleDebugOverlay(enabled),
       onToggleLos: (enabled) => this.gameClient.toggleLosOverlay(enabled),
-      onCanvasClick: (e) => this.handleCanvasClick(e),
+      onCanvasClick: (e) => this.registry.inputOrchestrator.handleCanvasClick(e),
       onRendererCreated: (renderer) => { this.renderer = renderer; },
       getCurrentGameState: () => this.registry.missionRunner.getCurrentGameState(),
       isDebriefVisible: () => this.debriefScreen.isVisible(),
       getSelectedUnitId: () => this.registry.missionRunner.getSelectedUnitId(),
       getCellCoordinates: (px, py) => this.renderer!.getCellCoordinates(px, py),
-      cycleUnits: (reverse) => this.cycleUnits(reverse),
-      panMap: (direction) => this.panMap(direction),
-      panMapBy: (dx, dy) => this.panMapBy(dx, dy),
-      zoomMap: (ratio, cx, cy) => this.zoomMap(ratio, cx, cy),
+      cycleUnits: (reverse) => this.registry.inputOrchestrator.cycleUnits(reverse),
+      panMap: (direction) => this.registry.inputOrchestrator.panMap(direction),
+      panMapBy: (dx, dy) => this.registry.inputOrchestrator.panMapBy(dx, dy),
+      zoomMap: (ratio, cx, cy) => this.registry.inputOrchestrator.zoomMap(ratio, cx, cy),
+      getRenderer: () => this.renderer,
     });
 
     this.mainMenuScreen = new MainMenuScreen("screen-main-menu");
@@ -641,174 +638,10 @@ export class GameApp {
     this.registry.navigationOrchestrator.switchScreen("campaign", true);
   }
 
-  private handleMenuInput(key: string, shiftHeld: boolean = false) {
-    const state = this.registry.missionRunner.getCurrentGameState();
-    if (!state) return;
-    this.menuController.isShiftHeld = shiftHeld;
-    this.menuController.handleMenuInput(key, state);
-    this.registry.missionRunner.updateUI(state);
-  }
-
   private togglePause() {
     const isPaused = this.gameClient.getIsPaused();
     this.gameClient.setTimeScale(isPaused ? 1.0 : 0.0);
     this.registry.missionRunner.syncSpeedUI();
-  }
-
-  private cycleUnits(reverse: boolean = false) {
-    const state = this.registry.missionRunner.getCurrentGameState();
-    if (!state) return;
-    const units = state.units;
-    if (units.length === 0) return;
-
-    let index = units.findIndex((u) => u.id === this.registry.missionRunner.getSelectedUnitId());
-    if (reverse) {
-      index = index <= 0 ? units.length - 1 : index - 1;
-    } else {
-      index = index === -1 || index >= units.length - 1 ? 0 : index + 1;
-    }
-
-    const unitId = units[index].id;
-    this.registry.missionRunner.setSelectedUnitId(unitId);
-    this.centerOnUnit(unitId);
-  }
-
-  private centerOnUnit(unitId: string) {
-    const state = this.registry.missionRunner.getCurrentGameState();
-    if (!state || !this.renderer) return;
-    const unit = state.units.find((u) => u.id === unitId);
-    if (unit) {
-      const cellSize = this.renderer.cellSize;
-      const container = document.getElementById("game-container");
-      if (container) {
-        container.scrollTo({
-          left: unit.pos.x * cellSize - container.clientWidth / 2,
-          top: unit.pos.y * cellSize - container.clientHeight / 2,
-          behavior: "smooth",
-        });
-      }
-    }
-  }
-
-  private panMap(direction: string) {
-    const container = document.getElementById("game-container");
-    if (!container) return;
-    const panAmount = 100;
-    switch (direction) {
-      case "up": container.scrollTop -= panAmount; break;
-      case "down": container.scrollTop += panAmount; break;
-      case "left": container.scrollLeft -= panAmount; break;
-      case "right": container.scrollLeft += panAmount; break;
-    }
-  }
-
-  private panMapBy(dx: number, dy: number) {
-    const container = document.getElementById("game-container");
-    if (!container) return;
-    container.scrollLeft += dx;
-    container.scrollTop += dy;
-  }
-
-  private zoomMap(ratio: number, centerX: number, centerY: number) {
-    if (!this.renderer) return;
-    const container = document.getElementById("game-container");
-    if (!container) return;
-
-    const oldCellSize = this.renderer.cellSize;
-    const newCellSize = Math.max(32, Math.min(512, oldCellSize * ratio));
-    if (newCellSize === oldCellSize) return;
-
-    const rect = container.getBoundingClientRect();
-    const localCX = centerX - rect.left;
-    const localCY = centerY - rect.top;
-    const scrollX = container.scrollLeft;
-    const scrollY = container.scrollTop;
-    const actualRatio = newCellSize / oldCellSize;
-
-    this.renderer.setCellSize(newCellSize);
-    const state = this.registry.missionRunner.getCurrentGameState();
-    if (state) {
-      this.renderer.render(state);
-    }
-
-    container.scrollLeft = (scrollX + localCX) * actualRatio - localCX;
-    container.scrollTop = (scrollY + localCY) * actualRatio - localCY;
-  }
-
-  private onUnitClick(unit: Unit | null, shiftHeld: boolean = false) {
-    if (!unit) {
-      this.registry.missionRunner.setSelectedUnitId(null);
-      const state = this.registry.missionRunner.getCurrentGameState();
-      if (state) this.hudManager.update(state, null);
-      return;
-    }
-
-    if (this.menuController.menuState === "UNIT_SELECT") {
-      this.menuController.selectUnit(unit.id);
-      const state = this.registry.missionRunner.getCurrentGameState();
-      if (state) this.hudManager.update(state, this.registry.missionRunner.getSelectedUnitId());
-      return;
-    }
-
-    if (this.registry.missionRunner.getSelectedUnitId() !== unit.id) {
-      this.menuController.reset();
-    }
-
-    this.registry.missionRunner.setSelectedUnitId(unit.id);
-    if (!shiftHeld) {
-      this.centerOnUnit(unit.id);
-    }
-  }
-
-  private handleCanvasClick(event: MouseEvent) {
-    if (!this.renderer) return;
-    const state = this.registry.missionRunner.getCurrentGameState();
-    if (!state) return;
-
-    const clickedCell = this.renderer.getCellCoordinates(event.clientX, event.clientY);
-
-    if (state.status === "Deployment") {
-      if (event.button === 2) {
-        const unit = state.units.find((u) => MathUtils.sameCellPosition(u.pos, clickedCell) && u.isDeployed !== false);
-        if (unit && unit.archetypeId !== "vip") {
-          this.gameClient.applyCommand({ type: CommandType.UNDEPLOY_UNIT, unitId: unit.id });
-        }
-        return;
-      }
-
-      if (event.button === 0 && this.registry.missionRunner.getSelectedUnitId()) {
-        const unit = state.units.find((u) => u.id === this.registry.missionRunner.getSelectedUnitId());
-        if (unit && unit.archetypeId !== "vip") {
-          const isValidSpawn = state.map.squadSpawns?.some((s) => s.x === clickedCell.x && s.y === clickedCell.y) ||
-            (state.map.squadSpawn && state.map.squadSpawn.x === clickedCell.x && state.map.squadSpawn.y === clickedCell.y);
-
-          if (isValidSpawn) {
-            this.gameClient.applyCommand({
-              type: CommandType.DEPLOY_UNIT,
-              unitId: unit.id,
-              target: { x: clickedCell.x + 0.5, y: clickedCell.y + 0.5 },
-            });
-            return;
-          }
-        }
-      }
-    }
-
-    const prevState = this.menuController.menuState;
-    this.menuController.handleCanvasClick(clickedCell, state);
-
-    if (this.menuController.menuState !== prevState) {
-      this.registry.missionRunner.updateUI(state);
-      return;
-    }
-
-    const unitAtClick = state.units.find((u) => 
-      MathUtils.sameCellPosition(u.pos, clickedCell) && 
-      u.state !== UnitState.Dead && 
-      u.state !== UnitState.Extracted && 
-      u.isDeployed !== false
-    );
-    if (unitAtClick) this.onUnitClick(unitAtClick);
   }
 
   private setupResponsiveDrawers() {
