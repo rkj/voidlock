@@ -314,6 +314,7 @@ export type SquadSoldierConfig = {
   hp?: number;
   maxHp?: number;
   soldierAim?: number;
+  status?: "Healthy" | "Wounded" | "Dead";
 };
 
 export type SquadConfig = {
