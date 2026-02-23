@@ -17,6 +17,12 @@ import { ConfigManager } from "../ConfigManager";
 import { Logger, LogLevel } from "@src/shared/Logger";
 import { MapFactory } from "@src/engine/map/MapFactory";
 import { MapGenerationConfig, GameState, Unit } from "@src/shared/types";
+import { Renderer as IRenderer } from "../Renderer";
+import { MissionSetupManager } from "./MissionSetupManager";
+import { MissionCoordinator } from "./MissionCoordinator";
+import { MissionRunner } from "./MissionRunner";
+import { NavigationOrchestrator, NavigationScreens } from "./NavigationOrchestrator";
+import { SquadBuilder } from "../components/SquadBuilder";
 
 export interface AppServiceRegistryConfig {
   onScreenChange: (id: ScreenId, isCampaign: boolean) => void;
@@ -36,6 +42,7 @@ export interface AppServiceRegistryConfig {
   onToggleDebug: (enabled: boolean) => void;
   onToggleLos: (enabled: boolean) => void;
   onCanvasClick: (e: MouseEvent) => void;
+  onRendererCreated: (renderer: IRenderer) => void;
   getCurrentGameState: () => GameState | null;
   isDebriefVisible: () => boolean;
   getSelectedUnitId: () => string | null;
@@ -60,6 +67,10 @@ export class AppServiceRegistry {
   public tutorialManager!: TutorialManager;
   public advisorOverlay!: AdvisorOverlay;
   public screenManager!: ScreenManager;
+  public missionSetupManager!: MissionSetupManager;
+  public missionCoordinator!: MissionCoordinator;
+  public missionRunner!: MissionRunner;
+  public navigationOrchestrator!: NavigationOrchestrator;
 
   public async initialize(config: AppServiceRegistryConfig) {
     // 1. Initialize core managers
@@ -108,6 +119,21 @@ export class AppServiceRegistry {
     });
     this.tutorialManager.enable();
 
+    this.missionSetupManager = new MissionSetupManager(
+      this.campaignManager,
+      this.themeManager,
+      this.modalService,
+    );
+
+    this.missionCoordinator = new MissionCoordinator(
+      this.campaignShell,
+      this.gameClient,
+      this.screenManager,
+      this.menuController,
+      this.campaignManager,
+      (renderer) => config.onRendererCreated(renderer),
+    );
+
     // 2. Initialize UI managers
     this.hudManager = new HUDManager(
       this.menuController,
@@ -145,5 +171,40 @@ export class AppServiceRegistry {
       config.zoomMap,
     );
     this.inputManager.init();
+  }
+
+  public finalizeNavigation(
+    screens: NavigationScreens,
+    squadBuilder: SquadBuilder,
+    callbacks: {
+      showMainMenu: () => void;
+    }
+  ) {
+    this.missionRunner = new MissionRunner({
+      missionCoordinator: this.missionCoordinator,
+      missionSetupManager: this.missionSetupManager,
+      gameClient: this.gameClient,
+      campaignManager: this.campaignManager,
+      hudManager: this.hudManager,
+      menuController: this.menuController,
+      modalService: this.modalService,
+    });
+
+    this.navigationOrchestrator = new NavigationOrchestrator(
+      this.screenManager,
+      this.campaignShell,
+      this.campaignManager,
+      this.themeManager,
+      this.missionSetupManager,
+      squadBuilder,
+      screens,
+      {
+        showMainMenu: callbacks.showMainMenu,
+        launchMission: () => this.missionRunner.launchMission(),
+        resumeMission: () => this.missionRunner.resumeMission(),
+      }
+    );
+
+    this.missionRunner.setNavigationOrchestrator(this.navigationOrchestrator);
   }
 }

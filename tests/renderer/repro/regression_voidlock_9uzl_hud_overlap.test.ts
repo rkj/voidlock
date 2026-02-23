@@ -116,7 +116,7 @@ describe("Regression voidlock-9uzl: HUD visibility on mission end", () => {
     const appAny = app as any;
 
     // Simulate mission launch to setup coordination
-    appAny.setMissionHUDVisible(true);
+    appAny.registry.missionRunner.setMissionHUDVisible(true);
     expect(document.getElementById("top-bar")?.style.display).toBe("flex");
     expect(document.getElementById("soldier-panel")?.style.display).toBe(
       "flex",
@@ -135,7 +135,7 @@ describe("Regression voidlock-9uzl: HUD visibility on mission end", () => {
     };
 
     // Trigger debrief via the coordinator's callback logic or direct call
-    appAny.setMissionHUDVisible(false);
+    appAny.registry.missionRunner.setMissionHUDVisible(false);
     appAny.debriefScreen.show(mockReport);
 
     expect(document.getElementById("top-bar")?.style.display).toBe("none");
