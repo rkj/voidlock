@@ -1,6 +1,7 @@
 import { AdvisorMessage } from "@src/renderer/controllers/TutorialManager";
 import { GameClient } from "@src/engine/GameClient";
 import { Logger } from "@src/shared/Logger";
+import advisorStylesUrl from "@src/styles/advisor.css?url";
 
 export class AdvisorOverlay {
   private container: HTMLElement;
@@ -28,7 +29,7 @@ export class AdvisorOverlay {
       const link = document.createElement("link");
       link.id = "advisor-styles";
       link.rel = "stylesheet";
-      link.href = "src/styles/advisor.css";
+      link.href = advisorStylesUrl;
       document.head.appendChild(link);
     }
   }
