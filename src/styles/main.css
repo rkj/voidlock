@@ -113,6 +113,167 @@ body {
   text-align: center;
 }
 
+#screen-main-menu {
+  position: relative;
+  align-items: center;
+  justify-content: flex-start;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: clamp(12px, 3.5vh, 28px) 12px;
+  background:
+    radial-gradient(circle at 20% 15%, rgba(0, 255, 140, 0.08), transparent 45%),
+    radial-gradient(circle at 80% 90%, rgba(0, 170, 255, 0.08), transparent 45%),
+    var(--color-surface);
+}
+
+#screen-main-menu::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: image-set(
+    url("/Voidlock.webp") type("image/webp"),
+    url("/Voidlock.png") type("image/png")
+  );
+  background-position: center;
+  background-size: cover;
+  opacity: 0.18;
+  transform: scale(1.02);
+  filter: contrast(1.08) saturate(1.05);
+  pointer-events: none;
+  z-index: 0;
+}
+
+#screen-main-menu > :not(.title-splash) {
+  position: relative;
+  z-index: 1;
+}
+
+.main-menu-content {
+  width: min(100%, 520px);
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: clamp(4px, 1.5vh, 12px) 0;
+  transition:
+    opacity 280ms ease,
+    transform 280ms ease;
+}
+
+.main-menu-content h1 {
+  margin: 0;
+}
+
+.menu-version {
+  color: var(--color-text-dim);
+  font-size: 0.8em;
+  margin: 6px 0 18px;
+}
+
+#screen-main-menu.title-splash-active .main-menu-content {
+  opacity: 0.3;
+  transform: translateY(10px) scale(0.985);
+  pointer-events: none;
+}
+
+#screen-main-menu.title-splash-complete .main-menu-content {
+  opacity: 1;
+  transform: none;
+}
+
+.title-splash {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: translateY(-14%) scale(1.08);
+  pointer-events: none;
+  z-index: 3;
+}
+
+#screen-main-menu.title-splash-active .title-splash {
+  animation: title-splash-exit 1.8s ease-out forwards;
+  opacity: 1;
+}
+
+#screen-main-menu.title-splash-complete .title-splash {
+  opacity: 0;
+  transform: translateY(-14%) scale(1.08);
+  animation: none;
+}
+
+.title-splash-image-wrap {
+  width: min(84vw, 980px);
+  aspect-ratio: 1024 / 559;
+  display: block;
+}
+
+.title-splash-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.55));
+}
+
+.title-splash-vignette {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      circle at center,
+      rgba(0, 0, 0, 0.1) 0%,
+      rgba(0, 0, 0, 0.75) 100%
+    );
+}
+
+@keyframes title-splash-exit {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  65% {
+    opacity: 0.72;
+    transform: translateY(-1%) scale(1.02);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-14%) scale(1.08);
+  }
+}
+
+@media (max-width: 700px) {
+  .title-splash-image-wrap {
+    width: min(94vw, 980px);
+  }
+}
+
+@media (max-height: 780px) {
+  #screen-main-menu {
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  .main-menu-content {
+    min-height: auto;
+    justify-content: flex-start;
+    padding-top: 4px;
+  }
+
+  .menu-button-container {
+    margin-top: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #screen-main-menu.title-splash-active .title-splash {
+    animation-duration: 0.01ms;
+  }
+}
+
 /* Screen: Mission (Game) */
 #screen-mission {
   display: none; /* Hidden initially */
@@ -187,7 +348,7 @@ button.active {
 }
 
 .menu-button {
-  width: 300px;
+  width: min(300px, calc(100vw - 44px));
   font-size: 1.2em;
 }
 
@@ -195,8 +356,8 @@ button.active {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 40px;
-  gap: 15px;
+  margin-top: clamp(14px, 3vh, 28px);
+  gap: 12px;
 }
 
 .menu-import-section {

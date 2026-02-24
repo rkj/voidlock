@@ -5,6 +5,15 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Voidlock</title>
+    <style>
+      /* Prevent pre-CSS flash of non-menu screens. */
+      #app > .screen {
+        display: none;
+      }
+      #screen-main-menu {
+        display: flex;
+      }
+    </style>
     <link rel="stylesheet" href="/styles/main.css" />
     <script>
       (function () {
@@ -132,46 +141,53 @@
     <div id="app">
       <!-- 1. Main Menu -->
       <div id="screen-main-menu" class="screen screen-centered">
-        <h1>Voidlock</h1>
-        <p
-          id="menu-version"
-          style="
-            color: var(--color-text-dim);
-            font-size: 0.8em;
-            margin-top: -15px;
-            margin-bottom: 20px;
-          "
-        ></p>
-
-        <div class="menu-button-container">
-          <button id="btn-menu-campaign" class="menu-button">Campaign</button>
-          <button id="btn-menu-custom" class="menu-button">
-            Custom Mission
-          </button>
-          <button id="btn-menu-engineering" class="menu-button">
-            Engineering
-          </button>
-          <button id="btn-menu-statistics" class="menu-button">
-            Statistics
-          </button>
-          <button id="btn-menu-settings" class="menu-button">Settings</button>
-
-          <div class="menu-import-section">
-            <label for="import-replay" class="menu-import-label"
-              >Load Replay JSON</label
-            >
-            <input
-              type="file"
-              id="import-replay"
-              accept=".json"
-              style="display: none"
+        <div class="title-splash" aria-hidden="true">
+          <picture class="title-splash-image-wrap">
+            <source srcset="/Voidlock.webp" type="image/webp" />
+            <img
+              class="title-splash-image"
+              src="/Voidlock.png"
+              alt=""
+              decoding="async"
             />
+          </picture>
+          <div class="title-splash-vignette"></div>
+        </div>
+
+        <div class="main-menu-content">
+          <h1>Voidlock</h1>
+          <p id="menu-version" class="menu-version"></p>
+
+          <div class="menu-button-container">
+            <button id="btn-menu-campaign" class="menu-button">Campaign</button>
+            <button id="btn-menu-custom" class="menu-button">
+              Custom Mission
+            </button>
+            <button id="btn-menu-engineering" class="menu-button">
+              Engineering
+            </button>
+            <button id="btn-menu-statistics" class="menu-button">
+              Statistics
+            </button>
+            <button id="btn-menu-settings" class="menu-button">Settings</button>
+
+            <div class="menu-import-section">
+              <label for="import-replay" class="menu-import-label"
+                >Load Replay JSON</label
+              >
+              <input
+                type="file"
+                id="import-replay"
+                accept=".json"
+                style="display: none"
+              />
+            </div>
           </div>
         </div>
       </div>
 
       <!-- 2. Campaign Shell wrapper -->
-      <div id="screen-campaign-shell" class="screen flex-col">
+      <div id="screen-campaign-shell" class="screen">
         <div id="campaign-shell-top-bar"></div>
         <div
           id="campaign-shell-content"
@@ -201,7 +217,7 @@
           </div>
 
           <!-- 2f. Mission Setup Screen -->
-          <div id="screen-mission-setup" class="screen flex-col h-full overflow-hidden">
+          <div id="screen-mission-setup" class="screen h-full overflow-hidden">
             <h1 id="mission-setup-title" style="flex-shrink: 0; margin-bottom: 0; padding-top: 20px;">Mission Configuration</h1>
             <div
               id="mission-setup-context"
