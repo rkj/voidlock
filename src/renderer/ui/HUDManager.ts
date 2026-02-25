@@ -9,6 +9,7 @@ import { MathUtils } from "@src/shared/utils/MathUtils";
 
 export class HUDManager {
   private lastMenuHtml = "";
+  private currentState: GameState | null = null;
 
   constructor(
     private menuController: MenuController,
@@ -24,6 +25,7 @@ export class HUDManager {
   ) {}
 
   public update(state: GameState, selectedUnitId: string | null) {
+    this.currentState = state;
     this.updateTopBar(state);
     this.updateRightPanel(state);
     this.updateSoldierList(state, selectedUnitId);
@@ -341,8 +343,10 @@ export class HUDManager {
       autoFillBtn.style.width = "100%";
       autoFillBtn.style.marginBottom = "10px";
       autoFillBtn.addEventListener("click", () => {
-        const pending = state.units.filter((u) => u.archetypeId !== "vip" && u.isDeployed === false);
-        const allSpawns = state.map.squadSpawns || (state.map.squadSpawn ? [state.map.squadSpawn] : []);
+        const s = this.currentState;
+        if (!s) return;
+        const pending = s.units.filter((u) => u.archetypeId !== "vip" && u.isDeployed === false);
+        const allSpawns = s.map.squadSpawns || (s.map.squadSpawn ? [s.map.squadSpawn] : []);
         
         if (allSpawns.length === 0) return;
 
@@ -471,7 +475,9 @@ export class HUDManager {
           },
           onDoubleClick: () => {
             if (!isPlaced) {
-              const spawn = this.findNextEmptySpawn(state);
+              const s = this.currentState;
+              if (!s) return;
+              const spawn = this.findNextEmptySpawn(s);
               if (spawn) {
                 this.onDeployUnit(u.id, spawn.x + 0.5, spawn.y + 0.5);
               }

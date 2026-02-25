@@ -13,7 +13,7 @@ This directory contains specific implementations of map generation strategies.
 ## Functionality
 
 - **Procedural Generation**: Uses seeded randomness to create diverse map layouts. Now standardized to produce corner-to-corner geometric segments for `WallDefinition`.
-- **Constraints**: Adheres to strict rules about room sizes, corridor widths, and connectivity (e.g., no "open walls to nowhere").
+- **Constraints**: Adheres to strict rules about room sizes, corridor widths, and connectivity (e.g., no "open walls to nowhere"). Squad spawn points are strictly limited to 2 in the same quadrant to allow for 4-unit squad deployment via overlapping.
 - **Validation**: Includes logic to ensure generated maps are valid and playable.
 
 ## Connections
