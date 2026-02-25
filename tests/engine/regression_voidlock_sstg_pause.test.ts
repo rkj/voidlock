@@ -47,7 +47,7 @@ describe("GameClient Pause Logic (sstg.2)", () => {
     client = new GameClient(mockMapGeneratorFactory);
   });
 
-  it("should use 0.05x for active pause when allowed", () => {
+  it("should use 0.1x for active pause when allowed", () => {
     client.init(
       12345,
       MapGeneratorType.Procedural,
@@ -71,12 +71,12 @@ describe("GameClient Pause Logic (sstg.2)", () => {
 
     client.togglePause(); // Should pause
     expect(client.getIsPaused()).toBe(true);
-    expect(client.getTimeScale()).toBe(0.05);
+    expect(client.getTimeScale()).toBe(0.1);
 
-    // Verify SET_TIME_SCALE was sent to worker with 0.05
+    // Verify SET_TIME_SCALE was sent to worker with 0.1
     expect(postMessageMock).toHaveBeenCalledWith({
       type: "SET_TIME_SCALE",
-      payload: 0.05,
+      payload: 0.1,
     });
   });
 
@@ -104,7 +104,7 @@ describe("GameClient Pause Logic (sstg.2)", () => {
 
     client.setTimeScale(2.0);
     client.togglePause(); // Pause
-    expect(client.getTimeScale()).toBe(0.05);
+    expect(client.getTimeScale()).toBe(0.1);
 
     client.togglePause(); // Resume
     expect(client.getTimeScale()).toBe(2.0);
@@ -173,7 +173,7 @@ describe("GameClient Pause Logic (sstg.2)", () => {
     expect(client.getTimeScale()).toBe(10.0);
   });
 
-  it("should return 0.05 for getTimeScale when paused and tactical allowed", () => {
+  it("should return 0.1 for getTimeScale when paused and tactical allowed", () => {
     client.init(
       12345,
       MapGeneratorType.Procedural,
@@ -195,6 +195,6 @@ describe("GameClient Pause Logic (sstg.2)", () => {
       true,
     );
     expect(client.getIsPaused()).toBe(true);
-    expect(client.getTimeScale()).toBe(0.05);
+    expect(client.getTimeScale()).toBe(0.1);
   });
 });

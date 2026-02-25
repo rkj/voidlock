@@ -52,7 +52,7 @@ describe("Regression: Voidlock-8hwf Time Clamping", () => {
     vi.useRealTimers();
   });
 
-  it("should allow active pause (0.05x) when allowTacticalPause is true", () => {
+  it("should allow active pause (0.1x) when allowTacticalPause is true", () => {
     client.init(
       12345,
       MapGeneratorType.Procedural,
@@ -75,10 +75,10 @@ describe("Regression: Voidlock-8hwf Time Clamping", () => {
     );
 
     client.pause();
-    expect(client.getTimeScale()).toBe(0.05);
+    expect(client.getTimeScale()).toBe(0.1);
     expect(postMessageMock).toHaveBeenCalledWith({
       type: "SET_TIME_SCALE",
-      payload: 0.05,
+      payload: 0.1,
     });
   });
 

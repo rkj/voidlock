@@ -18,7 +18,7 @@ This directory contains the application lifecycle and bootstrapping logic for th
 - `AppServiceRegistry.ts`: A central hub responsible for the instantiation and lifecycle management of core services (GameClient, Managers, ThemeManager). It removes initialization boilerplate from `GameApp`.
 - `MissionRunner.ts`: Manages the mission lifecycle by wrapping `MissionCoordinator`. It handles launch, resume, and abort logic, and manages mission-related callbacks (onComplete, updateUI).
 - `InputOrchestrator.ts`: Consolidates tactical input handling (pan/zoom/unit selection). It coordinates between the InputManager, GameClient, and MissionRunner to handle tactical interactions.
-- `UIOrchestrator.ts`: Manages global UI elements, including responsive drawers, mission HUD visibility, and speed UI synchronization.
+- `UIOrchestrator.ts`: Manages global UI elements, including responsive drawers, mission HUD visibility, and speed UI synchronization. Now implements authoritative pause/resume and logarithmic speed mapping (ADR 0048).
 - `MissionSetupManager.ts`: Manages the mission configuration state, persistence, and UI synchronization for both Campaign and Custom Simulation modes.
 - `InputBinder.ts`: Responsible for attaching and detaching DOM event listeners, separating event handling from application logic. It uses a callback-based approach to notify `GameApp` of UI changes (Mission Setup toggles, selectors, etc.).
 

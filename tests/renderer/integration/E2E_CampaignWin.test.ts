@@ -311,15 +311,28 @@ describe("E2E Campaign Happy Path", () => {
         "flex",
       );
 
-      // Confirm and Launch mission
-      const equipmentLaunchBtn = Array.from(
+      // Confirm or Leave Shop
+      const isShop = accessibleNode.type === "Shop";
+      const equipmentBtn = Array.from(
         document.querySelectorAll("#screen-equipment button"),
-      ).find((b) => b.textContent?.includes("Confirm")) as HTMLElement;
-      expect(equipmentLaunchBtn).toBeTruthy();
-      equipmentLaunchBtn?.click();
+      ).find((b) => 
+        b.textContent?.includes("Confirm") || 
+        b.textContent?.includes("Leave")
+      ) as HTMLElement;
+      
+      expect(equipmentBtn).toBeTruthy();
+      equipmentBtn?.click();
 
-      // Click Launch in mission-setup
-      document.getElementById("btn-launch-mission")?.click();
+      // If it was a shop, we are back on campaign screen, continue to next node
+      if (isShop) {
+        continue;
+      }
+
+      // Click Launch in mission-setup (if not skipped by direct launch in equipment)
+      const setupLaunchBtn = document.getElementById("btn-launch-mission");
+      if (setupLaunchBtn && setupLaunchBtn.style.display !== "none") {
+          setupLaunchBtn.click();
+      }
 
       // 4. Mission Screen
       expect(document.getElementById("screen-mission")?.style.display).toBe(
@@ -359,6 +372,10 @@ describe("E2E Campaign Happy Path", () => {
               objectivesCompleted: 0,
             })),
           nodeType: accessibleNode!.type,
+          settings: {
+            ...createMockState({}).settings,
+            debugOverlayEnabled: true, // Ensure debug tools are visible
+          }
         }),
       );
 

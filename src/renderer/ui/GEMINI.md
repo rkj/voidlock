@@ -64,3 +64,4 @@ This directory contains UI components and managers for the Voidlock renderer.
 - [ADR 0008: Renderer & UI Separation](../../../docs/adr/0008-renderer-ui-separation.md)
 - [ADR 0025: ModalService Architecture](../../../docs/adr/0025-modal-service-architecture.md)
 - [ADR 0028: Unified Screen Layout](../../../../docs/adr/0028-unified-screen-layout.md)
+- [ADR 0048: Standardizing Pause and Speed Slider Synchronization](../../../../docs/adr/0048-pause-speed-sync.md)

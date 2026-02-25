@@ -234,7 +234,7 @@ export class GameClient {
 
     const effectiveTimeScale = this.isPaused
       ? this.allowTacticalPause
-        ? 0.05
+        ? 0.1
         : 0.0
       : this.currentScale;
 
@@ -392,7 +392,7 @@ export class GameClient {
 
     if (this.isPaused) {
       this.lastNonPausedScale = effectiveScale;
-      // Do not update worker immediately, keep at paused value (0.05 or 0.0)
+      // Do not update worker immediately, keep at paused value (0.1 or 0.0)
     } else {
       this.currentScale = effectiveScale;
       this.lastNonPausedScale = effectiveScale;
@@ -404,7 +404,7 @@ export class GameClient {
     if (!this.isPaused) {
       this.isPaused = true;
       this.lastNonPausedScale = this.currentScale;
-      this.sendTimeScaleToWorker(this.allowTacticalPause ? 0.05 : 0.0);
+      this.sendTimeScaleToWorker(this.allowTacticalPause ? 0.1 : 0.0);
     }
   }
 
@@ -426,7 +426,7 @@ export class GameClient {
 
   public getTimeScale(): number {
     if (this.isPaused) {
-      return this.allowTacticalPause ? 0.05 : 0.0;
+      return this.allowTacticalPause ? 0.1 : 0.0;
     }
     return this.currentScale;
   }

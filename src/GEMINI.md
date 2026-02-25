@@ -33,3 +33,4 @@ The project uses TypeScript and Vitest path aliases for cleaner imports:
 - **ADR 0008: Renderer & UI Separation** - Explains the split between Canvas world rendering and DOM-based UI.
 - **ADR 0012: Theming System & Asset Pipeline** - Defines the automated asset processing and CSS-based theming.
 - **ADR 0034: Firebase Cloud Save** - Specifies the architecture and implementation of the cloud sync service.
+- **ADR 0048: Standardizing Pause and Speed Slider Synchronization**
