@@ -16,7 +16,20 @@
 
 ## 2. Soldier AI (Automated Response)
 
-**2.1 Shoot or Run Model:**
+**2.1 Engagement Policies:**
+
+- **ENGAGE (Default):**
+  - **Behavior:** Unit stops current movement/task to engage visible hostiles.
+  - **Priority:** Neutralize threats before resuming orders.
+- **IGNORE:**
+  - **Behavior:** Unit continues its primary order (Explore, Move, Pickup) without stopping.
+  - **Suppressive Fire:** The unit MUST continue to fire at any visible hostiles within range **while moving**. It does not break its path to fight.
+- **AVOID (Tactical Kiting):**
+  - **Behavior:** If a unit has no active orders and detects a threat, it retreats to maintain distance.
+  - **LOS Constraint:** The unit MUST prioritize paths that maintain Line of Sight with the enemy while retreating (e.g., backing down a corridor). It MUST NOT hide in already explored rooms unless cornered.
+  - **VIP Exception:** VIP units ignore LOS constraints and flee directly toward the extraction zone or the nearest safe room.
+
+**2.2 Shoot or Run Model:**
 
 - **Armed Soldiers:** If an enemy is in LOS, the soldier will automatically shoot at the highest-priority target.
 - **Unarmed/VIP Units:** If an enemy is in LOS, the unit will automatically move away from the threat toward the nearest "safe" discovered cell.

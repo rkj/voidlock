@@ -6,7 +6,10 @@
 
 The application is divided into distinct screens to reduce UI clutter and improve flow.
 
-- **Global Accessibility**: The **Settings Screen** and **Modal System** MUST be globally accessible from any game state. They must override any active screen (including shells) to ensure users can adjust preferences or respond to confirmations regardless of their current location in the application.
+- **Transitions**:
+  - All screen changes MUST be accompanied by a snappy, tactical transition animation.
+  - **Duration**: Animations MUST complete in less than **200ms** (Recommended: 150ms) to ensure the UI remains responsive.
+  - **Motion**: Transitions should use subtle "Fade-In" or "Slide-Up" effects that emphasize the terminal-like nature of the interface.
 
 ### Main Menu
 
@@ -20,9 +23,16 @@ The application is divided into distinct screens to reduce UI clutter and improv
   - **Settings**: Opens the Global Settings Screen.
 - **Import**: "Load Replay JSON" file picker.
 
-#### 8.1.1 Global Settings Screen
+#### 8.1.1 Sector Map (Campaign Screen)
 
-- **Purpose**: Manage persistent user preferences that apply across all game modes.
+- **Map Visualization**:
+  - **Atmospheric Background**: The map MUST use a high-quality, thematic background image (e.g., `station.webp`) to provide a sense of place. The image should be rendered at a fixed position behind the nodes and connections.
+  - **Connection Lines**: MUST be high-contrast **pure white** (`#FFFFFF`) or high-brightness secondary color.
+  - **Tactical Icons**: All mission icons MUST be rendered as crisp, high-fidelity SVG icons. Emojis are FORBIDDEN.
+  - **Visual Effects**: Layered scanline and grain effects MUST be applied on top of the background image to enhance the tactical terminal aesthetic.
+  - **Status Indicators**:
+    - **Current Position**: A bright, glowing indicator (e.g., Ship Icon) MUST clearly mark the squad's current location.
+    - **Accessibility**: Nodes reachable from the current position MUST be visually distinct (e.g., glowing or solid lines) compared to locked or distant paths (e.g., dimmed or dashed lines).
 - **Visual Style Selection**:
   - **Component**: This UI element (Cards + Micro-Diorama) **MUST be a shared, reusable component**. It is used here for selection and in the "Mission Setup" screen for read-only display.
   - **Interface**: Direct selection cards.
@@ -400,6 +410,10 @@ To ensure economic clarity, all strategic and setup screens must follow a consis
     - **Default**: Checked (Enabled) for Sim, Clone, Standard.
     - **Ironman**: Unchecked and **Disabled** (Grayed out).
     - **Tooltip**: Hovering the disabled checkbox while Ironman is selected must verify: "Tactical Pause is disabled in Ironman mode."
+- **Campaign Duration**:
+  - Located below Tactical Pause.
+  - **Options**: "Short (7 Ranks)" or "Long (13 Ranks)".
+  - **Default**: "Long".
 - **Theme Selection**:
   - Dropdown or palette selector below difficulty.
 - **Unit Style Selection**:
