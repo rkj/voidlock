@@ -11,10 +11,10 @@ The Campaign Mode transforms Voidlock into a persistent, roguelite experience. T
 ### 1.1 The "Command Bridge" Loop
 
 1. **Bridge View:** Analyze the Sector Map (a branching path of nodes) and select the next destination.
-2. **Equipment (Ready Room):** Configure the squad for the chosen node's threat. Recruit, heal, and equip soldiers here.
-3. **Mission Execution:** Tactical gameplay.
-4. **Debrief:** Full-screen overlay showing mission stats, loot gained, XP earned, and casualties. Replay runs in the background.
-5. **Progress:** Return to Bridge. Node is cleared. New paths unlock.
+1. **Equipment (Ready Room):** Configure the squad for the chosen node's threat. Recruit, heal, and equip soldiers here.
+1. **Mission Execution:** Tactical gameplay.
+1. **Debrief:** Full-screen overlay showing mission stats, loot gained, XP earned, and casualties. Replay runs in the background.
+1. **Progress:** Return to Bridge. Node is cleared. New paths unlock.
 
 ## 2. Campaign Setup & Modes
 
@@ -70,11 +70,11 @@ The campaign follows these fixed progression rules based on **Rank** (the column
 
 ### 3.2 Mission Launch Flow
 
-1.  **Select Node:** Player chooses a node on the Sector Map.
-2.  **Equipment Screen:**
-    - **Manage Roster:** Assign gear, recruit new soldiers, heal wounded.
-    - **Launch:** Clicking "Launch Mission" starts the game immediately.
-    - _Note:_ There is no separate "Mission Setup" screen in Campaign mode. Configuration is derived entirely from the Node.
+1. **Select Node:** Player chooses a node on the Sector Map.
+1. **Equipment Screen:**
+   - **Manage Roster:** Assign gear, recruit new soldiers, heal wounded.
+   - **Launch:** Clicking "Launch Mission" starts the game immediately.
+   - _Note:_ There is no separate "Mission Setup" screen in Campaign mode. Configuration is derived entirely from the Node.
 
 ### 3.3 Economy (Scrap)
 

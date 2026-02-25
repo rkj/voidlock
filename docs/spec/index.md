@@ -11,10 +11,10 @@ ______________________________________________________________________
 
 The files in `docs/spec/` are **Living Documents**, not Changelogs.
 
-1.  **Current State Only:** They describe the system **as it exists (or is actively being built)**.
-2.  **No History:** Do not document "Removed" features or "Old" behaviors. If a feature is removed, delete its section.
-3.  **No Code:** Specs describe **Behavior** and **Rules**, not Implementation details (Classes, Functions).
-4.  **Source of Truth:** If the Code contradicts the Spec, **the Code is a Bug** (unless the Spec is outdated, in which case update the Spec first).
+1. **Current State Only:** They describe the system **as it exists (or is actively being built)**.
+1. **No History:** Do not document "Removed" features or "Old" behaviors. If a feature is removed, delete its section.
+1. **No Code:** Specs describe **Behavior** and **Rules**, not Implementation details (Classes, Functions).
+1. **Source of Truth:** If the Code contradicts the Spec, **the Code is a Bug** (unless the Spec is outdated, in which case update the Spec first).
 
 ______________________________________________________________________
 

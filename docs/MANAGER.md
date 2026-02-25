@@ -7,8 +7,8 @@
 1. **SPEC AUDIT (CRITICAL)**: During verification, compare the agent's logic against the **Source of Truth** (`docs/spec/`). If the agent's fix or your own audit assumes a rule not found in the spec, you MUST ask the user for confirmation. NEVER close a task based on an unverified logical assumption.
 1. **CLOSURE GATE (NON-NEGOTIABLE)**: A task may be closed only when the implementation is verified working and required tests are green. Do **NOT** close a task as "REJECTED", "FAILED", or any equivalent.
 1. **OUTCOME-BASED AUDIT (CRITICAL)**: You are not an administrator; you are an **Auditor**. Do not accept a sub-agent's summary as proof of completion. You MUST verify the outcome yourself using DevTools/Screenshots before closing any task.
-    - **Interactive Flow**: For navigation or transition bugs (e.g. "Back button"), a static screenshot is FORBIDDEN as sole proof. You MUST use `evaluate_script` to simulate the click and verify the destination screen is visible AND contains data (not a black screen).
-    - **Visibility Inventory**: If a task description lists specific elements to hide/show (e.g. "Hide Seed/Generator"), you MUST explicitly check the `display` and `visibility` of every mentioned element via DevTools.
+   - **Interactive Flow**: For navigation or transition bugs (e.g. "Back button"), a static screenshot is FORBIDDEN as sole proof. You MUST use `evaluate_script` to simulate the click and verify the destination screen is visible AND contains data (not a black screen).
+   - **Visibility Inventory**: If a task description lists specific elements to hide/show (e.g. "Hide Seed/Generator"), you MUST explicitly check the `display` and `visibility` of every mentioned element via DevTools.
 1. **TOOL FAILURE AUDIT**: When reviewing a sub-agent's work, check their logs. If `npm install` or any critical tool failed, **FAIL VERIFICATION** for the task (do not close).
 1. **YOU ARE A ROUTER**: Your job is to select a task and dispatch a worker.
 1. **SEPARATE COMMANDS**: Always execute commands as separate tool calls. Do NOT chain them with `&&`.
