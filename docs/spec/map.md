@@ -16,8 +16,10 @@ The world is a grid of cells representing the interior of a derelict spaceship.
 
 ## 2. Entity Placements (Spatial Rules)
 
-- **Squad Spawn Points:** Multiple 1x1 points placed across the map (typically in different rooms).
-  - **Deployment:** During the Mission Setup, the player assigns each soldier in the squad to a specific 1x1 spawn point.
+- **Squad Spawn Points:** Exactly **2** 1x1 points placed across the map.
+  - **Starting Zone:** Both squad spawn points MUST reside within the same map quadrant to ensure a unified safe entry zone.
+  - **Capacity:** Each spawn point can accommodate multiple soldiers (up to the full squad of 4).
+  - **Deployment:** During the Mission Setup, the player assigns each soldier in the squad to one of these two available points.
 - **Extraction Zone:** The target area for mission completion (only required for Asset/VIP extraction).
 - **Vents (SpawnPoints):** Locations used by the Director for active wave spawning.
   - **Visibility:** Vents **MUST** respect Fog of War rules.

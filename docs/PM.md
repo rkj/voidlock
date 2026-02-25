@@ -28,7 +28,7 @@ Before creating tasks, you must validate the request.
    - **Logic Gaps:** Identify vague terms (e.g., "make it fast").
 1. **UX Audit:** If the request is clunky, propose a "delightful" alternative.
    - **Mobile Verification**: Explicitly excludes keyboard navigation. Focus on touch targets (44x44px min), layout responsiveness (stacking), and legibility.
-1. **Visual Audit (DevTools)**: Before planning, use `chrome-devtools-mcp` to take screenshots of the current state at **1024x768 (Desktop)** and **400x800 (Mobile)**. Use these as "Negative Proof" to ground your tasks.
+1. **Visual Audit (DevTools)**: Before planning, use `chrome-devtools-mcp` to take screenshots of the current state at **1024x768 (Desktop)** and **400x800 (Mobile)**. Use these as "Negative Proof" to ground your tasks. The dev server is already running at port 5173.
 
 ## PHASE 2: DOCUMENTATION (The Planner)
 

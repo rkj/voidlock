@@ -48,12 +48,31 @@ The application is divided into distinct screens to reduce UI clutter and improv
     - **Control Enablement**: Buttons (Sync/Sign In) must be disabled if the backend service is confirmed missing, BUT the UI must explain *why* (e.g., "API Key Missing"). It must NOT look like a broken button.
 - **Actions**: "Save & Back".
 
-### Mission Setup Screen (formerly Config Screen)
+### 8.1.2 Guided Tutorial Flow (The Prologue)
 
-- **Shell Integration**:
+To prevent cognitive overload for new players, the system MUST implement a **Guided Progressive Disclosure** flow during the Prologue mission.
 
-  - **Campaign Mode**: MUST be rendered _within_ the `CampaignShell` content area.
-  - **Custom Mode**: MUST be rendered _within_ a consistent layout shell, even if not in a campaign, to ensure unified navigation.
+- **Lockdown State**:
+
+  - **Screens**: The "Sector Map" and "Mission Setup" screens are HIDDEN for the duration of the Prologue. The player starts directly in the "Ready Room" (Equipment Screen).
+  - **Tabs**: Non-essential tabs in the `CampaignShell` (Engineering, Statistics, Settings) are DISABLED or HIDDEN.
+  - **Controls**: All map configuration sliders, generator types, and squad selection/removal buttons are DISABLED. The squad is pre-filled with a single representative soldier.
+  - **Store**: The Equipment Store is LOCKED.
+
+- **Direct Launch**:
+
+  - The primary action button in the Ready Room is replaced with **"Launch Mission"**. This button must trigger the mission start immediately, bypassing the Sector Map.
+
+- **Narrative Context**:
+
+  - Before the first mission launches, the **Advisor Overlay ("Mother")** MUST present a narrative backstory and mission objectives using a blocking modal with illustration.
+
+- **Progressive Unlocking**:
+
+  - Complexity is restored sequentially in subsequent missions.
+  - **Mission 2**: Unlocks the Sector Map and basic Squad Selection.
+  - **Mission 3**: Unlocks the Equipment Store and basic Mission Setup.
+  - **Mission 5+**: Unlocks Advanced Mission Setup and Engineering.
 
 - **Layout & Accessibility**:
 
@@ -85,8 +104,13 @@ The application is divided into distinct screens to reduce UI clutter and improv
 - **Game Speed Control**:
 
   - **Slider Range**: 0.1x to 10.0x (Fast Forward). Default 1.0x.
-  - **Active Pause**: Speed 0.05x acts as "Active Pause".
-  - **Controls**: Spacebar toggles Active Pause.
+  - **Active Pause (0.1x)**: A super-slow-motion state intended for tactical planning. This state is toggled via the `Spacebar` and is only available if "Allow Tactical Pause" is enabled.
+  - **Absolute Pause (0.0x)**: A complete halt used for the `ESC` Pause Overlay, Modals, and Deployment.
+  - **Synchronization**: The UI (slider, labels, buttons) MUST accurately reflect whether the game is in a timed state (0.1x - 10.0x), Active Pause (0.1x), or Absolute Pause (0.0x). This synchronization MUST be handled by a **Reactive Data Binding** system to ensure interactive elements (like the speed slider) are always in lock-step with the engine state without manual DOM manipulation.
+  - **Phase Visibility**:
+    - **Deployment Phase**: The Speed Slider, Pause Button, and Threat Meter MUST be HIDDEN.
+    - **Prologue Mission**: Speed and Pause controls are HIDDEN for the duration of the first mission to reduce complexity.
+    - **Threat Meter**: HIDDEN at the start of the first mission; it appears only after the first hostile contact or specific Advisor prompt.
 
 - **Command Set Updates:**
 
@@ -105,16 +129,17 @@ The application is divided into distinct screens to reduce UI clutter and improv
       - **Re-arrange**: Soldiers can be dragged from one spawn point to another.
       - **Removal**: Dragging a soldier off the map returns them to the Roster.
     - **Constraints**:
-      - One soldier per spawn point.
-      - Max squad size determined by available spawn points or roster limit (4).
+      - **Fixed Count**: Exactly **2** squad spawn points are provided per mission.
+      - **Overlapping Deployment**: Multiple soldiers (up to the full squad of 4) can be deployed onto the same 1x1 spawn point.
+      - Max squad size is fixed at 4 soldiers.
     - **Visuals**:
       - **Deployed**: Soldiers on the map are rendered as their Tactical Icon/Sprite.
       - **Roster**: Deployed soldiers are dimmed or marked "On Map".
 
 - **Actions**:
 
-  - "Next: Squad & Gear" -> Proceed to Squad Management.
-  - "Back" -> Main Menu.
+  - **Launch Mission**: Commits the current squad and equipment configuration and starts the mission immediately.
+  - **Back**: Returns to the previous screen (Sector Map or Mission Setup) without launching.
 
 2b. **Squad Management & Loadout**
 

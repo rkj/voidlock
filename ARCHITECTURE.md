@@ -14,7 +14,7 @@ This document describes the high-level module boundaries, state flow, and render
 - [User Interface](docs/spec/ui.md)
 - [Command System & AI](docs/spec/commands.md)
 
----
+______________________________________________________________________
 
 ## 1. Module Boundaries
 
@@ -55,7 +55,7 @@ The codebase is organized into four primary modules, each with strict responsibi
 - Integration tests using micro-maps (2x2 grids)
 - Regression tests for bug fixes (`regression_<ticket_id>_<slug>.test.ts`)
 
----
+______________________________________________________________________
 
 ### 1.2 `src/ui/`
 
@@ -112,7 +112,7 @@ The codebase is organized into four primary modules, each with strict responsibi
 - Integration tests for command menu state machine
 - E2E tests for full user flows (squad deployment, mission completion)
 
----
+______________________________________________________________________
 
 ### 1.3 `src/content/`
 
@@ -155,7 +155,7 @@ The codebase is organized into four primary modules, each with strict responsibi
 - ASCII map parser tests (roundtrip: ASCII -> MapDefinition -> ASCII)
 - Content pack integrity tests (no duplicate IDs, valid references)
 
----
+______________________________________________________________________
 
 ### 1.4 `src/shared/`
 
@@ -196,7 +196,7 @@ The codebase is organized into four primary modules, each with strict responsibi
 - Unit tests for all utility functions
 - Type-level tests (TypeScript compilation checks)
 
----
+______________________________________________________________________
 
 ## 2. Web Worker Split
 
@@ -296,7 +296,7 @@ type UIMessage =
 - Main clears UI overlays (game over summary, pause overlay)
 - Replay background process stopped (if running)
 
----
+______________________________________________________________________
 
 ## 3. State Flow
 
@@ -349,14 +349,14 @@ type UIMessage =
 
 ### 3.2 State Ownership
 
-| State Type                 | Owner  | Mutability                     | Sync Method       |
+| State Type | Owner | Mutability | Sync Method |
 | -------------------------- | ------ | ------------------------------ | ----------------- |
-| **Game State** (canonical) | Worker | Mutable (via commands)         | Push (every tick) |
-| **UI State** (snapshot)    | Main   | Read-only (replaced each tick) | Pull (on message) |
-| **Input State**            | Main   | Mutable (event handlers)       | N/A (local only)  |
-| **Config State**           | Main   | Mutable (settings, squad)      | INIT message      |
-| **Replay Log**             | Worker | Append-only (command history)  | Pull (on export)  |
-| **Campaign Save**          | Main   | Mutable (LocalStorage)         | N/A (local only)  |
+| **Game State** (canonical) | Worker | Mutable (via commands) | Push (every tick) |
+| **UI State** (snapshot) | Main | Read-only (replaced each tick) | Pull (on message) |
+| **Input State** | Main | Mutable (event handlers) | N/A (local only) |
+| **Config State** | Main | Mutable (settings, squad) | INIT message |
+| **Replay Log** | Worker | Append-only (command history) | Pull (on export) |
+| **Campaign Save** | Main | Mutable (LocalStorage) | N/A (local only) |
 
 ### 3.3 Command Flow (User Input → Simulation)
 
@@ -402,7 +402,7 @@ type UIMessage =
   - Director pacing (enemy spawning)
 - `realDt` (Real Time): Constant (Note: Most systems now use `scaledDt`)
 
----
+______________________________________________________________________
 
 ## 4. Render Pipeline
 
@@ -411,12 +411,14 @@ type UIMessage =
 The Canvas renderer draws layers from back to front:
 
 1. **Background Layer:**
+
    - Floor tiles (walkable cells)
    - Void cells (impassable space)
    - Wall geometry (edges between cells)
    - Static decals (stains, debris)
 
 1. **Ground Decal Layer:**
+
    - Extraction Zone (green grid overlay)
    - Enemy Spawn Points (vents/crosshairs)
    - Objectives (data disks, artifacts)
@@ -424,17 +426,20 @@ The Canvas renderer draws layers from back to front:
    - **Note:** Entities on this layer respect Fog of War (only visible if cell is Discovered)
 
 1. **Unit Layer (Dynamic):**
+
    - Soldiers (friendly units)
    - Enemies (hostile units)
    - Projectiles (bullets, grenades)
    - **Note:** Units obscure ground decals (e.g., soldier standing on spawn point hides the spawn icon)
 
 1. **Fog of War (Shroud):**
+
    - Black overlay for undiscovered cells
    - Semi-transparent "fog" for explored-but-not-visible cells (Classic mode)
    - **Note:** Hardcore mode returns cells to "unknown" state when out of LOS
 
 1. **Overlay Layer (UI):**
+
    - Selection rings (squad selection)
    - Health bars (HP, status icons)
    - Movement paths (ghost trail)
@@ -514,7 +519,7 @@ The game supports two visual styles (user-configurable in Global Settings):
 - **Bounds:** Camera clamped to map extents (no scrolling into void)
 - **Reset:** On mission start, camera centers on squad spawn zone
 
----
+______________________________________________________________________
 
 ## 5. Determinism & Replay
 
@@ -581,7 +586,7 @@ Accessible via Debug Overlay (`~` key):
 - Copies JSON to clipboard (or console if clipboard unavailable)
 - Useful for bug reports, sharing tactical scenarios
 
----
+______________________________________________________________________
 
 ## 6. Content Pack System
 
@@ -681,7 +686,7 @@ Content Packs decouple game data (units, weapons, maps) from game logic, enablin
 - Seed determines layout (deterministic)
 - Config specifies: dimensions, room count, corridor width, spawn points
 
----
+______________________________________________________________________
 
 ## 7. Testing Strategy
 
@@ -739,7 +744,7 @@ test("soldier deploys to spawn point", async ({ page }) => {
 - **Replay Validation:** Record → Export → Import → Verify identical output
 - **Campaign Progression:** Start campaign → Complete mission → Check unlocks
 
----
+______________________________________________________________________
 
 ## 8. File Structure
 
@@ -826,51 +831,59 @@ voidlock/
 └── README.md                 # Project overview (for humans)
 ```
 
----
+______________________________________________________________________
 
 ## 9. Key Design Principles
 
 1. **Separation of Concerns:**
+
    - **Engine:** Pure simulation logic, no UI dependencies
    - **UI:** Pure presentation, no game rules
    - **Content:** Pure data, no logic
 
 1. **Determinism First:**
+
    - Worker owns PRNG, no `Math.random()`
    - All state transitions driven by commands
    - Replay log captures full session history
 
 1. **Single Source of Truth:**
+
    - Worker owns canonical `GameState`
    - Main thread receives read-only snapshots
    - UI never mutates state directly
 
 1. **Performance via Isolation:**
+
    - Web Worker offloads heavy computation (pathfinding, LOS)
    - UI thread focuses on rendering (60 FPS)
    - Tick rate decoupled from frame rate
 
 1. **Testability:**
+
    - Pure functions where possible
    - Dependency injection for mocking (PRNG, map generator)
    - Micro-maps for fast, focused tests
 
 1. **Modularity:**
+
    - Content Packs enable modding without code changes
    - Map generators swappable (TreeShip, DenseShip, Static)
    - Renderer supports multiple visual styles (Tactical, Sprites)
 
 1. **Accessibility:**
+
    - Fully keyboard-navigable
    - No reliance on mouse
    - Hierarchical command menu (Action → Orders → Target → Unit)
 
 1. **Resilience:**
+
    - Top-level error handler (graceful degradation)
    - Emergency reset button (wipes corrupted LocalStorage)
    - Schema validation for content packs
 
----
+______________________________________________________________________
 
 ## 10. References
 
@@ -879,7 +892,7 @@ voidlock/
 - **Agent Guidelines:** [`docs/AGENTS.md`](docs/AGENTS.md)
 - **Manager Guidelines:** [`docs/MANAGER.md`](docs/MANAGER.md)
 
----
+______________________________________________________________________
 
 **Last Updated:** 2026-02-06
 **Version:** 1.0
