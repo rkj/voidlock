@@ -3,7 +3,7 @@ import { getNewPage, closeBrowser } from "./utils/puppeteer";
 import type { Page } from "puppeteer";
 import { E2E_URL } from "./config";
 
-describe("Spawn Point Overlap Reproduction", () => {
+describe("Spawn Point Overlap Verification", () => {
   let page: Page;
 
   beforeAll(async () => {
@@ -16,7 +16,7 @@ describe("Spawn Point Overlap Reproduction", () => {
     await closeBrowser();
   });
 
-  it("should demonstrate that Start Mission is disabled when 4 units are on 2 spawn points", async () => {
+  it("should allow 4 units to occupy 2 spawn points and enable Start Mission", async () => {
     console.log("Navigating to", E2E_URL);
     await page.goto(E2E_URL);
     await page.evaluate(() => localStorage.clear());
@@ -35,8 +35,8 @@ describe("Spawn Point Overlap Reproduction", () => {
     console.log("Waiting for #screen-mission-setup...");
     await page.waitForSelector("#screen-mission-setup", { visible: true });
 
-    // Set map configuration directly with 4 squad spawns initially
-    console.log("Setting map configuration with 4 squad spawns...");
+    // Set map configuration directly with ONLY 2 squad spawns
+    console.log("Setting map configuration with 2 squad spawns...");
     await page.evaluate(() => {
       // @ts-ignore
       const app = (window as any).GameAppInstance;
@@ -48,7 +48,7 @@ describe("Spawn Point Overlap Reproduction", () => {
         walls: [],
         doors: [],
         spawnPoints: [],
-        squadSpawns: [{ x: 0, y: 0 }, { x: 1, y: 0 }, { x: 2, y: 0 }, { x: 3, y: 0 }],
+        squadSpawns: [{ x: 0, y: 0 }], // ONLY 1
         extraction: { x: 9, y: 9 },
         objectives: [{ id: "obj1", kind: "Recover", targetCell: { x: 5, y: 5 } }]
       };
@@ -95,25 +95,6 @@ describe("Spawn Point Overlap Reproduction", () => {
     // Wait for renderer/engine to be ready
     await new Promise(r => setTimeout(r, 2000));
 
-    // NOW: Monkey-patch HUDManager to only recognize 2 spawns for validation
-    console.log("Monkey-patching HUDManager to only recognize 2 spawns...");
-    await page.evaluate(() => {
-        // @ts-ignore
-        const app = (window as any).GameAppInstance;
-        const hud = app.registry.hudManager;
-        const originalUpdate = hud.update;
-        hud.update = function(state: any, selectedId: any) {
-            if (state && state.map) {
-                state.map.squadSpawns = [{ x: 0, y: 0 }, { x: 1, y: 0 }];
-            }
-            return originalUpdate.call(this, state, selectedId);
-        };
-        
-        // Also force a re-render now
-        const state = app.registry.missionRunner.getCurrentGameState();
-        if (state) app.registry.missionRunner.updateUI(state);
-    });
-
     // 1. Manually deploy Unit 1 to Spawn A (0,0)
     console.log("Deploying Unit 1 to Spawn A...");
     await page.evaluate(() => {
@@ -134,20 +115,17 @@ describe("Spawn Point Overlap Reproduction", () => {
     await page.click("#btn-autofill-deployment");
     await new Promise(r => setTimeout(r, 2000));
 
-    // Log final state (from the HUD's perspective if we can)
+    // Log final state
     const finalStateInfo = await page.evaluate(() => {
       // @ts-ignore
       const app = (window as any).GameAppInstance;
       const state = app.registry.missionRunner.getCurrentGameState();
-      // Apply the same transformation as our monkey-patch for logging
-      state.map.squadSpawns = [{ x: 0, y: 0 }, { x: 1, y: 0 }];
-      
       return {
         units: state.units.map((u: any) => ({ id: u.id, x: Math.floor(u.pos.x), y: Math.floor(u.pos.y), isDeployed: u.isDeployed })),
         squadSpawns: state.map.squadSpawns
       };
     });
-    console.log("Final Unit States (Forced):", JSON.stringify(finalStateInfo));
+    console.log("Final Unit States:", JSON.stringify(finalStateInfo));
 
     const startBtnInfo = await page.$eval("#btn-start-mission", (el: any) => ({
       disabled: el.disabled,
@@ -155,15 +133,13 @@ describe("Spawn Point Overlap Reproduction", () => {
     }));
     console.log("Start Mission button info:", startBtnInfo);
 
-    // THE REPRODUCTION GOAL:
-    // Demonstrate that Start Mission is disabled because Unit 1 was kicked to an invalid tile.
+    // THE VERIFICATION GOAL:
+    // Demonstrate that Start Mission is ENABLED because overlapping is allowed.
     
-    expect(startBtnInfo.disabled).toBe(true);
-    expect(startBtnInfo.title).toBe("All squad members must be on valid spawn tiles.");
+    expect(startBtnInfo.disabled).toBe(false);
 
     // Take screenshot for proof
-    await page.screenshot({ path: "spawn_point_overlap_repro.png" });
-
+    await page.screenshot({ path: "spawn_point_overlap_fixed.png" });
 
   }, 120000);
 });

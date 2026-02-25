@@ -53,9 +53,9 @@ This directory contains UI components and managers for the Voidlock renderer.
 - **Component Responsiveness**: Uses CSS Container Queries to allow UI components (`SoldierWidget`, `StatDisplay`, `MenuRenderer`) to adapt their internal layout based on the width of their parent panel (ADR 0038).
 - **Deployment Phase**: Implemented a dedicated deployment phase before the mission starts.
   - **Manual Deployment**: Drag and drop soldiers from the roster to highlighted spawn points on the map. Uses a custom circular drag image with tactical numbers for clear visual feedback.
-  - **Auto-Fill**: Button ("Auto-Fill Spawns") to automatically assign all rostered units to available spawn points.
+  - **Auto-Fill**: Button ("Auto-Fill Spawns") to automatically assign all rostered units to available spawn points, supporting modulo-based overlapping. Utilizes `currentState` preservation in `HUDManager.ts` to ensure up-to-date state usage.
   - **Interaction**: Support for double-clicking units in the roster to deploy them to the next available spot.
-  - **Validation**: "Start Mission" button is enabled only when all selected units are validly placed on unique spawn points on the map.
+  - **Validation**: "Start Mission" button is enabled only when all selected units are validly placed on unique spawn points on the map. Support is also provided for overlapping units on spawn tiles when fewer than 4 points are available.
   - **Stability Fix**: Resolved a critical `NotFoundError` in `HUDManager.ts` that occurred during deployment setup due to invalid `insertBefore` reference nodes.
 - **Event Handling**: Manages clicks on soldier items and menu options.
 

@@ -186,7 +186,7 @@ export class SpaceshipGenerator {
 
     // 3. Pick Key Nodes
     const squadNodes: Node[] = [];
-    const maxSquadSpawns = 4;
+    const maxSquadSpawns = 2;
 
     // Pick first squad node
     const squadNode1 = this.pickNodeInQuad(nodes, cols, rows, 0, 0);
@@ -526,7 +526,7 @@ export class SpaceshipGenerator {
     const floors = this.cells.filter((c) => c.type === CellType.Floor);
     if (floors.length >= 4) {
       this.squadSpawns = [];
-      for (let i = 0; i < Math.min(5, floors.length - 3); i++) {
+      for (let i = 0; i < Math.min(2, floors.length - 3); i++) {
         if (i === 0) this.squadSpawn = { x: floors[i].x, y: floors[i].y };
         this.squadSpawns.push({ x: floors[i].x, y: floors[i].y });
         this.placementValidator.occupy(
