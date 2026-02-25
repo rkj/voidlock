@@ -2,6 +2,8 @@
 
 Deterministic Real-Time with Pause (RTwP) tactical squad combat in a claustrophobic spaceship environment.
 
+![Voidlock](public/Voidlock.webp)
+
 ## Overview
 
 Voidlock is a web-based tactical game built with Vanilla TypeScript and Vite. It features a deterministic simulation engine running in a Web Worker, ensuring consistent gameplay and perfect replays.
