@@ -311,7 +311,7 @@ export class EquipmentScreen {
     backBtn.onclick = () => this.onBack();
 
     const saveBtn = document.createElement("button");
-    saveBtn.textContent = "Confirm Squad";
+    saveBtn.textContent = this.isShop ? "Leave Shop" : "Confirm Squad";
     saveBtn.className = "primary-button";
     saveBtn.setAttribute("data-focus-id", "btn-confirm-squad");
     saveBtn.style.margin = "0";
@@ -326,7 +326,7 @@ export class EquipmentScreen {
     footer.appendChild(saveBtn);
 
     // Launch Mission Button (Campaign flow only)
-    if (this.isCampaign && this.hasNodeSelected && this.onLaunch) {
+    if (this.isCampaign && this.hasNodeSelected && !this.isShop && this.onLaunch) {
       const launchBtn = document.createElement("button");
       launchBtn.textContent = "Launch Mission";
       launchBtn.className = "primary-button";
