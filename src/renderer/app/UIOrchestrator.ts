@@ -44,25 +44,30 @@ export class UIOrchestrator {
     }
   }
 
-  public setMissionHUDVisible(visible: boolean) {
+  public setMissionHUDVisible(boolean: boolean) {
     const topBar = document.getElementById("top-bar");
     const soldierPanel = document.getElementById("soldier-panel");
     const rightPanel = document.getElementById("right-panel");
-    const display = visible ? "flex" : "none";
+    const display = boolean ? "flex" : "none";
     if (topBar) topBar.style.display = display;
     if (soldierPanel) soldierPanel.style.display = display;
     if (rightPanel) rightPanel.style.display = display;
   }
 
+  /**
+   * Authoritative sync of the speed UI based on the GameClient state.
+   */
   public syncSpeedUI() {
     const isPaused = this.deps.gameClient.getIsPaused();
     const timeScale = this.deps.gameClient.getTimeScale();
 
     const speedSlider = document.getElementById(
-      "speed-slider",
+      "game-speed",
     ) as HTMLInputElement;
     if (speedSlider) {
-      speedSlider.value = timeScale.toString();
+      // Use Target Scale (the non-paused speed) for the slider position
+      const targetScale = this.deps.gameClient.getTargetScale();
+      speedSlider.value = TimeUtility.scaleToSlider(targetScale).toString();
     }
 
     const speedValue = document.getElementById("speed-value");
@@ -76,7 +81,6 @@ export class UIOrchestrator {
       btnPause.title = isPaused ? "Resume" : "Pause";
     }
 
-    // Also update btn-pause-toggle if it exists (HUDManager uses it)
     const btnPauseToggle = document.getElementById("btn-pause-toggle");
     if (btnPauseToggle) {
         btnPauseToggle.textContent = isPaused ? "▶ Play" : "|| Pause";
@@ -105,9 +109,11 @@ export class UIOrchestrator {
     URL.revokeObjectURL(url);
   }
 
+  /**
+   * Authoritative toggle pause using GameClient methods.
+   */
   public togglePause(onSync?: () => void) {
-    const isPaused = this.deps.gameClient.getIsPaused();
-    this.deps.gameClient.setTimeScale(isPaused ? 1.0 : 0.0);
+    this.deps.gameClient.togglePause();
     this.syncSpeedUI();
     if (onSync) onSync();
   }
@@ -127,10 +133,13 @@ export class UIOrchestrator {
     const btnExport = document.getElementById("btn-export");
     if (btnExport) btnExport.onclick = () => this.exportReplay();
 
-    const speedSlider = document.getElementById("speed-slider") as HTMLInputElement;
+    // Standardized ID: game-speed
+    const speedSlider = document.getElementById("game-speed") as HTMLInputElement;
     if (speedSlider) {
       speedSlider.oninput = () => {
-        this.deps.gameClient.setTimeScale(parseFloat(speedSlider.value));
+        // Use logarithmic mapping from slider (0-100) to scale (0.1-10.0)
+        const scale = TimeUtility.sliderToScale(parseFloat(speedSlider.value));
+        this.deps.gameClient.setTimeScale(scale);
         this.syncSpeedUI();
       };
     }
@@ -140,10 +149,10 @@ export class UIOrchestrator {
       btnPause.onclick = () => this.togglePause();
     }
 
-    const btnForceWin = document.getElementById("btn-debug-win");
-    if (btnForceWin) btnForceWin.onclick = () => callbacks.onForceWin();
-
-    const btnForceLose = document.getElementById("btn-debug-lose");
-    if (btnForceLose) btnForceLose.onclick = () => callbacks.onForceLose();
+    // btn-pause-toggle is also a pause button used in the mobile HUD
+    const btnPauseToggle = document.getElementById("btn-pause-toggle");
+    if (btnPauseToggle) {
+      btnPauseToggle.onclick = () => this.togglePause();
+    }
   }
 }

@@ -63,3 +63,4 @@ This directory contains the main thread rendering logic and user interface for V
 - **ADR 0037**: Centralized Input & Focus Management System
 - **ADR 0038**: Mobile Interaction Strategy (Touch & Responsiveness)
 - **ADR 0039**: State Separation and Versioning (Custom vs. Campaign)
+- **ADR 0048**: Standardizing Pause and Speed Slider Synchronization

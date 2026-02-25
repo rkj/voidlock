@@ -29,7 +29,7 @@ describe("Invincible Combat Repro (voidlock-zkhz)", () => {
       currentState.missionType,
       false, // losOverlayEnabled
       currentState.stats.threatLevel,
-      0.05, // initialTimeScale
+      0.1, // initialTimeScale
       false, // startPaused
       EngineMode.Simulation,
     );

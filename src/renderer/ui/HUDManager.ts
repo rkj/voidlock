@@ -46,6 +46,24 @@ export class HUDManager {
     }
 
     const threatLevel = state.stats.threatLevel || 0;
+    const aliensKilled = state.stats.aliensKilled || 0;
+
+    // Progressive Visibility Logic (ADR 0048)
+    const isDeployment = state.status === "Deployment";
+    const isPrologue = state.missionType === "Prologue";
+    const hasContact = threatLevel > 1 || aliensKilled > 0;
+
+    const threatContainer = document.getElementById("top-threat-container");
+    if (threatContainer) {
+      const showThreat = !isDeployment && (!isPrologue || hasContact);
+      threatContainer.style.visibility = showThreat ? "visible" : "hidden";
+    }
+
+    const speedControl = document.getElementById("speed-control");
+    if (speedControl) {
+      const showSpeed = !isDeployment && !isPrologue;
+      speedControl.style.visibility = showSpeed ? "visible" : "hidden";
+    }
 
     const topThreatFill = document.getElementById("top-threat-fill");
     const topThreatValue = document.getElementById("top-threat-value");
@@ -80,6 +98,11 @@ export class HUDManager {
       const minVal = state.settings.allowTacticalPause ? "0" : "50";
       if (gameSpeedSlider.min !== minVal) {
         gameSpeedSlider.min = minVal;
+      }
+      // Authoritative sync from engine state (logarithmic)
+      // Only sync if not currently being dragged by user
+      if (document.activeElement !== gameSpeedSlider) {
+        gameSpeedSlider.value = TimeUtility.scaleToSlider(state.settings.timeScale).toString();
       }
     }
 
