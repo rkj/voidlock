@@ -50,6 +50,7 @@ This directory contains the automated test suite for the Voidlock renderer, usin
 
 ## Reproduction Tests
 
+- `repro/PauseSpeedSync.test.ts`: Reproduces issues with pause/unpause logic, logarithmic speed slider mapping, and UI visibility constraints.
 - `repro/GameApp_MapGenerator.test.ts`: Verifies that changing the map generator type in Mission Setup correctly persists the setting.
 
 ## Related ADRs
