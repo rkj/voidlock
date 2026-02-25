@@ -215,6 +215,7 @@ export class AppServiceRegistry {
       this.campaignShell,
       this.campaignManager,
       this.themeManager,
+      this.modalService,
       this.missionSetupManager,
       squadBuilder,
       screens,

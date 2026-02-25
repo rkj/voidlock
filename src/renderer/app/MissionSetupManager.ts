@@ -322,10 +322,10 @@ export class MissionSetupManager {
           (s) => !s.id,
         );
         if (this.currentSquad.soldiers.length === 0 || hasNonCampaignSoldiers) {
-          const healthy = state.roster
-            .filter((s) => s.status === "Healthy")
+          const active = state.roster
+            .filter((s) => s.status === "Healthy" || s.status === "Wounded")
             .slice(0, 4);
-          this.currentSquad.soldiers = healthy.map((s) => ({
+          this.currentSquad.soldiers = active.map((s) => ({
             id: s.id,
             name: s.name,
             archetypeId: s.archetypeId,
@@ -343,7 +343,7 @@ export class MissionSetupManager {
             (s) => {
               if (s.id) {
                 const rs = state.roster.find((r) => r.id === s.id);
-                if (rs && (rs.status === "Healthy" || rs.status === "Wounded" || rs.status === "Dead")) {
+                if (rs && (rs.status === "Healthy" || rs.status === "Wounded")) {
                   s.name = rs.name;
                   s.status = rs.status;
                   s.hp = rs.hp;

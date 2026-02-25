@@ -15,6 +15,10 @@ import { CampaignSummaryScreen } from "../screens/CampaignSummaryScreen";
 import { StatisticsScreen } from "../screens/StatisticsScreen";
 import { EngineeringScreen } from "../screens/EngineeringScreen";
 import { SettingsScreen } from "../screens/SettingsScreen";
+import { ModalService } from "../ui/ModalService";
+import { EventModal, OutcomeModal } from "../ui/EventModal";
+import { PRNG } from "@src/shared/PRNG";
+import { CampaignEvents } from "@src/content/CampaignEvents";
 
 export interface NavigationScreens {
   mainMenu: MainMenuScreen;
@@ -34,6 +38,7 @@ export class NavigationOrchestrator {
     private campaignShell: CampaignShell,
     private campaignManager: CampaignManager,
     private themeManager: ThemeManager,
+    private modalService: ModalService,
     private missionSetupManager: MissionSetupManager,
     private squadBuilder: SquadBuilder,
     private screens: NavigationScreens,
@@ -130,14 +135,7 @@ export class NavigationOrchestrator {
     switch (tabId) {
       case "setup":
         if (hasCampaign || !isCustomFlow) {
-          // If we somehow get here in campaign, go to ready-room
-          this.missionSetupManager.loadAndApplyConfig(true);
-          this.screens.equipment.setCampaign(true);
-          this.screens.equipment.setHasNodeSelected(!!this.missionSetupManager.currentCampaignNode);
-          this.screens.equipment.updateConfig(
-            this.missionSetupManager.currentSquad,
-          );
-          this.switchScreen("equipment", true);
+          this.setupEquipmentScreen(true);
           actualTabId = "ready-room";
         } else {
           this.squadBuilder.update(
@@ -153,13 +151,7 @@ export class NavigationOrchestrator {
         break;
       case "ready-room": {
         const hasCampaign = !!this.campaignManager.getState();
-        this.missionSetupManager.loadAndApplyConfig(hasCampaign);
-        this.screens.equipment.setCampaign(hasCampaign);
-        this.screens.equipment.setHasNodeSelected(!!this.missionSetupManager.currentCampaignNode);
-        this.screens.equipment.updateConfig(
-          this.missionSetupManager.currentSquad,
-        );
-        this.switchScreen("equipment", hasCampaign);
+        this.setupEquipmentScreen(hasCampaign);
         break;
       }
       case "engineering":
@@ -211,15 +203,7 @@ export class NavigationOrchestrator {
 
         if (rehydrated) {
           // Redirect to equipment screen (Spec: Sector -> Equipment -> Launch)
-          this.applyCampaignTheme();
-          this.missionSetupManager.loadAndApplyConfig(true);
-          this.screens.equipment.setCampaign(true);
-          this.screens.equipment.setHasNodeSelected(true);
-          this.screens.equipment.updateConfig(
-            this.missionSetupManager.currentSquad,
-          );
-          this.switchScreen("equipment", true);
-          this.campaignShell.show("campaign", "ready-room", true);
+          this.setupEquipmentScreen(true);
         } else {
           this.missionSetupManager.loadAndApplyConfig(false);
           this.campaignShell.show("custom", "setup");
@@ -236,21 +220,9 @@ export class NavigationOrchestrator {
         if (isCampaign && !this.missionSetupManager.currentCampaignNode) {
           this.missionSetupManager.rehydrateCampaignNode();
         }
-        this.applyCampaignTheme();
         const isCurrentlyCampaign =
           isCampaign || !!this.missionSetupManager.currentCampaignNode;
-        this.missionSetupManager.loadAndApplyConfig(isCurrentlyCampaign);
-        this.screens.equipment.setCampaign(isCurrentlyCampaign);
-        this.screens.equipment.setHasNodeSelected(!!this.missionSetupManager.currentCampaignNode);
-        this.screens.equipment.updateConfig(
-          this.missionSetupManager.currentSquad,
-        );
-        this.switchScreen("equipment", isCurrentlyCampaign);
-        if (isCurrentlyCampaign) {
-          this.campaignShell.show("campaign", "ready-room", true);
-        } else {
-          this.campaignShell.show("custom", "setup");
-        }
+        this.setupEquipmentScreen(isCurrentlyCampaign);
         break;
       }
       case "statistics":
@@ -297,29 +269,79 @@ export class NavigationOrchestrator {
     }
   }
 
+  private setupEquipmentScreen(isCampaign: boolean) {
+    this.applyCampaignTheme();
+    this.missionSetupManager.loadAndApplyConfig(isCampaign);
+    this.screens.equipment.setCampaign(isCampaign);
+
+    const node = this.missionSetupManager.currentCampaignNode;
+    const isShop = node?.type === "Shop";
+    this.screens.equipment.setShop(isShop);
+    this.screens.equipment.setHasNodeSelected(!!node);
+
+    this.screens.equipment.updateConfig(this.missionSetupManager.currentSquad);
+    this.switchScreen("equipment", isCampaign);
+
+    if (isCampaign) {
+      this.campaignShell.show("campaign", "ready-room", true);
+    } else {
+      this.campaignShell.show("custom", "setup");
+    }
+  }
+
   public applyCampaignTheme() {
     const themeId = this.missionSetupManager.currentThemeId;
     this.themeManager.setTheme(themeId);
   }
 
   public onCampaignNodeSelect(node: CampaignNode) {
+    if (node.type === "Shop") {
+      this.missionSetupManager.currentCampaignNode = node;
+      this.setupEquipmentScreen(true);
+      return;
+    }
+
+    if (node.type === "Event") {
+      const prng = new PRNG(node.mapSeed);
+      const event =
+        CampaignEvents[Math.floor(prng.next() * CampaignEvents.length)];
+
+      const modal = new EventModal(this.modalService, (choice) => {
+        const outcome = this.campaignManager.applyEventChoice(
+          node.id,
+          choice,
+          prng,
+        );
+
+        const outcomeModal = new OutcomeModal(this.modalService, () => {
+          if (outcome.ambush) {
+            // Ambush triggers a combat mission at this node
+            // The node type has been updated to Combat in the campaign state
+            this.onCampaignNodeSelect(node);
+          } else {
+            this.switchScreen("campaign", true);
+            this.campaignShell.show("campaign", "sector-map");
+          }
+        });
+        outcomeModal.show(event.title, outcome.text);
+      });
+      modal.show(event);
+      return;
+    }
+
     this.missionSetupManager.currentCampaignNode = node;
     this.missionSetupManager.currentSeed = node.mapSeed;
-    this.missionSetupManager.currentMissionType = node.missionType || MissionType.RecoverIntel;
+    this.missionSetupManager.currentMissionType =
+      node.missionType || MissionType.RecoverIntel;
     this.missionSetupManager.currentStaticMapData = undefined;
 
-    this.applyCampaignTheme();
-    this.missionSetupManager.loadAndApplyConfig(true);
     this.missionSetupManager.saveCurrentConfig();
-    this.screens.equipment.setCampaign(true);
-    this.screens.equipment.setHasNodeSelected(true);
-    this.screens.equipment.updateConfig(this.missionSetupManager.currentSquad);
-    this.switchScreen("equipment", true);
-    this.campaignShell.show("campaign", "ready-room", true);
+    this.setupEquipmentScreen(true);
   }
 
   public onEquipmentConfirmed(config: SquadConfig) {
-    if (this.missionSetupManager.currentCampaignNode) {
+    const node = this.missionSetupManager.currentCampaignNode;
+    if (node) {
       config.soldiers.forEach((soldier) => {
         if (soldier.id) {
           this.campaignManager.assignEquipment(soldier.id, {
@@ -330,6 +352,12 @@ export class NavigationOrchestrator {
           });
         }
       });
+
+      if (node.type === "Shop") {
+        // Clear the node upon exit
+        this.campaignManager.advanceCampaignWithoutMission(node.id, 0, 0);
+      }
+
       this.missionSetupManager.currentSquad = config;
       this.missionSetupManager.saveCurrentConfig();
       this.switchScreen("campaign", true);

@@ -8,6 +8,7 @@ import {
   SquadConfig,
   EnemyType,
   CampaignNodeType,
+  Vector2,
 } from "../../shared/types";
 import { PRNG } from "../../shared/PRNG";
 import { MathUtils } from "../../shared/utils/MathUtils";
@@ -32,14 +33,42 @@ export class MissionManager {
     lootManager?: LootManager,
   ) {
     const validator = PlacementValidator.fromMap(map);
-    let objectives: Objective[] = (map.objectives || []).map((o) => ({
-      ...o,
-      state: "Pending",
-    }));
+    const missionType = this.missionType;
 
-    // Spawn bonus loot if present in map definition
-    if (map.bonusLoot && lootManager) {
-      map.bonusLoot.forEach((pos) => {
+    // Identify if this is a mission type where 'Recover' objectives are primary
+    const isRecoverMission =
+      missionType === MissionType.ExtractArtifacts ||
+      missionType === MissionType.RecoverIntel ||
+      missionType === MissionType.Default ||
+      missionType === MissionType.Prologue ||
+      nodeType === "Boss" ||
+      nodeType === "Elite";
+
+    const primaryMapObjectives: Objective[] = [];
+    const optionalLootPositions: Vector2[] = [];
+
+    (map.objectives || []).forEach((obj) => {
+      // Rule: In non-Recover missions, map 'Recover' objectives are optional loot
+      if (obj.kind === "Recover" && !isRecoverMission) {
+        if (obj.targetCell) {
+          optionalLootPositions.push(obj.targetCell);
+        }
+      } else {
+        primaryMapObjectives.push({ ...obj, state: "Pending" });
+      }
+    });
+
+    let objectives = primaryMapObjectives;
+
+    // Combine existing bonus loot with converted optional objectives
+    const allBonusLoot = [
+      ...(map.bonusLoot || []),
+      ...optionalLootPositions,
+    ];
+
+    // Spawn bonus loot if present
+    if (allBonusLoot.length > 0 && lootManager) {
+      allBonusLoot.forEach((pos) => {
         lootManager.spawnLoot(state, "scrap_crate", pos);
       });
     }
@@ -47,13 +76,13 @@ export class MissionManager {
     const hasVipInSquad =
       squadConfig?.soldiers?.some((s) => s.archetypeId === "vip") ?? false;
 
-    if (this.missionType === MissionType.Prologue) {
+    if (missionType === MissionType.Prologue) {
       state.objectives = objectives;
       return;
     }
 
     // Add Escort objective if it's an Escort mission OR if a VIP is present in the squad
-    if (this.missionType === MissionType.EscortVIP || hasVipInSquad) {
+    if (missionType === MissionType.EscortVIP || hasVipInSquad) {
       if (!objectives.some((o) => o.kind === "Escort")) {
         objectives.push({
           id: "obj-escort",
@@ -65,15 +94,17 @@ export class MissionManager {
     }
 
     if (
-      this.missionType === MissionType.ExtractArtifacts ||
-      this.missionType === MissionType.RecoverIntel ||
+      missionType === MissionType.ExtractArtifacts ||
+      missionType === MissionType.RecoverIntel ||
       nodeType === "Boss" ||
       nodeType === "Elite"
     ) {
-      // In these missions, we typically replace map objectives with the mission-specific ones,
-      // but we should keep the Escort objective if it exists.
-      const escortObjectives = objectives.filter((o) => o.kind === "Escort");
-      objectives = [...escortObjectives];
+      // In campaign-specific node types (Boss, Elite), we typically replace map objectives 
+      // with mission-specific ones to ensure standard parameters, but we keep Escort.
+      if (nodeType === "Boss" || nodeType === "Elite") {
+        const escortObjectives = objectives.filter((o) => o.kind === "Escort");
+        objectives = [...escortObjectives];
+      }
 
       const floors = map.cells.filter((c) => c.type === CellType.Floor);
       const extraction = map.extraction || { x: 0, y: 0 };
@@ -111,9 +142,9 @@ export class MissionManager {
                 candidates.length,
               );
       const idPrefix =
-        this.missionType === MissionType.ExtractArtifacts
+        missionType === MissionType.ExtractArtifacts
           ? "artifact"
-          : this.missionType === MissionType.RecoverIntel
+          : missionType === MissionType.RecoverIntel
             ? "intel"
             : nodeType === "Boss"
               ? "boss"
