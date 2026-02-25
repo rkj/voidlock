@@ -27,6 +27,9 @@ When starting a new campaign, the player configures the following:
   - **Clone Protocol (Normal):** Mission Failure wipes the squad. Bodies can be cloned (Revived) for Scrap.
   - **Standard (Hard):** Mission Failure wipes the squad. Death is permanent.
   - **Ironman (Extreme):** Mission Failure deletes the save file.
+- **Campaign Duration:**
+  - **Short:** 7 Ranks (Approx. 6-8 missions). Ideal for a quick session.
+  - **Long:** 13 Ranks (Approx. 12-15 missions). The standard roguelite experience.
 - **Tactical Options:**
   - **Tactical Assist:** Toggle Active Pause (0x) and Slow Motion. If disabled, minimum speed is 1.0x.
 - **Seed:** Optional custom seed for the sector map generation.
@@ -68,15 +71,22 @@ The campaign follows these fixed progression rules based on **Rank** (the column
   - **Supply Depot (Shop):** Purchase equipment/recruits. No combat.
   - **Event:** Narrative choices with Risk/Reward (e.g., Search Derelict, Rescue Signal).
 
-### 3.2 Mission Launch Flow
+### 3.2 Mission Launch \u0026 Node Interaction
 
 1. **Select Node:** Player chooses a node on the Sector Map.
-1. **Equipment Screen:**
+   - **Combat / Elite / Boss:** Redirects to the **Equipment Screen** for squad preparation.
+   - **Supply Depot (Shop):** Redirects to the **Shop UI** (non-tactical) to spend Scrap. The node is cleared immediately upon exit.
+   - **Event:** Opens an **Event Modal** for narrative resolution.
+1. **Equipment Screen (Combat only):**
    - **Manage Roster:** Assign gear, recruit new soldiers, heal wounded.
-   - **Launch:** Clicking "Launch Mission" starts the game immediately.
-   - _Note:_ There is no separate "Mission Setup" screen in Campaign mode. Configuration is derived entirely from the Node.
+   - **Launch:** Clicking \"Launch Mission\" starts the game immediately.
 
-### 3.3 Economy (Scrap)
+### 3.3 Objectives \u0026 Optional Loot
+
+- **Primary Objectives:** Mandatory tasks (Recover Intel, Kill Hive, Escort VIP) required for mission success. These are tracked in the \"Objectives\" HUD.
+- **Optional Loot (Bonus):** Scrap Crates and Intel pickup items found in the world.
+  - **Non-Mandatory:** Collecting bonus loot is NOT required to finish a mission or achieve victory.
+  - **Tracking:** Bonus loot MUST NOT be listed in the Primary Objectives array or HUD. They are collected purely for resource gain.
 
 - **Earned:** Mission objectives, extraction, elite kills.
 - **Spent:**
