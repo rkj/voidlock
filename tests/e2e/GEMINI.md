@@ -30,6 +30,7 @@ To verify visual fidelity and critical user journeys that cannot be fully tested
 - `ReproHUDAllCaps.test.ts`: Verifies Title Case labeling in HUD elements.
 - `ReproAllCapsLabels.test.ts`: Verifies Title Case labeling in screens and Debrief.
 - `UICasingStandardization.test.ts`: Comprehensive audit for uppercase text across all screens.
+- `SpawnPointOverlap.test.ts`: Reproduction test for squad spawn point overlap and Auto-Fill behavior.
 - `DeploymentValidation.test.ts`: Verifies drag-and-drop deployment and Start Mission button logic.
 - `ReproAutoDeploymentDefeat.test.ts`: Verifies mission launch and deployment phase transitions.
 
