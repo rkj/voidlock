@@ -37,7 +37,7 @@ describe("Mission Win/Loss Conditions", () => {
     (engine as any).state;
 
   describe("Expendable Crew Missions (Intel/Hive)", () => {
-    it("should win RecoverIntel as soon as all objectives are completed, even if squad is wiped later", () => {
+    it("should win RecoverIntel after all objectives are completed AND squad is dead or extracted", () => {
       const intelMap: MapDefinition = {
         ...mockMap,
         objectives: [
@@ -59,17 +59,17 @@ describe("Mission Win/Loss Conditions", () => {
       );
 
       engine.update(100);
-      expect(engine.getState().status).toBe("Won");
+      expect(engine.getState().status).toBe("Playing"); // Still playing until off map
 
       // Wipe squad
       getInternalState(engine).units.forEach((u: Unit) => (u.hp = 0));
       engine.update(100);
 
-      // Should remain "Won"
+      // Should be "Won" now
       expect(engine.getState().status).toBe("Won");
     });
 
-    it("should win DestroyHive as soon as Hive is killed, even if squad is wiped later", () => {
+    it("should win DestroyHive after Hive is killed and squad is dead or extracted", () => {
       const engine = new CoreEngine(
         mockMap,
         1,
@@ -89,13 +89,13 @@ describe("Mission Win/Loss Conditions", () => {
       if (hiveObj) hiveObj.state = "Completed";
 
       engine.update(100);
-      expect(engine.getState().status).toBe("Won");
+      expect(engine.getState().status).toBe("Playing"); // Still playing until off map
 
       // Wipe squad
       getInternalState(engine).units.forEach((u: Unit) => (u.hp = 0));
       engine.update(100);
 
-      // Should remain "Won"
+      // Should be "Won" now
       expect(engine.getState().status).toBe("Won");
     });
 
@@ -223,6 +223,13 @@ describe("Mission Win/Loss Conditions", () => {
         (u: Unit) => u.archetypeId === "vip",
       )!.state = UnitState.Extracted;
       engine.update(100);
+      expect(engine.getState().status).toBe("Playing"); // Still playing, one soldier alive
+
+      // Other soldier extracts
+      getInternalState(engine).units.find(
+        (u: Unit) => u.archetypeId !== "vip" && u.state !== UnitState.Dead && u.state !== UnitState.Extracted,
+      )!.state = UnitState.Extracted;
+      engine.update(100);
       expect(engine.getState().status).toBe("Won");
     });
 
@@ -243,7 +250,7 @@ describe("Mission Win/Loss Conditions", () => {
       expect(engine.getState().status).toBe("Lost");
     });
 
-    it("should lose EscortVIP if all combat units die even if VIP is still alive", () => {
+    it("should lose EscortVIP if all units die", () => {
       const engine = new CoreEngine(
         mockMap,
         1,
@@ -253,10 +260,8 @@ describe("Mission Win/Loss Conditions", () => {
         MissionType.EscortVIP,
       );
 
-      const combatUnits = getInternalState(engine).units.filter(
-        (u: Unit) => u.archetypeId !== "vip",
-      );
-      combatUnits.forEach((u: Unit) => (u.hp = 0));
+      // Kill everyone
+      getInternalState(engine).units.forEach((u: Unit) => (u.hp = 0));
 
       engine.update(100);
       expect(engine.getState().status).toBe("Lost");

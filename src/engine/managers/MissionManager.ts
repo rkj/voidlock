@@ -360,6 +360,11 @@ export class MissionManager {
       (u) => u.state === UnitState.Extracted,
     );
 
+    // Mission only ends when everyone is off the map (extracted or dead)
+    if (activeUnits.length > 0) {
+      return;
+    }
+
     const allObjectivesComplete = state.objectives.every(
       (o) => o.state === "Completed",
     );
@@ -372,7 +377,7 @@ export class MissionManager {
         ? MISSION_SCALING.ELITE_MULTIPLIER
         : MISSION_SCALING.NORMAL_MULTIPLIER;
 
-    // 1. Recover Intel and Destroy Hive nodes: Instant win upon objective completion (Extraction optional)
+    // 1. Recover Intel and Destroy Hive nodes: Win upon objective completion (Extraction optional, but mission waits for it)
     if (
       this.missionType === MissionType.RecoverIntel ||
       this.missionType === MissionType.DestroyHive
@@ -382,11 +387,16 @@ export class MissionManager {
           state.stats.scrapGained += SCRAP_REWARDS.MISSION_WIN * multiplier;
         }
         state.status = "Won";
-        return;
+      } else {
+        if (state.status !== "Lost") {
+          state.stats.scrapGained += SCRAP_REWARDS.MISSION_LOSS_CONSOLATION;
+        }
+        state.status = "Lost";
       }
+      return;
     }
 
-    // 2. Escort VIP: Win if VIP extracts, Loss if squad wiped (excluding VIP)
+    // 2. Escort VIP: Win if VIP extracts, Loss if VIP died (handled above) or squad wiped before VIP extracts
     if (this.missionType === MissionType.EscortVIP) {
       const allVipsExtracted =
         vips.length > 0 && vips.every((v) => v.state === UnitState.Extracted);
@@ -396,67 +406,47 @@ export class MissionManager {
           state.stats.scrapGained += SCRAP_REWARDS.MISSION_WIN * multiplier;
         }
         state.status = "Won";
-        return;
-      }
-
-      const combatUnitsOnMap = activeUnits.filter(
-        (u) => u.archetypeId !== "vip",
-      );
-      if (combatUnitsOnMap.length === 0) {
-        const deadCombatUnits = state.units.filter(
-          (u) => u.archetypeId !== "vip" && u.state === UnitState.Dead,
-        );
-        const totalCombatUnits = state.units.filter(
-          (u) => u.archetypeId !== "vip",
-        ).length;
-
-        // Only lose if ALL combat units are DEAD. If they extracted, it's not a wipe.
-        if (
-          totalCombatUnits > 0 &&
-          deadCombatUnits.length === totalCombatUnits
-        ) {
-          if (state.status !== "Lost") {
-            state.stats.scrapGained += SCRAP_REWARDS.MISSION_LOSS_CONSOLATION;
-          }
-          state.status = "Lost";
-          return;
-        }
-      }
-      return;
-    }
-
-    // 3. Generic/Extract Artifacts: Squad must extract after objectives
-    if (activeUnits.length === 0) {
-      if (allObjectivesComplete) {
-        if (
-          this.missionType === MissionType.ExtractArtifacts ||
-          this.missionType === MissionType.Default
-        ) {
-          // Extraction required
-          if (extractedUnits.length > 0) {
-            if (state.status !== "Won") {
-              state.stats.scrapGained += SCRAP_REWARDS.MISSION_WIN * multiplier;
-            }
-            state.status = "Won";
-          } else {
-            if (state.status !== "Lost") {
-              state.stats.scrapGained += SCRAP_REWARDS.MISSION_LOSS_CONSOLATION;
-            }
-            state.status = "Lost";
-          }
-        } else {
-          // If for some reason it's another type but everyone died after objectives, it's a Win (RecoverIntel/DestroyHive)
-          if (state.status !== "Won") {
-            state.stats.scrapGained += SCRAP_REWARDS.MISSION_WIN * multiplier;
-          }
-          state.status = "Won";
-        }
       } else {
+        // All active units are gone, but VIP didn't extract (must be dead or not present, but death is handled above)
         if (state.status !== "Lost") {
           state.stats.scrapGained += SCRAP_REWARDS.MISSION_LOSS_CONSOLATION;
         }
         state.status = "Lost";
       }
+      return;
+    }
+
+    // 3. Generic/Extract Artifacts: Squad must extract after objectives
+    if (allObjectivesComplete) {
+      if (
+        this.missionType === MissionType.ExtractArtifacts ||
+        this.missionType === MissionType.Default
+      ) {
+        // Extraction required: at least one unit must have extracted
+        if (extractedUnits.length > 0) {
+          if (state.status !== "Won") {
+            state.stats.scrapGained += SCRAP_REWARDS.MISSION_WIN * multiplier;
+          }
+          state.status = "Won";
+        } else {
+          if (state.status !== "Lost") {
+            state.stats.scrapGained += SCRAP_REWARDS.MISSION_LOSS_CONSOLATION;
+          }
+          state.status = "Lost";
+        }
+      } else {
+        // Other types that reached here with complete objectives are a win
+        if (state.status !== "Won") {
+          state.stats.scrapGained += SCRAP_REWARDS.MISSION_WIN * multiplier;
+        }
+        state.status = "Won";
+      }
+    } else {
+      // Objectives not complete and everyone is dead/extracted
+      if (state.status !== "Lost") {
+        state.stats.scrapGained += SCRAP_REWARDS.MISSION_LOSS_CONSOLATION;
+      }
+      state.status = "Lost";
     }
   }
 }
