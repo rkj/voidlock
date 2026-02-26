@@ -12,11 +12,9 @@ import { MathUtils } from "../../../shared/utils/MathUtils";
 import { Behavior, BehaviorResult } from "./Behavior";
 import { SPEED_NORMALIZATION_CONST, ITEMS } from "../../config/GameConstants";
 import { ItemEffectHandler } from "../../interfaces/IDirector";
-import { GameGrid } from "../../GameGrid";
-import { isMapFullyDiscovered } from "./BehaviorUtils";
 
 export class InteractionBehavior implements Behavior<BehaviorContext & ObjectiveContext & ExplorationContext> {
-  constructor(private gameGrid: GameGrid) {}
+  constructor() {}
 
   public evaluate(
     unit: Unit,
@@ -130,12 +128,11 @@ export class InteractionBehavior implements Behavior<BehaviorContext & Objective
       const isExplicitExtract =
         currentUnit.activeCommand?.type === CommandType.EXTRACT;
 
-      const isMapFinished = isMapFullyDiscovered(state, context.totalFloorCells, this.gameGrid);
+      const isLowHP = currentUnit.hp < currentUnit.maxHp * 0.25;
 
       if (
-        (allObjectivesReady || isVipAtExtraction || isExplicitExtract) &&
         isAtExtraction &&
-        (isExplicitExtract || !currentUnit.aiEnabled || isMapFinished)
+        (allObjectivesReady || isVipAtExtraction || isExplicitExtract || isLowHP || !currentUnit.aiEnabled)
       ) {
         const baseTime = ITEMS.BASE_EXTRACT_TIME;
         const duration =

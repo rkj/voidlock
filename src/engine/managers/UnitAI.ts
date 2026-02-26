@@ -30,7 +30,7 @@ export class UnitAI {
     // Ordered by priority
     this.behaviors = [
       new SafetyBehavior(),
-      new InteractionBehavior(gameGrid),
+      new InteractionBehavior(),
       new CombatBehavior(gameGrid),
       new ObjectiveBehavior(),
       new ExplorationBehavior(gameGrid),
