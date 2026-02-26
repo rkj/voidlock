@@ -23,7 +23,7 @@ export type ChannelingState = {
   targetId?: string; // ID of object/objective being interacted with
 };
 
-export type EngagementPolicy = "ENGAGE" | "IGNORE";
+export type EngagementPolicy = "ENGAGE" | "IGNORE" | "AVOID";
 
 export type Entity = {
   id: string;
