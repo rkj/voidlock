@@ -9,16 +9,21 @@ import {
 import { BehaviorContext } from "../../interfaces/AIContext";
 import { PRNG } from "../../../shared/PRNG";
 import { Behavior, BehaviorResult } from "./Behavior";
-import { isCellVisible } from "../../../shared/VisibilityUtils";
+import { isCellVisible, isCellDiscovered } from "../../../shared/VisibilityUtils";
 import { ItemEffectHandler } from "../../interfaces/IDirector";
 import { MathUtils } from "../../../shared/utils/MathUtils";
+import { LineOfSight } from "../../LineOfSight";
+import { GameGrid } from "../../GameGrid";
+import { Logger } from "../../../shared/Logger";
 
 export class SafetyBehavior implements Behavior<BehaviorContext> {
+  constructor(private gameGrid: GameGrid, private los: LineOfSight) {}
+
   public evaluate(
     unit: Unit,
     state: GameState,
     _dt: number,
-    _doors: Map<string, Door>,
+    doors: Map<string, Door>,
     _prng: PRNG,
     context: BehaviorContext,
     director?: ItemEffectHandler,
@@ -50,6 +55,8 @@ export class SafetyBehavior implements Behavior<BehaviorContext> {
         MathUtils.getDistance(currentUnit.pos, u.pos) <= 5,
     );
     const isIsolated = nearbyAllies.length === 0 && threats.length > 0;
+    const isAvoidMode = currentUnit.engagementPolicy === "AVOID" && threats.length > 0;
+    Logger.debug(`SafetyBehavior: unit=${currentUnit.id}, threats=${threats.length}, isLowHP=${isLowHP}, isIsolated=${isIsolated}, isAvoidMode=${isAvoidMode}`);
 
     if (isLowHP && threats.length > 0) {
       const safeCells: Vector2[] = [];
@@ -126,6 +133,65 @@ export class SafetyBehavior implements Behavior<BehaviorContext> {
           unit: currentUnit,
           handled: currentUnit.state === UnitState.Moving,
         };
+      }
+    } else if (isAvoidMode) {
+      const primaryThreat = threats[0].enemy;
+      const dist = threats[0].distance;
+      const currentCell = MathUtils.toCellCoord(currentUnit.pos);
+      
+      const neighbors = [
+        { x: currentCell.x + 1, y: currentCell.y },
+        { x: currentCell.x - 1, y: currentCell.y },
+        { x: currentCell.x, y: currentCell.y + 1 },
+        { x: currentCell.x, y: currentCell.y - 1 },
+        { x: currentCell.x + 1, y: currentCell.y + 1 },
+        { x: currentCell.x + 1, y: currentCell.y - 1 },
+        { x: currentCell.x - 1, y: currentCell.y + 1 },
+        { x: currentCell.x - 1, y: currentCell.y - 1 },
+      ].filter(n => 
+        n.x >= 0 && n.x < state.map.width && n.y >= 0 && n.y < state.map.height &&
+        isCellDiscovered(state, n.x, n.y) &&
+        this.gameGrid.isWalkable(n.x, n.y) &&
+        this.gameGrid.canMove(currentCell.x, currentCell.y, n.x, n.y, doors, false)
+      );
+
+      const scoredCandidates = neighbors.map(n => {
+        const pos = { x: n.x + 0.5, y: n.y + 0.5 };
+        const hasLOS = this.los.hasLineOfSight(pos, primaryThreat.pos);
+        const newDist = MathUtils.getDistance(pos, primaryThreat.pos);
+        return { pos: n, hasLOS, newDist };
+      });
+
+      const betterCandidates = scoredCandidates.filter(c => c.newDist > dist);
+
+      const best = betterCandidates
+        .sort((a, b) => {
+          if (a.hasLOS && !b.hasLOS) return -1;
+          if (!a.hasLOS && b.hasLOS) return 1;
+          return b.newDist - a.newDist;
+        })[0];
+
+      if (best && (best.hasLOS || betterCandidates.every(c => !c.hasLOS))) {
+        if (
+          currentUnit.state !== UnitState.Moving ||
+          !currentUnit.targetPos ||
+          !MathUtils.sameCellPosition(currentUnit.targetPos, best.pos)
+        ) {
+          currentUnit = context.executeCommand(
+            currentUnit,
+            {
+              type: CommandType.MOVE_TO,
+              unitIds: [currentUnit.id],
+              target: best.pos,
+              label: "Kiting",
+            },
+            state,
+            false,
+            director,
+          );
+          return { unit: currentUnit, handled: true };
+        }
+        return { unit: currentUnit, handled: true };
       }
     } else if (isIsolated) {
       const otherUnits = state.units.filter(

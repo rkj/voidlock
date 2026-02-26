@@ -18,6 +18,7 @@ import { ExplorationBehavior } from "../ai/behaviors/ExplorationBehavior";
 import { isCellDiscovered } from "../../shared/VisibilityUtils";
 import { ItemEffectHandler } from "../interfaces/IDirector";
 import { AIContext } from "../interfaces/AIContext";
+import { Logger } from "../../shared/Logger";
 
 export class UnitAI {
   private behaviors: Behavior<AIContext>[] = [];
@@ -29,7 +30,7 @@ export class UnitAI {
 
     // Ordered by priority
     this.behaviors = [
-      new SafetyBehavior(),
+      new SafetyBehavior(gameGrid, los),
       new InteractionBehavior(),
       new CombatBehavior(gameGrid),
       new ObjectiveBehavior(),
@@ -93,6 +94,7 @@ export class UnitAI {
 
     // 3. Sequential behavior evaluation
     for (const behavior of this.behaviors) {
+      const behaviorName = (behavior as any).constructor.name;
       const result = behavior.evaluate(
         currentUnit,
         state,
@@ -102,6 +104,9 @@ export class UnitAI {
         context,
         director,
       );
+      if (result.handled) {
+        Logger.debug(`UnitAI: unit ${currentUnit.id} handled by ${behaviorName}`);
+      }
       currentUnit = result.unit;
       if (result.handled) break;
     }

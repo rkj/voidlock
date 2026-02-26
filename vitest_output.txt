@@ -1,0 +1,44 @@
+
+ RUN  v3.2.4 /home/rkj/voidlock
+
+ DEPRECATED  'basic' reporter is deprecated and will be removed in Vitest v3.
+Remove 'basic' from 'reporters' option. To match 'basic' reporter 100%, use configuration:
+{
+  "test": {
+    "reporters": [
+      [
+        "default",
+        {
+          "summary": false
+        }
+      ]
+    ]
+  }
+}
+ ❯ tests/engine/repro/TacticalAI.test.ts (3 tests | 1 failed) 62ms
+   ✓ Tactical AI Reproduction Tests > 1) Units in IGNORE mode should fire while moving 43ms
+   ✓ Tactical AI Reproduction Tests > 2) Units in AVOID mode should maintain LOS while kiting 8ms
+   × Tactical AI Reproduction Tests > 3) VIPs should flee directly toward extraction 9ms
+     → expected undefined to be defined
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/engine/repro/TacticalAI.test.ts > Tactical AI Reproduction Tests > 3) VIPs should flee directly toward extraction
+AssertionError: expected undefined to be defined
+ ❯ tests/engine/repro/TacticalAI.test.ts:249:27
+    247|     // Extraction is at (19, 1), start is (5.5, 5.5). 
+    248|     // It should move either Right (x > 5.5) or Up (y < 5.5).
+    249|     expect(vip.targetPos).toBeDefined();
+       |                           ^
+    250|     const movedRight = vip.targetPos && vip.targetPos.x > 5.5;
+    251|     const movedUp = vip.targetPos && vip.targetPos.y < 5.5;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  23:18:04
+   Duration  666ms (transform 273ms, setup 0ms, collect 362ms, tests 62ms, environment 0ms, prepare 59ms)
+

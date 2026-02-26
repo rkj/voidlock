@@ -7,7 +7,7 @@ Modular shared type definitions for Voidlock (ADR 0015).
 - `index.ts`: Barrel file re-exporting all types from this directory.
 - `geometry.ts`: Core geometric primitives and definitions (`Vector2`, `Rect`, `WallDefinition`).
 - `map.ts`: Map-related structures (`MapDefinition`, `Cell`, `Door`, `Boundary`, `SpawnPoint`, `Grid`, `TileAssembly`).
-- `units.ts`: Unit definitions and behaviors (`Unit`, `UnitState`, `Archetype`, `Enemy`, `Command`). Now includes the `AVOID` engagement policy for tactical kiting behaviors (ADR 0023).
+- `units.ts`: Unit definitions and behaviors (`Unit`, `UnitState`, `Archetype`, `Enemy`, `Command`). Now includes the `AVOID` engagement policy for tactical kiting behaviors (ADR 0023). `IGNORE` mode allows firing while moving without engaging in tactical positioning. `AVOID` mode enables tactical kiting while maintaining line-of-sight.
 - `items.ts`: Item and weapon definitions and libraries (`Item`, `Weapon`, `ItemLibrary`, `WeaponLibrary`).
 - `gamestate.ts`: Root state objects and communication protocol (`GameState`, `MissionStats`, `WorkerMessage`, `MainMessage`). Includes `OverlayOption` with support for `renderOnBoard` toggle and `AttackEvent` for tactical feedback.
 - `input.ts`: Shared types for the input management system, including `ShortcutInfo`, `InputContext`, and `InputPriority` (ADR 0037). Now includes support for touch event handlers (ADR 0038).
