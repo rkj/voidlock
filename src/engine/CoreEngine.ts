@@ -85,6 +85,7 @@ export class CoreEngine {
     debugSnapshots: boolean = false,
     debugSnapshotInterval: number = 0,
     initialSnapshots: GameState[] = [],
+    targetTimeScale: number = 1.0,
   ) {
     this.prng = new PRNG(seed);
     this.gameGrid = new GameGrid(map);
@@ -160,6 +161,7 @@ export class CoreEngine {
         debugSnapshotInterval: debugSnapshotInterval,
         losOverlayEnabled: losOverlayEnabled,
         timeScale: initialTimeScale,
+        targetTimeScale: targetTimeScale,
         isPaused: startPaused,
         isSlowMotion: initialTimeScale < 1.0,
         allowTacticalPause: allowTacticalPause,
@@ -517,6 +519,10 @@ export class CoreEngine {
     }
     this.state.settings.timeScale = effectiveScale;
     this.state.settings.isSlowMotion = effectiveScale < 1.0;
+  }
+  
+  public setTargetTimeScale(scale: number) {
+    this.state.settings.targetTimeScale = scale;
   }
 
   public setPaused(paused: boolean) {

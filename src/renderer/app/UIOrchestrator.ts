@@ -56,35 +56,13 @@ export class UIOrchestrator {
 
   /**
    * Authoritative sync of the speed UI based on the GameClient state.
+   * NOTE: Most mission UI labels are handled by HUDManager from the authoritative engine state.
+   * This method provides immediate feedback for local client state changes.
    */
   public syncSpeedUI() {
-    const isPaused = this.deps.gameClient.getIsPaused();
-    const timeScale = this.deps.gameClient.getTimeScale();
-
-    const speedSlider = document.getElementById(
-      "game-speed",
-    ) as HTMLInputElement;
-    if (speedSlider) {
-      // Use Target Scale (the non-paused speed) for the slider position
-      const targetScale = this.deps.gameClient.getTargetScale();
-      speedSlider.value = TimeUtility.scaleToSlider(targetScale).toString();
-    }
-
-    const speedValue = document.getElementById("speed-value");
-    if (speedValue) {
-      speedValue.textContent = TimeUtility.formatSpeed(timeScale, isPaused);
-    }
-
-    const btnPause = document.getElementById("btn-pause");
-    if (btnPause) {
-      btnPause.textContent = isPaused ? "▶" : "⏸";
-      btnPause.title = isPaused ? "Resume" : "Pause";
-    }
-
-    const btnPauseToggle = document.getElementById("btn-pause-toggle");
-    if (btnPauseToggle) {
-        btnPauseToggle.textContent = isPaused ? "▶ Play" : "|| Pause";
-    }
+    // Immediate feedback for local state changes if needed, 
+    // but mission labels are now authoritative from HUDManager (ADR 0048).
+    // We keep this method for any non-mission UI that might need it.
   }
 
   public async copyWorldState() {

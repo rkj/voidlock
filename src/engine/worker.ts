@@ -39,6 +39,7 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
         msg.payload.debugSnapshots ?? false,
         msg.payload.debugSnapshotInterval ?? 0,
         msg.payload.initialSnapshots ?? [],
+        msg.payload.targetTimeScale ?? timeScale,
       );
 
       // Start loop
@@ -97,6 +98,18 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
       timeScale = msg.payload;
       if (engine) {
         engine.setTimeScale(timeScale);
+      }
+      break;
+    }
+    case "SET_TARGET_TIME_SCALE": {
+      if (engine) {
+        engine.setTargetTimeScale(msg.payload);
+      }
+      break;
+    }
+    case "SET_PAUSED": {
+      if (engine) {
+        engine.setPaused(msg.payload);
       }
       break;
     }
