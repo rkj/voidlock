@@ -118,7 +118,7 @@ describe("Campaign Node Special Types", () => {
 
     // Verify button text is "Leave Shop"
     const confirmBtnText = await page.evaluate(() => {
-        const btn = document.querySelector('[data-focus-id="btn-confirm-squad"]');
+        const btn = document.querySelector('[data-focus-id="btn-back"]');
         return btn ? btn.textContent : null;
     });
     expect(confirmBtnText).toBe("Leave Shop");
@@ -128,7 +128,7 @@ describe("Campaign Node Special Types", () => {
     expect(launchBtn).toBeNull();
     
     // Click Leave Shop
-    await page.click('[data-focus-id="btn-confirm-squad"]');
+    await page.click('[data-focus-id="btn-back"]');
     
     // Should return to Campaign Screen
     await page.waitForSelector('.campaign-screen', { visible: true });

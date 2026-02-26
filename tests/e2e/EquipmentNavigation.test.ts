@@ -30,8 +30,8 @@ describe("Equipment Screen Navigation", () => {
     await page.waitForSelector("#screen-equipment");
 
     // 3. Confirm Squad
-    await page.waitForSelector('[data-focus-id="btn-confirm-squad"]');
-    await page.click('[data-focus-id="btn-confirm-squad"]');
+    await page.waitForSelector('[data-focus-id="btn-back"]');
+    await page.click('[data-focus-id="btn-back"]');
     
     // 4. Verify we returned to Mission Setup
     // Wait for Mission Setup to be visible

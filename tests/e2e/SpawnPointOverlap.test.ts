@@ -83,7 +83,7 @@ describe("Spawn Point Overlap Verification", () => {
     }
 
     // Confirm Squad
-    await page.click("[data-focus-id='btn-confirm-squad']");
+    await page.click("[data-focus-id='btn-back']");
 
     // Launch Mission
     await page.waitForSelector("#btn-launch-mission", { visible: true });

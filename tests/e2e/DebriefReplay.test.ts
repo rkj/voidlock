@@ -45,7 +45,7 @@ describe("Debrief Replay E2E", () => {
 
     // 2. Confirm Squad and Launch
     await page.waitForSelector(".equipment-screen");
-    const [confirmBtn] = await page.$$('button[data-focus-id="btn-confirm-squad"]');
+    const [confirmBtn] = await page.$$('button[data-focus-id="btn-back"]');
     await confirmBtn.evaluate((b) => (b as HTMLElement).click());
 
     // 2.5 Click Launch Mission on Setup screen

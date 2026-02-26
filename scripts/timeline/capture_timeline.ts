@@ -229,6 +229,7 @@ export function buildBootstrapClickOrder(actionIds: string[] = []): string[] {
     "btn-begin",
     "btn-deploy",
     "btn-confirm-loadout",
+    "btn-back",
   ];
   const actionSet = new Set(actionIds.map((id) => id.toLowerCase()));
   const selected = preferred.filter((id) => actionSet.has(id.toLowerCase()));

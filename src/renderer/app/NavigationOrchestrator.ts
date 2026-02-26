@@ -339,32 +339,34 @@ export class NavigationOrchestrator {
     this.setupEquipmentScreen(true);
   }
 
-  public onEquipmentConfirmed(config: SquadConfig) {
-    const node = this.missionSetupManager.currentCampaignNode;
-    if (node) {
-      config.soldiers.forEach((soldier) => {
-        if (soldier.id) {
-          this.campaignManager.assignEquipment(soldier.id, {
-            rightHand: soldier.rightHand,
-            leftHand: soldier.leftHand,
-            body: soldier.body,
-            feet: soldier.feet,
-          });
-        }
-      });
+  private persistEquipment(config: SquadConfig) {
+    config.soldiers.forEach((soldier) => {
+      if (soldier.id) {
+        this.campaignManager.assignEquipment(soldier.id, {
+          rightHand: soldier.rightHand,
+          leftHand: soldier.leftHand,
+          body: soldier.body,
+          feet: soldier.feet,
+        });
+      }
+    });
+    this.missionSetupManager.currentSquad = config;
+    this.missionSetupManager.saveCurrentConfig();
+  }
 
+  public onEquipmentBack(config: SquadConfig) {
+    const node = this.missionSetupManager.currentCampaignNode;
+    this.persistEquipment(config);
+
+    if (node) {
       if (node.type === "Shop") {
         // Clear the node upon exit
         this.campaignManager.advanceCampaignWithoutMission(node.id, 0, 0);
       }
 
-      this.missionSetupManager.currentSquad = config;
-      this.missionSetupManager.saveCurrentConfig();
       this.switchScreen("campaign", true);
       this.campaignShell.show("campaign", "sector-map");
     } else {
-      this.missionSetupManager.currentSquad = config;
-      this.missionSetupManager.saveCurrentConfig();
       this.missionSetupManager.loadAndApplyConfig(false);
       this.squadBuilder.update(
         this.missionSetupManager.currentSquad,
@@ -374,6 +376,11 @@ export class NavigationOrchestrator {
       this.switchScreen("mission-setup", false);
       this.campaignShell.show("custom", "setup");
     }
+  }
+
+  public onLaunchMission(config: SquadConfig) {
+    this.persistEquipment(config);
+    this.callbacks.launchMission();
   }
 
   public onShowSummary() {

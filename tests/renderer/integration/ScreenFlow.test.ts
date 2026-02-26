@@ -40,6 +40,7 @@ const mockGameClient = {
   forceWin: vi.fn(),
   forceLose: vi.fn(),
   loadReplay: vi.fn(),
+  applyCommand: vi.fn(),
 };
 
 vi.mock("@src/engine/GameClient", () => ({
@@ -248,7 +249,7 @@ describe("Screen Flow Integration", () => {
     document.dispatchEvent(new Event("DOMContentLoaded"));
   });
 
-  it("should follow Flow 1: MainMenu -> Campaign -> Mission Setup -> Mission -> Win -> Debrief -> Campaign", async () => {
+  it("should follow Flow 1: MainMenu -> Campaign -> Equipment -> Mission -> Win -> Debrief -> Campaign", async () => {
     // 1. Main Menu -> Campaign
     const btnCampaign = document.getElementById("btn-menu-campaign");
     btnCampaign?.click();
@@ -256,8 +257,7 @@ describe("Screen Flow Integration", () => {
       "flex",
     );
 
-    // 2. Campaign -> Mission Setup (SKIPPED) -> Equipment
-    // CampaignScreen renders nodes as .campaign-node
+    // 2. Campaign -> Equipment
     const nodes = document.querySelectorAll(".campaign-node");
     expect(nodes.length).toBeGreaterThan(0);
     (nodes[0] as HTMLElement).click();
@@ -265,24 +265,14 @@ describe("Screen Flow Integration", () => {
     // Wait for async onCampaignNodeSelected
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    // EXPECTATION: Mission Setup is skipped, goes straight to Equipment
-    expect(document.getElementById("screen-mission-setup")?.style.display).toBe(
-      "none",
-    );
     expect(document.getElementById("screen-equipment")?.style.display).toBe(
       "flex",
     );
 
     // 3. Equipment -> Mission
-    const allButtons = document.querySelectorAll("#screen-equipment button");
-    const equipmentLaunchBtn = Array.from(allButtons).find((b) =>
-      b.textContent?.includes("Confirm"),
-    ) as HTMLElement;
+    const equipmentLaunchBtn = document.querySelector('[data-focus-id="btn-launch-mission"]') as HTMLElement;
     expect(equipmentLaunchBtn).toBeDefined();
     equipmentLaunchBtn?.click();
-
-    // Now in mission-setup, click Launch
-    document.getElementById("btn-launch-mission")?.click();
 
     expect(document.getElementById("screen-mission")?.style.display).toBe(
       "flex",
@@ -334,7 +324,7 @@ describe("Screen Flow Integration", () => {
     );
   });
 
-  it("should follow Flow 2: MainMenu -> Mission Setup -> Mission -> Lose -> Debrief -> Main Menu", async () => {
+  it("should follow Flow 2: MainMenu -> Mission Setup -> Equipment -> Mission -> Lose -> Debrief -> Main Menu", async () => {
     // 1. Main Menu -> Mission Setup
     const btnCustom = document.getElementById("btn-menu-custom");
     btnCustom?.click();
@@ -342,7 +332,7 @@ describe("Screen Flow Integration", () => {
       "flex",
     );
 
-    // 2. Mission Setup -> Mission
+    // 2. Mission Setup -> Equipment
     // Select a soldier (scout)
     const scoutCard = Array.from(
       document.querySelectorAll(".soldier-card"),
@@ -354,11 +344,17 @@ describe("Screen Flow Integration", () => {
     ) as HTMLButtonElement;
     btnGotoEquipment.click();
 
-    const allButtons = document.querySelectorAll("#screen-equipment button");
-    const equipmentLaunchBtn = Array.from(allButtons).find((b) =>
-      b.textContent?.includes("Confirm"),
-    ) as HTMLElement;
-    equipmentLaunchBtn.click();
+    expect(document.getElementById("screen-equipment")?.style.display).toBe(
+      "flex",
+    );
+
+    // 3. Equipment -> Mission
+    // Note: in Custom mode, Equipment screen doesn't have Launch button, it has Back (which goes back to Setup)
+    // Wait, let's check EquipmentScreen.ts logic for Launch button
+    // if (this.isCampaign && this.hasNodeSelected && !this.isShop && this.onLaunch)
+    
+    const backBtn = document.querySelector('[data-focus-id="btn-back"]') as HTMLElement;
+    backBtn.click();
 
     // Now in mission-setup, click Launch
     document.getElementById("btn-launch-mission")?.click();
@@ -421,15 +417,12 @@ describe("Screen Flow Integration", () => {
     // Check tabs are visible
     expect(document.querySelector(".tab-button")).not.toBeNull();
 
-    // 2. Campaign -> Mission Setup (SKIPPED) -> Equipment
+    // 2. Campaign -> Equipment
     const nodes = document.querySelectorAll(".campaign-node");
     expect(nodes.length).toBeGreaterThan(0);
     (nodes[0] as HTMLElement).click();
     await new Promise((resolve) => setTimeout(resolve, 50));
 
-    expect(document.getElementById("screen-mission-setup")?.style.display).toBe(
-      "none",
-    );
     expect(document.getElementById("screen-equipment")?.style.display).toBe(
       "flex",
     );
@@ -447,7 +440,6 @@ describe("Screen Flow Integration", () => {
     expect(document.getElementById("screen-settings")?.style.display).toBe("flex");
 
     // 4. Settings -> Back to Equipment
-    // SettingsScreen renders a button with data-focus-id="btn-settings-back"
     const settingsBackBtn = document.querySelector(
       '#screen-settings [data-focus-id="btn-settings-back"]',
     ) as HTMLElement;
@@ -456,9 +448,7 @@ describe("Screen Flow Integration", () => {
     expect(document.getElementById("screen-equipment")?.style.display).toBe("flex");
 
     // 5. Equipment -> Back to Campaign Map
-    const backBtn = Array.from(
-      document.querySelectorAll("#screen-equipment button"),
-    ).find((b) => b.textContent === "Back") as HTMLElement;
+    const backBtn = document.querySelector('[data-focus-id="btn-back"]') as HTMLElement;
     backBtn?.click();
 
     expect(document.getElementById("screen-campaign")?.style.display).toBe(

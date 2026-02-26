@@ -54,8 +54,8 @@ describe("voidlock-49x66: Deployment Overlap Bug", () => {
     }
 
     // Confirm Squad
-    await page.waitForSelector("[data-focus-id='btn-confirm-squad']", { visible: true });
-    await page.click("[data-focus-id='btn-confirm-squad']");
+    await page.waitForSelector("[data-focus-id='btn-back']", { visible: true });
+    await page.click("[data-focus-id='btn-back']");
     
     // Launch Mission
     await page.waitForSelector("#btn-launch-mission", { visible: true });

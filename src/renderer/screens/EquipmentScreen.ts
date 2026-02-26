@@ -22,9 +22,8 @@ export class EquipmentScreen {
   private selectedSoldierIndex: number = 0;
   private recruitMode: boolean = false;
   private reviveMode: boolean = false;
-  private onSave: (config: SquadConfig) => void;
   private onLaunch?: (config: SquadConfig) => void;
-  private onBack: () => void;
+  private onBack: (config: SquadConfig) => void;
   private onUpdate?: () => void;
   private inspector: SoldierInspector;
   private isShop: boolean = false;
@@ -42,8 +41,7 @@ export class EquipmentScreen {
     manager: CampaignManager,
     modalService: ModalService,
     initialConfig: SquadConfig,
-    onSave: (config: SquadConfig) => void,
-    onBack: () => void,
+    onBack: (config: SquadConfig) => void,
     onUpdate?: () => void,
     onLaunch?: (config: SquadConfig) => void,
     isShop: boolean = false,
@@ -56,7 +54,6 @@ export class EquipmentScreen {
     this.modalService = modalService;
     this.config = JSON.parse(JSON.stringify(initialConfig)); // Deep copy (Vitest mock safe)
     this.applyDefaults();
-    this.onSave = onSave;
     this.onBack = onBack;
     this.onUpdate = onUpdate;
     this.onLaunch = onLaunch;
@@ -175,7 +172,7 @@ export class EquipmentScreen {
       return UIUtils.handleArrowNavigation(e, this.container);
     }
     if (e.key === "Escape") {
-      this.onBack();
+      this.onBack(this.config);
       return true;
     }
     return false;
@@ -308,22 +305,9 @@ export class EquipmentScreen {
     backBtn.style.fontSize = "0.9em";
     backBtn.style.display = "flex";
     backBtn.style.alignItems = "center";
-    backBtn.onclick = () => this.onBack();
-
-    const saveBtn = document.createElement("button");
-    saveBtn.textContent = this.isShop ? "Leave Shop" : "Confirm Squad";
-    saveBtn.className = "primary-button";
-    saveBtn.setAttribute("data-focus-id", "btn-confirm-squad");
-    saveBtn.style.margin = "0";
-    saveBtn.style.height = "32px";
-    saveBtn.style.padding = "0 15px";
-    saveBtn.style.fontSize = "0.9em";
-    saveBtn.style.display = "flex";
-    saveBtn.style.alignItems = "center";
-    saveBtn.onclick = () => this.onSave(this.config);
+    backBtn.onclick = () => this.onBack(this.config);
 
     footer.appendChild(backBtn);
-    footer.appendChild(saveBtn);
 
     // Launch Mission Button (Campaign flow only)
     if (this.isCampaign && this.hasNodeSelected && !this.isShop && this.onLaunch) {

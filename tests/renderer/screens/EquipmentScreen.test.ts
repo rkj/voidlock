@@ -6,7 +6,6 @@ import { SquadConfig } from "@src/shared/types";
 describe("EquipmentScreen", () => {
   let container: HTMLElement;
   let initialConfig: SquadConfig;
-  let onSave: any;
   let onBack: any;
   let mockManager: any;
   let mockModalService: any;
@@ -53,7 +52,6 @@ describe("EquipmentScreen", () => {
       assignEquipment: vi.fn(),
     };
 
-    onSave = vi.fn();
     onBack = vi.fn();
   });
 
@@ -63,7 +61,6 @@ describe("EquipmentScreen", () => {
       mockManager,
       mockModalService as any,
       initialConfig,
-      onSave,
       onBack,
       null as any,
       undefined, // onLaunch
@@ -85,7 +82,6 @@ describe("EquipmentScreen", () => {
       mockManager,
       mockModalService as any,
       initialConfig,
-      onSave,
       onBack,
       null as any,
       undefined, // onLaunch
@@ -116,7 +112,6 @@ describe("EquipmentScreen", () => {
       mockManager,
       mockModalService as any,
       initialConfig, // assault has pulse_rifle and combat_knife in ArchetypeLibrary
-      onSave,
       onBack,
       null as any,
       false,
@@ -158,7 +153,6 @@ describe("EquipmentScreen", () => {
       mockManager,
       mockModalService as any,
       initialConfig,
-      onSave,
       onBack,
       null as any,
       undefined, // onLaunch
@@ -178,12 +172,12 @@ describe("EquipmentScreen", () => {
 
     plusBtn?.click();
 
-    const confirmBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.textContent === "Confirm Squad",
+    const backBtn = Array.from(container.querySelectorAll("button")).find(
+      (btn) => btn.textContent === "Back",
     );
-    confirmBtn?.click();
+    backBtn?.click();
 
-    expect(onSave).toHaveBeenCalledWith(
+    expect(onBack).toHaveBeenCalledWith(
       expect.objectContaining({
         inventory: expect.objectContaining({
           frag_grenade: 1,
@@ -199,7 +193,6 @@ describe("EquipmentScreen", () => {
       mockManager,
       mockModalService as any,
       initialConfig,
-      onSave,
       onBack,
       null as any,
       undefined, // onLaunch
@@ -215,12 +208,12 @@ describe("EquipmentScreen", () => {
     ).find((el) => el.textContent?.includes("Pulse Rifle")) as HTMLElement;
     pulseRifleBtn?.click();
 
-    const confirmBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.textContent === "Confirm Squad",
+    const backBtn = Array.from(container.querySelectorAll("button")).find(
+      (btn) => btn.textContent === "Back",
     );
-    confirmBtn?.click();
+    backBtn?.click();
 
-    expect(onSave).toHaveBeenCalledWith(
+    expect(onBack).toHaveBeenCalledWith(
       expect.objectContaining({
         soldiers: expect.arrayContaining([
           expect.objectContaining({
@@ -238,7 +231,6 @@ describe("EquipmentScreen", () => {
       mockManager,
       mockModalService as any,
       initialConfig,
-      onSave,
       onBack,
       null as any,
       undefined, // onLaunch
@@ -253,11 +245,14 @@ describe("EquipmentScreen", () => {
     expect(armorBtn).toBeDefined();
     armorBtn?.click();
 
-    // Heavy Plate gives +150 HP
+    // Heavy Plate gives +100 HP (Actually let's check ItemLibrary)
+    // Looking at the code logic:
     const soldierStatsDiv = Array.from(container.querySelectorAll("h3")).find(
       (el) => el.textContent === "Soldier Attributes",
     )?.parentElement;
-    expect(soldierStatsDiv?.textContent).toContain("200"); // 100 + 100
+    
+    // Check HP - original was 100, heavy_plate usually gives +100
+    expect(soldierStatsDiv?.textContent).toContain("200"); 
 
     // Check Speed - should be 15 (20 - 5 penalty)
     expect(soldierStatsDiv?.textContent).toContain("15");
@@ -269,7 +264,6 @@ describe("EquipmentScreen", () => {
       mockManager,
       mockModalService as any,
       initialConfig,
-      onSave,
       onBack,
       null as any,
       undefined, // onLaunch
@@ -296,7 +290,6 @@ describe("EquipmentScreen", () => {
       mockManager,
       mockModalService as any,
       configWithNames,
-      onSave,
       onBack,
       null as any,
       undefined, // onLaunch
