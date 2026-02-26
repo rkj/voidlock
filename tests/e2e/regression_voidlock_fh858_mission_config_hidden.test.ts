@@ -46,7 +46,7 @@ describe("Regression voidlock-fh858: Mission Configuration Hidden in Campaign (N
     const launchBtnSelector = '[data-focus-id="btn-launch-mission"]';
     await page.waitForSelector(launchBtnSelector, { visible: true });
     
-    const confirmBtnSelector = '[data-focus-id="btn-confirm-squad"]';
+    const confirmBtnSelector = '[data-focus-id="btn-back"]';
     await page.waitForSelector(confirmBtnSelector, { visible: true });
 
     // 6. Test the "Back" button (Should go to Sector Map)

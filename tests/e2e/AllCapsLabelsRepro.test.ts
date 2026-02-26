@@ -62,7 +62,7 @@ describe("UI labels are rendered in Title Case", () => {
     expect(soldierAttributesText).toContain("Soldier Attributes");
 
     // 4. Confirm Squad to go back to Setup
-    await page.click("[data-focus-id='btn-confirm-squad']");
+    await page.click("[data-focus-id='btn-back']");
     await page.waitForSelector("#screen-mission-setup");
 
     // Launch Mission to get to Deployment Phase

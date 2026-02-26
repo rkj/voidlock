@@ -92,8 +92,8 @@ describe("voidlock-49x66: Deployment Bug Repro", () => {
 
     // Confirm Squad
     console.log("Confirming squad...");
-    await page.waitForSelector("[data-focus-id='btn-confirm-squad']", { visible: true });
-    await page.click("[data-focus-id='btn-confirm-squad']");
+    await page.waitForSelector("[data-focus-id='btn-back']", { visible: true });
+    await page.click("[data-focus-id='btn-back']");
     
     // Back at Mission Setup
     console.log("Waiting for #btn-launch-mission");

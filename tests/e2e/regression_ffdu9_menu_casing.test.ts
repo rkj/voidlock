@@ -32,8 +32,8 @@ describe("Command Menu Casing Repro (voidlock-ffdu9)", () => {
     await page.click(".soldier-widget-roster"); // Click first soldier in roster to add to squad
 
     // Wait for Confirm Squad button and click it
-    await page.waitForSelector("[data-focus-id='btn-confirm-squad']", { visible: true });
-    await page.click("[data-focus-id='btn-confirm-squad']");
+    await page.waitForSelector("[data-focus-id='btn-back']", { visible: true });
+    await page.click("[data-focus-id='btn-back']");
 
     // Launch Mission (goes to Mission Screen / Deployment Phase)
     console.log("Launching Mission...");

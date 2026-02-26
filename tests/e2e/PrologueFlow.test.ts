@@ -78,7 +78,7 @@ describe("Prologue Flow Reproduction", () => {
     
     // 7. Verify redundant buttons (Bug: Should only have "Launch Mission")
     console.log("Checking for redundant buttons...");
-    const confirmBtn = await page.$("[data-focus-id='btn-confirm-squad']");
+    const confirmBtn = await page.$("[data-focus-id='btn-back']");
     const launchBtn = await page.$("[data-focus-id='btn-launch-mission']");
     
     expect(confirmBtn).not.toBeNull();
@@ -89,7 +89,7 @@ describe("Prologue Flow Reproduction", () => {
 
     // 8. Demonstrate redundant flow: Confirm Squad goes back to Map
     console.log("Clicking Confirm Squad...");
-    await page.click("[data-focus-id='btn-confirm-squad']");
+    await page.click("[data-focus-id='btn-back']");
     await page.waitForSelector(".campaign-map-viewport", { visible: true });
     
     // 9. Verify overwhelming sliders: Go to "Setup" tab if it exists

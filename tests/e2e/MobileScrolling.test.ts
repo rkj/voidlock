@@ -107,10 +107,10 @@ describe("Mobile Scrolling Regression Test", () => {
     await page.waitForSelector("#btn-goto-equipment", { visible: true });
     await page.click("#btn-goto-equipment");
 
-    await page.waitForSelector("[data-focus-id='btn-confirm-squad']", {
+    await page.waitForSelector("[data-focus-id='btn-back']", {
       visible: true,
     });
-    await page.click("[data-focus-id='btn-confirm-squad']");
+    await page.click("[data-focus-id='btn-back']");
 
     // NEW: We are back at Mission Setup, MUST click Launch Mission
     console.log("Launching Mission...");

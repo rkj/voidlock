@@ -269,10 +269,10 @@ describe("Repro: Mission Briefing Screen Leak", () => {
     const equipmentScreen = document.getElementById("screen-equipment");
     expect(equipmentScreen?.style.display).toBe("flex");
 
-    // 4. Click 'Confirm Squad'
-    const confirmBtn = document.querySelector('[data-focus-id="btn-confirm-squad"]') as HTMLElement;
-    expect(confirmBtn).toBeTruthy();
-    confirmBtn.click();
+    // 4. Click 'Back'
+    const backBtn = document.querySelector('[data-focus-id="btn-back"]') as HTMLElement;
+    expect(backBtn).toBeTruthy();
+    backBtn.click();
 
     // 5. EXPECTATION: We should NOT be in Mission Setup
     const setupScreen = document.getElementById("screen-mission-setup");

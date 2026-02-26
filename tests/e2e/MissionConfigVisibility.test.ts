@@ -39,7 +39,7 @@ describe("Mission Configuration Visibility", () => {
     // 5. Click "Confirm Squad" (or whatever the button is in EquipmentScreen)
     // Looking at GameApp.ts, it seems EquipmentScreen uses onEquipmentConfirmed
     // Let's find the button in EquipmentScreen.ts
-    const confirmSquadBtn = "[data-focus-id=\"btn-confirm-squad\"]";
+    const confirmSquadBtn = "[data-focus-id=\"btn-back\"]";
     await page.waitForSelector(confirmSquadBtn);
     await page.click(confirmSquadBtn);
 

@@ -83,8 +83,8 @@ describe("SquadBuilder Missing Reproduction", () => {
     await page.click(".campaign-node.accessible");
 
     // 4. Equipment screen should show up. Click "Confirm Squad" to go to Mission Setup
-    await page.waitForSelector("[data-focus-id='btn-confirm-squad']", { visible: true });
-    await page.click("[data-focus-id='btn-confirm-squad']");
+    await page.waitForSelector("[data-focus-id='btn-back']", { visible: true });
+    await page.click("[data-focus-id='btn-back']");
 
     // 5. Wait for Mission Setup (Briefing)
     await page.waitForSelector("#screen-mission-setup");

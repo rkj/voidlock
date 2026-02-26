@@ -72,7 +72,7 @@ describe("UI Casing Standardization (voidlock-0gxhs)", () => {
     await checkNoAllCaps("#screen-equipment button", "Equipment Buttons");
 
     // 5. Tactical HUD
-    await page.click("[data-focus-id='btn-confirm-squad']");
+    await page.click("[data-focus-id='btn-back']");
     await page.waitForSelector("#screen-mission-setup", { visible: true });
     await page.click("#btn-launch-mission");
     await page.waitForSelector("#screen-mission", { visible: true });

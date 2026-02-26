@@ -51,8 +51,8 @@ describe("Repro: Empty squad triggers instant loss", () => {
 
     // 5. Confirm Squad
     console.log("Confirming empty squad...");
-    await page.waitForSelector("[data-focus-id='btn-confirm-squad']", { visible: true });
-    await page.click("[data-focus-id='btn-confirm-squad']");
+    await page.waitForSelector("[data-focus-id='btn-back']", { visible: true });
+    await page.click("[data-focus-id='btn-back']");
 
     // NEW: We are back at Mission Setup, MUST click Launch Mission
     console.log("Launching Mission...");

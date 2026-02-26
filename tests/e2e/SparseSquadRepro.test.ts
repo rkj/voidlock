@@ -64,7 +64,7 @@ describe("SquadBuilder Sparse Array Reproduction", () => {
     expect(slot1Text).toContain("[Empty Slot]");
 
     // 6. Go Back to Mission Setup (SquadBuilder)
-    await page.click('[data-focus-id="btn-confirm-squad"]'); // "Confirm Squad" calls onSave which updates app and goes back to Mission Setup
+    await page.click('[data-focus-id="btn-back"]'); // "Confirm Squad" calls onSave which updates app and goes back to Mission Setup
     
     // 7. Verify Mission Setup loaded (check for "Total Soldiers")
     // If SquadBuilder crashed, this might timeout or show error.

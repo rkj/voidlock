@@ -252,21 +252,24 @@ export class GameApp {
       this.registry.campaignManager,
       this.registry.modalService,
       this.registry.missionSetupManager.currentSquad,
-      (config) => this.registry.navigationOrchestrator.onEquipmentConfirmed(config),
-      () => {
-        this.registry.screenManager.goBack();
-        const screen = this.registry.screenManager.getCurrentScreen();
-        this.registry.navigationOrchestrator.handleExternalScreenChange(
-          screen,
-          !!this.registry.campaignManager.getState(),
-        );
-      },
+      (config) => this.registry.navigationOrchestrator.onEquipmentBack(config),
       () => this.registry.campaignShell.refresh(),
       (config) => {
-        this.registry.missionSetupManager.currentSquad = config;
-        this.registry.missionSetupManager.saveCurrentConfig();
-        
         if (this.registry.missionSetupManager.currentMissionType === MissionType.Prologue) {
+          // Manually save for Prologue since we intercept the launch
+          config.soldiers.forEach((soldier) => {
+            if (soldier.id) {
+              this.registry.campaignManager.assignEquipment(soldier.id, {
+                rightHand: soldier.rightHand,
+                leftHand: soldier.leftHand,
+                body: soldier.body,
+                feet: soldier.feet,
+              });
+            }
+          });
+          this.registry.missionSetupManager.currentSquad = config;
+          this.registry.missionSetupManager.saveCurrentConfig();
+
           this.AdvisorOverlay.showMessage({
             id: "prologue_intro",
             title: "Project Voidlock: Operation First Light",
@@ -278,7 +281,7 @@ export class GameApp {
             this.registry.missionRunner.launchMission();
           });
         } else {
-          this.registry.missionRunner.launchMission();
+          this.registry.navigationOrchestrator.onLaunchMission(config);
         }
       },
       false, // isShop

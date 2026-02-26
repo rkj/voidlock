@@ -80,6 +80,7 @@ describe("capture timeline bootstrap click order", () => {
     expect(order).toContain("btn-start-mission");
     expect(order).toContain("btn-deploy");
     expect(order).toContain("btn-confirm-squad");
+    expect(order).toContain("btn-back");
   });
 });
 

@@ -7,7 +7,6 @@ describe("EquipmentScreen Squad Size Verification", () => {
   let container: HTMLElement;
   let mockManager: any;
   let mockModalService: any;
-  let onSave: any;
   let onBack: any;
 
   beforeEach(() => {
@@ -36,9 +35,9 @@ describe("EquipmentScreen Squad Size Verification", () => {
       addChangeListener: vi.fn(),
       removeChangeListener: vi.fn(),
       spendScrap: vi.fn(),
+      assignEquipment: vi.fn(),
     };
 
-    onSave = vi.fn();
     onBack = vi.fn();
   });
 
@@ -53,9 +52,8 @@ describe("EquipmentScreen Squad Size Verification", () => {
       mockManager,
       mockModalService as any,
       initialConfig,
-      onSave,
       onBack,
-      null as any,
+      undefined,
       undefined,
       false,
       true
@@ -77,9 +75,8 @@ describe("EquipmentScreen Squad Size Verification", () => {
       mockManager,
       mockModalService as any,
       initialConfig,
-      onSave,
       onBack,
-      null as any,
+      undefined,
       undefined,
       false,
       true
@@ -94,10 +91,10 @@ describe("EquipmentScreen Squad Size Verification", () => {
         rosterItem.click();
     }
 
-    const confirmBtn = container.querySelector('[data-focus-id="btn-confirm-squad"]') as HTMLElement;
-    confirmBtn.click();
+    const backBtn = container.querySelector('[data-focus-id="btn-back"]') as HTMLElement;
+    backBtn.click();
 
-    expect(onSave).toHaveBeenCalledWith(
+    expect(onBack).toHaveBeenCalledWith(
       expect.objectContaining({
         soldiers: expect.arrayContaining([
           expect.objectContaining({ id: "s1" }),
@@ -107,7 +104,7 @@ describe("EquipmentScreen Squad Size Verification", () => {
         ]),
       }),
     );
-    expect(onSave.mock.calls[0][0].soldiers.length).toBe(4);
+    expect(onBack.mock.calls[0][0].soldiers.length).toBe(4);
   });
 
   it("should not allow adding more than 4 soldiers (slots are limited to 4)", () => {
@@ -126,9 +123,8 @@ describe("EquipmentScreen Squad Size Verification", () => {
       mockManager,
       mockModalService as any,
       initialConfig,
-      onSave,
       onBack,
-      null as any,
+      undefined,
       undefined,
       false,
       true
@@ -138,12 +134,7 @@ describe("EquipmentScreen Squad Size Verification", () => {
     // All slots are full. Clicking another roster item should probably do nothing or replace the last one if we had logic for that, 
     // but here we just check that only 4 slots are rendered and active.
     
-    const activeSlots = container.querySelectorAll(".soldier-list-panel .roster-item.active");
-    // Actually the slots are not .roster-item.active, they are SoldierWidgets or empty slots.
-    
     const slots = container.querySelectorAll(".soldier-list-panel [data-focus-id^='soldier-slot-']");
     expect(slots.length).toBe(4);
-    
-    // Check that we can't easily add a 5th one because there's no 5th slot to select.
   });
 });
