@@ -33,6 +33,7 @@ To verify visual fidelity and critical user journeys that cannot be fully tested
 - `SpawnPointOverlap.test.ts`: Reproduction test for squad spawn point overlap and Auto-Fill behavior.
 - `DeploymentValidation.test.ts`: Verifies drag-and-drop deployment and Start Mission button logic.
 - `ReproAutoDeploymentDefeat.test.ts`: Verifies mission launch and deployment phase transitions.
+- `EquipmentRedundancy.test.ts`: Reproduction test for redundant "Confirm Squad" button and buried "Launch Mission" button on the Equipment Screen.
 
 ## Usage
 
