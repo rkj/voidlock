@@ -126,7 +126,7 @@ export class VipAI {
     ];
 
     for (const dir of directions) {
-      for (let dist = 2; dist <= 4; dist++) {
+      for (let dist = 1; dist <= 4; dist++) {
         const tx = Math.floor(start.x + dir.x * dist);
         const ty = Math.floor(start.y + dir.y * dist);
 
@@ -136,20 +136,42 @@ export class VipAI {
           ty >= 0 &&
           ty < state.map.height
         ) {
-          if (this.grid.isWalkable(tx, ty) && isCellDiscovered(state, tx, ty)) {
+          const discovered = isCellDiscovered(state, tx, ty);
+          const walkable = this.grid.isWalkable(tx, ty);
+          if (walkable && discovered) {
             candidates.push({ x: tx, y: ty });
           }
         }
       }
     }
 
-    if (candidates.length === 0) return null;
+    if (candidates.length === 0) {
+        return null;
+    }
 
-    return candidates
-      .map((c) => ({
-        pos: c,
-        score: MathUtils.getDistance({ x: c.x + 0.5, y: c.y + 0.5 }, threat),
-      }))
-      .sort((a, b) => b.score - a.score)[0].pos;
+    const extraction = state.map.extraction;
+
+    const result = candidates
+      .map((c) => {
+        const pos = { x: c.x + 0.5, y: c.y + 0.5 };
+        const distFromThreat = MathUtils.getDistance(pos, threat);
+        let score = distFromThreat;
+        
+        // Prioritize distance to extraction if it exists and is discovered
+        if (extraction && isCellDiscovered(state, extraction.x, extraction.y)) {
+          const distToExtraction = MathUtils.getDistance(pos, extraction);
+          // We want higher score for lower distToExtraction.
+          // Weight extraction heavily to ensure we flee TOWARDS it.
+          score -= distToExtraction * 10; 
+        }
+        
+        return { pos: c, score };
+      })
+      .sort((a, b) => b.score - a.score)[0];
+    
+    if (result) {
+        return result.pos;
+    }
+    return null;
   }
 }

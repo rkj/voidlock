@@ -1,5 +1,4 @@
 import { GameClient } from "@src/engine/GameClient";
-import { TimeUtility } from "../TimeUtility";
 import { ModalService } from "../ui/ModalService";
 import { Logger } from "@src/shared/Logger";
 import { GameState } from "@src/shared/types";
@@ -96,7 +95,7 @@ export class UIOrchestrator {
     if (onSync) onSync();
   }
 
-  public setupAdditionalUIBindings(callbacks: {
+  public setupAdditionalUIBindings(_callbacks: {
     onAbortMission: () => void;
     onRetryMission: () => void;
     onForceWin: () => void;

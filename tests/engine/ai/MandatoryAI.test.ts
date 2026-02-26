@@ -9,8 +9,12 @@ import {
   AIProfile,
 } from "@src/shared/types";
 import { MathUtils } from "@src/shared/utils/MathUtils";
+import { Logger, LogLevel } from "@src/shared/Logger";
 
 describe("Mandatory AI Scenarios (ADR 0041)", () => {
+  beforeEach(() => {
+    Logger.setLevel(LogLevel.DEBUG);
+  });
   // A. Extraction Discipline
   it("Extraction Discipline: unit with EXTRACT command stays focused on extraction even when attacked", () => {
     // Map: 10x1 Corridor. Unit at (1,0), Extraction at (9,0). Enemy at (0,0).

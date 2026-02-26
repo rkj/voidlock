@@ -83,7 +83,7 @@ export class CombatBehavior implements Behavior<BehaviorContext> {
           );
           return { unit: currentUnit, handled: true };
         }
-      } else if (currentUnit.aiProfile === "RETREAT") {
+      } else if (currentUnit.aiProfile === "RETREAT" && currentUnit.engagementPolicy !== "AVOID") {
         if (dist < currentUnit.stats.attackRange * 0.8) {
           const currentCell = {
             x: Math.floor(currentUnit.pos.x),

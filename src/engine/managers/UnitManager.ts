@@ -379,10 +379,12 @@ export class UnitManager {
         return this.movementManager.handleMovement(unit, dt, doors);
       }
 
-      // If we are RUSHing, RETREATing, or EXTRACTing, we SHOULD be allowed to move while attacking
+      // If we are RUSHing, RETREATing, EXTRACTing, or in IGNORE mode, we SHOULD be allowed to move while attacking
       if (
         unit.aiProfile === "RUSH" ||
         unit.aiProfile === "RETREAT" ||
+        unit.engagementPolicy === "IGNORE" ||
+        unit.engagementPolicy === "AVOID" ||
         unit.activeCommand?.type === CommandType.ESCORT_UNIT ||
         unit.activeCommand?.type === CommandType.EXTRACT ||
         unit.activeCommand?.label === "Extracting"
