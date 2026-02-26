@@ -1,6 +1,8 @@
 import { AdvisorMessage } from "@src/renderer/controllers/TutorialManager";
 import { GameClient } from "@src/engine/GameClient";
 import { Logger } from "@src/shared/Logger";
+import { InputDispatcher } from "../InputDispatcher";
+import { InputPriority } from "@src/shared/types";
 import advisorStylesUrl from "@src/styles/advisor.css?url";
 
 export class AdvisorOverlay {
@@ -34,7 +36,7 @@ export class AdvisorOverlay {
     }
   }
 
-  public showMessage(msg: AdvisorMessage) {
+  public showMessage(msg: AdvisorMessage, onDismiss?: () => void) {
     Logger.info(`Advisor showing message: ${msg.id}`);
     
     const messageEl = document.createElement("div");
@@ -42,15 +44,27 @@ export class AdvisorOverlay {
     if (msg.duration) {
         messageEl.classList.add("advisor-toast");
     }
+    if (msg.title || msg.illustration) {
+        messageEl.classList.add("advisor-narrative-modal");
+    }
 
     const portrait = msg.portrait || "logo_gemini.webp"; // fallback
     const portraitUrl = `assets/${portrait}`;
+    const illustrationUrl = msg.illustration ? `assets/${msg.illustration}` : null;
 
     const hasDismissBtn = msg.blocking || (!msg.duration);
 
     messageEl.innerHTML = `
-      <div class="advisor-portrait">
-        <img src="${portraitUrl}" alt="Advisor">
+      ${msg.illustration ? `
+        <div class="advisor-illustration">
+          <img src="${illustrationUrl}" alt="Illustration">
+        </div>
+      ` : ""}
+      <div class="advisor-header">
+        <div class="advisor-portrait">
+          <img src="${portraitUrl}" alt="Advisor">
+        </div>
+        ${msg.title ? `<div class="advisor-title">${msg.title}</div>` : ""}
       </div>
       <div class="advisor-content">
         <div class="advisor-text">${msg.text}</div>
@@ -68,14 +82,38 @@ export class AdvisorOverlay {
         backdrop.appendChild(messageEl);
         document.body.appendChild(backdrop);
 
+        const dismiss = () => {
+            InputDispatcher.getInstance().popContext(`advisor-${msg.id}`);
+            backdrop.remove();
+            this.gameClient.resume();
+            Logger.info(`Advisor message dismissed: ${msg.id}`);
+            if (onDismiss) onDismiss();
+        };
+
         const btn = messageEl.querySelector(".advisor-btn");
         if (btn) {
-            btn.addEventListener("click", () => {
-                backdrop.remove();
-                this.gameClient.resume();
-                Logger.info(`Advisor message dismissed: ${msg.id}`);
-            });
+            btn.addEventListener("click", dismiss);
         }
+
+        InputDispatcher.getInstance().pushContext({
+            id: `advisor-${msg.id}`,
+            priority: InputPriority.Overlay,
+            trapsFocus: true,
+            container: messageEl,
+            handleKeyDown: (e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                    dismiss();
+                    return true;
+                }
+                return false;
+            },
+            getShortcuts: () => [{
+                key: "Enter",
+                label: "Continue",
+                description: "Dismiss advisor message",
+                category: "Navigation"
+            }]
+        });
     } else {
         this.container.appendChild(messageEl);
         
@@ -85,6 +123,7 @@ export class AdvisorOverlay {
                 btn.addEventListener("click", () => {
                     messageEl.remove();
                     Logger.info(`Advisor toast dismissed: ${msg.id}`);
+                    if (onDismiss) onDismiss();
                 });
             }
         }

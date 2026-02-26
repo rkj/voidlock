@@ -41,6 +41,7 @@ This directory contains the main thread rendering logic and user interface for V
 - **Fog of War**: Implements visual shroud and discovery states based on the simulation data.
 - **Reset Data**: Provides a way to wipe all campaign progress and settings via the Global Settings Screen (moved from Main Menu for safety).
 - **URL Synchronization**: The current screen (Main Menu, Campaign, Mission Setup, etc.) is synchronized with the URL hash, allowing for deep linking and browser back/forward navigation.
+- **Advisor Intro Modal**: Implemented a blocking narrative modal for the Advisor (\"Mother\") that triggers before the Prologue mission launches. Displays mission objectives and backstory with thematic illustrations and a CRT green monochrome aesthetic.
 - **Global Stats**: Displays cumulative statistics (Service Record) via a dedicated Statistics Screen, now a top-level global component (ADR 0032).
 - **UI Casing Standardization**: All UI labels, buttons, and headers are standardized to Title Case (instead of ALL CAPS) for better readability and professional look, especially on mobile devices (Spec 11.1).
 - **Visual Feedback**: Provides tactical information through tracers, health bars, and status overlays. Includes a high-precision threat bar in `index.html` with pixel-perfect divider alignment.

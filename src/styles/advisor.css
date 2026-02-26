@@ -57,6 +57,49 @@
   pointer-events: auto;
   text-shadow: 0 0 5px rgba(0, 255, 0, 0.8);
   animation: flicker 0.15s infinite;
+  max-width: 600px;
+}
+
+.advisor-narrative-modal {
+  max-width: 800px;
+  width: 90vw;
+  flex-direction: column;
+  padding: 30px;
+}
+
+.advisor-illustration {
+  width: 100%;
+  height: 300px;
+  background: #001100;
+  border: 1px solid #00ff00;
+  margin-bottom: 20px;
+  overflow: hidden;
+  position: relative;
+}
+
+.advisor-illustration img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: sepia(1) saturate(2) hue-rotate(70deg) brightness(0.7);
+  opacity: 0.8;
+}
+
+.advisor-header {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 15px;
+  width: 100%;
+  border-bottom: 1px solid rgba(0, 255, 0, 0.3);
+  padding-bottom: 10px;
+}
+
+.advisor-title {
+  font-size: 24px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 2px;
 }
 
 .advisor-message::before {

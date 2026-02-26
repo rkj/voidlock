@@ -265,7 +265,21 @@ export class GameApp {
       (config) => {
         this.registry.missionSetupManager.currentSquad = config;
         this.registry.missionSetupManager.saveCurrentConfig();
-        this.registry.missionRunner.launchMission();
+        
+        if (this.registry.missionSetupManager.currentMissionType === MissionType.Prologue) {
+          this.AdvisorOverlay.showMessage({
+            id: "prologue_intro",
+            title: "Project Voidlock: Operation First Light",
+            text: "Commander, wake up. The Voidlock is failing. The station's core is unstable, and the swarms are breaching the lower decks. \n\nYour objective is clear: Recover the decrypted data disk from the secure terminal and extract your squad. Failure is not an option. The future of the project depends on this data.",
+            illustration: "station.jpg",
+            portrait: "logo_gemini.webp",
+            blocking: true
+          }, () => {
+            this.registry.missionRunner.launchMission();
+          });
+        } else {
+          this.registry.missionRunner.launchMission();
+        }
       },
       false, // isShop
       false, // isCampaign
@@ -542,7 +556,16 @@ export class GameApp {
   }
 
   private onCampaignStart() {
-    this.registry.campaignShell.show("campaign", "sector-map");
-    this.registry.navigationOrchestrator.switchScreen("campaign", true);
+    const state = this.registry.campaignManager.getState();
+    const firstNode = state?.nodes.find((n) => n.rank === 0);
+    const isPrologue = firstNode?.missionType === MissionType.Prologue;
+
+    if (isPrologue && firstNode) {
+      // Direct to Equipment Screen for Prologue (ADR 0049)
+      this.registry.navigationOrchestrator.onCampaignNodeSelect(firstNode);
+    } else {
+      this.registry.campaignShell.show("campaign", "sector-map");
+      this.registry.navigationOrchestrator.switchScreen("campaign", true);
+    }
   }
 }
