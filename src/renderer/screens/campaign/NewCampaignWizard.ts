@@ -200,6 +200,23 @@ export class NewCampaignWizard {
     form.appendChild(cardsContainer);
     form.appendChild(pauseGroup);
 
+    // Campaign Duration
+    const durationGroup = document.createElement("div");
+    durationGroup.className = "flex-col gap-5";
+    const durationLabel = document.createElement("label");
+    durationLabel.textContent = "Campaign Duration";
+    durationLabel.style.fontSize = "0.8em";
+    durationLabel.style.color = "var(--color-text-dim)";
+    const durationSelect = document.createElement("select");
+    durationSelect.id = "campaign-duration";
+    durationSelect.innerHTML = `
+      <option value="0.5" selected>Long (13 Ranks - Standard)</option>
+      <option value="1.0">Short (7 Ranks - Fast Session)</option>
+    `;
+    durationGroup.appendChild(durationLabel);
+    durationGroup.appendChild(durationSelect);
+    form.appendChild(durationGroup);
+
     // Skip Prologue
     const skipPrologueGroup = document.createElement("div");
     skipPrologueGroup.className = "flex-row align-center gap-10";
@@ -392,7 +409,10 @@ export class NewCampaignWizard {
       const overrides: CampaignOverrides = {
         allowTacticalPause: pauseCheck.checked,
         skipPrologue: skipPrologueCheck.checked,
-        mapGrowthRate: 0.5,
+        mapGrowthRate: parseFloat(
+          (document.getElementById("campaign-duration") as HTMLSelectElement)
+            .value,
+        ),
         economyMode: (
           document.getElementById("campaign-economy-mode") as HTMLSelectElement
         ).value as "Open" | "Limited",

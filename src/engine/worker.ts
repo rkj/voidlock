@@ -47,12 +47,14 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
       loopId = setInterval(() => {
         if (!engine) return;
 
-        // TICK_RATE is 16ms, so 1.0 timeScale should result in 16ms scaledDt.
-        const scaledDt = TICK_RATE * timeScale;
+        // Use authoritative timeScale from engine settings (ADR 0048)
+        const engineState = engine.getState(false);
+        const effectiveTimeScale = engineState.settings.timeScale;
+        const scaledDt = TICK_RATE * effectiveTimeScale;
 
         engine.update(scaledDt);
 
-        const includeSnapshots = engine.getState(false).settings.debugSnapshots;
+        const includeSnapshots = engineState.settings.debugSnapshots;
         const state = engine.getState(true, includeSnapshots);
 
         // Optimization: only send full snapshots array if it changed

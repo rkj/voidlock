@@ -6,10 +6,12 @@ import { StatDisplay } from "@src/renderer/ui/StatDisplay";
 import { TimeUtility } from "@src/renderer/TimeUtility";
 import { SoldierWidget } from "@src/renderer/ui/SoldierWidget";
 import { MathUtils } from "@src/shared/utils/MathUtils";
+import { UIBinder } from "@src/renderer/ui/UIBinder";
 
 export class HUDManager {
   private lastMenuHtml = "";
   private currentState: GameState | null = null;
+  private binder: UIBinder;
 
   constructor(
     private menuController: MenuController,
@@ -22,72 +24,79 @@ export class HUDManager {
     private onForceLose: () => void,
     private onStartMission: () => void,
     private onDeployUnit: (unitId: string, x: number, y: number) => void,
-  ) {}
+  ) {
+    this.binder = new UIBinder();
+    this.setupTransformers();
+    this.binder.initialize();
+  }
+
+  private setupTransformers() {
+    this.binder.registerTransformer("toSeconds", (val) => ((val as number) / 1000).toFixed(1));
+    this.binder.registerTransformer("threatPercent", (val) => `${Math.floor(val as number)}%`);
+    
+    const getThreatClass = (val: number) => {
+      if (val > 70) return "threat-danger";
+      if (val > 30) return "threat-warning";
+      return "threat-success";
+    };
+
+    this.binder.registerTransformer("threatFillClass", (val) => `threat-fill ${getThreatClass(val as number)}`);
+    this.binder.registerTransformer("threatValueClass", (val) => `threat-value ${getThreatClass(val as number)}`);
+
+    this.binder.registerTransformer("threatVisibility", (_, state) => {
+      const isDeployment = state.status === "Deployment";
+      const isPrologue = state.missionType === "Prologue";
+      const threatLevel = state.stats.threatLevel || 0;
+      const aliensKilled = state.stats.aliensKilled || 0;
+      const hasContact = threatLevel > 1 || aliensKilled > 0;
+      return !isDeployment && (!isPrologue || hasContact);
+    });
+
+    this.binder.registerTransformer("speedVisibility", (_, state) => {
+      const isDeployment = state.status === "Deployment";
+      const isPrologue = state.missionType === "Prologue";
+      return !isDeployment && !isPrologue;
+    });
+
+    this.binder.registerTransformer("pauseText", (isPaused) => (isPaused as boolean) ? "▶ Play" : "|| Pause");
+
+    this.binder.registerTransformer("speedSlider", (timeScale) => {
+      // Avoid syncing if user is dragging
+      const slider = document.activeElement as HTMLInputElement;
+      if (slider && (slider.id === "game-speed" || slider.classList.contains("mobile-speed-slider"))) {
+        return slider.value;
+      }
+      
+      // Absolute pause (0.0x) should be represented at the minimum slider value (0.1x / val 0)
+      const scaleToUse = Math.max(0.1, timeScale as number);
+      return TimeUtility.scaleToSlider(scaleToUse).toString();
+    });
+
+    this.binder.registerTransformer("speedText", (settings) => {
+      const { isPaused, allowTacticalPause, timeScale } = settings as { isPaused: boolean; allowTacticalPause: boolean; timeScale: number };
+      const scale = isPaused
+        ? allowTacticalPause ? 0.1 : 0.0
+        : timeScale;
+      return TimeUtility.formatSpeed(scale, isPaused);
+    });
+  }
 
   public update(state: GameState, selectedUnitId: string | null) {
     this.currentState = state;
+    this.binder.sync(state);
     this.updateTopBar(state);
     this.updateRightPanel(state);
     this.updateSoldierList(state, selectedUnitId);
   }
 
   private updateTopBar(state: GameState) {
-    const statusElement = document.getElementById("game-status");
-    if (statusElement) {
-      let timeVal = statusElement.querySelector(".time-value");
-      if (!timeVal) {
-        statusElement.innerHTML = `<span class="time-label">Time</span> <span class="time-value"></span>s`;
-        timeVal = statusElement.querySelector(".time-value");
-      }
-      if (timeVal) {
-        const timeStr = (state.t / 1000).toFixed(1);
-        if (timeVal.textContent !== timeStr) {
-          timeVal.textContent = timeStr;
-        }
-      }
-    }
-
-    const threatLevel = state.stats.threatLevel || 0;
-    const aliensKilled = state.stats.aliensKilled || 0;
-
-    // Progressive Visibility Logic (ADR 0048)
-    const isDeployment = state.status === "Deployment";
-    const isPrologue = state.missionType === "Prologue";
-    const hasContact = threatLevel > 1 || aliensKilled > 0;
-
-    const threatContainer = document.getElementById("top-threat-container");
-    if (threatContainer) {
-      const showThreat = !isDeployment && (!isPrologue || hasContact);
-      threatContainer.style.visibility = showThreat ? "visible" : "hidden";
-    }
-
-    const speedControl = document.getElementById("speed-control");
-    if (speedControl) {
-      const showSpeed = !isDeployment && !isPrologue;
-      speedControl.style.visibility = showSpeed ? "visible" : "hidden";
-    }
-
+    // Initial threat bar behavior (snapping) still needs manual handling for class manipulation
     const topThreatFill = document.getElementById("top-threat-fill");
-    const topThreatValue = document.getElementById("top-threat-value");
-
-    if (topThreatFill && topThreatValue) {
+    if (topThreatFill) {
       const isInitial = state.t < 1000;
       if (isInitial) {
         topThreatFill.classList.add("no-transition");
-      }
-
-      let threatClass = "threat-success";
-      if (threatLevel > 30) threatClass = "threat-warning";
-      if (threatLevel > 70) threatClass = "threat-danger";
-      if (threatLevel > 90) threatClass = "threat-danger";
-
-      topThreatFill.style.width = `${Math.min(100, threatLevel)}%`;
-      topThreatFill.className = `threat-fill ${threatClass}`;
-      topThreatValue.textContent = `${threatLevel.toFixed(0)}%`;
-      topThreatValue.className = `threat-value ${threatClass}`;
-
-      if (isInitial) {
-        // Force a reflow to ensure the width is applied without transition
+        // Force a reflow
         void topThreatFill.offsetWidth;
         topThreatFill.classList.remove("no-transition");
       }
@@ -101,30 +110,6 @@ export class HUDManager {
       if (gameSpeedSlider.min !== minVal) {
         gameSpeedSlider.min = minVal;
       }
-      // Authoritative sync from engine state (logarithmic)
-      // Only sync if not currently being dragged by user
-      if (document.activeElement !== gameSpeedSlider) {
-        gameSpeedSlider.value = TimeUtility.scaleToSlider(state.settings.targetTimeScale).toString();
-      }
-    }
-
-    const speedValue = document.getElementById("speed-value");
-    if (speedValue) {
-      const isPaused = state.settings.isPaused;
-      const scale = isPaused
-        ? state.settings.allowTacticalPause
-          ? 0.1
-          : 0.0
-        : state.settings.timeScale;
-      speedValue.textContent = TimeUtility.formatSpeed(scale, isPaused);
-    }
-
-    const btn = document.getElementById(
-      "btn-pause-toggle",
-    ) as HTMLButtonElement;
-    if (btn) {
-      const isPaused = state.settings.isPaused;
-      btn.textContent = isPaused ? "▶ Play" : "|| Pause";
     }
   }
 
@@ -178,8 +163,8 @@ export class HUDManager {
       controlsDiv.innerHTML = `
         <h3 class="game-over-panel-title">Mission Controls</h3>
         <div class="control-group" style="border:none; padding-top:0; display: flex; flex-direction: column; gap: 10px;">
-          <label style="margin-top:0;">Game Speed: <span class="mobile-speed-value">1.0x</span></label>
-          <input type="range" class="mobile-speed-slider" min="0" max="100" step="1" value="50">
+          <label style="margin-top:0;">Game Speed: <span class="mobile-speed-value" data-bind-text="settings" data-bind-transform="speedText">1.0x</span></label>
+          <input type="range" class="mobile-speed-slider" min="0" max="100" step="1" value="50" data-bind-value="settings.timeScale" data-bind-transform="speedSlider">
           <button class="mobile-abort-button back-button" style="width: 100%; margin: 10px 0 0 0;">Abort Mission</button>
         </div>
       `;
@@ -196,21 +181,7 @@ export class HUDManager {
       }
 
       actionContainer.appendChild(controlsDiv);
-    }
-
-    const mobileSpeedValue = controlsDiv.querySelector(".mobile-speed-value");
-    const mobileSpeedSlider = controlsDiv.querySelector(".mobile-speed-slider") as HTMLInputElement;
-    if (mobileSpeedValue && mobileSpeedSlider) {
-      const isPaused = state.settings.isPaused;
-      const scale = isPaused
-        ? state.settings.allowTacticalPause
-          ? 0.1
-          : 0.0
-        : state.settings.timeScale;
-      mobileSpeedValue.textContent = TimeUtility.formatSpeed(scale, isPaused);
-      if (document.activeElement !== mobileSpeedSlider) {
-        mobileSpeedSlider.value = TimeUtility.scaleToSlider(state.settings.targetTimeScale).toString();
-      }
+      this.binder.initialize(actionContainer);
     }
 
     // Command Menu
@@ -369,8 +340,8 @@ export class HUDManager {
       controlsDiv.innerHTML = `
         <h3 class="game-over-panel-title">Mission Controls</h3>
         <div class="control-group" style="border:none; padding-top:0; display: flex; flex-direction: column; gap: 10px;">
-          <label style="margin-top:0;">Game Speed: <span class="mobile-speed-value">1.0x</span></label>
-          <input type="range" class="mobile-speed-slider" min="0" max="100" step="1" value="50">
+          <label style="margin-top:0;">Game Speed: <span class="mobile-speed-value" data-bind-text="settings" data-bind-transform="speedText">1.0x</span></label>
+          <input type="range" class="mobile-speed-slider" min="0" max="100" step="1" value="50" data-bind-value="settings.timeScale" data-bind-transform="speedSlider">
           <button class="mobile-abort-button back-button" style="width: 100%; margin: 10px 0 0 0;">Abort Mission</button>
         </div>
       `;
@@ -387,21 +358,7 @@ export class HUDManager {
       }
 
       container.insertBefore(controlsDiv, deploymentDiv);
-    }
-
-    const mobileSpeedValue = controlsDiv.querySelector(".mobile-speed-value");
-    const mobileSpeedSlider = controlsDiv.querySelector(".mobile-speed-slider") as HTMLInputElement;
-    if (mobileSpeedValue && mobileSpeedSlider) {
-      const isPaused = state.settings.isPaused;
-      const scale = isPaused
-        ? state.settings.allowTacticalPause
-          ? 0.1
-          : 0.0
-        : state.settings.timeScale;
-      mobileSpeedValue.textContent = TimeUtility.formatSpeed(scale, isPaused);
-      if (document.activeElement !== mobileSpeedSlider) {
-        mobileSpeedSlider.value = TimeUtility.scaleToSlider(state.settings.targetTimeScale).toString();
-      }
+      this.binder.initialize(container);
     }
 
     const squadList = deploymentDiv.querySelector(

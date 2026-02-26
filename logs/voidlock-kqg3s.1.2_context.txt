@@ -1,0 +1,1 @@
+Fix TS errors in UIBinder.ts, ensure 'npm run lint' passes, and fix the E2E test for custom mission launch so it properly waits for #btn-launch-mission. Verify that Pause/Speed Slider synchronization works via the new UIBinder.

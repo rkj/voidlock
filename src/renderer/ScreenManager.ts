@@ -68,6 +68,7 @@ export class ScreenManager {
     updateHash: boolean = true,
     isCampaign: boolean = false,
   ) {
+    console.log(`[ScreenManager] show: ${id}, isCampaign: ${isCampaign}`);
     if (this.currentScreen === id) {
       // Even if it's the same screen, ensure hash is in sync
       if (updateHash) {

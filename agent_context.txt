@@ -1,30 +1,10 @@
-CRITICAL: Many test files mock @src/renderer/campaign/CampaignManager but are missing addChangeListener and removeChangeListener methods. You MUST update these mocks to include both as vi.fn(). Example broken mock:
-vi.mock("@src/renderer/campaign/CampaignManager", () => ({
-  CampaignManager: {
-    getInstance: vi.fn().mockReturnValue({
-      getState: vi.fn(() => null),
-      getStorage: vi.fn(),
-      getSyncStatus: vi.fn().mockReturnValue("local-only"),
-      load: vi.fn(),
-      save: vi.fn(),
-    }),
-  },
-}));
+FAILED_VERIFICATION: The previous execution timed out during E2E test execution.
 
-Fix it to:
-vi.mock("@src/renderer/campaign/CampaignManager", () => ({
-  CampaignManager: {
-    getInstance: vi.fn().mockReturnValue({
-      getState: vi.fn(() => null),
-      getStorage: vi.fn(),
-      getSyncStatus: vi.fn().mockReturnValue("local-only"),
-      addChangeListener: vi.fn(),
-      removeChangeListener: vi.fn(),
-      load: vi.fn(),
-      save: vi.fn(),
-    }),
-  },
-}));
+Specifically, your Puppeteer E2E test in `tests/e2e/UIBinderSync.test.ts` is failing because `#btn-launch-mission` is not found or not clickable. Only `debug_main_menu.png` was created, indicating that clicking `#btn-menu-custom` might have failed, or the transition to the custom mission menu didn't complete.
 
-Use 'grep -rl "vi.mock.*CampaignManager" tests' to find files. Use 'replace' tool. DO NOT rely on 'read_file' if it returns empty string (use grep/sed if needed, but 'replace' is preferred).
-Also check for other variations like getInstance: vi.fn().mockReturnValue({ ... }) missing these methods.
+NEXT STEPS:
+1. Fix the E2E test navigation. Ensure you wait for the correct screens and elements to load. You may need to review existing passing E2E tests (e.g. `tests/e2e/Integration/ScreenFlow.test.ts` or similar) to see how they navigate the menus.
+2. Complete the implementation of the Reactive UI Data Binding (`UIBinder`) for the mission controls (speed slider, pause toggle, threat bar).
+3. Verify that clicking Pause correctly moves the speed slider via the two-way loop (using your fixed E2E test).
+4. Run `npm run lint` and `npm run build` to ensure no errors.
+5. Provide a summary upon completion.

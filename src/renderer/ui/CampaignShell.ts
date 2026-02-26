@@ -54,6 +54,7 @@ export class CampaignShell {
     activeTabId: CampaignTabId = "sector-map",
     showTabs: boolean = true,
   ) {
+    console.log(`[CampaignShell] show: mode=${mode}, tab=${activeTabId}`);
     this.mode = mode;
     this.activeTabId = activeTabId;
     this.showTabs = showTabs;
@@ -63,6 +64,7 @@ export class CampaignShell {
   }
 
   public hide() {
+    console.log(`[CampaignShell] hide`);
     this.mode = "none";
     this.container.style.display = "none";
     InputDispatcher.getInstance().popContext("campaign-shell");

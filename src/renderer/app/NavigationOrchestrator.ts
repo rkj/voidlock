@@ -59,11 +59,13 @@ export class NavigationOrchestrator {
     updateHash: boolean = true,
     ...showArgs: unknown[]
   ) {
+    console.log(`[NavigationOrchestrator] switchScreen: ${id}, isCampaign: ${isCampaign}`);
     // 1. Hide ALL screens to clear input contexts and DOM
     this.allScreens.forEach((s) => s.hide());
 
     // 2. Hide CampaignShell for non-campaign screens (Main Menu, Mission, etc.)
     if (id === "main-menu" || id === "mission") {
+      console.log(`[NavigationOrchestrator] Hiding CampaignShell for ${id}`);
       this.campaignShell.hide();
     }
 

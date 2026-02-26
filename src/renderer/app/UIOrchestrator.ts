@@ -102,35 +102,7 @@ export class UIOrchestrator {
     onForceWin: () => void;
     onForceLose: () => void;
   }) {
-    const btnAbort = document.getElementById("btn-abort");
-    if (btnAbort) btnAbort.onclick = () => callbacks.onAbortMission();
-
-    const btnRetry = document.getElementById("btn-retry");
-    if (btnRetry) btnRetry.onclick = () => callbacks.onRetryMission();
-
-    const btnExport = document.getElementById("btn-export");
-    if (btnExport) btnExport.onclick = () => this.exportReplay();
-
-    // Standardized ID: game-speed
-    const speedSlider = document.getElementById("game-speed") as HTMLInputElement;
-    if (speedSlider) {
-      speedSlider.oninput = () => {
-        // Use logarithmic mapping from slider (0-100) to scale (0.1-10.0)
-        const scale = TimeUtility.sliderToScale(parseFloat(speedSlider.value));
-        this.deps.gameClient.setTimeScale(scale);
-        this.syncSpeedUI();
-      };
-    }
-
-    const btnPause = document.getElementById("btn-pause");
-    if (btnPause) {
-      btnPause.onclick = () => this.togglePause();
-    }
-
-    // btn-pause-toggle is also a pause button used in the mobile HUD
-    const btnPauseToggle = document.getElementById("btn-pause-toggle");
-    if (btnPauseToggle) {
-      btnPauseToggle.onclick = () => this.togglePause();
-    }
+    // This method is now mostly legacy as InputBinder handles most global events (ADR 0047).
+    // It remains for any dynamic or specific tactical UI elements not covered by InputBinder.
   }
 }

@@ -47,6 +47,7 @@ export class InputBinder {
     onMapSizeChange: (width: number, height: number) => void;
     onLoadReplay: (file: File) => void;
   }) {
+    console.log("[InputBinder] bindAll start");
     // Main Menu
     this.addListener("btn-menu-custom", "click", () =>
       callbacks.onCustomMission(),
@@ -201,6 +202,7 @@ export class InputBinder {
       const file = target.files?.[0];
       if (file) callbacks.onLoadReplay(file);
     });
+    console.log("[InputBinder] bindAll complete");
   }
 
   private addListener(
