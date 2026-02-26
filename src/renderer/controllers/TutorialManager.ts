@@ -7,6 +7,8 @@ import { Vector2 } from "@src/shared/types/geometry";
 export interface AdvisorMessage {
   id: string;
   text: string;
+  title?: string;
+  illustration?: string;
   portrait?: string; // default 'mother'
   duration?: number; // ms, if 0 or undefined, requires dismissal
   blocking?: boolean; // pauses game
