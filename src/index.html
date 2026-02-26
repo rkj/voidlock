@@ -457,9 +457,11 @@
         <!-- 1. Top Bar -->
         <div id="top-bar" class="top-bar">
           <button id="btn-toggle-squad" class="drawer-toggle">Squad</button>
-          <div id="game-status">Time: 0.0s</div>
+          <div id="game-status">Time: <span class="time-value" data-bind-text="t" data-bind-transform="toSeconds">0.0</span>s</div>
           <div
             id="top-threat-container"
+            data-bind-visibility="stats"
+            data-bind-transform="threatVisibility"
             style="
               display: flex;
               align-items: center;
@@ -566,10 +568,12 @@
                   style="width: 10%; height: 100%; box-sizing: border-box"
                 ></div>
               </div>
-              <div id="top-threat-fill" class="threat-fill"></div>
+              <div id="top-threat-fill" class="threat-fill" data-bind-style-width="stats.threatLevel" data-bind-class="stats.threatLevel|threatFillClass"></div>
             </div>
             <span
               id="top-threat-value"
+              data-bind-text="stats.threatLevel|threatPercent"
+              data-bind-class="stats.threatLevel|threatValueClass"
               style="
                 font-size: 0.8em;
                 color: var(--color-success);
@@ -583,8 +587,8 @@
           <button id="btn-toggle-right" class="drawer-toggle">Objectives</button>
 
           <!-- Speed Control -->
-          <div id="speed-control">
-            <button id="btn-pause-toggle">|| Pause</button>
+          <div id="speed-control" data-bind-visibility="settings" data-bind-transform="speedVisibility">
+            <button id="btn-pause-toggle" data-bind-text="settings.isPaused" data-bind-transform="pauseText">|| Pause</button>
             <label for="game-speed">Speed</label>
             <input
               type="range"
@@ -593,10 +597,12 @@
               max="100"
               step="1"
               value="50"
+              data-bind-value="settings.timeScale"
+              data-bind-transform="speedSlider"
               style="width: 80px; margin: 0"
               title="Game Speed (0.1x to 10.0x)"
             />
-            <span id="speed-value">1.0x</span>
+            <span id="speed-value" data-bind-text="settings" data-bind-transform="speedText">1.0x</span>
           </div>
 
           <button

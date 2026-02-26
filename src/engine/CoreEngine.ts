@@ -169,6 +169,9 @@ export class CoreEngine {
       squadInventory: squadConfig.inventory || {},
     };
 
+    // Initialize time scales (ADR 0048)
+    this.updateEffectiveTimeScale();
+
     // Initialize Director
     const spawnPoints = map.spawnPoints || [];
     const effectiveStartingPoints =
@@ -513,20 +516,33 @@ export class CoreEngine {
   }
 
   public setTimeScale(scale: number) {
+    this.setTargetTimeScale(scale);
+  }
+  
+  public setTargetTimeScale(scale: number) {
     let effectiveScale = scale;
     if (!this.state.settings.allowTacticalPause && scale < 1.0 && scale > 0) {
       effectiveScale = 1.0;
     }
-    this.state.settings.timeScale = effectiveScale;
-    this.state.settings.isSlowMotion = effectiveScale < 1.0;
-  }
-  
-  public setTargetTimeScale(scale: number) {
-    this.state.settings.targetTimeScale = scale;
+    this.state.settings.targetTimeScale = effectiveScale;
+    this.updateEffectiveTimeScale();
   }
 
   public setPaused(paused: boolean) {
     this.state.settings.isPaused = paused;
+    this.updateEffectiveTimeScale();
+  }
+
+  private updateEffectiveTimeScale() {
+    const settings = this.state.settings;
+    if (settings.isPaused) {
+      // If paused, use 0.1 for Active Pause (if allowed) or 0.0 for absolute pause
+      settings.timeScale = settings.allowTacticalPause ? 0.1 : 0.0;
+    } else {
+      // If not paused, use the target time scale
+      settings.timeScale = settings.targetTimeScale;
+    }
+    settings.isSlowMotion = settings.timeScale < 1.0;
   }
 
   private accumulator: number = 0;

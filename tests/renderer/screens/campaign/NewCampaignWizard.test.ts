@@ -141,4 +141,28 @@ describe("NewCampaignWizard", () => {
     expect(container.innerHTML).not.toContain("Lifetime Xeno Purged:");
     expect(container.querySelector(".campaign-footer")).toBeNull();
   });
+
+  it("should allow selecting campaign duration", () => {
+    const wizard = new NewCampaignWizard(container, {
+      onStartCampaign,
+      onBack,
+    });
+    wizard.render();
+
+    const durationSelect = container.querySelector(
+      "#campaign-duration",
+    ) as HTMLSelectElement;
+    expect(durationSelect).toBeDefined();
+    expect(durationSelect.value).toBe("0.5"); // Default Long
+
+    durationSelect.value = "1.0"; // Select Short
+    durationSelect.dispatchEvent(new Event("change"));
+
+    const startBtn = container.querySelector(".primary-button") as HTMLElement;
+    startBtn.click();
+
+    expect(onStartCampaign).toHaveBeenCalled();
+    const [, , overrides] = onStartCampaign.mock.calls[0];
+    expect(overrides.mapGrowthRate).toBe(1.0);
+  });
 });

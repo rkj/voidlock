@@ -4,7 +4,8 @@ This directory contains UI components and managers for the Voidlock renderer.
 
 ## Files
 
-- `HUDManager.ts`: Manages the Head-Up Display, including soldier list, stats, and top bar.
+- `HUDManager.ts`: Manages the Head-Up Display, including soldier list, stats, and top bar. Uses `UIBinder` for reactive synchronization of top bar and mobile action panel elements.
+- `UIBinder.ts`: A lightweight reactive UI synchronization system that implements dirty-checking to bind `GameState` properties to DOM elements via `data-bind-*` attributes. Reduces UI "flicker" and ensures consistency across different input methods (ADR 0050).
 - `KeyboardHelpOverlay.ts`: Context-aware help overlay triggered by '?' that displays active keyboard shortcuts.
 - `CampaignShell.ts`: Persistent UI shell for Campaign and Custom modes, providing resource display and tab-based navigation. Features a standardized top-bar layout with navigation (Tabs) and Main Menu moved to the Top Right and uniform button heights (32px). Now supports a "custom" mode for Simulation Setup, including "Setup", "Service Record", and "Settings" tabs to allow jumping between global screens while maintaining custom mission context. Now ensures the Top Bar is rendered consistently in Statistics Mode by removing "Main Menu" from center tabs and placing it in the far-right section. Supports a `showTabs` flag to hide navigation when in transient states like Mission Setup.
 - `StatDisplay.ts`: Reusable component for rendering icon-based stat blocks with tooltips.
@@ -65,3 +66,4 @@ This directory contains UI components and managers for the Voidlock renderer.
 - [ADR 0025: ModalService Architecture](../../../docs/adr/0025-modal-service-architecture.md)
 - [ADR 0028: Unified Screen Layout](../../../../docs/adr/0028-unified-screen-layout.md)
 - [ADR 0048: Standardizing Pause and Speed Slider Synchronization](../../../../docs/adr/0048-pause-speed-sync.md)
+- [ADR 0050: Reactive UI Binding](../../../../docs/adr/0050-reactive-ui-binding.md)
