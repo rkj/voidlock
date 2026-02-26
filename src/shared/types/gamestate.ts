@@ -59,6 +59,7 @@ export type SimulationSettings = {
   debugSnapshotInterval?: number;
   losOverlayEnabled: boolean;
   timeScale: number;
+  targetTimeScale: number;
   isPaused: boolean;
   isSlowMotion: boolean;
   allowTacticalPause: boolean;
@@ -143,6 +144,7 @@ export type WorkerMessage =
         commandLog?: CommandLogEntry[];
         initialSnapshots?: GameState[];
         targetTick?: number;
+        targetTimeScale?: number;
         campaignNodeId?: string;
         skipDeployment?: boolean;
       };
@@ -151,6 +153,8 @@ export type WorkerMessage =
   | { type: "QUERY_STATE" }
   | { type: "SET_TICK_RATE"; payload: number }
   | { type: "SET_TIME_SCALE"; payload: number }
+  | { type: "SET_TARGET_TIME_SCALE"; payload: number }
+  | { type: "SET_PAUSED"; payload: boolean }
   | { type: "STOP" };
 
 export type EventPayload =

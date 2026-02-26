@@ -54,8 +54,16 @@ describe("Regression mz3w: Speed Reset on Unpause", () => {
     // 3. Unpause (Resume)
     client.resume();
     // It should restore the previous speed (5.0x)
-    expect(postMessageMock).toHaveBeenLastCalledWith({
+    expect(postMessageMock).toHaveBeenCalledWith({
+      type: "SET_PAUSED",
+      payload: false,
+    });
+    expect(postMessageMock).toHaveBeenCalledWith({
       type: "SET_TIME_SCALE",
+      payload: 5.0,
+    });
+    expect(postMessageMock).toHaveBeenLastCalledWith({
+      type: "SET_TARGET_TIME_SCALE",
       payload: 5.0,
     });
   });
@@ -64,18 +72,33 @@ describe("Regression mz3w: Speed Reset on Unpause", () => {
     client.setTimeScale(1.0);
     client.pause();
     expect(postMessageMock).toHaveBeenCalledWith({
+      type: "SET_PAUSED",
+      payload: true,
+    });
+    expect(postMessageMock).toHaveBeenCalledWith({
       type: "SET_TIME_SCALE",
       payload: 0.1,
     });
 
     // Change speed while paused
     client.setTimeScale(2.5);
-    // Should NOT send to worker immediately, OR should send 0.1 again to ensure it stays paused
-    // If we want "Active Pause" to be strictly 0.1, we keep it there.
+    // Should NOT send to worker immediately SET_TIME_SCALE, but should send SET_TARGET_TIME_SCALE
+    expect(postMessageMock).toHaveBeenCalledWith({
+      type: "SET_TARGET_TIME_SCALE",
+      payload: 2.5,
+    });
 
     client.resume();
-    expect(postMessageMock).toHaveBeenLastCalledWith({
+    expect(postMessageMock).toHaveBeenCalledWith({
+      type: "SET_PAUSED",
+      payload: false,
+    });
+    expect(postMessageMock).toHaveBeenCalledWith({
       type: "SET_TIME_SCALE",
+      payload: 2.5,
+    });
+    expect(postMessageMock).toHaveBeenLastCalledWith({
+      type: "SET_TARGET_TIME_SCALE",
       payload: 2.5,
     });
   });

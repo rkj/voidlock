@@ -75,17 +75,27 @@ describe("Pause and Speed Synchronization Repro", () => {
   });
 
   it("Reproduction: Incorrect speed slider mapping (ID mismatch)", () => {
+    const hudManager = new HUDManager(
+      null as any, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}
+    );
     const slider = document.getElementById("game-speed") as HTMLInputElement;
     
-    // 1. Set engine speed to 2.0x
-    mockGameClient.setTimeScale(2.0);
+    // 1. Mission state with 2.0x speed
+    const state: GameState = {
+      t: 100,
+      status: "Playing",
+      missionType: MissionType.Default,
+      stats: { threatLevel: 0, aliensKilled: 0, elitesKilled: 0, scrapGained: 0, casualties: 0 },
+      settings: { isPaused: false, timeScale: 2.0, targetTimeScale: 2.0, allowTacticalPause: true },
+      units: [], enemies: [], visibleCells: [], discoveredCells: [], objectives: [], squadInventory: {}, loot: [], mines: [], turrets: [], map: { width: 10, height: 10, cells: [] }
+    } as any;
     
-    // 2. Sync UI
-    uiOrchestrator.syncSpeedUI();
+    // 2. Update HUD
+    hudManager.update(state, null);
     
     // 3. EXPECTATION: Slider value should be updated based on the 2.0x scale.
-    // This will FAIL because UIOrchestrator tries to find "speed-slider" instead of "game-speed".
     expect(slider.value).not.toBe("50"); 
+    expect(slider.value).toBe(TimeUtility.scaleToSlider(2.0).toString());
   });
 
   it("Reproduction: Slider input sets raw value instead of logarithmic scale", () => {
@@ -126,7 +136,7 @@ describe("Pause and Speed Synchronization Repro", () => {
       status: "Playing",
       missionType: MissionType.Default,
       stats: { threatLevel: 0, aliensKilled: 0, elitesKilled: 0, scrapGained: 0, casualties: 0 },
-      settings: { isPaused: false, timeScale: 2.0, targetScale: 2.0, allowTacticalPause: true },
+      settings: { isPaused: false, timeScale: 2.0, targetTimeScale: 2.0, allowTacticalPause: true },
       units: [], enemies: [], visibleCells: [], discoveredCells: [], objectives: [], squadInventory: {}, loot: [], mines: [], turrets: [], map: { width: 10, height: 10, cells: [] }
     } as any;
 
@@ -157,7 +167,7 @@ describe("Pause and Speed Synchronization Repro", () => {
       status: "Playing",
       missionType: MissionType.Default,
       stats: { threatLevel: 0, aliensKilled: 0, elitesKilled: 0, scrapGained: 0, casualties: 0 },
-      settings: { isPaused: false, timeScale: 1.0, targetScale: 1.0, allowTacticalPause: true },
+      settings: { isPaused: false, timeScale: 1.0, targetTimeScale: 1.0, allowTacticalPause: true },
       units: [], enemies: [], visibleCells: [], discoveredCells: [], objectives: [], squadInventory: {}, loot: [], mines: [], turrets: [], map: { width: 10, height: 10, cells: [] }
     } as any;
 

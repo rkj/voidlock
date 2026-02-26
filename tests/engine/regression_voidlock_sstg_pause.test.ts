@@ -73,7 +73,11 @@ describe("GameClient Pause Logic (sstg.2)", () => {
     expect(client.getIsPaused()).toBe(true);
     expect(client.getTimeScale()).toBe(0.1);
 
-    // Verify SET_TIME_SCALE was sent to worker with 0.1
+    // Verify messages sent to worker
+    expect(postMessageMock).toHaveBeenCalledWith({
+      type: "SET_PAUSED",
+      payload: true,
+    });
     expect(postMessageMock).toHaveBeenCalledWith({
       type: "SET_TIME_SCALE",
       payload: 0.1,
@@ -108,8 +112,16 @@ describe("GameClient Pause Logic (sstg.2)", () => {
 
     client.togglePause(); // Resume
     expect(client.getTimeScale()).toBe(2.0);
-    expect(postMessageMock).toHaveBeenLastCalledWith({
+    expect(postMessageMock).toHaveBeenCalledWith({
+      type: "SET_PAUSED",
+      payload: false,
+    });
+    expect(postMessageMock).toHaveBeenCalledWith({
       type: "SET_TIME_SCALE",
+      payload: 2.0,
+    });
+    expect(postMessageMock).toHaveBeenLastCalledWith({
+      type: "SET_TARGET_TIME_SCALE",
       payload: 2.0,
     });
   });

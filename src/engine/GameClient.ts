@@ -265,6 +265,7 @@ export class GameClient {
         commandLog,
         initialSnapshots,
         targetTick,
+        targetTimeScale: this.lastNonPausedScale,
         nodeType,
         campaignNodeId,
         skipDeployment,
@@ -392,11 +393,14 @@ export class GameClient {
 
     if (this.isPaused) {
       this.lastNonPausedScale = effectiveScale;
-      // Do not update worker immediately, keep at paused value (0.1 or 0.0)
+      // Do not update worker's timeScale immediately, keep at paused value (0.1 or 0.0)
+      // But we DO update the targetTimeScale so it's reflected in the engine state (ADR 0048)
+      this.sendTargetTimeScaleToWorker(effectiveScale);
     } else {
       this.currentScale = effectiveScale;
       this.lastNonPausedScale = effectiveScale;
       this.sendTimeScaleToWorker(effectiveScale);
+      this.sendTargetTimeScaleToWorker(effectiveScale);
     }
   }
 
@@ -404,7 +408,10 @@ export class GameClient {
     if (!this.isPaused) {
       this.isPaused = true;
       this.lastNonPausedScale = this.currentScale;
+      this.sendPausedToWorker(true);
       this.sendTimeScaleToWorker(this.allowTacticalPause ? 0.1 : 0.0);
+      // Ensure targetTimeScale is also synced
+      this.sendTargetTimeScaleToWorker(this.lastNonPausedScale);
     }
   }
 
@@ -412,7 +419,9 @@ export class GameClient {
     if (this.isPaused) {
       this.isPaused = false;
       this.currentScale = this.lastNonPausedScale;
+      this.sendPausedToWorker(false);
       this.sendTimeScaleToWorker(this.currentScale);
+      this.sendTargetTimeScaleToWorker(this.currentScale);
     }
   }
 
@@ -443,6 +452,22 @@ export class GameClient {
     const msg: WorkerMessage = {
       type: "SET_TIME_SCALE",
       payload: scale,
+    };
+    this.worker.postMessage(msg);
+  }
+
+  private sendTargetTimeScaleToWorker(scale: number) {
+    const msg: WorkerMessage = {
+      type: "SET_TARGET_TIME_SCALE",
+      payload: scale,
+    };
+    this.worker.postMessage(msg);
+  }
+
+  private sendPausedToWorker(paused: boolean) {
+    const msg: WorkerMessage = {
+      type: "SET_PAUSED",
+      payload: paused,
     };
     this.worker.postMessage(msg);
   }

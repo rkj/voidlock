@@ -104,7 +104,7 @@ export class HUDManager {
       // Authoritative sync from engine state (logarithmic)
       // Only sync if not currently being dragged by user
       if (document.activeElement !== gameSpeedSlider) {
-        gameSpeedSlider.value = TimeUtility.scaleToSlider(state.settings.timeScale).toString();
+        gameSpeedSlider.value = TimeUtility.scaleToSlider(state.settings.targetTimeScale).toString();
       }
     }
 
@@ -209,7 +209,7 @@ export class HUDManager {
         : state.settings.timeScale;
       mobileSpeedValue.textContent = TimeUtility.formatSpeed(scale, isPaused);
       if (document.activeElement !== mobileSpeedSlider) {
-        mobileSpeedSlider.value = TimeUtility.scaleToSlider(state.settings.timeScale).toString();
+        mobileSpeedSlider.value = TimeUtility.scaleToSlider(state.settings.targetTimeScale).toString();
       }
     }
 
@@ -400,7 +400,7 @@ export class HUDManager {
         : state.settings.timeScale;
       mobileSpeedValue.textContent = TimeUtility.formatSpeed(scale, isPaused);
       if (document.activeElement !== mobileSpeedSlider) {
-        mobileSpeedSlider.value = TimeUtility.scaleToSlider(state.settings.timeScale).toString();
+        mobileSpeedSlider.value = TimeUtility.scaleToSlider(state.settings.targetTimeScale).toString();
       }
     }
 
