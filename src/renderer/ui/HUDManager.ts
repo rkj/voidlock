@@ -60,6 +60,8 @@ export class HUDManager {
 
     this.binder.registerTransformer("pauseText", (isPaused) => (isPaused as boolean) ? "▶ Play" : "|| Pause");
 
+    this.binder.registerTransformer("minSpeedValue", (allowTacticalPause) => (allowTacticalPause as boolean) ? "0" : "50");
+
     this.binder.registerTransformer("speedSlider", (timeScale) => {
       // Avoid syncing if user is dragging
       const slider = document.activeElement as HTMLInputElement;
@@ -99,16 +101,6 @@ export class HUDManager {
         // Force a reflow
         void topThreatFill.offsetWidth;
         topThreatFill.classList.remove("no-transition");
-      }
-    }
-
-    const gameSpeedSlider = document.getElementById(
-      "game-speed",
-    ) as HTMLInputElement;
-    if (gameSpeedSlider) {
-      const minVal = state.settings.allowTacticalPause ? "0" : "50";
-      if (gameSpeedSlider.min !== minVal) {
-        gameSpeedSlider.min = minVal;
       }
     }
   }
@@ -164,7 +156,7 @@ export class HUDManager {
         <h3 class="game-over-panel-title">Mission Controls</h3>
         <div class="control-group" style="border:none; padding-top:0; display: flex; flex-direction: column; gap: 10px;">
           <label style="margin-top:0;">Game Speed: <span class="mobile-speed-value" data-bind-text="settings" data-bind-transform="speedText">1.0x</span></label>
-          <input type="range" class="mobile-speed-slider" min="0" max="100" step="1" value="50" data-bind-value="settings.timeScale" data-bind-transform="speedSlider">
+          <input type="range" class="mobile-speed-slider" min="0" max="100" step="1" value="50" data-bind-value="settings.timeScale" data-bind-transform="speedSlider" data-bind-min="settings.allowTacticalPause|minSpeedValue">
           <button class="mobile-abort-button back-button" style="width: 100%; margin: 10px 0 0 0;">Abort Mission</button>
         </div>
       `;
@@ -341,7 +333,7 @@ export class HUDManager {
         <h3 class="game-over-panel-title">Mission Controls</h3>
         <div class="control-group" style="border:none; padding-top:0; display: flex; flex-direction: column; gap: 10px;">
           <label style="margin-top:0;">Game Speed: <span class="mobile-speed-value" data-bind-text="settings" data-bind-transform="speedText">1.0x</span></label>
-          <input type="range" class="mobile-speed-slider" min="0" max="100" step="1" value="50" data-bind-value="settings.timeScale" data-bind-transform="speedSlider">
+          <input type="range" class="mobile-speed-slider" min="0" max="100" step="1" value="50" data-bind-value="settings.timeScale" data-bind-transform="speedSlider" data-bind-min="settings.allowTacticalPause|minSpeedValue">
           <button class="mobile-abort-button back-button" style="width: 100%; margin: 10px 0 0 0;">Abort Mission</button>
         </div>
       `;

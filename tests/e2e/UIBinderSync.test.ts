@@ -153,7 +153,20 @@ describe("UIBinder Synchronization", () => {
 
     expect(afterClickBtn).not.toBe(initialBtn);
     
-    // 4. Test changing the slider
+    // 4. Test min value synchronization
+    console.log("Checking min value synchronization...");
+    const getSliderMin = async () => {
+      return await page.evaluate(() => {
+        const slider = document.getElementById("game-speed") as HTMLInputElement;
+        return slider ? slider.min : null;
+      });
+    };
+
+    const initialMin = await getSliderMin();
+    console.log(`Initial Min: ${initialMin}`);
+    expect(initialMin).toBe("0"); // Tactical pause allowed by default in custom mission
+
+    // 5. Test changing the slider
     console.log("Changing slider to 10.0x...");
     await page.evaluate(() => {
       const slider = document.getElementById("game-speed") as HTMLInputElement;
