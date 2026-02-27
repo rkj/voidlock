@@ -185,6 +185,7 @@ export class CampaignScreen {
     canvas.style.top = "0";
     canvas.style.left = "0";
     canvas.style.pointerEvents = "none";
+    canvas.style.zIndex = "6";
     container.appendChild(canvas);
 
     const currentId = state.currentNodeId;
@@ -232,25 +233,32 @@ export class CampaignScreen {
 
       // Icon/Text
       const icon = document.createElement("span");
-      icon.style.fontSize = "1.2em";
+      icon.style.display = "flex";
+      icon.style.alignItems = "center";
+      icon.style.justifyContent = "center";
+      icon.style.width = "24px";
+      icon.style.height = "24px";
       icon.style.filter = "drop-shadow(0 0 2px currentColor)";
+      
+      let svgContent = "";
       switch (node.type) {
         case "Combat":
-          icon.textContent = "⚔️";
+          svgContent = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 17.5L3 6V3h3l11.5 11.5"/><path d="M13 19l6-6"/><path d="M16 16l4 4"/><path d="M19 21l2-2"/></svg>`;
           break;
         case "Elite":
-          icon.textContent = "💀";
+          svgContent = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 10a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/><path d="M17 10a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/><path d="M12 2a8 8 0 0 0-8 8c0 4.42 3.58 8 8 8s8-3.58 8-8a8 8 0 0 0-8-8z"/><path d="M10 18v2a1 1 0 0 0 1 1h2a1 1 0 0 0 1-1v-2"/></svg>`;
           break;
         case "Shop":
-          icon.textContent = "💰";
+          svgContent = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6v4"/><path d="M17 14v4"/></svg>`;
           break;
         case "Event":
-          icon.textContent = "❓";
+          svgContent = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>`;
           break;
         case "Boss":
-          icon.textContent = "👹";
+          svgContent = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3c3 6 1 12 1 12"/><path d="M21 3c-3 6-1 12-1 12"/><circle cx="12" cy="14" r="6"/></svg>`;
           break;
       }
+      icon.innerHTML = svgContent;
       nodeEl.appendChild(icon);
 
       // Bonus Loot Pips (Intel)
@@ -266,14 +274,16 @@ export class CampaignScreen {
         pipsContainer.style.width = "100%";
         pipsContainer.style.gap = "2px";
         pipsContainer.style.pointerEvents = "none";
+        pipsContainer.style.zIndex = "11";
 
         for (let i = 0; i < node.bonusLootCount; i++) {
           const pip = document.createElement("span");
           pip.className = "loot-pip";
-          pip.textContent = "📦";
-          pip.style.fontSize = "0.7em";
-          pip.style.color = "var(--color-warning)";
-          pip.style.textShadow = "0 0 3px rgba(255, 152, 0, 0.5)";
+          pip.style.display = "flex";
+          pip.style.width = "12px";
+          pip.style.height = "12px";
+          pip.innerHTML = `<svg viewBox="0 0 24 24" fill="var(--color-warning)" stroke="none"><path d="M21 8l-9-4-9 4v8l9 4 9-4V8z"/><path d="M3 8l9 4 9-4"/><path d="M12 20V12"/></svg>`;
+          pip.style.filter = "drop-shadow(0 0 3px rgba(255, 152, 0, 0.5))";
           pipsContainer.appendChild(pip);
         }
         nodeEl.appendChild(pipsContainer);
@@ -282,14 +292,15 @@ export class CampaignScreen {
       // Current Indicator (Ship Icon)
       if (isCurrent) {
         const indicator = document.createElement("div");
-        indicator.textContent = "▼";
         indicator.style.position = "absolute";
         indicator.style.top = "-22px";
         indicator.style.left = "50%";
         indicator.style.transform = "translateX(-50%)";
+        indicator.style.width = "20px";
+        indicator.style.height = "20px";
         indicator.style.color = "var(--color-accent)";
-        indicator.style.fontSize = "1.4em";
-        indicator.style.textShadow = "0 0 8px var(--color-accent)";
+        indicator.innerHTML = `<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 21l-12-18h24z"/></svg>`;
+        indicator.style.filter = "drop-shadow(0 0 8px var(--color-accent))";
         indicator.style.zIndex = "10";
         nodeEl.appendChild(indicator);
       }
@@ -333,7 +344,7 @@ export class CampaignScreen {
             node.status === "Cleared" &&
             (target.status === "Accessible" || target.status === "Cleared")
           ) {
-            ctx.strokeStyle = "var(--color-los-soldier)";
+            ctx.strokeStyle = "#FFFFFF";
             ctx.setLineDash([]);
             ctx.lineWidth = 2;
           } else {
