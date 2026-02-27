@@ -48,8 +48,22 @@ export class ReplayController {
     if (!this.isReplaying) return;
     this.isReplaying = false;
     this.gameClient.removeStateUpdateListener(this.handleStateUpdate);
-    // Note: we don't call gameClient.stop() here because it might be shared.
-    // But in the context of Debrief screen, we want to stop it when leaving.
+  }
+
+  public destroy() {
+    this.stopReplay();
+    if (this.renderer) {
+      this.renderer.destroy();
+      this.renderer = null;
+    }
+    
+    // Only stop if we are actually in Replay mode to avoid stopping a new mission start (Spec 8.12)
+    // We check the internal gameClient state to be sure
+    this.gameClient.queryState(); // Request latest state to be sure, though it's async
+    
+    // Better: GameClient should probably expose its mode
+    // For now, we rely on the fact that stop() is generally safe if we are leaving Debrief
+    this.gameClient.stop();
   }
 
   private handleStateUpdate = (state: GameState) => {

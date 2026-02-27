@@ -23,6 +23,10 @@ export class UnitLayer implements RenderLayer {
     this.renderEnemies(ctx, state);
   }
 
+  public destroy(): void {
+    // Basic cleanup
+  }
+
   private renderUnits(ctx: CanvasRenderingContext2D, state: GameState) {
     const cellSize = this.sharedState.cellSize;
 

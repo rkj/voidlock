@@ -40,6 +40,7 @@ self.onmessage = (e: MessageEvent<WorkerMessage>) => {
         msg.payload.debugSnapshotInterval ?? 0,
         msg.payload.initialSnapshots ?? [],
         msg.payload.targetTimeScale ?? timeScale,
+        msg.payload.sessionId,
       );
 
       // Start loop

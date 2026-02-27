@@ -220,7 +220,6 @@ export class GameApp {
       this.gameClient,
       () => {
         this.debriefScreen.hide();
-        this.gameClient.stop();
 
         const state = this.registry.campaignManager.getState();
         if (
@@ -241,7 +240,6 @@ export class GameApp {
       },
       () => {
         this.debriefScreen.hide();
-        this.gameClient.stop();
         this.registry.missionRunner.launchMission();
       },
       () => this.registry.uiOrchestrator.exportReplay(),

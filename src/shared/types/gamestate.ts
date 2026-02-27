@@ -63,6 +63,7 @@ export type SimulationSettings = {
   isPaused: boolean;
   isSlowMotion: boolean;
   allowTacticalPause: boolean;
+  sessionId?: string;
 };
 
 export type MissionStats = {
@@ -147,6 +148,7 @@ export type WorkerMessage =
         targetTimeScale?: number;
         campaignNodeId?: string;
         skipDeployment?: boolean;
+        sessionId?: string;
       };
     }
   | { type: "COMMAND"; payload: Command }

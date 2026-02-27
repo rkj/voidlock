@@ -14,6 +14,10 @@ export class MapLayer implements RenderLayer {
     this.renderFog(ctx, state);
   }
 
+  public destroy(): void {
+    // Basic cleanup to satisfy interface
+  }
+
   private isCellDiscovered(state: GameState, x: number, y: number): boolean {
     if (state.settings.debugOverlayEnabled) return true;
     if (state.gridState) {

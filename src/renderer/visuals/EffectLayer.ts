@@ -54,4 +54,8 @@ export class EffectLayer implements RenderLayer {
       }
     });
   }
+
+  public destroy(): void {
+    this.activeEvents = [];
+  }
 }

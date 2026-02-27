@@ -106,6 +106,35 @@ body {
   background-color: var(--color-surface);
 }
 
+/* Screen Transitions (Spec 8.1) */
+.screen-fade-in {
+  animation: screen-fade-in 150ms ease-out forwards;
+}
+
+.screen-slide-up {
+  animation: screen-slide-up 150ms ease-out forwards;
+}
+
+@keyframes screen-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes screen-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* Centered Screens (Menu, Setup) */
 .screen-centered {
   align-items: center;

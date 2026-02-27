@@ -22,6 +22,10 @@ export class OverlayLayer implements RenderLayer {
     this.renderOverlay(ctx);
   }
 
+  public destroy(): void {
+    // Basic cleanup
+  }
+
   private renderDeploymentPhase(
     ctx: CanvasRenderingContext2D,
     state: GameState,

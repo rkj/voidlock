@@ -45,8 +45,32 @@ describe("Regression: Replay speed UI mismatch (voidlock-pzzz)", () => {
       getReplayData: vi.fn(() => ({})),
       loadReplay: vi.fn(),
       stop: vi.fn(),
+      queryState: vi.fn(),
     };
     screen = new DebriefScreen("screen-debrief", mockGameClient, onContinue);
+  });
+
+  it("should cleanup renderer on destroy", () => {
+    const canvas = document.createElement("canvas");
+    (screen as any).canvas = canvas;
+    screen.show({
+      nodeId: "node_1",
+      seed: 12345,
+      result: "Won",
+      aliensKilled: 10,
+      scrapGained: 150,
+      intelGained: 5,
+      timeSpent: 600,
+      soldierResults: [],
+    });
+
+    const replayController = (screen as any).replayController;
+    expect(replayController.renderer).toBeTruthy();
+    const rendererSpy = vi.spyOn(replayController.renderer, "destroy");
+
+    screen.hide();
+    expect(rendererSpy).toHaveBeenCalled();
+    expect(replayController.renderer).toBeNull();
   });
 
   it("REPRODUCTION: should have 5x speed button active on initialization", () => {

@@ -86,6 +86,7 @@ export class CoreEngine {
     debugSnapshotInterval: number = 0,
     initialSnapshots: GameState[] = [],
     targetTimeScale: number = 1.0,
+    sessionId?: string,
   ) {
     this.prng = new PRNG(seed);
     this.gameGrid = new GameGrid(map);
@@ -165,6 +166,7 @@ export class CoreEngine {
         isPaused: startPaused,
         isSlowMotion: initialTimeScale < 1.0,
         allowTacticalPause: allowTacticalPause,
+        sessionId,
       },
       squadInventory: squadConfig.inventory || {},
     };
@@ -549,10 +551,13 @@ export class CoreEngine {
   private readonly SIM_TICK_MS: number = 16;
 
   public update(scaledDt: number) {
+    const isPlaying = this.state.status === "Playing" || this.state.status === "Deployment";
+    const isReplay = this.state.settings.mode === EngineMode.Replay;
+    
     if (
-      this.state.status !== "Playing" &&
+      !isPlaying &&
       !this.isCatchingUp &&
-      this.state.settings.mode !== EngineMode.Replay
+      !isReplay
     )
       return;
 

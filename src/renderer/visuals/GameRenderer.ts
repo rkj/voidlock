@@ -40,6 +40,16 @@ export class GameRenderer {
     ];
   }
 
+  public destroy() {
+    for (const layer of this.layers) {
+      if (layer.destroy) {
+        layer.destroy();
+      }
+    }
+    this.layers = [];
+    this.sharedState.destroy();
+  }
+
   public get cellSize(): number {
     return this.sharedState.cellSize;
   }

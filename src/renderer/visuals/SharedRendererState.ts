@@ -8,4 +8,11 @@ export class SharedRendererState {
   public graph: Graph | null = null;
   public currentMapId: string | null = null;
   public cells: Cell[] = [];
+
+  public destroy() {
+    this.graph = null;
+    this.cells = [];
+    this.currentMapId = null;
+    this.overlayOptions = [];
+  }
 }

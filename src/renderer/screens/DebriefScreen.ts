@@ -68,7 +68,7 @@ export class DebriefScreen {
   }
 
   public hide() {
-    this.replayController.stopReplay();
+    this.replayController.destroy();
     this.container.style.display = "none";
     this.canvas = null;
     this.playbackBtn = null;

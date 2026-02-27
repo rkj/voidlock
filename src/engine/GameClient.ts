@@ -53,6 +53,7 @@ export class GameClient {
   private extraListeners: ((state: GameState) => void)[] = [];
   private mapGeneratorFactory: MapGeneratorFactory;
   private isStopped: boolean = false;
+  private currentSessionId: string | null = null;
 
   // Replay State
   private initialSeed: number = 0;
@@ -92,6 +93,13 @@ export class GameClient {
       if (this.isStopped) return;
       const msg = e.data;
       if (msg.type === "STATE_UPDATE") {
+        // Session validation (Spec 8.12)
+        if (this.currentSessionId && msg.payload.settings.sessionId !== this.currentSessionId) {
+          console.warn(`[GameClient] Ignoring stale STATE_UPDATE for session ${msg.payload.settings.sessionId} (current: ${this.currentSessionId})`);
+          return;
+        }
+
+        console.log(`[GameClient] STATE_UPDATE t=${msg.payload.t} status=${msg.payload.status} mode=${msg.payload.settings.mode} sid=${msg.payload.settings.sessionId}`);
         // Authoritative command sync from engine
         if (msg.payload.commandLog) {
           this.commandStream = msg.payload.commandLog.map((cl) => ({
@@ -164,6 +172,7 @@ export class GameClient {
     initialSnapshots: GameState[] = [],
   ) {
     this.isStopped = false;
+    this.currentSessionId = Math.random().toString(36).substring(2, 15);
     this.initialSeed = seed;
     this.initialSquadConfig = squadConfig;
     this.initialMissionType = missionType;
@@ -269,6 +278,7 @@ export class GameClient {
         nodeType,
         campaignNodeId,
         skipDeployment,
+        sessionId: this.currentSessionId,
       },
     };
     this.worker.postMessage(msg);
