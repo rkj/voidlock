@@ -143,8 +143,24 @@ export class EngineeringScreen {
     const unlockedItems = stats.unlockedItems;
 
     this.container.innerHTML = "";
-    this.container.className = "screen screen-centered flex-col p-20";
+    this.container.className = "screen screen-centered flex-col p-20 atmospheric-bg bg-station";
     this.container.style.overflowY = "hidden";
+
+    // Grain effect
+    const grain = document.createElement("div");
+    grain.className = "grain";
+    this.container.appendChild(grain);
+
+    // Scanline effect
+    const scanline = document.createElement("div");
+    scanline.className = "scanline";
+    this.container.appendChild(scanline);
+
+    // Content Wrapper (to ensure it's above grain/scanline)
+    const contentWrapper = document.createElement("div");
+    contentWrapper.className = "flex-col align-center w-full h-full relative";
+    contentWrapper.style.zIndex = "10";
+    this.container.appendChild(contentWrapper);
 
     const h1 = document.createElement("h1");
     h1.textContent = "Engineering Bay";
@@ -152,7 +168,7 @@ export class EngineeringScreen {
     h1.style.color = "var(--color-primary)";
     h1.style.flexShrink = "0";
     h1.style.marginBottom = "20px";
-    this.container.appendChild(h1);
+    contentWrapper.appendChild(h1);
 
     const intelDisplay = document.createElement("div");
     intelDisplay.className = "intel-display flex-row align-center gap-10";
@@ -165,11 +181,11 @@ export class EngineeringScreen {
       <span style="color: var(--color-text-dim); font-size: 0.8em;">Persistent Intel:</span>
       <span style="color: var(--color-accent); font-weight: bold; font-size: 1.2em;">${intel}</span>
     `;
-    this.container.appendChild(intelDisplay);
+    contentWrapper.appendChild(intelDisplay);
 
     const scrollContainer = document.createElement("div");
     scrollContainer.className = "scroll-content w-full flex-col align-center";
-    this.container.appendChild(scrollContainer);
+    contentWrapper.appendChild(scrollContainer);
 
     const grid = document.createElement("div");
     grid.className = "engineering-grid flex-col gap-20 w-full";

@@ -66,9 +66,25 @@ export class StatisticsScreen {
     const stats = this.metaManager.getStats();
 
     this.container.innerHTML = "";
-    this.container.className = "screen screen-centered flex-col align-center p-20";
+    this.container.className = "screen screen-centered flex-col align-center p-20 atmospheric-bg bg-station";
     this.container.style.display = "flex";
     this.container.style.overflowY = "hidden";
+
+    // Grain effect
+    const grain = document.createElement("div");
+    grain.className = "grain";
+    this.container.appendChild(grain);
+
+    // Scanline effect
+    const scanline = document.createElement("div");
+    scanline.className = "scanline";
+    this.container.appendChild(scanline);
+
+    // Content Wrapper (to ensure it's above grain/scanline)
+    const contentWrapper = document.createElement("div");
+    contentWrapper.className = "flex-col align-center w-full h-full relative";
+    contentWrapper.style.zIndex = "10";
+    this.container.appendChild(contentWrapper);
 
     const h1 = document.createElement("h1");
     h1.textContent = "Service Record";
@@ -76,11 +92,11 @@ export class StatisticsScreen {
     h1.style.color = "var(--color-primary)";
     h1.style.flexShrink = "0";
     h1.style.marginBottom = "20px";
-    this.container.appendChild(h1);
+    contentWrapper.appendChild(h1);
 
     const scrollContainer = document.createElement("div");
     scrollContainer.className = "scroll-content w-full flex-col align-center";
-    this.container.appendChild(scrollContainer);
+    contentWrapper.appendChild(scrollContainer);
 
     const statsGrid = document.createElement("div");
     statsGrid.className = "flex-col gap-10 p-20";
@@ -170,8 +186,6 @@ export class StatisticsScreen {
         "var(--color-primary)",
       ),
     );
-
-    this.container.appendChild(statsGrid);
   }
 
   private createHeader(text: string) {
