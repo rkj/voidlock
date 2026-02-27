@@ -127,6 +127,11 @@ export class CampaignScreen {
     const viewport = document.createElement("div");
     viewport.className = "campaign-map-viewport";
 
+    // Grain effect
+    const grain = document.createElement("div");
+    grain.className = "grain";
+    viewport.appendChild(grain);
+
     // Scanline effect
     const scanline = document.createElement("div");
     scanline.className = "scanline";
