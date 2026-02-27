@@ -26,7 +26,23 @@ export class NewCampaignWizard {
 
   public render() {
     this.container.innerHTML = "";
-    this.container.className = "screen campaign-screen flex-col campaign-setup-wizard h-full relative";
+    this.container.className = "screen campaign-screen flex-col campaign-setup-wizard h-full relative atmospheric-bg bg-voidlock";
+
+    // Grain effect
+    const grain = document.createElement("div");
+    grain.className = "grain";
+    this.container.appendChild(grain);
+
+    // Scanline effect
+    const scanline = document.createElement("div");
+    scanline.className = "scanline";
+    this.container.appendChild(scanline);
+
+    // Content Wrapper (to ensure it's above grain/scanline)
+    const contentWrapper = document.createElement("div");
+    contentWrapper.className = "flex-col align-center w-full h-full relative";
+    contentWrapper.style.zIndex = "10";
+    this.container.appendChild(contentWrapper);
 
     const scrollContainer = document.createElement("div");
     scrollContainer.className = "flex-grow w-full overflow-y-auto";
@@ -36,6 +52,7 @@ export class NewCampaignWizard {
     content.style.maxWidth = "800px";
     content.style.margin = "0 auto";
     content.style.padding = "40px 20px";
+    // ... (rest of the content setup)
 
     const h1 = document.createElement("h1");
     h1.textContent = "New Expedition";
@@ -439,7 +456,7 @@ export class NewCampaignWizard {
     };
 
     scrollContainer.appendChild(content);
-    this.container.appendChild(scrollContainer);
+    contentWrapper.appendChild(scrollContainer);
 
     // Sticky Footer (Spec 8.1 / 8.6)
     const footer = document.createElement("div");
@@ -470,6 +487,6 @@ export class NewCampaignWizard {
     startBtn.style.justifyContent = "center";
     footer.appendChild(startBtn);
 
-    this.container.appendChild(footer);
+    contentWrapper.appendChild(footer);
   }
 }

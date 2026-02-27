@@ -1294,6 +1294,26 @@ label {
 }
 
 /* Campaign Map */
+.atmospheric-bg {
+  position: relative;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-color: #000;
+}
+
+.bg-station {
+  background-image: url("/assets/station.jpg");
+}
+
+.bg-voidlock {
+  background-image: image-set(
+    url("/Voidlock.webp") type("image/webp"),
+    url("/Voidlock.png") type("image/png")
+  );
+}
+
 .campaign-map-viewport {
   flex-grow: 1;
   position: relative;

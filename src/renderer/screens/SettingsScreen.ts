@@ -98,8 +98,24 @@ export class SettingsScreen {
     const global = ConfigManager.loadGlobal();
 
     this.container.innerHTML = "";
-    this.container.className = "screen screen-centered flex-col p-20";
+    this.container.className = "screen screen-centered flex-col p-20 atmospheric-bg bg-station";
     this.container.style.overflowY = "hidden"; // Enforce internal scroll only
+
+    // Grain effect
+    const grain = document.createElement("div");
+    grain.className = "grain";
+    this.container.appendChild(grain);
+
+    // Scanline effect
+    const scanline = document.createElement("div");
+    scanline.className = "scanline";
+    this.container.appendChild(scanline);
+
+    // Content Wrapper (to ensure it's above grain/scanline)
+    const contentWrapper = document.createElement("div");
+    contentWrapper.className = "flex-col align-center w-full h-full relative";
+    contentWrapper.style.zIndex = "10";
+    this.container.appendChild(contentWrapper);
 
     const h1 = document.createElement("h1");
     h1.textContent = "Global Settings";
@@ -107,7 +123,7 @@ export class SettingsScreen {
     h1.style.color = "var(--color-primary)";
     h1.style.marginBottom = "20px";
     h1.style.flexShrink = "0";
-    this.container.appendChild(h1);
+    contentWrapper.appendChild(h1);
 
     // Internal Scroll Container
     const scrollContainer = document.createElement("div");
@@ -116,7 +132,7 @@ export class SettingsScreen {
     scrollContainer.style.minHeight = "0"; // Critical for flex-grow + overflow
     scrollContainer.style.maxWidth = "800px"; // Better readability
     scrollContainer.style.margin = "0 auto";
-    this.container.appendChild(scrollContainer);
+    contentWrapper.appendChild(scrollContainer);
 
     const settingsGrid = document.createElement("div");
     settingsGrid.className = "flex-col gap-20 p-20";
@@ -536,6 +552,6 @@ export class SettingsScreen {
       this.onBack();
     };
     actions.appendChild(backBtn);
-    this.container.appendChild(actions);
+    contentWrapper.appendChild(actions);
   }
 }
