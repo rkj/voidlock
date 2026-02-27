@@ -1270,14 +1270,11 @@ label {
   position: relative;
   overflow: auto;
   padding: 100px;
-  background:
-    radial-gradient(circle, var(--color-surface-elevated) 0%, #000 100%),
-    linear-gradient(var(--color-surface) 1px, transparent 1px),
-    linear-gradient(90deg, var(--color-surface) 1px, transparent 1px);
-  background-size:
-    100% 100%,
-    40px 40px,
-    40px 40px;
+  background-image: url("/assets/station.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
 }
 
 .campaign-node {
@@ -1290,7 +1287,7 @@ label {
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s;
-  z-index: 2;
+  z-index: 10;
   background-color: rgba(0, 0, 0, 0.8);
 }
 
