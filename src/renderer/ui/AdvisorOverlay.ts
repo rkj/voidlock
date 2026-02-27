@@ -1,5 +1,6 @@
 import { AdvisorMessage } from "@src/renderer/controllers/TutorialManager";
 import { GameClient } from "@src/engine/GameClient";
+import { ThemeManager } from "@src/renderer/ThemeManager";
 import { Logger } from "@src/shared/Logger";
 import { InputDispatcher } from "../InputDispatcher";
 import { InputPriority } from "@src/shared/types";
@@ -48,9 +49,20 @@ export class AdvisorOverlay {
         messageEl.classList.add("advisor-narrative-modal");
     }
 
-    const portrait = msg.portrait || "logo_gemini.webp"; // fallback
-    const portraitUrl = `assets/${portrait}`;
-    const illustrationUrl = msg.illustration ? `assets/${msg.illustration}` : null;
+    const theme = ThemeManager.getInstance();
+    const portrait = msg.portrait || "logo_gemini"; // logical name fallback
+    let portraitUrl = theme.getAssetUrl(portrait);
+    if (!portraitUrl && portrait.includes(".")) {
+      portraitUrl = `assets/${portrait}`; // Backward compatibility
+    }
+    if (!portraitUrl) {
+      portraitUrl = `assets/logo_gemini.webp`; // Absolute fallback
+    }
+    
+    let illustrationUrl = msg.illustration ? theme.getAssetUrl(msg.illustration) : null;
+    if (!illustrationUrl && msg.illustration && msg.illustration.includes(".")) {
+      illustrationUrl = `assets/${msg.illustration}`; // Backward compatibility
+    }
 
     const hasDismissBtn = msg.blocking || (!msg.duration);
 

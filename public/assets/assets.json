@@ -20,5 +20,9 @@
   "xeno_spitter": "assets/xeno_spitter.webp",
   "xeno_swarmer_1": "assets/xeno_swarmer_1.webp",
   "loot_credits": "assets/loot_credits.webp",
-  "data_disk": "assets/data_disk.webp"
+  "data_disk": "assets/data_disk.webp",
+  "bg_station": "assets/station.jpg",
+  "bg_screen": "assets/screen.jpg",
+  "logo_gemini": "assets/logo_gemini.webp",
+  "logo_chatgpt": "assets/logo_chatgpt.webp"
 }

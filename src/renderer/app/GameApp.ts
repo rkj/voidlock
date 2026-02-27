@@ -274,8 +274,8 @@ export class GameApp {
             id: "prologue_intro",
             title: "Project Voidlock: Operation First Light",
             text: "Commander, wake up. The Voidlock is failing. The station's core is unstable, and the swarms are breaching the lower decks. \n\nYour objective is clear: Recover the decrypted data disk from the secure terminal and extract your squad. Failure is not an option. The future of the project depends on this data.",
-            illustration: "station.jpg",
-            portrait: "logo_gemini.webp",
+            illustration: "bg_station",
+            portrait: "logo_gemini",
             blocking: true
           }, () => {
             this.registry.missionRunner.launchMission();

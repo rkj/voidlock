@@ -1,6 +1,7 @@
 import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import { ConfigManager } from "@src/renderer/ConfigManager";
 import { CampaignNode, CampaignState } from "@src/shared/campaign_types";
+import { ThemeManager } from "@src/renderer/ThemeManager";
 import { ModalService } from "../ui/ModalService";
 import { NewCampaignWizard } from "./campaign/NewCampaignWizard";
 import { InputDispatcher } from "../InputDispatcher";
@@ -126,6 +127,12 @@ export class CampaignScreen {
     // Map Viewport
     const viewport = document.createElement("div");
     viewport.className = "campaign-map-viewport";
+
+    // Dynamic background from manifest
+    const bgUrl = ThemeManager.getInstance().getAssetUrl("bg_station");
+    if (bgUrl) {
+      viewport.style.setProperty("--campaign-bg", `url("${bgUrl}")`);
+    }
 
     // Grain effect
     const grain = document.createElement("div");

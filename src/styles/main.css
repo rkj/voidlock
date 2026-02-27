@@ -1270,7 +1270,7 @@ label {
   position: relative;
   overflow: auto;
   padding: 100px;
-  background-image: url("/assets/station.jpg");
+  background-image: var(--campaign-bg, url("/assets/station.jpg"));
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
