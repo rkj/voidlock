@@ -202,6 +202,10 @@ export class ScreenManager {
     return this.currentScreen;
   }
 
+  public getScreenElement(id: ScreenId): HTMLElement | null {
+    return this.screens.get(id) || null;
+  }
+
   public loadPersistedState(): {
     screenId: ScreenId;
     isCampaign: boolean;

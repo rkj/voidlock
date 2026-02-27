@@ -78,6 +78,17 @@ export class NavigationOrchestrator {
 
     // 4. Update ScreenManager (DOM display and Hash)
     this.screenManager.show(id, updateHash, isCampaign);
+
+    // 5. Apply snappy tactical transition (Spec 8.1)
+    const el = this.screenManager.getScreenElement(id);
+    if (el) {
+      // Remove both possible transition classes
+      el.classList.remove("screen-fade-in", "screen-slide-up");
+      // Trigger reflow to ensure the animation can restart if we switch back quickly
+      void el.offsetWidth;
+      // Default to fade-in for a clean, snappy feel (< 200ms)
+      el.classList.add("screen-fade-in");
+    }
   }
 
   private get allScreens(): { hide: () => void }[] {

@@ -212,7 +212,11 @@ export class InputBinder {
   ) {
     const el =
       typeof idOrEl === "string" ? document.getElementById(idOrEl) : idOrEl;
-    if (!el) return;
+    if (!el) {
+      console.warn(`[InputBinder] Element not found: ${idOrEl}`);
+      return;
+    }
+    console.log(`[InputBinder] Binding ${type} to ${typeof idOrEl === 'string' ? idOrEl : 'HTMLElement'}`);
     el.addEventListener(type, handler);
     let entries = this.handlers.get(el) || [];
     entries.push({ type, handler });

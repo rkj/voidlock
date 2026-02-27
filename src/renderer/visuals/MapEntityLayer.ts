@@ -22,6 +22,10 @@ export class MapEntityLayer implements RenderLayer {
     this.renderTurrets(ctx, state);
   }
 
+  public destroy(): void {
+    // Basic cleanup
+  }
+
   private renderSquadSpawns(ctx: CanvasRenderingContext2D, state: GameState) {
     if (state.status !== "Deployment") return;
 

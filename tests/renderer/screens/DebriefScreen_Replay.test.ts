@@ -44,6 +44,7 @@ describe("DebriefScreen Replay Button", () => {
       getReplayData: vi.fn(() => ({})),
       loadReplay: vi.fn(),
       stop: vi.fn(),
+      queryState: vi.fn(),
     };
     screen = new DebriefScreen(
       "screen-debrief",
@@ -107,5 +108,18 @@ describe("DebriefScreen Replay Button", () => {
     replayBtn.click();
 
     expect(onReplay).toHaveBeenCalled();
+  });
+
+  it("should call destroy on ReplayController when hidden", () => {
+    // Accessing private for testing
+    const spy = vi.spyOn((screen as any).replayController, "destroy");
+    screen.hide();
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it("should call gameClient.stop on ReplayController.destroy", () => {
+    const stopSpy = vi.spyOn(mockGameClient, "stop");
+    (screen as any).replayController.destroy();
+    expect(stopSpy).toHaveBeenCalled();
   });
 });

@@ -1,0 +1,5 @@
+The previous sub-agent timed out because the E2E test `tests/e2e/ReplayMissionBug.test.ts` hung for > 5 minutes. 
+Next steps for you:
+1. Fix the E2E test `tests/e2e/ReplayMissionBug.test.ts` so it doesn't time out.
+2. Implement the bug fix for the Replay mission feature (everything is frozen, no commands panel visible, unable to unpause).
+3. Do not run commands that hang indefinitely. If an E2E test is hanging, debug it without running it for 5 minutes.

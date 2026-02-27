@@ -6,4 +6,5 @@ export interface RenderLayer {
     state: GameState,
     deltaTime: number,
   ): void;
+  destroy?(): void;
 }
