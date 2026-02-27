@@ -118,6 +118,15 @@ export class UIBinder {
           }
         }
         break;
+      case "min":
+      case "max":
+      case "step":
+        if (el instanceof HTMLInputElement) {
+          if (el.getAttribute(attr) !== String(value)) {
+            el.setAttribute(attr, String(value));
+          }
+        }
+        break;
       case "style-width":
         el.style.width = typeof value === "number" ? `${value}%` : String(value);
         break;
