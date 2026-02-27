@@ -48,13 +48,13 @@ describe("voidlock-3x1vj Reproduction: Campaign Map Contrast and Crispness", () 
     });
 
     // Check if background image is used
-    const hasBackgroundImage = await page.evaluate(() => {
+    const bgImageValue = await page.evaluate(() => {
       const viewport = document.querySelector(".campaign-map-viewport");
-      if (!viewport) return false;
-      const bg = window.getComputedStyle(viewport).backgroundImage;
-      return bg.includes("station.jpg") || bg.includes("station.webp");
+      if (!viewport) return "none";
+      return window.getComputedStyle(viewport).backgroundImage;
     });
-    console.log("Has Background Image:", hasBackgroundImage);
+    console.log("Background Image Value:", bgImageValue);
+    expect(bgImageValue).toContain("assets/station.jpg");
 
     // Check node icon types (emoji check)
     const nodeIcons = await page.evaluate(() => {
