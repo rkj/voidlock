@@ -296,7 +296,11 @@ export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveCo
       const isExtDiscovered = isCellDiscovered(state, ext.x, ext.y);
 
       if (isExtDiscovered) {
-        if (!MathUtils.sameCellPosition(currentUnit.pos, ext)) {
+        // Issue extraction command if not already extracting or if not at extraction cell
+        if (
+          currentUnit.activeCommand?.label !== "Extracting" ||
+          !MathUtils.sameCellPosition(currentUnit.pos, ext)
+        ) {
           currentUnit = { ...currentUnit, explorationTarget: undefined };
           currentUnit = context.executeCommand(
             currentUnit,
@@ -310,8 +314,8 @@ export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveCo
             false,
             director,
           );
-          actionTaken = true;
         }
+        actionTaken = true;
       }
     }
 
