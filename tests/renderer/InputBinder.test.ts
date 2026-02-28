@@ -61,7 +61,6 @@ describe("InputBinder", () => {
     };
 
     inputBinder = new InputBinder(
-      mockContext.screenManager as any,
       mockContext.gameClient as any,
     );
     mockCallbacks = {

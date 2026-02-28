@@ -32,6 +32,7 @@ vi.mock("@src/renderer/visuals/AssetManager", () => ({
 vi.mock("@src/engine/GameClient", () => ({
   GameClient: vi.fn().mockImplementation(() => ({
     onStateUpdate: vi.fn(),
+  queryState: vi.fn(),
     addStateUpdateListener: vi.fn(),
     removeStateUpdateListener: vi.fn(),
     stop: vi.fn(),

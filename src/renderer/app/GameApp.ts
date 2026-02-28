@@ -320,7 +320,7 @@ export class GameApp {
   }
 
   private setupInputBindings() {
-    this.inputBinder = new InputBinder(this.registry.screenManager, this.gameClient);
+    this.inputBinder = new InputBinder(this.gameClient);
     this.inputBinder.bindAll({
       onTogglePause: () => this.registry.uiOrchestrator.togglePause(),
       onAbortMission: () => this.registry.missionRunner.abortMission(),
