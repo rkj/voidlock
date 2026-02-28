@@ -34,6 +34,7 @@ describe("DebriefScreen Visual Audit", () => {
     mockGameClient = {
       addStateUpdateListener: vi.fn(),
       removeStateUpdateListener: vi.fn(),
+      queryState: vi.fn(),
       getIsPaused: vi.fn(() => true),
       togglePause: vi.fn(),
       getTargetScale: vi.fn(() => 1.0),

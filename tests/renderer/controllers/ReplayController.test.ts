@@ -12,6 +12,7 @@ describe("ReplayController", () => {
     mockGameClient = {
       addStateUpdateListener: vi.fn(),
       removeStateUpdateListener: vi.fn(),
+      queryState: vi.fn(),
       getReplayData: vi.fn(() => ({})),
       loadReplay: vi.fn(),
       setTimeScale: vi.fn(),

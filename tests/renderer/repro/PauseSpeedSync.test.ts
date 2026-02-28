@@ -28,6 +28,7 @@ describe("Pause and Speed Synchronization Repro", () => {
       setTimeScale: vi.fn((s: number) => {
         timeScale = s;
       }),
+      queryState: vi.fn(),
       pause: vi.fn(() => {
         isPaused = true;
       }),
