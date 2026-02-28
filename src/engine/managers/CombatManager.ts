@@ -30,7 +30,7 @@ export class CombatManager {
     state: GameState,
     prng: PRNG,
   ): { unit: Unit; isAttacking: boolean } {
-    if (unit.state === UnitState.Extracted || unit.hp <= 0) {
+    if (unit.state === UnitState.Extracted || unit.hp <= 0 || unit.state === UnitState.Channeling) {
       return { unit, isAttacking: false };
     }
 
