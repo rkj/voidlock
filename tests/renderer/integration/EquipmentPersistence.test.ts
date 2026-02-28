@@ -245,12 +245,12 @@ describe("Equipment Persistence Integration", () => {
 
     // 4. Find the 'Confirm Squad' button and click it
     // Note: The EquipmentScreen renders its own UI.
-    const confirmBtn = Array.from(document.querySelectorAll("button")).find(
-      (b) => b.textContent === "Confirm Squad",
+    const launchBtn = Array.from(document.querySelectorAll("button")).find(
+      (b) => b.textContent === "Launch Mission",
     );
-    expect(confirmBtn).toBeTruthy();
+    expect(launchBtn).toBeTruthy();
 
-    confirmBtn?.click();
+    launchBtn?.click();
 
     // 5. Verify assignEquipment was called for soldier 's1'
     expect(manager.assignEquipment).toHaveBeenCalled();

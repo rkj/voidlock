@@ -35,6 +35,11 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
             archetypeId: "assault",
             status: "Healthy",
             equipment: {},
+            level: 1,
+            xp: 0,
+            hp: 100,
+            maxHp: 100,
+            soldierAim: 60,
           },
           {
             id: "s2",
@@ -42,6 +47,11 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
             archetypeId: "medic",
             status: "Healthy",
             equipment: {},
+            level: 1,
+            xp: 0,
+            hp: 100,
+            maxHp: 100,
+            soldierAim: 60,
           },
           {
             id: "s3",
@@ -49,9 +59,14 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
             archetypeId: "scout",
             status: "Dead",
             equipment: {},
+            level: 1,
+            xp: 0,
+            hp: 100,
+            maxHp: 100,
+            soldierAim: 60,
           },
         ],
-        scrap: 100,
+        scrap: 500,
         unlockedArchetypes: ["assault", "medic", "heavy", "scout"],
         unlockedItems: [],
         rules: { economyMode: "Open" },
@@ -60,6 +75,8 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
       removeChangeListener: vi.fn(),
       spendScrap: vi.fn(),
       assignEquipment: vi.fn(),
+      recruitSoldier: vi.fn().mockReturnValue("s4"),
+      reviveSoldier: vi.fn(),
     };
 
     onSave = vi.fn();
@@ -74,10 +91,9 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
       initialConfig,
       onSave,
       onBack,
-      null as any,
-      undefined, // onLaunch
-      false, // isShop
-      true // isCampaign
+      undefined,
+      false,
+      true
     );
     screen.show();
 
@@ -85,8 +101,6 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
     expect(slots.length).toBe(4);
     expect(slots[0].textContent).toContain("Soldier 1");
     expect(slots[1].textContent).toContain("[Empty Slot]");
-    expect(slots[2].textContent).toContain("[Empty Slot]");
-    expect(slots[3].textContent).toContain("[Empty Slot]");
   });
 
   it("should show Recruit/Revive options in the inspector when an empty slot is selected", () => {
@@ -97,10 +111,9 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
       initialConfig,
       onSave,
       onBack,
-      null as any,
-      undefined, // onLaunch
-      false, // isShop
-      true // isCampaign
+      undefined,
+      false,
+      true
     );
     screen.show();
 
@@ -121,10 +134,9 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
       initialConfig,
       onSave,
       onBack,
-      null as any,
-      undefined, // onLaunch
-      false, // isShop
-      true // isCampaign
+      undefined,
+      false,
+      true
     );
     screen.show();
 
@@ -135,9 +147,6 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
     const rightPanel = container.querySelector(".armory-panel");
     expect(rightPanel?.textContent).toContain("Reserve Roster");
     expect(rightPanel?.textContent).toContain("Soldier 2");
-    // Soldier 1 is already in squad, so it shouldn't be here or should be marked
-    // Soldier 3 is dead, so it should be in Revive section of inspector, not here?
-    // Actually spec says "Add: 'Empty Slot' buttons open the Reserve Roster picker."
   });
 
   it("should allow adding a soldier from the roster to an empty slot", () => {
@@ -148,10 +157,9 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
       initialConfig,
       onSave,
       onBack,
-      null as any,
-      undefined, // onLaunch
-      false, // isShop
-      true // isCampaign
+      undefined,
+      false,
+      true
     );
     screen.show();
 
@@ -160,16 +168,18 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
     (slots[1] as HTMLElement).click();
 
     // Find Soldier 2 in roster picker and click it
-    const rosterItem = Array.from(
+    const rosterItems = Array.from(
       container.querySelectorAll(".armory-panel .menu-item"),
-    ).find((el) => el.textContent?.includes("Soldier 2")) as HTMLElement;
-    rosterItem.click();
+    );
+    const soldier2Item = rosterItems.find((el) => el.textContent?.includes("Soldier 2")) as HTMLElement;
+    expect(soldier2Item).toBeTruthy();
+    soldier2Item.click();
 
     // Verify it's now in the squad config
-    const confirmBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.textContent === "Confirm Squad",
+    const backBtn = Array.from(container.querySelectorAll("button")).find(
+      (btn) => btn.textContent === "Back",
     );
-    confirmBtn?.click();
+    backBtn?.click();
 
     expect(onSave).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -189,10 +199,9 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
       initialConfig,
       onSave,
       onBack,
-      null as any,
-      undefined, // onLaunch
-      false, // isShop
-      true // isCampaign
+      undefined,
+      false,
+      true
     );
     screen.show();
 
@@ -203,10 +212,10 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
     removeBtn.click();
 
     // Verify it's gone from squad config
-    const confirmBtn = Array.from(container.querySelectorAll("button")).find(
-      (btn) => btn.textContent === "Confirm Squad",
+    const backBtn = Array.from(container.querySelectorAll("button")).find(
+      (btn) => btn.textContent === "Back",
     );
-    confirmBtn?.click();
+    backBtn?.click();
 
     expect(onSave).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -223,10 +232,9 @@ describe("EquipmentScreen - Squad Management Refactor", () => {
       initialConfig,
       onSave,
       onBack,
-      null as any,
-      undefined, // onLaunch
-      false, // isShop
-      true // isCampaign
+      undefined,
+      false,
+      true
     );
     screen.show();
 

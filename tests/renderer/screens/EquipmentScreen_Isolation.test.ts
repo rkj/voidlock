@@ -53,7 +53,6 @@ describe("EquipmentScreen Isolation", () => {
       squadConfig,
       () => {},
       () => {},
-      undefined,
       undefined, // onLaunch
       false, // isShop
       true  // isCampaign
@@ -61,7 +60,7 @@ describe("EquipmentScreen Isolation", () => {
 
     screen.show();
 
-    // Find the '+' button for frag_grenade (cost 50)
+    // Find the '+' button for frag_grenade (cost 15)
     const plusButtons = Array.from(container.querySelectorAll("button")).filter(b => b.textContent === "+");
     const grenadePlus = plusButtons[0]; // First one is usually frag_grenade
     
@@ -73,7 +72,6 @@ describe("EquipmentScreen Isolation", () => {
   });
 
   it("should NOT spend campaign scrap when in CUSTOM mode", () => {
-    // This is the failing test case
     const squadConfig = {
       soldiers: [
         { 
@@ -87,8 +85,6 @@ describe("EquipmentScreen Isolation", () => {
       inventory: {}
     };
 
-    // We need a way to tell EquipmentScreen it's NOT a campaign.
-    // Currently it doesn't have such a flag, it just checks manager.getState()
     const screen = new EquipmentScreen(
       "screen-equipment",
       manager,
@@ -96,7 +92,6 @@ describe("EquipmentScreen Isolation", () => {
       squadConfig,
       () => {},
       () => {},
-      undefined,
       undefined, // onLaunch
       false, // isShop
       false // isCampaign
@@ -128,22 +123,16 @@ describe("EquipmentScreen Isolation", () => {
       squadConfig,
       () => {},
       () => {},
-      undefined,
-      undefined,
-      false
+      undefined, // onLaunch
+      false, // isShop
+      false // isCampaign
     );
 
     screen.show();
 
-    // Click "Revive Personnel" if it exists, or check if dead soldiers are visible
-    // In current implementation, if manager.getState() exists, it shows them.
-    
     const revivePersonnelBtn = Array.from(container.querySelectorAll("h2")).find(h => h.textContent === "Revive Personnel");
-    // Wait, the title is dynamic. 
-    // Let's just look for "btn-revive" or similar
-    const reviveBtns = container.querySelectorAll(".btn-revive");
+    const reviveBtns = container.querySelectorAll(".revive-btn-large");
     
-    // In CUSTOM mode, we shouldn't even see campaign-related actions if they affect campaign state
     expect(reviveBtns.length).toBe(0);
   });
 });
