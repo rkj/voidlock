@@ -63,7 +63,7 @@ describe("Bonus Loot (Scrap Crates)", () => {
       3,
       1,
       0,
-      "Combat",
+      undefined, // nodeType defaults to undefined
       undefined,
       0,
     );
@@ -112,7 +112,7 @@ describe("Bonus Loot (Scrap Crates)", () => {
       3,
       1,
       0,
-      "Combat",
+      undefined, // nodeType defaults to undefined
       undefined,
       0,
     );

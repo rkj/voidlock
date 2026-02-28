@@ -90,13 +90,13 @@ describe("Turret (Auto Cannon)", () => {
       mode: "IGNORE",
     });
 
-    // Add an enemy at (3, 3)
+    // Add an enemy at (3, 3) with high HP to survive both unit and turret for a bit
     engine.addEnemy({
       id: "e1",
       pos: { x: 3.5, y: 3.5 },
-      hp: 100,
-      maxHp: 100,
-      type: EnemyType.XenoMite,
+      hp: 1000,
+      maxHp: 1000,
+      type: EnemyType.Grunt,
       damage: 10,
       fireRate: 1000,
       accuracy: 50,
@@ -111,7 +111,7 @@ describe("Turret (Auto Cannon)", () => {
 
     const finalState = engine.getState();
     expect(finalState.enemies.length).toBe(1);
-    expect(finalState.enemies[0].hp).toBeLessThan(100);
+    expect(finalState.enemies[0].hp).toBeLessThan(1000);
     expect(finalState.attackEvents?.length).toBeGreaterThan(0);
     const turretEvent = finalState.attackEvents?.find((e) =>
       e.attackerId.startsWith("turret-"),

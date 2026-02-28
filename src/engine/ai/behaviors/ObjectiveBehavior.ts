@@ -8,7 +8,7 @@ import {
   Door,
   Objective,
 } from "../../../shared/types";
-import { BehaviorContext, ObjectiveContext, VisibleItem } from "../../interfaces/AIContext";
+import { BehaviorContext, ObjectiveContext, ExplorationContext, VisibleItem } from "../../interfaces/AIContext";
 import { PRNG } from "../../../shared/PRNG";
 import { Behavior, BehaviorResult } from "./Behavior";
 import {
@@ -20,14 +20,14 @@ import { MathUtils } from "../../../shared/utils/MathUtils";
 import { MOVEMENT } from "../../config/GameConstants";
 import { Logger } from "../../../shared/Logger";
 
-export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveContext> {
+export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveContext & ExplorationContext> {
   public evaluate(
     unit: Unit,
     state: GameState,
     _dt: number,
     _doors: Map<string, Door>,
     _prng: PRNG,
-    context: BehaviorContext & ObjectiveContext,
+    context: BehaviorContext & ObjectiveContext & ExplorationContext,
     director?: ItemEffectHandler,
   ): BehaviorResult {
     let currentUnit = { ...unit };
@@ -41,10 +41,9 @@ export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveCo
       return { unit: currentUnit, handled: false };
 
     if (
-      currentUnit.activeCommand?.type === CommandType.EXTRACT ||
-      currentUnit.activeCommand?.label === "Extracting"
+      currentUnit.activeCommand?.type === CommandType.EXTRACT
     ) {
-      return { unit: currentUnit, handled: false };
+      return { unit: currentUnit, handled: true };
     }
 
     let actionTaken = false;
@@ -196,11 +195,7 @@ export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveCo
         return true;
       });
       if (pendingObjectives.length > 0) {
-        Logger.debug(
-          `ObjectiveBehavior: found ${pendingObjectives.length} pending objectives`,
-        );
         let bestObj: { obj: Objective; dist: number } | null = null;
-        // ...
 
         for (const obj of pendingObjectives) {
           let targetPos: Vector2 | null = null;
@@ -289,33 +284,40 @@ export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveCo
 
     // 3. Extraction
     const objectivesComplete =
-      !state.objectives || state.objectives.every((o) => o.state !== "Pending");
+      state.objectives && state.objectives.length > 0 && state.objectives.every((o) => o.state !== "Pending");
+    const isMapFullyDiscovered = state.discoveredCells.length >= context.totalFloorCells;
 
-    if (!actionTaken && objectivesComplete && state.map.extraction) {
+    if (!actionTaken && (objectivesComplete || isMapFullyDiscovered) && state.map.extraction) {
       const ext = state.map.extraction;
       const isExtDiscovered = isCellDiscovered(state, ext.x, ext.y);
 
       if (isExtDiscovered) {
         // Issue extraction command if not already extracting or if not at extraction cell
         if (
-          currentUnit.activeCommand?.label !== "Extracting" ||
+          currentUnit.activeCommand?.type !== CommandType.EXTRACT ||
           !MathUtils.sameCellPosition(currentUnit.pos, ext)
         ) {
-          currentUnit = { ...currentUnit, explorationTarget: undefined };
-          currentUnit = context.executeCommand(
-            currentUnit,
-            {
-              type: CommandType.MOVE_TO,
-              unitIds: [currentUnit.id],
-              target: ext,
-              label: "Extracting",
-            },
-            state,
-            false,
-            director,
-          );
+          // Autonomous units auto-extract if map is fully discovered OR objectives are done
+          const shouldAutoExtract = isMapFullyDiscovered || objectivesComplete;
+          
+          if (shouldAutoExtract || !currentUnit.aiEnabled) {
+            currentUnit = { ...currentUnit, explorationTarget: undefined };
+            currentUnit = context.executeCommand(
+              currentUnit,
+              {
+                type: CommandType.EXTRACT,
+                unitIds: [currentUnit.id],
+                label: "Extracting",
+              },
+              state,
+              false,
+              director,
+            );
+            actionTaken = true;
+          }
+        } else {
+          actionTaken = true;
         }
-        actionTaken = true;
       }
     }
 

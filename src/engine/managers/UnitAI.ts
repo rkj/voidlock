@@ -16,7 +16,7 @@ import { CombatBehavior } from "../ai/behaviors/CombatBehavior";
 import { ObjectiveBehavior } from "../ai/behaviors/ObjectiveBehavior";
 import { ExplorationBehavior } from "../ai/behaviors/ExplorationBehavior";
 import { isCellDiscovered } from "../../shared/VisibilityUtils";
-import { ItemEffectHandler } from "../interfaces/IDirector";
+import { ItemEffectHandler } from "../../interfaces/IDirector";
 import { AIContext } from "../interfaces/AIContext";
 import { Logger } from "../../shared/Logger";
 

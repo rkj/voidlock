@@ -78,7 +78,7 @@ export class CoreEngine {
     baseEnemyCount: number = 3,
     enemyGrowthPerMission: number = 1,
     missionDepth: number = 0,
-    nodeType: "Combat" | "Elite" | "Boss" | "Event" | "Shop" = "Combat",
+    nodeType?: "Combat" | "Elite" | "Boss" | "Event" | "Shop",
     campaignNodeId?: string,
     startingPoints?: number,
     skipDeployment: boolean = true,
@@ -551,7 +551,7 @@ export class CoreEngine {
   private readonly SIM_TICK_MS: number = 16;
 
   public update(scaledDt: number) {
-    const isPlaying = this.state.status === "Playing" || this.state.status === "Deployment";
+    const isPlaying = this.state.status === "Playing";
     const isReplay = this.state.settings.mode === EngineMode.Replay;
     
     if (

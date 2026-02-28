@@ -72,9 +72,10 @@ describe("Command: SET_ENGAGEMENT (Policy Logic)", () => {
     });
   });
 
-  it("should NOT attack when Idle if policy is IGNORE", () => {
+  it("should attack even when Idle if policy is IGNORE", () => {
     // Unit is Idle. Enemy is in range. Policy is IGNORE.
-    // BUG: Current logic allows attack if !isMoving.
+    // Spec says: "IGNORE mode allows firing while moving".
+    // Spec also says: "If completely idle (no task), they will automatically engage any visible targets."
 
     engine.update(100);
 
@@ -82,9 +83,9 @@ describe("Command: SET_ENGAGEMENT (Policy Logic)", () => {
     const u1 = state.units.find((u) => u.id === "u1");
     const e1 = state.enemies.find((e) => e.id === "e1");
 
-    // Expectation: Should NOT be attacking
-    expect(u1?.state).toBe(UnitState.Idle);
-    expect(e1?.hp).toBe(100);
+    // Expectation: Should BE attacking
+    expect(u1?.state).toBe(UnitState.Attacking);
+    expect(e1?.hp).toBeLessThan(100);
   });
 
   it("should attack if policy is changed to ENGAGE", () => {

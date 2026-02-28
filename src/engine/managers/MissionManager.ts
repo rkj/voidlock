@@ -39,7 +39,7 @@ export class MissionManager {
     const isRecoverMission =
       missionType === MissionType.ExtractArtifacts ||
       missionType === MissionType.RecoverIntel ||
-      (missionType === MissionType.Default && !nodeType) ||
+      (missionType === MissionType.Default && !state.campaignNodeId) ||
       missionType === MissionType.Prologue ||
       nodeType === "Boss" ||
       nodeType === "Elite";
@@ -348,19 +348,16 @@ export class MissionManager {
     if (anyVipDead) {
       if (state.status !== "Lost") {
         state.stats.scrapGained += SCRAP_REWARDS.MISSION_LOSS_CONSOLATION;
+        state.status = "Lost";
       }
-      state.status = "Lost";
       return;
     }
 
+    // Mission only ends when everyone is off the map (extracted or dead) - ADR 0032
     const activeUnits = state.units.filter(
       (u) => u.state !== UnitState.Dead && u.state !== UnitState.Extracted,
     );
-    const extractedUnits = state.units.filter(
-      (u) => u.state === UnitState.Extracted,
-    );
 
-    // Mission only ends when everyone is off the map (extracted or dead)
     if (activeUnits.length > 0) {
       return;
     }
@@ -377,26 +374,11 @@ export class MissionManager {
         ? MISSION_SCALING.ELITE_MULTIPLIER
         : MISSION_SCALING.NORMAL_MULTIPLIER;
 
-    // 1. Recover Intel and Destroy Hive nodes: Win upon objective completion (Extraction optional, but mission waits for it)
-    if (
-      this.missionType === MissionType.RecoverIntel ||
-      this.missionType === MissionType.DestroyHive
-    ) {
-      if (allObjectivesComplete) {
-        if (state.status !== "Won") {
-          state.stats.scrapGained += SCRAP_REWARDS.MISSION_WIN * multiplier;
-        }
-        state.status = "Won";
-      } else {
-        if (state.status !== "Lost") {
-          state.stats.scrapGained += SCRAP_REWARDS.MISSION_LOSS_CONSOLATION;
-        }
-        state.status = "Lost";
-      }
-      return;
-    }
+    const extractedUnits = state.units.filter(
+      (u) => u.state === UnitState.Extracted,
+    );
 
-    // 2. Escort VIP: Win if VIP extracts, Loss if VIP died (handled above) or squad wiped before VIP extracts
+    // 1. Escort VIP: Win if all VIPs extracted
     if (this.missionType === MissionType.EscortVIP) {
       const allVipsExtracted =
         vips.length > 0 && vips.every((v) => v.state === UnitState.Extracted);
@@ -404,49 +386,47 @@ export class MissionManager {
       if (allVipsExtracted) {
         if (state.status !== "Won") {
           state.stats.scrapGained += SCRAP_REWARDS.MISSION_WIN * multiplier;
+          state.status = "Won";
         }
-        state.status = "Won";
       } else {
-        // All active units are gone, but VIP didn't extract (must be dead or not present, but death is handled above)
         if (state.status !== "Lost") {
           state.stats.scrapGained += SCRAP_REWARDS.MISSION_LOSS_CONSOLATION;
+          state.status = "Lost";
         }
-        state.status = "Lost";
       }
       return;
     }
 
-    // 3. Generic/Extract Artifacts: Squad must extract after objectives
-    if (allObjectivesComplete) {
-      if (
-        this.missionType === MissionType.ExtractArtifacts ||
-        this.missionType === MissionType.Default
-      ) {
-        // Extraction required: at least one unit must have extracted
-        if (extractedUnits.length > 0) {
-          if (state.status !== "Won") {
-            state.stats.scrapGained += SCRAP_REWARDS.MISSION_WIN * multiplier;
-          }
-          state.status = "Won";
-        } else {
-          if (state.status !== "Lost") {
-            state.stats.scrapGained += SCRAP_REWARDS.MISSION_LOSS_CONSOLATION;
-          }
-          state.status = "Lost";
-        }
-      } else {
-        // Other types that reached here with complete objectives are a win
+    // 2. Search & Recover / Extract Artifacts: REQUIRES at least one unit to extract
+    if (
+      this.missionType === MissionType.ExtractArtifacts ||
+      this.missionType === MissionType.Default
+    ) {
+      if (allObjectivesComplete && extractedUnits.length > 0) {
         if (state.status !== "Won") {
           state.stats.scrapGained += SCRAP_REWARDS.MISSION_WIN * multiplier;
+          state.status = "Won";
         }
+      } else {
+        if (state.status !== "Lost") {
+          state.stats.scrapGained += SCRAP_REWARDS.MISSION_LOSS_CONSOLATION;
+          state.status = "Lost";
+        }
+      }
+      return;
+    }
+
+    // 3. Expendable missions (DestroyHive, RecoverIntel): Win if objectives complete, even if all dead
+    if (allObjectivesComplete) {
+      if (state.status !== "Won") {
+        state.stats.scrapGained += SCRAP_REWARDS.MISSION_WIN * multiplier;
         state.status = "Won";
       }
     } else {
-      // Objectives not complete and everyone is dead/extracted
       if (state.status !== "Lost") {
         state.stats.scrapGained += SCRAP_REWARDS.MISSION_LOSS_CONSOLATION;
+        state.status = "Lost";
       }
-      state.status = "Lost";
     }
   }
 }

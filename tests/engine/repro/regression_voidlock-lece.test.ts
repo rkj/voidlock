@@ -138,7 +138,13 @@ describe("Regression voidlock-lece: Elite/Boss mission completion", () => {
     state.objectives.forEach((o: Objective) => (o.state = "Completed"));
     engine.update(100);
 
-    // DestroyHive remains instant win per spec
+    // DestroyHive now waits for everyone to extract/die per ADR 0032
+    expect(engine.getState().status).toBe("Playing");
+
+    // Wipe squad
+    getInternalState(engine).units.forEach((u: any) => (u.hp = 0));
+    engine.update(100);
+
     expect(engine.getState().status).toBe("Won");
   });
 });

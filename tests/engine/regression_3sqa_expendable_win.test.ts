@@ -81,13 +81,13 @@ describe("MissionManager Expendable Win Logic", () => {
     // 1. Objective complete
     state.objectives[0].state = "Completed";
     manager.checkWinLoss(state);
-    expect(state.status).toBe("Won");
+    expect(state.status).toBe("Playing"); // Should wait for extraction
 
     // 2. Squad wipes
     state.units[0].state = UnitState.Dead;
     state.units[0].hp = 0;
     manager.checkWinLoss(state);
-    expect(state.status).toBe("Won"); // Should remain Won
+    expect(state.status).toBe("Won"); // Should become Won after everyone is dead
   });
 
   it("should lose DestroyHive mission if squad wipes before hive is destroyed", () => {

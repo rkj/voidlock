@@ -9,7 +9,11 @@ vi.mock("@src/engine/CoreEngine", () => {
         update: vi.fn(),
         getState: vi.fn().mockReturnValue({
           status: "Playing",
-          settings: { debugSnapshots: false },
+          settings: { 
+            debugSnapshots: false,
+            timeScale: 1.0,
+            targetTimeScale: 1.0
+          },
         }),
         applyCommand: vi.fn(),
       };

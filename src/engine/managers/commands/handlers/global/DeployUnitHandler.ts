@@ -24,11 +24,28 @@ export class DeployUnitHandler implements IGlobalCommandHandler {
 
       if (!isValidSpawn) return;
 
+      const targetCell = MathUtils.toCellCoord(deployCmd.target);
+      const occupant = state.units.find(
+        (u) =>
+          u.id !== unit.id &&
+          u.archetypeId !== "vip" &&
+          MathUtils.sameCellPosition(u.pos, targetCell),
+      );
+
+      const oldCell = MathUtils.toCellCoord(unit.pos);
+
       state.units = state.units.map((u) => {
         if (u.id === unit.id) {
           return {
             ...u,
             pos: MathUtils.getCellCenter(deployCmd.target, u.visualJitter),
+            isDeployed: true,
+          };
+        }
+        if (occupant && u.id === occupant.id) {
+          return {
+            ...u,
+            pos: MathUtils.getCellCenter(oldCell, u.visualJitter),
             isDeployed: true,
           };
         }

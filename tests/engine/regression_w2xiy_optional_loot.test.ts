@@ -24,6 +24,7 @@ describe("Regression: Optional Scrap Crates appearing in Objectives", () => {
             t: 0,
             seed: 12345,
             missionType: MissionType.Default,
+            campaignNodeId: "test-node", // Added to simulate campaign
             map: mockMap as any,
             units: [],
             enemies: [],
