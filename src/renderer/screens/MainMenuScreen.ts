@@ -18,7 +18,8 @@ export class MainMenuScreen {
     this.container.scrollTop = 0;
     const hasSplash = this.container.querySelector(".title-splash");
     if (hasSplash) {
-      if (!this.hasPlayedTitleSplash) {
+      const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (!this.hasPlayedTitleSplash && !prefersReducedMotion) {
         this.hasPlayedTitleSplash = true;
         this.container.classList.remove("title-splash-complete");
         this.container.classList.add("title-splash-active");
@@ -28,6 +29,7 @@ export class MainMenuScreen {
           this.splashTimer = null;
         }, 1800);
       } else {
+        this.hasPlayedTitleSplash = true;
         this.container.classList.remove("title-splash-active");
         this.container.classList.add("title-splash-complete");
       }

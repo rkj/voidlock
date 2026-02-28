@@ -29,5 +29,9 @@ export async function closeBrowser(): Promise<void> {
 export async function getNewPage(): Promise<Page> {
   const browser = await getBrowser();
   const context = await browser.createBrowserContext();
-  return await context.newPage();
+  const page = await context.newPage();
+  await page.emulateMediaFeatures([
+    { name: "prefers-reduced-motion", value: "reduce" },
+  ]);
+  return page;
 }
