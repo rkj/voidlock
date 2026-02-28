@@ -515,23 +515,27 @@ export class InputManager implements InputContext {
     if (!state || state.status !== "Deployment") return;
 
     e.preventDefault();
-    let unitId = e.dataTransfer?.getData("text/plain");
-    if (!unitId) return;
+    const rawData = e.dataTransfer?.getData("text/plain");
+    if (!rawData) return;
+
+    let unitId: string = rawData;
 
     // Try to parse as JSON (from SquadBuilder)
     try {
-      const data = JSON.parse(unitId);
-      if (data && data.id) {
-        unitId = data.id;
-      } else if (data && data.archetypeId) {
-        // For custom missions, find the unit by archetype if ID is missing
-        const unit = state.units.find(
-          (u) => u.archetypeId === data.archetypeId && !u.isDeployed,
-        );
-        if (unit) unitId = unit.id;
+      const data = JSON.parse(rawData);
+      if (data && typeof data === "object") {
+        if (data.id) {
+          unitId = data.id;
+        } else if (data.archetypeId) {
+          // For custom missions, find the unit by archetype if ID is missing
+          const unit = state.units.find(
+            (u) => u.archetypeId === data.archetypeId && !u.isDeployed,
+          );
+          if (unit) unitId = unit.id;
+        }
       }
     } catch (e) {
-      // Not JSON, use as-is
+      // Not JSON, use rawData as unitId (already set)
     }
 
     const cell = this.getCellCoordinates(e.clientX, e.clientY);
