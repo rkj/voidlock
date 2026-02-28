@@ -76,14 +76,14 @@ describe("MissionManager", () => {
   });
 
   describe("checkWinLoss", () => {
-    it("should win RecoverIntel if all objectives completed", () => {
+    it("should win RecoverIntel if all objectives completed and units extracted", () => {
       missionManager = new MissionManager(MissionType.RecoverIntel, prng);
       state.objectives = [
         { id: "1", kind: "Recover", state: "Completed" },
         { id: "2", kind: "Recover", state: "Completed" },
         { id: "3", kind: "Recover", state: "Completed" },
       ];
-      state.units = [createMockUnit({ state: UnitState.Idle })];
+      state.units = [createMockUnit({ state: UnitState.Extracted })];
 
       missionManager.checkWinLoss(state);
       expect(state.status).toBe("Won");
@@ -98,10 +98,10 @@ describe("MissionManager", () => {
       expect(state.status).toBe("Won");
     });
 
-    it("should win DestroyHive if Hive killed", () => {
+    it("should win DestroyHive if Hive killed and units extracted", () => {
       missionManager = new MissionManager(MissionType.DestroyHive, prng);
       state.objectives = [{ id: "obj-hive", kind: "Kill", state: "Completed" }];
-      state.units = [createMockUnit({ state: UnitState.Idle })];
+      state.units = [createMockUnit({ state: UnitState.Extracted })];
 
       missionManager.checkWinLoss(state);
       expect(state.status).toBe("Won");

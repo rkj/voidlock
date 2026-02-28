@@ -52,7 +52,7 @@ describe("Regression 65pf: Extract Command", () => {
       3,
       1,
       0,
-      "Combat",
+      undefined, // nodeType defaults to undefined
       undefined,
       0,
     );

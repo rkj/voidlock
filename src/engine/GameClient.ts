@@ -93,9 +93,10 @@ export class GameClient {
       if (this.isStopped) return;
       const msg = e.data;
       if (msg.type === "STATE_UPDATE") {
-        // Session validation (Spec 8.12)
-        if (this.currentSessionId && msg.payload.settings.sessionId !== this.currentSessionId) {
-          console.warn(`[GameClient] Ignoring stale STATE_UPDATE for session ${msg.payload.settings.sessionId} (current: ${this.currentSessionId})`);
+        // Session validation (Spec 8.12) - Only validate if sessionId is provided in the update
+        const payloadSessionId = msg.payload.settings?.sessionId;
+        if (this.currentSessionId && payloadSessionId && payloadSessionId !== this.currentSessionId) {
+          console.warn(`[GameClient] Ignoring stale STATE_UPDATE for session ${payloadSessionId} (current: ${this.currentSessionId})`);
           return;
         }
 

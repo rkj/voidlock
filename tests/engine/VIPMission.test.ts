@@ -114,6 +114,13 @@ describe("VIP Mission Mechanics", () => {
       UnitState.Extracted;
 
     engine.update(100);
+    expect(engine.getState().status).toBe("Playing"); // Still the assault soldier left
+
+    // Extract the soldier
+    getInternalState(engine).units.find((u: any) => u.archetypeId === "assault")!.state =
+      UnitState.Extracted;
+
+    engine.update(100);
     expect(engine.getState().status).toBe("Won");
   });
 

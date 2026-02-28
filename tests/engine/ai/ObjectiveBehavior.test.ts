@@ -108,7 +108,7 @@ describe("ObjectiveBehavior", () => {
 
     expect(result.handled).toBe(true);
     expect(result.unit.activeCommand?.label).toBe("Extracting");
-    expect(result.unit.activeCommand?.type).toBe(CommandType.MOVE_TO);
-    expect((result.unit.activeCommand as any).target).toEqual({ x: 0, y: 0 });
+    expect(result.unit.activeCommand?.type).toBe(CommandType.EXTRACT);
+    expect((result.unit.activeCommand as any).target).toBeUndefined();
   });
 });

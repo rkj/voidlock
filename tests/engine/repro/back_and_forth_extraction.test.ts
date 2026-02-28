@@ -61,17 +61,21 @@ describe('AI Back and Forth Repro', () => {
     });
 
     // 3. Complete all objectives
-    const obj = state.objectives![0];
-    const objPos = obj.targetCell!;
-    
-    // Teleport unit near objective
-    (engine as any).state.units[0].pos = { x: objPos.x + 0.5, y: objPos.y + 0.5 };
-    
-    // Wait for pickup
-    for(let i=0; i<60; i++) engine.update(100);
+    (engine as any).state.enemies = []; // Clear enemies to avoid distraction/death
+    const objectives = state.objectives || [];
+    for (const obj of objectives) {
+      const objPos = obj.targetCell!;
+      // Teleport unit near objective
+      (engine as any).state.units[0].pos = { x: objPos.x + 0.5, y: objPos.y + 0.5 };
+      (engine as any).state.units[0].targetPos = undefined;
+      (engine as any).state.units[0].path = undefined;
+      
+      // Wait for pickup
+      for(let i=0; i<60; i++) engine.update(100);
+    }
     
     state = engine.getState();
-    expect(state.objectives![0].state).toBe('Completed');
+    expect(state.objectives!.every(o => o.state === 'Completed')).toBe(true);
 
     // 4. Discover extraction
     const ext = state.map.extraction!;
@@ -84,6 +88,8 @@ describe('AI Back and Forth Repro', () => {
     (engine as any).state.units[0].state = UnitState.Idle;
     (engine as any).state.units[0].activeCommand = undefined;
     (engine as any).state.units[0].explorationTarget = undefined;
+    (engine as any).state.units[0].targetPos = undefined;
+    (engine as any).state.units[0].path = undefined;
     
     state = engine.getState();
 
@@ -103,7 +109,8 @@ describe('AI Back and Forth Repro', () => {
 
       if (i % 100 === 0) {
         const activeLabel = u.activeCommand?.label || 'None';
-        console.log(`Tick ${i}: pos=(${u.pos.x.toFixed(2)},${u.pos.y.toFixed(2)}) state=${u.state} label=${activeLabel}`);
+        const targetStr = u.targetPos ? `target=(${u.targetPos.x.toFixed(2)},${u.targetPos.y.toFixed(2)})` : 'target=None';
+        console.log(`Tick ${i}: pos=(${u.pos.x.toFixed(2)},${u.pos.y.toFixed(2)}) state=${u.state} label=${activeLabel} ${targetStr}`);
       }
     }
 

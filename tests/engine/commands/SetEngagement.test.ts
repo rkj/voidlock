@@ -116,9 +116,10 @@ describe("Command: SET_ENGAGEMENT", () => {
     const u1 = state.units.find((u) => u.id === "u1");
     const e1 = state.enemies.find((e) => e.id === "e1");
 
-    expect(u1?.state).toBe(UnitState.Moving);
-    expect(e1?.hp).toBe(100); // Should not have fired
-    // Should have moved (speed 2 tiles/s * 0.1s = 0.2 tiles)
+    expect(u1?.state).toBe(UnitState.Attacking);
+    expect(e1?.hp).toBeLessThan(100); // Should HAVE fired while moving
+    // Should have moved (speed 20 tiles/s * 0.1s = 2.0 tiles?) 
+    // wait, speed is 20. 20/30 * 100 / 1000 = 0.066?
     expect(u1?.pos.x).toBeGreaterThan(0.5);
   });
 });

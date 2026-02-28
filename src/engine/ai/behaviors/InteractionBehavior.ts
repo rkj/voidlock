@@ -126,13 +126,16 @@ export class InteractionBehavior implements Behavior<BehaviorContext & Objective
         currentUnit.archetypeId === "vip" && isAtExtraction;
 
       const isExplicitExtract =
-        currentUnit.activeCommand?.type === CommandType.EXTRACT;
+        currentUnit.activeCommand?.type === CommandType.EXTRACT ||
+        currentUnit.activeCommand?.label === "Extracting";
 
       const isLowHP = currentUnit.hp < currentUnit.maxHp * 0.25;
+      const isMapFullyDiscovered = state.discoveredCells.length >= context.totalFloorCells;
 
       if (
         isAtExtraction &&
-        (allObjectivesReady || isVipAtExtraction || isExplicitExtract || isLowHP || !currentUnit.aiEnabled)
+        ((allObjectivesReady && (isMapFullyDiscovered || !currentUnit.aiEnabled)) || 
+         isVipAtExtraction || isExplicitExtract || isLowHP)
       ) {
         const baseTime = ITEMS.BASE_EXTRACT_TIME;
         const duration =

@@ -42,7 +42,11 @@ describe("Collection Interruption Repro", () => {
     // Update once. It should see it's at objective and start channeling.
     engine.update(100);
 
-    const unitAfterFirstUpdate = engine.getState().units[0];
+    const fullState = engine.getState();
+    console.log('DEBUG: state.loot =', JSON.stringify(fullState.loot));
+    console.log('DEBUG: state.objectives =', JSON.stringify(fullState.objectives));
+
+    const unitAfterFirstUpdate = fullState.units[0];
 
     // If bug exists, unit might pick "Exploring" instead of "Collect"
     // Wait, the check for "Recover" objective is at the END of update.

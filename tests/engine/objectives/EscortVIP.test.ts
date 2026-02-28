@@ -67,6 +67,11 @@ describe("Escort VIP Mission", () => {
       engine.update(100);
     }
 
+    // Now extract the soldier too
+    const assault = (engine as any).state.units.find((u: any) => u.id.startsWith("assault-"));
+    assault.state = UnitState.Extracted;
+    engine.update(100);
+
     const state = engine.getState();
     const vipFinal = state.units.find((u) => u.id.startsWith("vip-"));
     expect(vipFinal!.state).toBe(UnitState.Extracted);
@@ -118,6 +123,14 @@ describe("Escort VIP Mission", () => {
     engine.update(100);
 
     const state = engine.getState();
-    expect(state.status).toBe("Lost");
+    // Per ADR 0032, mission ends only when everyone is off map. 
+    // Since VIP is still alive and on map, it should still be Playing.
+    expect(state.status).toBe("Playing");
+
+    // Now kill VIP to end mission
+    const vip = (engine as any).state.units.find((u: any) => u.id.startsWith("vip-"));
+    vip.hp = 0;
+    engine.update(100);
+    expect(engine.getState().status).toBe("Lost");
   });
 });

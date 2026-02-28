@@ -112,7 +112,7 @@ export class CombatManager {
       currentUnit.archetypeId !== "vip" &&
       targetEnemy &&
       !isExtracting &&
-      (policy === "ENGAGE" || isLockedInMelee || policy === "IGNORE" || policy === "AVOID")
+      (policy === "ENGAGE" || isLockedInMelee || policy === "AVOID" || policy === "IGNORE")
     ) {
       if (this.los.hasLineOfFire(currentUnit.pos, targetEnemy.pos)) {
         // We still let handleAttack mutate for now, but we update the attacker's state

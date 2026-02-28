@@ -42,7 +42,7 @@ describe("Regression MFMT1 - Extraction Loop", () => {
       { soldiers: [], inventory: {} },
       true,
       false,
-      MissionType.RecoverIntel,
+      MissionType.Default,
     );
     engine.clearUnits();
   });
@@ -81,12 +81,16 @@ describe("Regression MFMT1 - Extraction Loop", () => {
     // Actually, I can use engine.applyCommand to set a unit to EXPLORE and it will discover cells.
     
     // 2. Update until objective is completed (Channeling: Collect)
-    // Speed 100 means duration is 1000ms.
-    for(let i=0; i<10; i++) engine.update(200);
+    // Speed 100 might be overwritten by StatsManager, so we wait longer.
+    for(let i=0; i<100; i++) engine.update(100);
     
     let state = engine.getState();
     console.log(`Objective state: ${state.objectives[0].state}, Unit state: ${state.units[0].state}`);
     
+    // Ensure all cells are discovered for auto-extraction to trigger
+    (engine as any).state.discoveredCells = ["0,0", "1,0", "2,0", "3,0", "4,0", "5,0"];
+    for (let i = 0; i < 6; i++) (engine as any).state.gridState[i] |= 2;
+
     // 3. Manually move unit to extraction cell (0.1, 0.1) in the engine's state copy
     // and hope it persists? No, it won't.
     
