@@ -64,12 +64,8 @@ export class InputBinder {
     this.addListener("btn-menu-settings", "click", () =>
       callbacks.onSettingsMenu(),
     );
-    this.addListener("btn-menu-reset", "click", () => callbacks.onResetData());
 
     // Navigation Back
-    this.addListener("btn-campaign-back", "click", () =>
-      this.screenManager.goBack(),
-    );
     this.addListener("btn-setup-back", "click", () => callbacks.onSetupBack());
     this.addListener("btn-launch-mission", "click", () =>
       callbacks.onLaunchMission(),
@@ -137,11 +133,6 @@ export class InputBinder {
       if (sInput) sInput.disabled = isStatic;
     });
 
-    this.addListener("mission-type", "change", (e: Event) => {
-      const target = e.target as HTMLSelectElement;
-      callbacks.onMissionTypeChange(target.value as MissionType);
-    });
-
     // Toggles
     this.addToggleListener("toggle-fog-of-war", (checked) => {
       callbacks.onToggleFog(checked);
@@ -160,16 +151,6 @@ export class InputBinder {
     });
     this.addToggleListener("toggle-allow-tactical-pause", (checked) => {
       callbacks.onTogglePauseAllowed(checked);
-    });
-
-    const tsSlider = document.getElementById(
-      "time-scale-slider",
-    ) as HTMLInputElement;
-    const tsValue = document.getElementById("time-scale-value");
-    this.addListener(tsSlider, "input", () => {
-      const scale = TimeUtility.sliderToScale(parseFloat(tsSlider.value));
-      if (tsValue) tsValue.textContent = scale.toFixed(1);
-      this.gameClient.setTimeScale(scale);
     });
 
     // Static Map & Replay
@@ -192,10 +173,6 @@ export class InputBinder {
       ).value;
       callbacks.onConvertAscii(ascii);
     });
-
-    this.addListener("export-replay", "click", () =>
-      callbacks.onExportReplay(),
-    );
 
     this.addListener("import-replay", "change", (e: Event) => {
       const target = e.target as HTMLInputElement;
