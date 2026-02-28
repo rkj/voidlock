@@ -1,0 +1,25 @@
++-+-+-+-+-+-+-+-+-+-+-+-+
+|R R|R R|R R|RIR R|R R|R|
++   +   +=+=+-+   +=+-+=+
+|R RIR R|R|R R|R RIC|R R|
++-+-+=+-+-+   +-+-+ +   +
+|RIR RIR R|R R|R RIC|R R|
++-+   +   +-+=+   + +=+-+
+|R|R R|R R|R R|R R|CIR R|
++ +-+=+-+-+   +-+-+ +   +
+|RIR RIR RIR R|R R|C|R R|
++=+   +   +-+-+   + +-+=+
+|R|R R|R R|R R|R RIC|R R|
++-+=+-+-+-+-+=+-+-+ +-+-+
+|R R|R R|RIR R|R R|CIR R|
++   +   + +   +   + +   +
+|R R|R R|R|R R|R RIC|R R|
++-+=+=+-+-+-+=+-+-+ +-+-+
+|C C C C C C C C C C C C|
++-+=+=+-+=+-+-+-+-+ +-+-+
+|R R|R R|R R|RIR RICIR R|
++-+-+   +   +-+-+-+ +   +
+|R|R|R R|R RIR R|R|C|R R|
++ +=+=+-+-+-+   + + +=+-+
+|RIR RIR R|RIR RIR|C|R R|
++-+-+-+-+-+-+-+-+-+-+-+-+
