@@ -281,7 +281,12 @@ export class ConfigManager {
       debugSnapshotInterval: 0,
       manualDeployment: true,
       squadConfig: {
-        soldiers: [{ archetypeId: "assault" }, { archetypeId: "medic" }],
+        soldiers: [
+          { archetypeId: "assault" },
+          { archetypeId: "medic" },
+          { archetypeId: "scout" },
+          { archetypeId: "assault" },
+        ],
         inventory: { medkit: 1, frag_grenade: 2 },
       },
     };
