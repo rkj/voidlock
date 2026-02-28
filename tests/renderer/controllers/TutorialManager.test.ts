@@ -16,6 +16,7 @@ describe('TutorialManager', () => {
       removeStateUpdateListener: vi.fn((cb) => {
         listeners = listeners.filter(l => l !== cb);
       }),
+      queryState: vi.fn(),
       pause: vi.fn(),
     } as unknown as GameClient;
 
