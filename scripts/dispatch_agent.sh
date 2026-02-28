@@ -84,7 +84,7 @@ TERM=dumb gemini --yolo \
   --allowed-tools take_snapshot \
   --allowed-tools wait_for \
   --allowed-tools write_file \
-  --prompt "$PROMPT" > "$LOG_FILE" 2>&1
+  --prompt "$PROMPT" 2>&1 | tee "$LOG_FILE"
 
 EXIT_CODE=$?
 

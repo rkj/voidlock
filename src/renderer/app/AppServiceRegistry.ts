@@ -49,6 +49,7 @@ export interface AppServiceRegistryConfig {
   isDebriefVisible: () => boolean;
   getSelectedUnitId: () => string | null;
   getCellCoordinates: (px: number, py: number) => { x: number; y: number };
+  getWorldCoordinates: (px: number, py: number) => { x: number; y: number };
   cycleUnits: (reverse?: boolean) => void;
   panMap: (direction: string) => void;
   panMapBy: (dx: number, dy: number) => void;
@@ -195,6 +196,7 @@ export class AppServiceRegistry {
       config.onDeployUnit,
       config.onUndeployUnit,
       config.getCellCoordinates,
+      config.getWorldCoordinates,
       (reverse) => this.inputOrchestrator.cycleUnits(reverse),
       (direction) => this.inputOrchestrator.panMap(direction),
       (dx, dy) => this.inputOrchestrator.panMapBy(dx, dy),

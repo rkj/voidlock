@@ -111,6 +111,7 @@ export class GameApp {
       isDebriefVisible: () => this.debriefScreen.isVisible(),
       getSelectedUnitId: () => this.registry.missionRunner.getSelectedUnitId(),
       getCellCoordinates: (px, py) => this.renderer!.getCellCoordinates(px, py),
+      getWorldCoordinates: (px, py) => this.renderer!.getWorldCoordinates(px, py),
       cycleUnits: (reverse) => this.registry.inputOrchestrator.cycleUnits(reverse),
       panMap: (direction) => this.registry.inputOrchestrator.panMap(direction),
       panMapBy: (dx, dy) => this.registry.inputOrchestrator.panMapBy(dx, dy),
