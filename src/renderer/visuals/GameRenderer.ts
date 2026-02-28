@@ -137,4 +137,14 @@ export class GameRenderer {
     );
     return { x, y };
   }
+
+  public getWorldCoordinates(pixelX: number, pixelY: number): Vector2 {
+    const rect = this.canvas.getBoundingClientRect();
+    const scaleX = this.canvas.width / rect.width;
+    const scaleY = this.canvas.height / rect.height;
+
+    const x = ((pixelX - rect.left) * scaleX) / this.sharedState.cellSize;
+    const y = ((pixelY - rect.top) * scaleY) / this.sharedState.cellSize;
+    return { x, y };
+  }
 }

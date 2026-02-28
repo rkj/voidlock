@@ -17,6 +17,7 @@ export class InputManager implements InputContext {
 
   private draggingUnitId: string | null = null;
   private isDragging: boolean = false;
+  private dragGhost: HTMLElement | null = null;
 
   // Touch state
   private lastTouchPos: { x: number; y: number } | null = null;
@@ -49,6 +50,10 @@ export class InputManager implements InputContext {
     ) => void,
     private onUndeployUnit: (unitId: string) => void,
     private getCellCoordinates: (
+      pixelX: number,
+      pixelY: number,
+    ) => { x: number; y: number },
+    private getWorldCoordinates: (
       pixelX: number,
       pixelY: number,
     ) => { x: number; y: number },
@@ -239,13 +244,29 @@ export class InputManager implements InputContext {
     if (!state || state.status !== "Deployment") return false;
 
     const cell = this.getCellCoordinates(e.clientX, e.clientY);
-    const unit = state.units.find(
-      (u) => MathUtils.sameCellPosition(u.pos, cell) && u.isDeployed !== false,
+    const worldPos = this.getWorldCoordinates(e.clientX, e.clientY);
+
+    // Find all units in the cell and pick the closest one to the click (respecting jitter)
+    const unitsInCell = state.units.filter(
+      (u) => MathUtils.sameCellPosition(u.pos, cell) && u.isDeployed !== false && u.archetypeId !== "vip"
     );
 
-    if (unit && unit.archetypeId !== "vip") {
+    if (unitsInCell.length > 0) {
+      let unit = unitsInCell[0];
+      let minDist = MathUtils.getDistance(worldPos, unit.pos);
+
+      for (let i = 1; i < unitsInCell.length; i++) {
+        const d = MathUtils.getDistance(worldPos, unitsInCell[i].pos);
+        if (d < minDist) {
+          minDist = d;
+          unit = unitsInCell[i];
+        }
+      }
+
       this.draggingUnitId = unit.id;
       this.isDragging = false;
+      this.createDragGhost(unit.id);
+      this.updateDragGhost(e.clientX, e.clientY);
       const canvas = document.getElementById("game-canvas");
       if (canvas) canvas.style.cursor = "grabbing";
       return true;
@@ -258,6 +279,7 @@ export class InputManager implements InputContext {
 
     if (this.draggingUnitId) {
       this.isDragging = true;
+      this.updateDragGhost(e.clientX, e.clientY);
       return true;
     }
 
@@ -266,13 +288,32 @@ export class InputManager implements InputContext {
       const state = this.currentGameState();
       if (state && state.status === "Deployment") {
         const cell = this.getCellCoordinates(e.clientX, e.clientY);
-        const unit = state.units.find(
+        const worldPos = this.getWorldCoordinates(e.clientX, e.clientY);
+
+        // Find all units in the cell and check if any is close enough to be "grabbed"
+        const unitsInCell = state.units.filter(
           (u) =>
-            MathUtils.sameCellPosition(u.pos, cell) && u.isDeployed !== false,
+            MathUtils.sameCellPosition(u.pos, cell) && u.isDeployed !== false && u.archetypeId !== "vip",
         );
+
+        let unit = null;
+        if (unitsInCell.length > 0) {
+          unit = unitsInCell[0];
+          let minDist = MathUtils.getDistance(worldPos, unit.pos);
+
+          for (let i = 1; i < unitsInCell.length; i++) {
+            const d = MathUtils.getDistance(worldPos, unitsInCell[i].pos);
+            if (d < minDist) {
+              minDist = d;
+              unit = unitsInCell[i];
+            }
+          }
+        }
+
         const canvas = document.getElementById("game-canvas");
         if (canvas) {
-          if (unit && unit.archetypeId !== "vip") {
+          // If we are close to a unit center (within 0.3 cells), show grab cursor
+          if (unit && MathUtils.getDistance(worldPos, unit.pos) < 0.3) {
             canvas.style.cursor = "grab";
           } else {
             canvas.style.cursor = "default";
@@ -287,6 +328,7 @@ export class InputManager implements InputContext {
     if (this.isDebriefing()) return false;
 
     if (this.draggingUnitId) {
+      this.removeDragGhost();
       const cell = this.getCellCoordinates(e.clientX, e.clientY);
       const state = this.currentGameState();
 
@@ -354,13 +396,31 @@ export class InputManager implements InputContext {
       const state = this.currentGameState();
       if (state && state.status === "Deployment") {
         const cell = this.getCellCoordinates(touch.clientX, touch.clientY);
-        const unit = state.units.find(
-          (u) =>
-            MathUtils.sameCellPosition(u.pos, cell) && u.isDeployed !== false,
+        const worldPos = this.getWorldCoordinates(touch.clientX, touch.clientY);
+
+        // Find all units in the cell and pick the closest one to the touch (respecting jitter)
+        const unitsInCell = state.units.filter(
+          (u) => MathUtils.sameCellPosition(u.pos, cell) && u.isDeployed !== false && u.archetypeId !== "vip"
         );
-        if (unit && unit.archetypeId !== "vip") {
-          this.draggingUnitId = unit.id;
-          this.isDragging = false;
+
+        if (unitsInCell.length > 0) {
+          let unit = unitsInCell[0];
+          let minDist = MathUtils.getDistance(worldPos, unit.pos);
+
+          for (let i = 1; i < unitsInCell.length; i++) {
+            const d = MathUtils.getDistance(worldPos, unitsInCell[i].pos);
+            if (d < minDist) {
+              minDist = d;
+              unit = unitsInCell[i];
+            }
+          }
+
+          if (minDist < 0.5) { // Ensure touch is relatively close to a unit center
+            this.draggingUnitId = unit.id;
+            this.isDragging = false;
+            this.createDragGhost(unit.id);
+            this.updateDragGhost(touch.clientX, touch.clientY);
+          }
         }
       }
     } else if (e.touches.length === 2) {
@@ -385,6 +445,7 @@ export class InputManager implements InputContext {
 
       if (this.draggingUnitId) {
         this.isDragging = true;
+        this.updateDragGhost(touch.clientX, touch.clientY);
       } else {
         this.panMapBy(dx, dy);
       }
@@ -420,6 +481,7 @@ export class InputManager implements InputContext {
     const wasHandling = !!(this.lastTouchPos || this.lastTouchDistance || this.touchStartTime);
 
     if (this.draggingUnitId) {
+      this.removeDragGhost();
       const touch = e.changedTouches[0];
       const cell = this.getCellCoordinates(touch.clientX, touch.clientY);
       const state = this.currentGameState();
@@ -506,5 +568,47 @@ export class InputManager implements InputContext {
       x: (touches[0].clientX + touches[1].clientX) / 2,
       y: (touches[0].clientY + touches[1].clientY) / 2,
     };
+  }
+
+  private createDragGhost(unitId: string) {
+    const state = this.currentGameState();
+    const unit = state?.units.find((u) => u.id === unitId);
+    if (!unit) return;
+
+    if (this.dragGhost) this.removeDragGhost();
+
+    this.dragGhost = document.createElement("div");
+    this.dragGhost.className = "deployment-drag-ghost";
+    this.dragGhost.style.position = "fixed";
+    this.dragGhost.style.pointerEvents = "none";
+    this.dragGhost.style.zIndex = "9999";
+    this.dragGhost.style.width = "40px";
+    this.dragGhost.style.height = "40px";
+    this.dragGhost.style.borderRadius = "50%";
+    this.dragGhost.style.background = "rgba(46, 204, 113, 0.5)";
+    this.dragGhost.style.border = "2px solid #2ecc71";
+    this.dragGhost.style.display = "flex";
+    this.dragGhost.style.alignItems = "center";
+    this.dragGhost.style.justifyContent = "center";
+    this.dragGhost.style.color = "white";
+    this.dragGhost.style.fontWeight = "bold";
+    this.dragGhost.style.fontFamily = "sans-serif";
+    this.dragGhost.textContent = (unit.tacticalNumber || "").toString();
+
+    document.body.appendChild(this.dragGhost);
+  }
+
+  private updateDragGhost(clientX: number, clientY: number) {
+    if (this.dragGhost) {
+      this.dragGhost.style.left = `${clientX - 20}px`;
+      this.dragGhost.style.top = `${clientY - 20}px`;
+    }
+  }
+
+  private removeDragGhost() {
+    if (this.dragGhost) {
+      this.dragGhost.remove();
+      this.dragGhost = null;
+    }
   }
 }
