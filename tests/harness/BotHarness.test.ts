@@ -6,6 +6,7 @@ vi.mock("@src/engine/GameClient", () => {
     GameClient: vi.fn().mockImplementation((_mapGeneratorFactory: any) => ({
       // Add _mapGeneratorFactory to constructor
       onStateUpdate: vi.fn(),
+  queryState: vi.fn(),
       applyCommand: vi.fn(),
     })),
   };

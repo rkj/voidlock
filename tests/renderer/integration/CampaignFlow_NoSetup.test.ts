@@ -13,6 +13,7 @@ vi.mock("@package.json", () => ({
 const mockGameClient = {
   init: vi.fn(),
   onStateUpdate: vi.fn(),
+  queryState: vi.fn(),
   addStateUpdateListener: vi.fn(),
   removeStateUpdateListener: vi.fn(),
   stop: vi.fn(),
@@ -36,6 +37,7 @@ vi.mock("@src/engine/GameClient", () => ({
 vi.mock("@src/renderer/Renderer", () => ({
   Renderer: vi.fn().mockImplementation(() => ({
     render: vi.fn(),
+      destroy: vi.fn(),
     setCellSize: vi.fn(),
     setUnitStyle: vi.fn(),
     setOverlay: vi.fn(),

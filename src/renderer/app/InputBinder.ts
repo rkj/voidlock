@@ -1,6 +1,5 @@
 import { TimeUtility } from "@src/renderer/TimeUtility";
 import { MapGeneratorType, MissionType } from "@src/shared/types";
-import { ScreenManager } from "../ScreenManager";
 import { GameClient } from "@src/engine/GameClient";
 
 /**
@@ -14,7 +13,6 @@ export class InputBinder {
   > = new Map();
 
   constructor(
-    private screenManager: ScreenManager,
     private gameClient: GameClient,
   ) {}
 

@@ -22,6 +22,7 @@ let stateUpdateCallback: ((state: GameState) => void) | null = null;
 
 const mockGameClient = {
   init: vi.fn(),
+  queryState: vi.fn(),
   onStateUpdate: vi.fn((cb) => {
     stateUpdateCallback = cb;
   }),
@@ -48,6 +49,7 @@ vi.mock("@src/engine/GameClient", () => ({
 vi.mock("@src/renderer/Renderer", () => ({
   Renderer: vi.fn().mockImplementation(() => ({
     render: vi.fn(),
+      destroy: vi.fn(),
     setCellSize: vi.fn(),
     setUnitStyle: vi.fn(),
     setOverlay: vi.fn(),

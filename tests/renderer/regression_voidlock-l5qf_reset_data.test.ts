@@ -11,6 +11,7 @@ vi.mock("../../package.json", () => ({
 vi.mock("@src/engine/GameClient", () => ({
   GameClient: vi.fn().mockImplementation(() => ({
     onStateUpdate: vi.fn(),
+  queryState: vi.fn(),
     addStateUpdateListener: vi.fn(),
     removeStateUpdateListener: vi.fn(),
     init: vi.fn(),
@@ -23,7 +24,9 @@ vi.mock("@src/engine/GameClient", () => ({
 }));
 
 vi.mock("@src/renderer/Renderer", () => ({
-  Renderer: vi.fn().mockImplementation(() => ({})),
+  Renderer: vi.fn().mockImplementation(() => ({
+    destroy: vi.fn(),
+  })),
 }));
 
 vi.mock("@src/renderer/ThemeManager", () => ({
