@@ -201,8 +201,16 @@ export class CampaignShell {
       const tabs: { id: CampaignTabId; label: string }[] = [];
 
       if (this.mode === "campaign" && state) {
+        const currentNode = state.currentNodeId
+          ? state.nodes.find((n) => n.id === state.currentNodeId)
+          : null;
+        const isShop = currentNode?.type === "Shop";
+
         tabs.push({ id: "sector-map", label: "Sector Map" });
-        tabs.push({ id: "ready-room", label: "Ready Room" });
+        tabs.push({
+          id: "ready-room",
+          label: isShop ? "Supply Depot" : "Ready Room",
+        });
         tabs.push({ id: "engineering", label: "Engineering" });
         tabs.push({ id: "stats", label: "Service Record" });
         tabs.push({ id: "settings", label: "Settings" });

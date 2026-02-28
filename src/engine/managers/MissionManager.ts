@@ -39,7 +39,7 @@ export class MissionManager {
     const isRecoverMission =
       missionType === MissionType.ExtractArtifacts ||
       missionType === MissionType.RecoverIntel ||
-      missionType === MissionType.Default ||
+      (missionType === MissionType.Default && !nodeType) ||
       missionType === MissionType.Prologue ||
       nodeType === "Boss" ||
       nodeType === "Elite";

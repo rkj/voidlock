@@ -296,7 +296,7 @@ export class EquipmentScreen {
     footer.style.backgroundColor = "var(--color-surface-elevated)";
 
     const backBtn = document.createElement("button");
-    backBtn.textContent = "Back";
+    backBtn.textContent = this.isShop ? "Leave Shop" : "Back";
     backBtn.className = "back-button";
     backBtn.setAttribute("data-focus-id", "btn-back");
     backBtn.style.margin = "0";
