@@ -66,11 +66,11 @@ describe("HUDManager", () => {
 
   beforeEach(() => {
     document.body.innerHTML = `
-      <div id="game-status"></div>
+      <div id="game-status">Time: <span class="time-value" data-bind-text="t" data-bind-transform="toSeconds">0.0</span>s</div>
       <div id="version-display"></div>
       <div id="menu-version"></div>
-      <div id="top-threat-fill"></div>
-      <div id="top-threat-value"></div>
+      <div id="top-threat-fill" data-bind-style-width="stats.threatLevel" data-bind-class="stats.threatLevel|threatFillClass"></div>
+      <div id="top-threat-value" data-bind-text="stats.threatLevel|threatPercent" data-bind-class="stats.threatLevel|threatValueClass"></div>
       <div id="right-panel"></div>
       <div id="soldier-list"></div>
     `;
@@ -106,8 +106,7 @@ describe("HUDManager", () => {
     hud.update(mockState, null);
 
     const statusEl = document.getElementById("game-status");
-    expect(statusEl?.innerHTML).toContain("Time</span>");
-    expect(statusEl?.innerHTML).toContain("1.0</span>s");
+    expect(statusEl?.textContent).toContain("Time: 1.0s");
     expect(statusEl?.innerHTML).not.toContain("STATUS:");
 
     const threatValue = document.getElementById("top-threat-value");

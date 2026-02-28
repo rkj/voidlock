@@ -132,7 +132,9 @@ describe("CampaignScreen", () => {
       `.campaign-node[data-id="${state.currentNodeId}"]`,
     ) as HTMLElement;
     expect(currentNode).not.toBeNull();
-    expect(currentNode.innerHTML).toContain("▼"); // Using downward triangle as indicator
+    // Indicator is now an SVG triangle
+    expect(currentNode.innerHTML).toContain("<svg");
+    expect(currentNode.innerHTML).toContain("M12 21l-12-18h24z");
   });
 
   it("should render its own back button in wizard footer", () => {

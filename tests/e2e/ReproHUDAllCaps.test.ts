@@ -56,10 +56,10 @@ describe("Reproduction: HUD All-caps labels (voidlock-8ai79)", () => {
     await page.waitForSelector(".soldier-widget-roster.clickable", { visible: true });
     await page.click(".soldier-widget-roster.clickable");
     
-    // Confirm Squad
-    const confirmBtn = await page.waitForSelector("::-p-text(Confirm Squad)");
-    if (!confirmBtn) throw new Error("Confirm Squad button not found");
-    await confirmBtn.click();
+    // Back to Mission Setup
+    const backBtn = await page.waitForSelector('[data-focus-id="btn-back"]');
+    if (!backBtn) throw new Error("Back button not found");
+    await backBtn.click();
 
     // Launch Mission (Deployment Phase)
     await page.waitForSelector("#btn-launch-mission", { visible: true });
