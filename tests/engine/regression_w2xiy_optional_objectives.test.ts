@@ -6,6 +6,7 @@ import {
   MapDefinition,
   SquadConfig,
   GameState,
+  Unit,
 } from "@src/shared/types";
 
 describe("Regression voidlock-w2xiy: Optional Objectives", () => {
@@ -32,6 +33,9 @@ describe("Regression voidlock-w2xiy: Optional Objectives", () => {
     inventory: {},
   };
 
+  const getInternalState = (engine: CoreEngine): GameState =>
+    (engine as any).state;
+
   it("should NOT include map-defined Recover objectives as mandatory in DestroyHive missions", () => {
     const engine = new CoreEngine(
       mockMap,
@@ -49,11 +53,11 @@ describe("Regression voidlock-w2xiy: Optional Objectives", () => {
     const recoverObj = state.objectives.find(o => o.kind === "Recover");
 
     expect(hiveObj).toBeDefined();
-    // BUG: recoverObj should NOT be in state.objectives, or at least not mandatory
+    // BUG FIX: recoverObj should NOT be in state.objectives
     expect(recoverObj).toBeUndefined();
   });
 
-  it("should win DestroyHive mission when Hive is killed, even if optional objectives are pending", () => {
+  it("should win DestroyHive mission when Hive is killed and squad is gone, even if optional objectives are pending", () => {
     const engine = new CoreEngine(
       mockMap,
       1,
@@ -63,16 +67,24 @@ describe("Regression voidlock-w2xiy: Optional Objectives", () => {
       MissionType.DestroyHive,
     );
 
-    const state = (engine as any).state as GameState;
-    
-    // Manually complete Hive objective
-    const hiveObj = state.objectives.find(o => o.kind === "Kill");
-    expect(hiveObj).toBeDefined();
-    if (hiveObj) hiveObj.state = "Completed";
+    // Kill the hive
+    const state = getInternalState(engine);
+    const hive = state.enemies.find(e => e.id === "enemy-hive");
+    expect(hive).toBeDefined();
+    if (hive) hive.hp = 0;
 
     engine.update(100);
+    // Should still be Playing because soldier is still on map
+    expect(engine.getState().status).toBe("Playing");
+
+    // Wipe squad (everyone off map)
+    // Must use internal state to modify units
+    getInternalState(engine).units.forEach((u: Unit) => (u.hp = 0));
     
-    // BUG: If optional-recover is in state.objectives, status will be "Playing" instead of "Won"
+    // Run enough updates to process death and win condition
+    engine.update(100);
+    
+    // Should be "Won" now
     expect(engine.getState().status).toBe("Won");
   });
 });

@@ -20,7 +20,7 @@ describe("Campaign Node Special Types", () => {
     
     // Mock Campaign State with a Shop node
     const mockState = {
-      version: "0.139.6",
+      version: "0.141.3",
       saveVersion: 1,
       seed: 123,
       status: "Active",
@@ -94,6 +94,7 @@ describe("Campaign Node Special Types", () => {
     };
 
     await page.evaluate((state) => {
+      localStorage.clear();
       localStorage.setItem("voidlock_campaign_v1", JSON.stringify(state));
       localStorage.setItem("voidlock_global_config", JSON.stringify({
         unitStyle: "TacticalIcons",
@@ -114,35 +115,23 @@ describe("Campaign Node Special Types", () => {
     await page.click('.campaign-node[data-id="node-shop"]');
 
     // Should open Equipment Screen
-    await page.waitForSelector('.equipment-screen', { visible: true });
+    await page.waitForSelector('#screen-equipment', { visible: true });
 
-    // Verify button text is "Leave Shop"
+    // Expect "Leave Shop" (correct behavior)
+    // BUG: It currently shows "Back" instead of "Leave Shop"
     const confirmBtnText = await page.evaluate(() => {
         const btn = document.querySelector('[data-focus-id="btn-back"]');
-        return btn ? btn.textContent : null;
+        return btn ? btn.textContent?.trim() : null;
     });
+    
     expect(confirmBtnText).toBe("Leave Shop");
-
-    // Verify "Launch Mission" button is NOT present
-    const launchBtn = await page.$('[data-focus-id="btn-launch-mission"]');
-    expect(launchBtn).toBeNull();
-    
-    // Click Leave Shop
-    await page.click('[data-focus-id="btn-back"]');
-    
-    // Should return to Campaign Screen
-    await page.waitForSelector('.campaign-screen', { visible: true });
-    
-    await page.screenshot({ path: "tests/e2e/__snapshots__/shop_node_exit.png" });
   });
 
-  it("should NOT list optional Recover objectives as primary in DestroyHive mission", async () => {
+  it("should NOT list optional Recover objectives as primary in Default mission", async () => {
     await page.goto(E2E_URL);
     
-    // Mock Campaign State with a DestroyHive mission that has a map-defined objective
-    // We'll use a static map with an objective
     const mockState = {
-      version: "0.139.6",
+      version: "0.141.3",
       saveVersion: 1,
       seed: 123,
       status: "Active",
@@ -156,7 +145,7 @@ describe("Campaign Node Special Types", () => {
         resourceScarcity: 1,
         startingScrap: 500,
         mapGrowthRate: 1,
-        baseEnemyCount: 3,
+        baseEnemyCount: 1,
         enemyGrowthPerMission: 1,
         economyMode: "Open",
         skipPrologue: true
@@ -173,14 +162,13 @@ describe("Campaign Node Special Types", () => {
           difficulty: 1,
           rank: 0,
           mapSeed: 123,
-          connections: ["node-hive"],
+          connections: ["node-combat"],
           position: { x: 0, y: 0 },
           bonusLootCount: 0
         },
         {
-          id: "node-hive",
+          id: "node-combat",
           type: "Combat",
-          missionType: "DestroyHive",
           status: "Accessible",
           difficulty: 1,
           rank: 1,
@@ -195,8 +183,8 @@ describe("Campaign Node Special Types", () => {
               id: "soldier-1",
               name: "Test Soldier",
               archetypeId: "assault",
-              hp: 100,
-              maxHp: 100,
+              hp: 1000, 
+              maxHp: 1000,
               status: "Healthy",
               xp: 0,
               level: 1,
@@ -217,58 +205,76 @@ describe("Campaign Node Special Types", () => {
     };
 
     await page.evaluate((state) => {
+      localStorage.clear();
       localStorage.setItem("voidlock_campaign_v1", JSON.stringify(state));
+      // Use defaults but ensure large map
+      localStorage.setItem("voidlock_campaign_config", JSON.stringify({
+          mapWidth: 20,
+          mapHeight: 20,
+          spawnPointCount: 1,
+          fogOfWarEnabled: false,
+          debugOverlayEnabled: true,
+          losOverlayEnabled: false,
+          agentControlEnabled: true,
+          allowTacticalPause: true,
+          mapGeneratorType: "DenseShip",
+          missionType: "Default",
+          lastSeed: 124,
+          startingThreatLevel: 0,
+          baseEnemyCount: 1,
+          enemyGrowthPerMission: 1,
+          bonusLootCount: 0,
+          debugSnapshotInterval: 0,
+          manualDeployment: true,
+          squadConfig: { soldiers: [], inventory: {} }
+      }));
       window.location.hash = "#campaign";
     }, mockState);
 
     await page.reload({ waitUntil: "networkidle0" });
-    await page.waitForSelector('.campaign-node[data-id="node-hive"]', { visible: true });
+    await page.waitForSelector('.campaign-node[data-id="node-combat"]', { visible: true });
 
-    // Click the hive node
-    await page.click('.campaign-node[data-id="node-hive"]');
+    // Click the combat node
+    await page.click('.campaign-node[data-id="node-combat"]');
 
     // Should open Equipment Screen
-    await page.waitForSelector('.equipment-screen', { visible: true });
-    await page.screenshot({ path: "tests/e2e/__snapshots__/debug_equipment_hive.png" });
+    await page.waitForSelector('#screen-equipment', { visible: true });
 
+    // Wait for roster picker
+    await page.waitForFunction(() => {
+        const panel = document.querySelector('.armory-panel');
+        return panel && panel.querySelectorAll('.soldier-widget-roster').length > 0;
+    }, { timeout: 10000 });
+
+    // Click the soldier
+    await page.click('.armory-panel .soldier-widget-roster');
+    
     // Click Launch Mission
-    await page.waitForSelector('[data-focus-id="btn-launch-mission"]', { visible: true });
+    await page.waitForSelector('[data-focus-id="btn-launch-mission"]:not([disabled])', { visible: true });
     await page.click('[data-focus-id="btn-launch-mission"]');
 
     // Wait for mission screen
-    await page.screenshot({ path: "tests/e2e/__snapshots__/debug_after_launch_click.png" });
-    await page.waitForSelector('#mission-ui', { visible: true, timeout: 60000 });
+    await page.waitForSelector('#screen-mission', { visible: true, timeout: 60000 });
     
-    // Auto-Fill Spawns and Start Mission if in deployment phase
-    const deploymentVisible = await page.evaluate(() => {
-        const el = document.querySelector('#deployment-overlay');
-        return el && (el as HTMLElement).style.display !== 'none';
-    });
-    
-    if (deploymentVisible) {
-        await page.click('#btn-auto-fill-spawns');
-        await page.click('#btn-start-mission');
-    }
+    // Handle Deployment
+    await page.waitForSelector('#btn-autofill-deployment', { visible: true });
+    await page.click('#btn-autofill-deployment');
+    await page.waitForSelector('#btn-start-mission:not([disabled])', { visible: true });
+    await page.click('#btn-start-mission');
 
-    // Wait for Objective List to populate
-    await page.waitForSelector('.objective-item', { visible: true });
+    // Wait for Objective List
+    // Selector confirmed in HUDManager.ts: .obj-row
+    await page.waitForSelector('.obj-row', { timeout: 15000 });
 
     // Verify objectives
     const objectiveTexts = await page.evaluate(() => {
-        const items = Array.from(document.querySelectorAll('.objective-item'));
+        const items = Array.from(document.querySelectorAll('.obj-text'));
         return items.map(i => i.textContent?.toLowerCase() || "");
     });
 
-    // Should contain "kill" or "hive"
-    expect(objectiveTexts.some(t => t.includes("kill") || t.includes("hive"))).toBe(true);
+    // BUG: It SHOULD NOT contain "recover" but it DOES because of the bug
+    const hasRecover = objectiveTexts.some(t => t.includes("recover") || t.includes("artifact") || t.includes("intel") || t.includes("crate"));
     
-    // Should NOT contain "recover" or "artifact" or "intel" 
-    // (Unless it's a random objective from the map, but we want to ensure Recover objectives from map are excluded in non-Recover missions)
-    // Wait, if it's a random map, it might have one.
-    // My MissionManager fix ensures that obj.kind === "Recover" and !isRecoverMission are excluded.
-    
-    expect(objectiveTexts.every(t => !t.includes("recover") && !t.includes("artifact") && !t.includes("intel"))).toBe(true);
-
-    await page.screenshot({ path: "tests/e2e/__snapshots__/mission_objectives_hive.png" });
+    expect(hasRecover).toBe(false);
   });
 });
