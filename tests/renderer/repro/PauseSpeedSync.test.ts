@@ -150,6 +150,36 @@ describe("Pause and Speed Synchronization Repro", () => {
     expect(speedSlider.value).toBe(TimeUtility.scaleToSlider(2.0).toString());
   });
 
+  it("Reproduction: Speed slider should reflect targetTimeScale even when paused", () => {
+    const hudManager = new HUDManager(
+      null as any, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}
+    );
+
+    const speedSlider = document.getElementById("game-speed") as HTMLInputElement;
+    speedSlider.value = "50"; // Default
+
+    const statePausedWithHighTarget: GameState = {
+      t: 100,
+      status: "Playing",
+      missionType: MissionType.Default,
+      stats: { threatLevel: 0, aliensKilled: 0, elitesKilled: 0, scrapGained: 0, casualties: 0 },
+      settings: { 
+        isPaused: true, 
+        timeScale: 0.1, // Active Pause
+        targetTimeScale: 2.0, 
+        allowTacticalPause: true 
+      },
+      units: [], enemies: [], visibleCells: [], discoveredCells: [], objectives: [], squadInventory: {}, loot: [], mines: [], turrets: [], map: { width: 10, height: 10, cells: [] }
+    } as any;
+
+    // 1. Mission is paused but target speed is 2.0x.
+    hudManager.update(statePausedWithHighTarget, null);
+
+    // 2. EXPECTATION: Slider should move to reflect 2.0x (target), NOT 0.1x (current effective).
+    // This will currently FAIL if HUDManager uses timeScale for slider sync.
+    expect(speedSlider.value).toBe(TimeUtility.scaleToSlider(2.0).toString());
+  });
+
   it("Reproduction: Progressive UI Visibility (Deployment, Prologue, Hostile Contact)", () => {
     const hudManager = new HUDManager(
       null as any, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}

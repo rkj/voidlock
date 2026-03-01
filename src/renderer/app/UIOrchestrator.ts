@@ -2,6 +2,7 @@ import { GameClient } from "@src/engine/GameClient";
 import { ModalService } from "../ui/ModalService";
 import { Logger } from "@src/shared/Logger";
 import { GameState } from "@src/shared/types";
+import { TimeUtility } from "@src/renderer/TimeUtility";
 
 export interface UIOrchestratorDependencies {
   gameClient: GameClient;
@@ -95,12 +96,23 @@ export class UIOrchestrator {
     if (onSync) onSync();
   }
 
-  public setupAdditionalUIBindings(_callbacks: {
+  public setupAdditionalUIBindings(callbacks: {
     onAbortMission: () => void;
     onRetryMission: () => void;
     onForceWin: () => void;
     onForceLose: () => void;
+    onTimeScaleChange?: (scale: number) => void;
   }) {
+    const gameSpeedSlider = document.getElementById("game-speed") as HTMLInputElement;
+    if (gameSpeedSlider) {
+      gameSpeedSlider.addEventListener("input", () => {
+        const val = parseFloat(gameSpeedSlider.value);
+        const scale = TimeUtility.sliderToScale(val);
+        this.deps.gameClient.setTimeScale(scale);
+        if (callbacks.onTimeScaleChange) callbacks.onTimeScaleChange(scale);
+      });
+    }
+
     // This method is now mostly legacy as InputBinder handles most global events (ADR 0047).
     // It remains for any dynamic or specific tactical UI elements not covered by InputBinder.
   }

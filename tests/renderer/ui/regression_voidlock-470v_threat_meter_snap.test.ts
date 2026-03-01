@@ -10,7 +10,7 @@ describe("HUDManager Threat Meter Snap Regression", () => {
   beforeEach(() => {
     document.body.innerHTML = `
       <div id="game-status"></div>
-      <div id="top-threat-fill" class="threat-fill"></div>
+      <div id="top-threat-fill" class="threat-fill" data-bind-style-width="stats.threatLevel"></div>
       <div id="top-threat-value"></div>
       <input type="range" id="game-speed">
       <div id="speed-value"></div>
