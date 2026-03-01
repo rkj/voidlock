@@ -28,6 +28,7 @@ export class EquipmentScreen {
   private inspector: SoldierInspector;
   private isShop: boolean = false;
   private isCampaign: boolean = false;
+  private isPrologue: boolean = false;
   private hasNodeSelected: boolean = false;
   private savedScrollTop: { left: number; center: number; right: number } = {
     left: 0,
@@ -115,6 +116,10 @@ export class EquipmentScreen {
   public setCampaign(isCampaign: boolean) {
     this.isCampaign = isCampaign;
     this.inspector.setCampaign(isCampaign);
+  }
+
+  public setPrologue(isPrologue: boolean) {
+    this.isPrologue = isPrologue;
   }
 
   public setHasNodeSelected(hasNodeSelected: boolean) {
@@ -307,7 +312,9 @@ export class EquipmentScreen {
     backBtn.style.alignItems = "center";
     backBtn.onclick = () => this.onBack(this.config);
 
-    footer.appendChild(backBtn);
+    if (!this.isPrologue) {
+      footer.appendChild(backBtn);
+    }
 
     // Launch Mission Button (Campaign flow only)
     if (this.isCampaign && this.hasNodeSelected && !this.isShop && this.onLaunch) {

@@ -26,6 +26,7 @@ export class CampaignShell {
   private onTabChange: (tabId: CampaignTabId) => void;
   private onMenu: () => void;
   private activeTabId: CampaignTabId = "sector-map";
+  private activeMissionType: string | null = null;
   private mode: CampaignShellMode = "none";
   private showTabs: boolean = true;
   private changeListener: () => void;
@@ -53,11 +54,13 @@ export class CampaignShell {
     mode: CampaignShellMode,
     activeTabId: CampaignTabId = "sector-map",
     showTabs: boolean = true,
+    missionType: string | null = null,
   ) {
-    console.log(`[CampaignShell] show: mode=${mode}, tab=${activeTabId}`);
+    console.log(`[CampaignShell] show: mode=${mode}, tab=${activeTabId}, missionType=${missionType}`);
     this.mode = mode;
     this.activeTabId = activeTabId;
     this.showTabs = showTabs;
+    this.activeMissionType = missionType;
     this.container.style.display = "flex";
     this.render();
     this.pushInputContext();
@@ -66,6 +69,7 @@ export class CampaignShell {
   public hide() {
     console.log(`[CampaignShell] hide`);
     this.mode = "none";
+    this.activeMissionType = null;
     this.container.style.display = "none";
     InputDispatcher.getInstance().popContext("campaign-shell");
   }
@@ -205,15 +209,25 @@ export class CampaignShell {
           ? state.nodes.find((n) => n.id === state.currentNodeId)
           : null;
         const isShop = currentNode?.type === "Shop";
+        const isPrologue =
+          this.activeMissionType === "Prologue" ||
+          currentNode?.missionType === "Prologue";
 
-        tabs.push({ id: "sector-map", label: "Sector Map" });
-        tabs.push({
-          id: "ready-room",
-          label: isShop ? "Supply Depot" : "Ready Room",
-        });
-        tabs.push({ id: "engineering", label: "Engineering" });
-        tabs.push({ id: "stats", label: "Service Record" });
-        tabs.push({ id: "settings", label: "Settings" });
+        if (isPrologue) {
+          tabs.push({
+            id: "ready-room",
+            label: "Ready Room",
+          });
+        } else {
+          tabs.push({ id: "sector-map", label: "Sector Map" });
+          tabs.push({
+            id: "ready-room",
+            label: isShop ? "Supply Depot" : "Ready Room",
+          });
+          tabs.push({ id: "engineering", label: "Engineering" });
+          tabs.push({ id: "stats", label: "Service Record" });
+          tabs.push({ id: "settings", label: "Settings" });
+        }
       } else if (this.mode === "statistics") {
         tabs.push({ id: "stats", label: "Service Record" });
         tabs.push({ id: "engineering", label: "Engineering" });

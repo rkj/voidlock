@@ -178,7 +178,12 @@ export class NavigationOrchestrator {
         break;
     }
 
-    this.campaignShell.show(mode, actualTabId);
+    this.campaignShell.show(
+      mode,
+      actualTabId,
+      true,
+      hasCampaign ? this.missionSetupManager.currentMissionType : null,
+    );
   }
 
   public handleExternalScreenChange(
@@ -196,7 +201,12 @@ export class NavigationOrchestrator {
           this.switchScreen("campaign-summary", true, true, state);
         } else {
           this.switchScreen("campaign", true);
-          this.campaignShell.show("campaign", "sector-map");
+          this.campaignShell.show(
+            "campaign",
+            "sector-map",
+            true,
+            this.missionSetupManager.currentMissionType,
+          );
         }
         break;
       }
@@ -247,13 +257,26 @@ export class NavigationOrchestrator {
         ) {
           this.campaignShell.show("custom", "stats");
         } else {
-          this.campaignShell.show("statistics", "stats");
+          this.campaignShell.show(
+            "statistics",
+            "stats",
+            true,
+            this.missionSetupManager.currentMissionType,
+          );
         }
         break;
       case "engineering":
-        this.switchScreen("engineering", isCampaign || !!this.campaignManager.getState());
+        this.switchScreen(
+          "engineering",
+          isCampaign || !!this.campaignManager.getState(),
+        );
         if (isCampaign || this.campaignManager.getState()) {
-          this.campaignShell.show("campaign", "engineering");
+          this.campaignShell.show(
+            "campaign",
+            "engineering",
+            true,
+            this.missionSetupManager.currentMissionType,
+          );
         } else {
           this.campaignShell.show("statistics", "engineering");
         }
@@ -264,7 +287,12 @@ export class NavigationOrchestrator {
           !isCampaign && this.missionSetupManager.currentCampaignNode === null;
         this.switchScreen("settings", isCampaign || !!state || isCustomFlow);
         if (state) {
-          this.campaignShell.show("campaign", "settings");
+          this.campaignShell.show(
+            "campaign",
+            "settings",
+            true,
+            this.missionSetupManager.currentMissionType,
+          );
         } else if (isCustomFlow) {
           this.campaignShell.show("custom", "settings");
         } else {
@@ -288,6 +316,11 @@ export class NavigationOrchestrator {
     this.screens.equipment.setCampaign(isCampaign);
 
     const node = this.missionSetupManager.currentCampaignNode;
+    const isPrologue =
+      node?.missionType === MissionType.Prologue ||
+      this.missionSetupManager.currentMissionType === MissionType.Prologue;
+    this.screens.equipment.setPrologue(isPrologue);
+
     const isShop = node?.type === "Shop";
     this.screens.equipment.setShop(isShop);
     this.screens.equipment.setHasNodeSelected(!!node);
@@ -296,7 +329,12 @@ export class NavigationOrchestrator {
     this.switchScreen("equipment", isCampaign);
 
     if (isCampaign) {
-      this.campaignShell.show("campaign", "ready-room", true);
+      this.campaignShell.show(
+        "campaign",
+        "ready-room",
+        true,
+        isPrologue ? MissionType.Prologue : null,
+      );
     } else {
       this.campaignShell.show("custom", "setup");
     }
