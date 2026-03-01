@@ -34,6 +34,9 @@ describe("Keyboard Navigation: Campaign Start Reproduction", () => {
     // 3. Wait for New Campaign Wizard
     await page.waitForSelector(".campaign-setup-wizard");
 
+    // Skip Tutorial Prologue to reach Sector Map directly
+    await page.click("#campaign-skip-prologue");
+
     // The Wizard doesn't seem to explicitly focus anything on show.
     // Let's check what is focused.
     activeId = await page.evaluate(() => document.activeElement?.id);

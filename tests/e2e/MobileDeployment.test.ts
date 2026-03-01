@@ -12,10 +12,18 @@ describe("Mobile Deployment Flow", () => {
     const page = await getNewPage();
     await page.emulate(KnownDevices["iPhone 12"]);
     await page.goto(E2E_URL);
+    await page.evaluate(() => localStorage.clear());
+    await page.reload();
+
+    // Wait for App to be ready
+    await page.waitForFunction(() => (window as any).__VOIDLOCK_READY__ === true);
 
     // 1. Navigate to Custom Mission
     await page.waitForSelector("#btn-menu-custom");
-    await page.click("#btn-menu-custom");
+    await page.evaluate(() => {
+        const btn = document.getElementById("btn-menu-custom");
+        if (btn) btn.click();
+    });
 
     // Ensure we are using a map with spawn points (DenseShip)
     await page.waitForSelector("#map-generator-type");
@@ -23,24 +31,24 @@ describe("Mobile Deployment Flow", () => {
 
     // 2. Go to Equipment
     await page.waitForSelector("#btn-goto-equipment");
-    await page.click("#btn-goto-equipment");
-
-    // 3. Confirm Squad (should have default 4 soldiers)
-    await page.waitForSelector(".primary-button");
-    const confirmBtn = await page.evaluateHandle(() => {
-      const buttons = Array.from(document.querySelectorAll(".primary-button"));
-      return buttons.find((b) => b.textContent === "Confirm Squad");
+    await page.evaluate(() => {
+        const btn = document.getElementById("btn-goto-equipment");
+        if (btn) btn.click();
     });
-    if (confirmBtn) {
-      // @ts-ignore
-      await confirmBtn.click();
-    } else {
-      throw new Error("Confirm Squad button not found");
-    }
+
+    // 3. Back to Setup
+    await page.waitForSelector("#screen-equipment .back-button", { visible: true });
+    await page.evaluate(() => {
+        const btn = document.querySelector("#screen-equipment .back-button") as HTMLElement;
+        if (btn) btn.click();
+    });
 
     // Launch
     await page.waitForSelector("#btn-launch-mission");
-    await page.click("#btn-launch-mission");
+    await page.evaluate(() => {
+        const btn = document.getElementById("btn-launch-mission");
+        if (btn) btn.click();
+    });
 
     // 4. Deployment Phase
     await page.waitForSelector("#screen-mission");

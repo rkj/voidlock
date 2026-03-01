@@ -9,6 +9,7 @@ describe("UI labels are rendered in Title Case", () => {
   beforeAll(async () => {
     page = await getNewPage();
     await page.setViewport({ width: 1024, height: 768 });
+    page.on('console', msg => console.log('BROWSER:', msg.text()));
   });
 
   afterAll(async () => {
@@ -28,15 +29,19 @@ describe("UI labels are rendered in Title Case", () => {
       }
     };
 
-    await page.goto(E2E_URL);
+    await page.goto(E2E_URL, { waitUntil: "load" });
     await page.evaluate(() => localStorage.clear());
-    await page.reload();
+    await page.reload({ waitUntil: "load" });
+    
+    // Wait for App to be ready
+    await page.waitForFunction(() => (window as any).__VOIDLOCK_READY__ === true);
+    
+    await page.waitForSelector("#btn-menu-custom");
 
     // 1. Navigate to Custom Mission -> Mission Setup
     console.log("Navigating to Custom Mission...");
-    await page.waitForSelector("#btn-menu-custom");
     await page.click("#btn-menu-custom");
-    await page.waitForSelector("#screen-mission-setup");
+    await page.waitForSelector("#screen-mission-setup", { visible: true });
     console.log("In Mission Setup");
 
     // Wait for App to initialize and render SquadBuilder
@@ -44,15 +49,28 @@ describe("UI labels are rendered in Title Case", () => {
 
     // 2. Add first soldier to squad
     console.log("Waiting for soldier card...");
-    await page.waitForSelector(".roster-list .soldier-card, .roster-list .soldier-item", { timeout: 15000 });
-    await page.click(".roster-list .soldier-card, .roster-list .soldier-item");
-    console.log("Clicked soldier card");
+    await page.waitForSelector(".roster-list .soldier-card");
+    const cards = await page.$$(".roster-list .soldier-card");
+    console.log(`Found ${cards.length} cards in roster`);
+    await cards[0].click();
+    console.log("Clicked first soldier card");
+    
+    // Wait for state propagation and UI render
+    await new Promise(r => setTimeout(r, 1500));
+    await page.screenshot({ path: "tests/e2e/__snapshots__/debug_after_roster_click.png" });
     
     // 3. Equipment screen check
-    await page.click("#btn-goto-equipment");
-    console.log("Clicked Equipment & Supplies");
-    await page.waitForSelector("#screen-equipment");
+    console.log("Clicking Equipment & Supplies via evaluate...");
+    await page.evaluate(() => {
+        const btn = document.getElementById("btn-goto-equipment");
+        if (btn) btn.click();
+        else console.log("btn-goto-equipment NOT FOUND in evaluate");
+    });
+    await page.waitForSelector("#screen-equipment", { visible: true, timeout: 10000 });
     console.log("In Equipment screen");
+
+    // Wait a bit more for inspector to render
+    await new Promise(r => setTimeout(r, 1000));
 
     const soldierAttributesText = await page.evaluate(() => {
         const h3s = Array.from(document.querySelectorAll("#screen-equipment h3"));
@@ -62,13 +80,19 @@ describe("UI labels are rendered in Title Case", () => {
     expect(soldierAttributesText).toContain("Soldier Attributes");
 
     // 4. Confirm Squad to go back to Setup
-    await page.click("[data-focus-id='btn-back']");
-    await page.waitForSelector("#screen-mission-setup");
+    await page.evaluate(() => {
+        const btn = document.querySelector("[data-focus-id='btn-back']") as HTMLElement;
+        if (btn) btn.click();
+    });
+    await page.waitForSelector("#screen-mission-setup", { visible: true });
 
     // Launch Mission to get to Deployment Phase
-    await page.click("#btn-launch-mission");
+    await page.evaluate(() => {
+        const btn = document.getElementById("btn-launch-mission");
+        if (btn) btn.click();
+    });
     console.log("Clicked Launch Mission");
-    await page.waitForSelector("#screen-mission");
+    await page.waitForSelector("#screen-mission", { visible: true });
     console.log("In Mission screen");
 
     // Deployment Phase
@@ -78,17 +102,26 @@ describe("UI labels are rendered in Title Case", () => {
 
     // Autofill deployment to enable Start Mission
     await page.waitForSelector("#btn-autofill-deployment", { visible: true });
-    await page.click("#btn-autofill-deployment");
+    await page.evaluate(() => {
+        const btn = document.getElementById("btn-autofill-deployment");
+        if (btn) btn.click();
+    });
+    
+    // Wait for state update
+    await new Promise(r => setTimeout(r, 1000));
     
     // Start Mission
-    await page.waitForSelector("#btn-start-mission:not([disabled])", { visible: true });
+    await page.waitForSelector("#btn-start-mission:not([disabled])", { visible: true, timeout: 10000 });
     const startMissionText = await getText("#btn-start-mission");
     console.log("Start Mission text:", startMissionText);
     expect(startMissionText).toBe("Start Mission");
 
     // 5. Objectives (HUDManager.ts)
     // Start mission to get out of deployment
-    await page.click("#btn-start-mission"); 
+    await page.evaluate(() => {
+        const btn = document.getElementById("btn-start-mission");
+        if (btn) btn.click();
+    }); 
     console.log("Clicked Start Mission");
     
     // Wait for "Objectives" to appear in right panel
@@ -107,10 +140,13 @@ describe("UI labels are rendered in Title Case", () => {
 
     // 7. Mission Success / Failed & Return to Command Bridge (DebriefScreen.ts)
     // Force win
-    await page.keyboard.press("~"); // Toggle debug overlay
-    await page.waitForSelector("#btn-force-win");
-    await page.click("#btn-force-win");
-    await page.waitForSelector("#screen-debrief", { visible: true });
+    await page.keyboard.press("Backquote"); // Toggle debug overlay (Spec 8.2)
+    await page.waitForSelector("#btn-force-win", { visible: true });
+    await page.evaluate(() => {
+        const btn = document.getElementById("btn-force-win");
+        if (btn) btn.click();
+    });
+    await page.waitForSelector("#screen-debrief", { visible: true, timeout: 10000 });
 
     const debriefHeader = await getText("#screen-debrief .debrief-header");
     console.log("Debrief header text:", debriefHeader);

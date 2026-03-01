@@ -121,19 +121,19 @@ describe("Mission Deployment Keyboard Flow", () => {
     expect(foundRosterItem, "Failed to find a roster item to add").toBe(true);
     await pressEnter();
 
-    // 5. Confirm Squad
-    console.log("Confirming squad...");
+    // 5. Confirm Squad (Back to Setup)
+    console.log("Confirming squad (Back to Setup)...");
     let foundConfirmBtn = false;
     for (let i = 0; i < 50; i++) {
       const active = await getActiveElementInfo();
       console.log(`Equipment Tab ${i}: <${active?.tagName}> id="${active?.id}" class="${active?.className}" text="${active?.textContent}"`);
-      if (active?.textContent === "Confirm Squad") {
+      if (active?.textContent === "Back") {
         foundConfirmBtn = true;
         break;
       }
       await pressTab();
     }
-    expect(foundConfirmBtn, "Failed to find 'Confirm Squad' button").toBe(true);
+    expect(foundConfirmBtn, "Failed to find 'Back' button").toBe(true);
     await pressEnter();
     await page.waitForSelector("#screen-mission-setup", { visible: true });
 

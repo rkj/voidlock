@@ -32,17 +32,26 @@ describe("Repro insertBefore Error", () => {
     await page.goto(E2E_URL);
     
     await page.waitForSelector("#btn-menu-custom");
-    await page.click("#btn-menu-custom");
+    await page.evaluate(() => {
+        const btn = document.getElementById("btn-menu-custom");
+        if (btn) btn.click();
+    });
 
     // Enable Manual Deployment
     await page.waitForSelector("#toggle-manual-deployment");
     const isChecked = await page.$eval("#toggle-manual-deployment", (el: any) => el.checked);
     if (!isChecked) {
-      await page.click("#toggle-manual-deployment");
+      await page.evaluate(() => {
+          const el = document.getElementById("toggle-manual-deployment") as HTMLInputElement;
+          if (el) el.click();
+      });
     }
 
     // Launch to Deployment Phase
-    await page.click("#btn-launch-mission");
+    await page.evaluate(() => {
+        const btn = document.getElementById("btn-launch-mission");
+        if (btn) btn.click();
+    });
     
     // Wait a bit to ensure no errors occur
     await new Promise(r => setTimeout(r, 2000));

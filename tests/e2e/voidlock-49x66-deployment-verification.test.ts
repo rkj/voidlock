@@ -71,22 +71,9 @@ describe("voidlock-49x66: Deployment Verification", () => {
     await page.waitForSelector("#screen-equipment", { visible: true });
     await takeScreenshot("3_equipment_screen");
     
-    // Add 2 soldiers - re-fetching slots to avoid detached nodes
-    for (let i = 2; i < 4; i++) {
-        console.log(`Adding soldier ${i+1}...`);
-        const slotSelector = `.soldier-list-panel div[data-focus-id="soldier-slot-${i}"]`;
-        await page.waitForSelector(slotSelector);
-        await page.click(slotSelector);
-        
-        await page.waitForSelector(".armory-panel .soldier-card", { visible: true });
-        const cardSelector = ".armory-panel .soldier-card";
-        await page.click(cardSelector);
-        await new Promise(r => setTimeout(r, 500)); // Wait for render
-    }
-    await takeScreenshot("4_squad_confirmed");
-
-    // Confirm Squad
-    await page.click("button.primary-button");
+    // Confirm Squad (Back to Setup)
+    await page.waitForSelector("#screen-equipment .back-button");
+    await page.click("#screen-equipment .back-button");
     
     // Should be back at Mission Setup
     console.log("Back at mission setup, launching mission...");

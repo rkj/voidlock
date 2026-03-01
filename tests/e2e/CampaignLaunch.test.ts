@@ -25,9 +25,12 @@ describe("Campaign Mission Launch Visual Regression", () => {
     await page.click("#btn-menu-campaign");
 
     // 2. New Campaign Wizard should be visible. Click "Initialize Expedition"
-    // Using a more robust selector for the primary button in the wizard
     const startBtnSelector = ".campaign-setup-wizard .primary-button";
     await page.waitForSelector(startBtnSelector);
+
+    // Skip Tutorial Prologue to reach Sector Map
+    await page.click("#campaign-skip-prologue");
+
     await page.click(startBtnSelector);
 
     // 3. Wait for the Sector Map and click the first accessible node
@@ -35,11 +38,11 @@ describe("Campaign Mission Launch Visual Regression", () => {
     await page.waitForSelector(nodeSelector);
     await page.click(nodeSelector);
 
-    // 4. Now we should be in "Mission Setup"
-    await page.waitForSelector("#screen-mission-setup");
+    // 4. Now we should be in "Equipment Screen" (skipping setup in Campaign)
+    await page.waitForSelector("#screen-equipment");
 
     // Verification: In the current architecture (ADR 0028/CampaignShell),
-    // #screen-mission-setup is nested INSIDE #screen-campaign-shell.
+    // #screen-equipment is nested INSIDE #screen-campaign-shell.
     // Therefore, the shell MUST be visible (flex) for the setup screen to be visible.
 
     const shellDisplay = await page.evaluate(() => {

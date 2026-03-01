@@ -42,6 +42,10 @@ describe("Equipment Focus Verification", () => {
 
     // Click "Start Campaign" in wizard
     await page.waitForSelector(".primary-button", { visible: true });
+    
+    // Skip Tutorial Prologue to reach Sector Map
+    await page.click("#campaign-skip-prologue");
+
     await page.click(".primary-button");
 
     // Wait for Campaign Screen (Sector Map)

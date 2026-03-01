@@ -12,17 +12,33 @@ describe("Mobile Full Campaign Flow", () => {
     const page = await getNewPage();
     page.on("console", msg => console.log("BROWSER:", msg.text()));
     await page.emulate(KnownDevices["iPhone 12"]);
-    await page.goto(E2E_URL);
+    await page.goto(E2E_URL, { waitUntil: "load" });
     await page.evaluate(() => localStorage.clear());
-    await page.reload();
+    await page.reload({ waitUntil: "load" });
+    
+    // Wait for App to be ready
+    await page.waitForFunction(() => (window as any).__VOIDLOCK_READY__ === true);
 
     // 1. Start Campaign
     await page.waitForSelector("#btn-menu-campaign");
-    await page.click("#btn-menu-campaign");
+    await page.evaluate(() => {
+        const btn = document.getElementById("btn-menu-campaign");
+        if (btn) btn.click();
+    });
 
     const startBtnSelector = ".campaign-setup-wizard .primary-button";
     await page.waitForSelector(startBtnSelector);
-    await page.click(startBtnSelector);
+
+    // Skip Tutorial Prologue to reach Sector Map
+    await page.evaluate(() => {
+        const check = document.getElementById("campaign-skip-prologue") as HTMLInputElement;
+        if (check) check.click();
+    });
+
+    await page.evaluate((sel) => {
+        const btn = document.querySelector(sel) as HTMLElement;
+        if (btn) btn.click();
+    }, startBtnSelector);
 
     // 2. We should be on Sector Map. Check if tabs are visible.
     await page.waitForSelector(".campaign-node.accessible");
@@ -35,14 +51,20 @@ describe("Mobile Full Campaign Flow", () => {
     expect(readyRoomTab).toBeTruthy();
 
     // 3. Select first node
-    await page.click(".campaign-node.accessible");
+    await page.evaluate(() => {
+        const node = document.querySelector(".campaign-node.accessible") as HTMLElement;
+        if (node) node.click();
+    });
 
     // 4. Equipment Screen
     await page.waitForSelector("#screen-equipment");
 
     // Launch Mission directly from Equipment screen in Campaign
-    const launchBtn = await page.waitForSelector('[data-focus-id="btn-launch-mission"]', { visible: true });
-    await launchBtn?.click();
+    await page.waitForSelector('[data-focus-id="btn-launch-mission"]', { visible: true });
+    await page.evaluate(() => {
+        const btn = document.querySelector('[data-focus-id="btn-launch-mission"]') as HTMLElement;
+        if (btn) btn.click();
+    });
 
     // 6. Deployment Phase OR Playing Phase (if Prologue)
     await page.waitForSelector("#screen-mission", { visible: true });

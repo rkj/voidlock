@@ -72,6 +72,10 @@ describe("Full Keyboard-Only Campaign Walkthrough", () => {
 
     // 2. Setup New Campaign
     console.log("Setting up new campaign...");
+
+    // Skip Tutorial Prologue to reach Sector Map
+    await page.click("#campaign-skip-prologue");
+
     // Find "Initialize Expedition" button
     let foundStart = false;
     for (let i = 0; i < 20; i++) {

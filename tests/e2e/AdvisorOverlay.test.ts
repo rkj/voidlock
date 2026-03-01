@@ -1,23 +1,22 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import puppeteer, { Browser, Page } from "puppeteer";
+import { getNewPage, closeBrowser } from "./utils/puppeteer";
+import { Page } from "puppeteer";
 import { E2E_PORT } from "./config";
 
 describe("AdvisorOverlay E2E", () => {
-  let browser: Browser;
   let page: Page;
 
   beforeAll(async () => {
-    browser = await puppeteer.launch({
-      headless: "new",
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
-    page = await browser.newPage();
+    page = await getNewPage();
     await page.setViewport({ width: 1024, height: 768 });
-    await page.goto(`http://localhost:${E2E_PORT}/`, { waitUntil: "networkidle0" });
+    await page.goto(`http://localhost:${E2E_PORT}/`, { waitUntil: "load" });
+    
+    // Wait for App to be ready
+    await page.waitForFunction(() => (window as any).__VOIDLOCK_READY__ === true);
   });
 
   afterAll(async () => {
-    await browser.close();
+    await closeBrowser();
   });
 
   it("should show advisor messages when triggered", async () => {

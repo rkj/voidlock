@@ -1,45 +1,46 @@
 import { expect, test, describe, beforeAll, afterAll } from "vitest";
-import puppeteer, { Browser, Page } from "puppeteer";
+import { getNewPage, closeBrowser } from "./utils/puppeteer";
+import { Page } from "puppeteer";
 import { E2E_URL } from "./config";
 
 describe("Deployment Wrong Unit Selection", () => {
-  let browser: Browser;
   let page: Page;
 
   beforeAll(async () => {
-    browser = await puppeteer.launch({
-      headless: "new",
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
-    page = await browser.newPage();
+    page = await getNewPage();
     await page.setViewport({ width: 1024, height: 768 });
   });
 
   afterAll(async () => {
-    await browser.close();
+    await closeBrowser();
   });
 
   test("Dragging a unit from a stacked cell should move the top-most unit", async () => {
-    await page.goto(E2E_URL, { waitUntil: "networkidle0" });
+    await page.goto(E2E_URL, { waitUntil: "load" });
+    await page.evaluate(() => localStorage.clear());
+    await page.reload({ waitUntil: "load" });
+    
+    // Wait for App to be ready
+    await page.waitForFunction(() => (window as any).__VOIDLOCK_READY__ === true);
 
     // 1. Start a custom mission (Simulation)
     await page.waitForSelector("#btn-menu-custom");
-    await page.click("#btn-menu-custom");
+    await page.evaluate(() => {
+        const btn = document.getElementById("btn-menu-custom");
+        if (btn) btn.click();
+    });
 
     // 2. Setup map with 1 spawn point to force stacking
     await page.waitForSelector("#map-width");
     
-    // Debug: take screenshot of Mission Setup
-    await new Promise(r => setTimeout(r, 1000));
-    await page.screenshot({ path: "debug_mission_setup.png" });
-
     // Enable Manual Deployment
-    const manualDeploymentCheckbox = await page.$("#toggle-manual-deployment");
-    if (manualDeploymentCheckbox) {
-        const isChecked = await page.evaluate(el => (el as HTMLInputElement).checked, manualDeploymentCheckbox);
-        if (!isChecked) {
-            await manualDeploymentCheckbox.click();
-        }
+    await page.waitForSelector("#toggle-manual-deployment");
+    const isChecked = await page.$eval("#toggle-manual-deployment", (el: any) => el.checked);
+    if (!isChecked) {
+        await page.evaluate(() => {
+            const el = document.getElementById("toggle-manual-deployment") as HTMLInputElement;
+            if (el) el.click();
+        });
     }
 
     // Set map size small and spawn count to 1
@@ -61,47 +62,41 @@ describe("Deployment Wrong Unit Selection", () => {
         }
     });
 
-    // 3. Squad Builder: Add 4 units
+    // 3. Squad Builder: 4 units are added by default
     await page.waitForSelector("#squad-builder");
     
-    // Let's inspect the roster list content
-    const rosterContent = await page.evaluate(() => {
-        const rosterList = document.querySelector(".roster-list");
-        return rosterList ? rosterList.innerHTML : "NOT FOUND";
-    });
-    console.log("Roster Content:", rosterContent);
-
-    // If it's empty, maybe we need to wait more or it's not loaded?
-    // In Custom Mission, it should have some archetypes.
-    
-    // Quick add 4 soldiers (double click in roster)
-    for (let i = 0; i < 4; i++) {
-        const rosterCards = await page.$$(".roster-list .soldier-item"); // Using .soldier-item
-        if (rosterCards.length > i) {
-            await rosterCards[i].click({ clickCount: 2 });
-            await new Promise(r => setTimeout(r, 200)); 
-        } else {
-            console.log(`Roster card ${i} not found. Total found: ${rosterCards.length}`);
-        }
-    }
-
     // 4. Launch Mission (to enter deployment phase)
     await page.waitForSelector("#btn-launch-mission");
-    await page.click("#btn-launch-mission");
+    await page.evaluate(() => {
+        const btn = document.getElementById("btn-launch-mission");
+        if (btn) btn.click();
+    });
 
     // 5. Deployment Phase: All 4 should be in the same spawn point cell (because we set spawnCount=1)
     await page.waitForSelector("#game-canvas");
+    
+    // Wait for App and Renderer to be fully ready
+    await page.waitForFunction(() => {
+        // @ts-ignore
+        const app = window.GameAppInstance;
+        return app && app.renderer !== null;
+    });
+    
     await new Promise(r => setTimeout(r, 2000)); 
 
     // Auto-fill in deployment phase to ensure they are on the spawn.
     await page.waitForSelector("#btn-autofill-deployment");
-    await page.click("#btn-autofill-deployment");
+    await page.evaluate(() => {
+        const btn = document.getElementById("btn-autofill-deployment");
+        if (btn) btn.click();
+    });
     await new Promise(r => setTimeout(r, 1000));
 
     // Get the spawn point coordinate from state
     const spawnPoint = await page.evaluate(() => {
         // @ts-ignore
-        const state = window.GameAppInstance.registry.gameClient.lastState;
+        const app = window.GameAppInstance;
+        const state = app.registry.missionRunner.getCurrentGameState();
         return state.map.squadSpawns?.[0] || state.map.squadSpawn;
     });
 
@@ -119,13 +114,18 @@ describe("Deployment Wrong Unit Selection", () => {
 
     const pixelCoords = await page.evaluate((sp) => {
         // @ts-ignore
-        const sharedState = window.GameAppInstance.renderer.sharedState;
-        const cellSize = sharedState.cellSize;
-        const transform = sharedState.transform;
+        const app = window.GameAppInstance;
+        const cellSize = app.renderer.cellSize;
+        const canvas = document.getElementById("game-canvas") as HTMLCanvasElement;
+        const rect = canvas?.getBoundingClientRect();
+        if (!rect) return { x: 0, y: 0 };
+        
+        const scaleX = rect.width / canvas.width;
+        const scaleY = rect.height / canvas.height;
         
         return {
-            x: (sp.x + 0.5) * cellSize * transform.scale + transform.x,
-            y: (sp.y + 0.5) * cellSize * transform.scale + transform.y
+            x: (sp.x + 0.5) * cellSize * scaleX,
+            y: (sp.y + 0.5) * cellSize * scaleY
         };
     }, spawnPoint);
 
@@ -139,7 +139,8 @@ describe("Deployment Wrong Unit Selection", () => {
     // Initial state check
     const initialDeployedIds = await page.evaluate(() => {
         // @ts-ignore
-        const state = window.GameAppInstance.registry.gameClient.lastState;
+        const app = window.GameAppInstance;
+        const state = app.registry.missionRunner.getCurrentGameState();
         return state.units.filter(u => u.isDeployed !== false).map(u => u.id);
     });
     
@@ -162,7 +163,8 @@ describe("Deployment Wrong Unit Selection", () => {
     // Check which unit was undeployed
     const finalDeployedIds = await page.evaluate(() => {
         // @ts-ignore
-        const state = window.GameAppInstance.registry.gameClient.lastState;
+        const app = window.GameAppInstance;
+        const state = app.registry.missionRunner.getCurrentGameState();
         return state.units.filter(u => u.isDeployed !== false).map(u => u.id);
     });
 

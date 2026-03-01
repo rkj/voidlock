@@ -20,7 +20,11 @@ describe("Spawn Point Overlap Verification", () => {
     console.log("Navigating to", E2E_URL);
     await page.goto(E2E_URL);
     await page.evaluate(() => localStorage.clear());
-    await page.goto(E2E_URL, { waitUntil: "networkidle0" });
+    await page.reload({ waitUntil: "load" });
+    
+    // Wait for App to be ready
+    await page.waitForFunction(() => (window as any).__VOIDLOCK_READY__ === true);
+
     await new Promise(r => setTimeout(r, 2000));
     
     // Wait for the main menu to be ready
@@ -71,19 +75,9 @@ describe("Spawn Point Overlap Verification", () => {
     await page.click("#btn-goto-equipment");
     await page.waitForSelector(".equipment-screen", { visible: true });
 
-    // Roster should have 2 soldiers by default, add 2 more
-    for (let i = 2; i < 4; i++) {
-        const slotSelector = `.soldier-list-panel div[data-focus-id="soldier-slot-${i}"]`;
-        await page.waitForSelector(slotSelector);
-        await page.click(slotSelector);
-        
-        await page.waitForSelector(".armory-panel .soldier-card", { visible: true });
-        await page.click(".armory-panel .soldier-card");
-        await new Promise(r => setTimeout(r, 500)); 
-    }
-
-    // Confirm Squad
-    await page.click("[data-focus-id='btn-back']");
+    // Confirm Squad (Back to Setup)
+    await page.waitForSelector("#screen-equipment .back-button");
+    await page.click("#screen-equipment .back-button");
 
     // Launch Mission
     await page.waitForSelector("#btn-launch-mission", { visible: true });

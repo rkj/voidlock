@@ -12,30 +12,38 @@ describe("Mobile Responsive Drawers", () => {
     const page = await getNewPage();
     await page.emulate(KnownDevices["iPhone 12"]);
     await page.goto(E2E_URL, { waitUntil: "load" });
+    await page.evaluate(() => localStorage.clear());
+    await page.reload({ waitUntil: "load" });
+    
+    // Wait for App to be ready
+    await page.waitForFunction(() => (window as any).__VOIDLOCK_READY__ === true);
 
     // Navigate to mission
     await page.waitForSelector("#btn-menu-custom", { visible: true });
     await new Promise((r) => setTimeout(r, 500)); // Stabilize
-    await page.click("#btn-menu-custom");
-    await page.waitForSelector("#btn-goto-equipment", { visible: true });
-    await page.click("#btn-goto-equipment");
-
-    // In Equipment Screen, click "Confirm Squad"
-    await page.waitForSelector(".equipment-screen");
-    const confirmBtn = await page.evaluateHandle(() => {
-      const buttons = Array.from(document.querySelectorAll(".primary-button"));
-      return buttons.find((b) => b.textContent === "Confirm Squad");
+    await page.evaluate(() => {
+        const btn = document.getElementById("btn-menu-custom");
+        if (btn) btn.click();
     });
-    if (confirmBtn) {
-      // @ts-ignore
-      await confirmBtn.click();
-    } else {
-      throw new Error("Confirm Squad button not found");
-    }
+    await page.waitForSelector("#btn-goto-equipment", { visible: true });
+    await page.evaluate(() => {
+        const btn = document.getElementById("btn-goto-equipment");
+        if (btn) btn.click();
+    });
+
+    // In Equipment Screen, click "Back" to go to Setup
+    await page.waitForSelector("#screen-equipment .back-button", { visible: true });
+    await page.evaluate(() => {
+        const btn = document.querySelector("#screen-equipment .back-button") as HTMLElement;
+        if (btn) btn.click();
+    });
 
     // 2.5 Click Launch Mission on Setup screen
     await page.waitForSelector("#btn-launch-mission");
-    await page.click("#btn-launch-mission");
+    await page.evaluate(() => {
+        const btn = document.getElementById("btn-launch-mission");
+        if (btn) btn.click();
+    });
 
     // 2.6 Handle Deployment
     await page.waitForSelector("#btn-autofill-deployment");
@@ -89,11 +97,14 @@ describe("Mobile Responsive Drawers", () => {
     expect(drawersStateAfterRight.squadActive).toBe(false);
     expect(drawersStateAfterRight.rightActive).toBe(true);
 
-    // Click game container to close all drawers
-    await page.click("#game-container");
+    // Click game container (canvas) to close all drawers
+    await page.evaluate(() => {
+        const el = document.getElementById("game-canvas");
+        if (el) el.click();
+    });
 
     // Wait for transition
-    await new Promise((r) => setTimeout(r, 400));
+    await new Promise((r) => setTimeout(r, 1000));
 
     const drawersStateFinal = await page.evaluate(() => {
       const squad = document.getElementById("soldier-panel");

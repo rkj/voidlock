@@ -43,21 +43,18 @@ describe("Screen Transition Visual Continuity Repro", () => {
       };
     });
 
-    // This expectation is what we WANT (a transition), but it will FAIL right now
-    // because opacity will be 1 and display will be flex immediately.
-    // To make it a "Negative Proof" that PASSES when the bug is confirmed:
-    // We expect it to be static.
-    
+    // This expectation confirms a transition is occurring (opacity < 1 at 20ms)
     expect(transitionCheck).toMatchObject({
-      display: "flex",
-      opacity: 1
+      display: "flex"
     });
+    // @ts-ignore
+    expect(transitionCheck.opacity).toBeLessThan(1);
 
     // If we wanted to prove it's NOT transitioning, we'd expect opacity < 1 at 20ms.
     // So let's write the test that we WANT to pass in the future, and see it fail.
   });
 
-  it("REPRO: Transitions are currently instantaneous", async () => {
+  it("REPRO: Transitions are now animated", async () => {
       await page.goto(E2E_URL);
       await page.waitForSelector("#btn-menu-custom");
 
@@ -74,6 +71,6 @@ describe("Screen Transition Visual Continuity Repro", () => {
       });
 
       expect(results.display).toBe("flex");
-      expect(results.opacity).toBe("1");
+      expect(parseFloat(results.opacity)).toBeLessThan(1);
   });
 });

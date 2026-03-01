@@ -52,7 +52,8 @@ describe("Mission Deployment Click Interactions", () => {
         await page.click(".roster-list .soldier-card");
     }
 
-    await page.click("button.primary-button"); // Confirm Squad
+    await page.waitForSelector("#screen-equipment .back-button");
+    await page.click("#screen-equipment .back-button"); // Back to Setup
     
     await page.waitForSelector("#btn-launch-mission");
     await page.click("#btn-launch-mission");

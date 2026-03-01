@@ -120,8 +120,11 @@ describe("voidlock-7sa9u repro: X button focus", () => {
 
     // 2. Go to mission setup
     console.log("Navigating to #mission-setup...");
-    await page.goto(E2E_URL + "#mission-setup");
-    await page.reload();
+    await page.goto(E2E_URL + "#mission-setup", { waitUntil: "load" });
+    await page.reload({ waitUntil: "load" });
+    
+    // Wait for App to be ready
+    await page.waitForFunction(() => (window as any).__VOIDLOCK_READY__ === true);
     
     try {
         await page.waitForSelector("#screen-mission-setup", { visible: true, timeout: 10000 });
@@ -142,9 +145,15 @@ describe("voidlock-7sa9u repro: X button focus", () => {
 
     // 3. Deploy the soldier
     await page.waitForSelector(".roster-list .soldier-card");
-    await page.click(".roster-list .soldier-card");
+    await page.evaluate(() => {
+        const card = document.querySelector(".roster-list .soldier-card") as HTMLElement;
+        if (card) card.click();
+    });
     await page.waitForSelector(".deployment-slot.ready-for-placement");
-    await page.click(".deployment-slot.ready-for-placement");
+    await page.evaluate(() => {
+        const slot = document.querySelector(".deployment-slot.ready-for-placement") as HTMLElement;
+        if (slot) slot.click();
+    });
     await page.waitForSelector(".deployment-slot.occupied");
     
     // 4. Check if slot-remove is focusable

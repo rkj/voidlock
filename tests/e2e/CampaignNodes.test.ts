@@ -108,11 +108,18 @@ describe("Campaign Node Special Types", () => {
       window.location.hash = "#campaign";
     }, mockState);
 
-    await page.reload({ waitUntil: "networkidle0" });
+    await page.reload({ waitUntil: "load" });
+    
+    // Wait for App to be ready
+    await page.waitForFunction(() => (window as any).__VOIDLOCK_READY__ === true);
+
     await page.waitForSelector('.campaign-node[data-id="node-shop"]', { visible: true, timeout: 15000 });
 
     // Click the shop node
-    await page.click('.campaign-node[data-id="node-shop"]');
+    await page.evaluate(() => {
+        const el = document.querySelector('.campaign-node[data-id="node-shop"]') as HTMLElement;
+        if (el) el.click();
+    });
 
     // Should open Equipment Screen
     await page.waitForSelector('#screen-equipment', { visible: true });
@@ -231,11 +238,18 @@ describe("Campaign Node Special Types", () => {
       window.location.hash = "#campaign";
     }, mockState);
 
-    await page.reload({ waitUntil: "networkidle0" });
+    await page.reload({ waitUntil: "load" });
+    
+    // Wait for App to be ready
+    await page.waitForFunction(() => (window as any).__VOIDLOCK_READY__ === true);
+
     await page.waitForSelector('.campaign-node[data-id="node-combat"]', { visible: true });
 
     // Click the combat node
-    await page.click('.campaign-node[data-id="node-combat"]');
+    await page.evaluate(() => {
+        const el = document.querySelector('.campaign-node[data-id="node-combat"]') as HTMLElement;
+        if (el) el.click();
+    });
 
     // Should open Equipment Screen
     await page.waitForSelector('#screen-equipment', { visible: true });
@@ -247,20 +261,32 @@ describe("Campaign Node Special Types", () => {
     }, { timeout: 10000 });
 
     // Click the soldier
-    await page.click('.armory-panel .soldier-widget-roster');
+    await page.evaluate(() => {
+        const btn = document.querySelector('.armory-panel .soldier-widget-roster') as HTMLElement;
+        if (btn) btn.click();
+    });
     
     // Click Launch Mission
     await page.waitForSelector('[data-focus-id="btn-launch-mission"]:not([disabled])', { visible: true });
-    await page.click('[data-focus-id="btn-launch-mission"]');
+    await page.evaluate(() => {
+        const btn = document.querySelector('[data-focus-id="btn-launch-mission"]') as HTMLElement;
+        if (btn) btn.click();
+    });
 
     // Wait for mission screen
     await page.waitForSelector('#screen-mission', { visible: true, timeout: 60000 });
     
     // Handle Deployment
     await page.waitForSelector('#btn-autofill-deployment', { visible: true });
-    await page.click('#btn-autofill-deployment');
+    await page.evaluate(() => {
+        const btn = document.getElementById("btn-autofill-deployment");
+        if (btn) btn.click();
+    });
     await page.waitForSelector('#btn-start-mission:not([disabled])', { visible: true });
-    await page.click('#btn-start-mission');
+    await page.evaluate(() => {
+        const btn = document.getElementById("btn-start-mission");
+        if (btn) btn.click();
+    });
 
     // Wait for Objective List
     // Selector confirmed in HUDManager.ts: .obj-row

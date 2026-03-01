@@ -74,6 +74,10 @@ describe("Navigation & Routing Reproduction", () => {
     // 1. Start a new campaign to reach the sector map
     await page.click("#btn-menu-campaign");
     await page.waitForSelector(".campaign-setup-wizard .primary-button");
+    
+    // Skip Tutorial Prologue to reach Sector Map
+    await page.click("#campaign-skip-prologue");
+
     await page.click(".campaign-setup-wizard .primary-button");
     await page.waitForSelector(".campaign-node.accessible");
 
