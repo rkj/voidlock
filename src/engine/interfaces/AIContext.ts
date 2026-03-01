@@ -17,6 +17,8 @@ export interface VisibleItem {
 
 export interface BehaviorContext {
   agentControlEnabled: boolean;
+  totalFloorCells: number;
+  claimedObjectives: Map<string, string>; // objectiveId -> unitId
   executeCommand: (
     unit: Unit,
     cmd: Command,
@@ -27,13 +29,11 @@ export interface BehaviorContext {
 }
 
 export interface ObjectiveContext {
-  claimedObjectives: Map<string, string>; // objectiveId -> unitId
   itemAssignments: Map<string, string>;
   itemGrid?: SpatialGrid<VisibleItem>;
 }
 
 export interface ExplorationContext {
-  totalFloorCells: number;
   gridState?: Uint8Array;
   explorationClaims: Map<string, Vector2>; // unitId -> targetCell
 }

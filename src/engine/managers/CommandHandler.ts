@@ -1,6 +1,6 @@
 import { GameState, Command, CommandType } from "../../shared/types";
 import { UnitManager } from "./UnitManager";
-import { IDirector } from "../interfaces/IDirector";
+import { ItemEffectHandler } from "../interfaces/IDirector";
 import { GlobalCommandRegistry } from "./commands/GlobalCommandRegistry";
 import { DeployUnitHandler } from "./commands/handlers/global/DeployUnitHandler";
 import { UndeployUnitHandler } from "./commands/handlers/global/UndeployUnitHandler";
@@ -15,7 +15,7 @@ import { UnitCommandApplier } from "./commands/handlers/global/UnitCommandApplie
 export class CommandHandler {
   private registry: GlobalCommandRegistry;
 
-  constructor(unitManager: UnitManager, director: IDirector) {
+  constructor(unitManager: UnitManager, director: ItemEffectHandler) {
     this.registry = new GlobalCommandRegistry();
 
     // Deployment commands

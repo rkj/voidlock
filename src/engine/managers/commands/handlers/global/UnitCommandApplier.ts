@@ -1,13 +1,13 @@
 import { GameState, Command, CommandType } from "@src/shared/types";
 import { IGlobalCommandHandler } from "../../IGlobalCommandHandler";
 import { UnitManager } from "@src/engine/managers/UnitManager";
-import { IDirector } from "@src/engine/interfaces/IDirector";
+import { ItemEffectHandler } from "@src/engine/interfaces/IDirector";
 
 export class UnitCommandApplier implements IGlobalCommandHandler {
   constructor(
     public type: CommandType,
     private unitManager: UnitManager,
-    private director: IDirector,
+    private director: ItemEffectHandler,
   ) {}
 
   public handle(state: GameState, cmd: Command): void {
