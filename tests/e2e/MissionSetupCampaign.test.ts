@@ -30,6 +30,10 @@ describe("Mission Setup Campaign Mode Visibility", () => {
     await page.waitForSelector("#btn-menu-campaign");
     await page.click("#btn-menu-campaign");
     await page.waitForSelector(".campaign-setup-wizard .primary-button");
+    
+    // Skip Tutorial Prologue to reach Sector Map
+    await page.click("#campaign-skip-prologue");
+
     await page.click(".campaign-setup-wizard .primary-button");
 
     // 2. Select Node
@@ -40,11 +44,11 @@ describe("Mission Setup Campaign Mode Visibility", () => {
     // 3. We should be in Equipment screen
     await page.waitForSelector("#screen-equipment");
 
-    // 4. Click Confirm Squad
+    // 4. Click Back (formerly Confirm Squad)
     await page.evaluate(() => {
         const buttons = Array.from(document.querySelectorAll("#screen-equipment button"));
-        const confirmBtn = buttons.find(b => b.textContent?.includes("Confirm Squad")) as HTMLButtonElement;
-        if (confirmBtn) confirmBtn.click();
+        const backBtn = (buttons.find(b => b.textContent?.includes("Back")) || buttons.find(b => b.textContent?.includes("Confirm Squad"))) as HTMLButtonElement;
+        if (backBtn) backBtn.click();
     });
 
     // 5. Verify we are back in Sector Map (Campaign Screen)

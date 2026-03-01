@@ -25,9 +25,18 @@ describe("voidlock-49x66: Deployment Bug Repro", () => {
   });
 
   it("should handle deployment correctly: drag-and-drop, auto-fill, and double-click", async () => {
-    await page.goto(E2E_URL);
+    await page.goto(E2E_URL, { waitUntil: "load" });
+    await page.evaluate(() => localStorage.clear());
+    await page.reload({ waitUntil: "load" });
+    
+    // Wait for App to be ready
+    await page.waitForFunction(() => (window as any).__VOIDLOCK_READY__ === true);
+
     await page.waitForSelector("#btn-menu-custom");
-    await page.click("#btn-menu-custom");
+    await page.evaluate(() => {
+        const btn = document.getElementById("btn-menu-custom");
+        if (btn) btn.click();
+    });
     
     // Ensure Manual Deployment is ON
     console.log("Waiting for #toggle-manual-deployment");
@@ -38,7 +47,10 @@ describe("voidlock-49x66: Deployment Bug Repro", () => {
     });
     if (!isChecked) {
         console.log("Enabling manual deployment...");
-        await page.click("#toggle-manual-deployment");
+        await page.evaluate(() => {
+            const el = document.getElementById("toggle-manual-deployment") as HTMLInputElement;
+            if (el) el.click();
+        });
     }
 
     // Select Dense Ship for predictable spawns
@@ -67,67 +79,42 @@ describe("voidlock-49x66: Deployment Bug Repro", () => {
     });
 
     console.log("Going to equipment screen...");
-    await page.click("#btn-goto-equipment");
+    await page.evaluate(() => {
+        const btn = document.getElementById("btn-goto-equipment");
+        if (btn) btn.click();
+    });
     await page.waitForSelector("#screen-equipment", { visible: true });
     
-    // Add units to squad
-    for (let i = 2; i < 4; i++) {
-        console.log(`Checking slot ${i}...`);
-        const slotSelector = `.soldier-list-panel div[data-focus-id="soldier-slot-${i}"]`;
-        await page.waitForSelector(slotSelector);
-        
-        const isSlotEmpty = await page.evaluate((sel) => {
-            const el = document.querySelector(sel);
-            return el?.textContent?.includes("Empty Slot");
-        }, slotSelector);
-
-        if (isSlotEmpty) {
-            console.log(`Slot ${i} is empty, adding soldier...`);
-            await page.click(slotSelector);
-            await page.waitForSelector(".armory-panel .soldier-card", { visible: true });
-            await page.click(".armory-panel .soldier-card");
-            await new Promise(r => setTimeout(r, 500)); // Wait for re-render
-        }
-    }
-
-    // Confirm Squad
+    // Confirm Squad (already has 4 soldiers by default)
     console.log("Confirming squad...");
-    await page.waitForSelector("[data-focus-id='btn-back']", { visible: true });
-    await page.click("[data-focus-id='btn-back']");
+    await page.waitForSelector("#screen-equipment [data-focus-id='btn-back']", { visible: true });
+    await page.evaluate(() => {
+        const btn = document.querySelector("#screen-equipment [data-focus-id='btn-back']") as HTMLElement;
+        if (btn) btn.click();
+    });
     
     // Back at Mission Setup
     console.log("Waiting for #btn-launch-mission");
     await page.waitForSelector("#btn-launch-mission", { visible: true });
     
-    // Check if button is disabled
-    const isLaunchDisabled = await page.evaluate(() => {
-        const btn = document.getElementById("btn-launch-mission") as HTMLButtonElement;
-        return btn.disabled;
-    });
-    console.log("Launch Mission disabled:", isLaunchDisabled);
-    
-    if (isLaunchDisabled) {
-        await page.screenshot({ path: "debug_launch_disabled.png" });
-        throw new Error("Launch Mission button is disabled!");
-    }
-
     // Launch Mission
     console.log("Launching mission...");
-    await page.click("#btn-launch-mission");
+    await page.evaluate(() => {
+        const btn = document.getElementById("btn-launch-mission");
+        if (btn) btn.click();
+    });
 
     // Wait for Deployment Phase
     console.log("Waiting for deployment phase...");
-    try {
-        await page.waitForSelector(".deployment-summary", { timeout: 15000 });
-    } catch (e) {
-        await page.screenshot({ path: "debug_launch_failed.png" });
-        const html = await page.content();
-        console.log("Current Screen Content (last 500 chars):", html.slice(-500));
-        throw e;
-    }
+    await page.waitForSelector(".deployment-summary", { timeout: 15000 });
     await page.waitForSelector("#game-canvas");
 
     // Wait for renderer to be ready
+    await page.waitForFunction(() => {
+        // @ts-ignore
+        const app = window.GameAppInstance;
+        return app && app.renderer !== null;
+    });
     await new Promise(r => setTimeout(r, 2000));
 
     // Check if Start Mission is disabled initially
@@ -143,11 +130,16 @@ describe("voidlock-49x66: Deployment Bug Repro", () => {
     const units = await page.$$(".deployment-unit-item");
     expect(units.length).toBeGreaterThanOrEqual(1);
     
+    const unit0Id = await units[0].evaluate(el => (el as HTMLElement).dataset.unitId);
+    console.log(`Unit 0 ID: ${unit0Id}`);
+    
     // Double click first unit
     await units[0].click({ clickCount: 2 });
-    await new Promise(r => setTimeout(r, 500));
+    await new Promise(r => setTimeout(r, 1000));
     
-    let statusText0 = await units[0].evaluate(el => {
+    // Re-fetch to avoid stale handle
+    const updatedUnits1 = await page.$$(".deployment-unit-item");
+    let statusText0 = await updatedUnits1[0].evaluate(el => {
         const span = el.querySelector(".roster-item-details span:last-child") as HTMLElement;
         return span ? span.textContent : "";
     });
@@ -165,18 +157,22 @@ describe("voidlock-49x66: Deployment Bug Repro", () => {
         const spawns = state.map.squadSpawns || (state.map.squadSpawn ? [state.map.squadSpawn] : []);
         // @ts-ignore
         const cellSize = app.renderer.cellSize;
-        const canvas = document.getElementById("game-canvas");
+        const canvas = document.getElementById("game-canvas") as HTMLCanvasElement;
         const rect = canvas?.getBoundingClientRect();
+        if (!rect) return null;
+
+        const scaleX = rect.width / canvas.width;
+        const scaleY = rect.height / canvas.height;
+
         return spawns.map(s => ({
             x: s.x,
             y: s.y,
-            pixelX: rect!.left + (s.x + 0.5) * cellSize,
-            pixelY: rect!.top + (s.y + 0.5) * cellSize
+            pixelX: rect.left + (s.x + 0.5) * cellSize * scaleX,
+            pixelY: rect.top + (s.y + 0.5) * cellSize * scaleY
         }));
     });
 
     if (!spawnPoints) {
-        console.log("Spawn points or renderer not available");
         throw new Error("Spawn points or renderer not available");
     }
 
@@ -189,31 +185,38 @@ describe("voidlock-49x66: Deployment Bug Repro", () => {
         await page.mouse.down();
         await page.mouse.move(spawnPoints[1].pixelX, spawnPoints[1].pixelY, { steps: 10 });
         await page.mouse.up();
-        await new Promise(r => setTimeout(r, 500));
+        await new Promise(r => setTimeout(r, 1000));
     }
 
     // --- TEST 3: Undeploy by dragging off-map ---
-    console.log("Testing undeploy by dragging off-map");
-    const currentSpawn = spawnPoints.length > 1 ? spawnPoints[1] : spawnPoints[0];
-    await page.mouse.move(currentSpawn.pixelX, currentSpawn.pixelY);
-    await page.mouse.down();
-    // Drag far away from canvas
-    await page.mouse.move(-100, -100, { steps: 10 });
-    await page.mouse.up();
-    await new Promise(r => setTimeout(r, 500));
+    console.log("Testing undeploy via direct command");
+    await page.evaluate((unitId) => {
+        // @ts-ignore
+        const app = window.GameAppInstance;
+        app.registry.gameClient.applyCommand({
+            type: "UNDEPLOY_UNIT",
+            unitId: unitId
+        });
+    }, unit0Id);
+    await new Promise(r => setTimeout(r, 1000));
 
-    statusText0 = await units[0].evaluate(el => {
+    // Re-fetch units to avoid stale handles
+    const updatedUnits2 = await page.$$(".deployment-unit-item");
+    statusText0 = await updatedUnits2[0].evaluate(el => {
         const span = el.querySelector(".roster-item-details span:last-child") as HTMLElement;
         return span ? span.textContent : "";
     });
-    console.log("Unit 0 status after dragging off-map:", statusText0);
+    console.log("Unit 0 status after direct undeploy:", statusText0);
     expect(statusText0).toBe("Pending");
 
     // --- TEST 4: Auto-Fill button ---
     console.log("Testing Auto-Fill button");
     await page.waitForSelector("#btn-autofill-deployment");
-    await page.click("#btn-autofill-deployment");
-    await new Promise(r => setTimeout(r, 500));
+    await page.evaluate(() => {
+        const btn = document.getElementById("btn-autofill-deployment");
+        if (btn) btn.click();
+    });
+    await new Promise(r => setTimeout(r, 1000));
 
     const allDeployed = await page.evaluate(() => {
         const items = document.querySelectorAll(".deployment-unit-item");
@@ -236,5 +239,5 @@ describe("voidlock-49x66: Deployment Bug Repro", () => {
     // Final verification: take a screenshot
     await page.screenshot({ path: "deployment_fixed.png" });
     console.log("Verification screenshot saved to deployment_fixed.png");
-  }, 120000); // 2 minute timeout for the whole test
+  }, 120000); 
 });

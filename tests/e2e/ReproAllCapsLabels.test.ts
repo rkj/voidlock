@@ -39,16 +39,25 @@ describe("Reproduction: Title Case labels in UI (voidlock-8ai79)", () => {
   };
 
   test("Labels Mission Failed, Return to Command Bridge, and Soldier Attributes should be Title Case", async () => {
-    await page.goto(E2E_URL);
+    await page.goto(E2E_URL, { waitUntil: "load" });
     await page.evaluate(() => localStorage.clear());
-    await page.reload();
+    await page.reload({ waitUntil: "load" });
+    
+    // Wait for App to be ready
+    await page.waitForFunction(() => (window as any).__VOIDLOCK_READY__ === true);
 
     // 1. Check Soldier Attributes in Equipment Screen
     await page.waitForSelector("#btn-menu-custom", { visible: true });
-    await page.click("#btn-menu-custom");
+    await page.evaluate(() => {
+        const btn = document.getElementById("btn-menu-custom");
+        if (btn) btn.click();
+    });
     
     await page.waitForSelector("#btn-goto-equipment", { visible: true });
-    await page.click("#btn-goto-equipment");
+    await page.evaluate(() => {
+        const btn = document.getElementById("btn-goto-equipment");
+        if (btn) btn.click();
+    });
     
     await page.waitForSelector("#screen-equipment", { visible: true });
     await new Promise(r => setTimeout(r, 1000));
@@ -59,44 +68,60 @@ describe("Reproduction: Title Case labels in UI (voidlock-8ai79)", () => {
     // 2. Check Debrief Screen labels (Mission Failed / Return to Command Bridge)
     // Add soldier to squad
     await page.waitForSelector(".soldier-widget-roster.clickable", { visible: true });
-    await page.click(".soldier-widget-roster.clickable");
+    await page.evaluate(() => {
+        const el = document.querySelector(".soldier-widget-roster.clickable") as HTMLElement;
+        if (el) el.click();
+    });
     
     // Confirm Squad
-    const backBtn = await page.waitForSelector('[data-focus-id="btn-back"]');
-    if (!backBtn) throw new Error("Back button not found");
-    await backBtn.click();
+    await page.waitForSelector("#screen-equipment [data-focus-id='btn-back']", { visible: true });
+    await page.evaluate(() => {
+        const btn = document.querySelector("#screen-equipment [data-focus-id='btn-back']") as HTMLElement;
+        if (btn) btn.click();
+    });
 
     // Launch Mission
     await page.waitForSelector("#btn-launch-mission", { visible: true });
-    await page.click("#btn-launch-mission");
+    await page.evaluate(() => {
+        const btn = document.getElementById("btn-launch-mission");
+        if (btn) btn.click();
+    });
     
     await page.waitForSelector("#screen-mission", { visible: true });
     await new Promise(r => setTimeout(r, 2000));
 
     // Autofill deployment to enable Start Mission
     await page.waitForSelector("#btn-autofill-deployment", { visible: true });
-    await page.click("#btn-autofill-deployment");
+    await page.evaluate(() => {
+        const btn = document.getElementById("btn-autofill-deployment");
+        if (btn) btn.click();
+    });
 
     const startBtn = await page.waitForSelector("#btn-start-mission:not([disabled])", { visible: true });
     if (startBtn) {
-        await startBtn.click();
+        await page.evaluate(() => {
+            const btn = document.getElementById("btn-start-mission");
+            if (btn) btn.click();
+        });
         await new Promise(r => setTimeout(r, 1000));
     }
     
     // Toggle debug overlay via keyboard
-    await page.keyboard.press("`"); // Some systems use backtick/~
-    await page.keyboard.press("~"); 
+    await page.keyboard.press("Backquote"); // (Spec 8.2)
     
     // Alternative: use evaluate if keyboard fails in headless
     await page.evaluate(() => {
-        const anyWin = window as any;
-        if (anyWin.GameAppInstance && anyWin.GameAppInstance.context && anyWin.GameAppInstance.context.gameClient) {
-            anyWin.GameAppInstance.context.gameClient.toggleDebugOverlay(true);
+        const app = (window as any).GameAppInstance;
+        if (app && app.registry && app.registry.gameClient) {
+            app.registry.gameClient.toggleDebugOverlay(true);
         }
     });
 
-    await page.waitForSelector("#btn-force-lose", { visible: true, timeout: 5000 });
-    await page.click("#btn-force-lose");
+    await page.waitForSelector("#btn-force-lose", { visible: true, timeout: 10000 });
+    await page.evaluate(() => {
+        const btn = document.getElementById("btn-force-lose");
+        if (btn) btn.click();
+    });
     
     await page.waitForSelector("#screen-debrief", { visible: true });
     await new Promise(r => setTimeout(r, 1000));

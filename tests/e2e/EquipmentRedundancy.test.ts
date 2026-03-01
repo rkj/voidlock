@@ -28,6 +28,10 @@ describe("Equipment Screen Redundancy Regression", () => {
     // 2. Initialize Expedition
     const startBtnSelector = '[data-focus-id="btn-start-campaign"]';
     await page.waitForSelector(startBtnSelector, { timeout: 5000 });
+
+    // Skip Tutorial Prologue to reach Sector Map
+    await page.click("#campaign-skip-prologue");
+
     await page.click(startBtnSelector);
 
     // 3. Select first node to enter Equipment Screen
@@ -40,8 +44,8 @@ describe("Equipment Screen Redundancy Regression", () => {
 
     // 5. Verify "Confirm Squad" is GONE and "Launch Mission" and "Back" are present
     const confirmSquadBtn = await page.$('[data-focus-id="btn-confirm-squad"]');
-    const launchMissionBtn = await page.$('[data-focus-id="btn-launch-mission"]');
-    const backBtn = await page.$('[data-focus-id="btn-back"]');
+    const launchMissionBtn = await page.waitForSelector('[data-focus-id="btn-launch-mission"]');
+    const backBtn = await page.waitForSelector('[data-focus-id="btn-back"]');
 
     expect(confirmSquadBtn).toBeNull();
     expect(launchMissionBtn).not.toBeNull();

@@ -51,9 +51,9 @@ describe("Regression 39B1 - Map Entity Rendering", () => {
     await page.waitForSelector("#btn-goto-equipment:not([disabled])");
     await page.click("#btn-goto-equipment");
 
-    // Click "Confirm Squad" on Equipment screen to launch mission
-    await page.waitForSelector(".equipment-screen .primary-button");
-    await page.click(".equipment-screen .primary-button");
+    // Click "Back" on Equipment screen to return to mission setup
+    await page.waitForSelector("#screen-equipment .back-button");
+    await page.click("#screen-equipment .back-button");
 
     // Launch Mission (Deployment Phase)
     await page.waitForSelector("#btn-launch-mission", { visible: true });

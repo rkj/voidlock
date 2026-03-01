@@ -37,6 +37,7 @@ app
   .initialize()
   .then(() => {
     app.start();
+    (window as any).__VOIDLOCK_READY__ = true;
   })
   .catch((err) => {
     Logger.error("Failed to initialize GameApp:", err);

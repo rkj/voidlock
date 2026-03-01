@@ -54,8 +54,9 @@ describe("Mission Deployment Drag and Drop", () => {
         await page.click(".roster-list .soldier-card");
     }
 
-    // Confirm
-    await page.click("button.primary-button"); // Confirm Squad
+    // Confirm (Back to Setup)
+    await page.waitForSelector("#screen-equipment .back-button");
+    await page.click("#screen-equipment .back-button");
     
     // Now back at Mission Setup, need to click Launch Mission
     await page.waitForSelector("#btn-launch-mission");

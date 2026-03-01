@@ -25,17 +25,23 @@ describe('Mission Screen Layout', () => {
 
     // Navigate to Custom Mission
     await page.waitForSelector('#btn-menu-custom');
-    await page.click('#btn-menu-custom');
+    await page.evaluate(() => {
+        const btn = document.getElementById('btn-menu-custom');
+        if (btn) btn.click();
+    });
 
     // Wait for Mission Setup
     await page.waitForSelector('#screen-mission-setup');
 
     // Launch Mission
     await page.waitForSelector('#btn-launch-mission');
-    await page.click('#btn-launch-mission');
+    await page.evaluate(() => {
+        const btn = document.getElementById('btn-launch-mission');
+        if (btn) btn.click();
+    });
 
     // Wait for Mission Screen
-    await page.waitForSelector('#screen-mission');
+    await page.waitForSelector('#screen-mission', { visible: true, timeout: 10000 });
     
     // Check #game-container style
     const overflow = await page.evaluate(() => {
@@ -100,7 +106,7 @@ describe('Mission Screen Layout', () => {
     });
 
     // Wait for Mission Screen
-    await page.waitForSelector('#screen-mission');
+    await page.waitForSelector('#screen-mission', { visible: true, timeout: 10000 });
     
     // Check for scrollbars
     const hasScrollbar = await page.evaluate(() => {

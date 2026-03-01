@@ -28,6 +28,10 @@ describe("Mobile Campaign Navigation", () => {
     // Click "Start Campaign" in Wizard
     const startBtnSelector = ".campaign-setup-wizard .primary-button";
     await page.waitForSelector(startBtnSelector);
+
+    // Skip Tutorial Prologue to see all tabs
+    await page.click("#campaign-skip-prologue");
+
     await page.click(startBtnSelector);
 
     // Wait for Campaign Shell
@@ -77,7 +81,11 @@ describe("Mobile Campaign Navigation", () => {
       // Ensure we can click it (scrolling might be needed)
       // If it's off-screen, click might fail or scroll automatically.
       // We want to ensure it's accessible.
-      await settingsTab.click();
+      await page.evaluate(() => {
+          const btns = Array.from(document.querySelectorAll(".tab-button"));
+          const btn = btns.find(b => b.textContent === "Settings") as HTMLElement;
+          if (btn) btn.click();
+      });
       
       // Verify we switched to Settings tab
       // The content area should change. 

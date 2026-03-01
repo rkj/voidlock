@@ -12,9 +12,12 @@ describe("Memory Usage Regression", () => {
 
   it("should not leak significant memory over multiple mission cycles", async () => {
     page = await getNewPage();
-    await page.goto(E2E_URL);
-
-    // Helper to get heap size after GC
+    await page.goto(E2E_URL, { waitUntil: "load" });
+    await page.evaluate(() => localStorage.clear());
+    await page.reload({ waitUntil: "load" });
+    
+    // Wait for App to be ready
+    await page.waitForFunction(() => (window as any).__VOIDLOCK_READY__ === true);
     const getHeapSize = async () => {
       await page.evaluate(() => {
         if (typeof window.gc === "function") {
@@ -29,45 +32,71 @@ describe("Memory Usage Regression", () => {
     const runMissionCycle = async (iteration: number) => {
       // 1. Click Custom Mission
       await page.waitForSelector("#btn-menu-custom", { visible: true });
-      await page.click("#btn-menu-custom");
+      await page.evaluate(() => {
+          const btn = document.getElementById("btn-menu-custom");
+          if (btn) btn.click();
+      });
 
       // 2. Launch Mission Setup -> Equipment
       await page.waitForSelector("#btn-goto-equipment", { visible: true });
-      await page.click("#btn-goto-equipment");
+      await page.evaluate(() => {
+          const btn = document.getElementById("btn-goto-equipment");
+          if (btn) btn.click();
+      });
 
-      // 3. Confirm Squad
-      await page.waitForSelector(".equipment-screen .primary-button", {
+      // 3. Back to Setup
+      await page.waitForSelector("#screen-equipment .back-button", {
         visible: true,
       });
-      await page.click(".equipment-screen .primary-button");
+      await page.evaluate(() => {
+          const btn = document.querySelector("#screen-equipment .back-button") as HTMLElement;
+          if (btn) btn.click();
+      });
 
       // 3.5 Launch Mission from Setup
       await page.waitForSelector("#btn-launch-mission", { visible: true });
-      await page.click("#btn-launch-mission");
+      await page.evaluate(() => {
+          const btn = document.getElementById("btn-launch-mission");
+          if (btn) btn.click();
+      });
 
       // 3.6 Handle Deployment
       await page.waitForSelector("#btn-autofill-deployment");
-      await page.click("#btn-autofill-deployment");
-      await page.click("#btn-start-mission");
+      await page.evaluate(() => {
+          const btn = document.getElementById("btn-autofill-deployment");
+          if (btn) btn.click();
+      });
+      await new Promise(r => setTimeout(r, 1000));
+      await page.evaluate(() => {
+          const btn = document.getElementById("btn-start-mission");
+          if (btn) btn.click();
+      });
 
       // 4. Wait for game to load
       await page.waitForSelector("#game-canvas", { visible: true });
       // Wait a bit for engine to start
       await new Promise((r) => setTimeout(r, 1000));
 
-      // 5. Toggle Debug Mode via keyboard (Backquote key `~`)
-      await page.keyboard.press("Backquote");
+      // 5. Toggle Debug Mode via keyboard (Backquote key `)
+      await page.keyboard.press("Backquote"); // (Spec 8.2)
 
       // 6. Force Win (Debug tool)
       await page.waitForSelector("#btn-force-win", { visible: true });
-      await page.click("#btn-force-win");
+      await page.evaluate(() => {
+          const btn = document.getElementById("btn-force-win");
+          if (btn) btn.click();
+      });
 
       // 7. Wait for Debrief Screen and click Continue
       await page.waitForSelector(".debrief-screen .debrief-button", {
         visible: true,
       });
       await new Promise((r) => setTimeout(r, 500)); // Allow UI to stabilize
-      await page.click(".debrief-screen .debrief-button");
+      await page.evaluate(() => {
+          const btns = Array.from(document.querySelectorAll(".debrief-screen .debrief-button"));
+          const btn = btns.find(b => b.textContent?.includes("Continue") || b.textContent?.includes("Return")) as HTMLElement;
+          if (btn) btn.click();
+      });
 
       // 8. Wait for Main Menu
       await page.waitForSelector("#btn-menu-custom", { visible: true });

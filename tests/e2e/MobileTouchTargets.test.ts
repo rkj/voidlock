@@ -1,27 +1,23 @@
-import puppeteer, { Browser, Page } from "puppeteer";
 import { afterAll, beforeAll, describe, expect, test } from "vitest";
+import { getNewPage, closeBrowser } from "./utils/puppeteer";
+import { Page } from "puppeteer";
 import { E2E_URL } from "./config";
 
 describe("Mobile Touch Targets (voidlock-txasb)", () => {
-  let browser: Browser;
   let page: Page;
 
   beforeAll(async () => {
-    browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
-    page = await browser.newPage();
+    page = await getNewPage();
     // Simulate mobile viewport
     await page.setViewport({ width: 400, height: 800, isMobile: true, hasTouch: true });
     // Inject mobile-touch class
-    await page.evaluateOnNewDocument(() => {
+    await page.evaluate(() => {
       document.documentElement.classList.add('mobile-touch');
     });
   });
 
   afterAll(async () => {
-    await browser.close();
+    await closeBrowser();
   });
 
   const checkTouchTargets = async (selector: string, context: string) => {
@@ -47,16 +43,28 @@ describe("Mobile Touch Targets (voidlock-txasb)", () => {
   };
 
   test("Mobile interactive elements should meet 44x44px requirement", async () => {
-    await page.goto(E2E_URL, { waitUntil: "networkidle0" });
+    await page.goto(E2E_URL, { waitUntil: "load" });
+    await page.evaluate(() => localStorage.clear());
+    await page.reload({ waitUntil: "load" });
     
+    // Wait for App to be ready
+    await page.waitForFunction(() => (window as any).__VOIDLOCK_READY__ === true);
+
     // Check main menu buttons
     await page.waitForSelector("#screen-main-menu", { visible: true });
     await checkTouchTargets("#screen-main-menu button", "Main Menu Buttons");
 
     // Check Equipment Screen (Equipment removal Xs)
-    await page.click("#btn-menu-custom");
+    await page.evaluate(() => {
+        const btn = document.getElementById("btn-menu-custom");
+        if (btn) btn.click();
+    });
     await page.waitForSelector("#screen-mission-setup", { visible: true });
-    await page.click("#btn-goto-equipment");
+    
+    await page.evaluate(() => {
+        const btn = document.getElementById("btn-goto-equipment");
+        if (btn) btn.click();
+    });
     await page.waitForSelector("#screen-equipment", { visible: true });
     
     // Select first soldier in roster to see inspector

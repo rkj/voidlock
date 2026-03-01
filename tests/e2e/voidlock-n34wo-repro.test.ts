@@ -38,6 +38,10 @@ describe("voidlock-n34wo: Focus stay when buying equipment", () => {
     });
 
     const startBtn = await page.waitForSelector('[data-focus-id="btn-start-campaign"]');
+    
+    // Skip Tutorial Prologue to reach Sector Map
+    await page.click("#campaign-skip-prologue");
+    
     await startBtn?.click();
     
     await page.waitForSelector("#screen-campaign");

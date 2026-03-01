@@ -1,22 +1,18 @@
-import puppeteer, { Browser, Page } from "puppeteer";
 import { describe, it, beforeAll, afterAll, expect } from "vitest";
+import { getNewPage, closeBrowser } from "./utils/puppeteer";
+import { Page } from "puppeteer";
 import { E2E_URL } from "./config";
 
 describe("Equipment Screen Squad Size E2E", () => {
-  let browser: Browser;
   let page: Page;
 
   beforeAll(async () => {
-    browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
-    page = await browser.newPage();
+    page = await getNewPage();
     await page.setViewport({ width: 1024, height: 768 });
   });
 
   afterAll(async () => {
-    await browser.close();
+    await closeBrowser();
   });
 
   it("should allow selecting 4 soldiers in a new campaign", async () => {
@@ -24,16 +20,19 @@ describe("Equipment Screen Squad Size E2E", () => {
       await page.goto(E2E_URL, { waitUntil: "load" });
       await page.evaluate(() => localStorage.clear());
       await page.reload({ waitUntil: "load" });
+      
+      // Wait for App to be ready
+      await page.waitForFunction(() => (window as any).__VOIDLOCK_READY__ === true);
 
       // Wait for Main Menu to be ready (after potential splash)
       await page.waitForSelector('#btn-menu-campaign', { visible: true, timeout: 10000 });
       
-      // Wait a bit more for the splash animation to definitely clear and content to be interactive
-      await new Promise(r => setTimeout(r, 2000));
-
       // 1. Click Campaign in Main Menu
       console.log("Clicking Campaign button...");
-      await page.click('#btn-menu-campaign');
+      await page.evaluate(() => {
+          const btn = document.getElementById("btn-menu-campaign");
+          if (btn) btn.click();
+      });
 
       // 2. New Campaign Wizard should be visible.
       const startBtnSelector = ".campaign-setup-wizard .primary-button";
@@ -46,7 +45,16 @@ describe("Equipment Screen Squad Size E2E", () => {
         await diffCards[0].click(); // Easy/Simulation
       }
 
-      await page.click(startBtnSelector);
+      // Skip Tutorial Prologue to reach Sector Map
+      await page.evaluate(() => {
+          const check = document.getElementById("campaign-skip-prologue") as HTMLInputElement;
+          if (check) check.click();
+      });
+
+      await page.evaluate((sel) => {
+          const btn = document.querySelector(sel) as HTMLElement;
+          if (btn) btn.click();
+      }, startBtnSelector);
 
       // 3. Wait for Campaign Screen (Sector Map)
       console.log("Waiting for campaign screen...");
@@ -56,7 +64,10 @@ describe("Equipment Screen Squad Size E2E", () => {
       console.log("Clicking first node...");
       const nodeSelector = ".campaign-node.accessible";
       await page.waitForSelector(nodeSelector, { visible: true, timeout: 10000 });
-      await page.click(nodeSelector);
+      await page.evaluate((sel) => {
+          const el = document.querySelector(sel) as HTMLElement;
+          if (el) el.click();
+      }, nodeSelector);
 
       // 5. Should now be in Equipment Screen (Ready Room)
       console.log("Waiting for equipment screen...");

@@ -149,12 +149,19 @@ describe("Visual Verification - Dead Soldier Equipment", () => {
       }, pkg.version);
 
       await page.waitForNavigation({ waitUntil: "load" });
+      
+      // Wait for App to be ready
+      await page.waitForFunction(() => (window as any).__VOIDLOCK_READY__ === true);
+
       await new Promise((r) => setTimeout(r, 2000)); // Wait for render
 
       // Select the dead soldier in the roster list (it's the only one)
       // Note: In Equipment screen, they are in the left panel
       await page.waitForSelector(".soldier-item.dead", { visible: true, timeout: 5000 });
-      await page.click(".soldier-item.dead");
+      await page.evaluate(() => {
+          const el = document.querySelector(".soldier-item.dead") as HTMLElement;
+          if (el) el.click();
+      });
       await new Promise((r) => setTimeout(r, 1000));
 
       const hasWarning = await page.evaluate(() => {

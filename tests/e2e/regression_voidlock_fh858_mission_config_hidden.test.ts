@@ -32,6 +32,10 @@ describe("Regression voidlock-fh858: Mission Configuration Hidden in Campaign (N
     // 2. Initialize Expedition
     const startBtnSelector = ".campaign-setup-wizard .primary-button";
     await page.waitForSelector(startBtnSelector, { visible: true });
+    
+    // Skip Tutorial Prologue to reach Sector Map
+    await page.click("#campaign-skip-prologue");
+
     await page.click(startBtnSelector);
 
     // 3. Click first accessible node
@@ -95,6 +99,10 @@ describe("Regression voidlock-fh858: Mission Configuration Hidden in Campaign (N
     // 2. Initialize Expedition
     const startBtnSelector = ".campaign-setup-wizard .primary-button";
     await page.waitForSelector(startBtnSelector, { visible: true });
+    
+    // Skip Tutorial Prologue to reach Sector Map
+    await page.click("#campaign-skip-prologue");
+
     await page.click(startBtnSelector);
 
     // 3. Click first accessible node

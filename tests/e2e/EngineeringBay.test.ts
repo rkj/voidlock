@@ -31,6 +31,10 @@ describe("Engineering Bay E2E Verification", () => {
     );
     if (isWizard) {
       await page.click(".difficulty-card:nth-child(1)");
+      
+      // Skip Tutorial Prologue to reach Sector Map and see all tabs
+      await page.click("#campaign-skip-prologue");
+
       await page.click('[data-focus-id="btn-start-campaign"]');
       await new Promise((r) => setTimeout(r, 1000));
     }
