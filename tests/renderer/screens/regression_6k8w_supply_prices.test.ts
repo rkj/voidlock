@@ -36,9 +36,8 @@ describe("Regression 6k8w: Supply Prices", () => {
       mockManager,
       mockModalService as any,
       initialConfig,
-      vi.fn(),
-      vi.fn(),
-      undefined,
+      vi.fn(), // onBack
+      vi.fn(), // onUpdate
       undefined, // onLaunch
       false, // isShop
       true, // isCampaign

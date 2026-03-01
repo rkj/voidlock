@@ -17,7 +17,7 @@ vi.mock("@package.json", () => ({
 let stateUpdateCallback: ((state: any) => void) | null = null;
 
 const mockGameClient = {
-  init: vi.fn(),
+  init: vi.fn(), pause: vi.fn(), resume: vi.fn(),
   queryState: vi.fn(),
   onStateUpdate: vi.fn((cb) => {
     stateUpdateCallback = cb;

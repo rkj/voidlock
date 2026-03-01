@@ -9,7 +9,7 @@ vi.mock("@package.json", () => ({
 }));
 
 const mockGameClient = {
-  init: vi.fn(),
+  init: vi.fn(), pause: vi.fn(), resume: vi.fn(),
   onStateUpdate: vi.fn(),
   queryState: vi.fn(),
   addStateUpdateListener: vi.fn(),
@@ -75,7 +75,7 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => ({
       addChangeListener: vi.fn(),
       removeChangeListener: vi.fn(),
       load: vi.fn(),
-      save: vi.fn(),
+      save: vi.fn(), assignEquipment: vi.fn(),
     }),
   },
 }));

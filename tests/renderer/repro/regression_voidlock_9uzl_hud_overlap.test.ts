@@ -39,7 +39,7 @@ HTMLCanvasElement.prototype.getContext = vi.fn(() => ({
   })),
   measureText: vi.fn(() => ({ width: 0 })),
   scale: vi.fn(),
-  save: vi.fn(),
+  save: vi.fn(), assignEquipment: vi.fn(),
   restore: vi.fn(),
   translate: vi.fn(),
   rotate: vi.fn(),

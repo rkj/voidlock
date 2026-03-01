@@ -70,7 +70,7 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
       initialConfig,
       onSave,
       onBack,
-      null as any,
+      
       undefined, // onLaunch
       false, // isShop
       true // isCampaign
@@ -99,7 +99,7 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
       initialConfig,
       onSave,
       onBack,
-      null as any,
+      
       undefined, // onLaunch
       false, // isShop
       true // isCampaign
@@ -134,7 +134,7 @@ describe("EquipmentScreen - Dead Soldier Validation", () => {
       initialConfig,
       onSave,
       onBack,
-      null as any,
+      
       undefined, // onLaunch
       false, // isShop
       true // isCampaign

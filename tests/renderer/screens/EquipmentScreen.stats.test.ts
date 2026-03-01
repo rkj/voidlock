@@ -52,7 +52,7 @@ describe("EquipmentScreen Stats and Tooltips", () => {
       initialConfig,
       onSave,
       onBack,
-      null as any,
+      
       undefined, // onLaunch
       false, // isShop
       true // isCampaign
@@ -84,7 +84,7 @@ describe("EquipmentScreen Stats and Tooltips", () => {
       initialConfig,
       onSave,
       onBack,
-      null as any,
+      
       undefined, // onLaunch
       false, // isShop
       true // isCampaign
@@ -114,7 +114,7 @@ describe("EquipmentScreen Stats and Tooltips", () => {
       initialConfig,
       onSave,
       onBack,
-      null as any,
+      
       undefined, // onLaunch
       false, // isShop
       true // isCampaign
@@ -144,7 +144,7 @@ describe("EquipmentScreen Stats and Tooltips", () => {
       initialConfig,
       onSave,
       onBack,
-      null as any,
+      
       undefined, // onLaunch
       false, // isShop
       true // isCampaign

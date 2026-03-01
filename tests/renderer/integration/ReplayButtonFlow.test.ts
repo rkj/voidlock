@@ -12,7 +12,7 @@ vi.mock("@package.json", () => ({
 let stateUpdateCallback: ((state: any) => void) | null = null;
 
 const mockGameClient = {
-  init: vi.fn(),
+  init: vi.fn(), pause: vi.fn(), resume: vi.fn(),
   queryState: vi.fn(),
   onStateUpdate: vi.fn((cb) => {
     stateUpdateCallback = cb;
@@ -86,7 +86,7 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
         removeChangeListener: vi.fn(),
         load: vi.fn(),
         processMissionResult: vi.fn(),
-        save: vi.fn(),
+        save: vi.fn(), assignEquipment: vi.fn(),
         startNewCampaign: vi.fn(),
         reset: vi.fn(),
         deleteSave: vi.fn(),

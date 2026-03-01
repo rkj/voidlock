@@ -16,7 +16,7 @@ vi.mock("@package.json", () => ({
 }));
 
 const mockGameClient = {
-  init: vi.fn(),
+  init: vi.fn(), pause: vi.fn(), resume: vi.fn(),
   onStateUpdate: vi.fn(),
   queryState: vi.fn(),
   stop: vi.fn(),
@@ -84,7 +84,7 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
         }),
         getSyncStatus: vi.fn().mockReturnValue("local-only"),
         load: vi.fn().mockResolvedValue(true),
-        save: vi.fn(),
+        save: vi.fn(), assignEquipment: vi.fn(),
         startNewCampaign: vi.fn((seed, diff, pause, theme) => {
           mockState.value = {
             status: "Active",
