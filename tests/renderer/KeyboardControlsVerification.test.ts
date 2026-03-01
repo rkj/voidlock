@@ -38,6 +38,7 @@ describe("KeyboardControlsVerification", () => {
       vi.fn(), // onDeployUnit
       vi.fn(), // onUndeployUnit
       vi.fn(), // getCellCoordinates
+      vi.fn(), // getWorldCoordinates
       cycleUnits,
       panMap,
       vi.fn(), // panMapBy

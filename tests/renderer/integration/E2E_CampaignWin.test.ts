@@ -23,7 +23,7 @@ vi.mock("@package.json", () => ({
 let stateUpdateCallback: ((state: GameState) => void) | null = null;
 
 const mockGameClient = {
-  init: vi.fn(),
+  init: vi.fn(), pause: vi.fn(), resume: vi.fn(),
   queryState: vi.fn(),
   onStateUpdate: vi.fn((cb) => {
     stateUpdateCallback = cb;
@@ -317,7 +317,7 @@ describe("E2E Campaign Happy Path", () => {
       const equipmentBtn = Array.from(
         document.querySelectorAll("#screen-equipment button"),
       ).find((b) => 
-        b.textContent?.includes("Confirm") || 
+        b.textContent?.includes("Launch Mission") || 
         b.textContent?.includes("Leave")
       ) as HTMLElement;
       

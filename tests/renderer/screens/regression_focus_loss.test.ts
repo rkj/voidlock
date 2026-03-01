@@ -52,7 +52,7 @@ describe("EquipmentScreen Focus Regression", () => {
       initialConfig,
       onSave,
       onBack,
-      null as any,
+      
       undefined, // onLaunch
       false, // isShop
       true // isCampaign

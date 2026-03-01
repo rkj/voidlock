@@ -11,7 +11,7 @@ vi.mock("@package.json", () => ({
 }));
 
 const mockGameClient = {
-  init: vi.fn(),
+  init: vi.fn(), pause: vi.fn(), resume: vi.fn(),
   onStateUpdate: vi.fn(),
   queryState: vi.fn(),
   addStateUpdateListener: vi.fn(),
@@ -82,7 +82,7 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
         removeChangeListener: vi.fn(),
         load: vi.fn(),
         processMissionResult: vi.fn(),
-        save: vi.fn(),
+        save: vi.fn(), assignEquipment: vi.fn(),
         startNewCampaign: vi.fn((seed, difficulty, overrides, themeId) => {
           const rulesDifficulty = (
             difficulty === "Normal" ? "Clone" : difficulty

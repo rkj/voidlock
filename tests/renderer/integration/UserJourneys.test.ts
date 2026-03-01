@@ -21,7 +21,7 @@ vi.mock("@package.json", () => ({
 let stateUpdateCallback: ((state: GameState) => void) | null = null;
 
 const mockGameClient = {
-  init: vi.fn(),
+  init: vi.fn(), pause: vi.fn(), resume: vi.fn(),
   queryState: vi.fn(),
   onStateUpdate: vi.fn((cb) => {
     stateUpdateCallback = cb;
@@ -97,7 +97,7 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
         removeChangeListener: vi.fn(),
         load: vi.fn(),
         processMissionResult: vi.fn(),
-        save: vi.fn(),
+        save: vi.fn(), assignEquipment: vi.fn(),
         startNewCampaign: vi.fn((seed, diff, pause, theme) => {
           currentCampaignState = {
             status: "Active",
@@ -390,10 +390,10 @@ describe("Comprehensive User Journeys", () => {
     assaultCard?.dispatchEvent(new Event("dblclick"));
 
     document.getElementById("btn-goto-equipment")?.click();
-    const equipmentLaunchBtn = Array.from(
+    const equipmentBackBtn = Array.from(
       document.querySelectorAll("#screen-equipment button"),
-    ).find((b) => b.textContent?.includes("Confirm")) as HTMLElement;
-    equipmentLaunchBtn.click();
+    ).find((b) => b.textContent?.includes("Back")) as HTMLElement;
+    equipmentBackBtn.click();
 
     // Now it should be in mission-setup, click Launch
     document.getElementById("btn-launch-mission")?.click();
@@ -468,11 +468,17 @@ describe("Comprehensive User Journeys", () => {
     document.getElementById("btn-goto-equipment")?.click();
     const equipmentLaunchBtn = Array.from(
       document.querySelectorAll("#screen-equipment button"),
-    ).find((b) => b.textContent?.includes("Confirm")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("Launch Mission")) as HTMLElement;
     equipmentLaunchBtn.click();
 
-    // Now it should be in mission-setup, click Launch
-    document.getElementById("btn-launch-mission")?.click();
+    // Dismiss Advisor if Prologue
+    const advisorBtn = document.querySelector(".advisor-btn") as HTMLElement;
+    if (advisorBtn) advisorBtn.click();
+
+    // Now it should be in mission
+    expect(document.getElementById("screen-mission")?.style.display).toBe(
+      "flex",
+    );
 
     // 1. Mission -> Lose
     expect(stateUpdateCallback).not.toBeNull();

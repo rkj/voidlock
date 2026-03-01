@@ -39,7 +39,7 @@ vi.mock("@src/renderer/ThemeManager", () => ({
 let stateUpdateCallback: ((state: GameState) => void) | null = null;
 
 const mockGameClient = {
-  init: vi.fn(),
+  init: vi.fn(), pause: vi.fn(), resume: vi.fn(),
   queryState: vi.fn(),
   onStateUpdate: vi.fn((cb) => {
     stateUpdateCallback = cb;

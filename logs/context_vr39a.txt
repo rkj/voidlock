@@ -1,0 +1,2 @@
+FAILED_VERIFICATION: 18 tests are still failing across 13 test files. 
+NEXT: Fix the remaining 18 test failures (KeyboardControlsVerification, TouchInput, UserJourneys, CampaignMapGenerator, E2E_CampaignWin, FullCampaignFlow, EquipmentScreen stats/costs/focus/dead_soldier regressions).

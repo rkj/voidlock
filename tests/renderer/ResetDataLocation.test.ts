@@ -10,7 +10,7 @@ vi.mock("../../package.json", () => ({
 
 vi.mock("@src/engine/GameClient", () => ({
   GameClient: vi.fn().mockImplementation(() => ({
-    init: vi.fn(),
+    init: vi.fn(), pause: vi.fn(), resume: vi.fn(),
     onStateUpdate: vi.fn(),
   queryState: vi.fn(),
     addStateUpdateListener: vi.fn(),

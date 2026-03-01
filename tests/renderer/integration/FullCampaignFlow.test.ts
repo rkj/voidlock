@@ -17,7 +17,7 @@ vi.mock("@package.json", () => ({
 let stateUpdateCallback: ((state: any) => void) | null = null;
 
 const mockGameClient = {
-  init: vi.fn(),
+  init: vi.fn(), pause: vi.fn(), resume: vi.fn(),
   queryState: vi.fn(),
   onStateUpdate: vi.fn((cb) => {
     stateUpdateCallback = cb;
@@ -235,6 +235,10 @@ describe("Full Campaign Flow Integration", () => {
     expect(launchBtn).toBeTruthy();
     launchBtn.click();
 
+    // Dismiss Advisor if Prologue
+    const advisorBtn = document.querySelector(".advisor-btn") as HTMLElement;
+    if (advisorBtn) advisorBtn.click();
+
     // Now it should be in mission
     expect(document.getElementById("screen-mission")?.style.display).toBe(
       "flex",
@@ -371,7 +375,7 @@ describe("Full Campaign Flow Integration", () => {
 
     (
       Array.from(document.querySelectorAll("#screen-equipment button")).find(
-        (b) => b.textContent?.includes("Confirm"),
+        (b) => b.textContent?.includes("Launch Mission"),
       ) as HTMLElement
     ).click();
 
@@ -478,7 +482,7 @@ describe("Full Campaign Flow Integration", () => {
 
     const confBtn = Array.from(
       document.querySelectorAll("#screen-equipment button"),
-    ).find((b) => b.textContent?.includes("Confirm")) as HTMLElement;
+    ).find((b) => b.textContent?.includes("Launch Mission")) as HTMLElement;
     confBtn?.click();
 
     // Click Launch in mission-setup

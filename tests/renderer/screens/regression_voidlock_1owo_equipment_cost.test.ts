@@ -97,7 +97,6 @@ describe("EquipmentScreen Economics", () => {
       mockModalService as any,
       initialConfig,
       onSave,
-      onBack,
       () => shell.refresh(),
       undefined, // onLaunch
       false, // isShop
@@ -128,7 +127,6 @@ describe("EquipmentScreen Economics", () => {
       mockModalService as any,
       initialConfig,
       onSave,
-      onBack,
       () => shell.refresh(),
       undefined, // onLaunch
       false, // isShop
@@ -157,7 +155,6 @@ describe("EquipmentScreen Economics", () => {
       mockModalService as any,
       initialConfig,
       onSave,
-      onBack,
       () => shell.refresh(),
       undefined, // onLaunch
       false, // isShop
@@ -186,7 +183,6 @@ describe("EquipmentScreen Economics", () => {
       mockModalService as any,
       initialConfig,
       onSave,
-      onBack,
       () => shell.refresh(),
       undefined, // onLaunch
       false, // isShop
@@ -221,7 +217,6 @@ describe("EquipmentScreen Economics", () => {
       mockModalService as any,
       initialConfig,
       onSave,
-      onBack,
       () => shell.refresh(),
       undefined, // onLaunch
       false, // isShop
@@ -251,7 +246,6 @@ describe("EquipmentScreen Economics", () => {
       mockModalService as any,
       initialConfig,
       onSave,
-      onBack,
       () => shell.refresh(),
       undefined, // onLaunch
       false, // isShop
@@ -291,7 +285,6 @@ describe("EquipmentScreen Economics", () => {
       mockModalService as any,
       initialConfig,
       onSave,
-      onBack,
       () => shell.refresh(),
       undefined, // onLaunch
       false, // isShop

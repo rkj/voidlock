@@ -34,6 +34,7 @@ describe("InputManager Touch Gestures", () => {
       vi.fn(), // onDeployUnit
       vi.fn(), // onUndeployUnit
       () => ({ x: 0, y: 0 }), // getCellCoordinates
+      () => ({ x: 0, y: 0 }), // getWorldCoordinates
       vi.fn(), // cycleUnits
       vi.fn(), // panMap
       panMapBy,

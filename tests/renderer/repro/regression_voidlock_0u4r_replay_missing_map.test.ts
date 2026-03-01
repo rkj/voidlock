@@ -27,7 +27,7 @@ describe("Renderer Replay Missing Map Repro (voidlock-0u4r)", () => {
       closePath: vi.fn(),
       scale: vi.fn(),
       translate: vi.fn(),
-      save: vi.fn(),
+      save: vi.fn(), assignEquipment: vi.fn(),
       restore: vi.fn(),
       drawImage: vi.fn(),
       setLineDash: vi.fn(),

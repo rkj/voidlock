@@ -9,7 +9,7 @@ vi.mock("@package.json", () => ({
 }));
 
 const mockGameClient = {
-  init: vi.fn(),
+  init: vi.fn(), pause: vi.fn(), resume: vi.fn(),
   onStateUpdate: vi.fn(),
   queryState: vi.fn(),
   stop: vi.fn(),
@@ -82,7 +82,7 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
         removeChangeListener: vi.fn(),
         load: vi.fn(),
         processMissionResult: vi.fn(),
-        save: vi.fn(),
+        save: vi.fn(), assignEquipment: vi.fn(),
         startNewCampaign: vi.fn((_seed, diff, pause, theme) => {
           currentCampaignState = {
             status: "Active",
