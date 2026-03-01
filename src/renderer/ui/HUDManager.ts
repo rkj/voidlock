@@ -103,59 +103,6 @@ export class HUDManager {
         topThreatFill.classList.remove("no-transition");
       }
     }
-
-    // Manual sync for top-bar elements to ensure authoritative state even if UIBinder didn't find them (ADR 0048)
-    const slider = document.getElementById("game-speed") as HTMLInputElement;
-    const speedValue = document.getElementById("speed-value");
-    const pauseBtn = document.getElementById("btn-pause-toggle");
-
-    if (slider) {
-      const min = state.settings.allowTacticalPause ? "0" : "50";
-      if (slider.min !== min) slider.min = min;
-
-      // Avoid syncing if user is dragging
-      if (document.activeElement !== slider) {
-        const scaleToUse = Math.max(0.1, state.settings.targetTimeScale);
-        const val = TimeUtility.scaleToSlider(scaleToUse).toString();
-        if (slider.value !== val) slider.value = val;
-      }
-    }
-
-    if (speedValue) {
-      const scale = state.settings.isPaused
-        ? state.settings.allowTacticalPause
-          ? 0.1
-          : 0.0
-        : state.settings.timeScale;
-      const text = TimeUtility.formatSpeed(scale, state.settings.isPaused);
-      if (speedValue.textContent !== text) speedValue.textContent = text;
-    }
-
-    if (pauseBtn) {
-      const text = state.settings.isPaused ? "▶ Play" : "|| Pause";
-      if (pauseBtn.textContent !== text) pauseBtn.textContent = text;
-    }
-
-    // Manual visibility management (ADR 0048)
-    const threatContainer = document.getElementById("top-threat-container");
-    const speedControl = document.getElementById("speed-control");
-
-    if (threatContainer) {
-      const isDeployment = state.status === "Deployment";
-      const isPrologue = state.missionType === "Prologue";
-      const threatLevel = state.stats.threatLevel || 0;
-      const aliensKilled = state.stats.aliensKilled || 0;
-      const hasContact = threatLevel > 1 || aliensKilled > 0;
-      const visible = !isDeployment && (!isPrologue || hasContact);
-      threatContainer.style.visibility = visible ? "visible" : "hidden";
-    }
-
-    if (speedControl) {
-      const isDeployment = state.status === "Deployment";
-      const isPrologue = state.missionType === "Prologue";
-      const visible = !isDeployment && !isPrologue;
-      speedControl.style.visibility = visible ? "visible" : "hidden";
-    }
   }
 
   private updateRightPanel(state: GameState) {

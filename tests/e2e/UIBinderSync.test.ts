@@ -1,17 +1,13 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
-import puppeteer, { Browser, Page } from "puppeteer";
+import { describe, it, expect, beforeAll, afterAll, beforeEach } from "vitest";
+import { getNewPage, closeBrowser } from "./utils/puppeteer";
+import type { Page } from "puppeteer";
 import { E2E_URL } from "./config";
 
 describe("UIBinder Synchronization", () => {
-  let browser: Browser;
   let page: Page;
 
   beforeAll(async () => {
-    browser = await puppeteer.launch({
-      headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-    });
-    page = await browser.newPage();
+    page = await getNewPage();
     await page.setViewport({ width: 1024, height: 768 });
     
     page.on("console", msg => {
@@ -23,12 +19,20 @@ describe("UIBinder Synchronization", () => {
     });
   });
 
+  beforeEach(async () => {
+    await page.goto(E2E_URL);
+    await page.evaluate(() => {
+        localStorage.clear();
+        window.location.hash = "";
+    });
+    await page.goto(E2E_URL);
+  });
+
   afterAll(async () => {
-    await browser.close();
+    await closeBrowser();
   });
 
   it("should synchronize speed slider and pause button via UIBinder", async () => {
-    await page.goto(E2E_URL);
     await page.waitForSelector("#screen-main-menu", { visible: true });
     await page.screenshot({ path: "debug_1_main_menu.png" });
     
@@ -36,25 +40,9 @@ describe("UIBinder Synchronization", () => {
     console.log("Clicking Custom Mission...");
     await page.waitForSelector("#btn-menu-custom", { visible: true });
     
-    // Check if it's actually there
-    const btnData = await page.evaluate(() => {
-      const el = document.getElementById("btn-menu-custom");
-      if (!el) return null;
-      const rect = el.getBoundingClientRect();
-      return {
-        id: el.id,
-        visible: el.offsetParent !== null,
-        rect: { x: rect.x, y: rect.y, width: rect.width, height: rect.height },
-        textContent: el.textContent?.trim()
-      };
-    });
-    console.log(`Button Data: ${JSON.stringify(btnData)}`);
-
-    // Use a more robust click
     await page.evaluate(() => {
       const el = document.getElementById("btn-menu-custom");
       if (el) {
-        el.style.border = "5px solid red"; // Visual marker for debug
         el.click();
       }
     });
@@ -173,6 +161,7 @@ describe("UIBinder Synchronization", () => {
       if (slider) {
         slider.value = "100"; // 10.0x
         slider.dispatchEvent(new Event("input", { bubbles: true }));
+        slider.dispatchEvent(new Event("change", { bubbles: true }));
       }
     });
     

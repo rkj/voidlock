@@ -53,9 +53,10 @@ describe("HUDManager: Pause Constraints", () => {
         <div id="menu-version"></div>
         <div id="top-threat-fill"></div>
         <div id="top-threat-value"></div>
-        <div id="speed-control">
-          <input type="range" id="game-speed" min="0" max="100" value="50">
-          <span id="speed-value">1.0x</span>
+        <div id="speed-control" data-bind-visibility="settings" data-bind-transform="speedVisibility">
+          <button id="btn-pause-toggle" data-bind-text="settings.isPaused" data-bind-transform="pauseText">Pause</button>
+          <input type="range" id="game-speed" min="0" max="100" value="50" data-bind-value="settings.targetTimeScale" data-bind-transform="speedSlider" data-bind-min="settings.allowTacticalPause|minSpeedValue">
+          <span id="speed-value" data-bind-text="settings" data-bind-transform="speedText">1.0x</span>
         </div>
       </div>
       <div id="right-panel"></div>

@@ -48,10 +48,11 @@ describe("Pause and Speed Synchronization Repro", () => {
     // Setup DOM with standardized IDs from index.html
     document.body.innerHTML = `
       <div id="top-bar">
-        <button id="btn-pause-toggle">Pause</button>
-        <button id="btn-pause">Pause</button>
-        <input type="range" id="game-speed" min="0" max="100" value="50" />
-        <span id="speed-value">1.0x</span>
+        <div id="speed-control" data-bind-visibility="settings" data-bind-transform="speedVisibility">
+          <button id="btn-pause-toggle" data-bind-text="settings.isPaused" data-bind-transform="pauseText">Pause</button>
+          <input type="range" id="game-speed" min="0" max="100" value="50" data-bind-value="settings.targetTimeScale" data-bind-transform="speedSlider" data-bind-min="settings.allowTacticalPause|minSpeedValue" />
+          <span id="speed-value" data-bind-text="settings" data-bind-transform="speedText">1.0x</span>
+        </div>
       </div>
     `;
 
@@ -181,14 +182,14 @@ describe("Pause and Speed Synchronization Repro", () => {
   });
 
   it("Reproduction: Progressive UI Visibility (Deployment, Prologue, Hostile Contact)", () => {
+    document.body.innerHTML += `
+      <div id="top-threat-container" data-bind-visibility="stats" data-bind-transform="threatVisibility"></div>
+      <div id="speed-control" data-bind-visibility="settings" data-bind-transform="speedVisibility"></div>
+    `;
+
     const hudManager = new HUDManager(
       null as any, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}
     );
-
-    document.body.innerHTML += `
-      <div id="top-threat-container"></div>
-      <div id="speed-control"></div>
-    `;
 
     const threatContainer = document.getElementById("top-threat-container") as HTMLElement;
     const speedControl = document.getElementById("speed-control") as HTMLElement;
