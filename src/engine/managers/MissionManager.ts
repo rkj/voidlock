@@ -378,51 +378,29 @@ export class MissionManager {
       (u) => u.state === UnitState.Extracted,
     );
 
-    // 1. Escort VIP: Win if all VIPs extracted
-    if (this.missionType === MissionType.EscortVIP) {
-      const allVipsExtracted =
-        vips.length > 0 && vips.every((v) => v.state === UnitState.Extracted);
-
-      if (allVipsExtracted) {
-        if (state.status !== "Won") {
-          state.stats.scrapGained += SCRAP_REWARDS.MISSION_WIN * multiplier;
-          state.status = "Won";
-        }
-      } else {
-        if (state.status !== "Lost") {
-          state.stats.scrapGained += SCRAP_REWARDS.MISSION_LOSS_CONSOLATION;
-          state.status = "Lost";
-        }
-      }
-      return;
-    }
-
-    // 2. Search & Recover / Extract Artifacts: REQUIRES at least one unit to extract
-    if (
+    // 1. Check for missions that REQUIRE at least one extraction (Survival missions)
+    const isSurvivalMission =
       this.missionType === MissionType.ExtractArtifacts ||
-      this.missionType === MissionType.Default
-    ) {
-      if (allObjectivesComplete && extractedUnits.length > 0) {
-        if (state.status !== "Won") {
-          state.stats.scrapGained += SCRAP_REWARDS.MISSION_WIN * multiplier;
-          state.status = "Won";
-        }
-      } else {
+      this.missionType === MissionType.Default ||
+      this.missionType === MissionType.EscortVIP ||
+      this.missionType === MissionType.Prologue;
+
+    if (allObjectivesComplete) {
+      if (isSurvivalMission && extractedUnits.length === 0) {
+        // All objectives complete but no one survived extraction -> Lost
         if (state.status !== "Lost") {
           state.stats.scrapGained += SCRAP_REWARDS.MISSION_LOSS_CONSOLATION;
           state.status = "Lost";
         }
-      }
-      return;
-    }
-
-    // 3. Expendable missions (DestroyHive, RecoverIntel): Win if objectives complete, even if all dead
-    if (allObjectivesComplete) {
-      if (state.status !== "Won") {
-        state.stats.scrapGained += SCRAP_REWARDS.MISSION_WIN * multiplier;
-        state.status = "Won";
+      } else {
+        // Either not a survival mission (Expendable) or someone extracted -> Won
+        if (state.status !== "Won") {
+          state.stats.scrapGained += SCRAP_REWARDS.MISSION_WIN * multiplier;
+          state.status = "Won";
+        }
       }
     } else {
+      // Objectives not complete and everyone is off map -> Lost
       if (state.status !== "Lost") {
         state.stats.scrapGained += SCRAP_REWARDS.MISSION_LOSS_CONSOLATION;
         state.status = "Lost";
