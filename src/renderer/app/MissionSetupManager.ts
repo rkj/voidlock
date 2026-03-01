@@ -318,13 +318,14 @@ export class MissionSetupManager {
           if (missionSelect) missionSelect.value = this.currentMissionType;
         }
 
+        const isPrologue = this.currentMissionType === MissionType.Prologue;
         const hasNonCampaignSoldiers = this.currentSquad.soldiers.some(
           (s) => !s.id,
         );
-        if (this.currentSquad.soldiers.length === 0 || hasNonCampaignSoldiers) {
+        if (this.currentSquad.soldiers.length === 0 || hasNonCampaignSoldiers || isPrologue) {
           const active = state.roster
             .filter((s) => s.status === "Healthy" || s.status === "Wounded")
-            .slice(0, 4);
+            .slice(0, isPrologue ? 1 : 4);
           this.currentSquad.soldiers = active.map((s) => ({
             id: s.id,
             name: s.name,

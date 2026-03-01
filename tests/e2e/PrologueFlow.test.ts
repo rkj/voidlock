@@ -60,73 +60,43 @@ describe("Prologue Flow Reproduction", () => {
         if (btn) btn.click();
     }, startBtn);
 
-    // 4. Verify we land on Sector Map (Bug: Should go directly to Ready Room)
-    console.log("Verifying Sector Map...");
-    await page.waitForSelector(".campaign-map-viewport", { visible: true });
-    const currentHash = await page.evaluate(() => window.location.hash);
-    expect(currentHash).toBe("#campaign");
-
-    // 5. Click the first node (Prologue)
-    console.log("Clicking Prologue node...");
-    const nodeSelector = ".campaign-node.accessible";
-    await page.waitForSelector(nodeSelector, { visible: true });
-    await page.click(nodeSelector);
-
-    // 6. Verify we are in Equipment Screen (Ready Room)
+    // 4. Verify we land on Equipment Screen (ADR 0049: Skip Sector Map)
     console.log("Verifying Equipment Screen...");
     await page.waitForSelector("#screen-equipment", { visible: true });
-    
-    // 7. Verify redundant buttons (Bug: Should only have "Launch Mission")
-    console.log("Checking for redundant buttons...");
-    const confirmBtn = await page.$("[data-focus-id='btn-back']");
+    const currentHash = await page.evaluate(() => window.location.hash);
+    expect(currentHash).toBe("#equipment");
+
+    // 5. Verify redundant buttons are GONE (Bug: Should NOT have "Confirm Squad" / "Back")
+    console.log("Checking that Back button is hidden...");
+    const backBtn = await page.$("[data-focus-id='btn-back']");
+    expect(backBtn).toBeNull();
+
     const launchBtn = await page.$("[data-focus-id='btn-launch-mission']");
-    
-    expect(confirmBtn).not.toBeNull();
     expect(launchBtn).not.toBeNull();
 
-    const confirmText = await page.evaluate(el => el?.textContent, confirmBtn);
-    expect(confirmText).toBe("Confirm Squad");
-
-    // 8. Demonstrate redundant flow: Confirm Squad goes back to Map
-    console.log("Clicking Confirm Squad...");
-    await page.click("[data-focus-id='btn-back']");
-    await page.waitForSelector(".campaign-map-viewport", { visible: true });
-    
-    // 9. Verify overwhelming sliders: Go to "Setup" tab if it exists
-    console.log("Checking for Setup tab...");
-    // (Bug: Setup tab shouldn't exist in Campaign, and definitely not in Prologue)
-    const setupTab = await page.$(".shell-tab[data-id='setup']");
-    if (setupTab) {
-        console.log("Setup tab found, clicking it...");
-        await setupTab.click();
-        await page.waitForSelector("#screen-mission-setup", { visible: true });
-        
-        // Verify sliders are present
-        console.log("Verifying sliders...");
-        const threatSlider = await page.$("#map-starting-threat");
-        const baseEnemiesSlider = await page.$("#map-base-enemies");
-        const growthSlider = await page.$("#map-enemy-growth");
-        
-        expect(threatSlider).not.toBeNull();
-        expect(baseEnemiesSlider).not.toBeNull();
-        expect(growthSlider).not.toBeNull();
-    } else {
-        console.log("Setup tab NOT found.");
-    }
-
-    // 10. Verify non-essential tabs are visible (Bug: Should be hidden)
+    // 6. Verify non-essential tabs are HIDDEN (Bug: Should be hidden)
     console.log("Checking for non-essential tabs...");
+    const sectorMapTab = await page.$(".shell-tab[data-id='sector-map']");
     const engineeringTab = await page.$(".shell-tab[data-id='engineering']");
     const statsTab = await page.$(".shell-tab[data-id='stats']");
     const settingsTab = await page.$(".shell-tab[data-id='settings']");
 
-    expect(engineeringTab).not.toBeNull();
-    expect(statsTab).not.toBeNull();
-    expect(settingsTab).not.toBeNull();
+    expect(sectorMapTab).toBeNull();
+    expect(engineeringTab).toBeNull();
+    expect(statsTab).toBeNull();
+    expect(settingsTab).toBeNull();
 
-    // 11. Final screenshot for proof
+    const readyRoomTab = await page.$(".shell-tab[data-id='ready-room']");
+    expect(readyRoomTab).not.toBeNull();
+
+    // 7. Verify squad size is exactly 1
+    console.log("Verifying squad size...");
+    const occupiedSlots = await page.$$(".soldier-list-panel .soldier-item");
+    expect(occupiedSlots.length).toBe(1);
+
+    // 8. Final screenshot for proof
     console.log("Taking final screenshot...");
-    await page.screenshot({ path: "tests/e2e/__snapshots__/prologue_repro_final.png" });
+    await page.screenshot({ path: "tests/e2e/__snapshots__/prologue_guided_flow_verified.png" });
     console.log("Test finished.");
   });
 });
