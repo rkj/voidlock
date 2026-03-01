@@ -18,7 +18,6 @@ import {
 import { ItemEffectHandler } from "../../interfaces/IDirector";
 import { MathUtils } from "../../../shared/utils/MathUtils";
 import { MOVEMENT } from "../../config/GameConstants";
-import { Logger } from "../../../shared/Logger";
 
 export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveContext & ExplorationContext> {
   public evaluate(

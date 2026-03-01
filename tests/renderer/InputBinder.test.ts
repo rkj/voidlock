@@ -57,12 +57,9 @@ describe("InputBinder", () => {
     mockContext = {
       screenManager: { goBack: vi.fn() },
       modalService: { confirm: vi.fn(), alert: vi.fn() },
-      gameClient: { setTimeScale: vi.fn() },
     };
 
-    inputBinder = new InputBinder(
-      mockContext.gameClient as any,
-    );
+    inputBinder = new InputBinder();
     mockCallbacks = {
       onTogglePause: vi.fn(),
       onAbortMission: vi.fn(),

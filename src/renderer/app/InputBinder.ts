@@ -1,6 +1,4 @@
-import { TimeUtility } from "@src/renderer/TimeUtility";
 import { MapGeneratorType, MissionType } from "@src/shared/types";
-import { GameClient } from "@src/engine/GameClient";
 
 /**
  * InputBinder is responsible for attaching and detaching DOM event listeners.
@@ -12,9 +10,7 @@ export class InputBinder {
     { type: string; handler: (e: Event) => void }[]
   > = new Map();
 
-  constructor(
-    private gameClient: GameClient,
-  ) {}
+  constructor() {}
 
   public bindAll(callbacks: {
     onTogglePause: () => void;
@@ -80,18 +76,6 @@ export class InputBinder {
       callbacks.onTogglePause(),
     );
 
-    const gameSpeedSlider = document.getElementById(
-      "game-speed",
-    ) as HTMLInputElement;
-    this.addListener(gameSpeedSlider, "input", () => {
-      const scale = TimeUtility.sliderToScale(
-        parseFloat(gameSpeedSlider.value),
-      );
-      this.gameClient.setTimeScale(scale);
-      // NOTE: main.ts calls syncSpeedUI() here indirectly or directly.
-      // We might need to expose syncSpeedUI or pass it in.
-    });
-
     // Mission Setup Inputs
     this.addInputListener("map-starting-threat", "map-starting-threat-value");
     this.addInputListener("map-base-enemies", "map-base-enemies-value");
@@ -129,6 +113,21 @@ export class InputBinder {
       if (wInput) wInput.disabled = isStatic;
       if (hInput) hInput.disabled = isStatic;
       if (sInput) sInput.disabled = isStatic;
+    });
+
+    this.addListener("mission-type", "change", (e: Event) => {
+      const target = e.target as HTMLSelectElement;
+      callbacks.onMissionTypeChange(target.value as MissionType);
+    });
+
+    this.addListener("map-theme", "change", (e: Event) => {
+      const target = e.target as HTMLSelectElement;
+      callbacks.onThemeChange(target.value);
+    });
+
+    this.addListener("select-unit-style", "change", (e: Event) => {
+      const target = e.target as HTMLSelectElement;
+      callbacks.onUnitStyleChange(target.value);
     });
 
     // Toggles
