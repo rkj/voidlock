@@ -1,5 +1,5 @@
 import { GameState, Unit, UnitState, Door } from "../../../shared/types";
-import { AIContext } from "../../interfaces/AIContext";
+import { BehaviorContext } from "../../interfaces/AIContext";
 import { PRNG } from "../../../shared/PRNG";
 import { Behavior, BehaviorResult } from "./Behavior";
 import { LineOfSight } from "../../LineOfSight";
@@ -7,7 +7,7 @@ import { VipAI } from "../VipAI";
 import { ItemEffectHandler } from "../../interfaces/IDirector";
 import { MathUtils } from "../../../shared/utils/MathUtils";
 
-export class VipBehavior implements Behavior<AIContext> {
+export class VipBehavior implements Behavior<BehaviorContext> {
   constructor(
     private vipAi: VipAI,
     private los: LineOfSight,
@@ -19,7 +19,7 @@ export class VipBehavior implements Behavior<AIContext> {
     _dt: number,
     _doors: Map<string, Door>,
     _prng: PRNG,
-    context: AIContext,
+    context: BehaviorContext,
     director?: ItemEffectHandler,
   ): BehaviorResult {
     let currentUnit = { ...unit };

@@ -8,7 +8,7 @@ import {
   Door,
   Objective,
 } from "../../../shared/types";
-import { BehaviorContext, ObjectiveContext, ExplorationContext, VisibleItem } from "../../interfaces/AIContext";
+import { BehaviorContext, ObjectiveContext, VisibleItem } from "../../interfaces/AIContext";
 import { PRNG } from "../../../shared/PRNG";
 import { Behavior, BehaviorResult } from "./Behavior";
 import {
@@ -19,14 +19,14 @@ import { ItemEffectHandler } from "../../interfaces/IDirector";
 import { MathUtils } from "../../../shared/utils/MathUtils";
 import { MOVEMENT } from "../../config/GameConstants";
 
-export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveContext & ExplorationContext> {
+export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveContext> {
   public evaluate(
     unit: Unit,
     state: GameState,
     _dt: number,
     _doors: Map<string, Door>,
     _prng: PRNG,
-    context: BehaviorContext & ObjectiveContext & ExplorationContext,
+    context: BehaviorContext & ObjectiveContext,
     director?: ItemEffectHandler,
   ): BehaviorResult {
     let currentUnit = { ...unit };

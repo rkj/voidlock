@@ -6,14 +6,14 @@ import {
   PickupCommand,
   Door,
 } from "../../../shared/types";
-import { BehaviorContext, ObjectiveContext, ExplorationContext } from "../../interfaces/AIContext";
+import { BehaviorContext } from "../../interfaces/AIContext";
 import { PRNG } from "../../../shared/PRNG";
 import { MathUtils } from "../../../shared/utils/MathUtils";
 import { Behavior, BehaviorResult } from "./Behavior";
 import { SPEED_NORMALIZATION_CONST, ITEMS } from "../../config/GameConstants";
 import { ItemEffectHandler } from "../../interfaces/IDirector";
 
-export class InteractionBehavior implements Behavior<BehaviorContext & ObjectiveContext & ExplorationContext> {
+export class InteractionBehavior implements Behavior<BehaviorContext> {
   constructor() {}
 
   public evaluate(
@@ -22,7 +22,7 @@ export class InteractionBehavior implements Behavior<BehaviorContext & Objective
     _dt: number,
     _doors: Map<string, Door>,
     _prng: PRNG,
-    context: BehaviorContext & ObjectiveContext & ExplorationContext,
+    context: BehaviorContext,
     _director?: ItemEffectHandler,
   ): BehaviorResult {
     let currentUnit = { ...unit };

@@ -12,8 +12,18 @@ The `UnitAI` manager has been decomposed into modular behavior classes located i
 - `ObjectiveBehavior.ts`: Handles opportunistic and long-range pathfinding to loot, objectives, and extraction points. Now automatically issues a PICKUP command when at an objective target to prevent exploration distraction. Skips processing if unit is currently extracting.
 - `ExplorationBehavior.ts`: Handles autonomous map discovery when no other tasks are prioritized. Skips processing if unit is currently extracting.
 - `VipBehavior.ts`: Specialized AI for VIP units (Rescue and Escort/Flee logic).
-- `Behavior.ts`: Common interface for all behavior classes.
+- `Behavior.ts`: Common generic interface for all behavior classes, supporting narrowed context types.
 - `BehaviorUtils.ts`: Shared utility functions for behaviors (distance calculations, exploration helpers).
+
+## Behavior Context Interfaces
+
+To adhere to the Interface Segregation Principle (ISP), behaviors now use specialized context interfaces defined in `src/engine/interfaces/AIContext.ts` instead of the monolithic `AIContext`:
+
+- `BehaviorContext`: Base context with general map info (`totalFloorCells`), coordination state (`claimedObjectives`), and common utilities.
+- `ObjectiveContext`: Context for item/objective discovery and assignments.
+- `ExplorationContext`: Context for map exploration and cell claims.
+
+Each behavior specifies its required context (e.g., `Behavior<BehaviorContext & ObjectiveContext>`).
 
 ## Files
 
