@@ -879,6 +879,7 @@ ______________________________________________________________________
   - ADR-0006: Autonomous agent architecture
   - ADR-0008: Renderer/UI separation
   - ADR-0012: Theming system
+  - ADR-0051: Vanilla TSX for Component-Based UI
 
 ______________________________________________________________________
 

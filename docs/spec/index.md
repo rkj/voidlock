@@ -95,6 +95,13 @@ Agents and developers should consult the specific files below for implementation
   - Control Scheme (Keyboard/Mouse)
   - Mission Configuration
 
+- **[Tutorial & Prologue](tutorial.md)**
+
+  - Guided Progressive Disclosure
+  - Mission 1 (Tactical Basics)
+  - Mission 2 (Ready Room)
+  - Mission 3 (Sector Map)
+
 - **[Campaign & Meta](campaign.md)**
 
   - Sector Map Logic
