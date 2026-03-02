@@ -60,29 +60,7 @@ The application is divided into distinct screens to reduce UI clutter and improv
 
 ### 8.1.2 Guided Tutorial Flow (The Prologue)
 
-To prevent cognitive overload for new players, the system MUST implement a **Guided Progressive Disclosure** flow during the Prologue mission.
-
-- **Lockdown State**:
-
-  - **Screens**: The "Sector Map" and "Mission Setup" screens are HIDDEN for the duration of the Prologue. The player starts directly in the "Ready Room" (Equipment Screen).
-  - **Tabs**: Non-essential tabs in the `CampaignShell` (Engineering, Statistics, Settings) are DISABLED or HIDDEN.
-  - **Controls**: All map configuration sliders, generator types, and squad selection/removal buttons are DISABLED. The squad is pre-filled with a single representative soldier.
-  - **Store**: The Equipment Store is LOCKED.
-
-- **Direct Launch**:
-
-  - The primary action button in the Ready Room is replaced with **"Launch Mission"**. This button must trigger the mission start immediately, bypassing the Sector Map.
-
-- **Narrative Context**:
-
-  - Before the first mission launches, the **Advisor Overlay ("Mother")** MUST present a narrative backstory and mission objectives using a blocking modal with illustration.
-
-- **Progressive Unlocking**:
-
-  - Complexity is restored sequentially in subsequent missions.
-  - **Mission 2**: Unlocks the Sector Map and basic Squad Selection.
-  - **Mission 3**: Unlocks the Equipment Store and basic Mission Setup.
-  - **Mission 5+**: Unlocks Advanced Mission Setup and Engineering.
+See [Tutorial & Prologue Flow](tutorial.md) for details on the guided progressive disclosure system.
 
 - **Layout & Accessibility**:
 

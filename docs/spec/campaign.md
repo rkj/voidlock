@@ -75,7 +75,7 @@ The campaign follows these fixed progression rules based on **Rank** (the column
 
 1. **Select Node:** Player chooses a node on the Sector Map.
    - **Combat / Elite / Boss:** Redirects to the **Equipment Screen** for squad preparation.
-   - **Supply Depot (Shop):** Redirects to the **Shop UI** (non-tactical) to spend Scrap. The node is cleared immediately upon exit.
+   - **Supply Depot (Shop):** Opens a **Shop Modal** over the Sector Map to spend Scrap. The node is cleared immediately upon exit.
    - **Event:** Opens an **Event Modal** for narrative resolution.
 1. **Equipment Screen (Combat only):**
    - **Manage Roster:** Assign gear, recruit new soldiers, heal wounded.

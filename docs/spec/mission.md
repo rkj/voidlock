@@ -40,6 +40,7 @@
   - **Recovery:** If the carrier falls, the Artifact is dropped and can be picked up by survivors.
 - **Data Disks:**
   - Stationary terminals or drives.
+  - **Quantity:** Each mission contains a maximum of **3** Data Disks.
   - **Upload:** Requires a 3-second channeling action to "Upload." Once uploaded, the objective is complete.
 - **Hives:** Static biological targets for destruction.
 - **VIPs:** Unarmed personnel that must be escorted to safety. Unlike items, they CAN be killed.
@@ -56,7 +57,7 @@ Before the mission timer starts (Tick 0), the player has an optional opportunity
   - **Quick Start:** A prominent "START MISSION" button is available immediately. Clicking it without moving units accepts the default random positions.
   - **Interaction:**
     - **Drag & Drop:** Player can drag a soldier from their default position to any valid Spawn Tile (highlighted Green).
-    - **Swap:** Dragging a soldier onto an occupied tile swaps positions.
+    - **Overlapping Deployment:** Dragging a soldier onto an occupied spawn tile adds them to the tile. Multiple soldiers (up to 4) can share the same spawn point.
 - **Constraints:**
   - If the player engages with deployment, all squad members must be on valid tiles before "START" is enabled.
   - If skipped, the engine proceeds with the pre-assigned random positions.
