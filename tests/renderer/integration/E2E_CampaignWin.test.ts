@@ -452,9 +452,16 @@ describe("E2E Campaign Happy Path", () => {
           document.getElementById("screen-campaign-summary")?.style.display,
         ).toBe("flex");
       } else {
-        expect(document.getElementById("screen-campaign")?.style.display).toBe(
-          "flex",
-        );
+        // MISSION 2 REDIRECT: First mission win redirects to Equipment (Ready Room)
+        if (currentCmState.history.length === 1) {
+          expect(document.getElementById("screen-equipment")?.style.display).toBe(
+            "flex",
+          );
+        } else {
+          expect(document.getElementById("screen-campaign")?.style.display).toBe(
+            "flex",
+          );
+        }
 
         // Verify progression to next sector
         expect(currentCmState.currentSector).toBeGreaterThanOrEqual(lastSector);

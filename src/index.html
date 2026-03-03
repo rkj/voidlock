@@ -188,7 +188,7 @@
 
       <!-- 2. Campaign Shell wrapper -->
       <div id="screen-campaign-shell" class="screen">
-        <div id="campaign-shell-top-bar"></div>
+        <!-- Content will be injected by CampaignShell.ts -->
         <div
           id="campaign-shell-content"
           class="flex-grow relative overflow-hidden"
@@ -465,179 +465,7 @@
 
       <!-- 4. Mission Screen (Game Loop) -->
       <div id="screen-mission" class="screen">
-        <!-- 1. Top Bar -->
-        <div id="top-bar" class="top-bar">
-          <button id="btn-toggle-squad" class="drawer-toggle">Squad</button>
-          <div id="game-status">Time: <span class="time-value" data-bind-text="t" data-bind-transform="toSeconds">0.0</span>s</div>
-          <div
-            id="top-threat-container"
-            data-bind-visibility="stats"
-            data-bind-transform="threatVisibility"
-            style="
-              display: flex;
-              align-items: center;
-              gap: 10px;
-              flex-grow: 1;
-              justify-content: center;
-              max-width: 450px;
-              margin: 0 20px;
-            "
-          >
-            <span
-              style="
-                font-size: 0.8em;
-                color: var(--color-text-muted);
-                white-space: nowrap;
-                letter-spacing: 1px;
-              "
-              >Threat</span
-            >
-            <div id="top-threat-bar" class="threat-bar">
-              <!-- Robust Flex-based Dividers every 10% -->
-              <div
-                style="
-                  position: absolute;
-                  inset: 0;
-                  display: flex;
-                  pointer-events: none;
-                  z-index: 1;
-                "
-              >
-                <div
-                  style="
-                    width: 10%;
-                    height: 100%;
-                    border-right: 1px solid #666;
-                    box-sizing: border-box;
-                  "
-                ></div>
-                <div
-                  style="
-                    width: 10%;
-                    height: 100%;
-                    border-right: 1px solid #666;
-                    box-sizing: border-box;
-                  "
-                ></div>
-                <div
-                  style="
-                    width: 10%;
-                    height: 100%;
-                    border-right: 1px solid #666;
-                    box-sizing: border-box;
-                  "
-                ></div>
-                <div
-                  style="
-                    width: 10%;
-                    height: 100%;
-                    border-right: 1px solid #666;
-                    box-sizing: border-box;
-                  "
-                ></div>
-                <div
-                  style="
-                    width: 10%;
-                    height: 100%;
-                    border-right: 1px solid #666;
-                    box-sizing: border-box;
-                  "
-                ></div>
-                <div
-                  style="
-                    width: 10%;
-                    height: 100%;
-                    border-right: 1px solid #666;
-                    box-sizing: border-box;
-                  "
-                ></div>
-                <div
-                  style="
-                    width: 10%;
-                    height: 100%;
-                    border-right: 1px solid #666;
-                    box-sizing: border-box;
-                  "
-                ></div>
-                <div
-                  style="
-                    width: 10%;
-                    height: 100%;
-                    border-right: 1px solid #666;
-                    box-sizing: border-box;
-                  "
-                ></div>
-                <div
-                  style="
-                    width: 10%;
-                    height: 100%;
-                    border-right: 1px solid #666;
-                    box-sizing: border-box;
-                  "
-                ></div>
-                <div
-                  style="width: 10%; height: 100%; box-sizing: border-box"
-                ></div>
-              </div>
-              <div id="top-threat-fill" class="threat-fill" data-bind-style-width="stats.threatLevel" data-bind-class="stats.threatLevel|threatFillClass"></div>
-            </div>
-            <span
-              id="top-threat-value"
-              data-bind-text="stats.threatLevel|threatPercent"
-              data-bind-class="stats.threatLevel|threatValueClass"
-              style="
-                font-size: 0.8em;
-                color: var(--color-success);
-                min-width: 40px;
-                font-weight: bold;
-              "
-              >0%</span
-            >
-          </div>
-
-          <button id="btn-toggle-right" class="drawer-toggle">Objectives</button>
-
-          <!-- Speed Control -->
-          <div id="speed-control" data-bind-visibility="settings" data-bind-transform="speedVisibility">
-            <button id="btn-pause-toggle" data-bind-text="settings.isPaused" data-bind-transform="pauseText">|| Pause</button>
-            <label for="game-speed">Speed</label>
-            <input
-              type="range"
-              id="game-speed"
-              min="0"
-              max="100"
-              step="1"
-              value="50"
-              data-bind-value="settings.targetTimeScale"
-              data-bind-transform="speedSlider"
-              data-bind-min="settings.allowTacticalPause|minSpeedValue"
-              style="width: 80px; margin: 0"
-              title="Game Speed (0.1x to 10.0x)"
-            />
-            <span id="speed-value" data-bind-text="settings" data-bind-transform="speedText">1.0x</span>
-          </div>
-
-          <button
-            id="btn-give-up"
-            style="
-              background-color: #442222;
-              border-color: #ff4444;
-              color: #ffcccc;
-              margin-left: 10px;
-            "
-          >
-            Give Up
-          </button>
-        </div>
-
-        <!-- 2. Soldier Bar (RPG Style) -->
-        <div id="soldier-panel" class="soldier-panel">
-          <div id="soldier-list">
-            <!-- Soldier cards injected here -->
-          </div>
-        </div>
-
-        <!-- 3. Main Area -->
+        <!-- HUD will be injected by HUDManager.ts -->
         <div
           id="mission-body"
           style="
@@ -659,14 +487,6 @@
           >
             <canvas id="game-canvas"></canvas>
           </div>
-
-          <div id="right-panel" class="right-panel">
-            <!-- Commands and Objectives will be injected here -->
-          </div>
-        </div>
-
-        <div id="mobile-action-panel" class="mobile-only">
-          <!-- Commands and Deployment will be injected here on mobile -->
         </div>
       </div>
 

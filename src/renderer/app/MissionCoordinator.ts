@@ -256,6 +256,7 @@ export class MissionCoordinator {
       currentSeed,
       currentSquad,
     );
+    this.debriefShown = true;
     onAbortResolved(report);
 
     if (currentCampaignNode) {

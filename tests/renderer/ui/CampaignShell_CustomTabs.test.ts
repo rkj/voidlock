@@ -19,14 +19,24 @@ describe("CampaignShell Custom Mode Tabs", () => {
       getState: vi.fn().mockReturnValue(null), // No campaign state in custom mode
       addChangeListener: vi.fn(),
       removeChangeListener: vi.fn(),
+      getSyncStatus: vi.fn().mockReturnValue("local-only"),
     };
 
     onTabChange = vi.fn();
     onMenu = vi.fn();
 
+    const metaManager = {
+      getStats: vi.fn().mockReturnValue({
+        totalKills: 0,
+        totalCampaignsStarted: 0,
+        totalMissionsWon: 0,
+      }),
+    };
+
     shell = new CampaignShell(
       "screen-campaign-shell",
       manager as any,
+      metaManager as any,
       onTabChange,
       onMenu,
     );

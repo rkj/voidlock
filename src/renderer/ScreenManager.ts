@@ -76,6 +76,11 @@ export class ScreenManager {
       }
       this.currentIsCampaign = isCampaign;
       this.sessionManager.saveState(id, isCampaign);
+      
+      // Ensure it's visible (ADR 0051 / voidlock-ewgyu.2 regression fix)
+      const el = this.screens.get(id);
+      if (el) el.style.display = "flex";
+      
       return;
     }
 
