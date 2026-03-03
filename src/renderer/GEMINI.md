@@ -13,6 +13,8 @@ This directory contains the main thread rendering logic and user interface for V
 - `MenuController.ts`: Orchestrates the tactical command menu, handling state transitions, selection, and command construction. Now includes validation logic to disable the Escort command when fewer than 2 active units are present and filters out targets from the escorting unit selection.
 - `Renderer.ts`: The main entry point for the rendering system. Now refactored into a layered architecture (ADR 0018). It acts as a compositor for specialized layers.
 - `ScreenManager.ts`: Manages screen transitions, history, and URL hash synchronization. Currently handles transitions instantaneously via `display: none/flex` (static feel). Now includes a `destroy()` method for clean shutdown and uses an `isInternalTransition` flag to prevent redundant external change callbacks during programmatic transitions.
+- `jsx.ts`: Custom JSX factory (`createElement`, `Fragment`) for Vanilla TSX, enabling component-based UI without a Virtual DOM (ADR 0051).
+- `jsx-types.d.ts`: Global type definitions for JSX elements and attributes.
 
 ## Subdirectories
 
@@ -46,6 +48,7 @@ This directory contains the main thread rendering logic and user interface for V
 - **UI Casing Standardization**: All UI labels, buttons, and headers are standardized to Title Case (instead of ALL CAPS) for better readability and professional look, especially on mobile devices (Spec 11.1).
 - **Visual Feedback**: Provides tactical information through tracers, health bars, and status overlays. Includes a high-precision threat bar in `index.html` with pixel-perfect divider alignment.
 - **Component Responsiveness**: Uses CSS Container Queries (`@container`) to allow reusable UI components like `SoldierCard`, `StatDisplay`, and `Menu` to adapt their internal layout based on the width of their parent container, ensuring a consistent experience across different device sizes and layout panels (ADR 0038).
+- **Vanilla TSX UI**: Adopted a custom JSX factory for defining UI components declaratively using TSX syntax, while remaining dependency-free and avoiding Virtual DOM overhead (ADR 0051). Supports standard HTML elements, event listeners, style objects, and functional components.
 
 ## Connections
 

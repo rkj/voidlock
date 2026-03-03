@@ -12,4 +12,9 @@ export default defineConfig({
     globals: true,
     exclude: ["node_modules", "dist", "tests/e2e"],
   },
+  esbuild: {
+    jsxFactory: "createElement",
+    jsxFragment: "Fragment",
+    jsxInject: `import { createElement, Fragment } from "@src/renderer/jsx"`,
+  },
 });
