@@ -231,6 +231,15 @@ export class GameApp {
           return;
         }
 
+        if (state && state.history?.length === 1) {
+          // Mission 2: Ready Room tutorial flow
+          const nextNode = state.nodes.find((n) => n.status === "Accessible");
+          if (nextNode) {
+            this.registry.navigationOrchestrator.onCampaignNodeSelect(nextNode);
+            return;
+          }
+        }
+
         if (this.registry.missionSetupManager.currentCampaignNode) {
           this.registry.navigationOrchestrator.switchScreen("campaign", true);
           this.registry.campaignShell.show("campaign", "sector-map");

@@ -19,6 +19,7 @@ import { ModalService } from "../ui/ModalService";
 import { EventModal, OutcomeModal } from "../ui/EventModal";
 import { PRNG } from "@src/shared/PRNG";
 import { CampaignEvents } from "@src/content/CampaignEvents";
+import { TutorialManager } from "../controllers/TutorialManager";
 
 export interface NavigationScreens {
   mainMenu: MainMenuScreen;
@@ -42,6 +43,7 @@ export class NavigationOrchestrator {
     private missionSetupManager: MissionSetupManager,
     private squadBuilder: SquadBuilder,
     private screens: NavigationScreens,
+    private tutorialManager: TutorialManager,
     private callbacks: {
       showMainMenu: () => void;
       launchMission: () => void;
@@ -194,6 +196,15 @@ export class NavigationOrchestrator {
       case "campaign": {
         this.applyCampaignTheme();
         const state = this.campaignManager.getState();
+
+        if (state && state.history?.length === 1) {
+          const nextNode = state.nodes.find((n) => n.status === "Accessible");
+          if (nextNode) {
+            this.onCampaignNodeSelect(nextNode);
+            return;
+          }
+        }
+
         if (
           state &&
           (state.status === "Victory" || state.status === "Defeat")
@@ -315,11 +326,19 @@ export class NavigationOrchestrator {
     this.missionSetupManager.loadAndApplyConfig(isCampaign);
     this.screens.equipment.setCampaign(isCampaign);
 
+    const state = this.campaignManager.getState();
     const node = this.missionSetupManager.currentCampaignNode;
     const isPrologue =
       node?.missionType === MissionType.Prologue ||
       this.missionSetupManager.currentMissionType === MissionType.Prologue;
     this.screens.equipment.setPrologue(isPrologue);
+
+    const isMission2Tutorial = isCampaign && state?.history?.length === 1;
+    this.screens.equipment.setStoreLocked(isMission2Tutorial);
+
+    if (isMission2Tutorial) {
+      this.tutorialManager.triggerEvent("ready_room_intro");
+    }
 
     const isShop = node?.type === "Shop";
     this.screens.equipment.setShop(isShop);
@@ -333,7 +352,7 @@ export class NavigationOrchestrator {
         "campaign",
         "ready-room",
         true,
-        isPrologue ? MissionType.Prologue : null,
+        (isPrologue || isMission2Tutorial) ? MissionType.Prologue : null,
       );
     } else {
       this.campaignShell.show("custom", "setup");

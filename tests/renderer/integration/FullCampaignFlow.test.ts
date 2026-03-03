@@ -4,7 +4,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { CampaignManager } from "@src/engine/managers/CampaignManager";
 import { MockStorageProvider } from "@src/engine/persistence/MockStorageProvider";
-import { UnitState } from "@src/shared/types";
+import { UnitState, MissionType } from "@src/shared/types";
 
 import { GameApp } from "@src/renderer/app/GameApp";
 
@@ -308,12 +308,58 @@ describe("Full Campaign Flow Integration", () => {
       cm.getState()?.roster.find((s) => s.id === deadSoldierId)?.status,
     ).toBe("Dead");
 
-    // 3. Verify Dead soldiers are NOT in the next Mission Setup squad
+    // 3. Verify Ready Room redirect after Mission 1 (Tutorial Step)
     const returnBtn = Array.from(
       document.querySelectorAll("#screen-debrief button"),
     ).find((b) => b.textContent?.includes("Return")) as HTMLElement;
     returnBtn?.click();
 
+    // Should redirect to Equipment Screen (Mission 2 Tutorial)
+    expect(document.getElementById("screen-equipment")?.style.display).toBe(
+      "flex",
+    );
+
+    // Launch Mission 2 from Equipment Screen
+    const launchBtn2 = Array.from(
+      document.querySelectorAll("#screen-equipment button"),
+    ).find((b) => b.textContent?.includes("Launch")) as HTMLElement;
+    launchBtn2?.click();
+
+    // Now we should be in the Mission Setup screen for Mission 2
+    // Wait, Launch Mission from Equipment goes to Mission screen directly?
+    // In NavigationOrchestrator: launchMission: () => this.missionRunner.launchMission()
+    // Yes, it goes to Mission screen.
+    expect(document.getElementById("screen-mission")?.style.display).toBe(
+      "flex",
+    );
+
+    // Finish Mission 2 immediately
+    stateUpdateCallback!({
+      t: 200,
+      status: "Won",
+      missionType: MissionType.Default,
+      units: [],
+      stats: { aliensKilled: 0, scrapGained: 50, timeSpent: 100 },
+      objectives: [],
+      settings: {
+        debugOverlayEnabled: false,
+        debugSnapshots: false,
+        timeScale: 1.0,
+        isPaused: false,
+      },
+      map: { width: 10, height: 10, cells: [] },
+      enemies: [],
+      visibleCells: [],
+      discoveredCells: [],
+      loot: [],
+    });
+
+    const returnBtn2 = Array.from(
+      document.querySelectorAll("#screen-debrief button"),
+    ).find((b) => b.textContent?.includes("Return")) as HTMLElement;
+    returnBtn2?.click();
+
+    // Now we should be in the Sector Map (Mission 3 intro)
     expect(document.getElementById("screen-campaign")?.style.display).toBe(
       "flex",
     );
@@ -328,6 +374,7 @@ describe("Full Campaign Flow Integration", () => {
     const nextNode = document.querySelector(
       `.campaign-node[data-id="${nextCombatNode?.id}"]`,
     ) as HTMLElement;
+    expect(nextNode).toBeTruthy();
     nextNode?.click();
 
     // Wait for async onCampaignNodeSelected

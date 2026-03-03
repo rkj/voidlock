@@ -29,6 +29,7 @@ export class EquipmentScreen {
   private isShop: boolean = false;
   private isCampaign: boolean = false;
   private isPrologue: boolean = false;
+  private isStoreLocked: boolean = false;
   private hasNodeSelected: boolean = false;
   private savedScrollTop: { left: number; center: number; right: number } = {
     left: 0,
@@ -120,6 +121,11 @@ export class EquipmentScreen {
 
   public setPrologue(isPrologue: boolean) {
     this.isPrologue = isPrologue;
+  }
+
+  public setStoreLocked(locked: boolean) {
+    this.isStoreLocked = locked;
+    this.inspector.setLocked(locked);
   }
 
   public setHasNodeSelected(hasNodeSelected: boolean) {
@@ -312,7 +318,7 @@ export class EquipmentScreen {
     backBtn.style.alignItems = "center";
     backBtn.onclick = () => this.onBack(this.config);
 
-    if (!this.isPrologue) {
+    if (!this.isPrologue && !this.isStoreLocked) {
       footer.appendChild(backBtn);
     }
 
@@ -635,6 +641,24 @@ export class EquipmentScreen {
     const armoryBody = document.createElement("div");
     panel.appendChild(armoryBody);
     this.inspector.renderArmory(armoryBody);
+
+    if (this.isStoreLocked) {
+      const msg = document.createElement("div");
+      msg.className = "locked-store-message";
+      msg.style.color = "var(--color-danger)";
+      msg.style.padding = "20px";
+      msg.style.textAlign = "center";
+      msg.style.border = "1px solid var(--color-danger)";
+      msg.style.borderRadius = "4px";
+      msg.style.marginTop = "20px";
+      msg.innerHTML = `
+            <div style="font-size:1.5em; margin-bottom:10px;">🔒</div>
+            <div style="font-weight:bold; margin-bottom:5px;">ARMORY OFFLINE</div>
+            <div style="font-size:0.8em; opacity:0.8;">Maintenance diagnostics in progress. Standard equipment loadouts only.</div>
+        `;
+      panel.appendChild(msg);
+      return;
+    }
 
     // Global Supplies
     const suppliesTitle = document.createElement("h3");
