@@ -25,14 +25,21 @@ export class DeployUnitHandler implements IGlobalCommandHandler {
       if (!isValidSpawn) return;
 
       const targetCell = MathUtils.toCellCoord(deployCmd.target);
-      const occupant = state.units.find(
+      const occupants = state.units.filter(
         (u) =>
           u.id !== unit.id &&
           u.archetypeId !== "vip" &&
+          u.isDeployed !== false &&
           MathUtils.sameCellPosition(u.pos, targetCell),
       );
 
       const oldCell = MathUtils.toCellCoord(unit.pos);
+      const wasDeployed = unit.isDeployed !== false;
+
+      let occupantToDisplace = null;
+      if (occupants.length >= 4) {
+        occupantToDisplace = occupants[0];
+      }
 
       state.units = state.units.map((u) => {
         if (u.id === unit.id) {
@@ -42,11 +49,11 @@ export class DeployUnitHandler implements IGlobalCommandHandler {
             isDeployed: true,
           };
         }
-        if (occupant && u.id === occupant.id) {
+        if (occupantToDisplace && u.id === occupantToDisplace.id) {
           return {
             ...u,
-            pos: MathUtils.getCellCenter(oldCell, u.visualJitter),
-            isDeployed: true,
+            pos: wasDeployed ? MathUtils.getCellCenter(oldCell, u.visualJitter) : u.pos,
+            isDeployed: wasDeployed,
           };
         }
         return u;
