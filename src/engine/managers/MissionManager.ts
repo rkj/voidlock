@@ -106,6 +106,16 @@ export class MissionManager {
         objectives = [...escortObjectives];
       }
 
+      // Enforce the Data Disk limit for Recover Intel missions
+      if (missionType === MissionType.RecoverIntel) {
+        const recoverObjectives = objectives.filter((o) => o.kind === "Recover");
+        if (recoverObjectives.length > MISSION_SCALING.MAX_DATA_DISKS) {
+          // Keep only the first MAX_DATA_DISKS if the map already has too many
+          const nonRecoverObjectives = objectives.filter((o) => o.kind !== "Recover");
+          objectives = [...nonRecoverObjectives, ...recoverObjectives.slice(0, MISSION_SCALING.MAX_DATA_DISKS)];
+        }
+      }
+
       const floors = map.cells.filter((c) => c.type === CellType.Floor);
       const extraction = map.extraction || { x: 0, y: 0 };
       const candidates = floors.filter((c) => {
@@ -141,6 +151,14 @@ export class MissionManager {
                 MISSION_SCALING.OBJECTIVE_COUNT_DEFAULT,
                 candidates.length,
               );
+
+      // Capping count based on existing objectives for RecoverIntel
+      let targetCount = count;
+      if (missionType === MissionType.RecoverIntel) {
+        const currentRecoverCount = objectives.filter((o) => o.kind === "Recover").length;
+        targetCount = Math.max(0, MISSION_SCALING.MAX_DATA_DISKS - currentRecoverCount);
+      }
+
       const idPrefix =
         missionType === MissionType.ExtractArtifacts
           ? "artifact"
@@ -152,11 +170,11 @@ export class MissionManager {
 
       // Boss Mix: 1x Hive, 2x Recover (if possible)
       // Elite Mix: 1x Hive, 1x Recover (if possible)
-      let recoverCount = count;
+      let recoverCount = targetCount;
       if (nodeType === "Boss")
-        recoverCount = MISSION_SCALING.RECOVER_COUNT_BOSS;
+        recoverCount = Math.min(targetCount, MISSION_SCALING.RECOVER_COUNT_BOSS);
       else if (nodeType === "Elite")
-        recoverCount = MISSION_SCALING.RECOVER_COUNT_ELITE;
+        recoverCount = Math.min(targetCount, MISSION_SCALING.RECOVER_COUNT_ELITE);
 
       for (let i = 0; i < Math.min(recoverCount, candidates.length); i++) {
         objectives.push({

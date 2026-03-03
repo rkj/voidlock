@@ -53,6 +53,60 @@ describe("MissionManager", () => {
       expect(state.objectives.every((o) => o.state === "Pending")).toBe(true);
     });
 
+    it("should limit RecoverIntel to 3 Data Disks even if map has existing ones", () => {
+      missionManager = new MissionManager(MissionType.RecoverIntel, prng);
+      const map = {
+        width: 10,
+        height: 10,
+        cells: [] as Cell[],
+        extraction: { x: 0, y: 0 },
+        objectives: [
+          { id: "map-obj-1", kind: "Recover", targetCell: { x: 1, y: 1 } },
+          { id: "map-obj-2", kind: "Recover", targetCell: { x: 1, y: 2 } },
+        ],
+      };
+      for (let x = 0; x < 10; x++) {
+        for (let y = 0; y < 10; y++) {
+          map.cells.push({ x, y, type: CellType.Floor });
+        }
+      }
+
+      missionManager.setupMission(state, map, enemyManager);
+
+      const recoverObjectives = state.objectives.filter(o => o.kind === "Recover");
+      expect(recoverObjectives.length).toBe(3);
+      expect(state.objectives.some(o => o.id === "map-obj-1")).toBe(true);
+      expect(state.objectives.some(o => o.id === "map-obj-2")).toBe(true);
+      expect(state.objectives.some(o => o.id === "intel-0")).toBe(true);
+    });
+
+    it("should handle map with too many Data Disks by capping to 3", () => {
+      missionManager = new MissionManager(MissionType.RecoverIntel, prng);
+      const map = {
+        width: 10,
+        height: 10,
+        cells: [] as Cell[],
+        extraction: { x: 0, y: 0 },
+        objectives: [
+          { id: "map-obj-1", kind: "Recover", targetCell: { x: 1, y: 1 } },
+          { id: "map-obj-2", kind: "Recover", targetCell: { x: 1, y: 2 } },
+          { id: "map-obj-3", kind: "Recover", targetCell: { x: 1, y: 3 } },
+          { id: "map-obj-4", kind: "Recover", targetCell: { x: 1, y: 4 } },
+        ],
+      };
+      for (let x = 0; x < 10; x++) {
+        for (let y = 0; y < 10; y++) {
+          map.cells.push({ x, y, type: CellType.Floor });
+        }
+      }
+
+      missionManager.setupMission(state, map, enemyManager);
+
+      const recoverObjectives = state.objectives.filter(o => o.kind === "Recover");
+      expect(recoverObjectives.length).toBe(3);
+      expect(state.objectives.some(o => o.id === "map-obj-4")).toBe(false);
+    });
+
     it("should setup DestroyHive mission", () => {
       missionManager = new MissionManager(MissionType.DestroyHive, prng);
       const map = {
