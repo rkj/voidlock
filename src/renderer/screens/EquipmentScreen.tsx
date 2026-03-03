@@ -252,7 +252,7 @@ export class EquipmentScreen {
         </div>
 
         <div class="flex-row justify-end p-10 gap-10" style={{ flexShrink: "0", borderTop: "1px solid var(--color-border-strong)", backgroundColor: "var(--color-surface-elevated)" }}>
-          {(!this.isPrologue && !this.isStoreLocked) && (
+          {(!this.isPrologue && (!this.isStoreLocked || this.isShop)) && (
             <button
               class="back-button"
               data-focus-id="btn-back"
@@ -274,7 +274,7 @@ export class EquipmentScreen {
           )}
         </div>
       </Fragment>
-    ) as HTMLElement;
+    );
 
     this.container.innerHTML = "";
     this.container.appendChild(ui);
