@@ -17,6 +17,5 @@ export default defineConfig(({ command }) => ({
   esbuild: {
     jsxFactory: "createElement",
     jsxFragment: "Fragment",
-    jsxInject: `import { createElement, Fragment } from "@src/renderer/jsx"`,
   },
 }));

@@ -1,10 +1,43 @@
+import { createElement } from "@src/renderer/jsx";
+
+export interface StatDisplayProps {
+  icon: string;
+  value: string | number;
+  title: string;
+  fontSize?: string;
+  iconSize?: string;
+  color?: string;
+  gap?: string;
+}
+
+export function StatDisplayComponent(props: StatDisplayProps) {
+  const style: any = {};
+  if (props.fontSize) style.fontSize = props.fontSize;
+  if (props.color) style.setProperty("--stat-value-color", props.color);
+  if (props.gap) style.gap = props.gap;
+
+  const imgStyle: any = {};
+  if (props.iconSize) {
+    imgStyle.width = props.iconSize;
+    imgStyle.height = props.iconSize;
+  }
+
+  return (
+    <span
+      class="stat-display"
+      style={style}
+      title={props.title}
+      data-tooltip={props.title}
+    >
+      <img src={props.icon} style={imgStyle} />
+      <span class="stat-value">{props.value}</span>
+    </span>
+  );
+}
+
 export class StatDisplay {
   /**
-   * Renders a standardized stat block with an icon, value, and tooltip.
-   * @param icon The icon URL (from Icons library)
-   * @param value The value to display
-   * @param title The tooltip title
-   * @param options Optional styling overrides
+   * Renders a standardized stat block as a string for template literals.
    */
   public static render(
     icon: string,
@@ -37,7 +70,6 @@ export class StatDisplay {
 
   /**
    * Updates an existing stat-display element with a new value.
-   * Assumes the element was created with the StatDisplay structure.
    */
   public static update(el: HTMLElement, value: string | number) {
     const valSpan = el.querySelector(".stat-value");

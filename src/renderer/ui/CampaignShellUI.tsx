@@ -1,4 +1,3 @@
-/** @jsx createElement */
 import { createElement, Fragment } from "@src/renderer/jsx";
 import { CampaignTabId, CampaignShellMode } from "./CampaignShell";
 

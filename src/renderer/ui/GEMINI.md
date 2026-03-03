@@ -17,10 +17,10 @@ As part of the migration to a modern, declarative UI system without external fra
 - `UIBinder.ts`: A lightweight reactive UI synchronization system that implements dirty-checking to bind `GameState` properties to DOM elements via `data-bind-*` attributes. Reduces UI "flicker" and ensures consistency across different input methods (ADR 0050).
 - `KeyboardHelpOverlay.ts`: Context-aware help overlay triggered by '?' that displays active keyboard shortcuts.
 - `CampaignShell.ts`: Persistent UI shell for Campaign and Custom modes. Now utilizes TSX components from `CampaignShellUI.tsx` for the Top Bar and Footer, while managing the central `#campaign-shell-content` area and tab-based navigation logic.
-- `StatDisplay.ts`: Reusable component for rendering icon-based stat blocks with tooltips.
-- `SoldierWidget.ts`: Unified component for rendering soldier items across different UI contexts (Tactical, Roster, Debrief, Squad Builder).
+- `StatDisplay.tsx`: Reusable component for rendering icon-based stat blocks with tooltips.
+- `SoldierWidget.tsx`: Unified component for rendering soldier items across different UI contexts (Tactical, Roster, Debrief, Squad Builder).
 - `MenuRenderer.ts`: Renders the hierarchical command menu into HTML strings.
-- `SoldierInspector.ts`: Unified component for viewing soldier attributes and managing equipment (Paper Doll and Armory). Now excludes equipment slot 'Remove' buttons from keyboard navigation.
+- `SoldierInspector.tsx`: Unified component for viewing soldier attributes and managing equipment (Paper Doll and Armory). Now excludes equipment slot 'Remove' buttons from keyboard navigation.
 - `EventModal.ts`: Narrative event and outcome modals for the campaign mode.
 - `ModalService.ts`: Centralized service for themed UI notifications and confirmations, replacing native dialogs.
 - `AdvisorOverlay.ts`: UI component for the Advisor ("Mother"), supporting non-blocking toasts and blocking modals with character portraits and text. Features a green monochrome CRT aesthetic.

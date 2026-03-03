@@ -1,5 +1,4 @@
-/** @jsx createElement */
-import { createElement, Fragment } from "@src/renderer/jsx";
+import { createElement } from "@src/renderer/jsx";
 
 export function HUDTopBar() {
   return (
