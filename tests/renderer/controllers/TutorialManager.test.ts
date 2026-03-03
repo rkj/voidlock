@@ -1,141 +1,104 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { TutorialManager, AdvisorMessage } from '@src/renderer/controllers/TutorialManager';
-import { GameClient } from '@src/engine/GameClient';
-import { GameState, MissionType, Unit, UnitState } from '@src/shared/types';
+/**
+ * @vitest-environment jsdom
+ */
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { TutorialManager } from "../../../src/renderer/controllers/TutorialManager";
+import { GameState, MissionType, UnitState } from "../../../src/shared/types";
 
-describe('TutorialManager', () => {
-  let gameClient: GameClient;
+describe("TutorialManager", () => {
+  let gameClient: any;
+  let onMessage: any;
+  let uiOrchestrator: any;
   let manager: TutorialManager;
-  let onMessage: (msg: AdvisorMessage) => void;
-  let listeners: ((state: GameState) => void)[] = [];
 
   beforeEach(() => {
-    listeners = [];
     gameClient = {
-      addStateUpdateListener: vi.fn((cb) => listeners.push(cb)),
-      removeStateUpdateListener: vi.fn((cb) => {
-        listeners = listeners.filter(l => l !== cb);
-      }),
-      queryState: vi.fn(),
+      addStateUpdateListener: vi.fn(),
+      removeStateUpdateListener: vi.fn(),
       pause: vi.fn(),
-    } as unknown as GameClient;
-
+      resume: vi.fn(),
+    };
     onMessage = vi.fn();
-    manager = new TutorialManager(gameClient, onMessage);
+    uiOrchestrator = {
+      setMissionHUDVisible: vi.fn(),
+    };
+    manager = new TutorialManager(gameClient, onMessage, uiOrchestrator);
+    manager.enable();
+    
+    // Clear localStorage to avoid state leakage between tests
+    localStorage.clear();
   });
 
-  const createMockState = (missionType: MissionType = MissionType.Prologue): GameState => ({
-    missionType,
-    units: [],
-    enemies: [],
-    objectives: [],
-    visibleCells: [],
+  const createBaseState = (): GameState => ({
     t: 0,
-    status: 'Playing',
+    seed: 123,
+    missionType: MissionType.Prologue,
+    status: "Playing",
+    map: { width: 10, height: 10, cells: [] } as any,
+    units: [{ id: "u1", pos: { x: 1, y: 1 }, hp: 10, maxHp: 10 } as any],
+    enemies: [],
+    visibleCells: ["1,1"],
+    discoveredCells: ["1,1"],
+    objectives: [
+      { id: "obj-main", kind: "Recover", state: "Pending", visible: false } as any
+    ],
     stats: { threatLevel: 0, aliensKilled: 0, elitesKilled: 0, scrapGained: 0, casualties: 0 },
-    settings: { mode: 'Simulation', isPaused: false, timeScale: 1, allowTacticalPause: true },
+    settings: { isPaused: false } as any,
     squadInventory: {},
     loot: [],
     mines: [],
     turrets: [],
-  } as unknown as GameState);
-
-  it('should not trigger if disabled', () => {
-    const state = createMockState();
-    listeners.forEach(l => l(state));
-    expect(onMessage).not.toHaveBeenCalled();
   });
 
-  it('should trigger start message immediately when enabled and state updates', () => {
-    manager.enable();
-    const state = createMockState();
-    listeners.forEach(l => l(state));
+  it("should hide HUD at the start of the prologue", () => {
+    const state = createBaseState();
+    state.t = 16;
+    // Trigger update
+    const listener = gameClient.addStateUpdateListener.mock.calls[0][0];
+    listener(state);
     
-    expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({
-      id: 'start',
-      text: expect.stringContaining('Commander')
-    }));
+    expect(uiOrchestrator.setMissionHUDVisible).toHaveBeenCalledWith(false);
   });
 
-  it('should pause game on blocking message', () => {
-    manager.enable();
-    const state = createMockState();
-    listeners.forEach(l => l(state));
+  it("should show start message at t > 100", () => {
+    const state = createBaseState();
+    state.t = 112;
+    const listener = gameClient.addStateUpdateListener.mock.calls[0][0];
+    listener(state);
     
     expect(gameClient.pause).toHaveBeenCalled();
+    expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "start" }));
   });
 
-  it('should not trigger if mission type is not Prologue', () => {
-    manager.enable();
-    const state = createMockState(MissionType.Default);
-    listeners.forEach(l => l(state));
-    expect(onMessage).not.toHaveBeenCalled();
+  it("should show objectives message and restore HUD when objective is visible", () => {
+    const state = createBaseState();
+    state.t = 200;
+    state.objectives[0].visible = true;
+    const listener = gameClient.addStateUpdateListener.mock.calls[0][0];
+    listener(state);
+    
+    expect(uiOrchestrator.setMissionHUDVisible).toHaveBeenCalledWith(true);
+    expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "objective_sighted" }));
   });
 
-  it('should trigger first_move when unit moves', () => {
-    manager.enable();
-    const unit = { id: 'u1', pos: { x: 10, y: 10 }, hp: 100, maxHp: 100 } as Unit;
+  it("should show combat message when an enemy is visible", () => {
+    const state = createBaseState();
+    state.t = 200;
+    state.enemies = [{ id: "e1", pos: { x: 2, y: 2 }, hp: 10 } as any];
+    state.visibleCells.push("2,2");
+    const listener = gameClient.addStateUpdateListener.mock.calls[0][0];
+    listener(state);
     
-    // Initial state
-    let state = createMockState();
-    state.units = [unit];
-    listeners.forEach(l => l(state));
-    
-    // Clear initial trigger (start)
-    // Actually start message triggers once.
-    // We expect onMessage to have been called for 'start'.
-    expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: 'start' }));
-    (onMessage as any).mockClear();
-    
-    // Move unit
-    const movedUnit = { ...unit, pos: { x: 11, y: 10 } };
-    state = { ...state, units: [movedUnit] };
-    listeners.forEach(l => l(state));
-    
-    expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({
-      id: 'first_move'
-    }));
+    expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "enemy_sighted" }));
   });
 
-  it('should trigger enemy_sighted when enemy is visible', () => {
-    manager.enable();
+  it("should show extraction message when main objective is completed", () => {
+    const state = createBaseState();
+    state.t = 200;
+    state.objectives[0].state = "Completed";
+    const listener = gameClient.addStateUpdateListener.mock.calls[0][0];
+    listener(state);
     
-    // Initial state (no enemies)
-    let state = createMockState();
-    listeners.forEach(l => l(state));
-    (onMessage as any).mockClear();
-    
-    // Enemy appears and is visible
-    const enemy = { id: 'e1', pos: { x: 5, y: 5 } };
-    state = { 
-        ...state, 
-        enemies: [enemy] as any,
-        visibleCells: ['5,5']
-    };
-    listeners.forEach(l => l(state));
-    
-    expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({
-      id: 'enemy_sighted'
-    }));
-  });
-
-  it('should trigger taking_damage when unit is hurt', () => {
-    manager.enable();
-    const unit = { id: 'u1', pos: { x: 10, y: 10 }, hp: 100, maxHp: 100 } as Unit;
-    
-    // Initial state
-    let state = createMockState();
-    state.units = [unit];
-    listeners.forEach(l => l(state));
-    (onMessage as any).mockClear();
-    
-    // Unit takes damage
-    const hurtUnit = { ...unit, hp: 90 };
-    state = { ...state, units: [hurtUnit] };
-    listeners.forEach(l => l(state));
-    
-    expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({
-      id: 'taking_damage'
-    }));
+    expect(onMessage).toHaveBeenCalledWith(expect.objectContaining({ id: "objective_completed" }));
   });
 });

@@ -70,6 +70,9 @@ export class MissionCoordinator {
 
     this.campaignShell.hide();
 
+    syncSpeedUI();
+    this.setupGameClientCallbacks(config, setupCallbacks, updateUI);
+
     this.gameClient.init(
       config.seed,
       config.mapGeneratorType,
@@ -104,8 +107,6 @@ export class MissionCoordinator {
       config.debugSnapshotInterval,
     );
 
-    syncSpeedUI();
-    this.setupGameClientCallbacks(config, setupCallbacks, updateUI);
     this.screenManager.show("mission", true, !!config.campaignNode);
   }
 

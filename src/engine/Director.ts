@@ -9,6 +9,7 @@ import {
   UseItemCommand,
   MapDefinition,
   CellType,
+  MissionType,
 } from "../shared/types";
 import { PRNG } from "../shared/PRNG";
 import { IDirector } from "./interfaces/IDirector";
@@ -210,7 +211,11 @@ export class Director implements IDirector {
 
         state.units.forEach((u) => {
           if (MathUtils.sameCellPosition(u.pos, targetPos!)) {
-            u.hp -= ITEMS.GRENADE_DAMAGE;
+            if (state.missionType === MissionType.Prologue) {
+              u.hp = Math.max(1, u.hp - ITEMS.GRENADE_DAMAGE);
+            } else {
+              u.hp -= ITEMS.GRENADE_DAMAGE;
+            }
           }
         });
       }

@@ -3,6 +3,7 @@ import { GameState, MissionType } from "@src/shared/types";
 import { Logger } from "@src/shared/Logger";
 import { MathUtils } from "@src/shared/utils/MathUtils";
 import { Vector2 } from "@src/shared/types/geometry";
+import { UIOrchestrator } from "../app/UIOrchestrator";
 
 export interface AdvisorMessage {
   id: string;
@@ -21,31 +22,32 @@ interface TutorialStep {
   condition: TutorialCondition;
   message: AdvisorMessage;
   triggerOnce: boolean;
+  onTrigger?: (manager: TutorialManager) => void;
 }
 
 export class TutorialManager {
   private gameClient: GameClient;
   private onMessage: (msg: AdvisorMessage) => void;
+  private uiOrchestrator?: UIOrchestrator;
   private isActive: boolean = false;
   private completedSteps: Set<string> = new Set();
+  private isPrologueActive: boolean = false;
 
   private initialPositions: Map<string, Vector2> = new Map();
 
   // State tracking
   private hasMoved: boolean = false;
-  // Actually, for "First Move", we need to know if they *just* moved.
-  // But purely state-based: "If any unit is not at spawn" -> "Moved".
-  
-  // We can track "initial positions" or just check AP usage?
-  // AP resets every turn, so checking AP < MaxAP means they did something *this turn*.
   
   private steps: TutorialStep[] = [
     {
       id: "start",
-      condition: () => true, // Immediate
+      condition: (state) => state.t > 100,
       message: {
         id: "start",
-        text: "Commander, squad is online. Proceed to the airlock.",
+        title: "Project Voidlock: Operation First Light",
+        text: "Commander, wake up. The Voidlock is failing. The station's core is unstable, and the swarms are breaching the lower decks. \n\nTo move your squad, select a unit with [1-4] or by clicking them, then click a destination on the map. \n\nYour first objective is to locate the secure terminal in the maintenance room ahead.",
+        illustration: "bg_station",
+        portrait: "logo_gemini",
         blocking: true,
       },
       triggerOnce: true,
@@ -55,28 +57,8 @@ export class TutorialManager {
       condition: (state) => this.checkAnyUnitMoved(state),
       message: {
         id: "first_move",
-        text: "Good. Movement systems nominal.",
+        text: "Good. Movement systems nominal. Continue to the objective.",
         duration: 3000,
-      },
-      triggerOnce: true,
-    },
-    {
-      id: "enemy_sighted",
-      condition: (state) => this.checkEnemyVisible(state),
-      message: {
-        id: "enemy_sighted",
-        text: "Hostile detected! Weapons free. Maintain effective range.",
-        blocking: true, // Pause to let player read
-      },
-      triggerOnce: true,
-    },
-    {
-      id: "taking_damage",
-      condition: (state) => this.checkUnitDamaged(state),
-      message: {
-        id: "taking_damage",
-        text: "Unit taking fire! Use a Medkit from Global Supplies.",
-        blocking: false,
       },
       triggerOnce: true,
     },
@@ -85,16 +67,50 @@ export class TutorialManager {
       condition: (state) => this.checkObjectiveVisible(state),
       message: {
         id: "objective_sighted",
-        text: "Target located. Secure the package.",
-        blocking: false,
+        title: "Tactical Basics: Objectives",
+        text: "The secure terminal is within sight. Move to the terminal to recover the data disk. \n\nObjectives and mission status are tracked in the right panel.",
+        portrait: "logo_gemini",
+        blocking: true,
+      },
+      triggerOnce: true,
+      onTrigger: (manager) => {
+        manager.uiOrchestrator?.setMissionHUDVisible(true);
+      }
+    },
+    {
+      id: "enemy_sighted",
+      condition: (state) => this.checkEnemyVisible(state),
+      message: {
+        id: "enemy_sighted",
+        title: "Tactical Basics: Combat",
+        text: "Hostile contact! Your units will automatically engage enemies within their line of sight and weapon range. \n\nThe threat meter at the top indicates the current swarm activity level. Stay alert.",
+        portrait: "logo_gemini",
+        blocking: true,
+      },
+      triggerOnce: true,
+    },
+    {
+      id: "objective_completed",
+      condition: (state) => state.objectives.some(o => o.id === "obj-main" && o.state === "Completed"),
+      message: {
+        id: "objective_completed",
+        title: "Tactical Basics: Extraction",
+        text: "Data recovered. The swarm is closing in. Get your squad to the extraction point immediately! \n\nAll units must reach the extraction zone to complete the mission.",
+        portrait: "logo_gemini",
+        blocking: true,
       },
       triggerOnce: true,
     }
   ];
 
-  constructor(gameClient: GameClient, onMessage: (msg: AdvisorMessage) => void) {
+  constructor(
+    gameClient: GameClient,
+    onMessage: (msg: AdvisorMessage) => void,
+    uiOrchestrator?: UIOrchestrator
+  ) {
     this.gameClient = gameClient;
     this.onMessage = onMessage;
+    this.uiOrchestrator = uiOrchestrator;
   }
 
   public enable() {
@@ -116,6 +132,7 @@ export class TutorialManager {
     this.completedSteps.clear();
     this.hasMoved = false;
     this.initialPositions.clear();
+    this.isPrologueActive = false;
     this.clearState();
   }
 
@@ -144,7 +161,16 @@ export class TutorialManager {
 
   private onGameStateUpdate = (state: GameState) => {
     if (!this.isActive) return;
-    if (state.missionType !== MissionType.Prologue) return;
+    if (state.missionType !== MissionType.Prologue) {
+        this.isPrologueActive = false;
+        return;
+    }
+
+    if (!this.isPrologueActive && state.status === "Playing") {
+        this.isPrologueActive = true;
+        // Start of prologue: hide UI
+        this.uiOrchestrator?.setMissionHUDVisible(false);
+    }
 
     // Check steps
     for (const step of this.steps) {
@@ -152,6 +178,11 @@ export class TutorialManager {
 
       if (step.condition(state, this)) {
         Logger.info(`Tutorial Step Triggered: ${step.id}`);
+        
+        if (step.onTrigger) {
+            step.onTrigger(this);
+        }
+
         this.onMessage(step.message);
         if (step.triggerOnce) {
             this.completedSteps.add(step.id);
@@ -204,10 +235,6 @@ export class TutorialManager {
         const key = `${Math.floor(e.pos.x)},${Math.floor(e.pos.y)}`;
         return state.visibleCells.includes(key);
     });
-  }
-
-  private checkUnitDamaged(state: GameState): boolean {
-    return state.units.some(u => u.hp < u.maxHp);
   }
 
   private checkObjectiveVisible(state: GameState): boolean {

@@ -3,6 +3,7 @@ import {
   Enemy,
   EnemyType,
   EnemyArchetypeLibrary,
+  MissionType,
 } from "../../shared/types";
 import { GameGrid } from "../GameGrid";
 import { Pathfinder } from "../Pathfinder";
@@ -67,7 +68,11 @@ export class EnemyManager {
 
         state.units.forEach((u) => {
           if (MathUtils.sameCellPosition(u.pos, mine.pos)) {
-            u.hp -= mine.damage;
+            if (state.missionType === MissionType.Prologue) {
+              u.hp = Math.max(1, u.hp - mine.damage);
+            } else {
+              u.hp -= mine.damage;
+            }
           }
         });
       }
