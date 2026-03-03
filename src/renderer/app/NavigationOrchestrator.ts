@@ -205,6 +205,10 @@ export class NavigationOrchestrator {
           }
         }
 
+        if (state && state.history?.length === 2) {
+          this.tutorialManager.triggerEvent("sector_map_intro");
+        }
+
         if (
           state &&
           (state.status === "Victory" || state.status === "Defeat")
@@ -333,11 +337,18 @@ export class NavigationOrchestrator {
       this.missionSetupManager.currentMissionType === MissionType.Prologue;
     this.screens.equipment.setPrologue(isPrologue);
 
+    // Mission 2 Lockdown: Store and Squad Selection are locked
     const isMission2Tutorial = isCampaign && state?.history?.length === 1;
-    this.screens.equipment.setStoreLocked(isMission2Tutorial);
+    this.screens.equipment.setStoreLocked(isMission2Tutorial || isPrologue);
+    this.screens.equipment.setSquadSelectionLocked(isMission2Tutorial || isPrologue);
 
     if (isMission2Tutorial) {
       this.tutorialManager.triggerEvent("ready_room_intro");
+    }
+
+    // Mission 3: Squad Selection is unlocked
+    if (isCampaign && state?.history?.length === 2) {
+      this.tutorialManager.triggerEvent("squad_selection_intro");
     }
 
     const isShop = node?.type === "Shop";

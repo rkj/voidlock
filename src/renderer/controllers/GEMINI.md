@@ -4,7 +4,7 @@ This directory contains decoupled logic managers for the tactical UI, following 
 
 ## Components
 
-- `TutorialManager.ts`: Orchestrates the guided prologue flow (Mission 1) and other tutorial steps. Handles progressive UI disclosure by hiding/showing HUD panels via `UIOrchestrator` based on mission progress (ADR 0049). It monitors `GameState` for specific triggers like objective visibility or enemy contact and triggers Advisor messages.
+- `TutorialManager.ts`: Orchestrates the guided prologue flow (Mission 1) and subsequent tutorial steps for Mission 2 and 3. Handles progressive UI disclosure by hiding/showing HUD panels via `UIOrchestrator` based on mission progress (ADR 0049). It monitors `GameState` for specific triggers like objective visibility or enemy contact and triggers Advisor messages. Now includes strategic layer introductions for the Sector Map and Squad Selection management.
 - `MenuStateMachine.ts`: Manages the stack of menu states (`ACTION_SELECT`, `TARGET_SELECT`, etc.) and handles transitions between them.
 - `SelectionManager.ts`: Tracks the current selection context, including pending actions, targets, modes, and shift-key state.
 - `RoomDiscoveryManager.ts`: Encapsulates the logic for tracking discovered rooms and maintaining a stable discovery order for menu keys.

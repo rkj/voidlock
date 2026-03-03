@@ -251,12 +251,42 @@ export class TutorialManager {
       this.onMessage({
         id: "ready_room_intro",
         title: "The Ready Room",
-        text: "You made it back. Welcome to the Ready Room.\n\nHere you can review your roster's status and manage their equipment. For this next mission, the Armory is locked down while diagnostics run. \n\nReview your soldier's stats, then initiate the launch sequence when ready.",
+        text: "You made it back. Welcome to the Ready Room.\n\nHere you can review your roster's status and manage their equipment. For this next mission, the Armory is locked down while diagnostics run. Your squad has been pre-filled with surviving personnel.\n\nReview your soldier's stats, then initiate the launch sequence when ready.",
         portrait: "logo_gemini",
         blocking: true,
       });
 
       this.completedSteps.add("ready_room_intro");
+      this.saveState();
+    }
+
+    if (eventId === "sector_map_intro") {
+      if (this.completedSteps.has("sector_map_intro")) return;
+      
+      this.onMessage({
+        id: "sector_map_intro",
+        title: "Strategic Overview: Sector Map",
+        text: "The station is divided into sectors. You must navigate through the nodes to reach the core. \n\nCombat nodes [Crossed Swords] contain swarms and resources. Supply Depots [Shop] allow you to restock and recruit. Event nodes [?] present unique opportunities or risks. \n\nWhite lines indicate confirmed paths. Select an accessible node to plan your next move.",
+        portrait: "logo_gemini",
+        blocking: true,
+      });
+
+      this.completedSteps.add("sector_map_intro");
+      this.saveState();
+    }
+
+    if (eventId === "squad_selection_intro") {
+      if (this.completedSteps.has("squad_selection_intro")) return;
+      
+      this.onMessage({
+        id: "squad_selection_intro",
+        title: "Squad Management",
+        text: "Basic Squad Selection is now online. You can now customize your squad by adding or removing members from the roster. \n\nClick an empty slot to see available personnel, or use the 'X' on a soldier's card to return them to the roster. Choose your team wisely based on the upcoming mission's requirements.",
+        portrait: "logo_gemini",
+        blocking: true,
+      });
+
+      this.completedSteps.add("squad_selection_intro");
       this.saveState();
     }
   }

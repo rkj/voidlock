@@ -30,6 +30,7 @@ export class EquipmentScreen {
   private isCampaign: boolean = false;
   private isPrologue: boolean = false;
   private isStoreLocked: boolean = false;
+  private isSquadSelectionLocked: boolean = false;
   private hasNodeSelected: boolean = false;
   private savedScrollTop: { left: number; center: number; right: number } = {
     left: 0,
@@ -126,6 +127,10 @@ export class EquipmentScreen {
   public setStoreLocked(locked: boolean) {
     this.isStoreLocked = locked;
     this.inspector.setLocked(locked);
+  }
+
+  public setSquadSelectionLocked(locked: boolean) {
+    this.isSquadSelectionLocked = locked;
   }
 
   public setHasNodeSelected(hasNodeSelected: boolean) {
@@ -382,23 +387,27 @@ export class EquipmentScreen {
         item.setAttribute("data-focus-id", `soldier-slot-${i}`);
 
         // Add remove button
-        const removeBtn = document.createElement("button");
-        removeBtn.className = "remove-soldier-btn slot-remove";
-        removeBtn.setAttribute("data-focus-id", `remove-soldier-${i}`);
-        removeBtn.tabIndex = -1;
-        removeBtn.innerHTML = "×";
-        removeBtn.title = "Remove from Squad";
-        removeBtn.onclick = (e) => {
-          e.stopPropagation();
-          this.config.soldiers.splice(i, 1);
-          this.render();
-        };
-        item.style.position = "relative";
-        item.appendChild(removeBtn);
+        if (!this.isSquadSelectionLocked) {
+          const removeBtn = document.createElement("button");
+          removeBtn.className = "remove-soldier-btn slot-remove";
+          removeBtn.setAttribute("data-focus-id", `remove-soldier-${i}`);
+          removeBtn.tabIndex = -1;
+          removeBtn.innerHTML = "×";
+          removeBtn.title = "Remove from Squad";
+          removeBtn.onclick = (e) => {
+            e.stopPropagation();
+            this.config.soldiers.splice(i, 1);
+            this.render();
+          };
+          item.style.position = "relative";
+          item.appendChild(removeBtn);
+        }
       } else {
         item = document.createElement("div");
-        item.className = `menu-item clickable ${this.selectedSoldierIndex === i ? "active" : ""}`;
-        item.tabIndex = 0;
+        item.className = `menu-item clickable ${this.selectedSoldierIndex === i ? "active" : ""} ${this.isSquadSelectionLocked ? "disabled" : ""}`;
+        if (!this.isSquadSelectionLocked) {
+          item.tabIndex = 0;
+        }
         item.setAttribute("data-focus-id", `soldier-slot-${i}`);
         item.style.marginBottom = "8px";
         item.style.padding = "8px 12px";
@@ -407,37 +416,39 @@ export class EquipmentScreen {
             ${i + 1}. [Empty Slot]
           </div>
           <div style="font-size:0.75em; color:var(--color-text-muted); margin-top:2px;">
-            Click to Add Soldier
+            ${this.isSquadSelectionLocked ? "Slot Restricted" : "Click to Add Soldier"}
           </div>
         `;
 
-        const handleSelect = () => {
-          this.selectedSoldierIndex = i;
-          this.recruitMode = false;
-          this.reviveMode = false;
-          this.render();
+        if (!this.isSquadSelectionLocked) {
+          const handleSelect = () => {
+            this.selectedSoldierIndex = i;
+            this.recruitMode = false;
+            this.reviveMode = false;
+            this.render();
 
-          // Focus the recruit button if it exists (Spec 9)
-          const recruitBtn = this.container.querySelector(
-            '[data-focus-id="recruit-btn-large"]',
-          ) as HTMLElement;
-          if (recruitBtn) {
-            recruitBtn.focus();
-          } else {
-            // If no recruit button (e.g. custom mode or roster full), focus first option in right panel
-            const firstRight = this.container.querySelector(
-              ".armory-panel .clickable:not(.disabled)",
+            // Focus the recruit button if it exists (Spec 9)
+            const recruitBtn = this.container.querySelector(
+              '[data-focus-id="recruit-btn-large"]',
             ) as HTMLElement;
-            if (firstRight) firstRight.focus();
-          }
-        };
-        item.onclick = handleSelect;
-        item.onkeydown = (e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            handleSelect();
-            e.preventDefault();
-          }
-        };
+            if (recruitBtn) {
+              recruitBtn.focus();
+            } else {
+              // If no recruit button (e.g. custom mode or roster full), focus first option in right panel
+              const firstRight = this.container.querySelector(
+                ".armory-panel .clickable:not(.disabled)",
+              ) as HTMLElement;
+              if (firstRight) firstRight.focus();
+            }
+          };
+          item.onclick = handleSelect;
+          item.onkeydown = (e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              handleSelect();
+              e.preventDefault();
+            }
+          };
+        }
       }
 
       panel.appendChild(item);
