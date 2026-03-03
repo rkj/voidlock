@@ -104,30 +104,26 @@ describe("Manual Deployment Phase", () => {
     expect(unit1After.pos.y).toBe(originalPos.y);
   });
 
-  it("swaps units when deploying to an occupied tile", () => {
+  it("allows overlapping up to 4 units on an occupied tile", () => {
     // Force set positions to known tiles
     engine.applyCommand({
       type: CommandType.DEPLOY_UNIT,
       unitId: "unit-1",
       target: { x: 0.5, y: 0.5 },
     });
+    
+    // Deploying unit-2 to the same tile should NOT swap unit-1
     engine.applyCommand({
       type: CommandType.DEPLOY_UNIT,
       unitId: "unit-2",
-      target: { x: 1.5, y: 0.5 },
-    });
-
-    engine.applyCommand({
-      type: CommandType.DEPLOY_UNIT,
-      unitId: "unit-1",
-      target: { x: 1.5, y: 0.5 }, // Targeted occupied tile
+      target: { x: 0.5, y: 0.5 },
     });
 
     const state = engine.getState();
     const unit1 = state.units.find((u) => u.id === "unit-1")!;
     const unit2 = state.units.find((u) => u.id === "unit-2")!;
 
-    expect(Math.floor(unit1.pos.x)).toBe(1);
+    expect(Math.floor(unit1.pos.x)).toBe(0);
     expect(Math.floor(unit2.pos.x)).toBe(0);
   });
 
