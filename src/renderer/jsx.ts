@@ -42,7 +42,7 @@ export function createElement(
   if (props) {
     for (const [key, value] of Object.entries(props)) {
       if (key === "className" || key === "class") {
-        element.setAttribute("class", value);
+        element.className = value;
       } else if (key === "style" && typeof value === "object") {
         Object.assign(element.style, value);
       } else if (key.startsWith("on") && typeof value === "function") {
@@ -52,6 +52,13 @@ export function createElement(
         // Handled by ...children rest parameter
       } else if (key === "ref" && typeof value === "function") {
         value(element);
+      } else if (
+        key === "disabled" ||
+        key === "checked" ||
+        key === "selected" ||
+        key === "value"
+      ) {
+        (element as any)[key] = value;
       } else {
         element.setAttribute(key, value);
       }
