@@ -17,6 +17,11 @@ describe("Debrief Responsiveness", () => {
 
   async function goToDebrief(page: Page) {
     await page.goto(E2E_URL);
+    await page.evaluate(() => localStorage.clear());
+    await page.reload();
+    
+    // Wait for splash animation to complete
+    await page.waitForSelector("#screen-main-menu.title-splash-complete", { timeout: 15000 });
     await page.waitForSelector("#btn-menu-custom");
 
     // Start Custom Mission

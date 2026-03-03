@@ -66,17 +66,22 @@ describe("Mobile Full Campaign Flow", () => {
         if (btn) btn.click();
     });
 
-    // 6. Deployment Phase OR Playing Phase (if Prologue)
+    // 6. Mission Phase (Deployment or Playing)
     await page.waitForSelector("#screen-mission", { visible: true });
-    
-    // Check if we are in deployment or already playing
-    const isDeployment = await page.evaluate(() => {
-        const el = document.querySelector(".deployment-summary");
-        return el && window.getComputedStyle(el).display !== "none";
+
+    // Wait for mission state to be initialized
+    await page.waitForFunction(() => {
+        const app = (window as any).GameAppInstance;
+        const state = app?.registry?.missionRunner?.getCurrentGameState();
+        return state && (state.status === "Deployment" || state.status === "Playing");
+    }, { timeout: 10000 });
+
+    const status = await page.evaluate(() => {
+        const app = (window as any).GameAppInstance;
+        return app.registry.missionRunner.getCurrentGameState().status;
     });
 
-    if (isDeployment) {
-        console.log("In Deployment Phase, deploying units...");
+    if (status === "Deployment") {
         await page.waitForSelector(".deployment-unit-item");
 
         // Deploy all units
@@ -89,7 +94,7 @@ describe("Mobile Full Campaign Flow", () => {
         const startMissionBtn = await page.waitForSelector("#btn-start-mission");
         await startMissionBtn?.click();
     } else {
-        console.log("Not in Deployment Phase (likely Prologue), skipping deployment steps.");
+        console.log("Directly in Playing Phase (likely Prologue), skipping deployment steps.");
         // If advisor is showing blocking message, click Continue
         const advisorBtn = await page.$(".advisor-btn");
         if (advisorBtn) {
@@ -99,6 +104,35 @@ describe("Mobile Full Campaign Flow", () => {
     }
 
     // 7. Playing state
+    // On mobile, we need to select a unit to see the command menu.
+    // Open squad panel drawer first
+    await page.click("#btn-toggle-squad");
+    await page.waitForSelector("#soldier-panel.active");
+    await new Promise(r => setTimeout(r, 500)); // Wait for transition
+    
+    // Click first soldier card to select
+    await page.waitForSelector(".soldier-item");
+    const clickResult = await page.evaluate(() => {
+        const item = document.querySelector(".soldier-item") as HTMLElement;
+        if (!item) return "not_found";
+        const style = window.getComputedStyle(item);
+        const rect = item.getBoundingClientRect();
+        const parent = item.parentElement;
+        const parentStyle = parent ? window.getComputedStyle(parent) : null;
+        
+        const info = {
+            display: style.display,
+            visibility: style.visibility,
+            opacity: style.opacity,
+            rect: { x: rect.x, y: rect.y, w: rect.width, h: rect.height },
+            parentDisplay: parentStyle?.display,
+            parentVisible: parent ? (parent as HTMLElement).offsetParent !== null : false
+        };
+        
+        item.click();
+        return info;
+    });
+
     await page.waitForSelector(".command-menu");
     const menuItems = await page.$$(".menu-item");
     expect(menuItems.length).toBeGreaterThan(0);
@@ -107,12 +141,14 @@ describe("Mobile Full Campaign Flow", () => {
     await page.keyboard.press("Backquote");
 
     // Toggle drawers to verify they work during mission
+    // (If squad panel is already active from step 7, this will close it)
     await page.click("#btn-toggle-squad");
-    await page.waitForSelector("#soldier-panel.active");
-
+    
     await page.click("#btn-toggle-right");
     await page.waitForSelector("#right-panel.active");
     await new Promise((r) => setTimeout(r, 500)); // Wait for drawer transition
+    
+    // On mobile, toggling right panel should deactivate soldier panel if it was active
     await page.waitForSelector("#soldier-panel:not(.active)");
 
     // 8. Force Win (via Debug Tools in Right Panel)

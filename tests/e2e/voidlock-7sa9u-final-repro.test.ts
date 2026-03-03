@@ -92,11 +92,7 @@ describe("voidlock-7sa9u repro: X button focus in Mission Setup", () => {
         const card = document.querySelector(".roster-list .soldier-card") as HTMLElement;
         if (card) card.click();
     });
-    await page.waitForSelector(".deployment-slot.ready-for-placement");
-    await page.evaluate(() => {
-        const slot = document.querySelector(".deployment-slot.ready-for-placement") as HTMLElement;
-        if (slot) slot.click();
-    });
+    // Wait for slot to be occupied (auto-deployed)
     await page.waitForSelector(".deployment-slot.occupied");
 
     // Check if slot-remove is in focusable elements

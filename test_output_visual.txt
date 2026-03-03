@@ -1,0 +1,36 @@
+
+ RUN  v3.2.4 /home/rkj/voidlock
+
+Vite dev server started at http://localhost:5199
+
+⎯⎯⎯⎯⎯⎯ Failed Suites 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/e2e/regression_39b1_visual.test.ts [ tests/e2e/regression_39b1_visual.test.ts ]
+Error: Transform failed with 1 error:
+/home/rkj/voidlock/tests/e2e/regression_39b1_visual.test.ts:54:32: ERROR: Syntax error '"'
+  Plugin: vite:esbuild
+  File: /home/rkj/voidlock/tests/e2e/regression_39b1_visual.test.ts:54:32
+  
+  Syntax error '"'
+  52 |  
+  53 |      // Click "Equipment & Supplies" to go to Equipment screen
+  54 |      await page.waitForSelector(\"#btn-goto-equipment:not([disabled])\");
+     |                                  ^
+  55 |      await page.evaluate(() => (document.getElementById(\"btn-goto-equipment\") as HTMLElement)?.click());
+  56 |  
+  
+ ❯ failureErrorWithLog node_modules/esbuild/lib/main.js:1467:15
+ ❯ node_modules/esbuild/lib/main.js:736:50
+ ❯ responseCallbacks.<computed> node_modules/esbuild/lib/main.js:603:9
+ ❯ handleIncomingPacket node_modules/esbuild/lib/main.js:658:12
+ ❯ Socket.readFromStdout node_modules/esbuild/lib/main.js:581:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  no tests
+   Start at  20:50:18
+   Duration  252ms (transform 22ms, setup 0ms, collect 0ms, tests 0ms, environment 0ms, prepare 46ms)
+
+Vite dev server stopped

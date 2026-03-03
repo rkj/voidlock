@@ -73,7 +73,6 @@ describe("InputBinder", () => {
       onExportReplay: vi.fn(),
       onShowStatistics: vi.fn(),
       onSetupBack: vi.fn(),
-      onUnitStyleChange: vi.fn(),
       onThemeChange: vi.fn(),
       onMapGeneratorChange: vi.fn(),
       onMissionTypeChange: vi.fn(),

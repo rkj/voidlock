@@ -20,10 +20,17 @@ describe("Drawer Toggle Visibility Regression (voidlock-5k8f)", () => {
     await page.evaluate(() => localStorage.clear());
     await page.reload();
 
+    // 1. Launch a Custom Mission to ensure HUD is present
+    await page.click('#btn-menu-custom');
+    await page.waitForSelector('#btn-launch-mission');
+    await page.click('#btn-launch-mission');
+    await page.waitForSelector('#game-canvas');
+
     // Force mobile-touch class on body
     await page.evaluate(() => {
       document.body.classList.add("mobile-touch");
     });
+
 
     // Check visibility of the buttons
     const btnVisibility = await page.evaluate(() => {
@@ -49,6 +56,10 @@ describe("Drawer Toggle Visibility Regression (voidlock-5k8f)", () => {
     await page.goto(E2E_URL);
     await page.evaluate(() => localStorage.clear());
     await page.reload();
+
+    // Wait for App to be ready
+    await page.waitForFunction(() => (window as any).__VOIDLOCK_READY__ === true);
+    await new Promise(r => setTimeout(r, 1000));
 
     // Check visibility of the buttons
     const btnVisibility = await page.evaluate(() => {

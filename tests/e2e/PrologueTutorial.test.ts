@@ -34,26 +34,34 @@ describe("Prologue Tutorial E2E", () => {
 
     await page.click(startBtnSelector);
 
-    // 3. Should go directly to Mission Screen
+    // 3. Should go to Equipment Screen (Ready Room) first (ADR 0049)
+    await page.waitForSelector("#screen-equipment");
+    
+    // Click Launch Mission
+    const launchBtn = '[data-focus-id="btn-launch-mission"]';
+    await page.waitForSelector(launchBtn);
+    await page.click(launchBtn);
+
+    // 4. Should go to Mission Screen
     await page.waitForSelector("#screen-mission");
     
-    // 4. Wait for advisor message (this ensures prologue logic has run)
+    // 5. Wait for advisor message (this ensures prologue logic has run)
     await page.waitForSelector(".advisor-message", { timeout: 15000 });
 
-    // 5. Verify HUD panels are hidden
+    // 6. Verify HUD panels are hidden
     const topBarDisplay = await page.$eval("#top-bar", (el) => window.getComputedStyle(el).display);
     const soldierPanelDisplay = await page.$eval("#soldier-panel", (el) => window.getComputedStyle(el).display);
     expect(topBarDisplay).toBe("none");
     expect(soldierPanelDisplay).toBe("none");
 
-    // 6. Verify message content
+    // 7. Verify message content
     const msgText = await page.$eval(".advisor-text", (el) => (el as HTMLElement).innerText);
     expect(msgText).toContain("wake up");
 
     // Take screenshot for proof
     await page.screenshot({ path: "tests/e2e/__snapshots__/prologue_tutorial_start.png" });
 
-    // 7. Dismiss and verify advisor gone
+    // 8. Dismiss and verify advisor gone
     const dismissBtn = ".advisor-btn[data-id='dismiss']";
     await page.waitForSelector(dismissBtn, { visible: true });
     // Small delay for animation to finish

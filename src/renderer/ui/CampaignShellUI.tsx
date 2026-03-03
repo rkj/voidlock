@@ -165,6 +165,7 @@ function renderTabs(
   return tabs.map(tab => (
     <button
       class={`tab-button shell-tab ${activeTabId === tab.id ? "active" : ""}`}
+      data-id={tab.id}
       style={{ padding: "5px 12px", height: "32px", fontSize: "0.85em", display: "flex", alignItems: "center" }}
       onClick={() => onTabChange(tab.id)}
     >

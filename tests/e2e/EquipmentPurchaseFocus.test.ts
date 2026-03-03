@@ -24,12 +24,17 @@ describe("Equipment Purchase Focus Management", () => {
     // New Campaign Wizard should appear
     await page.waitForSelector(".campaign-setup-wizard");
     
+    // Skip Prologue to ensure Armory is unlocked and we see Sector Map
+    await page.waitForSelector("#campaign-skip-prologue");
+    await page.click("#campaign-skip-prologue");
+
     // Click Start Campaign
     const startBtn = await page.waitForSelector('[data-focus-id="btn-start-campaign"]');
     await startBtn?.click();
     
-    // Wait for Campaign Screen
-    await page.waitForSelector("#screen-campaign");
+    // Wait for Campaign Screen (Sector Map)
+    await page.waitForSelector("#screen-campaign", { visible: true });
+    await page.waitForSelector(".campaign-map-viewport", { visible: true });
   }
 
   beforeEach(async () => {

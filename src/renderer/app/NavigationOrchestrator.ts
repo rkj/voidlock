@@ -61,13 +61,13 @@ export class NavigationOrchestrator {
     updateHash: boolean = true,
     ...showArgs: unknown[]
   ) {
-    console.log(`[NavigationOrchestrator] switchScreen: ${id}, isCampaign: ${isCampaign}`);
+
     // 1. Hide ALL screens to clear input contexts and DOM
     this.allScreens.forEach((s) => s.hide());
 
     // 2. Hide CampaignShell for non-campaign screens (Main Menu, Mission, etc.)
     if (id === "main-menu" || id === "mission") {
-      console.log(`[NavigationOrchestrator] Hiding CampaignShell for ${id}`);
+
       this.campaignShell.hide();
     }
 
@@ -332,13 +332,15 @@ export class NavigationOrchestrator {
 
     const state = this.campaignManager.getState();
     const node = this.missionSetupManager.currentCampaignNode;
-    const isPrologue =
+    const isPrologue = isCampaign && (
       node?.missionType === MissionType.Prologue ||
-      this.missionSetupManager.currentMissionType === MissionType.Prologue;
+      this.missionSetupManager.currentMissionType === MissionType.Prologue
+    );
     this.screens.equipment.setPrologue(isPrologue);
 
     // Mission 2 Lockdown: Store and Squad Selection are locked
     const isMission2Tutorial = isCampaign && state?.history?.length === 1;
+
     this.screens.equipment.setStoreLocked(isMission2Tutorial || isPrologue);
     this.screens.equipment.setSquadSelectionLocked(isMission2Tutorial || isPrologue);
 

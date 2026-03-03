@@ -16,6 +16,7 @@ describe("Deployment Wrong Unit Selection", () => {
   });
 
   test("Dragging a unit from a stacked cell should move the top-most unit", async () => {
+    page.on("console", (msg) => console.log(`[BROWSER] ${msg.text()}`));
     await page.goto(E2E_URL, { waitUntil: "load" });
     await page.evaluate(() => localStorage.clear());
     await page.reload({ waitUntil: "load" });
@@ -84,14 +85,6 @@ describe("Deployment Wrong Unit Selection", () => {
     
     await new Promise(r => setTimeout(r, 2000)); 
 
-    // Auto-fill in deployment phase to ensure they are on the spawn.
-    await page.waitForSelector("#btn-autofill-deployment");
-    await page.evaluate(() => {
-        const btn = document.getElementById("btn-autofill-deployment");
-        if (btn) btn.click();
-    });
-    await new Promise(r => setTimeout(r, 1000));
-
     // Get the spawn point coordinate from state
     const spawnPoint = await page.evaluate(() => {
         // @ts-ignore
@@ -103,6 +96,23 @@ describe("Deployment Wrong Unit Selection", () => {
     if (!spawnPoint) {
         throw new Error("No spawn point found in state");
     }
+
+    // Manually deploy ALL units to this same spawn point to ensure stacking for the selection test
+    await page.evaluate((sp) => {
+        // @ts-ignore
+        const app = window.GameAppInstance;
+        const state = app.registry.missionRunner.getCurrentGameState();
+        state.units.forEach(u => {
+            if (u.archetypeId !== "vip") {
+                app.gameClient.applyCommand({
+                    type: "DEPLOY_UNIT",
+                    unitId: u.id,
+                    target: { x: sp.x + 0.5, y: sp.y + 0.5 }
+                });
+            }
+        });
+    }, spawnPoint);
+    await new Promise(r => setTimeout(r, 1000));
 
     console.log("Spawn point:", spawnPoint);
 
@@ -151,13 +161,39 @@ describe("Deployment Wrong Unit Selection", () => {
     console.log("First Unit ID (expected to stay):", firstUnitId);
     console.log("Last Unit ID (expected to move):", lastUnitId);
 
-    // Perform drag
-    await page.mouse.move(startX, startY);
-    await page.mouse.down();
-    await new Promise(r => setTimeout(r, 200));
-    await page.mouse.move(targetX, targetY, { steps: 20 });
-    await new Promise(r => setTimeout(r, 200));
-    await page.mouse.up();
+    // Perform drag using a more robust method: dispatching events directly to the canvas
+    await page.evaluate((sx, sy, tx, ty) => {
+        const canvas = document.getElementById("game-canvas");
+        if (!canvas) return;
+        
+        // Mouse Down
+        canvas.dispatchEvent(new MouseEvent("mousedown", {
+            bubbles: true,
+            cancelable: true,
+            clientX: sx,
+            clientY: sy,
+            button: 0
+        }));
+        
+        // Mouse Move
+        canvas.dispatchEvent(new MouseEvent("mousemove", {
+            bubbles: true,
+            cancelable: true,
+            clientX: tx,
+            clientY: ty,
+            button: 0
+        }));
+        
+        // Mouse Up
+        canvas.dispatchEvent(new MouseEvent("mouseup", {
+            bubbles: true,
+            cancelable: true,
+            clientX: tx,
+            clientY: ty,
+            button: 0
+        }));
+    }, startX, startY, targetX, targetY);
+    
     await new Promise(r => setTimeout(r, 1000));
 
     // Check which unit was undeployed

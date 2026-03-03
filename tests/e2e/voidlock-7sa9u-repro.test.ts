@@ -143,18 +143,15 @@ describe("voidlock-7sa9u repro: X button focus", () => {
         throw e;
     }
 
-    // 3. Deploy the soldier
+    // Deploy soldier
     await page.waitForSelector(".roster-list .soldier-card");
     await page.evaluate(() => {
         const card = document.querySelector(".roster-list .soldier-card") as HTMLElement;
         if (card) card.click();
     });
-    await page.waitForSelector(".deployment-slot.ready-for-placement");
-    await page.evaluate(() => {
-        const slot = document.querySelector(".deployment-slot.ready-for-placement") as HTMLElement;
-        if (slot) slot.click();
-    });
+    // Wait for slot to be occupied (auto-deployed)
     await page.waitForSelector(".deployment-slot.occupied");
+
     
     // 4. Check if slot-remove is focusable
     const isRemoveButtonFocusable = await page.evaluate(() => {

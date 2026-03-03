@@ -31,7 +31,6 @@ export class InputBinder {
     onMapGeneratorChange: (type: MapGeneratorType) => void;
     onMissionTypeChange: (type: MissionType) => void;
     onThemeChange: (themeId: string) => void;
-    onUnitStyleChange: (style: string) => void;
     onToggleFog: (enabled: boolean) => void;
     onToggleDebug: (enabled: boolean) => void;
     onToggleLos: (enabled: boolean) => void;
@@ -41,7 +40,7 @@ export class InputBinder {
     onMapSizeChange: (width: number, height: number) => void;
     onLoadReplay: (file: File) => void;
   }) {
-    console.log("[InputBinder] bindAll start");
+
     // Main Menu
     this.addListener("btn-menu-custom", "click", () =>
       callbacks.onCustomMission(),
@@ -120,17 +119,8 @@ export class InputBinder {
       callbacks.onMissionTypeChange(target.value as MissionType);
     });
 
-    this.addListener("map-theme", "change", (e: Event) => {
-      const target = e.target as HTMLSelectElement;
-      callbacks.onThemeChange(target.value);
-    });
-
-    this.addListener("select-unit-style", "change", (e: Event) => {
-      const target = e.target as HTMLSelectElement;
-      callbacks.onUnitStyleChange(target.value);
-    });
-
     // Toggles
+
     this.addToggleListener("toggle-fog-of-war", (checked) => {
       callbacks.onToggleFog(checked);
     });
@@ -176,7 +166,7 @@ export class InputBinder {
       const file = target.files?.[0];
       if (file) callbacks.onLoadReplay(file);
     });
-    console.log("[InputBinder] bindAll complete");
+
   }
 
   private addListener(
@@ -184,14 +174,14 @@ export class InputBinder {
     type: string,
     handler: (e: Event) => void,
   ) {
-    const el =
-      typeof idOrEl === "string" ? document.getElementById(idOrEl) : idOrEl;
+    const el = typeof idOrEl === "string" ? document.getElementById(idOrEl) : idOrEl;
     if (!el) {
-      console.warn(`[InputBinder] Element not found: ${idOrEl}`);
+      if (typeof idOrEl === "string") console.warn(`[InputBinder] Element not found: ${idOrEl}`);
       return;
     }
-    console.log(`[InputBinder] Binding ${type} to ${typeof idOrEl === 'string' ? idOrEl : 'HTMLElement'}`);
-    el.addEventListener(type, handler);
+    el.addEventListener(type, (e) => {
+      handler(e);
+    });
     let entries = this.handlers.get(el) || [];
     entries.push({ type, handler });
     this.handlers.set(el, entries);

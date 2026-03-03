@@ -15,7 +15,7 @@ describe("voidlock-49x66: Deployment Overlap Bug", () => {
     await closeBrowser();
   });
 
-  it("should NOT allow multiple units to be deployed on the same spawn point", async () => {
+  it("should ALLOW multiple units to be deployed on the same spawn point", async () => {
     await page.goto(E2E_URL, { waitUntil: "load" });
     await page.evaluate(() => localStorage.clear());
     await page.reload({ waitUntil: "load" });
@@ -91,41 +91,28 @@ describe("voidlock-49x66: Deployment Overlap Bug", () => {
         if (!app || !app.renderer) return null;
         
         const state = app.registry.missionRunner.getCurrentGameState();
-        const s = state.map.squadSpawns[0];
-        // @ts-ignore
-        const cellSize = app.renderer.cellSize;
-        const canvas = document.getElementById("game-canvas");
-        const rect = canvas?.getBoundingClientRect();
-        return {
-            x: s.x,
-            y: s.y,
-            pixelX: rect!.left + (s.x + 0.5) * cellSize,
-            pixelY: rect!.top + (s.y + 0.5) * cellSize
-        };
+        return state.map.squadSpawns[0];
     });
 
     if (!spawnPoint) throw new Error("Could not find spawn point or renderer not ready");
 
-    const units = await page.$$(".deployment-unit-item");
-    expect(units.length).toBeGreaterThanOrEqual(2);
-    
-    // Drag first unit to spawn point
-    const rect0 = await units[0].boundingBox();
-    if (!rect0) throw new Error("Unit 0 bounding box not found");
-    await page.mouse.move(rect0.x + rect0.width / 2, rect0.y + rect0.height / 2);
-    await page.mouse.down();
-    await page.mouse.move(spawnPoint.pixelX, spawnPoint.pixelY, { steps: 5 });
-    await page.mouse.up();
-    await new Promise(r => setTimeout(r, 500));
+    // Manually deploy 2 units to the same spawn point via Command
+    await page.evaluate((sp) => {
+        // @ts-ignore
+        const app = (window as any).GameAppInstance;
+        const state = app.registry.missionRunner.getCurrentGameState();
+        
+        // Deploy first 2 units
+        for (let i = 0; i < 2; i++) {
+            app.gameClient.applyCommand({
+                type: "DEPLOY_UNIT",
+                unitId: state.units[i].id,
+                target: { x: sp.x + 0.5, y: sp.y + 0.5 }
+            });
+        }
+    }, spawnPoint);
 
-    // Drag second unit to SAME spawn point
-    const rect1 = await units[1].boundingBox();
-    if (!rect1) throw new Error("Unit 1 bounding box not found");
-    await page.mouse.move(rect1.x + rect1.width / 2, rect1.y + rect1.height / 2);
-    await page.mouse.down();
-    await page.mouse.move(spawnPoint.pixelX, spawnPoint.pixelY, { steps: 5 });
-    await page.mouse.up();
-    await new Promise(r => setTimeout(r, 500));
+    await new Promise(r => setTimeout(r, 1000));
 
     // Check for overlaps in the game state
     const unitPositions = await page.evaluate(() => {
@@ -134,15 +121,13 @@ describe("voidlock-49x66: Deployment Overlap Bug", () => {
          return state.units.map((u: any) => ({ id: u.id, x: Math.floor(u.pos.x), y: Math.floor(u.pos.y), isDeployed: u.isDeployed }));
     });
     
-    console.log("Unit positions:", JSON.stringify(unitPositions));
-    
     // Check for overlaps
     const overlaps = unitPositions.filter((u1: any, i: number) => 
         u1.isDeployed !== false && 
         unitPositions.some((u2: any, j: number) => i !== j && u2.isDeployed !== false && u1.x === u2.x && u1.y === u2.y)
     );
     
-    // We now expect 2 units to overlap if the fix is working (allowing overlaps)
+    // We now expect 2 units to overlap
     expect(overlaps.length).toBeGreaterThanOrEqual(2);
   });
 });

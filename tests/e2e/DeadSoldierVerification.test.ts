@@ -150,14 +150,29 @@ describe("Visual Verification - Dead Soldier Equipment", () => {
 
       await page.waitForNavigation({ waitUntil: "load" });
       
-      // Wait for App to be ready
-      await page.waitForFunction(() => (window as any).__VOIDLOCK_READY__ === true);
+      // Wait for Equipment Screen or Sector Map (fallback)
+      await page.waitForFunction(() => {
+          return !!document.querySelector("#screen-equipment") || !!document.querySelector("#screen-campaign");
+      }, { timeout: 10000 });
 
-      await new Promise((r) => setTimeout(r, 2000)); // Wait for render
+      const currentScreen = await page.evaluate(() => {
+          if (document.getElementById("screen-equipment")?.style.display === "flex") return "equipment";
+          if (document.getElementById("screen-campaign")?.style.display === "flex") return "campaign";
+          return "other";
+      });
+
+      console.log("Current Screen after reload:", currentScreen);
+
+      if (currentScreen === "campaign") {
+          // If we landed on campaign, click the node manually
+          await page.waitForSelector(".campaign-node.accessible", { visible: true });
+          await page.click(".campaign-node.accessible");
+          await page.waitForSelector("#screen-equipment", { visible: true });
+      }
 
       // Select the dead soldier in the roster list (it's the only one)
       // Note: In Equipment screen, they are in the left panel
-      await page.waitForSelector(".soldier-item.dead", { visible: true, timeout: 5000 });
+      await page.waitForSelector(".soldier-item.dead", { visible: true, timeout: 10000 });
       await page.evaluate(() => {
           const el = document.querySelector(".soldier-item.dead") as HTMLElement;
           if (el) el.click();

@@ -25,11 +25,16 @@ describe("Mobile Scrolling Regression Test", () => {
     await page.reload();
 
     // 1. Navigate to Equipment Screen
+    // Start Campaign
     await page.waitForSelector("#btn-menu-campaign");
     await page.click("#btn-menu-campaign");
 
     const startBtnSelector = ".campaign-setup-wizard .primary-button";
     await page.waitForSelector(startBtnSelector);
+
+    // Skip Prologue
+    await page.click("#campaign-skip-prologue");
+
     await page.click(startBtnSelector);
 
     await page.waitForSelector(".campaign-node.accessible");

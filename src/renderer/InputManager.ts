@@ -6,7 +6,6 @@ import {
   InputPriority,
   ShortcutInfo,
 } from "@src/shared/types";
-import { ModalService } from "./ui/ModalService";
 import { InputDispatcher } from "./InputDispatcher";
 import { MathUtils } from "@src/shared/utils/MathUtils";
 
@@ -32,12 +31,10 @@ export class InputManager implements InputContext {
   constructor(
     private screenManager: ScreenManager,
     private menuController: MenuController,
-    private modalService: ModalService,
     private togglePause: () => void,
     private handleMenuInput: (key: string, shiftHeld?: boolean) => void,
     private abortMission: () => void,
     private onUnitDeselect: () => void,
-    private getSelectedUnitId: () => string | null,
     private handleCanvasClick: (e: MouseEvent) => void,
     private onToggleDebug: (enabled: boolean) => void,
     private onToggleLos: (enabled: boolean) => void,
@@ -100,46 +97,50 @@ export class InputManager implements InputContext {
         category: "General",
       },
       {
-        key: "Shift+~",
-        label: "Shift+~",
-        description: "Toggle LOS Visualization",
+        key: "L",
+        label: "L",
+        description: "Toggle LOS Overlay",
         category: "General",
       },
       {
-        key: "ESC / Q",
-        label: "ESC / Q",
-        description: "Back / Menu / Deselect",
-        category: "Navigation",
+        key: "Escape",
+        label: "Esc",
+        description: "Deselect / Back",
+        category: "General",
       },
       {
-        key: "Arrows",
-        label: "Arrows",
-        description: "Pan Map",
-        category: "Tactical",
+        key: "Q",
+        label: "Q",
+        description: "Abort Mission",
+        category: "General",
       },
       {
         key: "Tab",
         label: "Tab",
-        description: "Cycle Units",
-        category: "Tactical",
+        description: "Next Unit",
+        category: "Navigation",
+      },
+      {
+        key: "Shift+Tab",
+        label: "S+Tab",
+        description: "Prev Unit",
+        category: "Navigation",
+      },
+      {
+        key: "W,A,S,D",
+        label: "WASD",
+        description: "Pan Map",
+        category: "Navigation",
       },
     ];
 
-    if (this.screenManager.getCurrentScreen() === "mission") {
-      shortcuts.push(
-        {
-          key: "1-9",
-          label: "1-9",
-          description: "Select Menu Option",
-          category: "Menu",
-        },
-        {
-          key: "M",
-          label: "M",
-          description: "Quick Move Command",
-          category: "Tactical",
-        },
-      );
+    for (let i = 1; i <= 9; i++) {
+      shortcuts.push({
+        key: i.toString(),
+        label: i.toString(),
+        description: `Menu Action ${i}`,
+        category: "Tactical",
+      });
     }
 
     return shortcuts;
@@ -147,91 +148,61 @@ export class InputManager implements InputContext {
 
   public handleKeyDown(e: KeyboardEvent): boolean {
     if (this.isDebriefing()) return false;
-    this.menuController.isShiftHeld = e.shiftKey;
-    if (
-      (e.target as HTMLElement).tagName === "INPUT" ||
-      (e.target as HTMLElement).tagName === "TEXTAREA"
-    )
-      return false;
 
-    if (this.screenManager.getCurrentScreen() === "mission") {
-      if (e.key === "Escape" || e.key === "q" || e.key === "Q") {
-        if (this.menuController.menuState !== "ACTION_SELECT") {
-          this.menuController.goBack();
-        } else {
-          if (this.getSelectedUnitId()) {
-            this.onUnitDeselect();
-          } else if (e.key === "Escape") {
-            this.modalService
-              .confirm("Abort Mission and return to menu?")
-              .then((confirmed) => {
-                if (confirmed) {
-                  this.abortMission();
-                }
-              });
-          }
-        }
-        return true;
-      }
-
-      if (e.code === "Space") {
-        this.togglePause();
-        return true;
-      }
-
-      if (e.key === "Tab") {
-        const state = this.currentGameState();
-        if (state && state.status === "Deployment") {
-          return false; // Allow Tab to navigate UI during deployment
-        }
-        this.cycleUnits(e.shiftKey);
-        return true;
-      }
-
-      if (
-        e.key === "ArrowUp" ||
-        e.key === "ArrowDown" ||
-        e.key === "ArrowLeft" ||
-        e.key === "ArrowRight"
-      ) {
-        // Only pan if focus is on body or canvas
-        const active = document.activeElement;
-        if (active && active !== document.body && active.tagName !== "CANVAS") {
-          return false;
-        }
-        this.panMap(e.key);
-        return true;
-      }
-
-      if (e.code === "Backquote") {
-        const state = this.currentGameState();
-        if (state) {
-          if (e.shiftKey) {
-            this.onToggleLos(!state.settings.losOverlayEnabled);
-          } else {
-            this.onToggleDebug(!state.settings.debugOverlayEnabled);
-          }
-        }
-        return true;
-      }
-
-      if (e.key === "m" || e.key === "M") {
-        if (this.menuController.menuState === "ACTION_SELECT") {
-          this.handleMenuInput("1", e.shiftKey);
-        }
-        return true;
-      }
-
-      const key = e.key.toLowerCase();
-      if (/^[0-9a-z]$/.test(key)) {
-        this.handleMenuInput(key, e.shiftKey);
-        return true;
-      }
+    const panKeys = ["w", "a", "s", "d", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
+    if (panKeys.includes(e.key.toLowerCase())) {
+      let dir = e.key.toLowerCase();
+      if (dir === "arrowup") dir = "w";
+      if (dir === "arrowdown") dir = "s";
+      if (dir === "arrowleft") dir = "a";
+      if (dir === "arrowright") dir = "d";
+      this.panMap(dir);
+      return true;
     }
+
+    if (e.key === " ") {
+      this.togglePause();
+      return true;
+    }
+
+    if (e.key === "~" || e.key === "`") {
+      const state = this.currentGameState();
+      if (state) {
+        this.onToggleDebug(!this.screenManager.getScreenElement("mission")?.classList.contains("debug-overlay-enabled"));
+      }
+      return true;
+    }
+
+    if (e.key.toLowerCase() === "l") {
+      const state = this.currentGameState();
+      if (state) {
+        this.onToggleLos(!this.screenManager.getScreenElement("mission")?.classList.contains("los-overlay-enabled"));
+      }
+      return true;
+    }
+
+    if (e.key === "Escape") {
+      this.onUnitDeselect();
+      return true;
+    }
+
+    if (e.key.toLowerCase() === "q") {
+      this.abortMission();
+      return true;
+    }
+
+    if (e.key === "Tab") {
+      this.cycleUnits(e.shiftKey);
+      return true;
+    }
+
+    if (/^[1-9]$/.test(e.key)) {
+      this.handleMenuInput(e.key, e.shiftKey);
+      return true;
+    }
+
     return false;
   }
-
-  // --- Mouse Handlers ---
 
   public handleMouseDown(e: MouseEvent): boolean {
     if (this.isDebriefing()) return false;
@@ -251,7 +222,7 @@ export class InputManager implements InputContext {
         MathUtils.sameCellPosition(u.pos, cell) &&
         u.isDeployed !== false &&
         u.archetypeId !== "vip" &&
-        MathUtils.getDistance(worldPos, u.pos) <= 0.4,
+        MathUtils.getDistance(worldPos, u.pos) <= 0.5,
     );
 
     if (bestUnit) {
@@ -277,23 +248,19 @@ export class InputManager implements InputContext {
 
     const target = e.target as HTMLElement;
     if (target.id === "game-canvas") {
-      const state = this.currentGameState();
-      if (state && state.status === "Deployment") {
-        const cell = this.getCellCoordinates(e.clientX, e.clientY);
-        const worldPos = this.getWorldCoordinates(e.clientX, e.clientY);
-
-        // Find the top-most unit in the cell within the 0.4 threshold
-        const bestUnit = state.units.findLast(
-          (u) =>
-            MathUtils.sameCellPosition(u.pos, cell) &&
-            u.isDeployed !== false &&
-            u.archetypeId !== "vip" &&
-            MathUtils.getDistance(worldPos, u.pos) <= 0.4,
-        );
-
-        const canvas = document.getElementById("game-canvas");
-        if (canvas) {
-          // If we are close to a unit center (within 0.4 cells), show grab cursor
+      const canvas = document.getElementById("game-canvas");
+      if (canvas) {
+        const state = this.currentGameState();
+        if (state && state.status === "Deployment") {
+          const cell = this.getCellCoordinates(e.clientX, e.clientY);
+          const worldPos = this.getWorldCoordinates(e.clientX, e.clientY);
+          const bestUnit = state.units.findLast(
+            (u) =>
+              MathUtils.sameCellPosition(u.pos, cell) &&
+              u.isDeployed !== false &&
+              u.archetypeId !== "vip" &&
+              MathUtils.getDistance(worldPos, u.pos) <= 0.5,
+          );
           if (bestUnit) {
             canvas.style.cursor = "grab";
           } else {
@@ -359,8 +326,6 @@ export class InputManager implements InputContext {
     return true;
   }
 
-  // --- Touch Handlers ---
-
   public handleTouchStart(e: TouchEvent): boolean {
     if (this.isDebriefing()) return false;
     const target = e.target as HTMLElement;
@@ -373,35 +338,33 @@ export class InputManager implements InputContext {
       this.touchStartTime = Date.now();
       this.hasMovedSignificantly = false;
 
-      // Handle deployment dragging via touch
       const state = this.currentGameState();
       if (state && state.status === "Deployment") {
         const cell = this.getCellCoordinates(touch.clientX, touch.clientY);
         const worldPos = this.getWorldCoordinates(touch.clientX, touch.clientY);
 
-        // Find the top-most unit in the cell within the 0.4 threshold (using findLast)
         const bestUnit = state.units.findLast(
           (u) =>
             MathUtils.sameCellPosition(u.pos, cell) &&
             u.isDeployed !== false &&
             u.archetypeId !== "vip" &&
-            MathUtils.getDistance(worldPos, u.pos) <= 0.4,
+            MathUtils.getDistance(worldPos, u.pos) <= 0.5,
         );
 
         if (bestUnit) {
-          // Ensure touch is relatively close to a unit center
           this.draggingUnitId = bestUnit.id;
           this.isDragging = false;
           this.createDragGhost(bestUnit.id);
           this.updateDragGhost(touch.clientX, touch.clientY);
+          return true;
         }
       }
     } else if (e.touches.length === 2) {
       this.lastTouchDistance = this.getTouchDistance(e.touches);
       this.lastTouchCenter = this.getTouchCenter(e.touches);
-      this.draggingUnitId = null; // Cancel unit drag on multi-touch
+      this.draggingUnitId = null;
     }
-    return true;
+    return false;
   }
 
   public handleTouchMove(e: TouchEvent): boolean {
@@ -409,8 +372,8 @@ export class InputManager implements InputContext {
 
     if (e.touches.length === 1 && this.lastTouchPos) {
       const touch = e.touches[0];
-      const dx = this.lastTouchPos.x - touch.clientX;
-      const dy = this.lastTouchPos.y - touch.clientY;
+      const dx = touch.clientX - this.lastTouchPos.x;
+      const dy = touch.clientY - this.lastTouchPos.y;
 
       if (Math.abs(dx) > 5 || Math.abs(dy) > 5) {
         this.hasMovedSignificantly = true;
@@ -425,24 +388,19 @@ export class InputManager implements InputContext {
 
       this.lastTouchPos = { x: touch.clientX, y: touch.clientY };
       return true;
-    } else if (
-      e.touches.length === 2 &&
-      this.lastTouchDistance &&
-      this.lastTouchCenter
-    ) {
-      const currentDistance = this.getTouchDistance(e.touches);
-      const currentCenter = this.getTouchCenter(e.touches);
+    } else if (e.touches.length === 2 && this.lastTouchDistance && this.lastTouchCenter) {
+      const distance = this.getTouchDistance(e.touches);
+      const center = this.getTouchCenter(e.touches);
 
-      const ratio = currentDistance / this.lastTouchDistance;
-      this.zoomMap(ratio, currentCenter.x, currentCenter.y);
+      const ratio = distance / this.lastTouchDistance;
+      this.zoomMap(ratio, center.x, center.y);
 
-      // Pan to follow center shift
-      const dx = this.lastTouchCenter.x - currentCenter.x;
-      const dy = this.lastTouchCenter.y - currentCenter.y;
+      const dx = center.x - this.lastTouchCenter.x;
+      const dy = center.y - this.lastTouchCenter.y;
       this.panMapBy(dx, dy);
 
-      this.lastTouchDistance = currentDistance;
-      this.lastTouchCenter = currentCenter;
+      this.lastTouchDistance = distance;
+      this.lastTouchCenter = center;
       return true;
     }
     return false;
@@ -451,11 +409,9 @@ export class InputManager implements InputContext {
   public handleTouchEnd(e: TouchEvent): boolean {
     if (this.isDebriefing()) return false;
 
-    const wasHandling = !!(this.lastTouchPos || this.lastTouchDistance || this.touchStartTime);
-
     if (this.draggingUnitId) {
-      this.removeDragGhost();
       const touch = e.changedTouches[0];
+      this.removeDragGhost();
       const cell = this.getCellCoordinates(touch.clientX, touch.clientY);
       const state = this.currentGameState();
 
@@ -475,79 +431,28 @@ export class InputManager implements InputContext {
       }
 
       this.draggingUnitId = null;
-      this.isDragging = false;
-    } else if (
-      e.touches.length === 0 &&
-      this.touchStartTime &&
-      Date.now() - this.touchStartTime < 300 &&
-      !this.hasMovedSignificantly
-    ) {
-      // Single Tap -> Click
-      const touch = e.changedTouches[0];
-      const mockEvent = {
-        clientX: touch.clientX,
-        clientY: touch.clientY,
-        shiftKey: false,
-      } as MouseEvent;
-      this.handleCanvasClick(mockEvent);
+      setTimeout(() => {
+        this.isDragging = false;
+      }, 0);
+      return true;
+    }
+
+    if (e.touches.length === 0 && this.lastTouchPos && !this.hasMovedSignificantly) {
+      const duration = Date.now() - (this.touchStartTime || 0);
+      if (duration < 300) {
+        const mouseEvent = new MouseEvent("mousedown", {
+          clientX: this.lastTouchPos.x,
+          clientY: this.lastTouchPos.y,
+        });
+        this.handleCanvasClick(mouseEvent);
+        return true;
+      }
     }
 
     this.lastTouchPos = null;
     this.lastTouchDistance = null;
     this.lastTouchCenter = null;
-    this.touchStartTime = null;
-
-    return wasHandling;
-  }
-
-  private handleDragOver(e: DragEvent) {
-    if (this.isDebriefing()) return;
-    const state = this.currentGameState();
-    if (!state || state.status !== "Deployment") return;
-
-    e.preventDefault(); // Allow drop
-    e.dataTransfer!.dropEffect = "move";
-  }
-
-  private handleDrop(e: DragEvent) {
-    if (this.isDebriefing()) return;
-    const state = this.currentGameState();
-    if (!state || state.status !== "Deployment") return;
-
-    e.preventDefault();
-    const rawData = e.dataTransfer?.getData("text/plain");
-    if (!rawData) return;
-
-    let unitId: string = rawData;
-
-    // Try to parse as JSON (from SquadBuilder)
-    try {
-      const data = JSON.parse(rawData);
-      if (data && typeof data === "object") {
-        if (data.id) {
-          unitId = data.id;
-        } else if (data.archetypeId) {
-          // For custom missions, find the unit by archetype if ID is missing
-          const unit = state.units.find(
-            (u) => u.archetypeId === data.archetypeId && !u.isDeployed,
-          );
-          if (unit) unitId = unit.id;
-        }
-      }
-    } catch (e) {
-      // Not JSON, use rawData as unitId (already set)
-    }
-
-    const cell = this.getCellCoordinates(e.clientX, e.clientY);
-    
-    // Validate spawn point
-    const isValidSpawn =
-      state.map.squadSpawns?.some((s) => s.x === cell.x && s.y === cell.y) ||
-      (state.map.squadSpawn?.x === cell.x && state.map.squadSpawn?.y === cell.y);
-
-    if (isValidSpawn) {
-      this.onDeployUnit(unitId, cell.x + 0.5, cell.y + 0.5);
-    }
+    return false;
   }
 
   private getTouchDistance(touches: TouchList): number {
@@ -563,19 +468,30 @@ export class InputManager implements InputContext {
     };
   }
 
+  private handleDragOver(e: DragEvent) {
+    if (this.currentGameState()?.status !== "Deployment") return;
+    e.preventDefault();
+    e.dataTransfer!.dropEffect = "move";
+  }
+
+  private handleDrop(e: DragEvent) {
+    if (this.currentGameState()?.status !== "Deployment") return;
+    e.preventDefault();
+    const data = e.dataTransfer!.getData("application/voidlock-unit");
+    if (data) {
+      const unit = JSON.parse(data);
+      const cell = this.getCellCoordinates(e.clientX, e.clientY);
+      this.onDeployUnit(unit.id, cell.x + 0.5, cell.y + 0.5);
+    }
+  }
+
   private createDragGhost(unitId: string) {
-    const state = this.currentGameState();
-    const unit = state?.units.find((u) => u.id === unitId);
-    if (!unit) return;
-
-    if (this.dragGhost) this.removeDragGhost();
-
+    this.removeDragGhost();
     this.dragGhost = document.createElement("div");
-    this.dragGhost.className = "deployment-drag-ghost";
-    this.dragGhost.setAttribute("data-dragging-unit-id", unit.id);
+    this.dragGhost.className = "unit-drag-ghost";
     this.dragGhost.style.position = "fixed";
     this.dragGhost.style.pointerEvents = "none";
-    this.dragGhost.style.zIndex = "9999";
+    this.dragGhost.style.zIndex = "10000";
     this.dragGhost.style.width = "40px";
     this.dragGhost.style.height = "40px";
     this.dragGhost.style.borderRadius = "50%";
@@ -586,12 +502,7 @@ export class InputManager implements InputContext {
     this.dragGhost.style.justifyContent = "center";
     this.dragGhost.style.color = "#000";
     this.dragGhost.style.fontWeight = "bold";
-    this.dragGhost.style.fontSize = "18px";
-    this.dragGhost.style.fontFamily = "monospace";
-    this.dragGhost.style.boxShadow = "0 0 15px rgba(0, 0, 0, 0.5)";
-    this.dragGhost.style.opacity = "0.8";
-    this.dragGhost.textContent = (unit.tacticalNumber || "").toString();
-
+    this.dragGhost.textContent = unitId.split("-").pop() || "U";
     document.body.appendChild(this.dragGhost);
   }
 

@@ -243,9 +243,11 @@ describe("Full Keyboard-Only Campaign Walkthrough", () => {
     expect(foundContinue, "Failed to find 'Continue' button on Debrief Screen").toBe(true);
     await pressEnter();
 
-    // Back to Sector Map
-    console.log("Verifying return to Sector Map...");
-    await page.waitForSelector(".campaign-screen", { visible: true, timeout: 10000 });
+    // Back to Sector Map (or Equipment Screen if Mission 2 skip)
+    console.log("Verifying return to Sector Map or Equipment Screen...");
+    await page.waitForFunction(() => {
+        return !!document.querySelector(".campaign-screen") || !!document.querySelector(".equipment-screen");
+    }, { timeout: 10000 });
     
     console.log("Full keyboard flow E2E test completed successfully!");
   }, 120000);

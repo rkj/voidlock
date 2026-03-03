@@ -20,6 +20,10 @@ describe("Mobile Campaign Screen Repro", () => {
 
     const startBtnSelector = ".campaign-setup-wizard .primary-button";
     await page.waitForSelector(startBtnSelector);
+
+    // Skip Prologue to ensure we land on Sector Map and tabs are visible
+    await page.click("#campaign-skip-prologue");
+
     await page.click(startBtnSelector);
 
     // 2. Check for Campaign Shell

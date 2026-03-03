@@ -233,7 +233,7 @@ describe("Campaign Node Special Types", () => {
           bonusLootCount: 0,
           debugSnapshotInterval: 0,
           manualDeployment: true,
-          squadConfig: { soldiers: [], inventory: {} }
+          squadConfig: { soldiers: [null, null, null, null], inventory: {} }
       }));
       window.location.hash = "#campaign";
     }, mockState);
@@ -254,17 +254,25 @@ describe("Campaign Node Special Types", () => {
     // Should open Equipment Screen
     await page.waitForSelector('#screen-equipment', { visible: true });
 
-    // Wait for roster picker
-    await page.waitForFunction(() => {
-        const panel = document.querySelector('.armory-panel');
-        return panel && panel.querySelectorAll('.soldier-widget-roster').length > 0;
-    }, { timeout: 10000 });
-
-    // Click the soldier
-    await page.evaluate(() => {
-        const btn = document.querySelector('.armory-panel .soldier-widget-roster') as HTMLElement;
-        if (btn) btn.click();
+    // Check if we already have soldiers (auto-filled)
+    const hasSoldiers = await page.evaluate(() => {
+        const slots = document.querySelectorAll('.soldier-item');
+        return Array.from(slots).some(s => !s.classList.contains('empty-slot'));
     });
+
+    if (!hasSoldiers) {
+        // Wait for roster picker
+        await page.waitForFunction(() => {
+            const panel = document.querySelector('.armory-panel');
+            return panel && panel.querySelectorAll('.soldier-widget-roster').length > 0;
+        }, { timeout: 10000 });
+
+        // Click the soldier
+        await page.evaluate(() => {
+            const btn = document.querySelector('.armory-panel .soldier-widget-roster') as HTMLElement;
+            if (btn) btn.click();
+        });
+    }
     
     // Click Launch Mission
     await page.waitForSelector('[data-focus-id="btn-launch-mission"]:not([disabled])', { visible: true });

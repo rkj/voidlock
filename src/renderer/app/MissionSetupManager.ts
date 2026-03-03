@@ -319,8 +319,9 @@ export class MissionSetupManager {
         }
 
         const isPrologue = this.currentMissionType === MissionType.Prologue;
+
         const hasNonCampaignSoldiers = this.currentSquad.soldiers.some(
-          (s) => !s.id,
+          (s) => s && !s.id,
         );
         if (this.currentSquad.soldiers.length === 0 || hasNonCampaignSoldiers || isPrologue) {
           const active = state.roster
@@ -342,9 +343,9 @@ export class MissionSetupManager {
         } else {
           this.currentSquad.soldiers = this.currentSquad.soldiers.filter(
             (s) => {
-              if (s.id) {
+              if (s && s.id) {
                 const rs = state.roster.find((r) => r.id === s.id);
-                if (rs && (rs.status === "Healthy" || rs.status === "Wounded")) {
+                if (rs && (rs.status === "Healthy" || rs.status === "Wounded" || rs.status === "Dead")) {
                   s.name = rs.name;
                   s.status = rs.status;
                   s.hp = rs.hp;
