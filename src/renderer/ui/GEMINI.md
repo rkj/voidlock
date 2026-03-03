@@ -2,12 +2,21 @@
 
 This directory contains UI components and managers for the Voidlock renderer.
 
+## Vanilla TSX Migration (ADR 0051)
+
+As part of the migration to a modern, declarative UI system without external framework dependencies, several core UI components have been moved to Vanilla TSX (JSX). These components are defined in `.tsx` files and utilize a custom JSX factory located at `@src/renderer/jsx.ts`.
+
+### TSX Components
+
+- `HUD.tsx`: Exports `HUDTopBar`, `HUDSoldierPanel`, `HUDRightPanel`, and `HUDMobileActionPanel`. These functional components provide the tactical mission UI structure.
+- `CampaignShellUI.tsx`: Exports `CampaignShellTopBar` and `CampaignShellFooter`. Used by `CampaignShell.ts` to render the strategic layer navigation and meta-stats.
+
 ## Files
 
-- `HUDManager.ts`: Manages the Head-Up Display, including soldier list, stats, and top bar. Uses `UIBinder` for reactive synchronization of top bar and mobile action panel elements. Now includes authoritative manual synchronization for critical top-bar elements (Speed Slider, Pause Button, Threat Meter) to ensure consistency even without UIBinder attributes, and implements progressive UI visibility (hiding speed/threat during deployment and early prologue) as per ADR 0048. Uses `targetTimeScale` for the speed slider to prevent position snapping during pause states.
+- `HUDManager.ts`: Manages the Head-Up Display. Now utilizes functional TSX components from `HUD.tsx` for its initial structure, while maintaining responsibility for dynamic updates and `UIBinder` synchronization. Implements authoritative injection of HUD parts into `#screen-mission` to ensure correct layout ordering.
 - `UIBinder.ts`: A lightweight reactive UI synchronization system that implements dirty-checking to bind `GameState` properties to DOM elements via `data-bind-*` attributes. Reduces UI "flicker" and ensures consistency across different input methods (ADR 0050).
 - `KeyboardHelpOverlay.ts`: Context-aware help overlay triggered by '?' that displays active keyboard shortcuts.
-- `CampaignShell.ts`: Persistent UI shell for Campaign and Custom modes, providing resource display and tab-based navigation. Features a standardized top-bar layout with navigation (Tabs) and Main Menu moved to the Top Right and uniform button heights (32px). Now dynamically updates the "Ready Room" tab label to "Supply Depot" when the current campaign node is a Shop. Supports a "custom" mode for Simulation Setup, including "Setup", "Service Record", and "Settings" tabs to allow jumping between global screens while maintaining custom mission context. Now ensures the Top Bar is rendered consistently in Statistics Mode by removing "Main Menu" from center tabs and placing it in the far-right section. Supports a `showTabs` flag to hide navigation when in transient states like Mission Setup. Now implements **Guided Prologue Flow** (ADR 0049) by hiding all tabs except "Ready Room" when the Prologue mission is active.
+- `CampaignShell.ts`: Persistent UI shell for Campaign and Custom modes. Now utilizes TSX components from `CampaignShellUI.tsx` for the Top Bar and Footer, while managing the central `#campaign-shell-content` area and tab-based navigation logic.
 - `StatDisplay.ts`: Reusable component for rendering icon-based stat blocks with tooltips.
 - `SoldierWidget.ts`: Unified component for rendering soldier items across different UI contexts (Tactical, Roster, Debrief, Squad Builder).
 - `MenuRenderer.ts`: Renders the hierarchical command menu into HTML strings.
@@ -67,3 +76,4 @@ This directory contains UI components and managers for the Voidlock renderer.
 - [ADR 0028: Unified Screen Layout](../../../../docs/adr/0028-unified-screen-layout.md)
 - [ADR 0048: Standardizing Pause and Speed Slider Synchronization](../../../../docs/adr/0048-pause-speed-sync.md)
 - [ADR 0050: Reactive UI Binding](../../../../docs/adr/0050-reactive-ui-binding.md)
+- [ADR 0051: Vanilla TSX Architecture](../../../../docs/adr/0051-vanilla-tsx-ui.md)

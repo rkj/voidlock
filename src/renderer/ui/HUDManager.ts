@@ -7,6 +7,7 @@ import { TimeUtility } from "@src/renderer/TimeUtility";
 import { SoldierWidget } from "@src/renderer/ui/SoldierWidget";
 import { MathUtils } from "@src/shared/utils/MathUtils";
 import { UIBinder } from "@src/renderer/ui/UIBinder";
+import { HUDTopBar, HUDSoldierPanel, HUDRightPanel, HUDMobileActionPanel } from "@src/renderer/ui/HUD";
 
 export class HUDManager {
   private lastMenuHtml = "";
@@ -25,9 +26,59 @@ export class HUDManager {
     private onStartMission: () => void,
     private onDeployUnit: (unitId: string, x: number, y: number) => void,
   ) {
+    this.initializeHUD();
     this.binder = new UIBinder();
     this.setupTransformers();
     this.binder.initialize();
+  }
+
+  private initializeHUD() {
+    const missionScreen = document.getElementById("screen-mission");
+    if (!missionScreen) return;
+
+    const missionBody = document.getElementById("mission-body");
+    if (!missionBody) return;
+
+    // Clear existing hardcoded HUD parts but keep mission-body and game-container
+    const topBar = document.getElementById("top-bar");
+    const soldierPanel = document.getElementById("soldier-panel");
+    const rightPanel = document.getElementById("right-panel");
+    const mobileActionPanel = document.getElementById("mobile-action-panel");
+
+    if (topBar) topBar.remove();
+    if (soldierPanel) soldierPanel.remove();
+    if (rightPanel) rightPanel.remove();
+    if (mobileActionPanel) mobileActionPanel.remove();
+
+    // Inject in correct order (ADR 0051 / voidlock-ewgyu.2 fix)
+    // 1. Top Bar & Soldier Panel BEFORE mission-body
+    missionScreen.insertBefore(HUDTopBar() as Node, missionBody);
+    missionScreen.insertBefore(HUDSoldierPanel() as Node, missionBody);
+
+    // 2. Right Panel INSIDE mission-body (desktop layout)
+    missionBody.appendChild(HUDRightPanel() as Node);
+
+    // 3. Mobile Action Panel AFTER mission-body
+    missionScreen.appendChild(HUDMobileActionPanel() as Node);
+
+    // Re-attach event listeners for static elements in HUD
+    document.getElementById("btn-give-up")?.addEventListener("click", () => this.onAbortMission());
+    
+    const speedSlider = document.getElementById("game-speed") as HTMLInputElement;
+    if (speedSlider) {
+      speedSlider.addEventListener("input", (e) => {
+        const val = parseInt((e.target as HTMLInputElement).value);
+        const scale = TimeUtility.sliderToScale(val);
+        this.onSetTimeScale(scale);
+      });
+    }
+
+    document.getElementById("btn-pause-toggle")?.addEventListener("click", () => {
+      if (this.currentState) {
+        const isPaused = this.currentState.settings.isPaused;
+        this.onSetTimeScale(isPaused ? this.currentState.settings.targetTimeScale : 0);
+      }
+    });
   }
 
   private setupTransformers() {
@@ -616,10 +667,6 @@ export class HUDManager {
       intelDiv.innerHTML = "<h3>Enemy Intel</h3>";
       header = intelDiv.querySelector("h3");
     }
-
-    // Remove "No hostiles detected" if it exists
-    const noHostiles = intelDiv.querySelector(".intel-empty");
-    if (noHostiles) noHostiles.remove();
 
     // Group by type
     const groups: { [type: string]: number } = {};
