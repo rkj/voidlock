@@ -212,8 +212,9 @@ export class CampaignShell {
         const isPrologue =
           this.activeMissionType === "Prologue" ||
           currentNode?.missionType === "Prologue";
+        const isMission2 = state.history?.length === 1;
 
-        if (isPrologue) {
+        if (isPrologue || isMission2) {
           tabs.push({
             id: "ready-room",
             label: "Ready Room",

@@ -225,6 +225,7 @@ export class AppServiceRegistry {
       this.missionSetupManager,
       squadBuilder,
       screens,
+      this.tutorialManager,
       {
         showMainMenu: callbacks.showMainMenu,
         launchMission: () => this.missionRunner.launchMission(),

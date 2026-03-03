@@ -241,4 +241,23 @@ export class TutorialManager {
     if (!state.objectives) return false;
     return state.objectives.some(o => !!o.visible);
   }
+
+  public triggerEvent(eventId: string) {
+    if (!this.isActive) return;
+
+    if (eventId === "ready_room_intro") {
+      if (this.completedSteps.has("ready_room_intro")) return;
+      
+      this.onMessage({
+        id: "ready_room_intro",
+        title: "The Ready Room",
+        text: "You made it back. Welcome to the Ready Room.\n\nHere you can review your roster's status and manage their equipment. For this next mission, the Armory is locked down while diagnostics run. \n\nReview your soldier's stats, then initiate the launch sequence when ready.",
+        portrait: "logo_gemini",
+        blocking: true,
+      });
+
+      this.completedSteps.add("ready_room_intro");
+      this.saveState();
+    }
+  }
 }

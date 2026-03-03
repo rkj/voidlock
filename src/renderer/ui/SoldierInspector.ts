@@ -42,6 +42,7 @@ export class SoldierInspector {
   private soldier: CampaignSoldier | SquadSoldierConfig | null = null;
   private isShop: boolean = false;
   private isCampaign: boolean = false;
+  private isLocked: boolean = false;
 
   constructor(options: SoldierInspectorOptions) {
     this.manager = options.manager;
@@ -61,6 +62,10 @@ export class SoldierInspector {
 
   public setCampaign(isCampaign: boolean) {
     this.isCampaign = isCampaign;
+  }
+
+  public setLocked(locked: boolean) {
+    this.isLocked = locked;
   }
 
   private isDead(): boolean {
@@ -97,7 +102,7 @@ export class SoldierInspector {
 
       // Recruit/Revive Options (Campaign only)
       const state = this.isCampaign ? this.manager.getState() : null;
-      if (state) {
+      if (state && !this.isLocked) {
         const optionsDiv = document.createElement("div");
         optionsDiv.className =
           "inspector-recruit-options flex-col gap-10 w-full";
@@ -144,6 +149,15 @@ export class SoldierInspector {
       deadDiv.className = "w-full dead-warning";
       deadDiv.textContent = "Soldier is Deceased - Equipment Locked";
       content.appendChild(deadDiv);
+    }
+    
+    // Locked Warning
+    if (this.isLocked) {
+      const lockedDiv = document.createElement("div");
+      lockedDiv.className = "w-full dead-warning";
+      lockedDiv.textContent = "Armory Offline - Modifications Locked";
+      lockedDiv.style.background = "var(--color-danger)";
+      content.appendChild(lockedDiv);
     }
 
     // Header with Rename (Campaign Only)
@@ -385,9 +399,9 @@ export class SoldierInspector {
     slot.className = "paper-doll-slot" + (itemId ? " equipped" : "");
     slot.tabIndex = 0;
 
-    // Disable interactions for dead soldiers
+    // Disable interactions for dead soldiers or if locked
     const isDead = this.isDead();
-    if (isDead) {
+    if (isDead || this.isLocked) {
       slot.classList.add("disabled");
     }
 
@@ -411,7 +425,7 @@ export class SoldierInspector {
           removeBtn.tabIndex = -1;
           removeBtn.onclick = (e) => {
             e.stopPropagation();
-            onDrop("");
+            if (!isDead && !this.isLocked) onDrop("");
           };
           slot.appendChild(removeBtn);
         }
@@ -425,7 +439,7 @@ export class SoldierInspector {
 
     slot.onkeydown = (e) => {
       if (e.key === "Enter" || e.key === " ") {
-        if (!isDead && itemId && allowRemove) {
+        if (!isDead && !this.isLocked && itemId && allowRemove) {
           onDrop("");
         }
         e.preventDefault();
@@ -477,8 +491,8 @@ export class SoldierInspector {
       const btn = document.createElement("div");
       btn.className = `menu-item clickable armory-item ${isCurrentlyEquipped ? "active" : ""}`;
 
-      // Disable for dead soldiers OR if cannot afford
-      if (isDead || (!isCurrentlyEquipped && !isOwned && !canAfford)) {
+      // Disable for dead soldiers OR if cannot afford OR if locked
+      if (isDead || this.isLocked || (!isCurrentlyEquipped && !isOwned && !canAfford)) {
         btn.classList.add("disabled");
       }
 
@@ -545,7 +559,7 @@ export class SoldierInspector {
         `;
       btn.tabIndex = 0;
       const handleSelect = () => {
-        if (!isDead && !btn.classList.contains("disabled")) onSelect(item);
+        if (!isDead && !this.isLocked && !btn.classList.contains("disabled")) onSelect(item);
       };
       btn.onclick = handleSelect;
       btn.onkeydown = (e) => {
