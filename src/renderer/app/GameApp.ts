@@ -563,8 +563,13 @@ export class GameApp {
     const isPrologue = firstNode?.missionType === MissionType.Prologue;
 
     if (isPrologue && firstNode) {
-      // Direct to Equipment Screen for Prologue (ADR 0049)
-      this.registry.navigationOrchestrator.onCampaignNodeSelect(firstNode);
+      // Direct to Tactical for Prologue (Spec: tutorial.md#2)
+      this.registry.missionSetupManager.currentCampaignNode = firstNode;
+      this.registry.missionSetupManager.currentSeed = firstNode.mapSeed;
+      this.registry.missionSetupManager.currentMissionType = MissionType.Prologue;
+      
+      this.registry.missionSetupManager.loadAndApplyConfig(true);
+      this.registry.missionRunner.launchMission();
     } else {
       this.registry.campaignShell.show("campaign", "sector-map");
       this.registry.navigationOrchestrator.switchScreen("campaign", true);

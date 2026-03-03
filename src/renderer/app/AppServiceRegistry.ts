@@ -119,10 +119,20 @@ export class AppServiceRegistry {
     );
     this.menuController = new MenuController(this.gameClient);
     
-    this.advisorOverlay = new AdvisorOverlay(this.gameClient);
-    this.tutorialManager = new TutorialManager(this.gameClient, (msg) => {
-        this.advisorOverlay.showMessage(msg);
+    this.uiOrchestrator = new UIOrchestrator({
+      gameClient: this.gameClient,
+      modalService: this.modalService,
+      getCurrentGameState: () => config.getCurrentGameState(),
     });
+
+    this.advisorOverlay = new AdvisorOverlay(this.gameClient);
+    this.tutorialManager = new TutorialManager(
+      this.gameClient,
+      (msg) => {
+        this.advisorOverlay.showMessage(msg);
+      },
+      this.uiOrchestrator,
+    );
     this.tutorialManager.enable();
 
     this.missionSetupManager = new MissionSetupManager(
@@ -153,12 +163,6 @@ export class AppServiceRegistry {
       config.onStartMission,
       config.onDeployUnit,
     );
-
-    this.uiOrchestrator = new UIOrchestrator({
-      gameClient: this.gameClient,
-      modalService: this.modalService,
-      getCurrentGameState: () => config.getCurrentGameState(),
-    });
 
     this.missionRunner = new MissionRunner({
       missionCoordinator: this.missionCoordinator,
