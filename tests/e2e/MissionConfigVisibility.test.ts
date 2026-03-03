@@ -26,6 +26,10 @@ describe("Mission Configuration Visibility", () => {
     // 2. New Campaign Wizard
     const startBtnSelector = ".campaign-setup-wizard .primary-button";
     await page.waitForSelector(startBtnSelector);
+
+    // Skip Tutorial Prologue to reach Sector Map and ensure Back button is visible
+    await page.click("#campaign-skip-prologue");
+
     await page.click(startBtnSelector);
 
     // 3. Sector Map - click node

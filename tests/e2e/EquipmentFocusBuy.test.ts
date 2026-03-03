@@ -30,36 +30,65 @@ describe("Equipment Screen Focus Buy Reproduction", () => {
 
     // Wizard should be shown immediately if no campaign exists
     console.log("Waiting for Campaign Wizard (Initialize Expedition button)...");
+    
+    // Skip Prologue to ensure Armory is unlocked
+    await page.waitForSelector("#campaign-skip-prologue");
+    await page.click("#campaign-skip-prologue");
+
     const startBtnSelector = '[data-focus-id="btn-start-campaign"]';
     await page.waitForSelector(startBtnSelector, { visible: true });
     await page.click(startBtnSelector);
 
-    // Wait for Campaign Screen (Sector Map)
-    console.log("Waiting for Sector Map...");
-    await page.waitForSelector(".campaign-map-viewport", { visible: true });
-
-    // 2. Inject Scrap
-    await page.evaluate(() => {
-      // Find the campaign key in localStorage
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith("voidlock_campaign_")) {
-          const data = JSON.parse(localStorage.getItem(key)!);
-          data.scrap = 1000;
-          localStorage.setItem(key, JSON.stringify(data));
-          break;
-        }
-      }
+    // Wait for Campaign Screen (Sector Map) or Equipment Screen (Prologue)
+    console.log("Waiting for Sector Map or Equipment Screen...");
+    await page.waitForFunction(() => {
+        return !!document.querySelector(".campaign-map-viewport") || !!document.querySelector(".equipment-screen");
     });
 
-    // 3. Click a combat node to go to Equipment Screen
-    console.log("Clicking a combat node...");
-    await page.waitForSelector(".campaign-node.accessible", { visible: true });
-    await page.click(".campaign-node.accessible");
+    const isEquipment = await page.evaluate(() => !!document.querySelector(".equipment-screen"));
+    
+    if (!isEquipment) {
+        // 2. Inject Scrap
+        await page.evaluate(() => {
+          // Find the campaign key in localStorage
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith("voidlock_campaign_")) {
+              const data = JSON.parse(localStorage.getItem(key)!);
+              data.scrap = 1000;
+              localStorage.setItem(key, JSON.stringify(data));
+              break;
+            }
+          }
+        });
 
-    // Wait for Equipment
-    console.log("Waiting for Equipment Screen...");
-    await page.waitForSelector(".equipment-screen", { visible: true });
+        // 3. Click a combat node to go to Equipment Screen
+        console.log("Clicking a combat node...");
+        await page.waitForSelector(".campaign-node.accessible", { visible: true });
+        await page.click(".campaign-node.accessible");
+
+        // Wait for Equipment
+        console.log("Waiting for Equipment Screen...");
+        await page.waitForSelector(".equipment-screen", { visible: true });
+    } else {
+        // We are already in Equipment Screen (Prologue skip)
+        // Inject scrap directly into active campaign
+        await page.evaluate(() => {
+            // Find the campaign key in localStorage
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                if (key && key.startsWith("voidlock_campaign_")) {
+                    const data = JSON.parse(localStorage.getItem(key)!);
+                    data.scrap = 1000;
+                    localStorage.setItem(key, JSON.stringify(data));
+                    break;
+                }
+            }
+            // Trigger app update if possible or reload
+            window.location.reload();
+        });
+        await page.waitForSelector(".equipment-screen", { visible: true });
+    }
 
     // 4. Find an unowned item in Armory
     await page.waitForSelector(".armory-item", { visible: true });

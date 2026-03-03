@@ -246,9 +246,9 @@ export class ConfigManager {
             "archetypeId" in s &&
             typeof (s as Record<string, unknown>).archetypeId === "string",
         ) as SquadSoldierConfig[];
-        if (result.squadConfig.soldiers.length === 0) {
+        /* if (result.squadConfig.soldiers.length === 0) {
           result.squadConfig.soldiers = [...defaults.squadConfig.soldiers];
-        }
+        } */
       }
 
       if (squad.inventory && typeof squad.inventory === "object") {

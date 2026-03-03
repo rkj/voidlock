@@ -33,11 +33,18 @@ export class HUDManager {
   }
 
   private initializeHUD() {
+    console.log("[HUDManager] initializeHUD start");
     const missionScreen = document.getElementById("screen-mission");
-    if (!missionScreen) return;
+    if (!missionScreen) {
+      console.warn("[HUDManager] screen-mission not found");
+      return;
+    }
 
     const missionBody = document.getElementById("mission-body");
-    if (!missionBody) return;
+    if (!missionBody) {
+      console.warn("[HUDManager] mission-body not found");
+      return;
+    }
 
     // Clear existing hardcoded HUD parts but keep mission-body and game-container
     const topBar = document.getElementById("top-bar");
@@ -50,6 +57,7 @@ export class HUDManager {
     if (rightPanel) rightPanel.remove();
     if (mobileActionPanel) mobileActionPanel.remove();
 
+    console.log("[HUDManager] Injecting HUD parts...");
     // Inject in correct order (ADR 0051 / voidlock-ewgyu.2 fix)
     // 1. Top Bar & Soldier Panel BEFORE mission-body
     missionScreen.insertBefore(HUDTopBar() as Node, missionBody);
@@ -60,6 +68,8 @@ export class HUDManager {
 
     // 3. Mobile Action Panel AFTER mission-body
     missionScreen.appendChild(HUDMobileActionPanel() as Node);
+
+    console.log("[HUDManager] HUD parts injected");
 
     // Re-attach event listeners for static elements in HUD
     document.getElementById("btn-give-up")?.addEventListener("click", () => this.onAbortMission());
@@ -79,6 +89,7 @@ export class HUDManager {
         this.onSetTimeScale(isPaused ? this.currentState.settings.targetTimeScale : 0);
       }
     });
+    console.log("[HUDManager] initializeHUD complete");
   }
 
   private setupTransformers() {
@@ -359,12 +370,12 @@ export class HUDManager {
       autoFillBtn.addEventListener("click", () => {
         const s = this.currentState;
         if (!s) return;
-        const pending = s.units.filter((u) => u.archetypeId !== "vip" && u.isDeployed === false);
+        const soldiers = s.units.filter((u) => u.archetypeId !== "vip");
         const allSpawns = s.map.squadSpawns || (s.map.squadSpawn ? [s.map.squadSpawn] : []);
         
         if (allSpawns.length === 0) return;
 
-        pending.forEach((u, idx) => {
+        soldiers.forEach((u, idx) => {
            const spawn = allSpawns[idx % allSpawns.length];
            this.onDeployUnit(u.id, spawn.x + 0.5, spawn.y + 0.5);
         });

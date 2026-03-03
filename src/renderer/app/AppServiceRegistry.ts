@@ -186,12 +186,10 @@ export class AppServiceRegistry {
     this.inputManager = new InputManager(
       this.screenManager,
       this.menuController,
-      this.modalService,
       config.onTogglePause,
       (key, shift) => this.inputOrchestrator.handleMenuInput(key, shift),
       config.onAbortMission,
       () => this.inputOrchestrator.onUnitClick(null, false),
-      () => this.missionRunner.getSelectedUnitId(),
       (e) => this.inputOrchestrator.handleCanvasClick(e),
       config.onToggleDebug,
       config.onToggleLos,

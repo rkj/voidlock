@@ -1,6 +1,6 @@
-import { VALID_TRANSITIONS } from "@src/renderer/ScreenTransitions";
-import { SessionManager } from "@src/renderer/SessionManager";
 import { Logger } from "@src/shared/Logger";
+import { SessionManager } from "./SessionManager";
+import { VALID_TRANSITIONS } from "./ScreenTransitions";
 
 export type ScreenId =
   | "main-menu"
@@ -14,32 +14,36 @@ export type ScreenId =
   | "engineering"
   | "settings";
 
+export interface IScreen {
+  show(...args: any[]): void;
+  hide(): void;
+}
+
 export class ScreenManager {
-  private screens: Map<ScreenId, HTMLElement> = new Map();
-  private currentScreen: ScreenId = "main-menu";
-  private history: { id: ScreenId; isCampaign: boolean }[] = [];
-  private sessionManager: SessionManager;
-  private onExternalChange?: (id: ScreenId, isCampaign: boolean) => void;
+  private screens: Map<string, HTMLElement> = new Map();
+  public currentScreen: ScreenId = "main-menu";
   private currentIsCampaign: boolean = false;
+  public history: { id: ScreenId; isCampaign: boolean }[] = [];
   private isInternalTransition: boolean = false;
+  private sessionManager: SessionManager;
 
-  constructor(onExternalChange?: (id: ScreenId, isCampaign: boolean) => void) {
+  constructor(private onScreenChange: (id: ScreenId, isCampaign: boolean) => void) {
     this.sessionManager = new SessionManager();
-    this.onExternalChange = onExternalChange;
-    this.registerScreen("main-menu");
-    this.registerScreen("campaign");
-    this.registerScreen("mission-setup");
-    this.registerScreen("equipment");
-    this.registerScreen("mission");
-    this.registerScreen("debrief");
-    this.registerScreen("campaign-summary");
-    this.registerScreen("statistics");
-    this.registerScreen("engineering");
-    this.registerScreen("settings");
+    const ids: ScreenId[] = [
+      "main-menu",
+      "campaign",
+      "mission-setup",
+      "equipment",
+      "mission",
+      "debrief",
+      "campaign-summary",
+      "statistics",
+      "engineering",
+      "settings",
+    ];
+    ids.forEach((id) => this.registerScreen(id));
 
-    // Force show initial screen without transition validation
-    this.currentScreen = "main-menu";
-    this.currentIsCampaign = false;
+    // Default screen
     const el = this.screens.get("main-menu");
     if (el) el.style.display = "flex";
 
@@ -68,64 +72,64 @@ export class ScreenManager {
     updateHash: boolean = true,
     isCampaign: boolean = false,
   ) {
-    console.log(`[ScreenManager] show: ${id}, isCampaign: ${isCampaign}`);
     if (this.currentScreen === id) {
-      // Even if it's the same screen, ensure hash is in sync
       if (updateHash) {
         this.updateHash(id);
       }
       this.currentIsCampaign = isCampaign;
       this.sessionManager.saveState(id, isCampaign);
       
-      // Ensure it's visible (ADR 0051 / voidlock-ewgyu.2 regression fix)
       const el = this.screens.get(id);
       if (el) el.style.display = "flex";
       
       return;
     }
 
-    // Validate transition
     const validNext = VALID_TRANSITIONS[this.currentScreen];
     if (!validNext || !validNext.includes(id)) {
       Logger.error(`Invalid screen transition: ${this.currentScreen} -> ${id}`);
       return;
     }
 
-    // Hide current
     const currentEl = this.screens.get(this.currentScreen);
     if (currentEl) {
       currentEl.style.display = "none";
     }
 
-    // Push to history if we are navigating deeper
     if (id !== "main-menu") {
       this.history.push({
         id: this.currentScreen,
         isCampaign: this.currentIsCampaign,
       });
     } else {
-      this.history = []; // Reset history on returning to menu
+      this.history = [];
     }
 
-    // Show new
     this.currentScreen = id;
     this.currentIsCampaign = isCampaign;
-    this.sessionManager.saveState(id, isCampaign);
+
     const newEl = this.screens.get(id);
     if (newEl) {
       newEl.style.display = "flex";
-    } else {
-      Logger.error(`[ScreenManager] Screen element for ${id} not found!`);
     }
 
     if (updateHash) {
       this.updateHash(id);
     }
+
+    this.sessionManager.saveState(id, isCampaign);
   }
 
-  private updateHash(id: ScreenId) {
-    const newHash = id === "main-menu" ? "" : id;
-    const currentHash = window.location.hash.replace(/^#/, "");
+  public goBack() {
+    if (this.history.length > 0) {
+      const prev = this.history.pop()!;
+      this.show(prev.id, true, prev.isCampaign);
+    }
+  }
+
+  private updateHash(id: string) {
+    const currentHash = window.location.hash;
+    const newHash = id === "main-menu" ? "" : `#${id}`;
     if (currentHash !== newHash) {
       this.isInternalTransition = true;
       window.location.hash = newHash;
@@ -138,97 +142,48 @@ export class ScreenManager {
       return;
     }
 
-    const hash = (window.location.hash.replace(/^#\/?/, "") ||
-      "main-menu") as ScreenId;
-    if (this.isValidScreenId(hash) && hash !== this.currentScreen) {
-      const validNext = VALID_TRANSITIONS[this.currentScreen];
-      if (validNext && validNext.includes(hash)) {
-        this.show(hash, false, this.isCampaignMode(hash));
-        if (this.onExternalChange) {
-          this.onExternalChange(hash, this.isCampaignMode(hash));
-        }
-      } else {
-        Logger.warn(
-          `External navigation to ${hash} is not a standard transition from ${this.currentScreen}`,
-        );
-        this.forceShow(hash, this.isCampaignMode(hash));
-        if (this.onExternalChange) {
-          this.onExternalChange(hash, this.isCampaignMode(hash));
-        }
-      }
+    const hash = (window.location.hash.replace("#", "") || "main-menu") as ScreenId;
+    const validScreens: ScreenId[] = [
+      "main-menu",
+      "campaign",
+      "mission-setup",
+      "equipment",
+      "mission",
+      "debrief",
+      "campaign-summary",
+      "statistics",
+      "engineering",
+      "settings",
+    ];
+
+    if (validScreens.includes(hash)) {
+      this.onScreenChange(hash, this.currentIsCampaign);
     }
   }
 
-  private isCampaignMode(id: ScreenId): boolean {
-    const state = this.sessionManager.loadState();
-    if (state && state.screenId === id) {
-      return state.isCampaign;
-    }
-    return id === "campaign" || id === "campaign-summary";
-  }
-
-  private forceShow(id: ScreenId, isCampaign: boolean = false) {
-    if (this.currentScreen === id) {
-      this.currentIsCampaign = isCampaign;
-      this.sessionManager.saveState(id, isCampaign);
-      return;
-    }
-
-    const currentEl = this.screens.get(this.currentScreen);
-    if (currentEl) currentEl.style.display = "none";
-
+  public forceShow(id: ScreenId, isCampaign: boolean = false) {
     this.currentScreen = id;
     this.currentIsCampaign = isCampaign;
-    this.sessionManager.saveState(id, isCampaign);
-    const newEl = this.screens.get(id);
-    if (newEl) newEl.style.display = "flex";
+    this.screens.forEach((el, screenId) => {
+      el.style.display = screenId === id ? "flex" : "none";
+    });
+    this.updateHash(id);
   }
 
-  private isValidScreenId(id: string): id is ScreenId {
-    return this.screens.has(id as ScreenId);
-  }
-
-  public goBack() {
-    if (this.history.length > 0) {
-      const prev = this.history.pop();
-      if (prev) {
-        this.forceShow(prev.id, prev.isCampaign);
-        this.updateHash(prev.id);
-        if (this.onExternalChange) {
-          this.onExternalChange(prev.id, prev.isCampaign);
-        }
-      }
-    } else {
-      this.show("main-menu");
-    }
+  public getScreenElement(id: string): HTMLElement | null {
+    return this.screens.get(id) || null;
   }
 
   public getCurrentScreen(): ScreenId {
     return this.currentScreen;
   }
 
-  public getScreenElement(id: ScreenId): HTMLElement | null {
-    return this.screens.get(id) || null;
-  }
-
-  public loadPersistedState(): {
-    screenId: ScreenId;
-    isCampaign: boolean;
-  } | null {
-    const hashStr = window.location.hash.replace(/^#\/?/, "");
-    const hash = hashStr as ScreenId;
-
-    if (this.isValidScreenId(hash)) {
-      const isCampaign = this.isCampaignMode(hash);
-      this.forceShow(hash, isCampaign);
-      return { screenId: hash, isCampaign };
-    }
-
-    // If the hash is explicitly empty, we go to main menu (returning null triggers showMainMenu in GameApp)
-    if (hashStr === "") {
+  public loadPersistedState(): { screenId: ScreenId; isCampaign: boolean } | null {
+    // URL hash takes precedence. If no hash, we default to main menu.
+    const currentHash = window.location.hash.replace("#", "");
+    if (!currentHash || currentHash === "main-menu") {
       return null;
     }
-
     const persisted = this.sessionManager.loadState();
     if (persisted && persisted.screenId !== this.currentScreen) {
       this.forceShow(persisted.screenId, persisted.isCampaign);

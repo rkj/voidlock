@@ -28,6 +28,10 @@ describe("Mobile Sector Map Scroll Repro", () => {
     // Click "Start Campaign" in Wizard
     const startBtnSelector = ".campaign-setup-wizard .primary-button";
     await page.waitForSelector(startBtnSelector);
+
+    // Skip Prologue to ensure we land on Sector Map
+    await page.click("#campaign-skip-prologue");
+
     await page.click(startBtnSelector);
 
     // Wait for Sector Map

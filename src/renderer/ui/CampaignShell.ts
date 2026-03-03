@@ -57,7 +57,7 @@ export class CampaignShell {
     showTabs: boolean = true,
     missionType: string | null = null,
   ) {
-    console.log(`[CampaignShell] show: mode=${mode}, tab=${activeTabId}, missionType=${missionType}`);
+
     this.mode = mode;
     this.activeTabId = activeTabId;
     this.showTabs = showTabs;
@@ -68,7 +68,7 @@ export class CampaignShell {
   }
 
   public hide() {
-    console.log(`[CampaignShell] hide`);
+
     this.mode = "none";
     this.activeMissionType = null;
     this.container.style.display = "none";

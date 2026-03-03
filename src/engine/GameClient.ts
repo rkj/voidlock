@@ -100,7 +100,7 @@ export class GameClient {
           return;
         }
 
-        console.log(`[GameClient] STATE_UPDATE t=${msg.payload.t} status=${msg.payload.status} mode=${msg.payload.settings.mode} sid=${msg.payload.settings.sessionId}`);
+
         // Authoritative command sync from engine
         if (msg.payload.commandLog) {
           this.commandStream = msg.payload.commandLog.map((cl) => ({

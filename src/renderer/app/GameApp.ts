@@ -3,7 +3,6 @@ import {
   MapGeneratorType,
   MissionType,
   CommandType,
-  UnitStyle,
   SquadSoldierConfig,
   UnitState,
 } from "@src/shared/types";
@@ -278,6 +277,9 @@ export class GameApp {
           this.registry.missionSetupManager.currentSquad = config;
           this.registry.missionSetupManager.saveCurrentConfig();
 
+          // Hide HUD for cinematic intro
+          this.registry.uiOrchestrator.setMissionHUDVisible(false);
+
           this.AdvisorOverlay.showMessage({
             id: "prologue_intro",
             title: "Project Voidlock: Operation First Light",
@@ -353,17 +355,9 @@ export class GameApp {
       },
       onResetData: () => this.campaignFlowCoordinator.onResetData(),
       onShowEquipment: () => {
+
         const isCampaign = !!this.registry.missionSetupManager.currentCampaignNode;
-        this.equipmentScreen.setCampaign(isCampaign);
-        this.equipmentScreen.updateConfig(
-          this.registry.missionSetupManager.currentSquad,
-        );
-        this.registry.navigationOrchestrator.switchScreen("equipment", isCampaign);
-        if (isCampaign) {
-          this.registry.campaignShell.show("campaign", "ready-room", true);
-        } else {
-          this.registry.campaignShell.show("custom", "setup");
-        }
+        this.registry.navigationOrchestrator.handleExternalScreenChange("equipment", isCampaign);
       },
       onLoadStaticMap: (json) => this.registry.missionSetupManager.loadStaticMap(json),
       onUploadStaticMap: (file) =>
@@ -422,10 +416,6 @@ export class GameApp {
         this.registry.missionSetupManager.currentThemeId = themeId;
         this.registry.missionSetupManager.saveCurrentConfig();
         this.registry.themeManager.setTheme(themeId);
-      },
-      onUnitStyleChange: (style: string) => {
-        this.registry.missionSetupManager.unitStyle = style as UnitStyle;
-        this.registry.missionSetupManager.saveCurrentConfig();
       },
       onToggleFog: (enabled: boolean) => {
         this.registry.missionSetupManager.fogOfWarEnabled = enabled;
@@ -572,13 +562,8 @@ export class GameApp {
     const isPrologue = firstNode?.missionType === MissionType.Prologue;
 
     if (isPrologue && firstNode) {
-      // Direct to Tactical for Prologue (Spec: tutorial.md#2)
-      this.registry.missionSetupManager.currentCampaignNode = firstNode;
-      this.registry.missionSetupManager.currentSeed = firstNode.mapSeed;
-      this.registry.missionSetupManager.currentMissionType = MissionType.Prologue;
-      
-      this.registry.missionSetupManager.loadAndApplyConfig(true);
-      this.registry.missionRunner.launchMission();
+      // Direct to Ready Room for Prologue (ADR 0049)
+      this.registry.navigationOrchestrator.onCampaignNodeSelect(firstNode);
     } else {
       this.registry.campaignShell.show("campaign", "sector-map");
       this.registry.navigationOrchestrator.switchScreen("campaign", true);

@@ -120,19 +120,23 @@ export class EquipmentScreen {
 
   public setPrologue(isPrologue: boolean) {
     this.isPrologue = isPrologue;
+    this.render();
   }
 
   public setStoreLocked(locked: boolean) {
     this.isStoreLocked = locked;
     this.inspector.setLocked(locked);
+    this.render();
   }
 
   public setSquadSelectionLocked(locked: boolean) {
     this.isSquadSelectionLocked = locked;
+    this.render();
   }
 
   public setHasNodeSelected(hasNodeSelected: boolean) {
     this.hasNodeSelected = hasNodeSelected;
+    this.render();
   }
 
   public show() {
@@ -201,6 +205,7 @@ export class EquipmentScreen {
   }
 
   public render() {
+
     const lastFocusId = document.activeElement?.getAttribute("data-focus-id");
     FocusManager.saveFocus();
 
@@ -377,6 +382,7 @@ export class EquipmentScreen {
 
   private renderRightPanelContent() {
     const isSlotEmpty = !this.config.soldiers[this.selectedSoldierIndex];
+
     if (this.recruitMode) {
       return this.renderRecruitmentItems();
     } else if (this.reviveMode) {
