@@ -87,10 +87,13 @@ describe("SquadBuilder Auto-Deploy Regression", () => {
     const recruitBtn = container.querySelector(
       ".btn-recruit",
     ) as HTMLButtonElement;
-    await recruitBtn.onclick!(new MouseEvent("click") as any);
+    recruitBtn.click();
 
-    expect(context.campaignManager.recruitSoldier).toHaveBeenCalled();
-    expect(squad.soldiers.length).toBe(1);
+    await vi.waitFor(() => {
+      expect(context.campaignManager.recruitSoldier).toHaveBeenCalled();
+      expect(squad.soldiers.length).toBe(1);
+    });
+
     expect(squad.soldiers[0].id).toBe("new-soldier-id");
     expect(context.campaignShell.refresh).toHaveBeenCalled();
   });
@@ -139,10 +142,13 @@ describe("SquadBuilder Auto-Deploy Regression", () => {
     const reviveBtn = container.querySelector(
       ".btn-revive",
     ) as HTMLButtonElement;
-    await reviveBtn.onclick!(new MouseEvent("click") as any);
+    reviveBtn.click();
 
-    expect(context.campaignManager.reviveSoldier).toHaveBeenCalledWith("dead1");
-    expect(squad.soldiers.length).toBe(1);
+    await vi.waitFor(() => {
+      expect(context.campaignManager.reviveSoldier).toHaveBeenCalledWith("dead1");
+      expect(squad.soldiers.length).toBe(1);
+    });
+
     expect(squad.soldiers[0].id).toBe("dead1");
     expect(context.campaignShell.refresh).toHaveBeenCalled();
   });

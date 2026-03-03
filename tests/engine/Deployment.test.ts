@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { CoreEngine } from "@src/engine/CoreEngine";
+import { MathUtils } from "@src/shared/utils/MathUtils";
 import {
   MapDefinition,
   CellType,
@@ -126,7 +127,7 @@ describe("Deployment Phase", () => {
     expect(unit1After.pos).not.toEqual(originalPos);
   });
 
-  it("should swap units when deploying onto an occupied tile", () => {
+  it("should allow overlapping units when deploying onto an occupied tile", () => {
     const engine = new CoreEngine(
       mockMap,
       123,
@@ -181,10 +182,70 @@ describe("Deployment Phase", () => {
     const s1After = engine.getState().units.find((u) => u.id === "s1")!;
     const s2After = engine.getState().units.find((u) => u.id === "s2")!;
 
-    // s1 after move to cell (2,1) -> (2.3, 1.3)
-    // s2 after swap to cell (1,1) -> (1.7, 1.3)
+    // s1 after move to cell (2,1) -> (2.3, 1.3) [Tactical 1 jitter -0.2]
+    // s2 stays at cell (2,1) -> (2.7, 1.3) [Tactical 2 jitter 0.2]
     expect(s1After.pos).toEqual({ x: 2.3, y: 1.3 });
-    expect(s2After.pos).toEqual({ x: 1.7, y: 1.3 });
+    expect(s2After.pos).toEqual({ x: 2.7, y: 1.3 });
+  });
+
+  it("should swap units when deploying onto a full tile (4 units)", () => {
+    const fullSquadConfig: SquadConfig = {
+      soldiers: [
+        { id: "s1", archetypeId: "assault" },
+        { id: "s2", archetypeId: "medic" },
+        { id: "s3", archetypeId: "scout" },
+        { id: "s4", archetypeId: "heavy" },
+        { id: "s5", archetypeId: "assault" },
+      ],
+      inventory: {},
+    };
+
+    const engine = new CoreEngine(
+      mockMap,
+      123,
+      fullSquadConfig,
+      false,
+      false,
+      undefined,
+      undefined,
+      0,
+      1.0,
+      false,
+      undefined,
+      [],
+      true,
+      0,
+      3,
+      1,
+      0,
+      "Combat",
+      undefined,
+      undefined,
+      false,
+    );
+
+    // Deploy s1, s2, s3, s4 to spawns[0]
+    engine.applyCommand({ type: CommandType.DEPLOY_UNIT, unitId: "s1", target: { x: 1.5, y: 1.5 } });
+    engine.applyCommand({ type: CommandType.DEPLOY_UNIT, unitId: "s2", target: { x: 1.5, y: 1.5 } });
+    engine.applyCommand({ type: CommandType.DEPLOY_UNIT, unitId: "s3", target: { x: 1.5, y: 1.5 } });
+    engine.applyCommand({ type: CommandType.DEPLOY_UNIT, unitId: "s4", target: { x: 1.5, y: 1.5 } });
+
+    // Deploy s5 to spawns[1]
+    engine.applyCommand({ type: CommandType.DEPLOY_UNIT, unitId: "s5", target: { x: 2.5, y: 1.5 } });
+    const s5PosBefore = { ...engine.getState().units.find(u => u.id === "s5")!.pos };
+
+    // Deploy s5 onto spawns[0]. It should swap with s1.
+    engine.applyCommand({
+      type: CommandType.DEPLOY_UNIT,
+      unitId: "s5",
+      target: { x: 1.5, y: 1.5 },
+    });
+
+    const s5After = engine.getState().units.find(u => u.id === "s5")!;
+    const s1After = engine.getState().units.find(u => u.id === "s1")!;
+
+    expect(MathUtils.toCellCoord(s5After.pos)).toEqual({ x: 1, y: 1 });
+    expect(MathUtils.toCellCoord(s1After.pos)).toEqual(MathUtils.toCellCoord(s5PosBefore));
   });
 
   it("should transition to Playing on START_MISSION", () => {
