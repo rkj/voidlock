@@ -34,7 +34,7 @@ export class GameShell {
       const backBtn = document.createElement("button");
       backBtn.textContent = "← Back";
       backBtn.className = "back-button shell-button";
-      backBtn.onclick = config.onBack;
+      backBtn.addEventListener("click", config.onBack);
       this.headerControls.appendChild(backBtn);
     }
 
@@ -44,7 +44,7 @@ export class GameShell {
       secBtn.className = "menu-button shell-button";
       secBtn.style.fontSize = "0.8em";
       secBtn.style.padding = "4px 12px";
-      secBtn.onclick = config.secondaryAction.onClick;
+      secBtn.addEventListener("click", config.secondaryAction.onClick);
       this.headerControls.appendChild(secBtn);
     }
 
@@ -55,7 +55,7 @@ export class GameShell {
       primaryBtn.textContent = config.primaryAction.label;
       primaryBtn.className = "primary-button shell-button";
       primaryBtn.disabled = !!config.primaryAction.disabled;
-      primaryBtn.onclick = config.primaryAction.onClick;
+      primaryBtn.addEventListener("click", config.primaryAction.onClick);
       this.footer.appendChild(primaryBtn);
       this.footer.style.display = "flex";
     } else {

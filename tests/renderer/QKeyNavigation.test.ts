@@ -24,13 +24,17 @@ describe("Q and ESC Key Navigation", () => {
     mockScreenManager = {
       getCurrentScreen: vi.fn(() => "mission"),
       goBack: vi.fn(),
+      getScreenElement: vi.fn(() => document.createElement("div")),
     };
     mockMenuController = {
       menuState: "ACTION_SELECT",
       goBack: vi.fn(),
+      handleMenuInput: vi.fn(function(this: any, key: string) {
+        if (key === "q") this.goBack();
+      }),
     };
     togglePause = vi.fn();
-    handleMenuInput = vi.fn();
+    handleMenuInput = vi.fn((key, shift) => mockMenuController.handleMenuInput(key));
     abortMission = vi.fn();
     onUnitDeselect = vi.fn();
     getSelectedUnitId = vi.fn(() => null);
@@ -39,27 +43,27 @@ describe("Q and ESC Key Navigation", () => {
     onToggleLos = vi.fn();
     currentGameState = vi.fn(() => ({}));
 
-    const mockModalService = {
-      alert: vi.fn(),
-      confirm: vi.fn().mockResolvedValue(true),
-    };
-
     inputManager = new InputManager(
-      mockScreenManager,
-      mockMenuController,
-      mockModalService as any,
+      mockScreenManager as any,
+      mockMenuController as any,
       togglePause,
       handleMenuInput,
       abortMission,
       onUnitDeselect,
+      vi.fn(), // handleCanvasClick
+      vi.fn(), // onToggleDebug
+      vi.fn(), // onToggleLos
+      vi.fn(), // currentGameState
+      () => false, // isDebriefing
       getSelectedUnitId,
-      handleCanvasClick,
-      onToggleDebug,
-      onToggleLos,
-      currentGameState,
-      () => false,
-      vi.fn(),
-      vi.fn(() => ({ x: 0, y: 0 })),
+      vi.fn(), // onDeployUnit
+      vi.fn(), // onUndeployUnit
+      vi.fn(() => ({ x: 0, y: 0 })), // getCellCoordinates
+      vi.fn(() => ({ x: 0, y: 0 })), // getWorldCoordinates
+      vi.fn(), // cycleUnits
+      vi.fn(), // panMap
+      vi.fn(), // panMapBy
+      vi.fn(), // zoomMap
     );
     inputManager.init();
 

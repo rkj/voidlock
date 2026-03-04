@@ -128,6 +128,7 @@ export class AppServiceRegistry {
     this.advisorOverlay = new AdvisorOverlay(this.gameClient);
     this.tutorialManager = new TutorialManager(
       this.gameClient,
+      this.campaignManager,
       (msg) => {
         this.advisorOverlay.showMessage(msg);
       },
@@ -195,6 +196,7 @@ export class AppServiceRegistry {
       config.onToggleLos,
       () => this.missionRunner.getCurrentGameState(),
       config.isDebriefVisible,
+      config.getSelectedUnitId,
       config.onDeployUnit,
       config.onUndeployUnit,
       config.getCellCoordinates,

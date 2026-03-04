@@ -15,7 +15,7 @@ describe("Regression: voidlock-g50s - Equipment to Main Menu Transition", () => 
   });
 
   it("should allow transition from equipment to main-menu directly", () => {
-    const sm = new ScreenManager();
+    const sm = new ScreenManager(() => {});
     const errorSpy = vi.spyOn(console, "error");
 
     // Navigate to equipment
@@ -32,7 +32,7 @@ describe("Regression: voidlock-g50s - Equipment to Main Menu Transition", () => 
   });
 
   it("should allow goBack from equipment to main-menu when history is empty", () => {
-    const sm = new ScreenManager();
+    const sm = new ScreenManager(() => {});
     const errorSpy = vi.spyOn(console, "error");
 
     // Manually set state to simulate refresh on equipment screen

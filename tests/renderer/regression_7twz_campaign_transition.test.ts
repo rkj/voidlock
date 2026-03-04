@@ -37,7 +37,7 @@ describe("Regression: voidlock-7twz Campaign Transition", () => {
   });
 
   it("should allow campaign -> equipment transition", () => {
-    const sm = new ScreenManager();
+    const sm = new ScreenManager(() => {});
     const errorSpy = vi.spyOn(console, "error");
 
     // Transition path: main-menu -> campaign -> equipment

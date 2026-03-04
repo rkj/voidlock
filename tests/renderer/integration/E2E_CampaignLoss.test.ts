@@ -53,6 +53,20 @@ vi.mock("@src/renderer/Renderer", () => ({
   })),
 }));
 
+vi.mock("@src/renderer/ThemeManager", () => ({
+  ThemeManager: {
+    getInstance: vi.fn().mockReturnValue({
+      init: vi.fn().mockResolvedValue(undefined),
+      setTheme: vi.fn(),
+      getAssetUrl: vi.fn().mockReturnValue("mock-url"),
+      getColor: vi.fn().mockReturnValue("#000"),
+      getIconUrl: vi.fn().mockReturnValue("mock-icon-url"),
+      getCurrentThemeId: vi.fn().mockReturnValue("default"),
+      applyTheme: vi.fn(),
+    }),
+  },
+}));
+
 describe("E2E Campaign Failure Modes", () => {
   let app: GameApp;
   let cm: CampaignManager;

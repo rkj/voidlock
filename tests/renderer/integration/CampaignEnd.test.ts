@@ -151,7 +151,7 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
             mockCampaignState.history.push(report);
           }
         }),
-        save: vi.fn(), assignEquipment: vi.fn(),
+        save: vi.fn(),
         startNewCampaign: vi.fn(),
         reset: vi.fn(),
         deleteSave: vi.fn(),

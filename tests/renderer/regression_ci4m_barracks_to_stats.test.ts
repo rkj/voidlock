@@ -24,7 +24,7 @@ describe("Regression voidlock-ci4m: Barracks to Statistics Transition", () => {
   });
 
   it("should allow transition from equipment to statistics", () => {
-    const sm = new ScreenManager();
+    const sm = new ScreenManager(() => {});
     const errorSpy = vi.spyOn(console, "error");
 
     // Navigate to campaign first
@@ -43,7 +43,7 @@ describe("Regression voidlock-ci4m: Barracks to Statistics Transition", () => {
   });
 
   it("should allow transition from campaign to statistics", () => {
-    const sm = new ScreenManager();
+    const sm = new ScreenManager(() => {});
     const errorSpy = vi.spyOn(console, "error");
 
     // Navigate to campaign first
@@ -58,7 +58,7 @@ describe("Regression voidlock-ci4m: Barracks to Statistics Transition", () => {
   });
 
   it("should allow transition from statistics to campaign", () => {
-    const sm = new ScreenManager();
+    const sm = new ScreenManager(() => {});
     const errorSpy = vi.spyOn(console, "error");
 
     // Navigate to statistics first (from main-menu)
@@ -73,7 +73,7 @@ describe("Regression voidlock-ci4m: Barracks to Statistics Transition", () => {
   });
 
   it("should allow transition from mission-setup to statistics", () => {
-    const sm = new ScreenManager();
+    const sm = new ScreenManager(() => {});
     const errorSpy = vi.spyOn(console, "error");
 
     // Navigate to mission-setup (from main-menu)

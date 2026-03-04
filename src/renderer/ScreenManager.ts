@@ -71,6 +71,8 @@ export class ScreenManager {
     id: ScreenId,
     updateHash: boolean = true,
     isCampaign: boolean = false,
+    skipHistory: boolean = false,
+    force: boolean = false,
   ) {
     if (this.currentScreen === id) {
       if (updateHash) {
@@ -85,10 +87,12 @@ export class ScreenManager {
       return;
     }
 
-    const validNext = VALID_TRANSITIONS[this.currentScreen];
-    if (!validNext || !validNext.includes(id)) {
-      Logger.error(`Invalid screen transition: ${this.currentScreen} -> ${id}`);
-      return;
+    if (!force) {
+      const validNext = VALID_TRANSITIONS[this.currentScreen];
+      if (!validNext || !validNext.includes(id)) {
+        Logger.error(`Invalid screen transition: ${this.currentScreen} -> ${id}`);
+        return;
+      }
     }
 
     const currentEl = this.screens.get(this.currentScreen);
@@ -96,13 +100,15 @@ export class ScreenManager {
       currentEl.style.display = "none";
     }
 
-    if (id !== "main-menu") {
-      this.history.push({
-        id: this.currentScreen,
-        isCampaign: this.currentIsCampaign,
-      });
-    } else {
-      this.history = [];
+    if (!skipHistory) {
+      if (id !== "main-menu") {
+        this.history.push({
+          id: this.currentScreen,
+          isCampaign: this.currentIsCampaign,
+        });
+      } else {
+        this.history = [];
+      }
     }
 
     this.currentScreen = id;
@@ -123,7 +129,9 @@ export class ScreenManager {
   public goBack() {
     if (this.history.length > 0) {
       const prev = this.history.pop()!;
-      this.show(prev.id, true, prev.isCampaign);
+      this.show(prev.id, true, prev.isCampaign, true);
+    } else if (this.currentScreen !== "main-menu") {
+      this.show("main-menu", true, false, true);
     }
   }
 
@@ -179,11 +187,33 @@ export class ScreenManager {
   }
 
   public loadPersistedState(): { screenId: ScreenId; isCampaign: boolean } | null {
-    // URL hash takes precedence. If no hash, we default to main menu.
+    // URL hash takes precedence.
     const currentHash = window.location.hash.replace("#", "");
-    if (!currentHash || currentHash === "main-menu") {
-      return null;
+    const validScreens: ScreenId[] = [
+      "main-menu",
+      "campaign",
+      "mission-setup",
+      "equipment",
+      "mission",
+      "debrief",
+      "campaign-summary",
+      "statistics",
+      "engineering",
+      "settings",
+    ];
+
+    if (currentHash && validScreens.includes(currentHash as ScreenId)) {
+      const persisted = this.sessionManager.loadState();
+      const isCampaign = persisted?.screenId === currentHash ? persisted.isCampaign : false;
+      
+      // Update internal state if different
+      if (currentHash !== this.currentScreen) {
+        this.forceShow(currentHash as ScreenId, isCampaign);
+      }
+      
+      return { screenId: currentHash as ScreenId, isCampaign };
     }
+
     const persisted = this.sessionManager.loadState();
     if (persisted && persisted.screenId !== this.currentScreen) {
       this.forceShow(persisted.screenId, persisted.isCampaign);

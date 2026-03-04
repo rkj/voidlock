@@ -66,6 +66,21 @@ export class MetaManager {
   }
 
   /**
+   * Sets the storage provider to use.
+   */
+  public setStorage(storage: StorageProvider): void {
+    this.storage = storage;
+  }
+
+  /**
+   * Resets the statistics to defaults.
+   */
+  public reset(): void {
+    this.stats = MetaStatsSchema.parse({});
+    this.save();
+  }
+
+  /**
    * Returns the current global statistics.
    */
   public getStats(): MetaStats {

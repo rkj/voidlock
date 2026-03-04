@@ -226,7 +226,7 @@ export class GameApp {
           state &&
           (state.status === "Victory" || state.status === "Defeat")
         ) {
-          this.registry.navigationOrchestrator.switchScreen("campaign-summary", true, true, state);
+          this.registry.navigationOrchestrator.switchScreen("campaign-summary", true, true, false, state);
           return;
         }
 
@@ -349,7 +349,7 @@ export class GameApp {
       onCampaignMenu: () => {
         this.campaignFlowCoordinator.onCampaignMenu(
           () => this.registry.navigationOrchestrator.applyCampaignTheme(),
-          (state) => this.registry.navigationOrchestrator.switchScreen("campaign-summary", true, true, state),
+          (state) => this.registry.navigationOrchestrator.switchScreen("campaign-summary", true, true, false, state),
           () => this.registry.navigationOrchestrator.switchScreen("campaign", true),
         );
       },
@@ -521,6 +521,7 @@ export class GameApp {
                 "debrief",
                 false,
                 true,
+                false,
                 report,
                 replayData.unitStyle || this.registry.missionSetupManager.unitStyle,
               );

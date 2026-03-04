@@ -105,6 +105,7 @@ vi.mock("@src/renderer/campaign/CampaignManager", () => {
             intel: 0,
             currentSector: 1,
             currentNodeId: "node1",
+            history: [],
             unlockedArchetypes: ["scout"],
             unlockedItems: [],
             rules: {

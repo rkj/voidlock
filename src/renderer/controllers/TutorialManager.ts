@@ -1,9 +1,11 @@
 import { GameClient } from "@src/engine/GameClient";
 import { GameState, MissionType } from "@src/shared/types";
+import { ScreenId } from "@src/renderer/ScreenManager";
 import { Logger } from "@src/shared/Logger";
 import { MathUtils } from "@src/shared/utils/MathUtils";
 import { Vector2 } from "@src/shared/types/geometry";
 import { UIOrchestrator } from "../app/UIOrchestrator";
+import { CampaignManager } from "../campaign/CampaignManager";
 
 export interface AdvisorMessage {
   id: string;
@@ -27,6 +29,7 @@ interface TutorialStep {
 
 export class TutorialManager {
   private gameClient: GameClient;
+  private campaignManager: CampaignManager;
   private onMessage: (msg: AdvisorMessage) => void;
   private uiOrchestrator?: UIOrchestrator;
   private isActive: boolean = false;
@@ -105,10 +108,12 @@ export class TutorialManager {
 
   constructor(
     gameClient: GameClient,
+    campaignManager: CampaignManager,
     onMessage: (msg: AdvisorMessage) => void,
     uiOrchestrator?: UIOrchestrator
   ) {
     this.gameClient = gameClient;
+    this.campaignManager = campaignManager;
     this.onMessage = onMessage;
     this.uiOrchestrator = uiOrchestrator;
   }
@@ -157,6 +162,30 @@ export class TutorialManager {
 
   private clearState() {
       localStorage.removeItem("voidlock_tutorial_state");
+  }
+
+  public onScreenShow(id: ScreenId) {
+    if (!this.isActive) return;
+
+    if (id === "equipment" && this.isMission2Tutorial()) {
+      this.triggerEvent("ready_room_intro");
+    }
+    if (id === "campaign" && this.isMission3Tutorial()) {
+      this.triggerEvent("sector_map_intro");
+    }
+    if (id === "equipment" && this.isMission3Tutorial()) {
+      this.triggerEvent("squad_selection_intro");
+    }
+  }
+
+  private isMission2Tutorial(): boolean {
+    const state = this.campaignManager.getState();
+    return !!(state && state.history.length === 1);
+  }
+
+  private isMission3Tutorial(): boolean {
+    const state = this.campaignManager.getState();
+    return !!(state && state.history.length === 2);
   }
 
   private onGameStateUpdate = (state: GameState) => {
@@ -226,9 +255,6 @@ export class TutorialManager {
     // Check if any enemy is in a visible cell
     if (!state.enemies || state.enemies.length === 0) return false;
     
-    // If debug overlay is enabled, all enemies might be sent. We check visibleCells.
-    // If debug is disabled, only visible enemies are sent.
-    // But to be safe, we check visibleCells.
     if (!state.visibleCells) return false;
     
     return state.enemies.some(e => {

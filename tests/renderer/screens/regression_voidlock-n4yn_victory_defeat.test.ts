@@ -83,7 +83,7 @@ describe("CampaignSummaryScreen Victory/Defeat Screens", () => {
     );
     screen.show(state);
 
-    expect(container.textContent).toContain("Mission Failed");
+    expect(container.textContent).toContain("Campaign Defeat");
     expect(container.textContent).toContain("Cause: Squad Wiped");
 
     const abandonBtn = Array.from(container.querySelectorAll("button")).find(
@@ -108,7 +108,7 @@ describe("CampaignSummaryScreen Victory/Defeat Screens", () => {
     );
     screen.show(state);
 
-    expect(container.textContent).toContain("Mission Failed");
+    expect(container.textContent).toContain("Campaign Defeat");
     expect(container.textContent).toContain("Cause: Bankruptcy");
   });
 });

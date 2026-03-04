@@ -59,9 +59,9 @@ export class NavigationOrchestrator {
     id: ScreenId,
     isCampaign: boolean = false,
     updateHash: boolean = true,
+    force: boolean = false,
     ...showArgs: unknown[]
   ) {
-
     // 1. Hide ALL screens to clear input contexts and DOM
     this.allScreens.forEach((s) => s.hide());
 
@@ -79,9 +79,12 @@ export class NavigationOrchestrator {
     }
 
     // 4. Update ScreenManager (DOM display and Hash)
-    this.screenManager.show(id, updateHash, isCampaign);
+    this.screenManager.show(id, updateHash, isCampaign, false, force);
 
-    // 5. Apply snappy tactical transition (Spec 8.1)
+    // 5. Trigger tutorial hooks
+    this.tutorialManager.onScreenShow(id);
+
+    // 6. Apply snappy tactical transition (Spec 8.1)
     const el = this.screenManager.getScreenElement(id);
     if (el) {
       // Remove both possible transition classes
@@ -213,9 +216,9 @@ export class NavigationOrchestrator {
           state &&
           (state.status === "Victory" || state.status === "Defeat")
         ) {
-          this.switchScreen("campaign-summary", true, true, state);
+          this.switchScreen("campaign-summary", true, true, true, state);
         } else {
-          this.switchScreen("campaign", true);
+          this.switchScreen("campaign", true, true, true);
           this.campaignShell.show(
             "campaign",
             "sector-map",
@@ -228,7 +231,7 @@ export class NavigationOrchestrator {
       case "campaign-summary": {
         const state = this.campaignManager.getState();
         if (state) {
-          this.switchScreen("campaign-summary", true, true, state);
+          this.switchScreen("campaign-summary", true, true, true, state);
         } else {
           this.callbacks.showMainMenu();
         }
@@ -250,7 +253,7 @@ export class NavigationOrchestrator {
             this.missionSetupManager.currentMissionType,
             false,
           );
-          this.switchScreen("mission-setup", false);
+          this.switchScreen("mission-setup", false, true, true);
         }
         break;
       }
@@ -264,7 +267,7 @@ export class NavigationOrchestrator {
         break;
       }
       case "statistics":
-        this.switchScreen("statistics", false);
+        this.switchScreen("statistics", false, true, true);
         if (
           !isCampaign &&
           this.missionSetupManager.currentCampaignNode === null &&
@@ -284,6 +287,8 @@ export class NavigationOrchestrator {
         this.switchScreen(
           "engineering",
           isCampaign || !!this.campaignManager.getState(),
+          true,
+          true,
         );
         if (isCampaign || this.campaignManager.getState()) {
           this.campaignShell.show(
@@ -300,7 +305,7 @@ export class NavigationOrchestrator {
         const state = this.campaignManager.getState();
         const isCustomFlow =
           !isCampaign && this.missionSetupManager.currentCampaignNode === null;
-        this.switchScreen("settings", isCampaign || !!state || isCustomFlow);
+        this.switchScreen("settings", isCampaign || !!state || isCustomFlow, true, true);
         if (state) {
           this.campaignShell.show(
             "campaign",
@@ -469,7 +474,7 @@ export class NavigationOrchestrator {
   public onShowSummary() {
     const state = this.campaignManager.getState();
     if (state) {
-      this.switchScreen("campaign-summary", true, true, state);
+      this.switchScreen("campaign-summary", true, true, false, state);
     }
   }
 }

@@ -30,7 +30,7 @@ describe("ScreenManager", () => {
   });
 
   it("should initialize with main-menu", () => {
-    const sm = new ScreenManager();
+    const sm = new ScreenManager(() => {});
     expect(sm.getCurrentScreen()).toBe("main-menu");
     expect(document.getElementById("screen-main-menu")?.style.display).toBe(
       "flex",
@@ -38,7 +38,7 @@ describe("ScreenManager", () => {
   });
 
   it("should allow valid transitions", () => {
-    const sm = new ScreenManager();
+    const sm = new ScreenManager(() => {});
 
     // main-menu -> campaign
     sm.show("campaign");
@@ -60,7 +60,7 @@ describe("ScreenManager", () => {
   });
 
   it("should block invalid transitions and log error", () => {
-    const sm = new ScreenManager();
+    const sm = new ScreenManager(() => {});
     const errorSpy = vi.spyOn(console, "error");
 
     // main-menu -> equipment (invalid)
@@ -76,7 +76,7 @@ describe("ScreenManager", () => {
   });
 
   it("should handle goBack correctly", () => {
-    const sm = new ScreenManager();
+    const sm = new ScreenManager(() => {});
 
     sm.show("campaign");
     sm.show("equipment");
