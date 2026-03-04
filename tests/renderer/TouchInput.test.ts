@@ -18,19 +18,18 @@ describe("InputManager Touch Gestures", () => {
     handleCanvasClick = vi.fn();
 
     inputManager = new InputManager(
-      { getCurrentScreen: () => "mission" } as any,
+      { getCurrentScreen: () => "mission", getScreenElement: () => document.createElement("div") } as any,
       { isShiftHeld: false, menuState: "ACTION_SELECT" } as any,
-      {} as any,
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
-      vi.fn(),
+      vi.fn(), // togglePause
+      vi.fn(), // handleMenuInput
+      vi.fn(), // abortMission
+      vi.fn(), // onUnitDeselect
       handleCanvasClick,
-      vi.fn(),
-      vi.fn(),
-      () => null,
-      () => false,
+      vi.fn(), // onToggleDebug
+      vi.fn(), // onToggleLos
+      () => null, // currentGameState
+      () => false, // isDebriefing
+      vi.fn(() => null), // getSelectedUnitId
       vi.fn(), // onDeployUnit
       vi.fn(), // onUndeployUnit
       () => ({ x: 0, y: 0 }), // getCellCoordinates

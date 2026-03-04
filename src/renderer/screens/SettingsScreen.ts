@@ -192,7 +192,7 @@ export class SettingsScreen {
       themeSelect.appendChild(opt);
     });
 
-    themeSelect.onchange = () => {
+    themeSelect.addEventListener("change", () => {
       const themeId = themeSelect.value;
       this.themeManager.setTheme(themeId);
       ConfigManager.saveGlobal({
@@ -201,7 +201,7 @@ export class SettingsScreen {
       });
       // Refresh previews when theme changes
       this.unitStyleSelector?.renderPreviews();
-    };
+    });
     themeGroup.appendChild(themeSelect);
     settingsGrid.appendChild(themeGroup);
 

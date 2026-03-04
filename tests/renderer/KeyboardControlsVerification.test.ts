@@ -24,21 +24,20 @@ describe("KeyboardControlsVerification", () => {
     inputManager = new InputManager(
       mockScreenManager,
       mockMenuController,
-      {} as any, // modalService
       vi.fn(), // togglePause
       vi.fn(), // handleMenuInput
       vi.fn(), // abortMission
       vi.fn(), // onUnitDeselect
-      vi.fn(), // getSelectedUnitId
       vi.fn(), // handleCanvasClick
       vi.fn(), // onToggleDebug
       vi.fn(), // onToggleLos
       vi.fn(), // currentGameState
       () => false, // isDebriefing
+      vi.fn(() => null), // getSelectedUnitId
       vi.fn(), // onDeployUnit
       vi.fn(), // onUndeployUnit
-      vi.fn(), // getCellCoordinates
-      vi.fn(), // getWorldCoordinates
+      vi.fn(() => ({ x: 0, y: 0 })), // getCellCoordinates
+      vi.fn(() => ({ x: 0, y: 0 })), // getWorldCoordinates
       cycleUnits,
       panMap,
       vi.fn(), // panMapBy
@@ -64,11 +63,16 @@ describe("KeyboardControlsVerification", () => {
   });
 
   it("should call panMap on Arrow keys", () => {
-    const keys = ["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
-    keys.forEach((key) => {
+    const keyMap: Record<string, string> = {
+      ArrowUp: "up",
+      ArrowDown: "down",
+      ArrowLeft: "left",
+      ArrowRight: "right",
+    };
+    Object.entries(keyMap).forEach(([key, expected]) => {
       const event = new KeyboardEvent("keydown", { key });
       document.dispatchEvent(event);
-      expect(panMap).toHaveBeenCalledWith(key);
+      expect(panMap).toHaveBeenCalledWith(expected);
     });
   });
 });

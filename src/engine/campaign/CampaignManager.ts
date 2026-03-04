@@ -67,6 +67,13 @@ export class CampaignManager {
   }
 
   /**
+   * Sets the storage provider to use.
+   */
+  public setStorage(storage: StorageProvider): void {
+    this.storage = storage;
+  }
+
+  /**
    * Returns the storage provider being used by the manager.
    */
   public getStorage(): StorageProvider {

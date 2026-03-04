@@ -39,8 +39,6 @@ const mockGameClient = {
   getReplayData: vi.fn().mockReturnValue({ seed: 123, commands: [] }),
   applyCommand: vi.fn(),
   seek: vi.fn(),
-  pause: vi.fn(),
-  resume: vi.fn(),
   getFullState: vi.fn(),
   setTickRate: vi.fn(),
   forceWin: vi.fn(),

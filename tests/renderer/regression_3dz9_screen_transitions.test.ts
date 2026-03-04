@@ -32,7 +32,7 @@ describe("Regression: voidlock-3dz9 Screen Transitions", () => {
   });
 
   it("should allow equipment -> mission transition", () => {
-    const sm = new ScreenManager();
+    const sm = new ScreenManager(() => {});
     const errorSpy = vi.spyOn(console, "error");
 
     // Transition path: main-menu -> mission-setup -> equipment -> mission

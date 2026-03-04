@@ -499,17 +499,17 @@ export class SoldierWidget {
 
     if (options.onClick) {
       container.classList.add("clickable");
-      container.onclick = options.onClick;
+      container.addEventListener("click", (e) => options.onClick!(e));
       if (options.onDoubleClick) {
-        container.ondblclick = options.onDoubleClick;
+        container.addEventListener("dblclick", (e) => options.onDoubleClick!(e));
       }
       container.tabIndex = 0;
-      container.onkeydown = (e) => {
+      container.addEventListener("keydown", (e) => {
         if (e.key === "Enter" || e.key === " ") {
           options.onClick!(e);
           e.preventDefault();
         }
-      };
+      });
     }
 
     const name = getName(data);

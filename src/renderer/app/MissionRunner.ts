@@ -139,6 +139,7 @@ export class MissionRunner {
       "debrief",
       false,
       true,
+      false,
       report,
       replayData?.unitStyle || this.deps.missionSetupManager.unitStyle,
     );

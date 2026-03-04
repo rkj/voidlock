@@ -22,7 +22,10 @@ describe("TutorialManager", () => {
     uiOrchestrator = {
       setMissionHUDVisible: vi.fn(),
     };
-    manager = new TutorialManager(gameClient, onMessage, uiOrchestrator);
+    const campaignManager = {
+      getState: vi.fn().mockReturnValue({ history: [] }),
+    };
+    manager = new TutorialManager(gameClient, campaignManager as any, onMessage, uiOrchestrator);
     manager.enable();
     
     // Clear localStorage to avoid state leakage between tests

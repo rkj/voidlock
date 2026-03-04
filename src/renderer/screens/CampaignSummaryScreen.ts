@@ -85,7 +85,7 @@ export class CampaignSummaryScreen {
     const header = document.createElement("h1");
     header.className = "summary-header";
     header.style.margin = "0";
-    header.textContent = isVictory ? "Sector Secured" : "Mission Failed";
+    header.textContent = isVictory ? "Sector Secured" : "Campaign Defeat";
     headerContainer.appendChild(header);
 
     const subHeader = document.createElement("h2");
@@ -192,7 +192,7 @@ export class CampaignSummaryScreen {
     btn.className = `summary-button ${isVictory ? "primary-button" : "danger-button"}`;
     btn.style.margin = "0";
 
-    btn.onclick = () => this.onMainMenu();
+    btn.addEventListener("click", () => this.onMainMenu());
     footer.appendChild(btn);
 
     this.container.appendChild(footer);

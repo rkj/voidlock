@@ -40,6 +40,7 @@ export class InputManager implements InputContext {
     private onToggleLos: (enabled: boolean) => void,
     private currentGameState: () => GameState | null,
     private isDebriefing: () => boolean,
+    private getSelectedUnitId: () => string | null,
     private onDeployUnit: (
       unitId: string,
       targetX: number,
@@ -147,15 +148,17 @@ export class InputManager implements InputContext {
   }
 
   public handleKeyDown(e: KeyboardEvent): boolean {
-    if (this.isDebriefing()) return false;
+    if (this.isDebriefing() || this.screenManager.getCurrentScreen() !== "mission") {
+      return false;
+    }
 
-    const panKeys = ["w", "a", "s", "d", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"];
+    const panKeys = ["w", "a", "s", "d", "arrowup", "arrowdown", "arrowleft", "arrowright"];
     if (panKeys.includes(e.key.toLowerCase())) {
       let dir = e.key.toLowerCase();
-      if (dir === "arrowup") dir = "w";
-      if (dir === "arrowdown") dir = "s";
-      if (dir === "arrowleft") dir = "a";
-      if (dir === "arrowright") dir = "d";
+      if (dir === "arrowup" || dir === "w") dir = "up";
+      if (dir === "arrowdown" || dir === "s") dir = "down";
+      if (dir === "arrowleft" || dir === "a") dir = "left";
+      if (dir === "arrowright" || dir === "d") dir = "right";
       this.panMap(dir);
       return true;
     }
@@ -182,12 +185,26 @@ export class InputManager implements InputContext {
     }
 
     if (e.key === "Escape") {
-      this.onUnitDeselect();
+      if (this.menuController.menuState !== "ACTION_SELECT") {
+        this.handleMenuInput("q", e.shiftKey);
+      } else if (this.getSelectedUnitId()) {
+        this.onUnitDeselect();
+      } else {
+        this.abortMission();
+      }
       return true;
     }
 
     if (e.key.toLowerCase() === "q") {
-      this.abortMission();
+      if (this.menuController.menuState !== "ACTION_SELECT") {
+        this.handleMenuInput("q", e.shiftKey);
+      } else if (this.getSelectedUnitId()) {
+        this.onUnitDeselect();
+      } else {
+        // In ACTION_SELECT with no unit selected, 'q' should NOT abort.
+        // We return false to allow GlobalShortcuts to handle it (e.g. for pause menu)
+        return false;
+      }
       return true;
     }
 
@@ -383,7 +400,7 @@ export class InputManager implements InputContext {
         this.isDragging = true;
         this.updateDragGhost(touch.clientX, touch.clientY);
       } else {
-        this.panMapBy(dx, dy);
+        this.panMapBy(-dx, -dy);
       }
 
       this.lastTouchPos = { x: touch.clientX, y: touch.clientY };

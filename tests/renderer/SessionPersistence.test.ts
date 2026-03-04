@@ -41,7 +41,7 @@ describe("Session Persistence", () => {
   });
 
   it("ScreenManager should save state on show()", () => {
-    const sm = new ScreenManager();
+    const sm = new ScreenManager(() => {});
     sm.show("campaign");
 
     const sessionManager = new SessionManager();
@@ -55,7 +55,7 @@ describe("Session Persistence", () => {
     // Set hash to match persisted state, otherwise loadPersistedState returns null for empty hash
     window.location.hash = "equipment";
 
-    const sm = new ScreenManager();
+    const sm = new ScreenManager(() => {});
     const restored = sm.loadPersistedState();
 
     expect(restored?.screenId).toBe("equipment");

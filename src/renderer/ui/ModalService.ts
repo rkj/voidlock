@@ -213,7 +213,7 @@ export class ModalService {
           btn.className = "primary-button";
         }
 
-        btn.onclick = () => btnOptions.onClick(instance);
+        btn.addEventListener("click", () => btnOptions.onClick(instance));
         buttonsContainer.appendChild(btn);
       });
       modal.appendChild(buttonsContainer);

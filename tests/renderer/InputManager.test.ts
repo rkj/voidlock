@@ -31,6 +31,7 @@ describe("InputManager", () => {
     mockScreenManager = {
       getCurrentScreen: vi.fn(() => "mission"),
       goBack: vi.fn(),
+      getScreenElement: vi.fn(() => document.createElement("div")),
     };
     mockMenuController = {
       menuState: "ACTION_SELECT",
@@ -54,21 +55,24 @@ describe("InputManager", () => {
     inputManager = new InputManager(
       mockScreenManager,
       mockMenuController,
-      mockModalService as any,
       togglePause,
       handleMenuInput,
       abortMission,
       onUnitDeselect,
-      getSelectedUnitId,
       handleCanvasClick,
       onToggleDebug,
       onToggleLos,
       currentGameState,
       () => debriefingActive,
-      vi.fn(),
-      vi.fn(() => ({ x: 0, y: 0 })),
+      getSelectedUnitId,
+      vi.fn(), // onDeployUnit
+      vi.fn(), // onUndeployUnit
+      vi.fn(() => ({ x: 0, y: 0 })), // getCellCoordinates
+      vi.fn(() => ({ x: 0, y: 0 })), // getWorldCoordinates
       vi.fn(), // cycleUnits
       vi.fn(), // panMap
+      vi.fn(), // panMapBy
+      vi.fn(), // zoomMap
     );
     inputManager.init();
   });
@@ -78,16 +82,17 @@ describe("InputManager", () => {
   });
 
   it("should toggle debug overlay on Backquote", () => {
-    const event = new KeyboardEvent("keydown", { code: "Backquote" });
+    // Current InputManager uses e.key === "~" || e.key === "`"
+    const event = new KeyboardEvent("keydown", { key: "`" });
     document.dispatchEvent(event);
 
     expect(onToggleDebug).toHaveBeenCalledWith(true);
   });
 
   it("should toggle LOS overlay on Shift+Backquote", () => {
+    // Current InputManager uses e.key.toLowerCase() === "l"
     const event = new KeyboardEvent("keydown", {
-      code: "Backquote",
-      shiftKey: true,
+      key: "l",
     });
     document.dispatchEvent(event);
 
@@ -95,7 +100,7 @@ describe("InputManager", () => {
   });
 
   it("should toggle pause on Space", () => {
-    const event = new KeyboardEvent("keydown", { code: "Space" });
+    const event = new KeyboardEvent("keydown", { key: " " });
     document.dispatchEvent(event);
 
     expect(togglePause).toHaveBeenCalled();

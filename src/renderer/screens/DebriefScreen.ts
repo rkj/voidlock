@@ -213,14 +213,14 @@ export class DebriefScreen {
     continueBtn.textContent = "Return to Command Bridge";
     continueBtn.className = "debrief-button";
 
-    continueBtn.onclick = () => this.onContinue();
+    continueBtn.addEventListener("click", () => this.onContinue());
     footer.appendChild(continueBtn);
 
     if (this.report.nodeId === "custom" && this.onReplay) {
       const replayBtn = document.createElement("button");
       replayBtn.textContent = "Replay Mission";
       replayBtn.className = "debrief-button";
-      replayBtn.onclick = () => this.onReplay!();
+      replayBtn.addEventListener("click", () => this.onReplay!());
       footer.appendChild(replayBtn);
     }
 
@@ -228,7 +228,7 @@ export class DebriefScreen {
       const exportBtn = document.createElement("button");
       exportBtn.textContent = "Export Recording";
       exportBtn.className = "debrief-button secondary";
-      exportBtn.onclick = () => this.onExport!();
+      exportBtn.addEventListener("click", () => this.onExport!());
       footer.appendChild(exportBtn);
     }
 
@@ -254,20 +254,20 @@ export class DebriefScreen {
     this.playbackBtn = document.createElement("button");
     this.playbackBtn.className = "replay-btn";
     this.updatePlaybackUI();
-    this.playbackBtn.onclick = () => {
+    this.playbackBtn.addEventListener("click", () => {
       this.replayController.togglePause();
       this.updatePlaybackUI();
-    };
+    });
     controls.appendChild(this.playbackBtn);
 
     const loopBtn = document.createElement("button");
     loopBtn.className = "replay-btn";
     loopBtn.textContent = "Loop: Off";
-    loopBtn.onclick = () => {
+    loopBtn.addEventListener("click", () => {
       const isLooping = loopBtn.classList.toggle("active");
       this.replayController.setLooping(isLooping);
       loopBtn.textContent = isLooping ? "Loop: On" : "Loop: Off";
-    };
+    });
     controls.appendChild(loopBtn);
 
     // Speed Selector
@@ -281,13 +281,13 @@ export class DebriefScreen {
       if (this.replayController.getTargetScale() === speed)
         btn.classList.add("active");
       btn.textContent = `${speed}x`;
-      btn.onclick = () => {
+      btn.addEventListener("click", () => {
         this.replayController.setPlaybackSpeed(speed);
         speedGroup
           .querySelectorAll(".replay-speed-btn")
           .forEach((b) => b.classList.remove("active"));
         btn.classList.add("active");
-      };
+      });
       speedGroup.appendChild(btn);
     });
 
@@ -311,11 +311,11 @@ export class DebriefScreen {
     this.scrubber.max = "100";
     this.scrubber.step = "0.1";
     this.scrubber.value = "0";
-    this.scrubber.oninput = () => {
+    this.scrubber.addEventListener("input", () => {
       if (this.scrubber) {
         this.replayController.seek(parseFloat(this.scrubber.value));
       }
-    };
+    });
     progressContainer.appendChild(this.scrubber);
   }
 

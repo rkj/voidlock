@@ -29,7 +29,9 @@ describe("ScreenManager URL Sync", () => {
     // Clear hash
     window.location.hash = "";
 
-    onExternalChange = vi.fn();
+    onExternalChange = vi.fn((id, isCampaign) => {
+      screenManager.show(id, false, isCampaign, false, true);
+    });
     screenManager = new ScreenManager(onExternalChange);
   });
 
@@ -65,7 +67,7 @@ describe("ScreenManager URL Sync", () => {
 
   it("should load state from hash on initialization", () => {
     window.location.hash = "statistics";
-    const sm = new ScreenManager();
+    const sm = new ScreenManager(() => {});
     const state = sm.loadPersistedState();
     expect(state?.screenId).toBe("statistics");
     expect(sm.getCurrentScreen()).toBe("statistics");
