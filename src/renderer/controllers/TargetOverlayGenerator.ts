@@ -67,7 +67,7 @@ export class TargetOverlayGenerator {
       if (gameState.loot) {
         gameState.loot.forEach((loot) => {
           const cell = MathUtils.toCellCoord(loot.pos);
-          if (isCellVisible(gameState, cell.x, cell.y)) {
+          if (isCellDiscovered(gameState, cell.x, cell.y)) {
             const item = ItemLibrary[loot.itemId] || WeaponLibrary[loot.itemId];
             const itemName = item?.name || loot.itemId;
             options.push({
