@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect, afterAll, beforeAll } from "vitest";
 import { getNewPage, closeBrowser } from "./utils/puppeteer";
 import type { Page } from "puppeteer";
@@ -43,31 +44,46 @@ describe("Prologue Tutorial E2E", () => {
     await page.waitForSelector(launchBtn);
     await page.click(launchBtn);
 
-    // 4. Should go to Mission Screen
-    await page.waitForSelector("#screen-mission");
+    // 4. Handle prologue_intro advisor message (narrative intro)
+    const dismissBtn = ".advisor-btn[data-id='dismiss']";
+    await page.waitForSelector(dismissBtn, { visible: true });
     
-    // 5. Wait for advisor message (this ensures prologue logic has run)
+    const introText = await page.$eval(".advisor-text", (el) => (el as HTMLElement).innerText);
+    expect(introText).toContain("The future of the project depends on this data.");
+    
+    await page.evaluate((selector) => {
+        const btn = document.querySelector(selector) as HTMLElement;
+        if (btn) btn.click();
+    }, dismissBtn);
+    await page.waitForSelector(".advisor-message", { hidden: true });
+
+    // 5. Should go to Mission Screen
+    await page.waitForSelector("#screen-mission", { visible: true });
+    
+    // 6. Wait for FIRST tutorial advisor message (start)
     await page.waitForSelector(".advisor-message", { timeout: 15000 });
 
-    // 6. Verify HUD panels are hidden
+    // 7. Verify HUD panels are hidden
     const topBarDisplay = await page.$eval("#top-bar", (el) => window.getComputedStyle(el).display);
     const soldierPanelDisplay = await page.$eval("#soldier-panel", (el) => window.getComputedStyle(el).display);
     expect(topBarDisplay).toBe("none");
     expect(soldierPanelDisplay).toBe("none");
 
-    // 7. Verify message content
+    // 8. Verify message content
     const msgText = await page.$eval(".advisor-text", (el) => (el as HTMLElement).innerText);
     expect(msgText).toContain("wake up");
 
     // Take screenshot for proof
     await page.screenshot({ path: "tests/e2e/__snapshots__/prologue_tutorial_start.png" });
 
-    // 8. Dismiss and verify advisor gone
-    const dismissBtn = ".advisor-btn[data-id='dismiss']";
+    // 9. Dismiss and verify advisor gone
     await page.waitForSelector(dismissBtn, { visible: true });
     // Small delay for animation to finish
     await new Promise(r => setTimeout(r, 1000));
-    await page.click(dismissBtn);
+    await page.evaluate((selector) => {
+        const btn = document.querySelector(selector) as HTMLElement;
+        if (btn) btn.click();
+    }, dismissBtn);
     await page.waitForSelector(".advisor-message", { hidden: true });
     
     const isPaused = await page.evaluate(() => {

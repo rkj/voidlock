@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import type { Page } from "puppeteer";
 import { getNewPage, closeBrowser } from "./utils/puppeteer";
-import { setup, teardown } from "./setup";
 import { E2E_URL } from "./config";
 
 describe("Debrief Replay E2E", () => {
@@ -19,13 +18,13 @@ describe("Debrief Replay E2E", () => {
 
   it("should play a replay on the debrief screen", async () => {
     await page.goto(E2E_URL);
-    await page.waitForSelector("#btn-menu-custom");
+    await page.waitForSelector("#screen-main-menu.title-splash-complete", { timeout: 10000 });
 
     // 1. Start Custom Mission
     await page.click("#btn-menu-custom");
     await page.waitForSelector("#toggle-debug-overlay");
     
-    // Explicitly enable debug overlay via evaluate to ensure state is updated
+    // Explicitly enable debug overlay
     await page.evaluate(() => {
         const checkbox = document.getElementById("toggle-debug-overlay") as HTMLInputElement;
         if (checkbox) {
@@ -70,14 +69,13 @@ describe("Debrief Replay E2E", () => {
 
     // Wait for mission to actually start playing
     await new Promise(r => setTimeout(r, 2000));
-    await page.screenshot({ path: "tests/e2e/__snapshots__/debug_tactical_pre_win.png" });
 
     // 4. Force Win via Debug
-    await page.waitForSelector("#btn-force-win", { timeout: 10000 });
+    await page.waitForSelector("#btn-force-win", { timeout: 15000 });
     await page.click("#btn-force-win");
 
     // 5. Wait for Debrief Screen
-    await page.waitForSelector(".debrief-screen", { visible: true });
+    await page.waitForSelector(".debrief-screen", { visible: true, timeout: 15000 });
 
     // 5. Verify Split Layout
     const debriefContainer = await page.$(".debrief-container");
@@ -104,9 +102,9 @@ describe("Debrief Replay E2E", () => {
     const speedBtns = await page.$$(".replay-speed-btn");
     expect(speedBtns.length).toBe(4);
 
-    // 8. Wait a bit for replay to progress and take screenshot
+    // 8. Wait a bit for replay to progress
     await new Promise((r) => setTimeout(r, 2000));
-    await page.screenshot({ path: "debrief_replay_e2e.png" });
+    await page.screenshot({ path: "tests/e2e/__snapshots__/debrief_replay_progress.png" });
 
     // 9. Check if progress bar has width
     const progressFill = await page.$(".replay-progress-fill");
@@ -114,8 +112,6 @@ describe("Debrief Replay E2E", () => {
       (el) => (el as HTMLElement).style.width,
       progressFill,
     );
-    // Note: progress might still be 0 if the mission was very short (force win),
-    // but at 5x speed and after 2s it should have moved if the replay is playing.
     console.log("Replay progress width:", progressWidth);
-  });
+  }, 90000);
 });

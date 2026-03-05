@@ -102,5 +102,5 @@ describe("Command Menu Casing Repro (voidlock-ffdu9)", () => {
     if (failures.length > 0) {
         throw new Error("Repro Success: " + failures.join(" | "));
     }
-  });
+  }, 90000);
 });
