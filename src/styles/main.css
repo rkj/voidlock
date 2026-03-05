@@ -204,7 +204,6 @@ body {
 #screen-main-menu.title-splash-active .main-menu-content {
   opacity: 0.3;
   transform: translateY(10px) scale(0.985);
-  pointer-events: none;
 }
 
 #screen-main-menu.title-splash-complete .main-menu-content {
@@ -1325,9 +1324,11 @@ label {
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-color: #000;
+  touch-action: pan-x pan-y;
 }
 
 .campaign-node {
+  position: absolute;
   width: 44px;
   height: 44px;
   border-radius: 4px;

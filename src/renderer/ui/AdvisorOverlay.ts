@@ -89,6 +89,7 @@ export class AdvisorOverlay {
     `;
 
     if (msg.blocking) {
+        this.gameClient.pause();
         const backdrop = document.createElement("div");
         backdrop.className = "advisor-modal-backdrop";
         backdrop.appendChild(messageEl);

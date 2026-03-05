@@ -149,6 +149,7 @@ export class CampaignScreen {
     const abandonBtn = document.createElement("button");
     abandonBtn.textContent = "Abandon Campaign";
     abandonBtn.className = "text-button abandon-button";
+    abandonBtn.dataset.id = "btn-abandon";
     abandonBtn.style.position = "absolute";
     abandonBtn.style.bottom = "20px";
     abandonBtn.style.right = "20px";
@@ -180,7 +181,22 @@ export class CampaignScreen {
   }
 
   private renderMap(container: HTMLElement, state: CampaignState) {
+    let maxY = 0;
+    let maxX = 0;
     const nodes = state.nodes;
+    nodes.forEach(n => { 
+        if (n.position.y > maxY) maxY = n.position.y; 
+        if (n.position.x > maxX) maxX = n.position.x;
+    });
+
+    // Create a wrapper for nodes to ensure scroll area expansion
+    const mapContent = document.createElement("div");
+    mapContent.className = "campaign-map-content";
+    mapContent.style.position = "relative";
+    mapContent.style.width = `${maxX + 100}px`;
+    mapContent.style.height = `${maxY + 100}px`;
+    container.appendChild(mapContent);
+
     // Canvas for connections
     const canvas = document.createElement("canvas");
     canvas.style.position = "absolute";
@@ -188,26 +204,28 @@ export class CampaignScreen {
     canvas.style.left = "0";
     canvas.style.zIndex = "5"; // Below nodes
     canvas.style.pointerEvents = "none";
-    container.appendChild(canvas);
+    mapContent.appendChild(canvas);
 
     // Initial call after a tick to ensure layout
     setTimeout(() => {
-      canvas.width = container.scrollWidth;
-      canvas.height = container.scrollHeight;
+      canvas.width = mapContent.scrollWidth;
+      canvas.height = mapContent.scrollHeight;
       this.drawConnections(canvas, nodes);
     }, 0);
 
     nodes.forEach((node) => {
       const isCurrent = state.currentNodeId === node.id;
       const nodeEl = document.createElement("div");
+      // ... same logic but append to mapContent ...
       nodeEl.className = `campaign-node ${node.status.toLowerCase()}`;
       if (isCurrent) nodeEl.classList.add("current");
       
       nodeEl.style.left = `${node.position.x}px`;
       nodeEl.style.top = `${node.position.y}px`;
       nodeEl.dataset.id = node.id;
+      nodeEl.setAttribute("data-focus-id", `campaign-node-${node.id}`);
       nodeEl.title = `${node.type} Mission (Diff ${node.difficulty})`;
-      nodeEl.tabIndex = node.status === "Accessible" ? 0 : -1;
+      nodeEl.tabIndex = (node.status === "Accessible" || isCurrent) ? 0 : -1;
 
       // Icon based on type
       const icon = document.createElement("div");
@@ -272,8 +290,22 @@ export class CampaignScreen {
         };
       }
 
-      container.appendChild(nodeEl);
+      mapContent.appendChild(nodeEl);
     });
+
+    // Auto-focus current node to ensure keyboard navigation starts from a known state (Spec 8.3)
+    if (state.currentNodeId) {
+      setTimeout(() => {
+        const currentEl = mapContent.querySelector(`[data-id="${state.currentNodeId}"]`) as HTMLElement;
+        if (currentEl) {
+          try {
+            currentEl.focus({ preventScroll: true });
+          } catch {
+            currentEl.focus();
+          }
+        }
+      }, 100);
+    }
   }
 
   private getNodeIcon(type: string): string {

@@ -130,6 +130,20 @@ export class MissionRunner {
     // Update campaign state via manager
     if (report.nodeId !== "custom") {
       this.deps.campaignManager.processMissionResult(report);
+
+      // Remove dead soldiers from active squad config (voidlock-1c0qz)
+      const deadIds = new Set(
+        report.soldierResults
+          .filter((r) => r.status === "Dead")
+          .map((r) => r.soldierId),
+      );
+      if (deadIds.size > 0) {
+        this.deps.missionSetupManager.currentSquad.soldiers =
+          this.deps.missionSetupManager.currentSquad.soldiers.filter(
+            (s) => !s || !s.id || !deadIds.has(s.id),
+          );
+        this.deps.missionSetupManager.saveCurrentConfig();
+      }
     }
 
     const replayData = this.deps.gameClient.getReplayData();

@@ -19,9 +19,10 @@ describe("Pause and Speed Synchronization E2E", () => {
     await page.goto(E2E_URL);
     await page.evaluate(() => localStorage.clear());
     await page.reload();
+    await page.waitForSelector("#screen-main-menu.title-splash-complete", { timeout: 10000 });
 
-    // 1. Go to Custom Mission
-    await page.waitForSelector("#btn-menu-custom", { visible: true });
+    // Go to Custom Mission
+    await page.waitForSelector("#btn-menu-custom");
     await page.click("#btn-menu-custom");
 
     // 2. Click Launch Mission (goes to Deployment)

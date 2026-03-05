@@ -1,0 +1,50 @@
+
+ RUN  v3.2.4 /home/rkj/voidlock
+
+ DEPRECATED  'basic' reporter is deprecated and will be removed in Vitest v3.
+Remove 'basic' from 'reporters' option. To match 'basic' reporter 100%, use configuration:
+{
+  "test": {
+    "reporters": [
+      [
+        "default",
+        {
+          "summary": false
+        }
+      ]
+    ]
+  }
+}
+Vite dev server started at http://localhost:5199
+stdout | tests/e2e/ReproSectorMapScroll.test.ts > Mobile Sector Map Scroll Repro > should allow touch scrolling on Sector Map
+Initial ScrollTop: 0
+
+stdout | tests/e2e/ReproSectorMapScroll.test.ts > Mobile Sector Map Scroll Repro > should allow touch scrolling on Sector Map
+Final ScrollTop: 0
+
+ ❯ tests/e2e/ReproSectorMapScroll.test.ts (1 test | 1 failed) 2118ms
+   × Mobile Sector Map Scroll Repro > should allow touch scrolling on Sector Map 1768ms
+     → expected +0 not to be +0 // Object.is equality
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/e2e/ReproSectorMapScroll.test.ts > Mobile Sector Map Scroll Repro > should allow touch scrolling on Sector Map
+AssertionError: expected +0 not to be +0 // Object.is equality
+ ❯ tests/e2e/ReproSectorMapScroll.test.ts:75:32
+     73|     // But 200px swipe should definitely move it.
+     74|     
+     75|     expect(finalScrollTop).not.toBe(initialScrollTop);
+       |                                ^
+     76|   });
+     77| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  23:00:00
+   Duration  2.51s (transform 32ms, setup 0ms, collect 110ms, tests 2.12s, environment 0ms, prepare 45ms)
+
+Vite dev server stopped

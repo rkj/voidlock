@@ -345,7 +345,7 @@ export class MissionSetupManager {
             (s) => {
               if (s && s.id) {
                 const rs = state.roster.find((r) => r.id === s.id);
-                if (rs && (rs.status === "Healthy" || rs.status === "Wounded")) {
+                if (rs) {
                   s.name = rs.name;
                   s.status = rs.status;
                   s.hp = rs.hp;

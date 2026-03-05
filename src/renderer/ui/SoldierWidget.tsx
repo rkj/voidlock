@@ -203,7 +203,7 @@ export function TacticalSoldier(props: {
                 <StatDisplayComponent
                   icon={Icons.Rate}
                   value={lhStats.fireRate}
-                  title="Shots per Second"
+                  title="Rate of Fire (Shots/sec)"
                 />
                 <StatDisplayComponent
                   icon={Icons.Range}
@@ -236,7 +236,7 @@ export function TacticalSoldier(props: {
                 <StatDisplayComponent
                   icon={Icons.Rate}
                   value={rhStats.fireRate}
-                  title="Shots per Second"
+                  title="Rate of Fire (Shots/sec)"
                 />
                 <StatDisplayComponent
                   icon={Icons.Range}

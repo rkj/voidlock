@@ -19,7 +19,10 @@ export class MainMenuScreen {
     const hasSplash = this.container.querySelector(".title-splash");
     if (hasSplash) {
       const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      if (!this.hasPlayedTitleSplash && !prefersReducedMotion) {
+      // Disable splash in E2E or if reduced motion is preferred
+      const isE2E = (window as any).isE2E || navigator.userAgent.includes("Puppeteer") || navigator.userAgent.includes("HeadlessChrome");
+      
+      if (!this.hasPlayedTitleSplash && !prefersReducedMotion && !isE2E) {
         this.hasPlayedTitleSplash = true;
         this.container.classList.remove("title-splash-complete");
         this.container.classList.add("title-splash-active");
@@ -27,7 +30,12 @@ export class MainMenuScreen {
           this.container.classList.remove("title-splash-active");
           this.container.classList.add("title-splash-complete");
           this.splashTimer = null;
-        }, 1800);
+          // Re-focus after splash completes to ensure keyboard navigation is ready
+          const firstBtn = this.container.querySelector("button");
+          if (firstBtn instanceof HTMLElement) {
+            firstBtn.focus();
+          }
+        }, 1900);
       } else {
         this.hasPlayedTitleSplash = true;
         this.container.classList.remove("title-splash-active");

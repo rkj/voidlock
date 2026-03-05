@@ -17,6 +17,7 @@ describe("Mission Setup Layout Verification", () => {
 
   it("should have correctly sized soldier cards and scrollable roster", async () => {
     await page.goto(E2E_URL);
+    await page.waitForSelector("#screen-main-menu.title-splash-complete", { timeout: 10000 });
 
     // 1. Navigate to Custom Mission (easiest way to reach setup)
     await page.waitForSelector("#btn-menu-custom");
