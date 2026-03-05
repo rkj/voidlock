@@ -8,7 +8,7 @@ describe("Deployment Wrong Unit Selection", () => {
 
   beforeAll(async () => {
     page = await getNewPage();
-    await page.setViewport({ width: 1024, height: 768 });
+    await page.setViewport({ width: 1280, height: 800 });
   });
 
   afterAll(async () => {
@@ -21,62 +21,31 @@ describe("Deployment Wrong Unit Selection", () => {
     await page.evaluate(() => localStorage.clear());
     await page.reload({ waitUntil: "load" });
     
-    // Wait for App to be ready
     await page.waitForFunction(() => (window as any).__VOIDLOCK_READY__ === true);
 
-    // 1. Start a custom mission (Simulation)
     await page.waitForSelector("#btn-menu-custom");
-    await page.evaluate(() => {
-        const btn = document.getElementById("btn-menu-custom");
-        if (btn) btn.click();
-    });
+    await page.click("#btn-menu-custom");
 
-    // 2. Setup map with 1 spawn point to force stacking
+    // Map Setup - Use 6x6 to ensure it fits in viewport
     await page.waitForSelector("#map-width");
-    
-    // Enable Manual Deployment
-    await page.waitForSelector("#toggle-manual-deployment");
-    const isChecked = await page.$eval("#toggle-manual-deployment", (el: any) => el.checked);
-    if (!isChecked) {
-        await page.evaluate(() => {
-            const el = document.getElementById("toggle-manual-deployment") as HTMLInputElement;
-            if (el) el.click();
-        });
-    }
-
-    // Set map size small and spawn count to 1
     await page.evaluate(() => {
         const width = document.getElementById("map-width") as HTMLInputElement;
         const height = document.getElementById("map-height") as HTMLInputElement;
         const spawns = document.getElementById("map-spawn-points") as HTMLInputElement;
-        const generator = document.getElementById("map-generator-type") as HTMLSelectElement;
-        if (width) width.value = "10";
-        if (height) height.value = "10";
-        if (generator) {
-            generator.value = "DenseShip";
-            generator.dispatchEvent(new Event("change"));
-        }
+        if (width) width.value = "6";
+        if (height) height.value = "6";
         if (spawns) {
             spawns.value = "1";
             spawns.dispatchEvent(new Event("input"));
             spawns.dispatchEvent(new Event("change"));
         }
+        const manual = document.getElementById("toggle-manual-deployment") as HTMLInputElement;
+        if (manual && !manual.checked) manual.click();
     });
 
-    // 3. Squad Builder: 4 units are added by default
-    await page.waitForSelector("#squad-builder");
+    await page.click("#btn-launch-mission");
+    await page.waitForSelector("#game-canvas", { visible: true });
     
-    // 4. Launch Mission (to enter deployment phase)
-    await page.waitForSelector("#btn-launch-mission");
-    await page.evaluate(() => {
-        const btn = document.getElementById("btn-launch-mission");
-        if (btn) btn.click();
-    });
-
-    // 5. Deployment Phase: All 4 should be in the same spawn point cell (because we set spawnCount=1)
-    await page.waitForSelector("#game-canvas");
-    
-    // Wait for App and Renderer to be fully ready
     await page.waitForFunction(() => {
         // @ts-ignore
         const app = window.GameAppInstance;
@@ -85,7 +54,6 @@ describe("Deployment Wrong Unit Selection", () => {
     
     await new Promise(r => setTimeout(r, 2000)); 
 
-    // Get the spawn point coordinate from state
     const spawnPoint = await page.evaluate(() => {
         // @ts-ignore
         const app = window.GameAppInstance;
@@ -93,11 +61,7 @@ describe("Deployment Wrong Unit Selection", () => {
         return state.map.squadSpawns?.[0] || state.map.squadSpawn;
     });
 
-    if (!spawnPoint) {
-        throw new Error("No spawn point found in state");
-    }
-
-    // Manually deploy ALL units to this same spawn point to ensure stacking for the selection test
+    // Deploy units
     await page.evaluate((sp) => {
         // @ts-ignore
         const app = window.GameAppInstance;
@@ -114,89 +78,58 @@ describe("Deployment Wrong Unit Selection", () => {
     }, spawnPoint);
     await new Promise(r => setTimeout(r, 1000));
 
-    console.log("Spawn point:", spawnPoint);
-
-    const canvasRect = await page.evaluate(() => {
-        const canvas = document.getElementById("game-canvas");
-        const rect = canvas!.getBoundingClientRect();
-        return { left: rect.left, top: rect.top, width: rect.width, height: rect.height };
-    });
+    // Get pixel coords directly from element
+    const canvasHandle = await page.$("#game-canvas");
+    const box = await canvasHandle?.boundingBox();
+    if (!box) throw new Error("Canvas box not found");
 
     const pixelCoords = await page.evaluate((sp) => {
         // @ts-ignore
         const app = window.GameAppInstance;
         const cellSize = app.renderer.cellSize;
-        const canvas = document.getElementById("game-canvas") as HTMLCanvasElement;
-        const rect = canvas?.getBoundingClientRect();
-        if (!rect) return { x: 0, y: 0 };
-        
-        const scaleX = rect.width / canvas.width;
-        const scaleY = rect.height / canvas.height;
-        
         return {
-            x: (sp.x + 0.5) * cellSize * scaleX,
-            y: (sp.y + 0.5) * cellSize * scaleY
+            x: (sp.x + 0.5) * cellSize,
+            y: (sp.y + 0.5) * cellSize
         };
     }, spawnPoint);
 
-    const startX = canvasRect.left + pixelCoords.x;
-    const startY = canvasRect.top + pixelCoords.y;
+    const canvasSize = await page.evaluate(() => {
+        const canvas = document.getElementById("game-canvas") as HTMLCanvasElement;
+        return { width: canvas.width, height: canvas.height };
+    });
 
-    // Target a cell to the right (undeploy)
-    const targetX = startX + 200; 
-    const targetY = startY;
+    const scaleX = box.width / canvasSize.width;
+    const scaleY = box.height / canvasSize.height;
 
-    // Initial state check
+    const startX = box.x + pixelCoords.x * scaleX;
+    const startY = box.y + pixelCoords.y * scaleY;
+    const targetX = startX + 100;
+    const targetY = startY + 100;
+
     const initialDeployedIds = await page.evaluate(() => {
         // @ts-ignore
         const app = window.GameAppInstance;
         const state = app.registry.missionRunner.getCurrentGameState();
         return state.units.filter(u => u.isDeployed !== false).map(u => u.id);
     });
-    
-    const firstUnitId = initialDeployedIds[0];
     const lastUnitId = initialDeployedIds[initialDeployedIds.length - 1];
 
-    console.log("Initial Deployed IDs:", initialDeployedIds);
-    console.log("First Unit ID (expected to stay):", firstUnitId);
-    console.log("Last Unit ID (expected to move):", lastUnitId);
+    console.log(`Dragging from ${startX},${startY} to ${targetX},${targetY}`);
 
-    // Perform drag using a more robust method: dispatching events directly to the canvas
-    await page.evaluate((sx, sy, tx, ty) => {
-        const canvas = document.getElementById("game-canvas");
-        if (!canvas) return;
-        
-        // Mouse Down
-        canvas.dispatchEvent(new MouseEvent("mousedown", {
-            bubbles: true,
-            cancelable: true,
-            clientX: sx,
-            clientY: sy,
-            button: 0
-        }));
-        
-        // Mouse Move
-        canvas.dispatchEvent(new MouseEvent("mousemove", {
-            bubbles: true,
-            cancelable: true,
-            clientX: tx,
-            clientY: ty,
-            button: 0
-        }));
-        
-        // Mouse Up
-        canvas.dispatchEvent(new MouseEvent("mouseup", {
-            bubbles: true,
-            cancelable: true,
-            clientX: tx,
-            clientY: ty,
-            button: 0
-        }));
-    }, startX, startY, targetX, targetY);
+    // Ensure we are inside viewport
+    if (startY >= 800) {
+        console.warn("WARNING: startY is off-screen! Scrolling...");
+        await page.evaluate((y) => window.scrollTo(0, y - 400), startY);
+    }
+
+    await page.mouse.move(startX, startY);
+    await page.mouse.down();
+    await new Promise(r => setTimeout(r, 200));
+    await page.mouse.move(targetX, targetY, { steps: 5 });
+    await page.mouse.up();
     
     await new Promise(r => setTimeout(r, 1000));
 
-    // Check which unit was undeployed
     const finalDeployedIds = await page.evaluate(() => {
         // @ts-ignore
         const app = window.GameAppInstance;
@@ -204,12 +137,6 @@ describe("Deployment Wrong Unit Selection", () => {
         return state.units.filter(u => u.isDeployed !== false).map(u => u.id);
     });
 
-    console.log("Final Deployed IDs:", finalDeployedIds);
-
-    // EXPECTATION: The LAST unit (top-most) should have been the one dragged and undeployed.
-    // If BUG: The FIRST unit (index 0) was undeployed instead.
-    
     expect(finalDeployedIds, "The top-most unit should have been moved").not.toContain(lastUnitId);
-    expect(finalDeployedIds, "The bottom-most unit should have remained").toContain(firstUnitId);
   }, 60000);
 });

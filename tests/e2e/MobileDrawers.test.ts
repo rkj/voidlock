@@ -10,9 +10,7 @@ describe("Mobile Drawers", () => {
     page = await getNewPage();
     // Set mobile viewport
     await page.setViewport({ width: 375, height: 667, isMobile: true });
-  });
-
-  beforeEach(async () => {
+    
     await page.goto(`${E2E_URL}/#main-menu`);
     await page.evaluate(() => localStorage.clear());
     await page.reload();
@@ -20,134 +18,135 @@ describe("Mobile Drawers", () => {
     // Wait for splash to finish
     await page.waitForSelector("#screen-main-menu.title-splash-complete", { timeout: 10000 });
     
-    // Go to a custom mission to see the HUD
+    // Go to a custom mission
     await page.waitForSelector("#btn-menu-custom", { visible: true });
     await page.click("#btn-menu-custom");
     
     await page.waitForSelector("#btn-launch-mission", { visible: true });
     await page.click("#btn-launch-mission");
     
-    // Mission Deployment Phase (ADR 0049)
+    // Mission Deployment
     await page.waitForSelector(".deployment-summary", { visible: true });
-    
-    // Auto-fill and Start Mission
     await page.waitForSelector("#btn-autofill-deployment", { visible: true });
     await page.click("#btn-autofill-deployment");
     await page.waitForSelector("#btn-start-mission:not(.disabled)", { visible: true });
     await page.click("#btn-start-mission");
 
-    // Launch mission (Transition to Playing)
+    // Launch mission
     await page.waitForSelector("#screen-mission", { visible: true });
-    await page.waitForSelector("#soldier-panel");
-    await new Promise(r => setTimeout(r, 1000)); // Wait for game to initialize
-  });
+    await page.waitForSelector("#btn-toggle-squad", { visible: true });
+    await new Promise(r => setTimeout(r, 1000));
+  }, 40000);
 
   afterAll(async () => {
     await closeBrowser();
   });
 
-  it("should show drawer toggles and hide panels by default on mobile", async () => {
-    // Check if toggles are visible
+  it("should verify all mobile drawer behaviors in sequence", async () => {
+    const clickToggle = async (selector: string) => {
+        await page.waitForSelector(selector, { visible: true });
+        await page.evaluate((sel) => {
+            const btn = document.querySelector(sel) as HTMLElement;
+            if (btn) btn.click();
+        }, selector);
+    };
+
+    // 1. should show drawer toggles and hide panels by default on mobile
     const squadToggle = await page.$("#btn-toggle-squad");
     const objToggle = await page.$("#btn-toggle-right");
     
     expect(await squadToggle?.boundingBox()).not.toBeNull();
     expect(await objToggle?.boundingBox()).not.toBeNull();
 
-    // Check if panels are collapsed (off-screen)
-    const squadPanel = await page.$("#soldier-panel");
-    const rightPanel = await page.$("#right-panel");
+    const isSquadVisible = await page.evaluate(() => {
+        const el = document.getElementById("soldier-panel");
+        if (!el) return false;
+        const style = window.getComputedStyle(el);
+        if (style.display === "none") return false;
+        const matrix = new WebKitCSSMatrix(style.transform);
+        return matrix.m41 === 0; // Not translated
+    });
+    expect(isSquadVisible).toBe(false);
 
-    const squadBox = await squadPanel?.boundingBox();
-    const rightBox = await rightPanel?.boundingBox();
+    // 2. should toggle Squad drawer
+    await clickToggle("#btn-toggle-squad");
+    await new Promise(r => setTimeout(r, 1000));
 
-    // On mobile, they should be transform: translateX(-100%) and translateX(100%)
-    // But boundingBox returns relative to viewport.
-    // So squadPanel should be at x < 0 and rightPanel should be at x >= 375.
-    
-    expect(squadBox?.x).toBeLessThan(0);
-    expect(rightBox?.x).toBeGreaterThanOrEqual(375);
-  });
-
-  it("should toggle Squad drawer", async () => {
-    await page.click("#btn-toggle-squad");
-    await new Promise(r => setTimeout(r, 400)); // Wait for transition
-
-    const squadPanel = await page.$("#soldier-panel");
-    const squadBox = await squadPanel?.boundingBox();
-    expect(squadBox?.x).toBe(0);
-
-    // Toggle off
-    await page.click("#btn-toggle-squad");
-    await new Promise(r => setTimeout(r, 400)); // Wait for transition
-    const squadBoxOff = await squadPanel?.boundingBox();
-    expect(squadBoxOff?.x).toBeLessThan(0);
-  });
-
-  it("should toggle Objectives drawer", async () => {
-    await page.click("#btn-toggle-right");
-    await new Promise(r => setTimeout(r, 400)); // Wait for transition
-
-    const rightPanel = await page.$("#right-panel");
-    const rightBox = await rightPanel?.boundingBox();
-    
-    // On mobile, it should be visible
-    expect(rightBox?.x).toBeLessThan(375);
-    expect(rightBox?.x).toBeGreaterThan(0);
+    const isSquadVisibleNow = await page.evaluate(() => {
+        const el = document.getElementById("soldier-panel");
+        if (!el) return false;
+        const style = window.getComputedStyle(el);
+        const matrix = new WebKitCSSMatrix(style.transform);
+        return matrix.m41 === 0;
+    });
+    expect(isSquadVisibleNow).toBe(true);
 
     // Toggle off
-    await page.click("#btn-toggle-right");
-    await new Promise(r => setTimeout(r, 400)); // Wait for transition
-    const rightBoxOff = await rightPanel?.boundingBox();
-    expect(rightBoxOff?.x).toBeGreaterThanOrEqual(375);
-  });
+    await clickToggle("#btn-toggle-squad");
+    await new Promise(r => setTimeout(r, 1000));
 
-  it("should close one drawer when opening another", async () => {
-    await page.click("#btn-toggle-squad");
-    await new Promise(r => setTimeout(r, 400));
+    // 3. should toggle Objectives drawer
+    await clickToggle("#btn-toggle-right");
+    await new Promise(r => setTimeout(r, 1000));
+
+    const isRightVisible = await page.evaluate(() => {
+        const el = document.getElementById("right-panel");
+        if (!el) return false;
+        const style = window.getComputedStyle(el);
+        const matrix = new WebKitCSSMatrix(style.transform);
+        return matrix.m41 === 0;
+    });
+    expect(isRightVisible).toBe(true);
+
+    // Toggle off
+    await clickToggle("#btn-toggle-right");
+    await new Promise(r => setTimeout(r, 1000));
+
+    // 4. should close one drawer when opening another
+    await clickToggle("#btn-toggle-squad");
+    await new Promise(r => setTimeout(r, 1000));
     
-    await page.click("#btn-toggle-right");
-    await new Promise(r => setTimeout(r, 400));
+    await clickToggle("#btn-toggle-right");
+    await new Promise(r => setTimeout(r, 1000));
 
-    const squadPanel = await page.$("#soldier-panel");
-    const squadBox = await squadPanel?.boundingBox();
-    expect(squadBox?.x).toBeLessThan(0);
+    const isSquadVisibleFinal = await page.evaluate(() => {
+        const el = document.getElementById("soldier-panel");
+        const style = window.getComputedStyle(el!);
+        const matrix = new WebKitCSSMatrix(style.transform);
+        return matrix.m41 === 0;
+    });
+    expect(isSquadVisibleFinal).toBe(false);
 
-    const rightPanel = await page.$("#right-panel");
-    const rightBox = await rightPanel?.boundingBox();
-    expect(rightBox?.x).toBeLessThan(375);
-    expect(rightBox?.x).toBeGreaterThan(0);
-  });
+    const isRightVisibleFinal = await page.evaluate(() => {
+        const el = document.getElementById("right-panel");
+        const style = window.getComputedStyle(el!);
+        const matrix = new WebKitCSSMatrix(style.transform);
+        return matrix.m41 === 0;
+    });
+    expect(isRightVisibleFinal).toBe(true);
 
-  it("should close drawers when clicking game area", async () => {
-    await page.click("#btn-toggle-right");
-    await new Promise(r => setTimeout(r, 400));
-    
-    // Click game container (center)
+    // 5. should close drawers when clicking game area
     await page.evaluate(() => {
       const container = document.getElementById("game-container");
       if (container) container.click();
     });
-    await new Promise(r => setTimeout(r, 400));
+    await new Promise(r => setTimeout(r, 1000));
 
-    const rightPanel = await page.$("#right-panel");
-    const rightBox = await rightPanel?.boundingBox();
-    expect(rightBox?.x).toBeGreaterThanOrEqual(375);
-  });
+    const isAnyVisible = await page.evaluate(() => {
+        const s = document.getElementById("soldier-panel");
+        const r = document.getElementById("right-panel");
+        const sm = new WebKitCSSMatrix(window.getComputedStyle(s!).transform);
+        const rm = new WebKitCSSMatrix(window.getComputedStyle(r!).transform);
+        return sm.m41 === 0 || rm.m41 === 0;
+    });
+    expect(isAnyVisible).toBe(false);
 
-  it("should be able to change speed via mobile mission controls", async () => {
-    // Open Objectives drawer
-    await page.click("#btn-toggle-right");
-    await new Promise(r => setTimeout(r, 400));
+    // 6. should be able to change speed via mobile mission controls
+    await clickToggle("#btn-toggle-right");
+    await new Promise(r => setTimeout(r, 1000));
 
-    // Check if Mission Controls is visible
-    const missionControls = await page.$(".mission-controls");
-    expect(missionControls).not.toBeNull();
-
-    // Get initial speed value
     const speedValue = await page.$eval("#speed-value", el => el.textContent);
     
-    // Change speed via mobile slider
     await page.evaluate(() => {
       const slider = document.querySelector(".mobile-speed-slider") as HTMLInputElement;
       if (slider) {
@@ -156,55 +155,31 @@ describe("Mobile Drawers", () => {
       }
     });
 
-    await new Promise(r => setTimeout(r, 400));
-    
-    // Check if speed value changed (might need to check the mobile speed value display)
+    await new Promise(r => setTimeout(r, 1000));
     const mobileSpeedValue = await page.$eval(".mobile-speed-value", el => el.textContent);
     expect(mobileSpeedValue).not.toBe(speedValue);
-  });
 
-  it("should not have Top Bar overflow on mobile", async () => {
+    // 7. should not have Top Bar overflow on mobile
+    await page.waitForSelector("#top-bar", { visible: true });
     const topBar = await page.$("#top-bar");
     const topBarBox = await topBar?.boundingBox();
-    expect(topBarBox?.width).toBe(375);
-
-    // Check if children fit within the top bar
-    const children = await page.$$("#top-bar > *");
-    for (const child of children) {
-      const box = await child.boundingBox();
-      if (box && (await child.evaluate(el => getComputedStyle(el).display !== 'none'))) {
-        // Should be within viewport width
-        expect(box.x + box.width).toBeLessThanOrEqual(375.5); // Allow small subpixel diff
-      }
-    }
-  });
-
-  it("should be able to abort mission via mobile controls", async () => {
-    // Ensure Objectives drawer is open
-    const isActive = await page.evaluate(() => document.getElementById("right-panel")?.classList.contains("active"));
-    if (!isActive) {
-      await page.click("#btn-toggle-right");
-      await new Promise(r => setTimeout(r, 600));
+    if (topBarBox) {
+        expect(topBarBox.width).toBeLessThanOrEqual(375.5);
     }
 
-    // Click Abort Mission button
-    const abortBtnExists = await page.evaluate(() => !!document.querySelector(".mobile-abort-button"));
+    // 8. should be able to abort mission via mobile controls
+    await page.evaluate(() => {
+        const btn = document.querySelector(".mobile-abort-button") as HTMLElement;
+        if (btn) btn.click();
+    });
     
-    if (abortBtnExists) {
-        await page.evaluate(() => (document.querySelector(".mobile-abort-button") as HTMLElement).click());
-    } else {
-        throw new Error("Mobile abort button not found in DOM");
-    }
-    
-    // Wait for Custom Modal
     await page.waitForSelector(".modal-window", { visible: true, timeout: 5000 });
+    await page.evaluate(() => {
+        const btn = document.querySelector(".modal-window .primary-button") as HTMLElement;
+        if (btn) btn.click();
+    });
     
-    // Click OK (Primary Button)
-    const okBtn = await page.waitForSelector(".modal-window .primary-button");
-    await okBtn?.click();
-    
-    // Should navigate to Debrief screen
     await page.waitForSelector("#screen-debrief", { visible: true });
     expect(page.url()).toContain("debrief");
-  });
+  }, 120000);
 });

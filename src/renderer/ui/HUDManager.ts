@@ -1,4 +1,4 @@
-import { GameState, UnitState, Unit } from "@src/shared/types";
+import { GameState, UnitState, Unit, MissionType } from "@src/shared/types";
 import { MenuController } from "@src/renderer/MenuController";
 import { MenuRenderer } from "@src/renderer/ui/MenuRenderer";
 import { Icons } from "@src/renderer/Icons";
@@ -570,7 +570,7 @@ export class HUDManager {
     if (panel) {
       if (state.status === "Deployment") {
         panel.style.display = "none";
-      } else {
+      } else if (state.missionType !== MissionType.Prologue) {
         panel.style.display = "flex";
       }
     }

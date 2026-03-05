@@ -18,69 +18,39 @@ describe("Mobile Responsive Drawers", () => {
     // Wait for App to be ready
     await page.waitForFunction(() => (window as any).__VOIDLOCK_READY__ === true);
 
-    // Navigate to mission
+    // 1. Navigate to Custom Mission Setup
     await page.waitForSelector("#btn-menu-custom", { visible: true });
-    await new Promise((r) => setTimeout(r, 500)); // Stabilize
-    await page.evaluate(() => {
-        const btn = document.getElementById("btn-menu-custom");
-        if (btn) btn.click();
-    });
-    await page.waitForSelector("#btn-goto-equipment", { visible: true });
-    await page.evaluate(() => {
-        const btn = document.getElementById("btn-goto-equipment");
-        if (btn) btn.click();
-    });
+    await page.click("#btn-menu-custom");
 
-    // In Equipment Screen, click "Back" to go to Setup
-    await page.waitForSelector("#screen-equipment .back-button", { visible: true });
-    await page.evaluate(() => {
-        const btn = document.querySelector("#screen-equipment .back-button") as HTMLElement;
-        if (btn) btn.click();
-    });
+    // 2. Launch Mission
+    await page.waitForSelector("#btn-launch-mission", { visible: true });
+    await page.click("#btn-launch-mission");
 
-    // 2.5 Click Launch Mission on Setup screen
-    await page.waitForSelector("#btn-launch-mission");
-    await page.evaluate(() => {
-        const btn = document.getElementById("btn-launch-mission");
-        if (btn) btn.click();
-    });
-
-    // 2.6 Handle Deployment
-    await page.waitForSelector("#btn-autofill-deployment");
+    // 3. Handle Deployment
+    await page.waitForSelector("#btn-autofill-deployment", { visible: true });
     await page.click("#btn-autofill-deployment");
     await page.click("#btn-start-mission");
 
-    // Wait for mission screen
-    await page.waitForSelector("#screen-mission");
-    await page.waitForSelector("#top-bar", { visible: true });
+    // 4. Wait for mission screen
+    await page.waitForSelector("#screen-mission", { visible: true });
+    await page.waitForSelector("#btn-toggle-squad", { visible: true });
 
-    // Verify drawers are initially hidden (translated off-screen)
+    // Verify drawers are initially hidden
     const drawersStateInitial = await page.evaluate(() => {
       const squad = document.getElementById("soldier-panel");
       const right = document.getElementById("right-panel");
-      if (!squad || !right) return null;
-
-      const squadStyle = window.getComputedStyle(squad);
-      const rightStyle = window.getComputedStyle(right);
-
       return {
-        squadActive: squad.classList.contains("active"),
-        rightActive: right.classList.contains("active"),
+        squadActive: squad?.classList.contains("active"),
+        rightActive: right?.classList.contains("active"),
       };
     });
 
-    expect(drawersStateInitial?.squadActive).toBe(false);
-    expect(drawersStateInitial?.rightActive).toBe(false);
+    expect(drawersStateInitial.squadActive).toBe(false);
+    expect(drawersStateInitial.rightActive).toBe(false);
 
     // Toggle Squad Drawer
     await page.click("#btn-toggle-squad");
     await page.waitForSelector("#soldier-panel.active");
-
-    const squadActiveState = await page.evaluate(() => {
-      const squad = document.getElementById("soldier-panel");
-      return squad?.classList.contains("active");
-    });
-    expect(squadActiveState).toBe(true);
 
     // Toggle Right Drawer (should close squad drawer)
     await page.click("#btn-toggle-right");
@@ -97,9 +67,9 @@ describe("Mobile Responsive Drawers", () => {
     expect(drawersStateAfterRight.squadActive).toBe(false);
     expect(drawersStateAfterRight.rightActive).toBe(true);
 
-    // Click game container (canvas) to close all drawers
+    // Click game container to close all drawers
     await page.evaluate(() => {
-        const el = document.getElementById("game-canvas");
+        const el = document.getElementById("game-container");
         if (el) el.click();
     });
 
@@ -116,5 +86,5 @@ describe("Mobile Responsive Drawers", () => {
     });
     expect(drawersStateFinal.squadActive).toBe(false);
     expect(drawersStateFinal.rightActive).toBe(false);
-  });
+  }, 90000);
 });

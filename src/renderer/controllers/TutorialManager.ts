@@ -57,7 +57,7 @@ export class TutorialManager {
     },
     {
       id: "first_move",
-      condition: (state) => this.checkAnyUnitMoved(state),
+      condition: (state, manager) => manager.completedSteps.has("start") && this.checkAnyUnitMoved(state),
       message: {
         id: "first_move",
         text: "Good. Movement systems nominal. Continue to the objective.",
@@ -66,8 +66,20 @@ export class TutorialManager {
       triggerOnce: true,
     },
     {
+      id: "enemy_sighted",
+      condition: (state, manager) => manager.completedSteps.has("first_move") && this.checkEnemyVisible(state),
+      message: {
+        id: "enemy_sighted",
+        title: "Tactical Basics: Combat",
+        text: "Hostile contact! Your units will automatically engage enemies within their line of sight and weapon range. \n\nThe threat meter at the top indicates the current swarm activity level. Stay alert.",
+        portrait: "logo_gemini",
+        blocking: true,
+      },
+      triggerOnce: true,
+    },
+    {
       id: "objective_sighted",
-      condition: (state) => this.checkObjectiveVisible(state),
+      condition: (state, manager) => manager.completedSteps.has("enemy_sighted") && this.checkObjectiveVisible(state),
       message: {
         id: "objective_sighted",
         title: "Tactical Basics: Objectives",
@@ -81,20 +93,8 @@ export class TutorialManager {
       }
     },
     {
-      id: "enemy_sighted",
-      condition: (state) => this.checkEnemyVisible(state),
-      message: {
-        id: "enemy_sighted",
-        title: "Tactical Basics: Combat",
-        text: "Hostile contact! Your units will automatically engage enemies within their line of sight and weapon range. \n\nThe threat meter at the top indicates the current swarm activity level. Stay alert.",
-        portrait: "logo_gemini",
-        blocking: true,
-      },
-      triggerOnce: true,
-    },
-    {
       id: "objective_completed",
-      condition: (state) => state.objectives.some(o => o.id === "obj-main" && o.state === "Completed"),
+      condition: (state, manager) => manager.completedSteps.has("objective_sighted") && state.objectives.some(o => o.id === "obj-main" && o.state === "Completed"),
       message: {
         id: "objective_completed",
         title: "Tactical Basics: Extraction",
