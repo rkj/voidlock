@@ -109,7 +109,7 @@ describe("HUDManager Stats & Enemy Intel", () => {
     const soldierItem = document.querySelector(".soldier-item");
     // Check for Fire Rate in LH or RH stats
     const lhStats = soldierItem?.querySelector(".u-lh-stats");
-    expect(lhStats?.innerHTML).toContain('title="Shots per Second"');
+    expect(lhStats?.innerHTML).toContain('title="Rate of Fire (Shots/sec)"');
     // combat_knife fireRate: 400. 1000 / (400 * (30/20)) = 1000 / 600 = 1.66 -> 1.7
     expect(lhStats?.innerHTML).toContain("1.7");
   });

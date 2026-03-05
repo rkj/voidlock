@@ -19,6 +19,7 @@ describe("Prologue Tutorial E2E", () => {
   it("should launch prologue directly and show first advisor message", async () => {
     page.on("console", (msg) => console.log(`[BROWSER] ${msg.text()}`));
     await page.goto(E2E_URL);
+    await page.waitForSelector("#screen-main-menu.title-splash-complete", { timeout: 10000 });
 
     // 1. Click "Campaign" on Main Menu
     await page.waitForSelector("#btn-menu-campaign");
@@ -66,10 +67,7 @@ describe("Prologue Tutorial E2E", () => {
     await page.waitForSelector(dismissBtn, { visible: true });
     // Small delay for animation to finish
     await new Promise(r => setTimeout(r, 1000));
-    await page.evaluate((selector) => {
-        const btn = document.querySelector(selector) as HTMLElement;
-        if (btn) btn.click();
-    }, dismissBtn);
+    await page.click(dismissBtn);
     await page.waitForSelector(".advisor-message", { hidden: true });
     
     const isPaused = await page.evaluate(() => {

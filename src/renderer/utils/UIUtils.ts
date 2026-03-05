@@ -74,26 +74,26 @@ export class UIUtils {
 
       switch (e.key) {
         case "ArrowRight":
-          if (center.x > currentCenter.x + 1) {
-            // +1 to avoid precision issues
+          if (center.x > currentCenter.x + 2) {
+            // +2 to avoid precision issues and handle sub-pixel offsets
             isMatch = true;
             score = Math.abs(dx) * AXIAL_WEIGHT + Math.abs(dy) * LATERAL_WEIGHT;
           }
           break;
         case "ArrowLeft":
-          if (center.x < currentCenter.x - 1) {
+          if (center.x < currentCenter.x - 2) {
             isMatch = true;
             score = Math.abs(dx) * AXIAL_WEIGHT + Math.abs(dy) * LATERAL_WEIGHT;
           }
           break;
         case "ArrowDown":
-          if (center.y > currentCenter.y + 1) {
+          if (center.y > currentCenter.y + 2) {
             isMatch = true;
             score = Math.abs(dy) * AXIAL_WEIGHT + Math.abs(dx) * LATERAL_WEIGHT;
           }
           break;
         case "ArrowUp":
-          if (center.y < currentCenter.y - 1) {
+          if (center.y < currentCenter.y - 2) {
             isMatch = true;
             score = Math.abs(dy) * AXIAL_WEIGHT + Math.abs(dx) * LATERAL_WEIGHT;
           }

@@ -18,6 +18,7 @@ describe("Navigation & Routing Reproduction", () => {
 
   it("should go to Main Menu when URL fragment is removed", async () => {
     await page.goto(E2E_URL);
+    await page.waitForSelector("#screen-main-menu.title-splash-complete", { timeout: 10000 });
     await page.waitForSelector("#btn-menu-campaign");
 
     // 1. Navigate to Campaign (Wizard)
@@ -44,6 +45,7 @@ describe("Navigation & Routing Reproduction", () => {
 
   it("should go to Main Menu on page REFRESH if URL fragment is missing", async () => {
     await page.goto(E2E_URL);
+    await page.waitForSelector("#screen-main-menu.title-splash-complete", { timeout: 10000 });
     await page.waitForSelector("#btn-menu-campaign");
 
     // 1. Navigate to Campaign (Wizard)
@@ -52,6 +54,7 @@ describe("Navigation & Routing Reproduction", () => {
 
     // 2. Refresh page without hash
     await page.goto(E2E_URL); // goto without hash
+    await page.waitForSelector("#screen-main-menu.title-splash-complete", { timeout: 10000 });
 
     // 3. Should be at Main Menu
     await page.waitForSelector("#btn-menu-campaign");
@@ -69,6 +72,7 @@ describe("Navigation & Routing Reproduction", () => {
     await page.goto(E2E_URL);
     await page.evaluate(() => localStorage.clear());
     await page.reload();
+    await page.waitForSelector("#screen-main-menu.title-splash-complete", { timeout: 10000 });
     await page.waitForSelector("#btn-menu-campaign");
 
     // 1. Start a new campaign to reach the sector map

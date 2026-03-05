@@ -95,10 +95,12 @@ export class ScreenManager {
       }
     }
 
-    const currentEl = this.screens.get(this.currentScreen);
-    if (currentEl) {
-      currentEl.style.display = "none";
-    }
+    // Hide all screens first
+    this.screens.forEach((el, screenId) => {
+      if (screenId !== id) {
+        el.style.display = "none";
+      }
+    });
 
     if (!skipHistory) {
       if (id !== "main-menu") {
@@ -212,6 +214,10 @@ export class ScreenManager {
       }
       
       return { screenId: currentHash as ScreenId, isCampaign };
+    }
+
+    if (currentHash === "") {
+      return null;
     }
 
     const persisted = this.sessionManager.loadState();

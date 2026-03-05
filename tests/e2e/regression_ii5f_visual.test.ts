@@ -22,6 +22,10 @@ describe("Regression II5F - Unit Style Visibility in Campaign", () => {
     await page.waitForSelector("#btn-menu-campaign");
     await page.click("#btn-menu-campaign");
 
+    // Skip Tutorial Prologue to reach Sector Map
+    await page.waitForSelector("#campaign-skip-prologue");
+    await page.click("#campaign-skip-prologue");
+
     // 2. Click "Initialize Expedition" in Wizard
     const startBtnSelector = ".campaign-setup-wizard .primary-button";
     await page.waitForSelector(startBtnSelector);

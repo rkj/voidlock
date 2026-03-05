@@ -9,10 +9,13 @@ import { MathUtils } from "@src/shared/utils/MathUtils";
 import { UIBinder } from "@src/renderer/ui/UIBinder";
 import { HUDTopBar, HUDSoldierPanel, HUDRightPanel, HUDMobileActionPanel } from "@src/renderer/ui/HUD";
 
+import { FocusManager } from "@src/renderer/utils/FocusManager";
+
 export class HUDManager {
   private lastMenuHtml = "";
   private currentState: GameState | null = null;
   private binder: UIBinder;
+  private selectedUnitId: string | null = null;
 
   constructor(
     private menuController: MenuController,
@@ -33,20 +36,12 @@ export class HUDManager {
   }
 
   private initializeHUD() {
-    console.log("[HUDManager] initializeHUD start");
     const missionScreen = document.getElementById("screen-mission");
-    if (!missionScreen) {
-      console.warn("[HUDManager] screen-mission not found");
-      return;
-    }
+    if (!missionScreen) return;
 
     const missionBody = document.getElementById("mission-body");
-    if (!missionBody) {
-      console.warn("[HUDManager] mission-body not found");
-      return;
-    }
+    if (!missionBody) return;
 
-    // Clear existing hardcoded HUD parts but keep mission-body and game-container
     const topBar = document.getElementById("top-bar");
     const soldierPanel = document.getElementById("soldier-panel");
     const rightPanel = document.getElementById("right-panel");
@@ -57,21 +52,11 @@ export class HUDManager {
     if (rightPanel) rightPanel.remove();
     if (mobileActionPanel) mobileActionPanel.remove();
 
-    console.log("[HUDManager] Injecting HUD parts...");
-    // Inject in correct order (ADR 0051 / voidlock-ewgyu.2 fix)
-    // 1. Top Bar & Soldier Panel BEFORE mission-body
     missionScreen.insertBefore(HUDTopBar() as Node, missionBody);
     missionScreen.insertBefore(HUDSoldierPanel() as Node, missionBody);
-
-    // 2. Right Panel INSIDE mission-body (desktop layout)
     missionBody.appendChild(HUDRightPanel() as Node);
-
-    // 3. Mobile Action Panel AFTER mission-body
     missionScreen.appendChild(HUDMobileActionPanel() as Node);
 
-    console.log("[HUDManager] HUD parts injected");
-
-    // Re-attach event listeners for static elements in HUD
     document.getElementById("btn-give-up")?.addEventListener("click", () => this.onAbortMission());
     
     const speedSlider = document.getElementById("game-speed") as HTMLInputElement;
@@ -89,7 +74,6 @@ export class HUDManager {
         this.onSetTimeScale(isPaused ? this.currentState.settings.targetTimeScale : 0);
       }
     });
-    console.log("[HUDManager] initializeHUD complete");
   }
 
   private setupTransformers() {
@@ -125,13 +109,10 @@ export class HUDManager {
     this.binder.registerTransformer("minSpeedValue", (allowTacticalPause) => (allowTacticalPause as boolean) ? "0" : "50");
 
     this.binder.registerTransformer("speedSlider", (scale) => {
-      // Avoid syncing if user is dragging
       const slider = document.activeElement as HTMLInputElement;
       if (slider && (slider.id === "game-speed" || slider.classList.contains("mobile-speed-slider"))) {
         return slider.value;
       }
-      
-      // Absolute pause (0.0x) should be represented at the minimum slider value (0.1x / val 0)
       const scaleToUse = Math.max(0.1, scale as number);
       return TimeUtility.scaleToSlider(scaleToUse).toString();
     });
@@ -147,20 +128,28 @@ export class HUDManager {
 
   public update(state: GameState, selectedUnitId: string | null) {
     this.currentState = state;
+    this.selectedUnitId = selectedUnitId;
+    
+    const activeBefore = document.activeElement;
+    FocusManager.saveFocus();
+    
     this.binder.sync(state);
     this.updateTopBar(state);
     this.updateRightPanel(state);
     this.updateSoldierList(state, selectedUnitId);
+    
+    // Only restore if focus was actually lost to body during the update
+    if (activeBefore !== document.body && document.activeElement === document.body) {
+        FocusManager.restoreFocus(document.body);
+    }
   }
 
   private updateTopBar(state: GameState) {
-    // Initial threat bar behavior (snapping) still needs manual handling for class manipulation
     const topThreatFill = document.getElementById("top-threat-fill");
     if (topThreatFill) {
       const isInitial = state.t < 1000;
       if (isInitial) {
         topThreatFill.classList.add("no-transition");
-        // Force a reflow
         void topThreatFill.offsetWidth;
         topThreatFill.classList.remove("no-transition");
       }
@@ -189,15 +178,12 @@ export class HUDManager {
       return;
     }
 
-    // Clear secondary container on mobile (it only holds objectives/intel)
     if (secondaryContainer) {
-      // Keep objectives and intel if they already exist, otherwise clear
       if (!secondaryContainer.querySelector(".objectives-status")) {
         secondaryContainer.innerHTML = "";
       }
     }
 
-    // Remove deployment or game over summary if they exist in action container
     const deploymentDiv = actionContainer.querySelector(".deployment-summary");
     if (deploymentDiv) {
       actionContainer.innerHTML = "";
@@ -209,7 +195,6 @@ export class HUDManager {
       this.lastMenuHtml = "";
     }
 
-    // Mission Controls (Speed Slider for mobile)
     let controlsDiv = actionContainer.querySelector(".mission-controls") as HTMLElement;
     if (!controlsDiv) {
       controlsDiv = document.createElement("div");
@@ -238,7 +223,6 @@ export class HUDManager {
       this.binder.initialize(actionContainer);
     }
 
-    // Command Menu
     let menuDiv = actionContainer.querySelector(".command-menu") as HTMLElement;
     if (!menuDiv) {
       menuDiv = document.createElement("div");
@@ -252,7 +236,7 @@ export class HUDManager {
         }
       });
       actionContainer.appendChild(menuDiv);
-      this.lastMenuHtml = ""; // Force re-render if menuDiv was just created
+      this.lastMenuHtml = "";
     }
 
     const menuRenderState = this.menuController.getRenderableState(state);
@@ -263,26 +247,15 @@ export class HUDManager {
       this.lastMenuHtml = menuHtml;
     }
 
-    // Objectives (Always in Right Panel/Drawer)
     const objectivesContainer = secondaryContainer || actionContainer;
-    let objectivesDiv = objectivesContainer.querySelector(
-      ".objectives-status",
-    ) as HTMLElement;
+    let objectivesDiv = objectivesContainer.querySelector(".objectives-status") as HTMLElement;
     if (!objectivesDiv) {
       objectivesDiv = document.createElement("div");
       objectivesDiv.className = "objectives-status";
-      objectivesDiv.innerHTML =
-        "<h3>Objectives</h3><div class='obj-list'></div>";
+      objectivesDiv.innerHTML = "<h3>Objectives</h3><div class='obj-list'></div>";
       objectivesContainer.appendChild(objectivesDiv);
     }
-    this.updateObjectives(
-      state,
-      objectivesDiv.querySelector(".obj-list") as HTMLElement,
-    );
-
-    // Remove old extraction div if it exists (now handled by objectives)
-    const extDiv = objectivesContainer.querySelector(".extraction-status");
-    if (extDiv) extDiv.remove();
+    this.updateObjectives(state, objectivesDiv.querySelector(".obj-list") as HTMLElement);
 
     // Debug Buttons (Always in Right Panel/Drawer)
     const debugContainer = secondaryContainer || actionContainer;
@@ -298,43 +271,37 @@ export class HUDManager {
         ? generatorName
         : `${generatorName}Generator`;
 
-      const debugHtml = `
-        <h3>Debug Tools</h3>
-        <div class="debug-info-grid">
-          <span><strong>Map:</strong> ${genDisplay} (${state.seed})</span>
-          <span><strong>Size:</strong> ${state.map ? `${state.map.width}x${state.map.height}` : "Unknown"}</span>
-          <span><strong>Mission:</strong> ${state.missionType}</span>
-        </div>
-        <div class="debug-actions-row">
-          <button id="btn-force-win" class="debug-btn-win">Force Win</button>
-          <button id="btn-force-lose" class="debug-btn-lose">Force Lose</button>
-        </div>
-        <button id="btn-copy-world-state" class="debug-btn-copy">Copy World State</button>
-      `;
-      if (debugDiv.innerHTML !== debugHtml) {
-        debugDiv.innerHTML = debugHtml;
-        document
-          .getElementById("btn-copy-world-state")
-          ?.addEventListener("click", () => this.onCopyWorldState());
-        document
-          .getElementById("btn-force-win")
-          ?.addEventListener("click", () => this.onForceWin());
-        document
-          .getElementById("btn-force-lose")
-          ?.addEventListener("click", () => this.onForceLose());
+      const debugKey = `${state.seed}-${state.map?.width}x${state.map?.height}-${state.missionType}`;
+      if (debugDiv.dataset.renderedKey !== debugKey) {
+        debugDiv.dataset.renderedKey = debugKey;
+        debugDiv.innerHTML = `
+          <h3>Debug Tools</h3>
+          <div class="debug-info-grid">
+            <span><strong>Map:</strong> ${genDisplay} (${state.seed})</span>
+            <span><strong>Size:</strong> ${state.map ? `${state.map.width}x${state.map.height}` : "Unknown"}</span>
+            <span><strong>Mission:</strong> ${state.missionType}</span>
+          </div>
+          <div class="debug-actions-row">
+            <button id="btn-force-win" class="debug-btn-win">Force Win</button>
+            <button id="btn-force-lose" class="debug-btn-lose">Force Lose</button>
+          </div>
+          <button id="btn-copy-world-state" class="debug-btn-copy">Copy World State</button>
+        `;
+        document.getElementById("btn-copy-world-state")?.addEventListener("click", () => this.onCopyWorldState());
+        document.getElementById("btn-force-win")?.addEventListener("click", () => this.onForceWin());
+        document.getElementById("btn-force-lose")?.addEventListener("click", () => this.onForceLose());
       }
     } else if (debugDiv) {
       debugDiv.remove();
     }
 
-    // Enemy Intel (Always in Right Panel/Drawer)
     this.updateEnemyIntel(state, secondaryContainer || actionContainer);
   }
 
+  private lastDeploymentHash = "";
+
   private updateDeployment(container: HTMLElement, state: GameState) {
-    let deploymentDiv = container.querySelector(
-      ".deployment-summary",
-    ) as HTMLElement;
+    let deploymentDiv = container.querySelector(".deployment-summary") as HTMLElement;
 
     if (!deploymentDiv) {
       container.innerHTML = "";
@@ -347,8 +314,7 @@ export class HUDManager {
       deploymentDiv.appendChild(title);
 
       const desc = document.createElement("p");
-      desc.textContent =
-        "Tactically place your squad members on highlighted tiles. Drag units to move them.";
+      desc.textContent = "Tactically place your squad members on highlighted tiles. Drag units to move them.";
       desc.className = "deployment-desc";
       deploymentDiv.appendChild(desc);
 
@@ -356,15 +322,11 @@ export class HUDManager {
       squadList.className = "deployment-squad-list";
       deploymentDiv.appendChild(squadList);
 
-      const startBtn = document.createElement("button");
-      startBtn.id = "btn-start-mission";
-      startBtn.textContent = "Start Mission";
-      startBtn.className = "btn-start-mission";
-      startBtn.addEventListener("click", () => this.onStartMission());
       const autoFillBtn = document.createElement("button");
       autoFillBtn.id = "btn-autofill-deployment";
+      autoFillBtn.dataset.focusId = "btn-autofill-deployment";
       autoFillBtn.textContent = "Auto-Fill Spawns";
-      autoFillBtn.className = "btn-secondary";
+      autoFillBtn.className = "menu-button";
       autoFillBtn.style.width = "100%";
       autoFillBtn.style.marginBottom = "10px";
       autoFillBtn.addEventListener("click", () => {
@@ -372,18 +334,29 @@ export class HUDManager {
         if (!s) return;
         const soldiers = s.units.filter((u) => u.archetypeId !== "vip");
         const allSpawns = s.map.squadSpawns || (s.map.squadSpawn ? [s.map.squadSpawn] : []);
-        
         if (allSpawns.length === 0) return;
-
         soldiers.forEach((u, idx) => {
            const spawn = allSpawns[idx % allSpawns.length];
            this.onDeployUnit(u.id, spawn.x + 0.5, spawn.y + 0.5);
         });
       });
+
+      const startBtn = document.createElement("button");
+      startBtn.id = "btn-start-mission";
+      startBtn.dataset.focusId = "btn-start-mission";
+      startBtn.textContent = "Start Mission";
+      startBtn.className = "primary-button";
+      startBtn.style.width = "100%";
+      startBtn.style.marginBottom = "20px";
+      startBtn.addEventListener("click", () => this.onStartMission());
+
       deploymentDiv.appendChild(autoFillBtn);
       deploymentDiv.appendChild(startBtn);
-
       container.appendChild(deploymentDiv);
+
+      // Explicitly focus the first action button when entering deployment phase
+      // to ensure keyboard navigation starts from a known state (Spec 8.3)
+      autoFillBtn.focus();
     }
 
     // Mission Controls (Speed Slider for mobile) during deployment
@@ -415,193 +388,104 @@ export class HUDManager {
       this.binder.initialize(container);
     }
 
-    const squadList = deploymentDiv.querySelector(
-      ".deployment-squad-list",
-    ) as HTMLElement;
-    if (squadList) {
-      const units = state.units.filter((u) => u.archetypeId !== "vip");
-      const currentIds = new Set(units.map((u) => u.id));
-
-      // Remove units that are gone
-      Array.from(squadList.children).forEach((child) => {
-        const id = (child as HTMLElement).dataset.unitId;
-        if (id && !currentIds.has(id)) squadList.removeChild(child);
-      });
+    const units = state.units.filter((u) => u.archetypeId !== "vip");
+    const currentHash = units.map(u => `${u.id}:${u.isDeployed}`).join("|") + `:${this.selectedUnitId}`;
+    
+    const squadList = deploymentDiv.querySelector(".deployment-squad-list") as HTMLElement;
+    if (squadList && currentHash !== this.lastDeploymentHash) {
+      this.lastDeploymentHash = currentHash;
+      const existingIds = new Set(units.map(u => u.id));
 
       units.forEach((u) => {
-        let item = squadList.querySelector(
-          `[data-unit-id="${u.id}"]`,
-        ) as HTMLElement;
+        let item = squadList.querySelector(`[data-unit-id="${u.id}"]`) as HTMLButtonElement;
         if (!item) {
-          item = document.createElement("div");
+          // Use BUTTON instead of DIV for better Tab navigation stability
+          item = document.createElement("button");
+          item.id = `keyboard-id-${u.id}`;
           item.dataset.unitId = u.id;
+          item.dataset.focusId = `keyboard-id-${u.id}`;
           item.draggable = true;
-          item.className = "deployment-unit-item";
-          item.addEventListener("dragstart", (e) => {
-            if (e.dataTransfer) {
-              e.dataTransfer.setData("text/plain", u.id);
-              e.dataTransfer.effectAllowed = "move";
-              
-              // Create a custom drag image (a circle)
-              const dragImg = document.createElement("canvas");
-              dragImg.width = 40;
-              dragImg.height = 40;
-              const ctx = dragImg.getContext("2d");
-              if (ctx) {
-                ctx.beginPath();
-                ctx.arc(20, 20, 18, 0, Math.PI * 2);
-                ctx.fillStyle = "rgba(46, 204, 113, 0.5)"; // Success color, semi-transparent
-                ctx.fill();
-                ctx.strokeStyle = "#2ecc71";
-                ctx.lineWidth = 2;
-                ctx.stroke();
-                
-                // Add tactical number
-                ctx.fillStyle = "white";
-                ctx.font = "bold 14px sans-serif";
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
-                const tacNum = u.tacticalNumber !== undefined ? u.tacticalNumber.toString() : "";
-                ctx.fillText(tacNum, 20, 20);
-                
-                // Need to append to body temporarily or it might not work in some browsers
-                dragImg.style.position = "absolute";
-                dragImg.style.top = "-1000px";
-                document.body.appendChild(dragImg);
-                e.dataTransfer.setDragImage(dragImg, 20, 20);
-                setTimeout(() => document.body.removeChild(dragImg), 0);
-              }
-            }
-          });
           squadList.appendChild(item);
         }
 
         const isPlaced = u.isDeployed !== false;
-        const statusText = isPlaced ? "Deployed" : "Pending";
-
         SoldierWidget.update(item, u, {
           context: "roster",
-          onClick: () => {
-            this.onUnitClick(u);
-          },
+          onClick: () => this.onUnitClick(u),
           onDoubleClick: () => {
             if (!isPlaced) {
               const s = this.currentState;
               if (!s) return;
               const spawn = this.findNextEmptySpawn(s);
-              if (spawn) {
-                this.onDeployUnit(u.id, spawn.x + 0.5, spawn.y + 0.5);
-              }
+              if (spawn) this.onDeployUnit(u.id, spawn.x + 0.5, spawn.y + 0.5);
             }
           },
         });
 
-        const statusSpan = item.querySelector(
-          ".roster-item-details span:last-child",
-        ) as HTMLElement;
+        // Forced class and ID re-application (ensuring correct classes for E2E)
+        item.id = `keyboard-id-${u.id}`;
+        // CRITICAL: We MUST not use setAttribute("class") here as it overwrites classes added by SoldierWidget.update (like "dead")
+        const baseClasses = ["deployment-unit-item", "clickable", "soldier-widget", "soldier-item", "soldier-widget-roster", "menu-item", "keyboard-tab-target"];
+        baseClasses.forEach(cls => item.classList.add(cls));
+        
+        if (u.id === this.selectedUnitId) item.classList.add("selected", "active");
+
+        const statusSpan = item.querySelector(".roster-item-details span:last-child") as HTMLElement;
         if (statusSpan) {
-          statusSpan.textContent = statusText;
-          statusSpan.style.color = isPlaced
-            ? "var(--color-success)"
-            : "var(--color-warning)";
+          statusSpan.textContent = isPlaced ? "Deployed" : "Pending";
+          statusSpan.style.color = isPlaced ? "var(--color-success)" : "var(--color-warning)";
         }
+      });
+
+      // Cleanup removed units
+      Array.from(squadList.children).forEach((child) => {
+        const id = (child as HTMLElement).dataset.unitId;
+        if (id && !existingIds.has(id)) squadList.removeChild(child);
       });
     }
 
-    const startBtn = deploymentDiv.querySelector(
-      "#btn-start-mission",
-    ) as HTMLButtonElement;
+    const startBtn = deploymentDiv.querySelector("#btn-start-mission") as HTMLButtonElement;
     if (startBtn) {
-      // Validate that all soldiers are on valid spawn tiles AND are marked as deployed
-      const aliveUnits = state.units.filter(
-        (u) =>
-          u.archetypeId !== "vip" &&
-          u.state !== UnitState.Extracted &&
-          u.hp > 0,
-      );
-
+      const aliveUnits = state.units.filter((u) => u.archetypeId !== "vip" && u.state !== UnitState.Extracted && u.hp > 0);
       const deployedUnits = aliveUnits.filter((u) => u.isDeployed !== false);
       const allDeployed = deployedUnits.length === aliveUnits.length;
-
       const allOnValidTiles = deployedUnits.every((u) => {
         const cell = MathUtils.toCellCoord(u.pos);
-        return (
-          state.map?.squadSpawns?.some((s) =>
-            MathUtils.sameCellPosition(s, cell),
-          ) ||
-          (state.map?.squadSpawn &&
-            MathUtils.sameCellPosition(state.map.squadSpawn, cell))
-        );
+        return state.map?.squadSpawns?.some((s) => MathUtils.sameCellPosition(s, cell)) ||
+               (state.map?.squadSpawn && MathUtils.sameCellPosition(state.map.squadSpawn, cell));
       });
-
-      if (!allDeployed || !allOnValidTiles) {
-        startBtn.disabled = true;
-        startBtn.classList.add("disabled");
-        if (!allDeployed) {
-          startBtn.title = "All squad members must be deployed.";
-        } else {
-          startBtn.title = "All squad members must be on valid spawn tiles.";
-        }
-      } else {
-        startBtn.disabled = false;
-        startBtn.classList.remove("disabled");
-        startBtn.title = "";
-      }
+      startBtn.disabled = !allDeployed || !allOnValidTiles;
+      startBtn.classList.toggle("disabled", startBtn.disabled);
     }
   }
 
   private getObjectivesData(state: GameState) {
     const showCoords = state.settings.debugOverlayEnabled;
-    const data: {
-      id: string;
-      icon: string;
-      color: string;
-      text: string;
-      state: string;
-    }[] = [];
-
+    const data: any[] = [];
     state.objectives.forEach((obj, idx) => {
       const isCompleted = obj.state === "Completed";
       const isFailed = obj.state === "Failed";
-      const icon = isCompleted ? "✔" : isFailed ? "✘" : "○";
-      const color = isCompleted
-        ? "var(--color-success)"
-        : isFailed
-          ? "var(--color-danger)"
-          : "var(--color-text-muted)";
-
       data.push({
         id: obj.id || `obj-${idx}`,
-        icon,
-        color,
+        icon: isCompleted ? "✔" : isFailed ? "✘" : "○",
+        color: isCompleted ? "var(--color-success)" : isFailed ? "var(--color-danger)" : "var(--color-text-muted)",
         text: `${obj.kind}${obj.targetCell && showCoords ? ` at (${obj.targetCell.x},${obj.targetCell.y})` : ""}`,
         state: obj.state,
       });
     });
-
-    // Extraction Status (as an implicit objective if not already present)
-    if (
-      state.map?.extraction &&
-      !state.objectives.some((o) => o.kind === "Escort")
-    ) {
-      const extractedCount = state.units.filter(
-        (u) => u.state === UnitState.Extracted,
-      ).length;
+    if (state.map?.extraction && !state.objectives.some((o) => o.kind === "Escort")) {
+      const extractedCount = state.units.filter((u) => u.state === UnitState.Extracted).length;
       const totalUnits = state.units.length;
       const isCompleted = extractedCount === totalUnits && totalUnits > 0;
-      const icon = extractedCount > 0 ? "✔" : "○";
-      const color =
-        extractedCount > 0 ? "var(--color-success)" : "var(--color-text-muted)";
-      const status = isCompleted ? "Completed" : "Pending";
-      const locStr = showCoords && state.map?.extraction
+      const locStr = showCoords && state.map.extraction
         ? ` at (${state.map.extraction.x},${state.map.extraction.y})`
         : "";
       data.push({
         id: "extraction",
-        icon,
-        color,
+        icon: extractedCount > 0 ? "✔" : "○",
+        color: extractedCount > 0 ? "var(--color-success)" : "var(--color-text-muted)",
         text: `Extraction (${extractedCount}/${totalUnits})${locStr}`,
-        state: status,
+        state: isCompleted ? "Completed" : "Pending",
       });
     }
     return data;
@@ -609,45 +493,22 @@ export class HUDManager {
 
   private updateObjectives(state: GameState, container: HTMLElement) {
     const data = this.getObjectivesData(state);
-    const existingRows = Array.from(container.querySelectorAll("p"));
-
-    if (existingRows.length !== data.length) {
-      container.innerHTML = data
-        .map(
-          (d) => `
-        <p class="obj-row" data-obj-id="${d.id}">
-          <span class="obj-icon" style="color:${d.color};" title="${d.state}">${d.icon}</span>
-          <span class="obj-text">${d.text}</span>
-        </p>
-      `,
-        )
-        .join("");
-    } else {
-      data.forEach((d, i) => {
-        const row = existingRows[i];
-        const iconSpan = row.querySelector(".obj-icon") as HTMLElement;
-        const textSpan = row.querySelector(".obj-text") as HTMLElement;
-
-        if (iconSpan.textContent !== d.icon) iconSpan.textContent = d.icon;
-        if (iconSpan.title !== d.state) iconSpan.title = d.state;
-        if (iconSpan.style.color !== d.color) iconSpan.style.color = d.color;
-        if (textSpan.textContent !== d.text) textSpan.textContent = d.text;
-      });
-    }
+    container.innerHTML = data.map((d) => `
+      <p class="obj-row" data-obj-id="${d.id}">
+        <span class="obj-icon" style="color:${d.color};" title="${d.state}">${d.icon}</span>
+        <span class="obj-text">${d.text}</span>
+      </p>
+    `).join("");
   }
 
   private renderObjectivesList(state: GameState): string {
     const data = this.getObjectivesData(state);
-    return data
-      .map(
-        (d) => `
+    return data.map((d) => `
       <p class="obj-row">
         <span class="obj-icon" style="color:${d.color};" title="${d.state}">${d.icon}</span>
         ${d.text}
       </p>
-    `,
-      )
-      .join("");
+    `).join("");
   }
 
   private updateEnemyIntel(state: GameState, rightPanel: HTMLElement) {
@@ -657,54 +518,20 @@ export class HUDManager {
       intelDiv.className = "enemy-intel";
       rightPanel.appendChild(intelDiv);
     }
-
-    const visibleEnemies = state.enemies.filter((e) => {
-      const cellKey = MathUtils.cellKey(e.pos);
-      return state.visibleCells.includes(cellKey);
-    });
-
+    const visibleEnemies = state.enemies.filter((e) => state.visibleCells.includes(MathUtils.cellKey(e.pos)));
     if (visibleEnemies.length === 0) {
-      const emptyHtml =
-        "<h3>Enemy Intel</h3><p class='intel-empty'>No Hostiles Detected.</p>";
-      if (intelDiv.innerHTML !== emptyHtml) {
-        intelDiv.innerHTML = emptyHtml;
-      }
+      intelDiv.innerHTML = "<h3>Enemy Intel</h3><p class='intel-empty'>No Hostiles Detected.</p>";
       return;
     }
-
-    // Ensure header exists
-    let header = intelDiv.querySelector("h3");
-    if (!header) {
-      intelDiv.innerHTML = "<h3>Enemy Intel</h3>";
-      header = intelDiv.querySelector("h3");
-    }
-
-    // Group by type
     const groups: { [type: string]: number } = {};
-    visibleEnemies.forEach((e) => {
-      groups[e.type] = (groups[e.type] || 0) + 1;
-    });
-
+    visibleEnemies.forEach((e) => { groups[e.type] = (groups[e.type] || 0) + 1; });
     const types = Object.keys(groups).sort();
-    const existingTypes = new Set<string>();
-
-    types.forEach((type) => {
-      existingTypes.add(type);
-      const count = groups[type];
-      const e = visibleEnemies.find((en) => en.type === type)!;
+    intelDiv.innerHTML = "<h3>Enemy Intel</h3>" + types.map(type => {
+      const e = visibleEnemies.find(en => en.type === type)!;
       const fireRateVal = e.fireRate > 0 ? (1000 / e.fireRate).toFixed(1) : "0";
-
-      let box = intelDiv.querySelector(
-        `.intel-box[data-type="${type}"]`,
-      ) as HTMLElement;
-      if (!box) {
-        box = document.createElement("div");
-        box.className = "intel-box";
-        box.dataset.type = type;
-        box.innerHTML = `
-          <div class="intel-header">
-            <strong class="intel-title"></strong>
-          </div>
+      return `
+        <div class="intel-box" data-type="${type}">
+          <div class="intel-header"><strong class="intel-title">${type} x${groups[type]}</strong></div>
           <div class="intel-stats">
             ${StatDisplay.render(Icons.Speed, e.speed, "Speed")}
             ${StatDisplay.render(Icons.Accuracy, e.accuracy, "Accuracy")}
@@ -712,68 +539,26 @@ export class HUDManager {
             ${StatDisplay.render(Icons.Rate, fireRateVal, "Rate of Fire (Shots/sec)")}
             ${StatDisplay.render(Icons.Range, e.attackRange, "Range")}
           </div>
-        `;
-        intelDiv.appendChild(box);
-      }
-
-      const title = box.querySelector(".intel-title") as HTMLElement;
-      const titleText = `${type} x${count}`;
-      if (title.textContent !== titleText) title.textContent = titleText;
-
-      const statsContainer = box.querySelector(".intel-stats") as HTMLElement;
-      const statsEls = statsContainer.querySelectorAll(".stat-display");
-      if (statsEls.length === 5) {
-        StatDisplay.update(statsEls[0] as HTMLElement, e.speed);
-        StatDisplay.update(statsEls[1] as HTMLElement, e.accuracy);
-        StatDisplay.update(statsEls[2] as HTMLElement, e.damage);
-        StatDisplay.update(statsEls[3] as HTMLElement, fireRateVal);
-        StatDisplay.update(statsEls[4] as HTMLElement, e.attackRange);
-      }
-    });
-
-    // Remove boxes for types that are no longer visible
-    Array.from(intelDiv.querySelectorAll(".intel-box")).forEach((box) => {
-      const type = (box as HTMLElement).dataset.type;
-      if (type && !existingTypes.has(type)) {
-        box.remove();
-      }
-    });
+        </div>
+      `;
+    }).join("");
   }
 
   private renderGameOver(rightPanel: HTMLElement, state: GameState) {
     rightPanel.innerHTML = "";
     const summaryDiv = document.createElement("div");
-    summaryDiv.className =
-      "game-over-summary" + (state.status === "Won" ? "" : " lost");
-
-    const title = document.createElement("h2");
-    title.textContent =
-      state.status === "Won" ? "Mission Accomplished" : "Squad Wiped";
-    title.className = "game-over-title";
-    summaryDiv.appendChild(title);
-
-    // Objectives List
-    const objectivesDiv = document.createElement("div");
-    objectivesDiv.className = "game-over-objectives";
-    objectivesDiv.innerHTML = `<h3 class="game-over-panel-title">Objectives</h3>${this.renderObjectivesList(state)}`;
-
-    summaryDiv.appendChild(objectivesDiv);
-
-    const stats = document.createElement("div");
-    stats.className = "game-over-stats";
-    stats.innerHTML = `
-      <p><strong>Time Elapsed:</strong> ${(state.t / 1000).toFixed(1)}s</p>
-      <p><strong>Xenos Neutralized:</strong> ${state.stats.aliensKilled}</p>
-      <p><strong>Casualties:</strong> ${state.stats.casualties}</p>
+    summaryDiv.className = "game-over-summary" + (state.status === "Won" ? "" : " lost");
+    summaryDiv.innerHTML = `
+      <h2 class="game-over-title">${state.status === "Won" ? "Mission Accomplished" : "Squad Wiped"}</h2>
+      <div class="game-over-objectives"><h3 class="game-over-panel-title">Objectives</h3>${this.renderObjectivesList(state)}</div>
+      <div class="game-over-stats">
+        <p><strong>Time:</strong> ${(state.t / 1000).toFixed(1)}s</p>
+        <p><strong>Kills:</strong> ${state.stats.aliensKilled}</p>
+        <p><strong>Casualties:</strong> ${state.stats.casualties}</p>
+      </div>
+      <button class="game-over-btn">Back to Menu</button>
     `;
-    summaryDiv.appendChild(stats);
-
-    const menuBtn = document.createElement("button");
-    menuBtn.textContent = "Back to Menu";
-    menuBtn.className = "game-over-btn";
-    menuBtn.addEventListener("click", () => this.onAbortMission());
-    summaryDiv.appendChild(menuBtn);
-
+    summaryDiv.querySelector(".game-over-btn")?.addEventListener("click", () => this.onAbortMission());
     rightPanel.appendChild(summaryDiv);
   }
 
@@ -781,28 +566,29 @@ export class HUDManager {
     const listContainer = document.getElementById("soldier-list");
     if (!listContainer) return;
 
-    const existingIds = new Set<string>();
-    state.units.forEach((unit) => {
-      existingIds.add(unit.id);
-      let el = listContainer.querySelector(
-        `.soldier-item[data-unit-id="${unit.id}"]`,
-      ) as HTMLDivElement;
+    const panel = document.getElementById("soldier-panel");
+    if (panel) {
+      if (state.status === "Deployment") {
+        panel.style.display = "none";
+      } else {
+        panel.style.display = "flex";
+      }
+    }
 
+    const existingIds = new Set(state.units.map(u => u.id));
+    state.units.forEach((unit) => {
+      let el = listContainer.querySelector(`.soldier-item[data-unit-id="${unit.id}"]`) as HTMLDivElement;
       if (!el) {
         el = document.createElement("div");
         el.dataset.unitId = unit.id;
         listContainer.appendChild(el);
       }
-
       SoldierWidget.update(el, unit, {
         context: "tactical",
         selected: unit.id === selectedUnitId,
-        onClick: (e: Event) => {
-          this.onUnitClick(unit, (e as MouseEvent).shiftKey);
-        },
+        onClick: (e: Event) => this.onUnitClick(unit, (e as MouseEvent).shiftKey),
       });
     });
-
     Array.from(listContainer.children).forEach((child) => {
       const id = (child as HTMLElement).dataset.unitId;
       if (id && !existingIds.has(id)) listContainer.removeChild(child);
@@ -810,18 +596,10 @@ export class HUDManager {
   }
 
   private findNextEmptySpawn(state: GameState): { x: number; y: number } | null {
-    if (!state.map) return null;
-    const spawns = state.map.squadSpawns || (state.map.squadSpawn ? [state.map.squadSpawn] : []);
-    
+    const spawns = state.map?.squadSpawns || (state.map?.squadSpawn ? [state.map.squadSpawn] : []);
     for (const spawn of spawns) {
-      const isOccupied = state.units.some(
-        (u) =>
-          u.isDeployed !== false && MathUtils.sameCellPosition(u.pos, spawn),
-      );
-      if (!isOccupied) return spawn;
+      if (!state.units.some(u => u.isDeployed !== false && MathUtils.sameCellPosition(u.pos, spawn))) return spawn;
     }
-    
-    // If no empty spawn, return the first one to allow overlaps
     return spawns.length > 0 ? spawns[0] : null;
   }
 }

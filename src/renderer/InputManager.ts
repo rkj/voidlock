@@ -12,7 +12,14 @@ import { MathUtils } from "@src/shared/utils/MathUtils";
 export class InputManager implements InputContext {
   public id = "TacticalInput";
   public priority = InputPriority.Game;
-  public trapsFocus = false;
+
+  public get trapsFocus(): boolean {
+    return this.currentGameState()?.status === "Deployment";
+  }
+
+  public get container(): HTMLElement | undefined {
+    return document.getElementById("screen-mission") ?? undefined;
+  }
 
   private draggingUnitId: string | null = null;
   private isDragging: boolean = false;
@@ -209,6 +216,15 @@ export class InputManager implements InputContext {
     }
 
     if (e.key === "Tab") {
+      // Allow default Tab behavior if focus is on a UI element (button, input, etc.)
+      // to enable navigating HUD/Deployment elements.
+      const active = document.activeElement;
+      const isUIElement = active && active !== document.body && active.id !== "game-canvas";
+      
+      if (isUIElement) {
+        return false;
+      }
+
       this.cycleUnits(e.shiftKey);
       return true;
     }
@@ -505,7 +521,7 @@ export class InputManager implements InputContext {
   private createDragGhost(unitId: string) {
     this.removeDragGhost();
     this.dragGhost = document.createElement("div");
-    this.dragGhost.className = "unit-drag-ghost";
+    this.dragGhost.className = "deployment-drag-ghost";
     this.dragGhost.style.position = "fixed";
     this.dragGhost.style.pointerEvents = "none";
     this.dragGhost.style.zIndex = "10000";

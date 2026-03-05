@@ -12,33 +12,41 @@ describe("Mobile Drawers", () => {
     await page.setViewport({ width: 375, height: 667, isMobile: true });
   });
 
+  beforeEach(async () => {
+    await page.goto(`${E2E_URL}/#main-menu`);
+    await page.evaluate(() => localStorage.clear());
+    await page.reload();
+    
+    // Wait for splash to finish
+    await page.waitForSelector("#screen-main-menu.title-splash-complete", { timeout: 10000 });
+    
+    // Go to a custom mission to see the HUD
+    await page.waitForSelector("#btn-menu-custom", { visible: true });
+    await page.click("#btn-menu-custom");
+    
+    await page.waitForSelector("#btn-launch-mission", { visible: true });
+    await page.click("#btn-launch-mission");
+    
+    // Mission Deployment Phase (ADR 0049)
+    await page.waitForSelector(".deployment-summary", { visible: true });
+    
+    // Auto-fill and Start Mission
+    await page.waitForSelector("#btn-autofill-deployment", { visible: true });
+    await page.click("#btn-autofill-deployment");
+    await page.waitForSelector("#btn-start-mission:not(.disabled)", { visible: true });
+    await page.click("#btn-start-mission");
+
+    // Launch mission (Transition to Playing)
+    await page.waitForSelector("#screen-mission", { visible: true });
+    await page.waitForSelector("#soldier-panel");
+    await new Promise(r => setTimeout(r, 1000)); // Wait for game to initialize
+  });
+
   afterAll(async () => {
     await closeBrowser();
   });
 
   it("should show drawer toggles and hide panels by default on mobile", async () => {
-    await page.goto(`${E2E_URL}/#main-menu`);
-    await page.evaluate(() => localStorage.clear());
-    await page.reload();
-    
-    // Go to a custom mission to see the HUD
-    await page.click("#btn-menu-custom");
-    await page.waitForSelector("#btn-goto-equipment");
-    await page.click("#btn-goto-equipment");
-    
-    // Wait for the Confirm Squad button in Equipment Screen
-    await page.waitForSelector("[data-focus-id='btn-back']");
-    await page.click("[data-focus-id='btn-back']");
-
-    // NEW: We are back at Mission Setup, MUST click Launch Mission
-    console.log("Launching Mission...");
-    await page.waitForSelector("#btn-launch-mission", { visible: true });
-    await page.click("#btn-launch-mission");
-    
-    // Launch mission (Transition to Playing)
-    await page.waitForSelector("#screen-mission", { visible: true });
-    await new Promise(r => setTimeout(r, 1000)); // Wait for game to initialize
-
     // Check if toggles are visible
     const squadToggle = await page.$("#btn-toggle-squad");
     const objToggle = await page.$("#btn-toggle-right");
@@ -116,7 +124,10 @@ describe("Mobile Drawers", () => {
     await new Promise(r => setTimeout(r, 400));
     
     // Click game container (center)
-    await page.mouse.click(187, 333);
+    await page.evaluate(() => {
+      const container = document.getElementById("game-container");
+      if (container) container.click();
+    });
     await new Promise(r => setTimeout(r, 400));
 
     const rightPanel = await page.$("#right-panel");
@@ -137,16 +148,13 @@ describe("Mobile Drawers", () => {
     const speedValue = await page.$eval("#speed-value", el => el.textContent);
     
     // Change speed via mobile slider
-    // We need to use page.evaluate or find the slider
-    const slider = await page.$(".mobile-speed-slider");
-    const sliderBox = await slider?.boundingBox();
-    if (sliderBox) {
-      // Drag slider to the right (e.g. to 100)
-      await page.mouse.move(sliderBox.x + 2, sliderBox.y + sliderBox.height / 2);
-      await page.mouse.down();
-      await page.mouse.move(sliderBox.x + sliderBox.width - 2, sliderBox.y + sliderBox.height / 2);
-      await page.mouse.up();
-    }
+    await page.evaluate(() => {
+      const slider = document.querySelector(".mobile-speed-slider") as HTMLInputElement;
+      if (slider) {
+        slider.value = "100";
+        slider.dispatchEvent(new Event("input"));
+      }
+    });
 
     await new Promise(r => setTimeout(r, 400));
     

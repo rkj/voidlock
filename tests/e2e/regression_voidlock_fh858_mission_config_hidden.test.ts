@@ -18,6 +18,7 @@ describe("Regression voidlock-fh858: Mission Configuration Hidden in Campaign (N
     await page.goto(E2E_URL);
     await page.evaluate(() => localStorage.clear());
     await page.reload();
+    await page.waitForSelector("#screen-main-menu.title-splash-complete", { timeout: 10000 });
     await page.waitForSelector("#btn-menu-campaign");
   }
 

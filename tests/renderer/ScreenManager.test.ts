@@ -63,11 +63,11 @@ describe("ScreenManager", () => {
     const sm = new ScreenManager(() => {});
     const errorSpy = vi.spyOn(console, "error");
 
-    // main-menu -> equipment (invalid)
-    sm.show("equipment");
+    // main-menu -> campaign-summary (invalid)
+    sm.show("campaign-summary");
     expect(sm.getCurrentScreen()).toBe("main-menu");
     expect(errorSpy).toHaveBeenCalledWith(
-      "Invalid screen transition: main-menu -> equipment",
+      "Invalid screen transition: main-menu -> campaign-summary",
     );
 
     // main-menu -> campaign (valid)

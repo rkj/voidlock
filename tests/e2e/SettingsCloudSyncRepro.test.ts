@@ -18,6 +18,7 @@ describe("Settings Cloud Sync Repro", () => {
     await page.goto(E2E_URL);
     await page.evaluate(() => localStorage.clear());
     await page.reload();
+    await page.waitForSelector("#screen-main-menu.title-splash-complete", { timeout: 10000 });
 
     // Go to Settings
     await page.waitForSelector("#btn-menu-settings");
@@ -73,6 +74,7 @@ describe("Settings Cloud Sync Repro", () => {
     await page.goto(E2E_URL);
     await page.evaluate(() => localStorage.clear());
     await page.reload();
+    await page.waitForSelector("#screen-main-menu.title-splash-complete", { timeout: 10000 });
 
     await page.waitForSelector("#btn-menu-settings", { visible: true });
 
