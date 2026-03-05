@@ -279,6 +279,7 @@ export class SectorMapGenerator {
     prng: PRNG,
   ): CampaignNodeType {
     if (rank === 0) return "Combat";
+    if (rank === 1) return "Combat"; // Guarantee Mission 2 tutorial flow
     if (rank === totalLayers - 1) return "Boss";
 
     const roll = prng.next();

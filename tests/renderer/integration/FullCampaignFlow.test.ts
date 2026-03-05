@@ -183,7 +183,9 @@ describe("Full Campaign Flow Integration", () => {
       
       // Start campaign via wizard UI
       const startBtn = await waitForSelector('[data-focus-id="btn-start-campaign"]');
+      const dateNowStub = vi.spyOn(global.Date, 'now').mockImplementation(() => 6);
       startBtn.click();
+      dateNowStub.mockRestore();
 
       // Wait for transitions
       await new Promise((resolve) => setTimeout(resolve, 100));
