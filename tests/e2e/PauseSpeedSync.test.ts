@@ -74,7 +74,7 @@ describe("Pause and Speed Synchronization E2E", () => {
     await page.evaluate(() => {
         const slider = document.getElementById("game-speed") as HTMLInputElement;
         slider.value = "75";
-        slider.dispatchEvent(new Event("input"));
+        slider.dispatchEvent(new Event("input", { bubbles: true }));
     });
     
     await new Promise(r => setTimeout(r, 200)); // wait for sync

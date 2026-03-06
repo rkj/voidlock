@@ -36,7 +36,7 @@ describe("Deployment Wrong Unit Selection", () => {
         if (height) height.value = "6";
         if (spawns) {
             spawns.value = "1";
-            spawns.dispatchEvent(new Event("input"));
+            spawns.dispatchEvent(new Event("input", { bubbles: true }));
             spawns.dispatchEvent(new Event("change"));
         }
         const manual = document.getElementById("toggle-manual-deployment") as HTMLInputElement;
