@@ -1,0 +1,5 @@
+The E2E tests tests/e2e/MobileDrawers.test.ts and tests/e2e/PauseSpeedSync.test.ts are failing because they use page.evaluate to dispatch 'input' events on range sliders, but they do not set 'bubbles: true'. 
+
+Recent architectural changes (ADR 0048) moved the speed slider listener to a global delegated listener on 'document' in src/renderer/app/UIOrchestrator.ts. Non-bubbling events do not reach this listener.
+
+Fix: Update the E2E tests to use 'new Event(\"input\", { bubbles: true })' when dispatching events manually.

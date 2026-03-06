@@ -37,8 +37,8 @@ describe("voidlock-tnit7 Repro: Drag and Drop Deployment", () => {
         const hInput = document.getElementById("map-height") as HTMLInputElement;
         wInput.value = "6";
         hInput.value = "6";
-        wInput.dispatchEvent(new Event("input"));
-        hInput.dispatchEvent(new Event("input"));
+        wInput.dispatchEvent(new Event("input", { bubbles: true }));
+        hInput.dispatchEvent(new Event("input", { bubbles: true }));
     });
 
     // Disable AI

@@ -151,13 +151,14 @@ describe("Mobile Drawers", () => {
       const slider = document.querySelector(".mobile-speed-slider") as HTMLInputElement;
       if (slider) {
         slider.value = "100";
-        slider.dispatchEvent(new Event("input"));
+        slider.dispatchEvent(new Event("input", { bubbles: true }));
       }
     });
 
     await new Promise(r => setTimeout(r, 1000));
     const mobileSpeedValue = await page.$eval(".mobile-speed-value", el => el.textContent);
     expect(mobileSpeedValue).not.toBe(speedValue);
+    await page.screenshot({ path: "screenshots/mobile_speed_sync_playing.png" });
 
     // 7. should not have Top Bar overflow on mobile
     await page.waitForSelector("#top-bar", { visible: true });
