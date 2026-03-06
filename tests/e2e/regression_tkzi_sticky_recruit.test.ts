@@ -15,7 +15,7 @@ describe("Regression TKZI - Sticky Recruitment Button", () => {
     await closeBrowser();
   });
 
-  it.skip("should keep Recruit button in viewport when roster is scrolled", async () => {
+  it("should keep Recruit button in viewport when roster is scrolled", async () => {
     await page.goto(E2E_URL, { waitUntil: "networkidle0" });
     await page.evaluate(() => localStorage.clear());
     await page.goto(E2E_URL, { waitUntil: "networkidle0" });
@@ -26,6 +26,10 @@ describe("Regression TKZI - Sticky Recruitment Button", () => {
 
     const startBtnSelector = ".campaign-setup-wizard .primary-button";
     await page.waitForSelector(startBtnSelector);
+
+    // Skip Tutorial Prologue to reach Sector Map
+    await page.click("#campaign-skip-prologue");
+
     await page.click(startBtnSelector);
 
     // 2. Select first node
@@ -36,7 +40,19 @@ describe("Regression TKZI - Sticky Recruitment Button", () => {
     // 3. In Equipment Screen, recruit many soldiers to force scroll
     await page.waitForSelector("#screen-equipment");
 
-    // Click an empty slot to show recruitment options
+    // Dismiss any advisor blocking message if it appears
+    try {
+      const advisorBtn = await page.waitForSelector(".advisor-btn", { timeout: 2000 });
+      if (advisorBtn) await page.click(".advisor-btn");
+    } catch (e) {
+      // No advisor message, proceed
+    }
+
+    // Remove a soldier to make a slot empty
+    await page.waitForSelector('[data-focus-id="remove-soldier-2"]');
+    await page.click('[data-focus-id="remove-soldier-2"]');
+
+    // Click the now empty slot to show recruitment options
     await page.click('[data-focus-id="soldier-slot-2"]');
 
     // Check if Recruit button exists
