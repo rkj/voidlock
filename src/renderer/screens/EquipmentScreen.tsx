@@ -9,6 +9,7 @@ import { CampaignManager } from "@src/renderer/campaign/CampaignManager";
 import { SoldierInspector } from "@src/renderer/ui/SoldierInspector";
 import { NameGenerator } from "@src/shared/utils/NameGenerator";
 import { SoldierWidget } from "@src/renderer/ui/SoldierWidget";
+import { CAMPAIGN_DEFAULTS } from "@src/engine/config/CampaignDefaults";
 import { InputDispatcher } from "../InputDispatcher";
 import { UIUtils } from "../utils/UIUtils";
 import { FocusManager } from "../utils/FocusManager";
@@ -248,11 +249,12 @@ export class EquipmentScreen {
           </div>
 
           {/* Right Panel */}
-          <div class="panel armory-panel" style={{ width: "400px" }}>
+          <div class="panel armory-panel roster-panel" style={{ width: "400px", display: "flex", flexDirection: "column" }}>
             <h2 class="panel-title" style={{ flexShrink: "0" }}>{rightPanelTitle}</h2>
-            <div class="scroll-content" style={{ padding: "10px" }}>
+            <div class="scroll-content roster-list" style={{ padding: "10px", flexGrow: "1", overflowY: "auto" }}>
               {this.renderRightPanelContent()}
             </div>
+            {this.renderRightPanelActions()}
           </div>
         </div>
 
@@ -392,6 +394,40 @@ export class EquipmentScreen {
     } else {
       return this.renderRightPanelItems();
     }
+  }
+
+  private renderRightPanelActions() {
+    if (!this.isCampaign || this.isShop) return null;
+    if (this.recruitMode || this.reviveMode) return null;
+
+    const state = this.manager.getState();
+    if (!state) return null;
+
+    // Persistent Recruit button to allow recruiting even when squad is full (regression_tkzi)
+    if (state.roster.length < CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE) {
+      return (
+        <div class="roster-actions" style={{ padding: "10px", borderTop: "1px solid var(--color-border-strong)", backgroundColor: "var(--color-surface-elevated)" }}>
+          <button
+            class="menu-button w-full"
+            data-focus-id="recruit-btn-large"
+            disabled={state.scrap < 100}
+            onClick={() => {
+              this.recruitMode = true;
+              this.reviveMode = false;
+              this.render();
+              const first = this.container.querySelector(
+                ".armory-panel .clickable:not(.disabled)",
+              ) as HTMLElement;
+              if (first) first.focus();
+            }}
+          >
+            <div class="btn-label">Recruit New Soldier</div>
+            <div class="btn-sub">Cost: 100 Scrap</div>
+          </button>
+        </div>
+      );
+    }
+    return null;
   }
 
   private renderRosterPickerItems() {
