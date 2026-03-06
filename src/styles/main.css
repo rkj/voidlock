@@ -1428,6 +1428,11 @@ label {
   flex: 1; /* Grows to fill available space (Spec 8.1) */
   min-width: 300px;
   overflow: hidden; /* Prevent panel itself from scrolling */
+  padding: 0; /* Remove .panel padding to allow sticky actions to touch edges */
+}
+
+.roster-panel .panel-title {
+  padding: 15px 15px 10px 15px; /* Restore padding lost from .roster-panel */
 }
 
 .roster-list {

@@ -16,9 +16,9 @@ describe("Regression TKZI - Sticky Recruitment Button", () => {
   });
 
   it("should keep Recruit button in viewport when roster is scrolled", async () => {
-    await page.goto(E2E_URL, { waitUntil: "networkidle0" });
+    await page.goto(E2E_URL, { waitUntil: "load" });
     await page.evaluate(() => localStorage.clear());
-    await page.goto(E2E_URL, { waitUntil: "networkidle0" });
+    await page.goto(E2E_URL, { waitUntil: "load" });
 
     // 1. Start Campaign
     await page.waitForSelector("#btn-menu-campaign");
@@ -49,11 +49,12 @@ describe("Regression TKZI - Sticky Recruitment Button", () => {
     }
 
     // Remove a soldier to make a slot empty
+    // Initial squad has 4 soldiers [0, 1, 2, 3]. Removing [2] shifts [3] to [2].
     await page.waitForSelector('[data-focus-id="remove-soldier-2"]');
     await page.click('[data-focus-id="remove-soldier-2"]');
 
-    // Click the now empty slot to show recruitment options
-    await page.click('[data-focus-id="soldier-slot-2"]');
+    // Slot 3 should now be empty
+    await page.click('[data-focus-id="soldier-slot-3"]');
 
     // Check if Recruit button exists
     const recruitBtnSelector = '[data-focus-id="recruit-btn-large"]';
