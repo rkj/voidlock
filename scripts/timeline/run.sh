@@ -1,6 +1,24 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+if [[ "${1:-}" == "--help" ]] || [[ "${1:-}" == "-h" ]]; then
+  echo "Usage: $0 [PORT]"
+  echo ""
+  echo "Runs the full timeline generation pipeline (manifest, analysis, topology, playbooks, capture, frames, render)."
+  echo ""
+  echo "Arguments:"
+  echo "  PORT  (Optional) The port to run the dev server on (default: 6080)."
+  echo ""
+  echo "Environment Variables:"
+  echo "  MANIFEST, NAV_MAP, TOPOLOGY, PLAYBOOKS, COMMIT_PLAYBOOKS, SCREENSHOTS,"
+  echo "  FRAME_INDEX, OUTPUT, MAX_COUNT, MODE, SAMPLE_EVERY, SAMPLE_OFFSET,"
+  echo "  PLAYBOOK_PROVIDER, PLAYBOOK_EXECUTE, PLAYBOOK_AGENT_CMD, REUSE_PLAYBOOKS,"
+  echo "  RESTART_EVERY, POST_LOAD_WAIT_MS, MISSION_CAPTURE_WAIT_MS, MISSION_SETTLE_MS,"
+  echo "  STARTUP_TIMEOUT_MS, MAX_CONSECUTIVE_FAILURES, CAPTURE_DEBUG_LOG,"
+  echo "  MISSION_ALLOWLIST, MISSION_REQUIRED"
+  exit 0
+fi
+
 MANIFEST="${MANIFEST:-timeline/manifest.json}"
 NAV_MAP="${NAV_MAP:-timeline/navigation_map.json}"
 TOPOLOGY="${TOPOLOGY:-timeline/screen_topology_changes.json}"

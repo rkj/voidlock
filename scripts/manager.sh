@@ -1,4 +1,12 @@
 #!/bin/bash
+
+if [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
+  echo "Usage: $0"
+  echo ""
+  echo "Runs the Manager Agent loop, which automatically selects and dispatches Sub-Agents for open tasks."
+  exit 0
+fi
+
 #
 MODEL="gemini-3-pro-preview"
 

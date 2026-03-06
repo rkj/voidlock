@@ -2,6 +2,17 @@
 TASK_ID=$1
 CONTEXT_FILE=$2
 
+if [ "$TASK_ID" == "--help" ] || [ "$TASK_ID" == "-h" ]; then
+  echo "Usage: $0 <TASK_ID> [CONTEXT_FILE]"
+  echo ""
+  echo "Dispatches a Sub-Agent to work on a specific task."
+  echo ""
+  echo "Arguments:"
+  echo "  TASK_ID       The ID of the task from beads (e.g., voidlock-123)."
+  echo "  CONTEXT_FILE  (Optional) Path to a file containing additional context for the agent."
+  exit 0
+fi
+
 if [ -z "$TASK_ID" ]; then
   echo "Usage: $0 <TASK_ID> [CONTEXT_FILE]"
   exit 1
