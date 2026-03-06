@@ -157,7 +157,6 @@ export class AppServiceRegistry {
       config.onUnitClick,
       config.onAbortMission,
       config.onMenuInput,
-      config.onTimeScaleChange,
       config.onCopyWorldState,
       config.onDebugForceWin,
       config.onDebugForceLose,

@@ -83,6 +83,7 @@ describe("HUDManager Regression kvi1", () => {
       vi.fn(),
       vi.fn(),
       vi.fn(),
+      vi.fn(),
     );
   });
 

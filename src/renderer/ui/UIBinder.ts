@@ -106,8 +106,8 @@ export class UIBinder {
       const value = binding.transformer ? binding.transformer(rawValue, state) : rawValue;
 
       if (value !== binding.lastValue) {
-        this.updateElement(binding.element, binding.attr, value);
         binding.lastValue = value;
+        this.updateElement(binding.element, binding.attr, value);
       }
     }
   }

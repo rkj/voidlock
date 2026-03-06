@@ -100,6 +100,7 @@ describe("HUDManager Stats & Enemy Intel", () => {
       vi.fn(),
       vi.fn(),
       vi.fn(),
+      vi.fn(),
     );
   });
 

@@ -22,7 +22,6 @@ export class HUDManager {
     private onUnitClick: (unit: Unit, shiftHeld?: boolean) => void,
     private onAbortMission: () => void,
     private onMenuInput: (key: string, shiftHeld?: boolean) => void,
-    private onSetTimeScale: (scale: number) => void,
     private onCopyWorldState: () => void,
     private onForceWin: () => void,
     private onForceLose: () => void,
@@ -58,24 +57,6 @@ export class HUDManager {
 
     // Initial scan
     this.binder.initialize(document.body);
-
-    // Speed Slider listener
-    const handleSliderInput = (e: Event) => {
-      const target = e.target as HTMLInputElement;
-      // Skip if this input event was triggered by UIBinder programmatic sync
-      if (target.getAttribute("data-is-binding") === "true") return;
-
-      const val = parseInt(target.value);
-      // slider 0 maps to 0.1x (Active Pause) if allowed, but here we want to unpause if user moves it
-      const scale = TimeUtility.sliderToScale(val);
-      
-      // If we are currently paused and user moved slider away from 0, 
-      // or if they just clicked the slider, we want to unpause.
-      // GameApp.onTimeScaleChange calls gameClient.setTimeScale which handles unpausing if scale > 0.
-      this.onSetTimeScale(scale);
-    };
-
-    document.getElementById("game-speed")?.addEventListener("input", handleSliderInput);
   }
 
   private setupTransformers() {
@@ -118,7 +99,7 @@ export class HUDManager {
       }
 
       // Map current target scale to slider value
-      return Math.round(TimeUtility.scaleToSlider(targetTimeScale as number)).toString();
+      return TimeUtility.scaleToSlider(targetTimeScale as number).toString();
     });
 
     this.binder.registerTransformer("speedText", (settings) => {
@@ -214,13 +195,6 @@ export class HUDManager {
           <button class="mobile-abort-button back-button" style="width: 100%; margin: 10px 0 0 0;">Abort Mission</button>
         </div>
       `;
-      const slider = controlsDiv.querySelector(".mobile-speed-slider") as HTMLInputElement;
-      slider.addEventListener("input", (e) => {
-        const val = parseInt((e.target as HTMLInputElement).value);
-        const scale = TimeUtility.sliderToScale(val);
-        this.onSetTimeScale(scale);
-      });
-
       const abortBtn = controlsDiv.querySelector(".mobile-abort-button") as HTMLButtonElement;
       if (abortBtn) {
         abortBtn.addEventListener("click", () => this.onAbortMission());
@@ -380,13 +354,6 @@ export class HUDManager {
           <button class="mobile-abort-button back-button" style="width: 100%; margin: 10px 0 0 0;">Abort Mission</button>
         </div>
       `;
-      const slider = controlsDiv.querySelector(".mobile-speed-slider") as HTMLInputElement;
-      slider.addEventListener("input", (e) => {
-        const val = parseInt((e.target as HTMLInputElement).value);
-        const scale = TimeUtility.sliderToScale(val);
-        this.onSetTimeScale(scale);
-      });
-
       const abortBtn = controlsDiv.querySelector(".mobile-abort-button") as HTMLButtonElement;
       if (abortBtn) {
         abortBtn.addEventListener("click", () => this.onAbortMission());
