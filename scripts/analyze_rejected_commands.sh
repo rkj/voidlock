@@ -1,5 +1,12 @@
 #!/bin/bash
 
+if [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
+  echo "Usage: $0"
+  echo ""
+  echo "Analyzes policy-denied commands from Gemini logs in the logs directory."
+  exit 0
+fi
+
 # Script to analyze policy-denied commands from Gemini logs
 LOG_DIR="/home/rkj/voidlock/logs"
 

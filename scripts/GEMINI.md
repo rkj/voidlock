@@ -2,6 +2,16 @@
 
 This directory contains utility scripts for development and build processes.
 
+## Repository Utility Scripts
+
+All major utility scripts now support `--help` and `-h` flags for usage information.
+
+- `scripts/dispatch_agent.sh`: Dispatches a Sub-Agent for a task.
+- `scripts/manager.sh`: Runs the Manager Agent loop.
+- `scripts/beads_to_trekker.sh`: Migrates tasks to Trekker.
+- `scripts/analyze_rejected_commands.sh`: Analyzes policy-denied commands.
+- `scripts/timeline/run.sh`: Runs the timeline generation pipeline.
+
 ## Asset Processor
 
 `scripts/process_assets.ts`

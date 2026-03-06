@@ -1,4 +1,12 @@
 #!/bin/bash
+
+if [ "$1" == "--help" ] || [ "$1" == "-h" ]; then
+  echo "Usage: $0"
+  echo ""
+  echo "Migrates all tasks from beads to Trekker."
+  exit 0
+fi
+
 # Initialize Trekker
 trekker init 2>/dev/null || true
 
