@@ -29,10 +29,9 @@ export class HUDManager {
     private onStartMission: () => void,
     private onDeployUnit: (unitId: string, x: number, y: number) => void,
   ) {
-    this.initializeHUD();
     this.binder = new UIBinder();
     this.setupTransformers();
-    this.binder.initialize();
+    this.initializeHUD();
   }
 
   private initializeHUD() {
@@ -57,23 +56,26 @@ export class HUDManager {
     missionBody.appendChild(HUDRightPanel() as Node);
     missionScreen.appendChild(HUDMobileActionPanel() as Node);
 
-    document.getElementById("btn-give-up")?.addEventListener("click", () => this.onAbortMission());
-    
-    const speedSlider = document.getElementById("game-speed") as HTMLInputElement;
-    if (speedSlider) {
-      speedSlider.addEventListener("input", (e) => {
-        const val = parseInt((e.target as HTMLInputElement).value);
-        const scale = TimeUtility.sliderToScale(val);
-        this.onSetTimeScale(scale);
-      });
-    }
+    // Initial scan
+    this.binder.initialize(document.body);
 
-    document.getElementById("btn-pause-toggle")?.addEventListener("click", () => {
-      if (this.currentState) {
-        const isPaused = this.currentState.settings.isPaused;
-        this.onSetTimeScale(isPaused ? this.currentState.settings.targetTimeScale : 0);
-      }
-    });
+    // Speed Slider listener
+    const handleSliderInput = (e: Event) => {
+      const target = e.target as HTMLInputElement;
+      // Skip if this input event was triggered by UIBinder programmatic sync
+      if (target.getAttribute("data-is-binding") === "true") return;
+
+      const val = parseInt(target.value);
+      // slider 0 maps to 0.1x (Active Pause) if allowed, but here we want to unpause if user moves it
+      const scale = TimeUtility.sliderToScale(val);
+      
+      // If we are currently paused and user moved slider away from 0, 
+      // or if they just clicked the slider, we want to unpause.
+      // GameApp.onTimeScaleChange calls gameClient.setTimeScale which handles unpausing if scale > 0.
+      this.onSetTimeScale(scale);
+    };
+
+    document.getElementById("game-speed")?.addEventListener("input", handleSliderInput);
   }
 
   private setupTransformers() {
@@ -108,21 +110,21 @@ export class HUDManager {
 
     this.binder.registerTransformer("minSpeedValue", (allowTacticalPause) => (allowTacticalPause as boolean) ? "0" : "50");
 
-    this.binder.registerTransformer("speedSlider", (scale) => {
-      const slider = document.activeElement as HTMLInputElement;
-      if (slider && (slider.id === "game-speed" || slider.classList.contains("mobile-speed-slider"))) {
-        return slider.value;
+    this.binder.registerTransformer("speedSlider", (targetTimeScale) => {
+      // Optimization: Don't fight the user while they are dragging
+      const active = document.activeElement as HTMLInputElement;
+      if (active && (active.id === "game-speed" || active.classList.contains("mobile-speed-slider"))) {
+        return active.value;
       }
-      const scaleToUse = Math.max(0.1, scale as number);
-      return TimeUtility.scaleToSlider(scaleToUse).toString();
+
+      // Map current target scale to slider value
+      return Math.round(TimeUtility.scaleToSlider(targetTimeScale as number)).toString();
     });
 
     this.binder.registerTransformer("speedText", (settings) => {
-      const { isPaused, allowTacticalPause, timeScale } = settings as { isPaused: boolean; allowTacticalPause: boolean; timeScale: number };
-      const scale = isPaused
-        ? allowTacticalPause ? 0.1 : 0.0
-        : timeScale;
-      return TimeUtility.formatSpeed(scale, isPaused);
+      const s = settings as { isPaused: boolean; allowTacticalPause: boolean; timeScale: number; targetTimeScale: number };
+      const displayScale = s.isPaused ? (s.allowTacticalPause ? 0.1 : 0) : s.timeScale;
+      return TimeUtility.formatSpeed(displayScale, s.isPaused);
     });
   }
 
@@ -133,6 +135,11 @@ export class HUDManager {
     const activeBefore = document.activeElement;
     FocusManager.saveFocus();
     
+    // Auto-discover new elements if needed (e.g. fragments swapped in)
+    if (!this.binder.hasBindings()) {
+      this.binder.initialize(document.body);
+    }
+
     this.binder.sync(state);
     this.updateTopBar(state);
     this.updateRightPanel(state);
@@ -220,6 +227,7 @@ export class HUDManager {
       }
 
       actionContainer.appendChild(controlsDiv);
+      // Scan the new container
       this.binder.initialize(actionContainer);
     }
 

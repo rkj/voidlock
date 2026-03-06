@@ -45,8 +45,6 @@ export class UIBinder {
       if (!(el instanceof HTMLElement)) return;
 
       const attrs = el.attributes;
-      // if (el.id) console.log(`[UIBinder] scanning el.id=${el.id}`);
-
 
       // Find transformer first if it exists
       const transformAttr = el.getAttribute("data-bind-transform");
@@ -70,6 +68,30 @@ export class UIBinder {
         }
       }
     });
+  }
+
+  /**
+   * Resets all bindings and rescans the DOM.
+   */
+  public reset(root: HTMLElement = document.body) {
+    this.bindings = [];
+    this.initialize(root);
+  }
+
+  /**
+   * Forces a full update of all bound elements by clearing their cached lastValue.
+   */
+  public rebind() {
+    for (const binding of this.bindings) {
+      binding.lastValue = undefined;
+    }
+  }
+
+  /**
+   * Returns true if there are active bindings.
+   */
+  public hasBindings(): boolean {
+    return this.bindings.length > 0;
   }
 
   /**
@@ -105,51 +127,63 @@ export class UIBinder {
   }
 
   private updateElement(el: HTMLElement, attr: string, value: unknown) {
-    switch (attr) {
-      case "text":
-        if (el.textContent !== String(value)) {
-          el.textContent = String(value);
-        }
-        break;
-      case "value":
-        if (el instanceof HTMLInputElement || el instanceof HTMLSelectElement || el instanceof HTMLTextAreaElement) {
-          if (el.value !== String(value)) {
-            el.value = String(value);
+    // Set a flag so listeners can distinguish between programmatic and user-initiated changes
+    el.setAttribute("data-is-binding", "true");
+    
+    try {
+      switch (attr) {
+        case "text":
+          if (el.textContent !== String(value)) {
+            el.textContent = String(value);
           }
-        }
-        break;
-      case "min":
-      case "max":
-      case "step":
-        if (el instanceof HTMLInputElement) {
-          if (el.getAttribute(attr) !== String(value)) {
+          break;
+        case "value":
+          if (el instanceof HTMLInputElement || el instanceof HTMLSelectElement || el instanceof HTMLTextAreaElement) {
+            // Optimization: Do not overwrite the value if the element is currently being interacted with (focused)
+            if (el === document.activeElement) break;
+
+            if (el.value !== String(value)) {
+              el.value = String(value);
+              // Dispatch input event so listeners (like the speed control) can react if needed
+              el.dispatchEvent(new Event("input", { bubbles: true }));
+            }
+          }
+          break;
+        case "min":
+        case "max":
+        case "step":
+          if (el instanceof HTMLInputElement) {
+            if (el.getAttribute(attr) !== String(value)) {
+              el.setAttribute(attr, String(value));
+            }
+          }
+          break;
+        case "style-width":
+          el.style.width = typeof value === "number" ? `${value}%` : String(value);
+          break;
+        case "visibility":
+          el.style.visibility = value ? "visible" : "hidden";
+          break;
+        case "display":
+          el.style.display = value ? "" : "none";
+          break;
+        case "class":
+          if (typeof value === "string") {
+            el.className = value;
+          }
+          break;
+        default:
+          // Handle style.prop or direct attribute
+          if (attr.startsWith("style-")) {
+            const styleProp = attr.replace("style-", "");
+            const style = el.style as unknown as Record<string, string>;
+            style[styleProp] = String(value);
+          } else {
             el.setAttribute(attr, String(value));
           }
-        }
-        break;
-      case "style-width":
-        el.style.width = typeof value === "number" ? `${value}%` : String(value);
-        break;
-      case "visibility":
-        el.style.visibility = value ? "visible" : "hidden";
-        break;
-      case "display":
-        el.style.display = value ? "" : "none";
-        break;
-      case "class":
-        if (typeof value === "string") {
-          el.className = value;
-        }
-        break;
-      default:
-        // Handle style.prop or direct attribute
-        if (attr.startsWith("style-")) {
-          const styleProp = attr.replace("style-", "");
-          const style = el.style as unknown as Record<string, string>;
-          style[styleProp] = String(value);
-        } else {
-          el.setAttribute(attr, String(value));
-        }
+      }
+    } finally {
+      el.removeAttribute("data-is-binding");
     }
   }
 }

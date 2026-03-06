@@ -2,7 +2,6 @@ import { GameClient } from "@src/engine/GameClient";
 import { ModalService } from "../ui/ModalService";
 import { Logger } from "@src/shared/Logger";
 import { GameState } from "@src/shared/types";
-import { TimeUtility } from "@src/renderer/TimeUtility";
 
 export interface UIOrchestratorDependencies {
   gameClient: GameClient;
@@ -44,11 +43,11 @@ export class UIOrchestrator {
     }
   }
 
-  public setMissionHUDVisible(boolean: boolean) {
+  public setMissionHUDVisible(visible: boolean) {
     const topBar = document.getElementById("top-bar");
     const soldierPanel = document.getElementById("soldier-panel");
     const rightPanel = document.getElementById("right-panel");
-    const display = boolean ? "flex" : "none";
+    const display = visible ? "flex" : "none";
     if (topBar) topBar.style.display = display;
     if (soldierPanel) soldierPanel.style.display = display;
     if (rightPanel) rightPanel.style.display = display;
@@ -57,63 +56,53 @@ export class UIOrchestrator {
   /**
    * Authoritative sync of the speed UI based on the GameClient state.
    * NOTE: Most mission UI labels are handled by HUDManager from the authoritative engine state.
-   * This method provides immediate feedback for local client state changes.
    */
   public syncSpeedUI() {
     // Immediate feedback for local state changes if needed, 
     // but mission labels are now authoritative from HUDManager (ADR 0048).
-    // We keep this method for any non-mission UI that might need it.
   }
 
   public async copyWorldState() {
     const state = this.deps.getCurrentGameState();
     if (!state) return;
+
+    const json = JSON.stringify(state, null, 2);
     try {
-      await navigator.clipboard.writeText(JSON.stringify(state, null, 2));
-      this.deps.modalService.alert("World state copied to clipboard!");
+      await navigator.clipboard.writeText(json);
+      Logger.info("World state copied to clipboard.");
     } catch (err) {
       Logger.error("Failed to copy world state:", err);
     }
   }
 
+  public togglePause() {
+    this.deps.gameClient.togglePause();
+  }
+
   public exportReplay() {
     const replay = this.deps.gameClient.getReplayData();
-    const blob = new Blob([JSON.stringify(replay, null, 2)], { type: "application/json" });
+    if (!replay) {
+      this.deps.modalService.alert("No replay data available.");
+      return;
+    }
+
+    const blob = new Blob([JSON.stringify(replay)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `voidlock-replay-${Date.now()}.json`;
+    a.download = `voidlock_replay_${Date.now()}.json`;
     a.click();
     URL.revokeObjectURL(url);
   }
 
-  /**
-   * Authoritative toggle pause using GameClient methods.
-   */
-  public togglePause(onSync?: () => void) {
-    this.deps.gameClient.togglePause();
-    this.syncSpeedUI();
-    if (onSync) onSync();
-  }
-
-  public setupAdditionalUIBindings(callbacks: {
+  public setupAdditionalUIBindings(_callbacks: {
     onAbortMission: () => void;
     onRetryMission: () => void;
     onForceWin: () => void;
     onForceLose: () => void;
     onTimeScaleChange?: (scale: number) => void;
   }) {
-    const gameSpeedSlider = document.getElementById("game-speed") as HTMLInputElement;
-    if (gameSpeedSlider) {
-      gameSpeedSlider.addEventListener("input", () => {
-        const val = parseFloat(gameSpeedSlider.value);
-        const scale = TimeUtility.sliderToScale(val);
-        this.deps.gameClient.setTimeScale(scale);
-        if (callbacks.onTimeScaleChange) callbacks.onTimeScaleChange(scale);
-      });
-    }
-
-    // This method is now mostly legacy as InputBinder handles most global events (ADR 0047).
+    // This method is now mostly legacy as InputBinder and HUDManager handle most global events (ADR 0047).
     // It remains for any dynamic or specific tactical UI elements not covered by InputBinder.
   }
 }
