@@ -401,7 +401,7 @@ export class EquipmentScreen {
     if (this.recruitMode || this.reviveMode) return null;
 
     const state = this.manager.getState();
-    if (!state) return null;
+    if (!state || !state.roster) return null;
 
     // Persistent Recruit button to allow recruiting even when squad is full (regression_tkzi)
     if (state.roster.length < CAMPAIGN_DEFAULTS.MAX_ROSTER_SIZE) {

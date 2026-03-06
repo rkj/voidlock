@@ -36,6 +36,7 @@ describe("Regression: voidlock-5zjs - Scrap Balance in Equipment Screen", () => 
         scrap: 450,
         intel: 120,
         currentSector: 1,
+        roster: [],
       }),
       addChangeListener: vi.fn(),
       removeChangeListener: vi.fn(),
