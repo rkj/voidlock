@@ -3,7 +3,7 @@
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { TutorialManager } from "../../../src/renderer/controllers/TutorialManager";
-import { GameState, MissionType, UnitState } from "../../../src/shared/types";
+import { GameState, MissionType } from "../../../src/shared/types";
 
 describe("TutorialManager", () => {
   let gameClient: any;
@@ -26,7 +26,6 @@ describe("TutorialManager", () => {
       getState: vi.fn().mockReturnValue({ history: [] }),
     };
     manager = new TutorialManager(gameClient, campaignManager as any, onMessage, uiOrchestrator);
-    manager.enable();
     
     // Clear localStorage to avoid state leakage between tests
     localStorage.clear();
@@ -54,6 +53,7 @@ describe("TutorialManager", () => {
   });
 
   it("should hide HUD at the start of the prologue", () => {
+    manager.enable();
     const state = createBaseState();
     state.t = 16;
     // Trigger update
@@ -64,6 +64,7 @@ describe("TutorialManager", () => {
   });
 
   it("should show start message at t > 100", () => {
+    manager.enable();
     const state = createBaseState();
     state.t = 112;
     const listener = gameClient.addStateUpdateListener.mock.calls[0][0];
@@ -74,6 +75,10 @@ describe("TutorialManager", () => {
   });
 
   it("should show objectives message and restore HUD when objective is visible", () => {
+    // Pre-seed prerequisites
+    localStorage.setItem("voidlock_tutorial_state", JSON.stringify(["start", "first_move", "enemy_sighted"]));
+    manager.enable();
+    
     const state = createBaseState();
     state.t = 200;
     state.objectives[0].visible = true;
@@ -85,6 +90,10 @@ describe("TutorialManager", () => {
   });
 
   it("should show combat message when an enemy is visible", () => {
+    // Pre-seed prerequisites
+    localStorage.setItem("voidlock_tutorial_state", JSON.stringify(["start", "first_move"]));
+    manager.enable();
+    
     const state = createBaseState();
     state.t = 200;
     state.enemies = [{ id: "e1", pos: { x: 2, y: 2 }, hp: 10 } as any];
@@ -96,6 +105,10 @@ describe("TutorialManager", () => {
   });
 
   it("should show extraction message when main objective is completed", () => {
+    // Pre-seed prerequisites
+    localStorage.setItem("voidlock_tutorial_state", JSON.stringify(["start", "first_move", "enemy_sighted", "objective_sighted"]));
+    manager.enable();
+    
     const state = createBaseState();
     state.t = 200;
     state.objectives[0].state = "Completed";
