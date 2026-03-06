@@ -1,0 +1,18 @@
+The following unit/integration tests are failing or timing out:
+
+1. tests/renderer/repro/PauseSpeedSync.test.ts:
+   - Reproduction: Incorrect speed slider mapping (ID mismatch)
+   - Reproduction: Slider input sets raw value instead of logarithmic scale
+   - Reproduction: Speed slider desynchronization at mission start
+   - Reproduction: Speed slider should reflect targetTimeScale even when paused
+   
+   Reason for failure in precision: HUDManager.ts uses Math.round() for the slider value, but the test expects the raw value from TimeUtility.scaleToSlider(2.0).toString().
+   
+2. Timeouts (5000ms-30000ms):
+   - tests/renderer/integration/E2E_CampaignWin.test.ts
+   - tests/renderer/integration/ScreenFlow.test.ts
+   - tests/renderer/integration/UserJourneys.test.ts
+   
+   These integration tests are likely hanging due to UIBinder loops or initialization issues introduced in the recent refactor (voidlock-xyoaw.1).
+   
+ADR 0048 and ADR 0050 are the primary references.

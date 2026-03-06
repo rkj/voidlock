@@ -78,7 +78,7 @@ describe("Pause and Speed Synchronization Repro", () => {
 
   it("Reproduction: Incorrect speed slider mapping (ID mismatch)", () => {
     const hudManager = new HUDManager(
-      null as any, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}
+      null as any, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}
     );
     const slider = document.getElementById("game-speed") as HTMLInputElement;
     
@@ -114,7 +114,7 @@ describe("Pause and Speed Synchronization Repro", () => {
     
     // 1. User moves slider to 75 (which should map to ~3.16x logarithmic)
     speedSlider.value = "75";
-    speedSlider.dispatchEvent(new Event("input"));
+    speedSlider.dispatchEvent(new Event("input", { bubbles: true }));
 
     // 2. EXPECTATION: GameClient.setTimeScale should be called with ~3.16, not 75.
     // This will FAIL because currently it passes parseFloat(slider.value) directly.
@@ -127,7 +127,7 @@ describe("Pause and Speed Synchronization Repro", () => {
 
   it("Reproduction: Speed slider desynchronization at mission start (HUDManager missing authoritative sync)", () => {
     const hudManager = new HUDManager(
-      null as any, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}
+      null as any, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}
     );
 
     const speedSlider = document.getElementById("game-speed") as HTMLInputElement;
@@ -153,7 +153,7 @@ describe("Pause and Speed Synchronization Repro", () => {
 
   it("Reproduction: Speed slider should reflect targetTimeScale even when paused", () => {
     const hudManager = new HUDManager(
-      null as any, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}
+      null as any, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}
     );
 
     const speedSlider = document.getElementById("game-speed") as HTMLInputElement;
@@ -188,7 +188,7 @@ describe("Pause and Speed Synchronization Repro", () => {
     `;
 
     const hudManager = new HUDManager(
-      null as any, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}
+      null as any, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}, () => {}
     );
 
     const threatContainer = document.getElementById("top-threat-container") as HTMLElement;

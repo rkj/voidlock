@@ -83,6 +83,7 @@ describe("HUDManager: Pause Constraints", () => {
       vi.fn(),
       vi.fn(),
       vi.fn(),
+      vi.fn(),
     );
   });
 

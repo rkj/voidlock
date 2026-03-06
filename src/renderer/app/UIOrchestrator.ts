@@ -2,6 +2,7 @@ import { GameClient } from "@src/engine/GameClient";
 import { ModalService } from "../ui/ModalService";
 import { Logger } from "@src/shared/Logger";
 import { GameState } from "@src/shared/types";
+import { TimeUtility } from "../TimeUtility";
 
 export interface UIOrchestratorDependencies {
   gameClient: GameClient;
@@ -60,6 +61,16 @@ export class UIOrchestrator {
   public syncSpeedUI() {
     // Immediate feedback for local state changes if needed, 
     // but mission labels are now authoritative from HUDManager (ADR 0048).
+    const speedSlider = document.getElementById("game-speed") as HTMLInputElement;
+    if (speedSlider) {
+      const targetScale = this.deps.gameClient.getTargetScale();
+      const sliderVal = TimeUtility.scaleToSlider(targetScale);
+      
+      // Only update if not focused to avoid fighting the user
+      if (document.activeElement !== speedSlider) {
+        speedSlider.value = sliderVal.toString();
+      }
+    }
   }
 
   public async copyWorldState() {
@@ -95,14 +106,34 @@ export class UIOrchestrator {
     URL.revokeObjectURL(url);
   }
 
-  public setupAdditionalUIBindings(_callbacks: {
+  public setupAdditionalUIBindings(callbacks: {
     onAbortMission: () => void;
     onRetryMission: () => void;
     onForceWin: () => void;
     onForceLose: () => void;
     onTimeScaleChange?: (scale: number) => void;
   }) {
-    // This method is now mostly legacy as InputBinder and HUDManager handle most global events (ADR 0047).
-    // It remains for any dynamic or specific tactical UI elements not covered by InputBinder.
+    // Handle global speed slider input (ADR 0048)
+    document.addEventListener("input", (e) => {
+      const target = e.target as HTMLInputElement;
+      if (target && (target.id === "game-speed" || target.classList.contains("mobile-speed-slider"))) {
+        // Skip if this input event was triggered by UIBinder programmatic sync
+        if (target.getAttribute("data-is-binding") === "true") return;
+
+        const val = parseFloat(target.value);
+        const scale = TimeUtility.sliderToScale(val);
+        
+        if (callbacks.onTimeScaleChange) {
+          callbacks.onTimeScaleChange(scale);
+        } else {
+          // Fallback if callback not provided
+          if (this.deps.gameClient.getIsPaused() && scale > 0) {
+            this.deps.gameClient.resume();
+          }
+          this.deps.gameClient.setTimeScale(scale);
+          this.syncSpeedUI();
+        }
+      }
+    });
   }
 }
