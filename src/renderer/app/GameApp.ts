@@ -78,6 +78,9 @@ export class GameApp {
       onAbortMission: () => this.registry.missionRunner.abortMission(),
       onMenuInput: (key, shift) => this.registry.inputOrchestrator.handleMenuInput(key, shift),
       onTimeScaleChange: (scale) => {
+        if (this.gameClient.getIsPaused() && scale > 0) {
+          this.gameClient.resume();
+        }
         this.gameClient.setTimeScale(scale);
         this.registry.uiOrchestrator.syncSpeedUI();
       },
