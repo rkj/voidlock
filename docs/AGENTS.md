@@ -5,6 +5,7 @@ You are an AI contributor agent. Your goal is to implement features or fix bugs 
 ## 1. Core Workflow
 
 1. **INITIALIZE**: Run `bd show <TASK_ID> --json` to retrieve the full task details, description, and comments. This is your source of truth.
+1. **READ SPEC (MANDATORY)**: Read `@docs/spec/index.md` and `@docs/AGENTS.md` BEFORE any edits. Use the links in the spec index to find the specific spec file for your task. You are flying blind without the spec and WILL introduce regressions.
 1. **BEADS CONSTRAINT**: You are allowed to use `bd show` and `bd comments add`. You are strictly forbidden from using `bd update`, `bd create`, or `bd close`.
 1. **AMBIGUITY / BLOCKER**: If you cannot proceed without human input (e.g., missing design, ambiguous spec):
    - **Signal**: Use `bd comments add <ID> "BLOCKER: <Describe the issue>"` to notify the team.
@@ -14,11 +15,16 @@ You are an AI contributor agent. Your goal is to implement features or fix bugs 
    - **Analyze**: Read the changes. Are they salvageable?
    - **Salvage**: If yes, continue from where they left off.
    - **Discard**: If garbage, run `jj restore .` to start fresh.
+1. **BASELINE CAPTURE (MANDATORY)**: Before making ANY code changes:
+   - Run the tests relevant to your task: `npx vitest run <PATH_TO_RELEVANT_TESTS> --reporter=basic`. Record which tests pass.
+   - For UI tasks: take screenshots at 1024x768 and 400x800 of the current state BEFORE your changes.
+   - This baseline is your safety net. After your changes, ALL previously-passing tests must still pass and all visual elements must be preserved unless explicitly changed by the task.
 1. **REPRODUCTION FIRST (CRITICAL)**: For every `bug` task, you MUST start by writing a failing test (Unit or Puppeteer E2E) that reproduces the issue. You are not allowed to fix the code until you have "Negative Proof." This is a hard mandate for ALL bug fixes.
 1. **VISUAL MANDATE**: When modifying UI, CSS, or Layout:
    - **Primary**: Write/run an **E2E Test** (Puppeteer) in `tests/e2e/`.
    - **Screenshot Proof**: You MUST take a screenshot of the fixed state using `take_screenshot` and include the path in your summary.
    - **Holistic Check**: Verify the change across all applicable shells (e.g. both Custom Mission and Campaign).
+1. **SCOPE LIMIT**: You MUST NOT modify more than 5 source files (excluding test files and GEMINI.md). If the task requires more, add a `BLOCKER` comment explaining why and exit. The PM will decompose the task.
 1. **ADR INTEGRITY**: ADRs are IMMUTABLE. If a change requires a new pattern, create a NEW ADR.
 1. **Update Documentation**: Update `GEMINI.md` in the relevant directory for all significant changes.
 1. **Verify**: Use `npx vitest run <PATH_TO_TEST> --reporter=basic`. Never see the full output of a passing suite.
@@ -59,9 +65,14 @@ You are an AI contributor agent. Your goal is to implement features or fix bugs 
 
 ## 3. Completion Checklist
 
-1. **Red**: failing reproduction test exists and is verified.
-1. **Green**: code fixed, tests pass.
-1. **Visual**: Screenshots taken at 1024x768 and 400x800 (for mobile UI).
+Before providing a SUMMARY, verify EVERY item:
+
+1. **Spec Read**: You read the relevant spec file before starting. If not, STOP and read it now.
+1. **Baseline**: All tests that passed before your changes still pass.
+1. **Red**: Failing reproduction test exists and is verified (bug tasks only).
+1. **Green**: Code fixed, tests pass.
+1. **Scope**: You modified 5 or fewer source files.
+1. **Visual**: Screenshots taken at 1024x768 and 400x800 (for UI tasks).
 1. **Docs**: `GEMINI.md` updated.
 1. **Versioning**: Increment `package.json` (Minor for feature, Patch for bug).
 1. **Summary**: Provide a proof-heavy summary starting with `SUMMARY:`. Include links to all proofs.
