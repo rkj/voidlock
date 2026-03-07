@@ -39,6 +39,7 @@ To verify visual fidelity and critical user journeys that cannot be fully tested
 - `regression_voidlock-n4sd6_empty_squad_launch.test.ts`: Reproduction test for empty squad mission launch bug.
 - `regression_y70cc_mission_reload.test.ts`: Regression guard for mission state restoration after page reload (voidlock-y70cc).
 - `regression_y9o3n_sector_map_icons.test.ts`: Regression guard for crisp SVG icons and absence of Rank labels on the Sector Map (voidlock-y9o3n).
+- `regression_1gudy_tutorial_disabled.test.ts`: Ensures that skipping the prologue correctly bypasses tutorial locks and unlocks the Armory (voidlock-1gudy).
 
 ## Usage
 
