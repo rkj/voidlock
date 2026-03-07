@@ -126,9 +126,18 @@ export class MissionCoordinator {
         const canvas = document.getElementById(
           "game-canvas",
         ) as HTMLCanvasElement;
+        const container = document.getElementById("game-container");
         if (canvas) {
           this.renderer = new Renderer(canvas);
-          this.renderer.setCellSize(128);
+          let initialCellSize = 128;
+          if (container && state && state.map) {
+            const fitWidth = container.clientWidth / state.map.width;
+            const fitHeight = container.clientHeight / state.map.height;
+            initialCellSize = Math.max(32, Math.min(fitWidth, fitHeight));
+            // Cap initial zoom to 128 so tiny maps don't look completely massive
+            initialCellSize = Math.min(initialCellSize, 128);
+          }
+          this.renderer.setCellSize(initialCellSize);
           this.onRendererCreated(this.renderer);
         }
       }

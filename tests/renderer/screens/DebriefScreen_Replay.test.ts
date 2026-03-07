@@ -117,8 +117,16 @@ describe("DebriefScreen Replay Button", () => {
     expect(spy).toHaveBeenCalled();
   });
 
-  it("should call gameClient.stop on ReplayController.destroy", () => {
+  it("should call gameClient.stop on ReplayController.destroy only if replay was active", () => {
     const stopSpy = vi.spyOn(mockGameClient, "stop");
+    
+    // Initial destroy (not replaying) should NOT call stop
+    (screen as any).replayController.destroy();
+    expect(stopSpy).not.toHaveBeenCalled();
+    
+    // Start replay
+    (screen as any).replayController.startReplay(100);
+    // Destroy while replaying SHOULD call stop
     (screen as any).replayController.destroy();
     expect(stopSpy).toHaveBeenCalled();
   });

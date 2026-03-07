@@ -1427,6 +1427,8 @@ label {
 .roster-panel {
   flex: 1; /* Grows to fill available space (Spec 8.1) */
   min-width: 300px;
+  display: flex;
+  flex-direction: column;
   overflow: hidden; /* Prevent panel itself from scrolling */
   padding: 0; /* Remove .panel padding to allow sticky actions to touch edges */
 }
@@ -1441,6 +1443,7 @@ label {
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
+  padding: 0 15px; /* Restore horizontal padding */
 }
 
 .roster-actions {
@@ -3147,6 +3150,16 @@ label {
     margin-bottom: 10px;
     height: auto !important;
     min-height: 200px;
+    overflow: visible !important;
+  }
+
+  .equipment-main-content .scroll-content,
+  .squad-builder-container .scroll-content,
+  .squad-builder-container .roster-list,
+  .debrief-container .scroll-content,
+  .debrief-summary {
+    overflow-y: visible !important;
+    max-height: none !important;
   }
 }
 
