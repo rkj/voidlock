@@ -307,4 +307,27 @@ describe("EquipmentScreen", () => {
     // Should also show class
     expect(soldierNames.some((name) => name?.includes("Assault"))).toBe(true);
   });
+
+  it("should disable launch button if squad is empty in campaign mode", () => {
+    const screen = new EquipmentScreen(
+      "screen-equipment",
+      mockManager,
+      mockModalService as any,
+      { soldiers: [], inventory: {} },
+      onBack,
+      null as any,
+      vi.fn(), // onLaunch
+      false, // isShop
+      true // isCampaign
+    );
+    screen.setHasNodeSelected(true);
+    screen.show();
+
+    const launchBtn = container.querySelector(
+      '[data-focus-id="btn-launch-mission"]',
+    ) as HTMLButtonElement;
+    expect(launchBtn).toBeDefined();
+    // This is expected to fail currently
+    expect(launchBtn.disabled).toBe(true);
+  });
 });
