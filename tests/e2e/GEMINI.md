@@ -36,6 +36,7 @@ To verify visual fidelity and critical user journeys that cannot be fully tested
 - `EquipmentRedundancy.test.ts`: Reproduction test for redundant "Confirm Squad" button and buried "Launch Mission" button on the Equipment Screen.
 - `voidlock-3x1vj_repro.test.ts`: Audit test for Campaign Map contrast, icon fidelity (emoji check), and Z-Index layering (scanline effect).
 - `regression_voidlock-n4sd6_empty_squad_launch.test.ts`: Reproduction test for empty squad mission launch bug.
+- `regression_y70cc_mission_reload.test.ts`: Regression guard for mission state restoration after page reload (voidlock-y70cc).
 
 ## Usage
 
