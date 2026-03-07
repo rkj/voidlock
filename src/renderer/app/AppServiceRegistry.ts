@@ -183,28 +183,28 @@ export class AppServiceRegistry {
       getRenderer: config.getRenderer,
     });
 
-    this.inputManager = new InputManager(
-      this.screenManager,
-      this.menuController,
-      config.onTogglePause,
-      (key, shift) => this.inputOrchestrator.handleMenuInput(key, shift),
-      config.onAbortMission,
-      () => this.inputOrchestrator.onUnitClick(null, false),
-      (e) => this.inputOrchestrator.handleCanvasClick(e),
-      config.onToggleDebug,
-      config.onToggleLos,
-      () => this.missionRunner.getCurrentGameState(),
-      config.isDebriefVisible,
-      config.getSelectedUnitId,
-      config.onDeployUnit,
-      config.onUndeployUnit,
-      config.getCellCoordinates,
-      config.getWorldCoordinates,
-      (reverse) => this.inputOrchestrator.cycleUnits(reverse),
-      (direction) => this.inputOrchestrator.panMap(direction),
-      (dx, dy) => this.inputOrchestrator.panMapBy(dx, dy),
-      (ratio, cx, cy) => this.inputOrchestrator.zoomMap(ratio, cx, cy),
-    );
+    this.inputManager = new InputManager({
+      screenManager: this.screenManager,
+      menuController: this.menuController,
+      togglePause: config.onTogglePause,
+      handleMenuInput: (key, shift) => this.inputOrchestrator.handleMenuInput(key, shift),
+      abortMission: config.onAbortMission,
+      onUnitDeselect: () => this.inputOrchestrator.onUnitClick(null, false),
+      handleCanvasClick: (e) => this.inputOrchestrator.handleCanvasClick(e),
+      onToggleDebug: config.onToggleDebug,
+      onToggleLos: config.onToggleLos,
+      currentGameState: () => this.missionRunner.getCurrentGameState(),
+      isDebriefing: config.isDebriefVisible,
+      getSelectedUnitId: config.getSelectedUnitId,
+      onDeployUnit: config.onDeployUnit,
+      onUndeployUnit: config.onUndeployUnit,
+      getCellCoordinates: config.getCellCoordinates,
+      getWorldCoordinates: config.getWorldCoordinates,
+      cycleUnits: (reverse) => this.inputOrchestrator.cycleUnits(reverse),
+      panMap: (direction) => this.inputOrchestrator.panMap(direction),
+      panMapBy: (dx, dy) => this.inputOrchestrator.panMapBy(dx, dy),
+      zoomMap: (ratio, cx, cy) => this.inputOrchestrator.zoomMap(ratio, cx, cy),
+    });
     this.inputManager.init();
   }
 

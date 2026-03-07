@@ -21,28 +21,28 @@ describe("KeyboardControlsVerification", () => {
     cycleUnits = vi.fn();
     panMap = vi.fn();
 
-    inputManager = new InputManager(
-      mockScreenManager,
-      mockMenuController,
-      vi.fn(), // togglePause
-      vi.fn(), // handleMenuInput
-      vi.fn(), // abortMission
-      vi.fn(), // onUnitDeselect
-      vi.fn(), // handleCanvasClick
-      vi.fn(), // onToggleDebug
-      vi.fn(), // onToggleLos
-      vi.fn(), // currentGameState
-      () => false, // isDebriefing
-      vi.fn(() => null), // getSelectedUnitId
-      vi.fn(), // onDeployUnit
-      vi.fn(), // onUndeployUnit
-      vi.fn(() => ({ x: 0, y: 0 })), // getCellCoordinates
-      vi.fn(() => ({ x: 0, y: 0 })), // getWorldCoordinates
+    inputManager = new InputManager({
+      screenManager: mockScreenManager,
+      menuController: mockMenuController,
+      togglePause: vi.fn(),
+      handleMenuInput: vi.fn(),
+      abortMission: vi.fn(),
+      onUnitDeselect: vi.fn(),
+      handleCanvasClick: vi.fn(),
+      onToggleDebug: vi.fn(),
+      onToggleLos: vi.fn(),
+      currentGameState: vi.fn(),
+      isDebriefing: () => false,
+      getSelectedUnitId: vi.fn(() => null),
+      onDeployUnit: vi.fn(),
+      onUndeployUnit: vi.fn(),
+      getCellCoordinates: vi.fn(() => ({ x: 0, y: 0 })),
+      getWorldCoordinates: vi.fn(() => ({ x: 0, y: 0 })),
       cycleUnits,
       panMap,
-      vi.fn(), // panMapBy
-      vi.fn(), // zoomMap
-    );
+      panMapBy: vi.fn(),
+      zoomMap: vi.fn(),
+    });
     inputManager.init();
   });
 

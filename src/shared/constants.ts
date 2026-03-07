@@ -14,3 +14,8 @@ export const SPEED_NORMALIZATION_CONST = 30;
  * Used for collision avoidance and line-of-fire checks.
  */
 export const UNIT_RADIUS = 0.3;
+
+/**
+ * Offset to the center of a grid cell.
+ */
+export const CENTER_OFFSET = 0.5;

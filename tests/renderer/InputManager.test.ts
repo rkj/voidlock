@@ -52,9 +52,9 @@ describe("InputManager", () => {
       confirm: vi.fn(),
     };
 
-    inputManager = new InputManager(
-      mockScreenManager,
-      mockMenuController,
+    inputManager = new InputManager({
+      screenManager: mockScreenManager,
+      menuController: mockMenuController,
       togglePause,
       handleMenuInput,
       abortMission,
@@ -63,17 +63,17 @@ describe("InputManager", () => {
       onToggleDebug,
       onToggleLos,
       currentGameState,
-      () => debriefingActive,
+      isDebriefing: () => debriefingActive,
       getSelectedUnitId,
-      vi.fn(), // onDeployUnit
-      vi.fn(), // onUndeployUnit
-      vi.fn(() => ({ x: 0, y: 0 })), // getCellCoordinates
-      vi.fn(() => ({ x: 0, y: 0 })), // getWorldCoordinates
-      vi.fn(), // cycleUnits
-      vi.fn(), // panMap
-      vi.fn(), // panMapBy
-      vi.fn(), // zoomMap
-    );
+      onDeployUnit: vi.fn(),
+      onUndeployUnit: vi.fn(),
+      getCellCoordinates: vi.fn(() => ({ x: 0, y: 0 })),
+      getWorldCoordinates: vi.fn(() => ({ x: 0, y: 0 })),
+      cycleUnits: vi.fn(),
+      panMap: vi.fn(),
+      panMapBy: vi.fn(),
+      zoomMap: vi.fn(),
+    });
     inputManager.init();
   });
 
