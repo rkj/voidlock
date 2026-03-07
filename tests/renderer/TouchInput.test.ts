@@ -17,28 +17,31 @@ describe("InputManager Touch Gestures", () => {
     zoomMap = vi.fn();
     handleCanvasClick = vi.fn();
 
-    inputManager = new InputManager(
-      { getCurrentScreen: () => "mission", getScreenElement: () => document.createElement("div") } as any,
-      { isShiftHeld: false, menuState: "ACTION_SELECT" } as any,
-      vi.fn(), // togglePause
-      vi.fn(), // handleMenuInput
-      vi.fn(), // abortMission
-      vi.fn(), // onUnitDeselect
+    inputManager = new InputManager({
+      screenManager: {
+        getCurrentScreen: () => "mission",
+        getScreenElement: () => document.createElement("div"),
+      } as any,
+      menuController: { isShiftHeld: false, menuState: "ACTION_SELECT" } as any,
+      togglePause: vi.fn(),
+      handleMenuInput: vi.fn(),
+      abortMission: vi.fn(),
+      onUnitDeselect: vi.fn(),
       handleCanvasClick,
-      vi.fn(), // onToggleDebug
-      vi.fn(), // onToggleLos
-      () => null, // currentGameState
-      () => false, // isDebriefing
-      vi.fn(() => null), // getSelectedUnitId
-      vi.fn(), // onDeployUnit
-      vi.fn(), // onUndeployUnit
-      () => ({ x: 0, y: 0 }), // getCellCoordinates
-      () => ({ x: 0, y: 0 }), // getWorldCoordinates
-      vi.fn(), // cycleUnits
-      vi.fn(), // panMap
+      onToggleDebug: vi.fn(),
+      onToggleLos: vi.fn(),
+      currentGameState: () => null,
+      isDebriefing: () => false,
+      getSelectedUnitId: vi.fn(() => null),
+      onDeployUnit: vi.fn(),
+      onUndeployUnit: vi.fn(),
+      getCellCoordinates: () => ({ x: 0, y: 0 }),
+      getWorldCoordinates: () => ({ x: 0, y: 0 }),
+      cycleUnits: vi.fn(),
+      panMap: vi.fn(),
       panMapBy,
       zoomMap,
-    );
+    });
 
     // Mock document.getElementById for game-canvas
     const mockCanvas = document.createElement("div");

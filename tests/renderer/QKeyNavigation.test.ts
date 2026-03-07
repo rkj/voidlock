@@ -43,28 +43,28 @@ describe("Q and ESC Key Navigation", () => {
     onToggleLos = vi.fn();
     currentGameState = vi.fn(() => ({}));
 
-    inputManager = new InputManager(
-      mockScreenManager as any,
-      mockMenuController as any,
+    inputManager = new InputManager({
+      screenManager: mockScreenManager as any,
+      menuController: mockMenuController as any,
       togglePause,
       handleMenuInput,
       abortMission,
       onUnitDeselect,
-      vi.fn(), // handleCanvasClick
-      vi.fn(), // onToggleDebug
-      vi.fn(), // onToggleLos
-      vi.fn(), // currentGameState
-      () => false, // isDebriefing
+      handleCanvasClick: vi.fn(),
+      onToggleDebug: vi.fn(),
+      onToggleLos: vi.fn(),
+      currentGameState: vi.fn(),
+      isDebriefing: () => false,
       getSelectedUnitId,
-      vi.fn(), // onDeployUnit
-      vi.fn(), // onUndeployUnit
-      vi.fn(() => ({ x: 0, y: 0 })), // getCellCoordinates
-      vi.fn(() => ({ x: 0, y: 0 })), // getWorldCoordinates
-      vi.fn(), // cycleUnits
-      vi.fn(), // panMap
-      vi.fn(), // panMapBy
-      vi.fn(), // zoomMap
-    );
+      onDeployUnit: vi.fn(),
+      onUndeployUnit: vi.fn(),
+      getCellCoordinates: vi.fn(() => ({ x: 0, y: 0 })),
+      getWorldCoordinates: vi.fn(() => ({ x: 0, y: 0 })),
+      cycleUnits: vi.fn(),
+      panMap: vi.fn(),
+      panMapBy: vi.fn(),
+      zoomMap: vi.fn(),
+    });
     inputManager.init();
 
     globalShortcuts = new GlobalShortcuts(togglePause, () =>

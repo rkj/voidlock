@@ -5,6 +5,7 @@ import { MissionRunner } from "./MissionRunner";
 import { Renderer } from "../Renderer";
 import { Unit, UnitState, CommandType } from "@src/shared/types";
 import { MathUtils } from "@src/shared/utils/MathUtils";
+import { MapUtils } from "@src/shared/utils/MapUtils";
 
 export interface InputOrchestratorConfig {
   gameClient: GameClient;
@@ -177,8 +178,7 @@ export class InputOrchestrator {
       if (event.button === 0 && this.missionRunner.getSelectedUnitId()) {
         const unit = state.units.find((u) => u.id === this.missionRunner.getSelectedUnitId());
         if (unit && unit.archetypeId !== "vip") {
-          const isValidSpawn = state.map.squadSpawns?.some((s) => s.x === clickedCell.x && s.y === clickedCell.y) ||
-            (state.map.squadSpawn && state.map.squadSpawn.x === clickedCell.x && state.map.squadSpawn.y === clickedCell.y);
+          const isValidSpawn = MapUtils.isValidSpawnPoint(state.map, clickedCell);
 
           if (isValidSpawn) {
             this.gameClient.applyCommand({
