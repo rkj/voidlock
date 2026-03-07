@@ -37,6 +37,7 @@ To verify visual fidelity and critical user journeys that cannot be fully tested
 - `voidlock-3x1vj_repro.test.ts`: Audit test for Campaign Map contrast, icon fidelity (emoji check), and Z-Index layering (scanline effect).
 - `regression_voidlock-n4sd6_empty_squad_launch.test.ts`: Reproduction test for empty squad mission launch bug.
 - `regression_y70cc_mission_reload.test.ts`: Regression guard for mission state restoration after page reload (voidlock-y70cc).
+- `regression_y9o3n_sector_map_icons.test.ts`: Regression guard for crisp SVG icons and absence of Rank labels on the Sector Map (voidlock-y9o3n).
 
 ## Usage
 

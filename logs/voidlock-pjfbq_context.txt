@@ -1,0 +1,9 @@
+You previously timed out while searching. Avoid `grep -r` on the root as it scans `node_modules`.
+Use focus on `src/` and `tests/`.
+The goal is to create `tests/e2e/regression_y9o3n_sector_map_icons.test.ts`.
+Reference `tests/e2e/voidlock-3x1vj_repro.test.ts` for setup.
+The current code in `src/renderer/screens/CampaignScreen.ts` around `getNodeIcon` and `renderNode` seems to be the place where nodes are rendered.
+Verify that `Rank X` text is NOT present and that icons are SVGs (not emojis).
+The test must FAIL first.
+If you need to check if SVG icons are rendered, look for `.node-icon svg` or similar in the DOM.
+Check `src/renderer/ui/CampaignShellUI.tsx` for possible "Rank" label leaks.
