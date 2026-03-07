@@ -230,7 +230,7 @@ export class CampaignScreen {
       // Icon based on type
       const icon = document.createElement("div");
       icon.className = "node-icon";
-      icon.innerHTML = this.getNodeIcon(node.type);
+      icon.appendChild(this.createNodeIcon(node.type));
       nodeEl.appendChild(icon);
 
       // Current Indicator
@@ -243,7 +243,7 @@ export class CampaignScreen {
         indicator.style.width = "20px";
         indicator.style.height = "20px";
         indicator.style.color = "var(--color-accent)";
-        indicator.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 21l-12-18h24z"/></svg>';
+        indicator.appendChild(this.createSVG("M12 21l-12-18h24z", 20, 20, "currentColor", "none"));
         indicator.style.filter = "drop-shadow(0 0 8px var(--color-accent))";
         indicator.style.zIndex = "10";
         nodeEl.appendChild(indicator);
@@ -267,7 +267,7 @@ export class CampaignScreen {
           pip.style.display = "flex";
           pip.style.width = "12px";
           pip.style.height = "12px";
-          pip.innerHTML = '<svg viewBox="0 0 24 24" fill="var(--color-warning)" stroke="none"><path d="M21 8l-9-4-9 4v8l9 4 9-4V8z"/><path d="M3 8l9 4 9-4"/><path d="M12 20V12"/></svg>';
+          pip.appendChild(this.createLootIcon());
           pip.style.filter = "drop-shadow(0 0 3px rgba(255, 152, 0, 0.5))";
           pipsContainer.appendChild(pip);
         }
@@ -302,21 +302,90 @@ export class CampaignScreen {
     }
   }
 
-  private getNodeIcon(type: string): string {
+  private createSVG(pathData: string, width: number, height: number, stroke: string = "currentColor", fill: string = "none"): SVGElement {
+    const svgNamespace = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(svgNamespace, "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("width", width.toString());
+    svg.setAttribute("height", height.toString());
+    svg.setAttribute("fill", fill);
+    svg.setAttribute("stroke", stroke);
+    svg.setAttribute("stroke-width", "2");
+    
+    // Explicitly set style dimensions to avoid 0x0 issues in some environments
+    svg.style.width = `${width}px`;
+    svg.style.height = `${height}px`;
+    svg.style.display = "block";
+
+    const path = document.createElementNS(svgNamespace, "path");
+    path.setAttribute("d", pathData);
+    svg.appendChild(path);
+    
+    return svg;
+  }
+
+  private createNodeIcon(type: string): SVGElement | Text {
+    let path = "";
     switch (type) {
       case "Combat":
-        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>';
+        path = "M13 2L3 14h9l-1 8 10-12h-9l1-8z";
+        break;
       case "Elite":
-        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>';
+        path = "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z";
+        break;
       case "Boss":
-        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>';
+        path = "M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5";
+        break;
       case "Shop":
-        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4H6zM3 6h18M16 10a4 4 0 01-8 0"/></svg>';
+        path = "M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4H6zM3 6h18M16 10a4 4 0 01-8 0";
+        break;
       case "Event":
-        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01"/></svg>';
+        path = "M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3M12 17h.01";
+        // Special case for Event: circle + path
+        const svg = this.createSVG(path, 24, 24);
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", "12");
+        circle.setAttribute("cy", "12");
+        circle.setAttribute("r", "10");
+        svg.insertBefore(circle, svg.firstChild);
+        return svg;
       default:
-        return "?";
+        return document.createTextNode("?");
     }
+
+    if (path) {
+      return this.createSVG(path, 24, 24);
+    }
+    
+    return document.createTextNode("?");
+  }
+
+  private createLootIcon(): SVGElement {
+    const svgNamespace = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(svgNamespace, "svg");
+    svg.setAttribute("viewBox", "0 0 24 24");
+    svg.setAttribute("width", "12");
+    svg.setAttribute("height", "12");
+    svg.setAttribute("fill", "var(--color-warning)");
+    svg.setAttribute("stroke", "none");
+    
+    svg.style.width = "12px";
+    svg.style.height = "12px";
+    svg.style.display = "block";
+
+    const path1 = document.createElementNS(svgNamespace, "path");
+    path1.setAttribute("d", "M21 8l-9-4-9 4v8l9 4 9-4V8z");
+    svg.appendChild(path1);
+
+    const path2 = document.createElementNS(svgNamespace, "path");
+    path2.setAttribute("d", "M3 8l9 4 9-4");
+    svg.appendChild(path2);
+
+    const path3 = document.createElementNS(svgNamespace, "path");
+    path3.setAttribute("d", "M12 20V12");
+    svg.appendChild(path3);
+
+    return svg;
   }
 
   private drawConnections(canvas: HTMLCanvasElement, nodes: CampaignNode[]) {
