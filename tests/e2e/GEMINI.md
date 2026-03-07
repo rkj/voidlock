@@ -32,6 +32,7 @@ To verify visual fidelity and critical user journeys that cannot be fully tested
 - `UICasingStandardization.test.ts`: Comprehensive audit for uppercase text across all screens.
 - `SpawnPointOverlap.test.ts`: Reproduction test for squad spawn point overlap and Auto-Fill behavior.
 - `DeploymentValidation.test.ts`: Verifies drag-and-drop deployment and Start Mission button logic.
+- `regression_9kuuq_zoom_constraints.test.ts`: Verifies that the mission map initial zoom fits the container and enforces zoom-out limits (voidlock-9kuuq).
 - `ReproAutoDeploymentDefeat.test.ts`: Verifies mission launch and deployment phase transitions.
 - `EquipmentRedundancy.test.ts`: Reproduction test for redundant "Confirm Squad" button and buried "Launch Mission" button on the Equipment Screen.
 - `voidlock-3x1vj_repro.test.ts`: Audit test for Campaign Map contrast, icon fidelity (emoji check), and Z-Index layering (scanline effect).
