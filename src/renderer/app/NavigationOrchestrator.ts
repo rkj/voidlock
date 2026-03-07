@@ -467,6 +467,10 @@ export class NavigationOrchestrator {
   }
 
   public onLaunchMission(config: SquadConfig) {
+    if (config.soldiers.filter(s => !!s).length === 0) {
+      this.modalService.alert("Squad cannot be empty. Please select at least one soldier.");
+      return;
+    }
     this.persistEquipment(config);
     this.callbacks.launchMission();
   }

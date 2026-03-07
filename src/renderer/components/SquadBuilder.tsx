@@ -220,7 +220,18 @@ export class SquadBuilder {
     const launchBtn = document.getElementById(
       "btn-launch-mission",
     ) as HTMLButtonElement;
-    if (launchBtn) launchBtn.disabled = total === 0 || total > MAX_SQUAD_SIZE;
+    if (launchBtn) {
+      const isEmpty = total === 0;
+      const isOverfilled = total > MAX_SQUAD_SIZE;
+      launchBtn.disabled = isEmpty || isOverfilled;
+      if (isEmpty) {
+        launchBtn.title = "Select at least one soldier to launch mission";
+      } else if (isOverfilled) {
+        launchBtn.title = `Maximum of ${MAX_SQUAD_SIZE} soldiers allowed`;
+      } else {
+        launchBtn.title = "";
+      }
+    }
 
     const squadTotalColor =
       total > MAX_SQUAD_SIZE
