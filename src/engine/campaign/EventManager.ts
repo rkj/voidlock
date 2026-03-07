@@ -1,12 +1,11 @@
 import {
   CampaignState,
   EventChoice,
-  CampaignSoldier,
 } from "../../shared/campaign_types";
 import { PRNG } from "../../shared/PRNG";
-import { ArchetypeLibrary, MissionType } from "../../shared/types";
+import { MissionType } from "../../shared/types";
 import { MissionReconciler } from "./MissionReconciler";
-import { RosterUtils } from "./RosterUtils";
+import { SoldierFactory } from "./SoldierFactory";
 
 /**
  * Handles narrative event logic for the campaign.
@@ -86,28 +85,10 @@ export class EventManager {
           const archetypes = ["assault", "medic", "scout", "heavy"];
           const archId =
             archetypes[Math.floor(prng.next() * archetypes.length)];
-          const arch = ArchetypeLibrary[archId];
-          const name = RosterUtils.getRandomName(state.roster, prng);
-          const newSoldier: CampaignSoldier = {
-            id: `soldier_${Date.now()}_${Math.floor(prng.next() * 1000)}`,
-            name: name,
-            archetypeId: archId,
-            hp: arch ? arch.baseHp : 100,
-            maxHp: arch ? arch.baseHp : 100,
-            soldierAim: arch ? arch.soldierAim : 80,
-            xp: 0,
-            level: 1,
-            kills: 0,
-            missions: 0,
-            status: "Healthy",
-            recoveryTime: 0,
-            equipment: {
-              rightHand: arch?.rightHand,
-              leftHand: arch?.leftHand,
-              body: arch?.body,
-              feet: arch?.feet,
-            },
-          };
+
+          const newSoldier = SoldierFactory.createSoldier(archId, state.roster, {
+            prng,
+          });
           state.roster.push(newSoldier);
           outcomeText += `Recruited ${newSoldier.name} (${archId}). `;
         }

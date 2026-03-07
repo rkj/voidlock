@@ -1,10 +1,10 @@
 import { CampaignState, CampaignSoldier } from "../../shared/campaign_types";
-import { ArchetypeLibrary, EquipmentState } from "../../shared/types";
+import { EquipmentState } from "../../shared/types";
 import {
   DEFAULT_ARCHETYPES,
   CAMPAIGN_DEFAULTS,
 } from "../config/CampaignDefaults";
-import { RosterUtils } from "./RosterUtils";
+import { SoldierFactory } from "./SoldierFactory";
 
 /**
  * Handles roster-related logic for the campaign.
@@ -22,27 +22,11 @@ export class RosterManager {
 
     for (let i = 0; i < CAMPAIGN_DEFAULTS.INITIAL_ROSTER_SIZE; i++) {
       const archId = archetypes[i % archetypes.length];
-      const arch = ArchetypeLibrary[archId];
-      roster.push({
-        id: `soldier_${i}`,
-        name: RosterUtils.getRandomName(roster),
-        archetypeId: archId,
-        hp: arch ? arch.baseHp : 100,
-        maxHp: arch ? arch.baseHp : 100,
-        soldierAim: arch ? arch.soldierAim : 80,
-        xp: 0,
-        level: 1,
-        kills: 0,
-        missions: 0,
-        status: "Healthy",
-        recoveryTime: 0,
-        equipment: {
-          rightHand: arch?.rightHand,
-          leftHand: arch?.leftHand,
-          body: arch?.body,
-          feet: arch?.feet,
-        },
-      });
+      roster.push(
+        SoldierFactory.createSoldier(archId, roster, {
+          id: `soldier_${i}`,
+        }),
+      );
     }
     return roster;
   }
@@ -70,33 +54,9 @@ export class RosterManager {
       throw new Error(`Archetype ${archetypeId} is not unlocked.`);
     }
 
-    const arch = ArchetypeLibrary[archetypeId];
-    if (!arch) {
-      throw new Error(`Invalid archetype ID: ${archetypeId}`);
-    }
-
-    const finalName = name || RosterUtils.getRandomName(state.roster);
-
-    const newSoldier: CampaignSoldier = {
-      id: `soldier_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
-      name: finalName,
-      archetypeId,
-      hp: arch.baseHp,
-      maxHp: arch.baseHp,
-      soldierAim: arch.soldierAim,
-      xp: 0,
-      level: 1,
-      kills: 0,
-      missions: 0,
-      status: "Healthy",
-      recoveryTime: 0,
-      equipment: {
-        rightHand: arch.rightHand,
-        leftHand: arch.leftHand,
-        body: arch.body,
-        feet: arch.feet,
-      },
-    };
+    const newSoldier = SoldierFactory.createSoldier(archetypeId, state.roster, {
+      name,
+    });
 
     state.scrap -= COST;
     state.roster.push(newSoldier);
