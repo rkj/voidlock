@@ -103,7 +103,17 @@ export class InputOrchestrator {
     if (!container) return;
 
     const oldCellSize = renderer.cellSize;
-    const newCellSize = Math.max(32, Math.min(512, oldCellSize * ratio));
+    
+    // Calculate dynamic minimum zoom to prevent the map from becoming smaller than the screen
+    const state = this.missionRunner.getCurrentGameState();
+    let minCellSize = 32;
+    if (state && state.map) {
+      const fitWidth = container.clientWidth / state.map.width;
+      const fitHeight = container.clientHeight / state.map.height;
+      minCellSize = Math.max(32, Math.min(fitWidth, fitHeight));
+    }
+
+    const newCellSize = Math.max(minCellSize, Math.min(512, oldCellSize * ratio));
     if (newCellSize === oldCellSize) return;
 
     const rect = container.getBoundingClientRect();
@@ -114,7 +124,6 @@ export class InputOrchestrator {
     const actualRatio = newCellSize / oldCellSize;
 
     renderer.setCellSize(newCellSize);
-    const state = this.missionRunner.getCurrentGameState();
     if (state) {
       renderer.render(state);
     }

@@ -51,6 +51,7 @@ export class ReplayController {
   }
 
   public destroy() {
+    const wasReplaying = this.isReplaying;
     this.stopReplay();
     if (this.renderer) {
       this.renderer.destroy();
@@ -58,12 +59,9 @@ export class ReplayController {
     }
     
     // Only stop if we are actually in Replay mode to avoid stopping a new mission start (Spec 8.12)
-    // We check the internal gameClient state to be sure
-    this.gameClient.queryState(); // Request latest state to be sure, though it's async
-    
-    // Better: GameClient should probably expose its mode
-    // For now, we rely on the fact that stop() is generally safe if we are leaving Debrief
-    this.gameClient.stop();
+    if (wasReplaying) {
+      this.gameClient.stop();
+    }
   }
 
   private handleStateUpdate = (state: GameState) => {

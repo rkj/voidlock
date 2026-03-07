@@ -233,12 +233,6 @@ export class CampaignScreen {
       icon.innerHTML = this.getNodeIcon(node.type);
       nodeEl.appendChild(icon);
 
-      // Rank Label
-      const label = document.createElement("div");
-      label.className = "node-label";
-      label.textContent = `Rank ${node.rank}`;
-      nodeEl.appendChild(label);
-
       // Current Indicator
       if (isCurrent) {
         const indicator = document.createElement("div");
