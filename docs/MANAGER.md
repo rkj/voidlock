@@ -19,6 +19,8 @@
    - **Logic Bugs**: Must have a passing unit/integration test.
    - **Visual/Layout Bugs**: MUST have a passing **E2E test** (Puppeteer). **Do NOT** accept JSDOM tests for CSS/Layout.
 1. **SINGLE TASK EXECUTION**: You MUST stop and wait for user instruction after completing exactly ONE task lifecycle.
+1. **SCOPE LIMIT (MAX 5 FILES)**: If a task's description or diff touches more than 5 source files, **FAIL VERIFICATION** immediately and re-escalate to the PM for decomposition. Large-scope changes are the #1 source of regressions. No exceptions.
+1. **QUOTA AWARENESS**: Before dispatching an agent, verify you have enough capacity to complete the full verification loop (screenshots, tests, diff review). If you cannot guarantee verification, do NOT dispatch. Wait for the next session.
 
 ## 1. Session Startup
 
@@ -43,18 +45,59 @@ At the start of every session, run:
 
 **🚨 SERVER INFO**: The development server is at `http://localhost:5199/`. Use this for all browser-based verification.
 
+**🚨 VERIFICATION IS SEQUENTIAL AND MANDATORY**: You MUST execute every step below in order. You may NOT skip any step. If you cannot complete a step (e.g. quota exhaustion), you MUST leave the task as in_progress and exit. NEVER close a task with incomplete verification.
+
 **Manager Actions:**
 
-1. **Audit Beads**:
-   - **Comment Check**: Run `bd show <TASK_ID> --json` and check for any new comments from the agent. If they added a "BLOCKER" comment, treat the task as unresolved and **ESCALATE TO HUMAN INPUT** immediately.
-1. **Audit Logs**:
-   - **Crash Check**: Scan the agent's output for "Loop detected", "TimeoutError", or "Operation Cancelled". If found, **FAIL VERIFICATION** immediately (do not close).
-   - **Tool Failure**: Did `npm install` fail? Did the agent bypass a tool failure? **FAIL VERIFICATION** immediately (do not close).
-1. **Visual Audit (MANDATORY for UI/CSS/Layout)**:
-   - Use `navigate_page` to visit the affected screen.
-   - Use `take_screenshot` at **1024x768** and **400x800**.
-   - Compare screenshots against the **Product Spec** and the "Negative Proof" screenshots from the planning phase.
-   - If the visual state is incorrect or inconsistent with requirements, **FAIL VERIFICATION** (do not close).
+### Step 1: Audit Beads
+- **Comment Check**: Run `bd show <TASK_ID> --json` and check for any new comments from the agent. If they added a "BLOCKER" comment, treat the task as unresolved and **ESCALATE TO HUMAN INPUT** immediately.
+
+### Step 2: Audit Logs
+- **Crash Check**: Scan the agent's output for "Loop detected", "TimeoutError", or "Operation Cancelled". If found, **FAIL VERIFICATION** immediately (do not close).
+- **Tool Failure**: Did `npm install` fail? Did the agent bypass a tool failure? **FAIL VERIFICATION** immediately (do not close).
+
+### Step 3: Diff Review (MANDATORY)
+
+This step catches regressions from large refactors. It is the single most important verification step.
+
+1. Run `jj diff --git` to see ALL changes the agent made.
+1. **File Count Check**: Count the number of modified source files (exclude test files and `GEMINI.md`). If more than 5 source files were changed, **FAIL VERIFICATION** and escalate to PM for task decomposition.
+1. **Deletion Audit**: For every deleted line of production code, ask: "Was this deletion intentional and correct?" Pay special attention to:
+   - Removed CSS classes or style rules (layout regressions)
+   - Removed DOM elements or component renders (visibility regressions)
+   - Removed function calls or event handlers (behavior regressions)
+   - Removed configuration checks or feature flags (logic regressions)
+1. **Restoration Audit**: For refactors and migrations specifically, verify that no previously-fixed behavior was reverted. Cross-reference deleted lines against recent closed beads for the same files.
+1. **Scope Creep Check**: Did the agent modify files unrelated to the task description? If so, **FAIL VERIFICATION**. The agent must only touch files directly required by the task.
+
+### Step 4: Visual Audit (MANDATORY for UI/CSS/Layout)
+- Use `navigate_page` to visit the affected screen.
+- Use `take_screenshot` at **1024x768** and **400x800**.
+- Compare screenshots against the **Product Spec** and the "Negative Proof" screenshots from the planning phase.
+- If the visual state is incorrect or inconsistent with requirements, **FAIL VERIFICATION** (do not close).
+
+### Step 5: Test Verification
+1. **Test**: Run `npx vitest run <PATH_TO_TEST>`. Use `--reporter=basic`.
+1. **Test Robustness Audit**:
+   - Inspect the test file code. Does it use mocks that bypass the bug? (e.g., manually firing an event instead of using the mouse).
+   - **Mock Integrity**: Check if the agent modified class signatures (e.g. constructors). If so, verify that they updated ALL manual mocks in test files. "Function not found" errors are often lazy refactors.
+   - Does it verify the *negative* case? (e.g., "Element should NOT exist").
+   - **Happy Path Rejection**: If the test only checks the success scenario without verifying the failure mode or edge cases, **FAIL VERIFICATION** (do not close).
+
+### Step 6: UI State Audit (for tasks involving UI re-renders or updates)
+- **Focus Check**: Does the code explicitly save/restore focus? (Search for `FocusManager`).
+- **Scroll Check**: Does the code explicitly save/restore `scrollTop`?
+- If missing, **FAIL VERIFICATION** with instruction to implement state preservation.
+
+### Step 7: Regression Audit
+- Before closing, search closed beads for similar titles (`bd list --status closed | grep <keyword>`).
+- If duplicates exist, verify the fix works where previous attempts failed.
+
+### Step 8: Build & Lint
+- Ensure `npm run build` and `npm run lint` pass without errors.
+
+### Step 9: Spec Compliance Check
+- Inspect: `jj diff --git`. Verify adherence to **SOLID** and **Spec** compliance.
 
 ### Definition of Failed Verification (Do Not Close)
 
@@ -74,35 +117,11 @@ If a task is not fully verified as fixed:
 
 1. **Wait for Feedback**: After blocking under `voidlock-xyoaw`, stop automation and wait for user/product guidance. Do not close the task.
 
-1. **Inspect**: Execute `jj diff --git`. Verify adherence to **SOLID** and **Spec** compliance.
-
-1. **Test**: Run `npx vitest run <PATH_TO_TEST>`. Use `--reporter=basic`.
-
-1. **Test Robustness Audit**:
-
-   - Inspect the test file code. Does it use mocks that bypass the bug? (e.g., manually firing an event instead of using the mouse).
-   - **Mock Integrity**: Check if the agent modified class signatures (e.g. constructors). If so, verify that they updated ALL manual mocks in test files. "Function not found" errors are often lazy refactors.
-   - Does it verify the *negative* case? (e.g., "Element should NOT exist").
-   - **Happy Path Rejection**: If the test only checks the success scenario without verifying the failure mode or edge cases, **FAIL VERIFICATION** (do not close).
-
-1. **UI State Audit**: For tasks involving UI re-renders or updates:
-
-   - **Focus Check**: Does the code explicitly save/restore focus? (Search for `FocusManager`).
-   - **Scroll Check**: Does the code explicitly save/restore `scrollTop`?
-   - If missing, **FAIL VERIFICATION** with instruction to implement state preservation.
-
-1. **Regression Audit**:
-
-   - Before closing, search closed beads for similar titles (`bd list --status closed | grep <keyword>`).
-   - If duplicates exist, verify the fix works where previous attempts failed.
-
-1. **Build & Lint**: Ensure `npm run build` and `npm run lint` pass without errors.
-
 ## 4. Finalization
 
 **🚨 NEVER PUSH**: User handles pushing.
 
-- **If Verified**:
+- **If Verified** (ALL 9 steps above completed):
 
   1. `./scripts/safe_commit.sh "<bead-id>: <description>.
 
