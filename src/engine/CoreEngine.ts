@@ -20,6 +20,7 @@ import { Pathfinder } from "./Pathfinder";
 import { LineOfSight } from "./LineOfSight";
 import { Director } from "./Director";
 import { IDirector } from "./interfaces/IDirector";
+import { ItemEffectService } from "./managers/ItemEffectService";
 import { MissionManager } from "./managers/MissionManager";
 import { DoorManager } from "./managers/DoorManager";
 import { VisibilityManager } from "./managers/VisibilityManager";
@@ -182,17 +183,20 @@ export class CoreEngine {
         ? baseEnemyCount + missionDepth * enemyGrowthPerMission
         : 0);
 
+    const itemEffectService = new ItemEffectService();
+
     this.director = new Director(
       spawnPoints,
       this.prng,
       (enemy) => this.enemyManager.addEnemy(this.state, enemy),
+      itemEffectService,
       startingThreatLevel,
       map,
       effectiveStartingPoints,
     );
     this.director.preSpawn();
 
-    this.commandHandler = new CommandHandler(this.unitManager, this.director);
+    this.commandHandler = new CommandHandler(this.unitManager, itemEffectService);
 
     // Mission Setup
     this.missionManager.setupMission(

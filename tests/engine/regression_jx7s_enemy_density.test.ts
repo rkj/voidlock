@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { Director } from "@src/engine/Director";
+import { ItemEffectService } from "@src/engine/managers/ItemEffectService";
 import { PRNG } from "@src/shared/PRNG";
 
 describe("Director - Point-Based Spawning (ew59/3sqa)", () => {
@@ -7,7 +8,7 @@ describe("Director - Point-Based Spawning (ew59/3sqa)", () => {
     const spawnPoints = [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }];
     const prng = new PRNG(123);
     const onSpawn = vi.fn();
-    const director = new Director(spawnPoints, prng, onSpawn, 0, undefined, 20);
+    const director = new Director(spawnPoints, prng, onSpawn, new ItemEffectService(), 0, undefined, 20);
 
     // Initial state: threat 0
     // Fast forward to turn 1 (10s)
@@ -21,7 +22,7 @@ describe("Director - Point-Based Spawning (ew59/3sqa)", () => {
     const spawnPoints = [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }];
     const prng = new PRNG(123);
     const onSpawn = vi.fn();
-    const director = new Director(spawnPoints, prng, onSpawn, 0, undefined, 20);
+    const director = new Director(spawnPoints, prng, onSpawn, new ItemEffectService(), 0, undefined, 20);
 
     // Turn 1: 21 (clamped to 5)
     director.update(10000);

@@ -7,6 +7,7 @@ import {
 } from "../../src/shared/types";
 import { MapFactory } from "../../src/engine/map/MapFactory";
 import { Director } from "../../src/engine/Director";
+import { ItemEffectService } from "../../src/engine/managers/ItemEffectService";
 import { PRNG } from "../../src/shared/PRNG";
 
 describe("Director & Campaign Scaling Regression (xrlq)", () => {
@@ -81,7 +82,7 @@ describe("Director & Campaign Scaling Regression (xrlq)", () => {
     const onSpawn = (e: any) => enemies.push(e);
 
     // startingPoints = 3
-    const director = new Director(spawnPoints, prng, onSpawn, 0, undefined, 3);
+    const director = new Director(spawnPoints, prng, onSpawn, new ItemEffectService(), 0, undefined, 3);
 
     // 10% threat (turn 1): budget = floor(1 * 1.0) = 1
     director.update(10000);

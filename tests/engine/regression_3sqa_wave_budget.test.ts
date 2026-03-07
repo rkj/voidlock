@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { Director } from "@src/engine/Director";
+import { ItemEffectService } from "@src/engine/managers/ItemEffectService";
 import { PRNG } from "@src/shared/PRNG";
 import { EnemyType } from "@src/shared/types";
 
@@ -8,7 +9,7 @@ describe("Director Wave Budgeting & Tier Locking", () => {
     const spawnPoints = [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }];
     const prng = new PRNG(123);
     const onSpawn = vi.fn();
-    const director = new Director(spawnPoints, prng, onSpawn);
+    const director = new Director(spawnPoints, prng, onSpawn, new ItemEffectService());
 
     // Initial state: threat 0
     // Trigger first wave (threat increases to 10%)
@@ -32,7 +33,7 @@ describe("Director Wave Budgeting & Tier Locking", () => {
     const onSpawn = vi.fn();
 
     // Start at 30% threat
-    const director = new Director(spawnPoints, prng, onSpawn, 30);
+    const director = new Director(spawnPoints, prng, onSpawn, new ItemEffectService(), 30);
 
     // Trigger next wave (reaches 40% threat)
     director.update(10000);
@@ -65,7 +66,7 @@ describe("Director Wave Budgeting & Tier Locking", () => {
     const onSpawn = vi.fn();
 
     // Use custom starting points
-    const director = new Director(spawnPoints, prng, onSpawn, 0, undefined, 50);
+    const director = new Director(spawnPoints, prng, onSpawn, new ItemEffectService(), 0, undefined, 50);
 
     director.update(10000); // 10% threat
 

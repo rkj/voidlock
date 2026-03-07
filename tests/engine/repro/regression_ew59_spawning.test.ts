@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { Director } from "@src/engine/Director";
+import { ItemEffectService } from "@src/engine/managers/ItemEffectService";
 import { PRNG } from "@src/shared/PRNG";
 import { CellType, MapGeneratorType } from "@src/shared/types";
 import { MapFactory } from "@src/engine/map/MapFactory";
@@ -50,6 +51,7 @@ describe("Regression voidlock-ew59: Point-Based Spawning", () => {
       map.spawnPoints!,
       prng,
       onSpawn,
+      new ItemEffectService(),
       0, // startingThreatLevel
       map,
       startingPoints,
