@@ -24,52 +24,76 @@ describe("Regression Guard voidlock-1gvpw: Sector Map Icon Visibility", () => {
     await page.waitForSelector("#btn-menu-campaign");
     await page.click("#btn-menu-campaign");
 
-    // 2. Start Campaign (Initialize Expedition)
+    // 2. Setup Campaign (Skip Prologue to stay on Sector Map)
+    await page.waitForSelector("#campaign-skip-prologue");
+    await page.click("#campaign-skip-prologue");
+    
     await page.waitForSelector('[data-focus-id="btn-start-campaign"]');
     await page.click('[data-focus-id="btn-start-campaign"]');
 
     // 3. Wait for Sector Map nodes
-    await page.waitForSelector(".campaign-node");
+    await page.waitForSelector(".campaign-node", { visible: true });
+    
+    // Stabilize layout
+    await new Promise(r => setTimeout(r, 1000));
 
     // 4. Audit icon visibility and size
-    const iconMetrics = await page.evaluate(() => {
+    const auditData = await page.evaluate(() => {
       const nodes = Array.from(document.querySelectorAll(".campaign-node"));
-      return nodes.map(node => {
-        const nodeIcon = node.querySelector(".node-icon");
+      const viewport = document.querySelector(".campaign-map-viewport");
+      const mapContent = document.querySelector(".campaign-map-content");
+      const screen = document.getElementById("screen-campaign");
+      const app = document.getElementById("app");
+      
+      const vRect = viewport?.getBoundingClientRect();
+      const cRect = mapContent?.getBoundingClientRect();
+      const sRect = screen?.getBoundingClientRect();
+      const aRect = app?.getBoundingClientRect();
+      const sStyle = screen ? window.getComputedStyle(screen) : null;
+
+      const nodeMetrics = nodes.map(node => {
+        const nodeIcon = node.querySelector(".node-icon") as HTMLElement;
         const svg = nodeIcon?.querySelector("svg");
         
-        if (!nodeIcon || !svg) {
-          const text = node.textContent?.trim() || "";
-          return {
-            exists: false,
-            width: 0,
-            height: 0,
-            visible: false,
-            opacity: 0,
-            text
-          };
-        }
-
-        const rect = svg.getBoundingClientRect();
-        const style = window.getComputedStyle(svg);
+        const innerHTML = nodeIcon ? nodeIcon.innerHTML : "MISSING";
+        
+        const rect = svg?.getBoundingClientRect() || { width: 0, height: 0 };
+        const nodeRect = node.getBoundingClientRect();
+        const style = svg ? window.getComputedStyle(svg) : null;
         const iconStyle = window.getComputedStyle(nodeIcon);
+        const nodeStyle = window.getComputedStyle(node);
 
         return {
-          exists: true,
+          exists: !!svg,
           width: rect.width,
           height: rect.height,
-          visible: style.display !== "none" && style.visibility !== "hidden" && iconStyle.display !== "none",
-          opacity: parseFloat(style.opacity || "1"),
+          nodeWidth: nodeRect.width,
+          nodeHeight: nodeRect.height,
+          nodeDisplay: nodeStyle.display,
+          visible: style ? (style.display !== "none" && style.visibility !== "hidden" && iconStyle.display !== "none") : false,
+          opacity: style ? parseFloat(style.opacity || "1") : 0,
           parentWidth: parseFloat(iconStyle.width),
-          parentHeight: parseFloat(iconStyle.height)
+          parentHeight: parseFloat(iconStyle.height),
+          innerHTML
         };
       });
+
+      return {
+        app: aRect ? { width: aRect.width, height: aRect.height } : null,
+        screen: sRect ? { width: sRect.width, height: sRect.height } : null,
+        screenDisplay: sStyle?.display,
+        hash: window.location.hash,
+        viewport: vRect ? { width: vRect.width, height: vRect.height } : null,
+        mapContent: cRect ? { width: cRect.width, height: cRect.height } : null,
+        nodeMetrics
+      };
     });
 
-    console.log("Icon Metrics:", JSON.stringify(iconMetrics, null, 2));
+    console.log("Audit Data:", JSON.stringify(auditData, null, 2));
+    const iconMetrics = auditData.nodeMetrics;
 
-    // Take a screenshot for visual proof BEFORE assertions
-    await page.screenshot({ path: "tests/e2e/__snapshots__/voidlock-1gvpw_icon_audit.png" });
+    // Take a screenshot for visual proof
+    await page.screenshot({ path: "tests/e2e/__snapshots__/voidlock-1gvpw_debug.png" });
 
     // ASSERT: All nodes must have icons
     expect(iconMetrics.length).toBeGreaterThan(0);
@@ -77,8 +101,8 @@ describe("Regression Guard voidlock-1gvpw: Sector Map Icon Visibility", () => {
     for (const metric of iconMetrics) {
       expect(metric.exists, "Node icon element and SVG should exist").toBe(true);
       
-      // These are expected to FAIL currently if the bug is present
-      expect(metric.width, "SVG width should be at least 16px").toBeGreaterThanOrEqual(16);
+      // These should now PASS if the fix is correct
+      expect(metric.width, `SVG width should be at least 16px. Node innerHTML: ${metric.innerHTML}`).toBeGreaterThanOrEqual(16);
       expect(metric.height, "SVG height should be at least 16px").toBeGreaterThanOrEqual(16);
       
       expect(metric.visible, "SVG should be visible").toBe(true);
