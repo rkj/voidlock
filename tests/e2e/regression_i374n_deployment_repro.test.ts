@@ -174,15 +174,14 @@ describe("Regression i374n: Deployment Card Width & Map Canvas (Repro)", () => {
       // Check Left Panel (Squad)
       await checkCardMetrics('.soldier-list-panel .soldier-item', 'Equipment Left Panel');
 
-      // Remove one to show Reserve Roster in Right Panel
+      // In prologue, squad selection is locked, so we can't remove.
+      // But we can click "Recruit" to show available archetypes in the right panel.
       await page.evaluate(() => {
-          const btn = document.querySelector('.slot-remove') as HTMLElement;
-          if (btn) btn.click();
-          const slot0 = document.querySelector('[data-focus-id="soldier-slot-0"]') as HTMLElement;
-          if (slot0) slot0.click();
+          const recruitBtn = document.querySelector('[data-focus-id="recruit-btn-large"]') as HTMLElement;
+          if (recruitBtn) recruitBtn.click();
       });
 
-      // Check Right Panel (Reserve Roster)
+      // Check Right Panel (Recruitment Roster)
       await checkCardMetrics('.roster-list .soldier-item', 'Equipment Right Panel');
     });
 
