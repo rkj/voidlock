@@ -272,8 +272,20 @@ export class EquipmentScreen {
           {(this.isCampaign && this.hasNodeSelected && !this.isShop && this.onLaunch) && (
             <button
               class="primary-button"
-              style={{ background: "var(--color-hive)", borderColor: "var(--color-hive)", margin: "0", height: "32px", padding: "0 15px", fontSize: "0.9em", display: "flex", alignItems: "center" }}
+              style={{
+                background: "var(--color-hive)",
+                borderColor: "var(--color-hive)",
+                margin: "0",
+                height: "32px",
+                padding: "0 15px",
+                fontSize: "0.9em",
+                display: "flex",
+                alignItems: "center",
+                opacity: this.config.soldiers.filter(s => !!s).length === 0 ? 0.5 : 1
+              }}
               data-focus-id="btn-launch-mission"
+              disabled={this.config.soldiers.filter(s => !!s).length === 0}
+              title={this.config.soldiers.filter(s => !!s).length === 0 ? "Select at least one soldier to launch mission" : ""}
               onClick={() => this.onLaunch!(this.config)}
             >
               Launch Mission

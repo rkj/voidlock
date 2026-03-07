@@ -28,12 +28,20 @@ describe("Repro: Empty squad launch allowed (voidlock-n4sd6)", () => {
     // Select difficulty (e.g., Simulation)
     await page.waitForSelector(".difficulty-card");
     await page.click(".difficulty-card");
+
+    // Skip Prologue to allow removing soldiers
+    await page.waitForSelector("#campaign-skip-prologue");
+    await page.click("#campaign-skip-prologue");
     
     // Start
     await page.waitForSelector("[data-focus-id='btn-start-campaign']");
     await page.click("[data-focus-id='btn-start-campaign']");
 
-    // 2. We should be at Sector Map or Prologue Ready Room
+    // 2. We should be at Sector Map. We need to select a node.
+    console.log("Selecting a node on Sector Map...");
+    await page.waitForSelector(".campaign-node.accessible", { visible: true, timeout: 5000 });
+    await page.click(".campaign-node.accessible");
+
     console.log("Waiting for Equipment Screen...");
     await page.waitForSelector(".equipment-screen", { visible: true, timeout: 5000 });
 
