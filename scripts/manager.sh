@@ -27,17 +27,16 @@ while true; do
   gemini -p "@docs/MANAGER.md" \
     --output-format stream-json \
     --model "$MODEL" \
-    --allowed-tools "run_shell_command(bd)" \
     --allowed-tools "run_shell_command(./scripts/dispatch_agent.sh)" \
-    --allowed-tools "run_shell_command(scripts/dispatch_agent.sh)" \
+    --allowed-tools "run_shell_command(./scripts/safe_commit.sh)" \
+    --allowed-tools "run_shell_command(bd)" \
+    --allowed-tools "run_shell_command(find)" \
     --allowed-tools "run_shell_command(grep)" \
-    --allowed-tools "run_shell_command(jj commit)" \
     --allowed-tools "run_shell_command(jj diff)" \
     --allowed-tools "run_shell_command(jj log)" \
-    --allowed-tools "run_shell_command(jj status)" \
     --allowed-tools "run_shell_command(jj show)" \
+    --allowed-tools "run_shell_command(jj status)" \
     --allowed-tools "run_shell_command(ls)" \
-    --allowed-tools "run_shell_command(find)" \
     --allowed-tools "run_shell_command(npm run build)" \
     --allowed-tools "run_shell_command(npm run lint)" \
     --allowed-tools "run_shell_command(npm run process-assets)" \
@@ -48,6 +47,8 @@ while true; do
     --allowed-tools "run_shell_command(npx vite build)" \
     --allowed-tools "run_shell_command(npx vitest)" \
     --allowed-tools "run_shell_command(rm tests/)" \
+    --allowed-tools "run_shell_command(scripts/dispatch_agent.sh)" \
+    --allowed-tools "run_shell_command(scripts/safe_commit.sh)" \
     --allowed-tools "run_shell_command(tail)" \
     --allowed-tools "run_shell_command(tree)" \
     --allowed-tools click \

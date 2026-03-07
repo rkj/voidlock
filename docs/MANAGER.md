@@ -104,7 +104,7 @@ If a task is not fully verified as fixed:
 
 - **If Verified**:
 
-  1. \`jj commit -m "<bead-id>: <description>.
+  1. `./scripts/safe_commit.sh "<bead-id>: <description>.
 
      <Details on what exactly was done>."`
 
