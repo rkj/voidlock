@@ -487,6 +487,7 @@ label {
   overflow-x: auto;
 }
 .soldier-item {
+  width: 100%;
   border: 1px solid var(--color-border);
   cursor: pointer;
   background: var(--color-surface);
@@ -494,7 +495,7 @@ label {
   flex-direction: column;
   padding: 2px 8px;
   box-sizing: border-box;
-  overflow: hidden;
+  overflow: visible;
   transition: border-color 0.2s;
 }
 
@@ -1471,7 +1472,7 @@ label {
   gap: 4px;
   height: auto;
   width: 100%;
-  overflow: hidden;
+  overflow: visible;
   flex-shrink: 0;
   box-sizing: border-box;
 }

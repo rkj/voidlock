@@ -233,7 +233,7 @@ export class EquipmentScreen {
       <Fragment>
         <div class="flex-row flex-grow p-10 gap-10 equipment-main-content" style={{ overflow: "hidden", minHeight: "0" }}>
           {/* Left Panel */}
-          <div class="panel soldier-list-panel" style={{ width: "250px" }}>
+          <div class="panel soldier-list-panel" style={{ width: "260px" }}>
             <h2 class="panel-title" style={{ flexShrink: "0" }}>Soldier List</h2>
             <div class="scroll-content" style={{ padding: "10px" }}>
               {this.renderSoldierListItems()}
