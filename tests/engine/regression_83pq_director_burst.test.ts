@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { Director } from "@src/engine/Director";
+import { ItemEffectService } from "@src/engine/managers/ItemEffectService";
 import { PRNG } from "@src/shared/PRNG";
 import { SpawnPoint, MapDefinition, CellType } from "@src/shared/types";
 import { DIRECTOR } from "@src/engine/config/GameConstants";
@@ -38,6 +39,7 @@ describe("Director Spawning Logic (Regression 83pq)", () => {
       mockSpawnPoints,
       prng,
       onSpawn,
+      new ItemEffectService(),
       100, // startingThreatLevel = 100
       mockMap,
       20,
@@ -61,6 +63,7 @@ describe("Director Spawning Logic (Regression 83pq)", () => {
       mockSpawnPoints,
       prng,
       onSpawn,
+      new ItemEffectService(),
       0,
       mockMap,
       20,
@@ -96,6 +99,7 @@ describe("Director Spawning Logic (Regression 83pq)", () => {
       mockSpawnPoints,
       prng,
       onSpawn,
+      new ItemEffectService(),
       0,
       mockMap,
       20,

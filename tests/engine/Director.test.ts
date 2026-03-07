@@ -1,13 +1,22 @@
 import { describe, it, expect, vi } from "vitest";
 import { Director } from "@src/engine/Director";
 import { PRNG } from "@src/shared/PRNG";
+import { ItemEffectService } from "@src/engine/managers/ItemEffectService";
 
 describe("Director", () => {
   it("should spawn enemies after turnDuration", () => {
     const spawnPoints = [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }];
     const prng = new PRNG(123);
     const onSpawn = vi.fn();
-    const director = new Director(spawnPoints, prng, onSpawn, 0, undefined, 0);
+    const director = new Director(
+      spawnPoints,
+      prng,
+      onSpawn,
+      new ItemEffectService(),
+      0,
+      undefined,
+      0,
+    );
 
     // Initial state
     expect(onSpawn).not.toHaveBeenCalled();
@@ -34,7 +43,7 @@ describe("Director", () => {
     const spawnPoints = [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }];
     const prng = new PRNG(123);
     const onSpawn = vi.fn();
-    const director = new Director(spawnPoints, prng, onSpawn, 0, undefined, 0);
+    const director = new Director(spawnPoints, prng, onSpawn, new ItemEffectService(), 0, undefined, 0);
 
     // Fast forward to turn 5 (50% threat)
     // Turn 1: budget 1
@@ -60,7 +69,7 @@ describe("Director", () => {
     const spawnPoints = [{ id: "sp1", pos: { x: 5, y: 5 }, radius: 1 }];
     const prng = new PRNG(123);
     const onSpawn = vi.fn();
-    const director = new Director(spawnPoints, prng, onSpawn, 0, undefined, 0);
+    const director = new Director(spawnPoints, prng, onSpawn, new ItemEffectService(), 0, undefined, 0);
 
     // 100 seconds = 10 turns
     director.update(100000);
@@ -80,7 +89,7 @@ describe("Director", () => {
     // Wave 2 (20%): budget 2
     // Wave 3 (30%): budget 3
     // Total points = 1 + 2 + 3 = 6
-    const director = new Director(spawnPoints, prng, onSpawn, 30, undefined, 0);
+    const director = new Director(spawnPoints, prng, onSpawn, new ItemEffectService(), 30, undefined, 0);
     director.preSpawn();
 
     expect(director.getThreatLevel()).toBe(30);
@@ -96,7 +105,7 @@ describe("Director", () => {
     const prng = new PRNG(123);
     const onSpawn = vi.fn();
 
-    const director = new Director(spawnPoints, prng, onSpawn, 10, undefined, 0);
+    const director = new Director(spawnPoints, prng, onSpawn, new ItemEffectService(), 10, undefined, 0);
     director.preSpawn();
 
     expect(director.getThreatLevel()).toBe(10);

@@ -10,6 +10,7 @@ This directory contains specialized managers that handle specific domains of the
 - `CommandHandler.ts`: Processes and validates incoming commands from the player or bots. Uses a `GlobalCommandRegistry` with specialized handlers to route commands based on `CommandType`. Handles global commander abilities (Heal, Grenade, Scanner) when `unitIds` is empty, ensuring single-decrement squad inventory logic. Also handles debug commands like `DEBUG_FORCE_WIN` (which also marks objectives as completed) and `DEBUG_FORCE_LOSE` for testing purposes.
 - `DoorManager.ts`: Manages the state (Open, Closed, Locked, Destroyed) and logic of doors.
 - `EnemyManager.ts`: Manages the lifecycle and state updates for all enemy units. Handles scrap rewards for elite kills and processes landmine explosions when enemies enter cells containing mines.
+- `ItemEffectService.ts`: Specialized service that implements the `ItemEffectHandler` interface. It is responsible for executing the effects of consumable items (Heal, Grenade, Scanner, Mine, Sentry) and mutating the game state accordingly.
 - `ItemDistributionService.ts`: Handles opportunistic pickup logic and item assignments to units. Manages a spatial grid of visible loot and objectives to resolve competition between capable units. Now utilizes `MapUtils.resolveObjectivePosition` to centralize objective world-position resolution.
 - `LootManager.ts`: Manages spawning and despawning of dropped items (loot) on the map.
 - `MetaManager.ts`: Deprecated. Re-exports `MetaManager` from `src/engine/campaign/` for backward compatibility.
