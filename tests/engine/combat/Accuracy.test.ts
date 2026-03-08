@@ -55,8 +55,7 @@ describe("Combat Accuracy (Percentage Model)", () => {
       commandQueue: [],
       archetypeId: "test",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     });
 
     engine.addEnemy({
@@ -105,8 +104,7 @@ describe("Combat Accuracy (Percentage Model)", () => {
       commandQueue: [],
       archetypeId: "test",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     });
 
     engine.addEnemy({
@@ -159,8 +157,7 @@ describe("Combat Accuracy (Percentage Model)", () => {
       commandQueue: [],
       archetypeId: "test",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     });
 
     engine.addEnemy({
@@ -211,8 +208,7 @@ describe("Combat Accuracy (Percentage Model)", () => {
       commandQueue: [],
       archetypeId: "test",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     });
 
     engine.addEnemy({
@@ -260,8 +256,7 @@ describe("Combat Accuracy (Percentage Model)", () => {
       commandQueue: [],
       archetypeId: "test",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     });
 
     engine.addEnemy({
@@ -312,8 +307,7 @@ describe("Combat Accuracy (Percentage Model)", () => {
       commandQueue: [],
       archetypeId: "test",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     });
 
     engine.addEnemy({
@@ -361,8 +355,7 @@ describe("Combat Accuracy (Percentage Model)", () => {
       commandQueue: [],
       archetypeId: "test",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     });
 
     engine.addEnemy({

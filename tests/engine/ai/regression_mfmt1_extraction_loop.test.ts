@@ -69,8 +69,7 @@ describe("Regression MFMT1 - Extraction Loop", () => {
       engagementPolicy: "ENGAGE",
       archetypeId: "assault",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       aiEnabled: true,
     });
 
@@ -117,8 +116,7 @@ describe("Regression MFMT1 - Extraction Loop", () => {
       engagementPolicy: "ENGAGE",
       archetypeId: "assault",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       aiEnabled: true,
       explorationTarget: { x: 5, y: 0 },
       activeCommand: {

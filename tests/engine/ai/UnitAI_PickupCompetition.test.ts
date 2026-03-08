@@ -57,8 +57,7 @@ describe("UnitAI Pickup Competition", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       aiEnabled: true,
     });
 
@@ -82,8 +81,7 @@ describe("UnitAI Pickup Competition", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       aiEnabled: true,
     });
 
@@ -133,8 +131,7 @@ describe("UnitAI Pickup Competition", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       aiEnabled: true,
     });
 
@@ -158,8 +155,7 @@ describe("UnitAI Pickup Competition", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       aiEnabled: true,
     });
 

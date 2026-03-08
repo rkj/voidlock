@@ -90,8 +90,7 @@ describe("Enemy Door Interaction", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     });
 
     // Run updates. Door open duration is 0.1s (100ms).

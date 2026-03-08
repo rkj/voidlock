@@ -123,6 +123,7 @@ export class UnitSpawner {
         kills: 0,
         damageDealt: 0,
         objectivesCompleted: 0,
+        positionHistory: [],
         isDeployed: skipDeployment,
       });
     });
@@ -171,6 +172,7 @@ export class UnitSpawner {
         kills: 0,
         damageDealt: 0,
         objectivesCompleted: 0,
+        positionHistory: [],
         isDeployed: true,
       });
     });

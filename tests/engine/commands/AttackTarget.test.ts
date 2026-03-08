@@ -53,8 +53,7 @@ describe("Autonomous Targeting Logic", () => {
       commandQueue: [],
       archetypeId: "test_archetype",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     });
   });
 

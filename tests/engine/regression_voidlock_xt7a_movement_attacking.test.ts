@@ -59,8 +59,7 @@ describe("UnitManager Movement and Attacking Regression", () => {
       commandQueue: [],
       archetypeId: "scout",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     });
 
     // Add an enemy at (5.5, 0.5) - in range

@@ -52,8 +52,7 @@ describe("AI Opportunism (Shiny Object)", () => {
         engagementPolicy: "ENGAGE", 
         archetypeId: "scout", 
         kills: 0, 
-        damageDealt: 0, 
-        objectivesCompleted: 0,
+        damageDealt: 0, objectivesCompleted: 0, positionHistory: [], 
         aiEnabled: false, // Start with AI disabled to prevent early plan setting
     });
 

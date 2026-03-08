@@ -58,8 +58,7 @@ describe("AI Commitment Guard", () => {
       engagementPolicy: "ENGAGE",
       archetypeId: "test",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       aiEnabled: true,
     });
 
@@ -111,8 +110,7 @@ describe("AI Commitment Guard", () => {
       engagementPolicy: "ENGAGE",
       archetypeId: "test",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       aiEnabled: true,
     });
 

@@ -72,8 +72,7 @@ describe("UnitManager Door Movement", () => {
       ],
       archetypeId: "assault",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     });
 
     // Update 1: Door starts opening

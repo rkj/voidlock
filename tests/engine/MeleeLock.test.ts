@@ -66,8 +66,7 @@ describe("Melee Lock & Ignore Policy", () => {
       engagementPolicy: "IGNORE",
       archetypeId: "assault",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     });
 
     const state = engine.getState();
@@ -157,8 +156,7 @@ describe("Melee Lock & Ignore Policy", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     });
 
     // Add Enemy at 1,0

@@ -51,6 +51,7 @@ export function findClosestUndiscoveredCell(
   explorationClaims?: Map<string, Vector2>,
 ): Vector2 | null {
   const startCell = MathUtils.toCellCoord(unit.pos);
+  const positionHistory = unit.positionHistory || [];
 
   const claimedTargets: Vector2[] = [];
   if (explorationClaims) {
@@ -97,12 +98,15 @@ export function findClosestUndiscoveredCell(
       const tooCloseToUnit = otherUnitPositions.some(
         (pos) => MathUtils.getDistance(target, pos) < unitAvoidRadius,
       );
+      const isRecentlyVisited = positionHistory.some(
+        (h) => h.x === curr.x && h.y === curr.y
+      );
 
-      if (!isClaimed && !tooCloseToUnit) {
+      if (!isClaimed && !tooCloseToUnit && !isRecentlyVisited) {
         return { x: curr.x, y: curr.y };
       }
 
-      if (!fallbackCell) {
+      if (!fallbackCell && !isRecentlyVisited) {
         fallbackCell = { x: curr.x, y: curr.y };
       }
     }

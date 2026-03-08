@@ -67,8 +67,7 @@ describe("CoreEngine with Objectives and Game Loop", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     });
     engine.applyCommand({ type: CommandType.START_MISSION });
   });

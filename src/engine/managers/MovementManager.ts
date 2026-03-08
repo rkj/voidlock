@@ -43,8 +43,9 @@ export class MovementManager {
       return { ...entity, state: UnitState.WaitingForDoor };
     } else if (dist <= moveDist + MOVEMENT.ARRIVAL_THRESHOLD) {
       const nextPath = entity.path ? entity.path.slice(1) : [];
+      let updated: any;
       if (nextPath.length === 0) {
-        let updated: any = {
+        updated = {
           ...entity,
           pos: { ...entity.targetPos },
           path: undefined,
@@ -59,25 +60,49 @@ export class MovementManager {
             updated.activeCommand = undefined;
           }
         }
-
-        return updated as T;
       } else {
-        return {
+        updated = {
           ...entity,
           pos: { ...entity.targetPos },
           path: nextPath,
           targetPos: MathUtils.getCellCenter(nextPath[0], entity.visualJitter),
-        } as T;
+        };
       }
+
+      // Record position history if cell changed
+      if ("positionHistory" in entity) {
+        const u = updated as any;
+        const cell = MathUtils.toCellCoord(u.pos);
+        const last = u.positionHistory[u.positionHistory.length - 1];
+        if (!last || last.x !== cell.x || last.y !== cell.y) {
+          u.positionHistory = [...u.positionHistory, cell].slice(-6);
+        }
+      }
+
+      return updated as T;
     } else {
-      return {
+      const newPos = {
+        x: entity.pos.x + (dx / dist) * moveDist,
+        y: entity.pos.y + (dy / dist) * moveDist,
+      };
+
+      const movedCell = MathUtils.toCellCoord(newPos);
+      let updated: any = {
         ...entity,
-        pos: {
-          x: entity.pos.x + (dx / dist) * moveDist,
-          y: entity.pos.y + (dy / dist) * moveDist,
-        },
+        pos: newPos,
         state: UnitState.Moving,
-      } as T;
+      };
+
+      // Record position history if cell changed during partial move
+      if ("positionHistory" in entity && (movedCell.x !== currentCell.x || movedCell.y !== currentCell.y)) {
+        const u = updated as any;
+        const last = u.positionHistory[u.positionHistory.length - 1];
+        if (!last || last.x !== movedCell.x || last.y !== movedCell.y) {
+          u.positionHistory = [...u.positionHistory, movedCell].slice(-6);
+        }
+      }
+
+      return updated as T;
     }
   }
 }

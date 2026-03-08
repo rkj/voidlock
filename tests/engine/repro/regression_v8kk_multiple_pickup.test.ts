@@ -58,8 +58,7 @@ describe("Regression voidlock-v8kk: Multiple units picking up same item", () => 
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       aiEnabled: true,
     });
     engine.addUnit({
@@ -81,8 +80,7 @@ describe("Regression voidlock-v8kk: Multiple units picking up same item", () => 
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       aiEnabled: true,
     });
 
@@ -145,8 +143,7 @@ describe("Regression voidlock-v8kk: Multiple units picking up same item", () => 
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       aiEnabled: true, // Initially true, will become false on manual command
     });
     // Unit 2: Autonomous
@@ -169,8 +166,7 @@ describe("Regression voidlock-v8kk: Multiple units picking up same item", () => 
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       aiEnabled: true,
     });
 
@@ -248,8 +244,7 @@ describe("Regression voidlock-v8kk: Multiple units picking up same item", () => 
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       aiEnabled: false, // Manual control for u1
     });
     engine.addUnit({
@@ -271,8 +266,7 @@ describe("Regression voidlock-v8kk: Multiple units picking up same item", () => 
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       aiEnabled: false, // Manual control for u2
     });
 

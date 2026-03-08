@@ -79,8 +79,7 @@ describe("Tactical AI Reproduction Tests", () => {
       engagementPolicy: "IGNORE",
       archetypeId: "scout",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       isDeployed: true,
     });
 
@@ -164,8 +163,7 @@ describe("Tactical AI Reproduction Tests", () => {
       engagementPolicy: "AVOID",
       archetypeId: "assault",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       aiEnabled: true,
       isDeployed: true,
     });
@@ -223,8 +221,7 @@ describe("Tactical AI Reproduction Tests", () => {
       commandQueue: [],
       archetypeId: "vip",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       aiEnabled: true,
       isDeployed: true,
     });

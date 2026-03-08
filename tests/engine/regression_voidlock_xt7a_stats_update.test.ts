@@ -51,8 +51,7 @@ describe("UnitManager Recalculate Stats Regression", () => {
       commandQueue: [],
       archetypeId: "scout",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       body: undefined, // No armor initially
     });
   });

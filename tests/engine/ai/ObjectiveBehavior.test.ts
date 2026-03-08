@@ -34,8 +34,7 @@ describe("ObjectiveBehavior", () => {
       engagementPolicy: "ENGAGE",
       archetypeId: "assault",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       aiEnabled: true,
       activeCommand: {
         type: CommandType.MOVE_TO,
@@ -133,8 +132,7 @@ describe("ObjectiveBehavior", () => {
       engagementPolicy: "ENGAGE",
       archetypeId: "assault",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       aiEnabled: true,
       activeCommand: undefined,
     };

@@ -53,8 +53,7 @@ describe("Stop and Shoot Behavior", () => {
       commandQueue: [],
       archetypeId: "scout",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     });
   });
 
@@ -125,8 +124,7 @@ describe("Stop and Shoot Behavior", () => {
       commandQueue: [],
       archetypeId: "scout",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     });
 
     // 1. Give move command

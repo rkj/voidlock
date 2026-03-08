@@ -53,8 +53,7 @@ describe("Exploration Efficiency Regression (ICWK)", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     });
 
     const totalFloorCount = map.cells.filter((c) => c.type === "Floor").length;

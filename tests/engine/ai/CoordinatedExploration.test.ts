@@ -91,8 +91,7 @@ describe("Coordinated Exploration", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     });
     engine.addUnit({
       id: "u2",
@@ -113,8 +112,7 @@ describe("Coordinated Exploration", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     });
 
     // Manually set discovered cells to include only center and adjacent

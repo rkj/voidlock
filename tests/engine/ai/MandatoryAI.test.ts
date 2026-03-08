@@ -53,8 +53,7 @@ describe("Mandatory AI Scenarios (ADR 0041)", () => {
       engagementPolicy: "ENGAGE",
       archetypeId: "test",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       aiEnabled: true,
     });
 
