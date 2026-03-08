@@ -22,6 +22,7 @@ import { ItemDistributionService } from "./ItemDistributionService";
 import { UnitStateManager } from "./UnitStateManager";
 import { ItemEffectHandler } from "../interfaces/IDirector";
 import { AIContext } from "../interfaces/AIContext";
+import { isCellVisible } from "../../shared/VisibilityUtils";
 import { MathUtils } from "../../shared/utils/MathUtils";
 import { MapUtils } from "../../shared/utils/MapUtils";
 import { MOVEMENT } from "../config/GameConstants";
@@ -36,6 +37,10 @@ export class UnitManager {
   private commandExecutor: CommandExecutor;
   private itemDistributionService: ItemDistributionService;
   private unitStateManager: UnitStateManager;
+
+  private lastDiscoveredCellsCount: number = 0;
+  private lastObjectiveStates: Map<string, string> = new Map();
+  private lastVisibleEnemyIds: Set<string> = new Set();
 
   constructor(
     private gameGrid: GameGrid,
@@ -76,6 +81,32 @@ export class UnitManager {
     return this.combatManager;
   }
 
+  private invalidatePlan(unit: Unit): Unit {
+    if (unit.activePlan) {
+      let updatedUnit = {
+        ...unit,
+        activePlan: undefined,
+        explorationTarget: undefined,
+      };
+
+      // Reset movement state so behaviors can re-evaluate and take over immediately
+      if (
+        unit.state === UnitState.Moving ||
+        unit.state === UnitState.WaitingForDoor
+      ) {
+        updatedUnit = {
+          ...updatedUnit,
+          state: UnitState.Idle,
+          targetPos: undefined,
+          path: undefined,
+        };
+      }
+
+      return updatedUnit;
+    }
+    return unit;
+  }
+
   /**
    * Main update loop for all units. Handles AI, movement, combat, and command execution.
    * Uses an immutable pattern to update the game state.
@@ -89,6 +120,37 @@ export class UnitManager {
     director?: ItemEffectHandler,
     realDt: number = dt,
   ) {
+    // 0. Update global tracking for invalidation triggers (ADR 0056)
+    const discoveredCount = state.discoveredCells?.length || 0;
+    const areaRevealed = this.lastDiscoveredCellsCount > 0 && discoveredCount > this.lastDiscoveredCellsCount;
+    this.lastDiscoveredCellsCount = discoveredCount;
+
+    const objectiveChanged = new Set<string>();
+    state.objectives?.forEach(obj => {
+      const lastState = this.lastObjectiveStates.get(obj.id);
+      if (lastState !== undefined && lastState !== obj.state) {
+        objectiveChanged.add(obj.id);
+      }
+      this.lastObjectiveStates.set(obj.id, obj.state);
+    });
+
+    const visibleEnemies = state.enemies.filter((e) => {
+      if (e.hp <= 0) return false;
+      const cell = MathUtils.toCellCoord(e.pos);
+      return isCellVisible(state, cell.x, cell.y);
+    });
+    const currentVisibleIds = new Set(visibleEnemies.map((e) => e.id));
+
+    let hasNewEnemy = false;
+    for (const id of currentVisibleIds) {
+      if (!this.lastVisibleEnemyIds.has(id)) {
+        hasNewEnemy = true;
+        break;
+      }
+    }
+
+    const allVisibleEnemiesGone = this.lastVisibleEnemyIds.size > 0 && currentVisibleIds.size === 0;
+
     // 1. Calculate currently claimed objectives (by units already pursuing them)
     const claimedObjectives = this.calculateClaimedObjectives(state);
 
@@ -161,6 +223,7 @@ export class UnitManager {
       const isAttacking = combatResult.isAttacking;
 
       // E. MOVEMENT (Execute current path)
+      const prevMovingState = currentUnit.state;
       currentUnit = this.updateUnitMovement(
         currentUnit,
         state,
@@ -169,7 +232,77 @@ export class UnitManager {
         isAttacking,
       );
 
-      // F. AI PROCESS (React to new position/state)
+      // F. INVALIDATION TRIGGERS (ADR 0056)
+      if (currentUnit.activePlan) {
+        let shouldInvalidate = false;
+
+        // 1. New enemy enters LOS
+        if (hasNewEnemy) {
+          // Triggered for: Exploration (4) and Objective (3) plans
+          if (currentUnit.activePlan.priority >= 3) {
+            shouldInvalidate = true;
+          }
+        }
+
+        // 2. All visible enemies die/flee
+        if (allVisibleEnemiesGone) {
+          // Triggered for: Combat (2), Safety (0) (kiting)
+          if (
+            currentUnit.activePlan.priority === 0 ||
+            currentUnit.activePlan.priority === 2
+          ) {
+            shouldInvalidate = true;
+          }
+        }
+
+        // 3. Unit HP drops below 25%
+        if (currentUnit.hp < currentUnit.maxHp * 0.25) {
+          // Triggered for: Everything except Safety (priority > 0)
+          if (currentUnit.activePlan.priority > 0) {
+            shouldInvalidate = true;
+          }
+        }
+
+        // 4. New area revealed
+        if (areaRevealed) {
+          // Triggered for: Exploration (4)
+          if (currentUnit.activePlan.priority === 4) {
+            shouldInvalidate = true;
+          }
+        }
+
+        // 5. Objective state changes
+        if (objectiveChanged.size > 0) {
+          // Triggered for: Objective (3)
+          if (currentUnit.activePlan.priority === 3) {
+            shouldInvalidate = true;
+          }
+        }
+
+        // 6. Path blocked
+        if (
+          prevMovingState !== UnitState.WaitingForDoor &&
+          currentUnit.state === UnitState.WaitingForDoor
+        ) {
+          // Triggered for: Everything
+          shouldInvalidate = true;
+        }
+
+        // 7. Unit reaches plan goal (Natural completion)
+        if (
+          !currentUnit.targetPos &&
+          currentUnit.state !== UnitState.Moving &&
+          currentUnit.state !== UnitState.WaitingForDoor
+        ) {
+          shouldInvalidate = true;
+        }
+
+        if (shouldInvalidate) {
+          currentUnit = this.invalidatePlan(currentUnit);
+        }
+      }
+
+      // G. AI PROCESS (React to new position/state)
       currentUnit = this.unitAi.process(
         currentUnit,
         state,
@@ -184,6 +317,7 @@ export class UnitManager {
     });
 
     state.units = updatedUnits;
+    this.lastVisibleEnemyIds = currentVisibleIds;
   }
 
   /**

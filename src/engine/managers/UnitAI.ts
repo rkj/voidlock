@@ -80,7 +80,7 @@ export class UnitAI {
           ...currentUnit,
           explorationTarget: undefined,
         };
-        if (currentUnit.state === UnitState.Moving) {
+        if (currentUnit.state === UnitState.Moving || currentUnit.state === UnitState.WaitingForDoor) {
           currentUnit = {
             ...currentUnit,
             path: undefined,
