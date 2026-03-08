@@ -1,156 +1,223 @@
 # Voidlock Architecture
 
+**Last Updated:** 2026-03-08
+
 ## Overview
 
-Voidlock is a tactical squad-based game engine designed with a strict separation of concerns between the core simulation logic, the rendering layer, and the content generation. The architecture follows a client-server model (where the "server" is a Web Worker) to ensure deterministic execution and responsive UI.
+Voidlock is a single-player, Real-Time with Pause (RTwP) tactical squad combat game built for the web. The architecture follows a strict separation between simulation logic (deterministic, Web Worker-based) and presentation (Canvas + DOM UI).
 
-## Core Modules
+For detailed specifications, refer to:
+- [Simulation & Protocol](spec/simulation.md)
+- [World Model & Map](spec/map.md)
+- [User Interface](spec/ui.md)
+- [Command System & AI](spec/commands.md)
+- [Architecture Decision Records](adr/)
 
-### 1. Engine (`src/engine/`)
+## Technology Stack
 
-The heart of the game. It runs deterministically given a seed and a command stream.
+| Component       | Technology    |
+|-----------------|---------------|
+| Language        | TypeScript    |
+| Build Tool      | Vite          |
+| Module System   | ES Modules    |
+| Rendering       | HTML5 Canvas + DOM |
+| Concurrency     | Web Workers   |
+| Storage         | LocalStorage  |
+| Test Framework  | Vitest        |
+| E2E Testing     | Puppeteer     |
 
-- **`CoreEngine`**: The main simulation controller. It maintains the `GameState`, processes `Commands`, and advances the simulation tick by tick. It allows for "Pause", "Resume", and discrete time steps.
-- **`GameGrid`**: Represents the physical world as a **Graph of Cells with Shared Boundaries**.
-  - **Cells**: Represent floor tiles with coordinates `(x, y)`.
-  - **Boundaries**: Shared objects between adjacent cells (Walls, Doors). A single `Boundary` instance is referenced by both neighbors (e.g., `Cell(0,0).edges.E` and `Cell(1,0).edges.W`). This ensures state consistency (e.g., opening a door affects both sides immediately).
-  - It handles collision detection (`canMove`), wall states, and door interactions, providing a queryable interface for the Pathfinder and LOS systems.
-- **`Pathfinder`**: Implements pathfinding algorithms (A\*) on the `GameGrid`. It supports pathing through Open doors and planning paths through Closed doors (which units can then open).
-- **`LineOfSight`**: Handles visibility calculations ("Fog of War"). It determines which cells are visible to the player's squad based on their position and blocking terrain (Walls, Closed Doors).
-- **`Managers` (`src/engine/managers/`)**: Domain-specific logic handlers instantiated by the CoreEngine.
-  - **`CampaignManager`**: Orchestrates the strategic layer, managing persistent state, squad roster, and sector map progression (ADR 0003).
-  - **`MissionManager`**: Handles mission-specific setup, objectives, and win/loss conditions.
-  - **`UnitManager` / `EnemyManager`**: Manage lifecycles, state updates, and combat logic for their respective entities.
-  - **`CommandExecutor`**: Translates abstract `Commands` into concrete unit actions.
-- **`GameClient`**: The bridge between the UI/Main Thread and the Engine Worker. It handles initializing the worker, sending commands, receiving state updates, and managing the Replay recording. It also handles session recovery (ADR 0019) and deterministic scrubbing (ADR 0031).
+---
 
-### 2. Map Generation (`src/engine/map/`, `src/engine/generators/`)
+## 1. Module Boundaries
 
-Modular procedural content generation system (ADR 0016).
+### 1.1 `src/engine/` — Simulation (Web Worker)
 
-- **`MapFactory`**: The central entry point. It orchestrates the generation pipeline: `Generate -> Sanitize -> Validate`.
-- **`MapGenerator` (Strategy Interface)**: Implementations of specific layout algorithms.
-  - **`TreeShipGenerator`**: Generates acyclic "Tree-like" layouts ensuring connectivity.
-  - **`SpaceshipGenerator`**: Generates dense, interconnected interiors.
-  - **`SectorMapGenerator`**: Generates the campaign progression DAG.
-- **`MapSanitizer` / `MapValidator`**: Post-processing steps to ensure map correctness (reachability, entity placement).
+Core game simulation: deterministic, isolated, no DOM access.
 
-### 3. AI System (`src/engine/ai/`)
+- **Game Loop:** Fixed-timestep simulation (~60Hz tick rate)
+- **Game State:** Authoritative world state (units, map, objectives, fog of war)
+- **Pathfinding:** BFS-based grid navigation
+- **Line of Sight:** Geometric raycasting with edge-based boundaries (ADR 0026)
+- **Combat System:** Weapon firing, damage resolution, accuracy calculations
+- **AI Director:** Enemy spawning algorithm (pacing, threat scaling)
+- **Unit AI:** Behavior composition (Safety > Interaction > Combat > Objective > Exploration) with committed plans (ADR 0056)
+- **Command Processing:** Validates and executes player/AI commands
+- **PRNG:** Seeded random number generator (no `Math.random()`)
 
-Encapsulates decision-making logic for units and enemies (ADR 0006).
+**Constraints:** No DOM access, no side effects beyond state mutations, deterministic.
 
-- **`EnemyAI`**: Interface-based strategy pattern for different enemy behaviors.
-  - **`SwarmMeleeAI`**: The default behavior for current hostiles.
-- **`UnitAI`**: Autonomous behaviors for soldiers (e.g., opportunistic fire, exploration).
+### 1.2 `src/renderer/` — Presentation (Main Thread)
 
-### 4. Renderer (`src/renderer/`)
+Canvas rendering, DOM UI, input handling, screen flow.
 
-Purely visual layer and user interface.
+- **Layered Canvas Renderer:** MapLayer > MapEntityLayer > UnitLayer > EffectLayer > OverlayLayer
+- **Screen Manager:** Orchestrates screen transitions (Main Menu, Campaign, Mission, Debrief, Equipment, Statistics)
+- **Input System:** Centralized keyboard/mouse/touch dispatcher with priority-based handling (ADR 0037)
+- **Hierarchical Command Menu:** Keyboard-first tactical interface
+- **UI Components:** Vanilla TSX components (ADR 0051), no framework
+- **Worker Bridge:** Message passing to/from engine worker
 
-- **`Renderer`**: Renders the `GameState` to an HTML5 Canvas. It handles:
-  - Grid visualization (Floor, Walls).
-  - Entity rendering (Soldiers, Enemies).
-  - Fog of War overlays (Visible, Discovered, Hidden).
-  - Visual effects (Tracers, Highlights).
-  - **Independence**: The Renderer has no game logic. It simply draws what the State tells it.
-- **`ScreenManager`**: Manages the high-level application state (MainMenu, Mission, Debrief, Campaign) and transitions (ADR 0019).
-- **`MenuController`**: A facade for the decoupled tactical command UI (ADR 0017). It coordinates:
-  - **`SelectionManager`**: Handles unit selection and grouping.
-  - **`CommandBuilder`**: Constructs complex commands (e.g., target selection).
-  - **`RoomDiscoveryManager`**: Manages room identification and navigation.
+**Constraints:** No simulation logic, no direct state mutation, vanilla TypeScript.
 
-### 4. Shared (`src/shared/`)
+### 1.3 `src/content/` — Game Data
 
-Common definitions.
+Static data definitions: content packs, maps, archetypes, tile definitions.
 
-- **`types.ts`**: Contains all shared interfaces (`GameState`, `Command`, `MapDefinition`, `Unit`, etc.) ensuring type safety across the Worker boundary.
-- **`PRNG`**: A seedable Pseudo-Random Number Generator to ensure determinism.
+**Constraints:** Pure data (JSON-serializable), immutable at runtime.
 
-### 5. Theming & Assets (`src/renderer/`, `scripts/`)
+### 1.4 `src/shared/` — Cross-Cutting
 
-Centralized visual configuration and asset processing.
+Types, constants, and utilities shared across engine and renderer.
 
-- **`ThemeManager`**: Manages the application's visual state. It synchronizes CSS variables used in the DOM UI with the Canvas `Renderer`, allowing for dynamic theme switching and consistent color palettes.
-- **Asset Pipeline**: An automated script (`scripts/process_assets.ts`) that transforms raw assets from `NanoBanana Assets/` into optimized, standardized web formats in `public/assets/`.
-- **Icon Library**: A decoupled set of tactical SVG icons styled via CSS, replacing hardcoded data strings.
+- Core types: `Unit`, `MapDefinition`, `Command`, `GameState`
+- Protocol definitions: Worker <-> Main message types
+- PRNG implementation
+- Validation schemas
 
-## Key Concepts
+**Constraints:** No dependencies on engine or renderer modules.
 
-- **Determinism**: The engine is fully deterministic based on the initial `seed`. Replaying the same sequence of commands on the same seed produces the exact same game state.
-- **Command Pattern**: All mutations to the game state happen via `Commands` (e.g., `MOVE_TO`, `OPEN_DOOR`). This facilitates networking, replays, and debugging.
-- **Separation of Concerns**:
-  - **Logic vs View**: Engine knows nothing about pixels. Renderer knows nothing about rules.
-  - **Map vs Content**: The Map is a static grid definition. The Game State overlays dynamic entities (Units, Doors) on top of it.
+---
 
-## Communication Protocol (Worker Bridge)
+## 2. Web Worker Architecture
 
-The communication between the Main Thread (Renderer/UI) and the Engine Thread (Web Worker) is handled via a JSON-based protocol using `postMessage`.
+### 2.1 Thread Split
 
-### 1. Main Thread -> Worker (`WorkerMessage`)
+```
+Main Thread (UI)                    Worker Thread (Engine)
+├── Canvas Renderer (60 FPS)        ├── CoreEngine (game loop)
+├── DOM UI (screens, HUD)           ├── All Managers
+├── Input handling                  ├── Pathfinding, LOS, Combat
+├── Screen flow                     ├── AI (Unit + Enemy)
+└── LocalStorage                    └── PRNG (deterministic)
+         │                                    │
+         └────── postMessage protocol ────────┘
+```
 
-Sent via `GameClient`.
+### 2.2 Message Protocol
 
-- **`INIT`**: Initializes the `CoreEngine`.
-  - _Payload_: `{ seed, map, fogOfWarEnabled, debugOverlayEnabled, agentControlEnabled, squadConfig, missionType }`
-- **`COMMAND`**: Issues a tactical command to units.
-  - _Payload_: A `Command` object (e.g., `MOVE_TO`, `SET_ENGAGEMENT`, `EXPLORE`).
-- **`QUERY_STATE`**: Explicitly requests a state update.
+**Main -> Worker:** INIT, COMMAND, QUERY_STATE, SET_SPEED, TOGGLE_DEBUG, RESET
+**Worker -> Main:** STATE_UPDATE, MISSION_COMPLETE, ERROR, DEBUG_INFO
 
-### 2. Worker -> Main Thread (`MainMessage`)
+### 2.3 State Ownership
 
-Received by `GameClient` and passed to the `Renderer`.
+| State               | Owner  | Mutability          |
+|----------------------|--------|---------------------|
+| Game State (canonical) | Worker | Mutable (via commands) |
+| UI State (snapshot)    | Main   | Read-only (replaced each tick) |
+| Input State            | Main   | Mutable (local)     |
+| Campaign Save          | Main   | LocalStorage        |
+| Replay Log             | Worker | Append-only         |
 
-- **`STATE_UPDATE`**: Provides a full snapshot of the simulation state.
-  - _Payload_: `GameState` object.
-  - _Frequency_: Sent every 100ms (as defined by `TICK_RATE` in `worker.ts`).
-- **`EVENT`**: Asynchronous events (e.g., sound events, combat logs).
-  - _Payload_: Event data.
+---
 
-### 3. State Synchronization
+## 3. Core Systems
 
-The simulation runs at a fixed 100ms tick rate. The `CoreEngine` maintains the authoritative `GameState`. Every tick, a deep-clone or immutable snapshot of this state is sent to the Main Thread. The Renderer is "dumb" and simply renders the latest snapshot received.
+### Manager Pattern
 
-## Determinism & Simulation
+CoreEngine delegates to specialized managers:
+```
+CoreEngine
+├── MissionManager       # Objectives, win/loss conditions
+├── UnitManager          # Player unit lifecycle, AI behaviors
+├── EnemyManager         # Enemy AI and spawning
+├── DoorManager          # Door states and transitions
+├── VisibilityManager    # Fog of war (LOS-based)
+├── LootManager          # Item drops and collection
+├── CombatManager        # Damage resolution
+├── MovementManager      # Pathfinding and movement
+├── CommandExecutor      # Command execution pipeline
+├── StatsManager         # Mission statistics
+└── CampaignManager      # Persistent campaign state
+```
 
-Voidlock achieves strict determinism through a fixed-step simulation loop and a seeded Pseudo-Random Number Generator (PRNG).
+### Grid and Graph System
 
-### 1. Deterministic Tick Loop
+Edge-based map representation (ADR 0001): boundaries between cells are first-class objects (Wall, Open, Door). Enables thin walls, shared door state, and natural raycasting.
 
-The simulation logic resides in the `CoreEngine.update(dt)` method.
+### AI System
 
-- **Fixed Timestep**: The simulation is advanced in discrete intervals (default `dt = 100ms`).
-- **Execution Order**: Each tick follows a strict execution sequence:
-  1. **Director Update**: Evaluates spawn timers and spawns new enemies.
-  1. **Environmental Logic**: Updates door states and timers.
-  1. **Visibility Logic**: Re-calculates Line of Sight for all active units.
-  1. **Unit Logic**:
-     - Threat evaluation.
-     - Self-preservation (Retreat/Group Up).
-     - Autonomous exploration or command execution.
-  1. **Movement Resolution**: Interpolates unit positions based on speed and path.
-  1. **Combat Resolution**: Calculates damage based on weapons and line of sight.
-- **Side-Effect Free**: The engine logic does not rely on any external state or non-deterministic APIs (like `Date.now()` or `Math.random()`).
+**Unit AI** uses behavior composition with committed plans (ADR 0056):
+```
+Behaviors (priority order):
+1. SafetyBehavior     — Retreat when low HP, kiting
+2. InteractionBehavior — Open doors, pickup items
+3. CombatBehavior     — Engage visible hostiles
+4. ObjectiveBehavior  — Complete mission tasks
+5. ExplorationBehavior — Explore fog of war
+```
 
-### 2. Pseudo-Random Number Generator (PRNG)
+**Enemy AI** uses strategy pattern: SwarmMeleeAI, RangedKiteAI, VipAI.
 
-- **Algorithm**: A simple Linear Congruential Generator (LCG) implemented in `src/shared/PRNG.ts`.
-- **Seeding**: The `CoreEngine` is initialized with a `seed` (integer). This seed is used to instantiate the `PRNG`.
-- **Usage**: The `PRNG` is used for all probabilistic events:
-  - Enemy spawn locations and types (via the `Director`).
-  - Selection of objective locations.
-  - Initial unit placement jitter.
-  - Combat hit/miss probability (if implemented).
-- **Shared Instance**: The `CoreEngine` owns the `PRNG` instance and passes it to sub-modules like the `Director` to ensure they stay in sync with the primary simulation thread.
+### Command Pattern
 
-### 3. Replayability
+All game actions are `Command` objects (MOVE_TO, OPEN_DOOR, SET_ENGAGEMENT, etc.), enabling replay recording/playback and deterministic simulation.
 
-Because the simulation is deterministic, a complete game session can be perfectly reconstructed using only:
+### Campaign System
 
-1. The initial **Seed**.
-1. The **Map Definition**.
-1. The **Command Stream** (a timestamped log of all user inputs sent to the engine).
+Persistent strategic layer: soldier roster with XP/leveling, sector map (DAG), resource economy (scrap, intel), death rules, random events.
 
-## Testing Strategy
+---
 
-- **Unit Tests**: Core mechanics (`Pathfinder`, `GameGrid`, `CycleDetection`) are tested in isolation.
-- **Generator Tests**: Generators are tested for properties (e.g., "Acyclicity") rather than specific pixel layouts, ensuring structural correctness.
+## 4. Render Pipeline
+
+### Layer Stack (bottom to top)
+
+1. **MapLayer** — Floor, walls, grid
+2. **MapEntityLayer** — Doors, objectives, loot (respects FOW)
+3. **UnitLayer** — Soldiers, enemies, health bars
+4. **EffectLayer** — Tracers, explosions, damage numbers
+5. **OverlayLayer** — Selection, targeting, debug
+
+### Visual Modes
+
+- **Tactical Icons** (default): Abstract geometric shapes, high contrast
+- **Sprites**: WebP images with alpha channel
+- **Debug**: Grid coordinates, full visibility, LOS raycasts
+
+### Fog of War
+
+- **Classic (Shroud)**: Undiscovered=black, Discovered=geometry only, Visible=full
+- **Hardcore**: Out of LOS reverts to black
+
+---
+
+## 5. Determinism & Replay
+
+A mission is fully reproducible from: PRNG seed + content pack + config + command log.
+
+- Seeded PRNG (no `Math.random()` in engine)
+- Fixed-timestep simulation (not wall clock)
+- Command log captures full session history
+- Replay: re-initialize with same seed/config, inject commands at recorded ticks
+
+---
+
+## 6. Testing Strategy
+
+- **Unit tests:** Core algorithms (pathfinding, LOS, combat, map generation)
+- **Integration tests:** Manager interactions, command flows
+- **Regression tests:** Named `regression_<ticket_id>_<slug>.test.ts`
+- **Property tests:** Map generators (acyclicity, connectivity)
+- **E2E tests:** Full mission playthrough via Puppeteer
+- All tests in `tests/` directory (mirrors `src/` structure)
+
+---
+
+## 7. Key Design Principles
+
+1. **Separation of Concerns:** Engine (simulation) / Renderer (presentation) / Content (data)
+2. **Determinism First:** Worker owns PRNG, all state driven by commands
+3. **Single Source of Truth:** Worker owns canonical GameState
+4. **Performance via Isolation:** Web Worker offloads heavy computation
+5. **Testability:** Pure functions, dependency injection, micro-maps
+6. **Modularity:** Content packs, swappable map generators, multiple visual styles
+
+---
+
+## References
+
+- **Specs:** [docs/spec/index.md](spec/index.md)
+- **ADRs:** [docs/adr/](adr/)
+- **Agent Guidelines:** [AGENTS.md](AGENTS.md)
+- **Manager Guidelines:** [MANAGER.md](MANAGER.md)
+- **Dev Guide:** [dev_guide.md](dev_guide.md)

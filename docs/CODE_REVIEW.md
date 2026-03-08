@@ -1613,7 +1613,7 @@ ______________________________________________________________________
 
 ## Related Documentation
 
-- **Architecture Overview:** `docs/ARCHITECTURE_OVERVIEW.md`
+- **Architecture Overview:** `docs/ARCHITECTURE.md`
 - **ADRs:** `docs/adr/`
 - **Dev Guide:** `spec/dev_guide.md`
 - **Core Mechanics:** `spec/core_mechanics.md`
