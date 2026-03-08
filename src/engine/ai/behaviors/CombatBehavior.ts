@@ -12,6 +12,7 @@ import { GameGrid } from "../../GameGrid";
 import { isCellVisible } from "../../../shared/VisibilityUtils";
 import { ItemEffectHandler } from "../../interfaces/IDirector";
 import { MathUtils } from "../../../shared/utils/MathUtils";
+import { calculateTravelTimeMs } from "./BehaviorUtils";
 
 export class CombatBehavior implements Behavior<BehaviorContext> {
   constructor(private gameGrid: GameGrid) {}
@@ -66,21 +67,35 @@ export class CombatBehavior implements Behavior<BehaviorContext> {
         return { unit: currentUnit, handled: false };
       } else if (currentUnit.aiProfile === "RUSH") {
         if (dist > 1.5) {
+          const targetCell = {
+            x: Math.floor(primaryThreat.pos.x),
+            y: Math.floor(primaryThreat.pos.y),
+          };
           currentUnit = context.executeCommand(
             currentUnit,
             {
               type: CommandType.MOVE_TO,
               unitIds: [currentUnit.id],
-              target: {
-                x: Math.floor(primaryThreat.pos.x),
-                y: Math.floor(primaryThreat.pos.y),
-              },
+              target: targetCell,
               label: "Rushing",
             },
             state,
             false,
             director,
           );
+
+          if (currentUnit.state === UnitState.Moving) {
+            const goalPos = { x: targetCell.x + 0.5, y: targetCell.y + 0.5 };
+            const distToGoal = MathUtils.getDistance(currentUnit.pos, goalPos);
+            const travelTimeMs = calculateTravelTimeMs(currentUnit, distToGoal);
+            currentUnit.activePlan = {
+              behavior: "Rushing",
+              goal: goalPos,
+              committedUntil: state.t + Math.max(500, travelTimeMs),
+              priority: 2,
+            };
+          }
+
           return { unit: currentUnit, handled: true };
         }
       } else if (currentUnit.aiProfile === "RETREAT" && currentUnit.engagementPolicy !== "AVOID") {
@@ -118,39 +133,67 @@ export class CombatBehavior implements Behavior<BehaviorContext> {
             .sort((a, b) => b.dist - a.dist)[0];
 
           if (bestRetreat && bestRetreat.dist > dist) {
+            const targetCell = { x: bestRetreat.x, y: bestRetreat.y };
             currentUnit = context.executeCommand(
               currentUnit,
               {
                 type: CommandType.MOVE_TO,
                 unitIds: [currentUnit.id],
-                target: { x: bestRetreat.x, y: bestRetreat.y },
+                target: targetCell,
                 label: "Retreating",
               },
               state,
               false,
               director,
             );
+
+            if (currentUnit.state === UnitState.Moving) {
+              const goalPos = { x: targetCell.x + 0.5, y: targetCell.y + 0.5 };
+              const distToGoal = MathUtils.getDistance(currentUnit.pos, goalPos);
+              const travelTimeMs = calculateTravelTimeMs(currentUnit, distToGoal);
+              currentUnit.activePlan = {
+                behavior: "Retreating",
+                goal: goalPos,
+                committedUntil: state.t + Math.max(500, travelTimeMs),
+                priority: 2,
+              };
+            }
+
             return { unit: currentUnit, handled: true };
           }
         }
       } else {
         // Default behavior
         if (dist > currentUnit.stats.attackRange) {
+          const targetCell = {
+            x: Math.floor(primaryThreat.pos.x),
+            y: Math.floor(primaryThreat.pos.y),
+          };
           currentUnit = context.executeCommand(
             currentUnit,
             {
               type: CommandType.MOVE_TO,
               unitIds: [currentUnit.id],
-              target: {
-                x: Math.floor(primaryThreat.pos.x),
-                y: Math.floor(primaryThreat.pos.y),
-              },
+              target: targetCell,
               label: "Engaging",
             },
             state,
             false,
             director,
           );
+
+          if (currentUnit.state === UnitState.Moving) {
+            const goalPos = { x: targetCell.x + 0.5, y: targetCell.y + 0.5 };
+            const distToGoal = MathUtils.getDistance(currentUnit.pos, goalPos);
+            const travelTimeMs = calculateTravelTimeMs(currentUnit, distToGoal);
+            currentUnit.activePlan = {
+              behavior: "Engaging",
+              goal: goalPos,
+              committedUntil: state.t + Math.max(500, travelTimeMs),
+              priority: 2,
+            };
+          }
+
           return { unit: currentUnit, handled: true };
         }
       }

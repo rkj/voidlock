@@ -83,7 +83,9 @@ describe("Autonomous RUSH Behavior Regression", () => {
     const unit = state.units[0];
 
     // If CombatBehavior worked, the unit should now have an activeCommand and be moving
+    // Because the unit is in RUSH mode, it attacks while moving, so its visual state is Attacking.
     expect(unit.activeCommand?.type).toBe(CommandType.MOVE_TO);
-    expect(unit.state).toBe(UnitState.Moving);
+    expect(unit.state).toBe(UnitState.Attacking);
+    expect(unit.pos.x).toBeGreaterThan(0.5);
   });
 });

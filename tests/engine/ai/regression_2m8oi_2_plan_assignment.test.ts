@@ -1,0 +1,320 @@
+import { describe, it, expect, beforeEach } from "vitest";
+import { CoreEngine } from "@src/engine/CoreEngine";
+import {
+  MapDefinition,
+  CellType,
+  UnitState,
+  AIProfile,
+  EnemyType,
+  Enemy,
+  EnemyArchetypeLibrary,
+} from "@src/shared/types";
+
+describe("AI Plan Assignment", () => {
+  const mockMap: MapDefinition = {
+    width: 20,
+    height: 10,
+    cells: Array(200)
+      .fill(null)
+      .map((_, i) => ({
+        x: i % 20,
+        y: Math.floor(i / 20),
+        type: CellType.Floor,
+      })),
+    spawnPoints: [{ id: "s1", pos: { x: 1, y: 1 }, radius: 1 }],
+    extraction: { x: 19, y: 9 },
+  };
+
+  let engine: CoreEngine;
+
+  beforeEach(() => {
+    engine = new CoreEngine(
+      mockMap,
+      123,
+      { soldiers: [], inventory: {} },
+      true, // agentControlEnabled = true
+      false,
+    );
+    engine.clearUnits();
+    engine.clearEnemies();
+  });
+
+  const createEnemy = (pos: { x: number; y: number }): Enemy => {
+    const arch = EnemyArchetypeLibrary[EnemyType.XenoMite];
+    return {
+      id: "e1",
+      type: EnemyType.XenoMite,
+      pos: pos,
+      hp: arch.hp,
+      maxHp: arch.hp,
+      damage: arch.damage,
+      fireRate: arch.fireRate,
+      accuracy: arch.accuracy,
+      attackRange: arch.attackRange,
+      speed: arch.speed,
+      difficulty: 1,
+      state: UnitState.Idle,
+    };
+  };
+
+  it("SafetyBehavior should set activePlan (Priority 0) when retreating due to low HP", () => {
+    engine.addUnit({
+      id: "u1",
+      pos: { x: 1.5, y: 1.5 },
+      hp: 10, // Low HP
+      maxHp: 100,
+      state: UnitState.Idle,
+      stats: {
+        damage: 10,
+        fireRate: 1000,
+        accuracy: 100,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 5,
+        speed: 30,
+      },
+      aiProfile: AIProfile.STAND_GROUND,
+      commandQueue: [],
+      engagementPolicy: "ENGAGE",
+      archetypeId: "assault",
+      kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
+      aiEnabled: true,
+      innateMaxHp: 100,
+    });
+
+    // Add an enemy IN THE SAME CELL to force it to move to another cell
+    engine.addEnemy(createEnemy({ x: 1.6, y: 1.6 }));
+
+    engine.update(100);
+
+    const unit = engine.getState().units[0];
+    expect(unit.activePlan).toBeDefined();
+    expect(unit.activePlan?.behavior).toBe("Retreating");
+    expect(unit.activePlan?.priority).toBe(0);
+    expect(unit.activePlan?.committedUntil).toBeGreaterThan(0);
+  });
+
+  it("CombatBehavior should set activePlan (Priority 2) when Rushing", () => {
+    engine.addUnit({
+      id: "u1",
+      pos: { x: 1.5, y: 1.5 },
+      hp: 100,
+      maxHp: 100,
+      state: UnitState.Idle,
+      stats: {
+        damage: 10,
+        fireRate: 1000,
+        accuracy: 100,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 5,
+        speed: 30,
+      },
+      aiProfile: AIProfile.RUSH,
+      commandQueue: [],
+      engagementPolicy: "ENGAGE",
+      archetypeId: "assault",
+      kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
+      aiEnabled: true,
+      innateMaxHp: 100,
+    });
+
+    // Add an enemy far enough to trigger RUSH (dist > 1.5)
+    engine.addEnemy(createEnemy({ x: 5.5, y: 1.5 }));
+
+    engine.update(100);
+
+    const unit = engine.getState().units[0];
+    expect(unit.activePlan).toBeDefined();
+    expect(unit.activePlan?.behavior).toBe("Rushing");
+    expect(unit.activePlan?.priority).toBe(2);
+    expect(unit.activePlan?.committedUntil).toBeGreaterThan(0);
+  });
+
+  it("CombatBehavior should set activePlan (Priority 2) when Engaging (Default Behavior)", () => {
+    engine.addUnit({
+      id: "u1",
+      pos: { x: 1.5, y: 1.5 },
+      hp: 100,
+      maxHp: 100,
+      state: UnitState.Idle,
+      stats: {
+        damage: 10,
+        fireRate: 1000,
+        accuracy: 100,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 2, // Short range, but will be overwritten by assault profile (10)
+        speed: 30,
+      },
+      aiProfile: "NONE" as any, // Falls through to default
+      commandQueue: [],
+      engagementPolicy: "ENGAGE",
+      archetypeId: "assault",
+      kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
+      aiEnabled: true,
+      innateMaxHp: 100,
+    });
+
+    // Add an enemy out of range (dist > 10)
+    engine.addEnemy(createEnemy({ x: 15.5, y: 1.5 }));
+
+    engine.update(100);
+
+    const unit = engine.getState().units[0];
+    expect(unit.activePlan).toBeDefined();
+    expect(unit.activePlan?.behavior).toBe("Engaging");
+    expect(unit.activePlan?.priority).toBe(2);
+    expect(unit.activePlan?.committedUntil).toBeGreaterThan(0);
+  });
+
+  it("CombatBehavior should set activePlan (Priority 2) when Retreating (Combat Retreat)", () => {
+    engine.addUnit({
+      id: "u1",
+      pos: { x: 1.5, y: 1.5 },
+      hp: 100,
+      maxHp: 100,
+      state: UnitState.Idle,
+      stats: {
+        damage: 10,
+        fireRate: 1000,
+        accuracy: 100,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 10,
+        speed: 30,
+      },
+      aiProfile: AIProfile.RETREAT,
+      commandQueue: [],
+      engagementPolicy: "ENGAGE",
+      archetypeId: "assault",
+      kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
+      aiEnabled: true,
+      innateMaxHp: 100,
+    });
+
+    // Add an enemy very close (dist < 8)
+    engine.addEnemy(createEnemy({ x: 2.5, y: 1.5 }));
+
+    engine.update(100);
+
+    const unit = engine.getState().units[0];
+    expect(unit.activePlan).toBeDefined();
+    expect(unit.activePlan?.behavior).toBe("Retreating");
+    expect(unit.activePlan?.priority).toBe(2);
+    expect(unit.activePlan?.committedUntil).toBeGreaterThan(0);
+  });
+
+  it("SafetyBehavior should set activePlan (Priority 0) when Kiting (AVOID mode)", () => {
+    engine.addUnit({
+      id: "u1",
+      pos: { x: 1.5, y: 1.5 },
+      hp: 100,
+      maxHp: 100,
+      state: UnitState.Idle,
+      stats: {
+        damage: 10,
+        fireRate: 1000,
+        accuracy: 100,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 10,
+        speed: 30,
+      },
+      aiProfile: AIProfile.STAND_GROUND,
+      commandQueue: [],
+      engagementPolicy: "AVOID",
+      archetypeId: "assault",
+      kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
+      aiEnabled: true,
+      innateMaxHp: 100,
+    });
+
+    // Add an enemy nearby. In AVOID mode, it kites if threats.length > 0.
+    // It should move to a neighbor cell further from threat.
+    engine.addEnemy(createEnemy({ x: 2.5, y: 1.5 }));
+
+    engine.update(100);
+
+    const unit = engine.getState().units[0];
+    expect(unit.activePlan).toBeDefined();
+    expect(unit.activePlan?.behavior).toBe("Kiting");
+    expect(unit.activePlan?.priority).toBe(0);
+    expect(unit.activePlan?.committedUntil).toBeGreaterThan(0);
+  });
+
+  it("SafetyBehavior should set activePlan (Priority 0) when Grouping Up (Isolated)", () => {
+    engine.addUnit({
+      id: "u1",
+      pos: { x: 1.5, y: 1.5 },
+      hp: 100,
+      maxHp: 100,
+      state: UnitState.Idle,
+      stats: {
+        damage: 10,
+        fireRate: 1000,
+        accuracy: 100,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 10,
+        speed: 30,
+      },
+      aiProfile: AIProfile.STAND_GROUND,
+      commandQueue: [],
+      engagementPolicy: "ENGAGE",
+      archetypeId: "assault",
+      kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
+      aiEnabled: true,
+      innateMaxHp: 100,
+    });
+
+    // Add another unit far away (dist > 5)
+    engine.addUnit({
+      id: "u2",
+      pos: { x: 8.5, y: 8.5 },
+      hp: 100,
+      maxHp: 100,
+      state: UnitState.Idle,
+      stats: {
+        damage: 10,
+        fireRate: 1000,
+        accuracy: 100,
+        soldierAim: 90,
+        equipmentAccuracyBonus: 0,
+        attackRange: 10,
+        speed: 30,
+      },
+      aiProfile: AIProfile.STAND_GROUND,
+      commandQueue: [],
+      engagementPolicy: "ENGAGE",
+      archetypeId: "assault",
+      kills: 0,
+      damageDealt: 0,
+      objectivesCompleted: 0,
+      aiEnabled: true,
+      innateMaxHp: 100,
+    });
+
+    engine.addEnemy(createEnemy({ x: 2.5, y: 1.5 }));
+
+    engine.update(100);
+
+    const unit = engine.getState().units[0];
+    expect(unit.activePlan).toBeDefined();
+    expect(unit.activePlan?.behavior).toBe("Grouping");
+    expect(unit.activePlan?.priority).toBe(0);
+    expect(unit.activePlan?.committedUntil).toBeGreaterThan(0);
+  });
+});

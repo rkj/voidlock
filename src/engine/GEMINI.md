@@ -44,3 +44,4 @@ This directory contains the core simulation logic for Voidlock. It follows a det
 - [ADR 0026: Geometric LOS and LOF Precision](../docs/adr/0026-geometric-los-lof-precision.md)
 - [ADR 0039: State Separation and Versioning](../docs/adr/0039-separation-of-custom-and-campaign-state.md)
 - [ADR 0048: Standardizing Pause and Speed Slider Synchronization](../docs/adr/0048-pause-speed-sync.md)
+- [ADR 0056: Committed AI Plans](../docs/adr/0056-committed-ai-plans.md)

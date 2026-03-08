@@ -46,3 +46,4 @@ Each behavior specifies its required context (e.g., `Behavior<BehaviorContext & 
 
 - [ADR 0006: Autonomous Agent Architecture](../../../docs/adr/0006-autonomous-agent-architecture.md)
 - [ADR 0023: Refactor UnitAI (Behavior Decomposition)](../../../docs/adr/0023-refactor-unit-ai.md)
+- [ADR 0056: Committed AI Plans](../../../docs/adr/0056-committed-ai-plans.md)
