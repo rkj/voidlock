@@ -54,8 +54,7 @@ describe("Regression voidlock-v5n8: Opportunistic Loot Pickup", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       aiEnabled: true,
     });
   });
@@ -108,8 +107,7 @@ describe("Regression voidlock-v5n8: Opportunistic Loot Pickup", () => {
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       aiEnabled: true,
     });
 

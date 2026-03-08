@@ -78,8 +78,7 @@ describe("AI Plan Assignment", () => {
       engagementPolicy: "ENGAGE",
       archetypeId: "assault",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       aiEnabled: true,
       innateMaxHp: 100,
     });
@@ -117,8 +116,7 @@ describe("AI Plan Assignment", () => {
       engagementPolicy: "ENGAGE",
       archetypeId: "assault",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       aiEnabled: true,
       innateMaxHp: 100,
     });
@@ -156,8 +154,7 @@ describe("AI Plan Assignment", () => {
       engagementPolicy: "ENGAGE",
       archetypeId: "assault",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       aiEnabled: true,
       innateMaxHp: 100,
     });
@@ -195,8 +192,7 @@ describe("AI Plan Assignment", () => {
       engagementPolicy: "ENGAGE",
       archetypeId: "assault",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       aiEnabled: true,
       innateMaxHp: 100,
     });
@@ -235,8 +231,7 @@ describe("AI Plan Assignment", () => {
       engagementPolicy: "AVOID",
       archetypeId: "assault",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       aiEnabled: true,
       innateMaxHp: 100,
     });
@@ -288,8 +283,7 @@ describe("AI Plan Assignment", () => {
       engagementPolicy: "ENGAGE",
       archetypeId: "assault",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       aiEnabled: true,
       innateMaxHp: 100,
     });
@@ -315,8 +309,7 @@ describe("AI Plan Assignment", () => {
       engagementPolicy: "ENGAGE",
       archetypeId: "assault",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       aiEnabled: true,
       innateMaxHp: 100,
     });

@@ -53,8 +53,7 @@ describe("UnitManager Immutable Integration Regression", () => {
       commandQueue: [],
       archetypeId: "scout",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     });
   });
 
@@ -148,9 +147,8 @@ describe("UnitManager Immutable Integration Regression", () => {
 
       kills: 0,
 
-      damageDealt: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
 
-      objectivesCompleted: 0,
     });
 
     // Order u1 to escort vip

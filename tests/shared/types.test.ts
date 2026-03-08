@@ -63,8 +63,7 @@ describe("Shared Types", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     };
     expect(unitWithOutPath).not.toHaveProperty("path");
 
@@ -91,8 +90,7 @@ describe("Shared Types", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     };
     expect(unitWithPath.path).toEqual([
       { x: 1, y: 0 },
@@ -129,8 +127,7 @@ describe("Shared Types", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     };
     expect(unit.stats.damage).toBe(15);
     expect(unit.stats.attackRange).toBe(2);

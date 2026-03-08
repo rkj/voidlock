@@ -92,6 +92,7 @@ export type Unit = Entity & {
   forcedTargetId?: string;
   explorationTarget?: Vector2;
   activePlan?: AIPlan | null;
+  positionHistory: Vector2[];
   aiEnabled?: boolean;
   activeCommand?: Command;
   channeling?: ChannelingState;

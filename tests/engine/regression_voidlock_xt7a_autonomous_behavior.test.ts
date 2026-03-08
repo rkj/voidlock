@@ -57,8 +57,7 @@ describe("Autonomous RUSH Behavior Regression", () => {
       commandQueue: [],
       archetypeId: "scout",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     });
 
     // Add enemy out of range but visible.

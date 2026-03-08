@@ -57,8 +57,7 @@ describe("Regression voidlock-z1zk: State Restoration after Manual Actions", () 
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       aiEnabled: true,
     });
   });

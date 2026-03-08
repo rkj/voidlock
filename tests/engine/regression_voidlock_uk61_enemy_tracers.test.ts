@@ -61,8 +61,7 @@ describe("Enemy Tracers Regression (voidlock-uk61)", () => {
       aiEnabled: false,
       commandQueue: [],
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     } as any);
 
     engine.addEnemy({

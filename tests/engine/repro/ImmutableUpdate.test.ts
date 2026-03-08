@@ -49,8 +49,7 @@ describe("Immutable Update Integrity", () => {
       commandQueue: [],
       archetypeId: "scout",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     });
 
     const state1 = engine.getState(); // Snapshot 1

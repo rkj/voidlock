@@ -58,8 +58,7 @@ describe("AI Discipline (Extraction) - RUSH Repro", () => {
       engagementPolicy: "ENGAGE",
       archetypeId: "assault",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     });
 
     // Add an enemy BEHIND the unit (at 0.5, 0.5)

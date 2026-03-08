@@ -47,8 +47,7 @@ describe("Escort Command", () => {
       commandQueue: [],
       archetypeId: archetype,
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     });
   };
 

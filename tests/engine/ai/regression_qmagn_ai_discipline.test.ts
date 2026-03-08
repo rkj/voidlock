@@ -59,8 +59,7 @@ describe("AI Discipline (Extraction)", () => {
       archetypeId: "scout",
       rightHand: "pulse_rifle",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     });
 
     // Add an enemy at (5.5, 0.5)

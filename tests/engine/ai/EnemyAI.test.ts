@@ -104,8 +104,7 @@ describe("Enemy AI", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     });
 
     const initialDist = Math.sqrt((0.5 - 4.5) ** 2 + (0.5 - 4.5) ** 2);

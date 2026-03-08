@@ -91,7 +91,15 @@ export class SafetyBehavior implements Behavior<BehaviorContext> {
       }
 
       if (safeCells.length > 0) {
-        const closestSafe = safeCells
+        // Anti-backtracking: filter out recently visited cells
+        let filteredSafe = safeCells.filter(cell => 
+          !currentUnit.positionHistory.some(h => h.x === cell.x && h.y === cell.y)
+        );
+        
+        // If everything is backtracked, use the full list (cornered)
+        const candidates = filteredSafe.length > 0 ? filteredSafe : safeCells;
+
+        const closestSafe = candidates
           .map((cell) => {
             return {
               ...cell,
@@ -197,8 +205,15 @@ export class SafetyBehavior implements Behavior<BehaviorContext> {
       let bestWaypoint: { x: number; y: number } | null = null;
 
       if (candidateWaypoints.length > 0) {
+        // Anti-backtracking: filter recently visited cells
+        let filteredWaypoints = candidateWaypoints.filter(cell => 
+          !currentUnit.positionHistory.some(h => h.x === cell.x && h.y === cell.y)
+        );
+
+        const candidates = filteredWaypoints.length > 0 ? filteredWaypoints : candidateWaypoints;
+
         // Sort by LOS first, then distance to unit (nearest)
-        const sorted = candidateWaypoints.sort((a, b) => {
+        const sorted = candidates.sort((a, b) => {
           if (a.hasLOS && !b.hasLOS) return -1;
           if (!a.hasLOS && b.hasLOS) return 1;
           return a.distToUnit - b.distToUnit;
@@ -271,7 +286,15 @@ export class SafetyBehavior implements Behavior<BehaviorContext> {
 
       const betterCandidates = scoredCandidates.filter(c => c.newDist > dist);
 
-      const best = betterCandidates
+      // Anti-backtracking filter
+      let filtered = betterCandidates.filter(c => 
+        !currentUnit.positionHistory.some(h => h.x === c.pos.x && h.y === c.pos.y)
+      );
+
+      // If all better candidates are backtracked, use the full list (cornered/A* transitory allowed)
+      const finalCandidates = filtered.length > 0 ? filtered : betterCandidates;
+
+      const best = finalCandidates
         .sort((a, b) => {
           if (a.hasLOS && !b.hasLOS) return -1;
           if (!a.hasLOS && b.hasLOS) return 1;

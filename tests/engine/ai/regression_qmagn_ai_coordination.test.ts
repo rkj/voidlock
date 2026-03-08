@@ -73,7 +73,6 @@ describe("AI Coordination (Y-Split)", () => {
         state: UnitState.Idle,
         stats: { damage: 10, fireRate: 100, accuracy: 1000, soldierAim: 90, equipmentAccuracyBonus: 0, attackRange: 10, speed: 1.0 },
         aiProfile: AIProfile.STAND_GROUND,
-        commandQueue: [], engagementPolicy: "ENGAGE", archetypeId: "scout", kills: 0, damageDealt: 0, objectivesCompleted: 0,
     });
     engine.addUnit({
         id: "u2",
@@ -82,7 +81,6 @@ describe("AI Coordination (Y-Split)", () => {
         state: UnitState.Idle,
         stats: { damage: 10, fireRate: 100, accuracy: 1000, soldierAim: 90, equipmentAccuracyBonus: 0, attackRange: 10, speed: 1.0 },
         aiProfile: AIProfile.STAND_GROUND,
-        commandQueue: [], engagementPolicy: "ENGAGE", archetypeId: "scout", kills: 0, damageDealt: 0, objectivesCompleted: 0,
     });
 
     // Start exploration

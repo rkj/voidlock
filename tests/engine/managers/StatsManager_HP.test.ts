@@ -26,8 +26,7 @@ describe("StatsManager HP Mismatch", () => {
       aiProfile: AIProfile.RUSH,
       commandQueue: [],
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     };
 
     const updatedUnit = statsManager.recalculateStats(unit);

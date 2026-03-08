@@ -73,8 +73,7 @@ describe("CoreEngine Door Sync", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     });
 
     // Run update to trigger "Opening" logic (timer start)
@@ -130,8 +129,7 @@ describe("CoreEngine Door Sync", () => {
       commandQueue: [],
       archetypeId: "assault",
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
     });
 
     // Initial state check: Boundary should be OPEN

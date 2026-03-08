@@ -117,8 +117,7 @@ describe("Unit Command State UI Tracking", () => {
       commandQueue: [],
       aiEnabled: true,
       kills: 0,
-      damageDealt: 0,
-      objectivesCompleted: 0,
+      damageDealt: 0, objectivesCompleted: 0, positionHistory: [],
       innateMaxHp: 100,
     });
 
