@@ -112,26 +112,34 @@ export class ExplorationBehavior implements Behavior<BehaviorContext & Explorati
               }
             }
 
-            if (switchTarget) {
-              Logger.debug(
-                `ExplorationBehavior: unit ${currentUnit.id} switching target to ${newTarget.x},${newTarget.y}`,
-              );
-              currentUnit = { ...currentUnit, explorationTarget: newTarget };
-              context.explorationClaims.set(currentUnit.id, newTarget);
-              currentUnit = context.executeCommand(
-                currentUnit,
-                {
-                  type: CommandType.MOVE_TO,
-                  unitIds: [currentUnit.id],
-                  target: targetCell,
-                  label: "Exploring",
-                },
-                state,
-                false,
-                director,
-              );
-              return { unit: currentUnit, handled: true };
+          if (switchTarget) {
+            Logger.debug(
+              `ExplorationBehavior: unit ${currentUnit.id} switching target to ${newTarget.x},${newTarget.y}`,
+            );
+            currentUnit = { ...currentUnit, explorationTarget: newTarget };
+            context.explorationClaims.set(currentUnit.id, newTarget);
+            currentUnit = context.executeCommand(
+              currentUnit,
+              {
+                type: CommandType.MOVE_TO,
+                unitIds: [currentUnit.id],
+                target: targetCell,
+                label: "Exploring",
+              },
+              state,
+              false,
+              director,
+            );
+            if (currentUnit.state === UnitState.Moving) {
+              currentUnit.activePlan = {
+                behavior: "Exploring",
+                goal: { x: targetCell.x + 0.5, y: targetCell.y + 0.5 },
+                committedUntil: state.t + 1000,
+                priority: 4,
+              };
             }
+            return { unit: currentUnit, handled: true };
+          }
           } else if (currentUnit.state === UnitState.Idle) {
             Logger.debug(
               `ExplorationBehavior: unit ${currentUnit.id} same target ${newTarget.x},${newTarget.y} but unit is idle, re-executing move`,
@@ -152,6 +160,17 @@ export class ExplorationBehavior implements Behavior<BehaviorContext & Explorati
               false,
               director,
             );
+            if (currentUnit.state === UnitState.Moving) {
+              currentUnit.activePlan = {
+                behavior: "Exploring",
+                goal: {
+                  x: currentUnit.explorationTarget!.x + 0.5,
+                  y: currentUnit.explorationTarget!.y + 0.5,
+                },
+                committedUntil: state.t + 1000,
+                priority: 4,
+              };
+            }
             return { unit: currentUnit, handled: true };
           }
         } else {

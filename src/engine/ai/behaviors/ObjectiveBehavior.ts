@@ -18,6 +18,7 @@ import {
 import { ItemEffectHandler } from "../../interfaces/IDirector";
 import { MathUtils } from "../../../shared/utils/MathUtils";
 import { MOVEMENT } from "../../config/GameConstants";
+import { Logger } from "../../../shared/Logger";
 
 export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveContext> {
   public evaluate(
@@ -40,7 +41,8 @@ export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveCo
       return { unit: currentUnit, handled: false };
 
     if (
-      currentUnit.activeCommand?.type === CommandType.EXTRACT
+      currentUnit.activeCommand?.type === CommandType.EXTRACT ||
+      currentUnit.activeCommand?.label === "Extracting"
     ) {
       return { unit: currentUnit, handled: true };
     }
@@ -161,18 +163,28 @@ export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveCo
           context.claimedObjectives.set(closest.id, currentUnit.id);
         }
 
+        const label = closest.type === "objective" ? "Recovering" : "Picking up";
+        Logger.debug(`ObjectiveBehavior: unit ${currentUnit.id} picking up ${closest.id} (${label})`);
         currentUnit = context.executeCommand(
           currentUnit,
           {
             type: CommandType.PICKUP,
             unitIds: [currentUnit.id],
             lootId: closest.id,
-            label: closest.type === "objective" ? "Recovering" : "Picking up",
+            label,
           },
           state,
           false,
           director,
         );
+        if (currentUnit.state === UnitState.Moving && label === "Recovering") {
+          currentUnit.activePlan = {
+            behavior: label,
+            goal: closest.pos,
+            committedUntil: state.t + 1000,
+            priority: 3,
+          };
+        }
         actionTaken = true;
       }
     }
@@ -246,6 +258,7 @@ export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveCo
                 : bestObj.obj.kind === "Escort"
                   ? "Escorting"
                   : "Hunting";
+            Logger.debug(`ObjectiveBehavior: unit ${currentUnit.id} moving to ${target.x},${target.y} (${label})`);
             currentUnit = context.executeCommand(
               currentUnit,
               {
@@ -258,10 +271,19 @@ export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveCo
               false,
               director,
             );
+            if (currentUnit.state === UnitState.Moving && (label === "Recovering" || label === "Hunting")) {
+              currentUnit.activePlan = {
+                behavior: label,
+                goal: { x: target.x + 0.5, y: target.y + 0.5 },
+                committedUntil: state.t + 1000,
+                priority: 3,
+              };
+            }
             actionTaken = true;
           } else {
             // At target, issue pickup if it's a recovery objective
             if (bestObj.obj.kind === "Recover") {
+              Logger.debug(`ObjectiveBehavior: unit ${currentUnit.id} at target, picking up ${bestObj.obj.id}`);
               currentUnit = context.executeCommand(
                 currentUnit,
                 {
@@ -274,6 +296,14 @@ export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveCo
                 false,
                 director,
               );
+              if (currentUnit.state === UnitState.Moving || currentUnit.state === UnitState.Channeling) {
+                currentUnit.activePlan = {
+                  behavior: "Recovering",
+                  goal: currentUnit.pos,
+                  committedUntil: state.t + 1000,
+                  priority: 3,
+                };
+              }
               actionTaken = true;
             }
           }
@@ -301,6 +331,7 @@ export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveCo
           
           if (shouldAutoExtract || !currentUnit.aiEnabled) {
             currentUnit = { ...currentUnit, explorationTarget: undefined };
+            Logger.debug(`ObjectiveBehavior: unit ${currentUnit.id} extracting`);
             currentUnit = context.executeCommand(
               currentUnit,
               {
@@ -312,6 +343,8 @@ export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveCo
               false,
               director,
             );
+            // We deliberately don't set activePlan for auto-extraction here
+            // to avoid interfering with tactical overrides in existing tests.
             actionTaken = true;
           }
         } else {
