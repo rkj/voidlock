@@ -16,6 +16,23 @@
 
 ## 2. Soldier AI (Automated Response)
 
+**2.0 Plan Commitment (ADR 0056):**
+
+Units operate on committed plans, not per-tick decisions. A plan is a behavior + goal + path that the unit follows to completion.
+
+- **Commitment:** Once a unit commits to a plan (e.g., "explore cell X" or "retreat to cell Y"), it follows the full pathfound route without re-evaluating on each intermediate cell.
+- **Re-evaluation Triggers:** Plans are only reconsidered when a material world-state change occurs:
+  - New enemy enters line of sight
+  - All visible enemies die or flee
+  - Unit HP drops below critical threshold (25%)
+  - New area revealed (door opened, room entered)
+  - Objective state changes (picked up by ally, new one discovered)
+  - Unit reaches its plan goal (natural completion)
+  - Path becomes blocked
+  - Manual player command issued
+- **Priority Interrupts:** A higher-priority behavior (Safety > Interaction > Combat > Objective > Exploration) can always interrupt a lower-priority plan. A same-or-lower priority behavior cannot override an active plan until the commitment expires or a re-evaluation trigger fires.
+- **Anti-Backtracking:** A unit MUST NOT select a goal that would require revisiting its recent path (last 4-6 cells), unless it is a transitory cell on an A*-planned route to a distant goal, or the unit is cornered with no forward options.
+
 **2.1 Engagement Policies:**
 
 - **ENGAGE (Default):**
@@ -26,7 +43,8 @@
   - **Suppressive Fire:** The unit MUST continue to fire at any visible hostiles within range **while moving**. It does not break its path to fight.
 - **AVOID (Tactical Kiting):**
   - **Behavior:** If a unit has no active orders and detects a threat, it retreats to maintain distance.
-  - **LOS Constraint:** The unit MUST prioritize paths that maintain Line of Sight with the enemy while retreating (e.g., backing down a corridor). It MUST NOT hide in already explored rooms unless cornered.
+  - **Retreat Planning:** The unit MUST pathfind to a retreat waypoint (a discovered cell >= N tiles from all visible threats), not hop cell-by-cell. The full retreat path is committed and followed without per-cell re-evaluation.
+  - **LOS Constraint:** The unit MUST prioritize retreat waypoints that maintain Line of Sight with the enemy (e.g., backing down a corridor). It MUST NOT hide in already explored rooms unless cornered.
   - **VIP Exception:** VIP units ignore LOS constraints and flee directly toward the extraction zone or the nearest safe room.
 
 **2.2 Shoot or Run Model:**
@@ -34,14 +52,15 @@
 - **Armed Soldiers:** If an enemy is in LOS, the soldier will automatically shoot at the highest-priority target.
 - **Unarmed/VIP Units:** If an enemy is in LOS, the unit will automatically move away from the threat toward the nearest "safe" discovered cell.
 
-**2.2 Idle Behavior:**
+**2.3 Idle Behavior:**
 
 - If no manual orders are queued, the soldier continues their last assigned task (e.g., MOVE, EXPLORE).
 - If completely idle (no task), they will automatically engage any visible targets.
 
-**2.3 Autonomous Exploration:**
+**2.4 Autonomous Exploration:**
 
 - If no threats are present and no manual commands are queued, units prioritize exploring undiscovered rooms.
+- **Path Commitment:** When an exploration target is selected, the unit pathfinds the full route and follows it. It does not re-evaluate on each intermediate cell. Re-evaluation occurs only when the target cell is discovered (by another unit or LOS expansion en route), or a higher-priority trigger fires.
 - **Objective Acquisition:** Units will automatically move to and pick up visible Loot or Objectives.
 - **State Restoration:** Resume previous task (e.g., EXPLORE) automatically after picking up an item.
 
