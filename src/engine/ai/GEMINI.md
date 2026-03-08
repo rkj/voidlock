@@ -6,7 +6,7 @@ This directory contains autonomous behavior logic for both enemies and soldiers.
 
 The `UnitAI` manager has been decomposed into modular behavior classes located in `src/engine/ai/behaviors/`:
 
-- `SafetyBehavior.ts`: Handles retreat (Low HP), grouping up (Isolated), and tactical kiting (Avoid mode) logic. Now enforces LOS maintenance during AVOID mode for standard units.
+- `SafetyBehavior.ts`: Handles retreat (Low HP), grouping up (Isolated), and tactical kiting (AVOID mode) logic. Now implements pathfind-based retreat to waypoints >= 5 tiles away in AVOID mode, prioritizing LOS maintenance to primary threats as specified in ADR 0056. Fallbacks to greedy neighbor hopping if no waypoint is found. Implements plan commitment for "Kiting", "Retreating", and "Grouping" plans (Priority 0).
 - `InteractionBehavior.ts`: Handles active interactions (Loot Pickup, Objective Collection, Extraction) when at target. Now enforces extraction priority by only auto-extracting autonomous units if the map is fully discovered or if an explicit EXTRACT command is given.
 - `CombatBehavior.ts`: Handles engagement policies and tactical movement (Rush, Retreat, Stand Ground) during combat. Skips processing if unit is currently extracting or in AVOID mode (delegated to SafetyBehavior).
 - `ObjectiveBehavior.ts`: Handles opportunistic and long-range pathfinding to loot, objectives, and extraction points. Now automatically issues a PICKUP command when at an objective target to prevent exploration distraction. Skips processing if unit is currently extracting. Utilizes `MapUtils.resolveObjectivePosition` to centralize objective position resolution logic. Now implements plan commitment for "Recovering" and "Hunting" plans (Priority 3).
