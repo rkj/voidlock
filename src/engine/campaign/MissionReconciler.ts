@@ -1,5 +1,6 @@
 import {
   CampaignState,
+  CampaignNode,
   MissionReport,
   calculateLevel,
   STAT_BOOSTS,
@@ -20,29 +21,7 @@ export class MissionReconciler {
     // 1. Update node status
     const node = state.nodes.find((n) => n.id === report.nodeId);
     if (node) {
-      node.status = "Cleared";
-      state.currentNodeId = node.id;
-      state.currentSector = node.rank + 2;
-
-      // All nodes that were Accessible but NOT this one become Skipped
-      state.nodes.forEach((n) => {
-        if (n.status === "Accessible" && n.id !== node.id) {
-          n.status = "Skipped";
-        }
-      });
-
-      // Unlock connected nodes
-      node.connections.forEach((connId) => {
-        const nextNode = state.nodes.find((n) => n.id === connId);
-        if (
-          nextNode &&
-          (nextNode.status === "Hidden" ||
-            nextNode.status === "Revealed" ||
-            nextNode.status === "Accessible")
-        ) {
-          nextNode.status = "Accessible";
-        }
-      });
+      this.advanceNode(state, node);
     }
 
     // 2. Update resources
@@ -156,27 +135,7 @@ export class MissionReconciler {
   ): void {
     const node = state.nodes.find((n) => n.id === nodeId);
     if (node) {
-      node.status = "Cleared";
-      state.currentNodeId = node.id;
-      state.currentSector = node.rank + 2;
-
-      state.nodes.forEach((n) => {
-        if (n.status === "Accessible" && n.id !== node.id) {
-          n.status = "Skipped";
-        }
-      });
-
-      node.connections.forEach((connId) => {
-        const nextNode = state.nodes.find((n) => n.id === connId);
-        if (
-          nextNode &&
-          (nextNode.status === "Hidden" ||
-            nextNode.status === "Revealed" ||
-            nextNode.status === "Accessible")
-        ) {
-          nextNode.status = "Accessible";
-        }
-      });
+      this.advanceNode(state, node);
     }
 
     state.scrap += scrapGained;
@@ -202,6 +161,35 @@ export class MissionReconciler {
       intelGained: intelGained,
       timeSpent: 0,
       soldierResults: [],
+    });
+  }
+
+  /**
+   * Core logic for advancing from one node to the next.
+   */
+  private advanceNode(state: CampaignState, node: CampaignNode): void {
+    node.status = "Cleared";
+    state.currentNodeId = node.id;
+    state.currentSector = node.rank + 2;
+
+    // All nodes that were Accessible but NOT this one become Skipped
+    state.nodes.forEach((n) => {
+      if (n.status === "Accessible" && n.id !== node.id) {
+        n.status = "Skipped";
+      }
+    });
+
+    // Unlock connected nodes
+    node.connections.forEach((connId: string) => {
+      const nextNode = state.nodes.find((n) => n.id === connId);
+      if (
+        nextNode &&
+        (nextNode.status === "Hidden" ||
+          nextNode.status === "Revealed" ||
+          nextNode.status === "Accessible")
+      ) {
+        nextNode.status = "Accessible";
+      }
     });
   }
 
