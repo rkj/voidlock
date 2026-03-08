@@ -38,7 +38,7 @@ export class MapUtils {
   public static resolveObjectivePosition(
     objective: Objective,
     enemies: Enemy[],
-  ): Vector2 {
+  ): Vector2 | null {
     if (objective.targetCell) {
       return {
         x: objective.targetCell.x + CENTER_OFFSET,
@@ -51,9 +51,6 @@ export class MapUtils {
       }
     }
 
-    return {
-      x: CENTER_OFFSET,
-      y: CENTER_OFFSET,
-    };
+    return null;
   }
 }

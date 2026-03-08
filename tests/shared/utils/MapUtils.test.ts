@@ -100,7 +100,7 @@ describe("MapUtils", () => {
       expect(pos).toEqual({ x: 12.5, y: 15.5 });
     });
 
-    it("should return default offset if neither targetCell nor targetEnemyId found", () => {
+    it("should return null if neither targetCell nor targetEnemyId found", () => {
       const obj: Partial<Objective> = {
         targetEnemyId: "enemy-2",
       };
@@ -108,7 +108,13 @@ describe("MapUtils", () => {
         { id: "enemy-1", pos: { x: 12.5, y: 15.5 } },
       ];
       const pos = MapUtils.resolveObjectivePosition(obj as Objective, enemies as Enemy[]);
-      expect(pos).toEqual({ x: CENTER_OFFSET, y: CENTER_OFFSET });
+      expect(pos).toBeNull();
+    });
+
+    it("should return null if objective has no target (Repro Regression)", () => {
+      const obj: Partial<Objective> = {};
+      const pos = MapUtils.resolveObjectivePosition(obj as Objective, []);
+      expect(pos).toBeNull();
     });
 
     it("should prioritize targetCell over targetEnemyId", () => {

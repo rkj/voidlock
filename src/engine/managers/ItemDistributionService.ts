@@ -1,13 +1,12 @@
 import {
   GameState,
-  Vector2,
   LootItem,
   Objective,
   UnitState,
 } from "../../shared/types";
 import { SpatialGrid } from "../../shared/utils/SpatialGrid";
 import { MathUtils } from "../../shared/utils/MathUtils";
-import { MOVEMENT } from "../config/GameConstants";
+import { MapUtils } from "../../shared/utils/MapUtils";
 import { VisibleItem } from "../interfaces/AIContext";
 
 /**
@@ -110,26 +109,16 @@ export class ItemDistributionService {
             o.state === "Pending" &&
             (o.kind === "Recover" || o.kind === "Escort" || o.kind === "Kill")
           ) {
-            let pos: Vector2 = {
-              x: MOVEMENT.CENTER_OFFSET,
-              y: MOVEMENT.CENTER_OFFSET,
-            };
-            if (o.targetCell) {
-              pos = {
-                x: o.targetCell.x + MOVEMENT.CENTER_OFFSET,
-                y: o.targetCell.y + MOVEMENT.CENTER_OFFSET,
-              };
-            } else if (o.targetEnemyId) {
-              const enemy = state.enemies.find((e) => e.id === o.targetEnemyId);
-              if (enemy) pos = enemy.pos;
+            const pos = MapUtils.resolveObjectivePosition(o, state.enemies);
+            if (pos) {
+              this.itemGrid.insert(pos, {
+                id: o.id,
+                pos,
+                mustBeInLOS: o.kind === "Recover",
+                visible: o.visible,
+                type: "objective",
+              });
             }
-            this.itemGrid.insert(pos, {
-              id: o.id,
-              pos,
-              mustBeInLOS: o.kind === "Recover",
-              visible: o.visible,
-              type: "objective",
-            });
           }
         }
       }
@@ -155,28 +144,18 @@ export class ItemDistributionService {
           o.state === "Pending" &&
           (o.kind === "Recover" || o.kind === "Escort" || o.kind === "Kill"),
       )
-      .map((o) => {
-        let pos: Vector2 = {
-          x: MOVEMENT.CENTER_OFFSET,
-          y: MOVEMENT.CENTER_OFFSET,
-        };
-        if (o.targetCell) {
-          pos = {
-            x: o.targetCell.x + MOVEMENT.CENTER_OFFSET,
-            y: o.targetCell.y + MOVEMENT.CENTER_OFFSET,
-          };
-        } else if (o.targetEnemyId) {
-          const enemy = state.enemies.find((e) => e.id === o.targetEnemyId);
-          if (enemy) pos = enemy.pos;
-        }
+      .map((o): VisibleItem | null => {
+        const pos = MapUtils.resolveObjectivePosition(o, state.enemies);
+        if (!pos) return null;
         return {
           id: o.id,
           pos,
           mustBeInLOS: o.kind === "Recover",
           visible: o.visible,
-          type: "objective" as const,
+          type: "objective",
         };
-      });
+      })
+      .filter((o): o is VisibleItem => o !== null);
 
     // Merge and deduplicate by ID
     const allVisibleItemsMap = new Map<string, VisibleItem>();

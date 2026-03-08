@@ -23,6 +23,7 @@ import { UnitStateManager } from "./UnitStateManager";
 import { ItemEffectHandler } from "../interfaces/IDirector";
 import { AIContext } from "../interfaces/AIContext";
 import { MathUtils } from "../../shared/utils/MathUtils";
+import { MapUtils } from "../../shared/utils/MapUtils";
 import { MOVEMENT } from "../config/GameConstants";
 
 export class UnitManager {
@@ -217,14 +218,8 @@ export class UnitManager {
       ) {
         const target = activeCommand.target;
         const obj = state.objectives?.find((o) => {
-          if ((o.kind === "Recover" || o.kind === "Escort") && o.targetCell) {
-            return MathUtils.sameCellPosition(o.targetCell, target);
-          }
-          if (o.kind === "Kill" && o.targetEnemyId) {
-            const enemy = state.enemies.find((e) => e.id === o.targetEnemyId);
-            return enemy && MathUtils.sameCellPosition(enemy.pos, target);
-          }
-          return false;
+          const pos = MapUtils.resolveObjectivePosition(o, state.enemies);
+          return pos && MathUtils.sameCellPosition(pos, target);
         });
         if (obj) claimedObjectives.set(obj.id, u.id);
       }

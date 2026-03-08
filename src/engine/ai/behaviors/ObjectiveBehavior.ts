@@ -17,7 +17,7 @@ import {
 } from "../../../shared/VisibilityUtils";
 import { ItemEffectHandler } from "../../interfaces/IDirector";
 import { MathUtils } from "../../../shared/utils/MathUtils";
-import { MOVEMENT } from "../../config/GameConstants";
+import { MapUtils } from "../../../shared/utils/MapUtils";
 import { Logger } from "../../../shared/Logger";
 
 export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveContext> {
@@ -74,30 +74,18 @@ export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveCo
                   o.kind === "Escort" ||
                   o.kind === "Kill"),
             )
-            .map((o) => {
-              let pos: Vector2 = {
-                x: MOVEMENT.CENTER_OFFSET,
-                y: MOVEMENT.CENTER_OFFSET,
-              };
-              if (o.targetCell) {
-                pos = {
-                  x: o.targetCell.x + MOVEMENT.CENTER_OFFSET,
-                  y: o.targetCell.y + MOVEMENT.CENTER_OFFSET,
-                };
-              } else if (o.targetEnemyId) {
-                const enemy = state.enemies.find(
-                  (e) => e.id === o.targetEnemyId,
-                );
-                if (enemy) pos = enemy.pos;
-              }
+            .map((o): VisibleItem | null => {
+              const pos = MapUtils.resolveObjectivePosition(o, state.enemies);
+              if (!pos) return null;
               return {
                 id: o.id,
                 pos,
                 mustBeInLOS: o.kind === "Recover",
                 visible: o.visible,
-                type: "objective" as const,
+                type: "objective",
               };
-            }),
+            })
+            .filter((o): o is VisibleItem => o !== null),
         ] as VisibleItem[]
       ).filter((item) => {
         if ("visible" in item && item.visible) return true;
@@ -206,50 +194,30 @@ export class ObjectiveBehavior implements Behavior<BehaviorContext & ObjectiveCo
         return true;
       });
       if (pendingObjectives.length > 0) {
-        let bestObj: { obj: Objective; dist: number } | null = null;
+        let bestObj: { obj: Objective; dist: number; targetPos: Vector2 } | null = null;
 
         for (const obj of pendingObjectives) {
-          let targetPos: Vector2 | null = null;
-          if (
-            (obj.kind === "Recover" || obj.kind === "Escort") &&
-            obj.targetCell
-          ) {
-            targetPos = {
-              x: obj.targetCell.x + 0.5,
-              y: obj.targetCell.y + 0.5,
-            };
-          } else if (obj.kind === "Kill" && obj.targetEnemyId) {
-            const enemy = state.enemies.find((e) => e.id === obj.targetEnemyId);
-            if (enemy) {
-              const enemyCell = MathUtils.toCellCoord(enemy.pos);
-              if (isCellVisible(state, enemyCell.x, enemyCell.y)) {
-                targetPos = enemy.pos;
+          const targetPos = MapUtils.resolveObjectivePosition(obj, state.enemies);
+          
+          if (targetPos) {
+            // Filter target enemy visibility if kind is 'Kill'
+            if (obj.kind === "Kill" && obj.targetEnemyId) {
+              const enemyCell = MathUtils.toCellCoord(targetPos);
+              if (!isCellVisible(state, enemyCell.x, enemyCell.y)) {
+                continue;
               }
             }
-          }
 
-          if (targetPos) {
             const dist = MathUtils.getDistance(currentUnit.pos, targetPos);
             if (!bestObj || dist < bestObj.dist) {
-              bestObj = { obj, dist };
+              bestObj = { obj, dist, targetPos };
             }
           }
         }
 
         if (bestObj) {
           context.claimedObjectives.set(bestObj.obj.id, currentUnit.id);
-          let target = { x: 0, y: 0 };
-          if (
-            (bestObj.obj.kind === "Recover" || bestObj.obj.kind === "Escort") &&
-            bestObj.obj.targetCell
-          )
-            target = bestObj.obj.targetCell;
-          else if (bestObj.obj.kind === "Kill" && bestObj.obj.targetEnemyId) {
-            const e = state.enemies.find(
-              (en) => en.id === bestObj.obj.targetEnemyId,
-            );
-            if (e) target = MathUtils.toCellCoord(e.pos);
-          }
+          const target = MathUtils.toCellCoord(bestObj.targetPos);
 
           if (!MathUtils.sameCellPosition(currentUnit.pos, target)) {
             const label =
