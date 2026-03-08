@@ -40,7 +40,16 @@ export class MovementManager {
       )
     ) {
       if (entity.state === UnitState.WaitingForDoor) return entity;
-      return { ...entity, state: UnitState.WaitingForDoor };
+      
+      const updated = { ...entity, state: UnitState.WaitingForDoor };
+      // Plan Invalidation Trigger (ADR 0056)
+      if ("activePlan" in updated && (updated as any).activePlan) {
+        (updated as any).activePlan = {
+          ...(updated as any).activePlan,
+          committedUntil: 0,
+        };
+      }
+      return updated as T;
     } else if (dist <= moveDist + MOVEMENT.ARRIVAL_THRESHOLD) {
       const nextPath = entity.path ? entity.path.slice(1) : [];
       let updated: any;

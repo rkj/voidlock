@@ -44,6 +44,11 @@ export class CommandExecutor {
   ): Unit {
     let currentUnit: Unit = { ...unit, activeCommand: cmd };
 
+    if (isManual) {
+      currentUnit.activePlan = undefined;
+      currentUnit.explorationTarget = undefined;
+    }
+
     if (
       isManual &&
       cmd.type !== CommandType.EXPLORE &&

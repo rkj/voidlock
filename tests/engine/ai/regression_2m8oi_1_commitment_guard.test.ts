@@ -65,25 +65,31 @@ describe("AI Commitment Guard", () => {
     // 2. Manually inject an activePlan with priority 2 (Combat-level)
     // and set it to expire in the future.
     const u1 = (engine as any).state.units[0];
+    const target = { x: 5, y: 5 };
+    const path = (engine as any).pathfinder.findPath({ x: 1, y: 1 }, target, true);
+    
     u1.activePlan = {
       behavior: "TestPlan",
-      goal: { x: 1.5, y: 1.5 }, // Stay here
+      goal: { x: target.x + 0.5, y: target.y + 0.5 },
       committedUntil: (engine as any).state.t + 5000,
       priority: 2, // Combat priority
     };
-    // Also clear any path to ensure it's not moving
-    u1.state = UnitState.Idle;
-    u1.path = undefined;
-    u1.targetPos = undefined;
+    // Set state to Moving to simulate a plan in progress
+    u1.state = UnitState.Moving;
+    u1.path = path;
+    if (path && path.length > 0) {
+        u1.targetPos = { x: path[0].x + 0.5, y: path[0].y + 0.5 };
+    }
 
-    // 3. Update. Normally, Exploration (Priority 4) would trigger because it's idle.
+    // 3. Update. Normally, Exploration (Priority 4) would trigger if it was idle.
+    // Here it should stay on its current plan because priority 4 < 2.
     engine.update(100);
 
-    // 4. Verify it's STILL Idle and hasn't picked up an Exploration target
+    // 4. Verify it's STILL on its plan and hasn't picked up an Exploration target
     const updatedState = engine.getState();
     const updatedU1 = updatedState.units[0];
     
-    expect(updatedU1.state).toBe(UnitState.Idle);
+    expect(updatedU1.state).toBe(UnitState.Moving);
     expect(updatedU1.explorationTarget).toBeUndefined();
     expect(updatedU1.activePlan?.behavior).toBe("TestPlan");
   });

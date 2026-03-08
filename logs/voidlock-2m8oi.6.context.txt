@@ -1,0 +1,10 @@
+Tasks voidlock-2m8oi.2 and voidlock-2m8oi.3 are already CLOSED. 
+This means SafetyBehavior, CombatBehavior, ObjectiveBehavior, and ExplorationBehavior should already be setting unit.activePlan correctly.
+Your job is to wire the invalidation triggers to clear unit.activePlan.committedUntil.
+Triggers to wire:
+- new enemy enters LOS -> CombatManager/visibility
+- all visible enemies die -> UnitManager cleanup
+- HP drops below 25% -> UnitManager
+- new area revealed -> visibility update
+- objective state changes -> MissionManager
+- path blocked -> MovementManager (when entity cannot reach next cell)
