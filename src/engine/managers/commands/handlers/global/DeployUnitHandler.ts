@@ -6,6 +6,7 @@ import {
 } from "@src/shared/types";
 import { IGlobalCommandHandler } from "../../IGlobalCommandHandler";
 import { MathUtils } from "@src/shared/utils/MathUtils";
+import { MapUtils } from "@src/shared/utils/MapUtils";
 
 export class DeployUnitHandler implements IGlobalCommandHandler {
   public type = CommandType.DEPLOY_UNIT;
@@ -15,12 +16,7 @@ export class DeployUnitHandler implements IGlobalCommandHandler {
     const unit = state.units.find((u) => u.id === deployCmd.unitId);
     if (unit && unit.archetypeId !== "vip") {
       // Validate that the target is a valid spawn tile
-      const isValidSpawn =
-        state.map.squadSpawns?.some((s) =>
-          MathUtils.sameCellPosition(s, deployCmd.target),
-        ) ||
-        (state.map.squadSpawn &&
-          MathUtils.sameCellPosition(state.map.squadSpawn, deployCmd.target));
+      const isValidSpawn = MapUtils.isValidSpawnPoint(state.map, deployCmd.target);
 
       if (!isValidSpawn) return;
 

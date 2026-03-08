@@ -5,6 +5,7 @@ import { Icons } from "@src/renderer/Icons";
 import { StatDisplay } from "@src/renderer/ui/StatDisplay";
 import { SoldierWidget } from "@src/renderer/ui/SoldierWidget";
 import { MathUtils } from "@src/shared/utils/MathUtils";
+import { MapUtils } from "@src/shared/utils/MapUtils";
 import { UIBinder } from "@src/renderer/ui/UIBinder";
 
 /**
@@ -167,8 +168,7 @@ export class DeploymentPanel {
       const allDeployed = deployedUnits.length === aliveUnits.length;
       const allOnValidTiles = deployedUnits.every((u) => {
         const cell = MathUtils.toCellCoord(u.pos);
-        return state.map?.squadSpawns?.some((s) => MathUtils.sameCellPosition(s, cell)) ||
-               (state.map?.squadSpawn && MathUtils.sameCellPosition(state.map.squadSpawn, cell));
+        return MapUtils.isValidSpawnPoint(state.map, cell);
       });
       startBtn.disabled = !allDeployed || !allOnValidTiles;
       startBtn.classList.toggle("disabled", startBtn.disabled);

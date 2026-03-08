@@ -11,6 +11,7 @@ import {
 import { PRNG } from "../../shared/PRNG";
 import { SPEED_NORMALIZATION_CONST } from "../config/GameConstants";
 import { MathUtils } from "../../shared/utils/MathUtils";
+import { MapUtils } from "../../shared/utils/MapUtils";
 
 export class UnitSpawner {
   constructor(private prng: PRNG) {}
@@ -24,11 +25,9 @@ export class UnitSpawner {
     let unitCount = 1;
 
     // Collect available spawn positions
-    let availableSpawns = [...(map.squadSpawns || [])];
+    let availableSpawns = [...MapUtils.getSquadSpawns(map)];
     if (availableSpawns.length === 0) {
-      if (map.squadSpawn) {
-        availableSpawns = [map.squadSpawn];
-      } else if (map.extraction) {
+      if (map.extraction) {
         availableSpawns = [map.extraction];
       } else {
         availableSpawns = [{ x: 0, y: 0 }];
@@ -135,8 +134,8 @@ export class UnitSpawner {
     const units: Unit[] = [];
     const vipArch = ArchetypeLibrary["vip"];
 
-    const squadPos = map.squadSpawn ||
-      (map.squadSpawns && map.squadSpawns[0]) || { x: 0, y: 0 };
+    const squadSpawns = MapUtils.getSquadSpawns(map);
+    const squadPos = squadSpawns.length > 0 ? squadSpawns[0] : { x: 0, y: 0 };
     const vipSpawnPositions = this.findVipStartPositions(map, squadPos, 1);
 
     vipSpawnPositions.forEach((startPos, idx) => {

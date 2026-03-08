@@ -15,6 +15,7 @@ import {
 } from "@src/shared/types";
 import { PRNG } from "../shared/PRNG";
 import { MathUtils } from "../shared/utils/MathUtils";
+import { MapUtils } from "../shared/utils/MapUtils";
 import { GameGrid } from "./GameGrid";
 import { Pathfinder } from "./Pathfinder";
 import { LineOfSight } from "./LineOfSight";
@@ -236,21 +237,12 @@ export class CoreEngine {
 
     // Reveal spawn area and update initial visibility
     const spawnRoomIds = new Set<string>();
-    if (map.squadSpawns) {
-      map.squadSpawns.forEach((sp) => {
-        const cell = map.cells.find(
-          (c) => c.x === Math.floor(sp.x) && c.y === Math.floor(sp.y),
-        );
-        if (cell?.roomId) spawnRoomIds.add(cell.roomId);
-      });
-    } else if (map.squadSpawn) {
+    MapUtils.getSquadSpawns(map).forEach((sp) => {
       const cell = map.cells.find(
-        (c) =>
-          c.x === Math.floor(map.squadSpawn!.x) &&
-          c.y === Math.floor(map.squadSpawn!.y),
+        (c) => c.x === Math.floor(sp.x) && c.y === Math.floor(sp.y),
       );
       if (cell?.roomId) spawnRoomIds.add(cell.roomId);
-    }
+    });
 
     if (spawnRoomIds.size > 0) {
       map.cells.forEach((cell) => {
@@ -266,8 +258,7 @@ export class CoreEngine {
       });
     } else {
       // Fallback: just reveal the specific spawn points if no rooms
-      const spawns = map.squadSpawns || (map.squadSpawn ? [map.squadSpawn] : []);
-      spawns.forEach((sp) => {
+      MapUtils.getSquadSpawns(map).forEach((sp) => {
         const cell = MathUtils.toCellCoord(sp);
         const key = MathUtils.cellKey(sp);
         if (!this.state.discoveredCells.includes(key)) {

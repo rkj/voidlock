@@ -29,9 +29,54 @@ describe("MapUtils", () => {
       expect(MapUtils.isValidSpawnPoint(map as MapDefinition, { x: 6, y: 6 })).toBe(false);
     });
 
+    it("should handle fractional coordinates in input cell", () => {
+      const map: Partial<MapDefinition> = {
+        squadSpawns: [{ x: 1, y: 1 }],
+      };
+      expect(MapUtils.isValidSpawnPoint(map as MapDefinition, { x: 1.5, y: 1.5 })).toBe(true);
+      expect(MapUtils.isValidSpawnPoint(map as MapDefinition, { x: 0.9, y: 1.1 })).toBe(false);
+    });
+
+    it("should handle fractional coordinates in spawn points", () => {
+      const map: Partial<MapDefinition> = {
+        squadSpawns: [{ x: 1.5, y: 1.5 }],
+      };
+      expect(MapUtils.isValidSpawnPoint(map as MapDefinition, { x: 1.0, y: 1.0 })).toBe(true);
+      expect(MapUtils.isValidSpawnPoint(map as MapDefinition, { x: 1.9, y: 1.9 })).toBe(true);
+    });
+
     it("should handle undefined squadSpawns and squadSpawn", () => {
       const map: Partial<MapDefinition> = {};
       expect(MapUtils.isValidSpawnPoint(map as MapDefinition, { x: 1, y: 1 })).toBe(false);
+    });
+  });
+
+  describe("getSquadSpawns", () => {
+    it("should return squadSpawns if present", () => {
+      const map: Partial<MapDefinition> = {
+        squadSpawns: [{ x: 1, y: 1 }, { x: 2, y: 2 }],
+      };
+      expect(MapUtils.getSquadSpawns(map as MapDefinition)).toEqual([{ x: 1, y: 1 }, { x: 2, y: 2 }]);
+    });
+
+    it("should return squadSpawn as array if squadSpawns is missing", () => {
+      const map: Partial<MapDefinition> = {
+        squadSpawn: { x: 5, y: 5 },
+      };
+      expect(MapUtils.getSquadSpawns(map as MapDefinition)).toEqual([{ x: 5, y: 5 }]);
+    });
+
+    it("should return empty array if both are missing", () => {
+      const map: Partial<MapDefinition> = {};
+      expect(MapUtils.getSquadSpawns(map as MapDefinition)).toEqual([]);
+    });
+
+    it("should prefer squadSpawns (even if empty) over squadSpawn", () => {
+      const map: Partial<MapDefinition> = {
+        squadSpawns: [],
+        squadSpawn: { x: 5, y: 5 },
+      };
+      expect(MapUtils.getSquadSpawns(map as MapDefinition)).toEqual([]);
     });
   });
 
