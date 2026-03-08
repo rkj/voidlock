@@ -8,7 +8,7 @@ This directory contains specialized managers for the campaign mode logic, extrac
 - `MetaManager.ts`: Manages global statistics and persistent meta-progression (Intel, Unlocks) tracked across all campaigns. Implemented as a singleton that uses a `StorageProvider` for persistence. Supports spending Intel to unlock Archetypes and Item licenses globally.
 - `RosterManager.ts`: Handles all roster-related operations, including recruitment, healing, revival, equipment assignment, and renaming soldiers. Now utilizes `SoldierFactory` for uniform soldier generation.
 - `SoldierFactory.ts`: Centralizes the creation of `CampaignSoldier` entities from archetypes, ensuring consistency across recruitment, initial roster generation, and narrative events (ADR 0055).
-- `MissionReconciler.ts`: Manages the reconciliation of mission results with the campaign state, including XP gain, level ups, node progression, and bankruptcy checks. Ensures `intelGained` is correctly propagated to both the per-campaign state and global meta-stats.
+- `MissionReconciler.ts`: Manages the reconciliation of mission results with the campaign state, including XP gain, level ups, node progression, and bankruptcy checks. Now utilizes a shared `advanceNode` method for node advancement. Ensures `intelGained` is correctly propagated to both the per-campaign state and global meta-stats.
 - `EventManager.ts`: Implements the logic for narrative events and player choices. Now utilizes `SoldierFactory` for uniform soldier generation in event rewards.
 
 ## Usage
