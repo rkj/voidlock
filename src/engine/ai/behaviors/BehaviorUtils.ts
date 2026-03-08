@@ -8,6 +8,12 @@ import {
 import { GameGrid } from "../../GameGrid";
 import { isCellDiscovered } from "../../../shared/VisibilityUtils";
 import { MathUtils } from "../../../shared/utils/MathUtils";
+import { SPEED_NORMALIZATION_CONST } from "../../config/GameConstants";
+
+export function calculateTravelTimeMs(unit: Unit, distance: number): number {
+  if (unit.stats.speed <= 0) return 0;
+  return (distance * 1000 * SPEED_NORMALIZATION_CONST) / unit.stats.speed;
+}
 
 export function isMapFullyDiscovered(
   state: GameState,

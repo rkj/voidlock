@@ -387,6 +387,10 @@ export class CoreEngine {
     this.state.units = [];
   }
 
+  public clearEnemies() {
+    this.state.enemies = [];
+  }
+
   public addUnit(unit: Unit) {
     this.state.units.push(unit);
   }

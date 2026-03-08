@@ -15,6 +15,7 @@ import { MathUtils } from "../../../shared/utils/MathUtils";
 import { LineOfSight } from "../../LineOfSight";
 import { GameGrid } from "../../GameGrid";
 import { Logger } from "../../../shared/Logger";
+import { calculateTravelTimeMs } from "./BehaviorUtils";
 
 export class SafetyBehavior implements Behavior<BehaviorContext> {
   constructor(private gameGrid: GameGrid, private los: LineOfSight) {}
@@ -124,6 +125,17 @@ export class SafetyBehavior implements Behavior<BehaviorContext> {
             false,
             director,
           );
+
+          if (currentUnit.state === UnitState.Moving) {
+            const travelTimeMs = calculateTravelTimeMs(currentUnit, closestSafe.dist);
+            currentUnit.activePlan = {
+              behavior: "Retreating",
+              goal: { x: closestSafe.x + 0.5, y: closestSafe.y + 0.5 },
+              committedUntil: state.t + Math.max(500, travelTimeMs),
+              priority: 0,
+            };
+          }
+
           return {
             unit: currentUnit,
             handled: currentUnit.state === UnitState.Moving,
@@ -189,6 +201,19 @@ export class SafetyBehavior implements Behavior<BehaviorContext> {
             false,
             director,
           );
+
+          if (currentUnit.state === UnitState.Moving) {
+            const goalPos = { x: best.pos.x + 0.5, y: best.pos.y + 0.5 };
+            const dist = MathUtils.getDistance(currentUnit.pos, goalPos);
+            const travelTimeMs = calculateTravelTimeMs(currentUnit, dist);
+            currentUnit.activePlan = {
+              behavior: "Kiting",
+              goal: goalPos,
+              committedUntil: state.t + Math.max(500, travelTimeMs),
+              priority: 0,
+            };
+          }
+
           return { unit: currentUnit, handled: true };
         }
         return { unit: currentUnit, handled: true };
@@ -229,6 +254,17 @@ export class SafetyBehavior implements Behavior<BehaviorContext> {
             false,
             director,
           );
+
+          if (currentUnit.state === UnitState.Moving) {
+            const dist = MathUtils.getDistance(currentUnit.pos, closestAlly.pos);
+            const travelTimeMs = calculateTravelTimeMs(currentUnit, dist);
+            currentUnit.activePlan = {
+              behavior: "Grouping",
+              goal: { ...closestAlly.pos },
+              committedUntil: state.t + Math.max(500, travelTimeMs),
+              priority: 0,
+            };
+          }
           return { unit: currentUnit, handled: true };
         }
         return {
