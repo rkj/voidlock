@@ -12,6 +12,7 @@ import {
 } from "../../shared/types";
 import { PRNG } from "../../shared/PRNG";
 import { MathUtils } from "../../shared/utils/MathUtils";
+import { MapUtils } from "../../shared/utils/MapUtils";
 import { EnemyManager } from "./EnemyManager";
 import { LootManager } from "./LootManager";
 import { PlacementValidator } from "../generators/PlacementValidator";
@@ -285,20 +286,18 @@ export class MissionManager {
       let changed = false;
       let newObj = { ...obj };
 
-      if (!newObj.visible && newObj.targetCell) {
-        if (isCellDiscovered(state, newObj.targetCell.x, newObj.targetCell.y)) {
-          newObj.visible = true;
-          changed = true;
-        }
-      }
-      if (newObj.kind === "Kill" && newObj.targetEnemyId) {
-        const enemy = state.enemies.find((e) => e.id === newObj.targetEnemyId);
-        if (
-          enemy &&
-          isCellVisible(state, Math.floor(enemy.pos.x), Math.floor(enemy.pos.y))
-        ) {
-          newObj.visible = true;
-          changed = true;
+      if (!newObj.visible) {
+        const pos = MapUtils.resolveObjectivePosition(newObj, state.enemies);
+        if (pos) {
+          const cell = MathUtils.toCellCoord(pos);
+          const shouldBeVisible = newObj.targetCell
+            ? isCellDiscovered(state, cell.x, cell.y)
+            : isCellVisible(state, cell.x, cell.y);
+
+          if (shouldBeVisible) {
+            newObj.visible = true;
+            changed = true;
+          }
         }
       }
 

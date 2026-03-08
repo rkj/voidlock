@@ -1,0 +1,7 @@
+Implements docs/adr/0055-shared-utilities-and-factories.md#1.
+1.  **Refactor `MapUtils.resolveObjectivePosition`**: Update `src/shared/utils/MapUtils.ts` to change the signature to `public static resolveObjectivePosition(objective: Objective, enemies: Enemy[]): Vector2 | null`. Change the default return from `{ x: CENTER_OFFSET, y: CENTER_OFFSET }` to `null`.
+2.  **Fix Regression**: Update `src/engine/ai/behaviors/ObjectiveBehavior.ts`, `src/engine/managers/ItemDistributionService.ts`, and any other call sites to use `MapUtils.resolveObjectivePosition` and handle the `null` case. A unit MUST NOT path to `{0.5, 0.5}` when an objective target is missing.
+3.  **Verification**:
+    *   Add a test case in `tests/shared/utils/MapUtils.test.ts` for the `null` case.
+    *   Add a regression test in `tests/engine/ai/ObjectiveBehavior.test.ts` to verify that units skip objectives with missing targets instead of pathing to `{0.5, 0.5}`.
+    *   Ensure all tests pass (`npm run test`).
