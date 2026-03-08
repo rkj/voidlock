@@ -214,9 +214,10 @@ describe("AI Plan Assignment", () => {
   });
 
   it("SafetyBehavior should set activePlan (Priority 0) when Kiting (AVOID mode)", () => {
+    const unitPos = { x: 1.5, y: 1.5 };
     engine.addUnit({
       id: "u1",
-      pos: { x: 1.5, y: 1.5 },
+      pos: unitPos,
       hp: 100,
       maxHp: 100,
       state: UnitState.Idle,
@@ -240,9 +241,9 @@ describe("AI Plan Assignment", () => {
       innateMaxHp: 100,
     });
 
-    // Add an enemy nearby. In AVOID mode, it kites if threats.length > 0.
-    // It should move to a neighbor cell further from threat.
-    engine.addEnemy(createEnemy({ x: 2.5, y: 1.5 }));
+    // Add an enemy nearby (dist = 1.0)
+    const enemyPos = { x: 2.5, y: 1.5 };
+    engine.addEnemy(createEnemy(enemyPos));
 
     engine.update(100);
 
@@ -251,6 +252,19 @@ describe("AI Plan Assignment", () => {
     expect(unit.activePlan?.behavior).toBe("Kiting");
     expect(unit.activePlan?.priority).toBe(0);
     expect(unit.activePlan?.committedUntil).toBeGreaterThan(0);
+
+    // NEW: Verify it moves to a distant cell (>= 5 tiles away from threat)
+    const goal = unit.activePlan!.goal;
+    const distToThreat = Math.sqrt(
+      Math.pow(goal.x - enemyPos.x, 2) + Math.pow(goal.y - enemyPos.y, 2),
+    );
+    expect(distToThreat).toBeGreaterThanOrEqual(5.0);
+    
+    // Also verify it's not just a neighbor of the original position (dist > 1.5)
+    const distFromStart = Math.sqrt(
+      Math.pow(goal.x - unitPos.x, 2) + Math.pow(goal.y - unitPos.y, 2),
+    );
+    expect(distFromStart).toBeGreaterThan(1.5);
   });
 
   it("SafetyBehavior should set activePlan (Priority 0) when Grouping Up (Isolated)", () => {

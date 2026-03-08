@@ -148,6 +148,101 @@ export class SafetyBehavior implements Behavior<BehaviorContext> {
       }
     } else if (isAvoidMode) {
       const primaryThreat = threats[0].enemy;
+      const N = 5;
+      const width = state.map.width;
+
+      const candidateWaypoints: {
+        x: number;
+        y: number;
+        distToUnit: number;
+        hasLOS: boolean;
+      }[] = [];
+
+      // Find all discovered, walkable cells that are >= N tiles from all threats
+      if (state.gridState) {
+        for (let i = 0; i < state.gridState.length; i++) {
+          if (state.gridState[i] & 2) {
+            const cx = i % width;
+            const cy = Math.floor(i / width);
+            if (this.gameGrid.isWalkable(cx, cy)) {
+              const cellPos = { x: cx + 0.5, y: cy + 0.5 };
+              const isFarEnough = threats.every(
+                (t) => MathUtils.getDistance(cellPos, t.enemy.pos) >= N,
+              );
+              if (isFarEnough) {
+                const hasLOS = this.los.hasLineOfSight(cellPos, primaryThreat.pos);
+                const distToUnit = MathUtils.getDistance(currentUnit.pos, cellPos);
+                candidateWaypoints.push({ x: cx, y: cy, distToUnit, hasLOS });
+              }
+            }
+          }
+        }
+      } else {
+        state.discoveredCells.forEach((key) => {
+          const [cx, cy] = key.split(",").map(Number);
+          if (this.gameGrid.isWalkable(cx, cy)) {
+            const cellPos = { x: cx + 0.5, y: cy + 0.5 };
+            const isFarEnough = threats.every(
+              (t) => MathUtils.getDistance(cellPos, t.enemy.pos) >= N,
+            );
+            if (isFarEnough) {
+              const hasLOS = this.los.hasLineOfSight(cellPos, primaryThreat.pos);
+              const distToUnit = MathUtils.getDistance(currentUnit.pos, cellPos);
+              candidateWaypoints.push({ x: cx, y: cy, distToUnit, hasLOS });
+            }
+          }
+        });
+      }
+
+      let bestWaypoint: { x: number; y: number } | null = null;
+
+      if (candidateWaypoints.length > 0) {
+        // Sort by LOS first, then distance to unit (nearest)
+        const sorted = candidateWaypoints.sort((a, b) => {
+          if (a.hasLOS && !b.hasLOS) return -1;
+          if (!a.hasLOS && b.hasLOS) return 1;
+          return a.distToUnit - b.distToUnit;
+        });
+        bestWaypoint = { x: sorted[0].x, y: sorted[0].y };
+      }
+
+      if (bestWaypoint) {
+        if (
+          currentUnit.state !== UnitState.Moving ||
+          !currentUnit.targetPos ||
+          !MathUtils.sameCellPosition(currentUnit.targetPos, bestWaypoint)
+        ) {
+          currentUnit = context.executeCommand(
+            currentUnit,
+            {
+              type: CommandType.MOVE_TO,
+              unitIds: [currentUnit.id],
+              target: bestWaypoint,
+              label: "Kiting",
+            },
+            state,
+            false,
+            director,
+          );
+
+          if (currentUnit.state === UnitState.Moving) {
+            const goalPos = { x: bestWaypoint.x + 0.5, y: bestWaypoint.y + 0.5 };
+            const dist = MathUtils.getDistance(currentUnit.pos, goalPos);
+            const travelTimeMs = calculateTravelTimeMs(currentUnit, dist);
+            currentUnit.activePlan = {
+              behavior: "Kiting",
+              goal: goalPos,
+              committedUntil: state.t + Math.max(500, travelTimeMs),
+              priority: 0,
+            };
+          }
+
+          return { unit: currentUnit, handled: true };
+        }
+        return { unit: currentUnit, handled: true };
+      }
+
+      // Fallback to greedy 1-cell neighbor scan if no waypoint >= N found
       const dist = threats[0].distance;
       const currentCell = MathUtils.toCellCoord(currentUnit.pos);
       
