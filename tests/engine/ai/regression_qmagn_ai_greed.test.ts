@@ -44,10 +44,17 @@ describe("AI Opportunism (Shiny Object)", () => {
         id: "u1",
         pos: { x: 0.5, y: 2.5 },
         hp: 100, maxHp: 100,
+        innateMaxHp: 100,
         state: UnitState.Idle,
         stats: { damage: 10, fireRate: 100, accuracy: 1000, soldierAim: 90, equipmentAccuracyBonus: 0, attackRange: 10, speed: 1.0 },
         aiProfile: AIProfile.STAND_GROUND,
-        commandQueue: [], engagementPolicy: "ENGAGE", archetypeId: "scout", kills: 0, damageDealt: 0, objectivesCompleted: 0,
+        commandQueue: [], 
+        engagementPolicy: "ENGAGE", 
+        archetypeId: "scout", 
+        kills: 0, 
+        damageDealt: 0, 
+        objectivesCompleted: 0,
+        aiEnabled: false, // Start with AI disabled to prevent early plan setting
     });
 
     // We want to explore towards (4, 2)
@@ -56,11 +63,12 @@ describe("AI Opportunism (Shiny Object)", () => {
     // First, discover the room
     engine.update(100);
     
-    // Start exploration
+    // Start exploration (this enables AI)
     engine.applyCommand({ type: CommandType.EXPLORE, unitIds: ["u1"] });
     
-    // Run for a few ticks
-    for(let i = 0; i < 5; i++) {
+    // Run for enough ticks to expire the commitment (1000ms)
+    // The commitment starts when ObjectiveBehavior issues PICKUP in the first tick after EXPLORE.
+    for(let i = 0; i < 15; i++) {
         engine.update(100);
     }
     

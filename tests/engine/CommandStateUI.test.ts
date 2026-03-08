@@ -111,7 +111,7 @@ describe("Unit Command State UI Tracking", () => {
         soldierAim: 90,
         equipmentAccuracyBonus: 0,
         attackRange: 2,
-        speed: 20,
+        speed: 1.0,
       },
       aiProfile: AIProfile.STAND_GROUND,
       commandQueue: [],
@@ -119,13 +119,13 @@ describe("Unit Command State UI Tracking", () => {
       kills: 0,
       damageDealt: 0,
       objectivesCompleted: 0,
+      innateMaxHp: 100,
     });
 
     (engine as any).state.discoveredCells = ["0,0"];
 
-    // Tick engine to trigger AI
-    engine.update(100);
-    engine.update(100);
+    // Tick engine to trigger AI (use 16ms to avoid multiple simulation steps)
+    engine.update(16);
 
     const unit = engine.getState().units[0];
 
