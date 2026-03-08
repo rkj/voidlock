@@ -108,3 +108,5 @@ For deeper dives, refer to:
 - [Shared Types Context](./src/shared/GEMINI.md)
 - [Scripts Context](./scripts/GEMINI.md)
 - [Services Context](./src/services/GEMINI.md)
+- [Architecture](./docs/ARCHITECTURE.md) — consolidated architecture reference
+- [AGENTS.md](./AGENTS.md) — project info for all AI agents (Claude, Gemini, Codex)

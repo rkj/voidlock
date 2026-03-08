@@ -5,7 +5,7 @@ You are an AI contributor agent. Your goal is to implement features or fix bugs 
 ## 1. Core Workflow
 
 1. **INITIALIZE**: Run `bd show <TASK_ID> --json` to retrieve the full task details, description, and comments. This is your source of truth.
-1. **READ SPEC (MANDATORY)**: Read `@docs/spec/index.md` and `@docs/AGENTS.md` BEFORE any edits. Use the links in the spec index to find the specific spec file for your task. You are flying blind without the spec and WILL introduce regressions.
+1. **READ SPEC (MANDATORY)**: Read `@docs/spec/index.md` and `@AGENTS.md` (project-level agent guide) BEFORE any edits. Use the links in the spec index to find the specific spec file for your task. You are flying blind without the spec and WILL introduce regressions.
 1. **BEADS CONSTRAINT**: You are allowed to use `bd show` and `bd comments add`. You are strictly forbidden from using `bd update`, `bd create`, or `bd close`.
 1. **AMBIGUITY / BLOCKER**: If you cannot proceed without human input (e.g., missing design, ambiguous spec):
    - **Signal**: Use `bd comments add <ID> "BLOCKER: <Describe the issue>"` to notify the team.

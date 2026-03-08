@@ -58,5 +58,5 @@ npm run sloc
 
 ## Documentation
 
-- [Architecture](./ARCHITECTURE.md) - Deep dive into the engine, communication protocol, and simulation logic.
-- [Specification](./spec/index.md) - Detailed game design document.
+- [Architecture](./docs/ARCHITECTURE.md) - Deep dive into the engine, communication protocol, and simulation logic.
+- [Specification](./docs/spec/index.md) - Detailed game design document.
