@@ -4,7 +4,7 @@ import { SquadBuilder } from "@src/renderer/components/SquadBuilder";
 import { MissionType, SquadConfig } from "@src/shared/types";
 
 describe("SquadBuilder Component", () => {
-  let context: AppContext;
+  let context: any;
   let container: HTMLElement;
   let squad: SquadConfig;
 

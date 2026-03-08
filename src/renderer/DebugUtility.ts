@@ -8,7 +8,7 @@ import { Logger } from "@src/shared/Logger";
 export class DebugUtility {
   /**
    * Captures the world state and attempts to copy it to the clipboard.
-   * Falls back to console.log if the Clipboard API is unavailable.
+   * Falls back to Logger.info if the Clipboard API is unavailable.
    */
   public static async copyWorldState(
     state: GameState,

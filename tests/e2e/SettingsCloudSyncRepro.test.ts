@@ -23,7 +23,7 @@ describe("Settings Cloud Sync Repro", () => {
     // Go to Settings
     await page.waitForSelector("#btn-menu-settings");
     
-    // Mock missing Firebase config in AppContext
+    // Mock missing Firebase config in registry
     await page.evaluate(() => {
       const app = (window as any).GameAppInstance;
       if (app && app.registry && app.registry.cloudSync) {

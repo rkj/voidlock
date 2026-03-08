@@ -5,7 +5,6 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { UnitStyle } from "@src/shared/types";
 import { UnitStyleSelector } from "@src/renderer/components/UnitStyleSelector";
 import { AssetManager } from "@src/renderer/visuals/AssetManager";
-import { AppContext } from "@src/renderer/app/AppContext";
 
 vi.mock("@src/renderer/visuals/AssetManager", () => ({
   AssetManager: {
@@ -14,7 +13,7 @@ vi.mock("@src/renderer/visuals/AssetManager", () => ({
 }));
 
 describe("UnitStyleSelector - Asset Loading & Missing Placeholders (voidlock-txq8)", () => {
-  let context: AppContext;
+  let context: any;
   let container: HTMLElement;
   let mockAssets: any;
 

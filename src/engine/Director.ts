@@ -336,18 +336,4 @@ export class Director implements IDirector {
     );
     this.onSpawn(enemy);
   }
-
-  /**
-   * @deprecated Use spawnWave for point-based wave spawning
-   */
-  public spawnOneEnemy() {
-    const threat = this.getThreatLevel();
-    const type = this.selectEnemyTypeForThreat(
-      threat,
-      DIRECTOR.DIFFICULTY_HARD,
-    );
-    if (type) {
-      this.spawnOneEnemyOfType(type, this.getDifficultyForType(type));
-    }
-  }
 }
