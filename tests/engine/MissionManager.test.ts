@@ -25,7 +25,7 @@ describe("MissionManager", () => {
     prng = new PRNG(12345);
     state = createMockGameState();
     // EnemyManager needs some dependencies but for MissionManager setup we might just need a mock or simple instance
-    enemyManager = new EnemyManager();
+    enemyManager = new EnemyManager({} as any);
   });
 
   describe("setupMission", () => {

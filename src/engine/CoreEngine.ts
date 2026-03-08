@@ -102,7 +102,7 @@ export class CoreEngine {
       this.doorManager.getDoors(),
     );
 
-    this.enemyManager = new EnemyManager();
+    this.enemyManager = new EnemyManager(this.gameGrid);
     this.unitManager = new UnitManager(
       this.gameGrid,
       this.pathfinder,
@@ -630,6 +630,7 @@ export class CoreEngine {
       this.los,
       this.prng,
       this.unitManager.getCombatManager(),
+      this.doorManager.getDoors(),
     );
 
     // 7. Turrets

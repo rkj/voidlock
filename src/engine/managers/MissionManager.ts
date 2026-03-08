@@ -218,6 +218,7 @@ export class MissionManager {
               nodeType === "Boss"
                 ? HIVE.BOSS_DIFFICULTY
                 : HIVE.ELITE_DIFFICULTY,
+            state: UnitState.Idle,
           });
 
           objectives.push({
@@ -266,6 +267,7 @@ export class MissionManager {
           attackRange: 0,
           speed: 0,
           difficulty: HIVE.NORMAL_DIFFICULTY,
+          state: UnitState.Idle,
         });
 
         state.objectives.push({

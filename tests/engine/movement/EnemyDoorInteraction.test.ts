@@ -59,6 +59,7 @@ describe("Enemy Door Interaction", () => {
       hp: 100,
       maxHp: 100,
       type: EnemyType.SwarmMelee,
+      state: UnitState.Idle,
       damage: 10,
       fireRate: 100,
       accuracy: 1000,
@@ -94,27 +95,63 @@ describe("Enemy Door Interaction", () => {
     });
 
     // Run updates. Door open duration is 0.1s (100ms).
-    // Tick 1: Enemy is at (0,0). Door logic checks adjacency. Should trigger open.
-    engine.update(100);
+    // Tick 1: Enemy is at (0.5, 0.5). Door logic checks adjacency. Should trigger open.
+    engine.update(16);
 
     let door = engine.getState().map.doors![0];
     let enemy = engine.getState().enemies[0];
 
-    // Door should be opening or open
+    // Door should be opening
     expect(door.openTimer).toBeDefined();
+    // Enemy should be in Waiting for Door state because door is still Closed
+    expect(enemy.state).toBe(UnitState.WaitingForDoor);
 
-    // Tick 2: Timer expires
-    engine.update(100);
+    // Tick 2: Timer expires (enough to cross 100ms open duration)
+    engine.update(128); // 8 * 16ms
     door = engine.getState().map.doors![0];
-
     expect(door.state).toBe("Open");
 
     // Tick 3: Enemy moves through
     engine.update(100);
     enemy = engine.getState().enemies[0];
 
-    // Enemy speed is default? SwarmMelee usually fast?
-    // Let's check if it moved.
+    expect(enemy.state).toBe(UnitState.Moving);
     expect(enemy.pos.x).toBeGreaterThan(0.5);
+  });
+
+  it("should be blocked by a locked door", () => {
+    // Set door to Locked
+    const door = engine.getState().map.doors![0];
+    door.state = "Locked";
+    engine.doors.set(door.id, door);
+
+    // Enemy at (0.5, 0.5), moving to (1.5, 0.5)
+    engine.addEnemy({
+      id: "e1",
+      pos: { x: 0.5, y: 0.5 },
+      hp: 100,
+      maxHp: 100,
+      type: EnemyType.SwarmMelee,
+      state: UnitState.Idle,
+      damage: 10,
+      fireRate: 100,
+      accuracy: 1000,
+      attackRange: 1,
+      speed: 2,
+      difficulty: 1,
+      targetPos: { x: 1.5, y: 0.5 },
+      path: [{ x: 1, y: 0 }],
+    });
+
+    // Run updates
+    engine.update(100);
+
+    let enemy = engine.getState().enemies[0];
+    let doorState = engine.getState().map.doors![0].state;
+
+    expect(doorState).toBe("Locked");
+    // Enemy should be stuck and in Waiting for Door state
+    expect(enemy.state).toBe(UnitState.WaitingForDoor);
+    expect(enemy.pos.x).toBe(0.5); // Should not have moved
   });
 });

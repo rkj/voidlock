@@ -30,7 +30,7 @@ describe("Regression voidlock-uvkz: Mission objective overlap", () => {
       }
     }
 
-    const enemyManager = new EnemyManager();
+    const enemyManager = new EnemyManager({} as any);
     const state: GameState = {
       status: "InProgress",
       tick: 0,

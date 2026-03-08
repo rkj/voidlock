@@ -4,6 +4,8 @@ import {
   EnemyType,
   EnemyArchetypeLibrary,
   MissionType,
+  UnitState,
+  Door,
 } from "../../shared/types";
 import { GameGrid } from "../GameGrid";
 import { Pathfinder } from "../Pathfinder";
@@ -12,21 +14,21 @@ import { PRNG } from "../../shared/PRNG";
 import { IEnemyAI, SwarmMeleeAI } from "../ai/EnemyAI";
 import { RangedKiteAI } from "../ai/RangedKiteAI";
 import { CombatManager } from "./CombatManager";
+import { MovementManager } from "./MovementManager";
 import {
-  SPEED_NORMALIZATION_CONST,
   SCRAP_REWARDS,
 } from "../config/GameConstants";
 import { MathUtils } from "../../shared/utils/MathUtils";
 
-const EPSILON = 0.05;
-
 export class EnemyManager {
   private meleeAI: IEnemyAI;
   private rangedAI: IEnemyAI;
+  private movementManager: MovementManager;
 
-  constructor() {
+  constructor(gameGrid: GameGrid) {
     this.meleeAI = new SwarmMeleeAI();
     this.rangedAI = new RangedKiteAI();
+    this.movementManager = new MovementManager(gameGrid);
   }
 
   /**
@@ -47,8 +49,10 @@ export class EnemyManager {
     los: LineOfSight,
     prng: PRNG,
     combatManager: CombatManager,
+    doors: Map<string, Door>,
   ) {
     // 1. Mine Explosions (Can affect health of units/enemies)
+    // ... rest of the mine logic ...
     const triggeredMineIds = new Set<string>();
     state.mines.forEach((mine) => {
       const triggeringEnemy = state.enemies.find(
@@ -151,39 +155,17 @@ export class EnemyManager {
         if (isLockedInMelee) {
           currentEnemy.targetPos = undefined;
           currentEnemy.path = [];
+          currentEnemy.state = UnitState.Idle;
         } else {
-          const dist = MathUtils.getDistance(
-            currentEnemy.pos,
-            currentEnemy.targetPos,
+          currentEnemy = this.movementManager.handleMovement(
+            currentEnemy,
+            currentEnemy.speed,
+            dt,
+            doors
           );
-
-          const moveDist =
-            ((currentEnemy.speed / SPEED_NORMALIZATION_CONST) * dt) / 1000;
-
-          if (dist <= moveDist + EPSILON) {
-            currentEnemy.pos = { ...currentEnemy.targetPos };
-            currentEnemy.path = currentEnemy.path.slice(1);
-            if (currentEnemy.path.length > 0) {
-              currentEnemy.targetPos = MathUtils.getCellCenter(
-                currentEnemy.path[0],
-                currentEnemy.visualJitter,
-              );
-            } else {
-              currentEnemy.targetPos = undefined;
-            }
-          } else {
-            currentEnemy.pos = {
-              x:
-                currentEnemy.pos.x +
-                ((currentEnemy.targetPos.x - currentEnemy.pos.x) / dist) *
-                  moveDist,
-              y:
-                currentEnemy.pos.y +
-                ((currentEnemy.targetPos.y - currentEnemy.pos.y) / dist) *
-                  moveDist,
-            };
-          }
         }
+      } else if (!isAttacking && !currentEnemy.targetPos) {
+        currentEnemy.state = UnitState.Idle;
       }
 
       return currentEnemy;
