@@ -376,7 +376,7 @@ export class UnitManager {
       }
 
       if (!isAttacking) {
-        return this.movementManager.handleMovement(unit, dt, doors);
+        return this.movementManager.handleMovement(unit, unit.stats.speed, dt, doors);
       }
 
       // If we are RUSHing, RETREATing, EXTRACTing, or in IGNORE mode, we SHOULD be allowed to move while attacking
@@ -389,7 +389,7 @@ export class UnitManager {
         unit.activeCommand?.type === CommandType.EXTRACT ||
         unit.activeCommand?.label === "Extracting"
       ) {
-        let movedUnit = this.movementManager.handleMovement(unit, dt, doors);
+        let movedUnit = this.movementManager.handleMovement(unit, unit.stats.speed, dt, doors);
         if (movedUnit.state === UnitState.Moving) {
           movedUnit = { ...movedUnit, state: UnitState.Attacking };
         }
