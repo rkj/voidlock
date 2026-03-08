@@ -18,6 +18,7 @@ This directory contains the automated test suite for the game engine, using Vite
 - `regression_2zq4_visibility_pruning.test.ts`: Regression test for unit and entity visibility pruning based on LOS and debug mode.
 - `deployment_interaction.test.ts`: Verifies drag-and-drop deployment logic and mission start auto-exploration.
 - `LineOfSight_Precision.test.ts`: Verifies geometric precision for LOS/LOF, including door struts and unit radius (ADR 0026).
+- `ai/regression_2m8oi_8_ai_oscillation.test.ts`: Verifies AI plan commitment, oscillation prevention, and invalidation triggers (ADR 0056).
 
 ## Subdirectories
 
