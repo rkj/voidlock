@@ -8,6 +8,7 @@ import {
   UseItemCommand,
   MapDefinition,
   CellType,
+  UnitState,
 } from "../shared/types";
 import { PRNG } from "../shared/PRNG";
 import { IDirector, ItemEffectHandler } from "./interfaces/IDirector";
@@ -314,6 +315,7 @@ export class Director implements IDirector {
       attackRange: arch.attackRange,
       speed: arch.speed,
       difficulty,
+      state: UnitState.Idle,
     };
   }
 

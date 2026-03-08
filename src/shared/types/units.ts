@@ -301,6 +301,7 @@ export const EnemyArchetypeLibrary: {
 
 export type Enemy = Entity & {
   type: EnemyType;
+  state: UnitState;
   damage: number;
   fireRate: number;
   accuracy: number;

@@ -47,6 +47,12 @@ describe("Regression 7xph - Accuracy Stats Reset on Weapon Swap", () => {
       pos: { x: 2.2, y: 2.2 }, // Very close to unit at {2.5, 2.5}
       hp: 100,
       maxHp: 100,
+      damage: 10,
+      fireRate: 1000,
+      accuracy: 50,
+      attackRange: 1,
+      speed: 20,
+      difficulty: 1,
       state: UnitState.Idle,
     });
 
