@@ -1,4 +1,4 @@
-import { Unit, UnitState, CommandType, Door } from "../../shared/types";
+import { IMovableEntity, UnitState, CommandType, Door } from "../../shared/types";
 import { GameGrid } from "../GameGrid";
 import { SPEED_NORMALIZATION_CONST, MOVEMENT } from "../config/GameConstants";
 import { MathUtils } from "../../shared/utils/MathUtils";
@@ -6,22 +6,27 @@ import { MathUtils } from "../../shared/utils/MathUtils";
 export class MovementManager {
   constructor(private gameGrid: GameGrid) {}
 
-  public handleMovement(
-    unit: Unit,
+  /**
+   * Handles movement for any movable entity (Units or Enemies).
+   * Translates path data into position updates and handles door waiting.
+   */
+  public handleMovement<T extends IMovableEntity>(
+    entity: T,
+    speed: number,
     dt: number,
     doors: Map<string, Door>,
-  ): Unit {
-    if (!unit.targetPos) return unit;
+  ): T {
+    if (!entity.targetPos) return entity;
 
-    const dx = unit.targetPos.x - unit.pos.x;
-    const dy = unit.targetPos.y - unit.pos.y;
-    const dist = MathUtils.getDistance(unit.pos, unit.targetPos);
+    const dx = entity.targetPos.x - entity.pos.x;
+    const dy = entity.targetPos.y - entity.pos.y;
+    const dist = MathUtils.getDistance(entity.pos, entity.targetPos);
 
     const moveDist =
-      ((unit.stats.speed / SPEED_NORMALIZATION_CONST) * dt) / 1000;
+      ((speed / SPEED_NORMALIZATION_CONST) * dt) / 1000;
 
-    const currentCell = MathUtils.toCellCoord(unit.pos);
-    const nextCell = MathUtils.toCellCoord(unit.targetPos);
+    const currentCell = MathUtils.toCellCoord(entity.pos);
+    const nextCell = MathUtils.toCellCoord(entity.targetPos);
 
     if (
       (currentCell.x !== nextCell.x || currentCell.y !== nextCell.y) &&
@@ -34,39 +39,45 @@ export class MovementManager {
         false,
       )
     ) {
-      if (unit.state === UnitState.WaitingForDoor) return unit;
-      return { ...unit, state: UnitState.WaitingForDoor };
+      if (entity.state === UnitState.WaitingForDoor) return entity;
+      return { ...entity, state: UnitState.WaitingForDoor };
     } else if (dist <= moveDist + MOVEMENT.ARRIVAL_THRESHOLD) {
-      const nextPath = unit.path ? unit.path.slice(1) : [];
+      const nextPath = entity.path ? entity.path.slice(1) : [];
       if (nextPath.length === 0) {
-        return {
-          ...unit,
-          pos: { ...unit.targetPos },
+        let updated: any = {
+          ...entity,
+          pos: { ...entity.targetPos },
           path: undefined,
           targetPos: undefined,
           state: UnitState.Idle,
-          activeCommand:
-            unit.activeCommand?.type === CommandType.MOVE_TO
-              ? undefined
-              : unit.activeCommand,
         };
+
+        // Handle activeCommand specifically for Units
+        if ("activeCommand" in entity) {
+          const unit = entity as any;
+          if (unit.activeCommand?.type === CommandType.MOVE_TO) {
+            updated.activeCommand = undefined;
+          }
+        }
+
+        return updated as T;
       } else {
         return {
-          ...unit,
-          pos: { ...unit.targetPos },
+          ...entity,
+          pos: { ...entity.targetPos },
           path: nextPath,
-          targetPos: MathUtils.getCellCenter(nextPath[0], unit.visualJitter),
-        };
+          targetPos: MathUtils.getCellCenter(nextPath[0], entity.visualJitter),
+        } as T;
       }
     } else {
       return {
-        ...unit,
+        ...entity,
         pos: {
-          x: unit.pos.x + (dx / dist) * moveDist,
-          y: unit.pos.y + (dy / dist) * moveDist,
+          x: entity.pos.x + (dx / dist) * moveDist,
+          y: entity.pos.y + (dy / dist) * moveDist,
         },
         state: UnitState.Moving,
-      };
+      } as T;
     }
   }
 }

@@ -33,6 +33,19 @@ export type Entity = {
   visualJitter?: Vector2;
 };
 
+/**
+ * Interface for entities that can be moved by the MovementManager.
+ * Shared by Units and Enemies.
+ */
+export interface IMovableEntity {
+  id: string;
+  pos: Vector2;
+  targetPos?: Vector2;
+  path?: Vector2[];
+  visualJitter?: Vector2;
+  state?: UnitState;
+}
+
 export type Attacker = {
   id: string;
   pos: Vector2;
