@@ -23,6 +23,13 @@ export type ChannelingState = {
   targetId?: string; // ID of object/objective being interacted with
 };
 
+export type AIPlan = {
+  behavior: string; // Which behavior produced this plan ("Exploring", "Kiting", "Rushing", etc.)
+  goal: Vector2; // The final destination
+  committedUntil: number; // Game time (state.t) until which this plan cannot be overridden by same-or-lower priority
+  priority: number; // Priority level: 0=Safety, 1=Interaction, 2=Combat, 3=Objective, 4=Exploration
+};
+
 export type EngagementPolicy = "ENGAGE" | "IGNORE" | "AVOID";
 
 export type Entity = {
@@ -84,6 +91,7 @@ export type Unit = Entity & {
   lastAttackTime?: number;
   forcedTargetId?: string;
   explorationTarget?: Vector2;
+  activePlan?: AIPlan | null;
   aiEnabled?: boolean;
   activeCommand?: Command;
   channeling?: ChannelingState;

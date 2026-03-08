@@ -93,8 +93,22 @@ export class UnitAI {
     }
 
     // 3. Sequential behavior evaluation
-    for (const behavior of this.behaviors) {
+    for (let i = 0; i < this.behaviors.length; i++) {
+      const behavior = this.behaviors[i];
       const behaviorName = (behavior as any).constructor.name;
+      const priority = i; // Priorities are 0 to 4 based on index
+
+      // Plan Commitment Guard (ADR 0056)
+      if (
+        currentUnit.activePlan &&
+        state.t < currentUnit.activePlan.committedUntil
+      ) {
+        // Only evaluate behaviors with HIGHER priority (lower number) than activePlan.priority
+        if (priority >= currentUnit.activePlan.priority) {
+          continue;
+        }
+      }
+
       const result = behavior.evaluate(
         currentUnit,
         state,
@@ -105,7 +119,9 @@ export class UnitAI {
         director,
       );
       if (result.handled) {
-        Logger.debug(`UnitAI: unit ${currentUnit.id} handled by ${behaviorName}`);
+        Logger.debug(
+          `UnitAI: unit ${currentUnit.id} handled by ${behaviorName}`,
+        );
       }
       currentUnit = result.unit;
       if (result.handled) break;
