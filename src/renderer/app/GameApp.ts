@@ -28,6 +28,7 @@ import { TooltipManager } from "../ui/TooltipManager";
 import { InputDispatcher } from "../InputDispatcher";
 import { AppServiceRegistry } from "./AppServiceRegistry";
 import { Renderer } from "../Renderer";
+import { Logger } from "@src/shared/Logger";
 import { AdvisorOverlay } from "../ui/AdvisorOverlay";
 
 const VERSION = pkg.version;
@@ -222,11 +223,11 @@ export class GameApp {
       "screen-debrief",
       this.gameClient,
       () => {
-        console.log("[GameApp] Debrief continue clicked");
+        Logger.debug("[GameApp] Debrief continue clicked");
         this.debriefScreen.hide();
 
         const state = this.registry.campaignManager.getState();
-        console.log("[GameApp] State history length:", state?.history?.length);
+        Logger.debug("[GameApp] State history length:", state?.history?.length);
         if (
           state &&
           (state.status === "Victory" || state.status === "Defeat")
@@ -238,7 +239,7 @@ export class GameApp {
         if (state && state.history?.length === 1) {
           // Mission 2: Ready Room tutorial flow
           const nextNode = state.nodes.find((n) => n.status === "Accessible");
-          console.log("[GameApp] Mission 2 tutorial flow, nextNode:", nextNode?.id);
+          Logger.debug("[GameApp] Mission 2 tutorial flow, nextNode:", nextNode?.id);
           if (nextNode) {
             this.registry.navigationOrchestrator.onCampaignNodeSelect(nextNode);
             return;

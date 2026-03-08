@@ -100,7 +100,7 @@ export class UIBinder {
    */
   public sync(state: GameState) {
     if (this.bindings.length === 0) return;
-    // console.log(`[UIBinder] sync tick=${state.t}, bindings=${this.bindings.length}`);
+    // Logger.debug(`[UIBinder] sync tick=${state.t}, bindings=${this.bindings.length}`);
     for (const binding of this.bindings) {
       const rawValue = this.getValueByPath(state, binding.path);
       const value = binding.transformer ? binding.transformer(rawValue, state) : rawValue;
