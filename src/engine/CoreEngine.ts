@@ -31,6 +31,7 @@ import { TurretManager } from "./managers/TurretManager";
 import { CommandHandler } from "./managers/CommandHandler";
 import { LootManager } from "./managers/LootManager";
 import { UnitSpawner } from "./managers/UnitSpawner";
+import { MovementManager } from "./managers/MovementManager";
 
 export class CoreEngine {
   private prng: PRNG;
@@ -45,6 +46,7 @@ export class CoreEngine {
   private visibilityManager: VisibilityManager;
   private enemyManager: EnemyManager;
   private unitManager: UnitManager;
+  private movementManager: MovementManager;
   private turretManager: TurretManager;
   private lootManager: LootManager;
   private commandHandler: CommandHandler;
@@ -102,10 +104,12 @@ export class CoreEngine {
       this.doorManager.getDoors(),
     );
 
-    this.enemyManager = new EnemyManager(this.gameGrid);
+    this.movementManager = new MovementManager(this.gameGrid);
+    this.enemyManager = new EnemyManager(this.movementManager);
     this.unitManager = new UnitManager(
       this.gameGrid,
       this.pathfinder,
+      this.movementManager,
       this.los,
       agentControlEnabled,
     );

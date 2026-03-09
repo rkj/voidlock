@@ -14,6 +14,7 @@ import {
   createMockUnit,
 } from "@src/engine/tests/utils/MockFactory";
 import { EnemyManager } from "@src/engine/managers/EnemyManager";
+import { MovementManager } from "@src/engine/managers/MovementManager";
 
 describe("MissionManager", () => {
   let missionManager: MissionManager;

@@ -12,6 +12,7 @@ import { GameGrid } from "@src/engine/GameGrid";
 import { Pathfinder } from "@src/engine/Pathfinder";
 import { LineOfSight } from "@src/engine/LineOfSight";
 import { UnitManager } from "@src/engine/managers/UnitManager";
+import { MovementManager } from "@src/engine/managers/MovementManager";
 import { PRNG } from "@src/shared/PRNG";
 import { LootManager } from "@src/engine/managers/LootManager";
 
@@ -38,7 +39,8 @@ describe("Weapon System", () => {
     const doors = new Map();
     pathfinder = new Pathfinder(gameGrid.getGraph(), doors);
     los = new LineOfSight(gameGrid.getGraph(), doors);
-    unitManager = new UnitManager(gameGrid, pathfinder, los, true);
+    const movementManager = new MovementManager(gameGrid);
+    unitManager = new UnitManager(gameGrid, pathfinder, movementManager, los, true);
     prng = new PRNG(123);
     lootManager = new LootManager();
   });

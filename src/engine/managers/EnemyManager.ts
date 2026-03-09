@@ -24,10 +24,10 @@ export class EnemyManager {
   private rangedAI: IEnemyAI;
   private movementManager: MovementManager;
 
-  constructor(gameGrid: GameGrid) {
+  constructor(movementManager: MovementManager) {
     this.meleeAI = new SwarmMeleeAI();
     this.rangedAI = new RangedKiteAI();
-    this.movementManager = new MovementManager(gameGrid);
+    this.movementManager = movementManager;
   }
 
   /**

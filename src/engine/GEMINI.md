@@ -29,3 +29,4 @@ Core simulation logic for Voidlock. Deterministic, tick-based, runs in a Web Wor
 - Fixed-timestep loop with time scaling (0.1x to 10.0x).
 - Communicates with main thread via JSON-based protocol (Commands/Observations).
 - See `docs/ARCHITECTURE.md` for full system overview, relevant ADRs for specific decisions.
+- **Unified Movement (ADR 0054):** All movable entities (Units, Enemies) share the same `MovementManager` instance for physics, speed normalization, and door interactions.

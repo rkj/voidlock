@@ -8,6 +8,7 @@ import {
   GameState,
 } from "@src/shared/types";
 import { EnemyManager } from "@src/engine/managers/EnemyManager";
+import { MovementManager } from "@src/engine/managers/MovementManager";
 
 describe("Regression voidlock-uvkz: Mission objective overlap", () => {
   it("should not place dynamic objectives on top of enemy spawn points", () => {

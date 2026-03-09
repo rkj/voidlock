@@ -45,6 +45,7 @@ export class UnitManager {
   constructor(
     private gameGrid: GameGrid,
     private pathfinder: Pathfinder,
+    movementManager: MovementManager,
     los: LineOfSight,
     private agentControlEnabled: boolean,
   ) {
@@ -53,7 +54,7 @@ export class UnitManager {
       .cells.flat()
       .filter((c) => c.type === "Floor").length;
     this.statsManager = new StatsManager();
-    this.movementManager = new MovementManager(gameGrid);
+    this.movementManager = movementManager;
     this.combatManager = new CombatManager(los, this.statsManager);
     this.formationManager = new FormationManager();
     this.unitAi = new UnitAI(gameGrid, los);

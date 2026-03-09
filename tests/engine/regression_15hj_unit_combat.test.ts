@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { UnitManager } from "@src/engine/managers/UnitManager";
+import { MovementManager } from "@src/engine/managers/MovementManager";
 import { GameGrid } from "@src/engine/GameGrid";
 import { Pathfinder } from "@src/engine/Pathfinder";
 import { LineOfSight } from "@src/engine/LineOfSight";
@@ -41,7 +42,8 @@ describe("UnitManager Combat (15hj)", () => {
     grid = new GameGrid(map);
     pathfinder = new Pathfinder(grid.getGraph(), doors);
     los = new LineOfSight(grid.getGraph(), doors);
-    unitManager = new UnitManager(grid, pathfinder, los, true);
+    const movementManager = new MovementManager(grid);
+    unitManager = new UnitManager(grid, pathfinder, movementManager, los, true);
     prng = new PRNG(123);
     lootManager = new LootManager();
   });
@@ -79,7 +81,8 @@ describe("UnitManager Combat (15hj)", () => {
     grid = new GameGrid(map);
     pathfinder = new Pathfinder(grid.getGraph(), doors);
     los = new LineOfSight(grid.getGraph(), doors);
-    unitManager = new UnitManager(grid, pathfinder, los, true);
+    const movementManager = new MovementManager(grid);
+    unitManager = new UnitManager(grid, pathfinder, movementManager, los, true);
 
     const unit: Unit = {
       id: "u1",
