@@ -6,6 +6,7 @@ import {
   UnitState,
   EnemyType,
   AIProfile,
+  CommandType,
 } from "@src/shared/types";
 
 describe("AI Oscillation and Plan Commitment (voidlock-2m8oi.8)", () => {
@@ -244,9 +245,11 @@ describe("AI Oscillation and Plan Commitment (voidlock-2m8oi.8)", () => {
     expect(unit.activePlan?.priority).toBe(2);
     const originalPlan = unit.activePlan;
 
-    // Change profile to RETREAT. Normally it would want to "Retreat" (also Priority 2)
+    // Change profile to RETREAT. Normally it would want to "Retreating" (also Priority 2)
     // but it should stay on "Rushing" because it's committed.
-    (engine as any).state.units[0].aiProfile = AIProfile.RETREAT;
+    // Use an immutable-style update to change the state cleanly.
+    const internalState = (engine as any).state;
+    internalState.units[0] = { ...internalState.units[0], aiProfile: AIProfile.RETREAT };
     
     engine.update(16);
     unit = engine.getState().units[0];
