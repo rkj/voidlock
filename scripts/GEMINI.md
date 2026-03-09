@@ -19,6 +19,7 @@ All major utility scripts now support `--help` and `-h` flags for usage informat
 Processes raw assets from `NanoBanana Assets/` and prepares them for the game.
 
 Usage:
+
 ```bash
 npm run process-assets
 ```
@@ -34,11 +35,13 @@ Timeline automation now lives in `scripts/timeline/`.
 Builds `timeline/manifest.json` from git commits.
 
 Usage:
+
 ```bash
 npm run timeline:manifest -- --manifest timeline/manifest.json --mode all --max-count 0
 ```
 
 Args:
+
 - `--manifest` output manifest path (default `timeline/manifest.json`)
 - `--mode` `all|visual` (default `all`)
 - `--max-count` `0` means all commits (default `0`)
@@ -53,6 +56,7 @@ Args:
 Static scan per commit (no browser) to extract ids/screen/action hints.
 
 Usage:
+
 ```bash
 npm run timeline:analyze -- --manifest timeline/manifest.json --navigation-map timeline/navigation_map.json --max-count 0
 ```
@@ -64,6 +68,7 @@ npm run timeline:analyze -- --manifest timeline/manifest.json --navigation-map t
 Detects where screen topology changes and outputs eras.
 
 Usage:
+
 ```bash
 npm run timeline:topology -- --manifest timeline/manifest.json --navigation-map timeline/navigation_map.json --topology timeline/screen_topology_changes.json
 ```
@@ -75,6 +80,7 @@ npm run timeline:topology -- --manifest timeline/manifest.json --navigation-map 
 Builds a validation manifest from topology era starts plus first/last commit of each month.
 
 Usage:
+
 ```bash
 npm run timeline:era-manifest -- --manifest timeline/manifest.json --topology timeline/screen_topology_changes.json --out /tmp/manifest_eras.json
 ```
@@ -86,16 +92,19 @@ npm run timeline:era-manifest -- --manifest timeline/manifest.json --topology ti
 Builds per-era navigation playbooks.
 
 Usage (heuristic):
+
 ```bash
 npm run timeline:playbooks -- --manifest timeline/manifest.json --topology timeline/screen_topology_changes.json --navigation-map timeline/navigation_map.json --playbooks timeline/navigation_playbooks.json --commit-playbooks-jsonl timeline/commit_playbooks.jsonl --ui-elements-jsonl timeline/ui_elements.jsonl --provider heuristic
 ```
 
 Usage (LLM delegation):
+
 ```bash
 npm run timeline:playbooks -- --topology timeline/screen_topology_changes.json --navigation-map timeline/navigation_map.json --playbooks timeline/navigation_playbooks.json --provider gemini --execute true --agent-cmd "<cmd-with-{PROMPT_FILE}-and-{OUTPUT_FILE}>"
 ```
 
 Notes:
+
 - When external execution is enabled, prompt files are written to `timeline/playbook_prompts/`.
 - If no external command is configured, prompts are generated and heuristic playbooks are used.
 - Heuristic playbooks are click-only and derived from extracted commit IDs.
@@ -113,6 +122,7 @@ Notes:
 Compiles exact `commit -> actions` rows from an existing `navigation_playbooks.json` without regenerating era plans.
 
 Usage:
+
 ```bash
 npm run timeline:compile-playbooks -- --manifest timeline/manifest.json --playbooks timeline/navigation_playbooks.json --commit-playbooks-jsonl timeline/commit_playbooks.jsonl
 ```
@@ -124,17 +134,20 @@ npm run timeline:compile-playbooks -- --manifest timeline/manifest.json --playbo
 Captures commit screenshots with worktree + Puppeteer.
 
 Canonical quadrants:
+
 - `1 mission`
 - `2 main_menu` (optional)
 - `3 config` (optional)
 - `4 campaign` (optional)
 
 Usage:
+
 ```bash
 npm run timeline:capture -- --manifest timeline/manifest.json --screenshots screenshots --port 6080 --max-count 0 --navigation-map timeline/navigation_map.json --playbooks timeline/navigation_playbooks.json --commit-playbooks-jsonl timeline/commit_playbooks.jsonl
 ```
 
 Args:
+
 - `--manifest`
 - `--screenshots`
 - `--port` default `6080` (safe for Chromium)
@@ -152,6 +165,7 @@ Args:
 - `--debug-log` JSON diagnostic output path on abort (default `timeline/capture_debug.json`)
 
 Readiness protocol:
+
 - Start or reuse Vite for the checked-out commit.
 - Wait for port.
 - Wait for dev-server readiness signals in logs (`ready in`, `Local:`, `listening on`).
@@ -175,6 +189,7 @@ Readiness protocol:
 Prepares normalized frame assets and dedupes before render.
 
 Outputs:
+
 - `timeline/frames/quadrants/<datetime>_<sha>_<1|2|3|4>.png`
 - `timeline/frames/composite/<datetime>_<sha>.png`
 - `timeline/frame_index.json`
@@ -182,6 +197,7 @@ Outputs:
 Missing optional quadrants are replaced with an "UNDER CONSTRUCTION" placeholder.
 
 Usage:
+
 ```bash
 npm run timeline:analyze-frames -- --manifest timeline/manifest.json --screenshots screenshots --frame-index timeline/frame_index.json
 ```
@@ -193,6 +209,7 @@ npm run timeline:analyze-frames -- --manifest timeline/manifest.json --screensho
 Render-only step. Reads `frame_index.json`, outputs MP4.
 
 Usage:
+
 ```bash
 npm run timeline:render -- --frame-index timeline/frame_index.json --output timeline/voidlock_timeline_full.mp4
 ```
@@ -202,6 +219,7 @@ npm run timeline:render -- --frame-index timeline/frame_index.json --output time
 `scripts/timeline/run.sh`
 
 Usage:
+
 ```bash
 npm run timeline:run
 # or
@@ -211,11 +229,13 @@ npm run timeline:run
 ### Two-script Operator Flow
 
 Epoch-only validation:
+
 ```bash
 ./scripts/timeline/run_epoch_validation.sh
 ```
 
 Full deterministic run from saved playbooks (no agent):
+
 ```bash
 ./scripts/timeline/run_full_capture.sh
 ```
@@ -225,22 +245,26 @@ Full deterministic run from saved playbooks (no agent):
 `scripts/timeline/run_codex.sh`
 
 Runs the same pipeline but preconfigures Codex-backed playbook generation:
+
 - `PLAYBOOK_PROVIDER=codex`
 - `PLAYBOOK_EXECUTE=true`
 - `PLAYBOOK_AGENT_CMD='bash scripts/timeline/provider_codex.sh {PROMPT_FILE} {OUTPUT_FILE}'`
 
 Usage:
+
 ```bash
 ./scripts/timeline/run_codex.sh
 ```
 
 Provider wrapper:
+
 - `scripts/timeline/provider_codex.sh <PROMPT_FILE> <OUTPUT_FILE>`
 - Override binary path via `CODEX_BIN` (default `/home/rkj/.npm-global/bin/codex`).
 - Default model is `CODEX_MODEL=gpt-5-mini` (override if needed).
 - Provider executes Codex from a temporary `/tmp` working directory so playbook generation does not inspect repository source files.
 
 Env overrides:
+
 - `MANIFEST`, `NAV_MAP`, `TOPOLOGY`, `PLAYBOOKS`, `SCREENSHOTS`, `FRAME_INDEX`, `OUTPUT`
 - `PORT`, `MAX_COUNT`, `MODE`
 - `SAMPLE_EVERY`, `SAMPLE_OFFSET`

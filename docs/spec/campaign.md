@@ -71,7 +71,7 @@ The campaign follows these fixed progression rules based on **Rank** (the column
   - **Supply Depot (Shop):** Purchase equipment/recruits. No combat.
   - **Event:** Narrative choices with Risk/Reward (e.g., Search Derelict, Rescue Signal).
 
-### 3.2 Mission Launch \u0026 Node Interaction
+### 3.2 Mission Launch \\u0026 Node Interaction
 
 1. **Select Node:** Player chooses a node on the Sector Map.
    - **Combat / Elite / Boss:** Redirects to the **Equipment Screen** for squad preparation.
@@ -79,17 +79,21 @@ The campaign follows these fixed progression rules based on **Rank** (the column
    - **Event:** Opens an **Event Modal** for narrative resolution.
 1. **Equipment Screen (Combat only):**
    - **Manage Roster:** Assign gear, recruit new soldiers, heal wounded.
-   - **Launch:** Clicking \"Launch Mission\" starts the game immediately.
+   - **Launch:** Clicking "Launch Mission" starts the game immediately.
 
-### 3.3 Objectives \u0026 Optional Loot
+### 3.3 Objectives \\u0026 Optional Loot
 
-- **Primary Objectives:** Mandatory tasks (Recover Intel, Kill Hive, Escort VIP) required for mission success. These are tracked in the \"Objectives\" HUD.
+- **Primary Objectives:** Mandatory tasks (Recover Intel, Kill Hive, Escort VIP) required for mission success. These are tracked in the "Objectives" HUD.
+
 - **Optional Loot (Bonus):** Scrap Crates and Intel pickup items found in the world.
+
   - **Non-Mandatory:** Collecting bonus loot is NOT required to finish a mission or achieve victory.
   - **Tracking:** Bonus loot MUST NOT be listed in the Primary Objectives array or HUD. They are collected purely for resource gain.
 
 - **Earned:** Mission objectives, extraction, elite kills.
+
 - **Spent:**
+
   - **Recruitment:** Hiring soldiers (auto-generated names).
   - **Healing/Revival:** Restoring status.
   - **Equipment:** Purchasing persistent items.

@@ -5,6 +5,7 @@ This directory contains the application lifecycle and bootstrapping logic for th
 ## Architecture Decomposition (ADR 0047)
 
 `GameApp.ts` has been decomposed into specialized orchestrators to improve maintainability and adhere to SOLID principles:
+
 - **NavigationOrchestrator**: Handles screen transitions and shell synchronization.
 - **MissionRunner**: Manages mission lifecycle and callbacks.
 - **InputOrchestrator**: Consolidates tactical input handling (pan/zoom/unit selection).

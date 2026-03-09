@@ -7,6 +7,7 @@
 Voidlock is a single-player, Real-Time with Pause (RTwP) tactical squad combat game built for the web. The architecture follows a strict separation between simulation logic (deterministic, Web Worker-based) and presentation (Canvas + DOM UI).
 
 For detailed specifications, refer to:
+
 - [Simulation & Protocol](spec/simulation.md)
 - [World Model & Map](spec/map.md)
 - [User Interface](spec/ui.md)
@@ -15,18 +16,18 @@ For detailed specifications, refer to:
 
 ## Technology Stack
 
-| Component       | Technology    |
+| Component | Technology |
 |-----------------|---------------|
-| Language        | TypeScript    |
-| Build Tool      | Vite          |
-| Module System   | ES Modules    |
-| Rendering       | HTML5 Canvas + DOM |
-| Concurrency     | Web Workers   |
-| Storage         | LocalStorage  |
-| Test Framework  | Vitest        |
-| E2E Testing     | Puppeteer     |
+| Language | TypeScript |
+| Build Tool | Vite |
+| Module System | ES Modules |
+| Rendering | HTML5 Canvas + DOM |
+| Concurrency | Web Workers |
+| Storage | LocalStorage |
+| Test Framework | Vitest |
+| E2E Testing | Puppeteer |
 
----
+______________________________________________________________________
 
 ## 1. Module Boundaries
 
@@ -70,13 +71,13 @@ Static data definitions: content packs, maps, archetypes, tile definitions.
 Types, constants, and utilities shared across engine and renderer.
 
 - Core types: `Unit`, `MapDefinition`, `Command`, `GameState`
-- Protocol definitions: Worker <-> Main message types
+- Protocol definitions: Worker \<-> Main message types
 - PRNG implementation
 - Validation schemas
 
 **Constraints:** No dependencies on engine or renderer modules.
 
----
+______________________________________________________________________
 
 ## 2. Web Worker Architecture
 
@@ -100,21 +101,22 @@ Main Thread (UI)                    Worker Thread (Engine)
 
 ### 2.3 State Ownership
 
-| State               | Owner  | Mutability          |
+| State | Owner | Mutability |
 |----------------------|--------|---------------------|
 | Game State (canonical) | Worker | Mutable (via commands) |
-| UI State (snapshot)    | Main   | Read-only (replaced each tick) |
-| Input State            | Main   | Mutable (local)     |
-| Campaign Save          | Main   | LocalStorage        |
-| Replay Log             | Worker | Append-only         |
+| UI State (snapshot) | Main | Read-only (replaced each tick) |
+| Input State | Main | Mutable (local) |
+| Campaign Save | Main | LocalStorage |
+| Replay Log | Worker | Append-only |
 
----
+______________________________________________________________________
 
 ## 3. Core Systems
 
 ### Manager Pattern
 
 CoreEngine delegates to specialized managers:
+
 ```
 CoreEngine
 ├── MissionManager       # Objectives, win/loss conditions
@@ -137,6 +139,7 @@ Edge-based map representation (ADR 0001): boundaries between cells are first-cla
 ### AI System
 
 **Unit AI** uses behavior composition with committed plans (ADR 0056):
+
 ```
 Behaviors (priority order):
 1. SafetyBehavior     — Retreat when low HP, kiting
@@ -156,17 +159,17 @@ All game actions are `Command` objects (MOVE_TO, OPEN_DOOR, SET_ENGAGEMENT, etc.
 
 Persistent strategic layer: soldier roster with XP/leveling, sector map (DAG), resource economy (scrap, intel), death rules, random events.
 
----
+______________________________________________________________________
 
 ## 4. Render Pipeline
 
 ### Layer Stack (bottom to top)
 
 1. **MapLayer** — Floor, walls, grid
-2. **MapEntityLayer** — Doors, objectives, loot (respects FOW)
-3. **UnitLayer** — Soldiers, enemies, health bars
-4. **EffectLayer** — Tracers, explosions, damage numbers
-5. **OverlayLayer** — Selection, targeting, debug
+1. **MapEntityLayer** — Doors, objectives, loot (respects FOW)
+1. **UnitLayer** — Soldiers, enemies, health bars
+1. **EffectLayer** — Tracers, explosions, damage numbers
+1. **OverlayLayer** — Selection, targeting, debug
 
 ### Visual Modes
 
@@ -179,7 +182,7 @@ Persistent strategic layer: soldier roster with XP/leveling, sector map (DAG), r
 - **Classic (Shroud)**: Undiscovered=black, Discovered=geometry only, Visible=full
 - **Hardcore**: Out of LOS reverts to black
 
----
+______________________________________________________________________
 
 ## 5. Determinism & Replay
 
@@ -190,7 +193,7 @@ A mission is fully reproducible from: PRNG seed + content pack + config + comman
 - Command log captures full session history
 - Replay: re-initialize with same seed/config, inject commands at recorded ticks
 
----
+______________________________________________________________________
 
 ## 6. Testing Strategy
 
@@ -201,18 +204,18 @@ A mission is fully reproducible from: PRNG seed + content pack + config + comman
 - **E2E tests:** Full mission playthrough via Puppeteer
 - All tests in `tests/` directory (mirrors `src/` structure)
 
----
+______________________________________________________________________
 
 ## 7. Key Design Principles
 
 1. **Separation of Concerns:** Engine (simulation) / Renderer (presentation) / Content (data)
-2. **Determinism First:** Worker owns PRNG, all state driven by commands
-3. **Single Source of Truth:** Worker owns canonical GameState
-4. **Performance via Isolation:** Web Worker offloads heavy computation
-5. **Testability:** Pure functions, dependency injection, micro-maps
-6. **Modularity:** Content packs, swappable map generators, multiple visual styles
+1. **Determinism First:** Worker owns PRNG, all state driven by commands
+1. **Single Source of Truth:** Worker owns canonical GameState
+1. **Performance via Isolation:** Web Worker offloads heavy computation
+1. **Testability:** Pure functions, dependency injection, micro-maps
+1. **Modularity:** Content packs, swappable map generators, multiple visual styles
 
----
+______________________________________________________________________
 
 ## References
 

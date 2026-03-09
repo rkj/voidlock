@@ -1,31 +1,35 @@
 # ADR 0057: Tutorial Redesign - Scripted Scenario with Visible Controls
 
 ## Status
+
 Proposed
 
 ## Context
 
 ### The Problem
+
 The current tutorial (Prologue Mission 1) is broken and provides a terrible first-time player experience. Specific issues:
 
 1. **Hidden controls**: The HUD is completely hidden (`setMissionHUDVisible(false)`) at mission start. The soldier panel, command buttons, threat meter, and objectives panel are all invisible. The player has no way to issue commands except by already knowing keyboard shortcuts ([1-4] for selection) or clicking directly on the map.
 
-2. **Chicken-and-egg UI disclosure**: The HUD is only revealed when the `objective_sighted` tutorial step triggers, which requires the player to navigate across the entire map to get LOS on the objective. But the commands needed to navigate are hidden in the HUD. The "start" blocking message tells the player to "select a unit with [1-4]" but the soldier panel itself is invisible.
+1. **Chicken-and-egg UI disclosure**: The HUD is only revealed when the `objective_sighted` tutorial step triggers, which requires the player to navigate across the entire map to get LOS on the objective. But the commands needed to navigate are hidden in the HUD. The "start" blocking message tells the player to "select a unit with [1-4]" but the soldier panel itself is invisible.
 
-3. **Invulnerable soldier with no stakes**: The soldier's HP is clamped to 1, so the player can just stand and trade blows with the XenoMite forever. There is no sense of danger, urgency, or consequence. The tutorial teaches players that combat doesn't matter.
+1. **Invulnerable soldier with no stakes**: The soldier's HP is clamped to 1, so the player can just stand and trade blows with the XenoMite forever. There is no sense of danger, urgency, or consequence. The tutorial teaches players that combat doesn't matter.
 
-4. **No Director suppression**: The Director runs identically to normal missions. It can spawn additional enemies during the prologue, creating unscripted chaos in what should be a tightly controlled environment.
+1. **No Director suppression**: The Director runs identically to normal missions. It can spawn additional enemies during the prologue, creating unscripted chaos in what should be a tightly controlled environment.
 
-5. **Blind exploration model**: The tutorial relies on the regular AI (auto-explore) to carry the player forward. There is no scripted movement guidance (e.g., waypoints, highlighted cells). The player either watches the AI play itself or tries to click on the map with no visible feedback.
+1. **Blind exploration model**: The tutorial relies on the regular AI (auto-explore) to carry the player forward. There is no scripted movement guidance (e.g., waypoints, highlighted cells). The player either watches the AI play itself or tries to click on the map with no visible feedback.
 
-6. **Sequential step dependencies are fragile**: Each tutorial step requires the previous one to complete (`completedSteps.has("enemy_sighted") && checkObjectiveVisible(state)`). If any step's condition fails or fires out of order, the entire sequence breaks silently.
+1. **Sequential step dependencies are fragile**: Each tutorial step requires the previous one to complete (`completedSteps.has("enemy_sighted") && checkObjectiveVisible(state)`). If any step's condition fails or fires out of order, the entire sequence breaks silently.
 
 ### Prior Work
+
 - ADR 0042: Original prologue design (Advisor system, static map, sequential zones)
 - ADR 0049: Progressive disclosure (UI lockdown, multi-mission unlock sequence)
 - The implementation partially followed these ADRs but the result is not playable
 
 ### What Other Games Do
+
 Good tutorials in tactical games (XCOM, Into the Breach, Invisible Inc, Fire Emblem) share common patterns:
 
 - **Controls are always visible.** The tutorial highlights specific UI elements, it never hides them. Hiding the entire HUD is hostile to the player.
@@ -114,6 +118,7 @@ TutorialStep {
 ```
 
 The step engine:
+
 - Maintains a `currentStepIndex: number`
 - On each game state update, checks ONLY the current step's completion condition (not all steps)
 - Advances to the next step when the condition is met
@@ -126,17 +131,21 @@ The progressive unlock flow for Mission 2 (Ready Room) and Mission 3 (Sector Map
 ## Alternatives Considered
 
 ### Keep hidden HUD with better messaging
+
 Could improve the blocking messages to be more explicit about keyboard shortcuts. Rejected because hiding the entire UI is fundamentally hostile -- the player should always see what's available, even if some parts are disabled.
 
 ### Full non-interactive cinematic
+
 Replace the tutorial with a video or scripted animation showing gameplay. Rejected because learn-by-doing is always more effective than learn-by-watching, and it would require significant asset creation.
 
 ### Skip tutorial entirely, use tooltips
+
 Show contextual tooltips on first encounter with each mechanic. Rejected because tooltips are easily dismissed and forgotten, and don't provide the scripted "safe first encounter" that a prologue provides.
 
 ## Consequences
 
 ### Positive
+
 - Player always sees the full UI, reducing confusion
 - Directed steps eliminate the "what do I do?" paralysis
 - Honest difficulty teaches real combat consequences
@@ -145,46 +154,56 @@ Show contextual tooltips on first encounter with each mechanic. Rejected because
 - Completable in 2-3 minutes (shortest mission)
 
 ### Negative
+
 - Requires a highlight/pulse system for UI elements (new visual component)
 - Input gating requires integration with the command system to filter allowed actions
 - Removing invulnerability requires tuning the tutorial enemy to be very weak
 - Scripted rescue (if soldier "dies") is a new mechanic only used once
 
 ### Migration
+
 - ADR 0042 and 0049 are superseded for Mission 1 behavior. Their concepts for Mission 2/3 progressive unlock remain valid.
 - The existing TutorialManager, AdvisorOverlay, and prologue map are refactored, not replaced.
 
 ## Implementation Scope
 
 **Task 1: Always-visible HUD + highlight system**
+
 - UIOrchestrator.ts (remove setMissionHUDVisible(false) for prologue)
 - New highlight component (CSS pulse/arrow overlay)
 - TutorialManager.ts (highlight API)
 
 **Task 2: Tutorial step engine (state machine)**
+
 - TutorialManager.ts (replace condition-chain with step machine)
 - Define step sequence with directives + completion conditions
 
 **Task 3: Input gating during tutorial steps**
+
 - CommandExecutor or MenuController (filter allowed actions per step)
 - TutorialManager.ts (expose current allowed actions)
 
 **Task 4: Director suppression in prologue**
+
 - Director.ts (skip spawning when MissionType.Prologue)
 
 **Task 5: Honest difficulty (remove invulnerability, weak enemy, scripted rescue)**
+
 - CombatManager.ts (remove HP clamp)
 - EnemyManager.ts (remove HP clamp)
 - GameConstants.ts or prologue config (tutorial enemy stats)
 - TutorialManager.ts (scripted rescue logic)
 
 **Task 6: Updated prologue map + medkit placement**
+
 - prologue.json (update map, add medkit loot)
 
 **Task 7: Regression tests**
+
 - Tests for step sequencing, highlight triggers, input gating, Director suppression
 
 ## References
+
 - ADR 0042: Tutorial System - The Prologue (original design, partially superseded)
 - ADR 0049: Guided Progressive Disclosure (Mission 2/3 flow, still valid)
 - `docs/spec/tutorial.md` (spec to be updated alongside this ADR)
